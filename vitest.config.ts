@@ -20,6 +20,8 @@ export default defineConfig({
           name: "sim",
           environment: "node",
           include: ["packages/sim/src/**/*.test.ts"],
+          // The sweep plays hundreds of months per property run.
+          testTimeout: 60000,
         },
       },
       {
