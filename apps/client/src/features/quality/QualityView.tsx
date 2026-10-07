@@ -17,25 +17,49 @@ function valueWords(id: string, value: number): string {
   return hasWords(label) ? say(label) : formatNumber(value);
 }
 
+/**
+ * Qualities that only start to count once you have left. At home they sit at
+ * nothing for most lives, so they wait in one folded group until they move.
+ */
+const LATER = new Set(["quality.credit-mark", "quality.care", "quality.family-stake", "quality.land"]);
+
+function Quality({ id, value }: { id: string; value: number }) {
+  const entry = content.quality[id as keyof typeof content.quality];
+  const ranged = entry !== undefined && id !== AGE && !hasWords(`${id}.value.${String(value)}`);
+  return (
+    <div className="flex flex-col gap-1">
+      <dt className="text-sm text-muted">{nameOf(id)}</dt>
+      <dd className="font-semibold">{valueWords(id, value)}</dd>
+      {ranged ? <Meter value={value - entry.min} max={entry.max - entry.min} label={nameOf(id)} tone="ink" /> : null}
+    </div>
+  );
+}
+
 export function QualityView() {
   const view = useView();
   const shown = view.qualities.filter((quality) => content.quality[quality.id]?.shown === true);
+  const atHome = view.place.where === "home";
+  const waiting = (quality: { id: string; value: number }) => atHome && LATER.has(quality.id) && quality.value === 0;
+  const now = shown.filter((quality) => !waiting(quality));
+  const later = shown.filter(waiting);
   return (
     <Panel title={say("ui.profile.title")}>
-      <Card>
+      <Card className="flex flex-col gap-4">
         <dl className="grid gap-3 @sm:grid-cols-2">
-          {shown.map(({ id, value }) => {
-            const entry = content.quality[id];
-            const ranged = entry !== undefined && id !== AGE && !hasWords(`${id}.value.${String(value)}`);
-            return (
-              <div key={id} className="flex flex-col gap-1">
-                <dt className="text-sm text-muted">{nameOf(id)}</dt>
-                <dd className="font-semibold">{valueWords(id, value)}</dd>
-                {ranged ? <Meter value={value - entry.min} max={entry.max - entry.min} label={nameOf(id)} tone="ink" /> : null}
-              </div>
-            );
-          })}
+          {now.map(({ id, value }) => (
+            <Quality key={id} id={id} value={value} />
+          ))}
         </dl>
+        {later.length === 0 ? null : (
+          <details className="border-t border-line pt-3" data-later>
+            <summary className="cursor-pointer text-sm font-semibold">{say("ui.profile.later")}</summary>
+            <dl className="mt-3 grid gap-3 @sm:grid-cols-2">
+              {later.map(({ id, value }) => (
+                <Quality key={id} id={id} value={value} />
+              ))}
+            </dl>
+          </details>
+        )}
       </Card>
     </Panel>
   );

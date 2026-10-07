@@ -4,6 +4,7 @@ import { describe, expect, test } from "vitest";
 
 import { engineView } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
+import { say } from "../../shared/words/text";
 import { QualityView } from "./QualityView";
 
 describe("the profile", () => {
@@ -20,5 +21,25 @@ describe("the profile", () => {
     await renderWithView(<QualityView />, view);
     const level = view.qualities.find((quality) => quality.id === "quality.edu-level")!;
     expect(screen.getByText(text[`quality.edu-level.value.${String(level.value)}`]!)).toBeDefined();
+  });
+
+  test("given a life at home, then the qualities that count abroad and sit at nothing wait in one closed group", async () => {
+    const view = engineView();
+    await renderWithView(<QualityView />, view);
+    const later = document.querySelector("details[data-later]");
+    if (!(later instanceof HTMLDetailsElement)) throw new Error("There is no later group.");
+    expect(later.open).toBe(false);
+    expect(later.textContent).toContain(say("ui.profile.later"));
+    for (const id of ["quality.credit-mark", "quality.care"] as const) expect(later.textContent).toContain(text[`${id}.name`]!);
+    expect(later.textContent).not.toContain(text["quality.english.name"]!);
+  });
+
+  test("given an abroad quality that has moved at home, then it shows with the rest", async () => {
+    const view = engineView();
+    const qualities = view.qualities.map((quality) => (quality.id === "quality.land" ? { ...quality, value: 1 } : quality));
+    await renderWithView(<QualityView />, { ...view, qualities });
+    const later = document.querySelector("details[data-later]");
+    expect(later?.textContent ?? "").not.toContain(text["quality.land.name"]!);
+    expect(screen.getByText(text["quality.land.name"]!)).toBeDefined();
   });
 });
