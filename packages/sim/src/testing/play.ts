@@ -1,9 +1,10 @@
 // A small game handle for rule tests: start a life, send commands, end turns,
 // read the view. The tick advances by one for each turn played, as the first
 // milestone's clock does (engine.md section 7).
+import type { Registry } from "../engine/kind";
 import { newSave, recordCommand } from "../engine/replay";
 import { newState } from "../engine/state";
-import { step } from "../engine/step";
+import { stepWith } from "../engine/step";
 import type {
   Command,
   Content,
@@ -19,6 +20,7 @@ import type {
   World,
 } from "../engine/types";
 import { viewFor } from "../engine/view";
+import { registry } from "../kinds";
 import { standInWorld } from "../world/standIn";
 import { miniContent } from "./miniContent";
 
@@ -29,6 +31,8 @@ export interface StartOptions {
   content?: Content;
   /** A world builder other than the stand-in, for tests that fix the world. */
   worldAt?: (tick: number) => World;
+  /** The registry to step with, for tests that watch a real kind at work. The real one by default. */
+  kinds?: Registry;
 }
 
 /** A command without `basedOn`: the handle fills it from the state. */
@@ -59,6 +63,7 @@ export function start(options: StartOptions = {}): Game {
   const seed = options.seed ?? "seed-1";
   const worldSeed = options.worldSeed ?? "world-1";
   const worldAt = options.worldAt ?? ((tick: number) => standInWorld(worldSeed, tick, content));
+  const kinds = options.kinds ?? registry();
 
   const game: Game = {
     content,
@@ -70,7 +75,7 @@ export function start(options: StartOptions = {}): Game {
     send(loose, sender = "player") {
       const command: Command = { ...loose, basedOn: game.state.v };
       const world = game.world();
-      const result = step(game.state, command, world, content, sender);
+      const result = stepWith(kinds, game.state, command, world, content, sender);
       if (result.ok) {
         game.state = result.state;
         game.save = recordCommand(game.save, command, world.tick, sender);

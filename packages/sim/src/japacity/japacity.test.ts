@@ -7,7 +7,8 @@ import type { Content, Effect, Id, ReadCtx, RouteEntry, RouteStateName } from ".
 import { miniContent } from "../testing/miniContent";
 import { start } from "../testing/play";
 import type { Game } from "../testing/play";
-import { carryOut, judgeWith, setRoute } from "./japacity.fixtures";
+import { offeredWith, readyLife, toApplied, toDecision, toHeard, toKnown } from "../route/route.journey";
+import { carryOut, judgeWith, writeRoute } from "./japacity.fixtures";
 import { checklistView, japacity, routePercent } from "./japacity.logic";
 
 const UK: Id<"route"> = "route.uk-masters";
@@ -33,6 +34,51 @@ function readOf(game: Game, window?: number): ReadCtx {
 
 function ada(used: Content = content): Game {
   return start({ scenario: "scenario.ada", content: used });
+}
+
+/** Ada with the route heard of and looked into, month by month through the real route kind. */
+function adaKnown(used: Content = content): Game {
+  const game = ada(used);
+  toKnown(game);
+  return game;
+}
+
+/** Never refused: the floor and the ceiling of R-ROUTE-016 pinned together. */
+const ALWAYS_GRANTED = { refusalMinBp: 0, refusalMaxBp: 0 };
+
+/** The first seed whose first Northgate answer is an offer for Ada's grade. */
+const OFFERED = (() => {
+  for (let i = 0; i < 1000; i += 1) {
+    const seed = `seed-${String(i)}`;
+    if (offeredWith(seed, content, "school.northgate", content.scenario["scenario.ada"]!.qualities["quality.edu-grade"] ?? 0)) return seed;
+  }
+  throw new Error("No seed gives an offer.");
+})();
+
+/**
+ * Ada with her papers and money in hand, played through the real route kind
+ * to the visa application, the grant, or the flight.
+ */
+function readyAt(to: "applying" | "granted" | "departed"): Game {
+  const game = readyLife(content, { seed: OFFERED, tuning: ALWAYS_GRANTED });
+  if (to === "applying") {
+    toApplied(game);
+    return game;
+  }
+  toDecision(game);
+  if (to === "departed") game.accept({ type: "route/depart", route: UK });
+  return game;
+}
+
+/** Every pound in the bank moved to cash, where it never counts as funds shown (R-ROUTE-010). */
+function poundsToCash(game: Game): void {
+  game.accept({ type: "wallet/move", currency: "GBP", amount: game.state.wallet.pockets.GBP.bank, to: "cash" });
+}
+
+/** Months pass until both routes are heard of. */
+function bothHeard(game: Game): void {
+  for (let month = 0; month < 5 && (game.state.route[UK]?.state === "unknown" || game.state.route[TWIN]?.state === "unknown"); month += 1) game.endTurn();
+  expect([game.state.route[UK]?.state, game.state.route[TWIN]?.state]).toEqual(["heard", "heard"]);
 }
 
 /** Sets a quality to a value through `quality/add`, which clamps. */
@@ -62,8 +108,7 @@ function withTwin(first: boolean): Content {
 
 describe("a route's figure", () => {
   test("[R-JAPACITY-001] given Ada with the route known, when the figure is worked out, then the met items earn their whole weight and every other item nothing", () => {
-    const game = ada();
-    setRoute(game, UK, "known");
+    const game = adaKnown();
     const read = readOf(game);
     // Her degree and her second upper are met; nothing else on the list is yet.
     expect(routePercent(read, UK, judgeWith(read))).toBe(weight("degree") + weight("grade"));
@@ -74,8 +119,7 @@ describe("a route's figure", () => {
   });
 
   test("[R-JAPACITY-001] given Ada with the route known, when her passport and transcript are issued, then each adds its whole weight", () => {
-    const game = ada();
-    setRoute(game, UK, "known");
+    const game = adaKnown();
     carryOut(game, [{ type: "document/grant", document: "document.passport" }]);
     let read = readOf(game);
     expect(routePercent(read, UK, judgeWith(read))).toBe(weight("degree") + weight("grade") + weight("passport"));
@@ -85,8 +129,7 @@ describe("a route's figure", () => {
   });
 
   test("[R-JAPACITY-001] given a slow item, when have moves from 0 to the need, then it earns weight times have over need rounded down, and its whole weight once met", () => {
-    const game = ada(slowEnglish);
-    setRoute(game, UK, "known");
+    const game = adaKnown(slowEnglish);
     const english = weight("english");
     const base = weight("degree") + weight("grade");
     const earnedAt = (value: number): number => {
@@ -106,8 +149,7 @@ describe("a route's figure", () => {
   });
 
   test("[R-JAPACITY-001] given a slow item part filled, when the checklist is shown, then it carries have and need and the share it earned", () => {
-    const game = ada(slowEnglish);
-    setRoute(game, UK, "known");
+    const game = adaKnown(slowEnglish);
     setQuality(game, "quality.english", 55);
     const read = readOf(game);
     const item = checklistView(read, UK, judgeWith(read)).find((candidate) => candidate.id === "english");
@@ -116,8 +158,12 @@ describe("a route's figure", () => {
 
   test("[R-JAPACITY-002] given a route granted or departed, when the figure is worked out, then it is 100 whatever the checklist says", () => {
     for (const to of ["granted", "departed"] as const) {
-      const game = ada();
-      setRoute(game, UK, to);
+      const game = readyLife(content, { seed: OFFERED, tuning: ALWAYS_GRANTED });
+      toDecision(game);
+      // With the pounds in cash the funds are not shown, so the checklist has unmet items.
+      poundsToCash(game);
+      if (to === "departed") game.accept({ type: "route/depart", route: UK });
+      expect(game.state.route[UK]?.state).toBe(to);
       const read = readOf(game);
       expect(checklistView(read, UK).some((item) => !item.met)).toBe(true);
       expect(routePercent(read, UK)).toBe(100);
@@ -127,17 +173,16 @@ describe("a route's figure", () => {
   test("[R-JAPACITY-005] given a route only heard of, or unknown, when the figure is asked for, then there is none", () => {
     const game = ada();
     expect(routePercent(readOf(game), UK)).toBeNull();
-    setRoute(game, UK, "heard");
+    toHeard(game);
     expect(routePercent(readOf(game), UK)).toBeNull();
-    setRoute(game, UK, "known");
+    toKnown(game);
     expect(routePercent(readOf(game), UK)).not.toBeNull();
   });
 });
 
 describe("the character's japacity", () => {
   test("[R-JAPACITY-003] given a known route, when the window is open, narrowing or closed, then it counts at 2 and 1 and not at 0", () => {
-    const game = ada();
-    setRoute(game, UK, "known");
+    const game = adaKnown();
     const figure = weight("degree") + weight("grade");
     for (const window of [2, 1]) {
       const read = readOf(game, window);
@@ -149,23 +194,32 @@ describe("the character's japacity", () => {
 
   test("[R-JAPACITY-003] given a route applying, granted or departed, when the window is closed, then it still counts", () => {
     for (const to of ["applying", "granted", "departed"] as const) {
-      const game = ada();
-      setRoute(game, UK, to);
+      const game = readyAt(to);
+      expect(game.state.route[UK]?.state).toBe(to);
       const read = readOf(game, 0);
       const judge = judgeWith(read);
       expect(japacity(read, judge)).toEqual({ percent: routePercent(read, UK, judge), route: UK });
     }
-    const applying = ada();
-    setRoute(applying, UK, "applying");
+    // Applying, the figure is still the checklist's: with the pounds in cash the funds are short and not held.
+    const applying = readyAt("applying");
+    poundsToCash(applying);
     const read = readOf(applying, 0);
-    expect(japacity(read, judgeWith(read)).percent).toBe(weight("degree") + weight("grade") + weight("applied"));
+    const items = checklistView(read, UK, judgeWith(read));
+    expect(items.filter((item) => !item.met).map((item) => item.id)).toEqual(["funds", "held"]);
+    const funds = items.find((item) => item.id === "funds")!.earned;
+    expect(japacity(read, judgeWith(read)).percent).toBe(100 - weight("funds") - weight("held") + funds);
   });
 
   test("[R-JAPACITY-003] given no route that counts, when japacity is asked for, then it is empty", () => {
     const states: RouteStateName[] = ["unknown", "heard", "refused"];
     for (const to of states) {
       const game = ada();
-      if (to !== "unknown") setRoute(game, UK, to);
+      if (to === "heard") toHeard(game);
+      if (to === "refused") {
+        toKnown(game);
+        writeRoute(game, UK, "refused");
+      }
+      expect(game.state.route[UK]?.state).toBe(to);
       const read = readOf(game);
       expect(japacity(read, judgeWith(read))).toEqual({ percent: null, route: null });
     }
@@ -174,19 +228,27 @@ describe("the character's japacity", () => {
 
   test("[R-JAPACITY-003] given two routes, when one is higher, then japacity is the higher whatever the order", () => {
     for (const first of [true, false]) {
-      const game = ada(withTwin(first));
-      setRoute(game, UK, "known");
-      setRoute(game, TWIN, "granted");
+      const game = readyLife(withTwin(first), { seed: OFFERED, tuning: ALWAYS_GRANTED });
+      bothHeard(game);
+      // Looking into a route needs the UK route still heard, so the twin is looked into first.
+      game.endTurn([{ activity: "activity.look-into-route", param: TWIN }]);
+      toDecision(game);
+      // The twin's checklist reads the same file; with the pounds in cash its funds fall short.
+      poundsToCash(game);
+      expect([game.state.route[UK]?.state, game.state.route[TWIN]?.state]).toEqual(["granted", "known"]);
       const read = readOf(game);
-      expect(japacity(read, judgeWith(read))).toEqual({ percent: 100, route: TWIN });
+      expect(routePercent(read, TWIN, judgeWith(read))).toBeLessThan(100);
+      expect(japacity(read, judgeWith(read))).toEqual({ percent: 100, route: UK });
     }
   });
 
   test("[R-JAPACITY-003] given two routes with the same figure, when japacity is asked for, then the route first in content order is named", () => {
     for (const first of [true, false]) {
       const game = ada(withTwin(first));
-      setRoute(game, UK, "known");
-      setRoute(game, TWIN, "known");
+      bothHeard(game);
+      game.endTurn([{ activity: "activity.look-into-route", param: TWIN }]);
+      toKnown(game);
+      expect([game.state.route[UK]?.state, game.state.route[TWIN]?.state]).toEqual(["known", "known"]);
       const read = readOf(game);
       const result = japacity(read, judgeWith(read));
       expect(routePercent(read, UK, judgeWith(read))).toBe(routePercent(read, TWIN, judgeWith(read)));
@@ -234,12 +296,23 @@ describe("whole numbers, derived each time", () => {
   )(
     "[R-JAPACITY-004] [R-JAPACITY-006] given any life, when japacity is worked out twice and from a copy, then it is the same whole number from 0 to 100 and reads only the state, the world and the content",
     (scenario, to, window, held, english, seed) => {
+      const late = to === "applying" || to === "granted" || to === "departed";
+      // Past known, the life needs an offer from Northgate on its first answer; a seed that gives none is skipped.
+      fc.pre(!late || offeredWith(seed, content, "school.northgate", content.scenario[scenario]!.qualities["quality.edu-grade"] ?? 0));
       const build = (): Game => {
-        const game = start({ scenario, content, seed });
-        if (to !== "unknown") setRoute(game, UK, to);
+        // The route is moved by the real route kind. Past known, the life is a ready one built from the scenario.
+        const game = late ? readyLife(content, { from: scenario, seed, tuning: ALWAYS_GRANTED }) : start({ scenario, content, seed });
+        if (to === "heard") toHeard(game);
+        if (to === "known" || to === "refused") toKnown(game);
+        if (to === "refused") writeRoute(game, UK, "refused");
+        if (to === "applying") toApplied(game);
+        if (to === "granted" || to === "departed") toDecision(game);
         const effects: Effect[] = held.map((document) => ({ type: "document/grant", document }));
         if (effects.length > 0) carryOut(game, effects);
         setQuality(game, "quality.english", english);
+        // A departed life takes no more commands (R-TURN-007), so it flies last.
+        if (to === "departed") game.accept({ type: "route/depart", route: UK });
+        expect(game.state.route[UK]?.state).toBe(to);
         return game;
       };
       const one = build();

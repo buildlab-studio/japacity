@@ -32,4 +32,8 @@ export const setpieceText: Record<string, string> = {
   "setpiece.credibility-interview.q.living": "Where will you live, and what will it cost you a month?",
   "setpiece.credibility-interview.a.living.figures": "You give the hall, the rent and the bus fare.",
   "setpiece.credibility-interview.a.living.sort": "I will sort that out when I arrive.",
+
+  // Report lines. First drafts.
+  "line.setpiece.opened": "{setpiece}: {questions} questions to answer before the month can end.",
+  "line.setpiece.closed": "{setpiece} is over.",
 };

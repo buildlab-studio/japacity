@@ -3,8 +3,9 @@ import { describe, expect, test } from "vitest";
 
 import { check } from "../engine/check";
 import type { ChapterEntry, Content, Id, ReadCtx, ReportLine, State } from "../engine/types";
-import { endTurnWith, setRoute } from "../japacity/japacity.fixtures";
+import { writeRoute } from "../japacity/japacity.fixtures";
 import { registry } from "../kinds";
+import { slot, toHeard, toKnown } from "../route/route.journey";
 import { miniContent } from "../testing/miniContent";
 import { start } from "../testing/play";
 import type { Game } from "../testing/play";
@@ -52,16 +53,17 @@ describe("the first chapter", () => {
 describe("closing a chapter", () => {
   test("[R-CHAPTER-002] given every item of the current chapter met, when the turn ends, then it is done, the next by order opens and the bank is refilled", () => {
     const game = tunde();
-    setRoute(game, UK, "heard");
+    // The route is heard of by month 3 (R-ROUTE-003), but not yet looked into.
     for (let month = 0; month < 3; month += 1) {
-      const result = endTurnWith(game);
+      const result = game.endTurn();
       expect(result.events.filter((event) => event.type.startsWith("chapter/"))).toEqual([]);
     }
+    expect(game.state.route[UK]?.state).toBe("heard");
     expect(game.state.chapter).toEqual({ current: FEET, done: [] });
     expect(game.state.turn.banked).toBe(cap - 3);
 
-    setRoute(game, UK, "known");
-    const result = endTurnWith(game);
+    const result = game.endTurn([slot("activity.look-into-route", UK)]);
+    expect(game.state.route[UK]?.state).toBe("known");
     const types = result.events.map((event) => event.type);
     expect(result.events.find((event) => event.type === "chapter/closed")).toEqual({ type: "chapter/closed", chapter: FEET, next: FILE });
     // The close comes first, then the refill it pays for, then the report.
@@ -98,8 +100,8 @@ describe("closing a chapter", () => {
 
   test("[R-CHAPTER-002] given a chapter closing, when its lines are read, then the close asks for attention and the opening is quiet, and both have words", () => {
     const game = tunde();
-    setRoute(game, UK, "known");
-    const result = endTurnWith(game);
+    toHeard(game);
+    const result = game.endTurn([slot("activity.look-into-route", UK)]);
     expect(chapterLines(result.lines)).toEqual([
       { key: "line.chapter.closed", params: { chapter: FEET }, tone: "good", attention: true, counts: [] },
       { key: "line.chapter.opened", params: { chapter: FILE }, tone: "plain", attention: false, counts: [] },
@@ -125,10 +127,10 @@ describe("done stays done", () => {
 
   test("[R-CHAPTER-003] given chapter 1 done, when the route slips back to heard, then chapter 1 stays done and chapter 2 stays current", () => {
     const game = tunde();
-    setRoute(game, UK, "known");
-    endTurnWith(game);
-    setRoute(game, UK, "heard");
-    endTurnWith(game);
+    toKnown(game);
+    // No event takes a route back along an arrow (R-ROUTE-001), so the slip is written into the state.
+    writeRoute(game, UK, "heard");
+    game.endTurn();
     expect(game.state.chapter).toEqual({ current: FILE, done: [FEET] });
     expect(done(game, FEET)).toBe(true);
     expect(done(game, FILE)).toBe(false);

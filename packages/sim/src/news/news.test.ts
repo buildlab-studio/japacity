@@ -141,12 +141,15 @@ describe("for you", () => {
   });
 
   test("[R-NEWS-005] given every story touches a route the character does not know, when the view is read, then none is for you", () => {
-    const game = start({ scenario: "scenario.ada", content, worldSeed: "world-1" });
+    // Nobody can hear of the UK route in this copy, so every story stays outside "for you".
+    const deaf: Content = JSON.parse(JSON.stringify(content)) as Content;
+    for (const route of Object.values(deaf.route)) route.hearIf = [{ type: "quality/min", quality: "quality.edu-level", value: 99 }];
+    const game = start({ scenario: "scenario.ada", content: deaf, worldSeed: "world-1" });
     for (let month = 0; month < 20; month += 1) game.endTurn();
     const news = game.view().news;
     expect(news.length).toBeGreaterThan(0);
     expect(news.every((story) => !story.forYou)).toBe(true);
-    expect(news.map(({ id, stage, since }) => ({ id, stage, since }))).toEqual(standInWorld("world-1", 20, content).news);
+    expect(news.map(({ id, stage, since }) => ({ id, stage, since }))).toEqual(standInWorld("world-1", 20, deaf).news);
   });
 });
 
