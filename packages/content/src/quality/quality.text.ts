@@ -1,0 +1,31 @@
+// First drafts: the page gives meanings, not names.
+export const qualityText: Record<string, string> = {
+  "quality.age-months.name": "Age",
+  "quality.edu-level.name": "Education",
+  "quality.edu-grade.name": "Degree grade",
+  "quality.english.name": "English",
+  "quality.tech.name": "Tech skill",
+  "quality.interview-prep.name": "Interview prep",
+  "quality.portfolio.name": "Portfolio",
+  "quality.land.name": "Land",
+  "quality.network.name": "Network",
+  "quality.family-means.name": "Family means",
+  "quality.family-stake.name": "Family stake",
+  "quality.standing.name": "Standing",
+  "quality.wellbeing.name": "Wellbeing",
+  "quality.credit-mark.name": "Credit mark",
+
+  "quality.edu-level.value.0": "No schooling",
+  "quality.edu-level.value.1": "Secondary school",
+  "quality.edu-level.value.2": "Diploma",
+  "quality.edu-level.value.3": "Bachelor's degree",
+  "quality.edu-level.value.4": "Master's degree",
+  "quality.edu-level.value.5": "Doctorate",
+
+  "quality.edu-grade.value.0": "No grade",
+  "quality.edu-grade.value.1": "Pass",
+  "quality.edu-grade.value.2": "Third class",
+  "quality.edu-grade.value.3": "Second class lower",
+  "quality.edu-grade.value.4": "Second class upper",
+  "quality.edu-grade.value.5": "First class",
+};
