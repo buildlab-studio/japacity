@@ -17,10 +17,12 @@
     "bless": "tsx tools/bless.ts",
     "check": "tsx tools/check.ts",
     "dev": "pnpm --filter @japacity/client dev",
-    "build": "pnpm --filter @japacity/client build"
+    "build": "pnpm --filter @japacity/client build",
+    "test:browser": "playwright test -c apps/client/e2e/playwright.config.ts"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.63.0",
     "@types/node": "^24.19.1",
     "@vitejs/plugin-react": "^6.1.2",
     "@vitest/eslint-plugin": "^1.6.27",

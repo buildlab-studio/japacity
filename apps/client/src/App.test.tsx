@@ -1,9 +1,39 @@
-import { render, screen } from "@testing-library/react";
-import { expect, test } from "vitest";
-import { App } from "./App";
+import { content } from "@japacity/content";
+import { fireEvent, screen } from "@testing-library/react";
+import { render } from "@testing-library/react";
+import { describe, expect, test } from "vitest";
 
-test("the placeholder page renders the game name and links the simulation", () => {
-  render(<App />);
-  expect(screen.getByRole("heading", { name: "Japacity" })).toBeDefined();
-  expect(screen.getByTestId("sim-link").textContent).toMatch(/^Simulation linked/);
+import { App } from "./App";
+import { bootGame } from "./authority/boot";
+import { SAVE_KEY } from "./authority/local";
+import { nameOf, say } from "./shared/words/text";
+// Registers Testing Library's cleanup for this file.
+import "./shared/testing/render";
+
+function memoryStorage() {
+  const items = new Map<string, string>();
+  return { getItem: (key: string) => items.get(key) ?? null, setItem: (key: string, value: string) => void items.set(key, value) };
+}
+
+describe("the app", () => {
+  test("given no save, when a life is picked and a month ended, then the report shows month 1", async () => {
+    const store = bootGame({ storage: memoryStorage(), fastClock: true });
+    render(<App store={store} />);
+    expect(screen.getByRole("heading", { name: say("ui.life.title") })).toBeDefined();
+
+    const first = Object.keys(content.scenario)[0]!;
+    fireEvent.click(screen.getByRole("button", { name: `${say("ui.life.start")}: ${nameOf(first)}` }));
+    expect(await screen.findByRole("heading", { name: say("ui.month.planning", { month: 1 }) })).toBeDefined();
+
+    fireEvent.click(screen.getByRole("button", { name: say("ui.month.end") }));
+    expect(await screen.findByRole("dialog", { name: say("ui.report.title", { month: 1 }) })).toBeDefined();
+  });
+
+  test("given a save for older content, then the life chooser says the save could not come along", () => {
+    const storage = memoryStorage();
+    storage.setItem(SAVE_KEY, JSON.stringify({ save: { schema: 1, content: "m0.0", scenario: "scenario.ada", seed: "a", worldSeed: "b", commands: [] }, clock: { anchor: 0 } }));
+    const store = bootGame({ storage, fastClock: true });
+    render(<App store={store} />);
+    expect(screen.getByRole("status").textContent).toBe(say("ui.life.notice.other-content"));
+  });
 });

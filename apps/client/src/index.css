@@ -1,0 +1,72 @@
+@import "tailwindcss";
+/* The full index, never latin.css alone: the naira sign and Yoruba and Igbo
+   letters sit in the latin-ext and vietnamese subsets. */
+@import "@fontsource/danfo/index.css";
+
+/* Colour tokens. One accent, danfo yellow, always with dark ink on it. */
+:root {
+  --paper: #f7f1e6;
+  --surface: #fffaf1;
+  --sunk: #ece2d0;
+  --ink: #1d1a16;
+  --muted: #675e52;
+  --line: #ddd0ba;
+  --accent: #f2b705;
+  --accent-ink: #1d1a16;
+  --good: #1d6f37;
+  --bad: #a8261d;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #171512;
+    --surface: #221f1a;
+    --sunk: #2e2a23;
+    --ink: #f3ece0;
+    --muted: #b3a895;
+    --line: #3d362d;
+    --accent: #f2b705;
+    --accent-ink: #1d1a16;
+    --good: #7fd298;
+    --bad: #ff9a90;
+    color-scheme: dark;
+  }
+}
+
+@theme inline {
+  --color-paper: var(--paper);
+  --color-surface: var(--surface);
+  --color-sunk: var(--sunk);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+  --color-good: var(--good);
+  --color-bad: var(--bad);
+
+  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", Ubuntu, sans-serif;
+  /* Danfo is for the japacity number and chapter titles only. */
+  --font-display: "Danfo", system-ui, sans-serif;
+}
+
+html,
+body {
+  background-color: var(--paper);
+  color: var(--ink);
+}
+
+body {
+  margin: 0;
+  -webkit-text-size-adjust: 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+}
