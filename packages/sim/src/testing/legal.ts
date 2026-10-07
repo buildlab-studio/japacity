@@ -7,16 +7,27 @@ import type { Loose } from "./play";
 
 function fromTurn(view: PlayerView): Loose[] {
   if (view.turns.banked < 1 || view.setpiece !== null) return [];
-  const playable = view.activities.filter((option) => option.allowed && option.affordable && option.params === null);
+  // Each playable activity with its first param, then every other param on its own.
+  const playable = view.activities.filter((option) => option.allowed && option.affordable);
+  const first: SlotPick[] = [];
   const commands: Loose[] = [{ type: "turn/end", slots: [] }];
   for (const option of playable) {
+    if (option.params === null) first.push({ activity: option.id, param: null });
+    else if (option.params.length > 0) first.push({ activity: option.id, param: option.params[0] ?? null });
+  }
+  for (const slot of first) {
     const slots: SlotPick[] = [];
-    for (let i = 0; i < view.freeSlots; i += 1) slots.push({ activity: option.id, param: null });
+    for (let i = 0; i < view.freeSlots; i += 1) slots.push(slot);
     if (slots.length > 0) commands.push({ type: "turn/end", slots });
   }
-  if (playable.length >= 2 && view.freeSlots >= 2) {
-    const [a, b] = playable as [(typeof playable)[number], (typeof playable)[number]];
-    commands.push({ type: "turn/end", slots: [{ activity: a.id, param: null }, { activity: b.id, param: null }] });
+  if (view.freeSlots >= 1) {
+    for (const option of playable) {
+      for (const param of option.params?.slice(1) ?? []) commands.push({ type: "turn/end", slots: [{ activity: option.id, param }] });
+    }
+  }
+  if (first.length >= 2 && view.freeSlots >= 2) {
+    const [a, b] = first as [SlotPick, SlotPick];
+    commands.push({ type: "turn/end", slots: [a, b] });
   }
   return commands;
 }
