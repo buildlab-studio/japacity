@@ -1,7 +1,9 @@
 // From docs/rules/activity.md, "Jobs" and "Free-slot activities", and R-ROUTE-012 for the visa.
+// The activities abroad are in activity.abroad.data.ts and joined in at the end.
 import type { ActivityEntry, Id } from "@japacity/sim";
 
 import { dollars, naira, pct } from "../units";
+import { abroadActivityTable } from "./activity.abroad.data";
 
 const UK: Id<"route"> = "route.uk-masters";
 const WINDOW: Id<"var"> = "var.uk-study-window";
@@ -119,11 +121,32 @@ export const activityTable:Record<Id<"activity">, ActivityEntry> = {
     counts: [],
   },
 
+  // Ngozi's job (route-gates.md, the last table): a staff nurse at ₦180,000 a month.
+  // the page names the job only on the starting life and gives no chance or
+  // monthly effects. A nurse starts at care 60, so that is what it needs; it has no
+  // hiring chance of its own, and its month is a care job's: wellbeing -4, care +1.
+  "activity.job-nurse": {
+    id: "activity.job-nurse",
+    slot: "main",
+    requires: [{ type: "quality/min", quality: "quality.care", value: 60 }],
+    param: null,
+    cost: [],
+    pay: { currency: "NGN", amount: naira(180000) },
+    hireBp: null,
+    effects: [
+      { type: "quality/add", quality: "quality.wellbeing", amount: -4 },
+      { type: "quality/add", quality: "quality.care", amount: 1 },
+    ],
+    counts: [],
+  },
+
   // Free-slot activities
 
   "activity.rest": {
     id: "activity.rest",
     slot: "free",
+    // At home and abroad (ladders.md).
+    where: "any",
     requires: [],
     param: null,
     cost: [],
@@ -150,6 +173,8 @@ export const activityTable:Record<Id<"activity">, ActivityEntry> = {
   "activity.job-hunt": {
     id: "activity.job-hunt",
     slot: "free",
+    // At home and abroad, filtered by the status's work rule (ladders.md).
+    where: "any",
     requires: [],
     param: "job",
     cost: [],
@@ -369,4 +394,6 @@ export const activityTable:Record<Id<"activity">, ActivityEntry> = {
     effects: [{ type: "route/apply", route: UK }],
     counts: [UK],
   },
+
+  ...abroadActivityTable,
 };

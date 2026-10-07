@@ -1,0 +1,23 @@
+// First drafts from docs/rules/goal.md.
+export const goalText: Record<string, string> = {
+  "goal.first-car.name": "Your first car",
+  "goal.first-car.blurb": "A car on finance in your own name. The visits that pay are the ones the bus cannot reach.",
+  "goal.own-door.name": "Your own door",
+  "goal.own-door.blurb": "A flat with your name on the lease, not a room in someone else's.",
+  "goal.step-up.name": "A step up",
+  "goal.step-up.blurb": "A better job than the one you came for.",
+  "goal.clean-file.name": "A clean file",
+  "goal.clean-file.blurb": "A credit file that lenders say yes to.",
+  "goal.send-well.name": "Sending well",
+  "goal.send-well.blurb": "₦2,000,000 home, and the family stops asking whether you have forgotten them.",
+  "goal.december.name": "December at home",
+  "goal.december.blurb": "Fly home for December and be seen.",
+  "goal.settled.name": "Settled",
+  "goal.settled.blurb": "A status with no end date. Nobody can send you home for losing a job.",
+  "goal.home-with-capital.name": "Home with capital",
+  "goal.home-with-capital.blurb": "Come back with money in the bank and your head up.",
+  "goal.the-house.name": "The house",
+  "goal.the-house.blurb": "Land at home and the money to build on it.",
+  "goal.second-route.name": "A second route",
+  "goal.second-route.blurb": "Back home, and another visa granted. The door opens again.",
+};

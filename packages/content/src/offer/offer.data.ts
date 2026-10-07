@@ -1,7 +1,9 @@
-// From docs/rules/offer.md: "Family requests", "Life" and "Money".
+// From docs/rules/offer.md: "Family requests", "Life" and "Money". The offers of life
+// abroad and of coming home are in offer.abroad.data.ts and joined in at the end.
 import type { Id, OfferEntry, Requirement } from "@japacity/sim";
 
 import { naira, pct } from "../units";
+import { abroadOfferTable } from "./offer.abroad.data";
 
 const UK: Id<"route"> = "route.uk-masters";
 
@@ -671,4 +673,6 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
     ],
     onExpire: null,
   },
+
+  ...abroadOfferTable,
 };
