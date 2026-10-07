@@ -35,7 +35,8 @@ export const uiText: Record<string, string> = {
   "ui.report.quiet": "A quiet month. Nothing changed that you need to know about.",
   "ui.report.needs-you": "Needs you",
   "ui.report.attention": "Something needs your answer.",
-  "ui.report.japacity": "Japacity {before} to {after}",
+  "ui.report.japacity": "Japacity: {before} to {after}",
+  "ui.report.japacity-same": "Japacity: {value}, no change",
   "ui.report.close": "Close",
   "ui.report.none": "No month played yet. Plan the month and end it.",
 

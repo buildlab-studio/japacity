@@ -45,7 +45,9 @@ export function ReportBody({ report }: { report: TurnReport }) {
         </ol>
       )}
       <p className={moved ? "font-semibold" : "text-muted"}>
-        {say("ui.report.japacity", { before: percent(report.japacityBefore), after: percent(report.japacityAfter) })}
+        {moved
+          ? say("ui.report.japacity", { before: percent(report.japacityBefore), after: percent(report.japacityAfter) })
+          : say("ui.report.japacity-same", { value: percent(report.japacityAfter) })}
       </p>
     </div>
   );

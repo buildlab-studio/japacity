@@ -15,7 +15,7 @@ export function ScenarioView() {
   return (
     <main className="mx-auto flex min-h-dvh max-w-2xl flex-col gap-6 px-4 py-8">
       <div className="flex flex-col gap-2">
-        <p className="font-display text-2xl">{say("ui.game")}</p>
+        <p className="text-xl font-bold">{say("ui.game")}</p>
         <h1 className="text-3xl font-bold">{say("ui.life.title")}</h1>
         <p className="text-muted">{say("ui.life.intro")}</p>
       </div>

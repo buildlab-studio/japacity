@@ -18,8 +18,8 @@ export function Sheet({ open, onOpenChange, title, description, children }: Shee
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
-        <Dialog.Backdrop className="fixed inset-0 bg-black/40" />
-        <Dialog.Popup className="fixed inset-x-0 bottom-0 flex max-h-[88dvh] flex-col gap-4 overflow-y-auto rounded-t-2xl border border-line bg-paper p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] text-ink shadow-xl outline-hidden lg:inset-y-0 lg:right-0 lg:left-auto lg:max-h-none lg:w-[28rem] lg:rounded-none lg:rounded-l-2xl">
+        <Dialog.Backdrop className="fixed inset-0 z-40 bg-black/40" />
+        <Dialog.Popup className="fixed inset-x-0 bottom-0 z-50 flex max-h-[88dvh] flex-col gap-4 overflow-y-auto rounded-t-2xl border border-line bg-paper p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] text-ink shadow-xl outline-hidden lg:inset-y-0 lg:right-0 lg:left-auto lg:max-h-none lg:w-[28rem] lg:rounded-none lg:rounded-l-2xl">
           <div className="flex items-start justify-between gap-3">
             <div className="flex flex-col gap-1">
               <Dialog.Title className="text-lg font-semibold">{title}</Dialog.Title>
