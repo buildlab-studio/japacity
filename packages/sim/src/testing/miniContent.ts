@@ -115,8 +115,8 @@ export const miniContent: Content = {
           id: "why",
           when: [],
           answers: [
-            { id: "good", score: 2, when: [], thenScore: null },
-            { id: "bad", score: -2, when: [], thenScore: null },
+            { id: "good", score: 2, when: [], thenScore: null, effects: [] },
+            { id: "bad", score: -2, when: [], thenScore: null, effects: [] },
           ],
         },
       ],

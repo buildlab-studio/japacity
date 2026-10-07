@@ -28,6 +28,8 @@ export const REQUIREMENT_OWNER: Record<KindRequirementPrefix, SliceKey> = {
   credit: "credit",
   goal: "goal",
   obligation: "obligation",
+  setpiece: "setpiece",
+  wallet: "wallet",
 };
 
 type EngineRequirement = Extract<Requirement, { type: (typeof ENGINE_REQUIREMENTS)[number] }>;

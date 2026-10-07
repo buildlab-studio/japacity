@@ -465,6 +465,14 @@ function moneyCanPay(read: ReadCtx, requirement: Requirement, terms: Terms): Req
   return { met: planFee(read, currency, need) !== null, need };
 }
 
+/** R-WALLET-014: the ledger's total under one reason, in one currency. */
+function walletTotal(read: ReadCtx, requirement: Requirement, terms: Terms): RequirementResult {
+  if (requirement.type !== "wallet/total") throw new Error(`wallet/total cannot judge ${requirement.type}.`);
+  const have = read.state.wallet.totals[requirement.flow][requirement.reason]?.[requirement.currency] ?? 0;
+  const need = resolveAmount(read, requirement.amount, terms);
+  return { met: have >= need, have, need };
+}
+
 // ---------------------------------------------------------------------------
 // Invariants
 // ---------------------------------------------------------------------------
@@ -527,6 +535,7 @@ export const walletKind: RegisteredKind<WalletSlice, WalletEvent> = {
   requirements: {
     "money/min": moneyMin,
     "money/can-pay": moneyCanPay,
+    "wallet/total": walletTotal,
   },
   invariants,
   view: (read) => ({

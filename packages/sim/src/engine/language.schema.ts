@@ -216,6 +216,10 @@ export const RequirementSchema = z.discriminatedUnion("type", [
   z.strictObject({ type: z.literal("obligation/has"), obligationType: ObligationTypeSchema }),
   z.strictObject({ type: z.literal("route/gate-step"), route: idOf("route"), step: z.string().min(1) }),
   z.strictObject({ type: z.literal("activity/local-tenure"), months: CountSchema }),
+  z.strictObject({ type: z.literal("setpiece/answered"), setpiece: idOf("setpiece"), times: CountSchema.exactOptional() }),
+  z.strictObject({ type: z.literal("wallet/total"), flow: z.enum(["in", "out"]), reason: ReasonSchema, currency: CurrencySchema, amount: AmountSchema }),
+  z.strictObject({ type: z.literal("place/returned"), shapes: z.array(ReturnShapeSchema).min(1) }),
+  z.strictObject({ type: z.literal("place/months-here"), where: WhereSchema, months: CountSchema }),
   z.strictObject({
     type: z.literal("not"),
     get of(): z.ZodType<Requirement> {
@@ -294,7 +298,7 @@ export const EffectSchema = z.discriminatedUnion("type", [
     fraud: z.boolean(),
   }),
   z.strictObject({ type: z.literal("route/road-step"), step: z.string().min(1) }),
-  z.strictObject({ type: z.literal("setpiece/open"), setpiece: idOf("setpiece"), route: idOf("route") }),
+  z.strictObject({ type: z.literal("setpiece/open"), setpiece: idOf("setpiece"), route: idOf("route").nullable() }),
   z.strictObject({
     type: z.literal("obligation/open"),
     obligation: idOf("obligation"),

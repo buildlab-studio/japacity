@@ -206,6 +206,14 @@ export type Requirement =
   | { type: "route/gate-step"; route: Id<"route">; step: string }
   /** Months in any job in the current country. */
   | { type: "activity/local-tenure"; months: number }
+  /** The set piece has closed at least `times` times (default 1): docs/rules/route.md R-SETPIECE-006. */
+  | { type: "setpiece/answered"; setpiece: Id<"setpiece">; times?: number }
+  /** The ledger's total under a reason, in or out, in one currency, is at least this: docs/rules/wallet.md R-WALLET-014. */
+  | { type: "wallet/total"; flow: "in" | "out"; reason: Reason; currency: Currency; amount: Amount }
+  /** A return of one of these shapes is on record: docs/rules/place.md. */
+  | { type: "place/returned"; shapes: ReturnShape[] }
+  /** The character has been where they are, in `where`, for at least this many months. */
+  | { type: "place/months-here"; where: Where; months: number }
   | { type: "not"; of: Requirement }
   | { type: "any"; of: Requirement[] };
 
@@ -251,7 +259,8 @@ export type Effect =
   | { type: "route/road-step"; step: string }
   // setpiece
   /** Opens a set piece for a route (R-SETPIECE-001). */
-  | { type: "setpiece/open"; setpiece: Id<"setpiece">; route: Id<"route"> }
+  /** Open a set piece. With a route, the score goes to its visa application; with none, nothing is scored (R-SETPIECE-006). */
+  | { type: "setpiece/open"; setpiece: Id<"setpiece">; route: Id<"route"> | null }
   // obligation
   | { type: "obligation/open"; obligation: Id<"obligation">; principal?: Amount; amount?: Amount }
   // offer: opens nothing when the offer's own `when` does not hold
@@ -425,6 +434,8 @@ export interface SetpieceAnswer {
   /** When these hold, `thenScore` is used instead of `score`. */
   when: Requirement[];
   thenScore: number | null;
+  /** Applied the moment the answer is given (R-SETPIECE-006). */
+  effects: Effect[];
 }
 
 export interface SetpieceQuestion {
@@ -975,9 +986,11 @@ export type RouteGateState =
 export type RouteSlice = Record<Id<"route">, RouteState>;
 
 export interface SetpieceSlice {
+  /** How many times each set piece has closed (R-SETPIECE-006). */
+  answered: Partial<Record<Id<"setpiece">, number>>;
   open: {
     entry: Id<"setpiece">;
-    route: Id<"route">;
+    route: Id<"route"> | null;
     questions: string[];
     answers: Record<string, string>;
     /** The sum of the answers so far, each scored when it was given (R-SETPIECE-004). */

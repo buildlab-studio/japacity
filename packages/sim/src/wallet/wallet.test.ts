@@ -654,3 +654,19 @@ describe("lines", () => {
     for (const reason of reasons) expect(REASON_LINE[reason]).toBe(`line.wallet.${reason}`);
   });
 });
+
+describe("totals as a requirement", () => {
+  test("[R-WALLET-014] given money that came in under a reason, when wallet/total is judged, then it reads the ledger's total for that reason and currency, in or out, with have and need", () => {
+    const { game } = play({ scenario: TUNDE });
+    const opening = game.state.wallet.totals.in.opening?.NGN ?? 0;
+    expect(opening).toBeGreaterThan(0);
+    expect(judge(game, { type: "wallet/total", flow: "in", reason: "opening", currency: "NGN", amount: opening })).toEqual({ met: true, have: opening, need: opening });
+    expect(judge(game, { type: "wallet/total", flow: "in", reason: "opening", currency: "NGN", amount: opening + 1 }).met).toBe(false);
+    expect(judge(game, { type: "wallet/total", flow: "in", reason: "remit", currency: "NGN", amount: 1 })).toEqual({ met: false, have: 0, need: 1 });
+    apply(game, [{ type: "money/add", currency: "NGN", pocket: "bank", amount: 500, reason: "remit" }]);
+    apply(game, [{ type: "money/take", currency: "NGN", pocket: "bank", amount: 200, reason: "social" }]);
+    expect(judge(game, { type: "wallet/total", flow: "in", reason: "remit", currency: "NGN", amount: 500 })).toEqual({ met: true, have: 500, need: 500 });
+    expect(judge(game, { type: "wallet/total", flow: "out", reason: "social", currency: "NGN", amount: 200 })).toEqual({ met: true, have: 200, need: 200 });
+    expect(judge(game, { type: "wallet/total", flow: "out", reason: "social", currency: "GBP", amount: 1 }).met).toBe(false);
+  });
+});

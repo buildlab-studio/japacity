@@ -63,7 +63,7 @@ export function answerScore(answer: SetpieceAnswer, judge: Judge): number {
  * ask the interview scores 0 at once rather than open with nothing to answer,
  * which would leave the player stuck (R-ENGINE-011).
  */
-export function openSetpiece(ctx: Ctx, id: Id<"setpiece">, route: Id<"route">): BaseEvent[] {
+export function openSetpiece(ctx: Ctx, id: Id<"setpiece">, route: Id<"route"> | null): BaseEvent[] {
   if (ctx.state.setpiece.open !== null) return [];
   const entry = entryOf(ctx.content, id);
   const pool = entry.questions.filter((question) => question.when.every((requirement) => ctx.check(requirement).met)).map((question) => question.id);
@@ -73,7 +73,7 @@ export function openSetpiece(ctx: Ctx, id: Id<"setpiece">, route: Id<"route">): 
     if (drawn !== undefined) questions.push(drawn);
   }
   if (questions.length === 0) {
-    ctx.apply([{ type: "route/interview-scored", route, score: 0 }], { source: id, param: null, terms: {} });
+    if (route !== null) ctx.apply([{ type: "route/interview-scored", route, score: 0 }], { source: id, param: null, terms: {} });
     return [];
   }
   const opened: SetpieceEvent = { type: "setpiece/opened", entry: id, route, questions };
@@ -98,6 +98,8 @@ function answer(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (chosen === undefined) return reject("not-legal", `${String(command.answer)} is not an answer to ${next}.`);
   const answered: SetpieceEvent = { type: "setpiece/answered", question: next, answer: chosen.id };
   const events = emit(ctx, "setpiece", [answered]);
+  // R-SETPIECE-006: an answer's effects apply the moment it is given.
+  if (chosen.effects.length > 0) ctx.apply(chosen.effects, { source: open.entry, param: null, terms: {} });
   const now = ctx.state.setpiece.open;
   if (now === null || nextQuestion(now) !== null) return events;
   const judge: Judge = (requirement) => ctx.check(requirement);
@@ -108,20 +110,20 @@ function answer(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   }, 0);
   const closed: SetpieceEvent = { type: "setpiece/closed", entry: now.entry, route: now.route };
   events.push(...emit(ctx, "setpiece", [closed]));
-  ctx.apply([{ type: "route/interview-scored", route: now.route, score }], { source: now.entry, param: null, terms: {} });
+  if (now.route !== null) ctx.apply([{ type: "route/interview-scored", route: now.route, score }], { source: now.entry, param: null, terms: {} });
   return events;
 }
 
 function evolve(slice: SetpieceSlice, event: SetpieceEvent): SetpieceSlice {
   switch (event.type) {
     case "setpiece/opened":
-      return { open: { entry: event.entry, route: event.route, questions: event.questions, answers: {}, score: 0 } };
+      return { ...slice, open: { entry: event.entry, route: event.route, questions: event.questions, answers: {}, score: 0 } };
     case "setpiece/answered": {
       if (slice.open === null) throw new Error(`${event.question} was answered with no set piece open.`);
-      return { open: { ...slice.open, answers: { ...slice.open.answers, [event.question]: event.answer } } };
+      return { ...slice, open: { ...slice.open, answers: { ...slice.open.answers, [event.question]: event.answer } } };
     }
     case "setpiece/closed":
-      return { open: null };
+      return { open: null, answered: { ...slice.answered, [event.entry]: (slice.answered[event.entry] ?? 0) + 1 } };
     default: {
       const never: never = event;
       throw new Error(`Unknown set piece event ${JSON.stringify(never)}.`);
@@ -176,8 +178,17 @@ function view(read: ReadCtx): Pick<PlayerView, "setpiece"> {
 
 export const setpieceKind: RegisteredKind<SetpieceSlice, SetpieceEvent> = {
   kind: "setpiece",
-  initial: () => ({ open: null }),
+  initial: () => ({ open: null, answered: {} }),
   commands: { "setpiece/answer": answer },
+  requirements: {
+    // R-SETPIECE-006.
+    "setpiece/answered": (read, requirement) => {
+      if (requirement.type !== "setpiece/answered") throw new Error(`setpiece/answered cannot judge ${requirement.type}.`);
+      const have = read.state.setpiece.answered[requirement.setpiece] ?? 0;
+      const need = requirement.times ?? 1;
+      return { met: have >= need, have, need };
+    },
+  },
   effects: {
     "setpiece/open": (ctx, effect) => {
       if (effect.type !== "setpiece/open") throw new Error(`The set piece kind cannot open from ${effect.type}.`);
@@ -194,7 +205,7 @@ export const setpieceKind: RegisteredKind<SetpieceSlice, SetpieceEvent> = {
     const problems: string[] = [];
     if (open.questions.length === 0) problems.push(`${open.entry} is open with no questions.`);
     if (new Set(open.questions).size !== open.questions.length) problems.push(`${open.entry} asks a question twice.`);
-    if (content.route[open.route] === undefined) problems.push(`${open.entry} is open for ${open.route}, which is not a route in content.`);
+    if (open.route !== null && content.route[open.route] === undefined) problems.push(`${open.entry} is open for ${open.route}, which is not a route in content.`);
     open.questions.forEach((id, index) => {
       const question = entry.questions.find((candidate) => candidate.id === id);
       if (question === undefined) {

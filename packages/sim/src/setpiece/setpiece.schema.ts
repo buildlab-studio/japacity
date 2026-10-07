@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { idOf, IntSchema, type Proof, RequirementSchema, type Same } from "../engine/language.schema";
+import { EffectSchema, idOf, IntSchema, type Proof, RequirementSchema, type Same } from "../engine/language.schema";
 import type { SetpieceAnswer, SetpieceEntry, SetpieceQuestion } from "../engine/types";
 
 export const SetpieceAnswerSchema = z.strictObject({
@@ -8,6 +8,7 @@ export const SetpieceAnswerSchema = z.strictObject({
   score: IntSchema,
   when: z.array(RequirementSchema),
   thenScore: IntSchema.nullable(),
+  effects: z.array(EffectSchema),
 });
 
 export const SetpieceQuestionSchema = z.strictObject({

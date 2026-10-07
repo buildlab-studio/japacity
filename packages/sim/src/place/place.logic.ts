@@ -9,7 +9,7 @@ export const placeKind: RegisteredKind<PlaceSlice, PlaceEvent> = {
   initial: () => ({ where: "home", country: null, movedMonth: 0, returns: [], heldAbroad: null }),
   effects: effectsNotBuilt(["place/move"]),
   evolve: (slice) => slice,
-  requirements: requirementsNotBuilt(["place/is"]),
+  requirements: requirementsNotBuilt(["place/is", "place/returned", "place/months-here"]),
   view: ({ state }) => ({
     place: {
       where: state.place.where,

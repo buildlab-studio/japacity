@@ -138,7 +138,7 @@ describe("scoring", () => {
     const course = entry.questions.find((question) => question.id === "why-uk")!.answers.find((answer) => answer.id === "course")!;
     expect(answerScore(course, () => ({ met: true }))).toBe(course.thenScore);
     expect(answerScore(course, () => ({ met: false }))).toBe(course.score);
-    const plain = { id: "plain", score: -1, when: [], thenScore: null };
+    const plain = { id: "plain", score: -1, when: [], thenScore: null, effects: [] };
     expect(answerScore(plain, () => ({ met: true }))).toBe(-1);
   });
 
@@ -211,5 +211,48 @@ describe("what the player sees", () => {
       }
     }
     expect(hintPrep).toBe(40);
+  });
+});
+
+describe("answers with effects, and set pieces with no route", () => {
+  const WELLBEING: Id<"quality"> = "quality.wellbeing";
+
+  test("[R-SETPIECE-006] given an answer carrying an effect, when it is given, then the effect applies at that moment under the set piece as source, and the close counts once", () => {
+    const first = entry.questions[0]!;
+    const changed = {
+      ...content,
+      setpiece: {
+        ...content.setpiece,
+        [INTERVIEW]: {
+          ...entry,
+          ask: 1,
+          questions: [{ ...first, answers: first.answers.map((answer, index) => (index === 0 ? { ...answer, effects: [{ type: "quality/add", quality: WELLBEING, amount: -7 }] } : answer)) }],
+        },
+      },
+    };
+    const game = readyLife(changed, { seed: seedWhere(northgateOffers) });
+    toApplied(game);
+    const before = game.state.quality[WELLBEING] ?? 0;
+    expect(game.state.setpiece.answered[INTERVIEW] ?? 0).toBe(0);
+    const result = game.accept({ type: "setpiece/answer", question: first.id, answer: first.answers[0]!.id });
+    expect(game.state.quality[WELLBEING]).toBe(before - 7);
+    expect(result.events.filter((event) => event.type === "quality/changed").map((event) => ("source" in event ? event.source : null))).toEqual([INTERVIEW]);
+    expect(game.state.setpiece.open).toBeNull();
+    expect(game.state.setpiece.answered[INTERVIEW]).toBe(1);
+    expect(check(readOf(game), { type: "setpiece/answered", setpiece: INTERVIEW })).toEqual({ met: true, have: 1, need: 1 });
+    expect(check(readOf(game), { type: "setpiece/answered", setpiece: INTERVIEW, times: 2 }).met).toBe(false);
+  });
+
+  test("[R-SETPIECE-006] given a set piece opened with no route, when it is answered through, then it closes, counts, and records no score anywhere", () => {
+    const game = life();
+    expect(check(readOf(game), { type: "setpiece/answered", setpiece: INTERVIEW }).met).toBe(false);
+    applyEffects(game, [{ type: "setpiece/open", setpiece: INTERVIEW, route: null }]);
+    expect(game.state.setpiece.open?.entry).toBe(INTERVIEW);
+    expect(game.state.setpiece.open?.route).toBeNull();
+    answerFirst(game);
+    expect(game.state.setpiece.open).toBeNull();
+    expect(game.state.setpiece.answered[INTERVIEW]).toBe(1);
+    expect(uk(game).visa).toBeNull();
+    expect(legalCommands(game.view()).some((command) => command.type === "turn/end")).toBe(true);
   });
 });

@@ -107,6 +107,14 @@ export function requirementSentence(requirement: Requirement): string {
       return say("ui.req.route-gate-step", { route: nameOf(requirement.route), step: requirement.step });
     case "activity/local-tenure":
       return say("ui.req.local-tenure", { months: requirement.months });
+    case "setpiece/answered":
+      return say("ui.req.setpiece-answered", { setpiece: nameOf(requirement.setpiece), times: requirement.times ?? 1 });
+    case "wallet/total":
+      return say(requirement.flow === "in" ? "ui.req.wallet-total-in" : "ui.req.wallet-total-out", { amount: amountWords(requirement.amount, requirement.currency), reason: requirement.reason.replaceAll("-", " ") });
+    case "place/returned":
+      return say("ui.req.place-returned");
+    case "place/months-here":
+      return say("ui.req.place-months-here", { months: requirement.months, where: say(`ui.place.${requirement.where}`) });
     default: {
       const never: never = requirement;
       throw new Error(`No sentence for the requirement ${JSON.stringify(never)}.`);

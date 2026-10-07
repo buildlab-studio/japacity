@@ -35,6 +35,10 @@ const REQUIREMENT_TYPES = [
   "obligation/has",
   "route/gate-step",
   "activity/local-tenure",
+  "setpiece/answered",
+  "wallet/total",
+  "place/returned",
+  "place/months-here",
   "not",
   "any",
 ] as const;
