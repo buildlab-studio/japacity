@@ -5,7 +5,7 @@ import { describe, expect } from "vitest";
 import { bp, divCeil } from "../engine/int";
 import { checkInvariants } from "../engine/invariants";
 import { stepWith } from "../engine/step";
-import type { Accepted, BaseEvent, Ctx, Effect, Id, ObligationState, Terms } from "../engine/types";
+import type { Accepted, BaseEvent, Ctx, Effect, Id, ObligationEntry, ObligationState, Terms } from "../engine/types";
 import { registry } from "../kinds";
 import { legalCommands } from "../testing/legal";
 import type { Game } from "../testing/play";
@@ -23,8 +23,14 @@ const STANDING: Id<"quality"> = "quality.standing";
 const WELLBEING: Id<"quality"> = "quality.wellbeing";
 const CREDIT: Id<"quality"> = "quality.credit-mark";
 
+function entryOf(id: Id<"obligation">): ObligationEntry {
+  const entry = content.obligation[id];
+  if (entry === undefined) throw new Error(`No ${id} in content.`);
+  return entry;
+}
+
 /** Ada's upkeep a month, from the scenario. */
-const ADA_UPKEEP = content.scenario[ADA].obligations[0]!.amount;
+const ADA_UPKEEP = content.scenario[ADA]!.obligations[0]!.amount;
 
 /**
  * Carries out effects through the engine. The route kind does not handle
@@ -109,7 +115,7 @@ describe("the monthly charge", () => {
 
   test("[R-OBLIGATION-001] given a twelve month loan, when it is charged, then interest on the opening principal and the principal over the term rounded up are added, and the last part stops at what is owed", () => {
     const game = start({ scenario: TUNDE, content });
-    const entry = content.obligation[SALARY_LOAN];
+    const entry = entryOf(SALARY_LOAN);
     const principal = 100000000;
     const loan = open(game, SALARY_LOAN, principal);
     const interest = bp(principal, entry.rateBp);
@@ -169,7 +175,7 @@ describe("paid in full or missed", () => {
 
   test("[R-OBLIGATION-002] given cash and bank, when a loan is charged, then naira is taken cash first then bank, the principal part under its sink and interest under its interest sink", () => {
     const game = start({ scenario: ADA, content });
-    const entry = content.obligation[SALARY_LOAN];
+    const entry = entryOf(SALARY_LOAN);
     const principal = 100000000;
     const loan = open(game, SALARY_LOAN, principal);
     const part = divCeil(principal, entry.term!);
@@ -244,7 +250,7 @@ describe("misses", () => {
 describe("default", () => {
   test("[R-OBLIGATION-005] given a loan with grace 1, when one charge is missed it is in grace; when the second is missed it defaults once, and onDefault applies once", () => {
     const game = start({ scenario: ADA, content });
-    const entry = content.obligation[SALARY_LOAN];
+    const entry = entryOf(SALARY_LOAN);
     expect(entry.grace).toBe(1);
     const loan = open(game, SALARY_LOAN, 10000000);
     setNaira(game, 0);
@@ -309,10 +315,10 @@ describe("opening", () => {
       entry: SALARY_LOAN,
       state: "active",
       openedMonth: 1,
-      amount: content.obligation[SALARY_LOAN].amount,
+      amount: entryOf(SALARY_LOAN).amount,
       principal: 25000000,
       outstanding: 25000000,
-      monthsLeft: content.obligation[SALARY_LOAN].term,
+      monthsLeft: entryOf(SALARY_LOAN).term,
       missed: 0,
     });
     expect(game.state.wallet.pockets.NGN.bank).toBe(bank + 25000000);
@@ -331,7 +337,7 @@ describe("opening", () => {
 
   test("[R-OBLIGATION-006] given an amount on the effect, when support opens, then it overrides the entry's fixed charge", () => {
     const game = start({ scenario: ADA, content });
-    expect(content.obligation[SUPPORT].amount).toBe(0);
+    expect(entryOf(SUPPORT).amount).toBe(0);
     expect(open(game, SUPPORT, undefined, 4500000)).toMatchObject({ amount: 4500000, principal: 0, outstanding: 0 });
   });
 });
@@ -341,7 +347,7 @@ describe("held funds", () => {
     const game = start({ scenario: ADA, content });
     const principal = 200000000;
     const held = open(game, HELD, principal);
-    const interest = bp(principal, content.obligation[HELD].rateBp);
+    const interest = bp(principal, entryOf(HELD).rateBp);
     expect(game.view().obligations.find((owed) => owed.id === held.id)?.due).toBe(interest);
     setNaira(game, ADA_UPKEEP + interest);
     const result = game.endTurn();
@@ -392,8 +398,8 @@ describe("paying early", () => {
   test("[R-OBLIGATION-008] given a loan, when the amount is zero, a fraction or more than can be paid, then it is rejected", () => {
     const game = start({ scenario: ADA, content });
     const loan = open(game, SALARY_LOAN, 10000000);
-    game.expectRejected({ type: "obligation/pay", obligation: loan.id, amount: 0 }, "bad-amount");
-    game.expectRejected({ type: "obligation/pay", obligation: loan.id, amount: Number("2.5") }, "bad-amount");
+    expect(game.expectRejected({ type: "obligation/pay", obligation: loan.id, amount: 0 }, "bad-amount").code).toBe("bad-amount");
+    expect(game.expectRejected({ type: "obligation/pay", obligation: loan.id, amount: Number("2.5") }, "bad-amount").code).toBe("bad-amount");
     setNaira(game, 999999, 0);
     game.expectRejected({ type: "obligation/pay", obligation: loan.id, amount: 1000000 }, "cannot-afford");
     game.accept({ type: "obligation/pay", obligation: loan.id, amount: 999999 });
@@ -413,8 +419,8 @@ describe("paying early", () => {
 
   test("[R-OBLIGATION-008] given upkeep or an unknown id, when paid, then it is rejected with not-legal or unknown-id", () => {
     const game = start({ scenario: ADA, content });
-    game.expectRejected({ type: "obligation/pay", obligation: upkeepOf(game).id, amount: 100 }, "not-legal");
-    game.expectRejected({ type: "obligation/pay", obligation: "obligation-999", amount: 100 }, "unknown-id");
+    expect(game.expectRejected({ type: "obligation/pay", obligation: upkeepOf(game).id, amount: 100 }, "not-legal").code).toBe("not-legal");
+    expect(game.expectRejected({ type: "obligation/pay", obligation: "obligation-999", amount: 100 }, "unknown-id").code).toBe("unknown-id");
   });
 });
 
@@ -454,7 +460,7 @@ describe("lines and the view", () => {
     const view = game.view().obligations;
     expect(view).toEqual([
       { ...upkeepOf(game), due: ADA_UPKEEP },
-      { ...loan, due: bp(12000000, content.obligation[SALARY_LOAN].rateBp) + 1000000 },
+      { ...loan, due: bp(12000000, entryOf(SALARY_LOAN).rateBp) + 1000000 },
     ]);
   });
 });

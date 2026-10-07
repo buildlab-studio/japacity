@@ -88,6 +88,32 @@ function fromWallet(view: PlayerView): Loose[] {
   return commands;
 }
 
+/** A part payment small enough to leave most of a loan owed, so random play pays both ways. */
+const SMALL_REPAY = 100000;
+
+/**
+ * Paying ahead (R-OBLIGATION-008). The view has no entry types, so it reads
+ * them off the item: a loan in content always has a term, so `monthsLeft` is a
+ * number; held funds have none and still hold their principal. Upkeep and
+ * support owe no principal, so they are never offered.
+ */
+function fromObligations(view: PlayerView): Loose[] {
+  const commands: Loose[] = [];
+  for (const owed of view.obligations) {
+    if (owed.outstanding <= 0) continue;
+    const pocket = view.pockets.NGN;
+    const spendable = pocket.bank + pocket.cash;
+    if (owed.monthsLeft !== null) {
+      const part = Math.min(SMALL_REPAY, owed.outstanding);
+      if (spendable >= part) commands.push({ type: "obligation/pay", obligation: owed.id, amount: part });
+      if (owed.outstanding > part && spendable >= owed.outstanding) commands.push({ type: "obligation/pay", obligation: owed.id, amount: owed.outstanding });
+    } else if (owed.principal === owed.outstanding && pocket.locked >= owed.outstanding) {
+      commands.push({ type: "obligation/pay", obligation: owed.id, amount: owed.outstanding });
+    }
+  }
+  return commands;
+}
+
 function fromActivity(view: PlayerView): Loose[] {
   return view.job.id === null ? [] : [{ type: "activity/quit" }];
 }
@@ -98,7 +124,7 @@ function fromActivity(view: PlayerView): Loose[] {
  */
 export function legalCommands(view: PlayerView): Loose[] {
   if (view.ended) return [];
-  return [...fromTurn(view), ...fromOffers(view), ...fromSetpiece(view), ...fromWallet(view), ...fromActivity(view)].filter((command) =>
+  return [...fromTurn(view), ...fromOffers(view), ...fromSetpiece(view), ...fromWallet(view), ...fromObligations(view), ...fromActivity(view)].filter((command) =>
     handles(command.type),
   );
 }
