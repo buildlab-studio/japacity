@@ -393,6 +393,15 @@ describe("the aboki", () => {
     expect(game.expectRejected({ type: "wallet/convert", from: "NGN", to: "USD", amount: cash + 1, via: "aboki" }, "cannot-afford").code).toBe("cannot-afford");
   });
 
+  test("[R-WALLET-007] given pound cash, when it is changed for dollars at the aboki, then it is sold for naira less the spread and the naira buys dollars at street", () => {
+    const { game } = play({ content: sure });
+    apply(game, [{ type: "money/add", currency: "GBP", pocket: "cash", amount: 1000, reason: "gift" }]);
+    game.accept({ type: "wallet/convert", from: "GBP", to: "USD", amount: 1000, via: "aboki" });
+    const naira = mulDiv(1000, ROUND_RATES.GBP.street - bp(ROUND_RATES.GBP.street, tuning.streetSpreadBp), 100);
+    expect(game.state.wallet.pockets.USD.cash).toBe(mulDiv(naira, 100, ROUND_RATES.USD.street));
+    expect(game.state.wallet.pockets.USD.cash).toBe(1960);
+  });
+
   test("[R-WALLET-008] given a short count is certain, when dollars are bought, then between 3% and 8% of them is taken back as a short-count debit", () => {
     const always = { ...content, tuning: { ...content.tuning, wallet: { ...tuning, streetShortBp: 10000 } } };
     const [min, max] = tuning.streetShortLossBp;
@@ -581,6 +590,13 @@ describe("command amounts", () => {
       game.expectRejected({ type: "wallet/convert", from: "NGN", to: "USD", amount, via: "bank" }, "bad-amount"),
     ].map((rejection) => rejection.code);
     expect(codes).toEqual(["bad-amount", "bad-amount", "bad-amount"]);
+  });
+
+  test("[R-WALLET-012] given an amount too small to give back a single cent, when it is changed, then it is bad-amount and nothing moves", () => {
+    const { game } = play();
+    expect(mulDiv(1000, 100, ROUND_RATES.USD.street)).toBe(0);
+    expect(game.expectRejected({ type: "wallet/convert", from: "NGN", to: "USD", amount: 1000, via: "aboki" }, "bad-amount").code).toBe("bad-amount");
+    expect(game.expectRejected({ type: "wallet/convert", from: "NGN", to: "USD", amount: 1000, via: "bank" }, "bad-amount").code).toBe("bad-amount");
   });
 
   test("[R-WALLET-012] given a pocket, when exactly all of it is moved, then it is accepted; one more is cannot-afford", () => {

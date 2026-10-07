@@ -157,6 +157,8 @@ function planFee(read: ReadCtx, currency: ForeignCurrency, amount: number): FeeP
   const rest = amount - fromBank - fromCash;
   if (rest === 0) return { fromBank, fromCash, bought: 0, naira: 0, charge: 0 };
   if (varOr(read.world, QUEUE, 0) > 0) return null;
+  // the naira leg buys foreign currency at the bank but is not counted against the
+  // month's allowance: R-WALLET-009 names only the queue, and fees are paid to an institution.
   const naira = mulDivCeil(rest, read.world.rates[currency].official, 100);
   const charge = bp(naira, read.content.tuning.wallet.bankChargeBp);
   if (naira + charge > read.state.wallet.pockets.NGN.bank) return null;
@@ -241,7 +243,11 @@ function move(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   return events;
 }
 
-/** What the aboki gives: buying costs the street rate, selling earns it less the spread (R-WALLET-007). */
+/**
+ * What the aboki gives: buying costs the street rate, selling earns it less the spread (R-WALLET-007).
+ * R-WALLET-007 does not say whether the aboki changes pounds for dollars. It is allowed,
+ * as a sale for naira then a purchase, with one chance of a short count.
+ */
 function abokiGives(amount: number, from: Currency, to: Currency, world: World, content: Content): number {
   const street = streetRates(world);
   const sellRate = (currency: ForeignCurrency) => street[currency] - bp(street[currency], content.tuning.wallet.streetSpreadBp);
