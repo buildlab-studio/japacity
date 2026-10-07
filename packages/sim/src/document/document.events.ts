@@ -1,4 +1,16 @@
 import type { Id } from "../engine/types";
 
-/** Placeholder: the document agent defines the real events. */
-export type DocumentEvent = { type: "document/issued"; document: Id<"document">; value: number | null };
+export type DocumentEvent =
+  /** A copy was asked for and is due in `readyMonth`. A held copy stays in force meanwhile (R-DOCUMENT-004). */
+  | { type: "document/requested"; document: Id<"document">; readyMonth: number }
+  /**
+   * A request found a copy already being made. It changes nothing; it exists
+   * so the report can say the request went nowhere (R-DOCUMENT-004).
+   */
+  | { type: "document/already-pending"; document: Id<"document">; readyMonth: number }
+  /** A copy was issued, by the papers phase or by a grant, and replaces whatever was there. */
+  | { type: "document/issued"; document: Id<"document">; expiresMonth: number | null; value: number | null }
+  /** The held copy's expiry month came. */
+  | { type: "document/expired"; document: Id<"document"> }
+  /** The document was removed, held or pending. */
+  | { type: "document/voided"; document: Id<"document"> };
