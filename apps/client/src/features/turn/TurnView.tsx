@@ -4,7 +4,8 @@ import { useGame, useView } from "../../authority/GameProvider";
 import { Button } from "../../shared/ui/Button";
 import { Card } from "../../shared/ui/Panel";
 import { Sheet } from "../../shared/ui/Sheet";
-import { say } from "../../shared/words/text";
+import { expiringSoon } from "../../shared/words/expiry";
+import { nameOf, say, sayCount } from "../../shared/words/text";
 import { ReportBody } from "./ReportBody";
 
 export function TurnView() {
@@ -12,6 +13,7 @@ export function TurnView() {
   const reportOpen = useGame((state) => state.reportOpen);
   const setReportOpen = useGame((state) => state.setReportOpen);
   const report = view.report;
+  const expiring = expiringSoon(view);
 
   return (
     <div className="flex flex-col gap-4">
@@ -21,6 +23,19 @@ export function TurnView() {
       </div>
 
       {view.ended ? <Card tone="attention">{say("ui.month.over")}</Card> : null}
+
+      {expiring.length === 0 ? null : (
+        <Card tone="attention">
+          <h3 className="font-semibold">{say("ui.month.expiring")}</h3>
+          <ul className="mt-1 flex flex-col gap-1 text-sm">
+            {expiring.map(({ paper, left }) => (
+              <li key={paper.id}>
+                {sayCount("ui.month.expiring.item", left, { document: nameOf(paper.id), months: left, month: paper.expiresMonth ?? 0 })}
+              </li>
+            ))}
+          </ul>
+        </Card>
+      )}
 
       <Card>
         <div className="flex items-baseline justify-between gap-2">

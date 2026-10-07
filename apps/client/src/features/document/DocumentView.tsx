@@ -4,12 +4,13 @@ import { FileCheck, FileClock, FileX } from "lucide-react";
 import { useView } from "../../authority/GameProvider";
 import { Card, Empty, Panel } from "../../shared/ui/Panel";
 import { formatBand } from "../../shared/words/format";
-import { nameOf, say } from "../../shared/words/text";
+import { monthsLeft, SOON } from "../../shared/words/expiry";
+import { nameOf, say, sayCount } from "../../shared/words/text";
 
 const ENGLISH_RESULT = "document.english-test";
 
 export function DocumentView() {
-  const { documents } = useView();
+  const { documents, month } = useView();
   return (
     <Panel title={say("ui.document.title")}>
       {documents.length === 0 ? (
@@ -18,6 +19,8 @@ export function DocumentView() {
         <Card>
           <ul className="flex flex-col gap-3">
             {documents.map((paper) => {
+              const left = monthsLeft(paper, month);
+              const soon = left !== null && left <= SOON;
               const Icon = paper.state === "held" ? FileCheck : paper.state === "pending" ? FileClock : FileX;
               return (
                 <li key={paper.id} data-state={paper.state} className="flex items-start gap-3">
@@ -33,6 +36,11 @@ export function DocumentView() {
                             ? say("ui.document.held")
                             : say("ui.document.expires", { month: paper.expiresMonth })}
                     </span>
+                    {soon && left !== null ? (
+                      <span className="text-sm font-medium text-bad">
+                        {sayCount("ui.document.expires-soon", left, { months: left, month: paper.expiresMonth ?? 0 })}
+                      </span>
+                    ) : null}
                     {paper.id === ENGLISH_RESULT && paper.value !== null ? (
                       <span className="text-sm font-semibold">{say("ui.document.band", { band: formatBand(paper.value) })}</span>
                     ) : null}

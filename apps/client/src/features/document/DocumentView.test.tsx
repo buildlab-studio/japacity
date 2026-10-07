@@ -4,7 +4,7 @@ import { describe, expect, test } from "vitest";
 
 import { engineView, richView } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
-import { say } from "../../shared/words/text";
+import { say, sayCount } from "../../shared/words/text";
 import { DocumentView } from "./DocumentView";
 
 describe("papers", () => {
@@ -18,5 +18,18 @@ describe("papers", () => {
     expect(screen.getByText(text["document.passport.name"]!).closest("li")?.getAttribute("data-state")).toBe("held");
     expect(screen.getByText(say("ui.document.pending", { month: 12 }))).toBeDefined();
     expect(screen.getByText(say("ui.document.band", { band: "6.5" }))).toBeDefined();
+  });
+
+  test("given a held paper two months from running out, then it warns with the month", async () => {
+    const rich = richView();
+    const documents = [{ id: "document.tb-certificate" as const, state: "held" as const, readyMonth: null, expiresMonth: rich.month + 2, value: null }];
+    await renderWithView(<DocumentView />, { ...rich, documents });
+    expect(screen.getByText(sayCount("ui.document.expires-soon", 2, { months: 2, month: rich.month + 2 }))).toBeDefined();
+  });
+
+  test("given a held paper far from running out, then there is no warning", async () => {
+    const rich = richView();
+    await renderWithView(<DocumentView />, rich);
+    expect(screen.queryByText(/Runs out/)).toBeNull();
   });
 });
