@@ -60,8 +60,10 @@ describe("the month", () => {
     const closing = screen.getByText(text["chapter.find-your-feet.close"]!);
     expect(closing.closest("li")?.getAttribute("data-attention")).toBe("true");
     expect(screen.getByText(say("ui.report.needs-you"))).toBeDefined();
+    // A line with words in content shows the words.
+    expect(screen.getByText(/Salary paid/)).toBeDefined();
     // A key content has no words for yet shows as itself, so the gap is visible.
-    expect(screen.getByText("line.wallet.salary")).toBeDefined();
+    expect(screen.getByText("line.test.not-written")).toBeDefined();
     expect(screen.getByText(say("ui.report.japacity", { before: "58%", after: "64%" }))).toBeDefined();
   });
 

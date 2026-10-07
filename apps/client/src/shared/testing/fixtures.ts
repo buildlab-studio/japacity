@@ -115,6 +115,7 @@ export function richView(): PlayerView {
       month: 11,
       lines: [
         { key: "line.wallet.salary", params: { amount: 45_000_000 }, tone: "good", attention: false, counts: [] },
+        { key: "line.test.not-written", params: {}, tone: "plain", attention: false, counts: [] },
         { key: "chapter.find-your-feet.close", params: {}, tone: "plain", attention: true, counts: [] },
       ],
       japacityBefore: 58,
