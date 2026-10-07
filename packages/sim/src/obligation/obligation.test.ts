@@ -276,6 +276,26 @@ describe("default", () => {
     expect(qualityChanges(third, SALARY_LOAN)).toEqual([]);
   });
 
+  test("[R-OBLIGATION-005] [R-OBLIGATION-003] given a loan with grace 1, when a charge is missed, the next paid, and the next missed, then the paid month puts the count back to zero and the loan never defaults", () => {
+    const game = start({ scenario: ADA, content });
+    expect(entryOf(SALARY_LOAN).grace).toBe(1);
+    const loan = open(game, SALARY_LOAN, 10000000);
+    setNaira(game, 0);
+    game.endTurn();
+    expect(item(game, loan.id)).toMatchObject({ state: "grace", missed: 1 });
+
+    setNaira(game, 50000000);
+    const paid = game.endTurn();
+    expect(ofType(paid, "obligation/charged").filter((event) => event.id === loan.id)).toHaveLength(1);
+    expect(item(game, loan.id)).toMatchObject({ state: "active", missed: 0 });
+
+    setNaira(game, 0);
+    const missed = game.endTurn();
+    expect(ofType(missed, "obligation/missed").filter((event) => event.id === loan.id)).toHaveLength(1);
+    expect(ofType(missed, "obligation/defaulted")).toEqual([]);
+    expect(item(game, loan.id)).toMatchObject({ state: "grace", missed: 1 });
+  });
+
   test("[R-OBLIGATION-005] given a defaulted loan, when months pass, then the lender takes whatever is in the naira bank up to what is owed, never cash, until nothing is owed", () => {
     const game = start({ scenario: ADA, content });
     const principal = 10000000;

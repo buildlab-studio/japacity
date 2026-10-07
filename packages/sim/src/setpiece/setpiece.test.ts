@@ -2,6 +2,7 @@ import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
 import { check } from "../engine/check";
+import { step } from "../engine/step";
 import type { Id, ReadCtx } from "../engine/types";
 import type { Game } from "../testing/play";
 import { legalCommands } from "../testing/legal";
@@ -115,6 +116,27 @@ describe("while the interview is open", () => {
     answerFirst(game);
     game.endTurn();
     expect(game.state.turn.month).toBeGreaterThan(0);
+  });
+
+  test("[R-ENGINE-011] given an open interview and no turn banked, when each question comes up, then the view offers answers, every one offered is accepted by step, and answering closes it", () => {
+    // A first life finds how many months the file takes; the second banks exactly that many turns and one for the application.
+    const trial = life();
+    toHeld(trial);
+    const months = trial.state.turn.month + 1;
+    const game = life({ change: (used) => ({ ...used, tuning: { ...used.tuning, turn: { ...used.tuning.turn, start: months } } }) });
+    toApplied(game);
+    expect(game.state.turn.banked).toBe(0);
+    expect(game.view().turns.banked).toBe(0);
+    for (let guard = 0; guard < 10 && game.state.setpiece.open !== null; guard += 1) {
+      const answers = legalCommands(game.view()).filter((command) => command.type === "setpiece/answer");
+      expect(answers.length).toBeGreaterThan(0);
+      for (const command of answers) {
+        const tried = step(game.state, { ...command, basedOn: game.state.v }, game.world(), game.content);
+        expect(tried.ok).toBe(true);
+      }
+      game.accept(answers[0]!);
+    }
+    expect(game.state.setpiece.open).toBeNull();
   });
 
   test("[R-SETPIECE-003] given an open interview, when a later question, an unknown answer or nothing open is answered, then it is rejected with not-legal", () => {

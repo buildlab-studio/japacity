@@ -569,6 +569,22 @@ describe("funds", () => {
     expect(uk(game).funds).toMatchObject({ heldMonths: 1, covered: true });
   });
 
+  test("[R-ROUTE-011] given pounds in the bank exactly equal to the funds required, and one penny short, when the month ends, then equal is covered and a penny short is not", () => {
+    for (const [under, covered] of [
+      [0, true],
+      [1, false],
+    ] as const) {
+      // Only the pound bank is shown: no naira in the bank, and upkeep is paid from cash.
+      const game = life({ pockets: { NGN: { bank: 0, cash: 1500000 * UNIT }, GBP: { bank: 40000 * UNIT, cash: 0 } }, vars: () => ({ "var.uk-living-line": 117100 }) });
+      toDeposit(game);
+      const required = fundsRequired(readOf(game), UK);
+      game.accept({ type: "wallet/move", currency: "GBP", amount: game.state.wallet.pockets.GBP.bank - required + under, to: "cash" });
+      expect(fundsShown(readOf(game), UK)).toBe(required - under);
+      game.endTurn();
+      expect(uk(game).funds).toEqual({ heldMonths: covered ? 1 : 0, covered, shown: required - under, required });
+    }
+  });
+
   test("[R-ROUTE-011] given an application pending, when its month ends, then no funds check runs", () => {
     const game = life();
     toHeld(game);
@@ -595,6 +611,83 @@ describe("the visa application", () => {
     expect(game.state.wallet.totals.out["fee-surcharge"]).toEqual({ GBP: vars["var.uk-surcharge"] });
     expect(game.state.wallet.pockets.GBP.bank).toBe(before - vars["var.uk-visa-fee"]! - vars["var.uk-surcharge"]!);
     expect(uk(game).state).toBe("applying");
+  });
+
+  describe("each condition of the application, missing alone", () => {
+    const VISA: Id<"activity"> = "activity.apply-for-visa";
+    const requires = content.activity[VISA]!.requires;
+    const which = (type: Requirement["type"], document?: Id<"document">): Requirement =>
+      requires.find((requirement) => requirement.type === type && (document === undefined || (requirement.type === "document/held" && requirement.document === document)))!;
+    let window = 2;
+    const cases: [string, Requirement, (game: Game) => void, Partial<LifeOptions>][] = [
+      [
+        "the route not known, as it is while an application is pending",
+        which("route/state"),
+        (game) => {
+          toApplied(game);
+          answerFirst(game);
+        },
+        {},
+      ],
+      [
+        "the window closed",
+        which("var/min"),
+        (game) => {
+          toHeld(game);
+          window = 0;
+        },
+        { vars: () => ({ [WINDOW]: window }) },
+      ],
+      [
+        "no passport",
+        which("document/held", "document.passport"),
+        (game) => {
+          toHeld(game);
+          applyEffects(game, [{ type: "document/void", document: "document.passport" }]);
+        },
+        {},
+      ],
+      [
+        "no English result",
+        which("document/held", "document.english-test"),
+        (game) => {
+          toHeld(game);
+          applyEffects(game, [{ type: "document/void", document: "document.english-test" }]);
+        },
+        {},
+      ],
+      [
+        "no confirmation from the university",
+        which("document/held", CAS),
+        (game) => {
+          toHeld(game);
+          applyEffects(game, [{ type: "document/void", document: CAS }]);
+        },
+        {},
+      ],
+      [
+        "funds held at a month end but short now",
+        which("route/funds"),
+        (game) => {
+          toHeld(game);
+          game.accept({ type: "wallet/move", currency: "GBP", amount: game.state.wallet.pockets.GBP.bank, to: "cash" });
+          expect(uk(game).funds.heldMonths).toBe(1);
+        },
+        {},
+      ],
+    ];
+
+    test.each(cases)("[R-ROUTE-012] given everything else in place and %s, when the visa is applied for, then it is refused and the view names that one condition", (_name, missing, setUp, options) => {
+      window = 2;
+      const game = life(options);
+      setUp(game);
+      const option = game.view().activities.find((candidate) => candidate.id === VISA)!;
+      expect(option.allowed).toBe(false);
+      expect(option.missing).toEqual([missing]);
+      const before = uk(game).state;
+      game.expectRejected({ type: "turn/end", slots: [slot(VISA)] }, "not-legal");
+      expect(uk(game).state).toBe(before);
+    });
   });
 
   test("[R-ROUTE-012] given no TB certificate, when the visa is applied for, then it is refused", () => {

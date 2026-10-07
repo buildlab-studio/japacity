@@ -30,6 +30,20 @@ function registryWithEffectCommand(effect: Extract<Effect, { type: `turn/${strin
   );
 }
 
+/** Sets wellbeing through the engine, as an offer choice would. */
+function setWellbeing(game: ReturnType<typeof start>, value: number): void {
+  const amount = value - (game.state.quality["quality.wellbeing"] ?? 0);
+  const kinds = registry().map((kind) =>
+    kind.kind !== "offer"
+      ? kind
+      : { ...kind, commands: { "offer/choose": (ctx: Ctx): BaseEvent[] => ctx.apply([{ type: "quality/add", quality: "quality.wellbeing", amount }], { source: "test", param: null, terms: {} }) } },
+  );
+  const result = sendWith(kinds, game.state, { type: "offer/choose", offer: "x", choice: "y" }, game.tick);
+  if (!result.ok) throw new Error(result.detail);
+  game.state = result.state;
+  expect(game.state.quality["quality.wellbeing"]).toBe(value);
+}
+
 function sendWith(kinds: ReturnType<typeof registry>, state: State, command: Loose, tick = 0) {
   const full: Command = { ...command, basedOn: state.v };
   return stepWith(kinds, state, full, standInWorld("w", tick, miniContent), miniContent);
@@ -120,6 +134,35 @@ describe("turns", () => {
     const game = start({ scenario: "scenario.worker" });
     expect(game.state.quality["quality.wellbeing"]).toBeLessThan(miniContent.tuning.quality.burnoutBelow);
     expect(game.view().freeSlots).toBe(tuning.freeSlots - 1);
+  });
+
+  test("[R-TURN-006] given a job and wellbeing at 25 and at 24, when the free slots are counted, then 25 keeps both and 24 loses one, and the turn check follows", () => {
+    const burnout = miniContent.tuning.quality.burnoutBelow;
+    expect(burnout).toBe(25);
+    const rest = { activity: "activity.rest" as const, param: null };
+    const at = start({ scenario: "scenario.worker" });
+    setWellbeing(at, burnout);
+    expect(at.view().freeSlots).toBe(tuning.freeSlots);
+    at.endTurn([rest, rest]);
+    const under = start({ scenario: "scenario.worker" });
+    setWellbeing(under, burnout - 1);
+    expect(under.view().freeSlots).toBe(tuning.freeSlots - 1);
+    under.expectRejected({ type: "turn/end", slots: [rest, rest] }, "not-legal");
+    under.endTurn([rest]);
+  });
+
+  test("[R-TURN-006] given no job and wellbeing at 25 and at 24, when the free slots are counted, then 25 keeps three and 24 loses one", () => {
+    const burnout = miniContent.tuning.quality.burnoutBelow;
+    const rest = { activity: "activity.rest" as const, param: null };
+    const at = start({ scenario: "scenario.plain" });
+    setWellbeing(at, burnout);
+    expect(at.view().freeSlots).toBe(tuning.freeSlotsNoJob);
+    at.endTurn([rest, rest, rest]);
+    const under = start({ scenario: "scenario.plain" });
+    setWellbeing(under, burnout - 1);
+    expect(under.view().freeSlots).toBe(tuning.freeSlotsNoJob - 1);
+    under.expectRejected({ type: "turn/end", slots: [rest, rest, rest] }, "not-legal");
+    under.endTurn([rest, rest]);
   });
 
   test("[R-TURN-006] given 3 free slots, when 4 are filled, then the turn is rejected with not-legal", () => {
