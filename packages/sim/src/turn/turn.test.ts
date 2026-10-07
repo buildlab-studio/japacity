@@ -22,15 +22,15 @@ function registryWithEffectCommand(effect: { type: "turn/refill" } | { type: "tu
       : {
           ...kind,
           commands: {
-            "offer/choose": (ctx: Ctx, _command: Command): BaseEvent[] | Rejection =>
-              ctx.apply([effect], { source: "test", param: null, terms: {} }),
+            "offer/choose": (ctx: Ctx): BaseEvent[] | Rejection => ctx.apply([effect], { source: "test", param: null, terms: {} }),
           },
         },
   );
 }
 
 function sendWith(kinds: ReturnType<typeof registry>, state: State, command: Loose, tick = 0) {
-  return stepWith(kinds, state, { ...command, basedOn: state.v } as Command, standInWorld("w", tick, miniContent), miniContent);
+  const full: Command = { ...command, basedOn: state.v };
+  return stepWith(kinds, state, full, standInWorld("w", tick, miniContent), miniContent);
 }
 
 describe("turns", () => {
@@ -104,8 +104,8 @@ describe("turns", () => {
 
   test("[R-TURN-005] given the authority, when it grants zero or a fraction, then it is rejected with bad-amount", () => {
     const game = start();
-    game.expectRejected({ type: "turns/grant", count: 0 }, "bad-amount", "authority");
-    game.expectRejected({ type: "turns/grant", count: Number("1.5") }, "bad-amount", "authority");
+    expect(game.expectRejected({ type: "turns/grant", count: 0 }, "bad-amount", "authority").code).toBe("bad-amount");
+    expect(game.expectRejected({ type: "turns/grant", count: Number("1.5") }, "bad-amount", "authority").code).toBe("bad-amount");
   });
 
   test("[R-TURN-006] given no job, when the view is read, then there are 3 free slots", () => {

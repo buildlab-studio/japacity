@@ -1,5 +1,5 @@
 // Every blessed golden. `pnpm bless` rewrites this file.
-import type { Golden } from "../src/engine/golden";
+import type { Golden } from "../engine/golden";
 
 import miniPlainResting from "./mini-plain-resting.json";
 import miniWorkerStudying from "./mini-worker-studying.json";

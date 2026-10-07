@@ -8,9 +8,9 @@ import { measure } from "../packages/sim/src/engine/golden";
 import type { Content } from "../packages/sim/src/engine/types";
 import { miniContent } from "../packages/sim/src/testing/miniContent";
 import { standInWorld } from "../packages/sim/src/world/standIn";
-import { goldenScripts } from "../packages/sim/goldens/scripts";
+import { goldenScripts } from "../packages/sim/src/goldens/scripts";
 
-const goldensDir = fileURLToPath(new URL("../packages/sim/goldens/", import.meta.url));
+const goldensDir = fileURLToPath(new URL("../packages/sim/src/goldens/", import.meta.url));
 
 /** The content a save's version names. Real content joins this table when it lands. */
 const CONTENTS: Record<string, Content> = { [miniContent.version]: miniContent };
@@ -45,7 +45,7 @@ for (const script of goldenScripts) {
 
 const index = [
   "// Every blessed golden. `pnpm bless` rewrites this file.",
-  'import type { Golden } from "../src/engine/golden";',
+  'import type { Golden } from "../engine/golden";',
   "",
   ...goldenScripts.map((script) => `import ${toImportName(script.name)} from "./${script.name}.json";`),
   "",

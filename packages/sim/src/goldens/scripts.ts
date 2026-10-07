@@ -1,6 +1,6 @@
 // The saves the goldens are measured from. `pnpm bless` turns each into a
 // JSON file beside this one. Add a script here, run bless, commit both.
-import type { Save, SlotPick } from "../src/engine/types";
+import type { Save, SlotPick } from "../engine/types";
 
 export interface GoldenScript {
   name: string;

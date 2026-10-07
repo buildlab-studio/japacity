@@ -141,7 +141,8 @@ describe("the step function", () => {
   test("[R-ENGINE-007] given a kind that gives no part of the view, when the view is joined, then it throws naming the missing keys", () => {
     const kinds: Registry = registry().map((kind) => {
       if (kind.kind !== "news") return kind;
-      const { view: _dropped, ...rest } = kind;
+      const rest = { ...kind };
+      delete rest.view;
       return rest;
     });
     const state = newState("scenario.plain", "seed-1", miniContent);

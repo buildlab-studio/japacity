@@ -86,10 +86,10 @@ describe("[R-ENGINE-005] random streams", () => {
 
   test("[R-ENGINE-005] given a bad position or range, when asked, then it throws", () => {
     expect(() => drawAt("s", "job", -1)).toThrow(/from 0/);
-    expect(() => drawAt("s", "job", 1.5)).toThrow(/from 0/);
+    expect(() => drawAt("s", "job", Number("1.5"))).toThrow(/from 0/);
     expect(() => scaleDraw(1, 0)).toThrow(/from 1/);
     const random = characterRandom("s", {});
     expect(() => random.between("job", 5, 4)).toThrow(/min <= max/);
-    expect(() => random.chance("job", 1.5)).toThrow(/whole/);
+    expect(() => random.chance("job", Number("1.5"))).toThrow(/whole/);
   });
 });

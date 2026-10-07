@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 
-import { goldens } from "../../goldens";
-import { goldenScripts } from "../../goldens/scripts";
+import { goldens } from "../goldens";
+import { goldenScripts } from "../goldens/scripts";
 import { miniContent } from "../testing/miniContent";
 import { standInWorld } from "../world/standIn";
 import { measure } from "./golden";
