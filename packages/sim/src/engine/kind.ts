@@ -78,6 +78,12 @@ export type Registry = readonly AnyKind[];
 export interface TurnInProgress {
   /** The slots of the `turn/end` command, as sent. Read by the activity kind's `slots` phase. */
   slots: SlotPick[];
+  /**
+   * The free slots the player had when the turn was checked, before any phase
+   * ran. The job's toll in `main` can lower wellbeing under the burnout line,
+   * and an empty slot still counts as rest at the count the player saw.
+   */
+  freeSlots: number;
   /** Japacity at the start of the turn, before the `spend` phase. */
   japacityBefore: number | null;
   /** Every report line produced so far in this turn. */

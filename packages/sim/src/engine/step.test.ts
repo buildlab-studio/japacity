@@ -86,6 +86,13 @@ describe("the step function", () => {
     const seen: Phase[] = [];
     const sawWellbeing: Partial<Record<Phase, number>> = {};
     const kinds: Registry = registry().map((kind) => {
+      // The activity kind's slots phase rests through quality/add, which would
+      // hide the one-per-phase count this test watches. Only the phases matter here.
+      if (kind.kind === "activity") {
+        const { phases: _dropped, ...rest } = kind;
+        void _dropped;
+        return rest;
+      }
       if (kind.kind !== "quality") {
         return kind;
       }

@@ -134,6 +134,23 @@ export const miniContent: Content = {
     },
   },
   offer: {
+    "offer.job": {
+      id: "offer.job",
+      group: "job",
+      when: [],
+      chanceBp: 0,
+      cooldown: 0,
+      maxTimes: null,
+      expiresAfter: 2,
+      terms: {},
+      fraudBp: 0,
+      signs: [],
+      choices: [
+        { id: "accept", requires: [], pick: null, effects: [{ type: "activity/start-job", job: { term: "job" } }], fraudEffects: null },
+        { id: "decline", requires: [], pick: null, effects: [], fraudEffects: null },
+      ],
+      onExpire: null,
+    },
     "offer.mini": {
       id: "offer.mini",
       group: "life",

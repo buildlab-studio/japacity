@@ -4,7 +4,7 @@
 // slot resolves (R-ACTIVITY-003), because an earlier slot can change the state.
 import { check, resolveAmount } from "../engine/check";
 import type { RegisteredKind } from "../engine/kind";
-import { emit, turnSlots } from "../engine/kind";
+import { emit, turnInProgress, turnSlots } from "../engine/kind";
 import { reject } from "../engine/reject";
 import type {
   ActivityEntry,
@@ -261,11 +261,11 @@ function slots(ctx: Ctx): BaseEvent[] {
   const picks = turnSlots(ctx);
   const events: BaseEvent[] = [];
   picks.forEach((pick, index) => events.push(...resolveSlot(ctx, pick, index)));
-  // the free slots are counted from the state as it is now, after
-  // the job's month. If the job's toll takes wellbeing under the burnout line,
-  // this counts one slot fewer than the player saw. The engine's turn in
-  // progress does not carry the count from the turn check.
-  const empty = Math.max(0, freeSlots(ctx.state, ctx.content) - picks.length);
+  // the count is the one the player saw at the turn check, carried by
+  // the engine, not the count after the job's toll in `main`.
+  const turn = turnInProgress(ctx);
+  const allowed = turn === null ? freeSlots(ctx.state, ctx.content) : turn.freeSlots;
+  const empty = Math.max(0, allowed - picks.length);
   if (empty > 0) {
     events.push(...record(ctx, { type: "activity/rested", slots: empty }));
     if (ctx.content.quality[WELLBEING] !== undefined) {

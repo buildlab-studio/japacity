@@ -1,6 +1,7 @@
 // The one function that does the work: step(state, command, world, content).
 import { japacity } from "../japacity/japacity.logic";
 import { registry } from "../kinds";
+import { freeSlots } from "../turn/turn.logic";
 import type { Draft } from "./draft";
 import { applyReturned, applyToDraft, makeCtx, openDraft, readOf } from "./draft";
 import type { EngineStepped } from "./events";
@@ -66,6 +67,7 @@ function runTurn(draft: Draft, ctx: EngineCtx, command: Command & { type: "turn/
   const linesBefore = draft.lines.length;
   draft.turn = {
     slots: command.slots,
+    freeSlots: freeSlots(draft.state, draft.content),
     japacityBefore: japacity(readOf(draft)).percent,
     lines: () => draft.lines.slice(linesBefore),
   };
