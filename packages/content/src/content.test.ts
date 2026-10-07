@@ -25,7 +25,7 @@ function tablesOf(of: Content): Record<string, Record<string, { id: string }>> {
     country: of.country,
     status: of.status,
     goal: of.goal,
-    // era, points and prologue join when the whole-life content lands; they are empty until then.
+    // era, points and prologue join when the home-side content enters them; they are empty until then.
   };
 }
 
