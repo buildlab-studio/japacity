@@ -179,8 +179,8 @@ function planFee(read: ReadCtx, currency: ForeignCurrency, amount: number): FeeP
   const rest = amount - fromBank - fromCash;
   if (rest === 0) return { fromBank, fromCash, bought: 0, naira: 0, charge: 0 };
   if (varOr(read.world, QUEUE, 0) > 0) return null;
-  // the naira leg buys foreign currency at the bank but is not counted against the
-  // month's allowance: R-WALLET-009 names only the queue, and fees are paid to an institution.
+  // R-WALLET-005: the naira leg settles an invoice rather than buying currency, so it does not
+  // count against the month's allowance.
   const naira = mulDivCeil(rest, read.world.rates[currency].official, 100);
   const charge = bp(naira, read.content.tuning.wallet.bankChargeBp);
   if (naira + charge > read.state.wallet.pockets.NGN.bank) return null;
@@ -280,7 +280,7 @@ function abokiGives(amount: number, from: Currency, to: Currency, world: World, 
 function convertAtAboki(ctx: Ctx, from: Currency, to: Currency, amount: number): BaseEvent[] | Rejection {
   if (amount > ctx.state.wallet.pockets[from].cash) return reject("cannot-afford", "The aboki takes cash, and there is less than that in cash.");
   const received = abokiGives(amount, from, to, ctx.world, ctx.content);
-  // an amount too small to buy a single cent is refused rather than taken for nothing.
+  // R-WALLET-012: a conversion must give back at least one unit of the other currency.
   if (received === 0) return reject("bad-amount", "That is too little to change.");
   const { streetShortBp, streetShortLossBp } = ctx.content.tuning.wallet;
   const events = [debit(from, "cash", amount, "convert"), credit(to, "cash", received, "convert")];
@@ -306,15 +306,15 @@ function convertAtBank(ctx: Ctx, from: Currency, to: Currency, amount: number): 
   const month = state.turn.month;
   const leaving = [debit(from, "bank", charge, "bank-charge"), debit(from, "bank", net, "convert")];
   const bought: WalletEvent[] = buying ? [{ type: "wallet/bought", month, cents }] : [];
+  const received = convertMinor(net, from, to, official);
+  // R-WALLET-012, as at the aboki. A queued purchase is judged at today's rate, before it waits.
+  if (received === 0) return reject("bad-amount", "That is too little to change.");
   const queue = varOr(world, QUEUE, 0);
   if (buying && queue > 0) {
     // R-WALLET-006: the money leaves now; the rate is the one on the day it arrives.
     const queued: WalletEvent = { type: "wallet/queued", conversion: { id: ctx.nextId("conversion"), from, to, paid: net, readyMonth: month + queue } };
     return [...moved(leaving), queued, ...bought];
   }
-  const received = convertMinor(net, from, to, official);
-  // as at the aboki, an amount too small to give a single unit back is refused.
-  if (received === 0) return reject("bad-amount", "That is too little to change.");
   return [...moved([...leaving, credit(to, "bank", received, "convert")]), ...bought];
 }
 

@@ -4,6 +4,7 @@ import { describe, expect } from "vitest";
 
 import { check } from "../engine/check";
 import { bp, convertMinor, mulDiv, mulDivCeil } from "../engine/int";
+import { drawAt, scaleDraw } from "../engine/random";
 import { stepWith } from "../engine/step";
 import type { BaseEvent, Content, Ctx, Currency, Effect, ForeignCurrency, Id, Reason, Rejection, Requirement, StepResult, World } from "../engine/types";
 import { checkInvariants } from "../engine/invariants";
@@ -308,6 +309,21 @@ describe("the bank", () => {
     expect(game.view().bankAllowanceLeft).toBe(allowance - 9850);
   });
 
+  test("[R-WALLET-005] given an allowance of zero and of one cent, when a pound fee is paid mostly from the naira bank, then it is paid and the allowance is not touched", () => {
+    for (const allowance of [0, 1]) {
+      const { game } = play({ vars: { [ALLOWANCE]: allowance, [QUEUE]: 0 } });
+      apply(game, [{ type: "money/add", currency: "GBP", pocket: "bank", amount: 800, reason: "gift" }]);
+      const naira = mulDivCeil(55000, ROUND_RATES.GBP.official, 100);
+      expect(judge(game, { type: "money/can-pay", currency: "GBP", amount: 55800 }).met).toBe(true);
+      const before = game.state.wallet.pockets.NGN.bank;
+      apply(game, [{ type: "money/pay-fee", currency: "GBP", amount: 55800, reason: "fee-visa" }]);
+      expect(before - game.state.wallet.pockets.NGN.bank).toBe(naira + bp(naira, tuning.bankChargeBp));
+      expect(game.state.wallet.totals.out["fee-visa"]).toEqual({ GBP: 55800 });
+      expect(game.state.wallet.bought).toEqual({ month: 0, cents: 0 });
+      expect(game.view().bankAllowanceLeft).toBe(allowance);
+    }
+  });
+
   test("[R-WALLET-005] given an allowance of zero, when foreign currency is sold at the bank for more than any allowance, then there is no limit", () => {
     const { game } = play({ vars: { [ALLOWANCE]: 0 } });
     apply(game, [{ type: "money/add", currency: "USD", pocket: "bank", amount: 5000000, reason: "salary" }]);
@@ -424,6 +440,25 @@ describe("the aboki", () => {
       expect(lost).toBeLessThanOrEqual(bp(5000, max));
       expect(game.state.wallet.pockets.USD.cash).toBe(5000 - lost);
       expect(result.lines.map((line) => line.key)).toContain("line.wallet.short-count");
+    }
+  });
+
+  test("[R-WALLET-008] given a short count is certain, when the loss draw is at its top and at its bottom, then exactly 8% and exactly 3% are lost", () => {
+    const always = { ...content, tuning: { ...content.tuning, wallet: { ...tuning, streetShortBp: 10000 } } };
+    const [min, max] = tuning.streetShortLossBp;
+    expect([min, max]).toEqual([300, 800]);
+    // The first street draw is the chance, the second the loss between the two figures.
+    const lossDrawn = (seed: string) => min + scaleDraw(drawAt(seed, "street", 1), max - min + 1);
+    for (const [want, lost] of [
+      [max, 400],
+      [min, 150],
+    ] as const) {
+      const seed = Array.from({ length: 5000 }, (_unused, index) => `edge-${String(index)}`).find((candidate) => lossDrawn(candidate) === want)!;
+      const { game } = play({ content: always, seed });
+      game.accept({ type: "wallet/convert", from: "NGN", to: "USD", amount: 5250000, via: "aboki" });
+      expect(game.state.wallet.totals.out["short-count"]).toEqual({ USD: lost });
+      expect(lost).toBe(bp(5000, want));
+      expect(game.state.wallet.pockets.USD.cash).toBe(5000 - lost);
     }
   });
 
@@ -606,6 +641,13 @@ describe("command amounts", () => {
     expect(mulDiv(1000, 100, ROUND_RATES.USD.street)).toBe(0);
     expect(game.expectRejected({ type: "wallet/convert", from: "NGN", to: "USD", amount: 1000, via: "aboki" }, "bad-amount").code).toBe("bad-amount");
     expect(game.expectRejected({ type: "wallet/convert", from: "NGN", to: "USD", amount: 1000, via: "bank" }, "bad-amount").code).toBe("bad-amount");
+  });
+
+  test("[R-WALLET-012] given a bank queue, when a purchase too small to give back a single cent at today's rate is asked for, then it is bad-amount and nothing is queued", () => {
+    const { game } = play({ vars: { [QUEUE]: 1, [ALLOWANCE]: 50000 } });
+    expect(convertMinor(1000 - bp(1000, tuning.bankChargeBp), "NGN", "USD", officialOf(ROUND_RATES))).toBe(0);
+    game.expectRejected({ type: "wallet/convert", from: "NGN", to: "USD", amount: 1000, via: "bank" }, "bad-amount");
+    expect(game.state.wallet.queued).toEqual([]);
   });
 
   test("[R-WALLET-012] given a pocket, when exactly all of it is moved, then it is accepted; one more is cannot-afford", () => {
