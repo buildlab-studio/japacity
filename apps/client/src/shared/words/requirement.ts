@@ -88,6 +88,25 @@ export function requirementSentence(requirement: Requirement): string {
       return say("ui.req.not", { inner: requirementSentence(requirement.of) });
     case "any":
       return say("ui.req.any", { inner: list(requirement.of.map(requirementSentence)) });
+    // Whole-life requirements (docs/rules/place.md and after). Plain first drafts.
+    case "place/is":
+      return say("ui.req.place-is", { where: say(`ui.place.${requirement.where}`) });
+    case "status/is":
+      return say("ui.req.status-is", { statuses: list(requirement.statuses.map(nameOf)) });
+    case "status/clock-under":
+      return say("ui.req.status-clock-under", { months: requirement.months });
+    case "credit/min":
+      return say("ui.req.credit-min", { value: requirement.value });
+    case "goal/done":
+      return say("ui.req.goal-done", { goal: nameOf(requirement.goal) });
+    case "era/is":
+      return say("ui.req.era-is", { eras: list(requirement.eras.map(nameOf)) });
+    case "obligation/has":
+      return say("ui.req.obligation-has", { type: say(`ui.obligation.type.${requirement.obligationType}`) });
+    case "route/gate-step":
+      return say("ui.req.route-gate-step", { route: nameOf(requirement.route), step: requirement.step });
+    case "activity/local-tenure":
+      return say("ui.req.local-tenure", { months: requirement.months });
     default: {
       const never: never = requirement;
       throw new Error(`No sentence for the requirement ${JSON.stringify(never)}.`);

@@ -12,12 +12,18 @@ import type {
   KindName,
   Money,
   NewsStage,
+  ObligationType,
   Pocket,
   Reason,
   Requirement,
+  ReturnShape,
+  RouteGate,
   RouteStateName,
   TermSpec,
   Tuning,
+  Where,
+  WhereEntry,
+  WorkRule,
 } from "./types";
 
 // ---------------------------------------------------------------------------
@@ -47,8 +53,8 @@ export function idOf<K extends KindName>(kind: K) {
     .check(z.regex(new RegExp(`^${kind}\\.${SLUG}$`), { error: `Expected an id of the form ${kind}.slug` }));
 }
 
-export const CurrencySchema = z.enum(["NGN", "GBP", "USD"]);
-export const ForeignCurrencySchema = z.enum(["GBP", "USD"]);
+export const CurrencySchema = z.enum(["NGN", "GBP", "USD", "CAD", "AED", "EUR"]);
+export const ForeignCurrencySchema = z.enum(["GBP", "USD", "CAD", "AED", "EUR"]);
 export const PocketSchema = z.enum(["bank", "cash"]);
 export const ReasonSchema = z.enum([
   "opening",
@@ -77,9 +83,47 @@ export const ReasonSchema = z.enum([
   "mishap",
   "flight",
   "short-count",
+  "rent",
+  "deposit-return",
+  "phone",
+  "car-payment",
+  "car-deposit",
+  "remit",
+  "remit-fee",
+  "cash-work",
+  "tax",
+  "agent-debt",
+  "ransom",
+  "fare",
+  "build",
   "convert",
   "move",
 ]);
+export const WhereSchema = z.enum(["home", "abroad", "road"]);
+export const WhereEntrySchema = z.enum(["home", "abroad", "any"]);
+export const ReturnShapeSchema = z.enum(["removed", "assisted", "broke", "by-choice", "with-papers"]);
+export const WorkRuleSchema = z.enum(["any", "part", "one-employer", "cash", "none"]);
+export const RouteGateSchema = z.enum(["study", "sponsor", "points", "endorsement", "contract", "road"]);
+export const ObligationTypeSchema = z.enum([
+  "upkeep",
+  "support",
+  "loan",
+  "held-funds",
+  "rent",
+  "phone",
+  "car",
+  "surcharge",
+  "tuition",
+  "agent-debt",
+  "undertaking",
+]);
+
+export type WhereMatches = Proof<Same<z.infer<typeof WhereSchema>, Where>>;
+export type WhereEntryMatches = Proof<Same<z.infer<typeof WhereEntrySchema>, WhereEntry>>;
+export type ReturnShapeMatches = Proof<Same<z.infer<typeof ReturnShapeSchema>, ReturnShape>>;
+export type WorkRuleMatches = Proof<Same<z.infer<typeof WorkRuleSchema>, WorkRule>>;
+export type RouteGateMatches = Proof<Same<z.infer<typeof RouteGateSchema>, RouteGate>>;
+export type ObligationTypeMatches = Proof<Same<z.infer<typeof ObligationTypeSchema>, ObligationType>>;
 export const RouteStateNameSchema = z.enum(["unknown", "heard", "known", "applying", "granted", "refused", "departed"]);
 export const NewsStageSchema = z.enum(["rumour", "announced", "in-force", "ended"]);
 
@@ -160,6 +204,15 @@ export const RequirementSchema = z.discriminatedUnion("type", [
   z.strictObject({ type: z.literal("var/max"), var: idOf("var"), value: IntSchema }),
   z.strictObject({ type: z.literal("month/min"), value: CountSchema }),
   z.strictObject({ type: z.literal("chapter/done"), chapter: idOf("chapter") }),
+  z.strictObject({ type: z.literal("place/is"), where: WhereSchema, country: idOf("country").exactOptional() }),
+  z.strictObject({ type: z.literal("status/is"), statuses: z.array(idOf("status")) }),
+  z.strictObject({ type: z.literal("status/clock-under"), months: CountSchema }),
+  z.strictObject({ type: z.literal("credit/min"), value: IntSchema }),
+  z.strictObject({ type: z.literal("goal/done"), goal: idOf("goal") }),
+  z.strictObject({ type: z.literal("era/is"), eras: z.array(idOf("era")) }),
+  z.strictObject({ type: z.literal("obligation/has"), obligationType: ObligationTypeSchema }),
+  z.strictObject({ type: z.literal("route/gate-step"), route: idOf("route"), step: z.string().min(1) }),
+  z.strictObject({ type: z.literal("activity/local-tenure"), months: CountSchema }),
   z.strictObject({
     type: z.literal("not"),
     get of(): z.ZodType<Requirement> {
@@ -231,12 +284,30 @@ export const EffectSchema = z.discriminatedUnion("type", [
   }),
   z.strictObject({ type: z.literal("route/interview-scored"), route: idOf("route"), score: IntSchema }),
   z.strictObject({
+    type: z.literal("route/record-sponsor"),
+    route: idOf("route"),
+    employer: z.string().min(1),
+    salary: CountSchema,
+    fraud: z.boolean(),
+  }),
+  z.strictObject({ type: z.literal("route/road-step"), step: z.string().min(1) }),
+  z.strictObject({
     type: z.literal("obligation/open"),
     obligation: idOf("obligation"),
     principal: AmountSchema.exactOptional(),
     amount: AmountSchema.exactOptional(),
   }),
   z.strictObject({ type: z.literal("offer/open"), offer: idOf("offer") }),
+  z.strictObject({ type: z.literal("obligation/close"), obligationType: ObligationTypeSchema }),
+  z.strictObject({ type: z.literal("place/move"), to: WhereSchema, country: idOf("country").nullable() }),
+  z.strictObject({ type: z.literal("status/grant"), status: idOf("status"), job: idOf("activity").exactOptional() }),
+  z.strictObject({ type: z.literal("status/lose") }),
+  z.strictObject({ type: z.literal("status/remove") }),
+  z.strictObject({ type: z.literal("status/clock-start") }),
+  z.strictObject({ type: z.literal("credit/mark"), amount: IntSchema }),
+  z.strictObject({ type: z.literal("credit/judgment") }),
+  z.strictObject({ type: z.literal("goal/open"), goal: idOf("goal") }),
+  z.strictObject({ type: z.literal("goal/done"), goal: idOf("goal") }),
   z.strictObject({ type: z.literal("turn/refill") }),
   z.strictObject({ type: z.literal("turn/finish") }),
 ]);
@@ -315,6 +386,35 @@ export const TuningSchema = z.strictObject({
     hintPrep: CountSchema,
   }),
   offer: z.strictObject({ maxNewPerMonth: CountSchema, maxOpen: CountSchema }),
+  place: z.strictObject({ brokeLine: CountSchema, fareFromNaira: z.boolean() }),
+  credit: z.strictObject({
+    onTime: CountSchema,
+    onMiss: CountSchema,
+    onDefault: CountSchema,
+    drift: CountSchema,
+    driftTo: CountSchema,
+    judgmentMonths: CountSchema,
+    returnPenalty: CountSchema,
+  }),
+  car: z.strictObject({ lessons: CountSchema, testFee: CountSchema, passBp: BpSchema, passPerAttemptBp: BpSchema, passCapBp: BpSchema }),
+  remit: z.strictObject({ appFeeBp: BpSchema, appMarginBp: BpSchema, bankFeeBp: BpSchema, informalLossBp: BpSchema, abroadBp: CountSchema }),
+  return: z.strictObject({
+    standing: z.record(ReturnShapeSchema, IntSchema),
+    capitalPer: z.int().positive(),
+    capitalCap: CountSchema,
+    offerMonths: CountSchema,
+    residentLapseMonths: CountSchema,
+  }),
+  director: z.strictObject({
+    surgePerTick: CountSchema,
+    closedTicks: CountSchema,
+    maxNewPerTick: CountSchema,
+    shockGapTicks: CountSchema,
+    onlineTickScale: z.int().positive(),
+  }),
+  road: z.strictObject({ enabled: z.boolean() }),
+  ladder: z.strictObject({ cashDetectBp: BpSchema, accountRent: CountSchema, overtimeBp: BpSchema }),
+  prologue: z.strictObject({ startAgeMonths: CountSchema, siblings: RangeSchema, familyMeans: RangeSchema, cityBp: BpSchema }),
 });
 
 export type TuningMatches = Proof<Same<z.infer<typeof TuningSchema>, Tuning>>;

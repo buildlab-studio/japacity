@@ -20,6 +20,9 @@ export const COMMAND_OWNER: Record<PrefixOf<CommandType>, SliceKey> = {
   obligation: "obligation",
   route: "route",
   setpiece: "setpiece",
+  prologue: "prologue",
+  status: "status",
+  return: "place",
 };
 
 export function commandOwner(type: CommandType): SliceKey {

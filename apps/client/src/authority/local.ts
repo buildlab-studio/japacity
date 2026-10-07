@@ -62,7 +62,7 @@ function isStored(value: unknown): value is Stored {
   return (
     typeof save === "object" &&
     save !== null &&
-    save.schema === 1 &&
+    (save.schema === 1 || save.schema === 2) &&
     typeof save.content === "string" &&
     typeof save.scenario === "string" &&
     typeof save.seed === "string" &&

@@ -5,7 +5,7 @@ import { describe, expect, test } from "vitest";
 import { content } from "./index";
 
 /** Any string of this shape anywhere in content names an entry. */
-const REFERENCE = /^(quality|activity|document|school|route|setpiece|obligation|offer|chapter|var|news|scenario)\.[a-z0-9-]+$/;
+const REFERENCE = /^(quality|activity|document|school|route|setpiece|obligation|offer|chapter|var|news|scenario|country|status|goal|era|points)\.[a-z0-9-]+$/;
 
 /** Every table of entries, by kind. */
 function tablesOf(of: Content): Record<string, Record<string, { id: string }>> {
@@ -22,6 +22,9 @@ function tablesOf(of: Content): Record<string, Record<string, { id: string }>> {
     var: of.var,
     news: of.news,
     scenario: of.scenario,
+    country: of.country,
+    status: of.status,
+    // goal, era, points and prologue join when the whole-life content lands; they are empty until then.
   };
 }
 
@@ -242,7 +245,7 @@ describe("spot checks against the rule pages", () => {
       amount: 6000000,
     });
     // rate.md: start rates and the living line.
-    expect(content.tuning.rate.start).toEqual({ GBP: 175800, USD: 133150 });
+    expect(content.tuning.rate.start).toEqual({ GBP: 175800, USD: 133150, CAD: 97000, AED: 36250, EUR: 155800 });
     expect(content.var["var.uk-living-line"]?.start).toBe(117100);
     // news.md: the rise sets the living line to £1,203.
     expect(content.news["news.uk-living-rise"]?.standIn.sets).toEqual([{ var: "var.uk-living-line", value: 120300 }]);

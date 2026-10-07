@@ -33,7 +33,7 @@ export function replay(save: Save, content: Content, worldAt: (tick: number) => 
 
 /** An empty save for a new life. */
 export function newSave(scenario: Save["scenario"], seed: string, worldSeed: string, content: Content): Save {
-  return { schema: 1, content: content.version, scenario, seed, worldSeed, commands: [] };
+  return { schema: 2, content: content.version, scenario, seed, worldSeed, commands: [] };
 }
 
 /** The save with one more accepted command. */

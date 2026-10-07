@@ -18,6 +18,9 @@ export function unknownRoute(): RouteState {
     refusals: 0,
     lastRefusal: null,
     depositRefund: null,
+    gate: null,
+    secret: { sponsorFraud: null },
+    bannedUntil: null,
   };
 }
 

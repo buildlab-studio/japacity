@@ -5,6 +5,7 @@ import { activityTable } from "./activity/activity.data";
 import { activityText } from "./activity/activity.text";
 import { chapterTable } from "./chapter/chapter.data";
 import { chapterText } from "./chapter/chapter.text";
+import { countryTable } from "./country/country.data";
 import { documentTable } from "./document/document.data";
 import { documentText } from "./document/document.text";
 import { newsTable } from "./news/news.data";
@@ -24,6 +25,7 @@ import { schoolTable } from "./school/school.data";
 import { schoolText } from "./school/school.text";
 import { setpieceTable } from "./setpiece/setpiece.data";
 import { setpieceText } from "./setpiece/setpiece.text";
+import { statusTable } from "./status/status.data";
 import { tuning } from "./tuning/tuning.data";
 import { varTable } from "./var/var.data";
 import { varText } from "./var/var.text";
@@ -43,6 +45,13 @@ export const content: Content = {
   var: varTable,
   news: newsTable,
   scenario: scenarioTable,
+  country: countryTable,
+  status: statusTable,
+  // Filled by the whole-life content work from docs/rules/goal.md, director.md, route-gates.md and prologue.md.
+  goal: {},
+  era: {},
+  points: {},
+  prologue: {},
   tuning,
 };
 

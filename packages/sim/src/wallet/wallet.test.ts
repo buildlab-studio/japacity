@@ -5,7 +5,7 @@ import { describe, expect } from "vitest";
 import { check } from "../engine/check";
 import { bp, convertMinor, mulDiv, mulDivCeil } from "../engine/int";
 import { stepWith } from "../engine/step";
-import type { BaseEvent, Content, Ctx, Currency, Effect, Id, Reason, Rejection, Requirement, StepResult, World } from "../engine/types";
+import type { BaseEvent, Content, Ctx, Currency, Effect, ForeignCurrency, Id, Reason, Rejection, Requirement, StepResult, World } from "../engine/types";
 import { checkInvariants } from "../engine/invariants";
 import { registry } from "../kinds";
 import { legalCommands } from "../testing/legal";
@@ -25,7 +25,16 @@ const TUNDE: Id<"scenario"> = "scenario.tunde";
 const ROUND_RATES: World["rates"] = {
   GBP: { official: 200000, street: 210000 },
   USD: { official: 100000, street: 105000 },
+  // The three whole-life currencies: round figures the tests never read.
+  CAD: { official: 70000, street: 73500 },
+  AED: { official: 27000, street: 28350 },
+  EUR: { official: 160000, street: 168000 },
 };
+
+/** The official rate of every foreign currency, as the int helpers want it. */
+function officialOf(rates: World["rates"]): Record<ForeignCurrency, number> {
+  return { GBP: rates.GBP.official, USD: rates.USD.official, CAD: rates.CAD.official, AED: rates.AED.official, EUR: rates.EUR.official };
+}
 
 interface Live {
   rates: World["rates"];
@@ -41,7 +50,7 @@ function play(options: { scenario?: Id<"scenario">; content?: Content; vars?: Li
     scenario: options.scenario ?? TUNDE,
     content: used,
     ...(options.seed === undefined ? {} : { seed: options.seed }),
-    worldAt: (tick) => ({ tick, rates: live.rates, vars: { ...base.vars, ...live.vars } as World["vars"], news: [] }),
+    worldAt: (tick) => ({ tick, rates: live.rates, vars: { ...base.vars, ...live.vars } as World["vars"], news: [], era: null }),
   });
   return { game, live };
 }
@@ -82,7 +91,7 @@ function ledger(game: Game, currency: Currency): { held: number; booked: number 
 
 /** US cents a naira purchase at the bank uses: what is left after the charge, at the official dollar rate. */
 function centsFor(amount: number, rates: World["rates"]): number {
-  return convertMinor(amount - bp(amount, tuning.bankChargeBp), "NGN", "USD", { GBP: rates.GBP.official, USD: rates.USD.official });
+  return convertMinor(amount - bp(amount, tuning.bankChargeBp), "NGN", "USD", officialOf(rates));
 }
 
 /** The smallest naira amount whose bank purchase uses exactly this many cents. */

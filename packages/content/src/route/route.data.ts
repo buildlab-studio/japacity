@@ -6,6 +6,12 @@ const UK: Id<"route"> = "route.uk-masters";
 export const routeTable: Record<Id<"route">, RouteEntry> = {
   "route.uk-masters": {
     id: UK,
+    // docs/rules/route-gates.md R-GATE-001 and 003.
+    gate: "study",
+    country: "country.uk",
+    status: "status.uk-student",
+    refusalBaseBp: 900,
+    flightPaidByEmployer: false,
     hearIf: [{ type: "quality/min", quality: "quality.edu-level", value: 3 }],
     hearBy: 3,
     window: "var.uk-study-window",

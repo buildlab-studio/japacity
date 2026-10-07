@@ -28,6 +28,7 @@ const REJECTION_CODES = [
   "bad-amount",
   "not-yours",
   "ended",
+  "prologue-open",
 ] as const;
 
 /** Fails to compile if the contract gains or loses a rejection code without this list following. */

@@ -9,7 +9,7 @@ import type { Content, ForeignCurrency, Id, World } from "../engine/types";
 import type { NewsSchedule, WorldStream } from "./schedule";
 import { newsAt, newsSchedule } from "./schedule";
 
-const FOREIGN: readonly ForeignCurrency[] = ["GBP", "USD"];
+const FOREIGN: readonly ForeignCurrency[] = ["GBP", "USD", "CAD", "AED", "EUR"];
 
 /** The story whose coming into force floats the naira (R-RATE-004). */
 const FLOAT_STORY: Id<"news"> = "news.naira-float";
@@ -109,7 +109,8 @@ function walk(
   turnBook(book, schedule, 0, content);
   const official = { ...rate.start };
   let premiumBp = rate.premiumFloorBp;
-  const street = { GBP: streetOf(official.GBP, premiumBp), USD: streetOf(official.USD, premiumBp) };
+  const street = {} as Record<ForeignCurrency, number>;
+  for (const currency of FOREIGN) street[currency] = streetOf(official[currency], premiumBp);
   visit({ tick: 0, official: { ...official }, street: { ...street }, premiumBp }, { ...book.values }, schedule);
 
   for (let tick = 1; tick <= upTo; tick += 1) {
@@ -145,7 +146,8 @@ function walk(
 function worldOf(track: RateTrack, vars: Record<Id<"var">, number>, schedule: NewsSchedule): World {
   const rates = {} as World["rates"];
   for (const currency of FOREIGN) rates[currency] = { official: track.official[currency], street: track.street[currency] };
-  return { tick: track.tick, rates, vars, news: newsAt(schedule, track.tick) };
+  // The era arrives with the director (docs/rules/director.md). The schedule world has none.
+  return { tick: track.tick, rates, vars, news: newsAt(schedule, track.tick), era: null };
 }
 
 /** Every world from tick 0 to `upTo`, in one walk. For tests and reports. */

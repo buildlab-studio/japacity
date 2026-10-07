@@ -25,12 +25,21 @@ export type KindName =
   | "chapter"
   | "news"
   | "var"
-  | "scenario";
+  | "scenario"
+  // Added for the whole-life milestone: docs/decisions/0003-whole-life-contract.md.
+  | "place"
+  | "status"
+  | "credit"
+  | "goal"
+  | "prologue"
+  | "era"
+  | "country"
+  | "points";
 
 /** An entry id: the kind, a dot, then a lower-case slug with hyphens. */
 export type Id<K extends KindName> = `${K}.${string}`;
 
-export type Currency = "NGN" | "GBP" | "USD";
+export type Currency = "NGN" | "GBP" | "USD" | "CAD" | "AED" | "EUR";
 export type ForeignCurrency = Exclude<Currency, "NGN">;
 export type Pocket = "bank" | "cash";
 
@@ -64,11 +73,49 @@ export type Reason =
   | "mishap"
   | "flight"
   | "short-count"
+  // abroad (docs/rules/abroad-money.md, car.md, return.md, road.md)
+  | "rent"
+  | "deposit-return"
+  | "phone"
+  | "car-payment"
+  | "car-deposit"
+  | "remit"
+  | "remit-fee"
+  | "cash-work"
+  | "tax"
+  | "agent-debt"
+  | "ransom"
+  | "fare"
+  | "build"
   // transfers: always in matched pairs
   | "convert"
   | "move";
 
-export type Stream = "job" | "gig" | "test" | "school" | "document" | "visa" | "offer" | "fraud" | "street";
+export type Stream =
+  | "job"
+  | "gig"
+  | "test"
+  | "school"
+  | "document"
+  | "visa"
+  | "offer"
+  | "fraud"
+  | "street"
+  | "prologue"
+  | "status"
+  | "credit"
+  | "road";
+
+/** Where a character is. `road` is the chain in docs/rules/road.md. */
+export type Where = "home" | "abroad" | "road";
+/** Where an entry applies. */
+export type WhereEntry = "home" | "abroad" | "any";
+/** The shapes of a return home: docs/rules/place.md R-PLACE-005. */
+export type ReturnShape = "removed" | "assisted" | "broke" | "by-choice" | "with-papers";
+/** What a status lets you do for work: docs/rules/status.md R-STATUS-002. */
+export type WorkRule = "any" | "part" | "one-employer" | "cash" | "none";
+/** A route's gate: docs/rules/route-gates.md. */
+export type RouteGate = "study" | "sponsor" | "points" | "endorsement" | "contract" | "road";
 
 export type Phase =
   | "spend"
@@ -140,6 +187,21 @@ export type Requirement =
   | { type: "var/max"; var: Id<"var">; value: number }
   | { type: "month/min"; value: number }
   | { type: "chapter/done"; chapter: Id<"chapter"> }
+  // whole life
+  | { type: "place/is"; where: Where; country?: Id<"country"> }
+  | { type: "status/is"; statuses: Id<"status">[] }
+  /** A status is held whose clock is running and under this many months. */
+  | { type: "status/clock-under"; months: number }
+  /** The credit mark in the current country. */
+  | { type: "credit/min"; value: number }
+  | { type: "goal/done"; goal: Id<"goal"> }
+  | { type: "era/is"; eras: Id<"era">[] }
+  /** An open obligation of this type exists. The car is `obligation/has` with type `car`. */
+  | { type: "obligation/has"; obligationType: ObligationType }
+  /** A route's gate has reached the named step: docs/rules/route-gates.md. */
+  | { type: "route/gate-step"; route: Id<"route">; step: string }
+  /** Months in any job in the current country. */
+  | { type: "activity/local-tenure"; months: number }
   | { type: "not"; of: Requirement }
   | { type: "any"; of: Requirement[] };
 
@@ -179,13 +241,32 @@ export type Effect =
   | { type: "route/support"; route: Id<"route">; currency: Currency; amount: Amount }
   /** The set piece finished: its score goes on the route's open visa application (R-SETPIECE-004). */
   | { type: "route/interview-scored"; route: Id<"route">; score: number }
+  /** A sponsor, agent or connection is recorded on a gate route. `fraud` is hidden on the route. */
+  | { type: "route/record-sponsor"; route: Id<"route">; employer: string; salary: number; fraud: boolean }
+  /** The road chain moves to a step or ends: docs/rules/road.md. */
+  | { type: "route/road-step"; step: string }
   // obligation
   | { type: "obligation/open"; obligation: Id<"obligation">; principal?: Amount; amount?: Amount }
   // offer: opens nothing when the offer's own `when` does not hold
   | { type: "offer/open"; offer: Id<"offer"> }
+  // obligation, whole life
+  | { type: "obligation/close"; obligationType: ObligationType }
+  // place (docs/rules/place.md)
+  | { type: "place/move"; to: Where; country: Id<"country"> | null }
+  // status (docs/rules/status.md)
+  | { type: "status/grant"; status: Id<"status">; job?: Id<"activity"> }
+  | { type: "status/lose" }
+  | { type: "status/remove" }
+  | { type: "status/clock-start" }
+  // credit (docs/rules/credit.md)
+  | { type: "credit/mark"; amount: number }
+  | { type: "credit/judgment" }
+  // goal (docs/rules/goal.md)
+  | { type: "goal/open"; goal: Id<"goal"> }
+  | { type: "goal/done"; goal: Id<"goal"> }
   // turn
   | { type: "turn/refill" }
-  /** The life at home is over: the character has left. */
+  /** The one final ending: the road's `lost` (R-ROAD-008). Departure no longer ends the life. */
   | { type: "turn/finish" };
 
 export type EffectType = Effect["type"];
@@ -220,6 +301,21 @@ export interface QualityEntry {
 export interface ActivityEntry {
   id: Id<"activity">;
   slot: "main" | "free";
+  /** Where it applies. Missing means `home`. docs/rules/ladders.md R-LADDER-001. */
+  where?: WhereEntry;
+  /** Abroad: the country it belongs to. Null or missing: every country. */
+  country?: Id<"country"> | null;
+  /** A job within the student cap (R-LADDER-006). */
+  part?: boolean;
+  /** Cash work: paid to cash, untaxed, pay may be withheld (R-LADDER-003). */
+  cash?: boolean;
+  withheldBp?: number;
+  /** A job that carries its own sponsorship certificate (R-LADDER-005). */
+  sponsor?: boolean;
+  /** Needs the car (R-CAR-002). */
+  needsCar?: boolean;
+  /** Yearly bonus paid while the character has the car, in the pay's currency. */
+  carBonus?: number;
   requires: Requirement[];
   /** What the player picks along with a free-slot activity. */
   param: "job" | "route" | "school" | null;
@@ -270,13 +366,45 @@ export interface ChecklistItem {
 
 export interface RouteEntry {
   id: Id<"route">;
+  /** Which steps the route runs through: docs/rules/route-gates.md R-GATE-001. */
+  gate: RouteGate;
+  country: Id<"country"> | null;
+  /** The status held abroad after departure. Null for the road. */
+  status: Id<"status"> | null;
+  /** The route's own refusal base, in place of the tuning base (R-GATE-002). */
+  refusalBaseBp: number;
+  flightPaidByEmployer: boolean;
   hearIf: Requirement[];
-  /** A character who meets `hearIf` has heard by this month at the latest. */
-  hearBy: number;
-  window: Id<"var">;
+  /** A character who meets `hearIf` has heard by this month at the latest. Null: never by itself. */
+  hearBy: number | null;
+  /** Null for the road, which has no window. */
+  window: Id<"var"> | null;
   checklist: ChecklistItem[];
+  /** Study gate. */
   schools: Id<"school">[];
-  interview: Id<"setpiece">;
+  interview: Id<"setpiece"> | null;
+  /** Sponsor gate: the salary bar and the maintenance line, as vars. */
+  sponsor?: { salaryVar: Id<"var">; maintenanceVar: Id<"var"> | null; findBp: number; bandMin: number; documents: Id<"document">[] };
+  /** Points gate. */
+  points?: { table: Id<"points">; fundsVar: Id<"var">; cutoffVar: Id<"var">; careCutoffVar: Id<"var"> | null; feeVar: Id<"var">; decisionVar: Id<"var">; profileMonths: number };
+  /** Endorsement gate. */
+  endorsement?: { document: Id<"document">; baseBp: number; perPortfolioBp: number; perNetworkBp: number; capBp: number; cooldown: number; feeVar: Id<"var"> };
+  /** Contract gate. */
+  contract?: { medical: Id<"document">; maxAgeMonths: number };
+  /** Road gate: the outcome tables by step, in basis points. */
+  road?: { steps: { id: string; months: [min: number, max: number]; on: number; held: number; turned: number; lost: number }[] };
+}
+
+/** One row of a points table: docs/rules/route-gates.md. */
+export interface PointsEntry {
+  id: Id<"points">;
+  /** Age in whole years to points. The last row's age is a floor. */
+  age: { years: number; points: number }[];
+  /** `quality.edu-level` to points. */
+  education: { level: number; points: number }[];
+  /** English band (times ten) to points per ability; the last row's band is a floor. */
+  language: { band: number; points: number }[];
+  transfer: { educationLowBand: number; educationHighBand: number; workLowBand: number; workHighBand: number; workLongLowBand: number; workLongHighBand: number; highBand: number; longMonths: number; cap: number };
 }
 
 export interface SetpieceAnswer {
@@ -301,10 +429,34 @@ export interface SetpieceEntry {
   questions: SetpieceQuestion[];
 }
 
+export type ObligationType =
+  | "upkeep"
+  | "support"
+  | "loan"
+  | "held-funds"
+  | "rent"
+  | "phone"
+  | "car"
+  | "surcharge"
+  | "tuition"
+  | "agent-debt"
+  | "undertaking";
+
 export interface ObligationEntry {
   id: Id<"obligation">;
-  type: "upkeep" | "support" | "loan" | "held-funds";
+  type: ObligationType;
+  where?: WhereEntry;
   currency: Currency;
+  /** Months between charges. Missing means every month. */
+  everyMonths?: number;
+  /** Abroad: the credit mark needed to open it (R-CREDIT-004). */
+  creditMin?: number;
+  /** Paid and missed months move the credit file (R-CREDIT-002). */
+  reportsToCredit?: boolean;
+  /** The monthly rate by credit mark, first rung whose `min` the mark reaches (R-CREDIT-005). */
+  rateByCredit?: { min: number; rateBp: number }[];
+  /** The car: deposit, final payment, resale and thresholds (docs/rules/car.md). */
+  car?: { price: number; depositBp: number; finalBp: number; resaleBp: number; courtThirdBp: number; handBackBp: number; courtMonths: number };
   /** A fixed charge each month. A scenario or an effect may override it. */
   amount: number;
   /** Monthly interest on the opening principal. */
@@ -339,7 +491,12 @@ export interface OfferChoice {
 
 export interface OfferEntry {
   id: Id<"offer">;
-  group: "family" | "job" | "money" | "life";
+  group: "family" | "job" | "money" | "life" | "road" | "abroad" | "return";
+  where?: WhereEntry;
+  /** The road: how the chance moves with the character's situation (R-ROAD-002). */
+  pressure?: { refusalBp: number; defaultBp: number; lowStandingBp: number; perYearOver30Bp: number; strongRouteBp: number };
+  /** The road pitch: what the offer really is, in basis points (R-ROAD-003). */
+  kinds?: { fraud: number; realish: number; road: number };
   /** Rolled each month while these hold. */
   when: Requirement[];
   /** Zero: never rolled. It opens only when an effect opens it. */
@@ -378,6 +535,18 @@ export interface NewsEntry {
   touches: Id<"route">[];
   /** Routes a character hears of by reading it. */
   hear: Id<"route">[];
+  /** The director's fields: docs/rules/director.md. Missing means the fixed schedule in `standIn` is used. */
+  director?: {
+    group: string;
+    needs: Requirement[];
+    cooldown: number;
+    once: boolean;
+    shock: boolean;
+    /** The story whose coming into force ends this one. */
+    endedBy: Id<"news"> | null;
+    /** Values added to variables (rather than set) when it comes into force. */
+    adds: { var: Id<"var">; value: number }[];
+  };
   /** How the stand-in world schedules it. */
   standIn: {
     chanceBp: number;
@@ -395,8 +564,92 @@ export interface NewsEntry {
   };
 }
 
+export interface CountryEntry {
+  id: Id<"country">;
+  currency: Currency;
+  /** The fare home, one way, in the currency's smallest unit (R-PLACE-006). */
+  fare: number;
+  decemberFactorBp: number;
+  taxFreeLine: number;
+  taxBp: number;
+  upkeep: Id<"obligation"> | null;
+  rentRoom: Id<"obligation"> | null;
+  rentFlat: Id<"obligation"> | null;
+  phone: Id<"obligation"> | null;
+  overstayer: Id<"status"> | null;
+  deceptionBanMonths: number;
+}
+
+export interface StatusEntry {
+  id: Id<"status">;
+  country: Id<"country">;
+  /** Months it lasts. Null: it does not expire. A var id reads the length from the world. */
+  months: number | Id<"var"> | null;
+  work: WorkRule;
+  /** Months on the clock when the job goes. Null: no clock; `lapsesAtOnce` says the status lapses instead. */
+  clockMonths: number | null;
+  lapsesAtOnce: boolean;
+  renewMonths: number;
+  renewFeeVar: Id<"var"> | null;
+  surchargeYearVar: Id<"var"> | null;
+  next: Id<"status"> | null;
+  nextIf: Requirement[];
+  countsToSettlement: boolean;
+  countsFromBefore: boolean;
+  settleMonthsVar: Id<"var"> | null;
+  settleFeeVar: Id<"var"> | null;
+  settled: Id<"status"> | null;
+  citizenAfter: number | null;
+  citizenFeeVar: Id<"var"> | null;
+  citizen: Id<"status"> | null;
+  banMonths: number;
+  overstayBanMonths: number;
+  detectBp: number;
+  holdsPassport: boolean;
+}
+
+export interface GoalEntry {
+  id: Id<"goal">;
+  where: WhereEntry;
+  openIf: Requirement[];
+  doneIf: Requirement[];
+  reward: Effect[];
+}
+
+export interface EraEntry {
+  id: Id<"era">;
+  ticks: [min: number, max: number];
+  /** Weight for each story group while this era runs. Missing group: 1. */
+  weights: Record<string, number>;
+  /** Weight of this era following each other era. Missing: 0. */
+  after: Record<string, number>;
+  once: boolean;
+  story: Id<"news">;
+}
+
+/** A step of the prologue: docs/rules/prologue.md. */
+export interface PrologueStep {
+  id: string;
+  months: number;
+  /** The step after this one when no answer or draw says otherwise. Null: the prologue closes. */
+  next: string | null;
+  answers: {
+    id: string;
+    requires: Requirement[];
+    effects: Effect[];
+    flags: string[];
+    gradeBase: number;
+    /** Overrides `next`. */
+    next: string | null;
+    /** A draw after the answer: each outcome's basis points, its effects and where it leads. */
+    draw: { id: string; bp: number; effects: Effect[]; next: string | null }[] | null;
+  }[];
+}
+
 export interface ScenarioEntry {
   id: Id<"scenario">;
+  /** True for `scenario.prologue`: the life is built by the prologue's choices (R-PROLOGUE-001). */
+  prologue?: boolean;
   qualities: Record<Id<"quality">, number>;
   job: Id<"activity"> | null;
   tenure: Record<Id<"activity">, number>;
@@ -453,6 +706,15 @@ export interface Tuning {
     hintPrep: number;
   };
   offer: { maxNewPerMonth: number; maxOpen: number };
+  place: { brokeLine: number; fareFromNaira: boolean };
+  credit: { onTime: number; onMiss: number; onDefault: number; drift: number; driftTo: number; judgmentMonths: number; returnPenalty: number };
+  car: { lessons: number; testFee: number; passBp: number; passPerAttemptBp: number; passCapBp: number };
+  remit: { appFeeBp: number; appMarginBp: number; bankFeeBp: number; informalLossBp: number; abroadBp: number };
+  return: { standing: Record<ReturnShape, number>; capitalPer: number; capitalCap: number; offerMonths: number; residentLapseMonths: number };
+  director: { surgePerTick: number; closedTicks: number; maxNewPerTick: number; shockGapTicks: number; onlineTickScale: number };
+  road: { enabled: boolean };
+  ladder: { cashDetectBp: number; accountRent: number; overtimeBp: number };
+  prologue: { startAgeMonths: number; siblings: [min: number, max: number]; familyMeans: [min: number, max: number]; cityBp: number };
 }
 
 export interface Content {
@@ -469,6 +731,13 @@ export interface Content {
   var: Record<Id<"var">, VarEntry>;
   news: Record<Id<"news">, NewsEntry>;
   scenario: Record<Id<"scenario">, ScenarioEntry>;
+  country: Record<Id<"country">, CountryEntry>;
+  status: Record<Id<"status">, StatusEntry>;
+  goal: Record<Id<"goal">, GoalEntry>;
+  era: Record<Id<"era">, EraEntry>;
+  points: Record<Id<"points">, PointsEntry>;
+  /** The prologue's steps by id. Empty until the prologue is built. */
+  prologue: Record<string, PrologueStep>;
   tuning: Tuning;
 }
 
@@ -489,6 +758,8 @@ export interface World {
   vars: Record<Id<"var">, number>;
   /** Every story that has reached any stage by this tick. */
   news: WorldNews[];
+  /** The era running. Null until the director runs (docs/rules/director.md). */
+  era: { id: Id<"era">; since: number; until: number } | null;
 }
 
 // ---------------------------------------------------------------------------
@@ -615,7 +886,22 @@ export interface RouteState {
   refusals: number;
   lastRefusal: { month: number; reasons: string[] } | null;
   depositRefund: { amount: number; readyMonth: number } | null;
+  /** The gate's own state. Null before the whole-life kinds land. */
+  gate: RouteGateState | null;
+  /** Never in the view. */
+  secret: { sponsorFraud: boolean | null };
+  /** Months the route stays `refused` from a ban. Null: no ban. */
+  bannedUntil: number | null;
 }
+
+/** State the gates keep beyond the study fields: docs/rules/route-gates.md. */
+export type RouteGateState =
+  | { gate: "study" }
+  | { gate: "sponsor"; sponsor: { employer: string; salary: number } | null }
+  | { gate: "points"; poolMonth: number | null; invitedMonth: number | null }
+  | { gate: "endorsement"; endorsementRefusedMonth: number | null }
+  | { gate: "contract"; agent: { employer: string; salary: number; role: string } | null }
+  | { gate: "road"; step: string | null; monthsHere: number; debt: number };
 
 export type RouteSlice = Record<Id<"route">, RouteState>;
 
@@ -677,9 +963,64 @@ export interface NewsSlice {
   delivered: Record<Id<"news">, NewsStage>;
 }
 
+export interface PlaceSlice {
+  where: Where;
+  country: Id<"country"> | null;
+  movedMonth: number;
+  returns: { month: number; shape: ReturnShape; country: Id<"country"> }[];
+  /** A settled or citizen status kept after a return with papers (R-RETURN-004). */
+  heldAbroad: { status: Id<"status">; sinceMonth: number } | null;
+}
+
+export interface StatusState {
+  entry: Id<"status">;
+  grantedMonth: number;
+  expiresMonth: number | null;
+  /** Months left on the clock when the job went. Null: not running. */
+  clock: number | null;
+  lawfulMonths: number;
+  monthsHeld: number;
+  /** The job a one-employer status is tied to. */
+  job: Id<"activity"> | null;
+}
+
+export interface StatusSlice {
+  current: StatusState | null;
+  /** Removals, by country and month. */
+  removals: { country: Id<"country">; month: number }[];
+}
+
+export interface CreditFile {
+  mark: number;
+  onTime: number;
+  missed: number;
+  lastMissMonth: number | null;
+  judgmentUntil: number | null;
+}
+
+export interface CreditSlice {
+  byCountry: Record<Id<"country">, CreditFile>;
+}
+
+export interface GoalSlice {
+  open: Record<Id<"goal">, { openedMonth: number }>;
+  done: Record<Id<"goal">, { month: number }>;
+}
+
+export interface PrologueSlice {
+  open: boolean;
+  step: string | null;
+  draw: { familyMeans: number; town: "city" | "town"; siblings: number; parentsEducated: boolean } | null;
+  choices: Record<string, string>;
+  /** The last draw's outcome, shown on the next card. */
+  lastOutcome: string | null;
+  flags: string[];
+  gradeBase: number;
+}
+
 export interface State {
-  /** The shape of the save. Raised when the shape changes. */
-  schema: 1;
+  /** The shape of the save. Raised when the shape changes. 2 adds the whole-life slices. */
+  schema: 1 | 2;
   content: string;
   /** The state version: one more for each accepted command. */
   v: number;
@@ -703,6 +1044,11 @@ export interface State {
   offer: OfferSlice;
   chapter: ChapterSlice;
   news: NewsSlice;
+  place: PlaceSlice;
+  status: StatusSlice;
+  credit: CreditSlice;
+  goal: GoalSlice;
+  prologue: PrologueSlice;
 }
 
 // ---------------------------------------------------------------------------
@@ -720,6 +1066,11 @@ export type Command = { basedOn: number } & (
   | { type: "route/depart"; route: Id<"route"> }
   | { type: "setpiece/answer"; question: string; answer: string }
   | { type: "turns/grant"; count: number }
+  // whole life
+  | { type: "wallet/remit"; currency: ForeignCurrency; amount: number; channel: "app" | "bank" | "informal" }
+  | { type: "prologue/choose"; step: string; answer: string }
+  | { type: "status/renew" }
+  | { type: "return/home" }
 );
 
 export type CommandType = Command["type"];
@@ -734,7 +1085,9 @@ export type RejectionCode =
   | "unknown-id"
   | "bad-amount"
   | "not-yours"
-  | "ended";
+  | "ended"
+  /** The prologue is open: only prologue/choose and turns/grant are accepted (R-PROLOGUE-001). */
+  | "prologue-open";
 
 export interface Rejection {
   ok: false;
@@ -821,7 +1174,7 @@ export interface KindModule<Slice, E extends BaseEvent> {
 
 /** Everything needed to rebuild a state: R-ENGINE-010. */
 export interface Save {
-  schema: 1;
+  schema: 1 | 2;
   content: string;
   scenario: Id<"scenario">;
   seed: string;
@@ -923,5 +1276,26 @@ export interface PlayerView {
   offers: OfferView[];
   chapter: { current: Id<"chapter"> | null; items: { id: string; met: boolean }[]; done: Id<"chapter">[] };
   news: { id: Id<"news">; stage: NewsStage; since: number; forYou: boolean }[];
+  place: { where: Where; country: Id<"country"> | null; monthsHere: number; returns: PlaceSlice["returns"]; heldAbroad: Id<"status"> | null };
+  status: {
+    entry: Id<"status">;
+    monthsLeft: number | null;
+    clock: number | null;
+    lawfulMonths: number;
+    settleMonths: number | null;
+    work: WorkRule;
+    nextStep: string | null;
+  } | null;
+  credit: { mark: number; onTime: number; missed: number; judgmentUntil: number | null; needs: { id: Id<"obligation">; creditMin: number }[] } | null;
+  goals: { open: { id: Id<"goal">; items: { id: string; met: boolean }[] }[]; done: { id: Id<"goal">; month: number }[] };
+  prologue: {
+    step: string;
+    answers: { id: string; allowed: boolean }[];
+    lastOutcome: string | null;
+    draw: PrologueSlice["draw"];
+  } | null;
+  era: World["era"];
+  /** The send-off card or the real-story card, when one is due (R-CHAPTER-006, R-ROAD-011). */
+  card: { kind: "send-off" | "real-story" | "lost"; route: Id<"route"> | null; percent: number | null; months: number; standing: number; topActivities: Id<"activity">[] } | null;
   report: TurnReport | null;
 }

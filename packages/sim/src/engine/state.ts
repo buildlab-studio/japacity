@@ -32,7 +32,7 @@ export function newStateWith(kinds: Registry, scenarioId: Id<"scenario">, seed: 
     if (!(key in slices)) throw new Error(`No kind built the ${key} slice.`);
   }
   return {
-    schema: 1,
+    schema: 2,
     content: content.version,
     v: 0,
     seed,

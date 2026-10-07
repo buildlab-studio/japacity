@@ -363,6 +363,15 @@ function judgeJob(read: ReadCtx, requirement: Requirement): RequirementResult {
     case "var/max":
     case "month/min":
     case "chapter/done":
+    case "place/is":
+    case "status/is":
+    case "status/clock-under":
+    case "credit/min":
+    case "goal/done":
+    case "era/is":
+    case "obligation/has":
+    case "route/gate-step":
+    case "activity/local-tenure":
     case "not":
     case "any":
       throw new Error(`The activity kind does not judge ${requirement.type}.`);

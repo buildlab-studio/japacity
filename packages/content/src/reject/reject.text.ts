@@ -10,4 +10,5 @@ export const rejectText: Record<string, string> = {
   "reject.bad-amount": "That amount will not work. Use a whole amount within the limit.",
   "reject.not-yours": "Only the game can do that.",
   "reject.ended": "You have left. This life at home is over.",
+  "reject.prologue-open": "Finish the story of how you got here first.",
 };

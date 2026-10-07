@@ -16,6 +16,11 @@ const CONTENT_KINDS = [
   "var",
   "news",
   "scenario",
+  "country",
+  "status",
+  "goal",
+  "era",
+  "points",
 ] as const satisfies readonly KindName[];
 
 type ContentKind = (typeof CONTENT_KINDS)[number];

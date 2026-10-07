@@ -14,7 +14,7 @@ import {
   valueInKobo,
 } from "./int";
 
-const RATES = { GBP: 175800, USD: 133150 };
+const RATES = { GBP: 175800, USD: 133150, CAD: 97000, AED: 36250, EUR: 155800 };
 
 describe("[R-ENGINE-009] whole-number arithmetic", () => {
   test("[R-ENGINE-009] given a positive and a negative dividend, when divided with divFloor, then both round down", () => {

@@ -6,16 +6,34 @@ import {
   CurrencySchema,
   EffectSchema,
   idOf,
+  ObligationTypeSchema,
   type Proof,
   ReasonSchema,
   type Same,
+  WhereEntrySchema,
 } from "../engine/language.schema";
 import type { ObligationEntry } from "../engine/types";
 
 export const ObligationEntrySchema = z.strictObject({
   id: idOf("obligation"),
-  type: z.enum(["upkeep", "support", "loan", "held-funds"]),
+  type: ObligationTypeSchema,
+  where: WhereEntrySchema.exactOptional(),
   currency: CurrencySchema,
+  everyMonths: z.int().positive().exactOptional(),
+  creditMin: CountSchema.exactOptional(),
+  reportsToCredit: z.boolean().exactOptional(),
+  rateByCredit: z.array(z.strictObject({ min: CountSchema, rateBp: BpSchema })).exactOptional(),
+  car: z
+    .strictObject({
+      price: CountSchema,
+      depositBp: BpSchema,
+      finalBp: BpSchema,
+      resaleBp: BpSchema,
+      courtThirdBp: BpSchema,
+      handBackBp: BpSchema,
+      courtMonths: CountSchema,
+    })
+    .exactOptional(),
   amount: CountSchema,
   rateBp: BpSchema,
   term: z.int().positive().nullable(),

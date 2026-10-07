@@ -9,6 +9,7 @@ import {
   RequirementSchema,
   type Same,
   TermSpecSchema,
+  WhereEntrySchema,
 } from "../engine/language.schema";
 import type { OfferChoice, OfferEntry } from "../engine/types";
 
@@ -22,7 +23,18 @@ export const OfferChoiceSchema = z.strictObject({
 
 export const OfferEntrySchema = z.strictObject({
   id: idOf("offer"),
-  group: z.enum(["family", "job", "money", "life"]),
+  group: z.enum(["family", "job", "money", "life", "road", "abroad", "return"]),
+  where: WhereEntrySchema.exactOptional(),
+  pressure: z
+    .strictObject({
+      refusalBp: BpSchema,
+      defaultBp: BpSchema,
+      lowStandingBp: BpSchema,
+      perYearOver30Bp: BpSchema,
+      strongRouteBp: BpSchema,
+    })
+    .exactOptional(),
+  kinds: z.strictObject({ fraud: BpSchema, realish: BpSchema, road: BpSchema }).exactOptional(),
   when: z.array(RequirementSchema),
   chanceBp: BpSchema,
   cooldown: CountSchema,

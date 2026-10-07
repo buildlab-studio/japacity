@@ -39,8 +39,9 @@ export const tuning: Tuning = {
 
   // rate.md
   rate: {
-    // Kobo for one pound (₦1,758.00) and one dollar (₦1,331.50).
-    start: { GBP: 175800, USD: 133150 },
+    // Kobo for one pound (₦1,758.00) and one dollar (₦1,331.50); the Canadian dollar, dirham and
+    // euro from the cross rates of 7 Oct 2026 (docs/rules/abroad-money.md).
+    start: { GBP: 175800, USD: 133150, CAD: 97000, AED: 36250, EUR: 155800 },
     // 0.4%
     driftBp: 40,
     // 1.2%
@@ -87,4 +88,37 @@ export const tuning: Tuning = {
     maxNewPerMonth: 2,
     maxOpen: 4,
   },
+
+  // place.md
+  place: { brokeLine: naira(500000), fareFromNaira: true },
+
+  // credit.md
+  credit: { onTime: 3, onMiss: 12, onDefault: 30, drift: 1, driftTo: 40, judgmentMonths: 72, returnPenalty: 20 },
+
+  // car.md
+  car: { lessons: pounds(2200), testFee: 8500, passBp: pct(55), passPerAttemptBp: pct(5), passCapBp: pct(90) },
+
+  // abroad-money.md
+  remit: { appFeeBp: 0, appMarginBp: pct(2), bankFeeBp: pct(8), informalLossBp: pct(5), abroadBp: 30000 },
+
+  // return.md
+  return: {
+    standing: { "with-papers": 10, "by-choice": 0, broke: -8, assisted: -12, removed: -20 },
+    capitalPer: naira(1000000),
+    capitalCap: 10,
+    offerMonths: 12,
+    residentLapseMonths: 24,
+  },
+
+  // director.md
+  director: { surgePerTick: 3, closedTicks: 8, maxNewPerTick: 2, shockGapTicks: 6, onlineTickScale: 2 },
+
+  // road.md
+  road: { enabled: true },
+
+  // ladders.md
+  ladder: { cashDetectBp: 200, accountRent: pounds(60), overtimeBp: pct(25) },
+
+  // prologue.md
+  prologue: { startAgeMonths: 192, siblings: [1, 6], familyMeans: [10, 80], cityBp: pct(55) },
 };

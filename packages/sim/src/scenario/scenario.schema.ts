@@ -5,6 +5,7 @@ import type { ScenarioEntry } from "../engine/types";
 
 export const ScenarioEntrySchema = z.strictObject({
   id: idOf("scenario"),
+  prologue: z.boolean().exactOptional(),
   qualities: z.record(idOf("quality"), IntSchema),
   job: idOf("activity").nullable(),
   tenure: z.record(idOf("activity"), CountSchema),

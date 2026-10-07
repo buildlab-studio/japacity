@@ -4,6 +4,11 @@
 // safe only while nothing reads a kind during module evaluation.
 import { activityKind } from "./activity/activity.logic";
 import { chapterKind } from "./chapter/chapter.logic";
+import { creditKind } from "./credit/credit.logic";
+import { goalKind } from "./goal/goal.logic";
+import { placeKind } from "./place/place.logic";
+import { prologueKind } from "./prologue/prologue.logic";
+import { statusKind } from "./status/status.logic";
 import { documentKind } from "./document/document.logic";
 import type { AnyKind, Registry, SliceKey } from "./engine/kind";
 import { SLICE_KEYS } from "./engine/kind";
@@ -31,6 +36,11 @@ function build(): Registry {
     offerKind,
     chapterKind,
     newsKind,
+    placeKind,
+    statusKind,
+    creditKind,
+    goalKind,
+    prologueKind,
   ];
   kinds.forEach((kind, index) => {
     if (kind.kind !== SLICE_KEYS[index]) {

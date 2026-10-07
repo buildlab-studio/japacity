@@ -31,6 +31,9 @@ import type {
   WalletSlice,
   World,
 } from "../engine/types";
+
+/** Every foreign currency, in the order the rates are listed. */
+const FOREIGN_CURRENCIES: readonly ForeignCurrency[] = ["GBP", "USD", "CAD", "AED", "EUR"];
 import type { AnyPocket, WalletEvent } from "./wallet.events";
 
 const CURRENCIES: readonly Currency[] = ["NGN", "GBP", "USD"];
@@ -38,7 +41,7 @@ const ALLOWANCE: Id<"var"> = "var.fx-bank-allowance";
 const QUEUE: Id<"var"> = "var.fx-bank-queue";
 
 /** Reasons money comes in under. Every other reason except the two transfers is money going out. */
-const SOURCES: readonly Reason[] = ["opening", "salary", "gig", "gift", "sale", "loan", "held-funds", "refund"];
+const SOURCES: readonly Reason[] = ["opening", "salary", "gig", "gift", "sale", "loan", "held-funds", "refund", "deposit-return", "cash-work"];
 
 /**
  * The report line for each reason. The two transfers have lines of their own,
@@ -71,6 +74,19 @@ export const REASON_LINE: Record<Reason, string | null> = {
   mishap: "line.wallet.mishap",
   flight: "line.wallet.flight",
   "short-count": "line.wallet.short-count",
+  rent: "line.wallet.rent",
+  "deposit-return": "line.wallet.deposit-return",
+  phone: "line.wallet.phone",
+  "car-payment": "line.wallet.car-payment",
+  "car-deposit": "line.wallet.car-deposit",
+  remit: "line.wallet.remit",
+  "remit-fee": "line.wallet.remit-fee",
+  "cash-work": "line.wallet.cash-work",
+  tax: "line.wallet.tax",
+  "agent-debt": "line.wallet.agent-debt",
+  ransom: "line.wallet.ransom",
+  fare: "line.wallet.fare",
+  build: "line.wallet.build",
   convert: null,
   move: null,
 };
@@ -90,11 +106,15 @@ function varOr(world: World, id: Id<"var">, missing: number): number {
 }
 
 function officialRates(world: World): Record<ForeignCurrency, number> {
-  return { GBP: world.rates.GBP.official, USD: world.rates.USD.official };
+  const rates = {} as Record<ForeignCurrency, number>;
+  for (const currency of FOREIGN_CURRENCIES) rates[currency] = world.rates[currency].official;
+  return rates;
 }
 
 function streetRates(world: World): Record<ForeignCurrency, number> {
-  return { GBP: world.rates.GBP.street, USD: world.rates.USD.street };
+  const rates = {} as Record<ForeignCurrency, number>;
+  for (const currency of FOREIGN_CURRENCIES) rates[currency] = world.rates[currency].street;
+  return rates;
 }
 
 function isCurrency(value: unknown): value is Currency {

@@ -31,6 +31,13 @@ export const VIEW_KEYS = [
   "chapter",
   "news",
   "report",
+  "place",
+  "status",
+  "credit",
+  "goals",
+  "prologue",
+  "era",
+  "card",
 ] as const satisfies readonly (keyof PlayerView)[];
 
 export const VIEW_KEYS_COMPLETE: [Exclude<keyof PlayerView, (typeof VIEW_KEYS)[number]>] extends [never] ? true : never = true;
@@ -53,7 +60,8 @@ export function hiddenPaths(value: unknown, path = ""): string[] {
 
 /** The view for a given registry. Tests use this to swap kinds in. */
 export function viewWith(kinds: Registry, read: ReadCtx): PlayerView {
-  const joined: Partial<PlayerView> = { japacity: japacity(read) };
+  // The engine gives the parts no kind owns: japacity, the world's era, and the card (built by chapter or route later).
+  const joined: Partial<PlayerView> = { japacity: japacity(read), era: read.world.era, card: null };
   for (const kind of kinds) {
     const part = kind.view?.(read) ?? {};
     for (const key of Object.keys(part)) {

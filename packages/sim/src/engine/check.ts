@@ -10,9 +10,9 @@ import type { Amount, ReadCtx, Requirement, RequirementResult, Terms } from "./t
 type RequirementType = Requirement["type"];
 
 /** Requirement types the engine judges itself. */
-const ENGINE_REQUIREMENTS = ["not", "any", "month/min", "var/min", "var/max"] as const satisfies readonly RequirementType[];
+const ENGINE_REQUIREMENTS = ["not", "any", "month/min", "var/min", "var/max", "era/is"] as const satisfies readonly RequirementType[];
 
-type KindRequirementPrefix = Exclude<PrefixOf<RequirementType>, "month" | "var">;
+type KindRequirementPrefix = Exclude<PrefixOf<RequirementType>, "month" | "var" | "era">;
 
 /** Which kind judges each requirement type, by the part before the slash. */
 export const REQUIREMENT_OWNER: Record<KindRequirementPrefix, SliceKey> = {
@@ -23,6 +23,11 @@ export const REQUIREMENT_OWNER: Record<KindRequirementPrefix, SliceKey> = {
   route: "route",
   money: "wallet",
   chapter: "chapter",
+  place: "place",
+  status: "status",
+  credit: "credit",
+  goal: "goal",
+  obligation: "obligation",
 };
 
 type EngineRequirement = Extract<Requirement, { type: (typeof ENGINE_REQUIREMENTS)[number] }>;
@@ -69,6 +74,8 @@ function judgeHere(read: ReadCtx, requirement: EngineRequirement, terms: Terms, 
       const have = worldVar(read, requirement.var);
       return { met: have <= requirement.value, have, need: requirement.value };
     }
+    case "era/is":
+      return { met: read.world.era !== null && requirement.eras.includes(read.world.era.id) };
     default: {
       const never: never = requirement;
       throw new Error(`The engine does not judge ${JSON.stringify(never)}.`);
