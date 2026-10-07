@@ -3,6 +3,7 @@
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
+import { content as realContent } from "../packages/content/src/index";
 import type { Golden } from "../packages/sim/src/engine/golden";
 import { measure } from "../packages/sim/src/engine/golden";
 import type { Content } from "../packages/sim/src/engine/types";
@@ -13,7 +14,7 @@ import { goldenScripts } from "../packages/sim/src/goldens/scripts";
 const goldensDir = fileURLToPath(new URL("../packages/sim/src/goldens/", import.meta.url));
 
 /** The content a save's version names. Real content joins this table when it lands. */
-const CONTENTS: Record<string, Content> = { [miniContent.version]: miniContent };
+const CONTENTS: Record<string, Content> = { [miniContent.version]: miniContent, [realContent.version]: realContent };
 
 function toImportName(name: string): string {
   return name.replace(/-([a-z0-9])/g, (_match, letter: string) => letter.toUpperCase());
