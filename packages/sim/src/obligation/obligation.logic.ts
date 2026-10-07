@@ -80,6 +80,7 @@ export function chargeOf(item: ObligationState, entry: ObligationEntry): Charge 
 /**
  * What the view shows as due this month. A defaulted loan has no charge any
  * more: the lender takes what is owed from the bank (R-OBLIGATION-005).
+ * so the view shows what is still owed, the most the lender can take.
  */
 function dueNow(item: ObligationState, entry: ObligationEntry): number {
   if (item.state === "defaulted") return item.outstanding;
@@ -91,7 +92,7 @@ function dueNow(item: ObligationState, entry: ObligationEntry): number {
  * True when this much could be taken from cash and bank now (R-OBLIGATION-002).
  * Naira is judged with `money/can-pay`. A foreign charge is taken from that
  * currency's own pockets, never through naira, so it is judged with
- * `money/min` instead.
+ * `money/min` instead. no obligation in content is foreign yet.
  */
 function canTake(ctx: Ctx, currency: Currency, amount: number): boolean {
   if (currency === "NGN") return ctx.check({ type: "money/can-pay", currency, amount }).met;
@@ -120,6 +121,9 @@ function take(ctx: Ctx, cause: Cause, currency: Currency, pocket: "any" | "bank"
  * A defaulted loan (R-OBLIGATION-005): no charge and no misses any more. The
  * lender takes whatever is in the bank pocket of the loan's currency, up to
  * what is owed, and the loan closes when nothing is owed.
+ * "what is owed" is the principal still outstanding. Interest stops
+ * once a loan is in default, and the taking starts in the `due` phase after
+ * the one in which it defaulted ("from then on").
  */
 function seize(ctx: Ctx, item: ObligationState, entry: ObligationEntry): BaseEvent[] {
   const amount = Math.min(ctx.state.wallet.pockets[entry.currency].bank, item.outstanding);
@@ -156,7 +160,8 @@ function pay(ctx: Ctx, item: ObligationState, entry: ObligationEntry, charge: Ch
 function miss(ctx: Ctx, item: ObligationState, entry: ObligationEntry, charge: Charge): BaseEvent[] {
   const cause = causeOf(item);
   if (entry.type === "held-funds") {
-    // R-OBLIGATION-007: the lender takes the principal back at once, then onMiss.
+    // R-OBLIGATION-007: the lender takes the principal back at once, then onMiss. a missed
+    // month on held funds counts no miss and checks no grace, since the obligation is gone.
     const amount = Math.min(ctx.state.wallet.pockets[entry.currency].locked, item.outstanding);
     take(ctx, cause, entry.currency, "locked", amount, "held-funds-return");
     const events = record(ctx, { type: "obligation/taken-back", id: item.id, entry: item.entry, amount });
@@ -167,6 +172,7 @@ function miss(ctx: Ctx, item: ObligationState, entry: ObligationEntry, charge: C
   const events = record(ctx, { type: "obligation/missed", id: item.id, entry: item.entry, total: charge.base + charge.interest, missed });
   ctx.apply(entry.onMiss, cause);
   // R-OBLIGATION-004: upkeep and support never default. Only a loan goes past its grace.
+  // the miss that passes the grace applies onMiss, then onDefault, in that order.
   if (entry.type === "loan" && missed > entry.grace) {
     events.push(...record(ctx, { type: "obligation/defaulted", id: item.id, entry: item.entry, outstanding: item.outstanding }));
     ctx.apply(entry.onDefault, cause);
@@ -342,6 +348,7 @@ function lines(event: ObligationEvent): ReportLine[] {
     case "obligation/defaulted":
       return [line("line.obligation.defaulted", { obligation: event.entry, amount: event.outstanding }, "bad", true)];
     case "obligation/seized":
+      // the brief lists no line for this; without one the wallet's "loan repayment" line would hide that it was taken.
       return [line("line.obligation.seized", { obligation: event.entry, amount: event.amount }, "bad", false)];
     case "obligation/taken-back":
       return [line("line.obligation.taken-back", { obligation: event.entry, amount: event.amount }, "bad", true)];

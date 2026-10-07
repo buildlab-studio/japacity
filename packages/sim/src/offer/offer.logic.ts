@@ -131,6 +131,7 @@ function openOffer(ctx: Ctx, entry: OfferEntry, extra: Terms): BaseEvent[] {
     entry: entry.id,
     openedMonth: month,
     expiresMonth: month + entry.expiresAfter,
+    // a term handed over by the effect wins over one of the same name. None clash in content.
     terms: { ...own, ...extra },
     signs,
     secret: { fraud },
@@ -168,7 +169,11 @@ function add(totals: Map<string, number>, key: string, amount: number): void {
 }
 
 /**
- * True when every debit among the effects could be paid now. Debits from one
+ * True when every debit among the effects could be paid now.
+ * the first plan says to judge with `money/can-pay`, which counts cash and
+ * bank together. That is used for `any` debits and foreign fees; a debit that
+ * names one pocket is judged with `money/min` on that pocket, or the agent's
+ * cash-only fee could pass with the money in the bank and then not be taken. Debits from one
  * pocket are added up, so two that could each be paid alone but not together
  * do not pass. A debit named for cash or the bank is judged against that
  * pocket alone, since the wallet takes it from nowhere else.
@@ -203,9 +208,9 @@ function debitsPayable(read: ReadCtx, judge: Judge, effects: readonly Effect[], 
 
 /**
  * Why a choice may not be taken with this amount, or null when it may. The
- * amount comes first because the conditions and debits read it. Debits are
- * judged on the ordinary effects, never the fraud ones, so whether a choice is
- * allowed never gives a fraud away (R-OFFER-006).
+ * amount comes first because the conditions and debits read it. 
+ * debits are judged on the ordinary effects, never the fraud ones, so whether
+ * a choice is allowed never gives a fraud away (R-OFFER-006).
  */
 function choiceProblem(read: ReadCtx, judge: Judge, item: OfferState, choice: OfferChoice, amount: unknown): Problem | null {
   const range = pickRange(item, choice);
@@ -269,6 +274,7 @@ function expire(ctx: Ctx): BaseEvent[] {
     const entry = entryOf(ctx.content, item.entry);
     const choice = entry.onExpire === null ? undefined : entry.choices.find((candidate) => candidate.id === entry.onExpire);
     let applied: string | null = null;
+    // "can be taken" means what offer/choose would accept: its conditions hold and its debits can be paid.
     if (choice !== undefined && choice.pick === null && choiceProblem(readOf(ctx), judgeIn(ctx), item, choice, undefined) === null) {
       takeChoice(ctx, item, choice, null);
       applied = choice.id;
@@ -395,7 +401,11 @@ function invariants(state: State, content: Content): string[] {
   return problems;
 }
 
-/** An open offer as the player sees it. `allowed` is judged at the smallest amount a choice may take. */
+/**
+ * An open offer as the player sees it. `allowed` is judged at the
+ * smallest amount a choice may take, so a larger amount may still be refused
+ * with cannot-afford.
+ */
 export function offerView(read: ReadCtx, item: OfferState): OfferView {
   const judge: Judge = (requirement, terms) => check(read, requirement, terms);
   return {
