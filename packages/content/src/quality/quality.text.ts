@@ -28,4 +28,10 @@ export const qualityText: Record<string, string> = {
   "quality.edu-grade.value.3": "Second class lower",
   "quality.edu-grade.value.4": "Second class upper",
   "quality.edu-grade.value.5": "First class",
+
+  // Report lines. {quality} is an id: the interface shows its name.
+  "line.quality.gain": "{quality} up {amount}, to {value}.",
+  "line.quality.loss": "{quality} down {amount}, to {value}.",
+  "line.quality.worn": "Work takes {amount} off your {quality}.",
+  "line.quality.drift": "{quality} settles by {amount}, to {value}.",
 };
