@@ -9,6 +9,7 @@ import { registry } from "../kinds";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
 import { standInWorld } from "../world/standIn";
+import { offerChanceBp } from "./route.logic";
 
 export const UK: Id<"route"> = "route.uk-masters";
 export const NORTHGATE: Id<"school"> = "school.northgate";
@@ -20,6 +21,8 @@ export const READY: Id<"scenario"> = "scenario.ready";
 export const UNIT = 100;
 
 export interface LifeOptions {
+  /** The starting life the ready life is built from. Ada by default. */
+  from?: Id<"scenario">;
   /** Qualities over the ready life's. */
   qualities?: Partial<Record<Id<"quality">, number>>;
   pockets?: ScenarioEntry["pockets"];
@@ -52,12 +55,13 @@ export const READY_PAPERS: ScenarioEntry["documents"] = [
  * is the one given, with this life added.
  */
 export function readyContent(base: Content, options: LifeOptions = {}): Content {
-  const ada = base.scenario["scenario.ada"];
-  if (ada === undefined) throw new Error("The content has no scenario.ada to build the ready life from.");
+  const from = options.from ?? "scenario.ada";
+  const life = base.scenario[from];
+  if (life === undefined) throw new Error(`The content has no ${from} to build the ready life from.`);
   const ready: ScenarioEntry = {
-    ...ada,
+    ...life,
     id: READY,
-    qualities: { ...ada.qualities, ...options.qualities } as ScenarioEntry["qualities"],
+    qualities: { ...life.qualities, ...options.qualities } as ScenarioEntry["qualities"],
     pockets: options.pockets ?? { NGN: { bank: 2000000 * UNIT, cash: 1500000 * UNIT }, GBP: { bank: 40000 * UNIT, cash: 0 } },
     documents: options.documents ?? READY_PAPERS,
   };
@@ -97,9 +101,15 @@ function expectState(game: Game, want: RouteState["state"]): void {
   if (uk(game).state !== want) throw new Error(`The UK route is ${uk(game).state}, expected ${want}.`);
 }
 
-/** Months pass until the route is heard of (by month 3 at the latest: R-ROUTE-003), then it is looked into. */
-export function toKnown(game: Game): void {
+/** Months pass, every slot resting, until the route is heard of: by month 3 at the latest (R-ROUTE-003). */
+export function toHeard(game: Game): void {
   for (let month = 0; month < 5 && uk(game).state === "unknown"; month += 1) game.endTurn();
+  expectState(game, "heard");
+}
+
+/** Months pass until the route is heard of, then it is looked into. */
+export function toKnown(game: Game): void {
+  if (uk(game).state === "unknown") toHeard(game);
   expectState(game, "heard");
   game.endTurn([slot("activity.look-into-route", UK)]);
   expectState(game, "known");
@@ -158,6 +168,14 @@ export function toDecision(game: Game, school: Id<"school"> = NORTHGATE): void {
 /** The nth draw of a stream for a seed, scaled to a range, as `ctx.random.int` gives it. */
 export function draw(seed: string, stream: Stream, n: number, range: number): number {
   return scaleDraw(drawAt(seed, stream, n), range);
+}
+
+/** Whether a seed's first school answer, from a school the life has not applied to before, is an offer for this grade (R-ROUTE-007). */
+export function offeredWith(seed: string, content: Content, school: Id<"school">, grade: number): boolean {
+  const entry = content.school[school];
+  if (entry === undefined) throw new Error(`The content has no ${school}.`);
+  // The first school draw is the wait, the second the offer.
+  return draw(seed, "school", 1, 10000) < offerChanceBp(entry, grade);
 }
 
 /** The first of `seed-0`, `seed-1`, ... that passes. Deterministic, so a test may pin its draws. */
