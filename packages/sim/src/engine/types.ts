@@ -245,6 +245,9 @@ export type Effect =
   | { type: "route/record-sponsor"; route: Id<"route">; employer: string; salary: number; fraud: boolean }
   /** The road chain moves to a step or ends: docs/rules/road.md. */
   | { type: "route/road-step"; step: string }
+  // setpiece
+  /** Opens a set piece for a route (R-SETPIECE-001). */
+  | { type: "setpiece/open"; setpiece: Id<"setpiece">; route: Id<"route"> }
   // obligation
   | { type: "obligation/open"; obligation: Id<"obligation">; principal?: Amount; amount?: Amount }
   // offer: opens nothing when the offer's own `when` does not hold
@@ -868,6 +871,8 @@ export interface VisaApplication {
   unexplainedBp: number;
   /** Null until the interview is finished. */
   interviewScore: number | null;
+  /** Pence of surcharge paid with the application, refunded on a refusal (R-ROUTE-018). */
+  surchargePaid: number;
 }
 
 export interface RouteState {
@@ -911,6 +916,8 @@ export interface SetpieceSlice {
     route: Id<"route">;
     questions: string[];
     answers: Record<string, string>;
+    /** The sum of the answers so far, each scored when it was given (R-SETPIECE-004). */
+    score: number;
   } | null;
 }
 

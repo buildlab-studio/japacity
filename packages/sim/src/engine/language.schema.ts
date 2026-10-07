@@ -291,6 +291,7 @@ export const EffectSchema = z.discriminatedUnion("type", [
     fraud: z.boolean(),
   }),
   z.strictObject({ type: z.literal("route/road-step"), step: z.string().min(1) }),
+  z.strictObject({ type: z.literal("setpiece/open"), setpiece: idOf("setpiece"), route: idOf("route") }),
   z.strictObject({
     type: z.literal("obligation/open"),
     obligation: idOf("obligation"),

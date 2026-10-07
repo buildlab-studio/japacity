@@ -51,6 +51,7 @@ export const EFFECT_OWNER: Record<PrefixOf<EffectType>, SliceKey> = {
   obligation: "obligation",
   offer: "offer",
   turn: "turn",
+  setpiece: "setpiece",
   place: "place",
   status: "status",
   credit: "credit",
