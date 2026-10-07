@@ -8,12 +8,18 @@ import { chapterText } from "./chapter/chapter.text";
 import { countryTable } from "./country/country.data";
 import { documentTable } from "./document/document.data";
 import { documentText } from "./document/document.text";
+import { eraTable } from "./era/era.data";
+import { eraText } from "./era/era.text";
 import { newsTable } from "./news/news.data";
 import { newsText } from "./news/news.text";
 import { obligationTable } from "./obligation/obligation.data";
 import { obligationText } from "./obligation/obligation.text";
 import { offerTable } from "./offer/offer.data";
 import { offerText } from "./offer/offer.text";
+import { pointsTable } from "./points/points.data";
+import { pointsText } from "./points/points.text";
+import { prologueTable } from "./prologue/prologue.data";
+import { prologueText } from "./prologue/prologue.text";
 import { qualityTable } from "./quality/quality.data";
 import { qualityText } from "./quality/quality.text";
 import { rejectText } from "./reject/reject.text";
@@ -47,11 +53,11 @@ export const content: Content = {
   scenario: scenarioTable,
   country: countryTable,
   status: statusTable,
-  // Filled by the whole-life content work from docs/rules/goal.md, director.md, route-gates.md and prologue.md.
+  // Filled by the whole-life content work from docs/rules/goal.md.
   goal: {},
-  era: {},
-  points: {},
-  prologue: {},
+  era: eraTable,
+  points: pointsTable,
+  prologue: prologueTable,
   tuning,
 };
 
@@ -60,9 +66,12 @@ export const textTables: Record<string, Record<string, string>> = {
   activity: activityText,
   chapter: chapterText,
   document: documentText,
+  era: eraText,
   news: newsText,
   obligation: obligationText,
   offer: offerText,
+  points: pointsText,
+  prologue: prologueText,
   quality: qualityText,
   reject: rejectText,
   route: routeText,

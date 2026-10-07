@@ -100,4 +100,23 @@ export const obligationTable: Record<Id<"obligation">, ObligationEntry> = {
     onMiss: [{ type: "quality/add", quality: "quality.standing", amount: -5 }],
     onDefault: [],
   },
+
+  // road.md R-ROAD-006 and 007: the ransom nobody paid. It follows the character home or on to Italy.
+  // the page gives no schedule, rate or grace, so it charges nothing a month and never defaults;
+  // it stays open as what is owed.
+  "obligation.agent-debt": {
+    id: "obligation.agent-debt",
+    type: "agent-debt",
+    where: "any",
+    currency: "NGN",
+    amount: 0,
+    rateBp: 0,
+    term: null,
+    locksPrincipal: false,
+    sink: "agent-debt",
+    interestSink: "agent-debt",
+    grace: 0,
+    onMiss: [],
+    onDefault: [],
+  },
 };

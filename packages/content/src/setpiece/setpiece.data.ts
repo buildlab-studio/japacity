@@ -1,4 +1,5 @@
-// From docs/rules/route.md, "Entry: setpiece.credibility-interview".
+// From docs/rules/route.md, "Entry: setpiece.credibility-interview"; road.md for the
+// road's two set pieces; return.md for the December visit.
 import type { Id, SetpieceEntry } from "@japacity/sim";
 
 import { pct } from "../units";
@@ -81,6 +82,74 @@ export const setpieceTable: Record<Id<"setpiece">, SetpieceEntry> = {
             thenScore: 1,
           },
           { id: "sort", score: -1, when: [], thenScore: null },
+        ],
+      },
+    ],
+  },
+
+  // road.md R-ROAD-004 and 005. Scores mean nothing here: the road kind reads the answer chosen.
+  // Every set piece in the chain keeps an exit.
+
+  "setpiece.road-night": {
+    id: "setpiece.road-night",
+    ask: 1,
+    questions: [
+      {
+        id: "night",
+        when: [],
+        answers: [
+          { id: "go", score: 0, when: [], thenScore: null },
+          { id: "turn-back", score: 0, when: [], thenScore: null },
+        ],
+      },
+    ],
+  },
+  "setpiece.road-truth": {
+    id: "setpiece.road-truth",
+    ask: 1,
+    questions: [
+      {
+        id: "truth",
+        when: [],
+        answers: [
+          { id: "pay", score: 0, when: [], thenScore: null },
+          { id: "call-home", score: 0, when: [], thenScore: null },
+          { id: "exit", score: 0, when: [], thenScore: null },
+        ],
+      },
+    ],
+  },
+
+  // return.md, "The December set piece". the amounts and the standing, wellbeing and network
+  // changes have no field on an answer, so they are not here; every answer scores 0.
+  "setpiece.december": {
+    id: "setpiece.december",
+    ask: 3,
+    questions: [
+      {
+        id: "party",
+        when: [],
+        answers: [
+          { id: "big", score: 0, when: [], thenScore: null },
+          { id: "small", score: 0, when: [], thenScore: null },
+          { id: "home", score: 0, when: [], thenScore: null },
+        ],
+      },
+      {
+        id: "gifts",
+        when: [],
+        answers: [
+          { id: "all", score: 0, when: [], thenScore: null },
+          { id: "some", score: 0, when: [], thenScore: null },
+          { id: "none", score: 0, when: [], thenScore: null },
+        ],
+      },
+      {
+        id: "look",
+        when: [],
+        answers: [
+          { id: "outfit", score: 0, when: [], thenScore: null },
+          { id: "plain", score: 0, when: [], thenScore: null },
         ],
       },
     ],

@@ -1,7 +1,8 @@
-// From docs/rules/offer.md: "Family requests", "Life" and "Money".
-import type { Id, OfferEntry, Requirement } from "@japacity/sim";
+// From docs/rules/offer.md: "Family requests", "Life" and "Money"; route-gates.md
+// for the sponsor offers and the Gulf agent; road.md for the road's pitches.
+import type { Id, OfferChoice, OfferEntry, Requirement } from "@japacity/sim";
 
-import { naira, pct } from "../units";
+import { naira, pct, pounds } from "../units";
 
 const UK: Id<"route"> = "route.uk-masters";
 
@@ -10,6 +11,68 @@ const NOT_BROKE: Requirement = { type: "money/min", currency: "NGN", amount: nai
 
 const CREDIT_CLEAN: Requirement = { type: "quality/max", quality: "quality.credit-mark", value: 0 };
 const SIX_MONTHS_IN_ANY_JOB: Requirement = { type: "activity/tenure", activities: [], months: 6 };
+
+/** A sponsor or agent comes up while its route is known and its window is not closed (R-SPONSOR-001, R-CONTRACT-002). */
+function sponsorWhen(route: Id<"route">, window: Id<"var">): Requirement[] {
+  return [
+    { type: "place/is", where: "home" },
+    { type: "route/state", route, in: ["known"] },
+    { type: "var/min", var: window, value: 1 },
+  ];
+}
+
+const DECLINE: OfferChoice = { id: "decline", requires: [], pick: null, effects: [], fraudEffects: null };
+
+/**
+ * Taking a sponsor records it (R-SPONSOR-002). A real sponsor costs nothing; a fraud takes its fee from cash.
+ * `salary: 0` means the route kind reads the offer's `salary` term from the cause, because the
+ * effect's salary is a fixed number and the salary is a draw.
+ */
+function takeSponsor(route: Id<"route">, employer: string): OfferChoice {
+  const record = { type: "route/record-sponsor", route, employer, salary: 0 } as const;
+  return {
+    id: "take",
+    requires: [],
+    pick: null,
+    effects: [{ ...record, fraud: false }],
+    fraudEffects: [
+      { type: "money/take", currency: "NGN", pocket: "cash", amount: { term: "fee" }, reason: "fee-agent" },
+      { ...record, fraud: true },
+    ],
+  };
+}
+
+// road.md
+
+/** How the pitch's chance moves with the character's situation (R-ROAD-002). */
+const ROAD_PRESSURE = { refusalBp: 200, defaultBp: 300, lowStandingBp: 200, perYearOver30Bp: 100, strongRouteBp: 400 };
+
+/** What a pitch really is (R-ROAD-003). They add up to 10000. */
+const ROAD_KINDS = { fraud: 3000, realish: 1000, road: 6000 };
+
+/** Every character at home, until the chain has begun (R-ROAD-012). */
+const ROAD_WHEN: Requirement[] = [
+  { type: "place/is", where: "home" },
+  { type: "route/state", route: "route.road", in: ["unknown", "heard", "known"] },
+];
+
+/**
+ * Taking the pitch pays the deposit from cash. the offer's own fraud draw is the `fraud` kind, so
+ * `fraudBp` is the fraud share and a fraud's money is simply gone; the road kind splits the rest into real-ish
+ * and road. Both of those open the night meeting.
+ */
+const ROAD_TAKE: OfferChoice = {
+  id: "take",
+  requires: [],
+  pick: null,
+  effects: [
+    { type: "money/take", currency: "NGN", pocket: "cash", amount: { term: "deposit" }, reason: "fee-agent" },
+    { type: "setpiece/open", setpiece: "setpiece.road-night", route: "route.road" },
+  ],
+  fraudEffects: [{ type: "money/take", currency: "NGN", pocket: "cash", amount: { term: "deposit" }, reason: "fee-agent" }],
+};
+
+const ROAD_IGNORE: OfferChoice = { id: "ignore", requires: [], pick: null, effects: [], fraudEffects: null };
 
 export const offerTable: Record<Id<"offer">, OfferEntry> = {
   // Family requests
@@ -670,5 +733,273 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
       { id: "decline", requires: [], pick: null, effects: [], fraudEffects: null },
     ],
     onExpire: null,
+  },
+
+  // route-gates.md, "Entries: sponsor offers". group `money`, as the Gulf agent is, so R-OFFER-001 rolls them.
+
+  "offer.sponsor-care-home": {
+    id: "offer.sponsor-care-home",
+    group: "money",
+    where: "home",
+    when: [...sponsorWhen("route.uk-care", "var.uk-care-window")],
+    chanceBp: pct(8),
+    cooldown: 3,
+    maxTimes: null,
+    expiresAfter: 2,
+    terms: {
+      // Pence a year: £25,000 to £29,000 by £500.
+      salary: { from: "range", min: pounds(25000), max: pounds(29000), step: pounds(500) },
+      // Only a fraud asks for it.
+      fee: naira(4500000),
+    },
+    fraudBp: pct(25),
+    signs: [
+      { key: "pays-for-cos", honestBp: pct(10), fraudBp: pct(85) },
+      { key: "licensed-register", honestBp: pct(85), fraudBp: pct(20) },
+      { key: "video-interview", honestBp: pct(80), fraudBp: pct(30) },
+      { key: "whatsapp-only", honestBp: pct(15), fraudBp: pct(75) },
+      { key: "start-date", honestBp: pct(70), fraudBp: pct(20) },
+    ],
+    choices: [takeSponsor("route.uk-care", "care-home"), DECLINE],
+    onExpire: "decline",
+  },
+  "offer.sponsor-trust": {
+    id: "offer.sponsor-trust",
+    group: "money",
+    where: "home",
+    // "Needs care 60" is read as a condition for the offer coming up.
+    when: [
+      ...sponsorWhen("route.uk-care", "var.uk-care-window"),
+      { type: "quality/min", quality: "quality.care", value: 60 },
+    ],
+    chanceBp: pct(3),
+    cooldown: 6,
+    maxTimes: null,
+    expiresAfter: 2,
+    // A nurse's band: £31,300 a year.
+    terms: { salary: pounds(31300) },
+    fraudBp: 0,
+    signs: [],
+    choices: [
+      {
+        id: "take",
+        requires: [],
+        pick: null,
+        effects: [{ type: "route/record-sponsor", route: "route.uk-care", employer: "trust", salary: pounds(31300), fraud: false }],
+        fraudEffects: null,
+      },
+      DECLINE,
+    ],
+    onExpire: "decline",
+  },
+  "offer.sponsor-tech-firm": {
+    id: "offer.sponsor-tech-firm",
+    group: "money",
+    where: "home",
+    when: [
+      ...sponsorWhen("route.uk-skilled", "var.uk-skilled-window"),
+      { type: "quality/min", quality: "quality.tech", value: 60 },
+    ],
+    chanceBp: pct(4),
+    cooldown: 4,
+    maxTimes: null,
+    expiresAfter: 2,
+    terms: {
+      // £42,000 to £60,000 by £1,000.
+      salary: { from: "range", min: pounds(42000), max: pounds(60000), step: pounds(1000) },
+      fee: naira(6000000),
+    },
+    fraudBp: pct(15),
+    signs: [
+      { key: "pays-for-cos", honestBp: pct(5), fraudBp: pct(80) },
+      { key: "licensed-register", honestBp: pct(90), fraudBp: pct(25) },
+      { key: "video-interview", honestBp: pct(90), fraudBp: pct(40) },
+      { key: "whatsapp-only", honestBp: pct(10), fraudBp: pct(70) },
+      { key: "start-date", honestBp: pct(80), fraudBp: pct(30) },
+    ],
+    choices: [takeSponsor("route.uk-skilled", "tech-firm"), DECLINE],
+    onExpire: "decline",
+  },
+  "offer.sponsor-agency": {
+    id: "offer.sponsor-agency",
+    group: "money",
+    where: "home",
+    when: [...sponsorWhen("route.uk-skilled", "var.uk-skilled-window")],
+    chanceBp: pct(6),
+    cooldown: 3,
+    maxTimes: null,
+    expiresAfter: 1,
+    terms: {
+      // £38,000 to £45,000 by £500: often under the bar, which the view says.
+      salary: { from: "range", min: pounds(38000), max: pounds(45000), step: pounds(500) },
+      fee: naira(5000000),
+    },
+    fraudBp: pct(50),
+    // "the same five signs" are the tech firm's, the row above on the same route.
+    signs: [
+      { key: "pays-for-cos", honestBp: pct(5), fraudBp: pct(80) },
+      { key: "licensed-register", honestBp: pct(90), fraudBp: pct(25) },
+      { key: "video-interview", honestBp: pct(90), fraudBp: pct(40) },
+      { key: "whatsapp-only", honestBp: pct(10), fraudBp: pct(70) },
+      { key: "start-date", honestBp: pct(80), fraudBp: pct(30) },
+    ],
+    choices: [takeSponsor("route.uk-skilled", "agency"), DECLINE],
+    onExpire: "decline",
+  },
+
+  // route-gates.md, the contract gate.
+
+  "offer.gulf-agent": {
+    id: "offer.gulf-agent",
+    group: "money",
+    where: "home",
+    when: [...sponsorWhen("route.gulf-contract", "var.uae-window")],
+    chanceBp: pct(10),
+    cooldown: 4,
+    maxTimes: null,
+    expiresAfter: 2,
+    terms: {
+      fee: { from: "range", min: naira(900000), max: naira(1800000), step: naira(100000) },
+      // Fils a month: AED 1,500 to AED 2,200 by AED 100.
+      salary: { from: "range", min: 150000, max: 220000, step: 10000 },
+      // a term is a number, so the role is 1 for guard and 2 for cleaner.
+      role: { from: "range", min: 1, max: 2, step: 1 },
+    },
+    fraudBp: pct(40),
+    signs: [
+      { key: "office", honestBp: pct(75), fraudBp: pct(25) },
+      { key: "receipt", honestBp: pct(70), fraudBp: pct(15) },
+      { key: "contract-paper", honestBp: pct(80), fraudBp: pct(20) },
+      { key: "pay-today", honestBp: pct(20), fraudBp: pct(85) },
+      { key: "friend", honestBp: pct(40), fraudBp: pct(10) },
+    ],
+    choices: [
+      {
+        id: "take",
+        requires: [],
+        pick: null,
+        // The fee is paid either way (R-CONTRACT-002); only the record knows the difference.
+        effects: [
+          { type: "money/take", currency: "NGN", pocket: "cash", amount: { term: "fee" }, reason: "fee-agent" },
+          { type: "route/record-sponsor", route: "route.gulf-contract", employer: "gulf-agent", salary: 0, fraud: false },
+        ],
+        fraudEffects: [
+          { type: "money/take", currency: "NGN", pocket: "cash", amount: { term: "fee" }, reason: "fee-agent" },
+          { type: "route/record-sponsor", route: "route.gulf-contract", employer: "gulf-agent", salary: 0, fraud: true },
+        ],
+      },
+      { id: "walk-away", requires: [], pick: null, effects: [], fraudEffects: null },
+    ],
+    onExpire: "walk-away",
+  },
+
+  // road.md, "Entries". Every pitch has the same kinds and the same pressure (R-ROAD-002 and 003).
+
+  "offer.road-radio": {
+    id: "offer.road-radio",
+    group: "road",
+    where: "home",
+    pressure: ROAD_PRESSURE,
+    kinds: ROAD_KINDS,
+    when: ROAD_WHEN,
+    chanceBp: 300,
+    cooldown: 6,
+    maxTimes: null,
+    expiresAfter: 2,
+    // The promise, "Europe, three weeks", is words, not a number: it is in the body.
+    terms: { deposit: { from: "range", min: naira(400000), max: naira(800000), step: naira(100000) } },
+    fraudBp: ROAD_KINDS.fraud,
+    signs: [
+      { key: "too-cheap", honestBp: pct(90), fraudBp: pct(95) },
+      { key: "no-paper", honestBp: pct(85), fraudBp: pct(90) },
+      { key: "agency-warning", honestBp: pct(60), fraudBp: pct(60) },
+    ],
+    choices: [ROAD_TAKE, ROAD_IGNORE],
+    onExpire: "ignore",
+  },
+  "offer.road-park": {
+    id: "offer.road-park",
+    group: "road",
+    where: "home",
+    pressure: ROAD_PRESSURE,
+    kinds: ROAD_KINDS,
+    when: ROAD_WHEN,
+    chanceBp: 500,
+    cooldown: 4,
+    maxTimes: null,
+    expiresAfter: 1,
+    terms: { deposit: { from: "range", min: naira(400000), max: naira(800000), step: naira(100000) } },
+    fraudBp: ROAD_KINDS.fraud,
+    // `too-cheap` and `no-paper` keep the radio pitch's chances, as the page names them without figures here.
+    signs: [
+      { key: "too-cheap", honestBp: pct(90), fraudBp: pct(95) },
+      { key: "no-paper", honestBp: pct(85), fraudBp: pct(90) },
+      { key: "cash-today", honestBp: pct(80), fraudBp: pct(95) },
+      { key: "returnee-said", honestBp: pct(40), fraudBp: pct(40) },
+    ],
+    choices: [ROAD_TAKE, ROAD_IGNORE],
+    onExpire: "ignore",
+  },
+  "offer.road-cousin": {
+    id: "offer.road-cousin",
+    group: "road",
+    where: "home",
+    pressure: ROAD_PRESSURE,
+    kinds: ROAD_KINDS,
+    when: ROAD_WHEN,
+    chanceBp: 200,
+    cooldown: 12,
+    maxTimes: null,
+    expiresAfter: 2,
+    // steps of ₦100,000, as the radio pitch's.
+    terms: { deposit: { from: "range", min: naira(300000), max: naira(600000), step: naira(100000) } },
+    fraudBp: ROAD_KINDS.fraud,
+    signs: [
+      { key: "cousin-vouches", honestBp: pct(70), fraudBp: pct(70) },
+      { key: "no-paper", honestBp: pct(85), fraudBp: pct(90) },
+    ],
+    choices: [ROAD_TAKE, ROAD_IGNORE],
+    onExpire: "ignore",
+  },
+  "offer.road-ransom-call": {
+    id: "offer.road-ransom-call",
+    group: "road",
+    where: "any",
+    // Opened only by the compound's `held` outcome (R-ROAD-006).
+    when: [{ type: "place/is", where: "road" }],
+    chanceBp: 0,
+    cooldown: 0,
+    maxTimes: null,
+    expiresAfter: 1,
+    // steps of ₦100,000.
+    terms: { sum: { from: "range", min: naira(500000), max: naira(2000000), step: naira(100000) } },
+    fraudBp: 0,
+    signs: [],
+    choices: [
+      {
+        id: "pay",
+        requires: [],
+        pick: null,
+        // the family pays. Family means fall 12, the middle sum (₦1,250,000) over ₦100,000 as R-ROAD-005
+        // reads it for calling home; standing falls 5 as it does there. An amount on a quality cannot follow the term.
+        effects: [
+          { type: "quality/add", quality: "quality.family-means", amount: -12 },
+          { type: "quality/add", quality: "quality.standing", amount: -5 },
+        ],
+        fraudEffects: null,
+      },
+      {
+        id: "cannot",
+        requires: [],
+        pick: null,
+        // the sum becomes debt only here, when nobody pays it.
+        effects: [
+          { type: "obligation/open", obligation: "obligation.agent-debt", principal: { term: "sum" } },
+          { type: "quality/add", quality: "quality.wellbeing", amount: -10 },
+        ],
+        fraudEffects: null,
+      },
+    ],
+    onExpire: "cannot",
   },
 };

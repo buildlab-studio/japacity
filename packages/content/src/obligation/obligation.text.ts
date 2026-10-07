@@ -6,4 +6,5 @@ export const obligationText: Record<string, string> = {
   "obligation.quick-loan.name": "QuickNaira loan",
   "obligation.held-funds.name": "Proof of funds from the microfinance bank",
   "obligation.held-funds-agent.name": "Proof of funds from Mr Kunle",
+  "obligation.agent-debt.name": "What the men on the road say you owe",
 };

@@ -1,10 +1,31 @@
 // From docs/rules/activity.md, "Jobs" and "Free-slot activities", and R-ROUTE-012 for the visa.
-import type { ActivityEntry, Id } from "@japacity/sim";
+// The gate activities are from docs/rules/route-gates.md and road.md.
+import type { ActivityEntry, Cost, Id, Requirement } from "@japacity/sim";
 
 import { dollars, naira, pct } from "../units";
 
 const UK: Id<"route"> = "route.uk-masters";
 const WINDOW: Id<"var"> = "var.uk-study-window";
+const CARE: Id<"route"> = "route.uk-care";
+const SKILLED: Id<"route"> = "route.uk-skilled";
+const CANADA: Id<"route"> = "route.canada-points";
+const TALENT: Id<"route"> = "route.uk-talent";
+const GULF: Id<"route"> = "route.gulf-contract";
+
+function known(route: Id<"route">): Requirement {
+  return { type: "route/state", route, in: ["known"] };
+}
+
+function windowOpen(window: Id<"var">): Requirement {
+  return { type: "var/min", var: window, value: 1 };
+}
+
+function held(document: Id<"document">, min?: number): Requirement {
+  return min === undefined ? { type: "document/held", document } : { type: "document/held", document, min };
+}
+
+/** The health surcharge for one year of a worker's visa, in pounds. */
+const SURCHARGE_YEAR: Cost = { currency: "GBP", amount: { var: "var.uk-surcharge-year" }, reason: "fee-surcharge" };
 
 export const activityTable:Record<Id<"activity">, ActivityEntry> = {
   // Jobs
@@ -227,6 +248,8 @@ export const activityTable:Record<Id<"activity">, ActivityEntry> = {
       { type: "quality/add", quality: "quality.network", amount: 5 },
       { type: "quality/add", quality: "quality.wellbeing", amount: 2 },
       { type: "route/hear", route: UK, chanceBp: pct(40), via: "meetup" },
+      // route-gates.md: the talent route is heard of at a meetup, 20%.
+      { type: "route/hear", route: TALENT, chanceBp: pct(20), via: "meetup" },
     ],
     counts: [],
   },
@@ -248,7 +271,8 @@ export const activityTable:Record<Id<"activity">, ActivityEntry> = {
     slot: "free",
     requires: [{ type: "document/absent", document: "document.passport" }],
     param: null,
-    cost: [{ currency: "NGN", amount: naira(100000), reason: "fee-document" }],
+    // ₦100,000 at the start, read from the world so the director can double it (news.passport-fee-doubles).
+    cost: [{ currency: "NGN", amount: { var: "var.passport-fee" }, reason: "fee-document" }],
     pay: null,
     hireBp: null,
     effects: [{ type: "document/request", document: "document.passport" }],
@@ -368,5 +392,262 @@ export const activityTable:Record<Id<"activity">, ActivityEntry> = {
     hireBp: null,
     effects: [{ type: "route/apply", route: UK }],
     counts: [UK],
+  },
+
+  // route-gates.md: the sponsor gate.
+
+  "activity.find-sponsor": {
+    id: "activity.find-sponsor",
+    slot: "free",
+    where: "home",
+    // a requirement cannot read the param, so this needs either sponsor route known. The route
+    // picked must also have its window open, which the route kind checks (R-SPONSOR-001).
+    requires: [{ type: "any", of: [known(CARE), known(SKILLED)] }],
+    param: "route",
+    cost: [],
+    pay: null,
+    hireBp: null,
+    // no effect in the contract rolls a sponsor offer, so the route kind runs R-SPONSOR-001 for the
+    // route picked, with the route's `sponsor.findBp`. Nothing is listed here.
+    effects: [],
+    counts: [CARE, SKILLED],
+  },
+  "activity.request-verification": {
+    id: "activity.request-verification",
+    slot: "free",
+    where: "home",
+    // 24 months in a nursing job, the council's rule since 1 Mar 2024 (R-SPONSOR-005).
+    requires: [
+      { type: "activity/tenure", activities: ["activity.job-nurse"], months: 24 },
+      held("document.nursing-licence"),
+      { type: "document/absent", document: "document.nmcn-verification" },
+    ],
+    param: null,
+    cost: [{ currency: "NGN", amount: naira(150000), reason: "fee-document" }],
+    pay: null,
+    hireBp: null,
+    effects: [{ type: "document/request", document: "document.nmcn-verification" }],
+    counts: [CARE],
+  },
+  "activity.renew-licence": {
+    id: "activity.renew-licence",
+    slot: "free",
+    where: "home",
+    // only a nurse renews. Care 40 is what the prologue's nurses leave with; a renewal already
+    // being made blocks another (R-DOCUMENT-004 keeps the held one in force meanwhile).
+    requires: [
+      { type: "quality/min", quality: "quality.care", value: 40 },
+      { type: "not", of: { type: "document/pending", document: "document.nursing-licence" } },
+    ],
+    param: null,
+    cost: [{ currency: "NGN", amount: naira(25000), reason: "fee-document" }],
+    pay: null,
+    hireBp: null,
+    effects: [{ type: "document/request", document: "document.nursing-licence" }],
+    counts: [CARE],
+  },
+  "activity.apply-uk-care": {
+    id: "activity.apply-uk-care",
+    slot: "free",
+    where: "home",
+    // R-SPONSOR-003 and 005. each gate route has its own apply activity, as apply-for-visa is the study route's.
+    requires: [
+      known(CARE),
+      windowOpen("var.uk-care-window"),
+      { type: "route/gate-step", route: CARE, step: "sponsor" },
+      { type: "route/gate-step", route: CARE, step: "salary" },
+      held("document.nursing-licence"),
+      held("document.nmcn-verification"),
+      held("document.english-test", 40),
+      held("document.tb-certificate"),
+      held("document.passport"),
+    ],
+    param: null,
+    // The care route is exempt from the surcharge.
+    cost: [{ currency: "GBP", amount: { var: "var.uk-care-visa-fee" }, reason: "fee-visa" }],
+    pay: null,
+    hireBp: null,
+    effects: [{ type: "route/apply", route: CARE }],
+    counts: [CARE],
+  },
+  "activity.apply-uk-skilled": {
+    id: "activity.apply-uk-skilled",
+    slot: "free",
+    where: "home",
+    // R-SPONSOR-003 and 006.
+    requires: [
+      known(SKILLED),
+      windowOpen("var.uk-skilled-window"),
+      { type: "route/gate-step", route: SKILLED, step: "sponsor" },
+      { type: "route/gate-step", route: SKILLED, step: "salary" },
+      { type: "quality/min", quality: "quality.edu-level", value: 3 },
+      { type: "activity/tenure", activities: [], months: 24 },
+      held("document.english-test", 40),
+      held("document.tb-certificate"),
+      held("document.passport"),
+      { type: "route/funds", route: SKILLED, heldMonths: 1 },
+    ],
+    param: null,
+    // the surcharge for the status's 36 months is three years of `var.uk-surcharge-year`, one cost each,
+    // because an amount read from the world cannot be scaled.
+    cost: [
+      { currency: "GBP", amount: { var: "var.uk-skilled-visa-fee" }, reason: "fee-visa" },
+      SURCHARGE_YEAR,
+      SURCHARGE_YEAR,
+      SURCHARGE_YEAR,
+    ],
+    pay: null,
+    hireBp: null,
+    effects: [{ type: "route/apply", route: SKILLED }],
+    counts: [SKILLED],
+  },
+
+  // route-gates.md: the points gate.
+
+  "activity.get-eca": {
+    id: "activity.get-eca",
+    slot: "free",
+    where: "home",
+    // only once the points route is known, so the list does not offer it to everyone.
+    requires: [
+      known(CANADA),
+      { type: "document/absent", document: "document.eca" },
+    ],
+    param: null,
+    // C$329, paid as a foreign fee.
+    cost: [{ currency: "CAD", amount: { var: "var.ca-eca-fee" }, reason: "fee-document" }],
+    pay: null,
+    hireBp: null,
+    effects: [{ type: "document/request", document: "document.eca" }],
+    counts: [CANADA],
+  },
+  "activity.enter-pool": {
+    id: "activity.enter-pool",
+    slot: "free",
+    where: "home",
+    // R-POINTS-002. Band 6.0 is CLB 7; the funds are covered now.
+    requires: [
+      known(CANADA),
+      windowOpen("var.ca-window"),
+      held("document.eca"),
+      held("document.english-test", 60),
+      { type: "activity/tenure", activities: [], months: 12 },
+      { type: "route/funds", route: CANADA, heldMonths: 0 },
+      { type: "not", of: { type: "route/gate-step", route: CANADA, step: "pool" } },
+    ],
+    param: null,
+    cost: [],
+    pay: null,
+    hireBp: null,
+    // no effect in the contract enters the pool, so the route kind records `poolMonth` when this activity
+    // resolves. Nothing is listed here.
+    effects: [],
+    counts: [CANADA],
+  },
+
+  // route-gates.md: the endorsement gate.
+
+  "activity.apply-endorsement": {
+    id: "activity.apply-endorsement",
+    slot: "free",
+    where: "home",
+    // R-ENDORSE-001. The six months after a refusal are the route's `endorsement.cooldown`.
+    requires: [
+      known(TALENT),
+      windowOpen("var.uk-talent-window"),
+      { type: "quality/min", quality: "quality.tech", value: 75 },
+      { type: "quality/min", quality: "quality.portfolio", value: 3 },
+      { type: "quality/min", quality: "quality.network", value: 50 },
+      { type: "document/absent", document: "document.endorsement" },
+    ],
+    param: null,
+    cost: [{ currency: "GBP", amount: { var: "var.uk-talent-endorse-fee" }, reason: "fee-document" }],
+    pay: null,
+    hireBp: null,
+    effects: [{ type: "document/request", document: "document.endorsement" }],
+    counts: [TALENT],
+  },
+  "activity.apply-uk-talent": {
+    id: "activity.apply-uk-talent",
+    slot: "free",
+    where: "home",
+    // R-ENDORSE-003.
+    requires: [
+      known(TALENT),
+      windowOpen("var.uk-talent-window"),
+      held("document.endorsement"),
+      held("document.passport"),
+      held("document.tb-certificate"),
+    ],
+    param: null,
+    // The surcharge for 60 months: five years, one cost each.
+    cost: [
+      { currency: "GBP", amount: { var: "var.uk-talent-visa-fee" }, reason: "fee-visa" },
+      SURCHARGE_YEAR,
+      SURCHARGE_YEAR,
+      SURCHARGE_YEAR,
+      SURCHARGE_YEAR,
+      SURCHARGE_YEAR,
+    ],
+    pay: null,
+    hireBp: null,
+    effects: [{ type: "route/apply", route: TALENT }],
+    counts: [TALENT],
+  },
+
+  // route-gates.md: the contract gate, and road.md for the motor park.
+
+  "activity.ask-around": {
+    id: "activity.ask-around",
+    slot: "free",
+    where: "home",
+    requires: [],
+    param: null,
+    cost: [],
+    pay: null,
+    hireBp: null,
+    // The motor park hears of the Gulf (R-CONTRACT-001) and the pitch finds the curious (R-ROAD-002).
+    effects: [
+      { type: "route/hear", route: GULF, via: "motor-park" },
+      { type: "offer/open", offer: "offer.road-park" },
+    ],
+    counts: [],
+  },
+  "activity.gulf-medical": {
+    id: "activity.gulf-medical",
+    slot: "free",
+    where: "home",
+    // only once the contract route is known.
+    requires: [
+      { type: "route/state", route: GULF, in: ["known"] },
+      { type: "document/absent", document: "document.medical" },
+    ],
+    param: null,
+    cost: [{ currency: "NGN", amount: naira(60000), reason: "fee-test" }],
+    pay: null,
+    hireBp: null,
+    effects: [{ type: "document/request", document: "document.medical" }],
+    counts: [GULF],
+  },
+  "activity.apply-gulf-contract": {
+    id: "activity.apply-gulf-contract",
+    slot: "free",
+    where: "home",
+    // R-CONTRACT-003: secondary school or better and under 45 years. No fee: the employer pays.
+    requires: [
+      known(GULF),
+      windowOpen("var.uae-window"),
+      { type: "route/gate-step", route: GULF, step: "sponsor" },
+      held("document.passport"),
+      held("document.medical"),
+      { type: "quality/min", quality: "quality.edu-level", value: 1 },
+      { type: "quality/max", quality: "quality.age-months", value: 539 },
+    ],
+    param: null,
+    cost: [],
+    pay: null,
+    hireBp: null,
+    effects: [{ type: "route/apply", route: GULF }],
+    counts: [GULF],
   },
 };

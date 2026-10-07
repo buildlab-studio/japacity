@@ -143,4 +143,102 @@ export const offerText: Record<string, string> = {
   "offer.job.body": "'We would like you to start on the first.'",
   "offer.job.choice.accept": "Accept",
   "offer.job.choice.decline": "Decline",
+
+  // Sponsors: route-gates.md. Sign words are the page's. Bodies are first drafts.
+
+  "offer.sponsor-care-home.name": "A care home will sponsor you",
+  "offer.sponsor-care-home.title": "A care home will sponsor you",
+  "offer.sponsor-care-home.body":
+    "A care home in the Midlands answers your message. Senior carer, {salary} a year, nights and weekends. 'We can issue the certificate this month.'",
+  "offer.sponsor-care-home.choice.take": "Take the certificate",
+  "offer.sponsor-care-home.choice.decline": "Decline",
+  "offer.sponsor-care-home.sign.pays-for-cos": "They want you to pay for the certificate.",
+  "offer.sponsor-care-home.sign.licensed-register": "The company is on the public register of licensed sponsors.",
+  "offer.sponsor-care-home.sign.video-interview": "There was an interview on video with the manager.",
+  "offer.sponsor-care-home.sign.whatsapp-only": "Everything happens on WhatsApp.",
+  "offer.sponsor-care-home.sign.start-date": "They gave a start date and a rota.",
+
+  "offer.sponsor-trust.name": "A hospital trust offers a nursing post",
+  "offer.sponsor-trust.title": "A hospital trust offers a nursing post",
+  "offer.sponsor-trust.body":
+    "A hospital trust's recruiter writes after your online interview. Staff nurse, {salary} a year, sponsorship included.",
+  "offer.sponsor-trust.choice.take": "Accept the post",
+  "offer.sponsor-trust.choice.decline": "Decline",
+
+  "offer.sponsor-tech-firm.name": "A tech firm will sponsor you",
+  "offer.sponsor-tech-firm.title": "A tech firm will sponsor you",
+  "offer.sponsor-tech-firm.body":
+    "A software company in Manchester liked your take-home task. {salary} a year, and they will sponsor the visa.",
+  "offer.sponsor-tech-firm.choice.take": "Take the offer",
+  "offer.sponsor-tech-firm.choice.decline": "Decline",
+  "offer.sponsor-tech-firm.sign.pays-for-cos": "They want you to pay for the certificate.",
+  "offer.sponsor-tech-firm.sign.licensed-register": "The company is on the public register of licensed sponsors.",
+  "offer.sponsor-tech-firm.sign.video-interview": "There was an interview on video with the manager.",
+  "offer.sponsor-tech-firm.sign.whatsapp-only": "Everything happens on WhatsApp.",
+  "offer.sponsor-tech-firm.sign.start-date": "They gave a start date and a rota.",
+
+  "offer.sponsor-agency.name": "An agency has a role for you",
+  "offer.sponsor-agency.title": "An agency has a role for you",
+  "offer.sponsor-agency.body":
+    "A recruitment agency messages you first. 'Client in London, {salary} a year, visa sorted, start in six weeks. Many people are waiting for this slot.'",
+  "offer.sponsor-agency.choice.take": "Take the role",
+  "offer.sponsor-agency.choice.decline": "Decline",
+  "offer.sponsor-agency.sign.pays-for-cos": "They want you to pay for the certificate.",
+  "offer.sponsor-agency.sign.licensed-register": "The company is on the public register of licensed sponsors.",
+  "offer.sponsor-agency.sign.video-interview": "There was an interview on video with the manager.",
+  "offer.sponsor-agency.sign.whatsapp-only": "Everything happens on WhatsApp.",
+  "offer.sponsor-agency.sign.start-date": "They gave a start date and a rota.",
+
+  // The Gulf agent: route-gates.md. The pitch is the page's.
+
+  "offer.gulf-agent.name": "An agent for Dubai",
+  "offer.gulf-agent.title": "An agent for Dubai",
+  "offer.gulf-agent.body":
+    "Dubai. Security or cleaning, accommodation included, {salary} a month. Visa and ticket are sorted. Bring {fee} and your passport.",
+  "offer.gulf-agent.choice.take": "Pay him and give him your passport",
+  "offer.gulf-agent.choice.walk-away": "Walk away",
+  "offer.gulf-agent.sign.office": "He has an office, with his name on the door.",
+  "offer.gulf-agent.sign.receipt": "He gives a stamped receipt.",
+  "offer.gulf-agent.sign.contract-paper": "He shows you a printed contract with the employer's name.",
+  "offer.gulf-agent.sign.pay-today": "He says the slot goes if you do not pay today.",
+  "offer.gulf-agent.sign.friend": "Someone you know went through him and is working there now.",
+
+  // The road: road.md. The pitch never says desert, sea, road or danger. Sign words are the page's.
+
+  "offer.road-radio.name": "An advert on the radio",
+  "offer.road-radio.title": "An advert on the radio",
+  "offer.road-radio.body":
+    "'Europe, three weeks. No visa wahala, no embassy queue. Our people will receive you.' A deposit of {deposit} holds a place.",
+  "offer.road-radio.choice.take": "Pay the deposit",
+  "offer.road-radio.choice.ignore": "Change the station",
+  "offer.road-radio.sign.too-cheap": "It costs less than the visa fee alone.",
+  "offer.road-radio.sign.no-paper": "Nobody has mentioned a visa, a form or an office.",
+  "offer.road-radio.sign.agency-warning": "A radio spot from the anti-trafficking agency ran straight after the advert.",
+
+  "offer.road-park.name": "A man at the park",
+  "offer.road-park.title": "A man at the park",
+  "offer.road-park.body":
+    "He has heard you asking. 'Europe, three weeks. I have carried many people. {deposit} and you are on the next one.'",
+  "offer.road-park.choice.take": "Pay the deposit",
+  "offer.road-park.choice.ignore": "Walk on",
+  "offer.road-park.sign.too-cheap": "It costs less than the visa fee alone.",
+  "offer.road-park.sign.no-paper": "Nobody has mentioned a visa, a form or an office.",
+  "offer.road-park.sign.cash-today": "He wants the deposit today, in cash.",
+  "offer.road-park.sign.returnee-said": "Someone who came back from that road is at the park. He is not saying much.",
+
+  "offer.road-cousin.name": "Your cousin's friend",
+  "offer.road-cousin.title": "Your cousin's friend",
+  "offer.road-cousin.body":
+    "Your cousin calls. 'His people can take you to Europe. Three weeks. He only needs {deposit} to start.'",
+  "offer.road-cousin.choice.take": "Pay the deposit",
+  "offer.road-cousin.choice.ignore": "Tell your cousin no",
+  "offer.road-cousin.sign.cousin-vouches": "Your cousin says his friend did it last year.",
+  "offer.road-cousin.sign.no-paper": "Nobody has mentioned a visa, a form or an office.",
+
+  "offer.road-ransom-call.name": "A call to your family",
+  "offer.road-ransom-call.title": "A call to your family",
+  "offer.road-ransom-call.body":
+    "They hand you a phone and tell you to call home. The man wants {sum} before anyone moves.",
+  "offer.road-ransom-call.choice.pay": "Your family finds the money",
+  "offer.road-ransom-call.choice.cannot": "There is no money",
 };
