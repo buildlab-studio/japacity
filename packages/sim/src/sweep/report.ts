@@ -110,6 +110,37 @@ export function stalls(records: RunRecord[]): Stall[] {
   return found;
 }
 
+export interface Drop {
+  life: Id<"scenario">;
+  from: Stage;
+  to: Stage;
+  /** The share of runs lost there, by strategy. */
+  lost: string;
+  /** Runs lost across every strategy, for sorting. */
+  count: number;
+}
+
+/** Every place runs are lost between two stages in a row, by life, the largest first. */
+export function drops(records: RunRecord[]): Drop[] {
+  const found: Drop[] = [];
+  for (const life of LIVES) {
+    for (let i = 1; i < STAGES.length; i += 1) {
+      const from = STAGES[i - 1]!;
+      const to = STAGES[i]!;
+      let count = 0;
+      const shares: string[] = [];
+      for (const strategy of STRATEGIES) {
+        const runs = records.filter((record) => record.strategy === strategy && record.life === life);
+        const lost = runs.filter((record) => reached(record, from) && !reached(record, to)).length;
+        count += lost;
+        shares.push(`${strategy} ${percent(lost, runs.length)}`);
+      }
+      if (count > 0) found.push({ life, from, to, lost: shares.join(", "), count });
+    }
+  }
+  return found.sort((a, b) => b.count - a.count);
+}
+
 export function summarise(records: RunRecord[], seeds: number, months: number): string {
   const out: string[] = [];
   const groups = STRATEGIES.flatMap((strategy) => LIVES.map((life) => ({ strategy, life, runs: records.filter((r) => r.strategy === strategy && r.life === life) })));
@@ -190,8 +221,15 @@ export function summarise(records: RunRecord[], seeds: number, months: number): 
   for (const [reason, count] of topReasons.slice(0, 3)) out.push(`| \`${reason}\` | ${String(count)} | ${percent(count, refusals.length)} |`);
 
   out.push("", "## Where players stall", "", "For each strategy and life, the first stage fewer than 30% of runs reach.", "");
-  out.push("| Strategy | Life | Stalls at | Reached it | Reached the stage before |", "|---|---|---|---|---|");
-  for (const stall of stalls(records)) out.push(`| ${stall.strategy} | ${lifeName(stall.life)} | ${stall.stage} | ${stall.share} | ${stall.before} |`);
+  const found = stalls(records);
+  if (found.length === 0) out.push("No stage falls under 30% for any strategy and life.");
+  else {
+    out.push("| Strategy | Life | Stalls at | Reached it | Reached the stage before |", "|---|---|---|---|---|");
+    for (const stall of found) out.push(`| ${stall.strategy} | ${lifeName(stall.life)} | ${stall.stage} | ${stall.share} | ${stall.before} |`);
+  }
+  out.push("", "The three largest losses between one stage and the next:", "");
+  out.push("| Life | From | To | Runs lost there |", "|---|---|---|---|");
+  for (const drop of drops(records).slice(0, 3)) out.push(`| ${lifeName(drop.life)} | ${drop.from} | ${drop.to} | ${drop.lost} |`);
 
   out.push("", "## Good lines, careful players", "");
   out.push("| Life | Months played | Months with a good line | Longest run without one | Months with a win | Longest run without a win |", "|---|---|---|---|---|---|");
