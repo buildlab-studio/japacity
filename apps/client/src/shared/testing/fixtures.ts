@@ -3,7 +3,7 @@
 // hand on top of a real view, so the screens for offers, routes and the
 // interview can be exercised before the kinds that fill them exist.
 import { content } from "@japacity/content";
-import type { Authority, Command, Id, PlayerView, Rejection, Reply } from "@japacity/sim";
+import type { Authority, Command, Id, PlayerView, Rejection, Reply, ReportLine } from "@japacity/sim";
 import { newState, standInWorld, viewFor } from "@japacity/sim";
 
 export const SCENARIOS = Object.keys(content.scenario) as Id<"scenario">[];
@@ -129,16 +129,22 @@ export interface FakeAuthority extends Authority {
   sent: Command[];
   /** The next reply is this rejection, once. */
   rejectNext(rejection: Omit<Rejection, "ok">): void;
+  /** The next accepted reply carries these lines, once. */
+  linesNext(lines: ReportLine[]): void;
 }
 
 /** An authority that records what is sent and answers with the same view, or a rejection when told to. */
 export function fakeAuthority(view: PlayerView): FakeAuthority {
   let pending: Rejection | null = null;
+  let lines: ReportLine[] = [];
   const sent: Command[] = [];
   return {
     sent,
     rejectNext(rejection) {
       pending = { ok: false, ...rejection };
+    },
+    linesNext(next) {
+      lines = next;
     },
     view: () => Promise.resolve(view),
     send(command): Promise<Reply> {
@@ -148,7 +154,9 @@ export function fakeAuthority(view: PlayerView): FakeAuthority {
         pending = null;
         return Promise.resolve(reply);
       }
-      return Promise.resolve({ ok: true, view, lines: [] });
+      const reply: Reply = { ok: true, view, lines };
+      lines = [];
+      return Promise.resolve(reply);
     },
   };
 }
