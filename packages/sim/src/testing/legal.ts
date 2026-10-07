@@ -38,11 +38,9 @@ function fromOffers(view: PlayerView): Loose[] {
   for (const offer of view.offers) {
     for (const choice of offer.choices) {
       if (!choice.allowed) continue;
+      // `allowed` is judged at the smallest amount: a larger one can cost more than is held.
       if (choice.pick === null) commands.push({ type: "offer/choose", offer: offer.id, choice: choice.id });
-      else {
-        commands.push({ type: "offer/choose", offer: offer.id, choice: choice.id, amount: choice.pick.min });
-        commands.push({ type: "offer/choose", offer: offer.id, choice: choice.id, amount: choice.pick.max });
-      }
+      else commands.push({ type: "offer/choose", offer: offer.id, choice: choice.id, amount: choice.pick.min });
     }
   }
   return commands;

@@ -91,7 +91,7 @@ function lab(options: { scenario?: Id<"scenario">; content?: Content; seed?: str
             ...kind.commands,
             "route/depart": (ctx: Ctx): BaseEvent[] => ctx.apply(pending.effects, { source: "test", param: null, terms: pending.terms }),
           },
-          requirements: options.routeHolds === true ? { ...kind.requirements, "route/deposit": holds, "route/state": holds } : kind.requirements,
+          ...(options.routeHolds === true ? { requirements: { ...kind.requirements, "route/deposit": holds, "route/state": holds } } : {}),
         },
   );
   const send = (loose: Loose): StepResult => {
@@ -183,6 +183,7 @@ describe("coming up", () => {
 
   test("[R-OFFER-001] given only life and family offers certain, when a month comes up, then life comes before family, and family in id order", () => {
     const subject = lab({
+      scenario: TUNDE,
       content: variant(
         {
           "offer.harvest": { chanceBp: CERTAIN },
@@ -316,7 +317,8 @@ describe("opening", () => {
   });
 
   test("[R-OFFER-002] given an offer opening in a month, when it opens, then its month, its expiry and the entry's record are kept", () => {
-    const subject = lab();
+    // Tunde, so two months of upkeep leave enough for a family request to hold.
+    const subject = lab({ scenario: TUNDE, content: variant({}, true) });
     subject.end();
     subject.end();
     const item = subject.open("offer.nepa-bill")!;
@@ -377,16 +379,16 @@ describe("choosing", () => {
     const min = item.terms.min as number;
     const max = item.terms.max as number;
     for (const amount of [min - 1, max + 1, Number("150000.5")]) {
-      subject.reject({ type: "offer/choose", offer: item.id, choice: "take", amount }, "bad-amount");
+      expect(subject.reject({ type: "offer/choose", offer: item.id, choice: "take", amount }, "bad-amount").code).toBe("bad-amount");
     }
-    subject.reject({ type: "offer/choose", offer: item.id, choice: "take" }, "bad-amount");
+    expect(subject.reject({ type: "offer/choose", offer: item.id, choice: "take" }, "bad-amount").code).toBe("bad-amount");
   });
 
   test("[R-OFFER-003] given no such offer or no such choice, when one is chosen, then it is rejected with unknown-id or not-legal", () => {
     const subject = lab();
     const item = subject.open("offer.nepa-bill")!;
-    subject.reject({ type: "offer/choose", offer: "offer-999", choice: "pay" }, "unknown-id");
-    subject.reject({ type: "offer/choose", offer: item.id, choice: "dance" }, "not-legal");
+    expect(subject.reject({ type: "offer/choose", offer: "offer-999", choice: "pay" }, "unknown-id").code).toBe("unknown-id");
+    expect(subject.reject({ type: "offer/choose", offer: item.id, choice: "dance" }, "not-legal").code).toBe("not-legal");
   });
 
   test("[R-OFFER-003] given a choice whose conditions do not hold, when it is chosen, then it is rejected with not-legal", () => {
@@ -396,7 +398,7 @@ describe("choosing", () => {
     });
     const subject = lab({ content: strict });
     const item = subject.open("offer.nepa-bill")!;
-    subject.reject({ type: "offer/choose", offer: item.id, choice: "pay" }, "not-legal");
+    expect(subject.reject({ type: "offer/choose", offer: item.id, choice: "pay" }, "not-legal").code).toBe("not-legal");
     subject.accept({ type: "offer/choose", offer: item.id, choice: "leave" });
   });
 
@@ -404,7 +406,7 @@ describe("choosing", () => {
     const short = lab();
     const item = short.open("offer.nepa-bill")!;
     setNaira(short, 2499999);
-    short.reject({ type: "offer/choose", offer: item.id, choice: "pay" }, "cannot-afford");
+    expect(short.reject({ type: "offer/choose", offer: item.id, choice: "pay" }, "cannot-afford").code).toBe("cannot-afford");
 
     const exact = lab();
     const again = exact.open("offer.nepa-bill")!;
@@ -419,7 +421,7 @@ describe("choosing", () => {
     const amount = item.terms.min as number;
     const fee = bp(amount, 400);
     setNaira(subject, 1000000000, fee - 1);
-    subject.reject({ type: "offer/choose", offer: item.id, choice: "take", amount }, "cannot-afford");
+    expect(subject.reject({ type: "offer/choose", offer: item.id, choice: "take", amount }, "cannot-afford").code).toBe("cannot-afford");
     setNaira(subject, 0, fee);
     subject.accept({ type: "offer/choose", offer: item.id, choice: "take", amount });
     expect(subject.game.state.wallet.pockets.NGN).toEqual({ bank: 0, cash: 0, locked: amount });
