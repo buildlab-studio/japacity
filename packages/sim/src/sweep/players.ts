@@ -5,6 +5,7 @@
 // strategy never needs to know a hidden figure to stay legal.
 import { mulDiv } from "../engine/int";
 import { step } from "../engine/step";
+import { refusalChanceBp } from "../route/route.logic";
 import type { Content, Id, OfferView, PlayerView, SlotPick, State } from "../engine/types";
 import { legalCommands } from "../testing/legal";
 import type { Game, Loose } from "../testing/play";
@@ -469,6 +470,8 @@ export interface Decision {
   unexplainedBp: number;
   interviewScore: number;
   earlierRefusals: number;
+  /** The chance of refusal the decision drew against, in basis points (R-ROUTE-016). */
+  chanceBp: number;
 }
 
 export interface RunRecord {
@@ -484,6 +487,10 @@ export interface RunRecord {
   decisions: Decision[];
   granted: number | null;
   departed: number | null;
+  /** The job held when the visa was granted. */
+  jobAtGrant: string | null;
+  /** The first month the remote developer job was held. */
+  remote: number | null;
   japacity: number | null;
   /** Month ends with less naira than offer.md's "broke". */
   broke: number;
@@ -518,9 +525,24 @@ function restingTurnAccepted(game: Game): boolean {
   return result.ok;
 }
 
-function interviewOf(state: State): { unexplainedBp: number; interviewScore: number } {
-  const visa = state.route[UK]?.visa;
-  return { unexplainedBp: visa?.unexplainedBp ?? 0, interviewScore: visa?.interviewScore ?? 0 };
+interface FileOnDay {
+  unexplainedBp: number;
+  interviewScore: number;
+  chanceBp: number;
+}
+
+/** The visa file as the decision will weigh it, read from the authority's state. */
+function fileOf(state: State, content: Content): FileOnDay {
+  const held = state.route[UK];
+  const visa = held?.visa;
+  const file = {
+    strictness: visa?.rules.strictness ?? 0,
+    unexplainedBp: visa?.unexplainedBp ?? 0,
+    refusals: held?.refusals ?? 0,
+    interviewScore: visa?.interviewScore ?? 0,
+    grade: state.quality["quality.edu-grade"] ?? 0,
+  };
+  return { unexplainedBp: file.unexplainedBp, interviewScore: file.interviewScore, chanceBp: refusalChanceBp(content.tuning.route, file) };
 }
 
 /** Plays one life with one strategy until it departs or the months run out. */
@@ -547,6 +569,8 @@ export function runLife(
     decisions: [],
     granted: null,
     departed: null,
+    jobAtGrant: null,
+    remote: null,
     japacity: null,
     broke: 0,
     goodMonths: 0,
@@ -560,7 +584,7 @@ export function runLife(
   let dry = 0;
   let noWin = 0;
   let sentThisMonth = 0;
-  let lastFile = { unexplainedBp: 0, interviewScore: 0 };
+  let lastFile: FileOnDay = { unexplainedBp: 0, interviewScore: 0, chanceBp: 0 };
   while (!game.state.turn.ended && game.state.turn.month < months) {
     let view = game.view();
     if (view.turns.banked === 0 && view.setpiece === null) {
@@ -590,7 +614,7 @@ export function runLife(
     const after = game.state;
     const was = before.route[UK];
     const now = after.route[UK];
-    if (now?.visa !== null && now?.visa !== undefined) lastFile = interviewOf(after);
+    if (now?.visa !== null && now?.visa !== undefined) lastFile = fileOf(after, content);
     if (was !== undefined && now !== undefined) {
       if (record.heard === null && now.state !== "unknown") record.heard = after.turn.month;
       if (record.known === null && now.knownMonth !== null) record.known = after.turn.month;
@@ -606,9 +630,13 @@ export function runLife(
           ...lastFile,
           earlierRefusals: was.refusals,
         });
-        if (granted) record.granted = after.turn.month;
+        if (granted) {
+          record.granted = after.turn.month;
+          record.jobAtGrant = after.activity.job;
+        }
       }
       if (now.state === "departed" && record.departed === null) record.departed = after.turn.month;
+      if (record.remote === null && after.activity.job === "activity.job-remote-dev") record.remote = after.turn.month;
     }
     if (sent.type === "turn/end") {
       sentThisMonth = 0;

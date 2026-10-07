@@ -135,15 +135,49 @@ export function summarise(records: RunRecord[], seeds: number, months: number): 
   const allCareful = records.filter((r) => r.strategy === "careful" && r.departed !== null).map((r) => r.departed ?? 0);
   out.push(`| all | ${percent(allCareful.length, records.filter((r) => r.strategy === "careful").length)} | ${show(quantile(allCareful, 1, 4))} | ${show(quantile(allCareful, 1, 2))} | ${show(quantile(allCareful, 3, 4))} |`);
 
+  out.push("", "## Months between stages, careful players", "", "Median months from one stage to the next, among careful runs that reached both.", "");
+  const gaps: [string, (record: RunRecord) => number | null, (record: RunRecord) => number | null][] = [
+    ["heard to known", (r) => r.heard, (r) => r.known],
+    ["known to a school's offer", (r) => r.known, (r) => r.offer],
+    ["offer to deposit", (r) => r.offer, (r) => r.deposit],
+    ["deposit to visa sent", (r) => r.deposit, (r) => r.applied],
+    ["visa sent to grant", (r) => r.applied, (r) => r.granted],
+    ["grant to flight", (r) => r.granted, (r) => r.departed],
+  ];
+  out.push(`| Stage | ${LIVES.map(lifeName).join(" | ")} |`, `|---|${LIVES.map(() => "---|").join("")}`);
+  for (const [label, from, to] of gaps) {
+    const cells = LIVES.map((life) => {
+      const spans = records
+        .filter((r) => r.strategy === "careful" && r.life === life)
+        .flatMap((r) => {
+          const a = from(r);
+          const b = to(r);
+          return a === null || b === null ? [] : [b - a];
+        });
+      return show(quantile(spans, 1, 2));
+    });
+    out.push(`| ${label} | ${cells.join(" | ")} |`);
+  }
+
+  out.push("", "## What pays for the flight", "", "The job held on the day the visa was granted, among granted runs.", "");
+  const jobs = new Map<string, number>();
+  const granted = records.filter((r) => r.granted !== null);
+  for (const record of granted) jobs.set(record.jobAtGrant ?? "none", (jobs.get(record.jobAtGrant ?? "none") ?? 0) + 1);
+  out.push("| Job | Granted runs | Share |", "|---|---|---|");
+  for (const [job, count] of [...jobs.entries()].sort((a, b) => b[1] - a[1])) out.push(`| \`${job}\` | ${String(count)} | ${percent(count, granted.length)} |`);
+  const remoteMonths = records.filter((r) => r.strategy === "careful" && r.remote !== null).map((r) => r.remote ?? 0);
+  out.push("", `Careful runs that held the remote developer job at some point: ${percent(remoteMonths.length, records.filter((r) => r.strategy === "careful").length)}, first held in month ${show(quantile(remoteMonths, 1, 2))} at the median.`);
+
   out.push("", "## Refusals by strategy", "", "Every visa decision counts once. A clean file has no earlier refusal and an unexplained share of 20% or less on the day it was sent.", "");
-  out.push("| Strategy | Decisions | Refused | Clean-file decisions | Clean files refused | First applications refused |", "|---|---|---|---|---|---|");
+  out.push("| Strategy | Decisions | Refused | Clean-file decisions | Clean files refused | Mean chance faced, clean files | First applications refused |", "|---|---|---|---|---|---|---|");
   for (const strategy of STRATEGIES) {
     const decisions = records.filter((r) => r.strategy === strategy).flatMap((r) => r.decisions);
     const refused = decisions.filter((d) => !d.granted).length;
     const clean = decisions.filter(cleanFile);
     const first = decisions.filter((d) => d.earlierRefusals === 0);
+    const chance = clean.length === 0 ? "n/a" : percent(clean.reduce((sum, d) => sum + d.chanceBp, 0), clean.length * 10000);
     out.push(
-      `| ${strategy} | ${String(decisions.length)} | ${percent(refused, decisions.length)} | ${String(clean.length)} | ${percent(clean.filter((d) => !d.granted).length, clean.length)} | ${percent(first.filter((d) => !d.granted).length, first.length)} |`,
+      `| ${strategy} | ${String(decisions.length)} | ${percent(refused, decisions.length)} | ${String(clean.length)} | ${percent(clean.filter((d) => !d.granted).length, clean.length)} | ${chance} | ${percent(first.filter((d) => !d.granted).length, first.length)} |`,
     );
   }
 
