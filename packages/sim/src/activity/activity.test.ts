@@ -188,8 +188,12 @@ function own<T extends ActivityEvent["type"]>(result: Accepted, type: T): Extrac
   return result.events.filter((event): event is Extract<ActivityEvent, { type: T }> => event.type === type);
 }
 
+/** The month's money moves made by activities. Upkeep is the obligation kind's and is left out. */
 function ledger(result: Accepted): Ledger[] {
-  return result.events.filter((event): event is Ledger => event.type === "wallet/credited" || event.type === "wallet/debited");
+  return result.events.filter(
+    (event): event is Ledger =>
+      (event.type === "wallet/credited" || event.type === "wallet/debited") && (event as Ledger).reason !== "upkeep",
+  );
 }
 
 function opened(result: Accepted): Opened[] {
