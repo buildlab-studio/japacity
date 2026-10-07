@@ -30,8 +30,9 @@ import {
   toKnown,
   toOffer,
   uk,
+  watchHear,
 } from "./route.journey";
-import type { LifeOptions } from "./route.journey";
+import type { LifeOptions, Watch } from "./route.journey";
 import { FRIEND, fundsRequired, fundsShown, offerChanceBp, refusalChanceBp, refusalReasons, routeKind, unexplainedBp } from "./route.logic";
 
 const numbers = content.tuning.route;
@@ -143,12 +144,15 @@ describe("the states of a route", () => {
       ...entry,
       effects: entry.effects.map((effect) => (effect.type === "route/hear" ? { ...effect, chanceBp: 10000 } : effect)),
     }));
-    const game = life({ change: sure });
+    const watch: Watch = { calls: 0, draws: {} };
+    const game = life({ change: sure, kinds: watchHear(watch) });
     toKnown(game);
-    const draws = game.state.draws.offer ?? 0;
+    const calls = watch.calls;
+    const draws = watch.draws.offer ?? 0;
     game.endTurn([slot("activity.meetup")]);
     expect(uk(game).state).toBe("known");
-    expect(game.state.draws.offer ?? 0).toBe(draws);
+    expect(watch.calls).toBeGreaterThan(calls);
+    expect(watch.draws.offer ?? 0).toBe(draws);
   });
 
   test("[R-ROUTE-001] given an unknown route, when an event moves it along no arrow of the page, then evolve refuses it", () => {
@@ -166,19 +170,21 @@ describe("hearing of a route and looking into it", () => {
     }));
 
   test("[R-ROUTE-002] given a meetup whose chance to hear is certain, when it is played, then the route is heard of via the meetup, after one draw on the offer stream", () => {
-    const game = life({ quiet: true, change: meetupChance(10000) });
+    const watch: Watch = { calls: 0, draws: {} };
+    const game = life({ quiet: true, change: meetupChance(10000), kinds: watchHear(watch) });
     const result = game.endTurn([slot("activity.meetup")]);
     expect(uk(game).state).toBe("heard");
     expect(uk(game).heardMonth).toBe(1);
-    expect(game.state.draws.offer).toBe(1);
+    expect(watch.draws).toEqual({ offer: 1 });
     expect(routeLines(result.lines)).toContainEqual({ key: "line.route.heard", params: { route: UK, via: "meetup" }, tone: "good", attention: false, counts: [] });
   });
 
   test("[R-ROUTE-002] given a meetup whose chance to hear is nil, when it is played, then the draw is made and the route stays unknown", () => {
-    const game = life({ quiet: true, change: meetupChance(0) });
+    const watch: Watch = { calls: 0, draws: {} };
+    const game = life({ quiet: true, change: meetupChance(0), kinds: watchHear(watch) });
     game.endTurn([slot("activity.meetup")]);
     expect(uk(game).state).toBe("unknown");
-    expect(game.state.draws.offer).toBe(1);
+    expect(watch.draws).toEqual({ offer: 1 });
   });
 
   test("[R-ROUTE-002] given the real meetup's chance, when it is played, then the route is heard exactly when the offer draw falls under it", () => {
@@ -229,7 +235,7 @@ describe("hearing of a route and looking into it", () => {
   });
 
   test("[R-ROUTE-004] given a known route with funds short, when the view is read, then the slow funds item carries what is shown and needed and earns its share rounded down", () => {
-    const game = life({ pockets: { NGN: { bank: 2000000 * UNIT, cash: 0 } } });
+    const game = life({ pockets: { NGN: { bank: 2000000 * UNIT, cash: 500000 * UNIT } } });
     toKnown(game);
     const funds = game.view().routes[0]!.checklist.find((item) => item.id === "funds")!;
     const shown = fundsShown(readOf(game), UK);
@@ -814,30 +820,20 @@ describe("decision day", () => {
   test("[R-ROUTE-020] given a granted route and held funds still open, when the player departs, then it is rejected until they are returned", () => {
     const game = life({ tuning: ALWAYS_GRANTED });
     toDecision(game);
-    // The obligation kind cannot open held funds yet, so the open loan is written into the state.
-    const items = game.state.obligation.items;
-    game.state = {
-      ...game.state,
-      obligation: {
-        items: {
-          ...items,
-          "obligation-held": {
-            id: "obligation-held",
-            entry: "obligation.held-funds",
-            state: "active",
-            openedMonth: 1,
-            amount: 0,
-            principal: 100,
-            outstanding: 100,
-            monthsLeft: null,
-            missed: 0,
-          },
-        },
-      },
-    };
+    expect(uk(game).state).toBe("granted");
+    // Held funds open through the real offer: the first honest agent to come up is taken at the least he will hold.
+    const heldFunds = () => Object.values(game.state.obligation.items).find((item) => game.content.obligation[item.entry]?.type === "held-funds");
+    for (let month = 0; month < 24 && heldFunds() === undefined; month += 1) {
+      const agent = Object.values(game.state.offer.items).find((item) => item.entry === "offer.held-funds-agent" && !item.secret.fraud);
+      const least = agent?.terms.min;
+      if (agent === undefined || typeof least !== "number") game.endTurn();
+      else game.accept({ type: "offer/choose", offer: agent.id, choice: "take", amount: least });
+    }
+    const held = heldFunds();
+    if (held === undefined) throw new Error("No honest agent came up with this seed.");
     game.expectRejected({ type: "route/depart", route: UK }, "not-legal");
     expect(legalCommands(game.view()).some((command) => command.type === "route/depart")).toBe(false);
-    game.state = { ...game.state, obligation: { items } };
+    game.accept({ type: "obligation/pay", obligation: held.id, amount: held.principal });
     game.accept({ type: "route/depart", route: UK });
   });
 });

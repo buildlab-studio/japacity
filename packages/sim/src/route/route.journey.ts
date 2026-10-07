@@ -4,7 +4,7 @@
 import type { Registry } from "../engine/kind";
 import { drawAt, scaleDraw } from "../engine/random";
 import { stepWith } from "../engine/step";
-import type { Content, Effect, Id, RouteState, ScenarioEntry, SlotPick, Stream, Terms, Tuning } from "../engine/types";
+import type { Cause, Content, Ctx, Effect, Id, Random, RouteState, ScenarioEntry, SlotPick, Stream, Terms, Tuning } from "../engine/types";
 import { registry } from "../kinds";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
@@ -33,6 +33,8 @@ export interface LifeOptions {
   quiet?: boolean;
   /** Content changed before play, after the ready life is added. */
   change?: (content: Content) => Content;
+  /** The registry to step with. The real one by default. */
+  kinds?: Registry;
 }
 
 /** The ready life's papers: passport, transcript, an English band of 7.0 and a TB certificate, all in date for two years. */
@@ -45,8 +47,9 @@ export const READY_PAPERS: ScenarioEntry["documents"] = [
 
 /**
  * Ada, with her papers in hand and £40,000 and ₦2,000,000 in the bank, so a
- * test reaches the visa in a few turns. The content is the one given, with
- * this life added.
+ * test reaches the visa in a few turns, and ₦1,500,000 in cash, which pays her
+ * upkeep (taken cash first) on the way without touching the bank. The content
+ * is the one given, with this life added.
  */
 export function readyContent(base: Content, options: LifeOptions = {}): Content {
   const ada = base.scenario["scenario.ada"];
@@ -55,7 +58,7 @@ export function readyContent(base: Content, options: LifeOptions = {}): Content 
     ...ada,
     id: READY,
     qualities: { ...ada.qualities, ...options.qualities } as ScenarioEntry["qualities"],
-    pockets: options.pockets ?? { NGN: { bank: 2000000 * UNIT, cash: 100000 * UNIT }, GBP: { bank: 40000 * UNIT, cash: 0 } },
+    pockets: options.pockets ?? { NGN: { bank: 2000000 * UNIT, cash: 1500000 * UNIT }, GBP: { bank: 40000 * UNIT, cash: 0 } },
     documents: options.documents ?? READY_PAPERS,
   };
   const used: Content = {
@@ -72,6 +75,7 @@ export function readyLife(base: Content, options: LifeOptions = {}): Game {
     scenario: READY,
     content: used,
     seed: options.seed ?? "seed-1",
+    ...(options.kinds === undefined ? {} : { kinds: options.kinds }),
     worldAt: (tick) => {
       const world = standInWorld("world-1", tick, used);
       return { ...world, vars: { ...world.vars, ...options.vars?.(tick) }, news: options.quiet === true ? [] : world.news };
@@ -174,6 +178,57 @@ export function drawnQuestions(seed: string, pool: readonly string[], ask: numbe
     if (picked !== undefined) asked.push(picked);
   }
   return asked;
+}
+
+/** What a watched effect has done so far: how often it ran and the draws it made, by stream. */
+export interface Watch {
+  calls: number;
+  draws: Partial<Record<Stream, number>>;
+}
+
+/** A Ctx like the one given whose draws are also counted in `watch`. */
+function counted(ctx: Ctx, watch: Watch): Ctx {
+  const count = (stream: Stream): void => {
+    watch.draws[stream] = (watch.draws[stream] ?? 0) + 1;
+  };
+  const random: Random = {
+    int(stream, n) {
+      count(stream);
+      return ctx.random.int(stream, n);
+    },
+    between(stream, min, max) {
+      count(stream);
+      return ctx.random.between(stream, min, max);
+    },
+    chance(stream, bp) {
+      count(stream);
+      return ctx.random.chance(stream, bp);
+    },
+  };
+  return Object.create(ctx, { random: { value: random } }) as Ctx;
+}
+
+/**
+ * The real registry with the route kind's `route/hear` effect watched. The kind
+ * runs unchanged; each call and each draw it makes is counted in `watch`, so a
+ * test can count the draws hearing makes in a month when the offer kind draws
+ * on the same stream.
+ */
+export function watchHear(watch: Watch): Registry {
+  return registry().map((kind) => {
+    const hear = kind.effects?.["route/hear"];
+    if (kind.kind !== "route" || hear === undefined) return kind;
+    return {
+      ...kind,
+      effects: {
+        ...kind.effects,
+        "route/hear": (ctx: Ctx, effect: Effect, cause: Cause) => {
+          watch.calls += 1;
+          return hear(counted(ctx, watch), effect, cause);
+        },
+      },
+    };
+  });
 }
 
 /** The real registry with `offer/choose` carrying out the given effects. The offer kind has no command handler of its own yet. */
