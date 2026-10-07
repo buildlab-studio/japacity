@@ -14,6 +14,7 @@
     "test": "vitest run",
     "check:rules": "tsx tools/check-rules.ts",
     "check:protected": "tsx tools/check-protected.ts",
+    "bless": "tsx tools/bless.ts",
     "check": "tsx tools/check.ts",
     "dev": "pnpm --filter @japacity/client dev",
     "build": "pnpm --filter @japacity/client build"

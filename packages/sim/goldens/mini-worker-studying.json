@@ -1,0 +1,135 @@
+{
+  "name": "mini-worker-studying",
+  "save": {
+    "schema": 1,
+    "content": "mini.1",
+    "scenario": "scenario.worker",
+    "seed": "golden-worker",
+    "worldSeed": "golden-world",
+    "commands": [
+      {
+        "command": {
+          "type": "turn/end",
+          "slots": [
+            {
+              "activity": "activity.study",
+              "param": null
+            }
+          ],
+          "basedOn": 0
+        },
+        "tick": 0,
+        "sender": "player"
+      },
+      {
+        "command": {
+          "type": "turn/end",
+          "slots": [
+            {
+              "activity": "activity.study",
+              "param": null
+            }
+          ],
+          "basedOn": 1
+        },
+        "tick": 1,
+        "sender": "player"
+      },
+      {
+        "command": {
+          "type": "turn/end",
+          "slots": [
+            {
+              "activity": "activity.study",
+              "param": null
+            }
+          ],
+          "basedOn": 2
+        },
+        "tick": 2,
+        "sender": "player"
+      },
+      {
+        "command": {
+          "type": "turns/grant",
+          "count": 2,
+          "basedOn": 3
+        },
+        "tick": 3,
+        "sender": "authority"
+      },
+      {
+        "command": {
+          "type": "turn/end",
+          "slots": [],
+          "basedOn": 4
+        },
+        "tick": 3,
+        "sender": "player"
+      },
+      {
+        "command": {
+          "type": "turn/end",
+          "slots": [],
+          "basedOn": 5
+        },
+        "tick": 4,
+        "sender": "player"
+      },
+      {
+        "command": {
+          "type": "turn/end",
+          "slots": [],
+          "basedOn": 6
+        },
+        "tick": 5,
+        "sender": "player"
+      }
+    ]
+  },
+  "months": [
+    {
+      "month": 1,
+      "v": 1,
+      "banked": 23,
+      "nairaBank": 100000000,
+      "hash": "7713337638436dd9"
+    },
+    {
+      "month": 2,
+      "v": 2,
+      "banked": 22,
+      "nairaBank": 100000000,
+      "hash": "b0c8abcd8b87f89f"
+    },
+    {
+      "month": 3,
+      "v": 3,
+      "banked": 21,
+      "nairaBank": 100000000,
+      "hash": "54bc8ed8723cef88"
+    },
+    {
+      "month": 4,
+      "v": 5,
+      "banked": 22,
+      "nairaBank": 100000000,
+      "hash": "544e37c45a338874"
+    },
+    {
+      "month": 5,
+      "v": 6,
+      "banked": 21,
+      "nairaBank": 100000000,
+      "hash": "06c8aaab08e9ef46"
+    },
+    {
+      "month": 6,
+      "v": 7,
+      "banked": 20,
+      "nairaBank": 100000000,
+      "hash": "3cf6a5fe67d11029"
+    }
+  ],
+  "finalHash": "3cf6a5fe67d11029"
+}

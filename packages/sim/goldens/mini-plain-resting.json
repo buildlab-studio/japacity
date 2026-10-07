@@ -1,0 +1,189 @@
+{
+  "name": "mini-plain-resting",
+  "save": {
+    "schema": 1,
+    "content": "mini.1",
+    "scenario": "scenario.plain",
+    "seed": "golden-plain",
+    "worldSeed": "golden-world",
+    "commands": [
+      {
+        "command": {
+          "type": "turn/end",
+          "slots": [
+            {
+              "activity": "activity.rest",
+              "param": null
+            },
+            {
+              "activity": "activity.rest",
+              "param": null
+            },
+            {
+              "activity": "activity.rest",
+              "param": null
+            }
+          ],
+          "basedOn": 0
+        },
+        "tick": 0,
+        "sender": "player"
+      },
+      {
+        "command": {
+          "type": "turn/end",
+          "slots": [
+            {
+              "activity": "activity.rest",
+              "param": null
+            },
+            {
+              "activity": "activity.rest",
+              "param": null
+            },
+            {
+              "activity": "activity.rest",
+              "param": null
+            }
+          ],
+          "basedOn": 1
+        },
+        "tick": 1,
+        "sender": "player"
+      },
+      {
+        "command": {
+          "type": "turn/end",
+          "slots": [
+            {
+              "activity": "activity.rest",
+              "param": null
+            },
+            {
+              "activity": "activity.rest",
+              "param": null
+            },
+            {
+              "activity": "activity.rest",
+              "param": null
+            }
+          ],
+          "basedOn": 2
+        },
+        "tick": 2,
+        "sender": "player"
+      },
+      {
+        "command": {
+          "type": "turn/end",
+          "slots": [
+            {
+              "activity": "activity.rest",
+              "param": null
+            },
+            {
+              "activity": "activity.rest",
+              "param": null
+            },
+            {
+              "activity": "activity.rest",
+              "param": null
+            }
+          ],
+          "basedOn": 3
+        },
+        "tick": 3,
+        "sender": "player"
+      },
+      {
+        "command": {
+          "type": "turn/end",
+          "slots": [
+            {
+              "activity": "activity.rest",
+              "param": null
+            },
+            {
+              "activity": "activity.rest",
+              "param": null
+            },
+            {
+              "activity": "activity.rest",
+              "param": null
+            }
+          ],
+          "basedOn": 4
+        },
+        "tick": 4,
+        "sender": "player"
+      },
+      {
+        "command": {
+          "type": "turn/end",
+          "slots": [
+            {
+              "activity": "activity.rest",
+              "param": null
+            },
+            {
+              "activity": "activity.rest",
+              "param": null
+            },
+            {
+              "activity": "activity.rest",
+              "param": null
+            }
+          ],
+          "basedOn": 5
+        },
+        "tick": 5,
+        "sender": "player"
+      }
+    ]
+  },
+  "months": [
+    {
+      "month": 1,
+      "v": 1,
+      "banked": 23,
+      "nairaBank": 20000000,
+      "hash": "e3438c9cd46cb5a7"
+    },
+    {
+      "month": 2,
+      "v": 2,
+      "banked": 22,
+      "nairaBank": 20000000,
+      "hash": "81d8d3df19da3739"
+    },
+    {
+      "month": 3,
+      "v": 3,
+      "banked": 21,
+      "nairaBank": 20000000,
+      "hash": "fdaa901eed0250a3"
+    },
+    {
+      "month": 4,
+      "v": 4,
+      "banked": 20,
+      "nairaBank": 20000000,
+      "hash": "ca68ee216f388f5c"
+    },
+    {
+      "month": 5,
+      "v": 5,
+      "banked": 19,
+      "nairaBank": 20000000,
+      "hash": "bdadf1e7a32606c0"
+    },
+    {
+      "month": 6,
+      "v": 6,
+      "banked": 18,
+      "nairaBank": 20000000,
+      "hash": "5cd1aa0c6e34e901"
+    }
+  ],
+  "finalHash": "5cd1aa0c6e34e901"
+}
