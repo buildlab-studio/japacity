@@ -403,7 +403,7 @@ describe("the params a free activity may take now", () => {
     for (const other of ["unknown", "known", "applying"] as const) expect(paramsFor(readWith(game, routeIn(other)), look)).toEqual([]);
   });
 
-  test("[R-ACTIVITY-002] [R-ROUTE-006] given a known route, a grade and a band, when the schools are listed, then each school whose minimums are met is listed, each edge included", () => {
+  test("[R-ACTIVITY-002] given a known route, a grade and a band, when the schools are listed, then each school whose minimums are met is listed, each edge included", () => {
     const game = start({ content, scenario: "scenario.ada" });
     expect(game.state.quality["quality.edu-grade"]).toBe(4);
     expect(paramsFor(readWith(game, all(routeIn("known"), band(65))), school)).toEqual(["school.northgate", "school.ashby"]);
@@ -414,7 +414,7 @@ describe("the params a free activity may take now", () => {
     expect(paramsFor(readWith(game, all(routeIn("known"), band(70), grade(2))), school)).toEqual([]);
   });
 
-  test("[R-ACTIVITY-002] [R-ROUTE-006] given no band held, a route not known, or an application already there, when the schools are listed, then those are left out", () => {
+  test("[R-ACTIVITY-002] given no band held, a route not known, or an application already there, when the schools are listed, then those are left out", () => {
     const game = start({ content, scenario: "scenario.ada" });
     expect(paramsFor(readWith(game, routeIn("known")), school)).toEqual([]);
     expect(paramsFor(readWith(game, all(routeIn("known"), band(70, "pending"))), school)).toEqual([]);
