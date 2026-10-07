@@ -26,7 +26,7 @@ function tablesOf(of: Content): Record<string, Record<string, { id: string }>> {
     status: of.status,
     era: of.era,
     points: of.points,
-    // goal joins when the whole-life content lands; it is empty until then. The prologue's steps are not ids.
+    // goal joins once the abroad content fills it; it is empty until then. The prologue's steps are not ids.
   };
 }
 

@@ -14,16 +14,11 @@ const OLDEST = 300;
  * a requirement on anything else is taken as one some character can meet.
  */
 function canHold(requirement: Requirement, age: number): boolean {
-  switch (requirement.type) {
-    case "quality/min":
-      return requirement.quality !== "quality.age-months" || age >= requirement.value;
-    case "quality/max":
-      return requirement.quality !== "quality.age-months" || age <= requirement.value;
-    case "any":
-      return requirement.of.some((inner) => canHold(inner, age));
-    default:
-      return true;
-  }
+  const onAge = (requirement.type === "quality/min" || requirement.type === "quality/max") && requirement.quality === "quality.age-months";
+  if (onAge && requirement.type === "quality/min") return age >= requirement.value;
+  if (onAge && requirement.type === "quality/max") return age <= requirement.value;
+  if (requirement.type === "any") return requirement.of.some((inner) => canHold(inner, age));
+  return true;
 }
 
 function ageAdded(effects: Effect[]): number {
@@ -128,16 +123,19 @@ describe("the prologue's steps", () => {
   test("[R-ENGINE-014] given every step, when it is checked, then it parses, its key is its id, every next names a step and every draw adds up to 10000", () => {
     const ids = Object.keys(content.prologue);
     expect(ids).toContain(FIRST);
-    for (const [key, step] of Object.entries(content.prologue)) {
-      expect(PrologueStepSchema.safeParse(step).success).toBe(true);
-      expect(step.id).toBe(key);
-      expect(step.answers.length).toBeGreaterThan(0);
+    const problems = Object.entries(content.prologue).flatMap(([key, step]) => {
       const nexts = [step.next, ...step.answers.flatMap((answer) => [answer.next, ...(answer.draw ?? []).map((outcome) => outcome.next)])];
-      for (const next of nexts) if (next !== null) expect(ids).toContain(next);
-      for (const answer of step.answers) {
-        if (answer.draw !== null) expect(answer.draw.reduce((sum, outcome) => sum + outcome.bp, 0)).toBe(10000);
-      }
-    }
+      return [
+        ...(PrologueStepSchema.safeParse(step).success ? [] : [`${key} does not parse`]),
+        ...(step.id === key ? [] : [`${key} holds ${step.id}`]),
+        ...(step.answers.length > 0 ? [] : [`${key} has no answer`]),
+        ...nexts.filter((next): next is string => next !== null && !ids.includes(next)).map((next) => `${key} leads to ${next}`),
+        ...step.answers
+          .filter((answer) => answer.draw !== null && answer.draw.reduce((sum, outcome) => sum + outcome.bp, 0) !== 10000)
+          .map((answer) => `${key}.${answer.id}'s draw does not add up to 10000`),
+      ];
+    });
+    expect(problems).toEqual([]);
     // Every step is reached from the first.
     const reached = new Set([...walk(content.prologue).passed].map((at) => at.split(".")[0]));
     expect([...reached].sort()).toEqual([...ids].sort());

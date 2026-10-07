@@ -35,15 +35,17 @@ describe("route gates", () => {
   test("[R-GATE-004] given every route but the road, when its entry is read, then it names a country and a status, and its gate's own block", () => {
     const blocks = { study: "schools", sponsor: "sponsor", points: "points", endorsement: "endorsement", contract: "contract" } as const;
     const routes = Object.values(content.route).filter((route) => route.gate !== "road");
-    for (const route of routes) {
-      expect(route.country).not.toBeNull();
-      expect(route.status).not.toBeNull();
-      expect(route.window).not.toBeNull();
-      if (route.gate === "road") continue;
-      const block = blocks[route.gate];
-      if (block === "schools") expect(route.schools.length).toBeGreaterThan(0);
-      else expect(route[block]).toBeDefined();
-    }
+    const missing = routes.flatMap((route) => {
+      const block = route.gate === "road" ? null : blocks[route.gate];
+      const hasBlock = block === null ? false : block === "schools" ? route.schools.length > 0 : route[block] !== undefined;
+      return [
+        ...(route.country === null ? [`${route.id} country`] : []),
+        ...(route.status === null ? [`${route.id} status`] : []),
+        ...(route.window === null ? [`${route.id} window`] : []),
+        ...(hasBlock ? [] : [`${route.id} ${String(block)}`]),
+      ];
+    });
+    expect(missing).toEqual([]);
     expect(new Set(routes.map((route) => route.gate))).toEqual(new Set(["study", "sponsor", "points", "endorsement", "contract"]));
   });
 });

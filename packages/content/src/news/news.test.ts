@@ -10,17 +10,10 @@ const STORY_COUNT = 5 + 25 + 7;
 /** Every variable a requirement reads, through `not` and `any`. */
 function varsRead(requirements: Requirement[]): Id<"var">[] {
   return requirements.flatMap((requirement): Id<"var">[] => {
-    switch (requirement.type) {
-      case "var/min":
-      case "var/max":
-        return [requirement.var];
-      case "not":
-        return varsRead([requirement.of]);
-      case "any":
-        return varsRead(requirement.of);
-      default:
-        return [];
-    }
+    if (requirement.type === "var/min" || requirement.type === "var/max") return [requirement.var];
+    if (requirement.type === "not") return varsRead([requirement.of]);
+    if (requirement.type === "any") return varsRead(requirement.of);
+    return [];
   });
 }
 
@@ -118,11 +111,10 @@ describe("the policy cycle", () => {
 
 describe("the director's pool", () => {
   test("[R-ENGINE-014] given every story, when its director fields are read, then each has a group, and a story fired once has no cooldown", () => {
-    for (const entry of Object.values(content.news)) {
-      expect(entry.director).toBeDefined();
-      expect(entry.director?.group.length).toBeGreaterThan(0);
-      if (entry.director?.once === true) expect(entry.director.cooldown).toBe(0);
-    }
+    const stories = Object.values(content.news);
+    expect(stories.filter((entry) => (entry.director?.group ?? "") === "").map((entry) => entry.id)).toEqual([]);
+    const onceWithCooldown = stories.filter((entry) => entry.director?.once === true && entry.director.cooldown !== 0);
+    expect(onceWithCooldown.map((entry) => entry.id)).toEqual([]);
   });
 
   test("[R-ENGINE-014] given every era, when its story is read, then the story exists, touches every route the player can see, and changes nothing", () => {

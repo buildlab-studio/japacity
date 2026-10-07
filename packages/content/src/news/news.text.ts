@@ -256,7 +256,7 @@ export const newsText: Record<string, string> = {
   "news.remote-hiring-boom.rumour.body": "Developers in your group chat are getting offers from companies they have never visited.",
   "news.remote-hiring-boom.announced.head": "Remote hiring booms",
   "news.remote-hiring-boom.announced.body": "With offices shut abroad, companies hire anywhere with good internet.",
-  "news.remote-hiring-boom.in-force.head": "Remote jobs are easier to land",
+  "news.remote-hiring-boom.in-force.head": "Remote jobs are easier to get",
   "news.remote-hiring-boom.in-force.body": "Recruiters are writing first.",
   "news.remote-hiring-boom.ended.head": "The remote boom is over",
   "news.remote-hiring-boom.ended.body": "Offices abroad are open again and remote roles are fewer.",

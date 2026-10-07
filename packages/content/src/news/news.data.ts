@@ -3,8 +3,8 @@
 // director's fields; the pool's stories are the director's.
 //
 // `needs` reads only the world's variables and the era, so "a story in
-// force" is the variable that story sets, and "a story ended" is a window back
-// at 0 with the opening story ending the closing one through `endedBy`.
+// force" is read as the variable that story sets. "After a closure ended" is read
+// as its window still at 0, and the opening story ends the closure through `endedBy`.
 // the page gives no cooldowns. A story that may fire again waits 12
 // ticks; a story fired once has none.
 // `standIn.announce` is only what the fixed schedule reads until the
