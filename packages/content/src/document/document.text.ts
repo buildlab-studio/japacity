@@ -23,7 +23,7 @@ export const documentText: Record<string, string> = {
   "document.medical.name": "Work medical",
   "document.medical.blurb": "The medical the Gulf employer asks for: blood tests, a chest X-ray and a stamp.",
 
-  "line.document.requested": "You apply for your {document}. It should be ready in month {month}.",
+  "line.document.requested": "Your {document} is on the way. It should be ready in month {month}.",
   "line.document.already-pending": "Your {document} is already being made. It should be ready in month {month}. This request changes nothing.",
   "line.document.issued": "Your {document} is ready.",
   "line.document.issued-band": "Your {document} is out. Band {band}.",

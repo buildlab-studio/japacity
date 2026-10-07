@@ -86,7 +86,7 @@ export const activityText: Record<string, string> = {
   "line.activity.failed-requirements": "{activity} did not happen. You no longer meet what it needs.",
   "line.activity.failed-param": "{activity} did not happen. That choice was no longer open.",
   "line.activity.failed-cost": "{activity} did not happen. You could not pay for it.",
-  "line.activity.rested": "{slots} free slots go to rest.",
+  "line.activity.rested": "Free slots given to rest: {slots}.",
   "line.activity.hunt-hired": "Your search pays off. {job} wants you.",
   "line.activity.hunt-missed": "You look for work as {job}. Nothing yet.",
   "line.activity.gig": "The side gig pays {amount}, cash.",

@@ -22,7 +22,7 @@ export const routeText: Record<string, string> = {
   "line.route.school-offer": "{school} offers you a place. Discount off the tuition: {discount}.",
   "line.route.school-rejected": "{school} turns you down.",
   "line.route.deposit-paid": "Deposit paid to {school}: {amount}. The university sends its confirmation.",
-  "line.route.funds-covered": "Funds checked for {route}: {shown} shown against {required} required. Covered {months} months running.",
+  "line.route.funds-covered": "Funds checked for {route}: {shown} shown against {required} required. Months covered in a row: {months}.",
   "line.route.funds-short": "Funds checked for {route}: {shown} shown against {required} required. Not covered.",
   "line.route.applied": "Visa application sent for {route}. The decision comes in month {month}.",
   "line.route.granted": "The visa for {route} is granted.",
