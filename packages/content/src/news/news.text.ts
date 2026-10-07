@@ -2,6 +2,9 @@
 // its announced headline. The page's double quotes on a headline are kept: they
 // mark talk, not news.
 export const newsText: Record<string, string> = {
+  // The report line for a story. The interface shows the story's headline and body for the stage beside it.
+  "line.news.delivered": "In the news this month.",
+
   "news.uk-unis-recruit.name": "UK universities come to Lagos",
   "news.uk-unis-recruit.announced.head": "UK universities come to Lagos",
   "news.uk-unis-recruit.announced.body":
