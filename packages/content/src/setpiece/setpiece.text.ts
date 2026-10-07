@@ -1,9 +1,7 @@
 // Questions and answers are from docs/rules/route.md. The table's outer double
 // quotes mark speech and are not part of the words.
-// the page tells spoken answers ("My agent chose it.") from narrated
-// ones (You walk through the modules...) only by those quotes. Both are kept
-// as plain text here. If the interface should show speech in quotes, the
-// spoken answers need them added back.
+// spoken and narrated answers are both kept as plain text, without
+// speech quotes.
 export const setpieceText: Record<string, string> = {
   "setpiece.credibility-interview.name": "The visa interview",
 

@@ -609,8 +609,7 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
         fraudEffects: null,
       },
     ],
-    // the page gives no lapse choice for the pledges. Read as nothing
-    // happening; lapsing into `decline` (standing -2) is the other reading.
+    // both family pledges lapse into nothing.
     onExpire: null,
   },
   "offer.family-pledge-small": {
@@ -654,9 +653,8 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
   },
   "offer.job": {
     id: "offer.job",
-    // offer.md lists this under "Money", group `money`, but the
-    // contract has a `job` group and nothing else could use it. It is never
-    // rolled, so the group changes nothing in R-OFFER-001's order.
+    // group `job`, as the contract allows. offer.md is fixed later,
+    // which lists it under "Money". It is never rolled, so R-OFFER-001's order is unchanged.
     group: "job",
     when: [],
     chanceBp: 0,

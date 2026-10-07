@@ -233,8 +233,8 @@ export const activityTable:Record<Id<"activity">, ActivityEntry> = {
   "activity.look-into-route": {
     id: "activity.look-into-route",
     slot: "free",
-    // "Has heard of it" is about the route picked as the param, but a
-    // requirement cannot read the param. With one route this names it outright.
+    // a requirement cannot read the param, so this names the one route
+    // outright. Accepted for this milestone, which has one route.
     requires: [{ type: "route/state", route: UK, in: ["heard"] }],
     param: "route",
     cost: [],
@@ -285,7 +285,7 @@ export const activityTable:Record<Id<"activity">, ActivityEntry> = {
   "activity.apply-to-school": {
     id: "activity.apply-to-school",
     slot: "free",
-    // "Route known" is read as the state `known` only, here and for
+    // "Route known" means the state `known` only, here and for
     // interview prep and the land buyer. Applying, granted and departed are left out.
     requires: [
       { type: "route/state", route: UK, in: ["known"] },
