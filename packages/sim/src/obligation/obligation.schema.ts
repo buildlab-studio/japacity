@@ -34,6 +34,7 @@ export const ObligationEntrySchema = z.strictObject({
       courtMonths: CountSchema,
     })
     .exactOptional(),
+  seize: z.array(EffectSchema).exactOptional(),
   amount: CountSchema,
   rateBp: BpSchema,
   term: z.int().positive().nullable(),

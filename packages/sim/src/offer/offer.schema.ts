@@ -35,6 +35,9 @@ export const OfferEntrySchema = z.strictObject({
     })
     .exactOptional(),
   kinds: z.strictObject({ fraud: BpSchema, realish: BpSchema, road: BpSchema }).exactOptional(),
+  luck: z.boolean().exactOptional(),
+  bad: z.boolean().exactOptional(),
+  lockNext: z.strictObject({ slots: CountSchema, months: z.int().positive(), why: z.string().min(1) }).exactOptional(),
   when: z.array(RequirementSchema),
   chanceBp: BpSchema,
   cooldown: CountSchema,

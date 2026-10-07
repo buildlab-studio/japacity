@@ -26,6 +26,7 @@ import { schoolText } from "./school/school.text";
 import { setpieceTable } from "./setpiece/setpiece.data";
 import { setpieceText } from "./setpiece/setpiece.text";
 import { statusTable } from "./status/status.data";
+import { turnText } from "./turn/turn.text";
 import { tuning } from "./tuning/tuning.data";
 import { varTable } from "./var/var.data";
 import { varText } from "./var/var.text";
@@ -69,6 +70,7 @@ export const textTables: Record<string, Record<string, string>> = {
   scenario: scenarioText,
   school: schoolText,
   setpiece: setpieceText,
+  turn: turnText,
   var: varText,
   wallet: walletText,
 };

@@ -1,8 +1,10 @@
 import { describe, expect, test } from "vitest";
 
+import { checkInvariants } from "../engine/invariants";
 import { registry } from "../kinds";
+import { freeSlots } from "./turn.logic";
 import { stepWith } from "../engine/step";
-import type { BaseEvent, Command, Ctx, Rejection, State } from "../engine/types";
+import type { BaseEvent, Command, Ctx, Effect, Rejection, State } from "../engine/types";
 import { miniContent } from "../testing/miniContent";
 import { start } from "../testing/play";
 import type { Loose } from "../testing/play";
@@ -15,7 +17,7 @@ const tuning = miniContent.tuning.turn;
  * reach `turn/refill` and `turn/finish` through the engine's own routing. The
  * offer stub has no command handler, so nothing real is replaced.
  */
-function registryWithEffectCommand(effect: { type: "turn/refill" } | { type: "turn/finish" }) {
+function registryWithEffectCommand(effect: Extract<Effect, { type: `turn/${string}` }>) {
   return registry().map((kind) =>
     kind.kind !== "offer"
       ? kind
@@ -36,7 +38,7 @@ function sendWith(kinds: ReturnType<typeof registry>, state: State, command: Loo
 describe("turns", () => {
   test("[R-TURN-001] given a new character, when the state is built, then 24 turns are banked and the month is 0", () => {
     const game = start();
-    expect(game.state.turn).toEqual({ month: 0, banked: tuning.start, ended: false, report: null });
+    expect(game.state.turn).toEqual({ month: 0, banked: tuning.start, ended: false, report: null, locks: [] });
     expect(tuning.start).toBe(24);
   });
 
@@ -159,5 +161,36 @@ describe("turns", () => {
     expect(report?.lines).toEqual(result.lines);
     expect(report).toMatchObject({ japacityBefore: null, japacityAfter: null, attention: false });
     expect(game.view().report).toEqual(report);
+  });
+
+  test("[R-TURN-009] given a lock of one slot for two months, when the months pass, then the free slots drop by one for those months and come back after", () => {
+    const game = start({ scenario: "scenario.plain" });
+    const kinds = registryWithEffectCommand({ type: "turn/lock", slots: 1, months: 2, why: "illness" });
+    const locked = sendWith(kinds, game.state, { type: "offer/choose", offer: "x", choice: "y" }, game.tick);
+    if (!locked.ok) throw new Error(locked.detail);
+    game.state = locked.state;
+    expect(game.view().freeSlots).toBe(tuning.freeSlotsNoJob - 1);
+    expect(game.view().locks).toEqual([{ slots: 1, untilMonth: 1, why: "illness" }]);
+    const rest = { activity: "activity.rest" as const, param: null };
+    game.expectRejected({ type: "turn/end", slots: [rest, rest, rest] }, "not-legal");
+    game.endTurn([rest, rest]);
+    expect(game.view().freeSlots).toBe(tuning.freeSlotsNoJob - 1);
+    game.endTurn([rest, rest]);
+    expect(game.view().freeSlots).toBe(tuning.freeSlotsNoJob);
+    expect(game.view().locks).toEqual([]);
+    expect(game.state.turn.locks).toEqual([]);
+  });
+
+  test("[R-TURN-009] given locks at the most allowed, when another lock is asked for, then it is cut to what is left and never below zero slots", () => {
+    const game = start({ scenario: "scenario.plain" });
+    const kinds = registryWithEffectCommand({ type: "turn/lock", slots: 5, months: 1, why: "burial" });
+    const locked = sendWith(kinds, game.state, { type: "offer/choose", offer: "x", choice: "y" }, game.tick);
+    if (!locked.ok) throw new Error(locked.detail);
+    expect(locked.state.turn.locks.reduce((sum, lock) => sum + lock.slots, 0)).toBe(tuning.maxLocked);
+    expect(freeSlots(locked.state, miniContent)).toBe(tuning.freeSlotsNoJob - tuning.maxLocked);
+    const again = sendWith(kinds, locked.state, { type: "offer/choose", offer: "x", choice: "y" }, game.tick);
+    if (!again.ok) throw new Error(again.detail);
+    expect(again.state.turn.locks).toEqual(locked.state.turn.locks);
+    expect(checkInvariants(again.state, miniContent)).toEqual([]);
   });
 });

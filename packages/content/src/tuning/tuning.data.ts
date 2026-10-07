@@ -11,6 +11,8 @@ export const tuning: Tuning = {
     start: 24,
     freeSlots: 2,
     freeSlotsNoJob: 3,
+    // R-TURN-009
+    maxLocked: 2,
   },
 
   // quality.md, and activity.md for the hiring figures.
@@ -117,8 +119,47 @@ export const tuning: Tuning = {
   road: { enabled: true },
 
   // ladders.md
-  ladder: { cashDetectBp: 200, accountRent: pounds(60), overtimeBp: pct(25) },
+  ladder: { cashDetectBp: 200, accountRent: pounds(60), overtimeBp: pct(25), oneChanceBp: 300, phone: naira(60000) },
 
   // prologue.md
   prologue: { startAgeMonths: 192, siblings: [1, 6], familyMeans: [10, 80], cityBp: pct(55) },
+
+  // luck.md. The jackpot is 1 in 100,000 and the mid prize 1 in 2,000: both under one basis point,
+  // so they are written as draws out of a million in the kind; here the figures are per million.
+  luck: {
+    rescue: naira(250000),
+    rescueUnder: naira(100000),
+    rescueRatio: 30000,
+    drySpellMonths: 8,
+    drySpellBp: 100,
+    drySpellCapBp: 800,
+    ticket: naira(200),
+    maxTickets: 5,
+    prizeSmall: naira(500),
+    prizeSmallBp: 1000,
+    prizeMid: naira(50000),
+    prizeMidBp: 5,
+    prizeJackpot: naira(2000000),
+    prizeJackpotBp: 1,
+    stake: naira(2000),
+    betOddsBp: 19000,
+    betWinBp: pct(45),
+    promo: naira(50000),
+  },
+
+  // health.md
+  health: {
+    runDownBelow: 30,
+    illnessBp: pct(25),
+    hospital: naira(85000),
+    chemist: naira(9000),
+    hospitalWorse: naira(180000),
+    relapseChemistBp: pct(35),
+    relapseIgnoreBp: pct(60),
+    sickPayBp: pct(50),
+    gapMonths: 10,
+  },
+
+  // obligation.md, the group loan
+  groupLoan: { feeBp: 1500, savingsBp: 1000, vanishBp: pct(25) },
 };

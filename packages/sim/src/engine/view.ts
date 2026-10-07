@@ -13,6 +13,7 @@ export const VIEW_KEYS = [
   "month",
   "ended",
   "turns",
+  "locks",
   "japacity",
   "qualities",
   "job",

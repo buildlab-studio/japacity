@@ -96,6 +96,7 @@ export const ReasonSchema = z.enum([
   "ransom",
   "fare",
   "build",
+  "win",
   "convert",
   "move",
 ]);
@@ -116,6 +117,8 @@ export const ObligationTypeSchema = z.enum([
   "tuition",
   "agent-debt",
   "undertaking",
+  "group-loan",
+  "ajo",
 ]);
 
 export type WhereMatches = Proof<Same<z.infer<typeof WhereSchema>, Where>>;
@@ -310,6 +313,7 @@ export const EffectSchema = z.discriminatedUnion("type", [
   z.strictObject({ type: z.literal("goal/open"), goal: idOf("goal") }),
   z.strictObject({ type: z.literal("goal/done"), goal: idOf("goal") }),
   z.strictObject({ type: z.literal("turn/refill") }),
+  z.strictObject({ type: z.literal("turn/lock"), slots: CountSchema, months: z.int().positive(), why: z.string().min(1) }),
   z.strictObject({ type: z.literal("turn/finish") }),
 ]);
 
@@ -337,7 +341,7 @@ export type TermSpecMatches = Proof<Same<z.infer<typeof TermSpecSchema>, TermSpe
 // ---------------------------------------------------------------------------
 
 export const TuningSchema = z.strictObject({
-  turn: z.strictObject({ cap: CountSchema, start: CountSchema, freeSlots: CountSchema, freeSlotsNoJob: CountSchema }),
+  turn: z.strictObject({ cap: CountSchema, start: CountSchema, freeSlots: CountSchema, freeSlotsNoJob: CountSchema, maxLocked: CountSchema }),
   quality: z.strictObject({
     wellbeingRest: CountSchema,
     wellbeingDriftTo: CountSchema,
@@ -414,8 +418,40 @@ export const TuningSchema = z.strictObject({
     onlineTickScale: z.int().positive(),
   }),
   road: z.strictObject({ enabled: z.boolean() }),
-  ladder: z.strictObject({ cashDetectBp: BpSchema, accountRent: CountSchema, overtimeBp: BpSchema }),
+  ladder: z.strictObject({ cashDetectBp: BpSchema, accountRent: CountSchema, overtimeBp: BpSchema, oneChanceBp: BpSchema, phone: CountSchema }),
   prologue: z.strictObject({ startAgeMonths: CountSchema, siblings: RangeSchema, familyMeans: RangeSchema, cityBp: BpSchema }),
+  luck: z.strictObject({
+    rescue: CountSchema,
+    rescueUnder: CountSchema,
+    rescueRatio: CountSchema,
+    drySpellMonths: CountSchema,
+    drySpellBp: BpSchema,
+    drySpellCapBp: BpSchema,
+    ticket: CountSchema,
+    maxTickets: z.int().positive(),
+    prizeSmall: CountSchema,
+    prizeSmallBp: BpSchema,
+    prizeMid: CountSchema,
+    prizeMidBp: BpSchema,
+    prizeJackpot: CountSchema,
+    prizeJackpotBp: BpSchema,
+    stake: CountSchema,
+    betOddsBp: CountSchema,
+    betWinBp: BpSchema,
+    promo: CountSchema,
+  }),
+  health: z.strictObject({
+    runDownBelow: CountSchema,
+    illnessBp: BpSchema,
+    hospital: CountSchema,
+    chemist: CountSchema,
+    hospitalWorse: CountSchema,
+    relapseChemistBp: BpSchema,
+    relapseIgnoreBp: BpSchema,
+    sickPayBp: BpSchema,
+    gapMonths: CountSchema,
+  }),
+  groupLoan: z.strictObject({ feeBp: BpSchema, savingsBp: BpSchema, vanishBp: BpSchema }),
 });
 
 export type TuningMatches = Proof<Same<z.infer<typeof TuningSchema>, Tuning>>;

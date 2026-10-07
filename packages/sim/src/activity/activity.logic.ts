@@ -472,7 +472,7 @@ function evolve(slice: ActivitySlice, event: ActivityEvent): ActivitySlice {
 
 export const activityKind: RegisteredKind<ActivitySlice, ActivityEvent> = {
   kind: "activity",
-  initial: (scenario) => ({ job: scenario.job, tenure: { ...scenario.tenure }, lastSlots: [] }),
+  initial: (scenario) => ({ job: scenario.job, side: null, tenure: { ...scenario.tenure }, lastSlots: [] }),
   commands: {
     "turn/end": validateSlots,
     "activity/quit": (ctx) => {

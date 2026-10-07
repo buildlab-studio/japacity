@@ -10,4 +10,8 @@ export type TurnEvent =
   /** The life at home is over. */
   | { type: "turn/finished" }
   /** The month's report was stored. */
-  | { type: "turn/ended"; report: TurnReport };
+  | { type: "turn/ended"; report: TurnReport }
+  /** Free slots were locked until `untilMonth` (R-TURN-009). */
+  | { type: "turn/locked"; slots: number; untilMonth: number; why: string }
+  /** Locks whose month has passed were dropped. */
+  | { type: "turn/unlocked"; why: string[] };

@@ -87,6 +87,8 @@ export type Reason =
   | "ransom"
   | "fare"
   | "build"
+  /** A lottery, bet or draw win (docs/rules/luck.md). Never flagged: a letter explains it. */
+  | "win"
   // transfers: always in matched pairs
   | "convert"
   | "move";
@@ -104,7 +106,9 @@ export type Stream =
   | "prologue"
   | "status"
   | "credit"
-  | "road";
+  | "road"
+  | "lotto"
+  | "health";
 
 /** Where a character is. `road` is the chain in docs/rules/road.md. */
 export type Where = "home" | "abroad" | "road";
@@ -269,6 +273,8 @@ export type Effect =
   | { type: "goal/done"; goal: Id<"goal"> }
   // turn
   | { type: "turn/refill" }
+  /** Locks free slots for some months (R-TURN-009). */
+  | { type: "turn/lock"; slots: number; months: number; why: string }
   /** The one final ending: the road's `lost` (R-ROAD-008). Departure no longer ends the life. */
   | { type: "turn/finish" };
 
@@ -303,7 +309,10 @@ export interface QualityEntry {
 
 export interface ActivityEntry {
   id: Id<"activity">;
-  slot: "main" | "free";
+  /** `side` holds one free slot while kept: docs/rules/activity.md R-ACTIVITY-010. */
+  slot: "main" | "free" | "side";
+  /** A job that keeps paying through a sick month (docs/rules/health.md R-HEALTH-004). Missing means no. */
+  sickLeave?: boolean;
   /** Where it applies. Missing means `home`. docs/rules/ladders.md R-LADDER-001. */
   where?: WhereEntry;
   /** Abroad: the country it belongs to. Null or missing: every country. */
@@ -443,7 +452,9 @@ export type ObligationType =
   | "surcharge"
   | "tuition"
   | "agent-debt"
-  | "undertaking";
+  | "undertaking"
+  | "group-loan"
+  | "ajo";
 
 export interface ObligationEntry {
   id: Id<"obligation">;
@@ -460,6 +471,8 @@ export interface ObligationEntry {
   rateByCredit?: { min: number; rateBp: number }[];
   /** The car: deposit, final payment, resale and thresholds (docs/rules/car.md). */
   car?: { price: number; depositBp: number; finalBp: number; resaleBp: number; courtThirdBp: number; handBackBp: number; courtMonths: number };
+  /** The group loan's named asset, taken on default (R-OBLIGATION-011). */
+  seize?: Effect[];
   /** A fixed charge each month. A scenario or an effect may override it. */
   amount: number;
   /** Monthly interest on the opening principal. */
@@ -500,6 +513,12 @@ export interface OfferEntry {
   pressure?: { refusalBp: number; defaultBp: number; lowStandingBp: number; perYearOver30Bp: number; strongRouteBp: number };
   /** The road pitch: what the offer really is, in basis points (R-ROAD-003). */
   kinds?: { fraud: number; realish: number; road: number };
+  /** A win from the world or the profile; its `when` may never read money (docs/rules/luck.md R-LUCK-001). */
+  luck?: boolean;
+  /** A blow; rolls at half chance while the character is down (R-LUCK-003). */
+  bad?: boolean;
+  /** Taking any choice locks slots from next month (docs/rules/health.md R-HEALTH-006). */
+  lockNext?: { slots: number; months: number; why: string };
   /** Rolled each month while these hold. */
   when: Requirement[];
   /** Zero: never rolled. It opens only when an effect opens it. */
@@ -663,7 +682,7 @@ export interface ScenarioEntry {
 
 /** Numbers that are rules more than entries. Each is named in a rule page. */
 export interface Tuning {
-  turn: { cap: number; start: number; freeSlots: number; freeSlotsNoJob: number };
+  turn: { cap: number; start: number; freeSlots: number; freeSlotsNoJob: number; maxLocked: number };
   quality: {
     wellbeingRest: number;
     wellbeingDriftTo: number;
@@ -716,8 +735,40 @@ export interface Tuning {
   return: { standing: Record<ReturnShape, number>; capitalPer: number; capitalCap: number; offerMonths: number; residentLapseMonths: number };
   director: { surgePerTick: number; closedTicks: number; maxNewPerTick: number; shockGapTicks: number; onlineTickScale: number };
   road: { enabled: boolean };
-  ladder: { cashDetectBp: number; accountRent: number; overtimeBp: number };
+  ladder: { cashDetectBp: number; accountRent: number; overtimeBp: number; oneChanceBp: number; phone: number };
   prologue: { startAgeMonths: number; siblings: [min: number, max: number]; familyMeans: [min: number, max: number]; cityBp: number };
+  luck: {
+    rescue: number;
+    rescueUnder: number;
+    rescueRatio: number;
+    drySpellMonths: number;
+    drySpellBp: number;
+    drySpellCapBp: number;
+    ticket: number;
+    maxTickets: number;
+    prizeSmall: number;
+    prizeSmallBp: number;
+    prizeMid: number;
+    prizeMidBp: number;
+    prizeJackpot: number;
+    prizeJackpotBp: number;
+    stake: number;
+    betOddsBp: number;
+    betWinBp: number;
+    promo: number;
+  };
+  health: {
+    runDownBelow: number;
+    illnessBp: number;
+    hospital: number;
+    chemist: number;
+    hospitalWorse: number;
+    relapseChemistBp: number;
+    relapseIgnoreBp: number;
+    sickPayBp: number;
+    gapMonths: number;
+  };
+  groupLoan: { feeBp: number; savingsBp: number; vanishBp: number };
 }
 
 export interface Content {
@@ -779,6 +830,8 @@ export interface ReportLine {
   key: string;
   params: Record<string, string | number>;
   tone: "good" | "bad" | "plain";
+  /** A staged moment, not a line in a list (docs/rules/text.md, R-LUCK-008). */
+  big?: boolean;
   /** True when the player should stop and look: an answer arrived, an offer opened, a chapter closed. */
   attention: boolean;
   /** Routes this line's gain counts toward. */
@@ -794,18 +847,29 @@ export interface TurnReport {
   attention: boolean;
 }
 
+/** A lock on free slots (R-TURN-009). */
+export interface SlotLock {
+  slots: number;
+  /** The last month the lock holds. */
+  untilMonth: number;
+  why: string;
+}
+
 export interface TurnSlice {
   month: number;
   banked: number;
   /** True once the character has left. Only `turns/grant` is accepted after that. */
   ended: boolean;
   report: TurnReport | null;
+  locks: SlotLock[];
 }
 
 export type QualitySlice = Record<Id<"quality">, number>;
 
 export interface ActivitySlice {
   job: Id<"activity"> | null;
+  /** The side job held (R-ACTIVITY-010). */
+  side: Id<"activity"> | null;
   tenure: Record<Id<"activity">, number>;
   /** What filled the free slots last month, for "same again". */
   lastSlots: SlotPick[];
@@ -1064,7 +1128,7 @@ export interface State {
 
 export type Command = { basedOn: number } & (
   | { type: "turn/end"; slots: SlotPick[] }
-  | { type: "activity/quit" }
+  | { type: "activity/quit"; side?: boolean }
   | { type: "offer/choose"; offer: string; choice: string; amount?: number }
   | { type: "wallet/convert"; from: Currency; to: Currency; amount: number; via: "bank" | "aboki" }
   | { type: "wallet/move"; currency: Currency; amount: number; to: Pocket }
@@ -1260,6 +1324,8 @@ export interface PlayerView {
   month: number;
   ended: boolean;
   turns: { banked: number; cap: number };
+  /** Locks on free slots now, with their reasons (R-TURN-009). */
+  locks: SlotLock[];
   japacity: { percent: number | null; route: Id<"route"> | null };
   qualities: { id: Id<"quality">; value: number }[];
   job: { id: Id<"activity"> | null; months: number };

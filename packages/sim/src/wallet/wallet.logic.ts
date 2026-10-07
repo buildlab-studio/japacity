@@ -87,6 +87,7 @@ export const REASON_LINE: Record<Reason, string | null> = {
   ransom: "line.wallet.ransom",
   fare: "line.wallet.fare",
   build: "line.wallet.build",
+  win: "line.wallet.win",
   convert: null,
   move: null,
 };

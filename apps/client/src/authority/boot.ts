@@ -2,9 +2,12 @@
 // store the screens read. A lost save is said out loud on the life chooser.
 import { clockMode } from "./clock";
 import { localAuthority, type LocalAuthorityOptions } from "./local";
+import { authorityMode } from "./mode";
 import { createGameStore, type GameStore } from "./store";
 
 export function bootGame(options: Partial<LocalAuthorityOptions> = {}): GameStore {
+  const mode = authorityMode();
+  if (mode.authority === "refused") throw new Error(mode.why);
   const authority = localAuthority({ fastClock: clockMode().fastClock, ...options });
   const { start } = authority;
   return createGameStore(authority, {
