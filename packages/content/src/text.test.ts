@@ -67,6 +67,8 @@ describe("words for every entry", () => {
       ...Object.keys(content.var),
       ...Object.keys(content.news),
       ...Object.keys(content.scenario),
+      ...Object.keys(content.era),
+      ...Object.keys(content.points),
     ];
     expect(ids.length).toBeGreaterThan(80);
     expect(missingWords(ids.map((id) => `${id}.name`))).toEqual([]);
@@ -103,8 +105,9 @@ describe("words for every entry", () => {
     const keys = Object.values(content.news).flatMap((story) =>
       stagesOf(story).flatMap((stage) => [`${story.id}.${stage}.head`, `${story.id}.${stage}.body`]),
     );
-    // The page's "Words" table has fifteen rows: one for each story at each stage.
-    expect(keys).toHaveLength(30);
+    // news.md's "Words" table has fifteen rows, one for each story at each stage; director.md's pool adds 78
+    // stages and its seven eras 14 more: 107 rows of a head and a body.
+    expect(keys).toHaveLength(214);
     expect(missingWords(keys)).toEqual([]);
   });
 
@@ -149,6 +152,18 @@ describe("words for every entry", () => {
 
   test("[R-ENGINE-014] given every rejection code in the contract, when its line is looked up, then there are words for it", () => {
     expect(missingWords(REJECTION_CODES.map((code) => `reject.${code}`))).toEqual([]);
+  });
+
+  test("[R-ENGINE-014] given every era and every route, when their blurbs are looked up, then there are words for each", () => {
+    const keys = [...Object.keys(content.era), ...Object.keys(content.route)].map((id) => `${id}.blurb`);
+    expect(missingWords(keys)).toEqual([]);
+  });
+
+  test("[R-ENGINE-014] given the road, when the real-story card and the exit are looked up, then their words are there and the credits are separate keys", () => {
+    expect(missingWords(["road.real-story.title", "road.real-story.line", "road.exit.title", "road.exit.body"])).toEqual([]);
+    const credits = Object.keys(text).filter((key) => key.startsWith("road.real-story.credit."));
+    expect(credits.length).toBeGreaterThanOrEqual(2);
+    expect(missingWords(credits)).toEqual([]);
   });
 });
 
