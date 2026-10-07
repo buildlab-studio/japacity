@@ -1,0 +1,16 @@
+/** A bar for slow progress: a checklist item filling, a quality within its range. */
+export function Meter({ value, max, label, tone = "accent" }: { value: number; max: number; label: string; tone?: "accent" | "ink" }) {
+  const share = max <= 0 ? 0 : Math.min(1, Math.max(0, value / max));
+  return (
+    <div
+      role="progressbar"
+      aria-label={label}
+      aria-valuemin={0}
+      aria-valuemax={max}
+      aria-valuenow={Math.min(value, max)}
+      className="h-2 w-full overflow-hidden rounded-full bg-sunk"
+    >
+      <div className={`h-full rounded-full ${tone === "accent" ? "bg-accent" : "bg-ink"}`} style={{ width: `${String(share * 100)}%` }} />
+    </div>
+  );
+}
