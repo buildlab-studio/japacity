@@ -1,8 +1,12 @@
+import { fileURLToPath } from "node:url";
+
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vitest/config";
 
 // Fixture folders hold files that look like tests on purpose. They are inputs
 // to the tools' own tests and must never run as tests themselves.
+const contentEntry = fileURLToPath(new URL("./packages/content/src/index.ts", import.meta.url));
+
 const fixtureFolders = ["tools/lint-fixtures/**", "tools/__fixtures__/**"];
 
 export default defineConfig({
@@ -10,6 +14,8 @@ export default defineConfig({
     reporters: [["default", { summary: false }]],
     projects: [
       {
+        // Mirrors the path mapping in packages/sim/tsconfig.json.
+        resolve: { alias: { "@japacity/content": contentEntry } },
         test: {
           name: "sim",
           environment: "node",

@@ -2,7 +2,13 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "lib": ["ES2023"],
-    "types": []
+    "types": [],
+    // Rule tests play the real game data. The path is mapped here, and not
+    // declared as a dependency, because content already depends on the
+    // simulation and a declared cycle breaks workspace task ordering.
+    "paths": {
+      "@japacity/content": ["../content/src/index.ts"]
+    }
   },
   "include": ["src"]
 }

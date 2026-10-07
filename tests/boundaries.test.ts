@@ -80,9 +80,11 @@ function violations(files: readonly string[], packages: ReadonlyMap<string, stri
         : packages.get(packageName(specifier));
 
       if (inside(file, "packages/sim/src")) {
+        // A simulation test may read content: rule tests play the real game data.
         if (isRelative(specifier) ? !inside(target ?? "", "packages/sim/src") : ![
           "zod",
           ...testLibraries,
+          ...(TEST_FILE.test(file) ? ["@japacity/content"] : []),
         ].includes(packageName(specifier))) {
           report("the simulation imports only zod and itself");
         }

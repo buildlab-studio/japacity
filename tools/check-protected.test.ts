@@ -30,6 +30,11 @@ describe("protected paths", () => {
     ["packages/sim/src/route/route.schema.ts", "schema"],
     ["eslint.config.js", "lint config"],
     ["tools/rules-pending.json", "pending rules list"],
+    ["packages/sim/src/engine/types.ts", "engine contract"],
+    ["docs/rules/status.md", "rule page"],
+    ["tsconfig.base.json", "check tooling"],
+    ["vitest.config.ts", "check tooling"],
+    ["tools/check-rules.ts", "check tooling"],
   ])("%s is protected as a %s", (path, reason) => {
     expect(protectedReason(path)).toBe(reason);
   });
@@ -39,7 +44,9 @@ describe("protected paths", () => {
     "packages/sim/src/testing.ts",
     "packages/sim/src/goldens.ts",
     "apps/eslint.config.js",
-    "docs/rules/status.md",
+    "docs/design/01-concept.md",
+    "packages/sim/tsconfig.json",
+    "tools/bless.ts",
   ])("%s is not protected", (path) => {
     expect(protectedReason(path)).toBeNull();
   });

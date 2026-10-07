@@ -29,6 +29,13 @@ const PROTECTED: ReadonlyArray<{ readonly reason: string; readonly matches: (pat
   { reason: "golden file", matches: (path) => path.startsWith("goldens/") || path.includes("/goldens/") },
   { reason: "schema", matches: (path) => path.endsWith(".schema.ts") },
   { reason: "lint config", matches: (path) => path === "eslint.config.js" },
+  { reason: "engine contract", matches: (path) => path === "packages/sim/src/engine/types.ts" },
+  { reason: "rule page", matches: (path) => path.startsWith("docs/rules/") },
+  {
+    reason: "check tooling",
+    matches: (path) =>
+      /^tsconfig[^/]*\.json$/.test(path) || path === "vitest.config.ts" || /^tools\/check[^/]*\.ts$/.test(path),
+  },
   { reason: "pending rules list", matches: (path) => path === PENDING_FILE },
 ];
 

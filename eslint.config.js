@@ -144,7 +144,8 @@ export default defineConfig(
   {
     files: SIM_TEST_FILES,
     rules: {
-      "no-restricted-imports": onlyImports(["zod", ...TEST_LIBRARIES], "A simulation test"),
+      // Rule tests play the real game data, so a simulation test may read content.
+      "no-restricted-imports": onlyImports(["zod", "@japacity/content", ...TEST_LIBRARIES], "A simulation test"),
     },
   },
 
