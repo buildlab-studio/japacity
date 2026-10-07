@@ -98,8 +98,8 @@ export const offerText: Record<string, string> = {
   "offer.quick-loan.choice.take": "Take the loan",
   "offer.quick-loan.choice.ignore": "Ignore it",
 
-  "offer.held-funds.name": "Unity Microfinance: proof of funds",
-  "offer.held-funds.title": "Unity Microfinance: proof of funds",
+  "offer.held-funds.name": "Olokun Microfinance: proof of funds",
+  "offer.held-funds.title": "Olokun Microfinance: proof of funds",
   "offer.held-funds.body":
     "'We place the funds in your account for as long as you need. 5% a month, 1% arrangement fee. The money is yours to show, not to spend.'",
   "offer.held-funds.choice.take": "Take the funds",
