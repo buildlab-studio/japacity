@@ -148,6 +148,7 @@ export const offerText: Record<string, string> = {
   "line.offer.opened": "Something new needs an answer.",
   "line.offer.taken": "Decided.",
   "line.offer.lapsed": "You let it pass. The time to answer is gone.",
+  "line.offer.replaced": "The earlier one is off the table. A newer one takes its place.",
   // Sponsors: route-gates.md. Sign words are the page's. Bodies are first drafts.
 
   "offer.sponsor-care-home.name": "A care home will sponsor you",

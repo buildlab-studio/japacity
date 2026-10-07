@@ -119,10 +119,10 @@ function request(ctx: Ctx, effect: Effect): BaseEvent[] {
   }
   const month = ctx.state.turn.month;
   const wait = ctx.random.between("document", entry.wait[0], entry.wait[1]);
-  // a request between turns, as from an offer, comes after this
-  // month's papers phase, so the earliest it can be issued is next month's.
-  // Inside a turn it is this month's, which is how a wait of zero from a slot
-  // is issued in the same turn (R-DOCUMENT-002).
+  // R-DOCUMENT-002: a request between turns, as from an offer, comes after
+  // this month's papers phase, so the earliest it can be issued is next
+  // month's. Inside a turn it is this month's, so a wait of zero from a slot
+  // is issued in the same turn.
   const earliest = turnInProgress(ctx) === null ? month + 1 : month;
   const event: DocumentEvent = { type: "document/requested", document: id, readyMonth: Math.max(month + wait, earliest) };
   return [event];

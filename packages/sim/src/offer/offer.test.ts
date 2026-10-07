@@ -561,11 +561,32 @@ describe("opened by an effect", () => {
     expect(subject.game.state.offer.timesOpened["offer.family-pledge"]).toBe(1);
   });
 
-  test("[R-OFFER-007] given an offer already open, when an effect opens it again, then a second one does not open", () => {
+  test("[R-OFFER-007] given an offer already open, when an effect opens it again, then the waiting one closes unanswered and the new one opens with its own terms", () => {
     const subject = lab();
-    subject.open("offer.job", { job: "activity.job-teacher" });
-    expect(subject.open("offer.job", { job: "activity.job-customer-service" })).toBeUndefined();
+    const first = subject.open("offer.job", { job: "activity.job-teacher" })!;
+    const result = subject.apply([{ type: "offer/open", offer: "offer.job" }], { job: "activity.job-customer-service" });
+    const second = opened(result)[0]!;
+    expect(own(result, "offer/replaced")).toEqual([{ type: "offer/replaced", id: first.id, entry: "offer.job" }]);
+    expect(second.id).not.toBe(first.id);
+    expect(second.terms).toEqual({ job: "activity.job-customer-service" });
     expect(openEntries(subject)).toEqual(["offer.job"]);
+    expect(subject.game.state.offer.items[first.id]).toBeUndefined();
+    expect(subject.game.state.offer.timesOpened["offer.job"]).toBe(2);
+    expect(result.lines.map((line) => line.key)).toEqual(["line.offer.replaced", "line.offer.opened"]);
+    expect(subject.game.state.activity.job).toBeNull();
+  });
+
+  test("[R-OFFER-007] given an offer with a lapse choice already open, when an effect opens it again, then the lapse choice's effects are not applied", () => {
+    const subject = lab();
+    expect(entryOf(content, "offer.nepa-bill").onExpire).toBe("leave");
+    subject.open("offer.nepa-bill");
+    const before = { quality: subject.game.state.quality, wallet: subject.game.state.wallet };
+    const result = subject.apply([{ type: "offer/open", offer: "offer.nepa-bill" }]);
+    expect(own(result, "offer/lapsed")).toEqual([]);
+    expect(own(result, "offer/replaced")).toHaveLength(1);
+    expect(subject.game.state.quality).toEqual(before.quality);
+    expect(subject.game.state.wallet).toEqual(before.wallet);
+    expect(openEntries(subject)).toEqual(["offer.nepa-bill"]);
   });
 
   test("[R-OFFER-007] given a job hunt that lands, when the month resolves, then a job offer opens naming the job, and accepting it starts the job", () => {
@@ -577,6 +598,26 @@ describe("opened by an effect", () => {
     }
     expect(item).toMatchObject({ entry: "offer.job", terms: { job: "activity.job-customer-service" } });
     subject.accept({ type: "offer/choose", offer: item!.id, choice: "accept" });
+    expect(subject.game.state.activity.job).toBe("activity.job-customer-service");
+  });
+});
+
+describe("a hunt that lands while a job offer waits", () => {
+  test("[R-OFFER-007] [R-ACTIVITY-005] given a job offer waiting, when a later hunt lands another job, then the later job offer is the one on the table", () => {
+    const sure = (id: Id<"activity">) => ({ ...content.activity[id]!, hireBp: 10000 });
+    const certain: Content = {
+      ...content,
+      activity: { ...content.activity, "activity.job-teacher": sure("activity.job-teacher"), "activity.job-customer-service": sure("activity.job-customer-service") },
+      tuning: { ...content.tuning, quality: { ...content.tuning.quality, hireMaxBp: 10000 } },
+    };
+    const subject = lab({ content: certain });
+    const first = opened(subject.accept({ type: "turn/end", slots: [{ activity: "activity.job-hunt", param: "activity.job-teacher" }] }))[0]!;
+    expect(first.terms).toEqual({ job: "activity.job-teacher" });
+    const month = subject.accept({ type: "turn/end", slots: [{ activity: "activity.job-hunt", param: "activity.job-customer-service" }] });
+    expect(own(month, "offer/replaced").map((event) => event.id)).toEqual([first.id]);
+    const waiting = subject.view().offers.filter((offer) => offer.entry === "offer.job");
+    expect(waiting.map((offer) => offer.terms.job)).toEqual(["activity.job-customer-service"]);
+    subject.accept({ type: "offer/choose", offer: waiting[0]!.id, choice: "accept" });
     expect(subject.game.state.activity.job).toBe("activity.job-customer-service");
   });
 });

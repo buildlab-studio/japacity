@@ -305,6 +305,18 @@ describe("report lines", () => {
     ]);
   });
 
+  test("[R-QUALITY-006] [R-QUALITY-004] given a quality that counts toward a route, when the month phase raises it, then the drift line carries the route", () => {
+    const wellbeing = content.quality["quality.wellbeing"]!;
+    const counted: Content = { ...content, quality: { ...content.quality, [wellbeing.id]: { ...wellbeing, counts: [UK] } } };
+    const game = start({ content: counted, scenario: "scenario.ada" });
+    applyEffects(game, [add("quality.wellbeing", tuning.wellbeingDriftTo - 10 - game.state.quality["quality.wellbeing"]!)]);
+    const result = game.endTurn([huntTeacher, huntTeacher, huntTeacher]);
+    const drift = result.lines.filter((line) => line.key === "line.quality.drift");
+    expect(drift).toEqual([
+      { key: "line.quality.drift", params: { quality: "quality.wellbeing", points: tuning.wellbeingDrift, value: tuning.wellbeingDriftTo - 10 + tuning.wellbeingDrift }, tone: "plain", attention: false, counts: [UK] },
+    ]);
+  });
+
   test("[R-QUALITY-003] [R-QUALITY-004] given a month, when it is reported, then age has no line and the drift is a plain line", () => {
     const game = ada();
     const result = game.endTurn([huntTeacher, huntTeacher, huntTeacher]);

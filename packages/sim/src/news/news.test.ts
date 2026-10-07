@@ -29,9 +29,9 @@ function deliveries(lines: ReportLine[]): ReportLine[] {
 }
 
 /**
- * A registry whose route kind really hears: `route/hear` moves an unknown
- * route to heard and records the effect. The route stub does nothing yet, so
- * this stands in for it as turn.test.ts stands in for the offer kind.
+ * A registry whose route kind hears without conditions: `route/hear` moves an
+ * unknown route to heard and records the effect, so a test can watch every
+ * hearing the news asks for. The real route kind is tested on its own below.
  */
 function hearingRegistry(heard: Effect[]): Registry {
   return registry().map((kind): AnyKind => {
@@ -108,7 +108,8 @@ describe("delivering the news", () => {
       expect(deliveries(game.endTurn().lines).filter((line) => line.params.story === RECRUIT)).toEqual([]);
     }
     const lines = deliveries(game.endTurn().lines).filter((line) => line.params.story === RECRUIT);
-    expect(lines).toEqual([{ key: "line.news.delivered", params: { story: RECRUIT, stage: "announced", forYou: 0 }, tone: "plain", attention: false, counts: [] }]);
+    // The story tells Ada of the route, and is judged for her after that (R-NEWS-005).
+    expect(lines).toEqual([{ key: "line.news.delivered", params: { story: RECRUIT, stage: "announced", forYou: 1 }, tone: "plain", attention: true, counts: [] }]);
     expect(game.state.news.delivered[RECRUIT]).toBe("announced");
     expect(deliveries(game.endTurn().lines).filter((line) => line.params.story === RECRUIT)).toEqual([]);
   });
@@ -131,15 +132,16 @@ describe("delivering the news", () => {
 });
 
 describe("for you", () => {
-  test("[R-NEWS-005] given a story touching a route, when the route is unknown, then it is not for you; once heard of, it is", () => {
+  test("[R-NEWS-005] given a story touching a route that tells you of it, when it is delivered, then it is for you, and so is every later story touching the route", () => {
     const heard: Effect[] = [];
     const kinds = hearingRegistry(heard);
     const played = life(kinds, (tick) => standInWorld("world-1", tick, firstContent), firstContent);
     const first = newsSchedule("world-1", firstContent)[RECRUIT]!.announced;
     for (let tick = 0; tick <= first; tick += 1) played.endTurn();
-    // The recruitment story was not for you when it arrived: you had not heard of the route yet. Reading it told you.
+    // The recruitment story is judged after its own hearing: reading it told you of the route, so it is for you.
     const recruit = deliveries(played.allLines).find((line) => line.params.story === RECRUIT);
-    expect(recruit?.params.forYou).toBe(0);
+    expect(recruit?.params.forYou).toBe(1);
+    expect(recruit?.attention).toBe(true);
     expect(played.state.route[UK]?.state).toBe("heard");
     expect(played.view().news.find((story) => story.id === RECRUIT)?.forYou).toBe(true);
     for (let tick = 0; tick < 30; tick += 1) played.endTurn();
@@ -191,10 +193,16 @@ describe("hearing through the news", () => {
     expect(RANK[played.state.news.delivered[RECRUIT]!]).toBeGreaterThan(RANK.rumour);
   });
 
-  test("[R-NEWS-006] given the real route kind, when a story with a route to hear is delivered, then the turn still ends normally", () => {
-    const game = start({ scenario: "scenario.ada", content, worldSeed: "world-1" });
-    for (let month = 0; month < 6; month += 1) game.endTurn();
-    expect(game.state.turn.month).toBe(6);
-    expect(game.state.news.delivered[RECRUIT]).toBeDefined();
+  test("[R-NEWS-006] given the real route kind, when a story with a route to hear is delivered before the route's month for hearing, then the route is heard through the news", () => {
+    const announced = newsSchedule("golden-world", content)[RECRUIT]!.announced;
+    expect(announced + 1).toBeLessThan(content.route[UK]!.hearBy!);
+    const game = start({ scenario: "scenario.ada", content, worldSeed: "golden-world" });
+    for (let tick = 0; tick < announced; tick += 1) game.endTurn();
+    expect(game.state.route[UK]?.state).toBe("unknown");
+    const result = game.endTurn();
+    expect(game.state.news.delivered[RECRUIT]).toBe("announced");
+    expect(game.state.route[UK]?.state).toBe("heard");
+    expect(result.lines).toContainEqual({ key: "line.route.heard", params: { route: UK, via: "news" }, tone: "good", attention: false, counts: [] });
+    expect(deliveries(result.lines).find((line) => line.params.story === RECRUIT)?.params.forYou).toBe(1);
   });
 });

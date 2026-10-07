@@ -101,8 +101,8 @@ function lines(event: QualityEvent, state: ReadCtx["state"], content: ReadCtx["c
           params: { quality: event.quality, points: Math.abs(event.amount), value: valueOf(state, event.quality) },
           tone,
           attention: false,
-          // R-QUALITY-006: a gain shows the routes it counts toward.
-          counts: event.amount > 0 && event.source !== MONTH_SOURCE ? entry.counts : [],
+          // R-QUALITY-006: a gain shows the routes it counts toward, the month's own gains too.
+          counts: event.amount > 0 ? entry.counts : [],
         },
       ];
     }

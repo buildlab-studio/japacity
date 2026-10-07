@@ -181,6 +181,44 @@ describe("turns", () => {
     expect(game.state.turn.locks).toEqual([]);
   });
 
+  test("[R-TURN-009] given a job, burnout and the most slots locked, when the free slots are counted, then they stop at zero, and only an empty turn is legal", () => {
+    const game = start({ scenario: "scenario.worker" });
+    expect(game.view().freeSlots).toBe(tuning.freeSlots - 1);
+    const kinds = registryWithEffectCommand({ type: "turn/lock", slots: tuning.maxLocked, months: 1, why: "illness" });
+    const locked = sendWith(kinds, game.state, { type: "offer/choose", offer: "x", choice: "y" }, game.tick);
+    if (!locked.ok) throw new Error(locked.detail);
+    game.state = locked.state;
+    expect(tuning.freeSlots - 1 - tuning.maxLocked).toBeLessThan(0);
+    expect(game.view().freeSlots).toBe(0);
+    game.expectRejected({ type: "turn/end", slots: [{ activity: "activity.rest", param: null }] }, "not-legal");
+    game.endTurn([]);
+    expect(game.state.turn.locks).toEqual([]);
+    expect(game.view().freeSlots).toBe(tuning.freeSlots - 1);
+  });
+
+  test("[R-TURN-009] given a lock of one month applied while a turn resolves, when it lands, then that turn keeps the slots it was checked with, the month in hand is locked, and the lock ends in the next spend", () => {
+    const rest = miniContent.activity["activity.rest"]!;
+    const lockingRest = { ...rest, id: "activity.lock-rest" as const, effects: [...rest.effects, { type: "turn/lock" as const, slots: 1, months: 1, why: "night" }] };
+    const used = { ...miniContent, activity: { ...miniContent.activity, [lockingRest.id]: lockingRest } };
+    const game = start({ scenario: "scenario.plain", content: used });
+    const pick = { activity: lockingRest.id, param: null };
+    const result = game.endTurn([pick, pick, pick]);
+    expect(game.state.turn.month).toBe(1);
+    expect(result.events.filter((event) => event.type === "activity/slot-played")).toHaveLength(3);
+    // The first slot's lock took one slot; the second asked again and the cap allowed it; the third found no room.
+    expect(game.state.turn.locks).toEqual([
+      { slots: 1, untilMonth: 1, why: "night" },
+      { slots: 1, untilMonth: 1, why: "night" },
+    ]);
+    expect(game.view().locks.every((lock) => lock.untilMonth === game.state.turn.month)).toBe(true);
+    expect(game.view().freeSlots).toBe(tuning.freeSlotsNoJob - tuning.maxLocked);
+    game.expectRejected({ type: "turn/end", slots: [pick, pick] }, "not-legal");
+    const next = game.endTurn([{ activity: "activity.rest", param: null }]);
+    expect(next.events).toContainEqual({ type: "turn/unlocked", why: ["night", "night"] });
+    expect(game.state.turn.locks).toEqual([]);
+    expect(game.view().freeSlots).toBe(tuning.freeSlotsNoJob);
+  });
+
   test("[R-TURN-009] given locks at the most allowed, when another lock is asked for, then it is cut to what is left and never below zero slots", () => {
     const game = start({ scenario: "scenario.plain" });
     const kinds = registryWithEffectCommand({ type: "turn/lock", slots: 5, months: 1, why: "burial" });

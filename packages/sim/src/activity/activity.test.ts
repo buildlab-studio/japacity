@@ -711,6 +711,30 @@ describe("requirements stop mattering once the job is held", () => {
     expect(ledger(result).filter((line) => line.reason === "salary")).toHaveLength(1);
   });
 
+  test("[R-ACTIVITY-007] given a hunt that landed while the job's requirements held, when they stop holding before the job offer is accepted, then accepting still starts the job", () => {
+    const teacher = content.activity["activity.job-teacher"]!;
+    // The teaching job may be had in month 1 only: its requirement holds when the hunt lands and not a month later.
+    const once: Content = {
+      ...content,
+      activity: { ...content.activity, [teacher.id]: { ...teacher, requires: [...teacher.requires, { type: "not", of: { type: "month/min", value: 2 } }] } },
+    };
+    const hunt: SlotPick = { activity: "activity.job-hunt", param: teacher.id };
+    const landed = (seed: string): boolean => {
+      const trial = start({ scenario: "scenario.ada", seed, content: once });
+      trial.endTurn([hunt]);
+      return trial.view().offers.some((offer) => offer.entry === "offer.job");
+    };
+    const seed = Array.from({ length: 200 }, (_unused, index) => `hunt-${String(index)}`).find(landed)!;
+    const game = start({ scenario: "scenario.ada", seed, content: once });
+    game.endTurn([hunt]);
+    game.endTurn();
+    const offer = game.view().offers.find((item) => item.entry === "offer.job")!;
+    expect(offer.terms.job).toBe(teacher.id);
+    expect(check({ state: game.state, world: game.world(), content: once }, once.activity[teacher.id]!.requires[1]!).met).toBe(false);
+    game.accept({ type: "offer/choose", offer: offer.id, choice: "accept" });
+    expect(game.state.activity.job).toBe(teacher.id);
+  });
+
   test("[R-ACTIVITY-007] given a job whose requirements do not hold, when the jobs to hunt are listed, then it is not among them", () => {
     const ada = start({ content, scenario: "scenario.ada" });
     const listed = paramsFor({ state: ada.state, world: ada.world(), content }, content.activity["activity.job-hunt"]!) ?? [];
