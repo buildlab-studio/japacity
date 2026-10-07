@@ -36,7 +36,6 @@ import type {
   VisaApplication,
 } from "../engine/types";
 import { routePercent } from "../japacity/japacity.logic";
-import { openSetpiece } from "../setpiece/setpiece.logic";
 import type { RefusalReason, RouteKindEvent } from "./route.events";
 
 const GRADE: Id<"quality"> = "quality.edu-grade";
@@ -351,7 +350,7 @@ function applyVisa(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
   };
   const events = record(ctx, { type: "route/applied", route, visa });
   // A gate with no interview (every gate but study) scores nothing and waits for the decision.
-  if (entry.interview !== null) openSetpiece(ctx, entry.interview, route);
+  if (entry.interview !== null) ctx.apply([{ type: "setpiece/open", setpiece: entry.interview, route }], cause);
   return events;
 }
 

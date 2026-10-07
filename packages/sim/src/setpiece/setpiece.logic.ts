@@ -55,15 +55,12 @@ export function answerScore(answer: SetpieceAnswer, judge: Judge): number {
 /**
  * R-SETPIECE-001: opens the set piece with `ask` questions drawn on `visa`
  * without repeats from those whose conditions hold, kept in the order drawn.
- * The route kind calls this when an application goes in (R-ROUTE-015).
- *
- * the contract has no effect that opens a set piece, so the route
- * calls this function, and the set piece's own event is applied through
- * `emit`. A set piece already open is left as it is, and with no question to
- * ask the interview scores 0 at once rather than open with nothing to answer,
- * which would leave the player stuck (R-ENGINE-011).
+ * It runs for the effect `setpiece/open`, which the route sends when an
+ * application goes in (R-ROUTE-015). A set piece already open is left as it
+ * is, and with no question to ask the interview scores 0 at once rather than
+ * open with nothing to answer, which would leave the player stuck (R-ENGINE-011).
  */
-export function openSetpiece(ctx: Ctx, id: Id<"setpiece">, route: Id<"route"> | null): BaseEvent[] {
+function openSetpiece(ctx: Ctx, id: Id<"setpiece">, route: Id<"route"> | null): BaseEvent[] {
   if (ctx.state.setpiece.open !== null) return [];
   const entry = entryOf(ctx.content, id);
   const pool = entry.questions.filter((question) => question.when.every((requirement) => ctx.check(requirement).met)).map((question) => question.id);
@@ -81,11 +78,11 @@ export function openSetpiece(ctx: Ctx, id: Id<"setpiece">, route: Id<"route"> | 
 }
 
 /**
- * R-SETPIECE-003 and 004. the brief judges each answer's conditions
- * at the moment it is given, but the contract's slice keeps only the answer
- * ids and no running score. So every answer is judged when the last one is
- * given, in the same command. Between answers only the between-turn commands
- * can run, and of what the answers read, only the unexplained share can move.
+ * R-SETPIECE-003 and 004. Each answer is scored the moment it is given, before
+ * its own effects apply, and the score is added to the open set piece's
+ * running sum. The close records that sum, so a lot made between two answers
+ * moves only the answers given after it. A set piece with no route records no
+ * score anywhere (R-SETPIECE-006), so its answers score 0.
  */
 function answer(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (command.type !== "setpiece/answer") throw new Error(`setpiece/answer cannot handle ${command.type}.`);
@@ -96,21 +93,16 @@ function answer(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (next === null || command.question !== next) return reject("not-legal", `The question to answer now is ${String(next)}.`);
   const chosen = questionOf(entry, next).answers.find((candidate) => candidate.id === command.answer);
   if (chosen === undefined) return reject("not-legal", `${String(command.answer)} is not an answer to ${next}.`);
-  const answered: SetpieceEvent = { type: "setpiece/answered", question: next, answer: chosen.id };
+  const score = open.route === null ? 0 : answerScore(chosen, (requirement) => ctx.check(requirement));
+  const answered: SetpieceEvent = { type: "setpiece/answered", question: next, answer: chosen.id, score };
   const events = emit(ctx, "setpiece", [answered]);
   // R-SETPIECE-006: an answer's effects apply the moment it is given.
   if (chosen.effects.length > 0) ctx.apply(chosen.effects, { source: open.entry, param: null, terms: {} });
   const now = ctx.state.setpiece.open;
   if (now === null || nextQuestion(now) !== null) return events;
-  const judge: Judge = (requirement) => ctx.check(requirement);
-  const score = now.questions.reduce((sum, id) => {
-    const given = questionOf(entry, id).answers.find((candidate) => candidate.id === now.answers[id]);
-    if (given === undefined) throw new Error(`${id} was answered with ${String(now.answers[id])}, which is not one of its answers.`);
-    return sum + answerScore(given, judge);
-  }, 0);
   const closed: SetpieceEvent = { type: "setpiece/closed", entry: now.entry, route: now.route };
   events.push(...emit(ctx, "setpiece", [closed]));
-  if (now.route !== null) ctx.apply([{ type: "route/interview-scored", route: now.route, score }], { source: now.entry, param: null, terms: {} });
+  if (now.route !== null) ctx.apply([{ type: "route/interview-scored", route: now.route, score: now.score }], { source: now.entry, param: null, terms: {} });
   return events;
 }
 
@@ -120,7 +112,7 @@ function evolve(slice: SetpieceSlice, event: SetpieceEvent): SetpieceSlice {
       return { ...slice, open: { entry: event.entry, route: event.route, questions: event.questions, answers: {}, score: 0 } };
     case "setpiece/answered": {
       if (slice.open === null) throw new Error(`${event.question} was answered with no set piece open.`);
-      return { ...slice, open: { ...slice.open, answers: { ...slice.open.answers, [event.question]: event.answer } } };
+      return { ...slice, open: { ...slice.open, answers: { ...slice.open.answers, [event.question]: event.answer }, score: slice.open.score + event.score } };
     }
     case "setpiece/closed":
       return { open: null, answered: { ...slice.answered, [event.entry]: (slice.answered[event.entry] ?? 0) + 1 } };

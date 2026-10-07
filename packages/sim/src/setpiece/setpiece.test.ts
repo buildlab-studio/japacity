@@ -7,7 +7,8 @@ import type { Game } from "../testing/play";
 import { legalCommands } from "../testing/legal";
 import { NORTHGATE, UK, UNIT, applyEffects, answerFirst, draw, drawnQuestions, readyLife, seedWhere, toApplied, toHeld, uk } from "../route/route.journey";
 import type { LifeOptions } from "../route/route.journey";
-import { offerChanceBp, unexplainedBp } from "../route/route.logic";
+import { fundsRequired, offerChanceBp, unexplainedBp } from "../route/route.logic";
+import { mulDivCeil } from "../engine/int";
 import { answerScore } from "./setpiece.logic";
 
 const INTERVIEW: Id<"setpiece"> = "setpiece.credibility-interview";
@@ -165,6 +166,65 @@ describe("scoring", () => {
     const total = answerWith(game, (question, answers) => (question === "who-pays" ? "own" : answers[0]!), 0, share);
     expect(uk(game).visa?.interviewScore).toBe(total);
     expect(check(readOf(game), { type: "route/unexplained-max", route: UK, bp: 2000 }).met).toBe(false);
+  });
+
+  /** A life rich in cash, so a cash move into the bank can make a lot of any size. */
+  const CASH_RICH = { NGN: { bank: 1000000 * UNIT, cash: 30000000 * UNIT }, GBP: { bank: 40000 * UNIT, cash: 0 } };
+
+  /** Moves into the bank the least naira cash that makes the unexplained share exactly `target` basis points (R-ROUTE-013). */
+  function lotTo(game: Game, target: number): void {
+    const required = fundsRequired(readOf(game), UK);
+    const pence = mulDivCeil(target, required, 10000);
+    const kobo = mulDivCeil(pence, game.world().rates.GBP.official, UNIT);
+    game.accept({ type: "wallet/move", currency: "NGN", amount: kobo, to: "bank" });
+    expect(unexplainedBp(readOf(game), UK)).toBe(target);
+  }
+
+  /** Answers every open question, `who-pays` with `own` and the rest with their first answer, with `between` run after `who-pays`. */
+  function answerOwn(game: Game, between: () => void = () => undefined): void {
+    for (let guard = 0; guard < 10; guard += 1) {
+      const question = game.view().setpiece?.question;
+      if (question === undefined || question === null) return;
+      const own = question.id === "who-pays";
+      game.accept({ type: "setpiece/answer", question: question.id, answer: own ? "own" : question.answers[0]! });
+      if (own) between();
+    }
+    throw new Error("The set piece did not close.");
+  }
+
+  test("[R-SETPIECE-004] given a clean file, when a cash lot is made between two answers, then each answer keeps the score it was judged at when given, and the running sum is what is recorded", () => {
+    const seed = seedWhere((candidate) => {
+      if (!northgateOffers(candidate)) return false;
+      const asked = drawnQuestions(candidate, CLEAN, entry.ask);
+      return asked.includes("who-pays") && asked.indexOf("who-pays") < entry.ask - 1;
+    });
+    const game = life({ seed, qualities: { [PREP]: 0 }, pockets: CASH_RICH });
+    toApplied(game);
+    const asked = game.state.setpiece.open!.questions;
+    const expected = asked.reduce((sum, id) => sum + (id === "who-pays" ? 2 : pageScore(id, entry.questions.find((question) => question.id === id)!.answers[0]!.id, 0, 0)), 0);
+    answerOwn(game, () => {
+      expect(game.state.setpiece.open?.score).toBe(asked.slice(0, asked.indexOf("who-pays") + 1).reduce((sum, id) => sum + (id === "who-pays" ? 2 : pageScore(id, entry.questions.find((question) => question.id === id)!.answers[0]!.id, 0, 0)), 0));
+      lotTo(game, 2500);
+    });
+    expect(unexplainedBp(readOf(game), UK)).toBeGreaterThan(2000);
+    expect(game.state.setpiece.open).toBeNull();
+    expect(uk(game).visa?.interviewScore).toBe(expected);
+  });
+
+  test("[R-SETPIECE-004] given an unexplained share of 2000 and of 2001 basis points when who-pays is answered, when the student says own, then it scores +2 at 2000 and -2 at 2001", () => {
+    const seed = seedWhere((candidate) => northgateOffers(candidate) && drawnQuestions(candidate, CLEAN, entry.ask).includes("who-pays"));
+    for (const [share, own] of [
+      [2000, 2],
+      [2001, -2],
+    ] as const) {
+      const game = life({ seed, qualities: { [PREP]: 0 }, pockets: CASH_RICH });
+      toApplied(game);
+      lotTo(game, share);
+      const asked = game.state.setpiece.open!.questions;
+      const others = asked.filter((id) => id !== "who-pays").reduce((sum, id) => sum + pageScore(id, entry.questions.find((question) => question.id === id)!.answers[0]!.id, 0, share), 0);
+      answerOwn(game);
+      expect(uk(game).visa?.interviewScore).toBe(others + own);
+    }
   });
 
   test("[R-SETPIECE-004] given the interview closes, when the last answer is given, then the closing is told without a score, and a score with no open application changes nothing", () => {
