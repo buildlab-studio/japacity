@@ -1,10 +1,30 @@
 // A requirement as a short sentence, for "why not". It names what is needed
 // from the requirement's own data and content's names. It never judges
 // whether the requirement holds: the view's `missing` list already says so.
-import type { Amount, Requirement, RouteStateName } from "@japacity/sim";
+import type { Amount, Id, Requirement, RouteStateName } from "@japacity/sim";
 
 import { formatBand, formatBp, formatMoney, formatNumber } from "./format";
-import { hasWords, nameOf, say } from "./text";
+import { hasWords, lowerFirst, nameOf, runningName, say, sayCount } from "./text";
+
+/** What the sentence may read from the view to say more than the requirement alone. */
+export interface SentenceContext {
+  /** Each route's state now, so a step already passed reads as done, not as "not yet". */
+  routes?: readonly { id: Id<"route">; state: RouteStateName }[];
+}
+
+// The order a route moves through. Refused is off the line, so it is never "past" a step.
+const ROUTE_ORDER: readonly RouteStateName[] = ["unknown", "heard", "known", "applying", "granted", "departed"];
+
+function routeStateSentence(requirement: Extract<Requirement, { type: "route/state" }>, context: SentenceContext): string {
+  const now = context.routes?.find((route) => route.id === requirement.route)?.state;
+  const furthest = Math.max(...requirement.in.map((state) => ROUTE_ORDER.indexOf(state)));
+  if (now !== undefined && ROUTE_ORDER.indexOf(now) > furthest && furthest >= 0) {
+    return say("ui.req.route-state-past", { route: nameOf(requirement.route), state: lowerFirst(say(`ui.route.state.${now}`)) });
+  }
+  const single = requirement.in.length === 1 ? `ui.req.route-state.${requirement.in[0] ?? ""}` : null;
+  if (single !== null && hasWords(single)) return say(single, { route: runningName(requirement.route) });
+  return say("ui.req.route-state", { route: nameOf(requirement.route), states: routeStates(requirement.in) });
+}
 
 const ENGLISH_RESULT = "document.english-test";
 
@@ -25,7 +45,7 @@ function routeStates(states: readonly RouteStateName[]): string {
   return list(states.map((state) => say(`ui.route.state.${state}`)));
 }
 
-export function requirementSentence(requirement: Requirement): string {
+export function requirementSentence(requirement: Requirement, context: SentenceContext = {}): string {
   switch (requirement.type) {
     case "quality/min": {
       const label = `${requirement.quality}.value.${String(requirement.value)}`;
@@ -43,11 +63,11 @@ export function requirementSentence(requirement: Requirement): string {
     case "job/none":
       return say("ui.req.job-none");
     case "job/is":
-      return say("ui.req.job-is", { jobs: list(requirement.activities.map(nameOf)) });
+      return say("ui.req.job-is", { jobs: list(requirement.activities.map(runningName)) });
     case "activity/tenure":
       return requirement.activities.length === 0
-        ? say("ui.req.tenure-any", { months: requirement.months })
-        : say("ui.req.tenure", { months: requirement.months, jobs: list(requirement.activities.map(nameOf)) });
+        ? sayCount("ui.req.tenure-any", requirement.months, { months: requirement.months })
+        : sayCount("ui.req.tenure", requirement.months, { months: requirement.months, jobs: list(requirement.activities.map(runningName)) });
     case "document/held":
       if (requirement.min === undefined) return say("ui.req.document-held", { document: nameOf(requirement.document) });
       if (requirement.document === ENGLISH_RESULT) {
@@ -55,19 +75,19 @@ export function requirementSentence(requirement: Requirement): string {
       }
       return say("ui.req.document-held-min", { document: nameOf(requirement.document), value: requirement.min });
     case "document/absent":
-      return say("ui.req.document-absent", { document: nameOf(requirement.document) });
+      return say("ui.req.document-absent", { document: runningName(requirement.document) });
     case "document/pending":
       return say("ui.req.document-pending", { document: nameOf(requirement.document) });
     case "route/state":
-      return say("ui.req.route-state", { route: nameOf(requirement.route), states: routeStates(requirement.in) });
+      return routeStateSentence(requirement, context);
     case "route/offer":
-      return say("ui.req.route-offer", { route: nameOf(requirement.route) });
+      return say("ui.req.route-offer", { route: runningName(requirement.route) });
     case "route/deposit":
-      return say("ui.req.route-deposit", { route: nameOf(requirement.route) });
+      return say("ui.req.route-deposit", { route: runningName(requirement.route) });
     case "route/funds":
-      return say("ui.req.route-funds", { route: nameOf(requirement.route), months: requirement.heldMonths });
+      return sayCount("ui.req.route-funds", requirement.heldMonths, { route: runningName(requirement.route), months: requirement.heldMonths });
     case "route/unexplained-max":
-      return say("ui.req.route-unexplained", { route: nameOf(requirement.route), percent: formatBp(requirement.bp) });
+      return say("ui.req.route-unexplained", { route: runningName(requirement.route), percent: formatBp(requirement.bp) });
     case "money/min": {
       const amount = amountWords(requirement.amount, requirement.currency);
       return requirement.pocket === undefined
@@ -85,14 +105,16 @@ export function requirementSentence(requirement: Requirement): string {
     case "chapter/done":
       return say("ui.req.chapter-done", { chapter: nameOf(requirement.chapter) });
     case "not":
-      return say("ui.req.not", { inner: requirementSentence(requirement.of) });
+      if (requirement.of.type === "document/pending") return say("ui.req.not-pending", { document: runningName(requirement.of.document) });
+      if (requirement.of.type === "document/held") return say("ui.req.not-held", { document: runningName(requirement.of.document) });
+      return say("ui.req.not", { inner: requirementSentence(requirement.of, context) });
     case "any":
-      return say("ui.req.any", { inner: list(requirement.of.map(requirementSentence)) });
+      return say("ui.req.any", { inner: list(requirement.of.map((inner) => requirementSentence(inner, context))) });
     // Whole-life requirements (docs/rules/place.md and after). Plain first drafts.
     case "place/is":
       return say("ui.req.place-is", { where: say(`ui.place.${requirement.where}`) });
     case "status/is":
-      return say("ui.req.status-is", { statuses: list(requirement.statuses.map(nameOf)) });
+      return say("ui.req.status-is", { statuses: list(requirement.statuses.map(runningName)) });
     case "status/clock-under":
       return say("ui.req.status-clock-under", { months: requirement.months });
     case "credit/min":
@@ -106,15 +128,17 @@ export function requirementSentence(requirement: Requirement): string {
     case "route/gate-step":
       return say("ui.req.route-gate-step", { route: nameOf(requirement.route), step: requirement.step });
     case "activity/local-tenure":
-      return say("ui.req.local-tenure", { months: requirement.months });
-    case "setpiece/answered":
-      return say("ui.req.setpiece-answered", { setpiece: nameOf(requirement.setpiece), times: requirement.times ?? 1 });
+      return sayCount("ui.req.local-tenure", requirement.months, { months: requirement.months });
+    case "setpiece/answered": {
+      const times = requirement.times ?? 1;
+      return sayCount("ui.req.setpiece-answered", times, { setpiece: nameOf(requirement.setpiece), times });
+    }
     case "wallet/total":
       return say(requirement.flow === "in" ? "ui.req.wallet-total-in" : "ui.req.wallet-total-out", { amount: amountWords(requirement.amount, requirement.currency), reason: requirement.reason.replaceAll("-", " ") });
     case "place/returned":
       return say("ui.req.place-returned");
     case "place/months-here":
-      return say("ui.req.place-months-here", { months: requirement.months, where: say(`ui.place.${requirement.where}`) });
+      return sayCount("ui.req.place-months-here", requirement.months, { months: requirement.months, where: say(`ui.place.${requirement.where}`) });
     default: {
       const never: never = requirement;
       throw new Error(`No sentence for the requirement ${JSON.stringify(never)}.`);

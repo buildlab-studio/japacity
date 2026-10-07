@@ -1,6 +1,7 @@
-// The headline number: how ready this life is to leave.
+// The headline number: how ready this life is to leave. The display face has
+// no percent sign of its own, so the sign is set in the body face.
 import { useView } from "../../authority/GameProvider";
-import { nameOf, say } from "../../shared/words/text";
+import { runningName, say } from "../../shared/words/text";
 
 export function JapacityView({ compact = false }: { compact?: boolean }) {
   const { japacity } = useView();
@@ -9,7 +10,14 @@ export function JapacityView({ compact = false }: { compact?: boolean }) {
   if (compact) {
     return (
       <span className="font-display text-xl leading-none" aria-label={say("ui.japacity.title")}>
-        {none ? "--" : `${String(japacity.percent)}%`}
+        {none ? (
+          "--"
+        ) : (
+          <>
+            {japacity.percent}
+            <span className="font-sans font-bold">%</span>
+          </>
+        )}
       </span>
     );
   }
@@ -22,10 +30,10 @@ export function JapacityView({ compact = false }: { compact?: boolean }) {
       ) : (
         <p className="font-display text-7xl leading-none text-accent">
           {japacity.percent}
-          <span className="text-4xl">%</span>
+          <span className="font-sans text-4xl font-bold">%</span>
         </p>
       )}
-      {japacity.route === null ? null : <p className="opacity-80">{say("ui.japacity.of", { route: nameOf(japacity.route) })}</p>}
+      {japacity.route === null ? null : <p className="opacity-80">{say("ui.japacity.of", { route: runningName(japacity.route) })}</p>}
     </section>
   );
 }

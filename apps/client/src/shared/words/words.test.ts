@@ -2,16 +2,22 @@ import { content, text } from "@japacity/content";
 import type { Requirement } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
-import { formatBand, formatMoney } from "./format";
+import { formatBand, formatMoney, formatRate } from "./format";
 import { requirementSentence } from "./requirement";
-import { say, words } from "./text";
+import { lowerFirst, say, words } from "./text";
 import { uiText } from "./ui";
 
 describe("words", () => {
   test("given naira, then the naira sign is used whatever the locale data", () => {
     expect(formatMoney(2_500_000, "NGN")).toMatch(/^₦25,000$/);
     expect(formatMoney(120_300, "GBP")).toMatch(/^£1,203$/);
-    expect(formatMoney(150, "USD")).toMatch(/^\$1\.5$/);
+  });
+
+  test("given kobo, pence or cents, then money shows in whole major units and only a rate keeps two decimals", () => {
+    expect(formatMoney(7_805_951, "NGN")).toBe("₦78,060");
+    expect(formatMoney(150, "USD")).toBe("$2");
+    expect(formatMoney(4, "NGN")).toBe("₦0");
+    expect(formatRate(179_316, "NGN")).toBe("₦1,793.16");
   });
 
   test("given a content key with a money param, then the brace is filled with formatted money", () => {
@@ -19,8 +25,11 @@ describe("words", () => {
     expect(filled).toBe(text["offer.land-buyer.body"]!.replace("{price}", formatMoney(900_000_000, "NGN")));
   });
 
-  test("given a param that is an id, then its name from content is used", () => {
-    expect(words("ui.japacity.of", { route: "route.uk-masters" })).toBe(`on ${text["route.uk-masters.name"]!}`);
+  test("given a param that is an id, then its name from content is used, lower-cased in running text", () => {
+    expect(words("ui.japacity.of", { route: "route.uk-masters" })).toBe(`on ${lowerFirst(text["route.uk-masters.name"]!)}`);
+    expect(words("line.activity.hunt-missed", { job: "activity.job-teacher" })).toBe("You look for work as private school teacher. Nothing yet.");
+    expect(words("line.document.issued", { document: "document.english-test" })).toBe("Your English test result is ready.");
+    expect(words("line.activity.hunt-hired", { job: "activity.job-teacher" })).toMatch(/\. Private school teacher wants you\.$/);
   });
 
   test("given a missing key, then the key itself shows", () => {
@@ -42,7 +51,8 @@ describe("requirement sentences", () => {
     [{ type: "quality/min", quality: "quality.edu-grade", value: 3 }, `${text["quality.edu-grade.name"]!}: ${text["quality.edu-grade.value.3"]!} or better`],
     [{ type: "document/held", document: "document.passport" }, `${text["document.passport.name"]!} in hand`],
     [{ type: "document/held", document: "document.english-test", min: 60 }, say("ui.req.document-held-band", { document: text["document.english-test.name"]!, band: formatBand(60) })],
-    [{ type: "route/state", route: "route.uk-masters", in: ["heard"] }, `${text["route.uk-masters.name"]!}: ${say("ui.route.state.heard")}`],
+    [{ type: "route/state", route: "route.uk-masters", in: ["heard"] }, `Hear of ${lowerFirst(text["route.uk-masters.name"]!)} first`],
+    [{ type: "route/state", route: "route.uk-masters", in: ["applying", "granted"] }, `${text["route.uk-masters.name"]!}: ${say("ui.route.state.applying")} or ${say("ui.route.state.granted")}`],
     [{ type: "money/min", currency: "NGN", amount: 15_000_000 }, `At least ${formatMoney(15_000_000, "NGN")}`],
     [{ type: "chapter/done", chapter: "chapter.find-your-feet" }, `Finish "${text["chapter.find-your-feet.name"]!}"`],
   ];

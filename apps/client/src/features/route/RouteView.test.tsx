@@ -6,7 +6,7 @@ import { describe, expect, test } from "vitest";
 import { engineView, richView } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { formatMoney } from "../../shared/words/format";
-import { say } from "../../shared/words/text";
+import { say, sayCount } from "../../shared/words/text";
 import { RouteView } from "./RouteView";
 
 describe("ways out", () => {
@@ -34,7 +34,8 @@ describe("ways out", () => {
   test("given funds, refusals and schools, then they are shown from the view", async () => {
     await renderWithView(<RouteView />, richView());
     expect(screen.getByText(say("ui.route.funds.line", { shown: formatMoney(1_200_000, "GBP"), required: formatMoney(3_000_000, "GBP") }))).toBeDefined();
-    expect(screen.getByText(say("ui.route.refusals", { count: 1 }))).toBeDefined();
+    expect(screen.getByText(sayCount("ui.route.refusals", 1, { count: 1 }))).toBeDefined();
+    expect(screen.queryByText(/1 times/)).toBeNull();
     expect(screen.getByText(say("ui.refusal.funds"))).toBeDefined();
     expect(screen.getByText(text["school.northgate.name"]!)).toBeDefined();
     expect(screen.getByText(say("ui.route.school.pending", { month: 13 }))).toBeDefined();
