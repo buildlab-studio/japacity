@@ -177,6 +177,8 @@ export type Effect =
   | { type: "route/apply-school" } // the slot's param names the school
   | { type: "route/apply"; route: Id<"route"> }
   | { type: "route/support"; route: Id<"route">; currency: Currency; amount: Amount }
+  /** The set piece finished: its score goes on the route's open visa application (R-SETPIECE-004). */
+  | { type: "route/interview-scored"; route: Id<"route">; score: number }
   // obligation
   | { type: "obligation/open"; obligation: Id<"obligation">; principal?: Amount; amount?: Amount }
   // offer: opens nothing when the offer's own `when` does not hold

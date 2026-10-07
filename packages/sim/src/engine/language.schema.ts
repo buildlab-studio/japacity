@@ -229,6 +229,7 @@ export const EffectSchema = z.discriminatedUnion("type", [
     currency: CurrencySchema,
     amount: AmountSchema,
   }),
+  z.strictObject({ type: z.literal("route/interview-scored"), route: idOf("route"), score: IntSchema }),
   z.strictObject({
     type: z.literal("obligation/open"),
     obligation: idOf("obligation"),

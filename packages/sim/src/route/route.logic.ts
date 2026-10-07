@@ -28,7 +28,7 @@ export const routeKind: RegisteredKind<RouteSlice, RouteEvent> = {
     for (const entry of Object.values(content.route)) slice[entry.id] = unknownRoute();
     return slice;
   },
-  effects: effectsNotBuilt(["route/hear", "route/look-into", "route/apply-school", "route/apply", "route/support"]),
+  effects: effectsNotBuilt(["route/hear", "route/look-into", "route/apply-school", "route/apply", "route/support", "route/interview-scored"]),
   evolve: (slice) => slice,
   requirements: requirementsNotBuilt(["route/state", "route/offer", "route/deposit", "route/funds", "route/unexplained-max"]),
   invariants(state, content) {
