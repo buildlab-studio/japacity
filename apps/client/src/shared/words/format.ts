@@ -6,26 +6,45 @@ const MINOR_PER_MAJOR = 100;
 
 const moneyFormats = new Map<Currency, Intl.NumberFormat>();
 
+const rateFormats = new Map<Currency, Intl.NumberFormat>();
+
 // One formatter per currency, made once (docs/research/23-interface-stack.md
 // section 8). narrowSymbol keeps the naira sign even where en-NG data is missing.
+function makeFormat(currency: Currency, fractionDigits: number): Intl.NumberFormat {
+  return new Intl.NumberFormat("en-NG", {
+    style: "currency",
+    currency,
+    currencyDisplay: "narrowSymbol",
+    minimumFractionDigits: fractionDigits,
+    maximumFractionDigits: fractionDigits,
+  });
+}
+
 function moneyFormat(currency: Currency): Intl.NumberFormat {
   let format = moneyFormats.get(currency);
   if (format === undefined) {
-    format = new Intl.NumberFormat("en-NG", {
-      style: "currency",
-      currency,
-      currencyDisplay: "narrowSymbol",
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 2,
-    });
+    format = makeFormat(currency, 0);
     moneyFormats.set(currency, format);
   }
   return format;
 }
 
-/** A whole number of kobo, pence or cents, as money. */
+/**
+ * A whole number of kobo, pence or cents, as money in whole naira, pounds or
+ * dollars (docs/rules/text.md, "Money on screen"). Kobo and pence never show.
+ */
 export function formatMoney(minor: number, currency: Currency): string {
-  return moneyFormat(currency).format(minor / MINOR_PER_MAJOR);
+  return moneyFormat(currency).format(Math.round(minor / MINOR_PER_MAJOR));
+}
+
+/** A street rate, the one figure on screen that keeps its kobo: "₦1,793.16". */
+export function formatRate(minor: number, currency: Currency): string {
+  let format = rateFormats.get(currency);
+  if (format === undefined) {
+    format = makeFormat(currency, 2);
+    rateFormats.set(currency, format);
+  }
+  return format.format(minor / MINOR_PER_MAJOR);
 }
 
 /** A sign for one unit: "£1", "$1". */

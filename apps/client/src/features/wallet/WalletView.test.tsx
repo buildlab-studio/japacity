@@ -4,18 +4,20 @@ import { describe, expect, test } from "vitest";
 
 import { engineView, richView } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
-import { formatMoney } from "../../shared/words/format";
+import { formatMoney, formatRate } from "../../shared/words/format";
 import { say } from "../../shared/words/text";
 import { WalletView } from "./WalletView";
 
 describe("money", () => {
-  test("given a new life, then the naira pockets and both rates are shown as money", async () => {
+  test("given a new life, then the naira pockets and the bank rate are whole naira and the aboki rate keeps its kobo", async () => {
     const view = engineView();
     await renderWithView(<WalletView />, view);
     expect(screen.getByText(formatMoney(view.pockets.NGN.bank, "NGN"))).toBeDefined();
     expect(screen.getByText(formatMoney(view.pockets.NGN.cash, "NGN"))).toBeDefined();
     expect(screen.getByText(formatMoney(view.rates.GBP.official, "NGN"))).toBeDefined();
-    expect(screen.getByText(formatMoney(view.rates.USD.street, "NGN"))).toBeDefined();
+    expect(screen.getByText(formatRate(view.rates.USD.street, "NGN"))).toBeDefined();
+    expect(formatRate(view.rates.USD.street, "NGN")).toMatch(/\.\d\d$/);
+    expect(formatMoney(view.rates.GBP.official, "NGN")).not.toMatch(/\./);
     expect(screen.getByText(say("ui.wallet.allowance", { amount: formatMoney(view.bankAllowanceLeft, "USD") }))).toBeDefined();
   });
 

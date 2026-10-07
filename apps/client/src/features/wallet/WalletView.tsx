@@ -10,7 +10,7 @@ import { Button } from "../../shared/ui/Button";
 import { Card, Panel } from "../../shared/ui/Panel";
 import { Rejection } from "../../shared/ui/Rejection";
 import { Sheet } from "../../shared/ui/Sheet";
-import { CURRENCIES, formatMoney, formatOne, toMinor } from "../../shared/words/format";
+import { CURRENCIES, formatMoney, formatOne, formatRate, toMinor } from "../../shared/words/format";
 import { say } from "../../shared/words/text";
 
 const FOREIGN = ["GBP", "USD"] as const;
@@ -233,7 +233,7 @@ export function WalletView() {
               <tr key={currency}>
                 <th scope="row" className="py-1 pr-2 font-medium">{formatOne(currency)}</th>
                 <td className="py-1 pr-2 tabular-nums">{formatMoney(view.rates[currency].official, "NGN")}</td>
-                <td className="py-1 tabular-nums">{formatMoney(view.rates[currency].street, "NGN")}</td>
+                <td className="py-1 tabular-nums">{formatRate(view.rates[currency].street, "NGN")}</td>
               </tr>
             ))}
           </tbody>
