@@ -143,4 +143,9 @@ export const offerText: Record<string, string> = {
   "offer.job.body": "'We would like you to start on the first.'",
   "offer.job.choice.accept": "Accept",
   "offer.job.choice.decline": "Decline",
+
+  // Report lines. Each carries `offer`, the entry id, so the interface can show its title.
+  "line.offer.opened": "Something new needs an answer.",
+  "line.offer.taken": "Decided.",
+  "line.offer.lapsed": "You let it pass. The time to answer is gone.",
 };
