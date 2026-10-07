@@ -38,11 +38,9 @@ function fromOffers(view: PlayerView): Loose[] {
   for (const offer of view.offers) {
     for (const choice of offer.choices) {
       if (!choice.allowed) continue;
+      // `allowed` is judged at the smallest amount: a larger one can cost more than is held.
       if (choice.pick === null) commands.push({ type: "offer/choose", offer: offer.id, choice: choice.id });
-      else {
-        commands.push({ type: "offer/choose", offer: offer.id, choice: choice.id, amount: choice.pick.min });
-        commands.push({ type: "offer/choose", offer: offer.id, choice: choice.id, amount: choice.pick.max });
-      }
+      else commands.push({ type: "offer/choose", offer: offer.id, choice: choice.id, amount: choice.pick.min });
     }
   }
   return commands;
@@ -88,17 +86,79 @@ function fromWallet(view: PlayerView): Loose[] {
   return commands;
 }
 
+/** A part payment small enough to leave most of a loan owed, so random play pays both ways. */
+const SMALL_REPAY = 100000;
+
+/**
+ * Paying ahead (R-OBLIGATION-008). The view has no entry types, so it reads
+ * them off the item: a loan in content always has a term, so `monthsLeft` is a
+ * number; held funds have none and still hold their principal. Upkeep and
+ * support owe no principal, so they are never offered.
+ */
+function fromObligations(view: PlayerView): Loose[] {
+  const commands: Loose[] = [];
+  for (const owed of view.obligations) {
+    if (owed.outstanding <= 0) continue;
+    const pocket = view.pockets.NGN;
+    const spendable = pocket.bank + pocket.cash;
+    if (owed.monthsLeft !== null) {
+      const part = Math.min(SMALL_REPAY, owed.outstanding);
+      if (spendable >= part) commands.push({ type: "obligation/pay", obligation: owed.id, amount: part });
+      if (owed.outstanding > part && spendable >= owed.outstanding) commands.push({ type: "obligation/pay", obligation: owed.id, amount: owed.outstanding });
+    } else if (owed.principal === owed.outstanding && pocket.locked >= owed.outstanding) {
+      commands.push({ type: "obligation/pay", obligation: owed.id, amount: owed.outstanding });
+    }
+  }
+  return commands;
+}
+
+/**
+ * The view carries neither a school's deposit nor the flight's price, nor
+ * which obligations hold funds. the sampler offers the deposit only
+ * when the pound pockets alone hold the dearest deposit in the shipped
+ * content, the flight only when naira cash and bank hold the shipped flight,
+ * and never while an obligation whose entry names held funds is open. A
+ * command these bounds let through is always accepted; one they hold back is
+ * merely not sampled.
+ */
+const DEPOSIT_BOUND = 750000;
+const FLIGHT_BOUND = 160000000;
+
+function fromRoute(view: PlayerView): Loose[] {
+  const commands: Loose[] = [];
+  const pounds = view.pockets.GBP.bank + view.pockets.GBP.cash;
+  const naira = view.pockets.NGN.bank + view.pockets.NGN.cash;
+  const holding = view.obligations.some((obligation) => obligation.entry.includes("held-funds"));
+  for (const route of view.routes) {
+    if (route.school === null && pounds >= DEPOSIT_BOUND) {
+      for (const school of route.schools) {
+        if (school.state === "offer") commands.push({ type: "route/pay-deposit", route: route.id, school: school.id });
+      }
+    }
+    if (route.state === "granted" && !holding && naira >= FLIGHT_BOUND) commands.push({ type: "route/depart", route: route.id });
+  }
+  return commands;
+}
+
 function fromActivity(view: PlayerView): Loose[] {
   return view.job.id === null ? [] : [{ type: "activity/quit" }];
 }
 
 /**
  * Every legal command the sample knows how to build from this view. Commands
- * whose kind has no handler yet are left out, so the list grows as kinds land.
+ * whose kind has no handler yet are left out, so the list grows as kinds are built.
  */
 export function legalCommands(view: PlayerView): Loose[] {
   if (view.ended) return [];
-  return [...fromTurn(view), ...fromOffers(view), ...fromSetpiece(view), ...fromWallet(view), ...fromActivity(view)].filter((command) =>
+  return [
+    ...fromTurn(view),
+    ...fromOffers(view),
+    ...fromSetpiece(view),
+    ...fromRoute(view),
+    ...fromWallet(view),
+    ...fromObligations(view),
+    ...fromActivity(view),
+  ].filter((command) =>
     handles(command.type),
   );
 }

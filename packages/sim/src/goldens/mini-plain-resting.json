@@ -146,44 +146,44 @@
       "month": 1,
       "v": 1,
       "banked": 23,
-      "nairaBank": 20000000,
-      "hash": "009efb694d2fb936"
+      "nairaBank": 17000000,
+      "hash": "eec8dbbd39a375ac"
     },
     {
       "month": 2,
       "v": 2,
       "banked": 22,
-      "nairaBank": 20000000,
-      "hash": "44834c66e61d82bc"
+      "nairaBank": 12000000,
+      "hash": "6e8461642f76f85f"
     },
     {
       "month": 3,
       "v": 3,
       "banked": 21,
-      "nairaBank": 20000000,
-      "hash": "5c5ab6b5b1b7180a"
+      "nairaBank": 7000000,
+      "hash": "4e5b5c8ad13b4517"
     },
     {
       "month": 4,
       "v": 4,
       "banked": 20,
-      "nairaBank": 20000000,
-      "hash": "7dad6c0523db5f54"
+      "nairaBank": 2000000,
+      "hash": "87a6ca3ef6ccf3e6"
     },
     {
       "month": 5,
       "v": 5,
       "banked": 19,
-      "nairaBank": 20000000,
-      "hash": "bfc97af3223105d7"
+      "nairaBank": 2000000,
+      "hash": "07efb7f347d45557"
     },
     {
       "month": 6,
       "v": 6,
       "banked": 18,
-      "nairaBank": 20000000,
-      "hash": "ec365111050d6187"
+      "nairaBank": 2000000,
+      "hash": "11229d15dccb3062"
     }
   ],
-  "finalHash": "ec365111050d6187"
+  "finalHash": "11229d15dccb3062"
 }

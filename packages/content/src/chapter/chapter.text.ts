@@ -35,4 +35,9 @@ export const chapterText: Record<string, string> = {
   "chapter.send-off.open": "One suitcase, 23 kilos. Everybody has advice.",
   "chapter.send-off.close": "The plane lifts over the lagoon. Lagos gets small.",
   "chapter.send-off.item.departed": "Board the plane",
+
+  // Report lines. The interface shows the chapter's close words with the
+  // first, and the next chapter's opening words with the second.
+  "line.chapter.closed": "Chapter done. Your turns are full again.",
+  "line.chapter.opened": "A new chapter begins.",
 };

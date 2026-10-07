@@ -1,4 +1,9 @@
-import type { OfferState } from "../engine/types";
+import type { Id, OfferState } from "../engine/types";
 
-/** Placeholder: the offer agent defines the real events. */
-export type OfferEvent = { type: "offer/opened"; item: OfferState };
+export type OfferEvent =
+  /** An offer opened with its terms, signs and hidden fraud fixed (R-OFFER-002). Records when and how often its entry opened. */
+  | { type: "offer/opened"; item: OfferState }
+  /** A choice was taken and its effects applied. The offer is removed (R-OFFER-003). */
+  | { type: "offer/taken"; id: string; entry: Id<"offer">; choice: string }
+  /** The offer's month came. `choice` is the lapse choice applied, if one was (R-OFFER-005). */
+  | { type: "offer/lapsed"; id: string; entry: Id<"offer">; choice: string | null };

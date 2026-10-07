@@ -498,7 +498,14 @@ export const activityKind: RegisteredKind<ActivitySlice, ActivityEvent> = {
   phases: { main, slots },
   evolve,
   lines,
-  requirements: { "job/any": judgeJob, "job/none": judgeJob, "job/is": judgeJob, "activity/tenure": judgeJob },
+  requirements: {
+    "job/any": judgeJob,
+    "job/none": judgeJob,
+    "job/is": judgeJob,
+    "activity/tenure": judgeJob,
+    // Built with life abroad (docs/rules/ladders.md R-LADDER-002). Until then no local tenure is held.
+    "activity/local-tenure": () => ({ met: false }),
+  },
   invariants(state, content) {
     const problems: string[] = [];
     const { job, tenure, lastSlots } = state.activity;
