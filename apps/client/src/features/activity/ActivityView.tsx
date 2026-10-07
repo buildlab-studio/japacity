@@ -11,7 +11,7 @@ import { Button } from "../../shared/ui/Button";
 import { Card, Panel, Tag } from "../../shared/ui/Panel";
 import { shortfall } from "../../shared/words/cost";
 import { formatBand, formatMoney } from "../../shared/words/format";
-import { requirementSentence } from "../../shared/words/requirement";
+import { alreadyDone, requirementSentence } from "../../shared/words/requirement";
 import { blurbOf, hasWords, lowerFirst, nameOf, say, sayCount } from "../../shared/words/text";
 
 const ENGLISH_RESULT = "document.english-test";
@@ -173,7 +173,9 @@ function ActivityCard({ option }: { option: ActivityOption }) {
 
         {option.missing.length > 0 ? (
           <div className="text-sm">
-            <p className="font-medium">{say("ui.activity.why-not")}</p>
+            <p className="font-medium">
+              {option.missing.every((requirement) => alreadyDone(requirement, { routes: view.routes })) ? say("ui.activity.done-already") : say("ui.activity.why-not")}
+            </p>
             <ul className="list-disc pl-5">
               {option.missing.map((requirement, index) => (
                 <li key={index}>{requirementSentence(requirement, { routes: view.routes })}</li>

@@ -15,12 +15,25 @@ export interface SentenceContext {
 // The order a route moves through. Refused is off the line, so it is never "past" a step.
 const ROUTE_ORDER: readonly RouteStateName[] = ["unknown", "heard", "known", "applying", "granted", "departed"];
 
-function routeStateSentence(requirement: Extract<Requirement, { type: "route/state" }>, context: SentenceContext): string {
+/** The route's state now, when it has already gone past every state the requirement names. */
+function passedState(requirement: Extract<Requirement, { type: "route/state" }>, context: SentenceContext): RouteStateName | null {
   const now = context.routes?.find((route) => route.id === requirement.route)?.state;
   const furthest = Math.max(...requirement.in.map((state) => ROUTE_ORDER.indexOf(state)));
-  if (now !== undefined && ROUTE_ORDER.indexOf(now) > furthest && furthest >= 0) {
-    return say("ui.req.route-state-past", { route: nameOf(requirement.route), state: lowerFirst(say(`ui.route.state.${now}`)) });
-  }
+  return now !== undefined && furthest >= 0 && ROUTE_ORDER.indexOf(now) > furthest ? now : null;
+}
+
+/**
+ * True when the requirement is unmet because the step is already behind the
+ * player: the route has moved past it, or the paper is already held or on its way.
+ */
+export function alreadyDone(requirement: Requirement, context: SentenceContext = {}): boolean {
+  if (requirement.type === "document/absent") return true;
+  return requirement.type === "route/state" && passedState(requirement, context) !== null;
+}
+
+function routeStateSentence(requirement: Extract<Requirement, { type: "route/state" }>, context: SentenceContext): string {
+  const now = passedState(requirement, context);
+  if (now !== null) return say("ui.req.route-state-past", { route: nameOf(requirement.route), state: lowerFirst(say(`ui.route.state.${now}`)) });
   const single = requirement.in.length === 1 ? `ui.req.route-state.${requirement.in[0] ?? ""}` : null;
   if (single !== null && hasWords(single)) return say(single, { route: runningName(requirement.route) });
   return say("ui.req.route-state", { route: nameOf(requirement.route), states: routeStates(requirement.in) });

@@ -128,6 +128,8 @@ describe("the month plan", () => {
     await renderWithView(<ActivityView />, { ...base, routes, activities: [lookInto] });
     expect(screen.getByText(say("ui.req.route-state-past", { route: text["route.uk-masters.name"]!, state: lowerFirst(say("ui.route.state.known")) }))).toBeDefined();
     expect(screen.queryByText(new RegExp(say("ui.route.state.heard")))).toBeNull();
+    expect(screen.getByText(say("ui.activity.done-already"))).toBeDefined();
+    expect(screen.queryByText(say("ui.activity.why-not"))).toBeNull();
   });
 
   test("given a job held one month, then the card shows its pay and says one month", async () => {
