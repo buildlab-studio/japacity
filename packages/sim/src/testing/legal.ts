@@ -2,7 +2,8 @@
 // function per kind; a kind agent extends its own. Random play draws from
 // this list, so everything here must be accepted by step when the view says so.
 import { handles } from "../engine/step";
-import type { PlayerView, SlotPick } from "../engine/types";
+import { mulDiv } from "../engine/int";
+import type { Currency, ForeignCurrency, PlayerView, SlotPick } from "../engine/types";
 import type { Loose } from "./play";
 
 function fromTurn(view: PlayerView): Loose[] {
@@ -42,11 +43,37 @@ function fromSetpiece(view: PlayerView): Loose[] {
   return question.answers.map((answer) => ({ type: "setpiece/answer", question: question.id, answer }));
 }
 
+/** Small amounts, so random play can make many and never runs a pocket dry in one go. */
+const SMALL_MOVE = 100;
+const SMALL_FOREIGN = 1000;
+const SMALL_NAIRA = 1000000;
+
 function fromWallet(view: PlayerView): Loose[] {
   const commands: Loose[] = [];
+  const currencies: Currency[] = ["NGN", "GBP", "USD"];
+  const foreign: ForeignCurrency[] = ["GBP", "USD"];
+  for (const currency of currencies) {
+    const pocket = view.pockets[currency];
+    if (pocket.cash >= SMALL_MOVE) commands.push({ type: "wallet/move", currency, amount: SMALL_MOVE, to: "bank" });
+    if (pocket.bank >= SMALL_MOVE) commands.push({ type: "wallet/move", currency, amount: SMALL_MOVE, to: "cash" });
+  }
   const naira = view.pockets.NGN;
-  if (naira.cash >= 100) commands.push({ type: "wallet/move", currency: "NGN", amount: 100, to: "bank" });
-  if (naira.bank >= 100) commands.push({ type: "wallet/move", currency: "NGN", amount: 100, to: "cash" });
+  // The most US cents a naira purchase could use: the charge only makes it less.
+  const nairaCents = mulDiv(SMALL_NAIRA, 100, view.rates.USD.official);
+  for (const currency of foreign) {
+    const pocket = view.pockets[currency];
+    if (naira.bank >= SMALL_NAIRA && view.bankAllowanceLeft >= nairaCents) {
+      commands.push({ type: "wallet/convert", from: "NGN", to: currency, amount: SMALL_NAIRA, via: "bank" });
+    }
+    if (naira.cash >= SMALL_NAIRA) commands.push({ type: "wallet/convert", from: "NGN", to: currency, amount: SMALL_NAIRA, via: "aboki" });
+    if (pocket.bank >= SMALL_FOREIGN) commands.push({ type: "wallet/convert", from: currency, to: "NGN", amount: SMALL_FOREIGN, via: "bank" });
+    if (pocket.cash >= SMALL_FOREIGN) commands.push({ type: "wallet/convert", from: currency, to: "NGN", amount: SMALL_FOREIGN, via: "aboki" });
+  }
+  const pounds = view.pockets.GBP;
+  const poundCents = mulDiv(SMALL_FOREIGN, view.rates.GBP.official, view.rates.USD.official);
+  if (pounds.bank >= SMALL_FOREIGN && view.bankAllowanceLeft >= poundCents) {
+    commands.push({ type: "wallet/convert", from: "GBP", to: "USD", amount: SMALL_FOREIGN, via: "bank" });
+  }
   return commands;
 }
 

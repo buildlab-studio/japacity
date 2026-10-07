@@ -27,6 +27,7 @@ import { setpieceText } from "./setpiece/setpiece.text";
 import { tuning } from "./tuning/tuning.data";
 import { varTable } from "./var/var.data";
 import { varText } from "./var/var.text";
+import { walletText } from "./wallet/wallet.text";
 
 export const content: Content = {
   version: "m0.1",
@@ -60,6 +61,7 @@ export const textTables: Record<string, Record<string, string>> = {
   school: schoolText,
   setpiece: setpieceText,
   var: varText,
+  wallet: walletText,
 };
 
 /**
