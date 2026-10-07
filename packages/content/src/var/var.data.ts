@@ -2,7 +2,7 @@
 import type { Id, VarEntry } from "@japacity/sim";
 
 export const varTable: Record<Id<"var">, VarEntry> = {
-  "var.fx-supply": { id: "var.fx-supply", start: 95 },
+  "var.fx-supply": { id: "var.fx-supply", start: 97 },
   "var.fx-bank-queue": { id: "var.fx-bank-queue", start: 0 },
   // US cents.
   "var.fx-bank-allowance": { id: "var.fx-bank-allowance", start: 50000 },
