@@ -5,10 +5,7 @@
 // being made while an old one is held (R-DOCUMENT-004) is written as
 // `state: "held"` with the held copy's `expiresMonth` and `value`, and
 // `readyMonth` set to the month the new copy is due. A held document with no
-// copy being made has `readyMonth` null, or 0 when it came with the scenario:
-// the stub wrote 0 for those and the goldens hash it. No copy can be due in
-// month 0, because a request is always due at a papers phase still to come
-// and the first papers phase is month 1, so 0 never reads as "being made".
+// copy being made has `readyMonth` null.
 import { clamp, mulDiv, roundDownTo } from "../engine/int";
 import type { RegisteredKind } from "../engine/kind";
 import { turnInProgress } from "../engine/kind";
@@ -49,8 +46,7 @@ export function beingMade(doc: DocumentState): number | null {
     case "pending":
       return doc.readyMonth;
     case "held":
-      // See the note at the top: 0 is a scenario's paper, not a copy due.
-      return doc.readyMonth !== null && doc.readyMonth > 0 ? doc.readyMonth : null;
+      return doc.readyMonth;
     case "expired":
       return null;
     default: {
@@ -263,7 +259,7 @@ export const documentKind: RegisteredKind<DocumentSlice, DocumentEvent> = {
   initial(scenario) {
     const slice: DocumentSlice = {};
     for (const held of scenario.documents) {
-      slice[held.document] = { state: "held", readyMonth: 0, expiresMonth: held.monthsLeft, value: held.value };
+      slice[held.document] = { state: "held", readyMonth: null, expiresMonth: held.monthsLeft, value: held.value };
     }
     return slice;
   },
