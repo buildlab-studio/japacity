@@ -49,4 +49,18 @@ export const activityText: Record<string, string> = {
   "activity.interview-prep.blurb": "You rehearse your answers until they sound like you.",
   "activity.apply-for-visa.name": "Apply for the visa",
   "activity.apply-for-visa.blurb": "You pay the fees, submit the file and book the interview.",
+
+  // Report lines. {job} and {activity} are ids: the interface shows their names.
+  "line.activity.salary": "Salary from {job}: {amount}.",
+  "line.activity.job-started": "You start a new job: {job}.",
+  "line.activity.quit": "You leave your job: {job}.",
+  "line.activity.job-ended": "Your job ends: {job}.",
+  "line.activity.played": "This month: {activity}.",
+  "line.activity.failed-requirements": "{activity} did not happen. You no longer meet what it needs.",
+  "line.activity.failed-param": "{activity} did not happen. That choice was no longer open.",
+  "line.activity.failed-cost": "{activity} did not happen. You could not pay for it.",
+  "line.activity.rested": "{slots} free slots go to rest.",
+  "line.activity.hunt-hired": "Your search pays off. {job} wants you.",
+  "line.activity.hunt-missed": "You look for work as {job}. Nothing yet.",
+  "line.activity.gig": "The side gig pays {amount}, cash.",
 };
