@@ -12,3 +12,4 @@ export { drawAt, hashString32 } from "./engine/random";
 export * as int from "./engine/int";
 export { standInWorld } from "./world/standIn";
 export { japacity, routePercent } from "./japacity/japacity.logic";
+export * as time from "./engine/time";
