@@ -15,6 +15,7 @@ import type {
   Currency,
   Effect,
   Id,
+  MoneyParam,
   ObligationEntry,
   ObligationSlice,
   ObligationState,
@@ -349,20 +350,22 @@ function line(key: string, params: ReportLine["params"], tone: ReportLine["tone"
   return { key, params, tone, attention, counts: [] };
 }
 
-function lines(event: ObligationEvent): ReportLine[] {
+function lines(event: ObligationEvent, _state: State, content: Content): ReportLine[] {
+  // An obligation's money is in its entry's currency.
+  const money = (entry: Id<"obligation">, amount: number): MoneyParam => ({ currency: entryOf(content, entry).currency, amount });
   switch (event.type) {
     case "obligation/charged":
       // Said quietly: the wallet's own lines already show the money leaving.
-      return event.total === 0 ? [] : [line("line.obligation.charged", { obligation: event.entry, amount: event.total }, "plain", false)];
+      return event.total === 0 ? [] : [line("line.obligation.charged", { obligation: event.entry, amount: money(event.entry, event.total) }, "plain", false)];
     case "obligation/missed":
-      return [line("line.obligation.missed", { obligation: event.entry, amount: event.total }, "bad", true)];
+      return [line("line.obligation.missed", { obligation: event.entry, amount: money(event.entry, event.total) }, "bad", true)];
     case "obligation/defaulted":
-      return [line("line.obligation.defaulted", { obligation: event.entry, amount: event.outstanding }, "bad", true)];
+      return [line("line.obligation.defaulted", { obligation: event.entry, amount: money(event.entry, event.outstanding) }, "bad", true)];
     case "obligation/seized":
       // the brief lists no line for this; without one the wallet's "loan repayment" line would hide that it was taken.
-      return [line("line.obligation.seized", { obligation: event.entry, amount: event.amount }, "bad", false)];
+      return [line("line.obligation.seized", { obligation: event.entry, amount: money(event.entry, event.amount) }, "bad", false)];
     case "obligation/taken-back":
-      return [line("line.obligation.taken-back", { obligation: event.entry, amount: event.amount }, "bad", true)];
+      return [line("line.obligation.taken-back", { obligation: event.entry, amount: money(event.entry, event.amount) }, "bad", true)];
     case "obligation/closed":
       return [line("line.obligation.closed", { obligation: event.entry }, "good", false)];
     case "obligation/opened":

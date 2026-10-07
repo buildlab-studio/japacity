@@ -19,6 +19,7 @@ import type {
   Effect,
   ForeignCurrency,
   Id,
+  MoneyParam,
   ReadCtx,
   Rejection,
   ReportLine,
@@ -670,6 +671,11 @@ function line(key: string, params: ReportLine["params"], tone: ReportLine["tone"
   return { key: `line.route.${key}`, params, tone, attention, counts: [] };
 }
 
+/** Funds, tuition, deposits and discounts are pence (R-ROUTE-009), shown as pounds. */
+function pounds(amount: number): MoneyParam {
+  return { currency: FUNDS_CURRENCY, amount };
+}
+
 function movedLines(event: Extract<RouteKindEvent, { type: "route/moved" }>): ReportLine[] {
   const { route, to } = event;
   switch (to) {
@@ -701,17 +707,17 @@ function lines(event: RouteKindEvent): ReportLine[] {
     case "route/school-answered":
       // An answer is what the player waited for.
       return event.offer
-        ? [line("school-offer", { school: event.school, discount: event.discount }, "good", true)]
+        ? [line("school-offer", { school: event.school, discount: pounds(event.discount) }, "good", true)]
         : [line("school-rejected", { school: event.school }, "bad", true)];
     case "route/deposit-paid":
-      return [line("deposit-paid", { school: event.school, amount: event.amount }, "good")];
+      return [line("deposit-paid", { school: event.school, amount: pounds(event.amount) }, "good")];
     case "route/funds-checked": {
       const { covered, shown, required, heldMonths } = event.funds;
       // Only a change asks the player to look; the same answer every month does not.
       const changed = covered !== event.was;
       return covered
-        ? [line("funds-covered", { route: event.route, shown, required, months: heldMonths }, "good", changed)]
-        : [line("funds-short", { route: event.route, shown, required }, "bad", changed)];
+        ? [line("funds-covered", { route: event.route, shown: pounds(shown), required: pounds(required), months: heldMonths }, "good", changed)]
+        : [line("funds-short", { route: event.route, shown: pounds(shown), required: pounds(required) }, "bad", changed)];
     }
     case "route/applied":
       return [line("applied", { route: event.route, month: event.visa.decisionMonth }, "plain")];
@@ -721,9 +727,9 @@ function lines(event: RouteKindEvent): ReportLine[] {
     case "route/refused":
       return [line("refused", { route: event.route, reason: event.reasons[0] ?? "credibility" }, "bad", true)];
     case "route/deposit-refunded":
-      return [line("deposit-refunded", { route: event.route, amount: event.amount }, "good")];
+      return [line("deposit-refunded", { route: event.route, amount: pounds(event.amount) }, "good")];
     case "route/supported":
-      return [line("supported", { route: event.route, currency: event.support.currency, amount: event.support.amount }, "good")];
+      return [line("supported", { route: event.route, amount: { currency: event.support.currency, amount: event.support.amount } }, "good")];
     default: {
       const never: never = event;
       throw new Error(`Unknown route event ${JSON.stringify(never)}.`);

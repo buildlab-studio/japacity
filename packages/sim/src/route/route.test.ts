@@ -416,7 +416,7 @@ describe("schools", () => {
     expect(won.state.draws.school).toBe(3);
     expect(routeLines(result.lines)).toContainEqual({
       key: "line.route.school-offer",
-      params: { school: ASHBY, discount: ashby.meritDiscount!.amount },
+      params: { school: ASHBY, discount: { currency: "GBP", amount: ashby.meritDiscount!.amount } },
       tone: "good",
       attention: true,
       counts: [],
@@ -441,7 +441,7 @@ describe("the deposit", () => {
     expect(uk(game)).toMatchObject({ school: NORTHGATE, depositPaid: deposit });
     expect(game.state.document[CAS]?.state).toBe("held");
     expect(judge(game, { type: "route/deposit", route: UK }).met).toBe(true);
-    expect(routeLines(result.lines)).toEqual([{ key: "line.route.deposit-paid", params: { school: NORTHGATE, amount: deposit }, tone: "good", attention: false, counts: [] }]);
+    expect(routeLines(result.lines)).toEqual([{ key: "line.route.deposit-paid", params: { school: NORTHGATE, amount: { currency: "GBP", amount: deposit } }, tone: "good", attention: false, counts: [] }]);
   });
 
   test("[R-ROUTE-008] given no offer from a school, a deposit already paid, or a school not on the route, when a deposit is paid, then it is rejected and nothing changes", () => {
@@ -764,7 +764,7 @@ describe("decision day", () => {
     expect(game.state.turn.month).toBe(due.readyMonth);
     expect(uk(game).depositRefund).toBeNull();
     expect(game.state.wallet.pockets.GBP.bank).toBe(pounds + due.amount);
-    expect(routeLines(result.lines)).toContainEqual({ key: "line.route.deposit-refunded", params: { route: UK, amount: due.amount }, tone: "good", attention: false, counts: [] });
+    expect(routeLines(result.lines)).toContainEqual({ key: "line.route.deposit-refunded", params: { route: UK, amount: { currency: "GBP", amount: due.amount } }, tone: "good", attention: false, counts: [] });
     game.accept({ type: "route/pay-deposit", route: UK, school: NORTHGATE });
     expect(uk(game).school).toBe(NORTHGATE);
     expect(game.state.document[CAS]?.state).toBe("held");
@@ -896,7 +896,7 @@ describe("the route's words", () => {
       { key: "line.route.granted", params: { route: UK } },
       { key: "line.route.departed", params: { route: UK } },
       { key: "line.route.school-rejected", params: { school: NORTHGATE } },
-      { key: "line.route.supported", params: { route: UK, currency: "NGN", amount: 1 } },
+      { key: "line.route.supported", params: { route: UK, amount: { currency: "NGN", amount: 1 } } },
     ];
     const wrong = every.flatMap((line) => {
       const words = text[line.key];

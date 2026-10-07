@@ -95,7 +95,7 @@ function lines(event: QualityEvent, state: ReadCtx["state"], content: ReadCtx["c
       return [
         {
           key,
-          params: { quality: event.quality, amount: Math.abs(event.amount), value: valueOf(state, event.quality) },
+          params: { quality: event.quality, points: Math.abs(event.amount), value: valueOf(state, event.quality) },
           tone,
           attention: false,
           // R-QUALITY-006: a gain shows the routes it counts toward.

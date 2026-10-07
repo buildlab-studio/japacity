@@ -35,6 +35,8 @@ const WELLBEING: Id<"quality"> = "quality.wellbeing";
 const GRADE: Id<"quality"> = "quality.edu-grade";
 /** The offer a landed hunt opens. It learns the job from the terms (R-OFFER-007). */
 const JOB_OFFER = "offer.job" as const;
+/** A side gig pays naira cash (R-ACTIVITY-008). */
+const GIG_CURRENCY: Currency = "NGN";
 /** The source named on the rest an empty slot gives. */
 export const REST_SOURCE = "rest";
 
@@ -320,7 +322,7 @@ function gigEffect(ctx: Ctx, effect: { min: number; max: number; perTech: number
   const amount = ctx.random.between("gig", effect.min, effect.max) + effect.perTech * tech;
   if (amount <= 0) return [];
   const events = record(ctx, { type: "activity/gig-paid", amount });
-  ctx.apply([{ type: "money/add", currency: "NGN", pocket: "cash", amount, reason: "gig" }], cause);
+  ctx.apply([{ type: "money/add", currency: GIG_CURRENCY, pocket: "cash", amount, reason: "gig" }], cause);
   return events;
 }
 
@@ -427,7 +429,7 @@ function lines(event: ActivityEvent): ReportLine[] {
         ? [line("line.activity.quit", { job: event.job }, "plain")]
         : [line("line.activity.job-ended", { job: event.job }, "bad")];
     case "activity/month-worked":
-      return event.pay === null ? [] : [line("line.activity.salary", { job: event.job, amount: event.pay.amount, currency: event.pay.currency }, "good")];
+      return event.pay === null ? [] : [line("line.activity.salary", { job: event.job, amount: { currency: event.pay.currency, amount: event.pay.amount } }, "good")];
     case "activity/slot-played":
       return [line("line.activity.played", pickParams(event.activity, event.param), "plain")];
     case "activity/slot-failed":
@@ -440,7 +442,7 @@ function lines(event: ActivityEvent): ReportLine[] {
         ? [line("line.activity.hunt-hired", { job: event.job }, "good", true)]
         : [line("line.activity.hunt-missed", { job: event.job }, "plain")];
     case "activity/gig-paid":
-      return [line("line.activity.gig", { amount: event.amount }, "good")];
+      return [line("line.activity.gig", { amount: { currency: GIG_CURRENCY, amount: event.amount } }, "good")];
     case "activity/slots-recorded":
       return [];
     default: {

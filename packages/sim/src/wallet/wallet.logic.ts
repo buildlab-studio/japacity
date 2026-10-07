@@ -416,17 +416,18 @@ function lines(event: WalletEvent): ReportLine[] {
     case "wallet/debited": {
       const { currency, amount, reason } = event;
       // A transfer is one line for the pair, told from the side the money arrives on.
-      if (reason === "convert") return event.type === "wallet/credited" ? [line("line.wallet.converted", { currency, amount }, "plain")] : [];
-      if (reason === "move") return event.type === "wallet/credited" ? [line("line.wallet.moved", { currency, amount, pocket: event.pocket }, "plain")] : [];
+      const money = { currency, amount };
+      if (reason === "convert") return event.type === "wallet/credited" ? [line("line.wallet.converted", { amount: money }, "plain")] : [];
+      if (reason === "move") return event.type === "wallet/credited" ? [line("line.wallet.moved", { amount: money, pocket: event.pocket }, "plain")] : [];
       const key = REASON_LINE[reason];
-      return key === null ? [] : [line(key, { currency, amount }, SOURCES.includes(reason) ? "good" : "bad")];
+      return key === null ? [] : [line(key, { amount: money }, SOURCES.includes(reason) ? "good" : "bad")];
     }
     case "wallet/queued": {
       const { from, to, paid, readyMonth } = event.conversion;
-      return [line("line.wallet.queued", { from, currency: to, paid, readyMonth }, "plain")];
+      return [line("line.wallet.queued", { paid: { currency: from, amount: paid }, currency: to, readyMonth }, "plain")];
     }
     case "wallet/lot-recorded":
-      return [line("line.wallet.flagged", { currency: event.lot.currency, amount: event.lot.amount }, "bad")];
+      return [line("line.wallet.flagged", { amount: { currency: event.lot.currency, amount: event.lot.amount } }, "bad")];
     case "wallet/arrived":
     case "wallet/lots-dropped":
     case "wallet/bought":

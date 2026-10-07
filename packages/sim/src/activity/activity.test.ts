@@ -306,7 +306,7 @@ describe("the job, each month", () => {
     const result = game.endTurn([]);
     expect(result.lines).toContainEqual({
       key: "line.activity.salary",
-      params: { job: "activity.job-bank-officer", amount: content.activity["activity.job-bank-officer"]!.pay!.amount as number, currency: "NGN" },
+      params: { job: "activity.job-bank-officer", amount: { currency: "NGN", amount: content.activity["activity.job-bank-officer"]!.pay!.amount as number } },
       tone: "good",
       attention: false,
       counts: [],
@@ -729,7 +729,7 @@ describe("side gigs", () => {
       { type: "wallet/credited", via: "money/add", asked: "cash", currency: "NGN", pocket: "cash", amount: drawn + 1000 * tech, reason: "gig" },
     ]);
     expect(plain.game.state.draws.gig).toBe(1);
-    expect(result.lines).toContainEqual({ key: "line.activity.gig", params: { amount: drawn + 1000 * tech }, tone: "good", attention: false, counts: [] });
+    expect(result.lines).toContainEqual({ key: "line.activity.gig", params: { amount: { currency: "NGN", amount: drawn + 1000 * tech } }, tone: "good", attention: false, counts: [] });
   });
 
   test("[R-ACTIVITY-008] given a gig whose lowest and highest figures are equal, when it resolves, then it pays exactly that plus the tech figure", () => {

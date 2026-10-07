@@ -647,8 +647,8 @@ describe("lines", () => {
       { type: "money/take", currency: "NGN", pocket: "bank", amount: 300000, reason: "fee-document" },
     ]);
     expect(result.lines).toEqual([
-      { key: "line.wallet.salary", params: { currency: "NGN", amount: 700000 }, tone: "good", attention: false, counts: [] },
-      { key: "line.wallet.fee-document", params: { currency: "NGN", amount: 300000 }, tone: "bad", attention: false, counts: [] },
+      { key: "line.wallet.salary", params: { amount: { currency: "NGN", amount: 700000 } }, tone: "good", attention: false, counts: [] },
+      { key: "line.wallet.fee-document", params: { amount: { currency: "NGN", amount: 300000 } }, tone: "bad", attention: false, counts: [] },
     ]);
     const reasons: Reason[] = ["salary", "fee-document"];
     for (const reason of reasons) expect(REASON_LINE[reason]).toBe(`line.wallet.${reason}`);
