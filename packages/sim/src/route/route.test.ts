@@ -141,9 +141,10 @@ describe("the states of a route", () => {
   });
 
   test("[R-ROUTE-001] given a known route, when talk of it reaches the character again, then it stays known and no chance is drawn", () => {
+    // Only the UK route's hearing: the meetup also hears the talent route, which is not under test here.
     const sure = withActivity("activity.meetup", (entry) => ({
       ...entry,
-      effects: entry.effects.map((effect) => (effect.type === "route/hear" ? { ...effect, chanceBp: 10000 } : effect)),
+      effects: entry.effects.filter((effect) => effect.type !== "route/hear" || effect.route === UK).map((effect) => (effect.type === "route/hear" ? { ...effect, chanceBp: 10000 } : effect)),
     }));
     const watch: Watch = { calls: 0, draws: {} };
     const game = life({ change: sure, kinds: watchHear(watch) });
@@ -164,10 +165,11 @@ describe("the states of a route", () => {
 });
 
 describe("hearing of a route and looking into it", () => {
+  // Only the UK route's hearing: the meetup also hears the talent route, which is not under test here.
   const meetupChance = (chanceBp: number) =>
     withActivity("activity.meetup", (entry) => ({
       ...entry,
-      effects: entry.effects.map((effect) => (effect.type === "route/hear" ? { ...effect, chanceBp } : effect)),
+      effects: entry.effects.filter((effect) => effect.type !== "route/hear" || effect.route === UK).map((effect) => (effect.type === "route/hear" ? { ...effect, chanceBp } : effect)),
     }));
 
   test("[R-ROUTE-002] given a meetup whose chance to hear is certain, when it is played, then the route is heard of via the meetup, after one draw on the offer stream", () => {
@@ -315,7 +317,8 @@ describe("schools", () => {
     expect(uk(game).schools[NORTHGATE]).toEqual({ state: "pending", readyMonth: month + 1, discount: 0 });
     expect(uk(game).schools[ASHBY]).toEqual({ state: "pending", readyMonth: month + low + draw(seed, "school", 1, high - low + 1), discount: 0 });
     expect(game.state.draws.school).toBe(2);
-    expect(routeLines(result.lines).map((line) => line.key)).toEqual(["line.route.school-applied", "line.route.school-applied"]);
+    // Lines about other routes (a friend mentioning one) are not under test here.
+    expect(routeLines(result.lines).filter((line) => line.params.route === undefined || line.params.route === UK).map((line) => line.key)).toEqual(["line.route.school-applied", "line.route.school-applied"]);
   });
 
   test("[R-ROUTE-006] given a band exactly at a school's minimum, when it is applied to, then it is accepted; a step under, the turn is refused", () => {
@@ -843,9 +846,10 @@ describe("decision day", () => {
 describe("the route's words", () => {
   test("[R-ENGINE-014] given every line the route and the interview give on a life's way to a refusal, a refund and a flight, when the words are looked up, then each has words and names only figures its line carries", () => {
     const lines: ReportLine[] = [];
+    // Only the UK route's hearing: the meetup also hears the talent route, which is not under test here.
     const sure = withActivity("activity.meetup", (entry) => ({
       ...entry,
-      effects: entry.effects.map((effect) => (effect.type === "route/hear" ? { ...effect, chanceBp: 10000 } : effect)),
+      effects: entry.effects.filter((effect) => effect.type !== "route/hear" || effect.route === UK).map((effect) => (effect.type === "route/hear" ? { ...effect, chanceBp: 10000 } : effect)),
     }));
     const game = life({ tuning: ALWAYS_REFUSED, quiet: true, change: sure });
     const keep = (result: { lines: ReportLine[] }) => lines.push(...result.lines);

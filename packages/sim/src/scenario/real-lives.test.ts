@@ -19,8 +19,8 @@ describe("the real content", () => {
     expect(checkContent(content)).toEqual([]);
   });
 
-  test("[R-SCENARIO-001] given the three lives, when states are built from them, then every invariant holds", () => {
-    expect(lives).toHaveLength(3);
+  test("[R-SCENARIO-001] given the four lives, when states are built from them, then every invariant holds", () => {
+    expect(lives).toHaveLength(4);
     for (const life of lives) expect(checkInvariants(newState(life, "seed", content), content)).toEqual([]);
   });
 

@@ -36,4 +36,33 @@ export const setpieceText: Record<string, string> = {
   // Report lines. First drafts.
   "line.setpiece.opened": "{setpiece}: {questions} questions to answer before the month can end.",
   "line.setpiece.closed": "{setpiece} is over.",
+  // road.md. First drafts. The truth is said once, plainly.
+
+  "setpiece.road-night.name": "The night meeting",
+  "setpiece.road-night.q.night":
+    "A bus park at night. Twenty people with one bag each. The man takes your phone number and says the bus leaves at four.",
+  "setpiece.road-night.a.night.go": "Get on the bus",
+  "setpiece.road-night.a.night.turn-back": "Go home. The deposit is gone",
+
+  "setpiece.road-truth.name": "The truth",
+  "setpiece.road-truth.q.truth":
+    "Three days north, the bus stops for good. It is by road from here, across the desert, then a boat. They want more money before anyone moves.",
+  "setpiece.road-truth.a.truth.pay": "Pay what they ask",
+  "setpiece.road-truth.a.truth.call-home": "Call home for the money",
+  "setpiece.road-truth.a.truth.exit": "Find the migration agency and go home",
+
+  // return.md. Questions are the page's.
+
+  "setpiece.december.name": "December at home",
+  "setpiece.december.q.party": "Everybody is going out. Lagos in December is not cheap.",
+  "setpiece.december.a.party.big": "Go big: ₦400,000",
+  "setpiece.december.a.party.small": "A few nights out: ₦120,000",
+  "setpiece.december.a.party.home": "Stay in with the family",
+  "setpiece.december.q.gifts": "Your mother has a list. Your cousins have longer ones.",
+  "setpiece.december.a.gifts.all": "Everyone on the list: ₦600,000",
+  "setpiece.december.a.gifts.some": "Your mother and the children: ₦200,000",
+  "setpiece.december.a.gifts.none": "Not this year",
+  "setpiece.december.q.look": "People expect to see that it went well.",
+  "setpiece.december.a.look.outfit": "New clothes and a haircut: ₦250,000",
+  "setpiece.december.a.look.plain": "Come as you are",
 };

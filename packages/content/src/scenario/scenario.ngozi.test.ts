@@ -15,7 +15,7 @@ describe("Ngozi", () => {
     expect(Object.keys(ngoziScenario.qualities).filter((id) => !(id in content.quality))).toEqual([]);
   });
 
-  test("[R-ENGINE-014] given Ngozi, when the ids she names are looked up, then each exists but the nursing licence, which the route gates bring", () => {
+  test("[R-ENGINE-014] given Ngozi, when the ids she names are looked up, then each exists and she is in the table", () => {
     const named = [
       ...(ngoziScenario.job === null ? [] : [ngoziScenario.job]),
       ...Object.keys(ngoziScenario.tenure),
@@ -26,9 +26,8 @@ describe("Ngozi", () => {
       const kind = id.slice(0, id.indexOf(".")) as "activity" | "document" | "obligation";
       return (content[kind] as Record<string, unknown>)[id] === undefined;
     });
-    expect(missing).toEqual(["document.nursing-licence"]);
-    // She is not in the scenario table until that document is, and the real-lives test counts four.
-    expect(content.scenario["scenario.ngozi"]).toBeUndefined();
+    expect(missing).toEqual([]);
+    expect(content.scenario["scenario.ngozi"]).toBe(ngoziScenario);
   });
 
   test("[R-ENGINE-014] given Ngozi, when figures from route-gates.md are read back, then each matches the page", () => {
@@ -57,7 +56,7 @@ describe("Ngozi", () => {
   });
 
   test("[R-ENGINE-014] given the lives, when who can drive is read, then Tunde and Ngozi can and the others cannot (car.md)", () => {
-    const drivers = [...Object.values(content.scenario), ngoziScenario].filter((life) => life.qualities["quality.driving"] === 1);
+    const drivers = Object.values(content.scenario).filter((life) => life.qualities["quality.driving"] === 1);
     expect(drivers.map((life) => life.id)).toEqual(["scenario.tunde", "scenario.ngozi"]);
     expect((text["scenario.ngozi.name"] ?? "").trim()).not.toBe("");
   });

@@ -16,6 +16,14 @@ const UK: Id<"route"> = "route.uk-masters";
 const RECRUIT: Id<"news"> = "news.uk-unis-recruit";
 const RANK: Record<NewsStage, number> = { rumour: 0, announced: 1, "in-force": 2, ended: 3 };
 
+/**
+ * The five stories of the first milestone. The timing tests below read the
+ * stand-in schedule, which the whole-life stories move about, so they run on
+ * these alone.
+ */
+const FIRST_STORIES: Id<"news">[] = ["news.uk-unis-recruit", "news.uk-living-rise", "news.uk-refusals-up", "news.dollar-scarcity", "news.naira-float"];
+const firstContent: Content = { ...content, news: Object.fromEntries(FIRST_STORIES.map((id) => [id, content.news[id]!])) };
+
 function deliveries(lines: ReportLine[]): ReportLine[] {
   return lines.filter((line) => line.key === "line.news.delivered");
 }
@@ -93,9 +101,9 @@ describe("delivering the news", () => {
   });
 
   test("[R-NEWS-004] given a story reaches a new stage, when the next turn ends, then it is delivered in that turn's news phase, once", () => {
-    const schedule = newsSchedule("world-1", content);
+    const schedule = newsSchedule("world-1", firstContent);
     const announced = schedule[RECRUIT]!.announced;
-    const game = start({ scenario: "scenario.ada", content, worldSeed: "world-1" });
+    const game = start({ scenario: "scenario.ada", content: firstContent, worldSeed: "world-1" });
     for (let tick = 0; tick < announced; tick += 1) {
       expect(deliveries(game.endTurn().lines).filter((line) => line.params.story === RECRUIT)).toEqual([]);
     }
@@ -126,8 +134,8 @@ describe("for you", () => {
   test("[R-NEWS-005] given a story touching a route, when the route is unknown, then it is not for you; once heard of, it is", () => {
     const heard: Effect[] = [];
     const kinds = hearingRegistry(heard);
-    const played = life(kinds, (tick) => standInWorld("world-1", tick, content));
-    const first = newsSchedule("world-1", content)[RECRUIT]!.announced;
+    const played = life(kinds, (tick) => standInWorld("world-1", tick, firstContent), firstContent);
+    const first = newsSchedule("world-1", firstContent)[RECRUIT]!.announced;
     for (let tick = 0; tick <= first; tick += 1) played.endTurn();
     // The recruitment story was not for you when it arrived: you had not heard of the route yet. Reading it told you.
     const recruit = deliveries(played.allLines).find((line) => line.params.story === RECRUIT);

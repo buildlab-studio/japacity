@@ -103,7 +103,8 @@ const slowEnglish: Content = {
 /** The real content with a second route just like the first, placed before or after it. */
 function withTwin(first: boolean): Content {
   const twin: RouteEntry = { ...uk, id: TWIN };
-  return { ...content, route: first ? { [TWIN]: twin, [UK]: uk } : { [UK]: uk, [TWIN]: twin } };
+  // Every other route stays, since activities name them; only the twin's place against the UK route changes.
+  return { ...content, route: first ? { [TWIN]: twin, ...content.route } : { ...content.route, [TWIN]: twin } };
 }
 
 describe("a route's figure", () => {
@@ -267,6 +268,8 @@ describe("whole numbers, derived each time", () => {
   test("[R-JAPACITY-004] given every route in the content, when its weights are added, then they come to exactly 100", () => {
     for (const used of [content, miniContent]) {
       for (const entry of Object.values(used.route)) {
+        // The road has no checklist and no figure (R-ROAD-001).
+        if (entry.gate === "road") continue;
         expect(entry.checklist.reduce((sum, item) => sum + item.weight, 0)).toBe(100);
         expect(entry.checklist.every((item) => Number.isSafeInteger(item.weight) && item.weight >= 0)).toBe(true);
       }

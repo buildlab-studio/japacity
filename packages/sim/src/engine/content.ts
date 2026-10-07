@@ -58,6 +58,8 @@ export function checkContent(content: Content): string[] {
     }
   });
   for (const route of Object.values(content.route)) {
+    // The road has no checklist and no japacity (R-ROAD-001).
+    if (route.gate === "road") continue;
     const total = route.checklist.reduce((sum, item) => sum + item.weight, 0);
     if (total !== 100) problems.push(`${route.id}: checklist weights add up to ${String(total)}, not 100 (R-JAPACITY-004).`);
   }

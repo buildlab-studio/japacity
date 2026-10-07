@@ -97,9 +97,7 @@ export const scenarioTable: Record<Id<"scenario">, ScenarioEntry> = {
  * Ngozi, from route-gates.md's last table: a staff nurse 30 months in, the life
  * the care route is built for.
  *
- * she is not yet in the scenario table. packages/sim/src/scenario/real-lives.test.ts
- * expects exactly three lives, and document.nursing-licence is entered with the route
- * gates. She joins the table when both change; until then the content tests check her here.
+ * She is joined to the table in index.ts, after the documents the route gates bring.
  */
 export const ngoziScenario: ScenarioEntry = {
   id: "scenario.ngozi",

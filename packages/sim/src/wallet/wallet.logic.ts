@@ -36,7 +36,8 @@ import type {
 const FOREIGN_CURRENCIES: readonly ForeignCurrency[] = ["GBP", "USD", "CAD", "AED", "EUR"];
 import type { AnyPocket, WalletEvent } from "./wallet.events";
 
-const CURRENCIES: readonly Currency[] = ["NGN", "GBP", "USD"];
+/** Every pocket the wallet keeps: naira and each foreign currency (R-ABROAD-001). */
+const CURRENCIES: readonly Currency[] = ["NGN", ...FOREIGN_CURRENCIES];
 const ALLOWANCE: Id<"var"> = "var.fx-bank-allowance";
 const QUEUE: Id<"var"> = "var.fx-bank-queue";
 
