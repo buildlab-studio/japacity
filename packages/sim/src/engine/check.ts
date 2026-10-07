@@ -25,8 +25,10 @@ export const REQUIREMENT_OWNER: Record<KindRequirementPrefix, SliceKey> = {
   chapter: "chapter",
 };
 
-function isEngineRequirement(type: RequirementType): type is (typeof ENGINE_REQUIREMENTS)[number] {
-  return (ENGINE_REQUIREMENTS as readonly string[]).includes(type);
+type EngineRequirement = Extract<Requirement, { type: (typeof ENGINE_REQUIREMENTS)[number] }>;
+
+function isEngineRequirement(requirement: Requirement): requirement is EngineRequirement {
+  return (ENGINE_REQUIREMENTS as readonly string[]).includes(requirement.type);
 }
 
 /** A world variable. A missing one is a content or world bug, so it throws. */
@@ -49,7 +51,7 @@ export function resolveAmount(read: ReadCtx, amount: Amount, terms: Terms = {}):
   return amount.bp === undefined ? value : bp(value, amount.bp);
 }
 
-function judgeHere(read: ReadCtx, requirement: Requirement, terms: Terms, kinds: Registry | undefined): RequirementResult {
+function judgeHere(read: ReadCtx, requirement: EngineRequirement, terms: Terms, kinds: Registry | undefined): RequirementResult {
   switch (requirement.type) {
     case "not":
       return { met: !checkWith(read, requirement.of, terms, kinds).met };
@@ -67,8 +69,10 @@ function judgeHere(read: ReadCtx, requirement: Requirement, terms: Terms, kinds:
       const have = worldVar(read, requirement.var);
       return { met: have <= requirement.value, have, need: requirement.value };
     }
-    default:
-      throw new Error(`The engine does not judge ${requirement.type}.`);
+    default: {
+      const never: never = requirement;
+      throw new Error(`The engine does not judge ${JSON.stringify(never)}.`);
+    }
   }
 }
 
@@ -79,7 +83,7 @@ export function checkWith(
   terms: Terms = {},
   kinds?: Registry,
 ): RequirementResult {
-  if (isEngineRequirement(requirement.type)) return judgeHere(read, requirement, terms, kinds);
+  if (isEngineRequirement(requirement)) return judgeHere(read, requirement, terms, kinds);
   const owner = REQUIREMENT_OWNER[prefixOf(requirement.type) as KindRequirementPrefix];
   const judge = kindByKey(owner, kinds).requirements?.[requirement.type];
   if (judge === undefined) throw new Error(`No kind judges the requirement ${requirement.type}.`);
