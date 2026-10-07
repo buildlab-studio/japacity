@@ -1,0 +1,34 @@
+{
+  "name": "japacity",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "packageManager": "pnpm@11.28.5",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json && pnpm -r run typecheck",
+    "lint": "eslint . --max-warnings 0",
+    "test": "vitest run",
+    "check:rules": "tsx tools/check-rules.ts",
+    "check:protected": "tsx tools/check-protected.ts",
+    "check": "tsx tools/check.ts",
+    "dev": "pnpm --filter @japacity/client dev",
+    "build": "pnpm --filter @japacity/client build"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^24.19.1",
+    "@vitejs/plugin-react": "^6.1.2",
+    "@vitest/eslint-plugin": "^1.6.27",
+    "eslint": "^10.12.0",
+    "globals": "^17.13.0",
+    "jsdom": "^30.1.2",
+    "tsx": "^4.23.15",
+    "typescript": "~6.0.3",
+    "typescript-eslint": "^8.71.1",
+    "vitest": "~4.1.11"
+  }
+}
