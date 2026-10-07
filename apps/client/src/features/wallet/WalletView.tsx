@@ -220,7 +220,7 @@ export function WalletView() {
 
       <Card className="flex flex-col gap-2">
         <h3 className="font-semibold">{say("ui.wallet.rates")}</h3>
-        <table className="w-full text-left text-sm">
+        <table className="w-full text-left text-sm" data-rates>
           <thead className="text-muted">
             <tr>
               <th scope="col" className="font-normal" />
