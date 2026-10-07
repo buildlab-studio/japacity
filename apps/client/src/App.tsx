@@ -97,7 +97,7 @@ function Playing() {
     <div className="min-h-dvh">
       <Header />
       <main className="mx-auto max-w-[90rem] px-4 pt-4 pb-48 lg:grid lg:grid-cols-[minmax(17rem,21rem)_minmax(0,1fr)_minmax(18rem,24rem)] lg:items-start lg:gap-6 lg:pb-10">
-        <div className="flex flex-col gap-6 lg:sticky lg:top-20">
+        <div className="flex flex-col gap-6">
           <Group tab="you" current={tab}>
             <QualityView />
             {openLifeChooser === null ? null : (
