@@ -4,7 +4,7 @@ import { describe, expect, test } from "vitest";
 
 import { engineView, richView } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
-import { say } from "../../shared/words/text";
+import { nameOf, say, sayCount } from "../../shared/words/text";
 import { TurnBar } from "./TurnBar";
 import { TurnView } from "./TurnView";
 
@@ -72,5 +72,47 @@ describe("the month", () => {
     store.getState().setReportOpen(true);
     const sheet = await screen.findByRole("dialog");
     expect(within(sheet).getByText(text["chapter.find-your-feet.close"]!)).toBeDefined();
+  });
+
+  test("given a month played at rest, when same again is used, then rest is planned in every slot", async () => {
+    const view = { ...engineView(), lastSlots: [], report: { month: 1, lines: [], japacityBefore: null, japacityAfter: null, attention: false } };
+    const { store } = await renderWithView(<Turn />, view);
+    fireEvent.click(screen.getByRole("button", { name: say("ui.month.same-again") }));
+    expect(store.getState().plan).toEqual(Array.from({ length: view.freeSlots }, () => ({ activity: "activity.rest", param: null })));
+  });
+
+  test("given japacity appears for the first time, then the report says the figure, not no route to it", async () => {
+    const rich = richView();
+    await renderWithView(<Turn />, { ...rich, report: { ...rich.report!, japacityBefore: null, japacityAfter: 14 } });
+    expect(screen.getByText(say("ui.report.japacity-first", { after: "14%" }))).toBeDefined();
+    expect(screen.queryByText(/No route yet to/)).toBeNull();
+  });
+
+  test("given no route before or after, then the report says no route yet once", async () => {
+    const rich = richView();
+    await renderWithView(<Turn />, { ...rich, report: { ...rich.report!, japacityBefore: null, japacityAfter: null } });
+    expect(screen.getByText(say("ui.report.japacity-none"))).toBeDefined();
+  });
+
+  test("given a split payment and a doubled salary, then the report shows one line for each", async () => {
+    const rich = richView();
+    const lines = [
+      { key: "line.wallet.salary", params: { currency: "NGN", amount: 7_500_000 }, tone: "good" as const, attention: false, counts: [] },
+      { key: "line.activity.salary", params: { job: "activity.job-teacher", currency: "NGN", amount: 7_500_000 }, tone: "good" as const, attention: false, counts: [] },
+      { key: "line.wallet.upkeep", params: { currency: "NGN", amount: 5_305_951 }, tone: "bad" as const, attention: false, counts: [] },
+      { key: "line.wallet.upkeep", params: { currency: "NGN", amount: 4_194_049 }, tone: "bad" as const, attention: false, counts: [] },
+    ];
+    await renderWithView(<TurnView />, { ...rich, report: { ...rich.report!, lines } });
+    expect(screen.getAllByText(/^Salary/)).toHaveLength(1);
+    expect(screen.getAllByText(new RegExp(`^${text["line.wallet.upkeep"]!.split(":")[0]!}`))).toHaveLength(1);
+    expect(screen.getByText(/₦95,000/)).toBeDefined();
+  });
+
+  test("given a paper about to run out, then the month warns before it does", async () => {
+    const rich = richView();
+    const documents = [{ id: "document.tb-certificate" as const, state: "held" as const, readyMonth: null, expiresMonth: rich.month + 1, value: null }];
+    await renderWithView(<Turn />, { ...rich, documents });
+    expect(screen.getByText(say("ui.month.expiring"))).toBeDefined();
+    expect(screen.getByText(sayCount("ui.month.expiring.item", 1, { document: nameOf("document.tb-certificate"), months: 1, month: rich.month + 1 }))).toBeDefined();
   });
 });

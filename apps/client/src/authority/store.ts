@@ -67,6 +67,8 @@ export interface GameStoreOptions {
   notice?: string | null;
 }
 
+const REST: Id<"activity"> = "activity.rest";
+
 export function rejectionWords(code: RejectionCode): string {
   return text[`reject.${code}`] ?? code;
 }
@@ -149,7 +151,9 @@ export function createGameStore(authority: Authority, options: GameStoreOptions 
       sameAgain() {
         const view = get().view;
         if (view === null) return;
-        set({ plan: fitPlan(view.lastSlots, view.freeSlots) });
+        // A month left to rest sends no slots, so "same again" after it plans rest in every slot.
+        const last = view.lastSlots.length === 0 && view.report !== null ? Array.from({ length: view.freeSlots }, () => ({ activity: REST, param: null })) : view.lastSlots;
+        set({ plan: fitPlan(last, view.freeSlots) });
       },
       clearPlan() {
         set({ plan: fitPlan([], get().plan.length) });

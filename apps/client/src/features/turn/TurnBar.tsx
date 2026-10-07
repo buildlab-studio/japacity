@@ -35,7 +35,7 @@ export function TurnBar() {
         <Button
           small
           onClick={sameAgain}
-          disabled={view.lastSlots.length === 0 || busy || view.ended}
+          disabled={(view.lastSlots.length === 0 && view.report === null) || busy || view.ended}
           aria-label={say("ui.month.same-again")}
         >
           <Repeat size={16} />
