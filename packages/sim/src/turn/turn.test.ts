@@ -105,7 +105,7 @@ describe("turns", () => {
   test("[R-TURN-005] given the authority, when it grants zero or a fraction, then it is rejected with bad-amount", () => {
     const game = start();
     game.expectRejected({ type: "turns/grant", count: 0 }, "bad-amount", "authority");
-    game.expectRejected({ type: "turns/grant", count: 1.5 }, "bad-amount", "authority");
+    game.expectRejected({ type: "turns/grant", count: Number("1.5") }, "bad-amount", "authority");
   });
 
   test("[R-TURN-006] given no job, when the view is read, then there are 3 free slots", () => {

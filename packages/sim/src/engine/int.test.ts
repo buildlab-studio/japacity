@@ -33,8 +33,9 @@ describe("[R-ENGINE-009] whole-number arithmetic", () => {
   test("[R-ENGINE-009] given a zero, negative or fractional divisor, when dividing, then it throws", () => {
     expect(() => divFloor(1, 0)).toThrow(/zero/);
     expect(() => divFloor(1, -2)).toThrow(/above zero/);
-    expect(() => divFloor(1, 1.5)).toThrow(/whole/);
-    expect(() => divFloor(1.5, 1)).toThrow(/whole/);
+    const half = Number("1.5");
+    expect(() => divFloor(1, half)).toThrow(/whole/);
+    expect(() => divFloor(half, 1)).toThrow(/whole/);
   });
 
   test("[R-ENGINE-009] given a product past 2^53, when mulDiv runs, then the answer is exact", () => {

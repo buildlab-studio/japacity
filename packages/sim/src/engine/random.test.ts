@@ -73,13 +73,14 @@ describe("[R-ENGINE-005] random streams", () => {
     const random = characterRandom("uniform", {});
     const buckets = new Array<number>(10).fill(0);
     const draws = 20000;
+    const expected = 2000;
     for (let i = 0; i < draws; i += 1) {
       const bucket = random.int("gig", 10);
       buckets[bucket] = (buckets[bucket] ?? 0) + 1;
     }
     for (const count of buckets) {
-      expect(count).toBeGreaterThan(draws / 10 - 300);
-      expect(count).toBeLessThan(draws / 10 + 300);
+      expect(count).toBeGreaterThan(expected - 300);
+      expect(count).toBeLessThan(expected + 300);
     }
   });
 

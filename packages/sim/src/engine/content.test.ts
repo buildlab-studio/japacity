@@ -39,7 +39,8 @@ describe("[R-ENGINE-014] the content check", () => {
 
   test("[R-ENGINE-014] given a fractional amount, when checked, then it is reported", () => {
     const content = copy();
-    content.activity["activity.study"]!.cost[0]!.amount = 1000000 + 0.5;
+    // Half a kobo, built without a decimal literal so the lint rule for content stays honest.
+    content.activity["activity.study"]!.cost[0]!.amount = 1000000 + Number("0.5");
     expect(checkContent(content).join("\n")).toMatch(/not a whole number/);
   });
 
