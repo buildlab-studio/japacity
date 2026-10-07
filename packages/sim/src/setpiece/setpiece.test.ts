@@ -85,7 +85,8 @@ describe("opening the interview", () => {
     const seed = seedWhere((candidate) => northgateOffers(candidate) && drawnQuestions(candidate, ALL, entry.ask).includes("deposit"));
     const game = life({ seed, pockets: { NGN: { bank: 1000000 * UNIT, cash: 40000000 * UNIT }, GBP: { bank: 40000 * UNIT, cash: 0 } } });
     toHeld(game);
-    game.accept({ type: "wallet/move", currency: "NGN", amount: 40000000 * UNIT, to: "bank" });
+    // Upkeep is taken from cash first each month, so what is banked is the cash that is left.
+    game.accept({ type: "wallet/move", currency: "NGN", amount: game.state.wallet.pockets.NGN.cash, to: "bank" });
     expect(unexplainedBp(readOf(game), UK)).toBeGreaterThan(3000);
     game.endTurn([{ activity: "activity.apply-for-visa", param: null }]);
     expect(game.state.setpiece.open?.questions).toEqual(drawnQuestions(seed, ALL, entry.ask));

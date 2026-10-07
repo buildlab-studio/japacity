@@ -465,11 +465,13 @@ describe("resolving the slots", () => {
 
   test("[R-ACTIVITY-003] given a cost that cannot be paid, when the slot resolves, then it fails, nothing is paid and no effect applies", () => {
     const plain = lab("scenario.plain", labContent);
-    const before = plain.game.state.wallet.pockets.NGN;
+    // The month's upkeep is still charged in the due phase, so the pockets are compared with a month in which every slot rests.
+    const rested = lab("scenario.plain", labContent);
+    rested.end([]);
     const result = plain.end([pick("activity.dear"), pick("activity.needs-tech")]);
     expect(own(result, "activity/slot-failed")).toEqual([{ type: "activity/slot-failed", slot: 0, activity: "activity.dear", param: null, why: "cost" }]);
     expect(ledger(result)).toEqual([]);
-    expect(plain.game.state.wallet.pockets.NGN).toEqual(before);
+    expect(plain.game.state.wallet.pockets.NGN).toEqual(rested.game.state.wallet.pockets.NGN);
     expect(plain.game.state.quality["quality.tech"]).toBe(31);
     expect(result.lines).toContainEqual({ key: "line.activity.failed-cost", params: { activity: "activity.dear" }, tone: "bad", attention: false, counts: [] });
   });
