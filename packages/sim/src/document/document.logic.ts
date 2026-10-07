@@ -28,9 +28,6 @@ import type { DocumentEvent } from "./document.events";
 
 const ENGLISH = "quality.english";
 
-/** Bands move in steps of 5: a band times ten, to the nearest half band (R-DOCUMENT-005). */
-export const BAND_STEP = 5;
-
 /** English points the per-hundred figure is counted against. */
 const ENGLISH_PER = 100;
 
@@ -66,13 +63,13 @@ export function inForce(doc: DocumentState | undefined, month: number): doc is D
 
 /**
  * The English band (R-DOCUMENT-005): the base, plus the per-hundred figure for
- * every 100 points of English rounded down, plus the drawn steps of 5, moved
+ * every 100 points of English rounded down, plus the drawn band steps, moved
  * down to a step and kept in range. `steps` is the draw, from -noiseSteps to
  * noiseSteps.
  */
 export function englishBand(english: number, numbers: Tuning["english"], steps: number): number {
-  const raw = numbers.base + mulDiv(numbers.perHundred, english, ENGLISH_PER) + steps * BAND_STEP;
-  return clamp(roundDownTo(raw, BAND_STEP), numbers.min, numbers.max);
+  const raw = numbers.base + mulDiv(numbers.perHundred, english, ENGLISH_PER) + steps * numbers.bandStep;
+  return clamp(roundDownTo(raw, numbers.bandStep), numbers.min, numbers.max);
 }
 
 /** The value a document takes when issued. Draws on `test` for the English band. */

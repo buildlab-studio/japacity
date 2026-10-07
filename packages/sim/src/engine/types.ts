@@ -703,6 +703,8 @@ export interface Tuning {
     hireMaxBp: number;
     /** A gain to a skill is halved, rounding up, once the skill is at or above this. */
     skillSoftAt: number;
+    /** The share of a skill gain kept at or above the soft cap, rounding up (R-QUALITY-005). */
+    skillSoftBp: number;
   };
   wallet: {
     bankChargeBp: number;
@@ -722,9 +724,18 @@ export interface Tuning {
     premiumNoiseBp: number;
     floatPremiumBp: number;
   };
-  english: { base: number; perHundred: number; noiseSteps: number; min: number; max: number };
+  /** `bandStep`: bands move in steps of this, a band times ten (R-DOCUMENT-005). */
+  english: { base: number; perHundred: number; noiseSteps: number; min: number; max: number; bandStep: number };
   route: {
-    refusalBaseBp: number;
+    /** R-ROUTE-007: an offer's chance rises this much for each grade above the school's minimum, up to `offerMaxBp`. */
+    offerPerGradeBp: number;
+    offerMaxBp: number;
+    /** R-ROUTE-016: the grade from which the good-grade figure comes off the chance of refusal. */
+    goodGrade: number;
+    /** R-ROUTE-019: an unexplained share at or above this makes `funds` a refusal reason. */
+    fundsReasonBp: number;
+    /** R-ROUTE-006: months after a school's refusal before it takes a new application. */
+    reapplyMonths: number;
     refusalPerStrictnessBp: number;
     refusalPerUnexplainedBp: number;
     refusalPerRefusalBp: number;
@@ -784,6 +795,8 @@ export interface Tuning {
 
 export interface Content {
   version: string;
+  /** The version of the overlay applied at load, if any (R-ENGINE-017). Set by `applyOverlay` alone. */
+  overlay?: string;
   quality: Record<Id<"quality">, QualityEntry>;
   activity: Record<Id<"activity">, ActivityEntry>;
   document: Record<Id<"document">, DocumentEntry>;
@@ -1269,6 +1282,8 @@ export interface KindModule<Slice, E extends BaseEvent> {
 export interface Save {
   schema: 1 | 2;
   content: string;
+  /** The overlay's version, when the content was loaded with one (R-ENGINE-010). */
+  overlay?: string;
   scenario: Id<"scenario">;
   seed: string;
   worldSeed: string;

@@ -19,7 +19,7 @@ const hintPrep = content.tuning.route.hintPrep;
 const ALL = entry.questions.map((question) => question.id);
 const CLEAN = ALL.filter((id) => id !== "deposit");
 
-const northgateOffers = (seed: string) => draw(seed, "school", 1, 10000) < offerChanceBp(content.school[NORTHGATE]!, 4);
+const northgateOffers = (seed: string) => draw(seed, "school", 1, 10000) < offerChanceBp(content.school[NORTHGATE]!, 4, content.tuning.route);
 
 function life(options: LifeOptions = {}): Game {
   return readyLife(content, { seed: seedWhere(northgateOffers), ...options });

@@ -50,13 +50,6 @@ const SURCHARGE: Id<"var"> = "var.uk-surcharge";
 const FUNDS_CURRENCY: ForeignCurrency = "GBP";
 const CURRENCIES: readonly Currency[] = ["NGN", "GBP", "USD"];
 
-/** R-ROUTE-007: 5% more chance of an offer for each grade above the school's minimum, never more than 95%. */
-export const OFFER_PER_GRADE_BP = 500;
-export const OFFER_MAX_BP = 9500;
-/** R-ROUTE-016: a second upper or better takes some chance of refusal off. */
-export const GOOD_GRADE = 4;
-/** R-ROUTE-019: an unexplained share at or above this puts `funds` first among the reasons. */
-export const FUNDS_REASON_BP = 3000;
 /** R-ROUTE-016 counts the unexplained share in whole percents. */
 const BP_PER_PERCENT = 100;
 /** R-ROUTE-003: how talk of a route reaches a character who has not heard by `hearBy`. */
@@ -147,9 +140,9 @@ export function windowOf(read: ReadCtx, route: Id<"route">): RouteView["window"]
   return value === 1 ? "narrowing" : "open";
 }
 
-/** R-ROUTE-007: the school's base chance plus 5% for each grade above its minimum, capped at 95%. */
-export function offerChanceBp(school: SchoolEntry, grade: number): number {
-  return clamp(school.offerBp + OFFER_PER_GRADE_BP * (grade - school.minGrade), 0, OFFER_MAX_BP);
+/** R-ROUTE-007: the school's base chance plus the figure for each grade above its minimum, capped. */
+export function offerChanceBp(school: SchoolEntry, grade: number, numbers: Tuning["route"]): number {
+  return clamp(school.offerBp + numbers.offerPerGradeBp * (grade - school.minGrade), 0, numbers.offerMaxBp);
 }
 
 /** What one school's course comes to before living money: its tuition less the discount it gave. */
@@ -226,25 +219,26 @@ export interface VisaFile {
 }
 
 /**
- * R-ROUTE-016: base, plus each point of strictness, plus each whole percent of
- * unexplained share, plus each earlier refusal, less each interview point,
- * less the good grade's figure, kept between the floor and the ceiling.
+ * R-ROUTE-016: the route's own base, plus each point of strictness, plus each
+ * whole percent of unexplained share, plus each earlier refusal, less each
+ * interview point, less the good grade's figure, kept between the floor and
+ * the ceiling.
  */
-export function refusalChanceBp(numbers: Tuning["route"], file: VisaFile): number {
+export function refusalChanceBp(numbers: Tuning["route"], baseBp: number, file: VisaFile): number {
   const raw =
-    numbers.refusalBaseBp +
+    baseBp +
     numbers.refusalPerStrictnessBp * file.strictness +
     numbers.refusalPerUnexplainedBp * divFloor(file.unexplainedBp, BP_PER_PERCENT) +
     numbers.refusalPerRefusalBp * file.refusals -
     numbers.refusalPerInterviewPointBp * file.interviewScore -
-    (file.grade >= GOOD_GRADE ? numbers.refusalGoodGradeBp : 0);
+    (file.grade >= numbers.goodGrade ? numbers.refusalGoodGradeBp : 0);
   return clamp(raw, numbers.refusalMinBp, numbers.refusalMaxBp);
 }
 
 /** R-ROUTE-019: most telling first, and `credibility` only when nothing else applies. */
-export function refusalReasons(visa: VisaApplication, earlierRefusals: number): RefusalReason[] {
+export function refusalReasons(visa: VisaApplication, earlierRefusals: number, numbers: Tuning["route"]): RefusalReason[] {
   const reasons: RefusalReason[] = [];
-  if (visa.unexplainedBp >= FUNDS_REASON_BP) reasons.push("funds");
+  if (visa.unexplainedBp >= numbers.fundsReasonBp) reasons.push("funds");
   if ((visa.interviewScore ?? 0) < 0) reasons.push("interview");
   if (earlierRefusals > 0) reasons.push("history");
   return reasons.length > 0 ? reasons : ["credibility"];
@@ -458,7 +452,7 @@ function schoolsAnswer(ctx: Ctx, entry: RouteEntry): BaseEvent[] {
     if (application?.state !== "pending" || application.readyMonth > ctx.state.turn.month) continue;
     const school = schoolOf(ctx.content, id);
     const have = grade(ctx.state);
-    const offer = ctx.random.chance("school", offerChanceBp(school, have));
+    const offer = ctx.random.chance("school", offerChanceBp(school, have, ctx.content.tuning.route));
     let discount = 0;
     if (offer && school.autoDiscount !== null && have >= school.autoDiscount.minGrade) discount += school.autoDiscount.amount;
     if (offer && school.meritDiscount !== null && ctx.random.chance("school", school.meritDiscount.bp)) discount += school.meritDiscount.amount;
@@ -490,7 +484,7 @@ function decide(ctx: Ctx, route: Id<"route">): BaseEvent[] {
   if (held.state !== "applying" || held.visa === null || held.visa.decisionMonth > month) return [];
   const { visa } = held;
   const numbers = ctx.content.tuning.route;
-  const chance = refusalChanceBp(numbers, {
+  const chance = refusalChanceBp(numbers, entryOf(ctx.content, route).refusalBaseBp, {
     strictness: visa.rules.strictness,
     unexplainedBp: visa.unexplainedBp,
     refusals: held.refusals,
@@ -505,7 +499,7 @@ function decide(ctx: Ctx, route: Id<"route">): BaseEvent[] {
     type: "route/refused",
     route,
     month,
-    reasons: refusalReasons(visa, held.refusals),
+    reasons: refusalReasons(visa, held.refusals, numbers),
     depositRefund: owed === 0 ? null : { amount: owed, readyMonth: month + numbers.depositRefundMonths },
   };
   const events = record(ctx, refused);

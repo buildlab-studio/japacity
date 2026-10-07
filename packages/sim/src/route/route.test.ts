@@ -36,6 +36,8 @@ import type { LifeOptions, Watch } from "./route.journey";
 import { FRIEND, fundsRequired, fundsShown, offerChanceBp, refusalChanceBp, refusalReasons, routeKind, unexplainedBp } from "./route.logic";
 
 const numbers = content.tuning.route;
+/** The UK master's own base chance of refusal (R-ROUTE-016). */
+const UK_BASE = content.route[UK]!.refusalBaseBp;
 const school = (id: Id<"school">): SchoolEntry => content.school[id]!;
 const CAS: Id<"document"> = "document.cas";
 const TB: Id<"document"> = "document.tb-certificate";
@@ -49,7 +51,7 @@ const ALWAYS_GRANTED: Partial<typeof numbers> = { refusalMinBp: 0, refusalMaxBp:
 const ALWAYS_REFUSED: Partial<typeof numbers> = { refusalMinBp: 10000, refusalMaxBp: 10000 };
 
 /** The first seed whose first Northgate answer is an offer for a grade of second upper. */
-const OFFERED = seedWhere((seed) => draw(seed, "school", 1, 10000) < offerChanceBp(school(NORTHGATE), 4));
+const OFFERED = seedWhere((seed) => draw(seed, "school", 1, 10000) < offerChanceBp(school(NORTHGATE), 4, numbers));
 
 function readOf(game: Game): ReadCtx {
   return { state: game.state, world: game.world(), content: game.content };
@@ -354,13 +356,13 @@ describe("schools", () => {
 
   test("[R-ROUTE-007] given a school and a grade, when the chance of an offer is worked out, then it is the base plus 5% a grade above the minimum, at most 95%", () => {
     const northgate = school(NORTHGATE);
-    expect(offerChanceBp(northgate, northgate.minGrade)).toBe(northgate.offerBp);
-    expect(offerChanceBp(northgate, northgate.minGrade + 1)).toBe(northgate.offerBp + 500);
-    expect(offerChanceBp(northgate, northgate.minGrade + 2)).toBe(9500);
-    expect(offerChanceBp(northgate, northgate.minGrade + 3)).toBe(9500);
-    expect(offerChanceBp({ ...northgate, offerBp: 9499 }, northgate.minGrade)).toBe(9499);
-    expect(offerChanceBp({ ...northgate, offerBp: 9499 }, northgate.minGrade + 1)).toBe(9500);
-    expect(offerChanceBp(school(KINGSMERE), school(KINGSMERE).minGrade)).toBe(school(KINGSMERE).offerBp);
+    expect(offerChanceBp(northgate, northgate.minGrade, numbers)).toBe(northgate.offerBp);
+    expect(offerChanceBp(northgate, northgate.minGrade + 1, numbers)).toBe(northgate.offerBp + 500);
+    expect(offerChanceBp(northgate, northgate.minGrade + 2, numbers)).toBe(9500);
+    expect(offerChanceBp(northgate, northgate.minGrade + 3, numbers)).toBe(9500);
+    expect(offerChanceBp({ ...northgate, offerBp: 9499 }, northgate.minGrade, numbers)).toBe(9499);
+    expect(offerChanceBp({ ...northgate, offerBp: 9499 }, northgate.minGrade + 1, numbers)).toBe(9500);
+    expect(offerChanceBp(school(KINGSMERE), school(KINGSMERE).minGrade, numbers)).toBe(school(KINGSMERE).offerBp);
   });
 
   test("[R-ROUTE-007] given a school whose wait is two months, when one month passes, then it has not answered; when its month comes, it answers", () => {
@@ -379,7 +381,7 @@ describe("schools", () => {
   });
 
   test("[R-ROUTE-007] given several seeds, when Northgate answers a second upper, then it offers exactly when the school draw falls under its chance, with the automatic discount", () => {
-    const chance = offerChanceBp(school(NORTHGATE), 4);
+    const chance = offerChanceBp(school(NORTHGATE), 4, numbers);
     const outcomes = new Set<boolean>();
     for (let i = 0; i < 40 && outcomes.size < 2; i += 1) {
       const seed = `seed-${String(i)}`;
@@ -393,7 +395,7 @@ describe("schools", () => {
   });
 
   test("[R-ROUTE-007] given a second lower, when Northgate offers, then there is no automatic discount", () => {
-    const seed = seedWhere((candidate) => draw(candidate, "school", 1, 10000) < offerChanceBp(school(NORTHGATE), 3));
+    const seed = seedWhere((candidate) => draw(candidate, "school", 1, 10000) < offerChanceBp(school(NORTHGATE), 3, numbers));
     const game = readyLife(content, { seed, qualities: { [GRADE]: 3 } });
     toOffer(game, NORTHGATE);
     expect(uk(game).schools[NORTHGATE]?.discount).toBe(0);
@@ -401,7 +403,7 @@ describe("schools", () => {
 
   test("[R-ROUTE-007] given Ashby's merit discount, when it offers, then the discount is given exactly when its own draw succeeds", () => {
     const ashby = school(ASHBY);
-    const offers = (seed: string) => draw(seed, "school", 1, 10000) < offerChanceBp(ashby, 4);
+    const offers = (seed: string) => draw(seed, "school", 1, 10000) < offerChanceBp(ashby, 4, numbers);
     const merit = seedWhere((seed) => offers(seed) && draw(seed, "school", 2, 10000) < ashby.meritDiscount!.bp);
     const plain = seedWhere((seed) => offers(seed) && draw(seed, "school", 2, 10000) >= ashby.meritDiscount!.bp);
     const won = readyLife(content, { seed: merit });
@@ -500,7 +502,7 @@ describe("funds", () => {
 
   test("[R-ROUTE-009] given an offer from a dearer school only, when the funds required are worked out, then they follow that school and not the cheaper one with no offer", () => {
     const ashby = school(ASHBY);
-    const seed = seedWhere((candidate) => draw(candidate, "school", 0, 2) === 0 && draw(candidate, "school", 1, 10000) < offerChanceBp(ashby, 4));
+    const seed = seedWhere((candidate) => draw(candidate, "school", 0, 2) === 0 && draw(candidate, "school", 1, 10000) < offerChanceBp(ashby, 4, numbers));
     const game = readyLife(content, { seed });
     toOffer(game, ASHBY);
     const discount = uk(game).schools[ASHBY]!.discount;
@@ -640,10 +642,10 @@ describe("the visa application", () => {
 
   test("[R-ROUTE-014] given strictness that rises after the application, when the decision is made, then it uses the strictness of the day it was sent", () => {
     const chanceAt = (strictness: number, interview: number) =>
-      refusalChanceBp(numbers, { strictness, unexplainedBp: 0, refusals: 0, interviewScore: interview, grade: 4 });
+      refusalChanceBp(numbers, UK_BASE, { strictness, unexplainedBp: 0, refusals: 0, interviewScore: interview, grade: 4 });
     const scoreOf = (seed: string) => drawnQuestions(seed, CLEAN_POOL, 3).reduce((sum, question) => sum + firstScore(question, 0, 0), 0);
     const seed = seedWhere((candidate) => {
-      if (draw(candidate, "school", 1, 10000) >= offerChanceBp(school(NORTHGATE), 4)) return false;
+      if (draw(candidate, "school", 1, 10000) >= offerChanceBp(school(NORTHGATE), 4, numbers)) return false;
       const decision = draw(candidate, "visa", 3, 10000);
       return decision >= chanceAt(50, scoreOf(candidate)) && decision < chanceAt(100, scoreOf(candidate));
     });
@@ -672,25 +674,25 @@ describe("the visa application", () => {
 describe("decision day", () => {
   test("[R-ROUTE-016] given a file, when the chance of refusal is worked out, then each figure moves it by the page's amount and it stays between the floor and the ceiling", () => {
     const clean = { strictness: 50, unexplainedBp: 0, refusals: 0, interviewScore: 0, grade: 4 };
-    expect(refusalChanceBp(numbers, clean)).toBe(900 + 500 - 200);
-    expect(refusalChanceBp(numbers, { ...clean, grade: 3 })).toBe(900 + 500);
-    expect(refusalChanceBp(numbers, { ...clean, strictness: 51 })).toBe(900 + 510 - 200);
-    expect(refusalChanceBp(numbers, { ...clean, unexplainedBp: 99 })).toBe(1200);
-    expect(refusalChanceBp(numbers, { ...clean, unexplainedBp: 100 })).toBe(1240);
-    expect(refusalChanceBp(numbers, { ...clean, unexplainedBp: 2999 })).toBe(1200 + 29 * 40);
-    expect(refusalChanceBp(numbers, { ...clean, refusals: 1 })).toBe(2000);
-    expect(refusalChanceBp(numbers, { ...clean, interviewScore: 2 })).toBe(900);
-    expect(refusalChanceBp(numbers, { ...clean, interviewScore: -2 })).toBe(1500);
+    expect(refusalChanceBp(numbers, UK_BASE, clean)).toBe(900 + 500 - 200);
+    expect(refusalChanceBp(numbers, UK_BASE, { ...clean, grade: 3 })).toBe(900 + 500);
+    expect(refusalChanceBp(numbers, UK_BASE, { ...clean, strictness: 51 })).toBe(900 + 510 - 200);
+    expect(refusalChanceBp(numbers, UK_BASE, { ...clean, unexplainedBp: 99 })).toBe(1200);
+    expect(refusalChanceBp(numbers, UK_BASE, { ...clean, unexplainedBp: 100 })).toBe(1240);
+    expect(refusalChanceBp(numbers, UK_BASE, { ...clean, unexplainedBp: 2999 })).toBe(1200 + 29 * 40);
+    expect(refusalChanceBp(numbers, UK_BASE, { ...clean, refusals: 1 })).toBe(2000);
+    expect(refusalChanceBp(numbers, UK_BASE, { ...clean, interviewScore: 2 })).toBe(900);
+    expect(refusalChanceBp(numbers, UK_BASE, { ...clean, interviewScore: -2 })).toBe(1500);
     // The floor: 900 + 10 * 5 - 150 * 3 - 200 is exactly 300.
-    expect(refusalChanceBp(numbers, { ...clean, strictness: 5, interviewScore: 3 })).toBe(300);
-    expect(refusalChanceBp(numbers, { ...clean, strictness: 4, interviewScore: 3 })).toBe(numbers.refusalMinBp);
-    expect(refusalChanceBp(numbers, { ...clean, strictness: 6, interviewScore: 3 })).toBe(310);
-    expect(refusalChanceBp(numbers, { ...clean, strictness: 0, interviewScore: 20 })).toBe(numbers.refusalMinBp);
+    expect(refusalChanceBp(numbers, UK_BASE, { ...clean, strictness: 5, interviewScore: 3 })).toBe(300);
+    expect(refusalChanceBp(numbers, UK_BASE, { ...clean, strictness: 4, interviewScore: 3 })).toBe(numbers.refusalMinBp);
+    expect(refusalChanceBp(numbers, UK_BASE, { ...clean, strictness: 6, interviewScore: 3 })).toBe(310);
+    expect(refusalChanceBp(numbers, UK_BASE, { ...clean, strictness: 0, interviewScore: 20 })).toBe(numbers.refusalMinBp);
     // The ceiling: 900 + 10 * 90 + 800 * 8 - 200 is exactly 8000.
-    expect(refusalChanceBp(numbers, { ...clean, strictness: 90, refusals: 8 })).toBe(8000);
-    expect(refusalChanceBp(numbers, { ...clean, strictness: 91, refusals: 8 })).toBe(numbers.refusalMaxBp);
-    expect(refusalChanceBp(numbers, { ...clean, strictness: 89, refusals: 8 })).toBe(7990);
-    expect(refusalChanceBp(numbers, { ...clean, refusals: 20 })).toBe(numbers.refusalMaxBp);
+    expect(refusalChanceBp(numbers, UK_BASE, { ...clean, strictness: 90, refusals: 8 })).toBe(8000);
+    expect(refusalChanceBp(numbers, UK_BASE, { ...clean, strictness: 91, refusals: 8 })).toBe(numbers.refusalMaxBp);
+    expect(refusalChanceBp(numbers, UK_BASE, { ...clean, strictness: 89, refusals: 8 })).toBe(7990);
+    expect(refusalChanceBp(numbers, UK_BASE, { ...clean, refusals: 20 })).toBe(numbers.refusalMaxBp);
     expect([numbers.refusalMinBp, numbers.refusalMaxBp]).toEqual([300, 8000]);
   });
 
@@ -698,7 +700,7 @@ describe("decision day", () => {
     const outcomes = new Set<string>();
     for (let i = 0; i < 60 && outcomes.size < 2; i += 1) {
       const seed = `seed-${String(i)}`;
-      if (draw(seed, "school", 1, 10000) >= offerChanceBp(school(NORTHGATE), 4)) continue;
+      if (draw(seed, "school", 1, 10000) >= offerChanceBp(school(NORTHGATE), 4, numbers)) continue;
       const game = readyLife(content, { seed });
       toApplied(game);
       answerFirst(game);
@@ -707,7 +709,7 @@ describe("decision day", () => {
       expect(game.state.draws.visa).toBe(3);
       game.endTurn();
       expect(game.state.draws.visa).toBe(4);
-      const chance = refusalChanceBp(numbers, { strictness: 50, unexplainedBp: 0, refusals: 0, interviewScore: score, grade: 4 });
+      const chance = refusalChanceBp(numbers, UK_BASE, { strictness: 50, unexplainedBp: 0, refusals: 0, interviewScore: score, grade: 4 });
       const state = draw(seed, "visa", 3, 10000) < chance ? "known" : "granted";
       outcomes.add(state);
       expect(uk(game).state).toBe(state);
@@ -772,13 +774,13 @@ describe("decision day", () => {
 
   test("[R-ROUTE-019] given the figures of a refused file, when its reasons are listed, then funds, interview and history come first in that order, and credibility only alone", () => {
     const visa = { submittedMonth: 1, decisionMonth: 2, rules: { livingLine: 1, livingMonths: 1, strictness: 1 }, unexplainedBp: 0, interviewScore: 0, surchargePaid: 0 };
-    expect(refusalReasons(visa, 0)).toEqual(["credibility"]);
-    expect(refusalReasons({ ...visa, unexplainedBp: 2999 }, 0)).toEqual(["credibility"]);
-    expect(refusalReasons({ ...visa, unexplainedBp: 3000 }, 0)).toEqual(["funds"]);
-    expect(refusalReasons({ ...visa, interviewScore: -1 }, 0)).toEqual(["interview"]);
-    expect(refusalReasons({ ...visa, interviewScore: null }, 0)).toEqual(["credibility"]);
-    expect(refusalReasons(visa, 1)).toEqual(["history"]);
-    expect(refusalReasons({ ...visa, unexplainedBp: 10000, interviewScore: -3 }, 2)).toEqual(["funds", "interview", "history"]);
+    expect(refusalReasons(visa, 0, numbers)).toEqual(["credibility"]);
+    expect(refusalReasons({ ...visa, unexplainedBp: 2999 }, 0, numbers)).toEqual(["credibility"]);
+    expect(refusalReasons({ ...visa, unexplainedBp: 3000 }, 0, numbers)).toEqual(["funds"]);
+    expect(refusalReasons({ ...visa, interviewScore: -1 }, 0, numbers)).toEqual(["interview"]);
+    expect(refusalReasons({ ...visa, interviewScore: null }, 0, numbers)).toEqual(["credibility"]);
+    expect(refusalReasons(visa, 1, numbers)).toEqual(["history"]);
+    expect(refusalReasons({ ...visa, unexplainedBp: 10000, interviewScore: -3 }, 2, numbers)).toEqual(["funds", "interview", "history"]);
   });
 
   test("[R-ROUTE-019] given a second refusal with a poor interview, when it is recorded, then its reasons name the interview and the earlier refusal", () => {

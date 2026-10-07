@@ -295,6 +295,7 @@ export const miniContent: Content = {
       networkHireBp: 20,
       hireMaxBp: 9500,
       skillSoftAt: 70,
+      skillSoftBp: 5000,
     },
     wallet: {
       bankChargeBp: 150,
@@ -313,9 +314,13 @@ export const miniContent: Content = {
       premiumNoiseBp: 50,
       floatPremiumBp: 300,
     },
-    english: { base: 40, perHundred: 35, noiseSteps: 1, min: 40, max: 90 },
+    english: { base: 40, perHundred: 35, noiseSteps: 1, min: 40, max: 90, bandStep: 5 },
     route: {
-      refusalBaseBp: 900,
+      offerPerGradeBp: 500,
+      offerMaxBp: 9500,
+      goodGrade: 4,
+      fundsReasonBp: 3000,
+      reapplyMonths: 6,
       refusalPerStrictnessBp: 10,
       refusalPerUnexplainedBp: 40,
       refusalPerRefusalBp: 800,

@@ -175,7 +175,7 @@ export function offeredWith(seed: string, content: Content, school: Id<"school">
   const entry = content.school[school];
   if (entry === undefined) throw new Error(`The content has no ${school}.`);
   // The first school draw is the wait, the second the offer.
-  return draw(seed, "school", 1, 10000) < offerChanceBp(entry, grade);
+  return draw(seed, "school", 1, 10000) < offerChanceBp(entry, grade, content.tuning.route);
 }
 
 /** The first of `seed-0`, `seed-1`, ... that passes. Deterministic, so a test may pin its draws. */

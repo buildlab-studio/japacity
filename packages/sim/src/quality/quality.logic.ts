@@ -1,7 +1,7 @@
 // Qualities: docs/rules/quality.md. Every change, from any kind and from the
 // month itself, goes through `change`, so every event has the same shape.
 import type { RegisteredKind } from "../engine/kind";
-import { clamp, divCeil } from "../engine/int";
+import { BP_WHOLE, clamp, mulDivCeil } from "../engine/int";
 import type {
   Ctx,
   Id,
@@ -11,6 +11,7 @@ import type {
   ReportLine,
   Requirement,
   RequirementResult,
+  Tuning,
 } from "../engine/types";
 import type { QualityEvent } from "./quality.events";
 
@@ -22,12 +23,14 @@ export const MONTH_SOURCE = "month";
 
 /**
  * What a change of `amount` really applies to a quality at `current`: a skill
- * gain at or above the soft cap is halved, rounding up (R-QUALITY-005), and
- * then the result stops at either end of the range (R-QUALITY-001). Halving
- * comes first so a halved gain still reaches the top when it can.
+ * gain at or above the soft cap keeps its share of the gain, rounding up
+ * (R-QUALITY-005), and then the result stops at either end of the range
+ * (R-QUALITY-001). The share comes first so a cut gain still reaches the top
+ * when it can.
  */
-export function appliedAmount(entry: QualityEntry, current: number, amount: number, softAt: number): number {
-  const asked = entry.group === "skills" && amount > 0 && current >= softAt ? divCeil(amount, 2) : amount;
+export function appliedAmount(entry: QualityEntry, current: number, amount: number, numbers: Tuning["quality"]): number {
+  const cut = entry.group === "skills" && amount > 0 && current >= numbers.skillSoftAt;
+  const asked = cut ? mulDivCeil(amount, numbers.skillSoftBp, BP_WHOLE) : amount;
   return clamp(current + asked, entry.min, entry.max) - current;
 }
 
@@ -46,7 +49,7 @@ function valueOf(state: ReadCtx["state"], quality: Id<"quality">): number {
 /** The one way a quality changes. A change that applies nothing records nothing (R-QUALITY-002). */
 function change(ctx: Ctx, quality: Id<"quality">, amount: number, source: string): QualityEvent[] {
   const entry = entryOf(ctx.content, quality);
-  const applied = appliedAmount(entry, valueOf(ctx.state, quality), amount, ctx.content.tuning.quality.skillSoftAt);
+  const applied = appliedAmount(entry, valueOf(ctx.state, quality), amount, ctx.content.tuning.quality);
   if (applied === 0) return [];
   return [{ type: "quality/changed", quality, amount: applied, source }];
 }
