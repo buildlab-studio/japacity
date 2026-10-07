@@ -7,6 +7,10 @@ export const documentText: Record<string, string> = {
   "document.english-test.name": "English test result",
   "document.tb-certificate.name": "TB test certificate",
   "document.cas.name": "Confirmation from the university",
+  "document.home-licence.name": "Nigerian driving licence",
+  "document.uk-licence.name": "UK driving licence",
+  "document.nmc-pin.name": "UK nursing registration",
+  "document.medical.name": "Gulf medical certificate",
 
   "line.document.requested": "You apply for your {document}. It should be ready in month {month}.",
   "line.document.already-pending": "Your {document} is already being made. It should be ready in month {month}. This request changes nothing.",

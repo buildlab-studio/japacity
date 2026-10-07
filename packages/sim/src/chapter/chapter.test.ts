@@ -150,9 +150,10 @@ describe("the last chapter", () => {
     expect(game.state.turn.banked).toBe(cap - 1);
   });
 
-  test("[R-CHAPTER-004] given the real chapters, when they are put in order, then the send-off is last and nothing follows it", () => {
+  test("[R-CHAPTER-004] given the real chapters, when they are put in order, then the main journey runs from finding your feet to the send-off and on to landing and secure, and nothing follows the last", () => {
     const ordered = Object.values(content.chapter).sort((a: ChapterEntry, b: ChapterEntry) => a.order - b.order);
-    expect(ordered.map((entry) => entry.id)).toEqual([FEET, FILE, "chapter.decision-day", "chapter.send-off"]);
+    expect(ordered.map((entry) => entry.id)).toEqual([FEET, FILE, "chapter.decision-day", "chapter.send-off", "chapter.landing", "chapter.secure"]);
+    expect(new Set(ordered.map((entry) => entry.order)).size).toBe(ordered.length);
   });
 });
 

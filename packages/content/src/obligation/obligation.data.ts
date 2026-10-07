@@ -1,7 +1,98 @@
-// From docs/rules/obligation.md, "Entries".
-import type { Id, ObligationEntry } from "@japacity/sim";
+// From docs/rules/obligation.md, "Entries", and for life abroad from
+// abroad-money.md, credit.md and car.md.
+import type { Currency, Effect, Id, ObligationEntry } from "@japacity/sim";
 
-import { pct } from "../units";
+import { aed, cad, euros, pct, pounds } from "../units";
+
+// abroad-money.md gives no figures for a missed month of upkeep or rent
+// abroad, so both take what a missed month of upkeep takes at home.
+const MISSED_MONTH: Effect[] = [
+  { type: "quality/add", quality: "quality.standing", amount: -3 },
+  { type: "quality/add", quality: "quality.wellbeing", amount: -5 },
+];
+
+/** Food, transport and the pay-as-you-go phone in one country (R-ABROAD-003). */
+function upkeepAbroad(id: Id<"obligation">, currency: Currency, amount: number): ObligationEntry {
+  return {
+    id,
+    type: "upkeep",
+    where: "abroad",
+    currency,
+    amount,
+    rateBp: 0,
+    term: null,
+    locksPrincipal: false,
+    sink: "upkeep",
+    interestSink: "upkeep",
+    grace: 0,
+    onMiss: MISSED_MONTH,
+    onDefault: [],
+  };
+}
+
+/**
+ * A shared room, no credit needed (R-ABROAD-003). It reports to the file: the
+ * first on-time rent is the first mark that closes chapter 5's `file` item.
+ * a room has nowhere cheaper to evict to, so a default here does nothing
+ * more than R-CREDIT-002's default figure.
+ */
+function rentRoom(id: Id<"obligation">, currency: Currency, amount: number): ObligationEntry {
+  return {
+    id,
+    type: "rent",
+    where: "abroad",
+    currency,
+    reportsToCredit: true,
+    amount,
+    rateBp: 0,
+    term: null,
+    locksPrincipal: false,
+    sink: "rent",
+    interestSink: "rent",
+    // Two misses in a row cost standing and wellbeing; the third is the default.
+    grace: 2,
+    onMiss: MISSED_MONTH,
+    onDefault: [],
+  };
+}
+
+/** A flat in your own name: credit 20 to open, a third miss in a row evicts to a room (R-ABROAD-003). */
+function rentFlat(id: Id<"obligation">, currency: Currency, amount: number, room: Id<"obligation">): ObligationEntry {
+  return {
+    ...rentRoom(id, currency, amount),
+    creditMin: 20,
+    onDefault: [
+      { type: "obligation/close", obligationType: "rent" },
+      { type: "obligation/open", obligation: room },
+    ],
+  };
+}
+
+/**
+ * A phone contract: credit 10 to open, the cheapest way to build the file (R-ABROAD-004).
+ * the page's 24 months has no field on a fixed charge; the contract rolls
+ * on monthly after it, as UK contracts do. a default cuts the line, the
+ * page giving nothing for a miss beyond the credit file.
+ */
+function phone(id: Id<"obligation">, currency: Currency, amount: number): ObligationEntry {
+  return {
+    id,
+    type: "phone",
+    where: "abroad",
+    currency,
+    creditMin: 10,
+    reportsToCredit: true,
+    amount,
+    rateBp: 0,
+    term: null,
+    locksPrincipal: false,
+    sink: "phone",
+    interestSink: "phone",
+    grace: 2,
+    onMiss: [],
+    onDefault: [{ type: "obligation/close", obligationType: "phone" }],
+  };
+}
 
 export const obligationTable: Record<Id<"obligation">, ObligationEntry> = {
   "obligation.upkeep": {
@@ -98,6 +189,105 @@ export const obligationTable: Record<Id<"obligation">, ObligationEntry> = {
     interestSink: "held-funds-interest",
     grace: 0,
     onMiss: [{ type: "quality/add", quality: "quality.standing", amount: -5 }],
+    onDefault: [],
+  },
+
+  // Abroad: abroad-money.md "Entries".
+
+  "obligation.upkeep-uk": upkeepAbroad("obligation.upkeep-uk", "GBP", pounds(350)),
+  "obligation.upkeep-ca": upkeepAbroad("obligation.upkeep-ca", "CAD", cad(600)),
+  "obligation.upkeep-uae": upkeepAbroad("obligation.upkeep-uae", "AED", aed(450)),
+  "obligation.upkeep-it": upkeepAbroad("obligation.upkeep-it", "EUR", euros(250)),
+
+  // SpareRoom's £668 for a room outside London, rounded as the page does.
+  "obligation.rent-room-uk": rentRoom("obligation.rent-room-uk", "GBP", pounds(670)),
+  "obligation.rent-room-ca": rentRoom("obligation.rent-room-ca", "CAD", cad(900)),
+  // No rent while the Gulf employer houses you; this is for anyone else in the UAE.
+  "obligation.rent-room-uae": rentRoom("obligation.rent-room-uae", "AED", aed(1200)),
+  "obligation.rent-room-it": rentRoom("obligation.rent-room-it", "EUR", euros(350)),
+
+  "obligation.rent-flat-uk": rentFlat("obligation.rent-flat-uk", "GBP", pounds(950), "obligation.rent-room-uk"),
+  "obligation.rent-flat-ca": rentFlat("obligation.rent-flat-ca", "CAD", cad(1700), "obligation.rent-room-ca"),
+
+  "obligation.phone-uk": phone("obligation.phone-uk", "GBP", pounds(25)),
+  "obligation.phone-ca": phone("obligation.phone-ca", "CAD", cad(45)),
+
+  // R-ABROAD-005: the tuition less the deposit and discount is the principal, opened on
+  // arrival, paid in three parts in months 1, 4 and 7 of the course.
+  "obligation.tuition": {
+    id: "obligation.tuition",
+    type: "tuition",
+    where: "abroad",
+    currency: "GBP",
+    everyMonths: 3,
+    amount: 0,
+    rateBp: 0,
+    term: 3,
+    locksPrincipal: false,
+    sink: "fee-school",
+    interestSink: "fee-school",
+    grace: 1,
+    onMiss: [],
+    // The student is withdrawn: the status lapses at once (R-STATUS-011).
+    onDefault: [{ type: "status/lose" }],
+  },
+
+  // car.md "Entries": £9,500, 10% down, 36 months, 30% at the end.
+  "obligation.car": {
+    id: "obligation.car",
+    type: "car",
+    where: "abroad",
+    currency: "GBP",
+    creditMin: 30,
+    reportsToCredit: true,
+    // A month: 0.5% at 70 and up (6% a year), 0.9% from 50, 1.2% from 30 (about 15%). Under 30, none.
+    rateByCredit: [
+      { min: 70, rateBp: 50 },
+      { min: 50, rateBp: 90 },
+      { min: 30, rateBp: 120 },
+    ],
+    car: {
+      price: pounds(9500),
+      depositBp: pct(10),
+      finalBp: pct(30),
+      resaleBp: pct(55),
+      // A third, in basis points.
+      courtThirdBp: 3333,
+      handBackBp: pct(50),
+      courtMonths: 3,
+    },
+    amount: 0,
+    // the ladder sets the rate when the car is bought (R-CREDIT-005); the
+    // entry's own rate is the bottom rung, the one a file at exactly 30 gets.
+    rateBp: 120,
+    term: 36,
+    locksPrincipal: false,
+    sink: "car-payment",
+    interestSink: "loan-interest",
+    // Two misses bring the notice; the third is when the car is taken (R-CAR-003).
+    grace: 2,
+    // The cost of a miss is the credit file (R-CREDIT-002) and the notice line.
+    onMiss: [],
+    onDefault: [],
+  },
+
+  // What is owed after a repossession: 12 months at 0%, opened with a judgment (R-CAR-003).
+  // it follows you home (R-RETURN-006), so it applies anywhere; it reports to
+  // the file and has the salary loan's grace of 1, the page giving neither.
+  "obligation.car-shortfall": {
+    id: "obligation.car-shortfall",
+    type: "loan",
+    where: "any",
+    currency: "GBP",
+    reportsToCredit: true,
+    amount: 0,
+    rateBp: 0,
+    term: 12,
+    locksPrincipal: false,
+    sink: "loan-repay",
+    interestSink: "loan-interest",
+    grace: 1,
+    onMiss: [],
     onDefault: [],
   },
 };

@@ -18,4 +18,11 @@ export const qualityTable:Record<Id<"quality">, QualityEntry> = {
   "quality.standing": { id: "quality.standing", group: "self", min: 0, max: 100, shown: true, counts: [] },
   "quality.wellbeing": { id: "quality.wellbeing", group: "self", min: 0, max: 100, shown: true, counts: [] },
   "quality.credit-mark": { id: "quality.credit-mark", group: "self", min: 0, max: 3, shown: true, counts: [] },
+
+  // route-gates.md "New qualities": nursing and care skill. A nurse starts at 60, a care assistant at 30.
+  // `counts` stays empty until route.uk-care and route.canada-points are in
+  // content (the home-side content adds them); the page's two routes join it then.
+  "quality.care": { id: "quality.care", group: "skills", min: 0, max: 100, shown: true, counts: [] },
+  // car.md: 1 for the lives that can drive. Hidden.
+  "quality.driving": { id: "quality.driving", group: "self", min: 0, max: 1, shown: false, counts: [] },
 };

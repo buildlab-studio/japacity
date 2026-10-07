@@ -40,4 +40,19 @@ export const chapterText: Record<string, string> = {
   // first, and the next chapter's opening words with the second.
   "line.chapter.closed": "Chapter done. Your turns are full again.",
   "line.chapter.opened": "A new chapter begins.",
+  "chapter.landing.name": "Landing",
+  "chapter.landing.title": "Landing",
+  "chapter.landing.open": "Cold. A room with a lock. A number that is not yours yet.",
+  "chapter.landing.close": "You have a key, a payslip and a name on a bill. Nobody here knows your father.",
+  "chapter.landing.item.room": "Get a roof over your head",
+  "chapter.landing.item.job": "Work one month in a job here",
+  "chapter.landing.item.status": "Know what your visa lets you do",
+  "chapter.landing.item.request": "Answer the first request from home",
+  "chapter.landing.item.file": "Get a first mark on your credit file",
+
+  "chapter.secure.name": "Secure",
+  "chapter.secure.title": "Secure",
+  "chapter.secure.open": "The clocks are long now. Keep the rules, keep the job, keep sending.",
+  "chapter.secure.close": "Whatever this is, it is yours to keep. The door is open both ways.",
+  "chapter.secure.item.secure": "Settle where you are, come home on your own terms, or win a second visa",
 };

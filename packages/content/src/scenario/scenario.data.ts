@@ -24,6 +24,8 @@ export const scenarioTable: Record<Id<"scenario">, ScenarioEntry> = {
       "quality.standing": 60,
       "quality.wellbeing": 70,
       "quality.credit-mark": 0,
+      "quality.care": 0,
+      "quality.driving": 0,
     },
     job: null,
     tenure: {},
@@ -49,6 +51,9 @@ export const scenarioTable: Record<Id<"scenario">, ScenarioEntry> = {
       "quality.standing": 70,
       "quality.wellbeing": 55,
       "quality.credit-mark": 0,
+      "quality.care": 0,
+      // car.md: Tunde can drive.
+      "quality.driving": 1,
     },
     job: "activity.job-bank-officer",
     tenure: { "activity.job-bank-officer": 48 },
@@ -74,6 +79,8 @@ export const scenarioTable: Record<Id<"scenario">, ScenarioEntry> = {
       "quality.standing": 50,
       "quality.wellbeing": 60,
       "quality.credit-mark": 0,
+      "quality.care": 0,
+      "quality.driving": 0,
     },
     job: "activity.job-junior-dev",
     tenure: { "activity.job-junior-dev": 18 },
@@ -84,4 +91,49 @@ export const scenarioTable: Record<Id<"scenario">, ScenarioEntry> = {
       { obligation: "obligation.home-support", amount: naira(60000) },
     ],
   },
+};
+
+/**
+ * Ngozi, from route-gates.md's last table: a staff nurse 30 months in, the life
+ * the care route is built for.
+ *
+ * she is not yet in the scenario table. packages/sim/src/scenario/real-lives.test.ts
+ * expects exactly three lives, and document.nursing-licence is entered with the route
+ * gates. She joins the table when both change; until then the content tests check her here.
+ */
+export const ngoziScenario: ScenarioEntry = {
+  id: "scenario.ngozi",
+  qualities: {
+    // 27 years.
+    "quality.age-months": 324,
+    "quality.edu-level": 3,
+    // Second upper.
+    "quality.edu-grade": 4,
+    "quality.english": 58,
+    // the page gives no tech, prep, portfolio or land; each starts at 0.
+    "quality.tech": 0,
+    "quality.interview-prep": 0,
+    "quality.portfolio": 0,
+    "quality.land": 0,
+    "quality.network": 25,
+    "quality.family-means": 30,
+    "quality.family-stake": 0,
+    "quality.standing": 65,
+    "quality.wellbeing": 50,
+    "quality.credit-mark": 0,
+    "quality.care": 60,
+    // car.md: Ngozi can drive.
+    "quality.driving": 1,
+  },
+  job: "activity.job-nurse",
+  tenure: { "activity.job-nurse": 30 },
+  pockets: { NGN: { bank: naira(650000), cash: naira(30000) } },
+  documents: [
+    { document: "document.passport", monthsLeft: 40, value: null },
+    { document: "document.nursing-licence", monthsLeft: 30, value: null },
+  ],
+  obligations: [
+    { obligation: "obligation.upkeep", amount: naira(120000) },
+    { obligation: "obligation.home-support", amount: naira(40000) },
+  ],
 };

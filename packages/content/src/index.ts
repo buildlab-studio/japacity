@@ -1,17 +1,22 @@
 // The whole content of the first milestone, and every word it uses.
 import type { Content } from "@japacity/sim";
 
+import { activityAbroadText } from "./activity/activity.abroad.text";
 import { activityTable } from "./activity/activity.data";
 import { activityText } from "./activity/activity.text";
 import { chapterTable } from "./chapter/chapter.data";
 import { chapterText } from "./chapter/chapter.text";
 import { countryTable } from "./country/country.data";
+import { countryText } from "./country/country.text";
 import { documentTable } from "./document/document.data";
 import { documentText } from "./document/document.text";
+import { goalTable } from "./goal/goal.data";
+import { goalText } from "./goal/goal.text";
 import { newsTable } from "./news/news.data";
 import { newsText } from "./news/news.text";
 import { obligationTable } from "./obligation/obligation.data";
 import { obligationText } from "./obligation/obligation.text";
+import { offerAbroadText } from "./offer/offer.abroad.text";
 import { offerTable } from "./offer/offer.data";
 import { offerText } from "./offer/offer.text";
 import { qualityTable } from "./quality/quality.data";
@@ -27,6 +32,7 @@ import { setpieceTable } from "./setpiece/setpiece.data";
 import { setpieceText } from "./setpiece/setpiece.text";
 import { statusTable } from "./status/status.data";
 import { turnText } from "./turn/turn.text";
+import { statusText } from "./status/status.text";
 import { tuning } from "./tuning/tuning.data";
 import { varTable } from "./var/var.data";
 import { varText } from "./var/var.text";
@@ -48,8 +54,8 @@ export const content: Content = {
   scenario: scenarioTable,
   country: countryTable,
   status: statusTable,
-  // Filled by the whole-life content work from docs/rules/goal.md, director.md, route-gates.md and prologue.md.
-  goal: {},
+  goal: goalTable,
+  // Filled by the whole-life content work from director.md, route-gates.md and prologue.md.
   era: {},
   points: {},
   prologue: {},
@@ -59,11 +65,15 @@ export const content: Content = {
 /** Every words file, by the name it is merged under. */
 export const textTables: Record<string, Record<string, string>> = {
   activity: activityText,
+  activityAbroad: activityAbroadText,
   chapter: chapterText,
+  country: countryText,
   document: documentText,
+  goal: goalText,
   news: newsText,
   obligation: obligationText,
   offer: offerText,
+  offerAbroad: offerAbroadText,
   quality: qualityText,
   reject: rejectText,
   route: routeText,
@@ -71,6 +81,7 @@ export const textTables: Record<string, Record<string, string>> = {
   school: schoolText,
   setpiece: setpieceText,
   turn: turnText,
+  status: statusText,
   var: varText,
   wallet: walletText,
 };

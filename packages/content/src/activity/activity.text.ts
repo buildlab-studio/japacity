@@ -14,6 +14,8 @@ export const activityText: Record<string, string> = {
   "activity.job-mid-dev.blurb": "You build features on your own and review other people's code.",
   "activity.job-remote-dev.name": "Remote developer, foreign company",
   "activity.job-remote-dev.blurb": "You work for a company abroad and they pay you in dollars.",
+  "activity.job-nurse.name": "Staff nurse",
+  "activity.job-nurse.blurb": "You run a ward at a general hospital. Night shifts, short staff, and a salary that is always late.",
 
   "activity.rest.name": "Rest",
   "activity.rest.blurb": "You sleep, eat well and let the month pass.",

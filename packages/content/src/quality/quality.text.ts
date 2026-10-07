@@ -14,6 +14,8 @@ export const qualityText: Record<string, string> = {
   "quality.standing.name": "Standing",
   "quality.wellbeing.name": "Wellbeing",
   "quality.credit-mark.name": "Credit mark",
+  "quality.care.name": "Care skill",
+  "quality.driving.name": "Can drive",
 
   "quality.edu-level.value.0": "No schooling",
   "quality.edu-level.value.1": "Secondary school",
@@ -28,6 +30,9 @@ export const qualityText: Record<string, string> = {
   "quality.edu-grade.value.3": "Second class lower",
   "quality.edu-grade.value.4": "Second class upper",
   "quality.edu-grade.value.5": "First class",
+
+  "quality.driving.value.0": "Does not drive",
+  "quality.driving.value.1": "Drives",
 
   // Report lines. {quality} is an id: the interface shows its name.
   "line.quality.gain": "{quality} up {amount}, to {value}.",

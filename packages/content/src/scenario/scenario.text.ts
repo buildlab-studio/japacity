@@ -9,4 +9,7 @@ export const scenarioText: Record<string, string> = {
   "scenario.zainab.name": "Zainab Bello",
   "scenario.zainab.blurb":
     "A developer on the rise, from a family with nothing spare, who sends money home every month.",
+  "scenario.ngozi.name": "Ngozi Eze",
+  "scenario.ngozi.blurb":
+    "A staff nurse thirty months in, with a licence, a second upper and a ward that cannot keep its nurses.",
 };

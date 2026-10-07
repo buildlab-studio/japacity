@@ -1,24 +1,77 @@
-// From docs/rules/place.md "Entries: countries" and abroad-money.md "Entries". Only
-// what the UK master's route needs is here; the whole-life content work adds the rest.
+// From docs/rules/place.md "Entries: countries", abroad-money.md "Entries" and
+// status.md "Entries". Fares are one way, off peak, in the country's smallest unit.
 import type { CountryEntry, Id } from "@japacity/sim";
 
-import { pounds } from "../units";
+import { aed, cad, euros, pounds } from "../units";
 
 export const countryTable: Record<Id<"country">, CountryEntry> = {
   "country.uk": {
     id: "country.uk",
     currency: "GBP",
-    // One way, off peak (place.md). December factor 2.5.
     fare: pounds(620),
+    // 2.5, in basis points.
     decemberFactorBp: 25000,
     // 2026/27: personal allowance, basic rate plus employee national insurance.
     taxFreeLine: pounds(12570),
     taxBp: 2800,
-    upkeep: null,
-    rentRoom: null,
+    upkeep: "obligation.upkeep-uk",
+    rentRoom: "obligation.rent-room-uk",
+    rentFlat: "obligation.rent-flat-uk",
+    phone: "obligation.phone-uk",
+    overstayer: "status.uk-overstayer",
+    deceptionBanMonths: 120,
+  },
+  "country.canada": {
+    id: "country.canada",
+    currency: "CAD",
+    fare: cad(1350),
+    // 2.2
+    decemberFactorBp: 22000,
+    // A flat working band: 25% above C$16,000.
+    taxFreeLine: cad(16000),
+    taxBp: 2500,
+    upkeep: "obligation.upkeep-ca",
+    rentRoom: "obligation.rent-room-ca",
+    rentFlat: "obligation.rent-flat-ca",
+    phone: "obligation.phone-ca",
+    overstayer: "status.ca-overstayer",
+    // no Canadian gate refuses for deception (R-GATE-005 names the sponsor
+    // and contract gates only), so the page gives no ban and there is none.
+    deceptionBanMonths: 0,
+  },
+  "country.uae": {
+    id: "country.uae",
+    currency: "AED",
+    fare: aed(1900),
+    // 1.8
+    decemberFactorBp: 18000,
+    // No income tax.
+    taxFreeLine: 0,
+    taxBp: 0,
+    upkeep: "obligation.upkeep-uae",
+    rentRoom: "obligation.rent-room-uae",
     rentFlat: null,
     phone: null,
-    overstayer: null,
-    deceptionBanMonths: 120,
+    overstayer: "status.uae-irregular",
+    // R-CONTRACT-003: R-GATE-005 does not apply to a fraud agent; nothing was forged in your name.
+    deceptionBanMonths: 0,
+  },
+  "country.italy": {
+    id: "country.italy",
+    currency: "EUR",
+    fare: euros(480),
+    // 2.0
+    decemberFactorBp: 20000,
+    // cash work only in this milestone, and cash work is untaxed (R-LADDER-003),
+    // so the page gives Italy no tax line and none is entered.
+    taxFreeLine: 0,
+    taxBp: 0,
+    upkeep: "obligation.upkeep-it",
+    rentRoom: "obligation.rent-room-it",
+    rentFlat: null,
+    phone: null,
+    overstayer: "status.eu-irregular",
+    // The road has no fraud refusal of its own.
+    deceptionBanMonths: 0,
   },
 };
