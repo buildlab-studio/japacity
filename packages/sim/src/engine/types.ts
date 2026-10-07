@@ -104,6 +104,11 @@ export interface Money {
   amount: Amount;
 }
 
+/** A price with the ledger reason it is paid under. */
+export interface Cost extends Money {
+  reason: Reason;
+}
+
 export type Requirement =
   | { type: "quality/min"; quality: Id<"quality">; value: number }
   | { type: "quality/max"; quality: Id<"quality">; value: number }
@@ -129,6 +134,8 @@ export type Requirement =
   | { type: "route/unexplained-max"; route: Id<"route">; bp: number }
   /** Without a pocket: bank and cash together. Locked money never counts. */
   | { type: "money/min"; currency: Currency; amount: Amount; pocket?: Pocket }
+  /** The amount could be paid now: naira from cash and bank, a foreign fee by R-WALLET-009. */
+  | { type: "money/can-pay"; currency: Currency; amount: Amount }
   | { type: "var/min"; var: Id<"var">; value: number }
   | { type: "var/max"; var: Id<"var">; value: number }
   | { type: "month/min"; value: number }
@@ -175,7 +182,9 @@ export type Effect =
   // offer: opens nothing when the offer's own `when` does not hold
   | { type: "offer/open"; offer: Id<"offer"> }
   // turn
-  | { type: "turn/refill" };
+  | { type: "turn/refill" }
+  /** The life at home is over: the character has left. */
+  | { type: "turn/finish" };
 
 export type EffectType = Effect["type"];
 
@@ -213,7 +222,7 @@ export interface ActivityEntry {
   /** What the player picks along with a free-slot activity. */
   param: "job" | "route" | "school" | null;
   /** Taken when the activity resolves. If it cannot be paid the activity fails and nothing else happens. */
-  cost: Money[];
+  cost: Cost[];
   /** Jobs only: monthly pay, to the bank. */
   pay: Money | null;
   /** Jobs only: the chance one month of hunting lands it, before the network bonus. */
@@ -512,6 +521,8 @@ export interface TurnReport {
 export interface TurnSlice {
   month: number;
   banked: number;
+  /** True once the character has left. Only `turns/grant` is accepted after that. */
+  ended: boolean;
   report: TurnReport | null;
 }
 
@@ -679,8 +690,6 @@ export interface State {
   nextInstance: number;
   /** Hidden. How many draws each stream has made. */
   draws: Partial<Record<Stream, number>>;
-  /** True once the character has left. Only `turns/grant` is accepted after that. */
-  ended: boolean;
   turn: TurnSlice;
   quality: QualitySlice;
   activity: ActivitySlice;
@@ -731,9 +740,13 @@ export interface Rejection {
   detail: string;
 }
 
-/** Every event has a type of the form kind/what-happened. Each kind defines its own in <kind>.events.ts. */
+/**
+ * Every event has a type of the form kind/what-happened. Each kind defines its
+ * own in <kind>.events.ts. The engine has one of its own, `engine/stepped`,
+ * which carries the four counters it keeps: v, tick, draws and nextInstance.
+ */
 export interface BaseEvent {
-  type: `${KindName}/${string}`;
+  type: `${KindName | "engine"}/${string}`;
 }
 
 export interface Accepted<E extends BaseEvent = BaseEvent> {
