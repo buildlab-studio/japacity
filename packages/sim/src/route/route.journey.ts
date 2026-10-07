@@ -1,0 +1,191 @@
+// Test support for the route and set piece rule tests: a life with its papers
+// in hand, and the steps from hearing of the UK route to the visa decision,
+// each played through `step`. Nothing in the simulation imports this file.
+import type { Registry } from "../engine/kind";
+import { drawAt, scaleDraw } from "../engine/random";
+import { stepWith } from "../engine/step";
+import type { Content, Effect, Id, RouteState, ScenarioEntry, SlotPick, Stream, Terms, Tuning } from "../engine/types";
+import { registry } from "../kinds";
+import type { Game } from "../testing/play";
+import { start } from "../testing/play";
+import { standInWorld } from "../world/standIn";
+
+export const UK: Id<"route"> = "route.uk-masters";
+export const NORTHGATE: Id<"school"> = "school.northgate";
+export const ASHBY: Id<"school"> = "school.ashby";
+export const KINGSMERE: Id<"school"> = "school.kingsmere";
+export const READY: Id<"scenario"> = "scenario.ready";
+
+/** Smallest units in one naira or one pound. */
+export const UNIT = 100;
+
+export interface LifeOptions {
+  /** Qualities over the ready life's. */
+  qualities?: Partial<Record<Id<"quality">, number>>;
+  pockets?: ScenarioEntry["pockets"];
+  documents?: ScenarioEntry["documents"];
+  seed?: string;
+  /** Route numbers over the content's. */
+  tuning?: Partial<Tuning["route"]>;
+  /** World variables over the stand-in's, tick by tick. */
+  vars?: (tick: number) => Record<Id<"var">, number>;
+  /** True: no story reaches the character, so nobody hears of a route through the news. */
+  quiet?: boolean;
+  /** Content changed before play, after the ready life is added. */
+  change?: (content: Content) => Content;
+}
+
+/** The ready life's papers: passport, transcript, an English band of 7.0 and a TB certificate, all in date for two years. */
+export const READY_PAPERS: ScenarioEntry["documents"] = [
+  { document: "document.passport", monthsLeft: 60, value: null },
+  { document: "document.transcript", monthsLeft: null, value: null },
+  { document: "document.english-test", monthsLeft: 24, value: 70 },
+  { document: "document.tb-certificate", monthsLeft: 24, value: null },
+];
+
+/**
+ * Ada, with her papers in hand and £40,000 and ₦2,000,000 in the bank, so a
+ * test reaches the visa in a few turns. The content is the one given, with
+ * this life added.
+ */
+export function readyContent(base: Content, options: LifeOptions = {}): Content {
+  const ada = base.scenario["scenario.ada"];
+  if (ada === undefined) throw new Error("The content has no scenario.ada to build the ready life from.");
+  const ready: ScenarioEntry = {
+    ...ada,
+    id: READY,
+    qualities: { ...ada.qualities, ...options.qualities } as ScenarioEntry["qualities"],
+    pockets: options.pockets ?? { NGN: { bank: 2000000 * UNIT, cash: 100000 * UNIT }, GBP: { bank: 40000 * UNIT, cash: 0 } },
+    documents: options.documents ?? READY_PAPERS,
+  };
+  const used: Content = {
+    ...base,
+    scenario: { ...base.scenario, [READY]: ready },
+    tuning: { ...base.tuning, route: { ...base.tuning.route, ...options.tuning } },
+  };
+  return options.change === undefined ? used : options.change(used);
+}
+
+export function readyLife(base: Content, options: LifeOptions = {}): Game {
+  const used = readyContent(base, options);
+  return start({
+    scenario: READY,
+    content: used,
+    seed: options.seed ?? "seed-1",
+    worldAt: (tick) => {
+      const world = standInWorld("world-1", tick, used);
+      return { ...world, vars: { ...world.vars, ...options.vars?.(tick) }, news: options.quiet === true ? [] : world.news };
+    },
+  });
+}
+
+export function slot(activity: Id<"activity">, param: string | null = null): SlotPick {
+  return { activity, param };
+}
+
+export function uk(game: Game): RouteState {
+  const held = game.state.route[UK];
+  if (held === undefined) throw new Error("The state holds no UK route.");
+  return held;
+}
+
+function expectState(game: Game, want: RouteState["state"]): void {
+  if (uk(game).state !== want) throw new Error(`The UK route is ${uk(game).state}, expected ${want}.`);
+}
+
+/** Months pass until the route is heard of (by month 3 at the latest: R-ROUTE-003), then it is looked into. */
+export function toKnown(game: Game): void {
+  for (let month = 0; month < 5 && uk(game).state === "unknown"; month += 1) game.endTurn();
+  expectState(game, "heard");
+  game.endTurn([slot("activity.look-into-route", UK)]);
+  expectState(game, "known");
+}
+
+/** Applies to a school on a known route and plays months until it answers. */
+export function toAnswer(game: Game, school: Id<"school"> = NORTHGATE): void {
+  if (uk(game).state !== "known") toKnown(game);
+  game.endTurn([slot("activity.apply-to-school", school)]);
+  for (let month = 0; month < 5 && uk(game).schools[school]?.state === "pending"; month += 1) game.endTurn();
+}
+
+export function toOffer(game: Game, school: Id<"school"> = NORTHGATE): void {
+  toAnswer(game, school);
+  if (uk(game).schools[school]?.state !== "offer") throw new Error(`${school} gave no offer with this seed.`);
+}
+
+export function toDeposit(game: Game, school: Id<"school"> = NORTHGATE): void {
+  toOffer(game, school);
+  game.accept({ type: "route/pay-deposit", route: UK, school });
+}
+
+/** One month end with the deposit paid: the funds check runs once. */
+export function toHeld(game: Game, school: Id<"school"> = NORTHGATE): void {
+  toDeposit(game, school);
+  game.endTurn();
+  if (uk(game).funds.heldMonths !== 1) throw new Error(`The funds were held ${String(uk(game).funds.heldMonths)} months, expected 1.`);
+}
+
+/** Sends the visa application from a held file. The interview opens. */
+export function toApplied(game: Game, school: Id<"school"> = NORTHGATE): void {
+  toHeld(game, school);
+  game.endTurn([slot("activity.apply-for-visa")]);
+  expectState(game, "applying");
+}
+
+/** Answers every open question with its first answer. */
+export function answerFirst(game: Game): void {
+  for (let guard = 0; guard < 10; guard += 1) {
+    const question = game.view().setpiece?.question;
+    if (question === undefined || question === null) return;
+    const answer = question.answers[0];
+    if (answer === undefined) throw new Error(`${question.id} has no answers.`);
+    game.accept({ type: "setpiece/answer", question: question.id, answer });
+  }
+  throw new Error("The set piece did not close.");
+}
+
+/** From a ready life to the decision month's end, answering first answers. */
+export function toDecision(game: Game, school: Id<"school"> = NORTHGATE): void {
+  toApplied(game, school);
+  answerFirst(game);
+  game.endTurn();
+}
+
+/** The nth draw of a stream for a seed, scaled to a range, as `ctx.random.int` gives it. */
+export function draw(seed: string, stream: Stream, n: number, range: number): number {
+  return scaleDraw(drawAt(seed, stream, n), range);
+}
+
+/** The first of `seed-0`, `seed-1`, ... that passes. Deterministic, so a test may pin its draws. */
+export function seedWhere(ok: (seed: string) => boolean): string {
+  for (let i = 0; i < 20000; i += 1) {
+    const seed = `seed-${String(i)}`;
+    if (ok(seed)) return seed;
+  }
+  throw new Error("No seed passes.");
+}
+
+/** The questions a set piece asks, drawn on `visa` from position `from` out of `pool`, as R-SETPIECE-001 draws them. */
+export function drawnQuestions(seed: string, pool: readonly string[], ask: number, from = 0): string[] {
+  const left = [...pool];
+  const asked: string[] = [];
+  for (let n = from; asked.length < ask && left.length > 0; n += 1) {
+    const [picked] = left.splice(draw(seed, "visa", n, left.length), 1);
+    if (picked !== undefined) asked.push(picked);
+  }
+  return asked;
+}
+
+/** The real registry with `offer/choose` carrying out the given effects. The offer kind has no command handler of its own yet. */
+export function withEffects(effects: Effect[], terms: Terms = {}): Registry {
+  return registry().map((kind) =>
+    kind.kind !== "offer" ? kind : { ...kind, commands: { "offer/choose": (ctx) => ctx.apply(effects, { source: "test", param: null, terms }) } },
+  );
+}
+
+/** Carries out effects on the game's state through the engine's routing, as an offer choice would. */
+export function applyEffects(game: Game, effects: Effect[], terms: Terms = {}): void {
+  const result = stepWith(withEffects(effects, terms), game.state, { type: "offer/choose", offer: "x", choice: "y", basedOn: game.state.v }, game.world(), game.content);
+  if (!result.ok) throw new Error(`The effects were rejected with ${result.code}: ${result.detail}`);
+  game.state = result.state;
+}
