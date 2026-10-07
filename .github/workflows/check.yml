@@ -1,9 +1,14 @@
 name: check
 
+# Runs by hand only while the build pushes many times a day: the organisation is on
+# the free plan and the repository is private, so Actions minutes are counted.
+# At the readiness stage restore:
+#   push:
+#     branches: [main]
+#   pull_request:
+# and enable the workflow again on GitHub (it was disabled there on 8 Oct 2026).
 on:
-  push:
-    branches: [main]
-  pull_request:
+  workflow_dispatch:
 
 permissions:
   contents: read

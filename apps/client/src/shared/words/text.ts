@@ -2,11 +2,12 @@
 // interface's own first drafts. A missing key shows as itself, so a gap in
 // content is visible in play instead of hidden behind a guess.
 import { text } from "@japacity/content";
+import type { ReportParam } from "@japacity/sim";
 
 import { formatBand, formatBp, formatMoney, formatNumber, isCurrency } from "./format";
 import { uiText } from "./ui";
 
-export type Params = Record<string, string | number>;
+export type Params = Record<string, ReportParam>;
 
 const BRACE = /\{([A-Za-z][\w-]*)\}/g;
 
@@ -48,7 +49,8 @@ const MONEY_PARAMS = new Set([
 ]);
 
 /** One raw param from the simulation, as words. */
-export function formatParam(name: string, value: string | number, params: Params): string {
+export function formatParam(name: string, value: ReportParam, params: Params): string {
+  if (typeof value === "object") return formatMoney(value.amount, value.currency);
   if (typeof value === "string") return text[`${value}.name`] ?? value;
   if (name === "band") return formatBand(value);
   if (name === "bp" || name.endsWith("Bp")) return formatBp(value);
@@ -72,6 +74,7 @@ export function say(key: string, params: Params = {}): string {
   return lookup(key).replace(BRACE, (whole, name: string) => {
     const value = params[name];
     if (value === undefined) return whole;
+    if (typeof value === "object") return formatMoney(value.amount, value.currency);
     return typeof value === "number" ? formatNumber(value) : value;
   });
 }

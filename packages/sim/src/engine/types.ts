@@ -836,10 +836,19 @@ export interface SlotPick {
   param: string | null;
 }
 
+/** Money in a line, formatted on screen in its own currency: docs/rules/text.md "Money on screen". */
+export interface MoneyParam {
+  currency: Currency;
+  amount: number;
+}
+
+/** A line's param: an id or word, a plain count, or money. Never a bare number that is money. */
+export type ReportParam = string | number | MoneyParam;
+
 export interface ReportLine {
   /** A text key. Content holds the words. */
   key: string;
-  params: Record<string, string | number>;
+  params: Record<string, ReportParam>;
   tone: "good" | "bad" | "plain";
   /** A staged moment, not a line in a list (docs/rules/text.md, R-LUCK-008). */
   big?: boolean;

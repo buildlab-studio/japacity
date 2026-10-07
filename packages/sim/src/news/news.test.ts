@@ -90,7 +90,7 @@ describe("delivering the news", () => {
     const seen: string[] = [];
     for (let month = 0; month < 40; month += 1) {
       if (game.state.turn.banked === 0) game.grant(1);
-      for (const line of deliveries(game.endTurn().lines)) seen.push(`${String(line.params.story)} ${String(line.params.stage)}`);
+      for (const line of deliveries(game.endTurn().lines)) seen.push(`${JSON.stringify(line.params.story)} ${JSON.stringify(line.params.stage)}`);
     }
     expect(new Set(seen).size).toBe(seen.length);
     const world = standInWorld("world-1", 39, content);
