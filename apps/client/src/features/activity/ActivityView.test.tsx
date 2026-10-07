@@ -1,13 +1,13 @@
 import { content, text } from "@japacity/content";
 import type { ActivityOption, PlayerView } from "@japacity/sim";
-import { fireEvent, screen, waitFor } from "@testing-library/react";
+import { fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
 import { engineView } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { formatMoney } from "../../shared/words/format";
 import { requirementSentence } from "../../shared/words/requirement";
-import { say } from "../../shared/words/text";
+import { lowerFirst, say } from "../../shared/words/text";
 import { ActivityView } from "./ActivityView";
 
 const addButton = (id: string) => screen.getByRole("button", { name: `${say("ui.activity.add")}: ${text[`${id}.name`] ?? id}` });
@@ -76,5 +76,67 @@ describe("the month plan", () => {
     fireEvent.click(screen.getByRole("button", { name: say("ui.job.quit") }));
     fireEvent.click(screen.getByRole("button", { name: say("ui.job.quit-yes") }));
     await waitFor(() => expect(authority.sent).toEqual([{ type: "activity/quit", basedOn: view.v }]));
+  });
+
+  test("given a life at home, then what needs being abroad is folded into one closed group, out of the main list", async () => {
+    const view = engineView();
+    await renderWithView(<ActivityView />, view);
+    const later = document.querySelector("details[data-later]");
+    if (!(later instanceof HTMLDetailsElement)) throw new Error("There is no later group.");
+    expect(later.open).toBe(false);
+    expect(within(later as HTMLElement).getByText(say("ui.activity.later"))).toBeDefined();
+    const abroad = view.activities.filter((option) => content.activity[option.id]?.where === "abroad");
+    expect(abroad.length).toBeGreaterThan(0);
+    for (const option of abroad) expect(later.contains(addButton(option.id))).toBe(true);
+    expect(later.contains(addButton("activity.rest"))).toBe(false);
+  });
+
+  test("given a life abroad, then nothing is folded away", async () => {
+    const base = engineView();
+    await renderWithView(<ActivityView />, { ...base, place: { ...base.place, where: "abroad" } });
+    expect(document.querySelector("details[data-later]")).toBeNull();
+  });
+
+  test("given a university application with no school open, then the card says what each university asks", async () => {
+    const base = engineView();
+    const apply: ActivityOption = { id: "activity.apply-to-school", allowed: true, missing: [], params: [], cost: [], affordable: true };
+    await renderWithView(<ActivityView />, { ...base, activities: [apply] });
+    expect(screen.getByText(say("ui.activity.no-school"))).toBeDefined();
+    for (const school of Object.values(content.school)) expect(screen.getByText(new RegExp(`^${text[`${school.id}.name`]!} asks for band`))).toBeDefined();
+    expect(addButton("activity.apply-to-school").hasAttribute("disabled")).toBe(true);
+  });
+
+  test("given an activity that cannot be paid for, then it says how much is short", async () => {
+    const base = engineView();
+    const cost = { currency: "NGN" as const, amount: base.pockets.NGN.bank + base.pockets.NGN.cash + 8_050_000 };
+    const sitting: ActivityOption = { id: "activity.sit-english-test", allowed: true, missing: [], params: null, cost: [cost], affordable: false };
+    await renderWithView(<ActivityView />, { ...base, activities: [sitting] });
+    expect(screen.getByText(new RegExp(`^Short by ${formatMoney(8_050_000, "NGN")}:`))).toBeDefined();
+  });
+
+  test("given a route already looked into, then looking into it reads as done, not as not yet heard", async () => {
+    const base = engineView();
+    const lookInto: ActivityOption = {
+      id: "activity.look-into-route",
+      allowed: false,
+      missing: [{ type: "route/state", route: "route.uk-masters", in: ["heard"] }],
+      params: null,
+      cost: [],
+      affordable: true,
+    };
+    const routes = base.routes.map((route) => (route.id === "route.uk-masters" ? { ...route, state: "known" as const } : route));
+    await renderWithView(<ActivityView />, { ...base, routes, activities: [lookInto] });
+    expect(screen.getByText(say("ui.req.route-state-past", { route: text["route.uk-masters.name"]!, state: lowerFirst(say("ui.route.state.known")) }))).toBeDefined();
+    expect(screen.queryByText(new RegExp(say("ui.route.state.heard")))).toBeNull();
+  });
+
+  test("given a job held one month, then the card shows its pay and says one month", async () => {
+    const base = engineView("scenario.tunde");
+    const job = base.job.id ?? "activity.rest";
+    await renderWithView(<ActivityView />, { ...base, job: { id: job, months: 1 } });
+    const pay = content.activity[job]?.pay;
+    if (pay === null || pay === undefined || typeof pay.amount !== "number") throw new Error("The job has no pay.");
+    expect(screen.getByText(say("ui.job.pay", { amount: formatMoney(pay.amount, pay.currency) }))).toBeDefined();
+    expect(screen.getByText("1 month in")).toBeDefined();
   });
 });

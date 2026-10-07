@@ -1,16 +1,21 @@
 // The month plan: the job, the free slots, and every free-slot activity as a
 // card. What is allowed, what is missing and what may be picked all come from
 // the view; this screen only arranges them.
-import type { ActivityOption, SlotPick } from "@japacity/sim";
+import { content } from "@japacity/content";
+import type { ActivityOption, PlayerView, SlotPick } from "@japacity/sim";
 import { Briefcase, Plus, X } from "lucide-react";
 import { useState } from "react";
 
 import { useGame, useView } from "../../authority/GameProvider";
 import { Button } from "../../shared/ui/Button";
 import { Card, Panel, Tag } from "../../shared/ui/Panel";
-import { formatMoney } from "../../shared/words/format";
+import { shortfall } from "../../shared/words/cost";
+import { formatBand, formatMoney } from "../../shared/words/format";
 import { requirementSentence } from "../../shared/words/requirement";
-import { blurbOf, nameOf, say } from "../../shared/words/text";
+import { blurbOf, hasWords, lowerFirst, nameOf, say, sayCount } from "../../shared/words/text";
+
+const ENGLISH_RESULT = "document.english-test";
+const GRADE = "quality.edu-grade";
 
 function Job() {
   const view = useView();
@@ -18,6 +23,7 @@ function Job() {
   const send = useGame((state) => state.send);
   const [confirming, setConfirming] = useState(false);
   const job = view.job.id;
+  const pay = job === null ? null : content.activity[job]?.pay;
 
   return (
     <Card>
@@ -29,7 +35,10 @@ function Job() {
           ) : (
             <>
               <p className="font-semibold">{nameOf(job)}</p>
-              <p className="text-sm text-muted">{say("ui.job.months", { months: view.job.months })}</p>
+              {pay === null || pay === undefined || typeof pay.amount !== "number" ? null : (
+                <p className="text-sm font-medium tabular-nums">{say("ui.job.pay", { amount: formatMoney(pay.amount, pay.currency) })}</p>
+              )}
+              <p className="text-sm text-muted">{sayCount("ui.job.months", view.job.months, { months: view.job.months })}</p>
             </>
           )}
         </div>
@@ -100,10 +109,42 @@ function Slots() {
   );
 }
 
+function gradeWords(value: number): string {
+  const label = `${GRADE}.value.${String(value)}`;
+  return hasWords(label) ? lowerFirst(say(label)) : String(value);
+}
+
+/**
+ * Why no university can be picked: each one's minimums against the band and
+ * grade held now, or that it already has the application.
+ */
+function noSchoolReasons(view: PlayerView): string[] {
+  const english = view.documents.find((paper) => paper.id === ENGLISH_RESULT && paper.state === "held");
+  const band = english?.value === null || english === undefined ? say("ui.activity.no-band") : say("ui.document.band", { band: formatBand(english.value) }).toLowerCase();
+  const grade = view.qualities.find((quality) => quality.id === GRADE)?.value ?? 0;
+  const have = `${band}, ${gradeWords(grade)}`;
+  const applied = new Set(view.routes.flatMap((route) => route.schools.map((school) => school.id)));
+  return Object.values(content.school).map((school) =>
+    applied.has(school.id)
+      ? say("ui.activity.school-applied", { school: nameOf(school.id) })
+      : say("ui.activity.school-needs", { school: nameOf(school.id), band: formatBand(school.minBand), grade: gradeWords(school.minGrade), have }),
+  );
+}
+
+/** Which figure is short when an allowed activity cannot be paid for. */
+function cannotPayWords(view: PlayerView, option: ActivityOption): string {
+  const costs = option.cost.map((cost) => formatMoney(cost.amount, cost.currency)).join(" + ");
+  const gap = shortfall(view, option.cost);
+  if (gap.foreign) return say("ui.activity.short-foreign", { cost: costs, naira: formatMoney(gap.need, "NGN"), have: formatMoney(gap.have, "NGN") });
+  if (gap.short === 0) return say("ui.activity.cannot-pay");
+  return say("ui.activity.short", { short: formatMoney(gap.short, "NGN"), cost: costs, have: formatMoney(gap.have, "NGN") });
+}
+
 function ActivityCard({ option }: { option: ActivityOption }) {
   const plan = useGame((state) => state.plan);
   const addToPlan = useGame((state) => state.addToPlan);
-  const ended = useView().ended;
+  const view = useView();
+  const ended = view.ended;
   const [param, setParam] = useState<string>("");
   const name = nameOf(option.id);
   const blurb = blurbOf(option.id);
@@ -135,16 +176,27 @@ function ActivityCard({ option }: { option: ActivityOption }) {
             <p className="font-medium">{say("ui.activity.why-not")}</p>
             <ul className="list-disc pl-5">
               {option.missing.map((requirement, index) => (
-                <li key={index}>{requirementSentence(requirement)}</li>
+                <li key={index}>{requirementSentence(requirement, { routes: view.routes })}</li>
               ))}
             </ul>
           </div>
         ) : null}
-        {option.allowed && !option.affordable ? <p className="text-sm text-bad">{say("ui.activity.cannot-pay")}</p> : null}
+        {option.allowed && !option.affordable ? <p className="text-sm text-bad">{cannotPayWords(view, option)}</p> : null}
 
         {needsParam && option.allowed ? (
           option.params?.length === 0 ? (
-            <p className="text-sm text-muted">{say("ui.activity.nothing-to-pick")}</p>
+            content.activity[option.id]?.param === "school" ? (
+              <div className="text-sm">
+                <p className="font-medium">{say("ui.activity.no-school")}</p>
+                <ul className="list-disc pl-5">
+                  {noSchoolReasons(view).map((reason) => (
+                    <li key={reason}>{reason}</li>
+                  ))}
+                </ul>
+              </div>
+            ) : (
+              <p className="text-sm text-muted">{say("ui.activity.nothing-to-pick")}</p>
+            )
           ) : (
             <label htmlFor={selectId} className="flex flex-col gap-1 text-sm">
               <span className="font-medium">{say("ui.activity.pick")}</span>
@@ -180,10 +232,19 @@ function ActivityCard({ option }: { option: ActivityOption }) {
   );
 }
 
+/** True for what can only be done once you have left: it asks to be abroad. */
+function forAbroad(option: ActivityOption): boolean {
+  if (content.activity[option.id]?.where === "abroad") return true;
+  return option.missing.some((requirement) => requirement.type === "place/is" && requirement.where === "abroad");
+}
+
 export function ActivityView() {
   const view = useView();
+  const atHome = view.place.where === "home";
   // Allowed first, so the cards a player can use now are the ones they see first.
-  const options = [...view.activities].sort((a, b) => Number(b.allowed) - Number(a.allowed));
+  const sorted = [...view.activities].sort((a, b) => Number(b.allowed) - Number(a.allowed));
+  const later = atHome ? sorted.filter(forAbroad) : [];
+  const options = atHome ? sorted.filter((option) => !forAbroad(option)) : sorted;
   return (
     <div className="flex flex-col gap-6">
       <Panel title={say("ui.job.title")}>
@@ -198,6 +259,19 @@ export function ActivityView() {
             <ActivityCard key={option.id} option={option} />
           ))}
         </ul>
+        {later.length === 0 ? null : (
+          <details className="rounded-xl border border-line bg-surface p-4" data-later>
+            <summary className="cursor-pointer font-semibold">
+              {say("ui.activity.later")} <span className="font-normal text-muted">({later.length})</span>
+            </summary>
+            <p className="mt-2 text-sm text-muted">{say("ui.activity.later-hint", { count: later.length })}</p>
+            <ul className="mt-3 grid gap-3 @lg:grid-cols-2">
+              {later.map((option) => (
+                <ActivityCard key={option.id} option={option} />
+              ))}
+            </ul>
+          </details>
+        )}
       </Panel>
     </div>
   );
