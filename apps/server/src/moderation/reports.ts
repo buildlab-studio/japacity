@@ -90,7 +90,8 @@ export function readCite(value: unknown): ReportCite | null {
 }
 
 export interface ReportInput {
-  subject: ReportSubject;
+  /** Null when the body names none: the route finds it from the cite (a card's inviter, an advert's campaign). */
+  subject: ReportSubject | null;
   reason: ReportReason;
   cites: ReportCite;
   /** R-MODERATION-005: a phrase heard in a place is not stored, so its report is what the client heard. */
@@ -99,7 +100,9 @@ export interface ReportInput {
 
 /**
  * R-MODERATION-004, R-MODERATION-005: a report's body as sent, or why it is
- * refused. A report with no cites is refused. For the pair side's report route.
+ * refused. A report with no cites is refused; one with no subject is read
+ * with a null subject, since a card or a phrase heard in a place names no
+ * account the client knows. For the pair side's report route.
  */
 export function readReport(body: unknown): { ok: true; report: ReportInput } | { ok: false; detail: string } {
   if (typeof body !== "object" || body === null) return { ok: false, detail: "A report is an object." };
@@ -109,7 +112,7 @@ export function readReport(body: unknown): { ok: true; report: ReportInput } | {
   const who = typeof subject === "object" && subject !== null ? (subject as Record<string, unknown>) : {};
   const keys = Object.keys(who).join(",");
   const named: ReportSubject | null = keys === "account" && text(who.account) ? { account: who.account } : keys === "campaign" && text(who.campaign) ? { campaign: who.campaign } : null;
-  if (named === null) return { ok: false, detail: "subject is an account or an advert's campaign." };
+  if (subject !== undefined && named === null) return { ok: false, detail: "subject is an account or an advert's campaign." };
   const cite = readCite(cites);
   if (cite === null) return { ok: false, detail: "A report cites what it is about: messages, a phrase heard in a place, a card, a pair, or an advert's slot." };
   return { ok: true, report: { subject: named, reason: reason as ReportReason, cites: cite, unverified: "place" in cite } };
