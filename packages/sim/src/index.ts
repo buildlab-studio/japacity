@@ -13,5 +13,7 @@ export { viewFor, hiddenPaths } from "./engine/view";
 export { drawAt, hashString32 } from "./engine/random";
 export * as int from "./engine/int";
 export { standInWorld } from "./world/standIn";
+export { stepWorld, offlineCalendar } from "./world/director";
+export type { DirectorBook, WorldCalendar } from "./world/director";
 export { japacity, routePercent } from "./japacity/japacity.logic";
 export * as time from "./engine/time";
