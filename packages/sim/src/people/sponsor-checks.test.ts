@@ -75,14 +75,14 @@ describe("R-INTERVIEW-010: a caught sponsor's bar", () => {
     const game = abroad("country.canada", "status.ca-resident", null);
     const month = game.state.turn.month;
     const ban = content.country["country.canada"]!.deceptionBanMonths;
-    game.state = { ...game.state, interview: { ...game.state.interview, last: { route: CA_SPOUSE, result: "caught", matched: 0, asked: 5, month } } };
+    game.state = { ...game.state, interview: { ...game.state.interview, last: { route: CA_SPOUSE, result: "caught", matched: 0, asked: 5, month, standIn: { a: false, b: false } } } };
     expect(sponsorCheck(readOf(game), CA_SPOUSE)).toBe("bar");
     expect(game.view().people.barUntilMonth).toBe(month + ban);
     joint(game, CA_SPOUSE, "me", { stage: "married", facts: facts() });
     setPeople(game, (slice) => ({ ...slice, joint: null }));
     expect(game.expectRejected({ type: "people/propose", bond: BOND, step: "joint", route: CA_SPOUSE, lead: "me" }, "not-legal").detail).toContain("bar");
     // The bar lifts in the month it names, as R-GATE-005 lifts the ban.
-    game.state = { ...game.state, interview: { ...game.state.interview, last: { route: CA_SPOUSE, result: "caught", matched: 0, asked: 5, month: month - ban } } };
+    game.state = { ...game.state, interview: { ...game.state.interview, last: { route: CA_SPOUSE, result: "caught", matched: 0, asked: 5, month: month - ban, standIn: { a: false, b: false } } } };
     expect(sponsorCheck(readOf(game), CA_SPOUSE)).toBeNull();
     expect(game.view().people.barUntilMonth).toBeNull();
   });
