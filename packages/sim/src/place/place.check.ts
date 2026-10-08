@@ -8,19 +8,13 @@ const SIGN_OR_TALK = /^(place\.[a-z0-9-]+)\.(sign|overheard)\.([0-9]+)$/;
 type Staged = PlaceEntry["stages"][number];
 
 function exists(content: Content, id: Staged): boolean {
-  const [kind] = id.split(".");
-  switch (kind) {
-    case "activity":
-      return content.activity[id as Id<"activity">] !== undefined;
-    case "offer":
-      return content.offer[id as Id<"offer">] !== undefined;
-    case "setpiece":
-      return content.setpiece[id as Id<"setpiece">] !== undefined;
-    case "chapter":
-      return content.chapter[id as Id<"chapter">] !== undefined;
-    default:
-      return false;
-  }
+  const tables: Readonly<Record<string, Readonly<Record<string, unknown>>>> = {
+    activity: content.activity,
+    offer: content.offer,
+    setpiece: content.setpiece,
+    chapter: content.chapter,
+  };
+  return tables[id.split(".")[0] ?? ""]?.[id] !== undefined;
 }
 
 /** R-CITY-004, R-CITY-005 and R-CITY-008: the fields a place's kind of name allows. */

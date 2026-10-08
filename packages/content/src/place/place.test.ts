@@ -82,12 +82,11 @@ describe("the places' words", () => {
 describe("made-up names", () => {
   test("[R-CITY-007] given every made-up name checked, when the signs and names are read, then each checked name is shown and no working name that was replaced is", () => {
     const shown = Object.entries(text).filter(([key]) => key.startsWith("place.")).map(([, words]) => words);
-    for (const row of names) {
-      expect(row.nameCheck.date).toMatch(/^\d{4}-\d{2}-\d{2}$/);
-      expect(row.nameCheck.searches.length).toBeGreaterThan(1);
-      expect(shown.some((words) => words.includes(row.nameCheck.name))).toBe(true);
-      if (row.nameCheck.workingName !== row.nameCheck.name) expect(shown.some((words) => words.includes(row.nameCheck.workingName))).toBe(false);
-    }
+    expect(names.length).toBeGreaterThan(7);
+    expect(names.filter((row) => !/^\d{4}-\d{2}-\d{2}$/.test(row.nameCheck.date) || row.nameCheck.searches.length < 2)).toEqual([]);
+    expect(names.filter((row) => !shown.some((words) => words.includes(row.nameCheck.name))).map((row) => row.nameCheck.name)).toEqual([]);
+    const replaced = names.filter((row) => row.nameCheck.workingName !== row.nameCheck.name).map((row) => row.nameCheck.workingName);
+    expect(replaced.filter((working) => shown.some((words) => words.includes(working)))).toEqual([]);
   });
 
   test("[R-CITY-007] given every business place, when its name is looked up, then a name check row records it unless the name is a description", () => {

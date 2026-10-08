@@ -39,7 +39,7 @@ describe("the real places", () => {
 
   test("[R-CITY-004] given a place under a key that is not its id, or a key that is not a place id, when checked, then each is found", () => {
     expect(problemsWith(place(STREET), "place.elsewhere")).toMatch(/entry under place\.elsewhere has the id place\.bode-thomas/);
-    expect(problemsWith({ ...place(STREET), id: "place.Bad_Key" as Id<"place"> }, "place.Bad_Key")).toMatch(/not a well-formed place id/);
+    expect(problemsWith({ ...place(STREET), id: "place.Bad_Key" }, "place.Bad_Key")).toMatch(/not a well-formed place id/);
   });
 
   test("[R-CITY-004] given a country at home, or a country with no city, when checked, then each is found", () => {
