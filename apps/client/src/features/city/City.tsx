@@ -24,15 +24,18 @@ import { Toast, useToast } from "../../shared/world/Toast";
 import { cityWords, heardWords, placeName, residentName, roleWords } from "./city.words";
 import { CreditsSheet } from "./Credits";
 import { type CountryChoice, FlyOver, type Pin, type PinState } from "./FlyOver";
-import { OVERVIEW } from "./CityScene";
+import { crowdTuning } from "./limits";
 import { Phone, type PhoneApp } from "./Phone";
 import { localDate, type Other, poolOf, sampleCrowd } from "./crowd";
 import { type Device, enterPlace, keepChoice, type Mode, type ModeChoice, modeSettings, observeFrame, readChoice, startingMode, watchFrames } from "./mode";
 import { overheard } from "./overheard";
 import { dancerShown, dressPlace, openGround, type PlaceFile, stageOf } from "./placeFile";
+import { HOUSE, insideOf, roomOf } from "./room";
 import { personOfLook } from "./roster";
-import type { Mark, Picked } from "./scene.types";
+import type { Picked, ScenePick } from "./scene.types";
+import { sceneWords } from "./scene.words";
 import { enterable, offersHere, openingPlace, openScene, reportHere, type ViewPlace } from "./staging";
+import { thingsNow, thingsOf, vehicleOf } from "./things";
 
 const CityScene = lazy(() => import("./CityScene"));
 
@@ -45,59 +48,15 @@ const FALLBACK_OWN = "shared/chr/chr_tunde.glb";
 // The world mode (docs/design/11-the-world-first.md), a prototype the maintainer judges before it becomes rules.
 const LAST_KEY = "japacity.city.last";
 const BEEN_KEY = "japacity.city.been";
-/** The thing on a street that stages an action, by the end of its model's file. */
-const ACTIONS: Record<string, string> = {
-  "shop_lotto-kiosk.glb": "activity.play-lotto",
-  "bld_bode-thomas-betting.glb": "activity.bet-slip",
-};
-/** The things that give a ride, by the end of their model's file (rule 13). */
-const RIDES: Record<string, string> = { "veh_danfo.glb": "danfo", "veh_keke.glb": "keke", "veh_okada.glb": "okada" };
-/** Buildings that are doors into a place of their own, by the end of their model's file (rule 13). None of the built places has one yet. */
-const DOORS: Record<string, string> = {};
-/** Buildings the character steps inside (rule 14), by the end of their model's file. */
-const INSIDE = ["bld_family-house.glb"];
-
-/**
- * The room inside a building, as its own small scene cut from the place's file (rule 14): the floor
- * under the building, the furniture and people that stand there, and the door as the start. The
- * building itself is left out, so the room is seen from above like any place.
- */
-function roomOf(file: PlaceFile, building: string): PlaceFile {
-  const stage = stageOf(file);
-  const spot = stage.models.find((model) => model.file.endsWith(building))?.at[0] ?? stage.start;
-  const [x, z] = [spot[0], spot[1]];
-  const half: [number, number] = [9, 8];
-  const within = ([px, pz]: readonly number[]): boolean => Math.abs((px ?? 0) - x) <= half[0] && Math.abs((pz ?? 0) - z) <= half[1];
-  const people = stage.people.filter(within);
-  const room = {
-    ...stage,
-    // The floor is the building's footprint; the compound and the city beyond are gone.
-    ground: { colour: "concrete" as const, size: [half[0] * 2, half[1] * 2] as [number, number] },
-    roads: [],
-    start: [x, z + half[1] - 1, Math.PI] as typeof stage.start,
-    walkable: [[[x - half[0], z - half[1]], [x + half[0], z - half[1]], [x + half[0], z + half[1]], [x - half[0], z + half[1]]]] as NonNullable<typeof stage.walkable>,
-    models: stage.models.filter((model) => !/\/bld_[^/]*\.glb$/.test(model.file)).map((model) => ({ ...model, at: model.at.filter(within) })).filter((model) => model.at.length > 0),
-    people: people.length > 0 ? people : stage.people.slice(0, 2),
-  };
-  return { ...file, stage: room };
-}
 /** Minutes by road between two places, from their positions: a base wait and a Lagos pace. */
 function minutesBetween(from: { latE3: number; lonE3: number }, to: { latE3: number; lonE3: number }): number {
   const cos = Math.cos((from.latE3 / 1000) * (Math.PI / 180));
   const metres = Math.hypot((to.lonE3 - from.lonE3) * 111.32 * cos, (to.latE3 - from.latE3) * 111.32);
   return 8 + Math.round(metres / 120);
 }
-/** The label over each thing the player can tap, by the end of its model's file (rule 3). */
-const THING_WORDS: Record<string, string> = {
-  "shop_lotto-kiosk.glb": "city.thing.lotto",
-  "bld_bode-thomas-betting.glb": "city.thing.bets",
-  "veh_danfo.glb": "city.thing.danfo",
-  "veh_keke.glb": "city.thing.keke",
-  "veh_okada.glb": "city.thing.okada",
-  "bld_family-house.glb": "city.thing.house",
-};
-/** The two camera presets beside the pinch: close to the character, and the whole place. */
-const ZOOM = { closer: 0.08, whole: OVERVIEW.start };
+// tuning.city.roam is the maintainer's to add; until it is there, nothing roams.
+/** The street camera, the hold-to-plan view, routed walks and strolling people, switched off (world.md R-WORLD-010). */
+const ROAM = (city as Partial<Record<"roam", boolean>>).roam ?? false;
 /** The home of each where: the family house, then the room abroad. */
 const HOMES: Record<string, string> = { home: "place.family-house", abroad: "place.the-room" };
 /** The family house stands on a made-up street (city.md), so the map gives it a spot in Surulere near the hub. */
@@ -234,7 +193,7 @@ export function City({
   const addToPlan = useGame((state) => state.addToPlan);
   const [phone, setPhone] = useState(false);
   const [monthOpen, setMonthOpen] = useState(false);
-  const [zoom, setZoom] = useState(ZOOM.whole);
+  const [zoomed, setZoomed] = useState(false);
   const plan = useGame((state) => state.plan);
   const [diveTo, setDiveTo] = useState<string | null>(null);
   const [shipped, setShipped] = useState<Set<string> | null>(null);
@@ -287,6 +246,7 @@ export function City({
   useEffect(() => {
     watch.current = enterPlace(watch.current);
     setInside(false);
+    setZoomed(false);
     setPicked(null);
     setFailed(null);
     setProgress(null);
@@ -304,19 +264,31 @@ export function City({
   // An open offer the place stages dresses it (R-CITY-011): the party set and its guests at the family house.
   const dressed = useMemo(() => (plainFile === null ? null : dressPlace(plainFile, openKey === "" ? [] : openKey.split("|"))), [plainFile, openKey]);
   const outsideFile = dressed?.file ?? null;
-  // Inside, the scene is the room cut from the place's file (rule 14).
-  const file = useMemo(() => (outsideFile !== null && inside ? roomOf(outsideFile, INSIDE[0] ?? "") : outsideFile), [outsideFile, inside]);
+  // Inside, the scene is the room the place's door opens into, an interior file like any other, fetched
+  // with the place so the cut is quick (R-WORLD-013); a place that names no room has one cut from its own file.
+  const insideId = insideOf(outsideFile);
+  // an interior is read through its content entry's assets folder; an interior with no place entry cannot be opened yet.
+  const insideEntry = insideId === null ? null : entryOf(insideId);
+  const insideFile = usePlaceFile(insideEntry, drawing);
+  const file = useMemo(() => (outsideFile === null || !inside ? outsideFile : insideId === null ? roomOf(outsideFile, HOUSE) : insideFile), [outsideFile, inside, insideId, insideFile]);
+  useEffect(() => {
+    setZoomed(false);
+    setPicked(null);
+  }, [inside]);
   const settings = modeSettings(mode, device(), city);
   const others = useMemo<Other[]>(() => (presence !== null && presence.place === placeId ? presence.others : []), [presence, placeId]);
   const today = useMemo<Other[]>(() => (presence !== null && presence.place === placeId ? (presence.today ?? []) : []), [presence, placeId]);
   const own = ownFile(view.scenario);
   // No resident wears the player's own outfit or a dancer's.
+  // In the world a place shows at most the crowd its scope allows in the mode; the party keeps its ten (R-WORLD-011).
+  const crowdEntry = inside && insideEntry !== null ? insideEntry : entry;
+  const dressedCrowd = inside ? null : (dressed?.crowd ?? null);
   const sample = useMemo(
     () =>
-      entry === null || file === null
+      crowdEntry === null || file === null
         ? null
-        : sampleCrowd({ ...entry, crowd: dressed?.crowd ?? entry.crowd }, poolOf(file.people.sample), date, mode, city, others, today, [own, ...(stageOf(file).dancers ?? []).map((dancer) => dancer.file)]),
-    [entry, file, dressed, date, mode, others, today, own],
+        : sampleCrowd({ ...crowdEntry, crowd: dressedCrowd ?? crowdEntry.crowd }, poolOf(file.people.sample), date, mode, world ? crowdTuning(city, file.scope, dressedCrowd !== null) : city, others, today, [own, ...(stageOf(file).dancers ?? []).map((dancer) => dancer.file)]),
+    [crowdEntry, file, dressedCrowd, date, mode, others, today, own, world],
   );
   const places = enterable(here, PLACES);
   const heard = entry === null ? null : overheard(view, entry.id, date, heardCount);
@@ -358,6 +330,8 @@ export function City({
         return cityWords("city.inside.name", { place: name });
       case "out":
         return cityWords("city.thing.out");
+      case "thing":
+        return sceneWords(picked.thing.label);
       default: {
         const never: never = picked;
         throw new Error(`Unknown pick: ${JSON.stringify(never)}`);
@@ -365,15 +339,43 @@ export function City({
     }
   };
 
-  const actionOf = (file: string): Picked | null => {
-    const action = Object.entries(ACTIONS).find(([suffix]) => file.endsWith(suffix))?.[1] ?? null;
-    if (action !== null && entry !== null && (entry.stages as readonly string[]).includes(action) && view.activities.some((option) => option.id === action)) return { kind: "action", activity: action };
-    const vehicle = Object.entries(RIDES).find(([suffix]) => file.endsWith(suffix))?.[1] ?? null;
-    if (vehicle !== null) return { kind: "ride", vehicle };
-    if (!inside && INSIDE.some((suffix) => file.endsWith(suffix))) return { kind: "inside" };
-    const door = Object.entries(DOORS).find(([suffix]) => file.endsWith(suffix))?.[1] ?? null;
-    if (door !== null && places.some((place) => place.id === door)) return { kind: "enter", place: door };
-    return null;
+  // The things here and the acts the view allows now: an activity's act only while the view offers it here (R-WORLD-005).
+  const activityKey = view.activities.map((option) => option.id).join("|");
+  const things = useMemo(() => {
+    if (!world || file === null) return undefined;
+    const offered = new Set(activityKey.split("|"));
+    const staged = new Set<string>([...(entry?.stages ?? []), ...(insideEntry?.stages ?? [])]);
+    return thingsNow(thingsOf(stageOf(file)), (stages) => !stages.startsWith("activity.") || (offered.has(stages) && staged.has(stages)));
+  }, [world, file, activityKey, entry, insideEntry]);
+  // What the scene reports: a thing chosen shows its acts; an act becomes the sheet, the ride, the cut in or the cut out it stands for.
+  const readPick = (scenePick: ScenePick): void => {
+    if (scenePick.kind !== "act") {
+      setPicked(scenePick);
+      return;
+    }
+    const { thing, act } = scenePick;
+    switch (act.kind) {
+      case "sheet":
+        setPicked(act.stages === undefined ? null : { kind: "action", activity: act.stages });
+        return;
+      case "ride":
+        setPicked({ kind: "ride", vehicle: vehicleOf(thing) ?? "danfo" });
+        return;
+      case "enter":
+        setPicked({ kind: "inside" });
+        return;
+      case "out":
+        setPicked({ kind: "out" });
+        return;
+      case "plain":
+        setPicked(null);
+        toast.show(sceneWords(act.label));
+        return;
+      default: {
+        const never: never = act.kind;
+        throw new Error(`Unknown act: ${String(never)}`);
+      }
+    }
   };
   // A ride plays as the fly-over's dive, then the place opens (rule 13).
   const travel = (id: string): void => {
@@ -413,21 +415,6 @@ export function City({
     ...COUNTRIES.map((id) => ({ id, name: nameOf(id), locked: where === "abroad" && id === country ? null : cityWords(where === "home" ? "city.map.no-visa" : "city.map.not-open") })),
   ];
   const shownCountry = countries.find((choice) => choice.locked === null) ?? countries[0] ?? { id: "lagos", name: cityWords("city.map.lagos"), locked: null };
-
-  const marks: Mark[] = (() => {
-    if (!world || file === null) return [];
-    const stage = stageOf(file);
-    const found: Mark[] = [];
-    for (const model of stage.models) {
-      const does = actionOf(model.file);
-      const key = Object.entries(THING_WORDS).find(([suffix]) => model.file.endsWith(suffix))?.[1];
-      const spot = model.at[0];
-      if (does === null || key === undefined || spot === undefined) continue;
-      found.push({ x: spot[0], z: spot[1], text: cityWords(key), picked: does });
-    }
-    if (inside) found.push({ x: stage.start[0], z: stage.start[1], text: cityWords("city.thing.out"), picked: { kind: "out" } });
-    return found;
-  })();
 
   const nextStep = view.chapter.items.find((item) => !item.met)?.id ?? null;
   const nudge: NudgeWords | null = !world
@@ -486,8 +473,8 @@ export function City({
               text={(key) => text[key]}
               onProgress={(loaded, total) => setProgress({ loaded, total })}
               onFailed={setFailed}
-              onPick={setPicked}
-              {...(world ? { actionOf, overview: true, zoom: inside ? Math.min(zoom, 0.2) : zoom, marks } : {})}
+              onPick={readPick}
+              {...(world ? { overview: true, roam: ROAM, ...(things === undefined ? {} : { things }), chosen: picked?.kind === "thing" ? picked.thing : null, onClear: () => setPicked(null), zoomed, onZoomed: setZoomed } : {})}
               onFrame={(frameMs) => {
                 const next = observeFrame(watch.current, frameMs, city);
                 watch.current = next;
@@ -537,8 +524,8 @@ export function City({
           />
           <Nudge nudge={nudge} hidden={map || phone || monthOpen || picked !== null} />
           <ThumbBar onMap={() => setMap(true)} onPhone={() => setPhone(true)} phoneWaiting={view.offers.length > 0} hidden={map} />
-          {zoom <= 0.3 && !map ? (
-            <button type="button" onClick={() => setZoom(ZOOM.whole)} className="chip drop pointer-events-auto fixed bottom-[calc(max(14px,env(safe-area-inset-bottom))+76px)] left-1/2 z-[38] -translate-x-1/2 px-3 py-2 text-[13px] font-bold" data-zoom-preset>
+          {zoomed && !map ? (
+            <button type="button" onClick={() => setZoomed(false)} className="chip drop pointer-events-auto fixed bottom-[calc(max(14px,env(safe-area-inset-bottom))+76px)] left-1/2 z-[38] -translate-x-1/2 px-3 py-2 text-[13px] font-bold" data-zoom-preset>
               {say("ui.world.whole")}
             </button>
           ) : null}
@@ -600,7 +587,7 @@ export function City({
                 {heardWords(heard.key, heard.params)}
               </p>
             )}
-            {picked === null || picked.kind === "action" || picked.kind === "ride" || picked.kind === "enter" || picked.kind === "inside" ? null : <PersonCard picked={picked} words={cardWords()} onClose={() => setPicked(null)} />}
+            {picked === null || picked.kind === "action" || picked.kind === "ride" || picked.kind === "enter" || picked.kind === "inside" || picked.kind === "thing" ? null : <PersonCard picked={picked} words={cardWords()} onClose={() => setPicked(null)} />}
             {world ? null : (
               <p className="pointer-events-auto self-start rounded-lg bg-paper/80 px-2 py-1 text-xs text-muted">{cityWords("city.hold")}</p>
             )}

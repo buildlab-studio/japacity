@@ -7,6 +7,7 @@ import type { SignAnchor } from "@japacity/assets";
 import type { PoseName } from "@japacity/assets-src/people/poses";
 import { BufferGeometry, Color, CylinderGeometry, Float32BufferAttribute, Group, Matrix4, Mesh, MeshLambertMaterial, type Object3D, Quaternion, type SkinnedMesh, Sphere, Vector3 } from "three";
 
+import { stripTops } from "../../../../../tools/assets/faces-check";
 import { instanceModel } from "../../shared/three/instance";
 import { ownIndicator, nameTag } from "../../shared/three/marks";
 import { danceFigure } from "../../shared/three/dance";
@@ -43,8 +44,11 @@ export interface World {
   dancers: { figure: Figure; dance: DanceName }[];
   own: Figure;
   indicator: Mesh;
-  /** The place's route map, built once here from the footprints and the walkable ground (city.md R-CITY-030). */
-  routes: RouteMap;
+  /**
+   * The place's route map, built once here from the footprints and the walkable ground (city.md
+   * R-CITY-030), or null when nothing roams (world.md R-WORLD-010) and walks are straight.
+   */
+  routes: RouteMap | null;
   strolls: Strolls;
 }
 
@@ -61,9 +65,6 @@ function flat(colour: string): MeshLambertMaterial {
 /** Where the indicator floats over the player's own head. */
 export const INDICATOR_Y = 1.98;
 
-/** Strips lie this far apart in height, in list order, so no two fight for a pixel. */
-const LIFT = 0.01;
-
 /** The pieces of a strip along its length: every other `every` metres in the dash colour when it has one. */
 export function stripPieces(strip: Strip): { from: number; to: number; colour: string }[] {
   const length = strip.size[0];
@@ -78,7 +79,9 @@ export function stripPieces(strip: Strip): { from: number; to: number; colour: s
 
 /**
  * The ground and every strip on it as one mesh of vertex colours, so the whole floor of a place is
- * one draw call however many roads, kerbs and gutters it has. A raised strip is a block with its top and sides.
+ * one draw call however many roads, kerbs and gutters it has. A raised strip is a block with its top
+ * and sides. Each strip lies a step over the strips under it (world.md R-WORLD-012), as the place
+ * check reads them, so no two of its faces fight for a pixel.
  */
 export function groundGeometry(stage: Stage): BufferGeometry {
   const positions: number[] = [];
@@ -93,12 +96,13 @@ export function groundGeometry(stage: Stage): BufferGeometry {
   };
   const [width, depth] = stage.ground.size;
   face([new Vector3(-width / 2, 0, depth / 2), new Vector3(width / 2, 0, depth / 2), new Vector3(width / 2, 0, -depth / 2), new Vector3(-width / 2, 0, -depth / 2)], colourOf(stage.ground.colour));
+  const tops = stripTops(stage.roads);
   stage.roads.forEach((strip, index) => {
     const [x, z, turn] = strip.at;
     const cos = Math.cos(turn);
     const sin = Math.sin(turn);
     const half = strip.size[1] / 2;
-    const top = LIFT * (index + 1) + (strip.raise ?? 0);
+    const top = tops[index] ?? 0;
     const point = (along: number, across: number, y: number): Vector3 => new Vector3(x + along * cos + across * sin, y, z - along * sin + across * cos);
     for (const piece of stripPieces(strip)) {
       const colour = colourOf(piece.colour);
@@ -119,7 +123,8 @@ export function groundGeometry(stage: Stage): BufferGeometry {
 function groundOf(stage: Stage): Group {
   const group = new Group();
   group.name = "ground";
-  const ground = new Mesh(groundGeometry(stage), new MeshLambertMaterial({ vertexColors: true, flatShading: true }));
+  // The floor draws a little behind its true depth, so a model's floor laid on it always wins the pixel (R-WORLD-012).
+  const ground = new Mesh(groundGeometry(stage), new MeshLambertMaterial({ vertexColors: true, flatShading: true, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 }));
   ground.receiveShadow = true;
   ground.name = "ground";
   group.add(ground);
@@ -227,6 +232,11 @@ function cullAsPerson(root: Object3D): void {
   });
 }
 
+/** No one strolls: the strolls of a place where nothing roams. */
+function stayPut(seed: string, stage: Pick<Stage, "people">): Strolls {
+  return { seed, spots: stage.people, open: [], spotPart: new Int32Array(0), holder: new Int32Array(0), strollers: [], begun: null };
+}
+
 /** Every phase of the crowd differs, from the slot, so no two people breathe together. */
 const phaseOf = (slot: number): number => slot * 1.7;
 const OWN_PHASE = 99;
@@ -277,7 +287,7 @@ function buildingCopies(model: Object3D, at: Stage["models"][number]["at"], sign
  * The place built from its stage and loaded models. `seed` is the place's id, from which the crowd's
  * strolls are drawn, so the same place walks its people the same way on every screen.
  */
-export function buildWorld(stage: Stage, models: ReadonlyMap<string, Object3D>, people: readonly Shown[], ownFile: string, settings: ModeSettings, text: SignText = () => undefined, seed = "place"): World {
+export function buildWorld(stage: Stage, models: ReadonlyMap<string, Object3D>, people: readonly Shown[], ownFile: string, settings: ModeSettings, text: SignText = () => undefined, seed = "place", roam = true): World {
   const root = new Group();
   root.name = "place";
   root.add(groundOf(stage));
@@ -318,13 +328,16 @@ export function buildWorld(stage: Stage, models: ReadonlyMap<string, Object3D>, 
     crowd.push(placed);
     standing.push({ slot: shown.slot, index, placed });
   }
-  const routes = routeMap(stage, (file) => {
-    const model = models.get(file);
-    return model === undefined ? null : footprintOf(model);
-  });
+  // Nothing roams in the world (R-WORLD-010): no route map is built and nobody strolls, unless tuning turns roaming on.
+  const routes = roam
+    ? routeMap(stage, (file) => {
+        const model = models.get(file);
+        return model === undefined ? null : footprintOf(model);
+      })
+    : null;
   // Spots kept for a role or an act keep their people: the trader at her stall, the conductor, the crossers.
   const kept = new Set<number>([...Object.values(stage.prefer ?? {}).flatMap((indices) => indices ?? []), ...acts.map((act) => act.spot)]);
-  const strolls = strollsOf(seed, stage.people, standing, kept, routes);
+  const strolls = routes === null ? stayPut(seed, stage) : strollsOf(seed, stage.people, standing, kept, routes);
   strolls.strollers.forEach((stroller, at) => {
     const found = standing.find((entry) => entry.slot === stroller.slot);
     if (found !== undefined) found.placed.stroll = at;
@@ -368,7 +381,7 @@ export function buildWorld(stage: Stage, models: ReadonlyMap<string, Object3D>, 
  * camera are the scene's. Moving people costs no draw call: the same figures stand somewhere else.
  */
 export function animateWorld(world: World, time: number, seconds: number): void {
-  advanceStrolls(world.strolls, world.routes, time, Math.min(Math.max(0, seconds), 0.25));
+  if (world.routes !== null) advanceStrolls(world.strolls, world.routes, time, Math.min(Math.max(0, seconds), 0.25));
   for (const { figure, cross, stroll, walk } of world.crowd) {
     if (cross !== undefined) {
       const pace = crossAt(cross.from, cross.to, time, WALK_SPEED, cross.phase);
