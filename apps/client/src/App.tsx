@@ -37,7 +37,9 @@ import { NotifyAsk } from "./features/notify/NotifyAsk";
 import { NotifySetting } from "./features/notify/NotifySetting";
 import { ObligationView } from "./features/obligation/ObligationView";
 import { OfferView } from "./features/offer/OfferView";
+import { usePairApi } from "./features/people/pairApi";
 import { PeopleView } from "./features/people/PeopleView";
+import { PhoneApps, usePhoneWaiting } from "./features/phone/PhoneApps";
 import { BoardsView } from "./features/boards/BoardsView";
 import { RunDownBanner } from "./features/health/RunDownBanner";
 import { InterviewView } from "./features/interview/InterviewView";
@@ -309,6 +311,8 @@ function worldMode(): boolean {
 /** The world is the game: the place fills the screen under a see-through bar, the month plays in the scene, and the map is a fly-over. */
 function WorldPlaying() {
   const view = useView();
+  const talk = usePairApi();
+  const phoneWaiting = usePhoneWaiting();
   const reportOpen = useGame((state) => state.reportOpen);
   useScreenCount("world");
   useScreenCount(reportOpen ? "report" : null);
@@ -320,17 +324,8 @@ function WorldPlaying() {
         adverts={(place) => <PlaceAdverts place={place} />}
         actions={(ids) => <ActivityPicker only={ids} />}
         month={<TurnBar />}
-        apps={[
-          { id: "bank", name: say("ui.tab.money"), tile: "bg-[#2f7d4f]", letter: "₦", screen: <WalletView /> },
-          { id: "people", name: say("ui.tab.people"), tile: "bg-[#7a4fa3]", letter: "P", screen: <PeopleView />, waiting: view.offers.length > 0 },
-          { id: "japa", name: say("ui.tab.japa"), tile: "bg-[#c0392b]", letter: "J", screen: <><JapacityView /><RouteView /></> },
-          { id: "jobs", name: say("ui.job.title"), tile: "bg-[#2d5f9e]", letter: "W", screen: <ActivityView /> },
-          { id: "news", name: say("ui.tab.news"), tile: "bg-[#3a3a3a]", letter: "N", screen: <NewsView /> },
-          { id: "you", name: say("ui.tab.you"), tile: "bg-[#b5651d]", letter: "Y", screen: <QualityView /> },
-          { id: "draw", name: say("ui.lottery.title"), tile: "bg-[#b8860b]", letter: "D", screen: <LotteryView /> },
-          { id: "papers", name: say("ui.document.title"), tile: "bg-[#5a8a5a]", letter: "F", screen: <DocumentView /> },
-          { id: "settings", name: say("ui.account.settings"), tile: "bg-[#666]", letter: "S", screen: <AccountButton more={<NotifySetting />} /> },
-        ]}
+        phone={(close, area) => <PhoneApps onClose={close} area={area} account={<AccountButton more={<NotifySetting />} />} talk={talk} />}
+        phoneWaiting={phoneWaiting}
       />
       <Moment />
     </div>
