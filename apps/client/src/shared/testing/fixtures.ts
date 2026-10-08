@@ -3,8 +3,11 @@
 // hand on top of a real view, so the screens for offers, routes and the
 // interview can be exercised before the kinds that fill them exist.
 import { content } from "@japacity/content";
-import type { Authority, Command, Id, PlayerView, Rejection, Reply, ReportLine } from "@japacity/sim";
-import { newState, standInWorld, viewFor } from "@japacity/sim";
+import type { Authority, Command, Id, PlayerView, Rejection, Reply, ReportLine, Save, State } from "@japacity/sim";
+import { newState, replay, standInWorld, step, viewFor } from "@japacity/sim";
+
+// The recorded lives are the sim's own test data; the package exports only its contract.
+import { lifeSaves } from "../../../../../packages/sim/src/goldens/lives.data";
 
 export const SCENARIOS = Object.keys(content.scenario) as Id<"scenario">[];
 
@@ -158,5 +161,96 @@ export function fakeAuthority(view: PlayerView): FakeAuthority {
       lines = [];
       return Promise.resolve(reply);
     },
+  };
+}
+
+/** A recorded life, played by the real engine on the real content. */
+export function recordedSave(name: string): Save {
+  const save = lifeSaves[name];
+  if (save === undefined) throw new Error(`No recorded life ${name}.`);
+  return save;
+}
+
+/** The world tick after a save's commands: one for each month ended. */
+function tickOf(save: Save): number {
+  return save.commands.filter(({ command }) => command.type === "turn/end").length;
+}
+
+/**
+ * Ada's careful life, replayed up to the flight and then `months` months
+ * abroad with the slots left empty, so the screens abroad are the engine's own.
+ */
+export function abroadView(months = 0): PlayerView {
+  const save = recordedSave("ada-careful");
+  const worldAt = (tick: number) => standInWorld(save.worldSeed, tick, content);
+  let state: State = replay(save, content, worldAt).state;
+  let tick = tickOf(save);
+  for (let month = 0; month < months; month += 1) {
+    const result = step(state, { type: "turn/end", slots: [], basedOn: state.v }, worldAt(tick), content, "player");
+    if (!result.ok) throw new Error(`Month ${String(month)} abroad was rejected: ${result.code}`);
+    state = result.state;
+    tick += 1;
+  }
+  return viewFor({ state, world: worldAt(tick), content });
+}
+
+/**
+ * A life a while abroad, built by hand on the engine's arrival: a sponsored
+ * worker whose job has gone, a credit file, goals, a car on finance, a side
+ * job, a send-off card and an era. For the parts whose kinds are stubs.
+ */
+export function richAbroadView(): PlayerView {
+  const base = abroadView();
+  const car: PlayerView["obligations"][number] = {
+    id: "obligation-40",
+    entry: "obligation.car",
+    state: "grace",
+    openedMonth: 40,
+    amount: 10_260,
+    principal: 855_000,
+    outstanding: 520_000,
+    monthsLeft: 20,
+    missed: 2,
+    due: 61_480,
+  };
+  return {
+    ...base,
+    v: base.v + 30,
+    month: 60,
+    job: { id: null, months: 0 },
+    locks: [{ slots: 1, untilMonth: 60, why: "side-job" }],
+    place: { ...base.place, monthsHere: 25 },
+    status: {
+      entry: "status.uk-sponsored",
+      monthsLeft: 20,
+      clock: 2,
+      lawfulMonths: 16,
+      settleMonths: 60,
+      work: "one-employer",
+      nextStep: "status.next.settle",
+    },
+    credit: {
+      mark: 24,
+      onTime: 14,
+      missed: 2,
+      judgmentUntil: null,
+      needs: [
+        { id: "obligation.phone-uk", creditMin: 10 },
+        { id: "obligation.rent-flat-uk", creditMin: 20 },
+        { id: "obligation.car", creditMin: 30 },
+      ],
+    },
+    goals: {
+      open: [
+        { id: "goal.own-door", items: [{ id: "0", met: true }, { id: "1", met: true }] },
+        { id: "goal.clean-file", items: [{ id: "0", met: false }] },
+      ],
+      done: [{ id: "goal.first-car", month: 41 }],
+    },
+    obligations: [...base.obligations.filter((owed) => owed.entry !== "obligation.tuition"), car],
+    pockets: { ...base.pockets, GBP: { bank: 180_000, cash: 2_000, locked: 0 } },
+    era: { id: "era.hard-line", since: 50, until: 75 },
+    card: null,
+    report: { month: 60, lines: [], japacityBefore: null, japacityAfter: null, attention: false },
   };
 }

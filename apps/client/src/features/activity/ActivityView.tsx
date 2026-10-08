@@ -73,6 +73,70 @@ function Job() {
   );
 }
 
+/** The side job's lock (R-ACTIVITY-010): the view names no side job, only the slot it holds. */
+const SIDE_JOB_LOCK = "side-job";
+
+function SideJob() {
+  const view = useView();
+  const busy = useGame((state) => state.busy);
+  const send = useGame((state) => state.send);
+  const [confirming, setConfirming] = useState(false);
+  if (!view.locks.some((lock) => lock.why === SIDE_JOB_LOCK)) return null;
+  return (
+    <Card data-side-job>
+      <div className="flex items-start gap-3">
+        <Briefcase size={20} className="mt-0.5 shrink-0 text-muted" />
+        <div className="flex flex-1 flex-col gap-1">
+          <p className="font-semibold">{say("ui.side.title")}</p>
+          <p className="text-sm text-muted">{say("ui.side.holds")}</p>
+        </div>
+        {confirming ? null : (
+          <Button small onClick={() => setConfirming(true)} disabled={busy || view.ended}>
+            {say("ui.side.quit")}
+          </Button>
+        )}
+      </div>
+      {confirming ? (
+        <div className="mt-3 flex flex-wrap gap-2 border-t border-line pt-3">
+          <Button
+            small
+            variant="primary"
+            disabled={busy}
+            onClick={() => {
+              setConfirming(false);
+              void send({ type: "activity/quit", side: true });
+            }}
+          >
+            {say("ui.side.quit-yes")}
+          </Button>
+          <Button small onClick={() => setConfirming(false)}>
+            {say("ui.job.quit-no")}
+          </Button>
+        </div>
+      ) : null}
+    </Card>
+  );
+}
+
+/** Slots held by something this month, and why (R-TURN-009). */
+function Locks() {
+  const { locks } = useView();
+  if (locks.length === 0) return null;
+  return (
+    <ul className="flex flex-col gap-1 text-sm text-muted" aria-label={say("ui.locks.title")}>
+      {locks.map((lock, index) => (
+        <li key={`${lock.why}-${String(index)}`} data-lock={lock.why}>
+          {sayCount("ui.locks.item", lock.slots, {
+            slots: lock.slots,
+            why: say(hasWords(`ui.locks.why.${lock.why}`) ? `ui.locks.why.${lock.why}` : "ui.locks.why.other"),
+            month: lock.untilMonth,
+          })}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 function pickWords(pick: SlotPick): string {
   return pick.param === null ? nameOf(pick.activity) : `${nameOf(pick.activity)}: ${nameOf(pick.param)}`;
 }
@@ -251,8 +315,10 @@ export function ActivityView() {
     <div className="flex flex-col gap-6">
       <Panel title={say("ui.job.title")}>
         <Job />
+        <SideJob />
       </Panel>
       <Panel title={say("ui.month.plan")}>
+        <Locks />
         <Slots />
       </Panel>
       <Panel title={say("ui.activity.title")}>
