@@ -5,7 +5,7 @@
 // isolate instead, each opening a client per call: the switch row, whose cache
 // is kept per store (R-SERVER-031), and the counters, whose hourly batch count
 // is (R-ANALYTICS-004).
-import type { Content, World } from "@japacity/sim";
+import type { Content, Id, PlaceEntry, Where, World } from "@japacity/sim";
 import { connect, pgCounterStore, pgStores, pgSwitchStore } from "@japacity/db";
 import type { Connection, Handle, Queries } from "@japacity/db";
 import type { CounterStore, SwitchStore } from "@japacity/store";
@@ -80,19 +80,45 @@ async function stateOfAccount(deps: ServerDeps, account: string) {
   }
 }
 
+/** Where a life opens when no content place is its hub: the client's own fallbacks (`features/city/staging.ts`). */
+const NO_HUB: Record<Where, Id<"place">> = {
+  home: "place.family-house",
+  abroad: "place.the-room",
+  road: "place.road-night",
+};
+
 /**
- * R-CLOCK-020, R-CLOCK-027: the place a character's sockets and nudges are for.
- * the state holds no city place, so this is the client's reading
- * (`apps/client/src/authority/online.ts` placeOf): the country id abroad, and
- * `home` or `road` otherwise. The socket and presence routes take content
- * place ids, so the two sides do not meet until the contract names one place.
+ * R-CITY-013, R-CITY-036: the hub a character's sockets and presence are for,
+ * read as the client's `openingPlace` reads it so the socket route's place
+ * check meets the client: the home hub at home, the country's hub abroad, the
+ * stylised road place on the road.
  */
+export function hubFor(where: Where, country: Id<"country"> | null, places: readonly PlaceEntry[]): Id<"place"> {
+  const open = places.filter((place) => {
+    switch (where) {
+      case "home":
+        return place.where === "home";
+      case "abroad":
+        return place.where === "abroad" && (place.country === null || place.country === country);
+      case "road":
+        return place.where === "road" && place.nameKind === "stylised";
+      default: {
+        const never: never = where;
+        throw new Error(`Unknown where: ${String(never)}`);
+      }
+    }
+  });
+  const hub = open.find((place) => place.hub && (where !== "abroad" || place.country === country));
+  return hub?.id ?? NO_HUB[where];
+}
+
+/** R-CLOCK-020, R-CLOCK-027, R-CITY-036: the content place a character's sockets and nudges are for. */
 export function placeOfIn(deps: ServerDeps): PlaceOf {
   return async (account) => {
     const read = await stateOfAccount(deps, account);
     if (read === null) return null;
     const { where, country } = read.state.place;
-    return where === "abroad" && country !== null ? country : where;
+    return hubFor(where, country, Object.values(read.content.place));
   };
 }
 
