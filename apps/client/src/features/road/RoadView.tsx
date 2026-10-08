@@ -8,6 +8,7 @@ import { DoorOpen, Hourglass } from "lucide-react";
 import type { ReactNode } from "react";
 
 import { useGame, useView } from "../../authority/GameProvider";
+import { City } from "../city/City";
 import { Button } from "../../shared/ui/Button";
 import { Card } from "../../shared/ui/Panel";
 import { Rejection } from "../../shared/ui/Rejection";
@@ -139,6 +140,7 @@ export function RoadView({ offers = null }: { offers?: ((only: (offer: OfferView
   const lines = report === null ? [] : roadLines(report.lines);
   return (
     <main className="mx-auto flex min-h-dvh max-w-xl flex-col gap-4 px-4 py-6" data-road>
+      <City />
       <p className="text-sm font-semibold tracking-wide text-muted uppercase">{say("ui.road.title")}</p>
       <ChainCard />
       {shown.length === 0 || offers === null ? null : offers((offer) => shown.includes(offer))}

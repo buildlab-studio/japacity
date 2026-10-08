@@ -6,7 +6,7 @@ import { describe, expect, test } from "vitest";
 
 import { defaultPaths, listFiles } from "./check-assets";
 import { sha256 } from "./manifest";
-import { hashedName, hashInName, HASH_DIGITS, MANIFEST_FILE, planPublish, publish, publishedFolder, type PublishManifest } from "./publish";
+import { hashedName, hashInName, HASH_DIGITS, MANIFEST_FILE, planPublish, publish, type PublishManifest, sourcesOf } from "./publish";
 
 const ROOT = join(import.meta.dirname, "..", "..");
 
@@ -19,21 +19,22 @@ describe("published names", () => {
     expect(hashInName("places/ojuelegba/bld_plaza.glb")).toBeNull();
   });
 
-  test("[R-CITY-018] given two files, when one changes, then only its published name changes and the old copy is removed", () => {
+  test("[R-CITY-018] given two files, when one changes, then only its published name changes, the old copy is removed and the sources stay", () => {
     const work = mkdtempSync(join(tmpdir(), "publish-"));
     try {
-      const source = join(work, "assets");
-      const target = join(work, "published");
-      mkdirSync(join(source, "shared"), { recursive: true });
-      writeFileSync(join(source, "shared", "prop_a.glb"), "one");
-      writeFileSync(join(source, "credits.json"), "{}");
-      const first = publish(source, target);
-      writeFileSync(join(source, "shared", "prop_a.glb"), "two");
-      const second = publish(source, target);
+      const folder = join(work, "assets");
+      mkdirSync(join(folder, "shared"), { recursive: true });
+      writeFileSync(join(folder, "shared", "prop_a.glb"), "one");
+      writeFileSync(join(folder, "credits.json"), "{}");
+      const first = publish(folder);
+      writeFileSync(join(folder, "shared", "prop_a.glb"), "two");
+      const second = publish(folder);
       expect(second.files["credits.json"]).toBe(first.files["credits.json"]);
       expect(second.files["shared/prop_a.glb"]).not.toBe(first.files["shared/prop_a.glb"]);
-      expect(existsSync(join(target, first.files["shared/prop_a.glb"] ?? ""))).toBe(false);
-      expect(readFileSync(join(target, second.files["shared/prop_a.glb"] ?? ""), "utf8")).toBe("two");
+      expect(existsSync(join(folder, first.files["shared/prop_a.glb"] ?? ""))).toBe(false);
+      expect(readFileSync(join(folder, second.files["shared/prop_a.glb"] ?? ""), "utf8")).toBe("two");
+      expect(readFileSync(join(folder, "shared", "prop_a.glb"), "utf8")).toBe("two");
+      expect(Object.keys(second.files).sort()).toEqual(["credits.json", "shared/prop_a.glb"]);
     } finally {
       rmSync(work, { recursive: true, force: true });
     }
@@ -41,21 +42,22 @@ describe("published names", () => {
 });
 
 describe("the committed publish", () => {
-  const source = defaultPaths(ROOT).public;
-  const target = publishedFolder(ROOT);
-  const manifest = JSON.parse(readFileSync(join(target, MANIFEST_FILE), "utf8")) as PublishManifest;
+  const folder = defaultPaths(ROOT).public;
+  const manifest = JSON.parse(readFileSync(join(folder, MANIFEST_FILE), "utf8")) as PublishManifest;
 
   test("[R-CITY-018] given the manifest the loader reads, when each name is checked, then it carries the hash of that file's contents", () => {
     const wrong = Object.entries(manifest.files).filter(([, published]) => {
-      const bytes = readFileSync(join(target, published));
+      const bytes = readFileSync(join(folder, published));
       return hashInName(published) !== sha256(bytes).slice(0, HASH_DIGITS);
     });
     expect(wrong).toEqual([]);
   });
 
-  test("[R-CITY-018] given every shipped file, when the manifest is compared with public/assets, then it names each one with its current contents", () => {
-    expect(manifest.files).toEqual(planPublish(source).files);
-    const published = new Set([MANIFEST_FILE, ...Object.values(manifest.files)]);
-    expect(listFiles(target).filter((path) => !published.has(path))).toEqual([]);
+  test("[R-CITY-018] given every shipped file, when the manifest is compared with public/assets, then it names each one with its current contents, beside it, and no stale copy is left", () => {
+    expect(manifest.files).toEqual(planPublish(folder).files);
+    for (const [path, published] of Object.entries(manifest.files)) expect(published.slice(0, published.lastIndexOf("/") + 1)).toBe(path.slice(0, path.lastIndexOf("/") + 1));
+    const named = new Set([MANIFEST_FILE, ...Object.keys(manifest.files), ...Object.values(manifest.files)]);
+    expect(listFiles(folder).filter((path) => !named.has(path))).toEqual([]);
+    expect(sourcesOf(folder)).toEqual(Object.keys(manifest.files));
   });
 });

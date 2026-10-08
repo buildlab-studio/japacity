@@ -1,5 +1,5 @@
 {
-  "note": "Written by tools/assets/publish.ts (pnpm assets:publish). Every file under public/assets, published under a name carrying the hash of its contents (city.md R-CITY-018). Never edit by hand.",
+  "note": "Written by tools/assets/publish.ts (pnpm assets:publish). Every file under public/assets, published beside it under a name carrying the hash of its contents (city.md R-CITY-018). Never edit by hand.",
   "files": {
     "credits.json": "credits.394439d6e26b.json",
     "places/national-stadium/lm_national-stadium.glb": "places/national-stadium/lm_national-stadium.b43e6daf16b7.glb",

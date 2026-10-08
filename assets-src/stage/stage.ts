@@ -33,13 +33,13 @@ export type MaskView = "front" | "side" | "plan";
 
 export interface LoadOptions {
   url: string;
-  /** Sign text by key: the drafts in assets-src/signs.json until the place's text table has them. */
+  /** Sign text by key, from the content's text table. */
   text: Record<string, string>;
   /** Bone rotations (Euler XYZ) for a person, by bone name, and the hips' height if the pose moves it. */
   pose?: { rotations: Record<string, [number, number, number]>; hipsY?: number };
   /** A model shown beside the asset in the phone shot for scale. */
   scaleFigure?: { url: string; pose?: LoadOptions["pose"] };
-  /** The ground the asset stands on in the shots: sand, or water for a bridge. */
+  /** The ground the asset stands on in the shots: sand, or the lagoon for a bridge. */
   ground?: PaletteName;
   /** Where the far phone shot stands and looks, when a landmark is first seen from somewhere particular. */
   farView?: { position: [number, number, number]; target: [number, number, number] };

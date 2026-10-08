@@ -3,18 +3,18 @@
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative, sep } from "node:path";
 
-import type { RegisterRow, Review } from "@japacity/assets";
+import type { RegisterRow, Review, ReviewSheet } from "@japacity/assets";
 
 import { measure, readGlb } from "./glb";
 import { placeMapData } from "./map-data";
-import { type Manifest, sha256 } from "./manifest";
+import { hashInName, type Manifest, sha256 } from "./manifest";
 import { checkPalette } from "./palette-check";
 import type { Register } from "./register";
 
 /** R-ASSET-008, as the page writes it. */
 export const FILE_NAME = /^(chr|veh|bld|shop|sign|lm|prop|cloth|hair|anim|tex)_[a-z0-9]+(-[a-z0-9]+)*(_[a-z0-9]+(-[a-z0-9]+)*)?\.(glb|png|ktx2)$/;
-/** Files decision 0005 places under public/assets beside the models. */
-export const DATA_FILES = new Set(["place.json", "credits.json"]);
+/** Files decision 0005 places under public/assets beside the models, and the publish step's manifest. */
+export const DATA_FILES = new Set(["place.json", "credits.json", "manifest.json"]);
 const IMAGE = /\.(png|jpe?g|webp|gif|avif|bmp|tiff?|heic|ktx2)$/i;
 
 export interface AssetBudget {
@@ -88,6 +88,21 @@ export function listFiles(dir: string): string[] {
   return out.sort();
 }
 
+/** A copy pnpm assets:publish wrote beside its source, named by its hash (city.md R-CITY-018): not a shipped name of its own. */
+export function isPublishedCopy(file: string): boolean {
+  return hashInName(file.split("/").pop() ?? "") !== null;
+}
+
+/** The files under public/assets the checks hold to R-ASSET-008 and the register: everything but the hashed copies. */
+export function sourceFiles(files: readonly string[]): string[] {
+  return files.filter((file) => !isPublishedCopy(file));
+}
+
+/** A row for media made outside public/assets: a path from the repository root, `#<name>` naming one piece in a file of code. */
+export function isMediaRow(row: Pick<RegisterRow, "file">): boolean {
+  return /^(apps|packages|prototypes)\//.test(row.file);
+}
+
 export function prefixOf(file: string): string {
   return (file.split("/").pop() ?? "").split("_")[0] ?? "";
 }
@@ -119,10 +134,48 @@ export function checkRegister(rows: readonly RegisterRow[], shipped: readonly Me
       if (row[key] !== file[key]) problems.push(`R-ASSET-009: ${file.file} register says ${key} ${String(row[key])}, the file has ${String(file[key])}`);
     }
     if (row.paletteCheck?.passed !== true) problems.push(`R-ASSET-009: ${file.file} has no passed palette check in its register row`);
-    if (row.source === "ai-tool" && row.aiTool === null) problems.push(`R-ASSET-015: ${file.file} was made with an AI tool and its row names none`);
   }
   const files = new Set(shipped.map((file) => file.file));
-  for (const row of rows) if (!files.has(row.file)) problems.push(`R-ASSET-009: register row ${row.file} names no shipped file`);
+  for (const row of rows) if (!isMediaRow(row) && !files.has(row.file)) problems.push(`R-ASSET-009: register row ${row.file} names no shipped file`);
+  return problems;
+}
+
+/**
+ * 2b. A row for media made outside public/assets names something that is there: the file, and the
+ * piece after `#` written in it. A picture's bytes are the file's.
+ */
+export function checkMediaRows(rows: readonly RegisterRow[], read: (path: string) => Uint8Array | null): string[] {
+  const problems: string[] = [];
+  for (const row of rows.filter(isMediaRow)) {
+    const [path = "", piece] = row.file.split("#");
+    const bytes = read(path);
+    if (bytes === null) {
+      problems.push(`R-ASSET-009: register row ${row.file} names no file`);
+      continue;
+    }
+    if (piece !== undefined && !Buffer.from(bytes).toString("utf8").includes(JSON.stringify(piece))) problems.push(`R-ASSET-009: register row ${row.file} names ${piece}, which ${path} does not hold`);
+    if (piece === undefined && IMAGE.test(path) && row.bytes !== bytes.byteLength) problems.push(`R-ASSET-009: ${row.file} register says bytes ${String(row.bytes)}, the file has ${String(bytes.byteLength)}`);
+  }
+  return problems;
+}
+
+/**
+ * 2c. Every row says whether it was generated, with which tool, and who approved it (guides.md
+ * R-GUIDE-013); an AI-made row names its tool, and is accepted only once it names an approver (R-ASSET-015).
+ */
+export function checkMadeWith(rows: readonly RegisterRow[]): string[] {
+  const problems: string[] = [];
+  for (const row of rows) {
+    const columns = row as unknown as Record<string, unknown>;
+    const missing = [typeof columns.generated === "boolean" ? null : "generated", "tool" in columns && (row.tool === null || typeof row.tool === "string") ? null : "tool", "approvedBy" in columns && (row.approvedBy === null || typeof row.approvedBy === "string") ? null : "approvedBy"].filter((name) => name !== null);
+    if (missing.length > 0) {
+      problems.push(`R-GUIDE-013: register row ${row.file} has no ${missing.join(", ")}`);
+      continue;
+    }
+    if (row.source === "ai-tool" && !row.generated) problems.push(`R-ASSET-015: ${row.file} comes from an AI tool and its row says it was not generated`);
+    if (row.generated && (row.tool === null || row.tool.trim() === "")) problems.push(`R-ASSET-015: ${row.file} was made with an AI tool and its row names none`);
+    if (row.generated && row.status === "accepted" && (row.approvedBy === null || row.approvedBy.trim() === "")) problems.push(`R-ASSET-015: ${row.file} was made with an AI tool and is accepted with no one named as approving it`);
+  }
   return problems;
 }
 
@@ -168,6 +221,12 @@ export function checkImages(images: readonly { path: string; bytes: Uint8Array }
   return problems;
 }
 
+/** The review that counts on a sheet: the sheet itself, or the last of its rounds; null for a place's sheet, which no register row reads. */
+export function lastRound(sheet: ReviewSheet): Review | null {
+  if (Array.isArray(sheet)) return sheet[sheet.length - 1] ?? null;
+  return "scores" in sheet ? sheet : null;
+}
+
 /** 7. An accepted row has a passing review (R-ASSET-022) and, for a landmark, passing outline scores (R-ASSET-023). */
 export function checkAccepted(rows: readonly RegisterRow[], reviews: ReadonlyMap<string, Review | null>, outlines: ReadonlyMap<string, Record<string, { passes: boolean }> | null>, config: ReviewConfig): string[] {
   const problems: string[] = [];
@@ -178,10 +237,10 @@ export function checkAccepted(rows: readonly RegisterRow[], reviews: ReadonlyMap
       problems.push(`R-ASSET-022: ${row.file} is accepted with no review.json`);
       continue;
     }
-    const scores = Object.entries(review.scores);
+    const scores = Object.entries(review.scores).filter((entry): entry is [string, number] => typeof entry[1] === "number");
     const low = scores.filter(([key, value]) => key !== "budget" && value < config.minEach);
     if (low.length > 0) problems.push(`R-ASSET-022: ${row.file} is accepted with ${low.map(([key]) => key).join(", ")} under ${String(config.minEach)}`);
-    if (review.scores.phone < config.minPhone) problems.push(`R-ASSET-022: ${row.file} is accepted with phone under ${String(config.minPhone)}`);
+    if ((review.scores.phone ?? 0) < config.minPhone) problems.push(`R-ASSET-022: ${row.file} is accepted with phone under ${String(config.minPhone)}`);
     const mean = scores.reduce((sum, [, value]) => sum + value, 0) / scores.length;
     if (mean < config.minMean) problems.push(`R-ASSET-022: ${row.file} is accepted with a mean of ${mean.toFixed(2)}, under ${String(config.minMean)}`);
     if (review.scores.budget === 0) problems.push(`R-ASSET-022: ${row.file} is accepted over budget`);
@@ -247,14 +306,24 @@ export function placeTotals(place: PlaceFile, measured: ReadonlyMap<string, Meas
   };
 }
 
+/**
+ * The per-place row a mode is held to. The hub's low mode is the first load (code, the hub, one
+ * character); its high mode is an exterior like any other.
+ */
+export function rowFor(place: Pick<PlaceFile, "hub" | "scope">, mode: "low" | "high", budgets: Budgets): { drawCalls: number; triangles: number } {
+  if (place.hub && mode === "low") return budgets.place.firstLoad;
+  return budgets.place[place.scope];
+}
+
 export function checkPlace(place: PlaceFile, measured: ReadonlyMap<string, Measured>, budgets: Budgets): string[] {
   const { totals, missing } = placeTotals(place, measured);
   const problems = missing.map((file) => `R-ASSET-007: ${place.place} lists ${file}, which is not shipped`);
-  const scope = place.hub ? budgets.place.firstLoad : budgets.place[place.scope];
   for (const mode of ["low", "high"] as const) {
+    const scope = rowFor(place, mode, budgets);
     if (totals[mode].drawCalls > scope.drawCalls) problems.push(`R-ASSET-007: ${place.place} has ${String(totals[mode].drawCalls)} draw calls in ${mode} mode, over ${String(scope.drawCalls)}`);
     if (totals[mode].triangles > scope.triangles) problems.push(`R-ASSET-007: ${place.place} has ${String(totals[mode].triangles)} triangles in ${mode} mode, over ${String(scope.triangles)}`);
   }
+  const scope = budgets.place[place.scope];
   if (!place.hub && totals.bytes > scope.bytes) problems.push(`R-ASSET-007: ${place.place} downloads ${String(totals.bytes)} bytes, over ${String(scope.bytes)}`);
   return problems;
 }
@@ -338,11 +407,22 @@ export async function runChecks(paths: Paths, placeData: readonly string[]): Pro
   const config = readJson<ReviewConfig>(join(paths.source, "review.config.json"));
   const register = readJson<Register>(join(paths.source, "register.json"));
   const manifest = readJson<Manifest>(join(paths.source, "manifest.json"));
-  const files = listFiles(paths.public);
+  const files = sourceFiles(listFiles(paths.public));
   const shippedFiles = files.filter((file) => !DATA_FILES.has(file.split("/").pop() ?? ""));
   const measured = await Promise.all(shippedFiles.map((file) => measureFile(paths, file)));
   const byFile = new Map(measured.map((file) => [file.file, file]));
-  const problems = [...checkNames(files), ...checkRegister(register.rows, measured), ...checkBudgets(measured, budgets), ...checkPaletteResults(measured)];
+  const readRepo = (path: string): Uint8Array | null => {
+    const full = join(paths.root, path);
+    return existsSync(full) && statSync(full).isFile() ? readFileSync(full) : null;
+  };
+  const problems = [
+    ...checkNames(files),
+    ...checkRegister(register.rows, measured),
+    ...checkMediaRows(register.rows, readRepo),
+    ...checkMadeWith(register.rows),
+    ...checkBudgets(measured, budgets),
+    ...checkPaletteResults(measured),
+  ];
 
   const images = [
     ...listFiles(paths.source).filter((file) => IMAGE.test(file)).map((file) => ({ path: `assets-src/${file}`, bytes: readFileSync(join(paths.source, file)) })),
@@ -361,7 +441,7 @@ export async function runChecks(paths: Paths, placeData: readonly string[]): Pro
   for (const row of register.rows) {
     const folder = folders.get(row.file) ?? null;
     const reviewPath = folder === null ? null : join(folder, "review.json");
-    reviews.set(row.file, reviewPath !== null && existsSync(reviewPath) ? readJson<Review>(reviewPath) : null);
+    reviews.set(row.file, reviewPath !== null && existsSync(reviewPath) ? lastRound(readJson<ReviewSheet>(reviewPath)) : null);
     const scorePath = folder === null ? null : join(folder, "outline-score.json");
     outlines.set(row.file, scorePath !== null && existsSync(scorePath) ? readJson<{ scores: Record<string, { passes: boolean }> }>(scorePath).scores : null);
   }

@@ -1,10 +1,14 @@
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
+import { text } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
-import { CATALOG, ROOT, SOURCE } from "./catalog";
+import { CATALOG, PUBLIC, ROOT, SOURCE } from "./catalog";
+import { listFiles, sourceFiles } from "./check-assets";
+import { readGlb } from "./glb";
 import { PHONE_SHOT } from "./shoot";
+import { signText } from "./stage-browser";
 
 const config = JSON.parse(readFileSync(join(SOURCE, "review.config.json"), "utf8")) as { phoneShot: Record<string, number>; criteria: { key: string }[] };
 const stage = readFileSync(join(SOURCE, "stage", "stage.ts"), "utf8");
@@ -46,5 +50,19 @@ describe("the fixed views", () => {
       expect(CATALOG.find((c) => c.name === e.name)?.file).toBe(e.file);
     }
     expect([examples.bar.building, examples.bar.shopfront, examples.bar.landmark, examples.bar.outOf]).toEqual([21, 21, 20, 35]);
+  });
+
+  test("[R-ASSET-012] given every sign anchor in a shipped model, when the stage letters it, then its words are the content's text table's and signs.json keeps none", async () => {
+    const words = signText();
+    const keys: string[] = [];
+    for (const file of sourceFiles(listFiles(PUBLIC)).filter((path) => path.endsWith(".glb"))) {
+      const doc = await readGlb(readFileSync(join(PUBLIC, file)));
+      const root = doc.getRoot().getDefaultScene()?.listChildren()[0];
+      for (const anchor of (root?.getExtras() as { signs?: { key: string }[] } | undefined)?.signs ?? []) keys.push(anchor.key);
+    }
+    expect(keys.length).toBeGreaterThanOrEqual(12);
+    for (const key of keys) expect(words[key], key).toBe(text[key]);
+    expect(Object.values(words).every((said) => said.trim() !== "")).toBe(true);
+    expect(Object.keys(JSON.parse(readFileSync(join(SOURCE, "signs.json"), "utf8")) as object)).toEqual(["note"]);
   });
 });

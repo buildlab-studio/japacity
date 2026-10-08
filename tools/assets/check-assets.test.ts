@@ -12,6 +12,8 @@ import {
   checkCredits,
   checkDownloads,
   checkImages,
+  checkMadeWith,
+  checkMediaRows,
   checkNames,
   checkPlace,
   checkRegister,
@@ -19,8 +21,11 @@ import {
   expectedCredits,
   type Measured,
   OSM_CREDIT,
+  lastRound,
   type PlaceFile,
+  rowFor,
   runChecks,
+  sourceFiles,
 } from "./check-assets";
 import { readGlb, toDocument, writeGlb } from "./glb";
 import { placeMapData } from "./map-data";
@@ -34,10 +39,12 @@ const config = { outlineMin: 85, dimTolerancePct: 5, minEach: 3, minPhone: 4, mi
 
 const measured = (file: string, over: Partial<Measured> = {}): Measured => ({ file, triangles: 100, drawCalls: 1, materials: 1, bytes: 1000, minY: 0, maxY: 6, palette: [], signs: 0, ...over });
 const row = (file: string, over: Partial<RegisterRow> = {}): RegisterRow => ({
-  file, place: "shared", source: "code", author: "the pipeline work", licence: "CC BY-SA 4.0", attribution: null, aiTool: "an agent", date: "2026-10-08", modified: false,
+  file, place: "shared", source: "code", author: "the pipeline work", licence: "CC BY-SA 4.0", attribution: null, generated: true, tool: "an agent", approvedBy: null, date: "2026-10-08", modified: false,
   triangles: 100, drawCalls: 1, materials: 1, bytes: 1000, paletteCheck: { passed: true, date: "2026-10-08" }, reference: [], outline: null, review: null, nameCheck: null, status: "draft", ...over,
 });
-const review = (scores: Partial<Review["scores"]>): Review => ({ reviewer: "r", date: "2026-10-08", scores: { phone: 4, silhouette: 4, proportion: 4, palette: 4, wear: 4, variety: 4, budget: 5, ...scores }, mean: 0, notes: "" });
+const review = (scores: Partial<Review["scores"]>): Review => ({
+  reviewer: "r", date: "2026-10-08", scores: { phone: 4, silhouette: 4, proportion: 4, palette: 4, wear: 4, variety: 4, budget: 5, ...scores }, mean: 0, notes: "", accepted: true, failing: [], reasons: {},
+});
 
 describe("names", () => {
   test("[R-ASSET-008] given shipped names, when they are checked, then the page's pattern passes and anything else fails, with place.json and credits.json allowed", () => {
@@ -45,6 +52,13 @@ describe("names", () => {
     expect(checkNames(good)).toEqual([]);
     const bad = ["shared/chr/var_plus_short_busty.glb", "shared/chr/chr_Amaka.glb", "shared/chr/chr_a_b_c.glb", "places/x/bld_plaza.gltf", "places/x/photo.jpg", "places/x/lm_national_stadium_a.glb"];
     expect(checkNames(bad)).toHaveLength(bad.length);
+  });
+
+  test("[R-CITY-018] given the publish step's manifest and hashed copies beside their sources, when names are checked, then the copies are skipped and the manifest allowed, and a name that only looks hashed is not", () => {
+    const files = ["manifest.json", "places/x/bld_plaza.glb", "places/x/bld_plaza.0123456789ab.glb", "places/x/place.0123456789ab.json", "credits.0123456789ab.json"];
+    expect(sourceFiles(files)).toEqual(["manifest.json", "places/x/bld_plaza.glb"]);
+    expect(checkNames(sourceFiles(files))).toEqual([]);
+    expect(sourceFiles(["places/x/bld_plaza.0123456789.glb"])).toHaveLength(1);
   });
 });
 
@@ -56,9 +70,39 @@ describe("the register", () => {
     expect(checkRegister([row("a/bld_a.glb", { bytes: 999 })], [measured("a/bld_a.glb")])[0]).toMatch(/bytes 999, the file has 1000/);
   });
 
-  test("[R-ASSET-015] given a row made with an AI tool, when it names no tool, then it fails", () => {
-    expect(checkRegister([row("a/bld_a.glb", { source: "ai-tool", aiTool: null })], [measured("a/bld_a.glb")])[0]).toMatch(/R-ASSET-015/);
-    expect(checkRegister([row("a/bld_a.glb", { source: "ai-tool", aiTool: "a tool, a plan" })], [measured("a/bld_a.glb")])).toEqual([]);
+  test("[R-ASSET-015] given a row made with an AI tool, when it names no tool, then it fails at any status, and a row from an AI tool must say it was generated", () => {
+    expect(checkMadeWith([row("a/bld_a.glb", { tool: null })])[0]).toMatch(/R-ASSET-015: a\/bld_a.glb was made with an AI tool and its row names none/);
+    expect(checkMadeWith([row("a/bld_a.glb", { tool: " " })])).toHaveLength(1);
+    expect(checkMadeWith([row("a/bld_a.glb", { tool: "a tool, a plan" })])).toEqual([]);
+    expect(checkMadeWith([row("a/bld_a.glb", { source: "ai-tool", generated: false, tool: null })])[0]).toMatch(/says it was not generated/);
+    expect(checkMadeWith([row("a/bld_a.glb", { source: "artist", generated: false, tool: null })])).toEqual([]);
+  });
+
+  test("[R-ASSET-015] given an AI-made row, when it is accepted with no approver, then it fails, and with an approver or still a draft it passes", () => {
+    expect(checkMadeWith([row("a/bld_a.glb", { status: "accepted", approvedBy: null })])[0]).toMatch(/is accepted with no one named as approving it/);
+    expect(checkMadeWith([row("a/bld_a.glb", { status: "accepted", approvedBy: "" })])).toHaveLength(1);
+    expect(checkMadeWith([row("a/bld_a.glb", { status: "accepted", approvedBy: "the maintainer" })])).toEqual([]);
+    expect(checkMadeWith([row("a/bld_a.glb", { status: "draft", approvedBy: null }), row("a/bld_b.glb", { status: "rejected", approvedBy: null })])).toEqual([]);
+    expect(checkMadeWith([row("a/bld_a.glb", { generated: false, tool: null, status: "accepted", approvedBy: null })])).toEqual([]);
+  });
+
+  test("[R-GUIDE-013] given a register row, when it lacks whether it was generated, its tool or its approver, then the check names each missing column", () => {
+    const bare = row("a/bld_a.glb") as unknown as Record<string, unknown>;
+    delete bare.generated;
+    delete bare.approvedBy;
+    expect(checkMadeWith([bare as unknown as RegisterRow])).toEqual(["R-GUIDE-013: register row a/bld_a.glb has no generated, approvedBy"]);
+    expect(checkMadeWith([row("a/bld_a.glb", { tool: 3 as unknown as string })])).toEqual(["R-GUIDE-013: register row a/bld_a.glb has no tool"]);
+  });
+
+  test("[R-GUIDE-013] given rows for media made outside public/assets, when they are checked, then each names a file that is there and a piece written in it, a picture's bytes are the file's, and no shipped file is asked for", () => {
+    const files: Record<string, Uint8Array> = { "apps/x/art.ts": Buffer.from('const art = { "art.dusk": 1 };'), "apps/x/share/a.jpg": Uint8Array.from([1, 2, 3]) };
+    const read = (path: string): Uint8Array | null => files[path] ?? null;
+    const media = [row("apps/x/art.ts#art.dusk", { bytes: 0 }), row("apps/x/share/a.jpg", { bytes: 3 })];
+    expect(checkMediaRows(media, read)).toEqual([]);
+    expect(checkRegister(media, [])).toEqual([]);
+    expect(checkMediaRows([row("apps/x/art.ts#art.dawn")], read)[0]).toMatch(/names art.dawn, which apps\/x\/art.ts does not hold/);
+    expect(checkMediaRows([row("apps/x/gone.ts#art.dusk")], read)[0]).toMatch(/names no file/);
+    expect(checkMediaRows([row("apps/x/share/a.jpg", { bytes: 4 })], read)[0]).toMatch(/bytes 4, the file has 3/);
   });
 
   test("[R-ASSET-009] given the repository, when every check runs, then every shipped file matches its register row and nothing fails", async () => {
@@ -108,6 +152,16 @@ describe("pictures", () => {
 });
 
 describe("acceptance", () => {
+  test("[R-ASSET-027] given a sheet scored in rounds, when the review that counts is read, then it is the last round; a place's sheet counts for no row", () => {
+    const first = review({ wear: 2 });
+    const second = { ...review({}), against: { file: "review.json, the first entry" } };
+    expect(lastRound([first, second])).toBe(second);
+    expect(lastRound(first)).toBe(first);
+    expect(lastRound([])).toBeNull();
+    const modes = { scores: {}, mean: 4, accepted: true, failing: [], reasons: {} };
+    expect(lastRound({ piece: "the hub", reviewer: "r", date: "2026-10-08", low: modes, high: modes, notes: "" })).toBeNull();
+  });
+
   const rows = [row("p/bld_a.glb", { status: "accepted" })];
   const none = new Map<string, null>();
   const check = (scores: Partial<Review["scores"]>): string[] => checkAccepted(rows, new Map([["p/bld_a.glb", review(scores)]]), none, config);
@@ -145,10 +199,19 @@ describe("budgets for one place", () => {
   });
 
   test("[R-ASSET-007] given a hub, when it is counted in both modes, then instanced buildings cost one draw call, their signs one each, and people the heaviest of the sample times the crowd", () => {
-    // 4 + 1 + 2 signs + 3 x 17 people = 58 draw calls in high mode: inside the first load's 60.
-    expect(checkPlace(place(8, 17, 2), files, budgets)).toEqual([]);
+    // 4 + 1 + 2 signs + 3 x 17 people = 58 draw calls in low mode: inside the first load's 60.
+    expect(checkPlace(place(17, 17, 2), files, budgets)).toEqual([]);
     // One more person: 61.
-    expect(checkPlace(place(8, 18, 2), files, budgets)[0]).toMatch(/61 draw calls in high mode/);
+    expect(checkPlace(place(18, 18, 2), files, budgets)[0]).toMatch(/61 draw calls in low mode, over 60/);
+  });
+
+  test("[R-ASSET-007] given the hub, when its rows are read, then its low mode is held to the first load and its high mode to the exterior row, and any other place to its scope in both", () => {
+    expect(rowFor({ hub: true, scope: "exterior" }, "low", budgets)).toBe(budgets.place.firstLoad);
+    expect(rowFor({ hub: true, scope: "exterior" }, "high", budgets)).toBe(budgets.place.exterior);
+    expect(rowFor({ hub: false, scope: "interior" }, "low", budgets)).toBe(budgets.place.interior);
+    // 4 + 1 + 2 + 3 x 24 = 79 draw calls in high mode: over the first load's 60, inside the exterior's 80; 25 people make 82.
+    expect(checkPlace(place(8, 24, 2), files, budgets)).toEqual([]);
+    expect(checkPlace(place(8, 25, 2), files, budgets)[0]).toMatch(/82 draw calls in high mode, over 80/);
   });
 });
 
