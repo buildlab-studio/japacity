@@ -62,7 +62,7 @@ export function suiteForWorldStore(make: () => Promise<WorldStore>): void {
       const stored = must(await store.putDraw(DRAW));
       const again = must(await store.putDraw({ ...DRAW }));
 
-      expect(stored).toEqual({ ...DRAW, closedAt: null, result: null });
+      expect(stored).toEqual({ ...DRAW, closedAt: null, list: null, listHash: null, result: null });
       expect(again).toEqual(stored);
       expect(await store.draw(4)).toEqual(stored);
       expect(await store.draw(5)).toBeNull();
@@ -75,7 +75,7 @@ export function suiteForWorldStore(make: () => Promise<WorldStore>): void {
       for (const changed of [{ secret: "33".repeat(32) }, { fingerprint: "44".repeat(32) }, { beaconRound: 901 }]) {
         expect(await store.putDraw({ ...DRAW, ...changed })).toMatchObject({ ok: false, code: "conflict" });
       }
-      expect(await store.draw(4)).toEqual({ ...DRAW, closedAt: null, result: null });
+      expect(await store.draw(4)).toEqual({ ...DRAW, closedAt: null, list: null, listHash: null, result: null });
     });
 
     test("[R-LOTTERY-005] given purchases from two characters, when tickets are added, then they are numbered from 0 in the order they were committed", async () => {
@@ -146,7 +146,7 @@ export function suiteForWorldStore(make: () => Promise<WorldStore>): void {
       const again = await store.setResult(4, { ...lotteryResult(4), count: 99 });
 
       expect(early).toMatchObject({ ok: false, code: "open" });
-      expect(set).toEqual({ ...DRAW, closedAt: 70_000, result: lotteryResult(4) });
+      expect(set).toEqual({ ...DRAW, closedAt: 70_000, list: null, listHash: null, result: lotteryResult(4) });
       expect(again).toMatchObject({ ok: false, code: "conflict" });
       expect(await store.draw(4)).toEqual(set);
       expect(await store.setResult(9, lotteryResult(9))).toMatchObject({ ok: false, code: "missing" });

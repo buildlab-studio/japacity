@@ -15,7 +15,7 @@ export interface ServerConfig {
   /** R-CLOCK-001 to 006, 019. `epoch` is a Friday at 18:00 UTC (R-CLOCK-002); the maintainer picks which. */
   clock: { epoch: number; worldTickMs: number; turnRefillMs: number; worldFetchSpreadMs: number };
   /** R-CLOCK-026, 028, 029. */
-  presence: { maxPerObject: number; sample: number; nudgeEveryMs: number; attachmentBytes: number };
+  presence: { maxPerObject: number; sample: number; nudgeEveryMs: number; attachmentBytes: number; todayMax: number };
   /** account.md Numbers. */
   account: { minAge: number; refusedCookieDays: number; deleteFreshMs: number; deleteWithinDays: number; maxCharacters: number };
   auth: { otp: { length: number; expiresIn: number; attempts: number }; limits: { otpSendPer60s: number } };
@@ -23,6 +23,16 @@ export interface ServerConfig {
   regions: Regions;
   /** R-SERVER-012: the accounts that may read the admin page. Empty in production until the maintainer adds one. */
   admin: { accounts: string[] };
+  /** lottery.md Numbers: the secret's size and the public beacon (R-LOTTERY-007). */
+  lottery: { secretBits: number; beacon: { genesis: number; period: number; url: string } };
+  /** R-SERVER-030 to 032: how long a switch is cached per isolate and how long the full screen asks a player to wait. */
+  switches: { cacheMs: number; retryMs: number };
+  /** R-MODERATION-020. */
+  feedback: { maxChars: number; perDay: number; keepDays: number };
+  /** R-CITY-039, 040. */
+  board: { size: number };
+  /** R-CLOCK-031: days before the bank-full notice is asked for again. */
+  notify: { reaskDays: number };
   /**
    * R-ACCOUNT-005, R-CLOCK-009: the stand-ins that exist only in the test
    * server's config. Every one is false in production.
@@ -53,11 +63,16 @@ export const productionConfig: ServerConfig = {
   server: { snapshotEvery: 20, seedBits: 128 },
   limits: { commandsPer10s: 10, commandsPer60s: 60, readsPer60s: 120, anonPer60s: 60, socketPer10s: 10 },
   clock: { epoch: DEFAULT_EPOCH, worldTickMs: time.WORLD_TICK_MS, turnRefillMs: time.TURN_REFILL_MS, worldFetchSpreadMs: 60 * time.SECOND_MS },
-  presence: { maxPerObject: 2000, sample: 20, nudgeEveryMs: 10 * time.SECOND_MS, attachmentBytes: 1024 },
+  presence: { maxPerObject: 2000, sample: 20, nudgeEveryMs: 10 * time.SECOND_MS, attachmentBytes: 1024, todayMax: 20 },
   account: { minAge: 18, refusedCookieDays: 30, deleteFreshMs: 10 * time.MINUTE_MS, deleteWithinDays: 30, maxCharacters: 1 },
   auth: { otp: { length: 6, expiresIn: 300, attempts: 3 }, limits: { otpSendPer60s: 3 } },
   regions: launchRegions,
   admin: { accounts: [] },
+  lottery: { secretBits: 256, beacon: { genesis: 1692803367, period: 3, url: "https://api.drand.sh" } },
+  switches: { cacheMs: 30 * time.SECOND_MS, retryMs: 30 * time.SECOND_MS },
+  feedback: { maxChars: 500, perDay: 5, keepDays: 180 },
+  board: { size: 50 },
+  notify: { reaskDays: 14 },
   testing: { fastClock: false, captureOtp: false, stubGoogle: false, virtualPasskeys: false, testLogin: false },
 };
 
@@ -77,6 +92,11 @@ export function testConfig(over: Deep<ServerConfig> = {}): ServerConfig {
     },
     regions: { ...productionConfig.regions, ...(over.regions as Partial<Regions>) } as Regions,
     admin: { accounts: [...(over.admin?.accounts ?? productionConfig.admin.accounts)] },
+    lottery: { secretBits: over.lottery?.secretBits ?? productionConfig.lottery.secretBits, beacon: { ...productionConfig.lottery.beacon, ...over.lottery?.beacon } },
+    switches: { ...productionConfig.switches, ...over.switches },
+    feedback: { ...productionConfig.feedback, ...over.feedback },
+    board: { ...productionConfig.board, ...over.board },
+    notify: { ...productionConfig.notify, ...over.notify },
     testing: { ...productionConfig.testing, ...over.testing },
   };
 }

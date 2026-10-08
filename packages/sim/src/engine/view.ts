@@ -45,6 +45,7 @@ export const VIEW_KEYS = [
   "lottery",
   "people",
   "interview",
+  "adverts",
 ] as const satisfies readonly (keyof PlayerView)[];
 
 export const VIEW_KEYS_COMPLETE: [Exclude<keyof PlayerView, (typeof VIEW_KEYS)[number]>] extends [never] ? true : never = true;
@@ -78,7 +79,7 @@ export function viewWith(kinds: Registry, read: ReadCtx): PlayerView {
   // The engine gives the parts no kind owns: japacity, the world's era, and the card.
   // The card's one source: the send-off card the month chapter 4 closes (R-CHAPTER-006), else
   // the road's real-story card or its ending card when one is due (R-ROAD-011).
-  const joined: Partial<PlayerView> = { japacity: japacity(read), era: eraView(read), card: sendOffCard(read) ?? roadCard(read) };
+  const joined: Partial<PlayerView> = { japacity: japacity(read), era: eraView(read), card: sendOffCard(read) ?? roadCard(read), adverts: advertsAllowed(read) };
   for (const kind of kinds) {
     const part = kind.view?.(read) ?? {};
     for (const key of Object.keys(part)) {
@@ -89,6 +90,13 @@ export function viewWith(kinds: Registry, read: ReadCtx): PlayerView {
   const missing = VIEW_KEYS.filter((key) => !(key in joined));
   if (missing.length > 0) throw new Error(`No kind gives the view keys: ${missing.join(", ")}.`);
   return joined as PlayerView;
+}
+
+/** R-ADVERT-003: an advert may show only at home or abroad, outside a set piece, in a chapter without `noAdverts`. */
+function advertsAllowed(read: ReadCtx): boolean {
+  if (read.state.place.where === "road" || read.state.setpiece.open !== null) return false;
+  const chapter = read.state.chapter.current === null ? null : read.content.chapter[read.state.chapter.current];
+  return chapter?.noAdverts !== true;
 }
 
 /** What one player may see of the state. */

@@ -198,13 +198,17 @@ export const tuning: Tuning = {
   groupLoan: { feeBp: 1500, savingsBp: 1000, vanishBp: pct(25), visit: { standing: -12, wellbeing: -5 } },
 
   // lottery.md, the Friday draw: ticket, cap, 45% of sales destroyed, tiers 40/30/30, ten mid prizes, one small prize in 50 tickets
-  lottery: { ticket: naira(200), maxTickets: 5, burnBp: 4500, jackpotBp: 4000, midBp: 3000, midCount: 10, smallBp: 3000, smallEvery: 50 },
+  lottery: { ticket: naira(200), maxTickets: 5, burnBp: 4500, jackpotBp: 4000, midBp: 3000, midCount: 10, smallBp: 3000, smallEvery: 50, topUpTickets: 5000 },
+  advert: { maxSlotsPerPlace: 3, maxPhoneTiles: 1, impressionMs: 1000 },
+  share: { width: 1080, height: 1920, maxBytes: 300000, previewWidth: 1200, previewHeight: 630, previewMaxBytes: 150000 },
+  guide: { staleMonths: 6 },
+  analytics: { batchSeconds: 60, maxBatchBytes: 4096, maxCount: 1000, batchesPerHour: 120, minShown: 20, refD1Bp: 3010, refD7Bp: 871 },
 
   // city.md "Numbers": the crowd bands and the graphics switches. Working values.
-  city: { crowdLow: 8, crowdHigh: 16, playersMax: 4, fridayBp: 4000, saturdayBp: 5000, raiseAfterMs: 10000, raiseFrameMs: 20, dropAfterMs: 5000, dropFrameMs: 33, maxPixelRatio: 2, desktopMinWidth: 1024 },
+  city: { crowdLow: 8, crowdHigh: 16, playersMax: 4, fridayBp: 4000, saturdayBp: 5000, raiseAfterMs: 10000, raiseFrameMs: 20, dropAfterMs: 5000, dropFrameMs: 33, maxPixelRatio: 2, desktopMinWidth: 1024, idleAfterMs: 20000, idleFps: 10, walkMmPerS: 1400, stopShortMm: 300, tagNearMm: 3000, residentFloor: 4 },
 
   // people.md, pair.md, interview.md, undertaking.md: their Numbers tables
-  people: { matchmaker: false, maxCourting: 3, partnerMoments: 6, marryAfterMonths: 6, weddingShare: naira(3000000), proposeCooldown: 3, recourtMonths: 6, gossipBp: 2500, endStanding: { courting: -2, partner: -6, married: -12, applying: -6 }, endWellbeing: -4, leftWellbeing: -8, couchMonths: 3, warnDays: 7, standInDays: 14 },
+  people: { matchmaker: false, maxCourting: 3, partnerMoments: 6, marryAfterMonths: 6, weddingShare: naira(3000000), proposeCooldown: 3, recourtMonths: 6, gossipBp: 2500, endStanding: { courting: -2, partner: -6, married: -12, applying: -6 }, endWellbeing: -4, leftWellbeing: -8, couchMonths: 3, warnDays: 7, standInDays: 14, computerAfterMonths: 0 },
   pair: { inviteDays: 14, maxOpenInvites: 3, rewardFriends: 10, phrasesPerHour: 30, placePhrasesPerMinute: 6 },
   interview: { ask: 5, decoys: 3, passBp: 7000, failBp: 4000, caughtBelowBp: 2000, thinMoments: 8, thinMonths: 6, doubtBp: 3000, standInRecallBp: 8000, caughtStanding: 15 },
   undertaking: { months: 36, assistanceUnder: 100000 },

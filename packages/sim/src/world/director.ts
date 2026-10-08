@@ -559,7 +559,7 @@ export function stepWorldTick(book: DirectorBook | null, worldSeed: string, cont
   return {
     book: next,
     // The draw is the online server's; the stand-in runs none.
-    world: { tick, rates, vars, news, era, lottery: null },
+    world: { tick, rates, vars, news, era, lottery: null, placeNames: {} },
     tick: {
       tick,
       vars,

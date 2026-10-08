@@ -41,7 +41,7 @@ function play(lottery: World["lottery"] = drawOf(7, 1000)): { game: Game; live: 
   const game = start({
     scenario: TUNDE,
     content,
-    worldAt: (tick) => ({ tick, rates: base.rates, vars: base.vars, news: [], era: null, lottery: live.lottery }),
+    worldAt: (tick) => ({ tick, rates: base.rates, vars: base.vars, news: [], era: null, lottery: live.lottery, placeNames: {} }),
   });
   return { game, live };
 }

@@ -54,6 +54,7 @@ export function world(tick: number, mark = 0): World {
     tick,
     rates: { GBP: rate, USD: rate, CAD: rate, AED: rate, EUR: rate },
     vars: { "var.season-december": 0 },
+    placeNames: {},
     news: [{ id: "news.sample", stage: "rumour", since: tick }],
     era: null,
     lottery: null,

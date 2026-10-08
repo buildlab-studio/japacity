@@ -51,6 +51,7 @@ export const walletText: Record<string, string> = {
   "line.wallet.build": "Spent on the house: {amount}.",
   "line.wallet.win": "You won {amount}. A letter comes with it.",
   "line.wallet.ticket": "Lottery tickets: {amount}.",
+  "line.wallet.pot-top-up": "Lottery win, the part the house put in: {amount}.",
   "line.wallet.wedding": "Your share of the wedding: {amount}.",
   "line.wallet.undertaking": "The undertaking you signed takes {amount}.",
   "line.wallet.assistance": "Social assistance comes in: {amount}.",

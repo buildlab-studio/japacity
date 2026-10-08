@@ -6,7 +6,7 @@ import { drawTickets, draws, worldTicks } from "../schema";
 import { accept, refuse } from "./result";
 
 function toDraw(row: typeof draws.$inferSelect): DrawRow {
-  return { draw: row.draw, secret: row.secret, fingerprint: row.fingerprint, beaconRound: row.beaconRound, closedAt: row.closedAt, result: row.result };
+  return { draw: row.draw, secret: row.secret, fingerprint: row.fingerprint, beaconRound: row.beaconRound, closedAt: row.closedAt, list: null, listHash: null, result: row.result };
 }
 
 function toTick(row: typeof worldTicks.$inferSelect): WorldTickRow {

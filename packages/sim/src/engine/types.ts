@@ -12,6 +12,8 @@
 // ---------------------------------------------------------------------------
 
 export type KindName =
+  | "advert"
+  | "guide"
   | "turn"
   | "quality"
   | "activity"
@@ -96,6 +98,8 @@ export type Reason =
   | "build"
   /** A lottery, bet or draw win (docs/rules/luck.md). Never flagged: a letter explains it. */
   | "win"
+  /** The house's declared top-up of a draw's pot, paid apart from the sales part of a prize (decision 0008, R-LOTTERY-021). A source. */
+  | "pot-top-up"
   /** A lottery ticket bought (docs/rules/lottery.md), a sink. */
   | "ticket"
   /** A wedding's share paid (docs/rules/people.md), a sink. */
@@ -621,7 +625,40 @@ export interface ChapterEntry {
   items: { id: string; requirement: Requirement }[];
   /** An item that closes the chapter alone when it is met, whatever the others say (R-CHAPTER-002). */
   closesOn?: string;
+  /** R-ADVERT-003: no advert shows while this chapter is open. */
+  noAdverts?: boolean;
 }
+
+/** docs/rules/adverts.md: a slot an advert may fill. The simulation never reads it. */
+export interface AdvertSlotEntry {
+  id: Id<"advert">;
+  surface: "billboard" | "poster" | "phone-tile" | "shopfront";
+  place: string;
+  width: number;
+  height: number;
+  maxBytes: number;
+}
+
+/** docs/rules/guides.md: a guide, with its sources and sections as text keys. The simulation never reads it. */
+export interface GuideEntry {
+  id: Id<"guide">;
+  routes: Id<"route">[];
+  /** Kind names; the content check proves each is one (the schema keeps strings so the proof holds). */
+  kinds: string[];
+  sources: { url: string; title: string; readOn: string }[];
+  checkedOn: string;
+  sections: string[];
+}
+
+/** docs/rules/analytics.md: one counter the client or the server may count. */
+export interface CounterDef {
+  name: string;
+  keys: string[] | "region" | "id";
+  source: "server" | "client";
+}
+
+/** docs/rules/city.md R-CITY-031: the fixed emote set. */
+export type Emote = "wave" | "clap" | "sit" | "dance";
 
 export interface VarEntry {
   id: Id<"var">;
@@ -743,7 +780,7 @@ export interface PlaceEntry {
   occasion: boolean;
   /** What is staged here, by id (R-CITY-010). */
   stages: (Id<"activity"> | Id<"offer"> | Id<"setpiece"> | Id<"chapter">)[];
-  crowd: { low: number; high: number };
+  crowd: { low: number; high: number; target: number };
   traditionalBp: number;
   /** The folder under `public/assets/places/`. */
   assets: string;
@@ -1105,11 +1142,19 @@ export interface Tuning {
   /** `visit`: the second miss in a row, the officer and the group at the house (R-OBLIGATION-011). */
   groupLoan: { feeBp: number; savingsBp: number; vanishBp: number; visit: { standing: number; wellbeing: number } };
   /** The Friday draw (docs/rules/lottery.md): the ticket price, the cap per player, the share of sales destroyed, the tiers' shares (summing to 10000) and counts. */
-  lottery: { ticket: number; maxTickets: number; burnBp: number; jackpotBp: number; midBp: number; midCount: number; smallBp: number; smallEvery: number };
+  lottery: { ticket: number; maxTickets: number; burnBp: number; jackpotBp: number; midBp: number; midCount: number; smallBp: number; smallEvery: number; topUpTickets: number };
+  /** docs/rules/adverts.md Numbers. */
+  advert: { maxSlotsPerPlace: number; maxPhoneTiles: number; impressionMs: number };
+  /** docs/rules/share.md Numbers. */
+  share: { width: number; height: number; maxBytes: number; previewWidth: number; previewHeight: number; previewMaxBytes: number };
+  /** docs/rules/guides.md Numbers. */
+  guide: { staleMonths: number };
+  /** docs/rules/analytics.md Numbers. */
+  analytics: { batchSeconds: number; maxBatchBytes: number; maxCount: number; batchesPerHour: number; minShown: number; refD1Bp: number; refD7Bp: number };
   /** The city's crowd bands, the graphics modes' switches and the screen split (docs/rules/city.md). The simulation never reads it. */
-  city: { crowdLow: number; crowdHigh: number; playersMax: number; fridayBp: number; saturdayBp: number; raiseAfterMs: number; raiseFrameMs: number; dropAfterMs: number; dropFrameMs: number; maxPixelRatio: number; desktopMinWidth: number };
+  city: { crowdLow: number; crowdHigh: number; playersMax: number; fridayBp: number; saturdayBp: number; raiseAfterMs: number; raiseFrameMs: number; dropAfterMs: number; dropFrameMs: number; maxPixelRatio: number; desktopMinWidth: number; idleAfterMs: number; idleFps: number; walkMmPerS: number; stopShortMm: number; tagNearMm: number; residentFloor: number };
   /** The people around the character (docs/rules/people.md Numbers). */
-  people: { matchmaker: boolean; maxCourting: number; partnerMoments: number; marryAfterMonths: number; weddingShare: number; proposeCooldown: number; recourtMonths: number; gossipBp: number; endStanding: { courting: number; partner: number; married: number; applying: number }; endWellbeing: number; leftWellbeing: number; couchMonths: number; warnDays: number; standInDays: number };
+  people: { matchmaker: boolean; maxCourting: number; partnerMoments: number; marryAfterMonths: number; weddingShare: number; proposeCooldown: number; recourtMonths: number; gossipBp: number; endStanding: { courting: number; partner: number; married: number; applying: number }; endWellbeing: number; leftWellbeing: number; couchMonths: number; warnDays: number; standInDays: number; computerAfterMonths: number };
   /** Invites and phrases (docs/rules/pair.md Numbers). */
   pair: { inviteDays: number; maxOpenInvites: number; rewardFriends: number; phrasesPerHour: number; placePhrasesPerMinute: number };
   /** The genuineness interview (docs/rules/interview.md Numbers). */
@@ -1147,6 +1192,10 @@ export interface Content {
   interview: Record<Id<"interview">, InterviewEntry>;
   /** The spots people meet at, named by key (docs/rules/people.md R-PEOPLE-014). */
   people: { spots: string[] };
+  /** The advert slots, the guides and the counters (the pages). The simulation never reads them; the content checks and the client and server do. */
+  advert: Record<Id<"advert">, AdvertSlotEntry>;
+  guide: Record<Id<"guide">, GuideEntry>;
+  analytics: { counters: CounterDef[] };
   points: Record<Id<"points">, PointsEntry>;
   /** The prologue's steps by id. Empty until the prologue is built. */
   prologue: Record<string, PrologueStep>;
@@ -1173,7 +1222,9 @@ export interface World {
   /** The era running. Null until the director runs (docs/rules/director.md). */
   era: { id: Id<"era">; since: number; until: number } | null;
   /** The Friday draw the server runs (docs/rules/lottery.md). Null offline: the stand-in world sets it to null. */
-  lottery: { draw: number; closesTick: number; fingerprint: string; beaconRound: number; potSoFar: number; last: LotteryResult | null } | null;
+  lottery: { draw: number; closesTick: number; fingerprint: string; beaconRound: number; potSoFar: number; topUpTickets?: number; last: LotteryResult | null } | null;
+  /** R-ADVERT-017: the server's overlay of real names on sponsored places. Empty offline; the simulation never reads it. */
+  placeNames: Record<string, { name: string; sign: string }>;
 }
 
 /** One draw's published result (docs/rules/lottery.md R-LOTTERY-010 to 013). */
@@ -1186,6 +1237,8 @@ export interface LotteryResult {
   listHash: string;
   count: number;
   pot: number;
+  /** R-LOTTERY-021: the house's declared top-up inside the pot, in kobo. Optional until the lottery screen batch builds the top-up. */
+  topUp?: number;
   fund: number;
   winners: { tier: "jackpot" | "mid" | "small"; tickets: number[]; amount: number }[];
 }
@@ -1580,7 +1633,7 @@ export type Command = { basedOn: number } & (
   // online (docs/rules/lottery.md)
   | { type: "lottery/buy"; tickets: number }
   /** Sent by the authority alone, after the draw. */
-  | { type: "lottery/pay"; draw: number; prizes: { tier: "jackpot" | "mid" | "small"; amount: number }[] }
+  | { type: "lottery/pay"; draw: number; prizes: { tier: "jackpot" | "mid" | "small"; amount: number; topUp?: number }[] }
   // people (docs/rules/people.md R-PEOPLE-012 to 020, 034 to 040)
   | { type: "people/invite"; slot: string; looking?: string; fill?: string }
   /** `with` names a computer character (`person.*`) or a slot holding an invited player (R-PEOPLE-014). */
@@ -1881,7 +1934,18 @@ export interface PlayerView {
   /** The era running, with its start and end as this player's months (the tick difference from now). Null until the director runs. */
   era: { id: Id<"era">; since: number; until: number; sinceMonth: number; untilMonth: number } | null;
   /** The send-off card or the real-story card, when one is due (R-CHAPTER-006, R-ROAD-011). */
-  card: { kind: "send-off" | "real-story" | "lost"; route: Id<"route"> | null; percent: number | null; months: number; standing: number; topActivities: Id<"activity">[] } | null;
+  card: {
+    kind: "chapter" | "granted" | "send-off" | "first-pay-abroad" | "secured" | "december" | "draw-win" | "real-story" | "lost";
+    /** Optional until every kind that sets a card fills them (the share batch). */
+    chapter?: Id<"chapter"> | null;
+    route: Id<"route"> | null;
+    percent: number | null;
+    months: number;
+    standing: number;
+    topActivities: Id<"activity">[];
+    /** The name the player chose, never the account's (R-SHARE-007). */
+    name?: string | null;
+  } | null;
   /** The people around the character (docs/rules/people.md R-PEOPLE-051). */
   people: {
     slots: Record<string, { state: PeopleSlice["slots"][string]["state"]; label: PersonLabel | null; bond: string | null; invite: { looking: string; fill: string | null } | null }>;
@@ -1894,6 +1958,8 @@ export interface PlayerView {
   /** The genuineness interview as it stands (docs/rules/interview.md), or null. */
   interview: { route: Id<"route">; question: { id: string; options: string[] } | null; asked: number; total: number; waiting: boolean; standIn: boolean; result: InterviewResult | null; matched: number | null } | null;
   /** The Friday draw as this character sees it, or null offline (docs/rules/lottery.md R-LOTTERY-015). */
-  lottery: { ticket: number; maxTickets: number; draw: number; closesTick: number; tickets: number; numbers: number[] | null; potSoFar: number; fingerprint: string; last: LotteryResult | null } | null;
+  lottery: { ticket: number; maxTickets: number; draw: number; closesTick: number; tickets: number; numbers: number[] | null; potSoFar: number; topUpTickets?: number; topUpSoFar?: number; fingerprint: string; last: LotteryResult | null } | null;
+  /** R-ADVERT-003: whether an advert may show now (never on the road, in a set piece, or in a chapter with `noAdverts`). */
+  adverts: boolean;
   report: TurnReport | null;
 }

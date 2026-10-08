@@ -23,7 +23,7 @@ export function memoryWorldStore(): WorldStore {
     putDraw: (row) => {
       const stored = draws.get(row.draw);
       if (stored === undefined) {
-        const made: DrawRow = { draw: row.draw, secret: row.secret, fingerprint: row.fingerprint, beaconRound: row.beaconRound, closedAt: null, result: null };
+        const made: DrawRow = { draw: row.draw, secret: row.secret, fingerprint: row.fingerprint, beaconRound: row.beaconRound, closedAt: null, list: null, listHash: null, result: null };
         draws.set(row.draw, made);
         return Promise.resolve(accept(made));
       }

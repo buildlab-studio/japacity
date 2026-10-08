@@ -19,10 +19,10 @@ const CAMPUS = 2000;
 const AIRPORT = 2500;
 
 // Each place's own cap on its sample (R-CITY-014), within tuning.city's 8 and 16. Working values.
-const PACKED = { low: 8, high: 16 };
-const BUSY = { low: 6, high: 12 };
-const QUIET = { low: 3, high: 6 };
-const FEW = { low: 2, high: 4 };
+const PACKED = { low: 8, high: 16, target: 12 };
+const BUSY = { low: 6, high: 12, target: 12 };
+const QUIET = { low: 3, high: 6, target: 8 };
+const FEW = { low: 2, high: 4, target: 8 };
 
 type Staged = PlaceEntry["stages"];
 

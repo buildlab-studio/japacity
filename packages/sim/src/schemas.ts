@@ -25,6 +25,7 @@ import { InterviewEntrySchema } from "./interview/interview.schema";
 import { PhraseEntrySchema } from "./pair/phrase.schema";
 import { PersonEntrySchema } from "./people/person.schema";
 import { PlaceEntrySchema } from "./place/place.schema";
+import { AdvertSlotEntrySchema, CounterDefSchema, GuideEntrySchema } from "./engine/m5.schema";
 
 export * from "./activity/activity.schema";
 export * from "./chapter/chapter.schema";
@@ -70,6 +71,9 @@ export const ContentSchema = z.strictObject({
   phrase: z.record(idOf("phrase"), PhraseEntrySchema),
   interview: z.record(idOf("interview"), InterviewEntrySchema),
   people: z.strictObject({ spots: z.array(z.string().min(1)) }),
+  advert: z.record(idOf("advert"), AdvertSlotEntrySchema),
+  guide: z.record(idOf("guide"), GuideEntrySchema),
+  analytics: z.strictObject({ counters: z.array(CounterDefSchema) }),
   points: z.record(idOf("points"), PointsEntrySchema),
   prologue: z.record(z.string().min(1), PrologueStepSchema),
   tuning: TuningSchema,

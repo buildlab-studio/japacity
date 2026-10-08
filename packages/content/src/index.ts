@@ -79,6 +79,10 @@ export const content: Content = {
   phrase: phraseTable,
   interview: interviewTable,
   people: { spots: peopleSpots },
+  // The tables start empty; their builders fill them (adverts.md, guides.md, analytics.md).
+  advert: {},
+  guide: {},
+  analytics: { counters: [] },
   points: pointsTable,
   prologue: prologueTable,
   tuning,

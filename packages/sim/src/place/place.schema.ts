@@ -19,7 +19,7 @@ export const PlaceEntrySchema = z.strictObject({
   hub: z.boolean(),
   occasion: z.boolean(),
   stages: z.array(z.union([idOf("activity"), idOf("offer"), idOf("setpiece"), idOf("chapter")])),
-  crowd: z.strictObject({ low: CountSchema, high: CountSchema }),
+  crowd: z.strictObject({ low: CountSchema, high: CountSchema, target: CountSchema }),
   traditionalBp: BpSchema,
   assets: z.string().min(1),
 });

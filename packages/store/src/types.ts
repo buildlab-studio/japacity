@@ -199,6 +199,9 @@ export interface NewDraw {
 /** R-LOTTERY-007, R-LOTTERY-008, R-LOTTERY-015: a draw; `closedAt` is set by `freeze`, `result` once after it. */
 export interface DrawRow extends NewDraw {
   closedAt: number | null;
+  /** R-LOTTERY-008: the published token list and its hash, set by `freeze`; null before the close. */
+  list: string[] | null;
+  listHash: string | null;
   result: LotteryResult | null;
 }
 
@@ -352,7 +355,7 @@ export interface LedgerStore {
 /** R-SERVER-009, R-SERVER-021: rows a correction or an upgrade took out of play. */
 export interface AuditEntry {
   character: string;
-  why: "rollback" | "upgrade";
+  why: "rollback" | "upgrade" | "alarm";
   at: number;
   note: string;
   segments: SegmentRow[];

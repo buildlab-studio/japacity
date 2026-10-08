@@ -13,7 +13,17 @@ export type ServerCode =
   | "diverged"
   | "region-closed"
   | "one-character"
-  | "no-character";
+  | "no-character"
+  /** R-SERVER-031: the feature's switch is off. */
+  | "switched-off"
+  /** R-REGION: the two players' regions do not allow the pair (R-PAIR-018). */
+  | "region"
+  /** account.md: the age screen and the bot check. */
+  | "under-age"
+  | "bad-date"
+  | "bot-check"
+  | "not-fresh"
+  | "bad-code";
 
 export interface ServerRejection {
   ok: false;
