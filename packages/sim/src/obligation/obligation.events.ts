@@ -46,4 +46,11 @@ export type ObligationEvent =
   /** The final payment was made: the car is the character's, and nothing is owed (R-CAR-005). */
   | { type: "obligation/owned"; id: string; entry: Id<"obligation"> }
   /** An unpaid ransom was added to the agent's debt already open (R-ROAD-006). */
-  | { type: "obligation/grown"; id: string; entry: Id<"obligation">; amount: number };
+  | { type: "obligation/grown"; id: string; entry: Id<"obligation">; amount: number }
+  /**
+   * A sponsor's undertaking counted `months` more months of assistance taken by
+   * the sponsored partner and now owes `amount` more for them (R-UNDERTAKING-007).
+   */
+  | { type: "obligation/assessed"; id: string; entry: Id<"obligation">; months: number; amount: number }
+  /** Everything owed on an undertaking is paid: the misses and any default are lifted (R-UNDERTAKING-008). */
+  | { type: "obligation/cleared"; id: string; entry: Id<"obligation"> };

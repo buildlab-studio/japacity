@@ -21,6 +21,10 @@ export interface Decision {
   override: RefusalReason | null;
   /** Whether a refusal from the override bans every route into the country (R-GATE-005). */
   bans: boolean;
+  /** True: nothing is decided this month, and the gate is asked again next month (R-PEOPLE-023, 027). Missing: false. */
+  wait?: boolean;
+  /** Basis points added to the route's base before the floor and ceiling (R-INTERVIEW-009's doubt). Missing: 0. */
+  addBp?: number;
 }
 
 export type GateEffectHandler = (ctx: Ctx, effect: Effect, cause: Cause) => BaseEvent[];
@@ -47,6 +51,8 @@ export interface Gate {
   funds?(read: ReadCtx, entry: RouteEntry, held: RouteState): { required: number; currency: ForeignCurrency } | null;
   /** The job the character holds on arrival (R-SPONSOR-007, R-CONTRACT-004). Missing or null: none. */
   departureJob?(entry: RouteEntry, held: RouteState): Id<"activity"> | null;
+  /** Effects to apply once the application is recorded (the dependant gate pays its fee from the lead's route). */
+  onSend?(ctx: Ctx, entry: RouteEntry, cause: Cause): void;
   /** Effects to apply as the character departs, after the move and the status (the study gate opens the tuition). */
   onDepart?(ctx: Ctx, entry: RouteEntry, held: RouteState, cause: Cause): void;
   /** The gate's part of the route's view. Missing: null. */

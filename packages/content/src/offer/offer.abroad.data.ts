@@ -8,7 +8,9 @@
 // against that return alone, so `place/returned` reads the last return's shape.
 import type { Id, OfferEntry, Requirement, ReturnShape } from "@japacity/sim";
 
+import { tuning } from "../tuning/tuning.data";
 import { naira, pct } from "../units";
+import { varTable } from "../var/var.data";
 
 /** Home, and the last return was one of these shapes. */
 function returned(shapes: ReturnShape[]): Requirement[] {
@@ -221,5 +223,46 @@ export const abroadOfferTable: Record<Id<"offer">, OfferEntry> = {
       },
     ],
     onExpire: "go",
+  },
+};
+
+// held out of `abroadOfferTable`: abroad.test.ts pins the list of
+// offers abroad. The content route file's `withPeopleRoutes` joins it.
+export const peopleOfferTable: Record<Id<"offer">, OfferEntry> = {
+  // docs/rules/undertaking.md R-UNDERTAKING-010: social assistance, the same for
+  // every resident in Canada whose bank and cash together are under the line.
+  // The amount is fixed by content (the start of var.ca-assistance), so no player
+  // chooses what reaches a sponsor's bill. Group `abroad`, rolled every month it holds.
+  "offer.ca-assistance": {
+    id: "offer.ca-assistance",
+    group: "abroad",
+    where: "abroad",
+    when: [
+      { type: "place/is", where: "abroad", country: "country.canada" },
+      { type: "status/is", statuses: ["status.ca-resident", "status.ca-citizen"] },
+      { type: "not", of: { type: "money/min", currency: "CAD", amount: tuning.undertaking.assistanceUnder } },
+    ],
+    chanceBp: pct(100),
+    cooldown: 1,
+    maxTimes: null,
+    expiresAfter: 1,
+    terms: { amount: varTable["var.ca-assistance"]?.start ?? 0 },
+    fraudBp: 0,
+    signs: [],
+    choices: [
+      {
+        id: "take",
+        requires: [],
+        pick: null,
+        effects: [
+          { type: "money/add", currency: "CAD", pocket: "bank", amount: { term: "amount" }, reason: "assistance" },
+          { type: "quality/add", quality: "quality.wellbeing", amount: 2 },
+          { type: "quality/add", quality: "quality.standing", amount: -2 },
+        ],
+        fraudEffects: null,
+      },
+      { id: "leave", requires: [], pick: null, effects: [], fraudEffects: null },
+    ],
+    onExpire: "leave",
   },
 };

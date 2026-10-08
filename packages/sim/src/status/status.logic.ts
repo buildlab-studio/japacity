@@ -29,6 +29,7 @@ import type {
   State,
 } from "../engine/types";
 import { cashWorkedThisMonth } from "../activity/activity.pay";
+import { leadStatusMonths } from "../route/gates/dependant";
 import type { GrantWhy, LapseWhy, StatusEvent } from "./status.events";
 
 const MONTHS_PER_YEAR = 12;
@@ -139,6 +140,8 @@ function currentOf(ctx: Ctx): { held: StatusState; entry: StatusEntry } | null {
 
 function lengthOf(read: ReadCtx, entry: StatusEntry): number | null {
   if (entry.months === null) return null;
+  // R-PEOPLE-024: a dependant's status ends when the lead's does, read from the lead's facts.
+  if (entry.months === "lead") return leadStatusMonths(read);
   return typeof entry.months === "number" ? entry.months : worldVar(read, entry.months);
 }
 
