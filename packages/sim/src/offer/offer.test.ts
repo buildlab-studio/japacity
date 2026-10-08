@@ -584,6 +584,34 @@ describe("opened by an effect", () => {
     expect(subject.game.state.offer.timesOpened["offer.family-pledge"]).toBe(1);
   });
 
+  test("[R-PEOPLE-034] given a family request open beside another offer, when offer/close names it, then it closes unanswered with its own line: no choice taken, nothing paid, the other offer and the counts untouched", () => {
+    const subject = lab();
+    const nepa = subject.open("offer.nepa-bill")!;
+    const fees = subject.open("offer.brother-fees")!;
+    const naira = subject.game.state.wallet.pockets.NGN;
+    const counts = { lastOpened: subject.game.state.offer.lastOpened, timesOpened: subject.game.state.offer.timesOpened };
+    const result = subject.apply([{ type: "offer/close", offer: "offer.nepa-bill" }]);
+    expect(own(result, "offer/closed")).toEqual([{ type: "offer/closed", id: nepa.id, entry: "offer.nepa-bill" }]);
+    expect(result.events.filter((event) => event.type === "offer/taken" || event.type === "offer/lapsed" || event.type.startsWith("wallet/"))).toEqual([]);
+    expect(result.lines).toContainEqual({ key: "line.offer.closed", params: { offer: "offer.nepa-bill" }, tone: "plain", attention: false, counts: [] });
+    expect(text["line.offer.closed"]).toContain("{offer}");
+    expect(subject.game.state.offer.items[nepa.id]).toBeUndefined();
+    expect(subject.game.state.offer.items[fees.id]).toBeDefined();
+    expect(subject.game.state.wallet.pockets.NGN).toEqual(naira);
+    expect({ lastOpened: subject.game.state.offer.lastOpened, timesOpened: subject.game.state.offer.timesOpened }).toEqual(counts);
+  });
+
+  test("[R-PEOPLE-034] given the named offer not open, when offer/close is applied, then nothing happens", () => {
+    const subject = lab();
+    const fees = subject.open("offer.brother-fees")!;
+    const before = subject.game.state.offer;
+    const result = subject.apply([{ type: "offer/close", offer: "offer.nepa-bill" }]);
+    expect(result.events.filter((event) => event.type.startsWith("offer/"))).toEqual([]);
+    expect(result.lines.filter((line) => line.key.startsWith("line.offer."))).toEqual([]);
+    expect(subject.game.state.offer).toEqual(before);
+    expect(subject.game.state.offer.items[fees.id]).toBeDefined();
+  });
+
   test("[R-OFFER-007] given an offer already open, when an effect opens it again, then the waiting one closes unanswered and the new one opens with its own terms", () => {
     const subject = lab();
     const first = subject.open("offer.job", { job: "activity.job-teacher" })!;

@@ -8,4 +8,6 @@ export type OfferEvent =
   /** The offer's month came. `choice` is the lapse choice applied, if one was (R-OFFER-005). */
   | { type: "offer/lapsed"; id: string; entry: Id<"offer">; choice: string | null }
   /** An effect opened the same entry again: this one closed unanswered, with no lapse effects, for the new one (R-OFFER-007). */
-  | { type: "offer/replaced"; id: string; entry: Id<"offer"> };
+  | { type: "offer/replaced"; id: string; entry: Id<"offer"> }
+  /** The effect `offer/close` closed it unanswered: no choice, nothing paid (R-PEOPLE-034, a request handled in another life). */
+  | { type: "offer/closed"; id: string; entry: Id<"offer"> };
