@@ -3,7 +3,7 @@
 // moment, an interview option and a phrase. The people tab, the month plan,
 // the route gates and the interview all read these, so they live here.
 import { content, text } from "@japacity/content";
-import type { BondStage, Id, Moment, PersonEntry, PersonFacts, PhraseEntry, PlayerView } from "@japacity/sim";
+import type { BondStage, Id, Moment, PersonFacts, PhraseEntry, PlayerView } from "@japacity/sim";
 
 import { lowerFirst, nameOf, say } from "../words/text";
 
@@ -27,34 +27,33 @@ export function slotKind(key: string): "partner" | "sibling" | "mother" | "fathe
   return "sibling";
 }
 
-function profileMatches(entry: PersonEntry, facts: PersonFacts): boolean {
-  const { profile } = entry;
-  if (profile.eduLevel !== facts.eduLevel || profile.englishBand !== facts.englishBand || profile.home !== facts.home) return false;
-  if (facts.country !== null && facts.country !== profile.country) return false;
-  if (facts.status !== null && facts.status !== profile.status && facts.status !== profile.settledStatus) return false;
-  return facts.job === null || facts.job === profile.job;
+/** The computer character a bond is with, as the view names it (decision 0009), or null for a player. */
+export function personOf(bond: Pick<BondView, "person">): Id<"person"> | null {
+  return bond.person;
 }
 
-/**
- * The computer character a bond is with, read from its facts against content's
- * profiles, or null when no single entry fits.
- * the view's bond carries no person id (R-PEOPLE-051 lists none), so
- * the name is found from the facts the entry's profile sets; the lead may add
- * `person` to the view's bond and slot, and this goes.
- */
-export function personOf(bond: Pick<BondView, "role" | "label" | "facts">): Id<"person"> | null {
-  const facts = bond.facts;
-  if (facts === null || facts.label !== "computer") return null;
-  const fits = Object.values(content.person).filter((entry) => entry.role === bond.role && profileMatches(entry, facts));
-  return fits.length === 1 ? (fits[0]?.id ?? null) : null;
-}
-
-/** A bond's name as a heading: a computer's name from content, or who they are to the character. */
-export function bondName(bond: Pick<BondView, "role" | "label" | "facts">): string {
+/** A bond's name from content or who they are to the character, before siblings who share one are told apart. */
+function plainName(bond: Pick<BondView, "role" | "label" | "person">): string {
   const person = personOf(bond);
   if (person !== null && text[`${person}.name`] !== undefined) return nameOf(person);
   const who = bond.label === "computer" ? say(`ui.people.who.${bond.role}`) : say("ui.people.who.player");
   return who.charAt(0).toUpperCase() + who.slice(1);
+}
+
+/**
+ * A bond's name as a heading: a computer's name from content, or who they are
+ * to the character. Given the other bonds, two siblings who would share a name
+ * are told apart by age, since the facts carry no gender.
+ */
+export function bondName(bond: Pick<BondView, "id" | "role" | "label" | "person" | "facts">, bonds: readonly Pick<BondView, "id" | "role" | "label" | "person" | "facts">[] = []): string {
+  const name = plainName(bond);
+  if (bond.role !== "sibling") return name;
+  const twins = bonds.filter((other) => other.id !== bond.id && other.role === "sibling" && plainName(other) === name);
+  if (twins.length === 0) return name;
+  const age = bond.facts?.ageMonths ?? null;
+  const ages = twins.map((other) => other.facts?.ageMonths ?? null);
+  if (age === null || ages.some((other) => other === null || other === age)) return say("ui.people.sibling.other", { name, number: bonds.filter((other) => other.role === "sibling").findIndex((other) => other.id === bond.id) + 1 });
+  return say(ages.every((other) => other !== null && other < age) ? "ui.people.sibling.older" : ages.every((other) => other !== null && other > age) ? "ui.people.sibling.younger" : "ui.people.sibling.middle", { name });
 }
 
 /** A spot, a what or a call as words, from the people's lists in content. */
@@ -62,12 +61,16 @@ export function listWords(kind: "spot" | "what" | "call" | "wedding-spot", value
   return text[`people.${kind}.${value}`] ?? value;
 }
 
+function upperFirst(words: string): string {
+  return words.charAt(0).toUpperCase() + words.slice(1);
+}
+
 /** One moment of a bond's history as a short line. */
 export function momentWords(moment: Moment): string {
   const said = (): string => {
     switch (moment.kind) {
       case "met":
-        return say("ui.people.moment.met", { spot: listWords("spot", moment.spot ?? ""), what: listWords("what", moment.what) });
+        return upperFirst(say("ui.people.moment.met", { spot: listWords("spot", moment.spot ?? ""), what: listWords("what", moment.what) }));
       case "call":
         return say("ui.people.moment.call", { what: text[`people.call.${moment.what}`] ?? listWords("what", moment.what) });
       case "said":

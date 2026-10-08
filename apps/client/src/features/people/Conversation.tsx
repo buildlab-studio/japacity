@@ -27,11 +27,11 @@ function refusalWords(reply: ServerRejection): string {
   return say("ui.talk.failed.other", { why: reply.detail });
 }
 
-function Row({ row, mine }: { row: ConversationRow; mine: boolean }) {
+function Row({ row, mine, name }: { row: ConversationRow; mine: boolean; name: string }) {
   const words = phraseWords(row.phrase, row.fill);
   return (
     <li className={`flex flex-col gap-0.5 ${mine ? "items-end" : "items-start"}`} data-row={row.id}>
-      <span className="text-xs text-muted">{say(mine ? "ui.talk.you" : "ui.talk.them")}</span>
+      <span className="text-xs text-muted">{mine ? say("ui.talk.you") : name}</span>
       <span className={`max-w-[85%] rounded-2xl px-3 py-2 ${mine ? "bg-ink text-paper" : "border border-line bg-surface"}`}>{words}</span>
       {mine ? (
         row.readAt === null ? null : (
@@ -97,6 +97,12 @@ export function Conversation({ api, pair, name }: { api: PairApi; pair: string; 
   }, [api, pair, fetchAfter]);
 
   const last = rows.at(-1)?.id ?? null;
+  const thread = useRef<HTMLOListElement>(null);
+  // The newest row is the one to read, so the thread opens scrolled to its end.
+  useEffect(() => {
+    const list = thread.current;
+    if (list !== null) list.scrollTop = list.scrollHeight;
+  }, [last]);
   const lastRef = useRef(last);
   useEffect(() => {
     lastRef.current = last;
@@ -138,9 +144,9 @@ export function Conversation({ api, pair, name }: { api: PairApi; pair: string; 
       {rows.length === 0 ? (
         <p className="text-sm text-muted">{say("ui.talk.empty")}</p>
       ) : (
-        <ol className="flex max-h-72 flex-col gap-2 overflow-y-auto">
+        <ol ref={thread} className="flex max-h-72 flex-col gap-2 overflow-y-auto pb-1">
           {rows.map((row) => (
-            <Row key={row.id} row={row} mine={mine(row)} />
+            <Row key={row.id} row={row} mine={mine(row)} name={name} />
           ))}
         </ol>
       )}

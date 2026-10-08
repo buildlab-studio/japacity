@@ -12,7 +12,8 @@ import { bondName, endCost, interviewName, jointRoutes, momentWords, monthsWitho
 import { Button } from "../../shared/ui/Button";
 import { Card, Tag } from "../../shared/ui/Panel";
 import { ReportLines } from "../../shared/ui/ReportLines";
-import { formatBand, formatBp, formatMoney, formatNumber } from "../../shared/words/format";
+import { formatBand, formatBp, formatMoney, formatNumber, playerMonth } from "../../shared/words/format";
+import { countryWords, jobWords } from "../../shared/words/people";
 import { nameOf, runningName, say, sayCount } from "../../shared/words/text";
 import { BlockReport } from "../../shared/moderation/BlockReport";
 import { Conversation } from "./Conversation";
@@ -39,7 +40,7 @@ export function Facts({ bond }: { bond: BondView }) {
   const facts = bond.facts;
   if (facts === null) return null;
   const items: string[] = [say("ui.people.facts.age", { years: Math.floor(facts.ageMonths / MONTHS_PER_YEAR) })];
-  if (facts.where === "abroad" && facts.country !== null) items.push(say("ui.people.facts.abroad", { country: nameOf(facts.country) }));
+  if (facts.where === "abroad" && facts.country !== null) items.push(say("ui.people.facts.abroad", { country: countryWords(facts.country) }));
   else if (facts.where === "road") items.push(say("ui.people.facts.road"));
   else items.push(say("ui.people.facts.home"));
   if (facts.status !== null) {
@@ -49,7 +50,7 @@ export function Facts({ bond }: { bond: BondView }) {
         : say("ui.people.facts.status-left", { status: runningName(facts.status), months: facts.statusMonthsLeft }),
     );
   }
-  items.push(facts.job === null ? say("ui.people.facts.no-job") : say("ui.people.facts.job", { job: runningName(facts.job) }));
+  items.push(facts.job === null ? say("ui.people.facts.no-job") : say("ui.people.facts.job", { job: jobWords(runningName(facts.job)) }));
   items.push(say(`ui.people.facts.from.${facts.home}`));
   if (facts.englishBand !== null) items.push(say("ui.people.facts.english", { band: formatBand(facts.englishBand) }));
   for (const [route, met] of Object.entries(facts.meetsFloor)) {
@@ -186,13 +187,34 @@ function JointForm({ bond, onSent }: { bond: BondView; onSent: (lines: ReportLin
   );
 }
 
+/** Moments still needed before the partner step may be asked (R-PEOPLE-016). */
+function momentsLeft(bond: BondView): number {
+  return Math.max(0, content.tuning.people.partnerMoments - (bond.moments?.length ?? 0));
+}
+
+/** The month a declined question may be asked again, while it is still ahead (R-PEOPLE-016, decision 0009). */
+function coolingUntil(view: PlayerView, bond: BondView): number | null {
+  return bond.cooldownUntil !== null && view.month < bond.cooldownUntil ? bond.cooldownUntil : null;
+}
+
+/** Why no question can be asked yet, said once: the moments still short, or the cooldown after a no. */
+function Held({ bond }: { bond: BondView }) {
+  const view = useView();
+  if (bond.pending.theirs !== null || bond.pending.mine !== null || view.ended) return null;
+  const left = momentsLeft(bond);
+  const until = coolingUntil(view, bond);
+  if (bond.stage === "courting" && left > 0) return <p className="text-sm text-muted">{sayCount("ui.people.courting.next", left, { count: left })}</p>;
+  if (until !== null && stepsFor(view, bond).length > 0) return <p className="text-sm text-muted">{say("ui.people.cooldown", { month: playerMonth(until) })}</p>;
+  return null;
+}
+
 function Proposals({ bond, onSent }: { bond: BondView; onSent: (lines: ReportLine[]) => void }) {
   const view = useView();
   const send = useGame((state) => state.send);
   const busy = useGame((state) => state.busy);
   const [joint, setJoint] = useState(false);
-  const steps = stepsFor(view, bond);
-  if (steps.length === 0 || bond.pending.mine !== null || view.ended) return null;
+  const steps = stepsFor(view, bond).filter((step) => step !== "partner" || momentsLeft(bond) === 0);
+  if (steps.length === 0 || bond.pending.mine !== null || bond.pending.theirs !== null || coolingUntil(view, bond) !== null || view.ended) return null;
   const propose = (step: "partner" | "marry") =>
     void send({ type: "people/propose", bond: bond.id, step }).then((reply) => {
       if (reply?.ok === true) onSent(reply.lines);
@@ -354,7 +376,6 @@ function Answered({ lines }: { lines: ReportLine[] }) {
 export function BondCard({ bond, api }: { bond: BondView; api: PairApi | null }) {
   const view = useView();
   const [answered, setAnswered] = useState<ReportLine[]>([]);
-  const left = Math.max(0, content.tuning.people.partnerMoments - (bond.moments?.length ?? 0));
   const pair = bond.label === "computer" ? null : bond.pair;
   return (
     <li>
@@ -370,7 +391,7 @@ export function BondCard({ bond, api }: { bond: BondView; api: PairApi | null })
         <Warnings bond={bond} view={view} />
         <Facts bond={bond} />
         <Moments bond={bond} />
-        {bond.stage === "courting" && left > 0 ? <p className="text-sm text-muted">{sayCount("ui.people.courting.next", left, { count: left })}</p> : null}
+        <Held bond={bond} />
         <Pending bond={bond} />
         <Proposals bond={bond} onSent={setAnswered} />
         <Answered lines={answered} />

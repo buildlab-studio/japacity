@@ -8,7 +8,7 @@ import { text } from "@japacity/content";
 export const peopleText: Record<string, string> = {
   "ui.tab.people": "People",
   "ui.people.title": "Your people",
-  "ui.people.intro": "Partner, siblings, parents. A friend can fill a slot, or someone who lives in the game.",
+  "ui.people.intro": "Partner, siblings, parents. A friend who plays can take a slot. The game plays anyone a friend has not taken.",
 
   // The slots (R-PEOPLE-007)
   "ui.people.slot.partner": "Partner",
@@ -16,15 +16,18 @@ export const peopleText: Record<string, string> = {
   "ui.people.slot.mother": "Mother",
   "ui.people.slot.father": "Father",
   "ui.people.slot.state.empty": "Nobody yet",
-  "ui.people.slot.state.computer": "Lives in the game",
+  "ui.people.slot.state.computer": "Played by the game",
   "ui.people.slot.state.invited": "Your card is out",
   "ui.people.slot.state.player": "A friend",
-  "ui.people.slot.state.stand-in": "A stand-in answers for them",
-  "ui.people.parent.blurb": "At home, as they have always been. They call when there is news.",
-  "ui.people.mark.computer": "In the game",
-  "ui.people.mark.player": "A friend",
+  "ui.people.slot.state.stand-in": "A stand-in answers while they are away",
+  "ui.people.parent.name.mother": "Your mother",
+  "ui.people.parent.name.father": "Your father",
+  "ui.people.parent.blurb.mother": "At home, as she has always been. She calls when there is news.",
+  "ui.people.parent.blurb.father": "At home, as he has always been. He calls when there is news.",
+  "ui.people.mark.computer": "Computer",
+  "ui.people.mark.player": "Player",
   "ui.people.mark.stand-in": "Stand-in",
-  "ui.people.mark.computer.long": "A computer character. They live in the game.",
+  "ui.people.mark.computer.long": "A computer character, not a player.",
   "ui.people.who.player": "your friend",
   "ui.people.who.partner": "your partner",
   "ui.people.who.sibling": "your sibling",
@@ -32,6 +35,10 @@ export const peopleText: Record<string, string> = {
   "ui.people.sibling.facts.home": "At home.",
   "ui.people.sibling.facts.abroad": "In {country}, on {status}.",
   "ui.people.sibling.facts.abroad-plain": "In {country}.",
+  "ui.people.sibling.older": "{name}, the older one",
+  "ui.people.sibling.younger": "{name}, the younger one",
+  "ui.people.sibling.middle": "{name}, the middle one",
+  "ui.people.sibling.other": "{name} ({number})",
   "ui.people.sibling.invite": "Ask a friend to be this sibling",
 
   // Candidates (R-PEOPLE-009, R-PEOPLE-054)
@@ -71,7 +78,7 @@ export const peopleText: Record<string, string> = {
   "ui.people.moments.none": "Nothing yet. Plan time together in the month plan.",
   "ui.people.moments.hidden": "Hidden while {piece} is open. You answer from memory.",
   "ui.people.moments.more": "and {count} more before that",
-  "ui.people.moment.met": "Met at {spot}: {what}",
+  "ui.people.moment.met": "{what} at {spot}",
   "ui.people.moment.call": "Kept in touch: {what}",
   "ui.people.moment.said": "Said: {what}",
   "ui.people.moment.wedding": "The wedding, at {spot}",
@@ -81,6 +88,7 @@ export const peopleText: Record<string, string> = {
   "ui.people.moments.count.zero": "No moments yet",
   "ui.people.courting.next": "{count} more moments before you can ask to be together.",
   "ui.people.courting.next.one": "1 more moment before you can ask to be together.",
+  "ui.people.cooldown": "You can ask again in month {month}.",
   "ui.people.time-with": "with {name}",
   "ui.people.see.how": "To spend time together, plan \"{see}\" when you are in the same place, or \"{call}\" when you are not.",
 
@@ -161,10 +169,10 @@ export const peopleText: Record<string, string> = {
   "ui.people.gossip": "You have a partner and you are seeing someone else. People talk: about {chance} a month. If your partner hears, you lose standing, and they may leave.",
   "ui.people.drift.near": "No time together for {months} months. After {patience} with nothing, {name} stops waiting.",
   "ui.people.drift.near.one": "No time together this past month. After {patience} with nothing, {name} stops waiting.",
-  "ui.people.drift.rule": "{name} waits {patience} months without time together, no more.",
+  "ui.people.drift.rule": "{name} will wait {patience} months without time together. No longer.",
 
   // The stand-in (R-PEOPLE-043, R-PEOPLE-044)
-  "ui.people.stand-in.warned": "Your partner has gone quiet for a week. A stand-in takes over at two weeks.",
+  "ui.people.stand-in.warned": "Your partner has gone quiet for a week. If they stay quiet for two weeks, a stand-in answers for them.",
   "ui.people.stand-in.on": "Your partner has been away two weeks. A stand-in answers {piece} for them, and says yes only where they allowed it.",
 
   // Block and report (R-PAIR-014 to 016, R-MODERATION-003, 006)
@@ -200,7 +208,6 @@ export const peopleText: Record<string, string> = {
   "ui.talk.fill": "Fill in",
   "ui.talk.send": "Say it",
   "ui.talk.you": "You",
-  "ui.talk.them": "Them",
   "ui.talk.read": "Read",
   "ui.talk.unread": "New",
   "ui.talk.more": "Show newer",
@@ -250,6 +257,17 @@ export const peopleText: Record<string, string> = {
   "ui.gate.lead.none": "Their application has not started.",
   "ui.gate.lead.state": "Their application: {state}.",
 };
+
+/** A country as it reads after "in": "the United Kingdom", "Canada". */
+export function countryWords(id: string): string {
+  const name = text[`${id}.name`] ?? id;
+  return name.startsWith("United ") ? `the ${name}` : name;
+}
+
+/** A job as it reads after "works as": "a bank officer", "an analyst". */
+export function jobWords(job: string): string {
+  return `${/^[aeiou]/i.test(job) ? "an" : "a"} ${job}`;
+}
 
 /** Words for a person's id when content names it, else null. */
 function personName(id: string): string | null {

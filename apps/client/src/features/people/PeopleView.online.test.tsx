@@ -9,7 +9,7 @@ import { moderationApi } from "../../shared/moderation/api";
 import { ModerationProvider } from "../../shared/moderation/ModerationProvider";
 import { reasonWords, words } from "../../shared/moderation/moderation.words";
 import { api } from "../../shared/net/http";
-import { phraseWords } from "../../shared/sim/people";
+import { bondName, phraseWords } from "../../shared/sim/people";
 import { linkedFriend, PAIR, peopleGame, renderWithGame } from "../../shared/testing/people";
 import { BASE, fakeServer, type FakeServer } from "../../shared/testing/server";
 import { say, sayCount } from "../../shared/words/text";
@@ -55,7 +55,11 @@ describe("the invite link", () => {
     game.accept({ type: "people/invite", slot: "partner", looking: "partner", fill: "who-codes" });
     const server = fakeServer();
     server.answer("POST /api/invite", { body: { ok: true, code: "K7Q2", slot: "partner", expires: 9_000, card: {} } });
-    await online(server, game);
+    const { store } = await online(server, game);
+    act(() => store.setState({ earlyWin: false }));
+    // R-GUIDE-015: the link is an ask, so it waits for the early win.
+    expect(screen.queryByRole("button", { name: say("ui.people.invite.link-get") })).toBeNull();
+    act(() => store.setState({ earlyWin: true }));
     expect(screen.queryByText(say("ui.people.invite.offline"))).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: say("ui.people.invite.link-get") }));
     await screen.findByText(/\/invite\/K7Q2$/);
@@ -151,7 +155,8 @@ describe("block and report", () => {
     server.answer("POST /api/moderation/report", { body: { ok: true, report: "report-1" } });
     await online(server, game);
     const thread = await within(card(bond)).findByRole("region", { name: say("ui.talk.title") });
-    await waitFor(() => expect(within(thread.querySelector<HTMLElement>('[data-row="m1"]')!).getByText(say("ui.talk.them"))).toBeDefined());
+    const name = bondName(game.view().people.bonds.find((entry) => entry.id === bond)!);
+    await waitFor(() => expect(within(thread.querySelector<HTMLElement>('[data-row="m1"]')!).getByText(name)).toBeDefined());
     const control = thread.querySelector<HTMLElement>('[data-moderation="conversation"]')!;
     fireEvent.click(within(control).getByRole("button", { name: words("ui.report") }));
     const sheet = await screen.findByRole("dialog");

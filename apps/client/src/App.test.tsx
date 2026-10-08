@@ -24,6 +24,11 @@ describe("the app", () => {
     const first = Object.keys(content.scenario)[0]!;
     fireEvent.click(screen.getByRole("button", { name: `${say("ui.life.start")}: ${nameOf(first)}` }));
     expect(await screen.findByRole("heading", { name: say("ui.month.planning", { month: 1 }) })).toBeDefined();
+    // With no route yet the header shows no japacity label and no placeholder beside it.
+    const header = document.querySelector("header")!;
+    expect(header.textContent).not.toContain("--");
+    expect(header.querySelector("[data-japacity-figure]")).toBeNull();
+    expect([...header.querySelectorAll("span")].filter((span) => span.textContent.includes(say("ui.japacity.title")))).toEqual([]);
 
     fireEvent.click(screen.getByRole("button", { name: say("ui.month.end") }));
     expect(await screen.findByRole("dialog", { name: say("ui.report.title", { month: 1 }) })).toBeDefined();

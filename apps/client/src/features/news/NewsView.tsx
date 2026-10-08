@@ -65,14 +65,16 @@ function DrawnLine() {
 const STAGE_ORDER: readonly NewsStage[] = ["in-force", "announced", "rumour", "ended"];
 
 export function NewsView() {
-  const { news } = useView();
+  const { news, era, lottery } = useView();
+  // The empty line never sits under a story the front page already shows.
+  const frontPage = era !== null || (lottery?.last ?? null) !== null;
   const stories = [...news].sort((a, b) => STAGE_ORDER.indexOf(a.stage) - STAGE_ORDER.indexOf(b.stage) || b.since - a.since);
   return (
     <Panel title={say("ui.news.title")}>
       <FrontPage />
       <DrawnLine />
       {stories.length === 0 ? (
-        <Empty>{say("ui.news.none")}</Empty>
+        <Empty>{say(frontPage ? "ui.news.none-else" : "ui.news.none")}</Empty>
       ) : (
         <ul className="flex flex-col gap-3">
           {stories.map((story) => (

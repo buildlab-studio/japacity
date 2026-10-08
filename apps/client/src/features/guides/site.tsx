@@ -5,7 +5,7 @@ import type { Content, Id } from "@japacity/sim";
 import type { ReactNode } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 
-import { CREDITS_PATH, GUIDES_ROOT, guidePath, MADE_PATH, NUMBERS_PATH, numbersPath, SOURCES_PATH } from "./paths";
+import { CREDITS_PATH, GUIDES_ROOT, guidePath, MADE_PATH, numbersPath, SOURCES_PATH } from "./paths";
 import { inline, readRulePage, type RulePage } from "./rulePage";
 
 /** credits.json as tools/assets/credits.ts writes it (city.md R-CITY-021). */
@@ -74,6 +74,27 @@ function wordsFrom(text: Record<string, string>): Words {
 }
 
 const LINK = "underline underline-offset-4 hover:text-ink";
+
+/** A numbers page as a player knows that part of the game, never by its rule page's own title. */
+export function pageName(say: Words, text: Record<string, string>, page: RulePage): string {
+  const key = `guide.page.numbers.name.${page.name}`;
+  return text[key] === undefined ? page.title : say(key);
+}
+
+/** A Numbers cell as a player reads it: the rule page's "working value" is an estimate on a player's page. */
+function plainCell(say: Words, cell: string): string {
+  return cell.replace(/\bworking values?\b/gi, (found) => {
+    const word = say(found.toLowerCase().endsWith("s") ? "guide.page.numbers.estimates" : "guide.page.numbers.estimate");
+    return found.charAt(0) === "W" ? word.charAt(0).toUpperCase() + word.slice(1) : word;
+  });
+}
+
+/** The routes a guide serves, by name, as one line for the guides' index. */
+function routesLine(say: Words, routes: readonly string[]): string {
+  const names = routes.map((route) => say(`${route}.name`)).join(", ");
+  const key = routes.length === 0 ? "guide.page.index.routes.zero" : routes.length === 1 ? "guide.page.index.routes.one" : "guide.page.index.routes";
+  return say(key, { routes: names });
+}
 
 function Paragraphs({ words }: { words: string }) {
   return (
@@ -194,7 +215,7 @@ function GuidePage({ input, id, pages }: { input: SiteInput; id: Id<"guide">; pa
               {numbers.map((page) => (
                 <li key={page.name}>
                   <a href={numbersPath(page.name)} className={LINK}>
-                    {page.title}
+                    {pageName(say, input.text, page)}
                   </a>
                 </li>
               ))}
@@ -222,11 +243,14 @@ function GuidesIndex({ input }: { input: SiteInput }) {
       <h1 className="text-3xl font-bold">{say("guide.page.index.title")}</h1>
       <p>{say("guide.page.index.intro")}</p>
       <ul className="flex flex-col gap-2">
-        {Object.keys(input.content.guide).map((id) => (
-          <li key={id}>
-            <a href={guidePath(id)} className={LINK}>
-              {say(`${id}.title`)}
+        {Object.values(input.content.guide).map((guide) => (
+          <li key={guide.id} className="flex flex-col" data-guide={guide.id}>
+            <a href={guidePath(guide.id)} className={LINK}>
+              {say(`${guide.id}.title`)}
             </a>
+            <span className="text-sm text-muted" data-routes>
+              {routesLine(say, guide.routes)}
+            </span>
           </li>
         ))}
       </ul>
@@ -296,7 +320,7 @@ function SourcesPage({ input, pages }: { input: SiteInput; pages: readonly RuleP
 
 function NumbersPage({ input, page }: { input: SiteInput; page: RulePage }) {
   const say = wordsFrom(input.text);
-  const title = say("guide.page.numbers.title", { page: page.title });
+  const title = say("guide.page.numbers.title", { page: pageName(say, input.text, page) });
   const table = page.numbers;
   if (table === null) throw new Error(`${page.name} has no Numbers table.`);
   return (
@@ -309,7 +333,7 @@ function NumbersPage({ input, page }: { input: SiteInput; page: RulePage }) {
             <tr>
               {table.header.map((cell) => (
                 <th key={cell} className="border-b border-line p-2 font-semibold">
-                  {cell}
+                  {plainCell(say, cell)}
                 </th>
               ))}
             </tr>
@@ -327,7 +351,7 @@ function NumbersPage({ input, page }: { input: SiteInput; page: RulePage }) {
                       ) : part.kind === "code" ? (
                         <code key={partAt}>{part.text}</code>
                       ) : (
-                        <span key={partAt}>{part.text}</span>
+                        <span key={partAt}>{plainCell(say, part.text)}</span>
                       ),
                     )}
                   </td>
@@ -344,25 +368,6 @@ function NumbersPage({ input, page }: { input: SiteInput; page: RulePage }) {
           <SourceList say={say} sources={page.sources} />
         </section>
       )}
-    </Page>
-  );
-}
-
-function NumbersIndex({ input, pages }: { input: SiteInput; pages: readonly RulePage[] }) {
-  const say = wordsFrom(input.text);
-  return (
-    <Page say={say} title={say("guide.page.numbers.index")} description={say("guide.page.numbers.intro")} input={input}>
-      <h1 className="text-3xl font-bold">{say("guide.page.numbers.index")}</h1>
-      <p>{say("guide.page.numbers.intro")}</p>
-      <ul className="flex list-disc flex-col gap-1 pl-5">
-        {pages.map((page) => (
-          <li key={page.name}>
-            <a href={numbersPath(page.name)} className={LINK}>
-              {page.title}
-            </a>
-          </li>
-        ))}
-      </ul>
     </Page>
   );
 }
@@ -416,6 +421,7 @@ function CreditsPage({ input }: { input: SiteInput }) {
               <a href={OSM_COPYRIGHT} className={LINK}>
                 {say("guide.page.credits.osm")}
               </a>
+              .
             </p>
           ) : null}
           {overture ? <p>{say("guide.page.credits.overture")}</p> : null}
@@ -469,7 +475,7 @@ function page(path: string, element: ReactNode): SitePage {
   return { path, file: `${path.replace(/^\//, "")}index.html`, html: `<!doctype html>${renderToStaticMarkup(element)}` };
 }
 
-/** Every guide page, the guides' index, the sources page, the numbers pages, the credits and how the game was made. */
+/** Every guide page, the guides' index, the sources page, the numbers pages, the credits and how the game was made. The numbers guide is the index of the numbers pages. */
 export function renderSite(input: SiteInput): SitePage[] {
   const rules = input.rulePages.map((rule) => readRulePage(rule.name, rule.markdown)).sort((a, b) => a.name.localeCompare(b.name));
   const numbered = rules.filter((rule) => rule.numbers !== null);
@@ -477,7 +483,6 @@ export function renderSite(input: SiteInput): SitePage[] {
     page(GUIDES_ROOT, <GuidesIndex input={input} />),
     ...(Object.keys(input.content.guide) as Id<"guide">[]).map((id) => page(guidePath(id), <GuidePage input={input} id={id} pages={numbered} />)),
     page(SOURCES_PATH, <SourcesPage input={input} pages={rules} />),
-    page(NUMBERS_PATH, <NumbersIndex input={input} pages={numbered} />),
     ...numbered.map((rule) => page(numbersPath(rule.name), <NumbersPage input={input} page={rule} />)),
     page(CREDITS_PATH, <CreditsPage input={input} />),
     page(MADE_PATH, <MadePage input={input} />),

@@ -5,6 +5,7 @@
 // many answers agreed, never which (R-INTERVIEW-004, 005, 011).
 import type { PlayerView } from "@japacity/sim";
 import { Hourglass, MessagesSquare } from "lucide-react";
+import { useEffect, useRef } from "react";
 
 import { useGame, useView } from "../../authority/GameProvider";
 import { optionWords } from "../../shared/sim/people";
@@ -63,10 +64,16 @@ function Result({ interview }: { interview: Interview }) {
 
 export function InterviewView() {
   const { interview } = useView();
+  const card = useRef<HTMLElement>(null);
+  const asking = interview?.result === null && interview.question !== null ? interview.question.id : null;
+  // A question waiting blocks the month, so it is brought into view above the fixed action bar.
+  useEffect(() => {
+    if (asking !== null) card.current?.scrollIntoView?.({ block: "start" });
+  }, [asking]);
   if (interview === null) return null;
   if (interview.result !== null) return <Result interview={interview} />;
   return (
-    <section aria-label={nameOf(ENTRY)}>
+    <section ref={card} aria-label={nameOf(ENTRY)} className="scroll-mt-20">
       <Card tone={interview.question === null ? "plain" : "attention"} className="flex flex-col gap-4" data-interview={interview.waiting ? "waiting" : "open"}>
         <div className="flex items-start gap-3">
           {interview.waiting ? <Hourglass size={22} className="mt-0.5 shrink-0" /> : <MessagesSquare size={22} className="mt-0.5 shrink-0" />}

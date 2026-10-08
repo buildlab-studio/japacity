@@ -13,6 +13,12 @@ describe("japacity", () => {
     expect(screen.getByText(say("ui.japacity.none"))).toBeDefined();
   });
 
+  test("given no route, when the header would show the figure, then it shows nothing, never a dash pair", async () => {
+    await renderWithView(<JapacityView compact />, engineView());
+    expect(document.querySelector("[data-japacity-figure]")).toBeNull();
+    expect(document.body.textContent).not.toContain("--");
+  });
+
   test("given a route, then the number is shown big with the route's name from content", async () => {
     await renderWithView(<JapacityView />, richView());
     expect(screen.getByText("64")).toBeDefined();

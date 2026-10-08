@@ -61,18 +61,33 @@ describe("the kiosk", () => {
     expect(screen.getByText(say("ui.lottery.held.zero"))).toBeDefined();
     expect(screen.getByText(say("ui.lottery.closes", { when: closeWords(at) }))).toBeDefined();
     expect(screen.getByText(say("ui.lottery.closes-in", { wait: waitWords(at - NOW) }))).toBeDefined();
-    expect(waitWords(at - NOW)).toBe(say("ui.lottery.days", { days: 1, hours: 18 }));
+    expect(waitWords(at - NOW)).toBe("1 day 18 hours");
     expect(screen.getByText(money(3 * tuning.ticket))).toBeDefined();
     expect(screen.getByText(say("ui.lottery.from-sales", { sales: money(3 * tuning.ticket) }))).toBeDefined();
     expect(document.querySelector("[data-lottery-fingerprint]")?.textContent).toBe("ab".repeat(32));
     expect(screen.queryByText(say("ui.lottery.round", { round: formatNumber(1234) }))).toBeNull();
   });
 
+  test("[R-LOTTERY-006] given waits at each unit's edges, when they are said, then they are whole words with no abbreviation", () => {
+    const minute = time.MINUTE_MS;
+    const hour = 60 * minute;
+    const day = 24 * hour;
+    expect(waitWords(minute - 1)).toBe("less than a minute");
+    expect(waitWords(minute)).toBe("1 minute");
+    expect(waitWords(hour - 1)).toBe("59 minutes");
+    expect(waitWords(hour)).toBe("1 hour");
+    expect(waitWords(hour + 5 * minute)).toBe("1 hour 5 minutes");
+    expect(waitWords(day - 1)).toBe("23 hours 59 minutes");
+    expect(waitWords(day)).toBe("1 day");
+    expect(waitWords(day + 6 * hour)).toBe("1 day 6 hours");
+    expect(waitWords(2 * day + hour)).toBe("2 days 1 hour");
+  });
+
   test("[R-LOTTERY-006] given the close one minute and then no time away, when the clock runs, then the countdown reaches the close and says the sales are closed", async () => {
     await kiosk(drawOf({ closesTick: 11 }));
     vi.setSystemTime(NEXT_TICK - time.MINUTE_MS - 1000);
     await act(() => vi.advanceTimersByTimeAsync(1000));
-    expect(screen.getByText(say("ui.lottery.closes-in", { wait: say("ui.clock.minutes", { minutes: 1 }) }))).toBeDefined();
+    expect(screen.getByText(say("ui.lottery.closes-in", { wait: "1 minute" }))).toBeDefined();
     vi.setSystemTime(NEXT_TICK - 1000);
     await act(() => vi.advanceTimersByTimeAsync(1000));
     expect(screen.getByText(say("ui.lottery.closed"))).toBeDefined();
@@ -160,6 +175,12 @@ describe("the house top-up on the kiosk", () => {
     expect(within(last).getByText(say("ui.lottery.last-line", { draw: 6, count: formatNumber(30), pot: money(withTopUp.pot) }))).toBeDefined();
     expect(within(last).getByText(say("ui.lottery.last-top-up", { topUp: money(70 * tuning.ticket) }))).toBeDefined();
     expect(within(last).getByText(say("ui.lottery.tier.jackpot"))).toBeDefined();
+    // Each tier shows its prize for one ticket, read from the result.
+    expect(withTopUp.winners.some((each) => each.tickets.length > 1)).toBe(true);
+    for (const tier of withTopUp.winners.filter((each) => each.tickets.length > 1)) {
+      const row = last.querySelector<HTMLElement>(`[data-tier="${tier.tier}"]`)!;
+      expect(within(row).getByText(say("ui.lottery.tier-line", { tickets: tier.tickets.length, amount: money(tier.amount) }))).toBeDefined();
+    }
   });
 });
 
