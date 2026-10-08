@@ -8,6 +8,7 @@ import type { WorldTickRow } from "@japacity/store";
 
 import { tickStartsAt } from "../clock/view";
 import type { ServerDeps } from "../deps";
+import { placeNamesAt } from "../adverts/names";
 import { lotteryFor } from "./lottery.world";
 
 /** R-CLOCK-014: Lagos keeps UTC+1 all year. */
@@ -29,7 +30,7 @@ export async function makeTick(deps: WorldDeps, previous: WorldTickRow | null): 
   const calendar = lagosCalendar(tickStartsAt(deps.config.clock, tick));
   const stepped = stepWorld(book, deps.secrets.worldSeed, content, calendar, content.tuning.director.onlineTickScale);
   if (stepped.world.tick !== tick) throw new Error(`The book after tick ${String(previous?.tick)} stepped to ${String(stepped.world.tick)}.`);
-  const world: World = { ...stepped.world, lottery: await lotteryFor(tick, deps) };
+  const world: World = { ...stepped.world, lottery: await lotteryFor(tick, deps), placeNames: await placeNamesAt(deps, tickStartsAt(deps.config.clock, tick)) };
   return { tick, world, book: stepped.book, content: content.version, hash: hashState({ world, book: stepped.book }) };
 }
 

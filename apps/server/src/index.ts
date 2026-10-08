@@ -24,6 +24,7 @@ import { placeSocketRoutes } from "./routes/place";
 
 export { Place } from "./place/place.object";
 import { MONEY_CRON, moneyJob } from "./jobs/money";
+import { advertLinksJob } from "./adverts/job";
 
 export interface Env {
   SITE_URL: string;
@@ -106,6 +107,7 @@ export default {
     // By cron: the world's ticks (R-CLOCK-012) every five minutes; deletions (R-ACCOUNT-017) and the money report (R-SERVER-011) daily.
     ctx.waitUntil(ticksJob(depsFor(env), controller.cron));
     ctx.waitUntil(drawJob(depsFor(env), drawKeys(env), controller.cron));
+    ctx.waitUntil(advertLinksJob(depsFor(env), controller.cron, (input, init) => fetch(input, init)));
     if (controller.cron === "0 0 * * *") ctx.waitUntil(runDeletions(depsFor(env), makeAuth(depsFor(env), authAdapter, authKeys(env, (promise) => ctx.waitUntil(promise)))));
     if (controller.cron === MONEY_CRON) ctx.waitUntil(moneyJob(depsFor(env)));
   },
