@@ -1,64 +1,84 @@
-// R-MODERATION-001 to 007, R-PAIR-014: the block and report control, one per
-// place another player or an advert appears. One tap blocks. Two report: one
-// opens the reasons, one picks a reason and sends, with a block ticked beside
-// it. The control sends what the surface knows as the cites; no typed text.
+// R-MODERATION-001 to 007, R-PAIR-014 to 016: the block and report control,
+// one per place another player or an advert appears, shared by every screen
+// that shows one (R-MODERATION-003). One tap blocks. Two report: one opens the
+// reasons, one picks a reason and sends, with a block ticked beside it. The
+// control sends what the surface knows as the cites; no typed text.
 import { Ban, Flag } from "lucide-react";
 import { useState } from "react";
 
-import { Button } from "../../shared/ui/Button";
-import { Sheet } from "../../shared/ui/Sheet";
-import { REPORT_REASONS, type ReportCite, type ReportReason } from "./contract";
+import { REPORT_REASONS, type BlockRequest, type ReportCite, type ReportReason } from "../net/contract";
+import { Button } from "../ui/Button";
+import { Sheet } from "../ui/Sheet";
+import type { ReportRequest } from "./api";
 import { useModeration } from "./ModerationProvider";
 import { reasonWords, words } from "./moderation.words";
 
-/** Who the control is about: another player by account, or an advert by its campaign. */
-export type Someone = { account: string; name: string } | { campaign: string; name: string };
+/**
+ * Who the control is about: a player the reader shares a pair with, an
+ * advert by its campaign, or someone the server can be told about but not
+ * blocked from here (a card before sign-up, a phrase heard in a place).
+ */
+export type Someone = { pair: string; name: string } | { campaign: string; name: string } | { name: string };
+
+/** R-MODERATION-003: every surface the control is shown on, for the test that walks them. */
+export const MODERATION_SURFACES = ["pair", "conversation", "invite-card", "advert", "place-phrase"] as const;
+
+export type Surface = (typeof MODERATION_SURFACES)[number];
 
 export interface BlockReportProps {
   who: Someone;
   cites: ReportCite;
-  /** Names the surface for the test that walks every one (R-MODERATION-003). */
-  surface: string;
+  surface: Surface;
+  /** Called once the other side is blocked, so the screen can say it is over. */
+  onBlocked?: () => void;
 }
 
 type Note = { tone: "ok" | "bad"; text: string } | null;
 
-export function BlockReport({ who, cites, surface }: BlockReportProps) {
+/** The body the server reads: the pair form where a pair is cited, the cite form for everything else. */
+export function reportBody(who: Someone, cites: ReportCite, reason: ReportReason, alsoBlock: boolean): ReportRequest {
+  if ("pair" in who && ("pair" in cites || "messages" in cites)) {
+    return { pair: who.pair, reason, ...("messages" in cites ? { messages: cites.messages } : {}), block: alsoBlock };
+  }
+  return { ...("campaign" in who ? { subject: { campaign: who.campaign } } : {}), reason, cites };
+}
+
+export function BlockReport({ who, cites, surface, onBlocked }: BlockReportProps) {
   const moderation = useModeration();
   const [blocked, setBlocked] = useState(false);
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const [note, setNote] = useState<Note>(null);
   if (moderation === null) return null;
-  const account = "account" in who ? who.account : null;
+  const target: BlockRequest | null = "pair" in who ? { pair: who.pair } : null;
 
-  async function toggleBlock(target: string) {
+  async function toggleBlock(on: BlockRequest) {
     setBusy(true);
-    const done = blocked ? await moderation?.unblock(target) : await moderation?.block(target);
+    const done = blocked ? await moderation?.unblock(on) : await moderation?.block(on);
     setBusy(false);
     if (done?.ok !== true) return setNote({ tone: "bad", text: words("ui.report.failed") });
     setNote({ tone: "ok", text: words(blocked ? "ui.block.undone" : "ui.block.done") });
+    if (!blocked) onBlocked?.();
     setBlocked(!blocked);
   }
 
   async function report(reason: ReportReason, alsoBlock: boolean) {
     if (moderation === null) return;
     setBusy(true);
-    const subject = "account" in who ? { account: who.account } : { campaign: who.campaign };
-    const sent = await moderation.report({ subject, reason, cites });
-    if (sent.ok && alsoBlock && account !== null && !blocked) {
-      const done = await moderation.block(account);
-      if (done.ok) setBlocked(true);
-    }
+    const sent = await moderation.report(reportBody(who, cites, reason, alsoBlock));
     setBusy(false);
     setOpen(false);
+    if (sent.ok && alsoBlock) {
+      setBlocked(true);
+      onBlocked?.();
+    }
     setNote(sent.ok ? { tone: "ok", text: words("ui.report.sent") } : { tone: "bad", text: words("ui.report.failed") });
   }
 
   return (
     <div data-moderation={surface} className="flex flex-wrap items-center gap-2">
-      {account === null ? null : (
-        <Button small variant="quiet" disabled={busy} aria-pressed={blocked} onClick={() => void toggleBlock(account)}>
+      {target === null ? null : (
+        <Button small variant="quiet" disabled={busy} aria-pressed={blocked} onClick={() => void toggleBlock(target)}>
           <Ban size={16} aria-hidden />
           {blocked ? words("ui.block.undo") : words("ui.block")}
         </Button>
@@ -72,7 +92,14 @@ export function BlockReport({ who, cites, surface }: BlockReportProps) {
           {note.text}
         </p>
       )}
-      <ReportSheet open={open} onOpenChange={setOpen} name={who.name} canBlock={account !== null && !blocked} busy={busy} onSend={(reason, alsoBlock) => void report(reason, alsoBlock)} />
+      <ReportSheet
+        open={open}
+        onOpenChange={setOpen}
+        name={who.name}
+        canBlock={target !== null && !blocked}
+        busy={busy}
+        onSend={(reason, alsoBlock) => void report(reason, alsoBlock)}
+      />
     </div>
   );
 }

@@ -9,6 +9,6 @@ interface ImportMetaEnv {
   readonly VITE_SERVER_URL?: string;
   /** Cloudflare Turnstile's site key for the sign-up check (R-ACCOUNT-013): see src/features/account/Turnstile.tsx. */
   readonly VITE_TURNSTILE_SITE_KEY?: string;
-  /** The build number feedback carries (R-MODERATION-020), set by the build: see src/features/moderation/api.ts. */
+  /** The build number feedback carries (R-MODERATION-020), set by the build: see src/shared/moderation/api.ts. */
   readonly VITE_BUILD?: string;
 }

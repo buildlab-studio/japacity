@@ -1,29 +1,21 @@
 // The server's people routes, as the people screens reach them: the invite
-// link, the pair each bond rests on, the conversation, block and report. Only
-// online: the local authority has no second player, so offline the screens
-// get null and hide what needs the server (R-PAIR-014 "wired to the server
-// routes when online and hidden offline").
+// link, the pair record and its conversation; block and report go through the
+// shared moderation control. Only online: the local authority has no second
+// player, so offline the screens get null and hide what needs the server
+// (R-PAIR-014 "wired to the server routes when online and hidden offline").
 import type { Id } from "@japacity/sim";
 import { createContext, createElement, use, useMemo, type ReactNode } from "react";
 
 import { authorityMode } from "../../authority/mode";
-import type {
-  ConversationReply,
-  InviteReply,
-  ModerationReply,
-  PairsReply,
-  ReportReason,
-  SayReply,
-} from "../../shared/net/contract";
+import type { ConversationReply, InviteReply, PairReply, SayReply } from "../../shared/net/contract";
 import { api, type Api, type Fetch } from "../../shared/net/http";
 
 export interface PairApi {
   invite(slot: string): Promise<InviteReply>;
-  pairs(): Promise<PairsReply>;
+  /** The record as this side reads it: who the other side is, for telling rows apart (R-PAIR-006). */
+  pair(pair: string): Promise<PairReply>;
   conversation(pair: string, after: string | null): Promise<ConversationReply>;
   say(pair: string, phrase: Id<"phrase">, fill: string | null): Promise<SayReply>;
-  block(pair: string): Promise<ModerationReply>;
-  report(pair: string, reason: ReportReason, messages: string[], block: boolean): Promise<ModerationReply>;
   /** The address a friend opens to take a card, on this server. */
   inviteLink(code: string): string;
 }
@@ -32,11 +24,9 @@ export function pairApi(server: Api, origin: string): PairApi {
   const at = (pair: string) => `/api/pair/${encodeURIComponent(pair)}`;
   return {
     invite: (slot) => server.post("/api/invite", { slot }),
-    pairs: () => server.get("/api/pairs"),
+    pair: (pair) => server.get(at(pair)),
     conversation: (pair, after) => server.get(`${at(pair)}/conversation${after === null ? "" : `?after=${encodeURIComponent(after)}`}`),
-    say: (pair, phrase, fill) => server.post(`${at(pair)}/say`, { phrase, fill }),
-    block: (pair) => server.post("/api/moderation/block", { pair }),
-    report: (pair, reason, messages, block) => server.post("/api/moderation/report", { pair, reason, messages, block }),
+    say: (pair, phrase, fill) => server.post(`${at(pair)}/say`, fill === null ? { phrase } : { phrase, fill }),
     inviteLink: (code) => `${origin.replace(/\/+$/, "")}/invite/${encodeURIComponent(code)}`,
   };
 }

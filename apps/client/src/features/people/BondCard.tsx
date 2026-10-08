@@ -14,6 +14,7 @@ import { Card, Tag } from "../../shared/ui/Panel";
 import { ReportLines } from "../../shared/ui/ReportLines";
 import { formatBand, formatBp, formatMoney, formatNumber } from "../../shared/words/format";
 import { nameOf, runningName, say, sayCount } from "../../shared/words/text";
+import { BlockReport } from "../../shared/moderation/BlockReport";
 import { Conversation } from "./Conversation";
 import type { PairApi } from "./pairApi";
 
@@ -350,11 +351,11 @@ function Answered({ lines }: { lines: ReportLine[] }) {
   );
 }
 
-export function BondCard({ bond, api, pair }: { bond: BondView; api: PairApi | null; pair: string | null }) {
+export function BondCard({ bond, api }: { bond: BondView; api: PairApi | null }) {
   const view = useView();
   const [answered, setAnswered] = useState<ReportLine[]>([]);
   const left = Math.max(0, content.tuning.people.partnerMoments - (bond.moments?.length ?? 0));
-  const online = api !== null && pair !== null && bond.label !== "computer";
+  const pair = bond.label === "computer" ? null : bond.pair;
   return (
     <li>
       <Card tone={bond.pending.theirs !== null ? "attention" : "plain"} className="flex flex-col gap-3" data-bond={bond.id}>
@@ -365,6 +366,7 @@ export function BondCard({ bond, api, pair }: { bond: BondView; api: PairApi | n
           </h3>
           <Tag tone={TOGETHER.includes(bond.stage) ? "good" : "plain"}>{say(`ui.people.stage.${bond.stage}`)}</Tag>
         </div>
+        {pair === null || api === null ? null : <BlockReport who={{ pair, name: bondName(bond) }} cites={{ pair }} surface="pair" />}
         <Warnings bond={bond} view={view} />
         <Facts bond={bond} />
         <Moments bond={bond} />
@@ -373,7 +375,7 @@ export function BondCard({ bond, api, pair }: { bond: BondView; api: PairApi | n
         <Proposals bond={bond} onSent={setAnswered} />
         <Answered lines={answered} />
         <Joint bond={bond} />
-        {online ? <Conversation api={api} pair={pair} /> : null}
+        {pair === null || api === null ? null : <Conversation api={api} pair={pair} name={bondName(bond)} />}
         <End bond={bond} />
       </Card>
     </li>

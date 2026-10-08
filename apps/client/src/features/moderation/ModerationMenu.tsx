@@ -8,15 +8,10 @@ import { useEffect, useState } from "react";
 import { useGame } from "../../authority/GameProvider";
 import { Button } from "../../shared/ui/Button";
 import { Sheet } from "../../shared/ui/Sheet";
-import { buildNumber, type ModerationApi } from "./api";
-import type { Standing } from "./contract";
-import { useModeration } from "./ModerationProvider";
-import { anyReasonWords, words } from "./moderation.words";
-
-/** there is no graphics setting yet to read the mode from; every send says high until one exists. */
-export function graphicsMode(): "low" | "high" {
-  return "high";
-}
+import { graphicsMode } from "../../shared/graphics/mode";
+import { buildNumber, type ModerationApi, type Standing } from "../../shared/moderation/api";
+import { useModeration } from "../../shared/moderation/ModerationProvider";
+import { anyReasonWords, words } from "../../shared/moderation/moderation.words";
 
 /** The screen feedback is sent from, as the game's own state names it. */
 export function useScreenName(): string {

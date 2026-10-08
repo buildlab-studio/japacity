@@ -1,10 +1,14 @@
 // The people tab online: the routes the server's people side answers, faked
-// here as the contract in shared/net/contract.ts assumes them.
+// here in the shapes shared/net/contract.ts copies from the server.
 import { content } from "@japacity/content";
 import type { ConversationRow } from "@japacity/sim";
-import { fireEvent, screen, waitFor, within } from "@testing-library/react";
+import { act, fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
+import { moderationApi } from "../../shared/moderation/api";
+import { ModerationProvider } from "../../shared/moderation/ModerationProvider";
+import { reasonWords, words } from "../../shared/moderation/moderation.words";
+import { api } from "../../shared/net/http";
 import { phraseWords } from "../../shared/sim/people";
 import { linkedFriend, PAIR, peopleGame, renderWithGame } from "../../shared/testing/people";
 import { BASE, fakeServer, type FakeServer } from "../../shared/testing/server";
@@ -21,21 +25,23 @@ function row(id: string, sender: string, phrase: ConversationRow["phrase"], fill
 
 async function online(server: FakeServer, game = peopleGame()) {
   const rendered = await renderWithGame(
-    <PairApiProvider value={pairApiFor(BASE, server.fetch)}>
-      <PeopleView />
-    </PairApiProvider>,
+    <ModerationProvider api={moderationApi(api({ baseUrl: BASE, fetch: server.fetch }))}>
+      <PairApiProvider value={pairApiFor(BASE, server.fetch)}>
+        <PeopleView />
+      </PairApiProvider>
+    </ModerationProvider>,
     game,
   );
   return rendered;
 }
 
-/** A friend linked in the partner slot, with the server naming the pair and a short thread. */
+/** A friend linked in the partner slot, the pair id read from the view's bond, the record naming the other side, and a short thread. */
 function friendServer(rows: ConversationRow[] = []): { server: FakeServer; game: ReturnType<typeof peopleGame>; bond: string } {
   const game = peopleGame();
   const bond = linkedFriend(game);
   const server = fakeServer();
-  server.answer("GET /api/pairs", { body: { ok: true, pairs: [{ bond, pair: PAIR }] } });
-  server.answer(`GET /api/pair/${PAIR}/conversation`, { body: { ok: true, me: ME, rows } });
+  server.answer(`GET /api/pair/${PAIR}`, { body: { ok: true, pair: { id: PAIR, side: "a", them: THEM } } });
+  server.answer(`GET /api/pair/${PAIR}/conversation`, { body: { ok: true, pair: PAIR, messages: rows } });
   return { server, game, bond };
 }
 
@@ -48,7 +54,7 @@ describe("the invite link", () => {
     const game = peopleGame();
     game.accept({ type: "people/invite", slot: "partner", looking: "partner", fill: "who-codes" });
     const server = fakeServer();
-    server.answer("POST /api/invite", { body: { ok: true, code: "K7Q2", expires: 9_000 } });
+    server.answer("POST /api/invite", { body: { ok: true, code: "K7Q2", slot: "partner", expires: 9_000, card: {} } });
     await online(server, game);
     expect(screen.queryByText(say("ui.people.invite.offline"))).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: say("ui.people.invite.link-get") }));
@@ -73,7 +79,7 @@ describe("the conversation", () => {
 
   test("[R-PAIR-010] given a phrase with a fill-in, when it is said, then only a fill from its fixed list can go, and the row joins the thread", async () => {
     const { server, game, bond } = friendServer();
-    server.answer(`POST /api/pair/${PAIR}/say`, { body: { ok: true, row: row("m9", ME, "phrase.see-you", "beach", null) } });
+    server.answer(`POST /api/pair/${PAIR}/say`, { body: { ok: true, message: row("m9", ME, "phrase.see-you", "beach", null) } });
     await online(server, game);
     const thread = await within(card(bond)).findByRole("region", { name: say("ui.talk.title") });
     fireEvent.change(within(thread).getByLabelText(say("ui.talk.phrase")), { target: { value: "phrase.see-you" } });
@@ -87,7 +93,7 @@ describe("the conversation", () => {
 
   test("[R-PAIR-013] given the hour's phrases used up, when one more is said, then the refusal says so plainly and stores nothing", async () => {
     const { server, game, bond } = friendServer();
-    server.answer(`POST /api/pair/${PAIR}/say`, { body: { ok: false, code: "not-legal", detail: "too many", failed: "too-many" } });
+    server.answer(`POST /api/pair/${PAIR}/say`, { body: { ok: false, code: "too-many", detail: "The phrase cannot be sent: too-many." } });
     await online(server, game);
     const thread = await within(card(bond)).findByRole("region", { name: say("ui.talk.title") });
     fireEvent.click(within(thread).getByRole("button", { name: new RegExp(`^${say("ui.talk.send")}`) }));
@@ -97,7 +103,7 @@ describe("the conversation", () => {
 
   test("[R-PAIR-013] given the server's rate limit, then the wait is said in seconds; and a block on the other side is only ever not possible", async () => {
     const { server, game, bond } = friendServer();
-    server.answer(`POST /api/pair/${PAIR}/say`, { status: 429, body: { ok: false, code: "rate-limited", detail: "slow", retryAfter: 4 } }, { body: { ok: false, code: "not-legal", detail: "x", failed: "not-possible" } });
+    server.answer(`POST /api/pair/${PAIR}/say`, { status: 429, body: { ok: false, code: "rate-limited", detail: "slow", retryAfter: 4 } }, { body: { ok: false, code: "not-possible", detail: "That is not possible now." } });
     await online(server, game);
     const thread = await within(card(bond)).findByRole("region", { name: say("ui.talk.title") });
     const sendButton = () => within(thread).getByRole("button", { name: new RegExp(`^${say("ui.talk.send")}`) });
@@ -109,47 +115,62 @@ describe("the conversation", () => {
 });
 
 describe("block and report", () => {
-  test("[R-PAIR-014] given a friend's bond online, then block and report sit one tap from where they appear; offline neither shows", async () => {
+  test("[R-PAIR-014] [R-MODERATION-003] given a friend's bond online, then block and report sit on the pair record and on the conversation; offline neither shows", async () => {
     const { server, game, bond } = friendServer();
     await online(server, game);
     await within(card(bond)).findByRole("region", { name: say("ui.talk.title") });
-    expect(within(card(bond)).getByRole("button", { name: say("ui.pair.block") })).toBeDefined();
-    expect(within(card(bond)).getByRole("button", { name: say("ui.pair.report") })).toBeDefined();
+    expect(card(bond).querySelector('[data-moderation="pair"]')).not.toBeNull();
+    expect(card(bond).querySelector('[data-moderation="conversation"]')).not.toBeNull();
+    expect(within(card(bond)).getAllByRole("button", { name: words("ui.block") })).toHaveLength(2);
     document.body.innerHTML = "";
     await renderWithGame(
-      <PairApiProvider value={null}>
-        <PeopleView />
-      </PairApiProvider>,
+      <ModerationProvider api={null}>
+        <PairApiProvider value={null}>
+          <PeopleView />
+        </PairApiProvider>
+      </ModerationProvider>,
       game,
     );
-    expect(card(bond).querySelector("[data-safety]")).toBeNull();
-    expect(screen.queryByRole("button", { name: say("ui.pair.block") })).toBeNull();
+    expect(card(bond).querySelector("[data-moderation]")).toBeNull();
+    expect(screen.queryByRole("button", { name: words("ui.block") })).toBeNull();
   });
 
-  test("[R-PAIR-015] given a block confirmed, then it goes to the server for the pair and the player is told it is over", async () => {
+  test("[R-PAIR-015] given block tapped on the pair record, then it goes to the server for the pair the view's bond names, and the player is told it is over", async () => {
     const { server, game, bond } = friendServer();
     server.answer("POST /api/moderation/block", { body: { ok: true } });
     await online(server, game);
     await within(card(bond)).findByRole("region", { name: say("ui.talk.title") });
-    fireEvent.click(within(card(bond)).getByRole("button", { name: say("ui.pair.block") }));
-    const confirm = within(card(bond)).getByRole("group", { name: say("ui.pair.block.title") });
-    fireEvent.click(within(confirm).getByRole("button", { name: say("ui.pair.block.confirm") }));
-    await within(card(bond)).findByText(say("ui.pair.blocked"));
+    const record = card(bond).querySelector<HTMLElement>('[data-moderation="pair"]')!;
+    fireEvent.click(within(record).getByRole("button", { name: words("ui.block") }));
+    await within(record).findByText(words("ui.block.done"));
     expect(server.sent.find((sent) => sent.path === "/api/moderation/block")?.body).toEqual({ pair: PAIR });
   });
 
   test("[R-PAIR-016] given a report from the conversation, then it cites the pair and the other side's messages, with a block ticked by default", async () => {
     const { server, game, bond } = friendServer([row("m1", THEM, "phrase.hello", null, null), row("m2", ME, "phrase.yes", null, null)]);
-    server.answer("POST /api/moderation/report", { body: { ok: true } });
+    server.answer("POST /api/moderation/report", { body: { ok: true, report: "report-1" } });
     await online(server, game);
     const thread = await within(card(bond)).findByRole("region", { name: say("ui.talk.title") });
-    await within(thread).findByText(phraseWords("phrase.hello", null));
-    fireEvent.click(within(thread).getByRole("button", { name: say("ui.pair.report") }));
-    const form = within(thread).getByRole("form", { name: say("ui.pair.report.title") });
-    expect(within(form).getByLabelText<HTMLInputElement>(say("ui.pair.report.also-block")).checked).toBe(true);
-    fireEvent.change(within(form).getByLabelText(say("ui.pair.report.reason")), { target: { value: "scam" } });
-    fireEvent.click(within(form).getByRole("button", { name: say("ui.pair.report.send") }));
-    await within(thread).findByText(say("ui.pair.reported"));
-    await waitFor(() => expect(server.sent.find((sent) => sent.path === "/api/moderation/report")?.body).toEqual({ pair: PAIR, reason: "scam", messages: ["m1"], block: true }));
+    await waitFor(() => expect(within(thread.querySelector<HTMLElement>('[data-row="m1"]')!).getByText(say("ui.talk.them"))).toBeDefined());
+    const control = thread.querySelector<HTMLElement>('[data-moderation="conversation"]')!;
+    fireEvent.click(within(control).getByRole("button", { name: words("ui.report") }));
+    const sheet = await screen.findByRole("dialog");
+    expect(within(sheet).getByLabelText<HTMLInputElement>(words("ui.report.also-block")).checked).toBe(true);
+    fireEvent.click(within(sheet).getByRole("button", { name: reasonWords("scam") }));
+    await within(control).findByText(words("ui.report.sent"));
+    expect(server.sent.find((sent) => sent.path === "/api/moderation/report")?.body).toEqual({ pair: PAIR, reason: "scam", messages: ["m1"], block: true });
+  });
+});
+
+describe("the messages nudge", () => {
+  test("[R-PAIR-011] given an open conversation, when the server nudges that a row is new, then the thread fetches after the last row it holds and shows the new one", async () => {
+    const { server, game, bond } = friendServer([row("m1", THEM, "phrase.hello", null, null)]);
+    const rendered = await online(server, game);
+    const thread = await within(card(bond)).findByRole("region", { name: say("ui.talk.title") });
+    await waitFor(() => expect(thread.querySelector('[data-row="m1"]')).not.toBeNull());
+    server.answer(`GET /api/pair/${PAIR}/conversation`, { body: { ok: true, pair: PAIR, messages: [row("m2", THEM, "phrase.thanks", null, null)] } });
+    act(() => rendered.store.getState().heardMessages());
+    await waitFor(() => expect(thread.querySelector('[data-row="m2"]')?.textContent).toContain(phraseWords("phrase.thanks", null)));
+    expect(server.sent.filter((sent) => sent.path.endsWith("/conversation")).at(-1)?.search).toBe("?after=m1");
   });
 });
