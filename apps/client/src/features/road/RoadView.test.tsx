@@ -1,6 +1,6 @@
-import { content } from "@japacity/content";
 import type { OfferView as Offer, PlayerView, ReportLine } from "@japacity/sim";
 import { fireEvent, screen, within } from "@testing-library/react";
+import type { ReactNode } from "react";
 import { describe, expect, test } from "vitest";
 
 import { engineView } from "../../shared/testing/fixtures";
@@ -44,7 +44,7 @@ function onTheRoad(offers: Offer[]): PlayerView {
 }
 
 /** The shell hands in the offer screen; here a plain list of the titles it is given stands in for it. */
-function road(view: PlayerView) {
+function road(view: PlayerView, city: ReactNode = null) {
   const offers = (only: (offer: Offer) => boolean) => (
     <ul>
       {view.offers.filter(only).map((open) => (
@@ -54,7 +54,7 @@ function road(view: PlayerView) {
       ))}
     </ul>
   );
-  return renderWithView(<RoadView offers={offers} />, view);
+  return renderWithView(<RoadView offers={offers} city={city} />, view);
 }
 
 describe("the road's one panel", () => {
@@ -94,11 +94,8 @@ describe("the road's one panel", () => {
 });
 
 describe("the city behind the road", () => {
-  test("[R-CITY-012] given the character on the road, when the road screen shows, then the city stands behind its panel at a stylised place", async () => {
-    await road(onTheRoad([RANSOM]));
-    const city = document.querySelector<HTMLElement>("[data-city]");
-    if (city === null) throw new Error("No city on the road screen.");
-    const shown = content.place[city.dataset.city as keyof typeof content.place];
-    expect(shown?.nameKind).toBe("stylised");
+  test("[R-CITY-012] given the character on the road, when the road screen shows, then the city the shell hands in stands behind its panel", async () => {
+    await road(onTheRoad([RANSOM]), <div data-city="place.motor-park" />);
+    expect(document.querySelector("[data-road] [data-city]")).not.toBeNull();
   });
 });

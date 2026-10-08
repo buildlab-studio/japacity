@@ -308,7 +308,7 @@ function Shell() {
   if (view.prologue !== null) return <PrologueView />;
   if (prologueJustClosed(lines) && handedOver !== view.v) return <PrologueHandover onDone={() => setHandedOver(view.v)} />;
   if (view.ended && view.card !== null && view.card.kind !== "send-off") return <EndingView />;
-  if (view.place.where === "road") return <RoadView offers={(only) => <OfferView only={only} />} />;
+  if (view.place.where === "road") return <RoadView offers={(only) => <OfferView only={only} />} city={<City adverts={(place) => <PlaceAdverts place={place} />} />} />;
   return <Playing />;
 }
 

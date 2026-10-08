@@ -1,6 +1,7 @@
 // The seams between the pieces: the screens, the share button, the asks and
 // the usage setting feeding the interface counters, and the city's graphics
 // mode reaching the feedback form.
+import { content } from "@japacity/content";
 import type { PlayerView } from "@japacity/sim";
 import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
@@ -120,3 +121,15 @@ describe("the graphics mode", () => {
     expect(graphicsMode()).toBe("low");
   });
 });
+
+describe("the city behind the road", () => {
+  test("[R-CITY-012] given the character on the road, when the shell shows the road screen, then the city stands behind its panel at a stylised place", async () => {
+    const base = engineView("scenario.tunde");
+    await playing({ ...base, place: { ...base.place, where: "road" } });
+    const city = document.querySelector<HTMLElement>("[data-road] [data-city]");
+    if (city === null) throw new Error("No city on the road screen.");
+    const shown = content.place[city.dataset.city as keyof typeof content.place];
+    expect(shown?.nameKind).toBe("stylised");
+  });
+});
+
