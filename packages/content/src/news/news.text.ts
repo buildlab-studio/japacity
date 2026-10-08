@@ -129,7 +129,7 @@ export const newsText: Record<string, string> = {
 
   "news.uk-skilled-bar-rises.name": "UK raises the skilled worker salary bar",
   "news.uk-skilled-bar-rises.rumour.head": "Talk of a higher salary bar",
-  "news.uk-skilled-bar-rises.rumour.body": "A lawyer on television says the skilled worker bar will go up again.",
+  "news.uk-skilled-bar-rises.rumour.body": "An adviser on television says the skilled worker bar will go up again.",
   "news.uk-skilled-bar-rises.announced.head": "UK raises the skilled worker salary bar",
   "news.uk-skilled-bar-rises.announced.body": "Sponsors must pay at least £46,000 a year from next month. Many offers will no longer qualify.",
   "news.uk-skilled-bar-rises.in-force.head": "The new salary bar applies",
@@ -187,7 +187,7 @@ export const newsText: Record<string, string> = {
 
   "news.ca-points-overhaul.name": "Canada overhauls the points system",
   "news.ca-points-overhaul.rumour.head": "Canada may change the points",
-  "news.ca-points-overhaul.rumour.body": "Immigration lawyers expect the points for a job offer to go.",
+  "news.ca-points-overhaul.rumour.body": "Immigration advisers expect the points for a job offer to go.",
   "news.ca-points-overhaul.announced.head": "Canada overhauls the points system",
   "news.ca-points-overhaul.announced.body": "The changes push every cut-off up.",
   "news.ca-points-overhaul.in-force.head": "The new points rules apply",
