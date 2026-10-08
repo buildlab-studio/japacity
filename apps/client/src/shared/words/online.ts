@@ -164,6 +164,11 @@ export const onlineText: Record<string, string> = {
   "ui.guest.sign-out.go": "Sign out and leave this life",
   "ui.invite.keep-first": "To take a friend's card, keep this life first with Google or your email.",
 
+  // The terms and the privacy notice, linked from the sign-in, the settings and the guides menu
+  "ui.legal.label": "Terms and privacy",
+  "ui.legal.terms": "Terms of play",
+  "ui.legal.privacy": "Privacy notice",
+
   // The usage counts setting (R-ANALYTICS-006)
   "ui.account.usage": "Send usage counts",
   "ui.account.usage.help": "Counts of which screens open and how fast the game loads, never what you type or who you are. Off stops them.",
