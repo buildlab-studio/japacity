@@ -3,7 +3,7 @@ import { describe, expect, test } from "vitest";
 
 import { check } from "../engine/check";
 import { step } from "../engine/step";
-import type { Id, ReadCtx } from "../engine/types";
+import type { Currency, Effect, Id, ReadCtx, SetpieceAnswer, SetpieceEntry } from "../engine/types";
 import type { Game } from "../testing/play";
 import { legalCommands } from "../testing/legal";
 import { NORTHGATE, UK, UNIT, applyEffects, answerFirst, draw, drawnQuestions, readyLife, seedWhere, toApplied, toHeld, uk } from "../route/route.journey";
@@ -11,6 +11,7 @@ import type { LifeOptions } from "../route/route.journey";
 import { fundsRequired, offerChanceBp, unexplainedBp } from "../route/route.logic";
 import { mulDivCeil } from "../engine/int";
 import { answerScore } from "./setpiece.logic";
+import { flown } from "../place/place.journey";
 
 const INTERVIEW: Id<"setpiece"> = "setpiece.credibility-interview";
 const entry = content.setpiece[INTERVIEW]!;
@@ -276,7 +277,7 @@ describe("what the player sees", () => {
       entry: INTERVIEW,
       asked: 0,
       total: entry.ask,
-      question: { id: first, answers: entry.questions.find((question) => question.id === first)!.answers.map((answer) => answer.id), weak: [] },
+      question: { id: first, answers: entry.questions.find((question) => question.id === first)!.answers.map((answer) => answer.id), allowed: entry.questions.find((question) => question.id === first)!.answers.map((answer) => answer.id), weak: [] },
     });
     expect(JSON.stringify(game.view()).toLowerCase()).not.toContain("score");
   });
@@ -336,5 +337,186 @@ describe("answers with effects, and set pieces with no route", () => {
     expect(game.state.setpiece.answered[INTERVIEW]).toBe(1);
     expect(uk(game).visa).toBeNull();
     expect(legalCommands(game.view()).some((command) => command.type === "turn/end")).toBe(true);
+  });
+});
+
+const DECEMBER: Id<"setpiece"> = "setpiece.december";
+const STANDING: Id<"quality"> = "quality.standing";
+const SEASON: Id<"var"> = "var.season-december";
+
+/** A life flown to the UK on the study route, with every tick December. */
+function flownInDecember(): Game {
+  return flown(content, { vars: () => ({ [SEASON]: 1 }) });
+}
+
+/** The same life a month later, the December visit open. */
+function december(): Game {
+  const game = flownInDecember();
+  game.endTurn();
+  expect(game.state.setpiece.open?.entry).toBe(DECEMBER);
+  return game;
+}
+
+/** What an answer of the December visit takes, as content gives it. */
+function priceOf(question: string, answer: string): { currency: Currency; amount: number } {
+  const found = content.setpiece[DECEMBER]!.questions.find((item) => item.id === question)?.answers.find((item) => item.id === answer);
+  const take = found?.effects.find((effect) => effect.type === "money/take");
+  if (take?.type !== "money/take" || typeof take.amount !== "number") throw new Error(`${question}.${answer} takes no fixed amount.`);
+  return { currency: take.currency, amount: take.amount };
+}
+
+/** Leaves this currency's cash empty and its bank holding exactly `bank`, and the naira bank holding exactly `naira`. */
+function holdOnly(game: Game, currency: Currency, bank: number, naira: number): void {
+  const effects: Effect[] = [];
+  for (const each of [currency, "NGN"] as const) {
+    const pocket = game.state.wallet.pockets[each];
+    if (pocket.bank + pocket.cash > 0) effects.push({ type: "money/take", currency: each, pocket: "any", amount: pocket.bank + pocket.cash, reason: "mishap" });
+  }
+  if (bank > 0) effects.push({ type: "money/add", currency, pocket: "bank", amount: bank, reason: "gift" });
+  if (naira > 0) effects.push({ type: "money/add", currency: "NGN", pocket: "bank", amount: naira, reason: "gift" });
+  applyEffects(game, effects);
+}
+
+/** The interview with its questions and order changed. */
+function interviewAs(changed: SetpieceEntry, options: LifeOptions = {}): Game {
+  return readyLife({ ...content, setpiece: { ...content.setpiece, [INTERVIEW]: changed } }, { seed: seedWhere(northgateOffers), ...options });
+}
+
+describe("a set piece asked in a fixed order", () => {
+  test("[R-SETPIECE-001] given a fixed entry whose second question's conditions fail, when it opens, then the first that many whose conditions hold are asked in the order written, with no draw", () => {
+    const deposit = entry.questions.find((question) => question.id === "deposit")!;
+    const others = entry.questions.filter((question) => question.id !== "deposit");
+    const game = interviewAs({ ...entry, order: "fixed", questions: [others[0]!, deposit, ...others.slice(1)] });
+    toApplied(game);
+    expect(game.state.setpiece.open?.questions).toEqual(others.slice(0, entry.ask).map((question) => question.id));
+    expect(game.state.draws.visa ?? 0).toBe(0);
+  });
+
+  test("[R-SETPIECE-001] given a character in the UK in December, when the visit opens, then its four UK questions are asked, the going question first, and nothing is drawn on visa", () => {
+    const game = flownInDecember();
+    const before = game.state.draws.visa ?? 0;
+    game.endTurn();
+    expect(game.state.setpiece.open).toMatchObject({ entry: DECEMBER, route: null, questions: ["go-uk", "party-uk", "gifts-uk", "look-uk"] });
+    expect(game.state.draws.visa ?? 0).toBe(before);
+  });
+});
+
+describe("closing on an answer", () => {
+  test("[R-SETPIECE-004] [R-SETPIECE-006] given the December visit, when staying home is the first answer, then the set piece closes there, the questions after it are not asked, the count rises by one, and no score is recorded", () => {
+    const game = december();
+    const result = game.accept({ type: "setpiece/answer", question: "go-uk", answer: "stay" });
+    expect(result.events.map((event) => event.type)).toEqual(["setpiece/answered", "setpiece/closed", "engine/stepped"]);
+    expect(result.lines).toEqual([{ key: "line.setpiece.closed", params: { setpiece: DECEMBER }, tone: "plain", attention: false, counts: [] }]);
+    expect(game.state.setpiece.open).toBeNull();
+    expect(game.state.setpiece.answered[DECEMBER]).toBe(1);
+    expect(game.view().setpiece).toBeNull();
+    game.expectRejected({ type: "setpiece/answer", question: "party-uk", answer: "home" }, "not-legal");
+    expect(legalCommands(game.view()).some((command) => command.type === "turn/end")).toBe(true);
+  });
+
+  test("[R-SETPIECE-004] given an answer marked closes on the only question, when it is given, then the set piece closes once, the count rises by one and the score is recorded", () => {
+    const after = entry.questions.find((question) => question.id === "after")!;
+    const game = interviewAs({ ...entry, ask: 1, questions: [{ ...after, answers: after.answers.map((item): SetpieceAnswer => ({ ...item, closes: true })) }] });
+    toApplied(game);
+    const result = game.accept({ type: "setpiece/answer", question: "after", answer: "return" });
+    expect(result.events.filter((event) => event.type === "setpiece/closed")).toHaveLength(1);
+    expect(game.state.setpiece.answered[INTERVIEW]).toBe(1);
+    expect(uk(game).visa?.interviewScore).toBe(pageScore("after", "return", 0, 0));
+  });
+});
+
+describe("answers that need something", () => {
+  test("[R-SETPIECE-003] given the pounds one penny short of the fare both ways, when going is answered, then it is refused with not-legal and nothing moves, though the naira bank could cover it", () => {
+    const game = december();
+    holdOnly(game, "GBP", priceOf("go-uk", "go").amount - 1, 1000000000 * UNIT);
+    const before = game.state;
+    game.expectRejected({ type: "setpiece/answer", question: "go-uk", answer: "go" }, "not-legal");
+    expect(game.state).toBe(before);
+    expect(game.view().setpiece?.question?.id).toBe("go-uk");
+  });
+
+  test("[R-SETPIECE-003] [R-LUCK-008] given exactly the fare both ways, when going is answered, then it is accepted, the fare is taken, the going is staged as a big line, and the party comes next", () => {
+    const game = december();
+    holdOnly(game, "GBP", priceOf("go-uk", "go").amount, 0);
+    const result = game.accept({ type: "setpiece/answer", question: "go-uk", answer: "go" });
+    expect(game.state.wallet.pockets.GBP.bank + game.state.wallet.pockets.GBP.cash).toBe(0);
+    expect(result.lines.filter((line) => line.big === true)).toEqual([
+      { key: "line.setpiece.december-go", params: { setpiece: DECEMBER }, tone: "good", attention: true, big: true, counts: [] },
+    ]);
+    expect(game.view().setpiece).toMatchObject({ asked: 1, total: 4, question: { id: "party-uk" } });
+  });
+
+  test("[R-SETPIECE-003] given a spending answer, when the pocket is one penny short of its price and then holds exactly it, then it is refused and then accepted, and the free answers are allowed with nothing", () => {
+    const game = december();
+    holdOnly(game, "GBP", priceOf("go-uk", "go").amount, 0);
+    game.accept({ type: "setpiece/answer", question: "go-uk", answer: "go" });
+    const big = priceOf("party-uk", "big");
+    holdOnly(game, "GBP", big.amount - 1, 0);
+    game.expectRejected({ type: "setpiece/answer", question: "party-uk", answer: "big" }, "not-legal");
+    holdOnly(game, "GBP", big.amount, 0);
+    const standing = game.state.quality[STANDING] ?? 0;
+    game.accept({ type: "setpiece/answer", question: "party-uk", answer: "big" });
+    expect(game.state.wallet.pockets.GBP.bank).toBe(0);
+    expect(game.state.quality[STANDING]).toBe(standing + 6);
+    game.expectRejected({ type: "setpiece/answer", question: "gifts-uk", answer: "some" }, "not-legal");
+    game.accept({ type: "setpiece/answer", question: "gifts-uk", answer: "none" });
+    game.accept({ type: "setpiece/answer", question: "look-uk", answer: "plain" });
+    expect(game.state.setpiece.open).toBeNull();
+    expect(game.state.setpiece.answered[DECEMBER]).toBe(1);
+  });
+
+  test("[R-SETPIECE-003] [R-ENGINE-011] given the pounds for the fare and the party but not the gifts, when the view is read at each question, then it lists only the answers allowed now, and step accepts every one", () => {
+    const game = december();
+    holdOnly(game, "GBP", priceOf("go-uk", "go").amount + priceOf("party-uk", "small").amount, 0);
+    const listed: string[][] = [];
+    for (let guard = 0; guard < 4 && game.state.setpiece.open !== null; guard += 1) {
+      const answers = legalCommands(game.view()).filter((command) => command.type === "setpiece/answer");
+      listed.push(answers.map((command) => String(command.answer)));
+      for (const command of answers) expect(step(game.state, { ...command, basedOn: game.state.v }, game.world(), game.content).ok).toBe(true);
+      game.accept(answers[answers.length - 1]!);
+    }
+    expect(listed).toEqual([["stay", "go"], ["home", "small"], ["none"], ["plain"]]);
+    expect(game.state.setpiece.open).toBeNull();
+  });
+
+  test("[R-SETPIECE-003] given an answer whose requirement fails when the set piece opens, when it is met before answering, then the answer is judged at that moment and allowed", () => {
+    const after = entry.questions.find((question) => question.id === "after")!;
+    const guarded: SetpieceAnswer = { ...after.answers[0]!, requires: [{ type: "quality/min", quality: PREP, value: 50 }] };
+    const game = interviewAs({ ...entry, ask: 1, questions: [{ ...after, answers: [guarded, ...after.answers.slice(1)] }] }, { qualities: { [PREP]: 49 } });
+    toApplied(game);
+    game.expectRejected({ type: "setpiece/answer", question: "after", answer: guarded.id }, "not-legal");
+    applyEffects(game, [{ type: "quality/add", quality: PREP, amount: 1 }]);
+    game.accept({ type: "setpiece/answer", question: "after", answer: guarded.id });
+    expect(game.state.setpiece.open).toBeNull();
+  });
+});
+
+describe("the staged December line", () => {
+  test("[R-LUCK-008] given the interview, and the December visit stayed home from, when they are answered through, then no big line is given", () => {
+    const interview = life();
+    toApplied(interview);
+    const lines: ReturnType<Game["accept"]>["lines"] = [];
+    for (const id of interview.state.setpiece.open!.questions) {
+      lines.push(...interview.accept({ type: "setpiece/answer", question: id, answer: entry.questions.find((question) => question.id === id)!.answers[0]!.id }).lines);
+    }
+    lines.push(...december().accept({ type: "setpiece/answer", question: "go-uk", answer: "stay" }).lines);
+    expect(lines.filter((line) => line.big === true)).toEqual([]);
+  });
+});
+
+describe("the interview, unchanged", () => {
+  test("[R-SETPIECE-001] [R-SETPIECE-004] given the interview, which has no fixed order and no closing answer, when it opens and is answered, then its order is drawn on visa and it stays open until the last answer", () => {
+    expect(entry.order).toBeUndefined();
+    expect(entry.questions.flatMap((question) => question.answers).filter((answer) => answer.closes === true || answer.requires !== undefined)).toEqual([]);
+    const seed = seedWhere(northgateOffers);
+    const game = life({ seed });
+    toApplied(game);
+    const asked = game.state.setpiece.open!.questions;
+    expect(asked).toEqual(drawnQuestions(seed, CLEAN, entry.ask));
+    asked.forEach((id, index) => {
+      game.accept({ type: "setpiece/answer", question: id, answer: entry.questions.find((question) => question.id === id)!.answers[0]!.id });
+      expect(game.state.setpiece.open === null).toBe(index === asked.length - 1);
+    });
+    expect(game.state.setpiece.answered[INTERVIEW]).toBe(1);
   });
 });

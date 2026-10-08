@@ -14,3 +14,7 @@ test-results/
 
 # Agent worktrees
 .claude/
+
+# Local notes, never committed
+CLAUDE.local.md
+/REPORT.md

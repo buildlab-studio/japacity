@@ -1466,7 +1466,8 @@ export interface PlayerView {
     entry: Id<"setpiece">;
     asked: number;
     total: number;
-    question: { id: string; answers: string[]; weak: string[] } | null;
+    /** `answers` is every answer; `allowed` those whose requirements hold now (R-SETPIECE-003); `weak` those that would score below zero, shown only with enough prep (R-SETPIECE-005). */
+    question: { id: string; answers: string[]; allowed: string[]; weak: string[] } | null;
   } | null;
   /** Every open obligation with its next charge; `car` carries R-CAR-007's figures for a car and is null for anything else. */
   obligations: (ObligationState & { due: number; car: CarView | null })[];

@@ -404,7 +404,8 @@ describe("the night meeting", () => {
     expect(game.state.setpiece.open?.entry).toBe("setpiece.december");
     for (let guard = 0; guard < 5 && game.state.setpiece.open !== null; guard += 1) {
       const question = game.view().setpiece!.question!;
-      answer(game, question.id, question.answers.at(-1)!);
+      // The last allowed answer: a spending answer the pocket cannot cover is not allowed (R-SETPIECE-003).
+      answer(game, question.id, question.allowed.at(-1)!);
     }
     turn(game);
     expect(game.state.setpiece.open?.entry).toBe(NIGHT);
