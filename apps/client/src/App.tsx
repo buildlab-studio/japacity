@@ -9,6 +9,7 @@ import { BadgeCheck, CalendarDays, House, Newspaper, Plane, UserRound, Users, Wa
 import { useEffect, useState, type ReactNode } from "react";
 
 import { bootGame } from "./authority/boot";
+import { CountedBoundary } from "./shared/analytics/CountedBoundary";
 import { counting } from "./shared/analytics/start";
 import { GameProvider, useGame, useView } from "./authority/GameProvider";
 import type { GameStore } from "./authority/store";
@@ -30,6 +31,7 @@ import { JapacityView } from "./features/japacity/JapacityView";
 import { ModerationMenu } from "./features/moderation/ModerationMenu";
 import { LotteryView } from "./features/lottery/LotteryView";
 import { NewsView } from "./features/news/NewsView";
+import { HeldShareCard } from "./features/notify/held";
 import { NotifyAsk } from "./features/notify/NotifyAsk";
 import { NotifySetting } from "./features/notify/NotifySetting";
 import { ObligationView } from "./features/obligation/ObligationView";
@@ -161,7 +163,9 @@ function MonthGroup({ tab }: { tab: Tab }) {
       <TurnView />
       <SetpieceView />
       <InterviewView />
-      <CardView />
+      <HeldShareCard>
+        <CardView />
+      </HeldShareCard>
       <ChapterView />
       <OfferView />
       <ActivityView />
@@ -325,8 +329,10 @@ export function App({ store: given, path }: { store?: GameStore; path?: string }
     setInvite(null);
   };
   return (
-    <AdminRoute>
-      <GameProvider store={store}>{invite === null ? <Shell /> : <InvitePage code={invite} onDone={leaveInvite} />}</GameProvider>
-    </AdminRoute>
+    <CountedBoundary>
+      <AdminRoute>
+        <GameProvider store={store}>{invite === null ? <Shell /> : <InvitePage code={invite} onDone={leaveInvite} />}</GameProvider>
+      </AdminRoute>
+    </CountedBoundary>
   );
 }

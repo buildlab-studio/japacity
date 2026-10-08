@@ -31,6 +31,11 @@ export function countAsk(kind: AskKind, outcome: AskOutcome, afterEarlyWin: bool
   current.ask(kind, outcome, afterEarlyWin);
 }
 
+/** R-ANALYTICS-002: the player turned the sound on or off. */
+export function countSound(on: boolean): void {
+  current.count("settings/sound", on ? "on" : "off");
+}
+
 /**
  * R-ANALYTICS-006: the account's "Send usage counts" setting. The counters
  * start on; the boot and the settings sheet call this once the account says.

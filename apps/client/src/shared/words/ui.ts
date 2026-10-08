@@ -13,6 +13,8 @@ export const uiText: Record<string, string> = {
   "ui.game": "Japacity",
   "ui.loading": "Opening your life...",
   "ui.failed": "The game could not start: {why}",
+  "ui.broken": "Something on this screen broke. Your life is kept; reload to carry on.",
+  "ui.broken.reload": "Reload",
 
   // Tabs
   "ui.tab.month": "Month",

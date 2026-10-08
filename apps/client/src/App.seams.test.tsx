@@ -11,12 +11,14 @@ import { createGameStore } from "./authority/store";
 import { ShareButton } from "./features/card/ShareCard";
 import { countAsk } from "./features/notify/ask";
 import { UsageCounts } from "./features/account/Settings";
-import { countInto } from "./shared/analytics/start";
+import { countInto, countSound } from "./shared/analytics/start";
 import { makeCounters, type CounterRow } from "./shared/analytics/counters";
-import { graphicsMode, setGraphicsMode } from "./shared/graphics/mode";
+import { City } from "./features/city/City";
+import { cityWords } from "./features/city/city.words";
+import { chooseGraphics, graphicsMode, setGraphicsMode } from "./shared/graphics/mode";
 import type { AccountApi } from "./shared/net/auth";
 import { abroadView, engineView, fakeAuthority } from "./shared/testing/fixtures";
-import "./shared/testing/render";
+import { renderWithView } from "./shared/testing/render";
 import { say } from "./shared/words/text";
 
 vi.mock("./shared/card/render", () => ({ renderCard: () => Promise.resolve({ ok: true, blob: new Blob(["card"], { type: "image/png" }), bytes: 4 }) }));
@@ -107,6 +109,51 @@ describe("the interface counters", () => {
     await waitFor(() => expect(screen.getByRole("checkbox", { name: say("ui.account.usage") })).toHaveProperty("checked", false));
     counters.count("screen/opened", "news");
     expect(sent()).toEqual([]);
+  });
+});
+
+describe("the settings and error counters", () => {
+  test("[R-ANALYTICS-002] [R-ANALYTICS-003] given the city's settings, when the player chooses low, then high, then auto, then settings/graphics counts each choice by its key", async () => {
+    await renderWithView(<City />, engineView("scenario.tunde"));
+    fireEvent.click(screen.getByRole("button", { name: cityWords("city.look") }));
+    fireEvent.click(screen.getByRole("button", { name: cityWords("city.menu") }));
+    for (const option of ["low", "high", "auto"] as const) fireEvent.click(screen.getByRole("radio", { name: cityWords(`city.graphics.${option}`) }));
+    expect(sent().filter((row) => row.name === "settings/graphics")).toEqual([
+      { name: "settings/graphics", key: "low", count: 1 },
+      { name: "settings/graphics", key: "high", count: 1 },
+      { name: "settings/graphics", key: "auto", count: 1 },
+    ]);
+  });
+
+  test("[R-ANALYTICS-002] given the city on screen, when it picks its own starting mode, then nothing is counted as a setting changed", async () => {
+    await renderWithView(<City />, engineView("scenario.tunde"));
+    fireEvent.click(screen.getByRole("button", { name: cityWords("city.look") }));
+    expect(sent().filter((row) => row.name === "settings/graphics")).toEqual([]);
+  });
+
+  test("[R-ANALYTICS-002] given the graphics and sound settings, when each is changed, then only the keys on content's list are counted", () => {
+    chooseGraphics("high");
+    countSound(false);
+    countSound(true);
+    countSound(true);
+    expect(sent()).toEqual([
+      { name: "settings/graphics", key: "high", count: 1 },
+      { name: "settings/sound", key: "off", count: 1 },
+      { name: "settings/sound", key: "on", count: 2 },
+    ]);
+  });
+
+  test("[R-ANALYTICS-002] [R-ANALYTICS-003] given a screen that throws while it draws, when the app's boundary catches it, then the player sees a way to reload and client/error counts render once", async () => {
+    const quiet = vi.spyOn(console, "error").mockImplementation(() => undefined);
+    try {
+      const broken = { ...engineView("scenario.tunde"), qualities: null } as unknown as PlayerView;
+      await playing(broken);
+      expect(await screen.findByRole("button", { name: say("ui.broken.reload") })).toBeDefined();
+      expect(screen.getByText(say("ui.broken"))).toBeDefined();
+    } finally {
+      quiet.mockRestore();
+    }
+    expect(sent().filter((row) => row.name === "client/error")).toEqual([{ name: "client/error", key: "render", count: 1 }]);
   });
 });
 
