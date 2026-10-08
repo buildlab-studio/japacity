@@ -844,6 +844,19 @@ describe("decision day", () => {
     expect(routeLines(result.lines)).toContainEqual({ key: "line.route.granted", params: { route: UK }, tone: "good", big: true, attention: true, counts: [] });
   });
 
+  test("[R-SHARE-001] given a visa granted, when the view is read through the month after, then the card is the granted card for that route with its figure; the month after it is gone", () => {
+    const game = life({ tuning: ALWAYS_GRANTED });
+    toApplied(game);
+    answerFirst(game);
+    game.endTurn();
+    expect(uk(game).state).toBe("granted");
+    const card = game.view().card;
+    expect(card).toMatchObject({ kind: "granted", route: UK, months: game.state.turn.month, name: null, chapter: game.state.chapter.current });
+    expect(card?.percent).toBe(game.view().routes.find((route) => route.id === UK)?.percent);
+    game.endTurn();
+    expect(game.view().card?.kind).not.toBe("granted");
+  });
+
   test("[R-ROUTE-018] given a refusal, when decision day comes, then the route is known again, the surcharge is back at once, the deposit less the fee is booked, the school, confirmation and months held are cleared, and the offer stands", () => {
     const game = life({ tuning: ALWAYS_REFUSED });
     toApplied(game);

@@ -4,13 +4,13 @@
 import { check } from "../engine/check";
 import type { RegisteredKind } from "../engine/kind";
 import { emit } from "../engine/kind";
-import type { BaseEvent, ChapterEntry, ChapterSlice, Content, Ctx, Id, PlayerView, ReadCtx, ReportLine, Requirement, RequirementResult, State } from "../engine/types";
-import { routePercent } from "../japacity/japacity.logic";
+import type { BaseEvent, ChapterEntry, ChapterSlice, Content, Ctx, Id, PlayerView, ReadCtx, ReportLine, Requirement, RequirementResult } from "../engine/types";
+import { cardOf, cardsAllowed, reportLines, topActivities } from "./chapter.card";
 import type { ChapterEvent } from "./chapter.events";
 
 /** The chapter whose close makes the send-off card (R-CHAPTER-006). */
 const SEND_OFF: Id<"chapter"> = "chapter.send-off";
-const STANDING: Id<"quality"> = "quality.standing";
+const CLOSED_LINE = "line.chapter.closed";
 
 /** Every chapter in content, by order. */
 function byOrder(content: Content): ChapterEntry[] {
@@ -72,7 +72,7 @@ function evolve(slice: ChapterSlice, event: ChapterEvent): ChapterSlice {
 function lines(event: ChapterEvent): ReportLine[] {
   switch (event.type) {
     case "chapter/closed": {
-      const closed: ReportLine = { key: "line.chapter.closed", params: { chapter: event.chapter }, tone: "good", attention: true, counts: [] };
+      const closed: ReportLine = { key: CLOSED_LINE, params: { chapter: event.chapter }, tone: "good", attention: true, counts: [] };
       if (event.next === null) return [closed];
       const opened: ReportLine = { key: "line.chapter.opened", params: { chapter: event.next }, tone: "plain", attention: false, counts: [] };
       return [closed, opened];
@@ -94,14 +94,7 @@ function judgeDone(read: ReadCtx, requirement: Requirement): RequirementResult {
 // The send-off card: R-CHAPTER-006
 // ---------------------------------------------------------------------------
 
-/** The activities played in the most months (R-ACTIVITY-012), most first, then by id. */
-export function topActivities(state: State, content: Content): Id<"activity">[] {
-  return (Object.entries(state.activity.played) as [Id<"activity">, number][])
-    .filter(([, months]) => months > 0)
-    .sort(([a, x], [b, y]) => y - x || (a < b ? -1 : a > b ? 1 : 0))
-    .slice(0, content.tuning.chapter.cardLines)
-    .map(([id]) => id);
-}
+export { topActivities };
 
 /**
  * The send-off is current and every item of it is met: the flight has been
@@ -122,17 +115,20 @@ function sendOffDue(read: ReadCtx): boolean {
 export function sendOffCard(read: ReadCtx): PlayerView["card"] {
   if (!sendOffDue(read)) return null;
   const route = (Object.keys(read.content.route) as Id<"route">[]).find((id) => read.state.route[id]?.state === "departed") ?? null;
-  return {
-    kind: "send-off",
-    route,
-    percent: route === null ? null : routePercent(read, route),
-    months: read.state.turn.month,
-    standing: read.state.quality[STANDING] ?? 0,
-    topActivities: topActivities(read.state, read.content),
-    // The share batch fills these from the chapter and the character's name.
-    chapter: null,
-    name: null,
-  };
+  return cardOf(read, "send-off", { route, chapter: SEND_OFF });
+}
+
+/**
+ * R-SHARE-001: a chapter card through the month after a chapter closes. The
+ * send-off's close has the send-off card (R-CHAPTER-006) and no second one.
+ */
+export function chapterCard(read: ReadCtx): PlayerView["card"] {
+  if (!cardsAllowed(read)) return null;
+  for (const line of reportLines(read, CLOSED_LINE)) {
+    const chapter = line.params.chapter as Id<"chapter">;
+    if (chapter !== SEND_OFF) return cardOf(read, "chapter", { chapter });
+  }
+  return null;
 }
 
 export const chapterKind: RegisteredKind<ChapterSlice, ChapterEvent> = {

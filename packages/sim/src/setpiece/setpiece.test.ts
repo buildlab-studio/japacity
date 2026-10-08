@@ -481,6 +481,24 @@ describe("answers that need something", () => {
     expect(game.state.setpiece.answered[DECEMBER]).toBe(1);
   });
 
+  test("[R-SHARE-001] given the December visit, when going is answered and the scene is answered through, then the December card is due for the rest of that month; staying home gives none", () => {
+    const game = december();
+    holdOnly(game, "GBP", priceOf("go-uk", "go").amount, 0);
+    game.accept({ type: "setpiece/answer", question: "go-uk", answer: "go" });
+    expect(game.view().card?.kind).not.toBe("december");
+    game.accept({ type: "setpiece/answer", question: "party-uk", answer: "home" });
+    game.accept({ type: "setpiece/answer", question: "gifts-uk", answer: "none" });
+    game.accept({ type: "setpiece/answer", question: "look-uk", answer: "plain" });
+    expect(game.state.setpiece.open).toBeNull();
+    expect(game.view().card).toMatchObject({ kind: "december", months: game.state.turn.month, name: null });
+    game.endTurn();
+    expect(game.view().card?.kind).not.toBe("december");
+    const stayed = december();
+    stayed.accept({ type: "setpiece/answer", question: "go-uk", answer: "stay" });
+    expect(stayed.state.setpiece.open).toBeNull();
+    expect(stayed.view().card?.kind).not.toBe("december");
+  });
+
   test("[R-SETPIECE-003] [R-ENGINE-011] given the pounds for the fare and the party but not the gifts, when the view is read at each question, then it lists only the answers allowed now, and step accepts every one", () => {
     const game = december();
     holdOnly(game, "GBP", priceOf("go-uk", "go").amount + priceOf("party-uk", "small").amount, 0);

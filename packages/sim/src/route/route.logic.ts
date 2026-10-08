@@ -21,6 +21,7 @@ import type {
   ForeignCurrency,
   Id,
   MoneyParam,
+  PlayerView,
   ReadCtx,
   Rejection,
   ReportLine,
@@ -37,6 +38,7 @@ import type {
   Tuning,
   VisaApplication,
 } from "../engine/types";
+import { cardOf, cardsAllowed, reportLines } from "../chapter/chapter.card";
 import { routePercent } from "../japacity/japacity.logic";
 import { bannedUntil as placeBannedUntil } from "../place/place.logic";
 import { GATES } from "./gates";
@@ -961,6 +963,13 @@ function gateEffects(): Partial<Record<EffectType, GateEffectHandler>> {
     for (const [type, handler] of Object.entries(gate.effects ?? {}) as [EffectType, GateEffectHandler][]) merged[type] = handler;
   }
   return merged;
+}
+
+/** R-SHARE-001: the granted card through the month after a visa is granted (R-ROUTE-017), for the route granted. */
+export function grantedCard(read: ReadCtx): PlayerView["card"] {
+  if (!cardsAllowed(read)) return null;
+  const granted = reportLines(read, "line.route.granted")[0];
+  return granted === undefined ? null : cardOf(read, "granted", { route: granted.params.route as Id<"route"> });
 }
 
 export const routeKind: RegisteredKind<RouteSlice, RouteKindEvent> = {

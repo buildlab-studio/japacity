@@ -1,10 +1,15 @@
 // The view: all the interface ever sees (R-ENGINE-007). Every kind gives its
 // part and the engine joins them, adds japacity, and refuses to hand out a
 // view with a key missing.
-import { sendOffCard } from "../chapter/chapter.logic";
+import { firstPayAbroadCard } from "../activity/activity.logic";
+import { chapterCard, sendOffCard } from "../chapter/chapter.logic";
 import { japacity } from "../japacity/japacity.logic";
 import { registry } from "../kinds";
+import { drawWinCard } from "../lottery/lottery.logic";
 import { roadCard } from "../route/gates/road";
+import { grantedCard } from "../route/route.logic";
+import { decemberCard } from "../setpiece/setpiece.logic";
+import { securedCard } from "../status/status.logic";
 import type { Registry } from "./kind";
 import type { PlayerView, ReadCtx } from "./types";
 
@@ -77,9 +82,7 @@ function eraView(read: ReadCtx): PlayerView["era"] {
 /** The view for a given registry. Tests use this to swap kinds in. */
 export function viewWith(kinds: Registry, read: ReadCtx): PlayerView {
   // The engine gives the parts no kind owns: japacity, the world's era, and the card.
-  // The card's one source: the send-off card the month chapter 4 closes (R-CHAPTER-006), else
-  // the road's real-story card or its ending card when one is due (R-ROAD-011).
-  const joined: Partial<PlayerView> = { japacity: japacity(read), era: eraView(read), card: sendOffCard(read) ?? roadCard(read), adverts: advertsAllowed(read) };
+  const joined: Partial<PlayerView> = { japacity: japacity(read), era: eraView(read), card: cardDue(read), adverts: advertsAllowed(read) };
   for (const kind of kinds) {
     const part = kind.view?.(read) ?? {};
     for (const key of Object.keys(part)) {
@@ -90,6 +93,24 @@ export function viewWith(kinds: Registry, read: ReadCtx): PlayerView {
   const missing = VIEW_KEYS.filter((key) => !(key in joined));
   if (missing.length > 0) throw new Error(`No kind gives the view keys: ${missing.join(", ")}.`);
   return joined as PlayerView;
+}
+
+/**
+ * R-SHARE-001: each kind says when its card is due; the view carries one. The
+ * send-off and the road's cards come first, then the rarer moment before the
+ * commoner, so a chapter that closes on a grant gives the granted card.
+ */
+function cardDue(read: ReadCtx): PlayerView["card"] {
+  return (
+    sendOffCard(read) ??
+    roadCard(read) ??
+    grantedCard(read) ??
+    securedCard(read) ??
+    firstPayAbroadCard(read) ??
+    decemberCard(read) ??
+    drawWinCard(read) ??
+    chapterCard(read)
+  );
 }
 
 /** R-ADVERT-003: an advert may show only at home or abroad, outside a set piece, in a chapter without `noAdverts`. */

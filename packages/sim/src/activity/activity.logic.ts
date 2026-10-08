@@ -5,6 +5,7 @@
 // because an earlier slot can change the state.
 import { check, resolveAmount } from "../engine/check";
 import { bp, valueInKobo } from "../engine/int";
+import { cardOf, cardsAllowed, reportLines } from "../chapter/chapter.card";
 import type { RegisteredKind } from "../engine/kind";
 import { emit, turnInProgress, turnSlots } from "../engine/kind";
 import { reject } from "../engine/reject";
@@ -22,6 +23,7 @@ import type {
   ForeignCurrency,
   Id,
   MoneyParam,
+  PlayerView,
   ReadCtx,
   Reason,
   Rejection,
@@ -79,6 +81,7 @@ const UNLOCKED_LINE = "line.turn.unlocked";
 
 
 /** The kiosk draws each ticket out of a million (R-LUCK-005). */
+const FIRST_PAY_ABROAD = "line.activity.salary-first-abroad";
 export const PER_MILLION = 1000000;
 const BP_IN_MILLION = 100;
 
@@ -922,11 +925,17 @@ function salaryLines(state: State, event: Extract<ActivityEvent, { type: "activi
   if (event.naira !== undefined && onlyPay(state, event.pay, [event.pay.currency])) {
     const naira: MoneyParam = { currency: "NGN", amount: event.naira };
     // Two different moments: the first dollar salary at home, and the first pay abroad.
-    const key = state.place.where === "abroad" ? "line.activity.salary-first-abroad" : "line.activity.salary-first-foreign";
+    const key = state.place.where === "abroad" ? FIRST_PAY_ABROAD : "line.activity.salary-first-foreign";
     return [{ ...line(key, { job: event.job, amount, naira }, "good"), big: true }];
   }
   const salary = line("line.activity.salary", { job: event.job, amount }, "good");
   return [onlyPay(state, event.pay, null) ? { ...salary, big: true } : salary];
+}
+
+/** R-SHARE-001: the first-pay-abroad card through the month after the first pay abroad is told (R-LUCK-008). */
+export function firstPayAbroadCard(read: ReadCtx): PlayerView["card"] {
+  if (!cardsAllowed(read) || reportLines(read, FIRST_PAY_ABROAD).length === 0) return null;
+  return cardOf(read, "first-pay-abroad");
 }
 
 function lines(event: ActivityEvent, state: State): ReportLine[] {

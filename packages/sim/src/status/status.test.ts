@@ -289,6 +289,20 @@ describe("settling", () => {
     expect(current(game).entry).toBe(CITIZEN);
   });
 
+  test("[R-SHARE-001] given settled status or citizenship granted, when the view is read through the month after it, then the card is the secured card, gone the month after", () => {
+    const game = sponsored({ vars: () => ({ "var.uk-settle-months": 3 }) });
+    playMonths(game, 3);
+    expect(game.view().card?.kind).not.toBe("secured");
+    playMonths(game, 1);
+    expect(current(game).entry).toBe(SETTLED);
+    expect(game.view().card).toMatchObject({ kind: "secured", months: game.state.turn.month, name: null });
+    playMonths(game, 1);
+    expect(game.view().card?.kind).not.toBe("secured");
+    playMonths(game, 11);
+    expect(current(game).entry).toBe(CITIZEN);
+    expect(game.view().card).toMatchObject({ kind: "secured", months: game.state.turn.month });
+  });
+
   test("[R-STATUS-007] given the settling months reached and no money for the fee, when months pass, then nothing is granted until it can be paid", () => {
     const game = sponsored({ vars: () => ({ "var.uk-settle-months": 1 }) });
     const pockets = game.state.wallet.pockets;

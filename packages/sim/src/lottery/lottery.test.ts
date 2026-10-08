@@ -237,6 +237,19 @@ describe("paying", () => {
     expect(mid.lines.find((line) => line.key === "line.lottery.letter")?.big).toBe(true);
   });
 
+  test("[R-SHARE-001] given a draw paid, when the view is read, then the card is the draw win's until a turn's news tells that draw; before any payment there is none", () => {
+    const { game, live } = play(drawOf(7, 1000, resultOf(6, FULL)));
+    endTurn(game);
+    expect(game.view().card?.kind).not.toBe("draw-win");
+    game.accept({ type: "lottery/pay", draw: 7, prizes: [{ tier: "small", amount: 165000, topUp: 0 }] }, "authority");
+    expect(game.view().card).toMatchObject({ kind: "draw-win", months: game.state.turn.month, name: null });
+    // The result is published in the tick after the payments (R-LOTTERY-015).
+    live.lottery = drawOf(8, 1000, resultOf(7, FULL));
+    endTurn(game);
+    expect(game.state.lottery.seen).toBe(7);
+    expect(game.view().card?.kind).not.toBe("draw-win");
+  });
+
   test("[R-LOTTERY-013] given a draw already paid, when it is paid again or an earlier draw is paid, then each is rejected with not-legal and the next draw is accepted", () => {
     const { game } = play();
     game.accept({ type: "lottery/pay", draw: 7, prizes: [...PRIZES] }, "authority");

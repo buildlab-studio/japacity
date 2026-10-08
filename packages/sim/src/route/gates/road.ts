@@ -430,7 +430,8 @@ export function roadCard(read: ReadCtx): PlayerView["card"] {
       months: gate.monthsHere,
       standing: read.state.quality[STANDING] ?? 0,
       topActivities: [],
-      chapter: null,
+      chapter: read.state.chapter.current,
+      // R-SHARE-002: the road's cards carry no name.
       name: null,
     };
   }

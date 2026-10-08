@@ -2,6 +2,7 @@
 // held only abroad, with its clocks: expiry, the job clock, settling.
 import { worldVar } from "../engine/check";
 import { mulDiv } from "../engine/int";
+import { cardOf, cardsAllowed, reportLines } from "../chapter/chapter.card";
 import type { RegisteredKind } from "../engine/kind";
 import { emit } from "../engine/kind";
 import { reject } from "../engine/reject";
@@ -462,6 +463,13 @@ function grantedLines(event: Extract<StatusEvent, { type: "status/granted" }>): 
       throw new Error(`Unknown grant ${String(never)}.`);
     }
   }
+}
+
+/** R-SHARE-001: the secured card through the month after settlement or citizenship is granted (R-STATUS-007). */
+export function securedCard(read: ReadCtx): PlayerView["card"] {
+  if (!cardsAllowed(read)) return null;
+  const secured = [...reportLines(read, "line.status.settled"), ...reportLines(read, "line.status.citizen")];
+  return secured.length === 0 ? null : cardOf(read, "secured");
 }
 
 function lines(event: StatusEvent): ReportLine[] {

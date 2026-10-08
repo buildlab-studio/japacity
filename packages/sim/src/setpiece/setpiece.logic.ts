@@ -2,6 +2,7 @@
 // short run of questions that blocks the next turn until it is answered: the
 // credibility interview a visa application opens, the road's scenes and the
 // December visit.
+import { cardOf, cardsAllowed, reportLines } from "../chapter/chapter.card";
 import { check } from "../engine/check";
 import type { RegisteredKind } from "../engine/kind";
 import { emit } from "../engine/kind";
@@ -182,6 +183,21 @@ function lines(event: SetpieceEvent, state: State): ReportLine[] {
       throw new Error(`Unknown set piece event ${JSON.stringify(never)}.`);
     }
   }
+}
+
+/**
+ * R-SHARE-001: the December card, once the visit opened at the last turn's end
+ * has closed with the going answer given (R-LUCK-008), through the rest of that month.
+ * The going question is the one this scene asks where the character is now.
+ */
+export function decemberCard(read: ReadCtx): PlayerView["card"] {
+  if (!cardsAllowed(read) || read.state.setpiece.open?.entry === DECEMBER) return null;
+  const opened = reportLines(read, "line.setpiece.opened").some((line) => line.params.setpiece === DECEMBER);
+  const entry = read.content.setpiece[DECEMBER];
+  if (!opened || entry === undefined) return null;
+  const given = read.state.setpiece.given[DECEMBER] ?? {};
+  const asked = entry.questions.filter((question) => question.when.every((requirement) => check(read, requirement).met));
+  return asked.some((question) => given[question.id] === GO) ? cardOf(read, "december") : null;
 }
 
 /**
