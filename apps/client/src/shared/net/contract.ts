@@ -53,6 +53,20 @@ export interface WorldReply {
   nextTickAt: number;
 }
 
+/** Copied from apps/server/src/routes/account.ts: `GET /api/account`, the account as its owner sees it (R-ACCOUNT-015). */
+export interface AccountView {
+  id: string;
+  country: string;
+  age: { passed: boolean; method: "declared" | "verified" };
+  createdAt: number;
+  character: string | null;
+  /** R-MODERATION-012: the account is on the server's admin list. */
+  admin: boolean;
+}
+
+/** Copied from apps/server/src/routes/account.ts; the refusal is apps/server/src/account/reply.ts AccountRejection. */
+export type AccountReply = { ok: true; account: AccountView } | { ok: false; code: string; detail: string };
+
 /** Copied from apps/server/src/types.ts: `POST /api/character` (R-ACCOUNT-015). */
 export interface NewCharacterRequest {
   scenario: Id<"scenario">;
