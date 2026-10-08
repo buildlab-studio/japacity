@@ -515,7 +515,7 @@ function evolve(slice: InterviewSlice, event: InterviewEvent): InterviewSlice {
       // The answers stay in `open` until the result comes; the authority copies them into the record.
       return slice;
     case "interview/scored":
-      return { open: null, last: { route: event.route, result: event.result, matched: event.matched, asked: event.asked, month: event.month }, secret: { truths: null } };
+      return { open: null, last: { route: event.route, result: event.result, matched: event.matched, asked: event.asked, month: event.month, standIn: { a: false, b: false } }, secret: { truths: null } };
     case "interview/withdrawn":
       return { ...slice, open: null, secret: { truths: null } };
     default: {

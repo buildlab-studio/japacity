@@ -165,7 +165,7 @@ function setBond(game: Game, id: string, bond: Bond): void {
       ...people,
       bonds: { ...people.bonds, [id]: bond },
       slots: { ...people.slots, partner: { state: bond.with.kind === "computer" ? "computer" : "player", bond: id, person: bond.with.kind === "computer" ? bond.with.entry : null, invite: null } },
-      joint: { bond: id, route: PARTNER_ROUTE, lead: "them", countFunds: false, standInMay: false, scores: { mine: null, theirs: null } },
+      joint: { bond: id, route: PARTNER_ROUTE, lead: "them", countFunds: false, standInMay: false },
     },
   };
 }
@@ -609,7 +609,7 @@ describe("a computer partner", () => {
       return game.accept({ type: "interview/answer", question: game.state.interview.open!.questions.at(-1)!.id, option: answers.at(-1)! });
     })();
     expect(result.events.map((event) => event.type)).toEqual(expect.arrayContaining(["interview/answered", "interview/closed", "interview/scored"]));
-    expect(game.state.interview.last).toEqual({ route: PARTNER_ROUTE, result: "pass", matched: numbers.ask, asked: numbers.ask, month: game.state.turn.month });
+    expect(game.state.interview.last).toEqual({ route: PARTNER_ROUTE, result: "pass", matched: numbers.ask, asked: numbers.ask, month: game.state.turn.month, standIn: { a: false, b: false } });
   });
 
   test("[R-INTERVIEW-007] given a computer that never recalls and plans otherwise, when the player answers rightly, then nothing matches and the result is caught", () => {
@@ -710,7 +710,7 @@ describe("what the result does", () => {
       const wrong = game.state.interview.open!.questions.map((asked, index) => asked.options.find((option) => option !== rightAnswers(game).theirs[index])!);
       return game.accept({ type: "interview/scored", pair: PAIR, theirs: wrong }, "authority");
     })();
-    expect(game.state.interview.last).toEqual({ route: PARTNER_ROUTE, result: "caught", matched: 0, asked: ALL.length, month: game.state.turn.month });
+    expect(game.state.interview.last).toEqual({ route: PARTNER_ROUTE, result: "caught", matched: 0, asked: ALL.length, month: game.state.turn.month, standIn: { a: false, b: false } });
     expect(game.state.quality["quality.standing"]).toBe(standing - numbers.caughtStanding);
     expect(result.lines.find((line) => line.key === "line.interview.caught")?.params).toEqual({ route: PARTNER_ROUTE, matched: 0, asked: ALL.length });
   });

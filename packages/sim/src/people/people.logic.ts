@@ -918,7 +918,7 @@ function evolveAgreed(slice: PeopleSlice, event: Extract<PeopleEvent, { type: "p
       if (event.route === null || event.lead === null) return cleared;
       // Consent given while the joint was asked for carries into it (R-PEOPLE-044).
       const given = bond.consent ?? { countFunds: false, standInMay: false };
-      const joint = { bond: event.bond, route: event.route, lead: event.lead, ...given, scores: { mine: null, theirs: null } };
+      const joint = { bond: event.bond, route: event.route, lead: event.lead, ...given };
       const sponsors = event.lead === "me" && content.route[event.route]?.gate === "partner";
       return { ...cleared, joint, sponsoring: sponsors ? { bond: event.bond, route: event.route, month: event.month } : cleared.sponsoring };
     }
@@ -1217,8 +1217,6 @@ function slotLabel(slice: PeopleSlice, slot: Slot): PlayerView["people"]["slots"
  * R-PEOPLE-030: on a points route, the score alone (`mine`) and the score
  * leading with this partner from their facts (`theirs`), read fresh from the
  * state as the points gate reads its own. Null on any other route.
- * `PeopleSlice.joint.scores` stays null, since a score read once a
- * month would lag the view; say if the slice should hold it too.
  */
 function jointScores(read: ReadCtx, joint: NonNullable<PeopleSlice["joint"]>): { myScore: number | null; theirScore: number | null } {
   const entry = read.content.route[joint.route];
