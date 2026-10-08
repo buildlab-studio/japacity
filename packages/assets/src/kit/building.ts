@@ -51,7 +51,10 @@ export interface BuildingOptions {
 /** The clutter a building carries, recorded on the model for the tests and the reviewer (R-ASSET-017). */
 export type ClutterItem = "tank" | "dish" | "generator" | "bars" | "stains" | "notice" | "wires";
 
-const PLINTH = 0.3;
+/** The step a building stands on. A four-storey building stands on the ground, so its parapet stays inside 13 m. */
+const STEP = 0.3;
+/** The tallest an ordinary building may be (assets.md, the bld_ budget). */
+export const BUILDING_HEIGHT_MAX = 13;
 const PAVEMENT = 1.2;
 const SIGN_STYLES: SignStyle[] = [
   { board: "danfoYellow", ink: "red", painted: true },
@@ -76,6 +79,7 @@ function spread(n: number, w: number): number[] {
 export function buildBuilding(spec: BuildingSpec, options: BuildingOptions = {}): Group {
   const root = new Group();
   root.name = "building";
+  const PLINTH = spec.storeys >= 4 ? 0 : STEP;
   const random = seeded(spec.clutterSeed);
   const [w, d] = spec.footprint;
   const wall = spec.wall;
@@ -93,13 +97,16 @@ export function buildBuilding(spec: BuildingSpec, options: BuildingOptions = {})
   }
 
   // The frontage: a raised step the building stands on, running out to the drain.
-  box(root, w + 0.4, PLINTH, d + 0.2 + PAVEMENT, 0, 0, PAVEMENT / 2, "concrete");
+  if (PLINTH > 0) box(root, w + 0.4, PLINTH, d + 0.2 + PAVEMENT, 0, 0, PAVEMENT / 2, "concrete");
 
   // Storeys.
   const groundH = shops > 0 ? KIT_SIZES.shopStorey : KIT_SIZES.storey;
   const floors: number[] = [PLINTH];
   for (let i = 1; i < spec.storeys; i++) floors.push(PLINTH + groundH + (i - 1) * KIT_SIZES.storey);
   const top = PLINTH + groundH + (spec.storeys - 1) * KIT_SIZES.storey;
+  if (top + (spec.roof === "flat" ? KIT_SIZES.parapet.height : 0) > BUILDING_HEIGHT_MAX + 1e-9) {
+    throw new Error(`buildBuilding: ${String(spec.storeys)} storeys${shops > 0 ? " over shops" : ""} rise past ${String(BUILDING_HEIGHT_MAX)} m`);
+  }
   box(root, w, top - PLINTH, d, 0, PLINTH, 0, wall);
   for (const y of floors.slice(1)) slabBand(root, w, d, 0, y - KIT_SIZES.slab, 0);
 
@@ -146,23 +153,8 @@ export function buildBuilding(spec: BuildingSpec, options: BuildingOptions = {})
     if (k === 0 && windows.length > 1) louvreWindow(back, windows[0] ?? 0, y);
   });
 
-  // The roof.
-  let roofTop: number;
-  if (spec.roof === "flat") {
-    parapet(root, w, d, 0, top, 0, wall);
-    roofTop = top + KIT_SIZES.parapet.height;
-    tank(root, -w / 2 + 1.0, top, -d / 2 + 1.0, true, 0, pick(random, TANKS));
-    if (w > 7) tank(root, -w / 2 + 2.6, top, -d / 2 + 1.0, false, 0, pick(random, TANKS));
-    box(root, 2.0, 2.1, 2.2, w / 2 - 1.4, top, -d / 2 + 1.4, wall);
-    dish(root, root, w / 2 - 0.5, top, 0, dishYaw);
-    items.add("tank").add("dish");
-  } else {
-    const sheet = pick(random, SHEETS);
-    const pitch = roofPitch(random);
-    roofTop = spec.roof === "gable" ? gableRoof(root, w, d, 0, top, 0, sheet, wall, pitch, random) : hipRoof(root, w, d, 0, top, 0, sheet, pitch);
-    const stand = Math.min(KIT_SIZES.tank.standMax, Math.max(KIT_SIZES.tank.standMin, roofTop - 0.6));
-    tank(root, w / 2 - 1.0, 0, -d / 2 - 0.9, false, stand, pick(random, TANKS));
-    // On the wall that faces the satellite most nearly, high up near a corner.
+  // A dish on the wall that faces the satellite most nearly, high up near a corner (R-ASSET-019).
+  const wallDish = (): void => {
     const walls = [
       { ry: 0, x: 0, z: front, along: w },
       { ry: Math.PI / 2, x: w / 2, z: 0, along: d },
@@ -172,6 +164,32 @@ export function buildBuilding(spec: BuildingSpec, options: BuildingOptions = {})
     const off = (ry: number): number => Math.abs(Math.atan2(Math.sin(dishYaw - ry), Math.cos(dishYaw - ry)));
     const best = walls.reduce((a, b) => (off(b.ry) < off(a.ry) ? b : a));
     dish(root, onWall(root, best.x, 0, best.z, best.ry), best.along / 2 - 0.6, top - 0.9, 0.3, dishYaw - best.ry);
+  };
+
+  // The roof.
+  let roofTop: number;
+  if (spec.roof === "flat") {
+    parapet(root, w, d, 0, top, 0, wall);
+    roofTop = top + KIT_SIZES.parapet.height;
+    const room = BUILDING_HEIGHT_MAX - top;
+    // Tanks and the stair head go on the roof only where they stay under the height limit; otherwise the tank stands behind.
+    if (room >= KIT_SIZES.tank.largeHigh) {
+      tank(root, -w / 2 + 1.0, top, -d / 2 + 1.0, true, 0, pick(random, TANKS));
+      if (w > 7) tank(root, -w / 2 + 2.6, top, -d / 2 + 1.0, false, 0, pick(random, TANKS));
+    } else {
+      tank(root, w / 2 - 1.0, 0, -d / 2 - 0.9, true, KIT_SIZES.tank.standMax, pick(random, TANKS));
+    }
+    if (room >= 2.1) box(root, 2.0, 2.1, 2.2, w / 2 - 1.4, top, -d / 2 + 1.4, wall);
+    if (room >= 1.4) dish(root, root, w / 2 - 0.5, top, 0, dishYaw);
+    else wallDish();
+    items.add("tank").add("dish");
+  } else {
+    const sheet = pick(random, SHEETS);
+    const pitch = roofPitch(random);
+    roofTop = spec.roof === "gable" ? gableRoof(root, w, d, 0, top, 0, sheet, wall, pitch, random) : hipRoof(root, w, d, 0, top, 0, sheet, pitch);
+    const stand = Math.min(KIT_SIZES.tank.standMax, Math.max(KIT_SIZES.tank.standMin, roofTop - 0.6));
+    tank(root, w / 2 - 1.0, 0, -d / 2 - 0.9, false, stand, pick(random, TANKS));
+    wallDish();
     items.add("tank").add("dish");
   }
 
@@ -185,7 +203,8 @@ export function buildBuilding(spec: BuildingSpec, options: BuildingOptions = {})
     const width = 1.1;
     const run1 = first * KIT_SIZES.stairs.going;
     const run2 = second * KIT_SIZES.stairs.going;
-    if (spec.stairs === "side") {
+    const sideFits = d + 0.6 >= run1 + run2 + 2.6;
+    if (spec.stairs === "side" && sideFits) {
       const sx = -w / 2 - width / 2 - 0.05;
       const z0 = front + 0.6;
       stairFlight(root, sx, PLINTH, z0, first, rise, width, Math.PI / 2, "concrete");

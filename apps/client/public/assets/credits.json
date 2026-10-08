@@ -1,0 +1,20 @@
+{
+  "mapData": [
+    {
+      "text": "Map data from OpenStreetMap, available under the Open Database Licence",
+      "link": "https://www.openstreetmap.org/copyright",
+      "sources": [
+        "https://www.openstreetmap.org/way/134222253",
+        "https://www.openstreetmap.org/way/215667109"
+      ]
+    }
+  ],
+  "assets": [],
+  "fonts": [
+    {
+      "family": "Danfo",
+      "attribution": "Danfo by Afrotype, under the SIL Open Font License 1.1"
+    }
+  ],
+  "generated": "The city's models and people are written as code by an AI agent working for the studio, and reviewed by people before they ship. No image, voice or music in the game is generated."
+}

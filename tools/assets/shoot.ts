@@ -38,6 +38,8 @@ async function load(page: Page, entry: CatalogEntry, withFigure: boolean): Promi
     text: signText(),
     pose: poseFor(entry),
     scaleFigure: withFigure && !entry.name.startsWith("chr_") ? { url: `/apps/client/public/assets/${SCALE_FIGURE}`, pose: poseFor({ ...entry, pose: "stand" }) } : undefined,
+    ground: entry.ground,
+    farView: entry.farView,
   };
   await page.evaluate(async (o) => {
     const stage = (globalThis as unknown as { stage: { load: (x: unknown) => Promise<unknown> } }).stage;

@@ -5,7 +5,6 @@
 import { palette, type PaletteName } from "@japacity/assets";
 import { attachSigns, prepareModel, SIGN_FONT } from "@japacity/assets/load";
 import {
-  AmbientLight,
   Box3,
   Color,
   DirectionalLight,
@@ -40,6 +39,10 @@ export interface LoadOptions {
   pose?: { rotations: Record<string, [number, number, number]>; hipsY?: number };
   /** A model shown beside the asset in the phone shot for scale. */
   scaleFigure?: { url: string; pose?: LoadOptions["pose"] };
+  /** The ground the asset stands on in the shots: sand, or water for a bridge. */
+  ground?: PaletteName;
+  /** Where the far phone shot stands and looks, when a landmark is first seen from somewhere particular. */
+  farView?: { position: [number, number, number]; target: [number, number, number] };
 }
 
 export interface ViewInfo {
@@ -70,11 +73,10 @@ document.body.appendChild(renderer.domElement);
 const scene = new Scene();
 scene.background = colour("sky");
 const sky = new HemisphereLight(0xfff1d6, colour("sand"), 1.1);
-const fill = new AmbientLight(0xffffff, 0.15);
 const sun = new DirectionalLight(0xfff0d0, 2.0);
 // The sun stands high over the front-right shoulder, so fronts are lit and the three-quarter view shows two faces.
 sun.position.set(0.55, 1.0, 0.75).multiplyScalar(100);
-scene.add(sky, fill, sun, sun.target);
+scene.add(sky, sun, sun.target);
 
 const ground = new Mesh(new PlaneGeometry(20000, 20000), new MeshStandardMaterial({ color: colour("sand"), roughness: 1 }));
 ground.rotation.x = -Math.PI / 2;
@@ -87,6 +89,7 @@ street.visible = false;
 
 let model: Object3D | null = null;
 let figure: Object3D | null = null;
+let farView: LoadOptions["farView"];
 const loader = new GLTFLoader().setMeshoptDecoder(MeshoptDecoder);
 
 async function loadModel(url: string, pose: LoadOptions["pose"], text: Record<string, string>): Promise<Object3D> {
@@ -192,6 +195,13 @@ function setPhone(box: Box3, far: boolean): ViewInfo {
   const front = box.max.z;
   const height = box.max.y - box.min.y;
   const centreX = (box.min.x + box.max.x) / 2;
+  if (far && farView !== undefined) {
+    const camera = new PerspectiveCamera(fov, aspect, 0.5, 5000);
+    camera.position.set(...farView.position);
+    camera.lookAt(new Vector3(...farView.target));
+    current = camera;
+    return { view: "phoneFar", camera: { kind: "perspective", position: farView.position, target: farView.target, fov } };
+  }
   if (far) {
     const sphere = box.getBoundingSphere(new Sphere());
     const halfW = Math.atan(Math.tan((fov / 2) * DEG) * aspect);
@@ -221,6 +231,8 @@ const stage = {
     if (model !== null) scene.remove(model);
     if (figure !== null) scene.remove(figure);
     model = await loadModel(options.url, options.pose, options.text);
+    farView = options.farView;
+    ground.material.color = colour(options.ground ?? "sand");
     scene.add(model);
     figure = null;
     if (options.scaleFigure !== undefined) {

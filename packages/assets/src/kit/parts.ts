@@ -482,7 +482,9 @@ export function container(g: Object3D, w: number, h: number, d: number, x: numbe
     if (rx > ribsFrom && rx < ribsTo) continue;
     quad(g, 0.08, h - 0.2, rx, y + 0.1, z + d / 2 + 0.01, "black");
   }
-  box(g, w + 0.06, 0.1, d + 0.06, x, y + h - 0.05, z, "zincRust");
+  box(g, w + 0.06, 0.1, d + 0.06, x, y + h - 0.05, z, colour);
+  // Rust where rain stands on the roof.
+  for (const [rx, rz, rw] of [[-w / 4, -d / 6, w / 3], [w / 5, d / 8, w / 4]] as const) floorQuad(g, rw, d / 3, x + rx, y + h + 0.052, z + rz, "zincRust");
 }
 
 /** A patch of wear, stain or damp on a wall frame: a darker named colour, never a texture. */
