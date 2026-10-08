@@ -18,7 +18,7 @@ import { buildWorld, colourOf, skyColours, type World } from "./world";
 
 /** A person's eyes, and how far behind the character the street camera stands. */
 const EYE = 1.6;
-const BEHIND = 7;
+const BEHIND = 9;
 const PLAN_HEIGHT = 26;
 const HOLD_MS = 450;
 /** Behind the panels the scene only idles: a few frames a second. */
@@ -37,7 +37,7 @@ function pickedOf(object: Object3D | null): Picked | null {
 }
 
 function aimCamera(camera: Camera, walker: Walker, plan: number): void {
-  const street = new Vector3(walker.x + 1.2, EYE, walker.z + BEHIND);
+  const street = new Vector3(walker.x + 0.9, EYE, walker.z + BEHIND);
   const above = new Vector3(walker.x, PLAN_HEIGHT, walker.z + PLAN_HEIGHT * 0.55);
   camera.position.lerpVectors(street, above, plan);
   const look = new Vector3().lerpVectors(new Vector3(walker.x, 1.3, walker.z - 10), new Vector3(walker.x, 0, walker.z - 1), plan);
