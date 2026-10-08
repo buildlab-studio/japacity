@@ -202,6 +202,17 @@ function fromActivity(view: PlayerView): Loose[] {
 }
 
 /**
+ * R-LOTTERY-003: one ticket while the cap and the naira bank allow it. The
+ * world's draw is always the one on sale at its own tick (R-LOTTERY-002), so
+ * the close has not passed for a view built from it.
+ */
+function fromLottery(view: PlayerView): Loose[] {
+  const draw = view.lottery;
+  if (draw === null || draw.tickets >= draw.maxTickets || view.pockets.NGN.bank < draw.ticket) return [];
+  return [{ type: "lottery/buy", tickets: 1 }];
+}
+
+/**
  * Every legal command the sample knows how to build from this view. Commands
  * whose kind has no handler yet are left out, so the list grows as kinds are built.
  */
@@ -218,6 +229,7 @@ export function legalCommands(view: PlayerView): Loose[] {
     ...fromObligations(view),
     ...fromActivity(view),
     ...fromPlace(view),
+    ...fromLottery(view),
   ].filter((command) =>
     handles(command.type),
   );
