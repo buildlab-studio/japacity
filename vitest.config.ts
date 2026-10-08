@@ -1,3 +1,4 @@
+import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
 
 import { cloudflareTest } from "@cloudflare/vitest-plugin";
@@ -31,9 +32,16 @@ const workersTests = "apps/server/src/**/*.workers.test.ts";
 // Wrangler refuses a Hyperdrive binding without a local string; the place tests never connect to it.
 const unusedPostgres = "postgres://test:test@127.0.0.1:5432/test";
 process.env.CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRING_GAME_DB ??= unusedPostgres;
+// pg's CommonJS requires pg-protocol, which the Workers pool resolves to its ES wrapper (a .js file in a
+// package without "type": "module") and then loads as CommonJS. Its CommonJS build is named instead
+// (decision 0004: node-postgres through Hyperdrive). deps.optimizer.ssr.include does not reach that path.
+const fromPg = createRequire(createRequire(new URL("./packages/db/package.json", import.meta.url)).resolve("pg"));
+const pgProtocolCommonJs = fromPg.resolve("pg-protocol");
 process.env.CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRING_CACHED_DB ??= unusedPostgres;
 
 export default defineConfig({
+  // The Workers pool resolves a package's requires through the root server, so the fix for pg lives here.
+  plugins: [{ name: "pg-protocol-commonjs", enforce: "pre", resolveId: (id: string) => (id === "pg-protocol" ? pgProtocolCommonJs : null) }],
   test: {
     reporters: [["default", { summary: false }]],
     projects: [

@@ -1,53 +1,56 @@
-// The Worker. Builds the app once per isolate from the bindings; the
-// scheduled handler runs the jobs by their cron (R-CLOCK-012, R-SERVER-011,
-// R-ACCOUNT-017). The place object is exported here (R-CLOCK-025).
-import { content } from "@japacity/content";
+// The Worker (decision 0004). Every request opens one `pg` client through the
+// Hyperdrive configuration with caching off, builds the stores and the auth
+// library over it, answers, and closes it; nothing holds a client between
+// requests. The scheduled handler runs the jobs by their cron the same way
+// (R-CLOCK-012, R-SERVER-011, R-ACCOUNT-017). The place object is exported here (R-CLOCK-025).
+import { content, text } from "@japacity/content";
+import { pgDayLog } from "@japacity/db";
 
 import { makeApp } from "./app";
 import { makeAuth } from "./auth/auth";
 import type { AuthKeys } from "./auth/auth";
-import { memoryAuthAdapter } from "./auth/memory";
+import { drizzleAuthAdapter } from "./auth/drizzle";
 import { sessionReader } from "./auth/session";
 import { contentsFor } from "./authority/overlay";
 import { productionConfig } from "./config";
-import { memoryStores, testSession, webRandomBytes } from "./deps";
-import type { ServerDeps } from "./deps";
-import { DRAND_URL, quicknet } from "./draw/beacon";
-import type { DrawKeys } from "./draw/draw";
-import { isolateDayLog } from "./analytics/daylog";
+import { webRandomBytes } from "./deps";
+import { quicknet } from "./draw/beacon";
 import { COUNTERS_CRON, countersJob } from "./jobs/counters";
 import { runDeletions } from "./jobs/deletion";
 import { drawJob } from "./jobs/draw";
 import { standInJob } from "./jobs/stand-in";
 import { notifyJob } from "./jobs/notify";
 import { ticksJob } from "./jobs/ticks";
+import { MONEY_CRON, moneyJob } from "./jobs/money";
+import { dropOldFeedback } from "./moderation/feedback";
+import { advertLinksJob } from "./adverts/job";
 import type { Place } from "./place/place.object";
-import { roomsFor } from "./place/place.rooms";
 import type { PushKeys } from "./notify/webpush";
+import { isolateFor, openRequest, placeOfIn, profileOfIn } from "./production";
+import type { Isolate, RequestScope } from "./production";
 import { drawRoute } from "./routes/draw";
 import { notifyKeyRoute } from "./routes/notify";
 import { placeSocketRoutes } from "./routes/place";
 
 export { Place } from "./place/place.object";
-import { MONEY_CRON, moneyJob } from "./jobs/money";
-import { dropOldFeedback } from "./moderation/feedback";
-import { advertLinksJob } from "./adverts/job";
 
 export interface Env {
   SITE_URL: string;
-  WORLD_SEED?: string;
-  BAN_SALT?: string;
+  /** R-SERVER-016: secrets of the deployment, set once with `wrangler secret put`. */
+  WORLD_SEED: string;
+  /** R-MODERATION-018: the salt of the banned identities' hashes. */
+  BAN_SALT: string;
+  /** R-LOTTERY-008: the HMAC key of the draw's ticket tokens. */
+  DRAW_TOKEN_KEY: string;
   OVERLAY?: string;
-  /** R-LOTTERY-008: the HMAC key of the draw's ticket tokens, a secret of the deployment. */
-  DRAW_TOKEN_KEY?: string;
-  /** R-LOTTERY-007: the drand relay the beacon is read from. */
-  DRAND_URL?: string;
   COMMANDS_10S: RateLimit;
   COMMANDS_60S: RateLimit;
   READS_60S: RateLimit;
   ANON_60S: RateLimit;
   SOCKET_10S: RateLimit;
+  /** Decision 0004: game state, the auth library and every store, caching off. */
   GAME_DB: Hyperdrive;
+  /** The configuration with caching on, for reads that may be stale; nothing uses it yet. */
   CACHED_DB: Hyperdrive;
   /** R-CLOCK-025: the place objects. */
   PLACE: DurableObjectNamespace<Place>;
@@ -62,10 +65,24 @@ export interface Env {
   VAPID_SUBJECT?: string;
 }
 
-let deps: ServerDeps | null = null;
+let isolate: Isolate | null = null;
 
-/** The auth library's tables, held in the isolate until packages/db gives the Drizzle adapter. */
-const authAdapter = memoryAuthAdapter();
+/** R-SERVER-016: what the isolate keeps: the overlay applied once, the secrets, the limits, the switch and counter stores. */
+function isolateOf(env: Env): Isolate {
+  isolate ??= isolateFor(
+    { connectionString: env.GAME_DB.connectionString, place: env.PLACE },
+    {
+      config: productionConfig,
+      contents: contentsFor(content, env.OVERLAY),
+      secrets: { worldSeed: env.WORLD_SEED, banSalt: env.BAN_SALT, drawTokenKey: env.DRAW_TOKEN_KEY },
+      limits: { commands10s: env.COMMANDS_10S, commands60s: env.COMMANDS_60S, reads60s: env.READS_60S, anon60s: env.ANON_60S, socket10s: env.SOCKET_10S },
+      text,
+      now: () => Date.now(),
+      randomBytes: webRandomBytes,
+    },
+  );
+  return isolate;
+}
 
 /** Owner: the email provider (account.md R-ACCOUNT-014); until one is chosen no code leaves the server. */
 function sendOtp(): Promise<void> {
@@ -83,10 +100,6 @@ function authKeys(env: Env, waitUntil: (promise: Promise<unknown>) => void): Aut
   };
 }
 
-function drawKeys(env: Env): DrawKeys {
-  return { beacon: quicknet(fetch, env.DRAND_URL ?? DRAND_URL) };
-}
-
 /** R-CLOCK-031: the push keys from the bindings, or null while one is missing. */
 function pushKeys(env: Env): PushKeys | null {
   const { VAPID_PUBLIC_KEY: publicKey, VAPID_PRIVATE_KEY: privateKey, VAPID_SUBJECT: subject } = env;
@@ -94,46 +107,53 @@ function pushKeys(env: Env): PushKeys | null {
   return { publicKey, privateKey, subject, numbers: productionConfig.notify, fetch: (input, init) => fetch(input, init) };
 }
 
-/** The deployment's dependencies, made once per isolate (R-SERVER-016). The stores move to packages/db when it lands. */
-function depsFor(env: Env): ServerDeps {
-  deps ??= {
-    config: productionConfig,
-    stores: memoryStores(),
-    contents: contentsFor(content, env.OVERLAY),
-    secrets: { worldSeed: env.WORLD_SEED ?? "", banSalt: env.BAN_SALT ?? "", drawTokenKey: env.DRAW_TOKEN_KEY ?? "" },
-    limits: { commands10s: env.COMMANDS_10S, commands60s: env.COMMANDS_60S, reads60s: env.READS_60S, anon60s: env.ANON_60S, socket10s: env.SOCKET_10S },
-    // Replaced in each request by the auth library's session reader.
-    session: testSession(productionConfig),
-    now: () => Date.now(),
-    randomBytes: webRandomBytes,
+/**
+ * One request's or one job's scope: the client opened and the auth library on
+ * it. The client is closed once `run` has settled and so has every task the
+ * library handed to `waitUntil`, so the reply never waits on the close.
+ */
+async function within<T>(env: Env, waitUntil: (promise: Promise<unknown>) => void, run: (scope: RequestScope, auth: ReturnType<typeof makeAuth>, keys: AuthKeys) => Promise<T>): Promise<T> {
+  const scope = await openRequest(isolateOf(env), env.GAME_DB.connectionString);
+  const tasks: Promise<unknown>[] = [];
+  const keep = (promise: Promise<unknown>) => {
+    tasks.push(promise);
+    waitUntil(promise);
   };
-  return deps;
+  try {
+    const keys = authKeys(env, keep);
+    const auth = makeAuth(scope.deps, drizzleAuthAdapter(scope.db), keys);
+    scope.setSession(sessionReader(auth));
+    return await run(scope, auth, keys);
+  } finally {
+    waitUntil(Promise.allSettled(tasks).then(() => scope.close()));
+  }
 }
 
-/** The draw's keys from the bindings, until `ServerDeps` holds them. */
 export default {
-  fetch(request: Request, env: Env, ctx: ExecutionContext): Response | Promise<Response> {
-    const keys = authKeys(env, (promise) => ctx.waitUntil(promise));
-    const auth = makeAuth(depsFor(env), authAdapter, keys);
-    const built = { ...depsFor(env), session: sessionReader(auth) };
-    // The character's place, name and look come from the core's reads when they are wired; until then no socket opens.
-    return makeApp(built, { auth, keys })
-      .route("/", drawRoute(built))
-      .route("/", notifyKeyRoute(pushKeys(env)))
-      .route("/", placeSocketRoutes(built, { rooms: roomsFor(env.PLACE, built.config.presence), placeOf: () => Promise.resolve(null), profileOf: () => Promise.resolve(null) }))
-      .fetch(request);
+  fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
+    return within(env, (promise) => ctx.waitUntil(promise), async ({ deps }, auth, keys) => {
+      const app = makeApp(deps, { auth, keys })
+        .route("/", drawRoute(deps))
+        .route("/", notifyKeyRoute(pushKeys(env)))
+        .route("/", placeSocketRoutes(deps, { rooms: isolateOf(env).rooms, placeOf: placeOfIn(deps), profileOf: profileOfIn(deps, isolateOf(env).text) }));
+      return app.fetch(request);
+    });
   },
   scheduled(controller: ScheduledController, env: Env, ctx: ExecutionContext): void {
-    // By cron: the world's ticks (R-CLOCK-012) and the bank-full notices (R-CLOCK-031) every five minutes; deletions (R-ACCOUNT-017) and the money report (R-SERVER-011) daily.
-    ctx.waitUntil(ticksJob(depsFor(env), controller.cron));
-    ctx.waitUntil(drawJob(depsFor(env), drawKeys(env), controller.cron));
-    ctx.waitUntil(notifyJob(depsFor(env), pushKeys(env), controller.cron));
-    ctx.waitUntil(advertLinksJob(depsFor(env), controller.cron, (input, init) => fetch(input, init)));
-    if (controller.cron === "0 0 * * *") ctx.waitUntil(runDeletions(depsFor(env), makeAuth(depsFor(env), authAdapter, authKeys(env, (promise) => ctx.waitUntil(promise)))));
-    // R-ANALYTICS-008: before the money job, which forgets the day's active list once it has run.
-    if (controller.cron === COUNTERS_CRON) ctx.waitUntil(countersJob(depsFor(env), isolateDayLog(depsFor(env))));
-    if (controller.cron === MONEY_CRON) ctx.waitUntil(moneyJob(depsFor(env)));
-    if (controller.cron === "0 0 * * *") ctx.waitUntil(dropOldFeedback(depsFor(env)));
-    if (controller.cron === "0 0 * * *") ctx.waitUntil(standInJob(depsFor(env)));
+    const later = (promise: Promise<unknown>) => ctx.waitUntil(promise);
+    const job = (run: Parameters<typeof within>[2]) => later(within(env, later, run));
+    const { cron } = controller;
+    const beacon = quicknet((input, init) => fetch(input, init), productionConfig.lottery.beacon.url);
+    // By cron: the world's ticks (R-CLOCK-012), the draws and the bank-full notices (R-CLOCK-031) every five minutes; deletions (R-ACCOUNT-017) and the money report (R-SERVER-011) daily.
+    job(({ deps }) => ticksJob(deps, cron));
+    job(({ deps }) => drawJob(deps, { beacon }, cron));
+    job(({ deps }) => notifyJob(deps, pushKeys(env), cron));
+    job(({ deps }) => advertLinksJob(deps, cron, (input, init) => fetch(input, init)));
+    if (cron === "0 0 * * *") job(({ deps }, auth) => runDeletions(deps, auth));
+    // R-ANALYTICS-008, R-SERVER-011: both read the day's characters from the command log.
+    if (cron === COUNTERS_CRON) job(({ deps, handle }) => countersJob(deps, pgDayLog(handle)));
+    if (cron === MONEY_CRON) job(({ deps, handle }) => moneyJob(deps, pgDayLog(handle)));
+    if (cron === "0 0 * * *") job(({ deps }) => dropOldFeedback(deps));
+    if (cron === "0 0 * * *") job(({ deps }) => standInJob(deps));
   },
 };
