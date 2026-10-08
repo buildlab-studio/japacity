@@ -13,7 +13,7 @@ function tickRow(tick: number, mark = 0): WorldTickRow {
   };
 }
 
-const DRAW = { draw: 4, secret: "11".repeat(32), fingerprint: "22".repeat(32), beaconRound: 900 };
+const DRAW = { draw: 4, secret: "11".repeat(32), fingerprint: "22".repeat(32), beaconRound: 900, topUpTickets: 5000 };
 
 /** The contract every WorldStore keeps. `make` returns an empty store each time it is called. */
 export function suiteForWorldStore(make: () => Promise<WorldStore>): void {
@@ -72,7 +72,7 @@ export function suiteForWorldStore(make: () => Promise<WorldStore>): void {
       const store = await make();
       must(await store.putDraw(DRAW));
 
-      for (const changed of [{ secret: "33".repeat(32) }, { fingerprint: "44".repeat(32) }, { beaconRound: 901 }]) {
+      for (const changed of [{ secret: "33".repeat(32) }, { fingerprint: "44".repeat(32) }, { beaconRound: 901 }, { topUpTickets: 4999 }]) {
         expect(await store.putDraw({ ...DRAW, ...changed })).toMatchObject({ ok: false, code: "conflict" });
       }
       expect(await store.draw(4)).toEqual({ ...DRAW, closedAt: null, list: null, listHash: null, result: null });
@@ -134,6 +134,42 @@ export function suiteForWorldStore(make: () => Promise<WorldStore>): void {
       expect(await store.tickets(4)).toEqual(frozen);
       expect((await store.draw(4))?.closedAt).toBe(70_000);
       expect(await store.freeze(9, 70_000)).toMatchObject({ ok: false, code: "missing" });
+    });
+
+    test("[R-LOTTERY-021] given a draw put with its declared top-up, when it is read, then the top-up is kept as it was declared", async () => {
+      const store = await make();
+      must(await store.putDraw({ ...DRAW, topUpTickets: 0 }));
+      must(await store.putDraw({ ...DRAW, draw: 5, topUpTickets: 7 }));
+
+      expect((await store.draw(4))?.topUpTickets).toBe(0);
+      expect((await store.draw(5))?.topUpTickets).toBe(7);
+    });
+
+    test("[R-LOTTERY-008] given a draw, when its list is set before the freeze, after it, the same again and another, then only the first after the freeze is kept", async () => {
+      const store = await make();
+      must(await store.putDraw(DRAW));
+      const list = ["0011223344556677", "8899aabbccddeeff"];
+
+      const early = await store.setList(4, list, "aa".repeat(32));
+      must(await store.freeze(4, 70_000));
+      const set = must(await store.setList(4, list, "aa".repeat(32)));
+      const same = must(await store.setList(4, [...list], "aa".repeat(32)));
+      const other = await store.setList(4, [...list].reverse(), "bb".repeat(32));
+
+      expect(early).toMatchObject({ ok: false, code: "open" });
+      expect(set).toEqual({ ...DRAW, closedAt: 70_000, list, listHash: "aa".repeat(32), result: null });
+      expect(same).toEqual(set);
+      expect(other).toMatchObject({ ok: false, code: "conflict" });
+      expect(await store.draw(4)).toEqual(set);
+      expect(await store.setList(9, list, "aa".repeat(32))).toMatchObject({ ok: false, code: "missing" });
+    });
+
+    test("[R-LOTTERY-008] given an empty draw, when its empty list is set after the freeze, then it is kept as an empty list", async () => {
+      const store = await make();
+      must(await store.putDraw(DRAW));
+      must(await store.freeze(4, 70_000));
+
+      expect(must(await store.setList(4, [], "cc".repeat(32)))).toMatchObject({ list: [], listHash: "cc".repeat(32) });
     });
 
     test("[R-LOTTERY-015] given a draw, when its result is set before the freeze, after it, and again, then only the first after the freeze is kept", async () => {

@@ -188,18 +188,20 @@ export interface WorldTickRow {
   hash: string;
 }
 
-/** R-LOTTERY-007: what is fixed when a draw opens. */
+/** R-LOTTERY-007, R-LOTTERY-021: what is fixed when a draw opens. */
 export interface NewDraw {
   draw: number;
   secret: string;
   fingerprint: string;
   beaconRound: number;
+  /** R-LOTTERY-021: the house's declared top-up, in tickets, fixed for the draw. */
+  topUpTickets: number;
 }
 
 /** R-LOTTERY-007, R-LOTTERY-008, R-LOTTERY-015: a draw; `closedAt` is set by `freeze`, `result` once after it. */
 export interface DrawRow extends NewDraw {
   closedAt: number | null;
-  /** R-LOTTERY-008: the published token list and its hash, set by `freeze`; null before the close. */
+  /** R-LOTTERY-008: the published token list and its hash, set once by `setList` after the freeze; null before. */
   list: string[] | null;
   listHash: string | null;
   result: LotteryResult | null;
@@ -230,6 +232,8 @@ export interface WorldStore {
   tickets: (draw: number) => Promise<TicketRow[]>;
   /** R-LOTTERY-008: closes the list at `at` and returns it. A second freeze keeps the first `closedAt`. */
   freeze: (draw: number, at: number) => Promise<StoreResult<TicketRow[]>>;
+  /** R-LOTTERY-008: stores the published list and its hash once, only after the freeze. The same list again is a no-op; another is a `conflict`. */
+  setList: (draw: number, list: readonly string[], listHash: string) => Promise<StoreResult<DrawRow>>;
   /** R-LOTTERY-015: stores the result once, only after the freeze. */
   setResult: (draw: number, result: LotteryResult) => Promise<StoreResult<DrawRow>>;
 }

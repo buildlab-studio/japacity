@@ -70,6 +70,7 @@ export function lotteryResult(draw: number): LotteryResult {
     listHash: "ef".repeat(32),
     count: 3,
     pot: 60_000,
+    topUp: 0,
     fund: 33_000,
     winners: [{ tier: "jackpot", tickets: [2], amount: 13_200 }],
   };

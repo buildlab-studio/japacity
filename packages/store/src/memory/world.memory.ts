@@ -23,11 +23,11 @@ export function memoryWorldStore(): WorldStore {
     putDraw: (row) => {
       const stored = draws.get(row.draw);
       if (stored === undefined) {
-        const made: DrawRow = { draw: row.draw, secret: row.secret, fingerprint: row.fingerprint, beaconRound: row.beaconRound, closedAt: null, list: null, listHash: null, result: null };
+        const made: DrawRow = { ...copy(row), closedAt: null, list: null, listHash: null, result: null };
         draws.set(row.draw, made);
         return Promise.resolve(accept(made));
       }
-      if (stored.secret !== row.secret || stored.fingerprint !== row.fingerprint || stored.beaconRound !== row.beaconRound) {
+      if (stored.secret !== row.secret || stored.fingerprint !== row.fingerprint || stored.beaconRound !== row.beaconRound || stored.topUpTickets !== row.topUpTickets) {
         return Promise.resolve(refuse("conflict", `Draw ${String(row.draw)} is already stored with other commitments.`));
       }
       return Promise.resolve(accept(stored));
@@ -54,6 +54,18 @@ export function memoryWorldStore(): WorldStore {
       if (stored === undefined) return Promise.resolve(refuse("missing", `No draw ${String(draw)}.`));
       stored.closedAt ??= at;
       return Promise.resolve(accept(tickets.get(draw) ?? []));
+    },
+    setList: (draw, list, listHash) => {
+      const stored = draws.get(draw);
+      if (stored === undefined) return Promise.resolve(refuse("missing", `No draw ${String(draw)}.`));
+      if (stored.closedAt === null) return Promise.resolve(refuse("open", `Draw ${String(draw)} is not frozen yet.`));
+      if (stored.list !== null) {
+        const same = stored.listHash === listHash && stored.list.length === list.length && stored.list.every((token, index) => token === list[index]);
+        return Promise.resolve(same ? accept(copy(stored)) : refuse("conflict", `Draw ${String(draw)} already has its list.`));
+      }
+      stored.list = [...list];
+      stored.listHash = listHash;
+      return Promise.resolve(accept(copy(stored)));
     },
     setResult: (draw, result) => {
       const stored = draws.get(draw);

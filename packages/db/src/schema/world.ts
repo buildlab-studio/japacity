@@ -13,13 +13,16 @@ export const worldTicks = pgTable("world_ticks", {
   hash: text("hash").notNull(),
 });
 
-/** R-LOTTERY-007: the commitments fixed when a draw opens; `closed_at` and `result` are set once each. */
+/** R-LOTTERY-007, R-LOTTERY-021: the commitments fixed when a draw opens; `closed_at`, the list and `result` are set once each. */
 export const draws = pgTable("draws", {
   draw: integer("draw").primaryKey(),
   secret: text("secret").notNull(),
   fingerprint: text("fingerprint").notNull(),
   beaconRound: bigint("beacon_round", { mode: "number" }).notNull(),
+  topUpTickets: integer("top_up_tickets").notNull().default(0),
   closedAt: bigint("closed_at", { mode: "number" }),
+  list: jsonb("list").$type<string[]>(),
+  listHash: text("list_hash"),
   result: jsonb("result").$type<LotteryResult>(),
 });
 

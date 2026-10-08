@@ -6,7 +6,17 @@ import { drawTickets, draws, worldTicks } from "../schema";
 import { accept, refuse } from "./result";
 
 function toDraw(row: typeof draws.$inferSelect): DrawRow {
-  return { draw: row.draw, secret: row.secret, fingerprint: row.fingerprint, beaconRound: row.beaconRound, closedAt: row.closedAt, list: null, listHash: null, result: row.result };
+  return {
+    draw: row.draw,
+    secret: row.secret,
+    fingerprint: row.fingerprint,
+    beaconRound: row.beaconRound,
+    topUpTickets: row.topUpTickets,
+    closedAt: row.closedAt,
+    list: row.list,
+    listHash: row.listHash,
+    result: row.result,
+  };
 }
 
 function toTick(row: typeof worldTicks.$inferSelect): WorldTickRow {
@@ -57,11 +67,11 @@ export function pgWorldStore(handle: Handle): WorldStore {
 
     putDraw: (row) =>
       handle.transaction(async (tx) => {
-        const { draw, secret, fingerprint, beaconRound } = row;
-        await tx.insert(draws).values({ draw, secret, fingerprint, beaconRound }).onConflictDoNothing();
+        const { draw, secret, fingerprint, beaconRound, topUpTickets } = row;
+        await tx.insert(draws).values({ draw, secret, fingerprint, beaconRound, topUpTickets }).onConflictDoNothing();
         const stored = await lockDraw(tx, draw);
         if (stored === null) throw new Error(`Draw ${String(draw)} was not stored.`);
-        if (stored.secret !== secret || stored.fingerprint !== fingerprint || stored.beaconRound !== beaconRound) {
+        if (stored.secret !== secret || stored.fingerprint !== fingerprint || stored.beaconRound !== beaconRound || stored.topUpTickets !== topUpTickets) {
           return refuse("conflict", `Draw ${String(draw)} is already stored with other commitments.`);
         }
         return accept(stored);
@@ -91,6 +101,20 @@ export function pgWorldStore(handle: Handle): WorldStore {
         if (stored === null) return refuse("missing", `No draw ${String(draw)}.`);
         if (stored.closedAt === null) await tx.update(draws).set({ closedAt: at }).where(eq(draws.draw, draw));
         return accept(await ticketsOf(tx, draw));
+      }),
+
+    setList: (draw, list, listHash) =>
+      handle.transaction(async (tx) => {
+        const stored = await lockDraw(tx, draw);
+        if (stored === null) return refuse("missing", `No draw ${String(draw)}.`);
+        if (stored.closedAt === null) return refuse("open", `Draw ${String(draw)} is not frozen yet.`);
+        if (stored.list !== null) {
+          const same = stored.listHash === listHash && stored.list.length === list.length && stored.list.every((token, index) => token === list[index]);
+          return same ? accept(stored) : refuse("conflict", `Draw ${String(draw)} already has its list.`);
+        }
+        const [updated] = await tx.update(draws).set({ list: [...list], listHash }).where(eq(draws.draw, draw)).returning();
+        if (updated === undefined) throw new Error(`Draw ${String(draw)} vanished under its lock.`);
+        return accept(toDraw(updated));
       }),
 
     setResult: (draw, result) =>
