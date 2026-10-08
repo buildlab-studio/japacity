@@ -148,6 +148,8 @@ export function requirementSentence(requirement: Requirement, context: SentenceC
     }
     case "setpiece/answered-with":
       return say("ui.req.setpiece-answered-with", { setpiece: nameOf(requirement.setpiece) });
+    case "world/lottery":
+      return say(requirement.online ? "ui.req.world-lottery-online" : "ui.req.world-lottery-offline");
     case "wallet/total":
       return say(requirement.flow === "in" ? "ui.req.wallet-total-in" : "ui.req.wallet-total-out", { amount: amountWords(requirement.amount, requirement.currency), reason: requirement.reason.replaceAll("-", " ") });
     case "place/returned":

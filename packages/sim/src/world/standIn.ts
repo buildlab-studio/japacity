@@ -85,7 +85,8 @@ function walk(worldSeed: string, upTo: number, content: Content, visit: (track: 
 function worldOf(track: RateTrack, director: DirectorTick): World {
   const rates = {} as World["rates"];
   for (const currency of FOREIGN) rates[currency] = { official: track.official[currency], street: track.street[currency] };
-  return { tick: track.tick, rates, vars: director.vars, news: director.news, era: director.era };
+  // The draw is the online server's; the stand-in runs none.
+  return { tick: track.tick, rates, vars: director.vars, news: director.news, era: director.era, lottery: null };
 }
 
 /** Every world from tick 0 to `upTo`, in one walk. For tests and reports. */

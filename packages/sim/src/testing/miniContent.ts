@@ -395,5 +395,6 @@ export const miniContent: Content = {
       gapMonths: 10,
     },
     groupLoan: { feeBp: 1500, savingsBp: 1000, vanishBp: 2500, visit: { standing: -12, wellbeing: -5 } },
+    lottery: { ticket: 20000, maxTickets: 5, burnBp: 4500, jackpotBp: 4000, midBp: 3000, midCount: 10, smallBp: 3000, smallEvery: 50 },
   },
 };

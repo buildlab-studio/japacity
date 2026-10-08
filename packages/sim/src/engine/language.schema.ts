@@ -97,6 +97,7 @@ export const ReasonSchema = z.enum([
   "fare",
   "build",
   "win",
+  "ticket",
   "convert",
   "move",
 ]);
@@ -218,6 +219,7 @@ export const RequirementSchema = z.discriminatedUnion("type", [
   z.strictObject({ type: z.literal("activity/local-tenure"), months: CountSchema }),
   z.strictObject({ type: z.literal("setpiece/answered"), setpiece: idOf("setpiece"), times: CountSchema.exactOptional() }),
   z.strictObject({ type: z.literal("setpiece/answered-with"), setpiece: idOf("setpiece"), question: z.string().min(1), answer: z.string().min(1) }),
+  z.strictObject({ type: z.literal("world/lottery"), online: z.boolean() }),
   z.strictObject({ type: z.literal("wallet/total"), flow: z.enum(["in", "out"]), reason: ReasonSchema, currency: CurrencySchema, amount: AmountSchema }),
   z.strictObject({ type: z.literal("place/returned"), shapes: z.array(ReturnShapeSchema).min(1) }),
   z.strictObject({ type: z.literal("place/months-here"), where: WhereSchema, months: CountSchema }),
@@ -479,6 +481,7 @@ export const TuningSchema = z.strictObject({
     gapMonths: CountSchema,
   }),
   groupLoan: z.strictObject({ feeBp: BpSchema, savingsBp: BpSchema, vanishBp: BpSchema, visit: z.strictObject({ standing: IntSchema, wellbeing: IntSchema }) }),
+  lottery: z.strictObject({ ticket: CountSchema, maxTickets: CountSchema, burnBp: BpSchema, jackpotBp: BpSchema, midBp: BpSchema, midCount: CountSchema, smallBp: BpSchema, smallEvery: CountSchema }),
 });
 
 export type TuningMatches = Proof<Same<z.infer<typeof TuningSchema>, Tuning>>;

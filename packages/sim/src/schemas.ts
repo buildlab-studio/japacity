@@ -44,6 +44,7 @@ export * from "./var/var.schema";
 export const ContentSchema = z.strictObject({
   version: z.string().min(1),
   overlay: z.string().min(1).exactOptional(),
+  renames: z.record(z.string(), z.string()).exactOptional(),
   quality: z.record(idOf("quality"), QualityEntrySchema),
   activity: z.record(idOf("activity"), ActivityEntrySchema),
   document: z.record(idOf("document"), DocumentEntrySchema),

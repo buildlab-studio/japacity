@@ -186,4 +186,7 @@ export const tuning: Tuning = {
 
   // obligation.md, the group loan
   groupLoan: { feeBp: 1500, savingsBp: 1000, vanishBp: pct(25), visit: { standing: -12, wellbeing: -5 } },
+
+  // lottery.md, the Friday draw: ticket, cap, 45% of sales destroyed, tiers 40/30/30, ten mid prizes, one small prize in 50 tickets
+  lottery: { ticket: naira(200), maxTickets: 5, burnBp: 4500, jackpotBp: 4000, midBp: 3000, midCount: 10, smallBp: 3000, smallEvery: 50 },
 };

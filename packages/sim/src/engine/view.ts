@@ -42,6 +42,7 @@ export const VIEW_KEYS = [
   "prologue",
   "era",
   "card",
+  "lottery",
 ] as const satisfies readonly (keyof PlayerView)[];
 
 export const VIEW_KEYS_COMPLETE: [Exclude<keyof PlayerView, (typeof VIEW_KEYS)[number]>] extends [never] ? true : never = true;

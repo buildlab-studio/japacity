@@ -32,6 +32,8 @@ export type KindName =
   | "credit"
   | "goal"
   | "prologue"
+  // Added for the online milestone: docs/rules/lottery.md.
+  | "lottery"
   | "era"
   | "country"
   | "points";
@@ -89,6 +91,8 @@ export type Reason =
   | "build"
   /** A lottery, bet or draw win (docs/rules/luck.md). Never flagged: a letter explains it. */
   | "win"
+  /** A lottery ticket bought (docs/rules/lottery.md), a sink. */
+  | "ticket"
   // transfers: always in matched pairs
   | "convert"
   | "move";
@@ -210,6 +214,8 @@ export type Requirement =
   | { type: "setpiece/answered"; setpiece: Id<"setpiece">; times?: number }
   /** The last answer given to this question of this set piece was this one (R-SETPIECE-007). */
   | { type: "setpiece/answered-with"; setpiece: Id<"setpiece">; question: string; answer: string }
+  /** The world runs the Friday draw (`online` true) or not (docs/rules/lottery.md). */
+  | { type: "world/lottery"; online: boolean }
   /** The ledger's total under a reason, in or out, in one currency, is at least this: docs/rules/wallet.md R-WALLET-014. */
   | { type: "wallet/total"; flow: "in" | "out"; reason: Reason; currency: Currency; amount: Amount }
   /** A return of one of these shapes is on record: docs/rules/place.md. */
@@ -840,12 +846,16 @@ export interface Tuning {
   };
   /** `visit`: the second miss in a row, the officer and the group at the house (R-OBLIGATION-011). */
   groupLoan: { feeBp: number; savingsBp: number; vanishBp: number; visit: { standing: number; wellbeing: number } };
+  /** The Friday draw (docs/rules/lottery.md): the ticket price, the cap per player, the share of sales destroyed, the tiers' shares (summing to 10000) and counts. */
+  lottery: { ticket: number; maxTickets: number; burnBp: number; jackpotBp: number; midBp: number; midCount: number; smallBp: number; smallEvery: number };
 }
 
 export interface Content {
   version: string;
   /** The version of the overlay applied at load, if any (R-ENGINE-017). Set by `applyOverlay` alone. */
   overlay?: string;
+  /** Ids this version renamed, old to new, for `upgradeState` (docs/rules/server.md R-SERVER-017). */
+  renames?: Record<string, string>;
   quality: Record<Id<"quality">, QualityEntry>;
   activity: Record<Id<"activity">, ActivityEntry>;
   document: Record<Id<"document">, DocumentEntry>;
@@ -887,6 +897,21 @@ export interface World {
   news: WorldNews[];
   /** The era running. Null until the director runs (docs/rules/director.md). */
   era: { id: Id<"era">; since: number; until: number } | null;
+  /** The Friday draw the server runs (docs/rules/lottery.md). Null offline: the stand-in world sets it to null. */
+  lottery: { draw: number; closesTick: number; fingerprint: string; beaconRound: number; potSoFar: number; last: LotteryResult | null } | null;
+}
+
+/** One draw's published result (docs/rules/lottery.md R-LOTTERY-010 to 013). */
+export interface LotteryResult {
+  draw: number;
+  secret: string;
+  beaconRound: number;
+  beaconRandomness: string;
+  listHash: string;
+  count: number;
+  pot: number;
+  fund: number;
+  winners: { tier: "jackpot" | "mid" | "small"; tickets: number[]; amount: number }[];
 }
 
 // ---------------------------------------------------------------------------
@@ -1234,6 +1259,18 @@ export interface State {
   credit: CreditSlice;
   goal: GoalSlice;
   prologue: PrologueSlice;
+  lottery: LotterySlice;
+}
+
+/** This character's tickets in the draw that is open (docs/rules/lottery.md). */
+export interface LotterySlice {
+  /** The draw the tickets are for, or null with none bought. */
+  draw: number | null;
+  tickets: number;
+  /** The last draw paid out to this character, or null. */
+  paid: number | null;
+  /** The last draw whose result the character has been shown, or null. */
+  seen: number | null;
 }
 
 // ---------------------------------------------------------------------------
@@ -1256,6 +1293,10 @@ export type Command = { basedOn: number } & (
   | { type: "prologue/choose"; step: string; answer: string }
   | { type: "status/renew" }
   | { type: "return/home" }
+  // online (docs/rules/lottery.md)
+  | { type: "lottery/buy"; tickets: number }
+  /** Sent by the authority alone, after the draw. */
+  | { type: "lottery/pay"; draw: number; prizes: { tier: "jackpot" | "mid" | "small"; amount: number }[] }
 );
 
 export type CommandType = Command["type"];
@@ -1505,5 +1546,7 @@ export interface PlayerView {
   era: { id: Id<"era">; since: number; until: number; sinceMonth: number; untilMonth: number } | null;
   /** The send-off card or the real-story card, when one is due (R-CHAPTER-006, R-ROAD-011). */
   card: { kind: "send-off" | "real-story" | "lost"; route: Id<"route"> | null; percent: number | null; months: number; standing: number; topActivities: Id<"activity">[] } | null;
+  /** The Friday draw as this character sees it, or null offline (docs/rules/lottery.md R-LOTTERY-015). */
+  lottery: { ticket: number; maxTickets: number; draw: number; closesTick: number; tickets: number; numbers: number[] | null; potSoFar: number; fingerprint: string; last: LotteryResult | null } | null;
   report: TurnReport | null;
 }

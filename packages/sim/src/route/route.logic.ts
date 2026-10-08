@@ -638,6 +638,7 @@ function judge(read: ReadCtx, requirement: Requirement): RequirementResult {
     case "activity/local-tenure":
     case "setpiece/answered":
     case "setpiece/answered-with":
+    case "world/lottery":
     case "wallet/total":
     case "place/returned":
     case "place/months-here":

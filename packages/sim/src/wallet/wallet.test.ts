@@ -51,7 +51,7 @@ function play(options: { scenario?: Id<"scenario">; content?: Content; vars?: Li
     scenario: options.scenario ?? TUNDE,
     content: used,
     ...(options.seed === undefined ? {} : { seed: options.seed }),
-    worldAt: (tick) => ({ tick, rates: live.rates, vars: { ...base.vars, ...live.vars } as World["vars"], news: [], era: null }),
+    worldAt: (tick) => ({ tick, rates: live.rates, vars: { ...base.vars, ...live.vars } as World["vars"], news: [], era: null, lottery: null }),
   });
   return { game, live };
 }

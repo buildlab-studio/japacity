@@ -123,7 +123,8 @@ function quality(game: Game, id: Id<"quality">): number {
 }
 
 /** Every command a player could send, one of each type the prologue does not let through. */
-const OTHERS: { [T in Exclude<CommandType, "prologue/choose" | "turns/grant">]: Loose } = {
+// The authority's own commands are refused earlier with not-yours, so they are not in the list.
+const OTHERS: { [T in Exclude<CommandType, "prologue/choose" | "turns/grant" | "lottery/pay">]: Loose } = {
   "turn/end": { type: "turn/end", slots: [] },
   "activity/quit": { type: "activity/quit" },
   "offer/choose": { type: "offer/choose", offer: "offer-1", choice: "yes" },
@@ -136,6 +137,7 @@ const OTHERS: { [T in Exclude<CommandType, "prologue/choose" | "turns/grant">]: 
   "wallet/remit": { type: "wallet/remit", currency: "GBP", amount: 100, channel: "app" },
   "status/renew": { type: "status/renew" },
   "return/home": { type: "return/home" },
+  "lottery/buy": { type: "lottery/buy", tickets: 1 },
 };
 
 describe("a new prologue", () => {

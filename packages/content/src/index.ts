@@ -13,6 +13,7 @@ import { documentTable } from "./document/document.data";
 import { documentText } from "./document/document.text";
 import { goalTable } from "./goal/goal.data";
 import { goalText } from "./goal/goal.text";
+import { lotteryText } from "./lottery/lottery.text";
 import { eraTable } from "./era/era.data";
 import { eraText } from "./era/era.text";
 import { newsTable } from "./news/news.data";
@@ -80,6 +81,7 @@ export const textTables: Record<string, Record<string, string>> = {
   credit: creditText,
   document: documentText,
   goal: goalText,
+  lottery: lotteryText,
   era: eraText,
   news: newsText,
   obligation: obligationText,

@@ -10,8 +10,12 @@ import { PHASES, prefixOf } from "./kind";
 import { isRejection, reject } from "./reject";
 import type { Command, CommandType, Content, Rejection, Sender, State, StepResult, World } from "./types";
 
+/** Commands only the authority may send (R-SERVER-013): the turn grant and the draw's payout. */
+export const AUTHORITY_COMMANDS = ["turns/grant", "lottery/pay"] as const satisfies readonly CommandType[];
+
 /** Which kind owns each command, by the part before the slash. */
 export const COMMAND_OWNER: Record<PrefixOf<CommandType>, SliceKey> = {
+  lottery: "lottery",
   turn: "turn",
   turns: "turn",
   activity: "activity",
@@ -96,8 +100,8 @@ export function stepWith(
   if (state.turn.ended && command.type !== "turns/grant") {
     return reject("ended", "The life is over. Only the authority may still grant turns.");
   }
-  if (command.type === "turns/grant" && sender !== "authority") {
-    return reject("not-yours", "Only the authority grants turns.");
+  if ((AUTHORITY_COMMANDS as readonly string[]).includes(command.type) && sender !== "authority") {
+    return reject("not-yours", `Only the authority sends ${command.type}.`);
   }
   if (command.basedOn !== state.v) {
     return reject("stale", `The command is based on version ${String(command.basedOn)}, the state is at ${String(state.v)}.`);
