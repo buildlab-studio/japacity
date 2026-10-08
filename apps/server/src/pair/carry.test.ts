@@ -160,4 +160,21 @@ describe("the pair transaction", () => {
     expect(stableJson(held)).not.toBe(stableJson(linkedFacts));
     expect(stableJson(held)).toBe(stableJson(factsOf(inviter, server.deps.contents.current, world)));
   });
+
+  test("[R-PEOPLE-014] given a courting pair at home, when one player spends a slot seeing the other, then the moment is copied into the record and into the other life as theirs", async () => {
+    const { server, a, b, key } = await linkedPair();
+    await must(server, INVITER, { type: "people/court", with: key });
+    await must(server, FRIEND, { type: "people/court", with: key });
+    server.wait(4 * 3_600_000);
+
+    await must(server, INVITER, { type: "turn/end", slots: [{ activity: "activity.see-someone", param: null }] });
+
+    const mine = await stateOf(server, a);
+    const theirs = await stateOf(server, b);
+    const met = mine.people.bonds[bondIn(mine, key)]?.moments.find((moment) => moment.kind === "met");
+    if (met === undefined) throw new Error("No moment was made.");
+    expect(theirs.people.bonds[bondIn(theirs, key)]?.moments).toContainEqual({ ...met, by: "them" });
+    const record = (await recordOf(server.deps, key))?.record;
+    expect(record?.moments).toContainEqual({ n: 1, by: record?.a === a ? "a" : "b", kind: "met", spot: met.spot, what: met.what, tick: met.tick });
+  });
 });
