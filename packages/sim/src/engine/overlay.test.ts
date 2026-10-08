@@ -9,7 +9,7 @@ import { start } from "../testing/play";
 import { standInWorld } from "../world/standIn";
 import { checkContent } from "./content";
 import { applyOverlay } from "./overlay";
-import { newSave, replay } from "./replay";
+import { lastSegment, newSave, replay } from "./replay";
 import type { Content, VisaApplication } from "./types";
 
 describe("[R-ENGINE-017] the overlay", () => {
@@ -58,12 +58,12 @@ describe("[R-ENGINE-010] the overlay in the save", () => {
 
   test("[R-ENGINE-010] [R-ENGINE-017] given content with an overlay, when a save is made and played, then it records the overlay's version and replays under it", () => {
     const over = applyOverlay(miniContent, { version: "dials-2", tuning: { quality: { wellbeingRest: 20 } } });
-    expect(newSave("scenario.plain", "seed-1", "world-1", over).overlay).toBe("dials-2");
-    expect(newSave("scenario.plain", "seed-1", "world-1", miniContent)).not.toHaveProperty("overlay");
+    expect(lastSegment(newSave("scenario.plain", "seed-1", "world-1", over)).overlay).toBe("dials-2");
+    expect(lastSegment(newSave("scenario.plain", "seed-1", "world-1", miniContent))).not.toHaveProperty("overlay");
     const game = start({ scenario: "scenario.plain", content: over });
     game.endTurn();
     game.endTurn();
-    expect(game.save.overlay).toBe("dials-2");
+    expect(lastSegment(game.save).overlay).toBe("dials-2");
     expect(replay(game.save, over, worldOf(over)).state).toEqual(game.state);
   });
 

@@ -10,7 +10,7 @@ import { hashState, stableJson } from "./hash";
 import { checkInvariants } from "./invariants";
 import { PHASES } from "./kind";
 import type { Registry } from "./kind";
-import { replay } from "./replay";
+import { replay, savedCommands } from "./replay";
 import { applyEventWith, newState } from "./state";
 import { step, stepWith } from "./step";
 import type { BaseEvent, Command, Ctx, Phase, State } from "./types";
@@ -179,8 +179,8 @@ describe("the step function", () => {
     game.endTurn();
     game.grant(3);
     game.endTurn([{ activity: "activity.study", param: null }]);
-    expect(game.save.commands).toHaveLength(4);
-    expect(game.save.commands.map((entry) => entry.tick)).toEqual([0, 1, 2, 2]);
+    expect(savedCommands(game.save)).toHaveLength(4);
+    expect(savedCommands(game.save).map((entry) => entry.tick)).toEqual([0, 1, 2, 2]);
     const rebuilt = replay(game.save, miniContent, world);
     expect(rebuilt.state).toEqual(game.state);
     expect(hashState(rebuilt.state)).toBe(hashState(game.state));
@@ -189,7 +189,7 @@ describe("the step function", () => {
 
   test("[R-ENGINE-010] given a save for other content, when replayed, then it throws", () => {
     const game = start();
-    expect(() => replay({ ...game.save, content: "other" }, miniContent, world)).toThrow(/for content other/);
+    expect(() => replay({ ...game.save, segments: [{ ...game.save.segments[0]!, content: "other" }] }, miniContent, world)).toThrow(/for content other/);
   });
 
   test("[R-ENGINE-011] given a turn banked and no set piece open, when the turn is ended with every slot resting, then it is accepted whatever is owed", () => {

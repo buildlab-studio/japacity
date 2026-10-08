@@ -7,6 +7,7 @@ import { miniContent } from "../testing/miniContent";
 import { standInWorld } from "../world/standIn";
 import type { Content } from "./types";
 import { measure } from "./golden";
+import { lifeStart, loadSave } from "./replay";
 
 /** The content a save's version names, as tools/bless.ts has it. */
 const CONTENTS: Record<string, Content> = { [miniContent.version]: miniContent, [realContent.version]: realContent };
@@ -22,9 +23,11 @@ describe("golden replays", () => {
   test.each(goldens.map((golden) => [golden.name, golden] as const))(
     "[R-ENGINE-001] [R-ENGINE-010] given the golden %s, when its save is replayed, then every month's figures and the final hash match",
     (_name, golden) => {
-      const content = CONTENTS[golden.save.content];
-      if (content === undefined) throw new Error(`No content ${golden.save.content} for the golden ${golden.name}.`);
-      const measured = measure(golden.save, content, (tick) => standInWorld(golden.save.worldSeed, tick, content));
+      const version = loadSave(golden.save).segments[0]!.content;
+      const content = CONTENTS[version];
+      if (content === undefined) throw new Error(`No content ${version} for the golden ${golden.name}.`);
+      const worldSeed = lifeStart(golden.save)!.worldSeed;
+      const measured = measure(golden.save, content, (tick) => standInWorld(worldSeed, tick, content));
       expect(measured.months).toEqual(golden.months);
       expect(measured.finalHash).toBe(golden.finalHash);
     },

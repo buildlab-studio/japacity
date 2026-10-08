@@ -3,7 +3,7 @@
 // starts: from a starting life, or from a recorded life at its flight.
 import { hashState } from "../engine/hash";
 import { checkInvariants } from "../engine/invariants";
-import { replay } from "../engine/replay";
+import { lifeStart, replay, savedCommands } from "../engine/replay";
 import type { Content, Currency, Id, PlayerView, Save, State } from "../engine/types";
 import { hiddenPaths, VIEW_KEYS } from "../engine/view";
 import { lifeSaves } from "../goldens/lives.data";
@@ -74,20 +74,24 @@ export function stuck(view: PlayerView, legal: Loose[]): string | null {
 /** R-ENGINE-010: the save replays to the same state. */
 export function replays(game: Game): boolean {
   // The stand-in world is a walk from tick 0, so it is built once for the whole replay.
-  const worlds = standInWorlds(game.save.worldSeed, game.tick + 1, game.content);
-  const rebuilt = replay(game.save, game.content, (tick) => worlds[tick] ?? standInWorld(game.save.worldSeed, tick, game.content));
+  const worldSeed = lifeStart(game.save)?.worldSeed ?? "";
+  const worlds = standInWorlds(worldSeed, game.tick + 1, game.content);
+  const rebuilt = replay(game.save, game.content, (tick) => worlds[tick] ?? standInWorld(worldSeed, tick, game.content));
   return hashState(rebuilt.state) === hashState(game.state);
 }
 
 /** A recorded life replayed command by command up to and including its flight, so random play starts abroad. */
 export function atFlight(name: string, content: Content): Game {
-  const save: Save | undefined = lifeSaves[name];
+  const save = lifeSaves[name];
   if (save === undefined) throw new Error(`${name} is not recorded.`);
-  const game = start({ scenario: save.scenario, seed: save.seed, worldSeed: save.worldSeed, content });
+  const first = lifeStart(save);
+  if (first === null) throw new Error(`${name} does not start a life.`);
+  const game = start({ scenario: first.scenario, seed: first.seed, worldSeed: first.worldSeed, content });
   let held = FLOWN.get(name);
   if (held === undefined) {
-    const flight = save.commands.findIndex((entry) => entry.command.type === "route/depart");
-    for (const { command, sender } of save.commands.slice(0, flight + 1)) game.accept(command, sender);
+    const commands = savedCommands(save);
+    const flight = commands.findIndex((entry) => entry.command.type === "route/depart");
+    for (const { command, sender } of commands.slice(0, flight + 1)) game.accept(command, sender);
     if (game.state.place.where !== "abroad") throw new Error(`${name} is not abroad after its flight.`);
     held = { state: game.state, save: game.save, tick: game.tick };
     FLOWN.set(name, held);

@@ -1,17 +1,20 @@
 // Test support for the whole-life rules that cross kinds: a recorded life
 // replayed to a point, months played abroad, and the events of a result read
 // by type. Nothing in the simulation imports this file.
-import type { Accepted, BaseEvent, Content, Id, Save } from "../engine/types";
+import type { Accepted, BaseEvent, Content, Id } from "../engine/types";
 import { lifeSaves } from "../goldens/lives.data";
+import { lifeStart, savedCommands } from "../engine/replay";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
 
 /** A recorded life replayed command by command until `until` holds after a command. */
 export function replayTo(name: string, content: Content, until: (game: Game) => boolean): Game {
-  const save: Save | undefined = lifeSaves[name];
+  const save = lifeSaves[name];
   if (save === undefined) throw new Error(`${name} is not recorded.`);
-  const game = start({ scenario: save.scenario, seed: save.seed, worldSeed: save.worldSeed, content });
-  for (const { command, sender } of save.commands) {
+  const first = lifeStart(save);
+  if (first === null) throw new Error(`${name} does not start a life.`);
+  const game = start({ scenario: first.scenario, seed: first.seed, worldSeed: first.worldSeed, content });
+  for (const { command, sender } of savedCommands(save)) {
     game.accept(command, sender);
     if (until(game)) return game;
   }

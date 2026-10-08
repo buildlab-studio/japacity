@@ -1,6 +1,6 @@
 import { content } from "@japacity/content";
-import type { Command, Content, Save } from "@japacity/sim";
-import { time } from "@japacity/sim";
+import type { Command, Content, Id, Save } from "@japacity/sim";
+import { lastSegment, savedCommands, time } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
 import { localAuthority, SAVE_KEY } from "./local";
@@ -45,7 +45,7 @@ describe("the local authority", () => {
 
     const second = await authority.send(endTurn(reply.view.v));
     if (!second.ok) throw new Error(`Rejected: ${second.code}`);
-    const ticks = storedSave(storage).commands.map((entry) => entry.tick);
+    const ticks = savedCommands(storedSave(storage)).map((entry) => entry.tick);
     expect(ticks).toEqual([0, 1]);
   });
 
@@ -66,7 +66,7 @@ describe("the local authority", () => {
     // The world tick carries on from where it was, not from zero.
     const next = await reloaded.send(endTurn(view.v));
     expect(next.ok).toBe(true);
-    expect(storedSave(storage).commands.at(-1)?.tick).toBe(3);
+    expect(savedCommands(storedSave(storage)).at(-1)?.tick).toBe(3);
   });
 
   test("given a save for another content version, when the page loads, then a new life starts and says why", async () => {
@@ -79,7 +79,7 @@ describe("the local authority", () => {
     const authority = localAuthority({ fastClock: false, storage, content: newer, makeSeed: seeds(), now: () => 0 });
     expect(authority.start).toEqual({ kind: "replaced", why: "other-content" });
     expect((await authority.view()).month).toBe(0);
-    expect(storedSave(storage).content).toBe(newer.version);
+    expect(lastSegment(storedSave(storage)).content).toBe(newer.version);
   });
 
   test("given a save that is not JSON, when the page loads, then a new life starts and says the save was unreadable", () => {
@@ -141,10 +141,10 @@ describe("the local authority", () => {
     const authority = localAuthority({ fastClock: true, storage, makeSeed: seeds(), now: () => 0 });
     const view = await authority.view();
     await authority.send(endTurn(view.v));
-    const other = Object.keys(content.scenario)[1] as Save["scenario"];
+    const other = Object.keys(content.scenario)[1] as Id<"scenario">;
     const fresh = await authority.newLife(other);
     expect(fresh.scenario).toBe(other);
     expect(fresh.month).toBe(0);
-    expect(storedSave(storage).commands).toEqual([]);
+    expect(savedCommands(storedSave(storage))).toEqual([]);
   });
 });

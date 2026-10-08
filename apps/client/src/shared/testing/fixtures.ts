@@ -3,7 +3,7 @@
 // hand on top of a real view, so the screens for offers, routes and the
 // interview can be exercised before the kinds that fill them exist.
 import { content } from "@japacity/content";
-import type { Authority, Command, Effect, Id, PlayerView, Rejection, Reply, ReportLine, Save, State } from "@japacity/sim";
+import type { Authority, Command, Effect, Id, PlayerView, Rejection, Reply, ReportLine, FlatSave, State } from "@japacity/sim";
 import { newState, replay, standInWorld, step, viewFor } from "@japacity/sim";
 
 // The recorded lives, the rule tests' game handle and its way of applying effects are the
@@ -171,14 +171,14 @@ export function fakeAuthority(view: PlayerView): FakeAuthority {
 }
 
 /** A recorded life, played by the real engine on the real content. */
-export function recordedSave(name: string): Save {
+export function recordedSave(name: string): FlatSave {
   const save = lifeSaves[name];
   if (save === undefined) throw new Error(`No recorded life ${name}.`);
   return save;
 }
 
 /** The world tick after a save's commands: one for each month ended. */
-function tickOf(save: Save): number {
+function tickOf(save: FlatSave): number {
   return save.commands.filter(({ command }) => command.type === "turn/end").length;
 }
 
