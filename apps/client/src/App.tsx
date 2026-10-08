@@ -12,6 +12,7 @@ import { bootGame } from "./authority/boot";
 import { GameProvider, useGame, useView } from "./authority/GameProvider";
 import type { GameStore } from "./authority/store";
 import { AccountGate } from "./features/account/AccountGate";
+import { AdminRoute } from "./features/admin/AdminRoute";
 import { AccountButton } from "./features/account/Settings";
 import { ActivityView } from "./features/activity/ActivityView";
 import { EndingView } from "./features/card/EndingView";
@@ -297,8 +298,10 @@ export function App({ store: given }: { store?: GameStore }) {
     void store.getState().refresh();
   }, [store]);
   return (
-    <GameProvider store={store}>
-      <Shell />
-    </GameProvider>
+    <AdminRoute>
+      <GameProvider store={store}>
+        <Shell />
+      </GameProvider>
+    </AdminRoute>
   );
 }
