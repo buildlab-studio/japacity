@@ -62,6 +62,8 @@ const HOME_LICENCE: Id<"document"> = "document.home-licence";
 const UK_LICENCE: Id<"document"> = "document.uk-licence";
 /** The offer a landed hunt opens. It learns the job from the terms (R-OFFER-007). */
 const JOB_OFFER = "offer.job" as const;
+/** R-GUIDE-014: the months in which a life's first hunt is sure, counted as the month being played. */
+const SURE_HUNT_MONTHS = 3;
 /** A side gig pays naira cash (R-ACTIVITY-008). */
 const GIG_CURRENCY: Currency = "NGN";
 /** The source named on the rest an empty slot gives. */
@@ -78,10 +80,10 @@ const COUNTER_MOVES: readonly Id<"activity">[] = ["activity.safe-ride", "activit
 export const SIDE_JOB_LOCK = "side-job";
 export const ILLNESS_LOCK = "illness";
 const UNLOCKED_LINE = "line.turn.unlocked";
-
+/** The staged line of the first pay abroad (R-LUCK-008), which the first-pay card reads (R-SHARE-001). */
+const FIRST_PAY_ABROAD = "line.activity.salary-first-abroad";
 
 /** The kiosk draws each ticket out of a million (R-LUCK-005). */
-const FIRST_PAY_ABROAD = "line.activity.salary-first-abroad";
 export const PER_MILLION = 1000000;
 const BP_IN_MILLION = 100;
 
@@ -763,7 +765,36 @@ function slots(ctx: Ctx): BaseEvent[] {
 // Effects
 // ---------------------------------------------------------------------------
 
-/** One month of hunting the job the slot names (R-ACTIVITY-005). A landed hunt opens the job offer with the job in its terms. */
+/**
+ * R-GUIDE-014 as amended: the job a life's first hunt lands, in its first
+ * three months, when the draw misses. `month` is the month being played. Null
+ * when the hunt is not that one: a month past the third, a month before with a hunt in it, or a hunt earlier in
+ * this month. The job is the lowest month's pay, valued in naira at the
+ * official rate, of the jobs that may be hunted now in the same slot as the
+ * one named, then by id; the named job when none reads a pay.
+ */
+export function sureHuntJob(read: ReadCtx, named: ActivityEntry, month: number, huntedThisMonth: boolean): ActivityEntry | null {
+  if (huntedThisMonth || month > SURE_HUNT_MONTHS) return null;
+  const hunts = Object.values(read.content.activity).filter((entry) => entry.effects.some((effect) => effect.type === "activity/hunt"));
+  if (hunts.some((entry) => (read.state.activity.played[entry.id] ?? 0) > 0)) return null;
+  const rates = officialRates(read);
+  let best: { entry: ActivityEntry; kobo: number } | null = null;
+  for (const id of huntableJobs(read, (requirement) => check(read, requirement))) {
+    const entry = jobEntry(read.content, id);
+    const pay = entry.slot === named.slot ? monthlyPay(read, entry) : null;
+    if (pay === null) continue;
+    const kobo = valueInKobo(pay.amount, pay.currency, rates);
+    if (best === null || kobo < best.kobo || (kobo === best.kobo && entry.id < best.entry.id)) best = { entry, kobo };
+  }
+  return best?.entry ?? named;
+}
+
+/**
+ * One month of hunting the job the slot names (R-ACTIVITY-005). A landed hunt opens the job offer with the job in its terms.
+ * R-GUIDE-014's sure first hunt (`sureHuntJob`) is not called here yet. Every recorded life's first hunt
+ * missed, and landing it opens an offer that moves every later offer id, so all six recorded lives stop replaying at
+ * their first offer command. Calling it waits on the lives being recorded again.
+ */
 function huntEffect(ctx: Ctx, _effect: unknown, cause: Cause): BaseEvent[] {
   if (cause.param === null) throw new Error(`A hunt from ${cause.source} names no job.`);
   const entry = jobEntry(ctx.content, cause.param);
