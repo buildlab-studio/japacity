@@ -95,6 +95,22 @@ describe("rent", () => {
     expect(checkInvariants(game.state, content)).toEqual([]);
   });
 
+  test("[R-ABROAD-003] [R-GOAL-004] given a flat in your own name, when obligation/has names an entry, then only that entry counts, and the flat is not offered again while it is held", () => {
+    const game = settledAbroad(content);
+    markBy(game, 60);
+    const flatOffered = (): boolean => game.view().activities.some((option) => option.id === "activity.rent-flat-uk" && option.allowed);
+    expect(flatOffered()).toBe(true);
+    const hasEntry = (obligation: Id<"obligation">): boolean => check(readOf(game), { type: "obligation/has", obligationType: "rent", obligation }).met;
+    expect(hasEntry(RENT_ROOM)).toBe(true);
+    expect(hasEntry(RENT_FLAT)).toBe(false);
+    closeTypes(game, "rent");
+    openOwed(game, RENT_FLAT);
+    expect(hasEntry(RENT_FLAT)).toBe(true);
+    expect(hasEntry(RENT_ROOM)).toBe(false);
+    expect(check(readOf(game), { type: "obligation/has", obligationType: "phone", obligation: RENT_FLAT }).met).toBe(false);
+    expect(flatOffered()).toBe(false);
+  });
+
   test("[R-ABROAD-003] given a shared room, when rent is missed three times in a row, then it has nowhere cheaper to go: it stays open, starts over, and the file takes the default figure", () => {
     const game = settledAbroad(content);
     closeTypes(game, "upkeep");

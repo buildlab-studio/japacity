@@ -38,9 +38,16 @@ export const goalTable: Record<Id<"goal">, GoalEntry> = {
     id: "goal.own-door",
     where: "abroad",
     openIf: [{ type: "place/months-here", where: "abroad", months: 6 }],
-    // R-GOAL-004 wants a flat, not a shared room. `obligation/has` reads only a type, and the room and the
-    // flat are both `rent`, so a shared room with a file of 20 still meets this. The requirement needs an entry.
-    doneIf: [{ type: "obligation/has", obligationType: "rent" }, { type: "credit/min", value: 20 }],
+    // R-GOAL-004: a flat in the character's own name, never a shared room.
+    doneIf: [
+      {
+        type: "any",
+        of: [
+          { type: "obligation/has", obligationType: "rent", obligation: "obligation.rent-flat-uk" },
+          { type: "obligation/has", obligationType: "rent", obligation: "obligation.rent-flat-ca" },
+        ],
+      },
+    ],
     reward: [wellbeing(6)],
   },
   "goal.step-up": {

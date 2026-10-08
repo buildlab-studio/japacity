@@ -918,11 +918,14 @@ function lines(event: ObligationEvent, _state: State, content: Content): ReportL
 // Requirements, invariants and the view
 // ---------------------------------------------------------------------------
 
-/** R-CAR-002: an open obligation of the type, not in default. */
+/** R-CAR-002: an open obligation of the type, not in default; with `obligation` set, only that entry (R-GOAL-004). */
 function judgeHas(read: ReadCtx, requirement: Requirement): RequirementResult {
   if (requirement.type !== "obligation/has") throw new Error(`obligation/has cannot judge ${requirement.type}.`);
   const met = Object.values(read.state.obligation.items).some(
-    (item) => item.state !== "defaulted" && read.content.obligation[item.entry]?.type === requirement.obligationType,
+    (item) =>
+      item.state !== "defaulted" &&
+      read.content.obligation[item.entry]?.type === requirement.obligationType &&
+      (requirement.obligation === undefined || item.entry === requirement.obligation),
   );
   return { met };
 }

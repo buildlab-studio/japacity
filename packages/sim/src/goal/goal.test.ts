@@ -98,17 +98,18 @@ describe("goals open and are done in the chapter phase", () => {
     expect(goalLines(result)).toContainEqual({ key: "line.goal.opened", params: { goal: "goal.own-door" }, tone: "plain", attention: false, counts: [] });
   });
 
-  test("[R-GOAL-001] given her own door open and a room rented, when her file reaches 20, then it is done with a line that asks for attention and its reward, once", () => {
+  test("[R-GOAL-001] [R-GOAL-004] given her own door open and a room rented, when her file reaches 20, then it is not done; when she takes a flat, it is done with a line that asks for attention and its reward, once", () => {
     const game = landed();
     // Her rent payments would have her file at 20 by six months; it is brought down so the door opens undone.
     while (monthsAbroad(game) < 5) monthAbroad(game);
     thenMonth(game, [{ type: "credit/mark", amount: -100 }]);
     expect(isOpen(game, "goal.own-door")).toBe(true);
     expect(isDone(game, "goal.own-door")).toBe(false);
-    const result = thenMonth(game, [
-      { type: "credit/mark", amount: 40 },
-      { type: "quality/add", quality: WELLBEING, amount: -40 },
-    ]);
+    thenMonth(game, [{ type: "credit/mark", amount: 40 }]);
+    expect(game.view().credit?.mark).toBeGreaterThanOrEqual(20);
+    expect(isDone(game, "goal.own-door")).toBe(false);
+    applyEffects(game, [{ type: "quality/add", quality: WELLBEING, amount: -40 }]);
+    const result = monthAbroad(game, [{ activity: "activity.rent-flat-uk", param: null }]);
     expect(isDone(game, "goal.own-door")).toBe(true);
     expect(goalLines(result)).toContainEqual({ key: "line.goal.done", params: { goal: "goal.own-door" }, tone: "good", attention: true, counts: [] });
     expect(rewardOf(result, "goal.own-door")).toEqual([[WELLBEING, 6]]);
@@ -342,8 +343,9 @@ describe("the goals in the view", () => {
     // Each item is its place in `doneIf`.
     expect(view.open.find((goal) => goal.id === "goal.step-up")?.items).toEqual([{ id: "0", met: false }]);
     expect(view.open.find((goal) => goal.id === "goal.clean-file")?.items).toEqual([{ id: "0", met: false }]);
-    // Her rent has kept her file climbing: her own door was done when it opened, at six months.
-    expect(view.done).toContainEqual({ id: "goal.own-door", month: game.state.place.movedMonth + 6 });
+    // She still rents a shared room, so her own door opened at six months and is not done (R-GOAL-004).
+    expect(game.state.goal.open["goal.own-door"]?.openedMonth).toBe(game.state.place.movedMonth + 6);
+    expect(view.open.find((goal) => goal.id === "goal.own-door")?.items).toEqual([{ id: "0", met: false }]);
     thenMonth(game, [{ type: "credit/mark", amount: 60 }]);
     expect(game.view().goals.done).toContainEqual({ id: "goal.clean-file", month: game.state.turn.month });
     expect(game.view().goals.open.map((goal) => goal.id)).not.toContain("goal.clean-file");
