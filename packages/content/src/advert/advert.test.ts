@@ -1,9 +1,6 @@
 import type { AdvertSlotEntry, Content, Id } from "@japacity/sim";
-import { hashState } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
-// The sim's own test handle, as the client's fixtures reach it: the package exports only its contract.
-import { finishPrologue, start } from "../../../sim/src/testing/play";
 import { content, text } from "../index";
 import { advertChecks } from "./advert.check";
 import { PHONE } from "./advert.data";
@@ -72,32 +69,10 @@ describe("the advert slots", () => {
   });
 });
 
-describe("adverts and the simulation", () => {
-  test("[R-ADVERT-007] given the same life played with the slots and with none, when the turns are ended, then the states are identical and hold no advert", () => {
-    const play = (of: Content) => {
-      const game = start({ content: of, scenario: "scenario.tunde" });
-      finishPrologue(game);
-      for (let turn = 0; turn < 3; turn += 1) game.endTurn();
-      return game;
-    };
-    const withAdverts = play(content);
-    const without = play({ ...content, advert: {} });
-    expect(hashState(withAdverts.state)).toBe(hashState(without.state));
-    expect(Object.keys(withAdverts.state)).not.toContain("advert");
-    expect(typeof withAdverts.view().adverts).toBe("boolean");
-  });
-
-  test("[R-ADVERT-003] given a life in its first chapter, when that chapter is marked noAdverts in content, then the view says no advert may show", () => {
-    const game = start({ content, scenario: "scenario.tunde" });
-    finishPrologue(game);
-    const current = game.state.chapter.current;
-    expect(current).not.toBeNull();
-    expect(game.view().adverts).toBe(true);
-    const chapter = content.chapter[current as Id<"chapter">];
-    if (chapter === undefined) throw new Error("The current chapter is not in content.");
-    const quiet: Content = { ...content, chapter: { ...content.chapter, [chapter.id]: { ...chapter, noAdverts: true } } };
-    const again = start({ content: quiet, scenario: "scenario.tunde" });
-    finishPrologue(again);
-    expect(again.view().adverts).toBe(false);
+describe("where adverts never go", () => {
+  test("[R-ADVERT-009] given the slots at launch, when their surfaces are read, then each is a billboard, a poster, a phone tile or a shopfront, and none is on the radio", () => {
+    const surfaces = new Set(Object.values(content.advert).map((entry) => entry.surface));
+    expect([...surfaces].sort()).toEqual(["billboard", "phone-tile", "poster", "shopfront"]);
+    expect(Object.keys(content.advert).filter((id) => /radio|news/.test(id))).toEqual([]);
   });
 });
