@@ -16,19 +16,13 @@ export interface AdviserRoute {
   months: number;
 }
 
-/** The month that world tick `tick` falls in for this character (R-DIRECTOR-002: one tick is one month played). */
-function monthOfTick(read: ReadCtx, tick: number): number {
-  return read.state.turn.month - read.state.tick + tick;
-}
-
 /**
- * R-ADVICE-003: the month the person who went left. nothing records
+ * R-ADVICE-003: the tick the person who went left. nothing records
  * when a friend, a partner abroad or a recurring person left, so they are read
- * as having left before this life's world began: the month of tick 0.
+ * as having left before this life's world began, at tick 0. Ticks, not
+ * months, since inside a step the month and the tick move apart.
  */
-export function leftMonth(read: ReadCtx): number {
-  return monthOfTick(read, 0);
-}
+export const LEFT_TICK = 0;
 
 /** A story that moves the world's variables: what changes a route's rules under the era. */
 function movesRules(story: NewsEntry): boolean {
@@ -45,15 +39,16 @@ function changesTo(read: ReadCtx, route: Id<"route">): { story: NewsEntry; since
 }
 
 /**
- * R-ADVICE-003: a route's `changedMonth`, the last month a story that touches
- * it and moves the era's variables came into force or ended. Null when none
- * has. an ended story's month is when it ended, since a story that
+ * R-ADVICE-003: a route's `changedMonth`, read as the world's tick: the last
+ * tick a story that touches it and moves the era's variables came into force
+ * or ended (one tick is one month, R-DIRECTOR-002). Null when none has.
+ * an ended story counts from when it ended, since a story that
  * reverts changes the rules again then.
  */
-export function changedMonth(read: ReadCtx, route: Id<"route">): number | null {
+export function changedTick(read: ReadCtx, route: Id<"route">): number | null {
   const changes = changesTo(read, route);
   if (changes.length === 0) return null;
-  return monthOfTick(read, Math.max(...changes.map((change) => change.since)));
+  return Math.max(...changes.map((change) => change.since));
 }
 
 /** The variables the stories that changed the route move. */
@@ -67,8 +62,8 @@ function changedVars(read: ReadCtx, route: Id<"route">): string[] {
  * heaviest item, the first on a tie. Null when nothing changed since.
  */
 export function wrongItem(read: ReadCtx, entry: RouteEntry): string | null {
-  const changed = changedMonth(read, entry.id);
-  if (changed === null || changed <= leftMonth(read) || entry.checklist.length === 0) return null;
+  const changed = changedTick(read, entry.id);
+  if (changed === null || changed <= LEFT_TICK || entry.checklist.length === 0) return null;
   const vars = changedVars(read, entry.id);
   const reading = entry.checklist.find((item) => vars.some((id) => JSON.stringify(item.requirement).includes(`"${id}"`)));
   if (reading !== undefined) return reading.id;
@@ -82,11 +77,11 @@ function routeEntry(read: ReadCtx, route: Id<"route">): RouteEntry {
 }
 
 /** What the friend says of a route: the checklist as it stood, the wrong item, and whether the player meets it now. */
-export function friendWord(read: ReadCtx, route: Id<"route">): { month: number; items: string[]; wrong: string | null; metWrong: boolean } {
+export function friendWord(read: ReadCtx, route: Id<"route">): { items: string[]; wrong: string | null; metWrong: boolean } {
   const entry = routeEntry(read, route);
   const wrong = wrongItem(read, entry);
   const item = entry.checklist.find((candidate) => candidate.id === wrong);
-  return { month: leftMonth(read), items: entry.checklist.map((candidate) => candidate.id), wrong, metWrong: item !== undefined && check(read, item.requirement).met };
+  return { items: entry.checklist.map((candidate) => candidate.id), wrong, metWrong: item !== undefined && check(read, item.requirement).met };
 }
 
 const AT_LEAST = 1;

@@ -1081,7 +1081,7 @@ function itemParam(route: Id<"route">, item: string): string {
 function friendLines(event: Extract<ActivityEvent, { type: "activity/word-of-mouth" }>): ReportLine[] {
   const told = event.items.map((item) => line("line.activity.went-item", { item: itemParam(event.route, item) }, "plain"));
   const marked = event.wrong !== null && event.metWrong ? [line("line.activity.went-out-of-date", { item: itemParam(event.route, event.wrong) }, "plain", true)] : [];
-  return [line("line.activity.went-told", { route: event.route, month: event.month }, "plain"), ...told, ...marked];
+  return [line("line.activity.went-told", { route: event.route }, "plain"), ...told, ...marked];
 }
 
 /** R-ADVICE-004: fits or not, what is missing, and "at least N months". */
