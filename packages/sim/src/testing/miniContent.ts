@@ -321,7 +321,7 @@ export const miniContent: Content = {
       flagDepositAbove: 50000000,
     },
     rate: {
-      start: { GBP: 175800, USD: 133150, CAD: 97000, AED: 36250, EUR: 155800 },
+      start: { GBP: 175800, USD: 133150, CAD: 97000, AED: 36255, EUR: 155800 },
       driftBp: 40,
       noiseBp: 120,
       premiumFloorBp: 200,
