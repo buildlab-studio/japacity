@@ -10,6 +10,7 @@ import { useEffect, useState, type ReactNode } from "react";
 
 import { bootGame } from "./authority/boot";
 import { CountedBoundary } from "./shared/analytics/CountedBoundary";
+import { SoundNotice } from "./shared/sound/SoundNotice";
 import { counting } from "./shared/analytics/start";
 import { GameProvider, useGame, useView } from "./authority/GameProvider";
 import type { GameStore } from "./authority/store";
@@ -333,6 +334,7 @@ export function App({ store: given, path }: { store?: GameStore; path?: string }
   };
   return (
     <CountedBoundary>
+      <SoundNotice />
       <AdminRoute>
         <GameProvider store={store}>{invite === null ? <Shell /> : <InvitePage code={invite} onDone={leaveInvite} />}</GameProvider>
       </AdminRoute>

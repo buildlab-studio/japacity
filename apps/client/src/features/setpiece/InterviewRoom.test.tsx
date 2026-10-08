@@ -6,7 +6,8 @@ import { NORTHGATE, draw, drawnQuestions, readyLife, seedWhere, toApplied, uk } 
 import { offerChanceBp } from "../../../../../packages/sim/src/route/route.logic";
 import type { Game } from "../../../../../packages/sim/src/testing/play";
 import { fakeSound, type FakeSound, type FakeSoundOptions } from "../../shared/sound/fakeSound";
-import { MARGIN_MS, NOTICE_MS, READY_MS, setSoundBackend } from "../../shared/sound/sound";
+import { installSoundWake, MARGIN_MS, NOTICE_MS, READY_MS, setSoundBackend } from "../../shared/sound/sound";
+import { SoundNotice } from "../../shared/sound/SoundNotice";
 import { soundText } from "../../shared/sound/sound.words";
 import { renderWithGame } from "../../shared/testing/people";
 import { CLOSE, drawReaction, GREET, roomStore, VOICED } from "./room.store";
@@ -52,7 +53,14 @@ function answersOpen(): boolean {
 async function open(options: FakeSoundOptions, game = interviewGame()): Promise<{ fake: FakeSound; game: Game }> {
   const fake = fakeSound(options);
   setSoundBackend(fake.backend);
-  await renderWithGame(<SetpieceView />, game);
+  // The notice is mounted once at the app root; the test mounts it beside the scene the same way.
+  await renderWithGame(
+    <>
+      <SoundNotice />
+      <SetpieceView />
+    </>,
+    game,
+  );
   return { fake, game };
 }
 
@@ -86,6 +94,8 @@ async function playThrough(limit: number): Promise<void> {
 
 beforeEach(() => {
   vi.useFakeTimers({ shouldAdvanceTime: false });
+  // The app's start installs the wake-up and the hide handling once; the test does the same (it installs once per document).
+  installSoundWake(document);
   localStorage.clear();
   roomStore.setState({ opened: 0, inRoom: false, entered: false, prelude: null, answered: false, closing: null });
 });
