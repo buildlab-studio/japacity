@@ -1,0 +1,1669 @@
+{
+  "place": "place.deira",
+  "scope": "exterior",
+  "hub": false,
+  "note": "Which assets the place shows and how many, for the per-place budget (docs/rules/assets.md, R-ASSET-007). The city shell lays them out; counts are the most in view from the place's fixed cameras. The hub abroad is downloaded on arrival, not in the first download (R-CITY-013), so its file is not marked hub here and it answers to the exterior row.",
+  "instances": [
+    {
+      "file": "places/deira/bld_deira-arcade_a.glb",
+      "count": 3
+    },
+    {
+      "file": "places/deira/bld_deira-arcade_b.glb",
+      "count": 3
+    },
+    {
+      "file": "places/deira/bld_deira-arcade_c.glb",
+      "count": 3
+    },
+    {
+      "file": "places/deira/veh_abra.glb",
+      "count": 6
+    },
+    {
+      "file": "places/deira/veh_labour-bus.glb",
+      "count": 2
+    },
+    {
+      "file": "shared/prop/prop_bus-shelter.glb",
+      "count": 2
+    },
+    {
+      "file": "shared/prop/prop_flag-mast.glb",
+      "count": 1
+    }
+  ],
+  "people": {
+    "low": 8,
+    "high": 12,
+    "sample": [
+      "shared/chr/chr_tunde.glb",
+      "shared/chr/chr_ngozi.glb",
+      "shared/chr/chr_kemi.glb",
+      "shared/chr/chr_tolani.glb",
+      "shared/chr/chr_bisi.glb",
+      "shared/chr/chr_ada.glb",
+      "shared/chr/chr_sade.glb",
+      "shared/chr/chr_kunle.glb",
+      "shared/chr/chr_dayo.glb",
+      "shared/chr/chr_tobi.glb",
+      "shared/chr/chr_segun.glb",
+      "shared/chr/chr_nonso.glb",
+      "shared/chr/chr_bayo.glb",
+      "shared/chr/chr_emeka.glb",
+      "shared/chr/chr_femi.glb",
+      "shared/chr/chr_obi.glb",
+      "shared/chr/chr_musa.glb",
+      "shared/chr/chr_rider.glb"
+    ]
+  },
+  "groundRoadSky": {
+    "drawCalls": 1,
+    "triangles": 292
+  },
+  "stage": {
+    "note": "Deira, Dubai: a souk street runs along z down to the creek. Arcaded blocks face it from both sides (left turned a quarter to face +X, right to face -X), gold shops among them; the labour buses wait at the left kerb by their stop. The street opens onto the creekside walk, the quay edge at z -30, the abras moored bow on and two crossing, the flag on its mast, palms, and the far bank's blocks beyond the water. The player starts in the street looking down it to the water.",
+    "ground": {
+      "size": [
+        100,
+        180
+      ],
+      "colour": "sand"
+    },
+    "roads": [
+      {
+        "at": [
+          0,
+          22,
+          1.5708
+        ],
+        "size": [
+          90,
+          7.0
+        ],
+        "colour": "asphalt"
+      },
+      {
+        "at": [
+          0,
+          22,
+          1.5708
+        ],
+        "size": [
+          90,
+          0.12
+        ],
+        "colour": "white",
+        "dash": {
+          "colour": "asphalt",
+          "every": 3.0
+        }
+      },
+      {
+        "at": [
+          -3.6,
+          22,
+          1.5708
+        ],
+        "size": [
+          90,
+          0.2
+        ],
+        "colour": "concrete",
+        "raise": 0.15
+      },
+      {
+        "at": [
+          3.6,
+          22,
+          1.5708
+        ],
+        "size": [
+          90,
+          0.2
+        ],
+        "colour": "concrete",
+        "raise": 0.15
+      },
+      {
+        "at": [
+          -5.1,
+          22,
+          1.5708
+        ],
+        "size": [
+          90,
+          2.8
+        ],
+        "colour": "wallCream"
+      },
+      {
+        "at": [
+          5.1,
+          22,
+          1.5708
+        ],
+        "size": [
+          90,
+          2.8
+        ],
+        "colour": "wallCream"
+      },
+      {
+        "at": [
+          0,
+          -26.15,
+          0
+        ],
+        "size": [
+          100,
+          8.3
+        ],
+        "colour": "wallCream"
+      },
+      {
+        "at": [
+          0,
+          -30.15,
+          0
+        ],
+        "size": [
+          100,
+          0.35
+        ],
+        "colour": "concrete",
+        "raise": 0.2
+      },
+      {
+        "at": [
+          0,
+          -22.0,
+          0
+        ],
+        "size": [
+          7.0,
+          0.3
+        ],
+        "colour": "white",
+        "dash": {
+          "colour": "asphalt",
+          "every": 0.6
+        }
+      },
+      {
+        "at": [
+          -3.2,
+          -4.0,
+          1.5708
+        ],
+        "size": [
+          18.0,
+          0.5
+        ],
+        "colour": "danfoYellow"
+      },
+      {
+        "at": [
+          0,
+          -77.0,
+          0
+        ],
+        "size": [
+          100,
+          6.0
+        ],
+        "colour": "wallCream"
+      },
+      {
+        "at": [
+          -5.1,
+          -21,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "wallCreamWorn"
+      },
+      {
+        "at": [
+          5.1,
+          -21,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "wallCreamWorn"
+      },
+      {
+        "at": [
+          -5.1,
+          -19,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "wallCreamWorn"
+      },
+      {
+        "at": [
+          5.1,
+          -19,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "wallCreamWorn"
+      },
+      {
+        "at": [
+          -5.1,
+          -17,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "wallCreamWorn"
+      },
+      {
+        "at": [
+          5.1,
+          -17,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "wallCreamWorn"
+      },
+      {
+        "at": [
+          -5.1,
+          -15,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "wallCreamWorn"
+      },
+      {
+        "at": [
+          5.1,
+          -15,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "wallCreamWorn"
+      },
+      {
+        "at": [
+          -5.1,
+          -13,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "wallCreamWorn"
+      },
+      {
+        "at": [
+          5.1,
+          -13,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "wallCreamWorn"
+      },
+      {
+        "at": [
+          -5.1,
+          -11,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "wallCreamWorn"
+      },
+      {
+        "at": [
+          5.1,
+          -11,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "wallCreamWorn"
+      },
+      {
+        "at": [
+          -5.1,
+          -9,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "wallCreamWorn"
+      },
+      {
+        "at": [
+          5.1,
+          -9,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "wallCreamWorn"
+      },
+      {
+        "at": [
+          -5.1,
+          -7,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "wallCreamWorn"
+      },
+      {
+        "at": [
+          5.1,
+          -7,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "wallCreamWorn"
+      },
+      {
+        "at": [
+          -5.1,
+          -5,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "wallCreamWorn"
+      },
+      {
+        "at": [
+          5.1,
+          -5,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "wallCreamWorn"
+      },
+      {
+        "at": [
+          -5.1,
+          -3,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "wallCreamWorn"
+      },
+      {
+        "at": [
+          5.1,
+          -3,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "wallCreamWorn"
+      },
+      {
+        "at": [
+          -5.1,
+          -1,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "wallCreamWorn"
+      },
+      {
+        "at": [
+          5.1,
+          -1,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "wallCreamWorn"
+      },
+      {
+        "at": [
+          -5.1,
+          1,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "wallCreamWorn"
+      },
+      {
+        "at": [
+          5.1,
+          1,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "wallCreamWorn"
+      },
+      {
+        "at": [
+          -5.1,
+          3,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "wallCreamWorn"
+      },
+      {
+        "at": [
+          5.1,
+          3,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "wallCreamWorn"
+      },
+      {
+        "at": [
+          -5.1,
+          5,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "wallCreamWorn"
+      },
+      {
+        "at": [
+          5.1,
+          5,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "wallCreamWorn"
+      },
+      {
+        "at": [
+          -5.1,
+          7,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "wallCreamWorn"
+      },
+      {
+        "at": [
+          5.1,
+          7,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "wallCreamWorn"
+      },
+      {
+        "at": [
+          -5.1,
+          9,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "wallCreamWorn"
+      },
+      {
+        "at": [
+          5.1,
+          9,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "wallCreamWorn"
+      },
+      {
+        "at": [
+          -5.1,
+          11,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "wallCreamWorn"
+      },
+      {
+        "at": [
+          5.1,
+          11,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "wallCreamWorn"
+      },
+      {
+        "at": [
+          -5.1,
+          13,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "wallCreamWorn"
+      },
+      {
+        "at": [
+          5.1,
+          13,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "wallCreamWorn"
+      },
+      {
+        "at": [
+          -5.1,
+          15,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "wallCreamWorn"
+      },
+      {
+        "at": [
+          5.1,
+          15,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "wallCreamWorn"
+      },
+      {
+        "at": [
+          -5.1,
+          17,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "wallCreamWorn"
+      },
+      {
+        "at": [
+          5.1,
+          17,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "wallCreamWorn"
+      },
+      {
+        "at": [
+          -5.1,
+          19,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "wallCreamWorn"
+      },
+      {
+        "at": [
+          5.1,
+          19,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "wallCreamWorn"
+      },
+      {
+        "at": [
+          -5.1,
+          21,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "wallCreamWorn"
+      },
+      {
+        "at": [
+          5.1,
+          21,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "wallCreamWorn"
+      },
+      {
+        "at": [
+          -5.1,
+          23,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "wallCreamWorn"
+      },
+      {
+        "at": [
+          5.1,
+          23,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "wallCreamWorn"
+      },
+      {
+        "at": [
+          -5.1,
+          25,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "wallCreamWorn"
+      },
+      {
+        "at": [
+          5.1,
+          25,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "wallCreamWorn"
+      },
+      {
+        "at": [
+          -5.1,
+          27,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "wallCreamWorn"
+      },
+      {
+        "at": [
+          5.1,
+          27,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "wallCreamWorn"
+      },
+      {
+        "at": [
+          -5.1,
+          29,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "wallCreamWorn"
+      },
+      {
+        "at": [
+          5.1,
+          29,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "wallCreamWorn"
+      },
+      {
+        "at": [
+          -5.1,
+          31,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "wallCreamWorn"
+      },
+      {
+        "at": [
+          5.1,
+          31,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "wallCreamWorn"
+      },
+      {
+        "at": [
+          -5.1,
+          33,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "wallCreamWorn"
+      },
+      {
+        "at": [
+          5.1,
+          33,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "wallCreamWorn"
+      },
+      {
+        "at": [
+          -5.1,
+          35,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "wallCreamWorn"
+      },
+      {
+        "at": [
+          5.1,
+          35,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "wallCreamWorn"
+      },
+      {
+        "at": [
+          -5.1,
+          37,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "wallCreamWorn"
+      },
+      {
+        "at": [
+          5.1,
+          37,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "wallCreamWorn"
+      },
+      {
+        "at": [
+          -5.1,
+          39,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "wallCreamWorn"
+      },
+      {
+        "at": [
+          5.1,
+          39,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "wallCreamWorn"
+      },
+      {
+        "at": [
+          -5.1,
+          41,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "wallCreamWorn"
+      },
+      {
+        "at": [
+          5.1,
+          41,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "wallCreamWorn"
+      },
+      {
+        "at": [
+          -5.1,
+          43,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "wallCreamWorn"
+      },
+      {
+        "at": [
+          5.1,
+          43,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "wallCreamWorn"
+      },
+      {
+        "at": [
+          -5.1,
+          45,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "wallCreamWorn"
+      },
+      {
+        "at": [
+          5.1,
+          45,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "wallCreamWorn"
+      },
+      {
+        "at": [
+          -5.1,
+          47,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "wallCreamWorn"
+      },
+      {
+        "at": [
+          5.1,
+          47,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "wallCreamWorn"
+      },
+      {
+        "at": [
+          -5.1,
+          49,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "wallCreamWorn"
+      },
+      {
+        "at": [
+          5.1,
+          49,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "wallCreamWorn"
+      },
+      {
+        "at": [
+          -5.1,
+          51,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "wallCreamWorn"
+      },
+      {
+        "at": [
+          5.1,
+          51,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "wallCreamWorn"
+      },
+      {
+        "at": [
+          -5.1,
+          53,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "wallCreamWorn"
+      },
+      {
+        "at": [
+          5.1,
+          53,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "wallCreamWorn"
+      },
+      {
+        "at": [
+          -5.1,
+          55,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "wallCreamWorn"
+      },
+      {
+        "at": [
+          5.1,
+          55,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "wallCreamWorn"
+      },
+      {
+        "at": [
+          -5.1,
+          57,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "wallCreamWorn"
+      },
+      {
+        "at": [
+          5.1,
+          57,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "wallCreamWorn"
+      },
+      {
+        "at": [
+          -5.1,
+          59,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "wallCreamWorn"
+      },
+      {
+        "at": [
+          5.1,
+          59,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "wallCreamWorn"
+      },
+      {
+        "at": [
+          -5.1,
+          61,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "wallCreamWorn"
+      },
+      {
+        "at": [
+          5.1,
+          61,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "wallCreamWorn"
+      },
+      {
+        "at": [
+          -5.1,
+          63,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "wallCreamWorn"
+      },
+      {
+        "at": [
+          5.1,
+          63,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "wallCreamWorn"
+      },
+      {
+        "at": [
+          -5.1,
+          65,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "wallCreamWorn"
+      },
+      {
+        "at": [
+          5.1,
+          65,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "wallCreamWorn"
+      }
+    ],
+    "light": {
+      "sun": [
+        24,
+        52,
+        18
+      ],
+      "sky": "sky",
+      "ground": "sand"
+    },
+    "start": [
+      0.8,
+      -12.0,
+      3.1416
+    ],
+    "models": [
+      {
+        "file": "places/deira/bld_deira-arcade_a.glb",
+        "at": [
+          [
+            -12.5,
+            -14.0,
+            1.5708
+          ],
+          [
+            -12.5,
+            14.0,
+            1.5708
+          ],
+          [
+            12.5,
+            -2.0,
+            -1.5708
+          ]
+        ],
+        "signs": [
+          [
+            "place.deira.sign.1",
+            "place.deira.sign.2",
+            "place.deira.sign.3",
+            "place.deira.sign.4"
+          ],
+          [
+            "place.deira.sign.8",
+            "place.deira.sign.9",
+            "place.deira.sign.10",
+            "place.deira.sign.11"
+          ],
+          [
+            "place.deira.sign.15",
+            "place.deira.sign.16",
+            "place.deira.sign.17",
+            "place.deira.sign.18"
+          ]
+        ]
+      },
+      {
+        "file": "places/deira/bld_deira-arcade_b.glb",
+        "at": [
+          [
+            -12.5,
+            0.0,
+            1.5708
+          ],
+          [
+            12.5,
+            -16.0,
+            -1.5708
+          ],
+          [
+            12.5,
+            12.0,
+            -1.5708
+          ]
+        ],
+        "signs": [
+          [
+            "place.deira.sign.5",
+            "place.deira.sign.6",
+            "place.deira.sign.7"
+          ],
+          [
+            "place.deira.sign.12",
+            "place.deira.sign.13",
+            "place.deira.sign.14"
+          ],
+          [
+            "place.deira.sign.19",
+            "place.deira.sign.20",
+            "place.deira.sign.21"
+          ]
+        ]
+      },
+      {
+        "file": "places/deira/bld_deira-arcade_c.glb",
+        "at": [
+          [
+            -18.0,
+            -86.0,
+            0
+          ],
+          [
+            0.0,
+            -86.0,
+            0
+          ],
+          [
+            18.0,
+            -86.0,
+            0
+          ]
+        ]
+      },
+      {
+        "file": "places/deira/veh_abra.glb",
+        "at": [
+          [
+            -9.0,
+            -34.9,
+            0
+          ],
+          [
+            -5.9,
+            -35.1,
+            0.03
+          ],
+          [
+            3.2,
+            -34.9,
+            -0.02
+          ],
+          [
+            6.3,
+            -35.0,
+            0
+          ],
+          [
+            -14.0,
+            -52.0,
+            1.5708
+          ],
+          [
+            12.0,
+            -61.0,
+            -1.5708
+          ]
+        ],
+        "bob": true
+      },
+      {
+        "file": "places/deira/veh_labour-bus.glb",
+        "at": [
+          [
+            -2.1,
+            -5.6,
+            3.1416
+          ],
+          [
+            -2.1,
+            10.0,
+            3.1416
+          ]
+        ]
+      },
+      {
+        "file": "shared/prop/prop_bus-shelter.glb",
+        "at": [
+          [
+            -5.2,
+            -2.0,
+            1.5708
+          ],
+          [
+            -12.0,
+            -26.0,
+            0
+          ]
+        ]
+      },
+      {
+        "file": "shared/prop/prop_flag-mast.glb",
+        "at": [
+          [
+            3.4,
+            -28.9,
+            0
+          ]
+        ]
+      }
+    ],
+    "people": [
+      [
+        1.6,
+        -20.5,
+        3.0
+      ],
+      [
+        2.4,
+        -29.4,
+        3.1416
+      ],
+      [
+        -0.6,
+        -25.8,
+        3.3
+      ],
+      [
+        -8.0,
+        -12.0,
+        -1.6
+      ],
+      [
+        -3.7,
+        -5.4,
+        1.7
+      ],
+      [
+        3.2,
+        -15.5,
+        -0.4
+      ],
+      [
+        -8.2,
+        -16.2,
+        -1.5
+      ],
+      [
+        4.7,
+        -8.0,
+        -1.7
+      ],
+      [
+        -4.0,
+        -4.2,
+        1.5
+      ],
+      [
+        5.2,
+        -3.0,
+        -2.6
+      ],
+      [
+        8.0,
+        -6.0,
+        1.6
+      ],
+      [
+        -4.9,
+        0.5,
+        0.2
+      ],
+      [
+        -11.5,
+        -27.5,
+        0.8
+      ],
+      [
+        9.8,
+        -26.0,
+        -0.6
+      ],
+      [
+        -2.6,
+        -29.2,
+        3.1416
+      ],
+      [
+        0.2,
+        -8.0,
+        2.9
+      ]
+    ],
+    "prefer": {
+      "rider": [
+        7
+      ]
+    },
+    "motion": [
+      {
+        "kind": "water",
+        "at": [
+          0,
+          0.05,
+          -52.0
+        ],
+        "size": [
+          80,
+          43
+        ],
+        "colours": [
+          "teal"
+        ]
+      },
+      {
+        "kind": "flag",
+        "at": [
+          3.4,
+          6.85,
+          -28.9
+        ],
+        "size": [
+          2.4,
+          1.2
+        ],
+        "ry": 3.1416,
+        "hoist": "red",
+        "colours": [
+          "green",
+          "white",
+          "black"
+        ]
+      },
+      {
+        "kind": "frond",
+        "at": [
+          -8.5,
+          7.0,
+          -27.6
+        ],
+        "count": 11,
+        "size": [
+          3.2,
+          0.8
+        ],
+        "colours": [
+          "roofGreen",
+          "pepper",
+          "green",
+          "wood"
+        ]
+      },
+      {
+        "kind": "frond",
+        "at": [
+          13.5,
+          7.6,
+          -27.0
+        ],
+        "count": 11,
+        "size": [
+          3.2,
+          0.8
+        ],
+        "colours": [
+          "pepper",
+          "roofGreen",
+          "green",
+          "wood"
+        ],
+        "ry": 0.7
+      },
+      {
+        "kind": "hang",
+        "at": [
+          -6.6,
+          3.0,
+          -4.6
+        ],
+        "to": [
+          -6.6,
+          3.0,
+          4.6
+        ],
+        "count": 7,
+        "size": [
+          0.7,
+          1.4
+        ],
+        "colours": [
+          "wine",
+          "gold",
+          "teal",
+          "white",
+          "indigo",
+          "orange",
+          "purple"
+        ]
+      },
+      {
+        "kind": "leaves",
+        "at": [
+          0,
+          0,
+          -12
+        ],
+        "size": [
+          30,
+          6
+        ],
+        "count": 22,
+        "colours": [
+          "sand"
+        ]
+      }
+    ]
+  }
+}

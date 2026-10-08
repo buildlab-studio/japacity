@@ -1,0 +1,1513 @@
+{
+  "place": "place.peckham",
+  "scope": "exterior",
+  "hub": false,
+  "note": "Which assets the place shows and how many, for the per-place budget (docs/rules/assets.md, R-ASSET-007). The city shell lays them out; counts are the most in view from the place's fixed cameras. The hub abroad is downloaded on arrival, not in the first download (R-CITY-013), so its file is not marked hub here and it answers to the exterior row.",
+  "instances": [
+    {
+      "file": "places/peckham/bld_railway-bridge.glb",
+      "count": 1
+    },
+    {
+      "file": "places/peckham/bld_rye-lane-terrace_a.glb",
+      "count": 6
+    },
+    {
+      "file": "places/peckham/bld_rye-lane-terrace_b.glb",
+      "count": 3
+    },
+    {
+      "file": "shared/prop/prop_bus-shelter.glb",
+      "count": 1
+    },
+    {
+      "file": "shared/prop/prop_stall.glb",
+      "count": 4
+    }
+  ],
+  "people": {
+    "low": 6,
+    "high": 12,
+    "sample": [
+      "shared/chr/chr_tunde.glb",
+      "shared/chr/chr_ngozi.glb",
+      "shared/chr/chr_kemi.glb",
+      "shared/chr/chr_tolani.glb",
+      "shared/chr/chr_bisi.glb",
+      "shared/chr/chr_ada.glb",
+      "shared/chr/chr_sade.glb",
+      "shared/chr/chr_kunle.glb",
+      "shared/chr/chr_dayo.glb",
+      "shared/chr/chr_tobi.glb",
+      "shared/chr/chr_segun.glb",
+      "shared/chr/chr_nonso.glb",
+      "shared/chr/chr_bayo.glb",
+      "shared/chr/chr_zainab.glb",
+      "shared/chr/chr_emeka.glb",
+      "shared/chr/chr_femi.glb",
+      "shared/chr/chr_obi.glb",
+      "shared/chr/chr_iya.glb",
+      "shared/chr/chr_rider.glb"
+    ]
+  },
+  "groundRoadSky": {
+    "drawCalls": 1,
+    "triangles": 286
+  },
+  "stage": {
+    "note": "Rye Lane, Peckham, runs along z; the railway crosses it on the bridge at z -28 by Peckham Rye station, whose mouth opens on the forecourt to the left of the street. Terraces face the street from both sides (left turned a quarter to face +X, right to face -X), a bus stop on the right pavement. The player starts on the zebra crossing a little short of the bridge, looking down the street to it; the bus stop is on the right pavement beyond the crossing, and the street goes on past the bridge.",
+    "ground": {
+      "size": [
+        70,
+        122
+      ],
+      "colour": "concreteWorn"
+    },
+    "roads": [
+      {
+        "at": [
+          0,
+          0,
+          1.5708
+        ],
+        "size": [
+          110,
+          6.4
+        ],
+        "colour": "asphalt"
+      },
+      {
+        "at": [
+          0,
+          0,
+          1.5708
+        ],
+        "size": [
+          110,
+          0.12
+        ],
+        "colour": "marking",
+        "dash": {
+          "colour": "asphalt",
+          "every": 3.0
+        }
+      },
+      {
+        "at": [
+          -2.95,
+          0,
+          1.5708
+        ],
+        "size": [
+          110,
+          0.08
+        ],
+        "colour": "danfoYellow"
+      },
+      {
+        "at": [
+          -2.75,
+          0,
+          1.5708
+        ],
+        "size": [
+          110,
+          0.08
+        ],
+        "colour": "danfoYellow"
+      },
+      {
+        "at": [
+          2.95,
+          0,
+          1.5708
+        ],
+        "size": [
+          110,
+          0.08
+        ],
+        "colour": "danfoYellow"
+      },
+      {
+        "at": [
+          2.75,
+          0,
+          1.5708
+        ],
+        "size": [
+          110,
+          0.08
+        ],
+        "colour": "danfoYellow"
+      },
+      {
+        "at": [
+          -3.3,
+          0,
+          1.5708
+        ],
+        "size": [
+          110,
+          0.2
+        ],
+        "colour": "concrete",
+        "raise": 0.12
+      },
+      {
+        "at": [
+          3.3,
+          0,
+          1.5708
+        ],
+        "size": [
+          110,
+          0.2
+        ],
+        "colour": "concrete",
+        "raise": 0.12
+      },
+      {
+        "at": [
+          -4.8,
+          0,
+          1.5708
+        ],
+        "size": [
+          110,
+          2.8
+        ],
+        "colour": "concrete"
+      },
+      {
+        "at": [
+          4.8,
+          0,
+          1.5708
+        ],
+        "size": [
+          110,
+          2.8
+        ],
+        "colour": "concrete"
+      },
+      {
+        "at": [
+          -14.0,
+          -17.5,
+          0
+        ],
+        "size": [
+          16.0,
+          11.0
+        ],
+        "colour": "concrete"
+      },
+      {
+        "at": [
+          14.0,
+          -17.5,
+          0
+        ],
+        "size": [
+          16.0,
+          11.0
+        ],
+        "colour": "concrete"
+      },
+      {
+        "at": [
+          0,
+          -3.0,
+          0
+        ],
+        "size": [
+          6.4,
+          3.0
+        ],
+        "colour": "white",
+        "dash": {
+          "colour": "asphalt",
+          "every": 0.5
+        }
+      },
+      {
+        "at": [
+          0,
+          0.0,
+          0
+        ],
+        "size": [
+          6.4,
+          0.2
+        ],
+        "colour": "marking"
+      },
+      {
+        "at": [
+          0,
+          -6.0,
+          0
+        ],
+        "size": [
+          6.4,
+          0.2
+        ],
+        "colour": "marking"
+      },
+      {
+        "at": [
+          3.0,
+          -12.5,
+          1.5708
+        ],
+        "size": [
+          9.0,
+          0.5
+        ],
+        "colour": "danfoYellow"
+      },
+      {
+        "at": [
+          -4.8,
+          -54,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "concreteWorn"
+      },
+      {
+        "at": [
+          4.8,
+          -54,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "concreteWorn"
+      },
+      {
+        "at": [
+          -4.8,
+          -51,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "concreteWorn"
+      },
+      {
+        "at": [
+          4.8,
+          -51,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "concreteWorn"
+      },
+      {
+        "at": [
+          -4.8,
+          -48,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "concreteWorn"
+      },
+      {
+        "at": [
+          4.8,
+          -48,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "concreteWorn"
+      },
+      {
+        "at": [
+          -4.8,
+          -45,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "concreteWorn"
+      },
+      {
+        "at": [
+          4.8,
+          -45,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "concreteWorn"
+      },
+      {
+        "at": [
+          -4.8,
+          -42,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "concreteWorn"
+      },
+      {
+        "at": [
+          4.8,
+          -42,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "concreteWorn"
+      },
+      {
+        "at": [
+          -4.8,
+          -39,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "concreteWorn"
+      },
+      {
+        "at": [
+          4.8,
+          -39,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "concreteWorn"
+      },
+      {
+        "at": [
+          -4.8,
+          -36,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "concreteWorn"
+      },
+      {
+        "at": [
+          4.8,
+          -36,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "concreteWorn"
+      },
+      {
+        "at": [
+          -4.8,
+          -33,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "concreteWorn"
+      },
+      {
+        "at": [
+          4.8,
+          -33,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "concreteWorn"
+      },
+      {
+        "at": [
+          -4.8,
+          -30,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "concreteWorn"
+      },
+      {
+        "at": [
+          4.8,
+          -30,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "concreteWorn"
+      },
+      {
+        "at": [
+          -4.8,
+          -27,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "concreteWorn"
+      },
+      {
+        "at": [
+          4.8,
+          -27,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "concreteWorn"
+      },
+      {
+        "at": [
+          -4.8,
+          -24,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "concreteWorn"
+      },
+      {
+        "at": [
+          4.8,
+          -24,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "concreteWorn"
+      },
+      {
+        "at": [
+          -4.8,
+          -21,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "concreteWorn"
+      },
+      {
+        "at": [
+          4.8,
+          -21,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "concreteWorn"
+      },
+      {
+        "at": [
+          -4.8,
+          -18,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "concreteWorn"
+      },
+      {
+        "at": [
+          4.8,
+          -18,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "concreteWorn"
+      },
+      {
+        "at": [
+          -4.8,
+          -15,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "concreteWorn"
+      },
+      {
+        "at": [
+          4.8,
+          -15,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "concreteWorn"
+      },
+      {
+        "at": [
+          -4.8,
+          -12,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "concreteWorn"
+      },
+      {
+        "at": [
+          4.8,
+          -12,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "concreteWorn"
+      },
+      {
+        "at": [
+          -4.8,
+          -9,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "concreteWorn"
+      },
+      {
+        "at": [
+          4.8,
+          -9,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "concreteWorn"
+      },
+      {
+        "at": [
+          -4.8,
+          -6,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "concreteWorn"
+      },
+      {
+        "at": [
+          4.8,
+          -6,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "concreteWorn"
+      },
+      {
+        "at": [
+          -4.8,
+          -3,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "concreteWorn"
+      },
+      {
+        "at": [
+          4.8,
+          -3,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "concreteWorn"
+      },
+      {
+        "at": [
+          -4.8,
+          0,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "concreteWorn"
+      },
+      {
+        "at": [
+          4.8,
+          0,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "concreteWorn"
+      },
+      {
+        "at": [
+          -4.8,
+          3,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "concreteWorn"
+      },
+      {
+        "at": [
+          4.8,
+          3,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "concreteWorn"
+      },
+      {
+        "at": [
+          -4.8,
+          6,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "concreteWorn"
+      },
+      {
+        "at": [
+          4.8,
+          6,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "concreteWorn"
+      },
+      {
+        "at": [
+          -4.8,
+          9,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "concreteWorn"
+      },
+      {
+        "at": [
+          4.8,
+          9,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "concreteWorn"
+      },
+      {
+        "at": [
+          -4.8,
+          12,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "concreteWorn"
+      },
+      {
+        "at": [
+          4.8,
+          12,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "concreteWorn"
+      },
+      {
+        "at": [
+          -4.8,
+          15,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "concreteWorn"
+      },
+      {
+        "at": [
+          4.8,
+          15,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "concreteWorn"
+      },
+      {
+        "at": [
+          -4.8,
+          18,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "concreteWorn"
+      },
+      {
+        "at": [
+          4.8,
+          18,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "concreteWorn"
+      },
+      {
+        "at": [
+          -4.8,
+          21,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "concreteWorn"
+      },
+      {
+        "at": [
+          4.8,
+          21,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "concreteWorn"
+      },
+      {
+        "at": [
+          -4.8,
+          24,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "concreteWorn"
+      },
+      {
+        "at": [
+          4.8,
+          24,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "concreteWorn"
+      },
+      {
+        "at": [
+          -4.8,
+          27,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "concreteWorn"
+      },
+      {
+        "at": [
+          4.8,
+          27,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "concreteWorn"
+      },
+      {
+        "at": [
+          -4.8,
+          30,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "concreteWorn"
+      },
+      {
+        "at": [
+          4.8,
+          30,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "concreteWorn"
+      },
+      {
+        "at": [
+          -4.8,
+          33,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "concreteWorn"
+      },
+      {
+        "at": [
+          4.8,
+          33,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "concreteWorn"
+      },
+      {
+        "at": [
+          -4.8,
+          36,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "concreteWorn"
+      },
+      {
+        "at": [
+          4.8,
+          36,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "concreteWorn"
+      },
+      {
+        "at": [
+          -4.8,
+          39,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "concreteWorn"
+      },
+      {
+        "at": [
+          4.8,
+          39,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "concreteWorn"
+      },
+      {
+        "at": [
+          -4.8,
+          42,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "concreteWorn"
+      },
+      {
+        "at": [
+          4.8,
+          42,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "concreteWorn"
+      },
+      {
+        "at": [
+          -4.8,
+          45,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "concreteWorn"
+      },
+      {
+        "at": [
+          4.8,
+          45,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "concreteWorn"
+      },
+      {
+        "at": [
+          -4.8,
+          48,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "concreteWorn"
+      },
+      {
+        "at": [
+          4.8,
+          48,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "concreteWorn"
+      },
+      {
+        "at": [
+          -4.8,
+          51,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "concreteWorn"
+      },
+      {
+        "at": [
+          4.8,
+          51,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "concreteWorn"
+      },
+      {
+        "at": [
+          -4.8,
+          54,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "concreteWorn"
+      },
+      {
+        "at": [
+          4.8,
+          54,
+          1.5708
+        ],
+        "size": [
+          0.04,
+          2.8
+        ],
+        "colour": "concreteWorn"
+      }
+    ],
+    "light": {
+      "sun": [
+        -18,
+        40,
+        28
+      ],
+      "sky": "wallSky",
+      "ground": "concrete"
+    },
+    "start": [
+      0.8,
+      -3.0,
+      3.1416
+    ],
+    "models": [
+      {
+        "file": "places/peckham/bld_railway-bridge.glb",
+        "at": [
+          [
+            0,
+            -28.0,
+            0
+          ]
+        ]
+      },
+      {
+        "file": "places/peckham/bld_rye-lane-terrace_a.glb",
+        "at": [
+          [
+            -10.7,
+            -0.5,
+            1.5708
+          ],
+          [
+            -10.7,
+            24.5,
+            1.5708
+          ],
+          [
+            10.7,
+            -4.5,
+            -1.5708
+          ],
+          [
+            10.7,
+            20.5,
+            -1.5708
+          ],
+          [
+            -10.7,
+            -40.5,
+            1.5708
+          ],
+          [
+            1.0,
+            -57.0,
+            0
+          ]
+        ],
+        "signs": [
+          [
+            "place.peckham.sign.1",
+            "place.peckham.sign.2",
+            "place.peckham.sign.3"
+          ],
+          [
+            "place.peckham.sign.6",
+            "place.peckham.sign.7",
+            "place.peckham.sign.8"
+          ],
+          [
+            "place.peckham.sign.9",
+            "place.peckham.sign.10",
+            "place.peckham.sign.11"
+          ],
+          [
+            "place.peckham.sign.14",
+            "place.peckham.sign.15",
+            "place.peckham.sign.16"
+          ],
+          [
+            "place.peckham.sign.17",
+            "place.peckham.sign.18",
+            "place.peckham.sign.19"
+          ],
+          [
+            "place.peckham.sign.22",
+            "place.peckham.sign.23",
+            "place.peckham.sign.24"
+          ]
+        ]
+      },
+      {
+        "file": "places/peckham/bld_rye-lane-terrace_b.glb",
+        "at": [
+          [
+            -10.7,
+            12.0,
+            1.5708
+          ],
+          [
+            10.7,
+            8.0,
+            -1.5708
+          ],
+          [
+            10.7,
+            -38.0,
+            -1.5708
+          ]
+        ],
+        "signs": [
+          [
+            "place.peckham.sign.4",
+            "place.peckham.sign.5"
+          ],
+          [
+            "place.peckham.sign.12",
+            "place.peckham.sign.13"
+          ],
+          [
+            "place.peckham.sign.20",
+            "place.peckham.sign.21"
+          ]
+        ]
+      },
+      {
+        "file": "shared/prop/prop_bus-shelter.glb",
+        "at": [
+          [
+            5.0,
+            -12.5,
+            -1.5708
+          ]
+        ]
+      },
+      {
+        "file": "shared/prop/prop_stall.glb",
+        "at": [
+          [
+            -17.2,
+            -20.6,
+            0
+          ],
+          [
+            -14.6,
+            -19.8,
+            0.2
+          ],
+          [
+            17.0,
+            -20.4,
+            0
+          ],
+          [
+            12.4,
+            -20.0,
+            -0.2
+          ]
+        ]
+      }
+    ],
+    "people": [
+      [
+        4.0,
+        -11.0,
+        -1.6
+      ],
+      [
+        -0.3,
+        -7.5,
+        3.5
+      ],
+      [
+        4.3,
+        -12.5,
+        -1.8
+      ],
+      [
+        2.6,
+        -8.6,
+        2.8
+      ],
+      [
+        3.9,
+        -14.0,
+        -1.4
+      ],
+      [
+        -4.6,
+        -9.0,
+        3.0
+      ],
+      [
+        -17.2,
+        -21.5,
+        0
+      ],
+      [
+        -4.9,
+        -1.5,
+        0.4
+      ],
+      [
+        5.0,
+        -6.0,
+        3.6
+      ],
+      [
+        -9.5,
+        -17.5,
+        0.6
+      ],
+      [
+        17.0,
+        -21.3,
+        0
+      ],
+      [
+        -11.8,
+        -19.6,
+        2.4
+      ],
+      [
+        4.6,
+        3.0,
+        -2.0
+      ],
+      [
+        -4.2,
+        6.0,
+        3.4
+      ],
+      [
+        12.4,
+        -20.9,
+        0
+      ],
+      [
+        -5.2,
+        -10.0,
+        1.2
+      ]
+    ],
+    "prefer": {
+      "trader": [
+        6,
+        10,
+        14
+      ],
+      "rider": [
+        9
+      ]
+    },
+    "motion": [
+      {
+        "kind": "bunting",
+        "at": [
+          -6.2,
+          5.8,
+          -10.0
+        ],
+        "to": [
+          6.2,
+          5.8,
+          -10.0
+        ],
+        "count": 30,
+        "colours": [
+          "green",
+          "white",
+          "danfoYellow",
+          "red",
+          "blue"
+        ]
+      },
+      {
+        "kind": "bunting",
+        "at": [
+          -6.2,
+          5.6,
+          4.0
+        ],
+        "to": [
+          6.2,
+          5.6,
+          4.0
+        ],
+        "count": 30,
+        "colours": [
+          "red",
+          "white",
+          "blue",
+          "green"
+        ]
+      },
+      {
+        "kind": "leaves",
+        "at": [
+          0,
+          0,
+          -8
+        ],
+        "size": [
+          40,
+          9
+        ],
+        "count": 30,
+        "colours": [
+          "orange"
+        ]
+      },
+      {
+        "kind": "hang",
+        "at": [
+          -20.2,
+          3.0,
+          -22.9
+        ],
+        "to": [
+          -16.0,
+          3.0,
+          -22.9
+        ],
+        "count": 6,
+        "size": [
+          0.62,
+          1.1
+        ],
+        "colours": [
+          "green",
+          "orange",
+          "indigo",
+          "gold",
+          "wine",
+          "teal"
+        ]
+      },
+      {
+        "kind": "smoke",
+        "at": [
+          -14.6,
+          1.0,
+          -19.4
+        ],
+        "count": 24,
+        "colours": [
+          "hub",
+          "concrete",
+          "white",
+          "hub"
+        ]
+      }
+    ]
+  }
+}
