@@ -6,6 +6,7 @@ import type { Content, State, WalletSlice } from "@japacity/sim";
 import { int } from "@japacity/sim";
 import type { ByReason, LogRow, SegmentRow } from "@japacity/store";
 
+import { prizesOwed } from "../../../../packages/sim/src/lottery/lottery.draw";
 import { ledgerReport } from "../../../../packages/sim/src/wallet/report";
 import type { ServerDeps } from "../deps";
 import { activeOn, noteActive } from "./active";
@@ -130,12 +131,20 @@ function contentAt(deps: Pick<ServerDeps, "contents">, segments: readonly Segmen
   return (segment === undefined ? null : contentNamed(deps, segment.content, segment.overlay)) ?? deps.contents.current;
 }
 
+/** A house part a payout logged before decision 0010 may still carry; nothing logs one now. */
+function housePart(prize: object): number {
+  const { topUp } = prize as { topUp?: unknown };
+  return typeof topUp === "number" ? topUp : 0;
+}
+
 /**
  * R-LOTTERY-014: checks every draw that closed on the day and has a result.
- * A `win` or `pot-top-up` belongs to the draw its `lottery/pay` command names;
- * a `ticket` to the draw on sale at the tick its `lottery/buy` was stepped at.
- * All are read from the logs of the characters on the draw's ticket list. The
- * sales are the pot less the declared top-up.
+ * A `win` belongs to the draw its `lottery/pay` command names; a `ticket` to
+ * the draw on sale at the tick its `lottery/buy` was stepped at. All are read
+ * from the logs of the characters on the draw's ticket list. The `win` paid
+ * must be what R-LOTTERY-011 gives the result, `pot-top-up` must be 0
+ * (decision 0010), and the tickets taken must be the sales: the tickets sold
+ * at the current price.
  */
 export async function drawAlarms(deps: MoneyDeps, day: number): Promise<Alarm[]> {
   const alarms: Alarm[] = [];
@@ -155,16 +164,17 @@ export async function drawAlarms(deps: MoneyDeps, day: number): Promise<Alarm[]>
         const { command } = entry;
         if (command.type === "lottery/pay" && command.draw === draw) {
           won += command.prizes.reduce((sum, prize) => sum + prize.amount, 0);
-          house += command.prizes.reduce((sum, prize) => sum + prize.topUp, 0);
+          house += command.prizes.reduce((sum, prize) => sum + housePart(prize), 0);
         }
         if (command.type === "lottery/buy" && entry.tick >= draw * TICKS_PER_DRAW && entry.tick < (draw + 1) * TICKS_PER_DRAW) {
           sold += command.tickets * contentAt(deps, held.segments, entry.v).tuning.lottery.ticket;
         }
       }
     }
-    if (won > result.fund) alarms.push({ kind: "draw", day, draw, check: "win", total: won, limit: result.fund });
-    if (house > result.topUp) alarms.push({ kind: "draw", day, draw, check: "top-up", total: house, limit: result.topUp });
-    const sales = result.pot - result.topUp;
+    const owed = prizesOwed(result.winners);
+    if (won !== owed) alarms.push({ kind: "draw", day, draw, check: "win", total: won, limit: owed });
+    if (house !== 0) alarms.push({ kind: "draw", day, draw, check: "top-up", total: house, limit: 0 });
+    const sales = result.count * deps.contents.current.tuning.lottery.ticket;
     if (sold !== sales) alarms.push({ kind: "draw", day, draw, check: "ticket", total: sold, limit: sales });
   }
   return alarms;

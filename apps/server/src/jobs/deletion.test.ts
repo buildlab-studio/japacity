@@ -24,7 +24,7 @@ async function deletedPlayer(h: Harness) {
   await h.deps.stores.ledger.setMark(character, {} as never, 1);
   await h.deps.stores.ledger.addDay(1, { wage: { NGN: 500 } } as never, {});
   await h.deps.stores.audit.retire({ character, why: "rollback", at: START, note: "kept", segments: [], log: [], snapshots: [] });
-  await h.deps.stores.world.putDraw({ draw: 1, secret: "s", fingerprint: "f", beaconRound: 1, topUpTickets: 0 });
+  await h.deps.stores.world.putDraw({ draw: 1, secret: "s", fingerprint: "f", beaconRound: 1, topUpTickets: 0, odds: h.deps.contents.current.tuning.lottery.odds, jackpot: 1 });
   await h.deps.stores.world.addTickets(1, character, 2);
   h.tables.passkey.push({ id: "passkey-1", userId: account, publicKey: "key", credentialID: "credential-1", counter: 0, deviceType: "singleDevice", backedUp: false, createdAt: new Date() });
   const reply = await h.call("/api/account", { method: "DELETE", jar, ip: "192.0.2.70" });

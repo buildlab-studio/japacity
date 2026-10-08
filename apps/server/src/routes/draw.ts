@@ -1,7 +1,7 @@
 // `GET /api/draw/:n` (docs/rules/lottery.md R-LOTTERY-007, 008, 015): a draw's
 // public data for the client's draw page, the same for everyone, with no
 // session. The secret leaves only inside the published result (R-SERVER-015).
-import type { LotteryResult } from "@japacity/sim";
+import type { LotteryOdds, LotteryResult } from "@japacity/sim";
 import { Hono } from "hono";
 
 import { tickStartsAt } from "../clock/view";
@@ -12,9 +12,9 @@ import { limit } from "../limits/limit";
 import type { ServerRejection } from "../types";
 
 /**
- * The draw page's data. Before the close: the fingerprint, the beacon round
- * and the declared top-up. From the freeze: the stored list of tokens, its
- * count and hash. From the result: the result, which holds the secret.
+ * The draw page's data. Before the close: the fingerprint, the beacon round,
+ * the odds and the jackpot it opened with. From the freeze: the stored list of
+ * tokens, its count and hash. From the result: the result, which holds the secret.
  */
 export interface DrawReply {
   draw: number;
@@ -22,8 +22,9 @@ export interface DrawReply {
   closesAt: number;
   fingerprint: string;
   beaconRound: number;
-  /** R-LOTTERY-021: the top-up declared when the draw opened, in tickets. */
-  topUpTickets: number;
+  /** R-LOTTERY-021, R-LOTTERY-012: the odds and the jackpot fixed when the draw opened. */
+  odds: LotteryOdds;
+  jackpot: number;
   list: string[] | null;
   count: number | null;
   listHash: string | null;
@@ -42,7 +43,7 @@ export async function drawReply(deps: ServerDeps, draw: number): Promise<DrawRep
   const row = await deps.stores.world.draw(draw);
   if (row === null) return null;
   const closesTick = closesTickOf(draw);
-  const base = { draw, closesTick, closesAt: tickStartsAt(deps.config.clock, closesTick), fingerprint: row.fingerprint, beaconRound: row.beaconRound, topUpTickets: row.topUpTickets };
+  const base = { draw, closesTick, closesAt: tickStartsAt(deps.config.clock, closesTick), fingerprint: row.fingerprint, beaconRound: row.beaconRound, odds: row.odds, jackpot: row.jackpot };
   if (row.list === null) return { ...base, list: null, count: null, listHash: null, result: null };
   return { ...base, list: row.list, count: row.list.length, listHash: row.listHash, result: row.result };
 }

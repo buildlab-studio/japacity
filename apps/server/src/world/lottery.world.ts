@@ -1,11 +1,13 @@
 // The Friday draw as each stored tick carries it (docs/rules/lottery.md
-// R-LOTTERY-002, 006, 007, 015): the draw on sale, its close, fingerprint and
-// beacon round, the pot so far, and the latest published result.
+// R-LOTTERY-002, 006, 007, 012, 015, 021): the draw on sale, its close,
+// fingerprint and beacon round, its odds and the jackpot standing, the sales
+// so far, and the latest published result.
 import type { LotteryResult, World } from "@japacity/sim";
 import type { WorldStore } from "@japacity/store";
 
 import type { ServerDeps } from "../deps";
-import { closesTickOf, drawOn } from "../draw/draw";
+import { closesTickOf, drawOn, storedBefore } from "../draw/draw";
+import { jackpotHit } from "../../../../packages/sim/src/lottery/lottery.draw";
 
 /**
  * R-LOTTERY-015: the newest result stored for a draw before `draw`. The row
@@ -22,25 +24,35 @@ async function lastResult(world: WorldStore, tick: number, draw: number): Promis
 }
 
 /**
- * R-LOTTERY-002, R-LOTTERY-006, R-LOTTERY-007, R-LOTTERY-021: `World.lottery`
- * for the row of `tick`, from the stored draw on sale at it. The pot so far is
- * the tickets sold before the row is made, at the current content's price; the
- * top-up is the one the draw declared when it opened.
- * a tick whose draw is not stored yet runs no draw. The draw job opens each draw a whole draw ahead, so only a fresh deployment's first rows meet it.
+ * R-LOTTERY-002, R-LOTTERY-006, R-LOTTERY-007, R-LOTTERY-012, R-LOTTERY-021:
+ * `World.lottery` for the row of `tick`, from the stored draw on sale at it,
+ * with the odds and the jackpot it opened with and whether that jackpot rolled
+ * over from the last result. The sales so far are the tickets sold before the
+ * row is made, at the current content's price.
+ * a draw opens only once the draw before it is drawn (`openDraw`), a
+ * few minutes after the Friday close, and the close's own tick row is made at
+ * the close. That row, and any made before the draw opens, carries the draw
+ * before, closed, so its tickets show as being drawn and a purchase is refused
+ * as closed; sales of the new draw start with the next row, Saturday 07:00 in
+ * Lagos, with the result and the new jackpot. R-LOTTERY-002 says sales start
+ * with tick 14n.
+ * with no draw stored at or before the tick's draw the world runs no draw.
  */
 export async function lotteryFor(tick: number, deps: Pick<ServerDeps, "stores" | "contents">): Promise<World["lottery"]> {
   const world = deps.stores.world;
-  const draw = drawOn(tick);
-  const row = await world.draw(draw);
+  const row = (await world.draw(drawOn(tick))) ?? (await storedBefore(world, drawOn(tick)));
   if (row === null) return null;
-  const sold = (await world.tickets(draw)).length;
+  const sold = (await world.tickets(row.draw)).length;
+  const last = await lastResult(world, tick, row.draw);
   return {
-    draw,
-    closesTick: closesTickOf(draw),
+    draw: row.draw,
+    closesTick: closesTickOf(row.draw),
     fingerprint: row.fingerprint,
     beaconRound: row.beaconRound,
-    potSoFar: sold * deps.contents.current.tuning.lottery.ticket,
-    topUpTickets: row.topUpTickets,
-    last: await lastResult(world, tick, draw),
+    salesSoFar: sold * deps.contents.current.tuning.lottery.ticket,
+    jackpot: row.jackpot,
+    rolledOver: last !== null && !jackpotHit(last.winners),
+    odds: row.odds,
+    last,
   };
 }

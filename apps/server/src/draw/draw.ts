@@ -1,16 +1,17 @@
 // The Friday draw on the server (docs/rules/lottery.md R-LOTTERY-007 to 013,
-// 015, 017): open a draw with its fingerprint and beacon round, freeze the
-// list at the close, take the beacon's randomness, draw with the simulation's
-// public function, pay each winner as the authority, then publish the result.
+// 015, 017): open a draw with its fingerprint, beacon round, odds and jackpot,
+// freeze the list at the close, take the beacon's randomness, read every
+// ticket with the simulation's public function, pay each winner as the
+// authority, then publish the result.
 import type { LotteryResult } from "@japacity/sim";
 import { int } from "@japacity/sim";
-import type { DrawRow, TicketRow } from "@japacity/store";
+import type { DrawRow, TicketRow, WorldStore } from "@japacity/store";
 
 import { sendAuthority } from "../authority/command";
 import { tickAt, tickStartsAt } from "../clock/view";
 import type { ServerDeps } from "../deps";
-import { drawSeed, drawWinners, fingerprintOf, listHashOf, prizesFor, tiersFor, toHex, topUpFor, topUpPart } from "../../../../packages/sim/src/lottery/lottery.draw";
-import { topUpTickets } from "../switches/dials";
+import { drawResults, drawSeed, fingerprintOf, jackpotHit, listHashOf, openingJackpot, rollJackpot, toHex } from "../../../../packages/sim/src/lottery/lottery.draw";
+import { lotteryOdds, topUpTickets } from "../switches/dials";
 import type { Beacon } from "./beacon";
 import { roundAfter } from "./beacon";
 
@@ -79,17 +80,41 @@ export async function tokensOf(deps: Pick<ServerDeps, "stores">, key: string, dr
 export type DrawDeps = Pick<ServerDeps, "config" | "stores" | "contents" | "randomBytes" | "now">;
 
 /**
- * R-LOTTERY-007, R-LOTTERY-021: stores draw `n` with a fresh 256-bit secret,
- * its fingerprint, the first beacon round after its close, and the top-up the
- * private settings declare now, fixed for the draw. A draw already stored is
- * returned as it is, so opening twice is a no-op.
+ * How far back a draw looks for the stored draw before it. Draws open in order
+ * on a five-minute job, so a gap is a run or two; past this many draws the
+ * world is treated as never having drawn, and the jackpot starts again.
  */
-export async function openDraw(deps: DrawDeps, beacon: Pick<Beacon, "genesis" | "period">, draw: number): Promise<DrawRow> {
+export const LOOK_BACK_DRAWS = 8;
+
+/** The newest stored draw before `draw`, within `LOOK_BACK_DRAWS`, or null. */
+export async function storedBefore(world: Pick<WorldStore, "draw">, draw: number): Promise<DrawRow | null> {
+  for (let earlier = draw - 1; earlier >= Math.max(0, draw - LOOK_BACK_DRAWS); earlier -= 1) {
+    const row = await world.draw(earlier);
+    if (row !== null) return row;
+  }
+  return null;
+}
+
+/**
+ * R-LOTTERY-007, R-LOTTERY-012, R-LOTTERY-021: stores draw `n` with a fresh
+ * 256-bit secret, its fingerprint, the first beacon round after its close,
+ * the odds the private settings hold now, and the jackpot standing, all fixed
+ * for the draw. A draw already stored is returned as it is, so opening twice
+ * is a no-op.
+ * a draw opens only once the draw before it is drawn, because its
+ * jackpot is that draw's result; until then it is not stored and null is
+ * returned, and the world shows the draw before as closed (`lotteryFor`).
+ */
+export async function openDraw(deps: DrawDeps, beacon: Pick<Beacon, "genesis" | "period">, draw: number): Promise<DrawRow | null> {
   const stored = await deps.stores.world.draw(draw);
   if (stored !== null) return stored;
+  const before = await storedBefore(deps.stores.world, draw);
+  if (before !== null && before.result === null) return null;
+  const odds = lotteryOdds(deps);
+  const jackpot = openingJackpot(before?.result ?? null, odds);
   const secret = toHex(deps.randomBytes(SECRET_BYTES));
   const beaconRound = roundAfter(beacon, tickStartsAt(deps.config.clock, closesTickOf(draw)));
-  const put = await deps.stores.world.putDraw({ draw, secret, fingerprint: fingerprintOf(secret, draw), beaconRound, topUpTickets: await topUpTickets(deps) });
+  const put = await deps.stores.world.putDraw({ draw, secret, fingerprint: fingerprintOf(secret, draw), beaconRound, topUpTickets: await topUpTickets(), odds, jackpot });
   if (put.ok) return put.value;
   // Two openers at once: the first stored wins and the second reads it.
   const winner = await deps.stores.world.draw(draw);
@@ -102,32 +127,47 @@ export type Closed = { kind: "drawn"; result: LotteryResult } | { kind: "waiting
 
 /**
  * R-LOTTERY-010 to 012, R-LOTTERY-021: the published result of a frozen list
- * under the given randomness. The pot is the sales plus the top-up the draw
- * declared when it opened.
+ * under the given randomness, at the odds and jackpot the draw opened with.
+ * Every ticket is read alone; the jackpot rolls on by the draw's sales, the
+ * tickets sold at `ticket` each. `forced` is R-LOTTERY-012's forced win.
  */
-export function resultOf(row: DrawRow, tokens: readonly string[], beaconRandomness: string, tuning: ServerDeps["contents"]["current"]["tuning"]["lottery"]): LotteryResult {
+export function resultOf(row: DrawRow, tokens: readonly string[], beaconRandomness: string, ticket: number, forced = false): LotteryResult {
   const listHash = listHashOf(tokens);
   const count = tokens.length;
-  const tiers = tiersFor(count, tuning);
-  const winners = drawWinners(drawSeed(row.secret, listHash, beaconRandomness), count, tiers);
-  const topUp = topUpFor(count, row.topUpTickets, tuning.ticket);
-  const pot = count * tuning.ticket + topUp;
-  const prizes = prizesFor(pot, tiers, winners, tuning);
-  return { draw: row.draw, revealed: row.secret, beaconRound: row.beaconRound, beaconRandomness, listHash, count, pot, topUp, fund: prizes.fund, winners: prizes.winners };
+  const winners = drawResults(drawSeed(row.secret, listHash, beaconRandomness), count, row.odds, row.jackpot, forced);
+  const nextJackpot = rollJackpot(row.jackpot, count * ticket, jackpotHit(winners), row.odds);
+  return { draw: row.draw, revealed: row.secret, beaconRound: row.beaconRound, beaconRandomness, listHash, count, odds: row.odds, jackpot: row.jackpot, winners, nextJackpot };
 }
 
-export type Prize = { tier: "jackpot" | "mid" | "small"; amount: number; topUp: number };
+/**
+ * R-LOTTERY-012: whether draw `row` is a forced win: its odds name
+ * `forcedWinWeeks`, and that many draws, this one counted, have passed since
+ * the last hit, read from the stored results before it.
+ * with no hit stored, the draws are counted from the first stored one.
+ */
+export async function forcedWin(world: Pick<WorldStore, "draw">, row: DrawRow): Promise<boolean> {
+  const weeks = row.odds.forcedWinWeeks;
+  if (weeks === null) return false;
+  let since = 1;
+  let earlier = await storedBefore(world, row.draw);
+  while (since < weeks && earlier !== null && earlier.result !== null && !jackpotHit(earlier.result.winners)) {
+    since += 1;
+    earlier = await storedBefore(world, earlier.draw);
+  }
+  return since >= weeks;
+}
+
+export type Prize = { tier: "jackpot" | "mid" | "small"; amount: number };
 
 /**
- * R-LOTTERY-013, R-LOTTERY-022: each winning character's prizes, one entry per
- * winning ticket, in ascending character id order, each with its part from the
- * top-up. Zero-kobo prizes are left out.
+ * R-LOTTERY-011, R-LOTTERY-013: each winning character's prizes, one entry per
+ * winning ticket, in ascending character id order. Zero-kobo prizes are left out.
  */
 export function prizesByCharacter(result: LotteryResult, tickets: readonly TicketRow[]): [string, Prize[]][] {
   const owed = new Map<string, Prize[]>();
   for (const tier of result.winners) {
     if (tier.amount < 1) continue;
-    const prize: Prize = { tier: tier.tier, amount: tier.amount, topUp: topUpPart(tier.amount, result.topUp, result.pot) };
+    const prize: Prize = { tier: tier.tier, amount: tier.amount };
     for (const number of tier.tickets) {
       const ticket = tickets[number];
       if (ticket?.n !== number) throw new Error(`Ticket ${String(number)} of draw ${String(result.draw)} is not in the frozen list.`);
@@ -172,7 +212,7 @@ export async function closeDraw(deps: ServerDeps, keys: DrawKeys, draw: number):
   const randomness = await keys.beacon.randomness(row.beaconRound);
   if (randomness === null) return { kind: "waiting", why: `Beacon round ${String(row.beaconRound)} for draw ${String(draw)} could not be read.` };
 
-  const result = resultOf(row, tokens, randomness, deps.contents.current.tuning.lottery);
+  const result = resultOf(row, tokens, randomness, deps.contents.current.tuning.lottery.ticket, await forcedWin(deps.stores.world, row));
   const unpaid: string[] = [];
   for (const [character, prizes] of prizesByCharacter(result, frozen.value)) {
     const outcome = await sendAuthority(deps, character, { type: "lottery/pay", draw, prizes, basedOn: 0 });

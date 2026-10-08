@@ -1,7 +1,7 @@
 // The dials' readers (docs/rules/server.md R-SERVER-030): the city shell, the
 // people kind's server side and the draw service ask here, never the store.
 // Each falls back to the content's number, overlay applied, when the dial is unset.
-import type { Content } from "@japacity/sim";
+import type { Content, LotteryOdds } from "@japacity/sim";
 
 import type { Contents, ServerDeps } from "../deps";
 import { readSwitches } from "./switches";
@@ -22,9 +22,18 @@ export async function computerAfterMonths(deps: Reads): Promise<number> {
   return (await readSwitches(deps)).dials.computerAfterMonths ?? deps.contents.current.tuning.people.computerAfterMonths;
 }
 
-/** R-LOTTERY-021: the tickets the house tops a draw's pot up to, read once when the draw opens. */
-export async function topUpTickets(deps: Reads): Promise<number> {
-  return (await readSwitches(deps)).dials.topUpTickets ?? deps.contents.current.tuning.lottery.topUpTickets;
+/**
+ * The raffle's house top-up, switched off by decision 0010: a draw at fixed
+ * odds has no pot to make up, so the reader reads nothing and every draw opens
+ * with 0. The dial is still stored and still set from the admin page.
+ */
+export function topUpTickets(): Promise<number> {
+  return Promise.resolve(0);
+}
+
+/** R-LOTTERY-021: the odds and amounts of the private settings, overlay applied, read once when a draw opens. */
+export function lotteryOdds(deps: Pick<ServerDeps, "contents">): LotteryOdds {
+  return deps.contents.current.tuning.lottery.odds;
 }
 
 /** True when `value` may be set as the target of `place`: a place the content holds, at or under its `high`. */
