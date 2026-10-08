@@ -129,7 +129,7 @@ export interface AccountView {
   character: string | null;
   /** R-ANALYTICS-006: the "Send usage counts" setting. */
   sendUsageCounts: boolean;
-  /** R-MODERATION-012: the account is on `config.admin.accounts`, so the client mounts the admin page. */
+  /** R-MODERATION-012: the account is on `config.admin.accounts` and the session was opened with a passkey, so the client mounts the admin page. */
   admin: boolean;
 }
 

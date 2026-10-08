@@ -13,6 +13,8 @@ describe("a ban through the sign-in library", () => {
     const player = await h.signUp("Player@Example.test", makeJar());
     const admin = await h.signUp("owner@example.test", makeJar());
     h.deps.config.admin.accounts.push(admin.account);
+    // R-MODERATION-012: the admin routes answer only a session opened with a passkey.
+    for (const row of h.tables.session) if (row["userId"] === admin.account) row["signedInWith"] = "passkey";
     const identities = authIdentities(h.auth);
     const queue = memoryReportQueue({ reports: [report("report.1", { subject: { account: player.account } })] });
     const routes = new Hono().route("/", moderationAdminRoutes(h.deps, { reports: queue, identities }));
