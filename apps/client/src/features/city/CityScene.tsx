@@ -99,7 +99,7 @@ function Place(props: WorldProps) {
       if (!alive) return;
       const [x, z, facing] = stage.start;
       walker.current = standAt(x, z, facing);
-      setWorld(buildWorld(stage, models, people, own, settings));
+      setWorld(buildWorld(stage, models, people, own, settings, text));
     })().catch((error: unknown) => {
       if (alive) onFailed(error instanceof Error ? error.message : String(error));
     });
@@ -186,10 +186,10 @@ function Place(props: WorldProps) {
     walker.current = walkTo(walker.current, event.point.x, event.point.z);
   };
 
-  const { sky, fog } = skyColours(stage.light.sky, stage.light.ground, settings.atmosphere);
+  const { sky, background, fog } = skyColours(stage.light.sky, stage.light.ground, settings.haze);
   return (
     <>
-      <color attach="background" args={[fog]} />
+      <color attach="background" args={[background]} />
       <fog attach="fog" args={[fog, settings.fog.near, settings.fog.far]} />
       <hemisphereLight args={[sky, colourOf(stage.light.ground), 1.1]} />
       <directionalLight

@@ -3,8 +3,8 @@ import type { PlaceEntry } from "@japacity/sim";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
 import hubFile from "../../../public/assets/places/ojuelegba/place.json";
-import { bandOf, crowdSize, hash, localDate, poolOf, resident, sampleCrowd, weekday } from "./crowd";
-import { ROSTER } from "./roster";
+import { bandOf, crowdSize, hash, localDate, placeCrowd, playersRoom, poolOf, resident, residents, sampleCrowd, type Shown, traditionalCount, weekday } from "./crowd";
+import { type Person, ROSTER } from "./roster";
 
 const city = content.tuning.city;
 const places = Object.values(content.place);
@@ -15,6 +15,8 @@ const pool = poolOf(hubFile.people.sample);
 const FRIDAY = "2026-10-09";
 const SATURDAY = "2026-10-10";
 const THURSDAY = "2026-10-08";
+/** A hundred days from the first of October, so a mix is read over many samples. */
+const HUNDRED = Array.from({ length: 100 }, (_, day) => localDate(new Date(2026, 9, 1 + day)));
 /** Every day of a year, so a share is read over many samples. */
 const YEAR = Array.from({ length: 365 }, (_, day) => localDate(new Date(2026, 0, 1 + day)));
 
@@ -25,10 +27,10 @@ afterEach(() => {
 describe("the sample's size and band", () => {
   test("[R-CITY-014] given every place, when its sample is drawn in each mode, then it is at most the mode's figure and the place's own", () => {
     for (const place of places) {
-      expect(sampleCrowd(place, pool, THURSDAY, "low", city).people.length).toBe(Math.min(city.crowdLow, place.crowd.low));
-      expect(sampleCrowd(place, pool, THURSDAY, "high", city).people.length).toBe(Math.min(city.crowdHigh, place.crowd.high));
+      expect(sampleCrowd(place, pool, THURSDAY, "low", city).people.length).toBe(Math.min(place.crowd.target, city.crowdLow, place.crowd.low));
+      expect(sampleCrowd(place, pool, THURSDAY, "high", city).people.length).toBe(Math.min(place.crowd.target, city.crowdHigh, place.crowd.high));
     }
-    const wide: PlaceEntry = { ...hub, crowd: { low: city.crowdLow + 1, high: city.crowdHigh + 1, target: hub.crowd.target } };
+    const wide: PlaceEntry = { ...hub, crowd: { low: city.crowdLow + 1, high: city.crowdHigh + 1, target: city.crowdHigh + 1 } };
     expect(crowdSize(wide, "low", city)).toBe(city.crowdLow);
     expect(crowdSize(wide, "high", city)).toBe(city.crowdHigh);
   });
@@ -130,5 +132,112 @@ describe("the roster", () => {
     const wrong = ROSTER.filter((person) => !ALL_PEOPLE.some((built) => `shared/chr/${built.name}.glb` === person.file && built.body.startsWith(person.sex)));
     expect(wrong.map((person) => person.file)).toEqual([]);
     expect(pool.length).toBe(hubFile.people.sample.length);
+  });
+});
+
+describe("the target headcount", () => {
+  test("[R-CITY-032] given the hub's target, when its sample is drawn, then it shows min(target, the mode's figure) in each mode", () => {
+    expect(sampleCrowd(hub, pool, THURSDAY, "high", city).people).toHaveLength(Math.min(hub.crowd.target, city.crowdHigh));
+    expect(sampleCrowd(hub, pool, THURSDAY, "low", city).people).toHaveLength(Math.min(hub.crowd.target, city.crowdLow));
+  });
+
+  test("[R-CITY-032] given a target at, under and over the mode's figure, when the size is read, then the smaller of the two is shown", () => {
+    for (const target of [city.crowdLow - 1, city.crowdLow, city.crowdLow + 1, city.crowdHigh, city.crowdHigh + 1]) {
+      const place = { ...hub, crowd: { low: city.crowdLow, high: city.crowdHigh, target } };
+      expect(crowdSize(place, "low", city)).toBe(Math.min(target, city.crowdLow));
+      expect(crowdSize(place, "high", city)).toBe(Math.min(target, city.crowdHigh));
+    }
+  });
+
+  test("[R-CITY-032] given more players than room, when the sample is drawn, then residents never fall under residentFloor, and a sample at the floor shows no player", () => {
+    const others = Array.from({ length: city.playersMax + 4 }, (_, index) => ({ look: "chr_tunde", name: `player${String(index)}` }));
+    for (const target of [city.residentFloor, city.residentFloor + 1, city.residentFloor + city.playersMax, city.crowdHigh]) {
+      const place = { ...hub, crowd: { low: city.crowdLow, high: city.crowdHigh, target } };
+      const sample = sampleCrowd(place, pool, THURSDAY, "high", city, others);
+      const residentsShown = sample.people.filter((shown) => shown.kind === "resident").length;
+      expect(residentsShown).toBeGreaterThanOrEqual(city.residentFloor);
+      expect(sample.people.length - residentsShown).toBe(playersRoom(target, city));
+    }
+    expect(playersRoom(city.residentFloor, city)).toBe(0);
+    expect(playersRoom(city.residentFloor + 1, city)).toBe(1);
+  });
+
+  test("[R-CITY-014] given the hub's target under the high mode's figure, when the band is read, then packed shows only at the mode's full figure", () => {
+    expect(sampleCrowd(hub, pool, THURSDAY, "low", city).band).toBe(crowdSize(hub, "low", city) >= city.crowdLow ? "packed" : "busy");
+    expect(sampleCrowd(hub, pool, THURSDAY, "high", city).band).toBe("busy");
+  });
+});
+
+describe("one sample, many outfits", () => {
+  const plain = { ...city, fridayBp: 0, saturdayBp: 0 };
+
+  test("[R-CITY-016] given the hub's traditional share, when a hundred days of samples are drawn in each mode, then every sample holds that share to the nearest person", () => {
+    for (const mode of ["low", "high"] as const) {
+      let traditional = 0;
+      let all = 0;
+      for (const date of HUNDRED) {
+        const people = sampleCrowd(hub, pool, date, mode, plain).people;
+        const count = people.filter((shown) => shown.person.dress === "traditional").length;
+        expect(count).toBe(traditionalCount(people.length, hub.traditionalBp));
+        traditional += count;
+        all += people.length;
+      }
+      expect(Math.abs(traditional * 10000 - hub.traditionalBp * all)).toBeLessThanOrEqual(all * 10000 * 0.05);
+    }
+    expect(traditionalCount(12, 6000)).toBe(7);
+    expect(traditionalCount(8, 6000)).toBe(5);
+    expect(traditionalCount(8, 0)).toBe(0);
+    expect(traditionalCount(8, 10000)).toBe(8);
+  });
+
+  test("[R-CITY-016] given a hundred days of the hub, Fridays and Saturdays included, when each sample is drawn, then no two people in it wear one outfit", () => {
+    for (const date of HUNDRED) {
+      for (const mode of ["low", "high"] as const) {
+        const files = sampleCrowd(hub, pool, date, mode, city).people.map((shown) => shown.person.file);
+        expect(new Set(files).size).toBe(files.length);
+      }
+    }
+  });
+
+  test("[R-CITY-016] given every person the crowd may show, when their clothes are read from the people's data, then no two wear the same outfit", async () => {
+    const { ALL_PEOPLE } = await import("@japacity/assets-src/people/people.data");
+    const outfit = (file: string): string => {
+      const built = ALL_PEOPLE.find((spec) => `shared/chr/${spec.name}.glb` === file);
+      return JSON.stringify([built?.top, built?.bottom, built?.over, built?.patterns, built?.head, built?.headFab]);
+    };
+    const outfits = ROSTER.map((person) => outfit(person.file));
+    expect(new Set(outfits).size).toBe(outfits.length);
+  });
+
+  test("[R-CITY-016] given a pool smaller than the sample, when it is drawn, then everyone is used once before anyone is shown twice", () => {
+    const small = pool.slice(0, 5);
+    const people = residents(hub, small, THURSDAY, 8, plain);
+    expect(new Set(people.slice(0, 5).map((person) => person.file)).size).toBe(5);
+  });
+});
+
+describe("where the crowd stands", () => {
+  const shown = (files: readonly string[]): Shown[] =>
+    files.map((file, slot) => {
+      const person = ROSTER.find((row) => row.file === `shared/chr/${file}.glb`) as Person;
+      return { slot, person, kind: "resident", tag: null };
+    });
+
+  test("[R-CITY-014] given spots kept for a hawker and a trader, when the sample stands, then the hawker and the trader take them and everyone else fills the first spots in slot order", () => {
+    const people = shown(["chr_tunde", "chr_hawker_a", "chr_ada", "chr_iya"]);
+    const spots = ["a", "b", "c", "d", "e"];
+    const placed = placeCrowd(people, spots, { hawker: [3], trader: [0] });
+    expect(placed.map(({ shown: one, spot }) => [spot, one.person.file])).toEqual([
+      ["a", "shared/chr/chr_iya.glb"],
+      ["b", "shared/chr/chr_tunde.glb"],
+      ["c", "shared/chr/chr_ada.glb"],
+      ["d", "shared/chr/chr_hawker_a.glb"],
+    ]);
+  });
+
+  test("[R-CITY-014] given a kept spot past the sample's size or no one of its role, when the sample stands, then it is left and only the first spots are used", () => {
+    const people = shown(["chr_tunde", "chr_ada"]);
+    expect(placeCrowd(people, ["a", "b", "c"], { hawker: [0], trader: [2] }).map(({ spot }) => spot)).toEqual(["a", "b"]);
+    expect(placeCrowd(people, ["a"], {}).map(({ shown: one }) => one.slot)).toEqual([0]);
   });
 });

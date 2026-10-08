@@ -87,16 +87,19 @@ const BODY: Record<MotionShader, string> = {
     transformed.y += h;
     vCrest = h;
   }`,
-  // One puff of many: it rises, drifts downwind, swells, then shrinks to nothing and starts again.
+  // One puff of many: it rises, drifts downwind and swells into the puffs above it, turning as it
+  // goes so its facets never sit still, then shrinks to nothing and starts again at the fire.
   smoke: /* glsl */ `{
-    float life = fract(uTime * 0.16 + aSeed);
+    float life = fract(uTime * 0.11 + aSeed);
     float g = gust(vec3(0.0));
-    float size = mix(0.25, 1.0, life) * (1.0 - smoothstep(0.78, 1.0, life));
-    transformed *= size;
+    float size = mix(0.3, 1.25, sqrt(life)) * (1.0 - smoothstep(0.75, 1.0, life)) * (0.7 + fract(aSeed * 17.0) * 0.6);
+    float spin = uTime * (0.3 + fract(aSeed * 11.0) * 0.4) + aSeed * 20.0;
+    transformed.xz = mat2(cos(spin), -sin(spin), sin(spin), cos(spin)) * transformed.xz;
+    transformed *= vec3(size, size * 0.8, size);
     transformed += vec3(
-      uWind.x * life * life * 3.0 * g + sin(aSeed * 40.0 + uTime) * 0.16,
-      life * 3.2,
-      uWind.y * life * life * 3.0 * g + cos(aSeed * 23.0 + uTime * 0.7) * 0.12);
+      uWind.x * life * life * 3.4 * g + sin(aSeed * 40.0 + uTime * 0.6) * 0.55 * life,
+      life * 3.6,
+      uWind.y * life * life * 3.4 * g + cos(aSeed * 23.0 + uTime * 0.5) * 0.45 * life);
   }`,
   // A leaf or a scrap of paper tumbling downwind along the ground, across a strip `aSpan` long.
   leaf: /* glsl */ `{
@@ -132,7 +135,7 @@ export function motionMaterial(kind: MotionShader, color: Color | number = 0xfff
 const SHEET_SEGMENTS: Record<SheetKind, Record<MeshLevel, [number, number]>> = {
   flag: { fine: [22, 10], coarse: [10, 5] },
   hang: { fine: [6, 8], coarse: [3, 4] },
-  frond: { fine: [10, 1], coarse: [5, 1] },
+  frond: { fine: [12, 2], coarse: [6, 2] },
 };
 
 /** A sheet of `width` by `height`, its pinned edge at the origin: the left edge for a flag or frond, the top for a hang. */
@@ -142,13 +145,21 @@ export function sheetGeometry(kind: SheetKind, width: number, height: number, le
   return kind === "hang" ? geometry.translate(0, -height / 2, 0) : geometry.translate(width / 2, 0, 0);
 }
 
-/** A palm frond: a sheet that narrows and droops toward its tip, pinned at its stalk. */
+/**
+ * A palm frond `length` long and `width` across, pinned at its stalk: it lies nearly flat, arches up
+ * from the crown and droops toward its tip, widest a third of the way out and folded down from its
+ * spine like the two rows of leaflets, so from below and from the side it reads as a feather.
+ */
 export function frondGeometry(length: number, width: number, level: MeshLevel): BufferGeometry {
   const geometry = sheetGeometry("frond", length, width, level);
   const position = geometry.getAttribute("position");
   for (let at = 0; at < position.count; at += 1) {
     const along = position.getX(at) / length;
-    position.setY(at, position.getY(at) * (1 - along * 0.75) - along * along * 1.0 + along * 0.35);
+    const across = position.getY(at) / (width / 2);
+    const spread = Math.sin(Math.PI * Math.min(1, along * 1.35)) * (along < 0.08 ? along / 0.08 : 1);
+    const arch = (along * 0.42 - along * along * 0.95) * length;
+    position.setY(at, arch - Math.abs(across) * spread * width * 0.32);
+    position.setZ(at, across * spread * (width / 2));
   }
   geometry.computeVertexNormals();
   return geometry;
@@ -201,8 +212,17 @@ function instanced(geometry: BufferGeometry, material: Material, count: number, 
   return mesh;
 }
 
-export function smoke(count: number, color: Color): InstancedMesh {
-  return instanced(seeded(new IcosahedronGeometry(0.26, 0), count), motionMaterial("smoke", color), count, "motion-smoke");
+/** Smoke as soft pale puffs, rounder than a stone, each copy in one of `colours` in turn. */
+export function smoke(count: number, colours: readonly Color[]): InstancedMesh {
+  const material = motionMaterial("smoke");
+  // Lit faces and shaded faces sit close together, so a puff reads soft and not as a faceted lump.
+  material.emissive = new Color(0xffffff).multiplyScalar(0.38);
+  const mesh = instanced(seeded(new IcosahedronGeometry(0.3, 1), count), material, count, "motion-smoke");
+  for (let at = 0; at < count; at += 1) {
+    const colour = colours[at % Math.max(1, colours.length)];
+    if (colour !== undefined) mesh.setColorAt(at, colour);
+  }
+  return mesh;
 }
 
 /** Leaves tumbling downwind across a strip `span` long and `depth` deep, centred where the mesh stands. */
