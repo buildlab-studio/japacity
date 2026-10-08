@@ -6,8 +6,8 @@ import type { SayRefusal } from "@japacity/sim";
 import type { Answer, Status } from "../authority/answer";
 import type { ServerCode } from "../types";
 
-/** the codes after ServerCode are not in types.ts's ServerCode; the maintainer decides whether they join it. */
-export type PairCode = ServerCode | SayRefusal | "used" | "expired" | "wrong-slot" | "not-adult";
+/** The say check's refusals are all in ServerCode; the union keeps the two from drifting apart. */
+export type PairCode = ServerCode | SayRefusal;
 
 export interface PairRejection {
   ok: false;

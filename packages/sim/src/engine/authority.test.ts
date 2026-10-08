@@ -96,6 +96,8 @@ const AUTHORITY_SAMPLES: Record<AuthorityCommand, Loose[]> = {
         { tier: "mid", amount: 4000000, topUp: 0 },
       ],
     },
+    // R-LOTTERY-022: a prize with a part from the house's top-up.
+    { type: "lottery/pay", draw: ONLINE.draw, prizes: [{ tier: "mid", amount: 4000000, topUp: 1500000 }] },
   ],
   // The people milestone's commands from the authority: refused by the stubs until the people agents build them, and then still no money.
   "people/link": [{ type: "people/link", slot: "partner", pair: "pair-1", facts: FACTS }],
@@ -217,7 +219,7 @@ describe("the authority's reach", () => {
   );
 
   test.each(LIVES.map((life) => [life.name, life.state] as const))(
-    "[R-SERVER-013] given %s, when the authority pays a draw, then money is credited only under the win reason to the naira bank and no more than the prizes, or the payment is rejected and nothing moves",
+    "[R-SERVER-013] given %s, when the authority pays a draw, then money is credited only under the win and pot-top-up reasons to the naira bank and no more than the prizes, or the payment is rejected and nothing moves",
     (_name, state) => {
       for (const sample of AUTHORITY_SAMPLES["lottery/pay"]) {
         const result = send(state, sample, "authority");
@@ -225,7 +227,7 @@ describe("the authority's reach", () => {
         const prizes = sample.type === "lottery/pay" ? sample.prizes.reduce((sum, prize) => sum + prize.amount, 0) : 0;
         // Until the lottery kind pays, its stub refuses with not-legal; a life in its prologue refuses every command but the prologue's.
         expect(["accepted", "not-legal", "prologue-open"]).toContain(result.ok ? "accepted" : result.code);
-        expect(ledgerProblems(state, after, (reason, currency) => reason === "win" && currency === "NGN")).toEqual([]);
+        expect(ledgerProblems(state, after, (reason, currency) => (reason === "win" || reason === "pot-top-up") && currency === "NGN")).toEqual([]);
         expect(after.wallet.pockets.NGN.bank - state.wallet.pockets.NGN.bank).toBeLessThanOrEqual(prizes);
         expect(after.wallet.pockets.NGN.cash).toBe(state.wallet.pockets.NGN.cash);
       }

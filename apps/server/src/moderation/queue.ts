@@ -24,9 +24,6 @@ const WEIGHT: Record<ReportReason, number> = {
 
 const APPEAL_WEIGHT = 2;
 
-/** `config.moderation` (moderation.md Numbers) is not in the server's config yet; its `decideHours` is read here until it is. */
-export const DECIDE_HOURS = 24;
-
 /** A held message as the admin reads it: the phrase's own words and when it was sent. */
 export interface HeldMessage {
   id: string;
@@ -138,7 +135,7 @@ export async function readQueue(deps: ServerDeps, queue: ReportQueueStore): Prom
   const reports = await Promise.all((await queue.open()).map((report) => reportItem(deps, queue, report)));
   const appeals = await Promise.all((await deps.stores.appeals.pending()).map((appeal) => appealItem(deps, queue, appeal)));
   const items = [...reports, ...appeals].sort((x, y) => weightOf(x) - weightOf(y) || x.at - y.at);
-  const target = DECIDE_HOURS * time.HOUR_MS;
+  const target = deps.config.moderation.decideHours * time.HOUR_MS;
   return {
     items,
     oldest: items.reduce((oldest, item) => Math.max(oldest, item.age), 0),

@@ -84,14 +84,14 @@ function authKeys(env: Env, waitUntil: (promise: Promise<unknown>) => void): Aut
 }
 
 function drawKeys(env: Env): DrawKeys {
-  return { tokenKey: env.DRAW_TOKEN_KEY ?? "", beacon: quicknet(fetch, env.DRAND_URL ?? DRAND_URL) };
+  return { beacon: quicknet(fetch, env.DRAND_URL ?? DRAND_URL) };
 }
 
 /** R-CLOCK-031: the push keys from the bindings, or null while one is missing. */
 function pushKeys(env: Env): PushKeys | null {
   const { VAPID_PUBLIC_KEY: publicKey, VAPID_PRIVATE_KEY: privateKey, VAPID_SUBJECT: subject } = env;
   if (publicKey === undefined || privateKey === undefined || subject === undefined) return null;
-  return { publicKey, privateKey, subject, fetch: (input, init) => fetch(input, init) };
+  return { publicKey, privateKey, subject, numbers: productionConfig.notify, fetch: (input, init) => fetch(input, init) };
 }
 
 /** The deployment's dependencies, made once per isolate (R-SERVER-016). The stores move to packages/db when it lands. */

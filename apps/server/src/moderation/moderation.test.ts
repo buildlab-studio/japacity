@@ -5,11 +5,10 @@ import { describe, expect, test } from "vitest";
 
 import { testDeps } from "../app.test";
 import { makeApp } from "../app";
-import { testConfig } from "../config";
+import { productionConfig, testConfig } from "../config";
 import { testSession } from "../deps";
 import { identityHash, isBanned } from "./identities";
 import type { QueueView } from "./queue";
-import { DECIDE_HOURS } from "./queue";
 import { readReport, REPORT_REASONS } from "./reports";
 import type { Standing } from "./standing";
 import { ADMIN, as, DAY, HOUR, message, moderationHarness, post, report, SECOND_ADMIN } from "./testing";
@@ -99,7 +98,7 @@ describe("the queue", () => {
   });
 
   test("[R-MODERATION-011] given open reports, when the queue is read, then it shows the oldest one's age, and one is overdue only past the target to the millisecond", async () => {
-    const target = DECIDE_HOURS * HOUR;
+    const target = productionConfig.moderation.decideHours * HOUR;
     const h = moderationHarness({ now: 0, reports: [report("report.a", { at: 0 }), report("report.b", { at: 1 })] });
     expect(await queueOf(moderationHarness({ now: 0 }).app)).toEqual({ items: [], oldest: 0, target, overdue: 0 });
 
@@ -255,7 +254,7 @@ describe("closing a report", () => {
     expect(await isBanned(h.deps, ["email:good@example.test"])).toBe(false);
     expect(await h.deps.stores.banned.has("email:bad@example.test")).toBe(false);
     expect(await h.deps.stores.banned.has(await identityHash(h.deps, "google:1234"))).toBe(true);
-    expect(await identityHash(h.deps, "google:1234")).not.toBe(await identityHash({ secrets: { banSalt: "test-ban-salt", drawTokenKey: "test-draw-token-key", worldSeed: "another-deployment" } }, "google:1234"));
+    expect(await identityHash(h.deps, "google:1234")).not.toBe(await identityHash({ secrets: { banSalt: "another-deployment", drawTokenKey: "test-draw-token-key", worldSeed: "test-world-seed" } }, "google:1234"));
     expect(await h.deps.stores.deletion.due(h.deps.now() + h.deps.config.account.deleteWithinDays * time.DAY_MS)).toMatchObject([{ account: "account.reported" }]);
   });
 

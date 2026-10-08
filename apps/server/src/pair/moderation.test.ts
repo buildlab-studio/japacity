@@ -5,7 +5,7 @@ import { requestDeletion } from "../account/deletion";
 import type { PairRejection } from "./codes";
 import { forgetPairs } from "./leave";
 import type { Reported } from "./moderation";
-import { closeReport, REPORTS_PER_DAY } from "./moderation";
+import { closeReport } from "./moderation";
 import { call, cardOut, FRIEND, INVITER, lastBondIn, linkedPair, married, pairServer, quickWeddings, recordOf, sayFrom, stateOf } from "./pair.testing";
 
 const STANDING = "quality.standing";
@@ -130,7 +130,7 @@ describe("report and hold", () => {
 
   test("[R-MODERATION-006] given reportsPerDay reports filed in a day, when one more is sent, then it is refused with rate-limited, and a day after the first it goes", async () => {
     const { server, key } = await linkedPair();
-    for (let index = 0; index < REPORTS_PER_DAY; index += 1) {
+    for (let index = 0; index < server.deps.config.moderation.reportsPerDay; index += 1) {
       expect((await post(server, "/api/moderation/report", FRIEND, { pair: key, reason: "other" })).body).toMatchObject({ ok: true });
     }
 

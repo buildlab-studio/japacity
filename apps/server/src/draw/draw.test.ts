@@ -42,7 +42,7 @@ function fakeBeacon(): Beacon & { down: boolean; asked: number[] } {
 }
 
 function keysWith(beacon: Beacon): DrawKeys {
-  return { tokenKey: TOKEN_KEY, beacon };
+  return { beacon };
 }
 
 /** The start of `tick`, plus a minute. */
@@ -416,6 +416,17 @@ describe("the house top-up", () => {
     server.setNow(during(14));
     await drawJob(server.deps, keys, TICKS_CRON);
     expect((await server.deps.stores.world.draw(2))?.topUpTickets).toBe(7);
+  });
+
+  test("[R-LOTTERY-021] [R-SERVER-030] given the top-up dial set in the switch row, when the job opens a draw, then the draw declares the dial's figure, and the content's once the dial is unset", async () => {
+    const server = testServer({ contents: { current: withTopUp(120), previous: null } });
+    await server.deps.stores.switches.setDial({ dial: "topUpTickets", value: 40 }, "account.owner", "launch", server.deps.now());
+    await drawJob(server.deps, keysWith(fakeBeacon()), TICKS_CRON);
+    expect((await server.deps.stores.world.draw(0))?.topUpTickets).toBe(40);
+    await server.deps.stores.switches.setDial({ dial: "topUpTickets", value: null }, "account.owner", "crowd came", server.deps.now());
+    server.setNow(during(14) + server.deps.config.switches.cacheMs);
+    await drawJob(server.deps, keysWith(fakeBeacon()), TICKS_CRON);
+    expect((await server.deps.stores.world.draw(2))?.topUpTickets).toBe(120);
   });
 
   test("[R-LOTTERY-021] [R-LOTTERY-022] given 10 tickets sold under a top-up of 100, when the draw is paid, then the pot is 100 tickets' worth, each prize carries its top-up part, and the wallets credit that part as pot-top-up and the rest as win", async () => {

@@ -7,7 +7,7 @@ import { Hono } from "hono";
 import type { ServerDeps } from "../deps";
 import type { SessionEnv } from "../limits/limit";
 import { limit, sessionOf } from "../limits/limit";
-import { MAX_DEVICES, readDevice, readEndpoint } from "../notify/device";
+import { readDevice, readEndpoint } from "../notify/device";
 import { stopNotices } from "../notify/notice";
 import type { PushKeys } from "../notify/webpush";
 import type { ServerRejection } from "../types";
@@ -73,8 +73,10 @@ export function notifyRoutes(deps: ServerDeps): Hono<SessionEnv> {
     const device = readDevice((await bodyOf(c.req.raw)).subscription);
     if (device === null) return c.json<NotifyReply>(notLegal("The subscription is not one a browser gives."), 400);
     const held = await deps.stores.push.forAccount(session.account);
-    if (!held.some((each) => each.endpoint === device.endpoint) && held.length >= MAX_DEVICES) {
-      return c.json<NotifyReply>(notLegal(`At most ${String(MAX_DEVICES)} devices take the notice.`), 400);
+    // At most `config.notify.maxDevices`, so one account cannot point the job at a crowd of addresses.
+    const { maxDevices } = deps.config.notify;
+    if (!held.some((each) => each.endpoint === device.endpoint) && held.length >= maxDevices) {
+      return c.json<NotifyReply>(notLegal(`At most ${String(maxDevices)} devices take the notice.`), 400);
     }
     await deps.stores.push.subscribe(session.account, device);
     await deps.stores.account.setNotify(session.account, true);

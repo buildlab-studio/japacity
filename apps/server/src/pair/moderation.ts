@@ -16,9 +16,6 @@ import { accountOfCharacter } from "./region";
 import { pairStep, sendTo, sideLive, sideOf, unusual } from "./step";
 
 const REPORT_BYTES = 12;
-/** `config.moderation` (reportsPerDay 20, holdDays 90) is not in ServerConfig yet; the page's values are used until it is. */
-export const REPORTS_PER_DAY = 20;
-export const HOLD_DAYS = 90;
 
 const REASONS: readonly ReportReason[] = ["scam", "harassment", "impersonation", "underage", "sexual", "hate", "self-harm", "illegal", "cheating", "advert", "other"];
 
@@ -133,7 +130,7 @@ function messagesOf(body: unknown): string[] | null {
  * R-PAIR-016, R-MODERATION-004, R-MODERATION-006, R-MODERATION-008: a report
  * on a pair, citing the pair or messages of its conversation, with a reason
  * from the fixed list. The record is held until a moderator decides; the
- * reporter may block in the same step. At most `REPORTS_PER_DAY` a day.
+ * reporter may block in the same step. At most `config.moderation.reportsPerDay` a day, each held at most `holdDays`.
  */
 export async function report(deps: ServerDeps, account: string, body: unknown): Promise<PairAnswer<Reported>> {
   const reason = field(body, "reason");
@@ -142,8 +139,9 @@ export async function report(deps: ServerDeps, account: string, body: unknown): 
   if (reason === null || !REASONS.includes(reason as ReportReason)) return refused(400, "not-legal", "Choose a reason from the list.");
   if (key === null || messages === null) return refused(400, "not-legal", "A report cites the pair, and for a conversation its message ids.");
   const now = deps.now();
+  const { reportsPerDay, holdDays } = deps.config.moderation;
   // A report exactly a day old no longer counts, as a phrase exactly an hour old does not (R-PAIR-013).
-  if ((await deps.stores.moderation.filedSince(account, now - time.DAY_MS + 1)) >= REPORTS_PER_DAY) {
+  if ((await deps.stores.moderation.filedSince(account, now - time.DAY_MS + 1)) >= reportsPerDay) {
     return { status: 429, body: { ok: false, code: "rate-limited", detail: "Too many reports today.", retryAfter: 86_400 } };
   }
   const found = await readable(deps, account, key);
@@ -154,7 +152,7 @@ export async function report(deps: ServerDeps, account: string, body: unknown): 
   const id = `report-${hex(deps.randomBytes(REPORT_BYTES))}`;
   const filed = await deps.stores.moderation.report(
     { id, reporter: account, subject: { account: subject?.id ?? "" }, reason: reason as ReportReason, cites: messages.length > 0 ? { messages } : { pair: key }, pair: key, unverified: false, at: now },
-    { messages, pair: key, until: now + HOLD_DAYS * time.DAY_MS },
+    { messages, pair: key, until: now + holdDays * time.DAY_MS },
   );
   if (!filed.ok) throw new Error(`The report ${id} was refused: ${filed.detail}`);
   await holdRecord(deps, key, true);

@@ -31,13 +31,8 @@ export function authIdentities(auth: Auth): Identities {
   };
 }
 
-/** the page asks for a salted hash and `Secrets` holds no salt of its own; the world seed, a secret of the deployment, stands in until one is added. */
-function salt(deps: Pick<ServerDeps, "secrets">): string {
-  return deps.secrets.worldSeed;
-}
-
 export function identityHash(deps: Pick<ServerDeps, "secrets">, identity: string): Promise<string> {
-  return sha256Hex(`ban:${salt(deps)}:${identity}`);
+  return sha256Hex(`ban:${deps.secrets.banSalt}:${identity}`);
 }
 
 /** R-MODERATION-014, R-MODERATION-018: stores the hash of every identity the account signs in with. */

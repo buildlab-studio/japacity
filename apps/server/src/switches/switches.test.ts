@@ -117,7 +117,7 @@ describe("each switch, off", () => {
 
   test("[R-SERVER-031] given tickets sold and then lottery off, when the draw closes, then it still draws and pays what was sold", async () => {
     const target = server();
-    const keys = { tokenKey: "test-draw-token-key", beacon: fixedBeacon() };
+    const keys = { beacon: fixedBeacon() };
     await drawJob(target.deps, keys, TICKS_CRON);
     const character = await newLife(target, "acc-1");
     const bought = await send(target, "acc-1", { type: "lottery/buy", tickets: 5, basedOn: (await held(target, character)).character.v });
