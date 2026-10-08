@@ -94,6 +94,8 @@ export function routePercent(read: ReadCtx, route: Id<"route">, judge: Judge = (
 
 /** True when the route's figure counts toward japacity (R-JAPACITY-003). */
 function counts(read: ReadCtx, entry: RouteEntry): boolean {
+  // R-ROAD-001: the road never counts, whatever state its route is in.
+  if (entry.gate === "road") return false;
   const state = stateOf(read, entry.id);
   if (SENT.includes(state)) return true;
   // A route with no window (the road, R-ROAD-001) never counts.

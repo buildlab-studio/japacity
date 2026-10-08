@@ -52,16 +52,17 @@ const ROAD_PRESSURE = { refusalBp: 200, defaultBp: 300, lowStandingBp: 200, perY
 /** What a pitch really is (R-ROAD-003). They add up to 10000. */
 const ROAD_KINDS = { fraud: 3000, realish: 1000, road: 6000 };
 
-/** Every character at home, until the chain has begun (R-ROAD-012). */
+/** Every character at home, while no chain is under way (R-ROAD-012). */
 const ROAD_WHEN: Requirement[] = [
   { type: "place/is", where: "home" },
   { type: "route/state", route: "route.road", in: ["unknown", "heard", "known"] },
+  { type: "not", of: { type: "route/gate-step", route: "route.road", step: "night" } },
 ];
 
 /**
  * Taking the pitch pays the deposit from cash. the offer's own fraud draw is the `fraud` kind, so
- * `fraudBp` is the fraud share and a fraud's money is simply gone; the road kind splits the rest into real-ish
- * and road. Both of those open the night meeting.
+ * `fraudBp` is the fraud share and a fraud's money is simply gone; the offer kind splits the rest into real-ish
+ * and road on taking (R-ROAD-003). Both of those open the night meeting through the road's step.
  */
 const ROAD_TAKE: OfferChoice = {
   id: "take",
@@ -69,9 +70,12 @@ const ROAD_TAKE: OfferChoice = {
   pick: null,
   effects: [
     { type: "money/take", currency: "NGN", pocket: "cash", amount: { term: "deposit" }, reason: "fee-agent" },
-    { type: "setpiece/open", setpiece: "setpiece.road-night", route: "route.road" },
+    { type: "route/road-step", step: "night" },
   ],
-  fraudEffects: [{ type: "money/take", currency: "NGN", pocket: "cash", amount: { term: "deposit" }, reason: "fee-agent" }],
+  fraudEffects: [
+    { type: "money/take", currency: "NGN", pocket: "cash", amount: { term: "deposit" }, reason: "fee-agent" },
+    { type: "route/road-step", step: "fraud" },
+  ],
 };
 
 const ROAD_IGNORE: OfferChoice = { id: "ignore", requires: [], pick: null, effects: [], fraudEffects: null };
@@ -1118,7 +1122,7 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
         id: "cannot",
         requires: [],
         pick: null,
-        // the sum becomes debt only here, when nobody pays it.
+        // R-ROAD-006: the sum is added to the agent's debt the compound opened (or opens it, after any other step's call).
         effects: [
           { type: "obligation/open", obligation: "obligation.agent-debt", principal: { term: "sum" } },
           { type: "quality/add", quality: "quality.wellbeing", amount: -10 },
