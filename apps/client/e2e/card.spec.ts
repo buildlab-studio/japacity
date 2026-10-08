@@ -6,7 +6,7 @@ import { readFileSync } from "node:fs";
 import { devices, expect, test, type Page } from "@playwright/test";
 
 // The recorded lives and the tuning are the simulation's and the content's own data.
-import { content } from "../../../packages/content/src/index";
+import { content, text } from "../../../packages/content/src/index";
 import { lifeSaves } from "../../../packages/sim/src/goldens/lives.data";
 
 // A device's browser type can be chosen only by the project; the rest of the profile applies here.
@@ -33,6 +33,18 @@ function jpegSize(bytes: Buffer): { width: number; height: number } | null {
   return null;
 }
 
+/**
+ * R-SHARE-001: the recorded life loads in the month after its decision day, so
+ * the granted card is still due and opens over the page first; it is closed.
+ */
+async function closeGranted(page: Page): Promise<void> {
+  const granted = page.getByRole("dialog", { name: text["share.granted.title"] ?? "share.granted.title" });
+  await expect(granted).toBeVisible();
+  await expect(granted.locator("[data-share-card='granted']")).toBeVisible();
+  await granted.getByRole("button", { name: "Close" }).click();
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+}
+
 async function flyAda(page: Page, withShareSheet: boolean): Promise<void> {
   await page.addInitScript(
     ({ stored, sheet }) => {
@@ -48,6 +60,7 @@ async function flyAda(page: Page, withShareSheet: boolean): Promise<void> {
     { stored: adaBeforeFlight(), sheet: withShareSheet },
   );
   await page.goto("/");
+  await closeGranted(page);
   const tabs = page.getByRole("navigation", { name: "Sections" });
   if (await tabs.isVisible()) await tabs.getByRole("button", { name: "Japa" }).click();
   await page.getByRole("button", { name: "Board the plane" }).click();
@@ -71,11 +84,11 @@ test("[R-SHARE-009] [R-CHAPTER-006] a recorded life's send-off card is saved on 
   expect(jpegSize(bytes)).toEqual({ width: content.tuning.share.width, height: content.tuning.share.height });
   await expect(sheet.getByText("Saved to your downloads.")).toBeVisible();
 
-  // R-SHARE-011: closed, the card goes to the gallery on this device.
+  // R-SHARE-011: closed, the card goes to the gallery on this device, newest first, after the granted card closed on load.
   await sheet.getByRole("button", { name: "Close" }).click();
   await expect(page.getByRole("dialog")).toHaveCount(0);
-  const kept = await page.evaluate(() => JSON.parse(localStorage.getItem("japacity.cards") ?? "[]") as unknown[]);
-  expect(kept).toHaveLength(1);
+  const kept = await page.evaluate(() => JSON.parse(localStorage.getItem("japacity.cards") ?? "[]") as { card: { kind: string } }[]);
+  expect(kept.map((entry) => entry.card.kind)).toEqual(["send-off", "granted"]);
 });
 
 test("[R-SHARE-003] a phone with a share sheet gets the card only when the player taps", async ({ page }) => {

@@ -1,7 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 
 // The recorded lives are the simulation's own data, replayed here through the client's save.
-import { content } from "../../../packages/content/src/index";
+import { content, text } from "../../../packages/content/src/index";
 import { lifeSaves } from "../../../packages/sim/src/goldens/lives.data";
 import { standInWorld } from "../../../packages/sim/src/world/standIn";
 
@@ -129,7 +129,20 @@ async function seedAda(page: Page): Promise<void> {
   await page.goto("/");
 }
 
+/**
+ * R-SHARE-001: the recorded life loads in the month after its decision day, so
+ * the granted card is still due and opens over the page first; it is closed.
+ */
+async function closeGranted(page: Page): Promise<void> {
+  const granted = page.getByRole("dialog", { name: text["share.granted.title"] ?? "share.granted.title" });
+  await expect(granted).toBeVisible();
+  await expect(granted.locator("[data-share-card='granted']")).toBeVisible();
+  await granted.getByRole("button", { name: "Close" }).click();
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+}
+
 async function boardThePlane(page: Page): Promise<void> {
+  await closeGranted(page);
   await openTab(page, "Japa");
   await page.getByRole("button", { name: "Board the plane" }).click();
   const moment = page.getByRole("dialog");
