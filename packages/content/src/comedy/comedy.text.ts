@@ -11,14 +11,14 @@ export const comedyText: Record<string, string> = {
   "line.activity.job-started.v3": "You start a new job: {job}. The office chair squeaks. It is yours anyway.",
   "line.activity.job-started.v4": "You start a new job: {job}. By evening, somebody's cousin is asking if they are hiring.",
 
-  "line.activity.rested.v2": "Free slots given to rest: {slots}. The generator next door did not get the message.",
-  "line.activity.rested.v3": "Free slots given to rest: {slots}. The light went at nine, so you slept at nine.",
-  "line.activity.rested.v4": "Free slots given to rest: {slots}. Your phone rang twice. You let it.",
+  "line.activity.rested.v2": "Free slots given to rest: {slots}. Your phone rang twice. You let it.",
+  "line.activity.rested.v3": "Free slots given to rest: {slots}. Nobody could reach you. That was the plan.",
+  "line.activity.rested.v4": "Free slots given to rest: {slots}. You slept like someone with no deadlines. You have deadlines.",
 
   "line.activity.played.v2": "This month: {activity}. Your mother calls it progress when she tells people.",
   "line.activity.played.v3": "This month: {activity}. The plan is moving, at about the speed of Third Mainland at six.",
 
-  "line.wallet.upkeep.v2": "Living costs: {amount}. The tomato seller has also heard about the exchange rate.",
+  "line.wallet.upkeep.v2": "Living costs: {amount}. Prices went up again. Nobody announced it.",
   "line.wallet.upkeep.v3": "Living costs: {amount}. Bread went up again, and somehow got smaller.",
   "line.wallet.upkeep.v4": "Living costs: {amount}. Food, fuel, light. The usual suspects.",
 
@@ -29,8 +29,8 @@ export const comedyText: Record<string, string> = {
   "line.wallet.social.v2": "Spent going out: {amount}. The suya was worth it. Your account has questions.",
   "line.wallet.social.v3": "Spent going out: {amount}. You said one drink. The table said otherwise.",
 
-  "line.wallet.converted.v2": "Changed money. {amount} in hand. The rate was \"just for you\", he said.",
-  "line.wallet.converted.v3": "Changed money. {amount} in hand. You count it twice. He watches you count it twice.",
+  "line.wallet.converted.v2": "Changed money. {amount} in hand. The rate moved twice while you were deciding.",
+  "line.wallet.converted.v3": "Changed money. {amount} in hand. You check the sum twice anyway.",
 
   "line.wallet.gift.v2": "A gift lands: {amount}. It comes with a voice note you will play at least twice.",
   "line.wallet.gift.v3": "A gift lands: {amount}. Your uncle says it is \"for something small\". Nobody says what.",
