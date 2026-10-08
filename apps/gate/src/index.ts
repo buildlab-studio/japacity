@@ -26,10 +26,13 @@ function nowSeconds(): number {
   return Math.floor(Date.now() / 1000);
 }
 
-/** Sends the phone on to the same address without the code, so the code never stays in the address bar. */
+/**
+ * Sends the phone on to the same address without the code, so the code never stays in the address bar.
+ * The location is relative: the browser keeps the host it asked for, whatever host the request reached.
+ */
 function toCleanAddress(url: URL, setCookie: string | null): Response {
   url.searchParams.delete("code");
-  const headers = new Headers({ ...PRIVATE, location: url.toString() });
+  const headers = new Headers({ ...PRIVATE, location: `${url.pathname}${url.search}` });
   if (setCookie !== null) headers.set("set-cookie", setCookie);
   return new Response(null, { status: 303, headers });
 }

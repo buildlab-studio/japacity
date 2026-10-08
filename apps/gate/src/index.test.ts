@@ -38,7 +38,7 @@ describe("the invite link", () => {
   test("given the right code, when the link is opened, then the phone gets the cookie and is sent on to the clean address", async () => {
     const response = await visit(`/?code=${encodeURIComponent(env.GATE_SECRET)}`);
     expect(response.status).toBe(303);
-    expect(response.headers.get("location")).toBe(`${GAME}/`);
+    expect(response.headers.get("location")).toBe("/");
     expect(response.headers.get("cache-control")).toBe("no-store");
     expect(response.headers.get("referrer-policy")).toBe("no-referrer");
     const setCookie = response.headers.get("set-cookie") ?? "";
@@ -51,7 +51,7 @@ describe("the invite link", () => {
 
   test("given the right code on a deeper link, when it is opened, then only the code leaves the address", async () => {
     const response = await visit(`/play?card=granted&code=${encodeURIComponent(env.GATE_SECRET)}`);
-    expect(response.headers.get("location")).toBe(`${GAME}/play?card=granted`);
+    expect(response.headers.get("location")).toBe("/play?card=granted");
   });
 
   test("given a wrong code, when the link is opened, then there is no cookie and only the screen shows", async () => {
@@ -64,7 +64,7 @@ describe("the invite link", () => {
     const cookie = await admittedCookie();
     const response = await visit("/?code=whatever", { headers: { cookie } });
     expect(response.status).toBe(303);
-    expect(response.headers.get("location")).toBe(`${GAME}/`);
+    expect(response.headers.get("location")).toBe("/");
     expect(response.headers.get("set-cookie")).toBeNull();
   });
 
