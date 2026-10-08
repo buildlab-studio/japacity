@@ -32,7 +32,6 @@ import type { GrantWhy, LapseWhy, StatusEvent } from "./status.events";
 
 const MONTHS_PER_YEAR = 12;
 /** R-STATUS-011: months held before a course counts as passed. no tuning field holds it. */
-export const COURSE_MONTHS = 12;
 
 // ---------------------------------------------------------------------------
 // Reading
@@ -112,7 +111,7 @@ export function passportHeldByEmployer(read: ReadCtx): boolean {
 /** R-STATUS-011: held long enough, and no tuition obligation has gone into default. */
 export function coursePassed(read: ReadCtx): boolean {
   const current = read.state.status.current;
-  if (current === null || current.monthsHeld < COURSE_MONTHS) return false;
+  if (current === null || current.monthsHeld < read.content.tuning.status.courseMonths) return false;
   return !Object.values(read.state.obligation.items).some(
     (item) => item.state === "defaulted" && read.content.obligation[item.entry]?.type === "tuition",
   );

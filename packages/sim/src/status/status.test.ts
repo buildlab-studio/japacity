@@ -12,7 +12,7 @@ import { flown, playMonths } from "../place/place.journey";
 import { applyEffects } from "../route/route.journey";
 import type { LifeOptions } from "../route/route.journey";
 import type { Game } from "../testing/play";
-import { COURSE_MONTHS, coursePassed, isKept, isOverstayer, nextStepOf, passportHeldByEmployer, workAllows } from "./status.logic";
+import { coursePassed, isKept, isOverstayer, nextStepOf, passportHeldByEmployer, workAllows } from "./status.logic";
 
 const STUDENT: Id<"status"> = "status.uk-student";
 const GRADUATE: Id<"status"> = "status.uk-graduate";
@@ -353,7 +353,7 @@ describe("the view", () => {
 describe("the course", () => {
   test("[R-STATUS-011] given a student, when the months held are 11 and then 12, then the course counts as passed only from 12", () => {
     const game = flown(content);
-    playMonths(game, COURSE_MONTHS - 1);
+    playMonths(game, content.tuning.status.courseMonths - 1);
     expect(coursePassed(readOf(game))).toBe(false);
     playMonths(game, 1);
     expect(coursePassed(readOf(game))).toBe(true);

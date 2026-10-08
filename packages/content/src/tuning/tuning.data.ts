@@ -102,6 +102,8 @@ export const tuning: Tuning = {
 
   // place.md
   place: { brokeLine: naira(500000), fareFromNaira: true },
+  // status.md R-STATUS-011: months a student status must be held for the course to count as passed.
+  status: { courseMonths: 12 },
 
   // credit.md
   credit: { onTime: 3, onMiss: 12, onDefault: 30, drift: 1, driftTo: 40, judgmentMonths: 72, returnPenalty: 20 },

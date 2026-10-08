@@ -38,7 +38,7 @@ export const newsText: Record<string, string> = {
     "Two people in your office were told to \"check back next week\" for their allowance.",
   "news.dollar-scarcity.announced.head": "Banks ration foreign currency",
   "news.dollar-scarcity.announced.body":
-    "Personal allowances are suspended. School fees will be \"processed in order of receipt\".",
+    "Personal allowances are cut to a fifth. School fees will be \"processed in order of receipt\".",
   "news.dollar-scarcity.in-force.head": "The queue is now two months",
   "news.dollar-scarcity.in-force.body": "The aboki has dollars today. At his price.",
   "news.dollar-scarcity.ended.head": "The rationing is over",

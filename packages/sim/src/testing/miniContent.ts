@@ -336,6 +336,7 @@ export const miniContent: Content = {
     },
     offer: { maxNewPerMonth: 2, maxOpen: 4 },
     place: { brokeLine: 50000000, fareFromNaira: true },
+    status: { courseMonths: 12 },
     credit: { onTime: 3, onMiss: 12, onDefault: 30, drift: 1, driftTo: 40, judgmentMonths: 72, returnPenalty: 20 },
     car: { lessons: 220000, testFee: 8500, passBp: 5500, passPerAttemptBp: 500, passCapBp: 9000 },
     remit: { appFeeBp: 0, appMarginBp: 200, bankFeeBp: 800, informalLossBp: 500, abroadBp: 30000 },

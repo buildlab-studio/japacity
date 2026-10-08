@@ -214,7 +214,7 @@ export const newsTable: Record<Id<"news">, NewsEntry> = {
         { var: "var.fx-supply", value: 40 },
         { var: "var.fx-bank-queue", value: 2 },
         // US cents.
-        { var: "var.fx-bank-allowance", value: 0 },
+        { var: "var.fx-bank-allowance", value: 20000 },
       ],
       revert: true,
     },

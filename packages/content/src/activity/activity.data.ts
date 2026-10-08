@@ -38,7 +38,7 @@ export const activityTable:Record<Id<"activity">, ActivityEntry> = {
     requires: [{ type: "quality/min", quality: "quality.edu-level", value: 3 }],
     param: null,
     cost: [],
-    pay: { currency: "NGN", amount: naira(75000) },
+    pay: { currency: "NGN", amount: naira(90000) },
     hireBp: pct(70),
     effects: [
       { type: "quality/add", quality: "quality.wellbeing", amount: -2 },
@@ -130,11 +130,13 @@ export const activityTable:Record<Id<"activity">, ActivityEntry> = {
       { type: "quality/min", quality: "quality.tech", value: 75 },
       { type: "quality/min", quality: "quality.portfolio", value: 3 },
       { type: "quality/min", quality: "quality.english", value: 60 },
+      // The sweep: with no tenure asked, this one job paid for 97% of flights.
+      { type: "activity/tenure", activities: ["activity.job-junior-dev", "activity.job-mid-dev"], months: 6 },
     ],
     param: null,
     cost: [],
     pay: { currency: "USD", amount: dollars(2800) },
-    hireBp: pct(15),
+    hireBp: pct(10),
     effects: [
       { type: "quality/add", quality: "quality.tech", amount: 1 },
       { type: "quality/add", quality: "quality.wellbeing", amount: -5 },

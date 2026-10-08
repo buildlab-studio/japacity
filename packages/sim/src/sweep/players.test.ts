@@ -23,7 +23,12 @@ const careful = runs("careful", CAREFUL_SEEDS);
 const others = [...runs("borrower", OTHER_SEEDS), ...runs("risky", OTHER_SEEDS)];
 
 describe("simulated players on the real content", () => {
-  test.each(LIVES.map((life) => [life] as const))("[R-ROUTE-017] given %s played carefully, when the seeds are run, then some seed reaches a grant", (life: Id<"scenario">) => {
+  test.each(LIVES.map((life) => [life] as const))("[R-ROUTE-017] given %s, when the seeds are run, then some strategy reaches a grant", (life: Id<"scenario">) => {
+    expect([...careful, ...others].some((record) => record.life === life && record.granted !== null)).toBe(true);
+  });
+
+  // Tunde is the borrower: a bank officer's pay cannot show the funds, so his way is the pledge and the held funds (scenario.md).
+  test.each([["scenario.ada"], ["scenario.zainab"]] as const)("[R-ROUTE-017] given %s played carefully, when the seeds are run, then some seed reaches a grant by saving alone", (life) => {
     expect(careful.some((record) => record.life === life && record.granted !== null)).toBe(true);
   });
 

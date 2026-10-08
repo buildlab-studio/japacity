@@ -402,6 +402,7 @@ export const TuningSchema = z.strictObject({
   }),
   offer: z.strictObject({ maxNewPerMonth: CountSchema, maxOpen: CountSchema }),
   place: z.strictObject({ brokeLine: CountSchema, fareFromNaira: z.boolean() }),
+  status: z.strictObject({ courseMonths: CountSchema }),
   credit: z.strictObject({
     onTime: CountSchema,
     onMiss: CountSchema,

@@ -177,7 +177,8 @@ describe("the stand-in world's rates", () => {
     const during = standInWorld(seed, tick - 1, content).vars;
     expect(during["var.fx-supply"]).toBe(40);
     expect(during["var.fx-bank-queue"]).toBe(2);
-    expect(during["var.fx-bank-allowance"]).toBe(0);
+    // The scarcity cuts the allowance to a fifth rather than to nothing, so the queue can be seen (news.md).
+    expect(during["var.fx-bank-allowance"]).toBe(20000);
     const after = standInWorld(seed, tick, content).vars;
     expect(after["var.fx-supply"]).toBe(90);
     expect(after["var.fx-bank-queue"]).toBe(0);

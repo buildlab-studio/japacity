@@ -753,6 +753,7 @@ export interface Tuning {
   };
   offer: { maxNewPerMonth: number; maxOpen: number };
   place: { brokeLine: number; fareFromNaira: boolean };
+  status: { courseMonths: number };
   credit: { onTime: number; onMiss: number; onDefault: number; drift: number; driftTo: number; judgmentMonths: number; returnPenalty: number };
   car: { lessons: number; testFee: number; passBp: number; passPerAttemptBp: number; passCapBp: number };
   remit: { appFeeBp: number; appMarginBp: number; bankFeeBp: number; informalLossBp: number; abroadBp: number };

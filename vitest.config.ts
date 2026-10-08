@@ -40,6 +40,13 @@ export default defineConfig({
         },
       },
       {
+        test: {
+          name: "landing",
+          environment: "node",
+          include: ["apps/landing/src/**/*.test.ts"],
+        },
+      },
+      {
         plugins: [react()],
         test: {
           name: "client",
