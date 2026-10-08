@@ -23,6 +23,7 @@ import {
   runChecks,
 } from "./check-assets";
 import { readGlb, toDocument, writeGlb } from "./glb";
+import { placeMapData } from "./map-data";
 import { sha256 } from "./manifest";
 import { checkPalette } from "./palette-check";
 import type { Register } from "./register";
@@ -61,7 +62,8 @@ describe("the register", () => {
   });
 
   test("[R-ASSET-009] given the repository, when every check runs, then every shipped file matches its register row and nothing fails", async () => {
-    const { problems } = await runChecks(defaultPaths(ROOT), []);
+    // The same place map data the command feeds in, so the credits file has one expected shape (R-CITY-021).
+    const { problems } = await runChecks(defaultPaths(ROOT), placeMapData());
     expect(problems).toEqual([]);
   });
 });
