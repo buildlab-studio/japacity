@@ -252,7 +252,8 @@ const stage = {
     if (phone) buildStreet(box.max.z, box.max.x - box.min.x);
     if (figure !== null) {
       figure.visible = phone;
-      figure.position.set(box.max.x + 1.2, 0, box.max.z - 0.3);
+      // A person for scale, standing on the pavement in front of the asset, inside the phone's narrow frame.
+      figure.position.set((box.min.x + box.max.x) / 2 + 1.2, 0, box.max.z + 0.4);
     }
     scene.fog = null;
     ground.visible = true;
