@@ -6,5 +6,6 @@ export type * from "./moderation.types";
 export type * from "./pair.types";
 export type * from "./advert.types";
 export { compareIds, pairIds, pairKey } from "./keys";
+export { sameDraw } from "./draw";
 export * from "./memory";
 export * from "./switches";

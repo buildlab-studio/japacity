@@ -71,6 +71,13 @@
       "when": 1791474275906,
       "tag": "0009_session-signed-in-with",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1791478154987,
+      "tag": "0010_draw-odds-jackpot",
+      "breakpoints": true
     }
   ]
 }
