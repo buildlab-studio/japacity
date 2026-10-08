@@ -61,7 +61,8 @@ export async function startServer(root: string): Promise<Server> {
           fileName: file,
         }).outputText;
       }
-      response.writeHead(200, { "content-type": type, "cache-control": "no-store" }).end(body);
+      // Isolated, so the place check's page times its script to a few microseconds rather than a tenth of a millisecond.
+      response.writeHead(200, { "content-type": type, "cache-control": "no-store", "cross-origin-opener-policy": "same-origin", "cross-origin-embedder-policy": "require-corp" }).end(body);
     })().catch((error: unknown) => {
       response.writeHead(500).end(String(error));
     });
