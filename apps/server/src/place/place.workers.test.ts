@@ -189,7 +189,7 @@ describe("the place object", () => {
   });
 });
 
-/** Midnight in Lagos on 9 Oct 2026, which is 23:00 UTC on 8 Oct. */
+/** Midnight in Lagos on 8 Oct 2026, which is 23:00 UTC on 8 Oct. */
 const MIDNIGHT = Date.UTC(2026, 9, 8, 23);
 
 /** Opens a member's socket that joined at `joinedAt`, as the route stamps it. */

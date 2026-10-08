@@ -39,6 +39,9 @@ describe("the app", () => {
     storage.setItem(SAVE_KEY, JSON.stringify({ save: { schema: 1, content: "m0.0", scenario: "scenario.ada", seed: "a", worldSeed: "b", commands: [] }, clock: { anchor: 0 } }));
     const store = bootGame({ storage, fastClock: true });
     render(<App store={store} />);
-    expect(screen.getByRole("status").textContent).toBe(say("ui.life.notice.other-content"));
+    // The sound notice at the app root is a status region too; the chooser's is the one without the notice mark.
+    const notices = screen.getAllByRole("status").filter((element) => element.dataset["soundNotice"] === undefined);
+    expect(notices).toHaveLength(1);
+    expect(notices[0]?.textContent).toBe(say("ui.life.notice.other-content"));
   });
 });
