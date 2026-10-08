@@ -26,6 +26,10 @@ export const scenarioTable: Record<Id<"scenario">, ScenarioEntry> = {
       "quality.credit-mark": 0,
       "quality.care": 0,
       "quality.driving": 0,
+      // health.md: the hidden health counters start at nothing.
+      "quality.run-down-months": 0,
+      "quality.illness-course": 0,
+      "quality.forced-wait": 0,
     },
     job: null,
     tenure: {},
@@ -54,6 +58,10 @@ export const scenarioTable: Record<Id<"scenario">, ScenarioEntry> = {
       "quality.care": 0,
       // car.md: Tunde can drive.
       "quality.driving": 1,
+      // health.md: the hidden health counters start at nothing.
+      "quality.run-down-months": 0,
+      "quality.illness-course": 0,
+      "quality.forced-wait": 0,
     },
     job: "activity.job-bank-officer",
     tenure: { "activity.job-bank-officer": 48 },
@@ -81,6 +89,10 @@ export const scenarioTable: Record<Id<"scenario">, ScenarioEntry> = {
       "quality.credit-mark": 0,
       "quality.care": 0,
       "quality.driving": 0,
+      // health.md: the hidden health counters start at nothing.
+      "quality.run-down-months": 0,
+      "quality.illness-course": 0,
+      "quality.forced-wait": 0,
     },
     job: "activity.job-junior-dev",
     tenure: { "activity.job-junior-dev": 18 },
@@ -122,6 +134,10 @@ export const ngoziScenario: ScenarioEntry = {
     "quality.care": 60,
     // car.md: Ngozi can drive.
     "quality.driving": 1,
+    // health.md: the hidden health counters start at nothing.
+    "quality.run-down-months": 0,
+    "quality.illness-course": 0,
+    "quality.forced-wait": 0,
   },
   job: "activity.job-nurse",
   tenure: { "activity.job-nurse": 30 },
