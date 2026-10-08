@@ -40,6 +40,10 @@ export const chapterText: Record<string, string> = {
   // first, and the next chapter's opening words with the second.
   "line.chapter.closed": "Chapter done. Your turns are full again.",
   "line.chapter.opened": "A new chapter begins.",
+  // The goals' lines live here: the long game takes the chapters' place once they are over (R-CHAPTER-007),
+  // and the words files of life abroad hold no report lines.
+  "line.goal.opened": "A new goal: {goal}.",
+  "line.goal.done": "Goal reached: {goal}.",
   "chapter.landing.name": "Landing",
   "chapter.landing.title": "Landing",
   "chapter.landing.open": "Cold. A room with a lock. A number that is not yours yet.",

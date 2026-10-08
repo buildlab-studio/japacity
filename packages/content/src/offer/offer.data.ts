@@ -5,6 +5,7 @@ import type { Id, OfferChoice, OfferEntry, Requirement } from "@japacity/sim";
 
 import { naira, pct, pounds } from "../units";
 import { abroadOfferTable } from "./offer.abroad.data";
+import { luckOfferTable } from "./offer.luck.data";
 
 const UK: Id<"route"> = "route.uk-masters";
 
@@ -86,12 +87,15 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
   "offer.nepa-bill": {
     id: "offer.nepa-bill",
     group: "family",
+    // R-ABROAD-007: the same requests reach a character abroad. What they ask is in the terms, which the
+    // offer kind scales by the abroad factor when a request opens abroad, so the view shows what is asked.
+    where: "any",
     when: [NOT_BROKE],
     chanceBp: pct(12),
     cooldown: 3,
     maxTimes: null,
     expiresAfter: 1,
-    terms: {},
+    terms: { cost: naira(25000) },
     fraudBp: 0,
     signs: [],
     choices: [
@@ -100,7 +104,7 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
         requires: [],
         pick: null,
         effects: [
-          { type: "money/take", currency: "NGN", pocket: "any", amount: naira(25000), reason: "family" },
+          { type: "money/take", currency: "NGN", pocket: "any", amount: { term: "cost" }, reason: "family" },
           { type: "quality/add", quality: "quality.standing", amount: 3 },
         ],
         fraudEffects: null,
@@ -121,12 +125,13 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
   "offer.brother-fees": {
     id: "offer.brother-fees",
     group: "family",
+    where: "any",
     when: [NOT_BROKE],
     chanceBp: pct(6),
     cooldown: 4,
     maxTimes: null,
     expiresAfter: 1,
-    terms: {},
+    terms: { cost: naira(120000), half: naira(60000) },
     fraudBp: 0,
     signs: [],
     choices: [
@@ -135,7 +140,7 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
         requires: [],
         pick: null,
         effects: [
-          { type: "money/take", currency: "NGN", pocket: "any", amount: naira(120000), reason: "family" },
+          { type: "money/take", currency: "NGN", pocket: "any", amount: { term: "cost" }, reason: "family" },
           { type: "quality/add", quality: "quality.standing", amount: 8 },
         ],
         fraudEffects: null,
@@ -145,7 +150,7 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
         requires: [],
         pick: null,
         effects: [
-          { type: "money/take", currency: "NGN", pocket: "any", amount: naira(60000), reason: "family" },
+          { type: "money/take", currency: "NGN", pocket: "any", amount: { term: "half" }, reason: "family" },
           { type: "quality/add", quality: "quality.standing", amount: 2 },
         ],
         fraudEffects: null,
@@ -163,12 +168,13 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
   "offer.mum-shop": {
     id: "offer.mum-shop",
     group: "family",
+    where: "any",
     when: [NOT_BROKE],
     chanceBp: pct(5),
     cooldown: 6,
     maxTimes: null,
     expiresAfter: 1,
-    terms: {},
+    terms: { cost: naira(80000), half: naira(40000) },
     fraudBp: 0,
     signs: [],
     choices: [
@@ -177,7 +183,7 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
         requires: [],
         pick: null,
         effects: [
-          { type: "money/take", currency: "NGN", pocket: "any", amount: naira(80000), reason: "family" },
+          { type: "money/take", currency: "NGN", pocket: "any", amount: { term: "cost" }, reason: "family" },
           { type: "quality/add", quality: "quality.standing", amount: 6 },
         ],
         fraudEffects: null,
@@ -187,7 +193,7 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
         requires: [],
         pick: null,
         effects: [
-          { type: "money/take", currency: "NGN", pocket: "any", amount: naira(40000), reason: "family" },
+          { type: "money/take", currency: "NGN", pocket: "any", amount: { term: "half" }, reason: "family" },
           { type: "quality/add", quality: "quality.standing", amount: 2 },
         ],
         fraudEffects: null,
@@ -205,12 +211,13 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
   "offer.aso-ebi": {
     id: "offer.aso-ebi",
     group: "family",
+    where: "any",
     when: [NOT_BROKE],
     chanceBp: pct(5),
     cooldown: 6,
     maxTimes: null,
     expiresAfter: 1,
-    terms: {},
+    terms: { cost: naira(60000) },
     fraudBp: 0,
     signs: [],
     choices: [
@@ -219,7 +226,7 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
         requires: [],
         pick: null,
         effects: [
-          { type: "money/take", currency: "NGN", pocket: "any", amount: naira(60000), reason: "family" },
+          { type: "money/take", currency: "NGN", pocket: "any", amount: { term: "cost" }, reason: "family" },
           { type: "quality/add", quality: "quality.standing", amount: 4 },
           { type: "quality/add", quality: "quality.network", amount: 3 },
           { type: "quality/add", quality: "quality.wellbeing", amount: 3 },
@@ -249,13 +256,14 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
   "offer.roof": {
     id: "offer.roof",
     group: "family",
+    where: "any",
     when: [NOT_BROKE],
     // 2.5%
     chanceBp: 250,
     cooldown: 12,
     maxTimes: null,
     expiresAfter: 1,
-    terms: {},
+    terms: { cost: naira(200000), half: naira(100000) },
     fraudBp: 0,
     signs: [],
     choices: [
@@ -264,7 +272,7 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
         requires: [],
         pick: null,
         effects: [
-          { type: "money/take", currency: "NGN", pocket: "any", amount: naira(200000), reason: "family" },
+          { type: "money/take", currency: "NGN", pocket: "any", amount: { term: "cost" }, reason: "family" },
           { type: "quality/add", quality: "quality.standing", amount: 10 },
         ],
         fraudEffects: null,
@@ -274,7 +282,7 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
         requires: [],
         pick: null,
         effects: [
-          { type: "money/take", currency: "NGN", pocket: "any", amount: naira(100000), reason: "family" },
+          { type: "money/take", currency: "NGN", pocket: "any", amount: { term: "half" }, reason: "family" },
           { type: "quality/add", quality: "quality.standing", amount: 3 },
         ],
         fraudEffects: null,
@@ -292,12 +300,13 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
   "offer.harvest": {
     id: "offer.harvest",
     group: "family",
+    where: "any",
     when: [NOT_BROKE],
     chanceBp: pct(6),
     cooldown: 6,
     maxTimes: null,
     expiresAfter: 1,
-    terms: {},
+    terms: { cost: naira(30000) },
     fraudBp: 0,
     signs: [],
     choices: [
@@ -306,7 +315,7 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
         requires: [],
         pick: null,
         effects: [
-          { type: "money/take", currency: "NGN", pocket: "any", amount: naira(30000), reason: "family" },
+          { type: "money/take", currency: "NGN", pocket: "any", amount: { term: "cost" }, reason: "family" },
           { type: "quality/add", quality: "quality.standing", amount: 3 },
           { type: "quality/add", quality: "quality.wellbeing", amount: 2 },
         ],
@@ -325,13 +334,14 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
   "offer.uncle-burial": {
     id: "offer.uncle-burial",
     group: "family",
+    where: "any",
     when: [NOT_BROKE],
     // 2.5%
     chanceBp: 250,
     cooldown: 12,
     maxTimes: null,
     expiresAfter: 1,
-    terms: {},
+    terms: { cost: naira(100000), token: naira(20000) },
     fraudBp: 0,
     signs: [],
     choices: [
@@ -340,7 +350,7 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
         requires: [],
         pick: null,
         effects: [
-          { type: "money/take", currency: "NGN", pocket: "any", amount: naira(100000), reason: "family" },
+          { type: "money/take", currency: "NGN", pocket: "any", amount: { term: "cost" }, reason: "family" },
           { type: "quality/add", quality: "quality.standing", amount: 7 },
         ],
         fraudEffects: null,
@@ -350,7 +360,7 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
         requires: [],
         pick: null,
         effects: [
-          { type: "money/take", currency: "NGN", pocket: "any", amount: naira(20000), reason: "family" },
+          { type: "money/take", currency: "NGN", pocket: "any", amount: { term: "token" }, reason: "family" },
           { type: "quality/add", quality: "quality.standing", amount: 1 },
         ],
         fraudEffects: null,
@@ -399,6 +409,8 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
   "offer.laptop-fault": {
     id: "offer.laptop-fault",
     group: "life",
+    // R-LUCK-003. the blows of daily life are the ones marked; the page names none.
+    bad: true,
     when: [{ type: "quality/min", quality: "quality.tech", value: 25 }],
     chanceBp: pct(3),
     cooldown: 8,
@@ -431,6 +443,7 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
   "offer.fuel-scarcity": {
     id: "offer.fuel-scarcity",
     group: "life",
+    bad: true,
     when: [],
     chanceBp: pct(4),
     cooldown: 6,
@@ -865,6 +878,7 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
   },
 
   ...abroadOfferTable,
+  ...luckOfferTable,
   // route-gates.md, "Entries: sponsor offers". group `money`, as the Gulf agent is, so R-OFFER-001 rolls them.
 
   "offer.sponsor-care-home": {
