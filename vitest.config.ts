@@ -9,6 +9,22 @@ const contentEntry = fileURLToPath(new URL("./packages/content/src/index.ts", im
 
 const fixtureFolders = ["tools/lint-fixtures/**", "tools/__fixtures__/**"];
 
+// The lock races need a real Postgres, so the db-race project is defined only
+// when it is asked for by name: `pnpm vitest run --project db-race`.
+const raceAsked = process.argv.some((arg, at, all) => arg === "--project=db-race" || (arg === "--project" && all[at + 1] === "db-race"));
+const raceProject = raceAsked
+  ? [
+      {
+        test: {
+          name: "db-race",
+          environment: "node",
+          include: ["packages/db/src/race/*.race.test.ts"],
+          testTimeout: 30000,
+        },
+      },
+    ]
+  : [];
+
 export default defineConfig({
   test: {
     reporters: [["default", { summary: false }]],
@@ -38,6 +54,15 @@ export default defineConfig({
           include: ["packages/store/src/**/*.test.ts"],
         },
       },
+      {
+        test: {
+          name: "db",
+          environment: "node",
+          include: ["packages/db/src/**/*.test.ts"],
+          exclude: ["packages/db/src/race/**"],
+        },
+      },
+      ...raceProject,
       {
         test: {
           name: "tools",
