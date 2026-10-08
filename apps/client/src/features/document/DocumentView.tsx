@@ -3,7 +3,7 @@ import { FileCheck, FileClock, FileX } from "lucide-react";
 
 import { useView } from "../../authority/GameProvider";
 import { Card, Empty, Panel } from "../../shared/ui/Panel";
-import { formatBand } from "../../shared/words/format";
+import { formatBand, monthEnding } from "../../shared/words/format";
 import { monthsLeft, SOON } from "../../shared/words/expiry";
 import { nameOf, say, sayCount } from "../../shared/words/text";
 
@@ -29,16 +29,16 @@ export function DocumentView() {
                     <span className={`font-medium ${paper.state === "expired" ? "line-through" : ""}`}>{nameOf(paper.id)}</span>
                     <span className="text-sm text-muted">
                       {paper.state === "pending" && paper.readyMonth !== null
-                        ? say("ui.document.pending", { month: paper.readyMonth })
+                        ? say("ui.document.pending", { month: monthEnding(paper.readyMonth) })
                         : paper.state === "expired"
                           ? say("ui.document.expired")
                           : paper.expiresMonth === null
                             ? say("ui.document.held")
-                            : say("ui.document.expires", { month: paper.expiresMonth })}
+                            : say("ui.document.expires", { month: monthEnding(paper.expiresMonth) })}
                     </span>
                     {soon && left !== null ? (
                       <span className="text-sm font-medium text-bad">
-                        {sayCount("ui.document.expires-soon", left, { months: left, month: paper.expiresMonth ?? 0 })}
+                        {sayCount("ui.document.expires-soon", left, { months: left, month: monthEnding(paper.expiresMonth ?? 0) })}
                       </span>
                     ) : null}
                     {paper.id === ENGLISH_RESULT && paper.value !== null ? (

@@ -8,7 +8,7 @@ import type { Currency, RouteGateView, RouteView } from "@japacity/sim";
 import { useView } from "../../authority/GameProvider";
 import { Meter } from "../../shared/ui/Meter";
 import { Tag } from "../../shared/ui/Panel";
-import { formatMoney, formatNumber } from "../../shared/words/format";
+import { formatMoney, formatNumber, monthEnding, playerMonth } from "../../shared/words/format";
 import { hasWords, say } from "../../shared/words/text";
 
 function employerWords(key: string): string {
@@ -47,11 +47,11 @@ function Points({ gate, month }: { gate: Extract<RouteGateView, { gate: "points"
       <p className={short > 0 ? "text-bad" : "text-good"}>{short > 0 ? say("ui.gate.points.short", { short: formatNumber(short) }) : say("ui.gate.points.over")}</p>
       {gate.careCutoff === null ? null : <p className="text-muted">{say("ui.gate.points.care", { cutoff: formatNumber(gate.careCutoff) })}</p>}
       {gate.invitedMonth !== null ? (
-        <p className="font-medium text-good">{say("ui.gate.points.invited", { month: gate.invitedMonth })}</p>
+        <p className="font-medium text-good">{say("ui.gate.points.invited", { month: monthEnding(gate.invitedMonth) })}</p>
       ) : gate.poolMonth === null ? (
         <p className="text-muted">{say("ui.gate.points.no-pool")}</p>
       ) : (
-        <p>{say("ui.gate.points.pool", { month: gate.poolMonth, ends: gate.profileEndsMonth ?? gate.poolMonth, left: Math.max(0, (gate.profileEndsMonth ?? month) - month) })}</p>
+        <p>{say("ui.gate.points.pool", { month: monthEnding(gate.poolMonth), ends: monthEnding(gate.profileEndsMonth ?? gate.poolMonth), left: Math.max(0, (gate.profileEndsMonth ?? month) - month) })}</p>
       )}
       <p className="text-xs text-muted">{say("ui.gate.points.clock")}</p>
     </div>
@@ -63,8 +63,8 @@ function Endorsement({ gate, month }: { gate: Extract<RouteGateView, { gate: "en
   const cooled = gate.cooledFromMonth !== null && month >= gate.cooledFromMonth;
   return (
     <div className="flex flex-col gap-1 text-sm">
-      <p className="text-bad">{say("ui.gate.endorsement.refused", { month: gate.refusedMonth })}</p>
-      <p>{cooled ? say("ui.gate.endorsement.again-now") : say("ui.gate.endorsement.again", { month: gate.cooledFromMonth ?? 0 })}</p>
+      <p className="text-bad">{say("ui.gate.endorsement.refused", { month: monthEnding(gate.refusedMonth) })}</p>
+      <p>{cooled ? say("ui.gate.endorsement.again-now") : say("ui.gate.endorsement.again", { month: playerMonth(gate.cooledFromMonth ?? 0) })}</p>
     </div>
   );
 }

@@ -11,7 +11,7 @@ import { useGame, useView } from "../../authority/GameProvider";
 import { Button } from "../../shared/ui/Button";
 import { Card, Panel } from "../../shared/ui/Panel";
 import { Rejection } from "../../shared/ui/Rejection";
-import { formatMoney } from "../../shared/words/format";
+import { formatMoney, playerMonth } from "../../shared/words/format";
 import { hasWords, nameOf, say, sayCount } from "../../shared/words/text";
 import { wayHome } from "../../shared/words/wayHome";
 
@@ -51,7 +51,7 @@ function Returns() {
       <ol className="flex flex-col gap-1 text-sm" aria-label={say("ui.place.returns")}>
         {returns.map((back) => (
           <li key={`${String(back.month)}-${back.country ?? "road"}`}>
-            {say("ui.place.return-item", { month: back.month + 1, country: back.country === null ? say("ui.place.road-name") : nameOf(back.country), shape: say(`ui.place.shape.${back.shape}`) })}
+            {say("ui.place.return-item", { month: playerMonth(back.month), country: back.country === null ? say("ui.place.road-name") : nameOf(back.country), shape: say(`ui.place.shape.${back.shape}`) })}
           </li>
         ))}
       </ol>

@@ -62,9 +62,23 @@ export function toMajor(minor: number): number {
   return minor / MINOR_PER_MAJOR;
 }
 
+// Months on screen. The view counts months played (engine.md: the first turn
+// played is month 1), so the month being planned is one more than the view's
+// `month`. These two are the only places a month shown to the player is made.
+
 /** The month being planned, or one a command was sent in, as the player counts it: the header's count, from 1. */
 export function playerMonth(raw: number): number {
   return raw + 1;
+}
+
+/**
+ * A month the simulation stamps as a month ends, once its number has gone up
+ * (a report, a goal done, a refusal), or the first month in which something
+ * comes or stops holding (a paper ready or run out, an offer lapsed, money
+ * arriving): the player's count of the month whose end brings it.
+ */
+export function monthEnding(raw: number): number {
+  return playerMonth(raw - 1);
 }
 
 const plain = new Intl.NumberFormat("en-NG", { maximumFractionDigits: 0 });

@@ -3,6 +3,7 @@
 // counted as the view counts months, so the month in hand is one month left.
 import type { SlotLock } from "@japacity/sim";
 
+import { playerMonth } from "./format";
 import { hasWords, say, sayCount } from "./text";
 
 /** The reason a side job holds its slot: renewed each month it is kept (R-ACTIVITY-010). */
@@ -24,5 +25,5 @@ export function lockWords(lock: SlotLock, month: number): string {
   const why = lockReason(lock.why);
   if (lock.why === SIDE_JOB_LOCK) return say("ui.locks.side", { slots, why });
   const left = lockMonthsLeft(lock, month);
-  return say("ui.locks.item", { slots, why, left: sayCount("ui.locks.left", left, { count: left, month: lock.untilMonth + 1 }) });
+  return say("ui.locks.item", { slots, why, left: sayCount("ui.locks.left", left, { count: left, month: playerMonth(lock.untilMonth) }) });
 }

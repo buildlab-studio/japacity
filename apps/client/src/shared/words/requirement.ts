@@ -3,7 +3,7 @@
 // whether the requirement holds: the view's `missing` list already says so.
 import type { Amount, Id, Requirement, RouteStateName } from "@japacity/sim";
 
-import { formatBand, formatBp, formatMoney, formatNumber } from "./format";
+import { formatBand, formatBp, formatMoney, formatNumber, playerMonth } from "./format";
 import { AGE, yearsOf } from "./quality";
 import { hasWords, lowerFirst, nameOf, runningName, say, sayCount } from "./text";
 
@@ -117,7 +117,7 @@ export function requirementSentence(requirement: Requirement, context: SentenceC
     case "var/max":
       return say("ui.req.var-max", { var: nameOf(requirement.var), value: requirement.value });
     case "month/min":
-      return say("ui.req.month-min", { value: requirement.value });
+      return say("ui.req.month-min", { value: playerMonth(requirement.value) });
     case "chapter/done":
       return say("ui.req.chapter-done", { chapter: nameOf(requirement.chapter) });
     case "not":

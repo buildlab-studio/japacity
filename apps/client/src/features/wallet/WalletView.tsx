@@ -10,7 +10,7 @@ import { Button } from "../../shared/ui/Button";
 import { Card, Panel } from "../../shared/ui/Panel";
 import { Rejection } from "../../shared/ui/Rejection";
 import { Sheet } from "../../shared/ui/Sheet";
-import { CURRENCIES, formatMoney, formatOne, formatRate, HOME_CURRENCIES, toMinor } from "../../shared/words/format";
+import { CURRENCIES, formatMoney, formatOne, formatRate, HOME_CURRENCIES, monthEnding, toMinor } from "../../shared/words/format";
 import { say } from "../../shared/words/text";
 import { RemitButton } from "../../shared/ui/RemitSheet";
 import { localCurrency } from "../../shared/words/wayHome";
@@ -258,7 +258,7 @@ export function WalletView() {
                 {say("ui.wallet.queued.item", {
                   paid: formatMoney(item.paid, item.from),
                   to: say(`ui.currency.${item.to}`),
-                  month: item.readyMonth,
+                  month: monthEnding(item.readyMonth),
                 })}
               </li>
             ))}

@@ -4,7 +4,7 @@
 import { content, text } from "@japacity/content";
 import type { Currency, MoneyParam, ReportParam } from "@japacity/sim";
 
-import { formatBand, formatBp, formatMoney, formatNumber, isCurrency } from "./format";
+import { formatBand, formatBp, formatMoney, formatNumber, isCurrency, monthEnding } from "./format";
 import { uiText } from "./ui";
 
 export type Params = Record<string, ReportParam>;
@@ -47,6 +47,9 @@ const MONEY_PARAMS = new Set([
   "min",
   "max",
 ]);
+
+/** Params that name a month in content's lines: each is a month whose end brings what the line says. */
+const MONTH_PARAMS = new Set(["month", "until", "readyMonth"]);
 
 /** A line with one of these is about a quality or a score, so its bare `amount` is points, never money. */
 const QUALITY_LINE_PARAMS = ["quality", "points", "band"];
@@ -121,6 +124,7 @@ export function formatParam(name: string, value: ReportParam, params: Params, ke
   if (typeof value === "object") return formatMoney(value.amount, value.currency);
   if (typeof value === "string") return stringParam(name, value, midSentence);
   if (name === "band") return formatBand(value);
+  if (MONTH_PARAMS.has(name)) return formatNumber(monthEnding(value));
   if (name === "bp" || name.endsWith("Bp")) return formatBp(value);
   if (isBareMoney(name, params)) return formatMoney(value, bareCurrency(name, params, key));
   return formatNumber(value);

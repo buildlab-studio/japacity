@@ -10,7 +10,7 @@ import { Button } from "../../shared/ui/Button";
 import { Meter } from "../../shared/ui/Meter";
 import { Card, Empty, Panel, Tag } from "../../shared/ui/Panel";
 import { atBankRate, shortfall } from "../../shared/words/cost";
-import { formatBand, formatBp, formatMoney } from "../../shared/words/format";
+import { formatBand, formatBp, formatMoney, monthEnding } from "../../shared/words/format";
 import { hasWords, lowerFirst, nameOf, say, sayCount, words } from "../../shared/words/text";
 import { countryCurrency, GatePanel } from "./GatePanel";
 
@@ -64,7 +64,7 @@ function Schools({ route }: { route: Route }) {
             school === undefined
               ? null
               : school.state === "pending"
-                ? say("ui.route.school.pending", { month: school.readyMonth })
+                ? say("ui.route.school.pending", { month: monthEnding(school.readyMonth) })
                 : school.state === "offer"
                   ? say("ui.route.school.offer")
                   : say("ui.route.school.rejected");
@@ -166,11 +166,11 @@ function Record({ route }: { route: Route }) {
   return (
     <div className="flex flex-col gap-1 text-sm">
       {route.depositPaid > 0 ? <p>{say("ui.route.deposit-paid", { amount: formatMoney(route.depositPaid, "GBP") })}</p> : null}
-      {route.visa === null ? null : <p>{say("ui.route.visa", { submitted: route.visa.submittedMonth, decision: route.visa.decisionMonth })}</p>}
+      {route.visa === null ? null : <p>{say("ui.route.visa", { submitted: monthEnding(route.visa.submittedMonth), decision: monthEnding(route.visa.decisionMonth) })}</p>}
       {route.refusals > 0 ? <p className="font-medium text-bad">{sayCount("ui.route.refusals", route.refusals, { count: route.refusals })}</p> : null}
       {route.lastRefusal === null ? null : (
         <div>
-          <p>{say("ui.route.last-refusal", { month: route.lastRefusal.month })}</p>
+          <p>{say("ui.route.last-refusal", { month: monthEnding(route.lastRefusal.month) })}</p>
           <ul className="list-disc pl-5">
             {route.lastRefusal.reasons.map((reason) => (
               <li key={reason}>{hasWords(`ui.refusal.${reason}`) ? say(`ui.refusal.${reason}`) : reason}</li>
@@ -179,7 +179,7 @@ function Record({ route }: { route: Route }) {
         </div>
       )}
       {route.depositRefund === null ? null : (
-        <p>{say("ui.route.refund", { amount: formatMoney(route.depositRefund.amount, "GBP"), month: route.depositRefund.readyMonth })}</p>
+        <p>{say("ui.route.refund", { amount: formatMoney(route.depositRefund.amount, "GBP"), month: monthEnding(route.depositRefund.readyMonth) })}</p>
       )}
     </div>
   );

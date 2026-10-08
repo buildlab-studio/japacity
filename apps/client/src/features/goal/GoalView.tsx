@@ -7,6 +7,7 @@ import { Check, Circle, Trophy } from "lucide-react";
 
 import { useView } from "../../authority/GameProvider";
 import { Card, Panel, Tag } from "../../shared/ui/Panel";
+import { monthEnding } from "../../shared/words/format";
 import { anyOptions, requirementSentence } from "../../shared/words/requirement";
 import { blurbOf, hasWords, nameOf, say, words } from "../../shared/words/text";
 
@@ -75,7 +76,7 @@ export function GoalView() {
               <li key={goal.id}>
                 <Tag tone="good">
                   <Trophy size={12} />
-                  {say("ui.goal.done-item", { goal: nameOf(goal.id), month: goal.month })}
+                  {say("ui.goal.done-item", { goal: nameOf(goal.id), month: monthEnding(goal.month) })}
                 </Tag>
               </li>
             ))}

@@ -12,6 +12,7 @@ import { Button } from "../../shared/ui/Button";
 import { Card } from "../../shared/ui/Panel";
 import { Rejection } from "../../shared/ui/Rejection";
 import { ReportLines } from "../../shared/ui/ReportLines";
+import { monthEnding } from "../../shared/words/format";
 import { nameOf, say, words } from "../../shared/words/text";
 
 /** Answers that leave the chain: turning back before the truth, the exit after it (R-ROAD-004, 007). */
@@ -143,7 +144,7 @@ export function RoadView({ offers = null }: { offers?: ((only: (offer: OfferView
       {shown.length === 0 || offers === null ? null : offers((offer) => shown.includes(offer))}
       {report === null || lines.length === 0 ? null : (
         <Card className="flex flex-col gap-2">
-          <h2 className="text-sm font-semibold text-muted">{say("ui.report.title", { month: report.month })}</h2>
+          <h2 className="text-sm font-semibold text-muted">{say("ui.report.title", { month: monthEnding(report.month) })}</h2>
           <ReportLines lines={lines} />
         </Card>
       )}
