@@ -18,6 +18,7 @@ import { eraTable } from "./era/era.data";
 import { interviewTable } from "./interview/interview.data";
 import { peopleSpots, personTable } from "./person/person.data";
 import { phraseTable } from "./phrase/phrase.data";
+import { phraseText } from "./phrase/phrase.text";
 import { placeTable } from "./place/place.data";
 import { eraText } from "./era/era.text";
 import { newsTable } from "./news/news.data";
@@ -83,6 +84,7 @@ export const content: Content = {
 
 /** Every words file, by the name it is merged under. */
 export const textTables: Record<string, Record<string, string>> = {
+  phrase: phraseText,
   activity: activityText,
   activityAbroad: activityAbroadText,
   chapter: chapterText,

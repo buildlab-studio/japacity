@@ -17,3 +17,11 @@ export { stepWorld, offlineCalendar } from "./world/director";
 export type { DirectorBook, WorldCalendar } from "./world/director";
 export { japacity, routePercent } from "./japacity/japacity.logic";
 export * as time from "./engine/time";
+// The pair module: pure functions over the record two lives share (docs/rules/pair.md). The server and both clients use them.
+export { pairId, flip, side, other, newRecord, mirror, agreed, writeEvent, pairView, SAFETY_CONTROLS } from "./pair/pair.logic";
+export type { PairView, PairWrite, Side } from "./pair/pair.logic";
+export { canSay, canSayInPlace, heardBy, fillOptions, saidMoment } from "./pair/phrase.logic";
+export type { SayPolicy, PlacePolicy, SayResult, SayRefusal } from "./pair/phrase.logic";
+export { phraseChecks } from "./pair/phrase.check";
+export { inviteCard, inviteExpires, mayOpenInvite, useInvite, rewardFor, mayPair, INVITE_FILLS } from "./pair/pair.invite";
+export type { InviteCard, InviteSlot, LinkResult, Milestone, InviteProgress, InviteReward } from "./pair/pair.invite";
