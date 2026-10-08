@@ -3,7 +3,20 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "description": "The types and the palette the asset tools, the builders and the city share: docs/rules/assets.md.",
-  "exports": { ".": "./src/index.ts" },
-  "scripts": { "typecheck": "tsc -p tsconfig.json" }
+  "description": "The palette, the kit of parts, the sign and pattern code, and the loader the asset tools, the builders and the city share: docs/rules/assets.md.",
+  "exports": {
+    ".": "./src/index.ts",
+    "./kit": "./src/kit/index.ts",
+    "./pattern": "./src/pattern.ts",
+    "./load": "./src/load.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "three": "0.186.1"
+  },
+  "devDependencies": {
+    "@types/three": "0.186.0"
+  }
 }
