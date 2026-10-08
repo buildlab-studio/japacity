@@ -26,4 +26,11 @@ export const statusText: Record<string, string> = {
   "status.uae-irregular.blurb": "You may not work. Cash jobs are what there is, and the police check papers.",
   "status.eu-irregular.name": "No papers, Italy",
   "status.eu-irregular.blurb": "You may not work. The fields pay cash, and any month could be the month they find you.",
+
+  // R-STATUS-010: the way up from a status, named by the view's `nextStep`.
+  "status.next.course": "Pass the course and stay on as a graduate.",
+  "status.next.settle": "Keep the rules and the months add up to settling.",
+  "status.next.citizen": "A year settled, the fee, and you can be a citizen.",
+  "status.next.stay": "Find another way to stay before this runs out.",
+  "status.next.home": "No way up from here. Every month could be the month they find you.",
 };

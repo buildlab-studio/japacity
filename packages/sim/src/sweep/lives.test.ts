@@ -28,7 +28,7 @@ describe("the three real lives as golden scripts", () => {
   });
 
   test.each(lifeScripts.map((script) => [script.name, script] as const))(
-    "[R-ENGINE-001] [R-ENGINE-010] given %s, when its save is replayed twice through the real content, then every command is accepted, both replays agree month by month, and the life ends on the flight within 24 to 40 months",
+    "[R-ENGINE-001] [R-ENGINE-010] given %s, when its save is replayed twice through the real content, then every command is accepted, both replays agree month by month, and the flight leaves within 24 to 40 months with the life going on abroad",
     (_name, script) => {
       const worldAt = (tick: number) => standInWorld(script.save.worldSeed, tick, content);
       const first = measure(script.save, content, worldAt);
@@ -36,7 +36,9 @@ describe("the three real lives as golden scripts", () => {
       expect(second).toEqual(first);
 
       const { state } = replay(script.save, content, worldAt);
-      expect(state.turn.ended).toBe(true);
+      // R-GATE-003: the flight no longer ends the life.
+      expect(state.turn.ended).toBe(false);
+      expect(state.place).toMatchObject({ where: "abroad", country: "country.uk" });
       expect(state.route["route.uk-masters"]?.state).toBe("departed");
       expect(state.turn.month).toBeGreaterThanOrEqual(24);
       expect(state.turn.month).toBeLessThanOrEqual(40);

@@ -116,6 +116,8 @@ export const obligationTable: Record<Id<"obligation">, ObligationEntry> = {
   },
   "obligation.home-support": {
     id: "obligation.home-support",
+    // Support for the family follows the character abroad (R-PLACE-002, R-ABROAD-007).
+    where: "any",
     type: "support",
     currency: "NGN",
     amount: 0,

@@ -917,7 +917,7 @@ describe("decision day", () => {
     expect(uk(game).lastRefusal?.reasons).toEqual(["interview", "history"]);
   });
 
-  test("[R-ROUTE-020] given a granted route, when the player departs, then the flight is paid in naira, the route is departed and the life at home is over", () => {
+  test("[R-ROUTE-020] [R-GATE-003] given a granted route, when the player departs, then the flight is paid in naira, the route is departed, the character is abroad on the route's status and the life goes on", () => {
     const game = life({ tuning: ALWAYS_GRANTED });
     toDecision(game);
     expect(legalCommands(game.view())).toContainEqual({ type: "route/depart", route: UK });
@@ -927,9 +927,11 @@ describe("decision day", () => {
     expect(game.state.wallet.pockets.NGN.bank + game.state.wallet.pockets.NGN.cash).toBe(naira.bank + naira.cash - flight);
     expect(game.state.wallet.totals.out.flight).toEqual({ NGN: flight });
     expect(uk(game).state).toBe("departed");
-    expect(game.state.turn.ended).toBe(true);
+    expect(game.state.turn.ended).toBe(false);
+    expect(game.state.place).toMatchObject({ where: "abroad", country: "country.uk" });
+    expect(game.state.status.current?.entry).toBe("status.uk-student");
     expect(routeLines(result.lines)).toEqual([{ key: "line.route.departed", params: { route: UK }, tone: "good", big: true, attention: true, counts: [] }]);
-    game.expectRejected({ type: "turn/end", slots: [] }, "ended");
+    game.endTurn();
   });
 
   test("[R-ROUTE-020] given a granted route and too little naira for the flight, when the player departs, then it is rejected with cannot-afford", () => {

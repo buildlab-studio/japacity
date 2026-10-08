@@ -140,6 +140,30 @@ function fromRoute(view: PlayerView): Loose[] {
   return commands;
 }
 
+/**
+ * Coming home (R-PLACE-004). The view carries no fare. the sampler
+ * offers the return when the character holds no lawful status (none, or a
+ * cash-only one, which in content is always the overstayer's), since that is
+ * accepted whether or not the fare can be paid; otherwise only when the
+ * country's own pockets hold the shipped December fare, the dearest it can be.
+ */
+const FARE_BOUND: Record<string, { currency: Currency; amount: number }> = {
+  "country.uk": { currency: "GBP", amount: 155000 },
+  "country.canada": { currency: "CAD", amount: 297000 },
+  "country.uae": { currency: "AED", amount: 342000 },
+  "country.italy": { currency: "EUR", amount: 96000 },
+};
+
+function fromPlace(view: PlayerView): Loose[] {
+  const { where, country } = view.place;
+  if (where !== "abroad" || country === null) return [];
+  if (view.status === null || view.status.work === "cash") return [{ type: "return/home" }];
+  const bound = FARE_BOUND[country];
+  if (bound === undefined) return [];
+  const pocket = view.pockets[bound.currency];
+  return pocket.bank + pocket.cash >= bound.amount ? [{ type: "return/home" }] : [];
+}
+
 function fromActivity(view: PlayerView): Loose[] {
   return view.job.id === null ? [] : [{ type: "activity/quit" }];
 }
@@ -158,6 +182,7 @@ export function legalCommands(view: PlayerView): Loose[] {
     ...fromWallet(view),
     ...fromObligations(view),
     ...fromActivity(view),
+    ...fromPlace(view),
   ].filter((command) =>
     handles(command.type),
   );
