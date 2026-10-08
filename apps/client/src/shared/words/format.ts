@@ -10,11 +10,12 @@ const rateFormats = new Map<Currency, Intl.NumberFormat>();
 
 // One formatter per currency, made once (docs/research/23-interface-stack.md
 // section 8). narrowSymbol keeps the naira sign even where en-NG data is missing.
+// The Canadian dollar's narrow sign is the US dollar's, so it keeps "CA$".
 function makeFormat(currency: Currency, fractionDigits: number): Intl.NumberFormat {
   return new Intl.NumberFormat("en-NG", {
     style: "currency",
     currency,
-    currencyDisplay: "narrowSymbol",
+    currencyDisplay: currency === "CAD" ? "symbol" : "narrowSymbol",
     minimumFractionDigits: fractionDigits,
     maximumFractionDigits: fractionDigits,
   });
@@ -81,7 +82,10 @@ export function formatBp(bp: number): string {
   return percentFormat.format(bp / 10000);
 }
 
-export const CURRENCIES: readonly Currency[] = ["NGN", "GBP", "USD"];
+export const CURRENCIES: readonly Currency[] = ["NGN", "GBP", "USD", "CAD", "AED", "EUR"];
+
+/** The currencies a life at home deals in. The others arrive with a country abroad. */
+export const HOME_CURRENCIES: readonly Currency[] = ["NGN", "GBP", "USD"];
 
 export function isCurrency(value: unknown): value is Currency {
   return typeof value === "string" && (CURRENCIES as readonly string[]).includes(value);

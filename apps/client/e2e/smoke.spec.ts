@@ -1,5 +1,8 @@
 import { expect, test, type Page } from "@playwright/test";
 
+// The recorded lives are the simulation's own data, replayed here through the client's save.
+import { lifeSaves } from "../../../packages/sim/src/goldens/lives.data";
+
 /** Text that must never reach the player: kobo, a raw object, a missing value, a words key with no words. */
 const BROKEN: readonly [string, RegExp][] = [
   ["kobo or pence on money", /[₦£$]\d[\d,]*\.\d/],
@@ -77,4 +80,63 @@ test("three months of play show no kobo, raw object, missing value or bare key",
     while ((await remove.count()) > 0) await remove.first().click();
     await expectNothingBroken(page, `in month ${String(month + 1)}`);
   }
+});
+
+/** Ada's recorded life up to the flight: the client loads it as a save through the local authority. */
+function adaBeforeFlight(): string {
+  const save = lifeSaves["ada-careful"];
+  if (save === undefined) throw new Error("No recorded life ada-careful.");
+  return JSON.stringify({ save: { ...save, commands: save.commands.slice(0, -1) }, clock: { anchor: 0 } });
+}
+
+/** On a phone a panel is behind its tab; on a desktop every panel shows and the tab bar is hidden. */
+async function openTab(page: Page, name: string): Promise<void> {
+  const tabs = page.getByRole("navigation", { name: "Sections" });
+  if (await tabs.isVisible()) await tabs.getByRole("button", { name }).click();
+}
+
+test("a recorded life boards the plane, the flight gets the whole screen, and life abroad has its own tabs", async ({ page }) => {
+  await page.addInitScript((stored) => {
+    if (sessionStorage.getItem("seeded") === null) {
+      localStorage.setItem("japacity.save", stored);
+      sessionStorage.setItem("seeded", "1");
+    }
+  }, adaBeforeFlight());
+  await page.goto("/");
+
+  await openTab(page, "Japa");
+  await page.getByRole("button", { name: "Board the plane" }).click();
+
+  const moment = page.getByRole("dialog");
+  await expect(moment).toBeVisible();
+  await expect(moment.getByRole("heading", { name: /fly out/i })).toBeVisible();
+  await expectNothingBroken(page, "on the flight");
+  await moment.getByRole("button", { name: "Carry on" }).click();
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+
+  const tabs = page.getByRole("navigation", { name: "Sections" });
+  if (await tabs.isVisible()) {
+    await expect(tabs.getByRole("button")).toHaveText(["Month", "You", "Money", "Status", "Home"]);
+  }
+  await openTab(page, "Status");
+  await expect(page.getByRole("heading", { name: "Status", exact: true })).toBeVisible();
+  await openTab(page, "Home");
+  await expect(page.getByRole("heading", { name: "The way home" })).toBeVisible();
+  await expectNothingBroken(page, "on landing");
+
+  // A month abroad, and its report.
+  await openTab(page, "Month");
+  await page.getByRole("button", { name: "End month" }).click();
+  await expect(page.getByRole("dialog")).toBeVisible();
+  const carryOn = page.getByRole("button", { name: /^(Carry on|Next)$/ });
+  for (let shown = 0; shown < 5 && (await carryOn.isVisible()); shown += 1) await carryOn.click();
+  const report = page.getByRole("dialog");
+  await expect(report.getByRole("heading", { name: /^Month \d+$/ })).toBeVisible();
+  await expectNothingBroken(page, "in the first report abroad");
+  await report.getByRole("button", { name: "Close" }).click();
+
+  // The life abroad survives a reload.
+  await page.reload();
+  await openTab(page, "Home");
+  await expect(page.getByRole("heading", { name: "The way home" })).toBeVisible();
 });

@@ -12,6 +12,7 @@ import { Card, Empty, Panel, Tag } from "../../shared/ui/Panel";
 import { atBankRate, shortfall } from "../../shared/words/cost";
 import { formatBand, formatBp, formatMoney } from "../../shared/words/format";
 import { hasWords, lowerFirst, nameOf, say, sayCount, words } from "../../shared/words/text";
+import { countryCurrency, GatePanel } from "./GatePanel";
 
 const GRADE = "quality.edu-grade";
 
@@ -133,6 +134,8 @@ function Funds({ route }: { route: Route }) {
   const open = route.state === "known" || route.state === "applying";
   if (!open && shown === 0 && required === 0 && route.support === null) return null;
   const short = Math.max(0, required - shown);
+  // Each gate shows its own line in its own currency (R-GATE-004).
+  const currency = countryCurrency(route);
   return (
     <div className="flex flex-col gap-2" data-funds>
       <h4 className="text-sm font-semibold">{say("ui.route.funds")}</h4>
@@ -141,10 +144,10 @@ function Funds({ route }: { route: Route }) {
       ) : (
         <>
           <Meter value={shown} max={required} label={say("ui.route.funds")} />
-          <p className="text-sm">{say("ui.route.funds.line", { shown: formatMoney(shown, "GBP"), required: formatMoney(required, "GBP") })}</p>
+          <p className="text-sm">{say("ui.route.funds.line", { shown: formatMoney(shown, currency), required: formatMoney(required, currency) })}</p>
           {short > 0 ? (
             <p className="text-sm text-bad">
-              {say("ui.route.funds.short", { short: formatMoney(short, "GBP"), naira: formatMoney(atBankRate(view, "GBP", short), "NGN") })}
+              {say("ui.route.funds.short", { short: formatMoney(short, currency), naira: formatMoney(atBankRate(view, currency, short), "NGN") })}
             </p>
           ) : null}
           <p className="text-sm text-muted">{say("ui.route.funds.what")}</p>
@@ -205,6 +208,7 @@ function RouteCard({ route }: { route: Route }) {
         </div>
       </div>
       {route.state === "heard" ? <p className="text-sm">{say("ui.route.heard-only")}</p> : <Checklist route={route} />}
+      <GatePanel route={route} />
       <Schools route={route} />
       <Funds route={route} />
       <Record route={route} />
@@ -221,7 +225,12 @@ function RouteCard({ route }: { route: Route }) {
 export function RouteView() {
   const view = useView();
   // A route nobody has told you about is not on screen: nobody picks a route at the start.
-  const routes = view.routes.filter((route) => route.state !== "unknown");
+  // The road is never in the routes view (R-ROAD-001), whatever the engine sends.
+  // Abroad, the route flown on is behind you: its checklist is history, not a plan.
+  const abroad = view.place.where === "abroad";
+  const routes = view.routes.filter(
+    (route) => route.state !== "unknown" && !(abroad && route.state === "departed") && route.gate?.gate !== "road" && content.route[route.id]?.gate !== "road",
+  );
   return (
     <Panel title={say("ui.route.title")}>
       {routes.length === 0 ? <Empty>{say("ui.route.none")}</Empty> : routes.map((route) => <RouteCard key={route.id} route={route} />)}

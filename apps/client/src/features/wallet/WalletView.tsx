@@ -1,7 +1,7 @@
 // Money: what is in each pocket, the two rates, the bank allowance, and
 // conversions on the way. Changing and moving money go through small forms;
 // the engine decides what is allowed and the rejection's words say why not.
-import type { Currency, Pocket } from "@japacity/sim";
+import type { Currency, PlayerView, Pocket } from "@japacity/sim";
 import { ArrowLeftRight, MoveVertical } from "lucide-react";
 import { useId, useState, type FormEvent, type ReactNode } from "react";
 
@@ -10,10 +10,16 @@ import { Button } from "../../shared/ui/Button";
 import { Card, Panel } from "../../shared/ui/Panel";
 import { Rejection } from "../../shared/ui/Rejection";
 import { Sheet } from "../../shared/ui/Sheet";
-import { CURRENCIES, formatMoney, formatOne, formatRate, toMinor } from "../../shared/words/format";
+import { CURRENCIES, formatMoney, formatOne, formatRate, HOME_CURRENCIES, toMinor } from "../../shared/words/format";
 import { say } from "../../shared/words/text";
+import { RemitButton } from "../../shared/ui/RemitSheet";
+import { localCurrency } from "../../shared/words/wayHome";
 
-const FOREIGN = ["GBP", "USD"] as const;
+/** The currencies this life deals in: the home three, and the country's own once abroad. */
+function dealtIn(view: Pick<PlayerView, "place">): Currency[] {
+  const local = localCurrency(view);
+  return local === null || HOME_CURRENCIES.includes(local) ? [...HOME_CURRENCIES] : [...HOME_CURRENCIES, local];
+}
 
 function Field({ label, children }: { label: string; children: (id: string) => ReactNode }) {
   const id = useId();
@@ -30,9 +36,10 @@ function Field({ label, children }: { label: string; children: (id: string) => R
 const inputClass = "min-h-11 rounded-lg border border-line bg-surface px-3";
 
 function CurrencySelect({ id, value, onChange, exclude }: { id: string; value: Currency; onChange: (value: Currency) => void; exclude?: Currency }) {
+  const view = useView();
   return (
     <select id={id} value={value} onChange={(event) => onChange(event.target.value as Currency)} className={inputClass}>
-      {CURRENCIES.filter((currency) => currency !== exclude).map((currency) => (
+      {dealtIn(view).filter((currency) => currency !== exclude).map((currency) => (
         <option key={currency} value={currency}>
           {say(`ui.currency.${currency}`)}
         </option>
@@ -215,6 +222,7 @@ export function WalletView() {
             <MoveVertical size={16} />
             {say("ui.wallet.move")}
           </Button>
+          <RemitButton />
         </div>
       </Card>
 
@@ -229,7 +237,7 @@ export function WalletView() {
             </tr>
           </thead>
           <tbody>
-            {FOREIGN.map((currency) => (
+            {dealtIn(view).filter((currency) => currency !== "NGN").map((currency) => (
               <tr key={currency}>
                 <th scope="row" className="py-1 pr-2 font-medium">{formatOne(currency)}</th>
                 <td className="py-1 pr-2 tabular-nums">{formatMoney(view.rates[currency].official, "NGN")}</td>

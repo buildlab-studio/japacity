@@ -11,6 +11,8 @@ import { ReportBody } from "./ReportBody";
 export function TurnView() {
   const view = useView();
   const reportOpen = useGame((state) => state.reportOpen);
+  // The staged moments come first; the report opens once they have passed.
+  const waiting = useGame((state) => state.moments.length > 0);
   const setReportOpen = useGame((state) => state.setReportOpen);
   const report = view.report;
   const expiring = expiringSoon(view);
@@ -58,7 +60,7 @@ export function TurnView() {
       </Card>
 
       {report === null ? null : (
-        <Sheet open={reportOpen} onOpenChange={setReportOpen} title={say("ui.report.title", { month: report.month })}>
+        <Sheet open={reportOpen && !waiting} onOpenChange={setReportOpen} title={say("ui.report.title", { month: report.month })}>
           <ReportBody report={report} />
         </Sheet>
       )}

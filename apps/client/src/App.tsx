@@ -1,37 +1,58 @@
 // The shell. On a phone: one panel at a time, a tab bar, and the month's
 // action always above it. From 1024px: profile and money on the left, the
-// month plan in the centre, ways out and news on the right.
-import { CalendarDays, Newspaper, Plane, UserRound, Wallet, type LucideIcon } from "lucide-react";
+// month plan in the centre, ways out and news on the right. Where the
+// character is changes the shell: abroad the tabs are the month, you, money,
+// status and home; on the road there is one panel and nothing else.
+import { BadgeCheck, CalendarDays, House, Newspaper, Plane, UserRound, Wallet, type LucideIcon } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 
 import { bootGame } from "./authority/boot";
 import { GameProvider, useGame, useView } from "./authority/GameProvider";
 import type { GameStore } from "./authority/store";
 import { ActivityView } from "./features/activity/ActivityView";
+import { EndingView } from "./features/card/EndingView";
+import { CardView } from "./features/card/ShareCard";
 import { ChapterView } from "./features/chapter/ChapterView";
+import { CreditView } from "./features/credit/CreditView";
 import { DocumentView } from "./features/document/DocumentView";
+import { GoalView } from "./features/goal/GoalView";
 import { JapacityView } from "./features/japacity/JapacityView";
 import { NewsView } from "./features/news/NewsView";
 import { ObligationView } from "./features/obligation/ObligationView";
 import { OfferView } from "./features/offer/OfferView";
+import { FamilyView } from "./features/place/FamilyView";
+import { PlaceView } from "./features/place/PlaceView";
 import { QualityView } from "./features/quality/QualityView";
+import { RoadView } from "./features/road/RoadView";
 import { RouteView } from "./features/route/RouteView";
 import { ScenarioView } from "./features/scenario/ScenarioView";
 import { SetpieceView } from "./features/setpiece/SetpieceView";
+import { ClockBanner, StatusView } from "./features/status/StatusView";
+import { Moment } from "./features/turn/Moment";
 import { TurnBar } from "./features/turn/TurnBar";
 import { TurnView } from "./features/turn/TurnView";
 import { WalletView } from "./features/wallet/WalletView";
 import { Button } from "./shared/ui/Button";
 import { say } from "./shared/words/text";
 
-type Tab = "month" | "you" | "money" | "japa" | "news";
+type Tab = "month" | "you" | "money" | "japa" | "news" | "status" | "home";
 
-const TABS: { id: Tab; icon: LucideIcon }[] = [
+type TabSet = readonly { id: Tab; icon: LucideIcon }[];
+
+const HOME_TABS: TabSet = [
   { id: "month", icon: CalendarDays },
   { id: "you", icon: UserRound },
   { id: "money", icon: Wallet },
   { id: "japa", icon: Plane },
   { id: "news", icon: Newspaper },
+];
+
+const ABROAD_TABS: TabSet = [
+  { id: "month", icon: CalendarDays },
+  { id: "you", icon: UserRound },
+  { id: "money", icon: Wallet },
+  { id: "status", icon: BadgeCheck },
+  { id: "home", icon: House },
 ];
 
 /** A group of panels: on a phone only the current tab's group shows; on a desktop every group does. */
@@ -59,13 +80,13 @@ function Header() {
   );
 }
 
-function TabBar({ current, onChange }: { current: Tab; onChange: (tab: Tab) => void }) {
+function TabBar({ tabs, current, onChange }: { tabs: TabSet; current: Tab; onChange: (tab: Tab) => void }) {
   const view = useView();
   const waiting = view.offers.length > 0 || view.setpiece !== null;
   return (
     <nav aria-label={say("ui.tabs")} className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-paper pb-[env(safe-area-inset-bottom)] lg:hidden">
       <ul className="grid grid-cols-5">
-        {TABS.map(({ id, icon: Icon }) => (
+        {tabs.map(({ id, icon: Icon }) => (
           <li key={id}>
             <button
               type="button"
@@ -85,9 +106,123 @@ function TabBar({ current, onChange }: { current: Tab; onChange: (tab: Tab) => v
   );
 }
 
-function Playing() {
-  const [tab, setTab] = useState<Tab>("month");
+function LifeAgain() {
   const openLifeChooser = useGame((state) => state.openLifeChooser);
+  if (openLifeChooser === null) return null;
+  return (
+    <div>
+      <Button small variant="quiet" onClick={openLifeChooser}>
+        {say("ui.life.again")}
+      </Button>
+    </div>
+  );
+}
+
+/** The month plan: the same at home and abroad. */
+function MonthGroup({ tab }: { tab: Tab }) {
+  return (
+    <Group tab="month" current={tab}>
+      <TurnView />
+      <SetpieceView />
+      <CardView />
+      <ChapterView />
+      <OfferView />
+      <ActivityView />
+    </Group>
+  );
+}
+
+function ActionBar() {
+  return (
+    // One action bar: fixed above the tabs on a phone, at the foot of the plan on a desktop.
+    <div className="fixed inset-x-0 bottom-14 z-20 border-t border-line bg-paper/95 px-4 py-3 backdrop-blur-sm lg:sticky lg:bottom-4 lg:rounded-xl lg:border lg:bg-surface lg:shadow-lg">
+      <TurnBar />
+    </div>
+  );
+}
+
+const GRID = "mx-auto max-w-[90rem] px-4 pt-4 pb-48 lg:grid lg:grid-cols-[minmax(17rem,21rem)_minmax(0,1fr)_minmax(18rem,24rem)] lg:items-start lg:gap-6 lg:pb-10";
+
+function AtHome({ tab }: { tab: Tab }) {
+  return (
+    <main className={GRID} data-where="home">
+      <div className="flex flex-col gap-6">
+        <Group tab="you" current={tab}>
+          <QualityView />
+          <GoalView />
+          <PlaceView />
+          <LifeAgain />
+        </Group>
+        <Group tab="money" current={tab}>
+          <WalletView />
+          <ObligationView />
+        </Group>
+      </div>
+
+      <div className="flex min-w-0 flex-col gap-6">
+        <MonthGroup tab={tab} />
+        <ActionBar />
+      </div>
+
+      <div className="flex flex-col gap-6">
+        <Group tab="japa" current={tab}>
+          <JapacityView />
+          <RouteView />
+          <DocumentView />
+        </Group>
+        <Group tab="news" current={tab}>
+          <NewsView />
+        </Group>
+      </div>
+    </main>
+  );
+}
+
+function Abroad({ tab }: { tab: Tab }) {
+  return (
+    <main className={GRID} data-where="abroad">
+      <ClockBanner className="mb-4 lg:col-span-3 lg:mb-0" />
+      <div className="flex flex-col gap-6">
+        <Group tab="you" current={tab}>
+          <QualityView />
+          <GoalView />
+          <LifeAgain />
+        </Group>
+        <Group tab="money" current={tab}>
+          <WalletView />
+          <ObligationView />
+          <CreditView />
+        </Group>
+      </div>
+
+      <div className="flex min-w-0 flex-col gap-6">
+        <MonthGroup tab={tab} />
+        <ActionBar />
+      </div>
+
+      <div className="flex flex-col gap-6">
+        <Group tab="status" current={tab}>
+          <StatusView />
+          <RouteView />
+          <DocumentView />
+          <NewsView />
+        </Group>
+        <Group tab="home" current={tab}>
+          <PlaceView />
+          <FamilyView />
+        </Group>
+      </div>
+    </main>
+  );
+}
+
+function Playing() {
+  const view = useView();
+  const abroad = view.place.where === "abroad";
+  const tabs = abroad ? ABROAD_TABS : HOME_TABS;
+  const [chosen, setTab] = useState<Tab>("month");
+  // A tab that does not exist where the character now is falls back to the month.
+  const tab = tabs.some(({ id }) => id === chosen) ? chosen : "month";
   const showTab = (next: Tab) => {
     setTab(next);
     window.scrollTo({ top: 0 });
@@ -96,50 +231,9 @@ function Playing() {
   return (
     <div className="min-h-dvh">
       <Header />
-      <main className="mx-auto max-w-[90rem] px-4 pt-4 pb-48 lg:grid lg:grid-cols-[minmax(17rem,21rem)_minmax(0,1fr)_minmax(18rem,24rem)] lg:items-start lg:gap-6 lg:pb-10">
-        <div className="flex flex-col gap-6">
-          <Group tab="you" current={tab}>
-            <QualityView />
-            {openLifeChooser === null ? null : (
-              <div>
-                <Button small variant="quiet" onClick={openLifeChooser}>
-                  {say("ui.life.again")}
-                </Button>
-              </div>
-            )}
-          </Group>
-          <Group tab="money" current={tab}>
-            <WalletView />
-            <ObligationView />
-          </Group>
-        </div>
-
-        <div className="flex min-w-0 flex-col gap-6">
-          <Group tab="month" current={tab}>
-            <TurnView />
-            <SetpieceView />
-            <ChapterView />
-            <OfferView />
-            <ActivityView />
-          </Group>
-          {/* One action bar: fixed above the tabs on a phone, at the foot of the plan on a desktop. */}
-          <div className="fixed inset-x-0 bottom-14 z-20 border-t border-line bg-paper/95 px-4 py-3 backdrop-blur-sm lg:sticky lg:bottom-4 lg:rounded-xl lg:border lg:bg-surface lg:shadow-lg">
-            <TurnBar />
-          </div>
-        </div>
-
-        <div className="flex flex-col gap-6">
-          <Group tab="japa" current={tab}>
-            <JapacityView />
-            <RouteView />
-            <DocumentView />
-          </Group>
-          <Group tab="news" current={tab}>
-            <NewsView />
-          </Group>
-        </div>
-      </main>
-      <TabBar current={tab} onChange={showTab} />
+      {abroad ? <Abroad tab={tab} /> : <AtHome tab={tab} />}
+      <TabBar tabs={tabs} current={tab} onChange={showTab} />
+      <Moment />
     </div>
   );
 }
@@ -151,6 +245,8 @@ function Shell() {
   if (failed !== null) return <p className="p-4 text-bad">{say("ui.failed", { why: failed })}</p>;
   if (choosingLife) return <ScenarioView />;
   if (view === null) return <p className="p-4 text-muted">{say("ui.loading")}</p>;
+  if (view.ended && view.card !== null && view.card.kind !== "send-off") return <EndingView />;
+  if (view.place.where === "road") return <RoadView offers={<OfferView />} />;
   return <Playing />;
 }
 

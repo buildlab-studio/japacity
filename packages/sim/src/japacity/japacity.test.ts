@@ -301,6 +301,8 @@ describe("whole numbers, derived each time", () => {
     "[R-JAPACITY-004] [R-JAPACITY-006] given any life, when japacity is worked out twice and from a copy, then it is the same whole number from 0 to 100 and reads only the state, the world and the content",
     (scenario, to, window, held, english, seed) => {
       const late = to === "applying" || to === "granted" || to === "departed";
+      // The prologue life starts with every quality at its floor and its own steps to play; its figure is the prologue tests' business.
+      fc.pre(scenario !== "scenario.prologue");
       // Past known, the life needs an offer from Northgate on its first answer; a seed that gives none is skipped.
       fc.pre(!late || offeredWith(seed, content, "school.northgate", content.scenario[scenario]!.qualities["quality.edu-grade"] ?? 0));
       const build = (): Game => {

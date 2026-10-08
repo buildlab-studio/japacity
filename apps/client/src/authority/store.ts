@@ -5,6 +5,8 @@ import { text } from "@japacity/content";
 import type { Authority, Command, Id, PlayerView, RejectionCode, Reply, ReportLine, SlotPick } from "@japacity/sim";
 import { createStore, type StoreApi } from "zustand/vanilla";
 
+import { tidyLines } from "../shared/words/lines";
+
 /** A command as a screen writes it: the store adds the version it is based on. */
 export type PlayerCommand = Command extends infer C
   ? C extends { basedOn: number; type: infer T }
@@ -38,6 +40,11 @@ export interface GameState {
   plan: (SlotPick | null)[];
   /** True right after a month ends, so the report opens. */
   reportOpen: boolean;
+  /**
+   * The staged wins of the last accepted command, one full-screen moment each,
+   * shown before the month report (docs/rules/text.md, "Money on screen").
+   */
+  moments: ReportLine[];
   /** True when the player should pick who to be: a new life, or one that replaced a lost save. */
   choosingLife: boolean;
   /** Why a life was replaced, as a words key, when it was. */
@@ -52,6 +59,8 @@ export interface GameState {
   sameAgain: () => void;
   clearPlan: () => void;
   dismissRejection: () => void;
+  /** Moves on from the moment on screen to the next, or to the report. */
+  nextMoment: () => void;
   setReportOpen: (open: boolean) => void;
   chooseLife: (scenario: Id<"scenario">) => Promise<void>;
   /** Null when this authority cannot start a life over: the server will own that. */
@@ -71,6 +80,11 @@ const REST: Id<"activity"> = "activity.rest";
 
 export function rejectionWords(code: RejectionCode): string {
   return text[`reject.${code}`] ?? code;
+}
+
+/** The lines that get a moment of their own, once each payment is told once. */
+function bigLines(lines: readonly ReportLine[]): ReportLine[] {
+  return tidyLines(lines).filter((line) => line.big === true);
 }
 
 /** Keeps the picks that still fit, and pads with empty slots up to the count. */
@@ -94,7 +108,7 @@ export function createGameStore(authority: Authority, options: GameStoreOptions 
         const reply = await authority.send({ ...command, basedOn: view.v });
         if (reply.ok) {
           take(reply.view);
-          set({ lines: reply.lines });
+          set({ lines: reply.lines, moments: bigLines(reply.lines) });
         } else {
           set({ rejection: { code: reply.code, words: rejectionWords(reply.code) } });
           // The state may have moved on (a stale command): show the latest.
@@ -117,6 +131,7 @@ export function createGameStore(authority: Authority, options: GameStoreOptions 
       lines: [],
       plan: [],
       reportOpen: false,
+      moments: [],
       choosingLife: options.choosingLife ?? false,
       notice: options.notice ?? null,
 
@@ -161,13 +176,16 @@ export function createGameStore(authority: Authority, options: GameStoreOptions 
       dismissRejection() {
         set({ rejection: null });
       },
+      nextMoment() {
+        set({ moments: get().moments.slice(1) });
+      },
       setReportOpen(open) {
         set({ reportOpen: open });
       },
       async chooseLife(scenario) {
         if (options.life === undefined) return;
         const view = await options.life.newLife(scenario);
-        set({ view, plan: fitPlan([], view.freeSlots), choosingLife: false, notice: null, lines: [], rejection: null });
+        set({ view, plan: fitPlan([], view.freeSlots), choosingLife: false, notice: null, lines: [], moments: [], rejection: null });
       },
       openLifeChooser: options.life === undefined ? null : () => set({ choosingLife: true }),
       closeLifeChooser() {
