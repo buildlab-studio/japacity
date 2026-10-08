@@ -5,6 +5,7 @@ import type { Content } from "@japacity/sim";
 import type {
   AccountStore,
   AppealStore,
+  AdvertStore,
   AuditStore,
   CounterStore,
   BannedIdentityStore,
@@ -26,6 +27,7 @@ import type {
 import {
   memoryAccountStore,
   memoryAppealStore,
+  memoryAdvertStore,
   memoryAuditStore,
   memoryCounterStore,
   memoryBannedIdentityStore,
@@ -66,6 +68,7 @@ export interface Stores {
   conversation: ConversationStore;
   moderation: ModerationStore;
   push: PushStore;
+  adverts: AdvertStore;
 }
 
 /** R-SERVER-023: the current content and the one before, with any overlay already applied (R-SERVER-016). */
@@ -155,6 +158,7 @@ export function memoryStores(): Stores {
     conversation: memoryConversationStore(),
     moderation: memoryModerationStore(),
     push: memoryPushStore(),
+    adverts: memoryAdvertStore(),
   };
 }
 

@@ -1,3 +1,4 @@
+export { memoryAdvertStore } from "./advert.memory";
 export { memoryAccountStore } from "./account.memory";
 export { memoryAuditStore } from "./audit.memory";
 export { memoryCounterStore } from "./counter.memory";

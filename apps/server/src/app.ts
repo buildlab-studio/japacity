@@ -25,6 +25,8 @@ import { conversationRoutes } from "./routes/conversation";
 import { inviteRoutes } from "./routes/invite";
 import { moderationRoutes } from "./routes/moderation";
 import { pairRoutes } from "./routes/pair";
+import { adminAdvertRoutes } from "./routes/admin-adverts";
+import { advertRoutes } from "./routes/adverts";
 
 export function makeApp(deps: ServerDeps, accounts?: Accounts): Hono {
   const app = new Hono();
@@ -40,6 +42,8 @@ export function makeApp(deps: ServerDeps, accounts?: Accounts): Hono {
   app.route("/", characterRoute(deps));
   app.route("/", placeRoutes(deps));
   app.route("/", notifyRoutes(deps));
+  app.route("/", advertRoutes(deps));
+  app.route("/api/admin/adverts", adminAdvertRoutes(deps));
   app.route("/api/admin", adminRoutes(deps));
   app.route("/", countersRoute(deps)).route("/api/admin", adminAnalyticsRoutes(deps));
   app.route("/", moderationAdminRoutes(deps, moderationPorts(deps, accounts)));

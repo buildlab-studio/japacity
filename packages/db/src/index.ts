@@ -1,6 +1,7 @@
 // The Postgres implementations of the store interfaces. Tests reach PGlite
 // through `@japacity/db/pglite`; nothing here imports it.
 import type {
+  AdvertStore,
   PushStore,
   ConversationStore,
   InviteStore,
@@ -21,6 +22,7 @@ import type {
 
 import type { Handle } from "./handle";
 import {
+  pgAdvertStore,
   pgPushStore,
   pgConversationStore,
   pgInviteStore,
@@ -42,6 +44,7 @@ export { type Connection, connect } from "./connect";
 export { type Handle, oneConnection, type Queries } from "./handle";
 export * as schema from "./schema";
 export {
+  pgAdvertStore,
   pgPushStore,
   pgConversationStore,
   pgInviteStore,
@@ -74,6 +77,7 @@ export interface PgStores {
   conversation: ConversationStore;
   moderation: ModerationStore;
   push: PushStore;
+  adverts: AdvertStore;
   moderationLog: ModerationLogStore;
   banned: BannedIdentityStore;
   appeals: AppealStore;
@@ -96,6 +100,7 @@ export function pgStores(handle: Handle): PgStores {
     conversation: pgConversationStore(handle),
     moderation: pgModerationStore(handle),
     push: pgPushStore(handle),
+    adverts: pgAdvertStore(handle),
     moderationLog: pgModerationLogStore(handle),
     banned: pgBannedIdentityStore(handle),
     appeals: pgAppealStore(handle),

@@ -157,7 +157,8 @@ describe("each switch, off", () => {
 
   test("[R-SERVER-031] given adverts off, when the adverts route is asked, then no campaign is served; on, the request reaches its route", async () => {
     const target = server();
-    expect((await target.app.request("/api/adverts?region=NG")).status).toBe(404);
+    // The adverts route exists now: with the switch on it answers the hour's campaigns (R-ADVERT-008).
+    expect((await target.app.request("/api/adverts?region=NG")).status).toBe(200);
     await turnOff(target, ["adverts"]);
     target.wait(cacheMs);
     const reply = await target.app.request("/api/adverts?region=NG");

@@ -2,6 +2,7 @@
 // the in-memory stores here and the Postgres stores in packages/db are held
 // to the same tests. This entry imports Vitest: never import it from runtime code.
 export { suiteForAccountStore } from "./account.contract";
+export { suiteForAdvertStore } from "./advert.contract";
 export { suiteForAuditStore } from "./audit.contract";
 export { suiteForCounterStore } from "./counter.contract";
 export { suiteForDeletionStore } from "./deletion.contract";

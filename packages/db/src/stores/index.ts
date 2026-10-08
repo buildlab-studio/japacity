@@ -1,4 +1,5 @@
 export { pgAccountStore } from "./account";
+export { pgAdvertStore } from "./advert";
 export { pgAuditStore } from "./audit";
 export { pgCounterStore } from "./counter";
 export { pgDayLog } from "./daylog";

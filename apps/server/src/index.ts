@@ -31,6 +31,7 @@ import { placeSocketRoutes } from "./routes/place";
 export { Place } from "./place/place.object";
 import { MONEY_CRON, moneyJob } from "./jobs/money";
 import { dropOldFeedback } from "./moderation/feedback";
+import { advertLinksJob } from "./adverts/job";
 
 export interface Env {
   SITE_URL: string;
@@ -126,6 +127,7 @@ export default {
     ctx.waitUntil(ticksJob(depsFor(env), controller.cron));
     ctx.waitUntil(drawJob(depsFor(env), drawKeys(env), controller.cron));
     ctx.waitUntil(notifyJob(depsFor(env), pushKeys(env), controller.cron));
+    ctx.waitUntil(advertLinksJob(depsFor(env), controller.cron, (input, init) => fetch(input, init)));
     if (controller.cron === "0 0 * * *") ctx.waitUntil(runDeletions(depsFor(env), makeAuth(depsFor(env), authAdapter, authKeys(env, (promise) => ctx.waitUntil(promise)))));
     // R-ANALYTICS-008: before the money job, which forgets the day's active list once it has run.
     if (controller.cron === COUNTERS_CRON) ctx.waitUntil(countersJob(depsFor(env), isolateDayLog(depsFor(env))));
