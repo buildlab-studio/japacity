@@ -87,7 +87,8 @@ export interface NewCharacter {
   refilledAt: number;
   content: string;
   overlay?: string;
-  start: { scenario: Id<"scenario">; seed: string; worldSeed: string };
+  /** A new life from its scenario and seeds, or (a sibling made from an invite, R-PEOPLE-011) the state it starts from. */
+  start: SegmentStart;
   /** The state at version 0, stored as segment 0's first snapshot. */
   state: State;
 }

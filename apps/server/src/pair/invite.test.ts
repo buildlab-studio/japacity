@@ -9,6 +9,17 @@ import { act, bondIn, call, cardOut, FRIEND, INVITER, linkedPair, must, newLife,
 
 type Reply<B> = B | PairRejection;
 
+/** Answers the first allowed answer of every prologue step until the prologue closes. */
+async function playPrologue(server: ReturnType<typeof pairServer>, account: string): Promise<void> {
+  for (let guard = 0; guard < 60; guard += 1) {
+    const shown = (await view(server, account)).body;
+    if (!shown.ok || shown.view.prologue === null) return;
+    const answer = shown.view.prologue.answers.find((each) => each.allowed);
+    if (answer === undefined) throw new Error("No allowed answer.");
+    await act(server, account, { type: "prologue/choose", step: shown.view.prologue.step, answer: answer.id });
+  }
+}
+
 async function accept(server: ReturnType<typeof pairServer>, account: string, code: string, body: unknown = { slot: "partner" }) {
   return (await call<Reply<InviteAccepted>>(server, "POST", `/api/invite/${code}/accept`, account, body)).body;
 }
@@ -201,6 +212,36 @@ describe("invite links", () => {
     const b = (taken as InviteAccepted).character;
     expect((await stateOf(server, b)).prologue.open).toBe(true);
     expect((await recordOf(server.deps, pairId(a, b)))?.record).toMatchObject({ role: "sibling", stage: "connected" });
+    expect((await stateOf(server, a)).people.slots["sibling-1"]?.state).toBe("player");
+  });
+
+  test("[R-PEOPLE-011] given an inviter whose prologue drew a family, when a sibling link is taken, then the new life holds the same draw from its first state, its first segment starts from that state, and its sibling-1 slot waits as a card until its prologue closes and then holds the inviter", async () => {
+    // A family drawn with two children besides the inviter, so the sibling slots exist.
+    const server = pairServer(tuned((copy) => {
+      copy.tuning.prologue.siblings = [2, 2];
+    }));
+    const a = await newLife(server, INVITER, "scenario.prologue");
+    await playPrologue(server, INVITER);
+    // The family's siblings join the slots in the first month after the prologue (R-PEOPLE-007).
+    await must(server, INVITER, { type: "turn/end", slots: [] });
+    const family = (await stateOf(server, a)).prologue.draw;
+    expect(family).not.toBeNull();
+    const code = await cardOut(server, INVITER, "sibling-1", "sibling");
+    await signUp(server, FRIEND);
+
+    const taken = await accept(server, FRIEND, code, { slot: "sibling-1" });
+
+    expect(taken).toMatchObject({ ok: true });
+    const b = (taken as InviteAccepted).character;
+    const sibling = await stateOf(server, b);
+    expect(sibling.prologue.draw).toEqual(family);
+    expect(sibling.people.slots["sibling-1"]).toMatchObject({ state: "invited", invite: { looking: "sibling" } });
+    const stored = await server.deps.stores.player.load(b);
+    expect(stored?.segments[0]?.start).toMatchObject({ base: { v: 0, prologue: { draw: family } } });
+    await playPrologue(server, FRIEND);
+    const grown = await stateOf(server, b);
+    expect(grown.prologue.draw).toEqual(family);
+    expect(grown.people.slots["sibling-1"]).toMatchObject({ state: "player" });
     expect((await stateOf(server, a)).people.slots["sibling-1"]?.state).toBe("player");
   });
 

@@ -120,12 +120,14 @@ function adult(state: State): boolean {
 }
 
 /** The friend's character for the link: a sibling is always a new life (R-PEOPLE-011); a partner is the friend's own, or a new one in `scenario`. */
-async function friendFor(deps: ServerDeps, account: string, looking: "partner" | "sibling", scenario: string | null): Promise<{ ok: true; character: string } | PairAnswer<never>> {
+async function friendFor(deps: ServerDeps, account: string, invite: InviteRow, scenario: string | null): Promise<{ ok: true; character: string } | PairAnswer<never>> {
   const existing = await characterOf(deps, account);
-  if (looking === "sibling") {
+  if (invite.looking === "sibling") {
     if (existing !== null) return refused(409, "one-character", "An existing character never becomes anyone's sibling. A sibling link starts a new life.");
-    // character creation takes no `family`, so the new life draws its own family; R-PEOPLE-011 wants the inviter's draw.
-    const made = await newCharacter(deps, account, PROLOGUE);
+    // R-PEOPLE-011, decision 0009: the new life takes the inviter's family draw.
+    // an inviter from a fixed scenario, or before its prologue's family step, has no draw; the new life then draws its own and no sibling slot waits for the link.
+    const draw = (await stateOf(deps, invite.from))?.state.prologue.draw ?? null;
+    const made = await newCharacter(deps, account, PROLOGUE, draw === null ? undefined : { from: invite.from, draw });
     if (!made.body.ok) return asRefusal(made);
   } else if (existing === null) {
     if (scenario === null) return refused(400, "not-legal", "Name the scenario of the new character, or make one first.");
@@ -170,7 +172,7 @@ export async function acceptInvite(deps: ServerDeps, account: string, code: stri
   if (!usable.ok) return refused(200, usable.failed, `The link cannot be used: ${usable.failed}.`);
   const refusedEarly = await mayAccept(deps, account, invite);
   if (refusedEarly !== null) return { status: refusedEarly.code === "signed-out" ? 401 : 200, body: refusedEarly };
-  const friend = await friendFor(deps, account, invite.looking, field(body, "scenario"));
+  const friend = await friendFor(deps, account, invite, field(body, "scenario"));
   if (!("character" in friend)) return friend;
   if (friend.character === invite.from) return refused(200, "not-legal", "A character cannot pair with itself.");
   const key = pairId(invite.from, friend.character);
@@ -198,6 +200,7 @@ export async function acceptInvite(deps: ServerDeps, account: string, code: stri
         const linked = sendTo(turn, joining, { type: "people/link", slot: "partner", pair: key, facts: factsOf(inviter.state, inviter.content, turn.world) });
         if (!linked.ok) return linked;
       }
+      // R-PEOPLE-011: a sibling's new life is in its prologue, which refuses the link; carry.ts sends it when the prologue closes.
       const link = sendTo(turn, inviter, { type: "people/link", slot: invite.slot, pair: key, facts: factsOf(joining.state, joining.content, turn.world) });
       if (!link.ok) return link;
       const record = book.get(key);
