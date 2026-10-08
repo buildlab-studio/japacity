@@ -55,7 +55,7 @@ export const guideText: Record<string, string> = {
   "guide.page.made.title": "How this game was made",
   "guide.page.made.intro": "This page says plainly where generated media is used in the game, kind by kind.",
   "guide.page.made.statement": "What the assets register says",
-  "guide.page.made.images": "Images and models: the city's buildings, streets and people are written as code by an AI agent working for the studio. A person reviews every one before it ships.",
+  "guide.page.made.images": "Images and models: the city's buildings, streets and people are written as code by an AI agent working for the studio. Every one is reviewed against the style rules by a reviewer that did not build it, and the maintainer judges them before launch.",
   "guide.page.made.clips": "Clips: any clip made with a generation tool says \"Made with AI tools\" in its corner while it plays.",
   "guide.page.made.voices": "Voices: none. No voice in the game is generated.",
   "guide.page.made.music": "Music: no music in the game is generated.",
@@ -141,10 +141,10 @@ export const guideText: Record<string, string> = {
   "guide.numbers.section.next": "Read the numbers page for the part of the game you want to check. Each lists every figure with its source.",
   "guide.uk-family.title": "Joining a partner in the UK, or going with them: the income floor, the fee, the interview",
   "guide.uk-family.section.real":
-    "A partner visa needs a sponsor who is settled or on a route that allows a partner, a relationship that is real and can be shown, English at the set level, the fee and the health surcharge, and the sponsor's income above a floor set by the rules. A dependant on a student or worker visa comes under the lead's permission and leaves when it ends. Officials may interview both sides separately about the relationship.",
+    "A partner visa needs a sponsor who is settled or on a route that allows a partner, a relationship that is real and can be shown, English at the set level, the fee and the health surcharge, and the sponsor's income above a floor set by the rules. A dependant on a student or worker visa comes under the main applicant's permission and leaves when it ends. Officials may interview both sides separately about the relationship.",
   "guide.uk-family.section.game":
     "In the game the floor, the fee and the interview are real figures from the pages below, rounded. The interview is a set piece for two: both answer the same questions about the shared history, and a marriage for papers that is caught brings a ban. The dependant's status ends with the lead's.",
-  "guide.uk-family.section.next": "Read the gov.uk pages on the partner visa and on proof of income first, then the page for the owner's own visa about partners and children. The figures change each April.",
+  "guide.uk-family.section.next": "Read the gov.uk pages on the partner visa and on proof of income first, then the page for the main applicant's own visa about partners and children. The figures change each April.",
   "guide.ca-family.title": "Sponsoring a spouse to Canada, or going with a worker or student: the undertaking and the points",
   "guide.ca-family.section.real":
     "A sponsor signs an undertaking to support the person they bring for a set number of years and to repay any social assistance they take; a sponsor who defaulted on one, or is still bound by one, cannot sponsor again. A spouse adds points to an Express Entry profile. A partner of a worker or student may come with them on their own permit while the lead's holds.",
