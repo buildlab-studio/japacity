@@ -24,7 +24,7 @@ const POUND_TARGET = 600000;
 
 const SAFE_CASH_MOVE = 50000000;
 
-export type StrategyName = "careful" | "borrower" | "risky" | "honest-home";
+export type StrategyName = "careful" | "borrower" | "risky" | "honest-home" | "spender";
 
 export const STRATEGY_NAMES: StrategyName[] = ["careful", "borrower", "risky", "honest-home"];
 
@@ -64,6 +64,8 @@ interface Habits {
   channel: "app" | "bank" | "informal";
   /** Comes home by choice once no lawful status is held. */
   homeWhenUnlawful: boolean;
+  /** Keeps nothing abroad but the fare home: every month's money over it is sent home. */
+  keepsFareOnly: boolean;
   buysCar: boolean;
   phoneContract: boolean;
   rentsFlat: boolean;
@@ -103,6 +105,7 @@ const HABITS: Record<StrategyName, Habits> = {
     remitShareBp: 2500,
     channel: "app",
     homeWhenUnlawful: true,
+    keepsFareOnly: false,
     buysCar: false,
     phoneContract: true,
     rentsFlat: true,
@@ -130,6 +133,7 @@ const HABITS: Record<StrategyName, Habits> = {
     remitShareBp: 5000,
     channel: "bank",
     homeWhenUnlawful: true,
+    keepsFareOnly: false,
     buysCar: true,
     phoneContract: true,
     rentsFlat: true,
@@ -157,6 +161,7 @@ const HABITS: Record<StrategyName, Habits> = {
     remitShareBp: 10000,
     channel: "informal",
     homeWhenUnlawful: false,
+    keepsFareOnly: false,
     buysCar: false,
     phoneContract: false,
     rentsFlat: false,
@@ -184,10 +189,41 @@ const HABITS: Record<StrategyName, Habits> = {
     remitShareBp: 0,
     channel: "app",
     homeWhenUnlawful: true,
+    keepsFareOnly: false,
     buysCar: false,
     phoneContract: false,
     rentsFlat: false,
     december: CAREFUL_DECEMBER,
+    road: LEAVE_ROAD,
+    prologue: "first",
+  },
+  // The broke return (R-PLACE-005) needs the fare paid and little else left anywhere. The first fix batch made the
+  // first months abroad survivable, so the borrowers come home with a buffer; this player keeps none abroad.
+  spender: {
+    englishBeforeTest: 66,
+    prep: 20,
+    unexplainedMax: 10000,
+    takesLoans: true,
+    takesAgent: true,
+    heldAtOnce: true,
+    paysFamily: true,
+    buysPounds: false,
+    bufferMonths: 0,
+    leaves: true,
+    prefersSettling: false,
+    otherRoutes: [...FORMAL, GULF],
+    takesRoad: false,
+    takesGulf: true,
+    takesGroupLoan: true,
+    renews: false,
+    remitShareBp: 10000,
+    channel: "app",
+    homeWhenUnlawful: true,
+    keepsFareOnly: true,
+    buysCar: false,
+    phoneContract: true,
+    rentsFlat: true,
+    december: SPENDING_DECEMBER,
     road: LEAVE_ROAD,
     prologue: "first",
   },
@@ -850,6 +886,7 @@ function abroadMoney(view: PlayerView, content: Content, habits: Habits, currenc
   if (habits.renews && status?.renew !== null && status?.renew !== undefined) keep += status.renew.fee + status.renew.surcharge;
   if (habits.renews && status !== null && status.settleMonths !== null) keep += varStart(content, "var.uk-settle-fee") + varStart(content, "var.uk-citizen-fee");
   const fare = view.place.fareHome?.amount ?? 0;
+  if (habits.keepsFareOnly) keep = 0;
   if (habits.homeWhenUnlawful) keep += fare;
   // What is owed at home is paid from the naira pockets, so enough is sent first to meet it.
   const homeDue = monthlyDueIn(view, content, "NGN") * (habits.bufferMonths + 1);
@@ -863,6 +900,24 @@ function abroadMoney(view: PlayerView, content: Content, habits: Habits, currenc
     const amount = mulDiv(over, habits.remitShareBp, 10000);
     if (amount >= 1000) commands.push({ type: "wallet/remit", currency, amount, channel: habits.channel });
   }
+  return commands;
+}
+
+/**
+ * The savings spent: loans and debts at home paid off from the naira bank, and
+ * the school's fees paid ahead from pounds bought with what naira is left, all
+ * but the fare home kept.
+ */
+function spendSavings(view: PlayerView): Loose[] {
+  const bank = view.pockets.NGN.bank;
+  const commands: Loose[] = view.obligations
+    .filter((owed) => (owed.entry.includes("loan") || owed.entry.includes("debt")) && owed.outstanding > 0 && bank > 0)
+    .map((owed) => ({ type: "obligation/pay", obligation: owed.id, amount: Math.min(owed.outstanding, bank) }));
+  const tuition = view.obligations.find((owed) => owed.entry === "obligation.tuition" && owed.outstanding > 0);
+  if (tuition === undefined) return commands;
+  const spare = view.pockets.GBP.bank - (view.place.fareHome?.amount ?? 0);
+  if (spare > 0) commands.push({ type: "obligation/pay", obligation: tuition.id, amount: Math.min(tuition.outstanding, spare) });
+  if (bank > 0) commands.push({ type: "wallet/convert", from: "NGN", to: "GBP", amount: bank, via: "bank" });
   return commands;
 }
 
@@ -893,6 +948,7 @@ function abroadCommands(view: PlayerView, content: Content, habits: Habits): Loo
     }
   }
   if (goesHome(view, habits)) commands.push({ type: "return/home" });
+  if (habits.keepsFareOnly) commands.push(...spendSavings(view));
   if (currency !== null) commands.push(...abroadMoney(view, content, habits, currency));
   if (view.turns.banked > 0) {
     commands.push({ type: "turn/end", slots: currency === null ? [] : abroadSlots(view, content, habits, currency) });
@@ -930,6 +986,7 @@ export const strategies: Record<StrategyName, Strategy> = {
   borrower: strategyOf("borrower"),
   risky: strategyOf("risky"),
   "honest-home": strategyOf("honest-home"),
+  spender: strategyOf("spender"),
 };
 
 // ---------------------------------------------------------------------------

@@ -383,6 +383,26 @@ function roadStep(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
 }
 
 // ---------------------------------------------------------------------------
+// A formal flight
+// ---------------------------------------------------------------------------
+
+/**
+ * R-ROAD-005 and 012: the road sets off from home. A formal flight taken
+ * after the pitch and before setting off ends the chain where it stands,
+ * quietly, as a fraud does: the deposit is the only loss, and an answer to a
+ * scene still open moves nothing.
+ */
+// the page is silent on a flight between the pitch and the truth; the kinder reading lets the visa win.
+export function endBeforeSettingOff(ctx: Ctx): BaseEvent[] {
+  const entry = Object.values(ctx.content.route).find((candidate) => candidate.gate === "road");
+  const held = entry === undefined ? undefined : ctx.state.route[entry.id];
+  if (entry === undefined || held === undefined) return [];
+  const step = roadOf(held).step;
+  if (step === null || !(BEFORE as readonly string[]).includes(step)) return [];
+  return update(ctx, entry, { gate: "road", step: OVER, monthsHere: 0, debt: 0 }, null);
+}
+
+// ---------------------------------------------------------------------------
 // The view
 // ---------------------------------------------------------------------------
 

@@ -2,7 +2,7 @@ import { fc, test } from "@fast-check/vitest";
 import { content, text } from "@japacity/content";
 import { describe, expect } from "vitest";
 
-import { bp, valueInKobo } from "../engine/int";
+import { bp, divFloor, valueInKobo } from "../engine/int";
 import { checkInvariantsWith } from "../engine/invariants";
 import type { Registry } from "../engine/kind";
 import { stepWith } from "../engine/step";
@@ -23,6 +23,7 @@ import type {
   Terms, ForeignCurrency } from "../engine/types";
 import { hiddenPaths, viewWith } from "../engine/view";
 import { registry } from "../kinds";
+import { replayTo } from "../sweep/crossing.journey";
 import { legalCommands } from "../testing/legal";
 import type { Game, Loose } from "../testing/play";
 import { start } from "../testing/play";
@@ -76,9 +77,9 @@ interface Lab {
   view(): PlayerView;
 }
 
-function lab(options: { scenario?: Id<"scenario">; content?: Content; seed?: string; routeHolds?: boolean } = {}): Lab {
+function lab(options: { scenario?: Id<"scenario">; content?: Content; seed?: string; routeHolds?: boolean; from?: Game } = {}): Lab {
   const used = options.content ?? content;
-  const game = start({ scenario: options.scenario ?? ADA, content: used, seed: options.seed ?? "seed-1" });
+  const game = options.from ?? start({ scenario: options.scenario ?? ADA, content: used, seed: options.seed ?? "seed-1" });
   let pending: { effects: Effect[]; terms: Terms } = { effects: [], terms: {} };
   const holds = (): RequirementResult => ({ met: true });
   const kinds: Registry = registry().map((kind) =>
@@ -309,6 +310,28 @@ describe("opening", () => {
     const official = Object.fromEntries(Object.entries(rates).map(([key, rate]) => [key, rate.official])) as Record<ForeignCurrency, number>;
     const naira = valueInKobo(pay.amount as number, "USD", official);
     expect(subject.open("offer.salary-loan")!.terms.max).toBe(4 * naira);
+  });
+
+  test("[R-OFFER-002] given a job held whose pay reads a salary no route has recorded, when a pay term is fixed, then the job pays nothing and the term is zero", () => {
+    const subject = lab({ scenario: TUNDE, content: variant({ "offer.salary-loan": { when: [] } }) });
+    subject.apply([{ type: "activity/start-job", job: "activity.job-gulf-cleaner" }]);
+    expect(content.activity["activity.job-gulf-cleaner"]!.pay!.amount).toMatchObject({ term: "salary" });
+    expect(subject.open("offer.salary-loan")!.terms.max).toBe(0);
+  });
+
+  test("[R-OFFER-002] given a sponsor's job abroad paid a year, when a pay term is fixed, then it is the month's pay from the recorded salary, valued in naira at the official rate", () => {
+    const abroad = replayTo("tunde-abroad", content, (game) => content.activity[game.state.activity.job ?? "activity.rest"]?.where === "abroad");
+    // The bonus is a home offer; placed anywhere here so the term is fixed on a job paid a year.
+    const subject = lab({ from: abroad, content: variant({ "offer.december-bonus": { when: [], where: "any" } }) });
+    const sponsor = subject.game.state.route["route.uk-skilled"]?.gate;
+    if (sponsor?.gate !== "sponsor" || sponsor.sponsor === null) throw new Error("The recorded life flew without a sponsor.");
+    const rates = subject.game.world().rates;
+    const official = Object.fromEntries(Object.entries(rates).map(([key, rate]) => [key, rate.official])) as Record<ForeignCurrency, number>;
+    const month = valueInKobo(divFloor(sponsor.sponsor.salary, 12), "GBP", official);
+    const cap = content.offer["offer.december-bonus"]!.terms.pay;
+    if (typeof cap !== "object" || cap.from !== "pay") throw new Error("The December bonus reads no pay term.");
+    expect(month).toBeLessThan(cap.cap);
+    expect(subject.open("offer.december-bonus")!.terms.pay).toBe(month);
   });
 
   test("[R-OFFER-002] given no job, when a pay term is fixed, then it is zero", () => {

@@ -110,16 +110,7 @@ const FLOWN = new Map<string, { state: State; save: Save; tick: number }>();
  * reported, each with the seed it was found on. A random life
  * that meets one stops there and is counted; any other break fails the test.
  */
-export const KNOWN_FINDINGS: { pattern: string; finding: string }[] = [
-  {
-    pattern: "is held while the character is road",
-    finding: "tunde-borrower at its flight, mixed risky play, fast-check seed 1773204655 path 24, month 96: a road pitch taken at home, `go` at the night meeting, then the Gulf flight in the same month; the road's truth opens abroad and `pay` moves a character holding status.gulf-worker onto the road",
-  },
-  {
-    pattern: "The amount reads the term salary",
-    finding: "a step throws when an offer whose term reads the pay of the job held comes up while the job pays the sponsor's or the contract's salary (offer/offer.logic.ts payInNaira)",
-  },
-];
+export const KNOWN_FINDINGS: { pattern: string; finding: string }[] = [];
 
 /** The result of a random life with the known findings let through: null when it held or stopped on one of them. */
 export function unexplained(result: string | null): string | null {

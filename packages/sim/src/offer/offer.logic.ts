@@ -32,6 +32,7 @@ import type {
   TermSpec,
   Terms,
 } from "../engine/types";
+import { monthlyPay } from "../activity/activity.pay";
 import { routePercent } from "../japacity/japacity.logic";
 import { healthComeUp } from "./health";
 import { appliesHere } from "../place/place.logic";
@@ -99,17 +100,21 @@ function reachedLimit(state: State, entry: OfferEntry): boolean {
 // Terms: R-OFFER-002
 // ---------------------------------------------------------------------------
 
-/** The monthly pay of the job held, in naira kobo. A pay in another currency is valued at the official rate. */
+/**
+ * The monthly pay of the job held, in naira kobo: the month the activity kind
+ * pays, from the job's own terms (a job paid a year pays it over twelve, and a
+ * salary no route has recorded pays nothing). A pay in another currency is
+ * valued at the official rate.
+ */
 function payInNaira(read: ReadCtx): number {
   const job = read.state.activity.job;
-  if (job === null) return 0;
-  const pay = read.content.activity[job]?.pay ?? null;
+  const entry = job === null ? undefined : read.content.activity[job];
+  const pay = entry === undefined ? null : monthlyPay(read, entry);
   if (pay === null) return 0;
-  const amount = resolveAmount(read, pay.amount);
-  if (pay.currency === "NGN") return amount;
+  if (pay.currency === "NGN") return pay.amount;
   const official = {} as Record<ForeignCurrency, number>;
   for (const currency of Object.keys(read.world.rates) as ForeignCurrency[]) official[currency] = read.world.rates[currency].official;
-  return valueInKobo(amount, pay.currency, official);
+  return valueInKobo(pay.amount, pay.currency, official);
 }
 
 function fixTerm(ctx: Ctx, spec: TermSpec): number {

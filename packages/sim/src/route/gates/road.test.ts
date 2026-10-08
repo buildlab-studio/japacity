@@ -16,7 +16,8 @@ import type { QualityEvent } from "../../quality/quality.events";
 import { freeSlots } from "../../turn/turn.logic";
 import type { Game } from "../../testing/play";
 import type { LifeOptions } from "../route.journey";
-import { applyEffects, readyLife, slot, UK, UNIT } from "../route.journey";
+import { ALWAYS_GRANTED, offeredSeed } from "../../place/place.journey";
+import { applyEffects, readyLife, slot, toDecision, UK, UNIT } from "../route.journey";
 import { outcomeOf } from "./road";
 
 const ROAD: Id<"route"> = "route.road";
@@ -1000,5 +1001,67 @@ describe("on the road", () => {
     expect(game.state.place.returns.at(-1)).toMatchObject({ shape: "assisted", country: "country.italy" });
     expect(game.state.wallet.pockets.EUR).toEqual(pockets.EUR);
     expect(game.state.wallet.pockets.NGN).toEqual(pockets.NGN);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// A formal flight and the road (the sweep's finding 2)
+// ---------------------------------------------------------------------------
+
+describe("a formal flight and the road", () => {
+  /** Ada granted the UK study visa and not yet flown, with naira for the flight and cash for a deposit. */
+  function granted(): Game {
+    const game = readyLife(content, {
+      seed: offeredSeed(content),
+      tuning: ALWAYS_GRANTED,
+      quiet: true,
+      change: HONEST_ROAD,
+      pockets: { NGN: { bank: 2000000 * UNIT, cash: CASH }, GBP: { bank: 40000 * UNIT, cash: 0 } },
+    });
+    toDecision(game);
+    expect(game.state.route[UK]?.state).toBe("granted");
+    return game;
+  }
+
+  test("[R-ROAD-012] [R-ROAD-005] given the pitch taken and `go` answered, when the granted visa is flown that month, then the truth never opens abroad, the chain is over and the character stays abroad with the deposit the only loss", () => {
+    const game = granted();
+    take(game);
+    answer(game, "night", "go");
+    game.accept({ type: "route/depart", route: UK });
+    const cashAbroad = cash(game);
+    for (let month = 0; month < 3; month += 1) {
+      turn(game);
+      expect(game.state.setpiece.open?.entry).not.toBe(TRUTH);
+      expect(game.state.place.where).toBe("abroad");
+      expect(checkInvariants(game.state, game.content)).toEqual([]);
+    }
+    expect(gateOf(game).step).toBe("over");
+    expect(game.state.route[ROAD]?.state).not.toBe("applying");
+    expect(owed(game, AGENT_DEBT)).toBeNull();
+    expect(cash(game)).toBeGreaterThanOrEqual(cashAbroad);
+  });
+
+  test("[R-ROAD-012] [R-ROAD-005] given the truth open at home, when the granted visa is flown and `pay` is then answered abroad, then nobody sets off: no money is taken, no debt opens and the character stays abroad", () => {
+    const game = granted();
+    toTruth(game);
+    game.accept({ type: "route/depart", route: UK });
+    const before = cash(game);
+    answer(game, "truth", "pay");
+    expect(game.state.place.where).toBe("abroad");
+    expect(cash(game)).toBe(before);
+    expect(owed(game, AGENT_DEBT)).toBeNull();
+    expect(gateOf(game).step).toBe("over");
+    turn(game);
+    expect(game.state.place.where).toBe("abroad");
+    expect(checkInvariants(game.state, game.content)).toEqual([]);
+  });
+
+  test("[R-ROAD-005] given a character set off on the road with a granted visa, when the flight is asked for, then it is rejected: no flight leaves from the road", () => {
+    const game = granted();
+    toTruth(game);
+    answer(game, "truth", "pay");
+    expect(game.state.place.where).toBe("road");
+    game.expectRejected({ type: "route/depart", route: UK }, "not-legal");
+    expect(game.state.place.where).toBe("road");
   });
 });
