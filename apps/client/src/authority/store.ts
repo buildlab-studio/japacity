@@ -5,6 +5,7 @@ import { text } from "@japacity/content";
 import type { Command, Id, PlayerView, Reply, ReportLine, SlotPick } from "@japacity/sim";
 import { createStore, type StoreApi } from "zustand/vanilla";
 
+import { earlyWinIn } from "../features/guides/earlyWin";
 import type { AccountApi } from "../shared/net/auth";
 import type { ClockView, PresenceReply, ServerCode, ServerRejection, WorldReply } from "../shared/net/contract";
 import { isReported } from "../shared/net/http";
@@ -78,6 +79,11 @@ export interface GameState {
   signedOut: boolean;
   /** Why the player is at the sign-in screen, as a words key, when there is a reason to say. */
   accountNotice: string | null;
+  /**
+   * True once a month's report has shown the early win (R-GUIDE-014), or a chapter or goal is done.
+   * Every ask (a sign-in method, notifications, feedback, an invite, a share) waits for it (R-GUIDE-015).
+   */
+  earlyWin: boolean;
 
   refresh: () => Promise<void>;
   send: (command: PlayerCommand) => Promise<Reply | ServerRejection | null>;
@@ -129,6 +135,11 @@ function bigLines(lines: readonly ReportLine[]): ReportLine[] {
   return tidyLines(lines).filter((line) => line.big === true);
 }
 
+/** R-GUIDE-014: the view or the lines just shown hold the early win. */
+function wonEarly(view: PlayerView, lines: readonly ReportLine[], slots: readonly SlotPick[] | null): boolean {
+  return view.chapter.done.length > 0 || view.goals.done.length > 0 || earlyWinIn(lines, slots) !== null;
+}
+
 /** Keeps the picks that still fit, and pads with empty slots up to the count. */
 function fitPlan(plan: readonly (SlotPick | null)[], slots: number): (SlotPick | null)[] {
   const kept = plan.slice(0, slots);
@@ -142,7 +153,7 @@ export function createGameStore(authority: StoreAuthority, options: GameStoreOpt
       // A fetch that set out before a command's reply can land after it: the older view is dropped.
       const held = get().view;
       if (held !== null && view.v < held.v) return;
-      set({ view, plan: fitPlan(get().plan, view.freeSlots) });
+      set({ view, plan: fitPlan(get().plan, view.freeSlots), earlyWin: get().earlyWin || wonEarly(view, view.report?.lines ?? [], null) });
     }
 
     async function send(command: PlayerCommand): Promise<Reply | ServerRejection | null> {
@@ -155,7 +166,9 @@ export function createGameStore(authority: StoreAuthority, options: GameStoreOpt
           // One update: a month's report opens with the view it reports on, so nothing that
           // waits for the report (the share card, a scene) can open in between.
           const ended = command.type === "turn/end";
+          const slots = command.type === "turn/end" ? command.slots : null;
           set({
+            earlyWin: get().earlyWin || wonEarly(reply.view, reply.lines, slots),
             view: reply.view,
             plan: fitPlan(ended ? [] : get().plan, reply.view.freeSlots),
             lines: reply.lines,
@@ -194,6 +207,7 @@ export function createGameStore(authority: StoreAuthority, options: GameStoreOpt
       account: options.account ?? null,
       signedOut: false,
       accountNotice: null,
+      earlyWin: false,
 
       async refresh() {
         try {
