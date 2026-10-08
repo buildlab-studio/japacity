@@ -55,7 +55,11 @@ describe("the invite link", () => {
     game.accept({ type: "people/invite", slot: "partner", looking: "partner", fill: "who-codes" });
     const server = fakeServer();
     server.answer("POST /api/invite", { body: { ok: true, code: "K7Q2", slot: "partner", expires: 9_000, card: {} } });
-    await online(server, game);
+    const { store } = await online(server, game);
+    act(() => store.setState({ earlyWin: false }));
+    // R-GUIDE-015: the link is an ask, so it waits for the early win.
+    expect(screen.queryByRole("button", { name: say("ui.people.invite.link-get") })).toBeNull();
+    act(() => store.setState({ earlyWin: true }));
     expect(screen.queryByText(say("ui.people.invite.offline"))).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: say("ui.people.invite.link-get") }));
     await screen.findByText(/\/invite\/K7Q2$/);

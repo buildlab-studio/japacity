@@ -9,6 +9,7 @@ import { Users } from "lucide-react";
 import { useState } from "react";
 
 import { useGame, useView } from "../../authority/GameProvider";
+import { AfterEarlyWin } from "../notify/held";
 import { BlockReport } from "../../shared/moderation/BlockReport";
 import { bondName, CALL, personOf, SEE, slotKind, slotOrder, type BondView, type SlotView } from "../../shared/sim/people";
 import { Button } from "../../shared/ui/Button";
@@ -66,15 +67,17 @@ function SlotCard({ slotKey, slot, bond, api }: { slotKey: string; slot: SlotVie
         {pair === null || api === null || bond === null ? null : <BlockReport who={{ pair, name: bondName(bond, view.people.bonds) }} cites={{ pair }} surface="pair" />}
         {slot.state === "invited" && slot.invite !== null ? <InviteOut slot={slotKey} invite={slot.invite} api={api} /> : null}
         {kind === "sibling" && slot.state === "computer" && !view.ended ? (
-          inviting ? (
-            <InviteMaker slot={slotKey} />
-          ) : (
-            <div>
-              <Button small variant="quiet" onClick={() => setInviting(true)}>
-                {say("ui.people.sibling.invite")}
-              </Button>
-            </div>
-          )
+          <AfterEarlyWin>
+            {inviting ? (
+              <InviteMaker slot={slotKey} />
+            ) : (
+              <div>
+                <Button small variant="quiet" onClick={() => setInviting(true)}>
+                  {say("ui.people.sibling.invite")}
+                </Button>
+              </div>
+            )}
+          </AfterEarlyWin>
         ) : null}
         {pair === null || api === null || bond === null ? null : <Conversation api={api} pair={pair} name={bondName(bond, view.people.bonds)} />}
       </Card>
@@ -181,9 +184,11 @@ export function PeopleView() {
         <Panel title={say("ui.people.slot.partner")}>
           <Candidates />
           {slotEmpty ? (
-            <Card>
-              <InviteMaker slot="partner" />
-            </Card>
+            <AfterEarlyWin>
+              <Card>
+                <InviteMaker slot="partner" />
+              </Card>
+            </AfterEarlyWin>
           ) : null}
         </Panel>
       ) : null}

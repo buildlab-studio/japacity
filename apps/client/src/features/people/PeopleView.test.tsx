@@ -1,6 +1,6 @@
 import { content, text } from "@japacity/content";
 import type { PlayerView } from "@japacity/sim";
-import { fireEvent, screen, waitFor, within } from "@testing-library/react";
+import { act, fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
 import { bondName, interviewName, momentWords, personOf } from "../../shared/sim/people";
@@ -105,9 +105,23 @@ describe("candidates and the quiet mark", () => {
 });
 
 describe("the invite card", () => {
+  test("[R-GUIDE-015] given a new life before its early win, then no invite is asked for: no card maker and no sibling invite; after the win, both show", async () => {
+    const game = peopleGame();
+    playFirst(game);
+    const { store } = await renderWithGame(offline(<PeopleView />), game);
+    act(() => store.setState({ earlyWin: false }));
+    expect(screen.queryByRole("form", { name: say("ui.people.invite.title") })).toBeNull();
+    expect(screen.queryAllByRole("button", { name: say("ui.people.sibling.invite") })).toEqual([]);
+    act(() => store.setState({ earlyWin: true }));
+    expect(screen.getByRole("form", { name: say("ui.people.invite.title") })).toBeDefined();
+    expect(screen.getAllByRole("button", { name: say("ui.people.sibling.invite") }).length).toBeGreaterThan(0);
+  });
+
+
   test("[R-PAIR-007] given the card maker, when a fill is picked, then the card shows the character's name, the looking line, the game's words and nothing else about the player", async () => {
     const game = peopleGame();
-    await renderWithGame(offline(<PeopleView />), game);
+    const { store } = await renderWithGame(offline(<PeopleView />), game);
+    act(() => store.setState({ earlyWin: true }));
     const maker = screen.getByRole("form", { name: say("ui.people.invite.title") });
     fireEvent.change(within(maker).getByLabelText(say("ui.people.invite.fill")), { target: { value: "who-codes" } });
     const face = maker.querySelector<HTMLElement>("[data-invite-card]")!;
@@ -119,7 +133,8 @@ describe("the invite card", () => {
 
   test("[R-PEOPLE-010] given the card made and then taken back, then the slot shows the card while it is out and is empty again after", async () => {
     const game = peopleGame();
-    const { authority } = await renderWithGame(offline(<PeopleView />), game);
+    const { authority, store } = await renderWithGame(offline(<PeopleView />), game);
+    act(() => store.setState({ earlyWin: true }));
     const maker = screen.getByRole("form", { name: say("ui.people.invite.title") });
     fireEvent.change(within(maker).getByLabelText(say("ui.people.invite.fill")), { target: { value: "already-in-uk" } });
     fireEvent.click(within(maker).getByRole("button", { name: say("ui.people.invite.make") }));

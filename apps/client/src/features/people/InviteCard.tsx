@@ -10,6 +10,7 @@ import { useId, useState } from "react";
 import { useGame, useView } from "../../authority/GameProvider";
 import { rejectionWords } from "../../authority/store";
 import { slotKind } from "../../shared/sim/people";
+import { AfterEarlyWin } from "../notify/held";
 import { Button } from "../../shared/ui/Button";
 import { nameOf, runningName, say, words } from "../../shared/words/text";
 import type { PairApi } from "./pairApi";
@@ -95,7 +96,11 @@ export function InviteOut({ slot, invite, api }: { slot: string; invite: { looki
     <div className="flex flex-col gap-2" data-invite-out={slot}>
       <p className="text-sm font-medium">{say("ui.people.invite.out")}</p>
       <CardFace looking={looking} fill={invite.fill} />
-      {api === null ? <p className="text-sm text-muted">{say("ui.people.invite.offline")}</p> : <Link api={api} slot={slot} />}
+      {api === null ? <p className="text-sm text-muted">{say("ui.people.invite.offline")}</p> : (
+        <AfterEarlyWin>
+          <Link api={api} slot={slot} />
+        </AfterEarlyWin>
+      )}
       <div>
         <Button small variant="quiet" disabled={busy} onClick={() => void send({ type: "people/invite", slot })}>
           {say("ui.people.invite.withdraw")}

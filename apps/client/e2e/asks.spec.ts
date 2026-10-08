@@ -77,16 +77,24 @@ async function fakeServer(page: Page): Promise<Faked> {
   return { game: () => game, lines: () => lines };
 }
 
-// the invite card and its link live in features/people, which this wave leaves alone, so they are not held back yet and not searched for here.
-/** Every ask R-GUIDE-015 names that the shell holds back: a sign-in method, the notice, a share. */
+/** Every ask R-GUIDE-015 names that the shell holds back: a sign-in method, the notice, a share, an invite. */
 const ASKS = {
   "sign-in": (page: Page) => page.getByRole("button", { name: "Continue with Google" }),
   notify: (page: Page) => page.getByRole("dialog", { name: "Know when your turns are full" }),
   share: (page: Page) => page.locator("[data-share-button], [data-card-tile]"),
+  // The card maker for the partner slot, the sibling's invite and the card's link, in the DOM whether or not their tab shows.
+  invite: (page: Page) => page.locator('form[aria-label="Ask a friend"], [data-slot] button:text-is("Ask a friend to be this sibling"), button:text-is("Get the link")'),
 };
 
-async function expectNoAsk(page: Page, when: string): Promise<void> {
-  for (const [ask, find] of Object.entries(ASKS)) await expect(find(page), `${ask} asked ${when}`).toHaveCount(0);
+/**
+ * `winShown`: the lines on screen carry the early win, so the asks the store
+ * releases with it (the invite) may be in the page; the shell's own asks still wait.
+ */
+async function expectNoAsk(page: Page, when: string, winShown = false): Promise<void> {
+  for (const [ask, find] of Object.entries(ASKS)) {
+    if (winShown && ask === "invite") continue;
+    await expect(find(page), `${ask} asked ${when}`).toHaveCount(0);
+  }
 }
 
 function nameOf(id: string): string {
@@ -125,14 +133,15 @@ test("[R-GUIDE-015] [R-GUIDE-014] a new life played online as the next step sugg
 
     // The staged wins come first, then the report: none of them is an ask.
     await expect(page.getByRole("dialog")).toBeVisible();
+    const winShown = server.lines().some((line) => line.tone === "good");
     const carryOn = page.getByRole("button", { name: /^(Carry on|Next)$/ });
     for (let shown = 0; shown < 5 && (await carryOn.isVisible()); shown += 1) {
-      if (before) await expectNoAsk(page, `on a staged moment of month ${String(month)}`);
+      if (before) await expectNoAsk(page, `on a staged moment of month ${String(month)}`, winShown);
       await carryOn.click();
     }
     const report = page.getByRole("dialog");
     await expect(report.getByRole("heading", { name: `Month ${String(month)}` })).toBeVisible();
-    if (before) await expectNoAsk(page, `in the report of month ${String(month)}`);
+    if (before) await expectNoAsk(page, `in the report of month ${String(month)}`, winShown);
     won ||= server.lines().some((line) => line.tone === "good");
     await report.getByRole("button", { name: "Close" }).click();
 
@@ -156,4 +165,6 @@ test("[R-GUIDE-015] [R-GUIDE-014] a new life played online as the next step sugg
   // The chapter closed in the second month, after the early win: its card came with its share button.
   expect(shareShown, "the chapter's card offered to share after the early win").toBe(true);
   await expect(ASKS["sign-in"](page)).toHaveCount(0);
+  // After the early win the invite is offered on the people tab.
+  expect(await ASKS.invite(page).count(), "the invite offered after the early win").toBeGreaterThan(0);
 });
