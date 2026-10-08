@@ -162,6 +162,7 @@ export function InterviewRoom({ setpiece }: { setpiece: Setpiece }) {
   const entered = useStore(roomStore, (state) => state.entered);
   const opened = useStore(roomStore, (state) => state.opened);
   const inRoom = useStore(roomStore, (state) => state.inRoom);
+  // the room is entered only before the first answer; a reload mid-interview resumes at the question.
   const lobby = setpiece.asked === 0 && !entered;
   const first = setpiece.question?.id ?? null;
   useEffect(() => {
