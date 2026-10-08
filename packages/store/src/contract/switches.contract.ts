@@ -3,7 +3,17 @@ import { describe, expect, test } from "vitest";
 import type { SwitchName, SwitchStore } from "../switches";
 import { DEFAULT_SWITCH_ROW, MAX_DIAL } from "../switches";
 
-const NAMES: SwitchName[] = ["signups", "lottery", "adverts", "partnerPlay"];
+/** The switches on by default. */
+const NAMES: SwitchName[] = [
+  "signups",
+  "lottery",
+  "adverts",
+  "partnerPlay",
+  "boards.this-week.everyone",
+  "boards.this-week.friends",
+  "boards.all-time.everyone",
+  "boards.all-time.friends",
+];
 
 /** The contract every SwitchStore keeps. `make` returns an empty store each time it is called. */
 export function suiteForSwitchStore(make: () => Promise<SwitchStore>): void {
@@ -23,6 +33,23 @@ export function suiteForSwitchStore(make: () => Promise<SwitchStore>): void {
 
       await store.set(name, true, "account.owner", "calm", 2_000);
       expect(await store.read()).toEqual(DEFAULT_SWITCH_ROW);
+    });
+
+    test("[R-CITY-039] given an empty store, when it is read, then the four boards are on and the joined-week board is off; when that one is turned on and off, then only it moved", async () => {
+      const store = await make();
+      const { switches } = await store.read();
+      expect([switches["boards.this-week.everyone"], switches["boards.this-week.friends"], switches["boards.all-time.everyone"], switches["boards.all-time.friends"]]).toEqual([true, true, true, true]);
+      expect(switches["boards.joined-week"]).toBe(false);
+
+      const on = await store.set("boards.joined-week", true, "account.owner", "trying it", 1_000);
+      expect(on).toEqual({ ...DEFAULT_SWITCH_ROW, switches: { ...DEFAULT_SWITCH_ROW.switches, "boards.joined-week": true } });
+      expect(await store.read()).toEqual(on);
+      await store.set("boards.joined-week", false, "account.owner", "after launch", 2_000);
+      expect(await store.read()).toEqual(DEFAULT_SWITCH_ROW);
+      expect((await store.log()).map((row) => row.change)).toEqual([
+        { switch: "boards.joined-week", on: true },
+        { switch: "boards.joined-week", on: false },
+      ]);
     });
 
     test("[R-SERVER-030] given each dial set, when the row is read, then it holds them; when one is unset, then it is absent again and the others stay", async () => {

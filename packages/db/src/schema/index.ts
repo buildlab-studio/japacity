@@ -9,3 +9,4 @@ export * from "./world";
 export * from "./switches";
 export * from "./moderation";
 export * from "./people";
+export * from "./boards";

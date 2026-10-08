@@ -2,6 +2,7 @@
 // through `@japacity/db/pglite`; nothing here imports it.
 import type {
   AdvertStore,
+  BoardStore,
   PushStore,
   ConversationStore,
   InviteStore,
@@ -23,6 +24,7 @@ import type {
 import type { Handle } from "./handle";
 import {
   pgAdvertStore,
+  pgBoardStore,
   pgPushStore,
   pgConversationStore,
   pgInviteStore,
@@ -45,6 +47,7 @@ export { type Handle, oneConnection, type Queries } from "./handle";
 export * as schema from "./schema";
 export {
   pgAdvertStore,
+  pgBoardStore,
   pgPushStore,
   pgConversationStore,
   pgInviteStore,
@@ -82,6 +85,7 @@ export interface PgStores {
   banned: BannedIdentityStore;
   appeals: AppealStore;
   feedback: FeedbackStore;
+  boards: BoardStore;
 }
 
 /** Every Postgres store over one handle, as the server builds them for one request. */
@@ -105,5 +109,6 @@ export function pgStores(handle: Handle): PgStores {
     banned: pgBannedIdentityStore(handle),
     appeals: pgAppealStore(handle),
     feedback: pgFeedbackStore(handle),
+    boards: pgBoardStore(handle),
   };
 }

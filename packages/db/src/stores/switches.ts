@@ -15,7 +15,17 @@ type Update = PgUpdateSetSource<typeof switches>;
 function toRow(row: typeof switches.$inferSelect | undefined): SwitchRow {
   if (row === undefined) return structuredClone(DEFAULT_SWITCH_ROW);
   return {
-    switches: { signups: row.signups, lottery: row.lottery, adverts: row.adverts, partnerPlay: row.partnerPlay },
+    switches: {
+      signups: row.signups,
+      lottery: row.lottery,
+      adverts: row.adverts,
+      partnerPlay: row.partnerPlay,
+      "boards.this-week.everyone": row["boards.this-week.everyone"],
+      "boards.this-week.friends": row["boards.this-week.friends"],
+      "boards.all-time.everyone": row["boards.all-time.everyone"],
+      "boards.all-time.friends": row["boards.all-time.friends"],
+      "boards.joined-week": row["boards.joined-week"],
+    },
     dials: { placeTargets: row.placeTargets, computerAfterMonths: row.computerAfterMonths, topUpTickets: row.topUpTickets },
   };
 }

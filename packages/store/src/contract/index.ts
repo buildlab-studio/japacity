@@ -19,3 +19,6 @@ export { suiteForSwitchStore } from "./switches.contract";
 export { suiteForConversationStore } from "./conversation.contract";
 export { suiteForInviteStore } from "./invite.contract";
 export { suiteForModerationStore } from "./report.contract";
+export { suiteForBoardStore } from "./boards.contract";
+export type { BoardStores } from "./boards.contract";
+export { must, newCharacter } from "./fixtures";
