@@ -8,6 +8,7 @@ import { characterRoute } from "./routes/character";
 import { commandRoute } from "./routes/command";
 import { viewRoute } from "./routes/view";
 import { worldRoute } from "./routes/world";
+import { placeRoutes } from "./routes/place";
 
 export function makeApp(deps: ServerDeps): Hono {
   const app = new Hono();
@@ -17,6 +18,7 @@ export function makeApp(deps: ServerDeps): Hono {
   app.route("/", viewRoute(deps));
   app.route("/", worldRoute(deps));
   app.route("/", characterRoute(deps));
+  app.route("/", placeRoutes(deps));
 
   return app;
 }
