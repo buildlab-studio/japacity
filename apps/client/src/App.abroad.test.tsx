@@ -31,7 +31,7 @@ async function showing(view: PlayerView) {
 }
 
 describe("the shell by where the character is", () => {
-  test("[R-GATE-003] given Ada's recorded life up to the flight, when she boards, then the flight is a moment of its own and the shell turns to life abroad", async () => {
+  test("[R-GATE-003] [R-CHAPTER-006] given Ada's recorded life up to the flight, when she boards, then the flight is a moment of its own, the send-off card follows it, and the shell turns to life abroad", async () => {
     const save = recordedSave("ada-careful");
     const beforeFlight = { ...save, commands: save.commands.slice(0, -1) };
     expect(save.commands.at(-1)?.command.type).toBe("route/depart");
@@ -44,7 +44,13 @@ describe("the shell by where the character is", () => {
 
     const moment = await screen.findByRole("dialog");
     expect(within(moment).getByText(words("line.route.departed", { route: "route.uk-masters" }))).toBeDefined();
+    expect(moment.querySelector("[data-share-card]")).toBeNull();
     fireEvent.click(within(moment).getByRole("button", { name: /./ }));
+
+    // R-CHAPTER-006: the send-off card comes after the flight's moment, before the tabs of life abroad.
+    const card = await screen.findByRole("dialog", { name: words("chapter.send-off.title") });
+    expect(card.querySelector("[data-share-card='send-off']")).not.toBeNull();
+    fireEvent.click(within(card).getByRole("button", { name: say("ui.report.close") }));
 
     expect(await tabNames()).toEqual(["month", "you", "money", "status", "home"].map((tab) => say(`ui.tab.${tab}`)));
     expect(screen.getByText(say("ui.place.way-home"))).toBeDefined();

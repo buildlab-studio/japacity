@@ -2,7 +2,7 @@ import { content, text } from "@japacity/content";
 import { fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
-import { decemberGame, viewAfter } from "../../shared/testing/fixtures";
+import { decemberGame, setPockets, viewAfter } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { formatMoney } from "../../shared/words/format";
 import { nameOf, say, words } from "../../shared/words/text";
@@ -37,7 +37,9 @@ describe("the December visit", () => {
   });
 
   test("[R-SETPIECE-003] given no pounds for the flight, then going is greyed but still shown, with the rejection's words and what it needs", async () => {
-    const view = decemberGame().view();
+    const game = decemberGame();
+    setPockets(game, { GBP: 0 });
+    const view = game.view();
     const question = view.setpiece!.question!;
     expect(question.id).toBe("go-uk");
     expect(question.allowed).toEqual(["stay"]);

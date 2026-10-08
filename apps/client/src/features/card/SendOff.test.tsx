@@ -7,10 +7,8 @@ import { nameOf, say } from "../../shared/words/text";
 import { CardView } from "./ShareCard";
 
 describe("the send-off card from the engine", () => {
-  test("[R-CHAPTER-006] given the month chapter 4 closes, then the card carries the route, the figure, the months, the standing and what was done most, and says it is a game", async () => {
-    const game = recordedGame("ada-careful");
-    game.endTurn();
-    const view = game.view();
+  test("[R-CHAPTER-006] given Ada's recorded life just flown, then the card carries the route, the figure, the months, the standing and what was done most, and says it is a game", async () => {
+    const view = recordedGame("ada-careful").view();
     const card = view.card!;
     expect(card.kind).toBe("send-off");
     await renderWithView(<CardView />, view);
@@ -23,14 +21,23 @@ describe("the send-off card from the engine", () => {
     expect(within(face).getByText(say("ui.card.is-a-game"))).toBeDefined();
   });
 
-  test("[R-CHAPTER-006] given the month's report still open, then the card waits for it to close", async () => {
-    const game = recordedGame("ada-careful");
-    game.endTurn();
-    const { store } = await renderWithView(<CardView />, game.view());
+  test("[R-CHAPTER-006] given Ada just flown and a report open, then the card waits for it to close", async () => {
+    const { store } = await renderWithView(<CardView />, recordedGame("ada-careful").view());
     await screen.findByRole("dialog");
     store.getState().setReportOpen(true);
     await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
     store.getState().setReportOpen(false);
     expect(await screen.findByRole("dialog")).toBeDefined();
+  });
+
+  test("[R-CHAPTER-006] given the card shown from the flight, when the first month abroad ends, then the card and its tile are gone", async () => {
+    const game = recordedGame("ada-careful");
+    expect(game.view().card?.kind).toBe("send-off");
+    game.endTurn();
+    const view = game.view();
+    expect(view.card).toBeNull();
+    await renderWithView(<CardView />, view);
+    expect(screen.queryByRole("dialog")).toBeNull();
+    expect(document.querySelector("[data-card-tile]")).toBeNull();
   });
 });

@@ -41,9 +41,12 @@ describe("where you are and the way home", () => {
     await waitFor(() => expect(authority.sent).toEqual([{ type: "return/home", basedOn: view.v }]));
   });
 
-  test("[R-PLACE-005] given Ada on a student visa with pounds for the fare and savings besides, then the return she would make today reads by choice, before it happens", async () => {
+  test("[R-PLACE-005] given Ada on a student visa with pounds for the fare and savings besides, and naira at home no more than the broke line, then the return she would make today reads by choice, before it happens, with no capital to add to the standing", async () => {
     const base = abroadView();
-    const view: PlayerView = { ...base, pockets: { ...base.pockets, GBP: { bank: 200_000, cash: 0, locked: 0 } } };
+    const view: PlayerView = {
+      ...base,
+      pockets: { ...base.pockets, GBP: { bank: 200_000, cash: 0, locked: 0 }, NGN: { bank: content.tuning.place.brokeLine, cash: 0, locked: 0 } },
+    };
     expect(wayHome(view)).toMatchObject({ paidFrom: "local", shape: "by-choice" });
     await renderWithView(<PlaceView />, view);
     expect(screen.getByText(say("ui.place.shape-now.by-choice"))).toBeDefined();

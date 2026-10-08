@@ -1,7 +1,9 @@
 import { expect, test, type Page } from "@playwright/test";
 
 // The recorded lives are the simulation's own data, replayed here through the client's save.
+import { content } from "../../../packages/content/src/index";
 import { lifeSaves } from "../../../packages/sim/src/goldens/lives.data";
+import { standInWorld } from "../../../packages/sim/src/world/standIn";
 
 /** Text that must never reach the player: kobo, a raw object, a missing value, a words key with no words. */
 const BROKEN: readonly [string, RegExp][] = [
@@ -135,7 +137,22 @@ async function boardThePlane(page: Page): Promise<void> {
   await expect(moment.getByRole("heading", { name: /fly out/i })).toBeVisible();
   await expectNothingBroken(page, "on the flight");
   await moment.getByRole("button", { name: "Carry on" }).click();
-  await expect(page.getByRole("dialog")).toHaveCount(0);
+  // R-CHAPTER-006: the send-off card follows the flight's moment.
+  await closeSendOff(page);
+}
+
+/**
+ * The months abroad to play before the December visit opens: it opens as a
+ * December month ends, and the world, not the recorded seed, says which month that is.
+ */
+function monthsToDecember(): number {
+  const save = lifeSaves["ada-careful"];
+  if (save === undefined) throw new Error("No recorded life ada-careful.");
+  const flight = save.commands[save.commands.length - 1]?.tick ?? 0;
+  for (let tick = flight; tick < flight + 12; tick += 1) {
+    if (standInWorld(save.worldSeed, tick, content).vars["var.season-december"] === 1) return tick - flight + 1;
+  }
+  throw new Error("No December in the year after the flight.");
 }
 
 /** Ends the month, steps through any staged moments, reads the report and closes it. */
@@ -174,24 +191,28 @@ test("a recorded life boards the plane, the flight gets the whole screen, and li
   await expect(page.getByRole("heading", { name: "The way home" })).toBeVisible();
   await expectNothingBroken(page, "on landing");
 
-  // A month abroad, its report, and then the send-off card.
-  await endMonthAndRead(page, "in the first report abroad");
-  await closeSendOff(page);
-
   // The life abroad survives a reload, and the card due this month comes back with it.
   await page.reload();
   await closeSendOff(page);
   await openTab(page, "Home");
   await expect(page.getByRole("heading", { name: "The way home" })).toBeVisible();
+
+  // A month abroad and its report; the card had its month and does not come back, after a reload either.
+  await endMonthAndRead(page, "in the first report abroad");
+  await expect(page.locator("[data-share-card]")).toHaveCount(0);
+  await page.reload();
+  await openTab(page, "Home");
+  await expect(page.getByRole("heading", { name: "The way home" })).toBeVisible();
+  await expect(page.locator("[data-share-card]")).toHaveCount(0);
 });
 
 test("a life abroad answers the December visit, changes money and comes home", async ({ page }) => {
   await seedAda(page);
   await boardThePlane(page);
-  await endMonthAndRead(page, "in the first report abroad");
-  await closeSendOff(page);
 
   // December: the visit takes the whole screen once the report is closed.
+  const months = monthsToDecember();
+  for (let month = 1; month < months; month += 1) await endMonthAndRead(page, `in report ${String(month)} abroad`);
   await endMonthAndRead(page, "in the December report");
   const scene = page.getByRole("dialog");
   await expect(scene.locator("[data-scene='setpiece.december']")).toBeVisible();

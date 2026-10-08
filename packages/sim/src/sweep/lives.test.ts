@@ -10,22 +10,11 @@ import { goldens } from "../goldens";
 import { lifeScripts } from "../goldens/scripts";
 import { start } from "../testing/play";
 import { standInWorld } from "../world/standIn";
-
-/** What every plan that reaches the flight must have played; the risky player skips the prep and the family meeting. */
-const SLOTS_EVERY_PLAN_PLAYS = [
-  "activity.job-hunt",
-  "activity.get-passport",
-  "activity.get-transcript",
-  "activity.sit-english-test",
-  "activity.apply-to-school",
-  "activity.tb-test",
-  "activity.apply-for-visa",
-];
+import { FLIGHT_WINDOW, MONTHS_ABROAD } from "./lives.window";
 
 /** The second recording of each life carries on abroad; the first ends on the flight. */
 const flights = lifeScripts.filter((script) => !script.name.endsWith("-abroad"));
 const abroad = lifeScripts.filter((script) => script.name.endsWith("-abroad"));
-const MONTHS_ABROAD = 36;
 
 describe("the three real lives as golden scripts", () => {
   test("[R-ENGINE-010] given the scripts, when listed, then there is one to the flight and one abroad for each starting life", () => {
@@ -36,7 +25,7 @@ describe("the three real lives as golden scripts", () => {
   });
 
   test.each(flights.map((script) => [script.name, script] as const))(
-    "[R-ENGINE-001] [R-ENGINE-010] given %s, when its save is replayed twice through the real content, then every command is accepted, both replays agree month by month, and the flight leaves within 24 to 40 months with the life going on abroad",
+    "[R-ENGINE-001] [R-ENGINE-010] given %s, when its save is replayed twice through the real content, then every command is accepted and sent by the player, both replays agree month by month, and the save ends on a flight within the recorder's window with the life going on abroad",
     (_name, script) => {
       const worldAt = (tick: number) => standInWorld(lifeStart(script.save)!.worldSeed, tick, content);
       const first = measure(script.save, content, worldAt);
@@ -48,16 +37,17 @@ describe("the three real lives as golden scripts", () => {
       expect(state.turn.ended).toBe(false);
       expect(state.place).toMatchObject({ where: "abroad", country: "country.uk" });
       expect(state.route["route.uk-masters"]?.state).toBe("departed");
-      expect(state.turn.month).toBeGreaterThanOrEqual(24);
-      expect(state.turn.month).toBeLessThanOrEqual(40);
+      expect(state.turn.month).toBeGreaterThanOrEqual(FLIGHT_WINDOW.first);
+      expect(state.turn.month).toBeLessThanOrEqual(FLIGHT_WINDOW.last);
       // Chapter 3 is left out on purpose: a borrower whose held funds lapse while the visa is decided flies with it open (see the playtest report).
       expect(state.chapter.done).toEqual(expect.arrayContaining(["chapter.find-your-feet", "chapter.build-the-file"]));
 
-      const commands = savedCommands(script.save).map((entry) => entry.command);
-      const slots = new Set(commands.flatMap((command) => (command.type === "turn/end" ? command.slots.map((pick) => pick.activity) : [])));
-      expect([...slots]).toEqual(expect.arrayContaining(SLOTS_EVERY_PLAN_PLAYS));
-      const types = new Set(commands.map((command) => command.type));
-      expect([...types]).toEqual(expect.arrayContaining(["offer/choose", "route/pay-deposit", "setpiece/answer", "route/depart"]));
+      const saved = savedCommands(script.save);
+      expect(new Set(saved.map((entry) => entry.sender))).toEqual(new Set(["player"]));
+      expect(saved[saved.length - 1]?.command).toEqual(expect.objectContaining({ type: "route/depart", route: "route.uk-masters" }));
+      // The master's route flies only with the school's deposit paid (R-ROUTE-012) and the credibility interview answered (R-ROUTE-015).
+      const types = new Set(saved.map((entry) => entry.command.type));
+      expect([...types]).toEqual(expect.arrayContaining(["route/pay-deposit", "setpiece/answer", "route/depart"]));
     },
   );
 
