@@ -1,7 +1,7 @@
 {
   "note": "Written by tools/assets/publish.ts (pnpm assets:publish). Every file under public/assets, published under a name carrying the hash of its contents (city.md R-CITY-018). Never edit by hand.",
   "files": {
-    "credits.json": "credits.7f4e6f1761f2.json",
+    "credits.json": "credits.394439d6e26b.json",
     "places/national-stadium/lm_national-stadium.glb": "places/national-stadium/lm_national-stadium.b43e6daf16b7.glb",
     "places/national-stadium/place.json": "places/national-stadium/place.780bac3f6b72.json",
     "places/ojuelegba/bld_flyover-span.glb": "places/ojuelegba/bld_flyover-span.47bf71e174f8.glb",

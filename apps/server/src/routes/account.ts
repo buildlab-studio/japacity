@@ -17,6 +17,8 @@ export interface AccountView {
   age: { passed: boolean; method: "declared" | "verified" };
   createdAt: number;
   character: string | null;
+  /** R-MODERATION-012: the account is on `config.admin.accounts`, so the client mounts the admin page. */
+  admin: boolean;
 }
 
 export type AccountReply = { ok: true; account: AccountView } | AccountRejection;
@@ -49,7 +51,7 @@ export function accountRoutes(deps: ServerDeps, { auth }: Accounts): Hono {
     const row = await deps.stores.account.get(session.account);
     if (row === null) return c.json<AccountReply>(rejection("signed-out", "No account."), 401);
     const { id, country, age, createdAt, character } = row;
-    return c.json<AccountReply>({ ok: true, account: { id, country, age: { passed: age.passed, method: age.method }, createdAt, character } });
+    return c.json<AccountReply>({ ok: true, account: { id, country, age: { passed: age.passed, method: age.method }, createdAt, character, admin: deps.config.admin.accounts.includes(session.account) } });
   });
 
   app.delete("/api/account", async (c) => {

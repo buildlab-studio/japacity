@@ -78,6 +78,7 @@ export const personText: Record<string, string> = {
   "line.people.landed": "{who} has landed. What you promised for them starts now.",
   "line.people.declined": "{who} says not yet.",
   "line.people.withdrawn": "You take back what you asked {who}.",
+  "line.people.proposal-withdrawn": "{who} takes back what they asked: {step}.",
   "line.people.consented": "You say what your partner's application may count of yours.",
   "line.people.ended": "You end it with {who}.",
   "line.people.left": "{who} ends it with you.",

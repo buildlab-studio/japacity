@@ -15,9 +15,18 @@ describe("GET /api/account", () => {
     const reply = await h.call("/api/account", { jar });
     expect(reply.status).toBe(200);
     const body = await reply.json<{ ok: true; account: Record<string, unknown> }>();
-    expect(body.account).toEqual({ id: account, country: "NG", age: { passed: true, method: "declared" }, createdAt: expect.any(Number) as number, character: null });
+    expect(body.account).toEqual({ id: account, country: "NG", age: { passed: true, method: "declared" }, createdAt: expect.any(Number) as number, character: null, admin: false });
     const row = await h.deps.stores.account.get(account);
     expect(Object.keys(row ?? {}).sort()).toEqual(["age", "character", "country", "createdAt", "id", "notifyBankFull"]);
+  });
+
+  test("[R-MODERATION-012] given an account on the admin list, when it reads its row, then it is marked admin; one off the list is not", async () => {
+    const h = harness();
+    const { jar, account } = await h.signUp("ada@example.com");
+    const other = await h.signUp("bola@example.com");
+    h.deps.config.admin.accounts.push(account);
+    expect(await (await h.call("/api/account", { jar })).json()).toMatchObject({ ok: true, account: { id: account, admin: true } });
+    expect(await (await h.call("/api/account", { jar: other.jar })).json()).toMatchObject({ ok: true, account: { id: other.account, admin: false } });
   });
 
   test("[R-ACCOUNT-015] given no session, when the row is read, then it answers signed-out", async () => {

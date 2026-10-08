@@ -33,6 +33,7 @@ import type {
   StatusEntry,
 } from "../engine/types";
 import { undertakingOpening } from "../obligation/undertaking";
+import { pointsScoreAlone, pointsScoreWith } from "../route/gates/points";
 import { sponsorBarUntil, sponsorCheck } from "./sponsor-checks";
 import { AGE, computerFacts, jointRouteOf } from "./people.facts";
 import type { PeopleEvent } from "./people.events";
@@ -57,6 +58,8 @@ const TOGETHER: readonly BondStage[] = ["partner", "married"];
 const COURTED: readonly BondStage[] = ["courting", "partner", "married"];
 const KNOWN_OR_LATER: readonly string[] = ["known", "applying", "granted", "departed"];
 const WEDDING_WHAT = "wedding";
+/** R-PEOPLE-034: what a sibling earns when another sibling paid the shared request. */
+const HANDLED_STANDING = 1;
 
 type Slot = PeopleSlice["slots"][string];
 type Ender = "me" | "left" | "none";
@@ -496,30 +499,33 @@ function withdraw(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
 
 /**
  * R-PEOPLE-044, R-UNDERTAKING-001: a stand-in says yes to a pending joint step
- * only where the absent side set `standInMay` for that joint, and never to a
+ * only where the absent side set `standInMay` on that bond, and never to a
  * joint that makes this life the sponsor.
- * `people/consent` is legal only on an agreed joint, so `standInMay`
- * cannot be set for a joint still pending; read here as the joint on this bond.
  */
 function standInMayAgree(ctx: Ctx, id: string, proposal: Proposal, yes: boolean): boolean {
   if (!yes || proposal.step !== "joint") return false;
-  const { joint } = ctx.state.people;
-  if (joint === null || joint.bond !== id || !joint.standInMay) return false;
+  if (ctx.state.people.bonds[id]?.consent?.standInMay !== true) return false;
   // The authority sends a proposal in this life's terms, as it sends `people/agreed`.
   const sponsors = proposal.lead === "me" && proposal.route !== null && ctx.content.route[proposal.route]?.gate === "partner";
   return !sponsors;
 }
 
-/** R-PEOPLE-004, R-PEOPLE-044: what the joint may use of this life. */
+/** A joint step waiting on the bond, either way: consent may be given before it is agreed (R-PEOPLE-044). */
+function jointPending(bond: Bond): boolean {
+  return bond.pending.mine?.step === "joint" || bond.pending.theirs?.step === "joint";
+}
+
+/** R-PEOPLE-004, R-PEOPLE-044: what the joint may use of this life, on an agreed joint or one still pending. */
 function consent(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (command.type !== "people/consent") throw new Error(`people/consent cannot handle ${command.type}.`);
   const standIn = byStandIn(ctx, "consents");
   if (standIn !== null) return standIn;
-  if (ctx.state.people.bonds[command.bond] === undefined) return reject("unknown-id", `There is no bond ${command.bond}.`);
-  const { joint } = ctx.state.people;
-  if (joint === null || joint.bond !== command.bond) return reject("not-legal", "Consent is given for an agreed joint.");
-  const countFunds = command.countFunds ?? joint.countFunds;
-  const standInMay = command.standInMay ?? joint.standInMay;
+  const bond = ctx.state.people.bonds[command.bond];
+  if (bond === undefined) return reject("unknown-id", `There is no bond ${command.bond}.`);
+  const onJoint = ctx.state.people.joint?.bond === command.bond;
+  if (!live(bond) || (!onJoint && !jointPending(bond))) return reject("not-legal", "Consent is given for a joint, agreed or asked for.");
+  const countFunds = command.countFunds ?? bond.consent?.countFunds ?? false;
+  const standInMay = command.standInMay ?? bond.consent?.standInMay ?? false;
   return record(ctx, [{ type: "people/consented", bond: command.bond, countFunds, standInMay }]);
 }
 
@@ -607,9 +613,38 @@ function pairBond(ctx: Ctx, pair: string, open: boolean): [string, Bond] | Rejec
   return [id, bond];
 }
 
-type FromAuthority = Extract<Command, { type: "people/facts" | "people/moments" | "people/proposal" | "people/agreed" | "people/ended" | "people/gossip" | "people/stand-in" | "people/family-request" }>;
+type FromAuthority = Extract<
+  Command,
+  { type: "people/facts" | "people/moments" | "people/proposal" | "people/agreed" | "people/ended" | "people/declined" | "people/withdrawn" | "people/gossip" | "people/stand-in" | "people/family-request" }
+>;
 
-const FROM_AUTHORITY: readonly string[] = ["people/facts", "people/moments", "people/proposal", "people/agreed", "people/ended", "people/gossip", "people/stand-in", "people/family-request"] satisfies FromAuthority["type"][];
+const FROM_AUTHORITY: readonly string[] = [
+  "people/facts",
+  "people/moments",
+  "people/proposal",
+  "people/agreed",
+  "people/ended",
+  "people/declined",
+  "people/withdrawn",
+  "people/gossip",
+  "people/stand-in",
+  "people/family-request",
+] satisfies FromAuthority["type"][];
+
+type FamilyRequest = Extract<Command, { type: "people/family-request" }>;
+
+/**
+ * R-PEOPLE-034: a copy whose request a sibling paid elsewhere. This life gets
+ * standing +1 and the line instead of the lapse choice.
+ * no effect closes an open offer, so the copy stays open here until
+ * an `offer/close` effect exists; nothing of it is paid or lapsed by this.
+ */
+function familyHandled(ctx: Ctx, command: FamilyRequest): BaseEvent[] | Rejection {
+  const open = Object.values(ctx.state.offer.items).some((item) => item.entry === command.offer);
+  if (!open) return reject("not-legal", `No copy of ${command.offer} is open here.`);
+  const events = record(ctx, [{ type: "people/request-handled", offer: command.offer }]);
+  return [...events, ...ctx.apply([{ type: "quality/add", quality: STANDING, amount: HANDLED_STANDING }], { source: command.offer, param: null, terms: command.terms })];
+}
 
 function isFromAuthority(command: Command): command is FromAuthority {
   return FROM_AUTHORITY.includes(command.type);
@@ -641,6 +676,19 @@ function authority(ctx: Ctx, sent: Command): BaseEvent[] | Rejection {
       if (!Array.isArray(found)) return found;
       return endBond(ctx, found[0], command.why, command.why === "them" ? "left" : "none");
     }
+    case "people/declined": {
+      // R-PEOPLE-016: the other life said no; the proposer's own proposal clears and the same step waits out the cooldown.
+      const found = pairBond(ctx, command.pair, true);
+      if (!Array.isArray(found)) return found;
+      if (found[1].pending.mine?.step !== command.step) return reject("not-legal", `No ${command.step} proposal of this life is waiting.`);
+      return record(ctx, [{ type: "people/declined", bond: found[0], step: command.step }]);
+    }
+    case "people/withdrawn": {
+      const found = pairBond(ctx, command.pair, true);
+      if (!Array.isArray(found)) return found;
+      if (found[1].pending.theirs?.step !== command.step) return reject("not-legal", `No ${command.step} proposal of theirs is waiting.`);
+      return record(ctx, [{ type: "people/proposal-withdrawn", bond: found[0], step: command.step }]);
+    }
     case "people/gossip": {
       const found = pairBond(ctx, command.pair, true);
       return Array.isArray(found) ? record(ctx, [{ type: "people/gossip-heard", bond: found[0] }]) : found;
@@ -653,6 +701,7 @@ function authority(ctx: Ctx, sent: Command): BaseEvent[] | Rejection {
       const entry = ctx.content.offer[command.offer];
       if (entry === undefined) return reject("unknown-id", `There is no offer ${command.offer}.`);
       if (entry.group !== "family") return reject("not-legal", `${command.offer} is not a family request.`);
+      if (command.handled === true) return familyHandled(ctx, command);
       const events = record(ctx, [{ type: "people/request-shared", offer: command.offer }]);
       return [...events, ...ctx.apply([{ type: "offer/open", offer: command.offer }], { source: command.offer, param: null, terms: command.terms })];
     }
@@ -829,6 +878,7 @@ function newBond(withWhom: Bond["with"], role: Bond["role"], stage: BondStage, m
     standIn: null,
     ended: null,
     cooldownUntil: null,
+    consent: null,
   };
 }
 
@@ -867,7 +917,9 @@ function evolveAgreed(slice: PeopleSlice, event: Extract<PeopleEvent, { type: "p
       return withBond(cleared, event.bond, (held) => ({ ...held, stage: "married", marriedMonth: event.month }));
     case "joint": {
       if (event.route === null || event.lead === null) return cleared;
-      const joint = { bond: event.bond, route: event.route, lead: event.lead, countFunds: false, standInMay: false, scores: { mine: null, theirs: null } };
+      // Consent given while the joint was asked for carries into it (R-PEOPLE-044).
+      const given = bond.consent ?? { countFunds: false, standInMay: false };
+      const joint = { bond: event.bond, route: event.route, lead: event.lead, ...given, scores: { mine: null, theirs: null } };
       const sponsors = event.lead === "me" && content.route[event.route]?.gate === "partner";
       return { ...cleared, joint, sponsoring: sponsors ? { bond: event.bond, route: event.route, month: event.month } : cleared.sponsoring };
     }
@@ -938,8 +990,13 @@ function evolve(slice: PeopleSlice, event: PeopleEvent, state: State, content: C
       return withBond(slice, event.bond, (bond) => ({ ...bond, pending: { ...bond.pending, mine: null }, cooldownUntil: month + content.tuning.people.proposeCooldown }));
     case "people/withdrawn":
       return withBond(slice, event.bond, (bond) => ({ ...bond, pending: { ...bond.pending, mine: null } }));
-    case "people/consented":
-      return slice.joint?.bond === event.bond ? { ...slice, joint: { ...slice.joint, countFunds: event.countFunds, standInMay: event.standInMay } } : slice;
+    case "people/proposal-withdrawn":
+      return withBond(slice, event.bond, (bond) => ({ ...bond, pending: { ...bond.pending, theirs: null } }));
+    case "people/consented": {
+      const consent = { countFunds: event.countFunds, standInMay: event.standInMay };
+      const next = withBond(slice, event.bond, (bond) => ({ ...bond, consent }));
+      return next.joint?.bond === event.bond ? { ...next, joint: { ...next.joint, ...consent } } : next;
+    }
     case "people/ended":
       return evolveEnded(slice, event, content);
     case "people/facts-updated":
@@ -958,6 +1015,7 @@ function evolve(slice: PeopleSlice, event: PeopleEvent, state: State, content: C
     case "people/gossip-heard":
     case "people/gossip-spread":
     case "people/request-shared":
+    case "people/request-handled":
     case "people/wedding-waits":
       return slice;
     default: {
@@ -1064,6 +1122,8 @@ function lines(event: PeopleEvent, state: State): ReportLine[] {
       return [line("line.people.declined", { who: whoOf(state, event.bond), step: event.step }, "bad", true)];
     case "people/withdrawn":
       return [line("line.people.withdrawn", { who: whoOf(state, event.bond) }, "plain")];
+    case "people/proposal-withdrawn":
+      return [line("line.people.proposal-withdrawn", { who: whoOf(state, event.bond), step: event.step }, "plain", true)];
     case "people/consented":
       return [line("line.people.consented", {}, "plain")];
     case "people/ended":
@@ -1076,6 +1136,8 @@ function lines(event: PeopleEvent, state: State): ReportLine[] {
       return [line(event.stage === null ? "line.people.stand-in-off" : event.stage === "on" ? "line.people.stand-in-on" : "line.people.stand-in-warned", {}, "plain", event.stage !== null)];
     case "people/request-shared":
       return [line("line.people.request-shared", { offer: event.offer }, "plain", true)];
+    case "people/request-handled":
+      return [line("line.people.handled", { offer: event.offer }, "good", true)];
     case "people/siblings-drawn":
     case "people/moments-synced":
     case "people/facts-updated":
@@ -1152,6 +1214,21 @@ function slotLabel(slice: PeopleSlice, slot: Slot): PlayerView["people"]["slots"
   }
 }
 
+/**
+ * R-PEOPLE-030: on a points route, the score alone (`mine`) and the score
+ * leading with this partner from their facts (`theirs`), read fresh from the
+ * state as the points gate reads its own. Null on any other route.
+ * `PeopleSlice.joint.scores` stays null, since a score read once a
+ * month would lag the view; say if the slice should hold it too.
+ */
+function jointScores(read: ReadCtx, joint: NonNullable<PeopleSlice["joint"]>): { myScore: number | null; theirScore: number | null } {
+  const entry = read.content.route[joint.route];
+  if (entry?.gate !== "points") return { myScore: null, theirScore: null };
+  const facts = read.state.people.bonds[joint.bond]?.facts ?? null;
+  const withSpouse = facts !== null && entry.points?.spouseTable !== null && entry.points?.spouseTable !== undefined;
+  return { myScore: pointsScoreAlone(read, joint.route), theirScore: withSpouse ? pointsScoreWith(read, joint.route, facts) : null };
+}
+
 function view(read: ReadCtx): Pick<PlayerView, "people"> {
   const slice = read.state.people;
   // R-INTERVIEW-005: while an interview is open each side answers from memory.
@@ -1172,14 +1249,13 @@ function view(read: ReadCtx): Pick<PlayerView, "people"> {
         pair: bond.with.kind === "player" ? bond.with.pair : null,
         lastMomentMonth: bond.lastMomentMonth,
         cooldownUntil: bond.cooldownUntil,
-        // consent is in the facts today (R-PEOPLE-051); the people view batch moves it here.
-        consent: bond.facts === null ? null : { countFunds: bond.facts.funds !== null, standInMay: bond.standIn === "on" },
+        partnerMonth: bond.partnerMonth,
+        consent: bond.consent,
         // R-PEOPLE-051: funds only on the joint's bond, where consent put them in the facts.
         facts: bond.facts === null ? null : { ...bond.facts, funds: slice.joint?.bond === id ? bond.facts.funds : null },
       })),
       candidates: candidatesOf(read).map((entry) => ({ person: entry.id, role: entry.role })),
-      // the two scores of R-PEOPLE-030 are the points gate's; they are null until it gives them.
-      joint: slice.joint === null ? null : { bond: slice.joint.bond, route: slice.joint.route, lead: slice.joint.lead, myScore: null, theirScore: null },
+      joint: slice.joint === null ? null : { bond: slice.joint.bond, route: slice.joint.route, lead: slice.joint.lead, ...jointScores(read, slice.joint) },
       sponsoring: slice.sponsoring,
       barUntilMonth: sponsorBarUntil(read),
     },
@@ -1226,6 +1302,8 @@ export const peopleKind: RegisteredKind<PeopleSlice, PeopleEvent> = {
     "people/proposal": authority,
     "people/agreed": authority,
     "people/ended": authority,
+    "people/declined": authority,
+    "people/withdrawn": authority,
     "people/gossip": authority,
     "people/stand-in": authority,
     "people/family-request": authority,

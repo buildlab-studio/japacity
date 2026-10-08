@@ -8,6 +8,7 @@ import type { Content, Effect, Id, PersonFacts, SlotPick, State } from "../engin
 import { registry } from "../kinds";
 import { hiddenPaths } from "../engine/view";
 import { applyEffects } from "../route/route.journey";
+import { legalCommands } from "../testing/legal";
 import type { Game, Loose, StartOptions } from "../testing/play";
 import { finishPrologue, start } from "../testing/play";
 import { standInWorld } from "../world/standIn";
@@ -1010,5 +1011,145 @@ describe("the view", () => {
     ]);
     keys.push(...WEDDING_SPOTS.map((spot) => `people.wedding-spot.${spot}`), ...content.people.spots.map((spot) => `people.spot.${spot}`));
     expect(keys.filter((key) => (text[key] ?? "").trim() === "")).toEqual([]);
+  });
+});
+
+describe("answers across lives", () => {
+  /** A friend courted in the partner slot with the moments to be asked, returning the bond. */
+  function courtedFriend(game: Game): string {
+    const bond = linked(game);
+    game.accept({ type: "people/court", with: "pair-1" });
+    const moments = Array.from({ length: numbers.partnerMoments }, (_unused, index) => ({ n: index + 1, by: "them" as const, kind: "said" as const, spot: null, what: "phrase.hello", tick: 0 }));
+    game.accept({ type: "people/moments", pair: "pair-1", moments }, "authority");
+    return bond;
+  }
+
+  test("[R-PEOPLE-016] given partners asked of a friend, when the authority says they declined, then the proposal clears with a line and the same step waits the cooldown, legal again at its last month", () => {
+    const game = life();
+    const bond = courtedFriend(game);
+    game.accept({ type: "people/propose", bond, step: "partner" });
+    const asked = game.state.turn.month;
+    game.expectRejected({ type: "people/declined", pair: "pair-1", step: "partner" }, "not-yours");
+    game.expectRejected({ type: "people/declined", pair: "pair-1", step: "marry" }, "not-legal", "authority");
+    const result = game.accept({ type: "people/declined", pair: "pair-1", step: "partner" }, "authority");
+    expect(result.lines.map((line) => line.key)).toContain("line.people.declined");
+    expect(game.state.people.bonds[bond]).toMatchObject({ stage: "courting", pending: { mine: null }, cooldownUntil: asked + numbers.proposeCooldown });
+    expect(game.view().people.bonds.find((view) => view.id === bond)?.cooldownUntil).toBe(asked + numbers.proposeCooldown);
+    game.expectRejected({ type: "people/declined", pair: "pair-1", step: "partner" }, "not-legal", "authority");
+    for (let month = 1; month < numbers.proposeCooldown; month += 1) turn(game);
+    game.expectRejected({ type: "people/propose", bond, step: "partner" }, "not-legal");
+    turn(game);
+    game.accept({ type: "people/propose", bond, step: "partner" });
+  });
+
+  test("[R-PEOPLE-016] given a friend's proposal waiting, when the authority says they took it back, then it clears here with a line, and only the step that waits can be taken back", () => {
+    const game = life();
+    const bond = courtedFriend(game);
+    game.accept({ type: "people/proposal", pair: "pair-1", proposal: { step: "partner", route: null, lead: null } }, "authority");
+    game.expectRejected({ type: "people/withdrawn", pair: "pair-1", step: "partner" }, "not-yours");
+    game.expectRejected({ type: "people/withdrawn", pair: "pair-1", step: "joint" }, "not-legal", "authority");
+    const result = game.accept({ type: "people/withdrawn", pair: "pair-1", step: "partner" }, "authority");
+    expect(result.lines.map((line) => line.key)).toContain("line.people.proposal-withdrawn");
+    expect(game.state.people.bonds[bond]?.pending).toEqual({ mine: null, theirs: null });
+    expect(game.state.people.bonds[bond]?.cooldownUntil).toBeNull();
+    game.expectRejected({ type: "people/answer", bond, step: "partner", yes: true }, "not-legal");
+    game.expectRejected({ type: "people/withdrawn", pair: "pair-2", step: "partner" }, "unknown-id", "authority");
+  });
+
+  test("[R-PEOPLE-016] given a courting bond with the moments for it, when the legal commands are read, then partners is offered and accepted, and it is not offered again until the cooldown after a no has passed", () => {
+    const cold = tuned((copy) => {
+      copy.person[TOBI]!.behaviour.agreeBp = 0;
+    });
+    const game = life({ content: cold });
+    const bond = court(game, TOBI);
+    const asks = () => legalCommands(game.view()).filter((command) => command.type === "people/propose");
+    for (let index = 0; index < numbers.partnerMoments - 1; index += 1) turn(game, [SEE]);
+    expect(asks()).toEqual([]);
+    turn(game, [SEE]);
+    expect(asks()).toEqual([{ type: "people/propose", bond, step: "partner" }]);
+    game.accept(asks()[0]!);
+    expect(asks()).toEqual([]);
+    for (let month = 0; month < numbers.proposeCooldown; month += 1) turn(game, [SEE]);
+    expect(asks()).toEqual([{ type: "people/propose", bond, step: "partner" }]);
+  });
+});
+
+describe("consent before the joint", () => {
+  /** A friend at partner in the partner slot, returning the bond. */
+  function friendPartner(game: Game): string {
+    const bond = linked(game);
+    game.accept({ type: "people/court", with: "pair-1" });
+    game.accept({ type: "people/agreed", pair: "pair-1", step: "partner" }, "authority");
+    return bond;
+  }
+  const JOINT_ASKED = { step: "joint" as const, route: "route.uk-skilled" as Id<"route">, lead: "them" as const };
+
+  test("[R-PEOPLE-044] [R-PEOPLE-004] given a joint the friend asked for and not yet agreed, when consent is given, then it is kept on the bond, the stand-in may say yes, and the joint takes it once agreed", () => {
+    const game = life();
+    const bond = friendPartner(game);
+    game.expectRejected({ type: "people/consent", bond, standInMay: true }, "not-legal");
+    game.accept({ type: "people/proposal", pair: "pair-1", proposal: JOINT_ASKED }, "authority");
+    game.accept({ type: "people/consent", bond, standInMay: true });
+    expect(game.state.people.bonds[bond]?.consent).toEqual({ countFunds: false, standInMay: true });
+    expect(game.view().people.bonds.find((view) => view.id === bond)?.consent).toEqual({ countFunds: false, standInMay: true });
+    expect(game.state.people.joint).toBeNull();
+    game.accept({ type: "people/answer", bond, step: "joint", yes: true }, "stand-in");
+    game.accept({ type: "people/agreed", pair: "pair-1", step: "joint", route: JOINT_ASKED.route, lead: "them" }, "authority");
+    expect(game.state.people.joint).toMatchObject({ bond, countFunds: false, standInMay: true });
+    game.accept({ type: "people/consent", bond, countFunds: true });
+    expect(game.state.people.joint).toMatchObject({ countFunds: true, standInMay: true });
+    expect(game.state.people.bonds[bond]?.consent).toEqual({ countFunds: true, standInMay: true });
+  });
+
+  test("[R-PEOPLE-044] given a joint asked for without standInMay, when the stand-in answers yes, then it is rejected, and a joint asked by this life also takes consent", () => {
+    const game = life();
+    const bond = friendPartner(game);
+    game.accept({ type: "people/proposal", pair: "pair-1", proposal: JOINT_ASKED }, "authority");
+    game.accept({ type: "people/consent", bond, countFunds: true });
+    game.expectRejected({ type: "people/answer", bond, step: "joint", yes: true }, "not-legal", "stand-in");
+    expect(game.state.people.bonds[bond]?.consent).toEqual({ countFunds: true, standInMay: false });
+    game.accept({ type: "people/answer", bond, step: "joint", yes: false });
+    game.expectRejected({ type: "people/consent", bond, standInMay: true }, "not-legal");
+    expect(game.state.people.joint).toBeNull();
+  });
+});
+
+describe("shared requests handled elsewhere", () => {
+  test("[R-PEOPLE-034] given a shared family request open here, when the authority says a sibling paid it, then this life gets standing +1 and the handled line, and nothing is paid from here", () => {
+    const game = life();
+    game.accept({ type: "people/family-request", offer: "offer.nepa-bill", terms: { amount: 1234500 } }, "authority");
+    const wallet = game.state.wallet;
+    const handled = { type: "people/family-request", offer: "offer.nepa-bill", terms: { amount: 1234500 }, handled: true } as Loose;
+    const result = game.accept(handled, "authority");
+    expect(result.lines.map((line) => line.key)).toContain("line.people.handled");
+    expect(qualityChange(result.events, "quality.standing", "offer.nepa-bill")).toBe(1);
+    expect(game.state.wallet).toEqual(wallet);
+    game.expectRejected(handled, "not-yours");
+  });
+
+  test("[R-PEOPLE-034] given no copy of the request open here, when the authority says a sibling paid it, then it is rejected", () => {
+    const game = life();
+    const standing = game.state.quality["quality.standing"];
+    game.expectRejected({ type: "people/family-request", offer: "offer.nepa-bill", terms: {}, handled: true }, "not-legal", "authority");
+    expect(game.state.quality["quality.standing"]).toBe(standing);
+  });
+});
+
+describe("the view's bond fields", () => {
+  test("[R-PEOPLE-051] given a computer bond and a friend's bond, when the view is read, then each names who it is with, the month of its last moment kept at every moment, its cooldown and its consent", () => {
+    const game = life();
+    const friend = linked(game);
+    const tobi = court(game, TOBI);
+    const viewOf = (id: string) => game.view().people.bonds.find((view) => view.id === id)!;
+    expect(viewOf(tobi)).toMatchObject({ person: TOBI, pair: null, cooldownUntil: null, consent: null, lastMomentMonth: game.state.turn.month });
+    expect(viewOf(friend)).toMatchObject({ person: null, pair: "pair-1", lastMomentMonth: null, consent: null });
+    turn(game, [SEE]);
+    expect(viewOf(tobi).lastMomentMonth).toBe(game.state.turn.month);
+    turn(game, [SEE]);
+    expect(viewOf(tobi).lastMomentMonth).toBe(game.state.turn.month);
+    game.accept({ type: "people/moments", pair: "pair-1", moments: [{ n: 1, by: "them", kind: "said", spot: null, what: "phrase.hello", tick: 0 }] }, "authority");
+    expect(viewOf(friend).lastMomentMonth).toBe(game.state.turn.month);
+    game.accept({ type: "people/end", bond: tobi });
+    expect(viewOf(tobi).cooldownUntil).toBe(game.state.turn.month + numbers.recourtMonths);
   });
 });

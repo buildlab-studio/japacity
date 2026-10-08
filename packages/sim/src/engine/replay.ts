@@ -79,10 +79,10 @@ function contentFor(segment: SaveSegment, contents: Content | readonly Content[]
 }
 
 /** The state a segment begins from (R-SERVER-021): a later segment's base must be the upgrade of the state before it. */
-function startOf(segment: SaveSegment, index: number, before: { state: State; content: Content } | null, content: Content): State {
+function startOf(segment: SaveSegment, index: number, before: { state: State; content: Content } | null, content: Content, family: Save["family"]): State {
   const { start } = segment;
   if (before === null) {
-    if (!("base" in start)) return newState(start.scenario, start.seed, content);
+    if (!("base" in start)) return newState(start.scenario, start.seed, content, family === undefined ? {} : { family });
     if (start.base.content !== content.version) throw new Error(`The first segment's base is for content ${start.base.content}, not ${content.version}.`);
     return start.base;
   }
@@ -105,11 +105,11 @@ export function playSave(
   worldAt: (tick: number) => World,
   visit: (played: ReplayedCommand) => void = () => undefined,
 ): State {
-  const { segments } = loadSave(save);
+  const { segments, family } = loadSave(save);
   let before: { state: State; content: Content } | null = null;
   for (const [index, segment] of segments.entries()) {
     const content = contentFor(segment, contents);
-    let state = startOf(segment, index, before, content);
+    let state = startOf(segment, index, before, content, family);
     for (const [at, entry] of segment.commands.entries()) {
       const result = step(state, entry.command, worldAt(entry.tick), content, entry.sender);
       if (!result.ok) {

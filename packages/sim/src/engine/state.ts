@@ -1,9 +1,10 @@
 // Building a new state and applying one event to a state.
 import { registry } from "../kinds";
+import { familySlots } from "../people/people.family";
 import type { EngineEvent } from "./events";
 import type { IdSource, Registry, SliceKey } from "./kind";
 import { prefixOf, SLICE_KEYS } from "./kind";
-import type { BaseEvent, Content, Id, State } from "./types";
+import type { BaseEvent, Content, Id, Save, State } from "./types";
 
 /** The first instance number a new state hands out. */
 export const FIRST_INSTANCE = 1;
@@ -24,8 +25,13 @@ export function idSource(start: number): IdSource & { peek(): number } {
   };
 }
 
+/** What a new life may begin with besides its scenario: the inviter's family for a sibling made from an invite (R-PEOPLE-011, decision 0009). */
+export interface NewStateOptions {
+  family?: Save["family"];
+}
+
 /** A new state from a scenario, a seed and the content, built from every kind's `initial` (R-SCENARIO-001). */
-export function newStateWith(kinds: Registry, scenarioId: Id<"scenario">, seed: string, content: Content): State {
+export function newStateWith(kinds: Registry, scenarioId: Id<"scenario">, seed: string, content: Content, options: NewStateOptions = {}): State {
   const scenario = content.scenario[scenarioId];
   if (scenario === undefined) throw new Error(`The content has no scenario ${scenarioId}.`);
   const ids = idSource(FIRST_INSTANCE);
@@ -34,7 +40,7 @@ export function newStateWith(kinds: Registry, scenarioId: Id<"scenario">, seed: 
   for (const key of SLICE_KEYS) {
     if (!(key in slices)) throw new Error(`No kind built the ${key} slice.`);
   }
-  return {
+  const state: State = {
     schema: STATE_SCHEMA,
     content: content.version,
     v: 0,
@@ -45,10 +51,13 @@ export function newStateWith(kinds: Registry, scenarioId: Id<"scenario">, seed: 
     draws: {},
     ...(slices as Pick<State, SliceKey>),
   };
+  const { family } = options;
+  // R-PEOPLE-011: the prologue takes this draw in place of its own, and the sibling slots mirror the family.
+  return family === undefined ? state : { ...state, prologue: { ...state.prologue, draw: family.draw }, people: familySlots(state.people, family) };
 }
 
-export function newState(scenarioId: Id<"scenario">, seed: string, content: Content): State {
-  return newStateWith(registry(), scenarioId, seed, content);
+export function newState(scenarioId: Id<"scenario">, seed: string, content: Content, options: NewStateOptions = {}): State {
+  return newStateWith(registry(), scenarioId, seed, content, options);
 }
 
 function evolveEngine(state: State, event: EngineEvent): State {

@@ -14,6 +14,7 @@ import { GameProvider, useGame, useView } from "./authority/GameProvider";
 import type { GameStore } from "./authority/store";
 import { AccountGate } from "./features/account/AccountGate";
 import { inviteCodeOf, InvitePage } from "./features/account/InvitePage";
+import { AdminRoute } from "./features/admin/AdminRoute";
 import { AccountButton } from "./features/account/Settings";
 import { ActivityView } from "./features/activity/ActivityView";
 import { PhoneTile, PlaceAdverts } from "./features/adverts/placed";
@@ -323,5 +324,9 @@ export function App({ store: given, path }: { store?: GameStore; path?: string }
     if (typeof history !== "undefined") history.replaceState(null, "", "/");
     setInvite(null);
   };
-  return <GameProvider store={store}>{invite === null ? <Shell /> : <InvitePage code={invite} onDone={leaveInvite} />}</GameProvider>;
+  return (
+    <AdminRoute>
+      <GameProvider store={store}>{invite === null ? <Shell /> : <InvitePage code={invite} onDone={leaveInvite} />}</GameProvider>
+    </AdminRoute>
+  );
 }

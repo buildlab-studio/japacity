@@ -117,9 +117,9 @@ export const REFUSED_COOKIE = "japacity-age-refused";
 // ---------------------------------------------------------------------------
 
 /**
- * Copied from apps/server/src/routes/account.ts, with `sendUsageCounts`
- * assumed (the production wiring adds it to the row and to
- * `PUT /api/account`; the comparison test leaves the field out until it lands).
+ * Copied from apps/server/src/routes/account.ts: `GET /api/account`, the
+ * account as its owner sees it (R-ACCOUNT-015). The production wiring adds
+ * `sendUsageCounts` (R-ANALYTICS-006); until it merges the reply may lack it.
  */
 export interface AccountView {
   id: string;
@@ -127,6 +127,8 @@ export interface AccountView {
   age: { passed: boolean; method: "declared" | "verified" };
   createdAt: number;
   character: string | null;
+  /** R-MODERATION-012: the account is on the server's admin list. */
+  admin: boolean;
 }
 
 /** Assumed: `GET /api/account` and `PUT /api/account` answer the row, with the usage setting when the server has it. */
