@@ -118,6 +118,10 @@ export const routeTable: Record<Id<"route">, RouteEntry> = {
       findBp: 1000,
       bandMin: 40,
       documents: ["document.nursing-licence", "document.nmcn-verification"],
+      strictnessVar: "var.uk-care-strictness",
+      // The care route is exempt from the surcharge.
+      surchargeYears: 0,
+      job: "activity.job-uk-care",
     },
   },
   "route.uk-skilled": {
@@ -151,6 +155,10 @@ export const routeTable: Record<Id<"route">, RouteEntry> = {
       bandMin: 40,
       // The degree is a quality, so no document is named.
       documents: [],
+      strictnessVar: "var.uk-skilled-strictness",
+      // Three years of status (R-SPONSOR-003).
+      surchargeYears: 3,
+      job: "activity.job-uk-skilled",
     },
   },
 
@@ -227,6 +235,8 @@ export const routeTable: Record<Id<"route">, RouteEntry> = {
       // Months apply-endorsement is not legal after a refused endorsement (R-ENDORSE-002).
       cooldown: 6,
       feeVar: "var.uk-talent-endorse-fee",
+      // Five years of status (R-ENDORSE-003).
+      surchargeYears: 5,
     },
   },
 

@@ -24,7 +24,10 @@ function pick(want: (typeof WANTED)[number]): { seed: string; save: Save; depart
     const seed = `golden-${want.life.slice("scenario.".length)}-${String(n)}`;
     const { record, game } = runLife(want.strategy, want.life, seed, content, { months: 40, worldSeed: WORLD, keepSave: true });
     if (record.departed === null || record.departed < 24 || record.departed > 40) continue;
-    const found = { seed, save: game.save, departed: record.departed };
+    // The golden ends on the flight: the strategies' months abroad are not its business.
+    const flight = game.save.commands.findIndex((entry) => entry.command.type === "route/depart");
+    const save: Save = flight === -1 ? game.save : { ...game.save, commands: game.save.commands.slice(0, flight + 1) };
+    const found = { seed, save, departed: record.departed };
     const refusedFirst = record.decisions.length >= 2 && record.decisions[0]?.granted === false;
     if (!want.refusedFirst || refusedFirst) return found;
     fallback ??= found;

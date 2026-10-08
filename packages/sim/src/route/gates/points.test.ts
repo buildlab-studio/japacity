@@ -268,18 +268,19 @@ describe("the points gate", () => {
       // The same seed plays the same months, so a first life tells what is shown in the pool month's clocks.
       const probe = zainab({ vars: () => ({ [block.fundsVar]: 1000000000 }) });
       toKnown(probe);
-      // The turn is played in this tick's world; the handle moves on a tick after it.
-      const world = probe.world();
-      expect(enterPool(probe)).not.toContain("line.route.pool-entered");
+      // The slot is judged when the turn is accepted, so what is shown then is the line to pin.
+      const { shown } = pointsFunds(readOf(probe), CANADA);
+      probe.expectRejected({ type: "turn/end", slots: [slot(ENTER_POOL)] }, "not-legal");
       expect(gate(probe).poolMonth).toBeNull();
-      const { shown } = pointsFunds({ state: probe.state, world, content }, CANADA);
       for (const [required, entered] of [
         [shown, true],
         [shown + 1, false],
       ] as const) {
         const game = zainab({ vars: () => ({ [block.fundsVar]: required }) });
         toKnown(game);
-        enterPool(game);
+        // The slot's own requirement reads the Canadian line, so a short file cannot even plan the slot.
+        if (entered) enterPool(game);
+        else game.expectRejected({ type: "turn/end", slots: [slot(ENTER_POOL)] }, "not-legal");
         expect(gate(game).poolMonth !== null).toBe(entered);
       }
     });

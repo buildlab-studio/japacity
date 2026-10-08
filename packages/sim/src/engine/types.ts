@@ -257,6 +257,8 @@ export type Effect =
   | { type: "route/record-sponsor"; route: Id<"route">; employer: string; salary: number; fraud: boolean }
   /** The road chain moves to a step or ends: docs/rules/road.md. */
   | { type: "route/road-step"; step: string }
+  /** The pool entered on the points route, from `activity.enter-pool` (R-POINTS-002). */
+  | { type: "route/enter-pool"; route: Id<"route"> }
   // setpiece
   /** Opens a set piece for a route (R-SETPIECE-001). */
   /** Open a set piece. With a route, the score goes to its visa application; with none, nothing is scored (R-SETPIECE-006). */
@@ -339,7 +341,8 @@ export interface ActivityEntry {
   carBonus?: number;
   requires: Requirement[];
   /** What the player picks along with a free-slot activity. */
-  param: "job" | "route" | "school" | null;
+  /** `route` lists routes heard of; `known-route` lists routes known (the sponsor's find). */
+  param: "job" | "route" | "known-route" | "school" | null;
   /** Taken when the activity resolves. If it cannot be paid the activity fails and nothing else happens. */
   cost: Cost[];
   /** Jobs only: monthly pay, to the bank. */
@@ -405,11 +408,11 @@ export interface RouteEntry {
   schools: Id<"school">[];
   interview: Id<"setpiece"> | null;
   /** Sponsor gate: the salary bar and the maintenance line, as vars. */
-  sponsor?: { salaryVar: Id<"var">; maintenanceVar: Id<"var"> | null; findBp: number; bandMin: number; documents: Id<"document">[] };
+  sponsor?: { salaryVar: Id<"var">; maintenanceVar: Id<"var"> | null; findBp: number; bandMin: number; documents: Id<"document">[]; strictnessVar: Id<"var">; surchargeYears: number; job: Id<"activity"> };
   /** Points gate. */
   points?: { table: Id<"points">; fundsVar: Id<"var">; cutoffVar: Id<"var">; careCutoffVar: Id<"var"> | null; feeVar: Id<"var">; decisionVar: Id<"var">; profileMonths: number };
   /** Endorsement gate. */
-  endorsement?: { document: Id<"document">; baseBp: number; perPortfolioBp: number; perNetworkBp: number; capBp: number; cooldown: number; feeVar: Id<"var"> };
+  endorsement?: { document: Id<"document">; baseBp: number; perPortfolioBp: number; perNetworkBp: number; capBp: number; cooldown: number; feeVar: Id<"var">; surchargeYears: number };
   /** Contract gate. */
   contract?: { medical: Id<"document">; maxAgeMonths: number };
   /** Road gate: the outcome tables by step, in basis points. */
@@ -425,7 +428,9 @@ export interface PointsEntry {
   education: { level: number; points: number }[];
   /** English band (times ten) to points per ability; the last row's band is a floor. */
   language: { band: number; points: number }[];
-  transfer: { educationLowBand: number; educationHighBand: number; workLowBand: number; workHighBand: number; workLongLowBand: number; workLongHighBand: number; highBand: number; longMonths: number; cap: number };
+  transfer: { educationLowBand: number; educationHighBand: number; workLowBand: number; workHighBand: number; workLongLowBand: number; workLongHighBand: number; highBand: number; workMonths: number; longMonths: number; cap: number };
+  /** `quality.care` at or above this reads the care cut-off (R-POINTS-003). */
+  careMin: number;
 }
 
 export interface SetpieceAnswer {
@@ -1337,7 +1342,17 @@ export interface RouteView {
   refusals: number;
   lastRefusal: RouteState["lastRefusal"];
   depositRefund: RouteState["depositRefund"];
+  /** What the gate shows: docs/rules/route-gates.md. Null for the study gate. */
+  gate: RouteGateView | null;
 }
+
+/** The gate's own part of a route's view. Nothing hidden: no fraud, no draw. */
+export type RouteGateView =
+  | { gate: "sponsor"; employer: string | null; salary: number | null; underBar: boolean }
+  | { gate: "points"; points: number; cutoff: number; careCutoff: number | null; poolMonth: number | null; profileEndsMonth: number | null; invitedMonth: number | null }
+  | { gate: "endorsement"; refusedMonth: number | null; cooledFromMonth: number | null }
+  | { gate: "contract"; employer: string | null; salary: number | null; role: string | null }
+  | { gate: "road"; step: string | null; monthsHere: number };
 
 export interface ActivityOption {
   id: Id<"activity">;

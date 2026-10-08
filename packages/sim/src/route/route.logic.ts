@@ -38,8 +38,9 @@ import type {
   VisaApplication,
 } from "../engine/types";
 import { routePercent } from "../japacity/japacity.logic";
+import { bannedUntil as placeBannedUntil } from "../place/place.logic";
 import { GATES } from "./gates";
-import type { DecisionTerms, GateEffectHandler } from "./gates";
+import type { ApplicationFigures, DecisionTerms, GateEffectHandler } from "./gates";
 import { EVERY_TERM } from "./gates";
 import type { RefusalReason, RouteKindEvent } from "./route.events";
 
@@ -64,10 +65,10 @@ export const FRIEND = "friend";
 const ARROWS: Record<RouteStateName, readonly RouteStateName[]> = {
   unknown: ["heard"],
   heard: ["known"],
-  known: ["applying"],
-  applying: ["granted", "known"],
+  known: ["applying", "refused"],
+  applying: ["granted", "known", "refused"],
   granted: ["departed"],
-  refused: [],
+  refused: ["known"],
   departed: [],
 };
 
@@ -170,9 +171,20 @@ function cheapest(read: ReadCtx, held: RouteState, schools: readonly Id<"school"
  * deposit, the cheapest school holding an offer, after its discount, or else
  * the cheapest school on the route with no discount.
  */
+/** The currency a route's funds are counted in: the gate's, or pence for the study route (R-ROUTE-009). */
+export function fundsCurrency(read: ReadCtx, route: Id<"route">): ForeignCurrency {
+  const entry = entryOf(read.content, route);
+  const gate = GATES[entry.gate];
+  if (gate.funds === undefined) return FUNDS_CURRENCY;
+  return gate.funds(read, entry, routeOf(read.state, route))?.currency ?? FUNDS_CURRENCY;
+}
+
 export function fundsRequired(read: ReadCtx, route: Id<"route">): number {
   const held = routeOf(read.state, route);
   const entry = entryOf(read.content, route);
+  const gate = GATES[entry.gate];
+  // A gate with its own line (the sponsor's maintenance, the points route's settlement funds) says so; null shows no funds.
+  if (gate.funds !== undefined) return gate.funds(read, entry, held)?.required ?? 0;
   const living = ukVar(read, LIVING_LINE) * ukVar(read, LIVING_MONTHS);
   let course: number;
   if (held.school !== null) course = courseOf(read, held, held.school) - held.depositPaid;
@@ -191,13 +203,14 @@ export function fundsRequired(read: ReadCtx, route: Id<"route">): number {
  */
 export function fundsShown(read: ReadCtx, route: Id<"route">): number {
   const rates = officialRates(read);
+  const target = fundsCurrency(read, route);
   let shown = 0;
   for (const currency of CURRENCIES) {
     const pocket = read.state.wallet.pockets[currency];
-    shown += convertMinor(pocket.bank, currency, FUNDS_CURRENCY, rates) + convertMinor(pocket.locked, currency, FUNDS_CURRENCY, rates);
+    shown += convertMinor(pocket.bank, currency, target, rates) + convertMinor(pocket.locked, currency, target, rates);
   }
   const support = routeOf(read.state, route).support;
-  if (support !== null) shown += convertMinor(support.amount, support.currency, FUNDS_CURRENCY, rates);
+  if (support !== null) shown += convertMinor(support.amount, support.currency, target, rates);
   return shown;
 }
 
@@ -208,7 +221,8 @@ export function fundsShown(read: ReadCtx, route: Id<"route">): number {
  */
 export function unexplainedBp(read: ReadCtx, route: Id<"route">): number {
   const rates = officialRates(read);
-  const lots = read.state.wallet.lots.reduce((sum, lot) => sum + convertMinor(lot.amount, lot.currency, FUNDS_CURRENCY, rates), 0);
+  const target = fundsCurrency(read, route);
+  const lots = read.state.wallet.lots.reduce((sum, lot) => sum + convertMinor(lot.amount, lot.currency, target, rates), 0);
   if (lots === 0) return 0;
   const required = fundsRequired(read, route);
   return required === 0 ? BP_WHOLE : Math.min(BP_WHOLE, mulDiv(lots, BP_WHOLE, required));
@@ -280,6 +294,8 @@ function hear(ctx: Ctx, effect: Effect): BaseEvent[] {
   if (effect.type !== "route/hear") throw new Error(`route/hear cannot carry out ${effect.type}.`);
   const entry = entryOf(ctx.content, effect.route);
   if (routeOf(ctx.state, effect.route).state !== "unknown") return [];
+  // R-PLACE-008: a removal bans every route into that country for its months.
+  if (entry.country !== null && placeBannedUntil(readOf(ctx), entry.country) !== null) return [];
   if (effect.chanceBp !== undefined && !ctx.random.chance("offer", effect.chanceBp)) return [];
   if (!allHold(ctx, entry.hearIf)) return [];
   return [moved(entry.id, "heard", effect.via)];
@@ -290,6 +306,8 @@ function lookInto(ctx: Ctx, _effect: Effect, cause: Cause): BaseEvent[] {
   const route = cause.param as Id<"route"> | null;
   if (route === null || ctx.content.route[route] === undefined) return [];
   if (routeOf(ctx.state, route).state !== "heard") return [];
+  const country = entryOf(ctx.content, route).country;
+  if (country !== null && placeBannedUntil(readOf(ctx), country) !== null) return [];
   return [moved(route, "known")];
 }
 
@@ -340,6 +358,11 @@ function applyVisa(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
   return sendApplication(ctx, entry, cause);
 }
 
+/** The study route's figures (R-ROUTE-014): the UK study strictness, the student surcharge, the tuning's months. */
+function studyFigures(read: ReadCtx): ApplicationFigures {
+  return { strictness: ukVar(read, STRICTNESS), surchargePaid: ukVar(read, SURCHARGE), decisionMonths: read.content.tuning.route.decisionMonths };
+}
+
 /**
  * R-ROUTE-013, 014, 015: send the application, record the day's figures, open
  * the interview where the entry has one. A gate that sends on its own clock
@@ -349,14 +372,14 @@ export function sendApplication(ctx: Ctx, entry: RouteEntry, cause: Cause): Base
   const route = entry.id;
   const read = readOf(ctx);
   const month = ctx.state.turn.month;
+  const figures = GATES[entry.gate].application?.(read, entry, routeOf(ctx.state, route)) ?? studyFigures(read);
   const visa: VisaApplication = {
     submittedMonth: month,
-    decisionMonth: month + ctx.content.tuning.route.decisionMonths,
-    rules: { livingLine: ukVar(read, LIVING_LINE), livingMonths: ukVar(read, LIVING_MONTHS), strictness: ukVar(read, STRICTNESS) },
+    decisionMonth: month + figures.decisionMonths,
+    rules: { livingLine: ukVar(read, LIVING_LINE), livingMonths: ukVar(read, LIVING_MONTHS), strictness: figures.strictness },
     unexplainedBp: unexplainedBp(read, route),
     interviewScore: null,
-    // What the activity paid for the surcharge, refunded on a refusal (R-ROUTE-018).
-    surchargePaid: ukVar(read, SURCHARGE),
+    surchargePaid: figures.surchargePaid,
   };
   const events = record(ctx, { type: "route/applied", route, visa });
   // A gate with no interview (every gate but study) scores nothing and waits for the decision.
@@ -419,18 +442,24 @@ function depart(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (holding) return reject("not-legal", "Held funds are still open. They must be returned before you fly.");
   const flight = ctx.content.tuning.route.flight;
   const amount = ctx.amount(flight.amount);
-  if (!ctx.check({ type: "money/can-pay", currency: flight.currency, amount }).met) {
+  // R-GATE-003: the employer's flight costs nothing.
+  if (!entry.flightPaidByEmployer && !ctx.check({ type: "money/can-pay", currency: flight.currency, amount }).met) {
     return reject("cannot-afford", `The flight costs ${String(amount)} and cannot be paid.`);
   }
   const cause: Cause = { source: command.type, param: command.route, terms: {} };
-  const pay: Effect =
-    flight.currency === "NGN"
-      ? { type: "money/take", currency: "NGN", pocket: "any", amount, reason: "flight" }
-      : { type: "money/pay-fee", currency: flight.currency, amount, reason: "flight" };
-  ctx.apply([pay], cause);
+  if (!entry.flightPaidByEmployer) {
+    const pay: Effect =
+      flight.currency === "NGN"
+        ? { type: "money/take", currency: "NGN", pocket: "any", amount, reason: "flight" }
+        : { type: "money/pay-fee", currency: flight.currency, amount, reason: "flight" };
+    ctx.apply([pay], cause);
+  }
+  const gate = GATES[entry.gate];
+  const job = gate.departureJob?.(entry, held) ?? null;
   const events = record(ctx, moved(command.route, "departed"));
   if (entry.country !== null) ctx.apply([{ type: "place/move", to: "abroad", country: entry.country }], cause);
-  if (entry.status !== null) ctx.apply([{ type: "status/grant", status: entry.status }], cause);
+  if (entry.status !== null) ctx.apply([job === null ? { type: "status/grant", status: entry.status } : { type: "status/grant", status: entry.status, job }], cause);
+  gate.onDepart?.(ctx, entry, held, cause);
   return events;
 }
 
@@ -524,15 +553,34 @@ function decide(ctx: Ctx, route: Id<"route">): BaseEvent[] {
   };
   const events = record(ctx, refused);
   const cause: Cause = { source: route, param: null, terms: {} };
-  ctx.apply([{ type: "money/add", currency: FUNDS_CURRENCY, pocket: "bank", amount: held.visa.surchargePaid, reason: "refund" }], cause);
-  ctx.apply([{ type: "document/void", document: CAS }], cause);
+  if (held.visa.surchargePaid > 0) ctx.apply([{ type: "money/add", currency: FUNDS_CURRENCY, pocket: "bank", amount: held.visa.surchargePaid, reason: "refund" }], cause);
+  if (entry.gate === "study") ctx.apply([{ type: "document/void", document: CAS }], cause);
+  // R-GATE-005: deception bans every route into the country for the country's months.
+  if (decision.override !== null && decision.bans && entry.country !== null) {
+    const months = ctx.content.country[entry.country]?.deceptionBanMonths ?? 0;
+    if (months > 0) {
+      for (const other of Object.values(ctx.content.route)) {
+        if (other.country !== entry.country) continue;
+        const state = routeOf(ctx.state, other.id).state;
+        if (state === "known" || state === "applying") events.push(...record(ctx, { type: "route/banned", route: other.id, until: month + months }));
+      }
+    }
+  }
   return events;
+}
+
+/** R-GATE-005: a ban lifts in the month it names, and the route is known again. */
+function unban(ctx: Ctx, route: Id<"route">): BaseEvent[] {
+  const held = routeOf(ctx.state, route);
+  if (held.state !== "refused" || held.bannedUntil === null || held.bannedUntil > ctx.state.turn.month) return [];
+  return record(ctx, { type: "route/unbanned", route });
 }
 
 /** R-ROUTE-007, 011, 016 and the refund of 018, route by route in content order. */
 function clocks(ctx: Ctx): BaseEvent[] {
   const events: BaseEvent[] = [];
   for (const entry of Object.values(ctx.content.route)) {
+    events.push(...unban(ctx, entry.id));
     events.push(...(GATES[entry.gate].clocks?.(ctx, entry) ?? []));
     events.push(...refundArrives(ctx, entry.id));
     events.push(...schoolsAnswer(ctx, entry));
@@ -672,7 +720,13 @@ function evolve(slice: RouteSlice, event: RouteKindEvent, state: State): RouteSl
     case "route/supported":
       return withRoute(slice, event.route, (held) => ({ ...held, support: event.support }));
     case "route/gate-updated":
-      return withRoute(slice, event.route, (held) => ({ ...held, gate: event.gate }));
+      return withRoute(slice, event.route, (held) => (event.secret === undefined ? { ...held, gate: event.gate } : { ...held, gate: event.gate, secret: event.secret }));
+    case "route/refusal-noted":
+      return withRoute(slice, event.route, (held) => ({ ...held, refusals: held.refusals + 1, lastRefusal: { month: event.month, reasons: [event.reason] } }));
+    case "route/banned":
+      return withRoute(slice, event.route, (held) => ({ ...held, state: arrow(held, "refused", event.route), visa: null, bannedUntil: event.until }));
+    case "route/unbanned":
+      return withRoute(slice, event.route, (held) => ({ ...held, state: arrow(held, "known", event.route), bannedUntil: null }));
     default: {
       const never: never = event;
       throw new Error(`Unknown route event ${JSON.stringify(never)}.`);
@@ -750,6 +804,12 @@ function lines(event: RouteKindEvent): ReportLine[] {
       return [line("supported", { route: event.route, amount: { currency: event.support.currency, amount: event.support.amount } }, "good")];
     case "route/gate-updated":
       return event.note === null ? [] : [line(event.note, { route: event.route }, "plain", true)];
+    case "route/refusal-noted":
+      return [line("refused", { route: event.route, reason: event.reason }, "bad", true)];
+    case "route/banned":
+      return [line("banned", { route: event.route, month: event.until }, "bad", true)];
+    case "route/unbanned":
+      return [line("unbanned", { route: event.route }, "plain", true)];
     default: {
       const never: never = event;
       throw new Error(`Unknown route event ${JSON.stringify(never)}.`);
@@ -804,6 +864,7 @@ function routeView(read: ReadCtx, id: Id<"route">, held: RouteState): RouteView 
     refusals: held.refusals,
     lastRefusal: held.lastRefusal,
     depositRefund: held.depositRefund,
+    gate: GATES[entry.gate].view?.(read, entry, held) ?? null,
   };
 }
 

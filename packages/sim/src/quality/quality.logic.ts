@@ -1,7 +1,8 @@
 // Qualities: docs/rules/quality.md. Every change, from any kind and from the
 // month itself, goes through `change`, so every event has the same shape.
 import type { RegisteredKind } from "../engine/kind";
-import { BP_WHOLE, clamp, mulDivCeil } from "../engine/int";
+import { sideJobHeld } from "../activity/activity.logic";
+import { BP_WHOLE, clamp, divCeil, mulDivCeil } from "../engine/int";
 import type {
   Ctx,
   Id,
@@ -28,9 +29,11 @@ export const MONTH_SOURCE = "month";
  * (R-QUALITY-001). The share comes first so a cut gain still reaches the top
  * when it can.
  */
-export function appliedAmount(entry: QualityEntry, current: number, amount: number, numbers: Tuning["quality"]): number {
+export function appliedAmount(entry: QualityEntry, current: number, amount: number, numbers: Tuning["quality"], halved = false): number {
   const cut = entry.group === "skills" && amount > 0 && current >= numbers.skillSoftAt;
-  const asked = cut ? mulDivCeil(amount, numbers.skillSoftBp, BP_WHOLE) : amount;
+  const soft = cut ? mulDivCeil(amount, numbers.skillSoftBp, BP_WHOLE) : amount;
+  // R-ACTIVITY-010: a side job halves skill gains, rounding up, so a gain of 1 still arrives.
+  const asked = halved && entry.group === "skills" && soft > 0 ? divCeil(soft, 2) : soft;
   return clamp(current + asked, entry.min, entry.max) - current;
 }
 
@@ -49,7 +52,7 @@ function valueOf(state: ReadCtx["state"], quality: Id<"quality">): number {
 /** The one way a quality changes. A change that applies nothing records nothing (R-QUALITY-002). */
 function change(ctx: Ctx, quality: Id<"quality">, amount: number, source: string): QualityEvent[] {
   const entry = entryOf(ctx.content, quality);
-  const applied = appliedAmount(entry, valueOf(ctx.state, quality), amount, ctx.content.tuning.quality);
+  const applied = appliedAmount(entry, valueOf(ctx.state, quality), amount, ctx.content.tuning.quality, sideJobHeld({ state: ctx.state, world: ctx.world, content: ctx.content }));
   if (applied === 0) return [];
   return [{ type: "quality/changed", quality, amount: applied, source }];
 }

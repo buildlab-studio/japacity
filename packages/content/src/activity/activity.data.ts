@@ -287,9 +287,8 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
   "activity.look-into-route": {
     id: "activity.look-into-route",
     slot: "free",
-    // a requirement cannot read the param, so this names the one route
-    // outright. Accepted for this milestone, which has one route.
-    requires: [{ type: "route/state", route: UK, in: ["heard"] }],
+    // The param offers every route heard of (R-ROUTE-004), so no one route is named here.
+    requires: [],
     param: "route",
     cost: [],
     pay: null,
@@ -531,7 +530,7 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
     // a requirement cannot read the param, so this needs either sponsor route known. The route
     // picked must also have its window open, which the route kind checks (R-SPONSOR-001).
     requires: [{ type: "any", of: [known(CARE), known(SKILLED)] }],
-    param: "route",
+    param: "known-route",
     cost: [],
     pay: null,
     hireBp: null,
@@ -667,9 +666,7 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
     cost: [],
     pay: null,
     hireBp: null,
-    // no effect in the contract enters the pool, so the route kind records `poolMonth` when this activity
-    // resolves. Nothing is listed here.
-    effects: [],
+    effects: [{ type: "route/enter-pool", route: CANADA }],
     counts: [CANADA],
   },
 
@@ -687,6 +684,8 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
       { type: "quality/min", quality: "quality.portfolio", value: 3 },
       { type: "quality/min", quality: "quality.network", value: 50 },
       { type: "document/absent", document: "document.endorsement" },
+      // R-ENDORSE-002: six months after a refused endorsement.
+      { type: "route/gate-step", route: TALENT, step: "cooled" },
     ],
     param: null,
     cost: [{ currency: "GBP", amount: { var: "var.uk-talent-endorse-fee" }, reason: "fee-document" }],

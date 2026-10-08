@@ -32,7 +32,8 @@ export function abroad(content: Content, options: LifeOptions = {}): Game {
 /** Abroad with a status that never lapses, so a test may play years there. */
 export function settledAbroad(content: Content, options: LifeOptions = {}): Game {
   const game = flown(content, options);
-  applyEffects(game, [{ type: "status/grant", status: SETTLED }]);
+  // A settled worker, not a student: the tuition the study gate opened on departure is not theirs.
+  applyEffects(game, [{ type: "obligation/close", obligationType: "tuition" }, { type: "status/grant", status: SETTLED }]);
   return game;
 }
 
@@ -81,7 +82,7 @@ export function markBy(game: Game, amount: number): void {
 }
 
 /** Closes every open obligation of the types given, so nothing else is charged or reported. */
-export function closeTypes(game: Game, ...types: ("rent" | "upkeep" | "phone")[]): void {
+export function closeTypes(game: Game, ...types: ("rent" | "upkeep" | "phone" | "tuition")[]): void {
   applyEffects(
     game,
     types.map((obligationType): Effect => ({ type: "obligation/close", obligationType })),

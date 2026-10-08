@@ -27,7 +27,7 @@ export const ActivityEntrySchema = z.strictObject({
   needsCar: z.boolean().exactOptional(),
   carBonus: CountSchema.exactOptional(),
   requires: z.array(RequirementSchema),
-  param: z.enum(["job", "route", "school"]).nullable(),
+  param: z.enum(["job", "route", "known-route", "school"]).nullable(),
   cost: z.array(CostSchema),
   pay: MoneySchema.nullable(),
   hireBp: BpSchema.nullable(),

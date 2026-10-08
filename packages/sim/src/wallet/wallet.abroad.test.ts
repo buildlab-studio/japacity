@@ -30,6 +30,16 @@ function moneyOf(result: Accepted, reason: string): Money[] {
   return result.events.filter((event): event is BaseEvent & Money => (event.type === "wallet/credited" || event.type === "wallet/debited") && (event as unknown as Money).reason === reason);
 }
 
+/** The debits under a reason: what left a pocket. */
+function debitsOf(result: Accepted, reason: string): Money[] {
+  return moneyOf(result, reason).filter((event) => event.type === "wallet/debited");
+}
+
+/** The credits under a reason: what arrived. A remit leaves and arrives under the one reason. */
+function creditsOf(result: Accepted, reason: string): Money[] {
+  return moneyOf(result, reason).filter((event) => event.type === "wallet/credited");
+}
+
 function remitted(result: Accepted): Extract<WalletEvent, { type: "wallet/remitted" }> | undefined {
   return result.events.find((event): event is BaseEvent & Extract<WalletEvent, { type: "wallet/remitted" }> => event.type === "wallet/remitted");
 }
@@ -89,16 +99,16 @@ describe("the new currencies", () => {
 });
 
 describe("sending money home", () => {
-  test("[R-ABROAD-006] given $100 sent home by app, when it is sent, then the dollars leave the bank as remit, the fee as remit-fee, and the official rate less the margin arrives at once in the naira bank as a gift", () => {
+  test("[R-ABROAD-006] given $100 sent home by app, when it is sent, then the dollars leave the bank as remit, the fee as remit-fee, and the official rate less the margin arrives at once in the naira bank under remit", () => {
     const game = adaAbroad();
     const rate = game.world().rates.USD.official;
     const before = game.state.wallet.pockets.NGN.bank;
     const result = game.accept({ type: "wallet/remit", currency: "USD", amount: HUNDRED_DOLLARS, channel: "app" });
     const fee = bp(HUNDRED_DOLLARS, remit.appFeeBp);
     const naira = mulDiv(HUNDRED_DOLLARS - fee, rate - bp(rate, remit.appMarginBp), 100);
-    expect(moneyOf(result, "remit")).toEqual([{ type: "wallet/debited", currency: "USD", pocket: "bank", amount: HUNDRED_DOLLARS - fee, reason: "remit" }]);
+    expect(debitsOf(result, "remit")).toEqual([{ type: "wallet/debited", currency: "USD", pocket: "bank", amount: HUNDRED_DOLLARS - fee, reason: "remit" }]);
     expect(moneyOf(result, "remit-fee").reduce((sum, event) => sum + event.amount, 0)).toBe(fee);
-    expect(moneyOf(result, "gift")).toEqual([{ type: "wallet/credited", currency: "NGN", pocket: "bank", amount: naira, reason: "gift" }]);
+    expect(creditsOf(result, "remit")).toEqual([{ type: "wallet/credited", currency: "NGN", pocket: "bank", amount: naira, reason: "remit" }]);
     expect(game.state.wallet.pockets.NGN.bank - before).toBe(naira);
     expect(result.lines).toContainEqual({
       key: "line.wallet.remit-app",
@@ -115,9 +125,9 @@ describe("sending money home", () => {
     const game = adaAbroad();
     const fee = bp(HUNDRED_DOLLARS, remit.bankFeeBp);
     const sent = game.accept({ type: "wallet/remit", currency: "USD", amount: HUNDRED_DOLLARS, channel: "bank" });
-    expect(moneyOf(sent, "remit")).toEqual([{ type: "wallet/debited", currency: "USD", pocket: "bank", amount: HUNDRED_DOLLARS - fee, reason: "remit" }]);
+    expect(debitsOf(sent, "remit")).toEqual([{ type: "wallet/debited", currency: "USD", pocket: "bank", amount: HUNDRED_DOLLARS - fee, reason: "remit" }]);
     expect(moneyOf(sent, "remit-fee")).toEqual([{ type: "wallet/debited", currency: "USD", pocket: "bank", amount: fee, reason: "remit-fee" }]);
-    expect(moneyOf(sent, "gift")).toEqual([]);
+    expect(creditsOf(sent, "remit")).toEqual([]);
     expect(remitted(sent)).toMatchObject({ channel: "bank", lost: false, readyMonth: game.state.turn.month + 1 });
     // The bank's own line tells it; the queue's line does not.
     expect(sent.lines.map((line) => line.key)).toContain("line.wallet.remit-bank");
@@ -127,7 +137,7 @@ describe("sending money home", () => {
     const rate = game.world().rates.USD.official;
     const month = game.endTurn();
     const naira = mulDiv(HUNDRED_DOLLARS - fee, rate, 100);
-    expect(moneyOf(month, "gift")).toContainEqual({ type: "wallet/credited", currency: "NGN", pocket: "bank", amount: naira, reason: "gift" });
+    expect(creditsOf(month, "remit")).toContainEqual({ type: "wallet/credited", currency: "NGN", pocket: "bank", amount: naira, reason: "remit" });
     expect(game.state.wallet.queued).toEqual([]);
   });
 
@@ -137,9 +147,9 @@ describe("sending money home", () => {
     const draws = game.state.draws.street ?? 0;
     const result = game.accept({ type: "wallet/remit", currency: "USD", amount: HUNDRED_DOLLARS, channel: "informal" });
     expect(game.state.draws.street).toBe(draws + 1);
-    expect(moneyOf(result, "remit")).toEqual([{ type: "wallet/debited", currency: "USD", pocket: "bank", amount: HUNDRED_DOLLARS, reason: "remit" }]);
+    expect(debitsOf(result, "remit")).toEqual([{ type: "wallet/debited", currency: "USD", pocket: "bank", amount: HUNDRED_DOLLARS, reason: "remit" }]);
     expect(moneyOf(result, "remit-fee")).toEqual([]);
-    expect(moneyOf(result, "gift")).toEqual([{ type: "wallet/credited", currency: "NGN", pocket: "cash", amount: mulDiv(HUNDRED_DOLLARS, street, 100), reason: "gift" }]);
+    expect(creditsOf(result, "remit")).toEqual([{ type: "wallet/credited", currency: "NGN", pocket: "cash", amount: mulDiv(HUNDRED_DOLLARS, street, 100), reason: "remit" }]);
   });
 
   test("[R-ABROAD-006] given the informal channel, when money is sent until both happen, then a draw on `street` under the loss chance loses it all, with a line that asks for attention, and one over it arrives", () => {
@@ -152,9 +162,9 @@ describe("sending money home", () => {
       const expectLost = draw(game.state.seed, "street", n, 10000) < remit.informalLossBp;
       const before = game.state.wallet.pockets.NGN;
       const result = game.accept({ type: "wallet/remit", currency: "USD", amount: sent, channel: "informal" });
-      expect(moneyOf(result, "remit")[0]?.amount).toBe(sent);
+      expect(debitsOf(result, "remit")[0]?.amount).toBe(sent);
       const lostLine = { key: "line.wallet.remit-lost", params: { sent: { currency: "USD", amount: sent } }, tone: "bad", attention: true, counts: [] };
-      expect(moneyOf(result, "gift")).toHaveLength(expectLost ? 0 : 1);
+      expect(creditsOf(result, "remit")).toHaveLength(expectLost ? 0 : 1);
       expect(game.state.wallet.pockets.NGN.bank).toBe(before.bank);
       expect(game.state.wallet.pockets.NGN.cash - before.cash).toBe(expectLost ? 0 : mulDiv(sent, game.world().rates.USD.street, 100));
       expect(remitted(result)?.lost).toBe(expectLost);
@@ -174,7 +184,7 @@ describe("sending money home", () => {
       const game = adaAbroad((used) => ({ ...used, tuning: { ...used.tuning, remit: { ...used.tuning.remit, informalLossBp: lossBp } } }));
       for (let tries = 0; tries < 20; tries += 1) {
         const result = game.accept({ type: "wallet/remit", currency: "USD", amount: 1000, channel: "informal" });
-        expect(moneyOf(result, "gift").length === 1).toBe(arrives);
+        expect(creditsOf(result, "remit").length === 1).toBe(arrives);
       }
     }
   });
@@ -220,7 +230,7 @@ describe("the remit quote", () => {
       const quote = remitQuote(game.view().rates, remit, "USD", HUNDRED_DOLLARS)[channel];
       const result = game.accept({ type: "wallet/remit", currency: "USD", amount: HUNDRED_DOLLARS, channel });
       expect(remitted(result)).toMatchObject({ channel, fee: quote.fee, naira: quote.naira });
-      expect(moneyOf(result, "gift").map((event) => event.amount)).toEqual(channel === "bank" ? [] : [quote.naira]);
+      expect(creditsOf(result, "remit").map((event) => event.amount)).toEqual(channel === "bank" ? [] : [quote.naira]);
     }
   });
 });

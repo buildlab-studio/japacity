@@ -50,8 +50,11 @@ export const pointsTable: Record<Id<"points">, PointsEntry> = {
       workLongLowBand: 25,
       workLongHighBand: 50,
       highBand: 70,
+      workMonths: 12,
       longMonths: 36,
       cap: 100,
     },
+    // The care cut-off is read at care 60 or more (R-POINTS-003).
+    careMin: 60,
   },
 };

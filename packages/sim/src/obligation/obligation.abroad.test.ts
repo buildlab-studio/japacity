@@ -158,7 +158,8 @@ describe("tuition", () => {
 
   function student(): { game: Game; tuition: ObligationState } {
     const game = abroad(content);
-    closeTypes(game, "rent", "upkeep");
+    // The study gate opened the real tuition on departure (R-ABROAD-005); these tests pin a round figure instead.
+    closeTypes(game, "rent", "upkeep", "tuition");
     return { game, tuition: openOwed(game, TUITION, PRINCIPAL) };
   }
 

@@ -15,22 +15,13 @@ import type { DecisionTerms, Gate } from "./gate";
 
 const FIND: Id<"activity"> = "activity.find-sponsor";
 const NETWORK: Id<"quality"> = "quality.network";
+const SURCHARGE_YEAR: Id<"var"> = "var.uk-surcharge-year";
 
 type RecordSponsor = Extract<Effect, { type: "route/record-sponsor" }>;
 type Sponsor = { employer: string; salary: number };
 
 /** R-SPONSOR-004: strictness, earlier refusals and the good grade; the unexplained share and the interview are not read. */
 const SPONSOR_TERMS: DecisionTerms = { strictness: true, unexplained: false, refusals: true, interview: false, goodGrade: true };
-
-/**
- * R-SPONSOR-007: the job each sponsor route gives on arrival.
- * the entry's sponsor block names no job, so the two are listed here.
- * A `job` field on the block would let content say it.
- */
-const JOBS: Partial<Record<Id<"route">, Id<"activity">>> = {
-  "route.uk-care": "activity.job-uk-care",
-  "route.uk-skilled": "activity.job-uk-skilled",
-};
 
 function settings(entry: RouteEntry): NonNullable<RouteEntry["sponsor"]> {
   if (entry.sponsor === undefined) throw new Error(`${entry.id} is a sponsor route with no sponsor block.`);
@@ -76,9 +67,7 @@ function englishBand(read: ReadCtx): number | null {
 
 /** R-SPONSOR-007: the job a sponsor route gives on arrival. */
 export function sponsorJob(entry: RouteEntry): Id<"activity"> {
-  const job = JOBS[entry.id];
-  if (job === undefined) throw new Error(`${entry.id} names no sponsor's job.`);
-  return job;
+  return settings(entry).job;
 }
 
 // ---------------------------------------------------------------------------
@@ -175,10 +164,9 @@ function maintenanceCheck(ctx: Ctx, entry: RouteEntry): BaseEvent[] {
 function recordSponsor(ctx: Ctx, entry: RouteEntry, effect: RecordSponsor, cause: Cause): BaseEvent[] {
   if (routeOf(ctx, entry.id).state !== "known") return [];
   const sponsor: Sponsor = { employer: effect.employer, salary: recordedSalary(effect, cause.terms) };
-  // `effect.fraud` has nowhere to go. No route event writes `secret.sponsorFraud`, and the gate
-  // state's sponsor has no field for it. The decision reads `secret.sponsorFraud` once an event sets it.
   const note = sponsor.salary >= salaryBar(ctx, entry) ? "sponsor-recorded" : "sponsor-under-bar";
-  const event: RouteKindEvent = { type: "route/gate-updated", route: entry.id, gate: { gate: "sponsor", sponsor }, note };
+  // The fraud rides on the route's secret, never in the view (R-SPONSOR-002).
+  const event: RouteKindEvent = { type: "route/gate-updated", route: entry.id, gate: { gate: "sponsor", sponsor }, note, secret: { sponsorFraud: effect.fraud } };
   return emit(ctx, "route", [event]);
 }
 
@@ -232,19 +220,27 @@ export const sponsorGate: Gate = {
     if (band === null || band < bandMin) return false;
     return maintenanceVar === null || held.funds.heldMonths >= 1;
   },
-  /**
-   * R-SPONSOR-004 and R-GATE-005: a fraud sponsor is refused with the reason
-   * `sponsor` before any draw, and that refusal bans.
-   * the dispatcher's decision does not act on `bans` yet; no route
-   * event writes `bannedUntil` or moves the country's routes to `refused`. The
-   * event wanted: `{ type: "route/banned"; country: Id<"country">; until: number }`,
-   * applied with `until` the month plus `country.deceptionBanMonths`, moving
-   * every route whose entry names that country to `refused` with `bannedUntil`.
-   */
+  /** R-SPONSOR-004 and R-GATE-005: a fraud sponsor is refused with the reason `sponsor` before any draw, and that refusal bans. */
   decision: (_read, _entry, held) => {
     const fraud = held.secret.sponsorFraud === true;
     return { terms: SPONSOR_TERMS, override: fraud ? "sponsor" : null, bans: fraud };
   },
   clocks: (ctx, entry) => [...findsThisTurn(ctx, entry), ...maintenanceCheck(ctx, entry)],
   effects: { "route/record-sponsor": record },
+  // R-ROUTE-014 for this gate: the route's own strictness and the surcharge its status needs.
+  application: (read, entry) => ({
+    strictness: varOf(read, settings(entry).strictnessVar),
+    surchargePaid: settings(entry).surchargeYears * varOf(read, SURCHARGE_YEAR),
+    decisionMonths: read.content.tuning.route.decisionMonths,
+  }),
+  // The maintenance line is the funds this route shows; the care route shows none (R-SPONSOR-003).
+  funds: (read, entry) => {
+    const line = settings(entry).maintenanceVar;
+    return line === null ? null : { required: varOf(read, line), currency: "GBP" };
+  },
+  departureJob: (entry) => sponsorJob(entry),
+  view: (read, entry, held) => {
+    const sponsor = sponsorOf(held);
+    return { gate: "sponsor", employer: sponsor?.employer ?? null, salary: sponsor?.salary ?? null, underBar: sponsor !== null && sponsor.salary < salaryBar(read, entry) };
+  },
 };

@@ -17,5 +17,5 @@ export const GATES: Record<RouteGate, Gate> = {
   road: roadGate,
 };
 
-export type { Decision, DecisionTerms, Gate, GateEffectHandler } from "./gate";
+export type { ApplicationFigures, Decision, DecisionTerms, Gate, GateEffectHandler } from "./gate";
 export { EVERY_TERM, NO_TERM } from "./gate";

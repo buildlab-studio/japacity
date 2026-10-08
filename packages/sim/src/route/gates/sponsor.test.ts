@@ -390,7 +390,9 @@ describe("R-SPONSOR-004: the sponsor's decision", () => {
     game.endTurn([slot(APPLY_CARE)]);
     const draws = game.state.draws.visa ?? 0;
     game.endTurn();
-    expect(routeOf(game, CARE).state).toBe("known");
+    // R-GATE-005: the deception refusal bans the route into the country.
+    expect(routeOf(game, CARE).state).toBe("refused");
+    expect(routeOf(game, CARE).bannedUntil).not.toBeNull();
     expect(routeOf(game, CARE).lastRefusal?.reasons[0]).toBe("sponsor");
     expect(game.state.draws.visa ?? 0).toBe(draws);
   });

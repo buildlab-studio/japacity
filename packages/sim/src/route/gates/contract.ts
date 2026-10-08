@@ -71,9 +71,8 @@ export function recordAgent(ctx: Ctx, entry: RouteEntry, effect: RecordSponsor, 
   const held = ctx.state.route[entry.id];
   if (held?.state !== "known") return [];
   const agent: Agent = { employer: effect.employer, salary: recordedSalary(effect, cause.terms), role: roleOf(cause.terms).role };
-  // `effect.fraud` has nowhere to go. No route event writes `secret.sponsorFraud`, and the gate
-  // state's agent has no field for it. The decision reads `secret.sponsorFraud` once an event sets it.
-  const event: RouteKindEvent = { type: "route/gate-updated", route: entry.id, gate: { gate: "contract", agent }, note: "agent-recorded" };
+  // The fraud rides on the route's secret, never in the view (R-CONTRACT-002).
+  const event: RouteKindEvent = { type: "route/gate-updated", route: entry.id, gate: { gate: "contract", agent }, note: "agent-recorded", secret: { sponsorFraud: effect.fraud } };
   return emit(ctx, "route", [event]);
 }
 
@@ -92,4 +91,12 @@ export const contractGate: Gate = {
   // R-CONTRACT-003: the base alone, and a fraud agent refused whatever the draw. Nothing was forged in
   // the character's name, so the refusal bans nothing (R-GATE-005).
   decision: (_read, _entry, held) => ({ terms: NO_TERM, override: held.secret.sponsorFraud === true ? "agent" : null, bans: false }),
+  // R-CONTRACT-003: no fee, no surcharge, no strictness; the employer's flight and the route's status (R-CONTRACT-004).
+  application: (read) => ({ strictness: 0, surchargePaid: 0, decisionMonths: read.content.tuning.route.decisionMonths }),
+  funds: () => null,
+  departureJob: (_entry, held) => contractJob(held),
+  view: (_read, _entry, held) => {
+    const agent = agentOf(held);
+    return { gate: "contract", employer: agent?.employer ?? null, salary: agent?.salary ?? null, role: agent?.role ?? null };
+  },
 };

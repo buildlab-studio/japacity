@@ -3,7 +3,7 @@
 // terms the decision reads (docs/rules/route-gates.md R-GATE-001 and 002). The
 // route kind dispatches on the entry's `gate` to one module from this folder;
 // each module owns its own file and nothing else.
-import type { BaseEvent, Cause, Ctx, Effect, EffectType, ReadCtx, RouteEntry, RouteGate, RouteGateState, RouteState } from "../../engine/types";
+import type { BaseEvent, Cause, Ctx, Effect, EffectType, ForeignCurrency, Id, ReadCtx, RouteEntry, RouteGate, RouteGateState, RouteGateView, RouteState } from "../../engine/types";
 import type { RefusalReason } from "../route.events";
 
 /** Which of R-ROUTE-016's terms the decision reads for this gate (R-GATE-002). The floor and ceiling always apply. */
@@ -41,6 +41,23 @@ export interface Gate {
   clocks?(ctx: Ctx, entry: RouteEntry): BaseEvent[];
   /** Effects this gate carries out. The dispatcher merges them into the kind's table. */
   effects?: Partial<Record<EffectType, GateEffectHandler>>;
+  /** The figures an application records on the day it is sent (R-ROUTE-014). Missing: the study gate's UK figures. */
+  application?(read: ReadCtx, entry: RouteEntry, held: RouteState): ApplicationFigures;
+  /** The funds the route asks to see, in its own currency (R-ROUTE-009). Missing: the study gate's tuition and living line. Null: the route shows no funds. */
+  funds?(read: ReadCtx, entry: RouteEntry, held: RouteState): { required: number; currency: ForeignCurrency } | null;
+  /** The job the character holds on arrival (R-SPONSOR-007, R-CONTRACT-004). Missing or null: none. */
+  departureJob?(entry: RouteEntry, held: RouteState): Id<"activity"> | null;
+  /** Effects to apply as the character departs, after the move and the status (the study gate opens the tuition). */
+  onDepart?(ctx: Ctx, entry: RouteEntry, held: RouteState, cause: Cause): void;
+  /** The gate's part of the route's view. Missing: null. */
+  view?(read: ReadCtx, entry: RouteEntry, held: RouteState): RouteGateView | null;
+}
+
+export interface ApplicationFigures {
+  strictness: number;
+  /** What the application paid in surcharge, refunded on a refusal (R-ROUTE-018). Pence. */
+  surchargePaid: number;
+  decisionMonths: number;
 }
 
 export const EVERY_TERM: DecisionTerms = { strictness: true, unexplained: true, refusals: true, interview: true, goodGrade: true };

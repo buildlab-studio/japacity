@@ -169,8 +169,7 @@ function fromStartingLife(read: ReadCtx, types: readonly ObligationType[], share
 
 /**
  * R-PLACE-002, R-ABROAD-003 and 007. `home-support` reopens abroad at
- * the remit factor; its entry says `home`, so once the obligation
- * kind reads R-PLACE-003 it needs `where: "any"` to open abroad.
+ * the remit factor; its entry is `where: "any"` so it may.
  */
 function arrive(ctx: Ctx, country: Id<"country">, cause: Cause): BaseEvent[] {
   const entry = countryEntry(ctx.content, country);

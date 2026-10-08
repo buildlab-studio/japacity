@@ -27,6 +27,8 @@ export const routeText: Record<string, string> = {
   "line.route.applied": "Visa application sent for {route}. The decision comes in month {month}.",
   "line.route.granted": "The visa for {route} is granted.",
   "line.route.refused": "The visa for {route} is refused. The letter gives the reason as {reason}.",
+  "line.route.banned": "Deception on a {route} application: every route into that country is closed to you until month {month}.",
+  "line.route.unbanned": "The ban on {route} has ended. The route is open to you again.",
   "line.route.deposit-refunded": "The deposit for {route} comes back, less the fee: {amount}.",
   "line.route.supported": "Your family will show {amount} for you.",
   "line.route.departed": "You fly out on {route}. The life at home is over.",

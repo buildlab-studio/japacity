@@ -64,14 +64,7 @@ function issuedNow(ctx: Ctx, document: Id<"document">): boolean {
 
 /**
  * R-ENDORSE-002: one draw on `visa` the month the letter is issued. A refusal
- * voids it at once and starts the cooldown.
- *
- * the page says the route "records a refusal with the reason
- * `endorsement`". The shared `route/refused` moves the route from applying to
- * known, and a route asking for an endorsement is known, so that arrow does
- * not exist (R-ROUTE-001). The refusal lives in the gate's state instead: it
- * is not added to `refusals`, so R-ENDORSE-003's earlier refusals do not count
- * it, and `lastRefusal` does not show it. Should it count?
+ * voids it at once, counts as a refusal on the route, and starts the cooldown.
  */
 function clocks(ctx: Ctx, entry: RouteEntry): BaseEvent[] {
   const block = blockOf(entry);
@@ -85,7 +78,8 @@ function clocks(ctx: Ctx, entry: RouteEntry): BaseEvent[] {
     gate: { gate: "endorsement", endorsementRefusedMonth: ctx.state.turn.month },
     note: "endorsement-refused",
   };
-  const events = emit(ctx, "route", [event]);
+  const noted: RouteKindEvent = { type: "route/refusal-noted", route: entry.id, month: ctx.state.turn.month, reason: "endorsement" };
+  const events = emit(ctx, "route", [event, noted]);
   ctx.apply([{ type: "document/void", document: block.document }], { source: entry.id, param: null, terms: {} });
   return events;
 }
@@ -94,14 +88,7 @@ export const endorsementGate: Gate = {
   gate: "endorsement",
   steps: [COOLED],
   initial: () => ({ gate: "endorsement", endorsementRefusedMonth: null }),
-  /**
-   * R-ENDORSE-002: `cooled` holds with no refusal on record, or from `cooldown`
-   * months after the refusal's month.
-   *
-   * `activity.apply-endorsement` does not read this step, so the
-   * cooldown does not yet hold the activity back. It needs one more
-   * requirement in content: `{ type: "route/gate-step", route: TALENT, step: "cooled" }`.
-   */
+  /** R-ENDORSE-002: `cooled` holds with no refusal on record, or from `cooldown` months after the refusal's month. */
   reached: (read, entry, held, step) => {
     if (step !== COOLED) return false;
     const refused = gateOf(held).endorsementRefusedMonth;
@@ -112,4 +99,17 @@ export const endorsementGate: Gate = {
   // R-ENDORSE-003: earlier refusals only, on the route's own base.
   decision: () => ({ terms: { strictness: false, unexplained: false, refusals: true, interview: false, goodGrade: false }, override: null, bans: false }),
   clocks,
+  // R-ENDORSE-003: no strictness read; the surcharge for the status's years is refunded on a refusal (R-ROUTE-018).
+  application: (read, entry) => ({ strictness: 0, surchargePaid: blockOf(entry).surchargeYears * surchargeYear(read), decisionMonths: read.content.tuning.route.decisionMonths }),
+  funds: () => null,
+  view: (_read, entry, held) => {
+    const refused = gateOf(held).endorsementRefusedMonth;
+    return { gate: "endorsement", refusedMonth: refused, cooledFromMonth: refused === null ? null : refused + blockOf(entry).cooldown };
+  },
 };
+
+function surchargeYear(read: ReadCtx): number {
+  const value = (read.world.vars as Record<string, number | undefined>)["var.uk-surcharge-year"];
+  if (value === undefined) throw new Error("The world has no variable var.uk-surcharge-year.");
+  return value;
+}

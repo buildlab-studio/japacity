@@ -44,8 +44,8 @@ const ALLOWANCE: Id<"var"> = "var.fx-bank-allowance";
 const QUEUE: Id<"var"> = "var.fx-bank-queue";
 
 /** Reasons money comes in under. Every other reason except the two transfers is money going out. */
-export const SOURCES: readonly Reason[] = ["opening", "salary", "gig", "gift", "sale", "loan", "held-funds", "refund", "deposit-return", "cash-work", "win"];
-/** A bank remit waits in the queue under an id with this prefix and arrives as a gift (R-ABROAD-006). */
+export const SOURCES: readonly Reason[] = ["opening", "salary", "gig", "gift", "sale", "loan", "held-funds", "refund", "deposit-return", "cash-work", "win", "remit"];
+/** A bank remit waits in the queue under an id with this prefix and arrives under `remit` (R-ABROAD-006). */
 const REMIT_PREFIX = "remit";
 
 /**
@@ -401,7 +401,7 @@ function remit(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   const remitted = (lost: boolean, readyMonth: number): WalletEvent => ({ type: "wallet/remitted", channel, sent, fee: terms.fee, naira: lost ? 0 : terms.naira, lost, readyMonth });
   switch (channel) {
     case "app":
-      events.push(credit("NGN", "bank", terms.naira, "gift"), remitted(false, month));
+      events.push(credit("NGN", "bank", terms.naira, "remit"), remitted(false, month));
       break;
     case "bank": {
       const conversion = { id: ctx.nextId(REMIT_PREFIX), from: currency, to: "NGN" as const, paid: amount - terms.fee, readyMonth: month + 1 };
@@ -410,7 +410,7 @@ function remit(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
     }
     case "informal": {
       const lost = ctx.random.chance("street", ctx.content.tuning.remit.informalLossBp);
-      if (!lost) events.push(credit("NGN", "cash", terms.naira, "gift"));
+      if (!lost) events.push(credit("NGN", "cash", terms.naira, "remit"));
       events.push(remitted(lost, month));
       break;
     }
@@ -441,7 +441,7 @@ function settle(ctx: Ctx): BaseEvent[] {
   for (const conversion of state.wallet.queued) {
     if (conversion.readyMonth > month) continue;
     events.push({ type: "wallet/arrived", id: conversion.id });
-    const reason: Reason = isRemit(conversion) ? "gift" : "convert";
+    const reason: Reason = isRemit(conversion) ? "remit" : "convert";
     events.push(credit(conversion.to, "bank", convertMinor(conversion.paid, conversion.from, conversion.to, official), reason));
   }
   // R-WALLET-011: a lot is remembered for lotMonths whole months after the one it landed in.

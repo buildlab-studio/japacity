@@ -26,7 +26,8 @@ export interface LedgerReport {
   suspect: boolean;
 }
 
-const TRANSFERS: readonly Reason[] = ["convert", "move"];
+// A remit leaves one currency and arrives in another, so it creates and destroys nothing either.
+const TRANSFERS: readonly Reason[] = ["convert", "move", "remit"];
 const TECH = "quality.tech" as const;
 
 function withoutTransfers(totals: Totals): Totals {

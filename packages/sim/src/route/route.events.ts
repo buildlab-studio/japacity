@@ -44,7 +44,12 @@ export type RouteKindEvent =
    * pool entered, an invitation, a step on the road. `note` names the line to
    * show, as `line.route.<note>` with the route, or null for a silent change.
    */
-  | { type: "route/gate-updated"; route: Id<"route">; gate: RouteGateState; note: string | null };
+  | { type: "route/gate-updated"; route: Id<"route">; gate: RouteGateState; note: string | null; secret?: RouteState["secret"] }
+  /** A refusal recorded without a decision draw: the endorsing body said no (R-ENDORSE-002). Counts as a refusal. */
+  | { type: "route/refusal-noted"; route: Id<"route">; month: number; reason: RefusalReason }
+  /** A deception ban (R-GATE-005): the route is refused until `until`, then known again. */
+  | { type: "route/banned"; route: Id<"route">; until: number }
+  | { type: "route/unbanned"; route: Id<"route"> };
 
 /**
  * news.test.ts stands in for the route kind with the stub's

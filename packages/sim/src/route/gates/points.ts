@@ -5,10 +5,9 @@
 import { heldBand, tenureAcross } from "../../activity/activity.logic";
 import { worldVar } from "../../engine/check";
 import { BP_WHOLE, convertMinor, divFloor, mulDiv } from "../../engine/int";
-import { emit, turnSlots } from "../../engine/kind";
+import { emit } from "../../engine/kind";
 import type {
   BaseEvent,
-  Cause,
   Content,
   Ctx,
   Currency,
@@ -16,7 +15,6 @@ import type {
   Id,
   PointsEntry,
   ReadCtx,
-  Requirement,
   RouteEntry,
   RouteGateState,
   RouteState,
@@ -37,20 +35,8 @@ const CURRENCIES: readonly Currency[] = ["NGN", "GBP", "USD", "CAD", "AED", "EUR
 const MONTHS_PER_YEAR = 12;
 /** R-POINTS-001: one band scores each of the four abilities. */
 const ABILITIES = 4;
-// the page counts foreign work "12 to 35 months" and the care
-// cut-off from `quality.care` 60, but neither number is in content: the
-// transfer block has `longMonths` and no lower bound, and the points block has
-// no care figure. R-ENGINE-017 wants both in content (`transfer.workMonths`,
-// `points.careMin`); until then they live here.
-const WORK_FROM_MONTHS = 12;
-const CARE_MIN = 60;
-// `activity.enter-pool` carries no effect and the contract has no
-// `route/enter-pool`, so nothing hands the gate the slot as it resolves. Until
-// the effect exists (`{ type: "route/enter-pool"; route }`, carried out by
-// `enterPool` below with the slot's cause), the gate reads this turn's slots in
-// `clocks` and judges the pick then. That stand-in and this id go when the
-// effect arrives.
-const ENTER_POOL: Id<"activity"> = "activity.enter-pool";
+/** Education after secondary school earns the transferability points (R-POINTS-001). */
+const POST_SECONDARY = 2;
 
 function blockOf(entry: RouteEntry): PointsBlock {
   if (entry.points === undefined) throw new Error(`${entry.id} runs the points gate with no points block.`);
@@ -97,17 +83,13 @@ export function pointsParts(read: ReadCtx, route: Id<"route">): PointsParts {
   const age = rowAtOrBelow(table.age, (row) => row.years, (row) => row.points, years);
   const education = rowAtOrBelow(table.education, (row) => row.level, (row) => row.points, level);
   const language = band === null ? 0 : ABILITIES * rowAtOrBelow(table.language, (row) => row.band, (row) => row.points, band);
-  return { age, education, language, transfer: transferPoints(read, table, education > 0, band) };
+  return { age, education, language, transfer: transferPoints(read, table, level >= POST_SECONDARY, band) };
 }
 
 /**
- * Transferability: education with the band, and foreign work with the band,
- * capped. The low band is the language table's first row (CLB 7); below it
- * nothing transfers.
- *
- * the page counts "education with band 60 or 65" for any education,
- * so secondary school earns it too here. The real grid counts only education
- * after secondary school.
+ * Transferability: education after secondary school with the band, and foreign
+ * work with the band, capped. The low band is the language table's first row
+ * (CLB 7); below it nothing transfers.
  */
 function transferPoints(read: ReadCtx, table: PointsEntry, educated: boolean, band: number | null): number {
   const low = table.language[0]?.band;
@@ -118,7 +100,7 @@ function transferPoints(read: ReadCtx, table: PointsEntry, educated: boolean, ba
   const education = !educated ? 0 : high ? t.educationHighBand : t.educationLowBand;
   let work = 0;
   if (months >= t.longMonths) work = high ? t.workLongHighBand : t.workLongLowBand;
-  else if (months >= WORK_FROM_MONTHS) work = high ? t.workHighBand : t.workLowBand;
+  else if (months >= t.workMonths) work = high ? t.workHighBand : t.workLowBand;
   return Math.min(t.cap, education + work);
 }
 
@@ -169,7 +151,8 @@ export function invites(read: ReadCtx, route: Id<"route">): boolean {
   const block = blockOf(routeEntry(read.content, route));
   const score = pointsScore(read, route);
   if (worldVar(read, block.cutoffVar) <= score) return true;
-  return block.careCutoffVar !== null && (read.state.quality[CARE] ?? 0) >= CARE_MIN && worldVar(read, block.careCutoffVar) <= score;
+  const careMin = tableOf(read.content, block).careMin;
+  return block.careCutoffVar !== null && (read.state.quality[CARE] ?? 0) >= careMin && worldVar(read, block.careCutoffVar) <= score;
 }
 
 function windowClosed(read: ReadCtx, entry: RouteEntry): boolean {
@@ -184,22 +167,14 @@ function updated(ctx: Ctx, route: Id<"route">, gate: PointsState, note: string |
 }
 
 /**
- * R-POINTS-002: the slot's requirements judged again as it resolves, with the
- * route's own funds read in Canadian cents in place of the shared funds line.
- * The carrier for the `route/enter-pool` effect, once there is one.
+ * R-POINTS-002: `route/enter-pool` from the slot. The slot's requirements,
+ * the Canadian funds among them, were judged when the turn was accepted; the
+ * route kind's funds check reads this gate's line in Canadian cents.
  */
-export function enterPool(ctx: Ctx, entry: RouteEntry, cause: Cause): BaseEvent[] {
+export function enterPool(ctx: Ctx, entry: RouteEntry): BaseEvent[] {
   const held = ctx.state.route[entry.id];
   if (held === undefined || held.state !== "known" || gateOf(held).poolMonth !== null) return [];
-  const read = readOf(ctx);
-  if (windowClosed(read, entry)) return [];
-  const requires = ctx.content.activity[cause.source as Id<"activity">]?.requires ?? [];
-  const holds = (requirement: Requirement): boolean => {
-    if (requirement.type !== "route/funds" || requirement.route !== entry.id) return ctx.check(requirement).met;
-    const { shown, required } = pointsFunds(read, entry.id);
-    return shown >= required;
-  };
-  if (!requires.every(holds)) return [];
+  if (windowClosed(readOf(ctx), entry)) return [];
   return updated(ctx, entry.id, { gate: "points", poolMonth: ctx.state.turn.month, invitedMonth: null }, "pool-entered");
 }
 
@@ -262,10 +237,6 @@ function clocks(ctx: Ctx, entry: RouteEntry): BaseEvent[] {
     gate = { gate: "points", poolMonth: null, invitedMonth: null };
     events.push(...updated(ctx, route, gate, null));
   }
-  if (gate.poolMonth === null && turnSlots(ctx).some((pick) => pick.activity === ENTER_POOL)) {
-    events.push(...enterPool(ctx, entry, { source: ENTER_POOL, param: null, terms: {} }));
-    gate = gateOf(ctx.state.route[route] ?? start);
-  }
   if (gate.poolMonth === null) return events;
   if (gate.invitedMonth !== null) {
     if (canPayFee(ctx, block)) return [...events, ...payAndSend(ctx, entry, block)];
@@ -298,4 +269,26 @@ export const pointsGate: Gate = {
   // R-POINTS-004: the unexplained share and earlier refusals, not the strictness.
   decision: () => ({ terms: { strictness: false, unexplained: true, refusals: true, interview: false, goodGrade: false }, override: null, bans: false }),
   clocks,
+  effects: {
+    "route/enter-pool": (ctx, effect) => {
+      if (effect.type !== "route/enter-pool") throw new Error(`route/enter-pool cannot carry out ${effect.type}.`);
+      return enterPool(ctx, routeEntry(ctx.content, effect.route));
+    },
+  },
+  // R-POINTS-002: the settlement funds in Canadian cents are what this route shows.
+  funds: (read, entry) => ({ required: worldVar(read, blockOf(entry).fundsVar), currency: FUNDS_CURRENCY }),
+  // R-POINTS-001: the score shows from the moment the route is known.
+  view: (read, entry, held) => {
+    const block = blockOf(entry);
+    const gate = gateOf(held);
+    return {
+      gate: "points",
+      points: pointsScore(read, entry.id),
+      cutoff: worldVar(read, block.cutoffVar),
+      careCutoff: block.careCutoffVar === null ? null : worldVar(read, block.careCutoffVar),
+      poolMonth: gate.poolMonth,
+      profileEndsMonth: gate.poolMonth === null ? null : gate.poolMonth + block.profileMonths,
+      invitedMonth: gate.invitedMonth,
+    };
+  },
 };

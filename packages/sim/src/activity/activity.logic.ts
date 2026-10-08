@@ -187,6 +187,11 @@ function heardRoutes(read: ReadCtx): string[] {
   return Object.keys(read.content.route).filter((id) => read.state.route[id as Id<"route">]?.state === "heard");
 }
 
+/** Routes known, for the activities that work a route already looked into (the sponsor's find, R-SPONSOR-001). */
+function knownRoutes(read: ReadCtx): string[] {
+  return Object.keys(read.content.route).filter((id) => read.state.route[id as Id<"route">]?.state === "known");
+}
+
 /**
  * The month from which a school that refused takes a new application
  * (R-ROUTE-006): its answer's month plus `reapplyMonths`. Null when there is
@@ -261,6 +266,8 @@ export function paramsFor(read: ReadCtx, entry: ActivityEntry, judge: Judge = (r
       return huntableJobs(read, judge);
     case "route":
       return heardRoutes(read);
+    case "known-route":
+      return knownRoutes(read);
     case "school":
       return openSchools(read);
     default: {

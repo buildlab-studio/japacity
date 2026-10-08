@@ -40,6 +40,9 @@ export const RouteEntrySchema = z.strictObject({
       findBp: BpSchema,
       bandMin: CountSchema,
       documents: z.array(idOf("document")),
+      strictnessVar: idOf("var"),
+      surchargeYears: CountSchema,
+      job: idOf("activity"),
     })
     .exactOptional(),
   points: z
@@ -62,6 +65,7 @@ export const RouteEntrySchema = z.strictObject({
       capBp: BpSchema,
       cooldown: CountSchema,
       feeVar: idOf("var"),
+      surchargeYears: CountSchema,
     })
     .exactOptional(),
   contract: z.strictObject({ medical: idOf("document"), maxAgeMonths: CountSchema }).exactOptional(),
@@ -87,9 +91,11 @@ export const PointsEntrySchema = z.strictObject({
     workLongLowBand: CountSchema,
     workLongHighBand: CountSchema,
     highBand: CountSchema,
+    workMonths: CountSchema,
     longMonths: CountSchema,
     cap: CountSchema,
   }),
+  careMin: CountSchema,
 });
 
 export type ChecklistItemMatches = Proof<Same<z.infer<typeof ChecklistItemSchema>, ChecklistItem>>;
