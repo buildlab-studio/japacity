@@ -18,4 +18,10 @@ export type PeopleEvent =
   | { type: "people/facts-updated"; bond: string; facts: PersonFacts }
   | { type: "people/gossip-heard"; bond: string }
   | { type: "people/stand-in-changed"; bond: string; stage: "warned" | "on" | null }
-  | { type: "people/request-shared"; offer: Id<"offer"> };
+  | { type: "people/request-shared"; offer: Id<"offer"> }
+  // Added by the people kind: the sibling draw (R-PEOPLE-047), a card taken back (R-PEOPLE-010), gossip that reaches a partner (R-PEOPLE-041).
+  | { type: "people/siblings-drawn"; siblings: { slot: string; bond: string; person: Id<"person">; facts: PersonFacts }[] }
+  | { type: "people/invite-withdrawn"; slot: string }
+  | { type: "people/gossip-spread"; bond: string; about: string }
+  // A computer's yes to marrying that waits for December (R-PEOPLE-049).
+  | { type: "people/wedding-waits"; bond: string };

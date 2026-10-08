@@ -5,6 +5,7 @@ import type { ActivityEntry, Cost, Id, Requirement } from "@japacity/sim";
 
 import { dollars, naira, pct } from "../units";
 import { abroadActivityTable, foreignPocketActivityTable } from "./activity.abroad.data";
+import { peopleActivityTable } from "./activity.people.data";
 
 const UK: Id<"route"> = "route.uk-masters";
 const WINDOW: Id<"var"> = "var.uk-study-window";
@@ -522,6 +523,8 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
   ...abroadActivityTable,
   // The wallet keeps Canadian dollar and dirham pockets now (R-ABROAD-001).
   ...foreignPocketActivityTable,
+  // people.md: time with someone (R-PEOPLE-014).
+  ...peopleActivityTable,
   // route-gates.md: the sponsor gate.
 
   "activity.find-sponsor": {
