@@ -1,9 +1,11 @@
 // Who stands in a place today (city.md R-CITY-014 to 017). Pure: a hash of the place's id, the real
 // date and the slot picks each person, so the same place on the same day shows the same people and a
 // screenshot taken twice is the same. Never `Math.random`, never a stream of the simulation.
+import type { PoseName } from "@japacity/assets-src/people/poses";
 import type { PlaceEntry } from "@japacity/sim";
 
 import type { CityTuning, Mode } from "./mode";
+import type { Act } from "./placeFile";
 import { type Person, personOfLook, type Role, ROSTER } from "./roster";
 
 export type Band = "quiet" | "busy" | "packed";
@@ -71,11 +73,10 @@ export function crowdSize(place: Pick<PlaceEntry, "crowd">, mode: Mode, city: Ci
   return Math.min(place.crowd.target, cap);
 }
 
-/** The band shown for a sample: packed only at the mode's full figure, quiet under half of it. */
-export function bandOf(size: number, mode: Mode, city: CityTuning): Band {
-  const most = mode === "low" ? city.crowdLow : city.crowdHigh;
-  if (size >= most) return "packed";
-  if (size * 2 < most) return "quiet";
+/** The band shown for a sample, read against the place's `crowd.target`: packed at the target, quiet under half of it. */
+export function bandOf(size: number, target: number): Band {
+  if (size >= target) return "packed";
+  if (size * 2 < target) return "quiet";
   return "busy";
 }
 
@@ -157,7 +158,7 @@ export function sampleCrowd(place: PlaceFacts, pool: readonly Person[], date: st
     const tag = other.name === null || other.name.trim() === "" ? null : other.name;
     people[slot] = { slot, person, kind: "player", tag };
   });
-  return { band: bandOf(size, mode, city), people };
+  return { band: bandOf(size, place.crowd.target), people };
 }
 
 /** A place's pool: the people its file lists, as roster rows. */
@@ -165,12 +166,26 @@ export function poolOf(sample: readonly string[]): Person[] {
   return sample.map((file) => personOfLook(file)).filter((person): person is Person => person !== null);
 }
 
+/** Poses that are only a way of standing, so an act may give the person another. */
+const PLAIN: ReadonlySet<PoseName> = new Set<PoseName>(["stand", "hip", "selfie"]);
+
+/** The pose a person idles in at a spot: the act's, when it names one and their own is a plain stand. */
+export function actPose(person: Pick<Person, "pose">, act: Pick<Act, "pose"> | undefined): PoseName {
+  return act?.pose !== undefined && PLAIN.has(person.pose) ? act.pose : person.pose;
+}
+
+/** How a person walks: a hawker steadies the tray on her head, everyone else swings both arms. */
+export function walkPose(person: Pick<Person, "pose">): PoseName {
+  return person.pose === "tray" ? "trayWalk" : "walk";
+}
+
 /**
  * Who stands at which of the place's spots. The first `people.length` spots are used, in order; a
  * spot the place names for a role (a hawker among the vehicles, a trader at the stall) goes to
- * someone of that role in the sample when there is one, and everyone else fills the rest in slot order.
+ * someone of that role in the sample when there is one, a spot an act keeps for a man or a woman
+ * goes to one in a plain stand, and everyone else fills the rest in slot order.
  */
-export function placeCrowd<Spot>(people: readonly Shown[], spots: readonly Spot[], prefer: Partial<Record<Role, readonly number[]>> = {}): { shown: Shown; spot: Spot }[] {
+export function placeCrowd<Spot>(people: readonly Shown[], spots: readonly Spot[], prefer: Partial<Record<Role, readonly number[]>> = {}, acts: readonly Act[] = []): { shown: Shown; spot: Spot; index: number }[] {
   const count = Math.min(people.length, spots.length);
   const at = new Map<number, Shown>();
   const placed = new Set<number>();
@@ -183,12 +198,19 @@ export function placeCrowd<Spot>(people: readonly Shown[], spots: readonly Spot[
       placed.add(shown.slot);
     }
   }
+  for (const act of acts) {
+    if (act.sex === undefined || act.spot >= count || at.has(act.spot)) continue;
+    const shown = people.find((candidate) => !placed.has(candidate.slot) && candidate.kind === "resident" && candidate.person.sex === act.sex && PLAIN.has(candidate.person.pose));
+    if (shown === undefined) continue;
+    at.set(act.spot, shown);
+    placed.add(shown.slot);
+  }
   const rest = people.filter((shown) => !placed.has(shown.slot));
-  const out: { shown: Shown; spot: Spot }[] = [];
+  const out: { shown: Shown; spot: Spot; index: number }[] = [];
   for (let index = 0; index < count; index += 1) {
     const spot = spots[index];
     const shown = at.get(index) ?? rest.shift();
-    if (spot !== undefined && shown !== undefined) out.push({ shown, spot });
+    if (spot !== undefined && shown !== undefined) out.push({ shown, spot, index });
   }
   return out;
 }

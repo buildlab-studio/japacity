@@ -9,7 +9,6 @@ import {
   Color,
   DoubleSide,
   Float32BufferAttribute,
-  IcosahedronGeometry,
   InstancedBufferAttribute,
   InstancedMesh,
   type Material,
@@ -22,6 +21,7 @@ import {
 } from "three";
 
 import { motionUniforms } from "./clock";
+import { PUFF_INDEX, PUFF_POSITIONS } from "./puff.data";
 
 export type SheetKind = "flag" | "hang" | "frond";
 export type MotionShader = SheetKind | "water" | "smoke" | "leaf";
@@ -273,12 +273,22 @@ function instanced(geometry: BufferGeometry, material: Material, count: number, 
   return mesh;
 }
 
-/** Smoke as soft pale puffs, rounder than a stone, each copy in one of `colours` in turn. */
+/** The blended puff of assets-src/prop/smoke, its vertices shared so the normals run smooth across it. */
+export function puffGeometry(): BufferGeometry {
+  const geometry = new BufferGeometry();
+  geometry.setAttribute("position", new Float32BufferAttribute([...PUFF_POSITIONS], 3));
+  geometry.setIndex([...PUFF_INDEX]);
+  geometry.computeVertexNormals();
+  return geometry;
+}
+
+/** Smoke as soft pale puffs: a blended shape shown smooth (R-ASSET-005), each copy in one of `colours` in turn. */
 export function smoke(count: number, colours: readonly Color[]): InstancedMesh {
   const material = motionMaterial("smoke");
-  // Lit faces and shaded faces sit close together, so a puff reads soft and not as a faceted lump.
-  material.emissive = new Color(0xffffff).multiplyScalar(0.38);
-  const mesh = instanced(seeded(new IcosahedronGeometry(0.3, 1), count), material, count, "motion-smoke");
+  // A soft shape is the one moving surface shown smooth; a little glow keeps its shaded side pale like smoke.
+  material.flatShading = false;
+  material.emissive = new Color(0xffffff).multiplyScalar(0.22);
+  const mesh = instanced(seeded(puffGeometry(), count), material, count, "motion-smoke");
   for (let at = 0; at < count; at += 1) {
     const colour = colours[at % Math.max(1, colours.length)];
     if (colour !== undefined) mesh.setColorAt(at, colour);

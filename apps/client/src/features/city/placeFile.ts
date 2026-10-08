@@ -3,6 +3,7 @@
 // crowd stands, the light, and what moves. A place with no file, or no `stage`, is drawn as open
 // ground with its crowd, so every place can be entered before its models are built.
 import type { PaletteName } from "@japacity/assets";
+import type { PoseName } from "@japacity/assets-src/people/poses";
 
 import type { Shown } from "./crowd";
 import { personOf, type Role } from "./roster";
@@ -44,6 +45,21 @@ export interface Strip {
   dash?: { colour: PaletteName; every: number };
 }
 
+/**
+ * What the person at one spot does instead of idling where they stand: a pose of their own (the
+ * conductor calling at the danfo's door), kept for a man or a woman of the sample, or a walk from
+ * the spot to `to` and back on the shared clock (someone crossing at the stop).
+ */
+export interface Act {
+  /** Index into `people`. */
+  spot: number;
+  /** Taken only by someone whose own pose is a plain stand; a hawker keeps her tray, a trader his sale. */
+  pose?: PoseName;
+  sex?: "f" | "m";
+  /** x and z in metres. */
+  to?: [number, number];
+}
+
 export interface Stage {
   /** Width and depth of the ground in metres, centred on the origin. */
   ground: { size: [number, number]; colour: PaletteName };
@@ -62,6 +78,7 @@ export interface Stage {
   people: Spot[];
   /** Spots, by index into `people`, kept for someone of a role when the sample has one: a hawker among the vehicles, a trader at the stall. */
   prefer?: Partial<Record<Role, number[]>>;
+  acts?: Act[];
   motion: Motion[];
   /** People on the floor on a dance loop of their own, apart from the sampled crowd. */
   dancers?: Dancer[];

@@ -15,7 +15,8 @@ import { poseFigure } from "../../shared/three/people";
 import { BEHIND, cameraAim, EYE, FOV } from "./camera";
 import { filesOf, stageOf } from "./placeFile";
 import type { CityProbe, Picked, SceneProps } from "./scene.types";
-import { standAt, stepWalk, strideOf, type Walker, walkTo } from "./walk";
+import { crossAt } from "./cross";
+import { standAt, stepWalk, strideOf, WALK_SPEED, type Walker, walkTo } from "./walk";
 import { buildWorld, colourOf, skyColours, type World } from "./world";
 
 /** How much further the fog stands while looking from above, so the plan is not lost in it. */
@@ -135,7 +136,17 @@ function Place(props: WorldProps) {
       onFrame(ms);
       frames.current = [...frames.current, ms].slice(-100);
     }
-    for (const { figure } of world.crowd) poseFigure(figure, time);
+    for (const { figure, cross } of world.crowd) {
+      if (cross === undefined) {
+        poseFigure(figure, time);
+        continue;
+      }
+      const pace = crossAt(cross.from, cross.to, time, WALK_SPEED, cross.phase);
+      figure.root.position.set(pace.x, 0, pace.z);
+      figure.root.rotation.y = pace.facing;
+      if (pace.walking) poseFigure(figure, time, cross.walk, pace.stride);
+      else poseFigure(figure, time);
+    }
     for (const { figure, dance } of world.dancers) danceFigure(figure, time, dance);
     const next = stepWalk(walker.current, delta);
     walker.current = next;
