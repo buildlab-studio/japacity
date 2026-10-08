@@ -1,5 +1,6 @@
-// pnpm check:assets: the build check of decision 0005 section 5. It reads files only and renders
-// nothing, so it runs wherever pnpm check runs. Every check returns its problems; any problem fails.
+// pnpm check:assets: the build check of decision 0005 section 5. Every check but the last reads files
+// only; the last draws each staged place in Playwright's own Chromium (place-check.ts). Every check
+// returns its problems; any problem fails.
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative, sep } from "node:path";
 
@@ -9,6 +10,7 @@ import { measure, readGlb } from "./glb";
 import { placeMapData } from "./map-data";
 import { hashInName, type Manifest, sha256 } from "./manifest";
 import { checkPalette } from "./palette-check";
+import { describeMeasure, renderPlaces } from "./place-check";
 import type { Register } from "./register";
 
 /** R-ASSET-008, as the page writes it. */
@@ -513,7 +515,12 @@ export async function runChecks(paths: Paths, placeData: readonly string[]): Pro
 
 async function main(): Promise<void> {
   const root = join(import.meta.dirname, "..", "..");
-  const { problems, notes } = await runChecks(defaultPaths(root), placeMapData());
+  const paths = defaultPaths(root);
+  const { problems, notes } = await runChecks(paths, placeMapData());
+  // 11. Every staged place drawn still and moving on the cheap phone profile (city.md R-CITY-027, R-CITY-038).
+  const rendered = await renderPlaces(paths, readJson<Budgets>(join(paths.source, "budgets.json")));
+  problems.push(...rendered.problems);
+  for (const measure of rendered.measures) notes.push(describeMeasure(measure));
   for (const note of notes) console.log(`note: ${note}`);
   for (const problem of problems) console.log(problem);
   console.log(problems.length === 0 ? "assets: every check passed" : `assets: ${String(problems.length)} problem(s)`);

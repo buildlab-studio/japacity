@@ -123,13 +123,15 @@ const placeCheck = {
     if (current === null) throw new Error("No place is built");
     const { world, scene, camera, renderer, moving } = current;
     const gl = renderer.getContext();
+    const pixel = new Uint8Array(4);
     const records: FrameRecord[] = [];
     for (let frame = 0; frame < count; frame += 1) {
       const start = performance.now();
       if (moving) animate(world, advanceClock(STEP));
       const scripted = performance.now();
       renderer.render(scene, camera);
-      gl.finish();
+      // Reading a pixel waits for the frame to be drawn, where finish() may return before it is.
+      gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, pixel);
       const end = performance.now();
       records.push({ drawCalls: renderer.info.render.calls, triangles: renderer.info.render.triangles, scriptUs: (scripted - start) * 1000, frameMs: end - start });
     }

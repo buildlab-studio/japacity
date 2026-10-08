@@ -165,7 +165,7 @@ function gridEntry(piece: GridPiece, level: MeshLevel): CatalogEntry {
     place: "shared",
     source: `assets-src/prop/motion/${piece}/${level}`,
     author: TOOLS,
-    views: [piece === "water" ? "plan" : "front"],
+    views: piece === "water" ? [...ELEVATIONS, "plan", "phone"] : [...ELEVATIONS, "phone"],
     build: () => {
       const model = staticModel(name, buildGrid(piece, level));
       model.extras = { ...model.extras, motion, level, ...(pinned === null ? {} : { pinned }) };

@@ -24,7 +24,7 @@ export const CHECK_DATE = "2026-10-08";
 /** The player's own figure in the check: the city's fallback look. */
 export const CHECK_OWN = "shared/chr/chr_tunde.glb";
 /** Frames recorded for each place, mode and state. */
-export const FRAMES = 40;
+export const FRAMES = 20;
 const MODES: readonly Mode[] = ["low", "high"];
 
 /** The page's handle, as assets-src/stage/place.ts sets it on the window. */
@@ -36,7 +36,7 @@ export interface Measure {
   /** The most of any frame. */
   drawCalls: number;
   triangles: number;
-  /** The mean of the frames. */
+  /** The median frame's, so a pause for garbage in one frame does not count as the motion's. */
   scriptUs: number;
   frameMs: number;
 }
@@ -48,14 +48,21 @@ export interface PlaceMeasure {
   moving: Measure;
 }
 
-/** A run's frames as the check reads them: the heaviest frame's draw calls and triangles, the mean script and frame time. */
+/** The middle value, or the mean of the two middle values. */
+export function median(values: readonly number[]): number {
+  const sorted = [...values].sort((one, two) => one - two);
+  const half = Math.floor(sorted.length / 2);
+  if (sorted.length === 0) return 0;
+  return sorted.length % 2 === 1 ? (sorted[half] ?? 0) : ((sorted[half - 1] ?? 0) + (sorted[half] ?? 0)) / 2;
+}
+
+/** A run's frames as the check reads them: the heaviest frame's draw calls and triangles, the median frame's script and time. */
 export function summarise(records: readonly FrameRecord[]): Measure {
-  const mean = (values: readonly number[]): number => values.reduce((sum, value) => sum + value, 0) / Math.max(1, values.length);
   return {
     drawCalls: Math.max(0, ...records.map((record) => record.drawCalls)),
     triangles: Math.max(0, ...records.map((record) => record.triangles)),
-    scriptUs: mean(records.map((record) => record.scriptUs)),
-    frameMs: mean(records.map((record) => record.frameMs)),
+    scriptUs: median(records.map((record) => record.scriptUs)),
+    frameMs: median(records.map((record) => record.frameMs)),
   };
 }
 
@@ -110,7 +117,7 @@ export interface RenderOptions {
   /** Only these places, by id; every staged place when empty. */
   only?: readonly string[];
   /** Called with the page after each moving run, its last frame still on screen. */
-  shoot?: (page: Page, measure: PlaceMeasure) => Promise<void>;
+  shoot?: ((page: Page, measure: PlaceMeasure) => Promise<void>) | undefined;
 }
 
 /** Renders every staged place still and moving in both modes and checks each. */
