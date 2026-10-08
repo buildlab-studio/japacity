@@ -99,14 +99,25 @@ function add(quality: Id<"quality">, amount: number): Effect {
   return { type: "quality/add", quality, amount };
 }
 
-/** R-PROLOGUE-002: step 0's draw, on stream `prologue`, and the qualities it sets from their minimum. */
-function draw(ctx: Ctx): BaseEvent[] {
+/** R-PROLOGUE-002: the family drawn on stream `prologue`. */
+function drawFamily(ctx: Ctx): NonNullable<PrologueSlice["draw"]> {
   const { familyMeans, siblings, cityBp } = ctx.content.tuning.prologue;
   const means = ctx.random.between("prologue", familyMeans[0], familyMeans[1]);
   const town = ctx.random.chance("prologue", cityBp) ? "city" : "town";
   const brothers = ctx.random.between("prologue", siblings[0], siblings[1]);
   const parentsEducated = ctx.random.chance("prologue", parentsEducatedBp(means, ctx.content.tuning.prologue));
-  const drawn: PrologueEvent = { type: "prologue/drawn", draw: { familyMeans: means, town, siblings: brothers, parentsEducated } };
+  return { familyMeans: means, town, siblings: brothers, parentsEducated };
+}
+
+/**
+ * R-PROLOGUE-002: step 0's draw and the qualities it sets from their minimum.
+ * A sibling's life begins holding the inviter's draw (R-PEOPLE-011), which is
+ * copied here and never drawn again.
+ */
+function draw(ctx: Ctx): BaseEvent[] {
+  const family = ctx.state.prologue.draw ?? drawFamily(ctx);
+  const { familyMeans: means, town, parentsEducated } = family;
+  const drawn: PrologueEvent = { type: "prologue/drawn", draw: family };
   const events = emit(ctx, "prologue", [drawn]);
   const numbers = ctx.content.tuning.prologue;
   const network = (town === "city" ? numbers.network.city : numbers.network.town) + (parentsEducated ? numbers.network.educated : 0);
@@ -182,7 +193,7 @@ function choose(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   }
 
   const events: BaseEvent[] = [];
-  if (slice.draw === null) events.push(...draw(ctx));
+  if (slice.draw === null || Object.keys(slice.choices).length === 0) events.push(...draw(ctx));
   if (step.id === AFTER_SCHOOL) waec(ctx);
   ctx.apply(answer.effects, cause());
   const outcome = answer.draw === null ? null : drawOutcome(ctx, answer.draw);
