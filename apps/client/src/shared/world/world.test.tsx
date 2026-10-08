@@ -20,14 +20,14 @@ describe("the band", () => {
     expect(screen.getByText("Month 6")).toBeTruthy();
     expect(screen.getByRole("heading", { name: "The family house" })).toBeTruthy();
     expect(screen.getByText("₦420000")).toBeTruthy();
-    expect((screen.getByRole("button", { name: "End month" }) as HTMLButtonElement).disabled).toBe(false);
+    expect(screen.getByRole<HTMLButtonElement>("button", { name: "End month" }).disabled).toBe(false);
     expect(screen.getAllByRole("button")).toHaveLength(1);
   });
 
   test("[R-WORLD-002] given the month cannot end, when the band renders with the reason, then End month is disabled and carries it", () => {
     render(<Band when="Month 6" name="Home" money={0} formatMoney={naira} onEndMonth={() => undefined} endBlocked="Answer the officer first" />);
-    const button = screen.getByRole("button", { name: "End month" });
-    expect((button as HTMLButtonElement).disabled).toBe(true);
+    const button = screen.getByRole<HTMLButtonElement>("button", { name: "End month" });
+    expect(button.disabled).toBe(true);
     expect(button.getAttribute("title")).toBe("Answer the officer first");
   });
 });
