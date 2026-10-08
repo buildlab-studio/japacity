@@ -179,8 +179,10 @@ function Outcome({ lines, onClose }: { lines: ReportLine[]; onClose: () => void 
   );
 }
 
-export function OfferView() {
-  const { offers } = useView();
+/** `only` keeps the offers a screen shows; the road shows its own and nothing from home (R-ROAD-010). */
+export function OfferView({ only }: { only?: (offer: Offer) => boolean } = {}) {
+  const view = useView();
+  const offers = only === undefined ? view.offers : view.offers.filter(only);
   const [outcome, setOutcome] = useState<ReportLine[] | null>(null);
   return (
     <Panel title={say("ui.offer.title")}>

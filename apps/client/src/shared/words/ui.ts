@@ -575,6 +575,7 @@ export const uiText: Record<string, string> = {
   "ui.road.exit-title": "There is a way back",
   "ui.road.exit-help": "The anti-trafficking agency and the migration agency bring people home from this road, whatever they paid. Asking them is the exit.",
   "ui.road.wait": "Wait a month",
+  "ui.road.ask": "Ask them to let you go",
 
   // The news front page (R-DIRECTOR-002)
   "ui.news.era": "The times",
