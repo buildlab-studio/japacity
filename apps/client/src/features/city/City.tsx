@@ -4,7 +4,7 @@
 // only where WebGL exists, so the panels never wait for it (R-CITY-018).
 import { content, text } from "@japacity/content";
 import type { Id, PlaceEntry } from "@japacity/sim";
-import { Map as MapIcon, Settings2, X } from "lucide-react";
+import { Map as MapIcon, Moon, Settings2, Smartphone, X } from "lucide-react";
 import { lazy, Suspense, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 
 import { useGame, useView } from "../../authority/GameProvider";
@@ -18,12 +18,13 @@ import { cityWords, heardWords, placeName, residentName, roleWords } from "./cit
 import { CreditsSheet } from "./Credits";
 import { type CountryChoice, FlyOver, type Pin, type PinState } from "./FlyOver";
 import { OVERVIEW } from "./CityScene";
+import { Phone, type PhoneApp } from "./Phone";
 import { localDate, type Other, poolOf, sampleCrowd } from "./crowd";
 import { type Device, enterPlace, keepChoice, type Mode, type ModeChoice, modeSettings, observeFrame, readChoice, startingMode, watchFrames } from "./mode";
 import { overheard } from "./overheard";
 import { dancerShown, dressPlace, openGround, type PlaceFile, stageOf } from "./placeFile";
 import { personOfLook } from "./roster";
-import type { Picked } from "./scene.types";
+import type { Mark, Picked } from "./scene.types";
 import { enterable, offersHere, openingPlace, openScene, reportHere, type ViewPlace } from "./staging";
 
 const CityScene = lazy(() => import("./CityScene"));
@@ -81,6 +82,17 @@ function minutesBetween(from: { latE3: number; lonE3: number }, to: { latE3: num
   const metres = Math.hypot((to.lonE3 - from.lonE3) * 111.32 * cos, (to.latE3 - from.latE3) * 111.32);
   return 8 + Math.round(metres / 120);
 }
+/** The label over each thing the player can tap, by the end of its model's file (rule 3). */
+const THING_WORDS: Record<string, string> = {
+  "shop_lotto-kiosk.glb": "city.thing.lotto",
+  "bld_bode-thomas-betting.glb": "city.thing.bets",
+  "veh_danfo.glb": "city.thing.danfo",
+  "veh_keke.glb": "city.thing.keke",
+  "veh_okada.glb": "city.thing.okada",
+  "bld_family-house.glb": "city.thing.house",
+};
+/** The two camera presets beside the pinch: close to the character, and the whole place. */
+const ZOOM = { closer: 0.08, whole: OVERVIEW.start };
 /** The home of each where: the family house, then the room abroad. */
 const HOMES: Record<string, string> = { home: "place.family-house", abroad: "place.the-room" };
 /** The family house stands on a made-up street (city.md), so the map gives it a spot in Surulere near the hub. */
@@ -193,14 +205,17 @@ export function City({
   world = false,
   actions,
   month,
+  apps,
 }: {
   adverts?: (place: string) => ReactNode;
   /** The world mode: the place fills the screen under a see-through bar, with the fly-over as its map. */
   world?: boolean;
   /** The world mode's sheet for the actions a tapped thing stages. */
   actions?: (ids: string[]) => ReactNode;
-  /** The world mode's month control, shown over the scene. */
+  /** The world mode's month control, shown in the Month sheet. */
   month?: ReactNode;
+  /** The world mode's phone: the support pages as apps (section 2b). */
+  apps?: readonly PhoneApp[];
 } = {}) {
   const view = useView();
   const presence = useGame((state) => (state as { presence?: PresenceSample | null }).presence ?? null);
@@ -209,6 +224,10 @@ export function City({
   const [looking, setLooking] = useState(world);
   const [map, setMap] = useState(false);
   const [inside, setInside] = useState(false);
+  const [phone, setPhone] = useState(false);
+  const [monthOpen, setMonthOpen] = useState(false);
+  const [zoom, setZoom] = useState(ZOOM.whole);
+  const plan = useGame((state) => state.plan);
   const [cutting, setCutting] = useState(false);
   const [diveTo, setDiveTo] = useState<string | null>(null);
   const [shipped, setShipped] = useState<Set<string> | null>(null);
@@ -330,6 +349,8 @@ export function City({
         return placeName(picked.place);
       case "inside":
         return cityWords("city.inside.name", { place: name });
+      case "out":
+        return cityWords("city.thing.out");
       default: {
         const never: never = picked;
         throw new Error(`Unknown pick: ${JSON.stringify(never)}`);
@@ -370,6 +391,10 @@ export function City({
       setPicked(null);
       cutTo(() => setInside(true));
     }
+    if (picked?.kind === "out") {
+      setPicked(null);
+      cutTo(() => setInside(false));
+    }
     // The cut reads the latest state when it fires; only a new pick starts one.
   }, [picked]);
   const pins: Pin[] = (() => {
@@ -390,6 +415,21 @@ export function City({
   ];
   const shownCountry = countries.find((choice) => choice.locked === null) ?? countries[0] ?? { id: "lagos", name: cityWords("city.map.lagos"), locked: null };
 
+  const marks: Mark[] = (() => {
+    if (!world || file === null) return [];
+    const stage = stageOf(file);
+    const found: Mark[] = [];
+    for (const model of stage.models) {
+      const does = actionOf(model.file);
+      const key = Object.entries(THING_WORDS).find(([suffix]) => model.file.endsWith(suffix))?.[1];
+      const spot = model.at[0];
+      if (does === null || key === undefined || spot === undefined) continue;
+      found.push({ x: spot[0], z: spot[1], text: cityWords(key), picked: does });
+    }
+    if (inside) found.push({ x: stage.start[0], z: stage.start[1], text: cityWords("city.thing.out"), picked: { kind: "out" } });
+    return found;
+  })();
+
   const loading = drawing && entry !== null && !ready && failed === null;
   const percent = progress === null || progress.total === 0 ? 0 : Math.floor((progress.loaded * 100) / progress.total);
 
@@ -409,7 +449,7 @@ export function City({
               onProgress={(loaded, total) => setProgress({ loaded, total })}
               onFailed={setFailed}
               onPick={setPicked}
-              {...(world ? { actionOf, overview: true, zoom: inside ? 0.05 : OVERVIEW.start } : {})}
+              {...(world ? { actionOf, overview: true, zoom: inside ? Math.min(zoom, 0.2) : zoom, marks } : {})}
               onFrame={(frameMs) => {
                 const next = observeFrame(watch.current, frameMs, city);
                 watch.current = next;
@@ -464,14 +504,13 @@ export function City({
                     <p className="text-xs text-muted">{cityWords(`city.band.${sample.band}`)}</p>
                   )}
                 </div>
-                <div className="flex gap-2">
+                <div className="flex flex-col items-end gap-2">
                   <Button small onClick={() => setMenu(true)} aria-label={cityWords("city.menu")} className="bg-paper/90">
                     <Settings2 size={16} />
                   </Button>
-                  <button type="button" onClick={() => setMap(true)} className="pointer-events-auto inline-flex h-16 w-16 flex-col items-center justify-center gap-0.5 rounded-2xl border-2 border-white/80 bg-[#dbe9f4] text-xs font-bold text-ink shadow-lg" data-map-button>
-                    <MapIcon size={22} />
-                    {cityWords("city.map")}
-                  </button>
+                  <Button small onClick={() => setZoom((current) => (current > 0.3 ? ZOOM.closer : ZOOM.whole))} className="bg-paper/90" data-zoom-preset>
+                    {zoom > 0.3 ? cityWords("city.zoom.closer") : cityWords("city.zoom.whole")}
+                  </Button>
                 </div>
               </div>
             </div>
@@ -525,8 +564,25 @@ export function City({
               </p>
             )}
             {picked === null || picked.kind === "action" || picked.kind === "ride" || picked.kind === "enter" || picked.kind === "inside" ? null : <PersonCard picked={picked} words={cardWords()} onClose={() => setPicked(null)} />}
-            {world && month !== undefined ? <div className="pointer-events-auto rounded-xl border border-line bg-paper/85 p-2 backdrop-blur-sm" data-month-bar>{month}</div> : null}
-            <p className="pointer-events-auto self-start rounded-lg bg-paper/80 px-2 py-1 text-xs text-muted">{cityWords(world ? "city.world.tap" : "city.hold")}</p>
+            {world ? (
+              <nav aria-label={cityWords("city.menu")} className="pointer-events-auto grid grid-cols-3 gap-2" data-world-bar>
+                {(
+                  [
+                    { id: "phone", icon: Smartphone, label: cityWords("city.phone"), onTap: () => setPhone(true), dot: view.offers.length > 0 },
+                    { id: "map", icon: MapIcon, label: cityWords("city.map"), onTap: () => setMap(true), dot: false },
+                    { id: "month", icon: Moon, label: cityWords("city.month"), onTap: () => setMonthOpen(true), dot: false },
+                  ] as const
+                ).map(({ id, icon: Icon, label, onTap, dot }) => (
+                  <button key={id} type="button" onClick={onTap} data-bar={id} className="relative flex min-h-14 flex-col items-center justify-center gap-0.5 rounded-2xl border-2 border-ink bg-paper/95 text-xs font-bold text-ink shadow-md">
+                    <Icon size={20} />
+                    {label}
+                    {dot ? <span className="absolute top-1.5 right-2 size-3 rounded-full bg-bad" aria-hidden /> : null}
+                  </button>
+                ))}
+              </nav>
+            ) : (
+              <p className="pointer-events-auto self-start rounded-lg bg-paper/80 px-2 py-1 text-xs text-muted">{cityWords("city.hold")}</p>
+            )}
           </div>
         </div>
       ) : (
@@ -586,6 +642,18 @@ export function City({
       <Sheet open={picked?.kind === "action"} onOpenChange={(open) => { if (!open) setPicked(null); }} title={picked?.kind === "action" ? cardWords() : ""}>
         {picked?.kind === "action" ? actions?.([picked.activity]) : null}
       </Sheet>
+      <Sheet open={world && monthOpen} onOpenChange={setMonthOpen} title={cityWords("city.month.title")} description={cityWords("city.month.hint")}>
+        <ul className="flex flex-col gap-1" data-month-plan>
+          {plan.filter((pick): pick is NonNullable<typeof pick> => pick !== null).map((pick, index) => (
+            <li key={`${pick.activity}-${String(index)}`} className="rounded-lg bg-sunk px-3 py-2 text-sm font-semibold">
+              {nameOf(pick.activity)}
+            </li>
+          ))}
+          {plan.every((pick) => pick === null) ? <li className="rounded-lg bg-sunk px-3 py-2 text-sm text-muted">{cityWords("city.month.none")}</li> : null}
+        </ul>
+        {month}
+      </Sheet>
+      {world && phone && apps !== undefined ? <Phone apps={apps} onClose={() => setPhone(false)} /> : null}
       <Sheet open={picked?.kind === "ride"} onOpenChange={(open) => { if (!open) setPicked(null); }} title={picked?.kind === "ride" ? cardWords() : ""} description={cityWords("city.ride.title")}>
         {picked?.kind === "ride" ? (
           <ul className="flex flex-col gap-1" aria-label={cityWords("city.ride.title")} data-ride-list>

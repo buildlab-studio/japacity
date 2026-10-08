@@ -45,6 +45,8 @@ function aimCamera(camera: Camera, walker: Walker, heading: number, plan: number
 }
 
 interface WorldProps extends SceneProps {
+  /** The DOM box the marks are laid out in. */
+  markBox: HTMLDivElement | null;
   /** How far toward the plan view the camera stands, 0 to 1. */
   plan: number;
   takeTap: () => boolean;
@@ -63,7 +65,29 @@ function Idle({ looking }: { looking: boolean }) {
 }
 
 function Place(props: WorldProps) {
-  const { place, file, people, own, settings, text, onProgress, onFailed, onPick, onFrame, looking, plan, takeTap, onTap, actionOf } = props;
+  const { place, file, people, own, settings, text, onProgress, onFailed, onPick, onFrame, looking, plan, takeTap, onTap, actionOf, marks = [], markBox } = props;
+  const markNodes = useRef<HTMLButtonElement[]>([]);
+  // The marks' buttons live in the DOM box beside the canvas; the frame loop moves them.
+  useEffect(() => {
+    if (markBox === null) return;
+    const nodes = marks.map((mark) => {
+      const node = document.createElement("button");
+      node.type = "button";
+      node.textContent = mark.text;
+      node.dataset.mark = mark.text;
+      node.className = "pointer-events-auto absolute -translate-x-1/2 -translate-y-full rounded-full border-2 border-ink bg-accent px-3 py-1 text-sm font-bold text-ink shadow-md";
+      node.style.display = "none";
+      node.onclick = () => onPick(mark.picked);
+      markBox.append(node);
+      return node;
+    });
+    markNodes.current = nodes;
+    return () => {
+      for (const node of nodes) node.remove();
+      markNodes.current = [];
+    };
+    // The marks are rebuilt when the list changes; the pick callback is the screen's and may change freely.
+  }, [marks, markBox]);
   const [world, setWorld] = useState<World | null>(null);
   const walker = useRef<Walker>(standAt(0, 0, 0));
   const planShare = useRef(0);
@@ -182,6 +206,18 @@ function Place(props: WorldProps) {
       light.target.position.set(next.x, 0, next.z);
       light.target.updateMatrixWorld();
     }
+    const at = new Vector3();
+    markNodes.current.forEach((node, index) => {
+      const mark = marks[index];
+      if (mark === undefined) return;
+      at.set(mark.x, 2.4, mark.z).project(state.camera);
+      const visible = at.z < 1 && Math.abs(at.x) < 1.1 && Math.abs(at.y) < 1.1;
+      node.style.display = visible ? "" : "none";
+      if (visible) {
+        node.style.left = `${String(((at.x + 1) / 2) * state.size.width)}px`;
+        node.style.top = `${String(((1 - at.y) / 2) * state.size.height)}px`;
+      }
+    });
     const probe = window.__city;
     if (probe !== undefined) {
       probe.drawCalls = gl.info.render.calls;
@@ -245,6 +281,7 @@ export default function CityScene(props: SceneProps) {
   const pinch = useRef<{ gap: number; height: number } | null>(null);
   const pointers = useRef(new Map<number, { x: number; y: number }>());
   const world = props.overview === true;
+  const [markBox, setMarkBox] = useState<HTMLDivElement | null>(null);
   const holding = useRef<number | null>(null);
   const held = useRef(false);
   const release = (): void => {
@@ -252,13 +289,13 @@ export default function CityScene(props: SceneProps) {
     holding.current = null;
     setPlan(false);
   };
-  const { settings, looking, place } = props;
+  const { settings, looking, place, marks } = props;
   const startZoom = props.zoom ?? OVERVIEW.start;
   useEffect(() => setHeight(startZoom), [place, startZoom]);
   const clamp = (value: number): number => Math.min(OVERVIEW.max, Math.max(OVERVIEW.min, value));
   return (
     <div
-      className="size-full touch-none"
+      className="relative size-full touch-none"
       onPointerDown={(event) => {
         if (!looking) return;
         pointers.current.set(event.pointerId, { x: event.clientX, y: event.clientY });
@@ -314,6 +351,7 @@ export default function CityScene(props: SceneProps) {
         <Idle looking={looking} />
         <Place
           {...props}
+          markBox={markBox}
           plan={world ? height : plan ? 1 : 0}
           onTap={() => undefined}
           takeTap={() => {
@@ -323,6 +361,7 @@ export default function CityScene(props: SceneProps) {
           }}
         />
       </Canvas>
+      <div ref={setMarkBox} className="pointer-events-none absolute inset-0" aria-hidden={marks === undefined} data-marks />
     </div>
   );
 }

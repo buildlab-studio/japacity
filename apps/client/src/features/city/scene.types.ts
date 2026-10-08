@@ -6,7 +6,7 @@ import type { PlaceFile } from "./placeFile";
 import type { Walker } from "./walk";
 
 /** What a tap landed on, other than the ground. */
-export type Picked = { kind: "person"; slot: number } | { kind: "own" } | { kind: "model"; file: string; signs: string[] } | { kind: "action"; activity: string } | { kind: "ride"; vehicle: string } | { kind: "enter"; place: string } | { kind: "inside" };
+export type Picked = { kind: "person"; slot: number } | { kind: "own" } | { kind: "model"; file: string; signs: string[] } | { kind: "action"; activity: string } | { kind: "ride"; vehicle: string } | { kind: "enter"; place: string } | { kind: "inside" } | { kind: "out" };
 
 export interface SceneProps {
   place: string;
@@ -29,6 +29,16 @@ export interface SceneProps {
   overview?: boolean;
   /** The world mode: where the raised view starts for this scene, 0 close to 1 pulled back. */
   zoom?: number;
+  /** The world mode: bubble labels over the things the player can tap, each standing at a spot of the place. */
+  marks?: readonly Mark[];
+}
+
+/** A label over a thing the player can tap (docs/design/11, rule 3): where it stands and what the tap does. */
+export interface Mark {
+  x: number;
+  z: number;
+  text: string;
+  picked: Picked;
 }
 
 /** Read by the browser test: what the last frame drew and where the character is. */
