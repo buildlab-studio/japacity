@@ -103,6 +103,12 @@ function monthsOnRoad(read: ReadCtx): number {
 // Changing the gate
 // ---------------------------------------------------------------------------
 
+/**
+ * R-ROAD-010 wants the chain's report lines in tone `bad`; the route
+ * kind tells every `route/gate-updated` note in tone `plain` (route.logic.ts,
+ * `lines`), and this module cannot set a tone. The lines need a tone on the
+ * event, or the route kind's `lines` to read the road's notes as `bad`.
+ */
 function update(ctx: Ctx, entry: RouteEntry, gate: RoadState, note: string | null, secret?: RouteState["secret"]): BaseEvent[] {
   const event: RouteKindEvent =
     secret === undefined ? { type: "route/gate-updated", route: entry.id, gate, note } : { type: "route/gate-updated", route: entry.id, gate, note, secret };
@@ -409,6 +415,8 @@ export const roadGate: Gate = {
   clocks,
   effects: { "route/road-step": roadStep },
   funds: () => null,
+  // R-ROAD-001 keeps the road out of the routes view, so this part is never shown; the chain is seen
+  // through `place.where`, the report lines and the card. A card for the chain under way needs a place in the view.
   view: (_read, _entry, held) => {
     const gate = roadOf(held);
     return { gate: "road", step: gate.step, monthsHere: gate.monthsHere };
