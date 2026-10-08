@@ -13,7 +13,7 @@ import { shortfall } from "../../shared/words/cost";
 import { formatBand, formatMoney } from "../../shared/words/format";
 import { lockWords, SIDE_JOB_LOCK } from "../../shared/words/locks";
 import { alreadyDone, requirementSentence } from "../../shared/words/requirement";
-import { blurbOf, hasWords, lowerFirst, nameOf, say, sayCount } from "../../shared/words/text";
+import { blurbOf, hasWords, lowerFirst, nameOf, paramWords, say, sayCount } from "../../shared/words/text";
 
 const ENGLISH_RESULT = "document.english-test";
 const GRADE = "quality.edu-grade";
@@ -84,20 +84,25 @@ function SideJob() {
   const pay = side === null ? null : content.activity[side]?.pay;
   return (
     <Card data-side-job>
-      <div className="flex items-start gap-3">
-        <Briefcase size={20} className="mt-0.5 shrink-0 text-muted" />
-        <div className="flex flex-1 flex-col gap-1">
-          <p className="text-xs font-semibold tracking-wide text-muted uppercase">{say("ui.side.title")}</p>
-          {side === null ? null : <p className="font-semibold">{nameOf(side)}</p>}
-          {pay === null || pay === undefined || typeof pay.amount !== "number" ? null : (
-            <p className="text-sm font-medium tabular-nums">{say("ui.job.pay", { amount: formatMoney(pay.amount, pay.currency) })}</p>
-          )}
-          <p className="text-sm text-muted">{say("ui.side.holds")}</p>
+      {/* On a phone the quit button goes under the words, so they keep the card's width. */}
+      <div className="flex flex-col gap-3 @sm:flex-row @sm:items-start">
+        <div className="flex min-w-0 flex-1 items-start gap-3" data-side-words>
+          <Briefcase size={20} className="mt-0.5 shrink-0 text-muted" />
+          <div className="flex min-w-0 flex-1 flex-col gap-1">
+            <p className="text-xs font-semibold tracking-wide text-muted uppercase">{say("ui.side.title")}</p>
+            {side === null ? null : <p className="font-semibold">{nameOf(side)}</p>}
+            {pay === null || pay === undefined || typeof pay.amount !== "number" ? null : (
+              <p className="text-sm font-medium tabular-nums">{say("ui.job.pay", { amount: formatMoney(pay.amount, pay.currency) })}</p>
+            )}
+            <p className="text-sm text-muted">{say("ui.side.holds")}</p>
+          </div>
         </div>
         {confirming ? null : (
-          <Button small onClick={() => setConfirming(true)} disabled={busy || view.ended}>
-            {say("ui.side.quit")}
-          </Button>
+          <div className="pl-8 @sm:pl-0">
+            <Button small onClick={() => setConfirming(true)} disabled={busy || view.ended}>
+              {say("ui.side.quit")}
+            </Button>
+          </div>
         )}
       </div>
       {confirming ? (
@@ -139,7 +144,7 @@ function Locks() {
 }
 
 function pickWords(pick: SlotPick): string {
-  return pick.param === null ? nameOf(pick.activity) : `${nameOf(pick.activity)}: ${nameOf(pick.param)}`;
+  return pick.param === null ? nameOf(pick.activity) : `${nameOf(pick.activity)}: ${paramWords(pick.param)}`;
 }
 
 function Slots() {
@@ -275,7 +280,7 @@ function ActivityCard({ option }: { option: ActivityOption }) {
               >
                 {option.params?.map((value) => (
                   <option key={value} value={value}>
-                    {nameOf(value)}
+                    {paramWords(value)}
                   </option>
                 ))}
               </select>

@@ -6,6 +6,7 @@ import { Gauge } from "lucide-react";
 import { useView } from "../../authority/GameProvider";
 import { content } from "@japacity/content";
 import { Card, Panel } from "../../shared/ui/Panel";
+import { monthEnding } from "../../shared/words/format";
 import { nameOf, say, sayCount } from "../../shared/words/text";
 
 const MARK_MAX = 100;
@@ -71,7 +72,7 @@ export function CreditView() {
         <p className="text-sm text-muted">
           {sayCount("ui.credit.on-time", file.onTime, { count: file.onTime })} {sayCount("ui.credit.missed", file.missed, { count: file.missed })}
         </p>
-        {capped ? <p className="text-sm font-medium text-bad">{say("ui.credit.judgment", { month: file.judgmentUntil ?? 0, cap })}</p> : null}
+        {capped ? <p className="text-sm font-medium text-bad">{say("ui.credit.judgment", { month: monthEnding(file.judgmentUntil ?? 0), cap })}</p> : null}
         <div className="flex flex-col gap-1 text-sm" data-next-ten>
           <h3 className="font-semibold">{say("ui.credit.next-ten", { mark: Math.min(MARK_MAX, file.mark + STEP) })}</h3>
           {next.length === 0 ? (

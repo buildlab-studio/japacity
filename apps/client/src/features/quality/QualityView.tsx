@@ -4,18 +4,8 @@ import { content } from "@japacity/content";
 import { useView } from "../../authority/GameProvider";
 import { Meter } from "../../shared/ui/Meter";
 import { Card, Panel } from "../../shared/ui/Panel";
-import { formatNumber } from "../../shared/words/format";
+import { AGE, valueWords } from "../../shared/words/quality";
 import { hasWords, nameOf, say } from "../../shared/words/text";
-
-const AGE = "quality.age-months";
-const MONTHS_IN_YEAR = 12;
-
-/** A value as the player reads it: a named level where content names one, years for age, else the number. */
-function valueWords(id: string, value: number): string {
-  if (id === AGE) return say("ui.profile.age", { years: Math.floor(value / MONTHS_IN_YEAR) });
-  const label = `${id}.value.${String(value)}`;
-  return hasWords(label) ? say(label) : formatNumber(value);
-}
 
 /**
  * Qualities that only start to count once you have left. At home they sit at

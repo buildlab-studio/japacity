@@ -9,7 +9,7 @@ import { useGame, useView } from "../../authority/GameProvider";
 import { Button } from "../../shared/ui/Button";
 import { Card, Empty, Panel, Tag } from "../../shared/ui/Panel";
 import { ReportLines } from "../../shared/ui/ReportLines";
-import { formatMoney, toMajor, toMinor } from "../../shared/words/format";
+import { formatMoney, monthEnding, toMajor, toMinor } from "../../shared/words/format";
 import { nameOf, say, sayCount, words } from "../../shared/words/text";
 import { offerParams } from "./terms";
 
@@ -119,7 +119,7 @@ function OfferCard({ offer, onChosen }: { offer: Offer; onChosen: (lines: Report
       <Card tone="attention" className="flex flex-col gap-3">
         <div className="flex flex-wrap items-start justify-between gap-2">
           <h3 className="text-lg font-semibold">{words(`${offer.entry}.title`, params)}</h3>
-          <Tag>{say("ui.offer.expires", { month: offer.expiresMonth })}</Tag>
+          <Tag>{say("ui.offer.expires", { month: monthEnding(offer.expiresMonth) })}</Tag>
         </div>
         <JobFigures terms={offer.terms} />
         <p>{words(`${offer.entry}.body`, params)}</p>
@@ -179,8 +179,10 @@ function Outcome({ lines, onClose }: { lines: ReportLine[]; onClose: () => void 
   );
 }
 
-export function OfferView() {
-  const { offers } = useView();
+/** `only` keeps the offers a screen shows; the road shows its own and nothing from home (R-ROAD-010). */
+export function OfferView({ only }: { only?: (offer: Offer) => boolean } = {}) {
+  const view = useView();
+  const offers = only === undefined ? view.offers : view.offers.filter(only);
   const [outcome, setOutcome] = useState<ReportLine[] | null>(null);
   return (
     <Panel title={say("ui.offer.title")}>

@@ -4,7 +4,7 @@
 import { content, text } from "@japacity/content";
 import type { Currency, MoneyParam, ReportParam } from "@japacity/sim";
 
-import { formatBand, formatBp, formatMoney, formatNumber, isCurrency } from "./format";
+import { formatBand, formatBp, formatMoney, formatNumber, isCurrency, monthEnding } from "./format";
 import { uiText } from "./ui";
 
 export type Params = Record<string, ReportParam>;
@@ -48,6 +48,9 @@ const MONEY_PARAMS = new Set([
   "max",
 ]);
 
+/** Params that name a month in content's lines: each is a month whose end brings what the line says. */
+const MONTH_PARAMS = new Set(["month", "until", "readyMonth"]);
+
 /** A line with one of these is about a quality or a score, so its bare `amount` is points, never money. */
 const QUALITY_LINE_PARAMS = ["quality", "points", "band"];
 
@@ -76,8 +79,23 @@ function bareCurrency(name: string, params: Params, key: string): Currency {
 // Names that read as common nouns mid-sentence: "You look for work as a private
 // school teacher", "Your passport is ready". Schools, people, news and places keep
 // their capitals.
-const LOWER_KINDS = new Set(["activity", "document", "route", "quality", "obligation", "status"]);
-const PROPER_WORDS = new Set(["English", "British", "Canada", "Canadian", "December", "United", "Nigerian", "Lagos", "Gulf", "Dubai", "QuickNaira"]);
+export const LOWER_KINDS: ReadonlySet<string> = new Set(["activity", "document", "route", "quality", "obligation", "status"]);
+/** First words that keep their capital mid-sentence. words.test.ts holds this against every name and country in content. */
+export const PROPER_WORDS: ReadonlySet<string> = new Set([
+  "English",
+  "British",
+  "Canada",
+  "Canadian",
+  "December",
+  "United",
+  "Italy",
+  "Nigeria",
+  "Nigerian",
+  "Lagos",
+  "Gulf",
+  "Dubai",
+  "QuickNaira",
+]);
 
 /** A name with its first letter lowered, unless it starts with an acronym or a proper noun. */
 export function lowerFirst(name: string): string {
@@ -121,14 +139,37 @@ export function formatParam(name: string, value: ReportParam, params: Params, ke
   if (typeof value === "object") return formatMoney(value.amount, value.currency);
   if (typeof value === "string") return stringParam(name, value, midSentence);
   if (name === "band") return formatBand(value);
+  if (MONTH_PARAMS.has(name)) return formatNumber(monthEnding(value));
   if (name === "bp" || name.endsWith("Bp")) return formatBp(value);
   if (isBareMoney(name, params)) return formatMoney(value, bareCurrency(name, params, key));
   return formatNumber(value);
 }
 
+/**
+ * Lines whose count reads wrong at one, by the param that counts. At one the
+ * interface's `ui.<key>.one` words are used, as `sayCount` does for its own.
+ */
+const LINE_COUNTS: Record<string, string> = {
+  "line.setpiece.opened": "questions",
+  "line.activity.lotto-won": "tickets",
+  "line.activity.lotto-lost": "tickets",
+  "line.status.clock-started": "months",
+  "line.status.clock-ran": "months",
+  "line.status.renewed": "months",
+  "line.status.removed": "months",
+  "line.place.token-lapsed": "months",
+};
+
+function countedKey(key: string, params: Params): string {
+  const counted = LINE_COUNTS[key];
+  if (counted === undefined) return key;
+  const count = params[counted];
+  return typeof count === "number" && count === 1 && hasWords(`ui.${key}.one`) ? `ui.${key}.one` : key;
+}
+
 /** Words for a key the simulation chose (a report line, an offer body), with its raw params formatted. */
 export function words(key: string, params: Params = {}): string {
-  const template = lookup(key);
+  const template = lookup(countedKey(key, params));
   return template.replace(BRACE, (whole, name: string, offset: number) => {
     const value = params[name];
     return value === undefined ? whole : formatParam(name, value, params, key, !opensSentence(template, offset));
@@ -152,6 +193,14 @@ export function say(key: string, params: Params = {}): string {
 export function sayCount(key: string, count: number, params: Params = {}): string {
   const exact = count === 1 ? `${key}.one` : count === 0 ? `${key}.zero` : null;
   return say(exact !== null && hasWords(exact) ? exact : key, params);
+}
+
+/** A slot's param as words: an entry's name, or a count of tickets at the kiosk, which picks a number (R-LUCK-005). */
+export function paramWords(param: string): string {
+  if (hasWords(`${param}.name`)) return nameOf(param);
+  if (!/^\d+$/.test(param)) return param;
+  const count = Number(param);
+  return sayCount("ui.activity.tickets", count, { count });
 }
 
 /** An entry's name: `<id>.name`. */

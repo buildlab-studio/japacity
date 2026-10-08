@@ -9,7 +9,7 @@ import { useGame, useView } from "../../authority/GameProvider";
 import { Button } from "../../shared/ui/Button";
 import { Card, Empty, Panel, Tag } from "../../shared/ui/Panel";
 import { formatMoney, toMinor } from "../../shared/words/format";
-import { nameOf, say } from "../../shared/words/text";
+import { nameOf, say, sayCount } from "../../shared/words/text";
 import { CarCard } from "./CarCard";
 
 type Owed = PlayerView["obligations"][number];
@@ -55,8 +55,8 @@ function OwedCard({ owed }: { owed: Owed }) {
         </div>
         <p className="font-medium tabular-nums">{say("ui.obligation.due", { amount: formatMoney(owed.due, currency) })}</p>
         {owed.outstanding > 0 ? <p className="text-sm tabular-nums">{say("ui.obligation.outstanding", { amount: formatMoney(owed.outstanding, currency) })}</p> : null}
-        {owed.monthsLeft === null ? null : <p className="text-sm text-muted">{say("ui.obligation.months-left", { months: owed.monthsLeft })}</p>}
-        {owed.missed > 0 ? <p className="text-sm text-bad">{say("ui.obligation.missed", { count: owed.missed })}</p> : null}
+        {owed.monthsLeft === null ? null : <p className="text-sm text-muted">{sayCount("ui.obligation.months-left", owed.monthsLeft, { months: owed.monthsLeft })}</p>}
+        {owed.missed > 0 ? <p className="text-sm text-bad">{sayCount("ui.obligation.missed", owed.missed, { count: owed.missed })}</p> : null}
         {ended ? null : entry?.type === "loan" && owed.outstanding > 0 ? (
           <PayLoan owed={owed} currency={currency} />
         ) : entry?.type === "held-funds" && owed.outstanding > 0 ? (

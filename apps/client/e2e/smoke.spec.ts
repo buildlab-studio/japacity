@@ -82,6 +82,27 @@ test("three months of play show no kobo, raw object, missing value or bare key",
   }
 });
 
+test("a life from sixteen is played card by card to the first month", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "Live this life: A life from sixteen" }).click();
+
+  const prologue = page.locator("[data-prologue]");
+  await expect(prologue).toBeVisible();
+  const handover = page.locator("[data-prologue-handover]");
+  for (let card = 0; card < 40 && !(await handover.isVisible()); card += 1) {
+    await expectNothingBroken(page, `on prologue card ${String(card)}`);
+    const v = await prologue.getAttribute("data-v");
+    await page.locator("[data-prologue-card] [data-answer] button:enabled").first().click();
+    await expect(page.locator(`[data-prologue][data-v="${v ?? ""}"]`)).toHaveCount(0);
+  }
+
+  await expect(handover).toBeVisible();
+  await expectNothingBroken(page, "at the handover");
+  await page.getByRole("button", { name: "Start month 1" }).click();
+  await expect(page.getByRole("heading", { name: "Month 1", exact: true })).toBeVisible();
+  await expectNothingBroken(page, "in the first month");
+});
+
 /** Ada's recorded life up to the flight: the client loads it as a save through the local authority. */
 function adaBeforeFlight(): string {
   const save = lifeSaves["ada-careful"];
@@ -205,4 +226,72 @@ test("a life abroad answers the December visit, changes money and comes home", a
   await openTab(page, "You");
   await expect(page.getByRole("list", { name: "Times you came home" })).toContainText("by choice");
   await expectNothingBroken(page, "back home");
+});
+
+/** The header's japacity figure: its face and size as the browser draws it. */
+async function headerFigure(page: Page): Promise<{ family: string; size: number }> {
+  const figure = page.locator("header [data-japacity-figure]");
+  await expect(figure).toBeVisible();
+  return figure.evaluate((element) => {
+    const style = getComputedStyle(element);
+    return { family: style.fontFamily, size: Number.parseFloat(style.fontSize) };
+  });
+}
+
+test.describe("the header on a 390 px phone", () => {
+  test.use({ viewport: { width: 390, height: 844 } });
+
+  test("the japacity figure is set in the body face, large enough to read, and the game's name is not said twice", async ({ page }) => {
+    await seedAda(page);
+    const { family, size } = await headerFigure(page);
+    expect(family).not.toMatch(/Danfo/);
+    expect(size).toBeGreaterThanOrEqual(18);
+    // The game's name stays for screen readers but takes no room beside the japacity label.
+    const name = await page.locator("header h1").boundingBox();
+    expect(name?.width ?? 0).toBeLessThanOrEqual(1);
+  });
+});
+
+test.describe("the header on a desktop", () => {
+  test.use({ viewport: { width: 1280, height: 800 } });
+
+  test("the japacity figure keeps the display face, larger", async ({ page }) => {
+    await seedAda(page);
+    const { family, size } = await headerFigure(page);
+    expect(family).toMatch(/Danfo/);
+    expect(size).toBeGreaterThanOrEqual(24);
+  });
+});
+
+test.describe("the side job on a 390 px phone", () => {
+  test.use({ viewport: { width: 390, height: 844 } });
+
+  test("a side job's words keep the card's width, with the quit button under them", async ({ page }) => {
+    await page.goto("/");
+    await page.getByRole("button", { name: /^Live this life/ }).first().click();
+    await expect(page.getByRole("heading", { name: "Month 1", exact: true })).toBeVisible();
+
+    const side = page.locator("[data-side-job]");
+    for (let month = 0; month < 12 && !(await side.isVisible()); month += 1) {
+      await openTab(page, "Month");
+      const accept = page.getByRole("button", { name: /^Accept/ });
+      if (await accept.isVisible()) {
+        await accept.click();
+        continue;
+      }
+      const hunt = page.locator("li", { has: page.getByRole("heading", { name: "Look for a job", exact: true }) });
+      await hunt.getByLabel("Which one").selectOption({ label: "Weekend tutoring" });
+      await page.getByRole("button", { name: "Add to month: Look for a job" }).click();
+      await endMonthAndRead(page, `while looking for a side job, month ${String(month + 1)}`);
+    }
+
+    await expect(side).toBeVisible();
+    const words = await side.locator("[data-side-words]").boundingBox();
+    const quit = await side.getByRole("button", { name: "Quit the side job" }).boundingBox();
+    const card = await side.boundingBox();
+    expect(words !== null && quit !== null && card !== null).toBe(true);
+    if (words === null || quit === null || card === null) return;
+    expect(quit.y).toBeGreaterThanOrEqual(words.y + words.height);
+    expect(words.width).toBeGreaterThan(card.width * 0.8);
+  });
 });

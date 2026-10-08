@@ -6,6 +6,7 @@ import { Newspaper } from "lucide-react";
 
 import { useView } from "../../authority/GameProvider";
 import { Card, Empty, Panel, Tag } from "../../shared/ui/Panel";
+import { monthEnding, playerMonth } from "../../shared/words/format";
 import { blurbOf, nameOf, say, sayCount, words } from "../../shared/words/text";
 
 /**
@@ -14,8 +15,8 @@ import { blurbOf, nameOf, say, sayCount, words } from "../../shared/words/text";
  * an era runs up to the month before its end tick.
  */
 function eraMonths(era: NonNullable<PlayerView["era"]>, month: number): string {
-  const since = era.sinceMonth + 1;
-  const last = era.untilMonth;
+  const since = playerMonth(era.sinceMonth);
+  const last = monthEnding(era.untilMonth);
   const left = Math.max(0, era.untilMonth - month);
   const began = since < 1 ? say("ui.news.era-before") : say("ui.news.era-since", { month: since });
   return `${began} ${sayCount("ui.news.era-until", left, { month: last, months: left })}`;

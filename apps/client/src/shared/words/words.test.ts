@@ -4,7 +4,7 @@ import { describe, expect, test } from "vitest";
 
 import { formatBand, formatMoney, formatRate } from "./format";
 import { requirementSentence } from "./requirement";
-import { lowerFirst, say, words } from "./text";
+import { LOWER_KINDS, lowerFirst, nameOf, PROPER_WORDS, runningName, say, words } from "./text";
 import { uiText } from "./ui";
 
 describe("words", () => {
@@ -42,6 +42,49 @@ describe("words", () => {
 
   test("given the interface's own keys, then none hides a key content already has", () => {
     expect(Object.keys(uiText).filter((key) => key in text)).toEqual([]);
+  });
+});
+
+describe("names mid-sentence", () => {
+  const firstWord = (name: string) => name.split(/[\s,']/)[0] ?? "";
+  const isAcronym = (word: string) => word.length > 1 && word === word.toUpperCase();
+  // Every id content names in a kind whose names run lowered mid-sentence.
+  const lowered = Object.keys(text)
+    .filter((key) => key.endsWith(".name") && LOWER_KINDS.has(key.split(".")[0] ?? ""))
+    .map((key) => key.slice(0, -".name".length));
+  /** True when content writes the word with a capital mid-sentence and never in lower case: a proper noun, as "Bank" in a bank's name is not. */
+  const capitalMidSentence = (word: string) =>
+    Object.values(text).some((value) => new RegExp(`[a-z,] ${word}\\b`).test(value)) &&
+    !Object.values(text).some((value) => new RegExp(`\\b${word.toLowerCase()}\\b`).test(value));
+
+  test("given every name content lowers mid-sentence, when its first word is one content writes with a capital mid-sentence, then the name keeps its capital", () => {
+    const proper = lowered.filter((id) => {
+      const first = firstWord(nameOf(id));
+      return !isAcronym(first) && capitalMidSentence(first);
+    });
+    expect(proper.length).toBeGreaterThan(0);
+    expect(proper.filter((id) => runningName(id) !== nameOf(id))).toEqual([]);
+    expect(proper.filter((id) => !PROPER_WORDS.has(firstWord(nameOf(id))))).toEqual([]);
+  });
+
+  test("given every country in content, then a name that starts with it keeps its capital", () => {
+    const countries = Object.keys(content.country).map((id) => firstWord(nameOf(id)));
+    expect(countries.filter((first) => !PROPER_WORDS.has(first))).toEqual([]);
+  });
+
+  test("given a name that starts with a common word, then it is lowered mid-sentence, and an acronym is not", () => {
+    const common = lowered.filter((id) => {
+      const first = firstWord(nameOf(id));
+      return !isAcronym(first) && !PROPER_WORDS.has(first);
+    });
+    expect(common.length).toBeGreaterThan(0);
+    expect(common.filter((id) => runningName(id) !== lowerFirst(nameOf(id)) || runningName(id).charAt(0) !== nameOf(id).charAt(0).toLowerCase())).toEqual([]);
+    expect(runningName("document.tb-certificate")).toBe(nameOf("document.tb-certificate"));
+  });
+
+  test("given every word kept as proper, then content writes it with a capital somewhere", () => {
+    const all = Object.values(text).join(" ");
+    expect([...PROPER_WORDS].filter((word) => !new RegExp(`\\b${word}\\b`).test(all))).toEqual([]);
   });
 });
 

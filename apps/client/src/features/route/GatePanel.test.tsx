@@ -52,7 +52,8 @@ describe("the gate on each route", () => {
     const view = withRoute("route.uk-talent", { gate: "endorsement", refusedMonth: 30, cooledFromMonth: 42 });
     await renderWithView(<Routes />, view);
     expect(screen.getByText(say("ui.gate.endorsement.refused", { month: 30 }))).toBeDefined();
-    expect(screen.getByText(say("ui.gate.endorsement.again", { month: 42 }))).toBeDefined();
+    // The refusal is stamped as month 30 ends; asking again is judged while planning, so from the month the header calls 43.
+    expect(screen.getByText(say("ui.gate.endorsement.again", { month: 43 }))).toBeDefined();
   });
 
   test("[R-CONTRACT-002] given an agent recorded, then the role and the monthly pay show in dirhams", async () => {
