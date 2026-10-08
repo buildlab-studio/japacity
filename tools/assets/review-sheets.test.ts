@@ -58,9 +58,18 @@ import tobiSheet from "../../assets-src/people/tobi/review.json";
 import tolaniSheet from "../../assets-src/people/tolani/review.json";
 import tundeSheet from "../../assets-src/people/tunde/review.json";
 import zainabSheet from "../../assets-src/people/zainab/review.json";
+import airportLagosPlaceSheet from "../../assets-src/places/airport-lagos/review.json";
+import bodeThomasPlaceSheet from "../../assets-src/places/bode-thomas/review.json";
+import computerVillagePlaceSheet from "../../assets-src/places/computer-village/review.json";
+import deiraPlaceSheet from "../../assets-src/places/deira/review.json";
+import familyHousePlaceSheet from "../../assets-src/places/family-house/review.json";
+import nationalStadiumPlaceSheet from "../../assets-src/places/national-stadium/review.json";
 import ojuelegbaReviewHubSheet from "../../assets-src/places/ojuelegba/review-hub.json";
 import ojuelegbaReviewShellSheet from "../../assets-src/places/ojuelegba/review-shell.json";
 import partyRoomSheet from "../../assets-src/places/party-room/review.json";
+import peckhamPlaceSheet from "../../assets-src/places/peckham/review.json";
+import tejuoshoMarketPlaceSheet from "../../assets-src/places/tejuosho-market/review.json";
+import thirdMainlandBridgePlaceSheet from "../../assets-src/places/third-mainland-bridge/review.json";
 import balesSheet from "../../assets-src/prop/bales/review.json";
 import basinsSheet from "../../assets-src/prop/basins/review.json";
 import busShelterSheet from "../../assets-src/prop/bus-shelter/review.json";
@@ -137,9 +146,18 @@ const SHEETS: Record<string, ReviewSheet> = {
   "people/tolani/review.json": tolaniSheet satisfies Review,
   "people/tunde/review.json": tundeSheet satisfies Review,
   "people/zainab/review.json": zainabSheet satisfies Review,
+  "places/airport-lagos/review.json": airportLagosPlaceSheet satisfies PlaceReview,
+  "places/bode-thomas/review.json": bodeThomasPlaceSheet satisfies PlaceReview,
+  "places/computer-village/review.json": computerVillagePlaceSheet satisfies PlaceReview,
+  "places/deira/review.json": deiraPlaceSheet satisfies PlaceReview,
+  "places/family-house/review.json": familyHousePlaceSheet satisfies PlaceReview,
+  "places/national-stadium/review.json": nationalStadiumPlaceSheet satisfies PlaceReview,
   "places/ojuelegba/review-hub.json": ojuelegbaReviewHubSheet satisfies PlaceReview,
   "places/ojuelegba/review-shell.json": ojuelegbaReviewShellSheet satisfies PlaceReview,
   "places/party-room/review.json": partyRoomSheet satisfies Review[],
+  "places/peckham/review.json": peckhamPlaceSheet satisfies PlaceReview,
+  "places/tejuosho-market/review.json": tejuoshoMarketPlaceSheet satisfies PlaceReview,
+  "places/third-mainland-bridge/review.json": thirdMainlandBridgePlaceSheet satisfies PlaceReview,
   "prop/bales/review.json": balesSheet satisfies Review,
   "prop/basins/review.json": basinsSheet satisfies Review,
   "prop/bus-shelter/review.json": busShelterSheet satisfies Review,
