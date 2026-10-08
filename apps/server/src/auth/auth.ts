@@ -61,6 +61,9 @@ export interface AuthKeys {
   background: (promise: Promise<unknown>) => void;
 }
 
+/** R-ACCOUNT-021: the longest a browser keeps a cookie. */
+export const SESSION_DAYS = 400;
+
 /** R-ACCOUNT-006: the session cookie's attributes, whatever the library's defaults become. */
 export const COOKIE_ATTRIBUTES = { httpOnly: true, secure: true, sameSite: "lax" } as const;
 
@@ -119,6 +122,10 @@ export function makeAuth(deps: ServerDeps, adapter: Adapter, keys: AuthKeys) {
       },
     },
     session: {
+      // R-ACCOUNT-021: a guest's session is its only way back, so it lasts as long as a browser keeps a cookie (400 days), renewed each day it is used.
+      // no config field holds the session's life; the library's default of 7 days would lose a guest that rests a week.
+      expiresIn: SESSION_DAYS * 86_400,
+      updateAge: 86_400,
       // R-ACCOUNT-016: deletion needs a session signed in within this many seconds.
       freshAge: Math.floor(config.account.deleteFreshMs / 1000),
       // R-MODERATION-012: how the session was opened, set by the hook below and never by a request.
