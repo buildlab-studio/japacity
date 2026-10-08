@@ -18,7 +18,7 @@ const LOTTO: Id<"activity"> = "activity.play-lotto";
 type Draw = NonNullable<World["lottery"]>;
 
 function drawOf(draw: number, closesTick: number, last: LotteryResult | null = null, jackpot = odds.jackpotStart, rolledOver = false): Draw {
-  return { draw, closesTick, fingerprint: "ab".repeat(32), beaconRound: 1000 + draw, salesSoFar: 140000, jackpot, rolledOver, odds, last };
+  return { draw, closesTick, onSale: true, fingerprint: "ab".repeat(32), beaconRound: 1000 + draw, salesSoFar: 140000, jackpot, rolledOver, odds, last };
 }
 
 /** A drawn draw whose jackpot stood at ₦250,000. */
@@ -188,6 +188,7 @@ describe("tickets", () => {
       maxTickets: tuning.maxTickets,
       draw: 7,
       closesTick: 1000,
+      onSale: true,
       tickets: 2,
       numbers: null,
       jackpot: odds.jackpotStart,

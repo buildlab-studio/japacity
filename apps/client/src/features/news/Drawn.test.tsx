@@ -35,6 +35,7 @@ function online(last: LotteryResult | null): PlayerView {
       maxTickets: 5,
       draw: 7,
       closesTick: 112,
+      onSale: true,
       tickets: 0,
       numbers: null,
       jackpot: 20_000_000,

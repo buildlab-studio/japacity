@@ -271,7 +271,8 @@ function fromActivity(view: PlayerView): Loose[] {
  */
 function fromLottery(view: PlayerView): Loose[] {
   const draw = view.lottery;
-  if (draw === null || draw.tickets >= draw.maxTickets || view.pockets.NGN.bank < draw.ticket) return [];
+  // R-LOTTERY-002: nothing is on sale between a draw's close and the next opening.
+  if (draw === null || !draw.onSale || draw.tickets >= draw.maxTickets || view.pockets.NGN.bank < draw.ticket) return [];
   return [{ type: "lottery/buy", tickets: 1 }];
 }
 

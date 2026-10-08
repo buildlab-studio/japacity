@@ -18,7 +18,7 @@ export const tuning = content.tuning.lottery;
 export const GENEROUS: LotteryOdds = { ...tuning.odds, smallPerMillion: 300_000, midPerMillion: 100_000, jackpotPerMillion: 50_000 };
 
 export function drawOf(over: Partial<Draw> = {}): Draw {
-  return { draw: 7, closesTick: 14, fingerprint: "ab".repeat(32), beaconRound: 1234, salesSoFar: 3 * tuning.ticket, jackpot: tuning.odds.jackpotStart, rolledOver: false, odds: tuning.odds, last: null, ...over };
+  return { draw: 7, closesTick: 14, onSale: true, fingerprint: "ab".repeat(32), beaconRound: 1234, salesSoFar: 3 * tuning.ticket, jackpot: tuning.odds.jackpotStart, rolledOver: false, odds: tuning.odds, last: null, ...over };
 }
 
 export interface OnlineLife {

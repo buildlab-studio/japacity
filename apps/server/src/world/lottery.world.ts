@@ -47,6 +47,7 @@ export async function lotteryFor(tick: number, deps: Pick<ServerDeps, "stores" |
   return {
     draw: row.draw,
     closesTick: closesTickOf(row.draw),
+    onSale: tick < closesTickOf(row.draw),
     fingerprint: row.fingerprint,
     beaconRound: row.beaconRound,
     salesSoFar: sold * deps.contents.current.tuning.lottery.ticket,

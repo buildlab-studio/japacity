@@ -147,6 +147,7 @@ function view(read: ReadCtx): Pick<PlayerView, "lottery"> {
       maxTickets,
       draw: draw.draw,
       closesTick: draw.closesTick,
+      onSale: draw.onSale,
       tickets: heldIn(read.state.lottery, draw.draw),
       numbers: null,
       jackpot: draw.jackpot,

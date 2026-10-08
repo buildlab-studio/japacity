@@ -1246,7 +1246,8 @@ export interface World {
   /** The era running. Null until the director runs (docs/rules/director.md). */
   era: { id: Id<"era">; since: number; until: number } | null;
   /** The Friday draw the server runs (docs/rules/lottery.md). Null offline: the stand-in world sets it to null. */
-  lottery: { draw: number; closesTick: number; fingerprint: string; beaconRound: number; salesSoFar: number; jackpot: number; rolledOver: boolean; odds: LotteryOdds; last: LotteryResult | null } | null;
+  /** `onSale` is false between a draw's close and the next draw's opening (R-LOTTERY-002 as amended). */
+  lottery: { draw: number; closesTick: number; onSale: boolean; fingerprint: string; beaconRound: number; salesSoFar: number; jackpot: number; rolledOver: boolean; odds: LotteryOdds; last: LotteryResult | null } | null;
   /** R-ADVERT-017: the server's overlay of real names on sponsored places. Empty offline; the simulation never reads it. */
   placeNames: Record<string, { name: string; sign: string }>;
 }
@@ -2010,7 +2011,7 @@ export interface PlayerView {
   /** The genuineness interview as it stands (docs/rules/interview.md), or null. */
   interview: { route: Id<"route">; question: { id: string; options: string[] } | null; asked: number; total: number; waiting: boolean; standIn: boolean; result: InterviewResult | null; matched: number | null } | null;
   /** The Friday draw as this character sees it, or null offline (docs/rules/lottery.md R-LOTTERY-015). */
-  lottery: { ticket: number; maxTickets: number; draw: number; closesTick: number; tickets: number; numbers: number[] | null; jackpot: number; rolledOver: boolean; odds: LotteryOdds; fingerprint: string; last: LotteryResult | null } | null;
+  lottery: { ticket: number; maxTickets: number; draw: number; closesTick: number; onSale: boolean; tickets: number; numbers: number[] | null; jackpot: number; rolledOver: boolean; odds: LotteryOdds; fingerprint: string; last: LotteryResult | null } | null;
   /** R-ADVERT-003: whether an advert may show now (never on the road, in a set piece, or in a chapter with `noAdverts`). */
   adverts: boolean;
   report: TurnReport | null;

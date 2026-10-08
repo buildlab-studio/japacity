@@ -175,6 +175,7 @@ describe("opening a draw", () => {
     expect(world.body.world.lottery).toEqual({
       draw: 0,
       closesTick: 14,
+      onSale: true,
       fingerprint: row!.fingerprint,
       beaconRound: row!.beaconRound,
       salesSoFar: 0,
