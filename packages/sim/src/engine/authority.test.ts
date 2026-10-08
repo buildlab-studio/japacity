@@ -22,7 +22,7 @@ type PlayerCommand = Exclude<CommandType, AuthorityCommand>;
 type Totals = State["wallet"]["totals"]["in"];
 
 /** A draw on sale, as the online world carries it, so the life is played as it is online. */
-const ONLINE: NonNullable<World["lottery"]> = { draw: 3, closesTick: 56, fingerprint: "ab".repeat(32), beaconRound: 1, potSoFar: 0, topUpTickets: 0, last: null };
+const ONLINE: NonNullable<World["lottery"]> = { draw: 3, closesTick: 56, fingerprint: "ab".repeat(32), beaconRound: 1, salesSoFar: 0, jackpot: content.tuning.lottery.odds.jackpotStart, rolledOver: false, odds: content.tuning.lottery.odds, last: null };
 
 /** Each real life: every scenario at its start, the prologue's open and finished, and the recorded lives halfway and at their end. */
 function lives(): { name: string; state: State }[] {
@@ -87,17 +87,17 @@ const AUTHORITY_SAMPLES: Record<AuthorityCommand, Loose[]> = {
     { type: "turns/grant", count: content.tuning.turn.cap },
   ],
   "lottery/pay": [
-    { type: "lottery/pay", draw: ONLINE.draw, prizes: [{ tier: "small", amount: 500000, topUp: 0 }] },
+    { type: "lottery/pay", draw: ONLINE.draw, prizes: [{ tier: "small", amount: 500000 }] },
     {
       type: "lottery/pay",
       draw: ONLINE.draw,
       prizes: [
-        { tier: "jackpot", amount: 900000000, topUp: 0 },
-        { tier: "mid", amount: 4000000, topUp: 0 },
+        { tier: "jackpot", amount: 900000000 },
+        { tier: "mid", amount: 4000000 },
       ],
     },
-    // R-LOTTERY-022: a prize with a part from the house's top-up.
-    { type: "lottery/pay", draw: ONLINE.draw, prizes: [{ tier: "mid", amount: 4000000, topUp: 1500000 }] },
+    // Decision 0010: a prize that still carries a part from the retired house top-up is refused.
+    { type: "lottery/pay", draw: ONLINE.draw, prizes: [{ tier: "mid", amount: 4000000, topUp: 1500000 } as { tier: "mid"; amount: number }] },
   ],
   // The people milestone's commands from the authority: refused by the stubs until the people agents build them, and then still no money.
   "people/link": [{ type: "people/link", slot: "partner", pair: "pair-1", facts: FACTS }],
@@ -219,7 +219,7 @@ describe("the authority's reach", () => {
   );
 
   test.each(LIVES.map((life) => [life.name, life.state] as const))(
-    "[R-SERVER-013] given %s, when the authority pays a draw, then money is credited only under the win and pot-top-up reasons to the naira bank and no more than the prizes, or the payment is rejected and nothing moves",
+    "[R-SERVER-013] given %s, when the authority pays a draw, then money is credited only under the win reason to the naira bank and no more than the prizes, or the payment is rejected and nothing moves",
     (_name, state) => {
       for (const sample of AUTHORITY_SAMPLES["lottery/pay"]) {
         const result = send(state, sample, "authority");
@@ -227,7 +227,7 @@ describe("the authority's reach", () => {
         const prizes = sample.type === "lottery/pay" ? sample.prizes.reduce((sum, prize) => sum + prize.amount, 0) : 0;
         // Until the lottery kind pays, its stub refuses with not-legal; a life in its prologue refuses every command but the prologue's.
         expect(["accepted", "not-legal", "prologue-open"]).toContain(result.ok ? "accepted" : result.code);
-        expect(ledgerProblems(state, after, (reason, currency) => (reason === "win" || reason === "pot-top-up") && currency === "NGN")).toEqual([]);
+        expect(ledgerProblems(state, after, (reason, currency) => reason === "win" && currency === "NGN")).toEqual([]);
         expect(after.wallet.pockets.NGN.bank - state.wallet.pockets.NGN.bank).toBeLessThanOrEqual(prizes);
         expect(after.wallet.pockets.NGN.cash).toBe(state.wallet.pockets.NGN.cash);
       }

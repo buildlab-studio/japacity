@@ -2,11 +2,42 @@ import { fc, test } from "@fast-check/vitest";
 import { content } from "@japacity/content";
 import { describe, expect } from "vitest";
 
-import type { Content, LotteryResult } from "../engine/types";
-import { checkLotteryContent, drawSeed, drawWinners, fromHex, listHashOf, prizesFor, sha256, tiersFor, toHex, topUpFor, topUpPart } from "./lottery.draw";
+import type { Content, LotteryOdds, LotteryResult } from "../engine/types";
+import {
+  checkLotteryContent,
+  drawResults,
+  drawSeed,
+  drawWinners,
+  expectedReturnPerMillion,
+  forcedTicket,
+  fromHex,
+  jackpotHit,
+  listHashOf,
+  openingJackpot,
+  PER_MILLION,
+  prizesFor,
+  prizesOwed,
+  RAFFLE_AT_SWITCH_OFF,
+  raffleProblems,
+  rollJackpot,
+  sha256,
+  ticketDraw,
+  ticketResult,
+  tierOfDraw,
+  tiersFor,
+  toHex,
+  topUpFor,
+  topUpPart,
+} from "./lottery.draw";
 import type { TierSpec } from "./lottery.draw";
 
-const tuning = content.tuning.lottery;
+const { ticket, odds } = content.tuning.lottery;
+/** The raffle's settings when decision 0010 switched it off, for the raffle's own tests. */
+const tuning = RAFFLE_AT_SWITCH_OFF;
+
+function withOdds(change: Partial<LotteryOdds>): Content {
+  return { ...content, tuning: { ...content.tuning, lottery: { ...content.tuning.lottery, odds: { ...odds, ...change } } } };
+}
 
 /** The test messages are plain ASCII, one byte a character. */
 function ascii(text: string): Uint8Array {
@@ -44,7 +75,7 @@ describe("SHA-256", () => {
   });
 });
 
-describe("the draw", () => {
+describe("the raffle, switched off by decision 0010", () => {
   const SEED = sha256(ascii("japacity"));
   const SPEC = (jackpot: number, mid: number, small: number): TierSpec[] => [
     { tier: "jackpot", count: jackpot },
@@ -96,7 +127,7 @@ describe("the draw", () => {
   });
 });
 
-describe("tiers and prizes", () => {
+describe("the raffle's tiers and prizes, switched off by decision 0010", () => {
   test("[R-LOTTERY-012] given the tickets sold, when the tiers are set, then there is one jackpot, the mid count, and one small prize in every smallEvery, never fewer than keep a small share under a mid one", () => {
     const small = (count: number) => tiersFor(count, tuning).find((spec) => spec.tier === "small")?.count;
     expect(tiersFor(0, tuning).map((spec) => spec.tier)).toEqual(["jackpot", "mid", "small"]);
@@ -134,10 +165,9 @@ describe("tiers and prizes", () => {
     expect(amounts[2]).toBeLessThan(amounts[1]!);
   });
 
-  test("[R-LOTTERY-012] given the shipped tuning, when content is checked, then the tiers share the whole fund, and a tuning that does not is refused", () => {
-    expect(checkLotteryContent(content)).toEqual([]);
-    const off: Content = { ...content, tuning: { ...content.tuning, lottery: { ...tuning, jackpotBp: tuning.jackpotBp + 1 } } };
-    expect(checkLotteryContent(off)).toHaveLength(1);
+  test("[R-LOTTERY-012] given the raffle's last settings, when they are checked, then the tiers share the whole fund, and settings that do not are refused", () => {
+    expect(raffleProblems(tuning)).toEqual([]);
+    expect(raffleProblems({ ...tuning, jackpotBp: tuning.jackpotBp + 1 })).toHaveLength(1);
   });
 
   test("[R-LOTTERY-011] given 1000 tickets sold and every place filled, when the prizes are set, then the fund is 55% of the pot and the prizes pay all of it", () => {
@@ -178,7 +208,7 @@ describe("tiers and prizes", () => {
     },
   );
 
-  test("[R-LOTTERY-015] given a published result, when anyone recomputes the seed and the winners from it, then they match the result's winning tickets", () => {
+  test("[R-LOTTERY-015] given a raffle's published winners, when anyone recomputes the seed and the winners, then they match the winning tickets", () => {
     const secret = toHex(sha256(ascii("secret")));
     const listHash = toHex(sha256(ascii("list")));
     const beaconRandomness = toHex(sha256(ascii("beacon")));
@@ -186,13 +216,12 @@ describe("tiers and prizes", () => {
     const tiers = tiersFor(count, tuning);
     const pot = count * tuning.ticket;
     const table = prizesFor(pot, tiers, drawWinners(drawSeed(secret, listHash, beaconRandomness), count, tiers), tuning);
-    const result: LotteryResult = { draw: 4, revealed: secret, beaconRound: 9, beaconRandomness, listHash, count, pot, topUp: 0, fund: table.fund, winners: table.winners };
-    const again = drawWinners(drawSeed(result.revealed, result.listHash, result.beaconRandomness), result.count, tiersFor(result.count, tuning));
-    expect(again).toEqual(result.winners.map((tier) => tier.tickets));
+    const again = drawWinners(drawSeed(secret, listHash, beaconRandomness), count, tiersFor(count, tuning));
+    expect(again).toEqual(table.winners.map((tier) => tier.tickets));
   });
 });
 
-describe("the house top-up", () => {
+describe("the raffle's house top-up, switched off by decision 0010", () => {
   const declared = tuning.topUpTickets;
 
   test("[R-LOTTERY-021] given sales one under, at and one over the declared number, when the top-up is set, then it makes the pot up to that many tickets' worth and is 0 from there", () => {
@@ -238,14 +267,10 @@ describe("the house top-up", () => {
     },
   );
 
-  test("[R-LOTTERY-021] given the shipped tuning, when content is checked, then the declared number passes, and one that is not a whole number from 0 is refused", () => {
-    expect(checkLotteryContent(content)).toEqual([]);
-    for (const topUpTickets of [-1, Number("2.5")]) {
-      const off: Content = { ...content, tuning: { ...content.tuning, lottery: { ...tuning, topUpTickets } } };
-      expect(checkLotteryContent(off)).toHaveLength(1);
-    }
-    const huge: Content = { ...content, tuning: { ...content.tuning, lottery: { ...tuning, topUpTickets: Number.MAX_SAFE_INTEGER } } };
-    expect(checkLotteryContent(huge)).toHaveLength(1);
+  test("[R-LOTTERY-021] given the raffle's last settings, when they are checked, then the declared number passes, and one that is not a whole number from 0 is refused", () => {
+    expect(raffleProblems(tuning)).toEqual([]);
+    for (const topUpTickets of [-1, Number("2.5")]) expect(raffleProblems({ ...tuning, topUpTickets })).toHaveLength(1);
+    expect(raffleProblems({ ...tuning, topUpTickets: Number.MAX_SAFE_INTEGER })).toHaveLength(1);
   });
 
   test("[R-LOTTERY-008] given tokens in ticket order, when the list's hash is made, then it is the SHA-256 of their bytes joined in that order", () => {
@@ -253,5 +278,158 @@ describe("the house top-up", () => {
     expect(listHashOf(tokens)).toBe(toHex(sha256(fromHex(tokens.join("")))));
     expect(listHashOf([...tokens].reverse())).not.toBe(listHashOf(tokens));
     expect(listHashOf([])).toBe(hashOf(""));
+  });
+});
+
+describe("the draw at fixed odds", () => {
+  const SEED = sha256(ascii("japacity"));
+
+  test("[R-LOTTERY-010] given a fixed seed, when tickets are drawn, then each ticket's draw and result match an independent implementation of the published method", () => {
+    // Worked in Python's hashlib from the rule's words: int(sha256(seed + n.to_bytes(8, "big"))[:8]) % 1000000.
+    expect(toHex(SEED)).toBe("22300a4d5b852620facc406ad57d5db67381b8c3022d32758fc4e71df46bae54");
+    expect([0, 1, 2, 3, 4, 5].map((number) => ticketDraw(SEED, number))).toEqual([933434, 137934, 612183, 828970, 213120, 949240]);
+    expect([ticketDraw(SEED, 479), ticketDraw(SEED, 3961), ticketDraw(SEED, 7)]).toEqual([83, 529, 12957]);
+    expect([ticketResult(SEED, 479, odds), ticketResult(SEED, 3961, odds), ticketResult(SEED, 7, odds), ticketResult(SEED, 0, odds)]).toEqual(["jackpot", "mid", "small", null]);
+    const winners = drawResults(SEED, 20000, odds, odds.jackpotStart);
+    expect(winners[0]).toEqual({ tier: "jackpot", tickets: [479], amount: odds.jackpotStart });
+    expect(winners[1]).toEqual({ tier: "mid", tickets: [3961, 3971, 9951, 12035, 14734, 18195, 19698], amount: odds.mid });
+    expect(winners[2]?.tickets).toHaveLength(2001);
+    expect(winners[2]?.tickets.slice(0, 10)).toEqual([7, 8, 27, 31, 36, 56, 57, 65, 69, 79]);
+    expect(winners[2]?.amount).toBe(odds.small);
+  });
+
+  test("[R-LOTTERY-010] given a draw at each edge of the odds, when it is read, then it falls in the jackpot, the mid prize, the small prize or nothing", () => {
+    const jackpotEnd = odds.jackpotPerMillion;
+    const midEnd = jackpotEnd + odds.midPerMillion;
+    const smallEnd = midEnd + odds.smallPerMillion;
+    expect([0, jackpotEnd - 1, jackpotEnd, midEnd - 1, midEnd, smallEnd - 1, smallEnd, PER_MILLION - 1].map((draw) => tierOfDraw(draw, odds))).toEqual([
+      "jackpot",
+      "jackpot",
+      "mid",
+      "mid",
+      "small",
+      "small",
+      null,
+      null,
+    ]);
+  });
+
+  test.prop([fc.uint8Array({ minLength: 32, maxLength: 32 }), fc.integer({ min: 0, max: 300 }), fc.integer({ min: 0, max: 300 })])(
+    "[R-LOTTERY-010] given any seed and two counts sold, when the draw is made, then every ticket's result is the same whatever the count, and is its own ticketResult",
+    (seed, few, many) => {
+      const shared = Math.min(few, many);
+      const cut = (winners: LotteryResult["winners"]) => winners.map((tier) => tier.tickets.filter((number) => number < shared));
+      expect(cut(drawResults(seed, few, odds, odds.jackpotStart))).toEqual(cut(drawResults(seed, many, odds, odds.jackpotStart)));
+      const winners = drawResults(seed, many, odds, odds.jackpotStart);
+      for (let number = 0; number < many; number += 1) {
+        const tier = ticketResult(seed, number, odds);
+        expect(winners.filter((each) => each.tickets.includes(number)).map((each) => each.tier)).toEqual(tier === null ? [] : [tier]);
+      }
+    },
+  );
+
+  test("[R-LOTTERY-011] given every ticket hitting a jackpot that does not divide, when the draw is made, then each hit is paid an equal share to the kobo and the kobo left over is destroyed", () => {
+    const always: LotteryOdds = { ...odds, jackpotPerMillion: PER_MILLION, midPerMillion: 0, smallPerMillion: 0 };
+    const winners = drawResults(SEED, 3, always, 1000);
+    expect(winners[0]).toEqual({ tier: "jackpot", tickets: [0, 1, 2], amount: 333 });
+    expect(prizesOwed(winners)).toBe(999);
+    expect(drawResults(SEED, 1, always, 1000)[0]?.amount).toBe(1000);
+    expect(drawResults(SEED, 0, always, 1000)).toEqual([
+      { tier: "jackpot", tickets: [], amount: 1000 },
+      { tier: "mid", tickets: [], amount: always.mid },
+      { tier: "small", tickets: [], amount: always.small },
+    ]);
+  });
+
+  test.prop([fc.uint8Array({ minLength: 32, maxLength: 32 }), fc.integer({ min: 0, max: 400 }), fc.integer({ min: 0, max: 100_000_000 })])(
+    "[R-LOTTERY-011] given any draw, when it is paid, then small and mid prizes are their fixed amounts, the jackpot's hits share no more than the jackpot, and every amount is whole",
+    (seed, count, jackpot) => {
+      const winners = drawResults(seed, count, odds, jackpot);
+      const [hit, mid, small] = winners;
+      expect(mid?.amount).toBe(odds.mid);
+      expect(small?.amount).toBe(odds.small);
+      expect((hit?.amount ?? 0) * (hit?.tickets.length ?? 0)).toBeLessThanOrEqual(jackpot);
+      expect(winners.every((tier) => Number.isSafeInteger(tier.amount) && tier.amount >= 0)).toBe(true);
+      expect(prizesOwed(winners)).toBe(winners.reduce((sum, tier) => sum + tier.tickets.length * tier.amount, 0));
+    },
+  );
+
+  test("[R-LOTTERY-012] given a draw nobody hit, when the jackpot rolls, then it grows by the growth share of sales rounded down, up to the cap and never past it; after a hit it starts again", () => {
+    const start = odds.jackpotStart;
+    expect(rollJackpot(start, 25 * ticket, false, odds)).toBe(start + 50000);
+    expect(rollJackpot(start, 9, false, odds)).toBe(start);
+    expect(rollJackpot(start, 10, false, odds)).toBe(start + 1);
+    expect(rollJackpot(odds.jackpotCap - 1, 10, false, odds)).toBe(odds.jackpotCap);
+    expect(rollJackpot(odds.jackpotCap - 1, 20, false, odds)).toBe(odds.jackpotCap);
+    expect(rollJackpot(odds.jackpotCap, 5000 * ticket, false, odds)).toBe(odds.jackpotCap);
+    expect(rollJackpot(odds.jackpotCap, 5000 * ticket, true, odds)).toBe(start);
+  });
+
+  test("[R-LOTTERY-012] given the last result, when the next draw opens, then its jackpot is the start for the first draw or after a hit, the rolled-over amount after a miss, held under a lowered cap", () => {
+    const miss: Pick<LotteryResult, "winners" | "nextJackpot"> = { winners: [{ tier: "jackpot", tickets: [], amount: 1 }], nextJackpot: 30_000_000 };
+    const hit: Pick<LotteryResult, "winners" | "nextJackpot"> = { winners: [{ tier: "jackpot", tickets: [4], amount: 1 }], nextJackpot: odds.jackpotStart };
+    expect(jackpotHit(miss.winners)).toBe(false);
+    expect(jackpotHit(hit.winners)).toBe(true);
+    expect(openingJackpot(null, odds)).toBe(odds.jackpotStart);
+    expect(openingJackpot(hit, odds)).toBe(odds.jackpotStart);
+    expect(openingJackpot(miss, odds)).toBe(30_000_000);
+    expect(openingJackpot(miss, { ...odds, jackpotCap: 25_000_000 })).toBe(25_000_000);
+    expect(openingJackpot(hit, { ...odds, jackpotStart: 10_000_000 })).toBe(10_000_000);
+  });
+
+  test("[R-LOTTERY-012] given a forced win with no hit, when the draw is made, then the ticket whose draw is highest takes the whole jackpot and nothing else; with a hit or no ticket, nothing is forced", () => {
+    // Python: the highest of the first 100 draws of the seed is ticket 39's, 998188.
+    expect(forcedTicket(SEED, 100)).toBe(39);
+    expect(ticketDraw(SEED, 39)).toBe(998188);
+    expect(forcedTicket(SEED, 0)).toBeNull();
+    const natural = drawResults(SEED, 100, odds, odds.jackpotStart);
+    expect(natural[0]?.tickets).toEqual([]);
+    const forced = drawResults(SEED, 100, odds, odds.jackpotStart, true);
+    expect(forced[0]).toEqual({ tier: "jackpot", tickets: [39], amount: odds.jackpotStart });
+    expect(forced.slice(1).flatMap((tier) => tier.tickets)).not.toContain(39);
+    expect(forced.slice(1).map((tier) => tier.tickets)).toEqual(natural.slice(1).map((tier) => tier.tickets.filter((number) => number !== 39)));
+    expect(drawResults(SEED, 20000, odds, odds.jackpotStart, true)).toEqual(drawResults(SEED, 20000, odds, odds.jackpotStart));
+    expect(drawResults(SEED, 0, odds, odds.jackpotStart, true)[0]?.tickets).toEqual([]);
+  });
+});
+
+describe("the odds are settings", () => {
+  test("[R-LOTTERY-022] given the shipped odds, when a ticket's expected return is worked out, then it is under the ticket's price at the starting jackpot and at the cap", () => {
+    expect(odds.forcedWinWeeks).toBeNull();
+    // About ₦115 at the start and ₦151 at the cap on a ₦200 ticket.
+    expect(expectedReturnPerMillion(odds, odds.jackpotStart)).toBe(115 * 100 * PER_MILLION);
+    expect(expectedReturnPerMillion(odds, odds.jackpotCap)).toBe(151 * 100 * PER_MILLION);
+    expect(expectedReturnPerMillion(odds, odds.jackpotStart)).toBeLessThan(ticket * PER_MILLION);
+    expect(expectedReturnPerMillion(odds, odds.jackpotCap)).toBeLessThan(ticket * PER_MILLION);
+    expect(checkLotteryContent(content)).toEqual([]);
+  });
+
+  test("[R-LOTTERY-022] given a cap one kobo under and exactly at the return of the ticket's price, when content is checked, then the first passes and the second is refused", () => {
+    // small × 100000 + mid × 500 is 7,500,000,000; the jackpot's 200 in a million leave 12,500,000,000, so ₦625,000 is the edge.
+    const edge = 62_500_000;
+    expect(expectedReturnPerMillion(odds, edge)).toBe(ticket * PER_MILLION);
+    expect(checkLotteryContent(withOdds({ jackpotCap: edge - 1 }))).toEqual([]);
+    expect(checkLotteryContent(withOdds({ jackpotCap: edge }))).toHaveLength(1);
+    expect(checkLotteryContent(withOdds({ jackpotStart: edge, jackpotCap: edge }))).toHaveLength(2);
+  });
+
+  test("[R-LOTTERY-021] given odds whose chances pass a million, or a jackpot that starts over its cap, when content is checked, then each is refused", () => {
+    expect(checkLotteryContent(withOdds({ smallPerMillion: PER_MILLION - odds.jackpotPerMillion - odds.midPerMillion, small: 0 }))).toEqual([]);
+    expect(checkLotteryContent(withOdds({ smallPerMillion: PER_MILLION - odds.jackpotPerMillion - odds.midPerMillion + 1, small: 0 }))).toHaveLength(1);
+    expect(checkLotteryContent(withOdds({ jackpotStart: odds.jackpotCap }))).toEqual([]);
+    expect(checkLotteryContent(withOdds({ jackpotStart: odds.jackpotCap + 1 }))).toHaveLength(1);
+  });
+
+  test("[R-LOTTERY-022] given 25 tickets sold, and given 5,000, when the draw is made over many seeds at the starting jackpot and at the cap, then a ticket is paid on average under its price", () => {
+    for (const [count, seeds] of [
+      [25, 4000],
+      [5000, 40],
+    ] as const) {
+      for (const jackpot of [odds.jackpotStart, odds.jackpotCap]) {
+        let paid = 0;
+        for (let index = 0; index < seeds; index += 1) paid += prizesOwed(drawResults(sha256(ascii(`seed-${String(count)}-${String(index)}`)), count, odds, jackpot));
+        expect(paid).toBeLessThan(count * seeds * ticket);
+      }
+    }
   });
 });

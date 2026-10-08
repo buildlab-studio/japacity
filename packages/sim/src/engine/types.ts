@@ -98,7 +98,7 @@ export type Reason =
   | "build"
   /** A lottery, bet or draw win (docs/rules/luck.md). Never flagged: a letter explains it. */
   | "win"
-  /** The house's declared top-up of a draw's pot, paid apart from the sales part of a prize (decision 0008, R-LOTTERY-021). A source. */
+  /** Retired by decision 0010: credited by nothing, its ceiling in the money report zero. Kept so old ledger rows and saves still read. */
   | "pot-top-up"
   /** A lottery ticket bought (docs/rules/lottery.md), a sink. */
   | "ticket"
@@ -1165,8 +1165,8 @@ export interface Tuning {
   chapter: { cardLines: number };
   /** `visit`: the second miss in a row, the officer and the group at the house (R-OBLIGATION-011). */
   groupLoan: { feeBp: number; savingsBp: number; vanishBp: number; visit: { standing: number; wellbeing: number } };
-  /** The Friday draw (docs/rules/lottery.md): the ticket price, the cap per player, the share of sales destroyed, the tiers' shares (summing to 10000) and counts. */
-  lottery: { ticket: number; maxTickets: number; burnBp: number; jackpotBp: number; midBp: number; midCount: number; smallBp: number; smallEvery: number; topUpTickets: number };
+  /** The Friday draw (docs/rules/lottery.md): the ticket price, the cap per player, and the odds a draw takes when it opens (R-LOTTERY-021). */
+  lottery: { ticket: number; maxTickets: number; odds: LotteryOdds };
   /** docs/rules/adverts.md Numbers. */
   advert: { maxSlotsPerPlace: number; maxPhoneTiles: number; impressionMs: number };
   /** docs/rules/share.md Numbers. */
@@ -1246,12 +1246,29 @@ export interface World {
   /** The era running. Null until the director runs (docs/rules/director.md). */
   era: { id: Id<"era">; since: number; until: number } | null;
   /** The Friday draw the server runs (docs/rules/lottery.md). Null offline: the stand-in world sets it to null. */
-  lottery: { draw: number; closesTick: number; fingerprint: string; beaconRound: number; potSoFar: number; topUpTickets: number; last: LotteryResult | null } | null;
+  lottery: { draw: number; closesTick: number; fingerprint: string; beaconRound: number; salesSoFar: number; jackpot: number; rolledOver: boolean; odds: LotteryOdds; last: LotteryResult | null } | null;
   /** R-ADVERT-017: the server's overlay of real names on sponsored places. Empty offline; the simulation never reads it. */
   placeNames: Record<string, { name: string; sign: string }>;
 }
 
-/** One draw's published result (docs/rules/lottery.md R-LOTTERY-010 to 013). */
+/**
+ * A draw's odds and amounts (docs/rules/lottery.md R-LOTTERY-010 to 012, 021):
+ * chances in draws per million, amounts in kobo, growth in basis points of a
+ * week's sales. Fixed for a draw when it opens.
+ */
+export interface LotteryOdds {
+  smallPerMillion: number;
+  small: number;
+  midPerMillion: number;
+  mid: number;
+  jackpotPerMillion: number;
+  jackpotStart: number;
+  jackpotGrowthBp: number;
+  jackpotCap: number;
+  forcedWinWeeks: number | null;
+}
+
+/** One draw's published result (docs/rules/lottery.md R-LOTTERY-010 to 015). */
 export interface LotteryResult {
   draw: number;
   /** The server's secret for the draw, published after it (R-LOTTERY-015); named so the view's hidden-key check stays a net. */
@@ -1260,11 +1277,13 @@ export interface LotteryResult {
   beaconRandomness: string;
   listHash: string;
   count: number;
-  pot: number;
-  /** R-LOTTERY-021: the house's declared top-up inside the pot, in kobo. */
-  topUp: number;
-  fund: number;
+  /** The odds and the jackpot the draw ran under (R-LOTTERY-021, R-LOTTERY-012). */
+  odds: LotteryOdds;
+  jackpot: number;
+  /** Each tier's winning tickets and what one of them is paid: the jackpot's amount is its share (R-LOTTERY-011). */
   winners: { tier: "jackpot" | "mid" | "small"; tickets: number[]; amount: number }[];
+  /** R-LOTTERY-012: the jackpot the next draw opens with under these odds. */
+  nextJackpot: number;
 }
 
 // ---------------------------------------------------------------------------
@@ -1659,7 +1678,7 @@ export type Command = { basedOn: number } & (
   // online (docs/rules/lottery.md)
   | { type: "lottery/buy"; tickets: number }
   /** Sent by the authority alone, after the draw. */
-  | { type: "lottery/pay"; draw: number; prizes: { tier: "jackpot" | "mid" | "small"; amount: number; topUp: number }[] }
+  | { type: "lottery/pay"; draw: number; prizes: { tier: "jackpot" | "mid" | "small"; amount: number }[] }
   // people (docs/rules/people.md R-PEOPLE-012 to 020, 034 to 040)
   | { type: "people/invite"; slot: string; looking?: string; fill?: string }
   /** `with` names a computer character (`person.*`) or a slot holding an invited player (R-PEOPLE-014). */
@@ -1991,7 +2010,7 @@ export interface PlayerView {
   /** The genuineness interview as it stands (docs/rules/interview.md), or null. */
   interview: { route: Id<"route">; question: { id: string; options: string[] } | null; asked: number; total: number; waiting: boolean; standIn: boolean; result: InterviewResult | null; matched: number | null } | null;
   /** The Friday draw as this character sees it, or null offline (docs/rules/lottery.md R-LOTTERY-015). */
-  lottery: { ticket: number; maxTickets: number; draw: number; closesTick: number; tickets: number; numbers: number[] | null; potSoFar: number; topUpTickets: number; topUpSoFar: number; fingerprint: string; last: LotteryResult | null } | null;
+  lottery: { ticket: number; maxTickets: number; draw: number; closesTick: number; tickets: number; numbers: number[] | null; jackpot: number; rolledOver: boolean; odds: LotteryOdds; fingerprint: string; last: LotteryResult | null } | null;
   /** R-ADVERT-003: whether an advert may show now (never on the road, in a set piece, or in a chapter with `noAdverts`). */
   adverts: boolean;
   report: TurnReport | null;

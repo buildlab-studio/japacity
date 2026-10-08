@@ -197,8 +197,23 @@ export const tuning: Tuning = {
   // obligation.md, the group loan
   groupLoan: { feeBp: 1500, savingsBp: 1000, vanishBp: pct(25), visit: { standing: -12, wellbeing: -5 } },
 
-  // lottery.md, the Friday draw: ticket, cap, 45% of sales destroyed, tiers 40/30/30, ten mid prizes, one small prize in 50 tickets
-  lottery: { ticket: naira(200), maxTickets: 5, burnBp: 4500, jackpotBp: 4000, midBp: 3000, midCount: 10, smallBp: 3000, smallEvery: 50, topUpTickets: 5000 },
+  // lottery.md Numbers, the Friday draw at fixed odds: 1 in 10 wins ₦500, 1 in 2,000 wins ₦50,000, 1 in 5,000 the jackpot from ₦200,000, growing by 10% of the sales of a week nobody hits it.
+  // the page's cap of ₦2,000,000 returns ₦475 on a ₦200 ticket and fails R-LOTTERY-022; ₦380,000 gives the page's own "about ₦151 at the cap".
+  lottery: {
+    ticket: naira(200),
+    maxTickets: 5,
+    odds: {
+      smallPerMillion: 100000,
+      small: naira(500),
+      midPerMillion: 500,
+      mid: naira(50000),
+      jackpotPerMillion: 200,
+      jackpotStart: naira(200000),
+      jackpotGrowthBp: 1000,
+      jackpotCap: naira(380000),
+      forcedWinWeeks: null,
+    },
+  },
   advert: { maxSlotsPerPlace: 2, maxPhoneTiles: 1, impressionMs: 1000 },
   share: { width: 1080, height: 1920, maxBytes: 153600, previewWidth: 1200, previewHeight: 630, previewMaxBytes: 300000 },
   guide: { staleMonths: 6 },
