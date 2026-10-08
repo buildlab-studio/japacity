@@ -38,6 +38,11 @@ export const placeText: Record<string, string> = {
   // Name check, 2026-10-08: working name "Swiftlink Phones". Web: "Swiftlink" phones Lagos; "Swiftlink" company Nigeria; "Full Bar Phones" Nigeria; "Full Bar" phones shop Lagos. Nigeria CAC public search (search.cac.gov.ng): not reached, the request was refused from this machine. Replaced: a logistics company named Swiftlink trades in Lagos, and two Lagos telecom firms are named Swift; "Full Bar Phones": none found.
   "place.ojuelegba.sign.11": "FULL BAR PHONES",
   "place.ojuelegba.sign.12": "RECHARGE\nCARDS",
+  // The second copy of the shop row (R-CITY-024): notices, not business names, so no name check is owed (R-CITY-007).
+  "place.ojuelegba.sign.13": "NO PARKING\nTOWING",
+  "place.ojuelegba.sign.14": "SPACE TO LET\nASK INSIDE",
+  "place.ojuelegba.sign.15": "COLD DRINKS\nPURE WATER",
+  "place.ojuelegba.sign.16": "KEYS CUT\nWHILE YOU WAIT",
   "place.ojuelegba.overheard.1": "Oshodi, Oshodi. Enter with your change o.",
   "place.ojuelegba.overheard.2": "Na Yaba you dey go? Enter, enter.",
   "place.ojuelegba.overheard.3": "My guy, this traffic will not move before seven.",
