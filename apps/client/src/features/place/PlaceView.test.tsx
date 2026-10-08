@@ -18,7 +18,7 @@ describe("where you are and the way home", () => {
   test("[R-PLACE-009] given Ada just landed, then the country and the months here show and no return is on record", async () => {
     const view = abroadView();
     await renderWithView(<PlaceView />, view);
-    expect(screen.getByText(say("ui.place.in", { country: nameOf("country.uk") }))).toBeDefined();
+    expect(screen.getByText(say("ui.place.in.country.uk"))).toBeDefined();
     expect(screen.getByText(sayCount("ui.place.months-here", view.place.monthsHere, { months: view.place.monthsHere }))).toBeDefined();
     expect(screen.queryByRole("list", { name: say("ui.place.returns") })).toBeNull();
   });

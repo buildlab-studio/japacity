@@ -28,7 +28,7 @@ export const uiText: Record<string, string> = {
   "ui.month.slot-empty": "Free. You rest.",
   "ui.month.slot-remove": "Take out",
   "ui.month.no-slots": "No free slots this month.",
-  "ui.month.over": "Your life at home is over.",
+  "ui.month.over": "This life is over.",
   "ui.month.expiring": "Running out",
   "ui.month.expiring.item": "{document} runs out in {months} months, at the end of month {month}. Renew it before then if you still need it.",
   "ui.month.expiring.item.one": "{document} runs out at the end of this month. Renew it now if you still need it.",
@@ -330,6 +330,8 @@ export const uiText: Record<string, string> = {
   // Where you are and the way home (R-PLACE-009, R-RETURN-001)
   "ui.place.title": "Where you are",
   "ui.place.in": "In {country}",
+  "ui.place.in.country.uk": "In the United Kingdom",
+  "ui.place.in.country.uae": "In the United Arab Emirates",
   "ui.place.now.home": "At home in Lagos",
   "ui.place.now.abroad": "Abroad",
   "ui.place.now.road": "On the road",

@@ -226,7 +226,11 @@ export function RouteView() {
   const view = useView();
   // A route nobody has told you about is not on screen: nobody picks a route at the start.
   // The road is never in the routes view (R-ROAD-001), whatever the engine sends.
-  const routes = view.routes.filter((route) => route.state !== "unknown" && route.gate?.gate !== "road" && content.route[route.id]?.gate !== "road");
+  // Abroad, the route flown on is behind you: its checklist is history, not a plan.
+  const abroad = view.place.where === "abroad";
+  const routes = view.routes.filter(
+    (route) => route.state !== "unknown" && !(abroad && route.state === "departed") && route.gate?.gate !== "road" && content.route[route.id]?.gate !== "road",
+  );
   return (
     <Panel title={say("ui.route.title")}>
       {routes.length === 0 ? <Empty>{say("ui.route.none")}</Empty> : routes.map((route) => <RouteCard key={route.id} route={route} />)}

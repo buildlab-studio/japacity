@@ -11,7 +11,7 @@ import { Button } from "../../shared/ui/Button";
 import { Card, Panel } from "../../shared/ui/Panel";
 import { Rejection } from "../../shared/ui/Rejection";
 import { formatMoney } from "../../shared/words/format";
-import { nameOf, say, sayCount } from "../../shared/words/text";
+import { hasWords, nameOf, say, sayCount } from "../../shared/words/text";
 import { wayHome } from "./wayHome";
 
 function signed(value: number): string {
@@ -27,7 +27,11 @@ function Where() {
         <MapPin size={20} className="mt-0.5 shrink-0 text-muted" />
         <div className="flex flex-col gap-1">
           <p className="text-lg font-semibold">
-            {where === "abroad" && country !== null ? say("ui.place.in", { country: nameOf(country) }) : say(`ui.place.now.${where}`)}
+            {where === "abroad" && country !== null
+              ? hasWords(`ui.place.in.${country}`)
+                ? say(`ui.place.in.${country}`)
+                : say("ui.place.in", { country: nameOf(country) })
+              : say(`ui.place.now.${where}`)}
           </p>
           <p className="text-sm text-muted">{sayCount("ui.place.months-here", monthsHere, { months: monthsHere })}</p>
         </div>
