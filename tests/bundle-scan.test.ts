@@ -52,7 +52,8 @@ describe("the client bundle", () => {
     expect(files.some((file) => file.endsWith(".js"))).toBe(true);
     for (const file of files) {
       const text = readFileSync(file, "latin1");
-      for (const sentinel of Object.values(SENTINELS)) expect(text.includes(sentinel), `${sentinel} in ${file}`).toBe(false);
+      const leaked = Object.values(SENTINELS).filter((sentinel) => text.includes(sentinel));
+      expect({ file, leaked }).toEqual({ file, leaked: [] });
     }
   });
 
