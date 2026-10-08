@@ -121,4 +121,10 @@ export const activityText: Record<string, string> = {
   "line.activity.lotto-lost": "{tickets} tickets for {stake}. Nothing comes in.",
   "line.activity.bet-won": "The slip comes in. {stake} on it pays {won}.",
   "line.activity.bet-lost": "The slip cuts on the last match. The {stake} is gone.",
+
+  // people.md (R-PEOPLE-014).
+  "activity.see-someone.name": "See someone",
+  "activity.see-someone.blurb": "A month's evening out with the one you are seeing. It costs, and it counts.",
+  "activity.call-someone.name": "Call someone",
+  "activity.call-someone.blurb": "They are far away. A call costs nothing but the time.",
 };

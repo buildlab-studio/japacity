@@ -316,4 +316,19 @@ export const offerText: Record<string, string> = {
   "offer.scholarship-round.title": "A scholarship round",
   "offer.scholarship-round.body": "The school writes: a late scholarship round, and your file was picked. £3,000 off what you need to show.",
   "offer.scholarship-round.choice.accept": "Accept the scholarship",
+
+  // people.md (R-PEOPLE-038, R-PEOPLE-050).
+  "offer.people-recovery.name": "Sunday rice",
+  "offer.people-recovery.title": "Sunday rice",
+  "offer.people-recovery.body": "Your cousin says come for Sunday rice. 'You don't have to talk about it.'",
+  "offer.people-recovery.choice.go": "Go",
+  "offer.people-recovery.choice.alone": "Stay in alone",
+  "offer.papers-marriage.name": "A wedding for papers",
+  "offer.papers-marriage.title": "A wedding for papers",
+  "offer.papers-marriage.body": "A woman at the salon: 'He is a citizen over there. A wedding, papers, and you go your way after. {fee}, half now.'",
+  "offer.papers-marriage.choice.take": "Pay and marry him",
+  "offer.papers-marriage.choice.walk-away": "Walk away",
+  "offer.papers-marriage.sign.cash-only": "Cash only. No bank, no receipt.",
+  "offer.papers-marriage.sign.no-meeting": "You will not meet him before the day.",
+  "offer.papers-marriage.sign.friend": "Your friend's cousin went this way. She is in London now.",
 };

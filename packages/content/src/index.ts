@@ -18,6 +18,7 @@ import { eraTable } from "./era/era.data";
 import { interviewTable } from "./interview/interview.data";
 import { interviewText } from "./interview/interview.text";
 import { peopleSpots, personTable } from "./person/person.data";
+import { personText } from "./person/person.text";
 import { phraseTable } from "./phrase/phrase.data";
 import { phraseText } from "./phrase/phrase.text";
 import { placeTable } from "./place/place.data";
@@ -100,6 +101,7 @@ export const textTables: Record<string, Record<string, string>> = {
   obligation: obligationText,
   offer: offerText,
   offerAbroad: offerAbroadText,
+  person: personText,
   place: placeText,
   points: pointsText,
   prologue: prologueText,
