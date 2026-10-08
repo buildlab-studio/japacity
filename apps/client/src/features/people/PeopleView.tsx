@@ -9,7 +9,6 @@ import { Users } from "lucide-react";
 import { useState } from "react";
 
 import { useGame, useView } from "../../authority/GameProvider";
-import { AfterEarlyWin } from "../notify/held";
 import { BlockReport } from "../../shared/moderation/BlockReport";
 import { bondName, CALL, personOf, SEE, slotKind, slotOrder, type BondView, type SlotView } from "../../shared/sim/people";
 import { Button } from "../../shared/ui/Button";
@@ -19,7 +18,7 @@ import { blurbOf, nameOf, runningName, say } from "../../shared/words/text";
 import { monthEnding } from "../../shared/words/format";
 import { BondCard, EndedBond, Facts, Mark } from "./BondCard";
 import { Conversation } from "./Conversation";
-import { InviteMaker, InviteOut } from "./InviteCard";
+import { AfterEarlyWin, InviteMaker, InviteOut } from "./InviteCard";
 import { usePairApi, type PairApi } from "./pairApi";
 
 function slotTitle(key: string): string {
