@@ -1,17 +1,18 @@
 // The words of the people around the character: docs/rules/people.md and text.md.
-// First drafts, rewritten for voice.
+// First drafts, rewritten for voice. A computer character's name is drawn
+// from the name pool (person.names.data.ts); the ids keep their working names.
 export const personText: Record<string, string> = {
   "person.tobi-bank.name": "Tobi",
   "person.tobi-bank.blurb": "Bank officer on the Island. Ironed shirt on a Saturday. Wants to go, just not alone.",
-  "person.amaka-nurse.name": "Amaka",
+  "person.amaka-nurse.name": "Hauwa",
   "person.amaka-nurse.blurb": "Staff nurse at the general hospital. Night shifts, quick laugh, a plan for Canada in a folder.",
   "person.kelechi-dev.name": "Kelechi",
   "person.kelechi-dev.blurb": "Developer in Manchester on a work visa. Calls on Sundays. Home every December if he can.",
-  "person.funmi-uk.name": "Funmi",
+  "person.funmi-uk.name": "Ejiro",
   "person.funmi-uk.blurb": "Senior carer in Leicester, settled now. Sends voice notes longer than films.",
-  "person.ifeoma-ca.name": "Ifeoma",
+  "person.ifeoma-ca.name": "Uduak",
   "person.ifeoma-ca.blurb": "Analyst in Calgary with permanent residence. Says the winter is fine. It is not fine.",
-  "person.chidi-dubai.name": "Chidi",
+  "person.chidi-dubai.name": "Tonye",
   "person.chidi-dubai.blurb": "Drives for a company in Dubai. Sends money home first, then calls.",
   "person.papers-uk.name": "The citizen",
   "person.papers-uk.blurb": "A man you have never met. A citizen over there, the salon says.",
