@@ -4,13 +4,16 @@
 import { content } from "@japacity/content";
 
 import { makeApp } from "./app";
+import { contentsFor } from "./authority/overlay";
 import { productionConfig } from "./config";
 import { memoryStores, testSession, webRandomBytes } from "./deps";
 import type { ServerDeps } from "./deps";
+import { ticksJob } from "./jobs/ticks";
 
 export interface Env {
   SITE_URL: string;
   WORLD_SEED?: string;
+  OVERLAY?: string;
   COMMANDS_10S: RateLimit;
   COMMANDS_60S: RateLimit;
   READS_60S: RateLimit;
@@ -27,7 +30,7 @@ function depsFor(env: Env): ServerDeps {
   deps ??= {
     config: productionConfig,
     stores: memoryStores(),
-    contents: { current: content, previous: null },
+    contents: contentsFor(content, env.OVERLAY),
     secrets: { worldSeed: env.WORLD_SEED ?? "" },
     limits: { commands10s: env.COMMANDS_10S, commands60s: env.COMMANDS_60S, reads60s: env.READS_60S, anon60s: env.ANON_60S, socket10s: env.SOCKET_10S },
     // Replaced by the auth module's session reader when it lands; until then no request is signed in.
@@ -42,7 +45,8 @@ export default {
   fetch(request: Request, env: Env): Response | Promise<Response> {
     return makeApp(depsFor(env)).fetch(request);
   },
-  scheduled(): void {
+  scheduled(controller: ScheduledController, env: Env, ctx: ExecutionContext): void {
     // The jobs mount here as they land, by cron: the world's ticks (R-CLOCK-012) and the money report (R-SERVER-011).
+    ctx.waitUntil(ticksJob(depsFor(env), controller.cron));
   },
 };
