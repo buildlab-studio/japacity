@@ -277,7 +277,7 @@ describe("what the player sees", () => {
       entry: INTERVIEW,
       asked: 0,
       total: entry.ask,
-      question: { id: first, answers: entry.questions.find((question) => question.id === first)!.answers.map((answer) => answer.id), weak: [] },
+      question: { id: first, answers: entry.questions.find((question) => question.id === first)!.answers.map((answer) => answer.id), allowed: entry.questions.find((question) => question.id === first)!.answers.map((answer) => answer.id), weak: [] },
     });
     expect(JSON.stringify(game.view()).toLowerCase()).not.toContain("score");
   });

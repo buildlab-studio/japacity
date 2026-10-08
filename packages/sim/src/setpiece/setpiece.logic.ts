@@ -167,9 +167,7 @@ function lines(event: SetpieceEvent, state: State): ReportLine[] {
 /**
  * R-SETPIECE-005: one question at a time and never a score. With enough
  * interview prep, the answers that would score below zero now are marked.
- * R-SETPIECE-003 marks an answer whose requirements fail as not
- * allowed, and the view has no `allowed` yet, so until it does such an answer
- * is left out of `answers`; every answer listed is then one `step` accepts.
+ * R-SETPIECE-003: `allowed` lists the answers whose requirements hold now.
  */
 function view(read: ReadCtx): Pick<PlayerView, "setpiece"> {
   const open = read.state.setpiece.open;
@@ -179,7 +177,7 @@ function view(read: ReadCtx): Pick<PlayerView, "setpiece"> {
   const hinted = (read.state.quality[PREP] ?? 0) >= read.content.tuning.route.hintPrep;
   const judge: Judge = (requirement) => check(read, requirement);
   const question = next === null ? null : questionOf(entry, next);
-  const offered = question === null ? [] : question.answers.filter((candidate) => answerAllowed(candidate, judge));
+  const allowed = question === null ? [] : question.answers.filter((candidate) => answerAllowed(candidate, judge));
   return {
     setpiece: {
       entry: open.entry,
@@ -190,8 +188,9 @@ function view(read: ReadCtx): Pick<PlayerView, "setpiece"> {
           ? null
           : {
               id: question.id,
-              answers: offered.map((candidate) => candidate.id),
-              weak: hinted ? offered.filter((candidate) => answerScore(candidate, judge) < 0).map((candidate) => candidate.id) : [],
+              answers: question.answers.map((candidate) => candidate.id),
+              allowed: allowed.map((candidate) => candidate.id),
+              weak: hinted ? allowed.filter((candidate) => answerScore(candidate, judge) < 0).map((candidate) => candidate.id) : [],
             },
     },
   };

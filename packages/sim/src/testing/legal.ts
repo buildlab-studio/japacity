@@ -49,7 +49,8 @@ function fromOffers(view: PlayerView): Loose[] {
 function fromSetpiece(view: PlayerView): Loose[] {
   const question = view.setpiece?.question;
   if (question === undefined || question === null) return [];
-  return question.answers.map((answer) => ({ type: "setpiece/answer", question: question.id, answer }));
+  // Only an allowed answer is accepted (R-SETPIECE-003).
+  return question.allowed.map((answer) => ({ type: "setpiece/answer", question: question.id, answer }));
 }
 
 /** Small amounts, so random play can make many and never runs a pocket dry in one go. */
