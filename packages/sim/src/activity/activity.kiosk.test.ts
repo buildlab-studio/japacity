@@ -24,7 +24,7 @@ interface Money {
 }
 
 function moneyOf(result: Accepted, reason: string): Money[] {
-  return result.events.filter((event): event is BaseEvent & Money => (event.type === "wallet/credited" || event.type === "wallet/debited") && (event as unknown as Money).reason === reason) as Money[];
+  return result.events.filter((event): event is BaseEvent & Money => (event.type === "wallet/credited" || event.type === "wallet/debited") && (event as unknown as Money).reason === reason);
 }
 
 /** The prize a draw out of a million wins, worked out here from the odds as the page states them. */
@@ -110,8 +110,8 @@ describe("the lotto kiosk", () => {
   test("[R-LUCK-005] [R-PLACE-003] given a life abroad, when the kiosk is asked for, then it is not legal there", () => {
     const game = ada();
     applyEffects(game, [{ type: "place/move", to: "abroad", country: "country.uk" }]);
-    game.expectRejected({ type: "turn/end", slots: [slot(LOTTO, "1")] }, "not-legal");
-    game.expectRejected({ type: "turn/end", slots: [slot(BET)] }, "not-legal");
+    expect(game.expectRejected({ type: "turn/end", slots: [slot(LOTTO, "1")] }, "not-legal").code).toBe("not-legal");
+    expect(game.expectRejected({ type: "turn/end", slots: [slot(BET)] }, "not-legal").code).toBe("not-legal");
   });
 });
 

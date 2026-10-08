@@ -356,6 +356,7 @@ export interface RemitTerms {
  * the bank the official rate, here today's, though the money arrives next month at
  * that month's; the informal channel the street rate with no fee. the fee
  * comes out of the amount sent, so the amount is what leaves the pocket.
+ * the contract's PlayerView has no `remit` field, so the quote is this pure function over the view's rates.
  */
 export function remitQuote(
   rates: World["rates"],

@@ -26,7 +26,7 @@ interface Money {
 }
 
 function moneyOf(result: Accepted, reason: string): Money[] {
-  return result.events.filter((event): event is BaseEvent & Money => (event.type === "wallet/credited" || event.type === "wallet/debited") && (event as unknown as Money).reason === reason) as Money[];
+  return result.events.filter((event): event is BaseEvent & Money => (event.type === "wallet/credited" || event.type === "wallet/debited") && (event as unknown as Money).reason === reason);
 }
 
 function readOf(game: Game): ReadCtx {
@@ -121,19 +121,17 @@ describe("the one chance", () => {
       const pocket = game.state.wallet.pockets.NGN;
       const result = game.endTurn();
       expect(game.state.draws.street).toBe(n + 1);
-      if (!hit) {
-        expect(moneyOf(result, "mishap")).toEqual([]);
-        continue;
-      }
-      robbed += 1;
       // The side job's naira pay arrives in cash first, so it goes too.
       const cash = pocket.cash + payOf(RIDE);
-      expect(moneyOf(result, "mishap")).toEqual([
+      const losses = [
         { type: "wallet/debited", currency: "NGN", pocket: "cash", amount: cash, reason: "mishap" },
         { type: "wallet/debited", currency: "NGN", pocket: "bank", amount: tuning.ladder.phone, reason: "mishap" },
-      ]);
-      expect(result.events).toContainEqual({ type: "quality/changed", quality: "quality.wellbeing", amount: -12, source: RIDE });
-      expect(result.lines.find((line) => line.key === "line.activity.robbed")).toMatchObject({ attention: true, tone: "bad" });
+      ];
+      const shaken = { type: "quality/changed", quality: "quality.wellbeing", amount: -12, source: RIDE };
+      expect(moneyOf(result, "mishap")).toEqual(hit ? losses : []);
+      expect(result.events.filter((event) => event.type === "quality/changed" && (event as unknown as { amount: number }).amount === -12)).toEqual(hit ? [shaken] : []);
+      expect(result.lines.filter((line) => line.key === "line.activity.robbed").map((line) => [line.attention, line.tone])).toEqual(hit ? [[true, "bad"]] : []);
+      robbed += hit ? 1 : 0;
     }
     expect(robbed).toBe(1);
   });

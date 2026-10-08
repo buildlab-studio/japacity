@@ -13,8 +13,8 @@ export type ActivityEvent =
   | { type: "activity/job-ended"; job: Id<"activity">; why: string }
   /**
    * A month in the job: tenure is now `tenure`. `pay` is what was paid before tax, null when
-   * nothing was. `naira` is a foreign pay's worth at the official rate that day. `first` marks
-   * the first pay of the life, or the first in a foreign currency (text.md "Money on screen").
+   * nothing was. `naira` is a foreign pay's worth at the official rate that day, for the
+   * staged first pay in that currency (text.md "Money on screen").
    */
   | {
       type: "activity/month-worked";
@@ -22,7 +22,6 @@ export type ActivityEvent =
       tenure: number;
       pay: { currency: Currency; amount: number } | null;
       naira?: number;
-      first?: boolean;
     }
   /** A cash job's pay was not paid this month (R-LADDER-003). */
   | { type: "activity/pay-withheld"; job: Id<"activity">; pay: MoneyParam }

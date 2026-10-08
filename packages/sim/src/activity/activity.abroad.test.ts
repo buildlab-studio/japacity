@@ -60,7 +60,7 @@ interface Money {
 }
 
 function moneyOf(result: Accepted, reason: string): Money[] {
-  return result.events.filter((event): event is BaseEvent & Money => (event.type === "wallet/credited" || event.type === "wallet/debited") && (event as unknown as Money).reason === reason) as Money[];
+  return result.events.filter((event): event is BaseEvent & Money => (event.type === "wallet/credited" || event.type === "wallet/debited") && (event as unknown as Money).reason === reason);
 }
 
 function keys(result: Accepted): string[] {
@@ -100,7 +100,7 @@ describe("what may be done abroad", () => {
     const game = flown(content);
     const listed = game.view().activities.map((option) => option.id);
     const wrong = listed.filter((id) => {
-      const found = entry(id as Id<"activity">);
+      const found = entry(id);
       const where = found.where ?? "home";
       return where === "home" || (where === "abroad" && found.country !== null && found.country !== undefined && found.country !== "country.uk");
     });
@@ -270,15 +270,14 @@ describe("cash work", () => {
       const expectWithheld = draw(game.state.seed, "status", n, 10000) < entry(KITCHEN).withheldBp!;
       const result = game.endTurn();
       expect(moneyOf(result, "tax")).toEqual([]);
-      if (expectWithheld) {
-        withheld += 1;
-        expect(moneyOf(result, "cash-work")).toEqual([]);
-        expect(result.lines).toContainEqual({ key: "line.activity.pay-withheld", params: { job: KITCHEN, amount: { currency: "GBP", amount: pay } }, tone: "bad", attention: true, counts: [] });
-        expect(result.events).toContainEqual({ type: "activity/month-worked", job: KITCHEN, tenure: game.state.activity.tenure[KITCHEN], pay: null });
-      } else {
-        paid += 1;
-        expect(moneyOf(result, "cash-work")).toEqual([{ type: "wallet/credited", currency: "GBP", pocket: "cash", amount: pay, reason: "cash-work" }]);
-      }
+      const withheldLine = { key: "line.activity.pay-withheld", params: { job: KITCHEN, amount: { currency: "GBP", amount: pay } }, tone: "bad", attention: true, counts: [] };
+      const credited = { type: "wallet/credited", currency: "GBP", pocket: "cash", amount: pay, reason: "cash-work" };
+      expect(moneyOf(result, "cash-work")).toEqual(expectWithheld ? [] : [credited]);
+      expect(result.lines.filter((line) => line.key === "line.activity.pay-withheld")).toEqual(expectWithheld ? [withheldLine] : []);
+      const worked = result.events.find((event) => event.type === "activity/month-worked") as unknown as { pay: unknown } | undefined;
+      expect(worked?.pay).toEqual(expectWithheld ? null : { currency: "GBP", amount: pay });
+      withheld += expectWithheld ? 1 : 0;
+      paid += expectWithheld ? 0 : 1;
     }
     expect(withheld).toBeGreaterThan(0);
     expect(paid).toBeGreaterThan(0);
