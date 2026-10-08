@@ -1,3 +1,4 @@
+import { sameDraw } from "../draw";
 import type { DrawRow, TicketRow, WorldStore, WorldTickRow } from "../types";
 import { accept, copy, refuse } from "./copy.memory";
 
@@ -27,7 +28,7 @@ export function memoryWorldStore(): WorldStore {
         draws.set(row.draw, made);
         return Promise.resolve(accept(made));
       }
-      if (stored.secret !== row.secret || stored.fingerprint !== row.fingerprint || stored.beaconRound !== row.beaconRound || stored.topUpTickets !== row.topUpTickets) {
+      if (!sameDraw(stored, row)) {
         return Promise.resolve(refuse("conflict", `Draw ${String(row.draw)} is already stored with other commitments.`));
       }
       return Promise.resolve(accept(stored));

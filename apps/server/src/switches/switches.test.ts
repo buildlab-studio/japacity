@@ -15,7 +15,7 @@ import { drawJob } from "../jobs/draw";
 import { TICKS_CRON } from "../jobs/ticks";
 import type { ServerRejection, ServerReply } from "../types";
 import { AUTHORITY_COMMANDS } from "../../../../packages/sim/src/engine/step";
-import { COMPUTER_DIAL, computerAfterMonths, namedContent, placeTarget, topUpTickets } from "./dials";
+import { COMPUTER_DIAL, computerAfterMonths, lotteryOdds, namedContent, placeTarget, topUpTickets } from "./dials";
 import { rollbackCheck } from "../admin/rollback";
 import { GATED_COMMANDS } from "./gate";
 import { SWITCH_NAMES, readSwitches } from "./switches";
@@ -292,19 +292,30 @@ describe("the admin routes for switches and dials", () => {
 
 describe("the dials' readers", () => {
   const SENTINEL = 4_321;
-  const overlay = { version: "overlay-dials", tuning: { people: { computerAfterMonths: 7 }, lottery: { topUpTickets: SENTINEL } } } as unknown as Overlay;
+  const overlay = { version: "overlay-dials", tuning: { people: { computerAfterMonths: 7 }, lottery: { odds: { smallPerMillion: SENTINEL } } } } as unknown as Overlay;
 
   test("[R-SERVER-030] [R-SERVER-018] given no dial set, when each is read, then it is the content's number with the overlay applied", async () => {
     const target = testServer({ contents: { current: applyOverlay(content, overlay), previous: null } });
     expect(await computerAfterMonths(target.deps)).toBe(7);
-    expect(await topUpTickets(target.deps)).toBe(SENTINEL);
+    expect(lotteryOdds(target.deps)).toEqual({ ...content.tuning.lottery.odds, smallPerMillion: SENTINEL });
+    expect(await topUpTickets()).toBe(0);
     for (const [id, entry] of Object.entries(content.place)) expect(await placeTarget(target.deps, id)).toBe(entry.crowd.target);
   });
 
   test("[R-SERVER-030] given the public content alone and no dial set, when each is read, then it is the public content's working value", async () => {
     const target = server();
     expect(await computerAfterMonths(target.deps)).toBe(content.tuning.people.computerAfterMonths);
-    expect(await topUpTickets(target.deps)).toBe(content.tuning.lottery.topUpTickets);
+    expect(lotteryOdds(target.deps)).toEqual(content.tuning.lottery.odds);
+    expect(await topUpTickets()).toBe(0);
+  });
+
+  test("[R-SERVER-030] [R-LOTTERY-021] given the raffle's top-up dial set to 5,000 and then unset, when the switched-off reader is read, then it reads nothing and gives 0 both times", async () => {
+    const target = server();
+    expect((await call(target, "POST", "/api/admin/dials", ADMIN, { dial: "topUpTickets", value: 5000, reason: "test" })).status).toBe(200);
+    expect((await target.deps.stores.switches.read()).dials.topUpTickets).toBe(5000);
+    expect(await topUpTickets()).toBe(0);
+    await call(target, "POST", "/api/admin/dials", ADMIN, { dial: "topUpTickets", value: null, reason: "test" });
+    expect(await topUpTickets()).toBe(0);
   });
 
   test("[R-SERVER-030] given each dial set to 0 and then unset, when it is read, then it is 0 while set and falls back once unset", async () => {
@@ -319,14 +330,14 @@ describe("the dials' readers", () => {
     }
     expect(await placeTarget(target.deps, "place.ojuelegba")).toBe(0);
     expect(await computerAfterMonths(target.deps)).toBe(0);
-    expect(await topUpTickets(target.deps)).toBe(0);
+    expect(await topUpTickets()).toBe(0);
 
     await call(target, "POST", "/api/admin/dials", ADMIN, { dial: "placeTarget", place: "place.ojuelegba", value: null, reason: "test" });
     await call(target, "POST", "/api/admin/dials", ADMIN, { dial: "computerAfterMonths", value: null, reason: "test" });
     await call(target, "POST", "/api/admin/dials", ADMIN, { dial: "topUpTickets", value: null, reason: "test" });
     expect(await placeTarget(target.deps, "place.ojuelegba")).toBe(entry.crowd.target);
     expect(await computerAfterMonths(target.deps)).toBe(content.tuning.people.computerAfterMonths);
-    expect(await topUpTickets(target.deps)).toBe(content.tuning.lottery.topUpTickets);
+    expect(await topUpTickets()).toBe(0);
   });
 
   test("[R-SERVER-030] given a place target set at the place's high and the content later lowering high, when it is read, then it is the new high", async () => {

@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 
 import type { WorldStore, WorldTickRow } from "../types";
-import { lotteryResult, must, world } from "./fixtures";
+import { DRAW_ODDS, lotteryResult, must, world } from "./fixtures";
 
 function tickRow(tick: number, mark = 0): WorldTickRow {
   return {
@@ -13,7 +13,7 @@ function tickRow(tick: number, mark = 0): WorldTickRow {
   };
 }
 
-const DRAW = { draw: 4, secret: "11".repeat(32), fingerprint: "22".repeat(32), beaconRound: 900, topUpTickets: 5000 };
+const DRAW = { draw: 4, secret: "11".repeat(32), fingerprint: "22".repeat(32), beaconRound: 900, topUpTickets: 0, odds: DRAW_ODDS, jackpot: 20_000_000 };
 
 /** The contract every WorldStore keeps. `make` returns an empty store each time it is called. */
 export function suiteForWorldStore(make: () => Promise<WorldStore>): void {
@@ -68,11 +68,19 @@ export function suiteForWorldStore(make: () => Promise<WorldStore>): void {
       expect(await store.draw(5)).toBeNull();
     });
 
-    test("[R-LOTTERY-007] given a stored draw, when it is put with another secret, fingerprint or round, then it is refused and the first is kept", async () => {
+    test("[R-LOTTERY-007] given a stored draw, when it is put with another secret, fingerprint, round, odds or jackpot, then it is refused and the first is kept", async () => {
       const store = await make();
       must(await store.putDraw(DRAW));
 
-      for (const changed of [{ secret: "33".repeat(32) }, { fingerprint: "44".repeat(32) }, { beaconRound: 901 }, { topUpTickets: 4999 }]) {
+      for (const changed of [
+        { secret: "33".repeat(32) },
+        { fingerprint: "44".repeat(32) },
+        { beaconRound: 901 },
+        { topUpTickets: 1 },
+        { jackpot: 20_000_001 },
+        { odds: { ...DRAW_ODDS, jackpotCap: 38_000_001 } },
+        { odds: { ...DRAW_ODDS, forcedWinWeeks: 4 } },
+      ]) {
         expect(await store.putDraw({ ...DRAW, ...changed })).toMatchObject({ ok: false, code: "conflict" });
       }
       expect(await store.draw(4)).toEqual({ ...DRAW, closedAt: null, list: null, listHash: null, result: null });
@@ -143,6 +151,16 @@ export function suiteForWorldStore(make: () => Promise<WorldStore>): void {
 
       expect((await store.draw(4))?.topUpTickets).toBe(0);
       expect((await store.draw(5))?.topUpTickets).toBe(7);
+    });
+
+    test("[R-LOTTERY-021] [R-LOTTERY-012] given draws put with their odds and jackpot, when they are read, then each keeps the odds and jackpot it opened with, a forced win included", async () => {
+      const store = await make();
+      const later = { ...DRAW_ODDS, smallPerMillion: 90_000, forcedWinWeeks: 6 };
+      must(await store.putDraw(DRAW));
+      must(await store.putDraw({ ...DRAW, draw: 5, odds: later, jackpot: 20_002_500 }));
+
+      expect(await store.draw(4)).toMatchObject({ odds: DRAW_ODDS, jackpot: 20_000_000 });
+      expect(await store.draw(5)).toMatchObject({ odds: later, jackpot: 20_002_500 });
     });
 
     test("[R-LOTTERY-008] given a draw, when its list is set before the freeze, after it, the same again and another, then only the first after the freeze is kept", async () => {

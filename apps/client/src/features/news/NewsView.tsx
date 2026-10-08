@@ -38,15 +38,14 @@ function FrontPage() {
 }
 
 /**
- * R-LOTTERY-016: the last Friday draw on the front page: the jackpot and how
- * many tickets won, never who.
+ * R-LOTTERY-016: the last Friday draw on the front page: the jackpot it stood
+ * at, whether it was hit or rolls over, and how many tickets won, never who.
  */
 export function drawnWords(last: NonNullable<NonNullable<PlayerView["lottery"]>["last"]>): string {
+  if (last.count === 0) return say("ui.news.drawn-none", { draw: last.draw });
   const winners = last.winners.reduce((sum, tier) => sum + tier.tickets.length, 0);
-  const jackpot = last.winners.find((tier) => tier.tier === "jackpot" && tier.tickets.length > 0);
-  if (winners === 0) return say("ui.news.drawn-none", { draw: last.draw });
-  if (jackpot === undefined) return say("ui.news.drawn-no-jackpot", { draw: last.draw, winners });
-  return sayCount("ui.news.drawn", winners, { draw: last.draw, jackpot: { currency: "NGN", amount: jackpot.amount }, winners });
+  const hit = last.winners.some((tier) => tier.tier === "jackpot" && tier.tickets.length > 0);
+  return say(hit ? "ui.news.drawn" : "ui.news.drawn-rolled", { draw: last.draw, jackpot: { currency: "NGN", amount: last.jackpot }, winners });
 }
 
 function DrawnLine() {

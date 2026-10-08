@@ -1,6 +1,6 @@
 // R-CLOCK-010, R-LOTTERY-005 to 008, R-LOTTERY-015: the world's stored ticks and
 // the lottery's draws. Neither a tick nor a ticket is ever rewritten.
-import type { LotteryResult, World } from "@japacity/sim";
+import type { LotteryOdds, LotteryResult, World } from "@japacity/sim";
 import type { DirectorBookRow } from "@japacity/store";
 import { bigint, integer, jsonb, pgTable, primaryKey, text } from "drizzle-orm/pg-core";
 
@@ -13,13 +13,16 @@ export const worldTicks = pgTable("world_ticks", {
   hash: text("hash").notNull(),
 });
 
-/** R-LOTTERY-007, R-LOTTERY-021: the commitments fixed when a draw opens; `closed_at`, the list and `result` are set once each. */
+/** R-LOTTERY-007, R-LOTTERY-012, R-LOTTERY-021: the commitments, odds and jackpot fixed when a draw opens; `closed_at`, the list and `result` are set once each. */
 export const draws = pgTable("draws", {
   draw: integer("draw").primaryKey(),
   secret: text("secret").notNull(),
   fingerprint: text("fingerprint").notNull(),
   beaconRound: bigint("beacon_round", { mode: "number" }).notNull(),
+  /** The raffle's top-up, switched off by decision 0010: every new draw stores 0. */
   topUpTickets: integer("top_up_tickets").notNull().default(0),
+  odds: jsonb("odds").$type<LotteryOdds>().notNull(),
+  jackpot: bigint("jackpot", { mode: "number" }).notNull(),
   closedAt: bigint("closed_at", { mode: "number" }),
   list: jsonb("list").$type<string[]>(),
   listHash: text("list_hash"),

@@ -13,7 +13,7 @@ import { formatMoney, formatNumber } from "../../shared/words/format";
 import { say, sayCount, words } from "../../shared/words/text";
 import { closesAt } from "./draw";
 import { LotteryView } from "./LotteryView";
-import { drawnReply, drawOf, onlineLife, tuning, type Draw } from "./testing";
+import { drawnReply, drawOf, onlineLife, tuning } from "./testing";
 import { closeWords, waitWords } from "./when";
 
 const NOW = Date.UTC(2026, 9, 7, 12);
@@ -51,7 +51,7 @@ describe("the kiosk", () => {
     expect(onlineLife(null).game.view().activities.find((option) => option.id === "activity.play-lotto")?.allowed).toBe(true);
   });
 
-  test("[R-LOTTERY-006] given a draw on sale, when the kiosk is shown, then it shows the price and cap, the tickets held, the close as a real time counting down, the pot so far and the fingerprint", async () => {
+  test("[R-LOTTERY-006] given a draw on sale, when the kiosk is shown, then it shows the price and cap, the tickets held, the close as a real time counting down, the jackpot standing and the fingerprint", async () => {
     await kiosk(drawOf({ closesTick: 14 }));
     const at = NEXT_TICK + 3 * time.WORLD_TICK_MS;
     expect(closesAt({ closesTick: 14 }, { tick: 10, nextTickAt: NEXT_TICK })).toBe(at);
@@ -62,8 +62,7 @@ describe("the kiosk", () => {
     expect(screen.getByText(say("ui.lottery.closes", { when: closeWords(at) }))).toBeDefined();
     expect(screen.getByText(say("ui.lottery.closes-in", { wait: waitWords(at - NOW) }))).toBeDefined();
     expect(waitWords(at - NOW)).toBe("1 day 18 hours");
-    expect(screen.getByText(money(3 * tuning.ticket))).toBeDefined();
-    expect(screen.getByText(say("ui.lottery.from-sales", { sales: money(3 * tuning.ticket) }))).toBeDefined();
+    expect(document.querySelector("[data-lottery-jackpot]")?.textContent).toContain(money(tuning.odds.jackpotStart));
     expect(document.querySelector("[data-lottery-fingerprint]")?.textContent).toBe("ab".repeat(32));
     expect(screen.queryByText(say("ui.lottery.round", { round: formatNumber(1234) }))).toBeNull();
   });
@@ -144,48 +143,70 @@ describe("the kiosk", () => {
   });
 });
 
-describe("the house top-up on the kiosk", () => {
-  const declared = (sold: number): Draw => drawOf({ topUpTickets: tuning.topUpTickets, potSoFar: sold * tuning.ticket });
-
-  test("[R-LOTTERY-023] given a declared top-up and few sales, when the kiosk is shown, then the pot is shown whole, with the sales and the house's part apart", async () => {
-    await kiosk(declared(3));
-    const worth = tuning.topUpTickets * tuning.ticket;
-    expect(screen.getByText(money(worth))).toBeDefined();
-    expect(screen.getByText(say("ui.lottery.from-sales", { sales: money(3 * tuning.ticket) }))).toBeDefined();
-    expect(
-      screen.getByText(say("ui.lottery.top-up", { tickets: formatNumber(tuning.topUpTickets), worth: money(worth), soFar: money(worth - 3 * tuning.ticket) })),
-    ).toBeDefined();
+describe("the jackpot and the odds on the kiosk", () => {
+  test("[R-LOTTERY-023] given the launch odds, when the kiosk is shown, then the odds read in plain words with the jackpot standing, and nothing about a pot or a top-up", async () => {
+    await kiosk(drawOf());
+    const odds = document.querySelector<HTMLElement>("[data-lottery-odds]")!;
+    expect(within(odds).getAllByRole("listitem").map((item) => item.textContent)).toEqual([
+      say("ui.lottery.chance.jackpot", { every: formatNumber(5000), amount: money(20_000_000) }),
+      say("ui.lottery.chance.mid", { every: formatNumber(2000), amount: money(5_000_000) }),
+      say("ui.lottery.chance.small", { every: formatNumber(10), amount: money(50_000) }),
+    ]);
+    expect(odds.textContent).toContain("1 in 5,000 wins the jackpot of ₦200,000");
+    expect(screen.getByText(say("ui.lottery.grows", { share: "10%", cap: money(tuning.odds.jackpotCap) }))).toBeDefined();
+    expect(document.body.textContent).not.toMatch(/\bpot\b|top.?up/i);
+    expect(document.querySelector("[data-lottery-forced]")).toBeNull();
   });
 
-  test("[R-LOTTERY-023] given sales past the declared number, when the kiosk is shown, then it says the house adds nothing, and the pot is the sales", async () => {
-    await kiosk(declared(tuning.topUpTickets + 1));
-    expect(screen.getByText(say("ui.lottery.top-up-done", { tickets: formatNumber(tuning.topUpTickets) }))).toBeDefined();
-    expect(screen.getAllByText(money((tuning.topUpTickets + 1) * tuning.ticket)).length).toBeGreaterThan(0);
+  test("[R-LOTTERY-023] given a jackpot that rolled over, one that starts again after a hit, and the first draw, when the kiosk is shown, then it says it rolled over, that it starts again, or nothing", async () => {
+    const missed = drawnReply(6, 30, tuning.odds).result!;
+    const rolled = await kiosk(drawOf({ jackpot: missed.nextJackpot, rolledOver: true, last: missed }));
+    expect(document.querySelector("[data-lottery-jackpot]")?.textContent).toContain(money(missed.nextJackpot));
+    expect(screen.getByText(say("ui.lottery.rolled"))).toBeDefined();
+    rolled.life.live.lottery = drawOf({ jackpot: tuning.odds.jackpotStart, rolledOver: false, last: missed });
+    await act(() => rolled.store.getState().refresh());
+    expect(screen.getByText(say("ui.lottery.restarted"))).toBeDefined();
+    rolled.life.live.lottery = drawOf();
+    await act(() => rolled.store.getState().refresh());
+    expect(screen.queryByText(say("ui.lottery.rolled"))).toBeNull();
+    expect(screen.queryByText(say("ui.lottery.restarted"))).toBeNull();
   });
 
-  test("[R-LOTTERY-023] given no top-up declared, when the kiosk is shown, then there is no top-up line", async () => {
-    await kiosk(drawOf({ topUpTickets: 0 }));
-    expect(document.querySelector("[data-lottery-top-up]")).toBeNull();
+  test("[R-LOTTERY-023] [R-LOTTERY-012] given odds a million does not divide and a forced win set, when the kiosk is shown, then the chance says about, and the forced win is said before sales close", async () => {
+    await kiosk(drawOf({ odds: { ...tuning.odds, smallPerMillion: 300_000, forcedWinWeeks: 8 } }));
+    expect(screen.getByText(say("ui.lottery.chance.small-about", { every: formatNumber(3), amount: money(50_000) }))).toBeDefined();
+    expect(screen.getByText(say("ui.lottery.forced", { weeks: formatNumber(8) }))).toBeDefined();
   });
 
-  test("[R-LOTTERY-023] given the last draw had a top-up, when the kiosk is shown, then the last draw shows the house's part of its pot, and one without shows none", async () => {
-    const withTopUp = drawnReply(6, 30, 100).result!;
-    await kiosk(drawOf({ last: withTopUp }));
+  test("[R-LOTTERY-023] given the last draw hit or missed, when the kiosk is shown, then the last draw says whether the jackpot was hit and how many tickets won each prize", async () => {
+    const hit = drawnReply(6, 60).result!;
+    expect(hit.winners[0]!.tickets.length).toBeGreaterThan(0);
+    await kiosk(drawOf({ last: hit }));
     const last = document.querySelector<HTMLElement>("[data-lottery-last]")!;
-    expect(within(last).getByText(say("ui.lottery.last-line", { draw: 6, count: formatNumber(30), pot: money(withTopUp.pot) }))).toBeDefined();
-    expect(within(last).getByText(say("ui.lottery.last-top-up", { topUp: money(70 * tuning.ticket) }))).toBeDefined();
-    expect(within(last).getByText(say("ui.lottery.tier.jackpot"))).toBeDefined();
-    // Each tier shows its prize for one ticket, read from the result.
-    expect(withTopUp.winners.some((each) => each.tickets.length > 1)).toBe(true);
-    for (const tier of withTopUp.winners.filter((each) => each.tickets.length > 1)) {
-      const row = last.querySelector<HTMLElement>(`[data-tier="${tier.tier}"]`)!;
-      expect(within(row).getByText(say("ui.lottery.tier-line", { tickets: tier.tickets.length, amount: money(tier.amount) }))).toBeDefined();
+    expect(within(last).getByText(say("ui.lottery.last-line", { draw: 6, count: formatNumber(60) }))).toBeDefined();
+    expect(within(last).getByText(say("ui.lottery.last-hit", { jackpot: money(hit.jackpot) }))).toBeDefined();
+    for (const tier of hit.winners) {
+      expect(last.querySelector(`[data-tier="${tier.tier}"]`)?.textContent).toContain(sayCount("ui.lottery.tier-line", tier.tickets.length, { tickets: tier.tickets.length, amount: money(tier.amount) }));
     }
+  });
+
+  test("[R-LOTTERY-023] given the last draw's jackpot missed, when the kiosk is shown, then the last draw says it rolled over and to how much", async () => {
+    const missed = drawnReply(6, 30, tuning.odds).result!;
+    expect(missed.winners[0]!.tickets).toEqual([]);
+    await kiosk(drawOf({ last: missed }));
+    const last = document.querySelector<HTMLElement>("[data-lottery-last]")!;
+    expect(within(last).getByText(say("ui.lottery.last-missed", { jackpot: money(missed.jackpot), next: money(missed.nextJackpot) }))).toBeDefined();
+  });
+
+  test("[R-LOTTERY-002] given the draw on show closed and the next not yet open, when the kiosk is shown, then it says sales are closed until the result and offers no purchase", async () => {
+    await kiosk(drawOf({ closesTick: 10 }));
+    expect(screen.getByText(say("ui.lottery.closed-buy"))).toBeDefined();
+    expect(screen.queryByRole("button", { name: /^Buy/ })).toBeNull();
   });
 });
 
 describe("the win letter", () => {
-  const letterOf = (prizes: { tier: "jackpot" | "mid" | "small"; amount: number; topUp: number }[]): ReportLine => {
+  const letterOf = (prizes: { tier: "jackpot" | "mid" | "small"; amount: number }[]): ReportLine => {
     const life = onlineLife(drawOf());
     const paid = life.game.accept({ type: "lottery/pay", draw: 7, prizes }, "authority");
     return paid.lines.find((line) => line.key === "line.lottery.letter")!;
@@ -193,7 +214,7 @@ describe("the win letter", () => {
 
   test("[R-LOTTERY-013] given a jackpot or a mid prize paid, when its letter reaches the screen, then it is staged as a moment of its own and marked as needing the player", async () => {
     for (const tier of ["jackpot", "mid"] as const) {
-      const letter = letterOf([{ tier, amount: 1_320_000, topUp: 320_000 }]);
+      const letter = letterOf([{ tier, amount: 1_320_000 }]);
       expect(letter).toMatchObject({ big: true, attention: true });
       const authority = fakeAuthority(engineView());
       const store = createGameStore(authority);
@@ -206,7 +227,7 @@ describe("the win letter", () => {
   });
 
   test("[R-LOTTERY-013] given only a small prize paid, when its letter reaches the screen, then it is not staged and still needs the player", async () => {
-    const letter = letterOf([{ tier: "small", amount: 165_000, topUp: 0 }]);
+    const letter = letterOf([{ tier: "small", amount: 165_000 }]);
     expect(letter).toMatchObject({ big: false, attention: true });
     const authority = fakeAuthority(engineView());
     const store = createGameStore(authority);
@@ -218,7 +239,7 @@ describe("the win letter", () => {
   });
 
   test("[R-LOTTERY-013] given a winner away when the draw paid, when the view is fetched again online, then the letter comes in the lines since the held version and is staged as a moment", async () => {
-    const letter = letterOf([{ tier: "jackpot", amount: 1_320_000, topUp: 320_000 }]);
+    const letter = letterOf([{ tier: "jackpot", amount: 1_320_000 }]);
     const server = fakeServer();
     const clock = { tick: 10, nextTickAt: NEXT_TICK, nextTurnAt: null };
     server.answer("GET /api/view", { body: { ok: true, view: { ...engineView(), v: 4 }, lines: [], clock } }, { body: { ok: true, view: { ...engineView(), v: 6 }, lines: [letter], clock } });

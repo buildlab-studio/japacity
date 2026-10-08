@@ -414,7 +414,11 @@ export const miniContent: Content = {
     },
     chapter: { cardLines: 3 },
     groupLoan: { feeBp: 1500, savingsBp: 1000, vanishBp: 2500, visit: { standing: -12, wellbeing: -5 } },
-    lottery: { ticket: 20000, maxTickets: 5, burnBp: 4500, jackpotBp: 4000, midBp: 3000, midCount: 10, smallBp: 3000, smallEvery: 50, topUpTickets: 5000 },
+    lottery: {
+      ticket: 20000,
+      maxTickets: 5,
+      odds: { smallPerMillion: 100000, small: 50000, midPerMillion: 500, mid: 5000000, jackpotPerMillion: 200, jackpotStart: 20000000, jackpotGrowthBp: 1000, jackpotCap: 38000000, forcedWinWeeks: null },
+    },
     advert: { maxSlotsPerPlace: 3, maxPhoneTiles: 1, impressionMs: 1000 },
     share: { width: 1080, height: 1920, maxBytes: 300000, previewWidth: 1200, previewHeight: 630, previewMaxBytes: 150000 },
     guide: { staleMonths: 6 },

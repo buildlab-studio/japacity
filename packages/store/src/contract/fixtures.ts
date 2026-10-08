@@ -1,6 +1,6 @@
 // Rows for the contract suites. The stores never read inside a state, a world
 // or a command, so these only need to be the right shape and easy to tell apart.
-import type { Command, LotteryResult, State, World } from "@japacity/sim";
+import type { Command, LotteryOdds, LotteryResult, State, World } from "@japacity/sim";
 
 import type { LogRow, NewCharacter, SnapshotRow, StoreResult } from "../types";
 
@@ -61,6 +61,19 @@ export function world(tick: number, mark = 0): World {
   };
 }
 
+/** The launch odds of docs/rules/lottery.md, as a draw stores them. */
+export const DRAW_ODDS: LotteryOdds = {
+  smallPerMillion: 100_000,
+  small: 50_000,
+  midPerMillion: 500,
+  mid: 5_000_000,
+  jackpotPerMillion: 200,
+  jackpotStart: 20_000_000,
+  jackpotGrowthBp: 1000,
+  jackpotCap: 38_000_000,
+  forcedWinWeeks: null,
+};
+
 export function lotteryResult(draw: number): LotteryResult {
   return {
     draw,
@@ -69,9 +82,13 @@ export function lotteryResult(draw: number): LotteryResult {
     beaconRandomness: "cd".repeat(32),
     listHash: "ef".repeat(32),
     count: 3,
-    pot: 60_000,
-    topUp: 0,
-    fund: 33_000,
-    winners: [{ tier: "jackpot", tickets: [2], amount: 13_200 }],
+    odds: DRAW_ODDS,
+    jackpot: 20_000_000,
+    winners: [
+      { tier: "jackpot", tickets: [2], amount: 20_000_000 },
+      { tier: "mid", tickets: [], amount: 5_000_000 },
+      { tier: "small", tickets: [0], amount: 50_000 },
+    ],
+    nextJackpot: 20_000_000,
   };
 }

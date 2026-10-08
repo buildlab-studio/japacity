@@ -2,7 +2,7 @@
 // method is a promise, so the same interface fits a map in memory and a
 // Postgres table. Times are milliseconds since 1970, always passed in by the
 // caller: no store reads a clock.
-import type { Command, Currency, Id, LotteryResult, Reason, Sender, State, WalletSlice, World } from "@japacity/sim";
+import type { Command, Currency, Id, LotteryOdds, LotteryResult, Reason, Sender, State, WalletSlice, World } from "@japacity/sim";
 
 // ---------------------------------------------------------------------------
 // Results
@@ -203,14 +203,18 @@ export interface WorldTickRow {
   hash: string;
 }
 
-/** R-LOTTERY-007, R-LOTTERY-021: what is fixed when a draw opens. */
+/** R-LOTTERY-007, R-LOTTERY-012, R-LOTTERY-021: what is fixed when a draw opens. */
 export interface NewDraw {
   draw: number;
   secret: string;
   fingerprint: string;
   beaconRound: number;
-  /** R-LOTTERY-021: the house's declared top-up, in tickets, fixed for the draw. */
+  /** The raffle's declared top-up, in tickets; switched off by decision 0010, so every new draw stores 0. */
   topUpTickets: number;
+  /** R-LOTTERY-021: the odds and amounts the draw runs under. */
+  odds: LotteryOdds;
+  /** R-LOTTERY-012: the jackpot standing when the draw opened, in kobo. */
+  jackpot: number;
 }
 
 /** R-LOTTERY-007, R-LOTTERY-008, R-LOTTERY-015: a draw; `closedAt` is set by `freeze`, `result` once after it. */
@@ -239,7 +243,7 @@ export interface WorldStore {
   insertTick: (row: WorldTickRow) => Promise<boolean>;
   /** R-LOTTERY-007: null when the draw is not stored. */
   draw: (n: number) => Promise<DrawRow | null>;
-  /** R-LOTTERY-007: stores a draw once. The same commitments again is a no-op; different ones are a `conflict`. */
+  /** R-LOTTERY-007, R-LOTTERY-021: stores a draw once. The same commitments, odds and jackpot again is a no-op; different ones are a `conflict`. */
   putDraw: (row: NewDraw) => Promise<StoreResult<DrawRow>>;
   /** R-LOTTERY-005: appends `count` tickets and returns their numbers. Refused with `closed` once the draw is frozen. */
   addTickets: (draw: number, character: string, count: number) => Promise<StoreResult<number[]>>;

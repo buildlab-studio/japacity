@@ -1,7 +1,8 @@
 // The draw page (docs/rules/lottery.md R-LOTTERY-015): a draw's public data
 // from `GET /api/draw/:n`, and the result worked out again on the device with
-// the simulation's `drawSeed` and `drawWinners`, with a plain line saying
-// whether the two match.
+// the simulation's `drawSeed`, `ticketResult` for every ticket and
+// `drawResults`, with a plain line saying whether the two match.
+import type { Tier } from "@japacity/sim";
 import { CircleCheck, CircleX } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 
@@ -10,6 +11,7 @@ import { formatMoney, formatNumber } from "../../shared/words/format";
 import { say } from "../../shared/words/text";
 import { checkDraw, isRefusal, type DrawReply, type LoadDraw } from "./draw";
 import { Tiers } from "./LastDraw";
+import { Chances } from "./Chances";
 import { closeWords } from "./when";
 
 type Fetched = { kind: "loading" } | { kind: "failed" } | { kind: "loaded"; reply: DrawReply };
@@ -55,7 +57,7 @@ function Verdict({ good, yes, no, mark }: { good: boolean; yes: string; no: stri
   );
 }
 
-function List({ list }: { list: string[] }) {
+function List({ list, tickets }: { list: string[]; tickets: (Tier | null)[] | null }) {
   const [open, setOpen] = useState(false);
   return (
     <div className="flex flex-col gap-2">
@@ -65,11 +67,15 @@ function List({ list }: { list: string[] }) {
       </button>
       {open ? (
         <ol className="grid max-h-64 grid-cols-1 gap-1 overflow-y-auto rounded-lg bg-sunk p-2 font-mono text-xs sm:grid-cols-2" data-draw-list>
-          {list.map((token, index) => (
-            <li key={index} className="tabular-nums">
-              {String(index).padStart(3, " ")} {token}
-            </li>
-          ))}
+          {list.map((token, index) => {
+            const tier = tickets?.[index] ?? null;
+            return (
+              <li key={index} className="tabular-nums" data-ticket-tier={tier ?? ""}>
+                {String(index).padStart(3, " ")} {token}
+                {tier === null ? null : <span className="font-sans font-semibold"> {say(`ui.lottery.page.ticket.${tier}`)}</span>}
+              </li>
+            );
+          })}
         </ol>
       ) : null}
     </div>
@@ -99,8 +105,8 @@ export function DrawPage({ draw, load }: { draw: number; load: LoadDraw }) {
       )}
       {result === null ? null : (
         <div className="flex flex-col gap-3">
-          <p className="text-sm">{say("ui.lottery.page.pot", { pot: formatMoney(result.pot, "NGN"), fund: formatMoney(result.fund, "NGN") })}</p>
           <Tiers result={result} showTickets />
+          <p className="text-sm">{say("ui.lottery.page.next", { next: formatMoney(result.nextJackpot, "NGN") })}</p>
         </div>
       )}
       <dl className="flex flex-col gap-3">
@@ -109,16 +115,14 @@ export function DrawPage({ draw, load }: { draw: number; load: LoadDraw }) {
           <Hex value={reply.fingerprint} />
         </Fact>
         <Fact label={say("ui.lottery.page.round")}>{formatNumber(reply.beaconRound)}</Fact>
-        <Fact label={say("ui.lottery.page.top-up")}>
-          {reply.topUpTickets > 0
-            ? say("ui.lottery.page.top-up-line", { topUpTickets: formatNumber(reply.topUpTickets), topUp: formatMoney(result?.topUp ?? 0, "NGN") })
-            : say("ui.lottery.page.top-up-none")}
+        <Fact label={say("ui.lottery.page.odds")}>
+          <Chances odds={reply.odds} jackpot={reply.jackpot} />
         </Fact>
         {list === null ? null : (
           <>
             <Fact label={say("ui.lottery.page.list")}>
               {formatNumber(list.length)}
-              <List list={list} />
+              <List list={list} tickets={check?.tickets ?? null} />
             </Fact>
             {reply.listHash === null ? null : (
               <Fact label={say("ui.lottery.page.list-hash")}>

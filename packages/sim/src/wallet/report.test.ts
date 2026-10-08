@@ -81,6 +81,13 @@ describe("the ledger report", () => {
     expect(ledgerReport(doctored(state, "opening", "NGN", richest + 1), content).alarms).toEqual([{ reason: "opening", currency: "NGN", total: richest + 1, ceiling: richest }]);
   });
 
+  test("[R-WALLET-013] given pot-top-up retired by decision 0010, when the report is made, then its ceiling is 0: none credited is clean and one kobo names the account", () => {
+    const state = tunde();
+    expect(ceilingOf(state, "pot-top-up", "NGN")).toBe(0);
+    expect(ledgerReport(doctored(state, "pot-top-up", "NGN", 0), content).alarms).toEqual([]);
+    expect(ledgerReport(doctored(state, "pot-top-up", "NGN", 1), content).alarms).toEqual([{ reason: "pot-top-up", currency: "NGN", total: 1, ceiling: 0 }]);
+  });
+
   test.each([
     ["salary", "GBP"],
     ["cash-work", "GBP"],

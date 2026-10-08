@@ -3,7 +3,7 @@
 // client imports nothing from the server's side (decision 0004,
 // tests/boundaries.test.ts). Each copy names its source; contract.test.ts
 // holds every copy to its source's declaration, comments aside.
-import type { Command, ConversationRow, Id, InviteCard, LotteryResult, PairView, PlayerView, RejectionCode, Reply, ReportLine, World } from "@japacity/sim";
+import type { Command, ConversationRow, Id, InviteCard, LotteryOdds, LotteryResult, PairView, PlayerView, RejectionCode, Reply, ReportLine, World } from "@japacity/sim";
 
 /** Copied from apps/server/src/types.ts: the server's own refusals beside the simulation's. */
 export type ServerCode =
@@ -295,8 +295,9 @@ export interface DrawReply {
   closesAt: number;
   fingerprint: string;
   beaconRound: number;
-  /** R-LOTTERY-021: the top-up declared when the draw opened, in tickets. */
-  topUpTickets: number;
+  /** R-LOTTERY-021, R-LOTTERY-012: the odds and the jackpot fixed when the draw opened. */
+  odds: LotteryOdds;
+  jackpot: number;
   list: string[] | null;
   count: number | null;
   listHash: string | null;

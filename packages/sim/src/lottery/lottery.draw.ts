@@ -1,17 +1,17 @@
-// The Friday draw's public method: docs/rules/lottery.md R-LOTTERY-009 to 012.
-// Pure code, so the server that runs the draw and the client page that checks
-// it run the same function. SHA-256 is written out here because Web Crypto's
-// digest is asynchronous and platform code (decision 0006).
-import { BP_WHOLE, divFloor, mulDiv } from "../engine/int";
-import type { Content, LotteryResult, Tuning } from "../engine/types";
+// The Friday draw's public method: docs/rules/lottery.md R-LOTTERY-007 to 012,
+// 021, 022. Pure code, so the server that runs the draw and the client page
+// that checks it run the same function. SHA-256 is written out here because
+// Web Crypto's digest is asynchronous and platform code (decision 0006).
+import { BP_WHOLE, bp, divFloor, mulDiv } from "../engine/int";
+import type { Content, LotteryOdds, LotteryResult } from "../engine/types";
 
 export type Tier = "jackpot" | "mid" | "small";
 
-/** One tier of a draw: how many tickets it pays, in the order the tiers are filled. */
-export interface TierSpec {
-  tier: Tier;
-  count: number;
-}
+/** The tiers in the order a result lists them. */
+export const TIERS: readonly Tier[] = ["jackpot", "mid", "small"];
+
+/** R-LOTTERY-010: a ticket's draw is one in a million. */
+export const PER_MILLION = 1_000_000;
 
 // ---------------------------------------------------------------------------
 // SHA-256 (FIPS 180-4)
@@ -146,9 +146,189 @@ export function drawSeed(secret: string, listHash: string, beaconRandomness: str
   return sha256(concat([fromHex(secret), fromHex(listHash), fromHex(beaconRandomness)]));
 }
 
+/** R-LOTTERY-010: block `index` of the seed's counter-mode stream, the SHA-256 of the seed and `index` as eight bytes, big end first. */
+function blockOf(seed: Uint8Array, index: number): Uint8Array {
+  const input = new Uint8Array(seed.length + 8);
+  input.set(seed);
+  new DataView(input.buffer).setBigUint64(seed.length, BigInt(index), false);
+  return sha256(input);
+}
+
+const MILLION = BigInt(PER_MILLION);
+
+/**
+ * R-LOTTERY-010: the ticket's draw of one in a million, from 0 to 999,999.
+ * the block's first eight bytes, big end first, modulo a million; the
+ * lowest numbers are favoured by under one part in ten trillion, which no odds
+ * in whole draws per million can feel.
+ */
+export function ticketDraw(seed: Uint8Array, ticket: number): number {
+  if (!Number.isSafeInteger(ticket) || ticket < 0) throw new Error(`A ticket number is a whole number from 0, got ${String(ticket)}.`);
+  return Number(new DataView(blockOf(seed, ticket).buffer).getBigUint64(0, false) % MILLION);
+}
+
+/** R-LOTTERY-010: a draw of one in a million read against the odds: the jackpot first, then the mid prize, then the small. */
+export function tierOfDraw(draw: number, odds: LotteryOdds): Tier | null {
+  if (draw < odds.jackpotPerMillion) return "jackpot";
+  if (draw < odds.jackpotPerMillion + odds.midPerMillion) return "mid";
+  if (draw < odds.jackpotPerMillion + odds.midPerMillion + odds.smallPerMillion) return "small";
+  return null;
+}
+
+/** R-LOTTERY-010: what one ticket won, a pure public function of the seed, its number and the draw's odds. */
+export function ticketResult(seed: Uint8Array, ticket: number, odds: LotteryOdds): Tier | null {
+  return tierOfDraw(ticketDraw(seed, ticket), odds);
+}
+
+/**
+ * R-LOTTERY-012: the forced win's ticket, the sold ticket whose draw is
+ * highest; the lowest number among equals. Null with no ticket sold.
+ */
+export function forcedTicket(seed: Uint8Array, count: number): number | null {
+  let best: number | null = null;
+  let highest = -1;
+  for (let ticket = 0; ticket < count; ticket += 1) {
+    const draw = ticketDraw(seed, ticket);
+    if (draw > highest) {
+      highest = draw;
+      best = ticket;
+    }
+  }
+  return best;
+}
+
+/**
+ * R-LOTTERY-010, R-LOTTERY-011: every sold ticket's result, as the published
+ * winners: each tier's tickets in number order and what one of them is paid.
+ * The small and mid prizes are their fixed amounts; the jackpot is shared
+ * equally to the kobo among its hits, and with no hit its amount is what one
+ * hit would have taken. `forced` (R-LOTTERY-012) gives the jackpot to the
+ * forced ticket when no ticket hit it.
+ */
+export function drawResults(seed: Uint8Array, count: number, odds: LotteryOdds, jackpot: number, forced = false): LotteryResult["winners"] {
+  if (!Number.isSafeInteger(count) || count < 0) throw new Error(`A draw's ticket count must be a whole number from 0, got ${String(count)}.`);
+  if (!Number.isSafeInteger(jackpot) || jackpot < 0) throw new Error(`A jackpot is a whole number of kobo from 0, got ${String(jackpot)}.`);
+  const won: Record<Tier, number[]> = { jackpot: [], mid: [], small: [] };
+  for (let ticket = 0; ticket < count; ticket += 1) {
+    const tier = ticketResult(seed, ticket, odds);
+    if (tier !== null) won[tier].push(ticket);
+  }
+  const lucky = forced && won.jackpot.length === 0 ? forcedTicket(seed, count) : null;
+  if (lucky !== null) {
+    won.mid = won.mid.filter((ticket) => ticket !== lucky);
+    won.small = won.small.filter((ticket) => ticket !== lucky);
+    won.jackpot = [lucky];
+  }
+  const hits = won.jackpot.length;
+  return [
+    { tier: "jackpot", tickets: won.jackpot, amount: hits === 0 ? jackpot : divFloor(jackpot, hits) },
+    { tier: "mid", tickets: won.mid, amount: odds.mid },
+    { tier: "small", tickets: won.small, amount: odds.small },
+  ];
+}
+
+/** R-LOTTERY-012: whether any ticket of a result hit the jackpot. */
+export function jackpotHit(winners: LotteryResult["winners"]): boolean {
+  return winners.some((tier) => tier.tier === "jackpot" && tier.tickets.length > 0);
+}
+
+/** R-LOTTERY-014: what R-LOTTERY-011 pays for a result: every winning ticket at its tier's amount. */
+export function prizesOwed(winners: LotteryResult["winners"]): number {
+  return winners.reduce((sum, tier) => sum + tier.tickets.length * tier.amount, 0);
+}
+
+/**
+ * R-LOTTERY-012: the jackpot after a draw under its own odds: the start after
+ * a hit, else the smaller of the cap and the jackpot plus `jackpotGrowthBp` of
+ * the draw's sales, rounded down.
+ */
+export function rollJackpot(jackpot: number, sales: number, hit: boolean, odds: LotteryOdds): number {
+  if (hit) return odds.jackpotStart;
+  return Math.min(odds.jackpotCap, jackpot + bp(sales, odds.jackpotGrowthBp));
+}
+
+/**
+ * R-LOTTERY-012, R-LOTTERY-021: the jackpot a draw opens with under the odds
+ * it opens with, from the last draw's result: the start for the first draw or
+ * after a hit, else the rolled-over amount.
+ * when the settings changed between the two draws, the start is the
+ * new one and the rolled-over amount is held under the new cap, so a draw never
+ * stands above the cap its odds were checked at (R-LOTTERY-022).
+ */
+export function openingJackpot(previous: Pick<LotteryResult, "winners" | "nextJackpot"> | null, odds: LotteryOdds): number {
+  if (previous === null || jackpotHit(previous.winners)) return odds.jackpotStart;
+  return Math.min(odds.jackpotCap, previous.nextJackpot);
+}
+
+/**
+ * R-LOTTERY-022: what a ticket returns on average under the odds with the
+ * jackpot at `jackpot`, in kobo times a million, so it is exact:
+ * `small × smallPerMillion + mid × midPerMillion + jackpot × jackpotPerMillion`.
+ */
+export function expectedReturnPerMillion(odds: LotteryOdds, jackpot: number): number {
+  return odds.small * odds.smallPerMillion + odds.mid * odds.midPerMillion + jackpot * odds.jackpotPerMillion;
+}
+
+/**
+ * R-LOTTERY-021, R-LOTTERY-022: the odds leave room in a million, the jackpot
+ * starts under its cap, and a ticket returns less than its price on average at
+ * the starting jackpot and at the cap.
+ */
+export function checkLotteryContent(content: Content): string[] {
+  const { ticket, odds } = content.tuning.lottery;
+  const problems: string[] = [];
+  const chances = odds.jackpotPerMillion + odds.midPerMillion + odds.smallPerMillion;
+  if (chances > PER_MILLION) problems.push(`tuning.lottery.odds: the chances add up to ${String(chances)} in a million, more than a million (R-LOTTERY-010).`);
+  if (odds.jackpotStart > odds.jackpotCap) {
+    problems.push(`tuning.lottery.odds: the jackpot starts at ${String(odds.jackpotStart)}, over its cap of ${String(odds.jackpotCap)} (R-LOTTERY-012).`);
+  }
+  for (const [name, jackpot] of [
+    ["the starting jackpot", odds.jackpotStart],
+    ["the cap", odds.jackpotCap],
+  ] as const) {
+    const back = expectedReturnPerMillion(odds, jackpot);
+    if (!Number.isSafeInteger(back)) {
+      problems.push(`tuning.lottery.odds: the expected return at ${name} is past a whole number of kobo (R-LOTTERY-022).`);
+    } else if (back >= ticket * PER_MILLION) {
+      problems.push(
+        `tuning.lottery.odds: a ticket returns ${String(divFloor(back, PER_MILLION))} kobo on average at ${name}, not under its price of ${String(ticket)} (R-LOTTERY-022).`,
+      );
+    }
+  }
+  return problems;
+}
+
+// ---------------------------------------------------------------------------
+// The raffle: switched off by decision 0010
+// ---------------------------------------------------------------------------
+// The draw was a raffle among the sold tickets, with a pot the house made up,
+// until decision 0010 replaced it with fixed odds. The code and its tests stay,
+// unused, as the maintainer's switch-off rule asks.
+
+/** One tier of the raffle: how many tickets it pays, in the order the tiers are filled. */
+export interface TierSpec {
+  tier: Tier;
+  count: number;
+}
+
+/** The raffle's settings as `tuning.lottery` held them before decision 0010. */
+export interface RaffleSettings {
+  ticket: number;
+  burnBp: number;
+  jackpotBp: number;
+  midBp: number;
+  midCount: number;
+  smallBp: number;
+  smallEvery: number;
+  topUpTickets: number;
+}
+
+/** The raffle's working values when it was switched off, for its tests. */
+export const RAFFLE_AT_SWITCH_OFF: RaffleSettings = { ticket: 20000, burnBp: 4500, jackpotBp: 4000, midBp: 3000, midCount: 10, smallBp: 3000, smallEvery: 50, topUpTickets: 5000 };
+
 const TWO_TO_64 = 1n << 64n;
 
-/** R-LOTTERY-010: block `i` is the SHA-256 of the seed and `i` as eight bytes, big end first, read as four 64-bit numbers. */
+/** The raffle's stream: block `i` is the SHA-256 of the seed and `i` as eight bytes, big end first, read as four 64-bit numbers. */
 function counterStream(seed: Uint8Array): () => bigint {
   const input = new Uint8Array(seed.length + 8);
   input.set(seed);
@@ -177,7 +357,7 @@ function uniform(next: () => bigint, below: number): number {
 }
 
 /**
- * R-LOTTERY-010: the winning ticket numbers of each tier, in the tiers' order.
+ * The raffle (R-LOTTERY-010 before decision 0010): the winning ticket numbers of each tier, in the tiers' order.
  * "without replacement by rejection sampling" is read as: draw a
  * ticket number uniformly, and draw again if it has already won. A tier takes
  * tickets until it is full or none is left; the tiers after an empty pool
@@ -203,12 +383,12 @@ export function drawWinners(seed: Uint8Array, count: number, tiers: TierSpec[]):
 }
 
 /**
- * R-LOTTERY-012: one jackpot, `midCount` mid prizes, and one small prize in every `smallEvery` tickets sold.
+ * The raffle (R-LOTTERY-012 before decision 0010): one jackpot, `midCount` mid prizes, and one small prize in every `smallEvery` tickets sold.
  * the page says at least one small place; with few tickets sold, and above all with the house top-up
  * filling the pot, one in fifty sold made a small prize pay more than a mid one (₦41,250 against ₦16,500 in the
  * review of 8 Oct 2026). never fewer small places than keep a small share under a mid share.
  */
-export function tiersFor(count: number, tuning: Tuning["lottery"]): TierSpec[] {
+export function tiersFor(count: number, tuning: RaffleSettings): TierSpec[] {
   return [
     { tier: "jackpot", count: 1 },
     { tier: "mid", count: tuning.midCount },
@@ -217,11 +397,11 @@ export function tiersFor(count: number, tuning: Tuning["lottery"]): TierSpec[] {
 }
 
 /** The fewest small places whose share is under a mid share: more than `midCount` times `smallBp` over `midBp`. */
-function fewestSmall(tuning: Tuning["lottery"]): number {
+function fewestSmall(tuning: RaffleSettings): number {
   return tuning.midBp === 0 ? 1 : divFloor(tuning.midCount * tuning.smallBp, tuning.midBp) + 1;
 }
 
-function shareBp(tier: Tier, tuning: Tuning["lottery"]): number {
+function shareBp(tier: Tier, tuning: RaffleSettings): number {
   switch (tier) {
     case "jackpot":
       return tuning.jackpotBp;
@@ -237,7 +417,7 @@ function shareBp(tier: Tier, tuning: Tuning["lottery"]): number {
 }
 
 /**
- * R-LOTTERY-011: the prize fund and what each winning ticket is paid.
+ * The raffle (R-LOTTERY-011 before decision 0010): the prize fund and what each winning ticket is paid.
  * the fund is the pot times what is not burnt, rounded down; a tier's
  * share is split over the tickets its spec names, so the shares of places
  * left unfilled are destroyed with the rest.
@@ -246,7 +426,7 @@ export function prizesFor(
   pot: number,
   tiers: TierSpec[],
   winners: number[][],
-  tuning: Tuning["lottery"],
+  tuning: RaffleSettings,
 ): { fund: number; winners: LotteryResult["winners"] } {
   const fund = mulDiv(pot, BP_WHOLE - tuning.burnBp, BP_WHOLE);
   return {
@@ -259,12 +439,8 @@ export function prizesFor(
   };
 }
 
-// ---------------------------------------------------------------------------
-// The house top-up
-// ---------------------------------------------------------------------------
-
 /**
- * R-LOTTERY-021: the top-up of a draw that sold `count` tickets under its
+ * The raffle's house top-up (R-LOTTERY-021 before decision 0010): the top-up of a draw that sold `count` tickets under its
  * declared `topUpTickets`: the pot made up to that many tickets' worth, and 0
  * once sales reach it.
  */
@@ -273,23 +449,22 @@ export function topUpFor(count: number, topUpTickets: number, ticket: number): n
 }
 
 /**
- * R-LOTTERY-022: the part of a prize credited as `pot-top-up`: the prize times
+ * The raffle (R-LOTTERY-022 before decision 0010): the part of a prize credited as `pot-top-up`: the prize times
  * the top-up over the pot, rounded down. An empty pot pays nothing, so its part is 0.
  */
 export function topUpPart(amount: number, topUp: number, pot: number): number {
   return pot === 0 ? 0 : mulDiv(amount, topUp, pot);
 }
 
-/** Contract item 6: the three tiers share the whole prize fund, and the most the house can add is a whole number of kobo. For `checkContent`. */
-export function checkLotteryContent(content: Content): string[] {
-  const tuning = content.tuning.lottery;
+/** The raffle's settings check, as the content check ran it before decision 0010: the three tiers share the whole fund, and the most the house adds is a whole number of kobo. */
+export function raffleProblems(settings: RaffleSettings): string[] {
   const problems: string[] = [];
-  const total = tuning.jackpotBp + tuning.midBp + tuning.smallBp;
-  if (total !== BP_WHOLE) problems.push(`tuning.lottery: the tiers' shares add up to ${String(total)}, not ${String(BP_WHOLE)} (R-LOTTERY-012).`);
-  if (!Number.isSafeInteger(tuning.topUpTickets) || tuning.topUpTickets < 0) {
-    problems.push(`tuning.lottery: topUpTickets is ${String(tuning.topUpTickets)}, not a whole number from 0 (R-LOTTERY-021).`);
-  } else if (!Number.isSafeInteger(tuning.topUpTickets * tuning.ticket)) {
-    problems.push(`tuning.lottery: ${String(tuning.topUpTickets)} tickets' worth of top-up is past a whole number of kobo (R-LOTTERY-021).`);
+  const total = settings.jackpotBp + settings.midBp + settings.smallBp;
+  if (total !== BP_WHOLE) problems.push(`The raffle's tiers' shares add up to ${String(total)}, not ${String(BP_WHOLE)}.`);
+  if (!Number.isSafeInteger(settings.topUpTickets) || settings.topUpTickets < 0) {
+    problems.push(`The raffle's topUpTickets is ${String(settings.topUpTickets)}, not a whole number from 0.`);
+  } else if (!Number.isSafeInteger(settings.topUpTickets * settings.ticket)) {
+    problems.push(`${String(settings.topUpTickets)} tickets' worth of top-up is past a whole number of kobo.`);
   }
   return problems;
 }

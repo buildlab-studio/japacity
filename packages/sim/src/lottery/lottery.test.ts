@@ -10,24 +10,40 @@ import { start } from "../testing/play";
 import { standInWorld } from "../world/standIn";
 
 const tuning = content.tuning.lottery;
+const { odds } = tuning;
 /** Tunde starts with ₦4.2m in the bank and ₦60,000 in cash. */
 const TUNDE: Id<"scenario"> = "scenario.tunde";
 const LOTTO: Id<"activity"> = "activity.play-lotto";
 
 type Draw = NonNullable<World["lottery"]>;
 
-function drawOf(draw: number, closesTick: number, last: LotteryResult | null = null, topUpTickets = 0): Draw {
-  return { draw, closesTick, fingerprint: "ab".repeat(32), beaconRound: 1000 + draw, potSoFar: 140000, topUpTickets, last };
+function drawOf(draw: number, closesTick: number, last: LotteryResult | null = null, jackpot = odds.jackpotStart, rolledOver = false): Draw {
+  return { draw, closesTick, fingerprint: "ab".repeat(32), beaconRound: 1000 + draw, salesSoFar: 140000, jackpot, rolledOver, odds, last };
 }
 
+/** A drawn draw whose jackpot stood at ₦250,000. */
+const STOOD = 25_000_000;
+
 function resultOf(draw: number, winners: LotteryResult["winners"]): LotteryResult {
-  return { draw, revealed: "cd".repeat(32), beaconRound: 1000 + draw, beaconRandomness: "ef".repeat(32), listHash: "01".repeat(32), count: 300, pot: 6000000, topUp: 0, fund: 3300000, winners };
+  const hit = winners.some((tier) => tier.tier === "jackpot" && tier.tickets.length > 0);
+  return {
+    draw,
+    revealed: "cd".repeat(32),
+    beaconRound: 1000 + draw,
+    beaconRandomness: "ef".repeat(32),
+    listHash: "01".repeat(32),
+    count: 300,
+    odds,
+    jackpot: STOOD,
+    winners,
+    nextJackpot: hit ? odds.jackpotStart : STOOD + 6000,
+  };
 }
 
 const FULL: LotteryResult["winners"] = [
-  { tier: "jackpot", tickets: [17], amount: 1320000 },
-  { tier: "mid", tickets: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], amount: 99000 },
-  { tier: "small", tickets: [20, 21, 22, 23, 24, 25], amount: 165000 },
+  { tier: "jackpot", tickets: [17], amount: STOOD },
+  { tier: "mid", tickets: [1, 2], amount: odds.mid },
+  { tier: "small", tickets: [20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33], amount: odds.small },
 ];
 
 interface Live {
@@ -163,7 +179,7 @@ describe("tickets", () => {
     game.expectRejected({ type: "lottery/buy", tickets: 1 }, "bad-amount");
   });
 
-  test("[R-LOTTERY-006] given a draw on sale with a last result, when the view is read, then it shows the price, the cap, the tickets held, the close, the pot, the fingerprint and the last result", () => {
+  test("[R-LOTTERY-006] given a draw on sale with a last result, when the view is read, then it shows the price, the cap, the tickets held, the close, the odds, the jackpot, the fingerprint and the last result", () => {
     const last = resultOf(6, FULL);
     const { game } = play(drawOf(7, 1000, last));
     game.accept({ type: "lottery/buy", tickets: 2 });
@@ -174,36 +190,35 @@ describe("tickets", () => {
       closesTick: 1000,
       tickets: 2,
       numbers: null,
-      potSoFar: 140000,
-      topUpTickets: 0,
-      topUpSoFar: 0,
+      jackpot: odds.jackpotStart,
+      rolledOver: false,
+      odds,
       fingerprint: "ab".repeat(32),
       last,
     });
   });
 
-  test("[R-LOTTERY-023] given a declared top-up, when the view is read with sales under, at and over it, then the top-up so far makes the pot up to it and is 0 from there", () => {
-    const sold = (tickets: number): Draw => ({ ...drawOf(7, 1000, null, tuning.topUpTickets), potSoFar: tickets * tuning.ticket });
-    const { game, live } = play(sold(0));
-    expect(game.view().lottery).toMatchObject({ topUpTickets: tuning.topUpTickets, topUpSoFar: tuning.topUpTickets * tuning.ticket, potSoFar: 0 });
-    live.lottery = sold(tuning.topUpTickets - 1);
-    expect(game.view().lottery?.topUpSoFar).toBe(tuning.ticket);
-    live.lottery = sold(tuning.topUpTickets);
-    expect(game.view().lottery?.topUpSoFar).toBe(0);
-    live.lottery = sold(tuning.topUpTickets + 1);
-    expect(game.view().lottery?.topUpSoFar).toBe(0);
+  test("[R-LOTTERY-023] given a draw whose jackpot rolled over, and one that starts again, when the view is read, then it shows the jackpot standing, whether it rolled over, and the odds; never a pot or a top-up", () => {
+    const { game, live } = play(drawOf(7, 1000, null, STOOD + 6000, true));
+    expect(game.view().lottery).toMatchObject({ jackpot: STOOD + 6000, rolledOver: true, odds });
+    live.lottery = drawOf(8, 1000, null, odds.jackpotStart, false);
+    expect(game.view().lottery).toMatchObject({ jackpot: odds.jackpotStart, rolledOver: false });
+    expect(Object.keys(game.view().lottery ?? {}).filter((key) => /^pot|top/i.test(key))).toEqual([]);
   });
+});
 
-  test("[R-LOTTERY-023] given a draw declared with no top-up, when the view is read, then it shows 0 tickets and 0 so far", () => {
-    const { game } = play(drawOf(7, 1000, null, 0));
-    expect(game.view().lottery).toMatchObject({ topUpTickets: 0, topUpSoFar: 0 });
+describe("what the rewrite kept", () => {
+  test("[R-LOTTERY-024] given the content, when the draw's price and cap are read, then a ticket is ₦200 and five may be bought a draw, so the most staked in a week is ₦1,000", () => {
+    expect(tuning.ticket).toBe(20000);
+    expect(tuning.maxTickets).toBe(5);
+    expect(tuning.ticket * tuning.maxTickets).toBe(100000);
   });
 });
 
 describe("paying", () => {
   const PRIZES = [
-    { tier: "jackpot", amount: 1320000, topUp: 0 },
-    { tier: "small", amount: 165000, topUp: 0 },
+    { tier: "jackpot", amount: 1320000 },
+    { tier: "small", amount: 165000 },
   ] as const;
 
   test("[R-LOTTERY-013] given a player, when lottery/pay is sent, then it is rejected with not-yours", () => {
@@ -231,9 +246,9 @@ describe("paying", () => {
 
   test("[R-LOTTERY-013] given only small prizes, when they are paid, then the letter is not staged", () => {
     const { game } = play();
-    const result = game.accept({ type: "lottery/pay", draw: 7, prizes: [{ tier: "small", amount: 165000, topUp: 0 }] }, "authority");
+    const result = game.accept({ type: "lottery/pay", draw: 7, prizes: [{ tier: "small", amount: 165000 }] }, "authority");
     expect(result.lines.find((line) => line.key === "line.lottery.letter")).toMatchObject({ big: false, attention: true });
-    const mid = game.accept({ type: "lottery/pay", draw: 8, prizes: [{ tier: "mid", amount: 99000, topUp: 0 }] }, "authority");
+    const mid = game.accept({ type: "lottery/pay", draw: 8, prizes: [{ tier: "mid", amount: 99000 }] }, "authority");
     expect(mid.lines.find((line) => line.key === "line.lottery.letter")?.big).toBe(true);
   });
 
@@ -241,7 +256,7 @@ describe("paying", () => {
     const { game, live } = play(drawOf(7, 1000, resultOf(6, FULL)));
     endTurn(game);
     expect(game.view().card?.kind).not.toBe("draw-win");
-    game.accept({ type: "lottery/pay", draw: 7, prizes: [{ tier: "small", amount: 165000, topUp: 0 }] }, "authority");
+    game.accept({ type: "lottery/pay", draw: 7, prizes: [{ tier: "small", amount: 165000 }] }, "authority");
     expect(game.view().card).toMatchObject({ kind: "draw-win", months: game.state.turn.month, name: null });
     // The result is published in the tick after the payments (R-LOTTERY-015).
     live.lottery = drawOf(8, 1000, resultOf(7, FULL));
@@ -255,7 +270,7 @@ describe("paying", () => {
     game.accept({ type: "lottery/pay", draw: 7, prizes: [...PRIZES] }, "authority");
     game.expectRejected({ type: "lottery/pay", draw: 7, prizes: [...PRIZES] }, "not-legal", "authority");
     game.expectRejected({ type: "lottery/pay", draw: 6, prizes: [...PRIZES] }, "not-legal", "authority");
-    game.accept({ type: "lottery/pay", draw: 8, prizes: [{ tier: "small", amount: 1, topUp: 0 }] }, "authority");
+    game.accept({ type: "lottery/pay", draw: 8, prizes: [{ tier: "small", amount: 1 }] }, "authority");
     expect(game.state.lottery.paid).toBe(8);
   });
 
@@ -263,7 +278,7 @@ describe("paying", () => {
     const { game } = play();
     game.expectRejected({ type: "lottery/pay", draw: 7, prizes: [] }, "bad-amount", "authority");
     for (const amount of [0, -5, Number("2.5")]) {
-      game.expectRejected({ type: "lottery/pay", draw: 7, prizes: [{ tier: "jackpot", amount, topUp: 0 }] }, "bad-amount", "authority");
+      game.expectRejected({ type: "lottery/pay", draw: 7, prizes: [{ tier: "jackpot", amount }] }, "bad-amount", "authority");
     }
     expect(game.state.lottery.paid).toBeNull();
   });
@@ -273,51 +288,48 @@ function creditedReasons(events: readonly { type: string }[]): unknown[] {
   return events.flatMap((event) => (event.type === "wallet/credited" && "reason" in event ? [event.reason] : []));
 }
 
-describe("the house's part of a prize", () => {
-  test("[R-LOTTERY-022] given a prize with a top-up part, when it is paid, then the part is credited as pot-top-up, the rest as win, and the letter tells the whole prize", () => {
-    const { game } = play();
-    const before = game.state.wallet.pockets.NGN.bank;
-    const result = game.accept({ type: "lottery/pay", draw: 7, prizes: [{ tier: "jackpot", amount: 1320000, topUp: 1000000 }] }, "authority");
-    expect(game.state.wallet.pockets.NGN.bank).toBe(before + 1320000);
-    expect(result.events).toContainEqual({ type: "wallet/credited", currency: "NGN", pocket: "bank", amount: 320000, reason: "win" });
-    expect(result.events).toContainEqual({ type: "wallet/credited", currency: "NGN", pocket: "bank", amount: 1000000, reason: "pot-top-up" });
-    expect(result.events.some((event) => event.type === "wallet/lot-recorded")).toBe(false);
-    expect(result.lines.find((line) => line.key === "line.lottery.letter")?.params).toEqual({ draw: 7, won: { currency: "NGN", amount: 1320000 } });
-  });
-
-  test("[R-LOTTERY-022] given prizes all from sales or all from the top-up, when they are paid, then only the one reason is credited", () => {
-    const { game } = play();
-    const sales = game.accept({ type: "lottery/pay", draw: 7, prizes: [{ tier: "mid", amount: 99000, topUp: 0 }] }, "authority");
-    expect(creditedReasons(sales.events)).toEqual(["win"]);
-    const house = game.accept({ type: "lottery/pay", draw: 8, prizes: [{ tier: "mid", amount: 99000, topUp: 99000 }] }, "authority");
-    expect(creditedReasons(house.events)).toEqual(["pot-top-up"]);
-  });
-
-  test("[R-LOTTERY-022] given a top-up part under 0, over its prize or not whole, when the prize is paid, then it is rejected with bad-amount and nothing is paid", () => {
+describe("pot-top-up is retired", () => {
+  test("[R-LOTTERY-013] given a payout that still carries a house part, when it is paid, then it is refused with not-legal and nothing is paid; a part of 0 credits only win", () => {
     const { game } = play();
     const bank = game.state.wallet.pockets.NGN.bank;
-    for (const topUp of [-1, 99001, Number("0.5"), Number.NaN]) {
-      game.expectRejected({ type: "lottery/pay", draw: 7, prizes: [{ tier: "mid", amount: 99000, topUp }] }, "bad-amount", "authority");
+    for (const topUp of [1, 99000, -1, Number("0.5")]) {
+      const prizes = [{ tier: "mid", amount: 99000, topUp }] as unknown as { tier: "mid"; amount: number }[];
+      game.expectRejected({ type: "lottery/pay", draw: 7, prizes }, "not-legal", "authority");
     }
     expect(game.state.wallet.pockets.NGN.bank).toBe(bank);
     expect(game.state.lottery.paid).toBeNull();
+    const zero = [{ tier: "mid", amount: 99000, topUp: 0 }] as unknown as { tier: "mid"; amount: number }[];
+    expect(creditedReasons(game.accept({ type: "lottery/pay", draw: 7, prizes: zero }, "authority").events)).toEqual(["win"]);
   });
+
+  test.prop([fc.array(fc.record({ tier: fc.constantFrom("jackpot" as const, "mid" as const, "small" as const), amount: fc.integer({ min: 1, max: 40_000_000 }) }), { minLength: 1, maxLength: 6 })])(
+    "[R-LOTTERY-013] given any payout, when it is paid, then every prize is credited as win and nothing as pot-top-up",
+    (prizes) => {
+      const { game } = play();
+      const result = game.accept({ type: "lottery/pay", draw: 7, prizes }, "authority");
+      expect(creditedReasons(result.events)).toEqual(prizes.map(() => "win"));
+      expect(game.state.wallet.totals.in["pot-top-up"]).toBeUndefined();
+    },
+  );
 });
 
 describe("telling", () => {
-  test("[R-LOTTERY-016] given a last result the character has not been shown, when turns are played, then the front-page line comes once with the jackpot and the winners, and seen moves on", () => {
+  test("[R-LOTTERY-016] given a last result the character has not been shown, when turns are played, then the front-page line comes once with the jackpot standing, whether it was hit and the winners, and seen moves on", () => {
     const { game, live } = play(drawOf(7, 1000, resultOf(6, FULL)));
     const first = linesOf(game, "line.lottery.drawn");
     expect(first).toEqual([
-      { key: "line.lottery.drawn", params: { draw: 6, jackpot: { currency: "NGN", amount: 1320000 }, winners: 17 }, tone: "plain", attention: false, counts: [] },
+      { key: "line.lottery.drawn", params: { draw: 6, jackpot: { currency: "NGN", amount: STOOD }, winners: 17 }, tone: "plain", attention: false, counts: [] },
     ]);
     expect(game.state.lottery.seen).toBe(6);
     expect(linesOf(game, "line.lottery.drawn")).toEqual([]);
-    live.lottery = drawOf(8, 1000, resultOf(7, [{ tier: "jackpot", tickets: [], amount: 1320000 }, ...FULL.slice(1)]));
-    const next = linesOf(game, "line.lottery.drawn");
-    expect(next).toHaveLength(1);
-    expect(next[0]?.params).toEqual({ draw: 7, jackpot: { currency: "NGN", amount: 0 }, winners: 16 });
+    live.lottery = drawOf(8, 1000, resultOf(7, [{ tier: "jackpot", tickets: [], amount: STOOD }, ...FULL.slice(1)]));
+    if (game.state.turn.banked === 0) game.grant(1);
+    const next = game.endTurn().lines.filter((line) => line.key.startsWith("line.lottery.drawn"));
+    expect(next).toEqual([
+      { key: "line.lottery.drawn-rolled", params: { draw: 7, jackpot: { currency: "NGN", amount: STOOD }, winners: 16 }, tone: "plain", attention: false, counts: [] },
+    ]);
     expect(game.state.lottery.seen).toBe(7);
+    expect(text["line.lottery.drawn-rolled"]).toBeDefined();
   });
 
   test("[R-LOTTERY-016] given no draw or no result yet, when a turn is played, then no draw line is given", () => {

@@ -12,9 +12,10 @@ export type Alarm =
   /** R-SERVER-012: `ledgerReport` named the character as suspect. */
   | { kind: "suspect"; day: number; character: string; reason: Reason; currency: Currency; total: number; ceiling: number }
   /**
-   * R-LOTTERY-014: `win` and `pot-top-up` paid for the draw together above its
-   * fund (`win`), `pot-top-up` above its top-up (`top-up`), or `ticket` taken
-   * for it other than its sales (`ticket`); `limit` is the figure passed.
+   * R-LOTTERY-014: `win` paid for the draw other than its result gives (`win`),
+   * any `pot-top-up` paid for it (`top-up`, retired by decision 0010), or
+   * `ticket` taken for it other than its sales (`ticket`); `limit` is the
+   * figure it should have been.
    */
   | { kind: "draw"; day: number; draw: number; check: "win" | "top-up" | "ticket"; total: number; limit: number }
   /** R-SERVER-003: a load found the replay's hash differs from the stored one; the character waits for the rollback tool. */

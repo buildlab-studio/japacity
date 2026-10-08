@@ -1,4 +1,5 @@
 import type { DrawRow, TicketRow, WorldStore, WorldTickRow } from "@japacity/store";
+import { sameDraw } from "@japacity/store";
 import { asc, count, desc, eq } from "drizzle-orm";
 
 import type { Handle, Queries } from "../handle";
@@ -12,6 +13,8 @@ function toDraw(row: typeof draws.$inferSelect): DrawRow {
     fingerprint: row.fingerprint,
     beaconRound: row.beaconRound,
     topUpTickets: row.topUpTickets,
+    odds: row.odds,
+    jackpot: row.jackpot,
     closedAt: row.closedAt,
     list: row.list,
     listHash: row.listHash,
@@ -67,11 +70,11 @@ export function pgWorldStore(handle: Handle): WorldStore {
 
     putDraw: (row) =>
       handle.transaction(async (tx) => {
-        const { draw, secret, fingerprint, beaconRound, topUpTickets } = row;
-        await tx.insert(draws).values({ draw, secret, fingerprint, beaconRound, topUpTickets }).onConflictDoNothing();
+        const { draw, secret, fingerprint, beaconRound, topUpTickets, odds, jackpot } = row;
+        await tx.insert(draws).values({ draw, secret, fingerprint, beaconRound, topUpTickets, odds, jackpot }).onConflictDoNothing();
         const stored = await lockDraw(tx, draw);
         if (stored === null) throw new Error(`Draw ${String(draw)} was not stored.`);
-        if (stored.secret !== secret || stored.fingerprint !== fingerprint || stored.beaconRound !== beaconRound || stored.topUpTickets !== topUpTickets) {
+        if (!sameDraw(stored, row)) {
           return refuse("conflict", `Draw ${String(draw)} is already stored with other commitments.`);
         }
         return accept(stored);
