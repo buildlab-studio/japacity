@@ -262,3 +262,36 @@ test.describe("the header on a desktop", () => {
     expect(size).toBeGreaterThanOrEqual(24);
   });
 });
+
+test.describe("the side job on a 390 px phone", () => {
+  test.use({ viewport: { width: 390, height: 844 } });
+
+  test("a side job's words keep the card's width, with the quit button under them", async ({ page }) => {
+    await page.goto("/");
+    await page.getByRole("button", { name: /^Live this life/ }).first().click();
+    await expect(page.getByRole("heading", { name: "Month 1", exact: true })).toBeVisible();
+
+    const side = page.locator("[data-side-job]");
+    for (let month = 0; month < 12 && !(await side.isVisible()); month += 1) {
+      await openTab(page, "Month");
+      const accept = page.getByRole("button", { name: /^Accept/ });
+      if (await accept.isVisible()) {
+        await accept.click();
+        continue;
+      }
+      const hunt = page.locator("li", { has: page.getByRole("heading", { name: "Look for a job", exact: true }) });
+      await hunt.getByLabel("Which one").selectOption({ label: "Weekend tutoring" });
+      await page.getByRole("button", { name: "Add to month: Look for a job" }).click();
+      await endMonthAndRead(page, `while looking for a side job, month ${String(month + 1)}`);
+    }
+
+    await expect(side).toBeVisible();
+    const words = await side.locator("[data-side-words]").boundingBox();
+    const quit = await side.getByRole("button", { name: "Quit the side job" }).boundingBox();
+    const card = await side.boundingBox();
+    expect(words !== null && quit !== null && card !== null).toBe(true);
+    if (words === null || quit === null || card === null) return;
+    expect(quit.y).toBeGreaterThanOrEqual(words.y + words.height);
+    expect(words.width).toBeGreaterThan(card.width * 0.8);
+  });
+});
