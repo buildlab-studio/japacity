@@ -29,4 +29,15 @@ export const documentText: Record<string, string> = {
   "line.document.issued-band": "Your {document} is out. Band {band}.",
   "line.document.expired": "Your {document} has run out.",
   "line.document.voided": "Your {document} is no longer valid.",
+
+  // The phone's reminders (world.md R-WORLD-019, story/story.notice.data.ts). {month} is the month
+  // the paper is due.
+  "document.english-test.reminder.book": "English test: book it. Take your passport from the box first.",
+  "document.english-test.reminder.due": "English test: your result comes in month {month}.",
+  "document.tb-certificate.reminder.book": "TB test: take your passport to the clinic.",
+  "document.passport.reminder.due": "Passport: ready to collect in month {month}.",
+  "document.transcript.reminder.due": "Transcript: your school says month {month}.",
+  "document.passport.reminder.expired": "Your passport has run out. Renew it before anything else.",
+  "document.english-test.reminder.expired": "Your English result has run out. Sit the test again.",
+  "document.tb-certificate.reminder.expired": "Your TB certificate has run out. Get another before you apply.",
 };

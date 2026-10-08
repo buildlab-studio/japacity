@@ -62,4 +62,22 @@ export const obligationText: Record<string, string> = {
   "line.obligation.undertaking-default": "You have missed the undertaking too many times. Canada has it on file as a default, and will take the {amount} owed from your bank account.",
   "line.obligation.undertaking-seized": "Canada took {amount} from your account toward your undertaking.",
   "line.obligation.debt-grown": "The {amount} nobody paid is added to what they say you owe.",
+
+  // The phone's bill notices (world.md R-WORLD-019, story/story.notice.data.ts): one line per open
+  // bill, by type, with the entry as {obligation} and this month's charge as {amount}.
+  "obligation.notice.upkeep": "{obligation}: {amount} goes out at the end of the month.",
+  "obligation.notice.support": "Money for home: {amount} is due this month.",
+  "obligation.notice.loan": "{obligation}: {amount} is due this month.",
+  "obligation.notice.held-funds": "{obligation}: {amount} interest is due. Miss it and they take the funds back.",
+  "obligation.notice.rent": "Rent: {amount} is due this month.",
+  "obligation.notice.phone": "Phone bill: {amount} is due this month.",
+  "obligation.notice.car": "Car payment: {amount} is due this month.",
+  "obligation.notice.surcharge": "Health surcharge: {amount} is due this month.",
+  "obligation.notice.tuition": "Tuition: {amount} is due this month.",
+  "obligation.notice.agent-debt": "The men on the road want {amount} this month.",
+  "obligation.notice.undertaking": "Your undertaking: {amount} is due to Canada this month.",
+  "obligation.notice.group-loan": "Group loan: {amount} is due at the meeting.",
+  "obligation.notice.ajo": "Your share for the circle: {amount} this month.",
+  "obligation.notice.late": "{obligation}: last month was missed. {amount} is due now.",
+  "obligation.notice.defaulted": "{obligation} has gone bad. The lender takes {amount} from your account.",
 };
