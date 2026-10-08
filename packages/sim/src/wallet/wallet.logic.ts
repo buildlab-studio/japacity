@@ -142,6 +142,11 @@ export function allowanceLeft(read: ReadCtx): number {
   return Math.max(0, varOr(read.world, ALLOWANCE, 0) - boughtThisMonth(read.state));
 }
 
+/** The allowance and the queue are the Lagos bank's, so they bind only at home. */
+function atHome(state: State): boolean {
+  return state.place.where === "home";
+}
+
 // ---------------------------------------------------------------------------
 // Events
 // ---------------------------------------------------------------------------
@@ -307,7 +312,7 @@ function convertAtBank(ctx: Ctx, from: Currency, to: Currency, amount: number): 
   const charge = bp(amount, content.tuning.wallet.bankChargeBp);
   const net = amount - charge;
   const official = officialRates(world);
-  const buying = to !== "NGN";
+  const buying = to !== "NGN" && atHome(state);
   const cents = buying ? convertMinor(net, from, "USD", official) : 0;
   if (cents > allowanceLeft(ctx)) {
     return reject("bad-amount", `That is ${String(cents)} US cents; the bank allows ${String(allowanceLeft(ctx))} more this month.`);
