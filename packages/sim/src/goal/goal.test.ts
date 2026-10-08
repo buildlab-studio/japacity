@@ -251,6 +251,32 @@ describe("goals open and are done in the chapter phase", () => {
   });
 });
 
+describe("the December visit", () => {
+  test("[R-RETURN-005] given Ada's first month abroad in the December tick, when she goes and spends on everything, then the fare and each answer's price leave her pounds as each is given and the page's standing comes", () => {
+    const game = flownAda(content);
+    applyEffects(game, [
+      { type: "money/add", currency: "GBP", pocket: "bank", amount: 10000 * POUNDS, reason: "gift" },
+      { type: "quality/add", quality: STANDING, amount: -40 },
+    ]);
+    game.endTurn();
+    expect(game.state.setpiece.open).toMatchObject({ entry: "setpiece.december", route: null });
+    const pick: Record<string, string> = { go: "go", party: "big", gifts: "all", look: "outfit" };
+    const standing = game.state.quality[STANDING]!;
+    const paid: number[] = [];
+    for (let guard = 0; guard < 4; guard += 1) {
+      const question = game.view().setpiece!.question!;
+      const before = game.state.wallet.pockets.GBP.bank + game.state.wallet.pockets.GBP.cash;
+      game.accept({ type: "setpiece/answer", question: question.id, answer: pick[question.id.slice(0, question.id.indexOf("-"))]! });
+      paid.push(before - game.state.wallet.pockets.GBP.bank - game.state.wallet.pockets.GBP.cash);
+    }
+    expect(game.state.setpiece.open).toBeNull();
+    // The fare both ways in December, and the party, the gifts and the look at their prices in pounds.
+    expect(paid.reduce((sum, amount) => sum + amount, 0)).toBe(310000 + 22700 + 34100 + 14200);
+    expect(game.state.quality[STANDING]).toBe(standing + 6 + 8 + 4);
+    expect(game.state.setpiece.answered["setpiece.december"]).toBe(1);
+  });
+});
+
 describe("done stays done", () => {
   test("[R-GOAL-002] given a clean file done, when the file falls back to nothing, then it stays done, the requirement still holds and no reward comes twice", () => {
     const game = landed();
