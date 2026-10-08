@@ -94,7 +94,7 @@ describe("what the record holds", () => {
   });
 
   test("[R-PAIR-003] given a moment and a proposal carrying extra fields, when written, then the record keeps only the contract's fields", () => {
-    const sneaky = { ...met(3), amount: 500_000, phone: "08000000000" } as PairWrite;
+    const sneaky = { type: "pair/moment-added", kind: "met", spot: "beach", what: "suya", tick: 3, amount: 500_000, phone: "08000000000" } as PairWrite;
     const offer = { type: "pair/proposed", proposal: { step: "partner", route: null, lead: null, money: 1 } } as PairWrite;
     const record = play(linked(), ["a", { type: "pair/courted", tick: 2 }], ["a", sneaky], ["b", offer]);
     expect(Object.keys(record.moments[0] ?? {}).sort()).toEqual(MOMENT_KEYS);

@@ -2,8 +2,6 @@ import { content, text } from "@japacity/content";
 import { fc, test } from "@fast-check/vitest";
 import { describe, expect } from "vitest";
 
-// the phrase words are not yet in the content's merged text; read them from their file until they are.
-import { phraseText } from "../../../content/src/phrase/phrase.text";
 import type { Content, ConversationRow, Id, PairRecord, PhraseEntry, PlayerView } from "../engine/types";
 import { start } from "../testing/play";
 import { newRecord, writeEvent } from "./pair.logic";
@@ -21,7 +19,13 @@ const pair = content.tuning.pair;
 /** The shared spots of people.md R-PEOPLE-014, which the people agents enter. */
 const SHARED_SPOTS = ["beach", "suya-spot", "church", "cinema", "mall", "friends-wedding", "campus", "bus-stop"];
 const withSpots: Content = { ...content, people: { spots: SHARED_SPOTS } };
-const words = { ...text, ...phraseText };
+/** Words that pass every check, for planting one bad line among. The real words are checked in content's phrase test. */
+const words: Record<string, string> = {
+  ...text,
+  ...Object.fromEntries(Object.values(content.phrase).map((entry) => [`${entry.id}.name`, entry.fill === null ? "Fine." : `Fine {${entry.fill}}.`])),
+  ...Object.fromEntries(Object.values(content.phrase).flatMap((entry) => (entry.options ?? []).map((option) => [`${entry.id}.fill.${option}`, "fine"]))),
+  "phrase.meet-at.name": "Let us meet at {spot}.",
+};
 
 function phrase(id: Id<"phrase">): PhraseEntry {
   const entry = content.phrase[id];
@@ -52,18 +56,16 @@ function sentWithin(count: number, span: number): number[] {
 }
 
 describe("the phrases in content", () => {
-  test("[R-PAIR-010] given the 23 phrases with the shared spots and their words, when checked, then nothing is found", () => {
+  test("[R-PAIR-010] given the 23 phrases with the shared spots, when checked, then nothing is found", () => {
     expect(Object.keys(content.phrase)).toHaveLength(23);
+    expect(phraseChecks(withSpots)).toEqual([]);
     expect(phraseChecks(withSpots, words)).toEqual([]);
   });
 
-  test("[R-PAIR-010] given every phrase, when its fill-in is read, then it has at most one and it comes from a fixed list", () => {
-    for (const entry of Object.values(content.phrase)) {
-      const holes = (words[`${entry.id}.name`] ?? "").match(/\{[a-z]+\}/g) ?? [];
-      expect(holes.length).toBeLessThanOrEqual(1);
-      if (entry.fill === "event" || entry.fill === "thing") expect(entry.options?.length).toBeGreaterThan(0);
-      else expect(entry.options).toBeUndefined();
-    }
+  test("[R-PAIR-010] given every phrase, when its fill-in is read, then events and things list their options and nothing else carries a list", () => {
+    const listed = (entry: PhraseEntry): boolean => entry.fill === "event" || entry.fill === "thing";
+    const off = Object.values(content.phrase).filter((entry) => (listed(entry) ? (entry.options?.length ?? 0) === 0 : entry.options !== undefined));
+    expect(off).toEqual([]);
   });
 
   test("[R-PAIR-010] given no shared spots, when the phrases are checked, then each spot phrase is found without a source", () => {
@@ -81,7 +83,7 @@ describe("the phrases in content", () => {
         "phrase.good-news": { ...GOOD_NEWS, options: [] },
         "phrase.hello": { ...HELLO, options: ["hi"] },
         "phrase.meet-at": { ...MEET_AT, options: ["beach"] },
-        "phrase.Bad": { ...HELLO, id: "phrase.Bad" as Id<"phrase"> },
+        "phrase.Bad": { ...HELLO, id: "phrase.Bad" },
       },
     };
     expect(phraseChecks(broken).join("\n")).toMatch(/phrase\.good-news: fills event from an empty list/);
