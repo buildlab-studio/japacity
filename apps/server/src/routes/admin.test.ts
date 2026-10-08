@@ -4,8 +4,9 @@ import { countRejection } from "../admin/rejections";
 import { testDeps } from "../app.test";
 import { makeApp } from "../app";
 import { productionConfig, testConfig } from "../config";
-import { testSession } from "../deps";
+import { TEST_SIGNED_IN_WITH, testSession } from "../deps";
 import { dayStart, utcDay } from "../admin/day";
+import { ADMIN_PASSKEY_DETAIL } from "./admin";
 
 const ADMIN = "account.owner";
 const ROUTES = ["/api/admin/report?day=1", "/api/admin/alarms", "/api/admin/rejections", "/api/admin/rollback/character.nobody"];
@@ -44,6 +45,18 @@ describe("the admin routes", () => {
     for (const path of ROUTES) expect((await app.request(path, as(ADMIN))).status).toBe(200);
     expect(await (await app.request("/api/admin/alarms", as(ADMIN))).json()).toEqual({ ok: true, alarms: [] });
     expect(await (await app.request("/api/admin/rollback/character.nobody", as(ADMIN))).json()).toEqual({ ok: false, code: "missing", detail: "No character character.nobody." });
+  });
+
+  test("[R-MODERATION-012] given an admin whose test session says it was opened by email code, when any admin route of any area is asked, then it is refused as not-legal; the same admin with a passkey session is answered", async () => {
+    const app = makeApp(admin());
+    const areas = [...ROUTES, "/api/admin/analytics", "/api/admin/adverts/campaigns", "/api/admin/moderation/queue", "/api/admin/switches", "/api/admin/nothing-here"];
+    for (const path of areas) {
+      const reply = await app.request(path, { headers: { "x-test-account": ADMIN, [TEST_SIGNED_IN_WITH]: "email-code" } });
+      expect({ path, status: reply.status, body: await reply.json() }).toEqual({ path, status: 403, body: { ok: false, code: "not-legal", detail: ADMIN_PASSKEY_DETAIL } });
+    }
+    const posted = await app.request("/api/admin/switches", { method: "POST", headers: { "x-test-account": ADMIN, [TEST_SIGNED_IN_WITH]: "email-code", "content-type": "application/json" }, body: JSON.stringify({ name: "adverts", on: false, reason: "test" }) });
+    expect(posted.status).toBe(403);
+    for (const path of areas.slice(0, -1)) expect({ path, status: (await app.request(path, { headers: { "x-test-account": ADMIN, [TEST_SIGNED_IN_WITH]: "passkey" } })).status }).toEqual({ path, status: 200 });
   });
 
   test("[R-SERVER-011] given a day's totals, when the report is fetched, then it is that day's row; with no day it is the day that has just ended; a day that is not a whole number is refused", async () => {

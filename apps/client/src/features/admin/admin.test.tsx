@@ -5,7 +5,7 @@ import { api, type Fetch } from "../../shared/net/http";
 import { formatMoney } from "../../shared/words/format";
 // Registers Testing Library's cleanup for this file.
 import "../../shared/testing/render";
-import { ADMIN_GETS, QUEUE, ROLLBACK, YESTERDAY } from "./admin.fixtures";
+import { ADMIN_GETS, CAMPAIGNS, QUEUE, ROLLBACK, YESTERDAY } from "./admin.fixtures";
 import { words } from "./admin.words";
 import { AdminPage, type AdminTab } from "./AdminPage";
 import { AdminRoute } from "./AdminRoute";
@@ -367,6 +367,19 @@ describe("the adverts tab", () => {
     expectOnlyAdminRoutes(server.calls);
   });
 
+  test("[R-ADVERT-012] given a campaigns reply naming checks the page has never seen, when a version is reviewed, then exactly the reply's checks are offered", async () => {
+    if (!CAMPAIGNS.ok) throw new Error("The fixture is a refusal.");
+    const [first, ...rest] = CAMPAIGNS.campaigns;
+    if (first === undefined) throw new Error("The fixture has no campaign.");
+    const creatives = first.creatives.map((creative) => ({ ...creative, checks: ["format", "new-check"] }));
+    page("adverts", { "GET /api/admin/adverts/campaigns": () => ({ ok: true, campaigns: [{ ...first, checks: ["registered-business", "another-check"], creatives }, ...rest] }) });
+    const card = (await screen.findByRole("heading", { name: words("admin.campaign.title", { id: "campaign-a1" }) })).closest("li")!;
+    const review = within(card).getByRole("group", { name: words("admin.campaign.review") });
+    expect(within(review).getAllByRole("checkbox").map((box) => box.parentElement?.textContent)).toEqual(["registered-business", "another-check"]);
+    const version = within(card).getByRole("heading", { name: words("admin.creative.title", { id: "creative-b2", version: 1 }) }).closest("li")!;
+    expect(within(within(version).getByRole("group", { name: words("admin.creative.review") })).getAllByRole("checkbox").map((box) => box.parentElement?.textContent)).toEqual(["format", "new-check"]);
+  });
+
   test("[R-ADVERT-010] given an approval missing checks, when the server refuses it, then the missing checks are named", async () => {
     page("adverts", {
       "POST /api/admin/adverts/creatives/creative-b2/1/approve": () => ({ ok: false, code: "unchecked", detail: "Not approved: the review has not recorded text, link-domain.", missing: ["text", "link-domain"] }),
@@ -381,18 +394,30 @@ describe("the adverts tab", () => {
     expect(refusal.textContent).toContain(words("admin.missing", { missing: "text, link-domain" }));
   });
 
-  test("[R-ADVERT-010] [R-ADVERT-011] given creatives and their reviews, when the tab opens, then each version shows its file, text, link and status, an image only where it is approved and live, and every review with its reviewer, checks and banned list", async () => {
+  test("[R-ADVERT-010] [R-ADVERT-011] given creatives and their reviews, when the tab opens, then each version shows its file, text, link, status and its image from the admin route whatever its status, and every review with its reviewer, checks and banned list", async () => {
     page("adverts");
+    const image = (id: string, version: number) => `${BASE}/api/admin/adverts/creatives/${id}/${String(version)}/image`;
     const pending = (await screen.findByRole("heading", { name: words("admin.creative.title", { id: "creative-b2", version: 1 }) })).closest("li")!;
     expect(within(pending).getByText(words("admin.creative.file", { format: "png", width: 640, height: 320, bytes: "48,211" }))).toBeTruthy();
-    expect(within(pending).queryByRole("img")).toBeNull();
-    expect(within(pending).getByText(words("admin.creative.image.hidden"))).toBeTruthy();
+    expect(within(pending).getByRole("img", { name: words("admin.creative.image", { id: "creative-b2", version: 1 }) }).getAttribute("src")).toBe(image("creative-b2", 1));
     const live = screen.getByRole("heading", { name: words("admin.creative.title", { id: "creative-d4", version: 1 }) }).closest("li")!;
-    expect(within(live).getByRole("img").getAttribute("src")).toBe(`${BASE}/api/adverts/image/creative-d4/1`);
+    expect(within(live).getByRole("img").getAttribute("src")).toBe(image("creative-d4", 1));
     expect(within(live).queryByRole("group")).toBeNull();
+    const refused = screen.getByRole("heading", { name: words("admin.creative.title", { id: "creative-d4", version: 2 }) }).closest("li")!;
+    expect(within(refused).getByRole("img").getAttribute("src")).toBe(image("creative-d4", 2));
+    expect(within(refused).queryByRole("group")).toBeNull();
     const card = live.closest("[data-campaign]")!;
     const reviews = within(card as HTMLElement).getByRole("table", { name: words("admin.reviews") });
     expect(within(reviews).getByRole("row", { name: "creative-d4 1 account.owner 2026-10-06 12:00 UTC format, not-game-like, text 2026-10-08 approved Clean." })).toBeTruthy();
+  });
+
+  test("[R-ADVERT-020] given a campaign's daily counts, when the tab opens, then they show as a table by day, slot and region, and a campaign with none says so", async () => {
+    page("adverts");
+    const live = (await screen.findByRole("heading", { name: words("admin.campaign.title", { id: "campaign-c3" }) })).closest("li")!;
+    const counts = within(live).getByRole("table", { name: words("admin.counts") });
+    expect(within(counts).getAllByRole("row").map((row) => row.textContent)).toEqual(["DaySlotRegionImpressionsTaps", "2026-10-06advert.phone-tileGB1,20431", "2026-10-07advert.phone-tileGB3889"]);
+    const pending = screen.getByRole("heading", { name: words("admin.campaign.title", { id: "campaign-a1" }) }).closest("li")!;
+    expect(within(within(pending).getByRole("table", { name: words("admin.counts") })).getByText(words("admin.none"))).toBeTruthy();
   });
 
   test("[R-ADVERT-014] given a live campaign, when it is pulled or its links rechecked, then each is confirmed and its answer shown", async () => {

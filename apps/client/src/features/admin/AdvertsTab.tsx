@@ -1,13 +1,14 @@
 // The adverts' review (R-ADVERT-010 to 014): every campaign with its state now,
-// its advertiser, the creatives' versions and images, and the checks a named
-// reviewer records before an approval. Pulling and rechecking a live campaign
-// send it back to review.
+// its advertiser, the creatives' versions and images, the checks a named
+// reviewer records before an approval as the server lists them, and the daily
+// counts (R-ADVERT-020). Pulling and rechecking a live campaign send it back to
+// review.
 import { useId, useState } from "react";
 
 import { Tag } from "../../shared/ui/Panel";
 import { formatNumber } from "../../shared/words/format";
-import { campaignChecks, creativeChecks, type AdminRefusal, type CampaignRow, type CampaignStatus, type Creative, type ReviewBody } from "./admin.contract";
-import { utcTime } from "./admin.format";
+import type { AdminRefusal, CampaignRow, CampaignStatus, ReviewBody, ReviewedCreative } from "./admin.contract";
+import { utcDate, utcTime } from "./admin.format";
 import { words } from "./admin.words";
 import type { AdminApi, Outcome } from "./api";
 import { Confirm, Field, Loaded, ReloadButton, Section, Table, useLoad } from "./admin.ui";
@@ -53,7 +54,7 @@ function Review({ title, what, required, send, onDone }: { title: string; what: 
   );
 }
 
-function CreativeVersion({ api, creative, live, onDone }: { api: AdminApi; creative: Creative; live: boolean; onDone: () => void }) {
+function CreativeVersion({ api, creative, onDone }: { api: AdminApi; creative: ReviewedCreative; onDone: () => void }) {
   const name = words("admin.creative.title", { id: creative.id, version: creative.version });
   return (
     <li data-creative={`${creative.id}@${String(creative.version)}`} className="flex flex-col gap-2 rounded-lg border border-line p-3">
@@ -64,17 +65,12 @@ function CreativeVersion({ api, creative, live, onDone }: { api: AdminApi; creat
       <p className="text-sm">{words("admin.creative.file", { format: creative.file.format, width: creative.file.width, height: creative.file.height, bytes: formatNumber(creative.file.bytes) })}</p>
       <p>{words("admin.creative.text", { text: creative.text })}</p>
       <p className="break-all">{creative.link === null ? words("admin.creative.no-link") : words("admin.creative.link", { link: creative.link })}</p>
-      {creative.status === "approved" && live ? (
-        <img src={api.imageUrl(creative.id, creative.version)} alt={words("admin.creative.image", { id: creative.id, version: creative.version })} width={creative.file.width} height={creative.file.height} className="h-auto max-h-48 w-auto max-w-full self-start rounded border border-line" />
-      ) : (
-        // no admin route serves a pending version's image; the public route serves only an approved, live one.
-        <p className="text-sm text-muted">{words("admin.creative.image.hidden")}</p>
-      )}
+      <img src={api.imageUrl(creative.id, creative.version)} alt={words("admin.creative.image", { id: creative.id, version: creative.version })} width={creative.file.width} height={creative.file.height} className="h-auto max-h-48 w-auto max-w-full self-start rounded border border-line" />
       {creative.status === "pending" ? (
         <Review
           title={words("admin.creative.review")}
           what={name}
-          required={creativeChecks(creative)}
+          required={creative.checks}
           send={(outcome, body) => api.decideCreative(creative.id, creative.version, outcome, body)}
           onDone={onDone}
         />
@@ -84,7 +80,7 @@ function CreativeVersion({ api, creative, live, onDone }: { api: AdminApi; creat
 }
 
 function CampaignCard({ api, row, onDone }: { api: AdminApi; row: CampaignRow; onDone: () => void }) {
-  const { campaign, advertiser, creatives, reviews } = row;
+  const { campaign, advertiser, checks, creatives, reviews, counts } = row;
   const waiting = campaign.status === "pending" || campaign.status === "paused";
   const showing = campaign.status === "live" || campaign.status === "approved";
   const title = words("admin.campaign.title", { id: campaign.id });
@@ -102,7 +98,7 @@ function CampaignCard({ api, row, onDone }: { api: AdminApi; row: CampaignRow; o
       <p>{words("admin.campaign.dates", { starts: utcTime(campaign.starts), ends: utcTime(campaign.ends) })}</p>
       <p>{words("admin.campaign.facts", { slots: campaign.slots.join(", "), regions: campaign.regions.join(", "), category: campaign.category })}</p>
       {campaign.place === null ? null : <p>{words("admin.campaign.place", { name: campaign.place.name, sign: campaign.place.sign, place: campaign.place.place })}</p>}
-      {waiting ? <Review title={words("admin.campaign.review")} what={title} required={campaignChecks(campaign)} send={(outcome, body) => api.decideCampaign(campaign.id, outcome, body)} onDone={onDone} /> : null}
+      {waiting ? <Review title={words("admin.campaign.review")} what={title} required={checks} send={(outcome, body) => api.decideCampaign(campaign.id, outcome, body)} onDone={onDone} /> : null}
       <div className="flex flex-wrap gap-4">
         {showing ? <Confirm label={words("admin.campaign.pull")} summary={words("admin.campaign.pull.confirm", { id: campaign.id })} send={() => api.pull(campaign.id)} onDone={onDone} /> : null}
         <Confirm
@@ -119,7 +115,7 @@ function CampaignCard({ api, row, onDone }: { api: AdminApi; row: CampaignRow; o
         ) : (
           <ul className="mt-2 flex flex-col gap-3">
             {creatives.map((creative) => (
-              <CreativeVersion key={`${creative.id}@${String(creative.version)}`} api={api} creative={creative} live={campaign.status === "live"} onDone={onDone} />
+              <CreativeVersion key={`${creative.id}@${String(creative.version)}`} api={api} creative={creative} onDone={onDone} />
             ))}
           </ul>
         )}
@@ -128,6 +124,11 @@ function CampaignCard({ api, row, onDone }: { api: AdminApi; row: CampaignRow; o
         caption={words("admin.reviews")}
         head={[words("admin.reviews.creative"), words("admin.reviews.version"), words("admin.reviews.reviewer"), words("admin.reviews.when"), words("admin.reviews.checks"), words("admin.reviews.list"), words("admin.reviews.outcome"), words("admin.reviews.note")]}
         rows={reviews.map((review) => [review.creative, String(review.version), review.reviewer, utcTime(review.at), review.checks.join(", "), review.bannedListVersion, review.outcome, review.note])}
+      />
+      <Table
+        caption={words("admin.counts")}
+        head={[words("admin.counts.day"), words("admin.counts.slot"), words("admin.counts.region"), words("admin.counts.impressions"), words("admin.counts.taps")]}
+        rows={counts.map((count) => [utcDate(count.day), count.slot, count.region, formatNumber(count.impressions), formatNumber(count.taps)])}
       />
     </li>
   );

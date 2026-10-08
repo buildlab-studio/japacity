@@ -49,8 +49,7 @@ export async function listAlarms(deps: Pick<ServerDeps, "stores">): Promise<Alar
 export async function raiseAlarms(deps: Pick<ServerDeps, "stores" | "now">, alarms: readonly Alarm[]): Promise<void> {
   const list = await cached(deps.stores.audit);
   for (const alarm of alarms) {
-    // AuditEntry.why has no "alarm"; "rollback" is used until someone adds it, since an alarm is mended only by the rollback tool.
-    await deps.stores.audit.retire({ character: ALARM_ROWS, why: "rollback", at: deps.now(), note: JSON.stringify(alarm), segments: [], log: [], snapshots: [] });
+    await deps.stores.audit.retire({ character: ALARM_ROWS, why: "alarm", at: deps.now(), note: JSON.stringify(alarm), segments: [], log: [], snapshots: [] });
     list.push(alarm);
   }
 }

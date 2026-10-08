@@ -99,8 +99,12 @@ export interface Limiters {
   socket10s: Limiter;
 }
 
-/** Who sent a request: the signed-in account, or null. The auth module provides it; tests hand in a stand-in. */
-export type SessionReader = (request: Request) => Promise<{ account: string } | null>;
+/**
+ * Who sent a request: the signed-in account and whether its session was opened
+ * with a passkey (R-MODERATION-012), or null. The auth module provides it;
+ * tests hand in a stand-in.
+ */
+export type SessionReader = (request: Request) => Promise<{ account: string; passkey: boolean } | null>;
 
 export interface ServerDeps {
   config: ServerConfig;
@@ -126,6 +130,9 @@ export const openLimiters: Limiters = {
   socket10s: openLimiter,
 };
 
+/** How a test session says it was opened, as the auth module records it (auth/session.ts); a passkey when absent. */
+export const TEST_SIGNED_IN_WITH = "x-test-signed-in-with";
+
 /**
  * R-ACCOUNT-005: the test server's session, from the `x-test-account` header,
  * read only while `testing.testLogin` is on. Production refuses every request
@@ -135,7 +142,8 @@ export function testSession(config: ServerConfig): SessionReader {
   return (request) => {
     if (!config.testing.testLogin) return Promise.resolve(null);
     const account = request.headers.get("x-test-account");
-    return Promise.resolve(account === null || account === "" ? null : { account });
+    const passkey = (request.headers.get(TEST_SIGNED_IN_WITH) ?? "passkey") === "passkey";
+    return Promise.resolve(account === null || account === "" ? null : { account, passkey });
   };
 }
 

@@ -162,7 +162,10 @@ describe("signing in", () => {
     const h = harness();
     const jar = makeJar();
     await h.passAge(jar);
+    vi.useFakeTimers({ toFake: ["Date"], now: Date.now() });
     const first = await h.codeFor("ada@example.com", jar, "198.51.100.1");
+    // The library finds the newest code by its creation time; two in one millisecond tie.
+    vi.setSystemTime(Date.now() + 1000);
     const second = await h.codeFor("ada@example.com", jar, "198.51.100.2");
     const old = await h.call("/api/auth/sign-in/email-otp", { method: "POST", jar, ip: "198.51.100.3", json: { email: "ada@example.com", otp: first } });
     expect(first === second || old.status === 400).toBe(true);

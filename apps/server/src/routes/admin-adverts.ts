@@ -9,17 +9,15 @@ import type { Campaign, NamedPlace } from "@japacity/store";
 import type { Context } from "hono";
 import { Hono } from "hono";
 
-import { campaignRefusals, creativeFile, statusAt } from "../adverts/campaign";
+import { campaignChecks, campaignRefusals, creativeChecks, creativeFile, statusAt } from "../adverts/campaign";
 import type { CampaignDraft } from "../adverts/campaign";
 import type { Fetcher } from "../adverts/links";
 import { failingLinks } from "../adverts/links";
 import type { Decided, Decision } from "../adverts/review";
 import { decideCampaign, decideCreative, logAdvertAction, pullCampaign } from "../adverts/review";
 import type { ServerDeps } from "../deps";
-
-interface AdminEnv {
-  Variables: { admin: string };
-}
+import { adminOnly } from "./admin";
+import type { AdminEnv } from "./admin";
 
 type Body = Record<string, unknown>;
 
@@ -80,13 +78,7 @@ export function adminAdvertRoutes(deps: ServerDeps, fetcher: Fetcher = (input, i
   const admin = new Hono<AdminEnv>();
   const newId = (prefix: string) => `${prefix}-${hex(deps.randomBytes(8))}`;
 
-  admin.use("*", async (c, next) => {
-    const session = await deps.session(c.req.raw);
-    if (session === null || !deps.config.admin.accounts.includes(session.account)) return c.notFound();
-    c.set("admin", session.account);
-    await next();
-    return undefined;
-  });
+  admin.use("*", adminOnly(deps));
 
   /** R-ADVERT-012, R-ADVERT-020: the business, its registration and one contact. */
   admin.post("/advertisers", async (c) => {
@@ -177,7 +169,11 @@ export function adminAdvertRoutes(deps: ServerDeps, fetcher: Fetcher = (input, i
     return c.json({ ok: true, failing, pulled });
   });
 
-  /** The review queue's view: every campaign with its status now, its creatives and every review. */
+  /**
+   * The review queue's view: every campaign with its status now, the checks its
+   * approval needs (R-ADVERT-012), its creatives each with theirs, every review,
+   * and its daily counts (R-ADVERT-020).
+   */
   admin.get("/campaigns", async (c) => {
     const now = deps.now();
     const rows = [];
@@ -185,9 +181,29 @@ export function adminAdvertRoutes(deps: ServerDeps, fetcher: Fetcher = (input, i
       const creatives = await deps.stores.adverts.creatives(campaign.id);
       const reviews = [...(await deps.stores.adverts.reviews(campaign.id))];
       for (const id of new Set(creatives.map((each) => each.id))) reviews.push(...(await deps.stores.adverts.reviews(id)));
-      rows.push({ campaign: { ...campaign, status: statusAt(campaign, now) }, advertiser: await deps.stores.adverts.advertiser(campaign.advertiser), creatives, reviews });
+      rows.push({
+        campaign: { ...campaign, status: statusAt(campaign, now) },
+        advertiser: await deps.stores.adverts.advertiser(campaign.advertiser),
+        checks: campaignChecks(campaign),
+        creatives: creatives.map((creative) => ({ ...creative, checks: creativeChecks(creative) })),
+        reviews,
+        counts: await deps.stores.adverts.counts(campaign.id),
+      });
     }
     return c.json({ ok: true, campaigns: rows });
+  });
+
+  /** R-ADVERT-011: any version's image, whatever its status, so the reviewer sees what they decide on. Never cached. */
+  admin.get("/creatives/:creative/:version/image", async (c) => {
+    const version = c.req.param("version");
+    if (!VERSION.test(version)) return c.notFound();
+    const creative = await deps.stores.adverts.creative(c.req.param("creative"), Number(version));
+    const image = creative === null ? null : await deps.stores.adverts.image(creative.id, creative.version);
+    if (creative === null || image === null) return c.notFound();
+    c.header("content-type", `image/${creative.file.format}`);
+    c.header("cache-control", "private, no-store");
+    c.header("x-content-type-options", "nosniff");
+    return c.body(image.slice().buffer);
   });
 
   /** R-ADVERT-021: what an advertiser receives, the daily counts and nothing else. */

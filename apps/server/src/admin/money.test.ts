@@ -9,7 +9,7 @@ import { productionConfig, testConfig } from "../config";
 import type { ServerDeps } from "../deps";
 import { moneyJob } from "../jobs/money";
 import { activeOn } from "./active";
-import { listAlarms, noteDiverged } from "./alarm";
+import { ALARM_ROWS, listAlarms, noteDiverged } from "./alarm";
 import { dayStart, utcDay } from "./day";
 import { createLife, life, playRows, storeWorlds } from "./fixtures";
 import { drawAlarms, drawsClosingOn, markAfterCommit, moneyReport, TICKS_PER_DRAW } from "./money";
@@ -166,6 +166,12 @@ describe("the alarm", () => {
     expect(report.closed).toEqual([]);
     expect(report.alarms).toEqual([{ kind: "diverged", day: DAY, character: ID, v: 5 }]);
     expect((await listAlarms(deps)).map((alarm) => alarm.kind === "diverged" && alarm.character)).toEqual([ID, "character.other"]);
+  });
+
+  test("[R-SERVER-012] given an alarm raised, when its audit row is read, then it is filed with why alarm", async () => {
+    const deps = testDeps();
+    await noteDiverged(deps, "character.other", 9);
+    expect((await deps.stores.audit.list(ALARM_ROWS)).map((row) => row.why)).toEqual(["alarm"]);
   });
 });
 
