@@ -227,3 +227,38 @@ test("a life abroad answers the December visit, changes money and comes home", a
   await expect(page.getByRole("list", { name: "Times you came home" })).toContainText("by choice");
   await expectNothingBroken(page, "back home");
 });
+
+/** The header's japacity figure: its face and size as the browser draws it. */
+async function headerFigure(page: Page): Promise<{ family: string; size: number }> {
+  const figure = page.locator("header [data-japacity-figure]");
+  await expect(figure).toBeVisible();
+  return figure.evaluate((element) => {
+    const style = getComputedStyle(element);
+    return { family: style.fontFamily, size: Number.parseFloat(style.fontSize) };
+  });
+}
+
+test.describe("the header on a 390 px phone", () => {
+  test.use({ viewport: { width: 390, height: 844 } });
+
+  test("the japacity figure is set in the body face, large enough to read, and the game's name is not said twice", async ({ page }) => {
+    await seedAda(page);
+    const { family, size } = await headerFigure(page);
+    expect(family).not.toMatch(/Danfo/);
+    expect(size).toBeGreaterThanOrEqual(18);
+    // The game's name stays for screen readers but takes no room beside the japacity label.
+    const name = await page.locator("header h1").boundingBox();
+    expect(name?.width ?? 0).toBeLessThanOrEqual(1);
+  });
+});
+
+test.describe("the header on a desktop", () => {
+  test.use({ viewport: { width: 1280, height: 800 } });
+
+  test("the japacity figure keeps the display face, larger", async ({ page }) => {
+    await seedAda(page);
+    const { family, size } = await headerFigure(page);
+    expect(family).toMatch(/Danfo/);
+    expect(size).toBeGreaterThanOrEqual(24);
+  });
+});

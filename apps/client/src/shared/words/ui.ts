@@ -45,6 +45,15 @@ export const uiText: Record<string, string> = {
   "ui.report.japacity-first": "Japacity: now {after}",
   "ui.report.japacity-none": "Japacity: no route yet",
   "ui.line.school-offer-plain": "{school} offers you a place.",
+  // Content's lines at a count of one (shared/words/text.ts, LINE_COUNTS)
+  "ui.line.setpiece.opened.one": "{setpiece}: 1 question to answer before the month can end.",
+  "ui.line.activity.lotto-won.one": "1 ticket for {stake}, and it comes in: {won}.",
+  "ui.line.activity.lotto-lost.one": "1 ticket for {stake}. Nothing comes in.",
+  "ui.line.status.clock-started.one": "The job is gone. You have 1 month to find another sponsor.",
+  "ui.line.status.clock-ran.one": "1 month left on the clock.",
+  "ui.line.status.renewed.one": "Renewed for 1 month. The fee: {fee}. The surcharge: {surcharge}.",
+  "ui.line.status.removed.one": "They found you. You are put on a plane to Lagos, and {country} is closed to you for 1 month.",
+  "ui.line.place.token-lapsed.one": "1 month away and {status} has lapsed. You would have to start again.",
   "ui.report.close": "Close",
   "ui.report.none": "No month played yet. Plan the month and end it.",
 
@@ -77,6 +86,8 @@ export const uiText: Record<string, string> = {
   "ui.activity.no-band": "no English result",
   "ui.activity.pick": "Which one",
   "ui.activity.nothing-to-pick": "Nothing to pick yet.",
+  "ui.activity.tickets": "{count} tickets",
+  "ui.activity.tickets.one": "1 ticket",
 
   // Profile
   "ui.profile.title": "You",
@@ -122,7 +133,7 @@ export const uiText: Record<string, string> = {
   "ui.obligation.months-left": "{months} months left",
   "ui.obligation.months-left.one": "1 month left",
   "ui.obligation.missed": "Missed {count} payments in a row",
-  "ui.obligation.missed.one": "Missed 1 payment",
+  "ui.obligation.missed.one": "Missed 1 payment in a row",
   "ui.obligation.state.active": "Paying",
   "ui.obligation.state.grace": "Behind",
   "ui.obligation.state.defaulted": "In default",
@@ -190,6 +201,9 @@ export const uiText: Record<string, string> = {
   "ui.refusal.interview": "The interview",
   "ui.refusal.history": "An earlier refusal",
   "ui.refusal.credibility": "They did not believe the plan",
+  "ui.refusal.sponsor": "The sponsor did not hold up",
+  "ui.refusal.agent": "The agent's papers did not hold up",
+  "ui.refusal.endorsement": "The endorsement was refused",
 
   // Japacity
   "ui.japacity.title": "Japacity",
@@ -214,7 +228,7 @@ export const uiText: Record<string, string> = {
   "ui.offer.lock.when.one": "this month",
   "ui.offer.lock.next": "next month",
 
-  // The interview
+  // A set piece: an interview, the December visit, a night on the road
   "ui.setpiece.question": "Question {n} of {total}",
   "ui.setpiece.weak": "Weak answer",
   "ui.setpiece.blocks": "Finish this before the month can end.",

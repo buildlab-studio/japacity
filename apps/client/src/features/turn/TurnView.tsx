@@ -54,14 +54,14 @@ export function TurnView() {
           <p className="mt-2 text-muted">{say("ui.report.none")}</p>
         ) : (
           <div className="mt-2 max-h-48 overflow-y-auto">
-            <ReportBody report={report} />
+            <ReportBody report={report} waiting={view.setpiece !== null} />
           </div>
         )}
       </Card>
 
       {report === null ? null : (
         <Sheet open={reportOpen && !waiting} onOpenChange={setReportOpen} title={say("ui.report.title", { month: report.month })}>
-          <ReportBody report={report} />
+          <ReportBody report={report} waiting={view.setpiece !== null} />
         </Sheet>
       )}
     </div>

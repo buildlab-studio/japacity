@@ -8,6 +8,19 @@ import { moneyParam } from "./text";
 
 const WALLET = "line.wallet.";
 
+/** A story reaching the player: never something to answer, even when it is for you. */
+const NEWS = "line.news.delivered";
+
+/** True when the line waits on the player. A news story never does; one for you is marked as for you instead. */
+export function asksAttention(line: ReportLine): boolean {
+  return line.attention && line.key !== NEWS;
+}
+
+/** True for a news story about the player's own plans. */
+export function forYou(line: ReportLine): boolean {
+  return line.key === NEWS && line.params.forYou === 1;
+}
+
 /** A line that says the same payment better, and the plain wallet line it makes redundant. */
 const SAID_BETTER: readonly [better: string, plain: string][] = [
   ["line.activity.salary", "line.wallet.salary"],

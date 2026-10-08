@@ -7,9 +7,10 @@ export function JapacityView({ compact = false }: { compact?: boolean }) {
   const { japacity } = useView();
   const none = japacity.percent === null;
 
+  // The display face blurs at header size on a phone, so phones get the body face.
   if (compact) {
     return (
-      <span className="font-display text-xl leading-none" aria-label={say("ui.japacity.title")}>
+      <span className="font-sans text-xl leading-none font-bold tabular-nums sm:font-display sm:text-2xl sm:font-normal" aria-label={say("ui.japacity.title")} data-japacity-figure>
         {none ? (
           "--"
         ) : (

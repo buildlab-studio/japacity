@@ -5,7 +5,7 @@ import { describe, expect, test } from "vitest";
 import { engineView, richView } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { formatMoney } from "../../shared/words/format";
-import { say } from "../../shared/words/text";
+import { say, sayCount } from "../../shared/words/text";
 import { ObligationView } from "./ObligationView";
 
 describe("what is owed", () => {
@@ -22,7 +22,8 @@ describe("what is owed", () => {
     const view = richView();
     const { authority } = await renderWithView(<ObligationView />, view);
     expect(screen.getByText(say("ui.obligation.outstanding", { amount: formatMoney(80_000_000, "NGN") }))).toBeDefined();
-    expect(screen.getByText(say("ui.obligation.missed", { count: 1 }))).toBeDefined();
+    expect(screen.getByText(sayCount("ui.obligation.missed", 1, { count: 1 }))).toBeDefined();
+    expect(screen.queryByText(/1 payments/)).toBeNull();
     fireEvent.change(screen.getByLabelText(say("ui.wallet.amount")), { target: { value: "20000" } });
     fireEvent.click(screen.getByRole("button", { name: new RegExp(`^${say("ui.obligation.pay")}`) }));
     await waitFor(() => expect(authority.sent).toEqual([{ type: "obligation/pay", obligation: "obligation-9", amount: 2_000_000, basedOn: view.v }]));

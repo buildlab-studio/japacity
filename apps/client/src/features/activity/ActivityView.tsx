@@ -13,7 +13,7 @@ import { shortfall } from "../../shared/words/cost";
 import { formatBand, formatMoney } from "../../shared/words/format";
 import { lockWords, SIDE_JOB_LOCK } from "../../shared/words/locks";
 import { alreadyDone, requirementSentence } from "../../shared/words/requirement";
-import { blurbOf, hasWords, lowerFirst, nameOf, say, sayCount } from "../../shared/words/text";
+import { blurbOf, hasWords, lowerFirst, nameOf, paramWords, say, sayCount } from "../../shared/words/text";
 
 const ENGLISH_RESULT = "document.english-test";
 const GRADE = "quality.edu-grade";
@@ -139,7 +139,7 @@ function Locks() {
 }
 
 function pickWords(pick: SlotPick): string {
-  return pick.param === null ? nameOf(pick.activity) : `${nameOf(pick.activity)}: ${nameOf(pick.param)}`;
+  return pick.param === null ? nameOf(pick.activity) : `${nameOf(pick.activity)}: ${paramWords(pick.param)}`;
 }
 
 function Slots() {
@@ -275,7 +275,7 @@ function ActivityCard({ option }: { option: ActivityOption }) {
               >
                 {option.params?.map((value) => (
                   <option key={value} value={value}>
-                    {nameOf(value)}
+                    {paramWords(value)}
                   </option>
                 ))}
               </select>

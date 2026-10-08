@@ -37,6 +37,7 @@ import { TurnBar } from "./features/turn/TurnBar";
 import { TurnView } from "./features/turn/TurnView";
 import { WalletView } from "./features/wallet/WalletView";
 import { Button } from "./shared/ui/Button";
+import { playerMonth } from "./shared/words/format";
 import { say } from "./shared/words/text";
 
 type Tab = "month" | "you" | "money" | "japa" | "news" | "status" | "home";
@@ -73,8 +74,9 @@ function Header() {
   return (
     <header className="sticky top-0 z-20 border-b border-line bg-paper/95 backdrop-blur-sm">
       <div className="mx-auto flex max-w-[90rem] items-center gap-3 px-4 py-3">
-        <h1 className="text-lg font-bold">{say("ui.game")}</h1>
-        <span className="text-muted">{say("ui.month.planning", { month: view.month + 1 })}</span>
+        {/* On a phone the name would sit beside the japacity label, so it is kept for screen readers only. */}
+        <h1 className="sr-only text-lg font-bold sm:not-sr-only">{say("ui.game")}</h1>
+        <span className="text-muted">{say("ui.month.planning", { month: playerMonth(view.month) })}</span>
         <span className="ml-auto flex items-center gap-2 text-sm text-muted">
           {say("ui.japacity.title")}
           <JapacityView compact />

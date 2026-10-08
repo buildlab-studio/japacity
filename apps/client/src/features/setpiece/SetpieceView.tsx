@@ -1,4 +1,4 @@
-// The interview: one question at a time. While it is open the month cannot
+// A set piece, such as an interview: one question at a time. While it is open the month cannot
 // end, so it sits at the top of the month plan. The December visit has a
 // scene of its own.
 import { MessageCircleQuestion } from "lucide-react";
