@@ -16,6 +16,8 @@ export interface FakeSoundOptions {
   hanging?: readonly string[];
   /** Every play is refused. */
   refuses?: boolean;
+  /** Each clip ends as soon as it starts. */
+  autoEnd?: boolean;
 }
 
 export interface FakeSound {
@@ -27,13 +29,16 @@ export interface FakeSound {
   sleeps: number;
   /** Ends the clip playing now, as the browser does when it finishes. */
   endPlaying: () => void;
+  /** The browser stops holding sound back: the next tap wakes it. */
+  allow: () => void;
 }
 
 const encoder = new TextEncoder();
 const decoder = new TextDecoder();
 
 export function fakeSound(options: FakeSoundOptions = {}): FakeSound {
-  let awake = options.awake === true && options.blocked !== true;
+  let blocked = options.blocked === true;
+  let awake = options.awake === true && !blocked;
   const enders: (() => void)[] = [];
   const playing = (): Playing => {
     let finish: () => void = () => undefined;
@@ -41,6 +46,7 @@ export function fakeSound(options: FakeSoundOptions = {}): FakeSound {
       finish = resolve;
     });
     enders.push(finish);
+    if (options.autoEnd === true) queueMicrotask(finish);
     return { ended, stop: finish };
   };
   const fake: FakeSound = {
@@ -52,13 +58,16 @@ export function fakeSound(options: FakeSoundOptions = {}): FakeSound {
     endPlaying: () => {
       for (const end of enders.splice(0)) end();
     },
+    allow: () => {
+      blocked = false;
+    },
     backend: {
       supported: () => options.supported ?? true,
       formats: () => options.formats ?? ["opus", "mp3"],
       saveData: () => options.saveData ?? false,
       wake: () => {
         fake.wakes += 1;
-        if (options.blocked !== true) awake = true;
+        if (!blocked) awake = true;
       },
       ready: () => Promise.resolve(awake),
       sleep: () => {
