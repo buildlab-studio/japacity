@@ -3,6 +3,7 @@
 // exists.
 import type { Effect, Id, GoalEntry, Requirement } from "@japacity/sim";
 
+import { DECEMBER_COUNTRIES } from "../setpiece/setpiece.data";
 import { naira } from "../units";
 
 const HOME: Requirement = { type: "place/is", where: "home" };
@@ -37,8 +38,8 @@ export const goalTable: Record<Id<"goal">, GoalEntry> = {
     id: "goal.own-door",
     where: "abroad",
     openIf: [{ type: "place/months-here", where: "abroad", months: 6 }],
-    // `obligation/has` reads a type, and the room and the flat are both `rent`.
-    // A rent obligation with a file good enough for a flat is the nearest to "the flat is open".
+    // R-GOAL-004 wants a flat, not a shared room. `obligation/has` reads only a type, and the room and the
+    // flat are both `rent`, so a shared room with a file of 20 still meets this. The requirement needs an entry.
     doneIf: [{ type: "obligation/has", obligationType: "rent" }, { type: "credit/min", value: 20 }],
     reward: [wellbeing(6)],
   },
@@ -82,7 +83,13 @@ export const goalTable: Record<Id<"goal">, GoalEntry> = {
     id: "goal.december",
     where: "abroad",
     openIf: [{ type: "place/months-here", where: "abroad", months: 12 }],
-    doneIf: [{ type: "setpiece/answered", setpiece: "setpiece.december" }],
+    // R-GOAL-004: done only when the visit was taken, the going answer given in any country's scene.
+    doneIf: [
+      {
+        type: "any",
+        of: DECEMBER_COUNTRIES.map((country): Requirement => ({ type: "setpiece/answered-with", setpiece: "setpiece.december", question: `go-${country.suffix}`, answer: "go" })),
+      },
+    ],
     reward: [wellbeing(5)],
   },
   "goal.settled": {

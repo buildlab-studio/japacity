@@ -48,9 +48,10 @@ function monthsAbroad(game: Game): number {
 /**
  * Ada flown, with pounds enough that her rent never misses and her standing
  * and wellbeing brought down from the top so a reward shows in full, and her
- * first month abroad played, its December scene answered.
+ * first month abroad played, its December scene answered with each question's
+ * first answer (staying) or its last (going).
  */
-function landed(): Game {
+function landed(pick: "first" | "last" = "first"): Game {
   const game = flownAda(content);
   applyEffects(game, [
     { type: "money/add", currency: "GBP", pocket: "bank", amount: 2000000 * POUNDS, reason: "gift" },
@@ -58,7 +59,7 @@ function landed(): Game {
     { type: "quality/add", quality: WELLBEING, amount: -40 },
   ]);
   monthAbroad(game);
-  answerOpen(game);
+  answerOpen(game, pick);
   return game;
 }
 
@@ -116,7 +117,7 @@ describe("goals open and are done in the chapter phase", () => {
   });
 
   test("[R-GOAL-001] given December answered in her first month abroad, when her twelfth month abroad ends, then the December goal opens and is done in the same phase, the opening first", () => {
-    const game = landed();
+    const game = landed("last");
     expect(game.state.setpiece.answered["setpiece.december"]).toBe(1);
     while (monthsAbroad(game) < 11) monthAbroad(game);
     expect(isOpen(game, "goal.december") || isDone(game, "goal.december")).toBe(false);
@@ -127,6 +128,21 @@ describe("goals open and are done in the chapter phase", () => {
     ]);
     expect(game.state.goal.done["goal.december"]).toEqual({ month: game.state.turn.month });
     expect(rewardOf(result, "goal.december")).toEqual([[WELLBEING, 5]]);
+  });
+
+  test("[R-GOAL-004] given December answered by staying away, when her twelfth month abroad ends, then the December goal opens and is not done; going home the next December does it", () => {
+    const game = landed("first");
+    expect(game.state.setpiece.given["setpiece.december"]?.["go-uk"]).toBe("stay");
+    while (monthsAbroad(game) < 12) monthAbroad(game);
+    expect(isOpen(game, "goal.december")).toBe(true);
+    expect(isDone(game, "goal.december")).toBe(false);
+    // The thirteenth month abroad is the next December tick: the scene opens at its end.
+    monthAbroad(game);
+    expect(game.state.setpiece.open?.entry).toBe("setpiece.december");
+    answerOpen(game, "last");
+    expect(game.state.setpiece.given["setpiece.december"]?.["go-uk"]).toBe("go");
+    monthAbroad(game);
+    expect(isDone(game, "goal.december")).toBe(true);
   });
 
   test("[R-GOAL-001] given twelve months abroad, when Ada starts a job a step above, then a step up opens at twelve months and is done", () => {
