@@ -2,23 +2,24 @@
 // world code from the shipped files, seen from the start's street camera on the cheap phone profile,
 // once still and once moving. Still is the place without its motion list and with no frame update;
 // moving adds the motion, the clock and the crowd's idling as the city's frame loop runs them. Each
-// run records the draw calls, triangles and microseconds of script of every frame. The check drives
-// it through `window.placeCheck`.
+// run records the draw calls, triangles and microseconds of script of every frame. The check
+// (tools/assets/place-check.ts) serves it from the repository and drives it through `window.placeCheck`.
 import { attachSigns, prepareModel, SIGN_FONT } from "@japacity/assets/load";
 import { ACESFilmicToneMapping, DirectionalLight, Fog, HemisphereLight, type Object3D, PCFShadowMap, PerspectiveCamera, Scene, WebGLRenderer } from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { MeshoptDecoder } from "three/addons/libs/meshopt_decoder.module.js";
 
-import { cameraAim, FOV } from "../../apps/client/src/features/city/camera";
-import { crossAt } from "../../apps/client/src/features/city/cross";
-import type { Stage } from "../../apps/client/src/features/city/placeFile";
-import { WALK_SPEED } from "../../apps/client/src/features/city/walk";
-import { buildWorld, colourOf, skyColours, type World } from "../../apps/client/src/features/city/world";
-import { advanceClock } from "../../apps/client/src/shared/three/clock";
-import { danceFigure } from "../../apps/client/src/shared/three/dance";
-import { loadGrids } from "../../apps/client/src/shared/three/motion";
-import { poseFigure } from "../../apps/client/src/shared/three/people";
-import type { FrameRecord, PlaceRun } from "./place.types";
+import type { FrameRecord } from "../../../../../../tools/assets/place-check.types";
+import { advanceClock } from "../../../shared/three/clock";
+import { danceFigure } from "../../../shared/three/dance";
+import { loadGrids } from "../../../shared/three/motion";
+import { poseFigure } from "../../../shared/three/people";
+import { cameraAim, FOV } from "../camera";
+import { crossAt } from "../cross";
+import type { Stage } from "../placeFile";
+import { WALK_SPEED } from "../walk";
+import { buildWorld, colourOf, skyColours, type World } from "../world";
+import { type CheckInput, type PlaceRun, runOf } from "./placeCheck";
 
 /** One frame of the city's clock at 30 frames a second. */
 const STEP = 1 / 30;
@@ -102,8 +103,9 @@ const placeCheck = {
    * draws a few frames so shader compiles are not counted. The last place's renderer is dropped
    * with its context, so a long check never runs out of contexts.
    */
-  async build(run: PlaceRun): Promise<void> {
+  async build(input: CheckInput): Promise<void> {
     await document.fonts.load(`64px ${SIGN_FONT}`).catch(() => undefined);
+    const run = runOf(input);
     const { scene, camera, world } = await build(run);
     current?.renderer.dispose();
     current?.renderer.forceContextLoss();

@@ -4,10 +4,9 @@ import { join } from "node:path";
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
-import { crowdSize } from "../../apps/client/src/features/city/crowd";
 import type { Budgets } from "./check-assets";
 import { defaultPaths } from "./check-assets";
-import { CHEAP_PHONE, CHECK_OWN, checkDrawn, checkMotion, type Measure, median, type PlaceMeasure, runOf, stagedPlaces, summarise } from "./place-check";
+import { CHEAP_PHONE, CHECK_OWN, checkDrawn, checkMotion, inputOf, type Measure, median, type PlaceMeasure, stagedPlaces, summarise } from "./place-check";
 
 const ROOT = join(import.meta.dirname, "..", "..");
 const budgets = JSON.parse(readFileSync(join(ROOT, "assets-src", "budgets.json"), "utf8")) as Budgets;
@@ -43,19 +42,15 @@ describe("the place check", () => {
     expect(checkDrawn(measureOf({ drawCalls: exterior.drawCalls + 1 }, "high"), hub, budgets)).toEqual([`R-CITY-038: place.x draws ${String(exterior.drawCalls + 1)} draw calls in high mode on the cheap phone profile, over ${String(exterior.drawCalls)}`]);
   });
 
-  test("[R-CITY-028] given a staged place, when the check builds its runs, then each mode has its crowd on the cheap phone, low on coarse meshes without shadows and high on fine ones, and still differs from moving only in the motion", () => {
+  test("[R-CITY-038] given a staged place, when the check hands it to the page, then it goes as plain data on the cheap phone profile, still and moving alike but for the motion", () => {
     const [file] = stagedPlaces(defaultPaths(ROOT)).filter((place) => place.hub);
     if (file === undefined) throw new Error("No hub is staged");
-    const entry = content.place[file.place as keyof typeof content.place];
-    if (entry === undefined) throw new Error(`${file.place} is not in the content`);
-    for (const mode of ["low", "high"] as const) {
-      const run = runOf(file, mode, true, {});
-      expect(run.people).toHaveLength(crowdSize(entry, mode, content.tuning.city));
-      expect(run.people.map((shown) => shown.person.file)).not.toContain(CHECK_OWN);
-      expect(run.settings.mesh).toBe(mode === "low" ? "coarse" : "fine");
-      expect(run.settings.pixelRatio).toBe(mode === "low" ? 1 : Math.min(CHEAP_PHONE.deviceScaleFactor, content.tuning.city.maxPixelRatio));
-      expect(runOf(file, mode, false, {})).toEqual({ ...run, moving: false });
-    }
+    const input = inputOf(file, "high", true, {});
+    expect(input.entry).toBe(content.place["place.ojuelegba"]);
+    expect(input.device).toEqual({ finePointer: false, width: 360, pixelRatio: 2 });
+    expect(input.own).toBe(CHECK_OWN);
+    expect(inputOf(file, "high", false, {})).toEqual({ ...input, moving: false });
+    expect(JSON.parse(JSON.stringify(input))).toEqual(input);
     expect([CHEAP_PHONE.width, CHEAP_PHONE.height, CHEAP_PHONE.deviceScaleFactor, CHEAP_PHONE.slowdown]).toEqual([360, 640, 2, 6]);
   });
 });

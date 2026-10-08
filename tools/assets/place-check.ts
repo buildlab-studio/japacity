@@ -8,13 +8,10 @@ import { mkdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { content } from "@japacity/content";
-import type { FrameRecord, PlaceRun } from "@japacity/assets-src/stage/place.types";
 import type { Page } from "@playwright/test";
 
-import { poolOf, sampleCrowd } from "../../apps/client/src/features/city/crowd";
-import { type Mode, modeSettings } from "../../apps/client/src/features/city/mode";
-import type { PlaceFile as StagedFile } from "../../apps/client/src/features/city/placeFile";
-import { type Budgets, defaultPaths, listFiles, type Paths, rowFor } from "./check-assets";
+import { type Budgets, defaultPaths, listFiles, type Paths, type PlaceFile, rowFor } from "./check-assets";
+import type { CheckMode as Mode, FrameRecord, PlaceInput } from "./place-check.types";
 import { PHONE_SHOT } from "./shoot";
 import { openStage, signText } from "./stage-browser";
 
@@ -27,10 +24,15 @@ export const CHECK_OWN = "shared/chr/chr_tunde.glb";
 export const FRAMES = 20;
 const MODES: readonly Mode[] = ["low", "high"];
 
-/** The page's handle, as assets-src/stage/place.ts sets it on the window. */
+/** A place file as the check reads it; the page reads its stage. */
+export type StagedFile = Pick<PlaceFile, "place" | "hub" | "scope"> & { stage?: unknown };
+
+/** The page's handle, as apps/client/src/features/city/check/placeCheck.page.ts sets it on the window. */
 interface PlacePage {
-  placeCheck: { build: (run: PlaceRun) => Promise<void>; frames: (count: number) => FrameRecord[] };
+  placeCheck: { build: (input: PlaceInput) => Promise<void>; frames: (count: number) => FrameRecord[] };
 }
+
+const PAGE = "/apps/client/src/features/city/check/placeCheck.html";
 
 export interface Measure {
   /** The most of any frame. */
@@ -85,16 +87,11 @@ export function checkDrawn(measure: PlaceMeasure, place: Pick<StagedFile, "hub" 
   return problems;
 }
 
-/** What the page builds for a place in a mode: its stage, the crowd the city would sample on the check's day, and the mode's settings on the cheap phone. */
-export function runOf(file: StagedFile, mode: Mode, moving: boolean, text: Record<string, string>): PlaceRun {
-  if (file.stage === undefined) throw new Error(`${file.place} has no stage`);
+/** What the page is handed for a place in a mode: the file, its entry and the city's tuning as plain data, on the cheap phone. */
+export function inputOf(file: StagedFile, mode: Mode, moving: boolean, text: Record<string, string>): PlaceInput {
   const entry = content.place[file.place as keyof typeof content.place];
   if (entry === undefined) throw new Error(`${file.place} is not a place of the content`);
-  const city = content.tuning.city;
-  const pool = poolOf(file.people.sample).filter((person) => person.file !== CHECK_OWN);
-  const people = sampleCrowd(entry, pool, CHECK_DATE, mode, city).people;
-  const settings = modeSettings(mode, { finePointer: false, width: CHEAP_PHONE.width, pixelRatio: CHEAP_PHONE.deviceScaleFactor }, city);
-  return { stage: file.stage, people, own: CHECK_OWN, settings, text, moving };
+  return { file, entry, city: content.tuning.city, date: CHECK_DATE, own: CHECK_OWN, mode, device: { finePointer: false, width: CHEAP_PHONE.width, pixelRatio: CHEAP_PHONE.deviceScaleFactor }, text, moving };
 }
 
 /** Every staged place under public/assets. */
@@ -105,8 +102,8 @@ export function stagedPlaces(paths: Paths): StagedFile[] {
     .filter((file) => file.stage !== undefined);
 }
 
-async function measureRun(page: Page, run: PlaceRun, throttle: (rate: number) => Promise<void>): Promise<Measure> {
-  await page.evaluate(async (data) => (globalThis as unknown as PlacePage).placeCheck.build(data), JSON.parse(JSON.stringify(run)) as PlaceRun);
+async function measureRun(page: Page, input: PlaceInput, throttle: (rate: number) => Promise<void>): Promise<Measure> {
+  await page.evaluate(async (data) => (globalThis as unknown as PlacePage).placeCheck.build(data), JSON.parse(JSON.stringify(input)) as PlaceInput);
   await throttle(CHEAP_PHONE.slowdown);
   const records = await page.evaluate((count) => (globalThis as unknown as PlacePage).placeCheck.frames(count), FRAMES);
   await throttle(1);
@@ -130,15 +127,15 @@ export async function renderPlaces(paths: Paths, budgets: Budgets, options: Rend
   const problems: string[] = [];
   const measures: PlaceMeasure[] = [];
   try {
-    const { context, page } = await stage.open(CHEAP_PHONE, "/assets-src/stage/place.html", "window.placeCheckReady === true");
+    const { context, page } = await stage.open(CHEAP_PHONE, PAGE, "window.placeCheckReady === true");
     const session = await context.newCDPSession(page);
     const throttle = async (rate: number): Promise<void> => {
       await session.send("Emulation.setCPUThrottlingRate", { rate });
     };
     for (const file of places) {
       for (const mode of MODES) {
-        const still = await measureRun(page, runOf(file, mode, false, text), throttle);
-        const moving = await measureRun(page, runOf(file, mode, true, text), throttle);
+        const still = await measureRun(page, inputOf(file, mode, false, text), throttle);
+        const moving = await measureRun(page, inputOf(file, mode, true, text), throttle);
         const measure: PlaceMeasure = { place: file.place, mode, still, moving };
         measures.push(measure);
         problems.push(...checkMotion(measure, budgets), ...checkDrawn(measure, file, budgets));
