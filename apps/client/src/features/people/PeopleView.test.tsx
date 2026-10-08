@@ -6,7 +6,7 @@ import { describe, expect, test } from "vitest";
 import { bondName, interviewName, momentWords, personOf } from "../../shared/sim/people";
 import { renderWithView } from "../../shared/testing/render";
 import { courted, eagerContent, FRIEND, interviewGame, linkedFriend, partnered, peopleGame, renderWithGame, TOBI } from "../../shared/testing/people";
-import { formatBp, formatMoney } from "../../shared/words/format";
+import { formatBp, formatMoney, playerMonth } from "../../shared/words/format";
 import { nameOf, say, sayCount } from "../../shared/words/text";
 import { PairApiProvider } from "./pairApi";
 import { PeopleView } from "./PeopleView";
@@ -50,7 +50,7 @@ describe("the slots", () => {
       const found = personOf(bond);
       expect([null, held.person]).toContain(found);
       const shown = document.querySelector<HTMLElement>(`[data-slot="${slot}"]`)!;
-      expect(within(shown).getByText(bondName(bond))).toBeDefined();
+      expect(within(shown).getByText(bondName(bond, store.getState().view!.people.bonds))).toBeDefined();
       expect(shown.textContent).toMatch(/At home\.|In /);
     }
   });
@@ -60,6 +60,23 @@ function playFirst(game: ReturnType<typeof peopleGame>): void {
   if (game.state.turn.banked === 0) game.grant(1);
   game.endTurn([]);
 }
+
+describe("the parents", () => {
+  test("[R-PEOPLE-007] given the parents played by the game, then each is named as the character's mother or father, with she or he, and never with the mark's words as a name", async () => {
+    const game = peopleGame();
+    playFirst(game);
+    await renderWithGame(offline(<PeopleView />), game);
+    const mother = document.querySelector<HTMLElement>('[data-slot="mother"]')!;
+    const father = document.querySelector<HTMLElement>('[data-slot="father"]')!;
+    expect(within(mother).getByText(say("ui.people.parent.name.mother"))).toBeDefined();
+    expect(within(mother).getByText(say("ui.people.parent.blurb.mother"))).toBeDefined();
+    expect(within(father).getByText(say("ui.people.parent.blurb.father"))).toBeDefined();
+    expect(mother.textContent).toMatch(/\bshe\b/i);
+    expect(mother.textContent).not.toMatch(/\bthey\b/i);
+    expect(mother.textContent).not.toContain(say("ui.people.slot.state.computer"));
+    expect(say("ui.people.mark.computer").split(" ")).toHaveLength(1);
+  });
+});
 
 describe("candidates and the quiet mark", () => {
   test("[R-PEOPLE-009] given an empty partner slot, then every candidate in the view is listed with its blurb and the computer mark", async () => {
@@ -130,6 +147,8 @@ describe("a bond", () => {
     expect(shown.textContent).not.toMatch(/[₦£$]|people\.|person\./);
     const left = people.partnerMoments - held.moments!.length;
     expect(within(shown).getByText(sayCount("ui.people.courting.next", left, { count: left }))).toBeDefined();
+    // The moments still short hold the ask, so the line and a live button never show together.
+    expect(within(shown).queryByRole("button", { name: say("ui.people.propose.partner") })).toBeNull();
   });
 
   test("[R-PEOPLE-004] given a friend's facts with funds only where consent put them, then the card shows the funds, and the floor only as met or not", async () => {
@@ -167,6 +186,10 @@ describe("a bond", () => {
     await renderWithGame(offline(<PeopleView />), game);
     fireEvent.click(within(card(bond)).getByRole("button", { name: say("ui.people.propose.partner") }));
     expect(await within(card(bond)).findByText(sayCount("ui.people.declined.cooldown", people.proposeCooldown, { months: people.proposeCooldown }))).toBeDefined();
+    const held = game.view().people.bonds.find((entry) => entry.id === bond)!;
+    expect(held.cooldownUntil).not.toBeNull();
+    expect(within(card(bond)).queryByRole("button", { name: say("ui.people.propose.partner") })).toBeNull();
+    expect(within(card(bond)).getByText(say("ui.people.cooldown", { month: playerMonth(held.cooldownUntil!) }))).toBeDefined();
   });
 
   test("[R-PEOPLE-016] given a friend's proposal waiting, when the player says yes, then the answer goes with the step; and their own proposal can be taken back", async () => {
@@ -176,6 +199,9 @@ describe("a bond", () => {
     game.accept({ type: "people/proposal", pair: "pair-1", proposal: { step: "partner", route: null, lead: null } }, "authority");
     const { authority } = await renderWithGame(offline(<PeopleView />), game);
     expect(within(card(bond)).getByText(say("ui.people.pending.theirs", { step: say("ui.people.step.partner") }))).toBeDefined();
+    // Their question is the only ask on the card while it waits.
+    expect(within(card(bond)).queryByRole("button", { name: say("ui.people.propose.partner") })).toBeNull();
+    expect(card(bond).textContent).not.toMatch(/more moments? before you can ask/);
     fireEvent.click(within(card(bond)).getByRole("button", { name: say("ui.people.answer.yes") }));
     await waitFor(() => expect(authority.sent.at(-1)).toMatchObject({ type: "people/answer", bond, step: "partner", yes: true }));
   });

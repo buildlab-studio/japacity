@@ -5,6 +5,8 @@ import { courted, eagerContent, peopleGame, playMonth, SEE as SEE_SLOT } from ".
 import { words } from "../words/text";
 import { bondName, conversationPhrases, endCost, fillWords, momentWords, optionWords, personOf, phraseWords, slotOrder, timeWith, CALL, SEE } from "./people";
 
+const SIBLING_FACTS = { label: "computer" as const, ageMonths: 0, where: "home" as const, country: null, status: null, statusMonthsLeft: null, monthsInCountry: 0, job: null, meetsFloor: {}, eduLevel: 1, englishBand: null, home: "town" as const, joint: null, funds: null, assistanceTaken: 0, sponsorReady: null };
+
 const partners = Object.values(content.person).filter((entry) => entry.role === "partner" && !entry.behaviour.papers);
 
 describe("who a bond is with", () => {
@@ -17,6 +19,30 @@ describe("who a bond is with", () => {
     expect(shown.label).toBe("computer");
     expect(personOf(shown)).toBe(person);
     expect(bondName(shown)).toBe(text[`${person}.name`]);
+  });
+
+  test("[R-PEOPLE-051] given the view's bond, then the person is read from the view, not guessed from the facts", () => {
+    const game = peopleGame();
+    game.endTurn([]);
+    for (const bond of game.view().people.bonds) {
+      expect(personOf(bond)).toBe(bond.person);
+      const blind: Pick<typeof bond, "person" | "facts"> = { ...bond, facts: null };
+      expect(personOf(blind)).toBe(bond.person);
+    }
+  });
+
+  test("[R-PEOPLE-047] given two siblings drawn from one entry, then their names are told apart by age; given one, then the entry's name alone", () => {
+    const base = { role: "sibling" as const, label: "computer" as const, person: "person.sib-home" as const };
+    const facts = (ageMonths: number) => ({ ...SIBLING_FACTS, ageMonths });
+    const older = { ...base, id: "bond-1", facts: facts(360) };
+    const younger = { ...base, id: "bond-2", facts: facts(240) };
+    const name = text["person.sib-home.name"]!;
+    expect(bondName(older, [older, younger])).toBe(words("ui.people.sibling.older", { name }));
+    expect(bondName(younger, [older, younger])).toBe(words("ui.people.sibling.younger", { name }));
+    expect(bondName(older, [older])).toBe(name);
+    const other = { ...base, id: "bond-3", person: "person.sib-gulf" as const, facts: facts(300) };
+    expect(bondName(older, [older, other])).toBe(name);
+    expect(bondName(older, [older, { ...younger, facts: facts(360) }])).not.toBe(bondName({ ...younger, facts: facts(360) }, [older, { ...younger, facts: facts(360) }]));
   });
 
   test("[R-PEOPLE-007] given the slots in any order, then partner comes first, the siblings by number, then the parents", () => {

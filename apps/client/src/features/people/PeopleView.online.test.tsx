@@ -9,7 +9,7 @@ import { moderationApi } from "../../shared/moderation/api";
 import { ModerationProvider } from "../../shared/moderation/ModerationProvider";
 import { reasonWords, words } from "../../shared/moderation/moderation.words";
 import { api } from "../../shared/net/http";
-import { phraseWords } from "../../shared/sim/people";
+import { bondName, phraseWords } from "../../shared/sim/people";
 import { linkedFriend, PAIR, peopleGame, renderWithGame } from "../../shared/testing/people";
 import { BASE, fakeServer, type FakeServer } from "../../shared/testing/server";
 import { say, sayCount } from "../../shared/words/text";
@@ -151,7 +151,8 @@ describe("block and report", () => {
     server.answer("POST /api/moderation/report", { body: { ok: true, report: "report-1" } });
     await online(server, game);
     const thread = await within(card(bond)).findByRole("region", { name: say("ui.talk.title") });
-    await waitFor(() => expect(within(thread.querySelector<HTMLElement>('[data-row="m1"]')!).getByText(say("ui.talk.them"))).toBeDefined());
+    const name = bondName(game.view().people.bonds.find((entry) => entry.id === bond)!);
+    await waitFor(() => expect(within(thread.querySelector<HTMLElement>('[data-row="m1"]')!).getByText(name)).toBeDefined());
     const control = thread.querySelector<HTMLElement>('[data-moderation="conversation"]')!;
     fireEvent.click(within(control).getByRole("button", { name: words("ui.report") }));
     const sheet = await screen.findByRole("dialog");

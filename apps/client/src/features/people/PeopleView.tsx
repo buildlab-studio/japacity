@@ -13,6 +13,7 @@ import { BlockReport } from "../../shared/moderation/BlockReport";
 import { bondName, CALL, personOf, SEE, slotKind, slotOrder, type BondView, type SlotView } from "../../shared/sim/people";
 import { Button } from "../../shared/ui/Button";
 import { Card, Empty, Panel, Tag } from "../../shared/ui/Panel";
+import { countryWords } from "../../shared/words/people";
 import { blurbOf, nameOf, runningName, say } from "../../shared/words/text";
 import { monthEnding } from "../../shared/words/format";
 import { BondCard, EndedBond, Facts, Mark } from "./BondCard";
@@ -31,8 +32,8 @@ function siblingWhere(bond: BondView): string | null {
   const facts = bond.facts;
   if (facts === null) return null;
   if (facts.where !== "abroad" || facts.country === null) return say("ui.people.sibling.facts.home");
-  if (facts.status === null) return say("ui.people.sibling.facts.abroad-plain", { country: nameOf(facts.country) });
-  return say("ui.people.sibling.facts.abroad", { country: nameOf(facts.country), status: runningName(facts.status) });
+  if (facts.status === null) return say("ui.people.sibling.facts.abroad-plain", { country: countryWords(facts.country) });
+  return say("ui.people.sibling.facts.abroad", { country: countryWords(facts.country), status: runningName(facts.status) });
 }
 
 function SlotCard({ slotKey, slot, bond, api }: { slotKey: string; slot: SlotView; bond: BondView | null; api: PairApi | null }) {
@@ -41,7 +42,8 @@ function SlotCard({ slotKey, slot, bond, api }: { slotKey: string; slot: SlotVie
   const kind = slotKind(slotKey);
   const person = bond === null ? null : personOf(bond);
   const blurb = person === null ? null : blurbOf(person);
-  const name = bond === null ? null : bondName(bond);
+  const parent = kind === "mother" || kind === "father" ? kind : null;
+  const name = bond !== null ? bondName(bond, view.people.bonds) : slot.state !== "computer" ? null : parent !== null ? say(`ui.people.parent.name.${parent}`) : kind === "sibling" ? bondName({ id: slotKey, role: "sibling", label: "computer", person: null, facts: null }) : null;
   const pair = kind === "sibling" && slot.state === "player" && bond !== null ? bond.pair : null;
   return (
     <li>
@@ -56,12 +58,12 @@ function SlotCard({ slotKey, slot, bond, api }: { slotKey: string; slot: SlotVie
           </div>
           {bond === null || kind === "sibling" ? null : <Tag>{say(`ui.people.stage.${bond.stage}`)}</Tag>}
         </div>
-        {kind === "mother" || kind === "father" ? <p className="text-sm text-muted">{say("ui.people.parent.blurb")}</p> : null}
+        {parent !== null && slot.state === "computer" ? <p className="text-sm text-muted">{say(`ui.people.parent.blurb.${parent}`)}</p> : null}
         {blurb === null ? null : <p className="text-sm text-muted">{blurb}</p>}
         {kind === "sibling" && bond !== null && slot.state === "computer" ? <p className="text-sm">{siblingWhere(bond)}</p> : null}
         {kind === "sibling" && slot.state === "player" ? <p className="text-sm">{say("ui.people.sibling.friend")}</p> : null}
         {kind === "sibling" && slot.state === "player" && bond !== null ? <Facts bond={bond} /> : null}
-        {pair === null || api === null || bond === null ? null : <BlockReport who={{ pair, name: bondName(bond) }} cites={{ pair }} surface="pair" />}
+        {pair === null || api === null || bond === null ? null : <BlockReport who={{ pair, name: bondName(bond, view.people.bonds) }} cites={{ pair }} surface="pair" />}
         {slot.state === "invited" && slot.invite !== null ? <InviteOut slot={slotKey} invite={slot.invite} api={api} /> : null}
         {kind === "sibling" && slot.state === "computer" && !view.ended ? (
           inviting ? (
@@ -74,7 +76,7 @@ function SlotCard({ slotKey, slot, bond, api }: { slotKey: string; slot: SlotVie
             </div>
           )
         ) : null}
-        {pair === null || api === null || bond === null ? null : <Conversation api={api} pair={pair} name={bondName(bond)} />}
+        {pair === null || api === null || bond === null ? null : <Conversation api={api} pair={pair} name={bondName(bond, view.people.bonds)} />}
       </Card>
     </li>
   );
@@ -82,7 +84,7 @@ function SlotCard({ slotKey, slot, bond, api }: { slotKey: string; slot: SlotVie
 
 function livesWords(person: Id<"person">): string {
   const country = content.person[person]?.profile.country ?? null;
-  return country === null ? say("ui.people.lives.home") : say("ui.people.lives.abroad", { country: nameOf(country) });
+  return country === null ? say("ui.people.lives.home") : say("ui.people.lives.abroad", { country: countryWords(country) });
 }
 
 /** The computer partners on offer, each marked, and the one plain line when one is chosen (R-PEOPLE-009, R-PEOPLE-054). */
