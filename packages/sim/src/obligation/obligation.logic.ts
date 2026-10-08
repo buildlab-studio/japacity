@@ -533,7 +533,7 @@ function openEffect(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
   if (effect.type !== "obligation/open") throw new Error(`obligation/open cannot carry out ${effect.type}.`);
   const entry = entryOf(ctx.content, effect.obligation);
   if (!appliesHere(entry, ctx.state) || onTheCouch(ctx, entry.id)) return [];
-  if (isSponsorUndertaking(entry)) return openUndertaking(ctx, entry, cause);
+  if (isSponsorUndertaking(entry)) return openUndertaking(ctx, entry, effect.bond);
   const given = effect.principal === undefined ? 0 : ctx.amount(effect.principal, cause.terms);
   let amount = effect.amount === undefined ? entry.amount : ctx.amount(effect.amount, cause.terms);
   if (given < 0 || amount < 0) throw new Error(`${entry.id} cannot open owing a negative amount.`);

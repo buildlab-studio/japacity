@@ -48,6 +48,7 @@ export const RouteEntrySchema = z.strictObject({
   points: z
     .strictObject({
       table: idOf("points"),
+      spouseTable: idOf("points").nullable(),
       fundsVar: idOf("var"),
       cutoffVar: idOf("var"),
       careCutoffVar: idOf("var").nullable(),

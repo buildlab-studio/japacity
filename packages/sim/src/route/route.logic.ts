@@ -407,9 +407,10 @@ function support(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
 
 /**
  * R-PEOPLE-036: an application resting on a bond goes back to known, the fee
- * kept and the surcharge refunded to the pound bank pocket, where a refusal
- * refunds it (R-ROUTE-018). A dependant's grant not yet used is voided the same
- * way. Nothing else moves: no refusal is recorded, and an earlier one stands.
+ * kept, the surcharge refunded to the pound bank pocket, where a refusal
+ * refunds it (R-ROUTE-018), and an open interview closed unscored. A
+ * dependant's grant not yet used is voided the same way. Nothing else moves:
+ * no refusal is recorded, and an earlier one stands.
  */
 function withdraw(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
   if (effect.type !== "route/withdraw") throw new Error(`route/withdraw cannot carry out ${effect.type}.`);
@@ -420,6 +421,7 @@ function withdraw(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
   const refunded = held.visa?.surchargePaid ?? 0;
   const events = record(ctx, { type: "route/withdrawn", route: effect.route, refunded });
   if (refunded > 0) ctx.apply([{ type: "money/add", currency: FUNDS_CURRENCY, pocket: "bank", amount: refunded, reason: "refund" }], { ...cause, source: effect.route });
+  ctx.apply([{ type: "interview/close", route: effect.route }], cause);
   return events;
 }
 
@@ -488,6 +490,8 @@ function depart(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   const events = record(ctx, moved(command.route, "departed"));
   if (entry.country !== null) ctx.apply([{ type: "place/move", to: "abroad", country: entry.country }], cause);
   if (entry.status !== null) ctx.apply([job === null ? { type: "status/grant", status: entry.status } : { type: "status/grant", status: entry.status, job }], cause);
+  // R-PEOPLE-027: an arrival through a partner is recorded for the bar and the assistance count (R-UNDERTAKING-004, 010).
+  if (entry.gate === "partner") ctx.apply([{ type: "people/arrived", route: entry.id }], cause);
   gate.onDepart?.(ctx, entry, held, cause);
   return [...events, ...endBeforeSettingOff(ctx)];
 }

@@ -32,6 +32,7 @@ import type {
   State,
   StatusEntry,
 } from "../engine/types";
+import { undertakingOpening } from "../obligation/undertaking";
 import { AGE, computerFacts, jointRouteOf } from "./people.facts";
 import type { PeopleEvent } from "./people.events";
 
@@ -427,9 +428,9 @@ function agree(ctx: Ctx, id: string, proposal: Proposal): BaseEvent[] | Rejectio
     }
     case "landed": {
       const events = record(ctx, [agreed]);
-      // R-UNDERTAKING-006 names the bond on the undertaking; `obligation/open` carries no bond, so the cause names it.
+      // R-UNDERTAKING-006: the undertaking names the bond.
       const undertaking = Object.values(ctx.content.obligation).find((entry) => entry.type === "undertaking");
-      if (undertaking !== undefined) events.push(...ctx.apply([{ type: "obligation/open", obligation: undertaking.id }], cause));
+      if (undertaking !== undefined) events.push(...ctx.apply([undertakingOpening(undertaking.id, id)], cause));
       return events;
     }
     default: {
@@ -683,6 +684,25 @@ function momentEffect(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
   return record(ctx, [{ type: "people/moment-added", bond: id, moment }]);
 }
 
+/** R-PEOPLE-027: the departure on a partner route records the arrival, for the bar (R-UNDERTAKING-004) and the assistance count. */
+function arrivedEffect(ctx: Ctx, effect: Effect): BaseEvent[] {
+  if (effect.type !== "people/arrived") throw new Error(`people/arrived cannot carry out ${effect.type}.`);
+  return record(ctx, [{ type: "people/arrived", route: effect.route, month: ctx.state.turn.month }]);
+}
+
+/**
+ * R-UNDERTAKING-010: a month of assistance counts while `arrived` names the
+ * effect's route and fewer than `tuning.undertaking.months` of this life's
+ * months have passed since. The sponsor reads the count in the facts.
+ */
+function assistanceEffect(ctx: Ctx, effect: Effect): BaseEvent[] {
+  if (effect.type !== "people/assistance-taken") throw new Error(`people/assistance-taken cannot carry out ${effect.type}.`);
+  const { arrived } = ctx.state.people;
+  if (arrived === null || arrived.route !== effect.route) return [];
+  if (ctx.state.turn.month - arrived.month >= ctx.content.tuning.undertaking.months) return [];
+  return record(ctx, [{ type: "people/assistance-counted", route: effect.route }]);
+}
+
 // ---------------------------------------------------------------------------
 // The month: R-PEOPLE-041, R-PEOPLE-042, R-PEOPLE-048, R-PEOPLE-049
 // ---------------------------------------------------------------------------
@@ -895,6 +915,10 @@ function evolve(slice: PeopleSlice, event: PeopleEvent, state: State, content: C
       if (key === null || slot === undefined || (slot.state !== "player" && slot.state !== "stand-in")) return next;
       return withSlot(next, key, { ...slot, state: event.stage === "on" ? "stand-in" : "player" });
     }
+    case "people/arrived":
+      return { ...slice, arrived: { route: event.route, month: event.month } };
+    case "people/assistance-counted":
+      return { ...slice, assistanceTaken: slice.assistanceTaken + 1 };
     case "people/gossip-heard":
     case "people/gossip-spread":
     case "people/request-shared":
@@ -1019,6 +1043,8 @@ function lines(event: PeopleEvent, state: State): ReportLine[] {
     case "people/siblings-drawn":
     case "people/moments-synced":
     case "people/facts-updated":
+    case "people/arrived":
+    case "people/assistance-counted":
       return [];
     default: {
       const never: never = event;
@@ -1166,7 +1192,7 @@ export const peopleKind: RegisteredKind<PeopleSlice, PeopleEvent> = {
     "people/stand-in": authority,
     "people/family-request": authority,
   },
-  effects: { "people/moment": momentEffect },
+  effects: { "people/moment": momentEffect, "people/arrived": arrivedEffect, "people/assistance-taken": assistanceEffect },
   phases: { spend: drawSiblings, month: monthPhase },
   evolve,
   lines,

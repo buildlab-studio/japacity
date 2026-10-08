@@ -8,7 +8,7 @@ import type { LifeOptions } from "../route.journey";
 import { draw, READY_PAPERS, seedWhere, slot } from "../route.journey";
 import { refusalChanceBp } from "../route.logic";
 import { partnerGate } from "./partner";
-import { BOND, CA_SPOUSE, facts, interviewOpen, joint, life, readOf, scored, setFacts, setPeople, UK_PARTNER } from "./people.journey";
+import { answerInterview, BOND, CA_SPOUSE, facts, interviewOpen, joint, life, readOf, scored, setFacts, setPeople, UK_PARTNER } from "./people.journey";
 
 const used = content;
 const ukPartner = used.route[UK_PARTNER]!;
@@ -46,11 +46,14 @@ function toKnown(game: Game, route: Id<"route">): void {
   expect(routeOf(game, route).state).toBe("known");
 }
 
+/** The application sent, which opens the interview (R-INTERVIEW-001), and this side's answers in: the result waits for the sponsor's. */
 function applied(route: Id<"route"> = UK_PARTNER, sponsor = SETTLED, options: LifeOptions = {}): Game {
   const game = married(route, sponsor, options);
   toKnown(game, route);
   game.endTurn([slot(route === UK_PARTNER ? APPLY_UK : APPLY_CA)]);
   expect(routeOf(game, route).state).toBe("applying");
+  expect(game.state.interview.open?.route).toBe(route);
+  answerInterview(game);
   return game;
 }
 
@@ -191,8 +194,9 @@ describe("R-PEOPLE-027: the decision waits for the interview", () => {
   test("[R-PEOPLE-027] given a seed whose draw falls between the base and the base plus the doubt, when the result is pass and when it is doubt, then pass is granted and doubt refused", () => {
     const base = refusalChanceBp(content.tuning.route, ukPartner.refusalBaseBp, { strictness: 0, unexplainedBp: 0, refusals: 0, interviewScore: 0, grade: 0 }, partnerGate.decision(readOf(life(used)), ukPartner, { visa: null } as RouteState).terms);
     const doubted = base + content.tuning.interview.doubtBp;
+    // The interview's questions are drawn on `visa` first (R-INTERVIEW-003), so the decision's roll is the next one after them.
     const seed = seedWhere((candidate) => {
-      const roll = draw(candidate, "visa", 0, 10000);
+      const roll = draw(candidate, "visa", applied(UK_PARTNER, SETTLED, { seed: candidate }).state.draws.visa ?? 0, 10000);
       return roll >= base && roll < doubted;
     });
     const passed = applied(UK_PARTNER, SETTLED, { seed });
@@ -220,6 +224,7 @@ describe("R-PEOPLE-027: the decision waits for the interview", () => {
     game.accept({ type: "route/depart", route: UK_PARTNER });
     expect(game.state.place).toMatchObject({ where: "abroad", country: "country.uk" });
     expect(game.state.status.current?.entry).toBe("status.uk-partner");
+    expect(game.state.people.arrived).toEqual({ route: UK_PARTNER, month: game.state.turn.month });
   });
 });
 

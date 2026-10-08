@@ -24,6 +24,7 @@ const SEE: SlotPick = { activity: "activity.see-someone", param: null };
 const CALL: SlotPick = { activity: "activity.call-someone", param: null };
 const RECOVERY: Id<"offer"> = "offer.people-recovery";
 const PAPERS_OFFER: Id<"offer"> = "offer.papers-marriage";
+const UK_DEPENDANT: Id<"route"> = "route.uk-dependant";
 const numbers = content.tuning.people;
 
 /** A deep copy of plain data: content and states are plain JSON (R-ENGINE-010). */
@@ -753,26 +754,37 @@ describe("what an end undoes", () => {
     expect(game.state.status.current?.clock).toBe(2);
   });
 
+  /** Tunde with Kelechi, who leads a joint on the skilled route from her sponsored job in the UK, and his dependant application in. */
+  function dependantApplying(kinds?: StartOptions["kinds"]): { game: Game; bond: string } {
+    const game = life({ content: tuned(eager), ...(kinds === undefined ? {} : { kinds }) });
+    const bond = court(game, KELECHI);
+    for (let index = 0; index < numbers.partnerMoments; index += 1) turn(game, [CALL]);
+    game.accept({ type: "people/propose", bond, step: "partner" });
+    game.accept({ type: "people/propose", bond, step: "joint", route: "route.uk-skilled", lead: "them" });
+    // Tunde holds none of the papers the dependant route asks for, so the test puts his application in place.
+    const held = game.state.route[UK_DEPENDANT]!;
+    const month = game.state.turn.month;
+    const visa = { submittedMonth: month, decisionMonth: month + 1, rules: { livingLine: 0, livingMonths: 0, strictness: 0 }, unexplainedBp: 0, interviewScore: null, surchargePaid: 0 };
+    game.state = { ...game.state, route: { ...game.state.route, [UK_DEPENDANT]: { ...held, state: "applying", visa } } };
+    return { game, bond };
+  }
+
   test("[R-PEOPLE-036] given an application on the dependant gate resting on the joint, when the bond ends, then the route kind is told to withdraw it", () => {
     const withdrawn: string[] = [];
     const kinds = registry().map((kind) =>
       kind.kind !== "route" ? kind : { ...kind, effects: { ...kind.effects, "route/withdraw": (_ctx: unknown, effect: Effect) => (withdrawn.push(effect.type === "route/withdraw" ? effect.route : ""), []) } },
     );
-    const joint = tuned((copy) => {
-      eager(copy);
-      copy.route["route.uk-skilled"]!.dependants = "route.uk-care";
-      copy.route["route.uk-care"]!.gate = "dependant";
-      copy.status["status.uk-sponsored"]!.dependants = ["activity.job-uk-skilled"];
-    });
-    const game = life({ content: joint, kinds });
-    const bond = court(game, KELECHI);
-    for (let index = 0; index < numbers.partnerMoments; index += 1) turn(game, [CALL]);
-    game.accept({ type: "people/propose", bond, step: "partner" });
-    game.accept({ type: "people/propose", bond, step: "joint", route: "route.uk-skilled", lead: "them" });
-    // No command can send a dependant application until the gates are built, so the test puts it in place.
-    game.state = { ...game.state, route: { ...game.state.route, "route.uk-care": { ...game.state.route["route.uk-care"]!, state: "applying" } } };
+    const { game, bond } = dependantApplying(kinds);
     game.accept({ type: "people/end", bond });
-    expect(withdrawn).toEqual(["route.uk-care"]);
+    expect(withdrawn).toEqual([UK_DEPENDANT]);
+  });
+
+  test("[R-PEOPLE-036] [R-PEOPLE-037] given a dependant application in, when the character ends the bond, then they pay the stage's standing and the applying figure more, and the application is withdrawn to known", () => {
+    const { game, bond } = dependantApplying();
+    const result = game.accept({ type: "people/end", bond });
+    expect(qualityChange(result.events, "quality.standing", bond)).toBe(numbers.endStanding.partner + numbers.endStanding.applying);
+    expect(game.state.route[UK_DEPENDANT]).toMatchObject({ state: "known", visa: null });
+    expect(game.state.people.joint).toBeNull();
   });
 });
 
@@ -950,7 +962,7 @@ describe("the view", () => {
     expect(hiddenPaths(view)).toEqual([]);
     expect(view.bonds.find((bond) => bond.id === friend)?.facts?.funds).toBeNull();
     expect(view.bonds.every((bond) => bond.moments !== null)).toBe(true);
-    game.state = { ...game.state, interview: { ...game.state.interview, open: { pair: "pair-1", route: "route.uk-skilled", questions: [], answers: [], standIn: false } } };
+    game.state = { ...game.state, interview: { ...game.state.interview, open: { pair: "pair-1", route: "route.uk-skilled", questions: [], answers: [], standIn: false, thin: false } } };
     expect(game.view().people.bonds.every((bond) => bond.moments === null)).toBe(true);
   });
 

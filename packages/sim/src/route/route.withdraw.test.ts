@@ -3,7 +3,7 @@ import { describe, expect, test } from "vitest";
 
 import type { Id, RouteState, Tuning } from "../engine/types";
 import type { Game } from "../testing/play";
-import { applyAs, facts, joint, life, scored, setFacts, SKILLED, UK_DEPENDANT, UK_PARTNER } from "./gates/people.journey";
+import { answerInterview, applyAs, facts, joint, life, scored, setFacts, SKILLED, UK_DEPENDANT, UK_PARTNER } from "./gates/people.journey";
 import { slot } from "./route.journey";
 
 const used = content;
@@ -24,6 +24,7 @@ function partnerApplying(): Game {
   game.endTurn([slot("activity.look-into-route", UK_PARTNER)]);
   game.endTurn([slot("activity.apply-uk-partner")]);
   expect(routeOf(game, UK_PARTNER).state).toBe("applying");
+  answerInterview(game);
   return game;
 }
 
@@ -46,6 +47,9 @@ describe("R-PEOPLE-036: an application resting on a bond is withdrawn", () => {
     const lines = applyAs(game, [{ type: "route/withdraw", route: UK_PARTNER }]);
     const held = routeOf(game, UK_PARTNER);
     expect(held).toMatchObject({ state: "known", visa: null, refusals: 0, lastRefusal: null });
+    // The interview it opened closes unscored with it.
+    expect(game.state.interview).toMatchObject({ open: null, last: null });
+    expect(lines.map((line) => line.key)).toContain("line.interview.withdrawn");
     expect(game.state.wallet.pockets.GBP.bank - bank).toBe(3 * SURCHARGE_YEAR);
     expect(game.state.wallet.totals.out["fee-visa"]?.GBP).toBe(PARTNER_FEE);
     expect(lines.map((line) => line.key)).toContain("line.route.withdrawn");
@@ -55,9 +59,11 @@ describe("R-PEOPLE-036: an application resting on a bond is withdrawn", () => {
     const game = partnerApplying();
     applyAs(game, [{ type: "route/withdraw", route: UK_PARTNER }]);
     scored(game, UK_PARTNER, "pass");
+    // The interview's questions were drawn on `visa` when it opened (R-INTERVIEW-003); no decision draws after them.
+    const drawn = game.state.draws.visa ?? 0;
     for (let month = 0; month < 4; month += 1) game.endTurn();
     expect(routeOf(game, UK_PARTNER).state).toBe("known");
-    expect(game.state.draws.visa ?? 0).toBe(0);
+    expect(game.state.draws.visa ?? 0).toBe(drawn);
   });
 
   test("[R-PEOPLE-036] given a dependant's visa granted and not yet used, when it is withdrawn, then it is void: known again, and flying is no longer legal", () => {

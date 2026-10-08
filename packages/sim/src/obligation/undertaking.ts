@@ -36,19 +36,14 @@ export function undertakingMonthsLeft(read: ReadCtx, item: ObligationState): num
   return Math.max(0, termEnds(read, item) - read.state.turn.month);
 }
 
-/**
- * The bond an undertaking opens for: the cause's param when it names one of
- * the character's bonds, else the sponsorship on record.
- * `obligation/open` carries no bond, so the people kind names it as
- * the cause's param when `people/agreed` with `landed` opens the undertaking.
- */
-function bondOf(state: State, cause: Cause): string | null {
-  if (cause.param !== null && state.people.bonds[cause.param] !== undefined) return cause.param;
+/** The bond an undertaking opens for: the one the effect names, else the sponsorship on record. */
+function bondOf(state: State, bond: string | undefined): string | null {
+  if (bond !== undefined && state.people.bonds[bond] !== undefined) return bond;
   return state.people.sponsoring?.bond ?? null;
 }
 
 /** R-UNDERTAKING-006: open with nothing owed, naming the bond. */
-export function openUndertaking(ctx: Ctx, entry: ObligationEntry, cause: Cause): BaseEvent[] {
+export function openUndertaking(ctx: Ctx, entry: ObligationEntry, bond: string | undefined): BaseEvent[] {
   const item: ObligationState = {
     id: ctx.nextId("obligation"),
     entry: entry.id,
@@ -60,19 +55,15 @@ export function openUndertaking(ctx: Ctx, entry: ObligationEntry, cause: Cause):
     // The months left are read from the month it opened; a month with nothing owed records nothing to count them by.
     monthsLeft: null,
     missed: 0,
-    bond: bondOf(ctx.state, cause),
+    bond: bondOf(ctx.state, bond),
     charged: 0,
   };
   return record(ctx, [{ type: "obligation/opened", item }]);
 }
 
-/**
- * The effect `obligation/open` with the bond as the cause's param, for the
- * people kind to apply when the authority sends `people/agreed` with `landed`
- * (R-UNDERTAKING-006).
- */
-export function undertakingOpening(obligation: Id<"obligation">, bond: string): { effects: Effect[]; cause: Cause } {
-  return { effects: [{ type: "obligation/open", obligation }], cause: { source: "people/agreed", param: bond, terms: {} } };
+/** The effect `obligation/open` naming the bond, for the people kind to apply when the authority sends `people/agreed` with `landed` (R-UNDERTAKING-006). */
+export function undertakingOpening(obligation: Id<"obligation">, bond: string): Effect {
+  return { type: "obligation/open", obligation, bond };
 }
 
 /** R-UNDERTAKING-007: months of assistance in the partner's facts not yet charged. A bond that has gone keeps its last facts. */

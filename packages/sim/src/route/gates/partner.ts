@@ -9,7 +9,7 @@
 import { heldBand } from "../../activity/activity.logic";
 import { worldVar } from "../../engine/check";
 import { emit } from "../../engine/kind";
-import type { Bond, BondStage, Ctx, Id, PersonFacts, ReadCtx, RouteEntry, RouteState } from "../../engine/types";
+import type { Bond, BondStage, Cause, Ctx, Id, PersonFacts, ReadCtx, RouteEntry, RouteState } from "../../engine/types";
 import { bannedUntil } from "../../place/place.logic";
 import type { RouteKindEvent } from "../route.events";
 import type { Decision, DecisionTerms, Gate } from "./gate";
@@ -121,11 +121,15 @@ function mayApply(ctx: Ctx, entry: RouteEntry): boolean {
   return bandHolds(ctx, block);
 }
 
-/** The bond the application rests on goes on the route, so a collapse can find it (R-PEOPLE-036). */
-function onSend(ctx: Ctx, entry: RouteEntry): void {
+/**
+ * The bond the application rests on goes on the route, so a collapse can find
+ * it (R-PEOPLE-036), and the genuineness interview opens on it (R-INTERVIEW-001).
+ */
+function onSend(ctx: Ctx, entry: RouteEntry, cause: Cause): void {
   const bond = sponsorOf(ctx, entry)?.id ?? null;
   const event: RouteKindEvent = { type: "route/gate-updated", route: entry.id, gate: { gate: "partner", bond }, note: null };
   emit(ctx, "route", [event]);
+  if (bond !== null) ctx.apply([{ type: "interview/open", route: entry.id, bond }], cause);
 }
 
 function bondOnRoute(held: RouteState): string | null {

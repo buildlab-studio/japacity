@@ -194,6 +194,7 @@ const wholeLifeRoutes: Record<Id<"route">, RouteEntry> = {
     interview: null,
     points: {
       table: "points.canada",
+      spouseTable: "points.canada-spouse",
       fundsVar: "var.ca-funds",
       cutoffVar: "var.ca-cutoff",
       careCutoffVar: "var.ca-care-cutoff",

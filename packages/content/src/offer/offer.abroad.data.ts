@@ -254,6 +254,8 @@ const assistanceOffers: Record<Id<"offer">, OfferEntry> = {
         pick: null,
         effects: [
           { type: "money/add", currency: "CAD", pocket: "bank", amount: { term: "amount" }, reason: "assistance" },
+          // Counted for a sponsor's undertaking only after arriving on the spouse route (R-UNDERTAKING-010).
+          { type: "people/assistance-taken", route: "route.ca-spouse" },
           { type: "quality/add", quality: "quality.wellbeing", amount: 2 },
           { type: "quality/add", quality: "quality.standing", amount: -2 },
         ],

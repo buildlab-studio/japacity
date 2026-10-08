@@ -30,9 +30,9 @@ function sponsor(cad: { bank: number; cash: number }, options: LifeOptions = {})
   return game;
 }
 
-/** The undertaking opened as the people kind opens it on `people/agreed` with `landed`: the bond is the cause's param. */
+/** The undertaking opened as the people kind opens it on `people/agreed` with `landed`: the effect names the bond. */
 function landed(game: Game): ObligationState {
-  applyAs(game, [{ type: "obligation/open", obligation: UNDERTAKING }], { source: "people/agreed", param: BOND });
+  applyAs(game, [{ type: "obligation/open", obligation: UNDERTAKING, bond: BOND }], { source: "people/agreed", param: BOND });
   return undertaking(game)!;
 }
 

@@ -24,4 +24,7 @@ export type PeopleEvent =
   | { type: "people/invite-withdrawn"; slot: string }
   | { type: "people/gossip-spread"; bond: string; about: string }
   // A computer's yes to marrying that waits for December (R-PEOPLE-049).
-  | { type: "people/wedding-waits"; bond: string };
+  | { type: "people/wedding-waits"; bond: string }
+  // The arrival on a partner route (R-PEOPLE-027), and a month of assistance counted (R-UNDERTAKING-010).
+  | { type: "people/arrived"; route: Id<"route">; month: number }
+  | { type: "people/assistance-counted"; route: Id<"route"> };

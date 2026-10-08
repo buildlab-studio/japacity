@@ -309,6 +309,10 @@ export const EffectSchema = z.discriminatedUnion("type", [
   z.strictObject({ type: z.literal("route/interview-scored"), route: idOf("route"), score: IntSchema }),
   z.strictObject({ type: z.literal("people/moment"), kind: z.enum(["met", "call", "said", "wedding"]) }),
   z.strictObject({ type: z.literal("route/withdraw"), route: idOf("route") }),
+  z.strictObject({ type: z.literal("interview/open"), route: idOf("route"), bond: z.string().min(1) }),
+  z.strictObject({ type: z.literal("interview/close"), route: idOf("route") }),
+  z.strictObject({ type: z.literal("people/arrived"), route: idOf("route") }),
+  z.strictObject({ type: z.literal("people/assistance-taken"), route: idOf("route") }),
   z.strictObject({
     type: z.literal("route/record-sponsor"),
     route: idOf("route"),
@@ -324,6 +328,7 @@ export const EffectSchema = z.discriminatedUnion("type", [
     obligation: idOf("obligation"),
     principal: AmountSchema.exactOptional(),
     amount: AmountSchema.exactOptional(),
+    bond: z.string().min(1).exactOptional(),
   }),
   z.strictObject({ type: z.literal("offer/open"), offer: idOf("offer") }),
   z.strictObject({ type: z.literal("obligation/close"), obligationType: ObligationTypeSchema }),

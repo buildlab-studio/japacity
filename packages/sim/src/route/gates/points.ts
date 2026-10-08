@@ -3,7 +3,7 @@
 // month the profile went into the pool and the month of the invitation. The
 // invitation, not a slot, sends the application (R-POINTS-003).
 import { heldBand, tenureAcross } from "../../activity/activity.logic";
-import { worldVar } from "../../engine/check";
+import { check, worldVar } from "../../engine/check";
 import { BP_WHOLE, convertMinor, divFloor, mulDiv } from "../../engine/int";
 import { emit } from "../../engine/kind";
 import type {
@@ -112,13 +112,9 @@ function sumOf(parts: PointsParts): number {
   return parts.age + parts.education + parts.language + parts.transfer;
 }
 
-/**
- * R-PEOPLE-030: the table with the lead's columns for one with a spouse.
- * the route's points block names one table, so the spouse's is found
- * by name, the route's table with `-spouse` after it.
- */
+/** R-PEOPLE-030: the table the points block names for the lead's columns with a spouse. */
 function spouseTableOf(content: Content, block: PointsBlock): PointsEntry & { spouse: NonNullable<PointsEntry["spouse"]> } {
-  const table = content.points[`${block.table}-spouse` as Id<"points">];
+  const table = block.spouseTable === null ? undefined : content.points[block.spouseTable];
   if (table?.spouse === undefined) throw new Error(`The content has no spouse table for ${block.table}.`);
   return table as PointsEntry & { spouse: NonNullable<PointsEntry["spouse"]> };
 }
@@ -166,20 +162,15 @@ function residentStatuses(read: ReadCtx, entry: RouteEntry): Id<"status">[] {
 /**
  * R-PEOPLE-031: `siblingBonus` for a sibling, real or computer, abroad in the
  * route's country with the status the route gives or one after it, aged at
- * least the table's first age. One is enough.
- * the people kind judges `people/sibling-abroad`; until it does, the
- * bonds' facts are read here the same way.
+ * least the table's first age, as the people kind judges `people/sibling-abroad`.
+ * One is enough.
  */
 export function siblingPoints(read: ReadCtx, route: Id<"route">): number {
   const entry = routeEntry(read.content, route);
   const table = tableOf(read.content, blockOf(entry));
-  const statuses = residentStatuses(read, entry);
+  if (entry.country === null) return 0;
   const minAgeMonths = (table.age[0]?.years ?? 0) * MONTHS_PER_YEAR;
-  const found = Object.values(read.state.people.bonds).some((bond) => {
-    const facts = bond.facts;
-    if (bond.role !== "sibling" || bond.stage === "ended" || facts === null || facts.status === null) return false;
-    return facts.where === "abroad" && facts.country === entry.country && statuses.includes(facts.status) && facts.ageMonths >= minAgeMonths;
-  });
+  const found = check(read, { type: "people/sibling-abroad", country: entry.country, statuses: residentStatuses(read, entry), minAgeMonths }).met;
   return found ? table.siblingBonus : 0;
 }
 
@@ -201,7 +192,8 @@ export function pointsScoreWith(read: ReadCtx, route: Id<"route">, spouse: Perso
  */
 export function pointsScore(read: ReadCtx, route: Id<"route">): number {
   const spouse = spouseOnJoint(read, route);
-  return spouse === null ? pointsScoreAlone(read, route) : pointsScoreWith(read, route, spouse);
+  const withSpouse = spouse !== null && blockOf(routeEntry(read.content, route)).spouseTable !== null;
+  return spouse === null || !withSpouse ? pointsScoreAlone(read, route) : pointsScoreWith(read, route, spouse);
 }
 
 function officialRates(read: ReadCtx): Record<ForeignCurrency, number> {

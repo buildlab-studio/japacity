@@ -294,8 +294,17 @@ export type Effect =
   | { type: "people/moment"; kind: Moment["kind"] }
   /** Withdraws an application in progress (R-PEOPLE-038). */
   | { type: "route/withdraw"; route: Id<"route"> }
+  /** The application just sent on this route, resting on this bond, opens the genuineness interview (R-INTERVIEW-001, 002). */
+  | { type: "interview/open"; route: Id<"route">; bond: string }
+  /** The interview open for this route closes unscored (R-PEOPLE-036, R-INTERVIEW-011). */
+  | { type: "interview/close"; route: Id<"route"> }
+  /** The character arrived on this route, as the people slice records it (R-PEOPLE-027). */
+  | { type: "people/arrived"; route: Id<"route"> }
+  /** One month of social assistance taken, counted while `arrived` names this route (R-UNDERTAKING-010). */
+  | { type: "people/assistance-taken"; route: Id<"route"> }
   // obligation
-  | { type: "obligation/open"; obligation: Id<"obligation">; principal?: Amount; amount?: Amount }
+  /** `bond`: the bond an undertaking is for (R-UNDERTAKING-006). */
+  | { type: "obligation/open"; obligation: Id<"obligation">; principal?: Amount; amount?: Amount; bond?: string }
   // offer: opens nothing when the offer's own `when` does not hold
   | { type: "offer/open"; offer: Id<"offer"> }
   // obligation, whole life
@@ -443,7 +452,8 @@ export interface RouteEntry {
   /** Sponsor gate: the salary bar and the maintenance line, as vars. */
   sponsor?: { salaryVar: Id<"var">; maintenanceVar: Id<"var"> | null; findBp: number; bandMin: number; documents: Id<"document">[]; strictnessVar: Id<"var">; surchargeYears: number; job: Id<"activity"> };
   /** Points gate. */
-  points?: { table: Id<"points">; fundsVar: Id<"var">; cutoffVar: Id<"var">; careCutoffVar: Id<"var"> | null; feeVar: Id<"var">; decisionVar: Id<"var">; profileMonths: number };
+  /** `spouseTable`: the lead's columns with a spouse and the spouse's factors (R-PEOPLE-030). Null: no spouse counts. */
+  points?: { table: Id<"points">; spouseTable: Id<"points"> | null; fundsVar: Id<"var">; cutoffVar: Id<"var">; careCutoffVar: Id<"var"> | null; feeVar: Id<"var">; decisionVar: Id<"var">; profileMonths: number };
   /** Endorsement gate. */
   endorsement?: { document: Id<"document">; baseBp: number; perPortfolioBp: number; perNetworkBp: number; capBp: number; cooldown: number; feeVar: Id<"var">; surchargeYears: number };
   /** Contract gate. */
@@ -634,6 +644,8 @@ export interface NewsEntry {
   touches: Id<"route">[];
   /** Routes a character hears of by reading it. */
   hear: Id<"route">[];
+  /** When these all hold, the `hear` routes are heard of at the rumour stage too, through a sibling there (R-PEOPLE-033). Missing: only from announced. */
+  rumourIf?: Requirement[];
   /** The director's fields: docs/rules/director.md. Missing means the fixed schedule in `standIn` is used. */
   director?: {
     group: string;
@@ -861,7 +873,8 @@ export interface InterviewEntry {
 }
 
 export interface InterviewSlice {
-  open: { pair: string; route: Id<"route">; questions: { id: string; options: string[] }[]; answers: string[]; standIn: boolean } | null;
+  /** `thin`: the record measured once, in the applicant's life at opening, and carried to the other life (R-INTERVIEW-012). */
+  open: { pair: string; route: Id<"route">; questions: { id: string; options: string[] }[]; answers: string[]; standIn: boolean; thin: boolean } | null;
   last: { route: Id<"route">; result: InterviewResult; matched: number; asked: number; month: number } | null;
   /** Hidden. The true answers for the questions asked (R-INTERVIEW-004). */
   secret: { truths: (string | null)[] | null };
@@ -1602,7 +1615,8 @@ export type Command = { basedOn: number } & (
   | { type: "people/family-request"; offer: Id<"offer">; terms: Terms }
   // the interview (docs/rules/interview.md)
   | { type: "interview/answer"; question: string; option: string }
-  | { type: "interview/open"; pair: string; route: Id<"route">; questions: { id: string; options: string[] }[] }
+  /** `thin`: the applicant's measure of the record (R-INTERVIEW-012). Missing: measured in this life. */
+  | { type: "interview/open"; pair: string; route: Id<"route">; questions: { id: string; options: string[] }[]; thin?: boolean }
   | { type: "interview/scored"; pair: string; theirs: string[] }
 );
 

@@ -12,6 +12,7 @@ import type {
   Command,
   Content,
   Ctx,
+  Effect,
   Id,
   InterviewEntry,
   InterviewResult,
@@ -21,7 +22,6 @@ import type {
   ReadCtx,
   Rejection,
   ReportLine,
-  RouteState,
   State,
   Tuning,
 } from "../engine/types";
@@ -212,7 +212,7 @@ export function listOf(content: Content, bond: Bond, question: Question): string
  * R-INTERVIEW-002 and 006: the record is thin with fewer moments than
  * `thinMoments`, or fewer than `thinMonths` of this life's months at
  * `partner` or `married`.
- * each life counts in its own months, so two real lives can differ on a record near the edge.
+ * Measured once, in the applicant's life at opening, and carried to the other (R-INTERVIEW-012).
  */
 export function isThin(state: State, bond: Bond, numbers: Numbers): boolean {
   const since = [bond.partnerMonth, bond.marriedMonth].filter((month): month is number => month !== null);
@@ -314,38 +314,35 @@ function drawQuestions(ctx: Ctx, bond: Bond): { questions: Asked[]; truths: (str
   return { questions, truths };
 }
 
-/** The bond an application rests on: the gate's, else the joint's, else the partner slot's. */
-function applicationBond(state: State, held: RouteState): { id: string; bond: Bond } | null {
-  const gateBond = held.gate !== null && (held.gate.gate === "partner" || held.gate.gate === "dependant") ? held.gate.bond : null;
-  const id = gateBond ?? state.people.joint?.bond ?? state.people.slots.partner?.bond ?? null;
-  if (id === null) return null;
-  const bond = state.people.bonds[id];
-  return bond === undefined ? null : { id, bond };
+/**
+ * R-INTERVIEW-001 and 002: the application just sent on the `partner` gate
+ * opens the interview in the applicant's life; one on the `dependant` gate only
+ * over a thin record. The gate applies this as the application goes in, naming
+ * the bond it rests on. The record is measured here once and carried (R-INTERVIEW-012).
+ */
+function openEffect(ctx: Ctx, effect: Effect): BaseEvent[] {
+  if (effect.type !== "interview/open") throw new Error(`interview/open cannot carry out ${effect.type}.`);
+  const route = ctx.content.route[effect.route];
+  if (route === undefined) throw new Error(`There is no route ${effect.route}.`);
+  if (ctx.state.interview.open !== null) return [];
+  const bond = ctx.state.people.bonds[effect.bond];
+  const found = bond === undefined ? null : { id: effect.bond, bond };
+  if (!intact(found)) return [];
+  const thin = isThin(ctx.state, found.bond, ctx.content.tuning.interview);
+  if (route.gate === "dependant" && !thin) return [];
+  const { questions, truths } = drawQuestions(ctx, found.bond);
+  if (questions.length === 0) return [];
+  const opened: InterviewEvent = { type: "interview/opened", pair: pairOf(found.id, found.bond), route: route.id, questions, standIn: false, thin, truths };
+  return emit(ctx, "interview", [opened]);
 }
 
-/**
- * R-INTERVIEW-001 and 002: an application sent this month on the `partner`
- * gate opens the interview in the applicant's life; one on the `dependant`
- * gate only over a thin record. The route sends applications in the `slots`
- * phase, before this kind's turn in it.
- * the contract has no effect for the route to open an interview, so this kind looks for the application itself.
- */
-function openForApplications(ctx: Ctx): BaseEvent[] {
-  if (ctx.state.interview.open !== null) return [];
-  const month = ctx.state.turn.month;
-  for (const entry of Object.values(ctx.content.route)) {
-    if (entry.gate !== "partner" && entry.gate !== "dependant") continue;
-    const held = ctx.state.route[entry.id];
-    if (held === undefined || held.state !== "applying" || held.visa?.submittedMonth !== month) continue;
-    const found = applicationBond(ctx.state, held);
-    if (!intact(found)) continue;
-    if (entry.gate === "dependant" && !isThin(ctx.state, found.bond, ctx.content.tuning.interview)) continue;
-    const { questions, truths } = drawQuestions(ctx, found.bond);
-    if (questions.length === 0) continue;
-    const opened: InterviewEvent = { type: "interview/opened", pair: pairOf(found.id, found.bond), route: entry.id, questions, standIn: false, truths };
-    return emit(ctx, "interview", [opened]);
-  }
-  return [];
+/** R-PEOPLE-036: the application withdrawn takes its open interview with it, unscored. */
+function closeEffect(ctx: Ctx, effect: Effect): BaseEvent[] {
+  if (effect.type !== "interview/close") throw new Error(`interview/close cannot carry out ${effect.type}.`);
+  const open = ctx.state.interview.open;
+  if (open === null || open.route !== effect.route) return [];
+  const withdrawn: InterviewEvent = { type: "interview/withdrawn", pair: open.pair, route: open.route };
+  return emit(ctx, "interview", [withdrawn]);
 }
 
 /** R-INTERVIEW-011: a bond that ended while the interview was open closes it unscored. */
@@ -357,7 +354,7 @@ function withdrawIfEnded(ctx: Ctx): BaseEvent[] {
 }
 
 function slotsPhase(ctx: Ctx): BaseEvent[] {
-  return [...withdrawIfEnded(ctx), ...openForApplications(ctx)];
+  return withdrawIfEnded(ctx);
 }
 
 /** R-INTERVIEW-001: the authority opens the same questions in the sponsor's life. */
@@ -377,7 +374,8 @@ function openCommand(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   const read = readOf(ctx);
   const questions = command.questions.map((asked) => ({ id: asked.id, options: [...asked.options] }));
   const truths = questions.map((asked) => truthOf(read, found.bond, questionOf(entry, asked.id).truth, "them"));
-  const opened: InterviewEvent = { type: "interview/opened", pair: command.pair, route: command.route, questions, standIn: false, truths };
+  const thin = command.thin ?? isThin(ctx.state, found.bond, ctx.content.tuning.interview);
+  const opened: InterviewEvent = { type: "interview/opened", pair: command.pair, route: command.route, questions, standIn: false, thin, truths };
   return emit(ctx, "interview", [opened]);
 }
 
@@ -443,7 +441,7 @@ function score(ctx: Ctx, open: Open, bond: Bond, theirs: readonly string[]): Bas
   const numbers = ctx.content.tuning.interview;
   const matched = matchedCount(readOf(ctx), open, bond, theirs);
   const asked = open.questions.length;
-  const result = resultOf(matched, asked, isThin(ctx.state, bond, numbers), numbers);
+  const result = resultOf(matched, asked, open.thin, numbers);
   const scored: InterviewEvent = { type: "interview/scored", pair: open.pair, route: open.route, result, matched, asked, month: ctx.state.turn.month };
   const events = emit(ctx, "interview", [scored]);
   if (result === "caught") {
@@ -508,7 +506,7 @@ function turnEnd(ctx: Ctx): BaseEvent[] | Rejection {
 function evolve(slice: InterviewSlice, event: InterviewEvent): InterviewSlice {
   switch (event.type) {
     case "interview/opened":
-      return { ...slice, open: { pair: event.pair, route: event.route, questions: event.questions, answers: [], standIn: event.standIn }, secret: { truths: event.truths } };
+      return { ...slice, open: { pair: event.pair, route: event.route, questions: event.questions, answers: [], standIn: event.standIn, thin: event.thin }, secret: { truths: event.truths } };
     case "interview/answered": {
       if (slice.open === null) throw new Error(`${event.question} was answered with no interview open.`);
       return { ...slice, open: { ...slice.open, answers: [...slice.open.answers, event.option], standIn: slice.open.standIn || event.standIn } };
@@ -610,6 +608,7 @@ export const interviewKind: RegisteredKind<InterviewSlice, InterviewEvent> = {
   kind: "interview",
   initial: () => ({ open: null, last: null, secret: { truths: null } }),
   commands: { "interview/answer": answer, "interview/open": openCommand, "interview/scored": scoredCommand, "turn/end": turnEnd },
+  effects: { "interview/open": openEffect, "interview/close": closeEffect },
   phases: { slots: slotsPhase },
   evolve,
   lines,

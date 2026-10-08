@@ -1,12 +1,11 @@
 // Test support for the partner and dependant gates, the points with people, the
-// undertaking and the couch: a life with the people routes joined to its content,
-// and the people and interview slices set as those kinds' events would set them.
-// The people and interview kinds are other agents' and still answer every
-// command with `not-legal`, so their slices are written here; everything else
-// is played through `step`. Nothing in the simulation imports this file.
+// undertaking and the couch: a life with the people routes in its content, and
+// the people and interview slices set as those kinds' events would set them,
+// so a gate test need not play a courtship first; everything else is played
+// through `step`. Nothing in the simulation imports this file.
 import type { Registry } from "../../engine/kind";
 import { stepWith } from "../../engine/step";
-import type { Bond, Cause, Content, Effect, Id, InterviewResult, PeopleSlice, PersonFacts, ReadCtx, ReportLine, Requirement, RequirementResult, Terms } from "../../engine/types";
+import type { Bond, Cause, Content, Effect, Id, InterviewResult, Moment, PeopleSlice, PersonFacts, ReadCtx, ReportLine, Terms } from "../../engine/types";
 import { registry } from "../../kinds";
 import type { Game } from "../../testing/play";
 import type { LifeOptions } from "../route.journey";
@@ -20,27 +19,9 @@ export const SKILLED: Id<"route"> = "route.uk-skilled";
 export const CANADA: Id<"route"> = "route.canada-points";
 export const BOND = "bond-1";
 
-/** What the people kind's `people/bond` will judge, read from the bonds' facts, until that kind is built. */
-function judgeBond(read: ReadCtx, requirement: Requirement): RequirementResult {
-  if (requirement.type !== "people/bond") throw new Error(`The stand-in judges people/bond, not ${requirement.type}.`);
-  const met = Object.values(read.state.people.bonds).some((bond) => {
-    const facts = bond.facts;
-    if (bond.role !== requirement.role || !requirement.stages.includes(bond.stage)) return false;
-    if (requirement.where !== undefined && facts?.where !== requirement.where) return false;
-    if (requirement.country !== undefined && facts?.country !== requirement.country) return false;
-    return requirement.statuses === undefined || (facts?.status !== null && facts?.status !== undefined && requirement.statuses.includes(facts.status));
-  });
-  return { met };
-}
-
-/** The real registry with `people/bond` judged from the facts, so a partner route is heard through its own `hearIf`. */
-export function peopleJudged(): Registry {
-  return registry().map((kind) => (kind.kind !== "people" ? kind : { ...kind, requirements: { ...kind.requirements, "people/bond": judgeBond } }));
-}
-
-/** Ada with her papers, from a content with the people routes joined, and `people/bond` judged from the facts. */
+/** Ada with her papers. */
 export function life(base: Content, options: LifeOptions = {}): Game {
-  return readyLife(base, { quiet: true, kinds: peopleJudged(), ...options });
+  return readyLife(base, { quiet: true, ...options });
 }
 
 export function facts(over: Partial<PersonFacts> = {}): PersonFacts {
@@ -89,13 +70,33 @@ export function setPeople(game: Game, change: (slice: PeopleSlice) => PeopleSlic
   game.state = { ...game.state, people: change(game.state.people) };
 }
 
-/** A bond `BOND` with these facts, and a joint on `route` with `lead` leading. */
+/** Meetings enough, and months enough together, that the record is not thin (R-INTERVIEW-002). */
+function deepRecord(game: Game): Partial<Bond> {
+  const { thinMoments, thinMonths } = game.content.tuning.interview;
+  const moments: Moment[] = Array.from({ length: thinMoments }, (_unused, index) => ({ n: index + 1, by: index % 2 === 0 ? "me" : "them", kind: "met", spot: "beach", what: "talked", tick: 0 }));
+  const since = game.state.turn.month - thinMonths;
+  return { moments, firstMonth: since, partnerMonth: since, marriedMonth: since };
+}
+
+/**
+ * A bond `BOND` with these facts, and a joint on `route` with `lead` leading.
+ * The record is deep unless `other` says otherwise, so a dependant
+ * application opens no interview of its own (R-INTERVIEW-002).
+ */
 export function joint(game: Game, route: Id<"route">, lead: "me" | "them", other: Partial<Bond> = {}): void {
   setPeople(game, (slice) => ({
     ...slice,
-    bonds: { ...slice.bonds, [BOND]: bond(other) },
+    bonds: { ...slice.bonds, [BOND]: bond({ ...deepRecord(game), ...other }) },
     joint: { bond: BOND, route, lead, countFunds: false, standInMay: false },
   }));
+}
+
+/** This side answers every question of the open interview with its first option, as a player would, and then waits for the other (R-INTERVIEW-004, 011). */
+export function answerInterview(game: Game): void {
+  for (let open = game.state.interview.open; open !== null && open.answers.length < open.questions.length; open = game.state.interview.open) {
+    const asked = open.questions[open.answers.length]!;
+    game.accept({ type: "interview/answer", question: asked.id, option: asked.options[0]! });
+  }
 }
 
 /** The facts on `BOND` replaced, as `people/facts` would replace them. */
@@ -119,12 +120,12 @@ export function scored(game: Game, route: Id<"route">, result: InterviewResult):
 
 /** An interview open on `route`, as `interview/open` would open it. */
 export function interviewOpen(game: Game, route: Id<"route">): void {
-  game.state = { ...game.state, interview: { ...game.state.interview, open: { pair: "pair-1", route, questions: [], answers: [], standIn: false } } };
+  game.state = { ...game.state, interview: { ...game.state.interview, open: { pair: "pair-1", route, questions: [], answers: [], standIn: false, thin: false } } };
 }
 
 /** Carries out effects through the engine's routing under a cause of our choosing, as another kind's handler would. */
 export function applyAs(game: Game, effects: Effect[], cause: Partial<Cause> = {}, terms: Terms = {}): ReportLine[] {
-  const kinds: Registry = peopleJudged().map((kind) =>
+  const kinds: Registry = registry().map((kind) =>
     kind.kind !== "offer" ? kind : { ...kind, commands: { ...kind.commands, "offer/choose": (ctx) => ctx.apply(effects, { source: "test", param: null, terms, ...cause }) } },
   );
   const result = stepWith(kinds, game.state, { type: "offer/choose", offer: "x", choice: "y", basedOn: game.state.v }, game.world(), game.content);

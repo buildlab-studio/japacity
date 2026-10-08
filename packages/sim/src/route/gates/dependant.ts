@@ -117,7 +117,11 @@ function mayApply(ctx: Ctx, entry: RouteEntry, held: RouteState): boolean {
   return fees !== null && canPay(ctx, fees);
 }
 
-/** The fee is paid as the application goes in, as foreign fees (R-WALLET-009), and the bond is noted on the route. */
+/**
+ * The fee is paid as the application goes in, as foreign fees (R-WALLET-009),
+ * the bond is noted on the route, and the interview is asked to open, which it
+ * does only over a thin record (R-INTERVIEW-002).
+ */
 function onSend(ctx: Ctx, entry: RouteEntry, cause: Cause): void {
   const lead = leadOf(ctx, entry);
   const fees = dependantFee(ctx, entry, lead?.bond.facts ?? null) ?? [];
@@ -125,6 +129,7 @@ function onSend(ctx: Ctx, entry: RouteEntry, cause: Cause): void {
   ctx.apply(pay, cause);
   const event: RouteKindEvent = { type: "route/gate-updated", route: entry.id, gate: { gate: "dependant", bond: lead?.id ?? null }, note: null };
   emit(ctx, "route", [event]);
+  if (lead !== null) ctx.apply([{ type: "interview/open", route: entry.id, bond: lead.id }], cause);
 }
 
 /**
