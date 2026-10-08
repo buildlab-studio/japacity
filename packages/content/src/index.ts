@@ -3,6 +3,8 @@ import type { Content } from "@japacity/sim";
 
 import { activityAbroadText } from "./activity/activity.abroad.text";
 import { activityTable } from "./activity/activity.data";
+import { advertTable } from "./advert/advert.data";
+import { advertText } from "./advert/advert.text";
 import { activityText } from "./activity/activity.text";
 import { chapterTable } from "./chapter/chapter.data";
 import { chapterText } from "./chapter/chapter.text";
@@ -80,7 +82,7 @@ export const content: Content = {
   interview: interviewTable,
   people: { spots: peopleSpots },
   // The tables start empty; their builders fill them (adverts.md, guides.md, analytics.md).
-  advert: {},
+  advert: advertTable,
   guide: {},
   analytics: { counters: [] },
   points: pointsTable,
@@ -93,6 +95,7 @@ export const textTables: Record<string, Record<string, string>> = {
   phrase: phraseText,
   activity: activityText,
   activityAbroad: activityAbroadText,
+  advert: advertText,
   chapter: chapterText,
   country: countryText,
   credit: creditText,
@@ -143,3 +146,6 @@ export function mergeText(tables: Record<string, Record<string, string>>): Recor
 }
 
 export const text: Record<string, string> = mergeText(textTables);
+
+/** R-ADVERT-001, R-ADVERT-002: the slots check, which the engine's content check does not reach. */
+export { advertChecks } from "./advert/advert.check";
