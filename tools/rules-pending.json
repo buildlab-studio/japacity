@@ -1,6 +1,15 @@
 [
   "R-ACCOUNT-019",
+  "R-ACCOUNT-021",
+  "R-ACCOUNT-022",
+  "R-ACCOUNT-023",
+  "R-ACCOUNT-024",
+  "R-ACCOUNT-025",
+  "R-ACCOUNT-026",
+  "R-ACCOUNT-027",
+  "R-ACCOUNT-028",
   "R-ASSET-010",
+  "R-ASSET-030",
   "R-CITY-006",
   "R-CITY-009",
   "R-CITY-029",
@@ -10,6 +19,7 @@
   "R-CITY-035",
   "R-CITY-039",
   "R-CITY-040",
+  "R-CITY-041",
   "R-ENGINE-018",
   "R-GUIDE-012",
   "R-LOAD-012",
@@ -31,5 +41,6 @@
   "R-REGION-008",
   "R-REGION-009",
   "R-SERVER-033",
-  "R-SETPIECE-007"
+  "R-SETPIECE-007",
+  "R-SETPIECE-008"
 ]
