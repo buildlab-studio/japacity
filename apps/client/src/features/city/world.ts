@@ -3,13 +3,14 @@
 import { isPaletteName, type PaletteName, paletteCss } from "@japacity/assets";
 import { attachSigns, findSignAnchors, type SignText } from "@japacity/assets/load";
 import type { SignAnchor } from "@japacity/assets";
-import { BufferGeometry, Color, CylinderGeometry, Float32BufferAttribute, Group, Matrix4, Mesh, MeshLambertMaterial, type Object3D, Quaternion, Vector3 } from "three";
+import type { PoseName } from "@japacity/assets-src/people/poses";
+import { BufferGeometry, Color, CylinderGeometry, Float32BufferAttribute, Group, Matrix4, Mesh, MeshLambertMaterial, type Object3D, Quaternion, type SkinnedMesh, Sphere, Vector3 } from "three";
 
 import { instanceModel } from "../../shared/three/instance";
 import { ownIndicator, nameTag } from "../../shared/three/marks";
 import { bunting, frondGeometry, instancedSheets, leaves, type MeshLevel, sheet, sheetGeometry, smoke, water } from "../../shared/three/motion";
 import { type Figure, figureOf } from "../../shared/three/people";
-import { placeCrowd, type Shown } from "./crowd";
+import { actPose, placeCrowd, type Shown, walkPose } from "./crowd";
 import type { ModeSettings } from "./mode";
 import type { Motion, Stage, Strip } from "./placeFile";
 
@@ -20,6 +21,8 @@ export function colourOf(name: string): Color {
 export interface Placed {
   figure: Figure;
   slot: number;
+  /** A crosser walks from `from` to `to` and back in `walk`, `phase` seconds along the round. */
+  cross?: { from: [number, number]; to: [number, number]; walk: PoseName; phase: number };
 }
 
 export interface World {
@@ -175,6 +178,22 @@ export function motionOf(motion: Motion, level: MeshLevel): Object3D {
   }
 }
 
+/** Round a standing person, arms out or a tray up, in the body's own frame. */
+const PERSON_BOUNDS = new Sphere(new Vector3(0, 0.95, 0), 1.3);
+
+/**
+ * A person is skipped where neither the camera nor the sun's shadow camera can see them. A skinned
+ * body's own bounds do not follow its pose, so each is given a sphere that holds any pose.
+ */
+function cullAsPerson(root: Object3D): void {
+  root.traverse((object) => {
+    const skinned = object as SkinnedMesh;
+    if (!skinned.isSkinnedMesh) return;
+    skinned.boundingSphere = PERSON_BOUNDS.clone();
+    skinned.frustumCulled = true;
+  });
+}
+
 /** Every phase of the crowd differs, from the slot, so no two people breathe together. */
 const phaseOf = (slot: number): number => slot * 1.7;
 const OWN_PHASE = 99;
@@ -236,23 +255,27 @@ export function buildWorld(stage: Stage, models: ReadonlyMap<string, Object3D>, 
     root.add(copies);
   }
   const crowd: Placed[] = [];
-  for (const { shown, spot } of placeCrowd(people, stage.people, stage.prefer)) {
+  const acts = stage.acts ?? [];
+  for (const { shown, spot, index } of placeCrowd(people, stage.people, stage.prefer, acts)) {
     const loaded = models.get(shown.person.file);
     if (loaded === undefined) continue;
-    const figure = figureOf(loaded, shown.person.pose, phaseOf(shown.slot));
+    const act = acts.find((entry) => entry.spot === index);
+    const figure = figureOf(loaded, actPose(shown.person, act), phaseOf(shown.slot));
     figure.root.position.set(spot[0], 0, spot[1]);
     figure.root.rotation.y = spot[2];
     figure.root.userData = { slot: shown.slot };
     figure.root.traverse((object) => {
       object.castShadow = settings.shadows;
     });
+    cullAsPerson(figure.root);
     if (shown.tag !== null) {
       const tag = nameTag(shown.tag);
       tag.position.set(0, 2.15, 0);
       figure.root.add(tag);
     }
     root.add(figure.root);
-    crowd.push({ figure, slot: shown.slot });
+    const to = act?.to;
+    crowd.push(to === undefined ? { figure, slot: shown.slot } : { figure, slot: shown.slot, cross: { from: [spot[0], spot[1]], to, walk: walkPose(shown.person), phase: phaseOf(shown.slot) } });
   }
   // the player's own character is drawn beside the sample, not in one of its slots, so a place shows the sample plus one.
   const ownModel = models.get(ownFile);
@@ -262,6 +285,7 @@ export function buildWorld(stage: Stage, models: ReadonlyMap<string, Object3D>, 
   own.root.traverse((object) => {
     object.castShadow = settings.shadows;
   });
+  cullAsPerson(own.root);
   const indicator = ownIndicator();
   indicator.position.set(0, 1.98, 0);
   own.root.add(indicator);
