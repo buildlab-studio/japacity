@@ -338,6 +338,22 @@ describe("answers with effects, and set pieces with no route", () => {
     expect(uk(game).visa).toBeNull();
     expect(legalCommands(game.view()).some((command) => command.type === "turn/end")).toBe(true);
   });
+
+  test("[R-SETPIECE-006] [R-SETPIECE-002] given a set piece open, when setpiece/close names another, then nothing changes; when it names the open one, then it closes unscored and uncounted, and the turn may end", () => {
+    const game = life();
+    applyEffects(game, [{ type: "setpiece/open", setpiece: INTERVIEW, route: null }]);
+    applyEffects(game, [{ type: "setpiece/close", setpiece: DECEMBER }]);
+    expect(game.state.setpiece.open?.entry).toBe(INTERVIEW);
+    expect(legalCommands(game.view()).some((command) => command.type === "turn/end")).toBe(false);
+    applyEffects(game, [{ type: "setpiece/close", setpiece: INTERVIEW }]);
+    expect(game.state.setpiece.open).toBeNull();
+    expect(game.state.setpiece.answered[INTERVIEW]).toBeUndefined();
+    expect(game.state.setpiece.given[INTERVIEW]).toBeUndefined();
+    expect(uk(game).visa).toBeNull();
+    expect(legalCommands(game.view()).some((command) => command.type === "turn/end")).toBe(true);
+    applyEffects(game, [{ type: "setpiece/close", setpiece: INTERVIEW }]);
+    expect(game.state.setpiece.open).toBeNull();
+  });
 });
 
 const DECEMBER: Id<"setpiece"> = "setpiece.december";

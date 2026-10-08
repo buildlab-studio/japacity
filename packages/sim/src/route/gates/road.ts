@@ -393,13 +393,17 @@ function roadStep(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
  * scene still open moves nothing.
  */
 // the page is silent on a flight between the pitch and the truth; the kinder reading lets the visa win.
+// The open scene closes unscored (the effect setpiece/close).
 export function endBeforeSettingOff(ctx: Ctx): BaseEvent[] {
   const entry = Object.values(ctx.content.route).find((candidate) => candidate.gate === "road");
   const held = entry === undefined ? undefined : ctx.state.route[entry.id];
   if (entry === undefined || held === undefined) return [];
   const step = roadOf(held).step;
   if (step === null || !(BEFORE as readonly string[]).includes(step)) return [];
-  return update(ctx, entry, { gate: "road", step: OVER, monthsHere: 0, debt: 0 }, null);
+  const events = update(ctx, entry, { gate: "road", step: OVER, monthsHere: 0, debt: 0 }, null);
+  // R-ROAD-004: a scene left open would block every turn abroad.
+  ctx.apply([{ type: "setpiece/close", setpiece: NIGHT }, { type: "setpiece/close", setpiece: TRUTH }], causeOf(entry));
+  return events;
 }
 
 // ---------------------------------------------------------------------------

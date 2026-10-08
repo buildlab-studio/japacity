@@ -1053,12 +1053,32 @@ describe("a formal flight and the road", () => {
     expect(cash(game)).toBeGreaterThanOrEqual(cashAbroad);
   });
 
-  test("[R-ROAD-012] [R-ROAD-005] given the truth open at home, when the granted visa is flown and `pay` is then answered abroad, then nobody sets off: no money is taken, no debt opens and the character stays abroad", () => {
+  test("[R-ROAD-012] [R-ROAD-004] [R-SETPIECE-002] given the night meeting open, when the granted visa is flown, then the scene closes unscored with a line, nothing is answered or counted, and the month abroad can end", () => {
+    const game = granted();
+    take(game);
+    expect(game.state.setpiece.open?.entry).toBe(NIGHT);
+    const flight = game.accept({ type: "route/depart", route: UK });
+    expect(game.state.setpiece.open).toBeNull();
+    expect(game.state.setpiece.answered[NIGHT]).toBeUndefined();
+    expect(game.state.setpiece.given[NIGHT]).toBeUndefined();
+    expect(flight.lines).toContainEqual({ key: "line.setpiece.dropped", params: { setpiece: NIGHT }, tone: "plain", attention: false, counts: [] });
+    expect(text["line.setpiece.dropped"]).toContain("{setpiece}");
+    expect(gateOf(game).step).toBe("over");
+    turn(game);
+    expect(game.state.place.where).toBe("abroad");
+    expect(game.state.setpiece.open).toBeNull();
+    expect(checkInvariants(game.state, game.content)).toEqual([]);
+  });
+
+  test("[R-ROAD-012] [R-ROAD-005] [R-SETPIECE-002] given the truth open at home, when the granted visa is flown, then the truth closes unscored, nobody sets off, no money is taken, no debt opens and the month abroad can end", () => {
     const game = granted();
     toTruth(game);
-    game.accept({ type: "route/depart", route: UK });
+    const flight = game.accept({ type: "route/depart", route: UK });
     const before = cash(game);
-    answer(game, "truth", "pay");
+    expect(game.state.setpiece.open).toBeNull();
+    expect(game.state.setpiece.answered[TRUTH]).toBeUndefined();
+    expect(flight.lines.map((line) => line.key)).toContain("line.setpiece.dropped");
+    game.expectRejected({ type: "setpiece/answer", question: "truth", answer: "pay" }, "not-legal");
     expect(game.state.place.where).toBe("abroad");
     expect(cash(game)).toBe(before);
     expect(owed(game, AGENT_DEBT)).toBeNull();

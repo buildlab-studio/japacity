@@ -127,6 +127,18 @@ function answer(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   return events;
 }
 
+/**
+ * The effect `setpiece/close`: the open set piece, when it is the one named,
+ * closes unscored. No score reaches a route and `answered` does not count it,
+ * since nothing was answered (a flight during a road scene, R-ROAD-004).
+ */
+function closeSetpiece(ctx: Ctx, id: Id<"setpiece">): BaseEvent[] {
+  const open = ctx.state.setpiece.open;
+  if (open === null || open.entry !== id) return [];
+  const dropped: SetpieceEvent = { type: "setpiece/dropped", entry: open.entry, route: open.route };
+  return emit(ctx, "setpiece", [dropped]);
+}
+
 function evolve(slice: SetpieceSlice, event: SetpieceEvent): SetpieceSlice {
   switch (event.type) {
     case "setpiece/opened":
@@ -141,6 +153,8 @@ function evolve(slice: SetpieceSlice, event: SetpieceEvent): SetpieceSlice {
     }
     case "setpiece/closed":
       return { ...slice, open: null, answered: { ...slice.answered, [event.entry]: (slice.answered[event.entry] ?? 0) + 1 } };
+    case "setpiece/dropped":
+      return { ...slice, open: null };
     default: {
       const never: never = event;
       throw new Error(`Unknown set piece event ${JSON.stringify(never)}.`);
@@ -161,6 +175,8 @@ function lines(event: SetpieceEvent, state: State): ReportLine[] {
       return [];
     case "setpiece/closed":
       return [{ key: "line.setpiece.closed", params: { setpiece: event.entry }, tone: "plain", attention: false, counts: [] }];
+    case "setpiece/dropped":
+      return [{ key: "line.setpiece.dropped", params: { setpiece: event.entry }, tone: "plain", attention: false, counts: [] }];
     default: {
       const never: never = event;
       throw new Error(`Unknown set piece event ${JSON.stringify(never)}.`);
@@ -222,6 +238,10 @@ export const setpieceKind: RegisteredKind<SetpieceSlice, SetpieceEvent> = {
     "setpiece/open": (ctx, effect) => {
       if (effect.type !== "setpiece/open") throw new Error(`The set piece kind cannot open from ${effect.type}.`);
       return openSetpiece(ctx, effect.setpiece, effect.route);
+    },
+    "setpiece/close": (ctx, effect) => {
+      if (effect.type !== "setpiece/close") throw new Error(`The set piece kind cannot close from ${effect.type}.`);
+      return closeSetpiece(ctx, effect.setpiece);
     },
   },
   evolve,

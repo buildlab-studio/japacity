@@ -78,6 +78,7 @@ export const setpieceText: Record<string, string> = {
   // Report lines. First drafts.
   "line.setpiece.opened": "{setpiece}: {questions} questions to answer before the month can end.",
   "line.setpiece.closed": "{setpiece} is over.",
+  "line.setpiece.dropped": "{setpiece} is behind you. You left before it was settled.",
   // R-LUCK-008: staged.
   "line.setpiece.december-go": "The ticket is booked. You are going home for December, and everybody already knows.",
   // road.md. First drafts. The truth is said once, plainly.
