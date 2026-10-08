@@ -275,6 +275,8 @@ export const uiText: Record<string, string> = {
   // Requirements, as short sentences for "why not"
   "ui.req.quality-min": "{quality} {value} or more",
   "ui.req.quality-max": "{quality} {value} or less",
+  "ui.req.age-min": "{years} years old or older",
+  "ui.req.age-max": "{years} years old or younger",
   "ui.req.quality-min-label": "{quality}: {value} or better",
   "ui.req.job-any": "A job",
   "ui.req.job-none": "No job",

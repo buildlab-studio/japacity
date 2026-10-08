@@ -4,6 +4,7 @@
 import type { Amount, Id, Requirement, RouteStateName } from "@japacity/sim";
 
 import { formatBand, formatBp, formatMoney, formatNumber } from "./format";
+import { AGE, yearsOf } from "./quality";
 import { hasWords, lowerFirst, nameOf, runningName, say, sayCount } from "./text";
 
 /** What the sentence may read from the view to say more than the requirement alone. */
@@ -61,12 +62,14 @@ function routeStates(states: readonly RouteStateName[]): string {
 export function requirementSentence(requirement: Requirement, context: SentenceContext = {}): string {
   switch (requirement.type) {
     case "quality/min": {
+      if (requirement.quality === AGE) return say("ui.req.age-min", { years: yearsOf(requirement.value) });
       const label = `${requirement.quality}.value.${String(requirement.value)}`;
       // Levels with names read better as "Degree grade: Second class upper or better".
       if (hasWords(label)) return say("ui.req.quality-min-label", { quality: nameOf(requirement.quality), value: say(label) });
       return say("ui.req.quality-min", { quality: nameOf(requirement.quality), value: requirement.value });
     }
     case "quality/max":
+      if (requirement.quality === AGE) return say("ui.req.age-max", { years: yearsOf(requirement.value) });
       return say("ui.req.quality-max", {
         quality: nameOf(requirement.quality),
         value: qualityValue(requirement.quality, requirement.value),

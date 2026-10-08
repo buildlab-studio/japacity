@@ -13,16 +13,14 @@ import { Card } from "../../shared/ui/Panel";
 import { Rejection } from "../../shared/ui/Rejection";
 import { ReportLines } from "../../shared/ui/ReportLines";
 import { formatMoney, playerMonth } from "../../shared/words/format";
+import { AGE, valueWords, yearsOf } from "../../shared/words/quality";
 import { requirementSentence } from "../../shared/words/requirement";
 import { nameOf, say, sayCount, words } from "../../shared/words/text";
-import { valueWords } from "../quality/QualityView";
 
 type Prologue = NonNullable<PlayerView["prologue"]>;
 type Draw = NonNullable<Prologue["draw"]>;
 
-const AGE = "quality.age-months";
 const FAMILY_MEANS = "quality.family-means";
-const MONTHS_IN_YEAR = 12;
 
 /** The line the prologue's last answer ends with (R-PROLOGUE-006). */
 export const PROLOGUE_CLOSED = "line.prologue.closed";
@@ -54,8 +52,7 @@ export function drawSentences(draw: Draw): string[] {
 }
 
 function ageYears(view: PlayerView): number {
-  const months = view.qualities.find((quality) => quality.id === AGE)?.value ?? 0;
-  return Math.floor(months / MONTHS_IN_YEAR);
+  return yearsOf(view.qualities.find((quality) => quality.id === AGE)?.value ?? 0);
 }
 
 /** Why an answer is not open: its requirements in words, from content (R-PROLOGUE-003). */
