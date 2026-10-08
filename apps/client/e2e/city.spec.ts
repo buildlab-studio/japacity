@@ -32,8 +32,8 @@ test("the hub opens, the character walks, a person's card opens, and the frame s
   await page.getByRole("button", { name: "Look around" }).click();
   await page.waitForFunction(() => window.__city?.ready === true, null, { timeout: 60_000 });
   await expect(page.getByRole("heading", { name: "Ojuelegba" })).toBeVisible();
-  // A few seconds of frames for the budget, and for the crowd to idle.
-  await page.waitForTimeout(3000);
+  // Enough frames for the budget, and for the crowd to idle; the software renderer may be slow under load.
+  await page.waitForFunction(() => (window.__city?.frames.length ?? 0) > 10, null, { timeout: 60_000 });
 
   const probe = await page.evaluate(() => window.__city);
   expect(probe?.place).toBe("place.ojuelegba");
@@ -61,20 +61,25 @@ test("the hub opens, the character walks, a person's card opens, and the frame s
   await expect.poll(moved, { timeout: 10_000 }).toBeGreaterThan(0.5);
   expect(sent).toEqual([]);
 
-  // Tap someone standing in view: their card says who they are, and no one in the crowd wears a tag.
-  const spot = await page.evaluate((size) => {
+  // Tap someone standing in view: their card says who they are. A person may stand behind a stall or
+  // a sign, so each one in view is tried until a person's card opens.
+  const spots = await page.evaluate((size) => {
     const city = window.__city;
-    if (city === undefined) return null;
-    for (let slot = 0; slot < 16; slot += 1) {
-      const at = city.screenOf(slot);
-      if (at !== null && at.y > size.height * 0.3 && at.y < size.height * 0.7 && at.x > 20 && at.x < size.width - 20) return at;
-    }
-    return null;
+    if (city === undefined) return [];
+    return Array.from({ length: 16 }, (_, slot) => city.screenOf(slot)).filter(
+      (at): at is { x: number; y: number } => at !== null && at.y > size.height * 0.3 && at.y < size.height * 0.7 && at.x > 20 && at.x < size.width - 20,
+    );
   }, box);
-  expect(spot).not.toBeNull();
-  await page.mouse.click(spot?.x ?? 0, spot?.y ?? 0);
-  await expect(page.locator("[data-card]")).toBeVisible();
-  await expect(page.locator("[data-card]")).toContainText(/Lives in the city|Another player|You/);
+  expect(spots.length).toBeGreaterThan(0);
+  const card = page.locator("[data-card=person]");
+  for (const spot of spots) {
+    await page.mouse.click(spot.x, spot.y);
+    if (await card.waitFor({ state: "visible", timeout: 1500 }).then(() => true, () => false)) break;
+    const close = page.getByRole("button", { name: "Close" });
+    if (await close.isVisible()) await close.click();
+  }
+  await expect(card).toBeVisible();
+  await expect(card).toContainText(/Lives in the city|Another player/);
 
   await page.getByRole("button", { name: "Back to your month" }).click();
   await expect(page.getByRole("button", { name: "Look around" })).toBeVisible();

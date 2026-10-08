@@ -168,7 +168,7 @@ export function buildWorld(stage: Stage, models: ReadonlyMap<string, Object3D>, 
     object.castShadow = settings.shadows;
   });
   const indicator = ownIndicator();
-  indicator.position.set(0, 2.2, 0);
+  indicator.position.set(0, 1.98, 0);
   own.root.add(indicator);
   root.add(own.root);
   for (const motion of stage.motion) root.add(motionOf(motion, settings.mesh));

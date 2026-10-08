@@ -1,5 +1,5 @@
 import { content } from "@japacity/content";
-import type { PlayerView } from "@japacity/sim";
+import type { PlayerView, ReportLine } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
 import { abroadView, engineView, richView } from "../../shared/testing/fixtures";
@@ -42,7 +42,7 @@ describe("staging", () => {
   });
 
   test("[R-CITY-011] given a month's report, when a line names an activity, then it is shown only at the place that stages that activity", () => {
-    const line = { key: "line.activity.played", params: { activity: "activity.play-lotto" }, tone: "plain", attention: false, counts: [] } as const;
+    const line: ReportLine = { key: "line.activity.played", params: { activity: "activity.play-lotto" }, tone: "plain", attention: false, counts: [] };
     const view: Pick<PlayerView, "report" | "place"> = { place: engineView().place, report: { month: 1, lines: [line], japacityBefore: null, japacityAfter: null, attention: false } };
     expect(reportHere(view, "place.bode-thomas", places)).toEqual([line]);
     expect(reportHere(view, "place.ojuelegba", places)).toEqual([]);

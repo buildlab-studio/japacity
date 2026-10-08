@@ -7,7 +7,7 @@ const ACCENT = 0xf2b705;
 
 /** A small turning diamond over the player's own head. */
 export function ownIndicator(): Mesh {
-  const mesh = new Mesh(new OctahedronGeometry(0.13, 0), new MeshBasicMaterial({ color: ACCENT }));
+  const mesh = new Mesh(new OctahedronGeometry(0.1, 0), new MeshBasicMaterial({ color: ACCENT }));
   mesh.scale.set(1, 1.5, 1);
   mesh.name = "own-indicator";
   return mesh;

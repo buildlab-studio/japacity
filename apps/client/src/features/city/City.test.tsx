@@ -17,6 +17,13 @@ import { filesOf, type PlaceFile } from "./placeFile";
 
 const PUBLIC = join(import.meta.dirname, "..", "..", "..", "public");
 const manifest = JSON.parse(readFileSync(join(PUBLIC, "published", "manifest.json"), "utf8")) as PublishManifest;
+/** Content's words for a key, failing the test when content has none. */
+function said(key: string): string {
+  const words = text[key];
+  if (words === undefined) throw new Error(`No words for ${key}`);
+  return words;
+}
+
 const credits = JSON.parse(readFileSync(join(PUBLIC, "assets", "credits.json"), "utf8")) as CreditsFile;
 
 describe("the city reads the view and never changes it", () => {
@@ -25,8 +32,8 @@ describe("the city reads the view and never changes it", () => {
     fireEvent.click(screen.getByRole("button", { name: cityWords("city.look") }));
     fireEvent.click(screen.getByRole("button", { name: cityWords("city.menu") }));
     const list = screen.getByRole("list", { name: cityWords("city.places") });
-    fireEvent.click(within(list).getByRole("button", { name: text["place.bode-thomas.name"] }));
-    expect(screen.getByRole("heading", { name: text["place.bode-thomas.name"] })).toBeDefined();
+    fireEvent.click(within(list).getByRole("button", { name: said("place.bode-thomas.name") }));
+    expect(screen.getByRole("heading", { name: said("place.bode-thomas.name") })).toBeDefined();
     fireEvent.click(screen.getByRole("button", { name: cityWords("city.back") }));
     expect(authority.sent).toEqual([]);
   });
@@ -34,16 +41,16 @@ describe("the city reads the view and never changes it", () => {
   test("[R-CITY-024] given a new life, when the city is looked at, then the hub's name is content's words for it", async () => {
     await renderWithView(<City />, engineView());
     fireEvent.click(screen.getByRole("button", { name: cityWords("city.look") }));
-    expect(screen.getByRole("heading", { name: text["place.ojuelegba.name"] })).toBeDefined();
+    expect(screen.getByRole("heading", { name: said("place.ojuelegba.name") })).toBeDefined();
     expect(text["place.ojuelegba.name"]).toBe(content.place["place.ojuelegba"]?.realName);
   });
 
   test("[R-CITY-011] given a set piece open, when the city is looked at, then it shows the place that stages it with the question, and the answers stay in the month", async () => {
     await renderWithView(<City />, richView());
     fireEvent.click(screen.getByRole("button", { name: cityWords("city.look") }));
-    expect(screen.getByRole("heading", { name: text["place.visa-centre.name"] })).toBeDefined();
-    expect(screen.getByText(text["setpiece.credibility-interview.q.who-pays"] ?? "")).toBeDefined();
-    expect(screen.queryByRole("button", { name: new RegExp(text["setpiece.credibility-interview.a.who-pays.own"] ?? "") })).toBeNull();
+    expect(screen.getByRole("heading", { name: said("place.visa-centre.name") })).toBeDefined();
+    expect(screen.getByText(said("setpiece.credibility-interview.q.who-pays"))).toBeDefined();
+    expect(screen.queryByRole("button", { name: new RegExp(said("setpiece.credibility-interview.a.who-pays.own")) })).toBeNull();
     expect(screen.getByRole("button", { name: cityWords("city.scene.answer") })).toBeDefined();
   });
 });
@@ -52,7 +59,7 @@ describe("loading", () => {
   test("[R-CITY-018] given the hub's file and today's sample, when the first download is planned, then it holds only the hub's own files and shared ones", () => {
     const hub = content.place["place.ojuelegba"];
     if (hub === undefined) throw new Error("The hub is missing");
-    const file = hubFile as PlaceFile;
+    const file = hubFile as unknown as PlaceFile;
     const sample = sampleCrowd(hub, poolOf(file.people.sample), localDate(new Date(2026, 9, 8)), "high", content.tuning.city);
     const files = filesOf(file, sample.people.map((shown) => shown.person.file));
     expect(files.length).toBeGreaterThan(0);

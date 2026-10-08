@@ -5,7 +5,7 @@
 // (city.md R-CITY-001).
 import { Canvas, type ThreeEvent, useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useRef, useState } from "react";
-import { type Camera, type DirectionalLight, type Object3D, Vector3 } from "three";
+import { type Camera, type DirectionalLight, Fog, type Object3D, Vector3 } from "three";
 
 import { advanceClock } from "../../shared/three/clock";
 import { loadModel } from "../../shared/three/load";
@@ -19,10 +19,13 @@ import { buildWorld, colourOf, skyColours, type World } from "./world";
 /** A person's eyes, and how far behind the character the street camera stands. */
 const EYE = 1.6;
 const BEHIND = 9;
-const PLAN_HEIGHT = 26;
+const PLAN_HEIGHT = 36;
+/** How much further the fog stands while looking from above, so the plan is not lost in it. */
+const PLAN_FOG = 90;
 const HOLD_MS = 450;
-/** Behind the panels the scene only idles: a few frames a second. */
-const IDLE_MS = 120;
+const INDICATOR_Y = 1.98;
+/** Behind the panels the scene only idles: a frame a second, so the panels keep the processor. */
+const IDLE_MS = 1000;
 
 function pickedOf(object: Object3D | null): Picked | null {
   let at: Object3D | null = object;
@@ -36,11 +39,17 @@ function pickedOf(object: Object3D | null): Picked | null {
   return null;
 }
 
-function aimCamera(camera: Camera, walker: Walker, plan: number): void {
+/** The plan view stands higher on a narrow screen, so a phone held upright sees the street's width. */
+function planHeight(aspect: number): number {
+  return PLAN_HEIGHT / Math.min(1, Math.max(aspect, 0.35));
+}
+
+function aimCamera(camera: Camera, walker: Walker, plan: number, aspect: number): void {
   const street = new Vector3(walker.x + 0.9, EYE, walker.z + BEHIND);
-  const above = new Vector3(walker.x, PLAN_HEIGHT, walker.z + PLAN_HEIGHT * 0.55);
+  const height = planHeight(aspect);
+  const above = new Vector3(walker.x, height, walker.z + height * 0.45);
   camera.position.lerpVectors(street, above, plan);
-  const look = new Vector3().lerpVectors(new Vector3(walker.x, 1.3, walker.z - 10), new Vector3(walker.x, 0, walker.z - 1), plan);
+  const look = new Vector3().lerpVectors(new Vector3(walker.x, 1.3, walker.z - 10), new Vector3(walker.x, 0, walker.z - 5), plan);
   camera.lookAt(look);
 }
 
@@ -142,10 +151,14 @@ function Place(props: WorldProps) {
     world.own.root.rotation.y = next.facing;
     if (next.target === null) poseFigure(world.own, time, "stand");
     else poseFigure(world.own, time, "walk", strideOf(next));
-    world.indicator.position.y = 2.2 + Math.sin(time * 2.4) * 0.05;
+    world.indicator.position.y = INDICATOR_Y + Math.sin(time * 2.4) * 0.05;
     world.indicator.rotation.y = time * 1.5;
     planShare.current += ((plan ? 1 : 0) - planShare.current) * Math.min(1, delta * 4);
-    aimCamera(state.camera, next, planShare.current);
+    aimCamera(state.camera, next, planShare.current, state.size.width / Math.max(1, state.size.height));
+    if (state.scene.fog instanceof Fog) {
+      state.scene.fog.near = settings.fog.near + planShare.current * PLAN_FOG;
+      state.scene.fog.far = settings.fog.far + planShare.current * PLAN_FOG;
+    }
     const light = sun.current;
     if (light !== null) {
       light.position.set(next.x + stage.light.sun[0], stage.light.sun[1], next.z + stage.light.sun[2]);

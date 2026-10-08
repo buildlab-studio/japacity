@@ -127,11 +127,8 @@ describe("the same people on the same day", () => {
 describe("the roster", () => {
   test("[R-CITY-016] given every person the crowd may show, when the roster is read against the people's data, then each is shipped and a man or a woman as built", async () => {
     const { ALL_PEOPLE } = await import("@japacity/assets-src/people/people.data");
-    for (const person of ROSTER) {
-      const spec = ALL_PEOPLE.find((built) => `shared/chr/${built.name}.glb` === person.file);
-      expect(spec, person.file).toBeDefined();
-      expect(spec?.body.startsWith(person.sex), person.file).toBe(true);
-    }
+    const wrong = ROSTER.filter((person) => !ALL_PEOPLE.some((built) => `shared/chr/${built.name}.glb` === person.file && built.body.startsWith(person.sex)));
+    expect(wrong.map((person) => person.file)).toEqual([]);
     expect(pool.length).toBe(hubFile.people.sample.length);
   });
 });
