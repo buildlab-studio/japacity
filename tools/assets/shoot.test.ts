@@ -61,7 +61,7 @@ describe("the fixed views", () => {
       for (const anchor of (root?.getExtras() as { signs?: { key: string }[] } | undefined)?.signs ?? []) keys.push(anchor.key);
     }
     expect(keys.length).toBeGreaterThanOrEqual(12);
-    for (const key of keys) expect(words[key], key).toBe(text[key]);
+    for (const key of keys) expect({ key, said: words[key] }).toEqual({ key, said: text[key] });
     expect(Object.values(words).every((said) => said.trim() !== "")).toBe(true);
     expect(Object.keys(JSON.parse(readFileSync(join(SOURCE, "signs.json"), "utf8")) as object)).toEqual(["note"]);
   });
