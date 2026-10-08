@@ -116,7 +116,7 @@ export function buildBuilding(spec: BuildingSpec, options: BuildingOptions = {})
       shopOpening(face, bx, PLINTH, bay - 0.6, open, random);
       const style = options.signStyles?.[i] ?? pick(random, SIGN_STYLES);
       const boardH = 0.675;
-      signboard(root, face, spec.signs[i] ?? "", style, bx, PLINTH + KIT_SIZES.bay.opening + KIT_SIZES.bay.shutterBox + 0.08, bay - 0.24, boardH);
+      signboard(root, face, spec.signs[i] ?? "", style, bx, PLINTH + KIT_SIZES.bay.opening + KIT_SIZES.bay.shutterBox + 0.04, bay - 0.24, boardH);
       if (random() < 0.7) awning(face, bx, PLINTH + KIT_SIZES.bay.opening + KIT_SIZES.bay.shutterBox - 0.02, bay - 0.5, 1.2, 8, pick(random, AWNINGS));
     });
     for (let i = 1; i < shops; i++) quad(face, 0.14, groundH - 0.1, -w / 2 + (i * w) / shops, PLINTH, 0.012, "concreteWorn");

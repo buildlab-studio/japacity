@@ -29,7 +29,7 @@ export const KIT_SIZES = {
   fascia: { heightMin: 0.6, heightMax: 0.9 },
   poleSign: { width: 1.2, height: 0.8, bottom: 2.4 },
   awning: { depthMin: 1.0, depthMax: 1.5, edgeMin: 2.2, fallMinDeg: 5, fallMaxDeg: 10 },
-  bay: { widthMin: 3.0, widthMax: 4.0, height: 3.0, shutterBox: 0.3, opening: 2.4 },
+  bay: { widthMin: 3.0, widthMax: 4.0, height: 3.0, shutterBox: 0.3, opening: 2.25 },
   drain: { width: 0.45, depth: 0.6 },
   pole: { height: 9, spanMin: 30, spanMax: 40 },
 } as const;
@@ -216,7 +216,8 @@ export function gableRoof(
   const drop = Math.tan(pitchDeg * DEG) * eaves;
   const eaveY = y - drop;
   extrude(g, [[-half, eaveY], [0, eaveY + rise], [half, eaveY], [half, eaveY - t], [0, eaveY + rise - t], [-half, eaveY - t]].map(([a, b]) => [-(a ?? 0), b ?? 0] as const), w + 2 * eaves, sheet, x, 0, z, Math.PI / 2);
-  extrude(g, [[-d / 2, y], [0, y + Math.tan(pitchDeg * DEG) * (d / 2)], [d / 2, y]], w, wall, x, 0, z, Math.PI / 2);
+  // The gable ends stop under the sheet, so the two never share a surface and fight for the pixel.
+  extrude(g, [[-d / 2, y], [0, y + Math.tan(pitchDeg * DEG) * (d / 2) - t - 0.03], [d / 2, y]], w, wall, x, 0, z, Math.PI / 2);
   // Rust patches on the front slope.
   const slope = new Group();
   slope.position.set(x, eaveY + 0.004, z + half);
