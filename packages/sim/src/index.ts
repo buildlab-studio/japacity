@@ -17,6 +17,9 @@ export { stepWorld, offlineCalendar } from "./world/director";
 export type { DirectorBook, WorldCalendar } from "./world/director";
 export { japacity, routePercent } from "./japacity/japacity.logic";
 export * as time from "./engine/time";
+// The Friday draw's public method: the server draws with it and the client's draw page checks with it (docs/rules/lottery.md R-LOTTERY-015).
+export { drawSeed, drawWinners, tiersFor, prizesFor, fingerprintOf, listHashOf, topUpFor, topUpPart, sha256, toHex, fromHex } from "./lottery/lottery.draw";
+export type { Tier, TierSpec } from "./lottery/lottery.draw";
 // The pair module: pure functions over the record two lives share (docs/rules/pair.md). The server and both clients use them.
 export { pairId, flip, side, other, newRecord, mirror, agreed, writeEvent, pairView, SAFETY_CONTROLS } from "./pair/pair.logic";
 export type { PairView, PairWrite, Side } from "./pair/pair.logic";

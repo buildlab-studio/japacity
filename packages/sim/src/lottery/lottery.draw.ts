@@ -114,6 +114,21 @@ function concat(parts: Uint8Array[]): Uint8Array {
 // The draw
 // ---------------------------------------------------------------------------
 
+/** The draw number as eight bytes, big end first, the way R-LOTTERY-010 writes its block counter. */
+function drawBytes(draw: number): Uint8Array {
+  const bytes = new Uint8Array(8);
+  new DataView(bytes.buffer).setBigUint64(0, BigInt(draw), false);
+  return bytes;
+}
+
+/**
+ * R-LOTTERY-007: the SHA-256 of the secret followed by the draw number, in hex.
+ * the secret is read as the bytes its hex spells and the number as eight bytes, big end first.
+ */
+export function fingerprintOf(secret: string, draw: number): string {
+  return toHex(sha256(concat([fromHex(secret), drawBytes(draw)])));
+}
+
 /**
  * R-LOTTERY-008: the frozen list's SHA-256 in hex.
  * the hash of the tokens' bytes in ticket order, eight bytes each, so the client's draw page recomputes it the way the server made it.

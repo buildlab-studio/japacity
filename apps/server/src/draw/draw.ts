@@ -9,7 +9,7 @@ import type { DrawRow, TicketRow } from "@japacity/store";
 import { sendAuthority } from "../authority/command";
 import { tickAt, tickStartsAt } from "../clock/view";
 import type { ServerDeps } from "../deps";
-import { drawSeed, drawWinners, fromHex, listHashOf, prizesFor, sha256, tiersFor, toHex, topUpFor, topUpPart } from "../../../../packages/sim/src/lottery/lottery.draw";
+import { drawSeed, drawWinners, fingerprintOf, listHashOf, prizesFor, tiersFor, toHex, topUpFor, topUpPart } from "../../../../packages/sim/src/lottery/lottery.draw";
 import type { Beacon } from "./beacon";
 import { roundAfter } from "./beacon";
 
@@ -41,24 +41,8 @@ export function closesTickOf(draw: number): number {
   return TICKS_PER_DRAW * (draw + 1);
 }
 
-/** The draw number as eight bytes, big end first, the way R-LOTTERY-010 writes its block counter. */
-function drawBytes(draw: number): Uint8Array {
-  const bytes = new Uint8Array(8);
-  new DataView(bytes.buffer).setBigUint64(0, BigInt(draw), false);
-  return bytes;
-}
-
-/**
- * R-LOTTERY-007: the SHA-256 of the secret followed by the draw number, in hex.
- * the secret is read as the bytes its hex spells and the number as eight bytes, big end first.
- */
-export function fingerprintOf(secret: string, draw: number): string {
-  const secretBytes = fromHex(secret);
-  const joined = new Uint8Array(secretBytes.length + 8);
-  joined.set(secretBytes);
-  joined.set(drawBytes(draw), secretBytes.length);
-  return toHex(sha256(joined));
-}
+/** R-LOTTERY-007: the fingerprint is the simulation's, so the client's draw page checks it the same way. */
+export { fingerprintOf };
 
 /**
  * R-LOTTERY-008: the first 16 hex digits of the HMAC-SHA-256 of the account id
