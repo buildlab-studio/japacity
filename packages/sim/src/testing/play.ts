@@ -22,6 +22,7 @@ import type {
 import { viewFor } from "../engine/view";
 import { registry } from "../kinds";
 import { standInWorld } from "../world/standIn";
+import { legalCommands } from "./legal";
 import { miniContent } from "./miniContent";
 
 export interface StartOptions {
@@ -100,4 +101,18 @@ export function start(options: StartOptions = {}): Game {
     grant: (count) => game.accept({ type: "turns/grant", count }, "authority"),
   };
   return game;
+}
+
+/**
+ * Plays a life's prologue to its close by the first legal answer each step, so
+ * tests over every life can treat the prologue life like the fixed ones
+ * (R-PROLOGUE-006). A life whose prologue is closed is left as it is.
+ */
+export function finishPrologue(game: Game): void {
+  for (let guard = 0; guard < 60 && game.state.prologue.open; guard += 1) {
+    const [first] = legalCommands(game.view());
+    if (first === undefined) throw new Error("The prologue is open with no legal answer.");
+    game.accept(first);
+  }
+  if (game.state.prologue.open) throw new Error("The prologue did not close in 60 answers.");
 }

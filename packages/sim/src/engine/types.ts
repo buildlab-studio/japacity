@@ -768,7 +768,22 @@ export interface Tuning {
   director: { surgePerTick: number; closedTicks: number; maxNewPerTick: number; shockGapTicks: number; onlineTickScale: number };
   road: { enabled: boolean };
   ladder: { cashDetectBp: number; accountRent: number; overtimeBp: number; oneChanceBp: number; phone: number };
-  prologue: { startAgeMonths: number; siblings: [min: number, max: number]; familyMeans: [min: number, max: number]; cityBp: number };
+  prologue: {
+    startAgeMonths: number;
+    siblings: [min: number, max: number];
+    familyMeans: [min: number, max: number];
+    cityBp: number;
+    /** The parents' chance of schooling: this plus `parentsEducatedPerPoint` for each point of family means (R-PROLOGUE-002). */
+    parentsEducatedBp: number;
+    parentsEducatedPerPoint: number;
+    /** Starting network by town, plus the educated parents' share; starting standing. */
+    network: { city: number; town: number; educated: number };
+    standing: number;
+    /** The school certificate fee strains a family under `under`: standing changes by `standing` (R-PROLOGUE-003). */
+    waecStrain: { under: number; standing: number };
+    /** The degree's grade: base plus the grade base, up one at `upBp`, down one at `downBp`, kept between min and max. */
+    grade: { base: number; upBp: number; downBp: number; min: number; max: number };
+  };
   luck: {
     rescue: number;
     rescueUnder: number;

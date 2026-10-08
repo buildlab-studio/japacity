@@ -138,8 +138,8 @@ export const qualityKind: RegisteredKind<QualitySlice, QualityEvent> = {
   effects: {
     "quality/add": (ctx, effect, cause) => {
       if (effect.type !== "quality/add") throw new Error(`The quality kind cannot carry out ${effect.type}.`);
-      // R-QUALITY-003: only the month moves age.
-      if (effect.quality === AGE) return [];
+      // R-QUALITY-003: only the month moves age, except the prologue's steps (R-PROLOGUE-004).
+      if (effect.quality === AGE && cause.source !== "prologue") return [];
       return change(ctx, effect.quality, effect.amount, cause.source);
     },
   },

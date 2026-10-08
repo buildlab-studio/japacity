@@ -12,7 +12,7 @@ import type { Currency, Id, PlayerView, State } from "../engine/types";
 import { hiddenPaths, VIEW_KEYS } from "../engine/view";
 import { legalCommands } from "../testing/legal";
 import type { Game } from "../testing/play";
-import { start } from "../testing/play";
+import { finishPrologue, start } from "../testing/play";
 import { standInWorld } from "../world/standIn";
 import type { StrategyName } from "./players";
 import { strategies } from "./players";
@@ -111,6 +111,8 @@ describe("random play on the real lives", () => {
       `[R-ENGINE-001] [R-ENGINE-007] [R-ENGINE-010] [R-ENGINE-011] [R-WALLET-002] [R-QUALITY-001] given ${life}, when ${String(COMMANDS)} commands mixing random legal ones with the simulated players' choices are played, then after each the same rules hold`,
       (seed, picks) => {
         const game = start({ scenario: life, seed, content });
+        // The simulated players know nothing of the prologue; they take over a life that has one.
+        finishPrologue(game);
         const name = NAMES[(picks[0] ?? 0) % NAMES.length]!;
         for (const pick of picks) {
           const view = game.view();

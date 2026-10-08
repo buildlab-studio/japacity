@@ -9,8 +9,10 @@
 // is that low after the subjects step).
 // a retake is allowed once. The second retake card offers only work,
 // since a second retake or the apprenticeship would end the prologue past 25.
-import type { Effect, Id, PrologueStep, Requirement } from "@japacity/sim";
+import type { Effect, Id, PrologueStep, Requirement, ScenarioEntry } from "@japacity/sim";
 
+import { qualityTable } from "../quality/quality.data";
+import { tuning } from "../tuning/tuning.data";
 import { naira } from "../units";
 
 type Answer = PrologueStep["answers"][number];
@@ -339,4 +341,23 @@ export const prologueTable: Record<string, PrologueStep> = {
       answer("save", [earned(naira(200000)), add(WELLBEING, -4)]),
     ],
   },
+};
+
+/**
+ * R-PROLOGUE-001: the life the prologue builds from. Every quality at its
+ * minimum but age, at sixteen; no money, job, documents or obligations.
+ * Joined to the scenario table in index.ts by the maintainer.
+ */
+export const prologueScenario: ScenarioEntry = {
+  id: "scenario.prologue",
+  prologue: true,
+  qualities: {
+    ...Object.fromEntries(Object.values(qualityTable).map((entry) => [entry.id, entry.min])),
+    "quality.age-months": tuning.prologue.startAgeMonths,
+  },
+  job: null,
+  tenure: {},
+  pockets: {},
+  documents: [],
+  obligations: [],
 };

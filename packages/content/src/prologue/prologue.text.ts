@@ -97,4 +97,13 @@ export const prologueText: Record<string, string> = {
   "prologue.shop.card": "Four years behind the counter. the owner trusts you with the keys.",
   "prologue.shop.answer.stay": "Stay and know everybody",
   "prologue.shop.answer.save": "Save every naira you can",
+
+  "scenario.prologue.name": "A life from sixteen",
+  "scenario.prologue.blurb": "Secondary school to the end of the service year. Your choices build where you start.",
+
+  "line.prologue.drawn": "You grow up in a {town}. Family means: {means}. Brothers and sisters: {siblings}.",
+  "line.prologue.parents-educated": "Your parents went to school. People pick up when they call.",
+  "line.prologue.graded": "Your degree comes out at grade {grade}.",
+  "line.prologue.headline": "On the radio at home: {story}.",
+  "line.prologue.closed": "That is how you got here. Your story starts now.",
 };

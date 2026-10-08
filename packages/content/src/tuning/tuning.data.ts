@@ -133,7 +133,19 @@ export const tuning: Tuning = {
   ladder: { cashDetectBp: 200, accountRent: pounds(60), overtimeBp: pct(25), oneChanceBp: 300, phone: naira(60000) },
 
   // prologue.md
-  prologue: { startAgeMonths: 192, siblings: [1, 6], familyMeans: [10, 80], cityBp: pct(55) },
+  prologue: {
+    startAgeMonths: 192,
+    siblings: [1, 6],
+    familyMeans: [10, 80],
+    cityBp: pct(55),
+    // prologue.md R-PROLOGUE-002 and 003.
+    parentsEducatedBp: 2000,
+    parentsEducatedPerPoint: 60,
+    network: { city: 15, town: 5, educated: 10 },
+    standing: 50,
+    waecStrain: { under: 30, standing: -2 },
+    grade: { base: 2, upBp: 4000, downBp: 2000, min: 2, max: 5 },
+  },
 
   // luck.md. The jackpot is 1 in 100,000 and the mid prize 1 in 2,000: both under one basis point,
   // so they are written as draws out of a million in the kind; here the figures are per million.

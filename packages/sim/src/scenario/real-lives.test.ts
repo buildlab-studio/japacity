@@ -9,7 +9,7 @@ import { newState } from "../engine/state";
 import type { Id } from "../engine/types";
 import { hiddenPaths } from "../engine/view";
 import { legalCommands } from "../testing/legal";
-import { start } from "../testing/play";
+import { finishPrologue, start } from "../testing/play";
 
 const lives = Object.keys(content.scenario) as Id<"scenario">[];
 
@@ -19,13 +19,14 @@ describe("the real content", () => {
     expect(checkContent(content)).toEqual([]);
   });
 
-  test("[R-SCENARIO-001] given the four lives, when states are built from them, then every invariant holds", () => {
-    expect(lives).toHaveLength(4);
+  test("[R-SCENARIO-001] given the five lives, when states are built from them, then every invariant holds", () => {
+    expect(lives).toHaveLength(5);
     for (const life of lives) expect(checkInvariants(newState(life, "seed", content), content)).toEqual([]);
   });
 
   test.each(lives)("[R-SCENARIO-003] [R-ENGINE-011] given %s, when twelve months are played from the legal list, then every command is accepted and the view hides nothing", (life) => {
     const game = start({ scenario: life, content });
+    finishPrologue(game);
     for (let month = 0; month < 12; month += 1) {
       const legal = legalCommands(game.view());
       expect(legal.length).toBeGreaterThan(0);
@@ -40,6 +41,7 @@ describe("the real content", () => {
 
   test.each(lives)("[R-SCENARIO-003] [R-ENGINE-011] given %s, when 40 months are played with every slot resting, then each turn is accepted and every invariant holds", (life) => {
     const game = start({ scenario: life, content });
+    finishPrologue(game);
     for (let month = 0; month < 40; month += 1) {
       if (game.state.turn.banked === 0) game.grant(1);
       expect(game.state.setpiece.open).toBeNull();

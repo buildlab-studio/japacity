@@ -5,7 +5,7 @@ import { describe, expect } from "vitest";
 import { checkContent } from "../engine/content";
 import type { Content, Effect, Id, ReadCtx, RouteEntry, RouteStateName } from "../engine/types";
 import { miniContent } from "../testing/miniContent";
-import { start } from "../testing/play";
+import { finishPrologue, start } from "../testing/play";
 import type { Game } from "../testing/play";
 import { offeredWith, readyLife, toApplied, toDecision, toHeard, toKnown } from "../route/route.journey";
 import { carryOut, judgeWith, writeRoute } from "./japacity.fixtures";
@@ -306,6 +306,7 @@ describe("whole numbers, derived each time", () => {
       const build = (): Game => {
         // The route is moved by the real route kind. Past known, the life is a ready one built from the scenario.
         const game = late ? readyLife(content, { from: scenario, seed, tuning: ALWAYS_GRANTED }) : start({ scenario, content, seed });
+        finishPrologue(game);
         if (to === "heard") toHeard(game);
         if (to === "known" || to === "refused") toKnown(game);
         if (to === "refused") writeRoute(game, UK, "refused");
