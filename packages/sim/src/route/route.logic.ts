@@ -3,7 +3,7 @@
 // and its rules are carried out here.
 import { heldBand, SIDE_MOVED, takesApplication } from "../activity/activity.logic";
 import { check, worldVar } from "../engine/check";
-import { BP_WHOLE, clamp, convertMinor, divFloor, mulDiv } from "../engine/int";
+import { BP_WHOLE, clamp, convertMinor, divFloor, mulDiv, mulDivCeil } from "../engine/int";
 import type { RegisteredKind } from "../engine/kind";
 import { emit } from "../engine/kind";
 import { reject } from "../engine/reject";
@@ -214,6 +214,47 @@ export function fundsShown(read: ReadCtx, route: Id<"route">): number {
   }
   const support = routeOf(read.state, route).support;
   if (support !== null) shown += convertMinor(support.amount, support.currency, target, rates);
+  return shown;
+}
+
+/** What a foreign fee of `amount` costs in naira through the bank: the official rate, rounded up, and the charge (R-WALLET-009). */
+function feeInNaira(amount: number, rate: number, chargeBp: number): number {
+  const naira = mulDivCeil(amount, rate, 100);
+  return naira + mulDiv(naira, chargeBp, BP_WHOLE);
+}
+
+/**
+ * The most of a foreign currency that `kobo` in the naira bank could pay as a
+ * fee, to the unit: the path of R-PLACE-006 and R-WALLET-009.
+ */
+export function nairaThroughFee(kobo: number, rate: number, chargeBp: number): number {
+  let most = mulDiv(kobo, 100 * BP_WHOLE, rate * (BP_WHOLE + chargeBp));
+  while (most > 0 && feeInNaira(most, rate, chargeBp) > kobo) most -= 1;
+  while (feeInNaira(most + 1, rate, chargeBp) <= kobo) most += 1;
+  return most;
+}
+
+/**
+ * R-ROUTE-010 as amended for the study route: only the money that flies. The
+ * route's own currency, bank and locked, in full; other foreign bank pockets at
+ * the official rate; the naira bank through the fee path (`nairaThroughFee`).
+ * Held funds in naira and the family's support stay behind, so they do not count.
+ * the amendment does not name the support or locked naira; they are read as money that does not fly.
+ * `fundsShown` does not call this yet. With it, all three recorded lives on the study route (ada-careful,
+ * tunde-borrower, ada-abroad) stop replaying at their visa application or a later payment; it waits on the lives
+ * being recorded again.
+ */
+export function flyingFundsShown(read: ReadCtx, route: Id<"route">): number {
+  const rates = officialRates(read);
+  const target = fundsCurrency(read, route);
+  const chargeBp = read.content.tuning.wallet.bankChargeBp;
+  let shown = 0;
+  for (const currency of CURRENCIES) {
+    const pocket = read.state.wallet.pockets[currency];
+    if (currency === target) shown += pocket.bank + pocket.locked;
+    else if (currency === "NGN") shown += nairaThroughFee(pocket.bank, rates[target], chargeBp);
+    else shown += convertMinor(pocket.bank, currency, target, rates);
+  }
   return shown;
 }
 
