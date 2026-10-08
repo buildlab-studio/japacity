@@ -435,12 +435,13 @@ export function buildCityMap(pins: readonly MapPin[], options: BuildOptions): Ci
     return thing;
   };
 
+  // Stops further from the camera come first, so a nearer board is painted over a further one.
   const stops: Stop[] = pins.map((pin) => {
     const at = toXZ(pin.position);
     const home = options.home === null ? pin.state === "home" : pin.id === options.home;
     const foot = POLE_HEIGHT + (home ? 1.4 : 0);
     return { pin, at, home, foot, board: new Vector3(at[0], foot + BOARD.height / 2, at[1]) };
-  });
+  }).sort((a, b) => a.at[1] - b.at[1]);
 
   // The ground, a little wider than the map so the edge never shows.
   const margin = 80;

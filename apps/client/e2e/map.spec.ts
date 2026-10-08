@@ -18,11 +18,13 @@ interface MapProbe {
 declare global {
   interface Window {
     __map?: MapProbe & { screenOf: (id: string) => { x: number; y: number } | null };
-    __city?: { ready: boolean; place: string };
   }
 }
 
 const SHOTS = process.env.MAP_SHOTS ?? null;
+
+/** The city's own probe, as city.spec.ts declares it; only its place and readiness are read here. */
+type CityProbe = { ready: boolean; place: string } | undefined;
 
 async function shot(page: Page, name: string): Promise<void> {
   if (SHOTS !== null) await page.screenshot({ path: `${SHOTS}/${name}.png` });
@@ -53,12 +55,12 @@ async function startLife(page: Page): Promise<void> {
   await page.waitForSelector("[data-band]", { timeout: 30_000 });
 }
 
-test("[R-WORLD-015] [R-WORLD-017] the map opens over the place within 20 draw calls, a stop lights its route, and the ride lands there", async ({ page }, info) => {
+test("[R-WORLD-015] [R-WORLD-017] given a life at home on a phone, when the map opens and a stop is picked and ridden to, then the renderer counts at most 20 draw calls, the route runs between the two stops, and the ride lands there", async ({ page }, info) => {
   test.skip(info.project.name !== "Pixel 7", "The map is measured at phone size");
   test.setTimeout(180_000);
   await startLife(page);
-  await page.waitForFunction(() => window.__city?.ready === true, null, { timeout: 90_000 });
-  const from = await page.evaluate(() => window.__city?.place ?? "");
+  await page.waitForFunction(() => (window as unknown as { __city?: CityProbe }).__city?.ready === true, null, { timeout: 90_000 });
+  const from = await page.evaluate(() => (window as unknown as { __city?: CityProbe }).__city?.place ?? "");
 
   await page.locator('[data-thumb="map"]').click();
   await page.waitForSelector("[data-map]");
@@ -98,11 +100,11 @@ test("[R-WORLD-015] [R-WORLD-017] the map opens over the place within 20 draw ca
   await shot(page, "03-ride");
   await expect(page.locator("[data-ride]")).toBeHidden({ timeout: 8000 });
   await expect(page.locator("[data-toast]")).toBeVisible();
-  await page.waitForFunction((id) => window.__city?.place === id, target, { timeout: 30_000 });
+  await page.waitForFunction((id) => (window as unknown as { __city?: CityProbe }).__city?.place === id, target, { timeout: 30_000 });
   await shot(page, "04-arrived");
 });
 
-test("[R-WORLD-016] the country dropdown lists the others locked, and a locked one stays shut", async ({ page }, info) => {
+test("[R-WORLD-016] given the map open on a phone, when a locked country in the dropdown is tapped, then it shakes and stays shut", async ({ page }, info) => {
   test.skip(info.project.name !== "Pixel 7", "The map is shown at phone size");
   test.setTimeout(120_000);
   await startLife(page);
