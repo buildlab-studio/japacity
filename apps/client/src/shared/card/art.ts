@@ -96,33 +96,22 @@ function danfo(pen: Pen, left: number, base: number, length: number): void {
   pen.circle(left + Math.round(length * 0.78), base - 24, 22, "tyre");
 }
 
-function plane(pen: Pen, x: number, y: number, size: number, color: PaletteName): void {
-  pen.poly(
-    [
-      [x - size, y + Math.round(size * 0.35)],
-      [x + size, y - Math.round(size * 0.35)],
-      [x + size + 30, y - Math.round(size * 0.3)],
-      [x - size + 20, y + Math.round(size * 0.45)],
-    ],
-    color,
-  );
-  pen.poly(
-    [
-      [x - 30, y],
-      [x + 50, y - 20],
-      [x - 40, y + Math.round(size * 0.6)],
-      [x - 90, y + Math.round(size * 0.6)],
-    ],
-    color,
-  );
-  pen.poly(
-    [
-      [x - size + 10, y + Math.round(size * 0.38)],
-      [x - size - 10, y + Math.round(size * 0.05)],
-      [x - size + 40, y + Math.round(size * 0.3)],
-    ],
-    color,
-  );
+/** A plane climbing away, drawn from a side view in hundredths of `size` and turned by `climb` degrees. */
+function plane(pen: Pen, x: number, y: number, size: number, climb: number, color: PaletteName, aspect: number): void {
+  const turn = (climb * Math.PI) / 180;
+  const cos = Math.cos(turn);
+  const sin = Math.sin(turn);
+  const at = (px: number, py: number): [number, number] => {
+    const along = (px * size) / 100;
+    const across = (py * size) / 100;
+    return [Math.round(x + along * cos + across * sin), Math.round(y + ((-along * sin + across * cos) * 1000) / aspect)];
+  };
+  const part = (points: [number, number][]) => pen.poly(points.map(([px, py]) => at(px, py)), color);
+  part([[-100, -6], [88, -6], [100, 0], [88, 7], [-100, 7]]);
+  part([[-96, -6], [-80, -6], [-98, -42], [-108, -42]]);
+  part([[-92, 5], [-80, 5], [-100, 22], [-110, 22]]);
+  part([[-14, -5], [16, -5], [-26, -62], [-40, -62]]);
+  part([[-14, 6], [18, 6], [-30, 78], [-48, 78]]);
 }
 
 type Composer = (pen: Pen, aspect: number) => void;
@@ -174,7 +163,7 @@ const COMPOSITIONS: Record<string, Composer> = {
     figure(pen, 200, 900, 360, "black", aspect);
     figure(pen, 380, 900, 330, "wine", aspect);
   },
-  "art.runway-lagoon": (pen) => {
+  "art.runway-lagoon": (pen, aspect) => {
     pen.rect(0, 0, 1000, 300, "orange");
     pen.rect(0, 300, 1000, 560, "sky");
     pen.circle(230, 520, 110, "danfoYellow");
@@ -182,7 +171,7 @@ const COMPOSITIONS: Record<string, Composer> = {
     skyline(pen, 600, [40, 70, 30, 90, 50, 60, 40, 80, 30, 50], "charcoal", null);
     for (let row = 640; row < 1000; row += 70) pen.line(60 + (row % 140), row, 360 + (row % 140), row, 4, "marking");
     for (let row = 680; row < 1000; row += 90) pen.line(560 - (row % 120), row, 900 - (row % 120), row, 4, "glass");
-    plane(pen, 640, 230, 220, "black");
+    plane(pen, 660, 220, 260, 14, "black", aspect);
   },
   "art.cold-street": (pen, aspect) => {
     pen.rect(0, 0, 1000, 1000, "concrete");

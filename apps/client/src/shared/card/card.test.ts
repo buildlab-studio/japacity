@@ -191,9 +191,9 @@ describe("the card's size", () => {
   });
 
   test("[R-SHARE-009] given a canvas whose card fits at a lower quality, when the renderer draws it, then it is a JPEG under the limit at the first quality that fits", async () => {
-    const drawn = fakeCanvas((quality) => (quality > 76 ? tuning.maxBytes : tuning.maxBytes - 1));
+    const drawn = fakeCanvas((quality) => (quality > QUALITIES[2] ? tuning.maxBytes : tuning.maxBytes - 1));
     const result = await renderCard(cardFace(adaCard(), "scenario.ada"));
-    expect(result.ok && result.quality).toBe(76);
+    expect(result.ok && result.quality).toBe(QUALITIES[2]);
     expect(result.ok && result.blob.type).toBe("image/jpeg");
     expect(result.ok && result.blob.size).toBe(tuning.maxBytes - 1);
     expect(drawn.texts.map((entry) => entry.text)).toContain("Japacity is a game.");
@@ -284,5 +284,34 @@ describe("how a card travels", () => {
       expect(data.text).not.toMatch(/Kemi|Ada|\d/);
     }
     expect(fetched).not.toHaveBeenCalled();
+  });
+});
+
+/** The pixel size in a JPEG's frame header, or null when there is none. */
+function jpegSize(bytes: Uint8Array): { width: number; height: number } | null {
+  if (bytes[0] !== 0xff || bytes[1] !== 0xd8) return null;
+  let at = 2;
+  while (at + 9 < bytes.length) {
+    if (bytes[at] !== 0xff) return null;
+    const marker = bytes[at + 1]!;
+    const length = (bytes[at + 2]! << 8) + bytes[at + 3]!;
+    if (marker >= 0xc0 && marker <= 0xc2) return { height: (bytes[at + 5]! << 8) + bytes[at + 6]!, width: (bytes[at + 7]! << 8) + bytes[at + 8]! };
+    at += 2 + length;
+  }
+  return null;
+}
+
+const previews: Record<string, string> = import.meta.glob("../../../public/share/*.jpg", { query: "?inline", import: "default", eager: true });
+
+describe("the link previews", () => {
+  test("[R-SHARE-010] given the fixed previews, then there is one for every kind, each a JPEG at the preview size and under the preview limit", () => {
+    const byKind = new Map(Object.entries(previews).map(([path, url]) => [path.split("/").pop()!.replace(".jpg", ""), url]));
+    expect([...byKind.keys()].sort()).toEqual([...shareKinds].sort());
+    for (const [, url] of byKind) {
+      const bytes = Uint8Array.from(atob(url.split(",")[1] ?? ""), (character) => character.charCodeAt(0));
+      expect(url.startsWith("data:image/jpeg;base64,")).toBe(true);
+      expect(jpegSize(bytes)).toEqual(PREVIEW);
+      expect(underLimit(bytes.length, tuning.previewMaxBytes)).toBe(true);
+    }
   });
 });
