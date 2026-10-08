@@ -7,9 +7,13 @@ import { contentsFor } from "./authority/overlay";
 import { productionConfig } from "./config";
 import { memoryStores, testSession, webRandomBytes } from "./deps";
 import type { ServerDeps } from "./deps";
+import { DRAND_URL, quicknet } from "./draw/beacon";
+import type { DrawKeys } from "./draw/draw";
+import { drawJob } from "./jobs/draw";
 import { ticksJob } from "./jobs/ticks";
 import type { Place } from "./place/place.object";
 import { roomsFor } from "./place/place.rooms";
+import { drawRoute } from "./routes/draw";
 import { placeSocketRoutes } from "./routes/place";
 
 export { Place } from "./place/place.object";
@@ -18,6 +22,10 @@ export interface Env {
   SITE_URL: string;
   WORLD_SEED?: string;
   OVERLAY?: string;
+  /** R-LOTTERY-008: the HMAC key of the draw's ticket tokens, a secret of the deployment. */
+  DRAW_TOKEN_KEY?: string;
+  /** R-LOTTERY-007: the drand relay the beacon is read from. */
+  DRAND_URL?: string;
   COMMANDS_10S: RateLimit;
   COMMANDS_60S: RateLimit;
   READS_60S: RateLimit;
@@ -47,14 +55,20 @@ function depsFor(env: Env): ServerDeps {
   return deps;
 }
 
+/** The draw's keys from the bindings, until `ServerDeps` holds them. */
+function drawKeys(env: Env): DrawKeys {
+  return { tokenKey: env.DRAW_TOKEN_KEY ?? "", beacon: quicknet(fetch, env.DRAND_URL ?? DRAND_URL) };
+}
+
 export default {
   fetch(request: Request, env: Env): Response | Promise<Response> {
     const built = depsFor(env);
     // The character's place, name and look come from the core's reads when it lands; until then no socket opens.
-    return makeApp(built).route("/", placeSocketRoutes(built, { rooms: roomsFor(env.PLACE, built.config.presence), placeOf: () => Promise.resolve(null), profileOf: () => Promise.resolve(null) })).fetch(request);
+    return makeApp(built).route("/", drawRoute(built, drawKeys(env))).route("/", placeSocketRoutes(built, { rooms: roomsFor(env.PLACE, built.config.presence), placeOf: () => Promise.resolve(null), profileOf: () => Promise.resolve(null) })).fetch(request);
   },
   scheduled(controller: ScheduledController, env: Env, ctx: ExecutionContext): void {
     // The jobs mount here as they land, by cron: the world's ticks (R-CLOCK-012) and the money report (R-SERVER-011).
     ctx.waitUntil(ticksJob(depsFor(env), controller.cron));
+    ctx.waitUntil(drawJob(depsFor(env), drawKeys(env), controller.cron));
   },
 };
