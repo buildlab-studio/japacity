@@ -1,4 +1,4 @@
-// Simulated players for the first milestone's test sweep (layer 5 of
+// Simulated players for the test sweep (layer 5 of
 // docs/design/02-quality-and-testing.md). A strategy reads only the view and
 // the public content and ranks the commands it would like to send; the runner
 // sends them in that order and keeps the first one the authority accepts, so a
@@ -6,13 +6,15 @@
 import { mulDiv } from "../engine/int";
 import { step } from "../engine/step";
 import { refusalChanceBp } from "../route/route.logic";
-import type { Content, Id, OfferView, PlayerView, SlotPick, State } from "../engine/types";
+import type { BaseEvent, Content, Currency, ForeignCurrency, Id, OfferView, PlayerView, SlotPick, State } from "../engine/types";
 import { legalCommands } from "../testing/legal";
 import type { Game, Loose } from "../testing/play";
 import { start } from "../testing/play";
 
 export const UK: Id<"route"> = "route.uk-masters";
 const NORTHGATE: Id<"school"> = "school.northgate";
+const GULF: Id<"route"> = "route.gulf-contract";
+const ROAD: Id<"route"> = "route.road";
 
 /** Naira, bank and cash together, under which offer.md calls a character broke. */
 export const BROKE_BELOW = 15000000;
@@ -22,7 +24,9 @@ const POUND_TARGET = 600000;
 
 const SAFE_CASH_MOVE = 50000000;
 
-export type StrategyName = "careful" | "borrower" | "risky";
+export type StrategyName = "careful" | "borrower" | "risky" | "honest-home";
+
+export const STRATEGY_NAMES: StrategyName[] = ["careful", "borrower", "risky", "honest-home"];
 
 /** Ranks the commands a player would like to send now, best first. */
 export type Strategy = (view: PlayerView, content: Content) => Loose[];
@@ -42,7 +46,41 @@ interface Habits {
   buysPounds: boolean;
   /** Months of what is due kept back before spending on anything optional. */
   bufferMonths: number;
+  /** Pursues any route at all. */
+  leaves: boolean;
+  /** Leaves the study route for another formal route that can settle, once one is in reach. */
+  prefersSettling: boolean;
+  /** Formal routes beyond the study route that this player works toward. */
+  otherRoutes: Id<"route">[];
+  /** Takes the road's pitch when it comes. */
+  takesRoad: boolean;
+  /** Takes the Gulf agent's contract. */
+  takesGulf: boolean;
+  takesGroupLoan: boolean;
+  /** Renews a status that can be renewed when it nears its end. */
+  renews: boolean;
+  /** Share of the money abroad over the buffer sent home each month. */
+  remitShareBp: number;
+  channel: "app" | "bank" | "informal";
+  /** Comes home by choice once no lawful status is held. */
+  homeWhenUnlawful: boolean;
+  buysCar: boolean;
+  phoneContract: boolean;
+  rentsFlat: boolean;
+  /** Answers in the December scene, best first. */
+  december: string[];
+  /** Answers on the road, best first. */
+  road: string[];
+  /** Which allowed prologue answer is picked. */
+  prologue: "first" | "last";
 }
+
+const CAREFUL_DECEMBER = ["stay", "none", "home", "plain", "small", "some"];
+const SPENDING_DECEMBER = ["go", "big", "all", "outfit", "small", "some"];
+const LEAVE_ROAD = ["turn-back", "exit"];
+const STAY_ON_ROAD = ["go", "pay", "call-home"];
+
+const FORMAL: Id<"route">[] = ["route.uk-care", "route.uk-skilled", "route.uk-talent", "route.canada-points"];
 
 const HABITS: Record<StrategyName, Habits> = {
   careful: {
@@ -55,6 +93,22 @@ const HABITS: Record<StrategyName, Habits> = {
     paysFamily: true,
     buysPounds: true,
     bufferMonths: 2,
+    leaves: true,
+    prefersSettling: true,
+    otherRoutes: FORMAL,
+    takesRoad: false,
+    takesGulf: false,
+    takesGroupLoan: false,
+    renews: true,
+    remitShareBp: 2500,
+    channel: "app",
+    homeWhenUnlawful: true,
+    buysCar: false,
+    phoneContract: true,
+    rentsFlat: true,
+    december: CAREFUL_DECEMBER,
+    road: LEAVE_ROAD,
+    prologue: "first",
   },
   borrower: {
     englishBeforeTest: 66,
@@ -66,6 +120,22 @@ const HABITS: Record<StrategyName, Habits> = {
     paysFamily: true,
     buysPounds: false,
     bufferMonths: 1,
+    leaves: true,
+    prefersSettling: false,
+    otherRoutes: [...FORMAL, GULF],
+    takesRoad: false,
+    takesGulf: true,
+    takesGroupLoan: true,
+    renews: true,
+    remitShareBp: 5000,
+    channel: "bank",
+    homeWhenUnlawful: true,
+    buysCar: true,
+    phoneContract: true,
+    rentsFlat: true,
+    december: SPENDING_DECEMBER,
+    road: LEAVE_ROAD,
+    prologue: "first",
   },
   risky: {
     englishBeforeTest: 58,
@@ -77,6 +147,49 @@ const HABITS: Record<StrategyName, Habits> = {
     paysFamily: false,
     buysPounds: false,
     bufferMonths: 1,
+    leaves: true,
+    prefersSettling: false,
+    otherRoutes: [GULF],
+    takesRoad: true,
+    takesGulf: true,
+    takesGroupLoan: false,
+    renews: false,
+    remitShareBp: 10000,
+    channel: "informal",
+    homeWhenUnlawful: false,
+    buysCar: false,
+    phoneContract: false,
+    rentsFlat: false,
+    december: SPENDING_DECEMBER,
+    road: STAY_ON_ROAD,
+    prologue: "last",
+  },
+  "honest-home": {
+    englishBeforeTest: 100,
+    prep: 0,
+    unexplainedMax: 0,
+    takesLoans: false,
+    takesAgent: false,
+    heldAtOnce: false,
+    paysFamily: true,
+    buysPounds: false,
+    bufferMonths: 2,
+    leaves: false,
+    prefersSettling: false,
+    otherRoutes: [],
+    takesRoad: false,
+    takesGulf: false,
+    takesGroupLoan: false,
+    renews: false,
+    remitShareBp: 0,
+    channel: "app",
+    homeWhenUnlawful: true,
+    buysCar: false,
+    phoneContract: false,
+    rentsFlat: false,
+    december: CAREFUL_DECEMBER,
+    road: LEAVE_ROAD,
+    prologue: "first",
   },
 };
 
@@ -90,6 +203,11 @@ function quality(view: PlayerView, id: string): number {
 
 function naira(view: PlayerView): number {
   return view.pockets.NGN.bank + view.pockets.NGN.cash;
+}
+
+/** What falls due each month in one currency. */
+function monthlyDueIn(view: PlayerView, content: Content, currency: Currency): number {
+  return view.obligations.reduce((sum, item) => sum + (content.obligation[item.entry]?.currency === currency ? item.due : 0), 0);
 }
 
 /** What falls due each month, in naira. */
@@ -134,8 +252,8 @@ function holdingFunds(view: PlayerView): boolean {
   return view.obligations.some((item) => item.entry.includes("held-funds"));
 }
 
-function route(view: PlayerView) {
-  return view.routes.find((item) => item.id === UK);
+function route(view: PlayerView, id: Id<"route"> = UK) {
+  return view.routes.find((item) => item.id === id);
 }
 
 function documentState(view: PlayerView, id: string) {
@@ -148,7 +266,7 @@ export function payOf(view: PlayerView, content: Content, job: string | null): n
   const pay = content.activity[job as Id<"activity">]?.pay;
   if (pay === null || pay === undefined || typeof pay.amount !== "number") return 0;
   if (pay.currency === "NGN") return pay.amount;
-  const rate = view.rates[pay.currency as "GBP" | "USD"].official;
+  const rate = view.rates[pay.currency].official;
   return mulDiv(pay.amount, rate, 100);
 }
 
@@ -191,6 +309,28 @@ function nextBigPayment(view: PlayerView, content: Content): number {
   return owed + mulDiv(owed, 150, 10000);
 }
 
+/** A formal route other than the study one that this player can see a way through. */
+function settlingRouteInReach(view: PlayerView, habits: Habits): boolean {
+  return view.routes.some((item) => {
+    if (!habits.otherRoutes.includes(item.id) || item.id === GULF) return false;
+    if (item.state !== "known" && item.state !== "applying" && item.state !== "granted") return false;
+    if (item.window === "closed") return false;
+    if (item.gate?.gate === "points") return item.gate.points >= Math.min(item.gate.cutoff, item.gate.careCutoff ?? item.gate.cutoff);
+    return true;
+  });
+}
+
+/** Whether the study route is still the plan: always, except for a player who would rather settle and has a way to. */
+function studyOn(view: PlayerView, habits: Habits): boolean {
+  if (!habits.leaves) return false;
+  const uk = route(view);
+  if (uk === undefined) return false;
+  if (!habits.prefersSettling) return true;
+  // Once money is down on the study route it is seen through.
+  if (uk.school !== null || uk.state === "applying" || uk.state === "granted") return true;
+  return !settlingRouteInReach(view, habits);
+}
+
 // ---------------------------------------------------------------------------
 // Offers
 // ---------------------------------------------------------------------------
@@ -201,6 +341,15 @@ function choose(offer: OfferView, choice: string, amount?: number): Loose | null
   if (found.pick === null) return { type: "offer/choose", offer: offer.id, choice };
   const picked = Math.min(found.pick.max, Math.max(found.pick.min, amount ?? found.pick.min));
   return { type: "offer/choose", offer: offer.id, choice, amount: picked };
+}
+
+/** The first allowed of the choices named, in order. */
+function chooseFirst(offer: OfferView, choices: string[]): Loose | null {
+  for (const choice of choices) {
+    const command = choose(offer, choice);
+    if (command !== null) return command;
+  }
+  return null;
 }
 
 /** The naira a choice would pay out, from the content's effects, when plain. */
@@ -226,13 +375,69 @@ const FAMILY_ORDER: Record<string, string[]> = {
   "offer.laptop-fault": ["repair", "manage"],
   "offer.fuel-scarcity": ["pay", "trek"],
   "offer.recruiter-message": ["do-it", "ignore"],
+  "offer.village-burial": ["go", "send-money", "absent"],
+  "offer.parents-group-debt": ["pay", "no"],
 };
+
+const SPONSOR_OFFERS: Record<string, Id<"route">> = {
+  "offer.sponsor-care-home": "route.uk-care",
+  "offer.sponsor-trust": "route.uk-care",
+  "offer.sponsor-tech-firm": "route.uk-skilled",
+  "offer.sponsor-agency": "route.uk-skilled",
+};
+
+/** Signs a careful player reads as a sponsor selling its certificate. */
+const BAD_SIGNS = ["pays-for-cos", "whatsapp-only"];
+
+const SALARY_BAR: Record<string, string> = { "route.uk-care": "var.uk-care-salary", "route.uk-skilled": "var.uk-skilled-salary" };
+
+const ROAD_PITCHES = ["offer.road-radio", "offer.road-park", "offer.road-cousin"];
+
+/** What every player does with an offer that is the same at home and abroad, or null when the entry is not one of them. */
+function commonOffer(view: PlayerView, content: Content, habits: Habits, offer: OfferView): Loose | null | undefined {
+  const careful = habits.prep > 0;
+  switch (offer.entry) {
+    case "offer.illness":
+      return chooseFirst(offer, careful ? ["hospital", "chemist", "ignore"] : ["ignore"]);
+    case "offer.illness-worse":
+      return chooseFirst(offer, ["hospital", "cannot"]);
+    case "offer.court-date":
+      return chooseFirst(offer, ["attend"]);
+    case "offer.whip-round":
+      return chooseFirst(offer, ["accept"]);
+    case "offer.road-ransom-call":
+      return chooseFirst(offer, ["pay", "cannot"]);
+    case "offer.telco-promo":
+      return chooseFirst(offer, careful ? ["ignore", "no"] : ["claim", "pay", "take"]);
+    case "offer.group-loan":
+      return habits.takesGroupLoan ? choose(offer, "take", Number.MAX_SAFE_INTEGER) : choose(offer, "no");
+    case "offer.gulf-agent":
+      return chooseFirst(offer, habits.takesGulf ? ["take", "walk-away"] : ["walk-away"]);
+    case "offer.job": {
+      const job = offer.terms.job;
+      return choose(offer, typeof job === "string" && payOf(view, content, job) > payOf(view, content, view.job.id) ? "accept" : "decline");
+    }
+    default:
+      break;
+  }
+  if (ROAD_PITCHES.includes(offer.entry)) return chooseFirst(offer, habits.takesRoad ? ["take", "ignore"] : ["ignore"]);
+  const sponsored = SPONSOR_OFFERS[offer.entry];
+  if (sponsored !== undefined) {
+    if (!habits.leaves || !habits.otherRoutes.includes(sponsored)) return choose(offer, "decline");
+    const salary = offer.terms.salary;
+    const bar = varStart(content, SALARY_BAR[sponsored] ?? "");
+    const looksBad = careful && offer.signs.some((sign) => BAD_SIGNS.includes(sign));
+    if (looksBad || (typeof salary === "number" && salary < bar)) return choose(offer, "decline");
+    return chooseFirst(offer, ["take", "decline"]);
+  }
+  return undefined;
+}
 
 function offerCommands(view: PlayerView, content: Content, habits: Habits): Loose[] {
   const commands: Loose[] = [];
   const spare = naira(view) - buffer(view, habits);
   const gapKobo = poundsToKobo(view, fundsGap(view));
-  const current = payOf(view, content, view.job.id);
+  const study = studyOn(view, habits);
   for (const offer of view.offers) {
     const order = FAMILY_ORDER[offer.entry];
     if (order !== undefined) {
@@ -248,19 +453,19 @@ function offerCommands(view: PlayerView, content: Content, habits: Habits): Loos
       }
       continue;
     }
+    const common = commonOffer(view, content, habits, offer);
+    if (common !== undefined) {
+      if (common !== null) commands.push(common);
+      continue;
+    }
     let command: Loose | null = null;
     switch (offer.entry) {
-      case "offer.job": {
-        const job = offer.terms.job;
-        command = choose(offer, typeof job === "string" && payOf(view, content, job) > current ? "accept" : "decline");
-        break;
-      }
       case "offer.family-pledge":
       case "offer.family-pledge-small":
         command = choose(offer, "accept");
         break;
       case "offer.land-buyer":
-        command = choose(offer, gapKobo > 0 ? "sell" : "hold");
+        command = choose(offer, gapKobo > 0 && study ? "sell" : "hold");
         break;
       case "offer.salary-loan":
         command = habits.takesLoans ? choose(offer, "take", Number.MAX_SAFE_INTEGER) : choose(offer, "no");
@@ -269,7 +474,8 @@ function offerCommands(view: PlayerView, content: Content, habits: Habits): Loos
         command = habits.takesLoans ? choose(offer, "take", Number.MAX_SAFE_INTEGER) : choose(offer, "ignore");
         break;
       case "offer.held-funds": {
-        if (habits.heldAtOnce) command = choose(offer, "take", Number.MAX_SAFE_INTEGER);
+        if (!study) command = choose(offer, "no");
+        else if (habits.heldAtOnce) command = choose(offer, "take", Number.MAX_SAFE_INTEGER);
         else if (gapKobo > 0 && !holdingFunds(view) && papersReady(view) && quality(view, "quality.interview-prep") >= habits.prep) {
           // A little over the gap, since the naira keeps falling; and only with three months of interest in hand.
           const amount = gapKobo + mulDiv(gapKobo, 1000, 10000);
@@ -280,7 +486,7 @@ function offerCommands(view: PlayerView, content: Content, habits: Habits): Loos
         break;
       }
       case "offer.held-funds-agent":
-        command = habits.takesAgent && gapKobo > 0 ? choose(offer, "take", gapKobo + mulDiv(gapKobo, 1000, 10000)) : choose(offer, "walk-away");
+        command = study && habits.takesAgent && gapKobo > 0 ? choose(offer, "take", gapKobo + mulDiv(gapKobo, 1000, 10000)) : choose(offer, "walk-away");
         break;
       default:
         break;
@@ -291,7 +497,7 @@ function offerCommands(view: PlayerView, content: Content, habits: Habits): Loos
 }
 
 // ---------------------------------------------------------------------------
-// The month's slots
+// The month's slots at home
 // ---------------------------------------------------------------------------
 
 function bestJobParam(view: PlayerView, content: Content): string | null {
@@ -321,6 +527,60 @@ function englishHeld(view: PlayerView): number | null {
   return held.state === "held" ? held.value : null;
 }
 
+/** The slot that meets one unmet checklist item of a gate route, when there is one. */
+const ITEM_ACTIVITY: Record<string, string> = {
+  passport: "activity.get-passport",
+  english: "activity.sit-english-test",
+  tb: "activity.tb-test",
+  eca: "activity.get-eca",
+  verification: "activity.request-verification",
+  licence: "activity.renew-licence",
+  pool: "activity.enter-pool",
+  endorsement: "activity.apply-endorsement",
+  medical: "activity.gulf-medical",
+  portfolio: "activity.build-portfolio",
+  tech: "activity.learn-tech",
+  network: "activity.meetup",
+};
+
+const APPLY: Record<string, string> = {
+  "route.uk-care": "activity.apply-uk-care",
+  "route.uk-skilled": "activity.apply-uk-skilled",
+  "route.uk-talent": "activity.apply-uk-talent",
+  "route.gulf-contract": "activity.apply-gulf-contract",
+};
+
+/** Slots that move the other routes this player works toward, the most advanced route first. */
+function otherRoutePicks(view: PlayerView, habits: Habits): SlotPick[] {
+  const picks: SlotPick[] = [];
+  const add = (activity: string, param: string | null = null): void => {
+    if (!picks.some((pick) => pick.activity === activity)) picks.push({ activity: activity as Id<"activity">, param });
+  };
+  const routes = view.routes
+    .filter((item) => habits.otherRoutes.includes(item.id) && (item.state === "known" || item.state === "applying"))
+    .sort((left, right) => (right.percent ?? 0) - (left.percent ?? 0));
+  for (const item of routes) {
+    if (item.state !== "known" || item.window === "closed") continue;
+    const apply = APPLY[item.id];
+    if (apply !== undefined && playable(view, apply)) add(apply);
+    for (const entry of item.checklist) {
+      if (entry.met) continue;
+      if (entry.id === "sponsor" && playable(view, "activity.find-sponsor")) {
+        const params = option(view, "activity.find-sponsor")?.params ?? [];
+        if (params.includes(item.id)) add("activity.find-sponsor", item.id);
+        continue;
+      }
+      if (entry.id === "english" && quality(view, "quality.english") < 50) {
+        if (playable(view, "activity.study-english")) add("activity.study-english");
+        continue;
+      }
+      const activity = ITEM_ACTIVITY[entry.id];
+      if (activity !== undefined && playable(view, activity)) add(activity);
+    }
+  }
+  return picks;
+}
+
 function slotPlan(view: PlayerView, content: Content, habits: Habits): SlotPick[] {
   const picks: SlotPick[] = [];
   const room = view.freeSlots;
@@ -328,6 +588,7 @@ function slotPlan(view: PlayerView, content: Content, habits: Habits): SlotPick[
     if (picks.length < room) picks.push({ activity: activity as Id<"activity">, param });
   };
   const uk = route(view);
+  const study = studyOn(view, habits);
   const known = uk !== undefined && uk.state !== "unknown" && uk.state !== "heard";
   const prep = quality(view, "quality.interview-prep");
   const english = quality(view, "quality.english");
@@ -337,16 +598,16 @@ function slotPlan(view: PlayerView, content: Content, habits: Habits): SlotPick[
   const band = englishHeld(view);
 
   // The application is the point of it all.
-  if (uk !== undefined && playable(view, "activity.apply-for-visa") && prep >= habits.prep && uk.unexplainedBp <= habits.unexplainedMax) {
+  if (study && uk !== undefined && playable(view, "activity.apply-for-visa") && prep >= habits.prep && uk.unexplainedBp <= habits.unexplainedMax) {
     add("activity.apply-for-visa");
   }
   if (wellbeing < 30) add("activity.rest");
-  if (uk?.state === "heard" && playable(view, "activity.look-into-route")) add("activity.look-into-route", UK);
+  if (habits.leaves && uk?.state === "heard" && playable(view, "activity.look-into-route")) add("activity.look-into-route", UK);
 
   const job = bestJobParam(view, content);
   if (job !== null) add("activity.job-hunt", job);
 
-  if (known) {
+  if (known && study) {
     if (canSpendOn(view, "activity.get-passport", habits, true)) add("activity.get-passport");
     if (canSpendOn(view, "activity.get-transcript", habits, true)) add("activity.get-transcript");
     if ((band === null || band < 60) && english >= habits.englishBeforeTest && canSpendOn(view, "activity.sit-english-test", habits, true)) {
@@ -366,11 +627,29 @@ function slotPlan(view: PlayerView, content: Content, habits: Habits): SlotPick[
     }
   }
 
+  if (habits.leaves) {
+    for (const heard of view.routes) {
+      if (heard.id !== UK && heard.state === "heard" && habits.otherRoutes.includes(heard.id) && playable(view, "activity.look-into-route")) {
+        const params = option(view, "activity.look-into-route")?.params ?? [];
+        if (params.includes(heard.id)) add("activity.look-into-route", heard.id);
+      }
+    }
+    for (const pick of otherRoutePicks(view, habits)) {
+      if (!picks.some((held) => held.activity === pick.activity) && naira(view) - nairaCost(view, pick.activity) >= monthlyDue(view)) add(pick.activity, pick.param);
+    }
+    // The motor park is where the Gulf agents and the road's pitches are.
+    const gulf = route(view, GULF);
+    if ((habits.takesRoad || habits.takesGulf) && (gulf === undefined || gulf.state === "unknown") && view.month >= 3 && playable(view, "activity.ask-around")) {
+      add("activity.ask-around");
+    }
+  }
+
   // What fills the rest: wellbeing first, then the skills that lead to better pay.
   for (let guard = 0; guard < 3 && picks.length < room; guard += 1) {
     if (wellbeing < 45) add("activity.rest");
     else if (tech >= 40 && portfolio < 3 && playable(view, "activity.build-portfolio")) add("activity.build-portfolio");
     else if (tech < 75 && canSpendOn(view, "activity.learn-tech", habits)) add("activity.learn-tech");
+    else if (habits.leaves && habits.prefersSettling && tech >= 60 && playable(view, "activity.meetup")) add("activity.meetup");
     else if (playable(view, "activity.side-gig")) add("activity.side-gig");
     else if (playable(view, "activity.family-time")) add("activity.family-time");
     else add("activity.rest");
@@ -379,8 +658,36 @@ function slotPlan(view: PlayerView, content: Content, habits: Habits): SlotPick[
 }
 
 // ---------------------------------------------------------------------------
-// Money and the route's commands
+// Money and the route's commands at home
 // ---------------------------------------------------------------------------
+
+function departures(view: PlayerView): Loose[] {
+  const commands: Loose[] = [];
+  const granted = view.routes.filter((item) => item.state === "granted");
+  if (granted.length === 0) return commands;
+  for (const owed of view.obligations) {
+    if (owed.entry.includes("held-funds") && view.pockets.NGN.locked >= owed.outstanding) {
+      commands.push({ type: "obligation/pay", obligation: owed.id, amount: owed.outstanding });
+    }
+  }
+  for (const item of granted) commands.push({ type: "route/depart", route: item.id });
+  return commands;
+}
+
+/** Naira kept in the bank while a route other than the study one is in play: the gate fees and the flight. */
+const OTHER_ROUTE_NAIRA = 1200000000;
+
+/** The agent and the road's pitches are paid from cash: bank money is moved there for a pitch this player takes. */
+function cashForTerms(view: PlayerView, habits: Habits): Loose[] {
+  let want = 0;
+  for (const offer of view.offers) {
+    if (habits.takesRoad && ROAD_PITCHES.includes(offer.entry) && typeof offer.terms.deposit === "number") want = Math.max(want, offer.terms.deposit);
+    if (habits.takesGulf && offer.entry === "offer.gulf-agent" && typeof offer.terms.fee === "number") want = Math.max(want, offer.terms.fee);
+  }
+  const short = want - view.pockets.NGN.cash;
+  if (short <= 0 || view.pockets.NGN.bank < short) return [];
+  return [{ type: "wallet/move", currency: "NGN", amount: short, to: "cash" }];
+}
 
 function moneyCommands(view: PlayerView, content: Content, habits: Habits): Loose[] {
   const commands: Loose[] = [];
@@ -396,7 +703,15 @@ function moneyCommands(view: PlayerView, content: Content, habits: Habits): Loos
       commands.push({ type: "obligation/pay", obligation: owed.id, amount: owed.outstanding });
     }
   }
-  if (uk === undefined) return commands;
+  if (!habits.leaves) return commands;
+  // Dollars are sold for naira while another route is in play: its fees and the flight are paid from naira.
+  const otherInPlay = view.routes.some((item) => item.id !== UK && habits.otherRoutes.includes(item.id) && item.state !== "unknown" && item.state !== "heard");
+  if (otherInPlay && view.pockets.NGN.bank < OTHER_ROUTE_NAIRA && view.pockets.USD.bank > 0) {
+    const cents = Math.min(view.pockets.USD.bank, mulDiv(OTHER_ROUTE_NAIRA - view.pockets.NGN.bank, 100, view.rates.USD.official) + 100);
+    commands.push({ type: "wallet/convert", from: "USD", to: "NGN", amount: cents, via: "bank" });
+  }
+  commands.push(...departures(view));
+  if (uk === undefined || uk.state === "granted") return commands;
 
   const big = nextBigPayment(view, content);
   // Dollars are sold for naira when the next big payment needs them: the fee rules never reach a dollar pocket.
@@ -405,15 +720,7 @@ function moneyCommands(view: PlayerView, content: Content, habits: Habits): Loos
     const cents = Math.min(view.pockets.USD.bank, mulDiv(short, 102, view.rates.USD.official) + 100);
     commands.push({ type: "wallet/convert", from: "USD", to: "NGN", amount: cents, via: "bank" });
   }
-  if (uk.state === "granted") {
-    for (const owed of view.obligations) {
-      if (owed.entry.includes("held-funds") && view.pockets.NGN.locked >= owed.outstanding) {
-        commands.push({ type: "obligation/pay", obligation: owed.id, amount: owed.outstanding });
-      }
-    }
-    commands.push({ type: "route/depart", route: UK });
-    return commands;
-  }
+  if (!studyOn(view, habits)) return commands;
 
   if (uk.school === null && uk.state === "known") {
     const offers = uk.schools.filter((school) => school.state === "offer");
@@ -433,12 +740,165 @@ function moneyCommands(view: PlayerView, content: Content, habits: Habits): Loos
   return commands;
 }
 
+// ---------------------------------------------------------------------------
+// Set pieces and the prologue
+// ---------------------------------------------------------------------------
+
+function ranked(answers: string[], preferred: string[]): string[] {
+  return [...preferred.filter((item) => answers.includes(item)), ...answers.filter((item) => !preferred.includes(item))];
+}
+
 function answer(view: PlayerView, habits: Habits): Loose[] {
-  const question = view.setpiece?.question;
-  if (question === undefined || question === null) return [];
-  const careful = habits.prep > 0;
-  const ranked = careful ? [...question.answers.filter((item) => !question.weak.includes(item)), ...question.answers] : question.answers;
-  return ranked.map((answer) => ({ type: "setpiece/answer", question: question.id, answer }));
+  const setpiece = view.setpiece;
+  const question = setpiece?.question;
+  if (setpiece === null || question === undefined || question === null) return [];
+  let order: string[];
+  if (setpiece.entry === "setpiece.december") order = ranked(question.answers, habits.december);
+  else if (setpiece.entry.startsWith("setpiece.road")) order = ranked(question.answers, habits.road);
+  else if (habits.prep > 0) order = [...question.answers.filter((item) => !question.weak.includes(item)), ...question.answers];
+  else order = question.answers;
+  return order.map((item) => ({ type: "setpiece/answer", question: question.id, answer: item }));
+}
+
+function prologueAnswers(view: PlayerView, habits: Habits): Loose[] {
+  const card = view.prologue;
+  if (card === null) return [];
+  const allowed = card.answers.filter((item) => item.allowed).map((item) => item.id);
+  const order = habits.prologue === "first" ? allowed : [...allowed].reverse();
+  return order.map((item) => ({ type: "prologue/choose", step: card.step, answer: item }));
+}
+
+// ---------------------------------------------------------------------------
+// Abroad
+// ---------------------------------------------------------------------------
+
+function localCurrency(view: PlayerView, content: Content): ForeignCurrency | null {
+  const country = view.place.country;
+  if (country === null) return null;
+  const currency = content.country[country]?.currency;
+  return currency === undefined || currency === "NGN" ? null : currency;
+}
+
+/** The best job the hunt offers now under the status's work rule, if it pays more than the job held. */
+function bestAbroadJob(view: PlayerView, content: Content): string | null {
+  const hunt = option(view, "activity.job-hunt");
+  if (hunt === undefined || !hunt.allowed || hunt.params === null) return null;
+  let best: string | null = null;
+  let bestPay = payOf(view, content, view.job.id);
+  for (const job of hunt.params) {
+    if (content.activity[job as Id<"activity">]?.slot !== "main") continue;
+    const pay = payOf(view, content, job);
+    if (pay > bestPay) {
+      best = job;
+      bestPay = pay;
+    }
+  }
+  return best;
+}
+
+function abroadSlots(view: PlayerView, content: Content, habits: Habits, currency: ForeignCurrency): SlotPick[] {
+  const picks: SlotPick[] = [];
+  const room = view.freeSlots;
+  const add = (activity: string, param: string | null = null): void => {
+    if (picks.length < room && !picks.some((pick) => pick.activity === activity && activity !== "activity.rest")) {
+      picks.push({ activity: activity as Id<"activity">, param });
+    }
+  };
+  const byPrefix = (prefix: string): string | null => view.activities.find((item) => item.id.startsWith(prefix) && item.allowed && item.affordable)?.id ?? null;
+  const wellbeing = quality(view, "quality.wellbeing");
+  const pocket = view.pockets[currency];
+  const dues = monthlyDueIn(view, content, currency);
+  const spare = pocket.bank + pocket.cash - dues * (habits.bufferMonths + 1);
+  if (wellbeing < 30) add("activity.rest");
+  const job = bestAbroadJob(view, content);
+  if (job !== null) add("activity.job-hunt", job);
+  if (wellbeing < 20) add("activity.rest");
+  const pick = (prefix: string): void => {
+    const found = byPrefix(prefix);
+    if (found !== null) add(found);
+  };
+  const holds = (part: string): boolean => view.obligations.some((owed) => owed.entry.includes(part));
+  if (habits.phoneContract && !holds("phone")) pick("activity.phone-contract");
+  if (habits.rentsFlat && spare > 0 && !holds("rent-flat")) pick("activity.rent-flat");
+  if (habits.buysCar && !holds("obligation.car")) {
+    pick("activity.buy-car-finance");
+    if (spare > 0 && !view.documents.some((item) => item.id === "document.uk-licence" && item.state === "held")) pick("activity.driving-test");
+  }
+  if (habits.prefersSettling && spare > 0) pick("activity.nmc-tests");
+  for (let guard = 0; guard < 3 && picks.length < room; guard += 1) {
+    if (wellbeing < 50) add("activity.rest");
+    else if (quality(view, "quality.standing") < 40 && byPrefix("activity.call-home") !== null) pick("activity.call-home");
+    else if (view.job.id !== null && wellbeing >= 60 && byPrefix("activity.overtime") !== null) pick("activity.overtime");
+    else if (spare > 0 && byPrefix("activity.community") !== null) pick("activity.community");
+    else add("activity.rest");
+  }
+  return picks;
+}
+
+function abroadMoney(view: PlayerView, content: Content, habits: Habits, currency: ForeignCurrency): Loose[] {
+  const commands: Loose[] = [];
+  const pocket = view.pockets[currency];
+  const dues = monthlyDueIn(view, content, currency);
+  // Cash work pays into cash; the remittance and most fees read the bank pocket.
+  if (pocket.cash > dues + 10000) commands.push({ type: "wallet/move", currency, amount: pocket.cash - dues, to: "bank" });
+  const status = view.status;
+  if (habits.renews && status?.renew !== null && status?.renew !== undefined && status.monthsLeft !== null && status.monthsLeft <= 3) {
+    commands.push({ type: "status/renew" });
+  }
+  // Fees ahead: the renewal, and settling once the lawful months are near.
+  let keep = dues * (habits.bufferMonths + 1);
+  if (habits.renews && status?.renew !== null && status?.renew !== undefined) keep += status.renew.fee + status.renew.surcharge;
+  if (habits.renews && status !== null && status.settleMonths !== null) keep += varStart(content, "var.uk-settle-fee") + varStart(content, "var.uk-citizen-fee");
+  const fare = view.place.fareHome?.amount ?? 0;
+  if (habits.homeWhenUnlawful) keep += fare;
+  // What is owed at home is paid from the naira pockets, so enough is sent first to meet it.
+  const homeDue = monthlyDueIn(view, content, "NGN") * (habits.bufferMonths + 1);
+  const homeShort = homeDue - view.pockets.NGN.bank;
+  if (habits.paysFamily && homeShort > 0) {
+    const amount = Math.min(pocket.bank - dues, mulDiv(homeShort, 105, view.rates[currency].official) + 100);
+    if (amount >= 1000) commands.push({ type: "wallet/remit", currency, amount, channel: "app" });
+  }
+  const over = pocket.bank - keep;
+  if (habits.remitShareBp > 0 && over > 1000) {
+    const amount = mulDiv(over, habits.remitShareBp, 10000);
+    if (amount >= 1000) commands.push({ type: "wallet/remit", currency, amount, channel: habits.channel });
+  }
+  return commands;
+}
+
+/** Whether a careful player goes home now: no lawful status, or a status about to end with nothing to follow it. */
+function goesHome(view: PlayerView, habits: Habits): boolean {
+  const status = view.status;
+  if (!habits.homeWhenUnlawful) return false;
+  if (status === null || status.work === "cash") return true;
+  if (habits.prefersSettling && status.clock !== null && status.clock <= 1 && view.job.id === null) return true;
+  return false;
+}
+
+function abroadCommands(view: PlayerView, content: Content, habits: Habits): Loose[] {
+  const currency = localCurrency(view, content);
+  const commands: Loose[] = [];
+  for (const offer of view.offers) {
+    const order = FAMILY_ORDER[offer.entry];
+    if (order !== undefined) {
+      const command = chooseFirst(offer, habits.paysFamily ? order : order.slice(-1));
+      if (command !== null) commands.push(command);
+      continue;
+    }
+    const common = commonOffer(view, content, habits, offer);
+    if (common !== undefined && common !== null) commands.push(common);
+    else if (common === undefined) {
+      const first = offer.choices.find((choice) => choice.allowed && choice.pick === null);
+      if (first !== undefined && offer.entry.startsWith("offer.sponsor-licence")) commands.push({ type: "offer/choose", offer: offer.id, choice: first.id });
+    }
+  }
+  if (goesHome(view, habits)) commands.push({ type: "return/home" });
+  if (currency !== null) commands.push(...abroadMoney(view, content, habits, currency));
+  if (view.turns.banked > 0) {
+    commands.push({ type: "turn/end", slots: currency === null ? [] : abroadSlots(view, content, habits, currency) });
+    commands.push({ type: "turn/end", slots: [] });
+  }
+  return commands;
 }
 
 /** A strategy from a set of habits: answer, settle offers, handle money, then end the month. */
@@ -446,8 +906,17 @@ export function strategyOf(name: StrategyName): Strategy {
   const habits = HABITS[name];
   return (view, content) => {
     if (view.ended) return [];
+    if (view.prologue !== null) return prologueAnswers(view, habits);
     if (view.setpiece !== null) return answer(view, habits);
-    const commands = [...offerCommands(view, content, habits), ...moneyCommands(view, content, habits)];
+    if (view.place.where === "abroad") return abroadCommands(view, content, habits);
+    if (view.place.where === "road") {
+      const commands = view.offers.flatMap((offer) => {
+        const command = commonOffer(view, content, habits, offer);
+        return command === undefined || command === null ? [] : [command];
+      });
+      return view.turns.banked > 0 ? [...commands, { type: "turn/end", slots: [] }] : commands;
+    }
+    const commands = [...(habits.leaves ? cashForTerms(view, habits) : []), ...offerCommands(view, content, habits), ...moneyCommands(view, content, habits)];
     if (view.turns.banked > 0) {
       commands.push({ type: "turn/end", slots: slotPlan(view, content, habits) });
       commands.push({ type: "turn/end", slots: [] });
@@ -460,6 +929,7 @@ export const strategies: Record<StrategyName, Strategy> = {
   careful: strategyOf("careful"),
   borrower: strategyOf("borrower"),
   risky: strategyOf("risky"),
+  "honest-home": strategyOf("honest-home"),
 };
 
 // ---------------------------------------------------------------------------
@@ -477,11 +947,20 @@ export interface Decision {
   chanceBp: number;
 }
 
+/** How a run ends, read from the last state: brief m1-sweep, item 2. */
+export type Ending = "settled" | "citizen" | "returned-by-choice" | "returned-broke" | "assisted-return" | "removed" | "road-lost" | "still-playing";
+
+export const ENDINGS: Ending[] = ["settled", "citizen", "returned-by-choice", "returned-broke", "assisted-return", "removed", "road-lost", "still-playing"];
+
+export type CarFate = "none" | "owned" | "paying" | "repossessed" | "handed-back" | "left-behind";
+
 export interface RunRecord {
   strategy: StrategyName;
   life: Id<"scenario">;
   seed: string;
   months: number;
+  /** The prologue's path and grade, for a life that plays one. */
+  prologue: string | null;
   heard: number | null;
   known: number | null;
   offer: number | null;
@@ -490,13 +969,31 @@ export interface RunRecord {
   decisions: Decision[];
   granted: number | null;
   departed: number | null;
+  /** The route flown on first, or null. */
+  flown: Id<"route"> | null;
+  /** The status held at 12, 36 and 60 months after the first flight; null when not abroad then or not reached. */
+  statusAt: Record<"12" | "36" | "60", Id<"status"> | null>;
+  /** The month the character first set out on the road. */
+  road: number | null;
+  ending: Ending;
+  /** The first month a settled or citizen status was held. */
+  settledMonth: number | null;
   /** The job held when the visa was granted. */
   jobAtGrant: string | null;
   /** The first month the remote developer job was held. */
   remote: number | null;
   japacity: number | null;
-  /** Month ends with less naira than offer.md's "broke". */
+  /** Month ends with less naira than offer.md's "broke", at home; abroad, with the local pockets under one month of what is due. */
   broke: number;
+  /** Illnesses that opened. */
+  ill: number;
+  car: CarFate;
+  /** The credit mark of the last country's file, or null for none. */
+  creditEnd: number | null;
+  goalsDone: number;
+  chaptersClosed: number;
+  /** Refusal reasons on every route and lapse reasons of every status, as `refused:<reason>` and `lapsed:<status>:<why>`. */
+  reasons: string[];
   /** Months whose report carried at least one good line. */
   goodMonths: number;
   /** The longest run of months without a good line. */
@@ -511,6 +1008,10 @@ export interface RunRecord {
   stuck: number;
   /** Turns built only from options the view called allowed and affordable that step rejected. */
   rejectedTurns: { month: number; code: string; detail: string }[];
+  /** Commands a strategy built from the view that step refused, by type and code, for the findings. */
+  refused: Record<string, number>;
+  /** A step that threw instead of answering, with the month: a finding, and the end of the run. */
+  crash: { month: number; message: string } | null;
 }
 
 /** Good lines that come with every ordinary month: pay, gig money and practice. */
@@ -521,7 +1022,12 @@ export interface RunOptions {
   worldSeed?: string;
   /** Keeps the save, for the goldens. */
   keepSave?: boolean;
+  /** Stops the run early once this holds after a turn. */
+  stopWhen?: (game: Game, record: RunRecord) => boolean;
 }
+
+const SETTLED_STATUSES: Id<"status">[] = ["status.uk-settled", "status.ca-resident"];
+const CITIZEN_STATUSES: Id<"status">[] = ["status.uk-citizen", "status.ca-citizen"];
 
 function restingTurnAccepted(game: Game): boolean {
   const result = step(game.state, { type: "turn/end", slots: [], basedOn: game.state.v }, game.world(), game.content);
@@ -548,7 +1054,72 @@ function fileOf(state: State, content: Content): FileOnDay {
   return { unexplainedBp: file.unexplainedBp, interviewScore: file.interviewScore, chanceBp: refusalChanceBp(content.tuning.route, content.route[UK]?.refusalBaseBp ?? 0, file) };
 }
 
-/** Plays one life with one strategy until it departs or the months run out. */
+/** The ending a run has reached, read from its state. */
+export function endingOf(state: State): Ending {
+  if (state.turn.ended) return "road-lost";
+  const held = state.place.where === "abroad" ? (state.status.current?.entry ?? null) : (state.place.heldAbroad?.status ?? null);
+  if (held !== null && CITIZEN_STATUSES.includes(held)) return "citizen";
+  if (held !== null && SETTLED_STATUSES.includes(held)) return "settled";
+  const last = state.place.returns[state.place.returns.length - 1];
+  if (state.place.where !== "home" || last === undefined) return "still-playing";
+  switch (last.shape) {
+    case "with-papers":
+    case "by-choice":
+      return "returned-by-choice";
+    case "broke":
+      return "returned-broke";
+    case "assisted":
+      return "assisted-return";
+    case "removed":
+      return "removed";
+    default: {
+      const never: never = last.shape;
+      return never;
+    }
+  }
+}
+
+function carFate(state: State, events: BaseEvent[], fate: CarFate): CarFate {
+  for (const event of events) {
+    if ((event as { entry?: string }).entry !== "obligation.car") continue;
+    switch (event.type) {
+      case "obligation/opened":
+        fate = "paying";
+        break;
+      case "obligation/repossessed":
+        fate = "repossessed";
+        break;
+      case "obligation/handed-back":
+        fate = "handed-back";
+        break;
+      case "obligation/owned":
+        fate = "owned";
+        break;
+      default:
+        break;
+    }
+  }
+  if (fate === "paying" && !Object.values(state.obligation.items).some((item) => item.entry === "obligation.car")) fate = "left-behind";
+  return fate;
+}
+
+function readEvents(events: BaseEvent[], record: RunRecord): void {
+  for (const event of events) {
+    const fields = event as BaseEvent & Record<string, unknown>;
+    if (event.type === "route/refused" && Array.isArray(fields.reasons)) for (const reason of fields.reasons as string[]) record.reasons.push(`refused:${reason}`);
+    if (event.type === "status/lapsed") record.reasons.push(`lapsed:${String(fields.status)}:${String(fields.why)}`);
+    if (event.type === "offer/opened" && (fields.item as { entry?: string } | undefined)?.entry === "offer.illness") record.ill += 1;
+  }
+}
+
+function prologuePath(state: State): string | null {
+  if (state.scenario !== "scenario.prologue") return null;
+  const choices = state.prologue.choices;
+  const path = choices["after-school"] ?? "none";
+  return `${path}, grade ${String(state.quality["quality.edu-grade"] ?? 0)}`;
+}
+
+/** Plays one life with one strategy until the months run out or the life ends. */
 export function runLife(
   name: StrategyName,
   life: Id<"scenario">,
@@ -564,6 +1135,7 @@ export function runLife(
     life,
     seed,
     months: 0,
+    prologue: null,
     heard: null,
     known: null,
     offer: null,
@@ -572,10 +1144,21 @@ export function runLife(
     decisions: [],
     granted: null,
     departed: null,
+    flown: null,
+    statusAt: { "12": null, "36": null, "60": null },
+    road: null,
+    ending: "still-playing",
+    settledMonth: null,
     jobAtGrant: null,
     remote: null,
     japacity: null,
     broke: 0,
+    ill: 0,
+    car: "none",
+    creditEnd: null,
+    goalsDone: 0,
+    chaptersClosed: 0,
+    reasons: [],
     goodMonths: 0,
     longestDry: 0,
     winMonths: 0,
@@ -583,38 +1166,58 @@ export function runLife(
     grantedTurns: 0,
     stuck: 0,
     rejectedTurns: [],
+    refused: {},
+    crash: null,
   };
   let dry = 0;
   let noWin = 0;
   let sentThisMonth = 0;
   let lastFile: FileOnDay = { unexplainedBp: 0, interviewScore: 0, chanceBp: 0 };
   while (!game.state.turn.ended && game.state.turn.month < months) {
+    try {
+      if (!playMonthPart()) break;
+    } catch (error) {
+      record.crash = { month: game.state.turn.month, message: error instanceof Error ? error.message : String(error) };
+      break;
+    }
+  }
+  /** One command of the run; false when the run should stop. */
+  function playMonthPart(): boolean {
     let view = game.view();
-    if (view.turns.banked === 0 && view.setpiece === null) {
+    if (view.turns.banked === 0 && view.setpiece === null && view.prologue === null) {
       game.grant(1);
       record.grantedTurns += 1;
       view = game.view();
     }
-    if (view.setpiece === null && (!restingTurnAccepted(game) || legalCommands(view).length === 0)) record.stuck += 1;
+    if (view.setpiece === null && view.prologue === null && (!restingTurnAccepted(game) || legalCommands(view).length === 0)) record.stuck += 1;
     const before = game.state;
-    const wanted = sentThisMonth > 12 ? [{ type: "turn/end", slots: [] } as Loose] : strategy(view, content);
+    const wanted = sentThisMonth > 12 && view.setpiece === null && view.prologue === null ? [{ type: "turn/end", slots: [] } as Loose] : strategy(view, content);
     let sent: Loose | null = null;
+    let events: BaseEvent[] = [];
     for (const command of wanted) {
       const result = game.send(command);
       if (result.ok) {
         sent = command;
+        events = result.events;
         break;
       }
       if (command.type === "turn/end" && command.slots.length > 0) {
         record.rejectedTurns.push({ month: view.month, code: result.code, detail: result.detail });
+      } else if (command.type !== "turn/end") {
+        const key = `${command.type} ${result.code}`;
+        record.refused[key] = (record.refused[key] ?? 0) + 1;
       }
     }
     if (sent === null) {
       record.stuck += 1;
-      game.accept({ type: "turn/end", slots: [] });
+      const rest = game.send({ type: "turn/end", slots: [] });
+      if (!rest.ok) throw new Error(`${name} on ${life} seed ${seed} is stuck in month ${String(view.month)}: ${rest.code} ${rest.detail}`);
       sent = { type: "turn/end", slots: [] };
+      events = rest.events;
     }
+    readEvents(events, record);
     const after = game.state;
+    record.car = carFate(after, events, record.car);
     const was = before.route[UK];
     const now = after.route[UK];
     if (now?.visa !== null && now?.visa !== undefined) lastFile = fileOf(after, content);
@@ -634,12 +1237,30 @@ export function runLife(
           earlierRefusals: was.refusals,
         });
         if (granted) {
-          record.granted = after.turn.month;
-          record.jobAtGrant = after.activity.job;
+          record.granted ??= after.turn.month;
+          record.jobAtGrant ??= after.activity.job;
         }
       }
-      if (now.state === "departed" && record.departed === null) record.departed = after.turn.month;
-      if (record.remote === null && after.activity.job === "activity.job-remote-dev") record.remote = after.turn.month;
+    }
+    if (record.granted === null) {
+      const grantedNow = Object.entries(after.route).find(([id, held]) => id !== ROAD && held.state === "granted" && before.route[id as Id<"route">]?.state !== "granted");
+      if (grantedNow !== undefined) {
+        record.granted = after.turn.month;
+        record.jobAtGrant = after.activity.job;
+      }
+    }
+    if (record.departed === null && before.place.where === "home" && after.place.where === "abroad") {
+      record.departed = after.turn.month;
+      record.flown = (Object.entries(after.route).find(([, held]) => held.state === "departed")?.[0] as Id<"route"> | undefined) ?? null;
+    }
+    if (record.road === null && after.place.where === "road") record.road = after.turn.month;
+    if (record.remote === null && after.activity.job === "activity.job-remote-dev") record.remote = after.turn.month;
+    const current = after.status.current?.entry ?? null;
+    if (record.settledMonth === null && current !== null && (SETTLED_STATUSES.includes(current) || CITIZEN_STATUSES.includes(current))) record.settledMonth = after.turn.month;
+    if (record.departed !== null) {
+      for (const mark of ["12", "36", "60"] as const) {
+        if (after.turn.month - record.departed === Number(mark)) record.statusAt[mark] = after.place.where === "abroad" ? current : null;
+      }
     }
     if (sent.type === "turn/end") {
       sentThisMonth = 0;
@@ -660,10 +1281,27 @@ export function runLife(
         noWin += 1;
         record.longestNoWin = Math.max(record.longestNoWin, noWin);
       }
-      if (shown.pockets.NGN.bank + shown.pockets.NGN.cash < BROKE_BELOW) record.broke += 1;
+      if (isBroke(shown, content)) record.broke += 1;
+      if (options.stopWhen?.(game, record) === true) return false;
     } else sentThisMonth += 1;
+    return true;
   }
-  record.months = game.state.turn.month;
-  record.japacity = game.state.turn.ended ? 100 : game.view().japacity.percent;
+  const end = game.state;
+  record.months = end.turn.month;
+  record.japacity = end.turn.ended ? null : game.view().japacity.percent;
+  record.ending = endingOf(end);
+  record.prologue = prologuePath(end);
+  record.goalsDone = Object.keys(end.goal.done).length;
+  record.chaptersClosed = end.chapter.done.length;
+  const country = end.place.country ?? end.place.returns[end.place.returns.length - 1]?.country ?? null;
+  record.creditEnd = country === null ? null : (end.credit.byCountry[country]?.mark ?? null);
   return { record, game };
+}
+
+function isBroke(view: PlayerView, content: Content): boolean {
+  if (view.place.where !== "abroad") return naira(view) < BROKE_BELOW;
+  const currency = localCurrency(view, content);
+  if (currency === null) return false;
+  const pocket = view.pockets[currency];
+  return pocket.bank + pocket.cash < monthlyDueIn(view, content, currency);
 }
