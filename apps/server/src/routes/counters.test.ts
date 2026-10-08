@@ -37,7 +37,7 @@ function sized(size: number): string {
 }
 
 async function account(server: TestServer, id: string, over: Partial<AccountRow> = {}): Promise<void> {
-  const made = await server.deps.stores.account.create({ id, country: "NG", age: { passed: true, at: 0, method: "declared" }, createdAt: server.deps.now(), character: null, notifyBankFull: false, sendUsageCounts: true, ...over });
+  const made = await server.deps.stores.account.create({ id, country: "NG", age: { passed: true, at: 0, method: "declared" }, createdAt: server.deps.now(), character: null, notifyBankFull: false, sendUsageCounts: true, state: "secured", username: id.replaceAll(/\W/g, "_"), usernameChangedAt: null, lastPlayedAt: server.deps.now(), ...over });
   if (!made.ok) throw new Error(made.detail);
 }
 

@@ -311,13 +311,31 @@ export interface AccountRow {
   notifyBankFull: boolean;
   /** R-ANALYTICS-006: the "Send usage counts" setting. On until the player turns it off. */
   sendUsageCounts: boolean;
+  /** R-ACCOUNT-021: a guest has no sign-in method yet; securing adds one and never goes back. */
+  state: "guest" | "secured";
+  /** R-ACCOUNT-024: the handle, unique whatever the capitals. */
+  username: string;
+  /** R-ACCOUNT-024: the last change of the username; null while the free change is unused. */
+  usernameChangedAt: number | null;
+  /** R-ACCOUNT-026: the last command or new life of the account. */
+  lastPlayedAt: number;
 }
 
 /** R-ACCOUNT-015, R-ACCOUNT-017. */
 export interface AccountStore {
   get: (id: string) => Promise<AccountRow | null>;
-  /** Refused with `exists` for a known id. */
+  /** Refused with `exists` for a known id and `conflict` for a username another account holds in any capitals. */
   create: (row: AccountRow) => Promise<StoreResult<AccountRow>>;
+  /** R-ACCOUNT-024: the account holding `username` in any capitals, or null. */
+  byUsername: (username: string) => Promise<AccountRow | null>;
+  /** R-ACCOUNT-024: refused with `missing` for an unknown id and `conflict` for a username another account holds. `at` becomes `usernameChangedAt`. */
+  setUsername: (id: string, username: string, at: number) => Promise<StoreResult<AccountRow>>;
+  /** R-ACCOUNT-023: the account is secured. Refused with `missing` for an unknown id. */
+  secure: (id: string) => Promise<StoreResult<AccountRow>>;
+  /** R-ACCOUNT-026: `lastPlayedAt` becomes `at` unless it is later already. A no-op for an unknown id. */
+  touch: (id: string, at: number) => Promise<void>;
+  /** R-ACCOUNT-026: guests whose `lastPlayedAt` is before `before`, oldest play first. Secured accounts never. */
+  idleGuests: (before: number) => Promise<AccountRow[]>;
   /** R-ACCOUNT-015: refused with `one-character` while another character is set. Null clears it. */
   setCharacter: (id: string, character: string | null) => Promise<StoreResult<AccountRow>>;
   /** R-CLOCK-031: the bank-full setting. Refused with `missing` for an unknown id. */

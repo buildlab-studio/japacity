@@ -120,8 +120,8 @@ describe("the queue", () => {
       holds: [{ report: "report.1", messages: ["m.1", "m.2"], until: 92 * DAY }],
       messages: [message("m.2", 2 * DAY - 5), message("m.1", 2 * DAY - 10), message("m.other", 2 * DAY - 1)],
     });
-    await h.deps.stores.account.create({ id: "account.reported", country: "GB", age: { passed: true, at: 0, method: "declared" }, createdAt: 3 * DAY, character: "character.secret", notifyBankFull: false, sendUsageCounts: true });
-    await h.deps.stores.account.create({ id: "account.reporter", country: "NG", age: { passed: true, at: 0, method: "declared" }, createdAt: DAY, character: null, notifyBankFull: false, sendUsageCounts: true });
+    await h.deps.stores.account.create({ id: "account.reported", country: "GB", age: { passed: true, at: 0, method: "declared" }, createdAt: 3 * DAY, character: "character.secret", notifyBankFull: false, sendUsageCounts: true, state: "secured", username: "account_reported", usernameChangedAt: null, lastPlayedAt: 3 * DAY });
+    await h.deps.stores.account.create({ id: "account.reporter", country: "NG", age: { passed: true, at: 0, method: "declared" }, createdAt: DAY, character: null, notifyBankFull: false, sendUsageCounts: true, state: "secured", username: "account_reporter", usernameChangedAt: null, lastPlayedAt: DAY });
     await h.deps.stores.moderationLog.append({ id: "log.earlier", admin: ADMIN, at: DAY, item: "report.older", action: "warn", params: { account: "account.reported" }, reason: "hate" });
 
     const [item] = (await queueOf(h.app)).items;
@@ -273,7 +273,7 @@ describe("closing a report", () => {
 
   test("[R-MODERATION-019] given a report on an account, when the rollback is opened from it, then its use is logged, the comparison comes back, and the report stays open and held", async () => {
     const h = moderationHarness({ reports: [report("report.1")], holds: [{ report: "report.1", messages: ["report.1.m1"], until: 91 * DAY }] });
-    await h.deps.stores.account.create({ id: "account.reported", country: "NG", age: { passed: true, at: 0, method: "declared" }, createdAt: 0, character: "character.nobody", notifyBankFull: false, sendUsageCounts: true });
+    await h.deps.stores.account.create({ id: "account.reported", country: "NG", age: { passed: true, at: 0, method: "declared" }, createdAt: 0, character: "character.nobody", notifyBankFull: false, sendUsageCounts: true, state: "secured", username: "account_reported", usernameChangedAt: null, lastPlayedAt: 0 });
 
     const reply = await json<{ entry: ModerationLogEntry; rollback: unknown }>(await h.app.request("/api/admin/moderation/report.1/close", post(ADMIN, close("rollback"))));
 

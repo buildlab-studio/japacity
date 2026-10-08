@@ -9,7 +9,7 @@ import type { Played } from "./replay";
 
 const DAY = 20_370;
 const AT = DAY * time.DAY_MS + time.HOUR_MS;
-const account: AccountRow = { id: "account.a", country: "GB", age: { passed: true, at: 0, method: "declared" }, createdAt: 0, character: "character.a", notifyBankFull: false, sendUsageCounts: true };
+const account: AccountRow = { id: "account.a", country: "GB", age: { passed: true, at: 0, method: "declared" }, createdAt: 0, character: "character.a", notifyBankFull: false, sendUsageCounts: true, state: "secured", username: "account_a", usernameChangedAt: null, lastPlayedAt: 0 };
 
 function played(events: object[], sender: Sender = "player", command: Command = { type: "turn/end", slots: [], basedOn: 0 }, at = AT): Played {
   return { row: { character: "character.a", v: 1, tick: 1, sender, command, hash: "h", at }, afterPrologue: true, turn: 1, events: events as BaseEvent[], lines: [] };

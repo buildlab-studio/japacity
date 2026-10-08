@@ -186,6 +186,10 @@ export function loadRoutes(deps: ServerDeps, counts: WriteCounts): Hono {
         character: null,
         notifyBankFull: false,
         sendUsageCounts: true,
+        state: "secured",
+        username: session.account,
+        usernameChangedAt: null,
+        lastPlayedAt: deps.now(),
       });
       if (!made.ok) throw new Error(made.detail);
     }

@@ -60,6 +60,10 @@ export async function signUp(server: TestServer, account: string): Promise<void>
     character: null,
     notifyBankFull: false,
     sendUsageCounts: true,
+    state: "secured",
+    username: account,
+    usernameChangedAt: null,
+    lastPlayedAt: server.deps.now(),
   });
   if (!made.ok) throw new Error(made.detail);
 }
