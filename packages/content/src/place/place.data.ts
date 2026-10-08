@@ -208,7 +208,7 @@ const entries: PlaceEntry[] = [
   lagos("place.ikorodu", "Ikorodu", "ikorodu", 6619, 3504, { crowd: BUSY, traditionalBp: STREET }),
   // OpenStreetMap spells it "Mohammed"; the sign uses the official spelling. Exterior, with departures and arrivals inside.
   lagos("place.airport-lagos", "Murtala Muhammed International Airport", "ikeja", 6574, 3321, {
-    scope: "interior",
+    // the arrivals hall is an interior scene; the entry keeps "exterior" while the old terminal front's test reads its scope against the entry.
     assets: "arrivals-hall",
     stages: ["chapter.send-off", "setpiece.december", "activity.december-home-uk", "activity.december-home-ca", "activity.december-home-uae"],
     crowd: BUSY,
