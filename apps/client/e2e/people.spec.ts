@@ -81,7 +81,7 @@ async function seed(page: Page, game: Game): Promise<void> {
       sessionStorage.setItem("seeded", "1");
     }
   }, JSON.stringify({ save: game.save, clock: { anchor: 0 } }));
-  await page.goto("/");
+  await page.goto("/?classic");
   await expect(page.getByRole("heading", { name: /^Month \d+$/ }).first()).toBeVisible();
 }
 

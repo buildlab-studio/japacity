@@ -9,10 +9,14 @@ import { say } from "../../shared/words/text";
 import { App } from "../../App";
 import { GuidesMenu } from "./GuidesMenu";
 import { CREDITS_PATH, guidePath, MADE_PATH, SOURCES_PATH } from "./paths";
+import { onTheClassicPage } from "../../shared/testing/classic";
 
 function openMenu() {
   fireEvent.click(screen.getByRole("button", { name: say("guide.page.menu") }));
 }
+
+// The old month page these tests drive opens only with ?classic (R-WORLD-024).
+onTheClassicPage();
 
 describe("the guides from the game", () => {
   test("[R-GUIDE-005] given a life in play, when the menu is opened, then every guide links to its page, opened beside the game", async () => {

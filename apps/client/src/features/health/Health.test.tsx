@@ -9,6 +9,7 @@ import { engineView, fakeAuthority, newGame, viewAfter } from "../../shared/test
 import { renderWithView } from "../../shared/testing/render";
 import { nameOf, say } from "../../shared/words/text";
 import { RunDownBanner } from "./RunDownBanner";
+import { onTheClassicPage } from "../../shared/testing/classic";
 
 const WELLBEING = "quality.wellbeing";
 const health = content.tuning.health;
@@ -25,6 +26,9 @@ function runDownView(): PlayerView {
   if (!view.runDown) throw new Error("The run-down warning did not stand.");
   return view;
 }
+
+// The old month page these tests drive opens only with ?classic (R-WORLD-024).
+onTheClassicPage();
 
 describe("the run-down warning", () => {
   test("[R-HEALTH-007] given wellbeing under the line two months running, then the banner names it with wellbeing against the line", async () => {
@@ -45,6 +49,8 @@ describe("the run-down warning", () => {
     const store = createGameStore(fakeAuthority(runDownView()));
     await store.getState().refresh();
     render(<App store={store} />);
+    // The old page is its own chunk: it is in once its tab bar is.
+    await screen.findByRole("button", { name: say("ui.tab.month") });
     for (const tab of ["month", "you", "money", "japa", "news"]) {
       fireEvent.click(screen.getByRole("button", { name: say(`ui.tab.${tab}`) }));
       const banner = document.querySelector("[data-run-down]");

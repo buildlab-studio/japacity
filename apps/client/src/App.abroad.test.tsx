@@ -10,6 +10,7 @@ import { abroadView, fakeAuthority, recordedSave, richAbroadView } from "./share
 import { say, words } from "./shared/words/text";
 // Registers Testing Library's cleanup for this file.
 import "./shared/testing/render";
+import { onTheClassicPage } from "./shared/testing/classic";
 
 function memoryStorage() {
   const items = new Map<string, string>();
@@ -29,6 +30,9 @@ async function showing(view: PlayerView) {
   render(<App store={store} />);
   return store;
 }
+
+// The old month page these tests drive opens only with ?classic (R-WORLD-024).
+onTheClassicPage();
 
 describe("the shell by where the character is", () => {
   test("[R-GATE-003] [R-CHAPTER-006] given Ada's recorded life up to the flight, when she boards, then the flight is a moment of its own, the send-off card follows it, and the shell turns to life abroad", async () => {

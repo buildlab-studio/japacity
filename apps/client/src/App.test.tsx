@@ -9,11 +9,15 @@ import { SAVE_KEY } from "./authority/local";
 import { nameOf, say } from "./shared/words/text";
 // Registers Testing Library's cleanup for this file.
 import "./shared/testing/render";
+import { onTheClassicPage } from "./shared/testing/classic";
 
 function memoryStorage() {
   const items = new Map<string, string>();
   return { getItem: (key: string) => items.get(key) ?? null, setItem: (key: string, value: string) => void items.set(key, value) };
 }
+
+// The old month page these tests drive opens only with ?classic (R-WORLD-024).
+onTheClassicPage();
 
 describe("the app", () => {
   test("given no save, when a life is picked and a month ended, then the report shows month 1", async () => {

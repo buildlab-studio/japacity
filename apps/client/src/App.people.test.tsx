@@ -9,6 +9,7 @@ import { courted, interviewGame, peopleGame, playMonth, SEE, TOBI } from "./shar
 import { nameOf, say, words } from "./shared/words/text";
 // Registers Testing Library's cleanup for this file.
 import "./shared/testing/render";
+import { onTheClassicPage } from "./shared/testing/classic";
 
 async function playing(game: ReturnType<typeof peopleGame>) {
   if (game.state.turn.banked === 0) game.grant(1);
@@ -22,6 +23,9 @@ async function playing(game: ReturnType<typeof peopleGame>) {
 function endMonth(): HTMLElement {
   return screen.getByRole("button", { name: say("ui.month.end") });
 }
+
+// The old month page these tests drive opens only with ?classic (R-WORLD-024).
+onTheClassicPage();
 
 describe("people in the shell", () => {
   test("[R-PEOPLE-051] given a life at home, when the people tab is chosen, then the people panel shows", async () => {

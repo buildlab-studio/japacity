@@ -42,7 +42,7 @@ async function seed(page: Page, options: { saveData?: boolean } = {}): Promise<s
     },
     { stored: adaAtInterview(), saveData: options.saveData === true },
   );
-  await page.goto("/");
+  await page.goto("/?classic");
   return voice;
 }
 

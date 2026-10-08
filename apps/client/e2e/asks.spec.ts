@@ -113,7 +113,7 @@ async function planNextStep(page: Page, game: Game): Promise<void> {
 
 test("[R-GUIDE-015] [R-GUIDE-014] a new life played online as the next step suggests is asked nothing before its first good line, and the asks come after it", async ({ page }) => {
   const server = await fakeServer(page);
-  await page.goto("/");
+  await page.goto("/?classic");
 
   await expect(page.getByRole("heading", { name: "Who are you?" })).toBeVisible({ timeout: 20_000 });
   await expectNoAsk(page, "on the life chooser");

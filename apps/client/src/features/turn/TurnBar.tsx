@@ -1,5 +1,5 @@
-// The month's action: always on screen. On a phone it sits above the tab bar;
-// on a desktop it heads the month plan.
+// The month's action on the old page (R-WORLD-024): always on screen. On a phone it sits above the
+// tab bar; on a desktop it heads the month plan. In the world, the Month sheet does this job.
 import { Repeat } from "lucide-react";
 
 import { useGame, useView } from "../../authority/GameProvider";
@@ -9,7 +9,7 @@ import { say, words } from "../../shared/words/text";
 import { TurnClock } from "./TurnClock";
 
 /** Why the month cannot end right now, in content's words, or null when it can. */
-function blockedBy(ended: boolean, banked: number, setpieceOpen: boolean): string | null {
+export function blockedBy(ended: boolean, banked: number, setpieceOpen: boolean): string | null {
   if (ended) return words("reject.ended");
   if (setpieceOpen) return words("reject.setpiece-open");
   if (banked < 1) return words("reject.no-turns");

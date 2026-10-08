@@ -1,309 +1,56 @@
-// The shell. On a phone: one panel at a time, a tab bar, and the month's
-// action always above it. From 1024px: profile and money on the left, the
-// month plan in the centre, ways out, news and people on the right. Where the
-// character is changes the shell: abroad the tabs are the month, you, money,
-// status, people and home; on the road there is one panel and nothing else. Before
-// the first month a life from sixteen plays its prologue, one card at a time.
-// The warnings that stand (the status clock, being run down) sit above every tab.
-import { BadgeCheck, CalendarDays, House, Newspaper, Plane, UserRound, Users, Wallet, type LucideIcon } from "lucide-react";
-import { useEffect, useState, type ReactNode } from "react";
+// The shell. Once a life is playing, the world is the game (docs/rules/world.md R-WORLD-001): the
+// place fills the screen, the support pages live in the phone, and the month plans and ends from
+// sheets over the scene. The prologue, the life chooser, the road, the ending and the invite page
+// keep their own screens. The old month page stays behind `?classic` (R-WORLD-024), loaded only
+// when asked for.
+import { lazy, Suspense, useEffect, useState } from "react";
 
 import { bootGame } from "./authority/boot";
 import { CountedBoundary } from "./shared/analytics/CountedBoundary";
 import { SoundNotice } from "./shared/sound/SoundNotice";
-import { counting } from "./shared/analytics/start";
 import { GameProvider, useGame, useView } from "./authority/GameProvider";
 import type { GameStore } from "./authority/store";
 import { AccountGate } from "./features/account/AccountGate";
 import { inviteCodeOf, InvitePage } from "./features/account/InvitePage";
 import { AdminRoute } from "./features/admin/AdminRoute";
 import { AccountButton } from "./features/account/Settings";
-import { ActivityView } from "./features/activity/ActivityView";
-import { PhoneTile, PlaceAdverts } from "./features/adverts/placed";
+import { ActivityPicker, ActivityView } from "./features/activity/ActivityView";
+import { PlaceAdverts } from "./features/adverts/placed";
 import { EndingView } from "./features/card/EndingView";
 import { CardView } from "./features/card/ShareCard";
-import { ChapterView } from "./features/chapter/ChapterView";
 import { City } from "./features/city/City";
-import { CreditView } from "./features/credit/CreditView";
 import { DocumentView } from "./features/document/DocumentView";
-import { GoalView } from "./features/goal/GoalView";
-import { GuidesMenu } from "./features/guides/GuidesMenu";
 import { JapacityView } from "./features/japacity/JapacityView";
-import { ModerationMenu } from "./features/moderation/ModerationMenu";
 import { LotteryView } from "./features/lottery/LotteryView";
 import { NewsView } from "./features/news/NewsView";
 import { HeldShareCard } from "./features/notify/held";
-import { NotifyAsk } from "./features/notify/NotifyAsk";
 import { NotifySetting } from "./features/notify/NotifySetting";
-import { ObligationView } from "./features/obligation/ObligationView";
 import { OfferView } from "./features/offer/OfferView";
 import { PeopleView } from "./features/people/PeopleView";
-import { BoardsView } from "./features/boards/BoardsView";
-import { RunDownBanner } from "./features/health/RunDownBanner";
 import { InterviewView } from "./features/interview/InterviewView";
-import { FamilyView } from "./features/place/FamilyView";
-import { PlaceView } from "./features/place/PlaceView";
-import { ActivityPicker } from "./features/activity/ActivityView";
 import { PrologueHandover, prologueJustClosed, PrologueView } from "./features/prologue/PrologueView";
 import { QualityView } from "./features/quality/QualityView";
 import { RoadView } from "./features/road/RoadView";
 import { RouteView } from "./features/route/RouteView";
 import { ScenarioView } from "./features/scenario/ScenarioView";
 import { SetpieceView } from "./features/setpiece/SetpieceView";
-import { ClockBanner, StatusView } from "./features/status/StatusView";
 import { Moment } from "./features/turn/Moment";
-import { TurnBar } from "./features/turn/TurnBar";
-import { TurnView } from "./features/turn/TurnView";
+import { MonthSheet } from "./features/turn/MonthSheet";
+import { Results } from "./features/turn/Results";
 import { WalletView } from "./features/wallet/WalletView";
-import { Button } from "./shared/ui/Button";
-import { playerMonth } from "./shared/words/format";
 import { say } from "./shared/words/text";
+import { useScreenCount } from "./useScreenCount";
 
-type Tab = "month" | "you" | "money" | "japa" | "news" | "status" | "home" | "people";
+/** R-WORLD-024: the old month page, its own chunk, fetched only when `?classic` asks for it. */
+const Classic = lazy(() => import("./Classic"));
 
-/** R-ANALYTICS-002: the screen each tab opens, by the feature folder that leads it. */
-const TAB_SCREEN: Record<Tab, string> = { month: "turn", you: "quality", money: "wallet", japa: "japacity", news: "news", status: "status", home: "place", people: "people" };
-
-/** Counts a screen each time it opens, never while it stays open. */
-function useScreenCount(screen: string | null): void {
-  useEffect(() => {
-    if (screen !== null) counting().count("screen/opened", screen);
-  }, [screen]);
+/** R-WORLD-024: `?classic` opens the old month page instead of the world. */
+export function classicAsked(search: string): boolean {
+  return new URLSearchParams(search).has("classic");
 }
 
-type TabSet = readonly { id: Tab; icon: LucideIcon }[];
-
-const HOME_TABS: TabSet = [
-  { id: "month", icon: CalendarDays },
-  { id: "you", icon: UserRound },
-  { id: "money", icon: Wallet },
-  { id: "japa", icon: Plane },
-  { id: "people", icon: Users },
-  { id: "news", icon: Newspaper },
-];
-
-const ABROAD_TABS: TabSet = [
-  { id: "month", icon: CalendarDays },
-  { id: "you", icon: UserRound },
-  { id: "money", icon: Wallet },
-  { id: "status", icon: BadgeCheck },
-  { id: "people", icon: Users },
-  { id: "home", icon: House },
-];
-
-/** A group of panels: on a phone only the current tab's group shows; on a desktop every group does. */
-function Group({ tab, current, children }: { tab: Tab; current: Tab; children: ReactNode }) {
-  return (
-    <div data-tab={tab} className={`${tab === current ? "flex" : "hidden"} flex-col gap-6 lg:flex`}>
-      {children}
-    </div>
-  );
-}
-
-function Header() {
-  const view = useView();
-  return (
-    <header className="sticky top-0 z-20 border-b border-line bg-paper/95 backdrop-blur-sm">
-      <div className="mx-auto flex max-w-[90rem] items-center gap-3 px-4 py-3">
-        {/* On a phone the name would sit beside the japacity label, so it is kept for screen readers only. */}
-        <h1 className="sr-only text-lg font-bold sm:not-sr-only">{say("ui.game")}</h1>
-        <span className="text-muted">{say("ui.month.planning", { month: playerMonth(view.month) })}</span>
-        <span className="ml-auto flex items-center gap-2 text-sm text-muted">
-          {view.japacity.percent === null ? null : say("ui.japacity.title")}
-          <JapacityView compact />
-        </span>
-        <ModerationMenu />
-        <GuidesMenu />
-        <AccountButton more={<NotifySetting />} />
-        <NotifyAsk />
-      </div>
-    </header>
-  );
-}
-
-function TabBar({ tabs, current, onChange }: { tabs: TabSet; current: Tab; onChange: (tab: Tab) => void }) {
-  const view = useView();
-  const waiting = view.offers.length > 0 || view.setpiece !== null || (view.interview?.question ?? null) !== null;
-  return (
-    <nav aria-label={say("ui.tabs")} className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-paper pb-[env(safe-area-inset-bottom)] lg:hidden">
-      <ul className="grid grid-cols-6">
-        {tabs.map(({ id, icon: Icon }) => (
-          <li key={id}>
-            <button
-              type="button"
-              aria-current={id === current ? "page" : undefined}
-              onClick={() => onChange(id)}
-              className={`relative flex min-h-14 w-full flex-col items-center justify-center gap-0.5 text-xs ${id === current ? "font-semibold text-ink" : "text-muted"}`}
-            >
-              <Icon size={20} />
-              {say(`ui.tab.${id}`)}
-              {id === "month" && waiting ? <span className="absolute top-2 right-[30%] size-2 rounded-full bg-accent ring-2 ring-paper" /> : null}
-              {id === current ? <span className="absolute inset-x-4 top-0 h-0.5 rounded-full bg-ink" /> : null}
-            </button>
-          </li>
-        ))}
-      </ul>
-    </nav>
-  );
-}
-
-function LifeAgain() {
-  const openLifeChooser = useGame((state) => state.openLifeChooser);
-  if (openLifeChooser === null) return null;
-  return (
-    <div>
-      <Button small variant="quiet" onClick={openLifeChooser}>
-        {say("ui.life.again")}
-      </Button>
-    </div>
-  );
-}
-
-/** The month plan: the same at home and abroad. */
-function MonthGroup({ tab }: { tab: Tab }) {
-  return (
-    <Group tab="month" current={tab}>
-      <TurnView />
-      <SetpieceView />
-      <InterviewView />
-      <HeldShareCard>
-        <CardView />
-      </HeldShareCard>
-      <ChapterView />
-      <OfferView />
-      <ActivityView />
-    </Group>
-  );
-}
-
-function ActionBar() {
-  return (
-    // One action bar: fixed above the tabs on a phone, at the foot of the plan on a desktop.
-    <div className="fixed inset-x-0 bottom-14 z-20 border-t border-line bg-paper/95 px-4 py-3 backdrop-blur-sm lg:sticky lg:bottom-4 lg:rounded-xl lg:border lg:bg-surface lg:shadow-lg">
-      <TurnBar />
-    </div>
-  );
-}
-
-const GRID = "mx-auto max-w-[90rem] px-4 pt-4 pb-48 lg:grid lg:grid-cols-[minmax(17rem,21rem)_minmax(0,1fr)_minmax(18rem,24rem)] lg:items-start lg:gap-6 lg:pb-10";
-
-function AtHome({ tab }: { tab: Tab }) {
-  return (
-    <main className={GRID} data-where="home">
-      <RunDownBanner className="mb-4 lg:col-span-3 lg:mb-0" />
-      <div className="flex flex-col gap-6">
-        <Group tab="you" current={tab}>
-          <QualityView />
-          <GoalView />
-          <PlaceView />
-          <LifeAgain />
-        </Group>
-        <Group tab="money" current={tab}>
-          <WalletView />
-          <LotteryView />
-          <ObligationView />
-        </Group>
-      </div>
-
-      <div className="flex min-w-0 flex-col gap-6">
-        <MonthGroup tab={tab} />
-        <ActionBar />
-      </div>
-
-      <div className="flex flex-col gap-6">
-        <Group tab="japa" current={tab}>
-          <JapacityView />
-          <RouteView />
-          <DocumentView />
-        </Group>
-        <Group tab="news" current={tab}>
-          <NewsView />
-          <PhoneTile />
-        </Group>
-        <Group tab="people" current={tab}>
-          <PeopleView />
-          <BoardsView />
-        </Group>
-      </div>
-    </main>
-  );
-}
-
-function Abroad({ tab }: { tab: Tab }) {
-  return (
-    <main className={GRID} data-where="abroad">
-      <ClockBanner className="mb-4 lg:col-span-3 lg:mb-0" />
-      <RunDownBanner className="mb-4 lg:col-span-3 lg:mb-0" />
-      <div className="flex flex-col gap-6">
-        <Group tab="you" current={tab}>
-          <QualityView />
-          <GoalView />
-          <LifeAgain />
-        </Group>
-        <Group tab="money" current={tab}>
-          <WalletView />
-          <LotteryView />
-          <ObligationView />
-          <CreditView />
-        </Group>
-      </div>
-
-      <div className="flex min-w-0 flex-col gap-6">
-        <MonthGroup tab={tab} />
-        <ActionBar />
-      </div>
-
-      <div className="flex flex-col gap-6">
-        <Group tab="status" current={tab}>
-          <StatusView />
-          <RouteView />
-          <DocumentView />
-          <NewsView />
-          <PhoneTile />
-        </Group>
-        <Group tab="home" current={tab}>
-          <PlaceView />
-          <FamilyView />
-        </Group>
-        <Group tab="people" current={tab}>
-          <PeopleView />
-          <BoardsView />
-        </Group>
-      </div>
-    </main>
-  );
-}
-
-function Playing() {
-  const view = useView();
-  const abroad = view.place.where === "abroad";
-  const tabs = abroad ? ABROAD_TABS : HOME_TABS;
-  const [chosen, setTab] = useState<Tab>("month");
-  // A tab that does not exist where the character now is falls back to the month.
-  const tab = tabs.some(({ id }) => id === chosen) ? chosen : "month";
-  const showTab = (next: Tab) => {
-    setTab(next);
-    window.scrollTo({ top: 0 });
-  };
-  const reportOpen = useGame((state) => state.reportOpen);
-  useScreenCount(TAB_SCREEN[tab]);
-  useScreenCount(reportOpen ? "report" : null);
-  useScreenCount(view.setpiece === null ? null : "setpiece");
-
-  return (
-    <div className="min-h-dvh">
-      <City adverts={(place) => <PlaceAdverts place={place} />} />
-      <Header />
-      {abroad ? <Abroad tab={tab} /> : <AtHome tab={tab} />}
-      <TabBar tabs={tabs} current={tab} onChange={showTab} />
-      <Moment />
-    </div>
-  );
-}
-
-/** The world-first prototype (docs/design/11-the-world-first.md): opened with `?world` while the maintainer judges it. */
-function worldMode(): boolean {
-  return typeof location !== "undefined" && location.search.includes("world");
+function classicMode(): boolean {
+  return typeof location !== "undefined" && classicAsked(location.search);
 }
 
 /** The world is the game: the place fills the screen under a see-through bar, the month plays in the scene, and the map is a fly-over. */
@@ -319,7 +66,15 @@ function WorldPlaying() {
         world
         adverts={(place) => <PlaceAdverts place={place} />}
         actions={(ids) => <ActivityPicker only={ids} />}
-        month={<TurnBar />}
+        month={<MonthSheet />}
+        results={(place) => <Results place={place} />}
+        asks={
+          <div className="flex flex-col gap-4">
+            <SetpieceView />
+            <InterviewView />
+            <OfferView />
+          </div>
+        }
         apps={[
           { id: "bank", name: say("ui.tab.money"), tile: "bg-[#2f7d4f]", letter: "₦", screen: <WalletView /> },
           { id: "people", name: say("ui.tab.people"), tile: "bg-[#7a4fa3]", letter: "P", screen: <PeopleView />, waiting: view.offers.length > 0 },
@@ -332,6 +87,12 @@ function WorldPlaying() {
           { id: "settings", name: say("ui.account.settings"), tile: "bg-[#666]", letter: "S", screen: <AccountButton more={<NotifySetting />} /> },
         ]}
       />
+      {/* The share card opens full screen when it is due; its tile on the old page has no place in the world. */}
+      <div hidden>
+        <HeldShareCard>
+          <CardView />
+        </HeldShareCard>
+      </div>
       <Moment />
     </div>
   );
@@ -354,8 +115,13 @@ function Shell() {
   if (prologueJustClosed(lines) && handedOver !== view.v) return <PrologueHandover onDone={() => setHandedOver(view.v)} />;
   if (view.ended && view.card !== null && view.card.kind !== "send-off") return <EndingView />;
   if (view.place.where === "road") return <RoadView offers={(only) => <OfferView only={only} />} city={<City adverts={(place) => <PlaceAdverts place={place} />} />} />;
-  if (worldMode()) return <WorldPlaying />;
-  return <Playing />;
+  if (classicMode())
+    return (
+      <Suspense fallback={<p className="p-4 text-muted">{say("ui.loading")}</p>}>
+        <Classic />
+      </Suspense>
+    );
+  return <WorldPlaying />;
 }
 
 /** `path`: the page's path, for tests; the browser's own otherwise. */

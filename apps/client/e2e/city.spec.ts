@@ -25,7 +25,7 @@ declare global {
 
 test("the hub opens, the character walks, a person's card opens, and the frame stays in budget", async ({ page }, info) => {
   test.setTimeout(120_000);
-  await page.goto("/");
+  await page.goto("/?classic");
   await page.getByRole("button", { name: /^Live this life/ }).first().click();
   await expect(page.getByRole("heading", { name: "Month 1", exact: true })).toBeVisible();
 
@@ -86,7 +86,7 @@ test("the hub opens, the character walks, a person's card opens, and the frame s
 });
 
 test("the credits are reachable from the city's menu and credit the map data", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/?classic");
   await page.getByRole("button", { name: /^Live this life/ }).first().click();
   await page.getByRole("button", { name: "Look around" }).click();
   await page.getByRole("button", { name: "City" }).click();
