@@ -5,14 +5,14 @@
 // (city.md R-CITY-001).
 import { Canvas, type ThreeEvent, useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useRef, useState } from "react";
-import { type Camera, type DirectionalLight, Fog, type Object3D, Vector3 } from "three";
+import { type Camera, type DirectionalLight, Fog, type Object3D, PerspectiveCamera, Vector3 } from "three";
 
 import { advanceClock } from "../../shared/three/clock";
 import { loadModel } from "../../shared/three/load";
 import { loadManifest } from "../../shared/three/manifest";
 import { loadGrids } from "../../shared/three/motion";
 import { poseFigure } from "../../shared/three/people";
-import { BEHIND, cameraAim, EYE, FOV } from "./camera";
+import { BEHIND, cameraAim, EYE, FOV, WORLD_FOV, worldAim } from "./camera";
 import { filesOf, stageOf } from "./placeFile";
 import type { CityProbe, Picked, SceneProps } from "./scene.types";
 import { standAt, stepWalk, strideOf, type Walker, walkRoute } from "./walk";
@@ -38,8 +38,8 @@ function pickedOf(object: Object3D | null): Picked | null {
 }
 
 /** The street camera behind the character along the start's facing, or the plan view as far as `plan` has risen. */
-function aimCamera(camera: Camera, walker: Walker, heading: number, plan: number, aspect: number): void {
-  const { position, target } = cameraAim(walker, heading, plan, aspect);
+function aimCamera(camera: Camera, walker: Walker, heading: number, plan: number, aspect: number, world = false): void {
+  const { position, target } = world ? worldAim(walker, heading, plan, aspect) : cameraAim(walker, heading, plan, aspect);
   camera.position.set(...position);
   camera.lookAt(...target);
 }
@@ -156,10 +156,25 @@ function Place(props: WorldProps) {
     if (next.target === null) poseFigure(world.own, time, "stand");
     else poseFigure(world.own, time, "walk", strideOf(next));
     planShare.current += (plan - planShare.current) * Math.min(1, delta * 4);
-    aimCamera(state.camera, next, stage.start[2], planShare.current, state.size.width / Math.max(1, state.size.height));
+    const raised = props.overview === true;
+    aimCamera(state.camera, next, stage.start[2], planShare.current, state.size.width / Math.max(1, state.size.height), raised);
+    if (state.camera instanceof PerspectiveCamera) {
+      const fov = raised ? WORLD_FOV : FOV;
+      if (state.camera.fov !== fov) {
+        state.camera.fov = fov;
+        state.camera.updateProjectionMatrix();
+      }
+    }
     if (state.scene.fog instanceof Fog) {
-      state.scene.fog.near = settings.fog.near + planShare.current * PLAN_FOG;
-      state.scene.fog.far = settings.fog.far + planShare.current * PLAN_FOG;
+      if (raised) {
+        // The raised view stands far back, so the fog starts beyond the place and only softens the edge of the city.
+        const distance = state.camera.position.distanceTo(new Vector3(next.x, 0, next.z));
+        state.scene.fog.near = distance + 30;
+        state.scene.fog.far = distance * 2 + 90;
+      } else {
+        state.scene.fog.near = settings.fog.near + planShare.current * PLAN_FOG;
+        state.scene.fog.far = settings.fog.far + planShare.current * PLAN_FOG;
+      }
     }
     const light = sun.current;
     if (light !== null) {
@@ -223,12 +238,15 @@ function Place(props: WorldProps) {
   );
 }
 
-/** How far up the overview stands: enough to see the whole place and what is on it (docs/design/11, rule 11). */
-export const OVERVIEW = 0.6;
+/** Where the world mode's view starts and how far the pinch may move it (docs/design/11, rule 11). */
+export const OVERVIEW = { start: 0.55, min: 0, max: 1 };
 
 export default function CityScene(props: SceneProps) {
   const [plan, setPlan] = useState(false);
-  const [overview, setOverview] = useState(props.overview === true);
+  const [height, setHeight] = useState(OVERVIEW.start);
+  const pinch = useRef<{ gap: number; height: number } | null>(null);
+  const pointers = useRef(new Map<number, { x: number; y: number }>());
+  const world = props.overview === true;
   const holding = useRef<number | null>(null);
   const held = useRef(false);
   const release = (): void => {
@@ -237,21 +255,53 @@ export default function CityScene(props: SceneProps) {
     setPlan(false);
   };
   const { settings, looking, place } = props;
-  useEffect(() => setOverview(props.overview === true), [place, props.overview]);
+  useEffect(() => setHeight(OVERVIEW.start), [place]);
+  const clamp = (value: number): number => Math.min(OVERVIEW.max, Math.max(OVERVIEW.min, value));
   return (
     <div
       className="size-full touch-none"
-      onPointerDown={() => {
+      onPointerDown={(event) => {
         if (!looking) return;
+        pointers.current.set(event.pointerId, { x: event.clientX, y: event.clientY });
+        if (world && pointers.current.size === 2) {
+          const [a, b] = [...pointers.current.values()];
+          if (a !== undefined && b !== undefined) pinch.current = { gap: Math.hypot(a.x - b.x, a.y - b.y), height };
+          held.current = true;
+          return;
+        }
+        if (world) return;
         held.current = false;
         holding.current = window.setTimeout(() => {
           held.current = true;
           setPlan(true);
         }, HOLD_MS);
       }}
-      onPointerUp={release}
-      onPointerCancel={release}
+      onPointerMove={(event) => {
+        if (!world || !pointers.current.has(event.pointerId)) return;
+        pointers.current.set(event.pointerId, { x: event.clientX, y: event.clientY });
+        const start = pinch.current;
+        if (start === null || pointers.current.size < 2) return;
+        const [a, b] = [...pointers.current.values()];
+        if (a === undefined || b === undefined) return;
+        const gap = Math.hypot(a.x - b.x, a.y - b.y);
+        // Fingers apart brings the view closer; together pulls it back.
+        setHeight(clamp(start.height - (gap - start.gap) / 400));
+      }}
+      onPointerUp={(event) => {
+        pointers.current.delete(event.pointerId);
+        if (pointers.current.size < 2) pinch.current = null;
+        release();
+      }}
+      onPointerCancel={(event) => {
+        pointers.current.delete(event.pointerId);
+        pinch.current = null;
+        release();
+      }}
       onPointerLeave={release}
+      onWheel={(event) => {
+        if (!world || !looking) return;
+        setHeight(clamp(height + event.deltaY * 0.0015));
+      }}
     >
       <Canvas
         key={settings.antialias ? "smooth" : "plain"}
@@ -265,8 +315,8 @@ export default function CityScene(props: SceneProps) {
         <Idle looking={looking} />
         <Place
           {...props}
-          plan={plan ? 1 : overview ? OVERVIEW : 0}
-          onTap={() => setOverview(false)}
+          plan={world ? height : plan ? 1 : 0}
+          onTap={() => undefined}
           takeTap={() => {
             const was = held.current;
             held.current = false;

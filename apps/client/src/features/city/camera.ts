@@ -51,3 +51,27 @@ export function cameraAim(walker: Pick<Walker, "x" | "z">, heading: number, plan
   const mix = (from: Point, to: Point): Point => [from[0] + (to[0] - from[0]) * plan, from[1] + (to[1] - from[1]) * plan, from[2] + (to[2] - from[2]) * plan];
   return { position: mix(street, above), target: mix(streetLook, aboveLook) };
 }
+
+/** The world mode's view (docs/design/11, rule 11): how close it comes and how far it pulls back, in metres behind the character. */
+export const WORLD_NEAR = 12;
+export const WORLD_FAR = 58;
+/** The world mode's lens: wider than the street's, so a phone held upright still sees the street's width. */
+export const WORLD_FOV = 50;
+/** Height as a share of the distance: about forty-five degrees, so things do not hide behind things. */
+const WORLD_RISE = 0.95;
+
+/**
+ * The world mode's raised three-quarter view: behind the character along the place's facing, looking
+ * at a point a little ahead of them. `zoom` runs from 0 (close) to 1 (pulled back) and moves it smoothly.
+ */
+export function worldAim(walker: Pick<Walker, "x" | "z">, heading: number, zoom: number, aspect: number): { position: Point; target: Point } {
+  const ahead: [number, number] = [Math.sin(heading), Math.cos(heading)];
+  // A tall screen pulls back a little further, so the street's width still fits.
+  const stretch = Math.min(1.25, 1 / Math.min(1, Math.max(aspect, 0.35)) ** 0.35);
+  const distance = (WORLD_NEAR + (WORLD_FAR - WORLD_NEAR) * zoom) * stretch;
+  const lookAhead = 4 + 6 * zoom;
+  return {
+    position: [walker.x - ahead[0] * distance, distance * WORLD_RISE, walker.z - ahead[1] * distance],
+    target: [walker.x + ahead[0] * lookAhead, 0.5, walker.z + ahead[1] * lookAhead],
+  };
+}
