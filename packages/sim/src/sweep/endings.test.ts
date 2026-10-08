@@ -56,12 +56,31 @@ function roadRuns(seeds: number): RunRecord[] {
 const ROAD_SEEDS = 700;
 const roads = roadRuns(ROAD_SEEDS);
 
+/**
+ * The first broke return (R-PLACE-005) by the spender, each run cut at its first return home. The first fix batch
+ * made the far shore's return assisted (R-ROAD-009) and the first months abroad survivable, so the borrowers and the
+ * risky come home with their savings; the spender pays its debts and the school ahead from them and keeps only the fare.
+ */
+const spent: RunRecord[] = [];
+function brokeReturn(seeds: number): RunRecord | null {
+  for (let index = 0; index < seeds; index += 1) {
+    for (const life of LIVES) {
+      const { record } = runLife("spender", life, `end-${String(index)}`, content, {
+        months: MONTHS,
+        stopWhen: (game) => game.state.place.where === "home" && game.state.place.returns.length > 0,
+      });
+      spent.push(record);
+      if (record.ending === "returned-broke") return record;
+    }
+  }
+  return null;
+}
+
 describe("simulated players to an ending on the real content", () => {
   test.each(ENDINGS.filter((ending) => ending !== "road-lost").map((ending) => [ending] as const))(
     "[R-PLACE-005] [R-STATUS-007] [R-STATUS-008] given the four strategies from every life, when they play up to 120 months, then some strategy on some seed ends %s",
     (ending: Ending) => {
-      // A broke return is rare among careful and home-bound players; it is searched among the borrowers and the risky over more seeds.
-      const found = ending === "returned-broke" ? find((record) => record.ending === ending, 40, ["borrower", "risky"]) : find((record) => record.ending === ending, 12);
+      const found = ending === "returned-broke" ? brokeReturn(40) : find((record) => record.ending === ending, 12);
       expect(found?.ending).toBe(ending);
     },
   );
@@ -79,7 +98,7 @@ describe("simulated players to an ending on the real content", () => {
   });
 
   test("[R-ENGINE-011] given every run played here, when each month was ended, then a resting turn was always there, no turn built from allowed options was rejected and no step threw", () => {
-    const all = [...played.values(), ...roads];
+    const all = [...played.values(), ...roads, ...spent];
     expect(all.reduce((sum, record) => sum + record.stuck, 0)).toBe(0);
     expect(all.flatMap((record) => record.rejectedTurns)).toEqual([]);
     expect(all.flatMap((record) => (record.crash === null ? [] : [`${record.strategy} ${record.life} ${record.seed}: ${record.crash.message}`]))).toEqual([]);
