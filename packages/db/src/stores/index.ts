@@ -4,3 +4,6 @@ export { pgDeletionStore } from "./deletion";
 export { pgLedgerStore } from "./ledger";
 export { pgPlayerStores } from "./player";
 export { pgWorldStore } from "./world";
+export { pgConversationStore } from "./conversation";
+export { pgInviteStore } from "./invite";
+export { pgModerationStore } from "./report";
