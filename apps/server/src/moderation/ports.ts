@@ -11,8 +11,9 @@ import { authIdentities } from "./identities";
 import type { Report, ReportQueueStore } from "./reports";
 
 function asReport(row: ReportRow): Report {
-  const { pair: _pair, outcome, decidedAt: _decidedAt, ...rest } = row;
-  return outcome === null ? rest : { ...rest, outcome };
+  const { id, reporter, subject, reason, cites, unverified, at, status, outcome } = row;
+  const report: Report = { id, reporter, subject, reason, cites, unverified, at, status };
+  return outcome === null ? report : { ...report, outcome };
 }
 
 const byAge = (left: Report, right: Report) => left.at - right.at;
