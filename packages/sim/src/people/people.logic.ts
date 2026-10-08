@@ -635,15 +635,14 @@ type FamilyRequest = Extract<Command, { type: "people/family-request" }>;
 
 /**
  * R-PEOPLE-034: a copy whose request a sibling paid elsewhere. This life gets
- * standing +1 and the line instead of the lapse choice.
- * no effect closes an open offer, so the copy stays open here until
- * an `offer/close` effect exists; nothing of it is paid or lapsed by this.
+ * standing +1 and the line instead of the lapse choice, and the copy closes
+ * unanswered through `offer/close`: nothing of it is paid or lapsed.
  */
 function familyHandled(ctx: Ctx, command: FamilyRequest): BaseEvent[] | Rejection {
   const open = Object.values(ctx.state.offer.items).some((item) => item.entry === command.offer);
   if (!open) return reject("not-legal", `No copy of ${command.offer} is open here.`);
   const events = record(ctx, [{ type: "people/request-handled", offer: command.offer }]);
-  return [...events, ...ctx.apply([{ type: "quality/add", quality: STANDING, amount: HANDLED_STANDING }], { source: command.offer, param: null, terms: command.terms })];
+  return [...events, ...ctx.apply([{ type: "offer/close", offer: command.offer }, { type: "quality/add", quality: STANDING, amount: HANDLED_STANDING }], { source: command.offer, param: null, terms: command.terms })];
 }
 
 function isFromAuthority(command: Command): command is FromAuthority {
