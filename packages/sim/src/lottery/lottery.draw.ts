@@ -202,13 +202,23 @@ export function drawWinners(seed: Uint8Array, count: number, tiers: TierSpec[]):
   });
 }
 
-/** R-LOTTERY-012: one jackpot, `midCount` mid prizes, and one small prize in every `smallEvery` tickets sold, at least one. */
+/**
+ * R-LOTTERY-012: one jackpot, `midCount` mid prizes, and one small prize in every `smallEvery` tickets sold.
+ * the page says at least one small place; with few tickets sold, and above all with the house top-up
+ * filling the pot, one in fifty sold made a small prize pay more than a mid one (₦41,250 against ₦16,500 in the
+ * review of 8 Oct 2026). never fewer small places than keep a small share under a mid share.
+ */
 export function tiersFor(count: number, tuning: Tuning["lottery"]): TierSpec[] {
   return [
     { tier: "jackpot", count: 1 },
     { tier: "mid", count: tuning.midCount },
-    { tier: "small", count: Math.max(1, divFloor(count, tuning.smallEvery)) },
+    { tier: "small", count: Math.max(1, divFloor(count, tuning.smallEvery), fewestSmall(tuning)) },
   ];
+}
+
+/** The fewest small places whose share is under a mid share: more than `midCount` times `smallBp` over `midBp`. */
+function fewestSmall(tuning: Tuning["lottery"]): number {
+  return tuning.midBp === 0 ? 1 : divFloor(tuning.midCount * tuning.smallBp, tuning.midBp) + 1;
 }
 
 function shareBp(tier: Tier, tuning: Tuning["lottery"]): number {
