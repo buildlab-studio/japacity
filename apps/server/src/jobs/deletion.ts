@@ -3,6 +3,7 @@
 import type { Auth } from "../auth/auth";
 import { pruneLimitRows } from "../auth/hooks";
 import type { ServerDeps } from "../deps";
+import { forgetPairs } from "../pair/leave";
 
 const PASSKEY_MODEL = "passkey";
 
@@ -15,7 +16,11 @@ async function removeAuthUser(auth: Auth, account: string): Promise<void> {
   await context.internalAdapter.deleteUser(account);
 }
 
-/** Runs every deletion due at `deps.now()` and returns how many completed. Never touches the audit store, the day totals or the draws. */
+/**
+ * Runs every deletion due at `deps.now()` and returns how many completed.
+ * Never touches the audit store, the day totals or the draws. R-MODERATION-008:
+ * what a report holds (its messages, its pair record) is kept past the removal.
+ */
 export async function runDeletions(deps: ServerDeps, auth: Auth): Promise<number> {
   const now = deps.now();
   let completed = 0;
@@ -24,6 +29,7 @@ export async function runDeletions(deps: ServerDeps, auth: Auth): Promise<number
     if (account === null) continue;
     const row = await deps.stores.account.get(account);
     const character = row?.character ?? null;
+    await forgetPairs(deps, account, character);
     if (character !== null) await deps.stores.player.remove(character);
     await deps.stores.push.forget(account);
     await deps.stores.account.remove(account);

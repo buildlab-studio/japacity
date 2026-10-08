@@ -106,5 +106,23 @@ export function suiteForPairStore(make: () => Promise<PairStores>): void {
       expect(await stores.pair.get("char-a~char-c")).toBeNull();
       expect(await stores.pair.get("char-b~char-c")).toMatchObject({ v: 1, record: { n: 3 } });
     });
+
+    test("[R-MODERATION-008] given a record a report holds and one it does not, when one of their characters is removed, then the held record stays unchanged and the other goes", async () => {
+      const stores = await withThree(make);
+      must(
+        await write(stores, ["char-a", "char-b", "char-c"], {
+          pairs: [
+            { key: KEY, expectedV: 0, record: { n: 1, held: true } },
+            { key: "char-a~char-c", expectedV: 0, record: { n: 2, held: false } },
+          ],
+        }),
+      );
+
+      await stores.player.remove("char-a");
+
+      expect(await stores.pair.get(KEY)).toEqual({ key: KEY, a: "char-a", b: "char-b", v: 1, record: { n: 1, held: true } });
+      expect(await stores.pair.get("char-a~char-c")).toBeNull();
+      expect(await stores.player.load("char-a")).toBeNull();
+    });
   });
 }

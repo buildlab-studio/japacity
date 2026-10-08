@@ -155,7 +155,7 @@ export interface PlayerStore {
    * missing id is refused before `work` runs; a refused write writes nothing.
    */
   transact: <T>(ids: readonly string[], work: Work<T>) => Promise<StoreResult<T>>;
-  /** R-ACCOUNT-017: removes every row that names the character, its pair records included. */
+  /** R-ACCOUNT-017, R-MODERATION-008: removes every row that names the character, its pair records included but a record a report holds (`held: true`). */
   remove: (id: string) => Promise<void>;
   /**
    * R-CLOCK-031: sets `fullAt` while the row is still at version `v`, so an

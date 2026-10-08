@@ -12,6 +12,7 @@ import type { ServerDeps } from "../deps";
 import type { PairAnswer, PairRejection } from "./codes";
 import { asRefusal, NOT_POSSIBLE, refused, widen } from "./codes";
 import { interactionOf } from "./region";
+import { silenced } from "./restricted";
 import { milestonesOf } from "./rewards";
 import { pairStep, sendTo, unusual } from "./step";
 
@@ -80,6 +81,8 @@ async function stateOf(deps: ServerDeps, character: string): Promise<ReadCtx | n
 export async function makeInvite(deps: ServerDeps, account: string, body: unknown): Promise<PairAnswer<InviteMade>> {
   const slot = field(body, "slot");
   if (slot === null) return refused(400, "not-legal", "Name the slot the card is for.");
+  const paused = await silenced(deps, account);
+  if (paused !== null) return paused;
   const row = await deps.stores.account.get(account);
   if (row?.character === null || row === null) return refused(404, "no-character", "This account has no character yet.");
   if (interactionOf(deps, row) === "none") return refused(200, "region", "Players here meet computer characters only.");
@@ -159,6 +162,8 @@ async function mayAccept(deps: ServerDeps, account: string, invite: InviteRow): 
 export async function acceptInvite(deps: ServerDeps, account: string, code: string, body: unknown): Promise<PairAnswer<InviteAccepted>> {
   const slot = field(body, "slot");
   if (slot === null) return refused(400, "not-legal", "Name the slot the card offers.");
+  const paused = await silenced(deps, account);
+  if (paused !== null) return paused;
   const invite = await deps.stores.invite.get(code);
   if (invite === null) return refused(404, "bad-code", "There is no such link.");
   const usable = useInvite(invite, slot, deps.now());
