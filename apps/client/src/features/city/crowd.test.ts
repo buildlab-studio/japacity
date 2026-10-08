@@ -64,6 +64,26 @@ describe("players in the sample", () => {
   });
 });
 
+describe("players seen today", () => {
+  const live = [{ look: "chr_tunde", name: "here1" }];
+  const today = Array.from({ length: city.playersMax + 1 }, (_, index) => ({ look: "chr_tunde", name: `today${String(index)}` }));
+
+  test("[R-CITY-036] given a player here now and players seen today, when the sample is drawn, then those seen today stand in the slots after the live one, tagged with the server's names", () => {
+    const sample = sampleCrowd(hub, pool, THURSDAY, "high", city, live, today);
+    const players = sample.people.filter((shown) => shown.kind === "player");
+
+    expect(players.map((shown) => shown.tag).reverse()).toEqual(["here1", ...today.map((other) => other.name)].slice(0, city.playersMax));
+    expect(sample.people).toHaveLength(crowdSize(hub, "high", city));
+  });
+
+  test("[R-CITY-036] [R-CITY-015] given live players filling playersMax, when the sample is drawn, then no one seen today is shown", () => {
+    const full = Array.from({ length: city.playersMax }, (_, index) => ({ look: "chr_tunde", name: `here${String(index)}` }));
+    const sample = sampleCrowd(hub, pool, THURSDAY, "high", city, full, today);
+
+    expect(sample.people.filter((shown) => shown.tag?.startsWith("today") === true)).toEqual([]);
+  });
+});
+
 describe("the dress mix", () => {
   const share = (date: string, keep: (file: string, sex: string) => boolean, place: PlaceEntry = hub): { kept: number; of: number } => {
     const people = Array.from({ length: 64 }, (_, slot) => resident(place, pool, date, slot, city));

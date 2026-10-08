@@ -4,6 +4,7 @@
 import type { Nudge, PresenceMember } from "@japacity/store";
 
 import { productionConfig } from "../config";
+import type { Seen } from "./place.today";
 
 /** What the place object reads from its bindings. */
 export interface PlaceEnv {
@@ -11,10 +12,11 @@ export interface PlaceEnv {
   SOCKET_10S: RateLimit;
 }
 
-/** R-CLOCK-026, R-CLOCK-029: the limits the router sends with each socket, from the server's config. */
+/** R-CLOCK-026, R-CLOCK-029, R-CITY-036: the limits the router sends with each socket, from the server's config. */
 export interface SocketLimits {
   maxPerObject: number;
   attachmentBytes: number;
+  todayMax: number;
 }
 
 /** A member shows in the place; a listener only receives its account's nudges and is neither shown nor counted. */
@@ -22,11 +24,12 @@ export type Attachment =
   | { kind: "member"; socket: string; member: PresenceMember }
   | { kind: "listener"; socket: string; account: string };
 
-/** What a room answers the router: its members, whether the asker is one, and a sample. */
+/** What a room answers the router: its members, whether the asker is one, a sample, and some seen today (R-CITY-036). */
 export interface RoomLook {
   members: number;
   holds: boolean;
   sample: PresenceMember[];
+  today: Seen[];
 }
 
 export const ATTACHMENT_HEADER = "x-place-attachment";
@@ -57,9 +60,9 @@ export function parseLimits(raw: string | null): SocketLimits | null {
   if (raw === null) return null;
   try {
     const value = JSON.parse(raw) as Record<string, unknown>;
-    const { maxPerObject, attachmentBytes } = value;
-    if (typeof maxPerObject !== "number" || typeof attachmentBytes !== "number") return null;
-    return { maxPerObject, attachmentBytes };
+    const { maxPerObject, attachmentBytes, todayMax } = value;
+    if (typeof maxPerObject !== "number" || typeof attachmentBytes !== "number" || typeof todayMax !== "number") return null;
+    return { maxPerObject, attachmentBytes, todayMax };
   } catch {
     return null;
   }

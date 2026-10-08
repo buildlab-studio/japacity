@@ -1,5 +1,6 @@
 // The place object (R-CLOCK-025 to 029): one per room of a place, holding who
-// is there in memory only, through hibernatable sockets.
+// is there in memory only, through hibernatable sockets. Its storage holds
+// one thing, the day's seen list (R-CITY-036).
 // Sources, read on 8 Oct 2026:
 // https://developers.cloudflare.com/durable-objects/api/state/ (acceptWebSocket, getWebSockets, tags, setWebSocketAutoResponse)
 // https://developers.cloudflare.com/durable-objects/api/websockets/ (serializeAttachment, at most 16,384 bytes)
@@ -7,6 +8,7 @@
 // https://developers.cloudflare.com/durable-objects/concepts/durable-object-lifecycle/ (memory is dropped on hibernation)
 // https://developers.cloudflare.com/durable-objects/best-practices/websockets/ (pings do not end hibernation)
 // https://developers.cloudflare.com/durable-objects/api/alarms/ (one alarm per object)
+// https://developers.cloudflare.com/durable-objects/api/storage-api/ (get, put and delete survive eviction)
 import { DurableObject } from "cloudflare:workers";
 import { memoryPresenceStore } from "@japacity/store";
 import type { Nudge, PresenceMember, PresenceStore } from "@japacity/store";
@@ -28,6 +30,8 @@ import {
   tagsFor,
 } from "./place.socket";
 import type { PlaceEnv, RoomLook } from "./place.socket";
+import { drawToday, lagosDay, listOn, parseTodayList, recordSeen, TODAY_KEY } from "./place.today";
+import type { TodayList } from "./place.today";
 
 function send(socket: WebSocket, text: string): boolean {
   // Best effort (R-CLOCK-022): a socket that is closing must not stop the others.
@@ -82,6 +86,7 @@ export class Place extends DurableObject<PlaceEnv> {
     server.serializeAttachment(attachment);
     if (attachment.kind === "member") {
       await this.join(attachment.socket, attachment.member);
+      await this.seen(attachment.member, limits.todayMax);
       await this.presenceChanged();
     }
     return new Response(null, { status: 101, webSocket: client });
@@ -92,11 +97,16 @@ export class Place extends DurableObject<PlaceEnv> {
     return this.held.size;
   }
 
-  /** R-CLOCK-028: the room's answer to a presence fetch. */
-  async look(place: string, asker: string | null, n: number, seed: number): Promise<RoomLook> {
-    const holds = asker !== null && [...this.held.values()].some((member) => member.account === asker);
+  /**
+   * R-CLOCK-028, R-CITY-036: the room's answer to a presence fetch. Those seen
+   * today fill only what the live sample leaves of `n`, and never anyone here now.
+   */
+  async look(place: string, asker: string | null, n: number, seed: number, now: number | null = null): Promise<RoomLook> {
+    const here = [...this.held.values()];
+    const holds = asker !== null && here.some((member) => member.account === asker);
     const sample = await this.members.sample(place, n, asker, seed);
-    return { members: this.held.size, holds, sample };
+    const today = now === null ? [] : drawToday(listOn(await this.stored(), lagosDay(now)), here, n - sample.length, seed);
+    return { members: this.held.size, holds, sample, today };
   }
 
   /** R-CLOCK-020: sends the nudge to every socket of the account here, and says how many it reached. */
@@ -132,15 +142,27 @@ export class Place extends DurableObject<PlaceEnv> {
     await this.dropSocket(socket);
   }
 
-  /** R-CLOCK-028: one presence nudge to every member, at most once a window. */
-  override alarm(): void {
+  /** R-CLOCK-028: one presence nudge to every member, at most once a window. R-CITY-036: a past day's list goes. */
+  override async alarm(): Promise<void> {
     const text = nudgeText({ nudge: "presence" });
     for (const socket of this.ctx.getWebSockets("member")) send(socket, text);
+    const stored = await this.stored();
+    if (stored !== undefined && stored.day !== lagosDay(Date.now())) await this.ctx.storage.delete(TODAY_KEY);
   }
 
   private async join(socket: string, member: PresenceMember): Promise<void> {
     this.held.set(socket, member);
     await this.members.join(member.place, socket, member);
+  }
+
+  /** R-CITY-036: a socket that joins puts its member on the day of its joining, by name and look only. */
+  private async seen(member: PresenceMember, todayMax: number): Promise<void> {
+    const list = recordSeen(await this.stored(), lagosDay(member.joinedAt), member, todayMax);
+    await this.ctx.storage.put(TODAY_KEY, list);
+  }
+
+  private async stored(): Promise<TodayList | undefined> {
+    return parseTodayList(await this.ctx.storage.get(TODAY_KEY));
   }
 
   private async dropSocket(socket: WebSocket): Promise<void> {

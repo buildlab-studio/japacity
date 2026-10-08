@@ -1,10 +1,11 @@
-// The place routes: the presence fetch (R-CLOCK-028) and the nudge socket
+// The place routes: the presence fetch (R-CLOCK-028, R-CITY-036) and the nudge socket
 // (R-CLOCK-020, R-CLOCK-029, R-CLOCK-030). Both need a session.
 import { Hono } from "hono";
 import type { Context } from "hono";
 
 import type { ServerDeps } from "../deps";
 import type { PlaceOf } from "../nudge/place.nudge";
+import { readsToday } from "../place/place.presence";
 import { openSocket } from "../place/place.rooms";
 import { STATUS_TOO_LARGE } from "../place/place.socket";
 import type { Rooms } from "../place/place.rooms";
@@ -48,11 +49,16 @@ function seedFrom(bytes: Uint8Array): number {
   return bytes.reduce((seed, byte) => ((seed << 8) | byte) >>> 0, 0);
 }
 
+/** R-CITY-036: a name and a look, so no account id or position can reach the reply. */
+function shown(member: { name: string; look: string }): { name: string; look: string } {
+  return { name: member.name, look: member.look };
+}
+
 function hex(bytes: Uint8Array): string {
   return [...bytes].map((byte) => byte.toString(16).padStart(2, "0")).join("");
 }
 
-/** `GET /api/place/:place`: a fresh sample of the other players there (R-CLOCK-028). */
+/** `GET /api/place/:place`: a fresh sample of the other players there (R-CLOCK-028), and of some seen there today (R-CITY-036). */
 export function placeRoutes(deps: ServerDeps): Hono {
   const app = new Hono();
 
@@ -61,12 +67,19 @@ export function placeRoutes(deps: ServerDeps): Hono {
     if (session === null) return refuse(c, 401, "signed-out", "sign in first");
     const place = c.req.param("place");
     if (!Object.hasOwn(deps.contents.current.place, place)) return refuse(c, 404, "unknown-id", `no place ${place}`);
-    const reply: PresenceReply = { place, others: [] };
+    const reply: PresenceReply = { place, others: [], today: [] };
     // R-CLOCK-030: where players may not meet, the place shows only computer people.
     if (!allowsInteraction(policyFor(deps.config.regions, countryOf(c.req.raw)))) return c.json(reply);
     const seed = seedFrom(deps.randomBytes(4));
-    const members = await deps.stores.presence.sample(place, deps.config.presence.sample, session.account, seed);
-    reply.others = members.map((member) => ({ name: member.name, look: member.look }));
+    const store = deps.stores.presence;
+    const n = deps.config.presence.sample;
+    if (readsToday(store)) {
+      const look = await store.lookWithToday(place, n, session.account, seed, deps.now());
+      reply.others = look.others.map(shown);
+      reply.today = look.today.map(shown);
+      return c.json(reply);
+    }
+    reply.others = (await store.sample(place, n, session.account, seed)).map(shown);
     return c.json(reply);
   });
 
