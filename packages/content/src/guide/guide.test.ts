@@ -159,3 +159,15 @@ describe("staleness", () => {
     },
   );
 });
+
+describe("the notice on names", () => {
+  test("[R-CITY-041] given the about page and the terms, when their one notice on names is read, then it says names are for realism, nothing is endorsed, and institutions and events are invented or simplified", () => {
+    const notice = text["guide.page.about.names"] ?? "";
+    expect(notice).toMatch(/real places are named/i);
+    expect(notice).toMatch(/not an endorsement/i);
+    expect(notice).toMatch(/banks, lenders, agents, employers, schools and airlines in the game are invented/i);
+    expect(notice).toMatch(/institutions and events are invented or simplified/i);
+    expect(Object.keys(text).filter((key) => key.startsWith("guide.page.about."))).toEqual(["guide.page.about.names"]);
+    expect([0x2013, 0x2014, 0x21].some((code) => notice.includes(String.fromCharCode(code)))).toBe(false);
+  });
+});

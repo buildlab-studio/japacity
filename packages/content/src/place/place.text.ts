@@ -1,4 +1,6 @@
 // First drafts from docs/rules/place.md and return.md: the report lines of the place kind.
+import { realNames, realNameSigns } from "./place.real";
+
 export const placeText: Record<string, string> = {
   "line.place.arrived": "You land in {country}. Everything costs more than you planned for.",
   "line.place.on-road": "You leave by road. Nobody at home knows the whole plan.",
@@ -110,7 +112,7 @@ export const placeText: Record<string, string> = {
   "place.tejuosho-market.sign.9": "FOODSTUFF\nRICE BEANS GARRI",
   "place.tejuosho-market.sign.10": "CHILDREN WEAR",
   "place.tejuosho-market.sign.11": "SECOND HAND\nCLOTHES",
-  "place.tejuosho-market.sign.12": "MARKET OFFICE\nUPSTAIRS",
+  // Sign 12 carries the market's public name, from the register of real names (place.real.ts).
   "place.tejuosho-market.overheard.1": "Customer, come and see. I go do you good price.",
   "place.tejuosho-market.overheard.2": "Last price. If you no buy, somebody else go buy.",
   "place.tejuosho-market.overheard.3": "Rice has gone up again this week.",
@@ -536,13 +538,12 @@ export const placeText: Record<string, string> = {
   "place.dubai-airport.overheard.3": "Your sponsor's driver is waiting at the gate.",
   "place.deira.name": "Deira",
   "place.deira.blurb": "The older commercial district by the creek, where traders and workers from everywhere are seen.",
-  // The boards Deira's blocks carry, copy by copy, 1 to 21. Each names a trade, not a business, so no name check is owed (R-CITY-007).
+  // The boards Deira's blocks carry, copy by copy, 1 to 21. Each names a trade or a public souk, not a business, so no name check is owed (R-CITY-007).
   "place.deira.sign.1": "MONEY EXCHANGE",
-  "place.deira.sign.2": "GOLD & DIAMONDS",
+  // Signs 2 and 6 carry the names of the gold and spice souks, from the register of real names (place.real.ts).
   "place.deira.sign.3": "GOLD JEWELLERY\nBANGLES, CHAINS",
   "place.deira.sign.4": "WATCHES\nAND REPAIRS",
   "place.deira.sign.5": "TEXTILES\nWHOLESALE",
-  "place.deira.sign.6": "SPICES\nAND DRY FRUITS",
   "place.deira.sign.7": "PERFUMES\nOUD AND ATTAR",
   "place.deira.sign.8": "CARGO TO AFRICA\nLAGOS, ACCRA",
   "place.deira.sign.9": "MOBILE PHONES\nACCESSORIES",
@@ -600,4 +601,6 @@ export const placeText: Record<string, string> = {
   "place.workplace-abroad.overheard.1": "Your shifts are on the board. Check it every Sunday.",
   "place.workplace-abroad.overheard.2": "Sign in, sign out. If you do not sign, you are not paid.",
   "place.workplace-abroad.overheard.3": "Break is fifteen minutes. Do not be late back.",
+  // The signs that carry a real name (R-CITY-022), each from its one entry in the register.
+  ...realNameSigns(realNames),
 };
