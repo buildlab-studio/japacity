@@ -860,6 +860,7 @@ function judgeJob(read: ReadCtx, requirement: Requirement): RequirementResult {
     case "document/held":
     case "document/absent":
     case "document/pending":
+    case "document/genuine":
     case "route/state":
     case "route/offer":
     case "route/deposit":

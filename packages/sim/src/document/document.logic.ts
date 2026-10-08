@@ -261,6 +261,13 @@ function absent(read: ReadCtx, requirement: Requirement): RequirementResult {
   return { met: !inForce(doc, read.state.turn.month) && made === null };
 }
 
+function genuine(read: ReadCtx, requirement: Requirement): RequirementResult {
+  if (requirement.type !== "document/genuine") throw new Error(`The document kind cannot judge ${requirement.type} as genuine.`);
+  const doc = read.state.document[requirement.document];
+  // R-ADVICE-008: a paper from a scammer is held but never genuine.
+  return { met: inForce(doc, read.state.turn.month) && doc.genuine !== false };
+}
+
 function pending(read: ReadCtx, requirement: Requirement): RequirementResult {
   if (requirement.type !== "document/pending") throw new Error(`The document kind cannot judge ${requirement.type} as pending.`);
   const doc = read.state.document[requirement.document];
@@ -289,6 +296,7 @@ export const documentKind: RegisteredKind<DocumentSlice, DocumentEvent> = {
     "document/held": held,
     "document/absent": absent,
     "document/pending": pending,
+    "document/genuine": genuine,
   },
   invariants(state, content) {
     const problems: string[] = [];

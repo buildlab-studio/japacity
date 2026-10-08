@@ -94,6 +94,8 @@ export function requirementSentence(requirement: Requirement, context: SentenceC
       return say("ui.req.document-absent", { document: runningName(requirement.document) });
     case "document/pending":
       return say("ui.req.document-pending", { document: nameOf(requirement.document) });
+    case "document/genuine":
+      return say("ui.req.document-genuine", { document: nameOf(requirement.document) });
     case "route/state":
       return routeStateSentence(requirement, context);
     case "route/offer":

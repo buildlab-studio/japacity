@@ -317,6 +317,7 @@ export const uiText: Record<string, string> = {
   "ui.req.document-held-band": "{document} at band {band} or better",
   "ui.req.document-held-min": "{document} worth {value} or more",
   "ui.req.document-absent": "Your {document} is already in hand or on the way",
+  "ui.req.document-genuine": "{document}, and not from a scammer",
   "ui.req.document-pending": "{document} on the way",
   "ui.req.route-state": "{route}: {states}",
   "ui.req.route-state.heard": "Hear of {route} first",

@@ -195,6 +195,8 @@ export type Requirement =
   | { type: "document/absent"; document: Id<"document"> }
   /** Being made now. */
   | { type: "document/pending"; document: Id<"document"> }
+  /** The document is held and did not come from a scammer (advice.md R-ADVICE-008). */
+  | { type: "document/genuine"; document: Id<"document"> }
   | { type: "route/state"; route: Id<"route">; in: RouteStateName[] }
   /** Holds an offer from at least one school on this route. */
   | { type: "route/offer"; route: Id<"route"> }
@@ -1129,6 +1131,8 @@ export interface Tuning {
     privateSession: number;
   };
   /** `downUnder`: wellbeing or standing under this is "down" (R-LUCK-003); `rescueAfterMonths`: months played before the whip-round (R-LUCK-002). */
+  /** advice.md: the four ways to look into a route, and the agents. */
+  advice: { networkToAsk: number; adviserFee: number; agentKindsBp: { fixer: number; overpromiser: number; scammer: number }; fixerFee: number; fixerMonths: number; overpromiseFee: number; scamFee: number; fakePapersFee: number; scamTells: number; overpromiseTells: number; floorNaira: number };
   luck: {
     downUnder: number;
     rescueAfterMonths: number;
@@ -1401,6 +1405,8 @@ export interface WalletSlice {
 
 export interface DocumentState {
   state: "pending" | "held" | "expired";
+  /** False once the paper came from a scammer and was used (advice.md R-ADVICE-008); absent means genuine. */
+  genuine?: boolean;
   readyMonth: number | null;
   expiresMonth: number | null;
   value: number | null;

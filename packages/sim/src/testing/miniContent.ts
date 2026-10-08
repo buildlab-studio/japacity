@@ -378,6 +378,7 @@ export const miniContent: Content = {
       grade: { base: 2, upBp: 4000, downBp: 2000, min: 2, max: 5 },
       privateSession: 250000000,
     },
+    advice: { networkToAsk: 40, adviserFee: 4000000, agentKindsBp: { fixer: 5000, overpromiser: 3000, scammer: 2000 }, fixerFee: 1500000, fixerMonths: 1, overpromiseFee: 1000000, scamFee: 800000, fakePapersFee: 2000000, scamTells: 2, overpromiseTells: 1, floorNaira: 200000 },
     luck: {
       downUnder: 30,
       rescueAfterMonths: 12,

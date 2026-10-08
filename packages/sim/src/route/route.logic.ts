@@ -708,6 +708,7 @@ function judge(read: ReadCtx, requirement: Requirement): RequirementResult {
     case "document/held":
     case "document/absent":
     case "document/pending":
+    case "document/genuine":
     case "money/min":
     case "money/can-pay":
     case "var/min":

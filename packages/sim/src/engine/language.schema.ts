@@ -197,6 +197,7 @@ export const RequirementSchema = z.discriminatedUnion("type", [
   z.strictObject({ type: z.literal("document/held"), document: idOf("document"), min: IntSchema.exactOptional() }),
   z.strictObject({ type: z.literal("document/absent"), document: idOf("document") }),
   z.strictObject({ type: z.literal("document/pending"), document: idOf("document") }),
+  z.strictObject({ type: z.literal("document/genuine"), document: idOf("document") }),
   z.strictObject({ type: z.literal("route/state"), route: idOf("route"), in: z.array(RouteStateNameSchema).min(1) }),
   z.strictObject({ type: z.literal("route/offer"), route: idOf("route") }),
   z.strictObject({ type: z.literal("route/deposit"), route: idOf("route") }),
@@ -481,6 +482,7 @@ export const TuningSchema = z.strictObject({
     grade: z.strictObject({ base: CountSchema, upBp: BpSchema, downBp: BpSchema, min: CountSchema, max: CountSchema }),
     privateSession: CountSchema,
   }),
+  advice: z.strictObject({ networkToAsk: CountSchema, adviserFee: CountSchema, agentKindsBp: z.strictObject({ fixer: BpSchema, overpromiser: BpSchema, scammer: BpSchema }), fixerFee: CountSchema, fixerMonths: CountSchema, overpromiseFee: CountSchema, scamFee: CountSchema, fakePapersFee: CountSchema, scamTells: CountSchema, overpromiseTells: CountSchema, floorNaira: CountSchema }),
   luck: z.strictObject({
     downUnder: CountSchema,
     rescueAfterMonths: CountSchema,

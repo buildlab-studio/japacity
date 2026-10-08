@@ -15,6 +15,7 @@ const REQUIREMENT_TYPES = [
   "document/held",
   "document/absent",
   "document/pending",
+  "document/genuine",
   "route/state",
   "route/offer",
   "route/deposit",
