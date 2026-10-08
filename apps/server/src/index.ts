@@ -16,10 +16,13 @@ import { DRAND_URL, quicknet } from "./draw/beacon";
 import type { DrawKeys } from "./draw/draw";
 import { runDeletions } from "./jobs/deletion";
 import { drawJob } from "./jobs/draw";
+import { notifyJob } from "./jobs/notify";
 import { ticksJob } from "./jobs/ticks";
 import type { Place } from "./place/place.object";
 import { roomsFor } from "./place/place.rooms";
+import type { PushKeys } from "./notify/webpush";
 import { drawRoute } from "./routes/draw";
+import { notifyKeyRoute } from "./routes/notify";
 import { placeSocketRoutes } from "./routes/place";
 
 export { Place } from "./place/place.object";
@@ -47,6 +50,10 @@ export interface Env {
   GOOGLE_CLIENT_ID: string;
   GOOGLE_CLIENT_SECRET: string;
   TURNSTILE_SECRET_KEY: string;
+  /** R-CLOCK-031: the VAPID pair, base64url, and the address the push services can reach the maintainer at. No notice is sent without all three. */
+  VAPID_PUBLIC_KEY?: string;
+  VAPID_PRIVATE_KEY?: string;
+  VAPID_SUBJECT?: string;
 }
 
 let deps: ServerDeps | null = null;
@@ -74,6 +81,13 @@ function drawKeys(env: Env): DrawKeys {
   return { tokenKey: env.DRAW_TOKEN_KEY ?? "", beacon: quicknet(fetch, env.DRAND_URL ?? DRAND_URL) };
 }
 
+/** R-CLOCK-031: the push keys from the bindings, or null while one is missing. */
+function pushKeys(env: Env): PushKeys | null {
+  const { VAPID_PUBLIC_KEY: publicKey, VAPID_PRIVATE_KEY: privateKey, VAPID_SUBJECT: subject } = env;
+  if (publicKey === undefined || privateKey === undefined || subject === undefined) return null;
+  return { publicKey, privateKey, subject, fetch: (input, init) => fetch(input, init) };
+}
+
 /** The deployment's dependencies, made once per isolate (R-SERVER-016). The stores move to packages/db when it lands. */
 function depsFor(env: Env): ServerDeps {
   deps ??= {
@@ -99,13 +113,15 @@ export default {
     // The character's place, name and look come from the core's reads when they are wired; until then no socket opens.
     return makeApp(built, { auth, keys })
       .route("/", drawRoute(built, drawKeys(env)))
+      .route("/", notifyKeyRoute(pushKeys(env)))
       .route("/", placeSocketRoutes(built, { rooms: roomsFor(env.PLACE, built.config.presence), placeOf: () => Promise.resolve(null), profileOf: () => Promise.resolve(null) }))
       .fetch(request);
   },
   scheduled(controller: ScheduledController, env: Env, ctx: ExecutionContext): void {
-    // By cron: the world's ticks (R-CLOCK-012) every five minutes; deletions (R-ACCOUNT-017) and the money report (R-SERVER-011) daily.
+    // By cron: the world's ticks (R-CLOCK-012) and the bank-full notices (R-CLOCK-031) every five minutes; deletions (R-ACCOUNT-017) and the money report (R-SERVER-011) daily.
     ctx.waitUntil(ticksJob(depsFor(env), controller.cron));
     ctx.waitUntil(drawJob(depsFor(env), drawKeys(env), controller.cron));
+    ctx.waitUntil(notifyJob(depsFor(env), pushKeys(env), controller.cron));
     if (controller.cron === "0 0 * * *") ctx.waitUntil(runDeletions(depsFor(env), makeAuth(depsFor(env), authAdapter, authKeys(env, (promise) => ctx.waitUntil(promise)))));
     if (controller.cron === MONEY_CRON) ctx.waitUntil(moneyJob(depsFor(env)));
   },

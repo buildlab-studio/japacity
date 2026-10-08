@@ -10,6 +10,7 @@ import { ageRoutes } from "./routes/age";
 import { authRoutes } from "./routes/auth";
 import { characterRoute } from "./routes/character";
 import { commandRoute } from "./routes/command";
+import { notifyRoutes } from "./routes/notify";
 import { placeRoutes } from "./routes/place";
 import { viewRoute } from "./routes/view";
 import { worldRoute } from "./routes/world";
@@ -26,6 +27,7 @@ export function makeApp(deps: ServerDeps, accounts?: Accounts): Hono {
   app.route("/", worldRoute(deps));
   app.route("/", characterRoute(deps));
   app.route("/", placeRoutes(deps));
+  app.route("/", notifyRoutes(deps));
   app.route("/api/admin", adminRoutes(deps));
 
   return app;

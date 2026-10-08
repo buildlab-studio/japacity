@@ -25,6 +25,7 @@ export async function runDeletions(deps: ServerDeps, auth: Auth): Promise<number
     const row = await deps.stores.account.get(account);
     const character = row?.character ?? null;
     if (character !== null) await deps.stores.player.remove(character);
+    await deps.stores.push.forget(account);
     await deps.stores.account.remove(account);
     await removeAuthUser(auth, account);
     if (character !== null) await deps.stores.ledger.dropMark(character);
