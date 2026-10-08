@@ -241,6 +241,28 @@ describe("R-PEOPLE-028: the partner visa", () => {
     expect(game.view().status?.renew?.months).toBe(30);
   });
 
+  test("[R-PEOPLE-028] given the partner visa held, when it is renewed with the sponsor meeting the floor, then it runs 30 months more; with the floor no longer met, or the bond ended, the renewal is not legal", () => {
+    const flown = (): Game => {
+      const game = applied(UK_PARTNER, SETTLED, { tuning: ALWAYS_GRANTED });
+      scored(game, UK_PARTNER, "pass");
+      pastDecision(game, UK_PARTNER);
+      game.accept({ type: "route/depart", route: UK_PARTNER });
+      const pounds = game.state.wallet.pockets.GBP;
+      game.state = { ...game.state, wallet: { ...game.state.wallet, pockets: { ...game.state.wallet.pockets, GBP: { ...pounds, bank: pounds.bank + 1000000 } } } };
+      return game;
+    };
+    const renewed = flown();
+    const expires = renewed.state.status.current!.expiresMonth!;
+    renewed.accept({ type: "status/renew" });
+    expect(renewed.state.status.current?.expiresMonth).toBe(expires + 30);
+    const under = flown();
+    setFacts(under, (now) => ({ ...now, meetsFloor: { [UK_PARTNER]: false } }));
+    under.expectRejected({ type: "status/renew" }, "not-legal");
+    const ended = flown();
+    setPeople(ended, (slice) => ({ ...slice, bonds: { [BOND]: { ...slice.bonds[BOND]!, stage: "ended", ended: { month: ended.state.turn.month, by: "them" } } }, joint: null }));
+    ended.expectRejected({ type: "status/renew" }, "not-legal");
+  });
+
   test("[R-PEOPLE-029] given the partner and dependant visas, when their entries are read, then each is tied to the partner with a clock of 2 months, and permanent residence in Canada is not", () => {
     for (const id of ["status.uk-partner", "status.uk-dependant"] as const) expect(used.status[id]).toMatchObject({ tiedTo: "partner", clockMonths: 2 });
     expect(used.status["status.ca-resident"]?.tiedTo).toBeNull();

@@ -246,6 +246,18 @@ function remove(ctx: Ctx, cause: Cause): BaseEvent[] {
 // The command
 // ---------------------------------------------------------------------------
 
+/**
+ * R-PEOPLE-028: a status tied to a partner renews only while a bond is at
+ * `partner` or `married` and its facts show `meetsFloor` for each partner route
+ * granting this status that has a floor.
+ */
+function partnerStillSponsors(read: ReadCtx, status: Id<"status">): boolean {
+  const routes = Object.values(read.content.route).filter((route) => route.status === status && route.partner !== undefined && route.partner.floorVar !== null);
+  return Object.values(read.state.people.bonds).some(
+    (bond) => (bond.stage === "partner" || bond.stage === "married") && routes.every((route) => bond.facts?.meetsFloor[route.id] === true),
+  );
+}
+
 /** R-STATUS-006. */
 function renew(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (command.type !== "status/renew") throw new Error(`status/renew cannot handle ${command.type}.`);
@@ -261,6 +273,7 @@ function renew(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (entry.work === "one-employer" && (job === null || (held.job !== null && held.job !== job))) {
     return reject("not-legal", `${held.entry} renews only while the job is held.`);
   }
+  if (entry.tiedTo === "partner" && !partnerStillSponsors(ctx, entry.id)) return reject("not-legal", `${held.entry} renews only while the bond holds and the sponsor meets the floor.`);
   const currency = foreignCurrencyOf(ctx.content, entry.country);
   const fee = worldVar(ctx, entry.renewFeeVar);
   const surcharge = entry.surchargeYearVar === null ? 0 : mulDiv(worldVar(ctx, entry.surchargeYearVar), entry.renewMonths, MONTHS_PER_YEAR);
