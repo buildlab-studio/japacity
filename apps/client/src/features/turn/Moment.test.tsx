@@ -54,4 +54,20 @@ describe("the staged wins", () => {
     expect(await screen.findByRole("dialog", { name: say("ui.report.title", { month: 1 }) })).toBeDefined();
     expect(store.getState().moments).toEqual([]);
   });
+
+  test("[R-LOTTERY-013] given the win letter staged, then the display face holds the heading only and the letter with its naira sign is in the text face", async () => {
+    const letter: ReportLine = { key: "line.lottery.letter", params: { draw: 6, won: { currency: "NGN", amount: 1_650_000 } }, tone: "good", attention: true, counts: [], big: true };
+    const view = engineView();
+    const { authority, store } = await renderWithView(<Moment />, view);
+    authority.linesNext([letter]);
+    await act(() => store.getState().send({ type: "wallet/move", currency: "NGN", amount: 1, to: "cash" }));
+    const moment = await screen.findByRole("dialog", { name: say("ui.moment.head.line.lottery.letter") });
+    const heading = within(moment).getByRole("heading", { name: say("ui.moment.head.line.lottery.letter") });
+    expect(heading.className).toContain("font-display");
+    const body = moment.querySelector<HTMLElement>("[data-moment-body]")!;
+    expect(body.textContent).toBe(words(letter.key, letter.params));
+    expect(body.textContent).toContain("₦");
+    expect(body.className).toContain("font-sans");
+    expect(body.className).not.toContain("font-display");
+  });
 });

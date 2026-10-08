@@ -10,8 +10,16 @@ import { NewsView } from "./NewsView";
 describe("news", () => {
   test("given none, then it says so", async () => {
     // The director opens with an era's story, so a view with no stories is pinned here.
-    await renderWithView(<NewsView />, { ...engineView(), news: [] });
+    await renderWithView(<NewsView />, { ...engineView(), news: [], era: null, lottery: null });
     expect(screen.getByText(say("ui.news.none"))).toBeDefined();
+  });
+
+  test("given no stories under the front page's era, then the empty line never says no news has reached you", async () => {
+    const view = { ...engineView(), news: [] };
+    expect(view.era).not.toBeNull();
+    await renderWithView(<NewsView />, view);
+    expect(screen.queryByText(say("ui.news.none"))).toBeNull();
+    expect(screen.getByText(say("ui.news.none-else"))).toBeDefined();
   });
 
   test("given stories, then each stage's headline and body come from content and stories for you are marked", async () => {

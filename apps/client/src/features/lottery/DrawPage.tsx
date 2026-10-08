@@ -87,6 +87,9 @@ export function DrawPage({ draw, load }: { draw: number; load: LoadDraw }) {
   return (
     <div className="flex flex-col gap-5" data-draw-page={reply.draw}>
       <p className="text-muted">{say("ui.lottery.page.intro")}</p>
+      <p className="text-sm" data-draw-how>
+        {say("ui.lottery.page.how")}
+      </p>
       {check === null ? null : (
         <div className="flex flex-col gap-2 rounded-xl border border-line bg-surface p-3" data-draw-checks>
           <Verdict mark="winners" good={check.matches} yes={say("ui.lottery.page.check.winners")} no={say("ui.lottery.page.check.winners-bad")} />
