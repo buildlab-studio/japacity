@@ -1130,7 +1130,7 @@ describe("shared requests handled elsewhere", () => {
   test("[R-PEOPLE-034] given no copy of the request open here, when the authority says a sibling paid it, then it is rejected", () => {
     const game = life();
     const standing = game.state.quality["quality.standing"];
-    game.expectRejected({ type: "people/family-request", offer: "offer.nepa-bill", terms: {}, handled: true } as Loose, "not-legal", "authority");
+    game.expectRejected({ type: "people/family-request", offer: "offer.nepa-bill", terms: {}, handled: true }, "not-legal", "authority");
     expect(game.state.quality["quality.standing"]).toBe(standing);
   });
 });
