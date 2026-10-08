@@ -9,6 +9,7 @@ import type { Id } from "@japacity/sim";
 import { createContext, use, useEffect, useRef, useState, type ReactNode } from "react";
 
 import { useGame, useView } from "../../authority/GameProvider";
+import { counting } from "../../shared/analytics/start";
 import type { Encoded } from "../../shared/card/encode";
 import { cardFace, type CardFace, type ShareCard } from "../../shared/card/face";
 import { renderCard } from "../../shared/card/render";
@@ -161,9 +162,13 @@ export function ShareButton({ card, scenario, device = browserDevice() }: { card
   const label = sheet ? say("share.button.share") : say("share.button.save");
   const go = async () => {
     setStatus("making");
+    // R-ANALYTICS-002: pressed, and completed once the card was shared or saved.
+    counting().count("share/pressed", card.kind);
     try {
       const made = await (drawn.current ?? renderCard(face));
-      setStatus(made.ok ? await sendCard(made.blob, card.kind, device) : "failed");
+      const sent = made.ok ? await sendCard(made.blob, card.kind, device) : "failed";
+      if (sent === "shared" || sent === "saved") counting().count("share/completed", card.kind);
+      setStatus(sent);
     } catch {
       setStatus("failed");
     }

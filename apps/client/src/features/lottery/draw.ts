@@ -3,28 +3,16 @@
 // draw, worked out on the device with the simulation's own functions
 // (docs/rules/lottery.md R-LOTTERY-006, 015, 021 to 023).
 import { content } from "@japacity/content";
-import type { LotteryResult, PlayerView } from "@japacity/sim";
+import type { PlayerView } from "@japacity/sim";
 import { drawSeed, drawWinners, fingerprintOf, listHashOf, tiersFor, time, toHex } from "@japacity/sim";
 
 import { authorityMode } from "../../authority/mode";
-import type { ClockView, ServerRejection } from "../../shared/net/contract";
+import type { ClockView, DrawReply, ServerRejection } from "../../shared/net/contract";
 import { api, type Fetch } from "../../shared/net/http";
 
 export type Lottery = NonNullable<PlayerView["lottery"]>;
 
-/** Copied from apps/server/src/routes/draw.ts: `GET /api/draw/:n`, no session. */
-export interface DrawReply {
-  draw: number;
-  closesTick: number;
-  closesAt: number;
-  fingerprint: string;
-  beaconRound: number;
-  topUpTickets: number;
-  list: string[] | null;
-  count: number | null;
-  listHash: string | null;
-  result: LotteryResult | null;
-}
+export type { DrawReply };
 
 export type LoadDraw = (draw: number) => Promise<DrawReply | ServerRejection>;
 

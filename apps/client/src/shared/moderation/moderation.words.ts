@@ -1,7 +1,7 @@
 // Words for block, report, the team's notices, the appeal and feedback. First
 // drafts in the voice of docs/rules/text.md, for the maintainer to move beside the
 // other interface words.
-import type { ReportReason } from "./contract";
+import type { ReportReason } from "../net/contract";
 
 export const moderationText = {
   "ui.block": "Block",

@@ -5,7 +5,9 @@ import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 import { GameProvider } from "../../authority/GameProvider";
 import { createGameStore, type GameStore } from "../../authority/store";
+import { remoteAuthority } from "../../authority/remote";
 import { fakeAuthority, engineView } from "../../shared/testing/fixtures";
+import { BASE, fakeServer } from "../../shared/testing/server";
 import "../../shared/testing/render";
 import { formatMoney, formatNumber } from "../../shared/words/format";
 import { say, sayCount, words } from "../../shared/words/text";
@@ -192,5 +194,20 @@ describe("the win letter", () => {
     await store.getState().send({ type: "wallet/move", currency: "NGN", amount: 1, to: "cash" });
     expect(store.getState().moments).toEqual([]);
     expect(store.getState().lines).toEqual([letter]);
+  });
+
+  test("[R-LOTTERY-013] given a winner away when the draw paid, when the view is fetched again online, then the letter comes in the lines since the held version and is staged as a moment", async () => {
+    const letter = letterOf([{ tier: "jackpot", amount: 1_320_000, topUp: 320_000 }]);
+    const server = fakeServer();
+    const clock = { tick: 10, nextTickAt: NEXT_TICK, nextTurnAt: null };
+    server.answer("GET /api/view", { body: { ok: true, view: { ...engineView(), v: 4 }, lines: [], clock } }, { body: { ok: true, view: { ...engineView(), v: 6 }, lines: [letter], clock } });
+    const remote = remoteAuthority({ baseUrl: BASE, fetch: server.fetch });
+    const store = createGameStore(remote);
+    remote.listen((event) => store.getState().heard(event));
+    await store.getState().refresh();
+    expect(store.getState().moments).toEqual([]);
+    await store.getState().refresh();
+    expect(server.sent.at(-1)?.search).toBe("?since=4");
+    expect(store.getState().moments).toEqual([letter]);
   });
 });

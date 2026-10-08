@@ -6,10 +6,11 @@ import type { Api } from "../../shared/net/http";
 import { fetchAdverts } from "./adverts";
 import type { AdvertsReply } from "./adverts";
 
-export function useAdverts(api: Api, region: string, shown: boolean, now: () => number = () => Date.now()): AdvertsReply | null {
+/** Null `api` or `region`: nothing to fetch yet, or no server at all. */
+export function useAdverts(api: Api | null, region: string | null, shown: boolean, now: () => number = () => Date.now()): AdvertsReply | null {
   const [reply, setReply] = useState<AdvertsReply | null>(null);
   useEffect(() => {
-    if (!shown) return undefined;
+    if (!shown || api === null || region === null) return undefined;
     let live = true;
     let timer: ReturnType<typeof setTimeout> | undefined;
     const load = async () => {

@@ -5,24 +5,25 @@ import { content } from "@japacity/content";
 import type { ConversationRow, Id, SayRefusal } from "@japacity/sim";
 import { fillOptions } from "@japacity/sim";
 import { Check, MessageCircle } from "lucide-react";
-import { useCallback, useEffect, useId, useState } from "react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 
-import { useView } from "../../authority/GameProvider";
+import { useGame, useView } from "../../authority/GameProvider";
+import { BlockReport } from "../../shared/moderation/BlockReport";
+import type { ServerRejection } from "../../shared/net/contract";
 import { conversationPhrases, fillWords, phraseWords } from "../../shared/sim/people";
-import type { SayReply } from "../../shared/net/contract";
 import { Button } from "../../shared/ui/Button";
 import { Tag } from "../../shared/ui/Panel";
 import { hasWords, say, sayCount } from "../../shared/words/text";
 import type { PairApi } from "./pairApi";
-import { Safety } from "./Safety";
 
 const PHRASES = conversationPhrases();
 
-/** Why a phrase did not go, in plain words and never about the other side's settings. */
-function refusalWords(reply: Exclude<SayReply, { ok: true }>): string {
+const SAY_REFUSALS: readonly string[] = ["not-possible", "blocked", "too-many", "region", "not-here", "wrong-place", "bad-fill"] satisfies readonly SayRefusal[];
+
+/** Why a phrase did not go, from the check the code names, and never about the other side's settings. */
+function refusalWords(reply: ServerRejection): string {
   if (reply.code === "rate-limited") return reply.retryAfter === undefined ? say("ui.talk.failed.too-many") : sayCount("ui.online.wait", reply.retryAfter, { seconds: reply.retryAfter });
-  const failed: SayRefusal | undefined = reply.failed;
-  if (failed !== undefined && hasWords(`ui.talk.failed.${failed}`)) return say(`ui.talk.failed.${failed}`);
+  if (SAY_REFUSALS.includes(reply.code) && hasWords(`ui.talk.failed.${reply.code}`)) return say(`ui.talk.failed.${reply.code}`);
   return say("ui.talk.failed.other", { why: reply.detail });
 }
 
@@ -46,11 +47,14 @@ function Row({ row, mine }: { row: ConversationRow; mine: boolean }) {
   );
 }
 
-export function Conversation({ api, pair }: { api: PairApi; pair: string }) {
+/** `name`: the other side as the reader's screen names them, for the report sheet. */
+export function Conversation({ api, pair, name }: { api: PairApi; pair: string; name: string }) {
   const id = useId();
   const view = useView();
+  const nudges = useGame((state) => state.messageNudges);
   const [rows, setRows] = useState<ConversationRow[]>([]);
-  const [me, setMe] = useState<string | null>(null);
+  // The other side's character, from the record: their rows are the ones to mark new and to cite.
+  const [them, setThem] = useState<string | null>(null);
   const [phraseId, setPhraseId] = useState<Id<"phrase">>(PHRASES[0]?.id ?? "phrase.hello");
   const [fill, setFill] = useState<string | null>(null);
   const [refusal, setRefusal] = useState<string | null>(null);
@@ -67,10 +71,9 @@ export function Conversation({ api, pair }: { api: PairApi; pair: string }) {
           setRefusal(say("ui.talk.failed.other", { why: reply.detail }));
           return;
         }
-        setMe(reply.me);
         setRows((held) => {
           const known = new Set(held.map((row) => row.id));
-          return [...held, ...reply.rows.filter((row) => !known.has(row.id))];
+          return [...held, ...reply.messages.filter((row) => !known.has(row.id))];
         });
       } catch (error) {
         setRefusal(say("ui.talk.failed.other", { why: error instanceof Error ? error.message : String(error) }));
@@ -80,15 +83,35 @@ export function Conversation({ api, pair }: { api: PairApi; pair: string }) {
   );
 
   useEffect(() => {
+    let live = true;
+    void api
+      .pair(pair)
+      .then((reply) => {
+        if (live && reply.ok) setThem(reply.pair.them);
+      })
+      .catch(() => undefined);
     void fetchAfter(null);
-  }, [fetchAfter]);
+    return () => {
+      live = false;
+    };
+  }, [api, pair, fetchAfter]);
+
+  const last = rows.at(-1)?.id ?? null;
+  const lastRef = useRef(last);
+  useEffect(() => {
+    lastRef.current = last;
+  }, [last]);
+  // R-PAIR-011: the server nudged that a row is new; fetch from where the thread left off.
+  useEffect(() => {
+    if (nudges > 0) void fetchAfter(lastRef.current);
+  }, [nudges, fetchAfter]);
 
   const send = async () => {
     setBusy(true);
     setRefusal(null);
     try {
       const reply = await api.say(pair, phraseId, chosenFill);
-      if (reply.ok) setRows((held) => [...held, reply.row]);
+      if (reply.ok) setRows((held) => [...held, reply.message]);
       else setRefusal(refusalWords(reply));
     } catch (error) {
       setRefusal(say("ui.talk.failed.other", { why: error instanceof Error ? error.message : String(error) }));
@@ -97,8 +120,8 @@ export function Conversation({ api, pair }: { api: PairApi; pair: string }) {
     }
   };
 
-  const theirs = rows.filter((row) => me !== null && row.sender !== me).map((row) => row.id);
-  const last = rows.at(-1)?.id ?? null;
+  const theirs = rows.filter((row) => them !== null && row.sender === them).map((row) => row.id);
+  const mine = (row: ConversationRow) => them !== null && row.sender !== them;
 
   return (
     <section aria-label={say("ui.talk.title")} className="flex flex-col gap-3 rounded-lg border border-line p-3" data-conversation={pair}>
@@ -117,7 +140,7 @@ export function Conversation({ api, pair }: { api: PairApi; pair: string }) {
       ) : (
         <ol className="flex max-h-72 flex-col gap-2 overflow-y-auto">
           {rows.map((row) => (
-            <Row key={row.id} row={row} mine={me !== null && row.sender === me} />
+            <Row key={row.id} row={row} mine={mine(row)} />
           ))}
         </ol>
       )}
@@ -171,7 +194,7 @@ export function Conversation({ api, pair }: { api: PairApi; pair: string }) {
           {refusal}
         </p>
       )}
-      <Safety api={api} pair={pair} messages={theirs} />
+      <BlockReport who={{ pair, name }} cites={theirs.length > 0 ? { messages: theirs } : { pair }} surface="conversation" />
     </section>
   );
 }

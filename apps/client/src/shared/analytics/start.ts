@@ -18,16 +18,22 @@ export function counting(): Counters {
   return current;
 }
 
+/** For tests: counts into `counters` until the returned function puts the quiet ones back. */
+export function countInto(counters: Counters): () => void {
+  current = counters;
+  return () => {
+    current = quiet;
+  };
+}
+
 /** R-ANALYTICS-011: the function the account feature calls for each ask it makes. */
 export function countAsk(kind: AskKind, outcome: AskOutcome, afterEarlyWin: boolean): void {
   current.ask(kind, outcome, afterEarlyWin);
 }
 
 /**
- * R-ANALYTICS-006: the account's "Send usage counts" setting.
- * the account reply does not carry `sendUsageCounts` yet, so the
- * counters start on and the settings screen calls this when it knows; the
- * server drops a batch from an account that has the setting off.
+ * R-ANALYTICS-006: the account's "Send usage counts" setting. The counters
+ * start on; the boot and the settings sheet call this once the account says.
  */
 export function setUsageCounts(on: boolean): void {
   current.setEnabled(on);

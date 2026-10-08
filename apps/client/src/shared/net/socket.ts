@@ -70,6 +70,8 @@ export interface NudgeSocketOptions {
   held: () => number | null;
   fetchView: () => void;
   fetchPresence: () => void;
+  /** A pair's conversation has a new row: an open conversation fetches from where it left off (R-PAIR-011). */
+  fetchMessages?: () => void;
 }
 
 export interface NudgeSocket {
@@ -94,7 +96,7 @@ export function nudgeSocket(options: NudgeSocketOptions): NudgeSocket {
         options.fetchPresence();
         return;
       case "messages":
-        // No messages screen exists in this milestone's client.
+        options.fetchMessages?.();
         return;
       default: {
         const never: never = nudge;

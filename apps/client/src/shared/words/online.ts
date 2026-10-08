@@ -10,6 +10,24 @@ export const onlineText: Record<string, string> = {
   "reject.region-closed": "Japacity is not open where you are yet.",
   "reject.one-character": "This account already has its life.",
   "reject.no-character": "This account has no life yet. Pick one.",
+  "reject.switched-off": "That is closed for now. Try again shortly.",
+  "reject.region": "Players where you are cannot do that together.",
+  "reject.under-age": "You cannot play Japacity.",
+  "reject.bad-date": "That date does not look right.",
+  "reject.bot-check": "The quick check did not go through. Try it again.",
+  "reject.not-fresh": "Sign in again to show it is you.",
+  "reject.bad-code": "That link or code is not right.",
+  "reject.not-possible": "That is not possible now.",
+  "reject.blocked": "That is not possible now.",
+  "reject.too-many": "That is enough for now. Try again later.",
+  "reject.wrong-place": "That cannot be said here.",
+  "reject.bad-fill": "That choice is not on the list.",
+  "reject.not-here": "They are not here now.",
+  "reject.used": "This link has been used.",
+  "reject.expired": "This link has run out.",
+  "reject.wrong-slot": "That card is no longer out.",
+  "reject.not-adult": "A partner link needs a grown-up life past the start.",
+  "reject.moved-on": "That has moved on.",
   "ui.online.wait": "Too much at once. Wait {seconds} seconds, then try again.",
   "ui.online.wait.one": "Too much at once. Wait a second, then try again.",
 
@@ -28,7 +46,21 @@ export const onlineText: Record<string, string> = {
   "ui.account.age.go": "Continue",
   "ui.account.age.empty": "Put in your date of birth first.",
   "ui.account.age.refused": "You cannot play Japacity.",
+  "ui.account.age.bad-date": "That date does not look right. Check it and try again.",
   "ui.account.region-closed": "Japacity is not open where you are yet.",
+
+  // The invite link's page (R-PAIR-007, R-PAIR-008)
+  "ui.invite.title": "A friend sent you a card",
+  "ui.invite.someone": "Someone",
+  "ui.invite.days": "A card's link works once, for {days} days.",
+  "ui.invite.come-in": "To take it, say when you were born and come in first.",
+  "ui.invite.partner": "Take the card and your life and theirs are linked. You choose what happens next.",
+  "ui.invite.sibling": "Take the card and you start a new life as their brother or sister.",
+  "ui.invite.new-life": "A partner card needs a grown-up life. Pick who to be.",
+  "ui.invite.take": "Take the card",
+  "ui.invite.taken": "Done. You are linked.",
+  "ui.invite.play": "Play",
+  "ui.invite.offline": "Invite cards work only when the game is online.",
 
   // The full screen while sign-ups are switched off (R-SERVER-032)
   "server.full": "Japacity is full right now. Try again shortly.",
@@ -48,6 +80,7 @@ export const onlineText: Record<string, string> = {
   "ui.account.code.again": "Send a new code",
   "ui.account.code.short": "The code is 6 digits.",
   "ui.account.bot": "New here? This quick check makes sure you are a person.",
+  "ui.account.bot.failed": "The quick check did not go through. Wait for it to finish, then try again.",
   "ui.account.working": "One moment...",
   "ui.account.loading": "Checking where you stand...",
   "ui.account.fail.not-fresh": "Sign in again to show it is you.",
@@ -59,6 +92,11 @@ export const onlineText: Record<string, string> = {
   "ui.account.fail.refused": "That did not work. Try another way in.",
   "ui.account.notice.deleted": "Your account is deleted. Everything it held goes within 30 days.",
   "ui.account.notice.signed-out": "You have signed out.",
+
+  // The usage counts setting (R-ANALYTICS-006)
+  "ui.account.usage": "Send usage counts",
+  "ui.account.usage.help": "Counts of which screens open and how fast the game loads, never what you type or who you are. Off stops them.",
+  "ui.account.usage.failed": "That did not save. Try again in a moment.",
 
   // The settings (R-ACCOUNT-003, R-ACCOUNT-016)
   "ui.account.settings": "Account",

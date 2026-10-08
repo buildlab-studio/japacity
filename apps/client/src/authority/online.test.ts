@@ -1,4 +1,5 @@
-import type { PlayerView } from "@japacity/sim";
+import { content } from "@japacity/content";
+import type { Id, PlayerView } from "@japacity/sim";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 import type { ClockView } from "../shared/net/contract";
@@ -37,9 +38,11 @@ async function setUp(first: PlayerView = { ...engineView(), v: 2 }) {
 }
 
 describe("going online", () => {
-  test("[R-CLOCK-027] given the character at home, then one socket opens for home's place, from the same server", async () => {
+  test("[R-CLOCK-027] given the character at home, then one socket opens for home's hub place, from the same server", async () => {
     const { opened } = await setUp();
-    expect(opened.map((socket) => socket.url)).toEqual(["wss://play.test/api/place/home/socket"]);
+    const home = placeOf(engineView());
+    expect(content.place[home as Id<"place">]?.hub).toBe(true);
+    expect(opened.map((socket) => socket.url)).toEqual([`wss://play.test/api/place/${home}/socket`]);
   });
 
   test("[R-CLOCK-027] given the character moves abroad, then the old place's socket closes and the new one's opens", async () => {
@@ -50,7 +53,7 @@ describe("going online", () => {
     expect(opened).toHaveLength(2);
     expect(opened[0]?.closed).toBe(true);
     expect(opened[1]?.url).toBe(`wss://play.test/api/place/${placeOf(abroad)}/socket`);
-    expect(placeOf(abroad)).toBe(abroad.place.country);
+    expect(content.place[placeOf(abroad) as Id<"place">]?.country).toBe(abroad.place.country);
   });
 
   test("[R-CLOCK-022] given the tab regains focus, then the view is fetched", async () => {
@@ -71,9 +74,19 @@ describe("going online", () => {
 
   test("[R-CLOCK-021] given a presence nudge, then the sample is fetched and kept", async () => {
     const { server, store, opened } = await setUp();
-    server.answer("GET /api/place/home/presence", { body: { place: "home", others: [{ name: "Tunde", look: "a" }] } });
+    const home = placeOf(engineView());
+    server.answer(`GET /api/place/${home}`, { body: { place: home, others: [{ name: "Tunde", look: "a" }], today: [] } });
     opened[0]?.push({ nudge: "presence" });
     await vi.waitFor(() => expect(store.getState().presence?.others).toHaveLength(1));
+  });
+
+  test("[R-PAIR-011] given a messages nudge, then the store counts it so an open conversation fetches what is new, and no view is fetched", async () => {
+    const { store, opened, views } = await setUp();
+    const before = views();
+    opened[0]?.push({ nudge: "messages" });
+    opened[0]?.push({ nudge: "messages" });
+    expect(store.getState().messageNudges).toBe(2);
+    expect(views()).toBe(before);
   });
 
   test("[R-CLOCK-019] given the next tick at 10 seconds, then the world and the view are fetched when it comes and not before", async () => {
