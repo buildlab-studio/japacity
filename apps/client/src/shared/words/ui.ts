@@ -207,15 +207,33 @@ export const uiText: Record<string, string> = {
   "ui.offer.choice-cost": "{choice}: {amount}",
   "ui.offer.outcome": "What changed",
   "ui.offer.outcome-none": "Done. Nothing else moved.",
+  "ui.offer.lock": "{slots} held {when}",
+  "ui.offer.lock.slots": "{count} slots",
+  "ui.offer.lock.slots.one": "1 slot",
+  "ui.offer.lock.when": "for {count} months",
+  "ui.offer.lock.when.one": "this month",
+  "ui.offer.lock.next": "next month",
 
   // The interview
   "ui.setpiece.question": "Question {n} of {total}",
   "ui.setpiece.weak": "Weak answer",
   "ui.setpiece.blocks": "Finish this before the month can end.",
 
+  // The December visit (R-RETURN-005)
+  "ui.december.have": "In your pockets here: {amount}",
+  "ui.december.free": "Free",
+  "ui.december.short": "It needs {need} and you have {have} here.",
+  "ui.december.set-aside": "Look at your money first",
+  "ui.december.open": "Answer now",
+
   // Chapters
   "ui.chapter.done": "Done",
   "ui.chapter.all-done": "Every chapter is done.",
+  "ui.chapter.one-of": "Any one of these:",
+  "ui.chapter.long-game": "The long game",
+  "ui.chapter.long-game-intro": "What comes next is up to you. Your open goals:",
+  "ui.chapter.long-game-none": "What comes next is up to you. Goals open as life settles.",
+  "ui.chapter.goal-items": "{met} of {total}",
 
   // News
   "ui.news.title": "News",
@@ -288,6 +306,8 @@ export const uiText: Record<string, string> = {
   "ui.req.wallet-total-in": "{amount} received as {reason} in all",
   "ui.req.wallet-total-out": "{amount} paid as {reason} in all",
   "ui.req.place-returned": "Back home after living abroad",
+  "ui.req.place-returned-shapes": "Back home from abroad, {shapes}",
+  "ui.req.routes-state": "{states} on one of: {routes}",
   "ui.req.place-months-here": "{months} months {where}",
   "ui.req.place-months-here.one": "1 month {where}",
   "ui.place.home": "at home",
@@ -312,11 +332,16 @@ export const uiText: Record<string, string> = {
 
   // Slots held this month (R-TURN-009) and the side job (R-ACTIVITY-010)
   "ui.locks.title": "Slots held this month",
-  "ui.locks.item": "{slots} slots held by {why}, until month {month}",
-  "ui.locks.item.one": "1 slot held by {why}, until month {month}",
+  "ui.locks.item": "{slots} held by {why}, {left}",
+  "ui.locks.side": "{slots} held by {why}, every month you keep it",
+  "ui.locks.left": "{count} months left, to month {month}",
+  "ui.locks.left.one": "this month only",
   "ui.locks.why.side-job": "your side job",
   "ui.locks.why.illness": "illness",
-  "ui.locks.why.burial": "a burial at home",
+  "ui.locks.why.burial": "a burial in the village",
+  "ui.locks.why.village-burial": "a burial in the village",
+  "ui.locks.why.court": "a court date",
+  "ui.locks.why.court-date": "a court date",
   "ui.locks.why.other": "something you cannot move",
   "ui.side.title": "Side job",
   "ui.side.holds": "It pays, and it takes one free slot every month you keep it.",
@@ -351,9 +376,10 @@ export const uiText: Record<string, string> = {
   "ui.place.way-home": "The way home",
   "ui.place.fare": "The fare home, one way: {fare}",
   "ui.place.fare-december": "In December it is {fare}.",
+  "ui.place.fare-december-now": "It is December. Off peak it is {fare}.",
   "ui.place.fare-naira": "Not enough in this currency. The rest is bought from naira at the bank rate: about {naira} with the bank's charge.",
   "ui.place.fare-short": "Not enough for the fare: it needs {fare} here, or about {naira} in the naira bank. Change money first if you hold it in another currency.",
-  "ui.place.fare-note": "The fare shown is the off-peak one. The world decides when it is December.",
+  "ui.place.fare-note": "The fare follows the season. The world decides when it is December.",
   "ui.place.shape-now.assisted": "Today you would go home on an assisted ticket. Nobody says it, but everyone knows.",
   "ui.place.shape-now.broke": "Today you would land with the fare and not much more. Everyone notices.",
   "ui.place.shape-now.by-choice": "Today you would come home by choice. People will still ask why.",
@@ -527,6 +553,16 @@ export const uiText: Record<string, string> = {
   "ui.road.exit-help": "The anti-trafficking agency and the migration agency bring people home from this road, whatever they paid. Asking them is the exit.",
   "ui.road.wait": "Wait a month",
 
-  // The news front page
+  // The news front page (R-DIRECTOR-002)
   "ui.news.era": "The times",
+  "ui.news.era-since": "Since month {month}.",
+  "ui.news.era-before": "Since before your story began.",
+  "ui.news.era-until": "Due to end after month {month}, {months} months from now.",
+  "ui.news.era-until.one": "Due to end after this month.",
+  "ui.news.era-until.zero": "Ending now.",
+
+  // Being run down (R-HEALTH-001, R-HEALTH-007)
+  "ui.health.run-down": "You are run down",
+  "ui.health.run-down-figure": "{quality} is {value}, under {line} two months running.",
+  "ui.health.run-down-help": "Rest, or do something that lifts you. Stay under the line and illness comes.",
 };

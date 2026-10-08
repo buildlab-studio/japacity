@@ -7,7 +7,7 @@ import { Check, Circle, Trophy } from "lucide-react";
 
 import { useView } from "../../authority/GameProvider";
 import { Card, Panel, Tag } from "../../shared/ui/Panel";
-import { requirementSentence } from "../../shared/words/requirement";
+import { anyOptions, requirementSentence } from "../../shared/words/requirement";
 import { blurbOf, hasWords, nameOf, say, words } from "../../shared/words/text";
 
 /**
@@ -19,6 +19,13 @@ export function goalItemWords(goal: Id<"goal">, item: string): string {
   if (hasWords(key)) return words(key);
   const requirement = /^\d+$/.test(item) ? content.goal[goal]?.doneIf[Number(item)] : undefined;
   return requirement === undefined ? say("ui.goal.item", { n: item }) : requirementSentence(requirement);
+}
+
+/** The paths of an item that any one of several meets, when content names the item in its own words; its sentence already lists them otherwise. */
+function goalItemOptions(goal: Id<"goal">, item: string): string[] {
+  if (!hasWords(`${goal}.item.${item}`)) return [];
+  const requirement = /^\d+$/.test(item) ? content.goal[goal]?.doneIf[Number(item)] : undefined;
+  return requirement === undefined ? [] : anyOptions(requirement);
 }
 
 export function GoalView() {
@@ -44,7 +51,14 @@ export function GoalView() {
                   {goal.items.map((item) => (
                     <li key={item.id} data-met={item.met ? "true" : "false"} className="flex items-start gap-2 text-sm">
                       {item.met ? <Check size={16} className="mt-0.5 shrink-0 text-good" /> : <Circle size={16} className="mt-0.5 shrink-0 text-muted" />}
-                      <span className={item.met ? "text-muted line-through" : ""}>{goalItemWords(goal.id, item.id)}</span>
+                      <span className={item.met ? "text-muted line-through" : ""}>
+                        {goalItemWords(goal.id, item.id)}
+                        {goalItemOptions(goal.id, item.id).length < 2 ? null : (
+                          <span className="mt-1 block text-muted" data-one-of>
+                            {say("ui.chapter.one-of")} {goalItemOptions(goal.id, item.id).join("; ")}
+                          </span>
+                        )}
+                      </span>
                     </li>
                   ))}
                 </ul>

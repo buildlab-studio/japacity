@@ -1,0 +1,27 @@
+// The order full-screen things take after a month ends: the staged wins first,
+// then the month's report, then the share card, then a scene such as the
+// December visit. Each waits for the one before it, so two never cover each
+// other and a click always lands on the one in front.
+import type { PlayerView } from "@japacity/sim";
+
+import { useGame, useView } from "../../authority/GameProvider";
+
+/** A name for a card, so closing one does not close the next. */
+export function cardKey(card: PlayerView["card"]): string | null {
+  return card === null ? null : `${card.kind}-${String(card.months)}`;
+}
+
+/** True when no staged win is on screen and the report is closed: the card may open. */
+export function useCardsTurn(): boolean {
+  const moments = useGame((state) => state.moments.length);
+  const reportOpen = useGame((state) => state.reportOpen);
+  return moments === 0 && !reportOpen;
+}
+
+/** True when the card before it has had its turn too: a scene may open. */
+export function useScenesTurn(): boolean {
+  const cardsTurn = useCardsTurn();
+  const cardClosed = useGame((state) => state.cardClosed);
+  const key = cardKey(useView().card);
+  return cardsTurn && (key === null || cardClosed === key);
+}

@@ -3,7 +3,7 @@
 // the view; this screen only arranges them.
 import { content } from "@japacity/content";
 import type { ActivityOption, PlayerView, SlotPick } from "@japacity/sim";
-import { Briefcase, Plus, X } from "lucide-react";
+import { Briefcase, Lock, Plus, X } from "lucide-react";
 import { useState } from "react";
 
 import { useGame, useView } from "../../authority/GameProvider";
@@ -11,6 +11,7 @@ import { Button } from "../../shared/ui/Button";
 import { Card, Panel, Tag } from "../../shared/ui/Panel";
 import { shortfall } from "../../shared/words/cost";
 import { formatBand, formatMoney } from "../../shared/words/format";
+import { lockWords, SIDE_JOB_LOCK } from "../../shared/words/locks";
 import { alreadyDone, requirementSentence } from "../../shared/words/requirement";
 import { blurbOf, hasWords, lowerFirst, nameOf, say, sayCount } from "../../shared/words/text";
 
@@ -73,21 +74,24 @@ function Job() {
   );
 }
 
-/** The side job's lock (R-ACTIVITY-010): the view names no side job, only the slot it holds. */
-const SIDE_JOB_LOCK = "side-job";
-
 function SideJob() {
   const view = useView();
   const busy = useGame((state) => state.busy);
   const send = useGame((state) => state.send);
   const [confirming, setConfirming] = useState(false);
-  if (!view.locks.some((lock) => lock.why === SIDE_JOB_LOCK)) return null;
+  const side = view.job.side;
+  if (side === null && !view.locks.some((lock) => lock.why === SIDE_JOB_LOCK)) return null;
+  const pay = side === null ? null : content.activity[side]?.pay;
   return (
     <Card data-side-job>
       <div className="flex items-start gap-3">
         <Briefcase size={20} className="mt-0.5 shrink-0 text-muted" />
         <div className="flex flex-1 flex-col gap-1">
-          <p className="font-semibold">{say("ui.side.title")}</p>
+          <p className="text-xs font-semibold tracking-wide text-muted uppercase">{say("ui.side.title")}</p>
+          {side === null ? null : <p className="font-semibold">{nameOf(side)}</p>}
+          {pay === null || pay === undefined || typeof pay.amount !== "number" ? null : (
+            <p className="text-sm font-medium tabular-nums">{say("ui.job.pay", { amount: formatMoney(pay.amount, pay.currency) })}</p>
+          )}
           <p className="text-sm text-muted">{say("ui.side.holds")}</p>
         </div>
         {confirming ? null : (
@@ -118,19 +122,16 @@ function SideJob() {
   );
 }
 
-/** Slots held by something this month, and why (R-TURN-009). */
+/** Slots held by something this month, why, and for how long (R-TURN-009, R-HEALTH-007). */
 function Locks() {
-  const { locks } = useView();
+  const { locks, month } = useView();
   if (locks.length === 0) return null;
   return (
-    <ul className="flex flex-col gap-1 text-sm text-muted" aria-label={say("ui.locks.title")}>
+    <ul className="flex flex-col gap-1 text-sm" aria-label={say("ui.locks.title")}>
       {locks.map((lock, index) => (
-        <li key={`${lock.why}-${String(index)}`} data-lock={lock.why}>
-          {sayCount("ui.locks.item", lock.slots, {
-            slots: lock.slots,
-            why: say(hasWords(`ui.locks.why.${lock.why}`) ? `ui.locks.why.${lock.why}` : "ui.locks.why.other"),
-            month: lock.untilMonth,
-          })}
+        <li key={`${lock.why}-${String(index)}`} data-lock={lock.why} className="flex items-start gap-2">
+          <Lock size={14} className="mt-0.5 shrink-0 text-muted" />
+          <span>{lockWords(lock, month)}</span>
         </li>
       ))}
     </ul>

@@ -95,7 +95,8 @@ async function openTab(page: Page, name: string): Promise<void> {
   if (await tabs.isVisible()) await tabs.getByRole("button", { name }).click();
 }
 
-test("a recorded life boards the plane, the flight gets the whole screen, and life abroad has its own tabs", async ({ page }) => {
+/** Ada's save goes in once per tab, so a reload keeps what was played since. */
+async function seedAda(page: Page): Promise<void> {
   await page.addInitScript((stored) => {
     if (sessionStorage.getItem("seeded") === null) {
       localStorage.setItem("japacity.save", stored);
@@ -103,16 +104,44 @@ test("a recorded life boards the plane, the flight gets the whole screen, and li
     }
   }, adaBeforeFlight());
   await page.goto("/");
+}
 
+async function boardThePlane(page: Page): Promise<void> {
   await openTab(page, "Japa");
   await page.getByRole("button", { name: "Board the plane" }).click();
-
   const moment = page.getByRole("dialog");
   await expect(moment).toBeVisible();
   await expect(moment.getByRole("heading", { name: /fly out/i })).toBeVisible();
   await expectNothingBroken(page, "on the flight");
   await moment.getByRole("button", { name: "Carry on" }).click();
   await expect(page.getByRole("dialog")).toHaveCount(0);
+}
+
+/** Ends the month, steps through any staged moments, reads the report and closes it. */
+async function endMonthAndRead(page: Page, when: string): Promise<void> {
+  await openTab(page, "Month");
+  await page.getByRole("button", { name: "End month" }).click();
+  await expect(page.getByRole("dialog")).toBeVisible();
+  const carryOn = page.getByRole("button", { name: /^(Carry on|Next)$/ });
+  for (let shown = 0; shown < 5 && (await carryOn.isVisible()); shown += 1) await carryOn.click();
+  const report = page.getByRole("dialog");
+  await expect(report.getByRole("heading", { name: /^Month \d+$/ })).toBeVisible();
+  await expectNothingBroken(page, when);
+  await report.getByRole("button", { name: "Close" }).click();
+}
+
+/** The send-off card opens once the report is closed; it is closed in turn. */
+async function closeSendOff(page: Page): Promise<void> {
+  const card = page.locator("[data-share-card='send-off']");
+  await expect(card).toBeVisible();
+  await expect(card.getByText("Japacity is a game.")).toBeVisible();
+  await page.getByRole("dialog").getByRole("button", { name: "Close" }).click();
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+}
+
+test("a recorded life boards the plane, the flight gets the whole screen, and life abroad has its own tabs", async ({ page }) => {
+  await seedAda(page);
+  await boardThePlane(page);
 
   const tabs = page.getByRole("navigation", { name: "Sections" });
   if (await tabs.isVisible()) {
@@ -124,19 +153,56 @@ test("a recorded life boards the plane, the flight gets the whole screen, and li
   await expect(page.getByRole("heading", { name: "The way home" })).toBeVisible();
   await expectNothingBroken(page, "on landing");
 
-  // A month abroad, and its report.
-  await openTab(page, "Month");
-  await page.getByRole("button", { name: "End month" }).click();
-  await expect(page.getByRole("dialog")).toBeVisible();
-  const carryOn = page.getByRole("button", { name: /^(Carry on|Next)$/ });
-  for (let shown = 0; shown < 5 && (await carryOn.isVisible()); shown += 1) await carryOn.click();
-  const report = page.getByRole("dialog");
-  await expect(report.getByRole("heading", { name: /^Month \d+$/ })).toBeVisible();
-  await expectNothingBroken(page, "in the first report abroad");
-  await report.getByRole("button", { name: "Close" }).click();
+  // A month abroad, its report, and then the send-off card.
+  await endMonthAndRead(page, "in the first report abroad");
+  await closeSendOff(page);
 
-  // The life abroad survives a reload.
+  // The life abroad survives a reload, and the card due this month comes back with it.
   await page.reload();
+  await closeSendOff(page);
   await openTab(page, "Home");
   await expect(page.getByRole("heading", { name: "The way home" })).toBeVisible();
+});
+
+test("a life abroad answers the December visit, changes money and comes home", async ({ page }) => {
+  await seedAda(page);
+  await boardThePlane(page);
+  await endMonthAndRead(page, "in the first report abroad");
+  await closeSendOff(page);
+
+  // December: the visit takes the whole screen once the report is closed.
+  await endMonthAndRead(page, "in the December report");
+  const scene = page.getByRole("dialog");
+  await expect(scene.locator("[data-scene='setpiece.december']")).toBeVisible();
+  await expectNothingBroken(page, "in the December visit");
+  const go = scene.locator("[data-answer='go']");
+  await expect(go.getByRole("button")).toBeDisabled();
+  await expect(go.getByText(/You cannot do that now/)).toBeVisible();
+  await scene.locator("[data-answer='stay']").getByRole("button").click();
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  await expect(page.locator("[data-december-tile]")).toHaveCount(0);
+
+  // Dollars into naira at the bank, so the fare home can be bought.
+  await openTab(page, "Money");
+  await page.getByRole("button", { name: "Change money" }).click();
+  const sheet = page.getByRole("dialog");
+  await sheet.getByLabel("From").selectOption({ label: "Dollars" });
+  await sheet.getByLabel("To").selectOption({ label: "Naira" });
+  await sheet.getByLabel("Amount").fill("5000");
+  await sheet.getByRole("button", { name: "Do it" }).click();
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+
+  // Home, by choice.
+  await openTab(page, "Home");
+  await expect(page.getByText("Today you would come home by choice.", { exact: false })).toBeVisible();
+  await page.getByRole("button", { name: "Go home", exact: true }).click();
+  await page.getByRole("button", { name: "Yes, go" }).click();
+  const carryOn = page.getByRole("button", { name: /^(Carry on|Next)$/ });
+  for (let shown = 0; shown < 5 && (await carryOn.isVisible()); shown += 1) await carryOn.click();
+
+  const tabs = page.getByRole("navigation", { name: "Sections" });
+  if (await tabs.isVisible()) await expect(tabs.getByRole("button")).toHaveText(["Month", "You", "Money", "Japa", "News"]);
+  await openTab(page, "You");
+  await expect(page.getByRole("list", { name: "Times you came home" })).toContainText("by choice");
+  await expectNothingBroken(page, "back home");
 });
