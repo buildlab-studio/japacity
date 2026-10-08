@@ -6,8 +6,8 @@ import type { Ending, RunRecord, StrategyName } from "./players";
 import { ENDINGS, runLife, STRATEGY_NAMES } from "./players";
 
 export const STRATEGIES: StrategyName[] = STRATEGY_NAMES;
-/** The four fixed lives and the prologue's. */
-export const LIVES: Id<"scenario">[] = ["scenario.ada", "scenario.tunde", "scenario.zainab", "scenario.ngozi", "scenario.prologue"];
+/** The five fixed lives and the prologue's. */
+export const LIVES: Id<"scenario">[] = ["scenario.ada", "scenario.tunde", "scenario.zainab", "scenario.ngozi", "scenario.aniekan", "scenario.prologue"];
 
 /** Every strategy from every life over `seeds` seeds. */
 export function runMany(content: Content, seeds: number, months = 120, lives: Id<"scenario">[] = LIVES): RunRecord[] {

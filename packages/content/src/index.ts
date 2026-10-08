@@ -46,7 +46,7 @@ import { rejectText } from "./reject/reject.text";
 import { routeTable } from "./route/route.data";
 import { routeText } from "./route/route.text";
 import { prologueScenario } from "./prologue/prologue.data";
-import { ngoziScenario, scenarioTable } from "./scenario/scenario.data";
+import { aniekanScenario, ngoziScenario, scenarioTable } from "./scenario/scenario.data";
 import { scenarioText } from "./scenario/scenario.text";
 import { schoolTable } from "./school/school.data";
 import { schoolText } from "./school/school.text";
@@ -78,7 +78,7 @@ export const content: Content = {
   chapter: chapterTable,
   var: varTable,
   news: newsTable,
-  scenario: { ...scenarioTable, [ngoziScenario.id]: ngoziScenario, [prologueScenario.id]: prologueScenario },
+  scenario: { ...scenarioTable, [ngoziScenario.id]: ngoziScenario, [aniekanScenario.id]: aniekanScenario, [prologueScenario.id]: prologueScenario },
   country: countryTable,
   status: statusTable,
   goal: goalTable,
