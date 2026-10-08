@@ -3,6 +3,7 @@ import { describe, expect, test } from "vitest";
 import type { Env } from "./index";
 import worker from "./index";
 import { cleanEmail, INSERT } from "./join";
+import shippedConfig from "../wrangler.jsonc?raw";
 
 interface Fake {
   rows: [string, string][];
@@ -10,7 +11,16 @@ interface Fake {
   statements: string[];
 }
 
-function env(fake: Fake, token = "abc123"): Env {
+interface Settings {
+  waitlist: boolean;
+  live: boolean;
+  handle: string;
+}
+
+/** The waitlist's own tests run with it switched on; the shipped settings are tested below. */
+const WAITLIST_ON: Settings = { waitlist: true, live: false, handle: "japacityapp" };
+
+function env(fake: Fake, token = "abc123", settings: Settings = WAITLIST_ON): Env {
   const db = {
     prepare(sql: string) {
       fake.statements.push(sql);
@@ -27,7 +37,16 @@ function env(fake: Fake, token = "abc123"): Env {
     },
   };
   const limiter = { limit: () => Promise.resolve({ success: !fake.limited }) };
-  return { DB: db as unknown as D1Database, JOIN_LIMIT: limiter, ANALYTICS_TOKEN: token, SITE_URL: "https://japacity.com" };
+  return {
+    DB: db as unknown as D1Database,
+    JOIN_LIMIT: limiter,
+    ANALYTICS_TOKEN: token,
+    SITE_URL: "https://japacity.com",
+    LANDING_WAITLIST: String(settings.waitlist),
+    LANDING_LIVE: String(settings.live),
+    LANDING_X_HANDLE: settings.handle,
+    LANDING_PLAY_URL: "https://play.japacity.com",
+  };
 }
 
 function fresh(): Fake {
@@ -39,9 +58,11 @@ function post(body: Record<string, string>, ip = "1.2.3.4"): Request {
   return new Request("https://japacity.com/join", { method: "POST", body: form, headers: { "content-type": "application/x-www-form-urlencoded", "cf-connecting-ip": ip } });
 }
 
-async function serve(request: Request, fake: Fake, token?: string): Promise<Response> {
-  return worker.fetch(request, env(fake, token));
+async function serve(request: Request, fake: Fake, token?: string, settings?: Settings): Promise<Response> {
+  return worker.fetch(request, env(fake, token, settings));
 }
+
+const SHIPPED: Settings = { waitlist: false, live: false, handle: "japacityapp" };
 
 describe("the page", () => {
   test("given a visit, when the page is served, then it carries the name, the line, the privacy line, the form, the social card and the analytics script", async () => {
@@ -114,3 +135,76 @@ describe("joining", () => {
   });
 });
 
+
+describe("before launch, with the waitlist switched off", () => {
+  test("given a visit, when the page is served, then it says the game opens soon and links the X account, with no form", async () => {
+    const response = await serve(new Request("https://japacity.com/"), fresh(), "", SHIPPED);
+    const html = await response.text();
+    expect(response.status).toBe(200);
+    expect(html).toContain("<h1>Japacity</h1>");
+    expect(html).toContain("opens soon");
+    expect(html).toContain('href="https://x.com/japacityapp"');
+    expect(html).not.toMatch(/<form|<input|your email|One email when it opens/);
+    expect(html).not.toContain("cloudflareinsights");
+  });
+
+  test("given a visit, when the page is served, then the social preview card stays", async () => {
+    const html = await (await serve(new Request("https://japacity.com/"), fresh(), "", SHIPPED)).text();
+    expect(html).toContain('property="og:image" content="https://japacity.com/card.png"');
+    expect(html).toContain('property="og:title" content="Japacity"');
+    expect(html).toContain('name="twitter:card" content="summary_large_image"');
+  });
+
+  test("given a good address, when it is posted to /join, then it is not found and nothing is stored", async () => {
+    const fake = fresh();
+    const response = await serve(post({ email: "ada@example.com" }), fake, "", SHIPPED);
+    expect(response.status).toBe(404);
+    expect(fake.rows).toEqual([]);
+    expect(fake.statements).toEqual([]);
+  });
+
+  test("given the waitlist on but its bindings missing, when an address is posted, then it is not found", async () => {
+    const settings = { ...WAITLIST_ON };
+    const bare: Env = { ...env(fresh(), "", settings), DB: undefined, JOIN_LIMIT: undefined };
+    const response = await worker.fetch(post({ email: "ada@example.com" }), bare);
+    expect(response.status).toBe(404);
+    expect(await (await worker.fetch(new Request("https://japacity.com/"), bare)).text()).not.toContain("<form");
+  });
+
+  test("given no handle yet, or one that is not a handle, when the page is served, then there is no X link", async () => {
+    for (const handle of ["", "@japacityapp", "japacity app", "a".repeat(16), '"><script>']) {
+      const html = await (await serve(new Request("https://japacity.com/"), fresh(), "", { ...SHIPPED, handle })).text();
+      expect(html).not.toContain("x.com");
+      expect(html).not.toContain("<script>");
+    }
+  });
+});
+
+describe("on launch day", () => {
+  test("given the page set live, when it is served, then it shows the play link and no form", async () => {
+    const html = await (await serve(new Request("https://japacity.com/"), fresh(), "", { ...SHIPPED, live: true })).text();
+    expect(html).toContain('href="https://play.japacity.com"');
+    expect(html).toContain(">Play now<");
+    expect(html).not.toContain("opens soon");
+    expect(html).not.toContain("<form");
+    expect(html).toContain('property="og:image" content="https://japacity.com/card.png"');
+  });
+
+  test("given the page set live while the waitlist is still on, when an address is posted, then it is not found", async () => {
+    const fake = fresh();
+    const response = await serve(post({ email: "ada@example.com" }), fake, "", { ...WAITLIST_ON, live: true });
+    expect(response.status).toBe(404);
+    expect(fake.rows).toEqual([]);
+  });
+});
+
+describe("the shipped settings", () => {
+  test("given wrangler.jsonc, when it is read, then the waitlist is off, the page is not live, and no database or limiter is bound", () => {
+    const config = JSON.parse(shippedConfig.replace(/^\s*\/\/.*$/gm, "")) as { vars: Record<string, string>; d1_databases?: unknown; ratelimits?: unknown };
+    expect(config.vars.LANDING_WAITLIST).toBe("false");
+    expect(config.vars.LANDING_LIVE).toBe("false");
+    expect(config.vars.ANALYTICS_TOKEN).toBe("");
+    expect(config.d1_databases).toBeUndefined();
+    expect(config.ratelimits).toBeUndefined();
+  });
+});

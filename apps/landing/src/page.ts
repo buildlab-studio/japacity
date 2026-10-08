@@ -1,10 +1,26 @@
-// The one page. Plain HTML so it works with no script; the form posts to /join.
+// The one page. Plain HTML so it works with no script. Before launch it says the game opens
+// soon; live, it shows the play link. The waitlist's form is sent only while the waitlist is on.
 // Words are first drafts for the maintainer to retype in his own voice.
 
 export type PageState = "fresh" | "joined" | "invalid" | "slow";
 
+export interface PageSettings {
+  siteUrl: string;
+  /** Empty means no analytics script at all. */
+  analyticsToken: string;
+  live: boolean;
+  playUrl: string;
+  /** Without the @. Anything that is not an X handle shows no link. */
+  xHandle: string;
+  waitlist: boolean;
+}
+
 const TITLE = "Japacity";
 const LINE = "a game about trying to leave. coming soon.";
+const SOON = "a game about trying to leave. it opens soon.";
+const OPEN = "a game about trying to leave. it is open.";
+const PLAY = "Play now";
+const HANDLE = /^[A-Za-z0-9_]{1,15}$/;
 const DESCRIPTION = "A browser game about japa: the job, the transcript, the funds, the visa officer, and the life after.";
 const PRIVACY = "One email when it opens, then we delete your address.";
 
@@ -19,9 +35,37 @@ function escapeHtml(text: string): string {
   return text.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;");
 }
 
-/** Renders the page. `analyticsToken` empty means no analytics script at all. */
-export function renderPage(state: PageState, siteUrl: string, analyticsToken: string): string {
+function xLink(handle: string): string {
+  if (!HANDLE.test(handle)) return "";
+  return `<a class="x" href="https://x.com/${handle}" rel="me">@${handle} on X</a>`;
+}
+
+function waitlistForm(state: PageState): string {
   const note = NOTES[state];
+  const form =
+    state === "joined"
+      ? ""
+      : `<form method="post" action="/join">
+<label for="email" class="hp">Leave this empty</label>
+<input class="hp" type="text" name="website" id="website" tabindex="-1" autocomplete="off">
+<input type="email" name="email" id="email" placeholder="your email" required maxlength="254" autocomplete="email" inputmode="email">
+<button type="submit">Tell me when it opens</button>
+</form>`;
+  return `<p>${escapeHtml(LINE)}</p>
+${note === "" ? "" : `<p class="note" role="status">${escapeHtml(note)}</p>`}
+${form}
+<p class="privacy">${escapeHtml(PRIVACY)}</p>`;
+}
+
+function body(state: PageState, settings: PageSettings): string {
+  if (settings.live) return `<p>${escapeHtml(OPEN)}</p>\n<a class="play" href="${escapeHtml(settings.playUrl)}">${PLAY}</a>`;
+  if (settings.waitlist) return waitlistForm(state);
+  return `<p>${escapeHtml(SOON)}</p>`;
+}
+
+/** Renders the page for the settings the Worker read from its environment. */
+export function renderPage(state: PageState, settings: PageSettings): string {
+  const { siteUrl, analyticsToken } = settings;
   const analytics =
     analyticsToken === ""
       ? ""
@@ -63,25 +107,14 @@ button{font:inherit;font-weight:700;padding:14px 16px;border:0;border-radius:12p
 .note{font-weight:700;margin:0 0 12px}
 .hp{position:absolute;left:-10000px;top:auto;width:1px;height:1px;overflow:hidden}
 .x{display:inline-block;margin-top:28px;color:var(--muted);font-size:14px}
+.play{display:block;text-align:center;font-weight:700;padding:14px 16px;border-radius:12px;background:var(--accent);color:var(--accent-ink);text-decoration:none}
 </style>
 </head>
 <body>
 <main>
 <h1>${TITLE}</h1>
-<p>${escapeHtml(LINE)}</p>
-${note === "" ? "" : `<p class="note" role="status">${escapeHtml(note)}</p>`}
-${
-  state === "joined"
-    ? ""
-    : `<form method="post" action="/join">
-<label for="email" class="hp">Leave this empty</label>
-<input class="hp" type="text" name="website" id="website" tabindex="-1" autocomplete="off">
-<input type="email" name="email" id="email" placeholder="your email" required maxlength="254" autocomplete="email" inputmode="email">
-<button type="submit">Tell me when it opens</button>
-</form>`
-}
-<p class="privacy">${escapeHtml(PRIVACY)}</p>
-<a class="x" href="https://x.com/japacityapp" rel="me">@japacityapp on X</a>
+${body(state, settings)}
+${xLink(settings.xHandle)}
 </main>
 ${analytics}
 </body>
