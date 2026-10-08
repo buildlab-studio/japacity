@@ -22,6 +22,9 @@ export const CHECK_DATE = "2026-10-08";
 export const CHECK_OWN = "shared/chr/chr_tunde.glb";
 /** Frames recorded for each place, mode and state. */
 export const FRAMES = 20;
+/** The script is timed in blocks of this many frames' updates, and the fastest block counts, as other work on the machine only ever slows one. */
+export const SCRIPT_FRAMES = 150;
+export const SCRIPT_BLOCKS = 3;
 const MODES: readonly Mode[] = ["low", "high"];
 
 /** A place file as the check reads it; the page reads its stage. */
@@ -29,7 +32,7 @@ export type StagedFile = Pick<PlaceFile, "place" | "hub" | "scope"> & { stage?: 
 
 /** The page's handle, as apps/client/src/features/city/check/placeCheck.page.ts sets it on the window. */
 interface PlacePage {
-  placeCheck: { build: (input: PlaceInput) => Promise<void>; frames: (count: number) => FrameRecord[] };
+  placeCheck: { build: (input: PlaceInput) => Promise<void>; frames: (count: number) => FrameRecord[]; script: (count: number) => number };
 }
 
 const PAGE = "/apps/client/src/features/city/check/placeCheck.html";
@@ -38,7 +41,7 @@ export interface Measure {
   /** The most of any frame. */
   drawCalls: number;
   triangles: number;
-  /** The median frame's, so a pause for garbage in one frame does not count as the motion's. */
+  /** A frame's script, from the fastest of the timed blocks. */
   scriptUs: number;
   frameMs: number;
 }
@@ -58,12 +61,12 @@ export function median(values: readonly number[]): number {
   return sorted.length % 2 === 1 ? (sorted[half] ?? 0) : ((sorted[half - 1] ?? 0) + (sorted[half] ?? 0)) / 2;
 }
 
-/** A run's frames as the check reads them: the heaviest frame's draw calls and triangles, the median frame's script and time. */
-export function summarise(records: readonly FrameRecord[]): Measure {
+/** A run as the check reads it: the heaviest frame's draw calls and triangles, the median frame's time, and the fastest block's script a frame. */
+export function summarise(records: readonly FrameRecord[], scriptBlocks: readonly number[]): Measure {
   return {
     drawCalls: Math.max(0, ...records.map((record) => record.drawCalls)),
     triangles: Math.max(0, ...records.map((record) => record.triangles)),
-    scriptUs: median(records.map((record) => record.scriptUs)),
+    scriptUs: Math.min(...scriptBlocks),
     frameMs: median(records.map((record) => record.frameMs)),
   };
 }
@@ -106,8 +109,10 @@ async function measureRun(page: Page, input: PlaceInput, throttle: (rate: number
   await page.evaluate(async (data) => (globalThis as unknown as PlacePage).placeCheck.build(data), JSON.parse(JSON.stringify(input)) as PlaceInput);
   await throttle(CHEAP_PHONE.slowdown);
   const records = await page.evaluate((count) => (globalThis as unknown as PlacePage).placeCheck.frames(count), FRAMES);
+  const blocks: number[] = [];
+  for (let block = 0; block < SCRIPT_BLOCKS; block += 1) blocks.push(await page.evaluate((count) => (globalThis as unknown as PlacePage).placeCheck.script(count), SCRIPT_FRAMES));
   await throttle(1);
-  return summarise(records);
+  return summarise(records, blocks);
 }
 
 export interface RenderOptions {

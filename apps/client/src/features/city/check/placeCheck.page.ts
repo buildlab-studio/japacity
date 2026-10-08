@@ -139,6 +139,18 @@ const placeCheck = {
     }
     return records;
   },
+
+  /**
+   * Microseconds of script a frame, timed as one block of `count` frames' updates with nothing drawn,
+   * so the slowed processor's pauses are spread over the block rather than landing on a few frames.
+   */
+  script(count: number): number {
+    if (current === null) throw new Error("No place is built");
+    const { world, moving } = current;
+    const start = performance.now();
+    for (let frame = 0; frame < count; frame += 1) if (moving) animate(world, advanceClock(STEP));
+    return ((performance.now() - start) * 1000) / count;
+  },
 };
 
 declare global {

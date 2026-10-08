@@ -26,9 +26,9 @@ describe("the place check", () => {
     expect(checkMotion(measureOf({ scriptUs: still.scriptUs + scriptUs + 1 }), budgets)[0]).toMatch(/^R-CITY-027: place.x in high mode: motion adds \d+ microseconds of script a frame, over/);
   });
 
-  test("[R-CITY-027] given a run's frames, when they are summed up, then draw calls and triangles are the heaviest frame's and script the median frame's, so one pause does not count", () => {
-    const frame = (drawCalls: number, scriptUs: number) => ({ drawCalls, triangles: drawCalls * 1000, scriptUs, frameMs: 20 });
-    expect(summarise([frame(40, 100), frame(42, 90000), frame(41, 110)])).toEqual({ drawCalls: 42, triangles: 42000, scriptUs: 110, frameMs: 20 });
+  test("[R-CITY-027] given a run's frames and timed blocks, when they are summed up, then draw calls and triangles are the heaviest frame's, time the median frame's and script the fastest block's", () => {
+    const frame = (drawCalls: number, frameMs: number) => ({ drawCalls, triangles: drawCalls * 1000, scriptUs: 0, frameMs });
+    expect(summarise([frame(40, 20), frame(42, 900), frame(41, 30)], [300, 120, 900])).toEqual({ drawCalls: 42, triangles: 42000, scriptUs: 120, frameMs: 30 });
     expect(median([4, 1, 3, 2])).toBe(2.5);
     expect(median([])).toBe(0);
   });
