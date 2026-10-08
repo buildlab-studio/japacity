@@ -443,6 +443,10 @@ export interface SetpieceAnswer {
   thenScore: number | null;
   /** Applied the moment the answer is given (R-SETPIECE-006). */
   effects: Effect[];
+  /** Judged when the answer is given; an answer whose requirements fail is rejected `not-legal` (R-SETPIECE-003). Missing: always allowed. */
+  requires?: Requirement[];
+  /** True: giving this answer closes the set piece with the questions after it unasked (R-SETPIECE-004). */
+  closes?: true;
 }
 
 export interface SetpieceQuestion {
@@ -456,6 +460,8 @@ export interface SetpieceEntry {
   id: Id<"setpiece">;
   /** How many questions are asked. */
   ask: number;
+  /** `fixed`: the first `ask` questions whose conditions hold, in the order written. Missing: drawn on `visa` (R-SETPIECE-001). */
+  order?: "fixed";
   questions: SetpieceQuestion[];
 }
 
@@ -1442,6 +1448,8 @@ export interface PlayerView {
   locks: SlotLock[];
   japacity: { percent: number | null; route: Id<"route"> | null };
   qualities: { id: Id<"quality">; value: number }[];
+  /** The run-down warning stands: two months under the wellbeing line (R-HEALTH-001, R-HEALTH-007). */
+  runDown: boolean;
   /** The job, its tenure, and the side job held if any (R-ACTIVITY-010). */
   job: { id: Id<"activity"> | null; months: number; side: Id<"activity"> | null };
   freeSlots: number;

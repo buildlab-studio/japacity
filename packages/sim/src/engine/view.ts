@@ -18,6 +18,7 @@ export const VIEW_KEYS = [
   "locks",
   "japacity",
   "qualities",
+  "runDown",
   "job",
   "freeSlots",
   "activities",

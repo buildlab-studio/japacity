@@ -9,6 +9,8 @@ export const SetpieceAnswerSchema = z.strictObject({
   when: z.array(RequirementSchema),
   thenScore: IntSchema.nullable(),
   effects: z.array(EffectSchema),
+  requires: z.array(RequirementSchema).exactOptional(),
+  closes: z.literal(true).exactOptional(),
 });
 
 export const SetpieceQuestionSchema = z.strictObject({
@@ -20,6 +22,7 @@ export const SetpieceQuestionSchema = z.strictObject({
 export const SetpieceEntrySchema = z.strictObject({
   id: idOf("setpiece"),
   ask: z.int().positive(),
+  order: z.literal("fixed").exactOptional(),
   questions: z.array(SetpieceQuestionSchema).min(1),
 });
 

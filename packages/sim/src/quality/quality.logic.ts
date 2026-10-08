@@ -236,9 +236,7 @@ export const qualityKind: RegisteredKind<QualitySlice, QualityEvent> = {
   },
   view: (read) => {
     const { state, content } = read;
-    // PlayerView has no `runDown` key yet. It needs `runDown: boolean` in types.ts and in
-    // VIEW_KEYS (engine/view.ts); until then the part is built apart so the contract's type stays as it is.
-    const part: Partial<PlayerView> & HealthView = {
+    const part: Pick<PlayerView, "qualities" | "runDown"> = {
       qualities: Object.values(content.quality)
         .filter((entry) => entry.shown)
         .map((entry) => ({ id: entry.id, value: state.quality[entry.id] ?? entry.min })),
@@ -249,7 +247,3 @@ export const qualityKind: RegisteredKind<QualitySlice, QualityEvent> = {
   },
 };
 
-/** The quality kind's part of the view that the contract does not name yet (R-HEALTH-007). */
-export interface HealthView {
-  runDown: boolean;
-}
