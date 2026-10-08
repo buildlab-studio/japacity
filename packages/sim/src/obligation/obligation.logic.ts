@@ -656,6 +656,8 @@ function payCar(ctx: Ctx, item: ObligationState, entry: ObligationEntry, amount:
 
 function payCommand(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (command.type !== "obligation/pay") throw new Error(`obligation/pay cannot handle ${command.type}.`);
+  // R-PEOPLE-044: a stand-in never spends.
+  if (ctx.sender === "stand-in") return reject("not-legal", "A stand-in never spends.");
   const item = typeof command.obligation === "string" ? ctx.state.obligation.items[command.obligation] : undefined;
   if (item === undefined) return reject("unknown-id", `There is no open obligation ${String(command.obligation)}.`);
   const entry = entryOf(ctx.content, item.entry);

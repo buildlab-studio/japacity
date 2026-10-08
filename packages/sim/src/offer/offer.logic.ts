@@ -304,6 +304,8 @@ const judgeIn =
 
 function choose(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (command.type !== "offer/choose") throw new Error(`offer/choose cannot handle ${command.type}.`);
+  // R-PEOPLE-044: a stand-in never spends.
+  if (ctx.sender === "stand-in") return reject("not-legal", "A stand-in never spends.");
   const item = typeof command.offer === "string" ? ctx.state.offer.items[command.offer] : undefined;
   if (item === undefined) return reject("unknown-id", `There is no open offer ${String(command.offer)}.`);
   const choice = entryOf(ctx.content, item.entry).choices.find((candidate) => candidate.id === command.choice);

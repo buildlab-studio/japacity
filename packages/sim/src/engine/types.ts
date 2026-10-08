@@ -644,8 +644,6 @@ export interface NewsEntry {
   touches: Id<"route">[];
   /** Routes a character hears of by reading it. */
   hear: Id<"route">[];
-  /** When these all hold, the `hear` routes are heard of at the rumour stage too, through a sibling there (R-PEOPLE-033). Missing: only from announced. */
-  rumourIf?: Requirement[];
   /** The director's fields: docs/rules/director.md. Missing means the fixed schedule in `standIn` is used. */
   director?: {
     group: string;
@@ -1122,7 +1120,7 @@ export interface Tuning {
   /** The city's crowd bands, the graphics modes' switches and the screen split (docs/rules/city.md). The simulation never reads it. */
   city: { crowdLow: number; crowdHigh: number; playersMax: number; fridayBp: number; saturdayBp: number; raiseAfterMs: number; raiseFrameMs: number; dropAfterMs: number; dropFrameMs: number; maxPixelRatio: number; desktopMinWidth: number };
   /** The people around the character (docs/rules/people.md Numbers). */
-  people: { matchmaker: boolean; maxCourting: number; partnerMoments: number; marryAfterMonths: number; weddingShare: number; proposeCooldown: number; recourtMonths: number; gossipBp: number; endStanding: { courting: number; partner: number; married: number; applying: number }; endWellbeing: number; leftWellbeing: number; couchMonths: number; warnDays: number; standInDays: number };
+  people: { matchmaker: boolean; maxCourting: number; partnerMoments: number; marryAfterMonths: number; weddingShare: number; proposeCooldown: number; recourtMonths: number; gossipBp: number; weddingStanding: number; gossipStanding: number; endStanding: { courting: number; partner: number; married: number; applying: number }; endWellbeing: number; leftWellbeing: number; couchMonths: number; warnDays: number; standInDays: number };
   /** Invites and phrases (docs/rules/pair.md Numbers). */
   pair: { inviteDays: number; maxOpenInvites: number; rewardFriends: number; phrasesPerHour: number; placePhrasesPerMinute: number };
   /** The genuineness interview (docs/rules/interview.md Numbers). */

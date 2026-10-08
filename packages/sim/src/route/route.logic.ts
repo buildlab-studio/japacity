@@ -440,6 +440,8 @@ function interviewScored(ctx: Ctx, effect: Effect): BaseEvent[] {
 /** R-ROUTE-008. */
 function payDeposit(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (command.type !== "route/pay-deposit") throw new Error(`route/pay-deposit cannot handle ${command.type}.`);
+  // R-PEOPLE-044: a stand-in never spends.
+  if (ctx.sender === "stand-in") return reject("not-legal", "A stand-in never spends.");
   const entry = ctx.content.route[command.route];
   const held = ctx.state.route[command.route];
   if (entry === undefined || held === undefined) return reject("unknown-id", `There is no route ${String(command.route)}.`);
@@ -463,6 +465,8 @@ function payDeposit(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
 /** R-ROUTE-020, with R-GATE-003's arrival in place of the ending: the life goes on abroad. */
 function depart(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (command.type !== "route/depart") throw new Error(`route/depart cannot handle ${command.type}.`);
+  // R-PEOPLE-044: a stand-in never spends.
+  if (ctx.sender === "stand-in") return reject("not-legal", "A stand-in never spends.");
   const entry = ctx.content.route[command.route];
   const held = ctx.state.route[command.route];
   if (entry === undefined || held === undefined) return reject("unknown-id", `There is no route ${String(command.route)}.`);

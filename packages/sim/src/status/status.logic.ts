@@ -249,6 +249,8 @@ function remove(ctx: Ctx, cause: Cause): BaseEvent[] {
 /** R-STATUS-006. */
 function renew(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (command.type !== "status/renew") throw new Error(`status/renew cannot handle ${command.type}.`);
+  // R-PEOPLE-044: a stand-in never spends.
+  if (ctx.sender === "stand-in") return reject("not-legal", "A stand-in never spends.");
   const now = currentOf(ctx);
   if (now === null) return reject("not-legal", "No status is held.");
   const { held, entry } = now;

@@ -17,7 +17,6 @@ export const NewsEntrySchema = z.strictObject({
   id: idOf("news"),
   touches: z.array(idOf("route")),
   hear: z.array(idOf("route")),
-  rumourIf: z.array(RequirementSchema).exactOptional(),
   director: z
     .strictObject({
       group: z.string().min(1),

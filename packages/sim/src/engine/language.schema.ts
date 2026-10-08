@@ -525,6 +525,8 @@ export const TuningSchema = z.strictObject({
     proposeCooldown: CountSchema,
     recourtMonths: CountSchema,
     gossipBp: BpSchema,
+    weddingStanding: IntSchema,
+    gossipStanding: IntSchema,
     endStanding: z.strictObject({ courting: IntSchema, partner: IntSchema, married: IntSchema, applying: IntSchema }),
     endWellbeing: IntSchema,
     leftWellbeing: IntSchema,

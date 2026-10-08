@@ -5,6 +5,7 @@ import { directorFairness } from "../world/fairness";
 import type { Content, KindName } from "./types";
 import { placeChecks } from "../place/place.check";
 import { checkLotteryContent } from "../lottery/lottery.draw";
+import { phraseChecks } from "../pair/phrase.check";
 
 const CONTENT_KINDS = [
   "quality",
@@ -74,6 +75,8 @@ export function checkContent(content: Content): string[] {
   problems.push(...directorFairness(content));
   problems.push(...placeChecks(content));
   problems.push(...checkLotteryContent(content));
+  // R-PAIR-010: every phrase's fill-ins have a source and nothing forbidden.
+  problems.push(...phraseChecks(content));
   return problems;
 }
 

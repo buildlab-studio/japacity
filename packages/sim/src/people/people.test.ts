@@ -8,7 +8,7 @@ import type { Content, Effect, Id, PersonFacts, SlotPick, State } from "../engin
 import { registry } from "../kinds";
 import { hiddenPaths } from "../engine/view";
 import { applyEffects } from "../route/route.journey";
-import type { Game, StartOptions } from "../testing/play";
+import type { Game, Loose, StartOptions } from "../testing/play";
 import { finishPrologue, start } from "../testing/play";
 import { standInWorld } from "../world/standIn";
 import { computerFacts } from "./people.facts";
@@ -814,6 +814,38 @@ describe("the stand-in", () => {
     expect(game.state.people.bonds[bond]?.ended?.by).toBe("absence");
     expect(qualityChange(result.events, "quality.standing", bond)).toBe(0);
     expect(qualityChange(result.events, "quality.wellbeing", bond)).toBe(0);
+  });
+
+  test("[R-PEOPLE-044] given commands sent as the stand-in, when it proposes, consents, sends a card, ends the bond, ends a turn or spends, then each is rejected as not legal and the player's own end goes through", () => {
+    const game = life();
+    const bond = linked(game);
+    game.accept({ type: "people/court", with: "pair-1" });
+    game.accept({ type: "people/stand-in", pair: "pair-1", stage: "on" }, "authority");
+    const refused: Loose[] = [
+      { type: "people/propose", bond, step: "partner" },
+      { type: "people/consent", bond, countFunds: true },
+      { type: "people/invite", slot: "sibling-1", looking: "sibling" },
+      { type: "people/end", bond },
+      { type: "turn/end", slots: [] },
+      // Each would be unknown-id from a player: the stand-in is refused before anything is looked up.
+      { type: "offer/choose", offer: "none", choice: "none" },
+      { type: "obligation/pay", obligation: "none", amount: 1 },
+      { type: "route/depart", route: "route.none" },
+    ];
+    for (const command of refused) game.expectRejected(command, "not-legal", "stand-in");
+    game.accept({ type: "people/end", bond });
+    expect(game.state.people.bonds[bond]?.ended?.by).toBe("absence");
+  });
+
+  test("[R-PEOPLE-044] given a partner proposal waiting, when the stand-in answers it, then it is rejected, and the player may answer it", () => {
+    const game = life();
+    linked(game);
+    game.accept({ type: "people/court", with: "pair-1" });
+    const bond = Object.keys(game.state.people.bonds).find((id) => game.state.people.bonds[id]?.with.kind === "player")!;
+    game.accept({ type: "people/proposal", pair: "pair-1", proposal: { step: "partner", route: null, lead: null } }, "authority");
+    game.expectRejected({ type: "people/answer", bond, step: "partner", yes: true }, "not-legal", "stand-in");
+    game.accept({ type: "people/answer", bond, step: "partner", yes: true });
+    expect(game.state.people.bonds[bond]?.pending.theirs).toBeNull();
   });
 
   test("[R-PEOPLE-045] given computer bonds, when the months pass, then none ever has a stand-in, and the stand-in names only a pair", () => {

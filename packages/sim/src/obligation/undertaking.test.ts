@@ -237,6 +237,27 @@ describe("R-UNDERTAKING-010: social assistance", () => {
     enough.endTurn();
     expect(Object.values(enough.state.offer.items).some((open) => open.entry === OFFER)).toBe(false);
   });
+  test("[R-UNDERTAKING-010] given a partner who arrived on Canada's spouse route, when assistance is taken inside the term and after it, then only the months inside count in the people slice; one who came another way counts none", () => {
+    const under = content.tuning.undertaking.assistanceUnder;
+    const takeOne = (game: Game): void => {
+      game.endTurn();
+      const offered = Object.values(game.state.offer.items).find((open) => open.entry === OFFER);
+      expect(offered).toBeDefined();
+      game.accept({ type: "offer/choose", offer: offered!.id, choice: "take" });
+    };
+    const arrived = sponsor({ bank: under - 1, cash: 0 });
+    setPeople(arrived, (slice) => ({ ...slice, arrived: { route: CA_SPOUSE, month: arrived.state.turn.month } }));
+    takeOne(arrived);
+    expect(arrived.state.people.assistanceTaken).toBe(1);
+    // The term has run: the months since arriving are the tuning's months.
+    setPeople(arrived, (slice) => ({ ...slice, arrived: { route: CA_SPOUSE, month: arrived.state.turn.month + 1 - content.tuning.undertaking.months } }));
+    arrived.state = { ...arrived.state, wallet: { ...arrived.state.wallet, pockets: { ...arrived.state.wallet.pockets, CAD: { ...arrived.state.wallet.pockets.CAD, bank: under - 1 } } } };
+    takeOne(arrived);
+    expect(arrived.state.people.assistanceTaken).toBe(1);
+    const resident = sponsor({ bank: under - 1, cash: 0 });
+    takeOne(resident);
+    expect(resident.state.people.assistanceTaken).toBe(0);
+  });
 });
 
 describe("R-UNDERTAKING-011: the UK asks for no undertaking", () => {

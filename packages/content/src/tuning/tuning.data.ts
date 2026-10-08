@@ -204,7 +204,7 @@ export const tuning: Tuning = {
   city: { crowdLow: 8, crowdHigh: 16, playersMax: 4, fridayBp: 4000, saturdayBp: 5000, raiseAfterMs: 10000, raiseFrameMs: 20, dropAfterMs: 5000, dropFrameMs: 33, maxPixelRatio: 2, desktopMinWidth: 1024 },
 
   // people.md, pair.md, interview.md, undertaking.md: their Numbers tables
-  people: { matchmaker: false, maxCourting: 3, partnerMoments: 6, marryAfterMonths: 6, weddingShare: naira(3000000), proposeCooldown: 3, recourtMonths: 6, gossipBp: 2500, endStanding: { courting: -2, partner: -6, married: -12, applying: -6 }, endWellbeing: -4, leftWellbeing: -8, couchMonths: 3, warnDays: 7, standInDays: 14 },
+  people: { matchmaker: false, maxCourting: 3, partnerMoments: 6, marryAfterMonths: 6, weddingShare: naira(3000000), proposeCooldown: 3, recourtMonths: 6, gossipBp: 2500, weddingStanding: 8, gossipStanding: -3, endStanding: { courting: -2, partner: -6, married: -12, applying: -6 }, endWellbeing: -4, leftWellbeing: -8, couchMonths: 3, warnDays: 7, standInDays: 14 },
   pair: { inviteDays: 14, maxOpenInvites: 3, rewardFriends: 10, phrasesPerHour: 30, placePhrasesPerMinute: 6 },
   interview: { ask: 5, decoys: 3, passBp: 7000, failBp: 4000, caughtBelowBp: 2000, thinMoments: 8, thinMonths: 6, doubtBp: 3000, standInRecallBp: 8000, caughtStanding: 15 },
   undertaking: { months: 36, assistanceUnder: 100000 },

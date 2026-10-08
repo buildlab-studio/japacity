@@ -779,6 +779,30 @@ describe("two lives", () => {
     expect(sponsor.state.draws).toEqual(sponsorDraws);
   });
 
+  test("[R-INTERVIEW-012] given a deep record in this life and the applicant's measure sent as thin, when a result short of pass is scored, then it is caught as the applicant's life finds it", () => {
+    const at = mulDiv(numbers.passBp, ALL.length, 10000) - 1;
+    const measured = sponsorLife();
+    expect(isThin(measured.state, measured.state.people.bonds[BOND]!, numbers)).toBe(false);
+    const sent = (thin: boolean): InterviewResult => {
+      const game = sponsorLife();
+      game.accept({ type: "interview/open", pair: PAIR, route: PARTNER_ROUTE, questions: questionsFor(game), thin }, "authority");
+      expect(game.state.interview.open?.thin).toBe(thin);
+      const { mine, theirs } = rightAnswers(game);
+      answerAll(game, mine);
+      const given = theirs.map((option, index) => (index < at ? option : game.state.interview.open!.questions[index]!.options.find((other) => other !== option)!));
+      game.accept({ type: "interview/scored", pair: PAIR, theirs: given }, "authority");
+      return game.state.interview.last!.result;
+    };
+    expect(sent(true)).toBe("caught");
+    expect(sent(false)).toBe("doubt");
+  });
+
+  test("[R-INTERVIEW-012] given an application sent on a thin record, when the interview opens, then the applicant's measure is kept with it", () => {
+    const game = applicantWithComputer({ bond: { moments: [], stage: "married" } });
+    send(game);
+    expect(game.state.interview.open?.thin).toBe(true);
+  });
+
   test("[R-INTERVIEW-012] given the same start and commands, when the life is played again, then the interview's draws and result are the same", () => {
     const play = (): State => {
       const game = applicantWithComputer({ seed: "seed-11" });

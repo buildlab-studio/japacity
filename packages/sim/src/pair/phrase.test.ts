@@ -2,6 +2,7 @@ import { content, text } from "@japacity/content";
 import { fc, test } from "@fast-check/vitest";
 import { describe, expect } from "vitest";
 
+import { checkContent } from "../engine/content";
 import type { Content, ConversationRow, Id, PairRecord, PhraseEntry, PlayerView } from "../engine/types";
 import { start } from "../testing/play";
 import { newRecord, writeEvent } from "./pair.logic";
@@ -73,6 +74,11 @@ describe("the phrases in content", () => {
       "phrase.meet-at: fills a spot, and there are no spots.",
       "phrase.see-you: fills a spot, and there are no spots.",
     ]);
+  });
+
+  test("[R-PAIR-010] given the real content and then no shared spots, when the whole content is checked, then nothing is found and then each spot phrase is named", () => {
+    expect(checkContent(content)).toEqual([]);
+    expect(checkContent({ ...content, people: { spots: [] } })).toEqual(expect.arrayContaining(["phrase.meet-at: fills a spot, and there are no spots."]));
   });
 
   test("[R-PAIR-010] given a phrase with an empty list, options it should not have, or a bad key, when checked, then each is found", () => {
