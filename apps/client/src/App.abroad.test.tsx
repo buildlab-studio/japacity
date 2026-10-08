@@ -39,6 +39,11 @@ describe("the shell by where the character is", () => {
     storage.setItem(SAVE_KEY, JSON.stringify({ save: beforeFlight, clock: { anchor: 0 } }));
     render(<App store={bootGame({ storage, fastClock: true })} />);
 
+    // R-SHARE-001: the decision day card of the month before is still due, so it opens first and is closed.
+    const granted = await screen.findByRole("dialog", { name: words("share.granted.title") }, { timeout: 10000 });
+    expect(granted.querySelector("[data-share-card='granted']")).not.toBeNull();
+    fireEvent.click(within(granted).getByRole("button", { name: say("ui.report.close") }));
+
     expect(await tabNames()).toEqual(["month", "you", "money", "japa", "people", "news"].map((tab) => say(`ui.tab.${tab}`)));
     fireEvent.click(await screen.findByRole("button", { name: say("ui.route.depart") }));
 
@@ -55,7 +60,7 @@ describe("the shell by where the character is", () => {
     expect(await tabNames()).toEqual(["month", "you", "money", "status", "people", "home"].map((tab) => say(`ui.tab.${tab}`)));
     expect(screen.getByText(say("ui.place.way-home"))).toBeDefined();
     expect(screen.getByRole("heading", { name: say("ui.status.title") })).toBeDefined();
-  });
+  }, 20000);
 
   test("[R-STATUS-003] given the clock running abroad, then it shows above the tabs whichever tab is open", async () => {
     await showing(richAbroadView());
