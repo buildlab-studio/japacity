@@ -15,6 +15,7 @@ import { ActivityView } from "./features/activity/ActivityView";
 import { EndingView } from "./features/card/EndingView";
 import { CardView } from "./features/card/ShareCard";
 import { ChapterView } from "./features/chapter/ChapterView";
+import { City } from "./features/city/City";
 import { CreditView } from "./features/credit/CreditView";
 import { DocumentView } from "./features/document/DocumentView";
 import { GoalView } from "./features/goal/GoalView";
@@ -238,6 +239,7 @@ function Playing() {
 
   return (
     <div className="min-h-dvh">
+      <City />
       <Header />
       {abroad ? <Abroad tab={tab} /> : <AtHome tab={tab} />}
       <TabBar tabs={tabs} current={tab} onChange={showTab} />
