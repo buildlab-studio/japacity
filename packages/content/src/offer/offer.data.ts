@@ -609,7 +609,8 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
     onExpire: null,
   },
   // The group loan and the savings circle: obligation.md R-OBLIGATION-012, luck.md R-LUCK-009.
-  // the page gives no chance for the three group offers; these are working values.
+  // each is opened only by an effect for now. A chance above 0 rolls it at home, which moves the
+  // offer draws of every recorded life; the chances below in comments wait for the maintainer to re-record them.
 
   "offer.group-loan": {
     id: "offer.group-loan",
@@ -620,7 +621,8 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
       CREDIT_CLEAN,
       { type: "not", of: { type: "obligation/has", obligationType: "group-loan" } },
     ],
-    chanceBp: pct(3),
+    // 3% a month once switched on; the page gives none.
+    chanceBp: 0,
     cooldown: 12,
     maxTimes: null,
     expiresAfter: 2,
@@ -645,7 +647,8 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
     id: "offer.parents-group-debt",
     group: "family",
     when: [],
-    chanceBp: pct(1),
+    // 1% a month once switched on; the page gives none.
+    chanceBp: 0,
     cooldown: 24,
     maxTimes: 1,
     expiresAfter: 1,
@@ -674,7 +677,8 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
     id: "offer.stand-guarantor",
     group: "family",
     when: [{ type: "not", of: { type: "obligation/has", obligationType: "undertaking" } }],
-    chanceBp: pct(1),
+    // 1% a month once switched on; the page gives none.
+    chanceBp: 0,
     cooldown: 24,
     maxTimes: 1,
     expiresAfter: 1,
@@ -711,7 +715,8 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
       { type: "quality/min", quality: "quality.network", value: 20 },
       { type: "not", of: { type: "obligation/has", obligationType: "ajo" } },
     ],
-    chanceBp: 800,
+    // luck.md gives 800 a month once switched on.
+    chanceBp: 0,
     cooldown: 12,
     maxTimes: null,
     expiresAfter: 2,
