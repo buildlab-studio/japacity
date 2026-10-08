@@ -352,6 +352,25 @@ export const obligationTable: Record<Id<"obligation">, ObligationEntry> = {
     onDefault: [],
   },
 
+  // R-RETURN-006: the car's shortfall on the way home, converted to naira at the official rate on the
+  // day of the return. The same terms as the shortfall abroad.
+  "obligation.car-shortfall-home": {
+    id: "obligation.car-shortfall-home",
+    type: "loan",
+    where: "any",
+    currency: "NGN",
+    reportsToCredit: true,
+    amount: 0,
+    rateBp: 0,
+    term: 12,
+    locksPrincipal: false,
+    sink: "loan-repay",
+    interestSink: "loan-interest",
+    grace: 1,
+    onMiss: [],
+    onDefault: [],
+  },
+
   // road.md R-ROAD-006 and 007: the ransom nobody paid. It follows the character home or on to Italy.
   // the page gives no schedule, rate or grace, so it charges nothing a month and never defaults;
   // it stays open as what is owed.

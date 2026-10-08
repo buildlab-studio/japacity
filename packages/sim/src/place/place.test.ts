@@ -291,7 +291,7 @@ describe("coming home", () => {
     const game = flown(content, { from: "scenario.zainab", kinds: recordingCloses(closed) });
     closed.length = 0;
     comeHome(game);
-    expect(closed).toEqual(["upkeep", "support", "rent", "phone", "surcharge", "tuition"]);
+    expect(closed).toEqual(["upkeep", "support", "rent", "phone", "surcharge", "tuition", "car"]);
     expect(openedThisMonth(game)).toEqual(expect.arrayContaining([`obligation.upkeep ${String(130000 * 100)}`, `obligation.home-support ${String(60000 * 100)}`]));
   });
 });

@@ -40,11 +40,11 @@ const IRREGULAR: Id<"status"> = "status.eu-irregular";
 /** R-PLACE-002: what the family house stops charging for while you are away. */
 const HOME_TYPES: readonly ObligationType[] = ["upkeep", "support"];
 /**
- * R-RETURN-006: what closes on the way home. the car is left out, since
- * its hand-back (R-CAR-004) is the obligation kind's and a close by type would
- * drop the shortfall; the agent's debt follows you home (R-ROAD-007).
+ * R-RETURN-006: what closes on the way home. The car is handed back by the
+ * obligation kind (R-CAR-004), which opens any shortfall at home in naira; the
+ * agent's debt follows you home (R-ROAD-007).
  */
-const ABROAD_TYPES: readonly ObligationType[] = ["upkeep", "support", "rent", "phone", "surcharge", "tuition"];
+const ABROAD_TYPES: readonly ObligationType[] = ["upkeep", "support", "rent", "phone", "surcharge", "tuition", "car"];
 const CURRENCIES: readonly Currency[] = ["NGN", "GBP", "USD", "CAD", "AED", "EUR"];
 
 /** An entry that may be tied to a place: activities, offers, obligations, routes, goals. */
