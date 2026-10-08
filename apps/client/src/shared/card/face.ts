@@ -29,6 +29,8 @@ export interface CardFace {
   /** The things done most, as words, at most three. */
   most: string[];
   body: string | null;
+  /** The credits for the journalism behind the road, on the real-story card on screen only (R-ROAD-011). */
+  credits: string[];
   /** The composition drawn behind the words (R-SHARE-007). */
   art: string;
   sender: string;
@@ -60,7 +62,7 @@ function bodyOf(card: ShareCard): string | null {
     case "send-off":
       return words("chapter.send-off.close");
     case "real-story":
-      return hasWords("card.real-story.body") ? words("card.real-story.body") : say("ui.card.real-story.body");
+      return hasWords("road.real-story.line") ? say("road.real-story.line") : say("ui.card.real-story.body");
     case "lost":
       return sayCount("ui.card.lost.body", card.months, { months: card.months });
     case "chapter":
@@ -75,6 +77,18 @@ function bodyOf(card: ShareCard): string | null {
       throw new Error(`Unknown card kind: ${String(never)}`);
     }
   }
+}
+
+/**
+ * R-ROAD-011 puts the credits on the real-story card, and R-SHARE-006
+ * bars a real institution's name from any card. the card on
+ * screen lists the credits; the image that travels leaves them off.
+ */
+function creditsOf(card: ShareCard): string[] {
+  if (card.kind !== "real-story") return [];
+  const credits: string[] = [];
+  for (let number = 1; hasWords(`road.real-story.credit.${String(number)}`); number += 1) credits.push(say(`road.real-story.credit.${String(number)}`));
+  return credits;
 }
 
 export function cardFace(card: ShareCard, scenario: Id<"scenario"> | null): CardFace {
@@ -96,6 +110,7 @@ export function cardFace(card: ShareCard, scenario: Id<"scenario"> | null): Card
     stats: story ? null : { months: card.months, standing: card.standing },
     most: story ? [] : card.topActivities.slice(0, MOST).map((id) => nameOf(id)),
     body: bodyOf(card),
+    credits: creditsOf(card),
     art: artOf(card),
     sender: say("share.sender"),
     address: say("share.address"),

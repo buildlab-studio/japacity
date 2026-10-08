@@ -6,9 +6,10 @@
 import { Dialog } from "@base-ui/react/dialog";
 import type { ShareKind } from "@japacity/content";
 import type { Id } from "@japacity/sim";
-import { createContext, use, useState, type ReactNode } from "react";
+import { createContext, use, useEffect, useRef, useState, type ReactNode } from "react";
 
 import { useGame, useView } from "../../authority/GameProvider";
+import type { Encoded } from "../../shared/card/encode";
 import { cardFace, type CardFace, type ShareCard } from "../../shared/card/face";
 import { renderCard } from "../../shared/card/render";
 import { browserDevice, canShareFiles, sendCard, type Device } from "../../shared/card/travel";
@@ -119,6 +120,13 @@ export function ShareCardFace({ card, scenario = null }: { card: ShareCard; scen
       </div>
       <Figures face={face} />
       {face.body === null ? null : <p className={card.kind === "send-off" ? "text-sm italic" : "text-sm"}>{face.body}</p>}
+      {face.credits.length === 0 ? null : (
+        <ul className="flex flex-col gap-0.5 text-xs opacity-80" data-credits>
+          {face.credits.map((credit) => (
+            <li key={credit}>{credit}</li>
+          ))}
+        </ul>
+      )}
       <Footer face={face} />
     </article>
   );
@@ -134,18 +142,27 @@ const STATUS_WORDS: Record<Exclude<Status, "idle" | "cancelled">, string> = {
 };
 
 /**
- * The share button under a card (R-SHARE-003, R-SHARE-009): draws the image
- * on tap, then hands it to the share sheet, or saves it where there is none.
+ * The share button under a card (R-SHARE-003, R-SHARE-009): hands the drawn
+ * image to the share sheet, or saves it where there is none. Where there is a
+ * share sheet the image is drawn as the card opens, because the sheet must be
+ * called while the tap still counts.
  */
 export function ShareButton({ card, scenario, device = browserDevice() }: { card: ShareCard; scenario: Id<"scenario">; device?: Device }) {
   const [status, setStatus] = useState<Status>("idle");
   const face = cardFace(card, scenario);
+  const sheet = canShareFiles(device);
+  const drawn = useRef<Promise<Encoded> | null>(null);
+  const key = cardKey(card);
+  useEffect(() => {
+    drawn.current = sheet && face.shareable ? renderCard(face).catch((): Encoded => ({ ok: false, reason: "no-image", bytes: 0 })) : null;
+    // The card's key names everything drawn on it, so the face is not a dependency.
+  }, [key, sheet]);
   if (!face.shareable) return <p className="max-w-sm text-center text-sm opacity-80">{say("share.not-shareable")}</p>;
-  const label = canShareFiles(device) ? say("share.button.share") : say("share.button.save");
+  const label = sheet ? say("share.button.share") : say("share.button.save");
   const go = async () => {
     setStatus("making");
     try {
-      const made = await renderCard(face);
+      const made = await (drawn.current ?? renderCard(face));
       setStatus(made.ok ? await sendCard(made.blob, card.kind, device) : "failed");
     } catch {
       setStatus("failed");

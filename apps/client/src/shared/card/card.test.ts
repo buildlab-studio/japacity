@@ -107,6 +107,15 @@ describe("what is on a card", () => {
     for (const id of ART_IDS) expect(artShapes(id, { x: 0, y: 0, w: 900, h: 760 })?.every((shape) => ["rect", "poly", "circle", "line"].includes(shape.op))).toBe(true);
   });
 
+  test("[R-SHARE-006] given the real-story card, when it is made, then the screen lists the credits for the journalism and the image that travels names no outlet", () => {
+    const face = cardFace(cardOf("real-story"), "scenario.ada");
+    const credits = Object.keys(text).filter((key) => key.startsWith("road.real-story.credit.")).map((key) => text[key]);
+    expect(credits.length).toBeGreaterThan(0);
+    expect(face.credits).toEqual(credits);
+    const drawn = texts(cardSteps(face, SIZE, measure)).map((step) => step.text).join(" ");
+    for (const credit of credits) expect(drawn).not.toContain(credit!.split(",")[0]);
+  });
+
   test("[R-SHARE-007] given every kind and every chapter, when its art is looked up, then there is a composition for it drawn in palette shapes alone", () => {
     const ids = [...shareKinds.map((kind) => text[`share.${kind}.art`]), ...shareChapters.map((id) => text[`share.${id}.art`])];
     for (const id of ids) {
