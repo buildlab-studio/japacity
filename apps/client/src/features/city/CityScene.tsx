@@ -8,7 +8,6 @@ import { useEffect, useRef, useState } from "react";
 import { type Camera, type DirectionalLight, Fog, type Object3D, Vector3 } from "three";
 
 import { advanceClock } from "../../shared/three/clock";
-import { danceFigure } from "../../shared/three/dance";
 import { loadModel } from "../../shared/three/load";
 import { loadManifest } from "../../shared/three/manifest";
 import { loadGrids } from "../../shared/three/motion";
@@ -16,14 +15,13 @@ import { poseFigure } from "../../shared/three/people";
 import { BEHIND, cameraAim, EYE, FOV } from "./camera";
 import { filesOf, stageOf } from "./placeFile";
 import type { CityProbe, Picked, SceneProps } from "./scene.types";
-import { crossAt } from "./cross";
-import { standAt, stepWalk, strideOf, WALK_SPEED, type Walker, walkTo } from "./walk";
-import { buildWorld, colourOf, skyColours, type World } from "./world";
+import { standAt, stepWalk, strideOf, type Walker, walkRoute } from "./walk";
+import { findRoute } from "./walk/route";
+import { animateWorld, buildWorld, colourOf, skyColours, type World } from "./world";
 
 /** How much further the fog stands while looking from above, so the plan is not lost in it. */
 const PLAN_FOG = 90;
 const HOLD_MS = 450;
-const INDICATOR_Y = 1.98;
 /** Behind the panels the scene only idles: a frame a second, so the panels keep the processor. */
 const IDLE_MS = 1000;
 
@@ -93,7 +91,7 @@ function Place(props: WorldProps) {
       if (!alive) return;
       const [x, z, facing] = stage.start;
       walker.current = standAt(x, z, facing);
-      setWorld(buildWorld(stage, models, people, own, settings, text));
+      setWorld(buildWorld(stage, models, people, own, settings, text, place));
     })().catch((error: unknown) => {
       if (alive) onFailed(error instanceof Error ? error.message : String(error));
     });
@@ -138,26 +136,13 @@ function Place(props: WorldProps) {
       onFrame(ms);
       frames.current = [...frames.current, ms].slice(-100);
     }
-    for (const { figure, cross } of world.crowd) {
-      if (cross === undefined) {
-        poseFigure(figure, time);
-        continue;
-      }
-      const pace = crossAt(cross.from, cross.to, time, WALK_SPEED, cross.phase);
-      figure.root.position.set(pace.x, 0, pace.z);
-      figure.root.rotation.y = pace.facing;
-      if (pace.walking) poseFigure(figure, time, cross.walk, pace.stride);
-      else poseFigure(figure, time);
-    }
-    for (const { figure, dance } of world.dancers) danceFigure(figure, time, dance);
+    animateWorld(world, time, delta);
     const next = stepWalk(walker.current, delta);
     walker.current = next;
     world.own.root.position.set(next.x, 0, next.z);
     world.own.root.rotation.y = next.facing;
     if (next.target === null) poseFigure(world.own, time, "stand");
     else poseFigure(world.own, time, "walk", strideOf(next));
-    world.indicator.position.y = INDICATOR_Y + Math.sin(time * 2.4) * 0.05;
-    world.indicator.rotation.y = time * 1.5;
     planShare.current += ((plan ? 1 : 0) - planShare.current) * Math.min(1, delta * 4);
     aimCamera(state.camera, next, stage.start[2], planShare.current, state.size.width / Math.max(1, state.size.height));
     if (state.scene.fog instanceof Fog) {
@@ -188,7 +173,8 @@ function Place(props: WorldProps) {
       onPick(picked);
       return;
     }
-    walker.current = walkTo(walker.current, event.point.x, event.point.z);
+    // A route round the things in the way on the place's map; where no ground can be reached, the character stays.
+    if (world !== null) walker.current = walkRoute(walker.current, findRoute(world.routes, walker.current, { x: event.point.x, z: event.point.z }));
   };
 
   const { sky, background, fog } = skyColours(stage.light.sky, stage.light.ground, settings.haze);

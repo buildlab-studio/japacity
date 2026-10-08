@@ -1,6 +1,7 @@
 // Builds a place from its stage and its loaded models: ground and roads, the models instanced at
-// their spots, the crowd posed at theirs, the player's own character, and what moves.
-import { isPaletteName, type PaletteName, paletteCss } from "@japacity/assets";
+// their spots, the crowd posed at theirs, the player's own character, what moves, and the route map
+// the walks run on; and moves the crowd once a frame on the place's one clock.
+import { footprintOf, isPaletteName, type PaletteName, paletteCss } from "@japacity/assets";
 import { attachSigns, findSignAnchors, type SignText } from "@japacity/assets/load";
 import type { SignAnchor } from "@japacity/assets";
 import type { PoseName } from "@japacity/assets-src/people/poses";
@@ -9,11 +10,16 @@ import { BufferGeometry, Color, CylinderGeometry, Float32BufferAttribute, Group,
 import { instanceModel } from "../../shared/three/instance";
 import { ownIndicator, nameTag } from "../../shared/three/marks";
 import { danceFigure } from "../../shared/three/dance";
+import { poseFigure } from "../../shared/three/people";
 import { bunting, frondGeometry, instancedSheets, leaves, type MeshLevel, rideWater, sheet, sheetGeometry, smoke, stripedFlag, water } from "../../shared/three/motion";
 import { type Figure, figureOf } from "../../shared/three/people";
+import { crossAt } from "./cross";
 import { actPose, placeCrowd, type Shown, walkPose } from "./crowd";
 import type { ModeSettings } from "./mode";
 import { DANCER_SLOT, type DanceName, type Motion, type Stage, type Strip } from "./placeFile";
+import { strideOf, WALK_SPEED } from "./walk";
+import { routeMap, type RouteMap } from "./walk/map";
+import { advanceStrolls, type Strolls, strollsOf } from "./walk/stroll";
 
 export function colourOf(name: string): Color {
   return new Color(paletteCss(isPaletteName(name) ? name : "concrete"));
@@ -22,8 +28,12 @@ export function colourOf(name: string): Color {
 export interface Placed {
   figure: Figure;
   slot: number;
-  /** A crosser walks from `from` to `to` and back in `walk`, `phase` seconds along the round. */
-  cross?: { from: [number, number]; to: [number, number]; walk: PoseName; phase: number };
+  /** How they walk: a hawker steadies her tray, everyone else swings both arms. */
+  walk: PoseName;
+  /** A crosser walks from `from` to `to` and back, `phase` seconds along the round. */
+  cross?: { from: [number, number]; to: [number, number]; phase: number };
+  /** A stroller's place in the strolls, when they stroll between spots (city.md R-CITY-036). */
+  stroll?: number;
 }
 
 export interface World {
@@ -33,6 +43,9 @@ export interface World {
   dancers: { figure: Figure; dance: DanceName }[];
   own: Figure;
   indicator: Mesh;
+  /** The place's route map, built once here from the footprints and the walkable ground (city.md R-CITY-030). */
+  routes: RouteMap;
+  strolls: Strolls;
 }
 
 /** Which prefixes cast a shadow in the high mode: characters and vehicles only (R-ASSET-006). */
@@ -44,6 +57,9 @@ function castsShadow(file: string): boolean {
 function flat(colour: string): MeshLambertMaterial {
   return new MeshLambertMaterial({ color: colourOf(colour), flatShading: true });
 }
+
+/** Where the indicator floats over the player's own head. */
+export const INDICATOR_Y = 1.98;
 
 /** Strips lie this far apart in height, in list order, so no two fight for a pixel. */
 const LIFT = 0.01;
@@ -257,7 +273,11 @@ function buildingCopies(model: Object3D, at: Stage["models"][number]["at"], sign
   return copies;
 }
 
-export function buildWorld(stage: Stage, models: ReadonlyMap<string, Object3D>, people: readonly Shown[], ownFile: string, settings: ModeSettings, text: SignText = () => undefined): World {
+/**
+ * The place built from its stage and loaded models. `seed` is the place's id, from which the crowd's
+ * strolls are drawn, so the same place walks its people the same way on every screen.
+ */
+export function buildWorld(stage: Stage, models: ReadonlyMap<string, Object3D>, people: readonly Shown[], ownFile: string, settings: ModeSettings, text: SignText = () => undefined, seed = "place"): World {
   const root = new Group();
   root.name = "place";
   root.add(groundOf(stage));
@@ -274,6 +294,7 @@ export function buildWorld(stage: Stage, models: ReadonlyMap<string, Object3D>, 
   }
   const crowd: Placed[] = [];
   const acts = stage.acts ?? [];
+  const standing: { slot: number; index: number; placed: Placed }[] = [];
   for (const { shown, spot, index } of placeCrowd(people, stage.people, stage.prefer, acts)) {
     const loaded = models.get(shown.person.file);
     if (loaded === undefined) continue;
@@ -293,8 +314,21 @@ export function buildWorld(stage: Stage, models: ReadonlyMap<string, Object3D>, 
     }
     root.add(figure.root);
     const to = act?.to;
-    crowd.push(to === undefined ? { figure, slot: shown.slot } : { figure, slot: shown.slot, cross: { from: [spot[0], spot[1]], to, walk: walkPose(shown.person), phase: phaseOf(shown.slot) } });
+    const placed: Placed = to === undefined ? { figure, slot: shown.slot, walk: walkPose(shown.person) } : { figure, slot: shown.slot, walk: walkPose(shown.person), cross: { from: [spot[0], spot[1]], to, phase: phaseOf(shown.slot) } };
+    crowd.push(placed);
+    standing.push({ slot: shown.slot, index, placed });
   }
+  const routes = routeMap(stage, (file) => {
+    const model = models.get(file);
+    return model === undefined ? null : footprintOf(model);
+  });
+  // Spots kept for a role or an act keep their people: the trader at her stall, the conductor, the crossers.
+  const kept = new Set<number>([...Object.values(stage.prefer ?? {}).flatMap((indices) => indices ?? []), ...acts.map((act) => act.spot)]);
+  const strolls = strollsOf(seed, stage.people, standing, kept, routes);
+  strolls.strollers.forEach((stroller, at) => {
+    const found = standing.find((entry) => entry.slot === stroller.slot);
+    if (found !== undefined) found.placed.stroll = at;
+  });
   const dancers: World["dancers"] = [];
   (stage.dancers ?? []).forEach((dancer, index) => {
     const loaded = models.get(dancer.file);
@@ -321,11 +355,42 @@ export function buildWorld(stage: Stage, models: ReadonlyMap<string, Object3D>, 
   });
   cullAsPerson(own.root);
   const indicator = ownIndicator();
-  indicator.position.set(0, 1.98, 0);
+  indicator.position.set(0, INDICATOR_Y, 0);
   own.root.add(indicator);
   root.add(own.root);
   for (const motion of stage.motion) root.add(motionOf(motion, settings.mesh));
-  return { root, crowd, dancers, own, indicator };
+  return { root, crowd, dancers, own, indicator, routes, strolls };
+}
+
+/**
+ * One frame of the place's people at the clock's `time`, `seconds` after the last: the crowd idling,
+ * crossing and strolling, the dancers dancing, the indicator bobbing. The player's own walk and the
+ * camera are the scene's. Moving people costs no draw call: the same figures stand somewhere else.
+ */
+export function animateWorld(world: World, time: number, seconds: number): void {
+  advanceStrolls(world.strolls, world.routes, time, Math.min(Math.max(0, seconds), 0.25));
+  for (const { figure, cross, stroll, walk } of world.crowd) {
+    if (cross !== undefined) {
+      const pace = crossAt(cross.from, cross.to, time, WALK_SPEED, cross.phase);
+      figure.root.position.set(pace.x, 0, pace.z);
+      figure.root.rotation.y = pace.facing;
+      if (pace.walking) poseFigure(figure, time, walk, pace.stride);
+      else poseFigure(figure, time);
+      continue;
+    }
+    const walker = stroll === undefined ? undefined : world.strolls.strollers[stroll]?.walker;
+    if (walker === undefined) {
+      poseFigure(figure, time);
+      continue;
+    }
+    figure.root.position.set(walker.x, 0, walker.z);
+    figure.root.rotation.y = walker.facing;
+    if (walker.target === null) poseFigure(figure, time);
+    else poseFigure(figure, time, walk, strideOf(walker));
+  }
+  for (const { figure, dance } of world.dancers) danceFigure(figure, time, dance);
+  world.indicator.position.y = INDICATOR_Y + Math.sin(time * 2.4) * 0.05;
+  world.indicator.rotation.y = time * 1.5;
 }
 
 /** The sky behind the place and the colour of its fog: each leans from the sky's colour toward the ground's by the mode's haze. */
