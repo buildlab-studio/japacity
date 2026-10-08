@@ -1,3 +1,5 @@
+// Retired, switched off: the phone feature's handset (features/phone, R-WORLD-018) replaces it, and
+// City shows this one only when the shell hands `apps` and no `phone`. Kept until the maintainer says.
 // The phone (docs/design/11-the-world-first.md, section 2b): the home of the support pages, each an
 // app with its own screen, opened over the world. One app at a time; the back arrow returns to the
 // grid and the close returns to the world. The apps' screens are the features' own, handed in by

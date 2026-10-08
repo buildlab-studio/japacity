@@ -175,6 +175,8 @@ export function City({
   apps,
   results,
   asks,
+  phone: handset,
+  phoneWaiting,
 }: {
   adverts?: (place: string) => ReactNode;
   /** The world mode: the place fills the screen under a see-through bar, with the fly-over as its map. */
@@ -183,12 +185,16 @@ export function City({
   actions?: (ids: string[]) => ReactNode;
   /** The world mode's month control, shown in the Month sheet. */
   month?: ReactNode;
-  /** The world mode's phone: the support pages as apps (section 2b). */
+  /** The world mode's phone: the support pages as apps (section 2b). Retired: `phone` replaces it. */
   apps?: readonly PhoneApp[];
   /** The world mode's results sheet when a month ends (R-WORLD-008), given the name of where the player is. */
   results?: (place: string) => ReactNode;
   /** The world mode's sheet for what the nudge names and waits on the player: the set piece's question, the offers (R-WORLD-003). */
   asks?: ReactNode;
+  /** The world mode's phone (R-WORLD-018), handed in by the shell: the handset over the place named `area`. */
+  phone?: (close: () => void, area: string) => ReactNode;
+  /** A dot on the Phone button: an app has something new (R-WORLD-004). */
+  phoneWaiting?: boolean;
 } = {}) {
   const view = useView();
   const presence = useGame((state) => (state as { presence?: PresenceSample | null }).presence ?? null);
@@ -544,7 +550,7 @@ export function City({
             }
           />
           <Nudge nudge={nudge} hidden={map || phone || monthOpen || asksOpen || menu || credits || resultsOpen || picked !== null} {...(nudgeOpens ? { onTap: () => setAsksOpen(true) } : {})} />
-          <ThumbBar onMap={() => setMap(true)} onPhone={() => setPhone(true)} phoneWaiting={view.offers.length > 0} hidden={map || resultsOpen} />
+          <ThumbBar onMap={() => setMap(true)} onPhone={() => setPhone(true)} phoneWaiting={phoneWaiting ?? view.offers.length > 0} hidden={map || resultsOpen} />
           {zoomed && !map ? (
             <button type="button" onClick={() => setZoomed(false)} className="chip drop pointer-events-auto fixed bottom-[calc(max(14px,env(safe-area-inset-bottom))+76px)] left-1/2 z-[38] -translate-x-1/2 px-3 py-2 text-[13px] font-bold" data-zoom-preset>
               {say("ui.world.whole")}
@@ -681,7 +687,8 @@ export function City({
         </WorldSheet>
       ) : null}
       {world ? results?.(inside ? cityWords("city.inside.name", { place: name }) : name) : null}
-      {world && phone && apps !== undefined ? <Phone apps={apps} onClose={() => setPhone(false)} /> : null}
+      {world && phone && handset !== undefined ? handset(() => setPhone(false), inside ? cityWords("city.inside.name", { place: name }) : name) : null}
+      {world && phone && handset === undefined && apps !== undefined ? <Phone apps={apps} onClose={() => setPhone(false)} /> : null}
       <Sheet open={picked?.kind === "ride"} onOpenChange={(open) => { if (!open) setPicked(null); }} title={picked?.kind === "ride" ? cardWords() : ""} description={cityWords("city.ride.title")}>
         {picked?.kind === "ride" ? (
           <ul className="flex flex-col gap-1" aria-label={cityWords("city.ride.title")} data-ride-list>
