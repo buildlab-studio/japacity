@@ -177,13 +177,13 @@ describe("each switch, off", () => {
   });
 
   test("[R-SERVER-031] given signups off, when a visitor sends the age screen through the whole sign-up, then no pass is made, so no sign-in method can make an account", async () => {
-    const h = harness();
-    await h.deps.stores.switches.set("signups", false, ADMIN, "full", h.deps.now());
+    const site = harness();
+    await site.deps.stores.switches.set("signups", false, ADMIN, "full", site.deps.now());
     const jar = makeJar();
-    const refused = await h.passAge(jar);
+    const refused = await site.passAge(jar);
     expect(refused.status).toBe(503);
     expect(await refused.json()).toMatchObject({ ok: false, code: "switched-off" });
-    expect(h.tables.verification.filter((row) => String(row["identifier"]).startsWith(PASS_PREFIX))).toHaveLength(0);
+    expect(site.tables.verification.filter((row) => String(row["identifier"]).startsWith(PASS_PREFIX))).toHaveLength(0);
   });
 
   test("[R-SERVER-031] given every switch off, when the view, the world, the health and a turn are asked for, then none is refused", async () => {
