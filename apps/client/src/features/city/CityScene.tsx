@@ -271,6 +271,7 @@ function Place(props: PlaceProps) {
       walker: walker.current,
       people: world.crowd.length + world.dancers.length + 1,
       sheets: stage.motion.filter((motion) => SHEET_KINDS.has(motion.kind)).length,
+      ...(sun.current === null ? {} : { shadow: { bias: sun.current.shadow.bias, normalBias: sun.current.shadow.normalBias, reach: sun.current.shadow.camera.right } }),
       screenOf: (slot) => {
         const placed = world.crowd.find((entry) => entry.slot === slot);
         if (placed === undefined) return null;

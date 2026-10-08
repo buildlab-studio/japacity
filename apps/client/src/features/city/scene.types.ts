@@ -75,6 +75,8 @@ export interface CityProbe {
   zoomTo?: number;
   /** The world mode: where a thing stands on screen, in CSS pixels, or null when off screen. */
   screenOfThing?: (id: string) => { x: number; y: number } | null;
+  /** The sun's shadow: its bias, its normal bias and how far either side of the place's centre it reaches (R-WORLD-012). */
+  shadow?: { bias: number; normalBias: number; reach: number };
   /** The world mode: whether the shot's width and every thing stand on screen in the view drawn now. */
   fits?: () => { width: boolean; offScreen: string[] };
 }
