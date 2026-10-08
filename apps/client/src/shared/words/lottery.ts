@@ -56,7 +56,7 @@ export const lotteryWords: Record<string, string> = {
   "ui.lottery.page.failed": "The draw could not be fetched. Try again in a while.",
   "ui.lottery.page.open": "This draw is still on sale. The list of tickets is published when sales close.",
   "ui.lottery.page.waiting": "Sales are closed and the list is published. The result comes once the public beacon publishes its number.",
-  "ui.lottery.page.how": "How the check works. The seal is a fingerprint of a secret number, published before any ticket is sold, so the secret cannot be changed later. The public beacon is an outside service that publishes a new random number every few seconds, and nobody at the draw can choose it. The winning tickets come from the secret and the beacon's number together.",
+  "ui.lottery.page.how": "The seal is a fingerprint of a secret number, published before any ticket is sold, so the secret cannot be changed later. The public beacon is an outside service that publishes a new random number on a fixed clock, and nobody at the draw can choose it. The winning tickets come from the secret and the beacon's number together.",
   "ui.lottery.page.fingerprint": "The seal, published before sales opened",
   "ui.lottery.page.round": "The public beacon's round",
   "ui.lottery.page.closes": "Sales closed",
