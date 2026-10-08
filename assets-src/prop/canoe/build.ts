@@ -2,13 +2,15 @@
 // hull, pointed at both ends and painted in a band below the gunwale, two thwarts, a paddle laid
 // across it, a heap of net and a plastic bowl for bailing, a jerrycan. The hull's floor is y = 0;
 // on the water the stage sets it in the lagoon's moving surface.
-import { lowBox, setFootprint } from "@japacity/assets";
+import { boxesIn, setFootprint } from "@japacity/assets";
 import { box, cylinder, seeded, solid, type Vec3 } from "@japacity/assets/kit";
 import { Group } from "three";
 
 import { facePlusZ, lump } from "../../veh/lab";
 
 export const CANOE = { length: 6.4, beam: 0.9, depth: 0.5 } as const;
+/** Where the free floor a paddler sits on begins and ends along the hull, between the thwarts. */
+export const CANOE_SEAT = { stern: -0.4, bow: 0.7 } as const;
 
 const STATIONS = 10;
 
@@ -69,5 +71,9 @@ export function buildCanoe(): Group {
   cylinder(g, 0.13, 0.1, 0.1, 0.08, -0.9, "basin", 8, 0.17);
   box(g, 0.18, 0.32, 0.26, -0.1, 0.08, -0.4, "danfoYellow");
   const root = facePlusZ(g, "prop_canoe", false);
-  return setFootprint(root, [lowBox(root)]);
+  // The bow and the stern; the floor amidships between the thwarts, where a paddler sits, is left free.
+  return setFootprint(root, boxesIn(root, g, [
+    { x: 0, z: (CANOE_SEAT.bow + length / 2) / 2, width, depth: length / 2 - CANOE_SEAT.bow },
+    { x: 0, z: (CANOE_SEAT.stern - length / 2) / 2, width, depth: CANOE_SEAT.stern + length / 2 },
+  ]));
 }
