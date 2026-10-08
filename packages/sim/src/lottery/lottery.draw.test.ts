@@ -8,8 +8,9 @@ import type { TierSpec } from "./lottery.draw";
 
 const tuning = content.tuning.lottery;
 
+/** The test messages are plain ASCII, one byte a character. */
 function ascii(text: string): Uint8Array {
-  return new TextEncoder().encode(text);
+  return Uint8Array.from(text, (character) => character.charCodeAt(0));
 }
 
 function hashOf(text: string): string {

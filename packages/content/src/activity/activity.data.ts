@@ -498,7 +498,8 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
   "activity.play-lotto": {
     id: "activity.play-lotto",
     slot: "free",
-    requires: [],
+    // R-LOTTERY-001: the kiosk closes while the world runs the Friday draw.
+    requires: [{ type: "world/lottery", online: false }],
     param: null,
     cost: [],
     pay: null,
