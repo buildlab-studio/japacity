@@ -21,7 +21,7 @@ function drawOf(draw: number, closesTick: number, last: LotteryResult | null = n
 }
 
 function resultOf(draw: number, winners: LotteryResult["winners"]): LotteryResult {
-  return { draw, secret: "cd".repeat(32), beaconRound: 1000 + draw, beaconRandomness: "ef".repeat(32), listHash: "01".repeat(32), count: 300, pot: 6000000, fund: 3300000, winners };
+  return { draw, revealed: "cd".repeat(32), beaconRound: 1000 + draw, beaconRandomness: "ef".repeat(32), listHash: "01".repeat(32), count: 300, pot: 6000000, fund: 3300000, winners };
 }
 
 const FULL: LotteryResult["winners"] = [

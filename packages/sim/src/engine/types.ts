@@ -1165,7 +1165,8 @@ export interface World {
 /** One draw's published result (docs/rules/lottery.md R-LOTTERY-010 to 013). */
 export interface LotteryResult {
   draw: number;
-  secret: string;
+  /** The server's secret for the draw, published after it (R-LOTTERY-015); named so the view's hidden-key check stays a net. */
+  revealed: string;
   beaconRound: number;
   beaconRandomness: string;
   listHash: string;

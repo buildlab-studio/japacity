@@ -161,8 +161,8 @@ describe("tiers and prizes", () => {
     const tiers = tiersFor(count, tuning);
     const pot = count * tuning.ticket;
     const table = prizesFor(pot, tiers, drawWinners(drawSeed(secret, listHash, beaconRandomness), count, tiers), tuning);
-    const result: LotteryResult = { draw: 4, secret, beaconRound: 9, beaconRandomness, listHash, count, pot, fund: table.fund, winners: table.winners };
-    const again = drawWinners(drawSeed(result.secret, result.listHash, result.beaconRandomness), result.count, tiersFor(result.count, tuning));
+    const result: LotteryResult = { draw: 4, revealed: secret, beaconRound: 9, beaconRandomness, listHash, count, pot, fund: table.fund, winners: table.winners };
+    const again = drawWinners(drawSeed(result.revealed, result.listHash, result.beaconRandomness), result.count, tiersFor(result.count, tuning));
     expect(again).toEqual(result.winners.map((tier) => tier.tickets));
   });
 });

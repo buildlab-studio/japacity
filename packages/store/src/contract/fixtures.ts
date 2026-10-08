@@ -63,7 +63,7 @@ export function world(tick: number, mark = 0): World {
 export function lotteryResult(draw: number): LotteryResult {
   return {
     draw,
-    secret: "ab".repeat(32),
+    revealed: "ab".repeat(32),
     beaconRound: 7,
     beaconRandomness: "cd".repeat(32),
     listHash: "ef".repeat(32),
