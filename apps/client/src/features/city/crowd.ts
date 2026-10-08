@@ -102,11 +102,12 @@ export function resident(place: PlaceFacts, pool: readonly Person[], date: strin
 /**
  * The sample: residents from the dress mix, then, when online, up to `playersMax` of the slots at
  * the end taken by other players from the presence sample, each named only as the server named them.
+ * Players seen today (R-CITY-036) take the slots after the live ones and stand at their spots like them.
  */
-export function sampleCrowd(place: PlaceFacts, pool: readonly Person[], date: string, mode: Mode, city: CityTuning, others: readonly Other[] = []): Sample {
+export function sampleCrowd(place: PlaceFacts, pool: readonly Person[], date: string, mode: Mode, city: CityTuning, others: readonly Other[] = [], today: readonly Other[] = []): Sample {
   const size = crowdSize(place, mode, city);
   const people: Shown[] = Array.from({ length: size }, (_, slot) => ({ slot, person: resident(place, pool, date, slot, city), kind: "resident", tag: null }));
-  const players = others.slice(0, Math.min(city.playersMax, size));
+  const players = [...others, ...today].slice(0, Math.min(city.playersMax, size));
   players.forEach((other, index) => {
     const slot = size - 1 - index;
     const person = personOfLook(other.look) ?? resident(place, pool, date, slot, city);

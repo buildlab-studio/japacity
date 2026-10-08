@@ -31,10 +31,11 @@ const HEARD_MS = 9000;
 const FALLBACK_OWN = "shared/chr/chr_tunde.glb";
 
 // the store on a branch keeps `presence` as { place, others: { name, look }[] }; the look is read as a chr_ name and the sample is used only when its place is the one shown.
-/** The presence sample the online store keeps (R-CITY-015); absent offline. */
+/** The presence sample the online store keeps (R-CITY-015), with those seen today (R-CITY-036) once the store has them; absent offline. */
 interface PresenceSample {
   place: string;
   others: { name: string | null; look: string }[];
+  today?: { name: string | null; look: string }[];
 }
 
 function canDraw(): boolean {
@@ -147,7 +148,8 @@ export function City() {
   const file = usePlaceFile(entry, drawing);
   const settings = modeSettings(mode, device(), city);
   const others = useMemo<Other[]>(() => (presence !== null && presence.place === placeId ? presence.others : []), [presence, placeId]);
-  const sample = useMemo(() => (entry === null || file === null ? null : sampleCrowd(entry, poolOf(file.people.sample), date, mode, city, others)), [entry, file, date, mode, others]);
+  const today = useMemo<Other[]>(() => (presence !== null && presence.place === placeId ? (presence.today ?? []) : []), [presence, placeId]);
+  const sample = useMemo(() => (entry === null || file === null ? null : sampleCrowd(entry, poolOf(file.people.sample), date, mode, city, others, today)), [entry, file, date, mode, others, today]);
   const own = ownFile(view.scenario);
   const places = enterable(here, PLACES);
   const heard = entry === null ? null : overheard(view, entry.id, date, heardCount);
