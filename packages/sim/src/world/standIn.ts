@@ -20,6 +20,9 @@ const FLOAT_STORY: Id<"news"> = "news.naira-float";
 const SUPPLY: Id<"var"> = "var.fx-supply";
 const FULL_SUPPLY = 100;
 
+/** R-ABROAD-001: the dirham is pegged to the dollar at 3.6725, written in ten-thousandths. */
+const PEG_PER_DOLLAR = 36725;
+
 /** The rates and the premium at one tick. The premium is kept because the street rate is derived from it. */
 export interface RateTrack {
   tick: number;
@@ -78,6 +81,9 @@ function walk(worldSeed: string, upTo: number, content: Content, visit: (track: 
       }
     }
     if (floats) premiumBp = rate.floatPremiumBp;
+    // R-ABROAD-001: the peg holds the dirham to the dollar after the tick's move; tick 0 keeps the start values (R-RATE-002).
+    official.AED = Math.max(1, mulDiv(official.USD, BP_WHOLE, PEG_PER_DOLLAR));
+    street.AED = floats ? Math.max(street.AED, official.AED) : streetOf(official.AED, premiumBp);
     visit({ tick, official: { ...official }, street: { ...street }, premiumBp }, director);
   });
 }

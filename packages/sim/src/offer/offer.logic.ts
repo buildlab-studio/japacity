@@ -2,7 +2,7 @@
 // choices and a date: a family request, a job, a loan, a man who says he can
 // arrange things. Whether an offer is a fraud is fixed when it opens and kept
 // in `secret`, which the view never carries (R-OFFER-006, R-ENGINE-007).
-import { check, checkWith, resolveAmount } from "../engine/check";
+import { check, checkWith, resolveAmount, worldVar } from "../engine/check";
 import { BP_WHOLE, bp, clamp, divFloor, valueInKobo } from "../engine/int";
 import type { RegisteredKind } from "../engine/kind";
 import { emit } from "../engine/kind";
@@ -44,6 +44,9 @@ import { luckTerms, markedChanceBp, rescueDue, WHIP_ROUND } from "./offer.luck";
  * (R-ROAD-002).
  */
 const ROLL_ORDER: readonly OfferEntry["group"][] = ["money", "life", "family", "abroad", "return", "road"];
+
+/** Offers whose chance a month adds a world variable the director moves (director.md, the sponsor story). */
+const CHANCE_VARS: Partial<Record<Id<"offer">, Id<"var">>> = { "offer.sponsor-licence-lost": "var.uk-care-sponsor-risk" };
 
 
 /** Judges one requirement with the terms in hand. Inside a step it is `ctx.check`; outside, the engine's `check`. */
@@ -337,7 +340,7 @@ function expire(ctx: Ctx): BaseEvent[] {
 export function rollOrder(content: Content): OfferEntry[] {
   return ROLL_ORDER.flatMap((group) =>
     Object.values(content.offer)
-      .filter((entry) => entry.group === group && entry.chanceBp > 0)
+      .filter((entry) => entry.group === group && (entry.chanceBp > 0 || CHANCE_VARS[entry.id] !== undefined))
       .sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0)),
   );
 }
@@ -406,7 +409,9 @@ function mayRoll(ctx: Ctx, entry: OfferEntry): boolean {
 /** The chance an entry rolls at this month: the road's pressure, then the luck marks and the dry spell (R-LUCK-003, 004). */
 function rollChanceBp(ctx: Ctx, entry: OfferEntry): number {
   const read = readOf(ctx);
-  return markedChanceBp(read, entry, pressureChanceBp(read, entry, (requirement) => ctx.check(requirement)));
+  const risk = CHANCE_VARS[entry.id];
+  const added = risk === undefined ? 0 : worldVar(read, risk);
+  return markedChanceBp(read, entry, clamp(pressureChanceBp(read, entry, (requirement) => ctx.check(requirement)) + added, 0, BP_WHOLE));
 }
 
 /**

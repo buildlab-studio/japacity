@@ -192,8 +192,8 @@ export const abroadOfferTable: Record<Id<"offer">, OfferEntry> = {
   // Abroad (group `abroad`)
 
   // R-LADDER-005: the sponsor loses its licence and the job goes, which starts the clock.
-  // a small base chance; the director's sponsor story raises the risk through its
-  // own variable while it is in force.
+  // Its chance a month is the world's `var.uk-care-sponsor-risk` (director.md), which the offer kind adds to the
+  // entry's own chance of 0; the director's sponsor story raises it while in force.
   "offer.sponsor-licence-lost": {
     id: "offer.sponsor-licence-lost",
     group: "abroad",
@@ -204,8 +204,7 @@ export const abroadOfferTable: Record<Id<"offer">, OfferEntry> = {
       { type: "status/is", statuses: ["status.uk-sponsored"] },
       { type: "job/is", activities: ["activity.job-uk-care"] },
     ],
-    // 0.5% a month.
-    chanceBp: 50,
+    chanceBp: 0,
     cooldown: 12,
     maxTimes: null,
     expiresAfter: 1,

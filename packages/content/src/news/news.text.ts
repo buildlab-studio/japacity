@@ -210,6 +210,8 @@ export const newsText: Record<string, string> = {
   "news.uae-ban.ended.body": "The ban has run its course.",
 
   "news.uae-lifted.name": "The UAE lifts its ban on Nigerians",
+  "news.uae-lifted.rumour.head": "Talk that the UAE ban will end",
+  "news.uae-lifted.rumour.body": "People at the park say the Gulf visas are coming back. Nobody has a date.",
   "news.uae-lifted.announced.head": "The UAE lifts its ban on Nigerians",
   "news.uae-lifted.announced.body": "Work visas will be issued again from next month.",
   "news.uae-lifted.in-force.head": "The Gulf is open again",

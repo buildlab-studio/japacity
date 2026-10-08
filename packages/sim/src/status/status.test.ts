@@ -331,6 +331,32 @@ describe("removal and the Gulf contract", () => {
     expect(current(game)).toMatchObject({ entry: "status.uae-irregular", clock: null });
     expect(passportHeldByEmployer(readOf(game))).toBe(false);
   });
+
+  test("[R-STATUS-009] given a Gulf worker holding a passport in force, when a route asks for the passport, then it is not held while the employer keeps it, and is held again once the contract has ended", () => {
+    const game = flown(content);
+    const passport = { type: "document/held", document: "document.passport" } as const;
+    expect(check(readOf(game), passport).met).toBe(true);
+    applyEffects(game, [
+      { type: "place/move", to: "abroad", country: "country.uae" },
+      { type: "status/grant", status: GULF },
+    ]);
+    expect(check(readOf(game), passport).met).toBe(false);
+    applyEffects(game, [{ type: "status/clock-start" }]);
+    expect(check(readOf(game), passport).met).toBe(true);
+  });
+
+  test("[R-ABROAD-003] [R-STATUS-009] given a Gulf worker housed by the employer, when the contract runs, then no room rent is owed; when it lapses to the irregular status, the room is rented", () => {
+    const game = flown(content);
+    const rentOpen = () => Object.values(game.state.obligation.items).filter((item) => content.obligation[item.entry]?.type === "rent").map((item) => item.entry);
+    applyEffects(game, [
+      { type: "place/move", to: "abroad", country: "country.uae" },
+      { type: "status/grant", status: GULF },
+    ]);
+    expect(rentOpen().filter((entry) => entry === "obligation.rent-room-uae")).toEqual([]);
+    applyEffects(game, [{ type: "status/clock-start" }]);
+    expect(current(game)?.entry).toBe("status.uae-irregular");
+    expect(rentOpen()).toContain("obligation.rent-room-uae");
+  });
 });
 
 describe("the view", () => {

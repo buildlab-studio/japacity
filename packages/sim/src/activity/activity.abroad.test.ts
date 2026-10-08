@@ -481,6 +481,10 @@ describe("buying the car and the driving test", () => {
     ada.expectRejected({ type: "turn/end", slots: [slot("activity.buy-car-finance")] }, "not-legal");
   });
 
+  test("[R-CAR-006] given the tuning, when the driving test's fee is read, then it is the practical test's £62, as the page says", () => {
+    expect(content.tuning.car.testFee).toBe(6200);
+  });
+
   test("[R-CAR-006] given a driver who arrives, when months pass, then the home licence holds for the 12 months from the first month abroad and not the 13th, and a non-driver never holds it", () => {
     const tunde = flown(content, { from: "scenario.tunde" });
     const held = () => check(readOf(tunde), { type: "document/held", document: HOME_LICENCE }).met;

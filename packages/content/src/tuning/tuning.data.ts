@@ -112,7 +112,7 @@ export const tuning: Tuning = {
   credit: { onTime: 3, onMiss: 12, onDefault: 30, drift: 1, driftTo: 40, judgmentMonths: 72, judgmentCap: 20, returnPenalty: 20, cleanMonths: 12 },
 
   // car.md
-  car: { lessons: pounds(2200), testFee: 8500, passBp: pct(55), passPerAttemptBp: pct(5), passCapBp: pct(90) },
+  car: { lessons: pounds(2200), testFee: 6200, passBp: pct(55), passPerAttemptBp: pct(5), passCapBp: pct(90) },
 
   // abroad-money.md
   remit: { appFeeBp: 0, appMarginBp: pct(2), bankFeeBp: pct(8), informalLossBp: pct(5), abroadBp: 30000 },

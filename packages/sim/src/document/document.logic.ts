@@ -24,9 +24,23 @@ import type {
   RequirementResult,
   Tuning,
 } from "../engine/types";
+import { passportHeldByEmployer } from "../status/status.logic";
 import type { DocumentEvent } from "./document.events";
 
 const ENGLISH = "quality.english";
+const PASSPORT: Id<"document"> = "document.passport";
+const TRANSCRIPT: Id<"document"> = "document.transcript";
+/** director.md: months the strike adds to the transcript's wait. */
+const TRANSCRIPT_EXTRA: Id<"var"> = "var.transcript-wait-extra";
+
+/** A world variable the mini content may not carry: missing reads as 0. */
+function varOr(read: ReadCtx, id: Id<"var">): number {
+  return (read.world.vars as Record<string, number | undefined>)[id] ?? 0;
+}
+
+function readOfCtx(ctx: Ctx): ReadCtx {
+  return { state: ctx.state, world: ctx.world, content: ctx.content };
+}
 
 /** English points the per-hundred figure is counted against. */
 const ENGLISH_PER = 100;
@@ -118,7 +132,9 @@ function request(ctx: Ctx, effect: Effect): BaseEvent[] {
     return [event];
   }
   const month = ctx.state.turn.month;
-  const wait = ctx.random.between("document", entry.wait[0], entry.wait[1]);
+  // director.md: the lecturers' strike adds its months to the transcript's wait while in force.
+  const extra = id === TRANSCRIPT ? varOr(readOfCtx(ctx), TRANSCRIPT_EXTRA) : 0;
+  const wait = ctx.random.between("document", entry.wait[0], entry.wait[1]) + extra;
   // R-DOCUMENT-002: a request between turns, as from an offer, comes after
   // this month's papers phase, so the earliest it can be issued is next
   // month's. Inside a turn it is this month's, so a wait of zero from a slot
@@ -231,7 +247,8 @@ function lines(event: DocumentEvent): ReportLine[] {
 function held(read: ReadCtx, requirement: Requirement): RequirementResult {
   if (requirement.type !== "document/held") throw new Error(`The document kind cannot judge ${requirement.type} as held.`);
   const doc = read.state.document[requirement.document];
-  const valid = inForce(doc, read.state.turn.month);
+  // R-STATUS-009: while the employer holds the passport, no route can use it.
+  const valid = inForce(doc, read.state.turn.month) && !(requirement.document === PASSPORT && passportHeldByEmployer(read));
   if (requirement.min === undefined) return { met: valid };
   const have = valid ? (doc.value ?? 0) : 0;
   return { met: valid && have >= requirement.min, have, need: requirement.min };

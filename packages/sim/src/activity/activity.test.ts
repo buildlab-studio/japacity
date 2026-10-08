@@ -36,7 +36,7 @@ import { miniContent } from "../testing/miniContent";
 import { start } from "../testing/play";
 import type { Game, Loose } from "../testing/play";
 import type { ActivityEvent } from "./activity.events";
-import { activityKind, canPayAll, hireChanceBp, paramsFor } from "./activity.logic";
+import { activityKind, canPayAll, hireChanceBp, huntChanceBp, paramsFor } from "./activity.logic";
 
 const UK: Id<"route"> = "route.uk-masters";
 const hireTuning = content.tuning.quality;
@@ -598,6 +598,18 @@ describe("hunting for a job", () => {
     expect(hireChanceBp(teacher, 0, hireTuning)).toBe(teacher.hireBp);
     expect(hireChanceBp(teacher, 15, hireTuning)).toBe(teacher.hireBp! + 15 * hireTuning.networkHireBp);
     expect(hireTuning.networkHireBp).toBe(20);
+  });
+
+  test("[R-ACTIVITY-005] [R-DIRECTOR-001] given the remote-hiring boom's bonus in the world, when a hunt's chance is read, then the remote job's chance gains it, up to the cap, and no other job's does", () => {
+    const remote = content.activity["activity.job-remote-dev"]!;
+    const game = start({ content, scenario: "scenario.ada" });
+    const world = game.world();
+    const network = game.state.quality["quality.network"] ?? 0;
+    const read = (bonus: number) => ({ state: game.state, content, world: { ...world, vars: { ...world.vars, "var.remote-hire-bonus": bonus } } });
+    expect(huntChanceBp(read(0), remote)).toBe(hireChanceBp(remote, network, hireTuning));
+    expect(huntChanceBp(read(1500), remote)).toBe(Math.min(hireTuning.hireMaxBp, hireChanceBp(remote, network, hireTuning) + 1500));
+    expect(huntChanceBp(read(10000), remote)).toBe(hireTuning.hireMaxBp);
+    expect(huntChanceBp(read(1500), teacher)).toBe(hireChanceBp(teacher, network, hireTuning));
   });
 
   test("[R-ACTIVITY-005] given a chance that would pass 9500, when it is worked out, then it stops at 9500, and just under the cap it does not", () => {

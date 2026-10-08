@@ -226,6 +226,26 @@ describe("requesting a document", () => {
     expect(paper(long, TRANSCRIPT)?.readyMonth).toBe(1 + entries[TRANSCRIPT]!.wait[1]);
   });
 
+  test("[R-DOCUMENT-001] [R-DIRECTOR-001] given the strike's extra wait in the world, when the transcript is requested, then that many months are added to its wait, and nothing to the passport's", () => {
+    for (const extra of [0, 4]) {
+      const game = life({ seed: SEED_SHORT_TRANSCRIPT });
+      game.endTurn();
+      const world = game.world();
+      game.world = () => ({ ...world, vars: { ...world.vars, "var.transcript-wait-extra": extra } });
+      applyNow(game, [request(TRANSCRIPT), request(PASSPORT)]);
+      expect(paper(game, TRANSCRIPT)?.readyMonth).toBe(1 + entries[TRANSCRIPT]!.wait[0] + extra);
+    }
+    const plain = life({ seed: SEED_SHORT_TRANSCRIPT });
+    plain.endTurn();
+    applyNow(plain, [request(TRANSCRIPT), request(PASSPORT)]);
+    const stretched = life({ seed: SEED_SHORT_TRANSCRIPT });
+    stretched.endTurn();
+    const world = stretched.world();
+    stretched.world = () => ({ ...world, vars: { ...world.vars, "var.transcript-wait-extra": 4 } });
+    applyNow(stretched, [request(TRANSCRIPT), request(PASSPORT)]);
+    expect(paper(stretched, PASSPORT)?.readyMonth).toBe(paper(plain, PASSPORT)?.readyMonth);
+  });
+
   test.prop([fc.string({ minLength: 1, maxLength: 12 }), fc.constantFrom(PASSPORT, TRANSCRIPT)], { numRuns: 60 })(
     "[R-DOCUMENT-001] given any seed, when a document is requested, then its wait is inside the entry's range and one draw is made on the document stream",
     (seed, id) => {

@@ -12,6 +12,7 @@ import { wealthInNaira } from "../place/place.logic";
 import { applyEffects } from "../route/route.journey";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
+import { standInWorld } from "../world/standIn";
 import { rollOrder } from "./offer.logic";
 import { drySpellBp, luckReadsMoney, markedChanceBp, monthsWithoutLuck } from "./offer.luck";
 
@@ -515,5 +516,38 @@ describe("an offer that locks a slot", () => {
     const item = openOne(game, "offer.nepa-bill");
     const result = game.accept({ type: "offer/choose", offer: item.id, choice: "leave" });
     expect(result.events.filter((event) => event.type === "turn/locked")).toEqual([]);
+  });
+});
+
+describe("content that plays", () => {
+  test("[R-OBLIGATION-012] [R-LUCK-009] given the real content, when the group loan, the parents' debt, the guarantor and the savings circle are read, then each rolls at the chance its page or its entry gives", () => {
+    expect(content.offer["offer.group-loan"]?.chanceBp).toBe(300);
+    expect(content.offer["offer.parents-group-debt"]?.chanceBp).toBe(100);
+    expect(content.offer["offer.stand-guarantor"]?.chanceBp).toBe(100);
+    expect(content.offer["offer.join-ajo"]?.chanceBp).toBe(800);
+    const rolled = rollOrder(content).map((entry) => entry.id);
+    expect(rolled).toEqual(expect.arrayContaining(["offer.group-loan", "offer.parents-group-debt", "offer.stand-guarantor", "offer.join-ajo"]));
+  });
+
+  test("[R-LADDER-005] [R-DIRECTOR-001] given the sponsor's licence risk in the world at 0 and at 10000, when months pass abroad, then the licence is never lost at 0 and lost at once at 10000", () => {
+    const LOST: Id<"offer"> = "offer.sponsor-licence-lost";
+    const onlyLoss = variant({ [LOST]: { when: [] } });
+    for (const [risk, opens] of [
+      [0, false],
+      [10000, true],
+    ] as const) {
+      const game = start({
+        scenario: ADA,
+        content: onlyLoss,
+        worldAt: (tick) => {
+          const world = standInWorld("world-1", tick, onlyLoss);
+          return { ...world, vars: { ...world.vars, "var.uk-care-sponsor-risk": risk } };
+        },
+      });
+      flyToUk(game);
+      const seen: Id<"offer">[] = [];
+      for (let turn = 0; turn < 6; turn += 1) seen.push(...openedIn(month(game)).map((item) => item.entry));
+      expect(seen.includes(LOST)).toBe(opens);
+    }
   });
 });
