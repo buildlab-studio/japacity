@@ -86,12 +86,16 @@ function Tickets({ lottery }: { lottery: Lottery }) {
   return (
     <div className="flex flex-col gap-3">
       <p className="text-sm">{say("ui.lottery.price", { price: formatMoney(lottery.ticket, "NGN"), max: lottery.maxTickets })}</p>
-      <div className="flex flex-wrap items-center gap-2" data-lottery-held={lottery.tickets}>
-        <Ticket size={18} className="text-muted" />
-        <span className="font-medium">{sayCount("ui.lottery.held", lottery.tickets, { count: lottery.tickets })}</span>
-        {Array.from({ length: lottery.maxTickets }, (_, index) => (
-          <span key={index} aria-hidden className={`size-3 rounded-sm border ${index < lottery.tickets ? "border-accent bg-accent" : "border-line"}`} />
-        ))}
+      <div className="flex items-start gap-2" data-lottery-held={lottery.tickets}>
+        <Ticket size={18} className="mt-0.5 shrink-0 text-muted" />
+        <div className="flex flex-col gap-1.5">
+          <span className="font-medium">{sayCount("ui.lottery.held", lottery.tickets, { count: lottery.tickets })}</span>
+          <span aria-hidden className="flex gap-1.5">
+            {Array.from({ length: lottery.maxTickets }, (_, index) => (
+              <span key={index} className={`h-3 w-5 rounded-sm border ${index < lottery.tickets ? "border-accent bg-accent" : "border-line"}`} />
+            ))}
+          </span>
+        </div>
       </div>
       {lottery.numbers !== null && lottery.numbers.length > 0 ? (
         <p className="text-sm tabular-nums">{say("ui.lottery.numbers", { numbers: lottery.numbers.map((number) => formatNumber(number)).join(", ") })}</p>
