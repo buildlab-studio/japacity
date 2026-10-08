@@ -13,11 +13,10 @@ describe("japacity", () => {
     expect(screen.getByText(say("ui.japacity.none"))).toBeDefined();
   });
 
-  test("given no route, when the header shows the figure, then it says so in words and never shows a dash pair", async () => {
+  test("given no route, when the header would show the figure, then it shows nothing, never a dash pair", async () => {
     await renderWithView(<JapacityView compact />, engineView());
-    const figure = document.querySelector<HTMLElement>("[data-japacity-figure]")!;
-    expect(figure.textContent).toBe(say("ui.japacity.none-short"));
-    expect(figure.textContent).not.toContain("--");
+    expect(document.querySelector("[data-japacity-figure]")).toBeNull();
+    expect(document.body.textContent).not.toContain("--");
   });
 
   test("given a route, then the number is shown big with the route's name from content", async () => {

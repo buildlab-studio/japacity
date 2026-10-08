@@ -215,7 +215,6 @@ export const uiText: Record<string, string> = {
   // Japacity
   "ui.japacity.title": "Japacity",
   "ui.japacity.none": "No route yet",
-  "ui.japacity.none-short": "no route yet",
   "ui.japacity.of": "on {route}",
 
   // Offers

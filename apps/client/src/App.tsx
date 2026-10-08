@@ -104,7 +104,7 @@ function Header() {
         <h1 className="sr-only text-lg font-bold sm:not-sr-only">{say("ui.game")}</h1>
         <span className="text-muted">{say("ui.month.planning", { month: playerMonth(view.month) })}</span>
         <span className="ml-auto flex items-center gap-2 text-sm text-muted">
-          {say("ui.japacity.title")}
+          {view.japacity.percent === null ? null : say("ui.japacity.title")}
           <JapacityView compact />
         </span>
         <ModerationMenu />
