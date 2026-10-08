@@ -3,10 +3,16 @@
 // and returns a Hono router; this file only mounts them.
 import { Hono } from "hono";
 
+import type { Accounts } from "./auth/auth";
 import type { ServerDeps } from "./deps";
+import { accountRoutes } from "./routes/account";
+import { ageRoutes } from "./routes/age";
+import { authRoutes } from "./routes/auth";
 
-export function makeApp(deps: ServerDeps): Hono {
+export function makeApp(deps: ServerDeps, accounts?: Accounts): Hono {
   const app = new Hono();
+
+  if (accounts !== undefined) app.route("/", authRoutes(accounts)).route("/", ageRoutes(deps, accounts)).route("/", accountRoutes(deps, accounts));
 
   app.get("/api/health", (c) => c.json({ ok: true, content: deps.contents.current.version, tick: currentTick(deps) }));
 

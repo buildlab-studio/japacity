@@ -4,6 +4,10 @@
 import { content } from "@japacity/content";
 
 import { makeApp } from "./app";
+import { makeAuth } from "./auth/auth";
+import type { AuthKeys } from "./auth/auth";
+import { memoryAuthAdapter } from "./auth/memory";
+import { sessionReader } from "./auth/session";
 import { productionConfig } from "./config";
 import { memoryStores, testSession, webRandomBytes } from "./deps";
 import type { ServerDeps } from "./deps";
@@ -18,9 +22,33 @@ export interface Env {
   SOCKET_10S: RateLimit;
   GAME_DB: Hyperdrive;
   CACHED_DB: Hyperdrive;
+  /** Secrets the maintainer sets with `wrangler secret put` (R-ACCOUNT-001, 013). */
+  BETTER_AUTH_SECRET: string;
+  GOOGLE_CLIENT_ID: string;
+  GOOGLE_CLIENT_SECRET: string;
+  TURNSTILE_SECRET_KEY: string;
 }
 
 let deps: ServerDeps | null = null;
+
+/** The auth library's tables, held in the isolate until packages/db gives the Drizzle adapter. */
+const authAdapter = memoryAuthAdapter();
+
+/** Owner: the email provider (account.md R-ACCOUNT-014); until one is chosen no code leaves the server. */
+function sendOtp(): Promise<void> {
+  return Promise.reject(new Error("No email provider is configured."));
+}
+
+function authKeys(env: Env, waitUntil: (promise: Promise<unknown>) => void): AuthKeys {
+  return {
+    secret: env.BETTER_AUTH_SECRET,
+    siteUrl: env.SITE_URL,
+    google: { clientId: env.GOOGLE_CLIENT_ID, clientSecret: env.GOOGLE_CLIENT_SECRET },
+    turnstile: { secretKey: env.TURNSTILE_SECRET_KEY },
+    sendOtp,
+    background: waitUntil,
+  };
+}
 
 /** The deployment's dependencies, made once per isolate (R-SERVER-016). The stores move to packages/db when it lands. */
 function depsFor(env: Env): ServerDeps {
@@ -30,7 +58,7 @@ function depsFor(env: Env): ServerDeps {
     contents: { current: content, previous: null },
     secrets: { worldSeed: env.WORLD_SEED ?? "" },
     limits: { commands10s: env.COMMANDS_10S, commands60s: env.COMMANDS_60S, reads60s: env.READS_60S, anon60s: env.ANON_60S, socket10s: env.SOCKET_10S },
-    // Replaced by the auth module's session reader when it lands; until then no request is signed in.
+    // Replaced in each request by the auth library's session reader.
     session: testSession(productionConfig),
     now: () => Date.now(),
     randomBytes: webRandomBytes,
@@ -39,8 +67,10 @@ function depsFor(env: Env): ServerDeps {
 }
 
 export default {
-  fetch(request: Request, env: Env): Response | Promise<Response> {
-    return makeApp(depsFor(env)).fetch(request);
+  fetch(request: Request, env: Env, ctx: ExecutionContext): Response | Promise<Response> {
+    const keys = authKeys(env, (promise) => ctx.waitUntil(promise));
+    const auth = makeAuth(depsFor(env), authAdapter, keys);
+    return makeApp({ ...depsFor(env), session: sessionReader(auth) }, { auth, keys }).fetch(request);
   },
   scheduled(): void {
     // The jobs mount here as they land, by cron: the world's ticks (R-CLOCK-012) and the money report (R-SERVER-011).

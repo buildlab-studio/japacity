@@ -9,9 +9,11 @@
     "typecheck": "tsc -p tsconfig.json"
   },
   "dependencies": {
+    "@better-auth/passkey": "~1.7.7",
     "@japacity/content": "workspace:*",
     "@japacity/sim": "workspace:*",
     "@japacity/store": "workspace:*",
+    "better-auth": "~1.7.7",
     "hono": "^4.13.13"
   },
   "devDependencies": {
