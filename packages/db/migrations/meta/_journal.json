@@ -15,6 +15,13 @@
       "when": 1791458659579,
       "tag": "0001_switches",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1791460673568,
+      "tag": "0002_analytics",
+      "breakpoints": true
     }
   ]
 }

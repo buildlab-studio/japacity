@@ -202,7 +202,8 @@ export const tuning: Tuning = {
   advert: { maxSlotsPerPlace: 3, maxPhoneTiles: 1, impressionMs: 1000 },
   share: { width: 1080, height: 1920, maxBytes: 300000, previewWidth: 1200, previewHeight: 630, previewMaxBytes: 150000 },
   guide: { staleMonths: 6 },
-  analytics: { batchSeconds: 60, maxBatchBytes: 4096, maxCount: 1000, batchesPerHour: 120, minShown: 20, refD1Bp: 3010, refD7Bp: 871 },
+  // analytics.md Numbers; 16 KB is 16384 bytes
+  analytics: { batchSeconds: 60, maxBatchBytes: 16384, maxCount: 500, batchesPerHour: 90, minShown: 10, refD1Bp: 3000, refD7Bp: 900 },
 
   // city.md "Numbers": the crowd bands and the graphics switches. Working values.
   city: { crowdLow: 8, crowdHigh: 16, playersMax: 4, fridayBp: 4000, saturdayBp: 5000, raiseAfterMs: 10000, raiseFrameMs: 20, dropAfterMs: 5000, dropFrameMs: 33, maxPixelRatio: 2, desktopMinWidth: 1024, idleAfterMs: 20000, idleFps: 10, walkMmPerS: 1400, stopShortMm: 300, tagNearMm: 3000, residentFloor: 4 },

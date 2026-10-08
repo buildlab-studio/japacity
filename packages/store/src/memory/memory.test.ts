@@ -2,6 +2,7 @@
 import {
   suiteForAccountStore,
   suiteForAuditStore,
+  suiteForCounterStore,
   suiteForDeletionStore,
   suiteForLedgerStore,
   suiteForNudgeBus,
@@ -14,6 +15,7 @@ import {
 import {
   memoryAccountStore,
   memoryAuditStore,
+  memoryCounterStore,
   memoryDeletionStore,
   memoryLedgerStore,
   memoryNudgeBus,
@@ -33,3 +35,4 @@ suiteForDeletionStore(() => Promise.resolve(memoryDeletionStore()));
 suiteForLedgerStore(() => Promise.resolve(memoryLedgerStore()));
 suiteForAuditStore(() => Promise.resolve(memoryAuditStore()));
 suiteForSwitchStore(() => Promise.resolve(memorySwitchStore()));
+suiteForCounterStore(() => Promise.resolve(memoryCounterStore()));
