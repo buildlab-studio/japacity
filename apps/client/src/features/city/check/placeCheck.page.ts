@@ -4,22 +4,22 @@
 // moving adds the motion, the clock and the crowd's idling as the city's frame loop runs them. Each
 // run records the draw calls, triangles and microseconds of script of every frame. The check
 // (tools/assets/place-check.ts) serves it from the repository and drives it through `window.placeCheck`.
+import { footprintOf } from "@japacity/assets";
 import { attachSigns, prepareModel, SIGN_FONT } from "@japacity/assets/load";
 import { ACESFilmicToneMapping, DirectionalLight, Fog, HemisphereLight, type Object3D, PCFShadowMap, PerspectiveCamera, Scene, WebGLRenderer } from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { MeshoptDecoder } from "three/addons/libs/meshopt_decoder.module.js";
 
-import type { FrameRecord } from "../../../../../../tools/assets/place-check.types";
+import type { FrameRecord, RouteRecord } from "../../../../../../tools/assets/place-check.types";
 import { advanceClock } from "../../../shared/three/clock";
-import { danceFigure } from "../../../shared/three/dance";
 import { loadGrids } from "../../../shared/three/motion";
 import { poseFigure } from "../../../shared/three/people";
 import { cameraAim, FOV } from "../camera";
-import { crossAt } from "../cross";
 import type { Stage } from "../placeFile";
-import { WALK_SPEED } from "../walk";
-import { buildWorld, colourOf, skyColours, type World } from "../world";
-import { type CheckInput, type PlaceRun, runOf } from "./placeCheck";
+import { type Point, routeMap } from "../walk/map";
+import { findRoute } from "../walk/route";
+import { animateWorld, buildWorld, colourOf, skyColours, type World } from "../world";
+import { type CheckInput, type PlaceRun, runOf, tapsOf } from "./placeCheck";
 
 /** One frame of the city's clock at 30 frames a second. */
 const STEP = 1 / 30;
@@ -45,30 +45,17 @@ function loadModel(path: string, text: Record<string, string>): Promise<Object3D
 
 /** What the city's frame loop moves for the place, apart from the walk and the camera (CityScene). */
 function animate(world: World, time: number): void {
-  for (const { figure, cross } of world.crowd) {
-    if (cross === undefined) {
-      poseFigure(figure, time);
-      continue;
-    }
-    const pace = crossAt(cross.from, cross.to, time, WALK_SPEED, cross.phase);
-    figure.root.position.set(pace.x, 0, pace.z);
-    figure.root.rotation.y = pace.facing;
-    if (pace.walking) poseFigure(figure, time, cross.walk, pace.stride);
-    else poseFigure(figure, time);
-  }
-  for (const { figure, dance } of world.dancers) danceFigure(figure, time, dance);
+  animateWorld(world, time, STEP);
   poseFigure(world.own, time, "stand");
-  world.indicator.position.y = 1.98 + Math.sin(time * 2.4) * 0.05;
-  world.indicator.rotation.y = time * 1.5;
 }
 
-async function build(run: PlaceRun): Promise<{ scene: Scene; camera: PerspectiveCamera; world: World }> {
+async function build(run: PlaceRun): Promise<{ scene: Scene; camera: PerspectiveCamera; world: World; models: Map<string, Object3D> }> {
   const stage: Stage = run.moving ? run.stage : { ...run.stage, motion: [] };
   const files = [...new Set([...stage.models.map((model) => model.file), ...(stage.dancers ?? []).map((dancer) => dancer.file), ...run.people.map((shown) => shown.person.file), run.own])];
   const models = new Map<string, Object3D>();
   await Promise.all(files.map(async (path) => models.set(path, await loadModel(path, run.text))));
   await loadGrids(stage.motion.map((motion) => motion.kind), run.settings.mesh, (path) => loadModel(path, run.text));
-  const world = buildWorld(stage, models, run.people, run.own, run.settings, (key) => run.text[key]);
+  const world = buildWorld(stage, models, run.people, run.own, run.settings, (key) => run.text[key], run.place);
   const [x, z, facing] = stage.start;
   world.own.root.position.set(x, 0, z);
   world.own.root.rotation.y = facing;
@@ -91,11 +78,11 @@ async function build(run: PlaceRun): Promise<{ scene: Scene; camera: Perspective
   const { position, target } = cameraAim({ x, z }, facing, 0, aspect);
   camera.position.set(...position);
   camera.lookAt(...target);
-  return { scene, camera, world };
+  return { scene, camera, world, models };
 }
 
 /** The place being measured, and the renderer it is drawn with. */
-let current: { world: World; scene: Scene; camera: PerspectiveCamera; renderer: WebGLRenderer; moving: boolean } | null = null;
+let current: { run: PlaceRun; models: Map<string, Object3D>; world: World; scene: Scene; camera: PerspectiveCamera; renderer: WebGLRenderer; moving: boolean } | null = null;
 
 const placeCheck = {
   /**
@@ -106,7 +93,7 @@ const placeCheck = {
   async build(input: CheckInput): Promise<void> {
     await document.fonts.load(`64px ${SIGN_FONT}`).catch(() => undefined);
     const run = runOf(input);
-    const { scene, camera, world } = await build(run);
+    const { scene, camera, world, models } = await build(run);
     current?.renderer.dispose();
     current?.renderer.forceContextLoss();
     const renderer = new WebGLRenderer({ antialias: run.settings.antialias, powerPreference: "high-performance", preserveDrawingBuffer: true });
@@ -116,7 +103,7 @@ const placeCheck = {
     renderer.setPixelRatio(run.settings.pixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.replaceChildren(renderer.domElement);
-    current = { world, scene, camera, renderer, moving: run.moving };
+    current = { run, models, world, scene, camera, renderer, moving: run.moving };
     placeCheck.frames(WARM);
   },
 
@@ -138,6 +125,32 @@ const placeCheck = {
       records.push({ drawCalls: renderer.info.render.calls, triangles: renderer.info.render.triangles, scriptUs: (scripted - start) * 1000, frameMs: end - start });
     }
     return records;
+  },
+
+  /**
+   * What routing costs on the place (city.md R-CITY-030): its route map built again from the loaded
+   * footprints and the walkable ground, then `count` taps routed one after another from the start,
+   * each walk starting where the last one ended. Milliseconds each.
+   */
+  routes(count: number): RouteRecord {
+    if (current === null) throw new Error("No place is built");
+    const { run, models } = current;
+    const footprints = (file: string) => {
+      const model = models.get(file);
+      return model === undefined ? null : footprintOf(model);
+    };
+    const began = performance.now();
+    const map = routeMap(run.stage, footprints);
+    const mapMs = performance.now() - began;
+    let at: Point = { x: run.stage.start[0], z: run.stage.start[1] };
+    const tapsMs = tapsOf(run.stage, run.place, count).map((tap) => {
+      const start = performance.now();
+      const route = findRoute(map, at, tap);
+      const spent = performance.now() - start;
+      at = route[route.length - 1] ?? at;
+      return spent;
+    });
+    return { cells: map.nx * map.nz, mapMs, tapsMs };
   },
 
   /**

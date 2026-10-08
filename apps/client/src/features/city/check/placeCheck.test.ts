@@ -4,7 +4,7 @@ import { describe, expect, test } from "vitest";
 import hubFile from "../../../../public/assets/places/ojuelegba/place.json";
 import { crowdSize } from "../crowd";
 import type { PlaceFile } from "../placeFile";
-import { type CheckInput, runOf } from "./placeCheck";
+import { type CheckInput, runOf, tapsOf } from "./placeCheck";
 
 const hub = content.place["place.ojuelegba"];
 if (hub === undefined) throw new Error("The hub is missing from content");
@@ -38,5 +38,23 @@ describe("the place check's runs", () => {
     const moving = runOf(input("high", true));
     expect(runOf(input("high", false))).toEqual({ ...moving, moving: false });
     expect(runOf(input("high", true)).people).toEqual(moving.people);
+  });
+
+  test("[R-CITY-030] given the hub's walkable ground, when the check draws its taps, then the same 300 fall every run, over the ground and up to two metres past it", () => {
+    const stage = (hubFile as unknown as PlaceFile).stage;
+    if (stage === undefined) throw new Error("The hub has no stage");
+    const taps = tapsOf(stage, "place.ojuelegba", 300);
+    expect(taps).toHaveLength(300);
+    expect(tapsOf(stage, "place.ojuelegba", 300)).toEqual(taps);
+    const corners = (stage.walkable ?? []).flat();
+    const xs = corners.map(([x]) => x);
+    const zs = corners.map(([, z]) => z);
+    for (const tap of taps) {
+      expect(tap.x).toBeGreaterThanOrEqual(Math.min(...xs) - 2);
+      expect(tap.x).toBeLessThanOrEqual(Math.max(...xs) + 2);
+      expect(tap.z).toBeGreaterThanOrEqual(Math.min(...zs) - 2);
+      expect(tap.z).toBeLessThanOrEqual(Math.max(...zs) + 2);
+    }
+    expect(new Set(taps.map((tap) => `${tap.x.toFixed(1)},${tap.z.toFixed(1)}`)).size).toBeGreaterThan(250);
   });
 });
