@@ -7,7 +7,7 @@
 import { BP_WHOLE, bp, divFloor, mulDiv } from "../engine/int";
 import { createRandom } from "../engine/random";
 import type { Content, ForeignCurrency, Id, World } from "../engine/types";
-import type { DirectorTick } from "./director";
+import type { DirectorStep, DirectorTick } from "./director";
 import { directWorld } from "./director";
 import type { WorldStream } from "./schedule";
 
@@ -42,7 +42,7 @@ function streetOf(official: number, premiumBp: number): number {
  * director's tick to `visit`. The one place the rate recurrences live; the
  * variables, the news and the era come from the director.
  */
-function walk(worldSeed: string, upTo: number, content: Content, visit: (track: RateTrack, tick: DirectorTick) => void): void {
+function walk(worldSeed: string, upTo: number, content: Content, visit: (track: RateTrack, step: DirectorStep) => void): void {
   const { rate } = content.tuning;
   const random = createRandom<WorldStream>(worldSeed, {});
   const official = { ...rate.start };
@@ -61,7 +61,7 @@ function walk(worldSeed: string, upTo: number, content: Content, visit: (track: 
     const premiumNoise = random.between("rate", -rate.premiumNoiseBp, rate.premiumNoiseBp);
     const factor = BP_WHOLE + rate.driftBp + noise;
     // Content without the supply variable (the engine's mini content) has no shortage to price.
-    const supply = director.vars[SUPPLY] ?? FULL_SUPPLY;
+    const supply = director.value(SUPPLY) ?? FULL_SUPPLY;
     const target = rate.premiumFloorBp + rate.premiumPerSupplyBp * Math.max(0, FULL_SUPPLY - supply);
     premiumBp = Math.max(rate.premiumFloorBp, premiumBp + thirdTowardZero(target - premiumBp) + premiumNoise);
     const floats = director.cameIntoForce.includes(FLOAT_STORY);
@@ -91,14 +91,17 @@ function worldOf(track: RateTrack, director: DirectorTick): World {
 /** Every world from tick 0 to `upTo`, in one walk. For tests and reports. */
 export function standInWorlds(worldSeed: string, upTo: number, content: Content): World[] {
   const worlds: World[] = [];
-  walk(worldSeed, upTo, content, (track, director) => worlds.push(worldOf(track, director)));
+  walk(worldSeed, upTo, content, (track, director) => worlds.push(worldOf(track, director.snapshot())));
   return worlds;
 }
 
 /** The world at a tick. */
 export function standInWorld(worldSeed: string, tick: number, content: Content): World {
-  const world = standInWorlds(worldSeed, tick, content)[tick];
-  if (world === undefined) throw new Error(`The walk never reached tick ${String(tick)}.`);
+  let world: World | null = null;
+  walk(worldSeed, tick, content, (track, director) => {
+    if (track.tick === tick) world = worldOf(track, director.snapshot());
+  });
+  if (world === null) throw new Error(`The walk never reached tick ${String(tick)}.`);
   return world;
 }
 

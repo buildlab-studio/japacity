@@ -111,10 +111,9 @@ describe("eras", () => {
         if (running.since !== tick.tick) continue;
         const story = content.era[running.id]!.story;
         expect(stageOf(tick, story)).toEqual({ id: story, stage: "announced", since: tick.tick });
-        const before = ticks[tick.tick - 1]?.era;
-        if (before !== undefined && before !== null) {
-          expect(stageOf(tick, content.era[before.id]!.story)).toEqual({ id: content.era[before.id]!.story, stage: "ended", since: tick.tick });
-        }
+        const before = ticks[tick.tick - 1]?.era ?? null;
+        const endedStories = before === null ? [] : [content.era[before.id]!.story];
+        for (const old of endedStories) expect(stageOf(tick, old)).toEqual({ id: old, stage: "ended", since: tick.tick });
       }
     }
   });
@@ -178,11 +177,8 @@ describe("the story roll", () => {
     for (const seed of SEEDS) {
       const ticks = directorTicks(seed, 300, content);
       const fired = ticks.flatMap((tick) => tick.started.filter((id) => shocks.includes(id)).map((id) => ({ id, tick: tick.tick, era: tick.era!.since })));
-      for (const [index, shock] of fired.entries()) {
-        const before = fired[index - 1];
-        if (before !== undefined) expect(shock.tick - before.tick).toBeGreaterThanOrEqual(director.shockGapTicks);
-        expect(fired.filter((other) => other.id === shock.id && other.era === shock.era)).toHaveLength(1);
-      }
+      for (const [index, shock] of fired.slice(1).entries()) expect(shock.tick - fired[index]!.tick).toBeGreaterThanOrEqual(director.shockGapTicks);
+      for (const shock of fired) expect(fired.filter((other) => other.id === shock.id && other.era === shock.era)).toHaveLength(1);
     }
   });
 
@@ -304,48 +300,38 @@ describe("the policy cycle", () => {
       shortage: "news.uk-study-reopens",
     };
     const counted: Record<string, number> = { backlash: 0, restriction: 0, closure: 0, shortage: 0 };
+    const broken: string[] = [];
+    // Open to narrowing by the restriction, narrowing to closed by the closure, closed to open by the shortage.
+    const moves: Record<string, Id<"news">> = { "2>1": steps.restriction!, "1>0": steps.closure!, "0>2": steps.shortage! };
     for (let index = 0; index < 1000; index += 1) {
       const ticks = directorTicks(`cycle-${String(index)}`, 160, content);
+      const fail = (tick: DirectorTick, what: string) => broken.push(`cycle-${String(index)} tick ${String(tick.tick)}: ${what}`);
       for (const tick of ticks.slice(1)) {
         const before = ticks[tick.tick - 1]!;
+        for (const [step, id] of Object.entries(steps)) if (tick.cameIntoForce.includes(id)) counted[step] = (counted[step] ?? 0) + 1;
+        // Each step is rolled only while the one before it holds. The backlash in force is read, as the content
+        // reads it, as the strictness it sets; it may be repeating.
+        const backlashSeen = ticks.slice(0, tick.tick + 1).some((earlier) => earlier.cameIntoForce.includes(steps.backlash!));
+        const restrictionHolds =
+          tick.vars[STUDY_WINDOW] === 2 && tick.vars[STUDY_SURGE]! > 40 && tick.vars["var.uk-study-strictness"]! >= 70 && backlashSeen;
+        if (tick.started.includes(steps.restriction!) && !restrictionHolds) fail(tick, "restriction rolled without open, surge and backlash");
+        const closureHolds = tick.vars[STUDY_WINDOW] === 1 && stageOf(tick, steps.restriction!)?.stage === "in-force";
+        if (tick.started.includes(steps.closure!) && !closureHolds) fail(tick, "closure rolled without the restriction in force");
+        if (tick.started.includes(steps.shortage!) && tick.vars[STUDY_WINDOW] !== 0) fail(tick, "shortage rolled with the window not closed");
         const pandemic = stageOf(tick, PANDEMIC);
         const held = pandemic !== null && (pandemic.stage === "in-force" || (pandemic.stage === "ended" && pandemic.since === tick.tick));
-        const from = before.vars[STUDY_WINDOW];
-        const to = tick.vars[STUDY_WINDOW];
-        for (const [step, id] of Object.entries(steps)) if (tick.cameIntoForce.includes(id)) counted[step] = (counted[step] ?? 0) + 1;
-        // Each step is rolled only while the one before it holds.
-        // The backlash in force is read, as the content reads it, as the strictness it sets; it may be repeating.
-        if (tick.started.includes(steps.restriction!)) {
-          expect(tick.vars[STUDY_WINDOW]).toBe(2);
-          expect(tick.vars[STUDY_SURGE]).toBeGreaterThan(40);
-          expect(tick.vars["var.uk-study-strictness"]).toBeGreaterThanOrEqual(70);
-          expect(ticks.slice(0, tick.tick + 1).some((earlier) => earlier.cameIntoForce.includes(steps.backlash!))).toBe(true);
-        }
-        if (tick.started.includes(steps.closure!)) {
-          expect(tick.vars[STUDY_WINDOW]).toBe(1);
-          expect(stageOf(tick, steps.restriction!)?.stage).toBe("in-force");
-        }
-        if (tick.started.includes(steps.shortage!)) expect(tick.vars[STUDY_WINDOW]).toBe(0);
-        if (from === to || held) continue;
-        // Open to narrowing by the restriction, narrowing to closed by the closure, closed to open by the shortage,
-        // and back from closed to narrowing when the closure runs out.
-        const moves: Record<string, Id<"news">> = { "2>1": steps.restriction!, "1>0": steps.closure!, "0>2": steps.shortage! };
-        const move = `${String(from)}>${String(to)}`;
-        if (move === "0>1") {
-          expect(stageOf(tick, steps.closure!)).toEqual({ id: steps.closure, stage: "ended", since: tick.tick });
-          continue;
-        }
+        const move = `${String(before.vars[STUDY_WINDOW])}>${String(tick.vars[STUDY_WINDOW])}`;
+        if (before.vars[STUDY_WINDOW] === tick.vars[STUDY_WINDOW] || held) continue;
+        // Back from closed to narrowing when the closure runs out.
+        const ranOut = move === "0>1" && tick.ended.includes(steps.closure!);
         // A shortage rolled while closed may land after the closure (or the pandemic) ran out and put the narrowing back.
-        if (move === "1>2") {
-          expect(tick.cameIntoForce).toContain(steps.shortage);
-          const rolled = ticks.findLast((earlier) => earlier.started.includes(steps.shortage!))!;
-          expect(rolled.vars[STUDY_WINDOW]).toBe(0);
-          continue;
-        }
-        expect(moves[move]).toBeDefined();
-        expect(tick.cameIntoForce).toContain(moves[move]);
+        const rolled = ticks.findLast((earlier) => earlier.started.includes(steps.shortage!));
+        const lateShortage = move === "1>2" && tick.cameIntoForce.includes(steps.shortage!) && rolled?.vars[STUDY_WINDOW] === 0;
+        const stepped = moves[move] !== undefined && tick.cameIntoForce.includes(moves[move]);
+        if (!ranOut && !lateShortage && !stepped) fail(tick, `the window moved ${move} with ${tick.cameIntoForce.join(", ")} in force`);
       }
     }
+    expect(broken).toEqual([]);
     for (const step of Object.keys(steps)) expect(counted[step]).toBeGreaterThan(0);
   });
 
@@ -430,6 +416,7 @@ describe("the real world's windows", () => {
     const studyNarrowed = share((ticks) => ticks.some((tick) => tick.vars[STUDY_WINDOW] === 1));
     const careOpened = share((ticks) => ticks.some((tick) => tick.vars["var.uk-care-window"] === 2));
     expect(studyNarrowed).toBeGreaterThan(20);
+    expect(studyClosed36).toBeGreaterThan(0);
     expect(studyClosed36).toBeLessThan(200);
     expect(careOpened).toBeGreaterThan(20);
     expect(careOpened).toBeLessThan(200);

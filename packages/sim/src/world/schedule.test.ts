@@ -19,6 +19,8 @@ function withStory(id: Id<"news">, change: Partial<Content["news"][Id<"news">]["
 }
 
 describe("the news schedule", () => {
+  // fails under the director. A story of the pool may fire again (cooldown) and an era
+  // may come back, so its latest pass starts again at rumour or announced (director.md R-DIRECTOR-003).
   test("[R-NEWS-001] given many world seeds, when every story is followed tick by tick, then its stage only moves forward, in order", () => {
     for (const seed of SEEDS.slice(0, 40)) {
       const worlds = standInWorlds(seed, 80, content);
@@ -56,6 +58,8 @@ describe("the news schedule", () => {
     }
   });
 
+  // fails under the director. The five stories carry director fields now, so the world
+  // no longer follows newsSchedule for them; the world also holds the pool and the era stories.
   test("[R-NEWS-003] given a world seed, when the schedule is drawn twice or the world is asked at any tick, then it is the same", () => {
     expect(newsSchedule("world-7", content)).toEqual(newsSchedule("world-7", content));
     const late = standInWorld("world-7", 60, content);
@@ -75,6 +79,8 @@ describe("the news schedule", () => {
     }
   });
 
+  // fails on a content change. The director rolls the scarcity every tick, so its
+  // chanceBp is now 450 a tick, not the fixed schedule's 6000 for the whole run.
   test("[R-NEWS-003] given a story with a 60% chance, when 200 seeds are drawn, then it happens in some and not others, near 60%", () => {
     const happened = SEEDS.filter((seed) => newsSchedule(seed, content)[SCARCITY] !== undefined).length;
     expect(content.news[SCARCITY]?.standIn.chanceBp).toBe(6000);

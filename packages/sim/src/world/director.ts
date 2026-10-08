@@ -10,12 +10,13 @@
 // positions with one for each story of the pool, by its place in id order. So
 // whether one story fires never moves the draws of another.
 import { BP_WHOLE } from "../engine/int";
-import { createRandom } from "../engine/random";
+import { createRandom, drawAt, scaleDraw } from "../engine/random";
 import type { Content, EraEntry, Id, NewsEntry, Requirement, World, WorldNews } from "../engine/types";
 import type { StoryTicks, WorldStream } from "./schedule";
 import { DRAWS_PER_STORY, newsSchedule, stageAt } from "./schedule";
 
 const OPENING_ERA: Id<"era"> = "era.calm";
+const SHOCK: WorldStream = "shock";
 const DECEMBER: Id<"var"> = "var.season-december";
 const MONTHS_A_YEAR = 12;
 /** Offline, the eleventh tick of each game year is December (R-DIRECTOR-006). */
@@ -52,19 +53,39 @@ interface RunningEra {
   index: number;
 }
 
+/** What the director reads of one story, worked out once a walk. Stories are held by their place in id order. */
+interface Story {
+  id: Id<"news">;
+  entry: NewsEntry;
+  /** The stories this one ends when it comes into force (their `endedBy`). */
+  ends: number[];
+  /** A reopening's window (R-DIRECTOR-005), or null. */
+  reopens: Id<"var"> | null;
+  /** In force for good once it gets there: no end and nothing ends it. */
+  forGood: boolean;
+}
+
 /** The director's whole state as it steps. Built fresh for each walk; never stored. */
 interface Book {
   values: Record<Id<"var">, number>;
   setBy: Record<Id<"var">, Id<"news"> | null>;
-  before: Partial<Record<Id<"news">, Record<Id<"var">, Held>>>;
+  stories: Story[];
+  /** The stories rolled each tick, in id order, by their place in `stories`. */
+  pool: number[];
+  /** Every window variable, for the closed count. */
+  windows: Id<"var">[];
   /** The latest pass of each story. */
-  passes: Partial<Record<Id<"news">, StoryTicks>>;
-  /** The tick each pool story last fired. */
-  lastFired: Partial<Record<Id<"news">, number>>;
+  passes: (StoryTicks | null)[];
+  before: (Record<Id<"var">, Held> | null)[];
+  /** The tick each story last fired from the pool. */
+  lastFired: (number | null)[];
+  /** Stories due to come into force, and due to end, by tick. A due entry may be stale; the pass decides. */
+  dueInForce: number[][];
+  dueEnd: number[][];
   era: RunningEra | null;
   erasRun: Id<"era">[];
   lastShock: number | null;
-  shocksThisEra: Id<"news">[];
+  shocksThisEra: number[];
   /** The tick each window last became 0, or null while it is open or narrowing. */
   closedSince: Partial<Record<Id<"var">, number | null>>;
 }
@@ -152,65 +173,96 @@ function nextEra(worldSeed: string, content: Content, ended: RunningEra, erasRun
   throw new Error("The era draw fell outside its weights.");
 }
 
+function due(table: number[][], tick: number | null, story: number): void {
+  if (tick !== null) (table[tick] ??= []).push(story);
+}
+
+function setPass(book: Book, story: number, pass: StoryTicks): void {
+  book.passes[story] = pass;
+  due(book.dueInForce, pass.inForce, story);
+  due(book.dueEnd, pass.ended, story);
+}
+
 /** The era's story: announced the tick the era begins, in force its force lag later, ended with the era. */
-function startEraStory(book: Book, content: Content, era: RunningEra): void {
+function startEraStory(book: Book, content: Content, era: RunningEra, place: Record<Id<"news">, number>): void {
   const story = content.era[era.id]?.story;
-  const entry = story === undefined ? undefined : content.news[story];
+  const index = story === undefined ? undefined : place[story];
   // Test contents may name an era without its story; the era runs all the same.
-  if (story === undefined || entry === undefined) return;
-  book.passes[story] = { rumour: null, announced: era.since, inForce: era.since + entry.standIn.forceLag, ended: null };
+  if (index === undefined) return;
+  const lag = book.stories[index]!.entry.standIn.forceLag;
+  setPass(book, index, { rumour: null, announced: era.since, inForce: era.since + lag, ended: null });
 }
 
-function endEraStory(book: Book, content: Content, era: RunningEra, tick: number): void {
+function endEraStory(book: Book, content: Content, era: RunningEra, tick: number, place: Record<Id<"news">, number>): void {
   const story = content.era[era.id]?.story;
-  const pass = story === undefined ? undefined : book.passes[story];
-  if (story === undefined || pass === undefined) return;
-  book.passes[story] = { ...pass, ended: tick };
+  const index = story === undefined ? undefined : place[story];
+  const pass = index === undefined ? null : book.passes[index];
+  if (index === undefined || pass === null || pass === undefined) return;
+  setPass(book, index, { ...pass, ended: tick });
 }
 
-function openBook(worldSeed: string, content: Content): Book {
+function storiesOf(content: Content): { stories: Story[]; pool: number[]; place: Record<Id<"news">, number> } {
+  const ids = (Object.keys(content.news) as Id<"news">[]).sort();
+  const place: Record<Id<"news">, number> = {};
+  for (const [index, id] of ids.entries()) place[id] = index;
+  const eraStories = new Set(Object.values(content.era).map((entry) => entry.story));
+  const stories: Story[] = ids.map((id) => {
+    const entry = content.news[id]!;
+    const endedBy = entry.director?.endedBy ?? null;
+    return { id, entry, ends: [], reopens: reopeningWindow(entry), forGood: entry.standIn.endsAfter === null && endedBy === null };
+  });
+  for (const [index, story] of stories.entries()) {
+    const ender = story.entry.director?.endedBy;
+    const at = ender === undefined || ender === null ? undefined : place[ender];
+    if (at !== undefined) stories[at]!.ends.push(index);
+  }
+  // The pool: every story with director fields that is not an era's own story.
+  const pool = stories.flatMap((story, index) => (story.entry.director !== undefined && !eraStories.has(story.id) ? [index] : []));
+  return { stories, pool, place };
+}
+
+function openBook(worldSeed: string, content: Content, stories: Story[], pool: number[], place: Record<Id<"news">, number>): Book {
   const values: Record<Id<"var">, number> = {};
   const setBy: Record<Id<"var">, Id<"news"> | null> = {};
   for (const entry of Object.values(content.var)) {
     values[entry.id] = entry.start;
     setBy[entry.id] = null;
   }
-  // Stories without director fields keep the fixed schedule of news.md.
-  const passes: Partial<Record<Id<"news">, StoryTicks>> = {};
-  const fixed = newsSchedule(worldSeed, content);
-  for (const [id, ticks] of Object.entries(fixed) as [Id<"news">, StoryTicks][]) {
-    if (content.news[id]?.director === undefined) passes[id] = ticks;
-  }
   const opening = content.era[OPENING_ERA];
   const era = opening === undefined ? null : { id: opening.id, since: 0, until: eraLength(worldSeed, opening, 0), index: 0 };
   const book: Book = {
     values,
     setBy,
-    before: {},
-    passes,
-    lastFired: {},
+    stories,
+    pool,
+    windows: (Object.keys(values) as Id<"var">[]).filter((id) => id.endsWith("-window")),
+    passes: stories.map(() => null),
+    before: stories.map(() => null),
+    lastFired: stories.map(() => null),
+    dueInForce: [],
+    dueEnd: [],
     era,
     erasRun: era === null ? [] : [era.id],
     lastShock: null,
     shocksThisEra: [],
     closedSince: {},
   };
-  if (era !== null) startEraStory(book, content, era);
+  // Stories without director fields keep the fixed schedule of news.md. Drawing it costs a walk's worth
+  // of time, so content whose every story has director fields skips it.
+  const fixed = stories.some((story) => story.entry.director === undefined) ? newsSchedule(worldSeed, content) : {};
+  for (const [id, ticks] of Object.entries(fixed) as [Id<"news">, StoryTicks][]) {
+    const index = place[id];
+    if (index !== undefined && content.news[id]?.director === undefined) setPass(book, index, ticks);
+  }
+  if (era !== null) startEraStory(book, content, era, place);
   markClosed(book, 0);
   return book;
 }
 
 function markClosed(book: Book, tick: number): void {
-  for (const id of Object.keys(book.values) as Id<"var">[]) {
-    if (!id.endsWith("-window")) continue;
+  for (const id of book.windows) {
     book.closedSince[id] = book.values[id] === 0 ? (book.closedSince[id] ?? tick) : null;
   }
-}
-
-/** The pool: every story with director fields that is not an era's own story, in id order. */
-function poolOf(content: Content): Id<"news">[] {
-  const eraStories = new Set(Object.values(content.era).map((entry) => entry.story));
-  return (Object.keys(content.news) as Id<"news">[]).filter((id) => content.news[id]?.director !== undefined && !eraStories.has(id)).sort();
 }
 
 /** R-DIRECTOR-005: surges follow their windows as they stood at the end of the tick before. */
@@ -224,37 +276,42 @@ function turnCycle(book: Book, content: Content, pairs: readonly [Id<"var">, Id<
   }
 }
 
+/** The stories due on a tick whose pass really lands then, once each, in id order. */
+function landing(table: number[][], tick: number, lands: (story: number) => boolean): number[] {
+  return [...new Set(table[tick] ?? [])].filter(lands).sort((a, b) => a - b);
+}
+
 /**
  * The stages that land on this tick (R-DIRECTOR-004). Endings go first, so a
  * story that comes into force on the tick another ends is the later one and
  * wins. A revert puts back only what the ending story itself still holds.
  */
-function turnStories(book: Book, content: Content, tick: number): { cameIntoForce: Id<"news">[]; ended: Id<"news">[] } {
-  const ids = (Object.keys(book.passes) as Id<"news">[]).sort();
-  const cameIntoForce = ids.filter((id) => book.passes[id]?.inForce === tick);
+function turnStories(book: Book, tick: number): { cameIntoForce: number[]; ended: number[] } {
+  const cameIntoForce = landing(book.dueInForce, tick, (story) => book.passes[story]?.inForce === tick);
   // A story in force ends on the tick its `endedBy` story comes into force.
-  for (const id of ids) {
-    const pass = book.passes[id];
-    const endedBy = content.news[id]?.director?.endedBy ?? null;
-    if (pass === undefined || endedBy === null || !cameIntoForce.includes(endedBy)) continue;
-    if (pass.inForce < tick && (pass.ended === null || pass.ended > tick)) book.passes[id] = { ...pass, ended: tick };
+  for (const ender of cameIntoForce) {
+    for (const story of book.stories[ender]!.ends) {
+      const pass = book.passes[story];
+      if (pass === null || pass === undefined || pass.inForce >= tick || (pass.ended !== null && pass.ended <= tick)) continue;
+      setPass(book, story, { ...pass, ended: tick });
+    }
   }
-  const ended = ids.filter((id) => {
-    const pass = book.passes[id];
-    return pass !== undefined && pass.ended === tick && pass.inForce < tick;
+  const ended = landing(book.dueEnd, tick, (story) => {
+    const pass = book.passes[story];
+    return pass !== null && pass !== undefined && pass.ended === tick && pass.inForce < tick;
   });
-  for (const id of ended) {
-    const before = book.before[id];
-    if (content.news[id]?.standIn.revert !== true || before === undefined) continue;
+  for (const story of ended) {
+    const { id, entry } = book.stories[story]!;
+    const before = book.before[story];
+    if (!entry.standIn.revert || before === null || before === undefined) continue;
     for (const [variable, held] of Object.entries(before) as [Id<"var">, Held][]) {
       if (book.setBy[variable] !== id) continue;
       book.values[variable] = held.value;
       book.setBy[variable] = held.setBy;
     }
   }
-  for (const id of cameIntoForce) {
-    const entry = content.news[id];
-    if (entry === undefined) continue;
+  for (const story of cameIntoForce) {
+    const { id, entry } = book.stories[story]!;
     const before: Record<Id<"var">, Held> = {};
     const change = (variable: Id<"var">, to: (from: number) => number) => {
       const from = book.values[variable];
@@ -265,108 +322,122 @@ function turnStories(book: Book, content: Content, tick: number): { cameIntoForc
     };
     for (const set of entry.standIn.sets) change(set.var, () => set.value);
     for (const add of entry.director?.adds ?? []) change(add.var, (from) => from + add.value);
-    book.before[id] = before;
+    book.before[story] = before;
   }
   return { cameIntoForce, ended };
 }
 
 /** A story may fire again only once its last pass has been seen ended, or is in force for good. */
-function free(book: Book, entry: NewsEntry, tick: number): boolean {
-  const pass = book.passes[entry.id];
-  if (pass === undefined) return true;
+function free(book: Book, story: number, tick: number): boolean {
+  const pass = book.passes[story];
+  if (pass === null || pass === undefined) return true;
   if (pass.ended !== null) return pass.ended < tick;
-  const forGood = entry.standIn.endsAfter === null && (entry.director?.endedBy ?? null) === null;
-  return forGood && pass.inForce <= tick;
+  return book.stories[story]!.forGood && pass.inForce <= tick;
 }
 
 /** R-DIRECTOR-003: each story of the pool, in id order, rolled on its own position of `shock`. */
-function rollStories(book: Book, worldSeed: string, content: Content, pool: readonly Id<"news">[], tick: number, base: number): Id<"news">[] {
+function rollStories(book: Book, worldSeed: string, content: Content, tick: number, base: number): void {
   const { director } = content.tuning;
-  const started: Id<"news">[] = [];
-  for (const [index, id] of pool.entries()) {
-    if (started.length >= director.maxNewPerTick) break;
-    const entry = content.news[id]!;
+  const weights = book.era === null ? null : (content.era[book.era.id]?.weights ?? null);
+  let started = 0;
+  for (const [place, story] of book.pool.entries()) {
+    if (started >= director.maxNewPerTick) break;
+    const { entry, reopens } = book.stories[story]!;
     const rules = entry.director!;
-    const last = book.lastFired[id];
-    if (last !== undefined && (rules.once || tick - last < rules.cooldown)) continue;
-    if (!free(book, entry, tick)) continue;
-    if (rules.shock && (book.shocksThisEra.includes(id) || (book.lastShock !== null && tick - book.lastShock < director.shockGapTicks))) continue;
-    const window = reopeningWindow(entry);
-    if (window !== null) {
-      const since = book.closedSince[window];
+    const last = book.lastFired[story];
+    if (last !== null && last !== undefined && (rules.once || tick - last < rules.cooldown)) continue;
+    if (!free(book, story, tick)) continue;
+    if (rules.shock && (book.shocksThisEra.includes(story) || (book.lastShock !== null && tick - book.lastShock < director.shockGapTicks))) continue;
+    if (reopens !== null) {
+      const since = book.closedSince[reopens];
       if (since === undefined || since === null || tick - since < director.closedTicks) continue;
     }
     if (!rules.needs.every((need) => holds(need, book))) continue;
-    const weight = book.era === null ? 1 : (content.era[book.era.id]?.weights[rules.group] ?? 1);
-    const chance = Math.min(BP_WHOLE, entry.standIn.chanceBp * weight);
-    const random = createRandom<WorldStream>(worldSeed, { shock: base + tick * pool.length + index });
-    if (!random.chance("shock", chance)) continue;
+    const chance = Math.min(BP_WHOLE, entry.standIn.chanceBp * (weights?.[rules.group] ?? 1));
+    // The same draw `chance` makes, read at this story's own position for the tick.
+    if (scaleDraw(drawAt(worldSeed, SHOCK, base + tick * book.pool.length + place), BP_WHOLE) >= chance) continue;
     // the roll starts the story at its first stage. With a rumour lead the rumour runs from now
     // and the announcement follows the lead later; R-DIRECTOR-004 counts the lead back from the announcement.
     const { rumourLead, forceLag, endsAfter } = entry.standIn;
     const announced = tick + rumourLead;
     const inForce = announced + forceLag;
-    book.passes[id] = { rumour: rumourLead > 0 ? tick : null, announced, inForce, ended: endsAfter === null ? null : inForce + endsAfter };
-    book.lastFired[id] = tick;
+    setPass(book, story, { rumour: rumourLead > 0 ? tick : null, announced, inForce, ended: endsAfter === null ? null : inForce + endsAfter });
+    book.lastFired[story] = tick;
     if (rules.shock) {
       book.lastShock = tick;
-      book.shocksThisEra.push(id);
+      book.shocksThisEra.push(story);
     }
-    started.push(id);
+    started += 1;
   }
-  return started;
 }
 
 function newsOf(book: Book, tick: number): WorldNews[] {
   const news: WorldNews[] = [];
-  for (const id of (Object.keys(book.passes) as Id<"news">[]).sort()) {
-    const pass = book.passes[id];
-    const reached = pass === undefined ? null : stageAt(pass, tick);
-    if (reached !== null) news.push({ id, ...reached });
+  for (const [story, pass] of book.passes.entries()) {
+    const reached = pass === null ? null : stageAt(pass, tick);
+    if (reached !== null) news.push({ id: book.stories[story]!.id, ...reached });
   }
   return news;
 }
 
 function startedAt(book: Book, tick: number): Id<"news">[] {
-  return (Object.keys(book.passes) as Id<"news">[]).filter((id) => {
-    const pass = book.passes[id];
-    return pass !== undefined && (pass.rumour ?? pass.announced) === tick;
-  }).sort();
+  return book.passes.flatMap((pass, story) => (pass !== null && (pass.rumour ?? pass.announced) === tick ? [book.stories[story]!.id] : []));
+}
+
+/**
+ * One tick as the director stepped it. What the rates need is at hand; the
+ * whole tick is built only when asked for, since most walks want only the last.
+ */
+export interface DirectorStep {
+  tick: number;
+  cameIntoForce: readonly Id<"news">[];
+  /** A world variable's value this tick, or undefined when content has no such variable. */
+  value(variable: Id<"var">): number | undefined;
+  snapshot(): DirectorTick;
 }
 
 /**
  * Steps the director from tick 0 to `upTo` and hands each tick to `visit`.
  * Tick 0 holds every start value, calm and its story; the pool is rolled from tick 1.
  */
-export function directWorld(worldSeed: string, upTo: number, content: Content, visit: (tick: DirectorTick) => void): void {
+export function directWorld(worldSeed: string, upTo: number, content: Content, visit: (step: DirectorStep) => void): void {
   if (!Number.isSafeInteger(upTo) || upTo < 0) throw new Error(`A world tick is a whole number from 0, got ${String(upTo)}.`);
-  const book = openBook(worldSeed, content);
-  const pool = poolOf(content);
+  const { stories, pool, place } = storiesOf(content);
+  const book = openBook(worldSeed, content, stories, pool, place);
   const pairs = cyclePairs(content);
-  const base = DRAWS_PER_STORY * Object.keys(content.news).length;
+  const base = DRAWS_PER_STORY * stories.length;
   const hasDecember = content.var[DECEMBER] !== undefined;
+  const ids = (list: number[]) => list.map((story) => stories[story]!.id);
 
   for (let tick = 0; tick <= upTo; tick += 1) {
     if (book.era !== null && tick === book.era.until) {
-      endEraStory(book, content, book.era, tick);
+      endEraStory(book, content, book.era, tick, place);
       book.era = nextEra(worldSeed, content, book.era, book.erasRun);
       book.erasRun.push(book.era.id);
       book.shocksThisEra = [];
-      startEraStory(book, content, book.era);
+      startEraStory(book, content, book.era, place);
     }
     if (tick > 0) turnCycle(book, content, pairs);
     if (hasDecember) book.values[DECEMBER] = tick % MONTHS_A_YEAR === DECEMBER_TICK ? 1 : 0;
-    const { cameIntoForce, ended } = turnStories(book, content, tick);
+    const turned = turnStories(book, tick);
     markClosed(book, tick);
-    if (tick > 0) rollStories(book, worldSeed, content, pool, tick, base);
+    if (tick > 0) rollStories(book, worldSeed, content, tick, base);
+    const era = book.era;
+    const cameIntoForce = ids(turned.cameIntoForce);
     visit({
       tick,
-      vars: { ...book.values },
-      news: newsOf(book, tick),
-      era: book.era === null ? null : { id: book.era.id, since: book.era.since, until: book.era.until },
-      started: startedAt(book, tick),
       cameIntoForce,
-      ended,
+      value: (variable) => book.values[variable],
+      // Read before the next tick moves the book on: the walk calls it inside `visit`.
+      snapshot: () => ({
+        tick,
+        vars: { ...book.values },
+        news: newsOf(book, tick),
+        era: era === null ? null : { id: era.id, since: era.since, until: era.until },
+        started: startedAt(book, tick),
+        cameIntoForce,
+        ended: ids(turned.ended),
+      }),
     });
   }
 }
@@ -374,6 +445,6 @@ export function directWorld(worldSeed: string, upTo: number, content: Content, v
 /** Every tick of the director from 0 to `upTo`. For tests and reports. */
 export function directorTicks(worldSeed: string, upTo: number, content: Content): DirectorTick[] {
   const ticks: DirectorTick[] = [];
-  directWorld(worldSeed, upTo, content, (tick) => ticks.push(tick));
+  directWorld(worldSeed, upTo, content, (step) => ticks.push(step.snapshot()));
   return ticks;
 }

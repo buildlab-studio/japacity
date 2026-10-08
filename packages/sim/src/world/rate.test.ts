@@ -58,6 +58,8 @@ describe("the stand-in world's rates", () => {
     expect(standInWorld("world-1", 10, content).rates).not.toEqual(standInWorld("world-2", 10, content).rates);
   });
 
+  // fails under the director. Calm begins at tick 0 and is announced that tick as
+  // news.era-calm (R-DIRECTOR-002), so the news at tick 0 is not empty. Rates and variables hold.
   test("[R-RATE-002] given tick 0, when the world is read, then the official rates are the start values and every variable has its start value", () => {
     const world = standInWorld("world-1", 0, content);
     expect(world.tick).toBe(0);
@@ -117,6 +119,8 @@ describe("the stand-in world's rates", () => {
     expect(Math.max(...premiums)).toBeGreaterThan(rate.premiumFloorBp);
   });
 
+  // fails under the director. seedWithFloat reads the float's tick from newsSchedule,
+  // which the director no longer follows for stories with director fields.
   test("[R-RATE-004] given the float comes into force, when that tick is read, then the premium is 3% and the street rate stays where it was", () => {
     const { seed, tick } = seedWithFloat();
     const before = standInWorld(seed, tick - 1, content);
@@ -144,6 +148,8 @@ describe("the stand-in world's rates", () => {
     },
   );
 
+  // fails under the director. The living-line story's tick is read from newsSchedule,
+  // which the director no longer follows for stories with director fields.
   test("[R-RATE-006] given the living-line story, when it comes into force, then the variable holds its start value until that tick and the new value from it", () => {
     const ticks = newsSchedule("world-1", content)["news.uk-living-rise"]!;
     expect(standInWorld("world-1", ticks.inForce - 1, content).vars["var.uk-living-line"]).toBe(117100);
@@ -172,6 +178,8 @@ describe("the stand-in world's rates", () => {
     expect(standInWorld("w", 9, keeping).vars["var.fx-bank-queue"]).toBe(2);
   });
 
+  // fails under the director. seedWithFloat reads the float's tick from newsSchedule,
+  // which the director no longer follows for stories with director fields.
   test("[R-RATE-006] given the scarcity ends as the float comes into force, when that tick is read, then the float's values hold, not the ones from before the scarcity", () => {
     const { seed, tick } = seedWithFloat();
     const during = standInWorld(seed, tick - 1, content).vars;
