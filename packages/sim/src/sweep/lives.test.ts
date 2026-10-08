@@ -4,14 +4,13 @@
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
-// The recorder's own promise: the window a recorded flight leaves in and the months a life abroad runs.
-import { FLIGHT_WINDOW, MONTHS_ABROAD } from "../../../../tools/record-lives.window";
 import { measure } from "../engine/golden";
 import { lifeStart, replay, savedCommands } from "../engine/replay";
 import { goldens } from "../goldens";
 import { lifeScripts } from "../goldens/scripts";
 import { start } from "../testing/play";
 import { standInWorld } from "../world/standIn";
+import { FLIGHT_WINDOW, MONTHS_ABROAD } from "./lives.window";
 
 /** The second recording of each life carries on abroad; the first ends on the flight. */
 const flights = lifeScripts.filter((script) => !script.name.endsWith("-abroad"));

@@ -16,11 +16,10 @@ import { content } from "../packages/content/src/index";
 import { lastSegment, lifeStart, savedCommands } from "../packages/sim/src/engine/replay";
 import type { FlatSave, Id } from "../packages/sim/src/engine/types";
 import { lifeSaves } from "../packages/sim/src/goldens/lives.data";
+import { FLIGHT_WINDOW, MONTHS_ABROAD } from "../packages/sim/src/sweep/lives.window";
 import { runLife } from "../packages/sim/src/sweep/players";
 import type { StrategyName } from "../packages/sim/src/sweep/players";
 import { start } from "../packages/sim/src/testing/play";
-
-import { FLIGHT_WINDOW, MONTHS_ABROAD } from "./record-lives.window";
 
 const WORLD = "golden-world";
 const WANTED: { name: string; life: Id<"scenario">; strategy: StrategyName; refusedFirst: boolean }[] = [
