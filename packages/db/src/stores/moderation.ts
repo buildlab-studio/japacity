@@ -151,10 +151,14 @@ export function pgFeedbackStore(handle: Handle): FeedbackStore {
       }),
 
     drop: (day) =>
-      handle.transaction(async (tx) => {
-        const gone = await tx.delete(feedback).where(lt(feedback.day, day)).returning({ n: feedback.n });
-        await tx.delete(feedbackSends).where(lt(feedbackSends.day, day));
+      handle.read(async (db) => {
+        const gone = await db.delete(feedback).where(lt(feedback.day, day)).returning({ n: feedback.n });
         return gone.length;
+      }),
+
+    forget: (day) =>
+      handle.read(async (db) => {
+        await db.delete(feedbackSends).where(lt(feedbackSends.day, day));
       }),
   };
 }

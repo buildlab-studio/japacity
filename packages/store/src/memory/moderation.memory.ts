@@ -78,8 +78,11 @@ export function memoryFeedbackStore(): FeedbackStore {
       const before = rows.length;
       const kept = rows.filter((row) => row.day >= day);
       rows.splice(0, rows.length, ...kept);
-      for (const [key, value] of sends) if (value.day < day) sends.delete(key);
       return Promise.resolve(before - kept.length);
+    },
+    forget: (day) => {
+      for (const [key, value] of sends) if (value.day < day) sends.delete(key);
+      return Promise.resolve();
     },
   };
 }

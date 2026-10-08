@@ -114,7 +114,7 @@ export function suiteForFeedbackStore(make: () => Promise<FeedbackStore>): void 
       expect(await store.add(feedback("feedback.1", "2026-10-09"))).toMatchObject({ ok: false, code: "exists" });
     });
 
-    test("[R-MODERATION-020] given rows on three days, when the days before one are dropped, then only that day and later stay, and the earlier send counts go too", async () => {
+    test("[R-MODERATION-020] given rows on three days, when the days before one are dropped, then only that day and later stay; forgetting a day's sends lets the sender send again", async () => {
       const store = await make();
       must(await store.add(feedback("feedback.1", "2026-04-10")));
       must(await store.add(feedback("feedback.2", "2026-04-11")));
@@ -124,8 +124,13 @@ export function suiteForFeedbackStore(make: () => Promise<FeedbackStore>): void 
       expect(await store.drop("2026-04-11")).toBe(1);
 
       expect((await store.list(10)).map((row) => row.id)).toEqual(["feedback.3", "feedback.2"]);
-      expect(await store.take("sender-a", "2026-04-10", 5)).toBe(true);
       expect(await store.drop("2026-04-11")).toBe(0);
+      expect(await store.take("sender-a", "2026-04-10", 5)).toBe(false);
+      await store.forget("2026-04-10");
+      expect(await store.take("sender-a", "2026-04-10", 5)).toBe(false);
+      await store.forget("2026-04-11");
+      expect(await store.take("sender-a", "2026-04-10", 5)).toBe(true);
+      expect((await store.list(10)).map((row) => row.id)).toEqual(["feedback.3", "feedback.2"]);
     });
   });
 }

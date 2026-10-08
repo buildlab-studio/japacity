@@ -102,6 +102,8 @@ export interface FeedbackStore {
   add: (row: FeedbackRow) => Promise<StoreResult<FeedbackRow>>;
   /** The newest first, at most `limit`. */
   list: (limit: number) => Promise<FeedbackRow[]>;
-  /** Removes every row and send count of a day before `day`, and answers how many rows went. */
+  /** Removes every row of a day before `day`, and answers how many went. */
   drop: (day: string) => Promise<number>;
+  /** Removes every send count of a day before `day`. */
+  forget: (day: string) => Promise<void>;
 }
