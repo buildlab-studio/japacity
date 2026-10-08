@@ -134,6 +134,20 @@ describe("the phone", () => {
     expect(game.view().credit?.onTime).toBe(25);
   });
 
+  test("[R-ABROAD-004] given a phone contract open, when the free slots are read, then a second contract is not offered and a month that asks for one is rejected; once it ends, it is offered again", () => {
+    const game = settledAbroad(content);
+    markBy(game, 60);
+    const contract = "activity.phone-contract-uk" as Id<"activity">;
+    const offered = () => game.view().activities.find((option) => option.id === contract);
+    expect(offered()?.allowed).toBe(true);
+    game.endTurn([{ activity: contract, param: null }]);
+    expect(Object.values(game.state.obligation.items).filter((item) => item.entry === PHONE)).toHaveLength(1);
+    expect(offered()?.allowed).toBe(false);
+    game.expectRejected({ type: "turn/end", slots: [{ activity: contract, param: null }] }, "not-legal");
+    closeTypes(game, "phone");
+    expect(offered()?.allowed).toBe(true);
+  });
+
   test("[R-ABROAD-004] given a phone contract, when three months are missed in a row, then the contract ends and the file takes the default figure", () => {
     const game = settledAbroad(content);
     closeTypes(game, "rent", "upkeep");
@@ -351,8 +365,16 @@ describe("the car", () => {
     expect(hasCar(game)).toBe(true);
     const after = nextMonth(game);
     expect(eventsOf(after, "obligation/charged").filter((event) => event.id === car.id)).toEqual([]);
-    expect(game.view().obligations.find((owed) => owed.id === car.id)?.due).toBe(0);
     game.expectRejected({ type: "obligation/pay", obligation: car.id, amount: 0 }, "not-legal");
+  });
+
+  test("[R-CAR-005] [R-OBLIGATION-001] given the car paid off and owned, when the view lists what is owed, then the car is not there: it is kept with no obligation, and the car's work still counts it", () => {
+    const { game, car } = carAfter(36);
+    expect(game.view().obligations.some((owed) => owed.id === car.id)).toBe(true);
+    nextMonth(game);
+    expect(owedOf(game, CAR)).toMatchObject({ outstanding: 0, monthsLeft: 0 });
+    expect(game.view().obligations.some((owed) => owed.id === car.id)).toBe(false);
+    expect(hasCar(game)).toBe(true);
   });
 
   test("[R-CAR-005] given every monthly payment made, when the final payment is missed, then the car goes back with nothing owed", () => {

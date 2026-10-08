@@ -22,6 +22,7 @@ const IN_UK: Requirement = { type: "place/is", where: "abroad", country: "countr
 const IN_CANADA: Requirement = { type: "place/is", where: "abroad", country: "country.canada" };
 const IN_UAE: Requirement = { type: "place/is", where: "abroad", country: "country.uae" };
 const IN_ITALY: Requirement = { type: "place/is", where: "abroad", country: "country.italy" };
+const NO_PHONE_CONTRACT: Requirement = { type: "not", of: { type: "obligation/has", obligationType: "phone" } };
 
 function wellbeing(amount: number): Effect {
   return { type: "quality/add", quality: "quality.wellbeing", amount };
@@ -391,17 +392,17 @@ export const abroadActivityTable: Record<Id<"activity">, ActivityEntry> = {
       { type: "obligation/open", obligation: "obligation.rent-flat-uk" },
     ],
   }),
-  // R-ABROAD-004: credit 10.
+  // R-ABROAD-004: credit 10. the page does not say one contract at a time; read as one.
   "activity.phone-contract-uk": free(
     "activity.phone-contract-uk",
     "country.uk",
-    [IN_UK, { type: "credit/min", value: 10 }],
+    [IN_UK, { type: "credit/min", value: 10 }, NO_PHONE_CONTRACT],
     { cost: [], effects: [{ type: "obligation/open", obligation: "obligation.phone-uk" }] },
   ),
   "activity.phone-contract-ca": free(
     "activity.phone-contract-ca",
     "country.canada",
-    [IN_CANADA, { type: "credit/min", value: 10 }],
+    [IN_CANADA, { type: "credit/min", value: 10 }, NO_PHONE_CONTRACT],
     { cost: [], effects: [{ type: "obligation/open", obligation: "obligation.phone-ca" }] },
   ),
   // The interface's name for wallet/remit: it opens the remit sheet. Nothing happens in the slot itself.
