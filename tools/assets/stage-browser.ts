@@ -15,7 +15,8 @@ export const CHROMIUM_ARGS = ["--use-gl=angle", "--use-angle=swiftshader", "--en
 export interface Stage {
   server: Server;
   browser: Browser;
-  open: (viewport: { width: number; height: number; deviceScaleFactor: number }) => Promise<{ context: BrowserContext; page: Page }>;
+  /** A page of the stage, the asset stage unless another page and the expression that says it is ready are given. */
+  open: (viewport: { width: number; height: number; deviceScaleFactor: number }, path?: string, ready?: string) => Promise<{ context: BrowserContext; page: Page }>;
   close: () => Promise<void>;
 }
 
@@ -30,7 +31,7 @@ export async function openStage(): Promise<Stage> {
   return {
     server,
     browser,
-    open: async (viewport) => {
+    open: async (viewport, path = "/assets-src/stage/stage.html", ready = "window.stageReady === true") => {
       const context = await browser.newContext({ viewport: { width: viewport.width, height: viewport.height }, deviceScaleFactor: viewport.deviceScaleFactor });
       const page = await context.newPage();
       page.on("pageerror", (error) => {
@@ -39,8 +40,8 @@ export async function openStage(): Promise<Stage> {
       page.on("console", (message) => {
         if (message.type() === "error") console.log(`stage console: ${message.text()}`);
       });
-      await page.goto(`${server.url}/assets-src/stage/stage.html`);
-      await page.waitForFunction("window.stageReady === true", null, { timeout: 60_000 });
+      await page.goto(`${server.url}${path}`);
+      await page.waitForFunction(ready, null, { timeout: 60_000 });
       return { context, page };
     },
     close: async () => {

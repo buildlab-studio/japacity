@@ -172,7 +172,7 @@ export function motionOf(motion: Motion, level: MeshLevel): Object3D {
       return palm;
     }
     case "bunting":
-      return bunting(at, new Vector3(...(motion.to ?? motion.at)), count, colours);
+      return bunting(at, new Vector3(...(motion.to ?? motion.at)), count, colours, level);
     case "water": {
       const surface = water(width, height, level, first);
       surface.position.copy(at);

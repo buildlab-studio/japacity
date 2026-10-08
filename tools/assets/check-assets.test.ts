@@ -12,6 +12,7 @@ import {
   checkCredits,
   checkDownloads,
   checkImages,
+  checkLevels,
   checkMadeWith,
   checkMediaRows,
   checkNames,
@@ -37,7 +38,7 @@ const ROOT = join(import.meta.dirname, "..", "..");
 const budgets = JSON.parse(readFileSync(join(ROOT, "assets-src", "budgets.json"), "utf8")) as Budgets;
 const config = { outlineMin: 85, dimTolerancePct: 5, minEach: 3, minPhone: 4, minMean: 3.5 };
 
-const measured = (file: string, over: Partial<Measured> = {}): Measured => ({ file, triangles: 100, drawCalls: 1, materials: 1, bytes: 1000, minY: 0, maxY: 6, palette: [], signs: 0, ...over });
+const measured = (file: string, over: Partial<Measured> = {}): Measured => ({ file, triangles: 100, drawCalls: 1, materials: 1, bytes: 1000, minY: 0, maxY: 6, palette: [], signs: 0, size: [1, 6, 1], extras: {}, ...over });
 const row = (file: string, over: Partial<RegisterRow> = {}): RegisterRow => ({
   file, place: "shared", source: "code", author: "the pipeline work", licence: "CC BY-SA 4.0", attribution: null, generated: true, tool: "an agent", approvedBy: null, date: "2026-10-08", modified: false,
   triangles: 100, drawCalls: 1, materials: 1, bytes: 1000, paletteCheck: { passed: true, date: "2026-10-08" }, reference: [], outline: null, review: null, nameCheck: null, status: "draft", ...over,
@@ -138,6 +139,43 @@ describe("budgets for one asset", () => {
     };
     const doc = await readGlb(await writeGlb(toDocument(model)));
     expect(checkPalette(doc).length).toBeGreaterThan(0);
+  });
+});
+
+describe("mesh levels", () => {
+  const sheet = (level: "coarse" | "fine", over: Partial<Measured> = {}): Measured =>
+    measured(`s/prop_sheet-flag_${level}.glb`, { triangles: level === "coarse" ? 100 : 440, size: [1, 1, 0], extras: { motion: "flag", pinned: "left", level }, ...over });
+
+  test("[R-ASSET-028] given a moving sheet, when its extras name no pinned edge, then it fails, and water, which has none, passes", () => {
+    expect(checkLevels([sheet("coarse"), sheet("fine")], budgets)).toEqual([]);
+    expect(checkLevels([measured("s/prop_cloth.glb", { extras: { motion: "hang" } })], budgets)).toEqual(["R-ASSET-028: s/prop_cloth.glb is a moving sheet with no pinned edge in its extras"]);
+    expect(checkLevels([measured("s/prop_water_coarse.glb", { triangles: 72, extras: { motion: "water", level: "coarse" } }), measured("s/prop_water_fine.glb", { triangles: 512, extras: { motion: "water", level: "fine" } })], budgets)).toEqual([]);
+  });
+
+  test("[R-ASSET-029] given a sheet at one level, when its partner is missing, then it fails at either level", () => {
+    expect(checkLevels([sheet("coarse")], budgets)).toEqual(["R-ASSET-029: s/prop_sheet-flag_coarse.glb has no fine partner"]);
+    expect(checkLevels([sheet("fine")], budgets)).toEqual(["R-ASSET-029: s/prop_sheet-flag_fine.glb has no coarse partner"]);
+  });
+
+  test("[R-ASSET-029] given a pair, when it differs in pinned edge or size, or the coarse one is not lighter, then each fails", () => {
+    expect(checkLevels([sheet("coarse", { extras: { motion: "flag", pinned: "top", level: "coarse" } }), sheet("fine")], budgets)[0]).toMatch(/pinned top and its fine partner left/);
+    expect(checkLevels([sheet("coarse", { size: [1.02, 1, 0] }), sheet("fine")], budgets)[0]).toMatch(/1.02 by 1.00 by 0.00 m and its fine partner 1.00 by 1.00 by 0.00 m/);
+    expect(checkLevels([sheet("coarse", { size: [1.01, 1, 0] }), sheet("fine")], budgets)).toEqual([]);
+    expect(checkLevels([sheet("coarse", { triangles: 150 }), sheet("fine", { triangles: 150 })], budgets)).toEqual(["R-ASSET-029: s/prop_sheet-flag_coarse.glb has 150 triangles, not fewer than its fine partner's 150"]);
+  });
+
+  test("[R-ASSET-029] given each level's triangles, when a file is at its level's budget and one over, then the first passes and the second fails", () => {
+    const { coarse, fine } = budgets.levels;
+    expect(checkLevels([sheet("coarse", { triangles: coarse.triangles }), sheet("fine", { triangles: fine.triangles })], budgets)).toEqual([]);
+    expect(checkLevels([sheet("coarse", { triangles: coarse.triangles + 1 }), sheet("fine", { triangles: fine.triangles + 1 })], budgets)).toEqual([
+      `R-ASSET-029: s/prop_sheet-flag_coarse.glb has ${String(coarse.triangles + 1)} triangles, over the coarse level's ${String(coarse.triangles)}`,
+      `R-ASSET-029: s/prop_sheet-flag_fine.glb has ${String(fine.triangles + 1)} triangles, over the fine level's ${String(fine.triangles)}`,
+    ]);
+  });
+
+  test("[R-ASSET-029] given a file named for one level, when its extras say another or none, then it fails", () => {
+    expect(checkLevels([sheet("coarse", { extras: { motion: "flag", pinned: "left", level: "fine" } })], budgets)[0]).toMatch(/named for the coarse level and its extras say fine/);
+    expect(checkLevels([measured("s/prop_a_fine.glb")], budgets)[0]).toMatch(/named for the fine level and its extras say undefined/);
   });
 });
 

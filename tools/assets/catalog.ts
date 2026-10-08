@@ -29,6 +29,8 @@ import { buildFlagMast } from "@japacity/assets-src/prop/flag-mast/build";
 import { buildCookingFire } from "@japacity/assets-src/prop/cooking-fire/build";
 import { buildParlourSet } from "@japacity/assets-src/prop/parlour-set/build";
 import { buildPartySet } from "@japacity/assets-src/prop/party-set/build";
+import { buildGrid } from "@japacity/assets-src/prop/motion/build";
+import { GRID_PIECES, gridFile, GRIDS, type GridPiece, MESH_LEVELS, type MeshLevel } from "@japacity/assets-src/prop/motion/grids";
 import { buildPlasticChair } from "@japacity/assets-src/prop/plastic-chair/build";
 import { buildStall } from "@japacity/assets-src/prop/stall";
 import { buildTrolley } from "@japacity/assets-src/prop/trolley/build";
@@ -150,6 +152,27 @@ const SIGN = {
   canopy: { board: "green", ink: "white" } satisfies SignStyle,
   hanging: { board: "black", ink: "danfoYellow" } satisfies SignStyle,
 };
+
+const TOOLS = "Written as code";
+
+/** A moving sheet or the water tile at one mesh level, its motion, pinned edge and level in its extras (R-ASSET-028, R-ASSET-029). */
+function gridEntry(piece: GridPiece, level: MeshLevel): CatalogEntry {
+  const name = `prop_${piece}_${level}`;
+  const { motion, pinned } = GRIDS[piece];
+  return {
+    name,
+    file: gridFile(piece, level),
+    place: "shared",
+    source: `assets-src/prop/motion/${piece}/${level}`,
+    author: TOOLS,
+    views: piece === "water" ? [...ELEVATIONS, "plan", "phone"] : [...ELEVATIONS, "phone"],
+    build: () => {
+      const model = staticModel(name, buildGrid(piece, level));
+      model.extras = { ...model.extras, motion, level, ...(pinned === null ? {} : { pinned }) };
+      return model;
+    },
+  };
+}
 
 export const CATALOG: CatalogEntry[] = [
   buildingEntry("shop-row", "ojuelegba"),
@@ -340,6 +363,7 @@ export const CATALOG: CatalogEntry[] = [
       build: () => personModel(buildPerson(spec)),
     }),
   ),
+  ...GRID_PIECES.flatMap((piece) => MESH_LEVELS.map((level) => gridEntry(piece, level))),
 ];
 
 export function findEntries(names: readonly string[]): CatalogEntry[] {
@@ -348,6 +372,10 @@ export function findEntries(names: readonly string[]): CatalogEntry[] {
   for (const name of names) {
     if (name === "examples") {
       for (const entry of CATALOG) if (entry.example === true) found.add(entry);
+      continue;
+    }
+    if (name === "grids") {
+      for (const entry of CATALOG) if (entry.source.startsWith("assets-src/prop/motion/")) found.add(entry);
       continue;
     }
     if (name === "people" || name === "vehicles") {
