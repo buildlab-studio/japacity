@@ -5,6 +5,7 @@ import { describe, expect } from "vitest";
 import { drawName, drawPeople, MIX_TOTAL } from "./people.names";
 
 const peopleOf = new Map(namePool.map((entry) => [entry.n, entry.people]));
+const mix: Readonly<Record<string, number>> = nameMix;
 const SHAPE = /^[A-Z][a-z]+( [A-Z][a-z]+){0,2}$/;
 
 describe("the generated names", () => {
@@ -22,7 +23,7 @@ describe("the generated names", () => {
     expect(drawPeople(nameMix, 0)).toBe(peoples[0]);
     expect(drawPeople(nameMix, MIX_TOTAL - 1)).toBe(peoples[peoples.length - 1]);
     expect(drawPeople(nameMix, MIX_TOTAL)).toBe(peoples[0]);
-    const first = nameMix[peoples[0]!]!;
+    const first = mix[peoples[0]!]!;
     expect(drawPeople(nameMix, first - 1)).toBe(peoples[0]);
     expect(drawPeople(nameMix, first)).toBe(peoples[1]);
   });
@@ -43,7 +44,7 @@ describe("the generated names", () => {
   test("[R-PEOPLE-053] [R-CITY-033] given rolls that step past the mix, when names are drawn for one people, then every name of that people comes up", () => {
     const peoples = Object.keys(nameMix);
     for (const people of peoples) {
-      const offset = peoples.slice(0, peoples.indexOf(people)).reduce((sum, earlier) => sum + (nameMix[earlier] ?? 0), 0);
+      const offset = peoples.slice(0, peoples.indexOf(people)).reduce((sum, earlier) => sum + (mix[earlier] ?? 0), 0);
       const names = namePool.filter((entry) => entry.people === people);
       const seen = new Set<number | null>();
       for (let step = 0; step < names.length; step += 1) seen.add(drawName(namePool, nameMix, offset + step * MIX_TOTAL));

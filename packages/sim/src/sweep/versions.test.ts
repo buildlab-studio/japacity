@@ -6,7 +6,7 @@ import { badNews, content, reportPlain, spendingLines, text, versionCount, versi
 import { describe, expect, test } from "vitest";
 
 import { savedCommands } from "../engine/replay";
-import type { Id, ReportLine } from "../engine/types";
+import type { ReportLine } from "../engine/types";
 import { start } from "../testing/play";
 import { runLife, STRATEGY_NAMES } from "./players";
 import { LIVES } from "./report";
@@ -31,7 +31,7 @@ function tell(): Told {
       for (let index = 0; index < SEEDS; index += 1) {
         const seed = `versions-${String(index)}`;
         const { game } = runLife(strategy, life, seed, content, { months: 80, keepSave: true });
-        const replay = start({ scenario: life as Id<"scenario">, seed, worldSeed: `world-${seed}`, content });
+        const replay = start({ scenario: life, seed, worldSeed: `world-${seed}`, content });
         for (const { command, sender } of savedCommands(game.save)) {
           const before = replay.state.place.where;
           const result = replay.send(command, sender);
