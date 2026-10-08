@@ -1,4 +1,4 @@
-// R-ACCOUNT-011 to 013: `POST /api/age`, the age screen, before any sign-in
+// R-ACCOUNT-011 to 013: `POST /api/age`, the age screen, and `GET /api/age`, its standing, before any sign-in
 // method. The region is judged first and nothing is kept from a closed one;
 // the date of birth is judged and dropped; a pass is a single-use row that
 // the account's creation consumes.
@@ -20,6 +20,11 @@ export interface AgeRequest {
 
 export type AgeReply = { ok: true } | ReturnType<typeof rejection>;
 
+/** `GET /api/age`: whether this browser was refused at the age screen and must not be asked again (R-ACCOUNT-012). */
+export interface AgeStatus {
+  refused: boolean;
+}
+
 const PASS_PATH = "/api/auth";
 const DAY_S = 86_400;
 
@@ -29,6 +34,12 @@ function hex(bytes: Uint8Array): string {
 
 export function ageRoutes(deps: ServerDeps, { auth, keys }: Accounts): Hono {
   const app = new Hono();
+
+  // R-ACCOUNT-011, R-ACCOUNT-012: the screen's standing read before it is shown; the switch gate answers it first while sign-ups are off (R-SERVER-031).
+  app.get("/api/age", (c) => {
+    if (!regionOf(deps.config.regions, c.req.raw).policy.open) return c.json<AgeReply>(rejection("region-closed", "Sign-up is not open in this region."), 403);
+    return c.json<AgeStatus>({ refused: readCookie(c.req.header("cookie"), REFUSED_COOKIE) !== null });
+  });
 
   app.post("/api/age", async (c) => {
     const request = c.req.raw;

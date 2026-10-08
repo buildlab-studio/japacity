@@ -2,7 +2,7 @@
 // 002, 004, 006 to 009). A block ends every bond between the two as a block
 // end in both lives and is never shown to the blocked side as a block; a
 // report holds what it cites and changes nothing in either life.
-import type { PairRecord } from "@japacity/sim";
+import type { Id, PairRecord } from "@japacity/sim";
 import { pairId, time } from "@japacity/sim";
 import type { ReportReason, ReportRow } from "@japacity/store";
 
@@ -10,6 +10,8 @@ import { characterOf } from "../authority/command";
 import type { ServerDeps } from "../deps";
 import type { PairAnswer } from "./codes";
 import { refused, widen } from "./codes";
+import type { ReportCite, ReportInput, ReportSubject } from "../moderation/reports";
+import { readReport } from "../moderation/reports";
 import { readable } from "./conversation";
 import { field } from "./invite";
 import { accountOfCharacter } from "./region";
@@ -126,41 +128,117 @@ function messagesOf(body: unknown): string[] | null {
   return Array.isArray(messages) && messages.every((each) => typeof each === "string") ? messages : null;
 }
 
+/** R-MODERATION-006: the refusal when the account has filed `reportsPerDay` reports in the last day, else null. */
+async function overLimit(deps: ServerDeps, account: string): Promise<PairAnswer<Reported> | null> {
+  // A report exactly a day old no longer counts, as a phrase exactly an hour old does not (R-PAIR-013).
+  if ((await deps.stores.moderation.filedSince(account, deps.now() - time.DAY_MS + 1)) < deps.config.moderation.reportsPerDay) return null;
+  return { status: 429, body: { ok: false, code: "rate-limited", detail: "Too many reports today.", retryAfter: 86_400 } };
+}
+
+function reportId(deps: ServerDeps): string {
+  return `report-${hex(deps.randomBytes(REPORT_BYTES))}`;
+}
+
 /**
  * R-PAIR-016, R-MODERATION-004, R-MODERATION-006, R-MODERATION-008: a report
- * on a pair, citing the pair or messages of its conversation, with a reason
- * from the fixed list. The record is held until a moderator decides; the
- * reporter may block in the same step. At most `config.moderation.reportsPerDay` a day, each held at most `holdDays`.
+ * on a pair, citing the pair or messages of its conversation. The record is
+ * held until a moderator decides; the reporter may block in the same step.
  */
-export async function report(deps: ServerDeps, account: string, body: unknown): Promise<PairAnswer<Reported>> {
-  const reason = field(body, "reason");
-  const key = field(body, "pair");
-  const messages = messagesOf(body);
-  if (reason === null || !REASONS.includes(reason as ReportReason)) return refused(400, "not-legal", "Choose a reason from the list.");
-  if (key === null || messages === null) return refused(400, "not-legal", "A report cites the pair, and for a conversation its message ids.");
-  const now = deps.now();
-  const { reportsPerDay, holdDays } = deps.config.moderation;
-  // A report exactly a day old no longer counts, as a phrase exactly an hour old does not (R-PAIR-013).
-  if ((await deps.stores.moderation.filedSince(account, now - time.DAY_MS + 1)) >= reportsPerDay) {
-    return { status: 429, body: { ok: false, code: "rate-limited", detail: "Too many reports today.", retryAfter: 86_400 } };
-  }
+async function pairReport(deps: ServerDeps, account: string, reason: ReportReason, key: string, messages: string[], alsoBlock: boolean): Promise<PairAnswer<Reported>> {
   const found = await readable(deps, account, key);
   if (found === null) return refused(404, "unknown-id", "There is no such pair.");
   const rows = await deps.stores.conversation.byIds(messages);
   if (rows.length !== messages.length || rows.some((row) => row.conversation !== key)) return refused(400, "not-legal", "Every cited message must be in this pair's conversation.");
   const subject = await accountOfCharacter(deps, found.record[found.side === "a" ? "b" : "a"]);
-  const id = `report-${hex(deps.randomBytes(REPORT_BYTES))}`;
+  const now = deps.now();
+  const id = reportId(deps);
   const filed = await deps.stores.moderation.report(
-    { id, reporter: account, subject: { account: subject?.id ?? "" }, reason: reason as ReportReason, cites: messages.length > 0 ? { messages } : { pair: key }, pair: key, unverified: false, at: now },
-    { messages, pair: key, until: now + holdDays * time.DAY_MS },
+    { id, reporter: account, subject: { account: subject?.id ?? "" }, reason, cites: messages.length > 0 ? { messages } : { pair: key }, pair: key, unverified: false, at: now },
+    { messages, pair: key, until: now + deps.config.moderation.holdDays * time.DAY_MS },
   );
   if (!filed.ok) throw new Error(`The report ${id} was refused: ${filed.detail}`);
   await holdRecord(deps, key, true);
-  if ((body as { block?: unknown }).block === true) {
+  if (alsoBlock) {
     const blocked = await block(deps, account, { pair: key });
     if (!blocked.body.ok) return { status: blocked.status, body: blocked.body };
   }
   return { status: 200, body: { ok: true, report: id } };
+}
+
+/** The account a report names, found from what it cites where the client cannot know it, or why it is refused. */
+type Found = { ok: true; subject: ReportSubject } | { ok: false; answer: PairAnswer<Reported> };
+
+/**
+ * R-MODERATION-003, R-MODERATION-004: the subject of a report that cites no
+ * pair. A card names its inviter, looked up from the code; an advert names its
+ * campaign, which must run in the slot cited; a phrase heard in a place names
+ * a place and a phrase of the content.
+ */
+async function subjectOf(deps: ServerDeps, account: string, input: ReportInput, cite: Exclude<ReportCite, { messages: string[] } | { pair: string }>): Promise<Found> {
+  const current = deps.contents.current;
+  if ("card" in cite) {
+    const invite = await deps.stores.invite.get(cite.card);
+    if (invite === null) return { ok: false, answer: refused(404, "unknown-id", "There is no such card.") };
+    if (invite.account === account) return { ok: false, answer: refused(400, "not-legal", "A card cannot be reported by the one who made it.") };
+    return { ok: true, subject: { account: invite.account } };
+  }
+  if ("campaign" in cite) {
+    if (input.subject !== null && !("campaign" in input.subject && input.subject.campaign === cite.campaign)) return { ok: false, answer: refused(400, "not-legal", "An advert's report names the campaign it cites.") };
+    const campaign = await deps.stores.adverts.campaign(cite.campaign);
+    if (campaign === null || !Object.hasOwn(current.advert, cite.slot) || !(campaign.slots as readonly string[]).includes(cite.slot)) return { ok: false, answer: refused(404, "unknown-id", "There is no such advert in that slot.") };
+    return { ok: true, subject: { campaign: campaign.id } };
+  }
+  // R-PAIR-012: only a phrase marked for places can be said in one.
+  const phrase = Object.hasOwn(current.phrase, cite.phrase) ? current.phrase[cite.phrase as Id<"phrase">] : undefined;
+  if (!Object.hasOwn(current.place, cite.place) || phrase === undefined || phrase.where === "conversation") return { ok: false, answer: refused(404, "unknown-id", "There is no such phrase said in that place.") };
+  if (cite.at > deps.now()) return { ok: false, answer: refused(400, "not-legal", "A phrase cannot be heard after the report.") };
+  // presence carries no account (R-CITY-036), so a phrase heard in a place names its speaker only when the body does; otherwise the subject is blank for the moderator to find.
+  return { ok: true, subject: input.subject ?? { account: "" } };
+}
+
+/** The cite form `{ subject?, reason, cites }` (R-MODERATION-004): a card, an advert, a phrase heard in a place, or a pair or its messages. */
+async function citeReport(deps: ServerDeps, account: string, body: unknown): Promise<PairAnswer<Reported>> {
+  const read = readReport(body);
+  if (!read.ok) return refused(400, "not-legal", read.detail);
+  const input = read.report;
+  const cite = input.cites;
+  const limited = await overLimit(deps, account);
+  if (limited !== null) return limited;
+  if ("pair" in cite) return pairReport(deps, account, input.reason, cite.pair, [], false);
+  if ("messages" in cite) {
+    const rows = await deps.stores.conversation.byIds(cite.messages);
+    const key = rows[0]?.conversation;
+    if (key === undefined) return refused(404, "unknown-id", "There is no such message.");
+    return pairReport(deps, account, input.reason, key, cite.messages, false);
+  }
+  const found = await subjectOf(deps, account, input, cite);
+  if (!found.ok) return found.answer;
+  const now = deps.now();
+  const id = reportId(deps);
+  const filed = await deps.stores.moderation.report(
+    { id, reporter: account, subject: found.subject, reason: input.reason, cites: cite, pair: null, unverified: input.unverified, at: now },
+    { messages: [], pair: null, until: now + deps.config.moderation.holdDays * time.DAY_MS },
+  );
+  if (!filed.ok) throw new Error(`The report ${id} was refused: ${filed.detail}`);
+  return { status: 200, body: { ok: true, report: id } };
+}
+
+/**
+ * `POST /api/moderation/report` (R-MODERATION-003, 004, 006): the pair form
+ * `{ pair, reason, messages?, block? }`, or the cite form `{ subject?, reason,
+ * cites }` read by `readReport`, told apart by `cites`. Either way at most
+ * `config.moderation.reportsPerDay` a day, each held at most `holdDays`.
+ */
+export async function report(deps: ServerDeps, account: string, body: unknown): Promise<PairAnswer<Reported>> {
+  if (typeof body === "object" && body !== null && "cites" in body) return citeReport(deps, account, body);
+  const reason = field(body, "reason");
+  const key = field(body, "pair");
+  const messages = messagesOf(body);
+  if (reason === null || !REASONS.includes(reason as ReportReason)) return refused(400, "not-legal", "Choose a reason from the list.");
+  if (key === null || messages === null) return refused(400, "not-legal", "A report cites the pair, and for a conversation its message ids.");
+  const limited = await overLimit(deps, account);
+  if (limited !== null) return limited;
+  return pairReport(deps, account, reason as ReportReason, key, messages, (body as { block?: unknown }).block === true);
 }
 
 /**

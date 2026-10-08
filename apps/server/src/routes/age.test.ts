@@ -148,3 +148,39 @@ describe("the bot check at sign-up", () => {
     expect(h.tables.user).toHaveLength(1);
   });
 });
+
+describe("GET /api/age", () => {
+  test("[R-ACCOUNT-012] given a fresh browser, when the screen's standing is read, then it is not refused", async () => {
+    const h = harness();
+    const reply = await h.call("/api/age", { jar: makeJar() });
+    expect(reply.status).toBe(200);
+    expect(await reply.json()).toEqual({ refused: false });
+  });
+
+  test("[R-ACCOUNT-012] given a browser refused at the screen, when its standing is read, then it is refused, from the cookie alone", async () => {
+    const h = harness();
+    const jar = makeJar();
+    await h.passAge(jar, { dateOfBirth: bornYearsAgo(h.deps.config.account.minAge, 1) });
+    expect(jar.cookies.has(REFUSED_COOKIE)).toBe(true);
+    expect(await (await h.call("/api/age", { jar })).json()).toEqual({ refused: true });
+    expect(await (await h.call("/api/age", { headers: { cookie: `${REFUSED_COOKIE}=1` } })).json()).toEqual({ refused: true });
+  });
+
+  test("[R-ACCOUNT-011] given a closed region, when the standing is read, then it is refused with region-closed", async () => {
+    const h = harness();
+    const reply = await h.call("/api/age", { country: "AU" });
+    expect(reply.status).toBe(403);
+    expect(await reply.json()).toMatchObject({ ok: false, code: "region-closed" });
+  });
+
+  test("[R-ACCOUNT-011] [R-SERVER-031] given sign-ups switched off, when the standing is read, then the gate answers 503 switched-off with the wait, refused cookie or not", async () => {
+    const h = harness();
+    await h.deps.stores.switches.set("signups", false, "account-admin", "full", h.deps.now());
+    for (const headers of [{}, { cookie: `${REFUSED_COOKIE}=1` }]) {
+      const reply = await h.call("/api/age", { headers });
+      expect(reply.status).toBe(503);
+      expect(reply.headers.get("retry-after")).not.toBeNull();
+      expect(await reply.json()).toMatchObject({ ok: false, code: "switched-off" });
+    }
+  });
+});
