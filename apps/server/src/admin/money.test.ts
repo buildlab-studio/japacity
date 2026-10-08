@@ -182,20 +182,28 @@ describe("the draw's alarm", () => {
     expect(drawsClosingOn(midnight, utcDay(Date.UTC(2026, 9, 16)) - 1)).toEqual([]);
   });
 
-  async function drawn(deps: ServerDeps, buys: { character: string; tick: number; tickets: number }[], paid: number, result: { pot: number; fund: number }): Promise<void> {
+  /** `result.pot` is the tickets sold; the stored pot is their price plus `result.topUp` kobo. `paid` is the jackpot paid and its top-up part. */
+  async function drawn(
+    deps: ServerDeps,
+    buys: { character: string; tick: number; tickets: number }[],
+    paid: number | { amount: number; topUp: number },
+    result: { pot: number; fund: number; topUp?: number },
+  ): Promise<void> {
     await storeWorlds(deps, SAVE);
     const price = deps.contents.current.tuning.lottery.ticket;
-    await deps.stores.world.putDraw({ draw: 0, secret: "s", fingerprint: "f", beaconRound: 1 });
+    const prize = typeof paid === "number" ? { amount: paid, topUp: 0 } : paid;
+    const topUp = result.topUp ?? 0;
+    await deps.stores.world.putDraw({ draw: 0, secret: "s", fingerprint: "f", beaconRound: 1, topUpTickets: 0 });
     for (const character of new Set(buys.map((buy) => buy.character))) {
       await createLife(deps, character, SAVE);
       const own = buys.filter((buy) => buy.character === character);
       const rows = own.map((buy, index) => ({ character, v: index + 1, tick: buy.tick, sender: "player" as const, command: { type: "lottery/buy" as const, tickets: buy.tickets, basedOn: index }, hash: "h", at: close }));
-      const pay = character === buys[0]?.character ? [{ character, v: rows.length + 1, tick: TICKS_PER_DRAW, sender: "authority" as const, command: { type: "lottery/pay" as const, draw: 0, prizes: [{ tier: "jackpot" as const, amount: paid }], basedOn: rows.length }, hash: "h", at: close }] : [];
+      const pay = character === buys[0]?.character ? [{ character, v: rows.length + 1, tick: TICKS_PER_DRAW, sender: "authority" as const, command: { type: "lottery/pay" as const, draw: 0, prizes: [{ tier: "jackpot" as const, ...prize }], basedOn: rows.length }, hash: "h", at: close }] : [];
       await deps.stores.player.transact([character], () => ({ writes: { characters: [{ id: character, append: [...rows, ...pay] }] }, result: null }));
       for (const buy of own) if (buy.tick < TICKS_PER_DRAW) await deps.stores.world.addTickets(0, character, buy.tickets);
     }
     await deps.stores.world.freeze(0, close);
-    await deps.stores.world.setResult(0, { draw: 0, revealed: "s", beaconRound: 1, beaconRandomness: "r", listHash: "l", count: 3, pot: result.pot * price, fund: result.fund, winners: [] });
+    await deps.stores.world.setResult(0, { draw: 0, revealed: "s", beaconRound: 1, beaconRandomness: "r", listHash: "l", count: 3, pot: result.pot * price + topUp, topUp, fund: result.fund, winners: [] });
   }
 
   const BUYS = [
@@ -221,5 +229,28 @@ describe("the draw's alarm", () => {
       await drawn(off, BUYS, 500, { pot, fund: 500 });
       expect(await drawAlarms(off, utcDay(close))).toEqual([{ kind: "draw", day: utcDay(close), draw: 0, check: "ticket", total: 3 * price, limit: pot * price }]);
     }
+  });
+
+  test("[R-LOTTERY-014] given a draw with a top-up whose prizes split between win and pot-top-up within the fund and the top-up, when it is checked, then no alarm is raised and the tickets are held to the sales alone", async () => {
+    const deps = testDeps();
+    await drawn(deps, BUYS, { amount: 500, topUp: 300 }, { pot: 3, fund: 500, topUp: 300 });
+    expect(await drawAlarms(deps, utcDay(close))).toEqual([]);
+  });
+
+  test("[R-LOTTERY-014] given pot-top-up one kobo over the top-up, or win and pot-top-up together one over the fund, when the draw is checked, then the world alarm is raised", async () => {
+    const over = testDeps();
+    await drawn(over, BUYS, { amount: 500, topUp: 301 }, { pot: 3, fund: 500, topUp: 300 });
+    expect(await drawAlarms(over, utcDay(close))).toEqual([{ kind: "draw", day: utcDay(close), draw: 0, check: "top-up", total: 301, limit: 300 }]);
+
+    const both = testDeps();
+    await drawn(both, BUYS, { amount: 501, topUp: 300 }, { pot: 3, fund: 500, topUp: 300 });
+    expect(await drawAlarms(both, utcDay(close))).toEqual([{ kind: "draw", day: utcDay(close), draw: 0, check: "win", total: 501, limit: 500 }]);
+  });
+
+  test("[R-LOTTERY-014] given a draw with a top-up, when the tickets taken are checked, then they are held to the pot less the top-up and one off it raises the alarm", async () => {
+    const price = testDeps().contents.current.tuning.lottery.ticket;
+    const off = testDeps();
+    await drawn(off, BUYS, { amount: 500, topUp: 0 }, { pot: 4, fund: 500, topUp: 300 });
+    expect(await drawAlarms(off, utcDay(close))).toEqual([{ kind: "draw", day: utcDay(close), draw: 0, check: "ticket", total: 3 * price, limit: 4 * price }]);
   });
 });
