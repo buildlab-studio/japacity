@@ -105,6 +105,9 @@ export function stepWith(
   if (world.tick < state.tick) {
     return reject("clock-went-back", `The world is at tick ${String(world.tick)}, the last accepted command was at ${String(state.tick)}.`);
   }
+  if (state.prologue.open && command.type !== "prologue/choose" && command.type !== "turns/grant") {
+    return reject("prologue-open", `The prologue is open: ${command.type} waits until it is finished.`);
+  }
   const draft = openDraft(kinds, state, world, content);
   const ctx = makeCtx(draft);
   const rejected = command.type === "turn/end" ? runTurn(draft, ctx, command) : runCommand(draft, ctx, command);

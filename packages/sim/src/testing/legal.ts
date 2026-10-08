@@ -189,6 +189,13 @@ function fromPlace(view: PlayerView): Loose[] {
   return pocket.bank + pocket.cash >= bound.amount ? [{ type: "return/home" }] : [];
 }
 
+/** R-PROLOGUE-003: every answer of the current card that is allowed now. */
+function fromPrologue(view: PlayerView): Loose[] {
+  const card = view.prologue;
+  if (card === null) return [];
+  return card.answers.filter((answer) => answer.allowed).map((answer) => ({ type: "prologue/choose", step: card.step, answer: answer.id }));
+}
+
 function fromActivity(view: PlayerView): Loose[] {
   return view.job.id === null ? [] : [{ type: "activity/quit" }];
 }
@@ -199,6 +206,8 @@ function fromActivity(view: PlayerView): Loose[] {
  */
 export function legalCommands(view: PlayerView): Loose[] {
   if (view.ended) return [];
+  // R-PROLOGUE-001: while the prologue is open, its answers are all a player may send.
+  if (view.prologue !== null) return fromPrologue(view).filter((command) => handles(command.type));
   return [
     ...fromTurn(view),
     ...fromOffers(view),
