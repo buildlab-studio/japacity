@@ -161,11 +161,12 @@ describe("where no advert shows", () => {
     expect(slots(sheet)).toHaveLength(0);
   });
 
-  test("[R-ADVERT-003] given every slot filled, when a signed-out player meets the start screen, the age screen and then the ways in, then none holds an advert", async () => {
+  test("[R-ADVERT-003] given every slot filled, when a signed-out player meets the start screen, the age screen, the username and the ways back in, then none holds an advert", async () => {
     const account = {
       ageStatus: () => Promise.resolve("unasked"),
       declareAge: () => Promise.resolve("passed"),
       sendCode: () => Promise.resolve({ ok: true }),
+      returnedFromGoogle: () => null,
     } as unknown as AccountApi;
     const store = createGameStore({ view: () => Promise.resolve(advertsOn()), send: () => Promise.reject(new Error("unused")) }, { account });
     store.getState().leave(null);
@@ -176,6 +177,9 @@ describe("where no advert shows", () => {
     await pickBirth("1990-01-01");
     expect(slots()).toHaveLength(0);
     fireEvent.click(screen.getByRole("button", { name: say("ui.account.age.go") }));
+    await screen.findByLabelText(say("ui.account.name.label"));
+    expect(slots()).toHaveLength(0);
+    fireEvent.click(screen.getByRole("button", { name: say("ui.account.returning") }));
     await screen.findByRole("button", { name: say("ui.account.google") });
     expect(slots()).toHaveLength(0);
   });

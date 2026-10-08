@@ -1,7 +1,8 @@
-// The ways in (R-ACCOUNT-001), in R-ACCOUNT-023's order: Google first, then a code by email, then a passkey,
-// which only signs in: it is added from the settings (R-ACCOUNT-003). Inside an in-app browser where Google is
-// blocked, Google is not shown and the code is offered with a way out to the phone's own browser. The bot check
-// runs unseen beside the ways that can make an account (R-ACCOUNT-013, R-ACCOUNT-029).
+// The ways back in for a player who kept a life (R-ACCOUNT-001), in R-ACCOUNT-023's order: Google first, then a
+// code by email, then a passkey, which only signs in: it is added from the settings (R-ACCOUNT-003). Inside an
+// in-app browser where Google is blocked, Google is not shown and the code is offered with a way out to the phone's
+// own browser. None of them makes an account: a life starts as a guest (R-ACCOUNT-021), so a sign-in that finds no
+// life says so. Signing in again needs no bot check (R-ACCOUNT-013).
 import { ArrowLeft } from "lucide-react";
 import { useState } from "react";
 
@@ -10,16 +11,14 @@ import { Button } from "../../shared/ui/Button";
 import { say } from "../../shared/words/text";
 import { CodeForm, failureWords } from "./CodeForm";
 import { browserLink, inAppBrowser } from "./inApp";
-import { Turnstile, type LoadTurnstile } from "./Turnstile";
 
 export interface SignInProps {
   account: AccountApi;
-  sitekey: string | null;
-  load: LoadTurnstile;
   onSignedIn: () => void;
-  /** Reached from "I already have a life here": its own heading and a way back to the start screen. */
-  returning?: boolean;
+  /** Back to the start screen; none inside another page. */
   onBack?: (() => void) | null;
+  /** What a trip to Google came back with, when it was refused. */
+  problem?: string | null;
   /** Seams for tests: the browser's user agent and the page's address. */
   agent?: string;
   href?: string;
@@ -33,26 +32,18 @@ function pageHref(): string {
   return typeof location === "undefined" ? "/" : location.href;
 }
 
-export function SignIn({ account, sitekey, load, onSignedIn, returning = false, onBack = null, agent = browserAgent(), href = pageHref() }: SignInProps) {
-  const [bot, setBot] = useState<string | null>(null);
-  const [round, setRound] = useState(0);
+export function SignIn({ account, onSignedIn, onBack = null, problem: given = null, agent = browserAgent(), href = pageHref() }: SignInProps) {
   const [busy, setBusy] = useState(false);
-  const [problem, setProblem] = useState<string | null>(null);
+  const [problem, setProblem] = useState<string | null>(given);
   const [copied, setCopied] = useState(false);
   const inApp = inAppBrowser(agent);
   const outLink = inApp ? browserLink(href, agent) : null;
 
-  const spentBot = () => {
-    setBot(null);
-    setRound((count) => count + 1);
-  };
-
-  async function run(action: () => Promise<AuthResult>, spends: boolean) {
+  async function run(action: () => Promise<AuthResult>) {
     setBusy(true);
     setProblem(null);
     try {
       const result = await action();
-      if (spends && bot !== null) spentBot();
       setProblem(failureWords(result));
       if (result.ok) onSignedIn();
     } finally {
@@ -70,7 +61,7 @@ export function SignIn({ account, sitekey, load, onSignedIn, returning = false, 
   }
 
   return (
-    <div className="flex flex-col gap-4" data-sign-in={returning ? "returning" : "new"}>
+    <div className="flex flex-col gap-4" data-sign-in="returning">
       <div className="flex flex-col gap-1.5">
         <div className="flex items-center gap-2">
           {onBack === null ? null : (
@@ -78,9 +69,9 @@ export function SignIn({ account, sitekey, load, onSignedIn, returning = false, 
               <ArrowLeft size={18} />
             </button>
           )}
-          <h1 className="title text-[22px] leading-tight">{say(returning ? "ui.account.returning.title" : "ui.account.title")}</h1>
+          <h1 className="title text-[22px] leading-tight">{say("ui.account.returning.title")}</h1>
         </div>
-        <p className="text-[14px] leading-snug text-text-2">{say(returning ? "ui.account.returning.intro" : "ui.account.intro")}</p>
+        <p className="text-[14px] leading-snug text-text-2">{say("ui.account.returning.intro")}</p>
       </div>
       {inApp ? (
         <div className="flex flex-col gap-2" data-in-app>
@@ -97,13 +88,13 @@ export function SignIn({ account, sitekey, load, onSignedIn, returning = false, 
           {copied ? <p role="status">{say("ui.account.in-app.copied")}</p> : null}
         </div>
       ) : (
-        <Button variant="primary" disabled={busy} onClick={() => void run(() => account.signInWithGoogle(bot), true)}>
+        <Button variant="primary" disabled={busy} onClick={() => void run(() => account.signInWithGoogle(null))}>
           {say("ui.account.google")}
         </Button>
       )}
-      <CodeForm account={account} bot={bot} spentBot={spentBot} onSignedIn={onSignedIn} />
+      <CodeForm account={account} onSignedIn={onSignedIn} />
       <div>
-        <Button variant="quiet" disabled={busy} onClick={() => void run(() => account.signInWithPasskey(), false)}>
+        <Button variant="quiet" disabled={busy} onClick={() => void run(() => account.signInWithPasskey())}>
           {say("ui.account.passkey")}
         </Button>
       </div>
@@ -112,8 +103,6 @@ export function SignIn({ account, sitekey, load, onSignedIn, returning = false, 
           {problem}
         </p>
       )}
-      {/* Unseen unless Cloudflare needs a tap (R-ACCOUNT-029). */}
-      {sitekey === null ? null : <Turnstile sitekey={sitekey} load={load} round={round} onToken={setBot} />}
     </div>
   );
 }

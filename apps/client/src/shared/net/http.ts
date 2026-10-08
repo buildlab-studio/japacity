@@ -1,6 +1,7 @@
 // The one way the client talks HTTP to the server: JSON in, JSON out, the
 // session cookie sent along. `fetch` is passed in so tests answer for the server.
 import type { ServerRejection } from "./contract";
+import { heardBody } from "./guest";
 
 export type Fetch = (input: string, init?: RequestInit) => Promise<Response>;
 
@@ -37,6 +38,7 @@ async function readJson<T>(response: Response): Promise<T> {
   } catch {
     body = undefined;
   }
+  heardBody(body);
   if (typeof body === "object" && body !== null) return body as T;
   const refusal = bareRefusal(response);
   if (refusal !== null) return refusal as T;

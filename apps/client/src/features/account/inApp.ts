@@ -1,7 +1,7 @@
 // R-ACCOUNT-023: the in-app browsers where Google refuses its sign-in
 // (WhatsApp, X, Instagram, TikTok, and Facebook's, which shares Instagram's).
-// There the ways in offer the emailed code and a way out to the phone's own
-// browser instead of a Google button that cannot work.
+// There the ways back in and the securing sheet offer the emailed code and a way
+// out to the phone's own browser instead of a Google button that cannot work.
 
 /** Each app's mark in the user agent its in-app browser sends. */
 const IN_APP: readonly RegExp[] = [/\bWhatsApp\b/i, /\bInstagram\b/i, /\bFBAN\b|\bFBAV\b|\bFB_IAB\b/, /\bTwitter\b/i, /\bmusical_ly|\bBytedanceWebview\b|\bTikTok\b/i];

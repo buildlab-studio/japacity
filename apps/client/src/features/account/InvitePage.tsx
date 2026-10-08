@@ -1,6 +1,8 @@
 // The invite link's page, `/invite/<code>` (pair.md R-PAIR-007, R-PAIR-008):
-// the card the link carries, read before sign-up; then sign-up and the age
-// screen; then the card taken for the slot it was made for. A partner link
+// the card the link carries, read before sign-up; then the age screen and the
+// guest start or a sign-in; a guest keeps the life first, since only a secured
+// account may be invited (account.md R-ACCOUNT-022); then the card taken for
+// the slot it was made for. A partner link
 // needs a grown-up life, the friend's own or a new one; a sibling link always
 // starts a new life (R-PEOPLE-011). No advert shows here (R-ADVERT-003).
 import { content, text } from "@japacity/content";
@@ -17,6 +19,8 @@ import { api, type Api } from "../../shared/net/http";
 import { Button } from "../../shared/ui/Button";
 import { nameOf, runningName, say, words } from "../../shared/words/text";
 import { AccountGate, type AccountGateProps } from "./AccountGate";
+import { SecureSheet } from "./Secure";
+import { useGuest } from "./standing";
 
 /** The code in `/invite/<code>`, or null on any other path. */
 export function inviteCodeOf(path: string): string | null {
@@ -120,6 +124,24 @@ function Accept({ server, code, shown, onTaken }: { server: Api; code: string; s
   );
 }
 
+/** R-ACCOUNT-022: a guest keeps its life before it can take a friend's card. */
+function KeepFirst() {
+  const account = useGame((state) => state.account);
+  const [open, setOpen] = useState(false);
+  if (account === null) return null;
+  return (
+    <section className="flex flex-col gap-3" data-keep-first>
+      <p>{say("ui.invite.keep-first")}</p>
+      <div>
+        <Button variant="primary" onClick={() => setOpen(true)}>
+          {say("ui.guest.keep")}
+        </Button>
+      </div>
+      <SecureSheet account={account} open={open} onOpenChange={setOpen} reason={say("ui.invite.keep-first")} />
+    </section>
+  );
+}
+
 export interface InvitePageProps extends AccountGateProps {
   code: string;
   /** The server to read the card from; the build's own unless a test hands one in. Null offline. */
@@ -135,6 +157,7 @@ export function InvitePage({ code, server: given, onDone, ...gate }: InvitePageP
   // Signed in once the server has answered with a life, or said there is none yet.
   const signedIn = useGame((state) => !state.signedOut && (state.view !== null || state.choosingLife));
   const refresh = useGame((state) => state.refresh);
+  const guest = useGuest();
   const closeLifeChooser = useGame((state) => state.closeLifeChooser);
   const [stage, setStage] = useState<Stage>({ kind: "loading" });
 
@@ -188,6 +211,8 @@ export function InvitePage({ code, server: given, onDone, ...gate }: InvitePageP
           <p>{say("ui.invite.come-in")}</p>
           <AccountGate {...gate} embedded />
         </section>
+      ) : signedIn && guest ? (
+        <KeepFirst />
       ) : signedIn ? (
         <Accept server={server} code={code} shown={stage.shown} onTaken={() => setStage({ kind: "taken", shown: stage.shown })} />
       ) : (

@@ -11,13 +11,13 @@ function account() {
 }
 
 describe("the age screen's routes, as the server built them", () => {
-  test("[R-ACCOUNT-012] [R-ACCOUNT-013] given a date and the bot check's token, when the age is declared, then POST /api/age carries the date as dateOfBirth and the token in its header, and a pass opens the ways in", async () => {
+  test("[R-ACCOUNT-012] [R-ACCOUNT-013] given a date, when the age is declared, then POST /api/age carries the date as dateOfBirth and no bot token, which goes with the guest start, and a pass opens it", async () => {
     const { server, api } = account();
     server.answer("POST /api/age", { body: { ok: true } });
-    expect(await api.declareAge("2000-02-29", TOKEN)).toBe("passed");
+    expect(await api.declareAge("2000-02-29")).toBe("passed");
     const sent = server.sent.find((request) => request.path === "/api/age");
     expect(sent?.body).toEqual({ dateOfBirth: "2000-02-29" });
-    expect(sent?.headers[CAPTCHA_HEADER]).toBe(TOKEN);
+    expect(sent?.headers[CAPTCHA_HEADER]).toBeUndefined();
     expect(sent?.credentials).toBe("include");
   });
 
@@ -29,9 +29,9 @@ describe("the age screen's routes, as the server built them", () => {
       { status: 400, body: { ok: false, code: "bad-date", detail: "That is not a date of birth." } },
       { status: 403, body: { ok: false, code: "bot-check", detail: "invalid-input-response" } },
     );
-    expect(await api.declareAge("2010-01-01", TOKEN)).toBe("refused");
-    expect(await api.declareAge("1800-01-01", TOKEN)).toBe("bad-date");
-    expect(await api.declareAge("2000-01-01", null)).toBe("bot-check");
+    expect(await api.declareAge("2010-01-01")).toBe("refused");
+    expect(await api.declareAge("1800-01-01")).toBe("bad-date");
+    expect(await api.declareAge("2000-01-01")).toBe("bot-check");
   });
 
   test("[R-ACCOUNT-012] given a browser the server refused before, when it asks where it stands, then GET /api/age says refused and the screen refuses without asking again", async () => {
@@ -51,7 +51,7 @@ describe("the age screen's routes, as the server built them", () => {
   test("[R-ACCOUNT-011] given a region that is not open, then the age screen's answer is region-closed", async () => {
     const { server, api } = account();
     server.answer("POST /api/age", { status: 403, body: { ok: false, code: "region-closed", detail: "Sign-up is not open in this region." } });
-    expect(await api.declareAge("2000-01-01", TOKEN)).toBe("region-closed");
+    expect(await api.declareAge("2000-01-01")).toBe("region-closed");
   });
 
   test("[R-SERVER-032] given sign-ups switched off, when the browser asks where it stands or declares an age, then the 503 is the full screen with the server's wait", async () => {
@@ -60,7 +60,7 @@ describe("the age screen's routes, as the server built them", () => {
     server.answer("GET /api/age", off);
     server.answer("POST /api/age", off);
     expect(await api.ageStatus()).toEqual({ full: true, retryAfter: 30 });
-    expect(await api.declareAge("2000-01-01", TOKEN)).toEqual({ full: true, retryAfter: 30 });
+    expect(await api.declareAge("2000-01-01")).toEqual({ full: true, retryAfter: 30 });
   });
 
   test("[R-SERVER-032] given sign-ups open and a browser never refused, when it asks where it stands, then the age screen is still to ask", async () => {
@@ -118,9 +118,66 @@ describe("the ways in and the settings, as the server refuses them", () => {
     expect(await api.addPasskey()).toEqual({ ok: false, why: "refused" });
   });
 
-  test("[R-ACCOUNT-029] given a way in from the start screen with no account behind it, when the server finds no age pass, then the refusal is told as no-life", async () => {
+  test("[R-ACCOUNT-029] given a way back in with no life behind it, when the server refuses to make an account there, then the refusal is told as no-life", async () => {
     const { server, api } = account();
-    server.answer("POST /api/auth/sign-in/email-otp", { status: 403, body: { code: "no-age-pass", message: "Pass the age screen first." } });
+    server.answer("POST /api/auth/sign-in/email-otp", { status: 403, body: { code: "no-account", message: "No life is saved with this sign-in. Start a new one." } });
     expect(await api.signInWithCode("new@example.test", "123456", null)).toEqual({ ok: false, why: "no-life" });
+  });
+});
+
+const VIEW = { id: "account-1", country: "NG", age: { passed: true, method: "declared" }, createdAt: 1, character: null, sendUsageCounts: true, admin: false, state: "guest", username: "ada_lagos", renameFrom: 0 };
+
+describe("the guest start and the username, as the server built them", () => {
+  test("[R-ACCOUNT-021] [R-ACCOUNT-013] given a username and the bot check's token, when a guest life is started, then POST /api/guest carries the username and the token in its header", async () => {
+    const { server, api } = account();
+    server.answer("POST /api/guest", { body: { ok: true, account: VIEW } });
+    expect(await api.startGuest("ada_lagos", TOKEN)).toEqual({ ok: true });
+    const sent = server.sent.find((request) => request.path === "/api/guest");
+    expect(sent?.body).toEqual({ username: "ada_lagos" });
+    expect(sent?.headers[CAPTCHA_HEADER]).toBe(TOKEN);
+    expect(sent?.credentials).toBe("include");
+  });
+
+  test("[R-ACCOUNT-024] [R-ACCOUNT-025] given each refusal of the guest start, then the screen hears why: the username's problem, the bot check, the limits, a run-out age answer, the switch", async () => {
+    const { server, api } = account();
+    const refusal = (status: number, code: string, name?: string) => ({ status, body: { ok: false, code, detail: "no", ...(name === undefined ? {} : { name }) } });
+    server.answer(
+      "POST /api/guest",
+      refusal(409, "not-legal", "taken"),
+      refusal(400, "not-legal", "reserved"),
+      refusal(403, "bot-check"),
+      refusal(429, "too-many"),
+      refusal(403, "expired"),
+      refusal(503, "switched-off"),
+      refusal(403, "region-closed"),
+    );
+    const heard = [];
+    for (let at = 0; at < 7; at += 1) heard.push(await api.startGuest("ada_lagos", null));
+    expect(heard.map((answer) => (answer.ok ? "ok" : answer.why))).toEqual(["taken", "reserved", "bot-check", "too-many", "expired", "full", "region-closed"]);
+  });
+
+  test("[R-ACCOUNT-024] given a new username, when it is changed, then PUT /api/account/username carries it and a refusal says why", async () => {
+    const { server, api } = account();
+    server.answer("PUT /api/account/username", { body: { ok: true, account: VIEW } }, { status: 403, body: { ok: false, code: "not-legal", detail: "later", name: "wait" } });
+    expect(await api.rename("Ada_Ibadan")).toEqual({ ok: true });
+    expect(server.sent[0]?.body).toEqual({ username: "Ada_Ibadan" });
+    expect(await api.rename("Ada_Kano")).toEqual({ ok: false, why: "wait" });
+  });
+
+  test("[R-ACCOUNT-021] given the account changes, when it is read again, then GET /api/account is asked each time and its state comes back", async () => {
+    const { server, api } = account();
+    server.answer("GET /api/account", { body: { ok: true, account: VIEW } }, { body: { ok: true, account: { ...VIEW, state: "secured" } } });
+    expect((await api.view())?.state).toBe("guest");
+    expect((await api.view())?.state).toBe("secured");
+  });
+
+  test("[R-ACCOUNT-023] given Google sent the page back with the server's method-taken, when it is read, then it is the taken failure, once, and the address is left clean", () => {
+    const { api } = account();
+    history.replaceState(null, "", "/?error=method-taken&error_description=x");
+    expect(api.returnedFromGoogle()).toBe("taken");
+    expect(location.search).toBe("");
+    expect(api.returnedFromGoogle()).toBeNull();
+    history.replaceState(null, "", "/?error=no-account");
+    expect(api.returnedFromGoogle()).toBe("no-life");
   });
 });

@@ -11,6 +11,7 @@ import { remoteAuthority } from "../../authority/remote";
 import { createGameStore } from "../../authority/store";
 import { ModerationProvider } from "../../shared/moderation/ModerationProvider";
 import type { AccountApi, AgeAnswer } from "../../shared/net/auth";
+import type { AccountView } from "../../shared/net/contract";
 import { api } from "../../shared/net/http";
 import { engineView } from "../../shared/testing/fixtures";
 import { fakeModeration } from "../../shared/testing/moderation";
@@ -42,11 +43,20 @@ function cardServer(looking: "partner" | "sibling" = "partner", view = SIGNED_OU
 }
 
 /** An account whose sign-in the server then honours: the next view fetch answers as the server would for a new account. */
-function account(age: AgeAnswer = "passed", afterSignIn: () => void = () => undefined): AccountApi & { declared: string[] } {
+const KEPT: AccountView = { id: "account-1", country: "NG", age: { passed: true, method: "declared" }, createdAt: 1, character: null, sendUsageCounts: true, admin: false, state: "secured", username: "ada_lagos", renameFrom: 0 };
+
+function account(age: AgeAnswer = "passed", afterSignIn: () => void = () => undefined, state: AccountView["state"] = "secured"): AccountApi & { declared: string[] } {
   const declared: string[] = [];
   const ok = () => Promise.resolve({ ok: true } as const);
   return {
     declared,
+    startGuest: () => {
+      afterSignIn();
+      return ok();
+    },
+    view: () => Promise.resolve({ ...KEPT, state }),
+    rename: ok,
+    returnedFromGoogle: () => null,
     ageStatus: () => Promise.resolve("unasked"),
     declareAge: (birth) => (declared.push(birth), Promise.resolve(age)),
     sendCode: ok,
@@ -85,6 +95,7 @@ function openLink(server: FakeServer, accountApi: AccountApi) {
 
 async function comeIn() {
   await answerAge("1990-05-01");
+  fireEvent.click(await screen.findByRole("button", { name: say("ui.account.returning") }));
   fireEvent.click(await screen.findByRole("button", { name: say("ui.account.passkey") }));
 }
 
@@ -133,6 +144,18 @@ describe("the invite link's page", () => {
     fireEvent.click(await screen.findByRole("button", { name: say("ui.invite.take") }));
     expect(await screen.findByText(say("ui.invite.taken"))).toBeDefined();
     expect(server.sent.find((request) => request.path.endsWith("/accept"))?.body).toEqual({ slot: "sibling-1" });
+  });
+
+  test("[R-ACCOUNT-022] [R-PAIR-008] given a new friend who starts as a guest, then the card waits while the page asks to keep the life first, and nothing is accepted", async () => {
+    const server = cardServer();
+    openLink(server, account("passed", () => server.answer("GET /api/view", NO_CHARACTER), "guest"));
+    fireEvent.change(await screen.findByLabelText(say("ui.account.age.label")), { target: { value: "1990-05-01" } });
+    fireEvent.click(screen.getByRole("button", { name: say("ui.account.age.go") }));
+    fireEvent.change(await screen.findByLabelText(say("ui.account.name.label")), { target: { value: "ada_lagos" } });
+    fireEvent.click(screen.getByRole("button", { name: say("ui.account.name.go") }));
+    expect(await screen.findByText(say("ui.invite.keep-first"))).toBeDefined();
+    expect(screen.queryByRole("button", { name: say("ui.invite.take") })).toBeNull();
+    expect(server.sent.some((request) => request.path.endsWith("/accept"))).toBe(false);
   });
 
   test("[R-PAIR-008] given a browser that does not pass the age screen, then no way in shows and nothing is accepted", async () => {

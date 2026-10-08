@@ -1,10 +1,13 @@
-// The account settings: add a passkey (R-ACCOUNT-003), any setting the shell
-// places in it, sign out, and delete the account (R-ACCOUNT-016) through the
-// server's `DELETE /api/account`. Deleting needs a session signed in within
-// the last 10 minutes; when the server says it is older, the player signs in
-// again or sends the code the server's email carries along with the deletion.
+// The account settings: the username and its change (R-ACCOUNT-024), the
+// reminder and the way to keep a guest life (R-ACCOUNT-027), a passkey once
+// the life is kept (R-ACCOUNT-003, 023), any setting the shell places in it,
+// sign out, and delete the account (R-ACCOUNT-016) through the server's
+// `DELETE /api/account`. Deleting needs a session signed in within the last 10
+// minutes; when the server says it is older, the player signs in again or
+// sends the code the server's email carries along with the deletion. A guest
+// has no other way in, so its own session confirms it.
 import { UserRoundCog } from "lucide-react";
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 
 import { useGame } from "../../authority/GameProvider";
 import type { AccountApi, AuthResult } from "../../shared/net/auth";
@@ -13,6 +16,8 @@ import { Sheet } from "../../shared/ui/Sheet";
 import { say } from "../../shared/words/text";
 import { counting, setUsageCounts } from "../../shared/analytics/start";
 import { CodeForm, failureWords } from "./CodeForm";
+import { GuestReminder } from "./Secure";
+import { refreshAccount, useAccountView } from "./standing";
 
 /**
  * R-ANALYTICS-006: "Send usage counts", stored on the account and on by
@@ -63,10 +68,82 @@ export function UsageCounts({ account }: { account: AccountApi }) {
   );
 }
 
+/** R-ACCOUNT-024: the username, and its change: the first free, then one after each wait the server sets. */
+export function Username({ account }: { account: AccountApi }) {
+  const me = useAccountView();
+  const [editing, setEditing] = useState(false);
+  const [name, setName] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
+  const [problem, setProblem] = useState<string | null>(null);
+  if (me === null) return null;
+  const waiting = me.renameFrom > Date.now();
+
+  async function save(event: FormEvent) {
+    event.preventDefault();
+    setBusy(true);
+    setProblem(null);
+    const answer = await account.rename(name.trim());
+    setBusy(false);
+    if (!answer.ok) {
+      setProblem(answer.why === "unreachable" || answer.why === "refused" ? say(`ui.account.fail.${answer.why}`) : say(`ui.account.name.${answer.why}`, { date: dayOf(me?.renameFrom ?? 0) }));
+      return;
+    }
+    setEditing(false);
+    setMessage(say("ui.account.name.changed", { name: name.trim() }));
+    void refreshAccount(account);
+  }
+
+  return (
+    <div className="flex flex-col gap-2" data-username>
+      <p>{say("ui.account.name.current", { name: me.username })}</p>
+      {waiting ? <p className="text-sm text-muted">{say("ui.account.name.wait", { date: dayOf(me.renameFrom) })}</p> : null}
+      {!waiting && !editing ? (
+        <div className="flex flex-col gap-1">
+          <div>
+            <Button small onClick={() => (setName(me.username), setEditing(true), setMessage(null))}>
+              {say("ui.account.name.change")}
+            </Button>
+          </div>
+          {me.renameFrom === 0 ? <p className="text-sm text-muted">{say("ui.account.name.free")}</p> : null}
+        </div>
+      ) : null}
+      {editing ? (
+        <form className="flex flex-col gap-2" onSubmit={(event) => void save(event)} noValidate>
+          <label className="flex flex-col gap-1">
+            <span className="text-sm font-medium">{say("ui.account.name.label")}</span>
+            <input className="min-h-11 rounded-lg border border-line bg-surface px-3 text-base" autoComplete="off" autoCapitalize="off" spellCheck={false} maxLength={20} value={name} onChange={(event) => setName(event.target.value)} />
+          </label>
+          <div className="flex flex-wrap gap-2">
+            <Button type="submit" variant="primary" disabled={busy}>
+              {say("ui.account.name.change.go")}
+            </Button>
+            <Button disabled={busy} onClick={() => setEditing(false)}>
+              {say("ui.account.delete.keep")}
+            </Button>
+          </div>
+        </form>
+      ) : null}
+      {message === null ? null : <p role="status">{message}</p>}
+      {problem === null ? null : (
+        <p role="alert" className="text-bad">
+          {problem}
+        </p>
+      )}
+    </div>
+  );
+}
+
+/** A day as the player reads it, in their own calendar. */
+function dayOf(at: number): string {
+  return new Date(at).toLocaleDateString(undefined, { day: "numeric", month: "long", year: "numeric" });
+}
+
 type Step = "idle" | "warn" | "confirm";
 
 export function AccountSettings({ account, more = null }: { account: AccountApi; more?: ReactNode }) {
   const leave = useGame((state) => state.leave);
+  const guest = useAccountView()?.state === "guest";
   const [step, setStep] = useState<Step>("idle");
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -112,7 +189,10 @@ export function AccountSettings({ account, more = null }: { account: AccountApi;
 
   return (
     <div className="flex flex-col gap-6">
+      <GuestReminder />
+      <Username account={account} />
       <div className="flex flex-col gap-2">
+        {guest ? null : (
         <Button
           disabled={busy}
           onClick={() =>
@@ -127,6 +207,7 @@ export function AccountSettings({ account, more = null }: { account: AccountApi;
         >
           {say("ui.account.passkey.add")}
         </Button>
+        )}
         <Button disabled={busy} onClick={() => void signOut()}>
           {say("ui.account.sign-out")}
         </Button>

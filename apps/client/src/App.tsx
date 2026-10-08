@@ -13,6 +13,7 @@ import type { GameStore } from "./authority/store";
 import { AccountGate } from "./features/account/AccountGate";
 import { AgentSheets } from "./features/advice/AgentSheet";
 import { inviteCodeOf, InvitePage } from "./features/account/InvitePage";
+import { GuestReminder, SecureAsk } from "./features/account/Secure";
 import { AdminRoute } from "./features/admin/AdminRoute";
 import { PARCEL } from "./shared/world/parcel.ask";
 import { ParcelWaybill } from "./shared/world/Waybill";
@@ -81,7 +82,7 @@ function WorldPlaying() {
           return <ActivityPicker only={ids} />;
         }}
         month={<MonthSheet />}
-        results={(place) => <Results place={place} />}
+        results={(place) => <Results place={place} foot={<GuestReminder afterFirstChapter />} />}
         // R-WORLD-006: one ask at a time: the set piece's question, the interview's, then each open offer on its own.
         asks={[
           ...(view.setpiece === null && !closing ? [] : [<SetpieceView key="setpiece" />]),
@@ -113,6 +114,7 @@ function WorldPlaying() {
           <CardView />
         </HeldShareCard>
       </div>
+      <SecureAsk />
     </div>
   );
 }

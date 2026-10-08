@@ -1,6 +1,6 @@
 // The month's results (docs/rules/world.md R-WORLD-008). The staged wins (Moment) come first; the sheet
-// opens once they have passed.
-import { useEffect, useState } from "react";
+// opens once they have passed. `foot`: a line another feature puts under the results, placed by the shell.
+import { useEffect, useState, type ReactNode } from "react";
 
 import type { ReportLine } from "@japacity/sim";
 
@@ -74,7 +74,7 @@ const CHAPTER_CLOSED = "line.chapter.closed";
 const OFFER_OPENED = "line.offer.opened";
 
 /** `place`: the name of where the player is, which the one main button returns them to. */
-export function Results({ place }: { place: string }) {
+export function Results({ place, foot = null }: { place: string; foot?: ReactNode }) {
   const view = useView();
   const shown = useResultsOpen();
   const setReportOpen = useGame((state) => state.setReportOpen);
@@ -240,6 +240,7 @@ export function Results({ place }: { place: string }) {
         )}
 
         {news === 0 ? null : <p className="text-[13px] text-text-2">{turnWords("turn.results.news")}</p>}
+        {foot}
       </div>
     </WorldSheet>
   );
