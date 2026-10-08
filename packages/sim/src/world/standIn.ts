@@ -1,13 +1,15 @@
-// The stand-in world: engine.md section 7, rate.md and news.md. The world at a
-// tick depends only on the world seed, the tick and the content (R-RATE-001).
+// The stand-in world: engine.md section 7, rate.md, news.md and director.md. The
+// world at a tick depends only on the world seed, the tick and the content
+// (R-RATE-001, R-DIRECTOR-008).
 // The rules are recurrences, so the world is built by stepping from tick 0.
 // Every tick makes the same two draws on the `rate` stream, so the nth tick
 // always reads the same positions however the function is called.
 import { BP_WHOLE, bp, divFloor, mulDiv } from "../engine/int";
 import { createRandom } from "../engine/random";
 import type { Content, ForeignCurrency, Id, World } from "../engine/types";
-import type { NewsSchedule, WorldStream } from "./schedule";
-import { newsAt, newsSchedule } from "./schedule";
+import type { DirectorTick } from "./director";
+import { directWorld } from "./director";
+import type { WorldStream } from "./schedule";
 
 const FOREIGN: readonly ForeignCurrency[] = ["GBP", "USD", "CAD", "AED", "EUR"];
 
@@ -35,96 +37,36 @@ function streetOf(official: number, premiumBp: number): number {
   return official + bp(official, premiumBp);
 }
 
-/** One story's variables while it is in force, and what they held before it, for `revert`. */
-interface Held {
-  value: number;
-  setBy: Id<"news"> | null;
-}
-
-/** The world's variables as stories come into force and end (R-RATE-006). */
-interface VarBook {
-  values: Record<Id<"var">, number>;
-  setBy: Record<Id<"var">, Id<"news"> | null>;
-  before: Partial<Record<Id<"news">, Record<Id<"var">, Held>>>;
-}
-
-function openBook(content: Content): VarBook {
-  const values: Record<Id<"var">, number> = {};
-  const setBy: Record<Id<"var">, Id<"news"> | null> = {};
-  for (const entry of Object.values(content.var)) {
-    values[entry.id] = entry.start;
-    setBy[entry.id] = null;
-  }
-  return { values, setBy, before: {} };
-}
-
 /**
- * Applies what happens to the variables on one tick. Endings go first, so a
- * story that comes into force on the tick another ends is the later one and
- * wins. A revert puts back only what the ending story itself still holds: a
- * value a later story set stays, because the later story wins.
+ * Walks the world from tick 0 to `upTo` and hands each tick's rates and the
+ * director's tick to `visit`. The one place the rate recurrences live; the
+ * variables, the news and the era come from the director.
  */
-function turnBook(book: VarBook, schedule: NewsSchedule, tick: number, content: Content): void {
-  const ids = (Object.keys(schedule) as Id<"news">[]).sort();
-  for (const id of ids) {
-    const entry = content.news[id];
-    const before = book.before[id];
-    if (entry === undefined || schedule[id]?.ended !== tick || !entry.standIn.revert || before === undefined) continue;
-    for (const [variable, held] of Object.entries(before) as [Id<"var">, Held][]) {
-      if (book.setBy[variable] !== id) continue;
-      book.values[variable] = held.value;
-      book.setBy[variable] = held.setBy;
-    }
-  }
-  for (const id of ids) {
-    const entry = content.news[id];
-    if (entry === undefined || schedule[id]?.inForce !== tick) continue;
-    const before: Record<Id<"var">, Held> = {};
-    for (const set of entry.standIn.sets) {
-      before[set.var] = { value: book.values[set.var] ?? set.value, setBy: book.setBy[set.var] ?? null };
-      book.values[set.var] = set.value;
-      book.setBy[set.var] = id;
-    }
-    book.before[id] = before;
-  }
-}
-
-/**
- * Walks the world from tick 0 to `upTo` and hands each tick's rates, variables
- * and schedule to `visit`. The one place the recurrences live.
- */
-function walk(
-  worldSeed: string,
-  upTo: number,
-  content: Content,
-  visit: (track: RateTrack, vars: Record<Id<"var">, number>, schedule: NewsSchedule) => void,
-): void {
-  if (!Number.isSafeInteger(upTo) || upTo < 0) throw new Error(`A world tick is a whole number from 0, got ${String(upTo)}.`);
+function walk(worldSeed: string, upTo: number, content: Content, visit: (track: RateTrack, tick: DirectorTick) => void): void {
   const { rate } = content.tuning;
-  const schedule = newsSchedule(worldSeed, content);
-  const floatTick = schedule[FLOAT_STORY]?.inForce ?? null;
-  const book = openBook(content);
   const random = createRandom<WorldStream>(worldSeed, {});
-
-  turnBook(book, schedule, 0, content);
   const official = { ...rate.start };
   let premiumBp = rate.premiumFloorBp;
   const street = {} as Record<ForeignCurrency, number>;
   for (const currency of FOREIGN) street[currency] = streetOf(official[currency], premiumBp);
-  visit({ tick: 0, official: { ...official }, street: { ...street }, premiumBp }, { ...book.values }, schedule);
 
-  for (let tick = 1; tick <= upTo; tick += 1) {
-    turnBook(book, schedule, tick, content);
+  directWorld(worldSeed, upTo, content, (director) => {
+    const { tick } = director;
+    if (tick === 0) {
+      visit({ tick: 0, official: { ...official }, street: { ...street }, premiumBp }, director);
+      return;
+    }
     // Both draws are made every tick, float or not, so positions never shift.
     const noise = random.between("rate", -rate.noiseBp, rate.noiseBp);
     const premiumNoise = random.between("rate", -rate.premiumNoiseBp, rate.premiumNoiseBp);
     const factor = BP_WHOLE + rate.driftBp + noise;
     // Content without the supply variable (the engine's mini content) has no shortage to price.
-    const supply = book.values[SUPPLY] ?? FULL_SUPPLY;
+    const supply = director.vars[SUPPLY] ?? FULL_SUPPLY;
     const target = rate.premiumFloorBp + rate.premiumPerSupplyBp * Math.max(0, FULL_SUPPLY - supply);
     premiumBp = Math.max(rate.premiumFloorBp, premiumBp + thirdTowardZero(target - premiumBp) + premiumNoise);
+    const floats = director.cameIntoForce.includes(FLOAT_STORY);
     for (const currency of FOREIGN) {
-      if (tick === floatTick) {
+      if (floats) {
         // R-RATE-004: the street rate stays where it was and the official rate jumps to meet it.
         // "where it was" is read as the street rate of the tick before, so the street
         // rate skips that tick's drift and noise; the official rate is that over 1.03, rounded down.
@@ -135,22 +77,21 @@ function walk(
         street[currency] = streetOf(official[currency], premiumBp);
       }
     }
-    if (tick === floatTick) premiumBp = rate.floatPremiumBp;
-    visit({ tick, official: { ...official }, street: { ...street }, premiumBp }, { ...book.values }, schedule);
-  }
+    if (floats) premiumBp = rate.floatPremiumBp;
+    visit({ tick, official: { ...official }, street: { ...street }, premiumBp }, director);
+  });
 }
 
-function worldOf(track: RateTrack, vars: Record<Id<"var">, number>, schedule: NewsSchedule): World {
+function worldOf(track: RateTrack, director: DirectorTick): World {
   const rates = {} as World["rates"];
   for (const currency of FOREIGN) rates[currency] = { official: track.official[currency], street: track.street[currency] };
-  // The era arrives with the director (docs/rules/director.md). The schedule world has none.
-  return { tick: track.tick, rates, vars, news: newsAt(schedule, track.tick), era: null };
+  return { tick: track.tick, rates, vars: director.vars, news: director.news, era: director.era };
 }
 
 /** Every world from tick 0 to `upTo`, in one walk. For tests and reports. */
 export function standInWorlds(worldSeed: string, upTo: number, content: Content): World[] {
   const worlds: World[] = [];
-  walk(worldSeed, upTo, content, (track, vars, schedule) => worlds.push(worldOf(track, vars, schedule)));
+  walk(worldSeed, upTo, content, (track, director) => worlds.push(worldOf(track, director)));
   return worlds;
 }
 

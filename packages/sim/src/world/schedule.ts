@@ -5,11 +5,11 @@
 import { createRandom } from "../engine/random";
 import type { Content, Id, NewsEntry, NewsStage, WorldNews } from "../engine/types";
 
-/** The world's own streams (engine.md section 6). A character's draws never touch them. */
-export type WorldStream = "rate" | "shock" | "rule";
+/** The world's own streams (engine.md section 6, and `era` from director.md R-DIRECTOR-002). A character's draws never touch them. */
+export type WorldStream = "rate" | "shock" | "rule" | "era";
 
 /** Draw positions each story owns on `shock`: whether it happens, then its announce tick or lag. */
-const DRAWS_PER_STORY = 2;
+export const DRAWS_PER_STORY = 2;
 
 /** The tick a story reaches each stage. Null: it never reaches that stage. */
 export interface StoryTicks {
