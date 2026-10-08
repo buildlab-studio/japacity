@@ -31,7 +31,7 @@ export interface Surface {
 
 const sub = (a: Vec, b: Vec): Vec => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
 const dot = (a: Vec, b: Vec): number => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
-const len = (a: Vec): number => Math.hypot(a[0], a[1], a[2]);
+const len = (a: Vec): number => Math.sqrt(a[0] * a[0] + a[1] * a[1] + a[2] * a[2]);
 const cross = (a: Vec, b: Vec): Vec => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
 
 export function smoothMin(a: number, b: number, k: number): number {
@@ -49,8 +49,10 @@ export function distance(shape: Shape, p: Vec): number {
       const d = sub(p, shape.c);
       const q: Vec = shape.axes === undefined ? d : [dot(d, shape.axes[0]), dot(d, shape.axes[1]), dot(d, shape.axes[2])];
       const [rx, ry, rz] = shape.r;
-      const k0 = Math.hypot(q[0] / rx, q[1] / ry, q[2] / rz);
-      const k1 = Math.hypot(q[0] / (rx * rx), q[1] / (ry * ry), q[2] / (rz * rz));
+      const [ax, ay, az] = [q[0] / rx, q[1] / ry, q[2] / rz];
+      const [bx, by, bz] = [ax / rx, ay / ry, az / rz];
+      const k0 = Math.sqrt(ax * ax + ay * ay + az * az);
+      const k1 = Math.sqrt(bx * bx + by * by + bz * bz);
       return k1 === 0 ? -Math.min(rx, ry, rz) : (k0 * (k0 - 1)) / k1;
     }
     case "capsule": {
@@ -112,8 +114,8 @@ function gradient(blend: Blend, p: Vec, e: number): Vec {
 }
 
 /**
- * The blend's surface as triangles, one vertex a grid cell the surface crosses (surface nets),
- * each vertex then moved onto the surface. `cell` is the grid's spacing in metres.
+ * The blend's surface as triangles, one vertex a grid cell the surface crosses (surface nets), each
+ * vertex within a cell of the surface. `cell` is the grid's spacing in metres.
  */
 export function surface(blend: Blend, cell: number): Surface {
   const { min, max } = bounds(blend.shapes, blend.k + 2 * cell);
@@ -123,8 +125,33 @@ export function surface(blend: Blend, cell: number): Surface {
   const sy = ny + 1;
   const at = (i: number, j: number, k: number): number => i + sx * (j + sy * k);
   const point = (i: number, j: number, k: number): Vec => [min[0] + i * cell, min[1] + j * cell, min[2] + k * cell];
+  // A coarse grid first: a coarse cell whose corners are all far from the surface, on one side, holds
+  // no surface (the field changes no faster than the distance), so its fine points take the coarse
+  // sign and only the band near the surface is sampled finely.
+  const step = 4;
+  const cx = Math.ceil(nx / step);
+  const cy = Math.ceil(ny / step);
+  const cz = Math.ceil(nz / step);
+  const coarse = new Float64Array((cx + 1) * (cy + 1) * (cz + 1));
+  const cat = (i: number, j: number, k: number): number => i + (cx + 1) * (j + (cy + 1) * k);
+  for (let k = 0; k <= cz; k++) for (let j = 0; j <= cy; j++) for (let i = 0; i <= cx; i++) coarse[cat(i, j, k)] = field(blend, point(i * step, j * step, k * step));
+  const far = step * cell * 1.8;
   const values = new Float64Array(sx * sy * (nz + 1));
-  for (let k = 0; k <= nz; k++) for (let j = 0; j <= ny; j++) for (let i = 0; i <= nx; i++) values[at(i, j, k)] = field(blend, point(i, j, k));
+  for (let k = 0; k <= nz; k++) {
+    for (let j = 0; j <= ny; j++) {
+      for (let i = 0; i <= nx; i++) {
+        const [ci, cj, ck] = [Math.min(cx - 1, Math.floor(i / step)), Math.min(cy - 1, Math.floor(j / step)), Math.min(cz - 1, Math.floor(k / step))];
+        let lo = Infinity;
+        let hi = -Infinity;
+        for (const [a, b2, c] of [[0, 0, 0], [1, 0, 0], [0, 1, 0], [1, 1, 0], [0, 0, 1], [1, 0, 1], [0, 1, 1], [1, 1, 1]] as const) {
+          const v = coarse[cat(ci + a, cj + b2, ck + c)] ?? 0;
+          lo = Math.min(lo, v);
+          hi = Math.max(hi, v);
+        }
+        values[at(i, j, k)] = lo > far ? lo : hi < -far ? hi : field(blend, point(i, j, k));
+      }
+    }
+  }
   const value = (i: number, j: number, k: number): number => values[at(i, j, k)] ?? 1;
 
   const cellVertex = new Int32Array(nx * ny * nz).fill(-1);
@@ -192,9 +219,15 @@ export function surface(blend: Blend, cell: number): Surface {
     }
   }
 
-  // Each vertex is pulled onto the surface along the field's slope, never by more than a cell.
+  if (signedVolume({ positions, triangles }) < 0) for (const t of triangles) [t[1], t[2]] = [t[2], t[1]];
+  return { positions, triangles };
+}
+
+/** Each vertex pulled onto the blend's surface along the field's slope, never by more than a cell. */
+export function project(blend: Blend, s: Surface, cell: number): Surface {
   const e = cell / 8;
-  for (const p of positions) {
+  const positions = s.positions.map((start): Vec => {
+    const p: Vec = [...start];
     for (let step = 0; step < 3; step++) {
       const f = field(blend, p);
       const g = gradient(blend, p, e);
@@ -203,9 +236,9 @@ export function surface(blend: Blend, cell: number): Surface {
       const move = Math.max(-cell, Math.min(cell, f / g2));
       for (let axis = 0; axis < 3; axis++) p[axis] = (p[axis] ?? 0) - move * (g[axis] ?? 0);
     }
-  }
-  if (signedVolume({ positions, triangles }) < 0) for (const t of triangles) [t[1], t[2]] = [t[2], t[1]];
-  return { positions, triangles };
+    return p;
+  });
+  return { positions, triangles: s.triangles };
 }
 
 /** Six times the volume a closed surface holds: positive when its triangles face outward. */

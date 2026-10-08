@@ -3,13 +3,15 @@
 // would fold a face over or pinch the surface is refused, so the result stays a closed surface.
 import type { Surface, Tri, Vec } from "./blend";
 
+const norm = (v: Vec): number => Math.sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
+
 type Quadric = Float64Array; // a2 ab ac ad b2 bc bd c2 cd d2
 
 function planeQuadric(a: Vec, b: Vec, c: Vec): Quadric {
   const u: Vec = [b[0] - a[0], b[1] - a[1], b[2] - a[2]];
   const v: Vec = [c[0] - a[0], c[1] - a[1], c[2] - a[2]];
   const n: Vec = [u[1] * v[2] - u[2] * v[1], u[2] * v[0] - u[0] * v[2], u[0] * v[1] - u[1] * v[0]];
-  const area = Math.hypot(n[0], n[1], n[2]);
+  const area = Math.sqrt(n[0] * n[0] + n[1] * n[1] + n[2] * n[2]);
   const q = new Float64Array(10);
   if (area === 0) return q;
   const [x, y, z] = [n[0] / area, n[1] / area, n[2] / area];
@@ -135,8 +137,8 @@ export function thin(input: Surface, target: number): Surface {
     const best = optimum(q);
     // The optimum is trusted only near the edge, so a nearly flat patch does not throw a point far off.
     if (best !== null) {
-      const edge = Math.hypot(pb[0] - pa[0], pb[1] - pa[1], pb[2] - pa[2]);
-      if (Math.hypot(best[0] - mid[0], best[1] - mid[1], best[2] - mid[2]) <= edge) choices.unshift(best);
+      const edge = norm([pb[0] - pa[0], pb[1] - pa[1], pb[2] - pa[2]]);
+      if (norm([best[0] - mid[0], best[1] - mid[1], best[2] - mid[2]]) <= edge) choices.unshift(best);
     }
     let p = mid;
     let c = Infinity;
@@ -170,8 +172,8 @@ export function thin(input: Surface, target: number): Surface {
         const before = normal(pos[f[0]] ?? [0, 0, 0], pos[f[1]] ?? [0, 0, 0], pos[f[2]] ?? [0, 0, 0]);
         const moved = f.map((w) => (w === u || w === v ? p : (pos[w] ?? [0, 0, 0]))) as [Vec, Vec, Vec];
         const after = normal(moved[0], moved[1], moved[2]);
-        const lb = Math.hypot(...before);
-        const la = Math.hypot(...after);
+        const lb = norm(before);
+        const la = norm(after);
         if (la === 0 || lb === 0) return false;
         if ((before[0] * after[0] + before[1] * after[1] + before[2] * after[2]) / (lb * la) < 0.3) return false;
       }

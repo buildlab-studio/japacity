@@ -6,7 +6,7 @@
 import type { PaletteName } from "@japacity/assets";
 import type { PatternSpec } from "@japacity/assets/pattern";
 
-import { type Blend, frontAt, type Shape, surface, type Surface } from "./blend";
+import { type Blend, frontAt, project, type Shape, surface, type Surface } from "./blend";
 import type { PersonBone, PersonMesh } from "./person.types";
 import { thin } from "./thin";
 
@@ -218,7 +218,7 @@ interface Buf {
 const makeBuf = (): Buf => ({ pos: [], col: [], uv: [], si: [], sw: [], idx: [[], [], []], part: [], current: null });
 
 /** The round parts of a person, named in the file's node extras so the loader leaves them smooth. */
-export type SmoothPart = "head" | "hair" | "headwear" | "hands" | "load";
+export type SmoothPart = "head" | "hair" | "headwear" | "hands" | "load" | "robe";
 function smoothPart(b: Buf, part: SmoothPart | null, draw: () => void): void {
   const before = b.current;
   b.current = part;
@@ -362,7 +362,7 @@ function box(b: Buf, c: Vec, size: Vec, colour: PaletteName, w: Weights, group =
  * copies of the corners before it, so the pattern does not smear.
  */
 function blended(b: Buf, blend: Blend, o: { cell: number; budget: number; colour: PaletteName; w: Weights; group?: number; uv?: (p: Vec) => [number, number]; wrapV?: number }): Surface {
-  const shape = thin(surface(blend, o.cell), o.budget);
+  const shape = project(blend, thin(surface(blend, o.cell), o.budget), o.cell);
   const start = b.pos.length / 3;
   const uvs = shape.positions.map((p): [number, number] => o.uv?.(p) ?? [0, 0]);
   shape.positions.forEach((p, i) => vert(b, p, o.colour, at(uvs, i), o.w));
@@ -506,7 +506,7 @@ const HAIR: Record<HairName, (b: Buf, s: Spec) => void> = {
       const p1 = add(p0, [Math.cos(th) * 0.04, 0.018, Math.sin(th) * 0.04]);
       shapes.push({ kind: "capsule", a: p0, b: p1, ra: 0.017, rb: 0.014 });
     }
-    blended(b, { shapes, k: 0.006 }, { cell: 0.005, budget: 1300, colour: s.hairColor, w: wHead });
+    blended(b, { shapes, k: 0.006 }, { cell: 0.005, budget: 1280, colour: s.hairColor, w: wHead });
   },
   // Long straight hair: a cap, one sheet from ear to ear down the back, and a lock brought forward over each collarbone.
   long: (b, s) => {
@@ -537,23 +537,36 @@ const HAIR: Record<HairName, (b: Buf, s: Spec) => void> = {
     const R = (y: number, r: number): Ring => ({ c: [0, HC + y, -0.045], ru: r, rv: r, w: wHead });
     tube(b, [R(0.1, 0.034), R(0.135, 0.052), R(0.17, 0.036)], { sides: 6, color: s.hairColor, capStart: true, capStartOff: [0, -0.012, 0], capEnd: true, capEndOff: [0, 0.014, 0] });
   },
+  // Cornrows: rows braided flat from the hairline to the nape, raised on a close cover of hair,
+  // blended so the rows stand out as ridges and the scalp between them is hair, not skin.
   cornrows: (b, s) => {
     const rx = 0.094;
     const ry = 0.124;
     const rz = 0.102;
+    const shapes: Shape[] = [{
+      kind: "blend",
+      blend: {
+        k: 0,
+        shapes: [{ kind: "ellipsoid", c: [0, HC + 0.004, -0.003], r: [0.093, 0.121, 0.1] }],
+        cut: [
+          { kind: "ellipsoid", c: [0, HC - 0.07, 0.12], r: [0.1, 0.138, 0.12] },
+          { kind: "half", p: [0, HC - 0.01, 0], n: [0, 1, -0.35] },
+        ],
+        cutK: 0.01,
+      },
+    }];
     for (let k = -4; k <= 4; k++) {
       const x0 = k * 0.0205;
       const q = Math.sqrt(1 - (x0 / rx) ** 2);
-      const rings: Ring[] = [];
       const a0 = 0.5 + Math.abs(k) * 0.05;
+      const points: Vec[] = [];
       for (let j = 0; j <= 7; j++) {
         const al = lerp(a0, Math.PI + 0.42, j / 7);
-        const nrm: Vec = [(x0 / rx) * 0.7, Math.sin(al) * q, Math.cos(al) * q];
-        const c: Vec = [x0 * 1.01, HC + ry * q * Math.sin(al) * 1.0, rz * q * Math.cos(al) * 1.0 - 0.003];
-        rings.push({ c, ru: 0.0098, rv: 0.011, u: [1, 0, 0], v: mul(nrm, 1 / len(nrm)), w: wHead });
+        points.push([x0 * 1.01, HC + ry * q * Math.sin(al), rz * q * Math.cos(al) - 0.003]);
       }
-      tube(b, rings, { sides: 3, color: s.hairColor, theta0: Math.PI / 2, capStart: true, capEnd: true });
+      for (let j = 0; j < points.length - 1; j++) shapes.push({ kind: "capsule", a: at(points, j), b: at(points, j + 1), ra: 0.0105, rb: 0.0105 });
     }
+    blended(b, { shapes, k: 0.004 }, { cell: 0.0042, budget: 900, colour: s.hairColor, w: wHead });
   },
 };
 
@@ -610,7 +623,7 @@ const HEADWEAR: Record<HeadName, (b: Buf, s: Spec) => void> = {
       if (ph < -Math.PI / 2) ph += 2 * Math.PI;
       return [Math.hypot(x, y) / tile, ((ph + Math.PI / 2) * 0.18) / tile];
     };
-    blended(b, { shapes, k: 0.012 }, { cell: 0.0045, budget: 1200, colour: f.color, w: wHead, group: f.group, uv, wrapV: round / tile });
+    blended(b, { shapes, k: 0.012 }, { cell: 0.005, budget: 1200, colour: f.color, w: wHead, group: f.group, uv, wrapV: round / tile });
   },
   // Fila: a soft round cap that leans to one side.
   fila: (b, s) => {
@@ -635,9 +648,18 @@ const HEADWEAR: Record<HeadName, (b: Buf, s: Spec) => void> = {
     tube(b, [R(0.05, 0.096, 0.104), R(0.128, 0.094, 0.1)], { sides: 8, ...capCloth(s.headFab), capEnd: true });
   },
   beanie: (b, s) => skullCap(b, { scale: 1.07, front: 0.06, back: -0.035, side: 0.022, color: capCloth(s.headFab).color }),
+  // An open-face helmet: a thick round shell over the skull, the face and neck cut out, a flat peak.
   helmet: (b, s) => {
-    skullCap(b, { scale: 1.16, front: 0.052, back: -0.07, side: -0.03, color: capCloth(s.headFab).color });
-    hard(b, () => box(b, [0, HC + 0.045, 0.125], [0.15, 0.012, 0.05], "black", wHead));
+    blended(b, {
+      k: 0,
+      shapes: [{ kind: "ellipsoid", c: [0, HC + 0.022, -0.008], r: [0.124, 0.134, 0.132] }],
+      cut: [
+        { kind: "ellipsoid", c: [0, HC - 0.075, 0.13], r: [0.098, 0.12, 0.11] },
+        { kind: "half", p: [0, HC - 0.045, 0], n: [0, 1, -0.25] },
+      ],
+      cutK: 0.012,
+    }, { cell: 0.006, budget: 320, colour: capCloth(s.headFab).color, w: wHead });
+    hard(b, () => box(b, [0, HC + 0.06, 0.135], [0.17, 0.012, 0.06], "black", wHead));
   },
   // A plain head scarf, tied at the back. Everyday wear, where a gele is for occasions.
   scarf: (b, s) => {
@@ -860,13 +882,18 @@ function buildHead(b: Buf, s: Spec): void {
   blended(b, headBlend(f), { cell: 0.006, budget: 380, colour: s.skin, w: wHead });
   for (const sx of [-1, 1]) {
     const x = sx * f.ex;
-    lens(b, [x, HC + f.ey, faceFront(f, x, f.ey) + 0.003], f.ew * 0.6, f.eh * 0.55, 0.008, "black");
+    // A white round a dark eye, so the face reads on the darkest skins too.
+    const z = faceFront(f, x, f.ey);
+    lens(b, [x, HC + f.ey, z + 0.002], f.ew * 0.78, f.eh * 0.48, 0.006, "white");
+    lens(b, [x, HC + f.ey, z + 0.005], f.ew * 0.4, f.eh * 0.42, 0.006, "black");
     if (f.brow) {
       const y = f.ey + f.eh / 2 + 0.012;
       lens(b, [x, HC + y, faceFront(f, x, y) + 0.001], f.ew / 2 + 0.007, 0.0045, 0.005, s.hairColor, 6);
     }
   }
-  lens(b, [0, HC + f.my, faceFront(f, 0, f.my)], f.mw * 0.55, 0.0055, 0.005, "lip");
+  // The mouth in the palette's lip colour, or in wine on the three darkest skins, where lip does not show.
+  const dark: PaletteName[] = ["skin1", "skin2", "skin3"];
+  lens(b, [0, HC + f.my, faceFront(f, 0, f.my)], f.mw * 0.58, 0.0065, 0.005, dark.includes(s.skin) ? "wine" : "lip");
 }
 
 function buildArm(b: Buf, P: Body, s: Spec, J: Joints, sd: "L" | "R"): void {
@@ -1089,7 +1116,7 @@ function buildAgbada(b: Buf, P: Body, s: Spec, J: Joints): void {
     [1.18, 0.285, 0.16 + belly * 0.4, [[B.chest, 0.6], [B.spine, 0.4]], pleat(0.02)],
     [0.9, 0.3, 0.176 + belly * 0.5, [[B.hips, 1]], pleat(0.025)],
     [0.56, 0.3, 0.18 + belly * 0.4, fall(B.upperLegL, B.upperLegR), pleat(0.03)],
-    [0.15, 0.292, 0.174 + belly * 0.3, fall(B.lowerLegL, B.lowerLegR), pleat(0.04)],
+    [0.15, 0.33, 0.19 + belly * 0.3, fall(B.lowerLegL, B.lowerLegR), pleat(0.04)],
   ];
   const rings: Ring[] = rows.map(([y, ru, rv, w, rmul]) => ({ c: [0, y, cz], ru, rv, w, rmul }));
   tube(b, rings.slice().reverse(), { sides, ...f, tile: 0.22, skip: (i, sI) => i <= 2 && (sI === 3 || sI === 10) }); // open sides from the hem to the ribs
@@ -1100,8 +1127,11 @@ function buildAgbada(b: Buf, P: Body, s: Spec, J: Joints): void {
     const ua = bone(`upperArm${sd}`);
     const along = (t: number): Vec => add(S, mul(d, 0.27 * t));
     const R = (t: number, ru: number, rv: number, w: Weights = [[ua, 1]]): Ring => ({ c: along(t), ru, rv, w });
-    tube(b, [R(-0.02, 0.07, 0.105, [[B.chest, 0.4], [ua, 0.6]]), R(0.2, 0.112, 0.14), R(0.34, 0.092, 0.124), R(0.56, 0.124, 0.152), R(0.7, 0.102, 0.134), R(0.96, 0.134, 0.166), R(1.16, 0.118, 0.15)],
-      { sides: 8, u, v: [0, 0, 1], ...f, tile: 0.22, capStart: true, capStartOff: mul(d, -0.03) });
+    // One wide sheet that widens from the shoulder to the folded edge, its folds in the pleats.
+    const fold = pleat(0.06);
+    const W = (t: number, ru: number, rv: number, w?: Weights): Ring => ({ ...R(t, ru, rv, w), rmul: fold });
+    tube(b, [R(-0.02, 0.07, 0.105, [[B.chest, 0.4], [ua, 0.6]]), W(0.25, 0.108, 0.138), W(0.55, 0.126, 0.156), W(0.85, 0.136, 0.166), W(1.12, 0.13, 0.16)],
+      { sides: 10, u, v: [0, 0, 1], ...f, tile: 0.22, capStart: true, capStartOff: mul(d, -0.03) });
   }
   // Embroidery: a gold yoke round the neck and down the chest, a plain panel inside it, a gold placket.
   const zAt = (x: number, y: number): number => {
@@ -1123,7 +1153,7 @@ function buildAgbada(b: Buf, P: Body, s: Spec, J: Joints): void {
   };
   shield(1, 0.02, over.trim);
   shield(0.7, 0.026, over.fab === "white" ? "cream" : "white");
-  box(b, [0, 1.25, zAt(0, 1.25) + 0.028], [0.022, 0.26, 0.006], over.trim, [[B.chest, 1]]);
+  hard(b, () => box(b, [0, 1.25, zAt(0, 1.25) + 0.028], [0.022, 0.26, 0.006], over.trim, [[B.chest, 1]]));
 }
 
 // ---------- shading ----------
@@ -1224,7 +1254,7 @@ export function buildPerson(spec: PersonSpec): PersonMesh {
     else buildSkirt(b, s, T);
   }
   buildExtras(b, s, J);
-  if (s.over !== undefined) buildAgbada(b, P, s, J);
+  if (s.over !== undefined) smoothPart(b, "robe", () => buildAgbada(b, P, s, J));
   const { hair, head } = s;
   if (hair !== undefined) smoothPart(b, "hair", () => HAIR[hair](b, s));
   if (head !== undefined) smoothPart(b, "headwear", () => HEADWEAR[head](b, s));
@@ -1234,7 +1264,10 @@ export function buildPerson(spec: PersonSpec): PersonMesh {
 
   // Stylise: a larger head reads better at phone size. Then rescale so every adult is still 1.70 m times their height number.
   const pivotY = 1.455;
-  const kH = ((s.height ?? 1) * 1.7) / (pivotY + (1.7 - pivotY) * HEAD_SCALE);
+  // The top of the bare head, as blended, stands at 1.70 m times the height number once drawn larger.
+  let headTop = 0;
+  for (let i = 0; i < b.part.length; i++) if (b.part[i] === "head") headTop = Math.max(headTop, b.pos[i * 3 + 1] ?? 0);
+  const kH = ((s.height ?? 1) * 1.7) / (pivotY + (headTop - pivotY) * HEAD_SCALE);
   for (let i = 0; i < b.pos.length / 3; i++) {
     if (b.si[i * 4] === B.head && b.sw[i * 4] === 1) {
       b.pos[i * 3] = (b.pos[i * 3] ?? 0) * HEAD_SCALE;
