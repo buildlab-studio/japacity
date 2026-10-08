@@ -20,8 +20,8 @@ function fromStatus(view: PlayerView): Loose[] {
 
 /**
  * R-CAR-004: the car handed back with the amount 0 once half its price is
- * paid, which the view's `car` now carries. A car paid off and owned is still
- * listed, with nothing outstanding, and cannot be handed back.
+ * paid, which the view's `car` now carries. A car paid off and owned is not
+ * listed (R-CAR-005) and cannot be handed back.
  */
 function fromCar(view: PlayerView): Loose[] {
   return view.obligations.flatMap((owed): Loose[] => (owed.car !== null && owed.outstanding > 0 && owed.car.paid >= owed.car.half ? [{ type: "obligation/pay", obligation: owed.id, amount: 0 }] : []));

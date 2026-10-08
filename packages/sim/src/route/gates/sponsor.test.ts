@@ -512,6 +512,22 @@ describe("R-SPONSOR-007: departure on a sponsor", () => {
     expect(game.state.place).toMatchObject({ where: "abroad", country: "country.uk" });
   });
 
+  test("[R-SPONSOR-007] [R-LADDER-005] [R-STATUS-003] given Ngozi nursing at home with the care visa granted, when she flies, then the sponsor's job is the one held that moment, the status is granted once, and quitting it starts the clock", () => {
+    const game = readyToApply({ tuning: ALWAYS_GRANTED });
+    game.endTurn([slot(APPLY_CARE)]);
+    game.endTurn();
+    expect(game.state.activity.job).toBe("activity.job-nurse");
+    const months = game.state.activity.tenure["activity.job-nurse"];
+    const result = game.accept({ type: "route/depart", route: CARE });
+    expect(game.state.activity.job).toBe("activity.job-uk-care");
+    expect(game.view().job.id).toBe("activity.job-uk-care");
+    expect(game.state.activity.tenure["activity.job-nurse"]).toBe(months);
+    expect(result.events.filter((event) => event.type === "status/granted")).toHaveLength(1);
+    game.accept({ type: "activity/quit" });
+    expect(game.state.activity.job).toBeNull();
+    expect(game.state.status.current).toMatchObject({ entry: "status.uk-sponsored", clock: content.status["status.uk-sponsored"]!.clockMonths });
+  });
+
   test("[R-SPONSOR-007] given each sponsor route, when its job abroad is asked for, then it is the sponsor's job for that route", () => {
     expect(sponsorJob(care)).toBe("activity.job-uk-care");
     expect(sponsorJob(skilled)).toBe("activity.job-uk-skilled");

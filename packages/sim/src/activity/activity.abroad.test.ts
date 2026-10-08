@@ -8,9 +8,9 @@ import { bp, divFloor, mulDiv } from "../engine/int";
 import type { Registry } from "../engine/kind";
 import type { Accepted, BaseEvent, Content, Id, ReadCtx, Requirement } from "../engine/types";
 import { registry } from "../kinds";
-import { flown, playMonths } from "../place/place.journey";
+import { ALWAYS_GRANTED, flown, offeredSeed, playMonths } from "../place/place.journey";
 import type { LifeOptions } from "../route/route.journey";
-import { applyEffects, draw, slot } from "../route/route.journey";
+import { applyEffects, draw, readyLife, slot, toDecision } from "../route/route.journey";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
 import { activityKind, cashWorkedThisMonth, localTenure, paramsFor, passChanceBp } from "./activity.logic";
@@ -136,13 +136,15 @@ describe("what may be done abroad", () => {
     expect(hunts(game)).toEqual([NURSE]);
   });
 
-  test("[R-LADDER-006] [R-PLACE-003] given Zainab's developer job at home, when she arrives as a student, then the job ends in the first month, no pay comes from it and no clock starts", () => {
-    const game = flown(content, { from: "scenario.zainab" });
+  test("[R-LADDER-006] [R-PLACE-003] given Zainab's developer job at home, when she arrives as a student, then the job ends with the flight, no pay comes from it and no clock starts", () => {
+    const game = readyLife(content, { from: "scenario.zainab", seed: offeredSeed(content), tuning: ALWAYS_GRANTED });
+    toDecision(game);
     expect(game.state.activity.job).toBe("activity.job-junior-dev");
     const served = game.state.activity.tenure["activity.job-junior-dev"];
-    const result = game.endTurn();
+    const flight = game.accept({ type: "route/depart", route: "route.uk-masters" });
     expect(game.state.activity.job).toBeNull();
-    expect(result.events).toContainEqual({ type: "activity/job-ended", job: "activity.job-junior-dev", why: "moved" });
+    expect(flight.events).toContainEqual({ type: "activity/job-ended", job: "activity.job-junior-dev", why: "moved" });
+    const result = game.endTurn();
     expect(moneyOf(result, "salary")).toEqual([]);
     expect(game.state.status.current).toMatchObject({ entry: STUDENT, clock: null });
     // The time served is kept.

@@ -3,7 +3,7 @@
 // the public content and ranks the commands it would like to send; the runner
 // sends them in that order and keeps the first one the authority accepts, so a
 // strategy never needs to know a hidden figure to stay legal.
-import { mulDiv } from "../engine/int";
+import { mulDiv, mulDivCeil } from "../engine/int";
 import { step } from "../engine/step";
 import { refusalChanceBp } from "../route/route.logic";
 import type { BaseEvent, Content, Currency, ForeignCurrency, Id, OfferView, PlayerView, SlotPick, State } from "../engine/types";
@@ -871,10 +871,36 @@ function abroadSlots(view: PlayerView, content: Content, habits: Habits, currenc
   return picks;
 }
 
+/** Basis points over a shortfall bought, for the bank's charge and the rounding. */
+const BUY_MARGIN_BP = 10300;
+
+/**
+ * What the local pockets cannot meet of next month's dues, bought at the bank
+ * from dollars and then naira: abroad the Lagos allowance does not bind (R-WALLET-005).
+ */
+function coverDues(view: PlayerView, currency: ForeignCurrency, dues: number): Loose[] {
+  const pocket = view.pockets[currency];
+  let short = mulDivCeil(dues - pocket.bank - pocket.cash, BUY_MARGIN_BP, 10000);
+  if (short <= 0) return [];
+  const commands: Loose[] = [];
+  const rate = view.rates[currency].official;
+  if (currency !== "USD") {
+    const dollars = Math.min(view.pockets.USD.bank, mulDivCeil(short, rate, view.rates.USD.official));
+    if (dollars >= 100) {
+      commands.push({ type: "wallet/convert", from: "USD", to: currency, amount: dollars, via: "bank" });
+      short -= mulDiv(dollars, view.rates.USD.official, rate);
+    }
+  }
+  const kobo = Math.min(view.pockets.NGN.bank, mulDivCeil(short, rate, 100));
+  if (short > 0 && kobo >= 10000) commands.push({ type: "wallet/convert", from: "NGN", to: currency, amount: kobo, via: "bank" });
+  return commands;
+}
+
 function abroadMoney(view: PlayerView, content: Content, habits: Habits, currency: ForeignCurrency): Loose[] {
   const commands: Loose[] = [];
   const pocket = view.pockets[currency];
   const dues = monthlyDueIn(view, content, currency);
+  commands.push(...coverDues(view, currency, dues));
   // Cash work pays into cash; the remittance and most fees read the bank pocket.
   if (pocket.cash > dues + 10000) commands.push({ type: "wallet/move", currency, amount: pocket.cash - dues, to: "bank" });
   const status = view.status;

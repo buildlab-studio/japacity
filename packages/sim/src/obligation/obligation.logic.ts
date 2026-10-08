@@ -950,12 +950,15 @@ function invariants(state: State, content: Content): string[] {
 }
 
 export function obligationsView(read: ReadCtx): (ObligationState & { due: number; car: CarView | null })[] {
-  return openItems(read.state).map((item) => {
-    const entry = entryOf(read.content, item.entry);
-    // R-UNDERTAKING-012: an undertaking's months run from the month it opened, whether or not anything was charged.
-    const monthsLeft = isSponsorUndertaking(entry) ? undertakingMonthsLeft(read, item) : item.monthsLeft;
-    return { ...item, monthsLeft, due: dueNext(read, item, entry), car: carView(read, item) };
-  });
+  // R-CAR-005: an owned car is kept with no obligation. the contract has no other place for the car, so the item stays in the state for hasCar.
+  return openItems(read.state)
+    .filter((item) => !isOwned(item, entryOf(read.content, item.entry)))
+    .map((item) => {
+      const entry = entryOf(read.content, item.entry);
+      // R-UNDERTAKING-012: an undertaking's months run from the month it opened, whether or not anything was charged.
+      const monthsLeft = isSponsorUndertaking(entry) ? undertakingMonthsLeft(read, item) : item.monthsLeft;
+      return { ...item, monthsLeft, due: dueNext(read, item, entry), car: carView(read, item) };
+    });
 }
 
 /** R-CAR-007's figures for one car; the view carries them on the item as `car`. */

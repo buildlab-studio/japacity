@@ -183,6 +183,11 @@ describe("the stand-in world's rates", () => {
 });
 
 describe("the dirham", () => {
+  test("[R-ABROAD-001] [R-RATE-002] given the content's start rates, when tick 0 is read, then the dirham starts on the peg: the dollar's start times 10000 over 36725, rounded down", () => {
+    expect(rate.start.AED).toBe(mulDiv(rate.start.USD, 10000, 36725));
+    expect(standInWorlds("aed-start", 1, content)[0]?.rates.AED.official).toBe(mulDiv(rate.start.USD, 10000, 36725));
+  });
+
   test("[R-ABROAD-001] given 20 world seeds, when 120 ticks pass, then from the first tick the dirham's official rate is the dollar's times 10000 over 36725, rounded down, and its street rate is never below it", () => {
     for (let n = 0; n < 20; n += 1) {
       const worlds = standInWorlds(`aed-${String(n)}`, 120, content);

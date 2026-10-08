@@ -248,7 +248,7 @@ describe("spot checks against the rule pages", () => {
       amount: 6000000,
     });
     // rate.md: start rates and the living line.
-    expect(content.tuning.rate.start).toEqual({ GBP: 175800, USD: 133150, CAD: 97000, AED: 36250, EUR: 155800 });
+    expect(content.tuning.rate.start).toEqual({ GBP: 175800, USD: 133150, CAD: 97000, AED: 36255, EUR: 155800 });
     expect(content.var["var.uk-living-line"]?.start).toBe(117100);
     // news.md: the rise sets the living line to £1,203.
     expect(content.news["news.uk-living-rise"]?.standIn.sets).toEqual([{ var: "var.uk-living-line", value: 120300 }]);

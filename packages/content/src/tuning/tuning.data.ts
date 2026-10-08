@@ -45,9 +45,9 @@ export const tuning: Tuning = {
 
   // rate.md
   rate: {
-    // Kobo for one pound (₦1,758.00) and one dollar (₦1,331.50); the Canadian dollar, dirham and
-    // euro from the cross rates of 7 Oct 2026 (docs/rules/abroad-money.md).
-    start: { GBP: 175800, USD: 133150, CAD: 97000, AED: 36250, EUR: 155800 },
+    // Kobo for one pound (₦1,758.00) and one dollar (₦1,331.50); the Canadian dollar and the
+    // euro from the cross rates of 7 Oct 2026; the dirham on the dollar's peg (abroad-money.md R-ABROAD-001).
+    start: { GBP: 175800, USD: 133150, CAD: 97000, AED: 36255, EUR: 155800 },
     // 0.4%
     driftBp: 40,
     // 1.2%

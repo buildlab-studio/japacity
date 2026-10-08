@@ -60,10 +60,10 @@ function quitStartsClock(): Registry {
   });
 }
 
-/** Zainab, flown on the study route and then given a sponsored worker's status for her job. */
+/** Zainab, flown on the study route and then given a sponsored worker's status for her old job, which she holds again. */
 function sponsored(options: LifeOptions = {}): Game {
   const game = flown(content, { from: "scenario.zainab", ...options });
-  applyEffects(game, [{ type: "obligation/close", obligationType: "tuition" }, { type: "status/grant", status: SPONSORED, job: JOB }]);
+  applyEffects(game, [{ type: "obligation/close", obligationType: "tuition" }, { type: "status/grant", status: SPONSORED, job: JOB }, { type: "activity/start-job", job: JOB }]);
   return game;
 }
 

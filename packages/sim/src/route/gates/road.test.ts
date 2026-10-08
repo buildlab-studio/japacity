@@ -411,6 +411,18 @@ describe("the night meeting", () => {
     expect(game.state.setpiece.open?.entry).toBe(TRUTH);
   });
 
+  test("[R-ROAD-004] [R-SETPIECE-002] given a road scene open, the night meeting or the truth, when the turn is ended, then it is rejected with setpiece-open; between the two none is open and the month passes", () => {
+    const game = life({ change: HONEST_ROAD });
+    take(game);
+    expect(game.state.setpiece.open?.entry).toBe(NIGHT);
+    game.expectRejected({ type: "turn/end", slots: [] }, "setpiece-open");
+    answer(game, "night", "go");
+    expect(game.state.setpiece.open).toBeNull();
+    turn(game);
+    expect(game.state.setpiece.open?.entry).toBe(TRUTH);
+    game.expectRejected({ type: "turn/end", slots: [] }, "setpiece-open");
+  });
+
   test("[R-ROAD-004] given every set piece of the chain, when its answers are read, then each keeps one that leaves the road", () => {
     for (const id of [NIGHT, TRUTH]) {
       const answers = content.setpiece[id]!.questions.flatMap((question) => question.answers);
