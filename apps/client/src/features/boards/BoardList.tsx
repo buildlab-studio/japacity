@@ -19,7 +19,7 @@ function Line({ row, when }: { row: BoardRow; when: When }) {
       data-me={row.me ? "true" : undefined}
       className={`flex min-h-11 items-center gap-3 rounded-lg px-3 py-2 ${row.me ? "bg-accent/15 font-semibold ring-1 ring-accent" : "odd:bg-sunk/60"}`}
     >
-      <span className="w-8 shrink-0 text-right font-display text-lg tabular-nums" aria-label={say("ui.boards.rank", { rank: row.rank })}>
+      <span className="w-10 shrink-0 text-right font-semibold tabular-nums" aria-label={say("ui.boards.rank", { rank: row.rank })}>
         {row.rank}
       </span>
       <span className="flex min-w-0 flex-1 flex-col">
@@ -35,28 +35,30 @@ function Line({ row, when }: { row: BoardRow; when: When }) {
 export default function BoardList({ reply, when, friends }: { reply: BoardReply; when: When; friends: boolean }) {
   const own = reply.own;
   const ownShown = own !== null && reply.rows.some((row) => row.me);
+  // Above the list, so a player far down a long board sees their place without scrolling.
+  const ownLine = ownShown ? null : (
+    <div className="flex flex-col gap-1" data-board-own>
+      <p className="text-xs font-semibold tracking-wide text-muted uppercase">{say("ui.boards.your-place")}</p>
+      {own === null ? (
+        <p className="text-sm">{say("ui.boards.no-route")}</p>
+      ) : (
+        <ol>
+          <Line row={own} when={when} />
+        </ol>
+      )}
+    </div>
+  );
   return (
-    <div className="flex flex-col gap-2" data-board={reply.board}>
+    <div className="flex flex-col gap-3" data-board={reply.board}>
+      {ownLine}
       {reply.rows.length === 0 ? (
         <p className="text-muted">{say(friends ? "ui.boards.empty.friends" : "ui.boards.empty")}</p>
       ) : (
-        <ol className="flex flex-col gap-1">
+        <ol className="flex flex-col gap-1" data-board-lines>
           {reply.rows.map((row) => (
             <Line key={row.rank} row={row} when={when} />
           ))}
         </ol>
-      )}
-      {ownShown ? null : (
-        <div className="flex flex-col gap-1 border-t border-line pt-2" data-board-own>
-          <p className="text-xs font-semibold tracking-wide text-muted uppercase">{say("ui.boards.your-place")}</p>
-          {own === null ? (
-            <p className="text-sm">{say("ui.boards.no-route")}</p>
-          ) : (
-            <ol>
-              <Line row={own} when={when} />
-            </ol>
-          )}
-        </div>
       )}
     </div>
   );

@@ -42,7 +42,7 @@ function show(server: FakeServer) {
   );
 }
 
-const lines = () => Array.from(document.querySelectorAll("[data-board] > ol > li")).map((item) => item.textContent);
+const lines = () => Array.from(document.querySelectorAll("[data-board-lines] > li")).map((item) => item.textContent);
 
 function pick(group: string, option: string): void {
   fireEvent.click(within(screen.getByRole("radiogroup", { name: say(group) })).getByRole("radio", { name: say(option) }));
