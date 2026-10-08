@@ -80,7 +80,7 @@ describe("a guide for every route", () => {
   test("[R-GUIDE-002] given every route, when its guide is looked up, then exactly one guide covers it with the three parts", () => {
     for (const route of Object.keys(content.route)) {
       const covering = Object.values(content.guide).filter((guide) => (guide.routes as string[]).includes(route));
-      expect(covering, route).toHaveLength(1);
+      expect({ route, guides: covering.length }).toEqual({ route, guides: 1 });
       expect(covering[0]?.sections).toEqual(GUIDE_SECTIONS);
     }
   });

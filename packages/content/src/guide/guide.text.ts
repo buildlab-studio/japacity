@@ -95,9 +95,9 @@ export const guideText: Record<string, string> = {
   // guide.global-talent
   "guide.global-talent.title": "Global talent visas: what endorsement means",
   "guide.global-talent.section.real":
-    "The UK's Global Talent visa needs no job offer. Most applicants first ask an endorsing body to back them as a leader or a potential leader in their field, then apply for the visa with that endorsement.\n\nFrom April 2026 the endorsement stage costs £561 and the visa stage £205, plus the health surcharge for each year. For digital technology the endorsing body reads evidence of the applicant's work and letters of support. Nigeria was among the top countries for tech endorsements in 2021.",
+    "The UK's global talent visa needs no job offer. Most applicants first ask an endorsing body to back them as a leader or a potential leader in their field, then apply for the visa with that endorsement.\n\nFrom April 2026 the endorsement stage costs £561 and the visa stage £205, plus the health surcharge for each year. For digital technology the endorsing body reads evidence of the applicant's work and letters of support. Nigeria was among the top countries for tech endorsements in 2021.",
   "guide.global-talent.section.game": "In the game endorsement is a draw that your portfolio and network make more likely, with a wait of one to two months. A refused endorsement means a wait before you ask again. The real body reads a written case and letters, which the game does not model.",
-  "guide.global-talent.section.next": "Read the GOV.UK Global Talent page first, then the endorsing body's own guidance for your field.",
+  "guide.global-talent.section.next": "Read the GOV.UK page on global talent first, then the endorsing body's own guidance for your field.",
 
   // guide.gulf-work
   "guide.gulf-work.title": "Work in the Gulf: contracts, agents and the passport rule",

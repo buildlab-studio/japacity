@@ -132,14 +132,14 @@ describe("the sources page", () => {
 
   test("[R-GUIDE-007] given every guide and every rule page, when the sources page is read, then each source is linked there, grouped by subject", () => {
     for (const guide of Object.values(content.guide)) {
-      for (const source of guide.sources) expect(links.has(source.url), source.url).toBe(true);
+      for (const source of guide.sources) expect(links.has(source.url) ? source.url : `missing ${source.url}`).toBe(source.url);
       expect(sources.querySelector(`[data-group="${guide.id}"]`)).not.toBeNull();
     }
     const rules = files.rulePages.map((page) => readRulePage(page.name, page.markdown)).filter((page) => page.sources.length > 0);
     expect(rules.length).toBeGreaterThan(20);
     for (const rule of rules) {
       expect(sources.querySelector(`[data-group="rules/${rule.name}"]`)).not.toBeNull();
-      for (const source of rule.sources) expect(links.has(source.url), source.url).toBe(true);
+      for (const source of rule.sources) expect(links.has(source.url) ? source.url : `missing ${source.url}`).toBe(source.url);
     }
     const guidesPage = rules.find((rule) => rule.name === "guides");
     expect(guidesPage?.sources[0]?.readOn).toBe("2026-10-08");
@@ -169,7 +169,8 @@ describe("the credits", () => {
   });
 
   test("[R-GUIDE-008] given every guide page and the sources page, when their links are read, then each reaches the credits", () => {
-    for (const page of pages) expect(new DOMParser().parseFromString(page.html, "text/html").querySelector(`a[href="${CREDITS_PATH}"]`), page.path).not.toBeNull();
+    const without = pages.filter((page) => new DOMParser().parseFromString(page.html, "text/html").querySelector(`a[href="${CREDITS_PATH}"]`) === null);
+    expect(without.map((page) => page.path)).toEqual([]);
   });
 
   test("[R-GUIDE-009] given map data from OpenStreetMap, when the credits are read, then they carry its line linked to the copyright page; with none, then no map line", () => {

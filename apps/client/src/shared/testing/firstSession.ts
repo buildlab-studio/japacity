@@ -53,18 +53,13 @@ function activitiesWith(content: Content, types: readonly string[], route?: stri
 
 /** A pick that works toward one chapter item, or null when no activity serves it now. */
 function towards(view: PlayerView, content: Content, requirement: Requirement): SlotPick | null {
-  switch (requirement.type) {
-    case "job/any":
-      return activitiesWith(content, ["activity/hunt"]).map((id) => pick(view, id)).find((found) => found !== null) ?? null;
-    case "route/state": {
-      const route = view.routes.find((entry) => entry.id === requirement.route);
-      if (route?.state === "unknown") return activitiesWith(content, ["route/hear"], requirement.route).map((id) => pick(view, id)).find((found) => found !== null) ?? null;
-      if (route?.state === "heard") return activitiesWith(content, ["route/look-into"]).map((id) => pick(view, id, requirement.route)).find((found) => found !== null) ?? null;
-      return null;
-    }
-    default:
-      return null;
-  }
+  const first = (ids: readonly string[], param?: string) => ids.map((id) => pick(view, id, param)).find((found) => found !== null) ?? null;
+  if (requirement.type === "job/any") return first(activitiesWith(content, ["activity/hunt"]));
+  if (requirement.type !== "route/state") return null;
+  const route = view.routes.find((entry) => entry.id === requirement.route);
+  if (route?.state === "unknown") return first(activitiesWith(content, ["route/hear"], requirement.route));
+  if (route?.state === "heard") return first(activitiesWith(content, ["route/look-into"]), requirement.route);
+  return null;
 }
 
 /**
