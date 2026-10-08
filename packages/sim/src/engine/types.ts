@@ -314,6 +314,8 @@ export type Effect =
   | { type: "obligation/open"; obligation: Id<"obligation">; principal?: Amount; amount?: Amount; bond?: string }
   // offer: opens nothing when the offer's own `when` does not hold
   | { type: "offer/open"; offer: Id<"offer"> }
+  /** closes an open offer unanswered, as a family request handled in another life (R-PEOPLE-034). */
+  | { type: "offer/close"; offer: Id<"offer"> }
   // obligation, whole life
   | { type: "obligation/close"; obligationType: ObligationType }
   // place (docs/rules/place.md)
@@ -1677,7 +1679,8 @@ export type Command = { basedOn: number } & (
   | { type: "people/withdrawn"; pair: string; step: Proposal["step"] }
   | { type: "people/gossip"; pair: string }
   | { type: "people/stand-in"; pair: string; stage: "warned" | "on" | null }
-  | { type: "people/family-request"; offer: Id<"offer">; terms: Terms }
+  /** `handled` says another copy of the request was handled (R-PEOPLE-034). */
+  | { type: "people/family-request"; offer: Id<"offer">; terms: Terms; handled?: true }
   // the interview (docs/rules/interview.md)
   | { type: "interview/answer"; question: string; option: string }
   /** `thin`: the applicant's measure of the record (R-INTERVIEW-012). Missing: measured in this life. */
@@ -1977,7 +1980,7 @@ export interface PlayerView {
   /** The people around the character (docs/rules/people.md R-PEOPLE-051). */
   people: {
     slots: Record<string, { state: PeopleSlice["slots"][string]["state"]; label: PersonLabel | null; bond: string | null; invite: { looking: string; fill: string | null } | null }>;
-    bonds: { id: string; role: "partner" | "sibling"; stage: BondStage; label: PersonLabel; person: Id<"person"> | null; pair: string | null; lastMomentMonth: number | null; cooldownUntil: number | null; consent: { countFunds: boolean; standInMay: boolean } | null; moments: Moment[] | null; pending: { mine: Proposal | null; theirs: Proposal | null }; standIn: "warned" | "on" | null; facts: PersonFacts | null }[];
+    bonds: { id: string; role: "partner" | "sibling"; stage: BondStage; label: PersonLabel; person: Id<"person"> | null; pair: string | null; lastMomentMonth: number | null; cooldownUntil: number | null; partnerMonth: number | null; consent: { countFunds: boolean; standInMay: boolean } | null; moments: Moment[] | null; pending: { mine: Proposal | null; theirs: Proposal | null }; standIn: "warned" | "on" | null; facts: PersonFacts | null }[];
     candidates: { person: Id<"person">; role: "partner" | "sibling" }[];
     joint: { bond: string; route: Id<"route">; lead: "me" | "them"; myScore: number | null; theirScore: number | null } | null;
     sponsoring: { bond: string; route: Id<"route">; month: number } | null;

@@ -631,12 +631,7 @@ const FROM_AUTHORITY: readonly string[] = [
   "people/family-request",
 ] satisfies FromAuthority["type"][];
 
-/**
- * the first plan names `people/family-request` with `handled: true`, but
- * the command in types.ts has no `handled`; it is read here until the
- * contract carries it.
- */
-type FamilyRequest = Extract<Command, { type: "people/family-request" }> & { handled?: boolean };
+type FamilyRequest = Extract<Command, { type: "people/family-request" }>;
 
 /**
  * R-PEOPLE-034: a copy whose request a sibling paid elsewhere. This life gets
@@ -706,7 +701,7 @@ function authority(ctx: Ctx, sent: Command): BaseEvent[] | Rejection {
       const entry = ctx.content.offer[command.offer];
       if (entry === undefined) return reject("unknown-id", `There is no offer ${command.offer}.`);
       if (entry.group !== "family") return reject("not-legal", `${command.offer} is not a family request.`);
-      if ((command as FamilyRequest).handled === true) return familyHandled(ctx, command);
+      if (command.handled === true) return familyHandled(ctx, command);
       const events = record(ctx, [{ type: "people/request-shared", offer: command.offer }]);
       return [...events, ...ctx.apply([{ type: "offer/open", offer: command.offer }], { source: command.offer, param: null, terms: command.terms })];
     }
@@ -1254,6 +1249,7 @@ function view(read: ReadCtx): Pick<PlayerView, "people"> {
         pair: bond.with.kind === "player" ? bond.with.pair : null,
         lastMomentMonth: bond.lastMomentMonth,
         cooldownUntil: bond.cooldownUntil,
+        partnerMonth: bond.partnerMonth,
         consent: bond.consent,
         // R-PEOPLE-051: funds only on the joint's bond, where consent put them in the facts.
         facts: bond.facts === null ? null : { ...bond.facts, funds: slice.joint?.bond === id ? bond.facts.funds : null },

@@ -333,6 +333,7 @@ export const EffectSchema = z.discriminatedUnion("type", [
     bond: z.string().min(1).exactOptional(),
   }),
   z.strictObject({ type: z.literal("offer/open"), offer: idOf("offer") }),
+  z.strictObject({ type: z.literal("offer/close"), offer: idOf("offer") }),
   z.strictObject({ type: z.literal("obligation/close"), obligationType: ObligationTypeSchema }),
   z.strictObject({ type: z.literal("place/move"), to: WhereSchema, country: idOf("country").nullable() }),
   z.strictObject({ type: z.literal("place/return"), shape: ReturnShapeSchema }),
