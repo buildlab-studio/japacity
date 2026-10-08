@@ -16,6 +16,9 @@ export const guideText: Record<string, string> = {
   "guide.page.credits": "Credits",
   "guide.page.made": "How this game was made",
   "guide.page.game-note": "Japacity is a game. It is built on real rules, simplified.",
+  // The one notice on names, shown on the about page and in the terms (city.md R-CITY-041).
+  "guide.page.about.names":
+    "Real places are named so the game looks like the cities it is set in. Naming a place is not an endorsement, either way. The banks, lenders, agents, employers, schools and airlines in the game are invented, and its institutions and events are invented or simplified.",
   "guide.page.index.title": "Guides: the real rules behind Japacity",
   "guide.page.index.intro": "Each guide says what the real rules are, how the game changes them, and where every figure came from. They are general information, dated, and never about one person's case.",
   "guide.page.index.routes": "For the routes: {routes}.",
