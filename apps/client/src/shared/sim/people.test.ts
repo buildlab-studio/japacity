@@ -1,5 +1,4 @@
 import { content, text } from "@japacity/content";
-import type { Id } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
 import { courted, eagerContent, peopleGame, playMonth, SEE as SEE_SLOT } from "../testing/people";
@@ -13,7 +12,7 @@ describe("who a bond is with", () => {
     const game = peopleGame(eagerContent());
     // Some partners are offered only at home or from a certain age; the engine's own list decides.
     if (!game.view().people.candidates.some((candidate) => candidate.person === person)) return;
-    const bond = courted(game, person as Id<"person">);
+    const bond = courted(game, person);
     const shown = game.view().people.bonds.find((entry) => entry.id === bond)!;
     expect(shown.label).toBe("computer");
     expect(personOf(shown)).toBe(person);
@@ -68,11 +67,9 @@ describe("words for the people's lists", () => {
     const said = conversationPhrases();
     expect(said.map((phrase) => phrase.id)).not.toContain("phrase.evening");
     expect(said).toHaveLength(Object.values(content.phrase).filter((phrase) => phrase.where !== "place").length);
+    for (const phrase of said.filter((entry) => entry.fill === null)) expect(phraseWords(phrase.id, null)).toBe(text[`${phrase.id}.name`]);
     for (const phrase of said) {
-      if (phrase.fill === null) {
-        expect(phraseWords(phrase.id, null)).toBe(text[`${phrase.id}.name`]);
-        continue;
-      }
+      if (phrase.fill === null) continue;
       const fills = phrase.fill === "spot" ? content.people.spots : (phrase.options ?? []);
       for (const fill of fills) {
         const shown = phraseWords(phrase.id, fill);

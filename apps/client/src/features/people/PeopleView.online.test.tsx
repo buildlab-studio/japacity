@@ -104,7 +104,7 @@ describe("the conversation", () => {
     fireEvent.click(sendButton());
     await within(thread).findByText(sayCount("ui.online.wait", 4, { seconds: 4 }));
     fireEvent.click(sendButton());
-    await within(thread).findByText(say("ui.talk.failed.not-possible"));
+    expect(await within(thread).findByText(say("ui.talk.failed.not-possible"))).toBeDefined();
   });
 });
 

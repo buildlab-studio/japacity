@@ -48,7 +48,7 @@ describe("the slots", () => {
       const held = game.state.people.slots[slot]!;
       const bond = store.getState().view!.people.bonds.find((entry) => entry.id === held.bond)!;
       const found = personOf(bond);
-      if (found !== null) expect(found).toBe(held.person);
+      expect([null, held.person]).toContain(found);
       const shown = document.querySelector<HTMLElement>(`[data-slot="${slot}"]`)!;
       expect(within(shown).getByText(bondName(bond))).toBeDefined();
       expect(shown.textContent).toMatch(/At home\.|In /);
@@ -166,7 +166,7 @@ describe("a bond", () => {
     const bond = courted(game, TOBI, people.partnerMoments);
     await renderWithGame(offline(<PeopleView />), game);
     fireEvent.click(within(card(bond)).getByRole("button", { name: say("ui.people.propose.partner") }));
-    await within(card(bond)).findByText(sayCount("ui.people.declined.cooldown", people.proposeCooldown, { months: people.proposeCooldown }));
+    expect(await within(card(bond)).findByText(sayCount("ui.people.declined.cooldown", people.proposeCooldown, { months: people.proposeCooldown }))).toBeDefined();
   });
 
   test("[R-PEOPLE-016] given a friend's proposal waiting, when the player says yes, then the answer goes with the step; and their own proposal can be taken back", async () => {
@@ -212,7 +212,7 @@ describe("a bond", () => {
       const { authority } = await renderWithView(offline(<PeopleView />), changed);
       fireEvent.click(within(card(bond)).getByRole("button", { name: say("ui.people.end") }));
       expect(within(card(bond)).getByText(say("ui.people.end.cost", { standing: String(Math.abs(standing)), wellbeing: String(Math.abs(people.endWellbeing)) }))).toBeDefined();
-      if (applying) expect(within(card(bond)).getByText(say("ui.people.end.joint"))).toBeDefined();
+      expect(within(card(bond)).queryByText(say("ui.people.end.joint")) !== null).toBe(applying);
       fireEvent.click(within(card(bond)).getByRole("button", { name: say("ui.people.end.confirm") }));
       await waitFor(() => expect(authority.sent.at(-1)).toMatchObject({ type: "people/end", bond }));
     }

@@ -183,7 +183,7 @@ test("a recorded life boards the plane, the flight gets the whole screen, and li
 
   const tabs = page.getByRole("navigation", { name: "Sections" });
   if (await tabs.isVisible()) {
-    await expect(tabs.getByRole("button")).toHaveText(["Month", "You", "Money", "Status", "Home"]);
+    await expect(tabs.getByRole("button")).toHaveText(["Month", "You", "Money", "Status", "People", "Home"]);
   }
   await openTab(page, "Status");
   await expect(page.getByRole("heading", { name: "Status", exact: true })).toBeVisible();
@@ -243,7 +243,7 @@ test("a life abroad answers the December visit, changes money and comes home", a
   for (let shown = 0; shown < 5 && (await carryOn.isVisible()); shown += 1) await carryOn.click();
 
   const tabs = page.getByRole("navigation", { name: "Sections" });
-  if (await tabs.isVisible()) await expect(tabs.getByRole("button")).toHaveText(["Month", "You", "Money", "Japa", "News"]);
+  if (await tabs.isVisible()) await expect(tabs.getByRole("button")).toHaveText(["Month", "You", "Money", "Japa", "People", "News"]);
   await openTab(page, "You");
   await expect(page.getByRole("list", { name: "Times you came home" })).toContainText("by choice");
   await expectNothingBroken(page, "back home");
