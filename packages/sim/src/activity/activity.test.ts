@@ -795,6 +795,19 @@ describe("same again", () => {
   });
 });
 
+describe("months played", () => {
+  test("[R-ACTIVITY-012] given a job and free slots, when months end, then each activity in the slots and the job counts one a month, an activity in two slots counts once, empty slots count nothing, and the view does not show it", () => {
+    const tunde = lab("scenario.tunde");
+    const job = tunde.game.state.activity.job!;
+    expect(tunde.game.state.activity.played).toEqual({});
+    tunde.end([pick("activity.rest"), pick("activity.rest")]);
+    expect(tunde.game.state.activity.played).toEqual({ [job]: 1, "activity.rest": 1 });
+    tunde.end([]);
+    expect(tunde.game.state.activity.played).toEqual({ [job]: 2, "activity.rest": 1 });
+    expect(JSON.stringify(tunde.game.view())).not.toContain("played");
+  });
+});
+
 describe("the view of activities", () => {
   test("[R-ACTIVITY-002] given a life, when the view is read, then every free activity is listed with why not, its params, its cost and whether it can be paid", () => {
     const game = start({ content, scenario: "scenario.ada" });

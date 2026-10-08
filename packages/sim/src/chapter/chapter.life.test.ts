@@ -4,7 +4,7 @@ import { content, text } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
 import { check } from "../engine/check";
-import type { Id, PlayerView, ReadCtx, SlotPick } from "../engine/types";
+import type { Id, PlayerView, ReadCtx } from "../engine/types";
 import { viewFor } from "../engine/view";
 import { flownAda, LANDING, monthAbroad, playUntil, SECURE, SEND_OFF } from "../goal/goal.journey";
 import { roadCard } from "../route/gates/road";
@@ -14,7 +14,6 @@ import { sendOffCard, topActivities } from "./chapter.logic";
 
 const UK: Id<"route"> = "route.uk-masters";
 const STANDING: Id<"quality"> = "quality.standing";
-const REST: SlotPick = { activity: "activity.rest", param: null };
 const cap = content.tuning.turn.cap;
 
 function readOf(game: Game): ReadCtx {
@@ -46,9 +45,8 @@ describe("the send-off closes on the first month abroad", () => {
 });
 
 describe("the send-off card", () => {
-  test("[R-CHAPTER-006] given the send-off closing, when the view is read, then the card carries the route flown, its figure, the months, the standing and the three activities played most", () => {
+  test("[R-CHAPTER-006] given Ada's recorded life just flown, when the view is read before any month abroad, then the card carries the route flown, its figure, the flight month, that month's standing and the three activities played most up to it", () => {
     const game = flownAda(content);
-    game.endTurn([REST, REST]);
     const card = game.view().card;
     expect(card).toEqual({
       kind: "send-off",
@@ -63,27 +61,23 @@ describe("the send-off card", () => {
     expect(Object.keys(game.state)).not.toContain("card");
   });
 
-  test("[R-CHAPTER-006] given the months in each job and the slots of the month just played, when the most played are counted, then the most come first, ties by id, three at most", () => {
+  test("[R-CHAPTER-006] [R-ACTIVITY-012] given the months each activity was played, when the most played are counted, then the most come first, ties by id, three at most, and nothing played abroad is among them", () => {
     const game = flownAda(content);
-    game.endTurn([REST, REST]);
-    const { tenure } = game.state.activity;
-    const counted = new Map<string, number>(Object.entries(tenure).filter(([, months]) => months > 0));
-    counted.set(REST.activity, (counted.get(REST.activity) ?? 0) + 2);
-    const expected = [...counted.entries()]
+    const expected = (Object.entries(game.state.activity.played) as [Id<"activity">, number][])
       .sort(([a, x], [b, y]) => y - x || (a < b ? -1 : 1))
       .slice(0, 3)
       .map(([id]) => id);
     expect(topActivities(game.state)).toEqual(expected);
-    expect(topActivities(game.state)).toContain(REST.activity);
+    const shown = game.view().card?.topActivities ?? [];
+    expect(shown).toEqual(expected);
+    for (const id of shown) expect(content.activity[id]?.where).not.toBe("abroad");
   });
 
-  test("[R-CHAPTER-006] given the card shown the month the send-off closed, when the next month ends, then the card is gone and the view's card is the road's, which is none", () => {
+  test("[R-CHAPTER-006] given the card shown at the flight, when the first month abroad ends and the send-off closes, then the card is gone and the view's card is the road's, which is none", () => {
     const game = flownAda(content);
-    expect(game.view().card).toBeNull();
-    game.endTurn();
     expect(game.view().card?.kind).toBe("send-off");
-    // The first month abroad is the December tick in this life: its scene is answered first.
-    monthAbroad(game);
+    const result = game.endTurn();
+    expect(closed(result)).toEqual([{ type: "chapter/closed", chapter: SEND_OFF, next: LANDING }]);
     expect(sendOffCard(readOf(game))).toBeNull();
     expect(game.view().card).toEqual(roadCard(readOf(game)));
     expect(game.view().card).toBeNull();

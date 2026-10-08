@@ -737,6 +737,9 @@ function slots(ctx: Ctx): BaseEvent[] {
     }
   }
   events.push(...record(ctx, { type: "activity/slots-recorded", slots: picks.map((pick) => ({ ...pick })) }));
+  const { job, side } = ctx.state.activity;
+  const filled = new Set<Id<"activity">>([...(job === null ? [] : [job]), ...(side === null ? [] : [side]), ...picks.map((pick) => pick.activity)]);
+  if (filled.size > 0) events.push(...record(ctx, { type: "activity/played-counted", activities: [...filled] }));
   return events;
 }
 
@@ -972,6 +975,7 @@ function lines(event: ActivityEvent, state: State): ReportLine[] {
     case "activity/gig-paid":
       return [line("line.activity.gig", { amount: { currency: GIG_CURRENCY, amount: event.amount } }, "good")];
     case "activity/slots-recorded":
+    case "activity/played-counted":
       return [];
     default: {
       const never: never = event;
@@ -997,6 +1001,11 @@ function evolve(slice: ActivitySlice, event: ActivityEvent): ActivitySlice {
       return { ...slice, tenure: { ...slice.tenure, [DRIVING_TEST]: event.attempt } };
     case "activity/slots-recorded":
       return { ...slice, lastSlots: event.slots };
+    case "activity/played-counted": {
+      const played = { ...slice.played };
+      for (const id of event.activities) played[id] = (played[id] ?? 0) + 1;
+      return { ...slice, played };
+    }
     case "activity/pay-withheld":
     case "activity/sick-pay":
     case "activity/side-worked":
