@@ -53,7 +53,8 @@ describe("the place object's plain parts", () => {
     expect(parseAttachment("not json")).toBeNull();
     expect(parseAttachment(JSON.stringify({ ...MEMBER, socket: "" }))).toBeNull();
     expect(parseAttachment(JSON.stringify({ ...MEMBER, member: { ...MEMBER.member, joinedAt: "5" } }))).toBeNull();
-    expect(parseLimits(JSON.stringify({ maxPerObject: 3, attachmentBytes: 1024 }))).toEqual({ maxPerObject: 3, attachmentBytes: 1024 });
+    expect(parseLimits(JSON.stringify({ maxPerObject: 3, attachmentBytes: 1024, todayMax: 20 }))).toEqual({ maxPerObject: 3, attachmentBytes: 1024, todayMax: 20 });
+    expect(parseLimits(JSON.stringify({ maxPerObject: 3, attachmentBytes: 1024 }))).toBeNull();
     expect(parseLimits("{}")).toBeNull();
   });
 

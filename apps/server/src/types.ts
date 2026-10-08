@@ -73,4 +73,5 @@ export interface NewCharacterRequest {
 export interface PresenceReply {
   place: string;
   others: { name: string; look: string }[];
+  today: { name: string; look: string }[];
 }

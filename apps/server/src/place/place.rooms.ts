@@ -26,7 +26,7 @@ const OPEN_TRIES = 3;
 
 /** The rooms of a deployment, with the limits from its config. */
 export function roomsFor(namespace: DurableObjectNamespace<Place>, presence: ServerConfig["presence"], scope = ""): Rooms {
-  return { namespace, scope, limits: { maxPerObject: presence.maxPerObject, attachmentBytes: presence.attachmentBytes } };
+  return { namespace, scope, limits: { maxPerObject: presence.maxPerObject, attachmentBytes: presence.attachmentBytes, todayMax: presence.todayMax } };
 }
 
 export function roomName(scope: string, place: string, room: number): string {
@@ -82,15 +82,23 @@ export async function openSocket(rooms: Rooms, place: string, attachment: Attach
   return response;
 }
 
-/** R-CLOCK-028: the sample from the room the asker is in, or from room 0 when the asker is in none. */
-export async function lookAround(rooms: Rooms, place: string, asker: string | null, n: number, seed: number): Promise<PresenceMember[]> {
+/**
+ * R-CLOCK-028, R-CITY-036: the look of the room the asker is in, or of room 0
+ * when the asker is in none. `now` names the Lagos day; null asks for no one seen today.
+ */
+export async function roomLook(rooms: Rooms, place: string, asker: string | null, n: number, seed: number, now: number | null): Promise<RoomLook> {
   let first: RoomLook | null = null;
   for (let room = 0; ; room++) {
-    const look = await roomStub(rooms, place, room).look(place, asker, n, seed);
+    const look = await roomStub(rooms, place, room).look(place, asker, n, seed, now);
     first ??= look;
-    if (look.holds) return look.sample;
-    if (look.members === 0) return first.sample;
+    if (look.holds) return look;
+    if (look.members === 0) return first;
   }
+}
+
+/** R-CLOCK-028: the sample from the room the asker is in, or from room 0 when the asker is in none. */
+export async function lookAround(rooms: Rooms, place: string, asker: string | null, n: number, seed: number): Promise<PresenceMember[]> {
+  return (await roomLook(rooms, place, asker, n, seed, null)).sample;
 }
 
 /** R-CLOCK-020: the nudge to every room of the place up to the first empty one, which may still hold listeners. */

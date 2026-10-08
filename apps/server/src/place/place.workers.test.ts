@@ -4,13 +4,22 @@ import { describe, expect, test } from "vitest";
 
 import { productionConfig } from "../config";
 import type { Place } from "./place.object";
-import { placePresenceStore } from "./place.presence";
-import { lookAround, openSocket, roomCounts, roomStub } from "./place.rooms";
+import { acceptedEnd, placePresenceStore } from "./place.presence";
+import { lookAround, openSocket, roomCounts, roomLook, roomStub } from "./place.rooms";
+import type { Rooms } from "./place.rooms";
 import { ATTACHMENT_HEADER, attachmentBytes, CLOSE_POLICY, LIMITS_HEADER, NUDGE_EVERY_MS, PING, PONG, STATUS_FULL, STATUS_TOO_LARGE } from "./place.socket";
 import type { Attachment } from "./place.socket";
-import { freshRooms, member, openMember, settle, until } from "./place.testing";
+import { freshRooms, listenTo, member, openMember, settle, until } from "./place.testing";
+import type { ClientEnd } from "./place.testing";
+import { lagosDay, TODAY_KEY } from "./place.today";
+import type { Seen } from "./place.today";
 
 const PLACE = "place.market";
+
+function seenOf(account: string): Seen {
+  const { name, look } = member(account);
+  return { name, look };
+}
 
 function alarmOf(stub: DurableObjectStub<Place>): Promise<number | null> {
   return runInDurableObject(stub, (_instance: Place, state) => state.storage.getAlarm());
@@ -30,14 +39,16 @@ describe("the place object", () => {
     expect(shown.find((each) => each.account === "account-2")).toEqual(member("account-2"));
   });
 
-  test("[R-CLOCK-025] given members in a place, when the object's storage is read, then nothing about them was written", async () => {
+  test("[R-CLOCK-025] [R-CITY-036] given members in a place, when the object's storage is read, then it holds only the day's list of names and looks", async () => {
     const rooms = freshRooms();
     await openMember(rooms, "account-1");
     await openMember(rooms, "account-2");
 
     const stored = await runInDurableObject(roomStub(rooms, PLACE, 0), (_instance: Place, state) => state.storage.list());
 
-    expect([...stored.keys()]).toEqual([]);
+    expect([...stored.keys()]).toEqual([TODAY_KEY]);
+    expect(stored.get(TODAY_KEY)).toEqual({ day: lagosDay(member("account-1").joinedAt), seen: [seenOf("account-1"), seenOf("account-2")] });
+    for (const account of ["account-1", "account-2"]) expect(JSON.stringify(stored.get(TODAY_KEY))).not.toContain(JSON.stringify(account));
     expect(await roomStub(rooms, PLACE, 0).count()).toBe(2);
   });
 
@@ -175,5 +186,94 @@ describe("the place object", () => {
 
     expect(client.closed).toEqual({ code: CLOSE_POLICY });
     expect(await roomStub(rooms, PLACE, 0).count()).toBe(0);
+  });
+});
+
+/** Midnight in Lagos on 9 Oct 2026, which is 23:00 UTC on 8 Oct. */
+const MIDNIGHT = Date.UTC(2026, 9, 8, 23);
+
+/** Opens a member's socket that joined at `joinedAt`, as the route stamps it. */
+async function openAt(rooms: Rooms, account: string, joinedAt: number): Promise<ClientEnd> {
+  return listenTo(acceptedEnd(await openSocket(rooms, PLACE, { kind: "member", socket: `socket-${account}`, member: { ...member(account), joinedAt } })));
+}
+
+/** Opens and then closes a member's socket, so they were here and are not now. */
+async function visit(rooms: Rooms, account: string, joinedAt: number): Promise<void> {
+  const client = await openAt(rooms, account, joinedAt);
+  const before = await roomStub(rooms, PLACE, 0).count();
+  client.end.close(1000, "moved");
+  await until(async () => (await roomStub(rooms, PLACE, 0).count()) === before - 1, "the close to reach the object");
+}
+
+function storedList(rooms: Rooms): Promise<unknown> {
+  return runInDurableObject(roomStub(rooms, PLACE, 0), (_instance: Place, state) => state.storage.get(TODAY_KEY));
+}
+
+describe("the day's seen list in the place object", () => {
+  test("[R-CITY-036] given todayMax members and then one more, when each joins, then the list holds todayMax and the first is dropped", async () => {
+    const rooms = freshRooms();
+    const max = productionConfig.presence.todayMax;
+    for (let index = 0; index < max; index++) await openAt(rooms, `account-${String(index)}`, MIDNIGHT);
+
+    const atMax = await storedList(rooms);
+    await openAt(rooms, `account-${String(max)}`, MIDNIGHT);
+    const over = await storedList(rooms);
+
+    expect((atMax as { seen: Seen[] }).seen).toHaveLength(max);
+    expect((atMax as { seen: Seen[] }).seen[0]).toEqual(seenOf("account-0"));
+    expect((over as { seen: Seen[] }).seen).toHaveLength(max);
+    expect((over as { seen: Seen[] }).seen[0]).toEqual(seenOf("account-1"));
+    expect((over as { seen: Seen[] }).seen.at(-1)).toEqual(seenOf(`account-${String(max)}`));
+  });
+
+  test("[R-CITY-036] given players who were here and left, when the object is evicted, then the list comes back from storage", async () => {
+    const rooms = freshRooms();
+    await visit(rooms, "account-1", MIDNIGHT);
+    await visit(rooms, "account-2", MIDNIGHT);
+
+    await evictDurableObject(roomStub(rooms, PLACE, 0));
+
+    expect(await roomStub(rooms, PLACE, 0).count()).toBe(0);
+    const look = await roomLook(rooms, PLACE, null, productionConfig.presence.sample, 3, MIDNIGHT);
+    expect(look.today.map((each) => each.name).sort()).toEqual(["Name account-1", "Name account-2"]);
+  });
+
+  test("[R-CITY-036] given players seen in the last minute before Lagos midnight, when the day turns, then they are gone and the next join starts a new list", async () => {
+    const rooms = freshRooms();
+    const sample = productionConfig.presence.sample;
+    await visit(rooms, "account-1", MIDNIGHT - 1);
+
+    const before = await roomLook(rooms, PLACE, null, sample, 3, MIDNIGHT - 1);
+    const after = await roomLook(rooms, PLACE, null, sample, 3, MIDNIGHT);
+    await visit(rooms, "account-2", MIDNIGHT);
+
+    expect(before.today).toEqual([seenOf("account-1")]);
+    expect(after.today).toEqual([]);
+    expect(await storedList(rooms)).toEqual({ day: lagosDay(MIDNIGHT), seen: [seenOf("account-2")] });
+  });
+
+  test("[R-CITY-036] given a past day's list, when the presence alarm runs, then the list is deleted", async () => {
+    const rooms = freshRooms();
+    await visit(rooms, "account-1", 1_000);
+
+    expect(await runDurableObjectAlarm(roomStub(rooms, PLACE, 0))).toBe(true);
+
+    expect(await storedList(rooms)).toBeUndefined();
+  });
+
+  test("[R-CITY-036] [R-CLOCK-028] given players here now and others seen today, when the asker looks, then today holds none here now, never the asker, and fills only what the sample leaves", async () => {
+    const rooms = freshRooms();
+    for (const account of ["account-1", "account-2", "account-3"]) await visit(rooms, account, MIDNIGHT);
+    await openAt(rooms, "account-0", MIDNIGHT);
+    await openAt(rooms, "account-9", MIDNIGHT);
+
+    const wide = await roomLook(rooms, PLACE, "account-0", 20, 5, MIDNIGHT);
+    const narrow = await roomLook(rooms, PLACE, "account-0", 2, 5, MIDNIGHT);
+
+    expect(wide.sample.map((each) => each.account)).toEqual(["account-9"]);
+    expect(wide.today.map((each) => each.name).sort()).toEqual(["Name account-1", "Name account-2", "Name account-3"]);
+    expect(narrow.sample).toHaveLength(1);
+    expect(narrow.today).toHaveLength(1);
+    for (const each of wide.today) expect(Object.keys(each).sort()).toEqual(["look", "name"]);
   });
 });
