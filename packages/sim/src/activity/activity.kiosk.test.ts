@@ -90,10 +90,10 @@ describe("the lotto kiosk", () => {
 
   test("[R-LUCK-005] [R-ENGINE-017] given the tuning's jackpot figure, when its odds are read, then it is 1 in 100,000 draws, and an overlay's figure is the one drawn", () => {
     const jackpot = prizeOdds(luck).find((odds) => odds.prize === "jackpot")!;
-    expect(jackpot.perMillion).toBe(luck.prizeJackpotBp);
+    expect(jackpot.perMillion).toBe(luck.jackpotPerMillion);
     expect(jackpot.perMillion * 100000).toBe(PER_MILLION);
-    const overlaid = prizeOdds({ ...luck, prizeJackpotBp: 2 * luck.prizeJackpotBp }).find((odds) => odds.prize === "jackpot")!;
-    expect(overlaid.perMillion).toBe(2 * luck.prizeJackpotBp);
+    const overlaid = prizeOdds({ ...luck, jackpotPerMillion: 2 * luck.jackpotPerMillion }).find((odds) => odds.prize === "jackpot")!;
+    expect(overlaid.perMillion).toBe(2 * luck.jackpotPerMillion);
   });
 
   test.prop([fc.integer({ min: 0, max: PER_MILLION - 1 })])("[R-LUCK-005] given any draw out of a million, when its prize is read, then it is the band it falls in, and the bands do not overlap", (value) => {

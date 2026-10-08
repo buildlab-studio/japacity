@@ -246,7 +246,7 @@ export function WalletView() {
             ))}
           </tbody>
         </table>
-        <p className="text-sm text-muted">{say("ui.wallet.allowance", { amount: formatMoney(view.bankAllowanceLeft, "USD") })}</p>
+        {view.bankAllowanceLeft !== null && <p className="text-sm text-muted">{say("ui.wallet.allowance", { amount: formatMoney(view.bankAllowanceLeft, "USD") })}</p>}
       </Card>
 
       {view.queued.length === 0 ? null : (

@@ -129,6 +129,9 @@ export function sendOffCard(read: ReadCtx): PlayerView["card"] {
     months: read.state.turn.month,
     standing: read.state.quality[STANDING] ?? 0,
     topActivities: topActivities(read.state, read.content),
+    // The share batch fills these from the chapter and the character's name.
+    chapter: null,
+    name: null,
   };
 }
 

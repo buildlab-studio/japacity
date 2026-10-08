@@ -222,7 +222,8 @@ export type Requirement =
   | { type: "goal/done"; goal: Id<"goal"> }
   | { type: "era/is"; eras: Id<"era">[] }
   /** An open obligation of this type exists. The car is `obligation/has` with type `car`. */
-  | { type: "obligation/has"; obligationType: ObligationType }
+  /** `obligation` narrows the check to one entry (goal.own-door, the repeatable flat). */
+  | { type: "obligation/has"; obligationType: ObligationType; obligation?: Id<"obligation"> }
   /** A route's gate has reached the named step: docs/rules/route-gates.md. */
   | { type: "route/gate-step"; route: Id<"route">; step: string }
   /** Months in any job in the current country. */
@@ -294,6 +295,8 @@ export type Effect =
   /** Opens a set piece for a route (R-SETPIECE-001). */
   /** Open a set piece. With a route, the score goes to its visa application; with none, nothing is scored (R-SETPIECE-006). */
   | { type: "setpiece/open"; setpiece: Id<"setpiece">; route: Id<"route"> | null }
+  /** closes the open scene unscored (a flight during a road scene, R-ROAD-004 as rewritten). */
+  | { type: "setpiece/close"; setpiece: Id<"setpiece"> }
   /** A moment with the bond the slot's param names (docs/rules/people.md R-PEOPLE-015). */
   | { type: "people/moment"; kind: Moment["kind"] }
   /** Withdraws an application in progress (R-PEOPLE-038). */
@@ -742,6 +745,8 @@ export interface StatusEntry {
   clockMonths: number | null;
   lapsesAtOnce: boolean;
   renewMonths: number;
+  /** the employer's renewal chance on the status stream in the contract's last month (status.md, the Gulf renewal). */
+  renewBp?: number;
   renewFeeVar: Id<"var"> | null;
   surchargeYearVar: Id<"var"> | null;
   next: Id<"status"> | null;
@@ -884,7 +889,8 @@ export interface Bond {
 export interface PeopleSlice {
   slots: Record<string, { state: "empty" | "computer" | "invited" | "player" | "stand-in"; bond: string | null; person: Id<"person"> | null; invite: { looking: string; fill: string | null } | null }>;
   bonds: Record<string, Bond>;
-  joint: { bond: string; route: Id<"route">; lead: "me" | "them"; countFunds: boolean; standInMay: boolean } | null;
+  /** the two scores of R-PEOPLE-030, null until the points gate gives them. */
+  joint: { bond: string; route: Id<"route">; lead: "me" | "them"; countFunds: boolean; standInMay: boolean; scores: { mine: number | null; theirs: number | null } } | null;
   sponsoring: { bond: string; route: Id<"route">; month: number } | null;
   arrived: { route: Id<"route">; month: number } | null;
   assistanceTaken: number;
@@ -1131,7 +1137,8 @@ export interface Tuning {
     prizeMid: number;
     prizeMidBp: number;
     prizeJackpot: number;
-    prizeJackpotBp: number;
+    /** the jackpot's chance, in draws per million (it was named as basis points). */
+    jackpotPerMillion: number;
     stake: number;
     betOddsBp: number;
     betWinBp: number;
@@ -1526,6 +1533,8 @@ export interface PlaceSlice {
   returns: { month: number; shape: ReturnShape; country: Id<"country"> | null }[];
   /** A settled or citizen status kept after a return with papers (R-RETURN-004). */
   heldAbroad: { status: Id<"status">; sinceMonth: number } | null;
+  /** the month the December visit opened, null before (R-PLACE-009). */
+  decemberMonth: number | null;
 }
 
 export interface StatusState {
@@ -1661,6 +1670,9 @@ export type Command = { basedOn: number } & (
   | { type: "people/proposal"; pair: string; proposal: Proposal }
   | { type: "people/agreed"; pair: string; step: Proposal["step"]; route?: Id<"route">; lead?: "me" | "them" }
   | { type: "people/ended"; pair: string; why: "them" | "absence" | "block" }
+  /** the other life's answer to a proposal, carried across lives by the server. */
+  | { type: "people/declined"; pair: string; step: Proposal["step"] }
+  | { type: "people/withdrawn"; pair: string; step: Proposal["step"] }
   | { type: "people/gossip"; pair: string }
   | { type: "people/stand-in"; pair: string; stage: "warned" | "on" | null }
   | { type: "people/family-request"; offer: Id<"offer">; terms: Terms }
@@ -1796,6 +1808,8 @@ export interface SaveSegment {
 export interface Save {
   schema: 3;
   segments: SaveSegment[];
+  /** a sibling made from an invite takes the inviter's family draw (R-PEOPLE-011). */
+  family?: { from: string; draw: NonNullable<PrologueSlice["draw"]> };
 }
 
 /** A save of schema 1 or 2, before decision 0006: one segment, flat. `loadSave` reads it; nothing writes it as a save. */
@@ -1907,7 +1921,8 @@ export interface PlayerView {
   queued: QueuedConversion[];
   rates: World["rates"];
   /** What may still be bought at the bank this month, in US cents. */
-  bankAllowanceLeft: number;
+  /** null abroad, where the Lagos allowance does not bind (R-WALLET-005, 006). */
+  bankAllowanceLeft: number | null;
   documents: { id: Id<"document">; state: DocumentState["state"]; readyMonth: number | null; expiresMonth: number | null; value: number | null }[];
   routes: RouteView[];
   setpiece: {
@@ -1948,20 +1963,19 @@ export interface PlayerView {
   /** The send-off card or the real-story card, when one is due (R-CHAPTER-006, R-ROAD-011). */
   card: {
     kind: "chapter" | "granted" | "send-off" | "first-pay-abroad" | "secured" | "december" | "draw-win" | "real-story" | "lost";
-    /** Optional until every kind that sets a card fills them (the share batch). */
-    chapter?: Id<"chapter"> | null;
+    chapter: Id<"chapter"> | null;
     route: Id<"route"> | null;
     percent: number | null;
     months: number;
     standing: number;
     topActivities: Id<"activity">[];
     /** The name the player chose, never the account's (R-SHARE-007). */
-    name?: string | null;
+    name: string | null;
   } | null;
   /** The people around the character (docs/rules/people.md R-PEOPLE-051). */
   people: {
     slots: Record<string, { state: PeopleSlice["slots"][string]["state"]; label: PersonLabel | null; bond: string | null; invite: { looking: string; fill: string | null } | null }>;
-    bonds: { id: string; role: "partner" | "sibling"; stage: BondStage; label: PersonLabel; moments: Moment[] | null; pending: { mine: Proposal | null; theirs: Proposal | null }; standIn: "warned" | "on" | null; facts: PersonFacts | null }[];
+    bonds: { id: string; role: "partner" | "sibling"; stage: BondStage; label: PersonLabel; person: Id<"person"> | null; pair: string | null; lastMomentMonth: number | null; cooldownUntil: number | null; consent: { countFunds: boolean; standInMay: boolean } | null; moments: Moment[] | null; pending: { mine: Proposal | null; theirs: Proposal | null }; standIn: "warned" | "on" | null; facts: PersonFacts | null }[];
     candidates: { person: Id<"person">; role: "partner" | "sibling" }[];
     joint: { bond: string; route: Id<"route">; lead: "me" | "them"; myScore: number | null; theirScore: number | null } | null;
     sponsoring: { bond: string; route: Id<"route">; month: number } | null;

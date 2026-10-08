@@ -255,7 +255,7 @@ describe("closing a report", () => {
     expect(await isBanned(h.deps, ["email:good@example.test"])).toBe(false);
     expect(await h.deps.stores.banned.has("email:bad@example.test")).toBe(false);
     expect(await h.deps.stores.banned.has(await identityHash(h.deps, "google:1234"))).toBe(true);
-    expect(await identityHash(h.deps, "google:1234")).not.toBe(await identityHash({ secrets: { worldSeed: "another-deployment" } }, "google:1234"));
+    expect(await identityHash(h.deps, "google:1234")).not.toBe(await identityHash({ secrets: { banSalt: "test-ban-salt", drawTokenKey: "test-draw-token-key", worldSeed: "another-deployment" } }, "google:1234"));
     expect(await h.deps.stores.deletion.due(h.deps.now() + h.deps.config.account.deleteWithinDays * time.DAY_MS)).toMatchObject([{ account: "account.reported" }]);
   });
 

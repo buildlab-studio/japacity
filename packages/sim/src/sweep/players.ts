@@ -768,7 +768,7 @@ function moneyCommands(view: PlayerView, content: Content, habits: Habits): Loos
 
   // Buying pounds ahead, within the month's bank allowance.
   const knownish = uk.state === "known" || uk.state === "applying";
-  if (habits.buysPounds && knownish && view.pockets.GBP.bank < POUND_TARGET && view.bankAllowanceLeft > 0 && view.queued.length === 0) {
+  if (habits.buysPounds && knownish && view.pockets.GBP.bank < POUND_TARGET && view.bankAllowanceLeft !== null && view.bankAllowanceLeft > 0 && view.queued.length === 0) {
     const most = mulDiv(view.bankAllowanceLeft, view.rates.USD.official, 100) - 100;
     const amount = Math.min(most, view.pockets.NGN.bank - buffer(view, habits) - due * 3);
     if (amount >= 1000000) commands.push({ type: "wallet/convert", from: "NGN", to: "GBP", amount, via: "bank" });

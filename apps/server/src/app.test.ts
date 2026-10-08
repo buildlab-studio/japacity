@@ -13,7 +13,7 @@ export function testDeps(over: Partial<ServerDeps> = {}): ServerDeps {
     config,
     stores: memoryStores(),
     contents: { current: content, previous: null },
-    secrets: { worldSeed: "test-world-seed" },
+    secrets: { worldSeed: "test-world-seed", banSalt: "test-ban-salt", drawTokenKey: "test-draw-token-key" },
     limits: openLimiters,
     session: testSession(config),
     now: () => productionConfig.clock.epoch,

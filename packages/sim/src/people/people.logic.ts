@@ -867,7 +867,7 @@ function evolveAgreed(slice: PeopleSlice, event: Extract<PeopleEvent, { type: "p
       return withBond(cleared, event.bond, (held) => ({ ...held, stage: "married", marriedMonth: event.month }));
     case "joint": {
       if (event.route === null || event.lead === null) return cleared;
-      const joint = { bond: event.bond, route: event.route, lead: event.lead, countFunds: false, standInMay: false };
+      const joint = { bond: event.bond, route: event.route, lead: event.lead, countFunds: false, standInMay: false, scores: { mine: null, theirs: null } };
       const sponsors = event.lead === "me" && content.route[event.route]?.gate === "partner";
       return { ...cleared, joint, sponsoring: sponsors ? { bond: event.bond, route: event.route, month: event.month } : cleared.sponsoring };
     }
@@ -1167,6 +1167,13 @@ function view(read: ReadCtx): Pick<PlayerView, "people"> {
         moments: interviewOpen ? null : bond.moments,
         pending: bond.pending,
         standIn: bond.standIn,
+        // Decision 0009: the screens need who the bond is with and its timing.
+        person: bond.with.kind === "computer" ? bond.with.entry : null,
+        pair: bond.with.kind === "player" ? bond.with.pair : null,
+        lastMomentMonth: bond.lastMomentMonth,
+        cooldownUntil: bond.cooldownUntil,
+        // consent is in the facts today (R-PEOPLE-051); the people view batch moves it here.
+        consent: bond.facts === null ? null : { countFunds: bond.facts.funds !== null, standInMay: bond.standIn === "on" },
         // R-PEOPLE-051: funds only on the joint's bond, where consent put them in the facts.
         facts: bond.facts === null ? null : { ...bond.facts, funds: slice.joint?.bond === id ? bond.facts.funds : null },
       })),

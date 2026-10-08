@@ -23,6 +23,8 @@ export const AUTHORITY_COMMANDS = [
   "people/proposal",
   "people/agreed",
   "people/ended",
+  "people/declined",
+  "people/withdrawn",
   "people/gossip",
   "people/stand-in",
   "people/family-request",

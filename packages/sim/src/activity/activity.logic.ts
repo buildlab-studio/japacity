@@ -114,7 +114,7 @@ function officialRates(read: ReadCtx): Record<ForeignCurrency, number> {
  */
 export function prizeOdds(luck: Tuning["luck"]): { prize: Prize; perMillion: number; amount: number }[] {
   return [
-    { prize: "jackpot", perMillion: luck.prizeJackpotBp, amount: luck.prizeJackpot },
+    { prize: "jackpot", perMillion: luck.jackpotPerMillion, amount: luck.prizeJackpot },
     { prize: "mid", perMillion: luck.prizeMidBp * BP_IN_MILLION, amount: luck.prizeMid },
     { prize: "small", perMillion: luck.prizeSmallBp * BP_IN_MILLION, amount: luck.prizeSmall },
   ];

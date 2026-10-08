@@ -101,7 +101,7 @@ function openedThisMonth(game: Game): string[] {
 describe("a new character", () => {
   test("[R-PLACE-001] given a new life, when it starts, then the character is at home with no country, no move and no return on record", () => {
     const game = start({ content });
-    expect(game.state.place).toEqual({ where: "home", country: null, movedMonth: 0, returns: [], heldAbroad: null });
+    expect(game.state.place).toEqual({ where: "home", country: null, movedMonth: 0, returns: [], heldAbroad: null, decemberMonth: null });
     expect(game.view().place).toEqual({ where: "home", country: null, monthsHere: 0, returns: [], heldAbroad: null, fareHome: null });
   });
 });

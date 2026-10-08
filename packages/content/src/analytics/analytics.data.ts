@@ -33,6 +33,18 @@ const REJECTION_CODES = [
   "bot-check",
   "not-fresh",
   "bad-code",
+  // The people routes' refusals (pair.md), in ServerCode from 8 Oct 2026.
+  "not-possible",
+  "blocked",
+  "too-many",
+  "wrong-place",
+  "bad-fill",
+  "not-here",
+  "used",
+  "expired",
+  "wrong-slot",
+  "not-adult",
+  "moved-on",
 ];
 
 /** R-SHARE-001: the moments a card is due at, as the view's `card.kind` names them. */

@@ -95,7 +95,7 @@ export function harness(options: HarnessOptions = {}): Harness {
     config,
     stores: memoryStores(),
     contents: { current: content, previous: null },
-    secrets: { worldSeed: "test-world-seed" },
+    secrets: { worldSeed: "test-world-seed", banSalt: "test-ban-salt", drawTokenKey: "test-draw-token-key" },
     limits: openLimiters,
     session: () => Promise.resolve(null),
     now: () => Date.now(),

@@ -426,6 +426,8 @@ export function roadCard(read: ReadCtx): PlayerView["card"] {
       months: gate.monthsHere,
       standing: read.state.quality[STANDING] ?? 0,
       topActivities: [],
+      chapter: null,
+      name: null,
     };
   }
   return null;

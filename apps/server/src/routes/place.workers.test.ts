@@ -34,7 +34,7 @@ function setup(places: Record<string, string>, config: ServerConfig = testConfig
     config,
     stores: { ...memoryStores(), presence: placePresenceStore(rooms) },
     contents: { current: content, previous: null },
-    secrets: { worldSeed: "test-world-seed" },
+    secrets: { worldSeed: "test-world-seed", banSalt: "test-ban-salt", drawTokenKey: "test-draw-token-key" },
     limits: openLimiters,
     session: testSession(config),
     now: () => clock.at,

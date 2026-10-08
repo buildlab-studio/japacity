@@ -395,7 +395,7 @@ export const miniContent: Content = {
       prizeMid: 5000000,
       prizeMidBp: 5,
       prizeJackpot: 200000000,
-      prizeJackpotBp: 10,
+      jackpotPerMillion: 10,
       stake: 200000,
       betOddsBp: 19000,
       betWinBp: 4500,

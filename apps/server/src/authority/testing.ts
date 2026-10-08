@@ -31,7 +31,7 @@ export function testServer(over: Partial<ServerDeps> = {}): TestServer {
     config,
     stores: memoryStores(),
     contents: { current: content, previous: null },
-    secrets: { worldSeed: "test-world-seed" },
+    secrets: { worldSeed: "test-world-seed", banSalt: "test-ban-salt", drawTokenKey: "test-draw-token-key" },
     limits: openLimiters,
     session: testSession(config),
     now: () => now,

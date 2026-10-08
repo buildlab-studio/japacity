@@ -18,7 +18,8 @@ describe("money", () => {
     expect(screen.getByText(formatRate(view.rates.USD.street, "NGN"))).toBeDefined();
     expect(formatRate(view.rates.USD.street, "NGN")).toMatch(/\.\d\d$/);
     expect(formatMoney(view.rates.GBP.official, "NGN")).not.toMatch(/\./);
-    expect(screen.getByText(say("ui.wallet.allowance", { amount: formatMoney(view.bankAllowanceLeft, "USD") }))).toBeDefined();
+    // R-WALLET-005: at home the allowance line shows; the view fixture is a home view.
+    expect(screen.getByText(say("ui.wallet.allowance", { amount: formatMoney(view.bankAllowanceLeft ?? -1, "USD") }))).toBeDefined();
   });
 
   test("given a queued conversion, then it shows what was paid and when it lands", async () => {

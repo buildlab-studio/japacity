@@ -52,7 +52,8 @@ describe("[R-ENGINE-016] limits the player can meet", () => {
 
   test("[R-ENGINE-016] [R-WALLET-005] given the month's bank allowance, when a purchase is one US cent over what is left, then it is rejected with bad-amount, and a purchase of exactly what is left is accepted", () => {
     const game = start({ scenario: "scenario.tunde", content });
-    const left = game.view().bankAllowanceLeft;
+    // At home the view shows the allowance (R-WALLET-005); a null here fails the test below.
+    const left = game.view().bankAllowanceLeft ?? -1;
     expect(left).toBeGreaterThan(0);
     const rates = official(game.view());
     // The largest naira amount that buys no more than what is left, found by halving; one kobo more buys one cent more.

@@ -55,6 +55,8 @@ describe("the send-off card", () => {
       months: game.state.turn.month,
       standing: game.state.quality[STANDING],
       topActivities: topActivities(game.state, game.content),
+      chapter: null,
+      name: null,
     });
     expect(card?.topActivities.length).toBe(3);
     // The card is data in the view, never in the state.

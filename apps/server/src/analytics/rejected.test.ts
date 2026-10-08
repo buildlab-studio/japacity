@@ -34,6 +34,17 @@ const CODES: Record<ServerCode, true> = {
   "bot-check": true,
   "not-fresh": true,
   "bad-code": true,
+  "not-possible": true,
+  "blocked": true,
+  "too-many": true,
+  "wrong-place": true,
+  "bad-fill": true,
+  "not-here": true,
+  "used": true,
+  "expired": true,
+  "wrong-slot": true,
+  "not-adult": true,
+  "moved-on": true,
 };
 
 describe("rejections by code", () => {

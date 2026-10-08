@@ -164,7 +164,7 @@ function setBond(game: Game, id: string, bond: Bond): void {
       ...people,
       bonds: { ...people.bonds, [id]: bond },
       slots: { ...people.slots, partner: { state: bond.with.kind === "computer" ? "computer" : "player", bond: id, person: bond.with.kind === "computer" ? bond.with.entry : null, invite: null } },
-      joint: { bond: id, route: PARTNER_ROUTE, lead: "them", countFunds: false, standInMay: false },
+      joint: { bond: id, route: PARTNER_ROUTE, lead: "them", countFunds: false, standInMay: false, scores: { mine: null, theirs: null } },
     },
   };
 }

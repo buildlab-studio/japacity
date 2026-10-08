@@ -468,7 +468,7 @@ function invariants(state: State, content: Content): string[] {
 export const placeKind: RegisteredKind<PlaceSlice, PlaceEvent> = {
   kind: "place",
   // R-PLACE-001.
-  initial: () => ({ where: "home", country: null, movedMonth: 0, returns: [], heldAbroad: null }),
+  initial: () => ({ where: "home", country: null, movedMonth: 0, returns: [], heldAbroad: null, decemberMonth: null }),
   commands: { "return/home": returnHome },
   effects: {
     "place/move": move,

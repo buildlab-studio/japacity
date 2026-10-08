@@ -296,7 +296,8 @@ describe("the bank abroad", () => {
     ]);
     expect(game.state.wallet.pockets.GBP).toMatchObject({ bank: 0, cash: 0 });
     expect(game.state.wallet.pockets.USD.bank).toBeGreaterThanOrEqual(DOLLARS);
-    expect(DOLLARS).toBeGreaterThan(game.view().bankAllowanceLeft);
+    // R-WALLET-006: abroad the view shows no allowance at all.
+    expect(game.view().bankAllowanceLeft).toBeNull();
     game.accept({ type: "wallet/convert", from: "USD", to: "GBP", amount: DOLLARS, via: "bank" });
     expect(game.state.wallet.pockets.GBP.bank).toBeGreaterThan(0);
     const month = game.endTurn();

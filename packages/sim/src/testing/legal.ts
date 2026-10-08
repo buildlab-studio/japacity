@@ -108,9 +108,10 @@ function fromWallet(view: PlayerView): Loose[] {
   const naira = view.pockets.NGN;
   // The most US cents a naira purchase could use: the charge only makes it less.
   const nairaCents = mulDiv(SMALL_NAIRA, 100, view.rates.USD.official);
+  const allowance = view.bankAllowanceLeft ?? 0;
   for (const currency of foreign) {
     const pocket = view.pockets[currency];
-    if (naira.bank >= SMALL_NAIRA && view.bankAllowanceLeft >= nairaCents) {
+    if (naira.bank >= SMALL_NAIRA && allowance >= nairaCents) {
       commands.push({ type: "wallet/convert", from: "NGN", to: currency, amount: SMALL_NAIRA, via: "bank" });
     }
     if (naira.cash >= SMALL_NAIRA) commands.push({ type: "wallet/convert", from: "NGN", to: currency, amount: SMALL_NAIRA, via: "aboki" });
@@ -119,7 +120,7 @@ function fromWallet(view: PlayerView): Loose[] {
   }
   const pounds = view.pockets.GBP;
   const poundCents = mulDiv(SMALL_FOREIGN, view.rates.GBP.official, view.rates.USD.official);
-  if (pounds.bank >= SMALL_FOREIGN && view.bankAllowanceLeft >= poundCents) {
+  if (pounds.bank >= SMALL_FOREIGN && allowance >= poundCents) {
     commands.push({ type: "wallet/convert", from: "GBP", to: "USD", amount: SMALL_FOREIGN, via: "bank" });
   }
   // R-ABROAD-006: from abroad, a small sum home by each channel.

@@ -44,7 +44,7 @@ describe("a recorded life through the route", () => {
       const server = testServer({
         config: testConfig({ testing: { testLogin: true, fastClock: true } }),
         contents: { current: overlaid, previous: content },
-        secrets: { worldSeed: WORLD_SEED },
+        secrets: { worldSeed: WORLD_SEED, banSalt: "test-ban-salt", drawTokenKey: "test-draw-token-key" },
       });
       const id = await newLife(server, "acc-1", save.scenario);
       const start = (await held(server, id)).segments[0]?.start;

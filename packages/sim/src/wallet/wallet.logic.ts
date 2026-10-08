@@ -147,6 +147,11 @@ export function allowanceLeft(read: ReadCtx): number {
   return Math.max(0, varOr(read.world, ALLOWANCE, 0) - boughtThisMonth(read.state));
 }
 
+/** R-WALLET-005, 006: the allowance is the Lagos bank's, so the view shows none abroad. */
+function allowanceShown(read: ReadCtx): number | null {
+  return atHome(read.state) ? allowanceLeft(read) : null;
+}
+
 /** The allowance and the queue are the Lagos bank's, so they bind only at home. */
 function atHome(state: State): boolean {
   return state.place.where === "home";
@@ -667,6 +672,6 @@ export const walletKind: RegisteredKind<WalletSlice, WalletEvent> = {
     pockets: read.state.wallet.pockets,
     queued: read.state.wallet.queued,
     rates: read.world.rates,
-    bankAllowanceLeft: allowanceLeft(read),
+    bankAllowanceLeft: allowanceShown(read),
   }),
 };

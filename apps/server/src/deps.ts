@@ -80,6 +80,9 @@ export interface Contents {
 /** R-SERVER-015, R-SERVER-016: the secrets of the deployment. Never in a reply. */
 export interface Secrets {
   worldSeed: string;
+  /** the salt of the banned identities' hashes (R-MODERATION-012) and the HMAC key of the draw tokens (R-SERVER-015, 016). */
+  banSalt: string;
+  drawTokenKey: string;
 }
 
 /** R-SERVER-028: the shape of Cloudflare's rate-limit binding, so a memory limiter and the binding are used alike. */

@@ -17,6 +17,8 @@ const SEND_OFF: Shared = {
   months: 35,
   standing: 61,
   topActivities: ["activity.learn-tech", "activity.build-portfolio", "activity.study-english"],
+  chapter: null,
+  name: null,
 };
 
 function withCard(card: Shared, ended = false): PlayerView {

@@ -36,6 +36,7 @@ import { advertLinksJob } from "./adverts/job";
 export interface Env {
   SITE_URL: string;
   WORLD_SEED?: string;
+  BAN_SALT?: string;
   OVERLAY?: string;
   /** R-LOTTERY-008: the HMAC key of the draw's ticket tokens, a secret of the deployment. */
   DRAW_TOKEN_KEY?: string;
@@ -99,7 +100,7 @@ function depsFor(env: Env): ServerDeps {
     config: productionConfig,
     stores: memoryStores(),
     contents: contentsFor(content, env.OVERLAY),
-    secrets: { worldSeed: env.WORLD_SEED ?? "" },
+    secrets: { worldSeed: env.WORLD_SEED ?? "", banSalt: env.BAN_SALT ?? "", drawTokenKey: env.DRAW_TOKEN_KEY ?? "" },
     limits: { commands10s: env.COMMANDS_10S, commands60s: env.COMMANDS_60S, reads60s: env.READS_60S, anon60s: env.ANON_60S, socket10s: env.SOCKET_10S },
     // Replaced in each request by the auth library's session reader.
     session: testSession(productionConfig),

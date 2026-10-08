@@ -13,6 +13,7 @@ export const StatusEntrySchema = z.strictObject({
   clockMonths: CountSchema.nullable(),
   lapsesAtOnce: z.boolean(),
   renewMonths: CountSchema,
+  renewBp: BpSchema.exactOptional(),
   renewFeeVar: idOf("var").nullable(),
   surchargeYearVar: idOf("var").nullable(),
   next: idOf("status").nullable(),

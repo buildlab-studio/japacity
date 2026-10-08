@@ -23,7 +23,19 @@ export type ServerCode =
   | "bad-date"
   | "bot-check"
   | "not-fresh"
-  | "bad-code";
+  | "bad-code"
+  // the people routes' refusals (pair.md R-PAIR-008, 013; moderation.md R-MODERATION-001).
+  | "not-possible"
+  | "blocked"
+  | "too-many"
+  | "wrong-place"
+  | "bad-fill"
+  | "not-here"
+  | "used"
+  | "expired"
+  | "wrong-slot"
+  | "not-adult"
+  | "moved-on";
 
 export interface ServerRejection {
   ok: false;

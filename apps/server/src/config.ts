@@ -31,8 +31,10 @@ export interface ServerConfig {
   feedback: { maxChars: number; perDay: number; keepDays: number };
   /** R-CITY-039, 040. */
   board: { size: number };
-  /** R-CLOCK-031: days before the bank-full notice is asked for again. */
-  notify: { reaskDays: number };
+  /** R-CLOCK-031 and the notify numbers: days before the bank-full notice is asked for again, a push's time to live, devices per account, a token's life. */
+  notify: { reaskDays: number; pushTtlDays: number; maxDevices: number; tokenHours: number };
+  /** moderation.md Numbers: reports a player may file a day, the longest hold, the decision target, how long decisions are kept. */
+  moderation: { reportsPerDay: number; holdDays: number; decideHours: number; logYears: number };
   /**
    * R-ACCOUNT-005, R-CLOCK-009: the stand-ins that exist only in the test
    * server's config. Every one is false in production.
@@ -72,7 +74,8 @@ export const productionConfig: ServerConfig = {
   switches: { cacheMs: 30 * time.SECOND_MS, retryMs: 30 * time.SECOND_MS },
   feedback: { maxChars: 500, perDay: 5, keepDays: 180 },
   board: { size: 50 },
-  notify: { reaskDays: 14 },
+  notify: { reaskDays: 14, pushTtlDays: 1, maxDevices: 10, tokenHours: 12 },
+  moderation: { reportsPerDay: 20, holdDays: 90, decideHours: 24, logYears: 3 },
   testing: { fastClock: false, captureOtp: false, stubGoogle: false, virtualPasskeys: false, testLogin: false },
 };
 
@@ -97,6 +100,7 @@ export function testConfig(over: Deep<ServerConfig> = {}): ServerConfig {
     feedback: { ...productionConfig.feedback, ...over.feedback },
     board: { ...productionConfig.board, ...over.board },
     notify: { ...productionConfig.notify, ...over.notify },
+    moderation: { ...productionConfig.moderation, ...over.moderation },
     testing: { ...productionConfig.testing, ...over.testing },
   };
 }
