@@ -6,16 +6,16 @@
 // https://www.better-auth.com/docs/plugins/passkey
 // https://www.better-auth.com/docs/authentication/google
 // https://www.better-auth.com/docs/plugins/captcha
-// https://www.better-auth.com/docs/concepts/users-accounts (deleting a user)
+// Deleting goes to the server's own `DELETE /api/account` (R-ACCOUNT-016), never the library's.
 import { passkeyClient } from "@better-auth/passkey/client";
 import { createAuthClient } from "better-auth/client";
 import { emailOTPClient } from "better-auth/client/plugins";
 
-import { REFUSED_COOKIE, type AgeReply, type AgeRequest, type ServerRejection } from "./contract";
+import { REFUSED_COOKIE, type AgeReply, type AgeRequest, type DeleteReply, type DeleteRequest, type ServerRejection } from "./contract";
 import { putUsageCounts, readAccount } from "./account";
 import { api, type Fetch } from "./http";
 
-export type AuthFailure = "not-fresh" | "wrong-code" | "expired" | "too-many" | "cancelled" | "unreachable" | "refused";
+export type AuthFailure = "not-fresh" | "bad-code" | "wrong-code" | "expired" | "too-many" | "cancelled" | "unreachable" | "refused";
 
 export type AuthResult = { ok: true } | { ok: false; why: AuthFailure };
 
@@ -49,8 +49,11 @@ export interface AccountApi {
   usageCounts(): Promise<boolean | null>;
   /** R-ANALYTICS-006: true once the server keeps the new setting. */
   setUsageCounts(on: boolean): Promise<boolean>;
-  /** R-ACCOUNT-016: `not-fresh` when the session is too old and the player must sign in again first. */
-  deleteAccount(): Promise<AuthResult>;
+  /**
+   * R-ACCOUNT-016: `DELETE /api/account`. `code`, the email code sent with `sendCode`, confirms a
+   * session that is no longer fresh. `not-fresh`: sign in again or send a code; `bad-code`: that code did not work.
+   */
+  deleteAccount(code: string | null): Promise<AuthResult>;
   signOut(): Promise<void>;
 }
 
@@ -109,6 +112,14 @@ export function standing(reply: AgeReply): AgeAnswer {
 /** True when the page holds the server's refusal cookie (R-ACCOUNT-012): the screen refuses without asking again. */
 export function refusedHere(cookie: string): boolean {
   return cookie.split(";").some((part) => part.trim().startsWith(`${REFUSED_COOKIE}=`));
+}
+
+/** The server's answer to `DELETE /api/account` as the settings tell it. */
+export function deleted(reply: DeleteReply): AuthResult {
+  if (reply.ok) return { ok: true };
+  if (reply.code === "not-fresh" || reply.code === "bad-code") return { ok: false, why: reply.code };
+  // Every other refusal, `signed-out` among them, is said as a plain one.
+  return { ok: false, why: reply.code === "rate-limited" ? "too-many" : "refused" };
 }
 
 /** Reads the server's 503 for the age screen while sign-ups are off; anything else leaves the screen to ask. */
@@ -177,7 +188,15 @@ export function betterAuthApi({ baseUrl, fetch, cookie = () => (typeof document 
     async setUsageCounts(on) {
       return (await putUsageCounts(server, on)).ok;
     },
-    deleteAccount: () => attempt(() => client.deleteUser({})),
+    async deleteAccount(code) {
+      const request: DeleteRequest = code === null ? {} : { code };
+      try {
+        const reply = await server.delete<DeleteReply>("/api/account", request);
+        return deleted(reply);
+      } catch {
+        return { ok: false, why: "unreachable" };
+      }
+    },
     async signOut() {
       await attempt(() => client.signOut());
     },

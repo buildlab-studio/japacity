@@ -144,6 +144,14 @@ export interface AccountChange {
 /** The client's earlier name for the change body. */
 export type AccountSettingsRequest = AccountChange;
 
+/** Copied from apps/server/src/routes/account.ts: the body of `DELETE /api/account`; `code` is an email code sent with type `sign-in`, needed once the session is not fresh. */
+export interface DeleteRequest {
+  code?: string;
+}
+
+/** As apps/server/src/routes/account.ts answers `DELETE /api/account` (R-ACCOUNT-016); `dueAt`: the removal of R-ACCOUNT-017 happens by then. Its refusals are `not-fresh`, `bad-code` and `signed-out`. */
+export type DeleteReply = { ok: true; dueAt: number } | ServerRejection;
+
 // ---------------------------------------------------------------------------
 // People: invite links, pairs, conversations, block and report (pair.md,
 // moderation.md). Every refusal is a ServerRejection: the pair routes' codes

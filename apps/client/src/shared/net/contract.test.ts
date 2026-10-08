@@ -30,7 +30,7 @@ const COPIES: Copy[] = [
   ...same(TYPES, "ServerCode", "ServerRejection", "ClockView", "ServerReply", "CommandRequest", "ViewReply", "WorldReply", "NewCharacterRequest", "PresenceReply"),
   ...same("packages/store/src/types.ts", "Nudge"),
   ...same("apps/server/src/routes/age.ts", "AgeRequest"),
-  ...same("apps/server/src/routes/account.ts", "AccountView"),
+  ...same("apps/server/src/routes/account.ts", "AccountView", "DeleteRequest"),
   ...same(INVITE, "InviteMade", "InviteShown", "InviteAccepted"),
   ...same(CONVERSATION, "PairRead", "Said", "ConversationRead"),
   ...same(BLOCK, "Blocked", "Reported"),
