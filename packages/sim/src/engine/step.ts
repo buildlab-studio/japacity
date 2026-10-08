@@ -128,7 +128,7 @@ export function stepWith(
   if (state.prologue.open && command.type !== "prologue/choose" && command.type !== "turns/grant") {
     return reject("prologue-open", `The prologue is open: ${command.type} waits until it is finished.`);
   }
-  const draft = openDraft(kinds, state, world, content);
+  const draft = openDraft(kinds, state, world, content, sender);
   const ctx = makeCtx(draft);
   const rejected = command.type === "turn/end" ? runTurn(draft, ctx, command) : runCommand(draft, ctx, command);
   if (rejected !== null) return rejected;

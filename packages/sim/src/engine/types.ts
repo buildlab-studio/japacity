@@ -1668,6 +1668,8 @@ export interface Ctx {
   state: State;
   world: World;
   content: Content;
+  /** Who sent the command being stepped (decision 0007 point 3: a stand-in's command is judged as a player's, but a kind may mark it). */
+  sender: Sender;
   random: Random;
   /** A fresh instance id. */
   nextId(prefix: string): string;

@@ -6,12 +6,13 @@ import type { EngineCtx, PrefixOf, Registry, SliceKey, TurnInProgress } from "./
 import { prefixOf } from "./kind";
 import { characterRandom } from "./random";
 import { applyEventWith } from "./state";
-import type { BaseEvent, Cause, Content, Effect, EffectType, ReadCtx, ReportLine, State, Stream, World } from "./types";
+import type { BaseEvent, Cause, Content, Effect, EffectType, ReadCtx, ReportLine, State, Stream, World, Sender } from "./types";
 
 export interface Draft {
   readonly kinds: Registry;
   readonly content: Content;
   readonly world: World;
+  readonly sender: Sender;
   state: State;
   /** The engine's counters while the step runs. Written to the state by `engine/stepped`. */
   readonly draws: Partial<Record<Stream, number>>;
@@ -22,9 +23,10 @@ export interface Draft {
   turn: TurnInProgress | null;
 }
 
-export function openDraft(kinds: Registry, state: State, world: World, content: Content): Draft {
+export function openDraft(kinds: Registry, state: State, world: World, content: Content, sender: Sender = "player"): Draft {
   return {
     kinds,
+    sender,
     content,
     world,
     state,
@@ -97,6 +99,7 @@ export function makeCtx(draft: Draft): EngineCtx {
     },
     world: draft.world,
     content: draft.content,
+    sender: draft.sender,
     random: characterRandom(draft.state.seed, draft.draws),
     nextId(prefix) {
       const id = `${prefix}-${String(draft.nextInstance)}`;

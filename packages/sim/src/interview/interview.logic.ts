@@ -385,12 +385,9 @@ function openCommand(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
 // Answering
 // ---------------------------------------------------------------------------
 
-/**
- * Whether the command came from the stand-in (decision 0007 point 3).
- * the engine's Ctx does not carry the sender yet; this reads it once the engine adds it.
- */
+/** Whether the command came from the stand-in (decision 0007 point 3). */
 function byStandIn(ctx: Ctx): boolean {
-  return "sender" in ctx && ctx.sender === "stand-in";
+  return ctx.sender === "stand-in";
 }
 
 /** One of `options` other than `truth`, drawn on `people`; the truth itself when there is no other. */
