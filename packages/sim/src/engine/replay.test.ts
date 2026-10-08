@@ -48,7 +48,7 @@ const worldAt = (tick: number) => standInWorld("world-1", tick, miniContent);
 
 /** Steps a command under `content` and records it in the save's last segment. */
 function play(held: { state: State; save: Save; tick: number }, command: Loose, content: Content): void {
-  const full = { ...command, basedOn: held.state.v } as Command;
+  const full: Command = { ...command, basedOn: held.state.v };
   const result = step(held.state, full, worldAt(held.tick), content);
   if (!result.ok) throw new Error(`${command.type} was rejected with ${result.code}: ${result.detail}`);
   held.state = result.state;
@@ -72,15 +72,16 @@ describe("the flat save of the first milestone", () => {
   test("[R-SERVER-020] [R-ENGINE-010] given every committed golden and recorded life, when loaded, then each is one segment starting from its scenario and replays to its blessed months and final hash", () => {
     const flat = Object.entries(lifeSaves);
     expect(flat.length).toBe(3);
+    for (const [, save] of flat) {
+      expect(isFlatSave(save)).toBe(true);
+      expect(loadSave(save).segments).toEqual([{ content: save.content, start: { scenario: save.scenario, seed: save.seed, worldSeed: save.worldSeed }, commands: save.commands }]);
+    }
     const cases: [name: string, save: Save | FlatSave][] = [...goldens.map((golden): [string, Save | FlatSave] => [golden.name, golden.save]), ...flat];
     for (const [name, save] of cases) {
       const golden = goldens.find((one) => one.name === name)!;
       const loaded = loadSave(save);
       expect(loaded.schema).toBe(3);
       expect(loaded.segments).toHaveLength(1);
-      if (isFlatSave(save)) {
-        expect(loaded.segments[0]).toEqual({ content: save.content, start: { scenario: save.scenario, seed: save.seed, worldSeed: save.worldSeed }, commands: save.commands });
-      }
       const begun = lifeStart(loaded)!;
       const used = contentOf(loaded.segments[0]!.content);
       expect(measure(save, used, (tick) => standInWorld(begun.worldSeed, tick, used))).toEqual({ months: golden.months, finalHash: golden.finalHash });

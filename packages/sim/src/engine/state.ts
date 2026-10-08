@@ -108,7 +108,7 @@ export function upgradeStateWith(kinds: Registry, state: State, from: Content, t
   if (state.content !== from.version) throw new Error(`The state is for content ${state.content}, not ${from.version}.`);
   const renames = from.version === to.version ? {} : (to.renames ?? {});
   const { seed, ...rest } = state;
-  const moved = { ...(renamed(rest, renames) as Omit<State, "seed">), seed } as State;
+  const moved: State = { ...(renamed(rest, renames) as Omit<State, "seed">), seed };
   const scenario = to.scenario[moved.scenario];
   if (scenario === undefined) throw new Error(`The content ${to.version} has no scenario ${moved.scenario}.`);
   const ids = idSource(moved.nextInstance);

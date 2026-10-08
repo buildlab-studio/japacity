@@ -28,8 +28,10 @@ function reversed(renames: Record<string, string>): Record<string, string> {
 
 /** A state as an older content would have held it: old ids, no lottery slice, the first schema. */
 function olderState(state: State, renames: Record<string, string>, version: string): State {
-  const { seed, lottery: _lottery, ...rest } = state;
-  return { ...(renamedDeep(rest, reversed(renames)) as Omit<State, "seed" | "lottery">), seed, schema: 1, content: version } as State;
+  const { seed, ...rest } = state;
+  const older = { ...(renamedDeep(rest, reversed(renames)) as Omit<State, "seed">), seed, schema: 1, content: version } as Partial<State>;
+  delete older.lottery;
+  return older as State;
 }
 
 const MINI_RENAMES = { "scenario.worker": "scenario.labourer", "route.mini": "route.small" };
@@ -76,18 +78,20 @@ describe("upgradeState", () => {
     expect(() => upgradeState(game.state, miniTwo, miniTwo)).toThrow(/for content mini.1, not mini.2/);
   });
 
-  test("[R-SERVER-021] [R-SERVER-022] given the end state of every golden life under a previous content with older ids and no lottery, when upgraded to the current content, then it is the life's own end state, the invariants hold and the content passes its check", () => {
-    const renames = { "route.uk-study": "route.uk-masters", "activity.hustle": "activity.job-hunt", "chapter.first-steps": "chapter.find-your-feet" };
-    const current: Content = { ...realContent, renames };
-    const previous: Content = { ...(renamedDeep(realContent, reversed(renames)) as Content), version: "m0.0" };
-    expect(checkContent(current)).toEqual([]);
-    for (const [name, save] of Object.entries(lifeSaves)) {
+  const renames = { "route.uk-study": "route.uk-masters", "activity.hustle": "activity.job-hunt", "chapter.first-steps": "chapter.find-your-feet" };
+  const current: Content = { ...realContent, renames };
+  const previous: Content = { ...(renamedDeep(realContent, reversed(renames)) as Content), version: "m0.0" };
+
+  test.each(Object.entries(lifeSaves))(
+    "[R-SERVER-021] [R-SERVER-022] given the end state of the golden life %s under a previous content with older ids and no lottery, when upgraded to the current content, then it is the life's own end state, the invariants hold and the content passes its check",
+    (_name, save) => {
+      expect(checkContent(current)).toEqual([]);
       const { state } = replay(save, realContent, (tick) => standInWorld(save.worldSeed, tick, realContent));
       const older = olderState(state, renames, previous.version);
-      expect(JSON.stringify(older), name).toMatch(/"route\.uk-study"/);
+      expect(JSON.stringify(older)).toMatch(/"route\.uk-study"/);
       const after = upgradeState(older, previous, current);
-      expect(after, name).toEqual(state);
-      expect(checkInvariants(after, current), name).toEqual([]);
-    }
-  });
+      expect(after).toEqual(state);
+      expect(checkInvariants(after, current)).toEqual([]);
+    },
+  );
 });
