@@ -66,8 +66,6 @@ const JOB_OFFER = "offer.job" as const;
 const SURE_HUNT_MONTHS = 3;
 /** A side gig pays naira cash (R-ACTIVITY-008). */
 const GIG_CURRENCY: Currency = "NGN";
-/** The `why` of `activity/end-job` that ends a side job left behind by a move, not the main job. */
-export const SIDE_MOVED = "side-moved";
 /** The source named on the rest an empty slot gives. */
 export const REST_SOURCE = "rest";
 
@@ -415,17 +413,6 @@ function endJob(ctx: Ctx, why: string): BaseEvent[] {
 function endSide(ctx: Ctx, why: string): BaseEvent[] {
   const side = ctx.state.activity.side;
   return side === null ? [] : record(ctx, { type: "activity/side-ended", side, why });
-}
-
-/**
- * `activity/end-job` for the side slot, marked by its `why` (the effect names no
- * slot): a side job that does not belong where the character now is ends at once,
- * as a flight needs (R-PLACE-003); the main job is left to the effect's other uses.
- */
-function endSideMoved(ctx: Ctx): BaseEvent[] {
-  const side = ctx.state.activity.side;
-  if (side === null || appliesHere(jobEntry(ctx.content, side), ctx.state)) return [];
-  return endSide(ctx, "moved");
 }
 
 /** R-ACTIVITY-010: one slot locked for the month in hand, renewed each month the side job is kept. */
@@ -1125,7 +1112,8 @@ export const activityKind: RegisteredKind<ActivitySlice, ActivityEvent> = {
     },
     "activity/end-job": (ctx, effect) => {
       if (effect.type !== "activity/end-job") throw new Error(`end-job cannot carry out ${effect.type}.`);
-      return effect.why === SIDE_MOVED ? endSideMoved(ctx) : endJob(ctx, effect.why);
+      // R-ACTIVITY-010: `side` ends the side job and leaves the main job.
+      return effect.side === true ? endSide(ctx, effect.why) : endJob(ctx, effect.why);
     },
     "activity/gig": (ctx, effect, cause) => {
       if (effect.type !== "activity/gig") throw new Error(`gig cannot carry out ${effect.type}.`);

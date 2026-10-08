@@ -7,5 +7,6 @@ export type InterviewEvent =
   /** `standIn` is true when the stand-in gave this answer (R-INTERVIEW-008). */
   | { type: "interview/answered"; question: string; option: string; standIn: boolean }
   | { type: "interview/closed"; pair: string }
-  | { type: "interview/scored"; pair: string; route: Id<"route">; result: InterviewResult; matched: number; asked: number; month: number }
+  /** `standIn` marks whose answers were a stand-in's (R-INTERVIEW-008), as `InterviewSlice.last` keeps them. */
+  | { type: "interview/scored"; pair: string; route: Id<"route">; result: InterviewResult; matched: number; asked: number; month: number; standIn: { a: boolean; b: boolean } }
   | { type: "interview/withdrawn"; pair: string; route: Id<"route"> };

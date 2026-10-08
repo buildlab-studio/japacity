@@ -45,5 +45,6 @@ export const interviewText: Record<string, string> = {
   "line.interview.doubted": "The interview for {route} is done. Your answers agreed on {matched} of {asked}. The officer writes a long note.",
   "line.interview.failed": "The interview for {route} is done. Your answers agreed on {matched} of {asked}. The officer does not believe the relationship.",
   "line.interview.caught": "The interview for {route} is done. Your answers agreed on {matched} of {asked}. The officer calls it a marriage for papers. Your name goes on a list.",
+  "line.interview.stood-in": "A stand-in gave some of these answers while one of you was away.",
   "line.interview.withdrawn": "The interview for {route} is off. The relationship it was about has ended.",
 };

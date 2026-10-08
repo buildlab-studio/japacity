@@ -359,6 +359,7 @@ describe("answers with effects, and set pieces with no route", () => {
 const DECEMBER: Id<"setpiece"> = "setpiece.december";
 const STANDING: Id<"quality"> = "quality.standing";
 const SEASON: Id<"var"> = "var.season-december";
+const MONTHS_A_YEAR = 12;
 
 /** A life flown to the UK on the study route, with every tick December. */
 function flownInDecember(): Game {
@@ -556,27 +557,37 @@ describe("the interview, unchanged", () => {
 });
 
 describe("the December visit, once a year", () => {
-  test("[R-RETURN-005] given two turns played in one December tick, when the second ends, then the visit does not open again; in the next December tick it does", () => {
+  test("[R-RETURN-005] given two turns played in one December tick, when the second ends, then the visit does not open again", () => {
     const game = december();
-    // The handle moves the tick on after each turn; the answer and a second turn in the same tick are played by holding it back.
+    // The handle moves the tick on after each turn; holding it back plays the answer and a second turn in the same tick.
     game.tick -= 1;
     game.accept({ type: "setpiece/answer", question: "go-uk", answer: "stay" });
     expect(game.state.setpiece.answered[DECEMBER]).toBe(1);
     game.endTurn();
     expect(game.state.setpiece.open).toBeNull();
-    game.endTurn();
-    expect(game.state.setpiece.open?.entry).toBe(DECEMBER);
   });
 
-  test("[R-RETURN-005] [R-PLACE-009] given the visit opened a year ago in the last turn played, when another command comes in this December tick before the turn ends, then the visit opens again and the place slice records the tick", () => {
+  test("[R-RETURN-005] [R-PLACE-009] given a December that spans many ticks, as online, when turns are played through it, then the visit opens again only twelve months of the character's own time on, and the place slice records that month", () => {
     const game = december();
-    const opened = game.tick - 1;
+    const opened = game.state.turn.month;
     expect(game.state.place.decemberMonth).toBe(opened);
-    game.tick = opened + 12;
     game.accept({ type: "setpiece/answer", question: "go-uk", answer: "stay" });
-    expect(game.state.setpiece.open).toBeNull();
+    while (game.state.turn.month < opened + MONTHS_A_YEAR - 1) {
+      game.endTurn();
+      expect(game.state.setpiece.open).toBeNull();
+    }
+    expect(game.state.place.decemberMonth).toBe(opened);
     game.endTurn();
+    expect(game.state.turn.month).toBe(opened + MONTHS_A_YEAR);
     expect(game.state.setpiece.open?.entry).toBe(DECEMBER);
-    expect(game.state.place.decemberMonth).toBe(opened + 12);
+    expect(game.state.place.decemberMonth).toBe(opened + MONTHS_A_YEAR);
+  });
+
+  test("[R-RETURN-005] given the visit opened in the last turn played and the world twelve ticks on, when the next turn ends in December, then the visit does not open: the gap is read in the character's months, not the ticks", () => {
+    const game = december();
+    game.accept({ type: "setpiece/answer", question: "go-uk", answer: "stay" });
+    game.tick += MONTHS_A_YEAR;
+    game.endTurn();
+    expect(game.state.setpiece.open).toBeNull();
   });
 });
