@@ -16,7 +16,7 @@ import { localDate, poolOf, sampleCrowd } from "./crowd";
 import { filesOf, type PlaceFile } from "./placeFile";
 
 const PUBLIC = join(import.meta.dirname, "..", "..", "..", "public");
-const manifest = JSON.parse(readFileSync(join(PUBLIC, "published", "manifest.json"), "utf8")) as PublishManifest;
+const manifest = JSON.parse(readFileSync(join(PUBLIC, "assets", "manifest.json"), "utf8")) as PublishManifest;
 /** Content's words for a key, failing the test when content has none. */
 function said(key: string): string {
   const words = text[key];
@@ -66,7 +66,7 @@ describe("loading", () => {
     expect(files.filter((path) => !path.startsWith("places/ojuelegba/") && !path.startsWith("shared/"))).toEqual([]);
   });
 
-  test("[R-CITY-018] given the published manifest, when a shipped file's address is asked for, then it is the hashed name under the published folder, and an unshipped one has none", () => {
+  test("[R-CITY-018] given the published manifest, when a shipped file's address is asked for, then it is the hashed name beside the file under public/assets, and an unshipped one has none", () => {
     const url = assetUrl(manifest, "places/ojuelegba/place.json");
     expect(url).toMatch(new RegExp(`^${PUBLISHED}places/ojuelegba/place\\.[0-9a-f]{12}\\.json$`));
     expect(assetUrl(manifest, "places/nowhere/place.json")).toBeNull();

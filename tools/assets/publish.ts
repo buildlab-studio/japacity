@@ -1,73 +1,55 @@
 // pnpm assets:publish: copies every shipped file under public/assets to a name that carries the hash
-// of its contents, and writes the manifest the city's loader reads (city.md R-CITY-018). A file whose
-// contents change gets a new name, so the browser may keep every published file for good.
-// The copies sit beside public/assets, not inside it: the build check holds every name in there to
-// R-ASSET-008 and a register row, which a hashed copy has neither of.
-import { copyFileSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
-import { dirname, join } from "node:path";
+// of its contents, beside its source, and writes the manifest the city's loader reads (city.md
+// R-CITY-018). A file whose contents change gets a new name, so the browser may keep every published
+// file for good. The build check skips the hashed copies and the manifest (check-assets.ts).
+import { copyFileSync, existsSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
 
-import { defaultPaths, listFiles } from "./check-assets";
-import { sha256 } from "./manifest";
+import { defaultPaths, isPublishedCopy, listFiles } from "./check-assets";
+import { hashedName, sha256 } from "./manifest";
 
-/** How many hex digits of the SHA-256 a published name keeps: 48 bits, ample for a few hundred files. */
-export const HASH_DIGITS = 12;
+export { HASH_DIGITS, hashedName, hashInName } from "./manifest";
+
 export const MANIFEST_FILE = "manifest.json";
 
 export interface PublishManifest {
   note: string;
-  /** Path under public/assets to path under the published folder. */
+  /** Path under public/assets to the hashed path beside it. */
   files: Record<string, string>;
 }
 
-/** `places/ojuelegba/bld_plaza.glb` with hash `ab12...` becomes `places/ojuelegba/bld_plaza.ab12....glb`. */
-export function hashedName(path: string, hash: string): string {
-  const short = hash.slice(0, HASH_DIGITS);
-  const slash = path.lastIndexOf("/");
-  const dot = path.lastIndexOf(".");
-  if (dot <= slash + 1) return `${path}.${short}`;
-  return `${path.slice(0, dot)}.${short}${path.slice(dot)}`;
-}
-
-/** The hash a published name carries, or null when it carries none. */
-export function hashInName(published: string): string | null {
-  const match = new RegExp(`\\.([0-9a-f]{${String(HASH_DIGITS)}})(\\.[a-z0-9]+)?$`).exec(published);
-  return match?.[1] ?? null;
-}
-
-// the brief puts the hashed copies in public/assets; check-assets would refuse their names and rows there, so they go to public/published.
-export function publishedFolder(root: string): string {
-  return join(root, "apps", "client", "public", "published");
+/** The files a publish names: everything under public/assets but the hashed copies and the manifest itself. */
+export function sourcesOf(folder: string): string[] {
+  return listFiles(folder).filter((path) => path !== MANIFEST_FILE && !isPublishedCopy(path));
 }
 
 /** What a publish would write: one entry per shipped file, keyed by its path under public/assets. */
-export function planPublish(source: string): PublishManifest {
+export function planPublish(folder: string): PublishManifest {
   const files: Record<string, string> = {};
-  for (const path of listFiles(source)) files[path] = hashedName(path, sha256(readFileSync(join(source, path))));
+  for (const path of sourcesOf(folder)) files[path] = hashedName(path, sha256(readFileSync(join(folder, path))));
   return {
-    note: "Written by tools/assets/publish.ts (pnpm assets:publish). Every file under public/assets, published under a name carrying the hash of its contents (city.md R-CITY-018). Never edit by hand.",
+    note: "Written by tools/assets/publish.ts (pnpm assets:publish). Every file under public/assets, published beside it under a name carrying the hash of its contents (city.md R-CITY-018). Never edit by hand.",
     files,
   };
 }
 
-/** Copies the files, removes published files no longer named, and writes the manifest. */
-export function publish(source: string, target: string): PublishManifest {
-  const manifest = planPublish(source);
-  const keep = new Set([MANIFEST_FILE, ...Object.values(manifest.files)]);
-  for (const stale of listFiles(target).filter((path) => !keep.has(path))) rmSync(join(target, stale));
+/** Copies each file to its hashed name beside it, removes hashed copies no longer named, and writes the manifest. */
+export function publish(folder: string): PublishManifest {
+  const manifest = planPublish(folder);
+  const keep = new Set(Object.values(manifest.files));
+  for (const stale of listFiles(folder).filter((path) => isPublishedCopy(path) && !keep.has(path))) rmSync(join(folder, stale));
   for (const [path, published] of Object.entries(manifest.files)) {
-    const to = join(target, published);
-    if (existsSync(to)) continue;
-    mkdirSync(dirname(to), { recursive: true });
-    copyFileSync(join(source, path), to);
+    const to = join(folder, published);
+    if (!existsSync(to)) copyFileSync(join(folder, path), to);
   }
-  writeFileSync(join(target, MANIFEST_FILE), `${JSON.stringify(manifest, null, 2)}\n`);
+  writeFileSync(join(folder, MANIFEST_FILE), `${JSON.stringify(manifest, null, 2)}\n`);
   return manifest;
 }
 
 function main(): void {
   const root = join(import.meta.dirname, "..", "..");
-  const manifest = publish(defaultPaths(root).public, publishedFolder(root));
-  console.log(`publish: ${String(Object.keys(manifest.files).length)} file(s) under apps/client/public/published`);
+  const manifest = publish(defaultPaths(root).public);
+  console.log(`publish: ${String(Object.keys(manifest.files).length)} file(s) beside their sources under apps/client/public/assets`);
 }
 
 if (process.argv[1] !== undefined && import.meta.filename === process.argv[1]) main();

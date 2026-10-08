@@ -19,6 +19,24 @@ export function sha256(bytes: Uint8Array): string {
   return createHash("sha256").update(bytes).digest("hex");
 }
 
+/** How many hex digits of the SHA-256 a published name keeps: 48 bits, ample for a few hundred files. */
+export const HASH_DIGITS = 12;
+
+/** `places/ojuelegba/bld_plaza.glb` with hash `ab12...` is published as `places/ojuelegba/bld_plaza.ab12....glb` (city.md R-CITY-018). */
+export function hashedName(path: string, hash: string): string {
+  const short = hash.slice(0, HASH_DIGITS);
+  const slash = path.lastIndexOf("/");
+  const dot = path.lastIndexOf(".");
+  if (dot <= slash + 1) return `${path}.${short}`;
+  return `${path.slice(0, dot)}.${short}${path.slice(dot)}`;
+}
+
+/** The hash a published name carries, or null when it carries none. */
+export function hashInName(published: string): string | null {
+  const match = new RegExp(`\\.([0-9a-f]{${String(HASH_DIGITS)}})(\\.[a-z0-9]+)?$`).exec(published);
+  return match?.[1] ?? null;
+}
+
 export function readManifest(path = MANIFEST_PATH): Manifest {
   if (!existsSync(path)) {
     return {

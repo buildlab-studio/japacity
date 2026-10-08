@@ -2,13 +2,13 @@
 // hash of its contents, written by tools/assets/publish.ts. Kept apart from the model loader so a
 // screen can read a JSON file without pulling three.js into the first chunk.
 
-/** What tools/assets/publish.ts writes: path under public/assets to path under public/published. */
+/** What tools/assets/publish.ts writes: path under public/assets to the hashed copy beside it. */
 export interface PublishManifest {
   files: Record<string, string>;
 }
 
-/** Where the published files are served from. */
-export const PUBLISHED = `${import.meta.env.BASE_URL}published/`;
+/** Where the published files are served from: beside their sources under public/assets. */
+export const PUBLISHED = `${import.meta.env.BASE_URL}assets/`;
 
 /** The URL of a shipped file by its path under public/assets, or null when it is not published. */
 export function assetUrl(manifest: PublishManifest, path: string): string | null {
