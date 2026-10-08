@@ -53,6 +53,13 @@ function fromSetpiece(view: PlayerView): Loose[] {
   return question.allowed.map((answer) => ({ type: "setpiece/answer", question: question.id, answer }));
 }
 
+/** R-INTERVIEW-004: every option of the question this life must answer now. */
+function fromInterview(view: PlayerView): Loose[] {
+  const question = view.interview?.question;
+  if (question === undefined || question === null) return [];
+  return question.options.map((option) => ({ type: "interview/answer", question: question.id, option }));
+}
+
 /** Small amounts, so random play can make many and never runs a pocket dry in one go. */
 const SMALL_MOVE = 100;
 const SMALL_FOREIGN = 1000;
@@ -230,7 +237,9 @@ export function legalCommands(view: PlayerView): Loose[] {
     ...fromActivity(view),
     ...fromPlace(view),
     ...fromLottery(view),
-  ].filter((command) =>
-    handles(command.type),
+    ...fromInterview(view),
+  ].filter(
+    // R-INTERVIEW-004: a question waiting holds the turn as a set piece does.
+    (command) => handles(command.type) && !(command.type === "turn/end" && (view.interview?.question ?? null) !== null),
   );
 }

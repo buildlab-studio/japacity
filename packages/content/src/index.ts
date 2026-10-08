@@ -16,6 +16,7 @@ import { goalText } from "./goal/goal.text";
 import { lotteryText } from "./lottery/lottery.text";
 import { eraTable } from "./era/era.data";
 import { interviewTable } from "./interview/interview.data";
+import { interviewText } from "./interview/interview.text";
 import { peopleSpots, personTable } from "./person/person.data";
 import { phraseTable } from "./phrase/phrase.data";
 import { phraseText } from "./phrase/phrase.text";
@@ -92,6 +93,7 @@ export const textTables: Record<string, Record<string, string>> = {
   credit: creditText,
   document: documentText,
   goal: goalText,
+  interview: interviewText,
   lottery: lotteryText,
   era: eraText,
   news: newsText,
