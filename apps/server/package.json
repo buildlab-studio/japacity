@@ -1,0 +1,22 @@
+{
+  "name": "@japacity/server",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "scripts": {
+    "dev": "wrangler dev",
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@japacity/content": "workspace:*",
+    "@japacity/sim": "workspace:*",
+    "@japacity/store": "workspace:*",
+    "hono": "^4.13.13"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20251008.0",
+    "typescript": "~6.0.3",
+    "wrangler": "^4.148.0"
+  }
+}

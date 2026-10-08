@@ -48,6 +48,13 @@ export default defineConfig({
       },
       {
         test: {
+          name: "server",
+          environment: "node",
+          include: ["apps/server/src/**/*.test.ts"],
+        },
+      },
+      {
+        test: {
           name: "landing",
           environment: "node",
           include: ["apps/landing/src/**/*.test.ts"],

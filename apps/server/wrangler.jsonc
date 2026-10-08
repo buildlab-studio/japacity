@@ -1,0 +1,35 @@
+// The game's server: the authority for every character (docs/rules/server.md),
+// the clock and the world on a schedule (docs/rules/clock.md), accounts
+// (docs/rules/account.md). Nothing here is deployed until the maintainer says so;
+// every id below is a placeholder the maintainer fills.
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "japacity-server",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-09-01",
+  // Better Auth and node-postgres need the Node compatibility layer (decision 0004, section 1).
+  "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": false,
+  "vars": {
+    "SITE_URL": "https://japacity.com"
+  },
+  // R-CLOCK-012: the world's ticks every five minutes. R-SERVER-011: the money report at 00:00 UTC.
+  "triggers": { "crons": ["*/5 * * * *", "0 0 * * *"] },
+  // R-SERVER-025 to 027: the limits, counted per location (R-SERVER-028). Periods are 10 or 60 seconds.
+  "ratelimits": [
+    { "name": "COMMANDS_10S", "namespace_id": "2001", "simple": { "limit": 10, "period": 10 } },
+    { "name": "COMMANDS_60S", "namespace_id": "2002", "simple": { "limit": 60, "period": 60 } },
+    { "name": "READS_60S", "namespace_id": "2003", "simple": { "limit": 120, "period": 60 } },
+    { "name": "ANON_60S", "namespace_id": "2004", "simple": { "limit": 60, "period": 60 } },
+    { "name": "SOCKET_10S", "namespace_id": "2005", "simple": { "limit": 10, "period": 10 } }
+  ],
+  // R-CLOCK-025: one small stateful object per place, holding presence in memory only.
+  "durable_objects": { "bindings": [{ "name": "PLACE", "class_name": "Place" }] },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["Place"] }],
+  // Game state goes through a configuration with caching off; only the world's
+  // ticks and the auth library may use the cached one (design 05, section 7).
+  "hyperdrive": [
+    { "binding": "GAME_DB", "id": "REPLACE_WITH_HYPERDRIVE_ID_CACHE_OFF" },
+    { "binding": "CACHED_DB", "id": "REPLACE_WITH_HYPERDRIVE_ID_CACHED" }
+  ]
+}

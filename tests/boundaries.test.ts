@@ -100,6 +100,16 @@ function violations(files: readonly string[], packages: ReadonlyMap<string, stri
         }
       }
 
+      // Decision 0004 section 3: the client never reaches the server's side, and the store knows no database.
+      if (inside(file, "apps/client/src") && ["@japacity/store", "@japacity/db", "@japacity/server"].includes(packageName(specifier))) {
+        report("the client imports nothing from store, db or server");
+      }
+      // The contract suites are written with Vitest on purpose: packages/db runs them.
+      const storeLibraries = inside(file, "packages/store/src/contract") ? TEST_LIBRARIES : testLibraries;
+      if (inside(file, "packages/store/src") && !isRelative(specifier) && !["@japacity/sim", ...storeLibraries].includes(packageName(specifier))) {
+        report("the store imports only the simulation's types and itself");
+      }
+
       const targetApp = target === undefined ? undefined : appOf(target);
       if (targetApp !== undefined && appOf(file) !== targetApp) {
         report(`only files inside apps/${targetApp} may import from it`);
