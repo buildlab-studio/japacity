@@ -3,7 +3,7 @@
 // is under the limit, and refused when even the lowest is not.
 
 /** JPEG qualities tried in turn, in hundredths. */
-export const QUALITIES = [86, 78, 70, 62, 54, 46] as const;
+export const QUALITIES = [72, 64, 56, 48, 40] as const;
 
 export type Encoded = { ok: true; blob: Blob; quality: number } | { ok: false; reason: "too-big" | "no-image"; bytes: number };
 
