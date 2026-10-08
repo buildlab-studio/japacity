@@ -160,3 +160,4 @@ export { guideChecks, guideForRoute, guideKeys, staleGuides } from "./guide/guid
 export { GUIDE_SECTIONS } from "./guide/guide.data";
 /** R-ADVERT-001, R-ADVERT-002: the slots check, which the engine's content check does not reach. */
 export { advertChecks } from "./advert/advert.check";
+export { realNameChecks } from "./place/place.check";
