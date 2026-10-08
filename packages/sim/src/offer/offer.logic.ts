@@ -33,6 +33,7 @@ import type {
   Terms,
 } from "../engine/types";
 import { routePercent } from "../japacity/japacity.logic";
+import { healthComeUp } from "./health";
 import type { OfferEvent } from "./offer.events";
 
 /** The groups that are rolled, in the order R-OFFER-001 takes them. `job` is never rolled. The road comes last (R-ROAD-002). */
@@ -367,6 +368,8 @@ function comeUp(ctx: Ctx): BaseEvent[] {
     events.push(...openOffer(ctx, entry, {}));
     opened += 1;
   }
+  // R-HEALTH-002, R-HEALTH-003: illness, its relapse and its worse turn, on the stream `health`.
+  events.push(...healthComeUp(ctx, (entry, terms) => openOffer(ctx, entry, terms)));
   return events;
 }
 

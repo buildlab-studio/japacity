@@ -6,6 +6,7 @@ import { BP_WHOLE, clamp, divCeil, mulDivCeil } from "../engine/int";
 import type {
   Ctx,
   Id,
+  PlayerView,
   QualityEntry,
   QualitySlice,
   ReadCtx,
@@ -18,6 +19,10 @@ import type { QualityEvent } from "./quality.events";
 
 const AGE: Id<"quality"> = "quality.age-months";
 const WELLBEING: Id<"quality"> = "quality.wellbeing";
+/** Months in a row under the run-down line at the `month` phase (R-HEALTH-001). Hidden. */
+export const RUN_DOWN: Id<"quality"> = "quality.run-down-months";
+/** Months before another forced month may come (R-HEALTH-005). Hidden. */
+export const FORCED_WAIT: Id<"quality"> = "quality.forced-wait";
 
 /** The source named on the events of the `month` phase. */
 export const MONTH_SOURCE = "month";
@@ -57,7 +62,54 @@ function change(ctx: Ctx, quality: Id<"quality">, amount: number, source: string
   return [{ type: "quality/changed", quality, amount: applied, source }];
 }
 
-/** Age goes up a month (R-QUALITY-003) and wellbeing drifts toward its resting point (R-QUALITY-004). */
+/**
+ * The run-down counter's two marks, read from its range. the counter
+ * stops one past the warning, so its top is the month after the warning and
+ * the month before it is the warning itself: with the range 0 to 3 the warning
+ * comes at two months in a row (R-HEALTH-001) and illness may roll from three
+ * (R-HEALTH-002). "two months in a row" has no tuning field, so the
+ * range in content carries it; `tuning.health.runDownMonths` would say it plainly.
+ */
+function runDownMarks(content: ReadCtx["content"]): { warning: number; after: number } | null {
+  const entry = content.quality[RUN_DOWN];
+  return entry === undefined ? null : { warning: entry.max - 1, after: entry.max };
+}
+
+/** True while the run-down warning stands: two months or more in a row under the line (R-HEALTH-001, R-HEALTH-007). */
+export function runDownWarned(read: ReadCtx): boolean {
+  const marks = runDownMarks(read.content);
+  return marks !== null && valueOf(read.state, RUN_DOWN) >= marks.warning;
+}
+
+/** True from the month after the warning while wellbeing stays under the line: illness may roll (R-HEALTH-002). */
+export function runDownSinceWarning(read: ReadCtx): boolean {
+  const marks = runDownMarks(read.content);
+  if (marks === null) return false;
+  const wellbeing = read.state.quality[WELLBEING] ?? 0;
+  return valueOf(read.state, RUN_DOWN) >= marks.after && wellbeing < read.content.tuning.health.runDownBelow;
+}
+
+/**
+ * R-HEALTH-001: wellbeing is judged as the month phase leaves it, after the
+ * drift, so the figure the report shows is the one that counts. Under the
+ * line, the counter goes up one and stops at its top; at or over it, it is
+ * back to zero.
+ */
+function runDown(ctx: Ctx, wellbeing: number): QualityEvent[] {
+  const entry = ctx.content.quality[RUN_DOWN];
+  if (entry === undefined) return [];
+  const months = valueOf(ctx.state, RUN_DOWN);
+  const next = wellbeing < ctx.content.tuning.health.runDownBelow ? Math.min(months + 1, entry.max) : 0;
+  return change(ctx, RUN_DOWN, next - months, MONTH_SOURCE);
+}
+
+/** R-HEALTH-005: the wait before another forced month runs down one each month. */
+function forcedWait(ctx: Ctx): QualityEvent[] {
+  if (ctx.content.quality[FORCED_WAIT] === undefined || valueOf(ctx.state, FORCED_WAIT) === 0) return [];
+  return change(ctx, FORCED_WAIT, -1, MONTH_SOURCE);
+}
+
+/** Age goes up a month (R-QUALITY-003), wellbeing drifts toward its resting point (R-QUALITY-004), and the health counters move (R-HEALTH-001, R-HEALTH-005). */
 function month(ctx: Ctx): QualityEvent[] {
   const events: QualityEvent[] = [];
   if (ctx.content.quality[AGE] !== undefined) events.push(...change(ctx, AGE, 1, MONTH_SOURCE));
@@ -66,8 +118,13 @@ function month(ctx: Ctx): QualityEvent[] {
     const gap = wellbeingDriftTo - valueOf(ctx.state, WELLBEING);
     // Never a full step past the target: it stops there.
     const toward = gap > 0 ? Math.min(wellbeingDrift, gap) : -Math.min(wellbeingDrift, -gap);
-    events.push(...change(ctx, WELLBEING, toward, MONTH_SOURCE));
+    const drift = change(ctx, WELLBEING, toward, MONTH_SOURCE);
+    events.push(...drift);
+    // The returned events are applied after the phase, so the drift is added here.
+    const after = valueOf(ctx.state, WELLBEING) + drift.reduce((sum, event) => sum + event.amount, 0);
+    events.push(...runDown(ctx, after));
   }
+  events.push(...forcedWait(ctx));
   return events;
 }
 
@@ -91,9 +148,25 @@ function lineKey(event: QualityEvent, content: ReadCtx["content"]): { key: strin
   return gain ? { key: "line.quality.gain", tone: "good" } : { key: "line.quality.loss", tone: "bad" };
 }
 
+/** R-HEALTH-001: the warning, given once as the counter reaches its mark. It names wellbeing, never the hidden counter. */
+function runDownLine(event: QualityEvent, state: ReadCtx["state"], content: ReadCtx["content"]): ReportLine[] {
+  const marks = runDownMarks(content);
+  if (marks === null || event.amount <= 0 || valueOf(state, RUN_DOWN) !== marks.warning) return [];
+  return [
+    {
+      key: "line.quality.run-down",
+      params: { quality: WELLBEING, value: valueOf(state, WELLBEING), below: content.tuning.health.runDownBelow },
+      tone: "bad",
+      attention: true,
+      counts: [],
+    },
+  ];
+}
+
 function lines(event: QualityEvent, state: ReadCtx["state"], content: ReadCtx["content"]): ReportLine[] {
   switch (event.type) {
     case "quality/changed": {
+      if (event.quality === RUN_DOWN) return runDownLine(event, state, content);
       const entry = content.quality[event.quality];
       // Age moves every month and says nothing new. A hidden quality must not show itself through the report.
       if (entry === undefined || !entry.shown || event.quality === AGE) return [];
@@ -161,9 +234,22 @@ export const qualityKind: RegisteredKind<QualitySlice, QualityEvent> = {
     }
     return problems;
   },
-  view: ({ state, content }) => ({
-    qualities: Object.values(content.quality)
-      .filter((entry) => entry.shown)
-      .map((entry) => ({ id: entry.id, value: state.quality[entry.id] ?? entry.min })),
-  }),
+  view: (read) => {
+    const { state, content } = read;
+    // PlayerView has no `runDown` key yet. It needs `runDown: boolean` in types.ts and in
+    // VIEW_KEYS (engine/view.ts); until then the part is built apart so the contract's type stays as it is.
+    const part: Partial<PlayerView> & HealthView = {
+      qualities: Object.values(content.quality)
+        .filter((entry) => entry.shown)
+        .map((entry) => ({ id: entry.id, value: state.quality[entry.id] ?? entry.min })),
+      // R-HEALTH-007: the warning shows as a banner while it stands.
+      runDown: runDownWarned(read),
+    };
+    return part;
+  },
 };
+
+/** The quality kind's part of the view that the contract does not name yet (R-HEALTH-007). */
+export interface HealthView {
+  runDown: boolean;
+}

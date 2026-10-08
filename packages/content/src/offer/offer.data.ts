@@ -5,6 +5,7 @@ import type { Id, OfferChoice, OfferEntry, Requirement } from "@japacity/sim";
 
 import { naira, pct, pounds } from "../units";
 import { abroadOfferTable } from "./offer.abroad.data";
+import { healthOfferTable } from "./offer.health.data";
 
 const UK: Id<"route"> = "route.uk-masters";
 
@@ -865,6 +866,7 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
   },
 
   ...abroadOfferTable,
+  ...healthOfferTable,
   // route-gates.md, "Entries: sponsor offers". group `money`, as the Gulf agent is, so R-OFFER-001 rolls them.
 
   "offer.sponsor-care-home": {

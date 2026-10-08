@@ -16,6 +16,9 @@ export const qualityText: Record<string, string> = {
   "quality.credit-mark.name": "Credit mark",
   "quality.care.name": "Care skill",
   "quality.driving.name": "Can drive",
+  "quality.run-down-months.name": "Months run down",
+  "quality.illness-course.name": "Last illness",
+  "quality.forced-wait.name": "Months before the next forced month",
 
   "quality.edu-level.value.0": "No schooling",
   "quality.edu-level.value.1": "Secondary school",
@@ -39,4 +42,5 @@ export const qualityText: Record<string, string> = {
   "line.quality.loss": "{quality} down {points}, to {value}.",
   "line.quality.worn": "Work takes {points} off your {quality}.",
   "line.quality.drift": "{quality} settles by {points}, to {value}.",
+  "line.quality.run-down": "You are run down. {quality} has stayed under {below} month after month and is {value} now. Rest, or you will fall ill.",
 };
