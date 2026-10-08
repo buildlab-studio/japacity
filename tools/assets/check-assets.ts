@@ -29,6 +29,10 @@ export interface AssetBudget {
 
 export interface Budgets {
   asset: Record<string, AssetBudget>;
+  /** A moving sheet's or the water tile's triangles at each mesh level (R-ASSET-029). */
+  levels: Record<"coarse" | "fine", { triangles: number }>;
+  /** What motion may add to a place held still, per frame on the cheap phone profile (city.md R-CITY-027). */
+  motion: { extraDrawCalls: number; scriptUs: number };
   place: Record<"firstLoad" | "interior" | "exterior", { drawCalls: number; triangles: number; bytes: number }> & { game: { bytes: number } };
 }
 
@@ -59,6 +63,10 @@ export interface Measured {
   maxY: number;
   palette: string[];
   signs: number;
+  /** Width, height and depth over the default scene, in metres. */
+  size: [number, number, number];
+  /** The root node's extras: a moving sheet's `motion`, `pinned` and `level` among them. */
+  extras: Record<string, unknown>;
 }
 
 export interface Paths {
@@ -198,6 +206,46 @@ export function checkBudgets(shipped: readonly Measured[], budgets: Budgets): st
     const height = file.maxY - file.minY;
     if (budget.heightMin !== undefined && height < budget.heightMin - 1e-6) problems.push(`R-ASSET-007: ${file.file} is ${height.toFixed(2)} m high, under ${String(budget.heightMin)}`);
     if (budget.heightMax !== undefined && height > budget.heightMax + 1e-6) problems.push(`R-ASSET-007: ${file.file} is ${height.toFixed(2)} m high, over ${String(budget.heightMax)}`);
+  }
+  return problems;
+}
+
+const LEVEL = /_(coarse|fine)\.glb$/;
+const SHEETS = new Set(["flag", "hang", "frond"]);
+
+/**
+ * 3b. A moving sheet names its pinned edge (R-ASSET-028). A sheet or the water tile ships at both
+ * mesh levels, the pair alike in pinned edge and size, the coarse one lighter and each inside its
+ * level's triangles (R-ASSET-029).
+ */
+export function checkLevels(shipped: readonly Measured[], budgets: Budgets): string[] {
+  const problems: string[] = [];
+  const byFile = new Map(shipped.map((file) => [file.file, file]));
+  for (const file of shipped) {
+    const motion = file.extras.motion;
+    const level = file.extras.level;
+    const named = LEVEL.exec(file.file)?.[1];
+    if (typeof motion === "string" && SHEETS.has(motion) && typeof file.extras.pinned !== "string") problems.push(`R-ASSET-028: ${file.file} is a moving sheet with no pinned edge in its extras`);
+    if (named === undefined && level === undefined) continue;
+    if (level !== named) {
+      problems.push(`R-ASSET-029: ${file.file} is named for the ${String(named)} level and its extras say ${String(level)}`);
+      continue;
+    }
+    if (named !== "coarse" && named !== "fine") continue;
+    if (file.triangles > budgets.levels[named].triangles) problems.push(`R-ASSET-029: ${file.file} has ${String(file.triangles)} triangles, over the ${named} level's ${String(budgets.levels[named].triangles)}`);
+    if (named === "fine") {
+      if (!byFile.has(file.file.replace(LEVEL, "_coarse.glb"))) problems.push(`R-ASSET-029: ${file.file} has no coarse partner`);
+      continue;
+    }
+    const fine = byFile.get(file.file.replace(LEVEL, "_fine.glb"));
+    if (fine === undefined) {
+      problems.push(`R-ASSET-029: ${file.file} has no fine partner`);
+      continue;
+    }
+    if (file.extras.pinned !== fine.extras.pinned) problems.push(`R-ASSET-029: ${file.file} is pinned ${String(file.extras.pinned)} and its fine partner ${String(fine.extras.pinned)}`);
+    if (file.extras.motion !== fine.extras.motion) problems.push(`R-ASSET-029: ${file.file} moves as ${String(file.extras.motion)} and its fine partner as ${String(fine.extras.motion)}`);
+    if (file.size.some((side, axis) => Math.abs(side - (fine.size[axis] ?? 0)) > 0.01 + 1e-9)) problems.push(`R-ASSET-029: ${file.file} is ${file.size.map((side) => side.toFixed(2)).join(" by ")} m and its fine partner ${fine.size.map((side) => side.toFixed(2)).join(" by ")} m`);
+    if (file.triangles >= fine.triangles) problems.push(`R-ASSET-029: ${file.file} has ${String(file.triangles)} triangles, not fewer than its fine partner's ${String(fine.triangles)}`);
   }
   return problems;
 }
@@ -387,12 +435,12 @@ export function mapSources(paths: Paths, placeData: readonly string[]): string[]
 
 export async function measureFile(paths: Paths, file: string): Promise<Measured> {
   const bytes = readFileSync(join(paths.public, file));
-  if (!file.endsWith(".glb")) return { file, triangles: 0, drawCalls: 0, materials: 0, bytes: bytes.byteLength, minY: 0, maxY: 0, palette: [], signs: 0 };
+  if (!file.endsWith(".glb")) return { file, triangles: 0, drawCalls: 0, materials: 0, bytes: bytes.byteLength, minY: 0, maxY: 0, palette: [], signs: 0, size: [0, 0, 0], extras: {} };
   const doc = await readGlb(bytes);
   const figures = measure(doc, bytes.byteLength);
-  const root = doc.getRoot().getDefaultScene()?.listChildren()[0];
-  const signs = (root?.getExtras() as { signs?: unknown[] } | undefined)?.signs?.length ?? 0;
-  return { file, ...figures, palette: checkPalette(doc).map((p) => `${p.where} ${p.rgb.join(",")} is not a palette colour`), signs };
+  const extras = (doc.getRoot().getDefaultScene()?.listChildren()[0]?.getExtras() ?? {}) as Record<string, unknown>;
+  const signs = Array.isArray(extras.signs) ? extras.signs.length : 0;
+  return { file, ...figures, palette: checkPalette(doc).map((p) => `${p.where} ${p.rgb.join(",")} is not a palette colour`), signs, extras };
 }
 
 function codeBytes(paths: Paths): number {
@@ -421,6 +469,7 @@ export async function runChecks(paths: Paths, placeData: readonly string[]): Pro
     ...checkMediaRows(register.rows, readRepo),
     ...checkMadeWith(register.rows),
     ...checkBudgets(measured, budgets),
+    ...checkLevels(measured, budgets),
     ...checkPaletteResults(measured),
   ];
 
