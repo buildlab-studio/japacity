@@ -101,7 +101,7 @@ export default {
     const built = { ...depsFor(env), session: sessionReader(auth) };
     // The character's place, name and look come from the core's reads when they are wired; until then no socket opens.
     return makeApp(built, { auth, keys })
-      .route("/", drawRoute(built, drawKeys(env)))
+      .route("/", drawRoute(built))
       .route("/", placeSocketRoutes(built, { rooms: roomsFor(env.PLACE, built.config.presence), placeOf: () => Promise.resolve(null), profileOf: () => Promise.resolve(null) }))
       .fetch(request);
   },

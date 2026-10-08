@@ -24,6 +24,7 @@ import { GoalView } from "./features/goal/GoalView";
 import { GuidesMenu } from "./features/guides/GuidesMenu";
 import { JapacityView } from "./features/japacity/JapacityView";
 import { ModerationMenu } from "./features/moderation/ModerationMenu";
+import { LotteryView } from "./features/lottery/LotteryView";
 import { NewsView } from "./features/news/NewsView";
 import { ObligationView } from "./features/obligation/ObligationView";
 import { OfferView } from "./features/offer/OfferView";
@@ -170,6 +171,7 @@ function AtHome({ tab }: { tab: Tab }) {
         </Group>
         <Group tab="money" current={tab}>
           <WalletView />
+          <LotteryView />
           <ObligationView />
         </Group>
       </div>
@@ -206,6 +208,7 @@ function Abroad({ tab }: { tab: Tab }) {
         </Group>
         <Group tab="money" current={tab}>
           <WalletView />
+          <LotteryView />
           <ObligationView />
           <CreditView />
         </Group>

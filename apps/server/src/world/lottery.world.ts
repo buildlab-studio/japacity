@@ -22,9 +22,10 @@ async function lastResult(world: WorldStore, tick: number, draw: number): Promis
 }
 
 /**
- * R-LOTTERY-002, R-LOTTERY-006, R-LOTTERY-007: `World.lottery` for the row of
- * `tick`, from the stored draw on sale at it. The pot so far is the tickets
- * sold before the row is made, at the current content's price.
+ * R-LOTTERY-002, R-LOTTERY-006, R-LOTTERY-007, R-LOTTERY-021: `World.lottery`
+ * for the row of `tick`, from the stored draw on sale at it. The pot so far is
+ * the tickets sold before the row is made, at the current content's price; the
+ * top-up is the one the draw declared when it opened.
  * a tick whose draw is not stored yet runs no draw. The draw job opens each draw a whole draw ahead, so only a fresh deployment's first rows meet it.
  */
 export async function lotteryFor(tick: number, deps: Pick<ServerDeps, "stores" | "contents">): Promise<World["lottery"]> {
@@ -39,6 +40,7 @@ export async function lotteryFor(tick: number, deps: Pick<ServerDeps, "stores" |
     fingerprint: row.fingerprint,
     beaconRound: row.beaconRound,
     potSoFar: sold * deps.contents.current.tuning.lottery.ticket,
+    topUpTickets: row.topUpTickets,
     last: await lastResult(world, tick, draw),
   };
 }

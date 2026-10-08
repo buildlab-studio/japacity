@@ -1,6 +1,6 @@
 // The news that has reached this character, newest stage first within each,
 // under the front page: the era the world is in (director.md, era stories go
-// to the front page).
+// to the front page) and, online, the last Friday draw (lottery.md R-LOTTERY-016).
 import type { NewsStage, PlayerView } from "@japacity/sim";
 import { Newspaper } from "lucide-react";
 
@@ -37,6 +37,30 @@ function FrontPage() {
   );
 }
 
+/**
+ * R-LOTTERY-016: the last Friday draw on the front page: the jackpot and how
+ * many tickets won, never who.
+ */
+export function drawnWords(last: NonNullable<NonNullable<PlayerView["lottery"]>["last"]>): string {
+  const winners = last.winners.reduce((sum, tier) => sum + tier.tickets.length, 0);
+  const jackpot = last.winners.find((tier) => tier.tier === "jackpot" && tier.tickets.length > 0);
+  if (winners === 0) return say("ui.news.drawn-none", { draw: last.draw });
+  if (jackpot === undefined) return say("ui.news.drawn-no-jackpot", { draw: last.draw, winners });
+  return sayCount("ui.news.drawn", winners, { draw: last.draw, jackpot: { currency: "NGN", amount: jackpot.amount }, winners });
+}
+
+function DrawnLine() {
+  const { lottery } = useView();
+  const last = lottery?.last ?? null;
+  if (last === null) return null;
+  return (
+    <div className="flex flex-col gap-1 rounded-2xl border border-line bg-surface p-4" data-news-drawn={last.draw}>
+      <p className="text-xs font-semibold tracking-widest text-muted uppercase">{say("ui.news.draw-kicker")}</p>
+      <p className="font-medium">{drawnWords(last)}</p>
+    </div>
+  );
+}
+
 /** The order stages are shown in: what is happening now first, talk next, the past last. */
 const STAGE_ORDER: readonly NewsStage[] = ["in-force", "announced", "rumour", "ended"];
 
@@ -46,6 +70,7 @@ export function NewsView() {
   return (
     <Panel title={say("ui.news.title")}>
       <FrontPage />
+      <DrawnLine />
       {stories.length === 0 ? (
         <Empty>{say("ui.news.none")}</Empty>
       ) : (

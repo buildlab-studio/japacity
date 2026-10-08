@@ -9,6 +9,7 @@ import type {
   Command,
   Content,
   Ctx,
+  Effect,
   LotterySlice,
   PlayerView,
   ReadCtx,
@@ -50,7 +51,7 @@ function buy(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   return [bought];
 }
 
-/** R-LOTTERY-013: the authority's payout, to the naira bank as `win`, never flagged, once per draw. */
+/** R-LOTTERY-013, R-LOTTERY-022: the authority's payout, to the naira bank as `win` and `pot-top-up`, never flagged, once per draw. */
 function pay(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (command.type !== "lottery/pay") throw new Error(`lottery/pay cannot handle ${command.type}.`);
   const { draw, prizes } = command;
@@ -62,12 +63,17 @@ function pay(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   for (const prize of prizes) {
     if (!(TIERS as readonly string[]).includes(prize.tier)) return reject("not-legal", `There is no tier ${String(prize.tier)}.`);
     if (!Number.isSafeInteger(prize.amount) || prize.amount < 1) return reject("bad-amount", "A prize is a whole number of kobo from 1.");
+    if (!Number.isSafeInteger(prize.topUp) || prize.topUp < 0 || prize.topUp > prize.amount) {
+      return reject("bad-amount", "A prize's top-up part is a whole number of kobo from 0 up to the prize.");
+    }
   }
-  ctx.apply(
-    prizes.map((prize) => ({ type: "money/add", currency: "NGN", pocket: "bank", amount: prize.amount, reason: "win" }) as const),
-    CAUSE,
-  );
-  const event: LotteryEvent = { type: "lottery/paid", draw, prizes: prizes.map((prize) => ({ tier: prize.tier, amount: prize.amount })) };
+  // R-LOTTERY-022: the house's part as `pot-top-up`, the rest as `win`, so the two never mix in the ledger.
+  const credits: Effect[] = prizes.flatMap((prize) => [
+    ...(prize.amount > prize.topUp ? [{ type: "money/add", currency: "NGN", pocket: "bank", amount: prize.amount - prize.topUp, reason: "win" } as const] : []),
+    ...(prize.topUp > 0 ? [{ type: "money/add", currency: "NGN", pocket: "bank", amount: prize.topUp, reason: "pot-top-up" } as const] : []),
+  ]);
+  ctx.apply(credits, CAUSE);
+  const event: LotteryEvent = { type: "lottery/paid", draw, prizes: prizes.map((prize) => ({ tier: prize.tier, amount: prize.amount, topUp: prize.topUp })) };
   return [event];
 }
 
@@ -131,7 +137,11 @@ function judgeWorld(read: ReadCtx, requirement: Requirement): RequirementResult 
   return { met: (read.world.lottery !== null) === requirement.online };
 }
 
-/** R-LOTTERY-006. R-LOTTERY-005's ticket numbers are the server's; nothing in the world or the slice carries them, so `numbers` stays null. */
+/**
+ * R-LOTTERY-006, R-LOTTERY-023. The top-up so far is the declared tickets'
+ * worth less the sales so far, at 0 once sales pass it.
+ * R-LOTTERY-005's ticket numbers are the server's; nothing in the world or the slice carries them, so `numbers` stays null.
+ */
 function view(read: ReadCtx): Pick<PlayerView, "lottery"> {
   const draw = read.world.lottery;
   if (draw === null) return { lottery: null };
@@ -145,6 +155,8 @@ function view(read: ReadCtx): Pick<PlayerView, "lottery"> {
       tickets: heldIn(read.state.lottery, draw.draw),
       numbers: null,
       potSoFar: draw.potSoFar,
+      topUpTickets: draw.topUpTickets,
+      topUpSoFar: Math.max(0, draw.topUpTickets * ticket - draw.potSoFar),
       fingerprint: draw.fingerprint,
       last: draw.last,
     },

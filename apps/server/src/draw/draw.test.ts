@@ -1,5 +1,5 @@
 import { content } from "@japacity/content";
-import type { State } from "@japacity/sim";
+import type { Content, State } from "@japacity/sim";
 import { int } from "@japacity/sim";
 import type { Nudge } from "@japacity/store";
 import { describe, expect, test } from "vitest";
@@ -15,7 +15,7 @@ import { drawRoute } from "../routes/draw";
 import type { DrawReply } from "../routes/draw";
 import type { ServerReply, WorldReply } from "../types";
 import { storedWorlds } from "../world/ticks";
-import { drawSeed, drawWinners, fromHex, sha256, tiersFor, toHex } from "../../../../packages/sim/src/lottery/lottery.draw";
+import { drawSeed, drawWinners, fromHex, sha256, tiersFor, toHex, topUpPart } from "../../../../packages/sim/src/lottery/lottery.draw";
 import type { Beacon } from "./beacon";
 import { QUICKNET_GENESIS_MS, QUICKNET_PERIOD_MS, quicknet, roundAfter, roundFallsAt } from "./beacon";
 import type { DrawKeys } from "./draw";
@@ -60,9 +60,21 @@ async function buy(server: TestServer, account: string, character: string, ticke
   return (await send(server, account, { type: "lottery/buy", tickets, basedOn: v })).body;
 }
 
-/** A server with draw 0 open at tick 0 and `players` accounts each holding `tickets` tickets. */
-async function soldDraw(players: number, tickets: number): Promise<{ server: TestServer; beacon: ReturnType<typeof fakeBeacon>; keys: DrawKeys; lives: { account: string; character: string }[] }> {
-  const server = testServer();
+/** The real content with the private settings' top-up set to `topUpTickets`. */
+function withTopUp(topUpTickets: number): Content {
+  return { ...content, tuning: { ...content.tuning, lottery: { ...tuning, topUpTickets } } };
+}
+
+/**
+ * A server with draw 0 open at tick 0 and `players` accounts each holding
+ * `tickets` tickets. The settings declare no top-up unless `topUpTickets` is given.
+ */
+async function soldDraw(
+  players: number,
+  tickets: number,
+  topUpTickets = 0,
+): Promise<{ server: TestServer; beacon: ReturnType<typeof fakeBeacon>; keys: DrawKeys; lives: { account: string; character: string }[] }> {
+  const server = testServer({ contents: { current: withTopUp(topUpTickets), previous: null } });
   const beacon = fakeBeacon();
   const keys = keysWith(beacon);
   await drawJob(server.deps, keys, TICKS_CRON);
@@ -77,15 +89,15 @@ async function soldDraw(players: number, tickets: number): Promise<{ server: Tes
 }
 
 /** `GET /api/draw/:n` with no session, through the route as the Worker mounts it. */
-async function drawPage(server: TestServer, keys: DrawKeys, draw: number | string): Promise<{ status: number; body: DrawReply; text: string; headers: Headers }> {
-  const reply = await drawRoute(server.deps, keys).request(`/api/draw/${String(draw)}`, { headers: { "cf-connecting-ip": "203.0.113.9" } });
+async function drawPage(server: TestServer, draw: number | string): Promise<{ status: number; body: DrawReply; text: string; headers: Headers }> {
+  const reply = await drawRoute(server.deps).request(`/api/draw/${String(draw)}`, { headers: { "cf-connecting-ip": "203.0.113.9" } });
   const text = await reply.text();
   return { status: reply.status, body: JSON.parse(text) as DrawReply, text, headers: reply.headers };
 }
 
-async function pays(server: TestServer, character: string): Promise<{ draw: number; prizes: { tier: string; amount: number }[] }[]> {
+async function pays(server: TestServer, character: string): Promise<{ draw: number; prizes: { tier: string; amount: number; topUp: number }[] }[]> {
   const log = await server.deps.stores.player.log(character, 0);
-  return log.filter((row) => row.command.type === "lottery/pay").map((row) => row.command as unknown as { draw: number; prizes: { tier: string; amount: number }[] });
+  return log.filter((row) => row.command.type === "lottery/pay").map((row) => row.command as unknown as { draw: number; prizes: { tier: string; amount: number; topUp: number }[] });
 }
 
 /** The character's state now, replayed from its store as a load does. */
@@ -129,9 +141,9 @@ describe("opening a draw", () => {
     expect(roundFallsAt(beacon, row!.beaconRound - 1)).toBeLessThanOrEqual(close);
 
     const world = await call<WorldReply>(server, "GET", "/api/world", null);
-    expect(world.body.world.lottery).toEqual({ draw: 0, closesTick: 14, fingerprint: row!.fingerprint, beaconRound: row!.beaconRound, potSoFar: 0, last: null });
+    expect(world.body.world.lottery).toEqual({ draw: 0, closesTick: 14, fingerprint: row!.fingerprint, beaconRound: row!.beaconRound, potSoFar: 0, topUpTickets: tuning.topUpTickets, last: null });
     expect(world.text).not.toContain(row!.secret);
-    const page = await drawPage(server, keysWith(beacon), 0);
+    const page = await drawPage(server, 0);
     expect(page.body).toMatchObject({ draw: 0, fingerprint: row!.fingerprint, beaconRound: row!.beaconRound, list: null, result: null });
     expect(page.text).not.toContain(row!.secret);
   });
@@ -187,7 +199,7 @@ describe("closing, drawing and paying", () => {
     const { server, keys, lives } = await soldDraw(3, 2);
     server.setNow(during(14));
     await drawJob(server.deps, keys, TICKS_CRON);
-    const page = await drawPage(server, keys, 0);
+    const page = await drawPage(server, 0);
     const list = page.body.list!;
     expect(list).toHaveLength(6);
     for (const token of list) expect(token).toMatch(/^[0-9a-f]{16}$/);
@@ -223,7 +235,7 @@ describe("closing, drawing and paying", () => {
     server.setNow(during(14));
     const run = await drawJob(server.deps, keys, TICKS_CRON);
     expect(run.drawn).toEqual([0]);
-    const page = (await drawPage(server, keys, 0)).body;
+    const page = (await drawPage(server, 0)).body;
     const result = page.result!;
     expect(beacon.asked).toEqual([page.beaconRound]);
     expect(result.beaconRound).toBe(page.beaconRound);
@@ -289,7 +301,7 @@ describe("closing, drawing and paying", () => {
     const { server, keys, lives } = await soldDraw(1, 5);
     server.setNow(during(14));
     const character = lives[0]!.character;
-    const early = await sendAuthority(server.deps, character, { type: "lottery/pay", draw: 0, prizes: [{ tier: "jackpot", amount: 1 }], basedOn: 0 });
+    const early = await sendAuthority(server.deps, character, { type: "lottery/pay", draw: 0, prizes: [{ tier: "jackpot", amount: 1, topUp: 0 }], basedOn: 0 });
     expect(early.kind).toBe("done");
     const closed = await closeDraw(server.deps, keys, 0);
     expect(closed.kind).toBe("drawn");
@@ -305,7 +317,7 @@ describe("closing, drawing and paying", () => {
     expect(first.waiting).toMatchObject([{ draw: 0 }]);
     expect((await server.deps.stores.world.draw(0))!.result).toBeNull();
     for (const life of lives) expect(await pays(server, life.character)).toEqual([]);
-    const page = (await drawPage(server, keys, 0)).body;
+    const page = (await drawPage(server, 0)).body;
     expect(page.result).toBeNull();
     expect(page.list).toHaveLength(6);
     expect(JSON.stringify(page)).not.toContain((await server.deps.stores.world.draw(0))!.secret);
@@ -377,9 +389,8 @@ describe("the beacon over HTTP", () => {
 describe("the draw page", () => {
   test("[R-LOTTERY-015] given no such draw or a number that is not one, when the page is asked for, then it answers 404 and 400", async () => {
     const server = testServer();
-    const keys = keysWith(fakeBeacon());
-    expect((await drawPage(server, keys, 3)).status).toBe(404);
-    expect((await drawPage(server, keys, "x1")).status).toBe(400);
+    expect((await drawPage(server, 3)).status).toBe(404);
+    expect((await drawPage(server, "x1")).status).toBe(400);
   });
 
   test("[R-LOTTERY-007] given draw 0 on sale, when it is opened by the job with the world's own secret bytes, then the fingerprint is published before any ticket is sold", async () => {
@@ -388,5 +399,104 @@ describe("the draw page", () => {
     expect(row.closedAt).toBeNull();
     expect(row.result).toBeNull();
     expect(await server.deps.stores.world.tickets(0)).toEqual([]);
+  });
+});
+
+describe("the house top-up", () => {
+  test("[R-LOTTERY-021] given the settings' top-up, when the job opens a draw and the settings change after, then the draw keeps the figure declared at its opening and the world and the draw page publish it", async () => {
+    const server = testServer({ contents: { current: withTopUp(120), previous: null } });
+    const keys = keysWith(fakeBeacon());
+    await drawJob(server.deps, keys, TICKS_CRON);
+    server.deps.contents.current = withTopUp(7);
+    expect((await server.deps.stores.world.draw(0))?.topUpTickets).toBe(120);
+    expect((await server.deps.stores.world.draw(1))?.topUpTickets).toBe(120);
+    const world = await call<WorldReply>(server, "GET", "/api/world", null);
+    expect(world.body.world.lottery?.topUpTickets).toBe(120);
+    expect((await drawPage(server, 0)).body.topUpTickets).toBe(120);
+    server.setNow(during(14));
+    await drawJob(server.deps, keys, TICKS_CRON);
+    expect((await server.deps.stores.world.draw(2))?.topUpTickets).toBe(7);
+  });
+
+  test("[R-LOTTERY-021] [R-LOTTERY-022] given 10 tickets sold under a top-up of 100, when the draw is paid, then the pot is 100 tickets' worth, each prize carries its top-up part, and the wallets credit that part as pot-top-up and the rest as win", async () => {
+    const { server, keys, lives } = await soldDraw(2, 5, 100);
+    server.setNow(during(14));
+    await drawJob(server.deps, keys, TICKS_CRON);
+    const result = (await server.deps.stores.world.draw(0))!.result!;
+    expect(result.count).toBe(10);
+    expect(result.topUp).toBe(90 * tuning.ticket);
+    expect(result.pot).toBe(100 * tuning.ticket);
+    expect(result.fund).toBe(int.mulDiv(result.pot, 10000 - tuning.burnBp, 10000));
+
+    let house = 0;
+    let paid = 0;
+    for (const life of lives) {
+      const [payment] = await pays(server, life.character);
+      for (const prize of payment!.prizes) expect(prize.topUp).toBe(topUpPart(prize.amount, result.topUp, result.pot));
+      const { totals } = (await stateOf(server, life.character)).wallet;
+      const fromHouse = payment!.prizes.reduce((sum, prize) => sum + prize.topUp, 0);
+      const whole = payment!.prizes.reduce((sum, prize) => sum + prize.amount, 0);
+      expect(totals.in["pot-top-up"]?.NGN ?? 0).toBe(fromHouse);
+      expect(totals.in.win?.NGN ?? 0).toBe(whole - fromHouse);
+      house += fromHouse;
+      paid += whole;
+    }
+    expect(house).toBeGreaterThan(0);
+    expect(house).toBeLessThanOrEqual(result.topUp);
+    expect(paid).toBeLessThanOrEqual(result.fund);
+  });
+
+  test("[R-LOTTERY-021] given sales at and past the declared number, when the draw is drawn, then the top-up is 0 and the pot is the sales alone", async () => {
+    for (const declared of [10, 9]) {
+      const { server, keys, lives } = await soldDraw(2, 5, declared);
+      server.setNow(during(14));
+      await drawJob(server.deps, keys, TICKS_CRON);
+      const result = (await server.deps.stores.world.draw(0))!.result!;
+      expect(result.topUp).toBe(0);
+      expect(result.pot).toBe(10 * tuning.ticket);
+      for (const life of lives) for (const prize of (await pays(server, life.character))[0]!.prizes) expect(prize.topUp).toBe(0);
+    }
+  });
+
+  test("[R-LOTTERY-021] given one ticket under the declared number, when the draw is drawn, then the top-up is one ticket's price", async () => {
+    const { server, keys } = await soldDraw(2, 5, 11);
+    server.setNow(during(14));
+    await drawJob(server.deps, keys, TICKS_CRON);
+    expect((await server.deps.stores.world.draw(0))!.result!.topUp).toBe(tuning.ticket);
+  });
+});
+
+describe("the stored list", () => {
+  test("[R-LOTTERY-008] given a draw frozen and its beacon down, when the job runs, then the list and its hash are stored once at the close and the page publishes the stored list", async () => {
+    const { server, keys, beacon } = await soldDraw(2, 2);
+    server.setNow(during(14));
+    beacon.down = true;
+    await drawJob(server.deps, keys, TICKS_CRON);
+    const row = (await server.deps.stores.world.draw(0))!;
+    expect(row.list).toHaveLength(4);
+    expect(row.listHash).toBe(listHashOf(row.list!));
+    const page = (await drawPage(server, 0)).body;
+    expect(page.list).toEqual(row.list);
+    expect(page.listHash).toBe(row.listHash);
+
+    beacon.down = false;
+    server.wait(5 * 60000);
+    await drawJob(server.deps, keys, TICKS_CRON);
+    const drawn = (await server.deps.stores.world.draw(0))!;
+    expect(drawn.list).toEqual(row.list);
+    expect(drawn.result?.listHash).toBe(row.listHash);
+  });
+
+  test("[R-LOTTERY-008] given a stored list, when another list is offered for the draw before it is drawn, then it is refused and the draw is drawn from the stored list", async () => {
+    const { server, keys, beacon } = await soldDraw(2, 2);
+    server.setNow(during(14));
+    beacon.down = true;
+    await drawJob(server.deps, keys, TICKS_CRON);
+    const stored = (await server.deps.stores.world.draw(0))!;
+    expect(await server.deps.stores.world.setList(0, ["00".repeat(8)], "11".repeat(32))).toMatchObject({ ok: false, code: "conflict" });
+    beacon.down = false;
+    server.wait(5 * 60000);
+    await drawJob(server.deps, keys, TICKS_CRON);
+    expect((await server.deps.stores.world.draw(0))!.result?.listHash).toBe(stored.listHash);
   });
 });

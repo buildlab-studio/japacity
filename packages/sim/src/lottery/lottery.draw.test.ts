@@ -3,7 +3,7 @@ import { content } from "@japacity/content";
 import { describe, expect } from "vitest";
 
 import type { Content, LotteryResult } from "../engine/types";
-import { checkLotteryContent, drawSeed, drawWinners, fromHex, prizesFor, sha256, tiersFor, toHex } from "./lottery.draw";
+import { checkLotteryContent, drawSeed, drawWinners, fromHex, listHashOf, prizesFor, sha256, tiersFor, toHex, topUpFor, topUpPart } from "./lottery.draw";
 import type { TierSpec } from "./lottery.draw";
 
 const tuning = content.tuning.lottery;
@@ -161,8 +161,72 @@ describe("tiers and prizes", () => {
     const tiers = tiersFor(count, tuning);
     const pot = count * tuning.ticket;
     const table = prizesFor(pot, tiers, drawWinners(drawSeed(secret, listHash, beaconRandomness), count, tiers), tuning);
-    const result: LotteryResult = { draw: 4, revealed: secret, beaconRound: 9, beaconRandomness, listHash, count, pot, fund: table.fund, winners: table.winners };
+    const result: LotteryResult = { draw: 4, revealed: secret, beaconRound: 9, beaconRandomness, listHash, count, pot, topUp: 0, fund: table.fund, winners: table.winners };
     const again = drawWinners(drawSeed(result.revealed, result.listHash, result.beaconRandomness), result.count, tiersFor(result.count, tuning));
     expect(again).toEqual(result.winners.map((tier) => tier.tickets));
+  });
+});
+
+describe("the house top-up", () => {
+  const declared = tuning.topUpTickets;
+
+  test("[R-LOTTERY-021] given sales one under, at and one over the declared number, when the top-up is set, then it makes the pot up to that many tickets' worth and is 0 from there", () => {
+    expect(topUpFor(0, declared, tuning.ticket)).toBe(declared * tuning.ticket);
+    expect(topUpFor(declared - 1, declared, tuning.ticket)).toBe(tuning.ticket);
+    expect(topUpFor(declared, declared, tuning.ticket)).toBe(0);
+    expect(topUpFor(declared + 1, declared, tuning.ticket)).toBe(0);
+    expect(topUpFor(0, 0, tuning.ticket)).toBe(0);
+  });
+
+  test.prop([fc.integer({ min: 0, max: 20000 }), fc.integer({ min: 0, max: 20000 })])(
+    "[R-LOTTERY-021] given any sales and any declared number, when the pot is made, then it is never under the declared tickets' worth and the top-up stops once sales pass it",
+    (count, topUpTickets) => {
+      const topUp = topUpFor(count, topUpTickets, tuning.ticket);
+      const pot = count * tuning.ticket + topUp;
+      expect(pot).toBe(Math.max(count, topUpTickets) * tuning.ticket);
+      expect(topUp === 0).toBe(count >= topUpTickets);
+    },
+  );
+
+  test("[R-LOTTERY-022] given a pot that is half top-up, when a prize is split, then the top-up part is the prize times the top-up over the pot, rounded down", () => {
+    expect(topUpPart(1001, 500, 1000)).toBe(500);
+    expect(topUpPart(1001, 1000, 1000)).toBe(1001);
+    expect(topUpPart(1001, 0, 1000)).toBe(0);
+    expect(topUpPart(0, 500, 1000)).toBe(0);
+    expect(topUpPart(5, 0, 0)).toBe(0);
+  });
+
+  test.prop([fc.integer({ min: 0, max: 20000 }), fc.integer({ min: 0, max: 20000 }), fc.uint8Array({ minLength: 32, maxLength: 32 })])(
+    "[R-LOTTERY-022] given any draw, when every prize is split, then the top-up parts paid never pass the top-up and each part is a whole number from 0 up to its prize",
+    (count, topUpTickets, seed) => {
+      const topUp = topUpFor(count, topUpTickets, tuning.ticket);
+      const pot = count * tuning.ticket + topUp;
+      const tiers = tiersFor(count, tuning);
+      const table = prizesFor(pot, tiers, drawWinners(seed, count, tiers), tuning);
+      let house = 0;
+      for (const tier of table.winners) {
+        const part = topUpPart(tier.amount, topUp, pot);
+        expect(Number.isSafeInteger(part) && part >= 0 && part <= tier.amount).toBe(true);
+        house += part * tier.tickets.length;
+      }
+      expect(house).toBeLessThanOrEqual(topUp);
+    },
+  );
+
+  test("[R-LOTTERY-021] given the shipped tuning, when content is checked, then the declared number passes, and one that is not a whole number from 0 is refused", () => {
+    expect(checkLotteryContent(content)).toEqual([]);
+    for (const topUpTickets of [-1, Number("2.5")]) {
+      const off: Content = { ...content, tuning: { ...content.tuning, lottery: { ...tuning, topUpTickets } } };
+      expect(checkLotteryContent(off)).toHaveLength(1);
+    }
+    const huge: Content = { ...content, tuning: { ...content.tuning, lottery: { ...tuning, topUpTickets: Number.MAX_SAFE_INTEGER } } };
+    expect(checkLotteryContent(huge)).toHaveLength(1);
+  });
+
+  test("[R-LOTTERY-008] given tokens in ticket order, when the list's hash is made, then it is the SHA-256 of their bytes joined in that order", () => {
+    const tokens = ["0011223344556677", "8899aabbccddeeff", "0011223344556677", "fedcba9876543210"];
+    expect(listHashOf(tokens)).toBe(toHex(sha256(fromHex(tokens.join("")))));
+    expect(listHashOf([...tokens].reverse())).not.toBe(listHashOf(tokens));
+    expect(listHashOf([])).toBe(hashOf(""));
   });
 });

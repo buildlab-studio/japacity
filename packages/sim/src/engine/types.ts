@@ -1233,7 +1233,7 @@ export interface World {
   /** The era running. Null until the director runs (docs/rules/director.md). */
   era: { id: Id<"era">; since: number; until: number } | null;
   /** The Friday draw the server runs (docs/rules/lottery.md). Null offline: the stand-in world sets it to null. */
-  lottery: { draw: number; closesTick: number; fingerprint: string; beaconRound: number; potSoFar: number; topUpTickets?: number; last: LotteryResult | null } | null;
+  lottery: { draw: number; closesTick: number; fingerprint: string; beaconRound: number; potSoFar: number; topUpTickets: number; last: LotteryResult | null } | null;
   /** R-ADVERT-017: the server's overlay of real names on sponsored places. Empty offline; the simulation never reads it. */
   placeNames: Record<string, { name: string; sign: string }>;
 }
@@ -1248,8 +1248,8 @@ export interface LotteryResult {
   listHash: string;
   count: number;
   pot: number;
-  /** R-LOTTERY-021: the house's declared top-up inside the pot, in kobo. Optional until the lottery screen batch builds the top-up. */
-  topUp?: number;
+  /** R-LOTTERY-021: the house's declared top-up inside the pot, in kobo. */
+  topUp: number;
   fund: number;
   winners: { tier: "jackpot" | "mid" | "small"; tickets: number[]; amount: number }[];
 }
@@ -1644,7 +1644,7 @@ export type Command = { basedOn: number } & (
   // online (docs/rules/lottery.md)
   | { type: "lottery/buy"; tickets: number }
   /** Sent by the authority alone, after the draw. */
-  | { type: "lottery/pay"; draw: number; prizes: { tier: "jackpot" | "mid" | "small"; amount: number; topUp?: number }[] }
+  | { type: "lottery/pay"; draw: number; prizes: { tier: "jackpot" | "mid" | "small"; amount: number; topUp: number }[] }
   // people (docs/rules/people.md R-PEOPLE-012 to 020, 034 to 040)
   | { type: "people/invite"; slot: string; looking?: string; fill?: string }
   /** `with` names a computer character (`person.*`) or a slot holding an invited player (R-PEOPLE-014). */
@@ -1970,7 +1970,7 @@ export interface PlayerView {
   /** The genuineness interview as it stands (docs/rules/interview.md), or null. */
   interview: { route: Id<"route">; question: { id: string; options: string[] } | null; asked: number; total: number; waiting: boolean; standIn: boolean; result: InterviewResult | null; matched: number | null } | null;
   /** The Friday draw as this character sees it, or null offline (docs/rules/lottery.md R-LOTTERY-015). */
-  lottery: { ticket: number; maxTickets: number; draw: number; closesTick: number; tickets: number; numbers: number[] | null; potSoFar: number; topUpTickets?: number; topUpSoFar?: number; fingerprint: string; last: LotteryResult | null } | null;
+  lottery: { ticket: number; maxTickets: number; draw: number; closesTick: number; tickets: number; numbers: number[] | null; potSoFar: number; topUpTickets: number; topUpSoFar: number; fingerprint: string; last: LotteryResult | null } | null;
   /** R-ADVERT-003: whether an advert may show now (never on the road, in a set piece, or in a chapter with `noAdverts`). */
   adverts: boolean;
   report: TurnReport | null;
