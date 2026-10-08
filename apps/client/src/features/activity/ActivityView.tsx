@@ -354,3 +354,16 @@ export function ActivityView() {
     </div>
   );
 }
+
+/** The world mode's sheet (docs/design/11, rule 12): only the activities `only` names, as the cards above show them. */
+export function ActivityPicker({ only }: { only: readonly string[] }) {
+  const view = useView();
+  const options = view.activities.filter((option) => only.includes(option.id));
+  return (
+    <ul className="grid gap-3" data-activity-picker>
+      {options.map((option) => (
+        <ActivityCard key={option.id} option={option} />
+      ))}
+    </ul>
+  );
+}

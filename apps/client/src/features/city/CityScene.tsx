@@ -45,8 +45,11 @@ function aimCamera(camera: Camera, walker: Walker, heading: number, plan: number
 }
 
 interface WorldProps extends SceneProps {
-  plan: boolean;
+  /** How far toward the plan view the camera stands, 0 to 1. */
+  plan: number;
   takeTap: () => boolean;
+  /** A tap landed: the overview comes down to the street. */
+  onTap: () => void;
 }
 
 function Idle({ looking }: { looking: boolean }) {
@@ -60,7 +63,7 @@ function Idle({ looking }: { looking: boolean }) {
 }
 
 function Place(props: WorldProps) {
-  const { place, file, people, own, settings, text, onProgress, onFailed, onPick, onFrame, looking, plan, takeTap } = props;
+  const { place, file, people, own, settings, text, onProgress, onFailed, onPick, onFrame, looking, plan, takeTap, onTap, actionOf } = props;
   const [world, setWorld] = useState<World | null>(null);
   const walker = useRef<Walker>(standAt(0, 0, 0));
   const planShare = useRef(0);
@@ -121,12 +124,21 @@ function Place(props: WorldProps) {
         if (at.z > 1 || Math.abs(at.x) > 1 || Math.abs(at.y) > 1) return null;
         return { x: ((at.x + 1) / 2) * size.width, y: ((1 - at.y) / 2) * size.height };
       },
+      screenOfModel: (suffix) => {
+        // Copies are instanced at the origin, so the spot comes from the stage, not the scene graph.
+        const spot = stage.models.find((model) => model.file.endsWith(suffix))?.at[0];
+        if (spot === undefined) return null;
+        const at = new Vector3(spot[0], 1.5, spot[1]);
+        at.project(camera);
+        if (at.z > 1 || Math.abs(at.x) > 1 || Math.abs(at.y) > 1) return null;
+        return { x: ((at.x + 1) / 2) * size.width, y: ((1 - at.y) / 2) * size.height };
+      },
     };
     window.__city = probe;
     return () => {
       if (window.__city === probe) delete window.__city;
     };
-  }, [world, place, camera, size]);
+  }, [world, place, camera, size, stage]);
 
   useFrame((state, delta) => {
     const time = advanceClock(delta);
@@ -143,7 +155,7 @@ function Place(props: WorldProps) {
     world.own.root.rotation.y = next.facing;
     if (next.target === null) poseFigure(world.own, time, "stand");
     else poseFigure(world.own, time, "walk", strideOf(next));
-    planShare.current += ((plan ? 1 : 0) - planShare.current) * Math.min(1, delta * 4);
+    planShare.current += (plan - planShare.current) * Math.min(1, delta * 4);
     aimCamera(state.camera, next, stage.start[2], planShare.current, state.size.width / Math.max(1, state.size.height));
     if (state.scene.fog instanceof Fog) {
       state.scene.fog.near = settings.fog.near + planShare.current * PLAN_FOG;
@@ -167,7 +179,18 @@ function Place(props: WorldProps) {
   const tapped = (event: ThreeEvent<MouseEvent>): void => {
     event.stopPropagation();
     if (!looking || takeTap()) return;
+    onTap();
     const picked = pickedOf(event.object);
+    const probe = window.__city;
+    if (probe !== undefined) probe.lastTap = { picked, action: picked?.kind === "model" && actionOf !== undefined ? actionOf(picked.file) : null };
+    // In the world mode a thing that stages an action opens that action (docs/design/11, rule 3).
+    if (picked?.kind === "model" && actionOf !== undefined) {
+      const activity = actionOf(picked.file);
+      if (activity !== null) {
+        onPick({ kind: "action", activity });
+        return;
+      }
+    }
     // A person, the player, or a shopfront with its signs opens a card; anything else is ground to walk to.
     if (picked !== null && (picked.kind !== "model" || picked.signs.length > 0)) {
       onPick(picked);
@@ -200,8 +223,12 @@ function Place(props: WorldProps) {
   );
 }
 
+/** How far up the overview stands: enough to see the whole place and what is on it (docs/design/11, rule 11). */
+export const OVERVIEW = 0.6;
+
 export default function CityScene(props: SceneProps) {
   const [plan, setPlan] = useState(false);
+  const [overview, setOverview] = useState(props.overview === true);
   const holding = useRef<number | null>(null);
   const held = useRef(false);
   const release = (): void => {
@@ -209,7 +236,8 @@ export default function CityScene(props: SceneProps) {
     holding.current = null;
     setPlan(false);
   };
-  const { settings, looking } = props;
+  const { settings, looking, place } = props;
+  useEffect(() => setOverview(props.overview === true), [place, props.overview]);
   return (
     <div
       className="size-full touch-none"
@@ -237,7 +265,8 @@ export default function CityScene(props: SceneProps) {
         <Idle looking={looking} />
         <Place
           {...props}
-          plan={plan}
+          plan={plan ? 1 : overview ? OVERVIEW : 0}
+          onTap={() => setOverview(false)}
           takeTap={() => {
             const was = held.current;
             held.current = false;

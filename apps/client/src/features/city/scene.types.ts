@@ -6,7 +6,7 @@ import type { PlaceFile } from "./placeFile";
 import type { Walker } from "./walk";
 
 /** What a tap landed on, other than the ground. */
-export type Picked = { kind: "person"; slot: number } | { kind: "own" } | { kind: "model"; file: string; signs: string[] };
+export type Picked = { kind: "person"; slot: number } | { kind: "own" } | { kind: "model"; file: string; signs: string[] } | { kind: "action"; activity: string };
 
 export interface SceneProps {
   place: string;
@@ -23,6 +23,10 @@ export interface SceneProps {
   onFailed: (why: string) => void;
   onPick: (picked: Picked) => void;
   onFrame: (frameMs: number) => void;
+  /** The world mode: the action a tapped model stages here, by its file, or null when it is scenery. */
+  actionOf?: (file: string) => string | null;
+  /** The world mode: the camera starts pulled back and raised, and comes down to the street at the first tap. */
+  overview?: boolean;
 }
 
 /** Read by the browser test: what the last frame drew and where the character is. */
@@ -36,6 +40,10 @@ export interface CityProbe {
   people: number;
   /** Where a slot's person stands on screen, in CSS pixels, or null when off screen. */
   screenOf: (slot: number) => { x: number; y: number } | null;
+  /** Where a model whose file ends with `suffix` stands on screen, for the browser test and the shooter. */
+  screenOfModel: (suffix: string) => { x: number; y: number } | null;
+  /** What the last tap landed on and the action it stages, for the browser test. */
+  lastTap?: { picked: Picked | null; action: string | null };
 }
 
 declare global {

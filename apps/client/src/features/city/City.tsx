@@ -9,19 +9,21 @@ import { lazy, Suspense, useEffect, useMemo, useRef, useState, type ReactNode } 
 
 import { useGame, useView } from "../../authority/GameProvider";
 import { chooseGraphics, setGraphicsMode } from "../../shared/graphics/mode";
-import { loadJson, loadManifest } from "../../shared/three/manifest";
+import { assetUrl, loadJson, loadManifest } from "../../shared/three/manifest";
 import { Button } from "../../shared/ui/Button";
 import { Sheet } from "../../shared/ui/Sheet";
-import { words } from "../../shared/words/text";
+import { formatMoney } from "../../shared/words/format";
+import { nameOf, words } from "../../shared/words/text";
 import { cityWords, heardWords, placeName, residentName, roleWords } from "./city.words";
 import { CreditsSheet } from "./Credits";
+import { type CountryChoice, FlyOver, type Pin, type PinState } from "./FlyOver";
 import { localDate, type Other, poolOf, sampleCrowd } from "./crowd";
 import { type Device, enterPlace, keepChoice, type Mode, type ModeChoice, modeSettings, observeFrame, readChoice, startingMode, watchFrames } from "./mode";
 import { overheard } from "./overheard";
 import { dancerShown, dressPlace, openGround, type PlaceFile, stageOf } from "./placeFile";
 import { personOfLook } from "./roster";
 import type { Picked } from "./scene.types";
-import { enterable, offersHere, openingPlace, openScene, reportHere } from "./staging";
+import { enterable, offersHere, openingPlace, openScene, reportHere, type ViewPlace } from "./staging";
 
 const CityScene = lazy(() => import("./CityScene"));
 
@@ -30,6 +32,48 @@ const PLACES = Object.values(content.place);
 /** How long a line overheard stays before the next is heard. */
 const HEARD_MS = 9000;
 const FALLBACK_OWN = "shared/chr/chr_tunde.glb";
+
+// The world mode (docs/design/11-the-world-first.md), a prototype the maintainer judges before it becomes rules.
+const LAST_KEY = "japacity.city.last";
+const BEEN_KEY = "japacity.city.been";
+/** The thing on a street that stages an action, by the end of its model's file. */
+const ACTIONS: Record<string, string> = {
+  "shop_lotto-kiosk.glb": "activity.play-lotto",
+  "bld_bode-thomas-betting.glb": "activity.bet-slip",
+};
+/** The home of each where: the family house, then the room abroad. */
+const HOMES: Record<string, string> = { home: "place.family-house", abroad: "place.the-room" };
+/** The family house stands on a made-up street (city.md), so the map gives it a spot in Surulere near the hub. */
+const HOME_SPOT = { latE3: 6507, lonE3: 3359 };
+/** The countries the map can show, with why the others are shut, until the view says more. */
+const COUNTRIES = ["country.uk", "country.uae", "country.canada", "country.italy"];
+
+function readKept(key: string): string[] {
+  try {
+    const kept = window.localStorage.getItem(key);
+    const parsed: unknown = kept === null ? [] : JSON.parse(kept);
+    return Array.isArray(parsed) ? parsed.filter((value): value is string => typeof value === "string") : [];
+  } catch {
+    return [];
+  }
+}
+
+function keep(key: string, value: string[]): void {
+  try {
+    window.localStorage.setItem(key, JSON.stringify(value));
+  } catch {
+    // A private window may refuse storage; the place then lasts the session only.
+  }
+}
+
+/** Where the player last stopped, when it is a place they can still enter (rule 7), or the hub. */
+function lastPlace(here: ViewPlace): string {
+  const kept = readKept(LAST_KEY)[0];
+  const open = enterable(here, PLACES);
+  if (kept !== undefined && open.some((place) => place.id === kept)) return kept;
+  const home = HOMES[here.where];
+  return home !== undefined && open.some((place) => place.id === home) ? home : openingPlace(here, PLACES);
+}
 
 // the store on a branch keeps `presence` as { place, others: { name, look }[] }; the look is read as a chr_ name and the sample is used only when its place is the one shown.
 /** The presence sample the online store keeps (R-CITY-015), with those seen today (R-CITY-036) once the store has them; absent offline. */
@@ -104,12 +148,27 @@ function PersonCard({ picked, onClose, words: said }: { picked: Picked; onClose:
 }
 
 /** `adverts`: the shell's advert slots for the place on screen (R-ADVERT-001), placed beside what is said there. */
-export function City({ adverts }: { adverts?: (place: string) => ReactNode } = {}) {
+export function City({
+  adverts,
+  world = false,
+  actions,
+  month,
+}: {
+  adverts?: (place: string) => ReactNode;
+  /** The world mode: the place fills the screen under a see-through bar, with the fly-over as its map. */
+  world?: boolean;
+  /** The world mode's sheet for the actions a tapped thing stages. */
+  actions?: (ids: string[]) => ReactNode;
+  /** The world mode's month control, shown over the scene. */
+  month?: ReactNode;
+} = {}) {
   const view = useView();
   const presence = useGame((state) => (state as { presence?: PresenceSample | null }).presence ?? null);
   const drawing = useMemo(canDraw, []);
   const [date] = useState(() => localDate(new Date()));
-  const [looking, setLooking] = useState(false);
+  const [looking, setLooking] = useState(world);
+  const [map, setMap] = useState(false);
+  const [shipped, setShipped] = useState<Set<string> | null>(null);
   const [menu, setMenu] = useState(false);
   const [credits, setCredits] = useState(false);
   const [picked, setPicked] = useState<Picked | null>(null);
@@ -124,11 +183,32 @@ export function City({ adverts }: { adverts?: (place: string) => ReactNode } = {
   const where = view.place.where;
   const country = view.place.country;
   const here = useMemo(() => ({ where, country }), [where, country]);
-  const [placeId, setPlaceId] = useState<string>(() => openingPlace(here, PLACES));
+  const [placeId, setPlaceId] = useState<string>(() => (world ? lastPlace(here) : openingPlace(here, PLACES)));
   // A new where (home, abroad, the road) opens its own hub (R-CITY-012, R-CITY-013).
   useEffect(() => {
-    setPlaceId(openingPlace(here, PLACES));
-  }, [here]);
+    setPlaceId(world ? lastPlace(here) : openingPlace(here, PLACES));
+  }, [here, world]);
+  // The world mode remembers where the player stopped and where they have been (rules 5 and 7).
+  useEffect(() => {
+    if (!world) return;
+    keep(LAST_KEY, [placeId]);
+    const been = readKept(BEEN_KEY);
+    if (!been.includes(placeId)) keep(BEEN_KEY, [...been, placeId]);
+  }, [world, placeId]);
+  useEffect(() => {
+    if (!world || !drawing) return;
+    let alive = true;
+    void loadManifest()
+      .then((manifest) => {
+        if (alive) setShipped(new Set(PLACES.filter((place) => assetUrl(manifest, `places/${place.assets}/place.json`) !== null).map((place) => place.id)));
+      })
+      .catch(() => {
+        if (alive) setShipped(new Set());
+      });
+    return () => {
+      alive = false;
+    };
+  }, [world, drawing]);
   // An open set piece is shown where it is staged (R-CITY-011).
   const scene = openScene(view, PLACES);
   const sceneAt = scene?.place ?? null;
@@ -196,12 +276,37 @@ export function City({ adverts }: { adverts?: (place: string) => ReactNode } = {
         const signs = picked.signs.map((key) => text[key] ?? "").filter((said) => said.trim() !== "");
         return signs.length === 0 ? name : signs.map((said) => said.replace(/\n/g, " ")).join(". ");
       }
+      case "action":
+        return nameOf(picked.activity);
       default: {
         const never: never = picked;
         throw new Error(`Unknown pick: ${JSON.stringify(never)}`);
       }
     }
   };
+
+  const actionOf = (file: string): string | null => {
+    const found = Object.entries(ACTIONS).find(([suffix]) => file.endsWith(suffix))?.[1] ?? null;
+    if (found === null || entry === null || !(entry.stages as readonly string[]).includes(found)) return null;
+    return view.activities.some((option) => option.id === found) ? found : null;
+  };
+  const pins: Pin[] = (() => {
+    if (!world) return [];
+    const been = readKept(BEEN_KEY);
+    const home = HOMES[where] ?? null;
+    return places
+      .filter((place) => (place.position !== null || place.id === home) && (shipped === null || shipped.has(place.id) || place.id === home))
+      .map((place) => {
+        const state: PinState = place.id === placeId ? "here" : place.id === home ? "home" : been.includes(place.id) ? "been" : shipped === null || shipped.has(place.id) ? "can" : "not";
+        return { id: place.id, name: placeName(place.id), state, position: place.position ?? HOME_SPOT, things: place.stages.length };
+      });
+  })();
+  // At home the map is Lagos; abroad it is the country the character is in. The rest are shut until a visa opens them.
+  const countries: CountryChoice[] = [
+    { id: "lagos", name: cityWords("city.map.lagos"), locked: where === "home" ? null : cityWords("city.map.not-open") },
+    ...COUNTRIES.map((id) => ({ id, name: nameOf(id), locked: where === "abroad" && id === country ? null : cityWords(where === "home" ? "city.map.no-visa" : "city.map.not-open") })),
+  ];
+  const shownCountry = countries.find((choice) => choice.locked === null) ?? countries[0] ?? { id: "lagos", name: cityWords("city.map.lagos"), locked: null };
 
   const loading = drawing && entry !== null && !ready && failed === null;
   const percent = progress === null || progress.total === 0 ? 0 : Math.floor((progress.loaded * 100) / progress.total);
@@ -222,6 +327,7 @@ export function City({ adverts }: { adverts?: (place: string) => ReactNode } = {
               onProgress={(loaded, total) => setProgress({ loaded, total })}
               onFailed={setFailed}
               onPick={setPicked}
+              {...(world ? { actionOf, overview: true } : {})}
               onFrame={(frameMs) => {
                 const next = observeFrame(watch.current, frameMs, city);
                 watch.current = next;
@@ -232,21 +338,52 @@ export function City({ adverts }: { adverts?: (place: string) => ReactNode } = {
         ) : null}
       </div>
 
+      {world && map ? <FlyOver pins={pins} country={shownCountry} countries={countries} drawing={drawing} onGo={(id) => { setPlaceId(id); setMap(false); }} onClose={() => setMap(false)} /> : null}
+
       {looking ? (
-        <div className="pointer-events-none fixed inset-0 z-[36] flex flex-col justify-between gap-3 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
-          <div className="pointer-events-auto flex flex-wrap items-center gap-2 rounded-xl border border-line bg-paper/90 p-2 backdrop-blur-sm">
-            <div className="flex min-w-0 flex-1 flex-col px-1">
-              <h2 className="truncate font-display text-xl leading-tight">{name}</h2>
-              {sample === null ? null : <p className="text-xs text-muted">{cityWords(`city.band.${sample.band}`)}</p>}
+        <div className="pointer-events-none fixed inset-0 z-[36] flex flex-col justify-between gap-3 p-3 pt-[max(0.75rem,env(safe-area-inset-top))] pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+          {world ? (
+            <div className="flex flex-col gap-2" data-hud>
+              <div className="flex items-center justify-between gap-2">
+                <span className="pointer-events-auto rounded-full bg-ink/60 px-3 py-1.5 text-sm font-semibold text-paper backdrop-blur-sm">{cityWords("city.hud.month", { month: view.month + 1 })}</span>
+                {view.japacity.percent === null ? null : (
+                  <span className="pointer-events-auto rounded-full bg-ink/60 px-3 py-1.5 text-sm font-semibold text-paper backdrop-blur-sm">
+                    {words("ui.japacity.title")} <span className="text-accent">{view.japacity.percent}%</span>
+                  </span>
+                )}
+                <span className="pointer-events-auto rounded-full bg-ink/60 px-3 py-1.5 text-sm font-semibold text-paper tabular-nums backdrop-blur-sm">{formatMoney(view.pockets.NGN.cash, "NGN")}</span>
+              </div>
+              <div className="flex items-start justify-between gap-2">
+                <div className="flex min-w-0 flex-col rounded-xl bg-paper/80 px-3 py-1.5 backdrop-blur-sm">
+                  <h2 className="truncate font-display text-lg leading-tight">{name}</h2>
+                  {sample === null ? null : <p className="text-xs text-muted">{cityWords(`city.band.${sample.band}`)}</p>}
+                </div>
+                <div className="flex gap-2">
+                  <Button small onClick={() => setMenu(true)} aria-label={cityWords("city.menu")} className="bg-paper/90">
+                    <Settings2 size={16} />
+                  </Button>
+                  <button type="button" onClick={() => setMap(true)} className="pointer-events-auto inline-flex h-16 w-16 flex-col items-center justify-center gap-0.5 rounded-2xl border-2 border-white/80 bg-[#dbe9f4] text-xs font-bold text-ink shadow-lg" data-map-button>
+                    <MapIcon size={22} />
+                    {cityWords("city.map")}
+                  </button>
+                </div>
+              </div>
             </div>
-            <Button small onClick={() => setMenu(true)}>
-              <Settings2 size={16} />
-              {cityWords("city.menu")}
-            </Button>
-            <Button small variant="primary" onClick={() => setLooking(false)}>
-              {cityWords("city.back")}
-            </Button>
-          </div>
+          ) : (
+            <div className="pointer-events-auto flex flex-wrap items-center gap-2 rounded-xl border border-line bg-paper/90 p-2 backdrop-blur-sm">
+              <div className="flex min-w-0 flex-1 flex-col px-1">
+                <h2 className="truncate font-display text-xl leading-tight">{name}</h2>
+                {sample === null ? null : <p className="text-xs text-muted">{cityWords(`city.band.${sample.band}`)}</p>}
+              </div>
+              <Button small onClick={() => setMenu(true)}>
+                <Settings2 size={16} />
+                {cityWords("city.menu")}
+              </Button>
+              <Button small variant="primary" onClick={() => setLooking(false)}>
+                {cityWords("city.back")}
+              </Button>
+            </div>
+          )}
 
           <div className="flex flex-col gap-2 lg:max-w-md">
             {loading ? <p className="pointer-events-auto rounded-lg bg-paper/90 px-3 py-2 text-sm">{cityWords("city.loading", { place: name, percent })}</p> : null}
@@ -281,8 +418,9 @@ export function City({ adverts }: { adverts?: (place: string) => ReactNode } = {
                 {heardWords(heard.key, heard.params)}
               </p>
             )}
-            {picked === null ? null : <PersonCard picked={picked} words={cardWords()} onClose={() => setPicked(null)} />}
-            <p className="pointer-events-auto self-start rounded-lg bg-paper/80 px-2 py-1 text-xs text-muted">{cityWords("city.hold")}</p>
+            {picked === null || picked.kind === "action" ? null : <PersonCard picked={picked} words={cardWords()} onClose={() => setPicked(null)} />}
+            {world && month !== undefined ? <div className="pointer-events-auto rounded-xl border border-line bg-paper/85 p-2 backdrop-blur-sm" data-month-bar>{month}</div> : null}
+            <p className="pointer-events-auto self-start rounded-lg bg-paper/80 px-2 py-1 text-xs text-muted">{cityWords(world ? "city.world.tap" : "city.hold")}</p>
           </div>
         </div>
       ) : (
@@ -339,6 +477,9 @@ export function City({ adverts }: { adverts?: (place: string) => ReactNode } = {
         </div>
       </Sheet>
       <CreditsSheet open={credits} onOpenChange={setCredits} />
+      <Sheet open={picked?.kind === "action"} onOpenChange={(open) => { if (!open) setPicked(null); }} title={picked?.kind === "action" ? cardWords() : ""}>
+        {picked?.kind === "action" ? actions?.([picked.activity]) : null}
+      </Sheet>
     </>
   );
 }

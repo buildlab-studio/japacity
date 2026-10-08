@@ -43,6 +43,7 @@ import { RunDownBanner } from "./features/health/RunDownBanner";
 import { InterviewView } from "./features/interview/InterviewView";
 import { FamilyView } from "./features/place/FamilyView";
 import { PlaceView } from "./features/place/PlaceView";
+import { ActivityPicker } from "./features/activity/ActivityView";
 import { PrologueHandover, prologueJustClosed, PrologueView } from "./features/prologue/PrologueView";
 import { QualityView } from "./features/quality/QualityView";
 import { RoadView } from "./features/road/RoadView";
@@ -300,6 +301,26 @@ function Playing() {
   );
 }
 
+/** The world-first prototype (docs/design/11-the-world-first.md): opened with `?world` while the maintainer judges it. */
+function worldMode(): boolean {
+  return typeof location !== "undefined" && location.search.includes("world");
+}
+
+/** The world is the game: the place fills the screen under a see-through bar, the month plays in the scene, and the map is a fly-over. */
+function WorldPlaying() {
+  const view = useView();
+  const reportOpen = useGame((state) => state.reportOpen);
+  useScreenCount("world");
+  useScreenCount(reportOpen ? "report" : null);
+  useScreenCount(view.setpiece === null ? null : "setpiece");
+  return (
+    <div className="min-h-dvh">
+      <City world adverts={(place) => <PlaceAdverts place={place} />} actions={(ids) => <ActivityPicker only={ids} />} month={<TurnBar />} />
+      <Moment />
+    </div>
+  );
+}
+
 function Shell() {
   const view = useGame((state) => state.view);
   const failed = useGame((state) => state.failed);
@@ -317,6 +338,7 @@ function Shell() {
   if (prologueJustClosed(lines) && handedOver !== view.v) return <PrologueHandover onDone={() => setHandedOver(view.v)} />;
   if (view.ended && view.card !== null && view.card.kind !== "send-off") return <EndingView />;
   if (view.place.where === "road") return <RoadView offers={(only) => <OfferView only={only} />} city={<City adverts={(place) => <PlaceAdverts place={place} />} />} />;
+  if (worldMode()) return <WorldPlaying />;
   return <Playing />;
 }
 
