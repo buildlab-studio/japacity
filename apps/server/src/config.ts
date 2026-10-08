@@ -61,7 +61,7 @@ export const productionConfig: ServerConfig = {
   testing: { fastClock: false, captureOtp: false, stubGoogle: false, virtualPasskeys: false, testLogin: false },
 };
 
-type Deep<T> = { [K in keyof T]?: T[K] extends object ? Deep<T[K]> : T[K] };
+type Deep<T> = { [K in keyof T]?: T[K] extends readonly unknown[] ? T[K] : T[K] extends object ? Deep<T[K]> : T[K] };
 
 /** The test server's config: production with the switches a test names. */
 export function testConfig(over: Deep<ServerConfig> = {}): ServerConfig {
