@@ -34,7 +34,97 @@
   }
 }
 
+
+/* The world-first role tokens (docs/rules/world.md R-WORLD-021). A component names a role, never a
+   colour. Two themes share the roles: adire (the default) and danfo (data-ui="danfo" on <html>).
+   The 3D world keeps its own colours in both. */
+:root {
+  --strong: #1c2a5e;
+  --strong-2: #2c3f87;
+  --on-strong: #f3efe6;
+  --strong-label: rgba(243, 239, 230, 0.72);
+  --band-outline: none;
+  --pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='44' height='44'%3E%3Cg fill='none' stroke='%23f3efe6' stroke-opacity='.16' stroke-width='2'%3E%3Ccircle cx='22' cy='22' r='15'/%3E%3Ccircle cx='22' cy='22' r='8'/%3E%3C/g%3E%3Ccircle cx='22' cy='22' r='2.5' fill='%23f3efe6' fill-opacity='.16'/%3E%3C/svg%3E");
+  --wall: #1c2a5e;
+  --wall-text: #f3efe6;
+  --screen: #f3efe6;
+  --sheet: #fbf9f4;
+  --sheet-2: #ffffff;
+  --sheet-muted: #e8e2d4;
+  --text: #131a33;
+  --text-2: #5a6078;
+  --sheet-line: rgba(19, 26, 51, 0.12);
+  --action: #f2b705;
+  --action-text: #131a33;
+  --action-edge: #131a33;
+  --signal: #f2b705;
+  --in: #2a8656;
+  --out: #c23a2a;
+  --scrim: rgba(12, 16, 34, 0.5);
+  --device: #0d1124;
+  --water: #2c3f87;
+  --land: #ece5d5;
+  --land-2: #e1d8c4;
+  --road: #fbf9f4;
+  --map-label: #5d564a;
+  --paper-bill: #fbf7ec;
+  --paper-ticket: #fff3c4;
+  --app-bank: #2a8656;
+  --app-chats: #2c3f87;
+  --app-japa: #d4602e;
+  --app-jobs: #b8862b;
+  --app-lotto: #c23a2a;
+  --app-bills: #7a3b69;
+  --app-news: #4a5068;
+  --app-settings: #8a8378;
+}
+
+:root[data-ui="danfo"] {
+  --strong: #17140f;
+  --strong-2: #17140f;
+  --on-strong: #f6f1e4;
+  --strong-label: #f2b705;
+  --band-outline: 1px solid rgba(255, 255, 255, 0.14);
+  --pattern: none;
+  --wall: #f6f1e4;
+  --wall-text: #17140f;
+  --screen: #f6f1e4;
+  --sheet: #fbf9f4;
+  --sheet-2: #ffffff;
+  --sheet-muted: #ece4cf;
+  --text: #17140f;
+  --text-2: #5e574a;
+  --sheet-line: rgba(23, 20, 15, 0.12);
+  --scrim: rgba(10, 9, 6, 0.55);
+  --device: #17140f;
+  --water: #17140f;
+  --land: #efe7d3;
+  --land-2: #e4dac2;
+  --road: #ffffff;
+  --map-label: #5e574a;
+  --app-chats: #17140f;
+}
+
 @theme inline {
+  --color-strong: var(--strong);
+  --color-strong-2: var(--strong-2);
+  --color-on-strong: var(--on-strong);
+  --color-sheet: var(--sheet);
+  --color-sheet-2: var(--sheet-2);
+  --color-sheet-muted: var(--sheet-muted);
+  --color-text: var(--text);
+  --color-text-2: var(--text-2);
+  --color-sheet-line: var(--sheet-line);
+  --color-action: var(--action);
+  --color-action-text: var(--action-text);
+  --color-signal: var(--signal);
+  --color-in: var(--in);
+  --color-out: var(--out);
+  --color-scrim: var(--scrim);
+  --color-device: var(--device);
+  --color-screen: var(--screen);
+  --color-wall: var(--wall);
+  --color-wall-text: var(--wall-text);
   --color-paper: var(--paper);
   --color-surface: var(--surface);
   --color-sunk: var(--sunk);
@@ -69,4 +159,36 @@ body {
     transition: none !important;
     animation: none !important;
   }
+}
+
+/* The world's bands, chips and the one main button (world.md R-WORLD-002, 006, 021, 023). */
+.band { background-color: var(--strong); background-image: var(--pattern); color: var(--on-strong); outline: var(--band-outline); outline-offset: -1px; }
+.band-2 { background-color: var(--strong-2); background-image: var(--pattern); color: var(--on-strong); outline: var(--band-outline); outline-offset: -1px; }
+.label-strong { color: var(--strong-label); }
+.wall { background-color: var(--wall); background-image: var(--pattern); color: var(--wall-text); }
+.num { font-variant-numeric: tabular-nums; font-weight: 800; letter-spacing: -0.02em; }
+.label { font-size: 11px; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; }
+.title { font-weight: 850; letter-spacing: -0.02em; }
+.panel { background: var(--sheet); color: var(--text); border-radius: 6px; box-shadow: 0 18px 40px rgba(10, 14, 30, 0.35); }
+.chip { background: var(--sheet); color: var(--text); border-radius: 4px; box-shadow: 0 2px 0 var(--sheet-line); }
+.btn-main { position: relative; display: flex; align-items: center; justify-content: space-between; width: 100%; height: 58px; padding: 0 18px; border-radius: 6px; background: var(--action); color: var(--action-text); font-weight: 850; font-size: 17px; box-shadow: inset 0 -4px 0 var(--action-edge); transition: transform 0.06s, box-shadow 0.06s; }
+.btn-main:active { transform: translateY(2px); box-shadow: inset 0 -1px 0 var(--action-edge); }
+.btn-main:disabled { opacity: 0.5; }
+.btn-dark { background: var(--strong); color: var(--on-strong); border-radius: 5px; font-weight: 800; outline: var(--band-outline); outline-offset: -1px; }
+.press:active { transform: translateY(1px); filter: brightness(0.92); }
+
+@keyframes rise { from { transform: translateY(110%); } to { transform: translateY(0); } }
+@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes pop { 0% { transform: scale(0.86); opacity: 0; } 70% { transform: scale(1.02); opacity: 1; } 100% { transform: scale(1); } }
+@keyframes drop { from { transform: translateY(-14px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+@keyframes phone-up { from { transform: translateY(105%) rotate(5deg); } to { transform: none; } }
+@keyframes chip-in { from { transform: translateY(8px) scale(0.9); opacity: 0; } to { transform: none; opacity: 1; } }
+.rise { animation: rise 0.3s cubic-bezier(0.2, 0.9, 0.25, 1.04) both; }
+.fade { animation: fade 0.22s ease both; }
+.pop { animation: pop 0.34s cubic-bezier(0.2, 0.9, 0.25, 1.1) both; }
+.drop { animation: drop 0.28s ease both; }
+.phone-up { animation: phone-up 0.38s cubic-bezier(0.2, 0.9, 0.25, 1.05) both; }
+.chip-in { animation: chip-in 0.22s cubic-bezier(0.2, 0.9, 0.25, 1.1) both; }
+@media (prefers-reduced-motion: reduce) {
+  .rise, .pop, .drop, .phone-up, .chip-in { animation: fade 0.2s ease both; }
 }

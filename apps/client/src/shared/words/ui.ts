@@ -6,12 +6,14 @@ import { boardsWords } from "./boards";
 import { lotteryWords } from "./lottery";
 import { onlineText } from "./online";
 import { peopleText } from "./people";
+import { worldText } from "./world";
 
 export const uiText: Record<string, string> = {
   ...onlineText,
   ...lotteryWords,
   ...boardsWords,
   ...peopleText,
+  ...worldText,
   "ui.game": "Japacity",
   "ui.loading": "Opening your life...",
   "ui.failed": "The game could not start: {why}",

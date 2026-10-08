@@ -4,7 +4,7 @@
 // only where WebGL exists, so the panels never wait for it (R-CITY-018).
 import { content, text } from "@japacity/content";
 import type { Id, PlaceEntry } from "@japacity/sim";
-import { Map as MapIcon, Moon, Settings2, Smartphone, X } from "lucide-react";
+import { Map as MapIcon, Settings2, X } from "lucide-react";
 import { lazy, Suspense, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 
 import { useGame, useView } from "../../authority/GameProvider";
@@ -13,7 +13,14 @@ import { assetUrl, loadJson, loadManifest } from "../../shared/three/manifest";
 import { Button } from "../../shared/ui/Button";
 import { Sheet } from "../../shared/ui/Sheet";
 import { formatMoney } from "../../shared/words/format";
-import { nameOf, words } from "../../shared/words/text";
+import { blurbOf, nameOf, say, words } from "../../shared/words/text";
+import { AskSheet } from "../../shared/world/AskSheet";
+import { Band } from "../../shared/world/Band";
+import type { Ask, Nudge as NudgeWords } from "../../shared/world/contract";
+import { Cut, useCut } from "../../shared/world/Cut";
+import { Nudge } from "../../shared/world/Nudge";
+import { ThumbBar } from "../../shared/world/ThumbBar";
+import { Toast, useToast } from "../../shared/world/Toast";
 import { cityWords, heardWords, placeName, residentName, roleWords } from "./city.words";
 import { CreditsSheet } from "./Credits";
 import { type CountryChoice, FlyOver, type Pin, type PinState } from "./FlyOver";
@@ -49,8 +56,6 @@ const RIDES: Record<string, string> = { "veh_danfo.glb": "danfo", "veh_keke.glb"
 const DOORS: Record<string, string> = {};
 /** Buildings the character steps inside (rule 14), by the end of their model's file. */
 const INSIDE = ["bld_family-house.glb"];
-/** How long the cut to another scene stays dark, in milliseconds. */
-const CUT_MS = 320;
 
 /**
  * The room inside a building, as its own small scene cut from the place's file (rule 14): the floor
@@ -224,11 +229,13 @@ export function City({
   const [looking, setLooking] = useState(world);
   const [map, setMap] = useState(false);
   const [inside, setInside] = useState(false);
+  const { cutting, cutTo } = useCut();
+  const toast = useToast();
+  const addToPlan = useGame((state) => state.addToPlan);
   const [phone, setPhone] = useState(false);
   const [monthOpen, setMonthOpen] = useState(false);
   const [zoom, setZoom] = useState(ZOOM.whole);
   const plan = useGame((state) => state.plan);
-  const [cutting, setCutting] = useState(false);
   const [diveTo, setDiveTo] = useState<string | null>(null);
   const [shipped, setShipped] = useState<Set<string> | null>(null);
   const [menu, setMenu] = useState(false);
@@ -374,14 +381,6 @@ export function City({
     setDiveTo(id);
     setMap(true);
   };
-  // The cut: the screen goes dark for a moment, the scene changes behind it, and it comes back (rule 14).
-  const cutTo = (then: () => void): void => {
-    setCutting(true);
-    window.setTimeout(() => {
-      then();
-      window.setTimeout(() => setCutting(false), CUT_MS);
-    }, CUT_MS);
-  };
   useEffect(() => {
     if (picked?.kind === "enter") {
       setPlaceId(picked.place);
@@ -430,6 +429,45 @@ export function City({
     return found;
   })();
 
+  const nextStep = view.chapter.items.find((item) => !item.met)?.id ?? null;
+  const nudge: NudgeWords | null = !world
+    ? null
+    : view.setpiece !== null || (view.interview?.question ?? null) !== null
+      ? { key: "ui.nudge.setpiece" }
+      : view.offers.length > 0
+        ? { key: "ui.nudge.offer" }
+        : view.chapter.current !== null && nextStep !== null
+          ? { key: `${view.chapter.current}.item.${nextStep}` }
+          : view.report !== null
+            ? { key: "ui.nudge.report" }
+            : { key: "ui.nudge.end" };
+  const endBlocked = view.ended ? words("reject.ended") : view.setpiece !== null || (view.interview?.question ?? null) !== null ? words("reject.setpiece-open") : view.turns.banked < 1 ? words("reject.no-turns") : null;
+  // One action, one sheet: a paper slip for a paper thing, a card for the rest.
+  const ask: Ask | null = (() => {
+    if (!world || picked?.kind !== "action") return null;
+    const activity = picked.activity;
+    const option = view.activities.find((candidate) => candidate.id === activity);
+    if (option === undefined) return null;
+    const cost = option.cost[0] ?? null;
+    const paper = activity === "activity.play-lotto" || activity === "activity.bet-slip";
+    return {
+      form: paper ? "slip" : "card",
+      icon: paper ? "ticket" : "hand",
+      who: name,
+      title: nameOf(activity),
+      line: blurbOf(activity) ?? "",
+      cost: cost === null ? null : { amount: cost.amount, currency: cost.currency },
+      button: say("ui.activity.add"),
+      ...(paper ? { reference: say("ui.world.month-of", { month: view.month + 1 }).toUpperCase() } : {}),
+      act: () => {
+        const added = addToPlan({ activity: option.id, param: option.params?.[0] ?? null });
+        setPicked(null);
+        toast.show(say(added ? "ui.world.added" : "ui.world.full"));
+      },
+      dismiss: () => setPicked(null),
+    };
+  })();
+
   const loading = drawing && entry !== null && !ready && failed === null;
   const percent = progress === null || progress.total === 0 ? 0 : Math.floor((progress.loaded * 100) / progress.total);
 
@@ -460,7 +498,6 @@ export function City({
         ) : null}
       </div>
 
-      {world ? <div aria-hidden className={`pointer-events-none fixed inset-0 z-[45] bg-ink transition-opacity duration-300 ${cutting ? "opacity-100" : "opacity-0"}`} data-cut={cutting} /> : null}
       {world && map ? (
         <FlyOver
           pins={pins}
@@ -480,41 +517,41 @@ export function City({
         />
       ) : null}
 
+      {world && looking ? (
+        <>
+          <Band
+            when={say("ui.world.month-of", { month: view.month + 1 })}
+            name={inside ? cityWords("city.inside.name", { place: name }) : name}
+            money={view.pockets.NGN.cash}
+            formatMoney={(amount) => formatMoney(amount, "NGN")}
+            onEndMonth={() => setMonthOpen(true)}
+            endBlocked={endBlocked}
+            hidden={map}
+            aside={
+              inside ? (
+                <button type="button" onClick={() => cutTo(() => setInside(false))} className="label-strong self-start text-[11px] font-bold underline" data-step-outside>
+                  {say("ui.world.step-outside")}
+                </button>
+              ) : null
+            }
+          />
+          <Nudge nudge={nudge} hidden={map || phone || monthOpen || picked !== null} />
+          <ThumbBar onMap={() => setMap(true)} onPhone={() => setPhone(true)} phoneWaiting={view.offers.length > 0} hidden={map} />
+          {zoom <= 0.3 && !map ? (
+            <button type="button" onClick={() => setZoom(ZOOM.whole)} className="chip drop pointer-events-auto fixed bottom-[calc(max(14px,env(safe-area-inset-bottom))+76px)] left-1/2 z-[38] -translate-x-1/2 px-3 py-2 text-[13px] font-bold" data-zoom-preset>
+              {say("ui.world.whole")}
+            </button>
+          ) : null}
+          <Button small onClick={() => setMenu(true)} aria-label={cityWords("city.menu")} className="fixed top-[calc(max(10px,env(safe-area-inset-top))+118px)] right-3 z-[38] bg-sheet/90">
+            <Settings2 size={16} />
+          </Button>
+          <Toast words={toast.words} />
+          <Cut cutting={cutting} />
+        </>
+      ) : null}
       {looking ? (
         <div className="pointer-events-none fixed inset-0 z-[36] flex flex-col justify-between gap-3 p-3 pt-[max(0.75rem,env(safe-area-inset-top))] pb-[max(0.75rem,env(safe-area-inset-bottom))]">
-          {world ? (
-            <div className="flex flex-col gap-2" data-hud>
-              <div className="flex items-center justify-between gap-2">
-                <span className="pointer-events-auto rounded-full bg-ink/60 px-3 py-1.5 text-sm font-semibold text-paper backdrop-blur-sm">{cityWords("city.hud.month", { month: view.month + 1 })}</span>
-                {view.japacity.percent === null ? null : (
-                  <span className="pointer-events-auto rounded-full bg-ink/60 px-3 py-1.5 text-sm font-semibold text-paper backdrop-blur-sm">
-                    {words("ui.japacity.title")} <span className="text-accent">{view.japacity.percent}%</span>
-                  </span>
-                )}
-                <span className="pointer-events-auto rounded-full bg-ink/60 px-3 py-1.5 text-sm font-semibold text-paper tabular-nums backdrop-blur-sm">{formatMoney(view.pockets.NGN.cash, "NGN")}</span>
-              </div>
-              <div className="flex items-start justify-between gap-2">
-                <div className="flex min-w-0 flex-col rounded-xl bg-paper/80 px-3 py-1.5 backdrop-blur-sm">
-                  <h2 className="truncate font-display text-lg leading-tight">{inside ? cityWords("city.inside.name", { place: name }) : name}</h2>
-                  {inside ? (
-                    <button type="button" onClick={() => cutTo(() => setInside(false))} className="self-start text-xs font-semibold text-accent underline" data-step-outside>
-                      {cityWords("city.inside.out")}
-                    </button>
-                  ) : sample === null ? null : (
-                    <p className="text-xs text-muted">{cityWords(`city.band.${sample.band}`)}</p>
-                  )}
-                </div>
-                <div className="flex flex-col items-end gap-2">
-                  <Button small onClick={() => setMenu(true)} aria-label={cityWords("city.menu")} className="bg-paper/90">
-                    <Settings2 size={16} />
-                  </Button>
-                  <Button small onClick={() => setZoom((current) => (current > 0.3 ? ZOOM.closer : ZOOM.whole))} className="bg-paper/90" data-zoom-preset>
-                    {zoom > 0.3 ? cityWords("city.zoom.closer") : cityWords("city.zoom.whole")}
-                  </Button>
-                </div>
-              </div>
-            </div>
-          ) : (
+          {world ? null : (
             <div className="pointer-events-auto flex flex-wrap items-center gap-2 rounded-xl border border-line bg-paper/90 p-2 backdrop-blur-sm">
               <div className="flex min-w-0 flex-1 flex-col px-1">
                 <h2 className="truncate font-display text-xl leading-tight">{name}</h2>
@@ -564,23 +601,7 @@ export function City({
               </p>
             )}
             {picked === null || picked.kind === "action" || picked.kind === "ride" || picked.kind === "enter" || picked.kind === "inside" ? null : <PersonCard picked={picked} words={cardWords()} onClose={() => setPicked(null)} />}
-            {world ? (
-              <nav aria-label={cityWords("city.menu")} className="pointer-events-auto grid grid-cols-3 gap-2" data-world-bar>
-                {(
-                  [
-                    { id: "phone", icon: Smartphone, label: cityWords("city.phone"), onTap: () => setPhone(true), dot: view.offers.length > 0 },
-                    { id: "map", icon: MapIcon, label: cityWords("city.map"), onTap: () => setMap(true), dot: false },
-                    { id: "month", icon: Moon, label: cityWords("city.month"), onTap: () => setMonthOpen(true), dot: false },
-                  ] as const
-                ).map(({ id, icon: Icon, label, onTap, dot }) => (
-                  <button key={id} type="button" onClick={onTap} data-bar={id} className="relative flex min-h-14 flex-col items-center justify-center gap-0.5 rounded-2xl border-2 border-ink bg-paper/95 text-xs font-bold text-ink shadow-md">
-                    <Icon size={20} />
-                    {label}
-                    {dot ? <span className="absolute top-1.5 right-2 size-3 rounded-full bg-bad" aria-hidden /> : null}
-                  </button>
-                ))}
-              </nav>
-            ) : (
+            {world ? null : (
               <p className="pointer-events-auto self-start rounded-lg bg-paper/80 px-2 py-1 text-xs text-muted">{cityWords("city.hold")}</p>
             )}
           </div>
@@ -639,7 +660,8 @@ export function City({
         </div>
       </Sheet>
       <CreditsSheet open={credits} onOpenChange={setCredits} />
-      <Sheet open={picked?.kind === "action"} onOpenChange={(open) => { if (!open) setPicked(null); }} title={picked?.kind === "action" ? cardWords() : ""}>
+      {world ? <AskSheet ask={ask} have={view.pockets.NGN.cash} formatMoney={(amount, currency) => formatMoney(amount, currency as "NGN")} /> : null}
+      <Sheet open={!world && picked?.kind === "action"} onOpenChange={(open) => { if (!open) setPicked(null); }} title={picked?.kind === "action" ? cardWords() : ""}>
         {picked?.kind === "action" ? actions?.([picked.activity]) : null}
       </Sheet>
       <Sheet open={world && monthOpen} onOpenChange={setMonthOpen} title={cityWords("city.month.title")} description={cityWords("city.month.hint")}>
