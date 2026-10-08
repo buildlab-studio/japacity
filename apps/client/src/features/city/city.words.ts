@@ -42,6 +42,8 @@ export const cityText: Record<string, string> = {
   "city.map.no-visa": "No visa yet",
   "city.map.not-open": "Not in this life yet",
   "city.hud.month": "Month {month}",
+  "city.inside.name": "Inside {place}",
+  "city.inside.out": "Step outside",
   "city.ride.title": "Where to?",
   "city.ride.home": "Home",
   "city.ride.line": "{minutes} minutes by road",

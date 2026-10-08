@@ -44,10 +44,6 @@ function aimCamera(camera: Camera, walker: Walker, heading: number, plan: number
   camera.lookAt(...target);
 }
 
-/** Inside mode (rule 14): the camera is at eye level once the character is this close to a door, and leaves it this far away. */
-const INSIDE_NEAR = 5;
-const INSIDE_FAR = 9;
-
 interface WorldProps extends SceneProps {
   /** How far toward the plan view the camera stands, 0 to 1. */
   plan: number;
@@ -67,9 +63,7 @@ function Idle({ looking }: { looking: boolean }) {
 }
 
 function Place(props: WorldProps) {
-  const { place, file, people, own, settings, text, onProgress, onFailed, onPick, onFrame, looking, plan, takeTap, onTap, actionOf, insideOf } = props;
-  const inside = useRef(false);
-  const insideShare = useRef(0);
+  const { place, file, people, own, settings, text, onProgress, onFailed, onPick, onFrame, looking, plan, takeTap, onTap, actionOf } = props;
   const [world, setWorld] = useState<World | null>(null);
   const walker = useRef<Walker>(standAt(0, 0, 0));
   const planShare = useRef(0);
@@ -79,8 +73,6 @@ function Place(props: WorldProps) {
   const camera = useThree((state) => state.camera);
   const size = useThree((state) => state.size);
   const stage = stageOf(file);
-  // The doors the character can step through: the spots of the models that can be entered.
-  const doors = stage.models.filter((model) => insideOf?.(model.file) === true).flatMap((model) => model.at);
   const peopleKey = people.map((shown) => `${shown.person.file}:${String(shown.tag)}`).join("|");
 
   useEffect(() => {
@@ -165,21 +157,7 @@ function Place(props: WorldProps) {
     else poseFigure(world.own, time, "walk", strideOf(next));
     planShare.current += (plan - planShare.current) * Math.min(1, delta * 4);
     const raised = props.overview === true;
-    if (raised && doors.length > 0) {
-      const nearest = Math.min(...doors.map(([x, z]) => Math.hypot(x - next.x, z - next.z)));
-      if (!inside.current && nearest < INSIDE_NEAR) inside.current = true;
-      if (inside.current && nearest > INSIDE_FAR) inside.current = false;
-    }
-    insideShare.current += ((inside.current ? 1 : 0) - insideShare.current) * Math.min(1, delta * 3);
-    if (raised && insideShare.current > 0.001) {
-      // Inside: the street camera at eye level, blended from the raised view as the character reaches the door.
-      const aspect = state.size.width / Math.max(1, state.size.height);
-      const outer = worldAim(next, stage.start[2], planShare.current, aspect);
-      const inner = cameraAim(next, next.facing, 0, aspect);
-      const k = insideShare.current;
-      state.camera.position.set(outer.position[0] + (inner.position[0] - outer.position[0]) * k, outer.position[1] + (inner.position[1] - outer.position[1]) * k, outer.position[2] + (inner.position[2] - outer.position[2]) * k);
-      state.camera.lookAt(outer.target[0] + (inner.target[0] - outer.target[0]) * k, outer.target[1] + (inner.target[1] - outer.target[1]) * k, outer.target[2] + (inner.target[2] - outer.target[2]) * k);
-    } else aimCamera(state.camera, next, stage.start[2], planShare.current, state.size.width / Math.max(1, state.size.height), raised);
+    aimCamera(state.camera, next, stage.start[2], planShare.current, state.size.width / Math.max(1, state.size.height), raised);
     if (state.camera instanceof PerspectiveCamera) {
       const fov = raised ? WORLD_FOV : FOV;
       if (state.camera.fov !== fov) {
@@ -206,7 +184,6 @@ function Place(props: WorldProps) {
     }
     const probe = window.__city;
     if (probe !== undefined) {
-      probe.inside = inside.current;
       probe.drawCalls = gl.info.render.calls;
       probe.triangles = gl.info.render.triangles;
       probe.frames = frames.current;
@@ -226,13 +203,6 @@ function Place(props: WorldProps) {
     if (does !== null) {
       onPick(does);
       return;
-    }
-    if (picked?.kind === "model" && insideOf?.(picked.file) === true && world !== null) {
-      const door = stage.models.find((model) => model.file === picked.file)?.at[0];
-      if (door !== undefined) {
-        walker.current = walkRoute(walker.current, findRoute(world.routes, walker.current, { x: door[0], z: door[1] }));
-        return;
-      }
     }
     // A person, the player, or a shopfront with its signs opens a card; anything else is ground to walk to.
     if (picked !== null && (picked.kind !== "model" || picked.signs.length > 0)) {
@@ -271,7 +241,7 @@ export const OVERVIEW = { start: 0.55, min: 0, max: 1 };
 
 export default function CityScene(props: SceneProps) {
   const [plan, setPlan] = useState(false);
-  const [height, setHeight] = useState(OVERVIEW.start);
+  const [height, setHeight] = useState(props.zoom ?? OVERVIEW.start);
   const pinch = useRef<{ gap: number; height: number } | null>(null);
   const pointers = useRef(new Map<number, { x: number; y: number }>());
   const world = props.overview === true;
@@ -283,7 +253,8 @@ export default function CityScene(props: SceneProps) {
     setPlan(false);
   };
   const { settings, looking, place } = props;
-  useEffect(() => setHeight(OVERVIEW.start), [place]);
+  const startZoom = props.zoom ?? OVERVIEW.start;
+  useEffect(() => setHeight(startZoom), [place, startZoom]);
   const clamp = (value: number): number => Math.min(OVERVIEW.max, Math.max(OVERVIEW.min, value));
   return (
     <div
