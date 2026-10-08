@@ -4,7 +4,8 @@ import { describe, expect } from "vitest";
 
 import { check } from "../engine/check";
 import { checkInvariants } from "../engine/invariants";
-import type { Content, Id, PersonFacts, SlotPick, State } from "../engine/types";
+import type { Content, Effect, Id, PersonFacts, SlotPick, State } from "../engine/types";
+import { registry } from "../kinds";
 import { hiddenPaths } from "../engine/view";
 import { applyEffects } from "../route/route.journey";
 import type { Game, StartOptions } from "../testing/play";
@@ -728,6 +729,50 @@ describe("letting people down", () => {
     expect(qualityChange(last.events, "quality.wellbeing", bond)).toBe(numbers.leftWellbeing);
     expect(qualityChange(last.events, "quality.standing", bond)).toBe(0);
     expect(Object.values(game.state.offer.items).map((item) => item.entry)).toContain(RECOVERY);
+  });
+});
+
+describe("what an end undoes", () => {
+  test("[R-PEOPLE-029] given a status tied to a partner held abroad, when the partner bond ends, then the status's clock starts at its clock months", () => {
+    const tied = tuned((copy) => {
+      eager(copy);
+      copy.tuning.people.partnerMoments = 1;
+      copy.status["status.uk-talent"]!.tiedTo = "partner";
+      copy.status["status.uk-talent"]!.clockMonths = 2;
+    });
+    const game = life({ content: tied });
+    applyEffects(game, [
+      { type: "place/move", to: "abroad", country: "country.uk" },
+      { type: "status/grant", status: "status.uk-talent" },
+    ]);
+    const bond = court(game, KELECHI);
+    turn(game, [SEE]);
+    game.accept({ type: "people/propose", bond, step: "partner" });
+    expect(game.state.status.current).toMatchObject({ entry: "status.uk-talent", clock: null });
+    game.accept({ type: "people/end", bond });
+    expect(game.state.status.current?.clock).toBe(2);
+  });
+
+  test("[R-PEOPLE-036] given an application on the dependant gate resting on the joint, when the bond ends, then the route kind is told to withdraw it", () => {
+    const withdrawn: string[] = [];
+    const kinds = registry().map((kind) =>
+      kind.kind !== "route" ? kind : { ...kind, effects: { ...kind.effects, "route/withdraw": (_ctx: unknown, effect: Effect) => (withdrawn.push(effect.type === "route/withdraw" ? effect.route : ""), []) } },
+    );
+    const joint = tuned((copy) => {
+      eager(copy);
+      copy.route["route.uk-skilled"]!.dependants = "route.uk-care";
+      copy.route["route.uk-care"]!.gate = "dependant";
+      copy.status["status.uk-sponsored"]!.dependants = ["activity.job-uk-skilled"];
+    });
+    const game = life({ content: joint, kinds });
+    const bond = court(game, KELECHI);
+    for (let index = 0; index < numbers.partnerMoments; index += 1) turn(game, [CALL]);
+    game.accept({ type: "people/propose", bond, step: "partner" });
+    game.accept({ type: "people/propose", bond, step: "joint", route: "route.uk-skilled", lead: "them" });
+    // No command can send a dependant application until the gates are built, so the test puts it in place.
+    game.state = { ...game.state, route: { ...game.state.route, "route.uk-care": { ...game.state.route["route.uk-care"]!, state: "applying" } } };
+    game.accept({ type: "people/end", bond });
+    expect(withdrawn).toEqual(["route.uk-care"]);
   });
 });
 
