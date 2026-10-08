@@ -40,7 +40,7 @@ function fakeAccount(over: Partial<AccountApi> = {}): AccountApi & { calls: stri
     calls,
     bots,
     ageStatus: () => Promise.resolve("unasked"),
-    declareAge: (birth) => (calls.push(`declareAge(${birth})`), Promise.resolve(serverAge(new Date())(birth))),
+    declareAge: (birth, bot) => (calls.push(`declareAge(${birth})`), bots.push(bot), Promise.resolve(serverAge(new Date())(birth))),
     sendCode: (email, bot) => (bots.push(bot), log("sendCode")(email)),
     signInWithCode: (email, code, bot) => (bots.push(bot), log("signInWithCode")(email, code)),
     signInWithGoogle: (bot) => (bots.push(bot), log("signInWithGoogle")()),
@@ -140,6 +140,43 @@ describe("the age screen", () => {
     gate(fakeAccount({ ageStatus: () => Promise.resolve("refused") }));
     expect(await screen.findByText(say("ui.account.age.refused"))).toBeDefined();
     expect(screen.queryByLabelText(say("ui.account.age.label"))).toBeNull();
+  });
+
+  test("[R-ACCOUNT-013] given the bot check passed on the age screen, then its token goes with the date", async () => {
+    const account = fakeAccount();
+    const { turnstile } = gate(account);
+    await waitFor(() => expect(turnstile.rendered).toHaveLength(1));
+    act(() => turnstile.rendered[0]?.callback(DUMMY_TOKEN));
+    await answerAge(yearsAgo(30));
+    expect(await screen.findByRole("button", { name: say("ui.account.google") })).toBeDefined();
+    expect(account.bots).toEqual([DUMMY_TOKEN]);
+  });
+
+  test("[R-ACCOUNT-012] [R-ACCOUNT-013] given a date the server does not believe, then the player is asked to check it, the screen stays and the spent token's widget is reset", async () => {
+    const { turnstile } = gate(fakeAccount({ declareAge: () => Promise.resolve("bad-date") }));
+    await waitFor(() => expect(turnstile.rendered).toHaveLength(1));
+    act(() => turnstile.rendered[0]?.callback(DUMMY_TOKEN));
+    await answerAge("1800-01-01");
+    expect(await screen.findByText(say("ui.account.age.bad-date"))).toBeDefined();
+    expect(screen.getByLabelText(say("ui.account.age.label"))).toBeDefined();
+    await waitFor(() => expect(turnstile.resets()).toBe(1));
+  });
+
+  test("[R-SERVER-032] given sign-ups switched off, then the gate shows the full screen with no form, and once the server's wait is over it asks again and opens the age screen", async () => {
+    let asked = 0;
+    gate(fakeAccount({ ageStatus: () => Promise.resolve(asked++ === 0 ? { full: true, retryAfter: 1 } : "unasked") }));
+    expect(await screen.findByText(say("server.full"))).toBeDefined();
+    expect(screen.queryByLabelText(say("ui.account.age.label"))).toBeNull();
+    expect(screen.queryByRole("textbox")).toBeNull();
+    expect(await screen.findByLabelText(say("ui.account.age.label"), {}, { timeout: 3000 })).toBeDefined();
+    expect(asked).toBe(2);
+  });
+
+  test("[R-SERVER-032] given sign-ups switched off when the age is declared, then the full screen shows instead of the ways in", async () => {
+    gate(fakeAccount({ declareAge: () => Promise.resolve({ full: true, retryAfter: 30 }) }));
+    await answerAge(yearsAgo(30));
+    expect(await screen.findByText(say("server.full"))).toBeDefined();
+    expect(screen.queryByRole("button", { name: say("ui.account.google") })).toBeNull();
   });
 
   test("[R-ACCOUNT-011] given a region that is not open, then it is refused before the age screen", async () => {
