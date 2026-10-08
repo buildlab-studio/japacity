@@ -22,7 +22,7 @@ const USAGE = "Usage: pnpm rollback check|apply <character> --memory <save.json>
 /** A save in segments with one segment from its scenario, or a flat save, as the flat shape the memory loader stores. */
 function flat(value: unknown): FlatSave | null {
   if (typeof value !== "object" || value === null) return null;
-  const held = "save" in value ? (value as { save: unknown }).save : value;
+  const held = "save" in value ? value.save : value;
   const save = loadSave(held as Save | FlatSave);
   const only = save.segments.length === 1 ? save.segments[0] : undefined;
   if (only === undefined || "base" in only.start) return null;
