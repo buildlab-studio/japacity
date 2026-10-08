@@ -357,14 +357,28 @@ function box(b: Buf, c: Vec, size: Vec, colour: PaletteName, w: Weights, group =
 
 /**
  * A soft shape: the blend's surface on a grid of `cell` metres, thinned to at most `budget` triangles,
- * added in one colour (or the pattern, with texture coordinates from `uv`).
+ * added in one colour (or the pattern, with texture coordinates from `uv`). Where the second texture
+ * coordinate runs round and starts again after `wrapV`, a triangle across the seam gets its own
+ * copies of the corners before it, so the pattern does not smear.
  */
-function blended(b: Buf, blend: Blend, o: { cell: number; budget: number; colour: PaletteName; w: Weights; group?: number; uv?: (p: Vec) => [number, number] }): Surface {
+function blended(b: Buf, blend: Blend, o: { cell: number; budget: number; colour: PaletteName; w: Weights; group?: number; uv?: (p: Vec) => [number, number]; wrapV?: number }): Surface {
   const shape = thin(surface(blend, o.cell), o.budget);
   const start = b.pos.length / 3;
-  for (const p of shape.positions) vert(b, p, o.colour, o.uv?.(p) ?? [0, 0], o.w);
+  const uvs = shape.positions.map((p): [number, number] => o.uv?.(p) ?? [0, 0]);
+  shape.positions.forEach((p, i) => vert(b, p, o.colour, at(uvs, i), o.w));
   const ix = at(b.idx, o.group ?? 0);
-  for (const [p, q, r] of shape.triangles) ix.push(start + p, start + q, start + r);
+  const wrap = o.wrapV;
+  for (const tri of shape.triangles) {
+    const vs = tri.map((i) => at(uvs, i)[1]);
+    if (wrap === undefined || Math.max(...vs) - Math.min(...vs) <= wrap / 2) {
+      ix.push(...tri.map((i) => start + i));
+      continue;
+    }
+    ix.push(...tri.map((i) => {
+      const [u, v] = at(uvs, i);
+      return v < wrap / 2 ? vert(b, at(shape.positions, i), o.colour, [u, v + wrap], o.w) : start + i;
+    }));
+  }
   return shape;
 }
 
@@ -459,28 +473,40 @@ const HAIR: Record<HairName, (b: Buf, s: Spec) => void> = {
       tube(b, [{ c: p0, ru: 0.013, rv: 0.013, w: wHead }, { c: p1, ru: 0.013, rv: 0.013, w: wHead }, { c: p2, ru: 0.009, rv: 0.009, w: wHead }], { sides: 4, color: s.hairColor, capEnd: true });
     }
   },
+  // Locs: a close cap of hair over the skull, its own hairline cut, and the strands hanging from it
+  // to the shoulders, each a rod that thins to its end; the roots melt into the cap, the strands stay apart.
   locs: (b, s) => {
-    skullCap(b, { scale: 1.07, front: 0.074, back: -0.03, side: 0.0, color: s.hairColor });
+    const cap: Blend = {
+      k: 0.01,
+      shapes: [{ kind: "ellipsoid", c: [0, HC + 0.006, -0.004], r: [0.098, 0.124, 0.106] }],
+      cut: [
+        { kind: "ellipsoid", c: [0, HC - 0.07, 0.12], r: [0.1, 0.138, 0.12] },
+        { kind: "half", p: [0, HC + 0.01, 0], n: [0, 1, -0.3] },
+      ],
+      cutK: 0.012,
+    };
+    const shapes: Shape[] = [{ kind: "blend", blend: cap }];
     const r = rng(11);
     const N = 22;
     for (let i = 0; i < N; i++) {
       const a = lerp(-0.75, Math.PI + 0.75, i / (N - 1)) + (r() - 0.5) * 0.1;
       const th = -a;
       const y0 = lerp(0.04, 0.1, r());
-      const p0 = headPoint(y0, th, 1.05);
+      const p0 = headPoint(y0, th, 1.0);
       const dropTo = lerp(1.4, 1.5, r());
       const rad = lerp(0.118, 0.135, r());
       const p2: Vec = [Math.cos(th) * rad, dropTo, Math.sin(th) * rad - 0.005];
       const p1: Vec = [Math.cos(th) * rad * 1.02, lerp(HC + y0, dropTo, 0.4), Math.sin(th) * rad * 1.02];
-      tube(b, [{ c: p0, ru: 0.017, rv: 0.017, w: wHead }, { c: p1, ru: 0.017, rv: 0.017, w: wHead }, { c: p2, ru: 0.013, rv: 0.013, w: wHead }], { sides: 4, color: s.hairColor, capEnd: true });
+      shapes.push({ kind: "capsule", a: p0, b: p1, ra: 0.016, rb: 0.015 }, { kind: "capsule", a: p1, b: p2, ra: 0.015, rb: 0.011 });
     }
     for (let i = 0; i < 5; i++) {
       // A few short ones standing on the crown.
       const th = r() * 6.28;
       const p0 = headPoint(0.1, th, 0.8);
-      const p1 = add(p0, [Math.cos(th) * 0.05, 0.035, Math.sin(th) * 0.05]);
-      tube(b, [{ c: p0, ru: 0.017, rv: 0.017, w: wHead }, { c: p1, ru: 0.013, rv: 0.013, w: wHead }], { sides: 4, color: s.hairColor, capEnd: true });
+      const p1 = add(p0, [Math.cos(th) * 0.04, 0.018, Math.sin(th) * 0.04]);
+      shapes.push({ kind: "capsule", a: p0, b: p1, ra: 0.017, rb: 0.014 });
     }
+    blended(b, { shapes, k: 0.006 }, { cell: 0.005, budget: 1300, colour: s.hairColor, w: wHead });
   },
   // Long straight hair: a cap, one sheet from ear to ear down the back, and a lock brought forward over each collarbone.
   long: (b, s) => {
@@ -534,36 +560,57 @@ const HAIR: Record<HairName, (b: Buf, s: Spec) => void> = {
 const HEADWEAR: Record<HeadName, (b: Buf, s: Spec) => void> = {
   // Gele, after reference photos of real ones: the cloth is wrapped low and tight in bands over the forehead,
   // then stands up as a wide pleated fan behind the head, like a halo, larger on one side, with a knot by one ear.
-  // From the side it is thin. Stripes in the cloth run around the fan, as the pleats do.
+  // From the side it is thin. Blended from three stepped wraps, a fan of pleats and a knot, shown smooth;
+  // the pattern runs round the fan, as the pleats do.
   gele: (b, s) => {
     const f = capCloth(s.headFab);
-    const cx = 0.014;
+    const yc = HC + 0.034;
     const tilt = 0.22;
-    skullCap(b, { scale: 1.07, front: 0.05, back: -0.06, side: -0.02, ...f, swapUV: true, tile: 0.09 }); // the wrap, low on the forehead and nape
-    skullCap(b, { scale: 1.12, front: 0.086, back: -0.035, side: 0.01, ...f, swapUV: true, tile: 0.09 }); // a second band above it
-    skullCap(b, { scale: 1.17, front: 0.112, back: -0.012, side: 0.04, ...f, swapUV: true, tile: 0.09 }); // and a third, so the wrap steps up in tiers
+    const face: Shape = { kind: "ellipsoid", c: [0, HC - 0.08, 0.12], r: [0.1, 0.13, 0.12] };
+    const tiers: [number, number, number][] = [[1.04, 0.058, -0.06], [1.09, 0.086, -0.035], [1.14, 0.108, -0.012]]; // scale, front edge, back edge
+    const shapes: Shape[] = tiers.map(([sc, front, back]) => ({
+      kind: "blend",
+      blend: {
+        k: 0,
+        shapes: [{ kind: "ellipsoid", c: [0, HC + 0.006, -0.004], r: [0.098 * sc, 0.124 * sc, 0.106 * sc] }],
+        cut: [face, { kind: "half", p: [0, HC + (front + back) / 2, 0], n: [0, 1, -(front - back) / 0.2] }],
+        cutK: 0.014,
+      },
+    }));
     const a0 = -0.62;
     const a1 = Math.PI + 0.62; // from below one ear, over the top, to below the other
     const taper = (ph: number): number => 0.66 + 0.34 * smooth(Math.min(ph - a0, a1 - ph) / 0.6); // narrower where it meets the neck
     const big = (ph: number): number => 1 + 0.16 * Math.cos(ph - 2.2); // larger up and to one side
-    const pleat = (t: number, zr: number) => (ph: number, k: number): Vec => {
-      const inner = [0.104 * Math.cos(ph), 0.13 * Math.sin(ph)] as const;
+    const plane = (x: number, y: number, z: number): Vec => [x, yc + y, -0.012 + z - y * tilt];
+    const normal = mul([0, tilt, 1], 1 / Math.hypot(tilt, 1));
+    const P = 15;
+    for (let i = 0; i < P; i++) {
+      const ph = lerp(a0, a1, (i + 0.5) / P);
+      const inner: [number, number] = [0.104 * Math.cos(ph), 0.13 * Math.sin(ph) - 0.034];
       const R = 0.232 * taper(ph) * big(ph);
-      const outer = [cx + R * 1.06 * Math.cos(ph), 0.034 + R * Math.sin(ph)] as const;
-      const x = lerp(inner[0], outer[0], t);
-      const y = lerp(inner[1], outer[1], t);
-      const z = -0.012 + zr + (t > 0.5 ? (k % 2 !== 0 ? 0.012 : -0.012) * t : 0) - y * tilt;
-      return [x, HC + y, z];
+      const outer: [number, number] = [0.014 + R * 1.06 * Math.cos(ph), R * Math.sin(ph)];
+      const radial: Vec = [outer[0] - inner[0], outer[1] - inner[1], -(outer[1] - inner[1]) * tilt];
+      const length = len(radial);
+      const along = mul(radial, 1 / length);
+      const across = cross(normal, along);
+      const fold = i % 2 !== 0 ? 0.012 : -0.008;
+      const mid = plane((inner[0] + outer[0]) / 2, (inner[1] + outer[1]) / 2, fold);
+      const width = ((a1 - a0) / P) * R * 0.62;
+      shapes.push({ kind: "ellipsoid", c: mid, r: [length / 2 + 0.012, width, 0.011], axes: [along, across, normal] });
+    }
+    const knot = plane(0.155, -0.061, 0.06);
+    shapes.push({ kind: "ball", c: knot, r: 0.04 }, { kind: "ball", c: add(knot, [0.022, -0.028, -0.004]), r: 0.028 }, { kind: "ball", c: add(knot, [-0.018, -0.03, 0.006]), r: 0.026 });
+    // Round a point at the neck, where there is no cloth, so the pattern neither pinches nor seams on the gele.
+    const tile = 0.09;
+    const round = 2 * Math.PI * 0.18;
+    const uv = (p: Vec): [number, number] => {
+      const x = p[0];
+      const y = p[1] - (HC - 0.09);
+      let ph = Math.atan2(y, x);
+      if (ph < -Math.PI / 2) ph += 2 * Math.PI;
+      return [Math.hypot(x, y) / tile, ((ph + Math.PI / 2) * 0.18) / tile];
     };
-    const R = (t: number, zr: number): Ring => ({ c: [0, HC + t * 0.2, 0], ru: 0.1 + t * 0.1, rv: 0.1, w: wHead, fn: pleat(t, zr) });
-    // Front face, round the rim, back face.
-    tube(b, [R(0, 0.0), R(0.36, 0.034), R(0.64, 0.004), R(1, 0.03), R(1.02, -0.012), R(0.6, -0.062), R(0.05, -0.085)], { sides: 16, arc: [a0, a1], ...f, tile: 0.09, swapUV: true });
-    const k0 = pleat(0.72, 0.03)(-0.34, 0); // the knot, low on one side
-    tube(b, [
-      { c: add(k0, [0, 0, 0.035]), ru: 0.016, rv: 0.016, w: wHead },
-      { c: add(k0, [0, 0, 0.022]), ru: 0.05, rv: 0.05, w: wHead, rmul: (k) => (k % 2 !== 0 ? 1.12 : 0.88) },
-      { c: add(k0, [0, 0, -0.004]), ru: 0.058, rv: 0.058, w: wHead },
-    ], { sides: 8, u: [1, 0, 0], v: [0, 1, 0], ...f, tile: 0.09, capStart: true });
+    blended(b, { shapes, k: 0.012 }, { cell: 0.0045, budget: 1200, colour: f.color, w: wHead, group: f.group, uv, wrapV: round / tile });
   },
   // Fila: a soft round cap that leans to one side.
   fila: (b, s) => {

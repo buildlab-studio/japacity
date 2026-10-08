@@ -11,7 +11,9 @@ export type Shape =
   /** A rod from a to b whose radius runs from ra to rb. */
   | { kind: "capsule"; a: Vec; b: Vec; ra: number; rb: number }
   /** Everything on the side of the plane through p that n points away from. */
-  | { kind: "half"; p: Vec; n: Vec };
+  | { kind: "half"; p: Vec; n: Vec }
+  /** A blend of its own, with its own cuts, melted into the rest as one shape. */
+  | { kind: "blend"; blend: Blend };
 
 export interface Blend {
   shapes: Shape[];
@@ -61,6 +63,8 @@ export function distance(shape: Shape, p: Vec): number {
     }
     case "half":
       return dot(sub(p, shape.p), shape.n) / len(shape.n);
+    case "blend":
+      return field(shape.blend, p);
     default: {
       const never: never = shape;
       throw new Error(`blend: ${String(never)}`);
@@ -90,6 +94,10 @@ function bounds(shapes: readonly Shape[], margin: number): { min: Vec; max: Vec 
     else if (shape.kind === "capsule") {
       grow(shape.a, shape.ra);
       grow(shape.b, shape.rb);
+    } else if (shape.kind === "blend") {
+      const inner = bounds(shape.blend.shapes, shape.blend.k);
+      grow(inner.min, 0);
+      grow(inner.max, 0);
     } else throw new Error("blend: a half space has no bounds, so it can only cut");
   }
   return { min, max };
