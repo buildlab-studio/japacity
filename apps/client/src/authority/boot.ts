@@ -1,6 +1,7 @@
 // Starts the game in the tab: the server when the build names one, or the
 // local authority on the right clock; and the store the screens read. A lost
 // local save is said out loud on the life chooser.
+import { startCounting } from "../shared/analytics/start";
 import { betterAuthApi } from "../shared/net/auth";
 import { clockMode } from "./clock";
 import { localAuthority, type LocalAuthorityOptions } from "./local";
@@ -40,5 +41,6 @@ function bootRemote(baseUrl: string): GameStore {
   // One life per account online (R-ACCOUNT-015): the chooser opens only when the server says there is none.
   const store = createGameStore(remote, { life: remote, lifeAgain: false, account: betterAuthApi({ baseUrl }) });
   goOnline({ store, remote });
+  startCounting({ baseUrl });
   return store;
 }
