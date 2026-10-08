@@ -34,7 +34,11 @@ export interface BuildingSpec {
   signs: string[];
 }
 
-/** One row of the register (R-ASSET-009). */
+/**
+ * One row of the register (R-ASSET-009). `file` is a path under public/assets for a shipped model or
+ * pattern; media made elsewhere (a share card's drawn scene, a link preview, the design's party room) is a
+ * path from the repository root, with `#<name>` after it for one piece inside a file of code.
+ */
 export interface RegisterRow {
   file: string;
   place: string;
@@ -42,7 +46,12 @@ export interface RegisterRow {
   author: string;
   licence: string;
   attribution: string | null;
-  aiTool: string | null;
+  /** Made with an AI tool, a model written as code by an agent included (R-ASSET-015, guides.md R-GUIDE-013). */
+  generated: boolean;
+  /** The tool and plan it was made with, or null for work made by hand. */
+  tool: string | null;
+  /** Who approved it to ship; an AI-made row is accepted only once this names someone. */
+  approvedBy: string | null;
   date: string;
   modified: boolean;
   triangles: number;
@@ -52,20 +61,54 @@ export interface RegisterRow {
   paletteCheck: { passed: boolean; date: string } | null;
   reference: { url: string; date: string }[];
   outline: { file: string; scores: Record<string, number> } | null;
-  review: Review | null;
+  review: Pick<Review, "reviewer" | "date" | "scores" | "mean" | "notes"> | null;
   nameCheck: { searches: string[]; date: string; result: string } | null;
   status: "draft" | "accepted" | "rejected";
 }
 
-/** A reviewer's sheet for one asset (R-ASSET-021, 022). */
+/** The criteria of the review sheet (R-ASSET-021). */
+export type Criterion = "phone" | "silhouette" | "proportion" | "palette" | "wear" | "variety" | "budget";
+
+/** The earlier review a rework was scored against (R-ASSET-027): its file, and its date where the reviewer gave one. */
+export interface ReviewAgainst {
+  file: string;
+  date?: string;
+}
+
+/**
+ * A reviewer's sheet for one asset (R-ASSET-021, 022). A sheet scored in rounds is an array of these,
+ * the last round the one that counts. `scores` leaves out a criterion that does not apply to a piece
+ * (flat art has no proportion), and the sheet says why.
+ */
 export interface Review {
   reviewer: string;
   date: string;
-  scores: Record<"phone" | "silhouette" | "proportion" | "palette" | "wear" | "variety" | "budget", number>;
+  scores: Partial<Record<Criterion, number>>;
   mean: number;
   outline?: Record<string, number>;
   notes: string;
+  against?: ReviewAgainst | null;
+  accepted: boolean;
+  failing: string[];
+  reasons: Partial<Record<Criterion, string>>;
 }
+
+/** One graphics mode's scores on a place's sheet. */
+export type ModeReview = Pick<Review, "scores" | "mean" | "accepted" | "failing" | "reasons">;
+
+/** A reviewer's sheet for a whole place, scored in each graphics mode (city.md R-CITY-038). */
+export interface PlaceReview {
+  piece: string;
+  reviewer: string;
+  date: string;
+  against?: ReviewAgainst | null;
+  low: ModeReview;
+  high: ModeReview;
+  notes: string;
+}
+
+/** What a review file under assets-src holds: one asset's sheet, its rounds, or a place's sheet. */
+export type ReviewSheet = Review | Review[] | PlaceReview;
 
 /** A reference outline traced as data, in metres (R-ASSET-011, 023, 024). */
 export interface Outline {
