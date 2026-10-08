@@ -2,7 +2,7 @@
 // once after a good moment has been seen and its report closed, on a device
 // that has neither agreed nor refused. "Not now" is kept on the device and
 // waits `reaskDays`; the browser's own refusal is never asked past.
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import { useGame } from "../../authority/GameProvider";
 import { Button } from "../../shared/ui/Button";
@@ -17,16 +17,15 @@ export interface NotifyAskProps {
   /** Seams for tests. `api` null: no server, no ask. */
   api?: NotifyApi | null;
   device?: NotifyDevice;
-  /**
-   * R-GUIDE-015: true once the early win has been shown.
-   * the guides agent's store flag takes this seam's place when it lands. Until then a good moment from the player's own command stands for it, since the early win is the first such line (R-GUIDE-014).
-   */
+  /** R-GUIDE-015: true once the early win has been shown. The store's flag unless a test hands in its own. */
   earlyWin?: () => boolean;
   count?: CountAsk;
 }
 
-export function NotifyAsk({ api, device, earlyWin = () => true, count = countAsk }: NotifyAskProps) {
+export function NotifyAsk({ api, device, earlyWin: given, count = countAsk }: NotifyAskProps) {
   const [seams] = useState(() => ({ api: api === undefined ? defaultNotifyApi() : api, device: device ?? browserDevice() }));
+  const won = useGame((state) => state.earlyWin);
+  const earlyWin = useMemo(() => given ?? (() => won), [given, won]);
   const lines = useGame((state) => state.lines);
   const moments = useGame((state) => state.moments.length);
   const reportOpen = useGame((state) => state.reportOpen);

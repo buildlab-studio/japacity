@@ -1,0 +1,177 @@
+// Two walks over the interface. Every surface where a player meets another
+// player or something the game did not write carries the block and report
+// control (R-MODERATION-003). No advert slot shows on a card, a guide, the
+// report or block screens, or the sign-up and age screens (R-ADVERT-003).
+import { content } from "@japacity/content";
+import type { ConversationRow, PlayerView } from "@japacity/sim";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import type { ReactNode } from "react";
+import { describe, expect, test } from "vitest";
+
+import { App } from "./App";
+import { GameProvider } from "./authority/GameProvider";
+import { createGameStore, type GameStore } from "./authority/store";
+import { InvitePage, InviteServerProvider } from "./features/account/InvitePage";
+import type { ServedAdvert } from "./features/adverts/adverts";
+import { AdvertsProvider, PhoneTile } from "./features/adverts/placed";
+import { pairApiFor, PairApiProvider } from "./features/people/pairApi";
+import { PeopleView } from "./features/people/PeopleView";
+import { MODERATION_SURFACES } from "./shared/moderation/BlockReport";
+import { ModerationProvider } from "./shared/moderation/ModerationProvider";
+import { words } from "./shared/moderation/moderation.words";
+import type { AccountApi } from "./shared/net/auth";
+import { api } from "./shared/net/http";
+import { engineView, fakeAuthority } from "./shared/testing/fixtures";
+import { fakeModeration } from "./shared/testing/moderation";
+import { linkedFriend, PAIR, peopleGame, renderWithGame } from "./shared/testing/people";
+import "./shared/testing/render";
+import { BASE, fakeServer, type FakeServer } from "./shared/testing/server";
+import { say } from "./shared/words/text";
+
+const CODE = "c0ffeec0ffeec0ffeec0ffee";
+const THEM = "character-them";
+
+function served(slot: string): ServedAdvert {
+  const entry = content.advert[slot as keyof typeof content.advert]!;
+  return { campaign: `campaign-${slot}`, creative: "creative-1", version: 1, image: "/img", width: entry.width, height: entry.height, advertiser: "Mama Put Kitchen", text: "Jollof on the island.", link: null };
+}
+
+/** A server that answers every route the walks touch: a friend's pair, an invite card, and every advert slot filled. */
+function everything(): FakeServer {
+  const server = fakeServer();
+  const row: ConversationRow = { id: "m1", conversation: PAIR, sender: THEM, phrase: "phrase.hello", fill: null, sentAt: 1, readAt: null };
+  server.answer(`GET /api/pair/${PAIR}`, { body: { ok: true, pair: { id: PAIR, side: "a", them: THEM } } });
+  server.answer(`GET /api/pair/${PAIR}/conversation`, { body: { ok: true, pair: PAIR, messages: [row] } });
+  server.answer(`GET /api/invite/${CODE}`, {
+    body: {
+      ok: true,
+      slot: "partner",
+      looking: "partner",
+      expires: 9_000,
+      card: { name: "scenario.tunde.name", japacity: { percent: 40, route: null }, looking: { key: "card.invite.looking", slot: "partner", fill: null, slotKey: "card.invite.slot.partner", fillKey: null }, game: "card.invite.game", controls: ["block", "report"] },
+    },
+  });
+  server.answer("GET /api/account", { body: { ok: true, account: { id: "a-1", country: "NG", age: { passed: true, method: "declared" }, createdAt: 1, character: "c-1" } } });
+  server.answer("GET /api/adverts", { body: { ok: true, region: "NG", hour: 1, until: Date.now() + 3_600_000, slots: Object.fromEntries(Object.keys(content.advert).map((slot) => [slot, served(slot)])) } });
+  return server;
+}
+
+function providers(server: FakeServer, children: ReactNode) {
+  const http = api({ baseUrl: BASE, fetch: server.fetch });
+  return (
+    <ModerationProvider api={fakeModeration()}>
+      <PairApiProvider value={pairApiFor(BASE, server.fetch)}>
+        <InviteServerProvider value={http}>
+          <AdvertsProvider value={{ api: http, baseUrl: BASE }}>{children}</AdvertsProvider>
+        </InviteServerProvider>
+      </PairApiProvider>
+    </ModerationProvider>
+  );
+}
+
+async function storeOf(view: PlayerView): Promise<GameStore> {
+  const store = createGameStore(fakeAuthority(view));
+  await store.getState().refresh();
+  return store;
+}
+
+const advertsOn = (): PlayerView => ({ ...engineView("scenario.tunde"), adverts: true });
+
+/** Each surface of R-MODERATION-003, opened the way a player reaches it. */
+const OPEN: Record<(typeof MODERATION_SURFACES)[number], (server: FakeServer) => Promise<void>> = {
+  pair: async (server) => {
+    const game = peopleGame();
+    linkedFriend(game);
+    await renderWithGame(providers(server, <PeopleView />), game);
+    await screen.findByRole("region", { name: say("ui.talk.title") });
+  },
+  conversation: async (server) => OPEN.pair(server),
+  "invite-card": async (server) => {
+    render(<GameProvider store={await storeOf(engineView())}>{providers(server, <InvitePage code={CODE} />)}</GameProvider>);
+    await screen.findByRole("figure");
+  },
+  advert: async (server) => {
+    render(<GameProvider store={await storeOf(advertsOn())}>{providers(server, <PhoneTile />)}</GameProvider>);
+    fireEvent.click(await screen.findByRole("button", { name: `${say("advert.label")}: Mama Put Kitchen` }));
+    await screen.findByRole("dialog");
+  },
+};
+
+describe("the block and report control on every surface", () => {
+  test.each(MODERATION_SURFACES.map((surface) => [surface]))("[R-MODERATION-003] given the %s surface online, when a player reaches it, then the report control is there", async (surface) => {
+    await OPEN[surface](everything());
+    const control = await waitFor(() => {
+      const found = document.querySelector<HTMLElement>(`[data-moderation="${surface}"]`);
+      expect(found).not.toBeNull();
+      return found!;
+    });
+    expect(within(control).getByRole("button", { name: words("ui.report") })).toBeDefined();
+  });
+});
+
+const slots = (within: ParentNode = document) => within.querySelectorAll("[data-advert-slot]");
+
+describe("where no advert shows", () => {
+  test("[R-ADVERT-003] given every slot filled, when the shell shows, then the phone tile is there to be found, so the walks below are not empty", async () => {
+    render(providers(everything(), <App store={await storeOf(advertsOn())} />));
+    fireEvent.click(within(await screen.findByRole("navigation", { name: say("ui.tabs") })).getByRole("button", { name: say("ui.tab.news") }));
+    await waitFor(() => expect(slots()).toHaveLength(1));
+  });
+
+  test("[R-ADVERT-003] given every slot filled, when the guides open, then the guide holds no advert", async () => {
+    render(providers(everything(), <App store={await storeOf(advertsOn())} />));
+    await waitFor(() => expect(slots()).toHaveLength(1));
+    fireEvent.click(screen.getByRole("button", { name: say("guide.page.menu") }));
+    expect(slots(await screen.findByRole("dialog"))).toHaveLength(0);
+  });
+
+  test("[R-ADVERT-003] given every slot filled, when the advert's report screen opens, then it holds no advert", async () => {
+    render(<GameProvider store={await storeOf(advertsOn())}>{providers(everything(), <PhoneTile />)}</GameProvider>);
+    fireEvent.click(await screen.findByRole("button", { name: `${say("advert.label")}: Mama Put Kitchen` }));
+    fireEvent.click(within(await screen.findByRole("dialog")).getByRole("button", { name: words("ui.report") }));
+    const report = await screen.findByRole("dialog", { name: words("ui.report.title", { name: "Mama Put Kitchen" }) });
+    expect(slots(report)).toHaveLength(0);
+  });
+
+  test("[R-ADVERT-003] given every slot filled and a friend's bond, when block and report are reached, then neither holds an advert", async () => {
+    const game = peopleGame();
+    linkedFriend(game);
+    await renderWithGame(providers(everything(), <PeopleView />), game);
+    const control = await waitFor(() => document.querySelector<HTMLElement>('[data-moderation="pair"]')!);
+    fireEvent.click(within(control).getByRole("button", { name: words("ui.block") }));
+    await within(control).findByText(words("ui.block.done"));
+    expect(slots()).toHaveLength(0);
+    fireEvent.click(within(control).getByRole("button", { name: words("ui.report") }));
+    expect(slots(await screen.findByRole("dialog"))).toHaveLength(0);
+  });
+
+  test("[R-ADVERT-003] given every slot filled, when a share card is due, then the card holds no advert", async () => {
+    const card = { kind: "send-off" as const, route: "route.uk-masters" as const, percent: 82, months: 35, standing: 61, topActivities: [], chapter: null, name: null };
+    render(providers(everything(), <App store={await storeOf({ ...advertsOn(), card })} />));
+    const sheet = await screen.findByRole("dialog");
+    expect(sheet.querySelector("[data-share-card]")).not.toBeNull();
+    expect(slots(sheet)).toHaveLength(0);
+  });
+
+  test("[R-ADVERT-003] given every slot filled, when a signed-out player meets the age screen and then the ways in, then neither holds an advert", async () => {
+    const account = {
+      ageStatus: () => Promise.resolve("unasked"),
+      declareAge: () => Promise.resolve("passed"),
+      sendCode: () => Promise.resolve({ ok: true }),
+    } as unknown as AccountApi;
+    const store = createGameStore({ view: () => Promise.resolve(advertsOn()), send: () => Promise.reject(new Error("unused")) }, { account });
+    store.getState().leave(null);
+    render(providers(everything(), <App store={store} />));
+    fireEvent.change(await screen.findByLabelText(say("ui.account.age.label")), { target: { value: "1990-01-01" } });
+    expect(slots()).toHaveLength(0);
+    fireEvent.click(screen.getByRole("button", { name: say("ui.account.age.go") }));
+    await screen.findByRole("button", { name: say("ui.account.google") });
+    expect(slots()).toHaveLength(0);
+  });
+
+  test("[R-ADVERT-003] given every slot filled, when the invite link's sign-up page shows, then it holds no advert", async () => {
+    render(<GameProvider store={await storeOf(advertsOn())}>{providers(everything(), <InvitePage code={CODE} />)}</GameProvider>);
+    await screen.findByRole("figure");
+    expect(slots()).toHaveLength(0);
+  });
+});

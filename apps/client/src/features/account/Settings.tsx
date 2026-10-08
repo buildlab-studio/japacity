@@ -4,14 +4,64 @@
 // the last 10 minutes; the server says when it is older, and then the player
 // signs in again or takes a code by email before it goes.
 import { UserRoundCog } from "lucide-react";
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 
 import { useGame } from "../../authority/GameProvider";
 import type { AccountApi, AuthResult } from "../../shared/net/auth";
 import { Button } from "../../shared/ui/Button";
 import { Sheet } from "../../shared/ui/Sheet";
 import { say } from "../../shared/words/text";
+import { counting, setUsageCounts } from "../../shared/analytics/start";
 import { CodeForm, failureWords } from "./CodeForm";
+
+/**
+ * R-ANALYTICS-006: "Send usage counts", stored on the account and on by
+ * default. Off stops the interface counters at once; the server's own game
+ * counters go on, as the rule says.
+ */
+export function UsageCounts({ account }: { account: AccountApi }) {
+  const [on, setOn] = useState<boolean | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [problem, setProblem] = useState<string | null>(null);
+
+  useEffect(() => {
+    let live = true;
+    void account.usageCounts().then((kept) => {
+      if (!live) return;
+      const value = kept ?? true;
+      setOn(value);
+      setUsageCounts(value);
+    });
+    return () => {
+      live = false;
+    };
+  }, [account]);
+
+  async function change(next: boolean) {
+    setBusy(true);
+    setProblem(null);
+    const saved = await account.setUsageCounts(next);
+    setBusy(false);
+    if (!saved) return setProblem(say("ui.account.usage.failed"));
+    setOn(next);
+    setUsageCounts(next);
+  }
+
+  return (
+    <div className="flex flex-col gap-1">
+      <label className="flex min-h-11 items-center gap-3">
+        <input type="checkbox" className="size-5 accent-ink" checked={on ?? true} disabled={on === null || busy} onChange={(event) => void change(event.target.checked)} />
+        {say("ui.account.usage")}
+      </label>
+      <p className="text-sm text-muted">{say("ui.account.usage.help")}</p>
+      {problem === null ? null : (
+        <p role="alert" className="text-sm text-bad">
+          {problem}
+        </p>
+      )}
+    </div>
+  );
+}
 
 type Step = "idle" | "warn" | "confirm";
 
@@ -80,6 +130,8 @@ export function AccountSettings({ account, more = null }: { account: AccountApi;
         </Button>
       </div>
 
+      <UsageCounts account={account} />
+
       {more}
 
       <div className="flex flex-col gap-3 border-t border-line pt-4">
@@ -140,7 +192,15 @@ export function AccountButton({ more = null }: { more?: ReactNode }) {
   if (account === null) return null;
   return (
     <>
-      <Button small variant="quiet" aria-label={say("ui.account.settings")} onClick={() => setOpen(true)}>
+      <Button
+        small
+        variant="quiet"
+        aria-label={say("ui.account.settings")}
+        onClick={() => {
+          counting().count("screen/opened", "settings");
+          setOpen(true);
+        }}
+      >
         <UserRoundCog size={18} />
       </Button>
       <Sheet open={open} onOpenChange={setOpen} title={say("ui.account.settings")}>

@@ -1,7 +1,8 @@
 // Starts the game in the tab: the server when the build names one, or the
 // local authority on the right clock; and the store the screens read. A lost
 // local save is said out loud on the life chooser.
-import { startCounting } from "../shared/analytics/start";
+import { setUsageCounts, startCounting } from "../shared/analytics/start";
+import { readAccount } from "../shared/net/account";
 import { betterAuthApi } from "../shared/net/auth";
 import { clockMode } from "./clock";
 import { localAuthority, type LocalAuthorityOptions } from "./local";
@@ -42,5 +43,9 @@ function bootRemote(baseUrl: string): GameStore {
   const store = createGameStore(remote, { life: remote, lifeAgain: false, account: betterAuthApi({ baseUrl }) });
   goOnline({ store, remote });
   startCounting({ baseUrl });
+  // R-ANALYTICS-006: an account that turned the counters off stays off from the first screen.
+  void readAccount(remote.api).then((reply) => {
+    if (reply.ok && reply.account.sendUsageCounts === false) setUsageCounts(false);
+  });
   return store;
 }

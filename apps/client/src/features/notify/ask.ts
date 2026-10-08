@@ -5,6 +5,7 @@
 import type { ReportLine } from "@japacity/sim";
 import { time } from "@japacity/sim";
 
+import { countAsk as countAnalyticsAsk } from "../../shared/analytics/start";
 import type { Permission } from "./notify.api";
 
 /**
@@ -33,5 +34,5 @@ export function mayAsk({ permission, key, dismissedAt, now, reaskDays }: AskTerm
 /** R-ANALYTICS-011: the ask's client counters, keyed by the ask and by when it came against the early win. */
 export type CountAsk = (name: "ask/shown" | "ask/accepted", ask: "notify", when: "before" | "after") => void;
 
-// the analytics agent's client counter takes this seam's place when it lands; until then nothing is counted.
-export const countAsk: CountAsk = () => undefined;
+/** R-ANALYTICS-011: the ask counted on the interface counters, keyed `notify:before` or `notify:after`. */
+export const countAsk: CountAsk = (name, ask, when) => countAnalyticsAsk(ask, name === "ask/shown" ? "shown" : "accepted", when === "after");

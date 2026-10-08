@@ -69,9 +69,11 @@ function fakeDevice(permission: Permission = "default", answer: Permission = "gr
   return { device, state };
 }
 
-async function askScreen(options: { lines?: ReportLine[]; device?: NotifyDevice; api?: NotifyApi; earlyWin?: () => boolean } = {}) {
+/** `storeWin`: the store's own early-win flag, which the ask reads when no `earlyWin` is handed in. */
+async function askScreen(options: { lines?: ReportLine[]; device?: NotifyDevice; api?: NotifyApi; earlyWin?: () => boolean; storeWin?: boolean } = {}) {
   const store: GameStore = createGameStore(fakeAuthority(engineView()));
   await store.getState().refresh();
+  store.setState({ earlyWin: options.storeWin ?? true });
   if (options.lines !== undefined) store.setState({ lines: options.lines });
   const counted: string[] = [];
   render(
@@ -168,6 +170,16 @@ describe("the ask", () => {
 
     expect(askTitle()).toBeNull();
     expect(server.calls).toEqual([]);
+  });
+
+  test("[R-GUIDE-015] given the store's early-win flag not yet set, when a good moment closes, then nothing is asked; once the flag is set, the next good moment asks", async () => {
+    const server = fakeServer();
+    const { store } = await askScreen({ api: server.api, storeWin: false });
+    await moment(store, [SALARY]);
+    expect(askTitle()).toBeNull();
+    act(() => store.setState({ earlyWin: true }));
+    await moment(store, [{ ...SALARY }]);
+    await waitFor(() => expect(askTitle()).not.toBeNull());
   });
 
   test("[R-CLOCK-031] given the ask, when the player says not now, then it is kept on the device and the next good moment one day short of reaskDays asks nothing, and the one at reaskDays asks again", async () => {

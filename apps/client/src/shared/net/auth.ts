@@ -12,7 +12,8 @@ import { createAuthClient } from "better-auth/client";
 import { emailOTPClient } from "better-auth/client/plugins";
 
 import { REFUSED_COOKIE, type AgeReply, type AgeRequest, type ServerRejection } from "./contract";
-import type { Fetch } from "./http";
+import { putUsageCounts, readAccount } from "./account";
+import { api, type Fetch } from "./http";
 
 export type AuthFailure = "not-fresh" | "wrong-code" | "expired" | "too-many" | "cancelled" | "unreachable" | "refused";
 
@@ -44,6 +45,10 @@ export interface AccountApi {
   addPasskey(): Promise<AuthResult>;
   /** The signed-in account's email, where it has one. */
   email(): Promise<string | null>;
+  /** R-ANALYTICS-006: the account's "Send usage counts", or null when the server does not say. */
+  usageCounts(): Promise<boolean | null>;
+  /** R-ANALYTICS-006: true once the server keeps the new setting. */
+  setUsageCounts(on: boolean): Promise<boolean>;
   /** R-ACCOUNT-016: `not-fresh` when the session is too old and the player must sign in again first. */
   deleteAccount(): Promise<AuthResult>;
   signOut(): Promise<void>;
@@ -116,6 +121,7 @@ function switchedOff(reply: unknown, status: number): Full | null {
 export function betterAuthApi({ baseUrl, fetch, cookie = () => (typeof document === "undefined" ? "" : document.cookie) }: { baseUrl: string; fetch?: Fetch; cookie?: () => string }): AccountApi {
   const base = baseUrl.replace(/\/+$/, "");
   const send: Fetch = fetch ?? ((input, init) => globalThis.fetch(input, init));
+  const server = api({ baseUrl: base, fetch: send });
   // the server mounts Better Auth at /api/auth, its default base path.
   const client = createAuthClient({
     baseURL: `${base}/api/auth`,
@@ -163,6 +169,13 @@ export function betterAuthApi({ baseUrl, fetch, cookie = () => (typeof document 
       } catch {
         return null;
       }
+    },
+    async usageCounts() {
+      const reply = await readAccount(server);
+      return reply.ok ? (reply.account.sendUsageCounts ?? null) : null;
+    },
+    async setUsageCounts(on) {
+      return (await putUsageCounts(server, on)).ok;
     },
     deleteAccount: () => attempt(() => client.deleteUser({})),
     async signOut() {

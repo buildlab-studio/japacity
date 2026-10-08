@@ -49,6 +49,8 @@ function fakeAccount(over: Partial<AccountApi> = {}): AccountApi & { calls: stri
     email: () => Promise.resolve("ada@example.test"),
     deleteAccount: log("deleteAccount"),
     signOut: () => (calls.push("signOut()"), Promise.resolve()),
+    usageCounts: () => Promise.resolve(null),
+    setUsageCounts: (on) => (calls.push(`setUsageCounts(${String(on)})`), Promise.resolve(true)),
     ...over,
   };
 }

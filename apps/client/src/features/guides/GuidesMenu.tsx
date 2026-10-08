@@ -7,6 +7,7 @@ import { useState } from "react";
 
 import { useView } from "../../authority/GameProvider";
 import { Button } from "../../shared/ui/Button";
+import { counting } from "../../shared/analytics/start";
 import { Sheet } from "../../shared/ui/Sheet";
 import { nameOf, say } from "../../shared/words/text";
 import { CREDITS_PATH, GUIDES_ROOT, guidePath, MADE_PATH, NUMBERS_PATH, SOURCES_PATH } from "./paths";
@@ -28,7 +29,15 @@ export function GuidesMenu() {
   const routeGuide = route === null ? null : guideForRoute(content, route);
   return (
     <>
-      <Button small variant="quiet" aria-label={say("guide.page.menu")} onClick={() => setOpen(true)}>
+      <Button
+        small
+        variant="quiet"
+        aria-label={say("guide.page.menu")}
+        onClick={() => {
+          counting().count("screen/opened", "guide");
+          setOpen(true);
+        }}
+      >
         <BookOpen size={18} />
       </Button>
       <Sheet open={open} onOpenChange={setOpen} title={say("guide.page.menu")} description={say("guide.page.game-note")}>
