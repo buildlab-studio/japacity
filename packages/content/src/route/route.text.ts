@@ -30,6 +30,11 @@ export const routeText: Record<string, string> = {
   "line.route.deposit-refunded": "The deposit for {route} comes back, less the fee: {amount}.",
   "line.route.supported": "Your family will show {amount} for you.",
   "line.route.departed": "You fly out on {route}. The life at home is over.",
+  // The sponsor and contract gates (route-gates.md). First drafts.
+  "line.route.sponsor-recorded": "A sponsor for {route} sends you a certificate of sponsorship.",
+  "line.route.sponsor-under-bar":
+    "A sponsor for {route} sends you a certificate, but the salary is under the bar. It cannot be used for the visa.",
+  "line.route.agent-recorded": "The agent takes your money and your details for {route}. He says the contract will follow.",
   "route.uk-care.name": "Care work in the UK",
   "route.uk-care.blurb":
     "A health and care visa with a sponsor's certificate. For nurses and carers, if the door is open to people applying from home.",
