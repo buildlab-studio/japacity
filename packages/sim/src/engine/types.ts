@@ -682,6 +682,34 @@ export interface GoalEntry {
   reward: Effect[];
 }
 
+/** One place of the city: docs/rules/city.md R-CITY-002 to 024. Read by the city and the content check, never by a kind. */
+export interface PlaceEntry {
+  id: Id<"place">;
+  where: Where;
+  /** Null at home and on the road. */
+  country: Id<"country"> | null;
+  /** A slug such as "lagos" or "calgary". */
+  city: string | null;
+  /** A slug; null for a stylised place. */
+  area: string | null;
+  nameKind: "public" | "institution" | "business" | "stylised";
+  /** The real name of a public place, else null (R-CITY-005). */
+  realName: string | null;
+  /** Thousandths of a degree, or null. */
+  position: { latE3: number; lonE3: number } | null;
+  data: { source: "osm" | "overture" | "own"; licence: "ODbL-1.0" | "CDLA-Permissive-2.0" | null; checked: string } | null;
+  sponsor: { key: string } | null;
+  scope: "exterior" | "interior";
+  hub: boolean;
+  occasion: boolean;
+  /** What is staged here, by id (R-CITY-010). */
+  stages: (Id<"activity"> | Id<"offer"> | Id<"setpiece"> | Id<"chapter">)[];
+  crowd: { low: number; high: number };
+  traditionalBp: number;
+  /** The folder under `public/assets/places/`. */
+  assets: string;
+}
+
 export interface EraEntry {
   id: Id<"era">;
   ticks: [min: number, max: number];
@@ -848,6 +876,8 @@ export interface Tuning {
   groupLoan: { feeBp: number; savingsBp: number; vanishBp: number; visit: { standing: number; wellbeing: number } };
   /** The Friday draw (docs/rules/lottery.md): the ticket price, the cap per player, the share of sales destroyed, the tiers' shares (summing to 10000) and counts. */
   lottery: { ticket: number; maxTickets: number; burnBp: number; jackpotBp: number; midBp: number; midCount: number; smallBp: number; smallEvery: number };
+  /** The city's crowd bands, the graphics modes' switches and the screen split (docs/rules/city.md). The simulation never reads it. */
+  city: { crowdLow: number; crowdHigh: number; playersMax: number; fridayBp: number; saturdayBp: number; raiseAfterMs: number; raiseFrameMs: number; dropAfterMs: number; dropFrameMs: number; maxPixelRatio: number; desktopMinWidth: number };
 }
 
 export interface Content {
@@ -872,6 +902,8 @@ export interface Content {
   status: Record<Id<"status">, StatusEntry>;
   goal: Record<Id<"goal">, GoalEntry>;
   era: Record<Id<"era">, EraEntry>;
+  /** The places of the city (docs/rules/city.md). The simulation never reads them; the city and the content check do. */
+  place: Record<Id<"place">, PlaceEntry>;
   points: Record<Id<"points">, PointsEntry>;
   /** The prologue's steps by id. Empty until the prologue is built. */
   prologue: Record<string, PrologueStep>;

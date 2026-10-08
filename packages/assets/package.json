@@ -1,0 +1,9 @@
+{
+  "name": "@japacity/assets",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "The types and the palette the asset tools, the builders and the city share: docs/rules/assets.md.",
+  "exports": { ".": "./src/index.ts" },
+  "scripts": { "typecheck": "tsc -p tsconfig.json" }
+}

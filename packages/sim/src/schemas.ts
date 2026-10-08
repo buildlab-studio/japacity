@@ -21,6 +21,7 @@ import { SchoolEntrySchema } from "./school/school.schema";
 import { SetpieceEntrySchema } from "./setpiece/setpiece.schema";
 import { StatusEntrySchema } from "./status/status.schema";
 import { VarEntrySchema } from "./var/var.schema";
+import { PlaceEntrySchema } from "./place/place.schema";
 
 export * from "./activity/activity.schema";
 export * from "./chapter/chapter.schema";
@@ -61,6 +62,7 @@ export const ContentSchema = z.strictObject({
   status: z.record(idOf("status"), StatusEntrySchema),
   goal: z.record(idOf("goal"), GoalEntrySchema),
   era: z.record(idOf("era"), EraEntrySchema),
+  place: z.record(idOf("place"), PlaceEntrySchema),
   points: z.record(idOf("points"), PointsEntrySchema),
   prologue: z.record(z.string().min(1), PrologueStepSchema),
   tuning: TuningSchema,

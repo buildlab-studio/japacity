@@ -482,6 +482,7 @@ export const TuningSchema = z.strictObject({
   }),
   groupLoan: z.strictObject({ feeBp: BpSchema, savingsBp: BpSchema, vanishBp: BpSchema, visit: z.strictObject({ standing: IntSchema, wellbeing: IntSchema }) }),
   lottery: z.strictObject({ ticket: CountSchema, maxTickets: CountSchema, burnBp: BpSchema, jackpotBp: BpSchema, midBp: BpSchema, midCount: CountSchema, smallBp: BpSchema, smallEvery: CountSchema }),
+  city: z.strictObject({ crowdLow: CountSchema, crowdHigh: CountSchema, playersMax: CountSchema, fridayBp: BpSchema, saturdayBp: BpSchema, raiseAfterMs: CountSchema, raiseFrameMs: CountSchema, dropAfterMs: CountSchema, dropFrameMs: CountSchema, maxPixelRatio: CountSchema, desktopMinWidth: CountSchema }),
 });
 
 export type TuningMatches = Proof<Same<z.infer<typeof TuningSchema>, Tuning>>;

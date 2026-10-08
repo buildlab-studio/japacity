@@ -15,6 +15,7 @@ import { goalTable } from "./goal/goal.data";
 import { goalText } from "./goal/goal.text";
 import { lotteryText } from "./lottery/lottery.text";
 import { eraTable } from "./era/era.data";
+import { placeTable } from "./place/place.data";
 import { eraText } from "./era/era.text";
 import { newsTable } from "./news/news.data";
 import { newsText } from "./news/news.text";
@@ -67,6 +68,7 @@ export const content: Content = {
   status: statusTable,
   goal: goalTable,
   era: eraTable,
+  place: placeTable,
   points: pointsTable,
   prologue: prologueTable,
   tuning,

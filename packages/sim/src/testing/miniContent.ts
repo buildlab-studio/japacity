@@ -251,6 +251,7 @@ export const miniContent: Content = {
   },
   goal: {},
   era: {},
+  place: {},
   points: {},
   prologue: {},
   scenario: {
@@ -396,5 +397,6 @@ export const miniContent: Content = {
     },
     groupLoan: { feeBp: 1500, savingsBp: 1000, vanishBp: 2500, visit: { standing: -12, wellbeing: -5 } },
     lottery: { ticket: 20000, maxTickets: 5, burnBp: 4500, jackpotBp: 4000, midBp: 3000, midCount: 10, smallBp: 3000, smallEvery: 50 },
+    city: { crowdLow: 6, crowdHigh: 24, playersMax: 12, fridayBp: 3000, saturdayBp: 5000, raiseAfterMs: 20000, raiseFrameMs: 20, dropAfterMs: 3000, dropFrameMs: 50, maxPixelRatio: 2, desktopMinWidth: 900 },
   },
 };
