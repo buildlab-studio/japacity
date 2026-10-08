@@ -9,12 +9,6 @@ const PREVIEW = process.env.PREVIEW_DIR;
 
 test.use({ launchOptions: { args: ["--use-angle=swiftshader", "--enable-unsafe-swiftshader"] } });
 
-declare global {
-  interface Window {
-    __city?: { ready: boolean };
-  }
-}
-
 async function shot(page: Page, name: string): Promise<void> {
   if (PREVIEW !== undefined && PREVIEW !== "") await page.screenshot({ path: join(PREVIEW, `${name}.png`) });
 }
@@ -47,6 +41,7 @@ test("[R-WORLD-018] the phone rises over the world, grows and comes back, opens 
   await page.getByRole("button", { name: /^Live this life/ }).first().click();
   await expect(page.locator("[data-band]")).toBeVisible({ timeout: 30_000 });
   // The place behind the phone, when the software renderer gets there in time; the phone does not wait on it.
+  // `window.__city` is declared by city.spec.ts.
   await page.waitForFunction(() => window.__city?.ready === true, null, { timeout: 60_000 }).catch(() => undefined);
   await page.waitForTimeout(800);
 
