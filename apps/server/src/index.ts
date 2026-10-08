@@ -9,6 +9,7 @@ import type { AuthKeys } from "./auth/auth";
 import { memoryAuthAdapter } from "./auth/memory";
 import { sessionReader } from "./auth/session";
 import { productionConfig } from "./config";
+import { runDeletions } from "./jobs/deletion";
 import { memoryStores, testSession, webRandomBytes } from "./deps";
 import type { ServerDeps } from "./deps";
 
@@ -72,7 +73,8 @@ export default {
     const auth = makeAuth(depsFor(env), authAdapter, keys);
     return makeApp({ ...depsFor(env), session: sessionReader(auth) }, { auth, keys }).fetch(request);
   },
-  scheduled(): void {
+  scheduled(controller: ScheduledController, env: Env, ctx: ExecutionContext): void {
     // The jobs mount here as they land, by cron: the world's ticks (R-CLOCK-012) and the money report (R-SERVER-011).
+    if (controller.cron === "0 0 * * *") ctx.waitUntil(runDeletions(depsFor(env), makeAuth(depsFor(env), authAdapter, authKeys(env, (promise) => ctx.waitUntil(promise)))));
   },
 };
