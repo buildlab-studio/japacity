@@ -129,6 +129,9 @@ importers:
       '@japacity/content':
         specifier: workspace:*
         version: link:../../packages/content
+      '@japacity/db':
+        specifier: workspace:*
+        version: link:../../packages/db
       '@japacity/sim':
         specifier: workspace:*
         version: link:../../packages/sim
