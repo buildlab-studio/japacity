@@ -10,7 +10,7 @@ import { newState, replay, standInWorld, step, viewFor } from "@japacity/sim";
 // sim's own test tools; the package exports only its contract.
 import { lifeSaves } from "../../../../../packages/sim/src/goldens/lives.data";
 import { applyEffects } from "../../../../../packages/sim/src/route/route.journey";
-import { start, type Game, type Loose } from "../../../../../packages/sim/src/testing/play";
+import { start, type Game } from "../../../../../packages/sim/src/testing/play";
 
 export const SCENARIOS = Object.keys(content.scenario) as Id<"scenario">[];
 
@@ -297,7 +297,7 @@ export function newGame(scenario: Id<"scenario"> = "scenario.ada"): Game {
 export function recordedGame(name: string, drop = 0): Game {
   const save = recordedSave(name);
   const game = start({ scenario: save.scenario, seed: save.seed, worldSeed: save.worldSeed, content });
-  for (const { command, sender } of save.commands.slice(0, save.commands.length - drop)) game.accept(command as Loose, sender);
+  for (const { command, sender } of save.commands.slice(0, save.commands.length - drop)) game.accept(command, sender);
   return game;
 }
 
