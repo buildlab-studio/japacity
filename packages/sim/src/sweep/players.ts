@@ -817,9 +817,10 @@ function abroadSlots(view: PlayerView, content: Content, habits: Habits, currenc
     const found = byPrefix(prefix);
     if (found !== null) add(found);
   };
-  if (habits.phoneContract) pick("activity.phone-contract");
-  if (habits.rentsFlat && spare > 0) pick("activity.rent-flat");
-  if (habits.buysCar) {
+  const holds = (part: string): boolean => view.obligations.some((owed) => owed.entry.includes(part));
+  if (habits.phoneContract && !holds("phone")) pick("activity.phone-contract");
+  if (habits.rentsFlat && spare > 0 && !holds("rent-flat")) pick("activity.rent-flat");
+  if (habits.buysCar && !holds("obligation.car")) {
     pick("activity.buy-car-finance");
     if (spare > 0 && !view.documents.some((item) => item.id === "document.uk-licence" && item.state === "held")) pick("activity.driving-test");
   }
@@ -850,6 +851,13 @@ function abroadMoney(view: PlayerView, content: Content, habits: Habits, currenc
   if (habits.renews && status !== null && status.settleMonths !== null) keep += varStart(content, "var.uk-settle-fee") + varStart(content, "var.uk-citizen-fee");
   const fare = view.place.fareHome?.amount ?? 0;
   if (habits.homeWhenUnlawful) keep += fare;
+  // What is owed at home is paid from the naira pockets, so enough is sent first to meet it.
+  const homeDue = monthlyDueIn(view, content, "NGN") * (habits.bufferMonths + 1);
+  const homeShort = homeDue - view.pockets.NGN.bank;
+  if (habits.paysFamily && homeShort > 0) {
+    const amount = Math.min(pocket.bank - dues, mulDiv(homeShort, 105, view.rates[currency].official) + 100);
+    if (amount >= 1000) commands.push({ type: "wallet/remit", currency, amount, channel: "app" });
+  }
   const over = pocket.bank - keep;
   if (habits.remitShareBp > 0 && over > 1000) {
     const amount = mulDiv(over, habits.remitShareBp, 10000);
@@ -1002,6 +1010,8 @@ export interface RunRecord {
   rejectedTurns: { month: number; code: string; detail: string }[];
   /** Commands a strategy built from the view that step refused, by type and code, for the findings. */
   refused: Record<string, number>;
+  /** A step that threw instead of answering, with the month: a finding, and the end of the run. */
+  crash: { month: number; message: string } | null;
 }
 
 /** Good lines that come with every ordinary month: pay, gig money and practice. */
@@ -1157,12 +1167,22 @@ export function runLife(
     stuck: 0,
     rejectedTurns: [],
     refused: {},
+    crash: null,
   };
   let dry = 0;
   let noWin = 0;
   let sentThisMonth = 0;
   let lastFile: FileOnDay = { unexplainedBp: 0, interviewScore: 0, chanceBp: 0 };
   while (!game.state.turn.ended && game.state.turn.month < months) {
+    try {
+      if (!playMonthPart()) break;
+    } catch (error) {
+      record.crash = { month: game.state.turn.month, message: error instanceof Error ? error.message : String(error) };
+      break;
+    }
+  }
+  /** One command of the run; false when the run should stop. */
+  function playMonthPart(): boolean {
     let view = game.view();
     if (view.turns.banked === 0 && view.setpiece === null && view.prologue === null) {
       game.grant(1);
@@ -1262,8 +1282,9 @@ export function runLife(
         record.longestNoWin = Math.max(record.longestNoWin, noWin);
       }
       if (isBroke(shown, content)) record.broke += 1;
-      if (options.stopWhen?.(game, record) === true) break;
+      if (options.stopWhen?.(game, record) === true) return false;
     } else sentThisMonth += 1;
+    return true;
   }
   const end = game.state;
   record.months = end.turn.month;

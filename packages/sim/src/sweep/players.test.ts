@@ -49,13 +49,14 @@ describe("simulated players to the flight on the real content", () => {
     expect(refused).toBeLessThanOrEqual(mulDiv(decisions.length, chance * 2, 10000) + 5);
   });
 
-  test("[R-ENGINE-011] given every strategy from every fixed life, when played for up to 60 months, then a resting turn or a legal command was always there while a turn was banked and no set piece was open, and no turn built from allowed options was rejected", () => {
+  test("[R-ENGINE-011] given every strategy from every fixed life, when played for up to 60 months, then a resting turn or a legal command was always there while a turn was banked and no set piece was open, no turn built from allowed options was rejected and no step threw", () => {
     const all = [...careful, ...others];
     expect(all.reduce((sum, record) => sum + record.stuck, 0)).toBe(0);
     expect(all.flatMap((record) => record.rejectedTurns)).toEqual([]);
+    expect(all.flatMap((record) => (record.crash === null ? [] : [`${record.strategy} ${record.life} ${record.seed}: ${record.crash.message}`]))).toEqual([]);
   });
 
-  test("[R-PLACE-003] given the honest-home player, when it plays, then it never leaves home", () => {
+  test("[R-PLACE-002] given the honest-home player, who never departs, when it plays, then it is never anywhere but home", () => {
     expect(others.filter((record) => record.strategy === "honest-home" && (record.departed !== null || record.road !== null))).toEqual([]);
   });
 });

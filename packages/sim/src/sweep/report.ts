@@ -217,6 +217,12 @@ export function summarise(records: RunRecord[], seeds: number, months: number): 
   out.push("", "## Commands the players built that step refused", "", "A strategy reads only the view; these are the commands it sent that were refused, with the code. They are not stuck states: the next command in its list was taken.", "");
   out.push("| Command and code | Times |", "|---|---|");
   for (const [key, times] of refused.slice(0, 8)) out.push(`| ${key} | ${String(times)} |`);
+  const crashes = records.filter((record) => record.crash !== null);
+  out.push("", "## Steps that threw", "", `Runs ended by a step that threw instead of answering: ${String(crashes.length)}.`, "");
+  if (crashes.length > 0) {
+    out.push("| Strategy | Life | Seed | Month | Message |", "|---|---|---|---|---|");
+    for (const record of crashes.slice(0, 10)) out.push(`| ${record.strategy} | ${lifeName(record.life)} | ${record.seed} | ${String(record.crash?.month)} | ${record.crash?.message ?? ""} |`);
+  }
   const stuck = records.reduce((sum, record) => sum + record.stuck, 0);
   const rejected = records.reduce((sum, record) => sum + record.rejectedTurns.length, 0);
   out.push("", `Stuck states (R-ENGINE-011): ${String(stuck)}. Turns built from allowed options and rejected: ${String(rejected)}.`, "");

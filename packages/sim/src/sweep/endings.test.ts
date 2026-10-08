@@ -76,9 +76,10 @@ describe("simulated players to an ending on the real content", () => {
     expect(find((record) => record.settledMonth !== null, 30, ["careful"], [life])?.life).toBe(life);
   });
 
-  test("[R-ENGINE-011] given every run played here, when each month was ended, then a resting turn was always there and no turn built from allowed options was rejected", () => {
+  test("[R-ENGINE-011] given every run played here, when each month was ended, then a resting turn was always there, no turn built from allowed options was rejected and no step threw", () => {
     const all = [...played.values(), ...roads];
     expect(all.reduce((sum, record) => sum + record.stuck, 0)).toBe(0);
     expect(all.flatMap((record) => record.rejectedTurns)).toEqual([]);
+    expect(all.flatMap((record) => (record.crash === null ? [] : [`${record.strategy} ${record.life} ${record.seed}: ${record.crash.message}`]))).toEqual([]);
   });
 });
