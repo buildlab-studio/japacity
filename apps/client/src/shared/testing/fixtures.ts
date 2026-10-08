@@ -3,11 +3,12 @@
 // hand on top of a real view, so the screens for offers, routes and the
 // interview can be exercised before the kinds that fill them exist.
 import { content } from "@japacity/content";
-import type { Authority, Command, Effect, Id, PlayerView, Rejection, Reply, ReportLine, FlatSave, State } from "@japacity/sim";
-import { newState, replay, standInWorld, step, viewFor } from "@japacity/sim";
+import type { Authority, Command, Currency, Effect, Id, PlayerView, Rejection, Reply, ReportLine, FlatSave } from "@japacity/sim";
+import { newState, standInWorld, viewFor } from "@japacity/sim";
 
 // The recorded lives, the rule tests' game handle and its way of applying effects are the
 // sim's own test tools; the package exports only its contract.
+import { flownAda } from "../../../../../packages/sim/src/goal/goal.journey";
 import { lifeSaves } from "../../../../../packages/sim/src/goldens/lives.data";
 import { applyEffects } from "../../../../../packages/sim/src/route/route.journey";
 import { start, type Game } from "../../../../../packages/sim/src/testing/play";
@@ -177,9 +178,30 @@ export function recordedSave(name: string): FlatSave {
   return save;
 }
 
-/** The world tick after a save's commands: one for each month ended. */
-function tickOf(save: FlatSave): number {
-  return save.commands.filter(({ command }) => command.type === "turn/end").length;
+/**
+ * What the screens abroad are tested on, whichever seed the recorder picked:
+ * dollars in the bank, no pounds, and naira enough at home for the fare.
+ */
+export const ABROAD_POCKETS = { GBP: 0, USD: 800_000, NGN: 500_000_000 } as const satisfies Partial<Record<Currency, number>>;
+
+/** Sets each named currency's bank pocket to the amount given and its cash to nothing, through the wallet's own effects. */
+export function setPockets(game: Game, pockets: Partial<Record<Currency, number>>): void {
+  const effects: Effect[] = [];
+  for (const currency of Object.keys(pockets) as Currency[]) {
+    const want = pockets[currency] ?? 0;
+    const held = game.state.wallet.pockets[currency];
+    if (held.cash > 0) effects.push({ type: "money/take", currency, pocket: "cash", amount: held.cash, reason: "social" });
+    if (held.bank > want) effects.push({ type: "money/take", currency, pocket: "bank", amount: held.bank - want, reason: "social" });
+    if (held.bank < want) effects.push({ type: "money/add", currency, pocket: "bank", amount: want - held.bank, reason: "gift" });
+  }
+  if (effects.length > 0) applyEffects(game, effects);
+}
+
+/** Ada's careful life replayed up to and including the flight, with the pockets of `ABROAD_POCKETS`. */
+export function abroadGame(): Game {
+  const game = recordedGame("ada-careful");
+  setPockets(game, ABROAD_POCKETS);
+  return game;
 }
 
 /**
@@ -187,17 +209,19 @@ function tickOf(save: FlatSave): number {
  * abroad with the slots left empty, so the screens abroad are the engine's own.
  */
 export function abroadView(months = 0): PlayerView {
-  const save = recordedSave("ada-careful");
-  const worldAt = (tick: number) => standInWorld(save.worldSeed, tick, content);
-  let state: State = replay(save, content, worldAt).state;
-  let tick = tickOf(save);
-  for (let month = 0; month < months; month += 1) {
-    const result = step(state, { type: "turn/end", slots: [], basedOn: state.v }, worldAt(tick), content, "player");
-    if (!result.ok) throw new Error(`Month ${String(month)} abroad was rejected: ${result.code}`);
-    state = result.state;
-    tick += 1;
-  }
-  return viewFor({ state, world: worldAt(tick), content });
+  const game = abroadGame();
+  for (let month = 0; month < months; month += 1) game.endTurn([]);
+  return game.view();
+}
+
+/**
+ * Ada flown as `abroadGame` flies her, on the goal journey's calendar: the
+ * tick of the flight, in which the first month abroad is played, is December.
+ */
+export function decemberAbroadGame(): Game {
+  const game = flownAda(content);
+  setPockets(game, ABROAD_POCKETS);
+  return game;
 }
 
 /**
@@ -318,9 +342,9 @@ export function openOffer(game: Game, offer: Id<"offer">): PlayerView["offers"][
   return opened;
 }
 
-/** Ada's recorded life, flown and played on with empty slots until the December visit opens. */
+/** Ada flown into a December month and played on with empty slots until the December visit opens. */
 export function decemberGame(): Game {
-  const game = recordedGame("ada-careful");
+  const game = decemberAbroadGame();
   for (let month = 0; month < 12 && game.state.setpiece.open === null; month += 1) game.endTurn();
   if (game.state.setpiece.open?.entry !== "setpiece.december") throw new Error("The December visit did not open within a year abroad.");
   return game;

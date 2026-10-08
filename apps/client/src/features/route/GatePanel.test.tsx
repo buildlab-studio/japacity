@@ -16,10 +16,11 @@ function withRoute(id: RouteView["id"], gate: RouteGateView | null, base: Player
 }
 
 describe("the gate on each route", () => {
-  test("[R-POINTS-001] given the Canadian route looked into, then the engine's score shows against the cut-off and the care cut-off", async () => {
-    const view = withRoute("route.canada-points", null);
-    const gate = view.routes[0]!.gate;
-    if (gate?.gate !== "points") throw new Error("The Canadian route has no points gate.");
+  test("[R-POINTS-001] given the Canadian route looked into and no profile in the pool (set on the view), then the engine's score shows against the cut-off and the care cut-off", async () => {
+    const engine = withRoute("route.canada-points", null).routes[0]!.gate;
+    if (engine?.gate !== "points") throw new Error("The Canadian route has no points gate.");
+    const gate = { ...engine, poolMonth: null, profileEndsMonth: null, invitedMonth: null };
+    const view = withRoute("route.canada-points", gate);
     await renderWithView(<Routes />, view);
     expect(screen.getByText(formatNumber(gate.points))).toBeDefined();
     expect(screen.getByText(say("ui.gate.points.cutoff", { cutoff: formatNumber(gate.cutoff) }))).toBeDefined();

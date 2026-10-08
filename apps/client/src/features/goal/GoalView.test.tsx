@@ -28,9 +28,8 @@ describe("life goals", () => {
     expect(screen.getByText(say("ui.goal.done-item", { goal: nameOf("goal.first-car"), month: 41 }))).toBeDefined();
   });
 
-  test("given Ada just landed and no goal open yet, then the panel says so", async () => {
-    const view = abroadView();
-    expect(view.goals.open).toEqual([]);
+  test("given Ada just landed and no goal open or done (set on the view), then the panel says so", async () => {
+    const view = { ...abroadView(), goals: { open: [], done: [] } };
     await renderWithView(<GoalView />, view);
     expect(screen.getByText(say("ui.goal.none"))).toBeDefined();
   });
