@@ -11,9 +11,11 @@ import { chapterTable } from "./chapter/chapter.data";
 import { chapterText } from "./chapter/chapter.text";
 import { countryTable } from "./country/country.data";
 import { countryText } from "./country/country.text";
+import { comedyText } from "./comedy/comedy.text";
 import { creditText } from "./credit/credit.text";
 import { documentTable } from "./document/document.data";
 import { documentText } from "./document/document.text";
+import { familyText } from "./family/family.text";
 import { goalTable } from "./goal/goal.data";
 import { goalText } from "./goal/goal.text";
 import { guideTable } from "./guide/guide.data";
@@ -23,6 +25,8 @@ import { eraTable } from "./era/era.data";
 import { interviewTable } from "./interview/interview.data";
 import { interviewText } from "./interview/interview.text";
 import { peopleSpots, personTable } from "./person/person.data";
+import { personNamesText } from "./person/person.names.text";
+import { personRecurringText } from "./person/person.recurring.text";
 import { personText } from "./person/person.text";
 import { phraseTable } from "./phrase/phrase.data";
 import { phraseText } from "./phrase/phrase.text";
@@ -63,6 +67,16 @@ import { varText } from "./var/var.text";
 import { walletText } from "./wallet/wallet.text";
 
 export { officialAccounts, shareChapters, shareKinds } from "./share/share.data";
+export { lifePeople, nameMix, namedMix, namedPeople, namePool, peopleRegion, takingRoles } from "./person/person.names.data";
+export type { NamedPerson, NamedRole, NameFaith, NamePeople, NameSex, PoolName } from "./person/person.names.data";
+export { recurringPeople } from "./person/person.recurring.data";
+export type { RecurringPerson, RecurringRole } from "./person/person.recurring.data";
+export { familyFeed, familyNames, familyPosts, travelKnown } from "./family/family.data";
+export type { FamilyPost, FamilyPostKind, FamilySender } from "./family/family.data";
+export { spendingLines, versionedLines } from "./comedy/comedy.data";
+export { versionCount, versionKey } from "./comedy/comedy";
+export { badNews, reportPlain } from "./comedy/comedy.check";
+export type { PlainOnly } from "./comedy/comedy";
 export type { OfficialAccount, OfficialPlatform, ShareKind } from "./share/share.data";
 
 export const content: Content = {
@@ -117,6 +131,10 @@ export const textTables: Record<string, Record<string, string>> = {
   offer: offerText,
   offerAbroad: offerAbroadText,
   person: personText,
+  personNames: personNamesText,
+  personRecurring: personRecurringText,
+  comedy: comedyText,
+  family: familyText,
   place: placeText,
   points: pointsText,
   prologue: prologueText,
