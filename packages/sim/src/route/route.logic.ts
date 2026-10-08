@@ -277,6 +277,13 @@ function own(event: RouteKindEvent): RouteKindEvent {
   return event;
 }
 
+/** R-PLACE-008: a removal's ban holds through the months before its last, and lifts in that month. */
+function banned(read: ReadCtx, country: Id<"country"> | null): boolean {
+  if (country === null) return false;
+  const until = placeBannedUntil(read, country);
+  return until !== null && read.state.turn.month < until;
+}
+
 function moved(route: Id<"route">, to: RouteStateName, via?: string): RouteKindEvent {
   return via === undefined ? { type: "route/moved", route, to } : { type: "route/moved", route, to, via };
 }
@@ -295,7 +302,7 @@ function hear(ctx: Ctx, effect: Effect): BaseEvent[] {
   const entry = entryOf(ctx.content, effect.route);
   if (routeOf(ctx.state, effect.route).state !== "unknown") return [];
   // R-PLACE-008: a removal bans every route into that country for its months.
-  if (entry.country !== null && placeBannedUntil(readOf(ctx), entry.country) !== null) return [];
+  if (banned(readOf(ctx), entry.country)) return [];
   if (effect.chanceBp !== undefined && !ctx.random.chance("offer", effect.chanceBp)) return [];
   if (!allHold(ctx, entry.hearIf)) return [];
   return [moved(entry.id, "heard", effect.via)];
@@ -307,7 +314,7 @@ function lookInto(ctx: Ctx, _effect: Effect, cause: Cause): BaseEvent[] {
   if (route === null || ctx.content.route[route] === undefined) return [];
   if (routeOf(ctx.state, route).state !== "heard") return [];
   const country = entryOf(ctx.content, route).country;
-  if (country !== null && placeBannedUntil(readOf(ctx), country) !== null) return [];
+  if (banned(readOf(ctx), country)) return [];
   return [moved(route, "known")];
 }
 
@@ -467,13 +474,15 @@ function depart(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
 // Phases
 // ---------------------------------------------------------------------------
 
-/** R-ROUTE-003: by `hearBy`, anyone who meets `hearIf` has heard, through a friend. */
+/** R-ROUTE-003: by `hearBy`, anyone who meets `hearIf` has heard, through a friend. Nobody talks routes on the road (R-PLACE-003). */
 function hearPhase(ctx: Ctx): BaseEvent[] {
   const month = ctx.state.turn.month;
   const events: RouteKindEvent[] = [];
+  if (ctx.state.place.where === "road") return events;
   for (const entry of Object.values(ctx.content.route)) {
     // A route with no `hearBy` is heard of only through an effect (R-ROUTE-003).
     if (entry.hearBy === null || routeOf(ctx.state, entry.id).state !== "unknown" || month < entry.hearBy) continue;
+    if (banned(readOf(ctx), entry.country)) continue;
     if (allHold(ctx, entry.hearIf)) events.push(moved(entry.id, "heard", FRIEND));
   }
   return events;
