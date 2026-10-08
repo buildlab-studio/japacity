@@ -2,7 +2,7 @@
 // propped up as a sun shade, a counter where the slips are filled, a painted board on posts above
 // the roof, a chalked board of today's games by the hatch, a bench and a stool for the regulars,
 // posters and rust. The words are anchors with text keys, drawn at run time (R-ASSET-012).
-import { type SignStyle } from "@japacity/assets";
+import { setFootprint, type SignStyle } from "@japacity/assets";
 import { box, clutter, onWall, posters, quad, seeded, signboard, stain } from "@japacity/assets/kit";
 import { Group } from "three";
 
@@ -47,5 +47,10 @@ export function buildLottoKiosk(signs: { board: string; games: string }, styles:
   clutter(g, "bench", -0.4, step, d / 2 + 0.95);
   box(g, 0.32, 0.42, 0.32, 1.25, step, d / 2 + 0.6, "red");
   clutter(g, "crates", -1.55, step, d / 2 + 0.45);
-  return g;
+  // The kiosk, its counter at the hatch and the crate; the bench and the stool are seats, the flap passes overhead.
+  return setFootprint(g, [
+    { x: 0, z: 0, width: w, depth: d },
+    { x: -0.2, z: d / 2 + 0.17, width: 1.9, depth: 0.35 },
+    { x: -1.51, z: d / 2 + 0.45, width: 0.58, depth: 0.36 },
+  ]);
 }

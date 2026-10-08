@@ -166,6 +166,8 @@ export function bakeGroup(root: Object3D, name: string, options: { shipSigns: bo
   if (Array.isArray(dishes)) extras.dishes = dishes;
   const clutter = (root.userData as { clutter?: unknown }).clutter;
   if (Array.isArray(clutter)) extras.clutter = clutter;
+  const footprint = (root.userData as { footprint?: unknown }).footprint;
+  if (footprint !== undefined) extras.footprint = footprint;
   return { name, parts, extras };
 }
 

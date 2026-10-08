@@ -2,7 +2,7 @@
 // a trestle table under a big umbrella, phones laid out on it, an opened handset and its parts on a
 // mat, a laptop with its lid up, the soldering stand, an extension board with its cable, the
 // repairer's stool and a bench for whoever is waiting.
-import type { PaletteName } from "@japacity/assets";
+import { boxesIn, type PaletteName, setFootprint } from "@japacity/assets";
 import { box, cylinder, floorQuad, quad, seeded, solid, type Vec3 } from "@japacity/assets/kit";
 import { Group } from "three";
 
@@ -62,5 +62,10 @@ export function buildRepairTable(): Group {
   box(g, 0.32, 0.5, 0.32, 0.3, 0, -0.75, "red");
   box(g, 1.2, 0.05, 0.3, 0.2, 0.42, 0.95, "wood");
   for (const s of [-1, 1]) box(g, 0.06, 0.42, 0.28, 0.2 + s * 0.5, 0, 0.95, "darkWood");
-  return facePlusZ(g, "prop_repair-table", false);
+  const root = facePlusZ(g, "prop_repair-table", false);
+  // The table and the umbrella's pole; the repairer's stool and the bench are seats, and the umbrella passes overhead.
+  return setFootprint(root, boxesIn(root, g, [
+    { x: 0, z: 0, width: w, depth: d },
+    { x: -0.75, z: -0.5, width: 0.1, depth: 0.1 },
+  ]));
 }

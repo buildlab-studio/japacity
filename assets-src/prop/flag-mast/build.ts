@@ -1,5 +1,6 @@
 // A flag mast on a stepped concrete base, 7 m to its finial, with the halyard cleat at hand height.
 // The flag itself is the place's motion (city.md R-CITY-026), pinned at the mast's top.
+import { lowBox, setFootprint } from "@japacity/assets";
 import { box, cylinder } from "@japacity/assets/kit";
 import { Group } from "three";
 
@@ -13,5 +14,5 @@ export function buildFlagMast(): Group {
   cylinder(g, 0.09, MAST.height - 0.7, 0, 0.55, 0, "white", 8, 0.06);
   cylinder(g, 0.1, 0.15, 0, MAST.height - 0.15, 0, "gold", 8, 0.02);
   box(g, 0.05, 0.25, 0.08, 0.1, 1.4, 0, "hub");
-  return g;
+  return setFootprint(g, [lowBox(g)]);
 }

@@ -2,6 +2,7 @@
 // hull, pointed at both ends and painted in a band below the gunwale, two thwarts, a paddle laid
 // across it, a heap of net and a plastic bowl for bailing, a jerrycan. The hull's floor is y = 0;
 // on the water the stage sets it in the lagoon's moving surface.
+import { lowBox, setFootprint } from "@japacity/assets";
 import { box, cylinder, seeded, solid, type Vec3 } from "@japacity/assets/kit";
 import { Group } from "three";
 
@@ -67,5 +68,6 @@ export function buildCanoe(): Group {
   for (let i = 0; i < 4; i++) lump(g, 0.14, -0.08 + random() * 0.16, 0.2, 1.5 + random() * 0.35, i % 2 === 0 ? "teal" : "khaki", [1.2, 0.6, 1.1]);
   cylinder(g, 0.13, 0.1, 0.1, 0.08, -0.9, "basin", 8, 0.17);
   box(g, 0.18, 0.32, 0.26, -0.1, 0.08, -0.4, "danfoYellow");
-  return facePlusZ(g, "prop_canoe", false);
+  const root = facePlusZ(g, "prop_canoe", false);
+  return setFootprint(root, [lowBox(root)]);
 }

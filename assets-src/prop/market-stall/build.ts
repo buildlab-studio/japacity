@@ -2,7 +2,7 @@
 // zinc lean-to falling to the back, a plank back wall with a shelf, a counter piled with folded
 // cloth and shoes in pairs, a stool for the seller. The cloth awning in front of the roof edge is
 // not in the model: it is a sheet on the place's wind (city.md R-CITY-026), placed by the stage.
-import type { PaletteName } from "@japacity/assets";
+import { boxesIn, type PaletteName, setFootprint } from "@japacity/assets";
 import { box, floorQuad, quad, seeded } from "@japacity/assets/kit";
 import { Group } from "three";
 
@@ -62,5 +62,12 @@ export function buildMarketStall(): Group {
   // A sack of stock under the counter at the side, and the price board on the post (no figure on it).
   box(g, 0.45, 0.5, 0.4, -hw + 0.35, 0, -0.1, "tan");
   quad(g, 0.3, 0.22, hw - 0.05, 1.5, hd + 0.001, "black");
-  return facePlusZ(g, "prop_market-stall", false);
+  const root = facePlusZ(g, "prop_market-stall", false);
+  // The back wall, the counter and the four posts; the seller stands in the open floor between wall and counter, and the roof passes overhead.
+  return setFootprint(root, boxesIn(root, g, [
+    { x: 0, z: -hd + 0.2, width: w, depth: 0.45 },
+    { x: -hw + 0.35, z: -0.1, width: 0.45, depth: 0.4 },
+    { x: 0, z: hd - 0.6, width: w - 0.1, depth: 0.8 },
+    ...[-hw + 0.05, hw - 0.05].map((x) => ({ x, z: 0, width: 0.1, depth: d })),
+  ]));
 }

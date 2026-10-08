@@ -4,7 +4,7 @@
 // above it the brick rises two or three storeys with sash windows under stone lintels to a cornice
 // and parapet, the slate roof behind it, chimney stacks on the party walls, a soil pipe, a dish on
 // the back (R-ASSET-019) and soot where the rain runs. The data below makes the two variants.
-import { type PaletteName, type SignStyle } from "@japacity/assets";
+import { type PaletteName, setFootprint, type SignStyle } from "@japacity/assets";
 import { box, dish, extrude, onWall, quad, seeded, signboard, stain } from "@japacity/assets/kit";
 import { Group } from "three";
 
@@ -90,5 +90,5 @@ export function buildTerrace(spec: TerraceSpec, dishYaw: number): Group {
     for (let floor = 0; floor < spec.storeys; floor += 1) quad(back, 1.0, 1.3, x, 1.0 + floor * storey, 0.002, "glass");
   }
   dish(g, back, -w / 2 + 2.5, top - 1.2, 0.3, dishYaw - Math.PI);
-  return g;
+  return setFootprint(g, [{ x: 0, z: 0, width: w, depth }]);
 }

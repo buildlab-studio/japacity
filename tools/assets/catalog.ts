@@ -3,7 +3,7 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
-import type { BuildingSpec, SignStyle } from "@japacity/assets";
+import { type BuildingSpec, lowBox, setFootprint, type SignStyle } from "@japacity/assets";
 import { buildBuilding, type BuildingOptions, DEFAULT_DISH_YAW, pole } from "@japacity/assets/kit";
 import { drawPattern } from "@japacity/assets/pattern";
 import { buildFamilyHouse } from "@japacity/assets-src/bld/family-house/build";
@@ -100,7 +100,8 @@ export function personModel(mesh: PersonMesh): BakedModel {
   const shared = { positions: mesh.positions, normals: mesh.normals, colours, joints: mesh.joints, weights: mesh.weights };
   const primitives: BakedModel["parts"][number]["primitives"] = [{ material: "body", ...shared, indices: flat }];
   if (patterned.length > 0) primitives.push({ material: "pattern", ...shared, uvs: mesh.uvs, indices: patterned });
-  const model: BakedModel = { name: mesh.name, parts: [{ node: "body", primitives, extras: { smooth: mesh.smooth } }], extras: {}, bones: mesh.bones };
+  // A person blocks no ground of the route map: the crowd moves, and keeps apart by its spots (city.md R-CITY-036).
+  const model: BakedModel = { name: mesh.name, parts: [{ node: "body", primitives, extras: { smooth: mesh.smooth } }], extras: { footprint: "none" }, bones: mesh.bones };
   if (mesh.pattern !== null && patterned.length > 0) model.pattern = drawPattern(mesh.pattern);
   return model;
 }
@@ -168,7 +169,7 @@ function gridEntry(piece: GridPiece, level: MeshLevel): CatalogEntry {
     views: piece === "water" ? [...ELEVATIONS, "plan", "phone"] : [...ELEVATIONS, "phone"],
     build: () => {
       const model = staticModel(name, buildGrid(piece, level));
-      model.extras = { ...model.extras, motion, level, ...(pinned === null ? {} : { pinned }) };
+      model.extras = { ...model.extras, motion, level, ...(pinned === null ? {} : { pinned }), footprint: "none" };
       return model;
     },
   };
@@ -269,7 +270,8 @@ export const CATALOG: CatalogEntry[] = [
       const g = new Group();
       g.name = "prop_pole";
       pole(g, 0, 0, 0, 35);
-      return staticModel("prop_pole", g);
+      // The pole's foot; its wires pass overhead.
+      return staticModel("prop_pole", setFootprint(g, [lowBox(g)]));
     },
   },
   {

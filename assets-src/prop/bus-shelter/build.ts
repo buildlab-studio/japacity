@@ -2,6 +2,7 @@
 // back wall and one end of dark glass, a perch bench, a blank advert case at the other end and a
 // stop flag on its own post at the kerb. No operator's mark, roundel or colours (R-ASSET-010):
 // the flag plate is a plain red board, and the advert case is a block of colour.
+import { setFootprint } from "@japacity/assets";
 import { beam, box, cylinder, quad } from "@japacity/assets/kit";
 import { Group } from "three";
 
@@ -39,5 +40,11 @@ export function buildBusShelter(): Group {
   box(g, 0.3, 0.42, 0.05, flagX, 1.35, flagZ + 0.05, "white");
   // The kerb side of the shelter's own slab, so it stands on its pavement.
   box(g, w + 1.4, 0.04, d + 0.5, 0.4, 0, 0.05, "concrete");
-  return g;
+  // The back wall, the glass end, the advert case and the stop flag's post; the bench is a seat and the inside is open.
+  return setFootprint(g, [
+    { x: 0, z: back, width: w + 0.1, depth: 0.12 },
+    { x: w / 2, z: back + 0.52, width: 0.1, depth: 1.05 },
+    { x: -w / 2, z: back + 0.62, width: 0.2, depth: 1.2 },
+    { x: flagX, z: flagZ + 0.02, width: 0.32, depth: 0.12 },
+  ]);
 }

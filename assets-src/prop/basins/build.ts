@@ -1,7 +1,7 @@
 // The market's enamel basins (city.md place.tejuosho-market): a seller's stock stacked in towers
 // of three colours, and two on the ground heaped with tomatoes and peppers, the way produce is
 // sold by the basin. Every part is round, so the whole model is shaded smooth (R-ASSET-005).
-import type { PaletteName } from "@japacity/assets";
+import { lowBox, type PaletteName, setFootprint } from "@japacity/assets";
 import { cylinder, seeded } from "@japacity/assets/kit";
 import { Group, type Object3D } from "three";
 
@@ -35,5 +35,6 @@ export function buildBasins(): Group {
   basin(g, 0.18, 0.25, 0.3, -0.4, "danfoYellow");
   for (let i = 0; i < 3; i++) lump(g, 0.045, 0.2 + random() * 0.1, 0.42, -0.45 + random() * 0.1, "pepper", [1, 1.4, 1]);
   g.userData.smooth = true;
-  return facePlusZ(g, "prop_basins", false);
+  const root = facePlusZ(g, "prop_basins", false);
+  return setFootprint(root, [lowBox(root)]);
 }

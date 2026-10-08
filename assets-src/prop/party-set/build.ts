@@ -2,7 +2,7 @@
 // frame of two poles with balloons tied on, the DJ's table with its cloth and laptop between two
 // speakers on stands, the small chops table under a cream cloth with its trays, a cooler of cold
 // drinks and crates of empties. The banner's words are an anchor with a text key (R-ASSET-012).
-import { type PaletteName, type SignStyle } from "@japacity/assets";
+import { type PaletteName, setFootprint, type SignStyle } from "@japacity/assets";
 import { box, clutter, cylinder, onWall, paletteMaterial, quad, signboard } from "@japacity/assets/kit";
 import { Group, IcosahedronGeometry, Mesh, type Object3D } from "three";
 
@@ -71,5 +71,12 @@ export function buildPartySet(banner: string, style: SignStyle): Group {
   box(g, 0.8, 0.5, 0.5, 3.6, 0, 1.2, "basin");
   box(g, 0.84, 0.07, 0.54, 3.6, 0.5, 1.2, "white");
   clutter(g, "crates", 3.6, 0, 0.5);
-  return g;
+  // The banner's poles, the DJ's table between its speakers, the chops table, the cooler and the crates; people pass under the banner.
+  return setFootprint(g, [
+    ...[-1, 1].map((side) => ({ x: side * (width / 2 + 0.08), z: bz, width: 0.4, depth: 0.4 })),
+    { x: dj.x, z: dj.z - 0.05, width: 2.8, depth: 0.75 },
+    { x: chops.x, z: chops.z, width: 1.64, depth: 0.74 },
+    { x: 3.6, z: 1.2, width: 0.84, depth: 0.54 },
+    { x: 3.64, z: 0.5, width: 0.58, depth: 0.36 },
+  ]);
 }

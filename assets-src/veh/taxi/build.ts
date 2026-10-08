@@ -2,6 +2,7 @@
 // city's taxi yellow with a band of black and white checks down each side and a white roof light,
 // no company's name or livery (R-ASSET-010). Built along +x like the design's vehicles, then turned to
 // face +z. The wheels are round, so they are their own part, shaded smooth (R-ASSET-005).
+import { lowBox, setFootprint } from "@japacity/assets";
 import { part } from "@japacity/assets/kit";
 import { Group } from "three";
 
@@ -45,5 +46,6 @@ export function buildTaxi(): Group {
   const wheels = part(g, "wheels");
   wheels.userData.smooth = true;
   for (const x of [1.4, -1.4]) for (const s of [1, -1]) wheel(wheels, 0.32, 0.2, x, 0.32, s * (hw - 0.08));
-  return facePlusZ(g, "veh_taxi");
+  const root = facePlusZ(g, "veh_taxi");
+  return setFootprint(root, [lowBox(root)]);
 }

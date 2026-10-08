@@ -3,6 +3,7 @@
 // facing the water, a flat canopy on posts, the engine box amidships with its exhaust, and old tyres
 // hung over the sides as fenders. Built along +Z, bow forward (R-ASSET-003). It rides the water in
 // the place's shader (`bob` in the stage), not in a loop of its own.
+import { lowBox, setFootprint } from "@japacity/assets";
 import { beam, box, part, solid, type Vec3 } from "@japacity/assets/kit";
 import { Group } from "three";
 
@@ -55,5 +56,5 @@ export function buildAbra(): Group {
   const tyres = part(g, "tyres");
   tyres.userData.smooth = true;
   for (const z of [-2.4, 0.2, 2.2]) for (const side of [-1, 1]) ccyl(tyres, 0.24, 0.12, side * (half + 0.07), freeboard - 0.38, z, "tyre", "x", 10);
-  return g;
+  return setFootprint(g, [lowBox(g)]);
 }

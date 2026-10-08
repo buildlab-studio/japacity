@@ -5,7 +5,7 @@
 // roof on the west long side, four floodlight masts outside the bowl, eight radial ramps down
 // to round landings. In 2026 the bowl is decayed and unused (city.md), so seats are missing in
 // patches, roof sheets are gone and the concrete is stained.
-import type { PaletteName } from "@japacity/assets";
+import { type FootprintBox, HEAD_HEIGHT, type PaletteName, setFootprint } from "@japacity/assets";
 import { beam, box, cylinder, floorQuad, paletteMaterial, part, seeded, solid, type Vec3 } from "@japacity/assets/kit";
 import { Group, Mesh, type Object3D, Shape, ShapeGeometry, Vector2 } from "three";
 
@@ -126,6 +126,13 @@ export function buildStadium(footprint: readonly (readonly [number, number])[]):
   floorQuad(g, 68, 105, 0, 0.68, 0, "green");
   for (let k = 0; k < 5; k++) floorQuad(g, 6 + random() * 10, 6 + random() * 12, (random() - 0.5) * 50, 0.7, (random() - 0.5) * 80, "pepper");
 
+  // The ground the bowl blocks (R-ASSET-030): its closed wall and open frame as a ring of turned boxes, then the ramps and masts below.
+  const blocks: FootprintBox[] = angles.map((_, i) => {
+    const [ax, , az] = at(i, 0.982, 0);
+    const [bx, , bz] = at((i + 1) % n, 0.982, 0);
+    return { x: (ax + bx) / 2, z: (az + bz) / 2, width: Math.hypot(bx - ax, bz - az) + 1.0, depth: (radius[i] ?? 0) * 0.035 + 1.3, turn: Math.atan2(-(bz - az), bx - ax) };
+  });
+
   // Two continuous raked tiers with a concrete balcony fascia between them.
   ringStrip(g, ring(lower.from, lower.low), ring(lower.to, lower.high), "up", (i) => (decayed[i] === true ? "concreteWorn" : "seat"));
   ringStrip(g, ring(lower.to, lower.high), ring(lower.to, upper.low), "inward", () => "concrete");
@@ -205,6 +212,14 @@ export function buildStadium(footprint: readonly (readonly [number, number])[]):
       box(ramps, 0.9, y - 0.7, 0.9, c * (r0 + length * t), 0, s * (r0 + length * t), "concreteWorn");
     }
     cylinder(ramps, landing, 0.6, c * (r0 + length + landing - 1), 0, s * (r0 + length + landing - 1), "concrete", 12);
+    // The ramp's foot, from where its underside comes down below head height, its two piers and its landing.
+    const low = 1 - (HEAD_HEIGHT + 0.7 - 0.6) / (STADIUM.concourse - 0.6);
+    const from = r0 + length * low;
+    const to = r0 + length;
+    blocks.push({ x: c * ((from + to) / 2), z: s * ((from + to) / 2), width: to - from + 0.5, depth: width, turn: -a });
+    for (const t of [0.3, 0.65]) blocks.push({ x: c * (r0 + length * t), z: s * (r0 + length * t), width: 0.9, depth: 0.9 });
+    blocks.push({ x: c * (r0 + length + landing - 1), z: s * (r0 + length + landing - 1), width: landing * 2, depth: landing * 2, turn: -a });
   }
-  return g;
+  for (const [sx, sz] of [[-1, -1], [1, -1], [-1, 1], [1, 1]] as const) blocks.push({ x: sx * STADIUM.masts.x, z: sz * STADIUM.masts.z, width: 2.4, depth: 2.4 });
+  return setFootprint(g, blocks);
 }

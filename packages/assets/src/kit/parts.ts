@@ -503,6 +503,16 @@ export function posters(w: Object3D, x: number, y: number, random: () => number,
 export type ClutterKind = "crates" | "drum" | "bench" | "cooler" | "sacks" | "jerrycans";
 
 /** Street clutter: crates, a drum, a bench, a cooler, sacks, jerrycans. */
+/** The plan each kind of clutter stands on: width, depth and its centre's offset from where it is put. */
+export const CLUTTER_PLAN: Record<ClutterKind, [number, number, number, number]> = {
+  crates: [0.58, 0.36, 0.04, 0],
+  drum: [0.58, 0.58, 0, 0],
+  bench: [1.4, 0.32, 0, 0],
+  cooler: [0.62, 0.44, 0, 0],
+  sacks: [1.02, 0.56, 0.25, 0.05],
+  jerrycans: [0.62, 0.3, 0.22, 0],
+};
+
 export function clutter(g: Object3D, kind: ClutterKind, x: number, y: number, z: number): void {
   switch (kind) {
     case "crates":

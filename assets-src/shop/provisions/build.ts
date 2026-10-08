@@ -2,7 +2,7 @@
 // out to a table in front of the door, sacks and crates, a painted board over the shutter and a
 // painted notice by the door. Ported from the design's shopfront with the second review's fixes:
 // the notice clear of the louvre, the tin drawn as a tin, the goods in front of the walls.
-import { type SignStyle } from "@japacity/assets";
+import { setFootprint, type SignStyle } from "@japacity/assets";
 import {
   box,
   clutter,
@@ -53,5 +53,11 @@ export function buildProvisions(signs: { board: string; notice: string }, styles
   stain(side, 0, plinth, d, 0.6, "wallCreamWorn");
   posters(side, -0.9, plinth + 1.2, random, 3);
   drain(g, -w / 2 - 0.2, w / 2 + 0.2, d / 2 + 1.25, plinth, [-0.6]);
-  return g;
+  // The shop, the goods' table, the sacks and the crates; the lean-to passes overhead.
+  return setFootprint(g, [
+    { x: 0, z: 0, width: w, depth: d },
+    { x: -0.6, z: d / 2 + 0.45, width: 1.8, depth: 0.6 },
+    { x: 1.25, z: d / 2 + 0.6, width: 1.02, depth: 0.56 },
+    { x: -1.81, z: d / 2 + 0.75, width: 0.58, depth: 0.36 },
+  ]);
 }

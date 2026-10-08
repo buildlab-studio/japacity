@@ -2,7 +2,7 @@
 // display case brought out to the pavement, a printed board on the roof edge and a recharge
 // card sign on its own post. Ported from the design's printed shopfront with the second review's
 // fixes: no ribs on the back nobody sees, rust and stickers on the box, the sign inside the plot.
-import { type SignStyle } from "@japacity/assets";
+import { setFootprint, type SignStyle } from "@japacity/assets";
 import { acUnit, awning, box, clutter, container, dish, onWall, posters, quad, seeded, signboard, stain } from "@japacity/assets/kit";
 import { Group } from "three";
 
@@ -39,5 +39,11 @@ export function buildContainerPhones(signs: { board: string; card: string }, sty
   dish(g, onWall(g, w / 2 + 0.012, 0, 0, Math.PI / 2), 0.4, y + 1.5, 0.3, dishYaw - Math.PI / 2);
   clutter(g, "bench", -2.0, 0, d / 2 + 0.9);
   clutter(g, "drum", -3.3, 0, d / 2 + 0.3);
-  return g;
+  // The container on its sleepers, the display case, the sign's post and the drum; the bench is a seat and the awning passes overhead.
+  return setFootprint(g, [
+    { x: 0, z: 0, width: w, depth: d + 0.2 },
+    { x: 1.1, z: d / 2 + 0.55, width: 2.6, depth: 0.5 },
+    { x: w / 2 - 0.4, z: d / 2 + 1.0, width: 0.12, depth: 0.12 },
+    { x: -3.3, z: d / 2 + 0.3, width: 0.58, depth: 0.58 },
+  ]);
 }

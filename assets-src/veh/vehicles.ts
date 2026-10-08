@@ -1,5 +1,6 @@
 // The design's vehicles (models.js), ported to the kit's shapes. Built along +x as drawn,
 // then turned to face +z (R-ASSET-003). Plain colours from the palette; no real company's livery.
+import { lowBox, setFootprint } from "@japacity/assets";
 import { Group } from "three";
 
 import { cbox, ccyl, facePlusZ, lump, profile, wheel } from "./lab";
@@ -47,7 +48,8 @@ export function buildDanfo(): Group {
   cbox(g, 0.6, 0.26, 0.5, -0.3, 2.18, -0.25, "red");
   lump(g, 0.3, 0.45, 2.24, 0.2, "tan", [1.3, 0.75, 1]);
   cbox(g, 0.24, 0.36, 0.16, -0.25, 2.23, 0.42, "danfoYellow");
-  return facePlusZ(g, "veh_danfo");
+  const root = facePlusZ(g, "veh_danfo");
+  return setFootprint(root, [lowBox(root)]);
 }
 
 /** The keke: a three-wheeled passenger tricycle. */
@@ -92,7 +94,8 @@ export function buildKeke(): Group {
   wheel(g, 0.22, 0.1, 1.05, 0.22, 0);
   for (const s of [1, -1]) wheel(g, 0.22, 0.12, -0.95, 0.22, s * 0.62);
   for (const s of [1, -1]) cbox(g, 0.03, 0.1, 0.12, -1.335, 0.72, s * 0.5, "red");
-  return facePlusZ(g, "veh_keke");
+  const root = facePlusZ(g, "veh_keke");
+  return setFootprint(root, [lowBox(root)]);
 }
 
 /** The okada: a small commuter motorcycle, as used for taxis. */
@@ -123,5 +126,14 @@ export function buildOkada(): Group {
   cbox(g, 0.04, 0.08, 0.12, -1.06, 0.72, 0, "red");
   cbox(g, 0.02, 0.1, 0.2, -1.08, 0.6, 0, "danfoYellow");
   for (const s of [1, -1]) cbox(g, 0.12, 0.02, 0.06, -0.1, 0.34, s * 0.19, "black");
-  return facePlusZ(g, "veh_okada");
+  const root = facePlusZ(g, "veh_okada");
+  // The front wheel and fork, and the rear wheel and rack. The ground under the seat between them,
+  // where a rider stands astride, is left free; grown by the walker's clearance the two boxes meet.
+  const { x, z, width, depth } = lowBox(root);
+  const front = z + depth / 2;
+  const rear = z - depth / 2;
+  return setFootprint(root, [
+    { x, z: (front - 0.1) / 2, width, depth: front + 0.1 },
+    { x, z: (rear - 0.6) / 2, width, depth: -0.6 - rear },
+  ]);
 }

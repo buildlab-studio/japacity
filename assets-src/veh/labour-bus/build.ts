@@ -2,6 +2,7 @@
 // place.deira): a long white coach body with a row of small windows, a roof hatch, the door at the
 // front kerb side, a plain blue band; no operator's name or colours (R-ASSET-010). Built along +X as
 // the design built its vehicles, then turned to face +Z.
+import { lowBox, setFootprint } from "@japacity/assets";
 import { part } from "@japacity/assets/kit";
 import { Group } from "three";
 
@@ -35,5 +36,6 @@ export function buildLabourBus(): Group {
   const wheels = part(g, "wheels");
   wheels.userData.smooth = true;
   for (const x of [2.35, -2.2]) for (const side of [1, -1]) wheel(wheels, 0.42, 0.28, x, 0.42, side * 0.98);
-  return facePlusZ(g, "veh_labour-bus");
+  const root = facePlusZ(g, "veh_labour-bus");
+  return setFootprint(root, [lowBox(root)]);
 }
