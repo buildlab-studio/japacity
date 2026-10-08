@@ -7,6 +7,7 @@ export type Fetch = (input: string, init?: RequestInit) => Promise<Response>;
 export interface Api {
   get<T>(path: string): Promise<T>;
   post<T>(path: string, body: unknown): Promise<T>;
+  put<T>(path: string, body: unknown): Promise<T>;
   /** The `ws:` or `wss:` address of a path on the same server. */
   socketUrl(path: string): string;
 }
@@ -50,6 +51,7 @@ export function api({ baseUrl, fetch = (input, init) => globalThis.fetch(input, 
   return {
     get: (path) => call(path, { method: "GET", headers: { accept: "application/json" } }),
     post: (path, body) => call(path, { method: "POST", headers: { accept: "application/json", "content-type": "application/json" }, body: JSON.stringify(body) }),
+    put: (path, body) => call(path, { method: "PUT", headers: { accept: "application/json", "content-type": "application/json" }, body: JSON.stringify(body) }),
     socketUrl(path) {
       const url = new URL(`${base}${path}`, globalThis.location?.href);
       url.protocol = url.protocol === "https:" ? "wss:" : "ws:";

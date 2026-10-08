@@ -7,6 +7,7 @@ import type { Id } from "@japacity/sim";
 import { useEffect, useRef, useState } from "react";
 
 import { useView } from "../../authority/GameProvider";
+import { BlockReport } from "../../shared/moderation/BlockReport";
 import { Button } from "../../shared/ui/Button";
 import { Sheet } from "../../shared/ui/Sheet";
 import { say } from "../../shared/words/text";
@@ -52,7 +53,7 @@ function useImpression(slot: Id<"advert">, active: boolean, onCount: CountAdvert
   return ref;
 }
 
-function AdvertCard({ served, open, onOpenChange }: { served: ServedAdvert; open: boolean; onOpenChange: (open: boolean) => void }) {
+function AdvertCard({ slot, served, open, onOpenChange }: { slot: Id<"advert">; served: ServedAdvert; open: boolean; onOpenChange: (open: boolean) => void }) {
   const [leaving, setLeaving] = useState(false);
   const close = (next: boolean) => {
     if (!next) setLeaving(false);
@@ -86,6 +87,8 @@ function AdvertCard({ served, open, onOpenChange }: { served: ServedAdvert; open
       <Button variant="quiet" onClick={() => close(false)}>
         {say("advert.card.close")}
       </Button>
+      {/* R-MODERATION-003: an advert is reported by its campaign and the slot it stood in. */}
+      <BlockReport who={{ campaign: served.campaign, name: served.advertiser }} cites={{ campaign: served.campaign, slot }} surface="advert" />
     </Sheet>
   );
 }
@@ -117,7 +120,7 @@ export function AdvertSlot({ slot, served, baseUrl = "", onCount }: AdvertSlotPr
       <span data-advert-label className="pointer-events-none absolute top-1 left-1 rounded-sm bg-ink px-1.5 py-0.5 text-xs font-semibold text-paper">
         {say("advert.label")}
       </span>
-      <AdvertCard served={served} open={open} onOpenChange={setOpen} />
+      <AdvertCard slot={slot} served={served} open={open} onOpenChange={setOpen} />
     </div>
   );
 }

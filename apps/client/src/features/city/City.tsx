@@ -5,9 +5,10 @@
 import { content, text } from "@japacity/content";
 import type { Id, PlaceEntry } from "@japacity/sim";
 import { Map as MapIcon, Settings2, X } from "lucide-react";
-import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 
 import { useGame, useView } from "../../authority/GameProvider";
+import { setGraphicsMode } from "../../shared/graphics/mode";
 import { loadJson, loadManifest } from "../../shared/three/manifest";
 import { Button } from "../../shared/ui/Button";
 import { Sheet } from "../../shared/ui/Sheet";
@@ -102,7 +103,8 @@ function PersonCard({ picked, onClose, words: said }: { picked: Picked; onClose:
   );
 }
 
-export function City() {
+/** `adverts`: the shell's advert slots for the place on screen (R-ADVERT-001), placed beside what is said there. */
+export function City({ adverts }: { adverts?: (place: string) => ReactNode } = {}) {
   const view = useView();
   const presence = useGame((state) => (state as { presence?: PresenceSample | null }).presence ?? null);
   const drawing = useMemo(canDraw, []);
@@ -117,6 +119,7 @@ export function City() {
   const [choice, setChoice] = useState<ModeChoice>(() => readChoice(storage()));
   const [mode, setMode] = useState<Mode>(() => startingMode(device(), city, choice));
   const watch = useRef(watchFrames(mode, choice !== "auto"));
+  useEffect(() => setGraphicsMode(mode), [mode]);
 
   const where = view.place.where;
   const country = view.place.country;
@@ -264,6 +267,7 @@ export function City() {
                 ))}
               </div>
             )}
+            {adverts?.(placeId)}
             {heard === null ? null : (
               <p className="pointer-events-auto self-start rounded-2xl rounded-bl-sm bg-ink px-3 py-2 text-sm text-paper" data-overheard>
                 {heardWords(heard.key, heard.params)}
