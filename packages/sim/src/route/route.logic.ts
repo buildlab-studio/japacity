@@ -180,9 +180,9 @@ export function fundsRequired(read: ReadCtx, route: Id<"route">): number {
 
 /**
  * R-ROUTE-010, in pence: the bank and locked pockets of every currency and
- * any family support, at the official rate. Cash never counts. each
- * pocket goes straight to pounds with `convertMinor`, rounded down once per
- * pocket, so naira is valued as kobo * 100 / the pound rate in one step.
+ * any family support, at the official rate. Cash never counts. Each pocket
+ * goes straight to pounds with `convertMinor`, rounded down once per pocket,
+ * so naira is valued as kobo * 100 / the pound rate in one step.
  */
 export function fundsShown(read: ReadCtx, route: Id<"route">): number {
   const rates = officialRates(read);
@@ -267,9 +267,9 @@ function allHold(ctx: Ctx, requirements: readonly Requirement[]): boolean {
 }
 
 /**
- * R-ROUTE-002. the page names no stream for a chance to hear, and
- * hearing is talk that comes up, not a school's draw, so it draws on `offer`.
- * The draw comes first, as the page says, and only for a route still unknown.
+ * R-ROUTE-002. Hearing is talk that comes up, not a school's draw, so a chance
+ * to hear draws on `offer`. The draw comes first, and only for a route still
+ * unknown.
  */
 function hear(ctx: Ctx, effect: Effect): BaseEvent[] {
   if (effect.type !== "route/hear") throw new Error(`route/hear cannot carry out ${effect.type}.`);
@@ -309,12 +309,12 @@ function applySchool(ctx: Ctx, _effect: Effect, cause: Cause): BaseEvent[] {
 }
 
 /**
- * The application's conditions, judged again (R-ROUTE-012). the slot
- * that carries this effect judged its activity's requirements a moment ago,
- * before its fees were taken. Paying the visa fee and the surcharge lowers the
- * funds shown, so "covered now" is not judged a second time here: the months
- * held, judged at the last month end, stand for it. Otherwise a file that was
- * covered when the slot began would lose its fees and send nothing.
+ * The application's conditions, judged again (R-ROUTE-012). The slot that
+ * carries this effect judged "covered now" a moment ago, before its fees were
+ * taken. Paying the visa fee and the surcharge lowers the funds shown, so it
+ * is not judged a second time here: the months held, judged at the last month
+ * end, stand for it. Otherwise a file that was covered when the slot began
+ * would lose its fees and send nothing.
  */
 function conditionsHold(ctx: Ctx, held: RouteState, cause: Cause): boolean {
   const requires = ctx.content.activity[cause.source as Id<"activity">]?.requires ?? [];

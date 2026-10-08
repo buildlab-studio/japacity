@@ -121,10 +121,9 @@ function take(ctx: Ctx, cause: Cause, currency: Currency, pocket: "any" | "bank"
 /**
  * A defaulted loan (R-OBLIGATION-005): no charge and no misses any more. The
  * lender takes whatever is in the bank pocket of the loan's currency, up to
- * what is owed, and the loan closes when nothing is owed.
- * "what is owed" is the principal still outstanding. Interest stops
- * once a loan is in default, and the taking starts in the `due` phase after
- * the one in which it defaulted ("from then on").
+ * what is owed, and the loan closes when nothing is owed. What is owed is the
+ * principal still outstanding: interest stops once a loan is in default, and
+ * the taking starts in the `due` phase after the one in which it defaulted.
  */
 function seize(ctx: Ctx, item: ObligationState, entry: ObligationEntry): BaseEvent[] {
   const amount = Math.min(ctx.state.wallet.pockets[entry.currency].bank, item.outstanding);
@@ -173,7 +172,7 @@ function miss(ctx: Ctx, item: ObligationState, entry: ObligationEntry, charge: C
   const events = record(ctx, { type: "obligation/missed", id: item.id, entry: item.entry, total: charge.base + charge.interest, missed });
   ctx.apply(entry.onMiss, cause);
   // R-OBLIGATION-004: upkeep and support never default. Only a loan goes past its grace.
-  // the miss that passes the grace applies onMiss, then onDefault, in that order.
+  // R-OBLIGATION-005: the miss that passes the grace applies onMiss, then onDefault.
   if (entry.type === "loan" && missed > entry.grace) {
     events.push(...record(ctx, { type: "obligation/defaulted", id: item.id, entry: item.entry, outstanding: item.outstanding }));
     ctx.apply(entry.onDefault, cause);

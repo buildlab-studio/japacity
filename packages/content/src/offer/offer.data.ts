@@ -674,7 +674,7 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
         fraudEffects: null,
       },
     ],
-    // both family pledges lapse into nothing.
+    // Both family pledges lapse into nothing (R-OFFER-005).
     onExpire: null,
   },
   "offer.family-pledge-small": {

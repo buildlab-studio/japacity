@@ -40,10 +40,12 @@ function stateOf(read: ReadCtx, route: Id<"route">): RouteStateName {
  * What a slow item has earned while unmet: its weight times have over need,
  * rounded down (R-JAPACITY-001).
  *
- * `have` is held between 0 and `need`, so an unmet item never earns
- * its whole weight or less than nothing, whatever a judge reports. An unmet
- * slow item whose judge gives no `have` or `need`, or a need of 0 or less,
- * earns nothing: there is no share to show.
+ * `have` is held between 0 and `need`, so an unmet item never earns more than
+ * its weight or less than nothing, whatever a judge reports. An unmet item
+ * whose `have` reaches `need` earns its whole weight: the funds item, covered
+ * now but not yet held at a month end, is one. An unmet slow item whose judge
+ * gives no `have` or `need`, or a need of 0 or less, earns nothing: there is
+ * no share to show.
  */
 function partEarned(weight: number, result: RequirementResult): number {
   const { have, need } = result;

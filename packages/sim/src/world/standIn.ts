@@ -121,9 +121,6 @@ function walk(
     const factor = BP_WHOLE + rate.driftBp + noise;
     // Content without the supply variable (the engine's mini content) has no shortage to price.
     const supply = book.values[SUPPLY] ?? FULL_SUPPLY;
-    // rate.md says supply 95 settles near 2.4%, but the rule as written (floor plus 72 a
-    // point) gives 200 + 5 * 72 = 560, so 5.6%. Supply 40 giving about 45% agrees with the rule, so
-    // the rule is built and the 2.4% figure is left for the maintainer.
     const target = rate.premiumFloorBp + rate.premiumPerSupplyBp * Math.max(0, FULL_SUPPLY - supply);
     premiumBp = Math.max(rate.premiumFloorBp, premiumBp + thirdTowardZero(target - premiumBp) + premiumNoise);
     for (const currency of FOREIGN) {
