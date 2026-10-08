@@ -118,8 +118,8 @@ export const REFUSED_COOKIE = "japacity-age-refused";
 
 /**
  * Copied from apps/server/src/routes/account.ts: `GET /api/account`, the
- * account as its owner sees it (R-ACCOUNT-015). The production wiring adds
- * `sendUsageCounts` (R-ANALYTICS-006); until it merges the reply may lack it.
+ * account as its owner sees it (R-ACCOUNT-015), with the usage setting
+ * (R-ANALYTICS-006) and the admin mark (R-MODERATION-012).
  */
 export interface AccountView {
   id: string;
@@ -127,17 +127,22 @@ export interface AccountView {
   age: { passed: boolean; method: "declared" | "verified" };
   createdAt: number;
   character: string | null;
-  /** R-MODERATION-012: the account is on the server's admin list. */
+  /** R-ANALYTICS-006: the "Send usage counts" setting. */
+  sendUsageCounts: boolean;
+  /** R-MODERATION-012: the account is on `config.admin.accounts`, so the client mounts the admin page. */
   admin: boolean;
 }
 
-/** Assumed: `GET /api/account` and `PUT /api/account` answer the row, with the usage setting when the server has it. */
-export type AccountReply = { ok: true; account: AccountView & { sendUsageCounts?: boolean } } | ServerRejection;
+/** Copied from apps/server/src/routes/account.ts: `GET /api/account` and `PUT /api/account` answer the row. */
+export type AccountReply = { ok: true; account: AccountView } | ServerRejection;
 
-/** Assumed: `PUT /api/account` changes the account's own settings (R-ANALYTICS-006). */
-export interface AccountSettingsRequest {
+/** Copied from apps/server/src/routes/account.ts: the body of `PUT /api/account` (R-ANALYTICS-006). */
+export interface AccountChange {
   sendUsageCounts: boolean;
 }
+
+/** The client's earlier name for the change body. */
+export type AccountSettingsRequest = AccountChange;
 
 // ---------------------------------------------------------------------------
 // People: invite links, pairs, conversations, block and report (pair.md,
