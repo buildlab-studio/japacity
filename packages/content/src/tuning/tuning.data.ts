@@ -190,8 +190,8 @@ export const tuning: Tuning = {
   // lottery.md, the Friday draw: ticket, cap, 45% of sales destroyed, tiers 40/30/30, ten mid prizes, one small prize in 50 tickets
   lottery: { ticket: naira(200), maxTickets: 5, burnBp: 4500, jackpotBp: 4000, midBp: 3000, midCount: 10, smallBp: 3000, smallEvery: 50 },
 
-  // city.md: the crowd bands, the graphics switches and the screen split. Working values until the city work reads the page's Numbers table.
-  city: { crowdLow: 6, crowdHigh: 24, playersMax: 12, fridayBp: 3000, saturdayBp: 5000, raiseAfterMs: 20000, raiseFrameMs: 20, dropAfterMs: 3000, dropFrameMs: 50, maxPixelRatio: 2, desktopMinWidth: 900 },
+  // city.md "Numbers": the crowd bands and the graphics switches. Working values.
+  city: { crowdLow: 8, crowdHigh: 16, playersMax: 4, fridayBp: 4000, saturdayBp: 5000, raiseAfterMs: 10000, raiseFrameMs: 20, dropAfterMs: 5000, dropFrameMs: 33, maxPixelRatio: 2, desktopMinWidth: 1024 },
 
   // people.md, pair.md, interview.md, undertaking.md: their Numbers tables
   people: { matchmaker: false, maxCourting: 3, partnerMoments: 6, marryAfterMonths: 6, weddingShare: naira(3000000), proposeCooldown: 3, recourtMonths: 6, gossipBp: 2500, endStanding: { courting: -2, partner: -6, married: -12, applying: -6 }, endWellbeing: -4, leftWellbeing: -8, couchMonths: 3, warnDays: 7, standInDays: 14 },
