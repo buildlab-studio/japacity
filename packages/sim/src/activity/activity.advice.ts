@@ -98,24 +98,20 @@ export function monthsAway(read: ReadCtx, entry: RouteEntry, item: ChecklistItem
   const { state, content } = read;
   const month = state.turn.month;
   const requirement = item.requirement;
-  switch (requirement.type) {
-    case "document/held": {
-      const doc = state.document[requirement.document];
-      const due = doc === undefined ? null : beingMade(doc);
-      if (due !== null) return Math.max(AT_LEAST, due - month);
-      return Math.max(AT_LEAST, content.document[requirement.document]?.wait[0] ?? AT_LEAST);
-    }
-    case "route/offer": {
-      const pending = Object.values(state.route[requirement.route]?.schools ?? {}).filter((application) => application.state === "pending");
-      if (pending.length > 0) return Math.max(AT_LEAST, Math.min(...pending.map((application) => application.readyMonth)) - month);
-      const waits = entry.schools.flatMap((school) => content.school[school]?.answerMonths[0] ?? []);
-      return Math.max(AT_LEAST, waits.length === 0 ? AT_LEAST : Math.min(...waits));
-    }
-    case "route/funds":
-      return Math.max(AT_LEAST, requirement.heldMonths - (state.route[requirement.route]?.funds.heldMonths ?? 0));
-    default:
-      return AT_LEAST;
+  if (requirement.type === "document/held") {
+    const doc = state.document[requirement.document];
+    const due = doc === undefined ? null : beingMade(doc);
+    if (due !== null) return Math.max(AT_LEAST, due - month);
+    return Math.max(AT_LEAST, content.document[requirement.document]?.wait[0] ?? AT_LEAST);
   }
+  if (requirement.type === "route/offer") {
+    const pending = Object.values(state.route[requirement.route]?.schools ?? {}).filter((application) => application.state === "pending");
+    if (pending.length > 0) return Math.max(AT_LEAST, Math.min(...pending.map((application) => application.readyMonth)) - month);
+    const waits = entry.schools.flatMap((school) => content.school[school]?.answerMonths[0] ?? []);
+    return Math.max(AT_LEAST, waits.length === 0 ? AT_LEAST : Math.min(...waits));
+  }
+  if (requirement.type === "route/funds") return Math.max(AT_LEAST, requirement.heldMonths - (state.route[requirement.route]?.funds.heldMonths ?? 0));
+  return AT_LEAST;
 }
 
 /** R-ADVICE-004: every route heard or known, in content order, the road never (R-ROAD-001). */

@@ -118,12 +118,12 @@ describe("the licensed adviser", () => {
     const advised = eventOf(result, "activity/advised");
     expect(advised.routes).toEqual(expected);
     const uk = advised.routes.find((reading) => reading.route === UK)!;
-    expect(uk.fits).toBe(uk.missing.length === 0);
-    if (!uk.fits) {
-      expect(uk.months).toBeGreaterThanOrEqual(1);
-      expect(linesOf(result, "line.activity.adviser-missing")[0]?.params).toEqual({ route: UK, count: uk.missing.length, months: uk.months });
-      expect(linesOf(result, "line.activity.adviser-item")).toHaveLength(uk.missing.length);
-    }
+    // A heard route has no school offer yet, so it never fits.
+    expect(uk.fits).toBe(false);
+    expect(uk.missing).toContain("offer");
+    expect(uk.months).toBeGreaterThanOrEqual(1);
+    expect(linesOf(result, "line.activity.adviser-missing")[0]?.params).toEqual({ route: UK, count: uk.missing.length, months: uk.months });
+    expect(linesOf(result, "line.activity.adviser-item")).toHaveLength(uk.missing.length);
     expect(text["line.activity.adviser-missing"]).toMatch(/at least \{months\} months/);
   });
 
