@@ -1,0 +1,89 @@
+// The command transaction (docs/rules/server.md R-SERVER-002 to 007,
+// clock.md R-CLOCK-004 to 006, 013, 017): lock the characters, load each,
+// grant what real time earned, run the caller's step, and write the rows, the
+// snapshots, any new segment and `refilledAt` together, or nothing at all.
+import type { Command, Rejection, Sender, StepResult, World } from "@japacity/sim";
+import type { CharacterWrite, Refusal } from "@japacity/store";
+
+import { earnTurns } from "../clock/turns";
+import { tickAt, turnClock } from "../clock/view";
+import type { ServerDeps } from "../deps";
+import { storedWorlds, tickRow } from "../world/ticks";
+import type { Diverged, Live } from "./load";
+import { apply, load } from "./load";
+
+/** What the caller's step is given: the world of the current tick and a way to step a live character on it. */
+export interface Turn {
+  world: World;
+  at: number;
+  send: (live: Live, command: Command, sender: Sender) => StepResult;
+}
+
+/** The caller's step, run under the locks once every character is loaded and granted. A rejection writes nothing. */
+export type Act<T> = (lives: Live[], turn: Turn) => { ok: true; value: T } | Rejection;
+
+export interface TxOptions {
+  /** R-CLOCK-004: off only for a sweep that carries characters to the current content and steps nothing. */
+  grant?: boolean;
+}
+
+export type TxResult<T> =
+  | { kind: "done"; value: T; lives: Live[]; world: World; at: number }
+  | { kind: "rejected"; rejection: Rejection; lives: Live[]; world: World; at: number }
+  | { kind: "diverged"; diverged: Diverged }
+  | { kind: "refused"; refusal: Refusal };
+
+/** R-SERVER-002: one character's writes, or null when the transaction changed nothing of it. */
+function writeOf(live: Live): CharacterWrite | null {
+  const changed = live.opened !== null || live.rows.length > 0 || live.refilledAt !== live.storedRefilledAt;
+  if (!changed) return null;
+  return {
+    id: live.id,
+    ...(live.opened === null ? {} : { segment: live.opened.segment }),
+    append: live.rows,
+    snapshots: [...(live.opened === null ? [] : [live.opened.base]), ...live.snapshots],
+    refilledAt: live.refilledAt,
+  };
+}
+
+/**
+ * R-CLOCK-005, R-CLOCK-006: one `turns/grant` from the authority for what
+ * real time earned, logged like any command, and `refilledAt` moved on.
+ */
+function grantEarned(deps: ServerDeps, live: Live, turn: Turn): void {
+  const earned = earnTurns(live.state, live.refilledAt, turn.at, turnClock(deps.config, live.content.tuning.turn.cap));
+  if (earned.grant > 0) {
+    const granted = turn.send(live, { type: "turns/grant", count: earned.grant, basedOn: live.state.v }, "authority");
+    if (!granted.ok) throw new Error(`The earned grant for ${live.id} was rejected with ${granted.code}: ${granted.detail}`);
+  }
+  live.refilledAt = earned.refilledAt;
+}
+
+/**
+ * R-SERVER-002, R-SERVER-007: runs `act` under the locks of `ids` (ascending
+ * id order, whatever order they are given in) at the current tick. The
+ * missing tick rows are made before the locks are taken (R-CLOCK-013).
+ */
+export async function transact<T>(deps: ServerDeps, ids: readonly string[], act: Act<T>, options: TxOptions = {}): Promise<TxResult<T>> {
+  const at = deps.now();
+  const world = (await tickRow(deps, tickAt(deps.config.clock, at))).world;
+  const snapshotEvery = deps.config.server.snapshotEvery;
+  const turn: Turn = { world, at, send: (live, command, sender) => apply(live, command, sender, world, at, snapshotEvery) };
+
+  const result = await deps.stores.player.transact(ids, async (rows): Promise<{ writes: { characters?: CharacterWrite[] }; result: TxResult<T> }> => {
+    const ticks = new Set(rows.characters.flatMap((held) => held.tail.map((logged) => logged.tick)));
+    const worlds = await storedWorlds(deps, ticks);
+    const lives: Live[] = [];
+    for (const held of rows.characters) {
+      const loaded = load(held, deps.contents, worlds);
+      if (!loaded.ok) return { writes: {}, result: { kind: "diverged", diverged: loaded.diverged } };
+      lives.push(loaded.live);
+    }
+    if (options.grant !== false) for (const live of lives) grantEarned(deps, live, turn);
+    const acted = act(lives, turn);
+    if (!acted.ok) return { writes: {}, result: { kind: "rejected", rejection: acted, lives, world, at } };
+    const characters = lives.map(writeOf).filter((write) => write !== null);
+    return { writes: { characters }, result: { kind: "done", value: acted.value, lives, world, at } };
+  });
+  return result.ok ? result.value : { kind: "refused", refusal: result };
+}

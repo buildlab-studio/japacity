@@ -4,11 +4,19 @@
 import { Hono } from "hono";
 
 import type { ServerDeps } from "./deps";
+import { characterRoute } from "./routes/character";
+import { commandRoute } from "./routes/command";
+import { viewRoute } from "./routes/view";
+import { worldRoute } from "./routes/world";
 
 export function makeApp(deps: ServerDeps): Hono {
   const app = new Hono();
 
   app.get("/api/health", (c) => c.json({ ok: true, content: deps.contents.current.version, tick: currentTick(deps) }));
+  app.route("/", commandRoute(deps));
+  app.route("/", viewRoute(deps));
+  app.route("/", worldRoute(deps));
+  app.route("/", characterRoute(deps));
 
   return app;
 }
