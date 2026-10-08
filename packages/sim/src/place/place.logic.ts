@@ -35,6 +35,8 @@ const SEASON_DECEMBER: Id<"var"> = "var.season-december";
 const DECEMBER: Id<"setpiece"> = "setpiece.december";
 /** R-RETURN-004 names one token that lapses with time away. */
 const RESIDENT: Id<"status"> = "status.ca-resident";
+/** R-ROAD-009: the status the road's far shore gives. */
+const IRREGULAR: Id<"status"> = "status.eu-irregular";
 /** R-PLACE-002: what the family house stops charging for while you are away. */
 const HOME_TYPES: readonly ObligationType[] = ["upkeep", "support"];
 /**
@@ -261,6 +263,8 @@ function returnHome(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
     return reject("cannot-afford", `The fare home is ${String(fare.amount)} in ${fare.currency} and cannot be paid.`);
   }
   const cause: Cause = { source: command.type, param: ctx.state.place.country, terms: {} };
+  // R-ROAD-009: from the far shore the only way home is the assisted scheme, with no fare.
+  if (ctx.state.status.current?.entry === IRREGULAR) return comeHome(ctx, "assisted", cause);
   if (payment !== null) ctx.apply([payment], cause);
   return comeHome(ctx, returnShape(ctx, payment !== null), cause);
 }

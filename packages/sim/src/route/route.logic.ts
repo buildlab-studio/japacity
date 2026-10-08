@@ -780,10 +780,11 @@ function movedLines(event: Extract<RouteKindEvent, { type: "route/moved" }>): Re
   }
 }
 
-function lines(event: RouteKindEvent): ReportLine[] {
+function lines(event: RouteKindEvent, _state: State, content: Content): ReportLine[] {
   switch (event.type) {
     case "route/moved":
-      return movedLines(event);
+      // R-ROAD-001: the road is never told as a route; its own notes tell the chain.
+      return content.route[event.route]?.gate === "road" ? [] : movedLines(event);
     case "route/school-applied":
       return [line("school-applied", { school: event.school, month: event.readyMonth }, "plain")];
     case "route/school-answered":
@@ -813,7 +814,8 @@ function lines(event: RouteKindEvent): ReportLine[] {
     case "route/supported":
       return [line("supported", { route: event.route, amount: { currency: event.support.currency, amount: event.support.amount } }, "good")];
     case "route/gate-updated":
-      return event.note === null ? [] : [line(event.note, { route: event.route }, "plain", true)];
+      // R-ROAD-010: the chain's lines are tone `bad`.
+      return event.note === null ? [] : [line(event.note, { route: event.route }, event.gate?.gate === "road" ? "bad" : "plain", true)];
     case "route/refusal-noted":
       return [line("refused", { route: event.route, reason: event.reason }, "bad", true)];
     case "route/banned":
@@ -891,7 +893,8 @@ function routeProblems(id: Id<"route">, held: RouteState, content: Content): str
   }
   if (held.school === null && held.depositPaid !== 0) problems.push(`${id} has ${String(held.depositPaid)} paid in deposit but no school.`);
   if (held.school !== null && held.schools[held.school]?.state !== "offer") problems.push(`${id} paid a deposit to ${held.school} without an offer from it.`);
-  if (held.state === "applying" && held.visa === null) problems.push(`${id} is applying with no application.`);
+  // R-ROAD-005: the road is applying while its chain runs, with no application.
+  if (held.state === "applying" && held.visa === null && entry.gate !== "road") problems.push(`${id} is applying with no application.`);
   if (held.visa !== null && !["applying", "granted", "departed"].includes(held.state)) problems.push(`${id} is ${held.state} but holds an application.`);
   for (const [name, value] of [
     ["heldMonths", held.funds.heldMonths],

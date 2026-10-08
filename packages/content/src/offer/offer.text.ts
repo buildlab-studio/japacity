@@ -276,6 +276,12 @@ export const offerText: Record<string, string> = {
     "They hand you a phone and tell you to call home. The man wants {sum} before anyone moves.",
   "offer.road-ransom-call.choice.pay": "Your family finds the money",
   "offer.road-ransom-call.choice.cannot": "There is no money",
+
+  "offer.road-exit.name": "The migration agency",
+  "offer.road-exit.title": "There is a way back",
+  "offer.road-exit.body":
+    "The migration agency flies people home from here. The anti-trafficking agency meets them when they land. You can ask at any time.",
+  "offer.road-exit.choice.ask": "Ask them to take you home",
   // health.md
   ...offerHealthText,
 

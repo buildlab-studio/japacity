@@ -402,6 +402,8 @@ function conditionsHold(ctx: Ctx, entry: OfferEntry, terms: Terms): boolean {
 /** Whether an entry is rolled this month (R-OFFER-001): conditions, not open, cooldown passed, under its limit. */
 function mayRoll(ctx: Ctx, entry: OfferEntry): boolean {
   if (switchedOff(ctx.content, entry)) return false;
+  // R-ROAD-005: on the road the month is the chain's own; nothing from home reaches it.
+  if (ctx.state.place.where === "road" && entry.group !== "road") return false;
   if (isOpen(ctx.state, entry.id) || reachedLimit(ctx.state, entry)) return false;
   const last = ctx.state.offer.lastOpened[entry.id];
   if (last !== undefined && ctx.state.turn.month - last < entry.cooldown) return false;

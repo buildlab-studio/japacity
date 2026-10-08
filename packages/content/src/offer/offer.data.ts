@@ -1148,4 +1148,20 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
     ],
     onExpire: "cannot",
   },
+  "offer.road-exit": {
+    id: "offer.road-exit",
+    group: "road",
+    where: "any",
+    // Opened by the chain each month on the road (R-ROAD-007): the exit the cards promise.
+    when: [{ type: "place/is", where: "road" }],
+    chanceBp: 0,
+    cooldown: 0,
+    maxTimes: null,
+    expiresAfter: 1,
+    terms: {},
+    fraudBp: 0,
+    signs: [],
+    choices: [{ id: "ask", requires: [], pick: null, effects: [{ type: "route/road-step", step: "exit" }], fraudEffects: null }],
+    onExpire: null,
+  },
 };

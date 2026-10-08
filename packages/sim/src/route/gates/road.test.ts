@@ -888,3 +888,94 @@ describe("who the pitches reach", () => {
     expect(order).toEqual(["offer.nepa-bill", RADIO]);
   });
 });
+
+// ---------------------------------------------------------------------------
+// The chain as the page has it: applying, the exit each month, its voice, and
+// nothing from home reaching it
+// ---------------------------------------------------------------------------
+
+const EXIT_OFFER: Id<"offer"> = "offer.road-exit";
+/** Three months in the desert for certain, so the chain is under way for a while. */
+const LONG_DESERT = rows({ desert: { ...ON, months: [3, 3] } });
+
+describe("on the road", () => {
+  test("[R-ROAD-005] given the truth, when the character pays or calls home, then the route is applying and the character is on the road; when the chain ends, the route is known again", () => {
+    for (const reply of ["pay", "call-home"]) {
+      const game = life({ change: all(HONEST_ROAD, rows({ desert: { ...TURNED, months: [1, 1] } })) });
+      toTruth(game);
+      answer(game, "truth", reply);
+      expect(game.state.route[ROAD]?.state).toBe("applying");
+      expect(game.state.place.where).toBe("road");
+      expect(checkInvariants(game.state, game.content)).toEqual([]);
+      playOut(game);
+      expect(gateOf(game).step).toBe("exit");
+      expect(game.state.route[ROAD]?.state).toBe("known");
+    }
+  });
+
+  test("[R-ROAD-007] given the chain under way, when each month on the road ends, then the exit is an offer with one choice, `ask`; asking it is the assisted return", () => {
+    const game = life({ change: all(HONEST_ROAD, LONG_DESERT) });
+    toTruth(game);
+    answer(game, "truth", "pay");
+    for (let month = 0; month < 2; month += 1) {
+      turn(game);
+      const exit = offerOf(game, EXIT_OFFER);
+      expect(exit?.openedMonth).toBe(game.state.turn.month);
+      expect(content.offer[EXIT_OFFER]).toMatchObject({ group: "road", chanceBp: 0 });
+      expect(content.offer[EXIT_OFFER]!.choices.map((choice) => choice.id)).toEqual(["ask"]);
+    }
+    const standing = quality(game, STANDING);
+    game.accept({ type: "offer/choose", offer: offerOf(game, EXIT_OFFER)!.id, choice: "ask" });
+    expect(game.state.place.where).toBe("home");
+    expect(game.state.place.returns.at(-1)).toMatchObject({ shape: "assisted", country: null });
+    expect(quality(game, STANDING)).toBe(standing + ASSISTED);
+    expect(gateOf(game).step).toBe("exit");
+    expect(game.state.route[ROAD]?.state).toBe("known");
+    for (const key of [`${EXIT_OFFER}.name`, `${EXIT_OFFER}.title`, `${EXIT_OFFER}.body`, `${EXIT_OFFER}.choice.ask`]) expect(text[key]).toBeTruthy();
+  });
+
+  test("[R-ROAD-010] given a whole chain to the far shore, when every month's report is read, then every line of the chain is tone `bad`, never plain", () => {
+    const game = life({ change: all(HONEST_ROAD, rows({ desert: ON, compound: ON, coast: ON, sea: ON })) });
+    toTruth(game);
+    const told = [answer(game, "truth", "pay")];
+    for (let month = 0; month < 30 && gateOf(game).step !== "arrived"; month += 1) told.push(turn(game));
+    const roadLines = told.flatMap((result) => result.lines).filter((line) => line.key.startsWith("line.route.road-"));
+    expect(roadLines.map((line) => line.key)).toContain("line.route.road-arrived");
+    for (const line of roadLines) expect(line.tone).toBe("bad");
+  });
+
+  test("[R-PLACE-003] [R-ROAD-005] given a family request certain to come and news in the world, when months pass on the road, then no request opens and no story is delivered; at home both come", () => {
+    const certain: Change = (used) => ({ ...used, offer: { ...used.offer, "offer.nepa-bill": { ...used.offer["offer.nepa-bill"]!, chanceBp: 10000, cooldown: 0 } } });
+    const game = life({ change: all(HONEST_ROAD, LONG_DESERT, certain), quiet: false });
+    toTruth(game);
+    answer(game, "truth", "pay");
+    const delivered = { ...game.state.news.delivered };
+    for (let month = 0; month < 2; month += 1) {
+      const result = turn(game);
+      expect(game.state.place.where).toBe("road");
+      expect(game.world().news.length).toBeGreaterThan(0);
+      expect(result.events.filter((event) => event.type === "news/delivered")).toEqual([]);
+      expect(offerOf(game, "offer.nepa-bill")).toBeUndefined();
+    }
+    expect(game.state.news.delivered).toEqual(delivered);
+    const home = life({ change: certain, quiet: false });
+    const result = turn(home);
+    expect(result.events.some((event) => event.type === "news/delivered")).toBe(true);
+    expect(offerOf(home, "offer.nepa-bill")).toBeDefined();
+  });
+
+  test("[R-ROAD-009] given the far shore and the fare to hand, when the character asks to go home, then it is the assisted return and no fare is paid: there is no going home by choice from there", () => {
+    const game = life({ change: all(HONEST_ROAD, rows({ desert: ON, compound: ON, coast: ON, sea: ON })) });
+    toTruth(game);
+    answer(game, "truth", "pay");
+    playOut(game);
+    expect(game.state.status.current?.entry).toBe("status.eu-irregular");
+    const fare = content.country["country.italy"]!.fare * 3;
+    applyEffects(game, [{ type: "money/add", currency: "EUR", pocket: "bank", amount: fare, reason: "gift" }]);
+    const pockets = game.state.wallet.pockets;
+    game.accept({ type: "return/home" });
+    expect(game.state.place.returns.at(-1)).toMatchObject({ shape: "assisted", country: "country.italy" });
+    expect(game.state.wallet.pockets.EUR).toEqual(pockets.EUR);
+    expect(game.state.wallet.pockets.NGN).toEqual(pockets.NGN);
+  });
+});
