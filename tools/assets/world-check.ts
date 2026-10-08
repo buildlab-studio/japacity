@@ -33,7 +33,18 @@ export interface LimitedFile {
     motion: { kind: string }[];
     dancers?: unknown[];
     dressings?: { offer: string; motion: { kind: string }[]; dancers: unknown[]; crowd: { low: number; high: number } }[];
+    things?: { id: string; acts: unknown[] }[];
   };
+}
+
+/** No thing offers more than two acts (R-WORLD-005); a third goes on a sheet. */
+export const MAX_ACTS = 2;
+
+/** R-WORLD-005 for one file: every thing has at least one act and at most two. */
+export function checkThings(file: Pick<LimitedFile, "place" | "stage">): string[] {
+  return (file.stage?.things ?? []).flatMap((thing) =>
+    thing.acts.length === 0 ? [`R-WORLD-005: ${file.place} has a thing ${thing.id} with no act`] : thing.acts.length > MAX_ACTS ? [`R-WORLD-005: ${file.place} has a thing ${thing.id} with ${String(thing.acts.length)} acts, over ${String(MAX_ACTS)}`] : [],
+  );
 }
 
 /** A world-first file declares its camera; older files are drawn by the earlier rules until they are rebuilt. */

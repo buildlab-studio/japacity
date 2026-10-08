@@ -4,7 +4,7 @@ import { join } from "node:path";
 import { describe, expect, test } from "vitest";
 
 import { type PlaceFile, worldChecks } from "./check-assets";
-import { checkLimits, type LimitedFile, WORLD_LIMITS } from "./world-check";
+import { checkLimits, checkThings, type LimitedFile, WORLD_LIMITS } from "./world-check";
 
 const ROOT = join(import.meta.dirname, "..", "..");
 const planted = JSON.parse(readFileSync(join(ROOT, "tools", "__fixtures__", "stripes", "place.json"), "utf8")) as PlaceFile;
@@ -45,6 +45,15 @@ describe("the limits of a place", () => {
       street({ scope: "interior", people: { low: 4, high: 6 } }, { motion: [], walkable: [[[-6, -5], [6, -5], [6, 5], [-6, 5]]], dressings: [{ offer: "offer.send-off-party", motion: [{ kind: "smoke" }], dancers: [1, 2, 3], crowd: { low: 5, high } }] });
     expect(checkLimits(party(7))).toEqual([]);
     expect(checkLimits(party(8))[0]).toMatch(/dressed for offer.send-off-party shows 11 people with its dancers, over 10/);
+  });
+});
+
+describe("the things of a place", () => {
+  test("[R-WORLD-005] given things with one, two, three and no acts, when the file is checked, then one and two pass, three fails, and a thing with nothing to do fails", () => {
+    const file = (counts: number[]): LimitedFile => street({}, { things: counts.map((count, index) => ({ id: `thing-${String(index)}`, acts: Array.from({ length: count }, (_, act) => act) })) });
+    expect(checkThings(file([1, 2]))).toEqual([]);
+    expect(checkThings(file([1, 3]))).toEqual(["R-WORLD-005: place.street has a thing thing-1 with 3 acts, over 2"]);
+    expect(checkThings(file([0]))).toEqual(["R-WORLD-005: place.street has a thing thing-0 with no act"]);
   });
 });
 

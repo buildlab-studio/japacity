@@ -14,7 +14,7 @@ import { hashInName, type Manifest, sha256 } from "./manifest";
 import { checkPalette } from "./palette-check";
 import { describeMeasure, renderPlaces } from "./place-check";
 import type { Register } from "./register";
-import { checkLimits, isWorldFile, type LimitedFile } from "./world-check";
+import { checkLimits, checkThings, isWorldFile, type LimitedFile } from "./world-check";
 
 /** R-ASSET-008, as the page writes it. */
 export const FILE_NAME = /^(chr|veh|bld|shop|sign|lm|prop|cloth|hair|anim|tex)_[a-z0-9]+(-[a-z0-9]+)*(_[a-z0-9]+(-[a-z0-9]+)*)?\.(glb|png|ktx2)$/;
@@ -386,12 +386,13 @@ export function checkPlace(place: PlaceFile, measured: ReadonlyMap<string, Measu
 
 /**
  * 14. A world-first place (one that declares its camera, world.md R-WORLD-009) keeps its floors a
- * centimetre apart (R-WORLD-012) and its crowd, moving sheets and size inside R-WORLD-011. A file
+ * centimetre apart (R-WORLD-012), its crowd, moving sheets and size inside R-WORLD-011, and one or
+ * two acts on each thing (R-WORLD-005). A file
  * from before the world-first design is drawn by the earlier rules until the places are rebuilt, so
  * what these checks find in it is a note, not a failure.
  */
 export function worldChecks(place: PlaceFile, measured: ReadonlyMap<string, Pick<Measured, "floors">>, notes: string[]): string[] {
-  const found = [...checkFaces(place.place, place.stage, (file) => measured.get(file)?.floors ?? []), ...checkLimits(place)];
+  const found = [...checkFaces(place.place, place.stage, (file) => measured.get(file)?.floors ?? []), ...checkLimits(place), ...checkThings(place)];
   if (isWorldFile(place)) return found;
   // the ten places shipped first carry no shot; the maintainer decides when they must pass, which the places work's rebuild should make true.
   if (found.length > 0) notes.push(`${place.place} has no stage.shot yet, so the world-first checks only note: ${String(found.length)} problem(s), the first: ${found[0] ?? ""}`);

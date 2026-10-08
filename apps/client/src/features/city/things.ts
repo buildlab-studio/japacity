@@ -1,11 +1,12 @@
 // The things in a place (docs/rules/world.md R-WORLD-005): a model copy the player can tap, with
 // its name and one or two acts. A place file declares them in `stage.things`; where and how far the
 // character walks for one, and which of its acts the view lets happen today, are read here. Pure.
+import { MAX_ACTS } from "../../../../../tools/assets/world-check";
 import type { Act, Thing } from "../../shared/world/contract";
 import type { Stage } from "./placeFile";
 
-/** No thing offers more than two acts; a third goes on a sheet. */
-export const MAX_ACTS = 2;
+/** No thing offers more than two acts; a third goes on a sheet (the place check's number). */
+export { MAX_ACTS };
 /** How far short of a thing's spot the character stops when the thing names no spot to stand at: clear of a kiosk or a danfo. */
 export const STOP_SHORT = 1.8;
 
