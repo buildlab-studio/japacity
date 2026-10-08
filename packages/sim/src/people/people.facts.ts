@@ -1,52 +1,14 @@
 // What one life knows of another person: docs/rules/people.md R-PEOPLE-001,
 // R-PEOPLE-005 and R-PEOPLE-046 to 048. Pure: the server, the kind and the
 // tests all read the same facts, and none of it reads the seed or a secret.
-import { jobTerms, paidYearly, MONTHS_PER_YEAR } from "../activity/activity.pay";
-import { resolveAmount, worldVar } from "../engine/check";
-import type { Content, Id, Money, PeopleSlice, PersonEntry, PersonFacts, ReadCtx, RouteStateName, State, World } from "../engine/types";
+import { resolveAmount } from "../engine/check";
+import type { Content, Id, PeopleSlice, PersonEntry, PersonFacts, ReadCtx, RouteStateName, State, World } from "../engine/types";
 import { fundsCurrency, fundsShown } from "../route/route.logic";
+import { floorsMet } from "./sponsor-checks";
 
 export const AGE: Id<"quality"> = "quality.age-months";
 const EDUCATION: Id<"quality"> = "quality.edu-level";
 const ENGLISH: Id<"document"> = "document.english-test";
-
-/** A yearly gross figure in a currency, or null when there is none to show. */
-interface YearlyPay {
-  currency: Money["currency"];
-  amount: number;
-}
-
-/**
- * R-UNDERTAKING-003, read here for every partner route: the yearly pay in the
- * route's country's currency at or above its `floorVar`. A route with no floor
- * is met by anyone.
- */
-function floorsMet(read: ReadCtx, pay: YearlyPay | null): PersonFacts["meetsFloor"] {
-  const met: PersonFacts["meetsFloor"] = {};
-  for (const route of Object.values(read.content.route)) {
-    if (route.partner === undefined) continue;
-    const { floorVar } = route.partner;
-    if (floorVar === null) {
-      met[route.id] = true;
-      continue;
-    }
-    const currency = route.country === null ? null : (read.content.country[route.country]?.currency ?? null);
-    met[route.id] = pay !== null && pay.currency === currency && pay.amount >= worldVar(read, floorVar);
-  }
-  return met;
-}
-
-/** The character's own job, a year, gross. Cash work shows nothing (R-UNDERTAKING-003). */
-function ownPay(read: ReadCtx): YearlyPay | null {
-  const job = read.state.activity.job;
-  const entry = job === null ? undefined : read.content.activity[job];
-  if (entry === undefined || entry.pay === null || entry.cash === true) return null;
-  const terms = jobTerms(read);
-  const { amount } = entry.pay;
-  if (typeof amount === "object" && "term" in amount && typeof terms[amount.term] !== "number") return null;
-  const figure = resolveAmount(read, amount, terms);
-  return { currency: entry.pay.currency, amount: paidYearly(entry) ? figure : figure * MONTHS_PER_YEAR };
-}
 
 /** The route this life holds for its joint: the lead route when leading, else the one it follows on. */
 export function jointRouteOf(slice: PeopleSlice, content: Content): Id<"route"> | null {
@@ -80,7 +42,7 @@ export function factsOf(state: State, content: Content, world: World): PersonFac
     statusMonthsLeft: current?.expiresMonth === null || current === null ? null : Math.max(0, current.expiresMonth - month),
     monthsInCountry: abroad ? Math.max(0, month - state.place.movedMonth) : 0,
     job: state.activity.job,
-    meetsFloor: floorsMet(read, ownPay(read)),
+    meetsFloor: floorsMet(read),
     eduLevel: state.quality[EDUCATION] ?? 0,
     englishBand: english?.state === "held" ? english.value : null,
     // a fixed life has no family draw, and the fixed lives all start in the city.
