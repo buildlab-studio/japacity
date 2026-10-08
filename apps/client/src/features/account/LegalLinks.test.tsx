@@ -48,19 +48,24 @@ function storeFor(api: AccountApi) {
   return createGameStore({ view: () => Promise.resolve(engineView()), send: () => Promise.reject(new Error("unused")) }, { account: api });
 }
 
-function expectBothLinks(scope: HTMLElement) {
-  const terms = within(scope).getByRole("link", { name: say("ui.legal.terms") });
-  const privacy = within(scope).getByRole("link", { name: say("ui.legal.privacy") });
-  expect(terms.getAttribute("href")).toBe(TERMS_PATH);
-  expect(privacy.getAttribute("href")).toBe(PRIVACY_PATH);
-  for (const link of [terms, privacy]) expect(link.getAttribute("target")).toBe("_blank");
+/** Each link's address and where it opens, as found in `scope`. */
+function legalLinks(scope: HTMLElement): { href: string | null; target: string | null }[] {
+  return [say("ui.legal.terms"), say("ui.legal.privacy")].map((name) => {
+    const link = within(scope).getByRole("link", { name });
+    return { href: link.getAttribute("href"), target: link.getAttribute("target") };
+  });
 }
+
+const BOTH = [
+  { href: TERMS_PATH, target: "_blank" },
+  { href: PRIVACY_PATH, target: "_blank" },
+];
 
 describe("the terms and the privacy notice", () => {
   test("given each link, when its path is looked up in the client's public folder, then a page is there with its own title", () => {
     for (const link of LEGAL_LINKS) {
       const file = publicFile(link.href);
-      expect(existsSync(file), link.href).toBe(true);
+      expect(existsSync(file)).toBe(true);
       const page = readFileSync(file, "utf8");
       expect(page).toContain(`<title>${say(link.words)}</title>`);
       expect(page).toContain('<meta name="viewport"');
@@ -89,7 +94,7 @@ describe("the terms and the privacy notice", () => {
       </GameProvider>,
     );
     await screen.findByRole("button", { name: say("ui.account.google") });
-    expectBothLinks(document.body);
+    expect(legalLinks(document.body)).toEqual(BOTH);
   });
 
   test("given the settings sheet, when it shows, then both pages are linked from it", () => {
@@ -99,12 +104,12 @@ describe("the terms and the privacy notice", () => {
         <AccountSettings account={api} />
       </GameProvider>,
     );
-    expectBothLinks(document.body);
+    expect(legalLinks(document.body)).toEqual(BOTH);
   });
 
   test("given the guides menu, where the credits and how the game was made are, when it is opened, then both pages are linked from it", async () => {
     await renderWithView(<GuidesMenu />, engineView("scenario.ada"));
     fireEvent.click(screen.getByRole("button", { name: say("guide.page.menu") }));
-    expectBothLinks(screen.getByRole("navigation", { name: say("guide.page.menu") }));
+    expect(legalLinks(screen.getByRole("navigation", { name: say("guide.page.menu") }))).toEqual(BOTH);
   });
 });

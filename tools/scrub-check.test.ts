@@ -28,7 +28,7 @@ describe("the scrub check", () => {
   test("given a planted line for each tell-tale, when a docs page is checked, then every one is caught on its line", () => {
     for (const tale of TELL_TALES) {
       const hits = findTellTales("docs/rules/somewhere.md", `# A page\n\n${tale.example}\n`);
-      expect(hits.map((hit) => hit.label), tale.label).toContain(tale.label);
+      expect(hits.map((hit) => hit.label)).toContain(tale.label);
       expect(hits.every((hit) => hit.line === 3)).toBe(true);
     }
   });
