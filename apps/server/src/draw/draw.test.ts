@@ -13,7 +13,7 @@ import { drawJob } from "../jobs/draw";
 import { TICKS_CRON } from "../jobs/ticks";
 import { drawRoute } from "../routes/draw";
 import type { DrawReply } from "../routes/draw";
-import type { ServerReply, WorldReply } from "../types";
+import type { ServerReply, ViewReply, WorldReply } from "../types";
 import { storedWorlds } from "../world/ticks";
 import { drawSeed, drawWinners, fromHex, sha256, tiersFor, toHex, topUpPart } from "../../../../packages/sim/src/lottery/lottery.draw";
 import type { Beacon } from "./beacon";
@@ -359,6 +359,41 @@ describe("telling", () => {
     const online = await held(server, lives[0]!.character);
     expect(nudges).toContainEqual({ nudge: "view", v: online.character.v });
     expect(await pays(server, lives[1]!.character)).toHaveLength(1);
+  });
+});
+
+describe("what the players see of a paid draw", () => {
+  test("[R-LOTTERY-013] [R-LOTTERY-017] [R-SERVER-019] given a winner away while the draw was paid, when they come back and fetch the view since the version they last held, then the reply carries the letter; without since, or since the paid version, it carries no lines", async () => {
+    const { server, keys, lives } = await soldDraw(2, 5);
+    const away = lives[1]!;
+    const before = (await held(server, away.character)).character.v;
+    server.setNow(during(14));
+    await drawJob(server.deps, keys, TICKS_CRON);
+    const paid = (await held(server, away.character)).character.v;
+    expect(paid).toBeGreaterThan(before);
+
+    const back = await call<ViewReply>(server, "GET", `/api/view?since=${String(before)}`, away.account);
+    if (!back.body.ok) throw new Error(back.body.detail);
+    expect(back.body.lines.map((line) => line.key)).toContain("line.lottery.letter");
+    const plain = await call<ViewReply>(server, "GET", "/api/view", away.account);
+    expect(plain.body.ok && plain.body.lines).toEqual([]);
+    const caughtUp = await call<ViewReply>(server, "GET", `/api/view?since=${String(back.body.view.v)}`, away.account);
+    expect(caughtUp.body.ok && caughtUp.body.lines).toEqual([]);
+    expect((await call<ViewReply>(server, "GET", "/api/view?since=-1", away.account)).status).toBe(400);
+  });
+
+  test("[R-LOTTERY-005] given two players' tickets numbered 0 to 4 and 5 to 9, when the view is read while the draw sells and after it closes, then the numbers are hidden while it sells and each sees only their own after", async () => {
+    const { server, keys, lives } = await soldDraw(2, 5);
+    const selling = await call<ViewReply>(server, "GET", "/api/view", lives[0]!.account);
+    expect(selling.body.ok && selling.body.view.lottery?.numbers).toBeNull();
+    server.setNow(during(14));
+    await drawJob(server.deps, keys, TICKS_CRON);
+    for (const [index, life] of lives.entries()) {
+      const shown = await call<ViewReply>(server, "GET", "/api/view", life.account);
+      expect(shown.body.ok && shown.body.view.lottery?.numbers).toEqual([0, 1, 2, 3, 4].map((n) => n + index * 5));
+    }
+    const sent = await send(server, lives[0]!.account, { type: "turn/end", slots: [], basedOn: (await held(server, lives[0]!.character)).character.v });
+    expect(sent.body.ok && sent.body.view.lottery?.numbers).toEqual([0, 1, 2, 3, 4]);
   });
 });
 

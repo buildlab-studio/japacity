@@ -3,7 +3,7 @@
 // R-CLOCK-017): the latest snapshot, the log after it replayed against the
 // stored world of each row's tick, the hash compared with the last row's, and
 // the state carried to the current content when its segment names another.
-import type { Command, Content, Sender, State, StepResult, World } from "@japacity/sim";
+import type { Command, Content, ReportLine, Sender, State, StepResult, World } from "@japacity/sim";
 import { checkContent, checkInvariants, hashState, step, upgradeState } from "@japacity/sim";
 import type { Held, LogRow, SegmentRow, SnapshotRow } from "@japacity/store";
 
@@ -27,6 +27,12 @@ export interface Live {
   opened: { segment: SegmentRow; base: SnapshotRow } | null;
   rows: LogRow[];
   snapshots: SnapshotRow[];
+  /**
+   * R-LOTTERY-017, R-SERVER-019: the report lines of the rows its player did
+   * not send (the authority's and the stand-in's), from the replayed tail and
+   * this transaction, by the version each row made, for the view's reply.
+   */
+  sentFor: { v: number; lines: ReportLine[] }[];
 }
 
 /** R-SERVER-003: why a load was refused. */
@@ -89,6 +95,7 @@ export function load(held: Held, contents: Contents, worlds: ReadonlyMap<number,
   const refuse = (detail: string): Loaded => ({ ok: false, diverged: { character: row.id, account: row.account, v: row.v, detail } });
 
   let state = held.snapshot.state;
+  const sentFor: Live["sentFor"] = [];
   for (const logged of held.tail) {
     const world = worlds.get(logged.tick);
     if (world === undefined) throw new Error(`No stored world for tick ${String(logged.tick)}.`);
@@ -96,6 +103,7 @@ export function load(held: Held, contents: Contents, worlds: ReadonlyMap<number,
     if (!result.ok) return refuse(`Version ${String(logged.v)} (${logged.command.type}) is rejected on replay with ${result.code}.`);
     state = result.state;
     if (state.v !== logged.v) return refuse(`Version ${String(logged.v)} replays to version ${String(state.v)}.`);
+    if (logged.sender !== "player") sentFor.push({ v: logged.v, lines: result.lines });
   }
   const last = held.tail.at(-1);
   if (last !== undefined && hashState(state) !== last.hash) return refuse(`Version ${String(last.v)} replays to another hash.`);
@@ -114,6 +122,7 @@ export function load(held: Held, contents: Contents, worlds: ReadonlyMap<number,
     opened: null,
     rows: [],
     snapshots: [],
+    sentFor,
   };
   const current = contents.current;
   if (sameContent(content, current)) return { ok: true, live };
@@ -146,6 +155,7 @@ export function apply(live: Live, command: Command, sender: Sender, world: World
   const state = result.state;
   live.state = state;
   live.rows.push({ character: live.id, v: state.v, tick: world.tick, sender, command, hash: hashState(state), at });
+  if (sender !== "player") live.sentFor.push({ v: state.v, lines: result.lines });
   if (state.v % snapshotEvery === 0) live.snapshots.push(snapshotOf(live.id, live.segment, live.content, state));
   return result;
 }
