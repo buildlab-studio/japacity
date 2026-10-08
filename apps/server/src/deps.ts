@@ -4,9 +4,13 @@
 import type { Content } from "@japacity/sim";
 import type {
   AccountStore,
+  AppealStore,
   AuditStore,
+  BannedIdentityStore,
   DeletionStore,
+  FeedbackStore,
   LedgerStore,
+  ModerationLogStore,
   NudgeBus,
   PairStore,
   PlayerStore,
@@ -15,9 +19,13 @@ import type {
 } from "@japacity/store";
 import {
   memoryAccountStore,
+  memoryAppealStore,
   memoryAuditStore,
+  memoryBannedIdentityStore,
   memoryDeletionStore,
+  memoryFeedbackStore,
   memoryLedgerStore,
+  memoryModerationLogStore,
   memoryNudgeBus,
   memoryPlayerStores,
   memoryPresenceStore,
@@ -36,6 +44,10 @@ export interface Stores {
   deletion: DeletionStore;
   ledger: LedgerStore;
   audit: AuditStore;
+  moderationLog: ModerationLogStore;
+  banned: BannedIdentityStore;
+  appeals: AppealStore;
+  feedback: FeedbackStore;
 }
 
 /** R-SERVER-023: the current content and the one before, with any overlay already applied (R-SERVER-016). */
@@ -115,6 +127,10 @@ export function memoryStores(): Stores {
     deletion: memoryDeletionStore(),
     ledger: memoryLedgerStore(),
     audit: memoryAuditStore(),
+    moderationLog: memoryModerationLogStore(),
+    banned: memoryBannedIdentityStore(),
+    appeals: memoryAppealStore(),
+    feedback: memoryFeedbackStore(),
   };
 }
 

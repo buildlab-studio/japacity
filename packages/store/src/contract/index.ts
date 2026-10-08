@@ -5,6 +5,7 @@ export { suiteForAccountStore } from "./account.contract";
 export { suiteForAuditStore } from "./audit.contract";
 export { suiteForDeletionStore } from "./deletion.contract";
 export { suiteForLedgerStore } from "./ledger.contract";
+export { suiteForAppealStore, suiteForBannedIdentityStore, suiteForFeedbackStore, suiteForModerationLogStore } from "./moderation.contract";
 export { suiteForNudgeBus } from "./nudge.contract";
 export { suiteForPairStore } from "./pair.contract";
 export type { PairStores } from "./pair.contract";
