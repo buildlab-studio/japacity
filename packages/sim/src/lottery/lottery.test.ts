@@ -207,6 +207,14 @@ describe("tickets", () => {
   });
 });
 
+describe("what the rewrite kept", () => {
+  test("[R-LOTTERY-024] given the content, when the draw's price and cap are read, then a ticket is ₦200 and five may be bought a draw, so the most staked in a week is ₦1,000", () => {
+    expect(tuning.ticket).toBe(20000);
+    expect(tuning.maxTickets).toBe(5);
+    expect(tuning.ticket * tuning.maxTickets).toBe(100000);
+  });
+});
+
 describe("paying", () => {
   const PRIZES = [
     { tier: "jackpot", amount: 1320000 },
