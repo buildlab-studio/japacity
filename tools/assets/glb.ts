@@ -1,7 +1,8 @@
 // Writing and reading the shipped files (decision 0005 sections 3 and 5). A model is written with
 // gltf-transform's NodeIO, compressed with meshopt, and read back the same way by the check, so the
-// register's figures are always what is in the file. Normals are left out on purpose: glTF asks a
-// loader for flat normals when none are given, which is the look R-ASSET-005 wants.
+// register's figures are always what is in the file. Normals are left out of hard-edged models: glTF
+// asks a loader for flat normals when none are given, which is the look R-ASSET-005 wants for them.
+// A model with round parts carries normals and names those parts in its node's extras.
 import { type Document as GltfDocument, Document, type Node as GltfNode, NodeIO, type Primitive } from "@gltf-transform/core";
 import { ALL_EXTENSIONS } from "@gltf-transform/extensions";
 import { getBounds, meshopt } from "@gltf-transform/functions";
@@ -75,6 +76,7 @@ export function toDocument(model: BakedModel): GltfDocument {
         .setMaterial(material(p.material))
         .setAttribute("POSITION", accessor(new Float32Array(p.positions), "VEC3"))
         .setIndices(accessor(new Uint32Array(p.indices), "SCALAR"));
+      if (p.normals !== undefined) prim.setAttribute("NORMAL", accessor(new Float32Array(p.normals), "VEC3"));
       if (p.colours !== undefined) prim.setAttribute("COLOR_0", accessor(new Float32Array(p.colours), "VEC3"));
       if (p.uvs !== undefined) prim.setAttribute("TEXCOORD_0", accessor(new Float32Array(p.uvs), "VEC2"));
       if (p.joints !== undefined) prim.setAttribute("JOINTS_0", accessor(new Uint8Array(p.joints), "VEC4"));
@@ -82,6 +84,7 @@ export function toDocument(model: BakedModel): GltfDocument {
       mesh.addPrimitive(prim);
     }
     const node = doc.createNode(part.node).setMesh(mesh);
+    if (part.extras !== undefined) node.setExtras(part.extras);
     if (skin !== null) node.setSkin(skin);
     root.addChild(node);
   }

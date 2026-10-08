@@ -1,13 +1,25 @@
-import { describe, expect, test } from "vitest";
+import { beforeAll, describe, expect, test } from "vitest";
 
 import { isPaletteName } from "@japacity/assets";
 
-import { BONE_NAMES, buildPerson, type PersonSpec } from "./people";
+import { BONE_NAMES, buildPerson as build, type PersonSpec } from "./people";
 import { ALL_PEOPLE } from "./people.data";
 import { poseRotations } from "./poses";
 
 const FILE_NAME = /^(chr|veh|bld|shop|sign|lm|prop|cloth|hair|anim|tex)_[a-z0-9]+(-[a-z0-9]+)*(_[a-z0-9]+(-[a-z0-9]+)*)?\.(glb|png|ktx2)$/;
 const cases = ALL_PEOPLE.map((spec) => [spec.name, spec] as const);
+
+// Blending soft shapes takes a moment, so each person is built once, dressed and bare.
+const built = new Map<string, ReturnType<typeof build>>();
+function buildPerson(spec: PersonSpec): ReturnType<typeof build> {
+  const key = JSON.stringify(spec);
+  let mesh = built.get(key);
+  if (mesh === undefined) {
+    mesh = build(spec);
+    built.set(key, mesh);
+  }
+  return mesh;
+}
 
 function heights(spec: PersonSpec): { min: number; max: number } {
   const ys = buildPerson(spec).positions.filter((_, i) => i % 3 === 1);
@@ -24,6 +36,13 @@ function bare(spec: PersonSpec): PersonSpec {
 }
 
 describe("the design's people", () => {
+  beforeAll(() => {
+    for (const spec of ALL_PEOPLE) {
+      buildPerson(spec);
+      buildPerson(bare(spec));
+    }
+  }, 120_000);
+
   test("[R-ASSET-014] given the design's people, when they are listed, then there are 34, each a set of numbers for the one builder", () => {
     expect(ALL_PEOPLE).toHaveLength(34);
     expect(new Set(ALL_PEOPLE.map((p) => p.name)).size).toBe(34);
@@ -40,10 +59,43 @@ describe("the design's people", () => {
     expect(Math.abs(heights(spec).min)).toBeLessThanOrEqual(0.01);
   });
 
-  // The bare body is 1.70 m times the person's height number; the rule's 1.59 to 1.82 m range is
-  // what the design's height numbers give, and is reported, not asserted, where they fall outside it.
   test.each(cases)("[R-ASSET-004] given %s, when built bare, then the body is 1.70 m times its height number", (_, spec) => {
     expect(Math.abs(heights(bare(spec)).max - 1.7 * (spec.height ?? 1))).toBeLessThanOrEqual(0.01);
+  });
+
+  test.each(cases)("[R-ASSET-004] given %s, when built bare, then the body stands 1.59 m to 1.82 m", (_, spec) => {
+    const { max } = heights(bare(spec));
+    expect(max).toBeGreaterThanOrEqual(1.59);
+    expect(max).toBeLessThanOrEqual(1.82);
+  });
+
+  test.each(cases)("[R-ASSET-005] given %s, when built, then the head, hair, headwear and hands are smooth and every other triangle flat", (_, spec) => {
+    const mesh = buildPerson(spec);
+    const n = (i: number): [number, number, number] => [mesh.normals[i * 3] ?? 0, mesh.normals[i * 3 + 1] ?? 0, mesh.normals[i * 3 + 2] ?? 0];
+    expect(mesh.normals).toHaveLength(mesh.positions.length);
+    for (let i = 0; i < mesh.normals.length / 3; i++) expect(Math.abs(Math.hypot(...n(i)) - 1)).toBeLessThanOrEqual(1e-6);
+    const expected = ["hands", "head", ...(spec.hair !== undefined || spec.beard === true ? ["hair"] : []), ...(spec.head !== undefined ? ["headwear"] : [])];
+    expect(mesh.smooth.filter((part) => part !== "load" && part !== "robe")).toEqual(expected.sort());
+    // A flat triangle owns its three vertices, each carrying its face's normal; a smooth one shares them.
+    const uses = new Map<number, number>();
+    for (const group of mesh.groups) for (const v of group) uses.set(v, (uses.get(v) ?? 0) + 1);
+    let flat = 0;
+    for (const group of mesh.groups) {
+      for (let t = 0; t < group.length; t += 3) {
+        const tri = [group[t] ?? 0, group[t + 1] ?? 0, group[t + 2] ?? 0];
+        if (!tri.every((v) => uses.get(v) === 1)) continue;
+        flat += 1;
+        const [a, b, c] = tri.map(n);
+        expect(a).toEqual(b);
+        expect(b).toEqual(c);
+      }
+    }
+    expect(flat).toBeGreaterThan(100);
+  });
+
+  test.each(cases)("[R-ASSET-007] given %s, when built, then it stays at or under 80% of a person's 3,000 triangles", (_, spec) => {
+    const mesh = buildPerson(spec);
+    expect((mesh.groups[0].length + mesh.groups[1].length) / 3).toBeLessThanOrEqual(2400);
   });
 
   test.each(cases)("[R-ASSET-004] given %s, when built with hair and headwear, then the whole height is 1.55 m to 2.3 m", (_, spec) => {
