@@ -43,7 +43,8 @@ function stagesOf(story: NewsEntry): NewsStage[] {
   const stages: NewsStage[] = [];
   if (story.standIn.rumourLead > 0) stages.push("rumour");
   stages.push("announced", "in-force");
-  if (story.standIn.endsAfter !== null || story.standIn.revert) stages.push("ended");
+  // An era's story ends with its era (R-DIRECTOR-002).
+  if (story.standIn.endsAfter !== null || story.standIn.revert || story.director?.group === "front-page") stages.push("ended");
   return stages;
 }
 
@@ -106,8 +107,8 @@ describe("words for every entry", () => {
       stagesOf(story).flatMap((stage) => [`${story.id}.${stage}.head`, `${story.id}.${stage}.body`]),
     );
     // news.md's "Words" table has fifteen rows, one for each story at each stage; director.md's pool adds 78
-    // stages and its seven eras 14 more: 107 rows of a head and a body.
-    expect(keys).toHaveLength(214);
+    // stages and its seven eras 21 (announced, in force, ended): 114 rows of a head and a body.
+    expect(keys).toHaveLength(228);
     expect(missingWords(keys)).toEqual([]);
   });
 

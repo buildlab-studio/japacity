@@ -203,7 +203,11 @@ export const newsTable: Record<Id<"news">, NewsEntry> = {
       adds: [],
     },
     standIn: {
-      chanceBp: pct(60),
+      // the director rolls this every tick, so the fixed schedule's 60% for the whole
+      // run would start a scarcity in the first months and float the naira about once a year.
+      // 4.5% a tick gives about the same 60% over the twenty ticks the old schedule drew from,
+      // and four times that in a crash.
+      chanceBp: 450,
       announce: { between: [6, 26] },
       rumourLead: 2,
       forceLag: 2,
@@ -269,8 +273,9 @@ export const newsTable: Record<Id<"news">, NewsEntry> = {
     touches: [UK],
     group: "closures",
     // The restriction: the refusals story in force is strictness at its 70. the surge must still be over
-    // 40, so a reopened route runs the cycle again before it narrows again.
-    needs: [atLeast("var.uk-study-strictness", 70), over("var.uk-study-surge", 40)],
+    // 40, so a reopened route runs the cycle again before it narrows again. the window must be open, so a
+    // closed or narrowing route is never narrowed again (R-DIRECTOR-005: no step is skipped).
+    needs: [atLeast("var.uk-study-strictness", 70), over("var.uk-study-surge", 40), atLeast("var.uk-study-window", 2)],
     chanceBp: 500,
     rumourLead: 1,
     forceLag: 2,

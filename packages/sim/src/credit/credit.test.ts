@@ -6,7 +6,7 @@ import { checkInvariants } from "../engine/invariants";
 import type { Id, ObligationEntry } from "../engine/types";
 import { abroad, closeTypes, markBy, markOf, openOwed, PHONE, readOf, setPounds, settledAbroad, UK } from "../obligation/obligation.journey";
 import { playMonths } from "../place/place.journey";
-import { applyEffects } from "../route/route.journey";
+import { answerFirst, applyEffects } from "../route/route.journey";
 import type { Game } from "../testing/play";
 import { creditKind, JUDGMENT_CAP, rateFor } from "./credit.logic";
 
@@ -108,6 +108,8 @@ describe("payments", () => {
     playMonths(game, 4);
     // Upkeep is charged first and the phone last: enough for both, not for the rent between them.
     setPounds(game, entryOf("obligation.upkeep-uk").amount + entryOf(PHONE).amount);
+    // December may have opened its scene; the month is what is under test.
+    if (game.state.setpiece.open !== null) answerFirst(game);
     const result = game.endTurn();
     expect(markOf(game)).toBe(8 * CREDIT.onTime - CREDIT.onMiss + CREDIT.onTime);
     expect(result.lines).toContainEqual({ key: "line.credit.missed", params: { country: UK, mark: markOf(game) - CREDIT.onTime }, tone: "bad", attention: false, counts: [] });

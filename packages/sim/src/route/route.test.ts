@@ -946,6 +946,12 @@ describe("decision day", () => {
     const game = life({ tuning: ALWAYS_GRANTED });
     toDecision(game);
     expect(uk(game).state).toBe("granted");
+    // Whatever the rates did, the agent's least must be affordable: the test is about the flight, not the money.
+    applyEffects(game, [
+      { type: "money/add", currency: "NGN", pocket: "bank", amount: 50000000 * UNIT, reason: "gift" },
+      { type: "money/add", currency: "NGN", pocket: "cash", amount: 5000000 * UNIT, reason: "gift" },
+      { type: "money/add", currency: "GBP", pocket: "bank", amount: 20000 * UNIT, reason: "gift" },
+    ]);
     // Held funds open through the real offer: the first honest agent to come up is taken at the least he will hold.
     const heldFunds = () => Object.values(game.state.obligation.items).find((item) => game.content.obligation[item.entry]?.type === "held-funds");
     for (let month = 0; month < 24 && heldFunds() === undefined; month += 1) {

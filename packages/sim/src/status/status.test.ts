@@ -161,7 +161,8 @@ describe("expiry and the next status", () => {
     playMonths(game, 15);
     expect(current(game).entry).toBe(STUDENT);
     playMonths(game, 1);
-    expect(current(game)).toMatchObject({ entry: GRADUATE, grantedMonth: start + 16, expiresMonth: start + 16 + 24 });
+    // The graduate months are the world's var on the day (a story may have shortened them).
+    expect(current(game)).toMatchObject({ entry: GRADUATE, grantedMonth: start + 16, expiresMonth: start + 16 + game.world().vars["var.uk-graduate-months"]! });
   });
 
   test("[R-STATUS-004] given the graduate route closed (its months at 0), when the student status runs out, then it lapses instead", () => {

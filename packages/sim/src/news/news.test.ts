@@ -9,7 +9,7 @@ import { newState } from "../engine/state";
 import { registry } from "../kinds";
 import type { RouteEvent } from "../route/route.events";
 import { start } from "../testing/play";
-import { newsSchedule } from "../world/schedule";
+import { firstTick } from "../testing/world";
 import { standInWorld } from "../world/standIn";
 
 const UK: Id<"route"> = "route.uk-masters";
@@ -90,19 +90,18 @@ describe("delivering the news", () => {
     const seen: string[] = [];
     for (let month = 0; month < 40; month += 1) {
       if (game.state.turn.banked === 0) game.grant(1);
-      for (const line of deliveries(game.endTurn().lines)) seen.push(`${JSON.stringify(line.params.story)} ${JSON.stringify(line.params.stage)}`);
+      for (const line of deliveries(game.endTurn().lines)) seen.push(`${JSON.stringify(line.params.story)} ${JSON.stringify(line.params.stage)} ${String(game.state.news.delivered[line.params.story as Id<"news">]?.since)}`);
     }
     expect(new Set(seen).size).toBe(seen.length);
     const world = standInWorld("world-1", 39, content);
     expect(world.news.length).toBeGreaterThanOrEqual(2);
-    const record: Partial<Record<Id<"news">, NewsStage>> = {};
-    for (const story of world.news) record[story.id] = story.stage;
+    const record: Partial<Record<Id<"news">, { stage: NewsStage; since: number }>> = {};
+    for (const story of world.news) record[story.id] = { stage: story.stage, since: story.since };
     expect(game.state.news.delivered).toEqual(record);
   });
 
   test("[R-NEWS-004] given a story reaches a new stage, when the next turn ends, then it is delivered in that turn's news phase, once", () => {
-    const schedule = newsSchedule("world-1", firstContent);
-    const announced = schedule[RECRUIT]!.announced;
+    const announced = firstTick("world-1", firstContent, RECRUIT, "announced")!;
     const game = start({ scenario: "scenario.ada", content: firstContent, worldSeed: "world-1" });
     for (let tick = 0; tick < announced; tick += 1) {
       expect(deliveries(game.endTurn().lines).filter((line) => line.params.story === RECRUIT)).toEqual([]);
@@ -110,16 +109,21 @@ describe("delivering the news", () => {
     const lines = deliveries(game.endTurn().lines).filter((line) => line.params.story === RECRUIT);
     // The story tells Ada of the route, and is judged for her after that (R-NEWS-005).
     expect(lines).toEqual([{ key: "line.news.delivered", params: { story: RECRUIT, stage: "announced", forYou: 1 }, tone: "plain", attention: true, counts: [] }]);
-    expect(game.state.news.delivered[RECRUIT]).toBe("announced");
+    expect(game.state.news.delivered[RECRUIT]).toMatchObject({ stage: "announced" });
     expect(deliveries(game.endTurn().lines).filter((line) => line.params.story === RECRUIT)).toEqual([]);
   });
 
   test("[R-NEWS-004] given a character away while stories moved on, when they come back, then each story is shown once, at its latest stage only", () => {
     const game = start({ scenario: "scenario.ada", content, worldAt: (tick) => standInWorld("world-1", tick === 0 ? 0 : 80, content) });
-    expect(deliveries(game.endTurn().lines)).toEqual([]);
+    // Tick 0 carries only the opening era's story (R-DIRECTOR-002).
+    const opening = standInWorld("world-1", 0, content).news;
+    expect(deliveries(game.endTurn().lines).map((line) => line.params.story)).toEqual(opening.map((story) => story.id));
     const lines = deliveries(game.endTurn().lines);
     const late = standInWorld("world-1", 80, content).news;
-    expect(lines.map((line) => [line.params.story, line.params.stage])).toEqual(late.map((story) => [story.id, story.stage]));
+    const shown = game.state.news.delivered;
+    const changed = late.filter((story) => opening.find((item) => item.id === story.id)?.since !== story.since || opening.find((item) => item.id === story.id)?.stage !== story.stage);
+    expect(lines.map((line) => [line.params.story, line.params.stage])).toEqual(changed.map((story) => [story.id, story.stage]));
+    expect(Object.keys(shown).length).toBe(late.length);
     expect(late.some((story) => story.stage === "in-force" || story.stage === "ended")).toBe(true);
     expect(deliveries(game.endTurn().lines)).toEqual([]);
   });
@@ -136,7 +140,7 @@ describe("for you", () => {
     const heard: Effect[] = [];
     const kinds = hearingRegistry(heard);
     const played = life(kinds, (tick) => standInWorld("world-1", tick, firstContent), firstContent);
-    const first = newsSchedule("world-1", firstContent)[RECRUIT]!.announced;
+    const first = firstTick("world-1", firstContent, RECRUIT, "announced")!;
     for (let tick = 0; tick <= first; tick += 1) played.endTurn();
     // The recruitment story is judged after its own hearing: reading it told you of the route, so it is for you.
     const recruit = deliveries(played.allLines).find((line) => line.params.story === RECRUIT);
@@ -145,7 +149,10 @@ describe("for you", () => {
     expect(played.state.route[UK]?.state).toBe("heard");
     expect(played.view().news.find((story) => story.id === RECRUIT)?.forYou).toBe(true);
     for (let tick = 0; tick < 30; tick += 1) played.endTurn();
-    const later = deliveries(played.allLines).filter((line) => line.params.story !== RECRUIT);
+    // Every story delivered after that one, touching the route the character now knows of, is for them.
+    const all = deliveries(played.allLines);
+    const after = all.slice(all.findIndex((line) => line.params.story === RECRUIT) + 1);
+    const later = after.filter((line) => line.params.story !== RECRUIT && (firstContent.news[line.params.story as Id<"news">]?.touches.includes(UK) ?? false));
     expect(later.length).toBeGreaterThan(0);
     expect(later.every((line) => line.params.forYou === 1 && line.attention)).toBe(true);
   });
@@ -167,7 +174,7 @@ describe("hearing through the news", () => {
   test("[R-NEWS-006] given a story with routes to hear, when it is delivered at announced, then route/hear is carried out for each, via news", () => {
     const heard: Effect[] = [];
     const played = life(hearingRegistry(heard), (tick) => standInWorld("world-1", tick, content));
-    const announced = newsSchedule("world-1", content)[RECRUIT]!.announced;
+    const announced = firstTick("world-1", content, RECRUIT, "announced")!;
     for (let tick = 0; tick < announced; tick += 1) played.endTurn();
     expect(heard).toEqual([]);
     played.endTurn();
@@ -189,18 +196,18 @@ describe("hearing through the news", () => {
     const announced = deliveries(played.endTurn());
     expect(announced.map((line) => line.params.stage)).toEqual(["announced"]);
     expect(heard).toEqual([{ type: "route/hear", route: UK, via: "news" }]);
-    expect(played.state.news.delivered[RECRUIT]).toBe("announced");
-    expect(RANK[played.state.news.delivered[RECRUIT]!]).toBeGreaterThan(RANK.rumour);
+    expect(played.state.news.delivered[RECRUIT]).toMatchObject({ stage: "announced" });
+    expect(RANK[played.state.news.delivered[RECRUIT]!.stage]).toBeGreaterThan(RANK.rumour);
   });
 
   test("[R-NEWS-006] given the real route kind, when a story with a route to hear is delivered before the route's month for hearing, then the route is heard through the news", () => {
-    const announced = newsSchedule("golden-world", content)[RECRUIT]!.announced;
+    const announced = firstTick("golden-world", content, RECRUIT, "announced")!;
     expect(announced + 1).toBeLessThan(content.route[UK]!.hearBy!);
     const game = start({ scenario: "scenario.ada", content, worldSeed: "golden-world" });
     for (let tick = 0; tick < announced; tick += 1) game.endTurn();
     expect(game.state.route[UK]?.state).toBe("unknown");
     const result = game.endTurn();
-    expect(game.state.news.delivered[RECRUIT]).toBe("announced");
+    expect(game.state.news.delivered[RECRUIT]).toMatchObject({ stage: "announced" });
     expect(game.state.route[UK]?.state).toBe("heard");
     expect(result.lines).toContainEqual({ key: "line.route.heard", params: { route: UK, via: "news" }, tone: "good", attention: false, counts: [] });
     expect(deliveries(result.lines).find((line) => line.params.story === RECRUIT)?.params.forYou).toBe(1);

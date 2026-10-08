@@ -21,7 +21,7 @@ import type {
 } from "../engine/types";
 import { viewFor } from "../engine/view";
 import { registry } from "../kinds";
-import { standInWorld } from "../world/standIn";
+import { standInWorld, standInWorlds } from "../world/standIn";
 import { legalCommands } from "./legal";
 import { miniContent } from "./miniContent";
 
@@ -58,12 +58,26 @@ export interface Game {
   grant(count: number): Extract<StepResult, { ok: true }>;
 }
 
+/** The stand-in world is a pure walk from tick 0, so tests keep each seed's walk and extend it as ticks are asked for. */
+const WORLDS = new Map<string, World[]>();
+
+function cachedStandIn(worldSeed: string, content: Content): (tick: number) => World {
+  const key = `${worldSeed}\u0000${content.version}\u0000${content.overlay ?? ""}\u0000${String(Object.keys(content.news).length)}`;
+  return (tick: number): World => {
+    const held = WORLDS.get(key);
+    if (held !== undefined && held.length > tick) return held[tick]!;
+    const walk = standInWorlds(worldSeed, Math.max(tick, (held?.length ?? 0) * 2, 60), content);
+    WORLDS.set(key, walk);
+    return walk[tick] ?? standInWorld(worldSeed, tick, content);
+  };
+}
+
 export function start(options: StartOptions = {}): Game {
   const content = options.content ?? miniContent;
   const scenario = options.scenario ?? (Object.keys(content.scenario)[0] as Id<"scenario">);
   const seed = options.seed ?? "seed-1";
   const worldSeed = options.worldSeed ?? "world-1";
-  const worldAt = options.worldAt ?? ((tick: number) => standInWorld(worldSeed, tick, content));
+  const worldAt = options.worldAt ?? cachedStandIn(worldSeed, content);
   const kinds = options.kinds ?? registry();
 
   const game: Game = {

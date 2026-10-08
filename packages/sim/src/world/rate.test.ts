@@ -5,7 +5,7 @@ import { describe, expect } from "vitest";
 import { bp, mulDiv } from "../engine/int";
 import { drawAt, scaleDraw } from "../engine/random";
 import type { Content, Id, NewsEntry } from "../engine/types";
-import { newsSchedule } from "./schedule";
+import { seedWhere } from "../testing/world";
 import { rateTrack, standInWorld, standInWorlds } from "./standIn";
 
 const { rate } = content.tuning;
@@ -35,12 +35,7 @@ function story(id: Id<"news">, at: number, standIn: Partial<NewsEntry["standIn"]
 
 /** A seed whose schedule has the float, so R-RATE-004 can be seen. */
 function seedWithFloat(): { seed: string; tick: number } {
-  for (let index = 0; index < 100; index += 1) {
-    const seed = `world-${String(index)}`;
-    const float = newsSchedule(seed, content)[FLOAT];
-    if (float !== undefined) return { seed, tick: float.inForce };
-  }
-  throw new Error("No seed in the first 100 has the float.");
+  return seedWhere(content, FLOAT, "in-force");
 }
 
 describe("the stand-in world's rates", () => {
@@ -64,7 +59,8 @@ describe("the stand-in world's rates", () => {
     expect(world.rates.GBP.official).toBe(rate.start.GBP);
     expect(world.rates.USD.official).toBe(rate.start.USD);
     for (const entry of Object.values(content.var)) expect(world.vars[entry.id]).toBe(entry.start);
-    expect(world.news).toEqual([]);
+    // Only the opening era's story is on the page at tick 0 (R-DIRECTOR-002).
+    expect(world.news.filter((story) => !story.id.startsWith("news.era-"))).toEqual([]);
   });
 
   test("[R-RATE-002] given tick 1, when the world is read, then both official rates moved by the same factor of drift plus the first noise draw", () => {
@@ -145,10 +141,10 @@ describe("the stand-in world's rates", () => {
   );
 
   test("[R-RATE-006] given the living-line story, when it comes into force, then the variable holds its start value until that tick and the new value from it", () => {
-    const ticks = newsSchedule("world-1", content)["news.uk-living-rise"]!;
-    expect(standInWorld("world-1", ticks.inForce - 1, content).vars["var.uk-living-line"]).toBe(117100);
-    expect(standInWorld("world-1", ticks.inForce, content).vars["var.uk-living-line"]).toBe(120300);
-    expect(standInWorld("world-1", ticks.inForce + 30, content).vars["var.uk-living-line"]).toBe(120300);
+    const { seed, tick } = seedWhere(content, "news.uk-living-rise", "in-force");
+    expect(standInWorld(seed, tick - 1, content).vars["var.uk-living-line"]).toBe(117100);
+    expect(standInWorld(seed, tick, content).vars["var.uk-living-line"]).toBe(120300);
+    expect(standInWorld(seed, tick + 30, content).vars["var.uk-living-line"]).toBe(120300);
   });
 
   test("[R-RATE-006] given two stories in force that set the same variable, when both are in force, then the one that came into force later wins", () => {

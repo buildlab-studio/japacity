@@ -27,8 +27,9 @@ export function isForYou(state: State, content: Content, id: Id<"news">): boolea
 function deliver(ctx: Ctx): BaseEvent[] {
   const events: BaseEvent[] = [];
   for (const story of ctx.world.news) {
+    // A new stage, or a new pass of a story that fired again (R-DIRECTOR-003), begins on a new tick.
     const shown = ctx.state.news.delivered[story.id];
-    if (shown !== undefined && RANK[shown] >= RANK[story.stage]) continue;
+    if (shown !== undefined && shown.since === story.since && shown.stage === story.stage) continue;
     const entry = ctx.content.news[story.id];
     if (entry === undefined) throw new Error(`The world names the story ${story.id}, which is not in content.`);
     // R-NEWS-006: reading it at announced or later is one more way to hear of a route.
@@ -37,7 +38,7 @@ function deliver(ctx: Ctx): BaseEvent[] {
       const hear: Effect[] = entry.hear.map((route) => ({ type: "route/hear", route, via: "news" }));
       events.push(...ctx.apply(hear, { source: story.id, param: null, terms: {} }));
     }
-    const delivered: NewsEvent = { type: "news/delivered", story: story.id, stage: story.stage, forYou: isForYou(ctx.state, ctx.content, story.id) };
+    const delivered: NewsEvent = { type: "news/delivered", story: story.id, stage: story.stage, since: story.since, forYou: isForYou(ctx.state, ctx.content, story.id) };
     events.push(delivered);
   }
   return events;
@@ -46,7 +47,7 @@ function deliver(ctx: Ctx): BaseEvent[] {
 function evolve(slice: NewsSlice, event: NewsEvent): NewsSlice {
   switch (event.type) {
     case "news/delivered":
-      return { ...slice, delivered: { ...slice.delivered, [event.story]: event.stage } };
+      return { ...slice, delivered: { ...slice.delivered, [event.story]: { stage: event.stage, since: event.since } } };
     default: {
       const never: never = event.type;
       throw new Error(`Unknown news event ${String(never)}.`);

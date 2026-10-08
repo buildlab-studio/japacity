@@ -9,7 +9,7 @@ import type { Content, Currency, ForeignCurrency, Id, PlayerView, State } from "
 import { NORTHGATE, offeredWith, readyContent, readyLife, seedWhere, slot, answerFirst, toDeposit, toOffer, uk, UK, UNIT } from "../route/route.journey";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
-import { newsSchedule } from "../world/schedule";
+import { seedWhere as seedWhereStory } from "../testing/world";
 import { standInWorld } from "../world/standIn";
 
 function officialOf(pairs: PlayerView["rates"]): Record<ForeignCurrency, number> {
@@ -189,8 +189,9 @@ describe("rules that cross kinds", () => {
   });
 
   test("[R-RATE-004] [R-ROUTE-010] [R-ROUTE-011] given savings held in naira and a deposit paid, when the float comes into force, then the official rate jumps to 3% under the street rate and that month's funds shown in pence fall with it", () => {
-    const worldSeed = seedWhere((seed) => (newsSchedule(seed, content)["news.naira-float"]?.inForce ?? 0) > 12);
-    const floatTick = newsSchedule(worldSeed, content)["news.naira-float"]!.inForce;
+    const found = seedWhereStory(content, "news.naira-float", "in-force");
+    const worldSeed = found.seed;
+    const floatTick = found.tick;
     const used = readyContent(content, { pockets: { NGN: { bank: 30000000 * UNIT, cash: 1500000 * UNIT }, GBP: { bank: 8000 * UNIT, cash: 0 } } });
     const game = start({ scenario: "scenario.ready", content: used, seed: offerSeed(used, 4), worldSeed });
     toDeposit(game);

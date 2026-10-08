@@ -9,7 +9,8 @@ import { NewsView } from "./NewsView";
 
 describe("news", () => {
   test("given none, then it says so", async () => {
-    await renderWithView(<NewsView />, engineView());
+    // The director opens with an era's story, so a view with no stories is pinned here.
+    await renderWithView(<NewsView />, { ...engineView(), news: [] });
     expect(screen.getByText(say("ui.news.none"))).toBeDefined();
   });
 

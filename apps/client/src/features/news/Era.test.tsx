@@ -15,7 +15,8 @@ describe("the news front page", () => {
   });
 
   test("given no era from the world yet, then there is no front page", async () => {
-    const view = abroadView();
+    // The director always names an era, so the view is pinned here.
+    const view = { ...abroadView(), era: null };
     expect(view.era).toBeNull();
     await renderWithView(<NewsView />, view);
     expect(document.querySelector("[data-era]")).toBeNull();

@@ -1092,8 +1092,8 @@ export interface ChapterSlice {
 }
 
 export interface NewsSlice {
-  /** The latest stage of each story this character has been shown. */
-  delivered: Record<Id<"news">, NewsStage>;
+  /** The latest pass of each story this character has been shown: its stage and the tick that stage began. */
+  delivered: Record<Id<"news">, { stage: NewsStage; since: number }>;
 }
 
 export interface PlaceSlice {

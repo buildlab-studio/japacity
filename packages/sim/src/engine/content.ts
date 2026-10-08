@@ -1,6 +1,7 @@
 // The content check (R-ENGINE-014): keys equal ids, ids are well formed, every
 // id mentioned anywhere exists, every number is whole. The Zod schemas check
 // shape; this checks what a schema cannot see across tables.
+import { directorFairness } from "../world/fairness";
 import type { Content, KindName } from "./types";
 
 const CONTENT_KINDS = [
@@ -66,6 +67,8 @@ export function checkContent(content: Content): string[] {
   for (const story of Object.values(content.news)) {
     if (story.standIn.forceLag < 2) problems.push(`${story.id}: comes into force ${String(story.standIn.forceLag)} ticks after announcement, under 2 (R-NEWS-002).`);
   }
+  // R-DIRECTOR-007: the director's stories and eras are fair to every player.
+  problems.push(...directorFairness(content));
   return problems;
 }
 

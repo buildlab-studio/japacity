@@ -19,15 +19,17 @@ function withStory(id: Id<"news">, change: Partial<Content["news"][Id<"news">]["
 }
 
 describe("the news schedule", () => {
-  test("[R-NEWS-001] given many world seeds, when every story is followed tick by tick, then its stage only moves forward, in order", () => {
+  test("[R-NEWS-001] given many world seeds, when every story is followed tick by tick, then within a pass its stage only moves forward, and a stage that falls back is a new pass begun on a later tick", () => {
     for (const seed of SEEDS.slice(0, 40)) {
       const worlds = standInWorlds(seed, 80, content);
-      const last: Partial<Record<Id<"news">, number>> = {};
+      const last: Partial<Record<Id<"news">, { rank: number; since: number }>> = {};
       for (const world of worlds) {
         for (const story of world.news) {
           const rank = STAGES.indexOf(story.stage);
-          expect(rank).toBeGreaterThanOrEqual(last[story.id] ?? 0);
-          last[story.id] = rank;
+          const before = last[story.id];
+          const fellBack = before !== undefined && rank < before.rank;
+          expect(!fellBack || story.since > before.since).toBe(true);
+          last[story.id] = { rank, since: story.since };
           expect(story.since).toBeLessThanOrEqual(world.tick);
         }
       }
@@ -56,11 +58,17 @@ describe("the news schedule", () => {
     }
   });
 
-  test("[R-NEWS-003] given a world seed, when the schedule is drawn twice or the world is asked at any tick, then it is the same", () => {
+  test("[R-NEWS-003] given a world seed, when the schedule is drawn twice or the world is asked at any tick, then it is the same, and a story with no director block follows the schedule", () => {
     expect(newsSchedule("world-7", content)).toEqual(newsSchedule("world-7", content));
-    const late = standInWorld("world-7", 60, content);
-    const schedule = newsSchedule("world-7", content);
-    for (const story of late.news) expect(stageAt(schedule[story.id]!, 60)).toEqual({ stage: story.stage, since: story.since });
+    // The director runs the stories that carry its block; one without it keeps the fixed schedule.
+    const fixed = { ...content.news["news.uk-unis-recruit"]! };
+    delete fixed.director;
+    const plain: Content = { ...content, news: { ...content.news, "news.uk-unis-recruit": fixed } };
+    const late = standInWorld("world-7", 60, plain);
+    const schedule = newsSchedule("world-7", plain);
+    const story = late.news.find((item) => item.id === "news.uk-unis-recruit");
+    expect(story).toBeDefined();
+    expect(stageAt(schedule["news.uk-unis-recruit"]!, 60)).toEqual({ stage: story!.stage, since: story!.since });
   });
 
   test("[R-NEWS-003] given stories that always happen, when many seeds are drawn, then each is announced inside its window every time", () => {
@@ -76,8 +84,9 @@ describe("the news schedule", () => {
   });
 
   test("[R-NEWS-003] given a story with a 60% chance, when 200 seeds are drawn, then it happens in some and not others, near 60%", () => {
-    const happened = SEEDS.filter((seed) => newsSchedule(seed, content)[SCARCITY] !== undefined).length;
-    expect(content.news[SCARCITY]?.standIn.chanceBp).toBe(6000);
+    // The fixed schedule's one draw for the whole run; the director rolls the real scarcity every tick instead.
+    const sixty = withStory(SCARCITY, { chanceBp: 6000 });
+    const happened = SEEDS.filter((seed) => newsSchedule(seed, sixty)[SCARCITY] !== undefined).length;
     expect(happened).toBeGreaterThan(90);
     expect(happened).toBeLessThan(150);
   });
