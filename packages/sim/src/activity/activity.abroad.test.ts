@@ -298,6 +298,23 @@ describe("cash work", () => {
     expect(cashWorkedThisMonth(readOf(holding(GRADUATE, WAREHOUSE)))).toBe(false);
   });
 
+  test("[R-LADDER-003] [R-STATUS-005] given an overstayer with the base detection taken out, when a month is played in a cash job, with no job, and with the cash raise at 0, then only cash work found at a raise of 10000 removes the status", () => {
+    const removed = (job: Id<"activity"> | null, cashDetectBp: number): boolean => {
+      const change = (used: Content): Content => ({
+        ...used,
+        status: { ...used.status, [OVERSTAYER]: { ...used.status[OVERSTAYER]!, detectBp: 0 } },
+        activity: { ...used.activity, [KITCHEN]: { ...used.activity[KITCHEN]!, withheldBp: 0 } },
+        tuning: { ...used.tuning, ladder: { ...used.tuning.ladder, cashDetectBp } },
+      });
+      const game = holding(OVERSTAYER, job, { change });
+      return game.endTurn().events.some((event) => event.type === "status/removed");
+    };
+    expect(tuning.ladder.cashDetectBp).toBe(200);
+    expect(removed(KITCHEN, 10000)).toBe(true);
+    expect(removed(null, 10000)).toBe(false);
+    expect(removed(KITCHEN, 0)).toBe(false);
+  });
+
   test("[R-STATUS-002] [R-LADDER-003] given a graduate in the warehouse whose status lapses to the overstayer's, when the next month is played, then the job ends before it is paid", () => {
     const game = holding(GRADUATE, WAREHOUSE);
     applyEffects(game, [{ type: "status/grant", status: OVERSTAYER }]);
@@ -477,6 +494,32 @@ describe("buying the car and the driving test", () => {
     const ada = flown(content);
     ada.endTurn();
     expect(check(readOf(ada), { type: "document/held", document: HOME_LICENCE }).met).toBe(false);
+  });
+
+  test("[R-CAR-006] [R-CAR-002] [R-LADDER-004] given a driver with a car, when the home licence runs out after 12 months, then the car's activities close and the car cannot be bought, until the UK test is passed", () => {
+    const needing = (used: Content): Content => ({ ...used, activity: { ...used.activity, "activity.call-home": { ...used.activity["activity.call-home"]!, needsCar: true } } });
+    const tunde = flown(content, { from: "scenario.tunde", kinds: creditMet(), change: needing });
+    applyEffects(tunde, [
+      { type: "money/add", currency: "GBP", pocket: "bank", amount: 3000000, reason: "gift" },
+      { type: "obligation/open", obligation: "obligation.car", principal: 855000 },
+    ]);
+    const allowed = (id: Id<"activity">) => tunde.view().activities.find((option) => option.id === id)?.allowed;
+    tunde.endTurn();
+    playMonths(tunde, 11);
+    expect(hasCar(tunde.state, tunde.content)).toBe(true);
+    expect(allowed("activity.call-home")).toBe(true);
+    playMonths(tunde, 1);
+    expect(check(readOf(tunde), { type: "document/held", document: HOME_LICENCE }).met).toBe(false);
+    expect(allowed("activity.call-home")).toBe(false);
+    // The credit file is judged by the registry in play, so the purchase is judged through a turn.
+    tunde.expectRejected({ type: "turn/end", slots: [slot("activity.call-home")] }, "not-legal");
+    tunde.expectRejected({ type: "turn/end", slots: [slot("activity.buy-car-finance")] }, "not-legal");
+    for (let month = 0; month < 12 && !check(readOf(tunde), { type: "document/held", document: UK_LICENCE }).met; month += 1) {
+      if (tunde.state.turn.banked < 1) tunde.grant(tuning.turn.cap);
+      tunde.endTurn([slot("activity.driving-test")]);
+    }
+    expect(allowed("activity.call-home")).toBe(true);
+    tunde.endTurn([slot("activity.call-home")]);
   });
 
   test("[R-CAR-006] given earlier attempts, when the pass chance is worked out, then it is 5500 plus 500 for each, capped at 9000", () => {
