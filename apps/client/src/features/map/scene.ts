@@ -35,7 +35,7 @@ import {
 import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
 
 import type { PinState } from "../../shared/world/contract";
-import { BOUNDS, buildGrid, buildPlots, type District, type Grid, pointAlong, ROOF_GROUPS, type RoofGroup, routeLength, toXZ, WATER, type XZ } from "./layout";
+import { BOUNDS, buildGrid, buildPlots, NAME_HALF, type District, type Grid, pointAlong, ROOF_GROUPS, type RoofGroup, routeLength, toXZ, WATER, type XZ } from "./layout";
 import type { MapPin } from "./pins";
 
 /** The map's colours: the interface's map roles for the ground, and the state colours for the stops. */
@@ -105,7 +105,7 @@ const LAYER = { water: 0.03, plot: 0.07, road: 0.12, name: 0.16, ring: 0.2, brid
 
 const POLE_HEIGHT = 3.2;
 const BOARD = { width: 11, height: 3.1 } as const;
-const NAME_SIZE = { width: 26, height: 4.9 } as const;
+const NAME_SIZE = { width: NAME_HALF[0] * 2 + 2, height: NAME_HALF[1] * 2 } as const;
 /** The boards lean back toward the raised camera so their words read from above. */
 const BOARD_LEAN = -0.7;
 export const DOT_SPACING = 1.5;
@@ -124,11 +124,12 @@ export function glyphOf(id: string, home: boolean): Glyph {
   return "bus";
 }
 
-/** A stop as drawn: its pin, where it stands, and the middle of its board for picking. */
+/** A stop as drawn: its pin, where it stands, the middle of its board for picking, and the board's foot. */
 export interface Stop {
   pin: MapPin;
   at: XZ;
   board: Vector3;
+  foot: number;
   home: boolean;
 }
 
@@ -140,6 +141,8 @@ export interface CityMap {
   setRoute: (route: readonly XZ[] | null) => void;
   /** Moves the ring and the route's dots on: the seconds since the map opened. */
   tick: (seconds: number) => void;
+  /** Grows or shrinks the boards about their feet, so their words stay readable as the camera moves. */
+  setBoardScale: (scale: number) => void;
   dispose: () => void;
 }
 
@@ -300,7 +303,7 @@ function paintAtlas(painting: Painting, colours: MapColours, canvas: HTMLCanvasE
     const x = (index % namesPerRow) * nw;
     const y = namesTop + Math.floor(index / namesPerRow) * nh;
     context.fillStyle = colours.label;
-    context.globalAlpha = 0.55;
+    context.globalAlpha = 0.7;
     context.font = "800 46px system-ui, sans-serif";
     context.textAlign = "center";
     context.textBaseline = "middle";
@@ -325,17 +328,23 @@ function quad(corners: readonly Vector3[], [u0, v0, u1, v1]: readonly [number, n
   };
 }
 
+const LEAN = new Matrix4().makeRotationX(BOARD_LEAN);
+
+/** A board's four corners at a scale, standing on its pole's top. */
+function boardCorners(stop: Stop, scale: number): Vector3[] {
+  const halfW = (BOARD.width * scale) / 2;
+  const height = BOARD.height * scale;
+  const foot = new Vector3(stop.board.x, stop.foot, stop.board.z);
+  return [new Vector3(-halfW, 0, 0), new Vector3(halfW, 0, 0), new Vector3(halfW, height, 0), new Vector3(-halfW, height, 0)].map((corner) => corner.applyMatrix4(LEAN).add(foot));
+}
+
 function paintedGeometry(stops: readonly Stop[], districts: readonly District[], atlas: Atlas): BufferGeometry {
   const positions: number[] = [];
   const uvs: number[] = [];
-  const lean = new Matrix4().makeRotationX(BOARD_LEAN);
-  const halfW = BOARD.width / 2;
-  const halfH = BOARD.height / 2;
   stops.forEach((stop, index) => {
     const at = atlas.boards[index];
     if (at === undefined) return;
-    const corners = [new Vector3(-halfW, -halfH, 0), new Vector3(halfW, -halfH, 0), new Vector3(halfW, halfH, 0), new Vector3(-halfW, halfH, 0)].map((corner) => corner.applyMatrix4(lean).add(stop.board));
-    const made = quad(corners, at);
+    const made = quad(boardCorners(stop, 1), at);
     positions.push(...made.positions);
     uvs.push(...made.uvs);
   });
@@ -355,6 +364,19 @@ function paintedGeometry(stops: readonly Stop[], districts: readonly District[],
   geometry.setAttribute("uv", new BufferAttribute(new Float32Array(uvs), 2));
   geometry.computeBoundingSphere();
   return geometry;
+}
+
+/** A unit box standing on the ground with no bottom face, which is never seen: ten triangles. */
+function openBox(): BufferGeometry {
+  const box = new BoxGeometry(1, 1, 1);
+  box.translate(0, 0.5, 0);
+  const index = box.getIndex();
+  if (index === null) return box;
+  // The faces come in the order +x, -x, +y, -y, +z, -z; the fourth is the bottom.
+  const kept = box.groups.filter((_, face) => face !== 3).flatMap((group) => Array.from(index.array.slice(group.start, group.start + group.count)));
+  box.setIndex(kept);
+  box.clearGroups();
+  return box;
 }
 
 /** A small house for home: walls and a roof in one geometry, coloured by its vertices. */
@@ -416,7 +438,8 @@ export function buildCityMap(pins: readonly MapPin[], options: BuildOptions): Ci
   const stops: Stop[] = pins.map((pin) => {
     const at = toXZ(pin.position);
     const home = options.home === null ? pin.state === "home" : pin.id === options.home;
-    return { pin, at, home, board: new Vector3(at[0], POLE_HEIGHT + BOARD.height / 2 + (home ? 1.4 : 0), at[1]) };
+    const foot = POLE_HEIGHT + (home ? 1.4 : 0);
+    return { pin, at, home, foot, board: new Vector3(at[0], foot + BOARD.height / 2, at[1]) };
   });
 
   // The ground, a little wider than the map so the edge never shows.
@@ -440,9 +463,16 @@ export function buildCityMap(pins: readonly MapPin[], options: BuildOptions): Ci
     return holder.matrix;
   };
 
-  const { plots, buildings, trees } = buildPlots(stops.map((stop) => stop.at));
-  const plotMesh = new InstancedMesh(keep(new BoxGeometry(1, 1, 1)), keep(new MeshLambertMaterial({ color: colours.land2 })), plots.length);
-  plots.forEach(([x, z], index) => plotMesh.setMatrixAt(index, place(x, LAYER.plot / 2, z, 4.1, LAYER.plot, 4.1)));
+  const { plots, buildings, trees } = buildPlots(
+    stops.map((stop) => stop.at),
+    3,
+    options.districts.map((district) => ({ at: district.at, half: NAME_HALF })),
+  );
+  // A plot is only its top, two triangles; it is never seen from the side.
+  const plotTop = keep(new PlaneGeometry(1, 1));
+  plotTop.rotateX(-Math.PI / 2);
+  const plotMesh = new InstancedMesh(plotTop, keep(new MeshLambertMaterial({ color: colours.land2 })), plots.length);
+  plots.forEach(([x, z], index) => plotMesh.setMatrixAt(index, place(x, LAYER.plot, z, 4.1, 1, 4.1)));
   plotMesh.name = "plots";
   scene.add(plotMesh);
 
@@ -460,8 +490,7 @@ export function buildCityMap(pins: readonly MapPin[], options: BuildOptions): Ci
   scene.add(roadMesh);
 
   // One instanced mesh for each roof colour.
-  const box = keep(new BoxGeometry(1, 1, 1));
-  box.translate(0, 0.5, 0);
+  const box = keep(openBox());
   for (const group of ROOF_GROUPS) {
     const mine = buildings.filter((building) => building.group === group);
     const mesh = new InstancedMesh(box, keep(new MeshLambertMaterial({ color: ROOF_COLOURS[group] })), mine.length);
@@ -481,7 +510,7 @@ export function buildCityMap(pins: readonly MapPin[], options: BuildOptions): Ci
   const poles = new InstancedMesh(poleGeometry, keep(new MeshLambertMaterial({ color: 0xffffff })), Math.max(1, stops.length));
   poles.count = stops.length;
   stops.forEach((stop, index) => {
-    poles.setMatrixAt(index, place(stop.at[0], LAYER.plot, stop.at[1], 1, stop.board.y - BOARD.height / 2 - LAYER.plot, 1));
+    poles.setMatrixAt(index, place(stop.at[0], LAYER.plot, stop.at[1], 1, stop.foot - LAYER.plot, 1));
     poles.setColorAt(index, new Color(stateColours(stop.home ? "homeboard" : stop.pin.state, colours).back));
   });
   poles.name = "poles";
@@ -564,6 +593,17 @@ export function buildCityMap(pins: readonly MapPin[], options: BuildOptions): Ci
     stops,
     setRoute,
     tick,
+    setBoardScale: (scale) => {
+      const position = painted.geometry.getAttribute("position");
+      stops.forEach((stop, index) => {
+        const [a, b, c, d] = boardCorners(stop, scale);
+        if (a === undefined || b === undefined || c === undefined || d === undefined) return;
+        [a, b, c, a, c, d].forEach((corner, vertex) => position.setXYZ(index * 6 + vertex, corner.x, corner.y, corner.z));
+        stop.board.y = stop.foot + (BOARD.height * scale) / 2;
+      });
+      position.needsUpdate = true;
+      painted.geometry.computeBoundingSphere();
+    },
     dispose: () => {
       for (const thing of disposables) thing.dispose();
     },

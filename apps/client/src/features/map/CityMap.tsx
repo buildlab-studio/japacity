@@ -6,7 +6,7 @@ import { useEffect, useRef } from "react";
 import { PerspectiveCamera, Vector3, WebGLRenderer } from "three";
 
 import { buildCityMap, type CityMap as Drawn, readColours } from "./scene";
-import { BOUNDS, districts, routeBetween, type XZ } from "./layout";
+import { BOUNDS, districts, routeBetween, toXZ, type XZ } from "./layout";
 import { mapText, mapWords } from "./map.words";
 import type { MapPin } from "./pins";
 import { headingOf } from "./RideSheet";
@@ -43,6 +43,14 @@ const NEAR = 45;
 const FAR = 420;
 /** A tap within this many pixels of a board picks its stop. */
 const TAP_PX = 46;
+/** The map opens on the stops within this many units of the player. */
+const OPEN_RADIUS = 32;
+/** The camera distance at which a board is drawn at its own size; nearer or further, it is scaled to read the same. */
+const BOARD_AT = 120;
+
+function distanceBetween(a: XZ, b: XZ | undefined): number {
+  return b === undefined ? 0 : Math.hypot(a[0] - b[0], a[1] - b[1]);
+}
 
 /** The camera's place: where it looks on the ground and how far back it stands. */
 interface View {
@@ -98,7 +106,11 @@ export function CityMap({ pins, home, picked, onPick }: CityMapProps) {
     const map = buildCityMap(pins, {
       colours: readColours(),
       home,
-      districts: districts(PLACES, named),
+      districts: districts(
+        PLACES,
+        named,
+        pins.map((pin) => toXZ(pin.position)),
+      ),
       boardText: (pin, isHome) => (isHome ? mapWords("map.state.home") : headingOf(pin.name)),
       districtText: (area) => mapWords(`map.area.${area}`),
       canvas: document.createElement("canvas"),
@@ -113,8 +125,10 @@ export function CityMap({ pins, home, picked, onPick }: CityMapProps) {
     // The camera lifts out of the place: it starts close over where the player is and rises to the city.
     const here = map.stops.find((stop) => stop.pin.state === "here") ?? map.stops[0];
     const start: View = clampView({ x: here?.at[0] ?? 0, z: here?.at[1] ?? 0, distance: NEAR });
+    // It settles on the stops round the player: those near, and never fewer than four. The rest are a drag away.
+    const near = [...map.stops].sort((a, b) => distanceBetween(a.at, here?.at) - distanceBetween(b.at, here?.at)).filter((stop, index) => index < 4 || distanceBetween(stop.at, here?.at) < OPEN_RADIUS);
     const want = framing(
-      map.stops.map((stop) => stop.at),
+      near.map((stop) => stop.at),
       camera,
       false,
     );
@@ -201,6 +215,7 @@ export function CityMap({ pins, home, picked, onPick }: CityMapProps) {
 
     let frame = 0;
     let last = 0;
+    let boardScale = 1;
     const began = performance.now();
     const loop = (now: number): void => {
       frame = requestAnimationFrame(loop);
@@ -215,6 +230,11 @@ export function CityMap({ pins, home, picked, onPick }: CityMapProps) {
         distance: state.view.distance + (state.want.distance - state.view.distance) * ease,
       };
       aim(camera, state.view);
+      const scale = Math.min(2.6, Math.max(0.7, state.view.distance / BOARD_AT));
+      if (Math.abs(scale - boardScale) > 0.01) {
+        boardScale = scale;
+        map.setBoardScale(scale);
+      }
       map.tick((now - began) / 1000);
       renderer.render(map.scene, camera);
       probe.drawCalls = renderer.info.render.calls;

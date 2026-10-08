@@ -380,9 +380,10 @@ function towerShare(x: number, z: number): number {
 
 /**
  * The plots between the roads and what stands on each: a few buildings on lots of their own, or
- * trees, or nothing. Plots stay clear round each stop, so a board is never inside a building.
+ * trees, or nothing. Plots stay clear round each stop, so a board is never inside a building, and
+ * under each district's name, so it reads on open ground.
  */
-export function buildPlots(clear: readonly XZ[], clearRadius = 3): Plots {
+export function buildPlots(clear: readonly XZ[], clearRadius = 3, open: readonly { at: XZ; half: XZ }[] = []): Plots {
   const next = sequence(20261008);
   const plots: XZ[] = [];
   const buildings: Building[] = [];
@@ -410,6 +411,8 @@ export function buildPlots(clear: readonly XZ[], clearRadius = 3): Plots {
           const shape: readonly [number, number, number, number] = [next(), next(), next(), next()];
           const pickShape = (index: number): number => shape[index % 4] ?? 0.5;
           if (clear.some(([x, z]) => Math.hypot(x - cx, z - cz) < clearRadius)) continue;
+          // A district's name is painted on open ground, so nothing stands on it.
+          if (open.some(({ at: [x, z], half: [hx, hz] }) => Math.abs(x - cx) < hx + lot / 2 && Math.abs(z - cz) < hz + lot / 2)) continue;
           if (roll < 0.14) {
             const count = 1 + Math.floor(shape[0] * 3);
             for (let tree = 0; tree < count; tree += 1) trees.push({ x: cx + (pickShape(tree + 1) - 0.5) * lot * 0.6, z: cz + (pickShape(tree + 2) - 0.5) * lot * 0.6, size: 0.45 + pickShape(tree) * 0.35 });
@@ -442,8 +445,40 @@ export interface District {
 /** The lagoon's name sits on open water, away from the bridge's stop. */
 const LAGOON: Position = { latE3: 6575, lonE3: 3430 };
 
-/** The districts to name: those with words, at the middle of their places' positions on the map. */
-export function districts(places: readonly { area: string | null; position: Position | null; where: string }[], named: (area: string) => boolean): District[] {
+/** How far a painted name reaches from its middle: half its width and half its depth. */
+export const NAME_HALF: XZ = [12, 2.6];
+/** Where a name may move to, in turn, to keep clear of the stops' boards and the water. */
+const NUDGES: readonly XZ[] = [
+  [0, 0],
+  [0, 6],
+  [0, -6],
+  [0, 11],
+  [0, -11],
+  [8, 6],
+  [-8, 6],
+  [8, -6],
+  [-8, -6],
+];
+
+function nameFits([x, z]: XZ, stops: readonly XZ[]): boolean {
+  const [hx, hz] = NAME_HALF;
+  const corners: XZ[] = [
+    [x - hx, z - hz],
+    [x + hx, z - hz],
+    [x - hx, z + hz],
+    [x + hx, z + hz],
+  ];
+  const onLand = corners.every(([cx, cz]) => !isWater(cx, cz) && cx > BOUNDS.west && cx < BOUNDS.east && cz > BOUNDS.north && cz < BOUNDS.south);
+  // A board stands up from its stop and leans back, so it covers the ground a little north of the stop.
+  const clear = stops.every(([sx, sz]) => Math.abs(sx - x) > hx + 6 || z - sz > hz + 3 || sz - z > hz + 9);
+  return onLand && clear;
+}
+
+/**
+ * The districts to name: those with words, at the middle of their places' positions on the map,
+ * moved a little where a board or the water is in the way, and left out where no spot fits.
+ */
+export function districts(places: readonly { area: string | null; position: Position | null; where: string }[], named: (area: string) => boolean, stops: readonly XZ[] = []): District[] {
   const sums = new Map<string, { lat: number; lon: number; count: number }>();
   for (const place of places) {
     if (place.where !== "home" || place.area === null || place.position === null || place.area === "lagos-lagoon" || !named(place.area)) continue;
@@ -453,7 +488,11 @@ export function districts(places: readonly { area: string | null; position: Posi
     sum.count += 1;
     sums.set(place.area, sum);
   }
-  const found: District[] = [...sums].map(([area, sum]) => ({ area, at: toXZ({ latE3: sum.lat / sum.count, lonE3: sum.lon / sum.count }) }));
-  const inside = found.filter(({ at: [x, z] }) => x > BOUNDS.west + 6 && x < BOUNDS.east - 6 && z > BOUNDS.north + 4 && z < BOUNDS.south - 4 && !isWater(x, z));
-  return named("lagos-lagoon") ? [...inside, { area: "lagos-lagoon", at: toXZ(LAGOON) }] : inside;
+  const placed: District[] = [];
+  for (const [area, sum] of sums) {
+    const [x, z] = toXZ({ latE3: sum.lat / sum.count, lonE3: sum.lon / sum.count });
+    const spot = NUDGES.map(([dx, dz]): XZ => [x + dx, z + dz]).find((at) => nameFits(at, stops) && placed.every((other) => Math.abs(other.at[0] - at[0]) > NAME_HALF[0] * 2 || Math.abs(other.at[1] - at[1]) > NAME_HALF[1] * 2 + 1));
+    if (spot !== undefined) placed.push({ area, at: spot });
+  }
+  return named("lagos-lagoon") ? [...placed, { area: "lagos-lagoon", at: toXZ(LAGOON) }] : placed;
 }

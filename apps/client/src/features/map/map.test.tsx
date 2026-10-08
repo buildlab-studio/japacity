@@ -236,28 +236,36 @@ describe("the ride", () => {
     expect(main.textContent).toContain(mapWords("map.short", { amount: "" }).trim());
   });
 
-  test("[R-WORLD-017] given a ride, when it plays, then it lasts about six seconds and ends once, with the way and the place in its band", () => {
+  test("[R-WORLD-017] given a ride, when it plays, then it lasts about six seconds and ends once, with the way and the place in its band", async () => {
     vi.useFakeTimers();
     const onDone = vi.fn();
     render(<Ride way="danfo" place="Bode Thomas Street" drawing={false} onDone={onDone} />);
     expect(screen.getByText("Danfo to Bode Thomas Street")).toBeTruthy();
     expect(screen.getByRole("progressbar")).toBeTruthy();
-    act(() => vi.advanceTimersByTime(RIDE_MS - 200));
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(RIDE_MS - 200);
+    });
     expect(onDone).not.toHaveBeenCalled();
-    act(() => vi.advanceTimersByTime(250));
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(250);
+    });
     expect(onDone).toHaveBeenCalledTimes(1);
     expect(RIDE_MS).toBeGreaterThanOrEqual(5000);
     expect(RIDE_MS).toBeLessThanOrEqual(7000);
   });
 
-  test("[R-WORLD-017] given a ride playing, when Skip is tapped, then it ends at once and not again", () => {
+  test("[R-WORLD-017] given a ride playing, when Skip is tapped, then it ends at once and not again", async () => {
     vi.useFakeTimers();
     const onDone = vi.fn();
     render(<Ride way="okada" place="Tejuosho Market" drawing={false} onDone={onDone} />);
-    act(() => vi.advanceTimersByTime(800));
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(800);
+    });
     fireEvent.click(screen.getByRole("button", { name: mapWords("map.ride.skip") }));
     expect(onDone).toHaveBeenCalledTimes(1);
-    act(() => vi.advanceTimersByTime(RIDE_MS));
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(RIDE_MS);
+    });
     expect(onDone).toHaveBeenCalledTimes(1);
   });
 

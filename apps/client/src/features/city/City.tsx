@@ -214,6 +214,8 @@ export interface CityMapSlot {
   diveTo: string | null;
   onGo: (id: string) => void;
   onClose: () => void;
+  /** The home of the country shown, so it stays a house when the player stands there. */
+  home: string | null;
 }
 
 export function City({
@@ -519,6 +521,7 @@ export function City({
             countries,
             drawing,
             diveTo,
+            home: HOMES[where] ?? null,
             onGo: (id) => {
               setPlaceId(id);
               setMap(false);

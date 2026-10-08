@@ -202,8 +202,8 @@ export function Ride({ way, place, drawing, onDone }: RideProps) {
       const z = -eased * TRAVEL;
       street.vehicle.position.z = z;
       street.vehicle.position.y = Math.abs(Math.sin(now / 90)) * 0.05;
-      street.camera.position.set(9, 24, z + 15);
-      street.camera.lookAt(0, 0, z - 6);
+      street.camera.position.set(8, 34, z + 18);
+      street.camera.lookAt(0, 0, z - 10);
       street.renderer.render(street.scene, street.camera);
     };
     frame = requestAnimationFrame(loop);
