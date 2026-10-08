@@ -330,14 +330,27 @@ function tokenLapse(ctx: Ctx): BaseEvent[] {
  * R-RETURN-005. in the tick the director makes December, a
  * character abroad gets the December set piece, opened with no route so that
  * nothing is scored (R-SETPIECE-006). The variable is 1 for one tick a game
- * year, so it opens once a year. online a sitting may play two turns
- * in that one tick; the second finds the set piece answered and opens it again.
+ * year, so it opens once a year.
  */
 function december(ctx: Ctx): BaseEvent[] {
   if (ctx.state.place.where !== "abroad" || varOr(ctx, SEASON_DECEMBER) !== 1) return [];
   if (ctx.content.setpiece[DECEMBER] === undefined || ctx.state.setpiece.open !== null) return [];
+  if (openedThisTick(ctx)) return [];
   ctx.apply([{ type: "setpiece/open", setpiece: DECEMBER, route: null }], { source: DECEMBER, param: null, terms: {} });
   return [];
+}
+
+/**
+ * A second turn in the December tick finds the visit's opening in the report
+ * of the turn before, with no new tick begun since. the slice has no
+ * field for the month the visit last opened, so a character whose last turn
+ * was the December turn a year ago, and who sends another command in this
+ * December tick before ending the turn, misses this year's visit. A field
+ * `place.decemberMonth` would close that.
+ */
+function openedThisTick(ctx: Ctx): boolean {
+  if (ctx.state.tick !== ctx.world.tick) return false;
+  return ctx.state.turn.report?.lines.some((line) => line.key === "line.setpiece.opened" && line.params.setpiece === DECEMBER) ?? false;
 }
 
 function month(ctx: Ctx): BaseEvent[] {
