@@ -159,3 +159,48 @@ export const ngoziScenario: ScenarioEntry = {
     { obligation: "obligation.home-support", amount: naira(40000) },
   ],
 };
+
+/**
+ * Aniekan, the fifth life (the decision P10): a maths teacher four years
+ * in, who codes after marking. Picked by the name pool's rules (person.names.data.ts):
+ * the starting lives cover the three largest peoples and at least one other.
+ *
+ * He is joined to the table in index.ts.
+ */
+export const aniekanScenario: ScenarioEntry = {
+  id: "scenario.aniekan",
+  qualities: {
+    // 26 years.
+    "quality.age-months": 312,
+    "quality.edu-level": 3,
+    // Second upper.
+    "quality.edu-grade": 4,
+    "quality.english": 60,
+    "quality.tech": 32,
+    "quality.interview-prep": 0,
+    "quality.portfolio": 0,
+    "quality.land": 0,
+    "quality.network": 20,
+    "quality.family-means": 30,
+    "quality.family-stake": 0,
+    "quality.standing": 60,
+    "quality.wellbeing": 60,
+    "quality.credit-mark": 0,
+    "quality.care": 0,
+    "quality.driving": 0,
+    // health.md: the hidden health counters start at nothing.
+    "quality.run-down-months": 0,
+    "quality.illness-course": 0,
+    "quality.forced-wait": 0,
+  },
+  job: "activity.job-teacher",
+  tenure: { "activity.job-teacher": 48 },
+  // R-PEOPLE-010: working values until scenario.md gives each life its count.
+  siblings: 3,
+  pockets: { NGN: { bank: naira(350000), cash: naira(20000) } },
+  documents: [],
+  obligations: [
+    { obligation: "obligation.upkeep", amount: naira(80000) },
+    { obligation: "obligation.home-support", amount: naira(25000) },
+  ],
+};

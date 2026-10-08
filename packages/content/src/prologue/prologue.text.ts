@@ -69,7 +69,7 @@ export const prologueText: Record<string, string> = {
   "prologue.service.answer.redeploy": "Get redeployed",
   "prologue.service.answer.skip": "Skip it and work",
 
-  "prologue.friend.card": "Chidi's send-off. Everybody is talking about where they are going.",
+  "prologue.friend.card": "Terna's send-off. Everybody is talking about where they are going.",
   "prologue.friend.answer.uk": "Listen to the ones going to the UK",
   "prologue.friend.answer.canada": "Listen to the ones going to Canada",
   "prologue.friend.answer.tech": "Listen to the developers",

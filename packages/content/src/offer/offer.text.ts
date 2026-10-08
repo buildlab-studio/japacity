@@ -13,8 +13,8 @@ export const offerText: Record<string, string> = {
   "offer.nepa-bill.choice.pay": "Pay the bill",
   "offer.nepa-bill.choice.leave": "Leave it to your father",
 
-  "offer.brother-fees.name": "Emeka's school fees",
-  "offer.brother-fees.title": "Emeka's school fees",
+  "offer.brother-fees.name": "Your brother's school fees",
+  "offer.brother-fees.title": "Your brother's school fees",
   "offer.brother-fees.body": "Resumption is Monday. {cost}. He has been sent home once already this year.",
   "offer.brother-fees.choice.pay": "Pay all of it",
   "offer.brother-fees.choice.half": "Pay half",
@@ -30,7 +30,7 @@ export const offerText: Record<string, string> = {
 
   "offer.aso-ebi.name": "Aso ebi for the wedding",
   "offer.aso-ebi.title": "Aso ebi for the wedding",
-  "offer.aso-ebi.body": "Cousin Bisi is getting married. The cloth is {cost}. Everybody is buying.",
+  "offer.aso-ebi.body": "Your cousin is getting married. The cloth is {cost}. Everybody is buying.",
   "offer.aso-ebi.choice.buy": "Buy the cloth",
   "offer.aso-ebi.choice.plain": "Go in your own clothes",
   "offer.aso-ebi.choice.absent": "Stay away",
@@ -48,8 +48,8 @@ export const offerText: Record<string, string> = {
   "offer.harvest.choice.give": "Give it",
   "offer.harvest.choice.no": "Let them call the name",
 
-  "offer.uncle-burial.name": "Uncle Dele's burial",
-  "offer.uncle-burial.title": "Uncle Dele's burial",
+  "offer.uncle-burial.name": "Your uncle's burial",
+  "offer.uncle-burial.title": "Your uncle's burial",
   "offer.uncle-burial.body": "The family is contributing. Your share is {cost}. People will remember who gave.",
   "offer.uncle-burial.choice.send": "Send your share",
   "offer.uncle-burial.choice.token": "Send something small",
@@ -57,8 +57,8 @@ export const offerText: Record<string, string> = {
 
   // Life
 
-  "offer.send-off-party.name": "Chidi's send-off",
-  "offer.send-off-party.title": "Chidi's send-off",
+  "offer.send-off-party.name": "Terna's send-off",
+  "offer.send-off-party.title": "Terna's send-off",
   "offer.send-off-party.body":
     "He leaves for Leeds on Sunday. Small chops at his sister's place, Saturday. 'Come o, you never know who you will meet.'",
   "offer.send-off-party.choice.go": "Go",

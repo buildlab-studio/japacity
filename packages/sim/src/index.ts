@@ -50,3 +50,6 @@ export { inviteCard, inviteExpires, mayOpenInvite, useInvite, rewardFor, mayPair
 export type { InviteCard, InviteSlot, LinkResult, Milestone, InviteProgress, InviteReward } from "./pair/pair.invite";
 // What one life knows of another (docs/rules/people.md R-PEOPLE-003, 005): the server sends it as `people/facts`.
 export { factsOf } from "./people/people.facts";
+// The generated names drawn from content's pool by its mix (R-PEOPLE-053, R-CITY-033).
+export { drawName, drawPeople, MIX_TOTAL } from "./people/people.names";
+export type { NameDrawEntry } from "./people/people.names";

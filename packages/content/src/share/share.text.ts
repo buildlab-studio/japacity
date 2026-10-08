@@ -12,6 +12,8 @@ export const shareText: Record<string, string> = {
   "share.chapter.kicker": "Chapter done",
   "share.chapter.ready": "Your chapter card is ready",
   "share.chapter.art": "art.lagos-dusk",
+  // The line worth posting at the foot of the card that carries the japacity figure.
+  "share.chapter.closer": "Not there yet. Not where I started either.",
   "share.chapter.find-your-feet.art": "art.lagos-dusk",
   "share.chapter.build-the-file.art": "art.paper-desk",
   "share.chapter.decision-day.art": "art.waiting-bench",
@@ -23,6 +25,8 @@ export const shareText: Record<string, string> = {
   "share.granted.kicker": "Decision day",
   "share.granted.ready": "Your decision day card is ready",
   "share.granted.art": "art.waiting-bench",
+  // The line worth posting at the card's foot.
+  "share.granted.closer": "Visa granted. Family group: activated.",
 
   "share.send-off.title": "The send-off",
   "share.send-off.kicker": "Sent off from Lagos",
@@ -64,6 +68,7 @@ export const shareText: Record<string, string> = {
   "share.first-name.scenario.tunde": "Tunde",
   "share.first-name.scenario.zainab": "Zainab",
   "share.first-name.scenario.ngozi": "Ngozi",
+  "share.first-name.scenario.aniekan": "Aniekan",
 
   "share.route": "Route",
   "share.japacity": "Japacity so far",
