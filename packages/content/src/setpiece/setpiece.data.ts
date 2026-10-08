@@ -102,8 +102,18 @@ export const setpieceTable: Record<Id<"setpiece">, SetpieceEntry> = {
         id: "night",
         when: [],
         answers: [
-          { id: "go", score: 0, when: [], thenScore: null, effects: [] },
-          { id: "turn-back", score: 0, when: [], thenScore: null, effects: [] },
+          { id: "go", score: 0, when: [], thenScore: null, effects: [{ type: "route/road-step", step: "truth" }] },
+          // R-ROAD-004: turning back costs the deposit, already paid, and standing 2.
+          {
+            id: "turn-back",
+            score: 0,
+            when: [],
+            thenScore: null,
+            effects: [
+              { type: "quality/add", quality: "quality.standing", amount: -2 },
+              { type: "route/road-step", step: "turned-back" },
+            ],
+          },
         ],
       },
     ],
@@ -115,10 +125,31 @@ export const setpieceTable: Record<Id<"setpiece">, SetpieceEntry> = {
       {
         id: "truth",
         when: [],
+        // R-ROAD-005. The road's step takes the money asked from cash, or the family means for it.
         answers: [
-          { id: "pay", score: 0, when: [], thenScore: null, effects: [] },
-          { id: "call-home", score: 0, when: [], thenScore: null, effects: [] },
-          { id: "exit", score: 0, when: [], thenScore: null, effects: [] },
+          { id: "pay", score: 0, when: [], thenScore: null, effects: [{ type: "route/road-step", step: "pay" }] },
+          {
+            id: "call-home",
+            score: 0,
+            when: [],
+            thenScore: null,
+            // The stake is at most 1, so adding 1 sets it to 1.
+            effects: [
+              { type: "quality/add", quality: "quality.family-stake", amount: 1 },
+              { type: "quality/add", quality: "quality.standing", amount: -5 },
+              { type: "route/road-step", step: "call-home" },
+            ],
+          },
+          {
+            id: "exit",
+            score: 0,
+            when: [],
+            thenScore: null,
+            effects: [
+              { type: "quality/add", quality: "quality.standing", amount: -4 },
+              { type: "route/road-step", step: "exit" },
+            ],
+          },
         ],
       },
     ],

@@ -265,6 +265,45 @@ function returnHome(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   return comeHome(ctx, returnShape(ctx, payment !== null), cause);
 }
 
+/**
+ * R-ROAD-007 and R-STATUS-008: the authority's way home, as `return/home`
+ * does for the given shape with no fare. Abroad it is the same return. From
+ * the road it is the assisted return: the family house takes the character
+ * back and standing moves by the shape and the capital (R-PLACE-007,
+ * R-RETURN-002); obligations of the road, the agent's debt among them, stay.
+ * a return is recorded with the country left, and the road has none
+ * (the route entry's `country` is null, place.md has no country for it), so a
+ * return from the road is not written to the record and the road's own line
+ * tells it. That leaves R-RETURN-003's returnee offers, which read the record,
+ * closed to it. The record needs `country: Id<"country"> | null`, or content a
+ * stylised country for the road.
+ */
+function returnEffect(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
+  if (effect.type !== "place/return") throw new Error(`place/return cannot carry out ${effect.type}.`);
+  const where = ctx.state.place.where;
+  switch (where) {
+    case "abroad":
+      return comeHome(ctx, effect.shape, cause);
+    case "road": {
+      const events = record(ctx, [{ type: "place/moved", to: "home", country: null, month: ctx.state.turn.month }]);
+      ctx.apply(fromStartingLife(ctx, HOME_TYPES, 10000), cause);
+      const standing = ctx.content.tuning.return.standing[effect.shape];
+      const bonus = capitalBonus(ctx);
+      const gains: Effect[] = [];
+      if (standing !== 0) gains.push({ type: "quality/add", quality: STANDING, amount: standing });
+      if (bonus !== 0) gains.push({ type: "quality/add", quality: STANDING, amount: bonus });
+      ctx.apply(gains, cause);
+      return events;
+    }
+    case "home":
+      return [];
+    default: {
+      const never: never = where;
+      throw new Error(`Unknown place ${String(never)}.`);
+    }
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Phases
 // ---------------------------------------------------------------------------
@@ -408,8 +447,8 @@ export const placeKind: RegisteredKind<PlaceSlice, PlaceEvent> = {
   commands: { "return/home": returnHome },
   effects: {
     "place/move": move,
-    // R-ROAD-007 and R-STATUS-008: the authority's way home. Built with the road.
-    "place/return": () => [],
+    // R-ROAD-007 and R-STATUS-008: the authority's way home.
+    "place/return": returnEffect,
   },
   phases: { month },
   evolve,

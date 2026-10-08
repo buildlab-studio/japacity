@@ -18,6 +18,8 @@ export function activeLocks(locks: readonly SlotLock[], month: number): SlotLock
  * wellbeing is under the burnout line, then the locked slots come off.
  */
 export function freeSlots(state: State, content: Content): number {
+  // R-ROAD-005: on the road the month's activities are the chain's own.
+  if (state.place.where === "road") return 0;
   const { turn, quality } = content.tuning;
   const base = state.activity.job === null ? turn.freeSlotsNoJob : turn.freeSlots;
   const wellbeing = state.quality[WELLBEING];

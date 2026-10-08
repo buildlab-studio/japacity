@@ -939,6 +939,7 @@ export const routeKind: RegisteredKind<RouteSlice, RouteKindEvent> = {
     return Object.entries(state.route).flatMap(([id, held]) => routeProblems(id as Id<"route">, held, content));
   },
   view: (read) => ({
-    routes: Object.entries(read.state.route).map(([id, held]) => routeView(read, id as Id<"route">, held)),
+    // R-ROAD-001: the road never appears in the routes view.
+    routes: Object.entries(read.state.route).filter(([id]) => read.content.route[id as Id<"route">]?.gate !== "road").map(([id, held]) => routeView(read, id as Id<"route">, held)),
   }),
 };

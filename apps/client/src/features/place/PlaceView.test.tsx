@@ -66,8 +66,11 @@ describe("where you are and the way home", () => {
     await waitFor(() => expect(authority.sent).toEqual([{ type: "return/home", basedOn: view.v }]));
   });
 
-  test("[R-PLACE-004] given Ada as she landed, with dollars but neither pounds nor naira enough for the fare, then she is told to change money first", async () => {
-    const view = abroadView();
+  test("[R-PLACE-004] given Ada landed with dollars but neither pounds nor naira enough for the fare, then she is told to change money first", async () => {
+    // The recorded life moves as the content does, so the pockets are pinned here: dollars only.
+    const base = abroadView();
+    const empty = { bank: 0, cash: 0, locked: 0 };
+    const view: PlayerView = { ...base, pockets: { ...base.pockets, NGN: empty, GBP: empty, USD: { bank: 500000, cash: 0, locked: 0 } } };
     expect(wayHome(view)).toMatchObject({ paidFrom: null, shape: null });
     await renderWithView(<PlaceView />, view);
     expect(screen.getByText(say("ui.place.fare-short", { fare: formatMoney(UK.fare, "GBP"), naira: formatMoney(nairaForFee(view, "GBP", UK.fare), "NGN") }))).toBeDefined();

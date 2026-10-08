@@ -103,6 +103,20 @@ export const routeText: Record<string, string> = {
   "route.road.name": "The road",
   "route.road.blurb": "A way north that the man at the park does not describe.",
 
+  // The chain's report lines (R-ROAD-003 to 010). Plain, and they never say how. First drafts.
+  "line.route.road-fraud": "The man who took your deposit has stopped answering. Nobody at the park has seen him.",
+  "line.route.road-go": "You get on the bus before light. Nobody at home knows yet.",
+  "line.route.road-turned-back": "You go home before the bus leaves. The deposit stays with the man.",
+  "line.route.road-desert": "The trucks go north across the sand. The water is counted.",
+  "line.route.road-compound": "You are taken to a compound with a locked gate and told to wait. Nobody says for how long.",
+  "line.route.road-coast": "You reach the coast. There are more people waiting than there is room.",
+  "line.route.road-sea": "There is a boat tonight. It is too small for the people on it.",
+  "line.route.road-held": "Another month in the same place. They take a phone and call your family for money.",
+  "line.route.road-turned": "Soldiers stop the truck and send everyone back. The migration agency offers a flight home.",
+  "line.route.road-exit": "You ask the migration agency to take you home. They do.",
+  "line.route.road-lost": "Your family stops hearing from you. Nobody can tell them what happened.",
+  "line.route.road-arrived": "You reach the other shore alive. You have no papers, a debt, and only cash work.",
+
   // The way out, shown on every card of the chain (R-ROAD-007). No phone numbers: they change.
   "road.exit.title": "You can stop",
   "road.exit.body":
@@ -113,7 +127,7 @@ export const routeText: Record<string, string> = {
   "road.real-story.line":
     "The road in this game follows reporting on the journey north through the desert and across the sea. Read their work.",
   // credited by outlet, work and year. The reporters' names are left to the maintainer (AGENTS.md: no real person in content).
-  "road.real-story.credit.1": "Foundation for Investigative Journalism, an undercover journey from Kano through Niger to Tripoli, 2026",
+  "road.real-story.credit.1": "Foundation for Investigative Journalism, an undercover journey north, 2026",
   "road.real-story.credit.2": "The Sun, an undercover Sahara trek, 2009",
   "road.real-story.credit.3": "CNN, migrants auctioned in Libya, 2017",
   "road.real-story.credit.4": "BBC Panorama, the debt behind the journey, 2017",

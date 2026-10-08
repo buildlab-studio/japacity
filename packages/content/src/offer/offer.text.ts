@@ -257,7 +257,7 @@ export const offerText: Record<string, string> = {
   "offer.road-park.sign.too-cheap": "It costs less than the visa fee alone.",
   "offer.road-park.sign.no-paper": "Nobody has mentioned a visa, a form or an office.",
   "offer.road-park.sign.cash-today": "He wants the deposit today, in cash.",
-  "offer.road-park.sign.returnee-said": "Someone who came back from that road is at the park. He is not saying much.",
+  "offer.road-park.sign.returnee-said": "Someone who came back is at the park. He is not saying much.",
 
   "offer.road-cousin.name": "Your cousin's friend",
   "offer.road-cousin.title": "Your cousin's friend",

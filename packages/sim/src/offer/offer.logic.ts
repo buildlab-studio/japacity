@@ -3,7 +3,7 @@
 // arrange things. Whether an offer is a fraud is fixed when it opens and kept
 // in `secret`, which the view never carries (R-OFFER-006, R-ENGINE-007).
 import { check, resolveAmount } from "../engine/check";
-import { divFloor, valueInKobo } from "../engine/int";
+import { BP_WHOLE, clamp, divFloor, valueInKobo } from "../engine/int";
 import type { RegisteredKind } from "../engine/kind";
 import { emit } from "../engine/kind";
 import { reject } from "../engine/reject";
@@ -32,10 +32,11 @@ import type {
   TermSpec,
   Terms,
 } from "../engine/types";
+import { routePercent } from "../japacity/japacity.logic";
 import type { OfferEvent } from "./offer.events";
 
-/** The groups that are rolled, in the order R-OFFER-001 takes them. `job` is never rolled. */
-const ROLL_ORDER: readonly OfferEntry["group"][] = ["money", "life", "family"];
+/** The groups that are rolled, in the order R-OFFER-001 takes them. `job` is never rolled. The road comes last (R-ROAD-002). */
+const ROLL_ORDER: readonly OfferEntry["group"][] = ["money", "life", "family", "road"];
 
 /** Judges one requirement with the terms in hand. Inside a step it is `ctx.check`; outside, the engine's `check`. */
 type Judge = (requirement: Requirement, terms: Terms) => RequirementResult;
@@ -69,6 +70,10 @@ function oldestFirst(a: OfferState, b: OfferState): number {
 
 function openItems(state: State): OfferState[] {
   return Object.values(state.offer.items).sort(oldestFirst);
+}
+
+function roadGroup(read: ReadCtx, item: OfferState): boolean {
+  return entryOf(read.content, item.entry).group === "road";
 }
 
 function isOpen(state: State, entry: Id<"offer">): boolean {
@@ -233,8 +238,21 @@ function choiceProblem(read: ReadCtx, judge: Judge, item: OfferState, choice: Of
 /** Carries out a choice (R-OFFER-003, R-OFFER-004). The source names the offer and the choice. */
 function takeChoice(ctx: Ctx, item: OfferState, choice: OfferChoice, amount: number | null): void {
   const effects = item.secret.fraud && choice.fraudEffects !== null ? choice.fraudEffects : choice.effects;
-  const cause: Cause = { source: `${item.entry}.${choice.id}`, param: null, terms: choiceTerms(item, amount) };
+  const cause: Cause = { source: `${item.entry}.${choice.id}`, param: null, terms: { ...choiceTerms(item, amount), ...roadKind(ctx, item, choice) } };
   ctx.apply(effects, cause);
+}
+
+/**
+ * R-ROAD-003: taking a pitch decides, hidden, what it really is. The fraud
+ * share is the offer's own fraud, drawn when it opened so its signs follow it
+ * (R-OFFER-006); taking an honest one splits the rest between real-ish and
+ * the road by the entry's `kinds`, one draw on `road`, handed on as the term
+ * `kind`. Only a choice with fraud effects is a take.
+ */
+function roadKind(ctx: Ctx, item: OfferState, choice: OfferChoice): Terms {
+  const kinds = entryOf(ctx.content, item.entry).kinds;
+  if (kinds === undefined || choice.fraudEffects === null || item.secret.fraud) return {};
+  return { kind: ctx.random.int("road", kinds.realish + kinds.road) < kinds.realish ? "realish" : "road" };
 }
 
 const judgeIn =
@@ -294,8 +312,44 @@ export function rollOrder(content: Content): OfferEntry[] {
   );
 }
 
+/** R-ROAD-001: the content switch turns the road's whole pool off. */
+function switchedOff(content: Content, entry: OfferEntry): boolean {
+  return entry.group === "road" && !content.tuning.road.enabled;
+}
+
+/**
+ * R-ROAD-002: the pitch's chance with the character's situation, between 0
+ * and 10000. the page's lines (standing under 30, age over 30, a
+ * route figure of 60) have no field in content beside the entry's `pressure`
+ * figures, so they are here.
+ */
+const PRESSURE_STANDING_UNDER = 30;
+const PRESSURE_AGE_YEARS = 30;
+const PRESSURE_STRONG_ROUTE = 60;
+const MONTHS_A_YEAR = 12;
+
+export function pressureChanceBp(read: ReadCtx, entry: OfferEntry, judge: (requirement: Requirement) => RequirementResult): number {
+  const pressure = entry.pressure;
+  if (pressure === undefined) return entry.chanceBp;
+  const { state, content } = read;
+  const refusals = Object.values(state.route).reduce((sum, held) => sum + held.refusals, 0);
+  const defaulted = Object.values(state.obligation.items).some((item) => item.state === "defaulted");
+  const standing = state.quality["quality.standing"] ?? 0;
+  const yearsOver = Math.max(0, divFloor(state.quality["quality.age-months"] ?? 0, MONTHS_A_YEAR) - PRESSURE_AGE_YEARS);
+  const strong = Object.values(content.route).some((route) => route.gate !== "road" && (routePercent(read, route.id, judge) ?? 0) >= PRESSURE_STRONG_ROUTE);
+  const chance =
+    entry.chanceBp +
+    pressure.refusalBp * refusals +
+    (defaulted ? pressure.defaultBp : 0) +
+    (standing < PRESSURE_STANDING_UNDER ? pressure.lowStandingBp : 0) +
+    pressure.perYearOver30Bp * yearsOver -
+    (strong ? pressure.strongRouteBp : 0);
+  return clamp(chance, 0, BP_WHOLE);
+}
+
 /** Whether an entry is rolled this month (R-OFFER-001): conditions, not open, cooldown passed, under its limit. */
 function mayRoll(ctx: Ctx, entry: OfferEntry): boolean {
+  if (switchedOff(ctx.content, entry)) return false;
   if (isOpen(ctx.state, entry.id) || reachedLimit(ctx.state, entry)) return false;
   const last = ctx.state.offer.lastOpened[entry.id];
   if (last !== undefined && ctx.state.turn.month - last < entry.cooldown) return false;
@@ -309,7 +363,7 @@ function comeUp(ctx: Ctx): BaseEvent[] {
   for (const entry of rollOrder(ctx.content)) {
     // Checked before each roll: an offer opened this month counts toward both limits.
     if (opened >= maxNewPerMonth || Object.keys(ctx.state.offer.items).length >= maxOpen) break;
-    if (!mayRoll(ctx, entry) || !ctx.random.chance("offer", entry.chanceBp)) continue;
+    if (!mayRoll(ctx, entry) || !ctx.random.chance("offer", pressureChanceBp(readOf(ctx), entry, (requirement) => ctx.check(requirement)))) continue;
     events.push(...openOffer(ctx, entry, {}));
     opened += 1;
   }
@@ -323,6 +377,7 @@ function comeUp(ctx: Ctx): BaseEvent[] {
 function openEffect(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
   if (effect.type !== "offer/open") throw new Error(`offer/open cannot carry out ${effect.type}.`);
   const entry = entryOf(ctx.content, effect.offer);
+  if (switchedOff(ctx.content, entry)) return [];
   if (!entry.when.every((requirement) => ctx.check(requirement, cause.terms).met)) return [];
   if (reachedLimit(ctx.state, entry)) return [];
   // R-OFFER-007: the entry already open closes unanswered, with no lapse effects, and the new one
@@ -436,5 +491,6 @@ export const offerKind: RegisteredKind<OfferSlice, OfferEvent> = {
   evolve,
   lines,
   invariants,
-  view: (read) => ({ offers: openItems(read.state).map((item) => offerView(read, item)) }),
+  // R-ROAD-012: the road's pitches sit under every other offer.
+  view: (read) => ({ offers: [...openItems(read.state)].sort((a, b) => Number(roadGroup(read, a)) - Number(roadGroup(read, b))).map((item) => offerView(read, item)) }),
 };

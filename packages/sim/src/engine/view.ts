@@ -3,6 +3,7 @@
 // view with a key missing.
 import { japacity } from "../japacity/japacity.logic";
 import { registry } from "../kinds";
+import { roadCard } from "../route/gates/road";
 import type { Registry } from "./kind";
 import type { PlayerView, ReadCtx } from "./types";
 
@@ -62,7 +63,8 @@ export function hiddenPaths(value: unknown, path = ""): string[] {
 /** The view for a given registry. Tests use this to swap kinds in. */
 export function viewWith(kinds: Registry, read: ReadCtx): PlayerView {
   // The engine gives the parts no kind owns: japacity, the world's era, and the card (built by chapter or route later).
-  const joined: Partial<PlayerView> = { japacity: japacity(read), era: read.world.era, card: null };
+  // R-ROAD-011: the road's real-story card, or its ending card, when one is due.
+  const joined: Partial<PlayerView> = { japacity: japacity(read), era: read.world.era, card: roadCard(read) };
   for (const kind of kinds) {
     const part = kind.view?.(read) ?? {};
     for (const key of Object.keys(part)) {
