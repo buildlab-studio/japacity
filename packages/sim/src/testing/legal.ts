@@ -60,6 +60,37 @@ function fromInterview(view: PlayerView): Loose[] {
   return question.options.map((option) => ({ type: "interview/answer", question: question.id, option }));
 }
 
+/**
+ * docs/rules/people.md: courting a candidate while nothing else is courting,
+ * a card out on an open slot or taken back, a proposal taken back, an answer
+ * of no, consent on the joint, and an end to any bond still open. 
+ * proposals are not sampled, because the view carries neither the moments a
+ * step needs nor the cooldown after a no, so one could be refused.
+ */
+function fromPeople(view: PlayerView): Loose[] {
+  const commands: Loose[] = [];
+  const { slots, bonds, candidates, joint } = view.people;
+  // R-PEOPLE-013: any courting limit allows one bond.
+  if (!bonds.some((bond) => bond.stage === "courting")) {
+    for (const candidate of candidates) if (candidate.role === "partner") commands.push({ type: "people/court", with: candidate.person });
+  }
+  // R-PEOPLE-010: a card on the empty partner slot or a computer sibling's, and taking one back.
+  for (const [slot, held] of Object.entries(slots)) {
+    if (held.state === "invited") commands.push({ type: "people/invite", slot });
+    else if (slot === "partner" && held.state === "empty") commands.push({ type: "people/invite", slot, looking: "partner" });
+    else if (slot.startsWith("sibling-") && held.state === "computer") commands.push({ type: "people/invite", slot, looking: "sibling" });
+  }
+  for (const bond of bonds) {
+    if (bond.stage === "ended") continue;
+    if (bond.pending.mine !== null) commands.push({ type: "people/withdraw", bond: bond.id });
+    if (bond.pending.theirs !== null) commands.push({ type: "people/answer", bond: bond.id, step: bond.pending.theirs.step, yes: false });
+    // R-PEOPLE-035: an end is never refused for a bond still open.
+    commands.push({ type: "people/end", bond: bond.id });
+  }
+  if (joint !== null) commands.push({ type: "people/consent", bond: joint.bond, countFunds: true });
+  return commands;
+}
+
 /** Small amounts, so random play can make many and never runs a pocket dry in one go. */
 const SMALL_MOVE = 100;
 const SMALL_FOREIGN = 1000;
@@ -238,6 +269,7 @@ export function legalCommands(view: PlayerView): Loose[] {
     ...fromPlace(view),
     ...fromLottery(view),
     ...fromInterview(view),
+    ...fromPeople(view),
   ].filter(
     // R-INTERVIEW-004: a question waiting holds the turn as a set piece does.
     (command) => handles(command.type) && !(command.type === "turn/end" && (view.interview?.question ?? null) !== null),
