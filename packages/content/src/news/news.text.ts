@@ -42,7 +42,7 @@ export const newsText: Record<string, string> = {
   "news.dollar-scarcity.announced.body":
     "Personal allowances are cut to a fifth. School fees will be \"processed in order of receipt\".",
   "news.dollar-scarcity.in-force.head": "The queue is now two months",
-  "news.dollar-scarcity.in-force.body": "The aboki has dollars today. At his price.",
+  "news.dollar-scarcity.in-force.body": "The FX man has dollars today. At his price.",
   "news.dollar-scarcity.ended.head": "The rationing is over",
   "news.dollar-scarcity.ended.body": "Banks are selling again.",
 

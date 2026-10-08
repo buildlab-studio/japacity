@@ -29,7 +29,7 @@ export const walletText: Record<string, string> = {
   "line.wallet.social": "Spent going out: {amount}.",
   "line.wallet.mishap": "Something went wrong and it cost {amount}.",
   "line.wallet.flight": "Ticket paid: {amount}.",
-  "line.wallet.short-count": "You count it again at home. The aboki was short by {amount}.",
+  "line.wallet.short-count": "You count it again at home. The FX man was short by {amount}.",
 
   // Transfers and the bank's queue.
   "line.wallet.converted": "Changed money. {amount} in hand.",

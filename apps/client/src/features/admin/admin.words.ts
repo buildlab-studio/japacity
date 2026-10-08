@@ -221,7 +221,7 @@ const adminText = {
   "admin.switch.confirm.on": "Turn {name} on, because: {reason}",
   "admin.dials.title": "Dials",
   "admin.dial.computerAfterMonths": "Months before a computer partner is offered",
-  "admin.dial.topUpTickets": "Lottery top-up tickets",
+  "admin.dial.topUpTickets": "Lottery top-up tickets (retired, does nothing)",
   "admin.dial.placeTarget": "Target headcount at a place",
   "admin.dial.unset": "Unset: the content's number",
   "admin.dial.value": "Value",
