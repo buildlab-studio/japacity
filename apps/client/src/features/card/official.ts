@@ -1,0 +1,73 @@
+// The official accounts page, `/official` (docs/rules/share.md R-SHARE-012 to
+// R-SHARE-014): the accounts the game holds and what it never does, in the
+// words content gives, and nothing else. It is a static file so it loads with
+// no game, no sign-in and no script; this builds it, and a test holds the file
+// to it.
+import { officialAccounts, type OfficialAccount } from "@japacity/content";
+
+import { say } from "../../shared/words/text";
+
+const NEVER = ["money", "turns", "prize", "advert", "agents"] as const;
+
+function escape(words: string): string {
+  return words.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;");
+}
+
+/** Where an account's address goes when it is followed. */
+export function hrefOf(account: OfficialAccount & { address: string }): string {
+  return account.platform === "email" ? `mailto:${account.address}` : `https://${account.address}`;
+}
+
+/** The accounts the maintainer has claimed: only these are listed. */
+export function listedAccounts(): (OfficialAccount & { address: string })[] {
+  return officialAccounts.filter((account): account is OfficialAccount & { address: string } => account.address !== null);
+}
+
+function link(account: OfficialAccount & { address: string }): string {
+  return `<a href="${escape(hrefOf(account))}">${escape(account.address)}</a>`;
+}
+
+export function officialPage(): string {
+  const email = listedAccounts().find((account) => account.platform === "email");
+  const report = say("share.official.report", { email: "\u0000" });
+  const [before = "", after = ""] = escape(report).split("\u0000");
+  const rows = listedAccounts().map(
+    (account) => `      <li><span class="platform">${escape(say(`share.official.platform.${account.platform}`))}</span> ${link(account)}</li>`,
+  );
+  const never = NEVER.map((item) => `      <li>${escape(say(`share.official.never.${item}`))}</li>`);
+  return `<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>${escape(say("share.official.title"))}</title>
+    <style>
+      :root { --paper: #f7f1e6; --ink: #1d1a16; --muted: #675e52; --line: #ddd0ba; color-scheme: light; }
+      @media (prefers-color-scheme: dark) { :root { --paper: #171512; --ink: #f3ece0; --muted: #b3a895; --line: #3d362d; color-scheme: dark; } }
+      body { margin: 0; background: var(--paper); color: var(--ink); font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+      main { max-width: 36rem; margin: 0 auto; padding: 2rem 1rem; }
+      h1 { font-size: 2rem; margin: 0 0 0.5rem; }
+      h2 { font-size: 1.25rem; margin: 2rem 0 0.5rem; }
+      ul { padding: 0; list-style: none; }
+      li { padding: 0.5rem 0; border-bottom: 1px solid var(--line); }
+      .platform { display: block; color: var(--muted); font-size: 0.875rem; }
+      a { color: inherit; overflow-wrap: anywhere; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>${escape(say("share.official.title"))}</h1>
+      <p>${escape(say("share.official.intro"))}</p>
+      <ul data-accounts>
+${rows.join("\n")}
+      </ul>
+      <h2>${escape(say("share.official.never.heading"))}</h2>
+      <ul data-never>
+${never.join("\n")}
+      </ul>
+      <p data-report>${before}${email === undefined ? "" : link(email)}${after}</p>
+    </main>
+  </body>
+</html>
+`;
+}
