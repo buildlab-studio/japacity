@@ -539,7 +539,7 @@ describe("the joint", () => {
   test("[R-PEOPLE-021] given a computer partner on a status that brings a partner, when a joint is proposed with them leading, then it is agreed and recorded with consent off", () => {
     const game = life({ content: JOINT });
     const bond = jointWithKelechi(game);
-    expect(game.state.people.joint).toEqual({ bond, route: SKILLED, lead: "them", countFunds: false, standInMay: false, scores: { mine: null, theirs: null } });
+    expect(game.state.people.joint).toEqual({ bond, route: SKILLED, lead: "them", countFunds: false, standInMay: false });
     expect(game.view().people.joint).toEqual({ bond, route: SKILLED, lead: "them", myScore: null, theirScore: null });
   });
 
@@ -961,7 +961,7 @@ describe("computer characters from offers", () => {
     expect(game.state.people.bonds[bond]).toMatchObject({ stage: "married", moments: [] });
     expect(game.state.people.slots.partner).toMatchObject({ state: "computer", person: PAPERS });
     const route = Object.values(content.route).find((entry) => entry.gate === "partner" && entry.country === "country.uk");
-    expect(game.state.people.joint).toEqual(route === undefined ? null : { bond, route: route.id, lead: "them", countFunds: false, standInMay: false, scores: { mine: null, theirs: null } });
+    expect(game.state.people.joint).toEqual(route === undefined ? null : { bond, route: route.id, lead: "them", countFunds: false, standInMay: false });
   });
 
   test("[R-PEOPLE-050] given the papers offer a fraud, when it is taken, then the fee is gone and nothing else happens", () => {

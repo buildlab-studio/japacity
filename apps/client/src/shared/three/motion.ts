@@ -113,6 +113,12 @@ const BODY: Record<MotionShader, string> = {
   }`,
 };
 
+// A puff's normals turn with the puff, as BODY.smoke turns it, so the lit side stays toward the sun.
+const SMOKE_NORMAL = /* glsl */ `{
+    float spin = uTime * (0.3 + fract(aSeed * 11.0) * 0.4) + aSeed * 20.0;
+    objectNormal.xz = mat2(cos(spin), -sin(spin), sin(spin), cos(spin)) * objectNormal.xz;
+  }`;
+
 const CREST = /* glsl */ `
 diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.90, 0.96, 0.93), smoothstep(0.085, 0.13, vCrest));
 `;
@@ -124,7 +130,8 @@ export function motionMaterial(kind: MotionShader, color: Color | number = 0xfff
     Object.assign(shader.uniforms, motionUniforms);
     const attributes = kind === "smoke" ? "attribute float aSeed;\n" : kind === "leaf" ? "attribute float aSeed;\nattribute float aSpan;\nattribute float aDepth;\n" : "";
     const varying = kind === "water" ? "varying float vCrest;\n" : "";
-    shader.vertexShader = HEAD + attributes + varying + shader.vertexShader.replace("#include <begin_vertex>", `#include <begin_vertex>\n${BODY[kind]}`);
+    const turned = kind === "smoke" ? shader.vertexShader.replace("#include <beginnormal_vertex>", `#include <beginnormal_vertex>\n${SMOKE_NORMAL}`) : shader.vertexShader;
+    shader.vertexShader = HEAD + attributes + varying + turned.replace("#include <begin_vertex>", `#include <begin_vertex>\n${BODY[kind]}`);
     if (kind === "water") shader.fragmentShader = varying + shader.fragmentShader.replace("#include <color_fragment>", `#include <color_fragment>\n${CREST}`);
   };
   material.customProgramCacheKey = () => `motion-${kind}`;
