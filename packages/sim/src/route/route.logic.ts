@@ -1,7 +1,7 @@
 // Routes and schools: docs/rules/route.md, R-ROUTE-001 to 020. A school has no
 // slice of its own: its applications live on the route (`RouteState.schools`),
 // and its rules are carried out here.
-import { heldBand, SIDE_MOVED, takesApplication } from "../activity/activity.logic";
+import { heldBand, takesApplication } from "../activity/activity.logic";
 import { check, worldVar } from "../engine/check";
 import { BP_WHOLE, clamp, convertMinor, divFloor, mulDiv, mulDivCeil } from "../engine/int";
 import type { RegisteredKind } from "../engine/kind";
@@ -539,7 +539,7 @@ function depart(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (entry.status !== null) ctx.apply([job === null ? { type: "status/grant", status: entry.status } : { type: "status/grant", status: entry.status, job }], cause);
   // R-LADDER-005: the sponsor's job is the job held on arrival. R-PLACE-003: a home job does not fly.
   // activity.md is silent on when; read as the moment of the flight, so no job is held that cannot be worked.
-  ctx.apply([job === null ? { type: "activity/end-job", why: "moved" } : { type: "activity/start-job", job }, { type: "activity/end-job", why: SIDE_MOVED }], cause);
+  ctx.apply([job === null ? { type: "activity/end-job", why: "moved" } : { type: "activity/start-job", job }, { type: "activity/end-job", why: "moved", side: true }], cause);
   // R-PEOPLE-027: an arrival through a partner is recorded for the bar and the assistance count (R-UNDERTAKING-004, 010).
   if (entry.gate === "partner") ctx.apply([{ type: "people/arrived", route: entry.id }], cause);
   gate.onDepart?.(ctx, entry, held, cause);
