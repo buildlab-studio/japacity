@@ -570,7 +570,17 @@ function pairBond(ctx: Ctx, pair: string, open: boolean): [string, Bond] | Rejec
   return [id, bond];
 }
 
-function authority(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
+type FromAuthority = Extract<Command, { type: "people/facts" | "people/moments" | "people/proposal" | "people/agreed" | "people/ended" | "people/gossip" | "people/stand-in" | "people/family-request" }>;
+
+const FROM_AUTHORITY: readonly string[] = ["people/facts", "people/moments", "people/proposal", "people/agreed", "people/ended", "people/gossip", "people/stand-in", "people/family-request"] satisfies FromAuthority["type"][];
+
+function isFromAuthority(command: Command): command is FromAuthority {
+  return FROM_AUTHORITY.includes(command.type);
+}
+
+function authority(ctx: Ctx, sent: Command): BaseEvent[] | Rejection {
+  if (!isFromAuthority(sent)) throw new Error(`The people kind's authority handler cannot handle ${sent.type}.`);
+  const command = sent;
   switch (command.type) {
     case "people/facts": {
       const found = pairBond(ctx, command.pair, false);
@@ -609,8 +619,10 @@ function authority(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
       const events = record(ctx, [{ type: "people/request-shared", offer: command.offer }]);
       return [...events, ...ctx.apply([{ type: "offer/open", offer: command.offer }], { source: command.offer, param: null, terms: command.terms })];
     }
-    default:
-      throw new Error(`The people kind's authority handler cannot handle ${command.type}.`);
+    default: {
+      const never: never = command;
+      throw new Error(`Unknown authority command ${JSON.stringify(never)}.`);
+    }
   }
 }
 
