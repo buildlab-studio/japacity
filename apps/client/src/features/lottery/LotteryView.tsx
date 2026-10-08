@@ -1,7 +1,8 @@
 // The Friday draw's kiosk, online only (docs/rules/lottery.md R-LOTTERY-003,
-// 006, 023): the price and the cap, the character's tickets, the close as a
-// real time counting down, the pot with the house's top-up apart, the
-// fingerprint and the public round, and the last draw with a way to check it.
+// 006, 012, 023): the jackpot standing and whether it rolled over, the odds in
+// plain words, the price and the cap, the character's tickets, the close as a
+// real time counting down, the fingerprint and the public round, and the last
+// draw with a way to check it.
 // Offline `World.lottery` is null, the view's `lottery` with it, and the
 // luck kiosk among the month's activities plays instead (R-LOTTERY-001).
 import { Minus, Plus, ShieldCheck, Ticket } from "lucide-react";
@@ -12,9 +13,10 @@ import { Button } from "../../shared/ui/Button";
 import { Card, Panel, Tag } from "../../shared/ui/Panel";
 import { Rejection } from "../../shared/ui/Rejection";
 import { Sheet } from "../../shared/ui/Sheet";
-import { formatMoney, formatNumber } from "../../shared/words/format";
+import { formatBp, formatMoney, formatNumber } from "../../shared/words/format";
 import { say, sayCount } from "../../shared/words/text";
-import { canBuy, closesAt, potOf, serverDrawLoader, type LoadDraw, type Lottery } from "./draw";
+import { Chances } from "./Chances";
+import { canBuy, closesAt, serverDrawLoader, type LoadDraw, type Lottery } from "./draw";
 import { closeWords, waitWords } from "./when";
 import { DrawPage } from "./DrawPage";
 import { LastDraw } from "./LastDraw";
@@ -53,21 +55,34 @@ function Close({ lottery }: { lottery: Lottery }) {
   );
 }
 
-function Pot({ lottery }: { lottery: Lottery }) {
-  const pot = potOf(lottery);
-  const declared = lottery.topUpTickets > 0;
+/** R-LOTTERY-012, R-LOTTERY-023: the jackpot standing, and whether it rolled over from the last draw or starts again. */
+function Jackpot({ lottery }: { lottery: Lottery }) {
+  const { odds } = lottery;
+  const since = lottery.rolledOver ? say("ui.lottery.rolled") : lottery.last === null ? null : say("ui.lottery.restarted");
   return (
-    <div className="flex flex-col gap-1" data-lottery-pot>
-      <p className="text-xs font-semibold tracking-widest text-muted uppercase">{say("ui.lottery.pot")}</p>
-      <p className="font-display text-4xl leading-none tabular-nums">{formatMoney(pot.total, "NGN")}</p>
-      <p className="text-sm">{say("ui.lottery.from-sales", { sales: formatMoney(pot.sales, "NGN") })}</p>
-      {declared ? (
-        <p className="text-sm text-muted" data-lottery-top-up>
-          {pot.topUp > 0
-            ? say("ui.lottery.top-up", { tickets: formatNumber(lottery.topUpTickets), worth: formatMoney(pot.worth, "NGN"), soFar: formatMoney(pot.topUp, "NGN") })
-            : say("ui.lottery.top-up-done", { tickets: formatNumber(lottery.topUpTickets) })}
-        </p>
+    <div className="flex flex-col gap-1" data-lottery-jackpot={lottery.jackpot} data-rolled-over={lottery.rolledOver}>
+      <p className="text-xs font-semibold tracking-widest text-muted uppercase">{say("ui.lottery.jackpot")}</p>
+      <p className="font-display text-4xl leading-none tabular-nums">{formatMoney(lottery.jackpot, "NGN")}</p>
+      {since === null ? null : <p className="text-sm font-medium">{since}</p>}
+      {odds.jackpotGrowthBp > 0 ? (
+        <p className="text-sm text-muted">{say("ui.lottery.grows", { share: formatBp(odds.jackpotGrowthBp), cap: formatMoney(odds.jackpotCap, "NGN") })}</p>
       ) : null}
+    </div>
+  );
+}
+
+function Odds({ lottery }: { lottery: Lottery }) {
+  const weeks = lottery.odds.forcedWinWeeks;
+  return (
+    <div className="flex flex-col gap-1.5">
+      <p className="text-xs font-semibold tracking-widest text-muted uppercase">{say("ui.lottery.odds")}</p>
+      <Chances odds={lottery.odds} jackpot={lottery.jackpot} />
+      <p className="text-xs text-muted">{say("ui.lottery.shared")}</p>
+      {weeks === null ? null : (
+        <p className="text-xs text-muted" data-lottery-forced>
+          {say("ui.lottery.forced", { weeks: formatNumber(weeks) })}
+        </p>
+      )}
     </div>
   );
 }
@@ -76,6 +91,9 @@ function Tickets({ lottery }: { lottery: Lottery }) {
   const { pockets } = useView();
   const send = useGame((state) => state.send);
   const busy = useGame((state) => state.busy);
+  const clock = useClock();
+  // The draw before stays on show, closed, from its close until the next draw opens with its result.
+  const closed = clock !== null && clock.tick >= lottery.closesTick;
   const bank = pockets.NGN.bank;
   const most = canBuy(lottery, bank);
   const [wanted, setWanted] = useState(1);
@@ -101,7 +119,11 @@ function Tickets({ lottery }: { lottery: Lottery }) {
         <p className="text-sm tabular-nums">{say("ui.lottery.numbers", { numbers: lottery.numbers.map((number) => formatNumber(number)).join(", ") })}</p>
       ) : null}
       <Rejection />
-      {full ? (
+      {closed ? (
+        <p className="text-sm text-muted" data-lottery-closed>
+          {say("ui.lottery.closed-buy")}
+        </p>
+      ) : full ? (
         <p className="text-sm text-muted">{say("ui.lottery.full")}</p>
       ) : most === 0 ? (
         <p className="text-sm text-muted">{say("ui.lottery.short", { bank: formatMoney(bank, "NGN") })}</p>
@@ -160,8 +182,9 @@ export function LotteryView({ load }: { load?: LoadDraw | null }) {
   return (
     <Panel title={say("ui.lottery.title")} action={<Tag tone="accent">{say("ui.lottery.draw", { draw: lottery.draw })}</Tag>}>
       <Card className="flex flex-col gap-4" data-lottery={lottery.draw}>
+        <Jackpot lottery={lottery} />
         <Close lottery={lottery} />
-        <Pot lottery={lottery} />
+        <Odds lottery={lottery} />
         <Tickets lottery={lottery} />
         <Seal lottery={lottery} />
       </Card>

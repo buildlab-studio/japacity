@@ -2,8 +2,8 @@
 // content, with a world that runs the draw the test sets, behind a store
 // authority the way the server would answer.
 import { content } from "@japacity/content";
-import type { Command, LotteryResult, PlayerView, Reply, Rejection, World } from "@japacity/sim";
-import { drawSeed, drawWinners, fingerprintOf, listHashOf, prizesFor, standInWorld, tiersFor, toHex, topUpFor, sha256 } from "@japacity/sim";
+import type { Command, LotteryOdds, LotteryResult, PlayerView, Reply, Rejection, World } from "@japacity/sim";
+import { drawResults, drawSeed, fingerprintOf, jackpotHit, listHashOf, rollJackpot, standInWorld, toHex, sha256 } from "@japacity/sim";
 
 import type { StoreAuthority } from "../../authority/store";
 // The rule tests' game handle is the sim's own test tool; the package exports only its contract.
@@ -14,8 +14,11 @@ export type Draw = NonNullable<World["lottery"]>;
 
 export const tuning = content.tuning.lottery;
 
+/** Odds that pay often, so a few dozen tickets win in every tier. */
+export const GENEROUS: LotteryOdds = { ...tuning.odds, smallPerMillion: 300_000, midPerMillion: 100_000, jackpotPerMillion: 50_000 };
+
 export function drawOf(over: Partial<Draw> = {}): Draw {
-  return { draw: 7, closesTick: 14, fingerprint: "ab".repeat(32), beaconRound: 1234, potSoFar: 3 * tuning.ticket, topUpTickets: 0, last: null, ...over };
+  return { draw: 7, closesTick: 14, fingerprint: "ab".repeat(32), beaconRound: 1234, salesSoFar: 3 * tuning.ticket, jackpot: tuning.odds.jackpotStart, rolledOver: false, odds: tuning.odds, last: null, ...over };
 }
 
 export interface OnlineLife {
@@ -60,27 +63,25 @@ function hexOf(word: string): string {
 /**
  * A drawn draw as the server publishes it: a list of `count` tickets over a
  * few players' tokens, the secret behind the fingerprint, the round's value,
- * and the winners and prizes the simulation's own functions give.
+ * and the winners the simulation's own functions give at `odds` and `jackpot`.
  */
-export function drawnReply(draw: number, count: number, topUpTickets = 0): DrawReply {
+export function drawnReply(draw: number, count: number, odds: LotteryOdds = GENEROUS, jackpot = odds.jackpotStart): DrawReply {
   const tokens = ["0011223344556677", "8899aabbccddeeff", "0123456789abcdef"];
   const list = Array.from({ length: count }, (_, index) => tokens[index % tokens.length]!);
   const secret = hexOf(`secret-${String(draw)}`);
   const beaconRandomness = hexOf(`round-${String(draw)}`);
   const listHash = listHashOf(list);
-  const tiers = tiersFor(count, tuning);
-  const winners = drawWinners(drawSeed(secret, listHash, beaconRandomness), count, tiers);
-  const topUp = topUpFor(count, topUpTickets, tuning.ticket);
-  const pot = count * tuning.ticket + topUp;
-  const prizes = prizesFor(pot, tiers, winners, tuning);
-  const result: LotteryResult = { draw, revealed: secret, beaconRound: 5000 + draw, beaconRandomness, listHash, count, pot, topUp, fund: prizes.fund, winners: prizes.winners };
+  const winners = drawResults(drawSeed(secret, listHash, beaconRandomness), count, odds, jackpot);
+  const nextJackpot = rollJackpot(jackpot, count * tuning.ticket, jackpotHit(winners), odds);
+  const result: LotteryResult = { draw, revealed: secret, beaconRound: 5000 + draw, beaconRandomness, listHash, count, odds, jackpot, winners, nextJackpot };
   return {
     draw,
     closesTick: 14 * (draw + 1),
     closesAt: Date.UTC(2026, 9, 9, 18),
     fingerprint: fingerprintOf(secret, draw),
     beaconRound: result.beaconRound,
-    topUpTickets,
+    odds,
+    jackpot,
     list,
     count,
     listHash,
