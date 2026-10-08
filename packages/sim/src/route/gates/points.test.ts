@@ -190,12 +190,13 @@ describe("the points gate", () => {
       expect(pointsScore(read(ZAINAB_INPUTS, capped), CANADA)).toBe(ZAINAB_SCORE - 20);
     });
 
+    // From 20: before it the table rises, on the 18th and the 20th birthdays.
     test.prop([
-      fc.integer({ min: 192, max: 1199 }),
+      fc.integer({ min: 240, max: 1199 }),
       fc.integer({ min: 0, max: 5 }),
       fc.option(fc.integer({ min: 8, max: 18 }).map((half) => half * 5)),
       fc.integer({ min: 0, max: 120 }),
-    ])("[R-POINTS-001] given any age, education, band and work, when the score is asked for, then it is the sum of its parts, the transfer is within the cap, and a month older never scores more", (months, level, band, work) => {
+    ])("[R-POINTS-001] given any age, education, band and work, when the score is asked for, then it is the sum of its parts, the transfer is within the cap, and from 20 a month older never scores more", (months, level, band, work) => {
       const now = read({ months, level, band, work });
       const parts = pointsParts(now, CANADA);
       expect(pointsScore(now, CANADA)).toBe(parts.age + parts.education + parts.language + parts.transfer);
