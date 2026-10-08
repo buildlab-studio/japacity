@@ -45,6 +45,8 @@ const ACTIONS: Record<string, string> = {
 const RIDES: Record<string, string> = { "veh_danfo.glb": "danfo", "veh_keke.glb": "keke", "veh_okada.glb": "okada" };
 /** Buildings that are doors into a place of their own, by the end of their model's file (rule 13). None of the built places has one yet. */
 const DOORS: Record<string, string> = {};
+/** Buildings the character steps inside (rule 14), by the end of their model's file. */
+const INSIDE = ["bld_family-house.glb"];
 /** Minutes by road between two places, from their positions: a base wait and a Lagos pace. */
 function minutesBetween(from: { latE3: number; lonE3: number }, to: { latE3: number; lonE3: number }): number {
   const cos = Math.cos((from.latE3 / 1000) * (Math.PI / 180));
@@ -358,7 +360,7 @@ export function City({
               onProgress={(loaded, total) => setProgress({ loaded, total })}
               onFailed={setFailed}
               onPick={setPicked}
-              {...(world ? { actionOf, overview: true } : {})}
+              {...(world ? { actionOf, overview: true, insideOf: (file: string) => INSIDE.some((suffix) => file.endsWith(suffix)) } : {})}
               onFrame={(frameMs) => {
                 const next = observeFrame(watch.current, frameMs, city);
                 watch.current = next;

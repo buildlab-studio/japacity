@@ -25,6 +25,8 @@ export interface SceneProps {
   onFrame: (frameMs: number) => void;
   /** The world mode: what a tapped model does here, by its file: an action it stages, a ride, a door into a place, or nothing. */
   actionOf?: (file: string) => Picked | null;
+  /** The world mode: a model the player can step inside, by its file (rule 14): the camera drops to eye level at its door. */
+  insideOf?: (file: string) => boolean;
   /** The world mode: the camera starts pulled back and raised, and comes down to the street at the first tap. */
   overview?: boolean;
 }
@@ -44,6 +46,8 @@ export interface CityProbe {
   screenOfModel: (suffix: string) => { x: number; y: number } | null;
   /** What the last tap landed on and the action it stages, for the browser test. */
   lastTap?: { picked: Picked | null; action: string | null };
+  /** The world mode: true while the camera is inside a building. */
+  inside?: boolean;
 }
 
 declare global {
