@@ -357,6 +357,8 @@ export const prologueScenario: ScenarioEntry = {
   },
   job: null,
   tenure: {},
+  // The prologue draws the siblings (R-PROLOGUE-002); nothing starts with any.
+  siblings: 0,
   pockets: {},
   documents: [],
   obligations: [],

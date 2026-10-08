@@ -36,6 +36,7 @@ export const routeTable: Record<Id<"route">, RouteEntry> = {
     id: UK,
     // docs/rules/route-gates.md R-GATE-001 and 003.
     gate: "study",
+    dependants: null,
     country: "country.uk",
     status: "status.uk-student",
     refusalBaseBp: 900,
@@ -90,6 +91,7 @@ export const routeTable: Record<Id<"route">, RouteEntry> = {
   "route.uk-care": {
     id: CARE,
     gate: "sponsor",
+    dependants: null,
     country: "country.uk",
     status: "status.uk-sponsored",
     refusalBaseBp: 500,
@@ -127,6 +129,7 @@ export const routeTable: Record<Id<"route">, RouteEntry> = {
   "route.uk-skilled": {
     id: SKILLED,
     gate: "sponsor",
+    dependants: null,
     country: "country.uk",
     status: "status.uk-sponsored",
     refusalBaseBp: 500,
@@ -167,6 +170,7 @@ export const routeTable: Record<Id<"route">, RouteEntry> = {
   "route.canada-points": {
     id: CANADA,
     gate: "points",
+    dependants: null,
     country: "country.canada",
     status: "status.ca-resident",
     refusalBaseBp: 1000,
@@ -203,6 +207,7 @@ export const routeTable: Record<Id<"route">, RouteEntry> = {
   "route.uk-talent": {
     id: TALENT,
     gate: "endorsement",
+    dependants: null,
     country: "country.uk",
     status: "status.uk-talent",
     refusalBaseBp: 300,
@@ -245,6 +250,7 @@ export const routeTable: Record<Id<"route">, RouteEntry> = {
   "route.gulf-contract": {
     id: GULF,
     gate: "contract",
+    dependants: null,
     country: "country.uae",
     status: "status.gulf-worker",
     refusalBaseBp: 1000,
@@ -272,6 +278,7 @@ export const routeTable: Record<Id<"route">, RouteEntry> = {
   "route.road": {
     id: "route.road",
     gate: "road",
+    dependants: null,
     country: null,
     status: null,
     // the road has no decision draw, so no refusal base.

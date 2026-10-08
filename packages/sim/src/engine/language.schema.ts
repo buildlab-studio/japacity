@@ -98,14 +98,18 @@ export const ReasonSchema = z.enum([
   "build",
   "win",
   "ticket",
+  "wedding",
+  "undertaking",
+  "assistance",
   "convert",
   "move",
 ]);
 export const WhereSchema = z.enum(["home", "abroad", "road"]);
+export const BondStageSchema = z.enum(["connected", "courting", "partner", "married", "ended"]);
 export const WhereEntrySchema = z.enum(["home", "abroad", "any"]);
 export const ReturnShapeSchema = z.enum(["removed", "assisted", "broke", "by-choice", "with-papers"]);
 export const WorkRuleSchema = z.enum(["any", "part", "one-employer", "cash", "none"]);
-export const RouteGateSchema = z.enum(["study", "sponsor", "points", "endorsement", "contract", "road"]);
+export const RouteGateSchema = z.enum(["study", "sponsor", "points", "endorsement", "contract", "road", "partner", "dependant"]);
 export const ObligationTypeSchema = z.enum([
   "upkeep",
   "support",
@@ -220,6 +224,16 @@ export const RequirementSchema = z.discriminatedUnion("type", [
   z.strictObject({ type: z.literal("setpiece/answered"), setpiece: idOf("setpiece"), times: CountSchema.exactOptional() }),
   z.strictObject({ type: z.literal("setpiece/answered-with"), setpiece: idOf("setpiece"), question: z.string().min(1), answer: z.string().min(1) }),
   z.strictObject({ type: z.literal("world/lottery"), online: z.boolean() }),
+  z.strictObject({
+    type: z.literal("people/bond"),
+    role: z.enum(["partner", "sibling"]),
+    stages: z.array(BondStageSchema).min(1),
+    where: WhereSchema.exactOptional(),
+    country: idOf("country").exactOptional(),
+    statuses: z.array(idOf("status")).exactOptional(),
+  }),
+  z.strictObject({ type: z.literal("people/sibling-abroad"), country: idOf("country"), statuses: z.array(idOf("status")).min(1), minAgeMonths: CountSchema }),
+  z.strictObject({ type: z.literal("people/joint"), route: idOf("route"), as: z.enum(["lead", "dependant"]) }),
   z.strictObject({ type: z.literal("wallet/total"), flow: z.enum(["in", "out"]), reason: ReasonSchema, currency: CurrencySchema, amount: AmountSchema }),
   z.strictObject({ type: z.literal("place/returned"), shapes: z.array(ReturnShapeSchema).min(1) }),
   z.strictObject({ type: z.literal("place/months-here"), where: WhereSchema, months: CountSchema }),
@@ -293,6 +307,8 @@ export const EffectSchema = z.discriminatedUnion("type", [
     amount: AmountSchema,
   }),
   z.strictObject({ type: z.literal("route/interview-scored"), route: idOf("route"), score: IntSchema }),
+  z.strictObject({ type: z.literal("people/moment"), kind: z.enum(["met", "call", "said", "wedding"]) }),
+  z.strictObject({ type: z.literal("route/withdraw"), route: idOf("route") }),
   z.strictObject({
     type: z.literal("route/record-sponsor"),
     route: idOf("route"),
@@ -483,6 +499,25 @@ export const TuningSchema = z.strictObject({
   groupLoan: z.strictObject({ feeBp: BpSchema, savingsBp: BpSchema, vanishBp: BpSchema, visit: z.strictObject({ standing: IntSchema, wellbeing: IntSchema }) }),
   lottery: z.strictObject({ ticket: CountSchema, maxTickets: CountSchema, burnBp: BpSchema, jackpotBp: BpSchema, midBp: BpSchema, midCount: CountSchema, smallBp: BpSchema, smallEvery: CountSchema }),
   city: z.strictObject({ crowdLow: CountSchema, crowdHigh: CountSchema, playersMax: CountSchema, fridayBp: BpSchema, saturdayBp: BpSchema, raiseAfterMs: CountSchema, raiseFrameMs: CountSchema, dropAfterMs: CountSchema, dropFrameMs: CountSchema, maxPixelRatio: CountSchema, desktopMinWidth: CountSchema }),
+  people: z.strictObject({
+    matchmaker: z.boolean(),
+    maxCourting: CountSchema,
+    partnerMoments: CountSchema,
+    marryAfterMonths: CountSchema,
+    weddingShare: CountSchema,
+    proposeCooldown: CountSchema,
+    recourtMonths: CountSchema,
+    gossipBp: BpSchema,
+    endStanding: z.strictObject({ courting: IntSchema, partner: IntSchema, married: IntSchema, applying: IntSchema }),
+    endWellbeing: IntSchema,
+    leftWellbeing: IntSchema,
+    couchMonths: CountSchema,
+    warnDays: CountSchema,
+    standInDays: CountSchema,
+  }),
+  pair: z.strictObject({ inviteDays: CountSchema, maxOpenInvites: CountSchema, rewardFriends: CountSchema, phrasesPerHour: CountSchema, placePhrasesPerMinute: CountSchema }),
+  interview: z.strictObject({ ask: CountSchema, decoys: CountSchema, passBp: BpSchema, failBp: BpSchema, caughtBelowBp: BpSchema, thinMoments: CountSchema, thinMonths: CountSchema, doubtBp: BpSchema, standInRecallBp: BpSchema, caughtStanding: IntSchema }),
+  undertaking: z.strictObject({ months: CountSchema, assistanceUnder: CountSchema }),
 });
 
 export type TuningMatches = Proof<Same<z.infer<typeof TuningSchema>, Tuning>>;

@@ -33,7 +33,7 @@ describe("route checklists", () => {
 
 describe("route gates", () => {
   test("[R-GATE-004] given every route but the road, when its entry is read, then it names a country and a status, and its gate's own block", () => {
-    const blocks = { study: "schools", sponsor: "sponsor", points: "points", endorsement: "endorsement", contract: "contract" } as const;
+    const blocks = { study: "schools", sponsor: "sponsor", points: "points", endorsement: "endorsement", contract: "contract", partner: "partner", dependant: "dependant" } as const;
     const routes = Object.values(content.route).filter((route) => route.gate !== "road");
     const missing = routes.flatMap((route) => {
       const block = route.gate === "road" ? null : blocks[route.gate];

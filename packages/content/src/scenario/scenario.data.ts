@@ -32,6 +32,8 @@ export const scenarioTable: Record<Id<"scenario">, ScenarioEntry> = {
       "quality.forced-wait": 0,
     },
     job: null,
+    // R-PEOPLE-010: working values until scenario.md gives each life its count.
+    siblings: 2,
     tenure: {},
     pockets: { NGN: { bank: naira(180000), cash: naira(25000) } },
     documents: [],
@@ -64,6 +66,8 @@ export const scenarioTable: Record<Id<"scenario">, ScenarioEntry> = {
       "quality.forced-wait": 0,
     },
     job: "activity.job-bank-officer",
+    // R-PEOPLE-010: working values until scenario.md gives each life its count.
+    siblings: 2,
     tenure: { "activity.job-bank-officer": 48 },
     pockets: { NGN: { bank: naira(4200000), cash: naira(60000) } },
     documents: [{ document: "document.passport", monthsLeft: 22, value: null }],
@@ -95,6 +99,8 @@ export const scenarioTable: Record<Id<"scenario">, ScenarioEntry> = {
       "quality.forced-wait": 0,
     },
     job: "activity.job-junior-dev",
+    // R-PEOPLE-010: working values until scenario.md gives each life its count.
+    siblings: 2,
     tenure: { "activity.job-junior-dev": 18 },
     pockets: { NGN: { bank: naira(900000), cash: naira(40000) } },
     documents: [],
@@ -141,6 +147,8 @@ export const ngoziScenario: ScenarioEntry = {
   },
   job: "activity.job-nurse",
   tenure: { "activity.job-nurse": 30 },
+    // R-PEOPLE-010: working values until scenario.md gives each life its count.
+    siblings: 2,
   pockets: { NGN: { bank: naira(650000), cash: naira(30000) } },
   documents: [
     { document: "document.passport", monthsLeft: 40, value: null },

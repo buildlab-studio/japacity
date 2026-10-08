@@ -341,6 +341,8 @@ describe("opening", () => {
       outstanding: 25000000,
       monthsLeft: entryOf(SALARY_LOAN).term,
       missed: 0,
+      bond: null,
+      charged: 0,
     });
     expect(game.state.wallet.pockets.NGN.bank).toBe(bank + 25000000);
     expect(result.events).toContainEqual({ type: "wallet/credited", currency: "NGN", pocket: "bank", amount: 25000000, reason: "loan" });

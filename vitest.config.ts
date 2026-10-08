@@ -33,6 +33,13 @@ export default defineConfig({
       },
       {
         test: {
+          name: "store",
+          environment: "node",
+          include: ["packages/store/src/**/*.test.ts"],
+        },
+      },
+      {
+        test: {
           name: "tools",
           environment: "node",
           include: ["tools/**/*.test.ts", "tests/**/*.test.ts"],

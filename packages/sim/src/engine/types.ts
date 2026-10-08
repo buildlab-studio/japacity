@@ -34,6 +34,11 @@ export type KindName =
   | "prologue"
   // Added for the online milestone: docs/rules/lottery.md.
   | "lottery"
+  // Added for the people milestone: docs/rules/people.md, pair.md, interview.md.
+  | "people"
+  | "person"
+  | "interview"
+  | "phrase"
   | "era"
   | "country"
   | "points";
@@ -93,6 +98,12 @@ export type Reason =
   | "win"
   /** A lottery ticket bought (docs/rules/lottery.md), a sink. */
   | "ticket"
+  /** A wedding's share paid (docs/rules/people.md), a sink. */
+  | "wedding"
+  /** An undertaking charge paid by a sponsor (docs/rules/undertaking.md), a sink. */
+  | "undertaking"
+  /** Social assistance received abroad (docs/rules/undertaking.md), a source. */
+  | "assistance"
   // transfers: always in matched pairs
   | "convert"
   | "move";
@@ -112,7 +123,9 @@ export type Stream =
   | "credit"
   | "road"
   | "lotto"
-  | "health";
+  | "health"
+  /** The people kind's draws: courting, a computer's answers, gossip (docs/rules/people.md). */
+  | "people";
 
 /** Where a character is. `road` is the chain in docs/rules/road.md. */
 export type Where = "home" | "abroad" | "road";
@@ -123,7 +136,7 @@ export type ReturnShape = "removed" | "assisted" | "broke" | "by-choice" | "with
 /** What a status lets you do for work: docs/rules/status.md R-STATUS-002. */
 export type WorkRule = "any" | "part" | "one-employer" | "cash" | "none";
 /** A route's gate: docs/rules/route-gates.md. */
-export type RouteGate = "study" | "sponsor" | "points" | "endorsement" | "contract" | "road";
+export type RouteGate = "study" | "sponsor" | "points" | "endorsement" | "contract" | "road" | "partner" | "dependant";
 
 export type Phase =
   | "spend"
@@ -216,6 +229,12 @@ export type Requirement =
   | { type: "setpiece/answered-with"; setpiece: Id<"setpiece">; question: string; answer: string }
   /** The world runs the Friday draw (`online` true) or not (docs/rules/lottery.md). */
   | { type: "world/lottery"; online: boolean }
+  /** A bond of this role at one of these stages, and where the other is (docs/rules/people.md R-PEOPLE-046). */
+  | { type: "people/bond"; role: "partner" | "sibling"; stages: BondStage[]; where?: Where; country?: Id<"country">; statuses?: Id<"status">[] }
+  /** A sibling in this country with one of these statuses, old enough (R-PEOPLE-031). */
+  | { type: "people/sibling-abroad"; country: Id<"country">; statuses: Id<"status">[]; minAgeMonths: number }
+  /** A joint application on this route with the character as lead or dependant (R-PEOPLE-029). */
+  | { type: "people/joint"; route: Id<"route">; as: "lead" | "dependant" }
   /** The ledger's total under a reason, in or out, in one currency, is at least this: docs/rules/wallet.md R-WALLET-014. */
   | { type: "wallet/total"; flow: "in" | "out"; reason: Reason; currency: Currency; amount: Amount }
   /** A return of one of these shapes is on record: docs/rules/place.md. */
@@ -271,6 +290,10 @@ export type Effect =
   /** Opens a set piece for a route (R-SETPIECE-001). */
   /** Open a set piece. With a route, the score goes to its visa application; with none, nothing is scored (R-SETPIECE-006). */
   | { type: "setpiece/open"; setpiece: Id<"setpiece">; route: Id<"route"> | null }
+  /** A moment with the bond the slot's param names (docs/rules/people.md R-PEOPLE-015). */
+  | { type: "people/moment"; kind: Moment["kind"] }
+  /** Withdraws an application in progress (R-PEOPLE-038). */
+  | { type: "route/withdraw"; route: Id<"route"> }
   // obligation
   | { type: "obligation/open"; obligation: Id<"obligation">; principal?: Amount; amount?: Amount }
   // offer: opens nothing when the offer's own `when` does not hold
@@ -425,6 +448,12 @@ export interface RouteEntry {
   endorsement?: { document: Id<"document">; baseBp: number; perPortfolioBp: number; perNetworkBp: number; capBp: number; cooldown: number; feeVar: Id<"var">; surchargeYears: number };
   /** Contract gate. */
   contract?: { medical: Id<"document">; maxAgeMonths: number };
+  /** The route a partner may follow as a dependant, or null when this route brings none (docs/rules/people.md R-PEOPLE-024). */
+  dependants: Id<"route"> | null;
+  /** The partner gate (R-PEOPLE-026 to 028). */
+  partner?: { sponsorStatuses: Id<"status">[]; bandMin: number | null; feeVar: Id<"var">; surchargeYears: number; decisionMonths: number; livingTogetherMonths: number | null; floorVar: Id<"var"> | null };
+  /** The dependant gate (R-PEOPLE-022 to 025). */
+  dependant?: { maintenanceVar: Id<"var"> | null; leadMonthsExempt: number | null; feeVar: Id<"var"> | null; feeFromLead: boolean; decisionMonths: number };
   /** Road gate: the outcome tables by step, in basis points. */
   road?: { steps: { id: string; months: [min: number, max: number]; on: number; held: number; turned: number; lost: number }[] };
 }
@@ -439,6 +468,10 @@ export interface PointsEntry {
   /** English band (times ten) to points per ability; the last row's band is a floor. */
   language: { band: number; points: number }[];
   transfer: { educationLowBand: number; educationHighBand: number; workLowBand: number; workHighBand: number; workLongLowBand: number; workLongHighBand: number; highBand: number; workMonths: number; longMonths: number; cap: number };
+  /** Points for a sibling in the country (R-PEOPLE-031). */
+  siblingBonus: number;
+  /** The spouse's factors when applying with a partner (R-PEOPLE-030). */
+  spouse?: { education: { level: number; points: number }[]; language: { band: number; points: number }[]; canadianWork: { years: number; points: number }[]; cap: number };
   /** `quality.care` at or above this reads the care cut-off (R-POINTS-003). */
   careMin: number;
 }
@@ -644,14 +677,20 @@ export interface CountryEntry {
   phone: Id<"obligation"> | null;
   overstayer: Id<"status"> | null;
   deceptionBanMonths: number;
+  /** Months after arriving through a partner before sponsoring a new one (R-UNDERTAKING-004). */
+  partnerBarMonths: number;
 }
 
 export interface StatusEntry {
   id: Id<"status">;
   country: Id<"country">;
-  /** Months it lasts. Null: it does not expire. A var id reads the length from the world. */
-  months: number | Id<"var"> | null;
+  /** Months it lasts. Null: it does not expire. A var id reads the length from the world; `lead`: as long as the lead's status (R-PEOPLE-024). */
+  months: number | Id<"var"> | "lead" | null;
   work: WorkRule;
+  /** Who may come as a dependant: none, anyone, or holders of these jobs (R-PEOPLE-024). */
+  dependants: "none" | "any" | Id<"activity">[];
+  /** A status that ends when the partnership ends, with the clock (R-PEOPLE-037). */
+  tiedTo: "partner" | null;
   /** Months on the clock when the job goes. Null: no clock; `lapsesAtOnce` says the status lapses instead. */
   clockMonths: number | null;
   lapsesAtOnce: boolean;
@@ -710,6 +749,181 @@ export interface PlaceEntry {
   assets: string;
 }
 
+// ---------------------------------------------------------------------------
+// People, pairs and the interview: docs/rules/people.md, pair.md, interview.md
+// ---------------------------------------------------------------------------
+
+export type BondStage = "connected" | "courting" | "partner" | "married" | "ended";
+export type PersonLabel = "player" | "computer" | "stand-in";
+
+/** A computer character who can fill a slot: docs/rules/people.md "Entries". */
+export interface PersonEntry {
+  id: Id<"person">;
+  role: "partner" | "sibling";
+  weight: number;
+  when: Requirement[];
+  profile: {
+    ageGapMonths: [min: number, max: number];
+    eduLevel: number;
+    englishBand: number | null;
+    care: number;
+    tech: number;
+    home: "city" | "town";
+    job: Id<"activity"> | null;
+    pay: Money | null;
+    country: Id<"country"> | null;
+    status: Id<"status"> | null;
+    abroadFromMonth: number | null;
+    settledStatus: Id<"status"> | null;
+    settledFromMonth: number | null;
+  };
+  behaviour: { courtMonths: number; agreeBp: number; marryAfterMonths: number; marryInDecember: boolean; patienceMonths: number | null; jealousBp: number; recallBp: number; plan: string; papers: boolean };
+  spots: string[];
+  whats: string[];
+  calls: string[];
+}
+
+/** What one life knows of another person (R-PEOPLE-003): facts, never state. */
+export interface PersonFacts {
+  label: PersonLabel;
+  ageMonths: number;
+  where: Where;
+  country: Id<"country"> | null;
+  status: Id<"status"> | null;
+  statusMonthsLeft: number | null;
+  monthsInCountry: number;
+  job: Id<"activity"> | null;
+  meetsFloor: Partial<Record<Id<"route">, boolean>>;
+  eduLevel: number;
+  englishBand: number | null;
+  home: "city" | "town";
+  joint: { route: Id<"route">; state: RouteStateName } | null;
+  funds: Money | null;
+  assistanceTaken: number;
+  sponsorReady: Id<"route"> | null;
+}
+
+export interface Moment {
+  n: number;
+  by: "me" | "them";
+  kind: "met" | "call" | "said" | "wedding";
+  spot: string | null;
+  what: string;
+  tick: number;
+}
+
+export interface Proposal {
+  step: "partner" | "marry" | "joint" | "landed";
+  route: Id<"route"> | null;
+  lead: "me" | "them" | null;
+}
+
+export interface Bond {
+  with: { kind: "computer"; entry: Id<"person"> } | { kind: "player"; pair: string };
+  role: "partner" | "sibling";
+  stage: BondStage;
+  firstMonth: number | null;
+  partnerMonth: number | null;
+  marriedMonth: number | null;
+  lastMomentMonth: number | null;
+  moments: Moment[];
+  facts: PersonFacts | null;
+  pending: { mine: Proposal | null; theirs: Proposal | null };
+  standIn: "warned" | "on" | null;
+  ended: { month: number; by: "me" | "them" | "absence" | "block" | "drift" } | null;
+  cooldownUntil: number | null;
+}
+
+export interface PeopleSlice {
+  slots: Record<string, { state: "empty" | "computer" | "invited" | "player" | "stand-in"; bond: string | null; person: Id<"person"> | null; invite: { looking: string; fill: string | null } | null }>;
+  bonds: Record<string, Bond>;
+  joint: { bond: string; route: Id<"route">; lead: "me" | "them"; countFunds: boolean; standInMay: boolean } | null;
+  sponsoring: { bond: string; route: Id<"route">; month: number } | null;
+  arrived: { route: Id<"route">; month: number } | null;
+  assistanceTaken: number;
+  /** Hidden. A computer partner's interview answers (R-INTERVIEW-006). */
+  secret: { computerAnswers: Record<string, string> | null };
+}
+
+export type InterviewResult = "pass" | "doubt" | "fail" | "caught";
+
+/** The genuineness interview's questions: docs/rules/interview.md "Entry". */
+export interface InterviewEntry {
+  id: Id<"interview">;
+  ask: number;
+  questions: {
+    id: string;
+    about: "couple" | "other";
+    truth: "first-spot" | "first-what" | "last-spot" | "times-met" | "wedding-spot" | "calls" | "job" | "home" | "last-said" | null;
+    needs: { met?: number; calls?: number; saidEach?: number; married?: boolean };
+    options: string[] | "spots" | "whats" | "calls" | "wedding-spots" | "jobs" | "phrases";
+  }[];
+}
+
+export interface InterviewSlice {
+  open: { pair: string; route: Id<"route">; questions: { id: string; options: string[] }[]; answers: string[]; standIn: boolean } | null;
+  last: { route: Id<"route">; result: InterviewResult; matched: number; asked: number; month: number } | null;
+  /** Hidden. The true answers for the questions asked (R-INTERVIEW-004). */
+  secret: { truths: (string | null)[] | null };
+}
+
+/** The interview as the pair record holds it (R-INTERVIEW-007). */
+export interface PairInterview {
+  route: Id<"route">;
+  questions: { id: string; options: string[] }[];
+  answers: { a: string[] | null; b: string[] | null };
+  standIn: { a: boolean; b: boolean };
+  result: InterviewResult | null;
+}
+
+/** A preset phrase (docs/rules/pair.md R-PAIR-011 to 014). */
+export interface PhraseEntry {
+  id: Id<"phrase">;
+  fill: "spot" | "route" | "news" | "event" | "thing" | null;
+  options?: string[];
+  where: "conversation" | "place" | "both";
+}
+
+export interface PairMoment {
+  n: number;
+  by: "a" | "b";
+  kind: "met" | "call" | "said" | "wedding";
+  spot: string | null;
+  what: string;
+  tick: number;
+}
+
+/** The one row per pair the server keeps (docs/rules/pair.md R-PAIR-001 to 006). Pure data; the simulation's pair module reads and writes it. */
+export interface PairRecord {
+  id: string;
+  a: string;
+  b: string;
+  role: "partner" | "sibling";
+  stage: BondStage;
+  since: Partial<Record<BondStage, number>>;
+  invitedBy: "a" | "b";
+  pending: { a: Proposal | null; b: Proposal | null };
+  consent: { a: { countFunds: boolean; standInMay: boolean }; b: { countFunds: boolean; standInMay: boolean } };
+  moments: PairMoment[];
+  joint: { route: Id<"route">; lead: "a" | "b" } | null;
+  interview: PairInterview | null;
+  blocked: { a: boolean; b: boolean };
+  standIn: { a: "warned" | "on" | null; b: "warned" | "on" | null };
+  ended: { by: "a" | "b" | "absence" | "block" | "deleted"; tick: number } | null;
+  held: boolean;
+}
+
+/** A stored phrase between two players (R-PAIR-012). Times are the server's and never enter a state. */
+export interface ConversationRow {
+  id: string;
+  conversation: string;
+  sender: string;
+  phrase: Id<"phrase">;
+  fill: string | null;
+  sentAt: number;
+  readAt: number | null;
+}
+
 export interface EraEntry {
   id: Id<"era">;
   ticks: [min: number, max: number];
@@ -747,6 +961,8 @@ export interface ScenarioEntry {
   qualities: Record<Id<"quality">, number>;
   job: Id<"activity"> | null;
   tenure: Record<Id<"activity">, number>;
+  /** Siblings the life starts with (R-PEOPLE-010). */
+  siblings: number;
   pockets: Partial<Record<Currency, { bank: number; cash: number }>>;
   documents: { document: Id<"document">; monthsLeft: number | null; value: number | null }[];
   obligations: { obligation: Id<"obligation">; amount: number }[];
@@ -878,6 +1094,14 @@ export interface Tuning {
   lottery: { ticket: number; maxTickets: number; burnBp: number; jackpotBp: number; midBp: number; midCount: number; smallBp: number; smallEvery: number };
   /** The city's crowd bands, the graphics modes' switches and the screen split (docs/rules/city.md). The simulation never reads it. */
   city: { crowdLow: number; crowdHigh: number; playersMax: number; fridayBp: number; saturdayBp: number; raiseAfterMs: number; raiseFrameMs: number; dropAfterMs: number; dropFrameMs: number; maxPixelRatio: number; desktopMinWidth: number };
+  /** The people around the character (docs/rules/people.md Numbers). */
+  people: { matchmaker: boolean; maxCourting: number; partnerMoments: number; marryAfterMonths: number; weddingShare: number; proposeCooldown: number; recourtMonths: number; gossipBp: number; endStanding: { courting: number; partner: number; married: number; applying: number }; endWellbeing: number; leftWellbeing: number; couchMonths: number; warnDays: number; standInDays: number };
+  /** Invites and phrases (docs/rules/pair.md Numbers). */
+  pair: { inviteDays: number; maxOpenInvites: number; rewardFriends: number; phrasesPerHour: number; placePhrasesPerMinute: number };
+  /** The genuineness interview (docs/rules/interview.md Numbers). */
+  interview: { ask: number; decoys: number; passBp: number; failBp: number; caughtBelowBp: number; thinMoments: number; thinMonths: number; doubtBp: number; standInRecallBp: number; caughtStanding: number };
+  /** The sponsor's undertaking (docs/rules/undertaking.md Numbers). */
+  undertaking: { months: number; assistanceUnder: number };
 }
 
 export interface Content {
@@ -904,6 +1128,11 @@ export interface Content {
   era: Record<Id<"era">, EraEntry>;
   /** The places of the city (docs/rules/city.md). The simulation never reads them; the city and the content check do. */
   place: Record<Id<"place">, PlaceEntry>;
+  person: Record<Id<"person">, PersonEntry>;
+  phrase: Record<Id<"phrase">, PhraseEntry>;
+  interview: Record<Id<"interview">, InterviewEntry>;
+  /** The spots people meet at, named by key (docs/rules/people.md R-PEOPLE-014). */
+  people: { spots: string[] };
   points: Record<Id<"points">, PointsEntry>;
   /** The prologue's steps by id. Empty until the prologue is built. */
   prologue: Record<string, PrologueStep>;
@@ -936,7 +1165,8 @@ export interface World {
 /** One draw's published result (docs/rules/lottery.md R-LOTTERY-010 to 013). */
 export interface LotteryResult {
   draw: number;
-  secret: string;
+  /** The server's secret for the draw, published after it (R-LOTTERY-015); named so the view's hidden-key check stays a net. */
+  revealed: string;
   beaconRound: number;
   beaconRandomness: string;
   listHash: string;
@@ -1113,7 +1343,9 @@ export type RouteGateState =
   | { gate: "points"; poolMonth: number | null; invitedMonth: number | null }
   | { gate: "endorsement"; endorsementRefusedMonth: number | null }
   | { gate: "contract"; agent: { employer: string; salary: number; role: string } | null }
-  | { gate: "road"; step: string | null; monthsHere: number; debt: number };
+  | { gate: "road"; step: string | null; monthsHere: number; debt: number }
+  | { gate: "partner"; bond: string | null }
+  | { gate: "dependant"; bond: string | null };
 
 export type RouteSlice = Record<Id<"route">, RouteState>;
 
@@ -1168,6 +1400,10 @@ export interface ObligationState {
   outstanding: number;
   monthsLeft: number | null;
   missed: number;
+  /** The bond an undertaking is for, else null (docs/rules/undertaking.md). */
+  bond: string | null;
+  /** Months of assistance already charged on an undertaking. */
+  charged: number;
 }
 
 export interface ObligationSlice {
@@ -1261,8 +1497,8 @@ export interface PrologueSlice {
 }
 
 export interface State {
-  /** The shape of the save. Raised when the shape changes. 2 adds the whole-life slices. */
-  schema: 1 | 2;
+  /** The shape of the save. Raised when the shape changes. 2 adds the whole-life slices; 3 the people and interview slices. */
+  schema: 1 | 2 | 3;
   content: string;
   /** The state version: one more for each accepted command. */
   v: number;
@@ -1292,6 +1528,8 @@ export interface State {
   goal: GoalSlice;
   prologue: PrologueSlice;
   lottery: LotterySlice;
+  people: PeopleSlice;
+  interview: InterviewSlice;
 }
 
 /** This character's tickets in the draw that is open (docs/rules/lottery.md). */
@@ -1329,6 +1567,29 @@ export type Command = { basedOn: number } & (
   | { type: "lottery/buy"; tickets: number }
   /** Sent by the authority alone, after the draw. */
   | { type: "lottery/pay"; draw: number; prizes: { tier: "jackpot" | "mid" | "small"; amount: number }[] }
+  // people (docs/rules/people.md R-PEOPLE-012 to 020, 034 to 040)
+  | { type: "people/invite"; slot: string; looking?: string; fill?: string }
+  /** `with` names a computer character (`person.*`) or a slot holding an invited player (R-PEOPLE-014). */
+  | { type: "people/court"; with: string }
+  | { type: "people/propose"; bond: string; step: Proposal["step"]; route?: Id<"route">; lead?: "me" | "them" }
+  | { type: "people/answer"; bond: string; step: Proposal["step"]; yes: boolean }
+  | { type: "people/withdraw"; bond: string }
+  | { type: "people/consent"; bond: string; countFunds?: boolean; standInMay?: boolean }
+  | { type: "people/end"; bond: string }
+  // people, from the authority alone (R-PEOPLE-004): another life's actions, recorded in the save
+  | { type: "people/link"; slot: string; pair: string; facts: PersonFacts }
+  | { type: "people/facts"; pair: string; facts: PersonFacts }
+  | { type: "people/moments"; pair: string; moments: Moment[] }
+  | { type: "people/proposal"; pair: string; proposal: Proposal }
+  | { type: "people/agreed"; pair: string; step: Proposal["step"]; route?: Id<"route">; lead?: "me" | "them" }
+  | { type: "people/ended"; pair: string; why: "them" | "absence" | "block" }
+  | { type: "people/gossip"; pair: string }
+  | { type: "people/stand-in"; pair: string; stage: "warned" | "on" | null }
+  | { type: "people/family-request"; offer: Id<"offer">; terms: Terms }
+  // the interview (docs/rules/interview.md)
+  | { type: "interview/answer"; question: string; option: string }
+  | { type: "interview/open"; pair: string; route: Id<"route">; questions: { id: string; options: string[] }[] }
+  | { type: "interview/scored"; pair: string; theirs: string[] }
 );
 
 export type CommandType = Command["type"];
@@ -1372,7 +1633,8 @@ export interface Accepted<E extends BaseEvent = BaseEvent> {
 export type StepResult<E extends BaseEvent = BaseEvent> = Accepted<E> | Rejection;
 
 /** Who sent a command. A player may not send `turns/grant`. */
-export type Sender = "player" | "authority";
+/** Who sent a command: the player, the authority, or the stand-in that plays for an absent partner (R-PEOPLE-041). */
+export type Sender = "player" | "authority" | "stand-in";
 
 // ---------------------------------------------------------------------------
 // What a kind is given, and what a kind is
@@ -1493,6 +1755,8 @@ export type RouteGateView =
   | { gate: "sponsor"; employer: string | null; salary: number | null; underBar: boolean }
   | { gate: "points"; points: number; cutoff: number; careCutoff: number | null; poolMonth: number | null; profileEndsMonth: number | null; invitedMonth: number | null }
   | { gate: "endorsement"; refusedMonth: number | null; cooledFromMonth: number | null }
+  | { gate: "partner"; bond: string | null; lead: RouteStateName | null }
+  | { gate: "dependant"; bond: string | null; lead: RouteStateName | null }
   | { gate: "contract"; employer: string | null; salary: number | null; role: string | null }
   | { gate: "road"; step: string | null; monthsHere: number };
 
@@ -1578,6 +1842,17 @@ export interface PlayerView {
   era: { id: Id<"era">; since: number; until: number; sinceMonth: number; untilMonth: number } | null;
   /** The send-off card or the real-story card, when one is due (R-CHAPTER-006, R-ROAD-011). */
   card: { kind: "send-off" | "real-story" | "lost"; route: Id<"route"> | null; percent: number | null; months: number; standing: number; topActivities: Id<"activity">[] } | null;
+  /** The people around the character (docs/rules/people.md R-PEOPLE-051). */
+  people: {
+    slots: Record<string, { state: PeopleSlice["slots"][string]["state"]; label: PersonLabel | null; bond: string | null; invite: { looking: string; fill: string | null } | null }>;
+    bonds: { id: string; role: "partner" | "sibling"; stage: BondStage; label: PersonLabel; moments: Moment[] | null; pending: { mine: Proposal | null; theirs: Proposal | null }; standIn: "warned" | "on" | null; facts: PersonFacts | null }[];
+    candidates: { person: Id<"person">; role: "partner" | "sibling" }[];
+    joint: { bond: string; route: Id<"route">; lead: "me" | "them"; myScore: number | null; theirScore: number | null } | null;
+    sponsoring: { bond: string; route: Id<"route">; month: number } | null;
+    barUntilMonth: number | null;
+  };
+  /** The genuineness interview as it stands (docs/rules/interview.md), or null. */
+  interview: { route: Id<"route">; question: { id: string; options: string[] } | null; asked: number; total: number; waiting: boolean; standIn: boolean; result: InterviewResult | null; matched: number | null } | null;
   /** The Friday draw as this character sees it, or null offline (docs/rules/lottery.md R-LOTTERY-015). */
   lottery: { ticket: number; maxTickets: number; draw: number; closesTick: number; tickets: number; numbers: number[] | null; potSoFar: number; fingerprint: string; last: LotteryResult | null } | null;
   report: TurnReport | null;

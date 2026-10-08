@@ -1,7 +1,7 @@
 import type { Currency, Id, RouteGateState, RouteState, RouteStateName, VisaApplication } from "../engine/types";
 
 /** Why a visa was refused, most telling first (R-ROUTE-019). */
-export type RefusalReason = "funds" | "interview" | "history" | "credibility" | "sponsor" | "agent" | "endorsement";
+export type RefusalReason = "funds" | "interview" | "history" | "credibility" | "sponsor" | "agent" | "endorsement" | "relationship" | "sham" | "lead";
 
 /** Every event of the route kind. */
 export type RouteKindEvent =

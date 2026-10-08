@@ -6,8 +6,10 @@ import type { StatusEntry } from "../engine/types";
 export const StatusEntrySchema = z.strictObject({
   id: idOf("status"),
   country: idOf("country"),
-  months: z.union([CountSchema, idOf("var")]).nullable(),
+  months: z.union([CountSchema, idOf("var"), z.literal("lead")]).nullable(),
   work: WorkRuleSchema,
+  dependants: z.union([z.literal("none"), z.literal("any"), z.array(idOf("activity"))]),
+  tiedTo: z.literal("partner").nullable(),
   clockMonths: CountSchema.nullable(),
   lapsesAtOnce: z.boolean(),
   renewMonths: CountSchema,

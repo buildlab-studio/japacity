@@ -1,4 +1,5 @@
 // The prologue through step, on the real steps in content: docs/rules/prologue.md.
+import { AUTHORITY_COMMANDS } from "../engine/step";
 import { content, text } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
@@ -26,7 +27,7 @@ const FIRST = "draw";
  * the content's prologue folder: every quality at its minimum, which for age is
  * sixteen. The real content does not list it among its lives yet.
  */
-const fixture: ScenarioEntry = { id: PROLOGUE, prologue: true, qualities: {}, job: null, tenure: {}, pockets: {}, documents: [], obligations: [] };
+const fixture: ScenarioEntry = { id: PROLOGUE, prologue: true, qualities: {}, job: null, tenure: {}, siblings: 0, pockets: {}, documents: [], obligations: [] };
 const withPrologue: Content = { ...content, scenario: { ...content.scenario, [PROLOGUE]: content.scenario[PROLOGUE] ?? fixture } };
 
 /**
@@ -124,7 +125,7 @@ function quality(game: Game, id: Id<"quality">): number {
 
 /** Every command a player could send, one of each type the prologue does not let through. */
 // The authority's own commands are refused earlier with not-yours, so they are not in the list.
-const OTHERS: { [T in Exclude<CommandType, "prologue/choose" | "turns/grant" | "lottery/pay">]: Loose } = {
+const OTHERS: { [T in Exclude<CommandType, "prologue/choose" | (typeof AUTHORITY_COMMANDS)[number]>]: Loose } = {
   "turn/end": { type: "turn/end", slots: [] },
   "activity/quit": { type: "activity/quit" },
   "offer/choose": { type: "offer/choose", offer: "offer-1", choice: "yes" },
@@ -138,6 +139,14 @@ const OTHERS: { [T in Exclude<CommandType, "prologue/choose" | "turns/grant" | "
   "status/renew": { type: "status/renew" },
   "return/home": { type: "return/home" },
   "lottery/buy": { type: "lottery/buy", tickets: 1 },
+  "people/invite": { type: "people/invite", slot: "partner" },
+  "people/court": { type: "people/court", with: "person.a" },
+  "people/propose": { type: "people/propose", bond: "bond-1", step: "partner" },
+  "people/answer": { type: "people/answer", bond: "bond-1", step: "partner", yes: true },
+  "people/withdraw": { type: "people/withdraw", bond: "bond-1" },
+  "people/consent": { type: "people/consent", bond: "bond-1" },
+  "people/end": { type: "people/end", bond: "bond-1" },
+  "interview/answer": { type: "interview/answer", question: "q", option: "a" },
 };
 
 describe("a new prologue", () => {

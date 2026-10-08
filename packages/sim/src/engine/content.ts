@@ -4,6 +4,7 @@
 import { directorFairness } from "../world/fairness";
 import type { Content, KindName } from "./types";
 import { placeChecks } from "../place/place.check";
+import { checkLotteryContent } from "../lottery/lottery.draw";
 
 const CONTENT_KINDS = [
   "quality",
@@ -71,6 +72,7 @@ export function checkContent(content: Content): string[] {
   // R-DIRECTOR-007: the director's stories and eras are fair to every player.
   problems.push(...directorFairness(content));
   problems.push(...placeChecks(content));
+  problems.push(...checkLotteryContent(content));
   return problems;
 }
 

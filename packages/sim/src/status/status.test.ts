@@ -365,7 +365,7 @@ describe("the course", () => {
     const game = flown(content);
     playMonths(game, 15);
     // The obligation kind cannot default tuition yet, so the default is written in, too large for the bank to clear.
-    const tuition = { id: "obligation-tuition", entry: "obligation.tuition" as const, state: "defaulted" as const, openedMonth: 1, amount: 0, principal: 1000000000, outstanding: 1000000000, monthsLeft: 1, missed: 2 };
+    const tuition = { id: "obligation-tuition", entry: "obligation.tuition" as const, state: "defaulted" as const, openedMonth: 1, amount: 0, principal: 1000000000, outstanding: 1000000000, monthsLeft: 1, missed: 2, bond: null, charged: 0 };
     game.state = { ...game.state, obligation: { items: { ...game.state.obligation.items, [tuition.id]: tuition } } };
     expect(coursePassed(readOf(game))).toBe(false);
     if (game.state.turn.banked < 1) game.grant(1);

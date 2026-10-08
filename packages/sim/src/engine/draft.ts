@@ -43,6 +43,7 @@ export function readOf(draft: Draft): ReadCtx {
 
 /** Which kind carries out each effect, by the part before the slash. */
 export const EFFECT_OWNER: Record<PrefixOf<EffectType>, SliceKey> = {
+  people: "people",
   money: "wallet",
   quality: "quality",
   activity: "activity",

@@ -41,6 +41,9 @@ const REQUIREMENT_TYPES = [
   "place/months-here",
   "setpiece/answered-with",
   "world/lottery",
+  "people/bond",
+  "people/sibling-abroad",
+  "people/joint",
   "not",
   "any",
 ] as const;

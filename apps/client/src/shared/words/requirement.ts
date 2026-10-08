@@ -153,6 +153,12 @@ export function requirementSentence(requirement: Requirement, context: SentenceC
       return say("ui.req.setpiece-answered-with", { setpiece: nameOf(requirement.setpiece) });
     case "world/lottery":
       return say(requirement.online ? "ui.req.world-lottery-online" : "ui.req.world-lottery-offline");
+    case "people/bond":
+      return say("ui.req.people-bond", { role: say(`ui.people.role.${requirement.role}`) });
+    case "people/sibling-abroad":
+      return say("ui.req.people-sibling-abroad", { country: nameOf(requirement.country) });
+    case "people/joint":
+      return say(requirement.as === "lead" ? "ui.req.people-joint-lead" : "ui.req.people-joint-dependant", { route: nameOf(requirement.route) });
     case "wallet/total":
       return say(requirement.flow === "in" ? "ui.req.wallet-total-in" : "ui.req.wallet-total-out", { amount: amountWords(requirement.amount, requirement.currency), reason: requirement.reason.replaceAll("-", " ") });
     case "place/returned":

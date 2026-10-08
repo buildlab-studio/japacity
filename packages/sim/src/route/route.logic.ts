@@ -639,6 +639,9 @@ function judge(read: ReadCtx, requirement: Requirement): RequirementResult {
     case "setpiece/answered":
     case "setpiece/answered-with":
     case "world/lottery":
+    case "people/bond":
+    case "people/sibling-abroad":
+    case "people/joint":
     case "wallet/total":
     case "place/returned":
     case "place/months-here":
@@ -923,6 +926,8 @@ export const routeKind: RegisteredKind<RouteSlice, RouteKindEvent> = {
     "route/apply": applyVisa,
     "route/support": support,
     "route/interview-scored": interviewScored,
+    // R-PEOPLE-038: withdrawing an application is the people milestone's; the stub does nothing.
+    "route/withdraw": () => [],
     // Each gate's own effects (R-GATE-001): the sponsor's record, the road's steps.
     ...gateEffects(),
   },
