@@ -32,6 +32,8 @@ export const newsText: Record<string, string> = {
   "news.uk-refusals-up.in-force.body":
     "One in three, an agent says. The official figure is lower. It is still higher than last year.",
 
+  "news.uk-refusals-up.ended.head": "The refusal wave passes",
+  "news.uk-refusals-up.ended.body": "Officers are back to the usual checks. The files they refused stay refused.",
   "news.dollar-scarcity.name": "Banks ration foreign currency",
   "news.dollar-scarcity.rumour.head": "Banks go quiet on dollars",
   "news.dollar-scarcity.rumour.body":
@@ -71,6 +73,8 @@ export const newsText: Record<string, string> = {
   "news.uk-study-narrows.in-force.head": "The student route has narrowed",
   "news.uk-study-narrows.in-force.body": "Offers are slower and the visa takes more to win. The door is not shut.",
 
+  "news.uk-study-narrows.ended.head": "The UK eases the student checks",
+  "news.uk-study-narrows.ended.body": "Two years on, the extra checks are quietly dropped. Student visas are granted as before.",
   "news.uk-study-closes.name": "UK pauses new student visas",
   "news.uk-study-closes.rumour.head": "A rumour that UK study will close",
   "news.uk-study-closes.rumour.body": "A voice note says the Home Office will stop new student visas from some countries. Agents are telling people to apply now.",
@@ -169,6 +173,8 @@ export const newsText: Record<string, string> = {
   "news.ca-care-draw.in-force.head": "The healthcare cut-off falls",
   "news.ca-care-draw.in-force.body": "Invitations went out to health workers at a lower score this round.",
 
+  "news.ca-care-draw.ended.head": "The healthcare round closes",
+  "news.ca-care-draw.ended.body": "The cut-off for health workers is back where it was until the next round.",
   "news.ca-general-stops.name": "Canada pauses general draws",
   "news.ca-general-stops.rumour.head": "General draws may pause",
   "news.ca-general-stops.rumour.body": "Consultants say Canada will stop inviting people without a job offer for a while.",

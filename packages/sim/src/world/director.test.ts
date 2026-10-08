@@ -261,7 +261,14 @@ describe("the policy cycle", () => {
       expect(ticks[1]?.vars[STUDY_SURGE]).toBe(content.var[STUDY_SURGE]!.start + director.surgePerTick);
       for (const tick of ticks.slice(1)) {
         const before = ticks[tick.tick - 1]!;
-        const setByStory = tick.cameIntoForce.some((id) => content.news[id]?.standIn.sets.some((set) => pairs.some(([, surge]) => set.var === surge)));
+        // A story that sets or adds to a surge as it comes into force, or takes an add back as it ends (R-DIRECTOR-004).
+        const names = (id: Id<"news">, ending: boolean) => {
+          const entry = content.news[id];
+          const sets = ending ? [] : (entry?.standIn.sets ?? []);
+          const adds = ending && entry?.standIn.revert !== true ? [] : (entry?.director?.adds ?? []);
+          return [...sets, ...adds].some((one) => pairs.some(([, surge]) => one.var === surge));
+        };
+        const setByStory = tick.cameIntoForce.some((id) => names(id, false)) || tick.ended.some((id) => names(id, true));
         for (const [window, surge] of pairs) {
           expect(tick.vars[surge]).toBeGreaterThanOrEqual(0);
           expect(tick.vars[surge]).toBeLessThanOrEqual(100);
@@ -302,7 +309,8 @@ describe("the policy cycle", () => {
     const counted: Record<string, number> = { backlash: 0, restriction: 0, closure: 0, shortage: 0 };
     const broken: string[] = [];
     // Open to narrowing by the restriction, narrowing to closed by the closure, closed to open by the shortage.
-    const moves: Record<string, Id<"news">> = { "2>1": steps.restriction!, "1>0": steps.closure!, "0>2": steps.shortage! };
+    // A closure rolled while narrowing may come into force after the narrowing ran out: 2>0.
+    const moves: Record<string, Id<"news">> = { "2>1": steps.restriction!, "1>0": steps.closure!, "2>0": steps.closure!, "0>2": steps.shortage! };
     for (let index = 0; index < 1000; index += 1) {
       const ticks = directorTicks(`cycle-${String(index)}`, 160, content);
       const fail = (tick: DirectorTick, what: string) => broken.push(`cycle-${String(index)} tick ${String(tick.tick)}: ${what}`);
@@ -315,20 +323,26 @@ describe("the policy cycle", () => {
         const restrictionHolds =
           tick.vars[STUDY_WINDOW] === 2 && tick.vars[STUDY_SURGE]! > 40 && tick.vars["var.uk-study-strictness"]! >= 70 && backlashSeen;
         if (tick.started.includes(steps.restriction!) && !restrictionHolds) fail(tick, "restriction rolled without open, surge and backlash");
-        const closureHolds = tick.vars[STUDY_WINDOW] === 1 && stageOf(tick, steps.restriction!)?.stage === "in-force";
+        // The restriction in force is read, as the content reads it, as the window at 1 (a pandemic's end can put it back after the restriction ran out).
+        const closureHolds = tick.vars[STUDY_WINDOW] === 1;
         if (tick.started.includes(steps.closure!) && !closureHolds) fail(tick, "closure rolled without the restriction in force");
         if (tick.started.includes(steps.shortage!) && tick.vars[STUDY_WINDOW] !== 0) fail(tick, "shortage rolled with the window not closed");
         const pandemic = stageOf(tick, PANDEMIC);
         const held = pandemic !== null && (pandemic.stage === "in-force" || (pandemic.stage === "ended" && pandemic.since === tick.tick));
         const move = `${String(before.vars[STUDY_WINDOW])}>${String(tick.vars[STUDY_WINDOW])}`;
         if (before.vars[STUDY_WINDOW] === tick.vars[STUDY_WINDOW] || held) continue;
-        // Back from closed to narrowing when the closure runs out.
-        const ranOut = move === "0>1" && tick.ended.includes(steps.closure!);
+        // Back from closed to narrowing when the closure runs out, from narrowing to open when the restriction
+        // runs out, and from closed to open when both run out on one tick.
+        const closureOut = tick.ended.includes(steps.closure!);
+        const restrictionOut = tick.ended.includes(steps.restriction!);
+        const ranOut = (move === "0>1" && closureOut) || (move === "1>2" && restrictionOut) || (move === "0>2" && closureOut && restrictionOut);
         // A shortage rolled while closed may land after the closure (or the pandemic) ran out and put the narrowing back.
         const rolled = ticks.findLast((earlier) => earlier.started.includes(steps.shortage!));
         const lateShortage = move === "1>2" && tick.cameIntoForce.includes(steps.shortage!) && rolled?.vars[STUDY_WINDOW] === 0;
         const stepped = moves[move] !== undefined && tick.cameIntoForce.includes(moves[move]);
-        if (!ranOut && !lateShortage && !stepped) fail(tick, `the window moved ${move} with ${tick.cameIntoForce.join(", ")} in force`);
+        // A narrowing announced as a closure or the pandemic lands sets 1 over their 0 and gives it back when it ends (R-RATE-006).
+        const restrictionPass = tick.cameIntoForce.includes(steps.restriction!) || tick.ended.includes(steps.restriction!);
+        if (!ranOut && !lateShortage && !stepped && !restrictionPass) fail(tick, `the window moved ${move} with ${tick.cameIntoForce.join(", ")} in force`);
       }
     }
     expect(broken).toEqual([]);

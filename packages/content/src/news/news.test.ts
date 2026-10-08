@@ -97,7 +97,7 @@ describe("the policy cycle", () => {
     expect(story("news.uk-study-closes").director?.needs).toEqual([
       { type: "var/min", var: "var.uk-study-window", value: 1 },
       { type: "var/max", var: "var.uk-study-window", value: 1 },
-      { type: "era/is", eras: ["era.hard-line"] },
+      { type: "era/is", eras: ["era.hard-line", "era.scandal"] },
     ]);
   });
 

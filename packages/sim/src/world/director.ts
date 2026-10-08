@@ -315,12 +315,18 @@ function turnStories(book: Book, tick: number): { cameIntoForce: number[]; ended
   });
   for (const story of ended) {
     const { id, entry } = book.stories[story]!;
+    if (!entry.standIn.revert) continue;
     const before = book.before[story];
-    if (!entry.standIn.revert || before === null || before === undefined) continue;
-    for (const [variable, held] of Object.entries(before) as [Id<"var">, Held][]) {
+    for (const [variable, held] of Object.entries(before ?? {}) as [Id<"var">, Held][]) {
       if (book.setBy[variable] !== id) continue;
-      book.values[variable] = held.value;
-      book.setBy[variable] = held.setBy;
+      const back = heldNow(book, variable, held, tick);
+      book.values[variable] = back.value;
+      book.setBy[variable] = back.setBy;
+    }
+    // An `adds` is relative and holds nothing: a reverting story takes back what it added.
+    for (const add of entry.director?.adds ?? []) {
+      const from = book.values[add.var];
+      if (from !== undefined) book.values[add.var] = bounded(add.var, from - add.value);
     }
   }
   for (const story of cameIntoForce) {
@@ -334,7 +340,11 @@ function turnStories(book: Book, tick: number): { cameIntoForce: number[]; ended
       book.setBy[variable] = id;
     };
     for (const set of entry.standIn.sets) change(set.var, () => set.value);
-    for (const add of entry.director?.adds ?? []) change(add.var, (from) => from + add.value);
+    for (const add of entry.director?.adds ?? []) {
+      const from = book.values[add.var];
+      if (from === undefined) throw new Error(`The story ${id} adds to the variable ${add.var}, which is not in content.`);
+      book.values[add.var] = bounded(add.var, from + add.value);
+    }
     book.before[story] = before;
   }
   return { cameIntoForce, ended };
@@ -346,6 +356,25 @@ function free(book: Book, story: number, tick: number): boolean {
   if (pass === null || pass === undefined) return true;
   if (pass.ended !== null) return pass.ended < tick;
   return book.stories[story]!.forGood && pass.inForce <= tick;
+}
+
+/**
+ * What a variable goes back to when a story reverts (R-RATE-006). The story that held the value before
+ * may itself have ended and reverted since, while this story kept the variable: then its own `before`
+ * is what stands, and so on down the chain.
+ */
+function heldNow(book: Book, variable: Id<"var">, held: Held, tick: number): Held {
+  let back = held;
+  for (let guard = 0; guard < book.stories.length && back.setBy !== null; guard += 1) {
+    const holder = book.stories.findIndex((story) => story.id === back.setBy);
+    if (holder < 0) break;
+    const pass = book.passes[holder];
+    const gone = pass !== null && pass !== undefined && pass.ended !== null && pass.ended <= tick;
+    const deeper = book.before[holder]?.[variable];
+    if (!gone || !book.stories[holder]!.entry.standIn.revert || deeper === undefined) break;
+    back = deeper;
+  }
+  return back;
 }
 
 /** R-DIRECTOR-003: each story of the pool, in id order, rolled on its own position of `shock`. */

@@ -168,23 +168,30 @@ export const newsTable: Record<Id<"news">, NewsEntry> = {
     id: "news.uk-refusals-up",
     touches: [UK],
     hear: [],
-    // The study route's backlash: the surge over 40 (R-DIRECTOR-005).
+    // The study route's backlash: the surge over 40 (R-DIRECTOR-005). each pass tightens
+    // strictness by 10 and spends 30 of the surge (refusals rise, applications fall), so the ban's
+    // +15 is kept and the restriction needs two backlashes from the start value; a pass is news for
+    // six ticks and may repeat after 18, and no more once strictness is past 80: the rules are as
+    // tight as they get until a reopening relaxes them.
     director: {
       group: "strictness",
-      needs: [over("var.uk-study-surge", 40)],
-      cooldown: REPEAT_COOLDOWN,
+      needs: [over("var.uk-study-surge", 40), atMost("var.uk-study-strictness", 80)],
+      cooldown: 18,
       once: false,
       shock: false,
       endedBy: null,
-      adds: [],
+      adds: [
+        { var: "var.uk-study-strictness", value: 10 },
+        { var: "var.uk-study-surge", value: -30 },
+      ],
     },
     standIn: {
-      chanceBp: pct(60),
+      chanceBp: 3000,
       announce: { between: [8, 30] },
       rumourLead: 3,
       forceLag: 2,
-      endsAfter: null,
-      sets: [{ var: "var.uk-study-strictness", value: 70 }],
+      endsAfter: 6,
+      sets: [],
       revert: false,
     },
   },
@@ -205,9 +212,9 @@ export const newsTable: Record<Id<"news">, NewsEntry> = {
     standIn: {
       // the director rolls this every tick, so the fixed schedule's 60% for the whole
       // run would start a scarcity in the first months and float the naira about once a year.
-      // 4.5% a tick gives about the same 60% over the twenty ticks the old schedule drew from,
-      // and four times that in a crash.
-      chanceBp: 450,
+      // 1.5% a tick is a scarcity about every six years in calm, four times as often in a crash;
+      // the float that follows each is then a few times in a life, not yearly.
+      chanceBp: 150,
       announce: { between: [6, 26] },
       rumourLead: 2,
       forceLag: 2,
@@ -275,24 +282,27 @@ export const newsTable: Record<Id<"news">, NewsEntry> = {
     // The restriction: the refusals story in force is strictness at its 70. the surge must still be over
     // 40, so a reopened route runs the cycle again before it narrows again. the window must be open, so a
     // closed or narrowing route is never narrowed again (R-DIRECTOR-005: no step is skipped).
-    needs: [atLeast("var.uk-study-strictness", 70), over("var.uk-study-surge", 40), atLeast("var.uk-study-window", 2)],
+    needs: [atLeast("var.uk-study-strictness", 70), over("var.uk-study-surge", 50), atLeast("var.uk-study-window", 2)],
     chanceBp: 500,
     rumourLead: 1,
     forceLag: 2,
-    endsAfter: null,
+    // a narrowing that no closure follows lifts after two years, so the window is not 1 for good.
+    endsAfter: 24,
     sets: [{ var: "var.uk-study-window", value: 1 }],
+    revert: true,
     announce: after("news.uk-refusals-up", [2, 12]),
   }),
   "news.uk-study-closes": pool({
     id: "news.uk-study-closes",
     touches: [UK],
     group: "closures",
-    // The closure: the narrowing in force is the window at 1.
-    needs: [atLeast("var.uk-study-window", 1), atMost("var.uk-study-window", 1), era("era.hard-line")],
-    chanceBp: 300,
+    // The closure: the narrowing in force is the window at 1. a scandal era closes routes too.
+    needs: [atLeast("var.uk-study-window", 1), atMost("var.uk-study-window", 1), era("era.hard-line", "era.scandal")],
+    chanceBp: 500,
     rumourLead: 2,
     forceLag: 2,
-    endsAfter: 12,
+    // the closure runs until the reopening ends it, so the window never falls back to narrowing on its own.
+    endsAfter: null,
     sets: [{ var: "var.uk-study-window", value: 0 }],
     revert: true,
     shock: true,
@@ -307,13 +317,15 @@ export const newsTable: Record<Id<"news">, NewsEntry> = {
     group: "openings",
     // A shortage: the window at 0, for `tuning.director.closedTicks` (R-DIRECTOR-005).
     needs: [atMost("var.uk-study-window", 0)],
-    chanceBp: 800,
+    chanceBp: 1500,
     rumourLead: 0,
     forceLag: 2,
     endsAfter: null,
+    // a reopening relaxes the rules too: strictness back to its start.
     sets: [
       { var: "var.uk-study-window", value: 2 },
       { var: "var.uk-study-surge", value: 0 },
+      { var: "var.uk-study-strictness", value: 50 },
     ],
     announce: after("news.uk-study-closes", [8, 16]),
   }),
@@ -423,7 +435,8 @@ export const newsTable: Record<Id<"news">, NewsEntry> = {
     chanceBp: 200,
     rumourLead: 1,
     forceLag: 2,
-    endsAfter: 4,
+    // the body stays closed until the reappointment, which waits the closed ticks (R-DIRECTOR-005).
+    endsAfter: null,
     sets: [{ var: "var.uk-talent-window", value: 0 }],
     revert: true,
     once: true,
@@ -455,8 +468,10 @@ export const newsTable: Record<Id<"news">, NewsEntry> = {
     chanceBp: 600,
     rumourLead: 1,
     forceLag: 2,
-    endsAfter: null,
+    // a draw round lowers the care cut-off for six ticks and then it is back, so the cut-off does not drift.
+    endsAfter: 6,
     adds: [{ var: "var.ca-care-cutoff", value: -20 }],
+    revert: true,
   }),
   "news.ca-general-stops": pool({
     id: "news.ca-general-stops",

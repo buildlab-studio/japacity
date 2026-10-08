@@ -287,10 +287,11 @@ export const routeTable: Record<Id<"route">, RouteEntry> = {
     road: {
       // "Outcome tables (basis points)". A real-ish connection halves `held` in the road kind.
       steps: [
-        { id: "desert", months: [2, 4], on: 6500, held: 1500, turned: 1500, lost: 500 },
-        { id: "compound", months: [0, 6], on: 4500, held: 4000, turned: 1000, lost: 500 },
-        { id: "coast", months: [1, 3], on: 6000, held: 2500, turned: 1000, lost: 500 },
-        { id: "sea", months: [1, 1], on: 7000, held: 0, turned: 2500, lost: 500 },
+        // Tuned to road.md's reading: with `held` drawn again, about 23 in 100 arrive and about 2 in 100 are lost.
+        { id: "desert", months: [2, 4], on: 6000, held: 1500, turned: 2450, lost: 50 },
+        { id: "compound", months: [0, 6], on: 4500, held: 4000, turned: 1450, lost: 50 },
+        { id: "coast", months: [1, 3], on: 5500, held: 2500, turned: 1950, lost: 50 },
+        { id: "sea", months: [1, 1], on: 6000, held: 0, turned: 3850, lost: 150 },
       ],
     },
   },

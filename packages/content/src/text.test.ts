@@ -108,7 +108,8 @@ describe("words for every entry", () => {
     );
     // news.md's "Words" table has fifteen rows, one for each story at each stage; director.md's pool adds 78
     // stages and its seven eras 21 (announced, in force, ended): 114 rows of a head and a body.
-    expect(keys).toHaveLength(228);
+    // Plus the ended stage of the refusals story and the Canadian draw, which end since the tuning pass: 234.
+    expect(keys).toHaveLength(234);
     expect(missingWords(keys)).toEqual([]);
   });
 

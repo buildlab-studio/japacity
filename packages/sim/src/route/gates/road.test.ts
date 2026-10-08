@@ -521,8 +521,8 @@ describe("the chain under the page's numbers", () => {
     expect(game.state.place).toMatchObject({ where: "abroad", country: "country.italy" });
   });
 
-  test("[R-ROAD-006] given seed-12, when the chain is played, then the compound takes 0 months and is passed by", () => {
-    const { seen } = setOut("seed-12");
+  test("[R-ROAD-006] given seed-70, when the chain is played, then the compound takes 0 months and is passed by", () => {
+    const { seen } = setOut("seed-70");
     expect(path(seen)).toEqual(["desert", "coast", "sea", "arrived"]);
   });
 
@@ -532,8 +532,8 @@ describe("the chain under the page's numbers", () => {
     expect(game.state.place.where).toBe("home");
   });
 
-  test("[R-ROAD-006] [R-ROAD-008] given seed-37, when the chain is played, then the desert is the ending", () => {
-    const { game, seen } = setOut("seed-37");
+  test("[R-ROAD-006] [R-ROAD-008] given seed-50, when the chain is played, then the desert is the ending", () => {
+    const { game, seen } = setOut("seed-50");
     expect(path(seen)).toEqual(["desert"]);
     expect(gateOf(game).step).toBe("lost");
     expect(game.state.turn.ended).toBe(true);
