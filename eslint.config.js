@@ -95,6 +95,7 @@ const FLOAT_MATH = [
 
 export default defineConfig(
   globalIgnores([
+    "**/.wrangler/**",
     "**/node_modules/**",
     "**/dist/**",
     "**/coverage/**",
