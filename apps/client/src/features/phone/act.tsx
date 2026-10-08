@@ -83,9 +83,14 @@ export function Head({ children }: { children: ReactNode }) {
 }
 
 /** A choice among a few, as chips: the phone never shows a form. */
-export function Chips<T extends string>({ label, value, options, onChange }: { label: string; value: T; options: readonly { value: T; label: string }[]; onChange: (value: T) => void }) {
+export function Chips<T extends string>({ label, value, options, onChange, shown = false }: { label: string; value: T; options: readonly { value: T; label: string }[]; onChange: (value: T) => void; shown?: boolean }) {
   return (
-    <div role="radiogroup" aria-label={label} className="flex flex-wrap gap-1.5">
+    <div role="radiogroup" aria-label={label} className="flex flex-wrap items-center gap-1.5">
+      {shown ? (
+        <span className="label w-full text-[10px] text-text-2" aria-hidden>
+          {label}
+        </span>
+      ) : null}
       {options.map((option) => (
         <button
           key={option.value}

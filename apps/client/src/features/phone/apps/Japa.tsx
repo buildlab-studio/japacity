@@ -138,7 +138,7 @@ export function Japa() {
         {view.documents.length > 0 && held === view.documents.length ? <Check size={18} className="shrink-0 text-in" aria-hidden /> : <Circle size={18} className="shrink-0 text-text-2" aria-hidden />}
         <span className="flex-1">
           <span className="block text-[14px] font-bold">{phoneWords("phone.japa.papers")}</span>
-          <span className="block text-[13px] text-text-2">{phoneWords("phone.japa.papers.line", { held, count: view.documents.length })}</span>
+          <span className="block text-[13px] text-text-2">{view.documents.length === 0 ? phoneWords("phone.japa.papers.none") : phoneWords("phone.japa.papers.line", { held, count: view.documents.length })}</span>
         </span>
         <ChevronRight size={16} className="shrink-0 text-text-2" aria-hidden />
       </button>

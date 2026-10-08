@@ -75,10 +75,10 @@ function ChangeChooser({ onAsk }: { onAsk: ReturnType<typeof useAsk>["open"] }) 
   const amount = shareOf(pocketOf(from), share);
   return (
     <div className="mt-3 flex flex-col gap-2.5 rounded-[6px] border border-sheet-line bg-sheet-2 p-3" data-chooser="change">
-      <Chips label={phoneWords("phone.bank.where")} value={via} onChange={setVia} options={[{ value: "bank", label: say("ui.wallet.via.bank") }, { value: "aboki", label: say("ui.wallet.via.aboki") }]} />
-      <Chips label={phoneWords("phone.bank.from")} value={from} onChange={setFrom} options={currencies.map((currency) => ({ value: currency, label: currencyWords(currency) }))} />
-      <Chips label={phoneWords("phone.bank.into")} value={to} onChange={setTo} options={currencies.filter((currency) => currency !== from).map((currency) => ({ value: currency, label: currencyWords(currency) }))} />
-      <Chips label={phoneWords("phone.bank.how-much")} value={share} onChange={setShare} options={SHARES.map((value) => ({ value, label: phoneWords(`phone.bank.${value}`) }))} />
+      <Chips shown label={phoneWords("phone.bank.where")} value={via} onChange={setVia} options={[{ value: "bank", label: say("ui.wallet.via.bank") }, { value: "aboki", label: say("ui.wallet.via.aboki") }]} />
+      <Chips shown label={phoneWords("phone.bank.from")} value={from} onChange={setFrom} options={currencies.map((currency) => ({ value: currency, label: currencyWords(currency) }))} />
+      <Chips shown label={phoneWords("phone.bank.into")} value={to} onChange={setTo} options={currencies.filter((currency) => currency !== from).map((currency) => ({ value: currency, label: currencyWords(currency) }))} />
+      <Chips shown label={phoneWords("phone.bank.how-much")} value={share} onChange={setShare} options={SHARES.map((value) => ({ value, label: phoneWords(`phone.bank.${value}`) }))} />
       {amount <= 0 ? (
         <p className="text-[14px] text-text-2">{phoneWords("phone.bank.nothing")}</p>
       ) : (
@@ -118,9 +118,9 @@ function MoveChooser({ onAsk }: { onAsk: ReturnType<typeof useAsk>["open"] }) {
   const amount = shareOf(source, share);
   return (
     <div className="mt-3 flex flex-col gap-2.5 rounded-[6px] border border-sheet-line bg-sheet-2 p-3" data-chooser="move">
-      <Chips label={say("ui.wallet.currency")} value={currency} onChange={setCurrency} options={currencies.map((value) => ({ value, label: currencyWords(value) }))} />
-      <Chips label={say("ui.wallet.to")} value={to} onChange={setTo} options={[{ value: "bank", label: phoneWords("phone.bank.to-bank") }, { value: "cash", label: phoneWords("phone.bank.to-cash") }]} />
-      <Chips label={phoneWords("phone.bank.how-much")} value={share} onChange={setShare} options={SHARES.map((value) => ({ value, label: phoneWords(`phone.bank.${value}`) }))} />
+      <Chips shown label={say("ui.wallet.currency")} value={currency} onChange={setCurrency} options={currencies.map((value) => ({ value, label: currencyWords(value) }))} />
+      <Chips shown label={say("ui.wallet.to")} value={to} onChange={setTo} options={[{ value: "bank", label: phoneWords("phone.bank.to-bank") }, { value: "cash", label: phoneWords("phone.bank.to-cash") }]} />
+      <Chips shown label={phoneWords("phone.bank.how-much")} value={share} onChange={setShare} options={SHARES.map((value) => ({ value, label: phoneWords(`phone.bank.${value}`) }))} />
       {amount <= 0 ? (
         <p className="text-[14px] text-text-2">{phoneWords("phone.bank.nothing")}</p>
       ) : (
