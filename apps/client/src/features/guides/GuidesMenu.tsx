@@ -10,7 +10,7 @@ import { Button } from "../../shared/ui/Button";
 import { counting } from "../../shared/analytics/start";
 import { Sheet } from "../../shared/ui/Sheet";
 import { nameOf, say } from "../../shared/words/text";
-import { LEGAL_LINKS } from "../account/LegalLinks";
+import { LEGAL_LINKS } from "../../shared/ui/LegalLinks";
 import { CREDITS_PATH, GUIDES_ROOT, guidePath, MADE_PATH, NUMBERS_PATH, SOURCES_PATH } from "./paths";
 
 function PageLink({ href, children }: { href: string; children: string }) {

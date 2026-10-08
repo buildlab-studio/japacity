@@ -17,7 +17,7 @@ import { AgeScreen } from "./AgeScreen";
 import { failureWords } from "./CodeForm";
 import { Full, type FullCheck } from "./Full";
 import { GuestForm, useGuestDoor, type GuestDoor } from "./GuestStart";
-import { LegalLinks } from "./LegalLinks";
+import { LegalLinks } from "../../shared/ui/LegalLinks";
 import { SignIn } from "./SignIn";
 import { refreshAccount } from "./standing";
 import { StartScreen } from "./StartScreen";

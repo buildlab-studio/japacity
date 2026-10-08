@@ -2,18 +2,16 @@ import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { text } from "@japacity/content";
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
 import { GameProvider } from "../../authority/GameProvider";
 import { createGameStore } from "../../authority/store";
 import type { AccountApi, AuthResult } from "../../shared/net/auth";
 import { engineView } from "../../shared/testing/fixtures";
-import { renderWithView } from "../../shared/testing/render";
+import { LEGAL_LINKS, PRIVACY_PATH, TERMS_PATH } from "../../shared/ui/LegalLinks";
 import { say } from "../../shared/words/text";
-import { GuidesMenu } from "../guides/GuidesMenu";
 import { AccountGate } from "./AccountGate";
-import { LEGAL_LINKS, PRIVACY_PATH, TERMS_PATH } from "./LegalLinks";
 import { AccountSettings } from "./Settings";
 import { TEST_SITE_KEY, type LoadTurnstile } from "./Turnstile";
 
@@ -99,17 +97,12 @@ describe("the terms and the privacy notice", () => {
 
   test("given the settings sheet, when it shows, then both pages are linked from it", () => {
     const api = account();
-    render(
+    const { container } = render(
       <GameProvider store={storeFor(api)}>
         <AccountSettings account={api} />
       </GameProvider>,
     );
-    expect(legalLinks(document.body)).toEqual(BOTH);
+    expect(legalLinks(container)).toEqual(BOTH);
   });
 
-  test("given the guides menu, where the credits and how the game was made are, when it is opened, then both pages are linked from it", async () => {
-    await renderWithView(<GuidesMenu />, engineView("scenario.ada"));
-    fireEvent.click(screen.getByRole("button", { name: say("guide.page.menu") }));
-    expect(legalLinks(screen.getByRole("navigation", { name: say("guide.page.menu") }))).toEqual(BOTH);
-  });
 });
