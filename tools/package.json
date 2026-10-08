@@ -8,13 +8,22 @@
     "typecheck": "tsc -p tsconfig.json"
   },
   "dependencies": {
+    "@gltf-transform/core": "4.5.1",
+    "@gltf-transform/extensions": "4.5.1",
+    "@gltf-transform/functions": "4.5.1",
+    "@japacity/assets": "workspace:*",
+    "@japacity/assets-src": "workspace:*",
+    "@japacity/content": "workspace:*",
     "eslint": "^10.12.0",
+    "meshoptimizer": "1.3.0",
+    "three": "0.186.1",
     "tsx": "^4.23.15",
     "typescript": "~6.0.3"
   },
   "devDependencies": {
     "@fast-check/vitest": "^0.5.0",
     "@types/node": "^24.19.1",
+    "@types/three": "0.186.0",
     "fast-check": "^4.10.2",
     "zod": "^4.6.5"
   }

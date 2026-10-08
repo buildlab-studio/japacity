@@ -1,0 +1,36 @@
+// The manifest of every image the tools wrote (R-ASSET-011): renders from the shooter and patterns
+// from the pattern builder, each with its hash. Any other image under assets-src or public/assets
+// fails the check, which is how a reference photo is kept out of the repository.
+import { createHash } from "node:crypto";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
+
+import { SOURCE } from "./catalog";
+
+export interface Manifest {
+  note: string;
+  renders: Record<string, string>;
+  patterns: Record<string, string>;
+}
+
+export const MANIFEST_PATH = join(SOURCE, "manifest.json");
+
+export function sha256(bytes: Uint8Array): string {
+  return createHash("sha256").update(bytes).digest("hex");
+}
+
+export function readManifest(path = MANIFEST_PATH): Manifest {
+  if (!existsSync(path)) {
+    return {
+      note: "Every image under assets-src and apps/client/public/assets, with its SHA-256: renders written by tools/assets/shoot.ts and patterns written by the pattern builder (R-ASSET-011). No other image may be there.",
+      renders: {},
+      patterns: {},
+    };
+  }
+  return JSON.parse(readFileSync(path, "utf8")) as Manifest;
+}
+
+export function writeManifest(manifest: Manifest, path = MANIFEST_PATH): void {
+  const sorted = (record: Record<string, string>): Record<string, string> => Object.fromEntries(Object.entries(record).sort(([a], [b]) => a.localeCompare(b)));
+  writeFileSync(path, `${JSON.stringify({ ...manifest, renders: sorted(manifest.renders), patterns: sorted(manifest.patterns) }, null, 2)}\n`);
+}
