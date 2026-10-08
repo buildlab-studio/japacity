@@ -549,4 +549,16 @@ describe("the December visit, once a year", () => {
     game.endTurn();
     expect(game.state.setpiece.open?.entry).toBe(DECEMBER);
   });
+
+  test("[R-RETURN-005] [R-PLACE-009] given the visit opened a year ago in the last turn played, when another command comes in this December tick before the turn ends, then the visit opens again and the place slice records the tick", () => {
+    const game = december();
+    const opened = game.tick - 1;
+    expect(game.state.place.decemberMonth).toBe(opened);
+    game.tick = opened + 12;
+    game.accept({ type: "setpiece/answer", question: "go-uk", answer: "stay" });
+    expect(game.state.setpiece.open).toBeNull();
+    game.endTurn();
+    expect(game.state.setpiece.open?.entry).toBe(DECEMBER);
+    expect(game.state.place.decemberMonth).toBe(opened + 12);
+  });
 });

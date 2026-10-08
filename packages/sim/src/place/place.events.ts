@@ -8,4 +8,6 @@ export type PlaceEvent =
   /** R-RETURN-004: the character flew back to the country the token is for. */
   | { type: "place/token-used"; status: Id<"status"> }
   /** R-RETURN-004: a resident token lapses after too long away. */
-  | { type: "place/token-lapsed"; status: Id<"status">; months: number };
+  | { type: "place/token-lapsed"; status: Id<"status">; months: number }
+  /** R-RETURN-005: the December visit opened in this world tick (R-PLACE-009's `decemberMonth`). */
+  | { type: "place/december-opened"; tick: number };
