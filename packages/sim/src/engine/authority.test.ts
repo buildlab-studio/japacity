@@ -156,7 +156,7 @@ describe("the authority's reach", () => {
   );
 
   test.each(LIVES.map((life) => [life.name, life.state] as const))(
-    "[R-SERVER-013] [R-LOTTERY-013] given %s, when the authority pays a draw, then money is credited only under the win reason to the naira bank and no more than the prizes, or the payment is rejected and nothing moves",
+    "[R-SERVER-013] given %s, when the authority pays a draw, then money is credited only under the win reason to the naira bank and no more than the prizes, or the payment is rejected and nothing moves",
     (_name, state) => {
       for (const sample of AUTHORITY_SAMPLES["lottery/pay"]) {
         const result = send(state, sample, "authority");
