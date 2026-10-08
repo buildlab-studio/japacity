@@ -108,3 +108,15 @@ describe("going online", () => {
     expect(opened).toHaveLength(1);
   });
 });
+
+describe("the socket's place, as the server's placeOfIn answers it", () => {
+  test("[R-CLOCK-028] [R-CITY-013] given home, abroad in the UK and the road, then the socket's place is the hub the server answers for each", () => {
+    const home = engineView();
+    const abroad = abroadView();
+    const road: PlayerView = { ...home, place: { ...home.place, where: "road", country: null } };
+    expect(placeOf(home)).toBe("place.ojuelegba");
+    expect(abroad.place.country).toBe("country.uk");
+    expect(placeOf(abroad)).toBe("place.peckham");
+    expect(placeOf(road)).toBe("place.road-night");
+  });
+});

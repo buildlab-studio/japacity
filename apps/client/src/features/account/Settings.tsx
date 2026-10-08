@@ -1,8 +1,8 @@
 // The account settings: add a passkey (R-ACCOUNT-003), any setting the shell
-// places in it, sign out, and delete
-// the account (R-ACCOUNT-016). Deleting asks for a session signed in within
-// the last 10 minutes; the server says when it is older, and then the player
-// signs in again or takes a code by email before it goes.
+// places in it, sign out, and delete the account (R-ACCOUNT-016) through the
+// server's `DELETE /api/account`. Deleting needs a session signed in within
+// the last 10 minutes; when the server says it is older, the player signs in
+// again or sends the code the server's email carries along with the deletion.
 import { UserRoundCog } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 
@@ -85,12 +85,14 @@ export function AccountSettings({ account, more = null }: { account: AccountApi;
     }
   }
 
+  const gone = () => leave("ui.account.notice.deleted");
+
   const remove = () =>
     run(
-      () => account.deleteAccount(),
+      () => account.deleteAccount(null),
       async (result) => {
         if (result.ok) {
-          leave("ui.account.notice.deleted");
+          gone();
           return;
         }
         if (result.why === "not-fresh") {
@@ -161,7 +163,16 @@ export function AccountSettings({ account, more = null }: { account: AccountApi;
             <Button disabled={busy} onClick={() => void run(() => account.signInWithPasskey(), (result) => (result.ok ? remove() : setProblem(failureWords(result))))}>
               {say("ui.account.passkey")}
             </Button>
-            {email === null ? null : <CodeForm account={account} email={email} sendLabel={say("ui.account.delete.code", { email })} onSignedIn={() => void remove()} />}
+            {email === null ? null : (
+              <CodeForm
+                account={account}
+                email={email}
+                sendLabel={say("ui.account.delete.code", { email })}
+                confirm={(code) => account.deleteAccount(code)}
+                goLabel={say("ui.account.delete.code.go")}
+                onSignedIn={gone}
+              />
+            )}
             <Button variant="quiet" disabled={busy} onClick={() => void run(() => account.signInWithGoogle(null), (result) => setProblem(failureWords(result)))}>
               {say("ui.account.google")}
             </Button>

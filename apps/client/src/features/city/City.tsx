@@ -8,7 +8,7 @@ import { Map as MapIcon, Settings2, X } from "lucide-react";
 import { lazy, Suspense, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 
 import { useGame, useView } from "../../authority/GameProvider";
-import { setGraphicsMode } from "../../shared/graphics/mode";
+import { chooseGraphics, setGraphicsMode } from "../../shared/graphics/mode";
 import { loadJson, loadManifest } from "../../shared/three/manifest";
 import { Button } from "../../shared/ui/Button";
 import { Sheet } from "../../shared/ui/Sheet";
@@ -173,6 +173,7 @@ export function City({ adverts }: { adverts?: (place: string) => ReactNode } = {
   const name = entry === null ? "" : placeName(entry.id);
 
   const choose = (next: ModeChoice): void => {
+    chooseGraphics(next);
     keepChoice(storage(), next);
     setChoice(next);
     const nextMode = startingMode(device(), city, next);

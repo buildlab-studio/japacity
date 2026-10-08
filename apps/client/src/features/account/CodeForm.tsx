@@ -1,5 +1,6 @@
 // Signing in by a code sent to an email address (R-ACCOUNT-002): the address,
-// then the 6 digits. Used to come in, and to show it is you before deleting.
+// then the 6 digits. Used to come in, and to confirm deleting (R-ACCOUNT-016),
+// where the code goes to the server with the deletion instead of signing in.
 import { useState, type FormEvent } from "react";
 
 import type { AccountApi, AuthResult } from "../../shared/net/auth";
@@ -19,12 +20,16 @@ export interface CodeFormProps {
   /** The address is known already: the signed-in account's own. */
   email?: string;
   sendLabel?: string;
+  /** What the typed code is used for; signing in with it unless given. */
+  confirm?: (code: string) => Promise<AuthResult>;
+  goLabel?: string;
+  /** Called once the code was taken. */
   onSignedIn: () => void;
 }
 
 const FIELD = "min-h-11 rounded-lg border border-line bg-surface px-3 text-base";
 
-export function CodeForm({ account, bot = null, spentBot, email: known, sendLabel, onSignedIn }: CodeFormProps) {
+export function CodeForm({ account, bot = null, spentBot, email: known, sendLabel, confirm, goLabel, onSignedIn }: CodeFormProps) {
   const [email, setEmail] = useState(known ?? "");
   const [sentTo, setSentTo] = useState<string | null>(null);
   const [code, setCode] = useState("");
@@ -67,7 +72,7 @@ export function CodeForm({ account, bot = null, spentBot, email: known, sendLabe
       return;
     }
     void run(
-      () => account.signInWithCode(sentTo, code, bot),
+      () => (confirm === undefined ? account.signInWithCode(sentTo, code, bot) : confirm(code)),
       (result) => {
         if (result.ok) onSignedIn();
       },
@@ -106,7 +111,7 @@ export function CodeForm({ account, bot = null, spentBot, email: known, sendLabe
           </label>
           <div className="flex flex-wrap gap-2">
             <Button type="submit" variant="primary" disabled={busy}>
-              {say("ui.account.code.go")}
+              {goLabel ?? say("ui.account.code.go")}
             </Button>
             <Button variant="quiet" disabled={busy} onClick={() => send()}>
               {say("ui.account.code.again")}
