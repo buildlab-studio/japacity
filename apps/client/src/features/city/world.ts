@@ -120,7 +120,8 @@ export function groundGeometry(stage: Stage): BufferGeometry {
   return geometry;
 }
 
-function groundOf(stage: Stage): Group {
+/** The floor of a place as the scene draws it: one mesh, drawn a little behind its depth. */
+export function groundOf(stage: Stage): Group {
   const group = new Group();
   group.name = "ground";
   // The floor draws a little behind its true depth, so a model's floor laid on it always wins the pixel (R-WORLD-012).
