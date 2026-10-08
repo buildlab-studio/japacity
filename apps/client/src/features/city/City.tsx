@@ -16,17 +16,20 @@ import { formatMoney } from "../../shared/words/format";
 import { blurbOf, nameOf, say, words } from "../../shared/words/text";
 import { AskSheet } from "../../shared/world/AskSheet";
 import { Band } from "../../shared/world/Band";
-import type { Ask, Nudge as NudgeWords } from "../../shared/world/contract";
+import { cue } from "../../shared/sound/cues";
+import type { Ask } from "../../shared/world/contract";
 import { Cut, useCut } from "../../shared/world/Cut";
 import { Nudge } from "../../shared/world/Nudge";
 import { ThumbBar } from "../../shared/world/ThumbBar";
 import { Toast, useToast } from "../../shared/world/Toast";
+import { WorldSheet } from "../../shared/world/WorldSheet";
 import { cityWords, heardWords, placeName, residentName, roleWords } from "./city.words";
 import { CreditsSheet } from "./Credits";
 import { type CountryChoice, FlyOver, type Pin, type PinState } from "./FlyOver";
 import { OVERVIEW } from "./CityScene";
 import { Phone, type PhoneApp } from "./Phone";
 import { localDate, type Other, poolOf, sampleCrowd } from "./crowd";
+import { nudgeOf } from "./nudge";
 import { type Device, enterPlace, keepChoice, type Mode, type ModeChoice, modeSettings, observeFrame, readChoice, startingMode, watchFrames } from "./mode";
 import { overheard } from "./overheard";
 import { dancerShown, dressPlace, openGround, type PlaceFile, stageOf } from "./placeFile";
@@ -211,6 +214,8 @@ export function City({
   actions,
   month,
   apps,
+  results,
+  asks,
 }: {
   adverts?: (place: string) => ReactNode;
   /** The world mode: the place fills the screen under a see-through bar, with the fly-over as its map. */
@@ -221,6 +226,10 @@ export function City({
   month?: ReactNode;
   /** The world mode's phone: the support pages as apps (section 2b). */
   apps?: readonly PhoneApp[];
+  /** The world mode's results sheet when a month ends (R-WORLD-008), given the name of where the player is. */
+  results?: (place: string) => ReactNode;
+  /** The world mode's sheet for what the nudge names and waits on the player: the set piece's question, the offers (R-WORLD-003). */
+  asks?: ReactNode;
 } = {}) {
   const view = useView();
   const presence = useGame((state) => (state as { presence?: PresenceSample | null }).presence ?? null);
@@ -234,8 +243,11 @@ export function City({
   const addToPlan = useGame((state) => state.addToPlan);
   const [phone, setPhone] = useState(false);
   const [monthOpen, setMonthOpen] = useState(false);
+  const [asksOpen, setAsksOpen] = useState(false);
+  // R-WORLD-008: the results are up from the month's end until the player goes back to the place; the staged wins come first.
+  const resultsOpen = useGame((state) => state.reportOpen && state.moments.length === 0) && world && view.report !== null;
+  const reportOpen = useGame((state) => state.reportOpen);
   const [zoom, setZoom] = useState(ZOOM.whole);
-  const plan = useGame((state) => state.plan);
   const [diveTo, setDiveTo] = useState<string | null>(null);
   const [shipped, setShipped] = useState<Set<string> | null>(null);
   const [menu, setMenu] = useState(false);
@@ -377,6 +389,7 @@ export function City({
   };
   // A ride plays as the fly-over's dive, then the place opens (rule 13).
   const travel = (id: string): void => {
+    cue("whoosh");
     setPicked(null);
     setDiveTo(id);
     setMap(true);
@@ -429,18 +442,9 @@ export function City({
     return found;
   })();
 
-  const nextStep = view.chapter.items.find((item) => !item.met)?.id ?? null;
-  const nudge: NudgeWords | null = !world
-    ? null
-    : view.setpiece !== null || (view.interview?.question ?? null) !== null
-      ? { key: "ui.nudge.setpiece" }
-      : view.offers.length > 0
-        ? { key: "ui.nudge.offer" }
-        : view.chapter.current !== null && nextStep !== null
-          ? { key: `${view.chapter.current}.item.${nextStep}` }
-          : view.report !== null
-            ? { key: "ui.nudge.report" }
-            : { key: "ui.nudge.end" };
+  const nudge = world ? nudgeOf(view) : null;
+  // A question or an offer waiting on the player opens from the nudge; nothing else is on screen to open it (R-WORLD-001).
+  const nudgeOpens = asks !== undefined && (nudge?.about === "setpiece" || nudge?.about === "offer");
   const endBlocked = view.ended ? words("reject.ended") : view.setpiece !== null || (view.interview?.question ?? null) !== null ? words("reject.setpiece-open") : view.turns.banked < 1 ? words("reject.no-turns") : null;
   // One action, one sheet: a paper slip for a paper thing, a card for the rest.
   const ask: Ask | null = (() => {
@@ -461,12 +465,29 @@ export function City({
       ...(paper ? { reference: say("ui.world.month-of", { month: view.month + 1 }).toUpperCase() } : {}),
       act: () => {
         const added = addToPlan({ activity: option.id, param: option.params?.[0] ?? null });
+        cue(added ? (cost === null ? "done" : "coin") : "tap");
         setPicked(null);
         toast.show(say(added ? "ui.world.added" : "ui.world.full"));
       },
       dismiss: () => setPicked(null),
     };
   })();
+
+  // The Month sheet gives way to the results when the month ends; the asks sheet closes once nothing waits.
+  useEffect(() => {
+    if (reportOpen) setMonthOpen(false);
+  }, [reportOpen]);
+  useEffect(() => {
+    if (!nudgeOpens) setAsksOpen(false);
+  }, [nudgeOpens]);
+  // R-WORLD-022: a sheet, the phone or the map opening over the world, and closing back to it.
+  const covered = world && (monthOpen || asksOpen || ask !== null || picked?.kind === "ride" || phone || map);
+  const wasCovered = useRef(covered);
+  useEffect(() => {
+    if (covered === wasCovered.current) return;
+    wasCovered.current = covered;
+    cue(covered ? "open" : "close");
+  }, [covered]);
 
   const loading = drawing && entry !== null && !ready && failed === null;
   const percent = progress === null || progress.total === 0 ? 0 : Math.floor((progress.loaded * 100) / progress.total);
@@ -526,7 +547,7 @@ export function City({
             formatMoney={(amount) => formatMoney(amount, "NGN")}
             onEndMonth={() => setMonthOpen(true)}
             endBlocked={endBlocked}
-            hidden={map}
+            hidden={map || resultsOpen}
             aside={
               inside ? (
                 <button type="button" onClick={() => cutTo(() => setInside(false))} className="label-strong self-start text-[11px] font-bold underline" data-step-outside>
@@ -535,16 +556,13 @@ export function City({
               ) : null
             }
           />
-          <Nudge nudge={nudge} hidden={map || phone || monthOpen || picked !== null} />
-          <ThumbBar onMap={() => setMap(true)} onPhone={() => setPhone(true)} phoneWaiting={view.offers.length > 0} hidden={map} />
+          <Nudge nudge={nudge} hidden={map || phone || monthOpen || asksOpen || menu || credits || resultsOpen || picked !== null} {...(nudgeOpens ? { onTap: () => setAsksOpen(true) } : {})} />
+          <ThumbBar onMap={() => setMap(true)} onPhone={() => setPhone(true)} phoneWaiting={view.offers.length > 0} hidden={map || resultsOpen} />
           {zoom <= 0.3 && !map ? (
             <button type="button" onClick={() => setZoom(ZOOM.whole)} className="chip drop pointer-events-auto fixed bottom-[calc(max(14px,env(safe-area-inset-bottom))+76px)] left-1/2 z-[38] -translate-x-1/2 px-3 py-2 text-[13px] font-bold" data-zoom-preset>
               {say("ui.world.whole")}
             </button>
           ) : null}
-          <Button small onClick={() => setMenu(true)} aria-label={cityWords("city.menu")} className="fixed top-[calc(max(10px,env(safe-area-inset-top))+118px)] right-3 z-[38] bg-sheet/90">
-            <Settings2 size={16} />
-          </Button>
           <Toast words={toast.words} />
           <Cut cutting={cutting} />
         </>
@@ -570,7 +588,8 @@ export function City({
           <div className="flex flex-col gap-2 lg:max-w-md">
             {loading ? <p className="pointer-events-auto rounded-lg bg-paper/90 px-3 py-2 text-sm">{cityWords("city.loading", { place: name, percent })}</p> : null}
             {failed === null ? null : <p className="pointer-events-auto rounded-lg bg-paper/90 px-3 py-2 text-sm text-bad">{cityWords("city.failed", { place: name })}</p>}
-            {scene !== null && scene.place === placeId ? (
+            {/* In the world only the band, the nudge and the two thumb buttons stand over the place (R-WORLD-001): the question, the offers and the month's lines open from the nudge, the results and the phone. */}
+            {!world && scene !== null && scene.place === placeId ? (
               <div className="pointer-events-auto flex flex-col gap-2 rounded-xl border border-accent bg-surface p-4 shadow-lg" data-scene={scene.setpiece}>
                 <p className="text-sm text-muted">{cityWords("city.scene.at", { place: name })}</p>
                 {scene.question === null ? null : <p className="text-lg font-semibold">{words(scene.question)}</p>}
@@ -581,12 +600,12 @@ export function City({
                 </div>
               </div>
             ) : null}
-            {offers.map((offer) => (
+            {(world ? [] : offers).map((offer) => (
               <p key={offer} className="pointer-events-auto rounded-lg border border-line bg-surface px-3 py-2 text-sm">
                 {cityWords("city.offer.here", { offer: placeName(offer) })}
               </p>
             ))}
-            {lines.length === 0 ? null : (
+            {world || lines.length === 0 ? null : (
               <div className="pointer-events-auto flex flex-col gap-1 rounded-xl border border-line bg-surface p-3 text-sm" data-report-here>
                 <p className="font-semibold">{cityWords("city.report.here")}</p>
                 {lines.map((line, index) => (
@@ -594,8 +613,8 @@ export function City({
                 ))}
               </div>
             )}
-            {adverts?.(placeId)}
-            {heard === null ? null : (
+            {world ? null : adverts?.(placeId)}
+            {world || heard === null ? null : (
               <p className="pointer-events-auto self-start rounded-2xl rounded-bl-sm bg-ink px-3 py-2 text-sm text-paper" data-overheard>
                 {heardWords(heard.key, heard.params)}
               </p>
@@ -664,17 +683,17 @@ export function City({
       <Sheet open={!world && picked?.kind === "action"} onOpenChange={(open) => { if (!open) setPicked(null); }} title={picked?.kind === "action" ? cardWords() : ""}>
         {picked?.kind === "action" ? actions?.([picked.activity]) : null}
       </Sheet>
-      <Sheet open={world && monthOpen} onOpenChange={setMonthOpen} title={cityWords("city.month.title")} description={cityWords("city.month.hint")}>
-        <ul className="flex flex-col gap-1" data-month-plan>
-          {plan.filter((pick): pick is NonNullable<typeof pick> => pick !== null).map((pick, index) => (
-            <li key={`${pick.activity}-${String(index)}`} className="rounded-lg bg-sunk px-3 py-2 text-sm font-semibold">
-              {nameOf(pick.activity)}
-            </li>
-          ))}
-          {plan.every((pick) => pick === null) ? <li className="rounded-lg bg-sunk px-3 py-2 text-sm text-muted">{cityWords("city.month.none")}</li> : null}
-        </ul>
-        {month}
-      </Sheet>
+      {world ? (
+        <WorldSheet open={monthOpen} onClose={() => setMonthOpen(false)} label={say("ui.world.month-of", { month: view.month + 1 })} title={cityWords("city.month.title")} mark="month">
+          {month}
+        </WorldSheet>
+      ) : null}
+      {world && asks !== undefined ? (
+        <WorldSheet open={asksOpen} onClose={() => setAsksOpen(false)} label={name} title={say(nudge?.key ?? "ui.nudge.end")} mark="asks">
+          {asks}
+        </WorldSheet>
+      ) : null}
+      {world ? results?.(inside ? cityWords("city.inside.name", { place: name }) : name) : null}
       {world && phone && apps !== undefined ? <Phone apps={apps} onClose={() => setPhone(false)} /> : null}
       <Sheet open={picked?.kind === "ride"} onOpenChange={(open) => { if (!open) setPicked(null); }} title={picked?.kind === "ride" ? cardWords() : ""} description={cityWords("city.ride.title")}>
         {picked?.kind === "ride" ? (

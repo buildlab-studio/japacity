@@ -4,6 +4,13 @@ import { type ReactNode, useEffect, useRef, useState } from "react";
 
 import { say } from "../words/text";
 
+/** How long the money takes to count to its new value: under half a second (R-WORLD-023). */
+export const COUNT_MS = 450;
+
+function prefersReducedMotion(): boolean {
+  return typeof window !== "undefined" && typeof window.matchMedia === "function" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
 /** A number that counts toward its new value over about half a second (R-WORLD-023). */
 export function Counter({ value, format, className = "" }: { value: number; format: (value: number) => string; className?: string }) {
   const [shown, setShown] = useState(value);
@@ -12,10 +19,16 @@ export function Counter({ value, format, className = "" }: { value: number; form
     const start = from.current;
     const change = value - start;
     if (change === 0) return;
+    // Reduced motion: the number lands at once (R-WORLD-023).
+    if (prefersReducedMotion()) {
+      from.current = value;
+      setShown(value);
+      return;
+    }
     const began = performance.now();
     let frame = 0;
     const tick = (now: number): void => {
-      const share = Math.min(1, (now - began) / 450);
+      const share = Math.min(1, (now - began) / COUNT_MS);
       const eased = 1 - Math.pow(1 - share, 3);
       setShown(Math.round(start + change * eased));
       if (share < 1) frame = requestAnimationFrame(tick);
