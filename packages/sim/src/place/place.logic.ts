@@ -338,11 +338,16 @@ function december(ctx: Ctx): BaseEvent[] {
   // A second turn in the same December tick does not open it twice (R-PLACE-009).
   if (ctx.state.place.decemberMonth === ctx.world.tick) return [];
   ctx.apply([{ type: "setpiece/open", setpiece: DECEMBER, route: null }], { source: DECEMBER, param: null, terms: {} });
-  if (ctx.state.setpiece.open?.entry !== DECEMBER) return [];
+  if (!decemberOpen(ctx.state)) return [];
   // `decemberMonth` holds the world tick, the world's month while one tick passes per month played; the
   // character's month cannot tell a second turn in one December tick from a first turn a year on. Online a December
   // spans many ticks, so the visit can open once in each tick of it that a turn ends in.
   return record(ctx, [{ type: "place/december-opened", tick: ctx.world.tick }]);
+}
+
+/** The visit may find nothing to ask and stay shut (R-SETPIECE-001). */
+function decemberOpen(state: State): boolean {
+  return state.setpiece.open?.entry === DECEMBER;
 }
 
 function month(ctx: Ctx): BaseEvent[] {
