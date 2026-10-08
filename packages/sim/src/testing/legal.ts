@@ -161,7 +161,7 @@ function fromRoute(view: PlayerView): Loose[] {
         if (school.state === "offer") commands.push({ type: "route/pay-deposit", route: route.id, school: school.id });
       }
     }
-    if (route.state === "granted" && !holding && naira >= FLIGHT_BOUND) commands.push({ type: "route/depart", route: route.id });
+    if (route.state === "granted" && !holding && naira >= FLIGHT_BOUND && view.place.where !== "road") commands.push({ type: "route/depart", route: route.id });
   }
   return commands;
 }

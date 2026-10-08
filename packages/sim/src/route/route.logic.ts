@@ -42,6 +42,7 @@ import { bannedUntil as placeBannedUntil } from "../place/place.logic";
 import { GATES } from "./gates";
 import type { ApplicationFigures, DecisionTerms, GateEffectHandler } from "./gates";
 import { EVERY_TERM } from "./gates";
+import { endBeforeSettingOff } from "./gates/road";
 import type { RefusalReason, RouteKindEvent } from "./route.events";
 
 const GRADE: Id<"quality"> = "quality.edu-grade";
@@ -445,6 +446,8 @@ function depart(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   const held = ctx.state.route[command.route];
   if (entry === undefined || held === undefined) return reject("unknown-id", `There is no route ${String(command.route)}.`);
   if (held.state !== "granted") return reject("not-legal", "Only a granted route can be flown.");
+  // the page is silent on a flight from the road; R-ROAD-005 makes the chain the month's only business there.
+  if (ctx.state.place.where === "road") return reject("not-legal", "No flight leaves from the road.");
   const holding = Object.values(ctx.state.obligation.items).some((item) => ctx.content.obligation[item.entry]?.type === "held-funds");
   if (holding) return reject("not-legal", "Held funds are still open. They must be returned before you fly.");
   const flight = ctx.content.tuning.route.flight;
@@ -467,7 +470,7 @@ function depart(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (entry.country !== null) ctx.apply([{ type: "place/move", to: "abroad", country: entry.country }], cause);
   if (entry.status !== null) ctx.apply([job === null ? { type: "status/grant", status: entry.status } : { type: "status/grant", status: entry.status, job }], cause);
   gate.onDepart?.(ctx, entry, held, cause);
-  return events;
+  return [...events, ...endBeforeSettingOff(ctx)];
 }
 
 // ---------------------------------------------------------------------------
