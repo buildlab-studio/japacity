@@ -160,24 +160,25 @@ describe("the words a player reads", () => {
 
   test("[R-GUIDE-001] given the guides' index, then each guide says which routes it serves, by name, or that it serves every route", () => {
     const index = at(pages, "/guides/");
-    for (const guide of Object.values(content.guide)) {
-      const line = index.querySelector(`[data-guide="${guide.id}"] [data-routes]`)?.textContent ?? "";
-      if (guide.routes.length === 0) expect(line).toBe(text["guide.page.index.routes.zero"]);
-      else for (const route of guide.routes) expect(line).toContain(text[`${route}.name`]!);
-    }
+    const lines = Object.values(content.guide).map((guide) => ({ guide, line: index.querySelector(`[data-guide="${guide.id}"] [data-routes]`)?.textContent ?? "" }));
+    expect(lines.filter(({ guide }) => guide.routes.length === 0).map(({ line }) => line)).toEqual(expect.arrayContaining([text["guide.page.index.routes.zero"]]));
+    const missing = lines.flatMap(({ guide, line }) => (guide.routes.length === 0 ? (line === text["guide.page.index.routes.zero"] ? [] : [guide.id]) : guide.routes.filter((route) => !line.includes(text[`${route}.name`]!))));
+    expect(missing).toEqual([]);
   });
 
   test("[R-GUIDE-003] given every guide page, then each short name is spelled out where the page first uses it", () => {
     const short = ["UKCISA", "IOM", "CRS", "NAPTIP", "NMC", "UAE", "TB"];
-    for (const guide of Object.values(content.guide)) {
+    const unexplained = Object.values(content.guide).flatMap((guide) => {
       const body = [...at(pages, guidePath(guide.id)).querySelectorAll("[data-section]")].map((section) => section.textContent).join(" ");
-      for (const name of short) {
+      const bare = short.filter((name) => {
         const first = body.search(new RegExp(`\\b${name}\\b`));
-        if (first >= 0) expect(`${guide.id} ${name}: ${body.slice(first - 1, first)}`).toBe(`${guide.id} ${name}: (`);
-      }
+        return first >= 0 && body.charAt(first - 1) !== "(";
+      });
       const finance = body.indexOf("Appendix Finance");
-      if (finance >= 0) expect(body.slice(finance, finance + 35)).toBe("Appendix Finance, the part of the U");
-    }
+      if (finance >= 0 && !body.startsWith("Appendix Finance, the part of the UK immigration rules on money", finance)) bare.push("Appendix Finance");
+      return bare.map((name) => `${guide.id}: ${name}`);
+    });
+    expect(unexplained).toEqual([]);
   });
 });
 
