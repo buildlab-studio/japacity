@@ -9,5 +9,5 @@ export type PlaceEvent =
   | { type: "place/token-used"; status: Id<"status"> }
   /** R-RETURN-004: a resident token lapses after too long away. */
   | { type: "place/token-lapsed"; status: Id<"status">; months: number }
-  /** R-RETURN-005: the December visit opened in this world tick (R-PLACE-009's `decemberMonth`). */
-  | { type: "place/december-opened"; tick: number };
+  /** R-RETURN-005: the December visit opened in this month of the character's (R-PLACE-009's `decemberMonth`). */
+  | { type: "place/december-opened"; month: number };
