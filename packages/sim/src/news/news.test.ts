@@ -221,7 +221,7 @@ describe("hearing through the news", () => {
     const play = (where: "abroad" | "home") => {
       const game = start({ scenario: "scenario.ada", content: used, worldAt: (tick) => standInWorld("w", tick, used) });
       const facts = { label: "player" as const, ageMonths: 400, where, country: where === "abroad" ? ("country.uk" as const) : null, status: where === "abroad" ? ("status.uk-settled" as const) : null, statusMonthsLeft: null, monthsInCountry: 0, job: null, meetsFloor: {}, eduLevel: 3, englishBand: null, home: "city" as const, joint: null, funds: null, assistanceTaken: 0, sponsorReady: null };
-      const sibling = { with: { kind: "player" as const, pair: "pair-9" }, role: "sibling" as const, stage: "connected" as const, firstMonth: null, partnerMonth: null, marriedMonth: null, lastMomentMonth: null, moments: [], facts, pending: { mine: null, theirs: null }, standIn: null, ended: null, cooldownUntil: null };
+      const sibling = { with: { kind: "player" as const, pair: "pair-9" }, role: "sibling" as const, stage: "connected" as const, firstMonth: null, partnerMonth: null, marriedMonth: null, lastMomentMonth: null, moments: [], facts, pending: { mine: null, theirs: null }, standIn: null, ended: null, cooldownUntil: null, consent: null };
       // The first turn draws the family's siblings; they are replaced by this one, so the draw cannot decide the test.
       game.endTurn();
       game.state = { ...game.state, people: { ...game.state.people, bonds: { "bond-sibling": sibling } } };
