@@ -250,7 +250,7 @@ const entries: PlaceEntry[] = [
   }),
   unnamed("place.road-night", "stylised", "road", null, null, {
     scope: "exterior",
-    stages: ["setpiece.road-night", "setpiece.road-truth", "offer.road-ransom-call"],
+    stages: ["setpiece.road-night", "setpiece.road-truth", "offer.road-ransom-call", "offer.road-exit"],
     crowd: FEW,
     traditionalBp: ROADSIDE,
   }),
