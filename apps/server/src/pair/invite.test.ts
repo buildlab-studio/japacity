@@ -5,20 +5,9 @@ import { describe, expect, test } from "vitest";
 import { view } from "../authority/testing";
 import type { InviteAccepted, InviteMade, InviteShown, InvitesListed } from "./invite";
 import type { PairRejection } from "./codes";
-import { act, bondIn, call, cardOut, FRIEND, INVITER, linkedPair, must, newLife, pairServer, recordOf, signUp, stateOf, tuned } from "./pair.testing";
+import { act, bondIn, call, cardOut, FRIEND, INVITER, linkedPair, must, newLife, pairServer, playPrologue, recordOf, signUp, stateOf, tuned } from "./pair.testing";
 
 type Reply<B> = B | PairRejection;
-
-/** Answers the first allowed answer of every prologue step until the prologue closes. */
-async function playPrologue(server: ReturnType<typeof pairServer>, account: string): Promise<void> {
-  for (let guard = 0; guard < 60; guard += 1) {
-    const shown = (await view(server, account)).body;
-    if (!shown.ok || shown.view.prologue === null) return;
-    const answer = shown.view.prologue.answers.find((each) => each.allowed);
-    if (answer === undefined) throw new Error("No allowed answer.");
-    await act(server, account, { type: "prologue/choose", step: shown.view.prologue.step, answer: answer.id });
-  }
-}
 
 async function accept(server: ReturnType<typeof pairServer>, account: string, code: string, body: unknown = { slot: "partner" }) {
   return (await call<Reply<InviteAccepted>>(server, "POST", `/api/invite/${code}/accept`, account, body)).body;

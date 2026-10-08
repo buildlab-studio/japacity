@@ -11,6 +11,7 @@ import type { Live } from "../authority/load";
 import type { Turn } from "../authority/transaction";
 import type { ServerDeps } from "../deps";
 import type { Book } from "./book";
+import { shareFamily } from "./family";
 import { openBond, sendFacts, sendTo, sideLive } from "./step";
 
 /** The events of the people and interview kinds this file reads, as they are recorded (people.events.ts, interview.events.ts). */
@@ -240,6 +241,7 @@ export function carry(scope: Scope, live: Live, before: State, events: readonly 
   }
   const waiting = siblingLink(scope, live, before);
   if (waiting !== null) return waiting;
+  shareFamily(scope, live, events);
   for (const [id, bond] of Object.entries(live.state.people.bonds)) {
     if (bond.with.kind === "player" && bond.stage !== "ended" && scope.book.get(bond.with.pair) === null) {
       return reject("stale", `The bond ${id} is with a life this command did not hold. Send it again.`);
