@@ -3,7 +3,7 @@ import { describe, expect, test } from "vitest";
 
 import { currentTick, makeApp } from "./app";
 import { productionConfig, testConfig } from "./config";
-import { memoryStores, openLimiters, testSession } from "./deps";
+import { memoryStores, openLimiters, TEST_SIGNED_IN_WITH, testSession } from "./deps";
 import type { ServerDeps } from "./deps";
 
 export function testDeps(over: Partial<ServerDeps> = {}): ServerDeps {
@@ -47,7 +47,9 @@ describe("the server shell", () => {
   test("[R-ACCOUNT-005] given the production config, when the test session reads a request with the test header, then no one is signed in", async () => {
     const request = new Request("http://server/api/view", { headers: { "x-test-account": "acc-1" } });
     expect(await testSession(productionConfig)(request)).toBeNull();
-    expect(await testSession(testConfig({ testing: { testLogin: true } }))(request)).toEqual({ account: "acc-1" });
+    expect(await testSession(testConfig({ testing: { testLogin: true } }))(request)).toEqual({ account: "acc-1", passkey: true });
+    request.headers.set(TEST_SIGNED_IN_WITH, "email-code");
+    expect(await testSession(testConfig({ testing: { testLogin: true } }))(request)).toEqual({ account: "acc-1", passkey: false });
   });
 
   test("given the app, when health is fetched, then it answers with the content version and the tick", async () => {

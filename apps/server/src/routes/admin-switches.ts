@@ -10,29 +10,16 @@
 import type { DialChange, SwitchName } from "@japacity/store";
 import { isDialValue } from "@japacity/store";
 import { Hono } from "hono";
-import type { MiddlewareHandler } from "hono";
 
 import type { ServerDeps } from "../deps";
+import { adminOnly } from "./admin";
+import type { AdminEnv } from "./admin";
 import { placeTargetFits } from "../switches/dials";
 import { switchGates } from "../switches/gate";
 import { SWITCH_NAMES, readSwitches, setDial, setSwitch } from "../switches/switches";
 
-interface AdminEnv {
-  Variables: { admin: string };
-}
-
 /** The longest reason kept in the log. */
 const REASON_MAX = 500;
-
-function adminOnly(deps: ServerDeps): MiddlewareHandler<AdminEnv> {
-  return async (c, next) => {
-    const session = await deps.session(c.req.raw);
-    if (session === null || !deps.config.admin.accounts.includes(session.account)) return c.notFound();
-    c.set("admin", session.account);
-    await next();
-    return undefined;
-  };
-}
 
 function reasonOf(body: Record<string, unknown>): string | null {
   const reason = typeof body["reason"] === "string" ? body["reason"].trim() : "";

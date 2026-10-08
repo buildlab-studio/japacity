@@ -16,10 +16,8 @@ import { failingLinks } from "../adverts/links";
 import type { Decided, Decision } from "../adverts/review";
 import { decideCampaign, decideCreative, logAdvertAction, pullCampaign } from "../adverts/review";
 import type { ServerDeps } from "../deps";
-
-interface AdminEnv {
-  Variables: { admin: string };
-}
+import { adminOnly } from "./admin";
+import type { AdminEnv } from "./admin";
 
 type Body = Record<string, unknown>;
 
@@ -80,13 +78,7 @@ export function adminAdvertRoutes(deps: ServerDeps, fetcher: Fetcher = (input, i
   const admin = new Hono<AdminEnv>();
   const newId = (prefix: string) => `${prefix}-${hex(deps.randomBytes(8))}`;
 
-  admin.use("*", async (c, next) => {
-    const session = await deps.session(c.req.raw);
-    if (session === null || !deps.config.admin.accounts.includes(session.account)) return c.notFound();
-    c.set("admin", session.account);
-    await next();
-    return undefined;
-  });
+  admin.use("*", adminOnly(deps));
 
   /** R-ADVERT-012, R-ADVERT-020: the business, its registration and one contact. */
   admin.post("/advertisers", async (c) => {
