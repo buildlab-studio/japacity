@@ -9,6 +9,7 @@ import { earnTurns } from "../clock/turns";
 import { tickAt, turnClock } from "../clock/view";
 import type { ServerDeps } from "../deps";
 import { sellTickets } from "../draw/sell";
+import { dialedContents } from "../switches/dials";
 import { storedWorlds, tickRow } from "../world/ticks";
 import type { Diverged, Live } from "./load";
 import { apply, load } from "./load";
@@ -75,6 +76,8 @@ export async function transact<T>(deps: ServerDeps, ids: readonly string[], act:
   const snapshotEvery = deps.config.server.snapshotEvery;
   const send: Turn["send"] = (live, command, sender) => apply(live, command, sender, world, at, snapshotEvery);
 
+  // R-PEOPLE-060, R-SERVER-024: the partner dial in the content, read before the locks.
+  const contents = await dialedContents(deps);
   const result = await deps.stores.player.transact(ids, async (rows): Promise<{ writes: Writes; result: TxResult<T> }> => {
     const pairWrites: PairWrite[] = [];
     const turn: Turn = { world, at, send, pairs: rows.pairs, writePair: (write) => pairWrites.push(write) };
@@ -82,7 +85,7 @@ export async function transact<T>(deps: ServerDeps, ids: readonly string[], act:
     const worlds = await storedWorlds(deps, ticks);
     const lives: Live[] = [];
     for (const held of rows.characters) {
-      const loaded = load(held, deps.contents, worlds);
+      const loaded = load(held, contents, worlds);
       if (!loaded.ok) return { writes: {}, result: { kind: "diverged", diverged: loaded.diverged } };
       lives.push(loaded.live);
     }

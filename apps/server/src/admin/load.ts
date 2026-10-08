@@ -6,6 +6,7 @@ import { hashState, newState, step, upgradeState } from "@japacity/sim";
 import type { Held, LogRow, SegmentRow } from "@japacity/store";
 
 import type { ServerDeps } from "../deps";
+import { namedContent } from "../switches/dials";
 
 /** Why a replay could not run at all. */
 export interface LoadFailure {
@@ -39,10 +40,7 @@ export interface Replayed {
 
 /** R-SERVER-023: the bundled content a segment or snapshot names, the current or the one before, under the same overlay. */
 export function contentNamed(deps: Pick<ServerDeps, "contents">, version: string, overlay: string | undefined): Content | null {
-  for (const content of [deps.contents.current, deps.contents.previous]) {
-    if (content !== null && content.version === version && content.overlay === overlay) return content;
-  }
-  return null;
+  return namedContent(deps.contents, version, overlay);
 }
 
 /** R-CLOCK-017: the stored world of every tick the rows name. */

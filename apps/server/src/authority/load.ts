@@ -8,6 +8,7 @@ import { checkContent, checkInvariants, hashState, step, upgradeState } from "@j
 import type { Held, LogRow, SegmentRow, SnapshotRow } from "@japacity/store";
 
 import type { Contents } from "../deps";
+import { namedContent } from "../switches/dials";
 
 /** One held character inside a transaction: the state the rows so far leave, and everything still to write. */
 export interface Live {
@@ -47,9 +48,9 @@ export type Loaded = { ok: true; live: Live } | { ok: false; diverged: Diverged 
 
 /** R-SERVER-023: the bundled content a segment names, by version and overlay. */
 export function contentNamed(contents: Contents, version: string, overlay: string | undefined): Content {
-  const found = [contents.current, contents.previous].find((each) => each !== null && each.version === version && each.overlay === overlay);
+  const found = namedContent(contents, version, overlay);
   // a segment under a content the server no longer bundles cannot be replayed; R-SERVER-023's sweep is meant to leave none.
-  if (found === undefined || found === null) throw new Error(`The server bundles no content ${version} under overlay ${overlay ?? "none"}.`);
+  if (found === null) throw new Error(`The server bundles no content ${version} under overlay ${overlay ?? "none"}.`);
   return found;
 }
 

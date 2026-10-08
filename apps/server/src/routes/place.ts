@@ -10,6 +10,7 @@ import { openSocket } from "../place/place.rooms";
 import { STATUS_TOO_LARGE } from "../place/place.socket";
 import type { Rooms } from "../place/place.rooms";
 import { policyFor } from "../region";
+import { placeTarget } from "../switches/dials";
 import type { RegionPolicy } from "../region";
 import type { PresenceReply, ServerCode, ServerRejection } from "../types";
 
@@ -72,7 +73,8 @@ export function placeRoutes(deps: ServerDeps): Hono {
     if (!allowsInteraction(policyFor(deps.config.regions, countryOf(c.req.raw)))) return c.json(reply);
     const seed = seedFrom(deps.randomBytes(4));
     const store = deps.stores.presence;
-    const n = deps.config.presence.sample;
+    // R-CITY-032, R-SERVER-030: never more players than the place's target headcount, dial applied.
+    const n = Math.min(deps.config.presence.sample, await placeTarget(deps, place));
     if (readsToday(store)) {
       const look = await store.lookWithToday(place, n, session.account, seed, deps.now());
       reply.others = look.others.map(shown);
