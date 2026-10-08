@@ -263,9 +263,11 @@ function fromActivity(view: PlayerView): Loose[] {
 }
 
 /**
- * R-LOTTERY-003: one ticket while the cap and the naira bank allow it. The
- * world's draw is always the one on sale at its own tick (R-LOTTERY-002), so
- * the close has not passed for a view built from it.
+ * R-LOTTERY-003: one ticket while the cap and the naira bank allow it.
+ * the server's world shows a closed draw from its close until the
+ * next draw opens with its result (`lotteryFor`), and the view carries no tick
+ * to tell it from a draw on sale, so in that window this offers a ticket the
+ * kind refuses. `PlayerView.lottery.onSale` would let it offer none.
  */
 function fromLottery(view: PlayerView): Loose[] {
   const draw = view.lottery;
