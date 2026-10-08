@@ -42,6 +42,8 @@ export const pointsTable: Record<Id<"points">, PointsEntry> = {
       { band: 80, points: 34 },
     ],
     // Low band is 60 or 65; high band is 70 or more. Work counts from 12 months; long work is 36 or more.
+    // R-PEOPLE-031: a sibling in Canada, 18 or over, a citizen or resident.
+    siblingBonus: 15,
     transfer: {
       educationLowBand: 13,
       educationHighBand: 25,

@@ -32,6 +32,8 @@ export const SLICE_KEYS = [
   "goal",
   "prologue",
   "lottery",
+  "people",
+  "interview",
 ] as const satisfies readonly (keyof State)[];
 
 export type SliceKey = (typeof SLICE_KEYS)[number];

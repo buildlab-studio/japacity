@@ -539,6 +539,8 @@ function openEffect(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
     outstanding: principal,
     monthsLeft: entry.term,
     missed: 0,
+        bond: null,
+        charged: 0,
   };
   const events = record(ctx, { type: "obligation/opened", item });
   if (!lent) return events;
@@ -696,6 +698,8 @@ function evolve(slice: ObligationSlice, event: ObligationEvent, _state: State, c
         outstanding: item.outstanding - event.principal,
         monthsLeft: item.monthsLeft === null ? null : Math.max(0, item.monthsLeft - 1),
         missed: 0,
+        bond: null,
+        charged: 0,
       }));
     case "obligation/missed":
       return withItem(slice, event.id, (item) => ({
@@ -730,6 +734,8 @@ function evolve(slice: ObligationSlice, event: ObligationEvent, _state: State, c
         outstanding: item.outstanding - event.principal,
         monthsLeft: item.monthsLeft === null ? null : Math.max(0, item.monthsLeft - event.months),
         missed: 0,
+        bond: null,
+        charged: 0,
       }));
     case "obligation/court":
     case "obligation/owned":
@@ -936,6 +942,8 @@ export const obligationKind: RegisteredKind<ObligationSlice, ObligationEvent> = 
         outstanding: 0,
         monthsLeft: null,
         missed: 0,
+        bond: null,
+        charged: 0,
       };
     }
     return { items };

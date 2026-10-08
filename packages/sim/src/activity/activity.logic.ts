@@ -833,6 +833,9 @@ function judgeJob(read: ReadCtx, requirement: Requirement): RequirementResult {
     case "setpiece/answered":
     case "setpiece/answered-with":
     case "world/lottery":
+    case "people/bond":
+    case "people/sibling-abroad":
+    case "people/joint":
     case "wallet/total":
     case "place/returned":
     case "place/months-here":

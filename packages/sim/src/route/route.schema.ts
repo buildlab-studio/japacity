@@ -69,6 +69,21 @@ export const RouteEntrySchema = z.strictObject({
     })
     .exactOptional(),
   contract: z.strictObject({ medical: idOf("document"), maxAgeMonths: CountSchema }).exactOptional(),
+  dependants: idOf("route").nullable(),
+  partner: z
+    .strictObject({
+      sponsorStatuses: z.array(idOf("status")).min(1),
+      bandMin: CountSchema.nullable(),
+      feeVar: idOf("var"),
+      surchargeYears: CountSchema,
+      decisionMonths: CountSchema,
+      livingTogetherMonths: CountSchema.nullable(),
+      floorVar: idOf("var").nullable(),
+    })
+    .exactOptional(),
+  dependant: z
+    .strictObject({ maintenanceVar: idOf("var").nullable(), leadMonthsExempt: CountSchema.nullable(), feeVar: idOf("var").nullable(), feeFromLead: z.boolean(), decisionMonths: CountSchema })
+    .exactOptional(),
   road: z
     .strictObject({
       steps: z.array(
@@ -95,6 +110,15 @@ export const PointsEntrySchema = z.strictObject({
     longMonths: CountSchema,
     cap: CountSchema,
   }),
+  siblingBonus: CountSchema,
+  spouse: z
+    .strictObject({
+      education: z.array(z.strictObject({ level: CountSchema, points: CountSchema })),
+      language: z.array(z.strictObject({ band: CountSchema, points: CountSchema })),
+      canadianWork: z.array(z.strictObject({ years: CountSchema, points: CountSchema })),
+      cap: CountSchema,
+    })
+    .exactOptional(),
   careMin: CountSchema,
 });
 

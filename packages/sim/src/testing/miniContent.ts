@@ -90,6 +90,7 @@ export const miniContent: Content = {
     "route.mini": {
       id: "route.mini",
       gate: "study",
+      dependants: null,
       country: "country.mini",
       status: "status.mini",
       refusalBaseBp: 900,
@@ -220,6 +221,7 @@ export const miniContent: Content = {
       phone: null,
       overstayer: null,
       deceptionBanMonths: 120,
+    partnerBarMonths: 0,
     },
   },
   status: {
@@ -228,6 +230,8 @@ export const miniContent: Content = {
       country: "country.mini",
       months: 16,
       work: "part",
+      dependants: "none",
+      tiedTo: null,
       clockMonths: null,
       lapsesAtOnce: false,
       renewMonths: 0,
@@ -252,11 +256,16 @@ export const miniContent: Content = {
   goal: {},
   era: {},
   place: {},
+  person: {},
+  phrase: {},
+  interview: {},
+  people: { spots: [] },
   points: {},
   prologue: {},
   scenario: {
     "scenario.plain": {
       id: "scenario.plain",
+      siblings: 0,
       qualities: {
         "quality.age-months": 276,
         "quality.edu-level": 3,
@@ -272,6 +281,7 @@ export const miniContent: Content = {
     },
     "scenario.worker": {
       id: "scenario.worker",
+      siblings: 0,
       qualities: {
         "quality.age-months": 340,
         "quality.edu-level": 3,
@@ -398,5 +408,9 @@ export const miniContent: Content = {
     groupLoan: { feeBp: 1500, savingsBp: 1000, vanishBp: 2500, visit: { standing: -12, wellbeing: -5 } },
     lottery: { ticket: 20000, maxTickets: 5, burnBp: 4500, jackpotBp: 4000, midBp: 3000, midCount: 10, smallBp: 3000, smallEvery: 50 },
     city: { crowdLow: 6, crowdHigh: 24, playersMax: 12, fridayBp: 3000, saturdayBp: 5000, raiseAfterMs: 20000, raiseFrameMs: 20, dropAfterMs: 3000, dropFrameMs: 50, maxPixelRatio: 2, desktopMinWidth: 900 },
+    people: { matchmaker: false, maxCourting: 3, partnerMoments: 6, marryAfterMonths: 6, weddingShare: 300000000, proposeCooldown: 3, recourtMonths: 6, gossipBp: 2500, endStanding: { courting: -2, partner: -6, married: -12, applying: -6 }, endWellbeing: -4, leftWellbeing: -8, couchMonths: 3, warnDays: 7, standInDays: 14 },
+    pair: { inviteDays: 14, maxOpenInvites: 3, rewardFriends: 10, phrasesPerHour: 30, placePhrasesPerMinute: 6 },
+    interview: { ask: 5, decoys: 3, passBp: 7000, failBp: 4000, caughtBelowBp: 2000, thinMoments: 8, thinMonths: 6, doubtBp: 3000, standInRecallBp: 8000, caughtStanding: 15 },
+    undertaking: { months: 36, assistanceUnder: 100000 },
   },
 };

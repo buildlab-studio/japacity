@@ -101,4 +101,18 @@ export const varTable: Record<Id<"var">, VarEntry> = {
   "var.flight-factor": { id: "var.flight-factor", start: 10000 },
   // Basis points added to the remote job's hire chance.
   "var.remote-hire-bonus": { id: "var.remote-hire-bonus", start: 0 },
+  // people.md and undertaking.md: the partner and dependant routes' figures
+  "var.uk-dependant-maintenance": { id: "var.uk-dependant-maintenance", start: 28500 },
+  "var.uk-partner-fee": { id: "var.uk-partner-fee", start: 206400 },
+  "var.uk-partner-renew-fee": { id: "var.uk-partner-renew-fee", start: 140700 },
+  "var.uk-partner-settle-months": { id: "var.uk-partner-settle-months", start: 60 },
+  "var.uk-family-window": { id: "var.uk-family-window", start: 2 },
+  "var.uk-partner-income": { id: "var.uk-partner-income", start: 2900000 },
+  "var.ca-sponsor-fee": { id: "var.ca-sponsor-fee", start: 134500 },
+  "var.ca-accompany-fee": { id: "var.ca-accompany-fee", start: 160000 },
+  "var.ca-family-window": { id: "var.ca-family-window", start: 2 },
+  "var.ca-assistance": { id: "var.ca-assistance", start: 73300 },
+  // director.md R-DIRECTOR-001 and 005: every window has its surge; the family routes' start at 0.
+  "var.uk-family-surge": { id: "var.uk-family-surge", start: 0 },
+  "var.ca-family-surge": { id: "var.ca-family-surge", start: 0 },
 };

@@ -9,6 +9,7 @@ export const ScenarioEntrySchema = z.strictObject({
   qualities: z.record(idOf("quality"), IntSchema),
   job: idOf("activity").nullable(),
   tenure: z.record(idOf("activity"), CountSchema),
+  siblings: CountSchema,
   pockets: z.partialRecord(CurrencySchema, z.strictObject({ bank: CountSchema, cash: CountSchema })),
   documents: z.array(
     z.strictObject({

@@ -17,6 +17,8 @@ type ByCountry = Pick<StatusEntry, "country" | "banMonths" | "overstayBanMonths"
 /** The fields every status starts from: nothing renews, nothing settles, nothing follows. */
 const BASE: Shared = {
   clockMonths: null,
+  dependants: "none",
+  tiedTo: null,
   lapsesAtOnce: false,
   renewMonths: 0,
   renewFeeVar: null,
@@ -79,6 +81,8 @@ export const statusTable: Record<Id<"status">, StatusEntry> = {
     work: "one-employer",
     // 60 days.
     clockMonths: 2,
+    dependants: "none",
+    tiedTo: null,
     renewMonths: 24,
     renewFeeVar: "var.uk-skilled-renew-fee",
     surchargeYearVar: "var.uk-surcharge-year",

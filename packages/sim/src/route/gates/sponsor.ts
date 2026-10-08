@@ -188,6 +188,8 @@ function record(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
     case "points":
     case "endorsement":
     case "road":
+    case "partner":
+    case "dependant":
       return [];
     default: {
       const never: never = entry.gate;

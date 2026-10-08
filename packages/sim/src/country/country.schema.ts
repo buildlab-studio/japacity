@@ -16,6 +16,7 @@ export const CountryEntrySchema = z.strictObject({
   phone: idOf("obligation").nullable(),
   overstayer: idOf("status").nullable(),
   deceptionBanMonths: CountSchema,
+  partnerBarMonths: CountSchema,
 });
 
 export type CountryEntryMatches = Proof<Same<z.infer<typeof CountryEntrySchema>, CountryEntry>>;

@@ -109,6 +109,8 @@ export function richView(): PlayerView {
         outstanding: 80_000_000,
         monthsLeft: 8,
         missed: 1,
+        bond: null,
+        charged: 0,
         due: 12_400_000,
         car: null,
       },
@@ -239,6 +241,8 @@ export function richAbroadView(): PlayerView {
     outstanding: 520_000,
     monthsLeft: 20,
     missed: 2,
+    bond: null,
+    charged: 0,
     due: 61_480,
   };
   const car: PlayerView["obligations"][number] = { ...owed, car: carViewOf(owed, 60) };

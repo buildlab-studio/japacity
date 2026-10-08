@@ -11,11 +11,27 @@ import { isRejection, reject } from "./reject";
 import type { Command, CommandType, Content, Rejection, Sender, State, StepResult, World } from "./types";
 
 /** Commands only the authority may send (R-SERVER-013): the turn grant and the draw's payout. */
-export const AUTHORITY_COMMANDS = ["turns/grant", "lottery/pay"] as const satisfies readonly CommandType[];
+export const AUTHORITY_COMMANDS = [
+  "turns/grant",
+  "lottery/pay",
+  "people/link",
+  "people/facts",
+  "people/moments",
+  "people/proposal",
+  "people/agreed",
+  "people/ended",
+  "people/gossip",
+  "people/stand-in",
+  "people/family-request",
+  "interview/open",
+  "interview/scored",
+] as const satisfies readonly CommandType[];
 
 /** Which kind owns each command, by the part before the slash. */
 export const COMMAND_OWNER: Record<PrefixOf<CommandType>, SliceKey> = {
   lottery: "lottery",
+  people: "people",
+  interview: "interview",
   turn: "turn",
   turns: "turn",
   activity: "activity",

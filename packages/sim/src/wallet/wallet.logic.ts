@@ -94,6 +94,9 @@ export const REASON_LINE: Record<Reason, string | null> = {
   build: "line.wallet.build",
   win: "line.wallet.win",
   ticket: "line.wallet.ticket",
+  wedding: "line.wallet.wedding",
+  undertaking: "line.wallet.undertaking",
+  assistance: "line.wallet.assistance",
   convert: null,
   move: null,
 };

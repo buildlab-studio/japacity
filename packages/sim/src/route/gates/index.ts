@@ -7,6 +7,8 @@ import { pointsGate } from "./points";
 import { roadGate } from "./road";
 import { sponsorGate } from "./sponsor";
 import { studyGate } from "./study";
+import { dependantGate } from "./dependant";
+import { partnerGate } from "./partner";
 
 export const GATES: Record<RouteGate, Gate> = {
   study: studyGate,
@@ -15,6 +17,8 @@ export const GATES: Record<RouteGate, Gate> = {
   endorsement: endorsementGate,
   contract: contractGate,
   road: roadGate,
+  partner: partnerGate,
+  dependant: dependantGate,
 };
 
 export type { ApplicationFigures, Decision, DecisionTerms, Gate, GateEffectHandler } from "./gate";

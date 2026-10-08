@@ -20,6 +20,7 @@ export const countryTable: Record<Id<"country">, CountryEntry> = {
     phone: "obligation.phone-uk",
     overstayer: "status.uk-overstayer",
     deceptionBanMonths: 120,
+    partnerBarMonths: 0,
   },
   "country.canada": {
     id: "country.canada",
@@ -37,7 +38,9 @@ export const countryTable: Record<Id<"country">, CountryEntry> = {
     overstayer: "status.ca-overstayer",
     // no Canadian gate refuses for deception (R-GATE-005 names the sponsor
     // and contract gates only), so the page gives no ban and there is none.
-    deceptionBanMonths: 0,
+    // R-INTERVIEW: five years after misrepresentation (IRPA s. 40); R-UNDERTAKING-004: five years after arriving through a partner (IRPR s. 130(3)).
+    deceptionBanMonths: 60,
+    partnerBarMonths: 60,
   },
   "country.uae": {
     id: "country.uae",
@@ -55,6 +58,7 @@ export const countryTable: Record<Id<"country">, CountryEntry> = {
     overstayer: "status.uae-irregular",
     // R-CONTRACT-003: R-GATE-005 does not apply to a fraud agent; nothing was forged in your name.
     deceptionBanMonths: 0,
+    partnerBarMonths: 0,
   },
   "country.italy": {
     id: "country.italy",
@@ -73,5 +77,6 @@ export const countryTable: Record<Id<"country">, CountryEntry> = {
     overstayer: "status.eu-irregular",
     // The road has no fraud refusal of its own.
     deceptionBanMonths: 0,
+    partnerBarMonths: 0,
   },
 };

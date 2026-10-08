@@ -6,7 +6,9 @@ import { activityKind } from "./activity/activity.logic";
 import { chapterKind } from "./chapter/chapter.logic";
 import { creditKind } from "./credit/credit.logic";
 import { goalKind } from "./goal/goal.logic";
+import { interviewKind } from "./interview/interview.logic";
 import { lotteryKind } from "./lottery/lottery.logic";
+import { peopleKind } from "./people/people.logic";
 import { placeKind } from "./place/place.logic";
 import { prologueKind } from "./prologue/prologue.logic";
 import { statusKind } from "./status/status.logic";
@@ -43,6 +45,8 @@ function build(): Registry {
     goalKind,
     prologueKind,
     lotteryKind,
+    peopleKind,
+    interviewKind,
   ];
   kinds.forEach((kind, index) => {
     if (kind.kind !== SLICE_KEYS[index]) {
