@@ -271,6 +271,8 @@ export type Effect =
   | { type: "obligation/close"; obligationType: ObligationType }
   // place (docs/rules/place.md)
   | { type: "place/move"; to: Where; country: Id<"country"> | null }
+  /** The authority sends the character home with this shape, as `return/home` would (R-PLACE-004, R-ROAD-007, R-STATUS-008). */
+  | { type: "place/return"; shape: ReturnShape }
   // status (docs/rules/status.md)
   | { type: "status/grant"; status: Id<"status">; job?: Id<"activity"> }
   | { type: "status/lose" }

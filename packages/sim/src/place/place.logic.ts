@@ -406,7 +406,11 @@ export const placeKind: RegisteredKind<PlaceSlice, PlaceEvent> = {
   // R-PLACE-001.
   initial: () => ({ where: "home", country: null, movedMonth: 0, returns: [], heldAbroad: null }),
   commands: { "return/home": returnHome },
-  effects: { "place/move": move },
+  effects: {
+    "place/move": move,
+    // R-ROAD-007 and R-STATUS-008: the authority's way home. Built with the road.
+    "place/return": () => [],
+  },
   phases: { month },
   evolve,
   lines,
