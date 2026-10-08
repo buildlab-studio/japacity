@@ -831,6 +831,7 @@ function judgeJob(read: ReadCtx, requirement: Requirement): RequirementResult {
     case "obligation/has":
     case "route/gate-step":
     case "setpiece/answered":
+    case "setpiece/answered-with":
     case "wallet/total":
     case "place/returned":
     case "place/months-here":
@@ -1033,7 +1034,7 @@ function invariants(state: State, content: Content): string[] {
 
 export const activityKind: RegisteredKind<ActivitySlice, ActivityEvent> = {
   kind: "activity",
-  initial: (scenario) => ({ job: scenario.job, side: null, tenure: { ...scenario.tenure }, lastSlots: [] }),
+  initial: (scenario) => ({ job: scenario.job, side: null, tenure: { ...scenario.tenure }, lastSlots: [], played: {} }),
   commands: {
     "turn/end": validateSlots,
     "activity/quit": quit,

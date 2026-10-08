@@ -133,10 +133,14 @@ function evolve(slice: SetpieceSlice, event: SetpieceEvent): SetpieceSlice {
       return { ...slice, open: { entry: event.entry, route: event.route, questions: event.questions, answers: {}, score: 0 } };
     case "setpiece/answered": {
       if (slice.open === null) throw new Error(`${event.question} was answered with no set piece open.`);
-      return { ...slice, open: { ...slice.open, answers: { ...slice.open.answers, [event.question]: event.answer }, score: slice.open.score + event.score } };
+      return {
+        ...slice,
+        open: { ...slice.open, answers: { ...slice.open.answers, [event.question]: event.answer }, score: slice.open.score + event.score },
+        given: { ...slice.given, [slice.open.entry]: { ...slice.given[slice.open.entry], [event.question]: event.answer } },
+      };
     }
     case "setpiece/closed":
-      return { open: null, answered: { ...slice.answered, [event.entry]: (slice.answered[event.entry] ?? 0) + 1 } };
+      return { ...slice, open: null, answered: { ...slice.answered, [event.entry]: (slice.answered[event.entry] ?? 0) + 1 } };
     default: {
       const never: never = event;
       throw new Error(`Unknown set piece event ${JSON.stringify(never)}.`);
@@ -198,7 +202,7 @@ function view(read: ReadCtx): Pick<PlayerView, "setpiece"> {
 
 export const setpieceKind: RegisteredKind<SetpieceSlice, SetpieceEvent> = {
   kind: "setpiece",
-  initial: () => ({ open: null, answered: {} }),
+  initial: () => ({ open: null, answered: {}, given: {} }),
   commands: { "setpiece/answer": answer },
   requirements: {
     // R-SETPIECE-006.
@@ -207,6 +211,11 @@ export const setpieceKind: RegisteredKind<SetpieceSlice, SetpieceEvent> = {
       const have = read.state.setpiece.answered[requirement.setpiece] ?? 0;
       const need = requirement.times ?? 1;
       return { met: have >= need, have, need };
+    },
+    "setpiece/answered-with": (read, requirement) => {
+      if (requirement.type !== "setpiece/answered-with") throw new Error(`setpiece/answered-with cannot judge ${requirement.type}.`);
+      const given = read.state.setpiece.given[requirement.setpiece]?.[requirement.question];
+      return { met: given === requirement.answer };
     },
   },
   effects: {

@@ -39,6 +39,7 @@ const REQUIREMENT_TYPES = [
   "wallet/total",
   "place/returned",
   "place/months-here",
+  "setpiece/answered-with",
   "not",
   "any",
 ] as const;

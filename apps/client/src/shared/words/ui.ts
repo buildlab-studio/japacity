@@ -283,6 +283,7 @@ export const uiText: Record<string, string> = {
   "ui.req.local-tenure": "{months} months in a job here",
   "ui.req.local-tenure.one": "1 month in a job here",
   "ui.req.setpiece-answered": "{setpiece}, answered {times} times",
+  "ui.req.setpiece-answered-with": "Having taken {setpiece}",
   "ui.req.setpiece-answered.one": "{setpiece}, answered once",
   "ui.req.wallet-total-in": "{amount} received as {reason} in all",
   "ui.req.wallet-total-out": "{amount} paid as {reason} in all",

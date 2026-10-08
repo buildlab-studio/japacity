@@ -4,3 +4,5 @@ packages:
   - tools
 allowBuilds:
   esbuild: false
+  # workerd downloads its binary for the landing app's local runtime
+  workerd: true

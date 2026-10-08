@@ -146,6 +146,8 @@ export function requirementSentence(requirement: Requirement, context: SentenceC
       const times = requirement.times ?? 1;
       return sayCount("ui.req.setpiece-answered", times, { setpiece: nameOf(requirement.setpiece), times });
     }
+    case "setpiece/answered-with":
+      return say("ui.req.setpiece-answered-with", { setpiece: nameOf(requirement.setpiece) });
     case "wallet/total":
       return say(requirement.flow === "in" ? "ui.req.wallet-total-in" : "ui.req.wallet-total-out", { amount: amountWords(requirement.amount, requirement.currency), reason: requirement.reason.replaceAll("-", " ") });
     case "place/returned":

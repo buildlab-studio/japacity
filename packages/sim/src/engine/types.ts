@@ -208,6 +208,8 @@ export type Requirement =
   | { type: "activity/local-tenure"; months: number }
   /** The set piece has closed at least `times` times (default 1): docs/rules/route.md R-SETPIECE-006. */
   | { type: "setpiece/answered"; setpiece: Id<"setpiece">; times?: number }
+  /** The last answer given to this question of this set piece was this one (R-SETPIECE-007). */
+  | { type: "setpiece/answered-with"; setpiece: Id<"setpiece">; question: string; answer: string }
   /** The ledger's total under a reason, in or out, in one currency, is at least this: docs/rules/wallet.md R-WALLET-014. */
   | { type: "wallet/total"; flow: "in" | "out"; reason: Reason; currency: Currency; amount: Amount }
   /** A return of one of these shapes is on record: docs/rules/place.md. */
@@ -953,6 +955,8 @@ export interface ActivitySlice {
   tenure: Record<Id<"activity">, number>;
   /** What filled the free slots last month, for "same again". */
   lastSlots: SlotPick[];
+  /** Months each activity filled a slot, main or free, over the whole life (R-ACTIVITY-012); the send-off card reads it. */
+  played: Record<Id<"activity">, number>;
 }
 
 export interface PocketBalance {
@@ -1059,6 +1063,8 @@ export type RouteSlice = Record<Id<"route">, RouteState>;
 export interface SetpieceSlice {
   /** How many times each set piece has closed (R-SETPIECE-006). */
   answered: Partial<Record<Id<"setpiece">, number>>;
+  /** The last answer given to each question of each set piece (R-SETPIECE-007). */
+  given: Partial<Record<Id<"setpiece">, Record<string, string>>>;
   open: {
     entry: Id<"setpiece">;
     route: Id<"route"> | null;
