@@ -9,6 +9,19 @@
 // positions belong to the fixed schedule; after them, each tick owns one run of
 // positions with one for each story of the pool, by its place in id order. So
 // whether one story fires never moves the draws of another.
+//
+// Where the page leaves room:
+// - Calm is announced at tick 0 like any era; the pool is rolled from tick 1, so tick 0 holds every start value.
+// - The chance of a roll is chanceBp times the era's weight for the group, out of 10000, at most 10000.
+//   A group the era does not name weighs 1.
+// - The cap of new stories a tick counts only rolled stories, not an era's own story.
+// - Cooldown and the shock gap count from the tick a story is rolled. A shock is once per era for each story.
+// - A story fires again only once its last pass has been seen ended for a tick, or when it stays in force
+//   for good; so one story never runs two passes at once.
+// - A reopening is a story whose needs hold a window at 0; the director adds the closed-ticks wait.
+// - `endedBy` ends a pass already in force; a pass still at rumour or announced runs on.
+// - Surges move on the window as it stood at the end of the tick before, then the tick's stories land,
+//   so a reopening that sets the surge to 0 leaves it at 0. Surges and strictness stay inside 0 to 100.
 import { BP_WHOLE } from "../engine/int";
 import { createRandom, drawAt, scaleDraw } from "../engine/random";
 import type { Content, EraEntry, Id, NewsEntry, Requirement, World, WorldNews } from "../engine/types";
