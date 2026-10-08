@@ -34,4 +34,22 @@ describe("[R-ENGINE-015] the authority a build may run", () => {
     vi.stubEnv("VITE_ALLOW_LOCAL_AUTHORITY", "");
     expect(authorityMode()).toEqual({ authority: "local" });
   });
+
+  test("[R-ENGINE-015] given a server address, then the server is the authority, in production as in development", () => {
+    vi.stubEnv("PROD", true);
+    vi.stubEnv("DEV", false);
+    vi.stubEnv("VITE_ALLOW_LOCAL_AUTHORITY", "");
+    vi.stubEnv("VITE_SERVER_URL", "https://play.test");
+    expect(authorityMode()).toEqual({ authority: "remote", baseUrl: "https://play.test" });
+    vi.stubEnv("PROD", false);
+    vi.stubEnv("DEV", true);
+    expect(authorityMode()).toEqual({ authority: "remote", baseUrl: "https://play.test" });
+  });
+
+  test("[R-ENGINE-015] given an empty server address in a dev build, then the local authority runs as before", () => {
+    vi.stubEnv("PROD", false);
+    vi.stubEnv("DEV", true);
+    vi.stubEnv("VITE_SERVER_URL", "");
+    expect(authorityMode()).toEqual({ authority: "local" });
+  });
 });

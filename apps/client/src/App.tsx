@@ -11,6 +11,8 @@ import { useEffect, useState, type ReactNode } from "react";
 import { bootGame } from "./authority/boot";
 import { GameProvider, useGame, useView } from "./authority/GameProvider";
 import type { GameStore } from "./authority/store";
+import { AccountGate } from "./features/account/AccountGate";
+import { AccountButton } from "./features/account/Settings";
 import { ActivityView } from "./features/activity/ActivityView";
 import { EndingView } from "./features/card/EndingView";
 import { CardView } from "./features/card/ShareCard";
@@ -81,6 +83,7 @@ function Header() {
           {say("ui.japacity.title")}
           <JapacityView compact />
         </span>
+        <AccountButton />
       </div>
     </header>
   );
@@ -250,10 +253,12 @@ function Shell() {
   const view = useGame((state) => state.view);
   const failed = useGame((state) => state.failed);
   const choosingLife = useGame((state) => state.choosingLife);
+  const signedOut = useGame((state) => state.signedOut);
   const lines = useGame((state) => state.lines);
   // The version the prologue's handover was passed at, so it shows once.
   const [handedOver, setHandedOver] = useState<number | null>(null);
   if (failed !== null) return <p className="p-4 text-bad">{say("ui.failed", { why: failed })}</p>;
+  if (signedOut) return <AccountGate />;
   if (choosingLife) return <ScenarioView />;
   if (view === null) return <p className="p-4 text-muted">{say("ui.loading")}</p>;
   if (view.prologue !== null) return <PrologueView />;

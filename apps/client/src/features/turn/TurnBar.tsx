@@ -6,6 +6,7 @@ import { useGame, useView } from "../../authority/GameProvider";
 import { Button } from "../../shared/ui/Button";
 import { Rejection } from "../../shared/ui/Rejection";
 import { say, words } from "../../shared/words/text";
+import { TurnClock } from "./TurnClock";
 
 /** Why the month cannot end right now, in content's words, or null when it can. */
 function blockedBy(ended: boolean, banked: number, setpieceOpen: boolean): string | null {
@@ -31,6 +32,7 @@ export function TurnBar() {
         <div className="flex min-w-0 flex-1 flex-col text-sm leading-tight">
           <span className="font-semibold">{say("ui.month.slots", { used, slots: view.freeSlots })}</span>
           <span className="text-muted">{say("ui.month.banked", { banked: view.turns.banked, cap: view.turns.cap })}</span>
+          <TurnClock />
         </div>
         <Button
           small
