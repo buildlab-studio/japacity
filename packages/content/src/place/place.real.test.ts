@@ -91,7 +91,7 @@ describe("real names as neutral scenery", () => {
   });
 
   test("[R-CITY-041] given a business with a real name that stages nothing, when the place table is checked, then it passes", () => {
-    expect(realNameChecks(withPlace({ ...place("place.yaba-hub"), realName: "A Real Hub" }), text, realNames)).toEqual([]);
+    expect(realNameChecks(withPlace({ ...place("place.yaba-hub"), realName: "A Real Hub", stages: [] }), text, realNames)).toEqual([]);
   });
 
   test("[R-CITY-022] given public places that stage a fraud or a mishap, when the place table is checked, then their public names stand as before", () => {

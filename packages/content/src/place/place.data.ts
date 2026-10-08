@@ -146,7 +146,7 @@ const entries: PlaceEntry[] = [
   // The market is not a feature in OpenStreetMap: the position is Tejuosho Avenue's.
   lagos("place.tejuosho-market", "Tejuosho Market", "yaba", 6504, 3370, { stages: ["offer.mum-shop"], crowd: PACKED, traditionalBp: MARKET }),
   lagos("place.yaba", "Yaba", "yaba", 6507, 3375, {
-    stages: ["activity.meetup", "activity.learn-tech", "activity.build-portfolio", "activity.job-junior-dev", "activity.job-mid-dev"],
+    stages: ["activity.meetup", "activity.learn-tech", "activity.build-portfolio", "activity.job-junior-dev", "activity.job-mid-dev", "activity.job-hunt", "activity.look-into-route", "activity.apply-to-school"],
     crowd: BUSY,
     traditionalBp: OFFICE,
   }),
@@ -209,12 +209,12 @@ const entries: PlaceEntry[] = [
   }),
 
   // Lagos: institutions, by plain description. An area and never a position.
-  unnamed("place.passport-office", "institution", "home", "lagos", "ikoyi", { stages: ["activity.get-passport"], crowd: BUSY, traditionalBp: OFFICE }),
+  unnamed("place.passport-office", "institution", "home", "lagos", "ikoyi", { stages: [], crowd: BUSY, traditionalBp: OFFICE }),
   unnamed("place.visa-centre", "institution", "home", "lagos", "victoria-island", { stages: ["activity.apply-for-visa", "setpiece.credibility-interview"], crowd: BUSY, traditionalBp: OFFICE }),
   unnamed("place.english-test-centre", "institution", "home", "lagos", "ikeja", { stages: ["activity.sit-english-test", "activity.study-english"], crowd: QUIET, traditionalBp: OFFICE }),
   unnamed("place.tb-clinic", "institution", "home", "lagos", "ikeja", { stages: ["activity.tb-test"], crowd: QUIET, traditionalBp: OFFICE }),
   unnamed("place.medical-centre", "institution", "home", "lagos", "ikeja", { stages: ["activity.gulf-medical"], crowd: QUIET, traditionalBp: OFFICE }),
-  unnamed("place.university", "institution", "home", "lagos", "akoka", { scope: "exterior", stages: ["activity.get-transcript"], crowd: BUSY, traditionalBp: CAMPUS }),
+  unnamed("place.university", "institution", "home", "lagos", "akoka", { scope: "exterior", stages: [], crowd: BUSY, traditionalBp: CAMPUS }),
   unnamed("place.general-hospital", "institution", "home", "lagos", "surulere", { stages: ["offer.illness", "offer.illness-worse"], crowd: BUSY, traditionalBp: STREET }),
   unnamed("place.church", "institution", "home", "lagos", OWN_AREA, { occasion: true, stages: ["offer.harvest"], crowd: BUSY, traditionalBp: STREET }),
   unnamed("place.mosque", "institution", "home", "lagos", OWN_AREA, { scope: "exterior", crowd: BUSY, traditionalBp: STREET }),
@@ -228,6 +228,8 @@ const entries: PlaceEntry[] = [
   unnamed("place.family-house", "stylised", "home", "lagos", null, {
     occasion: true,
     stages: [
+      "activity.get-passport",
+      "activity.get-transcript",
       "activity.rest",
       "activity.family-time",
       "activity.family-meeting",
@@ -269,8 +271,10 @@ const entries: PlaceEntry[] = [
   abroad("place.castel-volturno", "country.italy", "castel-volturno", "castel-volturno", "Castel Volturno", 41034, 13941, { hub: true, crowd: QUIET, traditionalBp: HUB }),
   abroad("place.via-domitiana", "country.italy", "castel-volturno", "castel-volturno", "Via Domitiana", 40929, 14025, { stages: ["activity.overtime"], crowd: QUIET, traditionalBp: HUB }),
   abroad("place.naples-airport", "country.italy", "naples", "capodichino", "Naples Airport", 40884, 14285, { scope: "interior", crowd: QUIET, traditionalBp: AIRPORT }),
+  // One shared room dressed per person: a friend's room, and a partner's home once courting (world.md R-WORLD-020).
+  unnamed("place.their-room", "stylised", "home", "lagos", null, { stages: ["activity.see-someone"], crowd: FEW, traditionalBp: OFFICE }),
   unnamed("place.the-room", "stylised", "abroad", null, null, {
-    stages: ["activity.call-home", "activity.rent-flat-uk", "activity.rent-flat-ca", "activity.phone-contract-uk", "activity.phone-contract-ca"],
+    stages: ["activity.call-home", "activity.job-hunt", "activity.send-money", "activity.rent-flat-uk", "activity.rent-flat-ca", "activity.phone-contract-uk", "activity.phone-contract-ca"],
     crowd: FEW,
     traditionalBp: OFFICE,
   }),

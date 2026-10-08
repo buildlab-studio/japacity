@@ -7,7 +7,7 @@ export const familyText: Record<string, string> = {
   "family.from.cousin": "{name}",
   "family.from.cousin.plain": "Your cousin",
   "family.from.uncle": "Uncle",
-  "family.from.mum": "Mummy",
+  "family.from.mum": "Mama",
   "family.from.group": "The group",
 
   "family.chain-amen.text": "Good morning family. Whoever types Amen will travel before December. Do not break the chain.",

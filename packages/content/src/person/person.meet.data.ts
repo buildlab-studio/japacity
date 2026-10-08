@@ -23,7 +23,7 @@ export interface PartnerMeeting {
  * `place.their-room` is one stylised interior with no position, dressed per person as the room
  * abroad is dressed per country: a friend's room where people meet, and a partner's home.
  */
-export const placesWanted: Id<"place">[] = ["place.their-room"];
+export const placesWanted: Id<"place">[] = [];
 
 const THEIR_ROOM: Id<"place"> = "place.their-room";
 

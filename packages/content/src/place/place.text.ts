@@ -584,6 +584,8 @@ export const placeText: Record<string, string> = {
   "place.naples-airport.overheard.1": "Your ticket is in your name. Go to that desk.",
   "place.naples-airport.overheard.2": "Call your mother when you land in Lagos.",
   "place.naples-airport.overheard.3": "Somebody paid. Do not ask who.",
+  "place.their-room.name": "their room",
+  "place.their-room.blurb": "Somebody else's room, as they keep it. You are a guest here.",
   "place.the-room.name": "the room",
   "place.the-room.blurb": "A shared room. One bed, one window, a bag still half packed.",
   "place.the-room.overheard.1": "Who used my pot? Wash it.",

@@ -42,7 +42,7 @@ export const storyThings: Record<string, { outside: string[]; inside: string[] }
   "place.tb-clinic": { outside: ["nurse-desk", "door"], inside: [] },
   // the places brief's "bank counter" names no place id; the held funds are staged here.
   "place.olokun-office": { outside: ["counter", "door"], inside: [] },
-  "place.yaba-hub": { outside: ["long-desk", "meetup-corner", "door"], inside: [] },
+  "place.yaba": { outside: ["long-desk", "jobs-board", "meetup-corner", "door"], inside: [] },
   "place.the-room": { outside: ["bed", "window", "door"], inside: [] },
   "place.airport-lagos": { outside: ["gate", "door"], inside: [] },
   "place.bode-thomas": { outside: ["lotto-kiosk", "betting-shop", "danfo", "keke", "okada"], inside: [] },
@@ -65,7 +65,7 @@ const SEND_OFF: Id<"chapter"> = "chapter.send-off";
 const LANDING: Id<"chapter"> = "chapter.landing";
 const SECURE: Id<"chapter"> = "chapter.secure";
 
-const HUB: Id<"place"> = "place.yaba-hub";
+const HUB: Id<"place"> = "place.yaba";
 const HOUSE: Id<"place"> = "place.family-house";
 const ROOM: Id<"place"> = "place.the-room";
 const BANK: Id<"place"> = "place.olokun-office";

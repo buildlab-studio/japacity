@@ -14,12 +14,12 @@ function numbered(id: string, part: "sign" | "overheard"): string[] {
 const SHOPFRONTS = ["place.bode-thomas", "place.adeniran-ogunsanya", "place.broad-street", "place.ogba", "place.victoria-island", "place.yaba"];
 
 describe("the place table", () => {
-  test("[R-CITY-004] given the page's entries, when the table is read, then there are 48 public places in Lagos, 9 institutions, 3 businesses, 3 homes and stylised places and 15 abroad", () => {
+  test("[R-CITY-004] given the page's entries, when the table is read, then there are 48 public places in Lagos, 9 institutions, 3 businesses, 4 homes and stylised places and 15 abroad", () => {
     const home = places.filter((place) => place.where !== "abroad");
     expect(home.filter((place) => place.nameKind === "public")).toHaveLength(48);
     expect(home.filter((place) => place.nameKind === "institution")).toHaveLength(9);
     expect(home.filter((place) => place.nameKind === "business")).toHaveLength(3);
-    expect(home.filter((place) => place.nameKind === "stylised")).toHaveLength(3);
+    expect(home.filter((place) => place.nameKind === "stylised")).toHaveLength(4);
     expect(places.filter((place) => place.where === "abroad")).toHaveLength(15);
   });
 
