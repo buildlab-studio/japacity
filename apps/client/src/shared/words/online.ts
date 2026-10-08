@@ -68,4 +68,14 @@ export const onlineText: Record<string, string> = {
   "ui.account.delete.fresh": "Before it goes, show it is you: sign in again, or get a code by email.",
   "ui.account.delete.code": "Send a code to {email}",
   "ui.account.delete.google": "Sign in again with Google, then come back here within 10 minutes.",
+
+  // The bank-full notice (R-CLOCK-031)
+  "ui.notify.ask.title": "Know when your turns are full",
+  "ui.notify.ask.body": "Your turns build up while you are away. We can tell you on this device when the bank is full, and nothing else.",
+  "ui.notify.ask.yes": "Tell me",
+  "ui.notify.ask.no": "Not now",
+  "ui.notify.setting": "Tell me when my turns are full",
+  "ui.notify.blocked": "This browser blocks notices from Japacity. Allow them in its settings, then turn this on.",
+  "ui.notify.unsupported": "This browser cannot show notices. On an iPhone, adding Japacity to the home screen may be needed first.",
+  "ui.notify.failed": "That did not work. Try again in a while.",
 };

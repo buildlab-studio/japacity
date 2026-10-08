@@ -1,4 +1,5 @@
-// The account settings: add a passkey (R-ACCOUNT-003), sign out, and delete
+// The account settings: add a passkey (R-ACCOUNT-003), the bank-full notice
+// (R-CLOCK-031), sign out, and delete
 // the account (R-ACCOUNT-016). Deleting asks for a session signed in within
 // the last 10 minutes; the server says when it is older, and then the player
 // signs in again or takes a code by email before it goes.
@@ -10,6 +11,8 @@ import type { AccountApi, AuthResult } from "../../shared/net/auth";
 import { Button } from "../../shared/ui/Button";
 import { Sheet } from "../../shared/ui/Sheet";
 import { say } from "../../shared/words/text";
+import { NotifyAsk } from "../notify/NotifyAsk";
+import { NotifySetting } from "../notify/NotifySetting";
 import { CodeForm, failureWords } from "./CodeForm";
 
 type Step = "idle" | "warn" | "confirm";
@@ -79,6 +82,8 @@ export function AccountSettings({ account }: { account: AccountApi }) {
         </Button>
       </div>
 
+      <NotifySetting />
+
       <div className="flex flex-col gap-3 border-t border-line pt-4">
         {step === "idle" ? (
           <div>
@@ -143,6 +148,7 @@ export function AccountButton() {
       <Sheet open={open} onOpenChange={setOpen} title={say("ui.account.settings")}>
         <AccountSettings account={account} />
       </Sheet>
+      <NotifyAsk />
     </>
   );
 }
