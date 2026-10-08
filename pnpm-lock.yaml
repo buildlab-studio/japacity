@@ -143,6 +143,12 @@ importers:
         specifier: ^4.10.2
         version: 4.10.2
 
+  packages/store:
+    dependencies:
+      '@japacity/sim':
+        specifier: workspace:*
+        version: link:../sim
+
   tools:
     dependencies:
       eslint:
