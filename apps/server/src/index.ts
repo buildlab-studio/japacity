@@ -7,6 +7,7 @@ import { makeApp } from "./app";
 import { productionConfig } from "./config";
 import { memoryStores, testSession, webRandomBytes } from "./deps";
 import type { ServerDeps } from "./deps";
+import { MONEY_CRON, moneyJob } from "./jobs/money";
 
 export interface Env {
   SITE_URL: string;
@@ -42,7 +43,8 @@ export default {
   fetch(request: Request, env: Env): Response | Promise<Response> {
     return makeApp(depsFor(env)).fetch(request);
   },
-  scheduled(): void {
+  scheduled(controller: ScheduledController, env: Env, ctx: ExecutionContext): void {
     // The jobs mount here as they land, by cron: the world's ticks (R-CLOCK-012) and the money report (R-SERVER-011).
+    if (controller.cron === MONEY_CRON) ctx.waitUntil(moneyJob(depsFor(env)));
   },
 };

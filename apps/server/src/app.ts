@@ -4,11 +4,13 @@
 import { Hono } from "hono";
 
 import type { ServerDeps } from "./deps";
+import { adminRoutes } from "./routes/admin";
 
 export function makeApp(deps: ServerDeps): Hono {
   const app = new Hono();
 
   app.get("/api/health", (c) => c.json({ ok: true, content: deps.contents.current.version, tick: currentTick(deps) }));
+  app.route("/api/admin", adminRoutes(deps));
 
   return app;
 }
