@@ -23,6 +23,8 @@ import { DocumentView } from "./features/document/DocumentView";
 import { GoalView } from "./features/goal/GoalView";
 import { JapacityView } from "./features/japacity/JapacityView";
 import { NewsView } from "./features/news/NewsView";
+import { NotifyAsk } from "./features/notify/NotifyAsk";
+import { NotifySetting } from "./features/notify/NotifySetting";
 import { ObligationView } from "./features/obligation/ObligationView";
 import { OfferView } from "./features/offer/OfferView";
 import { RunDownBanner } from "./features/health/RunDownBanner";
@@ -84,7 +86,8 @@ function Header() {
           {say("ui.japacity.title")}
           <JapacityView compact />
         </span>
-        <AccountButton />
+        <AccountButton more={<NotifySetting />} />
+        <NotifyAsk />
       </div>
     </header>
   );
