@@ -91,6 +91,7 @@ function setQuality(game: Game, quality: Id<"quality">, value: number): void {
 const slowEnglish: Content = {
   ...content,
   route: {
+    ...content.route,
     [UK]: {
       ...uk,
       checklist: uk.checklist.map((item) =>

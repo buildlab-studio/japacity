@@ -7,6 +7,7 @@ import { BP_WHOLE, clamp, convertMinor, divFloor, mulDiv } from "../engine/int";
 import type { RegisteredKind } from "../engine/kind";
 import { emit } from "../engine/kind";
 import { reject } from "../engine/reject";
+import { effectsNotBuilt } from "../engine/stub";
 import type {
   BaseEvent,
   Cause,
@@ -398,11 +399,12 @@ function payDeposit(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   return events;
 }
 
-/** R-ROUTE-020. */
+/** R-ROUTE-020, with R-GATE-003's arrival in place of the ending: the life goes on abroad. */
 function depart(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (command.type !== "route/depart") throw new Error(`route/depart cannot handle ${command.type}.`);
+  const entry = ctx.content.route[command.route];
   const held = ctx.state.route[command.route];
-  if (ctx.content.route[command.route] === undefined || held === undefined) return reject("unknown-id", `There is no route ${String(command.route)}.`);
+  if (entry === undefined || held === undefined) return reject("unknown-id", `There is no route ${String(command.route)}.`);
   if (held.state !== "granted") return reject("not-legal", "Only a granted route can be flown.");
   const holding = Object.values(ctx.state.obligation.items).some((item) => ctx.content.obligation[item.entry]?.type === "held-funds");
   if (holding) return reject("not-legal", "Held funds are still open. They must be returned before you fly.");
@@ -418,7 +420,8 @@ function depart(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
       : { type: "money/pay-fee", currency: flight.currency, amount, reason: "flight" };
   ctx.apply([pay], cause);
   const events = record(ctx, moved(command.route, "departed"));
-  ctx.apply([{ type: "turn/finish" }], cause);
+  if (entry.country !== null) ctx.apply([{ type: "place/move", to: "abroad", country: entry.country }], cause);
+  if (entry.status !== null) ctx.apply([{ type: "status/grant", status: entry.status }], cause);
   return events;
 }
 
@@ -825,6 +828,8 @@ export const routeKind: RegisteredKind<RouteSlice, RouteKindEvent> = {
     "route/apply": applyVisa,
     "route/support": support,
     "route/interview-scored": interviewScored,
+    // The sponsor offers at home come up now that `place/is` is judged; the gates replace this stub.
+    ...effectsNotBuilt(["route/record-sponsor"]),
   },
   phases: { clocks, hear: hearPhase },
   evolve,

@@ -94,7 +94,7 @@ export function stepWith(
   sender: Sender = "player",
 ): StepResult {
   if (state.turn.ended && command.type !== "turns/grant") {
-    return reject("ended", "The life at home is over. Only the authority may still grant turns.");
+    return reject("ended", "The life is over. Only the authority may still grant turns.");
   }
   if (command.type === "turns/grant" && sender !== "authority") {
     return reject("not-yours", "Only the authority grants turns.");
