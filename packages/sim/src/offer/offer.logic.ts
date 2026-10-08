@@ -347,15 +347,7 @@ function switchedOff(content: Content, entry: OfferEntry): boolean {
   return entry.group === "road" && !content.tuning.road.enabled;
 }
 
-/**
- * R-ROAD-002: the pitch's chance with the character's situation, between 0
- * and 10000. the page's lines (standing under 30, age over 30, a
- * route figure of 60) have no field in content beside the entry's `pressure`
- * figures, so they are here.
- */
-const PRESSURE_STANDING_UNDER = 30;
-const PRESSURE_AGE_YEARS = 30;
-const PRESSURE_STRONG_ROUTE = 60;
+/** R-ROAD-002: the pitch's chance with the character's situation, between 0 and 10000. */
 const MONTHS_A_YEAR = 12;
 
 export function pressureChanceBp(read: ReadCtx, entry: OfferEntry, judge: (requirement: Requirement) => RequirementResult): number {
@@ -365,13 +357,14 @@ export function pressureChanceBp(read: ReadCtx, entry: OfferEntry, judge: (requi
   const refusals = Object.values(state.route).reduce((sum, held) => sum + held.refusals, 0);
   const defaulted = Object.values(state.obligation.items).some((item) => item.state === "defaulted");
   const standing = state.quality["quality.standing"] ?? 0;
-  const yearsOver = Math.max(0, divFloor(state.quality["quality.age-months"] ?? 0, MONTHS_A_YEAR) - PRESSURE_AGE_YEARS);
-  const strong = Object.values(content.route).some((route) => route.gate !== "road" && (routePercent(read, route.id, judge) ?? 0) >= PRESSURE_STRONG_ROUTE);
+  const lines = content.tuning.road;
+  const yearsOver = Math.max(0, divFloor(state.quality["quality.age-months"] ?? 0, MONTHS_A_YEAR) - lines.pressureAgeOver);
+  const strong = Object.values(content.route).some((route) => route.gate !== "road" && (routePercent(read, route.id, judge) ?? 0) >= lines.pressureStrongRoute);
   const chance =
     entry.chanceBp +
     pressure.refusalBp * refusals +
     (defaulted ? pressure.defaultBp : 0) +
-    (standing < PRESSURE_STANDING_UNDER ? pressure.lowStandingBp : 0) +
+    (standing < lines.pressureStandingUnder ? pressure.lowStandingBp : 0) +
     pressure.perYearOver30Bp * yearsOver -
     (strong ? pressure.strongRouteBp : 0);
   return clamp(chance, 0, BP_WHOLE);

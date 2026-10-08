@@ -296,6 +296,7 @@ export const miniContent: Content = {
       hireMaxBp: 9500,
       skillSoftAt: 70,
       skillSoftBp: 5000,
+      sideJobSkillBp: 5000,
     },
     wallet: {
       bankChargeBp: 150,
@@ -337,7 +338,7 @@ export const miniContent: Content = {
     offer: { maxNewPerMonth: 2, maxOpen: 4 },
     place: { brokeLine: 50000000, fareFromNaira: true },
     status: { courseMonths: 12 },
-    credit: { onTime: 3, onMiss: 12, onDefault: 30, drift: 1, driftTo: 40, judgmentMonths: 72, judgmentCap: 20, returnPenalty: 20 },
+    credit: { onTime: 3, onMiss: 12, onDefault: 30, drift: 1, driftTo: 40, judgmentMonths: 72, judgmentCap: 20, returnPenalty: 20, cleanMonths: 12 },
     car: { lessons: 220000, testFee: 8500, passBp: 5500, passPerAttemptBp: 500, passCapBp: 9000 },
     remit: { appFeeBp: 0, appMarginBp: 200, bankFeeBp: 800, informalLossBp: 500, abroadBp: 30000 },
     return: {
@@ -348,7 +349,7 @@ export const miniContent: Content = {
       residentLapseMonths: 24,
     },
     director: { surgePerTick: 3, closedTicks: 8, maxNewPerTick: 2, shockGapTicks: 6, onlineTickScale: 2 },
-    road: { enabled: true, meansStep: 10000000 },
+    road: { enabled: true, meansStep: 10000000, pressureStandingUnder: 30, pressureAgeOver: 30, pressureStrongRoute: 60 },
     ladder: { cashDetectBp: 200, accountRent: 6000, overtimeBp: 2500, oneChanceBp: 300, phone: 6000000, robberyWellbeing: -12 },
     prologue: {
       startAgeMonths: 192,
@@ -361,8 +362,11 @@ export const miniContent: Content = {
       standing: 50,
       waecStrain: { under: 30, standing: -2 },
       grade: { base: 2, upBp: 4000, downBp: 2000, min: 2, max: 5 },
+      privateSession: 250000000,
     },
     luck: {
+      downUnder: 30,
+      rescueAfterMonths: 12,
       rescue: 25000000,
       rescueUnder: 10000000,
       rescueRatio: 30000,
@@ -377,7 +381,7 @@ export const miniContent: Content = {
       prizeMid: 5000000,
       prizeMidBp: 5,
       prizeJackpot: 200000000,
-      prizeJackpotBp: 1,
+      prizeJackpotBp: 10,
       stake: 200000,
       betOddsBp: 19000,
       betWinBp: 4500,
@@ -394,6 +398,7 @@ export const miniContent: Content = {
       sickPayBp: 5000,
       gapMonths: 10,
     },
+    chapter: { cardLines: 3 },
     groupLoan: { feeBp: 1500, savingsBp: 1000, vanishBp: 2500, visit: { standing: -12, wellbeing: -5 } },
   },
 };

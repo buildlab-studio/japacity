@@ -614,3 +614,16 @@ describe("the view", () => {
     expect(hiddenPaths(view)).toEqual([]);
   });
 });
+
+describe("the prologue's fees", () => {
+  test("[R-PROLOGUE-003] [R-ENGINE-017] given the private university, when its answer is read, then the session passed through the account is the tuning's figure", () => {
+    const answer = content.prologue.university?.answers.find((candidate) => candidate.id === "private");
+    const session = content.tuning.prologue.privateSession;
+    expect(answer?.effects).toEqual(
+      expect.arrayContaining([
+        { type: "money/add", currency: "NGN", pocket: "bank", amount: session, reason: "gift", flagged: true },
+        { type: "money/take", currency: "NGN", pocket: "bank", amount: session, reason: "fee-school" },
+      ]),
+    );
+  });
+});

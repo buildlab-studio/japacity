@@ -732,6 +732,8 @@ export interface Tuning {
     skillSoftAt: number;
     /** The share of a skill gain kept at or above the soft cap, rounding up (R-QUALITY-005). */
     skillSoftBp: number;
+    /** The share of a skill gain kept while a side job is held, rounding up (R-ACTIVITY-010). */
+    sideJobSkillBp: number;
   };
   wallet: {
     bankChargeBp: number;
@@ -780,13 +782,18 @@ export interface Tuning {
   place: { brokeLine: number; fareFromNaira: boolean };
   status: { courseMonths: number };
   /** `judgmentCap`: while a judgment stands, `credit/min` above it is never met (R-CREDIT-006). */
-  credit: { onTime: number; onMiss: number; onDefault: number; drift: number; driftTo: number; judgmentMonths: number; judgmentCap: number; returnPenalty: number };
+  /** `cleanMonths`: months without a miss before the file drifts up (R-CREDIT-003). */
+  credit: { onTime: number; onMiss: number; onDefault: number; drift: number; driftTo: number; judgmentMonths: number; judgmentCap: number; returnPenalty: number; cleanMonths: number };
   car: { lessons: number; testFee: number; passBp: number; passPerAttemptBp: number; passCapBp: number };
   remit: { appFeeBp: number; appMarginBp: number; bankFeeBp: number; informalLossBp: number; abroadBp: number };
   return: { standing: Record<ReturnShape, number>; capitalPer: number; capitalCap: number; offerMonths: number; residentLapseMonths: number };
   director: { surgePerTick: number; closedTicks: number; maxNewPerTick: number; shockGapTicks: number; onlineTickScale: number };
-  /** `meansStep`: family means fall one point for each this much the family pays (R-ROAD-005). */
-  road: { enabled: boolean; meansStep: number };
+  /**
+   * `meansStep`: family means fall one point for each this much the family pays (R-ROAD-005). The pressure
+   * lines (R-ROAD-002): standing under `pressureStandingUnder`, each year of age over `pressureAgeOver`, and a
+   * formal route at a japacity figure of `pressureStrongRoute` or more.
+   */
+  road: { enabled: boolean; meansStep: number; pressureStandingUnder: number; pressureAgeOver: number; pressureStrongRoute: number };
   /** `robberyWellbeing`: wellbeing lost to the one chance (R-ACTIVITY-011). */
   ladder: { cashDetectBp: number; accountRent: number; overtimeBp: number; oneChanceBp: number; phone: number; robberyWellbeing: number };
   prologue: {
@@ -804,8 +811,13 @@ export interface Tuning {
     waecStrain: { under: number; standing: number };
     /** The degree's grade: base plus the grade base, up one at `upBp`, down one at `downBp`, kept between min and max. */
     grade: { base: number; upBp: number; downBp: number; min: number; max: number };
+    /** A private university's session, passed through the account by the family (R-PROLOGUE-003). */
+    privateSession: number;
   };
+  /** `downUnder`: wellbeing or standing under this is "down" (R-LUCK-003); `rescueAfterMonths`: months played before the whip-round (R-LUCK-002). */
   luck: {
+    downUnder: number;
+    rescueAfterMonths: number;
     rescue: number;
     rescueUnder: number;
     rescueRatio: number;
@@ -838,6 +850,8 @@ export interface Tuning {
     sickPayBp: number;
     gapMonths: number;
   };
+  /** `cardLines`: the lines the send-off card names (R-CHAPTER-006). */
+  chapter: { cardLines: number };
   /** `visit`: the second miss in a row, the officer and the group at the house (R-OBLIGATION-011). */
   groupLoan: { feeBp: number; savingsBp: number; vanishBp: number; visit: { standing: number; wellbeing: number } };
 }

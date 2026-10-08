@@ -11,8 +11,6 @@ import type { ChapterEvent } from "./chapter.events";
 /** The chapter whose close makes the send-off card (R-CHAPTER-006). */
 const SEND_OFF: Id<"chapter"> = "chapter.send-off";
 const STANDING: Id<"quality"> = "quality.standing";
-/** The card names the three lines the player chose most. */
-const TOP_ACTIVITIES = 3;
 
 /** Every chapter in content, by order. */
 function byOrder(content: Content): ChapterEntry[] {
@@ -97,11 +95,11 @@ function judgeDone(read: ReadCtx, requirement: Requirement): RequirementResult {
 // ---------------------------------------------------------------------------
 
 /** The activities played in the most months (R-ACTIVITY-012), most first, then by id. */
-export function topActivities(state: State): Id<"activity">[] {
+export function topActivities(state: State, content: Content): Id<"activity">[] {
   return (Object.entries(state.activity.played) as [Id<"activity">, number][])
     .filter(([, months]) => months > 0)
     .sort(([a, x], [b, y]) => y - x || (a < b ? -1 : a > b ? 1 : 0))
-    .slice(0, TOP_ACTIVITIES)
+    .slice(0, content.tuning.chapter.cardLines)
     .map(([id]) => id);
 }
 
@@ -130,7 +128,7 @@ export function sendOffCard(read: ReadCtx): PlayerView["card"] {
     percent: route === null ? null : routePercent(read, route),
     months: read.state.turn.month,
     standing: read.state.quality[STANDING] ?? 0,
-    topActivities: topActivities(read.state),
+    topActivities: topActivities(read.state, read.content),
   };
 }
 

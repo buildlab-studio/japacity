@@ -84,8 +84,16 @@ describe("the lotto kiosk", () => {
     // Out of a million draws: the prizes paid, against the stake paid.
     const paid = prizeOdds(luck).reduce((sum, odds) => sum + odds.perMillion * odds.amount, 0);
     expect(paid * 2).toBeLessThan(luck.ticket * PER_MILLION);
-    // ₦50 small, ₦25 mid and ₦2 jackpot on each ₦200 ticket.
-    expect(mulDiv(paid, 1, PER_MILLION)).toBe(7700);
+    // ₦50 small, ₦25 mid and ₦20 jackpot on each ₦200 ticket: ₦95, as the page computes it.
+    expect(mulDiv(paid, 1, PER_MILLION)).toBe(9500);
+  });
+
+  test("[R-LUCK-005] [R-ENGINE-017] given the tuning's jackpot figure, when its odds are read, then it is 1 in 100,000 draws, and an overlay's figure is the one drawn", () => {
+    const jackpot = prizeOdds(luck).find((odds) => odds.prize === "jackpot")!;
+    expect(jackpot.perMillion).toBe(luck.prizeJackpotBp);
+    expect(jackpot.perMillion * 100000).toBe(PER_MILLION);
+    const overlaid = prizeOdds({ ...luck, prizeJackpotBp: 2 * luck.prizeJackpotBp }).find((odds) => odds.prize === "jackpot")!;
+    expect(overlaid.perMillion).toBe(2 * luck.prizeJackpotBp);
   });
 
   test.prop([fc.integer({ min: 0, max: PER_MILLION - 1 })])("[R-LUCK-005] given any draw out of a million, when its prize is read, then it is the band it falls in, and the bands do not overlap", (value) => {

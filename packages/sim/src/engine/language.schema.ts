@@ -358,6 +358,7 @@ export const TuningSchema = z.strictObject({
     hireMaxBp: BpSchema,
     skillSoftAt: CountSchema,
     skillSoftBp: BpSchema,
+    sideJobSkillBp: BpSchema,
   }),
   wallet: z.strictObject({
     bankChargeBp: BpSchema,
@@ -415,6 +416,7 @@ export const TuningSchema = z.strictObject({
     judgmentMonths: CountSchema,
     judgmentCap: CountSchema,
     returnPenalty: CountSchema,
+    cleanMonths: CountSchema,
   }),
   car: z.strictObject({ lessons: CountSchema, testFee: CountSchema, passBp: BpSchema, passPerAttemptBp: BpSchema, passCapBp: BpSchema }),
   remit: z.strictObject({ appFeeBp: BpSchema, appMarginBp: BpSchema, bankFeeBp: BpSchema, informalLossBp: BpSchema, abroadBp: CountSchema }),
@@ -432,7 +434,13 @@ export const TuningSchema = z.strictObject({
     shockGapTicks: CountSchema,
     onlineTickScale: z.int().positive(),
   }),
-  road: z.strictObject({ enabled: z.boolean(), meansStep: CountSchema }),
+  road: z.strictObject({
+    enabled: z.boolean(),
+    meansStep: CountSchema,
+    pressureStandingUnder: CountSchema,
+    pressureAgeOver: CountSchema,
+    pressureStrongRoute: CountSchema,
+  }),
   ladder: z.strictObject({ cashDetectBp: BpSchema, accountRent: CountSchema, overtimeBp: BpSchema, oneChanceBp: BpSchema, phone: CountSchema, robberyWellbeing: IntSchema }),
   prologue: z.strictObject({
     startAgeMonths: CountSchema,
@@ -445,8 +453,11 @@ export const TuningSchema = z.strictObject({
     standing: CountSchema,
     waecStrain: z.strictObject({ under: CountSchema, standing: IntSchema }),
     grade: z.strictObject({ base: CountSchema, upBp: BpSchema, downBp: BpSchema, min: CountSchema, max: CountSchema }),
+    privateSession: CountSchema,
   }),
   luck: z.strictObject({
+    downUnder: CountSchema,
+    rescueAfterMonths: CountSchema,
     rescue: CountSchema,
     rescueUnder: CountSchema,
     rescueRatio: CountSchema,
@@ -478,6 +489,7 @@ export const TuningSchema = z.strictObject({
     sickPayBp: BpSchema,
     gapMonths: CountSchema,
   }),
+  chapter: z.strictObject({ cardLines: z.int().positive() }),
   groupLoan: z.strictObject({ feeBp: BpSchema, savingsBp: BpSchema, vanishBp: BpSchema, visit: z.strictObject({ standing: IntSchema, wellbeing: IntSchema }) }),
 });
 

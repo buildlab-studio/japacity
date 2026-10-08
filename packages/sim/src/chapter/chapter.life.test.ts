@@ -54,7 +54,7 @@ describe("the send-off card", () => {
       percent: 100,
       months: game.state.turn.month,
       standing: game.state.quality[STANDING],
-      topActivities: topActivities(game.state),
+      topActivities: topActivities(game.state, game.content),
     });
     expect(card?.topActivities.length).toBe(3);
     // The card is data in the view, never in the state.
@@ -67,10 +67,17 @@ describe("the send-off card", () => {
       .sort(([a, x], [b, y]) => y - x || (a < b ? -1 : 1))
       .slice(0, 3)
       .map(([id]) => id);
-    expect(topActivities(game.state)).toEqual(expected);
+    expect(topActivities(game.state, game.content)).toEqual(expected);
     const shown = game.view().card?.topActivities ?? [];
     expect(shown).toEqual(expected);
     for (const id of shown) expect(content.activity[id]?.where).not.toBe("abroad");
+  });
+
+  test("[R-CHAPTER-006] [R-ENGINE-017] given the card's lines set to 2 in the tuning, when the card is read at the flight, then it names the two played most", () => {
+    const moved = { ...content, tuning: { ...content.tuning, chapter: { cardLines: 2 } } };
+    const game = flownAda(moved);
+    const shown = game.view().card?.topActivities ?? [];
+    expect(shown).toEqual(topActivities(flownAda(content).state, content).slice(0, 2));
   });
 
   test("[R-CHAPTER-006] given the card shown at the flight, when the first month abroad ends and the send-off closes, then the card is gone and the view's card is the road's, which is none", () => {

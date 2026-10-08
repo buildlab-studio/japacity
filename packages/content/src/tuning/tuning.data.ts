@@ -27,6 +27,8 @@ export const tuning: Tuning = {
     skillSoftAt: 70,
     // Half a gain is kept at or above the soft cap, rounding up (R-QUALITY-005).
     skillSoftBp: pct(50),
+    // activity.md R-ACTIVITY-010: a side job halves every skill gain.
+    sideJobSkillBp: pct(50),
   },
 
   // wallet.md
@@ -106,7 +108,8 @@ export const tuning: Tuning = {
   status: { courseMonths: 12 },
 
   // credit.md
-  credit: { onTime: 3, onMiss: 12, onDefault: 30, drift: 1, driftTo: 40, judgmentMonths: 72, judgmentCap: 20, returnPenalty: 20 },
+  // credit.md R-CREDIT-003: a clean year before the file drifts.
+  credit: { onTime: 3, onMiss: 12, onDefault: 30, drift: 1, driftTo: 40, judgmentMonths: 72, judgmentCap: 20, returnPenalty: 20, cleanMonths: 12 },
 
   // car.md
   car: { lessons: pounds(2200), testFee: 8500, passBp: pct(55), passPerAttemptBp: pct(5), passCapBp: pct(90) },
@@ -127,7 +130,8 @@ export const tuning: Tuning = {
   director: { surgePerTick: 3, closedTicks: 8, maxNewPerTick: 2, shockGapTicks: 6, onlineTickScale: 2 },
 
   // road.md
-  road: { enabled: true, meansStep: naira(100000) },
+  // road.md R-ROAD-002: the pressure lines; the figures each adds are on the pitch entries.
+  road: { enabled: true, meansStep: naira(100000), pressureStandingUnder: 30, pressureAgeOver: 30, pressureStrongRoute: 60 },
 
   // ladders.md
   ladder: { cashDetectBp: 200, accountRent: pounds(60), overtimeBp: pct(25), oneChanceBp: 300, phone: naira(60000), robberyWellbeing: -12 },
@@ -145,11 +149,14 @@ export const tuning: Tuning = {
     standing: 50,
     waecStrain: { under: 30, standing: -2 },
     grade: { base: 2, upBp: 4000, downBp: 2000, min: 2, max: 5 },
+    privateSession: naira(2500000),
   },
 
-  // luck.md. The jackpot is 1 in 100,000 and the mid prize 1 in 2,000: both under one basis point,
-  // so they are written as draws out of a million in the kind; here the figures are per million.
+  // luck.md. The jackpot, 1 in 100,000, is under one basis point, so its figure is draws out of a
+  // million; the mid prize, 1 in 2,000, and the small one are basis points.
   luck: {
+    downUnder: 30,
+    rescueAfterMonths: 12,
     rescue: naira(250000),
     rescueUnder: naira(100000),
     rescueRatio: 30000,
@@ -164,7 +171,7 @@ export const tuning: Tuning = {
     prizeMid: naira(50000),
     prizeMidBp: 5,
     prizeJackpot: naira(2000000),
-    prizeJackpotBp: 1,
+    prizeJackpotBp: 10,
     stake: naira(2000),
     betOddsBp: 19000,
     betWinBp: pct(45),
@@ -183,6 +190,9 @@ export const tuning: Tuning = {
     sickPayBp: pct(50),
     gapMonths: 10,
   },
+
+  // chapter.md R-CHAPTER-006: the send-off card names the three lines played most.
+  chapter: { cardLines: 3 },
 
   // obligation.md, the group loan
   groupLoan: { feeBp: 1500, savingsBp: 1000, vanishBp: pct(25), visit: { standing: -12, wellbeing: -5 } },

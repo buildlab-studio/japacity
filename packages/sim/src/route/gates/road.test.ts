@@ -285,6 +285,29 @@ describe("the pitch", () => {
     expect(parkChance(known(life({ change: at(60) })))).toBe(park.chanceBp - pressure.strongRouteBp);
   });
 
+  test("[R-ROAD-002] [R-ENGINE-017] given the pressure lines moved in the tuning (standing under 50, age over 25, a strong route at 10), when the chance is read, then each line is the tuning's", () => {
+    // The UK route known at a figure of 10, standing 40 and 27 years: no line of the page's is crossed.
+    const atTen: Change = (used) => {
+      const uk = used.route[UK]!;
+      const checklist = [
+        { id: "met", weight: 10, requirement: { type: "month/min", value: 0 } as Requirement, partial: false },
+        { id: "unmet", weight: 90, requirement: { type: "month/min", value: 9999 } as Requirement, partial: false },
+      ];
+      return { ...used, route: { ...used.route, [UK]: { ...uk, checklist } } };
+    };
+    const moved: Change = (used) => ({
+      ...used,
+      tuning: { ...used.tuning, road: { ...used.tuning.road, pressureStandingUnder: 50, pressureAgeOver: 25, pressureStrongRoute: 10 } },
+    });
+    const known = (game: Game): Game => {
+      game.state = { ...game.state, route: { ...game.state.route, [UK]: { ...game.state.route[UK]!, state: "known" } } };
+      return game;
+    };
+    const qualities = { [STANDING]: 40, [AGE]: 27 * 12 };
+    expect(chanceOf(known(life({ qualities, change: atTen })))).toBe(radio.chanceBp);
+    expect(chanceOf(known(life({ qualities, change: all(atTen, moved) })))).toBe(radio.chanceBp + pressure.lowStandingBp + 2 * pressure.perYearOver30Bp - pressure.strongRouteBp);
+  });
+
   test("[R-ROAD-002] given a strong route and no pressure on a pitch whose chance is below the figure, when the chance is read, then it stops at 0", () => {
     const game = life();
     game.state = { ...game.state, route: { ...game.state.route, [UK]: { ...game.state.route[UK]!, state: "granted" } } };
