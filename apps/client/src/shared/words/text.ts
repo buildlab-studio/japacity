@@ -77,7 +77,7 @@ function bareCurrency(name: string, params: Params, key: string): Currency {
 // school teacher", "Your passport is ready". Schools, people, news and places keep
 // their capitals.
 const LOWER_KINDS = new Set(["activity", "document", "route", "quality", "obligation", "status"]);
-const PROPER_WORDS = new Set(["English", "Canada", "Canadian", "December", "United", "Nigerian", "Lagos", "Gulf", "Dubai", "QuickNaira"]);
+const PROPER_WORDS = new Set(["English", "British", "Canada", "Canadian", "December", "United", "Nigerian", "Lagos", "Gulf", "Dubai", "QuickNaira"]);
 
 /** A name with its first letter lowered, unless it starts with an acronym or a proper noun. */
 export function lowerFirst(name: string): string {
