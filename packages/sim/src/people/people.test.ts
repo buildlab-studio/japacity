@@ -879,7 +879,7 @@ describe("requirements", () => {
   test.each([
     [0, true],
     [1, false],
-  ])("[R-PEOPLE-031] [R-PEOPLE-046] given a sibling resident in Canada, when the sibling requirement asks for an age %i month over theirs, then it holds: %s", (over, met) => {
+  ])("[R-PEOPLE-046] given a sibling resident in Canada, when the sibling requirement asks for an age %i month over theirs, then it holds: %s", (over, met) => {
     const only = tuned((copy) => {
       for (const entry of Object.values(copy.person)) if (entry.role === "sibling") entry.weight = entry.id === "person.sib-ca" ? 1 : 0;
     });
