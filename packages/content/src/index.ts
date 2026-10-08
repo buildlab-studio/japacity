@@ -4,6 +4,7 @@ import type { Content } from "@japacity/sim";
 import { activityAbroadText } from "./activity/activity.abroad.text";
 import { activityTable } from "./activity/activity.data";
 import { activityText } from "./activity/activity.text";
+import { counterTable } from "./analytics/analytics.data";
 import { chapterTable } from "./chapter/chapter.data";
 import { chapterText } from "./chapter/chapter.text";
 import { countryTable } from "./country/country.data";
@@ -79,10 +80,10 @@ export const content: Content = {
   phrase: phraseTable,
   interview: interviewTable,
   people: { spots: peopleSpots },
-  // The tables start empty; their builders fill them (adverts.md, guides.md, analytics.md).
+  // The tables start empty; their builders fill them (adverts.md, guides.md).
   advert: {},
   guide: {},
-  analytics: { counters: [] },
+  analytics: { counters: counterTable },
   points: pointsTable,
   prologue: prologueTable,
   tuning,
