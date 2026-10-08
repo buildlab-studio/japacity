@@ -1,22 +1,30 @@
 // A set piece, such as an interview: one question at a time. While it is open the month cannot
-// end, so it sits at the top of the month plan. The December visit has a
-// scene of its own.
+// end, so it sits at the top of the month plan. The December visit has a scene of its own, and
+// the visa interview is spoken in a room of its own (InterviewRoom.tsx).
 import { MessageCircleQuestion } from "lucide-react";
+import { useEffect } from "react";
+import { useStore } from "zustand";
 
 import { useGame, useView } from "../../authority/GameProvider";
+import { installSoundWake } from "../../shared/sound/sound";
+import { SoundNotice } from "../../shared/sound/SoundNotice";
 import { Button } from "../../shared/ui/Button";
 import { Card, Tag } from "../../shared/ui/Panel";
 import { nameOf, say, words } from "../../shared/words/text";
 import { DECEMBER, DecemberScene } from "./DecemberScene";
+import { ClosingLine, InterviewRoom } from "./InterviewRoom";
+import { leaveRoomView, roomStore, VOICED } from "./room.store";
 
-export function SetpieceView() {
+// Section 7, limit 1 of docs/design/06-audio.md: the first tap anywhere in the game wakes sound.
+// installed here, where the game first loads a scene that speaks; main.tsx is kept apart.
+if (typeof document !== "undefined") installSoundWake(document);
+
+function Plain() {
   const { setpiece, ended } = useView();
   const send = useGame((state) => state.send);
   const busy = useGame((state) => state.busy);
   if (setpiece === null) return null;
-  if (setpiece.entry === DECEMBER) return <DecemberScene />;
   const { question } = setpiece;
-
   return (
     <section aria-label={nameOf(setpiece.entry)}>
       <Card tone="attention" className="flex flex-col gap-4">
@@ -52,5 +60,28 @@ export function SetpieceView() {
         )}
       </Card>
     </section>
+  );
+}
+
+function Scene() {
+  const { setpiece } = useView();
+  const closing = useStore(roomStore, (state) => state.closing);
+  const open = setpiece?.entry ?? null;
+  useEffect(() => {
+    if (open !== VOICED) leaveRoomView();
+  }, [open]);
+  if (setpiece === null) return closing === null ? null : <ClosingLine reaction={closing} />;
+  if (setpiece.entry === DECEMBER) return <DecemberScene />;
+  if (setpiece.entry === VOICED) return <InterviewRoom setpiece={setpiece} />;
+  return <Plain />;
+}
+
+export function SetpieceView() {
+  return (
+    <>
+      <Scene />
+      {/* the game's one notice belongs at the root of the app; it is mounted here until someone adds it. */}
+      <SoundNotice />
+    </>
   );
 }

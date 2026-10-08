@@ -1,4 +1,4 @@
-// Set pieces: docs/rules/route.md, R-SETPIECE-001 to 006. A set piece is a
+// Set pieces: docs/rules/route.md, R-SETPIECE-001 to 008. A set piece is a
 // short run of questions that blocks the next turn until it is answered: the
 // credibility interview a visa application opens, the road's scenes and the
 // December visit.
@@ -40,10 +40,20 @@ function entryOf(content: Content, id: Id<"setpiece">): SetpieceEntry {
   return entry;
 }
 
+/** A question drawn or asked as a follow-up, or undefined when the entry has neither. */
+function findQuestion(entry: SetpieceEntry, id: string): SetpieceQuestion | undefined {
+  return entry.questions.find((candidate) => candidate.id === id) ?? entry.followUps?.find((candidate) => candidate.id === id);
+}
+
 function questionOf(entry: SetpieceEntry, id: string): SetpieceQuestion {
-  const question = entry.questions.find((candidate) => candidate.id === id);
+  const question = findQuestion(entry, id);
   if (question === undefined) throw new Error(`${entry.id} has no question ${id}.`);
   return question;
+}
+
+/** R-SETPIECE-008: a question asked only after an answer that names it. */
+function isFollowUp(entry: SetpieceEntry, id: string): boolean {
+  return entry.followUps?.some((candidate) => candidate.id === id) ?? false;
 }
 
 /** The first question not yet answered, or null when all are. Answers come in the order asked. */
@@ -120,12 +130,31 @@ function answer(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   const events = emit(ctx, "setpiece", [answered]);
   // R-SETPIECE-006: an answer's effects apply the moment it is given.
   if (chosen.effects.length > 0) ctx.apply(chosen.effects, { source: open.entry, param: null, terms: {} });
+  if (chosen.closes !== true) events.push(...followUp(ctx, entry, next, chosen));
   const now = ctx.state.setpiece.open;
   if (now === null || (chosen.closes !== true && nextQuestion(now) !== null)) return events;
   const closed: SetpieceEvent = { type: "setpiece/closed", entry: now.entry, route: now.route };
   events.push(...emit(ctx, "setpiece", [closed]));
   if (now.route !== null) ctx.apply([{ type: "route/interview-scored", route: now.route, score: now.score }], { source: now.entry, param: null, terms: {} });
   return events;
+}
+
+/**
+ * R-SETPIECE-008: the follow-up the answer names is asked next, once its
+ * conditions hold. It follows the answer given, never its score. A follow-up
+ * leads to no other, and one already asked is not asked again, so a question
+ * has at most one.
+ */
+// follow-ups sit in the entry's own `followUps`, so the draw never sees them; one is asked
+// only while its own `when` holds, and an answer marked `closes` asks none.
+function followUp(ctx: Ctx, entry: SetpieceEntry, after: string, chosen: SetpieceAnswer): BaseEvent[] {
+  const open = ctx.state.setpiece.open;
+  const id = chosen.followUp;
+  if (open === null || id === undefined || isFollowUp(entry, after) || open.questions.includes(id)) return [];
+  const question = entry.followUps?.find((candidate) => candidate.id === id);
+  if (question === undefined || !question.when.every((requirement) => ctx.check(requirement).met)) return [];
+  const followed: SetpieceEvent = { type: "setpiece/followed-up", question: id, after };
+  return emit(ctx, "setpiece", [followed]);
 }
 
 /**
@@ -152,6 +181,12 @@ function evolve(slice: SetpieceSlice, event: SetpieceEvent): SetpieceSlice {
         given: { ...slice.given, [slice.open.entry]: { ...slice.given[slice.open.entry], [event.question]: event.answer } },
       };
     }
+    case "setpiece/followed-up": {
+      if (slice.open === null) throw new Error(`${event.question} was asked with no set piece open.`);
+      const at = slice.open.questions.indexOf(event.after);
+      const questions = [...slice.open.questions.slice(0, at + 1), event.question, ...slice.open.questions.slice(at + 1)];
+      return { ...slice, open: { ...slice.open, questions } };
+    }
     case "setpiece/closed":
       return { ...slice, open: null, answered: { ...slice.answered, [event.entry]: (slice.answered[event.entry] ?? 0) + 1 } };
     case "setpiece/dropped":
@@ -173,6 +208,8 @@ function lines(event: SetpieceEvent, state: State): ReportLine[] {
       if (state.setpiece.open?.entry === DECEMBER && event.answer === GO) {
         return [{ key: "line.setpiece.december-go", params: { setpiece: DECEMBER }, tone: "good", attention: true, big: true, counts: [] }];
       }
+      return [];
+    case "setpiece/followed-up":
       return [];
     case "setpiece/closed":
       return [{ key: "line.setpiece.closed", params: { setpiece: event.entry }, tone: "plain", attention: false, counts: [] }];
@@ -227,6 +264,7 @@ function view(read: ReadCtx): Pick<PlayerView, "setpiece"> {
               answers: question.answers.map((candidate) => candidate.id),
               allowed: allowed.map((candidate) => candidate.id),
               weak: hinted ? allowed.filter((candidate) => answerScore(candidate, judge) < 0).map((candidate) => candidate.id) : [],
+              followUp: isFollowUp(entry, question.id),
             },
     },
   };
@@ -272,7 +310,7 @@ export const setpieceKind: RegisteredKind<SetpieceSlice, SetpieceEvent> = {
     if (new Set(open.questions).size !== open.questions.length) problems.push(`${open.entry} asks a question twice.`);
     if (open.route !== null && content.route[open.route] === undefined) problems.push(`${open.entry} is open for ${open.route}, which is not a route in content.`);
     open.questions.forEach((id, index) => {
-      const question = entry.questions.find((candidate) => candidate.id === id);
+      const question = findQuestion(entry, id);
       if (question === undefined) {
         problems.push(`${open.entry} asks ${id}, which it does not have.`);
         return;
@@ -281,6 +319,10 @@ export const setpieceKind: RegisteredKind<SetpieceSlice, SetpieceEvent> = {
       if (given !== undefined && !question.answers.some((candidate) => candidate.id === given)) problems.push(`${id} was answered with ${given}.`);
       const earlier = open.questions[index - 1];
       if (given !== undefined && earlier !== undefined && open.answers[earlier] === undefined) problems.push(`${id} was answered before ${earlier}.`);
+      // R-SETPIECE-008: a follow-up sits right after the question answered with the answer that names it.
+      const before = earlier === undefined ? undefined : findQuestion(entry, earlier);
+      const named = before?.answers.find((candidate) => candidate.id === open.answers[earlier ?? ""])?.followUp;
+      if (isFollowUp(entry, id) && named !== id) problems.push(`${open.entry} asks the follow-up ${id} where no answer before it names it.`);
     });
     for (const id of Object.keys(open.answers)) {
       if (!open.questions.includes(id)) problems.push(`${open.entry} holds an answer to ${id}, which it never asked.`);

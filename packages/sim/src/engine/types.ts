@@ -508,6 +508,8 @@ export interface SetpieceAnswer {
   requires?: Requirement[];
   /** True: giving this answer closes the set piece with the questions after it unasked (R-SETPIECE-004). */
   closes?: true;
+  /** The id of a question in the entry's `followUps`, asked next when this answer is given (R-SETPIECE-008). */
+  followUp?: string;
 }
 
 export interface SetpieceQuestion {
@@ -524,6 +526,8 @@ export interface SetpieceEntry {
   /** `fixed`: the first `ask` questions whose conditions hold, in the order written. Missing: drawn on `visa` (R-SETPIECE-001). */
   order?: "fixed";
   questions: SetpieceQuestion[];
+  /** Questions asked only after an answer that names one, never drawn (R-SETPIECE-008). Missing: none. */
+  followUps?: SetpieceQuestion[];
 }
 
 export type ObligationType =
@@ -1956,8 +1960,8 @@ export interface PlayerView {
     entry: Id<"setpiece">;
     asked: number;
     total: number;
-    /** `answers` is every answer; `allowed` those whose requirements hold now (R-SETPIECE-003); `weak` those that would score below zero, shown only with enough prep (R-SETPIECE-005). */
-    question: { id: string; answers: string[]; allowed: string[]; weak: string[] } | null;
+    /** `answers` is every answer; `allowed` those whose requirements hold now (R-SETPIECE-003); `weak` those that would score below zero, shown only with enough prep (R-SETPIECE-005); `followUp` true when it is asked after the answer before it (R-SETPIECE-008). */
+    question: { id: string; answers: string[]; allowed: string[]; weak: string[]; followUp: boolean } | null;
   } | null;
   /** Every open obligation with its next charge; `car` carries R-CAR-007's figures for a car and is null for anything else. */
   obligations: (ObligationState & { due: number; car: CarView | null })[];
