@@ -14,6 +14,10 @@ import { placeRoutes } from "./routes/place";
 import { viewRoute } from "./routes/view";
 import { worldRoute } from "./routes/world";
 import { adminRoutes } from "./routes/admin";
+import { conversationRoutes } from "./routes/conversation";
+import { inviteRoutes } from "./routes/invite";
+import { moderationRoutes } from "./routes/moderation";
+import { pairRoutes } from "./routes/pair";
 
 export function makeApp(deps: ServerDeps, accounts?: Accounts): Hono {
   const app = new Hono();
@@ -27,6 +31,10 @@ export function makeApp(deps: ServerDeps, accounts?: Accounts): Hono {
   app.route("/", characterRoute(deps));
   app.route("/", placeRoutes(deps));
   app.route("/api/admin", adminRoutes(deps));
+  app.route("/", inviteRoutes(deps));
+  app.route("/", pairRoutes(deps));
+  app.route("/", conversationRoutes(deps));
+  app.route("/", moderationRoutes(deps));
 
   return app;
 }

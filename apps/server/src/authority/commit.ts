@@ -4,6 +4,7 @@
 import type { Sender } from "@japacity/sim";
 
 import type { ServerDeps } from "../deps";
+import { rewardInviters } from "../pair/rewards";
 import type { Diverged, Live } from "./load";
 
 /**
@@ -12,6 +13,7 @@ import type { Diverged, Live } from "./load";
  */
 export async function afterCommit(deps: ServerDeps, lives: readonly Live[], by: Sender): Promise<void> {
   // The money report's mark (R-SERVER-011) is the admin work's and is added here.
+  await rewardInviters(deps, lives);
   if (by === "player") return;
   for (const live of lives) {
     if (live.rows.length > 0) await deps.stores.nudges.send(live.account, { nudge: "view", v: live.state.v });

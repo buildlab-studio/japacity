@@ -3,7 +3,7 @@
 // grant what real time earned, run the caller's step, and write the rows, the
 // snapshots, any new segment and `refilledAt` together, or nothing at all.
 import type { Command, Rejection, Sender, StepResult, World } from "@japacity/sim";
-import type { CharacterWrite, Refusal } from "@japacity/store";
+import type { CharacterWrite, PairRow, PairWrite, Refusal, Writes } from "@japacity/store";
 
 import { earnTurns } from "../clock/turns";
 import { tickAt, turnClock } from "../clock/view";
@@ -18,6 +18,10 @@ export interface Turn {
   world: World;
   at: number;
   send: (live: Live, command: Command, sender: Sender) => StepResult;
+  /** R-PAIR-004: the stored records between the held characters, read under the locks. */
+  pairs: readonly PairRow[];
+  /** R-PAIR-004: a record write, applied with the characters' writes or not at all. */
+  writePair: (write: PairWrite) => void;
 }
 
 /** The caller's step, run under the locks once every character is loaded and granted. A rejection writes nothing. */
@@ -69,9 +73,11 @@ export async function transact<T>(deps: ServerDeps, ids: readonly string[], act:
   const at = deps.now();
   const world = (await tickRow(deps, tickAt(deps.config.clock, at))).world;
   const snapshotEvery = deps.config.server.snapshotEvery;
-  const turn: Turn = { world, at, send: (live, command, sender) => apply(live, command, sender, world, at, snapshotEvery) };
+  const send: Turn["send"] = (live, command, sender) => apply(live, command, sender, world, at, snapshotEvery);
 
-  const result = await deps.stores.player.transact(ids, async (rows): Promise<{ writes: { characters?: CharacterWrite[] }; result: TxResult<T> }> => {
+  const result = await deps.stores.player.transact(ids, async (rows): Promise<{ writes: Writes; result: TxResult<T> }> => {
+    const pairWrites: PairWrite[] = [];
+    const turn: Turn = { world, at, send, pairs: rows.pairs, writePair: (write) => pairWrites.push(write) };
     const ticks = new Set(rows.characters.flatMap((held) => held.tail.map((logged) => logged.tick)));
     const worlds = await storedWorlds(deps, ticks);
     const lives: Live[] = [];
@@ -86,7 +92,7 @@ export async function transact<T>(deps: ServerDeps, ids: readonly string[], act:
     const unsold = await sellTickets(deps.stores.world, lives, world);
     if (unsold !== null) return { writes: {}, result: { kind: "rejected", rejection: unsold, lives, world, at } };
     const characters = lives.map(writeOf).filter((write) => write !== null);
-    return { writes: { characters }, result: { kind: "done", value: acted.value, lives, world, at } };
+    return { writes: { characters, pairs: pairWrites }, result: { kind: "done", value: acted.value, lives, world, at } };
   });
   return result.ok ? result.value : { kind: "refused", refusal: result };
 }

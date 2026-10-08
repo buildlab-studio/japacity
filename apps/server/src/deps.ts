@@ -5,8 +5,11 @@ import type { Content } from "@japacity/sim";
 import type {
   AccountStore,
   AuditStore,
+  ConversationStore,
   DeletionStore,
+  InviteStore,
   LedgerStore,
+  ModerationStore,
   NudgeBus,
   PairStore,
   PlayerStore,
@@ -16,8 +19,11 @@ import type {
 import {
   memoryAccountStore,
   memoryAuditStore,
+  memoryConversationStore,
   memoryDeletionStore,
+  memoryInviteStore,
   memoryLedgerStore,
+  memoryModerationStore,
   memoryNudgeBus,
   memoryPlayerStores,
   memoryPresenceStore,
@@ -36,6 +42,9 @@ export interface Stores {
   deletion: DeletionStore;
   ledger: LedgerStore;
   audit: AuditStore;
+  invite: InviteStore;
+  conversation: ConversationStore;
+  moderation: ModerationStore;
 }
 
 /** R-SERVER-023: the current content and the one before, with any overlay already applied (R-SERVER-016). */
@@ -115,6 +124,9 @@ export function memoryStores(): Stores {
     deletion: memoryDeletionStore(),
     ledger: memoryLedgerStore(),
     audit: memoryAuditStore(),
+    invite: memoryInviteStore(),
+    conversation: memoryConversationStore(),
+    moderation: memoryModerationStore(),
   };
 }
 

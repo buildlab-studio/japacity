@@ -16,6 +16,7 @@ import { DRAND_URL, quicknet } from "./draw/beacon";
 import type { DrawKeys } from "./draw/draw";
 import { runDeletions } from "./jobs/deletion";
 import { drawJob } from "./jobs/draw";
+import { standInJob } from "./jobs/stand-in";
 import { ticksJob } from "./jobs/ticks";
 import type { Place } from "./place/place.object";
 import { roomsFor } from "./place/place.rooms";
@@ -108,5 +109,6 @@ export default {
     ctx.waitUntil(drawJob(depsFor(env), drawKeys(env), controller.cron));
     if (controller.cron === "0 0 * * *") ctx.waitUntil(runDeletions(depsFor(env), makeAuth(depsFor(env), authAdapter, authKeys(env, (promise) => ctx.waitUntil(promise)))));
     if (controller.cron === MONEY_CRON) ctx.waitUntil(moneyJob(depsFor(env)));
+    if (controller.cron === "0 0 * * *") ctx.waitUntil(standInJob(depsFor(env)));
   },
 };

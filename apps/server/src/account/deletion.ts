@@ -5,6 +5,7 @@ import type { DeletionRow } from "@japacity/store";
 
 import type { ServerDeps } from "../deps";
 import { sha256Hex } from "../auth/hooks";
+import { leavePairs as leaveEveryPair } from "../pair/leave";
 
 /** R-ACCOUNT-018: the one-way hash kept after the account is gone. */
 export function accountHash(account: string): Promise<string> {
@@ -13,12 +14,11 @@ export function accountHash(account: string): Promise<string> {
 
 /**
  * R-ACCOUNT-016: the character leaves every place and pair, and the other
- * player is told only that they left. No pair exists before the people
- * milestone; its pair store is `stores.pair`, and the leaving is added here.
+ * player is told only that they left (R-PEOPLE-040, pair/leave.ts).
  */
 export type LeavePairs = (deps: ServerDeps, account: string, character: string | null) => Promise<void>;
 
-export const leavePairs: LeavePairs = () => Promise.resolve();
+export const leavePairs: LeavePairs = leaveEveryPair;
 
 /** R-ACCOUNT-016, R-ACCOUNT-017: records the deletion, due within `deleteWithinDays`. Called before the library removes the user. */
 export async function requestDeletion(deps: ServerDeps, account: string): Promise<DeletionRow> {
