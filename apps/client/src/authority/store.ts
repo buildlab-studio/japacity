@@ -2,10 +2,16 @@
 // thing the authority said. Screens read from here and send through here, so
 // none of them ever holds a state, a seed or a version number of its own.
 import { text } from "@japacity/content";
-import type { Authority, Command, Id, PlayerView, RejectionCode, Reply, ReportLine, SlotPick } from "@japacity/sim";
+import type { Command, Id, PlayerView, Reply, ReportLine, SlotPick } from "@japacity/sim";
 import { createStore, type StoreApi } from "zustand/vanilla";
 
+import type { AccountApi } from "../shared/net/auth";
+import type { ClockView, PresenceReply, ServerCode, ServerRejection, WorldReply } from "../shared/net/contract";
+import { isReported } from "../shared/net/http";
 import { tidyLines } from "../shared/words/lines";
+import { sayCount } from "../shared/words/text";
+import { uiText } from "../shared/words/ui";
+import type { AuthorityEvent } from "./remote";
 
 /** A command as a screen writes it: the store adds the version it is based on. */
 export type PlayerCommand = Command extends infer C
@@ -16,8 +22,17 @@ export type PlayerCommand = Command extends infer C
     : never
   : never;
 
+/**
+ * What the store sends through: the local authority, or the remote one whose
+ * replies may also carry the server's own refusals.
+ */
+export interface StoreAuthority {
+  view(): Promise<PlayerView>;
+  send(command: Command): Promise<Reply | ServerRejection>;
+}
+
 export interface Shown {
-  code: RejectionCode;
+  code: ServerCode;
   /** The player's words for it, from content. */
   words: string;
 }
@@ -51,10 +66,22 @@ export interface GameState {
   choosingLife: boolean;
   /** Why a life was replaced, as a words key, when it was. */
   notice: string | null;
+  /** The server's clock from the last reply, or null for the local authority (R-CLOCK-003). Shown, never kept. */
+  clock: ClockView | null;
+  /** The world of the current tick, fetched on the schedule of R-CLOCK-019. */
+  world: WorldReply | null;
+  /** Who else is in the character's place, a sample (R-CLOCK-028). */
+  presence: PresenceReply | null;
+  /** Signing in, the age screen and deletion, or null for the local authority. */
+  account: AccountApi | null;
+  /** True when the server says no one is signed in: the account screens show instead of the game. */
+  signedOut: boolean;
+  /** Why the player is at the sign-in screen, as a words key, when there is a reason to say. */
+  accountNotice: string | null;
 
   refresh: () => Promise<void>;
-  send: (command: PlayerCommand) => Promise<Reply | null>;
-  endMonth: () => Promise<Reply | null>;
+  send: (command: PlayerCommand) => Promise<Reply | ServerRejection | null>;
+  endMonth: () => Promise<Reply | ServerRejection | null>;
   setSlot: (index: number, pick: SlotPick | null) => void;
   /** Puts a pick in the first empty slot. False when every slot is full. */
   addToPlan: (pick: SlotPick) => boolean;
@@ -69,21 +96,33 @@ export interface GameState {
   /** Null when this authority cannot start a life over: the server will own that. */
   openLifeChooser: (() => void) | null;
   closeLifeChooser: () => void;
+  /** What the remote authority reports beside its replies. */
+  heard: (event: AuthorityEvent) => void;
+  /** After a sign-in: back to the game. */
+  signedIn: () => Promise<void>;
+  /** After signing out or deleting the account: to the account screens with a reason to show. */
+  leave: (notice: string | null) => void;
 }
 
 export type GameStore = StoreApi<GameState>;
 
 export interface GameStoreOptions {
   life?: LifeControls;
+  /** False when a life may be started only once, as online (R-ACCOUNT-015). */
+  lifeAgain?: boolean;
   choosingLife?: boolean;
   notice?: string | null;
+  account?: AccountApi | null;
 }
 
 const REST: Id<"activity"> = "activity.rest";
 
-export function rejectionWords(code: RejectionCode): string {
-  return text[`reject.${code}`] ?? code;
+export function rejectionWords(code: ServerCode): string {
+  const key = `reject.${code}`;
+  return text[key] ?? uiText[key] ?? code;
 }
+
+const failure = (error: unknown) => (error instanceof Error ? error.message : String(error));
 
 /** The lines that get a moment of their own, once each payment is told once. */
 function bigLines(lines: readonly ReportLine[]): ReportLine[] {
@@ -97,13 +136,16 @@ function fitPlan(plan: readonly (SlotPick | null)[], slots: number): (SlotPick |
   return kept;
 }
 
-export function createGameStore(authority: Authority, options: GameStoreOptions = {}): GameStore {
+export function createGameStore(authority: StoreAuthority, options: GameStoreOptions = {}): GameStore {
   return createStore<GameState>()((set, get) => {
     function take(view: PlayerView): void {
+      // A fetch that set out before a command's reply can land after it: the older view is dropped.
+      const held = get().view;
+      if (held !== null && view.v < held.v) return;
       set({ view, plan: fitPlan(get().plan, view.freeSlots) });
     }
 
-    async function send(command: PlayerCommand): Promise<Reply | null> {
+    async function send(command: PlayerCommand): Promise<Reply | ServerRejection | null> {
       const { view, busy } = get();
       if (view === null || busy) return null;
       set({ busy: true, rejection: null });
@@ -123,11 +165,11 @@ export function createGameStore(authority: Authority, options: GameStoreOptions 
         } else {
           set({ rejection: { code: reply.code, words: rejectionWords(reply.code) } });
           // The state may have moved on (a stale command): show the latest.
-          take(await authority.view());
+          if (!get().signedOut) take(await authority.view());
         }
         return reply;
       } catch (error) {
-        set({ failed: error instanceof Error ? error.message : String(error) });
+        if (!isReported(error)) set({ failed: failure(error) });
         return null;
       } finally {
         set({ busy: false });
@@ -146,12 +188,18 @@ export function createGameStore(authority: Authority, options: GameStoreOptions 
       cardClosed: null,
       choosingLife: options.choosingLife ?? false,
       notice: options.notice ?? null,
+      clock: null,
+      world: null,
+      presence: null,
+      account: options.account ?? null,
+      signedOut: false,
+      accountNotice: null,
 
       async refresh() {
         try {
           take(await authority.view());
         } catch (error) {
-          set({ failed: error instanceof Error ? error.message : String(error) });
+          if (!isReported(error)) set({ failed: failure(error) });
         }
       },
       send,
@@ -202,9 +250,36 @@ export function createGameStore(authority: Authority, options: GameStoreOptions 
         const view = await options.life.newLife(scenario);
         set({ view, plan: fitPlan([], view.freeSlots), choosingLife: false, notice: null, lines: [], moments: [], rejection: null });
       },
-      openLifeChooser: options.life === undefined ? null : () => set({ choosingLife: true }),
+      openLifeChooser: options.life === undefined || options.lifeAgain === false ? null : () => set({ choosingLife: true }),
       closeLifeChooser() {
         set({ choosingLife: false });
+      },
+      heard(event) {
+        switch (event.kind) {
+          case "clock":
+            set({ clock: event.clock });
+            return;
+          case "signed-out":
+            set({ signedOut: true, view: null, clock: null, busy: false });
+            return;
+          case "no-character":
+            set({ choosingLife: true });
+            return;
+          case "rate-limited":
+            set({ rejection: { code: "rate-limited", words: sayCount("ui.online.wait", event.retryAfter, { seconds: event.retryAfter }) } });
+            return;
+          default: {
+            const never: never = event;
+            throw new Error(`Unknown authority event: ${JSON.stringify(never)}`);
+          }
+        }
+      },
+      async signedIn() {
+        set({ signedOut: false, accountNotice: null, failed: null });
+        await get().refresh();
+      },
+      leave(notice) {
+        set({ signedOut: true, accountNotice: notice, view: null, clock: null, world: null, presence: null, rejection: null, lines: [], moments: [] });
       },
     };
   });

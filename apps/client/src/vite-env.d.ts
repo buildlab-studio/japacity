@@ -5,4 +5,8 @@ interface ImportMetaEnv {
   readonly VITE_FAST_CLOCK?: string;
   /** "1" lets a production build run the in-browser authority (R-ENGINE-015): see src/authority/mode.ts. */
   readonly VITE_ALLOW_LOCAL_AUTHORITY?: string;
+  /** The server's address. Set, the server is the authority: see src/authority/mode.ts. */
+  readonly VITE_SERVER_URL?: string;
+  /** Cloudflare Turnstile's site key for the sign-up check (R-ACCOUNT-013): see src/features/account/Turnstile.tsx. */
+  readonly VITE_TURNSTILE_SITE_KEY?: string;
 }
