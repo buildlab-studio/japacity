@@ -40,7 +40,8 @@ describe("the block and report control", () => {
     fireEvent.click(screen.getByRole("button", { name: words("ui.report") }));
     const sheet = await screen.findByRole("dialog");
     expect(within(sheet).getByRole("checkbox", { name: words("ui.report.also-block") })).toHaveProperty("checked", true);
-    for (const reason of REPORT_REASONS) expect(within(sheet).getByRole("button", { name: reasonWords(reason) })).toBeTruthy();
+    for (const reason of REPORT_REASONS.filter((each) => each !== "advert")) expect(within(sheet).getByRole("button", { name: reasonWords(reason) })).toBeTruthy();
+    expect(within(sheet).queryByRole("button", { name: reasonWords("advert") })).toBeNull();
     expect(within(sheet).queryByRole("textbox")).toBeNull();
     fireEvent.click(within(sheet).getByRole("button", { name: reasonWords("harassment") }));
 

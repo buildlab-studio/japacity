@@ -102,6 +102,7 @@ export function BlockReport({ who, cites, surface, onBlocked }: BlockReportProps
         onOpenChange={setOpen}
         name={who.name}
         canBlock={target !== null && !blocked}
+        advert={"campaign" in who}
         busy={busy}
         onSend={(reason, alsoBlock) => void report(reason, alsoBlock)}
       />
@@ -114,6 +115,7 @@ function ReportSheet({
   onOpenChange,
   name,
   canBlock,
+  advert,
   busy,
   onSend,
 }: {
@@ -121,9 +123,12 @@ function ReportSheet({
   onOpenChange: (open: boolean) => void;
   name: string;
   canBlock: boolean;
+  /** R-MODERATION-004: `advert` is a reason for adverts only. */
+  advert: boolean;
   busy: boolean;
   onSend: (reason: ReportReason, alsoBlock: boolean) => void;
 }) {
+  const reasons = REPORT_REASONS.filter((reason) => advert || reason !== "advert");
   // R-MODERATION-006: offered in the same step, ticked by default.
   const [alsoBlock, setAlsoBlock] = useState(true);
   return (
@@ -135,7 +140,7 @@ function ReportSheet({
         </label>
       ) : null}
       <ul className="flex flex-col gap-2">
-        {REPORT_REASONS.map((reason) => (
+        {reasons.map((reason) => (
           <li key={reason}>
             <Button className="w-full justify-start" disabled={busy} onClick={() => onSend(reason, canBlock && alsoBlock)}>
               {reasonWords(reason)}
