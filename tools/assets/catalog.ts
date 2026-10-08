@@ -7,14 +7,24 @@ import type { BuildingSpec, SignStyle } from "@japacity/assets";
 import { buildBuilding, type BuildingOptions, DEFAULT_DISH_YAW, pole } from "@japacity/assets/kit";
 import { drawPattern } from "@japacity/assets/pattern";
 import { buildFlyoverSpan } from "@japacity/assets-src/bld/flyover-span/build";
+import { buildStiltHouse } from "@japacity/assets-src/bld/stilt-house/build";
+import { buildTerminalFront } from "@japacity/assets-src/bld/terminal-front/build";
 import { buildStadium } from "@japacity/assets-src/lm/national-stadium/build";
 import { buildBridgeSpan } from "@japacity/assets-src/lm/third-mainland-span/build";
 import { buildPerson } from "@japacity/assets-src/people/people";
 import { ALL_PEOPLE } from "@japacity/assets-src/people/people.data";
 import type { PersonMesh } from "@japacity/assets-src/people/person.types";
+import { buildBales } from "@japacity/assets-src/prop/bales/build";
+import { buildBasins } from "@japacity/assets-src/prop/basins/build";
+import { buildCanoe } from "@japacity/assets-src/prop/canoe/build";
+import { buildFlagpole } from "@japacity/assets-src/prop/flagpole/build";
+import { buildMarketStall } from "@japacity/assets-src/prop/market-stall/build";
+import { buildRepairTable } from "@japacity/assets-src/prop/repair-table/build";
 import { buildStall } from "@japacity/assets-src/prop/stall";
+import { buildTrolley } from "@japacity/assets-src/prop/trolley/build";
 import { buildContainerPhones } from "@japacity/assets-src/shop/container-phones/build";
 import { buildProvisions } from "@japacity/assets-src/shop/provisions/build";
+import { buildTaxi } from "@japacity/assets-src/veh/taxi/build";
 import { buildDanfo, buildKeke, buildOkada } from "@japacity/assets-src/veh/vehicles";
 import { Group } from "three";
 
@@ -92,6 +102,23 @@ function buildingEntry(slug: string, place: string): CatalogEntry {
   };
 }
 
+const PLACES_B = "Written as code from the kit";
+
+/** A piece one of the staged places needed, built from the kit by the agent that staged it. */
+function placePiece(name: string, place: string, build: () => Group, views: ViewName[] = [...ELEVATIONS, "phone"]): CatalogEntry {
+  const [prefix = "", slug = ""] = name.split("_");
+  return { name, file: `places/${place}/${name}.glb`, place: `place.${place}`, source: `assets-src/${prefix}/${slug}`, author: PLACES_B, views, build: () => staticModel(name, build()) };
+}
+
+/** A building a staged place needed, as kit data in its spec.json (R-ASSET-014). */
+function placeBuilding(slug: string, place: string): CatalogEntry {
+  const build = (): Group => {
+    const { spec, options } = readJson<{ spec: BuildingSpec; options: BuildingOptions }>(join(SOURCE, "bld", slug, "spec.json"));
+    return buildBuilding(spec, { ...options, dishYaw: HUB_DISH_YAW });
+  };
+  return placePiece(`bld_${slug}`, place, build, [...ELEVATIONS, "plan", "phone"]);
+}
+
 interface OutlineFile {
   views: { view: "front" | "side" | "plan"; polygon: [number, number][] }[];
 }
@@ -101,6 +128,8 @@ const SIGN = {
   notice: { board: "white", ink: "black", painted: true } satisfies SignStyle,
   printed: { board: "white", ink: "blue", border: "blue", glyph: "phone" } satisfies SignStyle,
   cards: { board: "danfoYellow", ink: "black" } satisfies SignStyle,
+  terminal: { board: "white", ink: "green", border: "green" } satisfies SignStyle,
+  hanging: { board: "black", ink: "danfoYellow" } satisfies SignStyle,
 };
 
 export const CATALOG: CatalogEntry[] = [
@@ -174,6 +203,19 @@ export const CATALOG: CatalogEntry[] = [
     farView: { position: [40, 2, 260], target: [-90, 6, 0] },
     build: () => staticModel("lm_third-mainland-span", buildBridgeSpan()),
   },
+  placeBuilding("market-block", "tejuosho-market"),
+  placePiece("prop_market-stall", "tejuosho-market", buildMarketStall),
+  placePiece("prop_bales", "tejuosho-market", buildBales),
+  placePiece("prop_basins", "tejuosho-market", buildBasins),
+  placeBuilding("phone-plaza", "computer-village"),
+  placeBuilding("laptop-house", "computer-village"),
+  placePiece("prop_repair-table", "computer-village", buildRepairTable),
+  placePiece("bld_terminal-front", "airport-lagos", () => buildTerminalFront({ fascia: "place.airport-lagos.sign.1", left: "place.airport-lagos.sign.2", right: "place.airport-lagos.sign.3" }, { fascia: SIGN.terminal, hanging: SIGN.hanging }), [...ELEVATIONS, "plan", "phone"]),
+  placePiece("prop_trolley", "airport-lagos", buildTrolley),
+  placePiece("prop_flagpole", "airport-lagos", buildFlagpole),
+  placePiece("veh_taxi", "airport-lagos", buildTaxi),
+  placePiece("bld_stilt-house", "third-mainland-bridge", buildStiltHouse, [...ELEVATIONS, "plan", "phone"]),
+  placePiece("prop_canoe", "third-mainland-bridge", buildCanoe),
   {
     name: "prop_pole",
     file: "shared/prop/prop_pole.glb",
