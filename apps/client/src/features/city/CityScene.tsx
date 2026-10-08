@@ -11,6 +11,7 @@ import { advanceClock } from "../../shared/three/clock";
 import { danceFigure } from "../../shared/three/dance";
 import { loadModel } from "../../shared/three/load";
 import { loadManifest } from "../../shared/three/manifest";
+import { loadGrids } from "../../shared/three/motion";
 import { poseFigure } from "../../shared/three/people";
 import { BEHIND, cameraAim, EYE, FOV } from "./camera";
 import { filesOf, stageOf } from "./placeFile";
@@ -88,6 +89,7 @@ function Place(props: WorldProps) {
           if (alive) onProgress(done, wanted.length);
         }),
       );
+      await loadGrids(stage.motion.map((motion) => motion.kind), settings.mesh, (path) => loadModel(manifest, path, text));
       if (!alive) return;
       const [x, z, facing] = stage.start;
       walker.current = standAt(x, z, facing);

@@ -2,7 +2,9 @@
 // from their pinned edge, water rolled with white crests, smoke and leaves as instanced meshes that
 // shrink to nothing instead of fading, so nothing is transparent. Every one reads the shared clock
 // and wind (clock.ts). The dial is mesh fineness: `fine` sheets and water in the high mode, `coarse`
-// in the low mode; the motion itself is the same in both.
+// in the low mode; the motion itself is the same in both. The sheets and the water tile are the
+// shipped grids of each level (assets.md R-ASSET-029) once loaded, and built here until then.
+import { gridFile, type GridPiece, WATER_TILE } from "@japacity/assets-src/prop/motion/grids";
 import {
   BufferAttribute,
   BufferGeometry,
@@ -72,6 +74,9 @@ const BODY: Record<MotionShader, string> = {
   // Three waves rolling across a flat grid; the crest height is passed on to whiten the tops.
   water: /* glsl */ `{
     vec2 p = position.xz;
+    #ifdef USE_INSTANCING
+    p = (instanceMatrix * vec4(position, 1.0)).xz;
+    #endif
     float h = 0.0;
     vec2 d = normalize(vec2(1.0, 0.3));
     float f = dot(d, p) * 0.8 + uTime * 1.3;
@@ -131,7 +136,62 @@ export function motionMaterial(kind: MotionShader, color: Color | number = 0xfff
   return material;
 }
 
-/** Segments across and down a sheet, by mesh level. */
+/** The shipped grids that are loaded, by path under public/assets, each in its own unit frame with texture coordinates from its bounds. */
+const grids = new Map<string, BufferGeometry>();
+
+/** The shipped grid a kind of motion draws, if any. */
+const GRID_OF: Partial<Record<string, GridPiece>> = { flag: "sheet-flag", hang: "sheet-hang", frond: "sheet-frond", bunting: "sheet-pennant", water: "water" };
+
+/** The grid files a place's motion draws at a level, each once. */
+export function gridFilesOf(kinds: readonly string[], level: MeshLevel): string[] {
+  return [...new Set(kinds.flatMap((kind) => {
+    const piece = GRID_OF[kind];
+    return piece === undefined ? [] : [gridFile(piece, level)];
+  }))];
+}
+
+/** Keeps a loaded grid's mesh as plain geometry in the model's own frame, so a sheet can be scaled to its size. */
+export function keepGrid(path: string, model: Object3D): void {
+  model.updateMatrixWorld(true);
+  const toModel = model.matrixWorld.clone().invert();
+  let kept: BufferGeometry | null = null;
+  model.traverse((object) => {
+    const mesh = object as Mesh;
+    if (kept !== null || !mesh.isMesh) return;
+    const matrix = toModel.clone().multiply(mesh.matrixWorld);
+    const source = mesh.geometry.getAttribute("position");
+    const positions = new Float32Array(source.count * 3);
+    const corner = new Vector3();
+    for (let at = 0; at < source.count; at += 1) corner.fromBufferAttribute(source, at).applyMatrix4(matrix).toArray(positions, at * 3);
+    const geometry = new BufferGeometry();
+    geometry.setAttribute("position", new BufferAttribute(positions, 3));
+    const index = mesh.geometry.getIndex();
+    if (index !== null) geometry.setIndex(Array.from(index.array));
+    boundsUv(geometry);
+    geometry.computeVertexNormals();
+    kept = geometry;
+  });
+  if (kept !== null) grids.set(path, kept);
+}
+
+/** Loads the grids a place's motion draws at the mode's level; one that does not load leaves the grid built here in its place. */
+export async function loadGrids(kinds: readonly string[], level: MeshLevel, load: (path: string) => Promise<Object3D>): Promise<void> {
+  await Promise.all(
+    gridFilesOf(kinds, level).map((path) =>
+      load(path).then(
+        (model) => keepGrid(path, model),
+        () => undefined,
+      ),
+    ),
+  );
+}
+
+/** A copy of a loaded grid, or null when it is not loaded. */
+function shippedGrid(piece: GridPiece, level: MeshLevel): BufferGeometry | null {
+  return grids.get(gridFile(piece, level))?.clone() ?? null;
+}
+
+/** Segments across and down a sheet, by mesh level, for a sheet whose shipped grid is not loaded. */
 const SHEET_SEGMENTS: Record<SheetKind, Record<MeshLevel, [number, number]>> = {
   flag: { fine: [22, 10], coarse: [10, 5] },
   hang: { fine: [6, 8], coarse: [3, 4] },
@@ -140,6 +200,9 @@ const SHEET_SEGMENTS: Record<SheetKind, Record<MeshLevel, [number, number]>> = {
 
 /** A sheet of `width` by `height`, its pinned edge at the origin: the left edge for a flag or frond, the top for a hang. */
 export function sheetGeometry(kind: SheetKind, width: number, height: number, level: MeshLevel): BufferGeometry {
+  // A shipped sheet stands on y = 0 with its pinned edge along x = 0 or the top.
+  const shipped = shippedGrid(`sheet-${kind}`, level);
+  if (shipped !== null) return shipped.scale(width, height, 1).translate(0, kind === "hang" ? -height : -height / 2, 0);
   const [across, down] = SHEET_SEGMENTS[kind][level];
   const geometry = new PlaneGeometry(width, height, across, down);
   return kind === "hang" ? geometry.translate(0, -height / 2, 0) : geometry.translate(width / 2, 0, 0);
@@ -245,8 +308,31 @@ export function sheet(kind: SheetKind, width: number, height: number, level: Mes
   return mesh;
 }
 
+/**
+ * The shipped water tile laid as one instanced draw call over `width` by `depth`, each copy stretched
+ * a little so the tiles meet the edges; the shader rolls the waves by where each vertex lies in the
+ * place, so the tiles join without a seam.
+ */
+function waterTiles(tile: BufferGeometry, width: number, depth: number, color: Color): InstancedMesh {
+  const across = Math.max(1, Math.ceil(width / WATER_TILE));
+  const along = Math.max(1, Math.ceil(depth / WATER_TILE));
+  const mesh = new InstancedMesh(tile, motionMaterial("water", color), across * along);
+  const matrix = new Matrix4();
+  for (let column = 0; column < across; column += 1) {
+    for (let row = 0; row < along; row += 1) {
+      matrix.makeScale(width / (across * WATER_TILE), 1, depth / (along * WATER_TILE));
+      matrix.setPosition(((column + 0.5) * width) / across - width / 2, 0, ((row + 0.5) * depth) / along - depth / 2);
+      mesh.setMatrixAt(column * along + row, matrix);
+    }
+  }
+  mesh.name = "motion-water";
+  return mesh;
+}
+
 /** Water: a grid of `width` by `depth` at y = 0, finer in the high mode. */
 export function water(width: number, depth: number, level: MeshLevel, color: Color): Mesh {
+  const tile = shippedGrid("water", level);
+  if (tile !== null) return waterTiles(tile, width, depth, color);
   const per = level === "fine" ? 0.75 : 2;
   const geometry = new PlaneGeometry(width, depth, Math.max(1, Math.round(width / per)), Math.max(1, Math.round(depth / per))).rotateX(-Math.PI / 2);
   const mesh = new Mesh(geometry, motionMaterial("water", color));
@@ -304,12 +390,20 @@ export function leaves(count: number, span: number, depth: number, color: Color)
   return instanced(geometry, motionMaterial("leaf", color), count, "motion-leaves");
 }
 
-/** Pennants on a line from `from` to `to`, sagging in the middle, each pinned along its top. */
-export function bunting(from: Vector3, to: Vector3, count: number, colours: readonly Color[]): InstancedMesh {
+/** A pennant 0.32 m wide and 0.36 m deep, pinned along its top at y = 0. */
+function pennantGeometry(level: MeshLevel): BufferGeometry {
+  const shipped = shippedGrid("sheet-pennant", level);
+  if (shipped !== null) return shipped.scale(0.32, 0.36, 1).translate(0, -0.36, 0);
   const geometry = new BufferGeometry();
   geometry.setAttribute("position", new Float32BufferAttribute([-0.16, 0, 0, 0.16, 0, 0, 0, -0.36, 0], 3));
   geometry.setAttribute("uv", new Float32BufferAttribute([0, 1, 1, 1, 0.5, 0], 2));
   geometry.computeVertexNormals();
+  return geometry;
+}
+
+/** Pennants on a line from `from` to `to`, sagging in the middle, each pinned along its top. */
+export function bunting(from: Vector3, to: Vector3, count: number, colours: readonly Color[], level: MeshLevel = "coarse"): InstancedMesh {
+  const geometry = pennantGeometry(level);
   const mesh = new InstancedMesh(geometry, motionMaterial("hang"), count);
   const place = new Matrix4();
   const turn = new Matrix4().makeRotationY(Math.atan2(-(to.z - from.z), to.x - from.x));

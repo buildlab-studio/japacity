@@ -438,7 +438,7 @@ export async function measureFile(paths: Paths, file: string): Promise<Measured>
   if (!file.endsWith(".glb")) return { file, triangles: 0, drawCalls: 0, materials: 0, bytes: bytes.byteLength, minY: 0, maxY: 0, palette: [], signs: 0, size: [0, 0, 0], extras: {} };
   const doc = await readGlb(bytes);
   const figures = measure(doc, bytes.byteLength);
-  const extras = (doc.getRoot().getDefaultScene()?.listChildren()[0]?.getExtras() ?? {}) as Record<string, unknown>;
+  const extras: Record<string, unknown> = doc.getRoot().getDefaultScene()?.listChildren()[0]?.getExtras() ?? {};
   const signs = Array.isArray(extras.signs) ? extras.signs.length : 0;
   return { file, ...figures, palette: checkPalette(doc).map((p) => `${p.where} ${p.rgb.join(",")} is not a palette colour`), signs, extras };
 }

@@ -1,7 +1,9 @@
-import { Color, type MeshLambertMaterial } from "three";
+import { buildGrid } from "@japacity/assets-src/prop/motion/build";
+import { GRIDS } from "@japacity/assets-src/prop/motion/grids";
+import { type BufferGeometry, Color, InstancedMesh, type MeshLambertMaterial, Matrix4, Vector3 } from "three";
 import { describe, expect, test } from "vitest";
 
-import { puffGeometry, smoke } from "./motion";
+import { bunting, gridFilesOf, keepGrid, loadGrids, puffGeometry, sheetGeometry, smoke, water } from "./motion";
 import { PUFF_INDEX, PUFF_POSITIONS } from "./puff.data";
 
 describe("smoke", () => {
@@ -20,5 +22,60 @@ describe("smoke", () => {
     expect(puffs.count).toBe(30);
     expect(puffs.geometry.getAttribute("aSeed").count).toBe(30);
     expect(puffGeometry().index?.count).toBe(PUFF_INDEX.length);
+  });
+});
+
+const triangles = (geometry: BufferGeometry): number => (geometry.getIndex()?.count ?? geometry.getAttribute("position").count) / 3;
+
+describe("mesh levels", () => {
+  test("[R-CITY-028] given a place's motion, when its grid files are asked for at a level, then each sheet kind and the water name that level's file once, and smoke and leaves none", () => {
+    expect(gridFilesOf(["flag", "smoke", "bunting", "flag", "leaves"], "fine")).toEqual(["shared/prop/prop_sheet-flag_fine.glb", "shared/prop/prop_sheet-pennant_fine.glb"]);
+    expect(gridFilesOf(["hang", "frond", "water"], "coarse")).toEqual(["shared/prop/prop_sheet-hang_coarse.glb", "shared/prop/prop_sheet-frond_coarse.glb", "shared/prop/prop_water_coarse.glb"]);
+  });
+
+  test("[R-CITY-028] given grids that fail to load, when a sheet is built, then the grid built in code stands in at the same level", async () => {
+    await loadGrids(["hang"], "fine", () => Promise.reject(new Error("not published")));
+    const [across, down] = GRIDS["sheet-hang"].segments.fine;
+    expect(triangles(sheetGeometry("hang", 0.6, 0.9, "fine"))).toBe(across * down * 2);
+  });
+
+  test("[R-CITY-028] given the shipped grids of both levels, when sheets, pennants and water are built, then the low mode draws the coarse file and the high mode the fine one, at the sheet's size with its pinned edge in place", async () => {
+    await loadGrids(["hang", "bunting", "water"], "coarse", (path) => Promise.resolve(buildGrid(path.includes("hang") ? "sheet-hang" : path.includes("pennant") ? "sheet-pennant" : "water", "coarse")));
+    for (const piece of ["sheet-hang", "sheet-pennant", "water"] as const) keepGrid(`shared/prop/prop_${piece}_fine.glb`, buildGrid(piece, "fine"));
+    for (const level of ["coarse", "fine"] as const) {
+      const [across, down] = GRIDS["sheet-hang"].segments[level];
+      const hang = sheetGeometry("hang", 0.6, 0.9, level);
+      expect(triangles(hang)).toBe(across * down * 2);
+      hang.computeBoundingBox();
+      expect(hang.boundingBox?.min.toArray().map((value) => Math.round(value * 100) + 0)).toEqual([-30, -90, 0]);
+      expect(hang.boundingBox?.max.toArray().map((value) => Math.round(value * 100) + 0)).toEqual([30, 0, 0]);
+      // The pinned top edge has v = 1, where the shader holds the sheet still.
+      const uv = hang.getAttribute("uv");
+      const position = hang.getAttribute("position");
+      const pinned = Array.from({ length: position.count }, (_, at) => at).filter((at) => Math.abs(position.getY(at)) < 1e-6);
+      expect(pinned).toHaveLength(across + 1);
+      expect(pinned.map((at) => Math.round(uv.getY(at) * 1000))).toEqual(pinned.map(() => 1000));
+      const pennants = bunting(new Vector3(0, 3, 0), new Vector3(4, 3, 0), 5, [new Color(0xff0000)], level);
+      expect(triangles(pennants.geometry)).toBe(GRIDS["sheet-pennant"].segments[level][1] ** 2);
+    }
+  });
+
+  test("[R-CITY-027] given the shipped water tile, when a lagoon 30 m by 20 m is laid, then it is one instanced draw call of tiles stretched to meet its edges, and the shader reads where each copy lies so the tiles join", () => {
+    keepGrid("shared/prop/prop_water_fine.glb", buildGrid("water", "fine"));
+    const lagoon = water(30, 20, "fine", new Color(0x4f6f66));
+    expect(lagoon).toBeInstanceOf(InstancedMesh);
+    const tiles = lagoon as InstancedMesh;
+    expect(tiles.count).toBe(6);
+    const matrix = new Matrix4();
+    const corners: number[][] = [];
+    for (let at = 0; at < tiles.count; at += 1) {
+      tiles.getMatrixAt(at, matrix);
+      corners.push([new Vector3(-6, 0, -6).applyMatrix4(matrix).x, new Vector3(6, 0, 6).applyMatrix4(matrix).z]);
+    }
+    expect(Math.min(...corners.map(([x = 0]) => x))).toBeCloseTo(-15);
+    expect(Math.max(...corners.map(([, z = 0]) => z))).toBeCloseTo(10);
+    const shader = { uniforms: {}, vertexShader: "#include <begin_vertex>", fragmentShader: "#include <color_fragment>" };
+    (tiles.material as MeshLambertMaterial).onBeforeCompile(shader as never, undefined as never);
+    expect(shader.vertexShader).toContain("p = (instanceMatrix * vec4(position, 1.0)).xz;");
   });
 });
