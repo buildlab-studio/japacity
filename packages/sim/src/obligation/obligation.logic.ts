@@ -5,7 +5,7 @@
 // scenario's obligations are real from the first state and get instance ids from
 // the engine's counter (R-SCENARIO-002).
 import { rateFor } from "../credit/credit.logic";
-import { bp, divCeil, divFloor, mulDiv } from "../engine/int";
+import { bp, convertMinor, divCeil, divFloor, mulDiv } from "../engine/int";
 import type { RegisteredKind } from "../engine/kind";
 import { emit } from "../engine/kind";
 import { reject } from "../engine/reject";
@@ -19,6 +19,7 @@ import type {
   Ctx,
   Currency,
   Effect,
+  ForeignCurrency,
   Id,
   MoneyParam,
   ObligationEntry,
@@ -32,6 +33,7 @@ import type {
   Requirement,
   RequirementResult,
   State,
+  World,
 } from "../engine/types";
 import { appliesHere } from "../place/place.logic";
 import type { ClosedWhy, ObligationEvent } from "./obligation.events";
@@ -39,6 +41,14 @@ import type { ClosedWhy, ObligationEvent } from "./obligation.events";
 const STANDING: Id<"quality"> = "quality.standing";
 const WELLBEING: Id<"quality"> = "quality.wellbeing";
 const INFLATION: Id<"var"> = "var.inflation";
+/** R-RETURN-006: the car's shortfall once it has followed you home, in naira. */
+const HOME_SHORTFALL: Id<"obligation"> = "obligation.car-shortfall-home";
+
+function officialRates(world: World): Record<ForeignCurrency, number> {
+  const rates = {} as Record<ForeignCurrency, number>;
+  for (const currency of Object.keys(world.rates) as ForeignCurrency[]) rates[currency] = world.rates[currency].official;
+  return rates;
+}
 /**
  * R-CAR-003: what a repossession leaves owing. the car's entry has no
  * field naming it, so the id lives here; the car's `onDefault` could carry it.
@@ -562,15 +572,21 @@ function openEffect(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
 
 /**
  * R-RETURN-006 for a car closed by type: it is handed back as R-CAR-004, and
- * when under half is paid what is owed less its resale still follows.
- * the page says the shortfall goes home in naira; the shortfall entry
- * is in pounds and an obligation has no currency of its own, so it stays in pounds.
+ * when under half is paid what is owed less its resale still follows. Closed on
+ * the way home, the shortfall opens in naira at the day's official rate.
  */
 function closeCar(ctx: Ctx, item: ObligationState, entry: ObligationEntry, cause: Cause): BaseEvent[] {
   const terms = carTerms(entry);
   const shortfall = carPaid(entry, item) >= terms.half ? 0 : Math.max(0, item.outstanding - terms.resale);
   const events = record(ctx, { type: "obligation/handed-back", id: item.id, entry: item.entry, shortfall });
-  if (shortfall > 0) ctx.apply([{ type: "obligation/open", obligation: carOf(entry).shortfall, principal: shortfall }], { ...cause, source: item.entry });
+  if (shortfall === 0) return events;
+  const from = { ...cause, source: item.entry };
+  if (ctx.state.place.where === "home" && ctx.content.obligation[HOME_SHORTFALL] !== undefined) {
+    const naira = convertMinor(shortfall, entry.currency, "NGN", officialRates(ctx.world));
+    ctx.apply([{ type: "obligation/open", obligation: HOME_SHORTFALL, principal: naira }], from);
+  } else {
+    ctx.apply([{ type: "obligation/open", obligation: carOf(entry).shortfall, principal: shortfall }], from);
+  }
   return events;
 }
 

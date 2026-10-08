@@ -163,8 +163,8 @@ export const prologueTable: Record<string, PrologueStep> = {
       answer(
         "private",
         [
-          { type: "money/add", currency: "NGN", pocket: "bank", amount: naira(2500000), reason: "gift", flagged: true },
-          { type: "money/take", currency: "NGN", pocket: "bank", amount: naira(2500000), reason: "fee-school" },
+          { type: "money/add", currency: "NGN", pocket: "bank", amount: tuning.prologue.privateSession, reason: "gift", flagged: true },
+          { type: "money/take", currency: "NGN", pocket: "bank", amount: tuning.prologue.privateSession, reason: "fee-school" },
           add(STANDING, 5),
         ],
         { requires: [{ type: "quality/min", quality: "quality.family-means", value: 60 }], gradeBase: 1 },

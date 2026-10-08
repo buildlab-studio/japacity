@@ -181,3 +181,16 @@ describe("the stand-in world's rates", () => {
     expect(after["var.fx-bank-allowance"]).toBe(50000);
   });
 });
+
+describe("the dirham", () => {
+  test("[R-ABROAD-001] given 20 world seeds, when 120 ticks pass, then from the first tick the dirham's official rate is the dollar's times 10000 over 36725, rounded down, and its street rate is never below it", () => {
+    for (let n = 0; n < 20; n += 1) {
+      const worlds = standInWorlds(`aed-${String(n)}`, 120, content);
+      expect(worlds[0]?.rates.AED.official).toBe(rate.start.AED);
+      for (const world of worlds.slice(1)) {
+        expect(world.rates.AED.official).toBe(mulDiv(world.rates.USD.official, 10000, 36725));
+        expect(world.rates.AED.street).toBeGreaterThanOrEqual(world.rates.AED.official);
+      }
+    }
+  });
+});

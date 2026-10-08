@@ -12,6 +12,7 @@ import { wealthInNaira } from "../place/place.logic";
 import { applyEffects } from "../route/route.journey";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
+import { standInWorld } from "../world/standIn";
 import { rollOrder } from "./offer.logic";
 import { drySpellBp, luckReadsMoney, markedChanceBp, monthsWithoutLuck } from "./offer.luck";
 
@@ -281,6 +282,13 @@ describe("no kicking while down", () => {
     expect(markedChanceBp(read, win, 6000)).toBe(CERTAIN);
   });
 
+  test("[R-LUCK-003] [R-ENGINE-017] given the down line moved to 40 in the tuning, when wellbeing is 35, then a blow rolls at half and a win at double", () => {
+    const game = lifeAt(35, 60);
+    expect(markedChanceBp(readOf(game), blow, chance)).toBe(chance);
+    const moved: ReadCtx = { ...readOf(game), content: { ...game.content, tuning: { ...game.content.tuning, luck: { ...luck, downUnder: 40 } } } };
+    expect([markedChanceBp(moved, blow, chance), markedChanceBp(moved, win, chance)]).toEqual([1500, 6002]);
+  });
+
   test("[R-LUCK-003] given the real content, when the marks are read, then the blows of daily life are bad and none is both", () => {
     const bad = Object.values(content.offer).filter((entry) => entry.bad === true).map((entry) => entry.id);
     expect(bad).toEqual(expect.arrayContaining(["offer.laptop-fault", "offer.fuel-scarcity", "offer.sponsor-licence-lost"]));
@@ -357,6 +365,15 @@ describe("the whip-round", () => {
       emptyPockets(game);
       expect(openedIn(month(game)).map((opened) => opened.entry)).not.toContain(WHIP);
     }
+  });
+
+  test("[R-LUCK-002] [R-ENGINE-017] given the months before the rescue moved to 6 in the tuning, when month 6 ends with nothing held, then the whip-round opens", () => {
+    const overlaid = applyOverlay(content, { version: "test-rescue-months", tuning: { ...content.tuning, luck: { ...luck, rescueAfterMonths: 6 } } });
+    const game = brokeAt(4, overlaid);
+    expect(openedIn(month(game)).map((item) => item.entry)).not.toContain(WHIP);
+    expect(game.state.turn.month).toBe(5);
+    emptyPockets(game);
+    expect(openedIn(month(game)).map((item) => item.entry)).toContain(WHIP);
   });
 
   test("[R-LUCK-002] given holdings at the line, when the month comes up, then it does not open; one kobo under, it does", () => {
@@ -499,5 +516,38 @@ describe("an offer that locks a slot", () => {
     const item = openOne(game, "offer.nepa-bill");
     const result = game.accept({ type: "offer/choose", offer: item.id, choice: "leave" });
     expect(result.events.filter((event) => event.type === "turn/locked")).toEqual([]);
+  });
+});
+
+describe("content that plays", () => {
+  test("[R-OBLIGATION-012] [R-LUCK-009] given the real content, when the group loan, the parents' debt, the guarantor and the savings circle are read, then each rolls at the chance its page or its entry gives", () => {
+    expect(content.offer["offer.group-loan"]?.chanceBp).toBe(300);
+    expect(content.offer["offer.parents-group-debt"]?.chanceBp).toBe(100);
+    expect(content.offer["offer.stand-guarantor"]?.chanceBp).toBe(100);
+    expect(content.offer["offer.join-ajo"]?.chanceBp).toBe(800);
+    const rolled = rollOrder(content).map((entry) => entry.id);
+    expect(rolled).toEqual(expect.arrayContaining(["offer.group-loan", "offer.parents-group-debt", "offer.stand-guarantor", "offer.join-ajo"]));
+  });
+
+  test("[R-LADDER-005] [R-DIRECTOR-001] given the sponsor's licence risk in the world at 0 and at 10000, when months pass abroad, then the licence is never lost at 0 and lost at once at 10000", () => {
+    const LOST: Id<"offer"> = "offer.sponsor-licence-lost";
+    const onlyLoss = variant({ [LOST]: { when: [] } });
+    for (const [risk, opens] of [
+      [0, false],
+      [10000, true],
+    ] as const) {
+      const game = start({
+        scenario: ADA,
+        content: onlyLoss,
+        worldAt: (tick) => {
+          const world = standInWorld("world-1", tick, onlyLoss);
+          return { ...world, vars: { ...world.vars, "var.uk-care-sponsor-risk": risk } };
+        },
+      });
+      flyToUk(game);
+      const seen: Id<"offer">[] = [];
+      for (let turn = 0; turn < 6; turn += 1) seen.push(...openedIn(month(game)).map((item) => item.entry));
+      expect(seen.includes(LOST)).toBe(opens);
+    }
   });
 });

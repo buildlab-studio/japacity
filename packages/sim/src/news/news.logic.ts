@@ -26,6 +26,8 @@ export function isForYou(state: State, content: Content, id: Id<"news">): boolea
  */
 function deliver(ctx: Ctx): BaseEvent[] {
   const events: BaseEvent[] = [];
+  // R-ROAD-005: no news reaches the road; back home, the latest stage of each story is shown.
+  if (ctx.state.place.where === "road") return events;
   for (const story of ctx.world.news) {
     // A new stage, or a new pass of a story that fired again (R-DIRECTOR-003), begins on a new tick.
     const shown = ctx.state.news.delivered[story.id];
@@ -64,7 +66,8 @@ function lines(event: NewsEvent): ReportLine[] {
           key: "line.news.delivered",
           params: { story: event.story, stage: event.stage, forYou: event.forYou ? 1 : 0 },
           tone: "plain",
-          attention: event.forYou,
+          // R-NEWS-004: only a story in force that touches your plans asks you to stop and look.
+          attention: event.forYou && event.stage === "in-force",
           counts: [],
         },
       ];

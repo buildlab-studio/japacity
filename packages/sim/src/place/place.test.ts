@@ -291,7 +291,7 @@ describe("coming home", () => {
     const game = flown(content, { from: "scenario.zainab", kinds: recordingCloses(closed) });
     closed.length = 0;
     comeHome(game);
-    expect(closed).toEqual(["upkeep", "support", "rent", "phone", "surcharge", "tuition"]);
+    expect(closed).toEqual(["upkeep", "support", "rent", "phone", "surcharge", "tuition", "car"]);
     expect(openedThisMonth(game)).toEqual(expect.arrayContaining([`obligation.upkeep ${String(130000 * 100)}`, `obligation.home-support ${String(60000 * 100)}`]));
   });
 });
@@ -319,6 +319,47 @@ describe("removal and the ban", () => {
     const month = game.state.turn.month;
     expect(bannedUntil(readOf(game), UK)).toBe(month + content.status["status.uk-overstayer"]!.banMonths);
     expect(bannedUntil(readOf(game), "country.canada")).toBeNull();
+  });
+
+  /** The UK overstayer's ban made short, so a test can play past it. */
+  const SHORT_BAN = 2;
+  const shortBan = (used: Content): Content => ({
+    ...used,
+    status: { ...used.status, "status.uk-overstayer": { ...used.status["status.uk-overstayer"]!, banMonths: SHORT_BAN } },
+  });
+  const CARE_ROUTE: Id<"route"> = "route.uk-care";
+  /** Enough care that the care route's talk reaches the character by its `hearBy`. */
+  const CARE: Effect = { type: "quality/add", quality: "quality.care", amount: 60 };
+
+  test("[R-PLACE-008] [R-GATE-005] given a removal with a ban of 2 months and the care route's talk due, when months pass, then nothing about a UK route is heard in the ban's months and it is heard in the month the ban ends", () => {
+    const game = flown(content, { change: shortBan });
+    applyEffects(game, [CARE, { type: "status/remove" }]);
+    const until = game.state.turn.month + SHORT_BAN;
+    expect(game.state.route[CARE_ROUTE]?.state).toBe("unknown");
+    applyEffects(game, [{ type: "route/hear", route: CARE_ROUTE, via: "test" }]);
+    expect(game.state.route[CARE_ROUTE]?.state).toBe("unknown");
+    playMonths(game, 1);
+    expect(game.state.turn.month).toBe(until - 1);
+    expect(game.state.route[CARE_ROUTE]?.state).toBe("unknown");
+    applyEffects(game, [{ type: "route/hear", route: CARE_ROUTE, via: "test" }]);
+    expect(game.state.route[CARE_ROUTE]?.state).toBe("unknown");
+    playMonths(game, 1);
+    expect(game.state.turn.month).toBe(until);
+    expect(game.state.route[CARE_ROUTE]?.state).toBe("heard");
+  });
+
+  test("[R-PLACE-003] given the care route's talk due, when months pass to its `hearBy` on the road and at home, then nothing is heard on the road and the route is heard at home", () => {
+    const months = content.route[CARE_ROUTE]!.hearBy!;
+    const road = readyLife(content, { quiet: true });
+    applyEffects(road, [CARE, { type: "place/move", to: "road", country: null }]);
+    const known = Object.entries(road.state.route).filter(([, held]) => held.state !== "unknown").map(([id]) => id);
+    playMonths(road, months);
+    expect(road.state.place.where).toBe("road");
+    expect(Object.entries(road.state.route).filter(([, held]) => held.state !== "unknown").map(([id]) => id)).toEqual(known);
+    const home = readyLife(content, { quiet: true });
+    applyEffects(home, [CARE]);
+    playMonths(home, months);
+    expect(home.state.route[CARE_ROUTE]?.state).toBe("heard");
   });
 });
 

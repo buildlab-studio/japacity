@@ -176,8 +176,8 @@ export const offerText: Record<string, string> = {
 
   // Report lines. Each carries `offer`, the entry id, so the interface can show its title.
   "line.offer.opened": "Something new needs an answer: {offer}.",
-  "line.offer.taken": "{offer}.",
-  "line.offer.lapsed": "You let it pass. The time to answer is gone.",
+  "line.offer.taken": "You gave your answer to {offer}.",
+  "line.offer.lapsed": "{offer}: you let it pass. The time to answer is gone.",
   "line.offer.replaced": "The earlier one is off the table. A newer one takes its place.",
   // Sponsors: route-gates.md. Sign words are the page's. Bodies are first drafts.
 
@@ -253,7 +253,7 @@ export const offerText: Record<string, string> = {
   "offer.road-park.name": "A man at the park",
   "offer.road-park.title": "A man at the park",
   "offer.road-park.body":
-    "He has heard you asking. 'Europe, three weeks. I have carried many people. {deposit} and you are on the next one.'",
+    "He says he can help people like you. 'Europe, three weeks. I have carried many people. {deposit} and you are on the next one.'",
   "offer.road-park.choice.take": "Pay the deposit",
   "offer.road-park.choice.ignore": "Walk on",
   "offer.road-park.sign.too-cheap": "It costs less than the visa fee alone.",
@@ -276,6 +276,12 @@ export const offerText: Record<string, string> = {
     "They hand you a phone and tell you to call home. The man wants {sum} before anyone moves.",
   "offer.road-ransom-call.choice.pay": "Your family finds the money",
   "offer.road-ransom-call.choice.cannot": "There is no money",
+
+  "offer.road-exit.name": "The migration agency",
+  "offer.road-exit.title": "There is a way back",
+  "offer.road-exit.body":
+    "The migration agency flies people home from here. The anti-trafficking agency meets them when they land. You can ask at any time.",
+  "offer.road-exit.choice.ask": "Ask them to take you home",
   // health.md
   ...offerHealthText,
 

@@ -280,3 +280,31 @@ describe("cash paid in over a month", () => {
     expect(paidIn(under + 1).lots).toEqual([{ currency: "GBP", amount: under + 1, month: 0, reason: "move" }]);
   });
 });
+
+describe("the bank abroad", () => {
+  /** Enough dollars for the first month's bills, and more than a month of the Lagos allowance. */
+  const DOLLARS = 800000;
+
+  test("[R-WALLET-005] [R-ABROAD-005] given the recorded Ada just landed with dollars and no pounds, when she changes them to pounds at the bank and ends the month, then the Lagos allowance does not apply and her rent, tuition and living are paid", () => {
+    const game = adaAbroad();
+    expect(game.state.wallet.pockets.GBP.bank).toBe(0);
+    expect(DOLLARS).toBeGreaterThan(game.view().bankAllowanceLeft);
+    game.accept({ type: "wallet/convert", from: "USD", to: "GBP", amount: DOLLARS, via: "bank" });
+    expect(game.state.wallet.pockets.GBP.bank).toBeGreaterThan(0);
+    const month = game.endTurn();
+    for (const reason of ["rent", "upkeep", "fee-school"]) {
+      expect(debitsOf(month, reason).filter((event) => event.currency === "GBP").map((event) => event.reason)).toContain(reason);
+    }
+    expect(Object.values(game.state.obligation.items).map((owed) => owed.missed)).toEqual([0, 0, 0]);
+  });
+
+  test("[R-WALLET-006] given a bank queue in the world, when Ada changes dollars to pounds at the bank abroad, then the pounds arrive at once: the queue is the Lagos bank's", () => {
+    const game = adaAbroad();
+    const landed = game.world();
+    game.world = () => ({ ...landed, vars: { ...landed.vars, "var.fx-bank-queue": 2 } });
+    const before = game.state.wallet.pockets.GBP.bank;
+    game.accept({ type: "wallet/convert", from: "USD", to: "GBP", amount: DOLLARS, via: "bank" });
+    expect(game.state.wallet.pockets.GBP.bank).toBeGreaterThan(before);
+    expect(game.state.wallet.queued).toEqual([]);
+  });
+});

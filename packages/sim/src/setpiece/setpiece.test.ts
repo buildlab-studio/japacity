@@ -520,3 +520,17 @@ describe("the interview, unchanged", () => {
     expect(game.state.setpiece.answered[INTERVIEW]).toBe(1);
   });
 });
+
+describe("the December visit, once a year", () => {
+  test("[R-RETURN-005] given two turns played in one December tick, when the second ends, then the visit does not open again; in the next December tick it does", () => {
+    const game = december();
+    // The handle moves the tick on after each turn; the answer and a second turn in the same tick are played by holding it back.
+    game.tick -= 1;
+    game.accept({ type: "setpiece/answer", question: "go-uk", answer: "stay" });
+    expect(game.state.setpiece.answered[DECEMBER]).toBe(1);
+    game.endTurn();
+    expect(game.state.setpiece.open).toBeNull();
+    game.endTurn();
+    expect(game.state.setpiece.open?.entry).toBe(DECEMBER);
+  });
+});

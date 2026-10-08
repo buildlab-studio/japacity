@@ -35,14 +35,16 @@ const SEASON_DECEMBER: Id<"var"> = "var.season-december";
 const DECEMBER: Id<"setpiece"> = "setpiece.december";
 /** R-RETURN-004 names one token that lapses with time away. */
 const RESIDENT: Id<"status"> = "status.ca-resident";
+/** R-ROAD-009: the status the road's far shore gives. */
+const IRREGULAR: Id<"status"> = "status.eu-irregular";
 /** R-PLACE-002: what the family house stops charging for while you are away. */
 const HOME_TYPES: readonly ObligationType[] = ["upkeep", "support"];
 /**
- * R-RETURN-006: what closes on the way home. the car is left out, since
- * its hand-back (R-CAR-004) is the obligation kind's and a close by type would
- * drop the shortfall; the agent's debt follows you home (R-ROAD-007).
+ * R-RETURN-006: what closes on the way home. The car is handed back by the
+ * obligation kind (R-CAR-004), which opens any shortfall at home in naira; the
+ * agent's debt follows you home (R-ROAD-007).
  */
-const ABROAD_TYPES: readonly ObligationType[] = ["upkeep", "support", "rent", "phone", "surcharge", "tuition"];
+const ABROAD_TYPES: readonly ObligationType[] = ["upkeep", "support", "rent", "phone", "surcharge", "tuition", "car"];
 const CURRENCIES: readonly Currency[] = ["NGN", "GBP", "USD", "CAD", "AED", "EUR"];
 
 /** An entry that may be tied to a place: activities, offers, obligations, routes, goals. */
@@ -261,6 +263,8 @@ function returnHome(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
     return reject("cannot-afford", `The fare home is ${String(fare.amount)} in ${fare.currency} and cannot be paid.`);
   }
   const cause: Cause = { source: command.type, param: ctx.state.place.country, terms: {} };
+  // R-ROAD-009: from the far shore the only way home is the assisted scheme, with no fare.
+  if (ctx.state.status.current?.entry === IRREGULAR) return comeHome(ctx, "assisted", cause);
   if (payment !== null) ctx.apply([payment], cause);
   return comeHome(ctx, returnShape(ctx, payment !== null), cause);
 }
@@ -326,14 +330,27 @@ function tokenLapse(ctx: Ctx): BaseEvent[] {
  * R-RETURN-005. in the tick the director makes December, a
  * character abroad gets the December set piece, opened with no route so that
  * nothing is scored (R-SETPIECE-006). The variable is 1 for one tick a game
- * year, so it opens once a year. online a sitting may play two turns
- * in that one tick; the second finds the set piece answered and opens it again.
+ * year, so it opens once a year.
  */
 function december(ctx: Ctx): BaseEvent[] {
   if (ctx.state.place.where !== "abroad" || varOr(ctx, SEASON_DECEMBER) !== 1) return [];
   if (ctx.content.setpiece[DECEMBER] === undefined || ctx.state.setpiece.open !== null) return [];
+  if (openedThisTick(ctx)) return [];
   ctx.apply([{ type: "setpiece/open", setpiece: DECEMBER, route: null }], { source: DECEMBER, param: null, terms: {} });
   return [];
+}
+
+/**
+ * A second turn in the December tick finds the visit's opening in the report
+ * of the turn before, with no new tick begun since. the slice has no
+ * field for the month the visit last opened, so a character whose last turn
+ * was the December turn a year ago, and who sends another command in this
+ * December tick before ending the turn, misses this year's visit. A field
+ * `place.decemberMonth` would close that.
+ */
+function openedThisTick(ctx: Ctx): boolean {
+  if (ctx.state.tick !== ctx.world.tick) return false;
+  return ctx.state.turn.report?.lines.some((line) => line.key === "line.setpiece.opened" && line.params.setpiece === DECEMBER) ?? false;
 }
 
 function month(ctx: Ctx): BaseEvent[] {

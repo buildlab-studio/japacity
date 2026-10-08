@@ -149,6 +149,16 @@ describe("drift", () => {
     expect(markOf(game)).toBe(2 * CREDIT.drift);
   });
 
+  test("[R-CREDIT-003] [R-ENGINE-017] given the clean months moved to 3 in the tuning, when months pass from arrival, then the drift starts in the third month", () => {
+    const moved = { ...content, tuning: { ...content.tuning, credit: { ...CREDIT, cleanMonths: 3 } } };
+    const game = settledAbroad(moved);
+    closeTypes(game, "rent");
+    playMonths(game, 2);
+    expect(markOf(game)).toBe(0);
+    playMonths(game, 1);
+    expect(markOf(game)).toBe(CREDIT.drift);
+  });
+
   test("[R-CREDIT-003] given a miss on the file, when months pass, then the drift stops until twelve months after the miss", () => {
     const game = settledAbroad(content);
     closeTypes(game, "rent");

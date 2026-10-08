@@ -54,4 +54,6 @@ export type ActivityEvent =
   /** A side gig paid this much naira. Changes nothing itself: the wallet takes the money. */
   | { type: "activity/gig-paid"; amount: number }
   /** The slots sent this month, kept for "same again" (R-ACTIVITY-009). */
-  | { type: "activity/slots-recorded"; slots: SlotPick[] };
+  | { type: "activity/slots-recorded"; slots: SlotPick[] }
+  /** The activities that filled a slot this month, main, side or free, each once (R-ACTIVITY-012). */
+  | { type: "activity/played-counted"; activities: Id<"activity">[] };

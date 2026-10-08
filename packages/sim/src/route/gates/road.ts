@@ -23,6 +23,8 @@ type RoadStepEffect = Extract<Effect, { type: "route/road-step" }>;
 const NIGHT: Id<"setpiece"> = "setpiece.road-night";
 const TRUTH: Id<"setpiece"> = "setpiece.road-truth";
 const RANSOM: Id<"offer"> = "offer.road-ransom-call";
+/** R-ROAD-007: the way out, open every month on the road. */
+const EXIT_OFFER: Id<"offer"> = "offer.road-exit";
 const AGENT_DEBT: Id<"obligation"> = "obligation.agent-debt";
 const FAMILY_MEANS: Id<"quality"> = "quality.family-means";
 const STANDING: Id<"quality"> = "quality.standing";
@@ -97,16 +99,32 @@ function monthsOnRoad(read: ReadCtx): number {
 // Changing the gate
 // ---------------------------------------------------------------------------
 
-/**
- * R-ROAD-010 wants the chain's report lines in tone `bad`; the route
- * kind tells every `route/gate-updated` note in tone `plain` (route.logic.ts,
- * `lines`), and this module cannot set a tone. The lines need a tone on the
- * event, or the route kind's `lines` to read the road's notes as `bad`.
- */
+/** R-ROAD-010: the route kind tells a road gate's notes in tone `bad`. */
 function update(ctx: Ctx, entry: RouteEntry, gate: RoadState, note: string | null, secret?: RouteState["secret"]): BaseEvent[] {
   const event: RouteKindEvent =
     secret === undefined ? { type: "route/gate-updated", route: entry.id, gate, note } : { type: "route/gate-updated", route: entry.id, gate, note, secret };
   return emit(ctx, "route", [event]);
+}
+
+/** R-ROAD-005: the route's way from where it stands to `applying`, by the page's arrows. */
+const TO_APPLYING: Partial<Record<RouteState["state"], RouteState["state"][]>> = {
+  unknown: ["heard", "known", "applying"],
+  heard: ["known", "applying"],
+  known: ["applying"],
+};
+
+/** R-ROAD-005: the route is `applying` while the chain runs. */
+function setApplying(ctx: Ctx, entry: RouteEntry): BaseEvent[] {
+  const path = TO_APPLYING[heldOf(ctx, entry).state] ?? [];
+  const moves = path.map((to): RouteKindEvent => ({ type: "route/moved", route: entry.id, to }));
+  return emit(ctx, "route", moves);
+}
+
+/** The chain is over: the route is known again, so a pitch may come once more. */
+function setKnown(ctx: Ctx, entry: RouteEntry): BaseEvent[] {
+  if (heldOf(ctx, entry).state !== "applying") return [];
+  const known: RouteKindEvent = { type: "route/moved", route: entry.id, to: "known" };
+  return emit(ctx, "route", [known]);
 }
 
 function causeOf(entry: RouteEntry): Cause {
@@ -116,7 +134,7 @@ function causeOf(entry: RouteEntry): Cause {
 /** R-ROAD-008: the ending. Final for the character; the authority may still grant turns that nothing uses. */
 function lose(ctx: Ctx, entry: RouteEntry): BaseEvent[] {
   const months = monthsOnRoad(ctx);
-  const events = update(ctx, entry, { gate: "road", step: "lost", monthsHere: months, debt: 0 }, "road-lost");
+  const events = [...update(ctx, entry, { gate: "road", step: "lost", monthsHere: months, debt: 0 }, "road-lost"), ...setKnown(ctx, entry)];
   ctx.apply([{ type: "turn/finish" }], causeOf(entry));
   return events;
 }
@@ -130,7 +148,7 @@ function lose(ctx: Ctx, entry: RouteEntry): BaseEvent[] {
 function exit(ctx: Ctx, entry: RouteEntry, note: string): BaseEvent[] {
   const months = monthsOnRoad(ctx);
   ctx.apply([{ type: "place/return", shape: "assisted" }], causeOf(entry));
-  return update(ctx, entry, { gate: "road", step: "exit", monthsHere: months, debt: 0 }, note);
+  return [...update(ctx, entry, { gate: "road", step: "exit", monthsHere: months, debt: 0 }, note), ...setKnown(ctx, entry)];
 }
 
 /** R-ROAD-009: `on` from the last step. The debt stays open; cash work only comes with the status. */
@@ -143,7 +161,7 @@ function arrive(ctx: Ctx, entry: RouteEntry): BaseEvent[] {
     ],
     causeOf(entry),
   );
-  return update(ctx, entry, { gate: "road", step: "arrived", monthsHere: months, debt: 0 }, "road-arrived");
+  return [...update(ctx, entry, { gate: "road", step: "arrived", monthsHere: months, debt: 0 }, "road-arrived"), ...setKnown(ctx, entry)];
 }
 
 /**
@@ -271,7 +289,10 @@ function clocks(ctx: Ctx, entry: RouteEntry): BaseEvent[] {
   if (SETTLING.includes(step)) return update(ctx, entry, { ...gate, step: OVER }, step === "fraud" ? "road-fraud" : null);
   const index = chainOf(entry).findIndex((candidate) => candidate.id === step);
   if (index < 0) throw new Error(`${entry.id} is at an unknown step ${step}.`);
-  return chainMonth(ctx, entry, held, gate, index);
+  const events = chainMonth(ctx, entry, held, gate, index);
+  // R-ROAD-007: every month still on the road, the way out is on the table.
+  if (ctx.state.place.where === "road" && ctx.content.offer[EXIT_OFFER] !== undefined) ctx.apply([{ type: "offer/open", offer: EXIT_OFFER }], causeOf(entry));
+  return events;
 }
 
 // ---------------------------------------------------------------------------
@@ -300,10 +321,7 @@ function night(ctx: Ctx, entry: RouteEntry, cause: Cause): BaseEvent[] {
  * Calling home takes family means, one point for each ₦100,000; the stake and
  * the standing are the answer's own effects in content. Then the home
  * obligations stop, the job at home ends, and the first step begins.
- * R-ROAD-005 moves the route to `applying`, but the route kind's
- * invariant holds every `applying` route to an application and its `clocks`
- * would decide one, so the road's route stays where it is and the gate's step
- * says where the chain is.
+ * The route is `applying` for the chain's remaining steps.
  */
 function setOff(ctx: Ctx, entry: RouteEntry, gate: RoadState, how: "pay" | "call-home"): BaseEvent[] {
   const cause = causeOf(entry);
@@ -327,7 +345,7 @@ function setOff(ctx: Ctx, entry: RouteEntry, gate: RoadState, how: "pay" | "call
     { type: "activity/end-job", why: "road" },
   );
   ctx.apply(effects, cause);
-  return enter(ctx, entry, 0);
+  return [...setApplying(ctx, entry), ...enter(ctx, entry, 0)];
 }
 
 /**

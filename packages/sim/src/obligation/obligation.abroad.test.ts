@@ -2,7 +2,7 @@ import { content, text } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
 import { check } from "../engine/check";
-import { bp, divCeil } from "../engine/int";
+import { bp, convertMinor, divCeil } from "../engine/int";
 import { checkInvariants } from "../engine/invariants";
 import type { Id, ObligationEntry, ObligationState, ReportLine } from "../engine/types";
 import { playMonths } from "../place/place.journey";
@@ -396,6 +396,35 @@ describe("the car", () => {
 // ---------------------------------------------------------------------------
 // The agent's debt: R-ROAD-006, 007
 // ---------------------------------------------------------------------------
+
+describe("the car on the way home", () => {
+  const HOME_SHORTFALL: Id<"obligation"> = "obligation.car-shortfall-home";
+  const official = (game: Game) => ({ GBP: game.world().rates.GBP.official, USD: game.world().rates.USD.official, CAD: game.world().rates.CAD.official, AED: game.world().rates.AED.official, EUR: game.world().rates.EUR.official });
+
+  test("[R-RETURN-006] [R-CAR-004] given a car under half paid, when the character comes home, then it is handed back and the shortfall opens at home in naira at the day's official rate, with nothing left in pounds", () => {
+    const { game, car } = carAfter(2);
+    expect(carPaid(CAR_ENTRY, car)).toBeLessThan(TERMS.half);
+    const shortfall = car.outstanding - TERMS.resale;
+    expect(shortfall).toBeGreaterThan(0);
+    const naira = convertMinor(shortfall, "GBP", "NGN", official(game));
+    game.accept({ type: "return/home" });
+    expect(game.state.place.where).toBe("home");
+    expect(isOpen(game, CAR)).toBe(false);
+    expect(hasCar(game)).toBe(false);
+    expect(isOpen(game, SHORTFALL)).toBe(false);
+    expect(entryOf(HOME_SHORTFALL)).toMatchObject({ currency: "NGN", type: "loan" });
+    expect(owedOf(game, HOME_SHORTFALL)).toMatchObject({ principal: naira, outstanding: naira });
+  });
+
+  test("[R-RETURN-006] [R-CAR-004] given a car half paid, when the character comes home, then it is handed back with nothing owed anywhere", () => {
+    const { game, car } = carAfter(24);
+    expect(carPaid(CAR_ENTRY, car)).toBeGreaterThanOrEqual(TERMS.half);
+    game.accept({ type: "return/home" });
+    expect(isOpen(game, CAR)).toBe(false);
+    expect(isOpen(game, SHORTFALL)).toBe(false);
+    expect(isOpen(game, HOME_SHORTFALL)).toBe(false);
+  });
+});
 
 describe("the agent's debt", () => {
   const RANSOM: Id<"offer"> = "offer.road-ransom-call";

@@ -24,8 +24,6 @@ import type { CreditEvent } from "./credit.events";
 
 const MARK_MIN = 0;
 const MARK_MAX = 100;
-/** R-CREDIT-003: the months a file must go without a miss before it drifts up. */
-const CLEAN_YEAR = 12;
 
 const EMPTY: CreditFile = { mark: 0, onTime: 0, missed: 0, lastMissMonth: null, judgmentUntil: null };
 
@@ -151,10 +149,10 @@ function spend(ctx: Ctx): BaseEvent[] {
 function month(ctx: Ctx): BaseEvent[] {
   const { place, turn } = ctx.state;
   if (place.where !== "abroad" || place.country === null) return [];
-  const { drift, driftTo } = ctx.content.tuning.credit;
+  const { drift, driftTo, cleanMonths } = ctx.content.tuning.credit;
   const file = stored(ctx.state, place.country);
   const since = Math.max(place.movedMonth, file.lastMissMonth ?? place.movedMonth);
-  if (turn.month - since < CLEAN_YEAR || file.mark >= driftTo) return [];
+  if (turn.month - since < cleanMonths || file.mark >= driftTo) return [];
   return record(ctx, [{ type: "credit/drifted", country: place.country, points: Math.min(drift, driftTo - file.mark) }]);
 }
 

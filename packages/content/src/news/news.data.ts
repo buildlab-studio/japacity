@@ -535,7 +535,9 @@ export const newsTable: Record<Id<"news">, NewsEntry> = {
     group: "openings",
     needs: [atMost("var.uae-window", 0)],
     chanceBp: 10000,
-    rumourLead: 0,
+    // the lifting is rolled once the window has been shut `tuning.director.closedTicks` (8), so its talk runs
+    // 8 ticks before the announcement and it comes into force, ending the ban, on the ban's 18th tick (director.md).
+    rumourLead: 8,
     forceLag: 2,
     endsAfter: null,
     sets: [{ var: "var.uae-window", value: 2 }],

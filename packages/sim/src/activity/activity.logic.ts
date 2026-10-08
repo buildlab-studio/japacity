@@ -354,6 +354,18 @@ export function hireChanceBp(entry: ActivityEntry, network: number, tuning: Tuni
   return Math.min(tuning.hireMaxBp, (entry.hireBp ?? 0) + tuning.networkHireBp * network);
 }
 
+/** director.md: the remote-hiring boom adds its bonus to the remote job's hire chance, under the same cap. */
+const REMOTE_JOB: Id<"activity"> = "activity.job-remote-dev";
+const REMOTE_BONUS: Id<"var"> = "var.remote-hire-bonus";
+
+/** R-ACTIVITY-005: a hunt's chance now, the world's bonus for the remote job included. */
+export function huntChanceBp(read: ReadCtx, entry: ActivityEntry): number {
+  const tuning = read.content.tuning.quality;
+  const network = read.state.quality[NETWORK] ?? 0;
+  const bonus = entry.id === REMOTE_JOB ? ((read.world.vars as Record<string, number | undefined>)[REMOTE_BONUS] ?? 0) : 0;
+  return Math.min(tuning.hireMaxBp, hireChanceBp(entry, network, tuning) + bonus);
+}
+
 function jobEntry(content: Content, id: string): ActivityEntry {
   const entry = content.activity[id as Id<"activity">];
   if (!isJob(entry)) throw new Error(`${id} is not a job in content.`);
@@ -737,6 +749,9 @@ function slots(ctx: Ctx): BaseEvent[] {
     }
   }
   events.push(...record(ctx, { type: "activity/slots-recorded", slots: picks.map((pick) => ({ ...pick })) }));
+  const { job, side } = ctx.state.activity;
+  const filled = new Set<Id<"activity">>([...(job === null ? [] : [job]), ...(side === null ? [] : [side]), ...picks.map((pick) => pick.activity)]);
+  if (filled.size > 0) events.push(...record(ctx, { type: "activity/played-counted", activities: [...filled] }));
   return events;
 }
 
@@ -748,8 +763,7 @@ function slots(ctx: Ctx): BaseEvent[] {
 function huntEffect(ctx: Ctx, _effect: unknown, cause: Cause): BaseEvent[] {
   if (cause.param === null) throw new Error(`A hunt from ${cause.source} names no job.`);
   const entry = jobEntry(ctx.content, cause.param);
-  const network = ctx.state.quality[NETWORK] ?? 0;
-  const hired = ctx.random.chance("job", hireChanceBp(entry, network, ctx.content.tuning.quality));
+  const hired = ctx.random.chance("job", huntChanceBp(readOf(ctx), entry));
   const events = record(ctx, { type: "activity/hunted", job: entry.id, hired });
   // content without the job offer has nothing to open, so the landed hunt opens nothing.
   if (hired && ctx.content.offer[JOB_OFFER] !== undefined) {
@@ -976,6 +990,7 @@ function lines(event: ActivityEvent, state: State): ReportLine[] {
     case "activity/gig-paid":
       return [line("line.activity.gig", { amount: { currency: GIG_CURRENCY, amount: event.amount } }, "good")];
     case "activity/slots-recorded":
+    case "activity/played-counted":
       return [];
     default: {
       const never: never = event;
@@ -1001,6 +1016,11 @@ function evolve(slice: ActivitySlice, event: ActivityEvent): ActivitySlice {
       return { ...slice, tenure: { ...slice.tenure, [DRIVING_TEST]: event.attempt } };
     case "activity/slots-recorded":
       return { ...slice, lastSlots: event.slots };
+    case "activity/played-counted": {
+      const played = { ...slice.played };
+      for (const id of event.activities) played[id] = (played[id] ?? 0) + 1;
+      return { ...slice, played };
+    }
     case "activity/pay-withheld":
     case "activity/sick-pay":
     case "activity/side-worked":

@@ -12,7 +12,7 @@ export const walletText: Record<string, string> = {
   "line.wallet.refund": "Refund received: {amount}.",
 
   // Money out.
-  "line.wallet.upkeep": "Rent, food and transport: {amount}.",
+  "line.wallet.upkeep": "Living costs: {amount}.",
   "line.wallet.family": "Sent to family: {amount}.",
   "line.wallet.fee-document": "Paid at the office: {amount}.",
   "line.wallet.fee-test": "Test fee paid: {amount}.",

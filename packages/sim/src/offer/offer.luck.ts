@@ -12,14 +12,6 @@ export const WHIP_ROUND: Id<"offer"> = "offer.whip-round";
 /** R-LUCK-007: the promo that pays when it is honest. */
 export const TELCO_PROMO: Id<"offer"> = "offer.telco-promo";
 
-/**
- * R-LUCK-003: "down" is wellbeing or standing under this. the page
- * gives 30 and the tuning has no field for it beside the luck numbers, so it
- * is here, as the road's pressure lines are in offer.logic.ts.
- */
-const DOWN_UNDER = 30;
-/** R-LUCK-002: months played before the rescue can come. the same. */
-export const RESCUE_AFTER_MONTHS = 12;
 /** R-LUCK-002: the loans whose default rules the rescue out. held funds are a loan too. */
 const LOAN_TYPES: readonly ObligationType[] = ["loan", "group-loan", "held-funds"];
 
@@ -47,7 +39,8 @@ export function luckReadsMoney(entry: OfferEntry): boolean {
 /** R-LUCK-003: wellbeing or standing under the line. Qualities only. */
 export function isDown(read: ReadCtx): boolean {
   const { quality } = read.state;
-  return (quality[WELLBEING] ?? 0) < DOWN_UNDER || (quality[STANDING] ?? 0) < DOWN_UNDER;
+  const { downUnder } = read.content.tuning.luck;
+  return (quality[WELLBEING] ?? 0) < downUnder || (quality[STANDING] ?? 0) < downUnder;
 }
 
 /** Months since a luck offer last opened, counted from the start of the life when none ever has. */
@@ -91,7 +84,7 @@ export function markedChanceBp(read: ReadCtx, entry: OfferEntry, chance: number)
  */
 export function rescueDue(read: ReadCtx): boolean {
   const { state, content } = read;
-  if (state.turn.month < RESCUE_AFTER_MONTHS || state.place.where !== "home") return false;
+  if (state.turn.month < content.tuning.luck.rescueAfterMonths || state.place.where !== "home") return false;
   if (wealthInNaira(read) >= content.tuning.luck.rescueUnder) return false;
   return !Object.values(state.obligation.items).some((item) => {
     const type = content.obligation[item.entry]?.type;

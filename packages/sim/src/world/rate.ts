@@ -7,6 +7,9 @@ import { createRandom } from "../engine/random";
 import type { Content, ForeignCurrency, Id } from "../engine/types";
 import type { WorldStream } from "./schedule";
 
+/** Dirhams for one dollar, in basis points of a dirham per cent: the peg of 3.6725 (R-ABROAD-001). */
+const PEG_PER_DOLLAR = 36725;
+
 export const FOREIGN: readonly ForeignCurrency[] = ["GBP", "USD", "CAD", "AED", "EUR"];
 
 /** The story whose coming into force floats the naira (R-RATE-004). */
@@ -73,5 +76,8 @@ export function stepRates(before: RateBook, draws: Partial<Record<WorldStream, n
     }
   }
   if (floats) premiumBp = rate.floatPremiumBp;
+  // R-ABROAD-001: the peg holds the dirham to the dollar after the tick's move; tick 0 keeps the start values (R-RATE-002).
+  official.AED = Math.max(1, mulDiv(official.USD, BP_WHOLE, PEG_PER_DOLLAR));
+  street.AED = floats ? Math.max(street.AED, official.AED) : streetOf(official.AED, premiumBp);
   return { official, street, premiumBp };
 }

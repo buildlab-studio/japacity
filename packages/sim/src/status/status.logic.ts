@@ -142,13 +142,29 @@ function lengthOf(read: ReadCtx, entry: StatusEntry): number | null {
   return typeof entry.months === "number" ? entry.months : worldVar(read, entry.months);
 }
 
+/**
+ * abroad-money.md, `country.uae` money: the employer who holds the passport
+ * also houses the worker, so no room is rented while that status is held, and
+ * the country's room is rented once it goes.
+ */
+function housing(ctx: Ctx, before: Id<"status"> | null, after: Id<"status"> | null): void {
+  const was = before === null ? null : statusEntry(ctx.content, before);
+  const now = after === null ? null : statusEntry(ctx.content, after);
+  const wasHoused = was?.holdsPassport === true;
+  const isHoused = now?.holdsPassport === true;
+  const cause: Cause = { source: after ?? before ?? "status", param: null, terms: {} };
+  if (isHoused && !wasHoused) ctx.apply([{ type: "obligation/close", obligationType: "rent" }], cause);
+  const room = was === null ? null : countryEntry(ctx.content, was.country).rentRoom;
+  if (wasHoused && !isHoused && room !== null && ctx.state.place.where === "abroad") ctx.apply([{ type: "obligation/open", obligation: room }], cause);
+}
+
 /** R-STATUS-001: the old status, if any, is replaced. */
 function grant(ctx: Ctx, status: Id<"status">, job: Id<"activity"> | null, why: GrantWhy, fee: MoneyParam | null): BaseEvent[] {
   const entry = statusEntry(ctx.content, status);
   const month = ctx.state.turn.month;
   const length = lengthOf(ctx, entry);
   const before = ctx.state.status.current;
-  return record(ctx, [
+  const events = record(ctx, [
     {
       type: "status/granted",
       status,
@@ -160,6 +176,8 @@ function grant(ctx: Ctx, status: Id<"status">, job: Id<"activity"> | null, why: 
       fee,
     },
   ]);
+  housing(ctx, before?.entry ?? null, status);
+  return events;
 }
 
 /** R-STATUS-005: the status goes and the country's overstayer status takes its place. */
@@ -169,6 +187,7 @@ function lapse(ctx: Ctx, why: LapseWhy): BaseEvent[] {
   const events = record(ctx, [{ type: "status/lapsed", status: now.held.entry, why }]);
   const overstayer = countryEntry(ctx.content, now.entry.country).overstayer;
   if (overstayer !== null) events.push(...grant(ctx, overstayer, null, "lapsed", null));
+  housing(ctx, now.held.entry, overstayer);
   return events;
 }
 

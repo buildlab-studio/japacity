@@ -47,7 +47,7 @@ describe("obligations abroad", () => {
     ]);
     expect(content.obligation["obligation.car-shortfall"]).toMatchObject({ type: "loan", term: 12, rateBp: 0, sink: "loan-repay" });
     // The credit numbers: +3, -12, -30, +1 a month up to 40, 72 months, less 20 on return.
-    expect(content.tuning.credit).toEqual({ onTime: 3, onMiss: 12, onDefault: 30, drift: 1, driftTo: 40, judgmentMonths: 72, judgmentCap: 20, returnPenalty: 20 });
+    expect(content.tuning.credit).toEqual({ onTime: 3, onMiss: 12, onDefault: 30, drift: 1, driftTo: 40, judgmentMonths: 72, judgmentCap: 20, returnPenalty: 20, cleanMonths: 12 });
   });
 
   test("[R-ENGINE-014] given a flat that is defaulted, when its effects are read, then the tenant goes back to a room in the same country", () => {

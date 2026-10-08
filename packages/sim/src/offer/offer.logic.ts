@@ -2,7 +2,7 @@
 // choices and a date: a family request, a job, a loan, a man who says he can
 // arrange things. Whether an offer is a fraud is fixed when it opens and kept
 // in `secret`, which the view never carries (R-OFFER-006, R-ENGINE-007).
-import { check, checkWith, resolveAmount } from "../engine/check";
+import { check, checkWith, resolveAmount, worldVar } from "../engine/check";
 import { BP_WHOLE, bp, clamp, divFloor, valueInKobo } from "../engine/int";
 import type { RegisteredKind } from "../engine/kind";
 import { emit } from "../engine/kind";
@@ -44,6 +44,9 @@ import { luckTerms, markedChanceBp, rescueDue, WHIP_ROUND } from "./offer.luck";
  * (R-ROAD-002).
  */
 const ROLL_ORDER: readonly OfferEntry["group"][] = ["money", "life", "family", "abroad", "return", "road"];
+
+/** Offers whose chance a month adds a world variable the director moves (director.md, the sponsor story). */
+const CHANCE_VARS: Partial<Record<Id<"offer">, Id<"var">>> = { "offer.sponsor-licence-lost": "var.uk-care-sponsor-risk" };
 
 
 /** Judges one requirement with the terms in hand. Inside a step it is `ctx.check`; outside, the engine's `check`. */
@@ -337,7 +340,7 @@ function expire(ctx: Ctx): BaseEvent[] {
 export function rollOrder(content: Content): OfferEntry[] {
   return ROLL_ORDER.flatMap((group) =>
     Object.values(content.offer)
-      .filter((entry) => entry.group === group && entry.chanceBp > 0)
+      .filter((entry) => entry.group === group && (entry.chanceBp > 0 || CHANCE_VARS[entry.id] !== undefined))
       .sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0)),
   );
 }
@@ -347,15 +350,7 @@ function switchedOff(content: Content, entry: OfferEntry): boolean {
   return entry.group === "road" && !content.tuning.road.enabled;
 }
 
-/**
- * R-ROAD-002: the pitch's chance with the character's situation, between 0
- * and 10000. the page's lines (standing under 30, age over 30, a
- * route figure of 60) have no field in content beside the entry's `pressure`
- * figures, so they are here.
- */
-const PRESSURE_STANDING_UNDER = 30;
-const PRESSURE_AGE_YEARS = 30;
-const PRESSURE_STRONG_ROUTE = 60;
+/** R-ROAD-002: the pitch's chance with the character's situation, between 0 and 10000. */
 const MONTHS_A_YEAR = 12;
 
 export function pressureChanceBp(read: ReadCtx, entry: OfferEntry, judge: (requirement: Requirement) => RequirementResult): number {
@@ -365,13 +360,14 @@ export function pressureChanceBp(read: ReadCtx, entry: OfferEntry, judge: (requi
   const refusals = Object.values(state.route).reduce((sum, held) => sum + held.refusals, 0);
   const defaulted = Object.values(state.obligation.items).some((item) => item.state === "defaulted");
   const standing = state.quality["quality.standing"] ?? 0;
-  const yearsOver = Math.max(0, divFloor(state.quality["quality.age-months"] ?? 0, MONTHS_A_YEAR) - PRESSURE_AGE_YEARS);
-  const strong = Object.values(content.route).some((route) => route.gate !== "road" && (routePercent(read, route.id, judge) ?? 0) >= PRESSURE_STRONG_ROUTE);
+  const lines = content.tuning.road;
+  const yearsOver = Math.max(0, divFloor(state.quality["quality.age-months"] ?? 0, MONTHS_A_YEAR) - lines.pressureAgeOver);
+  const strong = Object.values(content.route).some((route) => route.gate !== "road" && (routePercent(read, route.id, judge) ?? 0) >= lines.pressureStrongRoute);
   const chance =
     entry.chanceBp +
     pressure.refusalBp * refusals +
     (defaulted ? pressure.defaultBp : 0) +
-    (standing < PRESSURE_STANDING_UNDER ? pressure.lowStandingBp : 0) +
+    (standing < lines.pressureStandingUnder ? pressure.lowStandingBp : 0) +
     pressure.perYearOver30Bp * yearsOver -
     (strong ? pressure.strongRouteBp : 0);
   return clamp(chance, 0, BP_WHOLE);
@@ -402,6 +398,8 @@ function conditionsHold(ctx: Ctx, entry: OfferEntry, terms: Terms): boolean {
 /** Whether an entry is rolled this month (R-OFFER-001): conditions, not open, cooldown passed, under its limit. */
 function mayRoll(ctx: Ctx, entry: OfferEntry): boolean {
   if (switchedOff(ctx.content, entry)) return false;
+  // R-ROAD-005: on the road the month is the chain's own; nothing from home reaches it.
+  if (ctx.state.place.where === "road" && entry.group !== "road") return false;
   if (isOpen(ctx.state, entry.id) || reachedLimit(ctx.state, entry)) return false;
   const last = ctx.state.offer.lastOpened[entry.id];
   if (last !== undefined && ctx.state.turn.month - last < entry.cooldown) return false;
@@ -411,7 +409,9 @@ function mayRoll(ctx: Ctx, entry: OfferEntry): boolean {
 /** The chance an entry rolls at this month: the road's pressure, then the luck marks and the dry spell (R-LUCK-003, 004). */
 function rollChanceBp(ctx: Ctx, entry: OfferEntry): number {
   const read = readOf(ctx);
-  return markedChanceBp(read, entry, pressureChanceBp(read, entry, (requirement) => ctx.check(requirement)));
+  const risk = CHANCE_VARS[entry.id];
+  const added = risk === undefined ? 0 : worldVar(read, risk);
+  return markedChanceBp(read, entry, clamp(pressureChanceBp(read, entry, (requirement) => ctx.check(requirement)) + added, 0, BP_WHOLE));
 }
 
 /**

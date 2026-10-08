@@ -2,7 +2,7 @@
 // month itself, goes through `change`, so every event has the same shape.
 import type { RegisteredKind } from "../engine/kind";
 import { sideJobHeld } from "../activity/activity.logic";
-import { BP_WHOLE, clamp, divCeil, mulDivCeil } from "../engine/int";
+import { BP_WHOLE, clamp, mulDivCeil } from "../engine/int";
 import type {
   Ctx,
   Id,
@@ -37,8 +37,8 @@ export const MONTH_SOURCE = "month";
 export function appliedAmount(entry: QualityEntry, current: number, amount: number, numbers: Tuning["quality"], halved = false): number {
   const cut = entry.group === "skills" && amount > 0 && current >= numbers.skillSoftAt;
   const soft = cut ? mulDivCeil(amount, numbers.skillSoftBp, BP_WHOLE) : amount;
-  // R-ACTIVITY-010: a side job halves skill gains, rounding up, so a gain of 1 still arrives.
-  const asked = halved && entry.group === "skills" && soft > 0 ? divCeil(soft, 2) : soft;
+  // R-ACTIVITY-010: a side job cuts skill gains, rounding up, so a gain of 1 still arrives.
+  const asked = halved && entry.group === "skills" && soft > 0 ? mulDivCeil(soft, numbers.sideJobSkillBp, BP_WHOLE) : soft;
   return clamp(current + asked, entry.min, entry.max) - current;
 }
 

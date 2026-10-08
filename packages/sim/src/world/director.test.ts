@@ -437,3 +437,24 @@ describe("the real world's windows", () => {
     expect(careOpened).toBeLessThan(200);
   });
 });
+
+describe("the Gulf ban", () => {
+  const BAN: Id<"news"> = "news.uae-ban";
+  const WINDOW: Id<"var"> = "var.uae-window";
+
+  test("[R-DIRECTOR-004] [R-DIRECTOR-005] given world seeds where the UAE ban comes into force, when the ticks pass, then the ban ends 18 ticks later and the window stays shut until then", () => {
+    const lasts = content.news[BAN]!.standIn.endsAfter!;
+    expect(lasts).toBe(18);
+    let seen = 0;
+    for (let n = 0; n < 200 && seen < 3; n += 1) {
+      const ticks = directorTicks(`uae-ban-${String(n)}`, 300, content);
+      const inForce = ticks.find((tick) => tick.cameIntoForce.includes(BAN));
+      if (inForce === undefined || inForce.tick + lasts > 300) continue;
+      seen += 1;
+      const ended = ticks.find((tick) => tick.tick > inForce.tick && tick.ended.includes(BAN));
+      expect(ended?.tick).toBe(inForce.tick + lasts);
+      for (let tick = inForce.tick; tick < inForce.tick + lasts; tick += 1) expect(ticks[tick]?.vars[WINDOW]).toBe(0);
+    }
+    expect(seen).toBeGreaterThan(0);
+  });
+});

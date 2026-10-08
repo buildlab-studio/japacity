@@ -36,7 +36,7 @@ import { miniContent } from "../testing/miniContent";
 import { start } from "../testing/play";
 import type { Game, Loose } from "../testing/play";
 import type { ActivityEvent } from "./activity.events";
-import { activityKind, canPayAll, hireChanceBp, paramsFor } from "./activity.logic";
+import { activityKind, canPayAll, hireChanceBp, huntChanceBp, paramsFor } from "./activity.logic";
 
 const UK: Id<"route"> = "route.uk-masters";
 const hireTuning = content.tuning.quality;
@@ -600,6 +600,18 @@ describe("hunting for a job", () => {
     expect(hireTuning.networkHireBp).toBe(20);
   });
 
+  test("[R-ACTIVITY-005] [R-DIRECTOR-001] given the remote-hiring boom's bonus in the world, when a hunt's chance is read, then the remote job's chance gains it, up to the cap, and no other job's does", () => {
+    const remote = content.activity["activity.job-remote-dev"]!;
+    const game = start({ content, scenario: "scenario.ada" });
+    const world = game.world();
+    const network = game.state.quality["quality.network"] ?? 0;
+    const read = (bonus: number) => ({ state: game.state, content, world: { ...world, vars: { ...world.vars, "var.remote-hire-bonus": bonus } } });
+    expect(huntChanceBp(read(0), remote)).toBe(hireChanceBp(remote, network, hireTuning));
+    expect(huntChanceBp(read(1500), remote)).toBe(Math.min(hireTuning.hireMaxBp, hireChanceBp(remote, network, hireTuning) + 1500));
+    expect(huntChanceBp(read(10000), remote)).toBe(hireTuning.hireMaxBp);
+    expect(huntChanceBp(read(1500), teacher)).toBe(hireChanceBp(teacher, network, hireTuning));
+  });
+
   test("[R-ACTIVITY-005] given a chance that would pass 9500, when it is worked out, then it stops at 9500, and just under the cap it does not", () => {
     const strong = { ...teacher, hireBp: 7500 };
     expect(hireChanceBp(strong, 99, hireTuning)).toBe(9480);
@@ -792,6 +804,19 @@ describe("same again", () => {
     expect(plain.game.view().lastSlots).toEqual(slots);
     plain.end([]);
     expect(plain.game.state.activity.lastSlots).toEqual([]);
+  });
+});
+
+describe("months played", () => {
+  test("[R-ACTIVITY-012] given a job and free slots, when months end, then each activity in the slots and the job counts one a month, an activity in two slots counts once, empty slots count nothing, and the view does not show it", () => {
+    const tunde = lab("scenario.tunde");
+    const job = tunde.game.state.activity.job!;
+    expect(tunde.game.state.activity.played).toEqual({});
+    tunde.end([pick("activity.rest"), pick("activity.rest")]);
+    expect(tunde.game.state.activity.played).toEqual({ [job]: 1, "activity.rest": 1 });
+    tunde.end([]);
+    expect(tunde.game.state.activity.played).toEqual({ [job]: 2, "activity.rest": 1 });
+    expect(JSON.stringify(tunde.game.view())).not.toContain("played");
   });
 });
 
