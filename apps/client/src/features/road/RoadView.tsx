@@ -3,6 +3,7 @@
 // share card, no tabs, no advert slot. The months pass while you wait, so the
 // one control besides the card is waiting a month.
 import { DoorOpen, Hourglass } from "lucide-react";
+import type { ReactNode } from "react";
 
 import { useGame, useView } from "../../authority/GameProvider";
 import { Button } from "../../shared/ui/Button";
@@ -10,7 +11,6 @@ import { Card } from "../../shared/ui/Panel";
 import { Rejection } from "../../shared/ui/Rejection";
 import { ReportLines } from "../../shared/ui/ReportLines";
 import { nameOf, say, words } from "../../shared/words/text";
-import { OfferView } from "../offer/OfferView";
 
 /** Answers that leave the chain: turning back before the truth, the exit after it (R-ROAD-004, 007). */
 const EXITS = new Set(["exit", "turn-back"]);
@@ -76,14 +76,15 @@ function Wait() {
   );
 }
 
-export function RoadView() {
+/** `offers` is the offer panel, given by the shell: a ransom call is part of the chain. */
+export function RoadView({ offers = null }: { offers?: ReactNode }) {
   const view = useView();
   const report = view.report;
   return (
     <main className="mx-auto flex min-h-dvh max-w-xl flex-col gap-4 px-4 py-6" data-road>
       <p className="text-sm font-semibold tracking-wide text-muted uppercase">{say("ui.road.title")}</p>
       <ChainCard />
-      {view.offers.length === 0 ? null : <OfferView />}
+      {view.offers.length === 0 ? null : offers}
       {report === null || report.lines.length === 0 ? null : (
         <Card className="flex flex-col gap-2">
           <h2 className="text-sm font-semibold text-muted">{say("ui.report.title", { month: report.month })}</h2>

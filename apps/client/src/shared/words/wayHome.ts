@@ -4,8 +4,8 @@
 import { content } from "@japacity/content";
 import type { Currency, Id, PlayerView, ReturnShape } from "@japacity/sim";
 
-import { atBankRate, nairaForFee } from "../../shared/words/cost";
-import { CURRENCIES } from "../../shared/words/format";
+import { atBankRate, nairaForFee } from "./cost";
+import { CURRENCIES } from "./format";
 
 type Money = { currency: Currency; amount: number };
 

@@ -12,7 +12,7 @@ import { Card, Panel } from "../../shared/ui/Panel";
 import { Rejection } from "../../shared/ui/Rejection";
 import { formatMoney } from "../../shared/words/format";
 import { hasWords, nameOf, say, sayCount } from "../../shared/words/text";
-import { wayHome } from "./wayHome";
+import { wayHome } from "../../shared/words/wayHome";
 
 function signed(value: number): string {
   return value > 0 ? `+${String(value)}` : String(value);

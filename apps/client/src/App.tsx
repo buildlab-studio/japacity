@@ -246,7 +246,7 @@ function Shell() {
   if (choosingLife) return <ScenarioView />;
   if (view === null) return <p className="p-4 text-muted">{say("ui.loading")}</p>;
   if (view.ended && view.card !== null && view.card.kind !== "send-off") return <EndingView />;
-  if (view.place.where === "road") return <RoadView />;
+  if (view.place.where === "road") return <RoadView offers={<OfferView />} />;
   return <Playing />;
 }
 

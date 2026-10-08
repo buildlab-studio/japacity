@@ -10,7 +10,7 @@ import { formatMoney } from "../../shared/words/format";
 import { nameOf, say, sayCount } from "../../shared/words/text";
 import { FamilyView } from "./FamilyView";
 import { PlaceView } from "./PlaceView";
-import { wayHome } from "./wayHome";
+import { wayHome } from "../../shared/words/wayHome";
 
 const UK = content.country["country.uk"]!;
 

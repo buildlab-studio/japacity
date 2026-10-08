@@ -7,7 +7,7 @@ import { abroadView, engineView } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { formatMoney } from "../../shared/words/format";
 import { say } from "../../shared/words/text";
-import { RemitButton } from "./RemitSheet";
+import { RemitButton } from "../../shared/ui/RemitSheet";
 import { WalletView } from "./WalletView";
 
 describe("sending money home", () => {

@@ -12,8 +12,8 @@ import { Rejection } from "../../shared/ui/Rejection";
 import { Sheet } from "../../shared/ui/Sheet";
 import { CURRENCIES, formatMoney, formatOne, formatRate, HOME_CURRENCIES, toMinor } from "../../shared/words/format";
 import { say } from "../../shared/words/text";
-import { localCurrency } from "../place/wayHome";
-import { RemitButton } from "./RemitSheet";
+import { RemitButton } from "../../shared/ui/RemitSheet";
+import { localCurrency } from "../../shared/words/wayHome";
 
 /** The currencies this life deals in: the home three, and the country's own once abroad. */
 function dealtIn(view: Pick<PlayerView, "place">): Currency[] {

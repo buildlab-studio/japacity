@@ -8,7 +8,7 @@ import { useView } from "../../authority/GameProvider";
 import { Card, Panel } from "../../shared/ui/Panel";
 import { formatMoney } from "../../shared/words/format";
 import { nameOf, say } from "../../shared/words/text";
-import { RemitButton } from "../wallet/RemitSheet";
+import { RemitButton } from "../../shared/ui/RemitSheet";
 
 export function FamilyView() {
   const view = useView();

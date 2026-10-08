@@ -7,13 +7,13 @@ import { Send } from "lucide-react";
 import { useId, useState, type FormEvent } from "react";
 
 import { useGame, useView } from "../../authority/GameProvider";
-import { Button } from "../../shared/ui/Button";
-import { Rejection } from "../../shared/ui/Rejection";
-import { Sheet } from "../../shared/ui/Sheet";
-import { REMIT_CHANNELS, remitQuote, type RemitChannel } from "../../shared/sim/remit";
-import { CURRENCIES, formatBp, formatMoney, toMinor } from "../../shared/words/format";
-import { say } from "../../shared/words/text";
-import { localCurrency } from "../place/wayHome";
+import { Button } from "./Button";
+import { Rejection } from "./Rejection";
+import { Sheet } from "./Sheet";
+import { REMIT_CHANNELS, remitQuote, type RemitChannel } from "../sim/remit";
+import { CURRENCIES, formatBp, formatMoney, toMinor } from "../words/format";
+import { say } from "../words/text";
+import { localCurrency } from "../words/wayHome";
 
 const inputClass = "min-h-11 rounded-lg border border-line bg-surface px-3";
 
