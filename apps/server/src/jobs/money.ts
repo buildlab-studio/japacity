@@ -1,8 +1,10 @@
 // R-SERVER-011, R-SERVER-012: the daily job at 00:00 UTC, for the day that has
 // just ended. It reports, raises what it finds, and takes no other action.
-import { forgetBefore } from "../admin/active";
+import type { DayLog } from "@japacity/store";
+
+import { activeOn, forgetBefore } from "../admin/active";
 import { raiseAlarms } from "../admin/alarm";
-import { utcDay } from "../admin/day";
+import { dayStart, utcDay } from "../admin/day";
 import type { MoneyDay } from "../admin/money";
 import { drawAlarms, moneyReport } from "../admin/money";
 import type { ServerDeps } from "../deps";
@@ -10,9 +12,11 @@ import type { ServerDeps } from "../deps";
 /** The cron in `wrangler.jsonc` that runs this job. */
 export const MONEY_CRON = "0 0 * * *";
 
-export async function moneyJob(deps: ServerDeps): Promise<MoneyDay> {
+/** `log` reads the day's characters from the command log; without it, the isolate's list from `markAfterCommit`. */
+export async function moneyJob(deps: ServerDeps, log?: Pick<DayLog, "active">): Promise<MoneyDay> {
   const day = utcDay(deps.now()) - 1;
-  const report = await moneyReport(deps, day);
+  const active = log === undefined ? activeOn(deps, day) : await log.active(dayStart(day), dayStart(day + 1));
+  const report = await moneyReport(deps, day, active);
   const alarms = [...report.alarms, ...(await drawAlarms(deps, day))];
   await raiseAlarms(deps, alarms);
   forgetBefore(deps, day + 1);

@@ -27,6 +27,12 @@ export function memoryAccountStore(): AccountStore {
       row.notifyBankFull = on;
       return Promise.resolve(accept(row));
     },
+    setUsageCounts: (id, on) => {
+      const row = rows.get(id);
+      if (row === undefined) return Promise.resolve(refuse("missing", `No account ${id}.`));
+      row.sendUsageCounts = on;
+      return Promise.resolve(accept(row));
+    },
     remove: (id) => {
       rows.delete(id);
       return Promise.resolve();

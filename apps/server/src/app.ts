@@ -27,9 +27,13 @@ import { moderationRoutes } from "./routes/moderation";
 import { pairRoutes } from "./routes/pair";
 import { adminAdvertRoutes } from "./routes/admin-adverts";
 import { advertRoutes } from "./routes/adverts";
+import { COUNTED_PATHS, countRefusals } from "./analytics/count";
+import { isOn } from "./switches/switches";
 
 export function makeApp(deps: ServerDeps, accounts?: Accounts): Hono {
   const app = new Hono();
+  // R-SERVER-005, R-ANALYTICS-008: around the gates and the limits, so a refusal from either is counted too.
+  for (const path of COUNTED_PATHS) app.use(path, countRefusals(deps));
   // R-SERVER-031: first, so its gates run before every route they close.
   app.route("/", switchRoutes(deps));
 
@@ -42,7 +46,7 @@ export function makeApp(deps: ServerDeps, accounts?: Accounts): Hono {
   app.route("/", characterRoute(deps));
   app.route("/", placeRoutes(deps));
   app.route("/", notifyRoutes(deps));
-  app.route("/", advertRoutes(deps));
+  app.route("/", advertRoutes(deps, () => isOn(deps, "adverts")));
   app.route("/api/admin/adverts", adminAdvertRoutes(deps));
   app.route("/api/admin", adminRoutes(deps));
   app.route("/", countersRoute(deps)).route("/api/admin", adminAnalyticsRoutes(deps));

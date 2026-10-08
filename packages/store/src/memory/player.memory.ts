@@ -196,7 +196,7 @@ export function memoryPlayerStores(): { player: PlayerStore; pair: PairStore } {
         const left = new Map(characters);
         left.delete(id);
         characters = left;
-        pairs = new Map([...pairs].filter(([, row]) => row.a !== id && row.b !== id));
+        pairs = new Map([...pairs].filter(([, row]) => (row.a !== id && row.b !== id) || (row.record as { held?: unknown }).held === true));
         return Promise.resolve();
       }),
 

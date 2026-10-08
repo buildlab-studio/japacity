@@ -3,9 +3,6 @@ import type { PushSubscriptionJson } from "@japacity/store";
 
 import { fromBase64Url } from "./webpush";
 
-/** At most this many devices per account, so one account cannot point the job at a crowd of addresses. */
-export const MAX_DEVICES = 10;
-
 const MAX_ENDPOINT = 1024;
 
 /** RFC 8291: an uncompressed P-256 point and a 16-byte secret. */

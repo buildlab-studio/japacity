@@ -11,6 +11,7 @@ import type { Live } from "../authority/load";
 import type { Turn } from "../authority/transaction";
 import type { ServerDeps } from "../deps";
 import type { Book } from "./book";
+import { shareFamily } from "./family";
 import { openBond, sendFacts, sendTo, sideLive } from "./step";
 
 /** The events of the people and interview kinds this file reads, as they are recorded (people.events.ts, interview.events.ts). */
@@ -154,10 +155,14 @@ function carryOne(scope: Scope, live: Live, record: PairRecord, event: Carried, 
     }
     case "people/answered":
       scope.book.write(pair, mine, { type: "pair/answered", step: event.step, yes: event.yes });
-      return event.yes ? agreeBoth(scope, pair) : null;
-    case "people/withdrawn":
+      // R-PEOPLE-034, decision 0009: a no reaches the proposer's life as people/declined.
+      return event.yes ? agreeBoth(scope, pair) : send({ type: "people/declined", pair, step: event.step });
+    case "people/withdrawn": {
+      // R-PEOPLE-034, decision 0009: the other life's waiting proposal is withdrawn too.
+      const step = record.pending[mine]?.step ?? null;
       scope.book.write(pair, mine, { type: "pair/withdrawn" });
-      return null;
+      return step === null ? null : send({ type: "people/withdrawn", pair, step });
+    }
     case "people/consented":
       scope.book.write(pair, mine, { type: "pair/consented", countFunds: event.countFunds, standInMay: event.standInMay });
       forFacts.add(pair);
@@ -191,6 +196,29 @@ function carryOne(scope: Scope, live: Live, record: PairRecord, event: Carried, 
   }
 }
 
+/** The slot a life made from a sibling invite holds for the inviter (R-PEOPLE-011, people.family.ts). */
+const INVITER_SLOT = "sibling-1";
+
+/**
+ * R-PEOPLE-011, decision 0009: a life made with the inviter's family waits
+ * with its first sibling slot as an invited card. The simulation refuses
+ * `people/link` while the prologue is open, so the link is sent the moment
+ * the prologue closes, with the inviter's facts.
+ * the first plan asked for the link at the accept; the kind refuses it there with prologue-open.
+ */
+function siblingLink(scope: Scope, live: Live, before: State): Rejection | null {
+  if (!before.prologue.open || live.state.prologue.open || live.state.people.slots[INVITER_SLOT]?.state !== "invited") return null;
+  for (const key of scope.book.keys()) {
+    const record = scope.book.get(key);
+    if (record === null || record.ended !== null || record.role !== "sibling" || (record.a !== live.id && record.b !== live.id) || openBond(live.state, key) !== null) continue;
+    const other = sideLive(scope.lives, record, flip(side(record, live.id)));
+    if (other === null) continue;
+    const linked = sendTo(scope.turn, live, { type: "people/link", slot: INVITER_SLOT, pair: key, facts: factsOf(other.state, other.content, scope.turn.world) });
+    return linked.ok ? null : linked;
+  }
+  return null;
+}
+
 /**
  * R-PAIR-004, R-PEOPLE-002, R-PEOPLE-003, R-PEOPLE-043: what one accepted
  * command of `live` (from its player or its stand-in) does to every record
@@ -211,6 +239,9 @@ export function carry(scope: Scope, live: Live, before: State, events: readonly 
     const failed = carryOne(scope, live, record, carried, forFacts);
     if (failed !== null) return failed;
   }
+  const waiting = siblingLink(scope, live, before);
+  if (waiting !== null) return waiting;
+  shareFamily(scope, live, events);
   for (const [id, bond] of Object.entries(live.state.people.bonds)) {
     if (bond.with.kind === "player" && bond.stage !== "ended" && scope.book.get(bond.with.pair) === null) {
       return reject("stale", `The bond ${id} is with a life this command did not hold. Send it again.`);

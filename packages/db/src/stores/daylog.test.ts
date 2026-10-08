@@ -20,7 +20,7 @@ function logAt(id: string, v: number, at: number): LogRow {
 }
 
 function account(id: string, createdAt: number): AccountRow {
-  return { id, country: "NG", age: { passed: true, at: createdAt, method: "declared" }, createdAt, character: null, notifyBankFull: false };
+  return { id, country: "NG", age: { passed: true, at: createdAt, method: "declared" }, createdAt, character: null, notifyBankFull: false, sendUsageCounts: true };
 }
 
 describe("the day's log in Postgres", () => {

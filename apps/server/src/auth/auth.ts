@@ -19,7 +19,7 @@ import type { BetterAuthPlugin } from "better-auth";
 import type { memoryAdapter } from "better-auth/adapters/memory";
 import { emailOTP, testUtils } from "better-auth/plugins";
 
-import { admitAccount } from "../account/signup";
+import { admitAccount, admitMethod, admitSession } from "../account/signup";
 import type { TurnstileKeys } from "../account/turnstile";
 import { requestDeletion } from "../account/deletion";
 import type { ServerDeps } from "../deps";
@@ -102,7 +102,21 @@ export function makeAuth(deps: ServerDeps, adapter: Adapter, keys: AuthKeys) {
       freshAge: Math.floor(config.account.deleteFreshMs / 1000),
     },
     databaseHooks: {
-      user: { create: { before: (user, endpoint) => admitAccount(deps, endpoint) } },
+      user: { create: { before: (user, endpoint) => admitAccount(deps, endpoint, user) } },
+      account: {
+        create: {
+          before: async (account) => {
+            await admitMethod(deps, account);
+          },
+        },
+      },
+      session: {
+        create: {
+          before: async (session) => {
+            await admitSession(deps, session);
+          },
+        },
+      },
     },
     rateLimit: {
       enabled: true,

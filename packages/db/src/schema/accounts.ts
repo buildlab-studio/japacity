@@ -14,6 +14,8 @@ export const accounts = pgTable("accounts", {
   character: text("character"),
   /** R-CLOCK-031. */
   notifyBankFull: boolean("notify_bank_full").notNull().default(false),
+  /** R-ANALYTICS-006. */
+  sendUsageCounts: boolean("send_usage_counts").notNull().default(true),
 });
 
 /** R-CLOCK-031, R-ACCOUNT-020: one row per device that agreed, kept only while the account's setting is on. */

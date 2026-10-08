@@ -1,6 +1,8 @@
 import { afterEach, describe, expect, test, vi } from "vitest";
 
 import { productionConfig, testConfig } from "../config";
+import { banIdentities, emailIdentity } from "../moderation/identities";
+import { setSwitch } from "../switches/switches";
 import { makeAuth } from "./auth";
 import { memoryAuthAdapter } from "./memory";
 import { SITE, harness, makeJar } from "./testing";
@@ -72,6 +74,72 @@ describe("signing in", () => {
     await h.call(`/api/auth/callback/google?code=stub-code&state=${state}`, { jar });
     expect(h.tables.user).toHaveLength(1);
     expect(h.tables.account).toEqual([expect.objectContaining({ userId: account, providerId: "google" })]);
+  });
+
+  test("[R-MODERATION-018] given a banned email, when it signs up by code after passing the screen, then no account or row is made, and another email still can", async () => {
+    const h = harness();
+    await banIdentities(h.deps, [emailIdentity("Bad@Example.com")]);
+    const jar = makeJar();
+    await h.passAge(jar);
+    const otp = await h.codeFor("bad@example.com", jar);
+    const reply = await h.call("/api/auth/sign-in/email-otp", { method: "POST", jar, json: { email: "bad@example.com", otp } });
+    expect(reply.status).toBe(403);
+    expect(await json(reply)).toMatchObject({ code: "not-possible" });
+    expect(h.tables.user).toHaveLength(0);
+    expect((await h.signUp("good@example.com")).account).not.toBe("");
+  });
+
+  test("[R-MODERATION-018] given a banned Google subject, when it signs in with a new email or links to an existing account, then the method is refused", async () => {
+    const h = harness();
+    await banIdentities(h.deps, ["google:google-subject-9"]);
+    await h.signUp("ada@example.com");
+    for (const email of ["new@example.com", "ada@example.com"]) {
+      const jar = makeJar();
+      await h.passAge(jar);
+      const start = await h.call("/api/auth/sign-in/social", { method: "POST", jar, json: { provider: "google", callbackURL: "/" } });
+      const state = new URL(String((await json(start))["url"])).searchParams.get("state") ?? "";
+      stubGoogle({ sub: "google-subject-9", email });
+      await h.call(`/api/auth/callback/google?code=stub-code&state=${state}`, { jar });
+      vi.unstubAllGlobals();
+      expect((await h.call("/api/account", { jar })).status).toBe(401);
+    }
+    expect(h.tables.account.filter((method) => method.providerId === "google")).toEqual([]);
+  });
+
+  test("[R-MODERATION-014] given an account suspended for a day, when it signs in by code, then no session is made until the day is over", async () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    const start = Date.parse("2026-10-08T09:00:00Z");
+    vi.setSystemTime(start);
+    const h = harness();
+    const { account } = await h.signUp("ada@example.com");
+    await h.deps.stores.moderationLog.append({ id: "log.suspend", admin: "account.owner", at: start, item: "report.1", action: "suspend", params: { account, days: 1 }, reason: "scam" });
+    const signIn = async () => {
+      const jar = makeJar();
+      const otp = await h.codeFor("ada@example.com", jar, `198.51.100.${String(Date.now() % 200)}`);
+      const reply = await h.call("/api/auth/sign-in/email-otp", { method: "POST", jar, ip: `198.51.100.${String(Date.now() % 200)}`, json: { email: "ada@example.com", otp } });
+      return { reply, jar };
+    };
+
+    vi.setSystemTime(start + 86_400_000 - 1);
+    const refused = await signIn();
+    expect(await json(refused.reply)).toMatchObject({ code: "not-possible" });
+    expect((await h.call("/api/account", { jar: refused.jar })).status).toBe(401);
+
+    vi.setSystemTime(start + 86_400_000);
+    const allowed = await signIn();
+    expect(allowed.reply.status).toBe(200);
+    expect((await h.call("/api/account", { jar: allowed.jar })).status).toBe(200);
+  });
+
+  test("[R-SERVER-031] given an age pass taken while sign-ups were on, when the switch goes off and the code is used, then the sign-up is refused switched-off and no account is made", async () => {
+    const h = harness();
+    const jar = makeJar();
+    await h.passAge(jar);
+    const otp = await h.codeFor("late@example.com", jar);
+    await setSwitch(h.deps, "signups", false, "account.owner", "full");
+    const reply = await h.call("/api/auth/sign-in/email-otp", { method: "POST", jar, json: { email: "late@example.com", otp } });
+    expect(await json(reply)).toMatchObject({ code: "switched-off" });
+    expect(h.tables.user).toHaveLength(0);
   });
 
   test("[R-ACCOUNT-002] given a code sent, when it is read back, then it is 6 digits and the reply did not wait on the send", async () => {

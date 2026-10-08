@@ -143,8 +143,8 @@ describe("the place routes", () => {
     await plainRequest.text();
   });
 
-  test("[R-CLOCK-028] given more players in the place than the sample, when one fetches the presence, then it gets the configured number of others, names and looks only, never itself", async () => {
-    const size = productionConfig.presence.sample;
+  test("[R-CLOCK-028] [R-CITY-032] given more players in the place than the sample, when one fetches the presence, then it gets the configured number of others, at most the place's target headcount, names and looks only, never itself", async () => {
+    const size = Math.min(productionConfig.presence.sample, content.place[PLACE]!.crowd.target);
     const accounts = Array.from({ length: size + 3 }, (_unused, index) => `account-${String(index)}`);
     const setupped = setup(Object.fromEntries(accounts.map((account) => [account, PLACE])));
     for (const account of accounts) listenTo(await opened(await socket(setupped, account)));

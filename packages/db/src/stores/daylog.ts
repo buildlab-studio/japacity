@@ -32,6 +32,7 @@ export function pgDayLog(handle: Handle): DayLog {
             createdAt: row.createdAt,
             character: row.character,
             notifyBankFull: row.notifyBankFull,
+            sendUsageCounts: row.sendUsageCounts,
           }))
           .sort((left, right) => byCodeUnit(left.id, right.id));
       }),

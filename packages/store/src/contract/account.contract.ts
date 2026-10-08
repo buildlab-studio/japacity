@@ -4,7 +4,7 @@ import type { AccountRow, AccountStore } from "../types";
 import { must } from "./fixtures";
 
 function account(id: string): AccountRow {
-  return { id, country: "NG", age: { passed: true, at: 2_000, method: "declared" }, createdAt: 2_000, character: null, notifyBankFull: false };
+  return { id, country: "NG", age: { passed: true, at: 2_000, method: "declared" }, createdAt: 2_000, character: null, notifyBankFull: false, sendUsageCounts: true };
 }
 
 /** The contract every AccountStore keeps. `make` returns an empty store each time it is called. */
@@ -52,6 +52,17 @@ export function suiteForAccountStore(make: () => Promise<AccountStore>): void {
       expect(must(await store.setNotify("account-1", false)).notifyBankFull).toBe(false);
       expect((await store.get("account-1"))?.notifyBankFull).toBe(false);
       expect(await store.setNotify("account-unknown", true)).toMatchObject({ ok: false, code: "missing" });
+    });
+
+    test("[R-ANALYTICS-006] given a new account, when the usage counts setting is turned off and on, then it reads back each time, and an unknown id is refused with missing", async () => {
+      const store = await make();
+      must(await store.create(account("account-1")));
+
+      expect(must(await store.setUsageCounts("account-1", false)).sendUsageCounts).toBe(false);
+      expect((await store.get("account-1"))?.sendUsageCounts).toBe(false);
+      expect(must(await store.setUsageCounts("account-1", true)).sendUsageCounts).toBe(true);
+      expect((await store.get("account-1"))?.sendUsageCounts).toBe(true);
+      expect(await store.setUsageCounts("account-unknown", true)).toMatchObject({ ok: false, code: "missing" });
     });
 
     test("[R-ACCOUNT-017] given an account with a character, when the character is cleared and the account removed, then nothing of it is read back", async () => {

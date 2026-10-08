@@ -13,12 +13,11 @@ import { runDeletions } from "../jobs/deletion";
 import { notifyJob } from "../jobs/notify";
 import { TICKS_CRON } from "../jobs/ticks";
 import type { NotifyReply } from "../routes/notify";
-import { MAX_DEVICES } from "./device";
 import { fullAtOf } from "./fill";
 import { noticePayload } from "./notice";
 import { notifyText } from "./notify.text";
 import type { PushKeys } from "./webpush";
-import { concat, fromBase64Url, label, pushRequest, recordKeys, toBase64Url, TTL_SECONDS } from "./webpush";
+import { concat, fromBase64Url, label, pushRequest, recordKeys, toBase64Url } from "./webpush";
 
 const { epoch, turnRefillMs } = productionConfig.clock;
 const cap = content.tuning.turn.cap;
@@ -52,6 +51,7 @@ async function testKeys(status: Record<string, number> = {}): Promise<{ keys: Pu
     publicKey: toBase64Url(point),
     privateKey: jwk.d ?? "",
     subject: "mailto:owner@example.test",
+    numbers: productionConfig.notify,
     fetch: (url, init) => {
       sent.push({ url, init });
       return Promise.resolve(new Response(null, { status: status[url] ?? 201 }));
@@ -134,7 +134,7 @@ describe("the push message", () => {
     expect(JSON.parse(decoder.decode(fromBase64Url(header)))).toEqual({ typ: "JWT", alg: "ES256" });
     expect(JSON.parse(decoder.decode(fromBase64Url(claims)))).toEqual({ aud: "https://push.example.test", exp: Math.floor((epoch + 999) / time.SECOND_MS) + 12 * 3600, sub: "mailto:owner@example.test" });
     expect(headerOf(init, "content-encoding")).toBe("aes128gcm");
-    expect(headerOf(init, "ttl")).toBe(String(TTL_SECONDS));
+    expect(headerOf(init, "ttl")).toBe("86400");
     expect(concat(label("ab"))).toEqual(Uint8Array.of(97, 98, 0));
   });
 });
@@ -332,7 +332,7 @@ describe("the notice's routes", () => {
     const server = testServer();
     await newLife(server, "acc-1");
     const devices: TestDevice[] = [];
-    for (let count = 0; count < MAX_DEVICES; count += 1) devices.push(await testDevice(`d${String(count)}`));
+    for (let count = 0; count < productionConfig.notify.maxDevices; count += 1) devices.push(await testDevice(`d${String(count)}`));
     for (const device of devices) expect((await subscribe(server, "acc-1", device)).status).toBe(200);
 
     expect((await subscribe(server, "acc-1", await testDevice("one-more"))).status).toBe(400);

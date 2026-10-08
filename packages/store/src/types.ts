@@ -87,7 +87,8 @@ export interface NewCharacter {
   refilledAt: number;
   content: string;
   overlay?: string;
-  start: { scenario: Id<"scenario">; seed: string; worldSeed: string };
+  /** A new life from its scenario and seeds, or (a sibling made from an invite, R-PEOPLE-011) the state it starts from. */
+  start: SegmentStart;
   /** The state at version 0, stored as segment 0's first snapshot. */
   state: State;
 }
@@ -155,7 +156,7 @@ export interface PlayerStore {
    * missing id is refused before `work` runs; a refused write writes nothing.
    */
   transact: <T>(ids: readonly string[], work: Work<T>) => Promise<StoreResult<T>>;
-  /** R-ACCOUNT-017: removes every row that names the character, its pair records included. */
+  /** R-ACCOUNT-017, R-MODERATION-008: removes every row that names the character, its pair records included but a record a report holds (`held: true`). */
   remove: (id: string) => Promise<void>;
   /**
    * R-CLOCK-031: sets `fullAt` while the row is still at version `v`, so an
@@ -304,6 +305,8 @@ export interface AccountRow {
   character: string | null;
   /** R-CLOCK-031: the setting that sends the bank-full notice. Off until the player agrees. */
   notifyBankFull: boolean;
+  /** R-ANALYTICS-006: the "Send usage counts" setting. On until the player turns it off. */
+  sendUsageCounts: boolean;
 }
 
 /** R-ACCOUNT-015, R-ACCOUNT-017. */
@@ -315,6 +318,8 @@ export interface AccountStore {
   setCharacter: (id: string, character: string | null) => Promise<StoreResult<AccountRow>>;
   /** R-CLOCK-031: the bank-full setting. Refused with `missing` for an unknown id. */
   setNotify: (id: string, on: boolean) => Promise<StoreResult<AccountRow>>;
+  /** R-ANALYTICS-006: the usage counts setting. Refused with `missing` for an unknown id. */
+  setUsageCounts: (id: string, on: boolean) => Promise<StoreResult<AccountRow>>;
   /** R-ACCOUNT-017. */
   remove: (id: string) => Promise<void>;
 }

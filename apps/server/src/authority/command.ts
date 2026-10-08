@@ -7,6 +7,7 @@ import { viewFor } from "@japacity/sim";
 
 import { clockView } from "../clock/view";
 import type { ServerDeps } from "../deps";
+import { withNumbers } from "../draw/numbers";
 import type { ServerReply, ViewReply } from "../types";
 import { bookOf } from "../pair/book";
 import { bondedWith, carry } from "../pair/carry";
@@ -92,7 +93,7 @@ export async function sendCommand(deps: ServerDeps, account: string, body: unkno
       const live = liveOf(outcome.lives, character);
       await afterCommit(deps, [live], "player");
       await afterCommit(deps, outcome.lives.filter((each) => each !== live), "authority");
-      const view = viewFor({ state: live.state, world: outcome.world, content: live.content });
+      const view = await withNumbers(deps, live.id, live.state, viewFor({ state: live.state, world: outcome.world, content: live.content }));
       return { status: 200, body: { ok: true, view, lines: outcome.value, clock: clockOf(deps, live, outcome.at) } };
     }
     case "rejected":
@@ -107,8 +108,15 @@ export async function sendCommand(deps: ServerDeps, account: string, body: unkno
   }
 }
 
-/** R-CLOCK-003, R-CLOCK-004, R-SERVER-015: the view after the same load and grant, with the clock. */
-export async function readView(deps: ServerDeps, account: string): Promise<Answer<ViewReply>> {
+/**
+ * R-CLOCK-003, R-CLOCK-004, R-SERVER-015: the view after the same load and
+ * grant, with the clock. R-LOTTERY-013, R-LOTTERY-017: with `since`, the
+ * lines of every row after that version its player did not send (a draw's
+ * payment, a grant, the stand-in's answers), so a player who was away sees
+ * them. rows older than the latest snapshot are not replayed, so
+ * their lines are not in the reply.
+ */
+export async function readView(deps: ServerDeps, account: string, since: number | null = null): Promise<Answer<ViewReply>> {
   const character = await characterOf(deps, account);
   if (character === null) return refusal(404, "no-character", "This account has no character yet.");
   const outcome = await transact(deps, [character], () => ({ ok: true, value: null }));
@@ -116,8 +124,9 @@ export async function readView(deps: ServerDeps, account: string): Promise<Answe
     case "done": {
       const live = onlyLive(outcome.lives);
       await afterCommit(deps, outcome.lives, "player");
-      const view = viewFor({ state: live.state, world: outcome.world, content: live.content });
-      return { status: 200, body: { ok: true, view, lines: [], clock: clockOf(deps, live, outcome.at) } };
+      const view = await withNumbers(deps, live.id, live.state, viewFor({ state: live.state, world: outcome.world, content: live.content }));
+      const lines = since === null ? [] : live.sentFor.filter((sent) => sent.v > since).flatMap((sent) => sent.lines);
+      return { status: 200, body: { ok: true, view, lines, clock: clockOf(deps, live, outcome.at) } };
     }
     case "rejected":
       throw new Error("A view steps nothing and cannot be rejected.");

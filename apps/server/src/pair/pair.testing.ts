@@ -145,3 +145,32 @@ export function quickWeddings(): Content {
     copy.tuning.people.weddingShare = 100;
   });
 }
+
+/** Answers the first allowed answer of every prologue step until the prologue closes. */
+export async function playPrologue(server: TestServer, account: string): Promise<void> {
+  for (let guard = 0; guard < 60; guard += 1) {
+    const shown = (await view(server, account)).body;
+    if (!shown.ok || shown.view.prologue === null) return;
+    const answer = shown.view.prologue.answers.find((each) => each.allowed);
+    if (answer === undefined) throw new Error("No allowed answer.");
+    await act(server, account, { type: "prologue/choose", step: shown.view.prologue.step, answer: answer.id });
+  }
+}
+
+/** An inviter from the prologue with two siblings drawn, and a friend who took the sibling card and played its own prologue: two linked sibling lives. */
+export async function siblings(server: TestServer): Promise<Linked> {
+  const a = await newLife(server, INVITER, "scenario.prologue");
+  await playPrologue(server, INVITER);
+  await must(server, INVITER, { type: "turn/end", slots: [] });
+  const code = await cardOut(server, INVITER, "sibling-1", "sibling");
+  await signUp(server, FRIEND);
+  const taken = await call<{ ok: boolean; character?: string }>(server, "POST", `/api/invite/${code}/accept`, FRIEND, { slot: "sibling-1" });
+  if (!taken.body.ok || taken.body.character === undefined) throw new Error(`The sibling card was not taken: ${JSON.stringify(taken.body)}`);
+  await playPrologue(server, FRIEND);
+  return { server, a, b: taken.body.character, key: pairId(a, taken.body.character), code };
+}
+
+/** Content where the prologue draws two siblings. */
+export function twoSiblings(copy: Content): void {
+  copy.tuning.prologue.siblings = [2, 2];
+}

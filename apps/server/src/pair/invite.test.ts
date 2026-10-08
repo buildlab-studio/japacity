@@ -5,7 +5,7 @@ import { describe, expect, test } from "vitest";
 import { view } from "../authority/testing";
 import type { InviteAccepted, InviteMade, InviteShown, InvitesListed } from "./invite";
 import type { PairRejection } from "./codes";
-import { act, bondIn, call, cardOut, FRIEND, INVITER, linkedPair, must, newLife, pairServer, recordOf, signUp, stateOf, tuned } from "./pair.testing";
+import { act, bondIn, call, cardOut, FRIEND, INVITER, linkedPair, must, newLife, pairServer, playPrologue, recordOf, signUp, stateOf, tuned } from "./pair.testing";
 
 type Reply<B> = B | PairRejection;
 
@@ -15,7 +15,7 @@ async function accept(server: ReturnType<typeof pairServer>, account: string, co
 
 /** An account in `country` whose age screen is passed or not. */
 async function accountIn(server: ReturnType<typeof pairServer>, id: string, country: string, passed = true): Promise<void> {
-  const made = await server.deps.stores.account.create({ id, country, age: { passed, at: server.deps.now(), method: "declared" }, createdAt: server.deps.now(), character: null, notifyBankFull: false });
+  const made = await server.deps.stores.account.create({ id, country, age: { passed, at: server.deps.now(), method: "declared" }, createdAt: server.deps.now(), character: null, notifyBankFull: false, sendUsageCounts: true });
   if (!made.ok) throw new Error(made.detail);
 }
 
@@ -201,6 +201,36 @@ describe("invite links", () => {
     const b = (taken as InviteAccepted).character;
     expect((await stateOf(server, b)).prologue.open).toBe(true);
     expect((await recordOf(server.deps, pairId(a, b)))?.record).toMatchObject({ role: "sibling", stage: "connected" });
+    expect((await stateOf(server, a)).people.slots["sibling-1"]?.state).toBe("player");
+  });
+
+  test("[R-PEOPLE-011] given an inviter whose prologue drew a family, when a sibling link is taken, then the new life holds the same draw from its first state, its first segment starts from that state, and its sibling-1 slot waits as a card until its prologue closes and then holds the inviter", async () => {
+    // A family drawn with two children besides the inviter, so the sibling slots exist.
+    const server = pairServer(tuned((copy) => {
+      copy.tuning.prologue.siblings = [2, 2];
+    }));
+    const a = await newLife(server, INVITER, "scenario.prologue");
+    await playPrologue(server, INVITER);
+    // The family's siblings join the slots in the first month after the prologue (R-PEOPLE-007).
+    await must(server, INVITER, { type: "turn/end", slots: [] });
+    const family = (await stateOf(server, a)).prologue.draw;
+    expect(family).not.toBeNull();
+    const code = await cardOut(server, INVITER, "sibling-1", "sibling");
+    await signUp(server, FRIEND);
+
+    const taken = await accept(server, FRIEND, code, { slot: "sibling-1" });
+
+    expect(taken).toMatchObject({ ok: true });
+    const b = (taken as InviteAccepted).character;
+    const sibling = await stateOf(server, b);
+    expect(sibling.prologue.draw).toEqual(family);
+    expect(sibling.people.slots["sibling-1"]).toMatchObject({ state: "invited", invite: { looking: "sibling" } });
+    const stored = await server.deps.stores.player.load(b);
+    expect(stored?.segments[0]?.start).toMatchObject({ base: { v: 0, prologue: { draw: family } } });
+    await playPrologue(server, FRIEND);
+    const grown = await stateOf(server, b);
+    expect(grown.prologue.draw).toEqual(family);
+    expect(grown.people.slots["sibling-1"]).toMatchObject({ state: "player" });
     expect((await stateOf(server, a)).people.slots["sibling-1"]?.state).toBe("player");
   });
 

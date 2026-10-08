@@ -12,6 +12,7 @@ import { NOT_POSSIBLE, refused, widen } from "./codes";
 import { momentInto } from "./carry";
 import { field } from "./invite";
 import { accountOfCharacter, interactionOf } from "./region";
+import { silenced } from "./restricted";
 import { pairStep, sideLive, sideOf, unusual } from "./step";
 
 const MESSAGE_BYTES = 12;
@@ -64,6 +65,8 @@ export async function say(deps: ServerDeps, account: string, key: string, body: 
   const content = deps.contents.current;
   const phrase = content.phrase[phraseId as Id<"phrase">];
   if (phrase === undefined) return refused(400, "unknown-id", `There is no phrase ${phraseId}.`);
+  const paused = await silenced(deps, account);
+  if (paused !== null) return paused;
   const found = await readable(deps, account, key);
   if (found === null) return refused(404, "unknown-id", "There is no such pair.");
   const { character, record } = found;

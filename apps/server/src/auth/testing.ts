@@ -13,7 +13,7 @@ import { makeApp } from "../app";
 import { testConfig } from "../config";
 import type { ServerConfig } from "../config";
 import { memoryStores, openLimiters } from "../deps";
-import type { ServerDeps } from "../deps";
+import type { ServerDeps, Stores } from "../deps";
 import { makeAuth } from "./auth";
 import type { Auth, AuthKeys, OtpMessage } from "./auth";
 import { memoryAuthAdapter, memoryAuthTables } from "./memory";
@@ -81,6 +81,9 @@ export interface Harness {
 
 export interface HarnessOptions {
   config?: ServerConfig;
+  /** The stores and the auth library's adapter, for a run on Postgres; the memory ones otherwise. */
+  stores?: Stores;
+  adapter?: Parameters<typeof makeAuth>[1];
   sendOtp?: (message: OtpMessage) => Promise<void>;
   turnstileSecret?: string;
 }
@@ -93,7 +96,7 @@ export function harness(options: HarnessOptions = {}): Harness {
   let seed = 7;
   const base: ServerDeps = {
     config,
-    stores: memoryStores(),
+    stores: options.stores ?? memoryStores(),
     contents: { current: content, previous: null },
     secrets: { worldSeed: "test-world-seed", banSalt: "test-ban-salt", drawTokenKey: "test-draw-token-key" },
     limits: openLimiters,
@@ -116,7 +119,7 @@ export function harness(options: HarnessOptions = {}): Harness {
       background.push(promise);
     },
   };
-  const auth = makeAuth(base, memoryAuthAdapter(tables), keys);
+  const auth = makeAuth(base, options.adapter ?? memoryAuthAdapter(tables), keys);
   const deps: ServerDeps = { ...base, session: sessionReader(auth) };
   const app = makeApp(deps, { auth, keys });
 

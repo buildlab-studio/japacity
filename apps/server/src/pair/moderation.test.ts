@@ -2,10 +2,14 @@ import { pairView } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
 import { requestDeletion } from "../account/deletion";
+import { makeAuth } from "../auth/auth";
+import { memoryAuthAdapter } from "../auth/memory";
+import { SECRET, SITE } from "../auth/testing";
+import { runDeletions } from "../jobs/deletion";
 import type { PairRejection } from "./codes";
 import { forgetPairs } from "./leave";
 import type { Reported } from "./moderation";
-import { closeReport, REPORTS_PER_DAY } from "./moderation";
+import { closeReport } from "./moderation";
 import { call, cardOut, FRIEND, INVITER, lastBondIn, linkedPair, married, pairServer, quickWeddings, recordOf, sayFrom, stateOf } from "./pair.testing";
 
 const STANDING = "quality.standing";
@@ -107,6 +111,26 @@ describe("report and hold", () => {
     expect(await server.deps.stores.invite.pairsOf(a)).toEqual([]);
   });
 
+  test("[R-MODERATION-008] [R-ACCOUNT-017] given a reported message and its held record, when the deletion job removes the reported account, then the held message and the held record survive unchanged and the rest of that account's rows go", async () => {
+    const { server, a, key } = await linkedPair();
+    const kept = await sayFrom(server, INVITER, key, "phrase.hello");
+    await sayFrom(server, INVITER, key, "phrase.thanks");
+    await post(server, "/api/moderation/report", FRIEND, { pair: key, messages: [kept.message?.id], reason: "harassment" });
+    const row = await requestDeletion(server.deps, INVITER);
+    const before = await recordOf(server.deps, key);
+    expect(before?.record.held).toBe(true);
+    server.setNow(row.dueAt);
+    const keys = { secret: SECRET, siteUrl: SITE, google: { clientId: "x", clientSecret: "x" }, turnstile: { secretKey: "x" }, sendOtp: () => Promise.resolve(), background: () => undefined };
+
+    expect(await runDeletions(server.deps, makeAuth(server.deps, memoryAuthAdapter(), keys))).toBe(1);
+
+    expect(await server.deps.stores.player.load(a)).toBeNull();
+    expect(await server.deps.stores.account.get(INVITER)).toBeNull();
+    expect((await server.deps.stores.conversation.list(key, null)).map((each) => each.id)).toEqual([kept.message?.id]);
+    expect(await recordOf(server.deps, key)).toEqual(before);
+    expect(await server.deps.stores.invite.pairsOf(a)).toEqual([]);
+  });
+
   test("[R-MODERATION-007] [R-MODERATION-008] given a held record, when the moderator closes its one report, then the record is released and the hold lifted", async () => {
     const { server, key } = await linkedPair();
     const reported = await post<Reported>(server, "/api/moderation/report", FRIEND, { pair: key, reason: "other" });
@@ -130,7 +154,7 @@ describe("report and hold", () => {
 
   test("[R-MODERATION-006] given reportsPerDay reports filed in a day, when one more is sent, then it is refused with rate-limited, and a day after the first it goes", async () => {
     const { server, key } = await linkedPair();
-    for (let index = 0; index < REPORTS_PER_DAY; index += 1) {
+    for (let index = 0; index < server.deps.config.moderation.reportsPerDay; index += 1) {
       expect((await post(server, "/api/moderation/report", FRIEND, { pair: key, reason: "other" })).body).toMatchObject({ ok: true });
     }
 

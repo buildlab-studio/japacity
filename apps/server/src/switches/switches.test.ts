@@ -13,9 +13,10 @@ import type { Beacon } from "../draw/beacon";
 import { QUICKNET_GENESIS_MS, QUICKNET_PERIOD_MS } from "../draw/beacon";
 import { drawJob } from "../jobs/draw";
 import { TICKS_CRON } from "../jobs/ticks";
-import type { ServerRejection } from "../types";
+import type { ServerRejection, ServerReply } from "../types";
 import { AUTHORITY_COMMANDS } from "../../../../packages/sim/src/engine/step";
-import { computerAfterMonths, placeTarget, topUpTickets } from "./dials";
+import { COMPUTER_DIAL, computerAfterMonths, namedContent, placeTarget, topUpTickets } from "./dials";
+import { rollbackCheck } from "../admin/rollback";
 import { GATED_COMMANDS } from "./gate";
 import { SWITCH_NAMES, readSwitches } from "./switches";
 
@@ -30,6 +31,11 @@ function server(): TestServer {
 /** Turns every named switch off as another isolate would: straight in the store, past this isolate's cache. */
 async function turnOff(target: TestServer, names: readonly SwitchName[]): Promise<void> {
   for (const name of names) await target.deps.stores.switches.set(name, false, ADMIN, "test", target.deps.now());
+}
+
+function accepted(reply: ServerReply): Extract<ServerReply, { ok: true }> {
+  if (!reply.ok) throw new Error(`Rejected with ${reply.code}: ${reply.detail}`);
+  return reply;
 }
 
 function buyOne(v: number): Command {
@@ -117,7 +123,7 @@ describe("each switch, off", () => {
 
   test("[R-SERVER-031] given tickets sold and then lottery off, when the draw closes, then it still draws and pays what was sold", async () => {
     const target = server();
-    const keys = { tokenKey: "test-draw-token-key", beacon: fixedBeacon() };
+    const keys = { beacon: fixedBeacon() };
     await drawJob(target.deps, keys, TICKS_CRON);
     const character = await newLife(target, "acc-1");
     const bought = await send(target, "acc-1", { type: "lottery/buy", tickets: 5, basedOn: (await held(target, character)).character.v });
@@ -334,5 +340,48 @@ describe("the dials' readers", () => {
 
   test("[R-SERVER-030] given a place the content does not hold, when its target is read, then it throws", async () => {
     await expect(placeTarget(server().deps, "place.nowhere")).rejects.toThrow("No place place.nowhere.");
+  });
+});
+
+describe("the dials' callers", () => {
+  test("[R-SERVER-030] [R-SERVER-024] [R-PEOPLE-060] given the partner dial set and later unset, when the player plays on, then each change opens a segment whose content carries the dial and records it in its overlay name, and the life still replays from its first segment", async () => {
+    const target = server();
+    const character = await newLife(target, "acc-1");
+    accepted((await send(target, "acc-1", restMonth({ v: 0 }))).body);
+    expect((await held(target, character)).segments).toHaveLength(1);
+
+    await call(target, "POST", "/api/admin/dials", ADMIN, { dial: "computerAfterMonths", value: 3, reason: "launch" });
+    accepted((await send(target, "acc-1", restMonth({ v: 1 }))).body);
+    const dialed = await held(target, character);
+    expect(dialed.segments.map((segment) => segment.overlay)).toEqual([undefined, `${COMPUTER_DIAL}3`]);
+    expect(namedContent(target.deps.contents, content.version, `${COMPUTER_DIAL}3`)?.tuning.people.computerAfterMonths).toBe(3);
+
+    await call(target, "POST", "/api/admin/dials", ADMIN, { dial: "computerAfterMonths", value: null, reason: "players came" });
+    const v = dialed.character.v;
+    accepted((await send(target, "acc-1", restMonth({ v }))).body);
+    const after = await held(target, character);
+    expect(after.segments.at(-1)?.overlay).toBeUndefined();
+    expect(after.segments.at(-1)?.segment).toBe((dialed.segments.at(-1)?.segment ?? 0) + 1);
+    expect(await rollbackCheck(target.deps, character)).toMatchObject({ ok: true, report: { firstDiff: null } });
+  });
+
+  test("[R-SERVER-030] given the partner dial at the content's own value, when a command is played, then no segment opens", async () => {
+    const target = server();
+    const character = await newLife(target, "acc-1");
+    await call(target, "POST", "/api/admin/dials", ADMIN, { dial: "computerAfterMonths", value: content.tuning.people.computerAfterMonths, reason: "same" });
+    accepted((await send(target, "acc-1", restMonth({ v: 0 }))).body);
+    expect((await held(target, character)).segments).toHaveLength(1);
+  });
+
+  test("[R-SERVER-030] [R-CITY-032] [R-CLOCK-028] given five players in a place whose target is dialed to 2, when the presence is fetched, then at most 2 others are sampled, and the config's sample once the dial is unset", async () => {
+    const target = server();
+    const place = "place.ojuelegba";
+    for (let index = 0; index < 6; index += 1) await target.deps.stores.presence.join(place, `socket-${String(index)}`, { account: `acc-${String(index)}`, name: `N${String(index)}`, look: "look.a", place, joinedAt: 0 });
+    await call(target, "POST", "/api/admin/dials", ADMIN, { dial: "placeTarget", place, value: 2, reason: "quiet" });
+    const sampled = await call<{ others: unknown[] }>(target, "GET", `/api/place/${place}`, "acc-0");
+    expect(sampled.body.others).toHaveLength(2);
+    await call(target, "POST", "/api/admin/dials", ADMIN, { dial: "placeTarget", place, value: null, reason: "busy" });
+    const full = await call<{ others: unknown[] }>(target, "GET", `/api/place/${place}`, "acc-0");
+    expect(full.body.others).toHaveLength(Math.min(5, productionConfig.presence.sample, content.place[place]!.crowd.target));
   });
 });

@@ -15,9 +15,25 @@ describe("GET /api/account", () => {
     const reply = await h.call("/api/account", { jar });
     expect(reply.status).toBe(200);
     const body = await reply.json<{ ok: true; account: Record<string, unknown> }>();
-    expect(body.account).toEqual({ id: account, country: "NG", age: { passed: true, method: "declared" }, createdAt: expect.any(Number) as number, character: null, admin: false });
+    expect(body.account).toEqual({ id: account, country: "NG", age: { passed: true, method: "declared" }, createdAt: expect.any(Number) as number, character: null, sendUsageCounts: true, admin: false });
     const row = await h.deps.stores.account.get(account);
-    expect(Object.keys(row ?? {}).sort()).toEqual(["age", "character", "country", "createdAt", "id", "notifyBankFull"]);
+    expect(Object.keys(row ?? {}).sort()).toEqual(["age", "character", "country", "createdAt", "id", "notifyBankFull", "sendUsageCounts"]);
+  });
+
+  test("[R-ANALYTICS-006] given a new account, when it turns usage counts off and on with PUT /api/account, then the row and the reply follow, and a body of any other shape is refused with nothing changed", async () => {
+    const h = harness();
+    const { jar, account } = await h.signUp("ada@example.com");
+    const put = (json: unknown) => h.call("/api/account", { method: "PUT", jar, json });
+
+    const off = await put({ sendUsageCounts: false });
+    expect(off.status).toBe(200);
+    expect(await off.json()).toMatchObject({ ok: true, account: { id: account, sendUsageCounts: false } });
+    expect((await h.deps.stores.account.get(account))?.sendUsageCounts).toBe(false);
+    for (const bad of [{ sendUsageCounts: "no" }, { sendUsageCounts: true, country: "GB" }, null]) expect((await put(bad)).status).toBe(400);
+    expect((await h.deps.stores.account.get(account))?.country).toBe("NG");
+    expect((await put({ sendUsageCounts: true })).status).toBe(200);
+    expect((await h.deps.stores.account.get(account))?.sendUsageCounts).toBe(true);
+    expect((await h.call("/api/account", { method: "PUT", jar: makeJar(), json: { sendUsageCounts: false } })).status).toBe(401);
   });
 
   test("[R-MODERATION-012] given an account on the admin list, when it reads its row, then it is marked admin; one off the list is not", async () => {

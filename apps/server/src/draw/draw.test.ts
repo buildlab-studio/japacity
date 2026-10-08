@@ -13,7 +13,7 @@ import { drawJob } from "../jobs/draw";
 import { TICKS_CRON } from "../jobs/ticks";
 import { drawRoute } from "../routes/draw";
 import type { DrawReply } from "../routes/draw";
-import type { ServerReply, WorldReply } from "../types";
+import type { ServerReply, ViewReply, WorldReply } from "../types";
 import { storedWorlds } from "../world/ticks";
 import { drawSeed, drawWinners, fromHex, sha256, tiersFor, toHex, topUpPart } from "../../../../packages/sim/src/lottery/lottery.draw";
 import type { Beacon } from "./beacon";
@@ -42,7 +42,7 @@ function fakeBeacon(): Beacon & { down: boolean; asked: number[] } {
 }
 
 function keysWith(beacon: Beacon): DrawKeys {
-  return { tokenKey: TOKEN_KEY, beacon };
+  return { beacon };
 }
 
 /** The start of `tick`, plus a minute. */
@@ -362,6 +362,41 @@ describe("telling", () => {
   });
 });
 
+describe("what the players see of a paid draw", () => {
+  test("[R-LOTTERY-013] [R-LOTTERY-017] [R-SERVER-019] given a winner away while the draw was paid, when they come back and fetch the view since the version they last held, then the reply carries the letter; without since, or since the paid version, it carries no lines", async () => {
+    const { server, keys, lives } = await soldDraw(2, 5);
+    const away = lives[1]!;
+    const before = (await held(server, away.character)).character.v;
+    server.setNow(during(14));
+    await drawJob(server.deps, keys, TICKS_CRON);
+    const paid = (await held(server, away.character)).character.v;
+    expect(paid).toBeGreaterThan(before);
+
+    const back = await call<ViewReply>(server, "GET", `/api/view?since=${String(before)}`, away.account);
+    if (!back.body.ok) throw new Error(back.body.detail);
+    expect(back.body.lines.map((line) => line.key)).toContain("line.lottery.letter");
+    const plain = await call<ViewReply>(server, "GET", "/api/view", away.account);
+    expect(plain.body.ok && plain.body.lines).toEqual([]);
+    const caughtUp = await call<ViewReply>(server, "GET", `/api/view?since=${String(back.body.view.v)}`, away.account);
+    expect(caughtUp.body.ok && caughtUp.body.lines).toEqual([]);
+    expect((await call<ViewReply>(server, "GET", "/api/view?since=-1", away.account)).status).toBe(400);
+  });
+
+  test("[R-LOTTERY-005] given two players' tickets numbered 0 to 4 and 5 to 9, when the view is read while the draw sells and after it closes, then the numbers are hidden while it sells and each sees only their own after", async () => {
+    const { server, keys, lives } = await soldDraw(2, 5);
+    const selling = await call<ViewReply>(server, "GET", "/api/view", lives[0]!.account);
+    expect(selling.body.ok && selling.body.view.lottery?.numbers).toBeNull();
+    server.setNow(during(14));
+    await drawJob(server.deps, keys, TICKS_CRON);
+    for (const [index, life] of lives.entries()) {
+      const shown = await call<ViewReply>(server, "GET", "/api/view", life.account);
+      expect(shown.body.ok && shown.body.view.lottery?.numbers).toEqual([0, 1, 2, 3, 4].map((n) => n + index * 5));
+    }
+    const sent = await send(server, lives[0]!.account, { type: "turn/end", slots: [], basedOn: (await held(server, lives[0]!.character)).character.v });
+    expect(sent.body.ok && sent.body.view.lottery?.numbers).toEqual([0, 1, 2, 3, 4]);
+  });
+});
+
 describe("the beacon over HTTP", () => {
   test("[R-LOTTERY-007] [R-LOTTERY-009] given drand's answer for quicknet round 42, when its randomness is read, then it is the SHA-256 of the signature, the value drand's v1 API publishes", async () => {
     const asked: string[] = [];
@@ -416,6 +451,17 @@ describe("the house top-up", () => {
     server.setNow(during(14));
     await drawJob(server.deps, keys, TICKS_CRON);
     expect((await server.deps.stores.world.draw(2))?.topUpTickets).toBe(7);
+  });
+
+  test("[R-LOTTERY-021] [R-SERVER-030] given the top-up dial set in the switch row, when the job opens a draw, then the draw declares the dial's figure, and the content's once the dial is unset", async () => {
+    const server = testServer({ contents: { current: withTopUp(120), previous: null } });
+    await server.deps.stores.switches.setDial({ dial: "topUpTickets", value: 40 }, "account.owner", "launch", server.deps.now());
+    await drawJob(server.deps, keysWith(fakeBeacon()), TICKS_CRON);
+    expect((await server.deps.stores.world.draw(0))?.topUpTickets).toBe(40);
+    await server.deps.stores.switches.setDial({ dial: "topUpTickets", value: null }, "account.owner", "crowd came", server.deps.now());
+    server.setNow(during(14) + server.deps.config.switches.cacheMs);
+    await drawJob(server.deps, keysWith(fakeBeacon()), TICKS_CRON);
+    expect((await server.deps.stores.world.draw(2))?.topUpTickets).toBe(120);
   });
 
   test("[R-LOTTERY-021] [R-LOTTERY-022] given 10 tickets sold under a top-up of 100, when the draw is paid, then the pot is 100 tickets' worth, each prize carries its top-up part, and the wallets credit that part as pot-top-up and the rest as win", async () => {

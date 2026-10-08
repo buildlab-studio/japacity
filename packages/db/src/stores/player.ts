@@ -295,7 +295,8 @@ export function pgPlayerStores(handle: Handle): { player: PlayerStore; pair: Pai
     remove: (id) =>
       handle.transaction(async (tx) => {
         await lockRow(tx, id, "update");
-        await tx.delete(pairs).where(or(eq(pairs.a, id), eq(pairs.b, id)));
+        // R-MODERATION-008: a record a report holds stays until the hold ends.
+        await tx.delete(pairs).where(and(or(eq(pairs.a, id), eq(pairs.b, id)), sql`coalesce(${pairs.record} ->> 'held', 'false') <> 'true'`));
         await tx.delete(commandLog).where(eq(commandLog.character, id));
         await tx.delete(snapshots).where(eq(snapshots.character, id));
         await tx.delete(segments).where(eq(segments.character, id));

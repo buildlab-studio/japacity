@@ -10,6 +10,7 @@ import { sendAuthority } from "../authority/command";
 import { tickAt, tickStartsAt } from "../clock/view";
 import type { ServerDeps } from "../deps";
 import { drawSeed, drawWinners, fingerprintOf, listHashOf, prizesFor, tiersFor, toHex, topUpFor, topUpPart } from "../../../../packages/sim/src/lottery/lottery.draw";
+import { topUpTickets } from "../switches/dials";
 import type { Beacon } from "./beacon";
 import { roundAfter } from "./beacon";
 
@@ -22,12 +23,8 @@ export const SECRET_BYTES = 32;
 /** A token is the first 16 hex digits of the HMAC (R-LOTTERY-008). */
 const TOKEN_DIGITS = 16;
 
-/**
- * The draw's server-only keys, passed in beside the deps until `ServerDeps`
- * holds them: the HMAC key for the tokens (R-SERVER-015, R-SERVER-016) and the beacon.
- */
+/** The draw's beacon, passed in so a test can hand in its own. The tokens' HMAC key is `secrets.drawTokenKey` (R-SERVER-015, R-SERVER-016). */
 export interface DrawKeys {
-  tokenKey: string;
   beacon: Beacon;
 }
 
@@ -79,7 +76,7 @@ export async function tokensOf(deps: Pick<ServerDeps, "stores">, key: string, dr
   return tokens;
 }
 
-export type DrawDeps = Pick<ServerDeps, "config" | "stores" | "contents" | "randomBytes">;
+export type DrawDeps = Pick<ServerDeps, "config" | "stores" | "contents" | "randomBytes" | "now">;
 
 /**
  * R-LOTTERY-007, R-LOTTERY-021: stores draw `n` with a fresh 256-bit secret,
@@ -92,8 +89,7 @@ export async function openDraw(deps: DrawDeps, beacon: Pick<Beacon, "genesis" | 
   if (stored !== null) return stored;
   const secret = toHex(deps.randomBytes(SECRET_BYTES));
   const beaconRound = roundAfter(beacon, tickStartsAt(deps.config.clock, closesTickOf(draw)));
-  const { topUpTickets } = deps.contents.current.tuning.lottery;
-  const put = await deps.stores.world.putDraw({ draw, secret, fingerprint: fingerprintOf(secret, draw), beaconRound, topUpTickets });
+  const put = await deps.stores.world.putDraw({ draw, secret, fingerprint: fingerprintOf(secret, draw), beaconRound, topUpTickets: await topUpTickets(deps) });
   if (put.ok) return put.value;
   // Two openers at once: the first stored wins and the second reads it.
   const winner = await deps.stores.world.draw(draw);
@@ -145,9 +141,9 @@ export function prizesByCharacter(result: LotteryResult, tickets: readonly Ticke
  * R-LOTTERY-008: the published list of a frozen draw. The first close stores
  * it, so a later run and the draw page read the same list whatever is deleted afterwards.
  */
-async function listOf(deps: ServerDeps, keys: DrawKeys, row: DrawRow, tickets: readonly TicketRow[]): Promise<string[]> {
+async function listOf(deps: ServerDeps, row: DrawRow, tickets: readonly TicketRow[]): Promise<string[]> {
   if (row.list !== null) return row.list;
-  const tokens = await tokensOf(deps, keys.tokenKey, row.draw, tickets);
+  const tokens = await tokensOf(deps, deps.secrets.drawTokenKey, row.draw, tickets);
   const stored = await deps.stores.world.setList(row.draw, tokens, listHashOf(tokens));
   if (stored.ok && stored.value.list !== null) return stored.value.list;
   // A second closer stored its list first: that one is published.
@@ -172,7 +168,7 @@ export async function closeDraw(deps: ServerDeps, keys: DrawKeys, draw: number):
 
   const frozen = await deps.stores.world.freeze(draw, deps.now());
   if (!frozen.ok) throw new Error(`Draw ${String(draw)} did not freeze: ${frozen.code} ${frozen.detail}`);
-  const tokens = await listOf(deps, keys, row, frozen.value);
+  const tokens = await listOf(deps, row, frozen.value);
   const randomness = await keys.beacon.randomness(row.beaconRound);
   if (randomness === null) return { kind: "waiting", why: `Beacon round ${String(row.beaconRound)} for draw ${String(draw)} could not be read.` };
 

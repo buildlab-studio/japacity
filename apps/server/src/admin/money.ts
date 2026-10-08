@@ -78,11 +78,11 @@ export interface MoneyDay {
 
 /**
  * R-SERVER-011, R-SERVER-012: for every character that logged a command on the
- * day, adds what it made since its last mark to the day's totals and moves the
+ * day (the isolate's list unless the caller reads the log), adds what it made since its last mark to the day's totals and moves the
  * mark to the next day, and lists every alarm `ledgerReport` raises on it.
  */
-export async function moneyReport(deps: MoneyDeps, day: number): Promise<MoneyDay> {
-  const result: MoneyDay = { day, characters: activeOn(deps, day), closed: [], skipped: [], alarms: [] };
+export async function moneyReport(deps: MoneyDeps, day: number, active: readonly string[] = activeOn(deps, day)): Promise<MoneyDay> {
+  const result: MoneyDay = { day, characters: [...active], closed: [], skipped: [], alarms: [] };
   for (const character of result.characters) {
     const held = await deps.stores.player.load(character);
     if (held === null) {
