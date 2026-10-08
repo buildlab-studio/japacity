@@ -84,6 +84,8 @@ export interface GameState {
    * Every ask (a sign-in method, notifications, feedback, an invite, a share) waits for it (R-GUIDE-015).
    */
   earlyWin: boolean;
+  /** Counts the `messages` nudges heard, so an open conversation fetches what is new (R-PAIR-011). */
+  messageNudges: number;
 
   refresh: () => Promise<void>;
   send: (command: PlayerCommand) => Promise<Reply | ServerRejection | null>;
@@ -108,6 +110,8 @@ export interface GameState {
   signedIn: () => Promise<void>;
   /** After signing out or deleting the account: to the account screens with a reason to show. */
   leave: (notice: string | null) => void;
+  /** The socket heard that the pair's conversation has a new row. */
+  heardMessages: () => void;
 }
 
 export type GameStore = StoreApi<GameState>;
@@ -208,6 +212,7 @@ export function createGameStore(authority: StoreAuthority, options: GameStoreOpt
       signedOut: false,
       accountNotice: null,
       earlyWin: false,
+      messageNudges: 0,
 
       async refresh() {
         try {
@@ -282,6 +287,10 @@ export function createGameStore(authority: StoreAuthority, options: GameStoreOpt
           case "rate-limited":
             set({ rejection: { code: "rate-limited", words: sayCount("ui.online.wait", event.retryAfter, { seconds: event.retryAfter }) } });
             return;
+          case "lines":
+            // The authority's own lines (a draw paid while away): staged as the command's are, never as a report.
+            set({ moments: [...get().moments, ...bigLines(event.lines)], earlyWin: get().earlyWin || earlyWinIn(event.lines, null) !== null });
+            return;
           default: {
             const never: never = event;
             throw new Error(`Unknown authority event: ${JSON.stringify(never)}`);
@@ -291,6 +300,9 @@ export function createGameStore(authority: StoreAuthority, options: GameStoreOpt
       async signedIn() {
         set({ signedOut: false, accountNotice: null, failed: null });
         await get().refresh();
+      },
+      heardMessages() {
+        set({ messageNudges: get().messageNudges + 1 });
       },
       leave(notice) {
         set({ signedOut: true, accountNotice: notice, view: null, clock: null, world: null, presence: null, rejection: null, lines: [], moments: [] });

@@ -6,6 +6,8 @@ import type { Fetch } from "../net/http";
 export interface Sent {
   method: string;
   path: string;
+  /** The query string, with its `?`, or "". */
+  search: string;
   body: unknown;
   headers: Record<string, string>;
   credentials: RequestCredentials | undefined;
@@ -43,7 +45,7 @@ export function fakeServer(): FakeServer {
       const method = init?.method ?? "GET";
       const path = url.pathname;
       const headers = Object.fromEntries(new Headers(init?.headers).entries());
-      sent.push({ method, path, body: typeof init?.body === "string" ? JSON.parse(init.body) : undefined, headers, credentials: init?.credentials });
+      sent.push({ method, path, search: url.search, body: typeof init?.body === "string" ? JSON.parse(init.body) : undefined, headers, credentials: init?.credentials });
       const queue = queues.get(`${method} ${path}`);
       const next = queue === undefined ? undefined : queue.length > 1 ? queue.shift() : queue[0];
       if (queue?.length === 1) used.add(`${method} ${path}`);

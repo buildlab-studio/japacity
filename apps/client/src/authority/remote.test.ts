@@ -159,9 +159,28 @@ describe("the remote authority", () => {
     expect(await remote.world()).toEqual(world);
   });
 
-  test("given presence asked for a place, then it comes from that place's presence route", async () => {
+  test("[R-CLOCK-028] given presence asked for a place, then it comes from GET /api/place/:place with the others and those seen today", async () => {
     const { server, remote } = setUp();
-    server.answer("GET /api/place/country.uk/presence", { body: { place: "country.uk", others: [{ name: "Ada", look: "a" }] } });
-    expect((await remote.presence("country.uk")).others).toHaveLength(1);
+    server.answer("GET /api/place/place.peckham", { body: { place: "place.peckham", others: [{ name: "Ada", look: "a" }], today: [{ name: "Bisi", look: "b" }] } });
+    const presence = await remote.presence("place.peckham");
+    expect(presence.others).toHaveLength(1);
+    expect(presence.today).toEqual([{ name: "Bisi", look: "b" }]);
+  });
+
+  test("[R-LOTTERY-013] given a view held at version 5, when the view is fetched again, then it asks for the lines since 5 and tells the store of them", async () => {
+    const { server, remote, events } = setUp();
+    const letter = { key: "line.lottery.letter", params: {}, tone: "good" as const, big: true, attention: true, counts: [] };
+    server.answer("GET /api/view", viewReply(5), { body: { ok: true, view: at(7), lines: [letter], clock: CLOCK } });
+    await remote.view();
+    await remote.view();
+    expect(server.sent.map((request) => request.search)).toEqual(["", "?since=5"]);
+    expect(events.filter((event) => event.kind === "lines")).toEqual([{ kind: "lines", lines: [letter] }]);
+  });
+
+  test("[R-LOTTERY-013] given no view held yet, when the first view comes with lines, then none are told: nothing old is staged on load", async () => {
+    const { server, remote, events } = setUp();
+    server.answer("GET /api/view", { body: { ok: true, view: at(5), lines: [{ key: "line.lottery.letter", params: {}, tone: "good", big: true, attention: true, counts: [] }], clock: CLOCK } });
+    await remote.view();
+    expect(events.some((event) => event.kind === "lines")).toBe(false);
   });
 });

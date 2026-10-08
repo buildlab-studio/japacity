@@ -2,7 +2,7 @@
 // only carries commands there and views back (R-SERVER-001, R-ENGINE-015).
 // It keeps the last view's version and the clock beside it, never a state, a
 // seed or a world it was not sent, and predicts nothing (R-SERVER-019).
-import type { Command, Id, PlayerView, Reply } from "@japacity/sim";
+import type { Command, Id, PlayerView, Reply, ReportLine } from "@japacity/sim";
 
 import type { ClockView, CommandRequest, NewCharacterReply, NewCharacterRequest, PresenceReply, ServerRejection, ServerReply, ViewReply, WorldReply } from "../shared/net/contract";
 import { api, reportedError, retryAfterMs, type Api, type Fetch } from "../shared/net/http";
@@ -12,7 +12,9 @@ export type AuthorityEvent =
   | { kind: "clock"; clock: ClockView }
   | { kind: "signed-out" }
   | { kind: "no-character" }
-  | { kind: "rate-limited"; retryAfter: number };
+  | { kind: "rate-limited"; retryAfter: number }
+  /** The authority's lines since the view the client held, from a fetched view (R-LOTTERY-013): an away winner's letter. */
+  | { kind: "lines"; lines: ReportLine[] };
 
 export type AuthorityListener = (event: AuthorityEvent) => void;
 
@@ -99,14 +101,27 @@ export function remoteAuthority(options: RemoteAuthorityOptions): RemoteAuthorit
     throw new Error(rejection.detail);
   }
 
+  /** The lines since the held version come with the view; none are asked for on the first fetch, so nothing old is told on load. */
+  function viewPath(): string {
+    return version === null ? "/api/view" : `/api/view?since=${String(version)}`;
+  }
+
+  function keepWithLines(reply: { view: PlayerView; lines: ReportLine[]; clock: ClockView }, asked: number | null): PlayerView {
+    const view = keep(reply);
+    const lines = asked === null ? [] : reply.lines;
+    if (lines.length > 0) tell({ kind: "lines", lines });
+    return view;
+  }
+
   async function fetchView(): Promise<PlayerView> {
     await holdOff();
-    const reply = await http.get<ViewReply>("/api/view");
-    if (reply.ok) return keep(reply);
+    const asked = version;
+    const reply = await http.get<ViewReply>(viewPath());
+    if (reply.ok) return keepWithLines(reply, asked);
     if (reply.code !== "rate-limited") refuse(reply);
     await limited(reply);
-    const again = await http.get<ViewReply>("/api/view");
-    return again.ok ? keep(again) : refuse(again);
+    const again = await http.get<ViewReply>(viewPath());
+    return again.ok ? keepWithLines(again, asked) : refuse(again);
   }
 
   return {
@@ -163,7 +178,7 @@ export function remoteAuthority(options: RemoteAuthorityOptions): RemoteAuthorit
     },
 
     async presence(place) {
-      const reply = await http.get<PresenceReply | ServerRejection>(`/api/place/${encodeURIComponent(place)}/presence`);
+      const reply = await http.get<PresenceReply | ServerRejection>(`/api/place/${encodeURIComponent(place)}`);
       if ("ok" in reply) return refuse(reply);
       return reply;
     },

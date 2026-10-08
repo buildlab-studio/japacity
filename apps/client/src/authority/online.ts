@@ -1,7 +1,10 @@
 // Keeps an online store fresh: the authority's reports into the store, the
 // nudge socket for the character's place, the world on its schedule, and a
 // fetch when the tab comes back into focus (R-CLOCK-019, R-CLOCK-021 to 023).
+import { content } from "@japacity/content";
 import type { PlayerView } from "@japacity/sim";
+
+import { openingPlace } from "../features/city/staging";
 
 import { deviceRandom, type RandomBelow } from "../shared/net/random";
 import { browserSocket, nudgeSocket, type NudgeSocket, type OpenSocket } from "../shared/net/socket";
@@ -19,13 +22,16 @@ export interface OnlineOptions {
   focus?: Pick<Window, "addEventListener" | "removeEventListener"> | null;
 }
 
+const PLACES = Object.values(content.place);
+
 /**
- * The place a character's socket is for.
+ * The place a character's socket and presence are for: a content place id, as
+ * the server's place routes require, and the one the city opens on.
  * the view names only home, abroad (with its country) or the road;
- * the server's `:place` is taken to be the country id abroad and the `where` otherwise.
+ * the server's `placeOf` must answer the same hub, or the socket is refused.
  */
 export function placeOf(view: PlayerView): string {
-  return view.place.where === "abroad" && view.place.country !== null ? view.place.country : view.place.where;
+  return openingPlace({ where: view.place.where, country: view.place.country }, PLACES);
 }
 
 /** Starts it all, and returns the function that stops it. */
@@ -84,6 +90,7 @@ export function goOnline(options: OnlineOptions): () => void {
       held: () => remote.held(),
       fetchView: refresh,
       fetchPresence: () => void fetchPresence(next),
+      fetchMessages: () => store.getState().heardMessages(),
     });
   }
 
