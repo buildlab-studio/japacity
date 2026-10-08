@@ -60,7 +60,9 @@ describe("simulated players to an ending on the real content", () => {
   test.each(ENDINGS.filter((ending) => ending !== "road-lost").map((ending) => [ending] as const))(
     "[R-PLACE-005] [R-STATUS-007] [R-STATUS-008] given the four strategies from every life, when they play up to 120 months, then some strategy on some seed ends %s",
     (ending: Ending) => {
-      expect(find((record) => record.ending === ending, 12)?.ending).toBe(ending);
+      // A broke return is rare among careful and home-bound players; it is searched among the borrowers and the risky over more seeds.
+      const found = ending === "returned-broke" ? find((record) => record.ending === ending, 40, ["borrower", "risky"]) : find((record) => record.ending === ending, 12);
+      expect(found?.ending).toBe(ending);
     },
   );
 
