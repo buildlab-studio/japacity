@@ -44,7 +44,7 @@ function fakeAccount(view: AccountView, over: Partial<AccountApi> = {}): Account
     usageCounts: () => Promise.resolve(null),
     setUsageCounts: () => Promise.resolve(true),
     deleteAccount: () => Promise.resolve(OK),
-    signOut: () => Promise.resolve(),
+    signOut: () => (calls.push("signOut()"), Promise.resolve()),
     ...over,
   };
 }
@@ -205,6 +205,19 @@ describe("the quiet lines", () => {
     await mount(kept, <AccountSettings account={kept} />);
     expect(await screen.findByRole("button", { name: say("ui.account.passkey.add") })).toBeDefined();
     expect(screen.queryByText(say("ui.guest.reminder"))).toBeNull();
+  });
+});
+
+describe("signing out of a guest life", () => {
+  test("[R-ACCOUNT-021] given a guest, when it signs out, then it is told first that the life has no way back, and only a second press signs out", async () => {
+    const account = fakeAccount(me("guest"));
+    await mount(account, <AccountSettings account={account} />);
+    await screen.findByText(say("ui.guest.reminder"));
+    fireEvent.click(screen.getByRole("button", { name: say("ui.account.sign-out") }));
+    expect(screen.getByText(say("ui.guest.sign-out"))).toBeDefined();
+    expect(account.calls).not.toContain("signOut()");
+    fireEvent.click(screen.getByRole("button", { name: say("ui.guest.sign-out.go") }));
+    await waitFor(() => expect(account.calls).toContain("signOut()"));
   });
 });
 

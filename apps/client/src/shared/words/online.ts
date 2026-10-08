@@ -165,6 +165,8 @@ export const onlineText: Record<string, string> = {
   "ui.guest.reminder": "This life lives only on this phone until you keep it.",
   "ui.guest.keep": "Keep it",
   "ui.guest.note": "This life lives only on this phone for now.",
+  "ui.guest.sign-out": "If you sign out now, this life is gone: it has no way back in until you keep it.",
+  "ui.guest.sign-out.go": "Sign out and leave this life",
   "ui.invite.keep-first": "To take a friend's card, keep this life first with Google or your email.",
 
   // The usage counts setting (R-ANALYTICS-006)

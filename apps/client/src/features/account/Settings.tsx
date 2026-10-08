@@ -144,6 +144,7 @@ type Step = "idle" | "warn" | "confirm";
 export function AccountSettings({ account, more = null }: { account: AccountApi; more?: ReactNode }) {
   const leave = useGame((state) => state.leave);
   const guest = useAccountView()?.state === "guest";
+  const [leaving, setLeaving] = useState(false);
   const [step, setStep] = useState<Step>("idle");
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -208,9 +209,19 @@ export function AccountSettings({ account, more = null }: { account: AccountApi;
           {say("ui.account.passkey.add")}
         </Button>
         )}
-        <Button disabled={busy} onClick={() => void signOut()}>
-          {say("ui.account.sign-out")}
-        </Button>
+        {/* R-ACCOUNT-021: a guest's session is its only way back, so signing out of it is said plainly first. */}
+        {guest && !leaving ? (
+          <Button disabled={busy} onClick={() => setLeaving(true)}>
+            {say("ui.account.sign-out")}
+          </Button>
+        ) : (
+          <>
+            {guest ? <p role="alert">{say("ui.guest.sign-out")}</p> : null}
+            <Button disabled={busy} onClick={() => void signOut()}>
+              {say(guest ? "ui.guest.sign-out.go" : "ui.account.sign-out")}
+            </Button>
+          </>
+        )}
       </div>
 
       <UsageCounts account={account} />
