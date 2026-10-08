@@ -1,0 +1,134 @@
+import type { LotteryOdds, PlayerView, ReportLine } from "@japacity/sim";
+import { act, fireEvent, screen, within } from "@testing-library/react";
+import { describe, expect, test } from "vitest";
+
+import { engineView, richView } from "../../shared/testing/fixtures";
+import { renderWithView } from "../../shared/testing/render";
+import { formatMoney, monthEnding } from "../../shared/words/format";
+import { words } from "../../shared/words/text";
+import { drawShown, kept, localCurrency, moneyLines, otherLines, savings } from "./month.results";
+import { Results } from "./Results";
+import { turnWords } from "./turn.words";
+
+const SALARY: ReportLine = { key: "line.wallet.salary", params: { amount: { currency: "NGN", amount: 45_000_000 } }, tone: "good", attention: false, counts: [] };
+const UPKEEP: ReportLine = { key: "line.wallet.upkeep", params: { amount: { currency: "NGN", amount: 10_000_000 } }, tone: "bad", attention: false, counts: [] };
+const MOVED: ReportLine = { key: "line.wallet.moved", params: { amount: { currency: "NGN", amount: 5_000_000 }, pocket: "bank" }, tone: "plain", attention: false, counts: [] };
+const FLAGGED: ReportLine = { key: "line.wallet.flagged", params: { amount: { currency: "NGN", amount: 9_000_000 } }, tone: "bad", attention: false, counts: [] };
+const NEWS: ReportLine = { key: "line.test.not-written", params: {}, tone: "plain", attention: false, counts: [] };
+
+const ODDS: LotteryOdds = { smallPerMillion: 1, small: 1, midPerMillion: 1, mid: 1, jackpotPerMillion: 1, jackpotStart: 1, jackpotGrowthBp: 0, jackpotCap: 1, forcedWinWeeks: null };
+
+function withDraw(view: PlayerView, mine: number[] | null): PlayerView {
+  return {
+    ...view,
+    lottery: {
+      ticket: 50_000,
+      maxTickets: 5,
+      draw: 8,
+      closesTick: 99,
+      onSale: true,
+      tickets: 2,
+      numbers: mine,
+      jackpot: 1,
+      rolledOver: false,
+      odds: ODDS,
+      fingerprint: "f",
+      last: {
+        draw: 7,
+        revealed: "r",
+        beaconRound: 1,
+        beaconRandomness: "b",
+        listHash: "h",
+        count: 80,
+        odds: ODDS,
+        jackpot: 1,
+        winners: [
+          { tier: "jackpot", tickets: [], amount: 0 },
+          { tier: "small", tickets: [41, 12], amount: 100 },
+        ],
+        nextJackpot: 1,
+      },
+    },
+  };
+}
+
+function monthEnded(lines: ReportLine[]): PlayerView {
+  const view = { ...richView(), setpiece: null, interview: null };
+  return { ...view, report: { month: 11, lines, japacityBefore: 58, japacityAfter: 64, attention: false } };
+}
+
+describe("what the results read", () => {
+  test("[R-WORLD-008] given a month's lines, when the money is read, then each line in or out has its sign, a plain move or a flag is not money, and what was kept is in less out", () => {
+    const money = moneyLines([SALARY, MOVED, UPKEEP, FLAGGED, NEWS]);
+    expect(money.map(({ line, sign }) => [line.key, sign])).toEqual([
+      ["line.wallet.salary", 1],
+      ["line.wallet.upkeep", -1],
+    ]);
+    expect(kept(money)).toEqual([{ currency: "NGN", amount: 35_000_000 }]);
+    expect(otherLines([SALARY, MOVED, UPKEEP, NEWS]).map((line) => line.key)).toEqual(["line.wallet.moved", "line.test.not-written"]);
+  });
+
+  test("[R-WORLD-008] given a draw result, when the numbers are read, then they are the winning tickets in order with the player's own matched", () => {
+    expect(drawShown(withDraw(engineView(), [12, 30]))).toEqual({ draw: 7, numbers: [12, 41], matched: [12] });
+    expect(drawShown(withDraw(engineView(), null))?.matched).toEqual([]);
+    expect(drawShown({ lottery: null })).toBeNull();
+  });
+
+  test("[R-WORLD-008] given a route with funds to show, when the savings are read, then they are the shown funds against the need in the route's money; with none, the japacity figure", () => {
+    const rich = richView();
+    expect(savings(rich)).toEqual({ kind: "funds", shown: 1_200_000, required: 3_000_000, currency: "GBP" });
+    expect(savings({ ...rich, routes: [] })).toEqual({ kind: "percent", percent: 64 });
+    expect(savings({ routes: [], japacity: { percent: null, route: null } })).toBeNull();
+    expect(localCurrency(engineView())).toBe("NGN");
+  });
+});
+
+describe("the results sheet", () => {
+  test("[R-WORLD-008] given the month ended, when the results show, then they say the month is done, every line with its sign in its colour, and what was kept", async () => {
+    const view = monthEnded([SALARY, UPKEEP, NEWS]);
+    const { store } = await renderWithView(<Results place="Ojuelegba" />, view);
+    expect(screen.queryByRole("dialog")).toBeNull();
+    act(() => store.setState({ reportOpen: true }));
+    const sheet = screen.getByRole("dialog");
+    expect(within(sheet).getByText(turnWords("turn.results.title", { month: monthEnding(11) }))).toBeTruthy();
+    expect(sheet.querySelector("[data-results-kept]")?.getAttribute("data-results-kept")).toBe("35000000");
+    const rows = [...sheet.querySelectorAll("[data-results-lines] li")];
+    expect(rows.map((row) => row.getAttribute("data-sign"))).toEqual(["1", "-1"]);
+    expect(within(sheet).getByText(`+${formatMoney(45_000_000, "NGN")}`).className).toContain("text-in");
+    expect(within(sheet).getByText(`-${formatMoney(10_000_000, "NGN")}`).className).toContain("text-out");
+    expect(within(sheet).getByText(words(SALARY.key, SALARY.params))).toBeTruthy();
+    // The news line is not listed here: it lives in the phone's News app.
+    expect(within(sheet).queryByText(words(NEWS.key, NEWS.params))).toBeNull();
+    expect(within(sheet).getByText(turnWords("turn.results.news"))).toBeTruthy();
+  });
+
+  test("[R-WORLD-008] given a draw result, when the results show, then the draw's numbers show and the player's matched one is lit with the signal", async () => {
+    const { store } = await renderWithView(<Results place="Ojuelegba" />, withDraw(monthEnded([SALARY]), [41]));
+    act(() => store.setState({ reportOpen: true }));
+    const lit = [...document.querySelectorAll("[data-results-draw] li")].map((chip) => [chip.textContent, chip.getAttribute("data-matched"), chip.className.includes("bg-signal")]);
+    expect(lit).toEqual([
+      ["12", "false", false],
+      ["41", "true", true],
+    ]);
+  });
+
+  test("[R-WORLD-008] given the results, then the savings bar stands toward the move, and the one main button goes back to the place and closes them", async () => {
+    const { store } = await renderWithView(<Results place="Ojuelegba" />, monthEnded([SALARY]));
+    act(() => store.setState({ reportOpen: true }));
+    const bar = screen.getByRole("progressbar", { name: turnWords("turn.results.savings") });
+    expect(bar.getAttribute("aria-valuenow")).toBe("1200000");
+    expect(bar.getAttribute("aria-valuemax")).toBe("3000000");
+    const back = screen.getByRole("button", { name: turnWords("turn.results.back", { place: "Ojuelegba" }) });
+    fireEvent.click(back);
+    expect(store.getState().reportOpen).toBe(false);
+    expect(screen.queryByRole("dialog")).toBeNull();
+  });
+
+  test("[R-WORLD-008] given staged wins still to show, when the month ends, then the results wait for them", async () => {
+    const { store } = await renderWithView(<Results place="Ojuelegba" />, monthEnded([SALARY]));
+    act(() => store.setState({ reportOpen: true, moments: [SALARY] }));
+    expect(screen.queryByRole("dialog")).toBeNull();
+    act(() => store.setState({ moments: [] }));
+    expect(screen.getByRole("dialog")).toBeTruthy();
+  });
+});
