@@ -11,3 +11,6 @@ export type { PairStores } from "./pair.contract";
 export { suiteForPlayerStore } from "./player.contract";
 export { suiteForPresenceStore } from "./presence.contract";
 export { suiteForWorldStore } from "./world.contract";
+export { suiteForConversationStore } from "./conversation.contract";
+export { suiteForInviteStore } from "./invite.contract";
+export { suiteForModerationStore } from "./report.contract";
