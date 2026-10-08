@@ -9,7 +9,7 @@
     "typecheck": "tsc -p tsconfig.json",
     "db:create": "wrangler d1 create japacity-waitlist",
     "db:schema": "wrangler d1 execute japacity-waitlist --remote --file schema.sql",
-    "export": "wrangler d1 execute japacity-waitlist --remote --json --command \"SELECT email, joined_at FROM waitlist ORDER BY joined_at\" | sed -n '/^\\[/,$p' | jq -r '.[0].results | ([\"email\",\"joined_at\"]), (.[] | [.email, .joined_at]) | @csv'"
+    "export": "wrangler d1 execute japacity-waitlist --remote --json --command \"SELECT email, joined_at FROM waitlist ORDER BY joined_at\" | sed -n '/^\\[$/,$p' | jq -r '.[0].results | ([\"email\",\"joined_at\"]), (.[] | [.email, .joined_at]) | @csv'"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20251008.0",
