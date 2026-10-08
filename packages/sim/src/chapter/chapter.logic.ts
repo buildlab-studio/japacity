@@ -23,6 +23,13 @@ function entryOf(content: Content, id: Id<"chapter">): ChapterEntry {
   return entry;
 }
 
+/** R-CHAPTER-002: every item met, or the one item the entry names in `closesOn`. */
+function finished(entry: ChapterEntry, met: (requirement: Requirement) => boolean): boolean {
+  const alone = entry.closesOn === undefined ? undefined : entry.items.find((item) => item.id === entry.closesOn);
+  if (alone !== undefined && met(alone.requirement)) return true;
+  return entry.items.every((item) => met(item.requirement));
+}
+
 /**
  * R-CHAPTER-002. The phase runs once a turn and looks only at the current
  * chapter, so at most one chapter closes in a turn even when the next one's
@@ -32,7 +39,7 @@ function closeFinished(ctx: Ctx): BaseEvent[] {
   const { current } = ctx.state.chapter;
   if (current === null) return [];
   const entry = entryOf(ctx.content, current);
-  if (!entry.items.every((item) => ctx.check(item.requirement).met)) return [];
+  if (!finished(entry, (requirement) => ctx.check(requirement).met)) return [];
   const closed: ChapterEvent = { type: "chapter/closed", chapter: current, next: nextAfter(ctx.content, entry) };
   // Applied first, so the report reads the close before the refill it pays for.
   emit(ctx, "chapter", [closed]);

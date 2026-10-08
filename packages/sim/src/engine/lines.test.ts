@@ -5,9 +5,13 @@ import { fc, test } from "@fast-check/vitest";
 import { describe, expect } from "vitest";
 
 import type { SlotFailure } from "../activity/activity.events";
+import { lifeSaves } from "../goldens/lives.data";
 import { legalCommands } from "../testing/legal";
 import { start } from "../testing/play";
+import { newState } from "./state";
+import { step } from "./step";
 import type { Id, ReportLine } from "./types";
+import { standInWorld } from "../world/standIn";
 
 declare global {
   interface ImportMeta {
@@ -133,5 +137,22 @@ describe("report line keys in the source", () => {
     expect(keys).toContain("line.route.granted");
     expect(keys).toContain("line.document.issued");
     expect(keys.filter((key) => (text[key] ?? "").trim() === "")).toEqual([]);
+  });
+});
+
+describe("staged wins", () => {
+  test("[R-ACTIVITY-001] [R-ROUTE-017] [R-ROUTE-020] given the ada-careful golden, when its save is replayed, then the first salary, the grant and the send-off each come once as a big line, and nothing else is big", () => {
+    const save = lifeSaves["ada-careful"]!;
+    let state = newState(save.scenario, save.seed, content);
+    const lines: ReportLine[] = [];
+    for (const { command, tick, sender } of save.commands) {
+      const result = step(state, command, standInWorld(save.worldSeed, tick, content), content, sender);
+      if (!result.ok) throw new Error(`The golden's ${command.type} was rejected with ${result.code}.`);
+      state = result.state;
+      lines.push(...result.lines);
+    }
+    const big = lines.filter((line) => line.big === true).map((line) => line.key);
+    expect(big).toEqual(["line.activity.salary", "line.route.granted", "line.route.departed"]);
+    expect(lines.filter((line) => line.key === "line.activity.salary").length).toBeGreaterThan(1);
   });
 });

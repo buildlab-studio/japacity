@@ -301,16 +301,17 @@ describe("the job, each month", () => {
     expect(ada.game.state.activity.tenure).toEqual({});
   });
 
-  test("[R-ACTIVITY-001] given a job, when a month is played, then the report says what the salary was", () => {
+  test("[R-ACTIVITY-001] given a job, when a month is played, then the report says what the salary was, staged as a big win the first time only", () => {
     const game = start({ content, scenario: "scenario.tunde" });
-    const result = game.endTurn([]);
-    expect(result.lines).toContainEqual({
+    const salary = {
       key: "line.activity.salary",
       params: { job: "activity.job-bank-officer", amount: { currency: "NGN", amount: content.activity["activity.job-bank-officer"]!.pay!.amount as number } },
       tone: "good",
       attention: false,
       counts: [],
-    });
+    };
+    expect(game.endTurn([]).lines).toContainEqual({ ...salary, big: true });
+    expect(game.endTurn([]).lines).toContainEqual(salary);
   });
 
   test("[R-ACTIVITY-001] given a job held, when another is started, then only one is held", () => {

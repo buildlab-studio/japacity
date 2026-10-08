@@ -459,7 +459,17 @@ function pickParams(activity: Id<"activity">, param: string | null): ReportLine[
   return param === null ? { activity } : { activity, param };
 }
 
-function lines(event: ActivityEvent): ReportLine[] {
+/**
+ * Whether the salary just paid is the first of the life: the ledger's salary
+ * total holds this pay and nothing else. The wallet credits the pay before the
+ * month is recorded, so the total already counts it.
+ */
+function firstSalary(state: State, pay: { currency: Currency; amount: number }): boolean {
+  const paid = Object.entries(state.wallet.totals.in.salary ?? {}).filter(([, amount]) => (amount ?? 0) > 0);
+  return paid.length === 1 && paid[0]?.[0] === pay.currency && paid[0][1] === pay.amount;
+}
+
+function lines(event: ActivityEvent, state: State): ReportLine[] {
   switch (event.type) {
     case "activity/job-started":
       return [line("line.activity.job-started", { job: event.job }, "good")];
@@ -467,8 +477,12 @@ function lines(event: ActivityEvent): ReportLine[] {
       return event.why === "quit"
         ? [line("line.activity.quit", { job: event.job }, "plain")]
         : [line("line.activity.job-ended", { job: event.job }, "bad")];
-    case "activity/month-worked":
-      return event.pay === null ? [] : [line("line.activity.salary", { job: event.job, amount: { currency: event.pay.currency, amount: event.pay.amount } }, "good")];
+    case "activity/month-worked": {
+      if (event.pay === null) return [];
+      const salary = line("line.activity.salary", { job: event.job, amount: { currency: event.pay.currency, amount: event.pay.amount } }, "good");
+      // The first salary of a life is a staged win (docs/rules/text.md, "Money on screen").
+      return [firstSalary(state, event.pay) ? { ...salary, big: true } : salary];
+    }
     case "activity/slot-played":
       return [line("line.activity.played", pickParams(event.activity, event.param), "plain")];
     case "activity/slot-failed":

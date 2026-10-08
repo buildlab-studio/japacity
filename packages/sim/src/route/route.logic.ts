@@ -677,10 +677,11 @@ function movedLines(event: Extract<RouteKindEvent, { type: "route/moved" }>): Re
       return [line("heard", { route, via: event.via ?? FRIEND }, "good")];
     case "known":
       return [line("looked-into", { route }, "good")];
+    // The grant and the send-off are staged wins (docs/rules/text.md, "Money on screen").
     case "granted":
-      return [line("granted", { route }, "good", true)];
+      return [{ ...line("granted", { route }, "good", true), big: true }];
     case "departed":
-      return [line("departed", { route }, "good", true)];
+      return [{ ...line("departed", { route }, "good", true), big: true }];
     case "unknown":
     case "applying":
     case "refused":

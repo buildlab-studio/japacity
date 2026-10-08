@@ -555,6 +555,8 @@ export interface ChapterEntry {
   id: Id<"chapter">;
   order: number;
   items: { id: string; requirement: Requirement }[];
+  /** An item that closes the chapter alone when it is met, whatever the others say (R-CHAPTER-002). */
+  closesOn?: string;
 }
 
 export interface VarEntry {

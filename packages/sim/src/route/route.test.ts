@@ -840,7 +840,7 @@ describe("decision day", () => {
     const result = game.endTurn();
     expect(uk(game).state).toBe("granted");
     expect(uk(game).visa).not.toBeNull();
-    expect(routeLines(result.lines)).toContainEqual({ key: "line.route.granted", params: { route: UK }, tone: "good", attention: true, counts: [] });
+    expect(routeLines(result.lines)).toContainEqual({ key: "line.route.granted", params: { route: UK }, tone: "good", big: true, attention: true, counts: [] });
   });
 
   test("[R-ROUTE-018] given a refusal, when decision day comes, then the route is known again, the surcharge is back at once, the deposit less the fee is booked, the school, confirmation and months held are cleared, and the offer stands", () => {
@@ -928,7 +928,7 @@ describe("decision day", () => {
     expect(game.state.wallet.totals.out.flight).toEqual({ NGN: flight });
     expect(uk(game).state).toBe("departed");
     expect(game.state.turn.ended).toBe(true);
-    expect(routeLines(result.lines)).toEqual([{ key: "line.route.departed", params: { route: UK }, tone: "good", attention: true, counts: [] }]);
+    expect(routeLines(result.lines)).toEqual([{ key: "line.route.departed", params: { route: UK }, tone: "good", big: true, attention: true, counts: [] }]);
     game.expectRejected({ type: "turn/end", slots: [] }, "ended");
   });
 
