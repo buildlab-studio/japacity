@@ -290,11 +290,14 @@ export function newGame(scenario: Id<"scenario"> = "scenario.ada"): Game {
   return start({ scenario, content });
 }
 
-/** A recorded life replayed command by command into a game handle, so play can go on from where it ends. */
-export function recordedGame(name: string): Game {
+/**
+ * A recorded life replayed command by command into a game handle, so play can
+ * go on from where it ends. `drop` leaves that many of its last commands unplayed.
+ */
+export function recordedGame(name: string, drop = 0): Game {
   const save = recordedSave(name);
   const game = start({ scenario: save.scenario, seed: save.seed, worldSeed: save.worldSeed, content });
-  for (const { command, sender } of save.commands) game.accept(command as Loose, sender);
+  for (const { command, sender } of save.commands.slice(0, save.commands.length - drop)) game.accept(command as Loose, sender);
   return game;
 }
 

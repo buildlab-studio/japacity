@@ -222,7 +222,7 @@ export const uiText: Record<string, string> = {
   // The December visit (R-RETURN-005)
   "ui.december.have": "In your pockets here: {amount}",
   "ui.december.free": "Free",
-  "ui.december.short": "You have {have} here.",
+  "ui.december.short": "It needs {need} and you have {have} here.",
   "ui.december.set-aside": "Look at your money first",
   "ui.december.open": "Answer now",
 

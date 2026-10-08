@@ -1,12 +1,13 @@
 // The December visit (R-RETURN-005) as a scene of its own: the whole screen,
 // one question at a time, each answer with its price in the country's
-// currency, the free answer first, and an answer the pockets here cannot cover
-// greyed with the words of the rejection the engine would give (R-SETPIECE-003).
+// currency, the free answer first, and an answer the view does not allow
+// greyed, still visible, with the words of the rejection the engine would
+// give and the price it needs (R-SETPIECE-003).
 // It waits for the staged wins, the report and the card, and can be set aside
 // to look at the money first; the month cannot end until it is answered.
 import { Dialog } from "@base-ui/react/dialog";
 import { content } from "@japacity/content";
-import type { Currency, Effect, Id, PlayerView, Requirement, SetpieceAnswer } from "@japacity/sim";
+import type { Currency, Effect, Id, PlayerView, SetpieceAnswer } from "@japacity/sim";
 import { Gift } from "lucide-react";
 import { useState } from "react";
 
@@ -17,14 +18,12 @@ import { FullScreen } from "../../shared/ui/FullScreen";
 import { Card } from "../../shared/ui/Panel";
 import { Rejection } from "../../shared/ui/Rejection";
 import { useScenesTurn } from "../../shared/ui/stage";
-import { shortfall } from "../../shared/words/cost";
 import { formatMoney } from "../../shared/words/format";
 import { nameOf, say, words } from "../../shared/words/text";
 
 export const DECEMBER: Id<"setpiece"> = "setpiece.december";
 
 type Money = { currency: Currency; amount: number };
-type Pockets = Pick<PlayerView, "pockets" | "rates">;
 
 /** The answer's entry in content, or undefined when content does not know it. */
 function answerEntry(question: string, answer: string): SetpieceAnswer | undefined {
@@ -40,32 +39,6 @@ export function answerPrice(question: string, answer: string): Money[] {
     taken.set(effect.currency, (taken.get(effect.currency) ?? 0) + effect.amount);
   }
   return [...taken].map(([currency, amount]) => ({ currency, amount }));
-}
-
-/** A money requirement judged from the pockets on screen; other requirements are left to the engine. */
-function moneyHolds(view: Pockets, requirement: Requirement): boolean {
-  if (requirement.type === "money/min" && typeof requirement.amount === "number") {
-    const pocket = view.pockets[requirement.currency];
-    const have = requirement.pocket === undefined ? pocket.bank + pocket.cash : pocket[requirement.pocket];
-    return have >= requirement.amount;
-  }
-  if (requirement.type === "money/can-pay" && typeof requirement.amount === "number") {
-    return shortfall(view, [{ currency: requirement.currency, amount: requirement.amount }]).short === 0;
-  }
-  return true;
-}
-
-/**
- * True when the pockets here can cover the answer: each price from that
- * currency's bank and cash (return.md: "if the pocket cannot cover an answer,
- * that answer is not allowed"), and any money the answer's `requires` asks for.
- * the view does not yet mark an answer as not allowed, so the screen
- * judges the money it can see; once the view carries it, that is what to read.
- */
-export function canCover(view: Pockets, question: string, answer: string): boolean {
-  const covered = answerPrice(question, answer).every(({ currency, amount }) => view.pockets[currency].bank + view.pockets[currency].cash >= amount);
-  const requires = answerEntry(question, answer)?.requires ?? [];
-  return covered && requires.every((requirement) => moneyHolds(view, requirement));
 }
 
 /** The answers in the order the scene shows them: the free ones first, the rest as content gives them. */
@@ -84,12 +57,11 @@ function sceneCurrency(view: PlayerView, question: string, answers: readonly str
   return country === null ? null : (content.country[country]?.currency ?? null);
 }
 
-function Answer({ question, answer }: { question: string; answer: string }) {
+function Answer({ question, answer, allowed }: { question: string; answer: string; allowed: boolean }) {
   const view = useView();
   const send = useGame((state) => state.send);
   const busy = useGame((state) => state.busy);
   const price = answerPrice(question, answer);
-  const allowed = canCover(view, question, answer);
   const label = words(`${DECEMBER}.a.${question}.${answer}`);
   const first = price[0];
   const have = first === undefined ? null : formatMoney(view.pockets[first.currency].bank + view.pockets[first.currency].cash, first.currency);
@@ -108,7 +80,7 @@ function Answer({ question, answer }: { question: string; answer: string }) {
       </Button>
       {allowed ? null : (
         <p className="text-sm opacity-90" data-not-allowed>
-          {rejectionWords("not-legal")} {have === null ? null : say("ui.december.short", { have })}
+          {rejectionWords("not-legal")} {have === null || first === undefined ? null : say("ui.december.short", { need: formatMoney(first.amount, first.currency), have })}
         </p>
       )}
     </li>
@@ -137,7 +109,7 @@ function Scene({ onSetAside }: { onSetAside: () => void }) {
       )}
       <ul className="flex flex-col gap-3">
         {sceneOrder(question.id, question.answers).map((answer) => (
-          <Answer key={answer} question={question.id} answer={answer} />
+          <Answer key={answer} question={question.id} answer={answer} allowed={question.allowed.includes(answer)} />
         ))}
       </ul>
       <Rejection />

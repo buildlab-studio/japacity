@@ -33,7 +33,7 @@ function ChainCard() {
               <Button
                 variant={exit ? "primary" : "secondary"}
                 className="w-full justify-start text-left"
-                disabled={busy || ended}
+                disabled={busy || ended || !question.allowed.includes(answer)}
                 data-exit={exit ? "true" : undefined}
                 onClick={() => void send({ type: "setpiece/answer", question: question.id, answer })}
               >

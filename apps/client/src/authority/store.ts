@@ -110,8 +110,16 @@ export function createGameStore(authority: Authority, options: GameStoreOptions 
       try {
         const reply = await authority.send({ ...command, basedOn: view.v });
         if (reply.ok) {
-          take(reply.view);
-          set({ lines: reply.lines, moments: bigLines(reply.lines) });
+          // One update: a month's report opens with the view it reports on, so nothing that
+          // waits for the report (the share card, a scene) can open in between.
+          const ended = command.type === "turn/end";
+          set({
+            view: reply.view,
+            plan: fitPlan(ended ? [] : get().plan, reply.view.freeSlots),
+            lines: reply.lines,
+            moments: bigLines(reply.lines),
+            ...(ended ? { reportOpen: true } : {}),
+          });
         } else {
           set({ rejection: { code: reply.code, words: rejectionWords(reply.code) } });
           // The state may have moved on (a stale command): show the latest.

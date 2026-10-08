@@ -38,7 +38,7 @@ export function SetpieceView() {
                   <li key={answer}>
                     <Button
                       className="w-full justify-start text-left"
-                      disabled={busy || ended}
+                      disabled={busy || ended || !question.allowed.includes(answer)}
                       onClick={() => void send({ type: "setpiece/answer", question: question.id, answer })}
                     >
                       <span className="flex-1 py-2">{words(`${setpiece.entry}.a.${question.id}.${answer}`)}</span>
