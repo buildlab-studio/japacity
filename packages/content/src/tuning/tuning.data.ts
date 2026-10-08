@@ -221,7 +221,10 @@ export const tuning: Tuning = {
   analytics: { batchSeconds: 60, maxBatchBytes: 16384, maxCount: 500, batchesPerHour: 90, minShown: 10, refD1Bp: 3000, refD7Bp: 900 },
 
   // city.md "Numbers": the crowd bands and the graphics switches. Working values.
-  city: { crowdLow: 8, crowdHigh: 16, playersMax: 4, fridayBp: 4000, saturdayBp: 5000, raiseAfterMs: 10000, raiseFrameMs: 20, dropAfterMs: 5000, dropFrameMs: 33, maxPixelRatio: 2, desktopMinWidth: 1024, idleAfterMs: 20000, idleFps: 10, walkMmPerS: 1400, stopShortMm: 300, tagNearMm: 3000, residentFloor: 4 },
+  city: { crowdLow: 8, crowdHigh: 16, playersMax: 4, fridayBp: 4000, saturdayBp: 5000, raiseAfterMs: 10000, raiseFrameMs: 20, dropAfterMs: 5000, dropFrameMs: 33, maxPixelRatio: 2, desktopMinWidth: 1024, idleAfterMs: 20000, idleFps: 10, walkMmPerS: 1400, stopShortMm: 300, tagNearMm: 3000, residentFloor: 4,
+    // world.md: nothing roams and the fly-over is retired (R-WORLD-010, 015); the crowd and sheet caps (R-WORLD-011); the rides' fares in kobo and pace (R-WORLD-017).
+    roam: false, flyover: false, indoorLow: 4, indoorHigh: 6, outdoorLow: 6, outdoorHigh: 10, motionSheets: 1,
+    ride: { fareKobo: { danfo: 30000, keke: 60000, okada: 90000 }, metresPerMinute: { danfo: 250, keke: 300, okada: 450 }, waitMinutes: 6 } },
 
   // people.md, pair.md, interview.md, undertaking.md: their Numbers tables
   people: { matchmaker: false, maxCourting: 3, partnerMoments: 6, marryAfterMonths: 6, weddingShare: naira(3000000), proposeCooldown: 3, recourtMonths: 6, gossipBp: 2500, weddingStanding: 8, gossipStanding: -3, endStanding: { courting: -2, partner: -6, married: -12, applying: -6 }, endWellbeing: -4, leftWellbeing: -8, couchMonths: 3, warnDays: 7, standInDays: 14, computerAfterMonths: 0 },
