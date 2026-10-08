@@ -61,6 +61,34 @@ function packageName(specifier: string): string {
   return specifier.startsWith("@") ? parts.slice(0, 2).join("/") : (parts[0] ?? specifier);
 }
 
+// Decision 0004 section 3: db holds the SQL. Its runtime code imports the store,
+// the simulation's types and the Postgres drivers; the migration tool, PGlite and
+// Vitest only in the files that serve the tests and the migrations.
+const DB_RUNTIME = ["@japacity/store", "@japacity/sim", "drizzle-orm", "pg"];
+const DB_TOOLING_FILES = new Set(["packages/db/drizzle.config.ts", "packages/db/src/pglite.ts", "packages/db/src/testing.ts"]);
+const DB_TOOLING = ["drizzle-kit", "@electric-sql/pglite", ...TEST_LIBRARIES];
+
+/** The module specifiers a file imports or re-exports for their values, not only their types. */
+function valueImports(file: string, text: string): Set<string> {
+  const source = ts.createSourceFile(file, text, ts.ScriptTarget.Latest, false);
+  const found = new Set<string>();
+  for (const statement of source.statements) {
+    if (ts.isImportDeclaration(statement) && ts.isStringLiteral(statement.moduleSpecifier)) {
+      const clause = statement.importClause;
+      const bindings = clause?.namedBindings;
+      const typeOnly =
+        clause !== undefined &&
+        (clause.isTypeOnly ||
+          (clause.name === undefined && bindings !== undefined && ts.isNamedImports(bindings) && bindings.elements.every((element) => element.isTypeOnly)));
+      if (!typeOnly) found.add(statement.moduleSpecifier.text);
+    }
+    if (ts.isExportDeclaration(statement) && statement.moduleSpecifier !== undefined && ts.isStringLiteral(statement.moduleSpecifier) && !statement.isTypeOnly) {
+      found.add(statement.moduleSpecifier.text);
+    }
+  }
+  return found;
+}
+
 const isRelative = (specifier: string) => /^\.\.?(?:\/|$)/.test(specifier);
 const inside = (path: string, folder: string) => path === folder || path.startsWith(`${folder}/`);
 const appOf = (path: string) => /^apps\/([^/]+)/.exec(path)?.[1];
@@ -100,6 +128,20 @@ function violations(files: readonly string[], packages: ReadonlyMap<string, stri
         }
       }
 
+      if (inside(file, "packages/db")) {
+        const allowed = [...DB_RUNTIME, ...(DB_TOOLING_FILES.has(file) || TEST_FILE.test(file) ? DB_TOOLING : [])];
+        const name = packageName(specifier);
+        if (isRelative(specifier) ? !inside(target ?? "", "packages/db") : !name.startsWith("node:") && !allowed.includes(name)) {
+          report("db imports only the store, the simulation's types, Drizzle and pg; the tools for tests and migrations only where they are used");
+        }
+        if (name === "@japacity/sim" && valueImports(file, text).has(specifier)) report("db imports only types from the simulation");
+        if (specifier === "@japacity/store/contract" && !TEST_FILE.test(file)) report("only db's tests import the contract suites, which pull in Vitest");
+      }
+
+      if (target !== undefined && inside(target, "packages/db") && ["packages/sim", "packages/store", "apps/client"].some((folder) => inside(file, folder))) {
+        report("nothing in sim, store or client imports db");
+      }
+
       const targetApp = target === undefined ? undefined : appOf(target);
       if (targetApp !== undefined && appOf(file) !== targetApp) {
         report(`only files inside apps/${targetApp} may import from it`);
@@ -122,6 +164,7 @@ describe("import boundaries", () => {
 
   test("the walk sees the workspace source", () => {
     expect(files).toContain("packages/sim/src/index.ts");
+    expect(files).toContain("packages/db/src/index.ts");
     expect(files).toContain("apps/client/src/App.tsx");
   });
 
