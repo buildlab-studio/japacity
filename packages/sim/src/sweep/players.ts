@@ -542,7 +542,7 @@ function fileOf(state: State, content: Content): FileOnDay {
     interviewScore: visa?.interviewScore ?? 0,
     grade: state.quality["quality.edu-grade"] ?? 0,
   };
-  return { unexplainedBp: file.unexplainedBp, interviewScore: file.interviewScore, chanceBp: refusalChanceBp(content.tuning.route, file) };
+  return { unexplainedBp: file.unexplainedBp, interviewScore: file.interviewScore, chanceBp: refusalChanceBp(content.tuning.route, content.route[UK]?.refusalBaseBp ?? 0, file) };
 }
 
 /** Plays one life with one strategy until it departs or the months run out. */

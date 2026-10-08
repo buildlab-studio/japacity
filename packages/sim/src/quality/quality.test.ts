@@ -259,7 +259,7 @@ describe("report lines", () => {
     expect(result.lines).toEqual([
       {
         key: "line.quality.gain",
-        params: { quality: "quality.english", amount: 6, value: game.state.quality["quality.english"]! },
+        params: { quality: "quality.english", points: 6, value: game.state.quality["quality.english"]! },
         tone: "good",
         attention: false,
         counts: [UK],
@@ -279,7 +279,7 @@ describe("report lines", () => {
     expect(result.lines).toEqual([
       {
         key: "line.quality.loss",
-        params: { quality: "quality.english", amount: 6, value: game.state.quality["quality.english"]! },
+        params: { quality: "quality.english", points: 6, value: game.state.quality["quality.english"]! },
         tone: "bad",
         attention: false,
         counts: [],
@@ -301,7 +301,19 @@ describe("report lines", () => {
     const result = game.endTurn([]);
     const worn = result.lines.filter((line) => line.key === "line.quality.worn");
     expect(worn).toEqual([
-      { key: "line.quality.worn", params: { quality: "quality.wellbeing", amount: 5, value: expect.any(Number) as number }, tone: "plain", attention: false, counts: [] },
+      { key: "line.quality.worn", params: { quality: "quality.wellbeing", points: 5, value: expect.any(Number) as number }, tone: "plain", attention: false, counts: [] },
+    ]);
+  });
+
+  test("[R-QUALITY-006] [R-QUALITY-004] given a quality that counts toward a route, when the month phase raises it, then the drift line carries the route", () => {
+    const wellbeing = content.quality["quality.wellbeing"]!;
+    const counted: Content = { ...content, quality: { ...content.quality, [wellbeing.id]: { ...wellbeing, counts: [UK] } } };
+    const game = start({ content: counted, scenario: "scenario.ada" });
+    applyEffects(game, [add("quality.wellbeing", tuning.wellbeingDriftTo - 10 - game.state.quality["quality.wellbeing"]!)]);
+    const result = game.endTurn([huntTeacher, huntTeacher, huntTeacher]);
+    const drift = result.lines.filter((line) => line.key === "line.quality.drift");
+    expect(drift).toEqual([
+      { key: "line.quality.drift", params: { quality: "quality.wellbeing", points: tuning.wellbeingDrift, value: tuning.wellbeingDriftTo - 10 + tuning.wellbeingDrift }, tone: "plain", attention: false, counts: [UK] },
     ]);
   });
 
@@ -310,7 +322,7 @@ describe("report lines", () => {
     const result = game.endTurn([huntTeacher, huntTeacher, huntTeacher]);
     const quality = result.lines.filter((line) => line.key.startsWith("line.quality."));
     expect(quality).toEqual([
-      { key: "line.quality.drift", params: { quality: "quality.wellbeing", amount: 2, value: 68 }, tone: "plain", attention: false, counts: [] },
+      { key: "line.quality.drift", params: { quality: "quality.wellbeing", points: 2, value: 68 }, tone: "plain", attention: false, counts: [] },
     ]);
   });
 

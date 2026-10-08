@@ -325,11 +325,11 @@ function openEffect(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
   const entry = entryOf(ctx.content, effect.offer);
   if (!entry.when.every((requirement) => ctx.check(requirement, cause.terms).met)) return [];
   if (reachedLimit(ctx.state, entry)) return [];
-  // R-OFFER-007 does not say what happens when the entry is already open. No offer may be
-  // open twice (an invariant of the brief), so the second opens nothing: a second job landed while
-  // a job offer waits is lost.
-  if (isOpen(ctx.state, entry.id)) return [];
-  return openOffer(ctx, entry, cause.terms);
+  // R-OFFER-007: the entry already open closes unanswered, with no lapse effects, and the new one
+  // opens, so a job landed while an earlier job offer waits is the one on the table.
+  const waiting = Object.values(ctx.state.offer.items).find((item) => item.entry === entry.id);
+  const events = waiting === undefined ? [] : record(ctx, { type: "offer/replaced", id: waiting.id, entry: waiting.entry });
+  return [...events, ...openOffer(ctx, entry, cause.terms)];
 }
 
 // ---------------------------------------------------------------------------
@@ -354,6 +354,7 @@ function evolve(slice: OfferSlice, event: OfferEvent): OfferSlice {
     }
     case "offer/taken":
     case "offer/lapsed":
+    case "offer/replaced":
       return without(slice, event.id);
     default: {
       const never: never = event;
@@ -375,6 +376,8 @@ function lines(event: OfferEvent): ReportLine[] {
       return [line("line.offer.taken", { offer: event.entry, choice: event.choice }, false)];
     case "offer/lapsed":
       return [line("line.offer.lapsed", event.choice === null ? { offer: event.entry } : { offer: event.entry, choice: event.choice }, false)];
+    case "offer/replaced":
+      return [line("line.offer.replaced", { offer: event.entry }, false)];
     default: {
       // Tests that stand in for this kind send events of their own through these lines, so an
       // unknown event says nothing rather than throwing.

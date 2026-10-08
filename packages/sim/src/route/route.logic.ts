@@ -1,7 +1,7 @@
 // Routes and schools: docs/rules/route.md, R-ROUTE-001 to 020. A school has no
 // slice of its own: its applications live on the route (`RouteState.schools`),
 // and its rules are carried out here.
-import { heldBand } from "../activity/activity.logic";
+import { heldBand, takesApplication } from "../activity/activity.logic";
 import { check, worldVar } from "../engine/check";
 import { BP_WHOLE, clamp, convertMinor, divFloor, mulDiv } from "../engine/int";
 import type { RegisteredKind } from "../engine/kind";
@@ -19,6 +19,7 @@ import type {
   Effect,
   ForeignCurrency,
   Id,
+  MoneyParam,
   ReadCtx,
   Rejection,
   ReportLine,
@@ -35,7 +36,6 @@ import type {
   VisaApplication,
 } from "../engine/types";
 import { routePercent } from "../japacity/japacity.logic";
-import { openSetpiece } from "../setpiece/setpiece.logic";
 import type { RefusalReason, RouteKindEvent } from "./route.events";
 
 const GRADE: Id<"quality"> = "quality.edu-grade";
@@ -50,13 +50,6 @@ const SURCHARGE: Id<"var"> = "var.uk-surcharge";
 const FUNDS_CURRENCY: ForeignCurrency = "GBP";
 const CURRENCIES: readonly Currency[] = ["NGN", "GBP", "USD"];
 
-/** R-ROUTE-007: 5% more chance of an offer for each grade above the school's minimum, never more than 95%. */
-export const OFFER_PER_GRADE_BP = 500;
-export const OFFER_MAX_BP = 9500;
-/** R-ROUTE-016: a second upper or better takes some chance of refusal off. */
-export const GOOD_GRADE = 4;
-/** R-ROUTE-019: an unexplained share at or above this puts `funds` first among the reasons. */
-export const FUNDS_REASON_BP = 3000;
 /** R-ROUTE-016 counts the unexplained share in whole percents. */
 const BP_PER_PERCENT = 100;
 /** R-ROUTE-003: how talk of a route reaches a character who has not heard by `hearBy`. */
@@ -147,9 +140,9 @@ export function windowOf(read: ReadCtx, route: Id<"route">): RouteView["window"]
   return value === 1 ? "narrowing" : "open";
 }
 
-/** R-ROUTE-007: the school's base chance plus 5% for each grade above its minimum, capped at 95%. */
-export function offerChanceBp(school: SchoolEntry, grade: number): number {
-  return clamp(school.offerBp + OFFER_PER_GRADE_BP * (grade - school.minGrade), 0, OFFER_MAX_BP);
+/** R-ROUTE-007: the school's base chance plus the figure for each grade above its minimum, capped. */
+export function offerChanceBp(school: SchoolEntry, grade: number, numbers: Tuning["route"]): number {
+  return clamp(school.offerBp + numbers.offerPerGradeBp * (grade - school.minGrade), 0, numbers.offerMaxBp);
 }
 
 /** What one school's course comes to before living money: its tuition less the discount it gave. */
@@ -187,9 +180,9 @@ export function fundsRequired(read: ReadCtx, route: Id<"route">): number {
 
 /**
  * R-ROUTE-010, in pence: the bank and locked pockets of every currency and
- * any family support, at the official rate. Cash never counts. each
- * pocket goes straight to pounds with `convertMinor`, rounded down once per
- * pocket, so naira is valued as kobo * 100 / the pound rate in one step.
+ * any family support, at the official rate. Cash never counts. Each pocket
+ * goes straight to pounds with `convertMinor`, rounded down once per pocket,
+ * so naira is valued as kobo * 100 / the pound rate in one step.
  */
 export function fundsShown(read: ReadCtx, route: Id<"route">): number {
   const rates = officialRates(read);
@@ -226,25 +219,26 @@ export interface VisaFile {
 }
 
 /**
- * R-ROUTE-016: base, plus each point of strictness, plus each whole percent of
- * unexplained share, plus each earlier refusal, less each interview point,
- * less the good grade's figure, kept between the floor and the ceiling.
+ * R-ROUTE-016: the route's own base, plus each point of strictness, plus each
+ * whole percent of unexplained share, plus each earlier refusal, less each
+ * interview point, less the good grade's figure, kept between the floor and
+ * the ceiling.
  */
-export function refusalChanceBp(numbers: Tuning["route"], file: VisaFile): number {
+export function refusalChanceBp(numbers: Tuning["route"], baseBp: number, file: VisaFile): number {
   const raw =
-    numbers.refusalBaseBp +
+    baseBp +
     numbers.refusalPerStrictnessBp * file.strictness +
     numbers.refusalPerUnexplainedBp * divFloor(file.unexplainedBp, BP_PER_PERCENT) +
     numbers.refusalPerRefusalBp * file.refusals -
     numbers.refusalPerInterviewPointBp * file.interviewScore -
-    (file.grade >= GOOD_GRADE ? numbers.refusalGoodGradeBp : 0);
+    (file.grade >= numbers.goodGrade ? numbers.refusalGoodGradeBp : 0);
   return clamp(raw, numbers.refusalMinBp, numbers.refusalMaxBp);
 }
 
 /** R-ROUTE-019: most telling first, and `credibility` only when nothing else applies. */
-export function refusalReasons(visa: VisaApplication, earlierRefusals: number): RefusalReason[] {
+export function refusalReasons(visa: VisaApplication, earlierRefusals: number, numbers: Tuning["route"]): RefusalReason[] {
   const reasons: RefusalReason[] = [];
-  if (visa.unexplainedBp >= FUNDS_REASON_BP) reasons.push("funds");
+  if (visa.unexplainedBp >= numbers.fundsReasonBp) reasons.push("funds");
   if ((visa.interviewScore ?? 0) < 0) reasons.push("interview");
   if (earlierRefusals > 0) reasons.push("history");
   return reasons.length > 0 ? reasons : ["credibility"];
@@ -273,9 +267,9 @@ function allHold(ctx: Ctx, requirements: readonly Requirement[]): boolean {
 }
 
 /**
- * R-ROUTE-002. the page names no stream for a chance to hear, and
- * hearing is talk that comes up, not a school's draw, so it draws on `offer`.
- * The draw comes first, as the page says, and only for a route still unknown.
+ * R-ROUTE-002. Hearing is talk that comes up, not a school's draw, so a chance
+ * to hear draws on `offer`. The draw comes first, and only for a route still
+ * unknown.
  */
 function hear(ctx: Ctx, effect: Effect): BaseEvent[] {
   if (effect.type !== "route/hear") throw new Error(`route/hear cannot carry out ${effect.type}.`);
@@ -297,7 +291,8 @@ function lookInto(ctx: Ctx, _effect: Effect, cause: Cause): BaseEvent[] {
 /**
  * R-ROUTE-006, and R-ROUTE-005 for the window. The slot's param names the
  * school. The application is written at once, so a later slot of the same
- * month cannot apply there again.
+ * month cannot apply there again. A school that refused takes a new one once
+ * its wait has run, and the new application replaces the refusal.
  */
 function applySchool(ctx: Ctx, _effect: Effect, cause: Cause): BaseEvent[] {
   const id = cause.param as Id<"school"> | null;
@@ -307,7 +302,7 @@ function applySchool(ctx: Ctx, _effect: Effect, cause: Cause): BaseEvent[] {
   const held = routeOf(ctx.state, school.route);
   if (held.state !== "known" || !entryOf(ctx.content, school.route).schools.includes(id)) return [];
   if (windowOf(read, school.route) === "closed") return [];
-  if (held.schools[id] !== undefined) return [];
+  if (!takesApplication(held.schools[id], ctx.state.turn.month, ctx.content.tuning.route)) return [];
   const band = heldBand(read);
   if (grade(ctx.state) < school.minGrade || band === null || band < school.minBand) return [];
   const wait = ctx.random.between("school", school.answerMonths[0], school.answerMonths[1]);
@@ -315,12 +310,12 @@ function applySchool(ctx: Ctx, _effect: Effect, cause: Cause): BaseEvent[] {
 }
 
 /**
- * The application's conditions, judged again (R-ROUTE-012). the slot
- * that carries this effect judged its activity's requirements a moment ago,
- * before its fees were taken. Paying the visa fee and the surcharge lowers the
- * funds shown, so "covered now" is not judged a second time here: the months
- * held, judged at the last month end, stand for it. Otherwise a file that was
- * covered when the slot began would lose its fees and send nothing.
+ * The application's conditions, judged again (R-ROUTE-012). The slot that
+ * carries this effect judged "covered now" a moment ago, before its fees were
+ * taken. Paying the visa fee and the surcharge lowers the funds shown, so it
+ * is not judged a second time here: the months held, judged at the last month
+ * end, stand for it. Otherwise a file that was covered when the slot began
+ * would lose its fees and send nothing.
  */
 function conditionsHold(ctx: Ctx, held: RouteState, cause: Cause): boolean {
   const requires = ctx.content.activity[cause.source as Id<"activity">]?.requires ?? [];
@@ -350,7 +345,7 @@ function applyVisa(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
   };
   const events = record(ctx, { type: "route/applied", route, visa });
   // A gate with no interview (every gate but study) scores nothing and waits for the decision.
-  if (entry.interview !== null) openSetpiece(ctx, entry.interview, route);
+  if (entry.interview !== null) ctx.apply([{ type: "setpiece/open", setpiece: entry.interview, route }], cause);
   return events;
 }
 
@@ -458,7 +453,7 @@ function schoolsAnswer(ctx: Ctx, entry: RouteEntry): BaseEvent[] {
     if (application?.state !== "pending" || application.readyMonth > ctx.state.turn.month) continue;
     const school = schoolOf(ctx.content, id);
     const have = grade(ctx.state);
-    const offer = ctx.random.chance("school", offerChanceBp(school, have));
+    const offer = ctx.random.chance("school", offerChanceBp(school, have, ctx.content.tuning.route));
     let discount = 0;
     if (offer && school.autoDiscount !== null && have >= school.autoDiscount.minGrade) discount += school.autoDiscount.amount;
     if (offer && school.meritDiscount !== null && ctx.random.chance("school", school.meritDiscount.bp)) discount += school.meritDiscount.amount;
@@ -490,7 +485,7 @@ function decide(ctx: Ctx, route: Id<"route">): BaseEvent[] {
   if (held.state !== "applying" || held.visa === null || held.visa.decisionMonth > month) return [];
   const { visa } = held;
   const numbers = ctx.content.tuning.route;
-  const chance = refusalChanceBp(numbers, {
+  const chance = refusalChanceBp(numbers, entryOf(ctx.content, route).refusalBaseBp, {
     strictness: visa.rules.strictness,
     unexplainedBp: visa.unexplainedBp,
     refusals: held.refusals,
@@ -505,7 +500,7 @@ function decide(ctx: Ctx, route: Id<"route">): BaseEvent[] {
     type: "route/refused",
     route,
     month,
-    reasons: refusalReasons(visa, held.refusals),
+    reasons: refusalReasons(visa, held.refusals, numbers),
     depositRefund: owed === 0 ? null : { amount: owed, readyMonth: month + numbers.depositRefundMonths },
   };
   const events = record(ctx, refused);
@@ -670,6 +665,11 @@ function line(key: string, params: ReportLine["params"], tone: ReportLine["tone"
   return { key: `line.route.${key}`, params, tone, attention, counts: [] };
 }
 
+/** Funds, tuition, deposits and discounts are pence (R-ROUTE-009), shown as pounds. */
+function pounds(amount: number): MoneyParam {
+  return { currency: FUNDS_CURRENCY, amount };
+}
+
 function movedLines(event: Extract<RouteKindEvent, { type: "route/moved" }>): ReportLine[] {
   const { route, to } = event;
   switch (to) {
@@ -677,10 +677,11 @@ function movedLines(event: Extract<RouteKindEvent, { type: "route/moved" }>): Re
       return [line("heard", { route, via: event.via ?? FRIEND }, "good")];
     case "known":
       return [line("looked-into", { route }, "good")];
+    // The grant and the send-off are staged wins (docs/rules/text.md, "Money on screen").
     case "granted":
-      return [line("granted", { route }, "good", true)];
+      return [{ ...line("granted", { route }, "good", true), big: true }];
     case "departed":
-      return [line("departed", { route }, "good", true)];
+      return [{ ...line("departed", { route }, "good", true), big: true }];
     case "unknown":
     case "applying":
     case "refused":
@@ -701,17 +702,17 @@ function lines(event: RouteKindEvent): ReportLine[] {
     case "route/school-answered":
       // An answer is what the player waited for.
       return event.offer
-        ? [line("school-offer", { school: event.school, discount: event.discount }, "good", true)]
+        ? [line("school-offer", { school: event.school, discount: pounds(event.discount) }, "good", true)]
         : [line("school-rejected", { school: event.school }, "bad", true)];
     case "route/deposit-paid":
-      return [line("deposit-paid", { school: event.school, amount: event.amount }, "good")];
+      return [line("deposit-paid", { school: event.school, amount: pounds(event.amount) }, "good")];
     case "route/funds-checked": {
       const { covered, shown, required, heldMonths } = event.funds;
       // Only a change asks the player to look; the same answer every month does not.
       const changed = covered !== event.was;
       return covered
-        ? [line("funds-covered", { route: event.route, shown, required, months: heldMonths }, "good", changed)]
-        : [line("funds-short", { route: event.route, shown, required }, "bad", changed)];
+        ? [line("funds-covered", { route: event.route, shown: pounds(shown), required: pounds(required), months: heldMonths }, "good", changed)]
+        : [line("funds-short", { route: event.route, shown: pounds(shown), required: pounds(required) }, "bad", changed)];
     }
     case "route/applied":
       return [line("applied", { route: event.route, month: event.visa.decisionMonth }, "plain")];
@@ -721,9 +722,9 @@ function lines(event: RouteKindEvent): ReportLine[] {
     case "route/refused":
       return [line("refused", { route: event.route, reason: event.reasons[0] ?? "credibility" }, "bad", true)];
     case "route/deposit-refunded":
-      return [line("deposit-refunded", { route: event.route, amount: event.amount }, "good")];
+      return [line("deposit-refunded", { route: event.route, amount: pounds(event.amount) }, "good")];
     case "route/supported":
-      return [line("supported", { route: event.route, currency: event.support.currency, amount: event.support.amount }, "good")];
+      return [line("supported", { route: event.route, amount: { currency: event.support.currency, amount: event.support.amount } }, "good")];
     default: {
       const never: never = event;
       throw new Error(`Unknown route event ${JSON.stringify(never)}.`);

@@ -2,13 +2,17 @@ import { content, text } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
 import { check } from "../engine/check";
-import type { ChapterEntry, Content, Id, ReadCtx, ReportLine, State } from "../engine/types";
+import { newState } from "../engine/state";
+import { step } from "../engine/step";
+import type { ChapterEntry, Content, Id, ReadCtx, ReportLine, Sender, State } from "../engine/types";
+import { lifeSaves } from "../goldens/lives.data";
 import { writeRoute } from "../japacity/japacity.fixtures";
 import { registry } from "../kinds";
 import { slot, toHeard, toKnown } from "../route/route.journey";
 import { miniContent } from "../testing/miniContent";
 import { start } from "../testing/play";
-import type { Game } from "../testing/play";
+import type { Game, Loose } from "../testing/play";
+import { standInWorld } from "../world/standIn";
 import { chapterKind } from "./chapter.logic";
 
 const UK: Id<"route"> = "route.uk-masters";
@@ -108,6 +112,70 @@ describe("closing a chapter", () => {
     ]);
     expect(game.state.turn.report?.attention).toBe(true);
     for (const key of ["line.chapter.closed", "line.chapter.opened", `${FEET}.close`, `${FILE}.open`]) expect(text[key]).toBeTruthy();
+  });
+});
+
+describe("a chapter that one item closes", () => {
+  const DECISION: Id<"chapter"> = "chapter.decision-day";
+  const HELD = content.chapter[DECISION]!.items.find((item) => item.id === "held")!.requirement;
+  const save = lifeSaves["tunde-borrower"]!;
+
+  /**
+   * Replays the tunde-borrower golden up to the turn that brings the grant,
+   * then, while the visa is pending, takes every banked pound, naira and
+   * dollar out to cash and hands back any held funds, so the `held` item
+   * lapses; then plays that turn. Returns the turn's result and the state.
+   */
+  function grantWithHeldLapsed(used: Content) {
+    const worldAt = (tick: number) => standInWorld(save.worldSeed, tick, used);
+    let state = newState(save.scenario, save.seed, used);
+    const send = (command: Loose, tick: number, sender: Sender = "player") => {
+      const result = step(state, { ...command, basedOn: state.v }, worldAt(tick), used, sender);
+      if (!result.ok) throw new Error(`${command.type} was rejected with ${result.code}: ${result.detail}`);
+      state = result.state;
+      return result;
+    };
+    // The first pass finds the command whose turn brings the grant.
+    const granting = save.commands.findIndex(({ command, tick, sender }) => {
+      send(command, tick, sender);
+      return state.route[UK]?.state === "granted";
+    });
+    expect(granting).toBeGreaterThan(0);
+    state = newState(save.scenario, save.seed, used);
+    for (const [index, { command, tick, sender }] of save.commands.entries()) {
+      if (index === granting) {
+        for (const owed of Object.values(state.obligation.items)) {
+          if (used.obligation[owed.entry]?.type === "held-funds") send({ type: "obligation/pay", obligation: owed.id, amount: owed.outstanding }, tick);
+        }
+        for (const currency of ["NGN", "GBP", "USD"] as const) {
+          const { bank } = state.wallet.pockets[currency];
+          if (bank > 0) send({ type: "wallet/move", currency, amount: bank, to: "cash" }, tick);
+        }
+        expect(check({ state, world: worldAt(tick), content: used }, HELD).met).toBe(false);
+        const result = send(command, tick, sender);
+        return { result, state, world: worldAt(tick) };
+      }
+      send(command, tick, sender);
+    }
+    throw new Error("The golden never reaches its grant.");
+  }
+
+  test("[R-CHAPTER-002] given the tunde-borrower golden with its funds no longer held while the visa is pending, when the grant comes, then decision day closes on `granted` alone", () => {
+    expect(content.chapter[DECISION]?.closesOn).toBe("granted");
+    const { result, state, world } = grantWithHeldLapsed(content);
+    expect(state.route[UK]?.state).toBe("granted");
+    expect(check({ state, world, content }, HELD).met).toBe(false);
+    expect(result.events).toContainEqual({ type: "chapter/closed", chapter: DECISION, next: "chapter.send-off" });
+    expect(state.chapter.current).toBe("chapter.send-off");
+  });
+
+  test("[R-CHAPTER-002] given the same file with no closesOn on decision day, when the grant comes, then the chapter stays open, as every item must hold", () => {
+    const open: ChapterEntry = { ...content.chapter[DECISION]! };
+    delete open.closesOn;
+    const without: Content = { ...content, chapter: { ...content.chapter, [DECISION]: open } };
+    const { state } = grantWithHeldLapsed(without);
+    expect(state.route[UK]?.state).toBe("granted");
+    expect(state.chapter.current).toBe(DECISION);
   });
 });
 

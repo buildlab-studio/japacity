@@ -20,7 +20,9 @@ export function isForYou(state: State, content: Content, id: Id<"news">): boolea
 /**
  * R-NEWS-004: each story the world has moved past what this character was
  * shown is delivered once, at its latest stage only, so a character who was
- * away is not walked through stages they missed.
+ * away is not walked through stages they missed. R-NEWS-005: "for you" is
+ * judged after the story's own hearing has run, so the story that tells you
+ * of a route is for you.
  */
 function deliver(ctx: Ctx): BaseEvent[] {
   const events: BaseEvent[] = [];
@@ -29,14 +31,14 @@ function deliver(ctx: Ctx): BaseEvent[] {
     if (shown !== undefined && RANK[shown] >= RANK[story.stage]) continue;
     const entry = ctx.content.news[story.id];
     if (entry === undefined) throw new Error(`The world names the story ${story.id}, which is not in content.`);
-    const delivered: NewsEvent = { type: "news/delivered", story: story.id, stage: story.stage, forYou: isForYou(ctx.state, ctx.content, story.id) };
-    events.push(delivered);
     // R-NEWS-006: reading it at announced or later is one more way to hear of a route.
     // The route kind applies its usual conditions.
     if (RANK[story.stage] >= RANK.announced && entry.hear.length > 0) {
       const hear: Effect[] = entry.hear.map((route) => ({ type: "route/hear", route, via: "news" }));
       events.push(...ctx.apply(hear, { source: story.id, param: null, terms: {} }));
     }
+    const delivered: NewsEvent = { type: "news/delivered", story: story.id, stage: story.stage, forYou: isForYou(ctx.state, ctx.content, story.id) };
+    events.push(delivered);
   }
   return events;
 }

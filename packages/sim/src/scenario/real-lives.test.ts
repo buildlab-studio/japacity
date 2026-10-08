@@ -37,4 +37,15 @@ describe("the real content", () => {
     expect(game.state.turn.month).toBe(12);
     expect(game.state.turn.banked).toBe(content.tuning.turn.start - 12);
   });
+
+  test.each(lives)("[R-SCENARIO-003] [R-ENGINE-011] given %s, when 40 months are played with every slot resting, then each turn is accepted and every invariant holds", (life) => {
+    const game = start({ scenario: life, content });
+    for (let month = 0; month < 40; month += 1) {
+      if (game.state.turn.banked === 0) game.grant(1);
+      expect(game.state.setpiece.open).toBeNull();
+      game.endTurn([]);
+      expect(checkInvariants(game.state, content)).toEqual([]);
+    }
+    expect(game.state.turn.month).toBe(40);
+  });
 });

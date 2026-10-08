@@ -25,6 +25,8 @@ export const tuning: Tuning = {
     networkHireBp: 20,
     hireMaxBp: pct(95),
     skillSoftAt: 70,
+    // Half a gain is kept at or above the soft cap, rounding up (R-QUALITY-005).
+    skillSoftBp: pct(50),
   },
 
   // wallet.md
@@ -63,11 +65,18 @@ export const tuning: Tuning = {
     noiseSteps: 1,
     min: 40,
     max: 90,
+    // Half a band: bands are held as the band times ten.
+    bandStep: 5,
   },
 
   // route.md
   route: {
-    refusalBaseBp: pct(9),
+    offerPerGradeBp: pct(5),
+    offerMaxBp: pct(95),
+    // Second upper.
+    goodGrade: 4,
+    fundsReasonBp: pct(30),
+    reapplyMonths: 6,
     // 0.1%
     refusalPerStrictnessBp: 10,
     // 0.4%

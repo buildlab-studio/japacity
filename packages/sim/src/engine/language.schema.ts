@@ -354,6 +354,7 @@ export const TuningSchema = z.strictObject({
     networkHireBp: BpSchema,
     hireMaxBp: BpSchema,
     skillSoftAt: CountSchema,
+    skillSoftBp: BpSchema,
   }),
   wallet: z.strictObject({
     bankChargeBp: BpSchema,
@@ -378,9 +379,14 @@ export const TuningSchema = z.strictObject({
     noiseSteps: CountSchema,
     min: CountSchema,
     max: CountSchema,
+    bandStep: z.int().positive(),
   }),
   route: z.strictObject({
-    refusalBaseBp: BpSchema,
+    offerPerGradeBp: BpSchema,
+    offerMaxBp: BpSchema,
+    goodGrade: CountSchema,
+    fundsReasonBp: BpSchema,
+    reapplyMonths: CountSchema,
     refusalPerStrictnessBp: BpSchema,
     refusalPerUnexplainedBp: BpSchema,
     refusalPerRefusalBp: BpSchema,

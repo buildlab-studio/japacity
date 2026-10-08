@@ -38,6 +38,8 @@ export const chapterTable: Record<Id<"chapter">, ChapterEntry> = {
       { id: "applied", requirement: { type: "route/state", route: UK, in: ["applying", "granted", "departed"] } },
       { id: "granted", requirement: { type: "route/state", route: UK, in: ["granted", "departed"] } },
     ],
+    // A grant is decision day whether or not the held funds lasted (R-CHAPTER-002).
+    closesOn: "granted",
   },
   "chapter.send-off": {
     id: "chapter.send-off",

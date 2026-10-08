@@ -30,6 +30,20 @@ function registryWithEffectCommand(effect: Extract<Effect, { type: `turn/${strin
   );
 }
 
+/** Sets wellbeing through the engine, as an offer choice would. */
+function setWellbeing(game: ReturnType<typeof start>, value: number): void {
+  const amount = value - (game.state.quality["quality.wellbeing"] ?? 0);
+  const kinds = registry().map((kind) =>
+    kind.kind !== "offer"
+      ? kind
+      : { ...kind, commands: { "offer/choose": (ctx: Ctx): BaseEvent[] => ctx.apply([{ type: "quality/add", quality: "quality.wellbeing", amount }], { source: "test", param: null, terms: {} }) } },
+  );
+  const result = sendWith(kinds, game.state, { type: "offer/choose", offer: "x", choice: "y" }, game.tick);
+  if (!result.ok) throw new Error(result.detail);
+  game.state = result.state;
+  expect(game.state.quality["quality.wellbeing"]).toBe(value);
+}
+
 function sendWith(kinds: ReturnType<typeof registry>, state: State, command: Loose, tick = 0) {
   const full: Command = { ...command, basedOn: state.v };
   return stepWith(kinds, state, full, standInWorld("w", tick, miniContent), miniContent);
@@ -122,6 +136,35 @@ describe("turns", () => {
     expect(game.view().freeSlots).toBe(tuning.freeSlots - 1);
   });
 
+  test("[R-TURN-006] given a job and wellbeing at 25 and at 24, when the free slots are counted, then 25 keeps both and 24 loses one, and the turn check follows", () => {
+    const burnout = miniContent.tuning.quality.burnoutBelow;
+    expect(burnout).toBe(25);
+    const rest = { activity: "activity.rest" as const, param: null };
+    const at = start({ scenario: "scenario.worker" });
+    setWellbeing(at, burnout);
+    expect(at.view().freeSlots).toBe(tuning.freeSlots);
+    at.endTurn([rest, rest]);
+    const under = start({ scenario: "scenario.worker" });
+    setWellbeing(under, burnout - 1);
+    expect(under.view().freeSlots).toBe(tuning.freeSlots - 1);
+    under.expectRejected({ type: "turn/end", slots: [rest, rest] }, "not-legal");
+    under.endTurn([rest]);
+  });
+
+  test("[R-TURN-006] given no job and wellbeing at 25 and at 24, when the free slots are counted, then 25 keeps three and 24 loses one", () => {
+    const burnout = miniContent.tuning.quality.burnoutBelow;
+    const rest = { activity: "activity.rest" as const, param: null };
+    const at = start({ scenario: "scenario.plain" });
+    setWellbeing(at, burnout);
+    expect(at.view().freeSlots).toBe(tuning.freeSlotsNoJob);
+    at.endTurn([rest, rest, rest]);
+    const under = start({ scenario: "scenario.plain" });
+    setWellbeing(under, burnout - 1);
+    expect(under.view().freeSlots).toBe(tuning.freeSlotsNoJob - 1);
+    under.expectRejected({ type: "turn/end", slots: [rest, rest, rest] }, "not-legal");
+    under.endTurn([rest, rest]);
+  });
+
   test("[R-TURN-006] given 3 free slots, when 4 are filled, then the turn is rejected with not-legal", () => {
     const game = start({ scenario: "scenario.plain" });
     const rest = { activity: "activity.rest" as const, param: null };
@@ -179,6 +222,44 @@ describe("turns", () => {
     expect(game.view().freeSlots).toBe(tuning.freeSlotsNoJob);
     expect(game.view().locks).toEqual([]);
     expect(game.state.turn.locks).toEqual([]);
+  });
+
+  test("[R-TURN-009] given a job, burnout and the most slots locked, when the free slots are counted, then they stop at zero, and only an empty turn is legal", () => {
+    const game = start({ scenario: "scenario.worker" });
+    expect(game.view().freeSlots).toBe(tuning.freeSlots - 1);
+    const kinds = registryWithEffectCommand({ type: "turn/lock", slots: tuning.maxLocked, months: 1, why: "illness" });
+    const locked = sendWith(kinds, game.state, { type: "offer/choose", offer: "x", choice: "y" }, game.tick);
+    if (!locked.ok) throw new Error(locked.detail);
+    game.state = locked.state;
+    expect(tuning.freeSlots - 1 - tuning.maxLocked).toBeLessThan(0);
+    expect(game.view().freeSlots).toBe(0);
+    game.expectRejected({ type: "turn/end", slots: [{ activity: "activity.rest", param: null }] }, "not-legal");
+    game.endTurn([]);
+    expect(game.state.turn.locks).toEqual([]);
+    expect(game.view().freeSlots).toBe(tuning.freeSlots - 1);
+  });
+
+  test("[R-TURN-009] given a lock of one month applied while a turn resolves, when it lands, then that turn keeps the slots it was checked with, the month in hand is locked, and the lock ends in the next spend", () => {
+    const rest = miniContent.activity["activity.rest"]!;
+    const lockingRest = { ...rest, id: "activity.lock-rest" as const, effects: [...rest.effects, { type: "turn/lock" as const, slots: 1, months: 1, why: "night" }] };
+    const used = { ...miniContent, activity: { ...miniContent.activity, [lockingRest.id]: lockingRest } };
+    const game = start({ scenario: "scenario.plain", content: used });
+    const pick = { activity: lockingRest.id, param: null };
+    const result = game.endTurn([pick, pick, pick]);
+    expect(game.state.turn.month).toBe(1);
+    expect(result.events.filter((event) => event.type === "activity/slot-played")).toHaveLength(3);
+    // The first slot's lock took one slot; the second asked again and the cap allowed it; the third found no room.
+    expect(game.state.turn.locks).toEqual([
+      { slots: 1, untilMonth: 1, why: "night" },
+      { slots: 1, untilMonth: 1, why: "night" },
+    ]);
+    expect(game.view().locks.every((lock) => lock.untilMonth === game.state.turn.month)).toBe(true);
+    expect(game.view().freeSlots).toBe(tuning.freeSlotsNoJob - tuning.maxLocked);
+    game.expectRejected({ type: "turn/end", slots: [pick, pick] }, "not-legal");
+    const next = game.endTurn([{ activity: "activity.rest", param: null }]);
+    expect(next.events).toContainEqual({ type: "turn/unlocked", why: ["night", "night"] });
+    expect(game.state.turn.locks).toEqual([]);
+    expect(game.view().freeSlots).toBe(tuning.freeSlotsNoJob);
   });
 
   test("[R-TURN-009] given locks at the most allowed, when another lock is asked for, then it is cut to what is left and never below zero slots", () => {

@@ -22,6 +22,7 @@ import type {
   ReportLine,
   Requirement,
   RequirementResult,
+  SchoolApplication,
   SlotPick,
   State,
   Tuning,
@@ -35,6 +36,8 @@ const WELLBEING: Id<"quality"> = "quality.wellbeing";
 const GRADE: Id<"quality"> = "quality.edu-grade";
 /** The offer a landed hunt opens. It learns the job from the terms (R-OFFER-007). */
 const JOB_OFFER = "offer.job" as const;
+/** A side gig pays naira cash (R-ACTIVITY-008). */
+const GIG_CURRENCY: Currency = "NGN";
 /** The source named on the rest an empty slot gives. */
 export const REST_SOURCE = "rest";
 
@@ -85,25 +88,62 @@ function heardRoutes(read: ReadCtx): string[] {
 }
 
 /**
- * Schools that may be applied to (R-ROUTE-006): on a known route, the grade
- * and the band held meet the school's minimums, and there is no application
- * or offer there already. A rejected application counts as one already there.
+ * The month from which a school that refused takes a new application
+ * (R-ROUTE-006): its answer's month plus `reapplyMonths`. Null when there is
+ * no refusal there.
  */
-function openSchools(read: ReadCtx): string[] {
+export function reapplyFrom(application: SchoolApplication | undefined, numbers: Tuning["route"]): number | null {
+  return application?.state === "rejected" ? application.readyMonth + numbers.reapplyMonths : null;
+}
+
+/**
+ * Whether a school takes an application now (R-ROUTE-006): none there yet, or
+ * a refusal whose wait has run. The route kind judges the same.
+ */
+export function takesApplication(application: SchoolApplication | undefined, month: number, numbers: Tuning["route"]): boolean {
+  if (application === undefined) return true;
+  const from = reapplyFrom(application, numbers);
+  return from !== null && month >= from;
+}
+
+/** The schools on known routes whose grade and band minimums the character meets, each with its application. */
+function reachableSchools(read: ReadCtx): { id: Id<"school">; application: SchoolApplication | undefined }[] {
   const band = heldBand(read);
   if (band === null) return [];
   const grade = read.state.quality[GRADE] ?? 0;
-  const schools: string[] = [];
+  const schools: { id: Id<"school">; application: SchoolApplication | undefined }[] = [];
   for (const route of Object.values(read.content.route)) {
     const held = read.state.route[route.id];
     if (held?.state !== "known") continue;
     for (const id of route.schools) {
       const school = read.content.school[id];
-      if (school === undefined || held.schools[id] !== undefined) continue;
-      if (grade >= school.minGrade && band >= school.minBand) schools.push(id);
+      if (school !== undefined && grade >= school.minGrade && band >= school.minBand) schools.push({ id, application: held.schools[id] });
     }
   }
   return schools;
+}
+
+/**
+ * Schools that may be applied to (R-ROUTE-006): on a known route, the grade
+ * and the band held meet the school's minimums, and there is no application
+ * or offer there already, unless it refused and its wait has run.
+ */
+function openSchools(read: ReadCtx): string[] {
+  const { month } = read.state.turn;
+  return reachableSchools(read)
+    .filter(({ application }) => takesApplication(application, month, read.content.tuning.route))
+    .map(({ id }) => id);
+}
+
+/**
+ * While no school may be applied to but one that refused will take a new
+ * application, the view names the month it can (R-ROUTE-006).
+ */
+function schoolWait(read: ReadCtx): Requirement[] {
+  const months = reachableSchools(read)
+    .map(({ application }) => reapplyFrom(application, read.content.tuning.route))
+    .filter((from): from is number => from !== null && from > read.state.turn.month);
+  return months.length === 0 ? [] : [{ type: "month/min", value: Math.min(...months) }];
 }
 
 /**
@@ -320,7 +360,7 @@ function gigEffect(ctx: Ctx, effect: { min: number; max: number; perTech: number
   const amount = ctx.random.between("gig", effect.min, effect.max) + effect.perTech * tech;
   if (amount <= 0) return [];
   const events = record(ctx, { type: "activity/gig-paid", amount });
-  ctx.apply([{ type: "money/add", currency: "NGN", pocket: "cash", amount, reason: "gig" }], cause);
+  ctx.apply([{ type: "money/add", currency: GIG_CURRENCY, pocket: "cash", amount, reason: "gig" }], cause);
   return events;
 }
 
@@ -396,8 +436,9 @@ export function activityOptions(read: ReadCtx): ActivityOption[] {
   return Object.values(read.content.activity)
     .filter((entry) => entry.slot === "free")
     .map((entry) => {
-      const missing = entry.requires.filter((requirement) => !judge(requirement).met);
       const params = paramsFor(read, entry, judge);
+      const waiting = entry.param === "school" && params?.length === 0 ? schoolWait(read) : [];
+      const missing = [...entry.requires.filter((requirement) => !judge(requirement).met), ...waiting];
       const cost = resolvedCosts(read, entry).map(({ currency, amount }) => ({ currency, amount }));
       return {
         id: entry.id,
@@ -418,7 +459,17 @@ function pickParams(activity: Id<"activity">, param: string | null): ReportLine[
   return param === null ? { activity } : { activity, param };
 }
 
-function lines(event: ActivityEvent): ReportLine[] {
+/**
+ * Whether the salary just paid is the first of the life: the ledger's salary
+ * total holds this pay and nothing else. The wallet credits the pay before the
+ * month is recorded, so the total already counts it.
+ */
+function firstSalary(state: State, pay: { currency: Currency; amount: number }): boolean {
+  const paid = Object.entries(state.wallet.totals.in.salary ?? {}).filter(([, amount]) => (amount ?? 0) > 0);
+  return paid.length === 1 && paid[0]?.[0] === pay.currency && paid[0][1] === pay.amount;
+}
+
+function lines(event: ActivityEvent, state: State): ReportLine[] {
   switch (event.type) {
     case "activity/job-started":
       return [line("line.activity.job-started", { job: event.job }, "good")];
@@ -426,8 +477,12 @@ function lines(event: ActivityEvent): ReportLine[] {
       return event.why === "quit"
         ? [line("line.activity.quit", { job: event.job }, "plain")]
         : [line("line.activity.job-ended", { job: event.job }, "bad")];
-    case "activity/month-worked":
-      return event.pay === null ? [] : [line("line.activity.salary", { job: event.job, amount: event.pay.amount, currency: event.pay.currency }, "good")];
+    case "activity/month-worked": {
+      if (event.pay === null) return [];
+      const salary = line("line.activity.salary", { job: event.job, amount: { currency: event.pay.currency, amount: event.pay.amount } }, "good");
+      // The first salary of a life is a staged win (docs/rules/text.md, "Money on screen").
+      return [firstSalary(state, event.pay) ? { ...salary, big: true } : salary];
+    }
     case "activity/slot-played":
       return [line("line.activity.played", pickParams(event.activity, event.param), "plain")];
     case "activity/slot-failed":
@@ -440,7 +495,7 @@ function lines(event: ActivityEvent): ReportLine[] {
         ? [line("line.activity.hunt-hired", { job: event.job }, "good", true)]
         : [line("line.activity.hunt-missed", { job: event.job }, "plain")];
     case "activity/gig-paid":
-      return [line("line.activity.gig", { amount: event.amount }, "good")];
+      return [line("line.activity.gig", { amount: { currency: GIG_CURRENCY, amount: event.amount } }, "good")];
     case "activity/slots-recorded":
       return [];
     default: {

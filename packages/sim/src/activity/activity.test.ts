@@ -301,16 +301,17 @@ describe("the job, each month", () => {
     expect(ada.game.state.activity.tenure).toEqual({});
   });
 
-  test("[R-ACTIVITY-001] given a job, when a month is played, then the report says what the salary was", () => {
+  test("[R-ACTIVITY-001] given a job, when a month is played, then the report says what the salary was, staged as a big win the first time only", () => {
     const game = start({ content, scenario: "scenario.tunde" });
-    const result = game.endTurn([]);
-    expect(result.lines).toContainEqual({
+    const salary = {
       key: "line.activity.salary",
-      params: { job: "activity.job-bank-officer", amount: content.activity["activity.job-bank-officer"]!.pay!.amount as number, currency: "NGN" },
+      params: { job: "activity.job-bank-officer", amount: { currency: "NGN", amount: content.activity["activity.job-bank-officer"]!.pay!.amount as number } },
       tone: "good",
       attention: false,
       counts: [],
-    });
+    };
+    expect(game.endTurn([]).lines).toContainEqual({ ...salary, big: true });
+    expect(game.endTurn([]).lines).toContainEqual(salary);
   });
 
   test("[R-ACTIVITY-001] given a job held, when another is started, then only one is held", () => {
@@ -711,6 +712,30 @@ describe("requirements stop mattering once the job is held", () => {
     expect(ledger(result).filter((line) => line.reason === "salary")).toHaveLength(1);
   });
 
+  test("[R-ACTIVITY-007] given a hunt that landed while the job's requirements held, when they stop holding before the job offer is accepted, then accepting still starts the job", () => {
+    const teacher = content.activity["activity.job-teacher"]!;
+    // The teaching job may be had in month 1 only: its requirement holds when the hunt lands and not a month later.
+    const once: Content = {
+      ...content,
+      activity: { ...content.activity, [teacher.id]: { ...teacher, requires: [...teacher.requires, { type: "not", of: { type: "month/min", value: 2 } }] } },
+    };
+    const hunt: SlotPick = { activity: "activity.job-hunt", param: teacher.id };
+    const landed = (seed: string): boolean => {
+      const trial = start({ scenario: "scenario.ada", seed, content: once });
+      trial.endTurn([hunt]);
+      return trial.view().offers.some((offer) => offer.entry === "offer.job");
+    };
+    const seed = Array.from({ length: 200 }, (_unused, index) => `hunt-${String(index)}`).find(landed)!;
+    const game = start({ scenario: "scenario.ada", seed, content: once });
+    game.endTurn([hunt]);
+    game.endTurn();
+    const offer = game.view().offers.find((item) => item.entry === "offer.job")!;
+    expect(offer.terms.job).toBe(teacher.id);
+    expect(check({ state: game.state, world: game.world(), content: once }, once.activity[teacher.id]!.requires[1]!).met).toBe(false);
+    game.accept({ type: "offer/choose", offer: offer.id, choice: "accept" });
+    expect(game.state.activity.job).toBe(teacher.id);
+  });
+
   test("[R-ACTIVITY-007] given a job whose requirements do not hold, when the jobs to hunt are listed, then it is not among them", () => {
     const ada = start({ content, scenario: "scenario.ada" });
     const listed = paramsFor({ state: ada.state, world: ada.world(), content }, content.activity["activity.job-hunt"]!) ?? [];
@@ -729,7 +754,7 @@ describe("side gigs", () => {
       { type: "wallet/credited", via: "money/add", asked: "cash", currency: "NGN", pocket: "cash", amount: drawn + 1000 * tech, reason: "gig" },
     ]);
     expect(plain.game.state.draws.gig).toBe(1);
-    expect(result.lines).toContainEqual({ key: "line.activity.gig", params: { amount: drawn + 1000 * tech }, tone: "good", attention: false, counts: [] });
+    expect(result.lines).toContainEqual({ key: "line.activity.gig", params: { amount: { currency: "NGN", amount: drawn + 1000 * tech } }, tone: "good", attention: false, counts: [] });
   });
 
   test("[R-ACTIVITY-008] given a gig whose lowest and highest figures are equal, when it resolves, then it pays exactly that plus the tech figure", () => {
