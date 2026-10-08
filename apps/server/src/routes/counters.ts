@@ -7,6 +7,8 @@ import type { CounterTotal } from "@japacity/store";
 import { Hono } from "hono";
 
 import { utcDay } from "../admin/day";
+import { advertRegion } from "../adverts/campaign";
+import { addAdvertCounters } from "../adverts/counts";
 import { checkBatch } from "../analytics/batch";
 import { dayName } from "../analytics/day";
 import type { DropReason } from "../analytics/list";
@@ -51,6 +53,8 @@ export function countersRoute(deps: ServerDeps): Hono {
     const checked = checkBatch(deps.contents.current, await c.req.text());
     const counted = checked.rows.map((row) => ({ day, region, name: row.name, key: row.key, count: row.count }));
     await deps.stores.counters.add([...counted, ...droppedRows(day, region, checked.dropped)]);
+    // R-ADVERT-020: the advert rows also reach the campaign's daily totals, by the slot and the hour's campaign there.
+    await addAdvertCounters(deps, advertRegion(deps.config.regions, account.country), deps.now(), checked.rows);
     return done();
   });
 

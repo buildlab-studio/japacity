@@ -1,8 +1,9 @@
 // The review's decisions (R-ADVERT-010, 011, 014). Each approval and refusal is
 // recorded with the reviewer, the time, the checks and the banned list's version.
-import type { AdvertReview, Campaign, Creative, StoreResult } from "@japacity/store";
+import type { AdminAction, AdvertReview, Campaign, Creative, LogParams, StoreResult } from "@japacity/store";
 
 import type { ServerDeps } from "../deps";
+import { newId } from "../moderation/decide";
 import { BANNED_LIST_VERSION } from "./categories";
 import { campaignChecks, creativeChecks, missingChecks } from "./campaign";
 
@@ -53,4 +54,21 @@ export async function pullCampaign(deps: Pick<ServerDeps, "stores">, id: string)
     if (creative.status === "approved") await deps.stores.adverts.setCreativeStatus(creative.id, creative.version, "pending");
   }
   return paused;
+}
+
+/** The reason an advert decision is logged under, from the report reasons the admin log uses (R-MODERATION-015). */
+export const ADVERT_LOG_REASON = "advert";
+
+/** R-MODERATION-014, R-MODERATION-015: an advert decision in the admin log, with the admin, the time, the item and its parameters. */
+export async function logAdvertAction(
+  deps: Pick<ServerDeps, "stores" | "now" | "randomBytes">,
+  admin: string,
+  action: Extract<AdminAction, "approve-advert" | "refuse-advert" | "pull-advert">,
+  item: string,
+  params: LogParams,
+  note: string,
+): Promise<void> {
+  const entry = { id: newId(deps, "log"), admin, at: deps.now(), item, action, params, reason: ADVERT_LOG_REASON, ...(note === "" ? {} : { note }) };
+  const written = await deps.stores.moderationLog.append(entry);
+  if (!written.ok) throw new Error(`The log refused an entry: ${written.detail}`);
 }

@@ -14,7 +14,7 @@ import type { CampaignDraft } from "../adverts/campaign";
 import type { Fetcher } from "../adverts/links";
 import { failingLinks } from "../adverts/links";
 import type { Decided, Decision } from "../adverts/review";
-import { decideCampaign, decideCreative, pullCampaign } from "../adverts/review";
+import { decideCampaign, decideCreative, logAdvertAction, pullCampaign } from "../adverts/review";
 import type { ServerDeps } from "../deps";
 
 interface AdminEnv {
@@ -136,31 +136,34 @@ export function adminAdvertRoutes(deps: ServerDeps, fetcher: Fetcher = (input, i
     return added.ok ? c.json({ ok: true, creative: added.value }) : c.json(added, 409);
   });
 
-  admin.post("/campaigns/:campaign/approve", async (c) => {
-    const decision = decisionOf(await bodyOf(c), c.get("admin"));
-    if (decision === null) return c.json(BAD_BODY, 400);
-    return decided(c, await decideCampaign(deps, c.req.param("campaign"), "approved", decision), "campaign");
-  });
-
-  admin.post("/campaigns/:campaign/refuse", async (c) => {
-    const decision = decisionOf(await bodyOf(c), c.get("admin"));
-    if (decision === null) return c.json(BAD_BODY, 400);
-    return decided(c, await decideCampaign(deps, c.req.param("campaign"), "refused", decision), "campaign");
-  });
-
+  // R-MODERATION-015: every decision below is written to the admin log once it is made.
   for (const outcome of ["approved", "refused"] as const) {
+    const action = outcome === "approved" ? "approve-advert" : "refuse-advert";
+    admin.post(`/campaigns/:campaign/${outcome === "approved" ? "approve" : "refuse"}`, async (c) => {
+      const decision = decisionOf(await bodyOf(c), c.get("admin"));
+      if (decision === null) return c.json(BAD_BODY, 400);
+      const id = c.req.param("campaign");
+      const result = await decideCampaign(deps, id, outcome, decision);
+      if (result.ok) await logAdvertAction(deps, decision.reviewer, action, id, { campaign: id }, decision.note);
+      return decided(c, result, "campaign");
+    });
+
     admin.post(`/creatives/:creative/:version/${outcome === "approved" ? "approve" : "refuse"}`, async (c) => {
       const decision = decisionOf(await bodyOf(c), c.get("admin"));
       const version = c.req.param("version");
       if (decision === null || !VERSION.test(version)) return c.json(BAD_BODY, 400);
-      return decided(c, await decideCreative(deps, c.req.param("creative"), Number(version), outcome, decision), "creative");
+      const id = c.req.param("creative");
+      const result = await decideCreative(deps, id, Number(version), outcome, decision);
+      if (result.ok) await logAdvertAction(deps, decision.reviewer, action, id, { creative: id, version: Number(version), campaign: result.value.campaign }, decision.note);
+      return decided(c, result, "creative");
     });
   }
 
-  // R-MODERATION-015's log belongs to the moderation work; every decision here is written to it once it lands.
   /** R-ADVERT-014: out of rotation at once, back to review. */
   admin.post("/campaigns/:campaign/pull", async (c) => {
-    const pulled = await pullCampaign(deps, c.req.param("campaign"));
+    const id = c.req.param("campaign");
+    const pulled = await pullCampaign(deps, id);
+    if (pulled.ok) await logAdvertAction(deps, c.get("admin"), "pull-advert", id, { campaign: id }, "");
     return pulled.ok ? c.json({ ok: true, campaign: pulled.value }) : c.json(pulled, 404);
   });
 
@@ -170,6 +173,7 @@ export function adminAdvertRoutes(deps: ServerDeps, fetcher: Fetcher = (input, i
     if ((await deps.stores.adverts.campaign(id)) === null) return c.json({ ok: false, code: "missing", detail: `No campaign ${id}.` }, 404);
     const failing = await failingLinks(deps, fetcher, id);
     const pulled = failing.length > 0 && (await pullCampaign(deps, id)).ok;
+    if (pulled) await logAdvertAction(deps, c.get("admin"), "pull-advert", id, { campaign: id, links: failing.length }, "");
     return c.json({ ok: true, failing, pulled });
   });
 

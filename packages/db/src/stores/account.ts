@@ -13,6 +13,7 @@ function toAccount(row: typeof accounts.$inferSelect): AccountRow {
     createdAt: row.createdAt,
     character: row.character,
     notifyBankFull: row.notifyBankFull,
+    sendUsageCounts: row.sendUsageCounts,
   };
 }
 
@@ -38,6 +39,7 @@ export function pgAccountStore(handle: Handle): AccountStore {
             createdAt: row.createdAt,
             character: row.character,
             notifyBankFull: row.notifyBankFull,
+            sendUsageCounts: row.sendUsageCounts,
           })
           .onConflictDoNothing()
           .returning();
@@ -60,6 +62,12 @@ export function pgAccountStore(handle: Handle): AccountStore {
     setNotify: (id, on) =>
       handle.read(async (db) => {
         const [updated] = await db.update(accounts).set({ notifyBankFull: on }).where(eq(accounts.id, id)).returning();
+        return updated === undefined ? refuse("missing", `No account ${id}.`) : accept(toAccount(updated));
+      }),
+
+    setUsageCounts: (id, on) =>
+      handle.read(async (db) => {
+        const [updated] = await db.update(accounts).set({ sendUsageCounts: on }).where(eq(accounts.id, id)).returning();
         return updated === undefined ? refuse("missing", `No account ${id}.`) : accept(toAccount(updated));
       }),
 

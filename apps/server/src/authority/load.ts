@@ -17,6 +17,8 @@ export interface Live {
   storedV: number;
   content: Content;
   state: State;
+  /** R-SERVER-011: the state as loaded, before this transaction's commands, for the money report's mark. */
+  loaded: State;
   refilledAt: number;
   storedRefilledAt: number;
   /** The segment new rows belong to. */
@@ -105,6 +107,7 @@ export function load(held: Held, contents: Contents, worlds: ReadonlyMap<number,
     storedV: row.v,
     content,
     state,
+    loaded: state,
     refilledAt: row.refilledAt,
     storedRefilledAt: row.refilledAt,
     segment: row.segment,
@@ -127,6 +130,7 @@ export function load(held: Held, contents: Contents, worlds: ReadonlyMap<number,
   live.segment = next;
   live.content = current;
   live.state = upgraded;
+  live.loaded = upgraded;
   return { ok: true, live };
 }
 

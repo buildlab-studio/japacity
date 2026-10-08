@@ -36,8 +36,8 @@ function sized(size: number): string {
   return JSON.stringify({ rows: [wallet], pad: "x".repeat(size - bare.length) });
 }
 
-async function account(server: TestServer, id: string, over: Partial<AccountRow> & { sendUsageCounts?: boolean } = {}): Promise<void> {
-  const made = await server.deps.stores.account.create({ id, country: "NG", age: { passed: true, at: 0, method: "declared" }, createdAt: server.deps.now(), character: null, notifyBankFull: false, ...over });
+async function account(server: TestServer, id: string, over: Partial<AccountRow> = {}): Promise<void> {
+  const made = await server.deps.stores.account.create({ id, country: "NG", age: { passed: true, at: 0, method: "declared" }, createdAt: server.deps.now(), character: null, notifyBankFull: false, sendUsageCounts: true, ...over });
   if (!made.ok) throw new Error(made.detail);
 }
 

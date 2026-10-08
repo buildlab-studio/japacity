@@ -1,7 +1,9 @@
-// R-ACCOUNT-015, 016: `GET /api/account`, the account's own row, and
-// `DELETE /api/account`, confirmed by a fresh session or a fresh email code.
+// R-ACCOUNT-015, 016: `GET /api/account`, the account's own row,
+// `PUT /api/account`, its one setting the player changes here (R-ANALYTICS-006),
+// and `DELETE /api/account`, confirmed by a fresh session or a fresh email code.
 // https://better-auth.com/docs/concepts/users-accounts#delete-user
 import { splitSetCookieHeader } from "better-auth/cookies";
+import type { AccountRow } from "@japacity/store";
 import { Hono } from "hono";
 
 import { deletionStatus } from "../account/deletion";
@@ -17,6 +19,13 @@ export interface AccountView {
   age: { passed: boolean; method: "declared" | "verified" };
   createdAt: number;
   character: string | null;
+  /** R-ANALYTICS-006: the "Send usage counts" setting. */
+  sendUsageCounts: boolean;
+}
+
+/** The body of `PUT /api/account`. */
+export interface AccountChange {
+  sendUsageCounts: boolean;
 }
 
 export type AccountReply = { ok: true; account: AccountView } | AccountRejection;
@@ -40,6 +49,11 @@ function cookiesFrom(headers: Headers): Headers {
   return new Headers({ cookie: pairs.filter((pair) => pair !== "").join("; ") });
 }
 
+function viewOf(row: AccountRow): AccountView {
+  const { id, country, age, createdAt, character, sendUsageCounts } = row;
+  return { id, country, age: { passed: age.passed, method: age.method }, createdAt, character, sendUsageCounts };
+}
+
 export function accountRoutes(deps: ServerDeps, { auth }: Accounts): Hono {
   const app = new Hono();
 
@@ -48,8 +62,18 @@ export function accountRoutes(deps: ServerDeps, { auth }: Accounts): Hono {
     if (session === null) return c.json<AccountReply>(rejection("signed-out", "Sign in first."), 401);
     const row = await deps.stores.account.get(session.account);
     if (row === null) return c.json<AccountReply>(rejection("signed-out", "No account."), 401);
-    const { id, country, age, createdAt, character } = row;
-    return c.json<AccountReply>({ ok: true, account: { id, country, age: { passed: age.passed, method: age.method }, createdAt, character } });
+    return c.json<AccountReply>({ ok: true, account: viewOf(row) });
+  });
+
+  app.put("/api/account", async (c) => {
+    const session = await deps.session(c.req.raw);
+    if (session === null) return c.json<AccountReply>(rejection("signed-out", "Sign in first."), 401);
+    const body: unknown = await c.req.json().catch(() => null);
+    const asked = typeof body === "object" && body !== null && Object.keys(body).join(",") === "sendUsageCounts" ? (body as { sendUsageCounts: unknown }).sendUsageCounts : null;
+    if (typeof asked !== "boolean") return c.json<AccountReply>(rejection("not-legal", "Send { sendUsageCounts: true | false }."), 400);
+    const changed = await deps.stores.account.setUsageCounts(session.account, asked);
+    if (!changed.ok) return c.json<AccountReply>(rejection("signed-out", "No account."), 401);
+    return c.json<AccountReply>({ ok: true, account: viewOf(changed.value) });
   });
 
   app.delete("/api/account", async (c) => {

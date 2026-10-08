@@ -16,7 +16,7 @@ import { limit } from "../limits/limit";
 /** Whether the `adverts` switch is on. */
 export type AdvertsOn = () => Promise<boolean>;
 
-// the switch row (R-SERVER-031) is not in this branch; read `Switches.adverts` here once it lands.
+/** For a router built without the switch row, as some tests build it; the app passes `isOn(deps, "adverts")`. */
 export const advertsOnByDefault: AdvertsOn = () => Promise.resolve(true);
 
 const VERSION = /^[1-9]\d{0,8}$/;

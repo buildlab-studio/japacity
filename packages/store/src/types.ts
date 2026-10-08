@@ -304,6 +304,8 @@ export interface AccountRow {
   character: string | null;
   /** R-CLOCK-031: the setting that sends the bank-full notice. Off until the player agrees. */
   notifyBankFull: boolean;
+  /** R-ANALYTICS-006: the "Send usage counts" setting. On until the player turns it off. */
+  sendUsageCounts: boolean;
 }
 
 /** R-ACCOUNT-015, R-ACCOUNT-017. */
@@ -315,6 +317,8 @@ export interface AccountStore {
   setCharacter: (id: string, character: string | null) => Promise<StoreResult<AccountRow>>;
   /** R-CLOCK-031: the bank-full setting. Refused with `missing` for an unknown id. */
   setNotify: (id: string, on: boolean) => Promise<StoreResult<AccountRow>>;
+  /** R-ANALYTICS-006: the usage counts setting. Refused with `missing` for an unknown id. */
+  setUsageCounts: (id: string, on: boolean) => Promise<StoreResult<AccountRow>>;
   /** R-ACCOUNT-017. */
   remove: (id: string) => Promise<void>;
 }

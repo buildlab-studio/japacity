@@ -368,3 +368,39 @@ describe("what is stored and shared", () => {
     expect(JSON.stringify(report.body)).not.toMatch(/account|session|character/);
   });
 });
+
+describe("the wiring to the admin log and the counters", () => {
+  test("[R-MODERATION-015] [R-ADVERT-012] [R-ADVERT-014] given a campaign approved, a creative approved, another refused and the campaign pulled, when the admin log is read, then each decision is there once with the admin, the time and the item", async () => {
+    const clock = { at: EPOCH };
+    const deps = world(clock);
+    const app = makeApp(deps);
+    const { campaign: id, creative: art } = await live(app);
+    const other = (await creative(app, id, undefined, "Suya by the bridge.")).body.creative as { id: string };
+    expect((await call(app, "POST", `/api/admin/adverts/creatives/${other.id}/1/refuse`, { note: "too loud" })).status).toBe(200);
+    expect((await call(app, "POST", `/api/admin/adverts/campaigns/${id}/pull`, {})).status).toBe(200);
+    expect((await call(app, "POST", `/api/admin/adverts/campaigns/missing/pull`, {})).status).toBe(404);
+
+    const onCampaign = await deps.stores.moderationLog.list({ item: id });
+    expect(onCampaign.map((entry) => entry.action)).toEqual(["approve-advert", "pull-advert"]);
+    expect(onCampaign[0]).toMatchObject({ admin: ADMIN, at: EPOCH, reason: "advert", params: { campaign: id } });
+    expect((await deps.stores.moderationLog.list({ item: art })).map((entry) => entry.action)).toEqual(["approve-advert"]);
+    expect(await deps.stores.moderationLog.list({ item: other.id })).toMatchObject([{ action: "refuse-advert", note: "too loud", params: { creative: other.id, version: 1, campaign: id } }]);
+    expect(await deps.stores.moderationLog.list({ item: "missing" })).toEqual([]);
+  });
+
+  test("[R-ADVERT-020] [R-ANALYTICS-002] given a live campaign, when a player's batch holds advert rows, then POST /api/counters adds them to the campaign's day and to the interface counters, and an account with usage counts off adds neither", async () => {
+    const deps = world();
+    const app = makeApp(deps);
+    const { campaign: id } = await live(app);
+    const row = (account: string, sendUsageCounts: boolean) => ({ id: account, country: "NG", age: { passed: true, at: 0, method: "declared" as const }, createdAt: EPOCH, character: null, notifyBankFull: false, sendUsageCounts });
+    await deps.stores.account.create(row("account.player", true));
+    await deps.stores.account.create(row("account.quiet", false));
+    const batch = JSON.stringify({ rows: [{ name: ADVERT_COUNTERS.impression, key: "advert.road-billboard", count: 2 }] });
+    for (const account of ["account.player", "account.quiet"]) {
+      const sent = await app.request("/api/counters", { method: "POST", headers: { "content-type": "text/plain", "x-test-account": account }, body: batch });
+      expect(sent.status).toBe(204);
+    }
+    expect(await deps.stores.adverts.counts(id)).toEqual([{ day: int.divFloor(EPOCH, time.DAY_MS), slot: "advert.road-billboard", campaign: id, region: "NG", impressions: 2, taps: 0 }]);
+    expect((await deps.stores.counters.days("2000-01-01", "2100-01-01")).filter((each) => each.name === ADVERT_COUNTERS.impression)).toMatchObject([{ key: "advert.road-billboard", count: 2 }]);
+  });
+});
