@@ -5,6 +5,7 @@
 import { canStep, CELL, cellOf, centreOf, FREE, groundAt, HARD, type Point, type RouteMap } from "./map";
 
 const DIAGONAL = Math.SQRT2;
+const TIE = 1.001;
 
 /** Whether every point along a line, every half cell, stands on a free cell. */
 export function clearLine(map: RouteMap, from: Point, to: Point): boolean {
@@ -106,7 +107,8 @@ function search(map: RouteMap, start: number, goal: number): number[] {
   const guess = (cell: number): number => {
     const dx = Math.abs((cell % nx) - goalX);
     const dz = Math.abs(Math.floor(cell / nx) - goalZ);
-    return Math.max(dx, dz) + (DIAGONAL - 1) * Math.min(dx, dz);
+    // A thousandth over the true distance breaks ties toward the goal, so open ground is not searched cell by cell.
+    return (Math.max(dx, dz) + (DIAGONAL - 1) * Math.min(dx, dz)) * TIE;
   };
   state.cost[start] = 0;
   state.came[start] = -1;

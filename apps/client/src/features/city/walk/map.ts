@@ -100,9 +100,15 @@ export function routeMap(stage: Pick<Stage, "ground" | "walkable" | "models">, f
     search: { cost: new Float32Array(count), came: new Int32Array(count), seen: new Uint32Array(count), closed: new Uint32Array(count), round: 0, heapCell: [], heapCost: [] },
   };
   for (const polygon of walkable) {
-    for (let iz = 0; iz < nz; iz += 1) {
+    const xs = polygon.map(([x]) => x);
+    const zs = polygon.map(([, z]) => z);
+    const fromX = Math.max(0, cellX(map, Math.min(...xs)));
+    const toX = Math.min(nx - 1, cellX(map, Math.max(...xs)));
+    const fromZ = Math.max(0, cellZ(map, Math.min(...zs)));
+    const toZ = Math.min(nz - 1, cellZ(map, Math.max(...zs)));
+    for (let iz = fromZ; iz <= toZ; iz += 1) {
       const z = minZ + (iz + 0.5) * CELL;
-      for (let ix = 0; ix < nx; ix += 1) if (inPolygon(polygon, minX + (ix + 0.5) * CELL, z)) cells[iz * nx + ix] = FREE;
+      for (let ix = fromX; ix <= toX; ix += 1) if (inPolygon(polygon, minX + (ix + 0.5) * CELL, z)) cells[iz * nx + ix] = FREE;
     }
   }
   for (const model of stage.models) {
