@@ -12,6 +12,7 @@ import {
   ASHBY,
   KINGSMERE,
   NORTHGATE,
+  READY,
   READY_PAPERS,
   UK,
   UNIT,
@@ -932,6 +933,22 @@ describe("decision day", () => {
     expect(game.state.status.current?.entry).toBe("status.uk-student");
     expect(routeLines(result.lines)).toEqual([{ key: "line.route.departed", params: { route: UK }, tone: "good", big: true, attention: true, counts: [] }]);
     game.endTurn();
+  });
+
+  test("[R-PLACE-003] [R-GATE-003] given Ada teaching at home with the study visa granted, when she flies, then the home job ends that moment with its months kept, and there is no job left to quit", () => {
+    const teaching = (used: Content): Content => ({ ...used, scenario: { ...used.scenario, [READY]: { ...used.scenario[READY]!, job: "activity.job-teacher", tenure: { "activity.job-teacher": 12 } } } });
+    const game = life({ tuning: ALWAYS_GRANTED, change: teaching });
+    toDecision(game);
+    const job = game.state.activity.job;
+    expect(job).toBe("activity.job-teacher");
+    const months = game.state.activity.tenure[job!];
+    const result = game.accept({ type: "route/depart", route: UK });
+    expect(game.state.activity.job).toBeNull();
+    expect(game.view().job.id).toBeNull();
+    expect(game.state.activity.tenure[job!]).toBe(months);
+    expect(result.events).toContainEqual(expect.objectContaining({ type: "activity/job-ended", job, why: "moved" }));
+    expect(game.state.status.current?.clock ?? null).toBeNull();
+    game.expectRejected({ type: "activity/quit" }, "not-legal");
   });
 
   test("[R-ROUTE-020] given a granted route and too little naira for the flight, when the player departs, then it is rejected with cannot-afford", () => {

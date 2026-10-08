@@ -469,6 +469,9 @@ function depart(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   const events = record(ctx, moved(command.route, "departed"));
   if (entry.country !== null) ctx.apply([{ type: "place/move", to: "abroad", country: entry.country }], cause);
   if (entry.status !== null) ctx.apply([job === null ? { type: "status/grant", status: entry.status } : { type: "status/grant", status: entry.status, job }], cause);
+  // R-LADDER-005: the sponsor's job is the job held on arrival. R-PLACE-003: a home job does not fly.
+  // activity.md is silent on when; read as the moment of the flight, so no job is held that cannot be worked.
+  ctx.apply([job === null ? { type: "activity/end-job", why: "moved" } : { type: "activity/start-job", job }], cause);
   gate.onDepart?.(ctx, entry, held, cause);
   return [...events, ...endBeforeSettingOff(ctx)];
 }

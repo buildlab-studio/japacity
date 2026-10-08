@@ -440,7 +440,9 @@ function startJob(ctx: Ctx, entry: ActivityEntry): BaseEvent[] {
   const kept = status.current !== null && isKept(ctx.content, status.current.entry);
   if (entry.sponsor === true && place.where === "abroad" && place.country !== null && !kept) {
     const sponsored = sponsoredStatusOf(ctx.content, place.country);
-    if (sponsored !== null) ctx.apply([{ type: "status/grant", status: sponsored, job: entry.id }], { source: entry.id, param: null, terms: {} });
+    // The status granted on arrival already names this job (R-SPONSOR-007).
+    const named = status.current?.entry === sponsored && status.current.job === entry.id;
+    if (sponsored !== null && !named) ctx.apply([{ type: "status/grant", status: sponsored, job: entry.id }], { source: entry.id, param: null, terms: {} });
   }
   return events;
 }
