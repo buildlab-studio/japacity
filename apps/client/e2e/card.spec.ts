@@ -10,8 +10,8 @@ import { content } from "../../../packages/content/src/index";
 import { lifeSaves } from "../../../packages/sim/src/goldens/lives.data";
 
 // A device's browser type can be chosen only by the project; the rest of the profile applies here.
-const { defaultBrowserType: _browser, ...pixel7 } = devices["Pixel 7"];
-test.use(pixel7);
+const { viewport, userAgent, deviceScaleFactor, isMobile, hasTouch } = devices["Pixel 7"];
+test.use({ viewport, userAgent, deviceScaleFactor, isMobile, hasTouch });
 
 /** Ada's recorded life up to the month before she flies. */
 function adaBeforeFlight(): string {
