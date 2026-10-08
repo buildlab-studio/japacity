@@ -129,6 +129,7 @@ const SIGN = {
   printed: { board: "white", ink: "blue", border: "blue", glyph: "phone" } satisfies SignStyle,
   cards: { board: "danfoYellow", ink: "black" } satisfies SignStyle,
   terminal: { board: "white", ink: "green", border: "green" } satisfies SignStyle,
+  canopy: { board: "green", ink: "white" } satisfies SignStyle,
   hanging: { board: "black", ink: "danfoYellow" } satisfies SignStyle,
 };
 
@@ -210,7 +211,7 @@ export const CATALOG: CatalogEntry[] = [
   placeBuilding("phone-plaza", "computer-village"),
   placeBuilding("laptop-house", "computer-village"),
   placePiece("prop_repair-table", "computer-village", buildRepairTable),
-  placePiece("bld_terminal-front", "airport-lagos", () => buildTerminalFront({ fascia: "place.airport-lagos.sign.1", left: "place.airport-lagos.sign.2", right: "place.airport-lagos.sign.3" }, { fascia: SIGN.terminal, hanging: SIGN.hanging }), [...ELEVATIONS, "plan", "phone"]),
+  placePiece("bld_terminal-front", "airport-lagos", () => buildTerminalFront({ fascia: "place.airport-lagos.sign.1", canopy: "place.airport-lagos.sign.2", left: "place.airport-lagos.sign.3", right: "place.airport-lagos.sign.4" }, { fascia: SIGN.terminal, canopy: SIGN.canopy, hanging: SIGN.hanging }), [...ELEVATIONS, "plan", "phone"]),
   placePiece("prop_trolley", "airport-lagos", buildTrolley),
   placePiece("prop_flagpole", "airport-lagos", buildFlagpole),
   placePiece("veh_taxi", "airport-lagos", buildTaxi),

@@ -6,7 +6,7 @@ import { Group } from "three";
 
 import { facePlusZ } from "../../veh/lab";
 
-export const FLAGPOLE = { height: 11, flagTop: 10.7, plinth: 1.6 } as const;
+export const FLAGPOLE = { height: 6.2, flagTop: 5.9, plinth: 1.6 } as const;
 
 export function buildFlagpole(): Group {
   const g = new Group();

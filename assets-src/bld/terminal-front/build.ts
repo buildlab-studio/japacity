@@ -13,14 +13,14 @@ export const TERMINAL = {
   face: 1.5,
   back: -10.5,
   canopyEdge: 10.5,
-  glassTop: 8.4,
-  top: 10.6,
-  canopy: { underside: 6.0, depth: 0.6 },
+  glassTop: 7.0,
+  top: 9.6,
+  canopy: { underside: 5.4, depth: 0.5 },
   columns: [-13.5, -4.5, 4.5, 13.5],
   doors: [-9, 0, 9],
 } as const;
 
-export function buildTerminalFront(signs: { fascia: string; left: string; right: string }, styles: { fascia: SignStyle; hanging: SignStyle }): Group {
+export function buildTerminalFront(signs: { fascia: string; canopy: string; left: string; right: string }, styles: { fascia: SignStyle; canopy: SignStyle; hanging: SignStyle }): Group {
   const root = new Group();
   root.name = "bld_terminal-front";
   const random = seeded(1979);
@@ -53,13 +53,17 @@ export function buildTerminalFront(signs: { fascia: string; left: string; right:
   box(front, w, top - glassTop, 0.3, 0, glassTop, 0.15, "concrete");
   quad(front, w, 0.08, 0, glassTop + 0.35, 0.31, "concreteWorn");
   for (let i = 0; i < 6; i++) stain(onWall(root, -half + 3 + random() * (w - 6), 0, face + 0.31), 0, glassTop + 0.45, 0.4 + random() * 0.5, 0.8 + random() * 0.9, "concreteWorn");
-  signboard(root, onWall(root, 0, 0, face + 0.3), signs.fascia, styles.fascia, 0, glassTop + 0.5, 9.6, 1.6);
+  signboard(root, onWall(root, 0, 0, face + 0.3), signs.fascia, styles.fascia, 0, glassTop + 0.35, 9.6, 1.6);
 
   // The canopy: a slab over the kerb from the fascia to the columns, its edge banded, its underside lit.
   const span = canopyEdge - face;
   box(root, w + 2, canopy.depth, span, 0, canopy.underside, face + span / 2, "white");
   box(root, w + 2.1, 0.28, 0.3, 0, canopy.underside + 0.15, canopyEdge - 0.1, "gold");
   for (let x = -half + 2; x < half; x += 4) floorQuad(root, 1.6, 0.25, x, canopy.underside - 0.005, face + span / 2, "cream");
+  // The drop-off sign standing on the canopy's edge, off the centre so it never hides the name above the glass.
+  for (const s of [-1, 1]) box(root, 0.1, 0.12, 0.1, 4.5 + s * 2.6, canopy.underside + canopy.depth, canopyEdge - 0.25, "hub");
+  box(root, 6.2, 1.1, 0.14, 4.5, canopy.underside + canopy.depth + 0.1, canopyEdge - 0.25, styles.canopy.board);
+  signboard(root, onWall(root, 4.5, 0, canopyEdge - 0.19), signs.canopy, styles.canopy, 0, canopy.underside + canopy.depth + 0.15, 6.0, 1.0);
   for (const x of TERMINAL.columns) {
     cylinder(root, 0.38, canopy.underside, x, 0, canopyEdge - 0.7, "white", 10);
     box(root, 0.95, 0.5, 0.95, x, 0, canopyEdge - 0.7, "concreteWorn");
@@ -69,12 +73,11 @@ export function buildTerminalFront(signs: { fascia: string; left: string; right:
   for (const [x, key] of [[TERMINAL.doors[0], signs.left], [TERMINAL.doors[2], signs.right]] as const) {
     for (const s of [-1, 1]) box(root, 0.05, 0.6, 0.05, x + s * 1.1, canopy.underside - 0.6, face + 3.0, "hub");
     box(root, 2.6, 0.7, 0.12, x, canopy.underside - 1.3, face + 3.0, styles.hanging.board);
-    signboard(root, onWall(root, x, 0, face + 3.06), key, styles.hanging, 0, canopy.underside - 1.3, 2.5, 0.62);
+    signboard(root, onWall(root, x, 0, face + 3.01), key, styles.hanging, 0, canopy.underside - 1.26, 2.5, 0.62);
   }
 
-  // The pavement under the canopy, its kerb edge, and steel bollards between the pavement and the cars.
-  box(root, w + 2, 0.15, span, 0, 0, face + span / 2, "concrete");
-  for (let x = -half + 1; x <= half - 1; x += 2.5) box(root, 0.2, 0.95, 0.2, x, 0.15, canopyEdge - 0.25, x % 5 === 0 ? "black" : "hub");
+  // Steel bollards along the pavement's edge between the people and the cars; the pavement is the place's ground.
+  for (let x = -half + 1; x <= half - 1; x += 2.5) box(root, 0.2, 0.95, 0.2, x, 0, canopyEdge - 0.25, "hub");
 
   // The plain back and ends, stained at the foot, with service doors and the wires to the plant room.
   const rear = onWall(root, 0, 0, back, Math.PI);
