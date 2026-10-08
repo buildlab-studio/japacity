@@ -144,14 +144,19 @@ function decision(read: ReadCtx, entry: RouteEntry, held: RouteState): Decision 
   return afterInterview(read, result);
 }
 
-/** R-PEOPLE-022, as R-ROUTE-011 runs: the maintenance covered at each month end while the route is known with a lead to follow. */
+/**
+ * R-PEOPLE-022, as R-ROUTE-011 runs: the maintenance covered at each month end
+ * while the route is known with a lead to follow. Once the lead has their year
+ * in the country nothing is required, so the month end is covered all the same
+ * and the apply activity's `route/funds` holds.
+ */
 function clocks(ctx: Ctx, entry: RouteEntry): BaseEvent[] {
   const held = ctx.state.route[entry.id];
   const block = blockOf(entry);
   const lead = leadOf(ctx, entry);
-  if (held === undefined || held.state !== "known" || lead === null || block.maintenanceVar === null || !maintenanceAsked(entry, lead.bond.facts)) return [];
+  if (held === undefined || held.state !== "known" || lead === null || block.maintenanceVar === null) return [];
   const shown = ctx.check({ type: "route/funds", route: entry.id, heldMonths: 0 }).have ?? 0;
-  const required = worldVar(ctx, block.maintenanceVar);
+  const required = maintenanceAsked(entry, lead.bond.facts) ? worldVar(ctx, block.maintenanceVar) : 0;
   const covered = shown >= required;
   const funds = { heldMonths: covered ? held.funds.heldMonths + 1 : 0, covered, shown, required };
   const event: RouteKindEvent = { type: "route/funds-checked", route: entry.id, funds, was: held.funds.covered };

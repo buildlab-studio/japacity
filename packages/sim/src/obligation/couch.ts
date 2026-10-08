@@ -29,14 +29,15 @@ export function onTheCouch(read: ReadCtx, obligation: Id<"obligation">): boolean
 }
 
 /**
- * R-PEOPLE-032: the month the couch ends, the room opens. Abroad with no rent
- * open happens only after a couch, since arrival opens the room otherwise and
- * an eviction opens it again. It opens after the month's charges, so the couch
- * months are free.
+ * R-PEOPLE-032: in the month the couch ends, the room opens, after the month's
+ * charges so the couch's months are free. A life that arrived to a sibling
+ * and has no rent open is the one on the couch.
  */
 export function couchEnds(read: ReadCtx): Effect[] {
   const room = roomHere(read);
-  if (room === null || monthsHere(read.state) < read.content.tuning.people.couchMonths) return [];
+  const { place } = read.state;
+  if (room === null || place.country === null || monthsHere(read.state) !== read.content.tuning.people.couchMonths) return [];
+  if (!siblingLivesIn(read.state, place.country)) return [];
   const renting = Object.values(read.state.obligation.items).some((item) => read.content.obligation[item.entry]?.type === "rent");
   return renting ? [] : [{ type: "obligation/open", obligation: room }];
 }

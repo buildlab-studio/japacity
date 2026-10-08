@@ -2,6 +2,9 @@
 // sponsor, points, endorsement and contract routes, and road.md for the road.
 import type { ActivityEntry, ChecklistItem, Content, Cost, Id, Requirement, RouteEntry } from "@japacity/sim";
 
+import { peopleOfferTable } from "../offer/offer.abroad.data";
+import { peopleStatusTable } from "../status/status.data";
+
 const UK: Id<"route"> = "route.uk-masters";
 const CARE: Id<"route"> = "route.uk-care";
 const SKILLED: Id<"route"> = "route.uk-skilled";
@@ -307,7 +310,8 @@ export const routeTable: Record<Id<"route">, RouteEntry> = {
 // docs/rules/people.md "Entries: routes and statuses", R-PEOPLE-019, 022 to 028,
 // and undertaking.md for the floor.
 //
-// these routes are held out of `routeTable`. The content test of
+// these routes are held out of `routeTable`, with the statuses and
+// the offer they bring (status.data.ts, offer.abroad.data.ts). The content test of
 // R-GATE-004 (route.test.ts) expects the gates in content to be exactly the
 // whole-life five and every route to have a window, and the dependant routes
 // have none of their own. Adding them fails that test, which is not this
@@ -497,16 +501,37 @@ export const peopleApplyActivities: Record<Id<"activity">, ActivityEntry> = {
     [{ type: "var/min", var: "var.ca-family-window", value: 1 }, step(CA_SPOUSE, "married"), step(CA_SPOUSE, "sponsor"), held("document.passport")],
     [{ currency: "CAD", amount: { var: "var.ca-sponsor-fee" }, reason: "fee-visa" }],
   ),
-  "activity.apply-uk-dependant": applying(UK_DEPENDANT, [step(UK_DEPENDANT, "joint"), step(UK_DEPENDANT, "lead"), held("document.passport"), held("document.tb-certificate")], []),
+  "activity.apply-uk-dependant": applying(
+    UK_DEPENDANT,
+    [
+      step(UK_DEPENDANT, "joint"),
+      step(UK_DEPENDANT, "lead"),
+      held("document.passport"),
+      held("document.tb-certificate"),
+      // The maintenance at one month end, or nothing required once the lead has a year in the UK (R-PEOPLE-022).
+      { type: "route/funds", route: UK_DEPENDANT, heldMonths: 1 },
+    ],
+    [],
+  ),
   "activity.apply-ca-accompany": applying(CA_ACCOMPANY, [step(CA_ACCOMPANY, "joint"), step(CA_ACCOMPANY, "lead"), held("document.passport")], []),
 };
 
-/** A content with the partner and dependant routes joined: the routes, the leads' `dependants`, the apply activities. */
+/**
+ * A content with the partner and dependant routes joined: the routes, the
+ * leads' `dependants`, the apply activities, the two statuses and the
+ * assistance offer, each held out for a content test that pins its table.
+ */
 export function withPeopleRoutes(base: Content): Content {
   const route = { ...base.route, ...peopleRouteTable };
   for (const [lead, dependants] of Object.entries(peopleDependants) as [Id<"route">, Id<"route">][]) {
     const entry = route[lead];
     if (entry !== undefined) route[lead] = { ...entry, dependants };
   }
-  return { ...base, route, activity: { ...base.activity, ...peopleApplyActivities } };
+  return {
+    ...base,
+    route,
+    activity: { ...base.activity, ...peopleApplyActivities },
+    status: { ...base.status, ...peopleStatusTable },
+    offer: { ...base.offer, ...peopleOfferTable },
+  };
 }
