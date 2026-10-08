@@ -5,7 +5,8 @@ import { describe, expect, test } from "vitest";
 
 import { bp } from "../engine/int";
 import type { Accepted, BaseEvent, Id, ReadCtx } from "../engine/types";
-import { applyEffects, draw, slot } from "../route/route.journey";
+import { ALWAYS_GRANTED, offeredSeed } from "../place/place.journey";
+import { applyEffects, draw, readyLife, slot, toDecision, UK } from "../route/route.journey";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
 import { freeSlots } from "../turn/turn.logic";
@@ -102,6 +103,21 @@ describe("side jobs", () => {
     const month = game.endTurn();
     expect(month.events).toContainEqual({ type: "activity/side-ended", side: TUTORING, why: "moved" });
     expect(moneyOf(month, "gig")).toEqual([]);
+  });
+
+  test("[R-ACTIVITY-010] [R-PLACE-003] given a side job at home, when the character flies, then it ends at the flight, before any month abroad, and the job held at home ends with it", () => {
+    const game = readyLife(content, { seed: offeredSeed(content), tuning: ALWAYS_GRANTED });
+    toDecision(game);
+    applyEffects(game, [{ type: "activity/start-job", job: TUTORING }]);
+    expect(game.state.activity.side).toBe(TUTORING);
+    const flight = game.accept({ type: "route/depart", route: UK });
+    expect(game.state.place.where).toBe("abroad");
+    expect(game.state.activity.side).toBeNull();
+    expect(flight.events).toContainEqual({ type: "activity/side-ended", side: TUTORING, why: "moved" });
+    expect(flight.lines.map((line) => line.key)).toContain("line.activity.side-ended");
+    expect(game.state.activity.job).toBeNull();
+    const month = game.endTurn();
+    expect(month.events.filter((event) => event.type === "activity/side-ended")).toEqual([]);
   });
 
   test("[R-HEALTH-004] given a side job and a slot locked for illness, when the month is played, then it pays the sick share", () => {
