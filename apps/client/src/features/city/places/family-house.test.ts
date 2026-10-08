@@ -11,7 +11,7 @@ import { crowdSize, poolOf, sampleCrowd } from "../crowd";
 import { dancerShown, DANCER_SLOT, dressPlace, filesOf } from "../placeFile";
 import { personOf } from "../roster";
 import { offersHere } from "../staging";
-import { allPalette, city, instancesOf, onGround, rowOf, signKeys, staged, totalsOf, wordsOf } from "./placeTesting";
+import { allPalette, city, instancesOf, measured, onGround, rowOf, signKeys, staged, totalsOf, wordsOf } from "./placeTesting";
 
 const { file, stage, entry } = staged(placeFile, "place.family-house");
 const PARTY = "offer.send-off-party";
@@ -27,6 +27,15 @@ describe("the family house's budget", () => {
       expect(totals[mode].drawCalls).toBeLessThanOrEqual(rowOf(file).drawCalls);
       expect(totals[mode].triangles).toBeLessThanOrEqual(rowOf(file).triangles);
     }
+  });
+
+  test("[R-ASSET-007] given the party set carrying the banner's sign anchor, when one copy of it is counted, then its sign faces add a draw call as a building's do", async () => {
+    const one = { ...file, instances: [{ file: "places/family-house/prop_party-set.glb", count: 1 }], people: { low: 0, high: 0, sample: [] } };
+    const totals = await totalsOf(one);
+    const bare = await totalsOf({ ...one, instances: [] });
+    const set = await measured("places/family-house/prop_party-set.glb");
+    expect(set.signs).toBeGreaterThan(0);
+    expect(totals.low.drawCalls - bare.low.drawCalls).toBe(set.drawCalls + 1);
   });
 
   test("[R-ASSET-007] given the house's file, when its counts are read, then the instances are the most copies of any dressing, its people the party's guests and dancers in each mode, and its colours palette names", () => {

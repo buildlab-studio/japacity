@@ -8,7 +8,7 @@ import type { Id, PlaceEntry } from "@japacity/sim";
 import { expect } from "vitest";
 
 import budgets from "../../../../../../assets-src/budgets.json";
-import { measureFile, placeTotals, type PlaceFile as CheckedPlace, type PlaceTotals } from "../../../../../../tools/assets/check-assets";
+import { type Measured, measureFile, placeTotals, type PlaceFile as CheckedPlace, type PlaceTotals } from "../../../../../../tools/assets/check-assets";
 import { crowdSize } from "../crowd";
 import type { PlaceFile, Spot, Stage } from "../placeFile";
 
@@ -31,10 +31,17 @@ export function staged(raw: unknown, id: Id<"place">): Staged {
   return { file, stage, entry };
 }
 
+const PATHS = { root: ROOT, source: join(ROOT, "assets-src"), public: PUBLIC, dist: "" };
+
+/** One shipped file measured as the build check measures it. */
+export async function measured(path: string): Promise<Measured> {
+  return measureFile(PATHS, path);
+}
+
 /** The place counted as the build check counts it: the instances, the floor and the heaviest of the sample times each mode's crowd. */
 export async function totalsOf(file: PlaceFile): Promise<PlaceTotals> {
   const files = [...new Set([...file.instances.map((instance) => instance.file), ...file.people.sample])];
-  const measured = new Map(await Promise.all(files.map(async (path) => [path, await measureFile({ root: ROOT, source: join(ROOT, "assets-src"), public: PUBLIC, dist: "" }, path)] as const)));
+  const measured = new Map(await Promise.all(files.map(async (path) => [path, await measureFile(PATHS, path)] as const)));
   const { totals, missing } = placeTotals(file as unknown as CheckedPlace, measured);
   expect(missing).toEqual([]);
   return totals;
