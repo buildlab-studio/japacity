@@ -3,7 +3,7 @@ import type { PlaceEntry } from "@japacity/sim";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
 import hubFile from "../../../public/assets/places/ojuelegba/place.json";
-import { bandOf, crowdSize, hash, localDate, placeCrowd, playersRoom, poolOf, resident, residents, sampleCrowd, type Shown, traditionalCount, weekday } from "./crowd";
+import { actPose, bandOf, crowdSize, hash, localDate, placeCrowd, playersRoom, poolOf, resident, residents, sampleCrowd, type Shown, traditionalCount, walkPose, weekday } from "./crowd";
 import { type Person, ROSTER } from "./roster";
 
 const city = content.tuning.city;
@@ -272,5 +272,49 @@ describe("where the crowd stands", () => {
     const people = shown(["chr_tunde", "chr_ada"]);
     expect(placeCrowd(people, ["a", "b", "c"], { hawker: [0], trader: [2] }).map(({ spot }) => spot)).toEqual(["a", "b"]);
     expect(placeCrowd(people, ["a"], {}).map(({ shown: one }) => one.slot)).toEqual([0]);
+  });
+
+  test("[R-CITY-014] given a spot an act keeps for a man, when the sample stands, then the first man in a plain stand takes it and everyone else fills the rest in slot order", () => {
+    const people = shown(["chr_ada", "chr_hawker_b", "chr_tunde", "chr_ngozi"]);
+    const placed = placeCrowd(people, ["a", "b", "c", "d"], {}, [{ spot: 0, sex: "m", pose: "cheer" }]);
+    expect(placed.map(({ shown: one, spot, index }) => [index, spot, one.person.file])).toEqual([
+      [0, "a", "shared/chr/chr_tunde.glb"],
+      [1, "b", "shared/chr/chr_ada.glb"],
+      [2, "c", "shared/chr/chr_hawker_b.glb"],
+      [3, "d", "shared/chr/chr_ngozi.glb"],
+    ]);
+  });
+
+  test("[R-CITY-014] given a spot kept for a role and an act on it, when the sample stands, then the role keeps it, and an act past the sample or with no one of its sex is left", () => {
+    const people = shown(["chr_ada", "chr_rider", "chr_ngozi"]);
+    const kept = placeCrowd(people, ["a", "b", "c"], { rider: [2] }, [{ spot: 2, sex: "m", pose: "ride" }]);
+    expect(kept.find(({ index }) => index === 2)?.shown.person.file).toBe("shared/chr/chr_rider.glb");
+    const women = shown(["chr_ada", "chr_ngozi"]);
+    expect(placeCrowd(women, ["a", "b"], {}, [{ spot: 1, sex: "m" }]).map(({ shown: one }) => one.slot)).toEqual([0, 1]);
+    expect(placeCrowd(women, ["a", "b", "c"], {}, [{ spot: 2, sex: "f" }]).map(({ index }) => index)).toEqual([0, 1]);
+  });
+
+  test("[R-CITY-014] given another player in the sample, when an act keeps a spot for their sex, then a resident takes it and the player is never given a part", () => {
+    const people = shown(["chr_tunde", "chr_kunle"]).map((one, slot): Shown => (slot === 0 ? { ...one, kind: "player", tag: "Femi" } : one));
+    const placed = placeCrowd(people, ["a", "b"], {}, [{ spot: 0, sex: "m", pose: "cheer" }]);
+    expect(placed[0]?.shown.kind).toBe("resident");
+    expect(placed[1]?.shown.kind).toBe("player");
+  });
+
+  test("[R-CITY-038] given an act's pose, when a person idles at its spot, then one in a plain stand takes it and a hawker keeps her tray, a trader his sale", () => {
+    const of = (file: string): Person => ROSTER.find((row) => row.file === `shared/chr/${file}.glb`) as Person;
+    expect(actPose(of("chr_tunde"), { pose: "cheer" })).toBe("cheer");
+    expect(actPose(of("chr_zainab"), { pose: "cheer" })).toBe("cheer");
+    expect(actPose(of("chr_kemi"), { pose: "ride" })).toBe("ride");
+    expect(actPose(of("chr_hawker_a"), { pose: "cheer" })).toBe("tray");
+    expect(actPose(of("chr_iya"), { pose: "cheer" })).toBe("sell");
+    expect(actPose(of("chr_tunde"), {})).toBe("stand");
+    expect(actPose(of("chr_tobi"), undefined)).toBe("hip");
+  });
+
+  test("[R-CITY-038] given someone crossing, when they walk, then a hawker walks steadying her tray and everyone else swings both arms", () => {
+    for (const row of ROSTER) expect(walkPose(row)).toBe(row.pose === "tray" ? "trayWalk" : "walk");
+    expect(walkPose({ pose: "tray" })).toBe("trayWalk");
+    expect(walkPose({ pose: "stand" })).toBe("walk");
   });
 });
