@@ -81,7 +81,8 @@ export const statusTable: Record<Id<"status">, StatusEntry> = {
     work: "one-employer",
     // 60 days.
     clockMonths: 2,
-    dependants: "none",
+    // docs/rules/people.md R-PEOPLE-020: a partner may join a holder of one of these jobs.
+    dependants: ["activity.job-uk-skilled", "activity.job-uk-senior-dev", "activity.job-uk-graduate", "activity.job-uk-nurse"],
     tiedTo: null,
     renewMonths: 24,
     renewFeeVar: "var.uk-skilled-renew-fee",
@@ -98,8 +99,43 @@ export const statusTable: Record<Id<"status">, StatusEntry> = {
     id: "status.uk-talent",
     months: 60,
     work: "any",
+    // R-PEOPLE-020.
+    dependants: "any",
     countsToSettlement: true,
     settleMonthsVar: "var.uk-talent-settle-months",
+    settleFeeVar: "var.uk-settle-fee",
+    settled: "status.uk-settled",
+  },
+  // docs/rules/people.md "Entries: routes and statuses", R-PEOPLE-024, 028, 029.
+  "status.uk-partner": {
+    ...BASE,
+    ...UK,
+    id: "status.uk-partner",
+    months: 33,
+    work: "any",
+    // The 60 days permission is cut to after a relationship breaks down.
+    tiedTo: "partner",
+    clockMonths: 2,
+    renewMonths: 30,
+    renewFeeVar: "var.uk-partner-renew-fee",
+    surchargeYearVar: "var.uk-surcharge-year",
+    countsToSettlement: true,
+    settleMonthsVar: "var.uk-partner-settle-months",
+    settleFeeVar: "var.uk-settle-fee",
+    settled: "status.uk-settled",
+  },
+  "status.uk-dependant": {
+    ...BASE,
+    ...UK,
+    id: "status.uk-dependant",
+    // The lead's months left at the grant (R-PEOPLE-024).
+    months: "lead",
+    work: "any",
+    tiedTo: "partner",
+    clockMonths: 2,
+    // "renews with the lead" has no command of its own, so it does not renew by asking.
+    countsToSettlement: true,
+    settleMonthsVar: "var.uk-settle-months",
     settleFeeVar: "var.uk-settle-fee",
     settled: "status.uk-settled",
   },

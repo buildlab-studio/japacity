@@ -2,6 +2,7 @@
 // abroad-money.md, credit.md and car.md.
 import type { Currency, Effect, Id, ObligationEntry } from "@japacity/sim";
 
+import { tuning } from "../tuning/tuning.data";
 import { aed, cad, euros, naira, pct, pounds } from "../units";
 
 // abroad-money.md gives no figures for a missed month of upkeep or rent
@@ -369,5 +370,30 @@ export const obligationTable: Record<Id<"obligation">, ObligationEntry> = {
     grace: 0,
     onMiss: [],
     onDefault: [],
+  },
+
+  // docs/rules/undertaking.md "Entries": the sponsor's promise to Canada for a
+  // partner, 36 months from the landing. Nothing is owed until the partner takes
+  // assistance; each new month of it costs var.ca-assistance (R-UNDERTAKING-007).
+  "obligation.undertaking-ca": {
+    id: "obligation.undertaking-ca",
+    type: "undertaking",
+    // It follows the sponsor wherever they live (R-UNDERTAKING-009).
+    where: "any",
+    currency: "CAD",
+    // Read from var.ca-assistance for each new month; no fixed charge.
+    amount: 0,
+    rateBp: 0,
+    term: 36,
+    locksPrincipal: false,
+    sink: "undertaking",
+    interestSink: "undertaking",
+    grace: 2,
+    onMiss: [{ type: "quality/add", quality: "quality.standing", amount: -3 }],
+    // R-UNDERTAKING-008: the credit file takes the default figure (R-CREDIT-002).
+    onDefault: [
+      { type: "quality/add", quality: "quality.standing", amount: -10 },
+      { type: "credit/mark", amount: -tuning.credit.onDefault },
+    ],
   },
 };

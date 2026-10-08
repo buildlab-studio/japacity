@@ -1,6 +1,6 @@
 // From docs/rules/route.md, "Entry: route.uk-masters", route-gates.md for the
 // sponsor, points, endorsement and contract routes, and road.md for the road.
-import type { ChecklistItem, Id, Requirement, RouteEntry } from "@japacity/sim";
+import type { ActivityEntry, ChecklistItem, Content, Cost, Id, Requirement, RouteEntry } from "@japacity/sim";
 
 const UK: Id<"route"> = "route.uk-masters";
 const CARE: Id<"route"> = "route.uk-care";
@@ -303,3 +303,210 @@ export const routeTable: Record<Id<"route">, RouteEntry> = {
     },
   },
 };
+
+// docs/rules/people.md "Entries: routes and statuses", R-PEOPLE-019, 022 to 028,
+// and undertaking.md for the floor.
+//
+// these routes are held out of `routeTable`. The content test of
+// R-GATE-004 (route.test.ts) expects the gates in content to be exactly the
+// whole-life five and every route to have a window, and the dependant routes
+// have none of their own. Adding them fails that test, which is not this
+// agent's to change. `withPeopleRoutes` joins them, the leads' `dependants`
+// and the apply activities to a content, as the tests do and as the content
+// index will once that test names the two new gates.
+
+const UK_PARTNER: Id<"route"> = "route.uk-partner";
+const CA_SPOUSE: Id<"route"> = "route.ca-spouse";
+const UK_DEPENDANT: Id<"route"> = "route.uk-dependant";
+const CA_ACCOMPANY: Id<"route"> = "route.ca-accompany";
+
+/** R-PEOPLE-025: a partner abroad in the country with a status that may sponsor. */
+function partnerAbroad(country: Id<"country">, statuses: Id<"status">[]): Requirement {
+  return { type: "people/bond", role: "partner", stages: ["partner", "married"], where: "abroad", country, statuses };
+}
+
+const UK_SPONSORS: Id<"status">[] = ["status.uk-settled", "status.uk-citizen"];
+const CA_SPONSORS: Id<"status">[] = ["status.ca-resident", "status.ca-citizen"];
+
+export const peopleRouteTable: Record<Id<"route">, RouteEntry> = {
+  "route.uk-partner": {
+    id: UK_PARTNER,
+    gate: "partner",
+    dependants: null,
+    country: "country.uk",
+    status: "status.uk-partner",
+    refusalBaseBp: 500,
+    flightPaidByEmployer: false,
+    hearIf: [partnerAbroad("country.uk", UK_SPONSORS)],
+    // Heard the month the partner's facts show it (R-PEOPLE-025).
+    hearBy: 0,
+    window: "var.uk-family-window",
+    checklist: [
+      item("married", 20, step(UK_PARTNER, "married")),
+      item("sponsor", 20, step(UK_PARTNER, "sponsor")),
+      item("floor", 15, step(UK_PARTNER, "floor")),
+      // A1, held as band 3.0.
+      item("english", 10, held("document.english-test", 30)),
+      item("passport", 5, held("document.passport")),
+      item("tb", 5, held("document.tb-certificate")),
+      item("applied", 25, applied(UK_PARTNER)),
+    ],
+    schools: [],
+    interview: null,
+    partner: {
+      sponsorStatuses: UK_SPONSORS,
+      bandMin: 30,
+      feeVar: "var.uk-partner-fee",
+      surchargeYears: 3,
+      decisionMonths: 3,
+      // Married, or two years together (R-PEOPLE-026).
+      livingTogetherMonths: 24,
+      floorVar: "var.uk-partner-income",
+    },
+  },
+  "route.ca-spouse": {
+    id: CA_SPOUSE,
+    gate: "partner",
+    dependants: null,
+    country: "country.canada",
+    status: "status.ca-resident",
+    refusalBaseBp: 600,
+    flightPaidByEmployer: false,
+    hearIf: [partnerAbroad("country.canada", CA_SPONSORS)],
+    hearBy: 0,
+    window: "var.ca-family-window",
+    checklist: [
+      item("married", 25, step(CA_SPOUSE, "married")),
+      item("sponsor", 25, step(CA_SPOUSE, "sponsor")),
+      item("passport", 10, held("document.passport")),
+      item("applied", 40, applied(CA_SPOUSE)),
+    ],
+    schools: [],
+    interview: null,
+    partner: {
+      sponsorStatuses: CA_SPONSORS,
+      bandMin: null,
+      feeVar: "var.ca-sponsor-fee",
+      surchargeYears: 0,
+      decisionMonths: 12,
+      livingTogetherMonths: null,
+      // No floor for a spouse with no dependent children (IRPR s. 133(4)).
+      floorVar: null,
+    },
+  },
+  "route.uk-dependant": {
+    id: UK_DEPENDANT,
+    gate: "dependant",
+    dependants: null,
+    country: "country.uk",
+    status: "status.uk-dependant",
+    refusalBaseBp: 300,
+    flightPaidByEmployer: false,
+    // Known at once when the joint is agreed (R-PEOPLE-021), never heard of alone.
+    hearIf: [],
+    hearBy: null,
+    window: null,
+    checklist: [
+      item("joint", 30, step(UK_DEPENDANT, "joint")),
+      item("lead", 30, step(UK_DEPENDANT, "lead")),
+      item("passport", 10, held("document.passport")),
+      item("tb", 10, held("document.tb-certificate")),
+      { id: "funds", weight: 10, requirement: { type: "route/funds", route: UK_DEPENDANT, heldMonths: 0 }, partial: true },
+      item("applied", 10, applied(UK_DEPENDANT)),
+    ],
+    schools: [],
+    interview: null,
+    dependant: {
+      maintenanceVar: "var.uk-dependant-maintenance",
+      // Not asked once the lead has 12 months in the UK.
+      leadMonthsExempt: 12,
+      feeVar: null,
+      // The lead route's visa fee and the surcharge for the lead's years.
+      feeFromLead: true,
+      decisionMonths: 1,
+    },
+  },
+  "route.ca-accompany": {
+    id: CA_ACCOMPANY,
+    gate: "dependant",
+    dependants: null,
+    country: "country.canada",
+    status: "status.ca-resident",
+    refusalBaseBp: 300,
+    flightPaidByEmployer: false,
+    hearIf: [],
+    hearBy: null,
+    window: null,
+    checklist: [
+      item("joint", 40, step(CA_ACCOMPANY, "joint")),
+      item("lead", 40, step(CA_ACCOMPANY, "lead")),
+      item("applied", 20, applied(CA_ACCOMPANY)),
+    ],
+    schools: [],
+    interview: null,
+    dependant: { maintenanceVar: null, leadMonthsExempt: null, feeVar: "var.ca-accompany-fee", feeFromLead: false, decisionMonths: 1 },
+  },
+};
+
+/** R-PEOPLE-019: the routes a partner may follow as a dependant. Every other route brings none. */
+export const peopleDependants: Partial<Record<Id<"route">, Id<"route">>> = {
+  "route.uk-skilled": UK_DEPENDANT,
+  "route.uk-talent": UK_DEPENDANT,
+  "route.canada-points": CA_ACCOMPANY,
+};
+
+/** The health surcharge for one year of a worker's visa, in pounds, as the other gates' activities charge it. */
+const SURCHARGE_YEAR: Cost = { currency: "GBP", amount: { var: "var.uk-surcharge-year" }, reason: "fee-surcharge" };
+
+function applying(route: Id<"route">, requires: Requirement[], cost: Cost[]): ActivityEntry {
+  return {
+    id: `activity.apply-${route.slice("route.".length)}` as Id<"activity">,
+    slot: "free",
+    where: "home",
+    requires: [{ type: "route/state", route, in: ["known"] }, ...requires],
+    param: null,
+    cost,
+    pay: null,
+    hireBp: null,
+    effects: [{ type: "route/apply", route }],
+    counts: [route],
+  };
+}
+
+/**
+ * One apply activity for each route, as every gate route has its own. The
+ * partner routes' fee and surcharge are the activity's cost; a dependant's fee
+ * depends on the lead's route, so the gate takes it as the application goes in.
+ */
+export const peopleApplyActivities: Record<Id<"activity">, ActivityEntry> = {
+  "activity.apply-uk-partner": applying(
+    UK_PARTNER,
+    [
+      { type: "var/min", var: "var.uk-family-window", value: 1 },
+      step(UK_PARTNER, "married"),
+      step(UK_PARTNER, "sponsor"),
+      step(UK_PARTNER, "floor"),
+      held("document.english-test", 30),
+      held("document.tb-certificate"),
+      held("document.passport"),
+    ],
+    [{ currency: "GBP", amount: { var: "var.uk-partner-fee" }, reason: "fee-visa" }, SURCHARGE_YEAR, SURCHARGE_YEAR, SURCHARGE_YEAR],
+  ),
+  "activity.apply-ca-spouse": applying(
+    CA_SPOUSE,
+    [{ type: "var/min", var: "var.ca-family-window", value: 1 }, step(CA_SPOUSE, "married"), step(CA_SPOUSE, "sponsor"), held("document.passport")],
+    [{ currency: "CAD", amount: { var: "var.ca-sponsor-fee" }, reason: "fee-visa" }],
+  ),
+  "activity.apply-uk-dependant": applying(UK_DEPENDANT, [step(UK_DEPENDANT, "joint"), step(UK_DEPENDANT, "lead"), held("document.passport"), held("document.tb-certificate")], []),
+  "activity.apply-ca-accompany": applying(CA_ACCOMPANY, [step(CA_ACCOMPANY, "joint"), step(CA_ACCOMPANY, "lead"), held("document.passport")], []),
+};
+
+/** A content with the partner and dependant routes joined: the routes, the leads' `dependants`, the apply activities. */
+export function withPeopleRoutes(base: Content): Content {
+  const route = { ...base.route, ...peopleRouteTable };
+  for (const [lead, dependants] of Object.entries(peopleDependants) as [Id<"route">, Id<"route">][]) {
+    const entry = route[lead];
+    if (entry !== undefined) route[lead] = { ...entry, dependants };
+  }
+  return { ...base, route, activity: { ...base.activity, ...peopleApplyActivities } };
+}

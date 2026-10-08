@@ -384,6 +384,7 @@ export function sendApplication(ctx: Ctx, entry: RouteEntry, cause: Cause): Base
   const events = record(ctx, { type: "route/applied", route, visa });
   // A gate with no interview (every gate but study) scores nothing and waits for the decision.
   if (entry.interview !== null) ctx.apply([{ type: "setpiece/open", setpiece: entry.interview, route }], cause);
+  GATES[entry.gate].onSend?.(ctx, entry, cause);
   return events;
 }
 
@@ -394,6 +395,24 @@ function support(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
   const amount = ctx.amount(effect.amount, cause.terms);
   if (amount < 0) throw new Error(`Support must not be negative, got ${String(amount)}.`);
   return [own({ type: "route/supported", route: effect.route, support: { currency: effect.currency, amount } })];
+}
+
+/**
+ * R-PEOPLE-036: an application resting on a bond goes back to known, the fee
+ * kept and the surcharge refunded to the pound bank pocket, where a refusal
+ * refunds it (R-ROUTE-018). A dependant's grant not yet used is voided the same
+ * way. Nothing else moves: no refusal is recorded, and an earlier one stands.
+ */
+function withdraw(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
+  if (effect.type !== "route/withdraw") throw new Error(`route/withdraw cannot carry out ${effect.type}.`);
+  const entry = entryOf(ctx.content, effect.route);
+  const held = routeOf(ctx.state, effect.route);
+  const unusedGrant = held.state === "granted" && entry.gate === "dependant";
+  if (held.state !== "applying" && !unusedGrant) return [];
+  const refunded = held.visa?.surchargePaid ?? 0;
+  const events = record(ctx, { type: "route/withdrawn", route: effect.route, refunded });
+  if (refunded > 0) ctx.apply([{ type: "money/add", currency: FUNDS_CURRENCY, pocket: "bank", amount: refunded, reason: "refund" }], { ...cause, source: effect.route });
+  return events;
 }
 
 /** R-SETPIECE-004: the interview's score goes on the open application, and only there. */
@@ -534,9 +553,10 @@ function decide(ctx: Ctx, route: Id<"route">): BaseEvent[] {
   const entry = entryOf(ctx.content, route);
   // R-GATE-002: the gate says which terms the draw reads, and whether something refuses before any draw.
   const decision = GATES[entry.gate].decision(readOf(ctx), entry, held);
+  if (decision.wait === true) return [];
   const chance = refusalChanceBp(
     numbers,
-    entry.refusalBaseBp,
+    entry.refusalBaseBp + (decision.addBp ?? 0),
     { strictness: visa.rules.strictness, unexplainedBp: visa.unexplainedBp, refusals: held.refusals, interviewScore: visa.interviewScore ?? 0, grade: grade(ctx.state) },
     decision.terms,
   );
@@ -732,6 +752,14 @@ function evolve(slice: RouteSlice, event: RouteKindEvent, state: State): RouteSl
       return withRoute(slice, event.route, (held) => ({ ...held, state: arrow(held, "refused", event.route), visa: null, bannedUntil: event.until }));
     case "route/unbanned":
       return withRoute(slice, event.route, (held) => ({ ...held, state: arrow(held, "known", event.route), bannedUntil: null }));
+    case "route/withdrawn":
+      // R-PEOPLE-036 adds the one arrow the diagram lacks: a dependant's unused grant back to known.
+      return withRoute(slice, event.route, (held) => ({
+        ...held,
+        state: held.state === "granted" ? "known" : arrow(held, "known", event.route),
+        visa: null,
+        funds: { ...held.funds, heldMonths: 0 },
+      }));
     default: {
       const never: never = event;
       throw new Error(`Unknown route event ${JSON.stringify(never)}.`);
@@ -815,6 +843,8 @@ function lines(event: RouteKindEvent): ReportLine[] {
       return [line("banned", { route: event.route, month: event.until }, "bad", true)];
     case "route/unbanned":
       return [line("unbanned", { route: event.route }, "plain", true)];
+    case "route/withdrawn":
+      return [line("withdrawn", { route: event.route }, "bad", true)];
     default: {
       const never: never = event;
       throw new Error(`Unknown route event ${JSON.stringify(never)}.`);
@@ -926,8 +956,7 @@ export const routeKind: RegisteredKind<RouteSlice, RouteKindEvent> = {
     "route/apply": applyVisa,
     "route/support": support,
     "route/interview-scored": interviewScored,
-    // R-PEOPLE-038: withdrawing an application is the people milestone's; the stub does nothing.
-    "route/withdraw": () => [],
+    "route/withdraw": withdraw,
     // Each gate's own effects (R-GATE-001): the sponsor's record, the road's steps.
     ...gateEffects(),
   },

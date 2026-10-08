@@ -39,4 +39,10 @@ export const offerAbroadText: Record<string, string> = {
   "offer.sponsor-licence-lost.body":
     "The manager calls everyone into the office. The Home Office has taken the agency's licence. Your certificate is no longer valid and your job ends today.",
   "offer.sponsor-licence-lost.choice.go": "Clear your locker",
+
+  "offer.ca-assistance.name": "Social assistance",
+  "offer.ca-assistance.title": "Social assistance",
+  "offer.ca-assistance.body": "The social assistance office: '{amount} a month for basic needs and shelter, while you look.'",
+  "offer.ca-assistance.choice.take": "Take it",
+  "offer.ca-assistance.choice.leave": "Manage without it",
 };

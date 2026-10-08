@@ -49,6 +49,12 @@ export type RouteKindEvent =
   | { type: "route/refusal-noted"; route: Id<"route">; month: number; reason: RefusalReason }
   /** A deception ban (R-GATE-005): the route is refused until `until`, then known again. */
   | { type: "route/banned"; route: Id<"route">; until: number }
+  /**
+   * An application resting on a bond was withdrawn, or a dependant's grant not
+   * yet used was voided (docs/rules/people.md R-PEOPLE-036): back to known with
+   * no application, the fee kept, `refunded` pence of surcharge returned.
+   */
+  | { type: "route/withdrawn"; route: Id<"route">; refunded: number }
   | { type: "route/unbanned"; route: Id<"route"> };
 
 /**

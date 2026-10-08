@@ -53,6 +53,9 @@ import { varTable } from "./var/var.data";
 import { varText } from "./var/var.text";
 import { walletText } from "./wallet/wallet.text";
 
+/** The partner and dependant routes, held out of `content` until the R-GATE-004 content test names their gates (route.data.ts). */
+export { withPeopleRoutes } from "./route/route.data";
+
 export const content: Content = {
   version: "m0.1",
   quality: qualityTable,

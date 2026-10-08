@@ -13,6 +13,7 @@ import type {
   Currency,
   ForeignCurrency,
   Id,
+  PersonFacts,
   PointsEntry,
   ReadCtx,
   RouteEntry,
@@ -76,7 +77,10 @@ export interface PointsParts {
 
 /** R-POINTS-001, part by part, from the state as it is now. */
 export function pointsParts(read: ReadCtx, route: Id<"route">): PointsParts {
-  const table = tableOf(read.content, blockOf(routeEntry(read.content, route)));
+  return partsFrom(read, tableOf(read.content, blockOf(routeEntry(read.content, route))));
+}
+
+function partsFrom(read: ReadCtx, table: PointsEntry): PointsParts {
   const years = divFloor(read.state.quality[AGE] ?? 0, MONTHS_PER_YEAR);
   const level = read.state.quality[EDUCATION] ?? 0;
   const band = heldBand(read);
@@ -104,10 +108,100 @@ function transferPoints(read: ReadCtx, table: PointsEntry, educated: boolean, ba
   return Math.min(t.cap, education + work);
 }
 
-/** R-POINTS-001: the score, a pure reading of the state. Age makes it a clock (R-POINTS-005). */
-export function pointsScore(read: ReadCtx, route: Id<"route">): number {
-  const parts = pointsParts(read, route);
+function sumOf(parts: PointsParts): number {
   return parts.age + parts.education + parts.language + parts.transfer;
+}
+
+/**
+ * R-PEOPLE-030: the table with the lead's columns for one with a spouse.
+ * the route's points block names one table, so the spouse's is found
+ * by name, the route's table with `-spouse` after it.
+ */
+function spouseTableOf(content: Content, block: PointsBlock): PointsEntry & { spouse: NonNullable<PointsEntry["spouse"]> } {
+  const table = content.points[`${block.table}-spouse` as Id<"points">];
+  if (table?.spouse === undefined) throw new Error(`The content has no spouse table for ${block.table}.`);
+  return table as PointsEntry & { spouse: NonNullable<PointsEntry["spouse"]> };
+}
+
+/**
+ * R-PEOPLE-030: the facts of the partner a joint on this route names as the
+ * dependant, while the character leads it. Null: the character applies alone.
+ */
+export function spouseOnJoint(read: ReadCtx, route: Id<"route">): PersonFacts | null {
+  const joint = read.state.people.joint;
+  if (joint === null || joint.route !== route || joint.lead !== "me") return null;
+  const bond = read.state.people.bonds[joint.bond];
+  return bond === undefined || (bond.stage !== "partner" && bond.stage !== "married") ? null : bond.facts;
+}
+
+/**
+ * R-PEOPLE-030: the spouse's own factors from the facts, capped: education by
+ * `eduLevel`, the band for each of four abilities, and Canadian work. 
+ * a spouse has Canadian work only while working in the route's country, a
+ * year for each twelve months there.
+ */
+export function spouseFactors(read: ReadCtx, route: Id<"route">, spouse: PersonFacts): number {
+  const entry = routeEntry(read.content, route);
+  const factors = spouseTableOf(read.content, blockOf(entry)).spouse;
+  const education = rowAtOrBelow(factors.education, (row) => row.level, (row) => row.points, spouse.eduLevel);
+  const language = spouse.englishBand === null ? 0 : ABILITIES * rowAtOrBelow(factors.language, (row) => row.band, (row) => row.points, spouse.englishBand);
+  const worked = spouse.job !== null && spouse.where === "abroad" && spouse.country === entry.country;
+  const years = worked ? divFloor(spouse.monthsInCountry, MONTHS_PER_YEAR) : 0;
+  const work = rowAtOrBelow(factors.canadianWork, (row) => row.years, (row) => row.points, years);
+  return Math.min(factors.cap, education + language + work);
+}
+
+/** The statuses the route leads to in its country: its own, then the settled and citizen ones after it. */
+function residentStatuses(read: ReadCtx, entry: RouteEntry): Id<"status">[] {
+  const statuses: Id<"status">[] = [];
+  let next = entry.status;
+  while (next !== null && !statuses.includes(next)) {
+    statuses.push(next);
+    const status = read.content.status[next];
+    next = status?.settled ?? status?.citizen ?? null;
+  }
+  return statuses;
+}
+
+/**
+ * R-PEOPLE-031: `siblingBonus` for a sibling, real or computer, abroad in the
+ * route's country with the status the route gives or one after it, aged at
+ * least the table's first age. One is enough.
+ * the people kind judges `people/sibling-abroad`; until it does, the
+ * bonds' facts are read here the same way.
+ */
+export function siblingPoints(read: ReadCtx, route: Id<"route">): number {
+  const entry = routeEntry(read.content, route);
+  const table = tableOf(read.content, blockOf(entry));
+  const statuses = residentStatuses(read, entry);
+  const minAgeMonths = (table.age[0]?.years ?? 0) * MONTHS_PER_YEAR;
+  const found = Object.values(read.state.people.bonds).some((bond) => {
+    const facts = bond.facts;
+    if (bond.role !== "sibling" || bond.stage === "ended" || facts === null || facts.status === null) return false;
+    return facts.where === "abroad" && facts.country === entry.country && statuses.includes(facts.status) && facts.ageMonths >= minAgeMonths;
+  });
+  return found ? table.siblingBonus : 0;
+}
+
+/** R-POINTS-001 and R-PEOPLE-031: the score applying alone. */
+export function pointsScoreAlone(read: ReadCtx, route: Id<"route">): number {
+  return sumOf(pointsParts(read, route)) + siblingPoints(read, route);
+}
+
+/** R-PEOPLE-030, 031: the score leading with this spouse: the with-spouse columns, the spouse's factors, the sibling. */
+export function pointsScoreWith(read: ReadCtx, route: Id<"route">, spouse: PersonFacts): number {
+  const table = spouseTableOf(read.content, blockOf(routeEntry(read.content, route)));
+  return sumOf(partsFrom(read, table)) + spouseFactors(read, route, spouse) + siblingPoints(read, route);
+}
+
+/**
+ * R-POINTS-001: the score, a pure reading of the state. Age makes it a clock
+ * (R-POINTS-005). With a dependant on the joint the lead's score uses the
+ * spouse's table (R-PEOPLE-030); a sibling there adds its bonus (R-PEOPLE-031).
+ */
+export function pointsScore(read: ReadCtx, route: Id<"route">): number {
+  const spouse = spouseOnJoint(read, route);
+  return spouse === null ? pointsScoreAlone(read, route) : pointsScoreWith(read, route, spouse);
 }
 
 function officialRates(read: ReadCtx): Record<ForeignCurrency, number> {
