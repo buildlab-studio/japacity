@@ -151,6 +151,7 @@ function bondWith(state: State, over: Partial<Bond> = {}): Bond {
     standIn: null,
     ended: null,
     cooldownUntil: null,
+    consent: null,
     ...over,
   };
 }

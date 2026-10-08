@@ -6,7 +6,7 @@
 // `meetsFloor` (R-UNDERTAKING-003). Nothing here writes a slice.
 import { jobTerms, MONTHS_PER_YEAR, paidYearly } from "../activity/activity.pay";
 import { resolveAmount, worldVar } from "../engine/check";
-import type { Content, Id, ReadCtx, RouteEntry } from "../engine/types";
+import type { Content, Id, Money, ReadCtx, RouteEntry } from "../engine/types";
 import { isSponsorUndertaking } from "../obligation/undertaking";
 
 /** The check that failed, for the rejection's detail (R-UNDERTAKING-001). */
@@ -22,34 +22,56 @@ function currencyOf(content: Content, country: Id<"country"> | null): string | n
   return country === null ? null : (content.country[country]?.currency ?? null);
 }
 
+/** A yearly gross figure in a currency. */
+export interface YearlyPay {
+  currency: Money["currency"];
+  amount: number;
+}
+
 /**
- * R-UNDERTAKING-003: the pay a year from the job held, gross, in the currency of
- * `country`. A job marked `cash` cannot be shown and counts as none; so does a
- * job paid in another currency, or a sponsor's job with no salary recorded.
+ * R-UNDERTAKING-003: the pay a year from the job held, gross. A job marked
+ * `cash` cannot be shown and counts as none; so does a sponsor's job with no
+ * salary recorded.
  */
-export function payAYear(read: ReadCtx, country: Id<"country"> | null): number {
+export function ownPayAYear(read: ReadCtx): YearlyPay | null {
   const job = read.state.activity.job;
   const entry = job === null ? undefined : read.content.activity[job];
-  if (entry === undefined || entry.pay === null || entry.cash === true) return 0;
-  if (entry.pay.currency !== currencyOf(read.content, country)) return 0;
+  if (entry === undefined || entry.pay === null || entry.cash === true) return null;
   const terms = jobTerms(read);
   const { amount } = entry.pay;
-  if (typeof amount === "object" && "term" in amount && typeof terms[amount.term] !== "number") return 0;
+  if (typeof amount === "object" && "term" in amount && typeof terms[amount.term] !== "number") return null;
   const figure = resolveAmount(read, amount, terms);
-  return paidYearly(entry) ? figure : figure * MONTHS_PER_YEAR;
+  return { currency: entry.pay.currency, amount: paidYearly(entry) ? figure : figure * MONTHS_PER_YEAR };
 }
 
-/** R-UNDERTAKING-003: the floor of a partner route met by the sponsor's own pay. A route with no floor is always met. */
-export function meetsFloor(read: ReadCtx, route: Id<"route">): boolean {
-  const entry = partnerRoute(read.content, route);
+/** R-UNDERTAKING-003: a yearly figure in the currency of `country`; pay in another currency counts as none. */
+function inCurrencyOf(content: Content, pay: YearlyPay | null, country: Id<"country"> | null): number {
+  return pay !== null && pay.currency === currencyOf(content, country) ? pay.amount : 0;
+}
+
+/** R-UNDERTAKING-003: the pay a year from the job held, gross, in the currency of `country`. */
+export function payAYear(read: ReadCtx, country: Id<"country"> | null): number {
+  return inCurrencyOf(read.content, ownPayAYear(read), country);
+}
+
+/** R-UNDERTAKING-003: a partner route's floor met by this yearly pay. A route with no floor is always met. */
+function floorMetBy(read: ReadCtx, entry: RouteEntry & { partner: NonNullable<RouteEntry["partner"]> }, pay: YearlyPay | null): boolean {
   if (entry.partner.floorVar === null) return true;
-  return payAYear(read, entry.country) >= worldVar(read, entry.partner.floorVar);
+  return inCurrencyOf(read.content, pay, entry.country) >= worldVar(read, entry.partner.floorVar);
 }
 
-/** `meetsFloor` for every partner route, as `factsOf` reports it (R-UNDERTAKING-003, R-PEOPLE-005). */
-export function floorsMet(read: ReadCtx): Partial<Record<Id<"route">, boolean>> {
+/** R-UNDERTAKING-003: the floor of a partner route met by the sponsor's own pay. */
+export function meetsFloor(read: ReadCtx, route: Id<"route">): boolean {
+  return floorMetBy(read, partnerRoute(read.content, route), ownPayAYear(read));
+}
+
+/**
+ * `meetsFloor` for every partner route, as the facts report it (R-UNDERTAKING-003,
+ * R-PEOPLE-005): from the character's own pay, or from a computer's profile pay.
+ */
+export function floorsMet(read: ReadCtx, pay: YearlyPay | null = ownPayAYear(read)): Partial<Record<Id<"route">, boolean>> {
   const met: Partial<Record<Id<"route">, boolean>> = {};
-  for (const entry of Object.values(read.content.route)) if (entry.partner !== undefined) met[entry.id] = meetsFloor(read, entry.id);
+  for (const entry of Object.values(read.content.route)) if (entry.partner !== undefined) met[entry.id] = floorMetBy(read, partnerRoute(read.content, entry.id), pay);
   return met;
 }
 

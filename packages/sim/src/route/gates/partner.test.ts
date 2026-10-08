@@ -10,9 +10,8 @@ import { refusalChanceBp } from "../route.logic";
 import { partnerGate } from "./partner";
 import { answerInterview, BOND, CA_SPOUSE, facts, interviewOpen, joint, life, readOf, scored, setFacts, setPeople, UK_PARTNER } from "./people.journey";
 
-const used = content;
-const ukPartner = used.route[UK_PARTNER]!;
-const caSpouse = used.route[CA_SPOUSE]!;
+const ukPartner = content.route[UK_PARTNER]!;
+const caSpouse = content.route[CA_SPOUSE]!;
 const APPLY_UK: Id<"activity"> = "activity.apply-uk-partner";
 const APPLY_CA: Id<"activity"> = "activity.apply-ca-spouse";
 const FEE = content.var["var.uk-partner-fee"]!.start;
@@ -33,7 +32,7 @@ function pounds(game: Game): number {
 
 /** Ada married to a sponsor whose facts are `sponsor`, the joint agreed with the sponsor leading on `route`. */
 function married(route: Id<"route">, sponsor = SETTLED, options: LifeOptions = {}): Game {
-  const game = life(used, options);
+  const game = life(content, options);
   joint(game, route, "them", { stage: "married", facts: sponsor });
   return game;
 }
@@ -74,7 +73,7 @@ describe("R-PEOPLE-025: hearing of the partner route", () => {
     const worker = married(UK_PARTNER, { ...SETTLED, status: "status.uk-sponsored" });
     worker.endTurn();
     expect(routeOf(worker, UK_PARTNER).state).toBe("unknown");
-    const courting = life(used);
+    const courting = life(content);
     joint(courting, UK_PARTNER, "them", { stage: "courting", facts: SETTLED });
     courting.endTurn();
     expect(routeOf(courting, UK_PARTNER).state).toBe("unknown");
@@ -112,7 +111,7 @@ describe("R-PEOPLE-026: applying on the partner gate", () => {
   });
 
   test("[R-PEOPLE-026] given partners, not married, for 23 of the applicant's months and then for 24, when the application is sent, then only 24 is enough for the UK", () => {
-    const game = life(used);
+    const game = life(content);
     joint(game, UK_PARTNER, "them", { stage: "partner", facts: SETTLED });
     toKnown(game, UK_PARTNER);
     setPeople(game, (slice) => ({ ...slice, bonds: { [BOND]: { ...slice.bonds[BOND]!, partnerMonth: game.state.turn.month - 23 } } }));
@@ -123,7 +122,7 @@ describe("R-PEOPLE-026: applying on the partner gate", () => {
   });
 
   test("[R-PEOPLE-026] given partners for years but not married, when Canada's spouse route is asked, then it is never reached: only marriage counts there", () => {
-    const game = life(used);
+    const game = life(content);
     joint(game, CA_SPOUSE, "them", { stage: "partner", partnerMonth: -120, facts: CA_RESIDENT });
     expect(partnerGate.reached(readOf(game), caSpouse, routeOf(game, CA_SPOUSE), "married")).toBe(false);
     expect(partnerGate.reached(readOf(game), caSpouse, routeOf(game, CA_SPOUSE), "sponsor")).toBe(true);
@@ -192,7 +191,7 @@ describe("R-PEOPLE-027: the decision waits for the interview", () => {
   });
 
   test("[R-PEOPLE-027] given a seed whose draw falls between the base and the base plus the doubt, when the result is pass and when it is doubt, then pass is granted and doubt refused", () => {
-    const base = refusalChanceBp(content.tuning.route, ukPartner.refusalBaseBp, { strictness: 0, unexplainedBp: 0, refusals: 0, interviewScore: 0, grade: 0 }, partnerGate.decision(readOf(life(used)), ukPartner, { visa: null } as RouteState).terms);
+    const base = refusalChanceBp(content.tuning.route, ukPartner.refusalBaseBp, { strictness: 0, unexplainedBp: 0, refusals: 0, interviewScore: 0, grade: 0 }, partnerGate.decision(readOf(life(content)), ukPartner, { visa: null } as RouteState).terms);
     const doubted = base + content.tuning.interview.doubtBp;
     // The interview's questions are drawn on `visa` first (R-INTERVIEW-003), so the decision's roll is the next one after them.
     const seed = seedWhere((candidate) => {
@@ -235,7 +234,7 @@ describe("R-PEOPLE-028: the partner visa", () => {
     pastDecision(game, UK_PARTNER);
     game.accept({ type: "route/depart", route: UK_PARTNER });
     expect(game.state.status.current?.expiresMonth).toBe(game.state.turn.month + 33);
-    const status = used.status["status.uk-partner"]!;
+    const status = content.status["status.uk-partner"]!;
     expect(status).toMatchObject({ work: "any", renewMonths: 30, renewFeeVar: "var.uk-partner-renew-fee", countsToSettlement: true, settleMonthsVar: "var.uk-partner-settle-months" });
     expect(content.var["var.uk-partner-settle-months"]!.start).toBe(60);
     expect(game.view().status?.renew?.months).toBe(30);
@@ -264,7 +263,7 @@ describe("R-PEOPLE-028: the partner visa", () => {
   });
 
   test("[R-PEOPLE-029] given the partner and dependant visas, when their entries are read, then each is tied to the partner with a clock of 2 months, and permanent residence in Canada is not", () => {
-    for (const id of ["status.uk-partner", "status.uk-dependant"] as const) expect(used.status[id]).toMatchObject({ tiedTo: "partner", clockMonths: 2 });
-    expect(used.status["status.ca-resident"]?.tiedTo).toBeNull();
+    for (const id of ["status.uk-partner", "status.uk-dependant"] as const) expect(content.status[id]).toMatchObject({ tiedTo: "partner", clockMonths: 2 });
+    expect(content.status["status.ca-resident"]?.tiedTo).toBeNull();
   });
 });
