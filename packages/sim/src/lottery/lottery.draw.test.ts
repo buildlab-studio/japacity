@@ -97,16 +97,41 @@ describe("the draw", () => {
 });
 
 describe("tiers and prizes", () => {
-  test("[R-LOTTERY-012] given the tickets sold, when the tiers are set, then there is one jackpot, the mid count, and one small prize in every smallEvery with at least one", () => {
+  test("[R-LOTTERY-012] given the tickets sold, when the tiers are set, then there is one jackpot, the mid count, and one small prize in every smallEvery, never fewer than keep a small share under a mid one", () => {
     const small = (count: number) => tiersFor(count, tuning).find((spec) => spec.tier === "small")?.count;
     expect(tiersFor(0, tuning).map((spec) => spec.tier)).toEqual(["jackpot", "mid", "small"]);
     expect(tiersFor(0, tuning)[0]?.count).toBe(1);
     expect(tiersFor(0, tuning)[1]?.count).toBe(tuning.midCount);
-    expect(small(0)).toBe(1);
-    expect(small(tuning.smallEvery - 1)).toBe(1);
-    expect(small(tuning.smallEvery)).toBe(1);
-    expect(small(tuning.smallEvery * 2 - 1)).toBe(1);
-    expect(small(tuning.smallEvery * 2)).toBe(2);
+    // The shipped shares are equal, so the floor is one place more than the mid count.
+    expect(tuning.smallBp).toBe(tuning.midBp);
+    const floor = tuning.midCount + 1;
+    expect(small(0)).toBe(floor);
+    expect(small(tuning.smallEvery)).toBe(floor);
+    expect(small(tuning.smallEvery * (floor + 1) - 1)).toBe(floor);
+    expect(small(tuning.smallEvery * (floor + 1))).toBe(floor + 1);
+    const lean = { ...tuning, midBp: tuning.midBp + tuning.smallBp, smallBp: 0 };
+    expect(tiersFor(0, lean).find((spec) => spec.tier === "small")?.count).toBe(1);
+  });
+
+  test.prop([fc.integer({ min: 0, max: 20000 }), fc.integer({ min: 0, max: 10000 })])(
+    "[R-LOTTERY-012] given any tickets sold and any declared top-up, when the prizes are set, then a mid prize pays more than a small one",
+    (count, topUpTickets) => {
+      const pot = count * tuning.ticket + topUpFor(count, topUpTickets, tuning.ticket);
+      const tiers = tiersFor(count, tuning);
+      const amounts = prizesFor(pot, tiers, [], tuning).winners;
+      const mid = amounts.find((tier) => tier.tier === "mid")!.amount;
+      const small = amounts.find((tier) => tier.tier === "small")!.amount;
+      if (mid === 0) expect(small).toBe(0);
+      else expect(small).toBeLessThan(mid);
+    },
+  );
+
+  test("[R-LOTTERY-012] given the review's draw, 200 tickets sold under a top-up of 5000, when the prizes are set, then a mid prize is not the ₦16,500 against a small ₦41,250: the small pays less", () => {
+    const count = 200;
+    const pot = count * tuning.ticket + topUpFor(count, 5000, tuning.ticket);
+    const amounts = prizesFor(pot, tiersFor(count, tuning), [], tuning).winners.map((tier) => tier.amount);
+    expect(amounts[1]).toBe(1650000);
+    expect(amounts[2]).toBeLessThan(amounts[1]!);
   });
 
   test("[R-LOTTERY-012] given the shipped tuning, when content is checked, then the tiers share the whole fund, and a tuning that does not is refused", () => {

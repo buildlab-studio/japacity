@@ -2,7 +2,7 @@ import { content, text } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
 import { check } from "../engine/check";
-import { convertMinor, mulDiv } from "../engine/int";
+import { bp, convertMinor, divFloor, mulDiv, mulDivCeil } from "../engine/int";
 import { checkInvariants } from "../engine/invariants";
 import type { ActivityEntry, Content, Currency, Id, ReadCtx, ReportLine, Requirement, RouteStateName, SchoolEntry, ForeignCurrency } from "../engine/types";
 import { legalCommands } from "../testing/legal";
@@ -34,7 +34,7 @@ import {
   watchHear,
 } from "./route.journey";
 import type { LifeOptions, Watch } from "./route.journey";
-import { FRIEND, fundsRequired, fundsShown, offerChanceBp, refusalChanceBp, refusalReasons, routeKind, unexplainedBp } from "./route.logic";
+import { flyingFundsShown, FRIEND, fundsRequired, fundsShown, offerChanceBp, refusalChanceBp, refusalReasons, routeKind, unexplainedBp } from "./route.logic";
 
 const numbers = content.tuning.route;
 /** The UK master's own base chance of refusal (R-ROUTE-016). */
@@ -71,6 +71,23 @@ function toPence(game: Game, amount: number, currency: Currency): number {
   const rates = game.world().rates;
   const official = Object.fromEntries(Object.entries(rates).map(([key, rate]) => [key, rate.official])) as Record<ForeignCurrency, number>;
   return convertMinor(amount, currency, "GBP", official);
+}
+
+/** Naira in pence as a fee paid through the bank would carry it: a search for the most it pays, not the code's own arithmetic. */
+function flying(game: Game, kobo: number): number {
+  const rate = game.world().rates.GBP.official;
+  const cost = (pence: number) => {
+    const naira = mulDivCeil(pence, rate, 100);
+    return naira + bp(naira, content.tuning.wallet.bankChargeBp);
+  };
+  let low = 0;
+  let high = mulDiv(kobo, 100, rate) + 1;
+  while (high - low > 1) {
+    const middle = low + divFloor(high - low, 2);
+    if (cost(middle) <= kobo) low = middle;
+    else high = middle;
+  }
+  return low;
 }
 
 function routeLines(lines: ReportLine[]): ReportLine[] {
@@ -555,6 +572,45 @@ describe("funds", () => {
     expect(fundsShown(readOf(game), UK)).toBe(bankOnly - 5000 * UNIT + toPence(game, 1000 * UNIT, "USD") + toPence(game, 9000000 * UNIT, "NGN"));
   });
 
+  test("[R-ROUTE-010] given bank, cash and locked money in three currencies and family support, when the study route's money that flies is worked out, then pounds count in full, dollars in the bank at the official rate, the naira bank only as the fee path carries it, and held naira, the support and cash not at all", () => {
+    const game = life({
+      pockets: {
+        NGN: { bank: 3000000 * UNIT, cash: 500000 * UNIT },
+        GBP: { bank: 5000 * UNIT, cash: 900 * UNIT },
+        USD: { bank: 2000 * UNIT, cash: 700 * UNIT },
+      },
+    });
+    toKnown(game);
+    const flies = flying(game, 3000000 * UNIT) + 5000 * UNIT + toPence(game, 2000 * UNIT, "USD");
+    expect(flyingFundsShown(readOf(game), UK)).toBe(flies);
+    expect(flying(game, 3000000 * UNIT)).toBeLessThan(toPence(game, 3000000 * UNIT, "NGN"));
+    applyEffects(game, [
+      { type: "money/add", currency: "GBP", pocket: "bank", amount: 1000 * UNIT, reason: "held-funds", locked: true },
+      { type: "money/add", currency: "NGN", pocket: "bank", amount: 4000000 * UNIT, reason: "held-funds", locked: true },
+      { type: "money/add", currency: "USD", pocket: "bank", amount: 1000 * UNIT, reason: "held-funds", locked: true },
+      { type: "route/support", route: UK, currency: "NGN", amount: 9000000 * UNIT },
+    ]);
+    expect(flyingFundsShown(readOf(game), UK)).toBe(flies + 1000 * UNIT);
+    // The page's measure before the amendment still counts them all.
+    expect(fundsShown(readOf(game), UK)).toBeGreaterThan(flyingFundsShown(readOf(game), UK));
+  });
+
+  test("[R-ROUTE-010] given naira that pays a fee of exactly some pounds through the bank, when the study route's money that flies is worked out, then it shows those pounds and not a penny more", () => {
+    const game = life({ pockets: { NGN: { bank: 0, cash: 0 }, GBP: { bank: 0, cash: 0 }, USD: { bank: 0, cash: 0 } } });
+    toKnown(game);
+    expect(flyingFundsShown(readOf(game), UK)).toBe(0);
+    const rate = game.world().rates.GBP.official;
+    const pounds = 1000 * UNIT;
+    const naira = mulDivCeil(pounds, rate, 100);
+    const needed = naira + bp(naira, content.tuning.wallet.bankChargeBp);
+    applyEffects(game, [{ type: "money/add", currency: "NGN", pocket: "bank", amount: needed - 1, reason: "gift" }]);
+    expect(flyingFundsShown(readOf(game), UK)).toBe(pounds - 1);
+    applyEffects(game, [{ type: "money/add", currency: "NGN", pocket: "bank", amount: 1, reason: "gift" }]);
+    expect(check(readOf(game), { type: "money/can-pay", currency: "GBP", amount: pounds }).met).toBe(true);
+    expect(check(readOf(game), { type: "money/can-pay", currency: "GBP", amount: pounds + 1 }).met).toBe(false);
+    expect(flyingFundsShown(readOf(game), UK)).toBe(pounds);
+  });
+
   test("[R-ROUTE-010] given the family pledge's support effect, when it is carried out with the pledge's terms, then the support on the route reads the term and is told", () => {
     const game = life();
     const show = 4500000 * UNIT;
@@ -842,6 +898,19 @@ describe("decision day", () => {
     expect(uk(game).state).toBe("granted");
     expect(uk(game).visa).not.toBeNull();
     expect(routeLines(result.lines)).toContainEqual({ key: "line.route.granted", params: { route: UK }, tone: "good", big: true, attention: true, counts: [] });
+  });
+
+  test("[R-SHARE-001] given a visa granted, when the view is read through the month after, then the card is the granted card for that route with its figure; the month after it is gone", () => {
+    const game = life({ tuning: ALWAYS_GRANTED });
+    toApplied(game);
+    answerFirst(game);
+    game.endTurn();
+    expect(uk(game).state).toBe("granted");
+    const card = game.view().card;
+    expect(card).toMatchObject({ kind: "granted", route: UK, months: game.state.turn.month, name: null, chapter: game.state.chapter.current });
+    expect(card?.percent).toBe(game.view().routes.find((route) => route.id === UK)?.percent);
+    game.endTurn();
+    expect(game.view().card?.kind).not.toBe("granted");
   });
 
   test("[R-ROUTE-018] given a refusal, when decision day comes, then the route is known again, the surcharge is back at once, the deposit less the fee is booked, the school, confirmation and months held are cleared, and the offer stands", () => {

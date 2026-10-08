@@ -240,6 +240,15 @@ describe("pay and tax abroad", () => {
     expect(second.lines.some((line) => line.big === true && line.key.startsWith("line.activity."))).toBe(false);
   });
 
+  test("[R-SHARE-001] given the first pay abroad, when the view is read through the month after it, then the card is the first pay abroad's, with the month and no name; the next month's pay brings none", () => {
+    const game = careWorker();
+    expect(game.view().card?.kind).not.toBe("first-pay-abroad");
+    game.endTurn();
+    expect(game.view().card).toMatchObject({ kind: "first-pay-abroad", months: game.state.turn.month, name: null, chapter: game.state.chapter.current });
+    game.endTurn();
+    expect(game.view().card?.kind).not.toBe("first-pay-abroad");
+  });
+
   test("[R-ACTIVITY-001] [R-ABROAD-002] given a sponsor's job with no salary recorded, when its month is played, then nothing is paid and the job is still worked", () => {
     const game = flown(content);
     applyEffects(game, [{ type: "status/grant", status: SPONSORED, job: CARE }]);

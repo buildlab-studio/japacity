@@ -335,22 +335,19 @@ function tokenLapse(ctx: Ctx): BaseEvent[] {
 function december(ctx: Ctx): BaseEvent[] {
   if (ctx.state.place.where !== "abroad" || varOr(ctx, SEASON_DECEMBER) !== 1) return [];
   if (ctx.content.setpiece[DECEMBER] === undefined || ctx.state.setpiece.open !== null) return [];
-  if (openedThisTick(ctx)) return [];
+  // A second turn in the same December tick does not open it twice (R-PLACE-009).
+  if (ctx.state.place.decemberMonth === ctx.world.tick) return [];
   ctx.apply([{ type: "setpiece/open", setpiece: DECEMBER, route: null }], { source: DECEMBER, param: null, terms: {} });
-  return [];
+  if (!decemberOpen(ctx.state)) return [];
+  // `decemberMonth` holds the world tick, the world's month while one tick passes per month played; the
+  // character's month cannot tell a second turn in one December tick from a first turn a year on. Online a December
+  // spans many ticks, so the visit can open once in each tick of it that a turn ends in.
+  return record(ctx, [{ type: "place/december-opened", tick: ctx.world.tick }]);
 }
 
-/**
- * A second turn in the December tick finds the visit's opening in the report
- * of the turn before, with no new tick begun since. the slice has no
- * field for the month the visit last opened, so a character whose last turn
- * was the December turn a year ago, and who sends another command in this
- * December tick before ending the turn, misses this year's visit. A field
- * `place.decemberMonth` would close that.
- */
-function openedThisTick(ctx: Ctx): boolean {
-  if (ctx.state.tick !== ctx.world.tick) return false;
-  return ctx.state.turn.report?.lines.some((line) => line.key === "line.setpiece.opened" && line.params.setpiece === DECEMBER) ?? false;
+/** The visit may find nothing to ask and stay shut (R-SETPIECE-001). */
+function decemberOpen(state: State): boolean {
+  return state.setpiece.open?.entry === DECEMBER;
 }
 
 function month(ctx: Ctx): BaseEvent[] {
@@ -398,6 +395,8 @@ function evolve(slice: PlaceSlice, event: PlaceEvent): PlaceSlice {
     case "place/token-used":
     case "place/token-lapsed":
       return { ...slice, heldAbroad: null };
+    case "place/december-opened":
+      return { ...slice, decemberMonth: event.tick };
     default: {
       const never: never = event;
       throw new Error(`Unknown place event ${JSON.stringify(never)}.`);
@@ -430,6 +429,9 @@ function lines(event: PlaceEvent): ReportLine[] {
       return [line("token-used", { status: event.status }, "good", false)];
     case "place/token-lapsed":
       return [line("token-lapsed", { status: event.status, months: event.months }, "bad", true)];
+    // The set piece's own line tells the visit.
+    case "place/december-opened":
+      return [];
     default: {
       const never: never = event;
       throw new Error(`Unknown place event ${JSON.stringify(never)}.`);

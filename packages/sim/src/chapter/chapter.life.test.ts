@@ -55,7 +55,7 @@ describe("the send-off card", () => {
       months: game.state.turn.month,
       standing: game.state.quality[STANDING],
       topActivities: topActivities(game.state, game.content),
-      chapter: null,
+      chapter: SEND_OFF,
       name: null,
     });
     expect(card?.topActivities.length).toBe(3);
@@ -92,12 +92,17 @@ describe("the send-off card", () => {
     expect(game.view().card).toBeNull();
   });
 
-  test("[R-CHAPTER-006] given a chapter other than the send-off closing, when the view is read, then there is no send-off card", () => {
+  test("[R-CHAPTER-006] [R-SHARE-001] given a chapter other than the send-off closing, when the view is read, then there is no send-off card but the chapter card for it, gone once the next month ends", () => {
     const game = flownAda(content);
-    game.endTurn();
+    const after = game.endTurn();
+    expect(closed(after)).toEqual([{ type: "chapter/closed", chapter: SEND_OFF, next: LANDING }]);
+    // The send-off's close has its own card, shown in the flight month.
+    expect(game.view().card?.kind).not.toBe("chapter");
     const result = playUntil(game, SECURE);
     expect(closed(result)).toEqual([{ type: "chapter/closed", chapter: LANDING, next: SECURE }]);
-    expect(game.view().card).toBeNull();
+    expect(game.view().card).toMatchObject({ kind: "chapter", chapter: LANDING, months: game.state.turn.month, name: null });
+    monthAbroad(game);
+    expect(game.view().card?.kind).not.toBe("chapter");
   });
 });
 

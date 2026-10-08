@@ -2,6 +2,7 @@
 // held only abroad, with its clocks: expiry, the job clock, settling.
 import { worldVar } from "../engine/check";
 import { mulDiv } from "../engine/int";
+import { cardOf, cardsAllowed, reportLines } from "../chapter/chapter.card";
 import type { RegisteredKind } from "../engine/kind";
 import { emit } from "../engine/kind";
 import { reject } from "../engine/reject";
@@ -267,7 +268,7 @@ function renew(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (now === null) return reject("not-legal", "No status is held.");
   const { held, entry } = now;
   if (entry.renewMonths <= 0 || held.expiresMonth === null) return reject("not-legal", `${held.entry} does not renew.`);
-  // the Gulf contract renews by the employer's choice, a draw the content gives no chance for, so the player cannot ask.
+  // R-STATUS-006 as amended: a status the employer renews (`renewBp`, no fee var) is never renewed at the player's asking.
   if (entry.renewFeeVar === null) return reject("not-legal", `${held.entry} renews only by the employer's choice.`);
   const job = ctx.state.activity.job;
   if (entry.work === "one-employer" && (job === null || (held.job !== null && held.job !== job))) {
@@ -359,9 +360,24 @@ function settle(ctx: Ctx): BaseEvent[] {
   return [];
 }
 
+/**
+ * R-STATUS-006 as amended: in the contract's last month the employer renews a
+ * status whose entry has `renewBp`, on the `status` stream, for no fee. A lost
+ * draw leaves it to lapse the month after, as before.
+ */
+function employerRenew(ctx: Ctx): BaseEvent[] {
+  const now = currentOf(ctx);
+  if (now === null) return [];
+  const { held, entry } = now;
+  if (entry.renewBp === undefined || entry.renewMonths <= 0 || held.expiresMonth === null) return [];
+  if (ctx.state.turn.month !== held.expiresMonth - 1) return [];
+  if (!ctx.random.chance("status", entry.renewBp)) return [];
+  return record(ctx, [{ type: "status/employer-renewed", status: held.entry, expiresMonth: held.expiresMonth + entry.renewMonths, months: entry.renewMonths }]);
+}
+
 /** Detection first, so a status that lapses this month is not also found out this month. */
 function clocks(ctx: Ctx): BaseEvent[] {
-  return [...detect(ctx), ...runClock(ctx), ...expire(ctx), ...settle(ctx)];
+  return [...detect(ctx), ...runClock(ctx), ...employerRenew(ctx), ...expire(ctx), ...settle(ctx)];
 }
 
 /** R-STATUS-007: a month held, and a lawful month where the status counts. */
@@ -421,6 +437,7 @@ function evolve(slice: StatusSlice, event: StatusEvent): StatusSlice {
     case "status/clock-cleared":
       return withCurrent(slice, event, (held) => ({ ...held, clock: null }));
     case "status/renewed":
+    case "status/employer-renewed":
       return withCurrent(slice, event, (held) => ({ ...held, expiresMonth: event.expiresMonth }));
     case "status/aged":
       return withCurrent(slice, event, (held) => ({
@@ -464,6 +481,13 @@ function grantedLines(event: Extract<StatusEvent, { type: "status/granted" }>): 
   }
 }
 
+/** R-SHARE-001: the secured card through the month after settlement or citizenship is granted (R-STATUS-007). */
+export function securedCard(read: ReadCtx): PlayerView["card"] {
+  if (!cardsAllowed(read)) return null;
+  const secured = [...reportLines(read, "line.status.settled"), ...reportLines(read, "line.status.citizen")];
+  return secured.length === 0 ? null : cardOf(read, "secured");
+}
+
 function lines(event: StatusEvent): ReportLine[] {
   switch (event.type) {
     case "status/granted":
@@ -485,6 +509,8 @@ function lines(event: StatusEvent): ReportLine[] {
           false,
         ),
       ];
+    case "status/employer-renewed":
+      return [line("employer-renewed", { status: event.status, months: event.months }, "good", true)];
     case "status/aged":
       // A month on the counter shows in the view; a line each month would only repeat it.
       return [];

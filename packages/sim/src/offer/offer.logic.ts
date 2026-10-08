@@ -467,6 +467,19 @@ function openEffect(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
   return [...events, ...openOffer(ctx, entry, cause.terms)];
 }
 
+/**
+ * The effect `offer/close` (R-PEOPLE-034): the open offer of the named entry
+ * closes unanswered, with no choice recorded and nothing paid. R-OFFER-007
+ * keeps one open offer to an entry, so there is at most one.
+ * the page does not say what an offer not open does; read as nothing,
+ * since the other life's handling may arrive after this copy lapsed or was answered.
+ */
+function closeEffect(ctx: Ctx, effect: Effect): BaseEvent[] {
+  if (effect.type !== "offer/close") throw new Error(`offer/close cannot carry out ${effect.type}.`);
+  const open = Object.values(ctx.state.offer.items).find((item) => item.entry === effect.offer);
+  return open === undefined ? [] : record(ctx, { type: "offer/closed", id: open.id, entry: open.entry });
+}
+
 // ---------------------------------------------------------------------------
 // Evolve, lines, invariants, view
 // ---------------------------------------------------------------------------
@@ -490,6 +503,7 @@ function evolve(slice: OfferSlice, event: OfferEvent): OfferSlice {
     case "offer/taken":
     case "offer/lapsed":
     case "offer/replaced":
+    case "offer/closed":
       return without(slice, event.id);
     default: {
       const never: never = event;
@@ -513,6 +527,8 @@ function lines(event: OfferEvent): ReportLine[] {
       return [line("line.offer.lapsed", event.choice === null ? { offer: event.entry } : { offer: event.entry, choice: event.choice }, false)];
     case "offer/replaced":
       return [line("line.offer.replaced", { offer: event.entry }, false)];
+    case "offer/closed":
+      return [line("line.offer.closed", { offer: event.entry }, false)];
     default: {
       // Tests that stand in for this kind send events of their own through these lines, so an
       // unknown event says nothing rather than throwing.
@@ -566,7 +582,7 @@ export const offerKind: RegisteredKind<OfferSlice, OfferEvent> = {
   kind: "offer",
   initial: () => ({ items: {}, lastOpened: {}, timesOpened: {} }),
   commands: { "offer/choose": choose },
-  effects: { "offer/open": openEffect },
+  effects: { "offer/open": openEffect, "offer/close": closeEffect },
   phases: { expire, "come-up": comeUp },
   evolve,
   lines,

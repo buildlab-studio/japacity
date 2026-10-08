@@ -1,6 +1,7 @@
 // The Friday draw as the character sees it: docs/rules/lottery.md. The server
 // runs the draw and publishes it on the world; this kind holds the tickets
 // bought, pays what the authority says, and shows the result once.
+import { cardOf, cardsAllowed } from "../chapter/chapter.card";
 import type { RegisteredKind } from "../engine/kind";
 import { reject } from "../engine/reject";
 import type {
@@ -161,6 +162,17 @@ function view(read: ReadCtx): Pick<PlayerView, "lottery"> {
       last: draw.last,
     },
   };
+}
+
+/**
+ * R-SHARE-001: the draw-win card from the payment until the draw is told in a
+ * turn's news (R-LOTTERY-016). The server pays before it publishes the result
+ * (R-LOTTERY-015), so a draw paid and not yet seen is a win still fresh.
+ */
+export function drawWinCard(read: ReadCtx): PlayerView["card"] {
+  const { paid, seen } = read.state.lottery;
+  if (!cardsAllowed(read) || paid === null || (seen !== null && seen >= paid)) return null;
+  return cardOf(read, "draw-win");
 }
 
 function isDraw(value: number | null): boolean {

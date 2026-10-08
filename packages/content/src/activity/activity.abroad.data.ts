@@ -24,6 +24,10 @@ const IN_UAE: Requirement = { type: "place/is", where: "abroad", country: "count
 const IN_ITALY: Requirement = { type: "place/is", where: "abroad", country: "country.italy" };
 const NO_PHONE_CONTRACT: Requirement = { type: "not", of: { type: "obligation/has", obligationType: "phone" } };
 
+function noFlat(flat: Id<"obligation">): Requirement {
+  return { type: "not", of: { type: "obligation/has", obligationType: "rent", obligation: flat } };
+}
+
 function wellbeing(amount: number): Effect {
   return { type: "quality/add", quality: "quality.wellbeing", amount };
 }
@@ -384,9 +388,8 @@ export const abroadActivityTable: Record<Id<"activity">, ActivityEntry> = {
     },
   ),
   // R-ABROAD-003: credit 20 and one month's rent as the deposit, returned on leaving.
-  // It closes the room and opens the flat.
-  // a flat held can be taken again, a new deposit and all: `obligation/has` reads only a type, and the room and the flat are both `rent`.
-  "activity.rent-flat-uk": free("activity.rent-flat-uk", "country.uk", [IN_UK, { type: "credit/min", value: 20 }], {
+  // It closes the room and opens the flat, and is not offered while the flat is held.
+  "activity.rent-flat-uk": free("activity.rent-flat-uk", "country.uk", [IN_UK, { type: "credit/min", value: 20 }, noFlat("obligation.rent-flat-uk")], {
     cost: [{ currency: "GBP", amount: pounds(950), reason: "rent" }],
     effects: [
       { type: "obligation/close", obligationType: "rent" },
@@ -439,7 +442,7 @@ export const foreignPocketActivityTable: Record<Id<"activity">, ActivityEntry> =
     cost: [{ currency: "CAD", amount: cad(60), reason: "study" }],
     effects: [gain("quality.tech", 4), wellbeing(-2)],
   }),
-  "activity.rent-flat-ca": free("activity.rent-flat-ca", "country.canada", [IN_CANADA, { type: "credit/min", value: 20 }], {
+  "activity.rent-flat-ca": free("activity.rent-flat-ca", "country.canada", [IN_CANADA, { type: "credit/min", value: 20 }, noFlat("obligation.rent-flat-ca")], {
     cost: [{ currency: "CAD", amount: cad(1700), reason: "rent" }],
     effects: [
       { type: "obligation/close", obligationType: "rent" },

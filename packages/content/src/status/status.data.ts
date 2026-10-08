@@ -179,9 +179,9 @@ const wholeLifeStatuses: Record<Id<"status">, StatusEntry> = {
     work: "one-employer",
     // Leaving the employer lapses it at once, to uae-irregular (R-STATUS-009).
     lapsesAtOnce: true,
-    // renewal is the employer's choice and the employer pays, so there is no
-    // fee var; the draw the page names has no field (reported).
+    // R-STATUS-006 as amended: the employer renews, and pays, at this chance in the contract's last month.
     renewMonths: 24,
+    renewBp: 6000,
     holdsPassport: true,
   },
   "status.uae-irregular": {

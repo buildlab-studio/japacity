@@ -2,6 +2,7 @@
 // short run of questions that blocks the next turn until it is answered: the
 // credibility interview a visa application opens, the road's scenes and the
 // December visit.
+import { cardOf, cardsAllowed, reportLines } from "../chapter/chapter.card";
 import { check } from "../engine/check";
 import type { RegisteredKind } from "../engine/kind";
 import { emit } from "../engine/kind";
@@ -127,6 +128,18 @@ function answer(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   return events;
 }
 
+/**
+ * The effect `setpiece/close`: the open set piece, when it is the one named,
+ * closes unscored. No score reaches a route and `answered` does not count it,
+ * since nothing was answered (a flight during a road scene, R-ROAD-004).
+ */
+function closeSetpiece(ctx: Ctx, id: Id<"setpiece">): BaseEvent[] {
+  const open = ctx.state.setpiece.open;
+  if (open === null || open.entry !== id) return [];
+  const dropped: SetpieceEvent = { type: "setpiece/dropped", entry: open.entry, route: open.route };
+  return emit(ctx, "setpiece", [dropped]);
+}
+
 function evolve(slice: SetpieceSlice, event: SetpieceEvent): SetpieceSlice {
   switch (event.type) {
     case "setpiece/opened":
@@ -141,6 +154,8 @@ function evolve(slice: SetpieceSlice, event: SetpieceEvent): SetpieceSlice {
     }
     case "setpiece/closed":
       return { ...slice, open: null, answered: { ...slice.answered, [event.entry]: (slice.answered[event.entry] ?? 0) + 1 } };
+    case "setpiece/dropped":
+      return { ...slice, open: null };
     default: {
       const never: never = event;
       throw new Error(`Unknown set piece event ${JSON.stringify(never)}.`);
@@ -161,11 +176,28 @@ function lines(event: SetpieceEvent, state: State): ReportLine[] {
       return [];
     case "setpiece/closed":
       return [{ key: "line.setpiece.closed", params: { setpiece: event.entry }, tone: "plain", attention: false, counts: [] }];
+    case "setpiece/dropped":
+      return [{ key: "line.setpiece.dropped", params: { setpiece: event.entry }, tone: "plain", attention: false, counts: [] }];
     default: {
       const never: never = event;
       throw new Error(`Unknown set piece event ${JSON.stringify(never)}.`);
     }
   }
+}
+
+/**
+ * R-SHARE-001: the December card, once the visit opened at the last turn's end
+ * has closed with the going answer given (R-LUCK-008), through the rest of that month.
+ * The going question is the one this scene asks where the character is now.
+ */
+export function decemberCard(read: ReadCtx): PlayerView["card"] {
+  if (!cardsAllowed(read) || read.state.setpiece.open?.entry === DECEMBER) return null;
+  const opened = reportLines(read, "line.setpiece.opened").some((line) => line.params.setpiece === DECEMBER);
+  const entry = read.content.setpiece[DECEMBER];
+  if (!opened || entry === undefined) return null;
+  const given = read.state.setpiece.given[DECEMBER] ?? {};
+  const asked = entry.questions.filter((question) => question.when.every((requirement) => check(read, requirement).met));
+  return asked.some((question) => given[question.id] === GO) ? cardOf(read, "december") : null;
 }
 
 /**
@@ -222,6 +254,10 @@ export const setpieceKind: RegisteredKind<SetpieceSlice, SetpieceEvent> = {
     "setpiece/open": (ctx, effect) => {
       if (effect.type !== "setpiece/open") throw new Error(`The set piece kind cannot open from ${effect.type}.`);
       return openSetpiece(ctx, effect.setpiece, effect.route);
+    },
+    "setpiece/close": (ctx, effect) => {
+      if (effect.type !== "setpiece/close") throw new Error(`The set piece kind cannot close from ${effect.type}.`);
+      return closeSetpiece(ctx, effect.setpiece);
     },
   },
   evolve,
