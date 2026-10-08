@@ -1,6 +1,7 @@
 // The view: all the interface ever sees (R-ENGINE-007). Every kind gives its
 // part and the engine joins them, adds japacity, and refuses to hand out a
 // view with a key missing.
+import { sendOffCard } from "../chapter/chapter.logic";
 import { japacity } from "../japacity/japacity.logic";
 import { registry } from "../kinds";
 import { roadCard } from "../route/gates/road";
@@ -70,9 +71,10 @@ function eraView(read: ReadCtx): PlayerView["era"] {
 
 /** The view for a given registry. Tests use this to swap kinds in. */
 export function viewWith(kinds: Registry, read: ReadCtx): PlayerView {
-  // The engine gives the parts no kind owns: japacity, the world's era, and the card (built by chapter or route later).
-  // R-ROAD-011: the road's real-story card, or its ending card, when one is due.
-  const joined: Partial<PlayerView> = { japacity: japacity(read), era: eraView(read), card: roadCard(read) };
+  // The engine gives the parts no kind owns: japacity, the world's era, and the card.
+  // The card's one source: the send-off card the month chapter 4 closes (R-CHAPTER-006), else
+  // the road's real-story card or its ending card when one is due (R-ROAD-011).
+  const joined: Partial<PlayerView> = { japacity: japacity(read), era: eraView(read), card: sendOffCard(read) ?? roadCard(read) };
   for (const kind of kinds) {
     const part = kind.view?.(read) ?? {};
     for (const key of Object.keys(part)) {

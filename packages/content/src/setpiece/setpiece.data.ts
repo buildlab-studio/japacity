@@ -1,10 +1,129 @@
 // From docs/rules/route.md, "Entry: setpiece.credibility-interview"; road.md for the
 // road's two set pieces; return.md for the December visit.
-import type { Id, SetpieceEntry } from "@japacity/sim";
+import { int, type Currency, type Effect, type Id, type Requirement, type SetpieceAnswer, type SetpieceQuestion, type SetpieceEntry } from "@japacity/sim";
 
-import { pct } from "../units";
+import { countryTable } from "../country/country.data";
+import { tuning } from "../tuning/tuning.data";
+import { naira, pct } from "../units";
 
 const UK: Id<"route"> = "route.uk-masters";
+
+// ---------------------------------------------------------------------------
+// The December visit: return.md R-RETURN-005
+// ---------------------------------------------------------------------------
+
+/** The countries the December visit is flown from, with the suffix their questions carry. */
+export const DECEMBER_COUNTRIES: { country: Id<"country">; suffix: string }[] = [
+  { country: "country.uk", suffix: "uk" },
+  { country: "country.canada", suffix: "ca" },
+  { country: "country.uae", suffix: "uae" },
+  { country: "country.italy", suffix: "it" },
+];
+
+/**
+ * The page's spending, in naira, with what each answer moves. The answer that
+ * costs nothing comes first, as "not this year" does on the go question.
+ */
+const SPENDING: { question: string; answers: { id: string; naira: number; gains: [Id<"quality">, number][] }[] }[] = [
+  {
+    question: "party",
+    answers: [
+      { id: "home", naira: 0, gains: [["quality.standing", -3], ["quality.wellbeing", 1]] },
+      { id: "big", naira: 400000, gains: [["quality.standing", 6], ["quality.wellbeing", 6], ["quality.network", 4]] },
+      { id: "small", naira: 120000, gains: [["quality.standing", 2], ["quality.wellbeing", 4], ["quality.network", 2]] },
+    ],
+  },
+  {
+    question: "gifts",
+    answers: [
+      { id: "none", naira: 0, gains: [["quality.standing", -6], ["quality.wellbeing", -3]] },
+      { id: "all", naira: 600000, gains: [["quality.standing", 8], ["quality.wellbeing", 2]] },
+      { id: "some", naira: 200000, gains: [["quality.standing", 3]] },
+    ],
+  },
+  {
+    question: "look",
+    answers: [
+      { id: "plain", naira: 0, gains: [["quality.standing", -1]] },
+      { id: "outfit", naira: 250000, gains: [["quality.standing", 4], ["quality.wellbeing", 3]] },
+    ],
+  },
+];
+
+function countryOf(id: Id<"country">) {
+  const entry = countryTable[id];
+  if (entry === undefined) throw new Error(`The December visit names ${id}, which is not a country.`);
+  return entry;
+}
+
+/** R-RETURN-005 and R-PLACE-006: the fare both ways, each way times the December factor, in the country's currency. */
+export function decemberFare(id: Id<"country">): { currency: Currency; amount: number } {
+  const entry = countryOf(id);
+  return { currency: entry.currency, amount: 2 * int.bp(entry.fare, entry.decemberFactorBp) };
+}
+
+/**
+ * A naira amount of the page in the country's currency, in whole units.
+ * the page pays it "at the official rate", and an answer's effect
+ * holds a fixed amount, so it is converted once at the content's starting
+ * official rate (`tuning.rate.start`).
+ */
+export function decemberPrice(id: Id<"country">, whole: number): { currency: Currency; amount: number } {
+  const { currency } = countryOf(id);
+  if (currency === "NGN" || whole === 0) return { currency, amount: 0 };
+  const units = int.mulDiv(naira(whole), 1, tuning.rate.start[currency]);
+  return { currency, amount: units * int.MINOR_PER_UNIT };
+}
+
+function gain(quality: Id<"quality">, amount: number): Effect {
+  return { type: "quality/add", quality, amount };
+}
+
+function answer(id: string, effects: Effect[]): SetpieceAnswer {
+  return { id, score: 0, when: [], thenScore: null, effects };
+}
+
+/**
+ * One country's December: first whether to go, then the party, the gifts and
+ * the look, each answer paying in the country's currency (reason `social` for
+ * the party and the look, `family` for the gifts) and moving the qualities the
+ * page gives. the set piece kind draws the order of the questions on
+ * `visa` and closes only when every question drawn is answered, so `go` is not
+ * always first and `stay` cannot end the scene; and an answer the pocket cannot
+ * cover is still allowed, its debit taking nothing while its gains apply. The
+ * set piece kind needs a fixed order, an answer that closes the scene, and
+ * answers judged as R-OFFER-003 judges choices.
+ */
+export function decemberQuestions({ country, suffix }: { country: Id<"country">; suffix: string }, index: number): SetpieceQuestion[] {
+  const here: Requirement[] =
+    index === 0
+      ? // the first country's questions are asked wherever the character is in none of the
+        // others, so the scene still has questions when an effect opens it at home.
+        DECEMBER_COUNTRIES.slice(1).map((other): Requirement => ({ type: "not", of: { type: "place/is", where: "abroad", country: other.country } }))
+      : [{ type: "place/is", where: "abroad", country }];
+  const fare = decemberFare(country);
+  const go: SetpieceQuestion = {
+    id: `go-${suffix}`,
+    when: here,
+    answers: [
+      answer("stay", []),
+      answer("go", [{ type: "money/take", currency: fare.currency, pocket: "any", amount: fare.amount, reason: "fare" }]),
+    ],
+  };
+  const spending = SPENDING.map(
+    (question): SetpieceQuestion => ({
+      id: `${question.question}-${suffix}`,
+      when: here,
+      answers: question.answers.map((option) => {
+        const price = decemberPrice(country, option.naira);
+        const reason = question.question === "gifts" ? "family" : "social";
+        const paid: Effect[] = price.amount === 0 ? [] : [{ type: "money/take", currency: price.currency, pocket: "any", amount: price.amount, reason }];
+        return answer(option.id, [...paid, ...option.gains.map(([quality, amount]) => gain(quality, amount))]);
+      }),
+    }),
+  );
+  return [go, ...spending];
+}
 
 export const setpieceTable: Record<Id<"setpiece">, SetpieceEntry> = {
   "setpiece.credibility-interview": {
@@ -155,38 +274,13 @@ export const setpieceTable: Record<Id<"setpiece">, SetpieceEntry> = {
     ],
   },
 
-  // return.md, "The December set piece". the amounts and the standing, wellbeing and network
-  // changes have no field on an answer, so they are not here; every answer scores 0.
+  // return.md R-RETURN-005, "The December set piece". The questions are made for each country by
+  // `decemberQuestions` below, each asked only in its own country, so every amount is in that
+  // country's currency.
   "setpiece.december": {
     id: "setpiece.december",
-    ask: 3,
-    questions: [
-      {
-        id: "party",
-        when: [],
-        answers: [
-          { id: "big", score: 0, when: [], thenScore: null, effects: [] },
-          { id: "small", score: 0, when: [], thenScore: null, effects: [] },
-          { id: "home", score: 0, when: [], thenScore: null, effects: [] },
-        ],
-      },
-      {
-        id: "gifts",
-        when: [],
-        answers: [
-          { id: "all", score: 0, when: [], thenScore: null, effects: [] },
-          { id: "some", score: 0, when: [], thenScore: null, effects: [] },
-          { id: "none", score: 0, when: [], thenScore: null, effects: [] },
-        ],
-      },
-      {
-        id: "look",
-        when: [],
-        answers: [
-          { id: "outfit", score: 0, when: [], thenScore: null, effects: [] },
-          { id: "plain", score: 0, when: [], thenScore: null, effects: [] },
-        ],
-      },
-    ],
+    // Every question whose `when` holds is asked: the four of the country the character is in.
+    ask: 4,
+    questions: DECEMBER_COUNTRIES.flatMap(decemberQuestions),
   },
 };

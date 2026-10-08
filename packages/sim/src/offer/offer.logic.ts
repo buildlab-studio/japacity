@@ -2,8 +2,8 @@
 // choices and a date: a family request, a job, a loan, a man who says he can
 // arrange things. Whether an offer is a fraud is fixed when it opens and kept
 // in `secret`, which the view never carries (R-OFFER-006, R-ENGINE-007).
-import { check, resolveAmount } from "../engine/check";
-import { BP_WHOLE, clamp, divFloor, valueInKobo } from "../engine/int";
+import { check, checkWith, resolveAmount } from "../engine/check";
+import { BP_WHOLE, bp, clamp, divFloor, valueInKobo } from "../engine/int";
 import type { RegisteredKind } from "../engine/kind";
 import { emit } from "../engine/kind";
 import { reject } from "../engine/reject";
@@ -34,10 +34,17 @@ import type {
 } from "../engine/types";
 import { routePercent } from "../japacity/japacity.logic";
 import { healthComeUp } from "./health";
+import { appliesHere } from "../place/place.logic";
 import type { OfferEvent } from "./offer.events";
+import { luckTerms, markedChanceBp, rescueDue, WHIP_ROUND } from "./offer.luck";
 
-/** The groups that are rolled, in the order R-OFFER-001 takes them. `job` is never rolled. The road comes last (R-ROAD-002). */
-const ROLL_ORDER: readonly OfferEntry["group"][] = ["money", "life", "family", "road"];
+/**
+ * The groups that are rolled, in the order R-OFFER-001 takes them. `job` is
+ * never rolled. Life abroad and coming home follow family; the road comes last
+ * (R-ROAD-002).
+ */
+const ROLL_ORDER: readonly OfferEntry["group"][] = ["money", "life", "family", "abroad", "return", "road"];
+
 
 /** Judges one requirement with the terms in hand. Inside a step it is `ctx.check`; outside, the engine's `check`. */
 type Judge = (requirement: Requirement, terms: Terms) => RequirementResult;
@@ -122,6 +129,26 @@ function fixTerm(ctx: Ctx, spec: TermSpec): number {
 }
 
 /**
+ * R-ABROAD-007: the family expects more once a relative is abroad. A request
+ * names what it asks in its terms, and every term a `money/take` of its
+ * choices reads is scaled by the factor when it opens abroad, so the view, the
+ * check that it can be paid and the payment all read the same figure.
+ */
+function scaleAsked(entry: OfferEntry, terms: Terms, factorBp: number): void {
+  const asked = new Set<string>();
+  for (const choice of entry.choices) {
+    for (const effect of [...choice.effects, ...(choice.fraudEffects ?? [])]) {
+      if (effect.type === "money/take" && typeof effect.amount === "object" && "term" in effect.amount) asked.add(effect.amount.term);
+    }
+  }
+  // Each term once, however many choices read it.
+  for (const name of asked) {
+    const value = terms[name];
+    if (typeof value === "number") terms[name] = bp(value, factorBp);
+  }
+}
+
+/**
  * Opens an offer (R-OFFER-002): terms, expiry, the hidden fraud on the `fraud`
  * stream, then each sign on the `offer` stream by the chance for what the
  * offer really is. `extra` terms come with the effect that opened it
@@ -130,6 +157,7 @@ function fixTerm(ctx: Ctx, spec: TermSpec): number {
 function openOffer(ctx: Ctx, entry: OfferEntry, extra: Terms): BaseEvent[] {
   const own: Terms = {};
   for (const [name, spec] of Object.entries(entry.terms)) own[name] = fixTerm(ctx, spec);
+  if (entry.group === "family" && ctx.state.place.where === "abroad") scaleAsked(entry, own, ctx.content.tuning.remit.abroadBp);
   const fraud = ctx.random.chance("fraud", entry.fraudBp);
   const signs = entry.signs.filter((sign) => ctx.random.chance("offer", fraud ? sign.fraudBp : sign.honestBp)).map((sign) => sign.key);
   const month = ctx.state.turn.month;
@@ -139,7 +167,8 @@ function openOffer(ctx: Ctx, entry: OfferEntry, extra: Terms): BaseEvent[] {
     openedMonth: month,
     expiresMonth: month + entry.expiresAfter,
     // a term handed over by the effect wins over one of the same name. None clash in content.
-    terms: { ...own, ...extra },
+    // A luck offer's payment is read from the tuning as a term (R-LUCK-002, 007).
+    terms: { ...own, ...luckTerms(readOf(ctx), entry.id), ...extra },
     signs,
     secret: { fraud },
   };
@@ -348,13 +377,53 @@ export function pressureChanceBp(read: ReadCtx, entry: OfferEntry, judge: (requi
   return clamp(chance, 0, BP_WHOLE);
 }
 
+/**
+ * R-RETURN-003: the returnee group is in the pool for the tuning's months
+ * after the last return, and its entries' `when` is judged against that
+ * return alone. the record is narrowed to the last return for the
+ * judging, so `place/returned` in such a `when` reads the shape of the last
+ * return, not of any earlier one. Null: outside the window.
+ */
+function lastReturnRead(ctx: Ctx): ReadCtx | null {
+  const { place, turn } = ctx.state;
+  const last = place.returns[place.returns.length - 1];
+  if (last === undefined || turn.month - last.month > ctx.content.tuning.return.offerMonths) return null;
+  return { state: { ...ctx.state, place: { ...place, returns: [last] } }, world: ctx.world, content: ctx.content };
+}
+
+/** An entry's conditions: where it applies (R-PLACE-003), then its `when`, the returnee group's against the last return. */
+function conditionsHold(ctx: Ctx, entry: OfferEntry, terms: Terms): boolean {
+  if (!appliesHere(entry, ctx.state)) return false;
+  if (entry.group !== "return") return entry.when.every((requirement) => ctx.check(requirement, terms).met);
+  const read = lastReturnRead(ctx);
+  return read !== null && entry.when.every((requirement) => checkWith(read, requirement, terms).met);
+}
+
 /** Whether an entry is rolled this month (R-OFFER-001): conditions, not open, cooldown passed, under its limit. */
 function mayRoll(ctx: Ctx, entry: OfferEntry): boolean {
   if (switchedOff(ctx.content, entry)) return false;
   if (isOpen(ctx.state, entry.id) || reachedLimit(ctx.state, entry)) return false;
   const last = ctx.state.offer.lastOpened[entry.id];
   if (last !== undefined && ctx.state.turn.month - last < entry.cooldown) return false;
-  return entry.when.every((requirement) => ctx.check(requirement).met);
+  return conditionsHold(ctx, entry, {});
+}
+
+/** The chance an entry rolls at this month: the road's pressure, then the luck marks and the dry spell (R-LUCK-003, 004). */
+function rollChanceBp(ctx: Ctx, entry: OfferEntry): number {
+  const read = readOf(ctx);
+  return markedChanceBp(read, entry, pressureChanceBp(read, entry, (requirement) => ctx.check(requirement)));
+}
+
+/**
+ * R-LUCK-002: the whip-round is opened by its rule, never rolled, after the
+ * month's rolls so it moves none of them. It respects its entry's place, its
+ * `when` and its limit of one, and none of the monthly limits.
+ */
+function whipRound(ctx: Ctx): BaseEvent[] {
+  const entry = ctx.content.offer[WHIP_ROUND];
+  if (entry === undefined || isOpen(ctx.state, entry.id) || reachedLimit(ctx.state, entry)) return [];
+  if (!rescueDue(readOf(ctx)) || !conditionsHold(ctx, entry, {})) return [];
+  return openOffer(ctx, entry, {});
 }
 
 function comeUp(ctx: Ctx): BaseEvent[] {
@@ -364,12 +433,13 @@ function comeUp(ctx: Ctx): BaseEvent[] {
   for (const entry of rollOrder(ctx.content)) {
     // Checked before each roll: an offer opened this month counts toward both limits.
     if (opened >= maxNewPerMonth || Object.keys(ctx.state.offer.items).length >= maxOpen) break;
-    if (!mayRoll(ctx, entry) || !ctx.random.chance("offer", pressureChanceBp(readOf(ctx), entry, (requirement) => ctx.check(requirement)))) continue;
+    if (!mayRoll(ctx, entry) || !ctx.random.chance("offer", rollChanceBp(ctx, entry))) continue;
     events.push(...openOffer(ctx, entry, {}));
     opened += 1;
   }
   // R-HEALTH-002, R-HEALTH-003: illness, its relapse and its worse turn, on the stream `health`.
   events.push(...healthComeUp(ctx, (entry, terms) => openOffer(ctx, entry, terms)));
+  events.push(...whipRound(ctx));
   return events;
 }
 
@@ -381,7 +451,7 @@ function openEffect(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
   if (effect.type !== "offer/open") throw new Error(`offer/open cannot carry out ${effect.type}.`);
   const entry = entryOf(ctx.content, effect.offer);
   if (switchedOff(ctx.content, entry)) return [];
-  if (!entry.when.every((requirement) => ctx.check(requirement, cause.terms).met)) return [];
+  if (!conditionsHold(ctx, entry, cause.terms)) return [];
   if (reachedLimit(ctx.state, entry)) return [];
   // R-OFFER-007: the entry already open closes unanswered, with no lapse effects, and the new one
   // opens, so a job landed while an earlier job offer waits is the one on the table.
@@ -497,3 +567,6 @@ export const offerKind: RegisteredKind<OfferSlice, OfferEvent> = {
   // R-ROAD-012: the road's pitches sit under every other offer.
   view: (read) => ({ offers: [...openItems(read.state)].sort((a, b) => Number(roadGroup(read, a)) - Number(roadGroup(read, b))).map((item) => offerView(read, item)) }),
 };
+
+/** R-LUCK-001: for the content check. */
+export { luckReadsMoney } from "./offer.luck";

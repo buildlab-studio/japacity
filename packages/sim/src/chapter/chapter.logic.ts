@@ -4,8 +4,15 @@
 import { check } from "../engine/check";
 import type { RegisteredKind } from "../engine/kind";
 import { emit } from "../engine/kind";
-import type { BaseEvent, ChapterEntry, ChapterSlice, Content, Ctx, Id, ReadCtx, ReportLine, Requirement, RequirementResult } from "../engine/types";
+import type { BaseEvent, ChapterEntry, ChapterSlice, Content, Ctx, Id, PlayerView, ReadCtx, ReportLine, Requirement, RequirementResult, State } from "../engine/types";
+import { routePercent } from "../japacity/japacity.logic";
 import type { ChapterEvent } from "./chapter.events";
+
+/** The chapter whose close makes the send-off card (R-CHAPTER-006). */
+const SEND_OFF: Id<"chapter"> = "chapter.send-off";
+const STANDING: Id<"quality"> = "quality.standing";
+/** The card names the three lines the player chose most. */
+const TOP_ACTIVITIES = 3;
 
 /** Every chapter in content, by order. */
 function byOrder(content: Content): ChapterEntry[] {
@@ -83,6 +90,53 @@ function lines(event: ChapterEvent): ReportLine[] {
 function judgeDone(read: ReadCtx, requirement: Requirement): RequirementResult {
   if (requirement.type !== "chapter/done") throw new Error(`The chapter kind cannot judge ${requirement.type}.`);
   return { met: read.state.chapter.done.includes(requirement.chapter) };
+}
+
+// ---------------------------------------------------------------------------
+// The send-off card: R-CHAPTER-006
+// ---------------------------------------------------------------------------
+
+/**
+ * The activities the player gave the most months or slots to, most first, then
+ * by id. the state keeps no history of slots played, so this counts
+ * the months in each job and the attempts the activity kind keeps in
+ * `activity.tenure`, plus the free slots of the month just played
+ * (`activity.lastSlots`). A count of every slot needs a field in the state.
+ */
+export function topActivities(state: State): Id<"activity">[] {
+  const counts = new Map<Id<"activity">, number>();
+  for (const [id, months] of Object.entries(state.activity.tenure) as [Id<"activity">, number][]) {
+    if (months > 0) counts.set(id, (counts.get(id) ?? 0) + months);
+  }
+  for (const pick of state.activity.lastSlots) counts.set(pick.activity, (counts.get(pick.activity) ?? 0) + 1);
+  return [...counts.entries()]
+    .sort(([a, x], [b, y]) => y - x || (a < b ? -1 : a > b ? 1 : 0))
+    .slice(0, TOP_ACTIVITIES)
+    .map(([id]) => id);
+}
+
+/** True when the report just stored holds the close of the send-off: the card is due for that month. */
+function sendOffJustClosed(state: State): boolean {
+  return state.turn.report?.lines.some((line) => line.key === "line.chapter.closed" && line.params.chapter === SEND_OFF) ?? false;
+}
+
+/**
+ * R-CHAPTER-006: the card the month chapter 4 closes, read from the state and
+ * never stored. it shows while the report of that month is the one
+ * in hand, and goes with the next month's. The route is the one flown; the
+ * figure is its japacity figure, whole once departed.
+ */
+export function sendOffCard(read: ReadCtx): PlayerView["card"] {
+  if (!sendOffJustClosed(read.state)) return null;
+  const route = (Object.keys(read.content.route) as Id<"route">[]).find((id) => read.state.route[id]?.state === "departed") ?? null;
+  return {
+    kind: "send-off",
+    route,
+    percent: route === null ? null : routePercent(read, route),
+    months: read.state.turn.month,
+    standing: read.state.quality[STANDING] ?? 0,
+    topActivities: topActivities(read.state),
+  };
 }
 
 export const chapterKind: RegisteredKind<ChapterSlice, ChapterEvent> = {

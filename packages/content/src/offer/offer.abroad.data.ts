@@ -3,18 +3,20 @@
 //
 // the pages name these offers and what each is about, but give no chance,
 // cooldown, terms or choices. Every number here is a working value for the sweep.
-// R-RETURN-003's 12-month window and "the shape of the last return" have no
-// requirement type. Each returnee offer comes up while home after the send-off;
-// tuning.return.offerMonths is left for the offer kind to apply.
-import type { Id, OfferEntry, Requirement } from "@japacity/sim";
+// R-RETURN-003: the offer kind keeps the group `return` in the pool for
+// tuning.return.offerMonths after the last return, and judges each `when`
+// against that return alone, so `place/returned` reads the last return's shape.
+import type { Id, OfferEntry, Requirement, ReturnShape } from "@japacity/sim";
 
 import { naira, pct } from "../units";
 
-/** Home again after the send-off: a return has happened. */
-const RETURNED: Requirement[] = [
-  { type: "place/is", where: "home" },
-  { type: "chapter/done", chapter: "chapter.send-off" },
-];
+/** Home, and the last return was one of these shapes. */
+function returned(shapes: ReturnShape[]): Requirement[] {
+  return [
+    { type: "place/is", where: "home" },
+    { type: "place/returned", shapes },
+  ];
+}
 
 export const abroadOfferTable: Record<Id<"offer">, OfferEntry> = {
   // Coming home (group `return`)
@@ -24,7 +26,8 @@ export const abroadOfferTable: Record<Id<"offer">, OfferEntry> = {
     id: "offer.returnee-question",
     group: "return",
     where: "home",
-    when: RETURNED,
+    // Everyone asks, whatever the shape.
+    when: returned(["removed", "assisted", "broke", "by-choice", "with-papers"]),
     chanceBp: pct(30),
     cooldown: 3,
     maxTimes: null,
@@ -69,7 +72,8 @@ export const abroadOfferTable: Record<Id<"offer">, OfferEntry> = {
     id: "offer.returnee-business",
     group: "return",
     where: "home",
-    when: RETURNED,
+    // the cousin comes to the ones who came back with money: papers or by choice.
+    when: returned(["by-choice", "with-papers"]),
     chanceBp: pct(8),
     cooldown: 6,
     maxTimes: 2,
@@ -114,7 +118,8 @@ export const abroadOfferTable: Record<Id<"offer">, OfferEntry> = {
     id: "offer.returnee-hire",
     group: "return",
     where: "home",
-    when: RETURNED,
+    // the foreign experience is on the CV of anyone who worked out there; a removal is on it too.
+    when: returned(["broke", "by-choice", "with-papers"]),
     chanceBp: pct(10),
     cooldown: 6,
     maxTimes: null,
@@ -153,7 +158,8 @@ export const abroadOfferTable: Record<Id<"offer">, OfferEntry> = {
     id: "offer.returnee-leave-again",
     group: "return",
     where: "home",
-    when: RETURNED,
+    // the friend's connection finds the ones who came back without what they went for.
+    when: returned(["assisted", "broke", "by-choice"]),
     chanceBp: pct(6),
     cooldown: 6,
     maxTimes: null,
@@ -192,6 +198,8 @@ export const abroadOfferTable: Record<Id<"offer">, OfferEntry> = {
     id: "offer.sponsor-licence-lost",
     group: "abroad",
     where: "abroad",
+    // R-LUCK-003: a blow.
+    bad: true,
     when: [
       { type: "status/is", statuses: ["status.uk-sponsored"] },
       { type: "job/is", activities: ["activity.job-uk-care"] },

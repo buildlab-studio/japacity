@@ -205,7 +205,8 @@ describe("the endorsement gate", () => {
     });
 
     test("[R-ENDORSE-002] given apply-endorsement reading the cooled step, when it is sent in the cooldown's last month it is rejected, and the month after it is accepted: six months with no new request", () => {
-      const game = talentLife({ change: (used) => withCooldownStep(NEVER_ENDORSED(used)) });
+      // Tech starts above the bar so an ordinary offer taking two points does not unmake the step while the months pass.
+      const game = talentLife({ change: (used) => withCooldownStep(NEVER_ENDORSED(used)), qualities: { "quality.tech": 85 } });
       toIssued(game);
       const refused = game.state.turn.month;
       while (game.state.turn.month < refused + block.cooldown - 1) game.endTurn();

@@ -1,9 +1,12 @@
 // From docs/rules/chapter.md, "Entries".
-import type { ChapterEntry, Id } from "@japacity/sim";
+import type { ChapterEntry, Id, Requirement } from "@japacity/sim";
 
 import { naira } from "../units";
 
 const UK: Id<"route"> = "route.uk-masters";
+
+/** The formal routes a second grant can come on. The road grants nothing. */
+const SECOND_ROUTES: Id<"route">[] = ["route.uk-masters", "route.uk-care", "route.uk-skilled", "route.canada-points", "route.uk-talent", "route.gulf-contract"];
 
 export const chapterTable: Record<Id<"chapter">, ChapterEntry> = {
   "chapter.find-your-feet": {
@@ -97,7 +100,7 @@ export const chapterTable: Record<Id<"chapter">, ChapterEntry> = {
   "chapter.secure": {
     id: "chapter.secure",
     order: 6,
-    // One item that is an `any`, so one path closes the chapter.
+    // One item that is an `any`, so one path closes the chapter (R-CHAPTER-007).
     items: [
       {
         id: "secure",
@@ -106,13 +109,12 @@ export const chapterTable: Record<Id<"chapter">, ChapterEntry> = {
           of: [
             // `settled`: a settled or citizen status held.
             { type: "status/is", statuses: ["status.uk-settled", "status.uk-citizen", "status.ca-resident", "status.ca-citizen"] },
-            // `home`: a return recorded. The chapter is current only after Landing, which is met
-            // abroad, so being home now means a return. no requirement reads the shape,
-            // so any return closes it, not only one with papers or by choice.
-            { type: "place/is", where: "home" },
-            // `second`: a second route granted. the UK master's is the only route in
-            // content; the routes of route-gates.md join when they are entered.
-            { type: "route/state", route: UK, in: ["granted"] },
+            // `home`: a return with papers or by choice on the record. The chapter is current only
+            // after Landing, which is met abroad, so the return is one made from there.
+            { type: "place/returned", shapes: ["with-papers", "by-choice"] },
+            // `second`: a second route granted. A route flown is `departed`, and no route is applied
+            // for abroad (R-PLACE-003), so a route `granted` now was granted after a return.
+            ...SECOND_ROUTES.map((route): Requirement => ({ type: "route/state", route, in: ["granted"] })),
           ],
         },
       },

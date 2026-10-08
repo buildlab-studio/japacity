@@ -545,7 +545,7 @@ export interface OfferEntry {
   luck?: boolean;
   /** A blow; rolls at half chance while the character is down (R-LUCK-003). */
   bad?: boolean;
-  /** Taking any choice locks slots from next month (docs/rules/health.md R-HEALTH-006). */
+  /** What the choice that takes the slot will lock, said a month ahead; the choice's own `turn/lock` effect does the locking (docs/rules/health.md R-HEALTH-006). */
   lockNext?: { slots: number; months: number; why: string };
   /** Rolled each month while these hold. */
   when: Requirement[];

@@ -9,13 +9,13 @@ export const offerText: Record<string, string> = {
   "offer.nepa-bill.name": "NEPA has brought the bill",
   "offer.nepa-bill.title": "NEPA has brought the bill",
   "offer.nepa-bill.body":
-    "They are threatening to cut the light. ₦25,000. Your father says he will handle it. He will not.",
+    "They are threatening to cut the light. {cost}. Your father says he will handle it. He will not.",
   "offer.nepa-bill.choice.pay": "Pay the bill",
   "offer.nepa-bill.choice.leave": "Leave it to your father",
 
   "offer.brother-fees.name": "Emeka's school fees",
   "offer.brother-fees.title": "Emeka's school fees",
-  "offer.brother-fees.body": "Resumption is Monday. ₦120,000. He has been sent home once already this year.",
+  "offer.brother-fees.body": "Resumption is Monday. {cost}. He has been sent home once already this year.",
   "offer.brother-fees.choice.pay": "Pay all of it",
   "offer.brother-fees.choice.half": "Pay half",
   "offer.brother-fees.choice.no": "Say you cannot",
@@ -23,34 +23,34 @@ export const offerText: Record<string, string> = {
   "offer.mum-shop.name": "Mummy's shop",
   "offer.mum-shop.title": "Mummy's shop",
   "offer.mum-shop.body":
-    "The supplier has stopped giving on credit. ₦80,000 would restock the provisions before the month ends.",
+    "The supplier has stopped giving on credit. {cost} would restock the provisions before the month ends.",
   "offer.mum-shop.choice.give": "Give all of it",
   "offer.mum-shop.choice.half": "Give half",
   "offer.mum-shop.choice.no": "Say you cannot",
 
   "offer.aso-ebi.name": "Aso ebi for the wedding",
   "offer.aso-ebi.title": "Aso ebi for the wedding",
-  "offer.aso-ebi.body": "Cousin Bisi is getting married. The cloth is ₦60,000. Everybody is buying.",
+  "offer.aso-ebi.body": "Cousin Bisi is getting married. The cloth is {cost}. Everybody is buying.",
   "offer.aso-ebi.choice.buy": "Buy the cloth",
   "offer.aso-ebi.choice.plain": "Go in your own clothes",
   "offer.aso-ebi.choice.absent": "Stay away",
 
   "offer.roof.name": "The roof",
   "offer.roof.title": "The roof",
-  "offer.roof.body": "Rain entered the parlour again. The carpenter wants ₦200,000 for zinc and labour.",
+  "offer.roof.body": "Rain entered the parlour again. The carpenter wants {cost} for zinc and labour.",
   "offer.roof.choice.pay": "Pay all of it",
   "offer.roof.choice.half": "Pay half",
   "offer.roof.choice.no": "Say you cannot",
 
   "offer.harvest.name": "Harvest pledge",
   "offer.harvest.title": "Harvest pledge",
-  "offer.harvest.body": "They are calling families by name. ₦30,000 would cover yours.",
+  "offer.harvest.body": "They are calling families by name. {cost} would cover yours.",
   "offer.harvest.choice.give": "Give it",
   "offer.harvest.choice.no": "Let them call the name",
 
   "offer.uncle-burial.name": "Uncle Dele's burial",
   "offer.uncle-burial.title": "Uncle Dele's burial",
-  "offer.uncle-burial.body": "The family is contributing. Your share is ₦100,000. People will remember who gave.",
+  "offer.uncle-burial.body": "The family is contributing. Your share is {cost}. People will remember who gave.",
   "offer.uncle-burial.choice.send": "Send your share",
   "offer.uncle-burial.choice.token": "Send something small",
   "offer.uncle-burial.choice.nothing": "Send nothing",
@@ -278,4 +278,36 @@ export const offerText: Record<string, string> = {
   "offer.road-ransom-call.choice.cannot": "There is no money",
   // health.md
   ...offerHealthText,
+
+  // Luck: luck.md. First drafts, rewritten for voice.
+  "offer.whip-round.name": "A whip-round",
+  "offer.whip-round.title": "A whip-round",
+  "offer.whip-round.body":
+    "Your old classmates heard how things are. Nobody says the word, but there is an envelope, and a list of names who put something in it.",
+  "offer.whip-round.choice.accept": "Take it, and thank them",
+  "offer.whip-round.choice.decline": "Thank them, and give it back",
+
+  "offer.telco-promo.name": "You have won",
+  "offer.telco-promo.title": "You have won",
+  "offer.telco-promo.body": "'CONGRATULATIONS! Your line has won in our anniversary promo. Send N2,000 to claim your prize today.'",
+  "offer.telco-promo.sign.shortcode": "It came from the network's own short code.",
+  "offer.telco-promo.sign.reply-now": "It says you must reply within the hour.",
+  "offer.telco-promo.sign.strange-number": "It came from an ordinary phone number.",
+  "offer.telco-promo.choice.claim": "Send the fee and claim it",
+  "offer.telco-promo.choice.ignore": "Delete it",
+
+  "offer.relative-sends.name": "Your aunty abroad",
+  "offer.relative-sends.title": "Your aunty abroad",
+  "offer.relative-sends.body": "Your aunty in Houston heard you are trying to travel. 'Small thing for the process. Don't tell your uncle.' $500, in your dollar account.",
+  "offer.relative-sends.choice.thank": "Call her to say thank you",
+
+  "offer.december-bonus.name": "A thirteenth month",
+  "offer.december-bonus.title": "A thirteenth month",
+  "offer.december-bonus.body": "The end of year letter has good news for once: a thirteenth month's pay, {pay}, with the December salary.",
+  "offer.december-bonus.choice.take": "Take it",
+
+  "offer.scholarship-round.name": "A scholarship round",
+  "offer.scholarship-round.title": "A scholarship round",
+  "offer.scholarship-round.body": "The school writes: a late scholarship round, and your file was picked. £3,000 off what you need to show.",
+  "offer.scholarship-round.choice.accept": "Accept the scholarship",
 };

@@ -2,6 +2,48 @@
 // quotes mark speech and are not part of the words.
 // spoken and narrated answers are both kept as plain text, without
 // speech quotes.
+import type { Currency } from "@japacity/sim";
+
+import { DECEMBER_COUNTRIES, decemberFare, decemberPrice } from "./setpiece.data";
+
+/** Money in whole units as the page writes it, with the currency's sign. */
+function shown(money: { currency: Currency; amount: number }): string {
+  const sign: Record<Currency, string> = { NGN: "₦", GBP: "£", USD: "$", CAD: "C$", AED: "AED ", EUR: "€" };
+  const whole = String(money.amount).slice(0, -2) || "0";
+  const pence = String(money.amount).slice(-2);
+  const grouped = whole.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  return `${sign[money.currency]}${grouped}${pence === "00" ? "" : `.${pence}`}`;
+}
+
+/**
+ * The December visit's words for each country (return.md R-RETURN-005). The
+ * questions are the page's; each answer names what it costs in the country's
+ * currency, since that is what it takes.
+ */
+function decemberText(): Record<string, string> {
+  const words: Record<string, string> = {};
+  for (const { country, suffix } of DECEMBER_COUNTRIES) {
+    const price = (whole: number) => shown(decemberPrice(country, whole));
+    const key = (question: string) => `setpiece.december.q.${question}-${suffix}`;
+    const reply = (question: string, answer: string) => `setpiece.december.a.${question}-${suffix}.${answer}`;
+    words[key("go")] = "December is coming. Everybody at home is asking if you will come.";
+    words[reply("go", "go")] = `Book the flight: ${shown(decemberFare(country))} there and back`;
+    words[reply("go", "stay")] = "Not this year";
+    words[key("party")] = "Everybody is going out. Lagos in December is not cheap.";
+    words[reply("party", "big")] = `Go big: ${price(400000)}`;
+    words[reply("party", "small")] = `A few nights out: ${price(120000)}`;
+    words[reply("party", "home")] = "Stay in with the family";
+    words[key("gifts")] = "Your mother has a list. Your cousins have longer ones.";
+    words[reply("gifts", "all")] = `Everyone on the list: ${price(600000)}`;
+    words[reply("gifts", "some")] = `Your mother and the children: ${price(200000)}`;
+    words[reply("gifts", "none")] = "Not this year";
+    words[key("look")] = "People expect to see that it went well.";
+    words[reply("look", "outfit")] = `New clothes and a haircut: ${price(250000)}`;
+    words[reply("look", "plain")] = "Come as you are";
+  }
+  return words;
+}
+
 export const setpieceText: Record<string, string> = {
   "setpiece.credibility-interview.name": "The visa interview",
 
@@ -54,15 +96,5 @@ export const setpieceText: Record<string, string> = {
   // return.md. Questions are the page's.
 
   "setpiece.december.name": "December at home",
-  "setpiece.december.q.party": "Everybody is going out. Lagos in December is not cheap.",
-  "setpiece.december.a.party.big": "Go big: ₦400,000",
-  "setpiece.december.a.party.small": "A few nights out: ₦120,000",
-  "setpiece.december.a.party.home": "Stay in with the family",
-  "setpiece.december.q.gifts": "Your mother has a list. Your cousins have longer ones.",
-  "setpiece.december.a.gifts.all": "Everyone on the list: ₦600,000",
-  "setpiece.december.a.gifts.some": "Your mother and the children: ₦200,000",
-  "setpiece.december.a.gifts.none": "Not this year",
-  "setpiece.december.q.look": "People expect to see that it went well.",
-  "setpiece.december.a.look.outfit": "New clothes and a haircut: ₦250,000",
-  "setpiece.december.a.look.plain": "Come as you are",
+  ...decemberText(),
 };
