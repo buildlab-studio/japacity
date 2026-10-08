@@ -480,8 +480,8 @@ describe("lines and the view", () => {
     const loan = open(game, SALARY_LOAN, 12000000);
     const view = game.view().obligations;
     expect(view).toEqual([
-      { ...upkeepOf(game), due: ADA_UPKEEP },
-      { ...loan, due: bp(12000000, entryOf(SALARY_LOAN).rateBp) + 1000000 },
+      { ...upkeepOf(game), due: ADA_UPKEEP, car: null },
+      { ...loan, car: null, due: bp(12000000, entryOf(SALARY_LOAN).rateBp) + 1000000 },
     ]);
   });
 });

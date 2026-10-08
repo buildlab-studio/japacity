@@ -2,7 +2,6 @@
 // months left, the clock when it runs, the lawful months toward settling, the
 // way up, and the renewal with its fees (R-STATUS-006). The clock, when it
 // runs, is the loudest thing on the screen: the shell shows ClockBanner above every tab.
-import { content } from "@japacity/content";
 import type { Currency, PlayerView } from "@japacity/sim";
 import { AlarmClock, BadgeCheck } from "lucide-react";
 import { useState } from "react";
@@ -18,22 +17,9 @@ import { blurbOf, hasWords, nameOf, say, sayCount, words } from "../../shared/wo
 
 type Held = NonNullable<PlayerView["status"]>;
 
-const MONTHS_PER_YEAR = 12;
-
-/** A world variable's figure as content starts it. The view carries no variables, so a story that moved it is not seen here. */
-function startOf(id: string | null): number {
-  if (id === null) return 0;
-  return (content.var as Record<string, { start: number } | undefined>)[id]?.start ?? 0;
-}
-
-/** What renewing costs, or null when this status does not renew at the player's asking. */
+/** What renewing costs today, from the view (R-STATUS-010), or null when this status does not renew at the player's asking. */
 export function renewal(held: Held): { months: number; currency: Currency; fee: number; surcharge: number } | null {
-  const entry = content.status[held.entry];
-  if (entry === undefined || entry.renewMonths <= 0 || entry.renewFeeVar === null || held.monthsLeft === null) return null;
-  const currency = content.country[entry.country]?.currency;
-  if (currency === undefined) return null;
-  const surcharge = Math.floor((startOf(entry.surchargeYearVar) * entry.renewMonths) / MONTHS_PER_YEAR);
-  return { months: entry.renewMonths, currency, fee: startOf(entry.renewFeeVar), surcharge };
+  return held.renew;
 }
 
 /** The clock in big type. Rendered in the status panel and above every tab while it runs. */

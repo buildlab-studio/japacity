@@ -227,7 +227,7 @@ describe("rules that cross kinds", () => {
     expect(game.view().job.id).toBeNull();
 
     game.accept({ type: "offer/choose", offer: offer!.id, choice: "accept" });
-    expect(game.view().job).toEqual({ id: "activity.job-teacher", months: 0 });
+    expect(game.view().job).toEqual({ id: "activity.job-teacher", months: 0, side: null });
     const salaryBefore = game.state.wallet.totals.in.salary?.NGN ?? 0;
 
     const month = game.endTurn();
@@ -235,6 +235,6 @@ describe("rules that cross kinds", () => {
     const pay = content.activity["activity.job-teacher"]!.pay!.amount as number;
     expect(month.events).toContainEqual(expect.objectContaining({ type: "wallet/credited", currency: "NGN", pocket: "bank", amount: pay, reason: "salary" }));
     expect((game.state.wallet.totals.in.salary?.NGN ?? 0) - salaryBefore).toBe(pay);
-    expect(game.view().job).toEqual({ id: "activity.job-teacher", months: 1 });
+    expect(game.view().job).toEqual({ id: "activity.job-teacher", months: 1, side: null });
   });
 });

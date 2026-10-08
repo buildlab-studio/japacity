@@ -337,7 +337,7 @@ export const miniContent: Content = {
     offer: { maxNewPerMonth: 2, maxOpen: 4 },
     place: { brokeLine: 50000000, fareFromNaira: true },
     status: { courseMonths: 12 },
-    credit: { onTime: 3, onMiss: 12, onDefault: 30, drift: 1, driftTo: 40, judgmentMonths: 72, returnPenalty: 20 },
+    credit: { onTime: 3, onMiss: 12, onDefault: 30, drift: 1, driftTo: 40, judgmentMonths: 72, judgmentCap: 20, returnPenalty: 20 },
     car: { lessons: 220000, testFee: 8500, passBp: 5500, passPerAttemptBp: 500, passCapBp: 9000 },
     remit: { appFeeBp: 0, appMarginBp: 200, bankFeeBp: 800, informalLossBp: 500, abroadBp: 30000 },
     return: {
@@ -348,8 +348,8 @@ export const miniContent: Content = {
       residentLapseMonths: 24,
     },
     director: { surgePerTick: 3, closedTicks: 8, maxNewPerTick: 2, shockGapTicks: 6, onlineTickScale: 2 },
-    road: { enabled: true },
-    ladder: { cashDetectBp: 200, accountRent: 6000, overtimeBp: 2500, oneChanceBp: 300, phone: 6000000 },
+    road: { enabled: true, meansStep: 10000000 },
+    ladder: { cashDetectBp: 200, accountRent: 6000, overtimeBp: 2500, oneChanceBp: 300, phone: 6000000, robberyWellbeing: -12 },
     prologue: {
       startAgeMonths: 192,
       siblings: [1, 6],
@@ -369,6 +369,7 @@ export const miniContent: Content = {
       drySpellMonths: 8,
       drySpellBp: 100,
       drySpellCapBp: 800,
+      betWellbeing: 2,
       ticket: 20000,
       maxTickets: 5,
       prizeSmall: 50000,
@@ -393,6 +394,6 @@ export const miniContent: Content = {
       sickPayBp: 5000,
       gapMonths: 10,
     },
-    groupLoan: { feeBp: 1500, savingsBp: 1000, vanishBp: 2500 },
+    groupLoan: { feeBp: 1500, savingsBp: 1000, vanishBp: 2500, visit: { standing: -12, wellbeing: -5 } },
   },
 };

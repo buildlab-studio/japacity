@@ -412,6 +412,7 @@ export const TuningSchema = z.strictObject({
     drift: CountSchema,
     driftTo: CountSchema,
     judgmentMonths: CountSchema,
+    judgmentCap: CountSchema,
     returnPenalty: CountSchema,
   }),
   car: z.strictObject({ lessons: CountSchema, testFee: CountSchema, passBp: BpSchema, passPerAttemptBp: BpSchema, passCapBp: BpSchema }),
@@ -430,8 +431,8 @@ export const TuningSchema = z.strictObject({
     shockGapTicks: CountSchema,
     onlineTickScale: z.int().positive(),
   }),
-  road: z.strictObject({ enabled: z.boolean() }),
-  ladder: z.strictObject({ cashDetectBp: BpSchema, accountRent: CountSchema, overtimeBp: BpSchema, oneChanceBp: BpSchema, phone: CountSchema }),
+  road: z.strictObject({ enabled: z.boolean(), meansStep: CountSchema }),
+  ladder: z.strictObject({ cashDetectBp: BpSchema, accountRent: CountSchema, overtimeBp: BpSchema, oneChanceBp: BpSchema, phone: CountSchema, robberyWellbeing: IntSchema }),
   prologue: z.strictObject({
     startAgeMonths: CountSchema,
     siblings: z.tuple([CountSchema, CountSchema]),
@@ -457,6 +458,7 @@ export const TuningSchema = z.strictObject({
     prizeSmallBp: BpSchema,
     prizeMid: CountSchema,
     prizeMidBp: BpSchema,
+    betWellbeing: CountSchema,
     prizeJackpot: CountSchema,
     prizeJackpotBp: BpSchema,
     stake: CountSchema,
@@ -475,7 +477,7 @@ export const TuningSchema = z.strictObject({
     sickPayBp: BpSchema,
     gapMonths: CountSchema,
   }),
-  groupLoan: z.strictObject({ feeBp: BpSchema, savingsBp: BpSchema, vanishBp: BpSchema }),
+  groupLoan: z.strictObject({ feeBp: BpSchema, savingsBp: BpSchema, vanishBp: BpSchema, visit: z.strictObject({ standing: IntSchema, wellbeing: IntSchema }) }),
 });
 
 export type TuningMatches = Proof<Same<z.infer<typeof TuningSchema>, Tuning>>;

@@ -107,6 +107,7 @@ export function richView(): PlayerView {
         monthsLeft: 8,
         missed: 1,
         due: 12_400_000,
+        car: null,
       },
     ],
     news: [
@@ -199,12 +200,36 @@ export function abroadView(months = 0): PlayerView {
  * worker whose job has gone, a credit file, goals, a car on finance, a side
  * job, a send-off card and an era. For the parts whose kinds are stubs.
  */
+/** R-CAR-007's figures as the sim's view would carry them for this car item, so fixtures and tests agree with the engine. */
+export function carViewOf(owed: Omit<PlayerView["obligations"][number], "car">, month: number): NonNullable<PlayerView["obligations"][number]["car"]> {
+  const entry = content.obligation[owed.entry];
+  const car = entry?.car;
+  if (entry === undefined || car === undefined) throw new Error(`${owed.entry} is not a car.`);
+  const share = (amount: number, bp: number) => Math.floor((amount * bp) / 10_000);
+  const paid = car.price - owed.outstanding;
+  const third = share(car.price, car.courtThirdBp);
+  const court = owed.missed > entry.grace && paid >= third;
+  return {
+    price: car.price,
+    final: share(car.price, car.finalBp),
+    third,
+    half: share(car.price, car.handBackBp),
+    resale: share(car.price, car.resaleBp),
+    courtMonths: car.courtMonths,
+    paid,
+    interest: owed.amount,
+    rateBp: owed.principal > 0 ? Math.floor((owed.amount * 10_000) / owed.principal) : 0,
+    notice: owed.missed >= entry.grace,
+    courtMonth: court ? month + entry.grace + 1 + car.courtMonths - owed.missed : null,
+  };
+}
+
 export function richAbroadView(): PlayerView {
   const base = abroadView();
-  const car: PlayerView["obligations"][number] = {
+  const owed = {
     id: "obligation-40",
-    entry: "obligation.car",
-    state: "grace",
+    entry: "obligation.car" as const,
+    state: "grace" as const,
     openedMonth: 40,
     amount: 10_260,
     principal: 855_000,
@@ -213,11 +238,12 @@ export function richAbroadView(): PlayerView {
     missed: 2,
     due: 61_480,
   };
+  const car: PlayerView["obligations"][number] = { ...owed, car: carViewOf(owed, 60) };
   return {
     ...base,
     v: base.v + 30,
     month: 60,
-    job: { id: null, months: 0 },
+    job: { id: null, months: 0, side: null },
     locks: [{ slots: 1, untilMonth: 60, why: "side-job" }],
     place: { ...base.place, monthsHere: 25 },
     status: {
@@ -228,6 +254,7 @@ export function richAbroadView(): PlayerView {
       settleMonths: 60,
       work: "one-employer",
       nextStep: "status.next.settle",
+      renew: { months: 24, currency: "GBP", fee: 186_500, surcharge: 207_000 },
     },
     credit: {
       mark: 24,
@@ -249,7 +276,7 @@ export function richAbroadView(): PlayerView {
     },
     obligations: [...base.obligations.filter((owed) => owed.entry !== "obligation.tuition"), car],
     pockets: { ...base.pockets, GBP: { bank: 180_000, cash: 2_000, locked: 0 } },
-    era: { id: "era.hard-line", since: 50, until: 75 },
+    era: { id: "era.hard-line", since: 50, until: 75, sinceMonth: 50, untilMonth: 75 },
     card: null,
     report: { month: 60, lines: [], japacityBefore: null, japacityAfter: null, attention: false },
   };

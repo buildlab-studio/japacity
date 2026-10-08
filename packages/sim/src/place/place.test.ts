@@ -102,7 +102,7 @@ describe("a new character", () => {
   test("[R-PLACE-001] given a new life, when it starts, then the character is at home with no country, no move and no return on record", () => {
     const game = start({ content });
     expect(game.state.place).toEqual({ where: "home", country: null, movedMonth: 0, returns: [], heldAbroad: null });
-    expect(game.view().place).toEqual({ where: "home", country: null, monthsHere: 0, returns: [], heldAbroad: null });
+    expect(game.view().place).toEqual({ where: "home", country: null, monthsHere: 0, returns: [], heldAbroad: null, fareHome: null });
   });
 });
 
@@ -217,6 +217,7 @@ describe("coming home", () => {
     leave(game, brokeLine, 0);
     applyEffects(game, [{ type: "money/add", currency: "GBP", pocket: "cash", amount: ukFare, reason: "gift" }]);
     expect(fareHome(readOf(game))).toEqual({ currency: "GBP", amount: ukFare });
+    expect(game.view().place.fareHome).toEqual({ currency: "GBP", amount: ukFare });
     comeHome(game);
     expect(game.state.wallet.pockets.GBP.cash).toBe(0);
     expect(game.state.wallet.totals.out.fare).toEqual({ GBP: ukFare });
@@ -339,6 +340,7 @@ describe("the view and the record", () => {
         { month: first, shape: "by-choice", country: UK },
       ],
       heldAbroad: null,
+      fareHome: null,
     });
   });
 

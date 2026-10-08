@@ -3,7 +3,7 @@ import type { PlayerView } from "@japacity/sim";
 import { fireEvent, screen, waitFor } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
-import { richAbroadView } from "../../shared/testing/fixtures";
+import { carViewOf, richAbroadView } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { formatBp, formatMoney } from "../../shared/words/format";
 import { say, sayCount } from "../../shared/words/text";
@@ -15,7 +15,14 @@ const terms = CAR.car!;
 
 function withCar(change: Partial<PlayerView["obligations"][number]>): PlayerView {
   const view = richAbroadView();
-  return { ...view, obligations: view.obligations.map((owed) => (owed.entry === "obligation.car" ? { ...owed, ...change } : owed)) };
+  return {
+    ...view,
+    obligations: view.obligations.map((owed) => {
+      if (owed.entry !== "obligation.car") return owed;
+      const changed = { ...owed, ...change };
+      return { ...changed, car: carViewOf(changed, view.month) };
+    }),
+  };
 }
 
 function car(view: PlayerView) {
@@ -26,7 +33,7 @@ describe("the car on finance", () => {
   test("[R-CAR-007] given a car with two payments missed, then the price paid, the third and half marks, the final payment, the rate and the notice show", async () => {
     const view = richAbroadView();
     const owed = car(view);
-    const figures = carFigures(owed)!;
+    const figures = carFigures(owed, view.month)!;
     expect(figures.paid).toBe(terms.price - owed.outstanding);
     expect(figures.paid).toBeGreaterThanOrEqual(figures.third);
     expect(figures.paid).toBeLessThan(figures.half);

@@ -8,10 +8,11 @@ import { abroad, closeTypes, markBy, markOf, openOwed, PHONE, readOf, setPounds,
 import { playMonths } from "../place/place.journey";
 import { answerFirst, applyEffects } from "../route/route.journey";
 import type { Game } from "../testing/play";
-import { creditKind, JUDGMENT_CAP, rateFor } from "./credit.logic";
+import { creditKind, rateFor } from "./credit.logic";
 
 const CANADA: Id<"country"> = "country.canada";
 const CREDIT = content.tuning.credit;
+const JUDGMENT_CAP = CREDIT.judgmentCap;
 
 function entryOf(id: Id<"obligation">): ObligationEntry {
   const entry = content.obligation[id];

@@ -489,8 +489,18 @@ function view(read: ReadCtx): Pick<PlayerView, "status"> {
       settleMonths: entry.settleMonthsVar === null ? null : worldVar(read, entry.settleMonthsVar),
       work: entry.work,
       nextStep: nextStepOf(read.content, entry),
+      renew: renewTerms(read, current, entry),
     },
   };
+}
+
+/** R-STATUS-010: what `status/renew` would cost today, or null when asking is not how this status renews. */
+function renewTerms(read: ReadCtx, held: NonNullable<StatusSlice["current"]>, entry: StatusEntry): NonNullable<PlayerView["status"]>["renew"] {
+  if (entry.renewMonths <= 0 || held.expiresMonth === null || entry.renewFeeVar === null) return null;
+  const currency = foreignCurrencyOf(read.content, entry.country);
+  const fee = worldVar(read, entry.renewFeeVar);
+  const surcharge = entry.surchargeYearVar === null ? 0 : mulDiv(worldVar(read, entry.surchargeYearVar), entry.renewMonths, MONTHS_PER_YEAR);
+  return { months: entry.renewMonths, currency, fee, surcharge };
 }
 
 // ---------------------------------------------------------------------------

@@ -77,11 +77,6 @@ export const SIDE_JOB_LOCK = "side-job";
 export const ILLNESS_LOCK = "illness";
 const UNLOCKED_LINE = "line.turn.unlocked";
 
-// the pages give these figures and no tuning field holds them.
-/** R-ACTIVITY-011: wellbeing lost to the one chance. */
-const ROBBERY_WELLBEING = -12;
-/** R-LUCK-006: wellbeing on a won and a lost bet slip. */
-const BET_WELLBEING = 2;
 
 /** The kiosk draws each ticket out of a million (R-LUCK-005). */
 export const PER_MILLION = 1000000;
@@ -557,7 +552,7 @@ function oneChance(ctx: Ctx, side: Id<"activity">): BaseEvent[] {
     ],
     cause,
   );
-  if (ctx.content.quality[WELLBEING] !== undefined) ctx.apply([{ type: "quality/add", quality: WELLBEING, amount: ROBBERY_WELLBEING }], cause);
+  if (ctx.content.quality[WELLBEING] !== undefined) ctx.apply([{ type: "quality/add", quality: WELLBEING, amount: ctx.content.tuning.ladder.robberyWellbeing }], cause);
   return events;
 }
 
@@ -680,12 +675,12 @@ function lotto(ctx: Ctx, pick: SlotPick, cause: Cause): BaseEvent[] {
 
 /** R-LUCK-006: the stake on stream `lotto`; a win pays `betOddsBp` of it to cash. */
 function betSlip(ctx: Ctx, cause: Cause): BaseEvent[] {
-  const { stake, betWinBp, betOddsBp } = ctx.content.tuning.luck;
+  const { stake, betWinBp, betOddsBp, betWellbeing } = ctx.content.tuning.luck;
   const win = ctx.random.chance("lotto", betWinBp);
   const won = win ? bp(stake, betOddsBp) : 0;
   const events = record(ctx, { type: "activity/bet-placed", stake: { currency: "NGN", amount: stake }, won: { currency: "NGN", amount: won } });
   if (won > 0) ctx.apply([{ type: "money/add", currency: "NGN", pocket: "cash", amount: won, reason: "win" }], cause);
-  if (ctx.content.quality[WELLBEING] !== undefined) ctx.apply([{ type: "quality/add", quality: WELLBEING, amount: win ? BET_WELLBEING : -BET_WELLBEING }], cause);
+  if (ctx.content.quality[WELLBEING] !== undefined) ctx.apply([{ type: "quality/add", quality: WELLBEING, amount: win ? betWellbeing : -betWellbeing }], cause);
   return events;
 }
 
@@ -1073,6 +1068,7 @@ export const activityKind: RegisteredKind<ActivitySlice, ActivityEvent> = {
     job: {
       id: read.state.activity.job,
       months: read.state.activity.job === null ? 0 : (read.state.activity.tenure[read.state.activity.job] ?? 0),
+      side: read.state.activity.side,
     },
     activities: activityOptions(read),
     lastSlots: read.state.activity.lastSlots,

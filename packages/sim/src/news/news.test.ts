@@ -128,6 +128,17 @@ describe("delivering the news", () => {
     expect(deliveries(game.endTurn().lines)).toEqual([]);
   });
 
+  test("[R-DIRECTOR-002] given three months played on the stand-in world, when the view is read, then the era's ticks are shown as this player's months", () => {
+    const game = start({ scenario: "scenario.ada", content });
+    for (let month = 0; month < 3; month += 1) game.endTurn();
+    const era = game.view().era;
+    if (era === null) throw new Error("The stand-in world has an era from tick 0.");
+    expect(game.state.tick).toBeGreaterThan(0);
+    expect(era.sinceMonth).toBe(game.state.turn.month - game.state.tick + era.since);
+    expect(era.untilMonth - era.sinceMonth).toBe(era.until - era.since);
+    expect(era.sinceMonth).toBeLessThanOrEqual(game.state.turn.month);
+  });
+
   test("[R-NEWS-004] given the delivered line, when its words are looked up, then they exist and every story stage has its headline", () => {
     expect(text["line.news.delivered"]).toBeTruthy();
     const late = standInWorld("world-1", 80, content).news;

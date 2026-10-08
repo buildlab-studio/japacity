@@ -370,6 +370,7 @@ describe("the car", () => {
     const { game, car } = carAfter(5);
     const owed = game.view().obligations.find((item) => item.id === car.id);
     expect(owed).toMatchObject({ monthsLeft: 31, missed: 0 });
+    expect(owed?.car).toEqual(carView(readOf(game), car));
     expect(carView(readOf(game), car)).toEqual({
       price: 950000,
       final: 285000,
@@ -379,6 +380,7 @@ describe("the car", () => {
       courtMonths: 3,
       paid: 95000 + 5 * MONTHLY,
       interest: bp(CAR_PRINCIPAL, 120),
+      rateBp: 120,
       notice: false,
       courtMonth: null,
     });

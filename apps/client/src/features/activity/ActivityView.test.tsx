@@ -135,7 +135,7 @@ describe("the month plan", () => {
   test("given a job held one month, then the card shows its pay and says one month", async () => {
     const base = engineView("scenario.tunde");
     const job = base.job.id ?? "activity.rest";
-    await renderWithView(<ActivityView />, { ...base, job: { id: job, months: 1 } });
+    await renderWithView(<ActivityView />, { ...base, job: { id: job, months: 1, side: null } });
     const pay = content.activity[job]?.pay;
     if (pay === null || pay === undefined || typeof pay.amount !== "number") throw new Error("The job has no pay.");
     expect(screen.getByText(say("ui.job.pay", { amount: formatMoney(pay.amount, pay.currency) }))).toBeDefined();

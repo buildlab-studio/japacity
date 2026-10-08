@@ -60,11 +60,19 @@ export function hiddenPaths(value: unknown, path = ""): string[] {
   return found;
 }
 
+/** The era with its ticks read as this player's months: one tick is one month played (R-DIRECTOR-002). */
+function eraView(read: ReadCtx): PlayerView["era"] {
+  const era = read.world.era;
+  if (era === null) return null;
+  const now = read.state.turn.month - read.state.tick;
+  return { ...era, sinceMonth: now + era.since, untilMonth: now + era.until };
+}
+
 /** The view for a given registry. Tests use this to swap kinds in. */
 export function viewWith(kinds: Registry, read: ReadCtx): PlayerView {
   // The engine gives the parts no kind owns: japacity, the world's era, and the card (built by chapter or route later).
   // R-ROAD-011: the road's real-story card, or its ending card, when one is due.
-  const joined: Partial<PlayerView> = { japacity: japacity(read), era: read.world.era, card: roadCard(read) };
+  const joined: Partial<PlayerView> = { japacity: japacity(read), era: eraView(read), card: roadCard(read) };
   for (const kind of kinds) {
     const part = kind.view?.(read) ?? {};
     for (const key of Object.keys(part)) {

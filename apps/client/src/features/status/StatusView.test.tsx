@@ -1,4 +1,3 @@
-import { content } from "@japacity/content";
 import type { PlayerView } from "@japacity/sim";
 import { fireEvent, screen, waitFor } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
@@ -43,12 +42,9 @@ describe("the status abroad", () => {
 
   test("[R-STATUS-006] given a sponsored worker with the job, then the renewal shows its fee and surcharge and renewing sends status/renew", async () => {
     const rich = richAbroadView();
-    const view: PlayerView = { ...rich, job: { id: "activity.job-uk-skilled", months: 20 }, status: { ...rich.status!, clock: null } };
+    const view: PlayerView = { ...rich, job: { id: "activity.job-uk-skilled", months: 20, side: null }, status: { ...rich.status!, clock: null } };
     const cost = renewal(view.status!)!;
-    const entry = content.status["status.uk-sponsored"]!;
-    expect(cost.months).toBe(entry.renewMonths);
-    expect(cost.fee).toBe(content.var["var.uk-skilled-renew-fee"]!.start);
-    expect(cost.surcharge).toBe((content.var["var.uk-surcharge-year"]!.start * entry.renewMonths) / 12);
+    expect(cost).toEqual(view.status!.renew);
     const { authority } = await renderWithView(<StatusView />, view);
     expect(
       screen.getByText(say("ui.status.renew-fees", { fee: formatMoney(cost.fee, "GBP"), surcharge: formatMoney(cost.surcharge, "GBP"), total: formatMoney(cost.fee + cost.surcharge, "GBP") })),

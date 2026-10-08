@@ -24,11 +24,6 @@ import type { CreditEvent } from "./credit.events";
 
 const MARK_MIN = 0;
 const MARK_MAX = 100;
-/**
- * R-CREDIT-006: while a judgment stands, `credit/min` above this is never met.
- * the tuning has no field for it, so the page's 20 lives here.
- */
-export const JUDGMENT_CAP = 20;
 /** R-CREDIT-003: the months a file must go without a miss before it drifts up. */
 const CLEAN_YEAR = 12;
 
@@ -103,7 +98,7 @@ function judgeMin(read: ReadCtx, requirement: Requirement): RequirementResult {
   if (requirement.type !== "credit/min") throw new Error(`credit/min cannot judge ${requirement.type}.`);
   const file = currentFile(read);
   const have = file?.mark ?? 0;
-  const blocked = file !== null && judgmentStands(read, file) && requirement.value > JUDGMENT_CAP;
+  const blocked = file !== null && judgmentStands(read, file) && requirement.value > read.content.tuning.credit.judgmentCap;
   return { met: !blocked && have >= requirement.value, have, need: requirement.value };
 }
 

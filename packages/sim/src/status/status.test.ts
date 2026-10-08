@@ -230,6 +230,7 @@ describe("renewing", () => {
     const expires = current(game).expiresMonth ?? 0;
     const fee = totalOut(game, "fee-visa");
     const surcharge = totalOut(game, "fee-surcharge");
+    expect(game.view().status?.renew).toEqual({ months: 24, currency: "GBP", fee: 186500, surcharge: 207000 });
     const result = game.accept({ type: "status/renew" });
     expect(current(game).expiresMonth).toBe(expires + 24);
     expect(totalOut(game, "fee-visa") - fee).toBe(186500);
@@ -335,7 +336,7 @@ describe("removal and the Gulf contract", () => {
 describe("the view", () => {
   test("[R-STATUS-010] given a student, a settled and a citizen, when the view is read, then it shows the entry, months left, clock, lawful months, the bar, the work rule and the way up, and never the detection chance", () => {
     const game = flown(content);
-    expect(game.view().status).toEqual({ entry: STUDENT, monthsLeft: 16, clock: null, lawfulMonths: 0, settleMonths: null, work: "part", nextStep: "status.next.course" });
+    expect(game.view().status).toEqual({ entry: STUDENT, monthsLeft: 16, clock: null, lawfulMonths: 0, settleMonths: null, work: "part", nextStep: "status.next.course", renew: null });
     playMonths(game, 1);
     expect(game.view().status?.monthsLeft).toBe(15);
     expect(JSON.stringify(game.view().status)).not.toContain("detect");

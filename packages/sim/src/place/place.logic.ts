@@ -285,7 +285,12 @@ function returnEffect(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
     case "abroad":
       return comeHome(ctx, effect.shape, cause);
     case "road": {
-      const events = record(ctx, [{ type: "place/moved", to: "home", country: null, month: ctx.state.turn.month }]);
+      // R-ROAD-007: the return is on record with no country; the road is not one.
+      const month = ctx.state.turn.month;
+      const events = record(ctx, [
+        { type: "place/returned", shape: effect.shape, country: null, month, kept: null },
+        { type: "place/moved", to: "home", country: null, month },
+      ]);
       ctx.apply(fromStartingLife(ctx, HOME_TYPES, 10000), cause);
       const standing = ctx.content.tuning.return.standing[effect.shape];
       const bonus = capitalBonus(ctx);
@@ -402,6 +407,7 @@ function lines(event: PlaceEvent): ReportLine[] {
       if (event.to === "home") return [];
       return event.country === null ? [line("on-road", {}, "plain", true)] : [line("arrived", { country: event.country }, "good", true)];
     case "place/returned":
+      if (event.country === null) return [line("returned-road", {}, RETURN_TONE[event.shape], true)];
       return [line(`returned-${event.shape}`, { country: event.country }, RETURN_TONE[event.shape], true)];
     case "place/token-used":
       return [line("token-used", { status: event.status }, "good", false)];
@@ -415,7 +421,8 @@ function lines(event: PlaceEvent): ReportLine[] {
 }
 
 /** R-PLACE-009 and R-RETURN-001: the record newest first. */
-function view({ state }: ReadCtx): Pick<PlayerView, "place"> {
+function view(read: ReadCtx): Pick<PlayerView, "place"> {
+  const { state } = read;
   return {
     place: {
       where: state.place.where,
@@ -423,6 +430,7 @@ function view({ state }: ReadCtx): Pick<PlayerView, "place"> {
       monthsHere: state.turn.month - state.place.movedMonth,
       returns: [...state.place.returns].reverse(),
       heldAbroad: state.place.heldAbroad?.status ?? null,
+      fareHome: fareHome(read),
     },
   };
 }

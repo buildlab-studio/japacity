@@ -31,12 +31,6 @@ const FAR_SHORE: Id<"country"> = "country.italy";
 const IRREGULAR: Id<"status"> = "status.eu-irregular";
 /** R-ROAD-006: the step whose `held` opens the agent's debt. */
 const COMPOUND = "compound";
-/**
- * R-ROAD-005: family means fall one point for each ₦100,000 the family pays.
- * the page gives the figure and tuning has no field for it
- * (`tuning.road` holds only `enabled`), so it is here in kobo.
- */
-const MEANS_STEP_KOBO = 10000000;
 
 /** The steps before the chain, in order (R-ROAD-003 to 005). */
 const BEFORE = ["night", "truth"] as const;
@@ -320,7 +314,8 @@ function setOff(ctx: Ctx, entry: RouteEntry, gate: RoadState, how: "pay" | "call
     if (paid > 0) effects.push({ type: "money/take", currency: "NGN", pocket: "cash", amount: paid, reason: "fee-agent" });
     if (more > paid) effects.push({ type: "obligation/open", obligation: AGENT_DEBT, principal: more - paid });
   } else {
-    const fall = divFloor(more, MEANS_STEP_KOBO);
+    // R-ROAD-005: family means fall one point for each `meansStep` the family pays.
+    const fall = divFloor(more, ctx.content.tuning.road.meansStep);
     if (fall > 0) effects.push({ type: "quality/add", quality: FAMILY_MEANS, amount: -fall });
   }
   effects.push(

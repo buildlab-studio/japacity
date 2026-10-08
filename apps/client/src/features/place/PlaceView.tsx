@@ -49,8 +49,8 @@ function Returns() {
       <h3 className="font-semibold">{say("ui.place.returns")}</h3>
       <ol className="flex flex-col gap-1 text-sm" aria-label={say("ui.place.returns")}>
         {returns.map((back) => (
-          <li key={`${String(back.month)}-${back.country}`}>
-            {say("ui.place.return-item", { month: back.month + 1, country: nameOf(back.country), shape: say(`ui.place.shape.${back.shape}`) })}
+          <li key={`${String(back.month)}-${back.country ?? "road"}`}>
+            {say("ui.place.return-item", { month: back.month + 1, country: back.country === null ? say("ui.place.road-name") : nameOf(back.country), shape: say(`ui.place.shape.${back.shape}`) })}
           </li>
         ))}
       </ol>

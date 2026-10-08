@@ -340,6 +340,7 @@ export const uiText: Record<string, string> = {
   "ui.place.months-here.zero": "You arrived this month",
   "ui.place.token": "You still hold {status}. The door is open if you go back.",
   "ui.place.returns": "Times you came home",
+  "ui.place.road-name": "the road",
   "ui.place.return-item": "Month {month}: home from {country}, {shape}",
   "ui.place.shape.removed": "sent home",
   "ui.place.shape.assisted": "on an assisted ticket",

@@ -16,11 +16,6 @@ import { nameOf, say, sayCount } from "../../shared/words/text";
 type Owed = PlayerView["obligations"][number];
 
 const MONTHS_PER_YEAR = 12;
-const WHOLE_BP = 10000;
-
-function bp(amount: number, share: number): number {
-  return Math.floor((amount * share) / WHOLE_BP);
-}
 
 export interface CarFigures {
   currency: Currency;
@@ -39,26 +34,22 @@ export interface CarFigures {
   courtMonthsLeft: number;
 }
 
-/** The car's figures from its entry and the view. Null for anything that is not a car. */
-export function carFigures(owed: Owed): CarFigures | null {
+/** The car's figures from the view's `car` part (R-CAR-007), with the currency from its entry. Null for anything that is not a car. */
+export function carFigures(owed: Owed, month: number): CarFigures | null {
   const entry = content.obligation[owed.entry];
-  const car = entry?.car;
-  if (entry === undefined || car === undefined) return null;
-  const price = car.price;
-  const paid = price - owed.outstanding;
-  const third = bp(price, car.courtThirdBp);
-  const court = owed.missed > entry.grace && paid >= third;
+  const car = owed.car;
+  if (entry === undefined || car === null) return null;
   return {
     currency: entry.currency,
-    price,
-    paid,
-    third,
-    half: bp(price, car.handBackBp),
-    final: bp(price, car.finalBp),
-    yearlyBp: owed.principal === 0 ? 0 : Math.round((owed.amount * WHOLE_BP * MONTHS_PER_YEAR) / owed.principal),
-    notice: owed.missed === entry.grace && entry.grace > 0,
-    court,
-    courtMonthsLeft: court ? Math.max(0, entry.grace + 1 + car.courtMonths - owed.missed) : 0,
+    price: car.price,
+    paid: car.paid,
+    third: car.third,
+    half: car.half,
+    final: car.final,
+    yearlyBp: car.rateBp * MONTHS_PER_YEAR,
+    notice: car.notice,
+    court: car.courtMonth !== null,
+    courtMonthsLeft: car.courtMonth === null ? 0 : Math.max(0, car.courtMonth - month),
   };
 }
 
@@ -91,7 +82,7 @@ export function CarCard({ owed }: { owed: Owed }) {
   const send = useGame((state) => state.send);
   const busy = useGame((state) => state.busy);
   const [sure, setSure] = useState(false);
-  const figures = carFigures(owed);
+  const figures = carFigures(owed, view.month);
   if (figures === null) return null;
   const { currency, paid, third, half, final, yearlyBp, notice, court, courtMonthsLeft } = figures;
   const canHandBack = paid >= half;

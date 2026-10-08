@@ -315,6 +315,7 @@ export const obligationTable: Record<Id<"obligation">, ObligationEntry> = {
       courtThirdBp: 3333,
       handBackBp: pct(50),
       courtMonths: 3,
+      shortfall: "obligation.car-shortfall",
     },
     amount: 0,
     // the ladder sets the rate when the car is bought (R-CREDIT-005); the

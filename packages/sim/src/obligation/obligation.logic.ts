@@ -5,12 +5,14 @@
 // scenario's obligations are real from the first state and get instance ids from
 // the engine's counter (R-SCENARIO-002).
 import { rateFor } from "../credit/credit.logic";
-import { bp, divCeil, divFloor } from "../engine/int";
+import { bp, divCeil, divFloor, mulDiv } from "../engine/int";
 import type { RegisteredKind } from "../engine/kind";
 import { emit } from "../engine/kind";
 import { reject } from "../engine/reject";
 import type {
   BaseEvent,
+  CarTerms,
+  CarView,
   Cause,
   Command,
   Content,
@@ -41,16 +43,6 @@ const INFLATION: Id<"var"> = "var.inflation";
  * R-CAR-003: what a repossession leaves owing. the car's entry has no
  * field naming it, so the id lives here; the car's `onDefault` could carry it.
  */
-const CAR_SHORTFALL: Id<"obligation"> = "obligation.car-shortfall";
-/**
- * R-OBLIGATION-011, the second miss in a row: the officer and the group at the
- * house. an entry has one `onMiss` list, which holds the first step;
- * the second step's numbers have no place in content, so they live here.
- */
-const GROUP_VISIT: Effect[] = [
-  { type: "quality/add", quality: STANDING, amount: -12 },
-  { type: "quality/add", quality: WELLBEING, amount: -5 },
-];
 /** Types whose misses run a grace and can default (R-OBLIGATION-004, 005, R-ABROAD-003 to 005, R-CAR-003). */
 const GRACE_TYPES: readonly ObligationType[] = ["loan", "group-loan", "tuition", "rent", "phone", "car"];
 /** Types that stay open in default as a debt (R-OBLIGATION-005, R-STATUS-011). */
@@ -101,18 +93,17 @@ function varOr(read: ReadCtx, id: Id<"var">): number {
 }
 
 /** The car's numbers, in its currency (docs/rules/car.md "Entries"). */
-export interface CarTerms {
-  price: number;
-  final: number;
-  third: number;
-  half: number;
-  resale: number;
-  courtMonths: number;
+export type { CarTerms, CarView } from "../engine/types";
+
+/** The car block of an entry, or a thrown error for an entry that is not a car. */
+function carOf(entry: ObligationEntry): NonNullable<ObligationEntry["car"]> {
+  const car = entry.car;
+  if (car === undefined) throw new Error(`${entry.id} has no car terms.`);
+  return car;
 }
 
 export function carTerms(entry: ObligationEntry): CarTerms {
-  const car = entry.car;
-  if (car === undefined) throw new Error(`${entry.id} has no car terms.`);
+  const car = carOf(entry);
   return {
     price: car.price,
     final: bp(car.price, car.finalBp),
@@ -392,7 +383,7 @@ function repossess(ctx: Ctx, item: ObligationState, entry: ObligationEntry): Bas
   const events = record(ctx, { type: "obligation/repossessed", id: item.id, entry: item.entry, owed: item.outstanding, shortfall });
   report(ctx, item, entry, -ctx.content.tuning.credit.onDefault);
   ctx.apply(entry.onDefault, cause);
-  if (shortfall > 0) ctx.apply([{ type: "obligation/open", obligation: CAR_SHORTFALL, principal: shortfall }, { type: "credit/judgment" }], cause);
+  if (shortfall > 0) ctx.apply([{ type: "obligation/open", obligation: carOf(entry).shortfall, principal: shortfall }, { type: "credit/judgment" }], cause);
   return events;
 }
 
@@ -427,9 +418,15 @@ function courtMonth(ctx: Ctx, item: ObligationState, entry: ObligationEntry): Ba
 }
 
 /** R-OBLIGATION-011: what each miss in a row costs on a group loan before the default. */
-function groupMissEffects(entry: ObligationEntry, missed: number): Effect[] {
+function groupMissEffects(ctx: Ctx, entry: ObligationEntry, missed: number): Effect[] {
   if (missed === 1) return entry.onMiss;
-  if (missed === 2) return GROUP_VISIT;
+  if (missed === 2) {
+    const { standing, wellbeing } = ctx.content.tuning.groupLoan.visit;
+    return [
+      { type: "quality/add", quality: STANDING, amount: standing },
+      { type: "quality/add", quality: WELLBEING, amount: wellbeing },
+    ];
+  }
   return [];
 }
 
@@ -460,7 +457,7 @@ function miss(ctx: Ctx, item: ObligationState, entry: ObligationEntry, charge: C
     return events;
   }
   const events = record(ctx, { type: "obligation/missed", id: item.id, entry: item.entry, total: totalOf(charge), missed });
-  ctx.apply(entry.type === "group-loan" ? groupMissEffects(entry, missed) : entry.onMiss, cause);
+  ctx.apply(entry.type === "group-loan" ? groupMissEffects(ctx, entry, missed) : entry.onMiss, cause);
   // R-OBLIGATION-004: upkeep and support never default. R-OBLIGATION-005: the miss that passes the grace applies onMiss, then onDefault.
   const defaults = GRACE_TYPES.includes(entry.type) && missed > entry.grace;
   // R-CREDIT-002. the month that defaults takes the default figure in place of the miss figure.
@@ -571,7 +568,7 @@ function closeCar(ctx: Ctx, item: ObligationState, entry: ObligationEntry, cause
   const terms = carTerms(entry);
   const shortfall = carPaid(entry, item) >= terms.half ? 0 : Math.max(0, item.outstanding - terms.resale);
   const events = record(ctx, { type: "obligation/handed-back", id: item.id, entry: item.entry, shortfall });
-  if (shortfall > 0) ctx.apply([{ type: "obligation/open", obligation: CAR_SHORTFALL, principal: shortfall }], { ...cause, source: item.entry });
+  if (shortfall > 0) ctx.apply([{ type: "obligation/open", obligation: carOf(entry).shortfall, principal: shortfall }], { ...cause, source: item.entry });
   return events;
 }
 
@@ -902,22 +899,11 @@ function invariants(state: State, content: Content): string[] {
   return problems;
 }
 
-export function obligationsView(read: ReadCtx): (ObligationState & { due: number })[] {
-  return openItems(read.state).map((item) => ({ ...item, due: dueNext(read, item, entryOf(read.content, item.entry)) }));
+export function obligationsView(read: ReadCtx): (ObligationState & { due: number; car: CarView | null })[] {
+  return openItems(read.state).map((item) => ({ ...item, due: dueNext(read, item, entryOf(read.content, item.entry)), car: carView(read, item) }));
 }
 
-/** R-CAR-007: what a screen shows of one car beyond the obligation's own fields. */
-export interface CarView extends CarTerms {
-  paid: number;
-  /** The monthly interest fixed at opening by the credit ladder. */
-  interest: number;
-  /** Two misses in a row: the lender's notice stands (R-CAR-003). */
-  notice: boolean;
-  /** The month the car is taken while the lender waits on the court, or null. */
-  courtMonth: number | null;
-}
-
-/** R-CAR-007's figures for one car, for screens that ask: the view's item carries only the obligation's own fields. */
+/** R-CAR-007's figures for one car; the view carries them on the item as `car`. */
 export function carView(read: ReadCtx, item: ObligationState): CarView | null {
   const entry = read.content.obligation[item.entry];
   if (entry?.type !== "car") return null;
@@ -925,7 +911,8 @@ export function carView(read: ReadCtx, item: ObligationState): CarView | null {
   const court = inCourt(item, entry);
   // In court each month is another miss, and the car goes at the miss that ends the court months.
   const courtMonth = court ? read.state.turn.month + entry.grace + 1 + terms.courtMonths - item.missed : null;
-  return { ...terms, paid: carPaid(entry, item), interest: item.amount, notice: item.missed >= entry.grace, courtMonth };
+  const rateBp = item.principal > 0 ? mulDiv(item.amount, 10000, item.principal) : 0;
+  return { ...terms, paid: carPaid(entry, item), interest: item.amount, rateBp, notice: item.missed >= entry.grace, courtMonth };
 }
 
 // ---------------------------------------------------------------------------

@@ -37,7 +37,7 @@ describe("obligations abroad", () => {
   test("[R-ENGINE-014] given the car, when figures from car.md and credit.md are read back, then each matches the page", () => {
     const car = content.obligation["obligation.car"];
     // £9,500, 10% down, 30% at the end, 55% on resale, a third, a half, three months to court.
-    expect(car?.car).toEqual({ price: 950000, depositBp: 1000, finalBp: 3000, resaleBp: 5500, courtThirdBp: 3333, handBackBp: 5000, courtMonths: 3 });
+    expect(car?.car).toEqual({ price: 950000, depositBp: 1000, finalBp: 3000, resaleBp: 5500, courtThirdBp: 3333, handBackBp: 5000, courtMonths: 3, shortfall: "obligation.car-shortfall" });
     expect(car).toMatchObject({ type: "car", term: 36, grace: 2, creditMin: 30, sink: "car-payment", interestSink: "loan-interest" });
     // 0.5% a month at 70, 0.9% at 50, 1.2% at 30.
     expect(car?.rateByCredit).toEqual([
@@ -47,7 +47,7 @@ describe("obligations abroad", () => {
     ]);
     expect(content.obligation["obligation.car-shortfall"]).toMatchObject({ type: "loan", term: 12, rateBp: 0, sink: "loan-repay" });
     // The credit numbers: +3, -12, -30, +1 a month up to 40, 72 months, less 20 on return.
-    expect(content.tuning.credit).toEqual({ onTime: 3, onMiss: 12, onDefault: 30, drift: 1, driftTo: 40, judgmentMonths: 72, returnPenalty: 20 });
+    expect(content.tuning.credit).toEqual({ onTime: 3, onMiss: 12, onDefault: 30, drift: 1, driftTo: 40, judgmentMonths: 72, judgmentCap: 20, returnPenalty: 20 });
   });
 
   test("[R-ENGINE-014] given a flat that is defaulted, when its effects are read, then the tenant goes back to a room in the same country", () => {

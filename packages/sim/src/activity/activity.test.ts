@@ -646,7 +646,7 @@ describe("starting and leaving a job", () => {
     expect(own(result, "activity/job-started")).toEqual([{ type: "activity/job-started", job: "activity.job-teacher", previous: "activity.job-bank-officer" }]);
     expect(tunde.game.state.activity.job).toBe("activity.job-teacher");
     expect(tunde.game.state.activity.tenure["activity.job-bank-officer"]).toBe(48);
-    expect(tunde.game.view().job).toEqual({ id: "activity.job-teacher", months: 0 });
+    expect(tunde.game.view().job).toEqual({ id: "activity.job-teacher", months: 0, side: null });
   });
 
   test("[R-ACTIVITY-006] given a job named by a term, when it is started, then the job is read from the terms in hand", () => {

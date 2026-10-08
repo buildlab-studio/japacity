@@ -488,7 +488,17 @@ export interface ObligationEntry {
   /** The monthly rate by credit mark, first rung whose `min` the mark reaches (R-CREDIT-005). */
   rateByCredit?: { min: number; rateBp: number }[];
   /** The car: deposit, final payment, resale and thresholds (docs/rules/car.md). */
-  car?: { price: number; depositBp: number; finalBp: number; resaleBp: number; courtThirdBp: number; handBackBp: number; courtMonths: number };
+  car?: {
+    price: number;
+    depositBp: number;
+    finalBp: number;
+    resaleBp: number;
+    courtThirdBp: number;
+    handBackBp: number;
+    courtMonths: number;
+    /** The loan opened for what is still owed after the car goes (R-CAR-003, R-CAR-005). */
+    shortfall: Id<"obligation">;
+  };
   /** The group loan's named asset, taken on default (R-OBLIGATION-011). */
   seize?: Effect[];
   /** A fixed charge each month. A scenario or an effect may override it. */
@@ -761,13 +771,16 @@ export interface Tuning {
   offer: { maxNewPerMonth: number; maxOpen: number };
   place: { brokeLine: number; fareFromNaira: boolean };
   status: { courseMonths: number };
-  credit: { onTime: number; onMiss: number; onDefault: number; drift: number; driftTo: number; judgmentMonths: number; returnPenalty: number };
+  /** `judgmentCap`: while a judgment stands, `credit/min` above it is never met (R-CREDIT-006). */
+  credit: { onTime: number; onMiss: number; onDefault: number; drift: number; driftTo: number; judgmentMonths: number; judgmentCap: number; returnPenalty: number };
   car: { lessons: number; testFee: number; passBp: number; passPerAttemptBp: number; passCapBp: number };
   remit: { appFeeBp: number; appMarginBp: number; bankFeeBp: number; informalLossBp: number; abroadBp: number };
   return: { standing: Record<ReturnShape, number>; capitalPer: number; capitalCap: number; offerMonths: number; residentLapseMonths: number };
   director: { surgePerTick: number; closedTicks: number; maxNewPerTick: number; shockGapTicks: number; onlineTickScale: number };
-  road: { enabled: boolean };
-  ladder: { cashDetectBp: number; accountRent: number; overtimeBp: number; oneChanceBp: number; phone: number };
+  /** `meansStep`: family means fall one point for each this much the family pays (R-ROAD-005). */
+  road: { enabled: boolean; meansStep: number };
+  /** `robberyWellbeing`: wellbeing lost to the one chance (R-ACTIVITY-011). */
+  ladder: { cashDetectBp: number; accountRent: number; overtimeBp: number; oneChanceBp: number; phone: number; robberyWellbeing: number };
   prologue: {
     startAgeMonths: number;
     siblings: [min: number, max: number];
@@ -791,6 +804,8 @@ export interface Tuning {
     drySpellMonths: number;
     drySpellBp: number;
     drySpellCapBp: number;
+    /** Wellbeing gained on a won bet slip and lost on a lost one (R-LUCK-006). */
+    betWellbeing: number;
     ticket: number;
     maxTickets: number;
     prizeSmall: number;
@@ -815,7 +830,8 @@ export interface Tuning {
     sickPayBp: number;
     gapMonths: number;
   };
-  groupLoan: { feeBp: number; savingsBp: number; vanishBp: number };
+  /** `visit`: the second miss in a row, the officer and the group at the house (R-OBLIGATION-011). */
+  groupLoan: { feeBp: number; savingsBp: number; vanishBp: number; visit: { standing: number; wellbeing: number } };
 }
 
 export interface Content {
@@ -1047,6 +1063,29 @@ export interface SetpieceSlice {
   } | null;
 }
 
+/** The fixed figures of one car from its entry (docs/rules/car.md). */
+export interface CarTerms {
+  price: number;
+  final: number;
+  third: number;
+  half: number;
+  resale: number;
+  courtMonths: number;
+}
+
+/** R-CAR-007: what a screen shows of one car beyond the obligation's own fields. */
+export interface CarView extends CarTerms {
+  paid: number;
+  /** The monthly interest fixed at opening by the credit ladder. */
+  interest: number;
+  /** That interest as basis points of the opening principal. */
+  rateBp: number;
+  /** Two misses in a row: the lender's notice stands (R-CAR-003). */
+  notice: boolean;
+  /** The month the car is taken while the lender waits on the court, or null. */
+  courtMonth: number | null;
+}
+
 export interface ObligationState {
   id: string;
   entry: Id<"obligation">;
@@ -1100,7 +1139,8 @@ export interface PlaceSlice {
   where: Where;
   country: Id<"country"> | null;
   movedMonth: number;
-  returns: { month: number; shape: ReturnShape; country: Id<"country"> }[];
+  /** The record of returns. `country` is null for a return from the road (R-ROAD-007). */
+  returns: { month: number; shape: ReturnShape; country: Id<"country"> | null }[];
   /** A settled or citizen status kept after a return with papers (R-RETURN-004). */
   heldAbroad: { status: Id<"status">; sinceMonth: number } | null;
 }
@@ -1402,7 +1442,8 @@ export interface PlayerView {
   locks: SlotLock[];
   japacity: { percent: number | null; route: Id<"route"> | null };
   qualities: { id: Id<"quality">; value: number }[];
-  job: { id: Id<"activity"> | null; months: number };
+  /** The job, its tenure, and the side job held if any (R-ACTIVITY-010). */
+  job: { id: Id<"activity"> | null; months: number; side: Id<"activity"> | null };
   freeSlots: number;
   activities: ActivityOption[];
   lastSlots: SlotPick[];
@@ -1419,11 +1460,13 @@ export interface PlayerView {
     total: number;
     question: { id: string; answers: string[]; weak: string[] } | null;
   } | null;
-  obligations: (ObligationState & { due: number })[];
+  /** Every open obligation with its next charge; `car` carries R-CAR-007's figures for a car and is null for anything else. */
+  obligations: (ObligationState & { due: number; car: CarView | null })[];
   offers: OfferView[];
   chapter: { current: Id<"chapter"> | null; items: { id: string; met: boolean }[]; done: Id<"chapter">[] };
   news: { id: Id<"news">; stage: NewsStage; since: number; forYou: boolean }[];
-  place: { where: Where; country: Id<"country"> | null; monthsHere: number; returns: PlaceSlice["returns"]; heldAbroad: Id<"status"> | null };
+  /** `fareHome` is the fare from the country the character is in, December factor applied, or null at home (R-PLACE-006). */
+  place: { where: Where; country: Id<"country"> | null; monthsHere: number; returns: PlaceSlice["returns"]; heldAbroad: Id<"status"> | null; fareHome: MoneyParam | null };
   status: {
     entry: Id<"status">;
     monthsLeft: number | null;
@@ -1432,6 +1475,8 @@ export interface PlayerView {
     settleMonths: number | null;
     work: WorkRule;
     nextStep: string | null;
+    /** What `status/renew` would cost today from the world's variables, or null when the status cannot be renewed by asking (R-STATUS-010). */
+    renew: { months: number; currency: ForeignCurrency; fee: number; surcharge: number } | null;
   } | null;
   credit: { mark: number; onTime: number; missed: number; judgmentUntil: number | null; needs: { id: Id<"obligation">; creditMin: number }[] } | null;
   goals: { open: { id: Id<"goal">; items: { id: string; met: boolean }[] }[]; done: { id: Id<"goal">; month: number }[] };
@@ -1441,7 +1486,8 @@ export interface PlayerView {
     lastOutcome: string | null;
     draw: PrologueSlice["draw"];
   } | null;
-  era: World["era"];
+  /** The era running, with its start and end as this player's months (the tick difference from now). Null until the director runs. */
+  era: { id: Id<"era">; since: number; until: number; sinceMonth: number; untilMonth: number } | null;
   /** The send-off card or the real-story card, when one is due (R-CHAPTER-006, R-ROAD-011). */
   card: { kind: "send-off" | "real-story" | "lost"; route: Id<"route"> | null; percent: number | null; months: number; standing: number; topActivities: Id<"activity">[] } | null;
   report: TurnReport | null;

@@ -197,7 +197,7 @@ describe("the road is never a route on the board", () => {
     const certain: Change = (used) => {
       const offer = { ...used.offer };
       for (const id of PITCHES) offer[id] = { ...used.offer[id]!, chanceBp: 10000 };
-      return { ...used, offer, tuning: { ...used.tuning, road: { enabled: false } } };
+      return { ...used, offer, tuning: { ...used.tuning, road: { ...used.tuning.road, enabled: false } } };
     };
     const game = life({ change: certain });
     turn(game);
@@ -696,6 +696,8 @@ describe("the way out", () => {
       seen.push(gateOf(game).step!);
       expect(path(seen)).toEqual([...chain.slice(0, index + 1).map((item) => item.id), "exit"]);
       expect(game.state.place.where).toBe("home");
+      expect(game.state.place.returns.at(-1)).toMatchObject({ shape: "assisted", country: null });
+      expect(game.view().place.returns[0]).toMatchObject({ shape: "assisted", country: null });
       // The return's own standing, apart from anything else the month brought (a request at home lapsing).
       type Changed = Extract<QualityEvent, { type: "quality/changed" }>;
       const changes = last.events.filter((event): event is Changed => event.type === "quality/changed");

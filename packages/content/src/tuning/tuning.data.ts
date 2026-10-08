@@ -106,7 +106,7 @@ export const tuning: Tuning = {
   status: { courseMonths: 12 },
 
   // credit.md
-  credit: { onTime: 3, onMiss: 12, onDefault: 30, drift: 1, driftTo: 40, judgmentMonths: 72, returnPenalty: 20 },
+  credit: { onTime: 3, onMiss: 12, onDefault: 30, drift: 1, driftTo: 40, judgmentMonths: 72, judgmentCap: 20, returnPenalty: 20 },
 
   // car.md
   car: { lessons: pounds(2200), testFee: 8500, passBp: pct(55), passPerAttemptBp: pct(5), passCapBp: pct(90) },
@@ -127,10 +127,10 @@ export const tuning: Tuning = {
   director: { surgePerTick: 3, closedTicks: 8, maxNewPerTick: 2, shockGapTicks: 6, onlineTickScale: 2 },
 
   // road.md
-  road: { enabled: true },
+  road: { enabled: true, meansStep: naira(100000) },
 
   // ladders.md
-  ladder: { cashDetectBp: 200, accountRent: pounds(60), overtimeBp: pct(25), oneChanceBp: 300, phone: naira(60000) },
+  ladder: { cashDetectBp: 200, accountRent: pounds(60), overtimeBp: pct(25), oneChanceBp: 300, phone: naira(60000), robberyWellbeing: -12 },
 
   // prologue.md
   prologue: {
@@ -156,6 +156,7 @@ export const tuning: Tuning = {
     drySpellMonths: 8,
     drySpellBp: 100,
     drySpellCapBp: 800,
+    betWellbeing: 2,
     ticket: naira(200),
     maxTickets: 5,
     prizeSmall: naira(500),
@@ -184,5 +185,5 @@ export const tuning: Tuning = {
   },
 
   // obligation.md, the group loan
-  groupLoan: { feeBp: 1500, savingsBp: 1000, vanishBp: pct(25) },
+  groupLoan: { feeBp: 1500, savingsBp: 1000, vanishBp: pct(25), visit: { standing: -12, wellbeing: -5 } },
 };
