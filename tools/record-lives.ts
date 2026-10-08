@@ -20,6 +20,8 @@ import { runLife } from "../packages/sim/src/sweep/players";
 import type { StrategyName } from "../packages/sim/src/sweep/players";
 import { start } from "../packages/sim/src/testing/play";
 
+import { FLIGHT_WINDOW, MONTHS_ABROAD } from "./record-lives.window";
+
 const WORLD = "golden-world";
 const WANTED: { name: string; life: Id<"scenario">; strategy: StrategyName; refusedFirst: boolean }[] = [
   { name: "ada-careful", life: "scenario.ada", strategy: "careful", refusedFirst: false },
@@ -31,14 +33,13 @@ const ABROAD: { name: string; life: Id<"scenario"> }[] = [
   { name: "tunde-abroad", life: "scenario.tunde" },
   { name: "zainab-abroad", life: "scenario.zainab" },
 ];
-const MONTHS_ABROAD = 36;
 
 function pick(want: (typeof WANTED)[number]): { seed: string; save: FlatSave; departed: number } {
   let fallback: { seed: string; save: FlatSave; departed: number } | null = null;
   for (let n = 0; n < 80; n += 1) {
     const seed = `golden-${want.life.slice("scenario.".length)}-${String(n)}`;
-    const { record, game } = runLife(want.strategy, want.life, seed, content, { months: 40, worldSeed: WORLD, keepSave: true });
-    if (record.departed === null || record.departed < 24 || record.departed > 40 || record.flown !== "route.uk-masters") continue;
+    const { record, game } = runLife(want.strategy, want.life, seed, content, { months: FLIGHT_WINDOW.last, worldSeed: WORLD, keepSave: true });
+    if (record.departed === null || record.departed < FLIGHT_WINDOW.first || record.departed > FLIGHT_WINDOW.last || record.flown !== "route.uk-masters") continue;
     // The golden ends on the flight: the strategies' months abroad are not its business.
     const commands = savedCommands(game.save);
     const flight = commands.findIndex((entry) => entry.command.type === "route/depart");
@@ -51,7 +52,7 @@ function pick(want: (typeof WANTED)[number]): { seed: string; save: FlatSave; de
     if (!want.refusedFirst || refusedFirst) return found;
     fallback ??= found;
   }
-  if (fallback === null) throw new Error(`No seed in 80 gives ${want.name} a flight within 24 to 40 months.`);
+  if (fallback === null) throw new Error(`No seed in 80 gives ${want.name} a flight within ${String(FLIGHT_WINDOW.first)} to ${String(FLIGHT_WINDOW.last)} months.`);
   return fallback;
 }
 
@@ -87,7 +88,7 @@ function pickAbroad(want: (typeof ABROAD)[number]): { seed: string; save: FlatSa
     if (first === null) throw new Error("The abroad life does not start from a scenario.");
     return { seed, save: { schema: 2, content: lastSegment(replay.save).content, ...first, commands: savedCommands(replay.save) }, departed: record.departed };
   }
-  throw new Error(`No seed in 200 gives ${want.name} 36 lawful months abroad with a renewal, the December scene and a return by choice.`);
+  throw new Error(`No seed in 200 gives ${want.name} ${String(MONTHS_ABROAD)} lawful months abroad with a renewal, the December scene and a return by choice.`);
 }
 
 const only = new Set(process.argv.slice(2));
