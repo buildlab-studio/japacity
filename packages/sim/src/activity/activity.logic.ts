@@ -108,9 +108,8 @@ function officialRates(read: ReadCtx): Record<ForeignCurrency, number> {
 // ---------------------------------------------------------------------------
 
 /**
- * Each ticket's chances out of a million. the small and mid prizes are
- * read as basis points; the jackpot's figure as draws in a million, as the tuning
- * comment says, because one in 100,000 is under one basis point.
+ * Each ticket's chances out of a million: the small and mid prizes are basis
+ * points, the jackpot `jackpotPerMillion`, since one in 100,000 is under one basis point.
  */
 export function prizeOdds(luck: Tuning["luck"]): { prize: Prize; perMillion: number; amount: number }[] {
   return [
