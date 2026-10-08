@@ -19,6 +19,7 @@
     "assets:shoot": "tsx tools/assets/shoot.ts",
     "assets:outline": "tsx tools/assets/outline.ts",
     "assets:credits": "tsx tools/assets/credits.ts",
+    "assets:publish": "tsx tools/assets/publish.ts",
     "bless": "tsx tools/bless.ts",
     "record:lives": "tsx tools/record-lives.ts",
     "check": "tsx tools/check.ts",

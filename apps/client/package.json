@@ -13,13 +13,17 @@
   "dependencies": {
     "@base-ui/react": "^1.8.0",
     "@fontsource/danfo": "^5.3.0",
+    "@japacity/assets": "workspace:*",
+    "@japacity/assets-src": "workspace:*",
     "@japacity/content": "workspace:*",
     "@japacity/sim": "workspace:*",
+    "@react-three/fiber": "9.8.1",
     "@tailwindcss/vite": "^4.3.3",
     "lucide-react": "^1.52.0",
     "react": "~19.3.0",
     "react-dom": "~19.3.0",
     "tailwindcss": "^4.3.3",
+    "three": "0.186.1",
     "zustand": "^5.0.15"
   },
   "devDependencies": {
@@ -27,6 +31,7 @@
     "@testing-library/react": "^16.3.3",
     "@types/react": "~19.3.0",
     "@types/react-dom": "~19.3.0",
+    "@types/three": "0.186.0",
     "@vitejs/plugin-react": "^6.1.2",
     "vite": "^8.3.3"
   }
