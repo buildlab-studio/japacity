@@ -1,7 +1,7 @@
-import type { Currency, Id, RouteState, RouteStateName, VisaApplication } from "../engine/types";
+import type { Currency, Id, RouteGateState, RouteState, RouteStateName, VisaApplication } from "../engine/types";
 
 /** Why a visa was refused, most telling first (R-ROUTE-019). */
-export type RefusalReason = "funds" | "interview" | "history" | "credibility";
+export type RefusalReason = "funds" | "interview" | "history" | "credibility" | "sponsor" | "agent" | "endorsement";
 
 /** Every event of the route kind. */
 export type RouteKindEvent =
@@ -38,7 +38,13 @@ export type RouteKindEvent =
   /** The booked deposit refund arrived in the pound bank pocket (R-ROUTE-018). Pence. */
   | { type: "route/deposit-refunded"; route: Id<"route">; amount: number }
   /** Family money that counts by consent toward the route's funds (R-ROUTE-010). */
-  | { type: "route/supported"; route: Id<"route">; support: { currency: Currency; amount: number } };
+  | { type: "route/supported"; route: Id<"route">; support: { currency: Currency; amount: number } }
+  /**
+   * A gate's own state moved (docs/rules/route-gates.md): a sponsor recorded, the
+   * pool entered, an invitation, a step on the road. `note` names the line to
+   * show, as `line.route.<note>` with the route, or null for a silent change.
+   */
+  | { type: "route/gate-updated"; route: Id<"route">; gate: RouteGateState; note: string | null };
 
 /**
  * news.test.ts stands in for the route kind with the stub's

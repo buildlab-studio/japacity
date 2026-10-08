@@ -7,7 +7,6 @@ import { BP_WHOLE, clamp, convertMinor, divFloor, mulDiv } from "../engine/int";
 import type { RegisteredKind } from "../engine/kind";
 import { emit } from "../engine/kind";
 import { reject } from "../engine/reject";
-import { effectsNotBuilt } from "../engine/stub";
 import type {
   BaseEvent,
   Cause,
@@ -18,6 +17,7 @@ import type {
   Ctx,
   Currency,
   Effect,
+  EffectType,
   ForeignCurrency,
   Id,
   MoneyParam,
@@ -27,6 +27,7 @@ import type {
   Requirement,
   RequirementResult,
   RouteEntry,
+  RouteGate,
   RouteSlice,
   RouteState,
   RouteStateName,
@@ -37,6 +38,9 @@ import type {
   VisaApplication,
 } from "../engine/types";
 import { routePercent } from "../japacity/japacity.logic";
+import { GATES } from "./gates";
+import type { DecisionTerms, GateEffectHandler } from "./gates";
+import { EVERY_TERM } from "./gates";
 import type { RefusalReason, RouteKindEvent } from "./route.events";
 
 const GRADE: Id<"quality"> = "quality.edu-grade";
@@ -49,7 +53,7 @@ const SURCHARGE: Id<"var"> = "var.uk-surcharge";
 
 /** Funds, tuition and deposits are counted in pence (R-ROUTE-009, 010). */
 const FUNDS_CURRENCY: ForeignCurrency = "GBP";
-const CURRENCIES: readonly Currency[] = ["NGN", "GBP", "USD"];
+const CURRENCIES: readonly Currency[] = ["NGN", "GBP", "USD", "CAD", "AED", "EUR"];
 
 /** R-ROUTE-016 counts the unexplained share in whole percents. */
 const BP_PER_PERCENT = 100;
@@ -67,7 +71,7 @@ const ARROWS: Record<RouteStateName, readonly RouteStateName[]> = {
   departed: [],
 };
 
-export function unknownRoute(): RouteState {
+export function unknownRoute(gate: RouteGate = "study"): RouteState {
   return {
     state: "unknown",
     heardMonth: null,
@@ -81,7 +85,7 @@ export function unknownRoute(): RouteState {
     refusals: 0,
     lastRefusal: null,
     depositRefund: null,
-    gate: null,
+    gate: GATES[gate].initial(),
     secret: { sponsorFraud: null },
     bannedUntil: null,
   };
@@ -225,14 +229,14 @@ export interface VisaFile {
  * interview point, less the good grade's figure, kept between the floor and
  * the ceiling.
  */
-export function refusalChanceBp(numbers: Tuning["route"], baseBp: number, file: VisaFile): number {
+export function refusalChanceBp(numbers: Tuning["route"], baseBp: number, file: VisaFile, terms: DecisionTerms = EVERY_TERM): number {
   const raw =
     baseBp +
-    numbers.refusalPerStrictnessBp * file.strictness +
-    numbers.refusalPerUnexplainedBp * divFloor(file.unexplainedBp, BP_PER_PERCENT) +
-    numbers.refusalPerRefusalBp * file.refusals -
-    numbers.refusalPerInterviewPointBp * file.interviewScore -
-    (file.grade >= numbers.goodGrade ? numbers.refusalGoodGradeBp : 0);
+    (terms.strictness ? numbers.refusalPerStrictnessBp * file.strictness : 0) +
+    (terms.unexplained ? numbers.refusalPerUnexplainedBp * divFloor(file.unexplainedBp, BP_PER_PERCENT) : 0) +
+    (terms.refusals ? numbers.refusalPerRefusalBp * file.refusals : 0) -
+    (terms.interview ? numbers.refusalPerInterviewPointBp * file.interviewScore : 0) -
+    (terms.goodGrade && file.grade >= numbers.goodGrade ? numbers.refusalGoodGradeBp : 0);
   return clamp(raw, numbers.refusalMinBp, numbers.refusalMaxBp);
 }
 
@@ -325,15 +329,25 @@ function conditionsHold(ctx: Ctx, held: RouteState, cause: Cause): boolean {
   );
 }
 
-/** R-ROUTE-012, 013, 014, 015: send the application, record the day's figures, open the interview. */
+/** R-ROUTE-012, 013, 014, 015: the application's conditions, then the sending. */
 function applyVisa(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
   if (effect.type !== "route/apply") throw new Error(`route/apply cannot carry out ${effect.type}.`);
   const { route } = effect;
   const entry = entryOf(ctx.content, route);
   const held = routeOf(ctx.state, route);
+  if (held.state !== "known" || !GATES[entry.gate].mayApply(ctx, entry, held, cause)) return [];
+  if (windowOf(readOf(ctx), route) === "closed" || !conditionsHold(ctx, held, cause)) return [];
+  return sendApplication(ctx, entry, cause);
+}
+
+/**
+ * R-ROUTE-013, 014, 015: send the application, record the day's figures, open
+ * the interview where the entry has one. A gate that sends on its own clock
+ * (the points gate's invitation) calls this with its conditions already judged.
+ */
+export function sendApplication(ctx: Ctx, entry: RouteEntry, cause: Cause): BaseEvent[] {
+  const route = entry.id;
   const read = readOf(ctx);
-  if (held.state !== "known" || held.school === null || held.funds.heldMonths < 1) return [];
-  if (windowOf(read, route) === "closed" || !conditionsHold(ctx, held, cause)) return [];
   const month = ctx.state.turn.month;
   const visa: VisaApplication = {
     submittedMonth: month,
@@ -488,14 +502,16 @@ function decide(ctx: Ctx, route: Id<"route">): BaseEvent[] {
   if (held.state !== "applying" || held.visa === null || held.visa.decisionMonth > month) return [];
   const { visa } = held;
   const numbers = ctx.content.tuning.route;
-  const chance = refusalChanceBp(numbers, entryOf(ctx.content, route).refusalBaseBp, {
-    strictness: visa.rules.strictness,
-    unexplainedBp: visa.unexplainedBp,
-    refusals: held.refusals,
-    interviewScore: visa.interviewScore ?? 0,
-    grade: grade(ctx.state),
-  });
-  if (!ctx.random.chance("visa", chance)) return record(ctx, moved(route, "granted"));
+  const entry = entryOf(ctx.content, route);
+  // R-GATE-002: the gate says which terms the draw reads, and whether something refuses before any draw.
+  const decision = GATES[entry.gate].decision(readOf(ctx), entry, held);
+  const chance = refusalChanceBp(
+    numbers,
+    entry.refusalBaseBp,
+    { strictness: visa.rules.strictness, unexplainedBp: visa.unexplainedBp, refusals: held.refusals, interviewScore: visa.interviewScore ?? 0, grade: grade(ctx.state) },
+    decision.terms,
+  );
+  if (decision.override === null && !ctx.random.chance("visa", chance)) return record(ctx, moved(route, "granted"));
   const back = Math.max(0, held.depositPaid - numbers.depositAdminFee);
   // A refund still on its way is kept, not lost, should a second refusal come first.
   const owed = back + (held.depositRefund?.amount ?? 0);
@@ -503,7 +519,7 @@ function decide(ctx: Ctx, route: Id<"route">): BaseEvent[] {
     type: "route/refused",
     route,
     month,
-    reasons: refusalReasons(visa, held.refusals, numbers),
+    reasons: decision.override === null ? refusalReasons(visa, held.refusals, numbers) : [decision.override, ...refusalReasons(visa, held.refusals, numbers)],
     depositRefund: owed === 0 ? null : { amount: owed, readyMonth: month + numbers.depositRefundMonths },
   };
   const events = record(ctx, refused);
@@ -517,6 +533,7 @@ function decide(ctx: Ctx, route: Id<"route">): BaseEvent[] {
 function clocks(ctx: Ctx): BaseEvent[] {
   const events: BaseEvent[] = [];
   for (const entry of Object.values(ctx.content.route)) {
+    events.push(...(GATES[entry.gate].clocks?.(ctx, entry) ?? []));
     events.push(...refundArrives(ctx, entry.id));
     events.push(...schoolsAnswer(ctx, entry));
     events.push(...fundsCheck(ctx, entry.id));
@@ -578,9 +595,10 @@ function judge(read: ReadCtx, requirement: Requirement): RequirementResult {
     case "not":
     case "any":
       throw new Error(`The route kind does not judge ${requirement.type}.`);
-    case "route/gate-step":
-      // Built with the gates (docs/rules/route-gates.md). Until then no step is reached.
-      return { met: false };
+    case "route/gate-step": {
+      const entry = entryOf(read.content, requirement.route);
+      return { met: GATES[entry.gate].reached(read, entry, routeOf(read.state, requirement.route), requirement.step) };
+    }
     default: {
       const never: never = requirement;
       throw new Error(`Unknown requirement ${JSON.stringify(never)}.`);
@@ -653,6 +671,8 @@ function evolve(slice: RouteSlice, event: RouteKindEvent, state: State): RouteSl
       return withRoute(slice, event.route, (held) => ({ ...held, depositRefund: null }));
     case "route/supported":
       return withRoute(slice, event.route, (held) => ({ ...held, support: event.support }));
+    case "route/gate-updated":
+      return withRoute(slice, event.route, (held) => ({ ...held, gate: event.gate }));
     default: {
       const never: never = event;
       throw new Error(`Unknown route event ${JSON.stringify(never)}.`);
@@ -728,6 +748,8 @@ function lines(event: RouteKindEvent): ReportLine[] {
       return [line("deposit-refunded", { route: event.route, amount: pounds(event.amount) }, "good")];
     case "route/supported":
       return [line("supported", { route: event.route, amount: { currency: event.support.currency, amount: event.support.amount } }, "good")];
+    case "route/gate-updated":
+      return event.note === null ? [] : [line(event.note, { route: event.route }, "plain", true)];
     default: {
       const never: never = event;
       throw new Error(`Unknown route event ${JSON.stringify(never)}.`);
@@ -810,12 +832,21 @@ function routeProblems(id: Id<"route">, held: RouteState, content: Content): str
   return problems;
 }
 
+/** The effect handlers every gate module brings, merged for the kind's table. */
+function gateEffects(): Partial<Record<EffectType, GateEffectHandler>> {
+  const merged: Partial<Record<EffectType, GateEffectHandler>> = {};
+  for (const gate of Object.values(GATES)) {
+    for (const [type, handler] of Object.entries(gate.effects ?? {}) as [EffectType, GateEffectHandler][]) merged[type] = handler;
+  }
+  return merged;
+}
+
 export const routeKind: RegisteredKind<RouteSlice, RouteKindEvent> = {
   kind: "route",
   // Every route starts unknown (R-SCENARIO-002).
   initial(_scenario, content) {
     const slice: RouteSlice = {};
-    for (const entry of Object.values(content.route)) slice[entry.id] = unknownRoute();
+    for (const entry of Object.values(content.route)) slice[entry.id] = unknownRoute(entry.gate);
     return slice;
   },
   commands: {
@@ -829,8 +860,8 @@ export const routeKind: RegisteredKind<RouteSlice, RouteKindEvent> = {
     "route/apply": applyVisa,
     "route/support": support,
     "route/interview-scored": interviewScored,
-    // The sponsor offers at home come up now that `place/is` is judged; the gates replace this stub.
-    ...effectsNotBuilt(["route/record-sponsor"]),
+    // Each gate's own effects (R-GATE-001): the sponsor's record, the road's steps.
+    ...gateEffects(),
   },
   phases: { clocks, hear: hearPhase },
   evolve,
