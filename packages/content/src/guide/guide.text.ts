@@ -2,6 +2,7 @@
 // sources, never about one person's case. A blank line inside a section starts a new paragraph.
 export const guideText: Record<string, string> = {
   // The words every guide page shares.
+  "guide.page.game": "Japacity",
   "guide.page.opening": "General information, checked on {date}. Not immigration, legal or financial advice.",
   "guide.page.stale": "These rules may have changed since.",
   "guide.page.heading.real": "What the real rules say",
@@ -42,6 +43,7 @@ export const guideText: Record<string, string> = {
   "guide.page.credits.fonts": "Fonts",
   "guide.page.credits.code": "Open source code the game ships",
   "guide.page.credits.map": "Map data",
+  "guide.page.credits.osm": "© OpenStreetMap contributors. Available under the Open Database License",
   "guide.page.credits.overture": "Overture Maps data, under the licence of each source theme.",
   "guide.page.credits.licences": "The game's own licences",
   "guide.page.credits.licence.code": "Code: MIT.",

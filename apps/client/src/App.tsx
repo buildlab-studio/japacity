@@ -20,6 +20,7 @@ import { ChapterView } from "./features/chapter/ChapterView";
 import { CreditView } from "./features/credit/CreditView";
 import { DocumentView } from "./features/document/DocumentView";
 import { GoalView } from "./features/goal/GoalView";
+import { GuidesMenu } from "./features/guides/GuidesMenu";
 import { JapacityView } from "./features/japacity/JapacityView";
 import { NewsView } from "./features/news/NewsView";
 import { ObligationView } from "./features/obligation/ObligationView";
@@ -83,6 +84,7 @@ function Header() {
           {say("ui.japacity.title")}
           <JapacityView compact />
         </span>
+        <GuidesMenu />
         <AccountButton />
       </div>
     </header>

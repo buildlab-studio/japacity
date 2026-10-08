@@ -96,6 +96,11 @@ export function staleGuides(content: Content, today: string): string[] {
     .sort();
 }
 
+/** R-GUIDE-002: the guide that explains a route, or null. */
+export function guideForRoute(content: Content, route: string): string | null {
+  return Object.values(content.guide).find((guide) => (guide.routes as string[]).includes(route))?.id ?? null;
+}
+
 /** The text keys a guide's page reads: its title and each section. */
 export function guideKeys(id: string, sections: readonly string[]): string[] {
   return [`${id}.title`, ...sections.map((section) => `${id}.section.${section}`)];

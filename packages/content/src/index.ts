@@ -147,5 +147,5 @@ export function mergeText(tables: Record<string, Record<string, string>>): Recor
 
 export const text: Record<string, string> = mergeText(textTables);
 
-export { guideChecks, guideKeys, staleGuides } from "./guide/guide.check";
+export { guideChecks, guideForRoute, guideKeys, staleGuides } from "./guide/guide.check";
 export { GUIDE_SECTIONS } from "./guide/guide.data";
