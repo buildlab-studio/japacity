@@ -922,7 +922,10 @@ function invariants(state: State, content: Content): string[] {
 }
 
 export function obligationsView(read: ReadCtx): (ObligationState & { due: number; car: CarView | null })[] {
-  return openItems(read.state).map((item) => ({ ...item, due: dueNext(read, item, entryOf(read.content, item.entry)), car: carView(read, item) }));
+  // R-CAR-005: an owned car is kept with no obligation. the contract has no other place for the car, so the item stays in the state for hasCar.
+  return openItems(read.state)
+    .filter((item) => !isOwned(item, entryOf(read.content, item.entry)))
+    .map((item) => ({ ...item, due: dueNext(read, item, entryOf(read.content, item.entry)), car: carView(read, item) }));
 }
 
 /** R-CAR-007's figures for one car; the view carries them on the item as `car`. */
