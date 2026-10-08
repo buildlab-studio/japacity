@@ -9,8 +9,7 @@ import { slot } from "../route.journey";
 import { dependantFee, dependantGate, leadStatusMonths } from "./dependant";
 import { applyAs, CA_ACCOMPANY, CANADA, facts, interviewOpen, joint, life, readOf, scored, setFacts, SKILLED, UK_DEPENDANT } from "./people.journey";
 
-const used = content;
-const ukDependant = used.route[UK_DEPENDANT]!;
+const ukDependant = content.route[UK_DEPENDANT]!;
 const APPLY_UK: Id<"activity"> = "activity.apply-uk-dependant";
 const APPLY_CA: Id<"activity"> = "activity.apply-ca-accompany";
 const SKILLED_FEE = content.var["var.uk-skilled-visa-fee"]!.start;
@@ -39,7 +38,7 @@ function pounds(game: Game): number {
  * hearing and looking into, played here as effects and a slot.
  */
 function joined(lead: Id<"route">, dependant: Id<"route">, leadFacts: PersonFacts, options: LifeOptions = {}): Game {
-  const game = life(used, options);
+  const game = life(content, options);
   joint(game, lead, "them", { stage: "married", facts: leadFacts });
   applyAs(game, [{ type: "route/hear", route: dependant, via: "partner" }]);
   game.endTurn([slot("activity.look-into-route", dependant)]);
@@ -61,16 +60,16 @@ function pastDecision(game: Game, route: Id<"route">): void {
 
 describe("R-PEOPLE-019, 020: who may bring a partner", () => {
   test("[R-PEOPLE-019] given the routes, when their dependants are read, then the skilled and talent routes bring the UK dependant, the points route the Canadian one, and the rest none", () => {
-    expect(used.route[SKILLED]?.dependants).toBe(UK_DEPENDANT);
-    expect(used.route["route.uk-talent"]?.dependants).toBe(UK_DEPENDANT);
-    expect(used.route[CANADA]?.dependants).toBe(CA_ACCOMPANY);
-    for (const id of ["route.uk-masters", "route.uk-care", "route.gulf-contract", "route.road"] as const) expect(used.route[id]?.dependants).toBeNull();
+    expect(content.route[SKILLED]?.dependants).toBe(UK_DEPENDANT);
+    expect(content.route["route.uk-talent"]?.dependants).toBe(UK_DEPENDANT);
+    expect(content.route[CANADA]?.dependants).toBe(CA_ACCOMPANY);
+    for (const id of ["route.uk-masters", "route.uk-care", "route.gulf-contract", "route.road"] as const) expect(content.route[id]?.dependants).toBeNull();
   });
 
   test("[R-PEOPLE-020] given the statuses, when their dependants are read, then the sponsored worker lists four jobs, talent is any, and the rest none", () => {
-    expect(used.status["status.uk-sponsored"]?.dependants).toEqual(["activity.job-uk-skilled", "activity.job-uk-senior-dev", "activity.job-uk-graduate", "activity.job-uk-nurse"]);
-    expect(used.status["status.uk-talent"]?.dependants).toBe("any");
-    const others = Object.values(used.status).filter((status) => !["status.uk-sponsored", "status.uk-talent"].includes(status.id));
+    expect(content.status["status.uk-sponsored"]?.dependants).toEqual(["activity.job-uk-skilled", "activity.job-uk-senior-dev", "activity.job-uk-graduate", "activity.job-uk-nurse"]);
+    expect(content.status["status.uk-talent"]?.dependants).toBe("any");
+    const others = Object.values(content.status).filter((status) => !["status.uk-sponsored", "status.uk-talent"].includes(status.id));
     expect(others.every((status) => status.dependants === "none")).toBe(true);
   });
 });
@@ -125,7 +124,7 @@ describe("R-PEOPLE-022: applying as a dependant", () => {
   test("[R-PEOPLE-022] given a lead in Canada's pool applying, when the spouse applies alongside, then the accompanying fee is paid in Canadian money and no funds are asked", () => {
     const pockets: LifeOptions["pockets"] = { NGN: { bank: 200000000, cash: 150000000 }, CAD: { bank: 300000, cash: 0 } };
     const game = joined(CANADA, CA_ACCOMPANY, leadOn(CANADA, "applying"), { pockets });
-    expect(dependantGate.funds?.(readOf(game), used.route[CA_ACCOMPANY]!, routeOf(game, CA_ACCOMPANY))).toBeNull();
+    expect(dependantGate.funds?.(readOf(game), content.route[CA_ACCOMPANY]!, routeOf(game, CA_ACCOMPANY))).toBeNull();
     const before = game.state.wallet.pockets.CAD.bank;
     game.endTurn([slot(APPLY_CA)]);
     expect(routeOf(game, CA_ACCOMPANY).state).toBe("applying");

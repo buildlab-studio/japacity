@@ -27,4 +27,7 @@ export type PeopleEvent =
   | { type: "people/wedding-waits"; bond: string }
   // The arrival on a partner route (R-PEOPLE-027), and a month of assistance counted (R-UNDERTAKING-010).
   | { type: "people/arrived"; route: Id<"route">; month: number }
-  | { type: "people/assistance-counted"; route: Id<"route"> };
+  | { type: "people/assistance-counted"; route: Id<"route"> }
+  // The other life took back its proposal (R-PEOPLE-016), and a shared request paid in a sibling's life (R-PEOPLE-034).
+  | { type: "people/proposal-withdrawn"; bond: string; step: Proposal["step"] }
+  | { type: "people/request-handled"; offer: Id<"offer"> };
