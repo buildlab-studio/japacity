@@ -21,6 +21,7 @@ import { City } from "./features/city/City";
 import { CreditView } from "./features/credit/CreditView";
 import { DocumentView } from "./features/document/DocumentView";
 import { GoalView } from "./features/goal/GoalView";
+import { GuidesMenu } from "./features/guides/GuidesMenu";
 import { JapacityView } from "./features/japacity/JapacityView";
 import { ModerationMenu } from "./features/moderation/ModerationMenu";
 import { NewsView } from "./features/news/NewsView";
@@ -86,6 +87,7 @@ function Header() {
           <JapacityView compact />
         </span>
         <ModerationMenu />
+        <GuidesMenu />
         <AccountButton />
       </div>
     </header>

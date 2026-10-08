@@ -1,0 +1,59 @@
+// The guides from inside the game (R-GUIDE-005, R-GUIDE-008): the header's way to the guide
+// for the route in view, every guide, the sources, the credits and how the game was made.
+// The pages are the prerendered ones, opened beside the game so the life stays where it is.
+import { content, guideForRoute } from "@japacity/content";
+import { BookOpen } from "lucide-react";
+import { useState } from "react";
+
+import { useView } from "../../authority/GameProvider";
+import { Button } from "../../shared/ui/Button";
+import { Sheet } from "../../shared/ui/Sheet";
+import { nameOf, say } from "../../shared/words/text";
+import { CREDITS_PATH, GUIDES_ROOT, guidePath, MADE_PATH, NUMBERS_PATH, SOURCES_PATH } from "./paths";
+
+function PageLink({ href, children }: { href: string; children: string }) {
+  return (
+    <li>
+      <a href={href} target="_blank" rel="noopener" className="underline underline-offset-4 decoration-line hover:decoration-ink">
+        {children}
+      </a>
+    </li>
+  );
+}
+
+export function GuidesMenu() {
+  const view = useView();
+  const [open, setOpen] = useState(false);
+  const route = view.japacity.route;
+  const routeGuide = route === null ? null : guideForRoute(content, route);
+  return (
+    <>
+      <Button small variant="quiet" aria-label={say("guide.page.menu")} onClick={() => setOpen(true)}>
+        <BookOpen size={18} />
+      </Button>
+      <Sheet open={open} onOpenChange={setOpen} title={say("guide.page.menu")} description={say("guide.page.game-note")}>
+        <nav aria-label={say("guide.page.menu")} className="flex flex-col gap-4">
+          {routeGuide === null || route === null ? null : (
+            <ul>
+              <PageLink href={guidePath(routeGuide)}>{`${say("guide.page.route-link")}: ${nameOf(route)}`}</PageLink>
+            </ul>
+          )}
+          <ul className="flex flex-col gap-2">
+            {Object.keys(content.guide).map((id) => (
+              <PageLink key={id} href={guidePath(id)}>
+                {say(`${id}.title`)}
+              </PageLink>
+            ))}
+          </ul>
+          <ul className="flex flex-col gap-2 border-t border-line pt-4">
+            <PageLink href={GUIDES_ROOT}>{say("guide.page.all-guides")}</PageLink>
+            <PageLink href={NUMBERS_PATH}>{say("guide.page.numbers.index")}</PageLink>
+            <PageLink href={SOURCES_PATH}>{say("guide.page.sources-page")}</PageLink>
+            <PageLink href={CREDITS_PATH}>{say("guide.page.credits")}</PageLink>
+            <PageLink href={MADE_PATH}>{say("guide.page.made")}</PageLink>
+          </ul>
+        </nav>
+      </Sheet>
+    </>
+  );
+}

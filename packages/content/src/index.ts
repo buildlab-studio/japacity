@@ -14,6 +14,8 @@ import { documentTable } from "./document/document.data";
 import { documentText } from "./document/document.text";
 import { goalTable } from "./goal/goal.data";
 import { goalText } from "./goal/goal.text";
+import { guideTable } from "./guide/guide.data";
+import { guideText } from "./guide/guide.text";
 import { lotteryText } from "./lottery/lottery.text";
 import { eraTable } from "./era/era.data";
 import { interviewTable } from "./interview/interview.data";
@@ -86,7 +88,7 @@ export const content: Content = {
   people: { spots: peopleSpots },
   // The tables start empty; their builders fill them (adverts.md, guides.md).
   advert: {},
-  guide: {},
+  guide: guideTable,
   analytics: { counters: counterTable },
   points: pointsTable,
   prologue: prologueTable,
@@ -103,6 +105,7 @@ export const textTables: Record<string, Record<string, string>> = {
   credit: creditText,
   document: documentText,
   goal: goalText,
+  guide: guideText,
   interview: interviewText,
   lottery: lotteryText,
   era: eraText,
@@ -149,3 +152,6 @@ export function mergeText(tables: Record<string, Record<string, string>>): Recor
 }
 
 export const text: Record<string, string> = mergeText(textTables);
+
+export { guideChecks, guideForRoute, guideKeys, staleGuides } from "./guide/guide.check";
+export { GUIDE_SECTIONS } from "./guide/guide.data";
