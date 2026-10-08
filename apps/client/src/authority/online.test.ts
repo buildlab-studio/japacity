@@ -30,7 +30,7 @@ async function setUp(first: PlayerView = { ...engineView(), v: 2 }) {
   const store = createGameStore(remote, { life: remote, lifeAgain: false });
   const { open, opened } = fakeSockets();
   const focus = new EventTarget();
-  const stop = goOnline({ store, remote, open, random: () => 0, now: () => Date.now(), focus: focus as unknown as Window });
+  const stop = goOnline({ store, remote, open, random: () => 0, now: () => Date.now(), focus });
   await store.getState().refresh();
   const views = () => server.sent.filter((request) => request.path === "/api/view").length;
   return { server, store, opened, focus, stop, views };

@@ -162,7 +162,7 @@ describe("the ways in", () => {
     const banned = ["pass", "word"].join("");
     const files = readdirSync(folder).filter((name) => name !== "account.test.tsx");
     expect(files).toContain("SignIn.tsx");
-    for (const name of files) expect(readFileSync(join(folder, name), "utf8").toLowerCase(), name).not.toContain(banned);
+    expect(files.filter((name) => readFileSync(join(folder, name), "utf8").toLowerCase().includes(banned))).toEqual([]);
   });
 
   test("[R-ACCOUNT-002] given an email, when a code is asked for and the 6 digits typed, then the account signs in and the game comes back", async () => {

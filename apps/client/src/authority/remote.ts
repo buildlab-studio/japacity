@@ -83,19 +83,15 @@ export function remoteAuthority(options: RemoteAuthorityOptions): RemoteAuthorit
 
   /** Tells the store about a refusal it must act on. True when it was told. */
   function report(rejection: ServerRejection): boolean {
-    switch (rejection.code) {
-      case "signed-out":
-        tell({ kind: "signed-out" });
-        return true;
-      case "no-character":
-        tell({ kind: "no-character" });
-        return true;
-      case "rate-limited":
-        tell({ kind: "rate-limited", retryAfter: rejection.retryAfter ?? 1 });
-        return true;
-      default:
-        return false;
+    if (rejection.code === "signed-out" || rejection.code === "no-character") {
+      tell({ kind: rejection.code });
+      return true;
     }
+    if (rejection.code === "rate-limited") {
+      tell({ kind: "rate-limited", retryAfter: rejection.retryAfter ?? 1 });
+      return true;
+    }
+    return false;
   }
 
   function refuse(rejection: ServerRejection): never {
@@ -140,18 +136,15 @@ export function remoteAuthority(options: RemoteAuthorityOptions): RemoteAuthorit
       const request: CommandRequest = { command: { ...command, basedOn }, basedOn };
       const reply = await http.post<ServerReply>("/api/command", request);
       if (reply.ok) return { ok: true, view: keep(reply), lines: reply.lines };
-      switch (reply.code) {
-        case "stale":
-          // R-ENGINE-003: the state moved on. Fetch it once so the player can look again.
-          fresh = await fetchView();
-          return reply;
-        case "rate-limited":
-          await limited(reply);
-          return reply;
-        default:
-          report(reply);
-          return reply;
+      if (reply.code === "stale") {
+        // R-ENGINE-003: the state moved on. Fetch it once so the player can look again.
+        fresh = await fetchView();
+      } else if (reply.code === "rate-limited") {
+        await limited(reply);
+      } else {
+        report(reply);
       }
+      return reply;
     },
 
     async newLife(scenario) {

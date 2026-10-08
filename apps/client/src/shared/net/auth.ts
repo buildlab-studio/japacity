@@ -48,22 +48,19 @@ interface LibraryError {
   status: number;
 }
 
+/** The library's error codes this game tells apart; every other one is a plain refusal. */
+const FAILURES: Record<string, AuthFailure> = {
+  SESSION_NOT_FRESH: "not-fresh",
+  INVALID_OTP: "wrong-code",
+  OTP_EXPIRED: "expired",
+  TOO_MANY_ATTEMPTS: "too-many",
+  AUTH_CANCELLED: "cancelled",
+  REGISTRATION_CANCELLED: "cancelled",
+};
+
 function failure(error: LibraryError): AuthFailure {
-  switch (error.code) {
-    case "SESSION_NOT_FRESH":
-      return "not-fresh";
-    case "INVALID_OTP":
-      return "wrong-code";
-    case "OTP_EXPIRED":
-      return "expired";
-    case "TOO_MANY_ATTEMPTS":
-      return "too-many";
-    case "AUTH_CANCELLED":
-    case "REGISTRATION_CANCELLED":
-      return "cancelled";
-    default:
-      return error.status === 429 ? "too-many" : "refused";
-  }
+  const known = error.code === undefined ? undefined : FAILURES[error.code];
+  return known ?? (error.status === 429 ? "too-many" : "refused");
 }
 
 async function attempt(run: () => Promise<{ error: LibraryError | null }>): Promise<AuthResult> {

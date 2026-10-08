@@ -81,7 +81,7 @@ export function goOnline(options: OnlineOptions): () => void {
       url: remote.api.socketUrl(`/api/place/${encodeURIComponent(next)}/socket`),
       open,
       random,
-      held: remote.held,
+      held: () => remote.held(),
       fetchView: refresh,
       fetchPresence: () => void fetchPresence(next),
     });
