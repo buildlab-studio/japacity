@@ -4,9 +4,9 @@ import { describe, expect } from "vitest";
 
 import { check } from "../../engine/check";
 import { stepWith } from "../../engine/step";
-import type { Ctx, Effect, Id, ReadCtx, ReportLine, Requirement, RouteState, Terms, Tuning } from "../../engine/types";
+import type { Content, Ctx, Effect, Id, ReadCtx, ReportLine, Requirement, RouteState, Terms, Tuning } from "../../engine/types";
 import type { Game } from "../../testing/play";
-import { applyEffects, readyLife, slot, UK, withEffects } from "../route.journey";
+import { answerFirst, applyEffects, readyLife, slot, UK, withEffects } from "../route.journey";
 import type { LifeOptions } from "../route.journey";
 import { refusalChanceBp, unknownRoute } from "../route.logic";
 import { contractGate, contractJob } from "./contract";
@@ -294,5 +294,81 @@ describe("R-CONTRACT-004: going out on the contract", () => {
     expect(contractJob(routeOf(cleaner))).toBeNull();
     takeAgent(cleaner, CLEANER);
     expect(contractJob(routeOf(cleaner))).toBe("activity.job-gulf-cleaner");
+  });
+});
+
+describe("the Gulf contract renewed by the employer", () => {
+  const WORKER: Id<"status"> = "status.gulf-worker";
+
+  /** The employer's chance set to this figure. */
+  function renewAt(renewBp: number): (used: Content) => Content {
+    return (used) => ({ ...used, status: { ...used.status, [WORKER]: { ...used.status[WORKER]!, renewBp } } });
+  }
+
+  /** One month, any open scene answered first (the December visit comes to the Emirates too). */
+  function month(game: Game) {
+    if (game.state.setpiece.open !== null) answerFirst(game);
+    if (game.state.turn.banked < 1) game.grant(game.content.tuning.turn.cap);
+    return game.endTurn();
+  }
+
+  /** A guard flown out on the contract, months played until the contract's last month is next. */
+  function toLastMonth(renewBp: number): Game {
+    const game = ready({ tuning: ALWAYS_GRANTED, change: renewAt(renewBp) });
+    game.endTurn([slot(APPLY)]);
+    game.endTurn();
+    game.accept({ type: "route/depart", route: GULF });
+    const expires = game.state.status.current!.expiresMonth!;
+    while (game.state.turn.month < expires - 2) month(game);
+    expect(game.state.status.current?.entry).toBe(WORKER);
+    return game;
+  }
+
+  function feesPaid(game: Game): number {
+    return Object.values(game.state.wallet.totals.out["fee-visa"] ?? {}).reduce((sum, amount) => sum + (amount ?? 0), 0);
+  }
+
+  test("[R-STATUS-006] given the Gulf contract's entry, when it is read, then the employer renews at 60 in 100 for 24 months and the player has no fee to pay", () => {
+    expect(content.status[WORKER]).toMatchObject({ renewBp: 6000, renewMonths: 24, renewFeeVar: null });
+  });
+
+  test("[R-STATUS-006] given a Gulf worker in the contract's last month and the employer's draw won, when the month ends, then the contract runs 24 months more with no fee and a line; the player still cannot ask", () => {
+    const game = toLastMonth(10000);
+    const expires = game.state.status.current!.expiresMonth!;
+    const fees = feesPaid(game);
+    const draws = game.state.draws.status ?? 0;
+    const result = month(game);
+    expect(game.state.turn.month).toBe(expires - 1);
+    expect(game.state.status.current).toMatchObject({ entry: WORKER, expiresMonth: expires + 24 });
+    expect(game.state.draws.status ?? 0).toBe(draws + 1);
+    expect(feesPaid(game)).toBe(fees);
+    expect(result.lines).toContainEqual({ key: "line.status.employer-renewed", params: { status: WORKER, months: 24 }, tone: "good", attention: true, counts: [] });
+    expect(text["line.status.employer-renewed"]).toContain("{months}");
+    game.expectRejected({ type: "status/renew" }, "not-legal");
+    expect(game.view().status?.renew).toBeNull();
+    month(game);
+    expect(game.state.status.current?.entry).toBe(WORKER);
+  });
+
+  test("[R-STATUS-006] given the months before the last, when they end, then no draw is made on the status stream", () => {
+    const game = ready({ tuning: ALWAYS_GRANTED, change: renewAt(10000) });
+    game.endTurn([slot(APPLY)]);
+    game.endTurn();
+    game.accept({ type: "route/depart", route: GULF });
+    const expires = game.state.status.current!.expiresMonth!;
+    const before = game.state.status.current!;
+    for (let played = 0; played < 3; played += 1) month(game);
+    expect(game.state.draws.status ?? 0).toBe(0);
+    expect(game.state.status.current?.expiresMonth).toBe(expires);
+    expect(before.expiresMonth).toBe(expires);
+  });
+
+  test("[R-STATUS-006] given the employer's draw lost, when the contract's last month and the next end, then it is not renewed and lapses as before", () => {
+    const game = toLastMonth(0);
+    const expires = game.state.status.current!.expiresMonth!;
+    month(game);
+    expect(game.state.status.current).toMatchObject({ entry: WORKER, expiresMonth: expires });
+    month(game);
+    expect(game.state.status.current?.entry).toBe("status.uae-irregular");
   });
 });

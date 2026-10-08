@@ -13,6 +13,7 @@ export const statusLinesText: Record<string, string> = {
   "line.status.clock-ran": "{months} months left on the clock.",
   "line.status.clock-cleared": "You are working again. The clock stops.",
   "line.status.renewed": "Renewed for {months} months. The fee: {fee}. The surcharge: {surcharge}.",
+  "line.status.employer-renewed": "The employer kept you on. {status} runs {months} months more, at their cost.",
   "line.status.removed": "They found you. You are put on a plane to Lagos, and {country} is closed to you for {months} months.",
   "line.status.closed": "You no longer hold {status}.",
 };

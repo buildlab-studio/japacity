@@ -28,6 +28,8 @@ export type StatusEvent =
   | { type: "status/clock-cleared" }
   /** R-STATUS-006. */
   | { type: "status/renewed"; expiresMonth: number; months: number; currency: Currency; fee: number; surcharge: number }
+  /** R-STATUS-006 as amended: the employer renewed the contract in its last month, for no fee. */
+  | { type: "status/employer-renewed"; status: Id<"status">; expiresMonth: number; months: number }
   /** One month held; `lawful` when it counts toward settling (R-STATUS-007). */
   | { type: "status/aged"; lawful: boolean }
   /** R-STATUS-008. */
