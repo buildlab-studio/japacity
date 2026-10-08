@@ -15,6 +15,7 @@
     "check:rules": "tsx tools/check-rules.ts",
     "check:protected": "tsx tools/check-protected.ts",
     "check:assets": "tsx tools/assets/check-assets.ts",
+    "check:scrub": "tsx tools/scrub-check.ts",
     "assets:export": "tsx tools/assets/export.ts",
     "assets:shoot": "tsx tools/assets/shoot.ts",
     "assets:outline": "tsx tools/assets/outline.ts",

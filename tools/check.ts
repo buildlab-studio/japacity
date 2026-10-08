@@ -3,7 +3,7 @@
 // that says whether everything passed.
 import { spawnSync } from "node:child_process";
 
-const STEPS = ["typecheck", "lint", "test", "check:rules", "check:assets"] as const;
+const STEPS = ["typecheck", "lint", "test", "check:rules", "check:assets", "check:scrub"] as const;
 
 for (const step of STEPS) {
   console.log(`\n> ${step}`);
