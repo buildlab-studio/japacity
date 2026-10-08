@@ -23,7 +23,7 @@ import { ThumbBar } from "../../shared/world/ThumbBar";
 import { Toast, useToast } from "../../shared/world/Toast";
 import { cityWords, heardWords, placeName, residentName, roleWords } from "./city.words";
 import { CreditsSheet } from "./Credits";
-import { type CountryChoice, FlyOver, type Pin, type PinState } from "./FlyOver";
+import { type CountryChoice, FlyOver, flyoverOn, type Pin, type PinState } from "./FlyOver";
 import { OVERVIEW } from "./CityScene";
 import { Phone, type PhoneApp } from "./Phone";
 import { localDate, type Other, poolOf, sampleCrowd } from "./crowd";
@@ -205,12 +205,24 @@ function PersonCard({ picked, onClose, words: said }: { picked: Picked; onClose:
 }
 
 /** `adverts`: the shell's advert slots for the place on screen (R-ADVERT-001), placed beside what is said there. */
+/** What the city hands its map: the same as the fly-over took. */
+export interface CityMapSlot {
+  pins: readonly Pin[];
+  country: CountryChoice;
+  countries: readonly CountryChoice[];
+  drawing: boolean;
+  diveTo: string | null;
+  onGo: (id: string) => void;
+  onClose: () => void;
+}
+
 export function City({
   adverts,
   world = false,
   actions,
   month,
   apps,
+  cityMap,
 }: {
   adverts?: (place: string) => ReactNode;
   /** The world mode: the place fills the screen under a see-through bar, with the fly-over as its map. */
@@ -221,6 +233,8 @@ export function City({
   month?: ReactNode;
   /** The world mode's phone: the support pages as apps (section 2b). */
   apps?: readonly PhoneApp[];
+  /** The world mode's map (R-WORLD-015 to 017), handed in by the shell; the fly-over stands in without it. */
+  cityMap?: (props: CityMapSlot) => ReactNode;
 } = {}) {
   const view = useView();
   const presence = useGame((state) => (state as { presence?: PresenceSample | null }).presence ?? null);
@@ -482,7 +496,7 @@ export function City({
               people={sample.people}
               own={own}
               settings={settings}
-              looking={looking}
+              looking={looking && !map}
               text={(key) => text[key]}
               onProgress={(loaded, total) => setProgress({ loaded, total })}
               onFailed={setFailed}
@@ -498,7 +512,26 @@ export function City({
         ) : null}
       </div>
 
-      {world && map ? (
+      {world && map && cityMap !== undefined && !flyoverOn()
+        ? cityMap({
+            pins,
+            country: shownCountry,
+            countries,
+            drawing,
+            diveTo,
+            onGo: (id) => {
+              setPlaceId(id);
+              setMap(false);
+              setDiveTo(null);
+              toast.show(placeName(id));
+            },
+            onClose: () => {
+              setMap(false);
+              setDiveTo(null);
+            },
+          })
+        : null}
+      {world && map && (cityMap === undefined || flyoverOn()) ? (
         <FlyOver
           pins={pins}
           country={shownCountry}

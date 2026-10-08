@@ -31,6 +31,7 @@ import { GuidesMenu } from "./features/guides/GuidesMenu";
 import { JapacityView } from "./features/japacity/JapacityView";
 import { ModerationMenu } from "./features/moderation/ModerationMenu";
 import { LotteryView } from "./features/lottery/LotteryView";
+import { Map } from "./features/map/Map";
 import { NewsView } from "./features/news/NewsView";
 import { HeldShareCard } from "./features/notify/held";
 import { NotifyAsk } from "./features/notify/NotifyAsk";
@@ -320,6 +321,7 @@ function WorldPlaying() {
         adverts={(place) => <PlaceAdverts place={place} />}
         actions={(ids) => <ActivityPicker only={ids} />}
         month={<TurnBar />}
+        cityMap={(props) => <Map {...props} />}
         apps={[
           { id: "bank", name: say("ui.tab.money"), tile: "bg-[#2f7d4f]", letter: "₦", screen: <WalletView /> },
           { id: "people", name: say("ui.tab.people"), tile: "bg-[#7a4fa3]", letter: "P", screen: <PeopleView />, waiting: view.offers.length > 0 },

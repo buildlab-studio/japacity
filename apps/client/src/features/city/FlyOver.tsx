@@ -7,8 +7,19 @@ import { ChevronDown, Lock, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { BoxGeometry, Color, ConeGeometry, DirectionalLight, Fog, Group, HemisphereLight, InstancedMesh, Matrix4, Mesh, MeshLambertMaterial, Object3D, PerspectiveCamera, PlaneGeometry, Raycaster, Scene, Vector2, Vector3, WebGLRenderer } from "three";
 
+import { content } from "@japacity/content";
+
 import { Button } from "../../shared/ui/Button";
 import { cityWords } from "./city.words";
+
+/**
+ * The fly-over stays, switched off, behind `tuning.city.flyover`: the map feature's city as the map
+ * (R-WORLD-015) takes its place.
+ */
+// tuning.city has no `flyover` reading yet; it reads as off until someone adds it to the tuning.
+export function flyoverOn(): boolean {
+  return (content.tuning.city as { flyover?: boolean }).flyover === true;
+}
 
 export type PinState = "here" | "home" | "been" | "can" | "not";
 
