@@ -4,10 +4,12 @@
 // move into content, where it can be rewritten. Numbers go in braces.
 import { lotteryWords } from "./lottery";
 import { onlineText } from "./online";
+import { peopleText } from "./people";
 
 export const uiText: Record<string, string> = {
   ...onlineText,
   ...lotteryWords,
+  ...peopleText,
   "ui.game": "Japacity",
   "ui.loading": "Opening your life...",
   "ui.failed": "The game could not start: {why}",

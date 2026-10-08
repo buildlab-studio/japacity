@@ -39,7 +39,7 @@ describe("the shell by where the character is", () => {
     storage.setItem(SAVE_KEY, JSON.stringify({ save: beforeFlight, clock: { anchor: 0 } }));
     render(<App store={bootGame({ storage, fastClock: true })} />);
 
-    expect(await tabNames()).toEqual(["month", "you", "money", "japa", "news"].map((tab) => say(`ui.tab.${tab}`)));
+    expect(await tabNames()).toEqual(["month", "you", "money", "japa", "people", "news"].map((tab) => say(`ui.tab.${tab}`)));
     fireEvent.click(await screen.findByRole("button", { name: say("ui.route.depart") }));
 
     const moment = await screen.findByRole("dialog");
@@ -52,7 +52,7 @@ describe("the shell by where the character is", () => {
     expect(card.querySelector("[data-share-card='send-off']")).not.toBeNull();
     fireEvent.click(within(card).getByRole("button", { name: say("ui.report.close") }));
 
-    expect(await tabNames()).toEqual(["month", "you", "money", "status", "home"].map((tab) => say(`ui.tab.${tab}`)));
+    expect(await tabNames()).toEqual(["month", "you", "money", "status", "people", "home"].map((tab) => say(`ui.tab.${tab}`)));
     expect(screen.getByText(say("ui.place.way-home"))).toBeDefined();
     expect(screen.getByRole("heading", { name: say("ui.status.title") })).toBeDefined();
   });

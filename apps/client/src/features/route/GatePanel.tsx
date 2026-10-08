@@ -6,6 +6,7 @@ import { content } from "@japacity/content";
 import type { Currency, RouteGateView, RouteView } from "@japacity/sim";
 
 import { useView } from "../../authority/GameProvider";
+import { bondName } from "../../shared/sim/people";
 import { Meter } from "../../shared/ui/Meter";
 import { Tag } from "../../shared/ui/Panel";
 import { formatMoney, formatNumber, monthEnding, playerMonth } from "../../shared/words/format";
@@ -81,6 +82,23 @@ function Contract({ gate, currency }: { gate: Extract<RouteGateView, { gate: "co
   );
 }
 
+/** The partner or dependant gate: the bond it rests on and how the other side's application stands (R-PEOPLE-022, R-PEOPLE-026). */
+function Bond({ gate }: { gate: Extract<RouteGateView, { gate: "partner" | "dependant" }> }) {
+  const { people } = useView();
+  const bond = gate.bond === null ? undefined : people.bonds.find((held) => held.id === gate.bond);
+  if (bond === undefined) return <p className="text-sm text-muted">{say("ui.gate.bond.none")}</p>;
+  return (
+    <div className="flex flex-col gap-1 text-sm">
+      {bond.stage === "ended" ? (
+        <p className="text-bad">{say("ui.gate.bond.ended")}</p>
+      ) : (
+        <p>{say("ui.gate.bond.with", { name: bondName(bond), stage: say(`ui.people.stage.${bond.stage}`).toLowerCase() })}</p>
+      )}
+      <p className="text-muted">{gate.lead === null ? say("ui.gate.lead.none") : say("ui.gate.lead.state", { state: say(`ui.route.state.${gate.lead}`).toLowerCase() })}</p>
+    </div>
+  );
+}
+
 /** The gate block of a route card. Null for the study gate and before the route is looked into. */
 export function GatePanel({ route }: { route: RouteView }) {
   const { month } = useView();
@@ -94,6 +112,7 @@ export function GatePanel({ route }: { route: RouteView }) {
       {gate.gate === "points" ? <Points gate={gate} month={month} /> : null}
       {gate.gate === "endorsement" ? <Endorsement gate={gate} month={month} /> : null}
       {gate.gate === "contract" ? <Contract gate={gate} currency={currency} /> : null}
+      {gate.gate === "partner" || gate.gate === "dependant" ? <Bond gate={gate} /> : null}
     </div>
   );
 }

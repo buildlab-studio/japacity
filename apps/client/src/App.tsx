@@ -1,11 +1,11 @@
 // The shell. On a phone: one panel at a time, a tab bar, and the month's
 // action always above it. From 1024px: profile and money on the left, the
-// month plan in the centre, ways out and news on the right. Where the
+// month plan in the centre, ways out, news and people on the right. Where the
 // character is changes the shell: abroad the tabs are the month, you, money,
-// status and home; on the road there is one panel and nothing else. Before
+// status, people and home; on the road there is one panel and nothing else. Before
 // the first month a life from sixteen plays its prologue, one card at a time.
 // The warnings that stand (the status clock, being run down) sit above every tab.
-import { BadgeCheck, CalendarDays, House, Newspaper, Plane, UserRound, Wallet, type LucideIcon } from "lucide-react";
+import { BadgeCheck, CalendarDays, House, Newspaper, Plane, UserRound, Users, Wallet, type LucideIcon } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 
 import { bootGame } from "./authority/boot";
@@ -28,7 +28,9 @@ import { LotteryView } from "./features/lottery/LotteryView";
 import { NewsView } from "./features/news/NewsView";
 import { ObligationView } from "./features/obligation/ObligationView";
 import { OfferView } from "./features/offer/OfferView";
+import { PeopleView } from "./features/people/PeopleView";
 import { RunDownBanner } from "./features/health/RunDownBanner";
+import { InterviewView } from "./features/interview/InterviewView";
 import { FamilyView } from "./features/place/FamilyView";
 import { PlaceView } from "./features/place/PlaceView";
 import { PrologueHandover, prologueJustClosed, PrologueView } from "./features/prologue/PrologueView";
@@ -46,7 +48,7 @@ import { Button } from "./shared/ui/Button";
 import { playerMonth } from "./shared/words/format";
 import { say } from "./shared/words/text";
 
-type Tab = "month" | "you" | "money" | "japa" | "news" | "status" | "home";
+type Tab = "month" | "you" | "money" | "japa" | "news" | "status" | "home" | "people";
 
 type TabSet = readonly { id: Tab; icon: LucideIcon }[];
 
@@ -55,6 +57,7 @@ const HOME_TABS: TabSet = [
   { id: "you", icon: UserRound },
   { id: "money", icon: Wallet },
   { id: "japa", icon: Plane },
+  { id: "people", icon: Users },
   { id: "news", icon: Newspaper },
 ];
 
@@ -63,6 +66,7 @@ const ABROAD_TABS: TabSet = [
   { id: "you", icon: UserRound },
   { id: "money", icon: Wallet },
   { id: "status", icon: BadgeCheck },
+  { id: "people", icon: Users },
   { id: "home", icon: House },
 ];
 
@@ -97,10 +101,10 @@ function Header() {
 
 function TabBar({ tabs, current, onChange }: { tabs: TabSet; current: Tab; onChange: (tab: Tab) => void }) {
   const view = useView();
-  const waiting = view.offers.length > 0 || view.setpiece !== null;
+  const waiting = view.offers.length > 0 || view.setpiece !== null || (view.interview?.question ?? null) !== null;
   return (
     <nav aria-label={say("ui.tabs")} className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-paper pb-[env(safe-area-inset-bottom)] lg:hidden">
-      <ul className="grid grid-cols-5">
+      <ul className="grid grid-cols-6">
         {tabs.map(({ id, icon: Icon }) => (
           <li key={id}>
             <button
@@ -139,6 +143,7 @@ function MonthGroup({ tab }: { tab: Tab }) {
     <Group tab="month" current={tab}>
       <TurnView />
       <SetpieceView />
+      <InterviewView />
       <CardView />
       <ChapterView />
       <OfferView />
@@ -190,6 +195,9 @@ function AtHome({ tab }: { tab: Tab }) {
         <Group tab="news" current={tab}>
           <NewsView />
         </Group>
+        <Group tab="people" current={tab}>
+          <PeopleView />
+        </Group>
       </div>
     </main>
   );
@@ -229,6 +237,9 @@ function Abroad({ tab }: { tab: Tab }) {
         <Group tab="home" current={tab}>
           <PlaceView />
           <FamilyView />
+        </Group>
+        <Group tab="people" current={tab}>
+          <PeopleView />
         </Group>
       </div>
     </main>
