@@ -4,20 +4,20 @@ import { describe, expect } from "vitest";
 
 import { mulDiv } from "../engine/int";
 import type { Registry } from "../engine/kind";
-import type { Bond, Content, Ctx, Id, InterviewResult, Moment, PersonEntry, PersonFacts, State } from "../engine/types";
+import type { ActivityEntry, Bond, Content, Ctx, Id, InterviewResult, Moment, PersonEntry, PersonFacts, RouteEntry, State } from "../engine/types";
 import { viewFor } from "../engine/view";
 import { checkInvariants } from "../engine/invariants";
 import { registry } from "../kinds";
 import { draw, drawnQuestions, seedWhere } from "../route/route.journey";
+import { computerFacts } from "../people/people.facts";
 import { legalCommands } from "../testing/legal";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
 import { GENUINENESS, NO_JOB, interviewKind, isThin, listOf, needsMet, resultOf, truthOf } from "./interview.logic";
 
-// The people kind and the partner and dependant gates are built by other
-// agents. Until their commands are, a bond reaches a state only by hand, so
-// these tests set the bond and the application into the state and play every
-// interview command through `step`.
+// A bond reaches the state by hand here, so a test need not play a courtship
+// first. The application goes in through the partner or dependant gate, which
+// opens the interview, and every interview command is played through `step`.
 
 const LIFE: Id<"scenario"> = "scenario.ada";
 const PAIR = "pair-1";
@@ -26,6 +26,9 @@ const COMPUTER_BOND = "bond-2";
 const PARTNER_ROUTE: Id<"route"> = "route.test-partner";
 const DEPENDANT_ROUTE: Id<"route"> = "route.test-dependant";
 const PERSON: Id<"person"> = "person.test-partner";
+/** The status the test sponsor holds abroad: one that sponsors a partner and lets a dependant join. */
+const SPONSOR_STATUS: Id<"status"> = "status.uk-talent";
+const APPLY: Record<string, Id<"activity">> = { [PARTNER_ROUTE]: "activity.test-apply-partner", [DEPENDANT_ROUTE]: "activity.test-apply-dependant" };
 const entry = content.interview[GENUINENESS]!;
 const numbers = content.tuning.interview;
 const ALL = entry.questions.map((question) => question.id);
@@ -49,9 +52,9 @@ function person(behaviour: Partial<PersonEntry["behaviour"]> = {}): PersonEntry 
       home: "town",
       job: "activity.job-teacher",
       pay: null,
-      country: null,
-      status: null,
-      abroadFromMonth: null,
+      country: "country.uk",
+      status: SPONSOR_STATUS,
+      abroadFromMonth: 0,
       settledStatus: null,
       settledFromMonth: null,
     },
@@ -62,16 +65,24 @@ function person(behaviour: Partial<PersonEntry["behaviour"]> = {}): PersonEntry 
   };
 }
 
-/** Real content with a route on each people gate and one computer partner. */
+/** An activity that sends the application on `route` and asks for nothing, so the gate alone judges it. */
+function applying(route: Id<"route">): ActivityEntry {
+  return { id: APPLY[route]!, slot: "free", where: "home", requires: [], param: null, cost: [], pay: null, hireBp: null, effects: [{ type: "route/apply", route }], counts: [] };
+}
+
+/** Real content with a route on each people gate, free to apply for, and one computer partner. */
 function testContent(behaviour: Partial<PersonEntry["behaviour"]> = {}, tuning: Partial<Content["tuning"]["interview"]> = {}): Content {
   const base = content.route["route.uk-skilled"]!;
+  const partner: RouteEntry["partner"] = { sponsorStatuses: [SPONSOR_STATUS], bandMin: null, feeVar: "var.uk-partner-fee", surchargeYears: 0, decisionMonths: 100, livingTogetherMonths: null, floorVar: null };
+  const dependant: RouteEntry["dependant"] = { maintenanceVar: null, leadMonthsExempt: null, feeVar: null, feeFromLead: false, decisionMonths: 100 };
   return {
     ...content,
     route: {
       ...content.route,
-      [PARTNER_ROUTE]: { ...base, id: PARTNER_ROUTE, gate: "partner", interview: null, dependants: null },
-      [DEPENDANT_ROUTE]: { ...base, id: DEPENDANT_ROUTE, gate: "dependant", interview: null, dependants: null },
+      [PARTNER_ROUTE]: { ...base, id: PARTNER_ROUTE, gate: "partner", interview: null, dependants: DEPENDANT_ROUTE, window: null, partner },
+      [DEPENDANT_ROUTE]: { ...base, id: DEPENDANT_ROUTE, gate: "dependant", interview: null, dependants: null, window: null, dependant },
     },
+    activity: { ...content.activity, [APPLY[PARTNER_ROUTE]!]: applying(PARTNER_ROUTE), [APPLY[DEPENDANT_ROUTE]!]: applying(DEPENDANT_ROUTE) },
     person: { ...content.person, [PERSON]: person(behaviour) },
     people: { spots: SPOTS },
     tuning: { ...content.tuning, interview: { ...numbers, ...tuning } },
@@ -81,9 +92,9 @@ function testContent(behaviour: Partial<PersonEntry["behaviour"]> = {}, tuning: 
 const FACTS: PersonFacts = {
   label: "player",
   ageMonths: 300,
-  where: "home",
-  country: null,
-  status: null,
+  where: "abroad",
+  country: "country.uk",
+  status: SPONSOR_STATUS,
   statusMonthsLeft: null,
   monthsInCountry: 0,
   job: "activity.job-nurse",
@@ -220,31 +231,33 @@ function scoreWith(game: Game, right: number): InterviewResult {
   return game.state.interview.last!.result;
 }
 
-/** Sets the application as sent in the coming month, so the next turn's `slots` phase finds it. */
+/** The route each life is about to apply on. */
+const PENDING = new WeakMap<Game, Id<"route">>();
+
+/** The route known, as if looked into, so the next turn's slot can send the application. */
 function applyNextMonth(game: Game, route: Id<"route">): void {
-  const held = game.state.route[route]!;
-  const month = game.state.turn.month + 1;
-  game.state = {
-    ...game.state,
-    route: {
-      ...game.state.route,
-      [route]: {
-        ...held,
-        state: "applying",
-        visa: { submittedMonth: month, decisionMonth: month + 100, rules: { livingLine: 0, livingMonths: 0, strictness: 0 }, unexplainedBp: 0, interviewScore: null, surchargePaid: 0 },
-      },
-    },
-  };
+  game.state = { ...game.state, route: { ...game.state.route, [route]: { ...game.state.route[route]!, state: "known" } } };
+  PENDING.set(game, route);
 }
 
-function computerBond(state: State, over: Partial<Bond> = {}): Bond {
-  return bondWith(state, { with: { kind: "computer", entry: PERSON }, facts: null, ...over });
+/** The turn that sends the application through the gate, which opens the interview (R-INTERVIEW-001, 002). */
+function send(game: Game): void {
+  const route = PENDING.get(game)!;
+  game.endTurn([{ activity: APPLY[route]!, param: null }]);
+  expect(game.state.route[route]?.state).toBe("applying");
+}
+
+/** A bond with the test's computer partner, its facts built from its entry as the people kind builds them. */
+function computerBond(game: Game, over: Partial<Bond> = {}): Bond {
+  const read = { state: game.state, world: game.world(), content: game.content };
+  const facts = computerFacts(read, game.content.person[PERSON]!, 300, game.state.turn.month);
+  return bondWith(game.state, { with: { kind: "computer", entry: PERSON }, facts, ...over });
 }
 
 /** An applicant with a computer partner whose application on the partner gate goes in with the next turn. */
 function applicantWithComputer(options: { seed?: string; content?: Content; bond?: Partial<Bond> } = {}): Game {
   const game = life(options);
-  setBond(game, COMPUTER_BOND, computerBond(game.state, options.bond));
+  setBond(game, COMPUTER_BOND, computerBond(game, options.bond));
   applyNextMonth(game, PARTNER_ROUTE);
   return game;
 }
@@ -309,7 +322,7 @@ describe("opening", () => {
   test("[R-INTERVIEW-001] [R-INTERVIEW-003] given an application on the partner gate with a computer partner, when the month it is sent resolves, then the interview opens with the tuning's count drawn on visa without repeats, each with the truth among its options", () => {
     const game = applicantWithComputer();
     const visaBefore = game.state.draws.visa ?? 0;
-    game.endTurn();
+    send(game);
     const open = game.state.interview.open!;
     const pool = entry.questions.filter((question) => needsMet(question, game.state.people.bonds[COMPUTER_BOND]!)).map((question) => question.id);
     expect(pool).toEqual(ALL);
@@ -329,7 +342,7 @@ describe("opening", () => {
   test("[R-INTERVIEW-003] given a question about the couple, when it opens, then its options are the truth and the tuning's decoys from its list, never the truth twice", () => {
     for (const seed of ["seed-1", "seed-2", "seed-3", "seed-4"]) {
       const game = applicantWithComputer({ seed });
-      game.endTurn();
+      send(game);
       const open = game.state.interview.open!;
       const truths = game.state.interview.secret.truths!;
       open.questions.forEach((asked, index) => {
@@ -345,7 +358,7 @@ describe("opening", () => {
 
   test("[R-INTERVIEW-003] given a record with no moments, when the interview opens, then only the questions that need nothing are asked", () => {
     const game = applicantWithComputer({ bond: { moments: [], stage: "married" } });
-    game.endTurn();
+    send(game);
     const asked = game.state.interview.open!.questions.map((question) => question.id);
     expect([...asked].sort()).toEqual(["partner-home", "partner-job", "plans", "times-met"]);
   });
@@ -382,27 +395,27 @@ describe("opening", () => {
     function dependant(moments: number, monthsTogether: number): Game {
       const game = life();
       const sent = game.state.turn.month + 1;
-      setBond(game, COMPUTER_BOND, computerBond(game.state, { moments: richMoments().slice(0, moments), partnerMonth: sent - monthsTogether, marriedMonth: null }));
+      setBond(game, COMPUTER_BOND, computerBond(game, { moments: richMoments().slice(0, moments), partnerMonth: sent - monthsTogether, marriedMonth: null }));
       applyNextMonth(game, DEPENDANT_ROUTE);
       return game;
     }
 
     test("[R-INTERVIEW-002] given a record with the tuning's moments and months together, when a dependant application goes in, then no interview opens", () => {
       const game = dependant(numbers.thinMoments, numbers.thinMonths);
-      game.endTurn();
+      send(game);
       expect(game.state.interview.open).toBeNull();
       expect(game.view().interview).toBeNull();
     });
 
     test("[R-INTERVIEW-002] given one moment fewer than the tuning's, when a dependant application goes in, then the interview opens", () => {
       const game = dependant(numbers.thinMoments - 1, numbers.thinMonths);
-      game.endTurn();
+      send(game);
       expect(game.state.interview.open?.route).toBe(DEPENDANT_ROUTE);
     });
 
     test("[R-INTERVIEW-002] given one month fewer together than the tuning's, when a dependant application goes in, then the interview opens", () => {
       const game = dependant(richMoments().length, numbers.thinMonths - 1);
-      game.endTurn();
+      send(game);
       expect(game.state.interview.open?.route).toBe(DEPENDANT_ROUTE);
     });
   });
@@ -480,7 +493,7 @@ describe("the view", () => {
 
   test("[R-INTERVIEW-005] [R-INTERVIEW-007] given a computer partner, when the interview is open and when it is scored, then the computer's answers and the truths are nowhere in the view", () => {
     const game = applicantWithComputer();
-    game.endTurn();
+    send(game);
     const truths = game.state.interview.secret.truths!;
     const during = game.view().interview!;
     expect(during.question).toEqual(game.state.interview.open!.questions[0]);
@@ -587,7 +600,7 @@ describe("scoring", () => {
 describe("a computer partner", () => {
   test("[R-INTERVIEW-007] given a computer that always recalls, when the player answers rightly, then the comparison runs with the last answer and passes", () => {
     const game = applicantWithComputer({ content: testContent({ recallBp: 10000 }) });
-    game.endTurn();
+    send(game);
     const plan = game.state.interview.open!.questions.findIndex((asked) => asked.id === "plans");
     const answers = pickRight(game).map((option, index) => (index === plan ? "uk" : option));
     const result = (() => {
@@ -600,7 +613,7 @@ describe("a computer partner", () => {
 
   test("[R-INTERVIEW-007] given a computer that never recalls and plans otherwise, when the player answers rightly, then nothing matches and the result is caught", () => {
     const game = applicantWithComputer({ content: testContent({ recallBp: 0, plan: "not-decided" }) });
-    game.endTurn();
+    send(game);
     const peopleBefore = game.state.draws.people ?? 0;
     // The player's plan is the first option, `uk`.
     answerAll(game, pickRight(game));
@@ -613,7 +626,7 @@ describe("a computer partner", () => {
   test("[R-INTERVIEW-007] given a papers partner with no moments, when the interview is scored, then it is caught unless every answer matched", () => {
     for (const seed of ["seed-1", "seed-2", "seed-3", "seed-4", "seed-5", "seed-6"]) {
       const game = applicantWithComputer({ seed, content: testContent({ recallBp: 2000, papers: true, plan: "not-decided" }), bond: { moments: [], partnerMonth: null, marriedMonth: 0 } });
-      game.endTurn();
+      send(game);
       answerAll(game, pickRight(game));
       const last = game.state.interview.last!;
       expect(last.result).toBe(last.matched === last.asked ? "pass" : "caught");
@@ -739,7 +752,7 @@ describe("two lives", () => {
     setBond(applicant, BOND, bondWith(applicant.state, { facts: { ...FACTS, job: null, home: "city" } }));
     setBond(sponsor, BOND, bondWith(sponsor.state, { moments: mirrored, facts: { ...FACTS, job: null, home: "city" } }));
     applyNextMonth(applicant, PARTNER_ROUTE);
-    applicant.endTurn();
+    send(applicant);
     const opened = applicant.state.interview.open!;
     sponsor.accept({ type: "interview/open", pair: PAIR, route: PARTNER_ROUTE, questions: opened.questions }, "authority");
     const answersOf = (game: Game, wrongAt: number): string[] => {
@@ -766,10 +779,34 @@ describe("two lives", () => {
     expect(sponsor.state.draws).toEqual(sponsorDraws);
   });
 
+  test("[R-INTERVIEW-012] given a deep record in this life and the applicant's measure sent as thin, when a result short of pass is scored, then it is caught as the applicant's life finds it", () => {
+    const at = mulDiv(numbers.passBp, ALL.length, 10000) - 1;
+    const measured = sponsorLife();
+    expect(isThin(measured.state, measured.state.people.bonds[BOND]!, numbers)).toBe(false);
+    const sent = (thin: boolean): InterviewResult => {
+      const game = sponsorLife();
+      game.accept({ type: "interview/open", pair: PAIR, route: PARTNER_ROUTE, questions: questionsFor(game), thin }, "authority");
+      expect(game.state.interview.open?.thin).toBe(thin);
+      const { mine, theirs } = rightAnswers(game);
+      answerAll(game, mine);
+      const given = theirs.map((option, index) => (index < at ? option : game.state.interview.open!.questions[index]!.options.find((other) => other !== option)!));
+      game.accept({ type: "interview/scored", pair: PAIR, theirs: given }, "authority");
+      return game.state.interview.last!.result;
+    };
+    expect(sent(true)).toBe("caught");
+    expect(sent(false)).toBe("doubt");
+  });
+
+  test("[R-INTERVIEW-012] given an application sent on a thin record, when the interview opens, then the applicant's measure is kept with it", () => {
+    const game = applicantWithComputer({ bond: { moments: [], stage: "married" } });
+    send(game);
+    expect(game.state.interview.open?.thin).toBe(true);
+  });
+
   test("[R-INTERVIEW-012] given the same start and commands, when the life is played again, then the interview's draws and result are the same", () => {
     const play = (): State => {
       const game = applicantWithComputer({ seed: "seed-11" });
-      game.endTurn();
+      send(game);
       answerAll(game, pickRight(game));
       return game.state;
     };

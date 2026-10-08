@@ -36,7 +36,9 @@ import type {
   World,
 } from "../engine/types";
 import { appliesHere } from "../place/place.logic";
+import { couchEnds, onTheCouch } from "./couch";
 import type { ClosedWhy, ObligationEvent } from "./obligation.events";
+import { isSponsorUndertaking, openUndertaking, payUndertaking, undertakingDue, undertakingMonthsLeft } from "./undertaking";
 
 const STANDING: Id<"quality"> = "quality.standing";
 const WELLBEING: Id<"quality"> = "quality.wellbeing";
@@ -54,9 +56,9 @@ function officialRates(world: World): Record<ForeignCurrency, number> {
  * field naming it, so the id lives here; the car's `onDefault` could carry it.
  */
 /** Types whose misses run a grace and can default (R-OBLIGATION-004, 005, R-ABROAD-003 to 005, R-CAR-003). */
-const GRACE_TYPES: readonly ObligationType[] = ["loan", "group-loan", "tuition", "rent", "phone", "car"];
-/** Types that stay open in default as a debt (R-OBLIGATION-005, R-STATUS-011). */
-const DEBT_TYPES: readonly ObligationType[] = ["loan", "group-loan", "tuition"];
+const GRACE_TYPES: readonly ObligationType[] = ["loan", "group-loan", "tuition", "rent", "phone", "car", "undertaking"];
+/** Types that stay open in default as a debt (R-OBLIGATION-005, R-STATUS-011, R-UNDERTAKING-008). */
+const DEBT_TYPES: readonly ObligationType[] = ["loan", "group-loan", "tuition", "undertaking"];
 /** Types the lender collects from the bank once in default (R-OBLIGATION-005, 011). */
 const COLLECTED_TYPES: readonly ObligationType[] = ["loan", "group-loan"];
 /** Types repaid in equal parts over their term (R-OBLIGATION-001, R-ABROAD-005). */
@@ -235,6 +237,8 @@ function carArrears(item: ObligationState, entry: ObligationEntry): Charge & { m
  * takes to clear them (R-CAR-003).
  */
 function dueNext(read: ReadCtx, item: ObligationState, entry: ObligationEntry): number {
+  // R-UNDERTAKING-012: what is owed now, all of it asked for at once.
+  if (isSponsorUndertaking(entry)) return item.outstanding;
   if (item.state === "defaulted") return COLLECTED_TYPES.includes(entry.type) ? item.outstanding : 0;
   if (entry.type === "car" && item.missed > 0 && item.monthsLeft !== 0) return totalOf(carArrears(item, entry));
   if (!dueIn(item, entry, read.state.turn.month + 1)) return 0;
@@ -488,6 +492,10 @@ function due(ctx: Ctx): BaseEvent[] {
     const item = ctx.state.obligation.items[id];
     if (item === undefined) continue;
     const entry = entryOf(ctx.content, item.entry);
+    if (isSponsorUndertaking(entry)) {
+      events.push(...undertakingDue(ctx, item, entry));
+      continue;
+    }
     if (item.state === "defaulted") {
       // a withdrawn student's tuition stays on record (R-STATUS-011 reads it) and is collected no further.
       if (COLLECTED_TYPES.includes(entry.type)) events.push(...seize(ctx, item, entry));
@@ -502,6 +510,8 @@ function due(ctx: Ctx): BaseEvent[] {
     const paid = canTake(ctx, entry.currency, totalOf(charge));
     events.push(...(paid ? pay(ctx, item, entry, charge) : miss(ctx, item, entry, charge)));
   }
+  // R-PEOPLE-032: after the month's charges, so the couch's months are free.
+  ctx.apply(couchEnds(ctx), { source: "people.couch", param: null, terms: {} });
   return events;
 }
 
@@ -522,7 +532,8 @@ function takenOver(content: Content, cause: Cause): boolean {
 function openEffect(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
   if (effect.type !== "obligation/open") throw new Error(`obligation/open cannot carry out ${effect.type}.`);
   const entry = entryOf(ctx.content, effect.obligation);
-  if (!appliesHere(entry, ctx.state)) return [];
+  if (!appliesHere(entry, ctx.state) || onTheCouch(ctx, entry.id)) return [];
+  if (isSponsorUndertaking(entry)) return openUndertaking(ctx, entry, effect.bond);
   const given = effect.principal === undefined ? 0 : ctx.amount(effect.principal, cause.terms);
   let amount = effect.amount === undefined ? entry.amount : ctx.amount(effect.amount, cause.terms);
   if (given < 0 || amount < 0) throw new Error(`${entry.id} cannot open owing a negative amount.`);
@@ -645,6 +656,8 @@ function payCar(ctx: Ctx, item: ObligationState, entry: ObligationEntry, amount:
 
 function payCommand(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (command.type !== "obligation/pay") throw new Error(`obligation/pay cannot handle ${command.type}.`);
+  // R-PEOPLE-044: a stand-in never spends.
+  if (ctx.sender === "stand-in") return reject("not-legal", "A stand-in never spends.");
   const item = typeof command.obligation === "string" ? ctx.state.obligation.items[command.obligation] : undefined;
   if (item === undefined) return reject("unknown-id", `There is no open obligation ${String(command.obligation)}.`);
   const entry = entryOf(ctx.content, item.entry);
@@ -670,9 +683,12 @@ function payCommand(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
     case "rent":
     case "phone":
     case "surcharge":
+    case "undertaking":
+      // R-UNDERTAKING-008: what a sponsor owes can be paid down; a guarantee cannot.
+      if (isSponsorUndertaking(entry)) return payUndertaking(ctx, item, entry, amount);
+      return reject("not-legal", `${entry.id} is paid month by month and cannot be paid ahead.`);
     case "tuition":
     case "agent-debt":
-    case "undertaking":
     case "ajo":
       return reject("not-legal", `${entry.id} is paid month by month and cannot be paid ahead.`);
     default: {
@@ -714,8 +730,6 @@ function evolve(slice: ObligationSlice, event: ObligationEvent, _state: State, c
         outstanding: item.outstanding - event.principal,
         monthsLeft: item.monthsLeft === null ? null : Math.max(0, item.monthsLeft - 1),
         missed: 0,
-        bond: null,
-        charged: 0,
       }));
     case "obligation/missed":
       return withItem(slice, event.id, (item) => ({
@@ -750,9 +764,16 @@ function evolve(slice: ObligationSlice, event: ObligationEvent, _state: State, c
         outstanding: item.outstanding - event.principal,
         monthsLeft: item.monthsLeft === null ? null : Math.max(0, item.monthsLeft - event.months),
         missed: 0,
-        bond: null,
-        charged: 0,
       }));
+    case "obligation/assessed":
+      return withItem(slice, event.id, (item) => ({
+        ...item,
+        charged: item.charged + event.months,
+        principal: item.principal + event.amount,
+        outstanding: item.outstanding + event.amount,
+      }));
+    case "obligation/cleared":
+      return withItem(slice, event.id, (item) => ({ ...item, state: "active", missed: 0 }));
     case "obligation/court":
     case "obligation/owned":
       return slice;
@@ -789,7 +810,7 @@ function defaultKey(entry: ObligationEntry): string {
     case "group-loan":
       return "group-default";
     case "undertaking":
-      return "guarantee-called";
+      return isSponsorUndertaking(entry) ? "undertaking-default" : "guarantee-called";
     case "loan":
     case "upkeep":
     case "support":
@@ -845,9 +866,16 @@ function lines(event: ObligationEvent, _state: State, content: Content): ReportL
       return [line("group-covered", { obligation: event.entry, amount: money(event.entry, event.total) }, "bad", true)];
     case "obligation/defaulted":
       return [line(defaultKey(entryOf(content, event.entry)), { obligation: event.entry, amount: money(event.entry, event.outstanding) }, "bad", true)];
-    case "obligation/seized":
+    case "obligation/seized": {
       // without this line the wallet's "loan repayment" line would hide that it was taken.
-      return [line("seized", { obligation: event.entry, amount: money(event.entry, event.amount) }, "bad", false)];
+      const key = isSponsorUndertaking(entryOf(content, event.entry)) ? "undertaking-seized" : "seized";
+      return [line(key, { obligation: event.entry, amount: money(event.entry, event.amount) }, "bad", false)];
+    }
+    case "obligation/assessed":
+      // R-UNDERTAKING-007: the months the sponsored partner took, never what they did with them.
+      return [line("assessed", { obligation: event.entry, months: event.months, amount: money(event.entry, event.amount) }, "bad", true)];
+    case "obligation/cleared":
+      return [line("cleared", { obligation: event.entry }, "good", true)];
     case "obligation/taken-back":
       return [line("taken-back", { obligation: event.entry, amount: money(event.entry, event.amount) }, "bad", true)];
     case "obligation/closed":
@@ -922,7 +950,12 @@ function invariants(state: State, content: Content): string[] {
 }
 
 export function obligationsView(read: ReadCtx): (ObligationState & { due: number; car: CarView | null })[] {
-  return openItems(read.state).map((item) => ({ ...item, due: dueNext(read, item, entryOf(read.content, item.entry)), car: carView(read, item) }));
+  return openItems(read.state).map((item) => {
+    const entry = entryOf(read.content, item.entry);
+    // R-UNDERTAKING-012: an undertaking's months run from the month it opened, whether or not anything was charged.
+    const monthsLeft = isSponsorUndertaking(entry) ? undertakingMonthsLeft(read, item) : item.monthsLeft;
+    return { ...item, monthsLeft, due: dueNext(read, item, entry), car: carView(read, item) };
+  });
 }
 
 /** R-CAR-007's figures for one car; the view carries them on the item as `car`. */

@@ -214,6 +214,28 @@ describe("hearing through the news", () => {
     expect(RANK[played.state.news.delivered[RECRUIT]!.stage]).toBeGreaterThan(RANK.rumour);
   });
 
+  test("[R-PEOPLE-033] given a sibling living in the UK, when a story about a UK route reaches rumour, then the route is heard of through the sibling; with the sibling at home, nobody hears until it is announced", () => {
+    const recruit = content.news[RECRUIT]!;
+    const rumoured: NewsEntry = { ...recruit, standIn: { ...recruit.standIn, announce: { between: [3, 3] }, rumourLead: 2 } };
+    const used: Content = { ...content, news: { [RECRUIT]: rumoured } };
+    const play = (where: "abroad" | "home") => {
+      const game = start({ scenario: "scenario.ada", content: used, worldAt: (tick) => standInWorld("w", tick, used) });
+      const facts = { label: "player" as const, ageMonths: 400, where, country: where === "abroad" ? ("country.uk" as const) : null, status: where === "abroad" ? ("status.uk-settled" as const) : null, statusMonthsLeft: null, monthsInCountry: 0, job: null, meetsFloor: {}, eduLevel: 3, englishBand: null, home: "city" as const, joint: null, funds: null, assistanceTaken: 0, sponsorReady: null };
+      const sibling = { with: { kind: "player" as const, pair: "pair-9" }, role: "sibling" as const, stage: "connected" as const, firstMonth: null, partnerMonth: null, marriedMonth: null, lastMomentMonth: null, moments: [], facts, pending: { mine: null, theirs: null }, standIn: null, ended: null, cooldownUntil: null };
+      // The first turn draws the family's siblings; they are replaced by this one, so the draw cannot decide the test.
+      game.endTurn();
+      game.state = { ...game.state, people: { ...game.state.people, bonds: { "bond-sibling": sibling } } };
+      return { game, rumour: game.endTurn().lines };
+    };
+    const abroad = play("abroad");
+    expect(deliveries(abroad.rumour).map((line) => line.params.stage)).toEqual(["rumour"]);
+    expect(abroad.game.state.route[UK]?.state).toBe("heard");
+    expect(abroad.rumour).toContainEqual({ key: "line.route.heard", params: { route: UK, via: "sibling" }, tone: "good", attention: false, counts: [] });
+    const home = play("home");
+    expect(deliveries(home.rumour).map((line) => line.params.stage)).toEqual(["rumour"]);
+    expect(home.game.state.route[UK]?.state).toBe("unknown");
+  });
+
   test("[R-NEWS-006] given the real route kind, when a story with a route to hear is delivered before the route's month for hearing, then the route is heard through the news", () => {
     const announced = firstTick("golden-world", content, RECRUIT, "announced")!;
     expect(announced + 1).toBeLessThan(content.route[UK]!.hearBy!);

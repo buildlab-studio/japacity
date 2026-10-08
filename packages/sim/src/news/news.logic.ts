@@ -18,6 +18,18 @@ export function isForYou(state: State, content: Content, id: Id<"news">): boolea
 }
 
 /**
+ * R-PEOPLE-033: a sibling's facts show them living in the route's country, on
+ * any status there, as the people kind judges `people/sibling-abroad`.
+ * the page puts no age on it, so a sibling of any age passes it on.
+ */
+function siblingIn(ctx: Ctx, route: Id<"route">): boolean {
+  const country = ctx.content.route[route]?.country ?? null;
+  if (country === null) return false;
+  const statuses = Object.values(ctx.content.status).filter((status) => status.country === country).map((status) => status.id);
+  return ctx.check({ type: "people/sibling-abroad", country, statuses, minAgeMonths: 0 }).met;
+}
+
+/**
  * R-NEWS-004: each story the world has moved past what this character was
  * shown is delivered once, at its latest stage only, so a character who was
  * away is not walked through stages they missed. R-NEWS-005: "for you" is
@@ -39,6 +51,11 @@ function deliver(ctx: Ctx): BaseEvent[] {
     if (RANK[story.stage] >= RANK.announced && entry.hear.length > 0) {
       const hear: Effect[] = entry.hear.map((route) => ({ type: "route/hear", route, via: "news" }));
       events.push(...ctx.apply(hear, { source: story.id, param: null, terms: {} }));
+    }
+    // R-PEOPLE-033: a sibling living in a route's country passes the story on at rumour.
+    if (story.stage === "rumour") {
+      const hear: Effect[] = entry.hear.filter((route) => siblingIn(ctx, route)).map((route) => ({ type: "route/hear", route, via: "sibling" }));
+      if (hear.length > 0) events.push(...ctx.apply(hear, { source: story.id, param: null, terms: {} }));
     }
     const delivered: NewsEvent = { type: "news/delivered", story: story.id, stage: story.stage, since: story.since, forYou: isForYou(ctx.state, ctx.content, story.id) };
     events.push(delivered);

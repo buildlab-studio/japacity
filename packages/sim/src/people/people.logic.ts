@@ -32,6 +32,8 @@ import type {
   State,
   StatusEntry,
 } from "../engine/types";
+import { undertakingOpening } from "../obligation/undertaking";
+import { sponsorBarUntil, sponsorCheck } from "./sponsor-checks";
 import { AGE, computerFacts, jointRouteOf } from "./people.facts";
 import type { PeopleEvent } from "./people.events";
 
@@ -42,10 +44,6 @@ const WELLBEING: Id<"quality"> = "quality.wellbeing";
 const RECOVERY: Id<"offer"> = "offer.people-recovery";
 const PAPERS_OFFER: Id<"offer"> = "offer.papers-marriage";
 const DECEMBER: Id<"var"> = "var.season-december";
-/** R-PEOPLE-017. no tuning field holds the wedding's standing. */
-const WEDDING_STANDING = 8;
-/** R-PEOPLE-041. no tuning field holds what gossip costs the courter. */
-const GOSSIP_STANDING = 3;
 /** R-PEOPLE-017: where a wedding is held, drawn on `people`. */
 export const WEDDING_SPOTS: readonly string[] = ["family-compound", "church", "mosque", "registry", "event-hall"];
 /** R-PAIR-007: what an invite card may say it is looking for. */
@@ -69,6 +67,11 @@ type Ender = "me" | "left" | "none";
 
 function record(ctx: Ctx, events: PeopleEvent[]): BaseEvent[] {
   return emit(ctx, "people", events);
+}
+
+/** R-PEOPLE-044: a stand-in only answers the interview and says yes to a joint step the absent side allowed; it never does this. */
+function byStandIn(ctx: Ctx, what: string): Rejection | null {
+  return ctx.sender === "stand-in" ? reject("not-legal", `A stand-in never ${what}.`) : null;
 }
 
 function live(bond: Bond): boolean {
@@ -240,6 +243,8 @@ function drawSiblings(ctx: Ctx): BaseEvent[] {
 
 function invite(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (command.type !== "people/invite") throw new Error(`people/invite cannot handle ${command.type}.`);
+  const standIn = byStandIn(ctx, "sends a card");
+  if (standIn !== null) return standIn;
   const slot = ctx.state.people.slots[command.slot];
   if (slot === undefined) return reject("unknown-id", `There is no slot ${command.slot}.`);
   if (command.looking === undefined) {
@@ -301,6 +306,8 @@ function courtPlayer(ctx: Ctx, withWhom: string): BaseEvent[] | Rejection {
 
 function court(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (command.type !== "people/court") throw new Error(`people/court cannot handle ${command.type}.`);
+  const standIn = byStandIn(ctx, "courts");
+  if (standIn !== null) return standIn;
   const { maxCourting } = ctx.content.tuning.people;
   if (courtingCount(ctx.state.people) >= maxCourting) return reject("not-legal", `${String(maxCourting)} bonds are courting already.`);
   if (command.with.startsWith("person.")) return courtComputer(ctx, command.with as Id<"person">);
@@ -322,9 +329,9 @@ function jointProblem(ctx: Ctx, bond: Bond, route: Id<"route"> | undefined, lead
   if (!partnerGate && entry.dependants === null) return `${route} brings no partner.`;
   if (lead === "me") {
     if (partnerGate) {
-      // R-PEOPLE-026: the sponsor leads a partner route from abroad; their own checks are the undertaking's (R-UNDERTAKING-001).
-      const status = ctx.state.status.current?.entry ?? null;
-      return status !== null && ctx.state.place.country === entry.country && (entry.partner?.sponsorStatuses ?? []).includes(status) ? null : "Only a sponsor abroad leads a partner route.";
+      // R-PEOPLE-026, R-UNDERTAKING-001: the sponsor leads a partner route, and agreeing runs the sponsor's checks in this life.
+      const failed = sponsorCheck(ctx, route);
+      return failed === null ? null : `The sponsor's check failed: ${failed}.`;
     }
     const held = ctx.state.route[route]?.state ?? "unknown";
     const allows = statusAllows(ctx.content, ctx.state.status.current?.entry ?? null, ctx.state.activity.job);
@@ -411,7 +418,7 @@ function agree(ctx: Ctx, id: string, proposal: Proposal): BaseEvent[] | Rejectio
       if (!canPayShare(ctx)) return reject("cannot-afford", "The wedding share cannot be paid.");
       const events = record(ctx, [agreed]);
       const share = ctx.content.tuning.people.weddingShare;
-      events.push(...ctx.apply([{ type: "money/take", currency: "NGN", pocket: "any", amount: share, reason: "wedding" }, { type: "quality/add", quality: STANDING, amount: WEDDING_STANDING }], cause));
+      events.push(...ctx.apply([{ type: "money/take", currency: "NGN", pocket: "any", amount: share, reason: "wedding" }, { type: "quality/add", quality: STANDING, amount: ctx.content.tuning.people.weddingStanding }], cause));
       const moment: Moment = { n: bond.moments.length + 1, by: "me", kind: "wedding", spot: drawFrom(ctx, WEDDING_SPOTS), what: WEDDING_WHAT, tick: ctx.world.tick };
       events.push(...record(ctx, [{ type: "people/moment-added", bond: id, moment }]));
       return events;
@@ -427,9 +434,9 @@ function agree(ctx: Ctx, id: string, proposal: Proposal): BaseEvent[] | Rejectio
     }
     case "landed": {
       const events = record(ctx, [agreed]);
-      // R-UNDERTAKING-006 names the bond on the undertaking; `obligation/open` carries no bond, so the cause names it.
+      // R-UNDERTAKING-006: the undertaking names the bond.
       const undertaking = Object.values(ctx.content.obligation).find((entry) => entry.type === "undertaking");
-      if (undertaking !== undefined) events.push(...ctx.apply([{ type: "obligation/open", obligation: undertaking.id }], cause));
+      if (undertaking !== undefined) events.push(...ctx.apply([undertakingOpening(undertaking.id, id)], cause));
       return events;
     }
     default: {
@@ -441,6 +448,8 @@ function agree(ctx: Ctx, id: string, proposal: Proposal): BaseEvent[] | Rejectio
 
 function propose(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (command.type !== "people/propose") throw new Error(`people/propose cannot handle ${command.type}.`);
+  const standIn = byStandIn(ctx, "proposes");
+  if (standIn !== null) return standIn;
   const bond = ctx.state.people.bonds[command.bond];
   if (bond === undefined) return reject("unknown-id", `There is no bond ${command.bond}.`);
   if (!live(bond)) return reject("not-legal", "The bond has ended.");
@@ -465,21 +474,47 @@ function answer(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (bond === undefined) return reject("unknown-id", `There is no bond ${command.bond}.`);
   const theirs = bond.pending.theirs;
   if (!live(bond) || theirs === null || theirs.step !== command.step) return reject("not-legal", `No ${command.step} proposal is waiting on this bond.`);
+  if (ctx.sender === "stand-in" && !standInMayAgree(ctx, command.bond, theirs, command.yes)) return reject("not-legal", "A stand-in says only yes, only to a joint the absent side allowed it to, and never to sponsoring.");
   if (command.yes && command.step === "marry" && !canPayShare(ctx)) return reject("cannot-afford", "The wedding share cannot be paid.");
+  // R-UNDERTAKING-001: a yes that makes this life the sponsor runs the sponsor's checks; the proposal comes in this life's terms.
+  if (command.yes && theirs.step === "joint" && theirs.lead === "me" && theirs.route !== null && ctx.content.route[theirs.route]?.gate === "partner") {
+    const failed = sponsorCheck(ctx, theirs.route);
+    if (failed !== null) return reject("not-legal", `The sponsor's check failed: ${failed}.`);
+  }
   return record(ctx, [{ type: "people/answered", bond: command.bond, step: command.step, yes: command.yes }]);
 }
 
 function withdraw(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (command.type !== "people/withdraw") throw new Error(`people/withdraw cannot handle ${command.type}.`);
+  const standIn = byStandIn(ctx, "takes back a proposal");
+  if (standIn !== null) return standIn;
   const bond = ctx.state.people.bonds[command.bond];
   if (bond === undefined) return reject("unknown-id", `There is no bond ${command.bond}.`);
   if (bond.pending.mine === null) return reject("not-legal", "No proposal of yours is waiting.");
   return record(ctx, [{ type: "people/withdrawn", bond: command.bond }]);
 }
 
+/**
+ * R-PEOPLE-044, R-UNDERTAKING-001: a stand-in says yes to a pending joint step
+ * only where the absent side set `standInMay` for that joint, and never to a
+ * joint that makes this life the sponsor.
+ * `people/consent` is legal only on an agreed joint, so `standInMay`
+ * cannot be set for a joint still pending; read here as the joint on this bond.
+ */
+function standInMayAgree(ctx: Ctx, id: string, proposal: Proposal, yes: boolean): boolean {
+  if (!yes || proposal.step !== "joint") return false;
+  const { joint } = ctx.state.people;
+  if (joint === null || joint.bond !== id || !joint.standInMay) return false;
+  // The authority sends a proposal in this life's terms, as it sends `people/agreed`.
+  const sponsors = proposal.lead === "me" && proposal.route !== null && ctx.content.route[proposal.route]?.gate === "partner";
+  return !sponsors;
+}
+
 /** R-PEOPLE-004, R-PEOPLE-044: what the joint may use of this life. */
 function consent(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (command.type !== "people/consent") throw new Error(`people/consent cannot handle ${command.type}.`);
+  const standIn = byStandIn(ctx, "consents");
+  if (standIn !== null) return standIn;
   if (ctx.state.people.bonds[command.bond] === undefined) return reject("unknown-id", `There is no bond ${command.bond}.`);
   const { joint } = ctx.state.people;
   if (joint === null || joint.bond !== command.bond) return reject("not-legal", "Consent is given for an agreed joint.");
@@ -550,6 +585,8 @@ function endBond(ctx: Ctx, id: string, by: NonNullable<Bond["ended"]>["by"], pay
 
 function end(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (command.type !== "people/end") throw new Error(`people/end cannot handle ${command.type}.`);
+  const standIn = byStandIn(ctx, "ends a bond");
+  if (standIn !== null) return standIn;
   const bond = ctx.state.people.bonds[command.bond];
   if (bond === undefined) return reject("unknown-id", `There is no bond ${command.bond}.`);
   if (!live(bond)) return reject("not-legal", "The bond has ended already.");
@@ -683,6 +720,25 @@ function momentEffect(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
   return record(ctx, [{ type: "people/moment-added", bond: id, moment }]);
 }
 
+/** R-PEOPLE-027: the departure on a partner route records the arrival, for the bar (R-UNDERTAKING-004) and the assistance count. */
+function arrivedEffect(ctx: Ctx, effect: Effect): BaseEvent[] {
+  if (effect.type !== "people/arrived") throw new Error(`people/arrived cannot carry out ${effect.type}.`);
+  return record(ctx, [{ type: "people/arrived", route: effect.route, month: ctx.state.turn.month }]);
+}
+
+/**
+ * R-UNDERTAKING-010: a month of assistance counts while `arrived` names the
+ * effect's route and fewer than `tuning.undertaking.months` of this life's
+ * months have passed since. The sponsor reads the count in the facts.
+ */
+function assistanceEffect(ctx: Ctx, effect: Effect): BaseEvent[] {
+  if (effect.type !== "people/assistance-taken") throw new Error(`people/assistance-taken cannot carry out ${effect.type}.`);
+  const { arrived } = ctx.state.people;
+  if (arrived === null || arrived.route !== effect.route) return [];
+  if (ctx.state.turn.month - arrived.month >= ctx.content.tuning.undertaking.months) return [];
+  return record(ctx, [{ type: "people/assistance-counted", route: effect.route }]);
+}
+
 // ---------------------------------------------------------------------------
 // The month: R-PEOPLE-041, R-PEOPLE-042, R-PEOPLE-048, R-PEOPLE-049
 // ---------------------------------------------------------------------------
@@ -725,7 +781,7 @@ function gossip(ctx: Ctx): BaseEvent[] {
     if (together === null) break;
     if (!ctx.random.chance("people", ctx.content.tuning.people.gossipBp)) continue;
     const [partnerId, partner] = together;
-    events.push(...ctx.apply([{ type: "quality/add", quality: STANDING, amount: -GOSSIP_STANDING }], { source: about, param: about, terms: {} }));
+    events.push(...ctx.apply([{ type: "quality/add", quality: STANDING, amount: ctx.content.tuning.people.gossipStanding }], { source: about, param: about, terms: {} }));
     const entry = computerOf(ctx.content, partner);
     if (entry === null) {
       events.push(...record(ctx, [{ type: "people/gossip-spread", bond: partnerId, about }]));
@@ -895,6 +951,10 @@ function evolve(slice: PeopleSlice, event: PeopleEvent, state: State, content: C
       if (key === null || slot === undefined || (slot.state !== "player" && slot.state !== "stand-in")) return next;
       return withSlot(next, key, { ...slot, state: event.stage === "on" ? "stand-in" : "player" });
     }
+    case "people/arrived":
+      return { ...slice, arrived: { route: event.route, month: event.month } };
+    case "people/assistance-counted":
+      return { ...slice, assistanceTaken: slice.assistanceTaken + 1 };
     case "people/gossip-heard":
     case "people/gossip-spread":
     case "people/request-shared":
@@ -1019,6 +1079,8 @@ function lines(event: PeopleEvent, state: State): ReportLine[] {
     case "people/siblings-drawn":
     case "people/moments-synced":
     case "people/facts-updated":
+    case "people/arrived":
+    case "people/assistance-counted":
       return [];
     default: {
       const never: never = event;
@@ -1090,16 +1152,6 @@ function slotLabel(slice: PeopleSlice, slot: Slot): PlayerView["people"]["slots"
   }
 }
 
-/** R-UNDERTAKING-004: the month a sponsor who came in on a partner route may sponsor again. */
-function barUntil(read: ReadCtx): number | null {
-  const { arrived } = read.state.people;
-  if (arrived === null) return null;
-  const route = read.content.route[arrived.route];
-  if (route === undefined || route.gate !== "partner" || route.country === null) return null;
-  const bar = read.content.country[route.country]?.partnerBarMonths ?? 0;
-  return bar === 0 ? null : arrived.month + bar;
-}
-
 function view(read: ReadCtx): Pick<PlayerView, "people"> {
   const slice = read.state.people;
   // R-INTERVIEW-005: while an interview is open each side answers from memory.
@@ -1122,7 +1174,7 @@ function view(read: ReadCtx): Pick<PlayerView, "people"> {
       // the two scores of R-PEOPLE-030 are the points gate's; they are null until it gives them.
       joint: slice.joint === null ? null : { bond: slice.joint.bond, route: slice.joint.route, lead: slice.joint.lead, myScore: null, theirScore: null },
       sponsoring: slice.sponsoring,
-      barUntilMonth: barUntil(read),
+      barUntilMonth: sponsorBarUntil(read),
     },
   };
 }
@@ -1130,6 +1182,11 @@ function view(read: ReadCtx): Pick<PlayerView, "people"> {
 // ---------------------------------------------------------------------------
 // Invariants and the kind
 // ---------------------------------------------------------------------------
+
+/** R-PEOPLE-044: a stand-in never ends a turn. */
+function turnEnd(ctx: Ctx): BaseEvent[] | Rejection {
+  return byStandIn(ctx, "ends a turn") ?? [];
+}
 
 function invariants(state: State, content: Content): string[] {
   const problems: string[] = [];
@@ -1165,8 +1222,9 @@ export const peopleKind: RegisteredKind<PeopleSlice, PeopleEvent> = {
     "people/gossip": authority,
     "people/stand-in": authority,
     "people/family-request": authority,
+    "turn/end": turnEnd,
   },
-  effects: { "people/moment": momentEffect },
+  effects: { "people/moment": momentEffect, "people/arrived": arrivedEffect, "people/assistance-taken": assistanceEffect },
   phases: { spend: drawSiblings, month: monthPhase },
   evolve,
   lines,

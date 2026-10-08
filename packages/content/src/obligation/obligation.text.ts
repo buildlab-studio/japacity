@@ -55,5 +55,11 @@ export const obligationText: Record<string, string> = {
   "line.obligation.pot": "Your turn to collect. The circle pays you {amount}.",
   "line.obligation.dropped": "You could not pay your share. The circle has gone on without you, and people are talking.",
   "line.obligation.ended": "{obligation} has run its course.",
+  "obligation.undertaking-ca.name": "Your undertaking for your partner",
+  "obligation.undertaking-ca.blurb": "Three years from the day your partner landed. Any month they take social assistance, Canada sends you the bill.",
+  "line.obligation.assessed": "Canada writes: the partner you sponsored took social assistance for {months} more months. Under your undertaking you owe {amount}.",
+  "line.obligation.cleared": "{obligation}: everything owed is paid. Nothing is outstanding now.",
+  "line.obligation.undertaking-default": "You have missed the undertaking too many times. Canada has it on file as a default, and will take the {amount} owed from your bank account.",
+  "line.obligation.undertaking-seized": "Canada took {amount} from your account toward your undertaking.",
   "line.obligation.debt-grown": "The {amount} nobody paid is added to what they say you owe.",
 };
