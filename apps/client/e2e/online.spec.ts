@@ -115,7 +115,7 @@ test("[R-SERVER-032] while sign-ups are switched off, a new visitor sees the ful
     "GET /api/view": SIGNED_OUT,
     "GET /api/age": { status: 503, body: { ok: false, code: "switched-off", detail: "Sign-ups are closed for now.", retryAfter: 30 } },
   });
-  await page.goto("/");
+  await page.goto("/?classic");
   await expect(page.getByRole("heading", { name: "Japacity is full right now. Try again shortly." })).toBeVisible({ timeout: 20_000 });
   await expect(page.getByRole("button", { name: "Check again" })).toBeDisabled();
   await expect(page.getByLabel("Date of birth")).toHaveCount(0);
@@ -169,7 +169,7 @@ test("[R-MODERATION-003] a friend's conversation carries block and report, and a
     },
     "GET /api/moderation/standing": { body: { ok: true, standing: { actions: [], mutedUntil: null, suspendedUntil: null, banned: false, reports: [] } } },
   });
-  await page.goto("/");
+  await page.goto("/?classic");
   await expect(page.getByRole("heading", { name: /^Month \d+$/ }).first()).toBeVisible({ timeout: 20_000 });
   await openTab(page, "People");
   const thread = page.locator(`[data-conversation="${PAIR}"]`);
@@ -205,7 +205,7 @@ test("[R-ADVERT-002] the phone tile shows the hour's sponsored tile with the gam
     "GET /api/adverts/image/creative-1/1": { body: POSTER, type: "image/svg+xml" },
     "GET /api/moderation/standing": { body: { ok: true, standing: { actions: [], mutedUntil: null, suspendedUntil: null, banned: false, reports: [] } } },
   });
-  await page.goto("/");
+  await page.goto("/?classic");
   await expect(page.getByRole("heading", { name: /^Month \d+$/ }).first()).toBeVisible({ timeout: 20_000 });
   await openTab(page, "News");
   const tile = page.locator("[data-advert-slot='advert.phone-tile']");

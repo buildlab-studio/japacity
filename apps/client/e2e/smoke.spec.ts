@@ -33,7 +33,7 @@ async function plan(page: Page, activity: string): Promise<void> {
 }
 
 test("a new player picks a life, ends a month and reads the report", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/?classic");
 
   // A fresh browser has no save, so the life chooser comes first.
   await expect(page.getByRole("heading", { name: "Who are you?" })).toBeVisible();
@@ -56,7 +56,7 @@ test("a new player picks a life, ends a month and reads the report", async ({ pa
 });
 
 test("three months of play show no kobo, raw object, missing value or bare key", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/?classic");
   await page.getByRole("button", { name: /^Live this life/ }).first().click();
   await expect(page.getByRole("heading", { name: "Month 1", exact: true })).toBeVisible();
   await expectNothingBroken(page, "at the start");
@@ -85,7 +85,7 @@ test("three months of play show no kobo, raw object, missing value or bare key",
 });
 
 test("a life from sixteen is played card by card to the first month", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/?classic");
   await page.getByRole("button", { name: "Live this life: A life from sixteen" }).click();
 
   const prologue = page.locator("[data-prologue]");
@@ -126,7 +126,7 @@ async function seedAda(page: Page): Promise<void> {
       sessionStorage.setItem("seeded", "1");
     }
   }, adaBeforeFlight());
-  await page.goto("/");
+  await page.goto("/?classic");
 }
 
 /**
@@ -301,7 +301,7 @@ test.describe("the side job on a 390 px phone", () => {
   test.use({ viewport: { width: 390, height: 844 } });
 
   test("a side job's words keep the card's width, with the quit button under them", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/?classic");
     await page.getByRole("button", { name: /^Live this life/ }).first().click();
     await expect(page.getByRole("heading", { name: "Month 1", exact: true })).toBeVisible();
 

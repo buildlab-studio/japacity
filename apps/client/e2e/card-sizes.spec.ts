@@ -23,7 +23,7 @@ interface Drawn {
 
 test("[R-SHARE-009] every card kind and every chapter's art is encoded at the first quality, well under the card limit", async ({ page }) => {
   test.setTimeout(120_000);
-  await page.goto("/");
+  await page.goto("/?classic");
   const cards = [...shareKinds.map((kind) => ({ kind, chapter: null })), ...shareChapters.map((chapter) => ({ kind: "chapter" as const, chapter }))];
   const drawn = await page.evaluate(
     async ({ cards, most }) => {

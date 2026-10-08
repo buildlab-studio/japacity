@@ -59,7 +59,7 @@ test("[R-CITY-039] the four boards behind the two pickers, each with the player'
   const game = start({ scenario: "scenario.ada", content });
   game.grant(1);
   await fakeServer(page, { "GET /api/view": { body: { ok: true, view: game.view(), lines: [], clock: CLOCK } }, ...BOARDS });
-  await page.goto("/");
+  await page.goto("/?classic");
   await expect(page.getByRole("heading", { name: /^Month \d+$/ }).first()).toBeVisible({ timeout: 20_000 });
   const tabs = page.getByRole("navigation", { name: "Sections" });
   if (await tabs.isVisible()) await tabs.getByRole("button", { name: "People" }).click();

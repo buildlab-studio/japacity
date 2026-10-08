@@ -59,7 +59,7 @@ async function flyAda(page: Page, withShareSheet: boolean): Promise<void> {
     },
     { stored: adaBeforeFlight(), sheet: withShareSheet },
   );
-  await page.goto("/");
+  await page.goto("/?classic");
   await closeGranted(page);
   const tabs = page.getByRole("navigation", { name: "Sections" });
   if (await tabs.isVisible()) await tabs.getByRole("button", { name: "Japa" }).click();
