@@ -5,4 +5,5 @@ export { memoryLedgerStore } from "./ledger.memory";
 export { memoryNudgeBus } from "./nudge.memory";
 export { memoryPlayerStores } from "./player.memory";
 export { memoryPresenceStore } from "./presence.memory";
+export { memoryPushStore } from "./push.memory";
 export { memoryWorldStore } from "./world.memory";

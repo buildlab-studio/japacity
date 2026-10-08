@@ -8,6 +8,13 @@
       "when": 1791452018766,
       "tag": "0000_stores",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1791459782988,
+      "tag": "0001_notify",
+      "breakpoints": true
     }
   ]
 }

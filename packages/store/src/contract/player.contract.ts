@@ -36,7 +36,7 @@ export function suiteForPlayerStore(make: () => Promise<PlayerStore>): void {
       const loaded = await store.load("char-a");
 
       expect(loaded).toEqual(made);
-      expect(loaded?.character).toEqual({ id: "char-a", account: "account-of-char-a", v: 0, refilledAt: 1_000, segment: 0 });
+      expect(loaded?.character).toEqual({ id: "char-a", account: "account-of-char-a", v: 0, refilledAt: 1_000, segment: 0, fullAt: null, fullNotifiedAt: null });
       expect(loaded?.segments).toEqual([
         {
           character: "char-a",
@@ -311,6 +311,58 @@ export function suiteForPlayerStore(make: () => Promise<PlayerStore>): void {
       const loaded = await store.load("char-a");
       expect(loaded?.character.refilledAt).toBe(7_201_000);
       expect(loaded?.character.v).toBe(0);
+    });
+
+    test("[R-CLOCK-031] given a character at version 2, when fullAt is set at version 2 and then at version 1, then the first is kept and the older one is refused", async () => {
+      const store = await make();
+      must(await store.create(newCharacter("char-a")));
+      await appendTo(store, "char-a", 1, 2);
+
+      expect(await store.setFullAt("char-a", 2, 50_000)).toBe(true);
+      expect(await store.setFullAt("char-a", 1, 9_000)).toBe(false);
+      expect(await store.setFullAt("char-unknown", 0, 9_000)).toBe(false);
+
+      expect((await store.load("char-a"))?.character).toMatchObject({ v: 2, fullAt: 50_000, fullNotifiedAt: null });
+    });
+
+    test("[R-CLOCK-031] given fills at 50000 and 60000, when filled is read at 49999, 50000 and 60000, then each row shows from its own fullAt, in id order", async () => {
+      const store = await make();
+      for (const id of ["char-b", "char-a", "char-c"]) must(await store.create(newCharacter(id)));
+      await store.setFullAt("char-b", 0, 50_000);
+      await store.setFullAt("char-a", 0, 60_000);
+      await store.setFullAt("char-c", 0, null);
+
+      expect(await store.filled(49_999)).toEqual([]);
+      expect((await store.filled(50_000)).map((row) => row.id)).toEqual(["char-b"]);
+      expect((await store.filled(60_000)).map((row) => row.id)).toEqual(["char-a", "char-b"]);
+    });
+
+    test("[R-CLOCK-031] given a fill, when its notice is claimed twice, then only the first claim holds and the row leaves filled", async () => {
+      const store = await make();
+      must(await store.create(newCharacter("char-a")));
+      await store.setFullAt("char-a", 0, 50_000);
+
+      const claims = await Promise.all([store.claimFull("char-a", 50_000, 70_000), store.claimFull("char-a", 50_000, 70_001)]);
+
+      expect(claims.filter(Boolean)).toHaveLength(1);
+      expect((await store.load("char-a"))?.character).toMatchObject({ fullAt: 50_000, fullNotifiedAt: 70_000 });
+      expect(await store.filled(80_000)).toEqual([]);
+    });
+
+    test("[R-CLOCK-031] given a claimed fill, when fullAt moves and the bank fills again, then the claim is cleared and the new fill can be claimed once", async () => {
+      const store = await make();
+      must(await store.create(newCharacter("char-a")));
+      await store.setFullAt("char-a", 0, 50_000);
+      expect(await store.claimFull("char-a", 50_000, 70_000)).toBe(true);
+
+      expect(await store.setFullAt("char-a", 0, 50_000)).toBe(true);
+      expect((await store.load("char-a"))?.character.fullNotifiedAt).toBe(70_000);
+
+      await appendTo(store, "char-a", 1, 1);
+      expect(await store.setFullAt("char-a", 1, 90_000)).toBe(true);
+      expect((await store.load("char-a"))?.character.fullNotifiedAt).toBeNull();
+      expect(await store.claimFull("char-a", 50_000, 95_000)).toBe(false);
+      expect(await store.claimFull("char-a", 90_000, 95_000)).toBe(true);
     });
 
     test("[R-SERVER-021] given a character at version 3, when a transaction opens segment 1 with its base snapshot and then appends, then the load starts from the new base", async () => {

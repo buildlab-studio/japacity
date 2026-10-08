@@ -1,5 +1,6 @@
 // R-ACCOUNT-012, R-ACCOUNT-015, R-ACCOUNT-017, R-ACCOUNT-018, R-ACCOUNT-020: the
-// game's own account row beside the auth library's tables, and deletions.
+// game's own account row beside the auth library's tables, deletions, and the
+// devices that take the bank-full notice (R-CLOCK-031).
 import { sql } from "drizzle-orm";
 import { bigint, boolean, index, pgTable, text, uniqueIndex } from "drizzle-orm/pg-core";
 
@@ -11,7 +12,21 @@ export const accounts = pgTable("accounts", {
   ageMethod: text("age_method").$type<"declared" | "verified">().notNull(),
   createdAt: bigint("created_at", { mode: "number" }).notNull(),
   character: text("character"),
+  /** R-CLOCK-031. */
+  notifyBankFull: boolean("notify_bank_full").notNull().default(false),
 });
+
+/** R-CLOCK-031, R-ACCOUNT-020: one row per device that agreed, kept only while the account's setting is on. */
+export const pushSubscriptions = pgTable(
+  "push_subscriptions",
+  {
+    endpoint: text("endpoint").primaryKey(),
+    account: text("account").notNull(),
+    p256dh: text("p256dh").notNull(),
+    auth: text("auth").notNull(),
+  },
+  (table) => [index("push_subscriptions_account_idx").on(table.account)],
+);
 
 /** `n` keeps the order requests came in; one pending request per account. */
 export const deletions = pgTable(

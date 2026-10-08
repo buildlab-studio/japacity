@@ -8,6 +8,7 @@ import {
   suiteForPairStore,
   suiteForPlayerStore,
   suiteForPresenceStore,
+  suiteForPushStore,
   suiteForWorldStore,
 } from "../contract";
 import {
@@ -18,6 +19,7 @@ import {
   memoryNudgeBus,
   memoryPlayerStores,
   memoryPresenceStore,
+  memoryPushStore,
   memoryWorldStore,
 } from ".";
 
@@ -25,6 +27,7 @@ suiteForPlayerStore(() => Promise.resolve(memoryPlayerStores().player));
 suiteForPairStore(() => Promise.resolve(memoryPlayerStores()));
 suiteForWorldStore(() => Promise.resolve(memoryWorldStore()));
 suiteForPresenceStore(() => Promise.resolve(memoryPresenceStore()));
+suiteForPushStore(() => Promise.resolve(memoryPushStore()));
 suiteForNudgeBus(() => Promise.resolve(memoryNudgeBus()));
 suiteForAccountStore(() => Promise.resolve(memoryAccountStore()));
 suiteForDeletionStore(() => Promise.resolve(memoryDeletionStore()));

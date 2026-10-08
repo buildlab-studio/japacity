@@ -4,6 +4,7 @@
 // collation, so no id column needs COLLATE "C".
 import type { Command, Sender, State } from "@japacity/sim";
 import type { PairRecord, SegmentStart } from "@japacity/store";
+import { sql } from "drizzle-orm";
 import { bigint, index, integer, jsonb, pgTable, primaryKey, text } from "drizzle-orm/pg-core";
 
 /** R-SERVER-002: the row every command locks. */
@@ -15,8 +16,14 @@ export const characters = pgTable(
     v: integer("v").notNull(),
     refilledAt: bigint("refilled_at", { mode: "number" }).notNull(),
     segment: integer("segment").notNull(),
+    /** R-CLOCK-031. */
+    fullAt: bigint("full_at", { mode: "number" }),
+    fullNotifiedAt: bigint("full_notified_at", { mode: "number" }),
   },
-  (table) => [index("characters_account_idx").on(table.account)],
+  (table) => [
+    index("characters_account_idx").on(table.account),
+    index("characters_full_idx").on(table.fullAt).where(sql`${table.fullNotifiedAt} is null`),
+  ],
 );
 
 /** R-SERVER-020: a segment begins after version `from_v`. */

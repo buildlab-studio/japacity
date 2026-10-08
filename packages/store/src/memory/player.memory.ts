@@ -173,7 +173,7 @@ export function memoryPlayerStores(): { player: PlayerStore; pair: PairStore } {
         if (characters.has(input.id)) return Promise.resolve(refuse("exists", `Character ${input.id} already exists.`));
         const overlay = input.overlay === undefined ? {} : { overlay: input.overlay };
         const stored: Stored = copy({
-          row: { id: input.id, account: input.account, v: 0, refilledAt: input.refilledAt, segment: 0 },
+          row: { id: input.id, account: input.account, v: 0, refilledAt: input.refilledAt, segment: 0, fullAt: null, fullNotifiedAt: null },
           segments: [{ character: input.id, segment: 0, fromV: 0, content: input.content, ...overlay, start: input.start }],
           snapshots: [{ character: input.id, v: 0, segment: 0, content: input.content, ...overlay, state: input.state }],
           log: [],
@@ -198,6 +198,32 @@ export function memoryPlayerStores(): { player: PlayerStore; pair: PairStore } {
         characters = left;
         pairs = new Map([...pairs].filter(([, row]) => row.a !== id && row.b !== id));
         return Promise.resolve();
+      }),
+
+    setFullAt: (id, v, fullAt) =>
+      locked(() => {
+        const found = characters.get(id);
+        if (found === undefined || found.row.v !== v) return Promise.resolve(false);
+        if (found.row.fullAt !== fullAt) characters = new Map(characters).set(id, { ...found, row: { ...found.row, fullAt, fullNotifiedAt: null } });
+        return Promise.resolve(true);
+      }),
+
+    filled: (now) =>
+      Promise.resolve(
+        copy(
+          [...characters.values()]
+            .map((each) => each.row)
+            .filter((row) => row.fullAt !== null && row.fullAt <= now && row.fullNotifiedAt === null)
+            .sort((x, y) => compareIds(x.id, y.id)),
+        ),
+      ),
+
+    claimFull: (id, fullAt, at) =>
+      locked(() => {
+        const found = characters.get(id);
+        if (found === undefined || found.row.fullAt !== fullAt || found.row.fullNotifiedAt !== null) return Promise.resolve(false);
+        characters = new Map(characters).set(id, { ...found, row: { ...found.row, fullNotifiedAt: at } });
+        return Promise.resolve(true);
       }),
   };
 

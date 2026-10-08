@@ -40,6 +40,10 @@ export interface CharacterRow {
   v: number;
   refilledAt: number;
   segment: number;
+  /** R-CLOCK-031: when the bank fills if no turn is spent, from the last commit; null while the player has seen it full, or the life is over. */
+  fullAt: number | null;
+  /** R-CLOCK-031: when the notice of the fill at `fullAt` was claimed; cleared whenever `fullAt` moves. */
+  fullNotifiedAt: number | null;
 }
 
 /** R-SERVER-003: one accepted command, with the version and hash after it. `at` is the server's real time. */
@@ -153,6 +157,16 @@ export interface PlayerStore {
   transact: <T>(ids: readonly string[], work: Work<T>) => Promise<StoreResult<T>>;
   /** R-ACCOUNT-017: removes every row that names the character, its pair records included. */
   remove: (id: string) => Promise<void>;
+  /**
+   * R-CLOCK-031: sets `fullAt` while the row is still at version `v`, so an
+   * older commit never overwrites a newer one; a changed value clears
+   * `fullNotifiedAt`. False when the row moved on or is gone.
+   */
+  setFullAt: (id: string, v: number, fullAt: number | null) => Promise<boolean>;
+  /** R-CLOCK-031: the rows whose `fullAt` is at or before `now` with no notice claimed, in ascending id order. */
+  filled: (now: number) => Promise<CharacterRow[]>;
+  /** R-CLOCK-031: claims the notice of the fill at `fullAt`. True for the one call that claimed it, false once claimed or when `fullAt` moved. */
+  claimFull: (id: string, fullAt: number, at: number) => Promise<boolean>;
 }
 
 /** The pair record of pair.md R-PAIR-002. Typed `unknown` until `PairRecord` lands in packages/sim/src/pair/. */
@@ -284,6 +298,8 @@ export interface AccountRow {
   age: { passed: boolean; at: number; method: "declared" | "verified" };
   createdAt: number;
   character: string | null;
+  /** R-CLOCK-031: the setting that sends the bank-full notice. Off until the player agrees. */
+  notifyBankFull: boolean;
 }
 
 /** R-ACCOUNT-015, R-ACCOUNT-017. */
@@ -293,6 +309,8 @@ export interface AccountStore {
   create: (row: AccountRow) => Promise<StoreResult<AccountRow>>;
   /** R-ACCOUNT-015: refused with `one-character` while another character is set. Null clears it. */
   setCharacter: (id: string, character: string | null) => Promise<StoreResult<AccountRow>>;
+  /** R-CLOCK-031: the bank-full setting. Refused with `missing` for an unknown id. */
+  setNotify: (id: string, on: boolean) => Promise<StoreResult<AccountRow>>;
   /** R-ACCOUNT-017. */
   remove: (id: string) => Promise<void>;
 }
@@ -316,6 +334,28 @@ export interface DeletionStore {
   complete: (account: string, at: number) => Promise<StoreResult<DeletionRow>>;
   /** R-ACCOUNT-018: so a second request can be answered after the account is gone. */
   find: (accountHash: string) => Promise<DeletionRow | null>;
+}
+
+// ---------------------------------------------------------------------------
+// Notifications (clock.md R-CLOCK-031)
+// ---------------------------------------------------------------------------
+
+/** R-CLOCK-031: a browser's push subscription, as `PushSubscription.toJSON()` gives it. */
+export interface PushSubscriptionJson {
+  endpoint: string;
+  keys: { p256dh: string; auth: string };
+}
+
+/** R-CLOCK-031, R-ACCOUNT-017, R-ACCOUNT-020: the devices that agreed, one row per endpoint, kept only while the setting is on. */
+export interface PushStore {
+  /** Stores the device for the account. An endpoint already stored moves to this account with the new keys. */
+  subscribe: (account: string, subscription: PushSubscriptionJson) => Promise<void>;
+  /** Removes the device when the account holds it; anything else is a no-op. */
+  unsubscribe: (account: string, endpoint: string) => Promise<void>;
+  /** The account's devices in ascending endpoint order. */
+  forAccount: (account: string) => Promise<PushSubscriptionJson[]>;
+  /** Removes every device of the account. */
+  forget: (account: string) => Promise<void>;
 }
 
 // ---------------------------------------------------------------------------
