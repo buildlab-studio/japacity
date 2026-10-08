@@ -6,6 +6,7 @@ import { join, relative, sep } from "node:path";
 
 import { type Footprint, isFootprint, type RegisterRow, type Review, type ReviewSheet } from "@japacity/assets";
 
+import { checkFaces, type FacedStage, floorFaces, type ModelFace } from "./faces-check";
 import { checkFootprints, checkWalkable, type StagedGround } from "./footprint-check";
 import { measure, readGlb } from "./glb";
 import { placeMapData } from "./map-data";
@@ -13,6 +14,7 @@ import { hashInName, type Manifest, sha256 } from "./manifest";
 import { checkPalette } from "./palette-check";
 import { describeMeasure, renderPlaces } from "./place-check";
 import type { Register } from "./register";
+import { checkLimits, isWorldFile, type LimitedFile } from "./world-check";
 
 /** R-ASSET-008, as the page writes it. */
 export const FILE_NAME = /^(chr|veh|bld|shop|sign|lm|prop|cloth|hair|anim|tex)_[a-z0-9]+(-[a-z0-9]+)*(_[a-z0-9]+(-[a-z0-9]+)*)?\.(glb|png|ktx2)$/;
@@ -46,7 +48,7 @@ export interface PlaceFile {
   instances: { file: string; count: number }[];
   people: { low: number; high: number; sample: string[] };
   groundRoadSky: { drawCalls: number; triangles: number };
-  stage?: StagedGround;
+  stage?: StagedGround & FacedStage & NonNullable<LimitedFile["stage"]>;
 }
 
 export interface ReviewConfig {
@@ -71,6 +73,8 @@ export interface Measured {
   size: [number, number, number];
   /** The root node's extras: a moving sheet's `motion`, `pinned` and `level` among them. */
   extras: Record<string, unknown>;
+  /** The faces that look up and lie on the ground, for the faces check (world.md R-WORLD-012). */
+  floors?: ModelFace[];
 }
 
 export interface Paths {
@@ -380,6 +384,20 @@ export function checkPlace(place: PlaceFile, measured: ReadonlyMap<string, Measu
   return problems;
 }
 
+/**
+ * 14. A world-first place (one that declares its camera, world.md R-WORLD-009) keeps its floors a
+ * centimetre apart (R-WORLD-012) and its crowd, moving sheets and size inside R-WORLD-011. A file
+ * from before the world-first design is drawn by the earlier rules until the places are rebuilt, so
+ * what these checks find in it is a note, not a failure.
+ */
+export function worldChecks(place: PlaceFile, measured: ReadonlyMap<string, Pick<Measured, "floors">>, notes: string[]): string[] {
+  const found = [...checkFaces(place.place, place.stage, (file) => measured.get(file)?.floors ?? []), ...checkLimits(place)];
+  if (isWorldFile(place)) return found;
+  // the ten places shipped first carry no shot; the maintainer decides when they must pass, which the places work's rebuild should make true.
+  if (found.length > 0) notes.push(`${place.place} has no stage.shot yet, so the world-first checks only note: ${String(found.length)} problem(s), the first: ${found[0] ?? ""}`);
+  return [];
+}
+
 /** 9. The first download (code, the hub's folder, one character) and the whole game fit (R-CITY-018). */
 export function checkDownloads(measured: readonly Measured[], hubFolder: string | null, codeBytes: number, budgets: Budgets): string[] {
   const problems: string[] = [];
@@ -444,7 +462,7 @@ export async function measureFile(paths: Paths, file: string): Promise<Measured>
   const figures = measure(doc, bytes.byteLength);
   const extras: Record<string, unknown> = doc.getRoot().getDefaultScene()?.listChildren()[0]?.getExtras() ?? {};
   const signs = Array.isArray(extras.signs) ? extras.signs.length : 0;
-  return { file, ...figures, palette: checkPalette(doc).map((p) => `${p.where} ${p.rgb.join(",")} is not a palette colour`), signs, extras };
+  return { file, ...figures, palette: checkPalette(doc).map((p) => `${p.where} ${p.rgb.join(",")} is not a palette colour`), signs, extras, floors: floorFaces(doc) };
 }
 
 function codeBytes(paths: Paths): number {
@@ -508,6 +526,7 @@ export async function runChecks(paths: Paths, placeData: readonly string[]): Pro
     const place = readJson<PlaceFile>(join(paths.public, file));
     if (place.hub) hub = file.replace(/\/place\.json$/, "");
     problems.push(...checkPlace(place, byFile, budgets), ...checkWalkable(place.place, place.stage, footprints));
+    problems.push(...worldChecks(place, byFile, notes));
   }
   const code = codeBytes(paths);
   if (code === 0) notes.push("The client is not built, so the first download counts no code; pnpm build first to count it.");
