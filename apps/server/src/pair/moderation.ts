@@ -142,7 +142,8 @@ export async function report(deps: ServerDeps, account: string, body: unknown): 
   if (reason === null || !REASONS.includes(reason as ReportReason)) return refused(400, "not-legal", "Choose a reason from the list.");
   if (key === null || messages === null) return refused(400, "not-legal", "A report cites the pair, and for a conversation its message ids.");
   const now = deps.now();
-  if ((await deps.stores.moderation.filedSince(account, now - time.DAY_MS)) >= REPORTS_PER_DAY) {
+  // A report exactly a day old no longer counts, as a phrase exactly an hour old does not (R-PAIR-013).
+  if ((await deps.stores.moderation.filedSince(account, now - time.DAY_MS + 1)) >= REPORTS_PER_DAY) {
     return { status: 429, body: { ok: false, code: "rate-limited", detail: "Too many reports today.", retryAfter: 86_400 } };
   }
   const found = await readable(deps, account, key);

@@ -199,20 +199,22 @@ function carryOne(scope: Scope, live: Live, record: PairRecord, event: Carried, 
  * A rejection from the other life refuses the whole command.
  */
 export function carry(scope: Scope, live: Live, before: State, events: readonly BaseEvent[], sender: Sender): Rejection | null {
-  for (const [id, bond] of Object.entries(live.state.people.bonds)) {
-    if (bond.with.kind === "player" && bond.stage !== "ended" && scope.book.get(bond.with.pair) === null) {
-      return reject("stale", `The bond ${id} is with a life this command did not hold. Send it again.`);
-    }
-  }
   const forFacts = new Set<string>();
   for (const event of events) {
     if (!isCarried(event)) continue;
     const carried = event as unknown as Carried;
     const pair = pairOf(live.state, carried);
     const record = pair === null ? null : scope.book.get(pair);
+    // Only an ended record is left out of the locks; lifting an end restores nothing (R-PAIR-015).
+    if (pair !== null && record === null && carried.type === "people/courted") return reject("not-legal", "This pair has ended. A new invite is needed to court again.");
     if (record === null || (record.a !== live.id && record.b !== live.id)) continue;
     const failed = carryOne(scope, live, record, carried, forFacts);
     if (failed !== null) return failed;
+  }
+  for (const [id, bond] of Object.entries(live.state.people.bonds)) {
+    if (bond.with.kind === "player" && bond.stage !== "ended" && scope.book.get(bond.with.pair) === null) {
+      return reject("stale", `The bond ${id} is with a life this command did not hold. Send it again.`);
+    }
   }
   const world = scope.turn.world;
   const moved = stableJson(factsOf(before, live.content, world)) !== stableJson(factsOf(live.state, live.content, world));
