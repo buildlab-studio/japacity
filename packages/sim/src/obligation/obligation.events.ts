@@ -44,4 +44,6 @@ export type ObligationEvent =
   /** The car went back to the lender with nothing more owed on it (R-CAR-004, R-CAR-005). The obligation is removed. */
   | { type: "obligation/handed-back"; id: string; entry: Id<"obligation">; shortfall: number }
   /** The final payment was made: the car is the character's, and nothing is owed (R-CAR-005). */
-  | { type: "obligation/owned"; id: string; entry: Id<"obligation"> };
+  | { type: "obligation/owned"; id: string; entry: Id<"obligation"> }
+  /** An unpaid ransom was added to the agent's debt already open (R-ROAD-006). */
+  | { type: "obligation/grown"; id: string; entry: Id<"obligation">; amount: number };

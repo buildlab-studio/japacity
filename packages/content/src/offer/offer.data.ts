@@ -608,6 +608,122 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
     ],
     onExpire: null,
   },
+  // The group loan and the savings circle: obligation.md R-OBLIGATION-012, luck.md R-LUCK-009.
+  // the page gives no chance for the three group offers; these are working values.
+
+  "offer.group-loan": {
+    id: "offer.group-loan",
+    group: "money",
+    when: [
+      { type: "quality/min", quality: "quality.standing", value: 40 },
+      { type: "quality/min", quality: "quality.network", value: 20 },
+      CREDIT_CLEAN,
+      { type: "not", of: { type: "obligation/has", obligationType: "group-loan" } },
+    ],
+    chanceBp: pct(3),
+    cooldown: 12,
+    maxTimes: null,
+    expiresAfter: 2,
+    // ₦50,000 to ₦300,000.
+    terms: { min: naira(50000), max: naira(300000) },
+    fraudBp: 0,
+    signs: [],
+    choices: [
+      {
+        id: "take",
+        requires: [],
+        pick: { minTerm: "min", maxTerm: "max" },
+        // The fee and the savings come off the credit as it opens (R-OBLIGATION-010).
+        effects: [{ type: "obligation/open", obligation: "obligation.group-loan", principal: { term: "amount" } }],
+        fraudEffects: null,
+      },
+      { id: "no", requires: [], pick: null, effects: [], fraudEffects: null },
+    ],
+    onExpire: null,
+  },
+  "offer.parents-group-debt": {
+    id: "offer.parents-group-debt",
+    group: "family",
+    when: [],
+    chanceBp: pct(1),
+    cooldown: 24,
+    maxTimes: 1,
+    expiresAfter: 1,
+    terms: {},
+    fraudBp: 0,
+    signs: [],
+    choices: [
+      {
+        id: "pay",
+        requires: [],
+        pick: null,
+        effects: [{ type: "money/take", currency: "NGN", pocket: "any", amount: naira(120000), reason: "family" }],
+        fraudEffects: null,
+      },
+      {
+        id: "no",
+        requires: [],
+        pick: null,
+        effects: [{ type: "quality/add", quality: "quality.standing", amount: -15 }],
+        fraudEffects: null,
+      },
+    ],
+    onExpire: "no",
+  },
+  "offer.stand-guarantor": {
+    id: "offer.stand-guarantor",
+    group: "family",
+    when: [{ type: "not", of: { type: "obligation/has", obligationType: "undertaking" } }],
+    chanceBp: pct(1),
+    cooldown: 24,
+    maxTimes: 1,
+    expiresAfter: 1,
+    // the relative's balance, in the group loan's own steps.
+    terms: { balance: { from: "range", min: naira(100000), max: naira(300000), step: naira(50000) } },
+    fraudBp: 0,
+    signs: [],
+    choices: [
+      {
+        id: "accept",
+        requires: [],
+        pick: null,
+        effects: [
+          { type: "quality/add", quality: "quality.standing", amount: 4 },
+          { type: "obligation/open", obligation: "obligation.guarantee", principal: { term: "balance" } },
+        ],
+        fraudEffects: null,
+      },
+      {
+        id: "refuse",
+        requires: [],
+        pick: null,
+        effects: [{ type: "quality/add", quality: "quality.standing", amount: -4 }],
+        fraudEffects: null,
+      },
+    ],
+    onExpire: "refuse",
+  },
+  "offer.join-ajo": {
+    id: "offer.join-ajo",
+    group: "money",
+    when: [
+      { type: "quality/min", quality: "quality.standing", value: 40 },
+      { type: "quality/min", quality: "quality.network", value: 20 },
+      { type: "not", of: { type: "obligation/has", obligationType: "ajo" } },
+    ],
+    chanceBp: 800,
+    cooldown: 12,
+    maxTimes: null,
+    expiresAfter: 2,
+    terms: {},
+    fraudBp: 0,
+    signs: [],
+    choices: [
+      { id: "join", requires: [], pick: null, effects: [{ type: "obligation/open", obligation: "obligation.ajo" }], fraudEffects: null },
+      { id: "no", requires: [], pick: null, effects: [], fraudEffects: null },
+    ],
+    onExpire: null,
+  },
   "offer.land-buyer": {
     id: "offer.land-buyer",
     group: "money",

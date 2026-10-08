@@ -2,7 +2,7 @@
 // abroad-money.md, credit.md and car.md.
 import type { Currency, Effect, Id, ObligationEntry } from "@japacity/sim";
 
-import { aed, cad, euros, pct, pounds } from "../units";
+import { aed, cad, euros, naira, pct, pounds } from "../units";
 
 // abroad-money.md gives no figures for a missed month of upkeep or rent
 // abroad, so both take what a missed month of upkeep takes at home.
@@ -191,6 +191,64 @@ export const obligationTable: Record<Id<"obligation">, ObligationEntry> = {
     interestSink: "held-funds-interest",
     grace: 0,
     onMiss: [{ type: "quality/add", quality: "quality.standing", amount: -5 }],
+    onDefault: [],
+  },
+
+  // obligation.md R-OBLIGATION-010 to 012: 15% over 9 months, fees and savings up front.
+  "obligation.group-loan": {
+    id: "obligation.group-loan",
+    type: "group-loan",
+    currency: "NGN",
+    amount: 0,
+    // 1.7% a month flat.
+    rateBp: 170,
+    term: 9,
+    locksPrincipal: false,
+    sink: "loan-repay",
+    interestSink: "loan-interest",
+    grace: 2,
+    // The first step of R-OBLIGATION-011's ladder; the second is the house visit.
+    onMiss: [{ type: "quality/add", quality: "quality.standing", amount: -5 }],
+    onDefault: [
+      { type: "quality/add", quality: "quality.standing", amount: -15 },
+      { type: "quality/add", quality: "quality.credit-mark", amount: 1 },
+    ],
+    // The laptop.
+    seize: [
+      { type: "quality/add", quality: "quality.tech", amount: -10 },
+      { type: "quality/add", quality: "quality.portfolio", amount: -1 },
+    ],
+  },
+  // R-OBLIGATION-012: standing guarantor. Three months on, the relative may be gone and the balance is yours.
+  // the contract has no timer for this, so the guarantee is an undertaking of 3 months owing the balance.
+  "obligation.guarantee": {
+    id: "obligation.guarantee",
+    type: "undertaking",
+    currency: "NGN",
+    amount: 0,
+    rateBp: 0,
+    term: 3,
+    locksPrincipal: false,
+    sink: "family",
+    interestSink: "family",
+    grace: 0,
+    onMiss: [],
+    onDefault: [{ type: "obligation/open", obligation: "obligation.group-loan", principal: { term: "outstanding" } }],
+  },
+  // luck.md R-LUCK-009: ₦20,000 a month for 10 months, the pot drawn on `lotto`.
+  // the page names no sink for a share paid into the circle; `social` is the nearest.
+  "obligation.ajo": {
+    id: "obligation.ajo",
+    type: "ajo",
+    currency: "NGN",
+    amount: naira(20000),
+    rateBp: 0,
+    term: 10,
+    locksPrincipal: false,
+    sink: "social",
+    interestSink: "social",
+    grace: 0,
+    onMiss: [{ type: "quality/add", quality: "quality.standing", amount: -6 }],
     onDefault: [],
   },
 

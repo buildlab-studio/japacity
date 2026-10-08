@@ -30,6 +30,9 @@ export const obligationText: Record<string, string> = {
   "obligation.car.name": "Car on finance",
   "obligation.car-shortfall.name": "What is still owed on the car",
   "obligation.agent-debt.name": "What the men on the road say you owe",
+  "obligation.group-loan.name": "Group loan",
+  "obligation.guarantee.name": "Your cousin's loan, as guarantor",
+  "obligation.ajo.name": "Savings circle",
 
   // Life abroad, the car, the group loan and the savings circle.
   "line.obligation.car-notice": "Two car payments missed in a row. A notice has come from the lender: this month is {amount}, and the car is at risk.",
@@ -51,4 +54,5 @@ export const obligationText: Record<string, string> = {
   "line.obligation.pot": "Your turn to collect. The circle pays you {amount}.",
   "line.obligation.dropped": "You could not pay your share. The circle has gone on without you, and people are talking.",
   "line.obligation.ended": "{obligation} has run its course.",
+  "line.obligation.debt-grown": "The {amount} nobody paid is added to what they say you owe.",
 };

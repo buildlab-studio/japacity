@@ -529,6 +529,9 @@ function openEffect(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
   if (entry.type === "group-loan") amount = lent ? bp(principal, ctx.content.tuning.groupLoan.savingsBp) : 0;
   // a debt of nothing would close before it was ever owed, and a circle of nothing has no pot, so nothing opens.
   if ((OWING_TYPES.includes(entry.type) || entry.type === "ajo") && principal === 0) return [];
+  // R-ROAD-006: a ransom nobody pays is added to the debt already owed to the same men.
+  const owed = entry.type === "agent-debt" ? openItems(ctx.state).find((open) => open.entry === entry.id) : undefined;
+  if (owed !== undefined) return record(ctx, { type: "obligation/grown", id: owed.id, entry: owed.entry, amount: principal });
   const item: ObligationState = {
     id: ctx.nextId("obligation"),
     entry: entry.id,
@@ -721,6 +724,8 @@ function evolve(slice: ObligationSlice, event: ObligationEvent, _state: State, c
     case "obligation/repaid":
     case "obligation/pot-paid":
       return withItem(slice, event.id, (item) => ({ ...item, outstanding: item.outstanding - event.amount }));
+    case "obligation/grown":
+      return withItem(slice, event.id, (item) => ({ ...item, principal: item.principal + event.amount, outstanding: item.outstanding + event.amount }));
     case "obligation/caught-up":
       return withItem(slice, event.id, (item) => ({
         ...item,
@@ -849,6 +854,8 @@ function lines(event: ObligationEvent, _state: State, content: Content): ReportL
       ];
     case "obligation/owned":
       return [line("owned", { obligation: event.entry }, "good", true)];
+    case "obligation/grown":
+      return [line("debt-grown", { obligation: event.entry, amount: money(event.entry, event.amount) }, "bad", true)];
     case "obligation/opened":
     case "obligation/repaid":
       // The wallet's line for the loan, the locked money or the repayment says it.
@@ -899,11 +906,26 @@ export function obligationsView(read: ReadCtx): (ObligationState & { due: number
   return openItems(read.state).map((item) => ({ ...item, due: dueNext(read, item, entryOf(read.content, item.entry)) }));
 }
 
+/** R-CAR-007: what a screen shows of one car beyond the obligation's own fields. */
+export interface CarView extends CarTerms {
+  paid: number;
+  /** The monthly interest fixed at opening by the credit ladder. */
+  interest: number;
+  /** Two misses in a row: the lender's notice stands (R-CAR-003). */
+  notice: boolean;
+  /** The month the car is taken while the lender waits on the court, or null. */
+  courtMonth: number | null;
+}
+
 /** R-CAR-007's figures for one car, for screens that ask: the view's item carries only the obligation's own fields. */
-export function carView(read: ReadCtx, item: ObligationState): (CarTerms & { paid: number; interest: number }) | null {
+export function carView(read: ReadCtx, item: ObligationState): CarView | null {
   const entry = read.content.obligation[item.entry];
   if (entry?.type !== "car") return null;
-  return { ...carTerms(entry), paid: carPaid(entry, item), interest: item.amount };
+  const terms = carTerms(entry);
+  const court = inCourt(item, entry);
+  // In court each month is another miss, and the car goes at the miss that ends the court months.
+  const courtMonth = court ? read.state.turn.month + entry.grace + 1 + terms.courtMonths - item.missed : null;
+  return { ...terms, paid: carPaid(entry, item), interest: item.amount, notice: item.missed >= entry.grace, courtMonth };
 }
 
 // ---------------------------------------------------------------------------
