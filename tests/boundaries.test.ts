@@ -152,6 +152,11 @@ function violations(files: readonly string[], packages: ReadonlyMap<string, stri
         report("nothing in sim, store or client imports db");
       }
 
+      // P9 and P18: the holding page and the friends' gate stand in front of the game and take nothing from it.
+      if (["apps/landing", "apps/gate"].some((folder) => inside(file, folder)) && !isRelative(specifier) && packageName(specifier).startsWith("@japacity/")) {
+        report("the holding page and the gate import no workspace package");
+      }
+
       const targetApp = target === undefined ? undefined : appOf(target);
       if (targetApp !== undefined && appOf(file) !== targetApp) {
         report(`only files inside apps/${targetApp} may import from it`);
@@ -176,6 +181,8 @@ describe("import boundaries", () => {
     expect(files).toContain("packages/sim/src/index.ts");
     expect(files).toContain("packages/db/src/index.ts");
     expect(files).toContain("apps/client/src/App.tsx");
+    expect(files).toContain("apps/landing/src/index.ts");
+    expect(files).toContain("apps/gate/src/index.ts");
   });
 
   test("no import crosses a boundary outside the allowed exceptions", () => {

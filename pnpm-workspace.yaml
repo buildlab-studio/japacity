@@ -6,5 +6,5 @@ packages:
   - assets-src
 allowBuilds:
   esbuild: false
-  # workerd downloads its binary for the landing app's local runtime
+  # workerd downloads its binary for the local runtime of the landing page, the gate and the server
   workerd: true

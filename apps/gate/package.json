@@ -1,0 +1,19 @@
+{
+  "name": "@japacity/gate",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "typecheck": "tsc -p tsconfig.json && tsc -p e2e/tsconfig.json",
+    "test:browser": "playwright test -c e2e/playwright.config.ts"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20251008.0",
+    "@types/node": "^24.19.1",
+    "typescript": "~6.0.3",
+    "wrangler": "^4.148.0"
+  }
+}

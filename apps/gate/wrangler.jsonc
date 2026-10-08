@@ -1,0 +1,21 @@
+// The friends' gate: a Worker on a route in front of the game's address (PENDING.md P18).
+// The game's own Worker stays on its Custom Domain; this route runs first and hands an
+// admitted request on with fetch(request). Taking the gate down is deleting this route.
+// Nothing here is deployed until the maintainer says so. Steps are in apps/gate/README.md.
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "japacity-gate",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-09-01",
+  "workers_dev": false,
+  // Placeholder: the game's address while friends play. the maintainer sets the host he chose.
+  "routes": [{ "pattern": "play.japacity.com/*", "zone_name": "japacity.com" }],
+  "vars": {
+    // The game's X handle without the @, once the maintainer has claimed it. Empty: the screen shows no X link.
+    "GATE_X_HANDLE": "",
+    // The holding page, for the social preview card's picture.
+    "SITE_URL": "https://japacity.com"
+  }
+  // The secret, set by the maintainer with `wrangler secret put GATE_SECRET` and never written here.
+  // It is also the code in the invite link. Unset or empty, the gate admits nobody.
+}
