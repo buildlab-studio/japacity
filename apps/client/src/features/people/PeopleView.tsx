@@ -138,7 +138,7 @@ function Sponsoring() {
   if (people.sponsoring === null && people.barUntilMonth === null) return null;
   return (
     <Card className="flex flex-col gap-1 text-sm" data-sponsoring>
-      {people.sponsoring === null ? null : <p>{say("ui.people.sponsoring", { route: runningName(people.sponsoring.route), month: monthEnding(people.sponsoring.month) })}</p>}
+      {people.sponsoring === null ? null : <p>{say("ui.people.sponsoring", { route: nameOf(people.sponsoring.route), month: monthEnding(people.sponsoring.month) })}</p>}
       {people.barUntilMonth === null ? null : <p className="text-bad">{say("ui.people.bar", { month: monthEnding(people.barUntilMonth) })}</p>}
     </Card>
   );

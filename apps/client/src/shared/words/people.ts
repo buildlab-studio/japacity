@@ -145,7 +145,7 @@ export const peopleText: Record<string, string> = {
   "ui.people.consent.said": "Last set here: {choice}.",
 
   // The sponsor's side (R-UNDERTAKING-001 to 004, R-UNDERTAKING-012)
-  "ui.people.sponsoring": "You agreed to sponsor them on {route}, in month {month}.",
+  "ui.people.sponsoring": "You agreed to sponsor them in month {month}. Their route: {route}.",
   "ui.people.bar": "You cannot sponsor a new partner before month {month}.",
 
   // Ending it (R-PEOPLE-035 to 039)
