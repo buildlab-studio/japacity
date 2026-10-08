@@ -199,3 +199,25 @@ describe("the words files together", () => {
     expect(dashed).toEqual([]);
   });
 });
+
+describe("words that say what happened", () => {
+  test("[R-SETPIECE-002] given a set piece open, when the turn is refused, then the words name no one scene: the December visit and the road are set pieces too", () => {
+    expect(text["reject.setpiece-open"]).toBeTruthy();
+    expect(text["reject.setpiece-open"]?.toLowerCase()).not.toMatch(/interview/);
+  });
+
+  test("[R-CHAPTER-002] [R-OFFER-005] given a chapter opened, an offer taken and an offer lapsed, when their lines are read, then each names the chapter or the offer it is about", () => {
+    expect(text["line.chapter.opened"]).toContain("{chapter}");
+    expect(text["line.offer.lapsed"]).toContain("{offer}");
+    expect(text["line.offer.taken"]).toContain("{offer}");
+    expect(text["line.offer.taken"]).not.toMatch(/^Decided/);
+  });
+
+  test("[R-ROAD-002] given the man at the park, when his pitch is read, then it does not say the character asked: it comes up to anyone at home", () => {
+    expect(text["offer.road-park.body"]?.toLowerCase()).not.toMatch(/heard you asking/);
+  });
+
+  test("[R-ABROAD-003] given the upkeep line, when it is read abroad beside the rent, then it does not call itself rent", () => {
+    expect(text["line.wallet.upkeep"]?.toLowerCase()).not.toMatch(/rent/);
+  });
+});

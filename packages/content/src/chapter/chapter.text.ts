@@ -39,7 +39,7 @@ export const chapterText: Record<string, string> = {
   // Report lines. The interface shows the chapter's close words with the
   // first, and the next chapter's opening words with the second.
   "line.chapter.closed": "Chapter done. Your turns are full again.",
-  "line.chapter.opened": "A new chapter begins.",
+  "line.chapter.opened": "Next: {chapter}.",
   // The goals' lines live here: the long game takes the chapters' place once they are over (R-CHAPTER-007),
   // and the words files of life abroad hold no report lines.
   "line.goal.opened": "A new goal: {goal}.",

@@ -66,7 +66,8 @@ function lines(event: NewsEvent): ReportLine[] {
           key: "line.news.delivered",
           params: { story: event.story, stage: event.stage, forYou: event.forYou ? 1 : 0 },
           tone: "plain",
-          attention: event.forYou,
+          // R-NEWS-004: only a story in force that touches your plans asks you to stop and look.
+          attention: event.forYou && event.stage === "in-force",
           counts: [],
         },
       ];

@@ -107,8 +107,8 @@ describe("delivering the news", () => {
       expect(deliveries(game.endTurn().lines).filter((line) => line.params.story === RECRUIT)).toEqual([]);
     }
     const lines = deliveries(game.endTurn().lines).filter((line) => line.params.story === RECRUIT);
-    // The story tells Ada of the route, and is judged for her after that (R-NEWS-005).
-    expect(lines).toEqual([{ key: "line.news.delivered", params: { story: RECRUIT, stage: "announced", forYou: 1 }, tone: "plain", attention: true, counts: [] }]);
+    // The story tells Ada of the route, and is judged for her after that (R-NEWS-005). Announced, it does not yet ask for attention.
+    expect(lines).toEqual([{ key: "line.news.delivered", params: { story: RECRUIT, stage: "announced", forYou: 1 }, tone: "plain", attention: false, counts: [] }]);
     expect(game.state.news.delivered[RECRUIT]).toMatchObject({ stage: "announced" });
     expect(deliveries(game.endTurn().lines).filter((line) => line.params.story === RECRUIT)).toEqual([]);
   });
@@ -147,7 +147,7 @@ describe("delivering the news", () => {
 });
 
 describe("for you", () => {
-  test("[R-NEWS-005] given a story touching a route that tells you of it, when it is delivered, then it is for you, and so is every later story touching the route", () => {
+  test("[R-NEWS-004] [R-NEWS-005] given a story touching a route that tells you of it, when it is delivered, then it is for you, and so is every later story touching the route", () => {
     const heard: Effect[] = [];
     const kinds = hearingRegistry(heard);
     const played = life(kinds, (tick) => standInWorld("world-1", tick, firstContent), firstContent);
@@ -156,7 +156,7 @@ describe("for you", () => {
     // The recruitment story is judged after its own hearing: reading it told you of the route, so it is for you.
     const recruit = deliveries(played.allLines).find((line) => line.params.story === RECRUIT);
     expect(recruit?.params.forYou).toBe(1);
-    expect(recruit?.attention).toBe(true);
+    expect(recruit?.attention).toBe(recruit?.params.stage === "in-force");
     expect(played.state.route[UK]?.state).toBe("heard");
     expect(played.view().news.find((story) => story.id === RECRUIT)?.forYou).toBe(true);
     for (let tick = 0; tick < 30; tick += 1) played.endTurn();
@@ -165,7 +165,10 @@ describe("for you", () => {
     const after = all.slice(all.findIndex((line) => line.params.story === RECRUIT) + 1);
     const later = after.filter((line) => line.params.story !== RECRUIT && (firstContent.news[line.params.story as Id<"news">]?.touches.includes(UK) ?? false));
     expect(later.length).toBeGreaterThan(0);
-    expect(later.every((line) => line.params.forYou === 1 && line.attention)).toBe(true);
+    expect(later.every((line) => line.params.forYou === 1 && line.attention === (line.params.stage === "in-force"))).toBe(true);
+    // R-NEWS-004: a story asks for attention only once it is in force and for you.
+    expect(all.every((line) => line.attention === (line.params.forYou === 1 && line.params.stage === "in-force"))).toBe(true);
+    expect(all.some((line) => line.attention)).toBe(true);
   });
 
   test("[R-NEWS-005] given every story touches a route the character does not know, when the view is read, then none is for you", () => {
