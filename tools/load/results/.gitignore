@@ -1,0 +1,4 @@
+# Raw output of the load test is never committed (docs/rules/load.md R-LOAD-011).
+*
+!.gitignore
+!README.md
