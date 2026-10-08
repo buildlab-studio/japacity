@@ -65,6 +65,7 @@ export const palette = {
   roofGreen: 0x3c6e47,
   drain: 0x5b5a55,
   purple: 0x6d2b79,
+  lagoon: 0x4f6f66,
 } as const;
 
 export type PaletteName = keyof typeof palette;

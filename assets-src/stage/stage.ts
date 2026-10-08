@@ -39,7 +39,7 @@ export interface LoadOptions {
   pose?: { rotations: Record<string, [number, number, number]>; hipsY?: number };
   /** A model shown beside the asset in the phone shot for scale. */
   scaleFigure?: { url: string; pose?: LoadOptions["pose"] };
-  /** The ground the asset stands on in the shots: sand, or water for a bridge. */
+  /** The ground the asset stands on in the shots: sand, or the lagoon for a bridge. */
   ground?: PaletteName;
   /** Where the far phone shot stands and looks, when a landmark is first seen from somewhere particular. */
   farView?: { position: [number, number, number]; target: [number, number, number] };

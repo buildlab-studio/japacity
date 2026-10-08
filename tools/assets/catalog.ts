@@ -46,7 +46,7 @@ export interface CatalogEntry {
   /** Is one of the six examples later pieces are judged against. */
   example?: boolean;
   /** The ground in the shots, when it is not sand. */
-  ground?: "teal";
+  ground?: "lagoon";
   /** Where the far phone shot stands, when the landmark is first seen from somewhere particular. */
   farView?: { position: [number, number, number]; target: [number, number, number] };
 }
@@ -170,7 +170,7 @@ export const CATALOG: CatalogEntry[] = [
     example: true,
     views: [...ELEVATIONS, "plan", "phone", "phoneFar"],
     // The lagoon, until the palette names a water colour; seen from a canoe, as the photographs are, so the arches show.
-    ground: "teal",
+    ground: "lagoon",
     farView: { position: [40, 2, 260], target: [-90, 6, 0] },
     build: () => staticModel("lm_third-mainland-span", buildBridgeSpan()),
   },
