@@ -170,4 +170,10 @@ export const routeText: Record<string, string> = {
   "activity.apply-ca-accompany.name": "Apply alongside your spouse",
   "activity.apply-ca-accompany.blurb": "You go on your spouse's application with your own papers and fee.",
   "line.route.withdrawn": "Your application for {route} is withdrawn. The fee is not returned.",
+
+  // The visa appointment and its reminders (world.md R-WORLD-019, story/story.notice.data.ts).
+  // {month} is the decision month.
+  "route.uk-masters.reminder.appointment": "Visa appointment: take the file from under the bed, then go.",
+  "route.uk-masters.reminder.interview": "Your interview is now. The officer is waiting.",
+  "route.uk-masters.reminder.decision": "Visa decision expected in month {month}.",
 };

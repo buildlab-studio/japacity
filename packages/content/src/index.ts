@@ -61,6 +61,7 @@ import { statusTable } from "./status/status.data";
 import { turnText } from "./turn/turn.text";
 import { statusLinesText } from "./status/status.lines.text";
 import { statusText } from "./status/status.text";
+import { storyText } from "./story/story.text";
 import { tuning } from "./tuning/tuning.data";
 import { varTable } from "./var/var.data";
 import { varText } from "./var/var.text";
@@ -73,6 +74,17 @@ export { recurringPeople } from "./person/person.recurring.data";
 export type { RecurringPerson, RecurringRole } from "./person/person.recurring.data";
 export { familyFeed, familyNames, familyPosts, travelKnown } from "./family/family.data";
 export type { FamilyPost, FamilyPostKind, FamilySender } from "./family/family.data";
+/** The story tied to the world (world.md R-WORLD-003, R-WORLD-019, R-WORLD-020). */
+export { NUDGE_WORDS, storyStep, storySteps, storyThings } from "./story/story.data";
+export type { StoryAct, StoryApp, StoryStep } from "./story/story.data";
+export { signalHolds, signalsHold } from "./story/story.signal";
+export type { StorySignal, StoryView } from "./story/story.signal";
+export { chatLines, chatsDue, siblingNames, threadSenders } from "./story/story.chats.data";
+export type { ChatLine, ChatReply, ChatSender, ChatThread } from "./story/story.chats.data";
+export { noticeKey, noticesDue, OBLIGATION_TYPES, reminders, remindersDue } from "./story/story.notice.data";
+export type { Notice, Reminder } from "./story/story.notice.data";
+export { meetingThings, partnerMeetings, placesWanted } from "./person/person.meet.data";
+export type { PartnerMeeting } from "./person/person.meet.data";
 export { spendingLines, versionedLines } from "./comedy/comedy.data";
 export { versionCount, versionKey } from "./comedy/comedy";
 export { badNews, reportPlain } from "./comedy/comedy.check";
@@ -148,6 +160,7 @@ export const textTables: Record<string, Record<string, string>> = {
   turn: turnText,
   status: statusText,
   statusLines: statusLinesText,
+  story: storyText,
   var: varText,
   wallet: walletText,
 };
