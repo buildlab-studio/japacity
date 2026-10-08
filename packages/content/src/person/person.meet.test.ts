@@ -16,12 +16,13 @@ describe("the partner met in a place", () => {
   });
 
   test("[R-WORLD-020] given every meeting, when its places are looked up, then the place met in and the home exist or are asked for, and the one met in has the person as a thing", () => {
-    for (const meeting of partnerMeetings) {
-      expect(placeKnown(meeting.met.place), meeting.person).toBe(true);
-      expect(meetingThings[meeting.met.place] ?? [], meeting.person).toContain(meeting.met.thing);
-      expect(placeKnown(meeting.home.place), meeting.person).toBe(true);
-      if (meeting.home.near !== null) expect(meeting.home.near in content.place, meeting.person).toBe(true);
-    }
+    const problems = partnerMeetings.flatMap((meeting) => [
+      ...(placeKnown(meeting.met.place) ? [] : [`${meeting.person} is met at ${meeting.met.place}`]),
+      ...((meetingThings[meeting.met.place] ?? []).includes(meeting.met.thing) ? [] : [`${meeting.person} stands as ${meeting.met.thing}`]),
+      ...(placeKnown(meeting.home.place) ? [] : [`${meeting.person} lives at ${meeting.home.place}`]),
+      ...(meeting.home.near === null || meeting.home.near in content.place ? [] : [`${meeting.person} lives near ${meeting.home.near}`]),
+    ]);
+    expect(problems).toEqual([]);
   });
 
   test("[R-WORLD-020] given the places asked for, when content is read, then none is there yet, so the list empties as it is added", () => {
@@ -34,23 +35,16 @@ describe("the partner met in a place", () => {
   });
 
   test("[R-WORLD-020] given a partner who lives abroad, when the meeting is read, then they can be met only in December, when they are home, and their home sits near no place in Lagos", () => {
-    for (const meeting of partnerMeetings) {
-      const abroad = content.person[meeting.person]?.profile.country !== null;
-      expect(meeting.decemberOnly, meeting.person).toBe(abroad);
-      if (abroad) expect(meeting.home.near, meeting.person).toBeNull();
-      else expect(meeting.home.near, meeting.person).not.toBeNull();
-    }
+    const abroad = (person: string) => content.person[person as keyof typeof content.person]?.profile.country !== null;
+    expect(partnerMeetings.filter((meeting) => meeting.decemberOnly !== abroad(meeting.person)).map((meeting) => meeting.person)).toEqual([]);
+    expect(partnerMeetings.filter((meeting) => abroad(meeting.person) !== (meeting.home.near === null)).map((meeting) => meeting.person)).toEqual([]);
+    expect(partnerMeetings.filter((meeting) => !abroad(meeting.person))).not.toHaveLength(0);
   });
 
   test("[R-WORLD-020] given every meeting, when its words are looked up, then there is a meeting line and a home's name, on one line, with no institution beside a crime", () => {
-    const words: Record<string, string> = {};
-    for (const meeting of partnerMeetings) {
-      for (const key of [`${meeting.person}.met`, `${meeting.person}.home`]) {
-        expect((text[key] ?? "").trim(), key).not.toBe("");
-        expect(text[key], key).not.toContain("\n");
-        words[key] = text[key] ?? "";
-      }
-    }
+    const keys = partnerMeetings.flatMap((meeting) => [`${meeting.person}.met`, `${meeting.person}.home`]);
+    expect(keys.filter((key) => (text[key] ?? "").trim() === "" || (text[key] ?? "").includes("\n"))).toEqual([]);
+    const words = Object.fromEntries(keys.map((key) => [key, text[key] ?? ""]));
     expect(institutionProblems(words)).toEqual([]);
   });
 });

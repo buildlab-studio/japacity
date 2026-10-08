@@ -222,7 +222,7 @@ describe("bill notices and reminders", () => {
   test("[R-WORLD-019] given every reminder, when it is checked, then its words exist, its events exist, and a reminder that carries a month says {month}", () => {
     for (const reminder of reminders) {
       const words = text[reminder.key];
-      expect(words, reminder.key).toBeDefined();
+      expect(words).toBeDefined();
       expect(reminder.when.flatMap((signal) => signalProblems(signal, content, text))).toEqual([]);
       expect(words!.includes("{month}")).toBe(reminder.month !== null);
     }
