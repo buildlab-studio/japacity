@@ -178,6 +178,67 @@ export function instancedSheets(kind: SheetKind, geometry: BufferGeometry, matri
   return mesh;
 }
 
+/** Columns across a striped flag and rows a stripe, by mesh level: the hoist's quarter and every stripe end on a grid line. */
+const FLAG_GRID: Record<MeshLevel, [number, number]> = { fine: [24, 4], coarse: [12, 2] };
+
+/**
+ * A flag of stripes from the top down, with a band of `hoist` along its pinned edge when given, as one
+ * sheet coloured by face, so the whole cloth bends as one and no stripe tears from the next.
+ */
+export function stripedFlag(width: number, height: number, level: MeshLevel, stripes: readonly Color[], hoist: Color | null): Mesh {
+  const [across, perStripe] = FLAG_GRID[level];
+  const rows = Math.max(1, stripes.length) * perStripe;
+  const geometry = new PlaneGeometry(width, height, across, rows).translate(width / 2, 0, 0).toNonIndexed();
+  const position = geometry.getAttribute("position");
+  const colours = new Float32Array(position.count * 3);
+  for (let face = 0; face < position.count; face += 3) {
+    const x = (position.getX(face) + position.getX(face + 1) + position.getX(face + 2)) / 3;
+    const y = (position.getY(face) + position.getY(face + 1) + position.getY(face + 2)) / 3;
+    const stripe = Math.min(stripes.length - 1, Math.max(0, Math.floor(((height / 2 - y) / height) * stripes.length)));
+    const colour = hoist !== null && x < width / 4 ? hoist : (stripes[stripe] ?? new Color(0xffffff));
+    for (let corner = 0; corner < 3; corner += 1) colour.toArray(colours, (face + corner) * 3);
+  }
+  geometry.setAttribute("color", new BufferAttribute(colours, 3));
+  const mesh = new Mesh(geometry, motionMaterial("flag", 0xffffff, true));
+  mesh.name = "motion-flag";
+  return mesh;
+}
+
+const BOB = /* glsl */ `{
+  #ifdef USE_INSTANCING
+  vec2 home = instanceMatrix[3].xz;
+  #else
+  vec2 home = vec2(0.0);
+  #endif
+  float phase = home.x * 0.37 + home.y * 0.23;
+  float roll = sin(uTime * 1.1 + phase) * 0.045;
+  float pitch = sin(uTime * 0.8 + phase * 1.7) * 0.025;
+  transformed.xy = mat2(cos(roll), sin(roll), -sin(roll), cos(roll)) * transformed.xy;
+  transformed.yz = mat2(cos(pitch), sin(pitch), -sin(pitch), cos(pitch)) * transformed.yz;
+  transformed.y += sin(uTime * 1.4 + phase) * 0.05 - 0.04;
+}`;
+
+/**
+ * A boat's materials made to ride the water: each copy rolls, pitches and rises in the vertex
+ * shader on the shared clock, phased by where it is moored, so no boat has a loop of its own.
+ */
+export function rideWater(root: Object3D): void {
+  root.traverse((object) => {
+    const mesh = object as Mesh;
+    if (!mesh.isMesh) return;
+    const riding = (Array.isArray(mesh.material) ? mesh.material : [mesh.material]).map((material) => {
+      const copy = material.clone();
+      copy.onBeforeCompile = (shader) => {
+        Object.assign(shader.uniforms, motionUniforms);
+        shader.vertexShader = HEAD + shader.vertexShader.replace("#include <begin_vertex>", `#include <begin_vertex>\n${BOB}`);
+      };
+      copy.customProgramCacheKey = () => `motion-bob-${material.uuid}`;
+      return copy;
+    });
+    mesh.material = riding.length === 1 && riding[0] !== undefined ? riding[0] : riding;
+  });
+}
+
 export function sheet(kind: SheetKind, width: number, height: number, level: MeshLevel, color: Color): Mesh {
   const mesh = new Mesh(sheetGeometry(kind, width, height, level), motionMaterial(kind, color));
   mesh.name = `motion-${kind}`;

@@ -4,7 +4,8 @@
 // ground with its crowd, so every place can be entered before its models are built.
 import type { PaletteName } from "@japacity/assets";
 
-import type { Role } from "./roster";
+import type { Shown } from "./crowd";
+import { personOf, type Role } from "./roster";
 
 /** x, z and the turn about +Y in radians. Models face +Z (R-ASSET-003). */
 export type Spot = [number, number, number];
@@ -26,6 +27,8 @@ export interface Motion {
   size?: [number, number];
   count?: number;
   colours: PaletteName[];
+  /** A flag's band along its pinned edge, a quarter of its width; its `colours` are then stripes from the top down. */
+  hoist?: PaletteName;
 }
 
 /**
@@ -54,12 +57,43 @@ export interface Stage {
    * Every model and where each copy stands. `signs`, for a building whose file carries only its sign
    * anchors, gives each copy its own text keys in the anchors' order, so two copies never show the same boards.
    */
-  models: { file: string; at: Spot[]; signs?: string[][] }[];
+  models: { file: string; at: Spot[]; signs?: string[][]; bob?: boolean }[];
   /** Where people of the crowd stand, in order of use: the low mode's sample takes the first spots. At least the high mode's crowd. */
   people: Spot[];
   /** Spots, by index into `people`, kept for someone of a role when the sample has one: a hawker among the vehicles, a trader at the stall. */
   prefer?: Partial<Record<Role, number[]>>;
   motion: Motion[];
+  /** People on the floor on a dance loop of their own, apart from the sampled crowd. */
+  dancers?: Dancer[];
+  /** How the place is dressed while an offer it stages is open. */
+  dressings?: Dressing[];
+}
+
+/** The party room's two dance loops, written in code (R-CITY-037). */
+export type DanceName = "twoStep" | "shuffle";
+
+/** Someone a dressing puts on the floor: who, where, and which loop. */
+export interface Dancer {
+  file: string;
+  at: Spot;
+  dance: DanceName;
+}
+
+/**
+ * A place dressed while an offer it stages is open (R-CITY-011): its models and motion join the
+ * stage's, the files in `hide` leave it, its spots and crowd figures replace the place's own, and
+ * its dancers take the floor.
+ */
+export interface Dressing {
+  offer: string;
+  models: Stage["models"];
+  hide?: string[];
+  people: Spot[];
+  prefer?: Stage["prefer"];
+  motion: Motion[];
+  dancers: Dancer[];
+  /** The guests' sample, in place of the entry's figures (R-CITY-014). */
+  crowd: { low: number; high: number; target: number };
 }
 
 export interface PlaceFile {
@@ -102,7 +136,38 @@ export function stageOf(file: PlaceFile): Stage {
   return file.stage ?? OPEN_STAGE;
 }
 
-/** Every file a place needs before it is drawn: its models and the people its sample may use. */
+/** Every file a place needs before it is drawn: its models, its dancers and the people its sample may use. */
 export function filesOf(file: PlaceFile, people: readonly string[]): string[] {
-  return [...new Set([...stageOf(file).models.map((model) => model.file), ...people])];
+  const stage = stageOf(file);
+  return [...new Set([...stage.models.map((model) => model.file), ...(stage.dancers ?? []).map((dancer) => dancer.file), ...people])];
+}
+
+/** A place file as the open offers dress it, with the crowd figures its dressing sets, or null for the entry's own. */
+export function dressPlace(file: PlaceFile, open: readonly string[]): { file: PlaceFile; crowd: Dressing["crowd"] | null } {
+  const plain = stageOf(file);
+  const dressing = plain.dressings?.find((one) => open.includes(one.offer));
+  if (dressing === undefined) return { file, crowd: null };
+  const hidden = new Set(dressing.hide ?? []);
+  const dressed: Stage = {
+    ground: plain.ground,
+    roads: plain.roads,
+    light: plain.light,
+    start: plain.start,
+    models: [...plain.models.filter((model) => !hidden.has(model.file)), ...dressing.models],
+    people: dressing.people,
+    prefer: dressing.prefer ?? {},
+    motion: [...plain.motion, ...dressing.motion],
+    dancers: [...(plain.dancers ?? []), ...dressing.dancers],
+  };
+  return { file: { ...file, stage: dressed }, crowd: dressing.crowd };
+}
+
+/** A dancer's slot, after every slot a sample can have, so a tap on one is told from a tap on the crowd. */
+export const DANCER_SLOT = 1000;
+
+/** The dancer a tapped slot names, as a resident of the city (R-CITY-033), or undefined. */
+export function dancerShown(stage: Stage, slot: number): Shown | undefined {
+  const dancer = stage.dancers?.[slot - DANCER_SLOT];
+  const person = dancer === undefined ? null : personOf(dancer.file);
+  return person === null ? undefined : { slot, person, kind: "resident", tag: null };
 }
