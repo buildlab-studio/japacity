@@ -6,3 +6,4 @@ export { memoryNudgeBus } from "./nudge.memory";
 export { memoryPlayerStores } from "./player.memory";
 export { memoryPresenceStore } from "./presence.memory";
 export { memoryWorldStore } from "./world.memory";
+export { memorySwitchStore } from "./switches.memory";
