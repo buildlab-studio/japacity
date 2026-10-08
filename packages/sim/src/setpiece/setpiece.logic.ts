@@ -1,6 +1,7 @@
-// Set pieces: docs/rules/route.md, R-SETPIECE-001 to 005. A set piece is a
-// short run of questions that blocks the next turn until it is answered. The
-// one in this milestone is the credibility interview a visa application opens.
+// Set pieces: docs/rules/route.md, R-SETPIECE-001 to 006. A set piece is a
+// short run of questions that blocks the next turn until it is answered: the
+// credibility interview a visa application opens, the road's scenes and the
+// December visit.
 import { check } from "../engine/check";
 import type { RegisteredKind } from "../engine/kind";
 import { emit } from "../engine/kind";
@@ -21,10 +22,13 @@ import type {
   SetpieceEntry,
   SetpieceQuestion,
   SetpieceSlice,
+  State,
 } from "../engine/types";
 import type { SetpieceEvent } from "./setpiece.events";
 
 const PREP: Id<"quality"> = "quality.interview-prep";
+const DECEMBER: Id<"setpiece"> = "setpiece.december";
+const GO = "go";
 
 type Open = NonNullable<SetpieceSlice["open"]>;
 type Judge = (requirement: Requirement) => RequirementResult;
@@ -52,23 +56,37 @@ export function answerScore(answer: SetpieceAnswer, judge: Judge): number {
   return answer.score;
 }
 
+/** R-SETPIECE-003: an answer may be given only while every one of its `requires` holds. */
+export function answerAllowed(answer: SetpieceAnswer, judge: Judge): boolean {
+  return (answer.requires ?? []).every((requirement) => judge(requirement).met);
+}
+
 /**
- * R-SETPIECE-001: opens the set piece with `ask` questions drawn on `visa`
- * without repeats from those whose conditions hold, kept in the order drawn.
- * It runs for the effect `setpiece/open`, which the route sends when an
- * application goes in (R-ROUTE-015). A set piece already open is left as it
- * is, and with no question to ask the interview scores 0 at once rather than
- * open with nothing to answer, which would leave the player stuck (R-ENGINE-011).
+ * R-SETPIECE-001: the questions whose conditions hold, the first `ask` of them
+ * in the order written for a fixed entry, else `ask` drawn on `visa` without
+ * repeats and kept in the order drawn.
  */
-function openSetpiece(ctx: Ctx, id: Id<"setpiece">, route: Id<"route"> | null): BaseEvent[] {
-  if (ctx.state.setpiece.open !== null) return [];
-  const entry = entryOf(ctx.content, id);
+function askedQuestions(ctx: Ctx, entry: SetpieceEntry): string[] {
   const pool = entry.questions.filter((question) => question.when.every((requirement) => ctx.check(requirement).met)).map((question) => question.id);
+  if (entry.order === "fixed") return pool.slice(0, entry.ask);
   const questions: string[] = [];
   while (questions.length < entry.ask && pool.length > 0) {
     const [drawn] = pool.splice(ctx.random.int("visa", pool.length), 1);
     if (drawn !== undefined) questions.push(drawn);
   }
+  return questions;
+}
+
+/**
+ * R-SETPIECE-001: opens the set piece with the questions it asks. It runs
+ * for the effect `setpiece/open`, which the route sends when an application
+ * goes in (R-ROUTE-015). A set piece already open is left as it
+ * is, and with no question to ask the interview scores 0 at once rather than
+ * open with nothing to answer, which would leave the player stuck (R-ENGINE-011).
+ */
+function openSetpiece(ctx: Ctx, id: Id<"setpiece">, route: Id<"route"> | null): BaseEvent[] {
+  if (ctx.state.setpiece.open !== null) return [];
+  const questions = askedQuestions(ctx, entryOf(ctx.content, id));
   if (questions.length === 0) {
     if (route !== null) ctx.apply([{ type: "route/interview-scored", route, score: 0 }], { source: id, param: null, terms: {} });
     return [];
@@ -78,11 +96,13 @@ function openSetpiece(ctx: Ctx, id: Id<"setpiece">, route: Id<"route"> | null): 
 }
 
 /**
- * R-SETPIECE-003 and 004. Each answer is scored the moment it is given, before
- * its own effects apply, and the score is added to the open set piece's
- * running sum. The close records that sum, so a lot made between two answers
- * moves only the answers given after it. A set piece with no route records no
- * score anywhere (R-SETPIECE-006), so its answers score 0.
+ * R-SETPIECE-003 and 004. An answer whose requirements fail now is refused.
+ * Each answer is scored the moment it is given, before its own effects
+ * apply, and the score is added to the open set piece's running sum. The
+ * close records that sum, so a lot made between two answers moves only the
+ * answers given after it. A set piece with no route records no score anywhere
+ * (R-SETPIECE-006), so its answers score 0. The set piece closes on its last
+ * question or on an answer marked `closes`.
  */
 function answer(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (command.type !== "setpiece/answer") throw new Error(`setpiece/answer cannot handle ${command.type}.`);
@@ -93,13 +113,14 @@ function answer(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (next === null || command.question !== next) return reject("not-legal", `The question to answer now is ${String(next)}.`);
   const chosen = questionOf(entry, next).answers.find((candidate) => candidate.id === command.answer);
   if (chosen === undefined) return reject("not-legal", `${String(command.answer)} is not an answer to ${next}.`);
+  if (!answerAllowed(chosen, (requirement) => ctx.check(requirement))) return reject("not-legal", `${chosen.id} cannot be given now: what it needs does not hold.`);
   const score = open.route === null ? 0 : answerScore(chosen, (requirement) => ctx.check(requirement));
   const answered: SetpieceEvent = { type: "setpiece/answered", question: next, answer: chosen.id, score };
   const events = emit(ctx, "setpiece", [answered]);
   // R-SETPIECE-006: an answer's effects apply the moment it is given.
   if (chosen.effects.length > 0) ctx.apply(chosen.effects, { source: open.entry, param: null, terms: {} });
   const now = ctx.state.setpiece.open;
-  if (now === null || nextQuestion(now) !== null) return events;
+  if (now === null || (chosen.closes !== true && nextQuestion(now) !== null)) return events;
   const closed: SetpieceEvent = { type: "setpiece/closed", entry: now.entry, route: now.route };
   events.push(...emit(ctx, "setpiece", [closed]));
   if (now.route !== null) ctx.apply([{ type: "route/interview-scored", route: now.route, score: now.score }], { source: now.entry, param: null, terms: {} });
@@ -123,12 +144,16 @@ function evolve(slice: SetpieceSlice, event: SetpieceEvent): SetpieceSlice {
   }
 }
 
-function lines(event: SetpieceEvent): ReportLine[] {
+function lines(event: SetpieceEvent, state: State): ReportLine[] {
   switch (event.type) {
     case "setpiece/opened":
       // It blocks the next turn, so the player must look.
       return [{ key: "line.setpiece.opened", params: { setpiece: event.entry, questions: event.questions.length }, tone: "plain", attention: true, counts: [] }];
     case "setpiece/answered":
+      // R-LUCK-008: going home for December is staged. The set piece is still open when its answer is told.
+      if (state.setpiece.open?.entry === DECEMBER && event.answer === GO) {
+        return [{ key: "line.setpiece.december-go", params: { setpiece: DECEMBER }, tone: "good", attention: true, big: true, counts: [] }];
+      }
       return [];
     case "setpiece/closed":
       return [{ key: "line.setpiece.closed", params: { setpiece: event.entry }, tone: "plain", attention: false, counts: [] }];
@@ -142,6 +167,9 @@ function lines(event: SetpieceEvent): ReportLine[] {
 /**
  * R-SETPIECE-005: one question at a time and never a score. With enough
  * interview prep, the answers that would score below zero now are marked.
+ * R-SETPIECE-003 marks an answer whose requirements fail as not
+ * allowed, and the view has no `allowed` yet, so until it does such an answer
+ * is left out of `answers`; every answer listed is then one `step` accepts.
  */
 function view(read: ReadCtx): Pick<PlayerView, "setpiece"> {
   const open = read.state.setpiece.open;
@@ -151,6 +179,7 @@ function view(read: ReadCtx): Pick<PlayerView, "setpiece"> {
   const hinted = (read.state.quality[PREP] ?? 0) >= read.content.tuning.route.hintPrep;
   const judge: Judge = (requirement) => check(read, requirement);
   const question = next === null ? null : questionOf(entry, next);
+  const offered = question === null ? [] : question.answers.filter((candidate) => answerAllowed(candidate, judge));
   return {
     setpiece: {
       entry: open.entry,
@@ -161,8 +190,8 @@ function view(read: ReadCtx): Pick<PlayerView, "setpiece"> {
           ? null
           : {
               id: question.id,
-              answers: question.answers.map((candidate) => candidate.id),
-              weak: hinted ? question.answers.filter((candidate) => answerScore(candidate, judge) < 0).map((candidate) => candidate.id) : [],
+              answers: offered.map((candidate) => candidate.id),
+              weak: hinted ? offered.filter((candidate) => answerScore(candidate, judge) < 0).map((candidate) => candidate.id) : [],
             },
     },
   };

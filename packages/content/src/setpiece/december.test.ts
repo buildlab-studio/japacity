@@ -53,4 +53,29 @@ describe("the December visit", () => {
     expect(text["setpiece.december.a.go-uk.go"]).toBe("Book the flight: £3,100 there and back");
     expect(text["setpiece.december.a.party-uk.big"]).toBe("Go big: £227");
   });
+
+  test("[R-SETPIECE-001] [R-SETPIECE-004] given the entry, when its order and its going questions are read, then it is asked in the order written, each country's going question comes first, and staying closes the scene", () => {
+    expect(december.order).toBe("fixed");
+    for (const suffix of ["uk", "ca", "uae", "it"]) {
+      const own = december.questions.filter((item) => item.id.endsWith(`-${suffix}`)).map((item) => item.id);
+      expect(own).toEqual([`go-${suffix}`, `party-${suffix}`, `gifts-${suffix}`, `look-${suffix}`]);
+      expect(question(`go-${suffix}`).answers.map((answer) => answer.closes ?? false)).toEqual([true, false]);
+    }
+    expect(december.questions.flatMap((item) => item.answers).filter((answer) => answer.closes === true)).toHaveLength(4);
+  });
+
+  test("[R-SETPIECE-003] given every answer, when its requirements are read, then each that pays requires that much in the currency it takes, each that pays nothing requires nothing, and every question has one", () => {
+    for (const item of december.questions) {
+      for (const answer of item.answers) {
+        const takes = answer.effects.filter((effect) => effect.type === "money/take");
+        expect(answer.requires ?? []).toEqual(takes.map((take) => ({ type: "money/min", currency: take.currency, amount: take.amount })));
+      }
+    }
+    for (const item of december.questions) expect(item.answers.some((answer) => (answer.requires ?? []).length === 0)).toBe(true);
+    expect(question("go-uk").answers.find((answer) => answer.id === "go")?.requires).toEqual([{ type: "money/min", currency: "GBP", amount: 310000 }]);
+  });
+
+  test("[R-LUCK-008] given the staged December line, when its words are looked up, then they are there", () => {
+    expect(text["line.setpiece.december-go"] ?? "").not.toBe("");
+  });
 });

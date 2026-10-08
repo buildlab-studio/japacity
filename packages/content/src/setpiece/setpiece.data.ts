@@ -84,15 +84,24 @@ function answer(id: string, effects: Effect[]): SetpieceAnswer {
 }
 
 /**
+ * R-SETPIECE-003: an answer that pays is given only while the money is there.
+ * the brief and route.md say `money/can-pay`, which for a foreign
+ * currency also counts the naira bank (R-WALLET-009), while `money/take` from
+ * `any` takes only that currency's cash and bank. Judged with `money/can-pay`,
+ * an answer could pass with the money in naira and then take nothing, so it is
+ * judged with `money/min` on the pockets the debit takes from, as the offer
+ * and obligation kinds judge a foreign debit.
+ */
+function paying(id: string, price: { currency: Currency; amount: number }, effects: Effect[]): SetpieceAnswer {
+  return { ...answer(id, effects), requires: [{ type: "money/min", currency: price.currency, amount: price.amount }] };
+}
+
+/**
  * One country's December: first whether to go, then the party, the gifts and
  * the look, each answer paying in the country's currency (reason `social` for
  * the party and the look, `family` for the gifts) and moving the qualities the
- * page gives. the set piece kind draws the order of the questions on
- * `visa` and closes only when every question drawn is answered, so `go` is not
- * always first and `stay` cannot end the scene; and an answer the pocket cannot
- * cover is still allowed, its debit taking nothing while its gains apply. The
- * set piece kind needs a fixed order, an answer that closes the scene, and
- * answers judged as R-OFFER-003 judges choices.
+ * page gives. Staying home closes the scene (R-SETPIECE-004), and every answer
+ * that pays needs the money for it (R-SETPIECE-003).
  */
 export function decemberQuestions({ country, suffix }: { country: Id<"country">; suffix: string }, index: number): SetpieceQuestion[] {
   const here: Requirement[] =
@@ -106,8 +115,8 @@ export function decemberQuestions({ country, suffix }: { country: Id<"country">;
     id: `go-${suffix}`,
     when: here,
     answers: [
-      answer("stay", []),
-      answer("go", [{ type: "money/take", currency: fare.currency, pocket: "any", amount: fare.amount, reason: "fare" }]),
+      { ...answer("stay", []), closes: true },
+      paying("go", fare, [{ type: "money/take", currency: fare.currency, pocket: "any", amount: fare.amount, reason: "fare" }]),
     ],
   };
   const spending = SPENDING.map(
@@ -117,8 +126,9 @@ export function decemberQuestions({ country, suffix }: { country: Id<"country">;
       answers: question.answers.map((option) => {
         const price = decemberPrice(country, option.naira);
         const reason = question.question === "gifts" ? "family" : "social";
-        const paid: Effect[] = price.amount === 0 ? [] : [{ type: "money/take", currency: price.currency, pocket: "any", amount: price.amount, reason }];
-        return answer(option.id, [...paid, ...option.gains.map(([quality, amount]) => gain(quality, amount))]);
+        const gains = option.gains.map(([quality, amount]) => gain(quality, amount));
+        if (price.amount === 0) return answer(option.id, gains);
+        return paying(option.id, price, [{ type: "money/take", currency: price.currency, pocket: "any", amount: price.amount, reason }, ...gains]);
       }),
     }),
   );
@@ -275,12 +285,13 @@ export const setpieceTable: Record<Id<"setpiece">, SetpieceEntry> = {
   },
 
   // return.md R-RETURN-005, "The December set piece". The questions are made for each country by
-  // `decemberQuestions` below, each asked only in its own country, so every amount is in that
+  // `decemberQuestions` above, each asked only in its own country, so every amount is in that
   // country's currency.
   "setpiece.december": {
     id: "setpiece.december",
-    // Every question whose `when` holds is asked: the four of the country the character is in.
+    // The four of the country the character is in, the going question first (R-SETPIECE-001).
     ask: 4,
+    order: "fixed",
     questions: DECEMBER_COUNTRIES.flatMap(decemberQuestions),
   },
 };
