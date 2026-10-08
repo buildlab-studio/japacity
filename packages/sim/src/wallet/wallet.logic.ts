@@ -519,6 +519,7 @@ export const walletKind: RegisteredKind<WalletSlice, WalletEvent> = {
       lots: [],
       totals: { in: Object.keys(opening).length > 0 ? { opening } : {}, out: {} },
       bought: { month: 0, cents: 0 },
+      cashIn: { month: 0, kobo: 0 },
     };
   },
   commands: {

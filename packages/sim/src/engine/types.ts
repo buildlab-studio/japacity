@@ -944,6 +944,8 @@ export interface WalletSlice {
   };
   /** Foreign currency bought at the bank in the given month, valued in US cents. */
   bought: { month: number; cents: number };
+  /** Cash moved into the bank in the given month, in kobo at the official rate, for R-WALLET-011's monthly threshold. */
+  cashIn: { month: number; kobo: number };
 }
 
 export interface DocumentState {

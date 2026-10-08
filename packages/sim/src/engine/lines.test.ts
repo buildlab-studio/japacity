@@ -88,7 +88,7 @@ function bareMoney(line: ReportLine): string[] {
 describe("report lines on the real lives", () => {
   for (const life of LIVES) {
     test.prop([fc.string({ minLength: 1, maxLength: 8 }), fc.array(fc.nat(), { minLength: 50, maxLength: 50 })], { numRuns: 3 })(
-      `[R-ENGINE-012] given ${life}, when 40 months of random legal commands are played, then no line carries money as a bare number under a name the client once guessed from`,
+      `[R-ENGINE-018] given ${life}, when 40 months of random legal commands are played, then no line carries money as a bare number under a name the client once guessed from`,
       (seed, picks) => {
         const lines = playForty(life, seed, picks);
         expect(lines.length).toBeGreaterThan(0);

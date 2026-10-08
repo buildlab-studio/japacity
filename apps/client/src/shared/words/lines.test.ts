@@ -63,8 +63,8 @@ describe("one line per payment", () => {
 
 describe("lines that read right", () => {
   test("given a quality change, then its amount is points, never money", () => {
-    expect(words("line.quality.loss", { quality: "quality.wellbeing", amount: 4, value: 60 })).not.toMatch(/₦|£/);
-    expect(words("line.quality.worn", { quality: "quality.wellbeing", amount: 2 })).toBe("Work takes 2 off your wellbeing.");
+    expect(words("line.quality.loss", { quality: "quality.wellbeing", points: 4, value: 60 })).not.toMatch(/₦|£/);
+    expect(words("line.quality.worn", { quality: "quality.wellbeing", points: 2 })).toBe("Work takes 2 off your wellbeing.");
   });
 
   test("given a school's discount in pounds as a bare number, then it shows in pounds", () => {
