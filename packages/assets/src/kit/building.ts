@@ -4,12 +4,15 @@
 // text keys, never letters in the mesh (R-ASSET-012), so the body bakes to one material.
 import { Group } from "three";
 
+import { type FootprintBox, lowBox, setFootprint } from "../footprint";
 import type { PaletteName } from "../palette";
 import type { SignStyle } from "../sign";
 import type { BuildingSpec } from "../types";
 import {
   acUnit,
   awning,
+  CLUTTER_PLAN,
+  type ClutterKind,
   balcony,
   barredWindow,
   clutter,
@@ -88,6 +91,16 @@ export function buildBuilding(spec: BuildingSpec, options: BuildingOptions = {})
   const shops = spec.signs.length;
   const items = new Set<ClutterItem>();
   const front = d / 2;
+  // The ground the building blocks (R-ASSET-030), kept as each part is placed: the awnings, the
+  // balconies and the step out front are left out, as people walk under the first and on the last.
+  const blocks: FootprintBox[] = [{ x: 0, z: 0, width: w, depth: d }];
+  const block = (x: number, z: number, width: number, depth: number): void => {
+    blocks.push({ x, z, width, depth });
+  };
+  const leftOut = (kind: ClutterKind, x: number, z: number): void => {
+    const [width, depth, dx, dz] = CLUTTER_PLAN[kind];
+    block(x + dx, z + dz, width, depth);
+  };
 
   if (shops > 0) {
     const bay = w / shops;
@@ -178,6 +191,7 @@ export function buildBuilding(spec: BuildingSpec, options: BuildingOptions = {})
       if (w > 7) tank(root, -w / 2 + 2.6, top, -d / 2 + 1.0, false, 0, pick(random, TANKS));
     } else {
       tank(root, w / 2 - 1.0, 0, -d / 2 - 0.9, true, KIT_SIZES.tank.standMax, pick(random, TANKS));
+      block(w / 2 - 1.0, -d / 2 - 0.9, KIT_SIZES.tank.largeAcross + 0.1, KIT_SIZES.tank.largeAcross + 0.1);
     }
     if (room >= 2.1) box(root, 2.0, 2.1, 2.2, w / 2 - 1.4, top, -d / 2 + 1.4, wall);
     if (room >= 1.4) dish(root, root, w / 2 - 0.5, top, 0, dishYaw);
@@ -189,12 +203,16 @@ export function buildBuilding(spec: BuildingSpec, options: BuildingOptions = {})
     roofTop = spec.roof === "gable" ? gableRoof(root, w, d, 0, top, 0, sheet, wall, pitch, random) : hipRoof(root, w, d, 0, top, 0, sheet, pitch);
     const stand = Math.min(KIT_SIZES.tank.standMax, Math.max(KIT_SIZES.tank.standMin, roofTop - 0.6));
     tank(root, w / 2 - 1.0, 0, -d / 2 - 0.9, false, stand, pick(random, TANKS));
+    block(w / 2 - 1.0, -d / 2 - 0.9, KIT_SIZES.tank.smallAcross + 0.1, KIT_SIZES.tank.smallAcross + 0.1);
     wallDish();
     items.add("tank").add("dish");
   }
 
   // Outside stairs to the first floor, on the left side wall.
   if (spec.stairs !== "none" && spec.storeys > 1) {
+    // The flights in a group of their own, so the ground they stand on is read off them.
+    const flights = new Group();
+    root.add(flights);
     const height = groundH;
     const risers = Math.ceil(height / KIT_SIZES.stairs.rise);
     const rise = height / risers;
@@ -207,18 +225,19 @@ export function buildBuilding(spec: BuildingSpec, options: BuildingOptions = {})
     if (spec.stairs === "side" && sideFits) {
       const sx = -w / 2 - width / 2 - 0.05;
       const z0 = front + 0.6;
-      stairFlight(root, sx, PLINTH, z0, first, rise, width, Math.PI / 2, "concrete");
-      box(root, width, 0.2, 1.0, sx, PLINTH + first * rise - 0.2, z0 - run1 - 0.5, "concrete");
-      stairFlight(root, sx, PLINTH + first * rise, z0 - run1 - 1.0, second, rise, width, Math.PI / 2, "concrete");
+      stairFlight(flights, sx, PLINTH, z0, first, rise, width, Math.PI / 2, "concrete");
+      box(flights, width, 0.2, 1.0, sx, PLINTH + first * rise - 0.2, z0 - run1 - 0.5, "concrete");
+      stairFlight(flights, sx, PLINTH + first * rise, z0 - run1 - 1.0, second, rise, width, Math.PI / 2, "concrete");
       const landing = z0 - run1 - 1.0 - run2 - 0.6;
-      box(root, width, 0.2, 1.2, sx, PLINTH + height - 0.2, landing, "concrete");
-      for (const sz of [landing - 0.55, z0 - run1 - 0.5]) box(root, 0.2, PLINTH + height - 0.2, 0.2, sx - width / 2 + 0.1, 0, sz, "concrete");
+      box(flights, width, 0.2, 1.2, sx, PLINTH + height - 0.2, landing, "concrete");
+      for (const sz of [landing - 0.55, z0 - run1 - 0.5]) box(flights, 0.2, PLINTH + height - 0.2, 0.2, sx - width / 2 + 0.1, 0, sz, "concrete");
       door(onWall(root, -w / 2, 0, landing, -Math.PI / 2), 0, PLINTH + height, false);
     } else {
       const z0 = front + 0.6;
-      stairFlight(root, -w / 2 + 0.2, PLINTH, z0, first, rise, width, 0, "concrete");
-      stairFlight(root, -w / 2 + 0.2 + run1 + 1.0, PLINTH + first * rise, z0, second, rise, width, 0, "concrete");
+      stairFlight(flights, -w / 2 + 0.2, PLINTH, z0, first, rise, width, 0, "concrete");
+      stairFlight(flights, -w / 2 + 0.2 + run1 + 1.0, PLINTH + first * rise, z0, second, rise, width, 0, "concrete");
     }
+    blocks.push(lowBox(flights, Infinity));
   }
 
   // The gate and its fence wall, on the right; a small generator by the gate.
@@ -231,12 +250,17 @@ export function buildBuilding(spec: BuildingSpec, options: BuildingOptions = {})
     gate(fence, gateX, 0, gw, gh, pick(random, GATES));
     fenceWall(onWall(root, w / 2 + 0.6 + gw + 0.15, 0, 0, Math.PI / 2), -front, front, 0, wall);
     generator(root, gateX + gw / 2 - 0.2, 0, front + 0.6, false, 0.3, pick(random, ["red", "danfoYellow", "blue"] as PaletteName[]));
+    block(gateX, front, gw + 0.9, 0.3);
+    block(w / 2 + 0.6 + gw + 0.15, 0, 0.3, d);
+    block(gateX + gw / 2 - 0.2, front + 0.6, 0.7, 0.6);
     items.add("generator");
   } else if (shops > 1) {
     generator(root, w / 2 + 1.4, 0, 0, true, Math.PI / 2, "gold");
+    block(w / 2 + 1.4, 0, KIT_SIZES.generator.large[2], KIT_SIZES.generator.large[0]);
     items.add("generator");
   } else if (random() < 0.6) {
     generator(root, w / 2 - 0.8, PLINTH, front + 0.5, false, 0.2, "red");
+    block(w / 2 - 0.8, front + 0.5, 0.7, 0.6);
     items.add("generator");
   }
 
@@ -276,9 +300,16 @@ export function buildBuilding(spec: BuildingSpec, options: BuildingOptions = {})
   if (spec.gate) slabs.push(gateX);
   drain(root, -w / 2 - 0.2, Math.max(w / 2 + 0.2, spec.gate ? gateX + 2.0 : 0), front + PAVEMENT + 0.35, PLINTH, slabs);
   const kinds = ["crates", "bench", "cooler", "sacks", "jerrycans", "drum"] as const;
-  clutter(root, pick(random, kinds), -w / 2 + 0.6, PLINTH, front + 0.6);
-  if (shops > 0) clutter(root, pick(random, kinds), w / 2 - 1.2, PLINTH, front + 0.7);
+  const near = pick(random, kinds);
+  clutter(root, near, -w / 2 + 0.6, PLINTH, front + 0.6);
+  leftOut(near, -w / 2 + 0.6, front + 0.6);
+  if (shops > 0) {
+    const far = pick(random, kinds);
+    clutter(root, far, w / 2 - 1.2, PLINTH, front + 0.7);
+    leftOut(far, w / 2 - 1.2, front + 0.7);
+  }
 
+  setFootprint(root, blocks);
   root.userData.clutter = [...items];
   root.userData.top = roofTop;
   return root;

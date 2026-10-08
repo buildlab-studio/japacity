@@ -21,6 +21,13 @@ export interface PlaceInput<File = unknown, Entry = unknown, City = unknown> {
   moving: boolean;
 }
 
+/** What routing cost on a place: its route map's cells and the milliseconds to build it, then each tap's. */
+export interface RouteRecord {
+  cells: number;
+  mapMs: number;
+  tapsMs: number[];
+}
+
 export interface FrameRecord {
   drawCalls: number;
   triangles: number;

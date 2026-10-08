@@ -4,8 +4,9 @@
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative, sep } from "node:path";
 
-import type { RegisterRow, Review, ReviewSheet } from "@japacity/assets";
+import { type Footprint, isFootprint, type RegisterRow, type Review, type ReviewSheet } from "@japacity/assets";
 
+import { checkFootprints, checkWalkable, type StagedGround } from "./footprint-check";
 import { measure, readGlb } from "./glb";
 import { placeMapData } from "./map-data";
 import { hashInName, type Manifest, sha256 } from "./manifest";
@@ -45,6 +46,7 @@ export interface PlaceFile {
   instances: { file: string; count: number }[];
   people: { low: number; high: number; sample: string[] };
   groundRoadSky: { drawCalls: number; triangles: number };
+  stage?: StagedGround;
 }
 
 export interface ReviewConfig {
@@ -473,6 +475,7 @@ export async function runChecks(paths: Paths, placeData: readonly string[]): Pro
     ...checkBudgets(measured, budgets),
     ...checkLevels(measured, budgets),
     ...checkPaletteResults(measured),
+    ...checkFootprints(measured),
   ];
 
   const images = [
@@ -499,10 +502,12 @@ export async function runChecks(paths: Paths, placeData: readonly string[]): Pro
   problems.push(...checkAccepted(register.rows, reviews, outlines, config));
 
   let hub: string | null = null;
+  const footprints = new Map<string, Footprint>();
+  for (const file of measured) if (isFootprint(file.extras.footprint)) footprints.set(file.file, file.extras.footprint);
   for (const file of files.filter((path) => path.endsWith("place.json"))) {
     const place = readJson<PlaceFile>(join(paths.public, file));
     if (place.hub) hub = file.replace(/\/place\.json$/, "");
-    problems.push(...checkPlace(place, byFile, budgets));
+    problems.push(...checkPlace(place, byFile, budgets), ...checkWalkable(place.place, place.stage, footprints));
   }
   const code = codeBytes(paths);
   if (code === 0) notes.push("The client is not built, so the first download counts no code; pnpm build first to count it.");

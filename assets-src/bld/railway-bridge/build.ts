@@ -3,7 +3,7 @@
 // itself. Left to right as the street sees it: a market arch, the station's mouth with its canopy
 // and board, the girder over the road, a lock-up arch behind its shutter and a second market arch.
 // Boards are anchors with text keys (R-ASSET-012); the brick is a palette colour (R-ASSET-001).
-import { type SignStyle } from "@japacity/assets";
+import { setFootprint, type SignStyle } from "@japacity/assets";
 import { beam, box, extrude, onWall, quad, seeded, signboard, stain } from "@japacity/assets/kit";
 import { Group, type Object3D } from "three";
 
@@ -107,5 +107,15 @@ export function buildRailwayBridge(signs: { mouth: string; girder: string; marke
   stain(face, 0, deck - 0.4, width, 0.4, "zincRust");
   for (const side of [-1, 1]) stain(face, side * (roadHalf + (width / 2 - roadHalf) / 2), 0, width / 2 - roadHalf, 0.7, "zincRust");
   for (const x of bays) for (let k = 0; k < 2; k += 1) quad(face, 0.45, 0.6, x + arch / 2 + pier / 2 - 0.25 + k * 0.02, 1.2 + k * 0.7, 0.012 + k * 0.001, (["white", "danfoYellow", "red", "cream"] as const)[Math.floor(random() * 4)] ?? "white");
-  return g;
+  // The viaduct behind each arch's shallow mouth (as deep as its backdrop is set in), the piers at the
+  // front between the mouths, and the abutments; the street under the girder is open.
+  const mouths = [0.9, 1.2, 0.5, 0.9];
+  return setFootprint(g, [
+    ...bays.map((x, index) => {
+      const set = mouths[index] ?? 0.9;
+      return { x, z: -set / 2, width: bay, depth: depth - set };
+    }),
+    ...bays.flatMap((x) => [-1, 1].map((side) => ({ x: x + side * (arch / 2 + pier / 4), z: front - 0.4, width: pier / 2, depth: 0.8 }))),
+    ...[-1, 1].map((side) => ({ x: side * (roadHalf + 0.6), z: 0, width: 1.2, depth })),
+  ]);
 }

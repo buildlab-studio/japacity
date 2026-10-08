@@ -1,4 +1,5 @@
 // The design's market stall (models.js): a table, an umbrella, a basin of tomatoes, peppers, yams and a crate.
+import { lowBox, setFootprint } from "@japacity/assets";
 import { seeded, solid, type Vec3 } from "@japacity/assets/kit";
 import { Group } from "three";
 
@@ -29,5 +30,6 @@ export function buildStall(): Group {
   cbox(g, 0.5, 0.3, 0.36, -1.15, 0.15, 0.2, "wood");
   cbox(g, 0.44, 0.06, 0.3, -1.15, 0.31, 0.2, "pepper");
   // The design drew the stall facing +z already: the umbrella's pole stands at the seller's back.
-  return facePlusZ(g, "prop_stall", false);
+  const root = facePlusZ(g, "prop_stall", false);
+  return setFootprint(root, [lowBox(root)]);
 }

@@ -2,7 +2,7 @@
 // (counted by the build check, R-ASSET-007) and, in `stage`, where the city puts them, where the
 // crowd stands, the light, and what moves. A place with no file, or no `stage`, is drawn as open
 // ground with its crowd, so every place can be entered before its models are built.
-import type { PaletteName } from "@japacity/assets";
+import type { PaletteName, WalkablePolygon } from "@japacity/assets";
 import type { PoseName } from "@japacity/assets-src/people/poses";
 
 import type { Shown } from "./crowd";
@@ -69,6 +69,8 @@ export interface Stage {
   light: { sun: Vec3; sky: PaletteName; ground: PaletteName };
   /** Where the player's character stands on entering, and which way it faces. */
   start: Spot;
+  /** The ground people may walk on, as polygons of [x, z] in metres (assets.md R-ASSET-030); the whole ground when absent. */
+  walkable?: WalkablePolygon[];
   /**
    * Every model and where each copy stands. `signs`, for a building whose file carries only its sign
    * anchors, gives each copy its own text keys in the anchors' order, so two copies never show the same boards.
@@ -170,6 +172,7 @@ export function dressPlace(file: PlaceFile, open: readonly string[]): { file: Pl
     roads: plain.roads,
     light: plain.light,
     start: plain.start,
+    ...(plain.walkable === undefined ? {} : { walkable: plain.walkable }),
     models: [...plain.models.filter((model) => !hidden.has(model.file)), ...dressing.models],
     people: dressing.people,
     prefer: dressing.prefer ?? {},

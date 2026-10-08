@@ -4,7 +4,7 @@
 // by text key (R-ASSET-012). Above, aluminium windows with air conditioners in them, a parapet,
 // water tanks and dishes on the roof, all facing the one satellite (R-ASSET-019). The data below
 // makes the variants; a far bank variant carries no boards.
-import { type PaletteName, type SignStyle } from "@japacity/assets";
+import { type PaletteName, setFootprint, type SignStyle } from "@japacity/assets";
 import { box, dish, onWall, quad, seeded, signboard, stain } from "@japacity/assets/kit";
 import { Group } from "three";
 
@@ -92,5 +92,9 @@ export function buildArcade(spec: ArcadeSpec, dishYaw: number): Group {
   dish(g, g, -w / 2 + 1.3, top, 0.5, dishYaw);
   dish(g, g, w / 2 - 1.3, top, 1.2, dishYaw);
   stain(face, 0, top + parapet - 0.6, w, 0.5, spec.worn);
-  return g;
+  // The block behind the arcade and the arcade's columns; the pavement under the arcade is open.
+  return setFootprint(g, [
+    { x: 0, z: -colonnade / 2, width: w, depth: depth - colonnade },
+    ...Array.from({ length: spec.bays + 1 }, (_, index) => ({ x: Math.min(w / 2 - 0.25, Math.max(-w / 2 + 0.25, -w / 2 + index * bay)), z: front - 0.25, width: 0.5, depth: 0.5 })),
+  ]);
 }

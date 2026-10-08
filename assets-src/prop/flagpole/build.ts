@@ -1,6 +1,7 @@
 // The flag mast on the forecourt of the departures building (city.md place.airport-lagos): a
 // tapering steel mast on a stepped plinth with its halyard cleat and the ball at the top. The flag
 // is not in the model: it is a sheet on the place's wind, pinned at the mast (city.md R-CITY-026).
+import { boxesIn, setFootprint } from "@japacity/assets";
 import { beam, box, cylinder } from "@japacity/assets/kit";
 import { Group } from "three";
 
@@ -25,5 +26,7 @@ export function buildFlagpole(): Group {
     const angle = (i / 8) * Math.PI * 2;
     box(g, 0.5, 0.12, 0.18, Math.sin(angle) * 1.05, 0, Math.cos(angle) * 1.05, i % 2 === 0 ? "black" : "white", angle);
   }
-  return facePlusZ(g, "prop_flagpole", false);
+  const root = facePlusZ(g, "prop_flagpole", false);
+  // The plinth; the painted kerb blocks round it are a step people stand on.
+  return setFootprint(root, boxesIn(root, g, [{ x: 0, z: 0, width: plinth, depth: plinth }]));
 }

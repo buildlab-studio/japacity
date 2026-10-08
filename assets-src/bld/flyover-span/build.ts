@@ -4,6 +4,7 @@
 // lanes each, their centrelines 13 to 15 m apart over the junction. The street sees it from below,
 // so the underside carries the detail: four girders, a hammerhead cap on one square column, the
 // bearings, the cross diaphragms, posters pasted on the column, a painted plinth, a drain pipe and the drip stains.
+import { setFootprint } from "@japacity/assets";
 import { box, extrude, floorQuad, posters, quad, seeded } from "@japacity/assets/kit";
 import { Group } from "three";
 
@@ -114,5 +115,6 @@ export function buildFlyoverSpan(): Group {
   box(g, 0.18, LAMP, 0.18, 0, lampBase, lampZ, "hub");
   box(g, 0.14, 0.14, 2.2, 0, lampBase + LAMP - 0.14, lampZ - 1.1, "hub");
   box(g, 0.5, 0.16, 0.28, 0, lampBase + LAMP - 0.3, lampZ - 2.1, "hub");
-  return g;
+  // Only the column on its painted plinth meets the ground; the street runs under the deck.
+  return setFootprint(g, [{ x: 0, z: 0, width: plinth, depth: plinth }]);
 }

@@ -3,6 +3,7 @@
 // shallow at mid-span, so a side view is a line of flat arches; a 33 m deck flat at 8 m over
 // the water, eight lanes with a median, two slender shafts and a crosshead at every pier, and
 // one lamp post a span. Built to the second review's measurements, never to a photograph.
+import { setFootprint } from "@japacity/assets";
 import { box, cylinder, extrude, floorQuad, quad, seeded } from "@japacity/assets/kit";
 import { Group } from "three";
 
@@ -65,5 +66,6 @@ export function buildBridgeSpan(): Group {
     box(g, 0.3, BRIDGE.lamp, 0.3, x, top + 0.8, 0, "hub");
     box(g, 0.25, 0.25, 7, x, top + 0.8 + BRIDGE.lamp - 0.3, 0, "hub");
   }
-  return g;
+  // The piers in the water, each its crosshead and two shafts; the deck passes far overhead.
+  return setFootprint(g, Array.from({ length: bays + 1 }, (_, index) => ({ x: x0 + index * bay, z: 0, width: 4.4, depth: 24 })));
 }

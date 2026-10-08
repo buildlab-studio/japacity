@@ -3,7 +3,7 @@
 // the roof, open to the yard between its pillars, where visitors sit and a send-off party dances;
 // the rooms are behind its back wall. The yard holds the gate and its notice, the small generator
 // under a zinc shade, a tank on its stand, the posts of the washing line and the water drums.
-import { type SignStyle } from "@japacity/assets";
+import { setFootprint, type SignStyle } from "@japacity/assets";
 import {
   barredWindow,
   box,
@@ -125,5 +125,24 @@ export function buildFamilyHouse(notice: string, style: SignStyle, dishYaw: numb
 
   g.userData.top = roofTop;
   g.userData.clutter = ["tank", "dish", "generator", "bars", "stains", "notice", "wires"];
-  return g;
+  // The rooms, the veranda's end walls and pillars, the fence wall and its gate, the generator's
+  // shade, the tank, the drums and jerrycans and the washing posts; the yard and the veranda's floor are open.
+  const fence = 0.3;
+  const leftRun = gateX - gateW / 2 - 0.3 + plotHalfW;
+  const rightRun = plotHalfW - (gateX + gateW / 2 + 0.3);
+  return setFootprint(g, [
+    { x: 0, z: (back + veranda) / 2, width: w, depth: rooms },
+    ...[-half + 0.1, half - 0.1].map((x) => ({ x, z: veranda + (deep - 1.2) / 2, width: 0.2, depth: deep - 1.2 })),
+    ...FAMILY_HOUSE.veranda.pillars.map((x) => ({ x, z: front, width: 0.4, depth: 0.4 })),
+    { x: 0, z: -plotHalfD, width: plotW, depth: fence },
+    ...[-plotHalfW, plotHalfW].map((x) => ({ x, z: 0, width: fence, depth: plotD })),
+    { x: -plotHalfW + leftRun / 2, z: plotHalfD, width: leftRun, depth: fence },
+    { x: plotHalfW - rightRun / 2, z: plotHalfD, width: rightRun, depth: fence },
+    { x: gateX, z: plotHalfD, width: gateW + 0.6, depth: fence },
+    { x: genX, z: genZ, width: 1.3, depth: 1.3 },
+    { x: half + 0.9, z: back + 0.9, width: 1.5, depth: 1.5 },
+    { x: -half - 0.6, z: veranda + 1.55, width: 0.6, depth: 1.3 },
+    { x: -half - 0.68, z: veranda - 1.0, width: 0.62, depth: 0.3 },
+    ...[1.0, 9.0].map((z) => ({ x: -plotHalfW + 0.9, z, width: 0.1, depth: 0.1 })),
+  ]);
 }

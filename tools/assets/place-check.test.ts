@@ -6,7 +6,7 @@ import { describe, expect, test } from "vitest";
 
 import type { Budgets } from "./check-assets";
 import { defaultPaths } from "./check-assets";
-import { CHEAP_PHONE, CHECK_OWN, checkDrawn, checkMotion, inputOf, type Measure, median, type PlaceMeasure, stagedPlaces, summarise } from "./place-check";
+import { CHEAP_PHONE, CHECK_OWN, checkDrawn, checkMotion, describeMeasure, inputOf, type Measure, median, type PlaceMeasure, ROUTE_TAPS, routeCost, stagedPlaces, summarise } from "./place-check";
 
 const ROOT = join(import.meta.dirname, "..", "..");
 const budgets = JSON.parse(readFileSync(join(ROOT, "assets-src", "budgets.json"), "utf8")) as Budgets;
@@ -52,5 +52,14 @@ describe("the place check", () => {
     expect(inputOf(file, "high", false, {})).toEqual({ ...input, moving: false });
     expect(JSON.parse(JSON.stringify(input))).toEqual(input);
     expect([CHEAP_PHONE.width, CHEAP_PHONE.height, CHEAP_PHONE.deviceScaleFactor, CHEAP_PHONE.slowdown]).toEqual([360, 640, 2, 6]);
+  });
+
+  test("[R-CITY-030] given the milliseconds of a place's taps, when routing's cost is summed up, then the summary gives the map's build and the middle, average and worst of 300 taps, as the walk lab measured", () => {
+    expect(ROUTE_TAPS).toBe(300);
+    const cost = routeCost({ cells: 1200, mapMs: 0.5, tapsMs: [0.1, 0.1, 0.2, 9.0] });
+    expect(cost).toEqual({ cells: 1200, mapMs: 0.5, middleMs: 0.15000000000000002, averageMs: 2.35, worstMs: 9, taps: 4 });
+    const line = describeMeasure({ ...measureOf({}, "low"), routes: cost }).split("\n")[1];
+    expect(line).toBe("place.x routes: map of 1200 cells built in 0.50 ms; 4 taps middle 0.15 ms, average 2.35 ms, worst 9.00 ms");
+    expect(describeMeasure(measureOf({}, "high"))).not.toContain("routes");
   });
 });

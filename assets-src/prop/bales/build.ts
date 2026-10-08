@@ -1,6 +1,7 @@
 // What a cloth trader brings to the market at dawn (city.md place.tejuosho-market): bales of cloth
 // sewn into sacking and bound with rope, a chequered carrier bag of the kind every market uses,
 // two sacks and a stack of crates, left in a heap at the end of a row.
+import { lowBox, setFootprint } from "@japacity/assets";
 import { box, quad, seeded, solid, type Vec3 } from "@japacity/assets/kit";
 import { Group, type Object3D } from "three";
 
@@ -53,5 +54,6 @@ export function buildBales(): Group {
   box(g, 0.5, 0.32, 0.36, -1.65, 0, 0.1, "blue", 0.1);
   box(g, 0.5, 0.32, 0.36, -1.63, 0.32, 0.12, "red", 0.05 + random() * 0.1);
   box(g, 0.75, 0.16, 0.18, -0.65, 1.35, 0.05, "wine");
-  return facePlusZ(g, "prop_bales", false);
+  const root = facePlusZ(g, "prop_bales", false);
+  return setFootprint(root, [lowBox(root)]);
 }

@@ -3,7 +3,7 @@
 // doors, and the canopy over the kerb on round columns, where cars stop and families say goodbye.
 // Not a landmark (city.md R-CITY-020): an ordinary building in the terminal's role, built from the
 // kit and the airport's plain description, never from a drawing or a photograph.
-import type { SignStyle } from "@japacity/assets";
+import { type FootprintBox, setFootprint, type SignStyle } from "@japacity/assets";
 import { acUnit, box, cylinder, floorQuad, onWall, parapet, quad, seeded, signboard, stain } from "@japacity/assets/kit";
 import { Group } from "three";
 
@@ -88,5 +88,12 @@ export function buildTerminalFront(signs: { fascia: string; canopy: string; left
     stain(end, 0, 0, depth, 1.1, "concreteWorn");
     quad(end, 0.04, top - 1.8, -depth / 2 + 1.2, 1.8, 0.01, "black");
   }
-  return root;
+  // The building, the canopy's columns and the bollards; the doors are shut glass and the canopy passes overhead.
+  const bollards: FootprintBox[] = [];
+  for (let x = -half + 1; x <= half - 1; x += 2.5) bollards.push({ x, z: canopyEdge - 0.25, width: 0.2, depth: 0.2 });
+  return setFootprint(root, [
+    { x: 0, z: (face + back) / 2, width: w, depth: depth + 0.4 },
+    ...TERMINAL.columns.map((x) => ({ x, z: canopyEdge - 0.7, width: 0.95, depth: 0.95 })),
+    ...bollards,
+  ]);
 }

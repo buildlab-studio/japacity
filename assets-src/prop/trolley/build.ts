@@ -1,7 +1,7 @@
 // A luggage trolley at the departures kerb (city.md place.airport-lagos), loaded the way a family
 // loads one for a long flight: two big cases, a chequered carrier bag of foodstuff tied shut, a
 // cooler and a small case on top. The frame is the airport's grey tube; the wheels are small.
-import type { PaletteName } from "@japacity/assets";
+import { lowBox, type PaletteName, setFootprint } from "@japacity/assets";
 import { beam, box, cylinder, quad, type Vec3 } from "@japacity/assets/kit";
 import { Group, type Object3D } from "three";
 
@@ -55,5 +55,6 @@ export function buildTrolley(): Group {
   box(g, 0.42, 0.3, 0.3, 0.02, deck + 0.75, -0.25, "basin");
   box(g, 0.44, 0.04, 0.32, 0.02, deck + 1.05, -0.25, "white");
   suitcase(g, 0.36, 0.22, 0.42, 0.04, deck + 0.65, 0.08, "black", "red");
-  return facePlusZ(g, "prop_trolley", false);
+  const root = facePlusZ(g, "prop_trolley", false);
+  return setFootprint(root, [lowBox(root)]);
 }

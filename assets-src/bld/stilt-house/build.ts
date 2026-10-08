@@ -2,7 +2,7 @@
 // villages build them: a plank house on a platform of poles driven into the lagoon bed, a zinc roof
 // patched with a tarpaulin, a veranda with a rail to the water, a ladder down to where the canoes
 // tie up. Every plank a little different, the zinc rusting, the stilts darker where the water reaches.
-import type { PaletteName } from "@japacity/assets";
+import { type PaletteName, setFootprint } from "@japacity/assets";
 import { box, floorQuad, onWall, quad, seeded, solid, type Vec3 } from "@japacity/assets/kit";
 import { Group } from "three";
 
@@ -69,5 +69,6 @@ export function buildStiltHouse(): Group {
   for (let y = 0.3; y < floor; y += 0.35) box(root, 0.55, 0.05, 0.05, hw - 0.9, y, railZ + 0.25, "wood");
   box(root, 0.3, 0.32, 0.3, 0.3, floor, front + 0.4, "basin");
   box(root, 0.2, 0.4, 0.3, 0.75, floor, front + 0.3, "danfoYellow");
-  return root;
+  // The stilts under the house and the veranda, and the ladder down to the water.
+  return setFootprint(root, [{ x: 0, z: back + (d + veranda + 0.9) / 2, width: w + 0.2, depth: d + veranda + 1.1 }]);
 }

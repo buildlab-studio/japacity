@@ -2,6 +2,7 @@
 // armchairs in wine with cream covers on the backs, a low centre table with a glass top, a rug,
 // the television on its stand against the wall, a standing fan. Laid out round the origin, the
 // television at the back (-Z) and the seats facing it.
+import { setFootprint } from "@japacity/assets";
 import { box, cylinder, floorQuad, quad } from "@japacity/assets/kit";
 import { Group, type Object3D } from "three";
 
@@ -46,5 +47,13 @@ export function buildParlourSet(): Group {
   g.add(head);
   cylinder(head, 0.24, 0.08, 0, -0.04, 0, "white", 10);
   cylinder(head, 0.1, 0.12, 0, -0.16, 0, "hub", 8);
-  return g;
+  // The three-seater, the armchairs, the centre table, the television's stand and the fan; the rug is floor.
+  return setFootprint(g, [
+    { x: 0, z: 1.9, width: 2.0, depth: 0.8 },
+    { x: -2.2, z: 0.4, width: 0.8, depth: 0.95 },
+    { x: 2.2, z: 0.4, width: 0.8, depth: 0.95 },
+    { x: 0, z: 0.3, width: 1.2, depth: 0.7 },
+    { x: 0, z: -1.4, width: 1.6, depth: 0.5 },
+    { x: -1.5, z: -1.15, width: 0.4, depth: 0.45 },
+  ]);
 }
