@@ -26,7 +26,7 @@ describe("a new character", () => {
     expect(reply.status).toBe(200);
     expect(asked[0] === undefined ? 0 : asked[0] * 8).toBe(productionConfig.server.seedBits);
     const id = (await server.deps.stores.account.get("acc-1"))?.character;
-    if (id == null) throw new Error("No character.");
+    if (id === undefined || id === null) throw new Error("No character.");
     const stored = await held(server, id);
     const start = stored.segments[0]?.start;
     if (start === undefined || "base" in start) throw new Error("The first segment starts from a scenario.");

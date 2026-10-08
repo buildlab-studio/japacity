@@ -86,7 +86,7 @@ export async function newLife(server: TestServer, account: string, scenario: Id<
   const made = await call<ViewReply>(server, "POST", "/api/character", account, { scenario });
   if (!made.body.ok) throw new Error(`No character: ${made.body.code} ${made.body.detail}`);
   const row = await server.deps.stores.account.get(account);
-  if (row?.character == null) throw new Error("The account names no character.");
+  if (row === null || row.character === null) throw new Error("The account names no character.");
   return row.character;
 }
 

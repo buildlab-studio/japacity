@@ -131,7 +131,7 @@ describe("every command through the server", () => {
     const server = testServer();
     const character = await newLife(server, "acc-1");
     const before = await held(server, character);
-    const bad: Command = { type: "turn/end", slots: [{ activity: "activity.nothing-like-this", param: null }], basedOn: 0 } as Command;
+    const bad: Command = { type: "turn/end", slots: [{ activity: "activity.nothing-like-this", param: null }], basedOn: 0 };
     const reply = await send(server, "acc-1", bad);
     expect(reply.status).toBe(200);
     expect(reply.body).toMatchObject({ ok: false, clock: { tick: 0, nextTickAt: epoch + worldTickMs, nextTurnAt: null } });

@@ -13,7 +13,7 @@ import { transact } from "./transaction";
 
 const { epoch, worldTickMs } = productionConfig.clock;
 const previous: Content = { ...content, version: "m0.0" };
-const dials: Overlay = { version: "dials-1", tuning: { director: { surgePerTick: 4 } } } as Overlay;
+const dials: Overlay = { version: "dials-1", tuning: { director: { surgePerTick: 4 } } };
 
 /** The stand-in worlds a recorded life was played on, stored as the server's ticks under the previous content. */
 async function storeWorlds(server: TestServer, worldSeed: string, upTo: number): Promise<World[]> {
