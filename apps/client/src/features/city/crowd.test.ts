@@ -35,13 +35,25 @@ describe("the sample's size and band", () => {
     expect(crowdSize(wide, "high", city)).toBe(city.crowdHigh);
   });
 
-  test("[R-CITY-014] given a sample's size, when it is shown, then only a band is said: packed at the mode's figure, quiet under half of it", () => {
-    expect(bandOf(city.crowdHigh, "high", city)).toBe("packed");
-    expect(bandOf(city.crowdHigh - 1, "high", city)).toBe("busy");
-    expect(bandOf(Math.ceil(city.crowdHigh / 2), "high", city)).toBe("busy");
-    expect(bandOf(Math.ceil(city.crowdHigh / 2) - 1, "high", city)).toBe("quiet");
-    expect(bandOf(city.crowdLow, "low", city)).toBe("packed");
-    expect(sampleCrowd(hub, pool, THURSDAY, "low", city).band).toBe("packed");
+  test("[R-CITY-014] given a sample against the place's target, when it is shown, then only a band is said: packed at the target, busy from half of it, quiet under half", () => {
+    const target = hub.crowd.target;
+    const half = Math.ceil(target / 2);
+    expect(bandOf(target + 1, target)).toBe("packed");
+    expect(bandOf(target, target)).toBe("packed");
+    expect(bandOf(target - 1, target)).toBe("busy");
+    expect(bandOf(half, target)).toBe("busy");
+    expect(bandOf(half - 1, target)).toBe("quiet");
+    expect(bandOf(0, target)).toBe("quiet");
+  });
+
+  test("[R-CITY-014] given the hub in both modes, when the band is read, then the fuller high mode never says less than the low mode", () => {
+    const rank = { quiet: 0, busy: 1, packed: 2 } as const;
+    const low = sampleCrowd(hub, pool, THURSDAY, "low", city);
+    const high = sampleCrowd(hub, pool, THURSDAY, "high", city);
+    expect(high.people.length).toBeGreaterThan(low.people.length);
+    expect(rank[high.band]).toBeGreaterThanOrEqual(rank[low.band]);
+    expect(low.band).toBe("busy");
+    expect(high.band).toBe("packed");
   });
 });
 
@@ -182,9 +194,10 @@ describe("the target headcount", () => {
     expect(playersRoom(city.residentFloor + 1, city)).toBe(1);
   });
 
-  test("[R-CITY-014] given the hub's target under the high mode's figure, when the band is read, then packed shows only at the mode's full figure", () => {
-    expect(sampleCrowd(hub, pool, THURSDAY, "low", city).band).toBe(crowdSize(hub, "low", city) >= city.crowdLow ? "packed" : "busy");
-    expect(sampleCrowd(hub, pool, THURSDAY, "high", city).band).toBe("busy");
+  test("[R-CITY-014] given players taking slots of the sample, when the band is read, then it follows the sample's whole count against the target, players included", () => {
+    const others = Array.from({ length: city.playersMax }, () => ({ look: "chr_tunde", name: null }));
+    expect(sampleCrowd(hub, pool, THURSDAY, "high", city, others).band).toBe(bandOf(crowdSize(hub, "high", city), hub.crowd.target));
+    expect(sampleCrowd(hub, pool, THURSDAY, "low", city, others).band).toBe(bandOf(crowdSize(hub, "low", city), hub.crowd.target));
   });
 });
 

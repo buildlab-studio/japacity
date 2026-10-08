@@ -71,11 +71,10 @@ export function crowdSize(place: Pick<PlaceEntry, "crowd">, mode: Mode, city: Ci
   return Math.min(place.crowd.target, cap);
 }
 
-/** The band shown for a sample: packed only at the mode's full figure, quiet under half of it. */
-export function bandOf(size: number, mode: Mode, city: CityTuning): Band {
-  const most = mode === "low" ? city.crowdLow : city.crowdHigh;
-  if (size >= most) return "packed";
-  if (size * 2 < most) return "quiet";
+/** The band shown for a sample, read against the place's `crowd.target`: packed at the target, quiet under half of it. */
+export function bandOf(size: number, target: number): Band {
+  if (size >= target) return "packed";
+  if (size * 2 < target) return "quiet";
   return "busy";
 }
 
@@ -157,7 +156,7 @@ export function sampleCrowd(place: PlaceFacts, pool: readonly Person[], date: st
     const tag = other.name === null || other.name.trim() === "" ? null : other.name;
     people[slot] = { slot, person, kind: "player", tag };
   });
-  return { band: bandOf(size, mode, city), people };
+  return { band: bandOf(size, place.crowd.target), people };
 }
 
 /** A place's pool: the people its file lists, as roster rows. */
