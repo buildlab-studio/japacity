@@ -39,7 +39,11 @@ function isOpen(read: ReadCtx, entry: Id<"offer">): boolean {
   return Object.values(read.state.offer.items).some((item) => item.entry === entry);
 }
 
-/** The prices come from `tuning.health`, so an overlay of the tuning moves them (R-ENGINE-017). */
+/**
+ * The prices come from `tuning.health`, so an overlay of the tuning moves them
+ * (R-ENGINE-017). health.md gives no place for illness, so it is
+ * rolled abroad too, at the naira prices; the page gives no prices abroad.
+ */
 export function illnessTerms(read: ReadCtx): Terms {
   return { hospital: read.content.tuning.health.hospital, chemist: read.content.tuning.health.chemist };
 }
@@ -146,6 +150,9 @@ function afterIllness(ctx: Ctx, worse: OfferEntry, open: OpenOffer): BaseEvent[]
  * `tuning.health.illnessBp` when it may come. the illness is not
  * counted against the month's limits on new and open offers (R-OFFER-001),
  * since it is no offer the character could have avoided by having others open.
+ * the illness is marked `bad`, and R-LUCK-003 halves a bad entry's
+ * chance while wellbeing is under 30, which is always so when illness rolls.
+ * It is rolled here at the full `illnessBp`, as R-HEALTH-002 and its numbers say.
  */
 export function healthComeUp(ctx: Ctx, open: OpenOffer): BaseEvent[] {
   const illness = ctx.content.offer[ILLNESS];
