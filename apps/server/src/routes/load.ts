@@ -184,6 +184,7 @@ export function loadRoutes(deps: ServerDeps, counts: WriteCounts): Hono {
         age: { passed: true, at: deps.now(), method: "declared" },
         createdAt: deps.now(),
         character: null,
+        notifyBankFull: false,
       });
       if (!made.ok) throw new Error(made.detail);
     }
