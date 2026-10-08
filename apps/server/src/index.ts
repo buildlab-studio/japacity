@@ -5,7 +5,7 @@ import { content } from "@japacity/content";
 
 import { makeApp } from "./app";
 import { productionConfig } from "./config";
-import { memoryStores, webRandomBytes } from "./deps";
+import { memoryStores, testSession, webRandomBytes } from "./deps";
 import type { ServerDeps } from "./deps";
 
 export interface Env {
@@ -29,6 +29,9 @@ function depsFor(env: Env): ServerDeps {
     stores: memoryStores(),
     contents: { current: content, previous: null },
     secrets: { worldSeed: env.WORLD_SEED ?? "" },
+    limits: { commands10s: env.COMMANDS_10S, commands60s: env.COMMANDS_60S, reads60s: env.READS_60S, anon60s: env.ANON_60S, socket10s: env.SOCKET_10S },
+    // Replaced by the auth module's session reader when it lands; until then no request is signed in.
+    session: testSession(productionConfig),
     now: () => Date.now(),
     randomBytes: webRandomBytes,
   };

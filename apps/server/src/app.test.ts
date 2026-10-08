@@ -3,16 +3,19 @@ import { describe, expect, test } from "vitest";
 
 import { currentTick, makeApp } from "./app";
 import { productionConfig, testConfig } from "./config";
-import { memoryStores } from "./deps";
+import { memoryStores, openLimiters, testSession } from "./deps";
 import type { ServerDeps } from "./deps";
 
 export function testDeps(over: Partial<ServerDeps> = {}): ServerDeps {
   let seed = 1;
+  const config = over.config ?? testConfig({ testing: { testLogin: true } });
   return {
-    config: testConfig(),
+    config,
     stores: memoryStores(),
     contents: { current: content, previous: null },
     secrets: { worldSeed: "test-world-seed" },
+    limits: openLimiters,
+    session: testSession(config),
     now: () => productionConfig.clock.epoch,
     randomBytes: (count) => Uint8Array.from({ length: count }, () => (seed = (seed * 48271) % 2147483647) & 255),
     ...over,
@@ -39,6 +42,12 @@ describe("the server shell", () => {
     expect(Object.values(productionConfig.testing).every((on) => on === false)).toBe(true);
     expect(testConfig({ testing: { fastClock: true } }).testing.fastClock).toBe(true);
     expect(productionConfig.testing.fastClock).toBe(false);
+  });
+
+  test("[R-ACCOUNT-005] given the production config, when the test session reads a request with the test header, then no one is signed in", async () => {
+    const request = new Request("http://server/api/view", { headers: { "x-test-account": "acc-1" } });
+    expect(await testSession(productionConfig)(request)).toBeNull();
+    expect(await testSession(testConfig({ testing: { testLogin: true } }))(request)).toEqual({ account: "acc-1" });
   });
 
   test("given the app, when health is fetched, then it answers with the content version and the tick", async () => {

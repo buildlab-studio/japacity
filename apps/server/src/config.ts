@@ -21,6 +21,8 @@ export interface ServerConfig {
   auth: { otp: { length: number; expiresIn: number; attempts: number }; limits: { otpSendPer60s: number } };
   /** R-ACCOUNT-007: the policy table. */
   regions: Regions;
+  /** R-SERVER-012: the accounts that may read the admin page. Empty in production until the maintainer adds one. */
+  admin: { accounts: string[] };
   /**
    * R-ACCOUNT-005, R-CLOCK-009: the stand-ins that exist only in the test
    * server's config. Every one is false in production.
@@ -55,6 +57,7 @@ export const productionConfig: ServerConfig = {
   account: { minAge: 18, refusedCookieDays: 30, deleteFreshMs: 10 * time.MINUTE_MS, deleteWithinDays: 30, maxCharacters: 1 },
   auth: { otp: { length: 6, expiresIn: 300, attempts: 3 }, limits: { otpSendPer60s: 3 } },
   regions: launchRegions,
+  admin: { accounts: [] },
   testing: { fastClock: false, captureOtp: false, stubGoogle: false, virtualPasskeys: false, testLogin: false },
 };
 
@@ -73,6 +76,7 @@ export function testConfig(over: Deep<ServerConfig> = {}): ServerConfig {
       limits: { ...productionConfig.auth.limits, ...over.auth?.limits },
     },
     regions: { ...productionConfig.regions, ...(over.regions as Partial<Regions>) } as Regions,
+    admin: { accounts: [...(over.admin?.accounts ?? productionConfig.admin.accounts)] },
     testing: { ...productionConfig.testing, ...over.testing },
   };
 }
