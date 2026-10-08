@@ -4,7 +4,7 @@ import { join } from "node:path";
 import { content, staleGuides, text } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
-import { CREDITS_PATH, guidePath, MADE_PATH, numbersPath, SOURCES_PATH } from "./paths";
+import { CREDITS_PATH, guidePath, MADE_PATH, NUMBERS_PATH, numbersPath, SOURCES_PATH } from "./paths";
 import { isoDay, readRulePage } from "./rulePage";
 import { renderSite, shownDay, type SiteInput, type SitePage } from "./site";
 import { siteFiles } from "./site.files";
@@ -102,7 +102,7 @@ describe("where the numbers come from", () => {
     const guides = at(pages, numbersPath("guides"));
     const stale = [...guides.querySelectorAll("tbody tr")].find((row) => row.textContent.includes("tuning.guide.staleMonths"));
     expect(stale?.hasAttribute("data-working")).toBe(true);
-    expect(stale?.lastElementChild?.textContent).toBe("Working value");
+    expect(stale?.lastElementChild?.textContent).toBe(text["guide.page.numbers.working"]);
     const sourced = [...guides.querySelectorAll("tbody tr")].find((row) => row.textContent.includes("Segwise"));
     expect(sourced?.hasAttribute("data-working")).toBe(false);
   });
@@ -123,6 +123,61 @@ describe("where the numbers come from", () => {
       { title: "One", url: "https://one.example", readOn: "2026-10-07" },
       { title: "Two", url: "https://two.example", readOn: "2026-10-07" },
     ]);
+  });
+});
+
+describe("the words a player reads", () => {
+  const numbered = files.rulePages.map((page) => readRulePage(page.name, page.markdown)).filter((page) => page.numbers !== null);
+
+  test("[R-GUIDE-006] given every page of the site, when it is read, then no number is called a working value: a player reads an estimate", () => {
+    for (const page of pages) {
+      const document = new DOMParser().parseFromString(page.html, "text/html");
+      expect(`${page.path}: ${document.body.textContent}`).not.toMatch(/working value/i);
+    }
+    const guides = at(pages, numbersPath("guides"));
+    const stale = [...guides.querySelectorAll("tbody tr")].find((row) => row.textContent.includes("tuning.guide.staleMonths"));
+    expect(stale?.textContent.toLowerCase()).toContain(text["guide.page.numbers.estimate"]);
+  });
+
+  test("[R-GUIDE-006] given every rule page with numbers, then its numbers page has a name a player knows, and the lists and titles use it instead of the rule page's title", () => {
+    expect(numbered.filter((page) => text[`guide.page.numbers.name.${page.name}`] === undefined).map((page) => page.name)).toEqual([]);
+    // The numbers guide is served at the numbers index, and it alone: two pages never share a path.
+    expect(guidePath("guide.numbers")).toBe(NUMBERS_PATH);
+    expect(new Set(pages.map((page) => page.path)).size).toBe(pages.length);
+    const index = at(pages, NUMBERS_PATH);
+    const shown = [...index.querySelectorAll("article a")].filter((link) => link.getAttribute("href")?.startsWith(NUMBERS_PATH)).map((link) => link.textContent);
+    expect([...shown].sort()).toEqual(numbered.map((page) => text[`guide.page.numbers.name.${page.name}`]).sort());
+    const director = at(pages, numbersPath("director"));
+    expect(director.querySelector("h1")?.textContent).toBe(`Where the numbers come from: ${text["guide.page.numbers.name.director"]!}`);
+    const road = at(pages, guidePath("guide.road"));
+    const listed = [...road.querySelectorAll("article a")].filter((link) => link.getAttribute("href")?.startsWith(NUMBERS_PATH)).map((link) => link.textContent);
+    const titles = new Set(numbered.map((page) => page.title));
+    expect(listed.length).toBeGreaterThan(0);
+    expect(listed.filter((name) => titles.has(name) && !Object.values(text).includes(name))).toEqual([]);
+    expect(listed).not.toContain("Route gates: sponsor, points, endorsement, contract");
+    expect(listed).not.toContain("Offers");
+  });
+
+  test("[R-GUIDE-001] given the guides' index, then each guide says which routes it serves, by name, or that it serves every route", () => {
+    const index = at(pages, "/guides/");
+    for (const guide of Object.values(content.guide)) {
+      const line = index.querySelector(`[data-guide="${guide.id}"] [data-routes]`)?.textContent ?? "";
+      if (guide.routes.length === 0) expect(line).toBe(text["guide.page.index.routes.zero"]);
+      else for (const route of guide.routes) expect(line).toContain(text[`${route}.name`]!);
+    }
+  });
+
+  test("[R-GUIDE-003] given every guide page, then each short name is spelled out where the page first uses it", () => {
+    const short = ["UKCISA", "IOM", "CRS", "NAPTIP", "NMC", "UAE", "TB"];
+    for (const guide of Object.values(content.guide)) {
+      const body = [...at(pages, guidePath(guide.id)).querySelectorAll("[data-section]")].map((section) => section.textContent).join(" ");
+      for (const name of short) {
+        const first = body.search(new RegExp(`\\b${name}\\b`));
+        if (first >= 0) expect(`${guide.id} ${name}: ${body.slice(first - 1, first)}`).toBe(`${guide.id} ${name}: (`);
+      }
+      const finance = body.indexOf("Appendix Finance");
+      if (finance >= 0) expect(body.slice(finance, finance + 35)).toBe("Appendix Finance, the part of the U");
+    }
   });
 });
 
@@ -176,6 +231,7 @@ describe("the credits", () => {
   test("[R-GUIDE-009] given map data from OpenStreetMap, when the credits are read, then they carry its line linked to the copyright page; with none, then no map line", () => {
     const line = credits.querySelector('[data-credits="map"] a');
     expect(line?.textContent).toBe("© OpenStreetMap contributors. Available under the Open Database License");
+    expect(line?.parentElement?.textContent).toBe("© OpenStreetMap contributors. Available under the Open Database License.");
     expect(line?.getAttribute("href")).toBe("https://www.openstreetmap.org/copyright");
     const none = at(site({ credits: { ...files.credits, mapData: [] } }), CREDITS_PATH);
     expect(none.querySelector('[data-credits="map"]')).toBeNull();
