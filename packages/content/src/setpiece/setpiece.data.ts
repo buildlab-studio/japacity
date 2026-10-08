@@ -152,7 +152,7 @@ export const setpieceTable: Record<Id<"setpiece">, SetpieceEntry> = {
             effects: [],
           },
           { id: "better", score: -1, when: [], thenScore: null, effects: [] },
-          { id: "agent", score: -2, when: [], thenScore: null, effects: [] },
+          { id: "agent", score: -2, when: [], thenScore: null, effects: [], followUp: "agent-said" },
         ],
       },
       {
@@ -167,7 +167,7 @@ export const setpieceTable: Record<Id<"setpiece">, SetpieceEntry> = {
             effects: [],
           },
           { id: "lender", score: 0, when: [], thenScore: null, effects: [] },
-          { id: "sponsor", score: -1, when: [], thenScore: null, effects: [] },
+          { id: "sponsor", score: -1, when: [], thenScore: null, effects: [], followUp: "sponsor-who" },
         ],
       },
       {
@@ -199,7 +199,7 @@ export const setpieceTable: Record<Id<"setpiece">, SetpieceEntry> = {
         when: [{ type: "not", of: { type: "route/unexplained-max", route: UK, bp: pct(30) } }],
         answers: [
           { id: "agreement", score: 0, when: [], thenScore: null, effects: [] },
-          { id: "gift", score: -2, when: [], thenScore: null, effects: [] },
+          { id: "gift", score: -2, when: [], thenScore: null, effects: [], followUp: "gift-uncle" },
           { id: "savings", score: -2, when: [], thenScore: null, effects: [] },
         ],
       },
@@ -215,6 +215,47 @@ export const setpieceTable: Record<Id<"setpiece">, SetpieceEntry> = {
             effects: [],
           },
           { id: "sort", score: -1, when: [], thenScore: null, effects: [] },
+        ],
+      },
+    ],
+    // R-SETPIECE-008: asked only after the answer that names one, never drawn. First drafts, for the
+    // lead to put on the rule page's entry.
+    followUps: [
+      {
+        id: "sponsor-who",
+        when: [],
+        answers: [
+          {
+            id: "relative",
+            score: -1,
+            when: [{ type: "route/unexplained-max", route: UK, bp: pct(20) }],
+            thenScore: 1,
+            effects: [],
+          },
+          { id: "friend", score: -2, when: [], thenScore: null, effects: [] },
+        ],
+      },
+      {
+        id: "agent-said",
+        when: [],
+        answers: [
+          {
+            id: "modules",
+            score: -1,
+            when: [{ type: "quality/min", quality: "quality.interview-prep", value: 20 }],
+            thenScore: 1,
+            effects: [],
+          },
+          { id: "visa", score: -2, when: [], thenScore: null, effects: [] },
+          { id: "little", score: -1, when: [], thenScore: null, effects: [] },
+        ],
+      },
+      {
+        id: "gift-uncle",
+        when: [],
+        answers: [
+          { id: "letter", score: 0, when: [], thenScore: null, effects: [] },
+          { id: "unknown", score: -2, when: [], thenScore: null, effects: [] },
         ],
       },
     ],

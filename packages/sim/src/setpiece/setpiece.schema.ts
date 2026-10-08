@@ -11,6 +11,7 @@ export const SetpieceAnswerSchema = z.strictObject({
   effects: z.array(EffectSchema),
   requires: z.array(RequirementSchema).exactOptional(),
   closes: z.literal(true).exactOptional(),
+  followUp: z.string().min(1).exactOptional(),
 });
 
 export const SetpieceQuestionSchema = z.strictObject({
@@ -24,6 +25,7 @@ export const SetpieceEntrySchema = z.strictObject({
   ask: z.int().positive(),
   order: z.literal("fixed").exactOptional(),
   questions: z.array(SetpieceQuestionSchema).min(1),
+  followUps: z.array(SetpieceQuestionSchema).exactOptional(),
 });
 
 export type SetpieceAnswerMatches = Proof<Same<z.infer<typeof SetpieceAnswerSchema>, SetpieceAnswer>>;

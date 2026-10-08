@@ -70,7 +70,7 @@ export function richView(): PlayerView {
       entry: "setpiece.credibility-interview",
       asked: 1,
       total: 3,
-      question: { id: "who-pays", answers: ["own", "lender", "sponsor"], allowed: ["own", "lender", "sponsor"], weak: ["sponsor"] },
+      question: { id: "who-pays", answers: ["own", "lender", "sponsor"], allowed: ["own", "lender", "sponsor"], weak: ["sponsor"], followUp: false },
     },
     offers: [
       {

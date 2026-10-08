@@ -79,7 +79,7 @@ describe("the shell by where the character is", () => {
       credit: null,
       japacity: { percent: 40, route: "route.uk-masters" },
       freeSlots: 0,
-      setpiece: { entry: "setpiece.road-truth", asked: 0, total: 1, question: { id: "truth", answers: ["pay", "call-home", "exit"], allowed: ["pay", "call-home", "exit"], weak: [] } },
+      setpiece: { entry: "setpiece.road-truth", asked: 0, total: 1, question: { id: "truth", answers: ["pay", "call-home", "exit"], allowed: ["pay", "call-home", "exit"], weak: [], followUp: false } },
       report: null,
     };
     await showing(view);

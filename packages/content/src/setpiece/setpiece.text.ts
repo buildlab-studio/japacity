@@ -75,6 +75,27 @@ export const setpieceText: Record<string, string> = {
   "setpiece.credibility-interview.a.living.figures": "You give the hall, the rent and the bus fare.",
   "setpiece.credibility-interview.a.living.sort": "I will sort that out when I arrive.",
 
+  // R-SETPIECE-008: the follow-ups. First drafts.
+  "setpiece.credibility-interview.q.sponsor-who": "Who is the sponsor, and what do they do?",
+  "setpiece.credibility-interview.a.sponsor-who.relative": "My uncle. He runs a building supplies business, and I have his letter and his statements.",
+  "setpiece.credibility-interview.a.sponsor-who.friend": "A family friend. I am not sure what he does.",
+  "setpiece.credibility-interview.q.agent-said": "What did the agent tell you about the course?",
+  "setpiece.credibility-interview.a.agent-said.modules": "That it fits my work. I read the modules myself afterwards.",
+  "setpiece.credibility-interview.a.agent-said.visa": "That it was the easiest way to get a visa.",
+  "setpiece.credibility-interview.a.agent-said.little": "Not much. I trusted them.",
+  "setpiece.credibility-interview.q.gift-uncle": "Tell me about this uncle. Why did he send so much?",
+  "setpiece.credibility-interview.a.gift-uncle.letter": "He has paid my fees before. He wrote a letter saying where the money came from.",
+  "setpiece.credibility-interview.a.gift-uncle.unknown": "I did not ask him.",
+
+  // The officer's own lines, spoken and shown. Neutral, and never drawn
+  // from the score (R-SETPIECE-005). First drafts.
+  "setpiece.credibility-interview.officer.greet": "Good morning. I have a few questions about your application.",
+  "setpiece.credibility-interview.officer.react-1": "I see.",
+  "setpiece.credibility-interview.officer.react-2": "Right.",
+  "setpiece.credibility-interview.officer.react-3": "Thank you.",
+  "setpiece.credibility-interview.officer.react-4": "Noted.",
+  "setpiece.credibility-interview.officer.close": "That is all. You will receive a decision in writing.",
+
   // Report lines. First drafts.
   "line.setpiece.opened": "{setpiece}: {questions} questions to answer before the month can end.",
   "line.setpiece.closed": "{setpiece} is over.",
