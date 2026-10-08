@@ -442,7 +442,7 @@ describe("what is stored and shared", () => {
 });
 
 describe("what one account can add to a campaign's day", () => {
-  const player = (account: string) => ({ id: account, country: "NG", age: { passed: true, at: 0, method: "declared" as const }, createdAt: EPOCH, character: null, notifyBankFull: false, sendUsageCounts: true });
+  const player = (account: string) => ({ id: account, country: "NG", age: { passed: true, at: 0, method: "declared" as const }, createdAt: EPOCH, character: null, notifyBankFull: false, sendUsageCounts: true, state: "secured" as const, username: account.replaceAll(".", "_"), usernameChangedAt: null, lastPlayedAt: EPOCH });
 
   async function send(app: App, account: string, rows: { name: string; key: string; count: number }[]): Promise<number> {
     const reply = await app.request("/api/counters", { method: "POST", headers: { "content-type": "text/plain", "x-test-account": account }, body: JSON.stringify({ rows }) });
@@ -519,7 +519,7 @@ describe("the wiring to the admin log and the counters", () => {
     const deps = world();
     const app = makeApp(deps);
     const { campaign: id } = await live(app);
-    const row = (account: string, sendUsageCounts: boolean) => ({ id: account, country: "NG", age: { passed: true, at: 0, method: "declared" as const }, createdAt: EPOCH, character: null, notifyBankFull: false, sendUsageCounts });
+    const row = (account: string, sendUsageCounts: boolean) => ({ id: account, country: "NG", age: { passed: true, at: 0, method: "declared" as const }, createdAt: EPOCH, character: null, notifyBankFull: false, sendUsageCounts, state: "secured" as const, username: account.replaceAll(".", "_"), usernameChangedAt: null, lastPlayedAt: EPOCH });
     await deps.stores.account.create(row("account.player", true));
     await deps.stores.account.create(row("account.quiet", false));
     const batch = JSON.stringify({ rows: [{ name: ADVERT_COUNTERS.impression, key: "advert.road-billboard", count: 2 }] });

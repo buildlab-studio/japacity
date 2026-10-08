@@ -1,11 +1,14 @@
 // The auth library's request hooks: the code sends per email (R-ACCOUNT-014),
-// the sessions that end when a method is removed (R-ACCOUNT-006), and who may
-// add a passkey and what each addition leaves behind (R-ACCOUNT-003).
+// the guest start reached only through the game's route (R-ACCOUNT-013), no
+// passkey for a guest (R-ACCOUNT-023), the sessions that end when a method is
+// removed (R-ACCOUNT-006), and who may add a passkey and what each addition
+// leaves behind (R-ACCOUNT-003).
 // https://better-auth.com/docs/concepts/hooks
 // https://better-auth.com/docs/concepts/rate-limit
 // https://pages.nist.gov/800-63-4/sp800-63b/events/ (4.1.2.1, 4.6)
 import { APIError, createAuthMiddleware, getSessionFromCtx, isAPIError } from "better-auth/api";
 
+import { GUEST_PATH } from "../account/signup";
 import type { ServerDeps } from "../deps";
 import type { AuthKeys } from "./auth";
 import type { SignedInWith } from "./session";
@@ -143,9 +146,25 @@ async function guardAdminPasskeys(deps: ServerDeps, ctx: HookContext): Promise<v
   if (held > 0) throw new APIError("FORBIDDEN", { message: ADMIN_PASSKEY_BIND_DETAIL });
 }
 
+/** R-ACCOUNT-013, R-ACCOUNT-025: the anonymous sign-in is reached only through `POST /api/guest`, with its bot check and limits; a browser's own call is refused. */
+function guestStartCheck(ctx: HookContext): void {
+  if (ctx.path === GUEST_PATH && ctx.request !== undefined) throw new APIError("NOT_FOUND", { message: "Start a life through the guest start." });
+}
+
+/** R-ACCOUNT-023: a passkey is registered only once the account is secured. */
+async function guardGuestPasskeys(ctx: HookContext): Promise<void> {
+  if (!REGISTER_PATHS.has(ctx.path ?? "")) return;
+  const session = await getSessionFromCtx(ctx, { disableRefresh: true }).catch(() => null);
+  if ((session?.user as { isAnonymous?: unknown } | undefined)?.isAnonymous === true) {
+    throw new APIError("FORBIDDEN", { code: "guest-only", message: "Secure this life with Google or an email code first; then add a passkey." });
+  }
+}
+
 /** The hooks run before every library route. */
 export function beforeAuth(deps: ServerDeps) {
   return createAuthMiddleware(async (ctx) => {
+    guestStartCheck(ctx);
+    await guardGuestPasskeys(ctx);
     await limitEmailSends(deps, ctx);
     await guardAdminPasskeys(deps, ctx);
   });

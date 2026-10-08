@@ -26,7 +26,21 @@ export interface ServerConfig {
   /** R-CLOCK-026, 028, 029. */
   presence: { maxPerObject: number; sample: number; nudgeEveryMs: number; attachmentBytes: number; todayMax: number };
   /** account.md Numbers. */
-  account: { minAge: number; refusedCookieDays: number; deleteFreshMs: number; deleteWithinDays: number; maxCharacters: number };
+  account: {
+    minAge: number;
+    refusedCookieDays: number;
+    deleteFreshMs: number;
+    deleteWithinDays: number;
+    maxCharacters: number;
+    /** R-ACCOUNT-024: days between username changes after the free one. */
+    renameDays: number;
+    /** R-ACCOUNT-025: new guest lives from one device cookie, and from one connection, in `guestWindowHours`. */
+    guestsPerDevice: number;
+    guestsPerConnection: number;
+    guestWindowHours: number;
+    /** R-ACCOUNT-026: the clean-up tool's working number of days without play. */
+    guestIdleDays: number;
+  };
   /** R-ACCOUNT-002, R-ACCOUNT-014. */
   auth: { otp: { length: number; expiresIn: number; attempts: number }; limits: { otpSendPer60s: number; otpSendPerDay: number } };
   /** R-ACCOUNT-007: the policy table. */
@@ -93,7 +107,8 @@ export const productionConfig: ServerConfig = {
   },
   clock: { epoch: DEFAULT_EPOCH, worldTickMs: time.WORLD_TICK_MS, turnRefillMs: time.TURN_REFILL_MS, worldFetchSpreadMs: 60 * time.SECOND_MS },
   presence: { maxPerObject: 2000, sample: 20, nudgeEveryMs: 10 * time.SECOND_MS, attachmentBytes: 1024, todayMax: 20 },
-  account: { minAge: 18, refusedCookieDays: 30, deleteFreshMs: 10 * time.MINUTE_MS, deleteWithinDays: 30, maxCharacters: 1 },
+  // renameDays, guestsPerDevice, guestsPerConnection and guestWindowHours are working values; account.md names the settings without numbers.
+  account: { minAge: 18, refusedCookieDays: 30, deleteFreshMs: 10 * time.MINUTE_MS, deleteWithinDays: 30, maxCharacters: 1, renameDays: 30, guestsPerDevice: 3, guestsPerConnection: 30, guestWindowHours: 24, guestIdleDays: 90 },
   auth: { otp: { length: 6, expiresIn: 300, attempts: 3 }, limits: { otpSendPer60s: 3, otpSendPerDay: 10 } },
   regions: launchRegions,
   admin: { accounts: [] },

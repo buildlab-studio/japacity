@@ -1,0 +1,56 @@
+// R-ACCOUNT-024: the username. Letters, digits and underscore, 3 to 20 long,
+// unique whatever the capitals (the store holds that), not on the reserved
+// list and holding no blocked word, in any of their spellings. One free change,
+// then a wait of `account.renameDays` between changes. A handle only: never the
+// character's name and never a way in.
+import { blockedWords, reservedNames } from "@japacity/content";
+import { time } from "@japacity/sim";
+import type { AccountRow } from "@japacity/store";
+
+import type { ServerConfig } from "../config";
+
+export const USERNAME = /^[A-Za-z0-9_]{3,20}$/;
+
+/** Why a username was refused; `taken` and `wait` come from the store and the clock. */
+export type NameProblem = "format" | "reserved" | "blocked" | "taken" | "wait";
+
+/** Digits that stand in for letters in a spelling meant to slip past the lists. */
+const STAND_INS: Record<string, string> = { "0": "o", "3": "e", "4": "a", "5": "s", "7": "t", "8": "b", "9": "g" };
+
+/** Letters said twice count once, so "aadmin" and "suppport" fold like the words they spell. */
+function once(text: string): string {
+  return text.replace(/(.)\1+/g, "$1");
+}
+
+/** The forms a name is compared in: lower case, no underscores, stand-in digits read as letters; a 1 read as both i and l. */
+export function foldings(name: string): string[] {
+  const plain = [...name.toLowerCase().replaceAll("_", "")].map((each) => STAND_INS[each] ?? each).join("");
+  return [...new Set([plain.replaceAll("1", "i"), plain.replaceAll("1", "l")].map(once))];
+}
+
+const RESERVED = reservedNames.flatMap(foldings);
+const BLOCKED = blockedWords.flatMap(foldings);
+
+/** The problem with a username's text, or null when it may be held. Uniqueness is the store's to judge. */
+export function nameProblem(name: unknown): Exclude<NameProblem, "taken" | "wait"> | null {
+  if (typeof name !== "string" || !USERNAME.test(name)) return "format";
+  const folded = foldings(name);
+  if (RESERVED.some((word) => folded.some((form) => form.includes(word)))) return "reserved";
+  if (BLOCKED.some((word) => folded.some((form) => form.includes(word)))) return "blocked";
+  return null;
+}
+
+/** When the account may next change its username: at once while the free change is unused, else `renameDays` after the last. */
+export function renameFrom(row: Pick<AccountRow, "usernameChangedAt">, config: Pick<ServerConfig, "account">): number {
+  return row.usernameChangedAt === null ? 0 : row.usernameChangedAt + config.account.renameDays * time.DAY_MS;
+}
+
+/**
+ * A name of the shape `player_` and eleven characters, for an account whose
+ * name a moderator resets (R-MODERATION-014 `reset-name`). The store refuses
+ * one already held, and the caller draws again.
+ */
+export function generatedUsername(randomBytes: (count: number) => Uint8Array): string {
+  const digits = [...randomBytes(6)].map((byte) => byte.toString(36).padStart(2, "0").slice(-2)).join("");
+  return `player_${digits.slice(0, 11)}`;
+}

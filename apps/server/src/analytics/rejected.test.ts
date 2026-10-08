@@ -45,6 +45,7 @@ const CODES: Record<ServerCode, true> = {
   "wrong-slot": true,
   "not-adult": true,
   "moved-on": true,
+  "guest-only": true,
 };
 
 describe("rejections by code", () => {

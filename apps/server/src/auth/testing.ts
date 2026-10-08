@@ -75,11 +75,17 @@ export interface Harness {
   helpers: () => Promise<TestHelpers>;
   /** A request to the app as a browser from `country` at `ip`, carrying the jar's cookies and keeping the ones it sets. */
   call: (path: string, init?: RequestInit & { jar?: Jar; country?: string; ip?: string; json?: unknown }) => Promise<Response>;
-  /** The age screen passed with a date of birth from 1990 and the dummy Turnstile token. */
-  passAge: (jar: Jar, over?: { dateOfBirth?: string; country?: string; token?: string }) => Promise<Response>;
+  /** The age screen passed with a date of birth from 1990. */
+  passAge: (jar: Jar, over?: { dateOfBirth?: string; country?: string }) => Promise<Response>;
+  /** `POST /api/guest` with the dummy Turnstile token; the jar holds the guest's session when it answers 200. */
+  startGuest: (jar: Jar, over?: { username?: string; country?: string; ip?: string; token?: string }) => Promise<Response>;
+  /** The age screen and the guest start; the jar ends signed in as the guest. Returns the account id. */
+  guest: (jar?: Jar, over?: { username?: string; country?: string; ip?: string }) => Promise<{ jar: Jar; account: string }>;
+  /** Secures the jar's guest with a code sent to `email`; returns the sign-in's reply. */
+  secureByCode: (jar: Jar, email: string, ip?: string) => Promise<Response>;
   /** Sends a code to `email` and returns it as the stand-in for the send was given it. */
   codeFor: (email: string, jar: Jar, ip?: string) => Promise<string>;
-  /** A whole sign-up by email code; the jar ends signed in. Returns the account id. */
+  /** A guest secured by an email code; the jar ends signed in. Returns the account id. */
   signUp: (email: string, jar?: Jar, country?: string) => Promise<{ jar: Jar; account: string }>;
 }
 
@@ -150,14 +156,29 @@ export function harness(options: HarnessOptions = {}): Harness {
 
   const helpers = async () => (await auth.$context as unknown as { test: TestHelpers }).test;
 
-  const passAge: Harness["passAge"] = (jar, over = {}) =>
-    call("/api/age", {
+  const passAge: Harness["passAge"] = (jar, over = {}) => call("/api/age", { method: "POST", jar, country: over.country ?? "NG", json: { dateOfBirth: over.dateOfBirth ?? "1990-05-17" } });
+
+  let named = 0;
+  const startGuest: Harness["startGuest"] = (jar, over = {}) => {
+    named += 1;
+    return call("/api/guest", {
       method: "POST",
       jar,
       country: over.country ?? "NG",
+      ...(over.ip === undefined ? {} : { ip: over.ip }),
       headers: { "x-captcha-response": over.token ?? TURNSTILE_TEST.dummyToken },
-      json: { dateOfBirth: over.dateOfBirth ?? "1990-05-17" },
+      json: { username: over.username ?? `player_${String(named)}` },
     });
+  };
+
+  const guest: Harness["guest"] = async (jar = makeJar(), over = {}) => {
+    const age = await passAge(jar, { country: over.country ?? "NG" });
+    if (age.status !== 200) throw new Error(`The age screen answered ${age.status}: ${await age.text()}`);
+    const reply = await startGuest(jar, over);
+    if (reply.status !== 200) throw new Error(`The guest start answered ${reply.status}: ${await reply.text()}`);
+    const body = await reply.json<{ account: { id: string } }>();
+    return { jar, account: body.account.id };
+  };
 
   const codeFor: Harness["codeFor"] = async (email, jar, ip) => {
     const reply = await call("/api/auth/email-otp/send-verification-otp", { method: "POST", jar, ...(ip === undefined ? {} : { ip }), json: { email, type: "sign-in" } });
@@ -167,15 +188,17 @@ export function harness(options: HarnessOptions = {}): Harness {
     return code;
   };
 
-  const signUp: Harness["signUp"] = async (email, jar = makeJar(), country = "NG") => {
-    const age = await passAge(jar, { country });
-    if (age.status !== 200) throw new Error(`The age screen answered ${age.status}: ${await age.text()}`);
-    const otp = await codeFor(email, jar);
-    const reply = await call("/api/auth/sign-in/email-otp", { method: "POST", jar, country, json: { email, otp } });
-    if (reply.status !== 200) throw new Error(`Sign-in answered ${reply.status}: ${await reply.text()}`);
-    const body = await reply.json<{ user: { id: string } }>();
-    return { jar, account: body.user.id };
+  const secureByCode: Harness["secureByCode"] = async (jar, email, ip) => {
+    const otp = await codeFor(email, jar, ip);
+    return call("/api/auth/sign-in/email-otp", { method: "POST", jar, ...(ip === undefined ? {} : { ip }), json: { email, otp } });
   };
 
-  return { deps, auth, keys, app, tables, sent, notices, background, helpers, call, passAge, codeFor, signUp };
+  const signUp: Harness["signUp"] = async (email, jar = makeJar(), country = "NG") => {
+    const { account } = await guest(jar, { country });
+    const reply = await secureByCode(jar, email);
+    if (reply.status !== 200) throw new Error(`Securing answered ${reply.status}: ${await reply.text()}`);
+    return { jar, account };
+  };
+
+  return { deps, auth, keys, app, tables, sent, notices, background, helpers, call, passAge, startGuest, guest, secureByCode, codeFor, signUp };
 }

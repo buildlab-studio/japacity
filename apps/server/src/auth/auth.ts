@@ -13,12 +13,15 @@
 // https://better-auth.com/docs/concepts/users-accounts
 // https://better-auth.com/docs/concepts/database#database-hooks
 // https://better-auth.com/docs/plugins/test-utils
+// https://better-auth.com/docs/plugins/anonymous
 import { passkey } from "@better-auth/passkey";
 import { betterAuth } from "better-auth";
 import type { BetterAuthPlugin } from "better-auth";
 import type { memoryAdapter } from "better-auth/adapters/memory";
-import { emailOTP, testUtils } from "better-auth/plugins";
+import { anonymous, emailOTP, testUtils } from "better-auth/plugins";
 
+import { foldIntoGuest } from "../account/link";
+import type { Linking } from "../account/link";
 import { admitAccount, admitMethod, admitSession } from "../account/signup";
 import type { TurnstileKeys } from "../account/turnstile";
 import { requestDeletion } from "../account/deletion";
@@ -73,6 +76,7 @@ function testPlugins(testServer: boolean): BetterAuthPlugin[] {
 export function makeAuth(deps: ServerDeps, adapter: Adapter, keys: AuthKeys) {
   const { config } = deps;
   const host = new URL(keys.siteUrl).hostname;
+  const linking: Linking = new Set();
   const plugins = [
     emailOTP({
       otpLength: config.auth.otp.length,
@@ -85,6 +89,8 @@ export function makeAuth(deps: ServerDeps, adapter: Adapter, keys: AuthKeys) {
       sendVerificationOTP: (message) => keys.sendOtp(message),
     }),
     passkey({ rpID: host, rpName: "Japacity", origin: keys.siteUrl, registration: { requireSession: true } }),
+    // R-ACCOUNT-021, 023: the guest's user is kept on a link; the user the link made is folded into it.
+    anonymous({ disableDeleteAnonymousUser: true, generateName: () => "", onLinkAccount: (input) => foldIntoGuest(deps, linking, input) }),
     ...testPlugins(config.testing.captureOtp),
   ];
 
@@ -119,18 +125,18 @@ export function makeAuth(deps: ServerDeps, adapter: Adapter, keys: AuthKeys) {
       additionalFields: { signedInWith: { type: "string", required: false, input: false } },
     },
     databaseHooks: {
-      user: { create: { before: (user, endpoint) => admitAccount(deps, endpoint, user) } },
+      user: { create: { before: (user, endpoint) => admitAccount(deps, endpoint, linking, user) } },
       account: {
         create: {
-          before: async (account) => {
-            await admitMethod(deps, account);
+          before: async (account, endpoint) => {
+            await admitMethod(deps, endpoint, linking, account);
           },
         },
       },
       session: {
         create: {
           before: async (session, context) => {
-            await admitSession(deps, session);
+            await admitSession(deps, context, linking, session);
             return { data: { ...session, signedInWith: signedInWith(context?.path) } };
           },
         },

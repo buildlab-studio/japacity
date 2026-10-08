@@ -47,10 +47,9 @@ describe("signing in", () => {
     expect(h.tables.user).toHaveLength(0);
   });
 
-  test("[R-ACCOUNT-001] [R-ACCOUNT-020] given a player who passed the screen, when Google signs them in, then an account is made with the subject id and email and no name or photo", async () => {
+  test("[R-ACCOUNT-001] [R-ACCOUNT-020] [R-ACCOUNT-023] given a guest, when Google secures it, then the guest's own account holds the subject id and email and no name or photo", async () => {
     const h = harness();
-    const jar = makeJar();
-    await h.passAge(jar);
+    const { jar, account } = await h.guest();
     const start = await h.call("/api/auth/sign-in/social", { method: "POST", jar, json: { provider: "google", callbackURL: "/" } });
     expect(start.status).toBe(200);
     const url = new URL(String((await json(start))["url"]));
@@ -59,10 +58,11 @@ describe("signing in", () => {
     stubGoogle({ sub: "google-subject-1", email: "ada@example.com" });
     const back = await h.call(`/api/auth/callback/google?code=stub-code&state=${url.searchParams.get("state") ?? ""}`, { jar });
     expect(back.status).toBe(302);
-    expect(h.tables.user).toEqual([expect.objectContaining({ email: "ada@example.com", name: "", image: "" })]);
-    expect(h.tables.account).toEqual([expect.objectContaining({ providerId: "google", accountId: "google-subject-1" })]);
+    expect(h.tables.user).toEqual([expect.objectContaining({ id: account, email: "ada@example.com", name: "", isAnonymous: false })]);
+    expect(h.tables.user[0]?.["image"] ?? "").toBe("");
+    expect(h.tables.account).toEqual([expect.objectContaining({ userId: account, providerId: "google", accountId: "google-subject-1" })]);
     const me = await h.call("/api/account", { jar });
-    expect(me.status).toBe(200);
+    expect(await json(me)).toMatchObject({ ok: true, account: { id: account, state: "secured" } });
   });
 
   test("[R-ACCOUNT-001] given an account made by email code, when Google signs in with the same verified email, then it is linked to the same account", async () => {
@@ -132,13 +132,13 @@ describe("signing in", () => {
     expect((await h.call("/api/account", { jar: allowed.jar })).status).toBe(200);
   });
 
-  test("[R-SERVER-031] given an age pass taken while sign-ups were on, when the switch goes off and the code is used, then the sign-up is refused switched-off and no account is made", async () => {
+  test("[R-SERVER-031] given an age pass taken while sign-ups were on, when the switch goes off and the guest life is started, then it is refused switched-off and no account is made", async () => {
     const h = harness();
     const jar = makeJar();
     await h.passAge(jar);
-    const otp = await h.codeFor("late@example.com", jar);
     await setSwitch(h.deps, "signups", false, "account.owner", "full");
-    const reply = await h.call("/api/auth/sign-in/email-otp", { method: "POST", jar, json: { email: "late@example.com", otp } });
+    const reply = await h.startGuest(jar);
+    expect(reply.status).toBe(503);
     expect(await json(reply)).toMatchObject({ code: "switched-off" });
     expect(h.tables.user).toHaveLength(0);
   });
@@ -173,8 +173,7 @@ describe("signing in", () => {
 
   test("[R-ACCOUNT-002] given a second code sent to one email, when the codes are stored, then the new one replaces the old", async () => {
     const h = harness();
-    const jar = makeJar();
-    await h.passAge(jar);
+    const { jar } = await h.guest();
     vi.useFakeTimers({ toFake: ["Date"], now: Date.now() });
     const first = await h.codeFor("ada@example.com", jar, "198.51.100.1");
     // The library finds the newest code by its creation time; two in one millisecond tie.
@@ -194,8 +193,7 @@ describe("signing in", () => {
     const results: string[] = [];
     for (const [email, late] of [["on-time@example.com", 0], ["late@example.com", 1]] as const) {
       vi.setSystemTime(start);
-      const jar = makeJar();
-      await h.passAge(jar);
+      const { jar } = await h.guest(makeJar(), { ip: `198.51.100.${String(30 + late)}` });
       const otp = await h.codeFor(email, jar, `198.51.100.${String(10 + late)}`);
       vi.setSystemTime(start + expiresInMs + late);
       const reply = await h.call("/api/auth/sign-in/email-otp", { method: "POST", jar, ip: `198.51.100.${String(20 + late)}`, json: { email, otp } });
@@ -250,8 +248,7 @@ describe("signing in", () => {
 
   test("[R-ACCOUNT-006] given a sign-in, when its session cookie is set, then it is HttpOnly, Secure and SameSite=Lax", async () => {
     const h = harness();
-    const jar = makeJar();
-    await h.passAge(jar);
+    const { jar } = await h.guest();
     const otp = await h.codeFor("ada@example.com", jar);
     const reply = await h.call("/api/auth/sign-in/email-otp", { method: "POST", jar, json: { email: "ada@example.com", otp } });
     const line = (reply.headers.get("set-cookie") ?? "").split(/,(?=\s*__Secure-)/).find((part) => part.includes("session_token")) ?? "";
