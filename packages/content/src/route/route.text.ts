@@ -30,6 +30,14 @@ export const routeText: Record<string, string> = {
   "line.route.deposit-refunded": "The deposit for {route} comes back, less the fee: {amount}.",
   "line.route.supported": "Your family will show {amount} for you.",
   "line.route.departed": "You fly out on {route}. The life at home is over.",
+  // The points gate (route-gates.md R-POINTS-002, 003, 005). First drafts.
+  "line.route.pool-entered": "Your profile for {route} is in the pool. Now you wait for the cut-off to come down to your score.",
+  "line.route.invited": "You are invited to apply for {route}. The fee goes with the application.",
+  "line.route.invite-unpaid": "You are invited to apply for {route}, but the fee cannot be paid. The invitation holds one more month.",
+  "line.route.invite-lapsed": "The invitation for {route} has lapsed. The fee was never paid. Your profile stays in the pool.",
+  "line.route.profile-lapsed": "Your profile for {route} has run out without an invitation. You can enter the pool again.",
+  // The endorsement gate (R-ENDORSE-002). First draft.
+  "line.route.endorsement-refused": "The endorsing body does not back you for {route}. The letter is withdrawn, and you must wait before you ask again.",
   "route.uk-care.name": "Care work in the UK",
   "route.uk-care.blurb":
     "A health and care visa with a sponsor's certificate. For nurses and carers, if the door is open to people applying from home.",
