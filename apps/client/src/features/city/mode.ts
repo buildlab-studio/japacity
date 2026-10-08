@@ -82,19 +82,25 @@ export interface ModeSettings {
   fog: { near: number; far: number };
   // atmosphere is haze only; a rim light would be a third light against R-ASSET-006, and rain has no rule for when it falls.
   atmosphere: boolean;
+  /**
+   * How far the fog and the sky lean from the sky's colour toward the ground's, from 0 to 1. The
+   * near fog of the low mode stands between the two, apart from the sky, so a roof fading into it keeps its edge.
+   */
+  haze: { fog: number; sky: number };
   antialias: boolean;
   /** Fine or coarse sheets and water: the dial that costs, not the motion (the decision). */
   mesh: "fine" | "coarse";
 }
 
 export const FOG = { near: { near: 18, far: 45 }, far: { near: 40, far: 110 } } as const;
+export const HAZE = { near: { fog: 0.5, sky: 0 }, far: { fog: 0.18, sky: 0.18 } } as const;
 
 export function modeSettings(mode: Mode, device: Device, city: CityTuning): ModeSettings {
   switch (mode) {
     case "low":
-      return { pixelRatio: 1, shadows: false, crowd: city.crowdLow, fog: FOG.near, atmosphere: false, antialias: false, mesh: "coarse" };
+      return { pixelRatio: 1, shadows: false, crowd: city.crowdLow, fog: FOG.near, atmosphere: false, haze: HAZE.near, antialias: false, mesh: "coarse" };
     case "high":
-      return { pixelRatio: Math.min(device.pixelRatio, city.maxPixelRatio), shadows: true, crowd: city.crowdHigh, fog: FOG.far, atmosphere: true, antialias: true, mesh: "fine" };
+      return { pixelRatio: Math.min(device.pixelRatio, city.maxPixelRatio), shadows: true, crowd: city.crowdHigh, fog: FOG.far, atmosphere: true, haze: HAZE.far, antialias: true, mesh: "fine" };
     default: {
       const never: never = mode;
       throw new Error(`Unknown mode: ${String(never)}`);

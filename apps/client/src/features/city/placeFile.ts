@@ -4,6 +4,8 @@
 // ground with its crowd, so every place can be entered before its models are built.
 import type { PaletteName } from "@japacity/assets";
 
+import type { Role } from "./roster";
+
 /** x, z and the turn about +Y in radians. Models face +Z (R-ASSET-003). */
 export type Spot = [number, number, number];
 export type Vec3 = [number, number, number];
@@ -26,19 +28,37 @@ export interface Motion {
   colours: PaletteName[];
 }
 
+/**
+ * A strip of the ground: road, pavement, kerb or gutter, centred at x and z and turned, `size` its
+ * length along its own x and its width. `raise` lifts it into a block that high (a kerb); `dash`
+ * paints every other `every` metres of its length in a second colour (a painted kerb, slabs over a drain).
+ */
+export interface Strip {
+  at: Spot;
+  size: [number, number];
+  colour: PaletteName;
+  raise?: number;
+  dash?: { colour: PaletteName; every: number };
+}
+
 export interface Stage {
   /** Width and depth of the ground in metres, centred on the origin. */
   ground: { size: [number, number]; colour: PaletteName };
-  /** Strips of road: centre x and z, width, depth, turn. */
-  roads: { at: Spot; size: [number, number]; colour: PaletteName }[];
+  /** Strips of road, pavement, kerb and gutter, drawn after the ground and over it in list order. */
+  roads: Strip[];
   /** One sun and one sky light, set by the place (R-ASSET-006). */
   light: { sun: Vec3; sky: PaletteName; ground: PaletteName };
   /** Where the player's character stands on entering, and which way it faces. */
   start: Spot;
-  /** Every model and where each copy stands. */
-  models: { file: string; at: Spot[] }[];
-  /** Where people of the crowd stand, in slot order. At least the high mode's crowd. */
+  /**
+   * Every model and where each copy stands. `signs`, for a building whose file carries only its sign
+   * anchors, gives each copy its own text keys in the anchors' order, so two copies never show the same boards.
+   */
+  models: { file: string; at: Spot[]; signs?: string[][] }[];
+  /** Where people of the crowd stand, in order of use: the low mode's sample takes the first spots. At least the high mode's crowd. */
   people: Spot[];
+  /** Spots, by index into `people`, kept for someone of a role when the sample has one: a hawker among the vehicles, a trader at the stall. */
+  prefer?: Partial<Record<Role, number[]>>;
   motion: Motion[];
 }
 

@@ -149,8 +149,12 @@ export function City() {
   const settings = modeSettings(mode, device(), city);
   const others = useMemo<Other[]>(() => (presence !== null && presence.place === placeId ? presence.others : []), [presence, placeId]);
   const today = useMemo<Other[]>(() => (presence !== null && presence.place === placeId ? (presence.today ?? []) : []), [presence, placeId]);
-  const sample = useMemo(() => (entry === null || file === null ? null : sampleCrowd(entry, poolOf(file.people.sample), date, mode, city, others, today)), [entry, file, date, mode, others, today]);
   const own = ownFile(view.scenario);
+  // No resident wears the player's own outfit.
+  const sample = useMemo(
+    () => (entry === null || file === null ? null : sampleCrowd(entry, poolOf(file.people.sample).filter((person) => person.file !== own), date, mode, city, others, today)),
+    [entry, file, date, mode, others, today, own],
+  );
   const places = enterable(here, PLACES);
   const heard = entry === null ? null : overheard(view, entry.id, date, heardCount);
   const lines = entry === null ? [] : reportHere(view, entry.id, PLACES);

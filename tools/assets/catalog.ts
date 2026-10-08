@@ -6,6 +6,7 @@ import { join } from "node:path";
 import type { BuildingSpec, SignStyle } from "@japacity/assets";
 import { buildBuilding, type BuildingOptions, DEFAULT_DISH_YAW, pole } from "@japacity/assets/kit";
 import { drawPattern } from "@japacity/assets/pattern";
+import { buildFlyoverSpan } from "@japacity/assets-src/bld/flyover-span/build";
 import { buildStadium } from "@japacity/assets-src/lm/national-stadium/build";
 import { buildBridgeSpan } from "@japacity/assets-src/lm/third-mainland-span/build";
 import { buildPerson } from "@japacity/assets-src/people/people";
@@ -105,6 +106,15 @@ const SIGN = {
 export const CATALOG: CatalogEntry[] = [
   buildingEntry("shop-row", "ojuelegba"),
   buildingEntry("plaza", "ojuelegba"),
+  {
+    name: "bld_flyover-span",
+    file: "places/ojuelegba/bld_flyover-span.glb",
+    place: "place.ojuelegba",
+    source: "assets-src/bld/flyover-span",
+    author: "The makers, written as code from the kit; the plan from OpenStreetMap",
+    views: [...ELEVATIONS, "plan", "phone"],
+    build: () => staticModel("bld_flyover-span", buildFlyoverSpan()),
+  },
   {
     name: "shop_provisions",
     file: "places/ojuelegba/shop_provisions.glb",
