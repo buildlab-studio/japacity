@@ -25,8 +25,7 @@ function isForeign(currency: Currency): currency is ForeignCurrency {
 function sendable(view: ReturnType<typeof useView>): ForeignCurrency[] {
   const local = localCurrency(view);
   const held = CURRENCIES.filter(isForeign).filter((currency) => view.pockets[currency].bank > 0);
-  const first = local !== null && isForeign(local) ? [local] : [];
-  return [...first, ...held.filter((currency) => currency !== local)];
+  return [...held.filter((currency) => currency === local), ...held.filter((currency) => currency !== local)];
 }
 
 function parseAmount(typed: string): number | null {

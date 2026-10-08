@@ -1,4 +1,4 @@
-import { useId, type ReactNode } from "react";
+import { useId, type ComponentProps, type ReactNode } from "react";
 
 /** A titled section of the screen. The heading names it for screen readers. */
 export function Panel({ title, action, children, className = "" }: { title: string; action?: ReactNode; children: ReactNode; className?: string }) {
@@ -16,10 +16,15 @@ export function Panel({ title, action, children, className = "" }: { title: stri
   );
 }
 
-export function Card({ children, className = "", tone = "plain" }: { children: ReactNode; className?: string; tone?: "plain" | "attention" | "muted" }) {
+/** A card. Other attributes, such as a `data-` mark for tests and styles, pass through to the box. */
+export function Card({ children, className = "", tone = "plain", ...rest }: ComponentProps<"div"> & { tone?: "plain" | "attention" | "muted" }) {
   const toneClass =
     tone === "attention" ? "border-l-4 border-l-accent" : tone === "muted" ? "opacity-80" : "";
-  return <div className={`rounded-xl border border-line bg-surface p-4 ${toneClass} ${className}`}>{children}</div>;
+  return (
+    <div {...rest} className={`rounded-xl border border-line bg-surface p-4 ${toneClass} ${className}`}>
+      {children}
+    </div>
+  );
 }
 
 export function Empty({ children }: { children: ReactNode }) {

@@ -78,7 +78,7 @@ function WayHomeCard() {
             <p className="text-sm text-muted">{say("ui.place.fare-december", { fare: formatMoney(Math.floor((fare.amount * peak.decemberFactorBp) / 10000), fare.currency) })}</p>
           )}
           {paidFrom === "naira" ? <p className="text-sm">{say("ui.place.fare-naira", { naira: formatMoney(naira, "NGN") })}</p> : null}
-          {paidFrom === null && !assisted ? <p className="text-sm text-bad">{say("ui.place.fare-short", { naira: formatMoney(naira, "NGN") })}</p> : null}
+          {paidFrom === null && !assisted ? <p className="text-sm text-bad">{say("ui.place.fare-short", { fare: formatMoney(fare.amount, fare.currency), naira: formatMoney(naira, "NGN") })}</p> : null}
         </div>
       </div>
       {shape === null ? null : (
