@@ -286,8 +286,8 @@ export function richAbroadView(): PlayerView {
 }
 
 /** A new life as a game handle on the real content, for views a few commands or effects away. */
-export function newGame(scenario: Id<"scenario"> = "scenario.ada"): Game {
-  return start({ scenario, content });
+export function newGame(scenario: Id<"scenario"> = "scenario.ada", seed?: string): Game {
+  return start(seed === undefined ? { scenario, content } : { scenario, seed, content });
 }
 
 /**
@@ -320,4 +320,20 @@ export function decemberGame(): Game {
   for (let month = 0; month < 12 && game.state.setpiece.open === null; month += 1) game.endTurn();
   if (game.state.setpiece.open?.entry !== "setpiece.december") throw new Error("The December visit did not open within a year abroad.");
   return game;
+}
+
+/** An authority over a game handle: the real engine answers every command the screen sends. */
+export function gameAuthority(game: Game): Authority & { sent: Command[] } {
+  const sent: Command[] = [];
+  return {
+    sent,
+    view: () => Promise.resolve(game.view()),
+    send(command): Promise<Reply> {
+      sent.push(command);
+      // The handle bases every command on its own state, as the local authority does.
+      const result = game.send(command);
+      if (!result.ok) return Promise.resolve(result);
+      return Promise.resolve({ ok: true, view: game.view(), lines: result.lines });
+    },
+  };
 }

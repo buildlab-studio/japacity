@@ -11,7 +11,7 @@ const AGE = "quality.age-months";
 const MONTHS_IN_YEAR = 12;
 
 /** A value as the player reads it: a named level where content names one, years for age, else the number. */
-function valueWords(id: string, value: number): string {
+export function valueWords(id: string, value: number): string {
   if (id === AGE) return say("ui.profile.age", { years: Math.floor(value / MONTHS_IN_YEAR) });
   const label = `${id}.value.${String(value)}`;
   return hasWords(label) ? say(label) : formatNumber(value);

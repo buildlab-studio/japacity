@@ -244,6 +244,25 @@ export const uiText: Record<string, string> = {
   "ui.news.stage.in-force": "In force",
   "ui.news.stage.ended": "Ended",
 
+  // The prologue (prologue.md R-PROLOGUE-008)
+  "ui.prologue.title": "How you got here",
+  "ui.prologue.then": "What happened",
+  "ui.prologue.not-open": "Not open to you:",
+  "ui.prologue.so-far": "Your life so far",
+  "ui.prologue.not-drawn": "Nothing is decided yet.",
+  "ui.prologue.town.city": "You grow up in a city.",
+  "ui.prologue.town.town": "You grow up in a small town.",
+  "ui.prologue.means.low": "At home, money is always short.",
+  "ui.prologue.means.middle": "At home, the family gets by.",
+  "ui.prologue.means.high": "At home, the family is comfortable.",
+  "ui.prologue.siblings": "You have {count} brothers and sisters.",
+  "ui.prologue.siblings.one": "You have one brother or sister.",
+  "ui.prologue.parents.educated": "Your parents went to school.",
+  "ui.prologue.parents.not": "Your parents did not get far in school.",
+  "ui.prologue.money": "Money of your own: {amount}",
+  "ui.prologue.money.none": "No money of your own yet.",
+  "ui.prologue.start": "Start month {month}",
+
   // A new life
   "ui.life.title": "Who are you?",
   "ui.life.intro": "Pick a life in Lagos. You can start again later.",

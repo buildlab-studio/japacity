@@ -2,8 +2,9 @@
 // action always above it. From 1024px: profile and money on the left, the
 // month plan in the centre, ways out and news on the right. Where the
 // character is changes the shell: abroad the tabs are the month, you, money,
-// status and home; on the road there is one panel and nothing else. The
-// warnings that stand (the status clock, being run down) sit above every tab.
+// status and home; on the road there is one panel and nothing else. Before
+// the first month a life from sixteen plays its prologue, one card at a time.
+// The warnings that stand (the status clock, being run down) sit above every tab.
 import { BadgeCheck, CalendarDays, House, Newspaper, Plane, UserRound, Wallet, type LucideIcon } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 
@@ -24,6 +25,7 @@ import { OfferView } from "./features/offer/OfferView";
 import { RunDownBanner } from "./features/health/RunDownBanner";
 import { FamilyView } from "./features/place/FamilyView";
 import { PlaceView } from "./features/place/PlaceView";
+import { PrologueHandover, prologueJustClosed, PrologueView } from "./features/prologue/PrologueView";
 import { QualityView } from "./features/quality/QualityView";
 import { RoadView } from "./features/road/RoadView";
 import { RouteView } from "./features/route/RouteView";
@@ -246,9 +248,14 @@ function Shell() {
   const view = useGame((state) => state.view);
   const failed = useGame((state) => state.failed);
   const choosingLife = useGame((state) => state.choosingLife);
+  const lines = useGame((state) => state.lines);
+  // The version the prologue's handover was passed at, so it shows once.
+  const [handedOver, setHandedOver] = useState<number | null>(null);
   if (failed !== null) return <p className="p-4 text-bad">{say("ui.failed", { why: failed })}</p>;
   if (choosingLife) return <ScenarioView />;
   if (view === null) return <p className="p-4 text-muted">{say("ui.loading")}</p>;
+  if (view.prologue !== null) return <PrologueView />;
+  if (prologueJustClosed(lines) && handedOver !== view.v) return <PrologueHandover onDone={() => setHandedOver(view.v)} />;
   if (view.ended && view.card !== null && view.card.kind !== "send-off") return <EndingView />;
   if (view.place.where === "road") return <RoadView offers={<OfferView />} />;
   return <Playing />;

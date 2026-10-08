@@ -62,6 +62,11 @@ export function toMajor(minor: number): number {
   return minor / MINOR_PER_MAJOR;
 }
 
+/** The month being planned, or one a command was sent in, as the player counts it: the header's count, from 1. */
+export function playerMonth(raw: number): number {
+  return raw + 1;
+}
+
 const plain = new Intl.NumberFormat("en-NG", { maximumFractionDigits: 0 });
 
 export function formatNumber(value: number): string {

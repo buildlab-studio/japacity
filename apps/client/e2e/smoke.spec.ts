@@ -82,6 +82,27 @@ test("three months of play show no kobo, raw object, missing value or bare key",
   }
 });
 
+test("a life from sixteen is played card by card to the first month", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "Live this life: A life from sixteen" }).click();
+
+  const prologue = page.locator("[data-prologue]");
+  await expect(prologue).toBeVisible();
+  const handover = page.locator("[data-prologue-handover]");
+  for (let card = 0; card < 40 && !(await handover.isVisible()); card += 1) {
+    await expectNothingBroken(page, `on prologue card ${String(card)}`);
+    const v = await prologue.getAttribute("data-v");
+    await page.locator("[data-prologue-card] [data-answer] button:enabled").first().click();
+    await expect(page.locator(`[data-prologue][data-v="${v ?? ""}"]`)).toHaveCount(0);
+  }
+
+  await expect(handover).toBeVisible();
+  await expectNothingBroken(page, "at the handover");
+  await page.getByRole("button", { name: "Start month 1" }).click();
+  await expect(page.getByRole("heading", { name: "Month 1", exact: true })).toBeVisible();
+  await expectNothingBroken(page, "in the first month");
+});
+
 /** Ada's recorded life up to the flight: the client loads it as a save through the local authority. */
 function adaBeforeFlight(): string {
   const save = lifeSaves["ada-careful"];
