@@ -69,7 +69,7 @@ export const peopleText: Record<string, string> = {
   "ui.people.ended.recourt": "You may start again after {months} months.",
   "ui.people.moments": "Your time together",
   "ui.people.moments.none": "Nothing yet. Plan time together in the month plan.",
-  "ui.people.moments.hidden": "Hidden while the interview is open. You answer from memory.",
+  "ui.people.moments.hidden": "Hidden while {piece} is open. You answer from memory.",
   "ui.people.moments.more": "and {count} more before that",
   "ui.people.moment.met": "Met at {spot}: {what}",
   "ui.people.moment.call": "Kept in touch: {what}",
@@ -165,7 +165,7 @@ export const peopleText: Record<string, string> = {
 
   // The stand-in (R-PEOPLE-043, R-PEOPLE-044)
   "ui.people.stand-in.warned": "Your partner has gone quiet for a week. A stand-in takes over at two weeks.",
-  "ui.people.stand-in.on": "Your partner has been away two weeks. A stand-in answers the interview for them, and says yes only where they allowed it.",
+  "ui.people.stand-in.on": "Your partner has been away two weeks. A stand-in answers {piece} for them, and says yes only where they allowed it.",
 
   // Block and report (R-PAIR-014 to 016, R-MODERATION-003, 006)
   "ui.pair.block": "Block",
@@ -221,7 +221,7 @@ export const peopleText: Record<string, string> = {
   "ui.interview.question": "Question {n} of {total}",
   "ui.interview.waiting": "Your answers are in. The officer waits for your partner's. Carry on with your life.",
   "ui.interview.stand-in": "A stand-in answered for your partner.",
-  "ui.interview.result": "Interview for {route}",
+  "ui.interview.result": "{piece} for {route}",
   "ui.interview.result.pass": "Passed",
   "ui.interview.result.doubt": "In doubt",
   "ui.interview.result.fail": "Not believed",

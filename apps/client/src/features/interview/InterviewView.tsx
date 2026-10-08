@@ -49,10 +49,10 @@ function Result({ interview }: { interview: Interview }) {
   const waiting = view.routes.find((route) => route.id === interview.route)?.state === "applying";
   if (!waiting) return null;
   return (
-    <section aria-label={say("ui.interview.result", { route: runningName(interview.route) })}>
+    <section aria-label={say("ui.interview.result", { piece: nameOf(ENTRY), route: runningName(interview.route) })}>
       <Card className="flex flex-col gap-2" data-interview-result={result}>
         <div className="flex flex-wrap items-start justify-between gap-2">
-          <h2 className="font-semibold">{say("ui.interview.result", { route: runningName(interview.route) })}</h2>
+          <h2 className="font-semibold">{say("ui.interview.result", { piece: nameOf(ENTRY), route: runningName(interview.route) })}</h2>
           <Tag tone={RESULT_TONE[result]}>{say(`ui.interview.result.${result}`)}</Tag>
         </div>
         <p>{say("ui.interview.matched", { matched, asked: interview.total })}</p>

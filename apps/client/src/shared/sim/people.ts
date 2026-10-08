@@ -5,7 +5,7 @@
 import { content, text } from "@japacity/content";
 import type { BondStage, Id, Moment, PersonEntry, PersonFacts, PhraseEntry, PlayerView } from "@japacity/sim";
 
-import { nameOf, say } from "../words/text";
+import { lowerFirst, nameOf, say } from "../words/text";
 
 export type BondView = PlayerView["people"]["bonds"][number];
 export type SlotView = PlayerView["people"]["slots"][string];
@@ -212,7 +212,12 @@ export function conversationPhrases(): PhraseEntry[] {
   return Object.values(content.phrase).filter((phrase) => phrase.where !== "place");
 }
 
-const INTERVIEW = "interview.genuineness";
+export const INTERVIEW = "interview.genuineness";
+
+/** The interview's name from content, as it reads mid-sentence: "the relationship interview". */
+export function interviewName(): string {
+  return lowerFirst(nameOf(INTERVIEW));
+}
 
 /** One option of an interview question as words: the entry's own, or the spot, what, call, job or phrase it names. */
 export function optionWords(question: string, option: string): string {

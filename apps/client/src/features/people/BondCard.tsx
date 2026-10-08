@@ -8,7 +8,7 @@ import { Heart, TriangleAlert } from "lucide-react";
 import { useId, useState } from "react";
 
 import { useGame, useView } from "../../authority/GameProvider";
-import { bondName, endCost, jointRoutes, momentWords, monthsWithout, personOf, stepsFor, TOGETHER, type BondView } from "../../shared/sim/people";
+import { bondName, endCost, interviewName, jointRoutes, momentWords, monthsWithout, personOf, stepsFor, TOGETHER, type BondView } from "../../shared/sim/people";
 import { Button } from "../../shared/ui/Button";
 import { Card, Tag } from "../../shared/ui/Panel";
 import { ReportLines } from "../../shared/ui/ReportLines";
@@ -71,7 +71,7 @@ export function Facts({ bond }: { bond: BondView }) {
 
 /** The time together, newest first, hidden while an interview is open (R-INTERVIEW-005). */
 export function Moments({ bond }: { bond: BondView }) {
-  if (bond.moments === null) return <p className="text-sm text-muted">{say("ui.people.moments.hidden")}</p>;
+  if (bond.moments === null) return <p className="text-sm text-muted">{say("ui.people.moments.hidden", { piece: interviewName() })}</p>;
   const newest = [...bond.moments].reverse();
   const shown = newest.slice(0, MOMENTS_SHOWN);
   return (
@@ -310,7 +310,7 @@ function End({ bond }: { bond: BondView }) {
 /** The warnings that stand on a bond: the stand-in, gossip while partnered, a computer drifting (R-PEOPLE-041 to 043). */
 function Warnings({ bond, view }: { bond: BondView; view: PlayerView }) {
   const warnings: string[] = [];
-  if (bond.standIn !== null) warnings.push(say(`ui.people.stand-in.${bond.standIn}`));
+  if (bond.standIn !== null) warnings.push(say(`ui.people.stand-in.${bond.standIn}`, { piece: interviewName() }));
   const partnered = view.people.bonds.some((other) => other.id !== bond.id && TOGETHER.includes(other.stage));
   if (bond.stage === "courting" && partnered) warnings.push(say("ui.people.gossip", { chance: formatBp(content.tuning.people.gossipBp) }));
   const person = personOf(bond);

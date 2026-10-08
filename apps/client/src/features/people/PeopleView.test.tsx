@@ -3,7 +3,7 @@ import type { PlayerView } from "@japacity/sim";
 import { fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
-import { bondName, momentWords, personOf } from "../../shared/sim/people";
+import { bondName, interviewName, momentWords, personOf } from "../../shared/sim/people";
 import { renderWithView } from "../../shared/testing/render";
 import { courted, eagerContent, FRIEND, interviewGame, linkedFriend, partnered, peopleGame, renderWithGame, TOBI } from "../../shared/testing/people";
 import { formatBp, formatMoney } from "../../shared/words/format";
@@ -223,7 +223,7 @@ describe("a bond", () => {
     const bond = linkedFriend(game);
     game.accept({ type: "people/stand-in", pair: "pair-1", stage: "on" }, "authority");
     await renderWithGame(offline(<PeopleView />), game);
-    expect(within(card(bond)).getByText(say("ui.people.stand-in.on"))).toBeDefined();
+    expect(within(card(bond)).getByText(say("ui.people.stand-in.on", { piece: interviewName() }))).toBeDefined();
     expect(within(card(bond)).getByText(say("ui.people.mark.stand-in"))).toBeDefined();
     fireEvent.click(within(card(bond)).getByRole("button", { name: say("ui.people.end") }));
     expect(within(card(bond)).getByText(say("ui.people.end.absence"))).toBeDefined();
@@ -265,7 +265,7 @@ describe("a bond", () => {
     const game = interviewGame();
     await renderWithGame(offline(<PeopleView />), game);
     const bond = Object.keys(game.state.people.bonds).find((id) => game.state.people.bonds[id]!.with.kind === "player")!;
-    expect(within(card(bond)).getByText(say("ui.people.moments.hidden"))).toBeDefined();
+    expect(within(card(bond)).getByText(say("ui.people.moments.hidden", { piece: interviewName() }))).toBeDefined();
   });
 
   test("[R-PEOPLE-039] given a bond ended, then it is kept read-only under the earlier ones with no choices on it", async () => {
