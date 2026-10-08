@@ -5,6 +5,7 @@
 import type { PaletteName, WalkablePolygon } from "@japacity/assets";
 import type { PoseName } from "@japacity/assets-src/people/poses";
 
+import type { Shot, Thing } from "../../shared/world/contract";
 import type { Shown } from "./crowd";
 import { personOf, type Role } from "./roster";
 
@@ -86,6 +87,12 @@ export interface Stage {
   dancers?: Dancer[];
   /** How the place is dressed while an offer it stages is open. */
   dressings?: Dressing[];
+  /** The place's camera (world.md R-WORLD-009); a default from the start when absent. */
+  shot?: Shot;
+  /** The things the player can tap and what each does (world.md R-WORLD-005). */
+  things?: Thing[];
+  /** The place a door here opens into, as a place id (world.md R-WORLD-013): a room is just another place. */
+  inside?: string;
 }
 
 /** The party room's two dance loops, written in code (R-CITY-037). */
@@ -178,6 +185,9 @@ export function dressPlace(file: PlaceFile, open: readonly string[]): { file: Pl
     prefer: dressing.prefer ?? {},
     motion: [...plain.motion, ...dressing.motion],
     dancers: [...(plain.dancers ?? []), ...dressing.dancers],
+    ...(plain.shot === undefined ? {} : { shot: plain.shot }),
+    ...(plain.things === undefined ? {} : { things: plain.things }),
+    ...(plain.inside === undefined ? {} : { inside: plain.inside }),
   };
   return { file: { ...file, stage: dressed }, crowd: dressing.crowd };
 }
