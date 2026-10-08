@@ -1132,7 +1132,7 @@ export interface Tuning {
   };
   /** `downUnder`: wellbeing or standing under this is "down" (R-LUCK-003); `rescueAfterMonths`: months played before the whip-round (R-LUCK-002). */
   /** advice.md: the four ways to look into a route, and the agents. */
-  advice: { networkToAsk: number; adviserFee: number; agentKindsBp: { fixer: number; overpromiser: number; scammer: number }; fixerFee: number; fixerMonths: number; overpromiseFee: number; scamFee: number; fakePapersFee: number; scamTells: number; overpromiseTells: number; floorNaira: number };
+  advice: { networkToAsk: number; adviserFee: number; agentKindsBp: { fixer: number; overpromiser: number; scammer: number }; fees: { fixer: [number, number]; overpromiser: [number, number]; scammer: [number, number] }; fixerMonths: number; fakePapersFee: number; scamTells: number; overpromiseTells: number; floorNaira: number; warnMonths: number };
   luck: {
     downUnder: number;
     rescueAfterMonths: number;
