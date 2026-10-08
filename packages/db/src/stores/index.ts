@@ -4,3 +4,4 @@ export { pgDeletionStore } from "./deletion";
 export { pgLedgerStore } from "./ledger";
 export { pgPlayerStores } from "./player";
 export { pgWorldStore } from "./world";
+export { pgSwitchStore } from "./switches";

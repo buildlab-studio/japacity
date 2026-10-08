@@ -30,6 +30,10 @@ export const onlineText: Record<string, string> = {
   "ui.account.age.refused": "You cannot play Japacity.",
   "ui.account.region-closed": "Japacity is not open where you are yet.",
 
+  // The full screen while sign-ups are switched off (R-SERVER-032)
+  "server.full": "Japacity is full right now. Try again shortly.",
+  "ui.full.check": "Check again",
+
   // Signing in (R-ACCOUNT-001, R-ACCOUNT-002, R-ACCOUNT-013)
   "ui.account.title": "Come in",
   "ui.account.intro": "One account, one life. Sign in with Google, a passkey, or a code by email.",

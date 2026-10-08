@@ -3,3 +3,4 @@
 export type * from "./types";
 export { compareIds, pairIds, pairKey } from "./keys";
 export * from "./memory";
+export * from "./switches";

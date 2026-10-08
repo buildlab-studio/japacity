@@ -14,9 +14,12 @@ import { placeRoutes } from "./routes/place";
 import { viewRoute } from "./routes/view";
 import { worldRoute } from "./routes/world";
 import { adminRoutes } from "./routes/admin";
+import { switchRoutes } from "./routes/admin-switches";
 
 export function makeApp(deps: ServerDeps, accounts?: Accounts): Hono {
   const app = new Hono();
+  // R-SERVER-031: first, so its gates run before every route they close.
+  app.route("/", switchRoutes(deps));
 
   if (accounts !== undefined) app.route("/", authRoutes(accounts)).route("/", ageRoutes(deps, accounts)).route("/", accountRoutes(deps, accounts));
 
