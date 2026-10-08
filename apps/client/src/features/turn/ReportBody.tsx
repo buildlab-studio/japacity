@@ -18,12 +18,13 @@ function japacityWords(before: number | null, after: number | null): string {
 
 /**
  * One month's report: what changed, in the simulation's order, and japacity
- * before and after. It says something needs an answer only when a line waits
- * on the player or `waiting` (a set piece open now) says so; news never does.
+ * before and after. It says something needs an answer only when one of its
+ * own lines waits on the player; news never does. A set piece open now asks
+ * on its own card, so `waiting` alone never heads last month's lines.
  */
-export function ReportBody({ report, waiting = false }: { report: TurnReport; waiting?: boolean }) {
+export function ReportBody({ report }: { report: TurnReport; waiting?: boolean }) {
   const moved = report.japacityBefore !== report.japacityAfter;
-  const needsAnswer = waiting || tidyLines(report.lines).some(asksAttention);
+  const needsAnswer = tidyLines(report.lines).some(asksAttention);
   return (
     <div className="flex flex-col gap-3">
       {needsAnswer ? <p className="font-medium">{say("ui.report.attention")}</p> : null}

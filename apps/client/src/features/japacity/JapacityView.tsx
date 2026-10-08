@@ -12,7 +12,7 @@ export function JapacityView({ compact = false }: { compact?: boolean }) {
     return (
       <span className="font-sans text-xl leading-none font-bold tabular-nums sm:font-display sm:text-2xl sm:font-normal" aria-label={say("ui.japacity.title")} data-japacity-figure>
         {none ? (
-          "--"
+          <span className="text-sm font-normal">{say("ui.japacity.none-short")}</span>
         ) : (
           <>
             {japacity.percent}

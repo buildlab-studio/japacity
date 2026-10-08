@@ -46,7 +46,7 @@ export const uiText: Record<string, string> = {
   "ui.report.open": "Read the report",
   "ui.report.quiet": "A quiet month. Nothing changed that you need to know about.",
   "ui.report.needs-you": "Needs you",
-  "ui.report.attention": "Something needs your answer.",
+  "ui.report.attention": "Something in this report needs your answer.",
   "ui.report.japacity": "Japacity: {before} to {after}",
   "ui.report.japacity-same": "Japacity: {value}, no change",
   "ui.report.japacity-first": "Japacity: now {after}",
@@ -215,6 +215,7 @@ export const uiText: Record<string, string> = {
   // Japacity
   "ui.japacity.title": "Japacity",
   "ui.japacity.none": "No route yet",
+  "ui.japacity.none-short": "no route yet",
   "ui.japacity.of": "on {route}",
 
   // Offers
@@ -259,6 +260,7 @@ export const uiText: Record<string, string> = {
   // News
   "ui.news.title": "News",
   "ui.news.none": "No news has reached you yet.",
+  "ui.news.none-else": "Nothing else has reached you yet.",
   "ui.news.for-you": "For you",
   "ui.news.stage.rumour": "Rumour",
   "ui.news.stage.announced": "Announced",

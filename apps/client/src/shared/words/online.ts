@@ -34,7 +34,7 @@ export const onlineText: Record<string, string> = {
   // The clock (R-CLOCK-007)
   "ui.clock.next": "Next month banked in {wait}",
   "ui.clock.arriving": "A month is on its way.",
-  "ui.clock.full": "Your bank is full. Play a month to make room.",
+  "ui.clock.full": "You have banked all the months you can. Play one to make room.",
   "ui.clock.hours": "{hours} h {minutes} min",
   "ui.clock.minutes": "{minutes} min",
   "ui.clock.under-minute": "under a minute",
@@ -113,7 +113,7 @@ export const onlineText: Record<string, string> = {
 
   // The bank-full notice (R-CLOCK-031)
   "ui.notify.ask.title": "Know when your turns are full",
-  "ui.notify.ask.body": "Your turns build up while you are away. We can tell you on this device when the bank is full, and nothing else.",
+  "ui.notify.ask.body": "Your turns build up while you are away. We can tell you on this device when you have banked all the months you can, and nothing else.",
   "ui.notify.ask.yes": "Tell me",
   "ui.notify.ask.no": "Not now",
   "ui.notify.setting": "Tell me when my turns are full",

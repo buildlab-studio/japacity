@@ -78,6 +78,15 @@ describe("words that mislead", () => {
     expect(screen.getByText(say("ui.news.for-you"))).toBeDefined();
   });
 
+  test("[R-TURN-008] given a set piece open and last month's lines asking nothing, then the report does not say something needs an answer", async () => {
+    const base = engineView();
+    const played = line("line.activity.played", { activity: "activity.rest" }, false);
+    const report = { month: 1, lines: [played], japacityBefore: null, japacityAfter: null, attention: false };
+    const setpiece = { entry: DECEMBER, asked: 0, total: 1, question: null };
+    await renderWithView(<TurnView />, { ...base, report, setpiece } satisfies PlayerView);
+    expect(screen.queryByText(say("ui.report.attention"))).toBeNull();
+  });
+
   test("[R-TURN-008] given a month where an offer opened, then the report still says something needs an answer", async () => {
     const base = engineView();
     const opened = line("line.offer.opened", { offer: "offer.roof" }, true);
