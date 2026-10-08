@@ -2,7 +2,8 @@
 // action always above it. From 1024px: profile and money on the left, the
 // month plan in the centre, ways out and news on the right. Where the
 // character is changes the shell: abroad the tabs are the month, you, money,
-// status and home; on the road there is one panel and nothing else.
+// status and home; on the road there is one panel and nothing else. The
+// warnings that stand (the status clock, being run down) sit above every tab.
 import { BadgeCheck, CalendarDays, House, Newspaper, Plane, UserRound, Wallet, type LucideIcon } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 
@@ -20,6 +21,7 @@ import { JapacityView } from "./features/japacity/JapacityView";
 import { NewsView } from "./features/news/NewsView";
 import { ObligationView } from "./features/obligation/ObligationView";
 import { OfferView } from "./features/offer/OfferView";
+import { RunDownBanner } from "./features/health/RunDownBanner";
 import { FamilyView } from "./features/place/FamilyView";
 import { PlaceView } from "./features/place/PlaceView";
 import { QualityView } from "./features/quality/QualityView";
@@ -146,6 +148,7 @@ const GRID = "mx-auto max-w-[90rem] px-4 pt-4 pb-48 lg:grid lg:grid-cols-[minmax
 function AtHome({ tab }: { tab: Tab }) {
   return (
     <main className={GRID} data-where="home">
+      <RunDownBanner className="mb-4 lg:col-span-3 lg:mb-0" />
       <div className="flex flex-col gap-6">
         <Group tab="you" current={tab}>
           <QualityView />
@@ -182,6 +185,7 @@ function Abroad({ tab }: { tab: Tab }) {
   return (
     <main className={GRID} data-where="abroad">
       <ClockBanner className="mb-4 lg:col-span-3 lg:mb-0" />
+      <RunDownBanner className="mb-4 lg:col-span-3 lg:mb-0" />
       <div className="flex flex-col gap-6">
         <Group tab="you" current={tab}>
           <QualityView />

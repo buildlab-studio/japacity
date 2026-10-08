@@ -10,7 +10,8 @@ import { Button } from "../../shared/ui/Button";
 import { Card, Empty, Panel, Tag } from "../../shared/ui/Panel";
 import { ReportLines } from "../../shared/ui/ReportLines";
 import { formatMoney, toMajor, toMinor } from "../../shared/words/format";
-import { nameOf, say, words } from "../../shared/words/text";
+import { nameOf, say, sayCount, words } from "../../shared/words/text";
+import { offerParams } from "./terms";
 
 /** A content amount as a figure, when the offer's terms or the entry say it outright. */
 function figure(amount: Amount, terms: Terms): number | null {
@@ -34,6 +35,26 @@ function choiceCost(offer: Offer, choice: string): string | null {
   }
   if (paid.size === 0) return null;
   return [...paid].map(([currency, amount]) => formatMoney(amount, currency)).join(" + ");
+}
+
+/** The slots a choice holds, from its own `turn/lock` effects, said before it is taken (R-HEALTH-007). */
+function choiceLock(offer: Offer, choice: string): string | null {
+  const entry = content.offer[offer.entry];
+  const effects: Effect[] = entry?.choices.find((candidate) => candidate.id === choice)?.effects ?? [];
+  const lock = effects.find((effect) => effect.type === "turn/lock");
+  if (lock === undefined) return null;
+  const slots = sayCount("ui.offer.lock.slots", lock.slots, { count: lock.slots });
+  const when = entry?.lockNext === undefined ? sayCount("ui.offer.lock.when", lock.months, { count: lock.months }) : say("ui.offer.lock.next");
+  return say("ui.offer.lock", { slots, when });
+}
+
+/** A choice's label with what it costs and what it holds, so a button never hides either. */
+function choiceLabel(offer: Offer, choice: Offer["choices"][number]): string {
+  const label = words(`${offer.entry}.choice.${choice.id}`, offerParams(offer));
+  const cost = choice.pick === null ? choiceCost(offer, choice.id) : null;
+  const lock = choiceLock(offer, choice.id);
+  const price = [cost, lock].filter((part): part is string => part !== null).join(", ");
+  return price === "" ? label : say("ui.offer.choice-cost", { choice: label, amount: price });
 }
 
 /** The job and its pay, for an offer that carries a job in its terms. */
@@ -91,16 +112,17 @@ function OfferCard({ offer, onChosen }: { offer: Offer; onChosen: (lines: Report
   const ended = useView().ended;
   const picking = offer.choices.find((choice) => choice.pick !== null);
   const [amount, setAmount] = useState<number>(picking?.pick?.min ?? 0);
+  const params = offerParams(offer);
 
   return (
     <li>
       <Card tone="attention" className="flex flex-col gap-3">
         <div className="flex flex-wrap items-start justify-between gap-2">
-          <h3 className="text-lg font-semibold">{words(`${offer.entry}.title`, offer.terms)}</h3>
+          <h3 className="text-lg font-semibold">{words(`${offer.entry}.title`, params)}</h3>
           <Tag>{say("ui.offer.expires", { month: offer.expiresMonth })}</Tag>
         </div>
         <JobFigures terms={offer.terms} />
-        <p>{words(`${offer.entry}.body`, offer.terms)}</p>
+        <p>{words(`${offer.entry}.body`, params)}</p>
         {offer.signs.length === 0 ? null : (
           <div className="flex flex-col gap-1 rounded-lg bg-sunk p-3 text-sm">
             <p className="flex items-center gap-2 font-medium">
@@ -109,7 +131,7 @@ function OfferCard({ offer, onChosen }: { offer: Offer; onChosen: (lines: Report
             </p>
             <ul className="list-disc pl-5">
               {offer.signs.map((sign) => (
-                <li key={sign}>{words(`${offer.entry}.sign.${sign}`, offer.terms)}</li>
+                <li key={sign}>{words(`${offer.entry}.sign.${sign}`, params)}</li>
               ))}
             </ul>
           </div>
@@ -118,11 +140,8 @@ function OfferCard({ offer, onChosen }: { offer: Offer; onChosen: (lines: Report
           <AmountPicker min={picking.pick.min} max={picking.pick.max} value={amount} onChange={setAmount} />
         )}
         <div className="flex flex-wrap gap-2">
-          {offer.choices.map((choice, index) => {
-            const label = words(`${offer.entry}.choice.${choice.id}`, offer.terms);
-            const cost = choice.pick === null ? choiceCost(offer, choice.id) : null;
-            return (
-              <Button
+          {offer.choices.map((choice, index) => (
+            <Button
                 key={choice.id}
                 variant={index === 0 ? "primary" : "secondary"}
                 disabled={!choice.allowed || busy || ended}
@@ -136,10 +155,9 @@ function OfferCard({ offer, onChosen }: { offer: Offer; onChosen: (lines: Report
                   })
                 }
               >
-                {cost === null ? label : say("ui.offer.choice-cost", { choice: label, amount: cost })}
+                {choiceLabel(offer, choice)}
               </Button>
-            );
-          })}
+          ))}
         </div>
       </Card>
     </li>

@@ -10,6 +10,7 @@ import { createContext, use, useState, type ReactNode } from "react";
 import { useGame, useView } from "../../authority/GameProvider";
 import { Button } from "../../shared/ui/Button";
 import { FullScreen } from "../../shared/ui/FullScreen";
+import { cardKey, useCardsTurn } from "../../shared/ui/stage";
 import { Card } from "../../shared/ui/Panel";
 import { hasWords, nameOf, say, sayCount, words } from "../../shared/words/text";
 
@@ -122,24 +123,22 @@ export function ShareCardFace({ card }: { card: Shared }) {
   );
 }
 
-function cardKey(card: Shared | null): string | null {
-  return card === null ? null : `${card.kind}-${String(card.months)}`;
-}
-
 /**
- * The card when one is due: it opens on its own once any staged moment has
- * passed, and a tile keeps it within reach after it is closed.
+ * The card when one is due: it opens on its own once the staged moments and
+ * the month's report have passed, and a tile keeps it within reach after it is
+ * closed.
  */
 export function CardView() {
   const { card } = useView();
-  const moments = useGame((state) => state.moments);
+  const turn = useCardsTurn();
+  const closed = useGame((state) => state.cardClosed);
+  const closeCard = useGame((state) => state.closeCard);
   const key = cardKey(card);
-  const [closed, setClosed] = useState<string | null>(null);
   const [reopened, setReopened] = useState(false);
   if (card === null || key === null) return null;
-  const open = moments.length === 0 && (closed !== key || reopened);
+  const open = turn && (closed !== key || reopened);
   const close = () => {
-    setClosed(key);
+    closeCard(key);
     setReopened(false);
   };
   return (

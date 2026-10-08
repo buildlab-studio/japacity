@@ -1,20 +1,36 @@
 // The news that has reached this character, newest stage first within each,
 // under the front page: the era the world is in (director.md, era stories go
 // to the front page).
-import type { NewsStage } from "@japacity/sim";
+import type { NewsStage, PlayerView } from "@japacity/sim";
 import { Newspaper } from "lucide-react";
 
 import { useView } from "../../authority/GameProvider";
 import { Card, Empty, Panel, Tag } from "../../shared/ui/Panel";
-import { blurbOf, nameOf, say, words } from "../../shared/words/text";
+import { blurbOf, nameOf, say, sayCount, words } from "../../shared/words/text";
+
+/**
+ * When the era began and when it ends, in the months the header counts
+ * (R-DIRECTOR-002): the view's `sinceMonth` and `untilMonth` count from 0, and
+ * an era runs up to the month before its end tick.
+ */
+function eraMonths(era: NonNullable<PlayerView["era"]>, month: number): string {
+  const since = era.sinceMonth + 1;
+  const last = era.untilMonth;
+  const left = Math.max(0, era.untilMonth - month);
+  const began = since < 1 ? say("ui.news.era-before") : say("ui.news.era-since", { month: since });
+  return `${began} ${sayCount("ui.news.era-until", left, { month: last, months: left })}`;
+}
 
 function FrontPage() {
-  const { era } = useView();
+  const { era, month } = useView();
   if (era === null) return null;
   return (
     <div className="flex flex-col gap-1 rounded-2xl border-2 border-ink bg-surface p-4" data-era={era.id}>
       <p className="text-xs font-semibold tracking-widest text-muted uppercase">{say("ui.news.era")}</p>
       <h3 className="font-display text-3xl leading-tight">{nameOf(era.id)}</h3>
+      <p className="text-sm font-medium text-muted tabular-nums" data-era-months>
+        {eraMonths(era, month)}
+      </p>
       {blurbOf(era.id) === null ? null : <p>{blurbOf(era.id)}</p>}
     </div>
   );

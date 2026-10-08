@@ -149,7 +149,9 @@ export function requirementSentence(requirement: Requirement, context: SentenceC
     case "wallet/total":
       return say(requirement.flow === "in" ? "ui.req.wallet-total-in" : "ui.req.wallet-total-out", { amount: amountWords(requirement.amount, requirement.currency), reason: requirement.reason.replaceAll("-", " ") });
     case "place/returned":
-      return say("ui.req.place-returned");
+      return requirement.shapes.length === 0
+        ? say("ui.req.place-returned")
+        : say("ui.req.place-returned-shapes", { shapes: list(requirement.shapes.map((shape) => say(`ui.place.shape.${shape}`))) });
     case "place/months-here":
       return sayCount("ui.req.place-months-here", requirement.months, { months: requirement.months, where: say(`ui.place.${requirement.where}`) });
     default: {
@@ -157,4 +159,24 @@ export function requirementSentence(requirement: Requirement, context: SentenceC
       throw new Error(`No sentence for the requirement ${JSON.stringify(never)}.`);
     }
   }
+}
+
+/**
+ * The paths of an `any` requirement as the player reads them: one sentence
+ * each, with a run of routes that must reach the same state said once
+ * ("A visa granted on one of: ..."). Empty for any other requirement.
+ */
+export function anyOptions(requirement: Requirement, context: SentenceContext = {}): string[] {
+  if (requirement.type !== "any") return [];
+  const sentences: string[] = [];
+  const routes = requirement.of.filter((inner): inner is Extract<Requirement, { type: "route/state" }> => inner.type === "route/state");
+  const together = routes.length > 1 && routes.every((inner) => inner.in.join() === routes[0]?.in.join());
+  let saidRoutes = false;
+  for (const inner of requirement.of) {
+    if (together && inner.type === "route/state") {
+      if (!saidRoutes) sentences.push(say("ui.req.routes-state", { states: routeStates(inner.in), routes: routes.map((route) => nameOf(route.route)).join(", ") }));
+      saidRoutes = true;
+    } else sentences.push(requirementSentence(inner, context));
+  }
+  return sentences;
 }

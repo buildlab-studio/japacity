@@ -34,8 +34,10 @@ export function holdsNoStatus(view: Pick<PlayerView, "place" | "status">): boole
 }
 
 export interface WayHome {
-  /** The fare off peak, in the country's currency. */
+  /** The fare today, in the country's currency: the view's `fareHome`, the December factor already in it (R-PLACE-009). */
   fare: Money;
+  /** The fare off peak, from the country's entry. */
+  offPeak: Money;
   /** Where the fare comes from: the country's own money, naira at the bank rate, or nobody. */
   paidFrom: "local" | "naira" | null;
   /** The naira the fare takes when it is bought from naira, with the bank's charge. */
@@ -65,7 +67,8 @@ export function wayHome(view: Pick<PlayerView, "place" | "status" | "pockets" | 
   const country = view.place.country;
   const entry = country === null ? undefined : content.country[country];
   if (view.place.where !== "abroad" || entry === undefined) return null;
-  const fare: Money = { currency: entry.currency, amount: entry.fare };
+  const offPeak: Money = { currency: entry.currency, amount: entry.fare };
+  const fare: Money = view.place.fareHome ?? offPeak;
   const pocket = view.pockets[fare.currency];
   const naira = nairaForFee(view, fare.currency, fare.amount);
   const paidFrom =
@@ -86,5 +89,5 @@ export function wayHome(view: Pick<PlayerView, "place" | "status" | "pockets" | 
     else shape = "by-choice";
   }
   const standing = shape === null ? 0 : content.tuning.return.standing[shape] + capitalBonus(nairaBank);
-  return { fare, paidFrom, naira, shape, standing };
+  return { fare, offPeak, paidFrom, naira, shape, standing };
 }

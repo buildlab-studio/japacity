@@ -3,11 +3,14 @@
 // hand on top of a real view, so the screens for offers, routes and the
 // interview can be exercised before the kinds that fill them exist.
 import { content } from "@japacity/content";
-import type { Authority, Command, Id, PlayerView, Rejection, Reply, ReportLine, Save, State } from "@japacity/sim";
+import type { Authority, Command, Effect, Id, PlayerView, Rejection, Reply, ReportLine, Save, State } from "@japacity/sim";
 import { newState, replay, standInWorld, step, viewFor } from "@japacity/sim";
 
-// The recorded lives are the sim's own test data; the package exports only its contract.
+// The recorded lives, the rule tests' game handle and its way of applying effects are the
+// sim's own test tools; the package exports only its contract.
 import { lifeSaves } from "../../../../../packages/sim/src/goldens/lives.data";
+import { applyEffects } from "../../../../../packages/sim/src/route/route.journey";
+import { start, type Game, type Loose } from "../../../../../packages/sim/src/testing/play";
 
 export const SCENARIOS = Object.keys(content.scenario) as Id<"scenario">[];
 
@@ -280,4 +283,38 @@ export function richAbroadView(): PlayerView {
     card: null,
     report: { month: 60, lines: [], japacityBefore: null, japacityAfter: null, attention: false },
   };
+}
+
+/** A new life as a game handle on the real content, for views a few commands or effects away. */
+export function newGame(scenario: Id<"scenario"> = "scenario.ada"): Game {
+  return start({ scenario, content });
+}
+
+/** A recorded life replayed command by command into a game handle, so play can go on from where it ends. */
+export function recordedGame(name: string): Game {
+  const save = recordedSave(name);
+  const game = start({ scenario: save.scenario, seed: save.seed, worldSeed: save.worldSeed, content });
+  for (const { command, sender } of save.commands) game.accept(command as Loose, sender);
+  return game;
+}
+
+/** Applies effects through the kinds that own them, as an offer's choice or a phase would, and returns the view. */
+export function viewAfter(game: Game, effects: Effect[]): PlayerView {
+  applyEffects(game, effects);
+  return game.view();
+}
+
+/** Opens one offer by its entry, as the offer kind's roll would, and returns it from the view. */
+export function openOffer(game: Game, offer: Id<"offer">): PlayerView["offers"][number] {
+  const opened = viewAfter(game, [{ type: "offer/open", offer }]).offers.find((item) => item.entry === offer);
+  if (opened === undefined) throw new Error(`${offer} did not open.`);
+  return opened;
+}
+
+/** Ada's recorded life, flown and played on with empty slots until the December visit opens. */
+export function decemberGame(): Game {
+  const game = recordedGame("ada-careful");
+  for (let month = 0; month < 12 && game.state.setpiece.open === null; month += 1) game.endTurn();
+  if (game.state.setpiece.open?.entry !== "setpiece.december") throw new Error("The December visit did not open within a year abroad.");
+  return game;
 }

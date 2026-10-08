@@ -45,6 +45,8 @@ export interface GameState {
    * shown before the month report (docs/rules/text.md, "Money on screen").
    */
   moments: ReportLine[];
+  /** The share card the player has closed, by `cardKey`, so the scenes after it know it has had its turn. */
+  cardClosed: string | null;
   /** True when the player should pick who to be: a new life, or one that replaced a lost save. */
   choosingLife: boolean;
   /** Why a life was replaced, as a words key, when it was. */
@@ -62,6 +64,7 @@ export interface GameState {
   /** Moves on from the moment on screen to the next, or to the report. */
   nextMoment: () => void;
   setReportOpen: (open: boolean) => void;
+  closeCard: (key: string) => void;
   chooseLife: (scenario: Id<"scenario">) => Promise<void>;
   /** Null when this authority cannot start a life over: the server will own that. */
   openLifeChooser: (() => void) | null;
@@ -132,6 +135,7 @@ export function createGameStore(authority: Authority, options: GameStoreOptions 
       plan: [],
       reportOpen: false,
       moments: [],
+      cardClosed: null,
       choosingLife: options.choosingLife ?? false,
       notice: options.notice ?? null,
 
@@ -181,6 +185,9 @@ export function createGameStore(authority: Authority, options: GameStoreOptions 
       },
       setReportOpen(open) {
         set({ reportOpen: open });
+      },
+      closeCard(key) {
+        set({ cardClosed: key });
       },
       async chooseLife(scenario) {
         if (options.life === undefined) return;

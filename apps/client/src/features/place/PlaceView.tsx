@@ -3,6 +3,7 @@
 // today (R-PLACE-009, R-RETURN-001). The shape is shown only as a forecast; the
 // record holds only returns that have happened.
 import { content } from "@japacity/content";
+import { int } from "@japacity/sim";
 import { House, MapPin } from "lucide-react";
 import { useState } from "react";
 
@@ -66,10 +67,11 @@ function WayHomeCard() {
   const [sure, setSure] = useState(false);
   const home = wayHome(view);
   if (home === null) return null;
-  const { fare, paidFrom, naira, shape, standing } = home;
+  const { fare, offPeak, paidFrom, naira, shape, standing } = home;
   const assisted = shape === "assisted";
+  const december = fare.amount > offPeak.amount;
   const country = view.place.country;
-  const peak = country === null ? undefined : content.country[country];
+  const entry = country === null ? undefined : content.country[country];
 
   return (
     <Card tone={assisted ? "attention" : "plain"} className="flex flex-col gap-3" data-way-home>
@@ -78,8 +80,10 @@ function WayHomeCard() {
         <div className="flex flex-col gap-1">
           <h3 className="font-semibold">{say("ui.place.way-home")}</h3>
           <p className="tabular-nums">{say("ui.place.fare", { fare: formatMoney(fare.amount, fare.currency) })}</p>
-          {peak === undefined ? null : (
-            <p className="text-sm text-muted">{say("ui.place.fare-december", { fare: formatMoney(Math.floor((fare.amount * peak.decemberFactorBp) / 10000), fare.currency) })}</p>
+          {december ? (
+            <p className="text-sm font-medium">{say("ui.place.fare-december-now", { fare: formatMoney(offPeak.amount, offPeak.currency) })}</p>
+          ) : entry === undefined ? null : (
+            <p className="text-sm text-muted">{say("ui.place.fare-december", { fare: formatMoney(int.bp(offPeak.amount, entry.decemberFactorBp), offPeak.currency) })}</p>
           )}
           {paidFrom === "naira" ? <p className="text-sm">{say("ui.place.fare-naira", { naira: formatMoney(naira, "NGN") })}</p> : null}
           {paidFrom === null && !assisted ? <p className="text-sm text-bad">{say("ui.place.fare-short", { fare: formatMoney(fare.amount, fare.currency), naira: formatMoney(naira, "NGN") })}</p> : null}

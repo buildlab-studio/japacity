@@ -1,17 +1,20 @@
 // The interview: one question at a time. While it is open the month cannot
-// end, so it sits at the top of the month plan.
+// end, so it sits at the top of the month plan. The December visit has a
+// scene of its own.
 import { MessageCircleQuestion } from "lucide-react";
 
 import { useGame, useView } from "../../authority/GameProvider";
 import { Button } from "../../shared/ui/Button";
 import { Card, Tag } from "../../shared/ui/Panel";
 import { nameOf, say, words } from "../../shared/words/text";
+import { DECEMBER, DecemberScene } from "./DecemberScene";
 
 export function SetpieceView() {
   const { setpiece, ended } = useView();
   const send = useGame((state) => state.send);
   const busy = useGame((state) => state.busy);
   if (setpiece === null) return null;
+  if (setpiece.entry === DECEMBER) return <DecemberScene />;
   const { question } = setpiece;
 
   return (
