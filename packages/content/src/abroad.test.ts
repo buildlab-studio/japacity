@@ -47,6 +47,7 @@ describe("words for life abroad", () => {
       "offer.returnee-hire",
       "offer.returnee-leave-again",
       "offer.sponsor-licence-lost",
+      "offer.court-date",
     ]);
     const keys = offers.flatMap((offer) => [
       `${offer.id}.name`,
@@ -56,8 +57,8 @@ describe("words for life abroad", () => {
       ...offer.signs.map((sign) => `${offer.id}.sign.${sign.key}`),
     ]);
     expect(missingWords(keys)).toEqual([]);
-    // The returnee offers come up at home, the sponsor's at work abroad (R-PLACE-003).
-    expect(offers.map((offer) => offer.where)).toEqual(["home", "home", "home", "home", "abroad"]);
+    // The returnee offers come up at home, the sponsor's at work abroad (R-PLACE-003), and the court date abroad (R-HEALTH-006).
+    expect(offers.map((offer) => offer.where)).toEqual(["home", "home", "home", "home", "abroad", "abroad"]);
   });
 });
 

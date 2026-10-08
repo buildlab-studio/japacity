@@ -1,6 +1,8 @@
 // Titles, bodies and signs are from docs/rules/offer.md. The page's outer double
 // quotes mark the body and are not part of the words; single quotes inside are
 // speech and stay. Names and choice labels are first drafts.
+import { offerHealthText } from "./offer.health.text";
+
 export const offerText: Record<string, string> = {
   // Family requests
 
@@ -274,4 +276,6 @@ export const offerText: Record<string, string> = {
     "They hand you a phone and tell you to call home. The man wants {sum} before anyone moves.",
   "offer.road-ransom-call.choice.pay": "Your family finds the money",
   "offer.road-ransom-call.choice.cannot": "There is no money",
+  // health.md
+  ...offerHealthText,
 };
