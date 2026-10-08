@@ -88,7 +88,7 @@ export function joint(game: Game, route: Id<"route">, lead: "me" | "them", other
   setPeople(game, (slice) => ({
     ...slice,
     bonds: { ...slice.bonds, [BOND]: bond({ ...deepRecord(game), ...other }) },
-    joint: { bond: BOND, route, lead, countFunds: false, standInMay: false, scores: { mine: null, theirs: null } },
+    joint: { bond: BOND, route, lead, countFunds: false, standInMay: false },
   }));
 }
 
@@ -116,7 +116,7 @@ export function sibling(game: Game, id: string, over: Partial<PersonFacts>): voi
 
 /** The interview's last result, as `interview/scored` would record it (R-INTERVIEW-009). */
 export function scored(game: Game, route: Id<"route">, result: InterviewResult): void {
-  game.state = { ...game.state, interview: { ...game.state.interview, open: null, last: { route, result, matched: 0, asked: 5, month: game.state.turn.month } } };
+  game.state = { ...game.state, interview: { ...game.state.interview, open: null, last: { route, result, matched: 0, asked: 5, month: game.state.turn.month, standIn: { a: false, b: false } } } };
 }
 
 /** An interview open on `route`, as `interview/open` would open it. */

@@ -40,6 +40,8 @@ export const session = pgTable(
     userId: text("user_id")
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
+    // apps/server/src/auth/auth.ts session.additionalFields: how the session was opened (R-MODERATION-012).
+    signedInWith: text("signed_in_with"),
   },
   (table) => [index("session_userId_idx").on(table.userId)],
 );

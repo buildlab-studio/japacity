@@ -36,11 +36,14 @@ describe("GET /api/account", () => {
     expect((await h.call("/api/account", { method: "PUT", jar: makeJar(), json: { sendUsageCounts: false } })).status).toBe(401);
   });
 
-  test("[R-MODERATION-012] given an account on the admin list, when it reads its row, then it is marked admin; one off the list is not", async () => {
+  test("[R-MODERATION-012] given an account on the admin list, when it reads its row, then it is marked admin only while its session was opened with a passkey; one off the list is not", async () => {
     const h = harness();
     const { jar, account } = await h.signUp("ada@example.com");
     const other = await h.signUp("bola@example.com");
     h.deps.config.admin.accounts.push(account);
+    expect(await (await h.call("/api/account", { jar })).json()).toMatchObject({ ok: true, account: { id: account, admin: false } });
+    // routes/admin-passkey.test.ts opens such a session through the real passkey sign-in.
+    for (const row of h.tables.session) row["signedInWith"] = "passkey";
     expect(await (await h.call("/api/account", { jar })).json()).toMatchObject({ ok: true, account: { id: account, admin: true } });
     expect(await (await h.call("/api/account", { jar: other.jar })).json()).toMatchObject({ ok: true, account: { id: other.account, admin: false } });
   });

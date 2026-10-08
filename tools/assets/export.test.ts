@@ -15,6 +15,8 @@ const entry = (name: string) => {
   return found;
 };
 const roundTrip = async (name: string) => readGlb(await writeGlb(toDocument(entry(name).build())));
+/** The fabric bake runs past the default five seconds when the machine is loaded. */
+const FABRIC_BAKE_MS = 30000;
 
 describe("baking and compressing", () => {
   test("[R-ASSET-005] given an ordinary building, when it is baked and compressed, then it is one opaque vertex-coloured material in one draw call, with no normals in the file", async () => {
@@ -32,7 +34,7 @@ describe("baking and compressing", () => {
     expect(doc.getRoot().listMaterials()).toHaveLength(2);
     expect(doc.getRoot().listTextures()).toHaveLength(1);
     expect(checkPalette(doc)).toEqual([]);
-  });
+  }, FABRIC_BAKE_MS);
 
   test("[R-ASSET-012] given a building with shops, when it is baked, then its file carries the sign anchors as text keys and no sign face, texture or word", () => {
     const built = entry("bld_shop-row").build();

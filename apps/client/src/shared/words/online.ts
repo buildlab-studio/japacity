@@ -84,6 +84,7 @@ export const onlineText: Record<string, string> = {
   "ui.account.working": "One moment...",
   "ui.account.loading": "Checking where you stand...",
   "ui.account.fail.not-fresh": "Sign in again to show it is you.",
+  "ui.account.fail.bad-code": "That code did not work. Check it, or send a new one.",
   "ui.account.fail.wrong-code": "That code is not right. Check it and try again.",
   "ui.account.fail.expired": "That code has run out. Ask for a new one.",
   "ui.account.fail.too-many": "Too many tries. Wait a minute, then ask for a new code.",
@@ -109,6 +110,7 @@ export const onlineText: Record<string, string> = {
   "ui.account.delete.keep": "Keep my account",
   "ui.account.delete.fresh": "Before it goes, show it is you: sign in again, or get a code by email.",
   "ui.account.delete.code": "Send a code to {email}",
+  "ui.account.delete.code.go": "Delete with this code",
   "ui.account.delete.google": "Sign in again with Google, then come back here within 10 minutes.",
 
   // The bank-full notice (R-CLOCK-031)

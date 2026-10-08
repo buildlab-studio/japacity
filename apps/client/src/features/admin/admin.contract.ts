@@ -355,12 +355,28 @@ export interface AdvertReview {
   note: string;
 }
 
+/** A version as the campaigns reply lists it: with the checks its approval needs (R-ADVERT-012). */
+export type ReviewedCreative = Creative & { checks: string[] };
+
+/** packages/store/src/advert.types.ts AdvertCount: one day's totals for a slot and region (R-ADVERT-020). */
+export interface AdvertCount {
+  day: number;
+  slot: string;
+  campaign: string;
+  region: string;
+  impressions: number;
+  taps: number;
+}
+
 /** One row of `GET /api/admin/adverts/campaigns`. */
 export interface CampaignRow {
   campaign: Campaign;
   advertiser: Advertiser | null;
-  creatives: Creative[];
+  /** R-ADVERT-012: the checks the campaign's approval needs. */
+  checks: string[];
+  creatives: ReviewedCreative[];
   reviews: AdvertReview[];
+  counts: AdvertCount[];
 }
 
 /** The body of an approve or refuse (apps/server/src/routes/admin-adverts.ts decisionOf). */
@@ -373,29 +389,3 @@ export type CampaignsReply = { ok: true; campaigns: CampaignRow[] } | AdminRefus
 export type CampaignReply = { ok: true; campaign: Campaign } | AdminRefusal;
 export type CreativeReply = { ok: true; creative: Creative } | AdminRefusal;
 export type RecheckReply = { ok: true; failing: string[]; pulled: boolean } | AdminRefusal;
-
-/**
- * apps/server/src/adverts/categories.ts RESTRICTED: the conditions a reviewer
- * records for a restricted category. the campaigns reply could carry
- * each row's required checks so this copy can go.
- */
-export const RESTRICTED_CONDITIONS: Readonly<Record<string, readonly string[]>> = {
-  "immigration-advice": ["adviser-registered", "no-result-promise", "no-proof-of-funds"],
-  "money-transfer": ["licensed-each-region", "no-credit-product"],
-  education: ["accredited-institution", "no-charging-agent", "no-score-or-visa-promise"],
-  travel: ["no-visa-claim"],
-  telco: ["no-prize-or-promo"],
-  "named-place": ["place-agreement"],
-};
-
-/** apps/server/src/adverts/campaign.ts campaignChecks. */
-export function campaignChecks(campaign: Campaign): string[] {
-  const checks = ["registered-business", "category", ...(RESTRICTED_CONDITIONS[campaign.category] ?? [])];
-  if (campaign.regions.includes("NG")) checks.push("regulator-approval");
-  return checks;
-}
-
-/** apps/server/src/adverts/campaign.ts creativeChecks. */
-export function creativeChecks(creative: Creative): string[] {
-  return ["format", "not-game-like", "text", ...(creative.link === null ? [] : ["link-domain"])];
-}

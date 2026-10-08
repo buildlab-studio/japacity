@@ -32,6 +32,8 @@ import type { PlaceEvent } from "./place.events";
 
 const STANDING: Id<"quality"> = "quality.standing";
 const SEASON_DECEMBER: Id<"var"> = "var.season-december";
+/** R-RETURN-005: the least gap between two December visits, in the character's months. */
+const MONTHS_A_YEAR = 12;
 const DECEMBER: Id<"setpiece"> = "setpiece.december";
 /** R-RETURN-004 names one token that lapses with time away. */
 const RESIDENT: Id<"status"> = "status.ca-resident";
@@ -327,22 +329,20 @@ function tokenLapse(ctx: Ctx): BaseEvent[] {
 }
 
 /**
- * R-RETURN-005. in the tick the director makes December, a
- * character abroad gets the December set piece, opened with no route so that
- * nothing is scored (R-SETPIECE-006). The variable is 1 for one tick a game
- * year, so it opens once a year.
+ * R-RETURN-005. in a tick the director makes December, a character
+ * abroad gets the December set piece, opened with no route so that nothing is
+ * scored (R-SETPIECE-006). at most once in twelve months of
+ * the character's own time, read from `decemberMonth` (R-PLACE-009), so a
+ * December that spans many ticks online opens it once.
  */
 function december(ctx: Ctx): BaseEvent[] {
   if (ctx.state.place.where !== "abroad" || varOr(ctx, SEASON_DECEMBER) !== 1) return [];
   if (ctx.content.setpiece[DECEMBER] === undefined || ctx.state.setpiece.open !== null) return [];
-  // A second turn in the same December tick does not open it twice (R-PLACE-009).
-  if (ctx.state.place.decemberMonth === ctx.world.tick) return [];
+  const last = ctx.state.place.decemberMonth;
+  if (last !== null && ctx.state.turn.month - last < MONTHS_A_YEAR) return [];
   ctx.apply([{ type: "setpiece/open", setpiece: DECEMBER, route: null }], { source: DECEMBER, param: null, terms: {} });
   if (!decemberOpen(ctx.state)) return [];
-  // `decemberMonth` holds the world tick, the world's month while one tick passes per month played; the
-  // character's month cannot tell a second turn in one December tick from a first turn a year on. Online a December
-  // spans many ticks, so the visit can open once in each tick of it that a turn ends in.
-  return record(ctx, [{ type: "place/december-opened", tick: ctx.world.tick }]);
+  return record(ctx, [{ type: "place/december-opened", month: ctx.state.turn.month }]);
 }
 
 /** The visit may find nothing to ask and stay shut (R-SETPIECE-001). */
@@ -396,7 +396,7 @@ function evolve(slice: PlaceSlice, event: PlaceEvent): PlaceSlice {
     case "place/token-lapsed":
       return { ...slice, heldAbroad: null };
     case "place/december-opened":
-      return { ...slice, decemberMonth: event.tick };
+      return { ...slice, decemberMonth: event.month };
     default: {
       const never: never = event;
       throw new Error(`Unknown place event ${JSON.stringify(never)}.`);

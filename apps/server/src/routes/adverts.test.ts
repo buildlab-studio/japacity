@@ -9,7 +9,7 @@ import { addAdvertCounters, ADVERT_COUNTERS } from "../adverts/counts";
 import { advertLinksJob, RECHECK_WINDOW_MS } from "../adverts/job";
 import type { Fetcher } from "../adverts/links";
 import type { AdvertsReply } from "../adverts/serve";
-import { base64, pngOf, webpOf } from "../adverts/testing";
+import { base64, jpegOf, pngOf, webpOf } from "../adverts/testing";
 import { productionConfig, testConfig } from "../config";
 import type { ServerDeps } from "../deps";
 import { testSession } from "../deps";
@@ -287,6 +287,78 @@ describe("the review", () => {
     expect(await advertLinksJob(deps, "0 0 * * *", failing)).toEqual([]);
     expect(await advertLinksJob(deps, TICKS_CRON, failing)).toEqual([soon.campaign]);
     expect((await deps.stores.adverts.campaign(later.campaign))?.status).toBe("approved");
+  });
+});
+
+describe("what the review sees", () => {
+  test("[R-ADVERT-011] [R-ADVERT-013] given versions pending, approved and refused, when an admin asks the admin image route, then each comes back as stored; the public route still serves only the approved live one", async () => {
+    const app = makeApp(world());
+    const { campaign: id, creative: art } = await live(app);
+    const second = jpegOf(BILLBOARD.width, BILLBOARD.height);
+    await creative(app, id, second, "Now with suya.", "https://example.com/menu", art);
+    await creative(app, id, webpOf(BILLBOARD.width, BILLBOARD.height), "Now with fish.", "https://example.com/menu", art);
+    await call(app, "POST", `/api/admin/adverts/creatives/${art}/3/refuse`, { checks: [], note: "Reads as a bank alert." });
+    const image = (version: number, account: string | null = ADMIN) => app.request(`/api/admin/adverts/creatives/${art}/${String(version)}/image`, account === null ? {} : { headers: { "x-test-account": account } });
+
+    for (const [version, format, bytes] of [[1, "png", pngOf(BILLBOARD.width, BILLBOARD.height)], [2, "jpeg", second], [3, "webp", webpOf(BILLBOARD.width, BILLBOARD.height)]] as const) {
+      const reply = await image(version);
+      expect(reply.status).toBe(200);
+      expect(reply.headers.get("content-type")).toBe(`image/${format}`);
+      expect(reply.headers.get("cache-control")).toBe("private, no-store");
+      expect(reply.headers.get("x-content-type-options")).toBe("nosniff");
+      expect(new Uint8Array(await reply.arrayBuffer())).toEqual(bytes);
+    }
+    expect((await app.request(`/api/adverts/image/${art}/1`)).status).toBe(200);
+    for (const version of [2, 3]) expect((await app.request(`/api/adverts/image/${art}/${String(version)}`)).status).toBe(404);
+    for (const account of [null, "account.player"]) expect((await image(2, account)).status).toBe(404);
+    expect((await image(4)).status).toBe(404);
+    expect((await app.request(`/api/admin/adverts/creatives/${art}/0/image`, { headers: { "x-test-account": ADMIN } })).status).toBe(404);
+    expect((await app.request(`/api/admin/adverts/creatives/${art}/x/image`, { headers: { "x-test-account": ADMIN } })).status).toBe(404);
+  });
+
+  test("[R-ADVERT-011] given the adverts switch off, when an admin asks for a pending version's image, then it is still served for review", async () => {
+    const app = makeApp(world());
+    const id = ((await campaign(app)).body.campaign as { id: string }).id;
+    const art = ((await creative(app, id)).body.creative as { id: string }).id;
+    expect((await call(app, "POST", "/api/admin/switches", { name: "adverts", on: false, reason: "Paused for the review." })).status).toBe(200);
+    expect((await app.request(`/api/admin/adverts/creatives/${art}/1/image`, { headers: { "x-test-account": ADMIN } })).status).toBe(200);
+  });
+
+  test("[R-ADVERT-012] given campaigns in NG and GB, general and restricted, and creatives with and without a link, when the campaigns are listed, then each row and each version carries the checks its approval needs, and approving with exactly those passes", async () => {
+    const app = makeApp(world());
+    const ng = ((await campaign(app)).body.campaign as { id: string }).id;
+    const gb = ((await campaign(app, { regions: ["GB"], category: "telco" })).body.campaign as { id: string }).id;
+    const linked = ((await creative(app, ng)).body.creative as { id: string }).id;
+    const bare = ((await creative(app, ng, undefined, "Jollof on the island.", null)).body.creative as { id: string }).id;
+    type Row = { campaign: { id: string }; checks: string[]; creatives: { id: string; version: number; checks: string[] }[] };
+    const rows = (await call(app, "GET", "/api/admin/adverts/campaigns")).body.campaigns as Row[];
+    const row = (id: string) => rows.find((each) => each.campaign.id === id);
+
+    expect(row(ng)?.checks).toEqual(NG_CHECKS);
+    expect(row(gb)?.checks).toEqual(["registered-business", "category", "no-prize-or-promo"]);
+    expect(Object.fromEntries(row(ng)?.creatives.map((each) => [each.id, each.checks]) ?? [])).toEqual({ [linked]: CREATIVE_CHECKS, [bare]: ["format", "not-game-like", "text"] });
+    for (const { id, checks } of [row(ng), row(gb)].map((each) => ({ id: each?.campaign.id ?? "", checks: each?.checks ?? [] }))) {
+      expect((await call(app, "POST", `/api/admin/adverts/campaigns/${id}/approve`, { checks: checks.slice(1) })).body).toMatchObject({ code: "unchecked", missing: [checks[0]] });
+      expect((await call(app, "POST", `/api/admin/adverts/campaigns/${id}/approve`, { checks })).body).toMatchObject({ ok: true });
+    }
+    for (const each of row(ng)?.creatives ?? []) expect((await call(app, "POST", `/api/admin/adverts/creatives/${each.id}/${String(each.version)}/approve`, { checks: each.checks })).body).toMatchObject({ ok: true });
+  });
+
+  test("[R-ADVERT-020] given a campaign's counts over two days, when the campaigns are listed, then its row carries the daily counts per slot and region, and a campaign with none carries none", async () => {
+    const deps = world();
+    const app = makeApp(deps);
+    const { campaign: id } = await live(app);
+    const quiet = ((await campaign(app)).body.campaign as { id: string }).id;
+    const day = int.divFloor(EPOCH, time.DAY_MS);
+    await addAdvertCounters(deps, "NG", EPOCH, [{ name: ADVERT_COUNTERS.impression, key: "advert.road-billboard", count: 7 }, { name: ADVERT_COUNTERS.tap, key: "advert.road-billboard", count: 2 }]);
+    await addAdvertCounters(deps, "NG", EPOCH + time.DAY_MS, [{ name: ADVERT_COUNTERS.impression, key: "advert.road-billboard", count: 1 }]);
+    type Row = { campaign: { id: string }; counts: unknown[] };
+    const rows = (await call(app, "GET", "/api/admin/adverts/campaigns")).body.campaigns as Row[];
+    expect(rows.find((each) => each.campaign.id === id)?.counts).toEqual([
+      { day, slot: "advert.road-billboard", campaign: id, region: "NG", impressions: 7, taps: 2 },
+      { day: day + 1, slot: "advert.road-billboard", campaign: id, region: "NG", impressions: 1, taps: 0 },
+    ]);
+    expect(rows.find((each) => each.campaign.id === quiet)?.counts).toEqual([]);
   });
 });
 

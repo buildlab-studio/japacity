@@ -12,6 +12,8 @@ import { closeReport, decideAppeal, fileAppeal, type ModerationPorts } from "../
 import { readQueue } from "../moderation/queue";
 import { standingOf } from "../moderation/standing";
 import type { ServerCode, ServerRejection } from "../types";
+import { adminOnly } from "./admin";
+import type { AdminEnv } from "./admin";
 
 const FEEDBACK_PAGE = 200;
 
@@ -28,16 +30,10 @@ async function readBody(c: Context): Promise<unknown> {
   }
 }
 
-export function moderationAdminRoutes(deps: ServerDeps, ports: ModerationPorts): Hono<{ Variables: { admin: string } }> {
-  const routes = new Hono<{ Variables: { admin: string } }>();
+export function moderationAdminRoutes(deps: ServerDeps, ports: ModerationPorts): Hono<AdminEnv> {
+  const routes = new Hono<AdminEnv>();
 
-  routes.use("/api/admin/moderation/*", async (c, next) => {
-    const session = await deps.session(c.req.raw);
-    if (session === null || !deps.config.admin.accounts.includes(session.account)) return c.notFound();
-    c.set("admin", session.account);
-    await next();
-    return undefined;
-  });
+  routes.use("/api/admin/moderation/*", adminOnly(deps));
 
   routes.get("/api/admin/moderation/queue", async (c) => c.json({ ok: true, queue: await readQueue(deps, ports.reports) }));
 

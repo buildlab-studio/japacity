@@ -1,25 +1,42 @@
 // The admin page's data (R-SERVER-005, R-SERVER-008, R-SERVER-011, R-SERVER-012).
 // Only a session whose account is in `config.admin.accounts` may read it; to
-// anyone else, signed in or not, every route here does not exist.
+// anyone else, signed in or not, every route here does not exist. An admin
+// whose session was not opened with a passkey is refused (R-MODERATION-012).
 import { Hono } from "hono";
+import type { MiddlewareHandler } from "hono";
 
 import { listAlarms } from "../admin/alarm";
 import { utcDay } from "../admin/day";
 import { rejectionCounts } from "../admin/rejections";
 import { rollbackCheck } from "../admin/rollback";
 import type { ServerDeps } from "../deps";
+import type { ServerRejection } from "../types";
 
 const WHOLE = /^\d{1,9}$/;
 
-export function adminRoutes(deps: ServerDeps): Hono {
-  const admin = new Hono();
+export const ADMIN_PASSKEY_DETAIL = "The admin view needs a session opened with a passkey; sign in again with yours.";
 
-  admin.use("*", async (c, next) => {
+/** What every admin route knows once the gate has let a request through: the admin's account. */
+export interface AdminEnv {
+  Variables: { admin: string };
+}
+
+/** R-MODERATION-012, R-SERVER-012: the gate before every admin route. */
+export function adminOnly(deps: ServerDeps): MiddlewareHandler<AdminEnv> {
+  return async (c, next) => {
     const session = await deps.session(c.req.raw);
     if (session === null || !deps.config.admin.accounts.includes(session.account)) return c.notFound();
+    if (!session.passkey) return c.json<ServerRejection>({ ok: false, code: "not-legal", detail: ADMIN_PASSKEY_DETAIL }, 403);
+    c.set("admin", session.account);
     await next();
     return undefined;
-  });
+  };
+}
+
+export function adminRoutes(deps: ServerDeps): Hono<AdminEnv> {
+  const admin = new Hono<AdminEnv>();
+
+  admin.use("*", adminOnly(deps));
 
   admin.get("/report", async (c) => {
     const asked = c.req.query("day");

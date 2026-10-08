@@ -271,7 +271,8 @@ export type Effect =
   // activity
   | { type: "activity/hunt" } // the slot's param names the job
   | { type: "activity/start-job"; job: Id<"activity"> | { term: string } }
-  | { type: "activity/end-job"; why: string }
+  /** `side` names the side slot (the home side job ends at the flight, R-ACTIVITY-010). */
+  | { type: "activity/end-job"; why: string; side?: true }
   | { type: "activity/gig"; min: number; max: number; perTech: number }
   // document
   | { type: "document/request"; document: Id<"document"> }
@@ -893,8 +894,8 @@ export interface Bond {
 export interface PeopleSlice {
   slots: Record<string, { state: "empty" | "computer" | "invited" | "player" | "stand-in"; bond: string | null; person: Id<"person"> | null; invite: { looking: string; fill: string | null } | null }>;
   bonds: Record<string, Bond>;
-  /** the two scores of R-PEOPLE-030, null until the points gate gives them. */
-  joint: { bond: string; route: Id<"route">; lead: "me" | "them"; countFunds: boolean; standInMay: boolean; scores: { mine: number | null; theirs: number | null } } | null;
+  /** The view reads the two scores of R-PEOPLE-030 fresh from the state (9 Oct 2026: the slice holds none). */
+  joint: { bond: string; route: Id<"route">; lead: "me" | "them"; countFunds: boolean; standInMay: boolean } | null;
   sponsoring: { bond: string; route: Id<"route">; month: number } | null;
   arrived: { route: Id<"route">; month: number } | null;
   assistanceTaken: number;
@@ -920,7 +921,8 @@ export interface InterviewEntry {
 export interface InterviewSlice {
   /** `thin`: the record measured once, in the applicant's life at opening, and carried to the other life (R-INTERVIEW-012). */
   open: { pair: string; route: Id<"route">; questions: { id: string; options: string[] }[]; answers: string[]; standIn: boolean; thin: boolean } | null;
-  last: { route: Id<"route">; result: InterviewResult; matched: number; asked: number; month: number } | null;
+  /** `standIn` marks whose answers were a stand-in's, so the result view can say so (R-INTERVIEW-008). */
+  last: { route: Id<"route">; result: InterviewResult; matched: number; asked: number; month: number; standIn: { a: boolean; b: boolean } } | null;
   /** Hidden. The true answers for the questions asked (R-INTERVIEW-004). */
   secret: { truths: (string | null)[] | null };
 }

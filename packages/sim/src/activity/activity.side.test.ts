@@ -97,6 +97,23 @@ describe("side jobs", () => {
     expect(tunde.state.activity.job).toBeNull();
   });
 
+  test("[R-ACTIVITY-010] given a job and a side job, when `activity/end-job` names the side slot, then only the side job ends, with the effect's why; with no side job held it ends nothing", () => {
+    const tunde = sideJob("scenario.tunde", RIDE);
+    applyEffects(tunde, [{ type: "activity/end-job", why: "moved", side: true }]);
+    expect(tunde.state.activity).toMatchObject({ job: "activity.job-bank-officer", side: null });
+    const before = tunde.state.activity;
+    applyEffects(tunde, [{ type: "activity/end-job", why: "moved", side: true }]);
+    expect(tunde.state.activity).toEqual(before);
+  });
+
+  test("[R-ACTIVITY-010] given a job and a side job, when `activity/end-job` names no slot, then only the main job ends, whatever its why", () => {
+    for (const why of ["moved", "side-moved"]) {
+      const tunde = sideJob("scenario.tunde", RIDE);
+      applyEffects(tunde, [{ type: "activity/end-job", why }]);
+      expect(tunde.state.activity).toMatchObject({ job: null, side: RIDE });
+    }
+  });
+
   test("[R-ACTIVITY-010] [R-PLACE-003] given a side job at home, when the character arrives abroad, then it ends in the first month", () => {
     const game = sideJob("scenario.ada", TUTORING);
     applyEffects(game, [{ type: "place/move", to: "abroad", country: "country.uk" }]);
@@ -118,6 +135,17 @@ describe("side jobs", () => {
     expect(game.state.activity.job).toBeNull();
     const month = game.endTurn();
     expect(month.events.filter((event) => event.type === "activity/side-ended")).toEqual([]);
+  });
+
+  test("[R-ACTIVITY-010] [R-PLACE-003] given no side job, when the character flies, then the flight ends no side job and the job at home ends as before", () => {
+    const game = readyLife(content, { seed: offeredSeed(content), tuning: ALWAYS_GRANTED });
+    toDecision(game);
+    applyEffects(game, [{ type: "activity/start-job", job: "activity.job-bank-officer" }]);
+    expect(game.state.activity).toMatchObject({ job: "activity.job-bank-officer", side: null });
+    const flight = game.accept({ type: "route/depart", route: UK });
+    expect(flight.events.filter((event) => event.type === "activity/side-ended")).toEqual([]);
+    expect(flight.events).toContainEqual({ type: "activity/job-ended", job: "activity.job-bank-officer", why: "moved" });
+    expect(game.state.activity).toMatchObject({ job: null, side: null });
   });
 
   test("[R-HEALTH-004] given a side job and a slot locked for illness, when the month is played, then it pays the sick share", () => {

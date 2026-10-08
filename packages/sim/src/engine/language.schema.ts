@@ -287,7 +287,7 @@ export const EffectSchema = z.discriminatedUnion("type", [
     type: z.literal("activity/start-job"),
     job: z.union([idOf("activity"), z.strictObject({ term: z.string().min(1) })]),
   }),
-  z.strictObject({ type: z.literal("activity/end-job"), why: z.string().min(1) }),
+  z.strictObject({ type: z.literal("activity/end-job"), why: z.string().min(1), side: z.literal(true).exactOptional() }),
   z.strictObject({ type: z.literal("activity/gig"), min: CountSchema, max: CountSchema, perTech: CountSchema }),
   z.strictObject({ type: z.literal("document/request"), document: idOf("document") }),
   z.strictObject({ type: z.literal("document/grant"), document: idOf("document") }),

@@ -16,7 +16,7 @@ const BROKEN: readonly [string, RegExp][] = [
   ["a words key with no words", /\badmin\.[a-z-]+\.[a-z-]+/],
 ];
 
-/** A stand-in for an approved creative's image, which the public image route serves. */
+/** A stand-in for a creative's image, which the admin image route serves for any version. */
 const IMAGE = '<svg xmlns="http://www.w3.org/2000/svg" width="320" height="320"><rect width="320" height="320" fill="#1f6f5c"/><text x="160" y="170" font-size="28" fill="#fff" text-anchor="middle" font-family="sans-serif">Tea by the water</text></svg>';
 
 interface Seen {
@@ -33,7 +33,7 @@ async function fakeServer(page: Page, admin: boolean): Promise<Seen[]> {
       const request = route.request();
       const path = new URL(request.url()).pathname;
       seen.push({ method: request.method(), path });
-      if (path.startsWith("/api/adverts/image/")) return route.fulfill({ contentType: "image/svg+xml", body: IMAGE });
+      if (/^\/api\/admin\/adverts\/creatives\/[^/]+\/\d+\/image$/.test(path)) return route.fulfill({ contentType: "image/svg+xml", body: IMAGE });
       const account = ADMIN_GETS["/api/account"] as { account: object };
       const answer =
         path === "/api/account"
@@ -86,8 +86,7 @@ test("an admin at /admin sees every area of the page, each from the admin routes
     await expectNothingBroken(page, `on the ${tab} tab`);
     await shoot(page, tab.toLowerCase(), info.project.name);
   }
-  // An approved, live creative's image comes from the public advert route, the one the game serves it from.
-  for (const { path } of seen) expect(path === "/api/account" || path.startsWith("/api/admin/") || path.startsWith("/api/adverts/image/"), path).toBe(true);
+  for (const { path } of seen) expect(path === "/api/account" || path.startsWith("/api/admin/"), path).toBe(true);
 });
 
 test("an account off the admin list that visits /admin sees the ordinary app", async ({ page }) => {

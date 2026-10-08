@@ -635,15 +635,14 @@ type FamilyRequest = Extract<Command, { type: "people/family-request" }>;
 
 /**
  * R-PEOPLE-034: a copy whose request a sibling paid elsewhere. This life gets
- * standing +1 and the line instead of the lapse choice.
- * no effect closes an open offer, so the copy stays open here until
- * an `offer/close` effect exists; nothing of it is paid or lapsed by this.
+ * standing +1 and the line instead of the lapse choice, and the copy closes
+ * unanswered through `offer/close`: nothing of it is paid or lapsed.
  */
 function familyHandled(ctx: Ctx, command: FamilyRequest): BaseEvent[] | Rejection {
   const open = Object.values(ctx.state.offer.items).some((item) => item.entry === command.offer);
   if (!open) return reject("not-legal", `No copy of ${command.offer} is open here.`);
   const events = record(ctx, [{ type: "people/request-handled", offer: command.offer }]);
-  return [...events, ...ctx.apply([{ type: "quality/add", quality: STANDING, amount: HANDLED_STANDING }], { source: command.offer, param: null, terms: command.terms })];
+  return [...events, ...ctx.apply([{ type: "offer/close", offer: command.offer }, { type: "quality/add", quality: STANDING, amount: HANDLED_STANDING }], { source: command.offer, param: null, terms: command.terms })];
 }
 
 function isFromAuthority(command: Command): command is FromAuthority {
@@ -919,7 +918,7 @@ function evolveAgreed(slice: PeopleSlice, event: Extract<PeopleEvent, { type: "p
       if (event.route === null || event.lead === null) return cleared;
       // Consent given while the joint was asked for carries into it (R-PEOPLE-044).
       const given = bond.consent ?? { countFunds: false, standInMay: false };
-      const joint = { bond: event.bond, route: event.route, lead: event.lead, ...given, scores: { mine: null, theirs: null } };
+      const joint = { bond: event.bond, route: event.route, lead: event.lead, ...given };
       const sponsors = event.lead === "me" && content.route[event.route]?.gate === "partner";
       return { ...cleared, joint, sponsoring: sponsors ? { bond: event.bond, route: event.route, month: event.month } : cleared.sponsoring };
     }
@@ -1218,8 +1217,6 @@ function slotLabel(slice: PeopleSlice, slot: Slot): PlayerView["people"]["slots"
  * R-PEOPLE-030: on a points route, the score alone (`mine`) and the score
  * leading with this partner from their facts (`theirs`), read fresh from the
  * state as the points gate reads its own. Null on any other route.
- * `PeopleSlice.joint.scores` stays null, since a score read once a
- * month would lag the view; say if the slice should hold it too.
  */
 function jointScores(read: ReadCtx, joint: NonNullable<PeopleSlice["joint"]>): { myScore: number | null; theirScore: number | null } {
   const entry = read.content.route[joint.route];

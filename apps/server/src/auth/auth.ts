@@ -24,6 +24,7 @@ import type { TurnstileKeys } from "../account/turnstile";
 import { requestDeletion } from "../account/deletion";
 import type { ServerDeps } from "../deps";
 import { emailSendLimit, endSessionsOnUnlink } from "./hooks";
+import { signedInWith } from "./session";
 
 /** The memory adapter in tests; Drizzle's adapter has the same shape. */
 type Adapter = ReturnType<typeof memoryAdapter>;
@@ -100,6 +101,8 @@ export function makeAuth(deps: ServerDeps, adapter: Adapter, keys: AuthKeys) {
     session: {
       // R-ACCOUNT-016: deletion needs a session signed in within this many seconds.
       freshAge: Math.floor(config.account.deleteFreshMs / 1000),
+      // R-MODERATION-012: how the session was opened, set by the hook below and never by a request.
+      additionalFields: { signedInWith: { type: "string", required: false, input: false } },
     },
     databaseHooks: {
       user: { create: { before: (user, endpoint) => admitAccount(deps, endpoint, user) } },
@@ -112,8 +115,9 @@ export function makeAuth(deps: ServerDeps, adapter: Adapter, keys: AuthKeys) {
       },
       session: {
         create: {
-          before: async (session) => {
+          before: async (session, context) => {
             await admitSession(deps, session);
+            return { data: { ...session, signedInWith: signedInWith(context?.path) } };
           },
         },
       },

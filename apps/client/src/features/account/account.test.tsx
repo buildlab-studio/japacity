@@ -280,42 +280,64 @@ function cleanUpAndSettings(account: AccountApi): GameStore {
 }
 
 describe("deleting the account", () => {
-  test("[R-ACCOUNT-016] given a fresh session, when deletion is confirmed, then the account goes and the player is told at the sign-in screen", async () => {
-    const account = fakeAccount();
-    const store = cleanUpAndSettings(account);
+  const notFresh: AuthResult = { ok: false, why: "not-fresh" };
+
+  function askToDelete() {
     fireEvent.click(screen.getByRole("button", { name: say("ui.account.delete") }));
     expect(screen.getByText(say("ui.account.delete.warn"))).toBeDefined();
     fireEvent.click(screen.getByRole("button", { name: say("ui.account.delete.confirm") }));
+  }
+
+  async function sendAndType(code: string) {
+    fireEvent.change(await screen.findByLabelText(say("ui.account.code.label")), { target: { value: code } });
+    fireEvent.click(screen.getByRole("button", { name: say("ui.account.delete.code.go") }));
+  }
+
+  test("[R-ACCOUNT-016] given a fresh session, when deletion is confirmed, then the server deletes it with no code and the player is told at the sign-in screen", async () => {
+    const account = fakeAccount();
+    const store = cleanUpAndSettings(account);
+    askToDelete();
     await waitFor(() => expect(store.getState().signedOut).toBe(true));
     expect(store.getState().accountNotice).toBe("ui.account.notice.deleted");
-    expect(account.calls).toEqual(["deleteAccount()"]);
+    expect(account.calls).toEqual(["deleteAccount(null)"]);
   });
 
-  test("[R-ACCOUNT-016] given a session older than the server allows, then a fresh code by email confirms it and the deletion goes through", async () => {
-    let tries = 0;
-    const account = fakeAccount({ deleteAccount: () => Promise.resolve(tries++ === 0 ? { ok: false, why: "not-fresh" } : OK) });
-    const store = cleanUpAndSettings(account);
-    fireEvent.click(screen.getByRole("button", { name: say("ui.account.delete") }));
-    fireEvent.click(screen.getByRole("button", { name: say("ui.account.delete.confirm") }));
+  test("[R-ACCOUNT-016] given a session older than the server allows, when the code the server's email sends is typed, then it goes with the deletion, never through a sign-in, and the account goes", async () => {
+    const answers: AuthResult[] = [notFresh, OK];
+    const account = fakeAccount();
+    const store = cleanUpAndSettings({ ...account, deleteAccount: (code) => (account.calls.push(`deleteAccount(${JSON.stringify(code)})`), Promise.resolve(answers.shift() ?? OK)) });
+    askToDelete();
     expect(await screen.findByText(say("ui.account.delete.fresh"))).toBeDefined();
     expect(store.getState().signedOut).toBe(false);
     fireEvent.click(await screen.findByRole("button", { name: say("ui.account.delete.code", { email: "ada@example.test" }) }));
-    fireEvent.change(await screen.findByLabelText(say("ui.account.code.label")), { target: { value: "654321" } });
-    fireEvent.click(screen.getByRole("button", { name: say("ui.account.code.go") }));
+    await sendAndType("654321");
     await waitFor(() => expect(store.getState().signedOut).toBe(true));
-    expect(account.calls).toEqual(['sendCode("ada@example.test")', 'signInWithCode("ada@example.test","654321")']);
-    expect(tries).toBe(2);
+    expect(store.getState().accountNotice).toBe("ui.account.notice.deleted");
+    expect(account.calls).toEqual(["deleteAccount(null)", 'sendCode("ada@example.test")', 'deleteAccount("654321")']);
   });
 
-  test("[R-ACCOUNT-016] given a stale session, then a passkey sign-in also confirms it", async () => {
-    let tries = 0;
-    const account = fakeAccount({ deleteAccount: () => Promise.resolve(tries++ === 0 ? { ok: false, why: "not-fresh" } : OK) });
-    const store = cleanUpAndSettings(account);
-    fireEvent.click(screen.getByRole("button", { name: say("ui.account.delete") }));
-    fireEvent.click(screen.getByRole("button", { name: say("ui.account.delete.confirm") }));
+  test("[R-ACCOUNT-016] given a code the server refuses, then bad-code is said in words, the account stays, and a second code goes through", async () => {
+    const answers: AuthResult[] = [notFresh, { ok: false, why: "bad-code" }, OK];
+    const account = fakeAccount();
+    const store = cleanUpAndSettings({ ...account, deleteAccount: (code) => (account.calls.push(`deleteAccount(${JSON.stringify(code)})`), Promise.resolve(answers.shift() ?? OK)) });
+    askToDelete();
+    fireEvent.click(await screen.findByRole("button", { name: say("ui.account.delete.code", { email: "ada@example.test" }) }));
+    await sendAndType("111111");
+    expect(await screen.findByText(say("ui.account.fail.bad-code"))).toBeDefined();
+    expect(store.getState().signedOut).toBe(false);
+    await sendAndType("222222");
+    await waitFor(() => expect(store.getState().signedOut).toBe(true));
+    expect(account.calls.filter((call) => call.startsWith("deleteAccount"))).toEqual(["deleteAccount(null)", 'deleteAccount("111111")', 'deleteAccount("222222")']);
+  });
+
+  test("[R-ACCOUNT-016] given a stale session, then a passkey sign-in makes it fresh and the deletion goes with no code", async () => {
+    const answers: AuthResult[] = [notFresh, OK];
+    const account = fakeAccount();
+    const store = cleanUpAndSettings({ ...account, deleteAccount: (code) => (account.calls.push(`deleteAccount(${JSON.stringify(code)})`), Promise.resolve(answers.shift() ?? OK)) });
+    askToDelete();
     fireEvent.click(await screen.findByRole("button", { name: say("ui.account.passkey") }));
     await waitFor(() => expect(store.getState().signedOut).toBe(true));
-    expect(tries).toBe(2);
+    expect(account.calls).toEqual(["deleteAccount(null)", "signInWithPasskey()", "deleteAccount(null)"]);
   });
 });
 

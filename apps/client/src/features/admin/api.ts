@@ -52,7 +52,7 @@ export interface AdminApi {
   decideCreative: (creative: string, version: number, outcome: Outcome, body: ReviewBody) => Promise<CreativeReply>;
   pull: (campaign: string) => Promise<CampaignReply>;
   recheck: (campaign: string) => Promise<RecheckReply>;
-  /** Where a creative's image is served from: only once it is approved and its campaign live (R-ADVERT-013). */
+  /** R-ADVERT-011: where an admin sees any version's image, whatever its status. */
   imageUrl: (creative: string, version: number) => string;
 }
 
@@ -99,7 +99,7 @@ export function adminApi(server: Api, baseUrl: string): AdminApi {
     decideCreative: (creative, version, outcome, body) => settle(server.post(`/api/admin/adverts/creatives/${part(creative)}/${String(version)}/${outcome}`, body)),
     pull: (campaign) => settle(server.post(`/api/admin/adverts/campaigns/${part(campaign)}/pull`, {})),
     recheck: (campaign) => settle(server.post(`/api/admin/adverts/campaigns/${part(campaign)}/recheck`, {})),
-    imageUrl: (creative, version) => `${base}/api/adverts/image/${part(creative)}/${String(version)}`,
+    imageUrl: (creative, version) => `${base}/api/admin/adverts/creatives/${part(creative)}/${String(version)}/image`,
   };
 }
 

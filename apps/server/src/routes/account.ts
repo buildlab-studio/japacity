@@ -21,7 +21,7 @@ export interface AccountView {
   character: string | null;
   /** R-ANALYTICS-006: the "Send usage counts" setting. */
   sendUsageCounts: boolean;
-  /** R-MODERATION-012: the account is on `config.admin.accounts`, so the client mounts the admin page. */
+  /** R-MODERATION-012: the account is on `config.admin.accounts` and this session was opened with a passkey, so the client mounts the admin page. */
   admin: boolean;
 }
 
@@ -51,9 +51,9 @@ function cookiesFrom(headers: Headers): Headers {
   return new Headers({ cookie: pairs.filter((pair) => pair !== "").join("; ") });
 }
 
-function viewOf(row: AccountRow, deps: Pick<ServerDeps, "config">): AccountView {
+function viewOf(row: AccountRow, deps: Pick<ServerDeps, "config">, passkey: boolean): AccountView {
   const { id, country, age, createdAt, character, sendUsageCounts } = row;
-  return { id, country, age: { passed: age.passed, method: age.method }, createdAt, character, sendUsageCounts, admin: deps.config.admin.accounts.includes(id) };
+  return { id, country, age: { passed: age.passed, method: age.method }, createdAt, character, sendUsageCounts, admin: passkey && deps.config.admin.accounts.includes(id) };
 }
 
 export function accountRoutes(deps: ServerDeps, { auth }: Accounts): Hono {
@@ -64,7 +64,7 @@ export function accountRoutes(deps: ServerDeps, { auth }: Accounts): Hono {
     if (session === null) return c.json<AccountReply>(rejection("signed-out", "Sign in first."), 401);
     const row = await deps.stores.account.get(session.account);
     if (row === null) return c.json<AccountReply>(rejection("signed-out", "No account."), 401);
-    return c.json<AccountReply>({ ok: true, account: viewOf(row, deps) });
+    return c.json<AccountReply>({ ok: true, account: viewOf(row, deps, session.passkey) });
   });
 
   app.put("/api/account", async (c) => {
@@ -75,7 +75,7 @@ export function accountRoutes(deps: ServerDeps, { auth }: Accounts): Hono {
     if (typeof asked !== "boolean") return c.json<AccountReply>(rejection("not-legal", "Send { sendUsageCounts: true | false }."), 400);
     const changed = await deps.stores.account.setUsageCounts(session.account, asked);
     if (!changed.ok) return c.json<AccountReply>(rejection("signed-out", "No account."), 401);
-    return c.json<AccountReply>({ ok: true, account: viewOf(changed.value, deps) });
+    return c.json<AccountReply>({ ok: true, account: viewOf(changed.value, deps, session.passkey) });
   });
 
   app.delete("/api/account", async (c) => {

@@ -147,7 +147,10 @@ describe("where no advert shows", () => {
 
   test("[R-ADVERT-003] given every slot filled, when a share card is due, then the card holds no advert", async () => {
     const card = { kind: "send-off" as const, route: "route.uk-masters" as const, percent: 82, months: 35, standing: 61, topActivities: [], chapter: null, name: null };
-    render(providers(everything(), <App store={await storeOf({ ...advertsOn(), card })} />));
+    const store = await storeOf({ ...advertsOn(), card });
+    // A send-off comes long after the early win, which the share card waits for (R-GUIDE-015).
+    store.setState({ earlyWin: true });
+    render(providers(everything(), <App store={store} />));
     const sheet = await screen.findByRole("dialog");
     expect(sheet.querySelector("[data-share-card]")).not.toBeNull();
     expect(slots(sheet)).toHaveLength(0);
