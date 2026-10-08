@@ -99,6 +99,37 @@ describe("the pair transaction", () => {
     expect(friend.people.bonds[bondIn(friend, key)]?.pending.theirs).toBeNull();
   });
 
+  test("[R-PEOPLE-016] [R-PEOPLE-034] given a proposal, when the other side says no, then the proposer's life holds no waiting proposal and its log holds people/declined from the authority", async () => {
+    const linked = await linkedPair();
+    const { server, a, b, key } = linked;
+    await courting(linked);
+    await must(server, INVITER, { type: "people/propose", bond: bondIn(await stateOf(server, a), key), step: "partner" });
+    expect((await stateOf(server, a)).people.bonds[bondIn(await stateOf(server, a), key)]?.pending.mine).not.toBeNull();
+
+    await must(server, FRIEND, { type: "people/answer", bond: bondIn(await stateOf(server, b), key), step: "partner", yes: false });
+
+    const proposer = await stateOf(server, a);
+    expect(proposer.people.bonds[bondIn(proposer, key)]?.pending.mine).toBeNull();
+    const declined = (await server.deps.stores.player.log(a, 0)).filter((row) => row.command.type === "people/declined");
+    expect(declined).toMatchObject([{ sender: "authority", command: { type: "people/declined", pair: key, step: "partner" } }]);
+  });
+
+  test("[R-PEOPLE-016] [R-PEOPLE-034] given a proposal waiting, when the proposer withdraws it, then the other life no longer holds it and its log holds people/withdrawn from the authority; a withdraw with nothing waiting sends nothing", async () => {
+    const linked = await linkedPair();
+    const { server, a, b, key } = linked;
+    await courting(linked);
+    await must(server, INVITER, { type: "people/propose", bond: bondIn(await stateOf(server, a), key), step: "partner" });
+    expect((await stateOf(server, b)).people.bonds[bondIn(await stateOf(server, b), key)]?.pending.theirs).not.toBeNull();
+
+    await must(server, INVITER, { type: "people/withdraw", bond: bondIn(await stateOf(server, a), key) });
+
+    const other = await stateOf(server, b);
+    expect(other.people.bonds[bondIn(other, key)]?.pending.theirs).toBeNull();
+    expect((await recordOf(server.deps, key))?.record).toMatchObject({ pending: { a: null, b: null } });
+    const withdrawn = (await server.deps.stores.player.log(b, 0)).filter((row) => row.command.type === "people/withdrawn");
+    expect(withdrawn).toMatchObject([{ sender: "authority", command: { type: "people/withdrawn", pair: key, step: "partner" } }]);
+  });
+
   test("[R-PEOPLE-017] [R-PAIR-004] given partners, when they marry, then both lives are married, each paid its own share, and the record holds one wedding moment", async () => {
     const linked = await linkedPair(pairServer(quickWeddings()));
     const { server, a, b, key } = linked;

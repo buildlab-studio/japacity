@@ -154,10 +154,14 @@ function carryOne(scope: Scope, live: Live, record: PairRecord, event: Carried, 
     }
     case "people/answered":
       scope.book.write(pair, mine, { type: "pair/answered", step: event.step, yes: event.yes });
-      return event.yes ? agreeBoth(scope, pair) : null;
-    case "people/withdrawn":
+      // R-PEOPLE-034, decision 0009: a no reaches the proposer's life as people/declined.
+      return event.yes ? agreeBoth(scope, pair) : send({ type: "people/declined", pair, step: event.step });
+    case "people/withdrawn": {
+      // R-PEOPLE-034, decision 0009: the other life's waiting proposal is withdrawn too.
+      const step = record.pending[mine]?.step ?? null;
       scope.book.write(pair, mine, { type: "pair/withdrawn" });
-      return null;
+      return step === null ? null : send({ type: "people/withdrawn", pair, step });
+    }
     case "people/consented":
       scope.book.write(pair, mine, { type: "pair/consented", countFunds: event.countFunds, standInMay: event.standInMay });
       forFacts.add(pair);
