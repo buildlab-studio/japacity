@@ -1,89 +1,95 @@
 {
   "name": "mini-worker-studying",
   "save": {
-    "schema": 1,
-    "content": "mini.1",
-    "scenario": "scenario.worker",
-    "seed": "golden-worker",
-    "worldSeed": "golden-world",
-    "commands": [
+    "schema": 3,
+    "segments": [
       {
-        "command": {
-          "type": "turn/end",
-          "slots": [
-            {
-              "activity": "activity.study",
-              "param": null
-            }
-          ],
-          "basedOn": 0
+        "content": "mini.1",
+        "start": {
+          "scenario": "scenario.worker",
+          "seed": "golden-worker",
+          "worldSeed": "golden-world"
         },
-        "tick": 0,
-        "sender": "player"
-      },
-      {
-        "command": {
-          "type": "turn/end",
-          "slots": [
-            {
-              "activity": "activity.study",
-              "param": null
-            }
-          ],
-          "basedOn": 1
-        },
-        "tick": 1,
-        "sender": "player"
-      },
-      {
-        "command": {
-          "type": "turn/end",
-          "slots": [
-            {
-              "activity": "activity.study",
-              "param": null
-            }
-          ],
-          "basedOn": 2
-        },
-        "tick": 2,
-        "sender": "player"
-      },
-      {
-        "command": {
-          "type": "turns/grant",
-          "count": 2,
-          "basedOn": 3
-        },
-        "tick": 3,
-        "sender": "authority"
-      },
-      {
-        "command": {
-          "type": "turn/end",
-          "slots": [],
-          "basedOn": 4
-        },
-        "tick": 3,
-        "sender": "player"
-      },
-      {
-        "command": {
-          "type": "turn/end",
-          "slots": [],
-          "basedOn": 5
-        },
-        "tick": 4,
-        "sender": "player"
-      },
-      {
-        "command": {
-          "type": "turn/end",
-          "slots": [],
-          "basedOn": 6
-        },
-        "tick": 5,
-        "sender": "player"
+        "commands": [
+          {
+            "command": {
+              "type": "turn/end",
+              "slots": [
+                {
+                  "activity": "activity.study",
+                  "param": null
+                }
+              ],
+              "basedOn": 0
+            },
+            "tick": 0,
+            "sender": "player"
+          },
+          {
+            "command": {
+              "type": "turn/end",
+              "slots": [
+                {
+                  "activity": "activity.study",
+                  "param": null
+                }
+              ],
+              "basedOn": 1
+            },
+            "tick": 1,
+            "sender": "player"
+          },
+          {
+            "command": {
+              "type": "turn/end",
+              "slots": [
+                {
+                  "activity": "activity.study",
+                  "param": null
+                }
+              ],
+              "basedOn": 2
+            },
+            "tick": 2,
+            "sender": "player"
+          },
+          {
+            "command": {
+              "type": "turns/grant",
+              "count": 2,
+              "basedOn": 3
+            },
+            "tick": 3,
+            "sender": "authority"
+          },
+          {
+            "command": {
+              "type": "turn/end",
+              "slots": [],
+              "basedOn": 4
+            },
+            "tick": 3,
+            "sender": "player"
+          },
+          {
+            "command": {
+              "type": "turn/end",
+              "slots": [],
+              "basedOn": 5
+            },
+            "tick": 4,
+            "sender": "player"
+          },
+          {
+            "command": {
+              "type": "turn/end",
+              "slots": [],
+              "basedOn": 6
+            },
+            "tick": 5,
+            "sender": "player"
+          }
+        ]
       }
     ]
   },
