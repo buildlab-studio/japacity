@@ -197,7 +197,7 @@ describe("writing the record", () => {
 });
 
 describe("agreeing a step", () => {
-  test("[R-PAIR-005] given a proposal from one side only, when agreement is written, then nothing changes but the pending flag", () => {
+  test("[R-PAIR-005] given a proposal from one side only, when agreement is written, then nothing changes but its own pending proposal", () => {
     const courting = play(linked(), ["a", { type: "pair/courted", tick: 2 }], ["a", propose("partner")]);
     expect(agreed(courting)).toBeNull();
     expect(play(courting, ["a", { type: "pair/agreed", tick: 4 }])).toEqual(courting);
