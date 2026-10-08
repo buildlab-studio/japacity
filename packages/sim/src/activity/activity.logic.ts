@@ -162,7 +162,8 @@ export function heldBand(read: ReadCtx): number | null {
 /**
  * Jobs that may be hunted (R-ACTIVITY-005, R-LADDER-001, R-ACTIVITY-010): main and
  * side jobs of this place whose requirements hold, that the status lets the
- * character work, and that are not held already.
+ * character work, and that are not held already. A job with no hiring chance is
+ * never hunted: it is started by a departure or a starting life.
  */
 function huntableJobs(read: ReadCtx, judge: Judge): string[] {
   const { job, side } = read.state.activity;
@@ -170,6 +171,7 @@ function huntableJobs(read: ReadCtx, judge: Judge): string[] {
     .filter(
       (entry) =>
         isJob(entry) &&
+        entry.hireBp !== null &&
         entry.id !== job &&
         entry.id !== side &&
         appliesHere(entry, read.state) &&
