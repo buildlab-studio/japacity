@@ -23,7 +23,7 @@ import { gallery, useKept } from "./gallery";
 const InDialog = createContext(false);
 
 function CardTitle({ children }: { children: ReactNode }) {
-  const className = "font-display text-4xl leading-tight";
+  const className = "font-display text-3xl leading-tight";
   return use(InDialog) ? <Dialog.Title className={className}>{children}</Dialog.Title> : <h2 className={className}>{children}</h2>;
 }
 
@@ -34,15 +34,15 @@ function Stripes() {
 
 function Footer({ face }: { face: CardFace }) {
   return (
-    <div className="flex flex-col gap-1 border-t border-current/30 pt-3 text-sm">
+    <div className="flex flex-col gap-0.5 border-t border-current/30 pt-2 text-sm">
       <div className="flex items-end justify-between gap-2">
         <span className="font-display text-xl leading-none">{face.sender}</span>
         <span className="font-semibold" data-game-line>
           {face.disclaimer}
         </span>
       </div>
-      <span className="text-xs">{face.address}</span>
-      <span className="text-xs">{face.officialLine}</span>
+      <span className="text-xs leading-tight">{face.address}</span>
+      <span className="text-[0.6875rem] leading-tight">{face.officialLine}</span>
     </div>
   );
 }
@@ -50,36 +50,36 @@ function Footer({ face }: { face: CardFace }) {
 function Figures({ face }: { face: CardFace }) {
   return (
     <>
-      {face.chapter === null ? null : <p className="text-lg font-semibold">{face.chapter}</p>}
+      {face.chapter === null ? null : <p className="font-semibold">{face.chapter}</p>}
       {face.name === null && face.route === null && face.percent === null ? null : (
-        <div className="flex flex-col gap-1">
-          {face.name === null ? null : <p className="text-lg font-bold" data-card-name>{face.name}</p>}
-          {face.route === null ? null : <p className="text-lg font-semibold">{face.route}</p>}
+        <div className="flex flex-col gap-0.5">
+          {face.name === null ? null : <p className="font-bold" data-card-name>{face.name}</p>}
+          {face.route === null ? null : <p className="text-sm font-semibold">{face.route}</p>}
           {face.percent === null ? null : (
             <>
-              <p className="font-display text-8xl leading-none">
+              <p className="font-display text-6xl leading-none">
                 {face.percent}
-                <span className="font-sans text-4xl font-bold">%</span>
+                <span className="font-sans text-3xl font-bold">%</span>
               </p>
-              <p className="text-sm">{face.percentLabel}</p>
+              <p className="text-xs">{face.percentLabel}</p>
             </>
           )}
         </div>
       )}
       {face.stats === null ? null : (
-        <dl className="grid grid-cols-2 gap-3 text-sm">
+        <dl className="grid grid-cols-2 gap-2 text-xs">
           <div>
             <dt className="opacity-75">{face.monthsLabel}</dt>
-            <dd className="text-2xl font-bold tabular-nums">{face.stats.months}</dd>
+            <dd className="text-xl font-bold tabular-nums">{face.stats.months}</dd>
           </div>
           <div>
             <dt className="opacity-75">{face.standingLabel}</dt>
-            <dd className="text-2xl font-bold tabular-nums">{face.stats.standing}</dd>
+            <dd className="text-xl font-bold tabular-nums">{face.stats.standing}</dd>
           </div>
         </dl>
       )}
       {face.most.length === 0 ? null : (
-        <div className="flex flex-col gap-1 text-sm">
+        <div className="flex flex-col gap-0.5 text-xs">
           <p className="opacity-75">{face.mostLabel}</p>
           <ol className="flex flex-col gap-0.5 font-semibold">
             {face.most.map((item) => (
@@ -110,15 +110,15 @@ export function ShareCardFace({ card, scenario = null }: { card: ShareCard; scen
   return (
     <article
       data-share-card={card.kind}
-      className={`flex aspect-[9/16] w-[min(calc(100vw-2rem),24rem)] flex-col justify-between gap-4 overflow-hidden rounded-3xl p-6 shadow-2xl ${TONES[card.kind]}`}
+      className={`flex aspect-[9/16] w-[min(calc(100vw-2rem),24rem)] flex-col justify-between gap-3 overflow-hidden rounded-3xl p-5 shadow-2xl ${TONES[card.kind]}`}
     >
       <Stripes />
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-1">
         <p className="text-xs font-semibold tracking-widest uppercase">{face.kicker}</p>
         <CardTitle>{face.title}</CardTitle>
       </div>
       <Figures face={face} />
-      {face.body === null ? null : <p className={card.kind === "send-off" ? "italic" : ""}>{face.body}</p>}
+      {face.body === null ? null : <p className={card.kind === "send-off" ? "text-sm italic" : "text-sm"}>{face.body}</p>}
       <Footer face={face} />
     </article>
   );
