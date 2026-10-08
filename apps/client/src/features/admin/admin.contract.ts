@@ -273,12 +273,27 @@ export interface Switches {
   lottery: boolean;
   adverts: boolean;
   partnerPlay: boolean;
+  "boards.this-week.everyone": boolean;
+  "boards.this-week.friends": boolean;
+  "boards.all-time.everyone": boolean;
+  "boards.all-time.friends": boolean;
+  "boards.joined-week": boolean;
 }
 
 export type SwitchName = keyof Switches;
 
 /** apps/server/src/switches/switches.ts SWITCH_NAMES. */
-export const SWITCH_NAMES: readonly SwitchName[] = ["signups", "lottery", "adverts", "partnerPlay"];
+export const SWITCH_NAMES: readonly SwitchName[] = [
+  "signups",
+  "lottery",
+  "adverts",
+  "partnerPlay",
+  "boards.this-week.everyone",
+  "boards.this-week.friends",
+  "boards.all-time.everyone",
+  "boards.all-time.friends",
+  "boards.joined-week",
+];
 
 /** packages/store/src/switches.ts Dials. */
 export interface Dials {
