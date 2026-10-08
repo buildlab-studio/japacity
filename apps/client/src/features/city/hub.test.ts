@@ -10,8 +10,11 @@ import { describe, expect, test } from "vitest";
 import budgets from "../../../../../assets-src/budgets.json";
 import { measureFile, placeTotals, type PlaceFile as CheckedPlace } from "../../../../../tools/assets/check-assets";
 import hubFile from "../../../public/assets/places/ojuelegba/place.json";
+import { cameraAim } from "./camera";
 import { crowdSize } from "./crowd";
 import type { PlaceFile } from "./placeFile";
+import { personOf } from "./roster";
+import { groundGeometry } from "./world";
 
 const ROOT = join(import.meta.dirname, "..", "..", "..", "..", "..");
 const PUBLIC = join(ROOT, "apps", "client", "public", "assets");
@@ -40,6 +43,7 @@ describe("the hub's budget", () => {
     expect(file.people.low).toBe(crowdSize(hub, "low", city));
     expect(file.people.high).toBe(crowdSize(hub, "high", city));
     expect(hubFile.groundRoadSky.drawCalls).toBe(1);
+    expect(hubFile.groundRoadSky.triangles).toBe(groundGeometry(stage).getAttribute("position").count / 3);
     expect([stage.ground.colour, ...stage.roads.flatMap((road) => [road.colour, road.dash?.colour ?? road.colour])].every(isPaletteName)).toBe(true);
   });
 });
@@ -89,4 +93,61 @@ describe("the junction", () => {
     expect(round.length).toBeGreaterThanOrEqual(2);
     for (const indices of Object.values(stage.prefer ?? {})) for (const index of indices) expect(index).toBeLessThan(high);
   });
+
+  test("[R-CITY-014] given the hub's acts, when the sample stands, then a man calls at the danfo's door, a man sits on a parked okada, and people cross the bay and Ojuelegba Road", () => {
+    const acts = stage.acts ?? [];
+    const low = crowdSize(hub, "low", city);
+    const conductor = acts.find((act) => act.pose === "cheer" || act.pose === "sell");
+    expect(conductor?.sex).toBe("m");
+    expect(conductor?.spot).toBeLessThan(low);
+    const door = stage.people[conductor?.spot ?? -1];
+    expect(at("veh_danfo.glb").some(([x, z]) => door !== undefined && Math.abs(door[0] - x) < 2.5 && door[1] > z && door[1] - z < 1.5)).toBe(true);
+    const rider = acts.find((act) => act.pose === "ride");
+    const seat = stage.people[rider?.spot ?? -1];
+    expect(rider?.spot).toBeLessThan(low);
+    expect(at("veh_okada.glb").some(([x, z]) => seat !== undefined && Math.hypot(seat[0] - x, seat[1] - z) < 0.5)).toBe(true);
+    const crossers = acts.filter((act) => act.to !== undefined);
+    expect(crossers.length).toBeGreaterThanOrEqual(2);
+    expect(crossers.length).toBeLessThanOrEqual(3);
+    const kerb = stage.roads.find((road) => road.raise !== undefined)?.at[1] ?? 0;
+    const crossesBay = crossers.some((act) => (stage.people[act.spot]?.[1] ?? 0) > kerb && (act.to?.[1] ?? 0) < kerb - 3);
+    const crossesRoad = crossers.some((act) => Math.min(stage.people[act.spot]?.[0] ?? 0, act.to?.[0] ?? 0) < 6 && Math.max(stage.people[act.spot]?.[0] ?? 0, act.to?.[0] ?? 0) > 15);
+    expect(crossesBay).toBe(true);
+    expect(crossesRoad).toBe(true);
+    for (const act of acts) expect(act.spot).toBeLessThan(crowdSize(hub, "high", city));
+  });
+
+  test("[R-CITY-016] given the hub's sample, when its outfits are read, then no one at the bus stop wears a crop top and denim shorts", () => {
+    expect(file.people.sample).not.toContain("shared/chr/chr_tolani.glb");
+    expect(file.people.sample.every((path) => personOf(path) !== null)).toBe(true);
+  });
+
+  test("[R-CITY-034] given the phone's first view, when the line from the camera through the player's indicator runs on, then it passes clear of every danfo's roof load", () => {
+    const [x, z, heading] = stage.start;
+    const { position } = cameraAim({ x, z }, heading, 0, 412 / 915);
+    const indicator = [x, 1.98, z] as const;
+    // The rack and its load run from 1.9 m behind a danfo's middle to 1.1 m ahead of it, from 1.95 m to 2.45 m up.
+    for (const [danfoX, danfoZ, turn] of at("veh_danfo.glb")) {
+      expect(turn).toBeCloseTo(Math.PI / 2, 3);
+      for (const side of [danfoZ - 0.875, danfoZ + 0.875]) {
+        const share = (side - position[2]) / (indicator[2] - position[2]);
+        const crossX = position[0] + (indicator[0] - position[0]) * share;
+        const crossY = position[1] + (indicator[1] - position[1]) * share;
+        const behindRack = crossX > danfoX - 1.9 - 0.3 && crossX < danfoX + 1.1 + 0.3 && crossY < 2.45 + 0.3;
+        expect(behindRack).toBe(false);
+      }
+    }
+  });
+
+  test("[R-CITY-013] given the phone's first view, when the near pavement is read, then a parked okada stands between the camera and the player inside the frame, so the lower frame is not bare", () => {
+    const [x, z, heading] = stage.start;
+    const { position } = cameraAim({ x, z }, heading, 0, 412 / 915);
+    const near = at("veh_okada.glb").filter(([okadaX, okadaZ]) => {
+      const depth = position[2] - okadaZ;
+      const halfWidth = depth * Math.tan((16 * Math.PI) / 180) * (412 / 915);
+      return okadaZ > z && okadaZ < position[2] && Math.abs(okadaX - position[0]) < halfWidth;
+    });
+    expect(near.length).toBeGreaterThanOrEqual(1);
+  });
 });
+

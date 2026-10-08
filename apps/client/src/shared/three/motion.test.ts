@@ -21,4 +21,16 @@ describe("smoke", () => {
     expect(puffs.geometry.getAttribute("aSeed").count).toBe(30);
     expect(puffGeometry().index?.count).toBe(PUFF_INDEX.length);
   });
+
+  test("[R-ASSET-005] given a puff turning as it rises, when its shader is built, then its normals turn with it, so its light side stays toward the sun", () => {
+    const material = smoke(4, [new Color(0xffffff)]).material as MeshLambertMaterial;
+    const shader = { uniforms: {}, vertexShader: "#include <beginnormal_vertex>\n#include <begin_vertex>\n", fragmentShader: "" };
+    material.onBeforeCompile(shader as unknown as Parameters<MeshLambertMaterial["onBeforeCompile"]>[0], undefined as unknown as Parameters<MeshLambertMaterial["onBeforeCompile"]>[1]);
+    const turned = /objectNormal\.xz = mat2\(cos\(spin\), -sin\(spin\), sin\(spin\), cos\(spin\)\) \* objectNormal\.xz/;
+    const moved = /transformed\.xz = mat2\(cos\(spin\), -sin\(spin\), sin\(spin\), cos\(spin\)\) \* transformed\.xz/;
+    expect(shader.vertexShader).toMatch(turned);
+    expect(shader.vertexShader).toMatch(moved);
+    expect(shader.vertexShader.indexOf("objectNormal.xz =")).toBeLessThan(shader.vertexShader.indexOf("#include <begin_vertex>"));
+  });
 });
+
