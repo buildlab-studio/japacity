@@ -10,6 +10,7 @@ import { registry } from "../kinds";
 import { legalCommands } from "../testing/legal";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
+import { draw, seedWhere } from "../route/route.journey";
 import type { ObligationEvent } from "./obligation.events";
 
 const ADA: Id<"scenario"> = "scenario.ada";
@@ -516,5 +517,323 @@ describe("random play", () => {
       copy.state = game.state;
       copy.accept(command);
     }
+  });
+});
+
+// ---------------------------------------------------------------------------
+// The group loan: R-OBLIGATION-010 to 013. The savings circle: R-LUCK-009.
+// ---------------------------------------------------------------------------
+
+const GROUP_LOAN: Id<"obligation"> = "obligation.group-loan";
+const GUARANTEE: Id<"obligation"> = "obligation.guarantee";
+const AJO: Id<"obligation"> = "obligation.ajo";
+const NETWORK: Id<"quality"> = "quality.network";
+const TECH: Id<"quality"> = "quality.tech";
+const PORTFOLIO: Id<"quality"> = "quality.portfolio";
+const GROUP = content.tuning.groupLoan;
+/** ₦100,000, the page's example: ₦25,000 in fees and savings. */
+const HUNDRED_THOUSAND = 10000000;
+
+/** Opens an offer through its own `when`, as the offer kind would, and returns its instance id, or null when it does not open. */
+function offerOf(game: Game, offer: Id<"offer">): string | null {
+  apply(game, [{ type: "offer/open", offer }]);
+  return Object.values(game.state.offer.items).find((open) => open.entry === offer)?.id ?? null;
+}
+
+function choose(game: Game, offer: Id<"offer">, choice: string, amount?: number): Accepted {
+  const id = offerOf(game, offer);
+  if (id === null) throw new Error(`${offer} did not open.`);
+  return game.accept(amount === undefined ? { type: "offer/choose", offer: id, choice } : { type: "offer/choose", offer: id, choice, amount });
+}
+
+/** Ends a month, granting turns when the bank is empty. */
+function month(game: Game): Accepted {
+  if (game.state.turn.banked < 1) game.grant(game.content.tuning.turn.cap);
+  return game.endTurn();
+}
+
+function groupLoanOf(game: Game): ObligationState {
+  const found = Object.values(game.state.obligation.items).find((owed) => owed.entry === GROUP_LOAN);
+  if (found === undefined) throw new Error("No group loan is open.");
+  return found;
+}
+
+function credits(result: { events: BaseEvent[] }) {
+  return result.events.filter((event) => event.type === "wallet/credited");
+}
+
+describe("the group loan", () => {
+  test("[R-OBLIGATION-010] given ₦100,000 taken through the offer, when it opens, then ₦90,000 is credited as a flagged loan, the 15% fee is paid and 10% is held as savings", () => {
+    const game = start({ scenario: TUNDE, content });
+    const result = choose(game, "offer.group-loan", "take", HUNDRED_THOUSAND);
+    const fee = bp(HUNDRED_THOUSAND, GROUP.feeBp);
+    const savings = bp(HUNDRED_THOUSAND, GROUP.savingsBp);
+    expect([fee, savings]).toEqual([1500000, 1000000]);
+    expect(credits(result)).toEqual([{ type: "wallet/credited", currency: "NGN", pocket: "bank", amount: HUNDRED_THOUSAND - savings, reason: "loan" }]);
+    // Flagged: a visa officer would ask where it came from.
+    expect(game.state.wallet.lots).toContainEqual({ currency: "NGN", amount: HUNDRED_THOUSAND - savings, month: 0, reason: "loan" });
+    expect(debits(result)).toEqual([{ type: "wallet/debited", currency: "NGN", pocket: "bank", amount: fee, reason: "fee-agent" }]);
+    expect(groupLoanOf(game)).toMatchObject({ principal: HUNDRED_THOUSAND, outstanding: HUNDRED_THOUSAND, amount: savings, monthsLeft: 9, state: "active" });
+  });
+
+  test("[R-OBLIGATION-010] given the offer's range, when an amount is picked, then ₦50,000 and ₦300,000 are taken and a kobo outside either is a bad amount", () => {
+    for (const amount of [5000000, 30000000]) {
+      const game = start({ scenario: TUNDE, content });
+      choose(game, "offer.group-loan", "take", amount);
+      expect(groupLoanOf(game).principal).toBe(amount);
+    }
+    for (const amount of [4999999, 30000001]) {
+      const game = start({ scenario: TUNDE, content });
+      const id = offerOf(game, "offer.group-loan")!;
+      expect(game.expectRejected({ type: "offer/choose", offer: id, choice: "take", amount }, "bad-amount").code).toBe("bad-amount");
+    }
+  });
+
+  test("[R-OBLIGATION-010] given a group loan repaid month by month, when the ninth charge is paid, then it closes and the savings held back come back to the bank", () => {
+    const game = start({ scenario: TUNDE, content });
+    const loan = open(game, GROUP_LOAN, HUNDRED_THOUSAND);
+    const entry = entryOf(GROUP_LOAN);
+    const part = divCeil(HUNDRED_THOUSAND, entry.term!);
+    const interest = bp(HUNDRED_THOUSAND, entry.rateBp);
+    expect([part, interest]).toEqual([1111112, 170000]);
+    for (let paid = 1; paid < entry.term!; paid += 1) {
+      setNaira(game, 100000000);
+      const result = month(game);
+      expect(ofType(result, "obligation/charged").filter((event) => event.id === loan.id)).toEqual([
+        { type: "obligation/charged", id: loan.id, entry: GROUP_LOAN, total: part + interest, interest, principal: part },
+      ]);
+    }
+    setNaira(game, 100000000);
+    const last = month(game);
+    expect(item(game, loan.id)).toBeUndefined();
+    expect(ofType(last, "obligation/closed")).toEqual([{ type: "obligation/closed", id: loan.id, entry: GROUP_LOAN, why: "paid" }]);
+    expect(credits(last)).toContainEqual({ type: "wallet/credited", currency: "NGN", pocket: "bank", amount: bp(HUNDRED_THOUSAND, GROUP.savingsBp), reason: "deposit-return" });
+  });
+
+  test("[R-OBLIGATION-011] given a group loan missed three months in a row, when each month ends, then the group covers the first, visits on the second, and on the third it defaults and the laptop is seized", () => {
+    const game = start({ scenario: ADA, content });
+    apply(game, [{ type: "quality/add", quality: PORTFOLIO, amount: 2 }]);
+    const loan = open(game, GROUP_LOAN, HUNDRED_THOUSAND);
+    const part = divCeil(HUNDRED_THOUSAND, 9);
+    const total = part + bp(HUNDRED_THOUSAND, 170);
+    setNaira(game, 0);
+
+    const first = month(game);
+    expect(ofType(first, "obligation/covered")).toEqual([{ type: "obligation/covered", id: loan.id, entry: GROUP_LOAN, total, principal: part, missed: 1 }]);
+    expect(item(game, loan.id)).toMatchObject({ state: "grace", missed: 1, outstanding: HUNDRED_THOUSAND - part + total, monthsLeft: 8 });
+    expect(qualityChanges(first, GROUP_LOAN).map((event) => [event.quality, event.amount])).toEqual([[STANDING, -5]]);
+    expect(first.lines.find((line) => line.key === "line.obligation.group-covered")).toMatchObject({ params: { obligation: GROUP_LOAN, amount: { currency: "NGN", amount: total } }, tone: "bad" });
+
+    const second = month(game);
+    expect(item(game, loan.id)).toMatchObject({ state: "grace", missed: 2 });
+    expect(qualityChanges(second, GROUP_LOAN).map((event) => [event.quality, event.amount])).toEqual([
+      [STANDING, -12],
+      [WELLBEING, -5],
+    ]);
+    expect(second.lines.find((line) => line.key === "line.obligation.group-visit")).toMatchObject({ tone: "bad", attention: true });
+
+    const credit = game.state.quality[CREDIT]!;
+    const third = month(game);
+    expect(item(game, loan.id)).toMatchObject({ state: "defaulted", missed: 3 });
+    expect(qualityChanges(third, GROUP_LOAN).map((event) => [event.quality, event.amount])).toEqual([
+      [STANDING, -15],
+      [CREDIT, 1],
+      [TECH, -10],
+      [PORTFOLIO, -1],
+    ]);
+    expect(game.state.quality[CREDIT]).toBe(credit + 1);
+    expect(third.lines.find((line) => line.key === "line.obligation.group-default")).toMatchObject({ tone: "bad", attention: true });
+
+    // From then on the lender takes from the bank, as any defaulted loan.
+    setNaira(game, 5000000);
+    const taken = month(game);
+    expect(ofType(taken, "obligation/seized")).toEqual([{ type: "obligation/seized", id: loan.id, entry: GROUP_LOAN, amount: 5000000 }]);
+    // The credit mark now keeps every group loan closed.
+    expect(offerOf(game, "offer.group-loan")).toBeNull();
+    expect(checkInvariants(game.state, content)).toEqual([]);
+  });
+});
+
+describe("how the group loan reaches you", () => {
+  test("[R-OBLIGATION-012] given network one short of 20, and then at 20, when the group loan offer is opened, then it opens only from 20; standing 39 and a credit mark keep it shut", () => {
+    const ada = start({ scenario: ADA, content });
+    const network = ada.state.quality[NETWORK]!;
+    expect(network).toBeLessThan(20);
+    apply(ada, [{ type: "quality/add", quality: NETWORK, amount: 19 - network }]);
+    expect(ada.state.quality[NETWORK]).toBe(19);
+    expect(offerOf(ada, "offer.group-loan")).toBeNull();
+    apply(ada, [{ type: "quality/add", quality: NETWORK, amount: 1 }]);
+    expect(offerOf(ada, "offer.group-loan")).not.toBeNull();
+
+    const low = start({ scenario: TUNDE, content });
+    apply(low, [{ type: "quality/add", quality: STANDING, amount: 39 - low.state.quality[STANDING]! }]);
+    expect(low.state.quality[STANDING]).toBe(39);
+    expect(offerOf(low, "offer.group-loan")).toBeNull();
+    apply(low, [{ type: "quality/add", quality: STANDING, amount: 1 }]);
+    expect(offerOf(low, "offer.group-loan")).not.toBeNull();
+
+    const marked = start({ scenario: TUNDE, content });
+    apply(marked, [{ type: "quality/add", quality: CREDIT, amount: 1 }]);
+    expect(offerOf(marked, "offer.group-loan")).toBeNull();
+  });
+
+  test("[R-OBLIGATION-012] given the group at the door over a parent's shop loan, when it is paid, ₦120,000 goes as family money; refused or left, standing falls 15", () => {
+    const paid = start({ scenario: TUNDE, content });
+    const result = choose(paid, "offer.parents-group-debt", "pay");
+    const taken = debits(result) as (BaseEvent & { amount: number; reason: string })[];
+    expect(taken.every((event) => event.reason === "family")).toBe(true);
+    expect(taken.reduce((sum, event) => sum + event.amount, 0)).toBe(12000000);
+
+    const refused = start({ scenario: TUNDE, content });
+    const no = choose(refused, "offer.parents-group-debt", "no");
+    expect(no.events.filter((event) => event.type === "quality/changed").map((event) => (event as unknown as { amount: number }).amount)).toEqual([-15]);
+    expect(entryOf(GROUP_LOAN).type).toBe("group-loan");
+    expect(content.offer["offer.parents-group-debt"]?.onExpire).toBe("no");
+  });
+
+  test("[R-OBLIGATION-012] given a relative's guarantee accepted, when three months pass and the relative is gone, then the group loan opens on you for the balance, with nothing lent and no savings held", () => {
+    const always = { ...content, tuning: { ...content.tuning, groupLoan: { ...GROUP, vanishBp: 10000 } } };
+    const game = start({ scenario: TUNDE, content: always });
+    const accepted = choose(game, "offer.stand-guarantor", "accept");
+    expect(accepted.events.filter((event) => event.type === "quality/changed").map((event) => (event as unknown as { amount: number }).amount)).toEqual([4]);
+    const guarantee = Object.values(game.state.obligation.items).find((owed) => owed.entry === GUARANTEE)!;
+    const balance = guarantee.principal;
+    expect(balance).toBeGreaterThanOrEqual(10000000);
+    month(game);
+    month(game);
+    expect(Object.values(game.state.obligation.items).some((owed) => owed.entry === GROUP_LOAN)).toBe(false);
+    const called = month(game);
+    expect(groupLoanOf(game)).toMatchObject({ principal: balance, outstanding: balance, amount: 0 });
+    expect(item(game, guarantee.id)).toBeUndefined();
+    expect(credits(called).filter((event) => (event as unknown as { reason: string }).reason === "loan")).toEqual([]);
+    expect(called.lines.find((line) => line.key === "line.obligation.guarantee-called")).toMatchObject({ params: { obligation: GUARANTEE, amount: { currency: "NGN", amount: balance } } });
+  });
+
+  test("[R-OBLIGATION-012] given a guarantee accepted and the relative still there, when three months pass, then the guarantee ends and nothing is owed; refusing costs standing 4", () => {
+    const never = { ...content, tuning: { ...content.tuning, groupLoan: { ...GROUP, vanishBp: 0 } } };
+    const game = start({ scenario: TUNDE, content: never });
+    choose(game, "offer.stand-guarantor", "accept");
+    month(game);
+    month(game);
+    const ended = month(game);
+    expect(Object.values(game.state.obligation.items).some((owed) => owed.entry === GUARANTEE || owed.entry === GROUP_LOAN)).toBe(false);
+    expect(ended.lines.find((line) => line.key === "line.obligation.ended")).toBeDefined();
+    const refused = start({ scenario: TUNDE, content });
+    const no = choose(refused, "offer.stand-guarantor", "refuse");
+    expect(no.events.filter((event) => event.type === "quality/changed").map((event) => (event as unknown as { amount: number }).amount)).toEqual([-4]);
+  });
+});
+
+describe("the way out", () => {
+  test("[R-OBLIGATION-013] given a group loan the group has covered, when it is paid ahead whole, then it closes and the savings come back", () => {
+    const game = start({ scenario: ADA, content });
+    const loan = open(game, GROUP_LOAN, HUNDRED_THOUSAND);
+    setNaira(game, 0);
+    month(game);
+    const owed = item(game, loan.id)!.outstanding;
+    setNaira(game, owed);
+    const paid = game.accept({ type: "obligation/pay", obligation: loan.id, amount: owed });
+    expect(item(game, loan.id)).toBeUndefined();
+    expect(credits(paid)).toContainEqual({ type: "wallet/credited", currency: "NGN", pocket: "bank", amount: bp(HUNDRED_THOUSAND, GROUP.savingsBp), reason: "deposit-return" });
+  });
+
+  test("[R-OBLIGATION-013] given a group loan in default, when what is owed is paid ahead, then it closes; the savings are lost with the default", () => {
+    const game = start({ scenario: ADA, content });
+    const loan = open(game, GROUP_LOAN, HUNDRED_THOUSAND);
+    setNaira(game, 0);
+    month(game);
+    month(game);
+    month(game);
+    expect(item(game, loan.id)?.state).toBe("defaulted");
+    const owed = item(game, loan.id)!.outstanding;
+    setNaira(game, 0, owed);
+    const paid = game.accept({ type: "obligation/pay", obligation: loan.id, amount: owed });
+    expect(item(game, loan.id)).toBeUndefined();
+    expect(credits(paid)).toEqual([]);
+  });
+
+  test("[R-OBLIGATION-013] given a group loan, when the legal list is read, then paying it ahead is offered and accepted", () => {
+    const game = start({ scenario: TUNDE, content });
+    const loan = open(game, GROUP_LOAN, HUNDRED_THOUSAND);
+    const pays = legalCommands(game.view()).filter((command) => command.type === "obligation/pay" && command.obligation === loan.id);
+    expect(pays.length).toBeGreaterThanOrEqual(1);
+    for (const command of pays) {
+      const copy = start({ scenario: TUNDE, content });
+      copy.state = game.state;
+      copy.accept(command);
+    }
+    const words = ["group-covered", "group-visit", "group-default", "guarantee-called"].map((what) => text[`line.obligation.${what}`] ?? "");
+    expect(words.filter((said) => said.trim() === "")).toEqual([]);
+  });
+});
+
+describe("the savings circle", () => {
+  const POT = 20000000;
+
+  function joined(seed: string): { game: Game; circle: ObligationState } {
+    const game = start({ scenario: TUNDE, content, seed });
+    choose(game, "offer.join-ajo", "join");
+    const circle = Object.values(game.state.obligation.items).find((owed) => owed.entry === AJO);
+    if (circle === undefined) throw new Error("The circle did not open.");
+    return { game, circle };
+  }
+
+  test("[R-LUCK-009] given the offer at home with standing 40 and network 20, when it is taken, then the circle opens: ₦20,000 a month for 10 months with a pot of ₦200,000", () => {
+    const { circle } = joined("seed-1");
+    expect(circle).toMatchObject({ amount: 2000000, monthsLeft: 10, principal: POT, outstanding: POT });
+    expect(entryOf(AJO)).toMatchObject({ rateBp: 0, term: 10, grace: 0 });
+    const ada = start({ scenario: ADA, content });
+    expect(offerOf(ada, "offer.join-ajo")).toBeNull();
+  });
+
+  test("[R-LUCK-009] given a seed whose first lotto draw in ten is 0, when the first month is paid, then the pot comes as a gift; a seed whose first is not waits", () => {
+    const lucky = seedWhere((seed) => draw(seed, "lotto", 0, 10) === 0);
+    const { game, circle } = joined(lucky);
+    setNaira(game, 100000000);
+    const first = month(game);
+    expect(ofType(first, "obligation/pot-paid")).toEqual([{ type: "obligation/pot-paid", id: circle.id, entry: AJO, amount: POT }]);
+    expect(credits(first)).toContainEqual({ type: "wallet/credited", currency: "NGN", pocket: "bank", amount: POT, reason: "gift" });
+    expect(first.lines.find((line) => line.key === "line.obligation.pot")).toMatchObject({ tone: "good", attention: true });
+
+    const unlucky = seedWhere((seed) => draw(seed, "lotto", 0, 10) !== 0 && draw(seed, "lotto", 1, 9) === 0);
+    const later = joined(unlucky);
+    setNaira(later.game, 100000000);
+    expect(ofType(month(later.game), "obligation/pot-paid")).toEqual([]);
+    expect(ofType(month(later.game), "obligation/pot-paid")).toHaveLength(1);
+  });
+
+  test.prop([fc.string({ minLength: 1, maxLength: 8 })], { numRuns: 12 })(
+    "[R-LUCK-009] given any seed, when all ten months are paid, then the pot comes exactly once, it equals what was paid in, and the circle ends",
+    (seed) => {
+      const { game, circle } = joined(seed);
+      let pots = 0;
+      let paidIn = 0;
+      for (let count = 0; count < 10; count += 1) {
+        setNaira(game, 100000000);
+        const result = month(game);
+        pots += ofType(result, "obligation/pot-paid").reduce((sum, event) => sum + event.amount, 0);
+        paidIn += ofType(result, "obligation/charged").filter((event) => event.id === circle.id).reduce((sum, event) => sum + event.total, 0);
+      }
+      expect(pots).toBe(POT);
+      expect(paidIn).toBe(POT);
+      expect(item(game, circle.id)).toBeUndefined();
+      expect(game.state.draws.lotto ?? 0).toBeLessThanOrEqual(10);
+    },
+  );
+
+  test("[R-LUCK-009] given a circle, when a month's share is missed, then it closes with standing -6 and no pot", () => {
+    const unlucky = seedWhere((seed) => draw(seed, "lotto", 0, 10) !== 0);
+    // Ada has no pay coming in, so a month with nothing is a missed share.
+    const game = start({ scenario: ADA, content, seed: unlucky });
+    const circle = open(game, AJO);
+    setNaira(game, 100000000);
+    month(game);
+    setNaira(game, 0);
+    const missed = month(game);
+    expect(item(game, circle.id)).toBeUndefined();
+    expect(ofType(missed, "obligation/closed")).toEqual([{ type: "obligation/closed", id: circle.id, entry: AJO, why: "dropped" }]);
+    expect(qualityChanges(missed, AJO).map((event) => [event.quality, event.amount])).toEqual([[STANDING, -6]]);
+    expect(ofType(missed, "obligation/pot-paid")).toEqual([]);
+    expect(missed.lines.find((line) => line.key === "line.obligation.dropped")).toMatchObject({ tone: "bad", attention: true });
   });
 });
