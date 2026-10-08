@@ -385,6 +385,7 @@ export const abroadActivityTable: Record<Id<"activity">, ActivityEntry> = {
   ),
   // R-ABROAD-003: credit 20 and one month's rent as the deposit, returned on leaving.
   // It closes the room and opens the flat.
+  // a flat held can be taken again, a new deposit and all: `obligation/has` reads only a type, and the room and the flat are both `rent`.
   "activity.rent-flat-uk": free("activity.rent-flat-uk", "country.uk", [IN_UK, { type: "credit/min", value: 20 }], {
     cost: [{ currency: "GBP", amount: pounds(950), reason: "rent" }],
     effects: [
