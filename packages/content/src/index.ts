@@ -47,6 +47,7 @@ import { schoolTable } from "./school/school.data";
 import { schoolText } from "./school/school.text";
 import { setpieceTable } from "./setpiece/setpiece.data";
 import { setpieceText } from "./setpiece/setpiece.text";
+import { shareText } from "./share/share.text";
 import { statusTable } from "./status/status.data";
 import { turnText } from "./turn/turn.text";
 import { statusLinesText } from "./status/status.lines.text";
@@ -55,6 +56,9 @@ import { tuning } from "./tuning/tuning.data";
 import { varTable } from "./var/var.data";
 import { varText } from "./var/var.text";
 import { walletText } from "./wallet/wallet.text";
+
+export { officialAccounts, shareChapters, shareKinds } from "./share/share.data";
+export type { OfficialAccount, OfficialPlatform, ShareKind } from "./share/share.data";
 
 export const content: Content = {
   version: "m0.1",
@@ -115,6 +119,7 @@ export const textTables: Record<string, Record<string, string>> = {
   scenario: scenarioText,
   school: schoolText,
   setpiece: setpieceText,
+  share: shareText,
   turn: turnText,
   status: statusText,
   statusLines: statusLinesText,
