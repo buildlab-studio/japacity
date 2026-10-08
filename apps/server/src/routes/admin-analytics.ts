@@ -1,0 +1,30 @@
+// `GET /api/admin/analytics?day=YYYY-MM-DD` (analytics.md R-ANALYTICS-009 to
+// 011): the dashboard's data, a page of the admin view. As with the other
+// admin routes, to anyone not in `config.admin.accounts` it does not exist.
+import { Hono } from "hono";
+
+import { utcDay } from "../admin/day";
+import { dashboard, WINDOW_DAYS } from "../analytics/dashboard";
+import { dayName, dayNumber } from "../analytics/day";
+import type { ServerDeps } from "../deps";
+
+export function adminAnalyticsRoutes(deps: ServerDeps): Hono {
+  const admin = new Hono();
+
+  admin.use("/analytics", async (c, next) => {
+    const session = await deps.session(c.req.raw);
+    if (session === null || !deps.config.admin.accounts.includes(session.account)) return c.notFound();
+    await next();
+    return undefined;
+  });
+
+  admin.get("/analytics", async (c) => {
+    const asked = c.req.query("day");
+    const last = asked === undefined ? utcDay(deps.now()) : dayNumber(asked);
+    if (last === null) return c.json({ ok: false, detail: "day is a date, YYYY-MM-DD." }, 400);
+    const totals = await deps.stores.counters.days(dayName(last - WINDOW_DAYS), dayName(last));
+    return c.json({ ok: true, dashboard: dashboard(deps.contents.current, dayName(last), totals) });
+  });
+
+  return admin;
+}

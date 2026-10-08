@@ -5,6 +5,7 @@ import type { Content } from "@japacity/sim";
 import type {
   AccountStore,
   AuditStore,
+  CounterStore,
   DeletionStore,
   LedgerStore,
   NudgeBus,
@@ -16,6 +17,7 @@ import type {
 import {
   memoryAccountStore,
   memoryAuditStore,
+  memoryCounterStore,
   memoryDeletionStore,
   memoryLedgerStore,
   memoryNudgeBus,
@@ -36,6 +38,7 @@ export interface Stores {
   deletion: DeletionStore;
   ledger: LedgerStore;
   audit: AuditStore;
+  counters: CounterStore;
 }
 
 /** R-SERVER-023: the current content and the one before, with any overlay already applied (R-SERVER-016). */
@@ -115,6 +118,7 @@ export function memoryStores(): Stores {
     deletion: memoryDeletionStore(),
     ledger: memoryLedgerStore(),
     audit: memoryAuditStore(),
+    counters: memoryCounterStore(),
   };
 }
 

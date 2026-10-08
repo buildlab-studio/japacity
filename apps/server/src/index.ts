@@ -14,6 +14,8 @@ import { memoryStores, testSession, webRandomBytes } from "./deps";
 import type { ServerDeps } from "./deps";
 import { DRAND_URL, quicknet } from "./draw/beacon";
 import type { DrawKeys } from "./draw/draw";
+import { isolateDayLog } from "./analytics/daylog";
+import { COUNTERS_CRON, countersJob } from "./jobs/counters";
 import { runDeletions } from "./jobs/deletion";
 import { drawJob } from "./jobs/draw";
 import { ticksJob } from "./jobs/ticks";
@@ -107,6 +109,8 @@ export default {
     ctx.waitUntil(ticksJob(depsFor(env), controller.cron));
     ctx.waitUntil(drawJob(depsFor(env), drawKeys(env), controller.cron));
     if (controller.cron === "0 0 * * *") ctx.waitUntil(runDeletions(depsFor(env), makeAuth(depsFor(env), authAdapter, authKeys(env, (promise) => ctx.waitUntil(promise)))));
+    // R-ANALYTICS-008: before the money job, which forgets the day's active list once it has run.
+    if (controller.cron === COUNTERS_CRON) ctx.waitUntil(countersJob(depsFor(env), isolateDayLog(depsFor(env))));
     if (controller.cron === MONEY_CRON) ctx.waitUntil(moneyJob(depsFor(env)));
   },
 };

@@ -14,6 +14,8 @@ import { placeRoutes } from "./routes/place";
 import { viewRoute } from "./routes/view";
 import { worldRoute } from "./routes/world";
 import { adminRoutes } from "./routes/admin";
+import { adminAnalyticsRoutes } from "./routes/admin-analytics";
+import { countersRoute } from "./routes/counters";
 
 export function makeApp(deps: ServerDeps, accounts?: Accounts): Hono {
   const app = new Hono();
@@ -27,6 +29,7 @@ export function makeApp(deps: ServerDeps, accounts?: Accounts): Hono {
   app.route("/", characterRoute(deps));
   app.route("/", placeRoutes(deps));
   app.route("/api/admin", adminRoutes(deps));
+  app.route("/", countersRoute(deps)).route("/api/admin", adminAnalyticsRoutes(deps));
 
   return app;
 }
