@@ -2,10 +2,12 @@
 // tab names, headings, and the sentences that explain a requirement. First
 // drafts in the voice of docs/rules/text.md. Every key here is a candidate to
 // move into content, where it can be rewritten. Numbers go in braces.
+import { lotteryWords } from "./lottery";
 import { onlineText } from "./online";
 
 export const uiText: Record<string, string> = {
   ...onlineText,
+  ...lotteryWords,
   "ui.game": "Japacity",
   "ui.loading": "Opening your life...",
   "ui.failed": "The game could not start: {why}",
