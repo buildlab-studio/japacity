@@ -4,7 +4,7 @@ export { newState, upgradeState } from "./engine/state";
 export { step } from "./engine/step";
 export { check, allMet, unmet } from "./engine/check";
 export { checkContent } from "./engine/content";
-export { applyOverlay } from "./engine/overlay";
+export { applyOverlay, checkOverlay } from "./engine/overlay";
 export type { Overlay } from "./engine/overlay";
 export { checkInvariants } from "./engine/invariants";
 export { hashState, stableJson } from "./engine/hash";
