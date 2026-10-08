@@ -26,9 +26,11 @@ export interface AccountGateProps {
   /** Seams for tests: the Turnstile script and the site key. */
   load?: LoadTurnstile;
   sitekey?: string | null;
+  /** Inside another page, as the invite link's: no page of its own around it. */
+  embedded?: boolean;
 }
 
-export function AccountGate({ load = loadTurnstile, sitekey }: AccountGateProps) {
+export function AccountGate({ load = loadTurnstile, sitekey, embedded = false }: AccountGateProps) {
   const account = useGame((state) => state.account);
   const notice = useGame((state) => state.accountNotice);
   const signedIn = useGame((state) => state.signedIn);
@@ -101,6 +103,8 @@ export function AccountGate({ load = loadTurnstile, sitekey }: AccountGateProps)
       }
     }
   }
+
+  if (embedded) return <div className="flex flex-col gap-6">{body(account)}</div>;
 
   return (
     <main className="mx-auto flex min-h-dvh max-w-md flex-col gap-6 px-4 py-8">

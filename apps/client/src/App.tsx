@@ -9,11 +9,14 @@ import { BadgeCheck, CalendarDays, House, Newspaper, Plane, UserRound, Users, Wa
 import { useEffect, useState, type ReactNode } from "react";
 
 import { bootGame } from "./authority/boot";
+import { counting } from "./shared/analytics/start";
 import { GameProvider, useGame, useView } from "./authority/GameProvider";
 import type { GameStore } from "./authority/store";
 import { AccountGate } from "./features/account/AccountGate";
+import { inviteCodeOf, InvitePage } from "./features/account/InvitePage";
 import { AccountButton } from "./features/account/Settings";
 import { ActivityView } from "./features/activity/ActivityView";
+import { PhoneTile, PlaceAdverts } from "./features/adverts/placed";
 import { EndingView } from "./features/card/EndingView";
 import { CardView } from "./features/card/ShareCard";
 import { ChapterView } from "./features/chapter/ChapterView";
@@ -51,6 +54,16 @@ import { playerMonth } from "./shared/words/format";
 import { say } from "./shared/words/text";
 
 type Tab = "month" | "you" | "money" | "japa" | "news" | "status" | "home" | "people";
+
+/** R-ANALYTICS-002: the screen each tab opens, by the feature folder that leads it. */
+const TAB_SCREEN: Record<Tab, string> = { month: "turn", you: "quality", money: "wallet", japa: "japacity", news: "news", status: "status", home: "place", people: "people" };
+
+/** Counts a screen each time it opens, never while it stays open. */
+function useScreenCount(screen: string | null): void {
+  useEffect(() => {
+    if (screen !== null) counting().count("screen/opened", screen);
+  }, [screen]);
+}
 
 type TabSet = readonly { id: Tab; icon: LucideIcon }[];
 
@@ -197,6 +210,7 @@ function AtHome({ tab }: { tab: Tab }) {
         </Group>
         <Group tab="news" current={tab}>
           <NewsView />
+          <PhoneTile />
         </Group>
         <Group tab="people" current={tab}>
           <PeopleView />
@@ -236,6 +250,7 @@ function Abroad({ tab }: { tab: Tab }) {
           <RouteView />
           <DocumentView />
           <NewsView />
+          <PhoneTile />
         </Group>
         <Group tab="home" current={tab}>
           <PlaceView />
@@ -260,10 +275,14 @@ function Playing() {
     setTab(next);
     window.scrollTo({ top: 0 });
   };
+  const reportOpen = useGame((state) => state.reportOpen);
+  useScreenCount(TAB_SCREEN[tab]);
+  useScreenCount(reportOpen ? "report" : null);
+  useScreenCount(view.setpiece === null ? null : "setpiece");
 
   return (
     <div className="min-h-dvh">
-      <City />
+      <City adverts={(place) => <PlaceAdverts place={place} />} />
       <Header />
       {abroad ? <Abroad tab={tab} /> : <AtHome tab={tab} />}
       <TabBar tabs={tabs} current={tab} onChange={showTab} />
@@ -280,6 +299,7 @@ function Shell() {
   const lines = useGame((state) => state.lines);
   // The version the prologue's handover was passed at, so it shows once.
   const [handedOver, setHandedOver] = useState<number | null>(null);
+  useScreenCount(choosingLife ? "scenario" : view !== null && view.prologue !== null ? "prologue" : view?.place.where === "road" ? "road" : null);
   if (failed !== null) return <p className="p-4 text-bad">{say("ui.failed", { why: failed })}</p>;
   if (signedOut) return <AccountGate />;
   if (choosingLife) return <ScenarioView />;
@@ -291,14 +311,17 @@ function Shell() {
   return <Playing />;
 }
 
-export function App({ store: given }: { store?: GameStore }) {
+/** `path`: the page's path, for tests; the browser's own otherwise. */
+export function App({ store: given, path }: { store?: GameStore; path?: string }) {
   const [store] = useState(() => given ?? bootGame());
+  // R-PAIR-008: a friend's invite link opens its own page before the game.
+  const [invite, setInvite] = useState(() => inviteCodeOf(path ?? (typeof location === "undefined" ? "/" : location.pathname)));
   useEffect(() => {
     void store.getState().refresh();
   }, [store]);
-  return (
-    <GameProvider store={store}>
-      <Shell />
-    </GameProvider>
-  );
+  const leaveInvite = () => {
+    if (typeof history !== "undefined") history.replaceState(null, "", "/");
+    setInvite(null);
+  };
+  return <GameProvider store={store}>{invite === null ? <Shell /> : <InvitePage code={invite} onDone={leaveInvite} />}</GameProvider>;
 }

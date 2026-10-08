@@ -20,10 +20,15 @@ import { reasonWords, words } from "./moderation.words";
  */
 export type Someone = { pair: string; name: string } | { campaign: string; name: string } | { name: string };
 
-/** R-MODERATION-003: every surface the control is shown on, for the test that walks them. */
-export const MODERATION_SURFACES = ["pair", "conversation", "invite-card", "advert", "place-phrase"] as const;
+/** R-MODERATION-003: every surface the interface shows the control on, for the test that walks them. */
+export const MODERATION_SURFACES = ["pair", "conversation", "invite-card", "advert"] as const;
 
-export type Surface = (typeof MODERATION_SURFACES)[number];
+/**
+ * no screen yet shows a phrase said in a place (R-PAIR-012 has no
+ * client) or a player seen in one (presence carries no id and R-MODERATION-004
+ * names no cite for it); the control takes the place cite for when one does.
+ */
+export type Surface = (typeof MODERATION_SURFACES)[number] | "place-phrase";
 
 export interface BlockReportProps {
   who: Someone;

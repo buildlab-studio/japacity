@@ -49,6 +49,19 @@ export const onlineText: Record<string, string> = {
   "ui.account.age.bad-date": "That date does not look right. Check it and try again.",
   "ui.account.region-closed": "Japacity is not open where you are yet.",
 
+  // The invite link's page (R-PAIR-007, R-PAIR-008)
+  "ui.invite.title": "A friend sent you a card",
+  "ui.invite.someone": "Someone",
+  "ui.invite.days": "A card's link works once, for {days} days.",
+  "ui.invite.come-in": "To take it, say when you were born and come in first.",
+  "ui.invite.partner": "Take the card and your life and theirs are linked. You choose what happens next.",
+  "ui.invite.sibling": "Take the card and you start a new life as their brother or sister.",
+  "ui.invite.new-life": "A partner card needs a grown-up life. Pick who to be.",
+  "ui.invite.take": "Take the card",
+  "ui.invite.taken": "Done. You are linked.",
+  "ui.invite.play": "Play",
+  "ui.invite.offline": "Invite cards work only when the game is online.",
+
   // The full screen while sign-ups are switched off (R-SERVER-032)
   "server.full": "Japacity is full right now. Try again shortly.",
   "ui.full.check": "Check again",
@@ -79,6 +92,11 @@ export const onlineText: Record<string, string> = {
   "ui.account.fail.refused": "That did not work. Try another way in.",
   "ui.account.notice.deleted": "Your account is deleted. Everything it held goes within 30 days.",
   "ui.account.notice.signed-out": "You have signed out.",
+
+  // The usage counts setting (R-ANALYTICS-006)
+  "ui.account.usage": "Send usage counts",
+  "ui.account.usage.help": "Counts of which screens open and how fast the game loads, never what you type or who you are. Off stops them.",
+  "ui.account.usage.failed": "That did not save. Try again in a moment.",
 
   // The settings (R-ACCOUNT-003, R-ACCOUNT-016)
   "ui.account.settings": "Account",
