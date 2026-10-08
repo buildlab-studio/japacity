@@ -884,6 +884,8 @@ export interface Bond {
   standIn: "warned" | "on" | null;
   ended: { month: number; by: "me" | "them" | "absence" | "block" | "drift" } | null;
   cooldownUntil: number | null;
+  /** This life's own consents for a joint on the bond, agreed or pending (R-PEOPLE-004, 044). Null before any was given. */
+  consent: { countFunds: boolean; standInMay: boolean } | null;
 }
 
 export interface PeopleSlice {

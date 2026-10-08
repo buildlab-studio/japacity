@@ -7,7 +7,6 @@ import type { LifeOptions } from "../route.journey";
 import { BOND, CANADA, facts, joint, life, readOf, setPeople, sibling } from "./people.journey";
 import { invites, pointsParts, pointsScore, pointsScoreAlone, pointsScoreWith, siblingPoints, spouseFactors } from "./points";
 
-const used = content;
 const BONUS = content.points["points.canada"]!.siblingBonus;
 const YEAR = 12;
 
@@ -18,7 +17,7 @@ const ADA: LifeOptions = { qualities: { "quality.age-months": 25 * YEAR, "qualit
 const SPOUSE = facts({ eduLevel: 3, englishBand: 70 });
 
 function leading(spouse: PersonFacts = SPOUSE, options: LifeOptions = ADA): Game {
-  const game = life(used, options);
+  const game = life(content, options);
   joint(game, CANADA, "me", { stage: "married", facts: spouse });
   return game;
 }
@@ -42,9 +41,32 @@ describe("R-PEOPLE-030: the lead's score with a spouse", () => {
     expect(score(game)).toBe(pointsScoreWith(readOf(game), CANADA, SPOUSE));
   });
 
+  test("[R-PEOPLE-030] given a joint on the points route either way round, when the people view is read, then it shows the score alone and the score with this partner, so the couple can choose who leads", () => {
+    for (const lead of ["me", "them"] as const) {
+      const game = life(content, ADA);
+      joint(game, CANADA, lead, { stage: "married", facts: SPOUSE });
+      expect(game.view().people.joint).toEqual({
+        bond: BOND,
+        route: CANADA,
+        lead,
+        myScore: pointsScoreAlone(readOf(game), CANADA),
+        theirScore: pointsScoreWith(readOf(game), CANADA, SPOUSE),
+      });
+    }
+  });
+
+  test("[R-PEOPLE-030] given a joint on the points route whose partner's facts are not known, or a joint on a route without points, when the people view is read, then only what can be scored shows", () => {
+    const unknown = life(content, ADA);
+    joint(unknown, CANADA, "me", { stage: "married", facts: null });
+    expect(unknown.view().people.joint).toMatchObject({ myScore: pointsScoreAlone(readOf(unknown), CANADA), theirScore: null });
+    const skilled = life(content, ADA);
+    joint(skilled, "route.uk-skilled", "me", { stage: "married", facts: SPOUSE });
+    expect(skilled.view().people.joint).toMatchObject({ myScore: null, theirScore: null });
+  });
+
   test("[R-PEOPLE-030] given no joint, a joint the partner leads, or a bond that has ended, when the score is read, then Ada scores alone", () => {
-    const alone = life(used, ADA);
-    const theirs = life(used, ADA);
+    const alone = life(content, ADA);
+    const theirs = life(content, ADA);
     joint(theirs, CANADA, "them", { stage: "married", facts: SPOUSE });
     const ended = leading();
     setPeople(ended, (slice) => ({ ...slice, bonds: { [BOND]: { ...slice.bonds[BOND]!, stage: "ended" } } }));
@@ -71,7 +93,7 @@ describe("R-PEOPLE-030: the lead's score with a spouse", () => {
       const table = base.points["points.canada-spouse"]!;
       return { ...base, points: { ...base.points, "points.canada-spouse": { ...table, spouse: { ...table.spouse!, cap: 30 } } } };
     };
-    const game = life(capped(used), ADA);
+    const game = life(capped(content), ADA);
     const best = facts({ eduLevel: 5, englishBand: 80, where: "abroad", country: "country.canada", job: "activity.job-teacher", monthsInCountry: 60 });
     expect(spouseFactors(readOf(leading(best)), CANADA, best)).toBe(40);
     expect(spouseFactors(readOf(game), CANADA, best)).toBe(30);
@@ -80,34 +102,34 @@ describe("R-PEOPLE-030: the lead's score with a spouse", () => {
 
 describe("R-PEOPLE-031: a sibling in Canada", () => {
   test("[R-PEOPLE-031] given a sibling resident in Canada aged exactly 18, and one a month younger, when the score is read, then only the first adds the bonus", () => {
-    const adult = life(used, ADA);
+    const adult = life(content, ADA);
     const base = pointsScore(readOf(adult), CANADA);
     sibling(adult, "sib-1", { where: "abroad", country: "country.canada", status: "status.ca-resident", ageMonths: 18 * YEAR });
     expect(siblingPoints(readOf(adult), CANADA)).toBe(BONUS);
     expect(pointsScore(readOf(adult), CANADA)).toBe(base + BONUS);
-    const young = life(used, ADA);
+    const young = life(content, ADA);
     sibling(young, "sib-1", { where: "abroad", country: "country.canada", status: "status.ca-resident", ageMonths: 18 * YEAR - 1 });
     expect(siblingPoints(readOf(young), CANADA)).toBe(0);
   });
 
   test("[R-PEOPLE-031] given two siblings who are citizens, one in the UK, and one with no status, when the bonus is read, then it is counted once, and only for Canada with residence or citizenship", () => {
-    const two = life(used, ADA);
+    const two = life(content, ADA);
     sibling(two, "sib-1", { where: "abroad", country: "country.canada", status: "status.ca-citizen" });
     sibling(two, "sib-2", { where: "abroad", country: "country.canada", status: "status.ca-resident" });
     expect(siblingPoints(readOf(two), CANADA)).toBe(BONUS);
-    const elsewhere = life(used, ADA);
+    const elsewhere = life(content, ADA);
     sibling(elsewhere, "sib-1", { where: "abroad", country: "country.uk", status: "status.uk-settled" });
     sibling(elsewhere, "sib-2", { where: "abroad", country: "country.canada", status: "status.ca-overstayer" });
     expect(siblingPoints(readOf(elsewhere), CANADA)).toBe(0);
   });
 
   test("[R-PEOPLE-031] given a cut-off exactly the bonus above Ada's score, when the world's draw looks, then she is invited with the sibling and not without", () => {
-    const probe = life(used, ADA);
+    const probe = life(content, ADA);
     const cutoff = pointsScore(readOf(probe), CANADA) + BONUS;
     const vars = (): Record<Id<"var">, number> => ({ "var.ca-cutoff": cutoff });
-    const without = life(used, { ...ADA, vars });
+    const without = life(content, { ...ADA, vars });
     expect(invites(readOf(without), CANADA)).toBe(false);
-    const withSibling = life(used, { ...ADA, vars });
+    const withSibling = life(content, { ...ADA, vars });
     sibling(withSibling, "sib-1", { where: "abroad", country: "country.canada", status: "status.ca-resident" });
     expect(invites(readOf(withSibling), CANADA)).toBe(true);
   });

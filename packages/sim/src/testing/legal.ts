@@ -60,12 +60,31 @@ function fromInterview(view: PlayerView): Loose[] {
   return question.options.map((option) => ({ type: "interview/answer", question: question.id, option }));
 }
 
+/** R-PEOPLE-016: the moments partners needs in the shipped content and the mini content alike. */
+const PARTNER_MOMENTS = 6;
+const TOGETHER: readonly string[] = ["partner", "married"];
+
+/**
+ * R-PEOPLE-016: partners asked of a courting bond with the moments for it,
+ * while nothing else is waiting on it, no other bond is together and the
+ * cooldown after a no has passed. marriage is not sampled, because
+ * the view carries no `partnerMonth` to tell the months as partners.
+ */
+function proposals(view: PlayerView): Loose[] {
+  const { bonds } = view.people;
+  if (bonds.some((bond) => TOGETHER.includes(bond.stage))) return [];
+  return bonds
+    .filter((bond) => bond.role === "partner" && bond.stage === "courting" && bond.pending.mine === null)
+    .filter((bond) => bond.moments !== null && bond.moments.length >= PARTNER_MOMENTS)
+    .filter((bond) => bond.cooldownUntil === null || view.month >= bond.cooldownUntil)
+    .map((bond) => ({ type: "people/propose", bond: bond.id, step: "partner" }));
+}
+
 /**
  * docs/rules/people.md: courting a candidate while nothing else is courting,
- * a card out on an open slot or taken back, a proposal taken back, an answer
- * of no, consent on the joint, and an end to any bond still open. 
- * proposals are not sampled, because the view carries neither the moments a
- * step needs nor the cooldown after a no, so one could be refused.
+ * a card out on an open slot or taken back, partners asked for, a proposal
+ * taken back, an answer of no, consent on a joint agreed or asked for, and an
+ * end to any bond still open.
  */
 function fromPeople(view: PlayerView): Loose[] {
   const commands: Loose[] = [];
@@ -80,10 +99,13 @@ function fromPeople(view: PlayerView): Loose[] {
     else if (slot === "partner" && held.state === "empty") commands.push({ type: "people/invite", slot, looking: "partner" });
     else if (slot.startsWith("sibling-") && held.state === "computer") commands.push({ type: "people/invite", slot, looking: "sibling" });
   }
+  commands.push(...proposals(view));
   for (const bond of bonds) {
     if (bond.stage === "ended") continue;
     if (bond.pending.mine !== null) commands.push({ type: "people/withdraw", bond: bond.id });
     if (bond.pending.theirs !== null) commands.push({ type: "people/answer", bond: bond.id, step: bond.pending.theirs.step, yes: false });
+    // R-PEOPLE-044: consent may be given while a joint is asked for, before it is agreed.
+    if (joint?.bond !== bond.id && (bond.pending.mine?.step === "joint" || bond.pending.theirs?.step === "joint")) commands.push({ type: "people/consent", bond: bond.id, standInMay: true });
     // R-PEOPLE-035: an end is never refused for a bond still open.
     commands.push({ type: "people/end", bond: bond.id });
   }

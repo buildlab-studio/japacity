@@ -61,6 +61,7 @@ export function bond(over: Partial<Bond> = {}): Bond {
     standIn: null,
     ended: null,
     cooldownUntil: null,
+    consent: null,
     ...over,
   };
 }
