@@ -5,7 +5,6 @@ import { describe, expect, test } from "vitest";
 import { engineView } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { say, words } from "../../shared/words/text";
-import { OfferView } from "../offer/OfferView";
 import { ASK, EXIT_OFFER, RoadView } from "./RoadView";
 
 function line(key: string, params: ReportLine["params"] = {}): ReportLine {
@@ -43,8 +42,18 @@ function onTheRoad(offers: Offer[]): PlayerView {
   };
 }
 
+/** The shell hands in the offer screen; here a plain list of the titles it is given stands in for it. */
 function road(view: PlayerView) {
-  return renderWithView(<RoadView offers={(only) => <OfferView only={only} />} />, view);
+  const offers = (only: (offer: Offer) => boolean) => (
+    <ul>
+      {view.offers.filter(only).map((open) => (
+        <li key={open.id}>
+          <h3>{words(`${open.entry}.title`)}</h3>
+        </li>
+      ))}
+    </ul>
+  );
+  return renderWithView(<RoadView offers={offers} />, view);
 }
 
 describe("the road's one panel", () => {

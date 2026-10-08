@@ -52,8 +52,10 @@ describe("names mid-sentence", () => {
   const lowered = Object.keys(text)
     .filter((key) => key.endsWith(".name") && LOWER_KINDS.has(key.split(".")[0] ?? ""))
     .map((key) => key.slice(0, -".name".length));
-  /** True when content itself writes the word with a capital in the middle of a sentence. */
-  const capitalMidSentence = (word: string) => Object.values(text).some((value) => new RegExp(`[a-z,] ${word}\\b`).test(value));
+  /** True when content writes the word with a capital mid-sentence and never in lower case: a proper noun, as "Bank" in a bank's name is not. */
+  const capitalMidSentence = (word: string) =>
+    Object.values(text).some((value) => new RegExp(`[a-z,] ${word}\\b`).test(value)) &&
+    !Object.values(text).some((value) => new RegExp(`\\b${word.toLowerCase()}\\b`).test(value));
 
   test("given every name content lowers mid-sentence, when its first word is one content writes with a capital mid-sentence, then the name keeps its capital", () => {
     const proper = lowered.filter((id) => {
