@@ -56,9 +56,9 @@ export const placeText: Record<string, string> = {
   "place.bode-thomas.blurb": "A shopping street in Surulere. A lotto kiosk, a betting shop and a pharmacy share one row of shopfronts.",
   // The boards the street's models carry: the kiosk 1 and 5, the betting shop's building 2 to 4, the shop rows 6 to 13, the plazas 14 to 21.
   // Name check, 2026-10-08: "Five-Five Lotto", recorded in place.names.json. Passed.
-  "place.bode-thomas.sign.1": "FIVE-FIVE\nLOTTO",
+  "place.bode-thomas.sign.1": "Five-Five Lotto",
   // Name check, 2026-10-08: "Late Equaliser", recorded in place.names.json. Passed, in place of a working name too close to a betting firm.
-  "place.bode-thomas.sign.2": "LATE EQUALISER\nSPORTS BETTING",
+  "place.bode-thomas.sign.2": "Late Equaliser\nSports Betting",
   "place.bode-thomas.sign.3": "PHARMACY\nOPEN TILL LATE",
   // Signs 4 to 21 name a trade, not a business, so no name check is owed (R-CITY-007).
   "place.bode-thomas.sign.4": "PHOTOCOPY\nLAMINATION",
