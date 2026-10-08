@@ -59,8 +59,8 @@ const SMALL_NAIRA = 1000000;
 
 function fromWallet(view: PlayerView): Loose[] {
   const commands: Loose[] = [];
-  const currencies: Currency[] = ["NGN", "GBP", "USD"];
-  const foreign: ForeignCurrency[] = ["GBP", "USD"];
+  const foreign: ForeignCurrency[] = ["GBP", "USD", "CAD", "AED", "EUR"];
+  const currencies: Currency[] = ["NGN", ...foreign];
   for (const currency of currencies) {
     const pocket = view.pockets[currency];
     if (pocket.cash >= SMALL_MOVE) commands.push({ type: "wallet/move", currency, amount: SMALL_MOVE, to: "bank" });
@@ -82,6 +82,13 @@ function fromWallet(view: PlayerView): Loose[] {
   const poundCents = mulDiv(SMALL_FOREIGN, view.rates.GBP.official, view.rates.USD.official);
   if (pounds.bank >= SMALL_FOREIGN && view.bankAllowanceLeft >= poundCents) {
     commands.push({ type: "wallet/convert", from: "GBP", to: "USD", amount: SMALL_FOREIGN, via: "bank" });
+  }
+  // R-ABROAD-006: from abroad, a small sum home by each channel.
+  if (view.place.where === "abroad") {
+    for (const currency of foreign) {
+      if (view.pockets[currency].bank < SMALL_FOREIGN) continue;
+      for (const channel of ["app", "bank", "informal"] as const) commands.push({ type: "wallet/remit", currency, amount: SMALL_FOREIGN, channel });
+    }
   }
   return commands;
 }

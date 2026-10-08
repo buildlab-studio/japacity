@@ -141,7 +141,7 @@ describe("report line keys in the source", () => {
 });
 
 describe("staged wins", () => {
-  test("[R-ACTIVITY-001] [R-ROUTE-017] [R-ROUTE-020] given the ada-careful golden, when its save is replayed, then the first salary, the grant and the send-off each come once as a big line, and nothing else is big", () => {
+  test("[R-ACTIVITY-001] [R-ROUTE-017] [R-ROUTE-020] [R-LUCK-008] given the ada-careful golden, when its save is replayed, then the first salary, the first dollar salary, the grant, the send-off and the first pay abroad each come once as a big line, and nothing else is big", () => {
     const save = lifeSaves["ada-careful"]!;
     let state = newState(save.scenario, save.seed, content);
     const lines: ReportLine[] = [];
@@ -152,7 +152,7 @@ describe("staged wins", () => {
       lines.push(...result.lines);
     }
     const big = lines.filter((line) => line.big === true).map((line) => line.key);
-    expect(big).toEqual(["line.activity.salary", "line.route.granted", "line.route.departed"]);
+    expect(big).toEqual(["line.activity.salary", "line.activity.salary-first-foreign", "line.route.granted", "line.route.departed", "line.activity.salary-first-abroad"]);
     expect(lines.filter((line) => line.key === "line.activity.salary").length).toBeGreaterThan(1);
   });
 });

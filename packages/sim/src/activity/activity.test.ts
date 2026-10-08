@@ -384,7 +384,7 @@ describe("the params a free activity may take now", () => {
     expect(paramsFor(readWith(game, (state) => state), content.activity["activity.rest"]!)).toBeNull();
   });
 
-  test("[R-ACTIVITY-002] [R-ACTIVITY-005] given a life, when the jobs to hunt are listed, then they are the jobs whose requirements hold, less the one held", () => {
+  test("[R-ACTIVITY-002] [R-ACTIVITY-005] [R-ACTIVITY-010] given a life, when the jobs to hunt are listed, then they are the jobs and side jobs whose requirements hold, less the one held", () => {
     const ada = start({ content, scenario: "scenario.ada" });
     const huntEntry = content.activity["activity.job-hunt"]!;
     expect(paramsFor(readWith(ada, (state) => state), huntEntry)).toEqual([
@@ -392,12 +392,17 @@ describe("the params a free activity may take now", () => {
       "activity.job-customer-service",
       "activity.job-junior-dev",
       "activity.job-bank-officer",
+      // Side jobs are hunted like jobs (R-ACTIVITY-010).
+      "activity.night-support",
+      "activity.weekend-tutoring",
     ]);
     const tunde = start({ content, scenario: "scenario.tunde" });
     expect(paramsFor(readWith(tunde, (state) => state), huntEntry)).toEqual([
       "activity.job-teacher",
       "activity.job-customer-service",
       "activity.job-bank-senior",
+      "activity.weekend-tutoring",
+      "activity.ride-driving",
     ]);
   });
 

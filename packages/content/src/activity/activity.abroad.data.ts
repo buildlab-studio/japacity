@@ -91,6 +91,7 @@ export const abroadActivityTable: Record<Id<"activity">, ActivityEntry> = {
     ]),
     // £3,000 a year for the visiting round, while you have the car (R-LADDER-004).
     carBonus: pounds(3000),
+    sickLeave: true,
   },
   "activity.job-uk-senior-care": {
     ...job(
@@ -106,6 +107,7 @@ export const abroadActivityTable: Record<Id<"activity">, ActivityEntry> = {
       [wellbeing(-4), gain("quality.standing", 1)],
     ),
     sponsor: true,
+    sickLeave: true,
   },
   "activity.job-uk-nurse": {
     // The band 5 nurse.
@@ -119,16 +121,20 @@ export const abroadActivityTable: Record<Id<"activity">, ActivityEntry> = {
       [wellbeing(-5), gain("quality.care", 1), gain("quality.standing", 2)],
     ),
     sponsor: true,
+    sickLeave: true,
   },
-  "activity.job-uk-skilled": job(
-    "activity.job-uk-skilled",
-    "country.uk",
-    IN_UK,
-    { currency: "GBP", amount: SPONSOR_SALARY },
-    null,
-    [],
-    [wellbeing(-4), gain("quality.tech", 1)],
-  ),
+  "activity.job-uk-skilled": {
+    ...job(
+      "activity.job-uk-skilled",
+      "country.uk",
+      IN_UK,
+      { currency: "GBP", amount: SPONSOR_SALARY },
+      null,
+      [],
+      [wellbeing(-4), gain("quality.tech", 1)],
+    ),
+    sickLeave: true,
+  },
   "activity.job-uk-senior-dev": {
     ...job(
       "activity.job-uk-senior-dev",
@@ -143,17 +149,21 @@ export const abroadActivityTable: Record<Id<"activity">, ActivityEntry> = {
       [wellbeing(-4), gain("quality.tech", 1)],
     ),
     sponsor: true,
+    sickLeave: true,
   },
   // The survival job.
-  "activity.job-uk-warehouse": job(
-    "activity.job-uk-warehouse",
-    "country.uk",
-    IN_UK,
-    { currency: "GBP", amount: pounds(23000) },
-    pct(60),
-    [],
-    [wellbeing(-5)],
-  ),
+  "activity.job-uk-warehouse": {
+    ...job(
+      "activity.job-uk-warehouse",
+      "country.uk",
+      IN_UK,
+      { currency: "GBP", amount: pounds(23000) },
+      pct(60),
+      [],
+      [wellbeing(-5)],
+    ),
+    sickLeave: true,
+  },
   // The student job: 20 hours at £12.21 an hour, about £10,400 a year.
   "activity.job-uk-retail-part": {
     ...job(
@@ -166,29 +176,33 @@ export const abroadActivityTable: Record<Id<"activity">, ActivityEntry> = {
       [wellbeing(-3)],
     ),
     part: true,
+    sickLeave: true,
   },
   // The first professional job. The page's "sponsor at 70% of these employers" has no
   // field: it is not a sponsor job (reported).
-  "activity.job-uk-graduate": job(
-    "activity.job-uk-graduate",
-    "country.uk",
-    IN_UK,
-    { currency: "GBP", amount: pounds(30000) },
-    pct(20),
-    [
-      // A bachelor's and 12 months local, or a master's: there is no "all of" requirement,
-      // so it is written as a bachelor's or more, and 12 months local or a master's.
-      { type: "quality/min", quality: "quality.edu-level", value: 3 },
-      {
-        type: "any",
-        of: [
-          { type: "activity/local-tenure", months: 12 },
-          { type: "quality/min", quality: "quality.edu-level", value: 4 },
-        ],
-      },
-    ],
-    [wellbeing(-3), gain("quality.network", 1), gain("quality.tech", 1)],
-  ),
+  "activity.job-uk-graduate": {
+    ...job(
+      "activity.job-uk-graduate",
+      "country.uk",
+      IN_UK,
+      { currency: "GBP", amount: pounds(30000) },
+      pct(20),
+      [
+        // A bachelor's and 12 months local, or a master's: there is no "all of" requirement,
+        // so it is written as a bachelor's or more, and 12 months local or a master's.
+        { type: "quality/min", quality: "quality.edu-level", value: 3 },
+        {
+          type: "any",
+          of: [
+            { type: "activity/local-tenure", months: 12 },
+            { type: "quality/min", quality: "quality.edu-level", value: 4 },
+          ],
+        },
+      ],
+      [wellbeing(-3), gain("quality.network", 1), gain("quality.tech", 1)],
+    ),
+    sickLeave: true,
+  },
   // About £7 an hour on paper, paid in cash, and sometimes not at all.
   "activity.job-uk-kitchen-cash": {
     ...job(
@@ -409,13 +423,7 @@ export const abroadActivityTable: Record<Id<"activity">, ActivityEntry> = {
   ),
 };
 
-/**
- * The free-slot activities priced in Canadian dollars or dirhams. they are
- * not joined into the activity table yet. The wallet kind keeps naira, pound and dollar
- * pockets only until R-ABROAD-001 is built, and the view's affordability check would
- * read a pocket that is not there. activity.data.ts joins them when it is built; the
- * content tests check them here until then.
- */
+/** The free-slot activities priced in Canadian dollars or dirhams, joined in activity.data.ts now the wallet keeps those pockets (R-ABROAD-001). */
 export const foreignPocketActivityTable: Record<Id<"activity">, ActivityEntry> = {
   "activity.community-ca": free("activity.community-ca", "country.canada", [IN_CANADA], {
     cost: [{ currency: "CAD", amount: cad(15), reason: "social" }],

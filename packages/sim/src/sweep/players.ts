@@ -301,6 +301,8 @@ function bestJobParam(view: PlayerView, content: Content): string | null {
   let best: string | null = null;
   let bestPay = current;
   for (const job of hunt.params) {
+    // A side job is hunted the same way and is not a better job (R-ACTIVITY-010).
+    if (content.activity[job as Id<"activity">]?.slot !== "main") continue;
     const pay = payOf(view, content, job);
     if (pay > bestPay) {
       best = job;
@@ -370,7 +372,8 @@ function slotPlan(view: PlayerView, content: Content, habits: Habits): SlotPick[
     else if (tech >= 40 && portfolio < 3 && playable(view, "activity.build-portfolio")) add("activity.build-portfolio");
     else if (tech < 75 && canSpendOn(view, "activity.learn-tech", habits)) add("activity.learn-tech");
     else if (playable(view, "activity.side-gig")) add("activity.side-gig");
-    else add("activity.family-time");
+    else if (playable(view, "activity.family-time")) add("activity.family-time");
+    else add("activity.rest");
   }
   return picks;
 }
