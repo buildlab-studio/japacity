@@ -44,7 +44,6 @@ const HOME_TYPES: readonly ObligationType[] = ["upkeep", "support"];
  */
 const ABROAD_TYPES: readonly ObligationType[] = ["upkeep", "support", "rent", "phone", "surcharge", "tuition"];
 const CURRENCIES: readonly Currency[] = ["NGN", "GBP", "USD", "CAD", "AED", "EUR"];
-const NOT_CARRIED = "No kind carries out the effect obligation/close";
 
 /** An entry that may be tied to a place: activities, offers, obligations, routes, goals. */
 export interface Placed {
@@ -150,21 +149,11 @@ function record(ctx: Ctx, events: PlaceEvent[]): BaseEvent[] {
   return emit(ctx, "place", events);
 }
 
-/**
- * `obligation/close` is carried out by the obligation kind once the
- * credit and obligations work is merged. Until then no kind handles it, and a
- * close does nothing rather than stopping the step.
- */
 function closeObligations(ctx: Ctx, types: readonly ObligationType[], cause: Cause): BaseEvent[] {
-  const events: BaseEvent[] = [];
-  for (const obligationType of types) {
-    try {
-      events.push(...ctx.apply([{ type: "obligation/close", obligationType }], cause));
-    } catch (error) {
-      if (!(error instanceof Error) || !error.message.startsWith(NOT_CARRIED)) throw error;
-    }
-  }
-  return events;
+  return ctx.apply(
+    types.map((obligationType): Effect => ({ type: "obligation/close", obligationType })),
+    cause,
+  );
 }
 
 /** The starting life's obligations of the given types, as `obligation/open` effects at the given share of their amount. */
