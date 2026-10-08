@@ -13,7 +13,7 @@ import { stableJson } from "./hash";
 import { checkInvariants } from "./invariants";
 import { replay } from "./replay";
 import { ledgerReport } from "../wallet/report";
-import { AUTHORITY_COMMANDS, step } from "./step";
+import { AUTHORITY_COMMANDS, STAND_IN_COMMANDS, step } from "./step";
 import type { Command, CommandType, Currency, Id, Reason, Sender, State, World, PersonFacts } from "./types";
 import { viewFor } from "./view";
 
@@ -255,6 +255,23 @@ describe("the authority's reach", () => {
         }
       }
       expect(accepted).toBeGreaterThan(0);
+    },
+  );
+
+  test.each(LIVES.map((life) => [life.name, life.state] as const))(
+    "[R-PEOPLE-044] given %s, when every player command is sent by the stand-in, then only the interview's answer and the people's answer pass the engine; everything else is refused as not the stand-in's",
+    (_name, state) => {
+      expect([...STAND_IN_COMMANDS].sort()).toEqual(["interview/answer", "people/answer"]);
+      const samples = playerSamples(state, worldFor(state));
+      for (const [type, commands] of Object.entries(samples) as [PlayerCommand, Loose[]][]) {
+        for (const sample of commands) {
+          const result = send(state, sample, "stand-in");
+          // The engine refuses every other command as not the stand-in's; the allowed two reach the kind, which judges them with the sender in hand.
+          const allowed = (STAND_IN_COMMANDS as readonly string[]).includes(type);
+          const refusedAsNotYours = !result.ok && result.code === "not-yours";
+          expect(`${type}: ${refusedAsNotYours ? "not-yours" : "through"}`).toBe(`${type}: ${!allowed && !state.turn.ended ? "not-yours" : "through"}`);
+        }
+      }
     },
   );
 });

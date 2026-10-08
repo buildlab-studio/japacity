@@ -11,6 +11,9 @@ import { isRejection, reject } from "./reject";
 import type { Command, CommandType, Content, Rejection, Sender, State, StepResult, World } from "./types";
 
 /** Commands only the authority may send (R-SERVER-013): the turn grant and the draw's payout. */
+/** R-PEOPLE-044: the only commands the engine accepts from a stand-in. The kinds judge each as a player's, with the sender in hand. */
+export const STAND_IN_COMMANDS = ["interview/answer", "people/answer"] as const satisfies readonly Command["type"][];
+
 export const AUTHORITY_COMMANDS = [
   "turns/grant",
   "lottery/pay",
@@ -118,6 +121,10 @@ export function stepWith(
   }
   if ((AUTHORITY_COMMANDS as readonly string[]).includes(command.type) && sender !== "authority") {
     return reject("not-yours", `Only the authority sends ${command.type}.`);
+  }
+  // R-PEOPLE-044: a stand-in only answers, the interview's questions and a pending step of the joint; every other command is the player's alone.
+  if (sender === "stand-in" && !(STAND_IN_COMMANDS as readonly string[]).includes(command.type)) {
+    return reject("not-yours", `A stand-in may not send ${command.type}.`);
   }
   if (command.basedOn !== state.v) {
     return reject("stale", `The command is based on version ${String(command.basedOn)}, the state is at ${String(state.v)}.`);

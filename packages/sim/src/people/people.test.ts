@@ -816,7 +816,7 @@ describe("the stand-in", () => {
     expect(qualityChange(result.events, "quality.wellbeing", bond)).toBe(0);
   });
 
-  test("[R-PEOPLE-044] given commands sent as the stand-in, when it proposes, consents, sends a card, ends the bond, ends a turn or spends, then each is rejected as not legal and the player's own end goes through", () => {
+  test("[R-PEOPLE-044] given commands sent as the stand-in, when it proposes, consents, sends a card, ends the bond, ends a turn or spends, then each is refused by the engine as not the stand-in's and the player's own end goes through", () => {
     const game = life();
     const bond = linked(game);
     game.accept({ type: "people/court", with: "pair-1" });
@@ -832,7 +832,8 @@ describe("the stand-in", () => {
       { type: "obligation/pay", obligation: "none", amount: 1 },
       { type: "route/depart", route: "route.none" },
     ];
-    for (const command of refused) game.expectRejected(command, "not-legal", "stand-in");
+    // The engine refuses them before any kind looks (the stand-in allow-list in step, R-PEOPLE-044), as not the stand-in's to send.
+    for (const command of refused) game.expectRejected(command, "not-yours", "stand-in");
     game.accept({ type: "people/end", bond });
     expect(game.state.people.bonds[bond]?.ended?.by).toBe("absence");
   });
