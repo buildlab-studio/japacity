@@ -1,6 +1,7 @@
 // What the client does to a model after loading it (R-ASSET-005, R-ASSET-012). Flat shading does
-// not survive compression (the design's known fault), so it is set here on every material. Sign text
-// is drawn here, at run time, from the place's text keys, onto one canvas per model.
+// not survive compression (the design's known fault), so it is set here on every material, except where
+// a node's extras name round parts to show smooth. Sign text is drawn here, at run time, from the
+// place's text keys, onto one canvas per model.
 import {
   BufferGeometry,
   CanvasTexture,
@@ -24,17 +25,65 @@ function materialsOf(object: Object3D): Material[] {
   return Array.isArray(mesh.material) ? mesh.material : [mesh.material];
 }
 
-/** Sets flat shading on every material of a loaded model. Call it once, after loading, before the first frame. */
+/** What a node's extras say about its round parts, looking up from a mesh to the model's root. */
+export function smoothOf(object: Object3D): string[] | true | null {
+  let at: Object3D | null = object;
+  while (at !== null) {
+    const smooth = (at.userData as { smooth?: unknown }).smooth;
+    if (smooth === true) return true;
+    if (Array.isArray(smooth) && smooth.length > 0) return smooth.filter((part): part is string => typeof part === "string");
+    at = at.parent;
+  }
+  return null;
+}
+
+/**
+ * Shades a loaded model, once, after loading and before the first frame. Every material is flat
+ * shaded, except a mesh whose node names round parts: with a list of parts, its file carries
+ * normals that draw those parts smooth and the rest flat, so its material is left smooth; with
+ * `true`, the whole node is round, so its normals are computed here and its material left smooth.
+ * A material a flat mesh also uses is copied for the smooth one.
+ */
 export function prepareModel(root: Object3D): void {
+  const meshes: Mesh[] = [];
   root.traverse((object) => {
-    for (const material of materialsOf(object)) {
-      const standard = material as MeshStandardMaterial;
-      if (standard.isMeshStandardMaterial && !standard.flatShading) {
-        standard.flatShading = true;
-        standard.needsUpdate = true;
-      }
-    }
+    if ((object as Mesh).isMesh) meshes.push(object as Mesh);
   });
+  const roundOf = (mesh: Mesh): boolean => {
+    const smooth = smoothOf(mesh);
+    if (smooth === true) return true;
+    return smooth !== null && mesh.geometry.getAttribute("normal") !== undefined;
+  };
+  const usedFlat = new Set<Material>();
+  for (const mesh of meshes) if (!roundOf(mesh)) for (const material of materialsOf(mesh)) usedFlat.add(material);
+  const copies = new Map<Material, Material>();
+  for (const mesh of meshes) {
+    const round = roundOf(mesh);
+    if (round && smoothOf(mesh) === true) mesh.geometry.computeVertexNormals();
+    const shaded = materialsOf(mesh).map((material) => {
+      const standard = material as MeshStandardMaterial;
+      if (!standard.isMeshStandardMaterial) return material;
+      if (!round) {
+        if (!standard.flatShading) {
+          standard.flatShading = true;
+          standard.needsUpdate = true;
+        }
+        return material;
+      }
+      let smooth = usedFlat.has(material) ? copies.get(material) : standard;
+      if (smooth === undefined) {
+        smooth = standard.clone();
+        copies.set(material, smooth);
+      }
+      const target = smooth as MeshStandardMaterial;
+      if (target.flatShading) {
+        target.flatShading = false;
+        target.needsUpdate = true;
+      }
+      return target;
+    });
+    mesh.material = Array.isArray(mesh.material) ? shaded : (shaded[0] ?? mesh.material);
+  }
 }
 
 /** The sign anchors a model carries in its extras, wherever the loader put them. */

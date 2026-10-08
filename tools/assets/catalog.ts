@@ -66,10 +66,10 @@ function staticModel(name: string, group: Group, shipSigns = false): BakedModel 
 export function personModel(mesh: PersonMesh): BakedModel {
   const colours = mesh.colours.flatMap((name) => linearColour(name));
   const [flat, patterned] = mesh.groups;
-  const shared = { positions: mesh.positions, colours, joints: mesh.joints, weights: mesh.weights };
+  const shared = { positions: mesh.positions, normals: mesh.normals, colours, joints: mesh.joints, weights: mesh.weights };
   const primitives: BakedModel["parts"][number]["primitives"] = [{ material: "body", ...shared, indices: flat }];
   if (patterned.length > 0) primitives.push({ material: "pattern", ...shared, uvs: mesh.uvs, indices: patterned });
-  const model: BakedModel = { name: mesh.name, parts: [{ node: "body", primitives }], extras: {}, bones: mesh.bones };
+  const model: BakedModel = { name: mesh.name, parts: [{ node: "body", primitives, extras: { smooth: mesh.smooth } }], extras: {}, bones: mesh.bones };
   if (mesh.pattern !== null && patterned.length > 0) model.pattern = drawPattern(mesh.pattern);
   return model;
 }

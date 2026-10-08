@@ -18,6 +18,11 @@ export interface PersonMesh {
   positions: number[];
   /** One palette name a vertex. Vertices of the pattern group carry `white`. */
   colours: PaletteName[];
+  /**
+   * Three numbers a vertex, of unit length. A round part's vertices are shared and carry the mean of
+   * the faces around them; every other triangle has vertices of its own with its face's normal.
+   */
+  normals: number[];
   /** Two numbers a vertex; the pattern repeats, so values may run past 1. */
   uvs: number[];
   /** Four bone indices a vertex. */
@@ -26,6 +31,8 @@ export interface PersonMesh {
   weights: number[];
   /** Triangle indices: [0] the flat palette colours, [1] the one fabric pattern (R-ASSET-005 allows two materials). */
   groups: [number[], number[]];
+  /** The round parts shown smooth, for the node extras the loader reads (R-ASSET-005). */
+  smooth: string[];
   pattern: PatternSpec | null;
   bones: PersonBone[];
 }

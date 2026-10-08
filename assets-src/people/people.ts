@@ -6,7 +6,9 @@
 import type { PaletteName } from "@japacity/assets";
 import type { PatternSpec } from "@japacity/assets/pattern";
 
+import { type Blend, surface, type Surface } from "./blend";
 import type { PersonBone, PersonMesh } from "./person.types";
+import { thin } from "./thin";
 
 export const BONE_NAMES = [
   "hips", "spine", "chest", "neck", "head",
@@ -209,12 +211,27 @@ interface Buf {
   si: number[];
   sw: number[];
   idx: [number[], number[], number[]];
+  /** The round part each vertex belongs to, shown smooth (R-ASSET-005), or null for a hard-edged one. */
+  part: (SmoothPart | null)[];
+  current: SmoothPart | null;
 }
-const makeBuf = (): Buf => ({ pos: [], col: [], uv: [], si: [], sw: [], idx: [[], [], []] });
+const makeBuf = (): Buf => ({ pos: [], col: [], uv: [], si: [], sw: [], idx: [[], [], []], part: [], current: null });
+
+/** The round parts of a person, named in the file's node extras so the loader leaves them smooth. */
+export type SmoothPart = "head" | "hair" | "headwear" | "hands" | "load";
+function smoothPart(b: Buf, part: SmoothPart | null, draw: () => void): void {
+  const before = b.current;
+  b.current = part;
+  draw();
+  b.current = before;
+}
+/** A hard-edged piece inside a round part, such as a cap's peak: shown flat. */
+const hard = (b: Buf, draw: () => void): void => smoothPart(b, null, draw);
 
 function vert(b: Buf, p: Vec, colour: PaletteName, uv: readonly [number, number], w: Weights): number {
   const i = b.pos.length / 3;
   b.pos.push(p[0], p[1], p[2]);
+  b.part.push(b.current);
   b.col.push(colour);
   b.uv.push(uv[0], uv[1]);
   const s = [0, 0, 0, 0];
@@ -338,6 +355,19 @@ function box(b: Buf, c: Vec, size: Vec, colour: PaletteName, w: Weights, group =
   }
 }
 
+/**
+ * A soft shape: the blend's surface on a grid of `cell` metres, thinned to at most `budget` triangles,
+ * added in one colour (or the pattern, with texture coordinates from `uv`).
+ */
+function blended(b: Buf, blend: Blend, o: { cell: number; budget: number; colour: PaletteName; w: Weights; group?: number; uv?: (p: Vec) => [number, number] }): Surface {
+  const shape = thin(surface(blend, o.cell), o.budget);
+  const start = b.pos.length / 3;
+  for (const p of shape.positions) vert(b, p, o.colour, o.uv?.(p) ?? [0, 0], o.w);
+  const ix = at(b.idx, o.group ?? 0);
+  for (const [p, q, r] of shape.triangles) ix.push(start + p, start + q, start + r);
+  return shape;
+}
+
 // ---------- head surface ----------
 function headRing(y: number): Vec {
   for (let i = 0; i < HEAD.length - 1; i++) {
@@ -382,7 +412,8 @@ function skullCap(b: Buf, { scale, front, back, color, group = 0, side = null, s
   const rings: Ring[] = levels.map((y) => ({ c: [0, HC + y, 0], ru: 0.1 * scale, rv: 0.1 * scale, w: wHead, fn: (th: number) => headPoint(Math.max(y, edge(th)), th, scale) }));
   rings.push({ c: [0, HC + back - 0.002, 0], ru: 0.1, rv: 0.1, w: wHead, fn: (th: number) => headPoint(edge(th), th, scale) });
   rings.reverse();
-  tube(b, rings, { sides: 8, color, group, swapUV, tile, capEnd: true, capEndOff: [0, 0.022 * scale + 0.003, -0.006] });
+  // Sixteen sides, so the cap's flat facets stay outside the round head beneath it.
+  tube(b, rings, { sides: 16, color, group, swapUV, tile, capEnd: true, capEndOff: [0, 0.022 * scale + 0.003, -0.006] });
 }
 
 const clothOf = (f: Fab | undefined): Cloth => fab(f ?? "white");
@@ -550,7 +581,7 @@ const HEADWEAR: Record<HeadName, (b: Buf, s: Spec) => void> = {
   cap: (b, s) => {
     const colour = capCloth(s.headFab).color;
     skullCap(b, { scale: 1.06, front: 0.05, back: -0.01, side: 0.03, color: colour });
-    box(b, [0, HC + 0.052, 0.14], [0.13, 0.008, 0.085], colour, wHead);
+    hard(b, () => box(b, [0, HC + 0.052, 0.14], [0.13, 0.008, 0.085], colour, wHead));
   },
   // Kufi: a short round cap with a flat top.
   kufi: (b, s) => {
@@ -560,7 +591,7 @@ const HEADWEAR: Record<HeadName, (b: Buf, s: Spec) => void> = {
   beanie: (b, s) => skullCap(b, { scale: 1.07, front: 0.06, back: -0.035, side: 0.022, color: capCloth(s.headFab).color }),
   helmet: (b, s) => {
     skullCap(b, { scale: 1.16, front: 0.052, back: -0.07, side: -0.03, color: capCloth(s.headFab).color });
-    box(b, [0, HC + 0.045, 0.125], [0.15, 0.012, 0.05], "black", wHead);
+    hard(b, () => box(b, [0, HC + 0.045, 0.125], [0.15, 0.012, 0.05], "black", wHead));
   },
   // A plain head scarf, tied at the back. Everyday wear, where a gele is for occasions.
   scarf: (b, s) => {
@@ -786,11 +817,11 @@ function buildArm(b: Buf, P: Body, s: Spec, J: Joints, sd: "L" | "R"): void {
     skinFrom = 2;
   }
   if (skinFrom < 4) tube(b, [0, 1, 2, 3, 4].filter((i) => i >= skinFrom).map((i) => ring(i)), { ...o, color: s.skin, ...(skinFrom === 0 ? cap : {}) });
-  tube(b, [
+  smoothPart(b, "hands", () => tube(b, [
     { c: W, ru: 0.02 * k, rv: 0.031 * k, w: [[ha, 1]] },
     { c: add(W, mul(d, 0.045)), ru: 0.021 * k, rv: 0.038 * k, w: [[ha, 1]] },
     { c: add(W, mul(d, 0.088)), ru: 0.013 * k, rv: 0.027 * k, w: [[ha, 1]] },
-  ], { ...o, color: s.skin, capEnd: true, capEndOff: mul(d, 0.012) });
+  ], { ...o, color: s.skin, capEnd: true, capEndOff: mul(d, 0.012) }));
 }
 
 function buildLeg(b: Buf, P: Body, s: Spec, sd: "L" | "R"): void {
@@ -856,18 +887,21 @@ function buildExtras(b: Buf, s: Spec, J: Joints): void {
   if (s.phone === true) box(b, add(joint(J, "WR"), mul(joint(J, "dR"), 0.075)), [0.014, 0.075, 0.038], "black", [[B.handR, 1]]);
   if (s.shades === true) box(b, [0, HC + 0.014, 0.084], [0.158, 0.034, 0.016], "black", wHead);
   if (s.beard === true) {
-    tube(b, [
+    smoothPart(b, "hair", () => tube(b, [
       { c: [0, HC - 0.118, 0], ru: 0.05, rv: 0.05, w: wHead, fn: (th) => headPoint(-0.116, th, 1.12) },
       { c: [0, HC - 0.07, 0], ru: 0.08, rv: 0.08, w: wHead, fn: (th) => headPoint(-0.074, th, 1.07) },
       { c: [0, HC - 0.03, 0], ru: 0.09, rv: 0.09, w: wHead, fn: (th) => headPoint(-0.036, th, 1.035) },
-    ], { sides: 6, arc: [0.12, Math.PI - 0.12], color: s.hairColor, capStart: true });
+    ], { sides: 6, arc: [0.12, Math.PI - 0.12], color: s.hairColor, capStart: true }));
   }
   if (s.holding !== undefined) {
     // A bottle held up for sale.
     box(b, add(joint(J, "WR"), mul(joint(J, "dR"), 0.11)), [0.05, 0.12, 0.05], s.holding, [[B.handR, 1]]);
     box(b, add(joint(J, "WR"), mul(joint(J, "dR"), 0.19)), [0.024, 0.04, 0.024], "white", [[B.handR, 1]]);
   }
-  if (s.carry !== undefined) buildHeadLoad(b, s.carry);
+  if (s.carry !== undefined) {
+    const carry = s.carry;
+    smoothPart(b, "load", () => buildHeadLoad(b, carry));
+  }
 }
 
 // A hawker's load: a cloth pad on the head, a wide basin on the pad, piled with one kind of goods.
@@ -879,7 +913,7 @@ function buildHeadLoad(b: Buf, carry: NonNullable<PersonSpec["carry"]>): void {
   const r = rng(carry.seed ?? 3);
   const pos = (x: number, y: number, z: number): Vec => unHead([x, top + 0.03 + y, z]);
   const k = 1 / HEAD_SCALE;
-  const item = (x: number, y: number, z: number, size: Vec, col: PaletteName): void => box(b, pos(x, y, z), mul(size, k), col, wHead);
+  const item = (x: number, y: number, z: number, size: Vec, col: PaletteName): void => hard(b, () => box(b, pos(x, y, z), mul(size, k), col, wHead));
   const round = (x: number, y: number, z: number, rad: number, col: PaletteName): void =>
     tube(b, [{ c: pos(x, y, z), ru: rad * k, rv: rad * k, w: wHead }], { sides: 5, color: col, capStart: true, capStartOff: [0, -rad * k, 0], capEnd: true, capEndOff: [0, rad * k, 0] });
   if (carry.kind === "oranges") {
@@ -987,6 +1021,79 @@ function buildAgbada(b: Buf, P: Body, s: Spec, J: Joints): void {
   box(b, [0, 1.25, zAt(0, 1.25) + 0.028], [0.022, 0.26, 0.006], over.trim, [[B.chest, 1]]);
 }
 
+// ---------- shading ----------
+interface Shaded {
+  positions: number[];
+  normals: number[];
+  colours: PaletteName[];
+  uvs: number[];
+  joints: number[];
+  weights: number[];
+  groups: [number[], number[]];
+  smooth: SmoothPart[];
+}
+
+/**
+ * Normals for one welded mesh that is partly smooth and partly flat (R-ASSET-005): a round part keeps
+ * its shared vertices, each with the mean of the faces around it, joined across seams where two
+ * vertices of the part sit at one point; every other triangle gets three vertices of its own, each
+ * with the face's normal, so it shades flat with no help from the loader.
+ */
+function shade(b: Buf): Shaded {
+  const count = b.pos.length / 3;
+  const p = (i: number): Vec => [b.pos[i * 3] ?? 0, b.pos[i * 3 + 1] ?? 0, b.pos[i * 3 + 2] ?? 0];
+  const faceNormal = (i: number, j: number, k: number): Vec => cross(sub(p(j), p(i)), sub(p(k), p(i)));
+  const smoothTri = (i: number, j: number, k: number): boolean => {
+    const part = b.part[i] ?? null;
+    return part !== null && b.part[j] === part && b.part[k] === part;
+  };
+  const spot = (i: number): string => `${b.part[i] ?? ""}:${p(i).map((x) => Math.round(x * 100000)).join(",")}`;
+  const sums = new Map<string, Vec>();
+  for (const group of [b.idx[0], b.idx[1]]) {
+    for (let t = 0; t < group.length; t += 3) {
+      const [i, j, k] = [group[t] ?? 0, group[t + 1] ?? 0, group[t + 2] ?? 0];
+      if (!smoothTri(i, j, k)) continue;
+      const n = faceNormal(i, j, k);
+      for (const v of [i, j, k]) sums.set(spot(v), add(sums.get(spot(v)) ?? [0, 0, 0], n));
+    }
+  }
+  const out: Shaded = { positions: [], normals: [], colours: [], uvs: [], joints: [], weights: [], groups: [[], []], smooth: [] };
+  const unit = (n: Vec): Vec => {
+    const l = len(n);
+    return l === 0 ? [0, 1, 0] : mul(n, 1 / l);
+  };
+  const copy = (i: number, n: Vec): number => {
+    const o = out.positions.length / 3;
+    out.positions.push(...p(i));
+    out.normals.push(...unit(n));
+    out.colours.push(at(b.col, i));
+    out.uvs.push(b.uv[i * 2] ?? 0, b.uv[i * 2 + 1] ?? 0);
+    out.joints.push(...b.si.slice(i * 4, i * 4 + 4));
+    out.weights.push(...b.sw.slice(i * 4, i * 4 + 4));
+    return o;
+  };
+  const shared = new Int32Array(count).fill(-1);
+  const parts = new Set<SmoothPart>();
+  [b.idx[0], b.idx[1]].forEach((group, g) => {
+    const into = at(out.groups, g);
+    for (let t = 0; t < group.length; t += 3) {
+      const tri = [group[t] ?? 0, group[t + 1] ?? 0, group[t + 2] ?? 0] as const;
+      if (smoothTri(...tri)) {
+        parts.add(b.part[tri[0]] ?? "head");
+        for (const v of tri) {
+          if ((shared[v] ?? -1) < 0) shared[v] = copy(v, sums.get(spot(v)) ?? [0, 1, 0]);
+          into.push(shared[v] ?? 0);
+        }
+      } else {
+        const n = faceNormal(...tri);
+        for (const v of tri) into.push(copy(v, n));
+      }
+    }
+  });
+  out.smooth = [...parts].sort();
+  return out;
+}
+
 // ---------- assemble ----------
 export function buildPerson(spec: PersonSpec): PersonMesh {
   const s: Spec = { ...spec, build: spec.build ?? 1, hairColor: spec.hairColor ?? "hair", shoes: spec.shoes ?? "black" };
@@ -1002,7 +1109,7 @@ export function buildPerson(spec: PersonSpec): PersonMesh {
   const rows = P.rows ?? null;
   if (rows !== null) buildTorsoZones(b, P, s, rows);
   else buildTorso(b, P, s, T);
-  buildHead(b, s);
+  smoothPart(b, "head", () => buildHead(b, s));
   for (const sd of ["L", "R"] as const) {
     buildArm(b, P, s, J, sd);
     buildLeg(b, P, s, sd);
@@ -1013,8 +1120,9 @@ export function buildPerson(spec: PersonSpec): PersonMesh {
   }
   buildExtras(b, s, J);
   if (s.over !== undefined) buildAgbada(b, P, s, J);
-  if (s.hair !== undefined) HAIR[s.hair](b, s);
-  if (s.head !== undefined) HEADWEAR[s.head](b, s);
+  const { hair, head } = s;
+  if (hair !== undefined) smoothPart(b, "hair", () => HAIR[hair](b, s));
+  if (head !== undefined) smoothPart(b, "headwear", () => HEADWEAR[head](b, s));
   if (b.idx[2].length > 0) throw new Error(`${s.name}: a second pattern; a person ships one (R-ASSET-005)`);
   const patterns = s.patterns ?? [];
   if (b.idx[1].length > 0 && patterns[0] === undefined) throw new Error(`${s.name}: patterned cloth with no pattern`);
@@ -1035,6 +1143,7 @@ export function buildPerson(spec: PersonSpec): PersonMesh {
   for (let i = 1; i < b.pos.length; i += 3) minY = Math.min(minY, b.pos[i] ?? 0);
   for (let i = 1; i < b.pos.length; i += 3) b.pos[i] = (b.pos[i] ?? 0) - minY;
 
+  const shaded = shade(b);
   const world = bonePositions(J).map((p) => mul(p, kH));
   const bones: PersonBone[] = BONE_NAMES.map((name, i) => {
     const parent = at(BONE_PARENTS, i);
@@ -1044,12 +1153,14 @@ export function buildPerson(spec: PersonSpec): PersonMesh {
   });
   return {
     name: s.name,
-    positions: b.pos,
-    colours: b.col,
-    uvs: b.uv,
-    joints: b.si,
-    weights: b.sw,
-    groups: [b.idx[0], b.idx[1]],
+    positions: shaded.positions,
+    normals: shaded.normals,
+    colours: shaded.colours,
+    uvs: shaded.uvs,
+    joints: shaded.joints,
+    weights: shaded.weights,
+    groups: shaded.groups,
+    smooth: shaded.smooth,
     pattern: b.idx[1].length > 0 ? (patterns[0] ?? null) : null,
     bones,
   };

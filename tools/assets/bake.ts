@@ -12,6 +12,8 @@ export type MaterialRole = "body" | "sign" | "pattern";
 export interface BakedPrimitive {
   material: MaterialRole;
   positions: number[];
+  /** Unit normals, three a vertex: only where a model has round parts drawn smooth (R-ASSET-005). */
+  normals?: number[];
   /** Linear RGB, three a vertex, as glTF stores vertex colours. */
   colours?: number[];
   uvs?: number[];
@@ -23,6 +25,11 @@ export interface BakedPrimitive {
 export interface BakedPart {
   node: string;
   primitives: BakedPrimitive[];
+  /**
+   * The node's extras. `smooth` names the round parts the loader leaves smooth (R-ASSET-005): a list
+   * of part names where the primitives carry normals, or true for a whole node shaded smooth.
+   */
+  extras?: { smooth?: string[] | true };
 }
 
 export interface Bone {
@@ -45,6 +52,16 @@ export function linearColour(name: string): [number, number, number] {
   if (!isPaletteName(name)) throw new Error(`Not a palette colour: ${name}`);
   const value = palette[name];
   return [srgbToLinear(((value >> 16) & 0xff) / 255), srgbToLinear(((value >> 8) & 0xff) / 255), srgbToLinear((value & 0xff) / 255)];
+}
+
+/** A builder marks a round node with `userData.smooth = true`; it ships smooth (R-ASSET-005). */
+function isSmooth(object: Object3D, root: Object3D): boolean {
+  let at: Object3D | null = object;
+  while (at !== null && at !== root) {
+    if ((at.userData as { smooth?: unknown }).smooth === true) return true;
+    at = at.parent;
+  }
+  return false;
 }
 
 function partOf(object: Object3D, root: Object3D): string {
@@ -92,6 +109,7 @@ export function bakeGroup(root: Object3D, name: string, options: { shipSigns: bo
   root.updateMatrixWorld(true);
   const toRoot = root.matrixWorld.clone().invert();
   const welders = new Map<string, Welder>();
+  const smooth = new Set<string>();
   const a = new Vector3();
   const b = new Vector3();
   const c = new Vector3();
@@ -105,6 +123,7 @@ export function bakeGroup(root: Object3D, name: string, options: { shipSigns: bo
     const matrix = new Matrix4().multiplyMatrices(toRoot, mesh.matrixWorld);
     const mirrored = matrix.determinant() < 0;
     const node = partOf(mesh, root);
+    if (isSmooth(mesh, root)) smooth.add(node);
     let welder = welders.get(node);
     if (welder === undefined) {
       welder = new Welder();
@@ -126,6 +145,7 @@ export function bakeGroup(root: Object3D, name: string, options: { shipSigns: bo
   const parts: BakedPart[] = [...welders].map(([node, welder]) => ({
     node,
     primitives: [{ material: "body", positions: welder.positions, colours: welder.colours, indices: welder.indices }],
+    ...(smooth.has(node) ? { extras: { smooth: true as const } } : {}),
   }));
   const anchors = signAnchorsOf(root).map((anchor) => ({ ...anchor, centre: [...anchor.centre] as [number, number, number] }));
   const extras: Record<string, unknown> = {};
