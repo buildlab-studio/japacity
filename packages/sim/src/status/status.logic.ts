@@ -516,6 +516,9 @@ function view(read: ReadCtx): Pick<PlayerView, "status"> {
 /** R-STATUS-010: what `status/renew` would cost today, or null when asking is not how this status renews. */
 function renewTerms(read: ReadCtx, held: NonNullable<StatusSlice["current"]>, entry: StatusEntry): NonNullable<PlayerView["status"]>["renew"] {
   if (entry.renewMonths <= 0 || held.expiresMonth === null || entry.renewFeeVar === null) return null;
+  // R-STATUS-010: null whenever asking would be refused, so a one-employer status out of its job shows no terms (the same test as `renew`).
+  const job = read.state.activity.job;
+  if (entry.work === "one-employer" && (job === null || (held.job !== null && held.job !== job))) return null;
   const currency = foreignCurrencyOf(read.content, entry.country);
   const fee = worldVar(read, entry.renewFeeVar);
   const surcharge = entry.surchargeYearVar === null ? 0 : mulDiv(worldVar(read, entry.surchargeYearVar), entry.renewMonths, MONTHS_PER_YEAR);

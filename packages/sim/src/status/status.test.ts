@@ -246,6 +246,8 @@ describe("renewing", () => {
     const jobless = sponsored();
     jobless.accept({ type: "activity/quit" });
     jobless.expectRejected({ type: "status/renew" }, "not-legal");
+    // R-STATUS-010: the view shows no terms where asking would be refused.
+    expect(jobless.view().status?.renew).toBeNull();
     const broke = sponsored();
     const pockets = broke.state.wallet.pockets;
     applyEffects(broke, [
