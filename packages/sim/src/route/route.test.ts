@@ -354,6 +354,29 @@ describe("schools", () => {
     game.expectRejected({ type: "turn/end", slots: [slot("activity.apply-to-school", NORTHGATE)] }, "not-legal");
   });
 
+  test("[R-ROUTE-006] given Tunde refused by Northgate on seed-0, as the sweep found, when months pass, then the view names the month it will take him again, and six months after its answer it is offered and takes a new application", () => {
+    const game = life({ from: "scenario.tunde", seed: "seed-0" });
+    expect(game.state.quality[GRADE]).toBe(school(NORTHGATE).minGrade);
+    toAnswer(game, NORTHGATE);
+    const refused = uk(game).schools[NORTHGATE]!;
+    expect(refused.state).toBe("rejected");
+    expect(numbers.reapplyMonths).toBe(6);
+    const from = refused.readyMonth + numbers.reapplyMonths;
+    const option = () => game.view().activities.find((candidate) => candidate.id === "activity.apply-to-school")!;
+    let waited = 0;
+    while (game.state.turn.month < from) {
+      expect(option()).toMatchObject({ allowed: false, params: [], missing: [{ type: "month/min", value: from }] });
+      game.expectRejected({ type: "turn/end", slots: [slot("activity.apply-to-school", NORTHGATE)] }, "not-legal");
+      game.endTurn();
+      waited += 1;
+    }
+    expect(waited).toBe(numbers.reapplyMonths);
+    expect(option()).toMatchObject({ allowed: true, params: [NORTHGATE], missing: [] });
+    const month = game.state.turn.month + 1;
+    game.endTurn([slot("activity.apply-to-school", NORTHGATE)]);
+    expect(uk(game).schools[NORTHGATE]).toEqual({ state: "pending", readyMonth: month + 1, discount: 0 });
+  });
+
   test("[R-ROUTE-007] given a school and a grade, when the chance of an offer is worked out, then it is the base plus 5% a grade above the minimum, at most 95%", () => {
     const northgate = school(NORTHGATE);
     expect(offerChanceBp(northgate, northgate.minGrade, numbers)).toBe(northgate.offerBp);

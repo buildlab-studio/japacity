@@ -1,7 +1,7 @@
 // Routes and schools: docs/rules/route.md, R-ROUTE-001 to 020. A school has no
 // slice of its own: its applications live on the route (`RouteState.schools`),
 // and its rules are carried out here.
-import { heldBand } from "../activity/activity.logic";
+import { heldBand, takesApplication } from "../activity/activity.logic";
 import { check, worldVar } from "../engine/check";
 import { BP_WHOLE, clamp, convertMinor, divFloor, mulDiv } from "../engine/int";
 import type { RegisteredKind } from "../engine/kind";
@@ -291,7 +291,8 @@ function lookInto(ctx: Ctx, _effect: Effect, cause: Cause): BaseEvent[] {
 /**
  * R-ROUTE-006, and R-ROUTE-005 for the window. The slot's param names the
  * school. The application is written at once, so a later slot of the same
- * month cannot apply there again.
+ * month cannot apply there again. A school that refused takes a new one once
+ * its wait has run, and the new application replaces the refusal.
  */
 function applySchool(ctx: Ctx, _effect: Effect, cause: Cause): BaseEvent[] {
   const id = cause.param as Id<"school"> | null;
@@ -301,7 +302,7 @@ function applySchool(ctx: Ctx, _effect: Effect, cause: Cause): BaseEvent[] {
   const held = routeOf(ctx.state, school.route);
   if (held.state !== "known" || !entryOf(ctx.content, school.route).schools.includes(id)) return [];
   if (windowOf(read, school.route) === "closed") return [];
-  if (held.schools[id] !== undefined) return [];
+  if (!takesApplication(held.schools[id], ctx.state.turn.month, ctx.content.tuning.route)) return [];
   const band = heldBand(read);
   if (grade(ctx.state) < school.minGrade || band === null || band < school.minBand) return [];
   const wait = ctx.random.between("school", school.answerMonths[0], school.answerMonths[1]);

@@ -22,6 +22,7 @@ import type {
   ReportLine,
   Requirement,
   RequirementResult,
+  SchoolApplication,
   SlotPick,
   State,
   Tuning,
@@ -87,25 +88,62 @@ function heardRoutes(read: ReadCtx): string[] {
 }
 
 /**
- * Schools that may be applied to (R-ROUTE-006): on a known route, the grade
- * and the band held meet the school's minimums, and there is no application
- * or offer there already. A rejected application counts as one already there.
+ * The month from which a school that refused takes a new application
+ * (R-ROUTE-006): its answer's month plus `reapplyMonths`. Null when there is
+ * no refusal there.
  */
-function openSchools(read: ReadCtx): string[] {
+export function reapplyFrom(application: SchoolApplication | undefined, numbers: Tuning["route"]): number | null {
+  return application?.state === "rejected" ? application.readyMonth + numbers.reapplyMonths : null;
+}
+
+/**
+ * Whether a school takes an application now (R-ROUTE-006): none there yet, or
+ * a refusal whose wait has run. The route kind judges the same.
+ */
+export function takesApplication(application: SchoolApplication | undefined, month: number, numbers: Tuning["route"]): boolean {
+  if (application === undefined) return true;
+  const from = reapplyFrom(application, numbers);
+  return from !== null && month >= from;
+}
+
+/** The schools on known routes whose grade and band minimums the character meets, each with its application. */
+function reachableSchools(read: ReadCtx): { id: Id<"school">; application: SchoolApplication | undefined }[] {
   const band = heldBand(read);
   if (band === null) return [];
   const grade = read.state.quality[GRADE] ?? 0;
-  const schools: string[] = [];
+  const schools: { id: Id<"school">; application: SchoolApplication | undefined }[] = [];
   for (const route of Object.values(read.content.route)) {
     const held = read.state.route[route.id];
     if (held?.state !== "known") continue;
     for (const id of route.schools) {
       const school = read.content.school[id];
-      if (school === undefined || held.schools[id] !== undefined) continue;
-      if (grade >= school.minGrade && band >= school.minBand) schools.push(id);
+      if (school !== undefined && grade >= school.minGrade && band >= school.minBand) schools.push({ id, application: held.schools[id] });
     }
   }
   return schools;
+}
+
+/**
+ * Schools that may be applied to (R-ROUTE-006): on a known route, the grade
+ * and the band held meet the school's minimums, and there is no application
+ * or offer there already, unless it refused and its wait has run.
+ */
+function openSchools(read: ReadCtx): string[] {
+  const { month } = read.state.turn;
+  return reachableSchools(read)
+    .filter(({ application }) => takesApplication(application, month, read.content.tuning.route))
+    .map(({ id }) => id);
+}
+
+/**
+ * While no school may be applied to but one that refused will take a new
+ * application, the view names the month it can (R-ROUTE-006).
+ */
+function schoolWait(read: ReadCtx): Requirement[] {
+  const months = reachableSchools(read)
+    .map(({ application }) => reapplyFrom(application, read.content.tuning.route))
+    .filter((from): from is number => from !== null && from > read.state.turn.month);
+  return months.length === 0 ? [] : [{ type: "month/min", value: Math.min(...months) }];
 }
 
 /**
@@ -398,8 +436,9 @@ export function activityOptions(read: ReadCtx): ActivityOption[] {
   return Object.values(read.content.activity)
     .filter((entry) => entry.slot === "free")
     .map((entry) => {
-      const missing = entry.requires.filter((requirement) => !judge(requirement).met);
       const params = paramsFor(read, entry, judge);
+      const waiting = entry.param === "school" && params?.length === 0 ? schoolWait(read) : [];
+      const missing = [...entry.requires.filter((requirement) => !judge(requirement).met), ...waiting];
       const cost = resolvedCosts(read, entry).map(({ currency, amount }) => ({ currency, amount }));
       return {
         id: entry.id,
