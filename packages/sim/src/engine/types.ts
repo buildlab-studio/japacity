@@ -894,7 +894,7 @@ export interface Bond {
 export interface PeopleSlice {
   slots: Record<string, { state: "empty" | "computer" | "invited" | "player" | "stand-in"; bond: string | null; person: Id<"person"> | null; invite: { looking: string; fill: string | null } | null }>;
   bonds: Record<string, Bond>;
-  /** the two scores of R-PEOPLE-030, null until the points gate gives them. */
+  /** The view reads the two scores of R-PEOPLE-030 fresh from the state (9 Oct 2026: the slice holds none). */
   joint: { bond: string; route: Id<"route">; lead: "me" | "them"; countFunds: boolean; standInMay: boolean } | null;
   sponsoring: { bond: string; route: Id<"route">; month: number } | null;
   arrived: { route: Id<"route">; month: number } | null;
