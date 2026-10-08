@@ -4,11 +4,13 @@
 import { Hono } from "hono";
 
 import type { ServerDeps } from "./deps";
+import { placeRoutes } from "./routes/place";
 
 export function makeApp(deps: ServerDeps): Hono {
   const app = new Hono();
 
   app.get("/api/health", (c) => c.json({ ok: true, content: deps.contents.current.version, tick: currentTick(deps) }));
+  app.route("/", placeRoutes(deps));
 
   return app;
 }

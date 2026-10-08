@@ -1,12 +1,16 @@
 // The Worker. Builds the app once per isolate from the bindings; the
 // scheduled handler runs the jobs by their cron (R-CLOCK-012, R-SERVER-011).
-// The place object is exported here when it lands (R-CLOCK-025).
 import { content } from "@japacity/content";
 
 import { makeApp } from "./app";
 import { productionConfig } from "./config";
 import { memoryStores, testSession, webRandomBytes } from "./deps";
 import type { ServerDeps } from "./deps";
+import type { Place } from "./place/place.object";
+import { roomsFor } from "./place/place.rooms";
+import { placeSocketRoutes } from "./routes/place";
+
+export { Place } from "./place/place.object";
 
 export interface Env {
   SITE_URL: string;
@@ -18,6 +22,8 @@ export interface Env {
   SOCKET_10S: RateLimit;
   GAME_DB: Hyperdrive;
   CACHED_DB: Hyperdrive;
+  /** R-CLOCK-025: the place objects. */
+  PLACE: DurableObjectNamespace<Place>;
 }
 
 let deps: ServerDeps | null = null;
@@ -40,7 +46,9 @@ function depsFor(env: Env): ServerDeps {
 
 export default {
   fetch(request: Request, env: Env): Response | Promise<Response> {
-    return makeApp(depsFor(env)).fetch(request);
+    const built = depsFor(env);
+    // The character's place, name and look come from the core's reads when it lands; until then no socket opens.
+    return makeApp(built).route("/", placeSocketRoutes(built, { rooms: roomsFor(env.PLACE, built.config.presence), placeOf: () => Promise.resolve(null), profileOf: () => Promise.resolve(null) })).fetch(request);
   },
   scheduled(): void {
     // The jobs mount here as they land, by cron: the world's ticks (R-CLOCK-012) and the money report (R-SERVER-011).

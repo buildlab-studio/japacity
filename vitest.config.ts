@@ -1,5 +1,6 @@
 import { fileURLToPath } from "node:url";
 
+import { cloudflareTest } from "@cloudflare/vitest-plugin";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vitest/config";
 
@@ -8,6 +9,14 @@ import { defineConfig } from "vitest/config";
 const contentEntry = fileURLToPath(new URL("./packages/content/src/index.ts", import.meta.url));
 
 const fixtureFolders = ["tools/lint-fixtures/**", "tools/__fixtures__/**"];
+
+const serverWrangler = fileURLToPath(new URL("./apps/server/wrangler.jsonc", import.meta.url));
+// The place object's tests open real sockets, which the Workers plugin runs only with shared storage.
+const workersTests = "apps/server/src/**/*.workers.test.ts";
+// Wrangler refuses a Hyperdrive binding without a local string; the place tests never connect to it.
+const unusedPostgres = "postgres://test:test@127.0.0.1:5432/test";
+process.env.CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRING_GAME_DB ??= unusedPostgres;
+process.env.CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRING_CACHED_DB ??= unusedPostgres;
 
 export default defineConfig({
   test: {
@@ -51,6 +60,25 @@ export default defineConfig({
           name: "server",
           environment: "node",
           include: ["apps/server/src/**/*.test.ts"],
+          exclude: ["**/node_modules/**", workersTests],
+        },
+      },
+      {
+        // The Workers runtime, for the place object (decision 0004 section 5). Sockets to a
+        // Durable Object need one worker and no isolation: the plugin's known issue, linked there.
+        plugins: [
+          cloudflareTest({
+            wrangler: { configPath: serverWrangler },
+            miniflare: {
+              bindings: { PLACE_CONFIG: JSON.stringify({ presence: { maxPerObject: 3 } }) },
+            },
+          }),
+        ],
+        test: {
+          name: "server-workers",
+          include: [workersTests],
+          isolate: false,
+          maxWorkers: 1,
         },
       },
       {
