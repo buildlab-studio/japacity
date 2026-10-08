@@ -8,3 +8,4 @@ export type * from "./advert.types";
 export { compareIds, pairIds, pairKey } from "./keys";
 export * from "./memory";
 export * from "./switches";
+export * from "./boards";

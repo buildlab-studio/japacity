@@ -3,12 +3,20 @@
 // takes effect without a deploy, and an append-only log of every change.
 import type { StoreResult } from "./types";
 
-/** R-SERVER-031: the four off switches, each on by default. */
+/**
+ * R-SERVER-031: the four off switches, each on by default; city.md R-CITY-039:
+ * one switch for each board, the four on and the joined-week board off.
+ */
 export interface Switches {
   signups: boolean;
   lottery: boolean;
   adverts: boolean;
   partnerPlay: boolean;
+  "boards.this-week.everyone": boolean;
+  "boards.this-week.friends": boolean;
+  "boards.all-time.everyone": boolean;
+  "boards.all-time.friends": boolean;
+  "boards.joined-week": boolean;
 }
 
 export type SwitchName = keyof Switches;
@@ -50,7 +58,17 @@ export interface SwitchRow {
 
 /** R-SERVER-030, R-SERVER-031: the row as an empty store reads it. */
 export const DEFAULT_SWITCH_ROW: SwitchRow = {
-  switches: { signups: true, lottery: true, adverts: true, partnerPlay: true },
+  switches: {
+    signups: true,
+    lottery: true,
+    adverts: true,
+    partnerPlay: true,
+    "boards.this-week.everyone": true,
+    "boards.this-week.friends": true,
+    "boards.all-time.everyone": true,
+    "boards.all-time.friends": true,
+    "boards.joined-week": false,
+  },
   dials: { placeTargets: {}, computerAfterMonths: null, topUpTickets: null },
 };
 

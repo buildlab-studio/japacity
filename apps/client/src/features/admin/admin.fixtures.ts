@@ -1,6 +1,6 @@
 // The admin routes' answers for the page's tests and its browser pictures, in
 // the server's shapes. Made-up accounts and businesses only.
-import type { AlarmsReply, CampaignsReply, DashboardReply, FeedbackReply, LogReply, QueueReply, RejectionsReply, ReportReply, RollbackCheck, SwitchesReply, SwitchLogReply } from "./admin.contract";
+import type { AlarmsReply, CampaignsReply, DashboardReply, FeedbackReply, LogReply, QueueReply, RejectionsReply, ReportReply, RollbackCheck, Switches, SwitchesReply, SwitchLogReply } from "./admin.contract";
 
 export const NOW = Date.parse("2026-10-08T12:00:00Z");
 const HOUR = 3_600_000;
@@ -167,9 +167,21 @@ export const CAMPAIGNS: CampaignsReply = {
   ],
 };
 
+export const SWITCH_ROW: Switches = {
+  signups: true,
+  lottery: false,
+  adverts: true,
+  partnerPlay: true,
+  "boards.this-week.everyone": true,
+  "boards.this-week.friends": true,
+  "boards.all-time.everyone": true,
+  "boards.all-time.friends": true,
+  "boards.joined-week": false,
+};
+
 export const SWITCHES: SwitchesReply = {
   ok: true,
-  switches: { signups: true, lottery: false, adverts: true, partnerPlay: true },
+  switches: SWITCH_ROW,
   dials: { placeTargets: { "place.ojuelegba": 40 }, computerAfterMonths: null, topUpTickets: 25 },
 };
 

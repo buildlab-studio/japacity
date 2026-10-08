@@ -197,7 +197,7 @@ describe("each switch, off", () => {
     const target = server();
     const character = await newLife(target, "acc-1");
     await turnOff(target, SWITCH_NAMES);
-    expect(Object.values((await readSwitches(target.deps)).switches)).toEqual([false, false, false, false]);
+    expect(Object.values((await readSwitches(target.deps)).switches)).toEqual(SWITCH_NAMES.map(() => false));
 
     const seen = await call<{ ok: boolean }>(target, "GET", "/api/view", "acc-1");
     expect(seen.status).toBe(200);

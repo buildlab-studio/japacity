@@ -37,6 +37,7 @@ import { NotifySetting } from "./features/notify/NotifySetting";
 import { ObligationView } from "./features/obligation/ObligationView";
 import { OfferView } from "./features/offer/OfferView";
 import { PeopleView } from "./features/people/PeopleView";
+import { BoardsView } from "./features/boards/BoardsView";
 import { RunDownBanner } from "./features/health/RunDownBanner";
 import { InterviewView } from "./features/interview/InterviewView";
 import { FamilyView } from "./features/place/FamilyView";
@@ -219,6 +220,7 @@ function AtHome({ tab }: { tab: Tab }) {
         </Group>
         <Group tab="people" current={tab}>
           <PeopleView />
+          <BoardsView />
         </Group>
       </div>
     </main>
@@ -263,6 +265,7 @@ function Abroad({ tab }: { tab: Tab }) {
         </Group>
         <Group tab="people" current={tab}>
           <PeopleView />
+          <BoardsView />
         </Group>
       </div>
     </main>

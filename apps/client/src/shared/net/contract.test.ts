@@ -42,11 +42,14 @@ const COPIES: Copy[] = [
   { client: ["apps/client/src/features/adverts/adverts.ts", "AdvertsReply"], server: ["apps/server/src/adverts/serve.ts", "AdvertsReply"] },
   { client: ["apps/client/src/shared/analytics/counters.ts", "CounterRow"], server: ["apps/server/src/analytics/batch.ts", "CounterRow"] },
   { client: ["apps/client/src/shared/analytics/counters.ts", "CounterBatch"], server: ["apps/server/src/analytics/batch.ts", "CounterBatch"] },
+  ...["BoardName", "BoardRow", "BoardReply"].map((name): Copy => ({ client: ["apps/client/src/features/boards/boards.ts", name], server: ["apps/server/src/boards/board.ts", name] })),
+  { client: ["apps/client/src/features/admin/admin.contract.ts", "Switches"], server: ["packages/store/src/switches.ts", "Switches"] },
 ];
 
 /** The constants the client copies, compared by their initial value. */
 const CONSTANTS: Copy[] = [
   { client: [CONTRACT, "REPORT_REASONS"], server: [REPORTS, "REPORT_REASONS"] },
+  { client: ["apps/client/src/features/admin/admin.contract.ts", "SWITCH_NAMES"], server: ["apps/server/src/switches/switches.ts", "SWITCH_NAMES"] },
 ];
 
 const printer = ts.createPrinter({ removeComments: true, newLine: ts.NewLineKind.LineFeed });

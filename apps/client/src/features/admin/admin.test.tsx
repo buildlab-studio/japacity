@@ -5,7 +5,7 @@ import { api, type Fetch } from "../../shared/net/http";
 import { formatMoney } from "../../shared/words/format";
 // Registers Testing Library's cleanup for this file.
 import "../../shared/testing/render";
-import { ADMIN_GETS, CAMPAIGNS, QUEUE, ROLLBACK, YESTERDAY } from "./admin.fixtures";
+import { ADMIN_GETS, CAMPAIGNS, QUEUE, ROLLBACK, SWITCH_ROW, YESTERDAY } from "./admin.fixtures";
 import { words } from "./admin.words";
 import { AdminPage, type AdminTab } from "./AdminPage";
 import { AdminRoute } from "./AdminRoute";
@@ -439,7 +439,7 @@ describe("the adverts tab", () => {
 
 describe("the switches tab", () => {
   test("[R-SERVER-031] given the switch row, when a switch is turned off, then a reason is needed, it is confirmed, the change is sent with the reason, and the row and the log are read again", async () => {
-    const server = page("switches", { "POST /api/admin/switches": () => ({ ok: true, switches: { signups: false, lottery: false, adverts: true, partnerPlay: true }, dials: { placeTargets: {}, computerAfterMonths: null, topUpTickets: null } }) });
+    const server = page("switches", { "POST /api/admin/switches": () => ({ ok: true, switches: { ...SWITCH_ROW, signups: false }, dials: { placeTargets: {}, computerAfterMonths: null, topUpTickets: null } }) });
     const row = (await screen.findByText(words("admin.switch.signups"))).closest("li")!;
     expect(within(row).getByText(words("admin.switch.on"))).toBeTruthy();
     const off = within(row).getByRole("button", { name: words("admin.switch.turn-off", { name: words("admin.switch.signups") }) });
@@ -453,6 +453,17 @@ describe("the switches tab", () => {
     const lottery = screen.getByText(words("admin.switch.lottery")).closest("li")!;
     expect(within(lottery).getByRole("button", { name: words("admin.switch.turn-on", { name: words("admin.switch.lottery") }) })).toBeTruthy();
     expectOnlyAdminRoutes(server.calls);
+  });
+
+  test("[R-CITY-039] given the switch row, when the tab opens, then each of the five board switches is listed with its state, the joined-week board off", async () => {
+    page("switches");
+    await screen.findByText(words("admin.switch.signups"));
+    const states = (["boards.this-week.everyone", "boards.this-week.friends", "boards.all-time.everyone", "boards.all-time.friends", "boards.joined-week"] as const).map((name) => {
+      const row = screen.getByText(words(`admin.switch.${name}`)).closest("li")!;
+      expect(row.getAttribute("data-switch")).toBe(name);
+      return within(row).queryByText(words("admin.switch.on")) === null ? "off" : "on";
+    });
+    expect(states).toEqual(["on", "on", "on", "on", "off"]);
   });
 
   test("[R-SERVER-031] given the switch log, when the tab opens, then every change shows with who, when and why, oldest first", async () => {
