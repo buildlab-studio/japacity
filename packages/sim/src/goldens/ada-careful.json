@@ -1407,18 +1407,6 @@
       },
       {
         "command": {
-          "type": "wallet/convert",
-          "from": "USD",
-          "to": "NGN",
-          "amount": 6021,
-          "via": "bank",
-          "basedOn": 104
-        },
-        "tick": 36,
-        "sender": "player"
-      },
-      {
-        "command": {
           "type": "turn/end",
           "slots": [
             {
@@ -1434,7 +1422,7 @@
               "param": null
             }
           ],
-          "basedOn": 105
+          "basedOn": 104
         },
         "tick": 36,
         "sender": "player"
@@ -1444,7 +1432,7 @@
           "type": "offer/choose",
           "offer": "offer-33",
           "choice": "accept",
-          "basedOn": 106
+          "basedOn": 105
         },
         "tick": 37,
         "sender": "player"
@@ -1454,19 +1442,7 @@
           "type": "offer/choose",
           "offer": "offer-34",
           "choice": "walk-away",
-          "basedOn": 107
-        },
-        "tick": 37,
-        "sender": "player"
-      },
-      {
-        "command": {
-          "type": "wallet/convert",
-          "from": "USD",
-          "to": "NGN",
-          "amount": 6272,
-          "via": "bank",
-          "basedOn": 108
+          "basedOn": 106
         },
         "tick": 37,
         "sender": "player"
@@ -1484,7 +1460,7 @@
               "param": null
             }
           ],
-          "basedOn": 109
+          "basedOn": 107
         },
         "tick": 37,
         "sender": "player"
@@ -1494,19 +1470,17 @@
           "type": "offer/choose",
           "offer": "offer-35",
           "choice": "no",
-          "basedOn": 110
+          "basedOn": 108
         },
         "tick": 38,
         "sender": "player"
       },
       {
         "command": {
-          "type": "wallet/convert",
-          "from": "USD",
-          "to": "NGN",
-          "amount": 6211,
-          "via": "bank",
-          "basedOn": 111
+          "type": "offer/choose",
+          "offer": "offer-36",
+          "choice": "give",
+          "basedOn": 109
         },
         "tick": 38,
         "sender": "player"
@@ -1524,19 +1498,27 @@
               "param": null
             }
           ],
-          "basedOn": 112
+          "basedOn": 110
         },
         "tick": 38,
         "sender": "player"
       },
       {
         "command": {
-          "type": "wallet/convert",
-          "from": "USD",
-          "to": "NGN",
-          "amount": 6211,
-          "via": "bank",
-          "basedOn": 113
+          "type": "offer/choose",
+          "offer": "offer-37",
+          "choice": "no",
+          "basedOn": 111
+        },
+        "tick": 39,
+        "sender": "player"
+      },
+      {
+        "command": {
+          "type": "offer/choose",
+          "offer": "offer-38",
+          "choice": "pay",
+          "basedOn": 112
         },
         "tick": 39,
         "sender": "player"
@@ -1554,7 +1536,7 @@
               "param": null
             }
           ],
-          "basedOn": 114
+          "basedOn": 113
         },
         "tick": 39,
         "sender": "player"
@@ -1811,37 +1793,37 @@
       "month": 36,
       "v": 104,
       "banked": 24,
-      "nairaBank": 10400430,
-      "hash": "3034983525e0a9c0"
+      "nairaBank": 19900430,
+      "hash": "797b0ffd1c8fb597"
     },
     {
       "month": 37,
-      "v": 106,
+      "v": 105,
       "banked": 23,
-      "nairaBank": 9894376,
-      "hash": "c7c76cb467047971"
+      "nairaBank": 19900430,
+      "hash": "8cbd5fa68f1b639f"
     },
     {
       "month": 38,
-      "v": 110,
+      "v": 108,
       "banked": 22,
-      "nairaBank": 9898672,
-      "hash": "d950f7e218b74edf"
+      "nairaBank": 19900430,
+      "hash": "c6931d2881bda2cb"
     },
     {
       "month": 39,
-      "v": 113,
-      "banked": 21,
-      "nairaBank": 9900966,
-      "hash": "9082cd80e15c3327"
+      "v": 111,
+      "banked": 24,
+      "nairaBank": 16900430,
+      "hash": "ddda0c14681a9e03"
     },
     {
       "month": 40,
-      "v": 115,
-      "banked": 20,
-      "nairaBank": 9900384,
-      "hash": "ef4c537a3510eb62"
+      "v": 114,
+      "banked": 23,
+      "nairaBank": 14400430,
+      "hash": "bbf97dcfd8016f42"
     }
   ],
-  "finalHash": "ef4c537a3510eb62"
+  "finalHash": "bbf97dcfd8016f42"
 }

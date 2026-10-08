@@ -97,22 +97,40 @@ function fromWallet(view: PlayerView): Loose[] {
 const SMALL_REPAY = 100000;
 
 /**
- * Paying ahead (R-OBLIGATION-008). The view has no entry types, so it reads
- * them off the item: a loan in content always has a term, so `monthsLeft` is a
- * number; held funds have none and still hold their principal. Upkeep and
- * support owe no principal, so they are never offered.
+ * The loans in the shipped content and their currencies. The view carries
+ * neither an entry's type nor its currency. the sampler names them;
+ * a loan it does not know is merely not sampled.
+ */
+const LOANS: Record<string, Currency> = {
+  "obligation.salary-loan": "NGN",
+  "obligation.quick-loan": "NGN",
+  "obligation.group-loan": "NGN",
+  "obligation.car-shortfall": "GBP",
+};
+const CAR = "obligation.car";
+
+/**
+ * Paying ahead (R-OBLIGATION-008), and a car's arrears (R-CAR-003): the view's
+ * `due` on a car behind on its payments is what clears them. Held funds still
+ * hold their principal. Everything else is paid month by month and is never
+ * offered. The car's hand-back (R-CAR-004) needs its price, which the view does
+ * not carry, so it is not sampled.
  */
 function fromObligations(view: PlayerView): Loose[] {
   const commands: Loose[] = [];
   for (const owed of view.obligations) {
     if (owed.outstanding <= 0) continue;
-    const pocket = view.pockets.NGN;
-    const spendable = pocket.bank + pocket.cash;
-    if (owed.monthsLeft !== null) {
+    const loan = LOANS[owed.entry];
+    if (loan !== undefined) {
+      const pocket = view.pockets[loan];
+      const spendable = pocket.bank + pocket.cash;
       const part = Math.min(SMALL_REPAY, owed.outstanding);
       if (spendable >= part) commands.push({ type: "obligation/pay", obligation: owed.id, amount: part });
       if (owed.outstanding > part && spendable >= owed.outstanding) commands.push({ type: "obligation/pay", obligation: owed.id, amount: owed.outstanding });
-    } else if (owed.principal === owed.outstanding && pocket.locked >= owed.outstanding) {
+    } else if (owed.entry === CAR) {
+      const pocket = view.pockets.GBP;
+      if (owed.missed > 0 && owed.due > 0 && pocket.bank + pocket.cash >= owed.due) commands.push({ type: "obligation/pay", obligation: owed.id, amount: owed.due });
+    } else if (owed.entry.includes("held-funds") && owed.principal === owed.outstanding && view.pockets.NGN.locked >= owed.outstanding) {
       commands.push({ type: "obligation/pay", obligation: owed.id, amount: owed.outstanding });
     }
   }

@@ -987,7 +987,7 @@
         "command": {
           "type": "offer/choose",
           "offer": "offer-46",
-          "choice": "trek",
+          "choice": "pay",
           "basedOn": 72
         },
         "tick": 30,
@@ -995,17 +995,9 @@
       },
       {
         "command": {
-          "type": "turn/end",
-          "slots": [
-            {
-              "activity": "activity.rest",
-              "param": null
-            },
-            {
-              "activity": "activity.rest",
-              "param": null
-            }
-          ],
+          "type": "offer/choose",
+          "offer": "offer-47",
+          "choice": "pay",
           "basedOn": 73
         },
         "tick": 30,
@@ -1026,25 +1018,18 @@
           ],
           "basedOn": 74
         },
-        "tick": 31,
+        "tick": 30,
         "sender": "player"
       },
       {
         "command": {
-          "type": "turn/end",
-          "slots": [
-            {
-              "activity": "activity.rest",
-              "param": null
-            },
-            {
-              "activity": "activity.rest",
-              "param": null
-            }
-          ],
+          "type": "offer/choose",
+          "offer": "offer-48",
+          "choice": "take",
+          "amount": 3000000000,
           "basedOn": 75
         },
-        "tick": 32,
+        "tick": 31,
         "sender": "player"
       },
       {
@@ -1062,7 +1047,7 @@
           ],
           "basedOn": 76
         },
-        "tick": 33,
+        "tick": 31,
         "sender": "player"
       },
       {
@@ -1080,7 +1065,17 @@
           ],
           "basedOn": 77
         },
-        "tick": 34,
+        "tick": 32,
+        "sender": "player"
+      },
+      {
+        "command": {
+          "type": "offer/choose",
+          "offer": "offer-50",
+          "choice": "pay",
+          "basedOn": 78
+        },
+        "tick": 33,
         "sender": "player"
       },
       {
@@ -1096,19 +1091,9 @@
               "param": null
             }
           ],
-          "basedOn": 78
-        },
-        "tick": 35,
-        "sender": "player"
-      },
-      {
-        "command": {
-          "type": "offer/choose",
-          "offer": "offer-50",
-          "choice": "do-it",
           "basedOn": 79
         },
-        "tick": 36,
+        "tick": 33,
         "sender": "player"
       },
       {
@@ -1126,17 +1111,18 @@
           ],
           "basedOn": 80
         },
-        "tick": 36,
+        "tick": 34,
         "sender": "player"
       },
       {
         "command": {
           "type": "offer/choose",
           "offer": "offer-52",
-          "choice": "manage",
+          "choice": "take",
+          "amount": 300000000,
           "basedOn": 81
         },
-        "tick": 37,
+        "tick": 35,
         "sender": "player"
       },
       {
@@ -1154,17 +1140,25 @@
           ],
           "basedOn": 82
         },
-        "tick": 37,
+        "tick": 35,
         "sender": "player"
       },
       {
         "command": {
-          "type": "offer/choose",
-          "offer": "offer-53",
-          "choice": "trek",
+          "type": "turn/end",
+          "slots": [
+            {
+              "activity": "activity.rest",
+              "param": null
+            },
+            {
+              "activity": "activity.rest",
+              "param": null
+            }
+          ],
           "basedOn": 83
         },
-        "tick": 38,
+        "tick": 36,
         "sender": "player"
       },
       {
@@ -1182,7 +1176,7 @@
           ],
           "basedOn": 84
         },
-        "tick": 38,
+        "tick": 37,
         "sender": "player"
       },
       {
@@ -1199,6 +1193,24 @@
             }
           ],
           "basedOn": 85
+        },
+        "tick": 38,
+        "sender": "player"
+      },
+      {
+        "command": {
+          "type": "turn/end",
+          "slots": [
+            {
+              "activity": "activity.rest",
+              "param": null
+            },
+            {
+              "activity": "activity.rest",
+              "param": null
+            }
+          ],
+          "basedOn": 86
         },
         "tick": 39,
         "sender": "player"
@@ -1399,93 +1411,93 @@
       "month": 28,
       "v": 67,
       "banked": 24,
-      "nairaBank": 49089954,
-      "hash": "01ec5503e5263b3a"
+      "nairaBank": 63089954,
+      "hash": "cf5719f09821deb1"
     },
     {
       "month": 29,
       "v": 69,
       "banked": 23,
-      "nairaBank": 26589954,
-      "hash": "0bf0d3c4c4c7bc55"
+      "nairaBank": 54589954,
+      "hash": "8704da0273ddfbd4"
     },
     {
       "month": 30,
       "v": 71,
       "banked": 22,
-      "nairaBank": 10589954,
-      "hash": "596c83b37007ed94"
+      "nairaBank": 52589954,
+      "hash": "9bf64c0d85bbe397"
     },
     {
       "month": 31,
-      "v": 74,
+      "v": 75,
       "banked": 21,
-      "nairaBank": 10589954,
-      "hash": "cafaf228111d5e32"
+      "nairaBank": 47089954,
+      "hash": "593dafbff7a0920f"
     },
     {
       "month": 32,
-      "v": 75,
-      "banked": 20,
-      "nairaBank": 10589954,
-      "hash": "3470d9e53f81eaf7"
+      "v": 77,
+      "banked": 24,
+      "nairaBank": 17089954,
+      "hash": "267fd9b5f8de2b02"
     },
     {
       "month": 33,
-      "v": 76,
-      "banked": 19,
-      "nairaBank": 10589954,
-      "hash": "70726a597ffa042e"
+      "v": 78,
+      "banked": 23,
+      "nairaBank": 17089954,
+      "hash": "09fd963755ef203e"
     },
     {
       "month": 34,
-      "v": 77,
-      "banked": 18,
-      "nairaBank": 10589954,
-      "hash": "f7f8b51ffb445b56"
+      "v": 80,
+      "banked": 22,
+      "nairaBank": 5089954,
+      "hash": "bb882aee811382ef"
     },
     {
       "month": 35,
-      "v": 78,
-      "banked": 17,
-      "nairaBank": 10589954,
-      "hash": "58e96cb3861047ca"
+      "v": 81,
+      "banked": 21,
+      "nairaBank": 5089954,
+      "hash": "3bfef3512c43586d"
     },
     {
       "month": 36,
-      "v": 79,
-      "banked": 16,
-      "nairaBank": 10589954,
-      "hash": "1e885fd5775e0afc"
+      "v": 83,
+      "banked": 20,
+      "nairaBank": 5089954,
+      "hash": "f32025180afe9700"
     },
     {
       "month": 37,
-      "v": 81,
-      "banked": 15,
-      "nairaBank": 10589954,
-      "hash": "e53fbdad77d92a10"
+      "v": 84,
+      "banked": 19,
+      "nairaBank": 5089954,
+      "hash": "5609147ed1f97de1"
     },
     {
       "month": 38,
-      "v": 83,
-      "banked": 14,
-      "nairaBank": 10589954,
-      "hash": "14b70195ff259095"
+      "v": 85,
+      "banked": 18,
+      "nairaBank": 5089954,
+      "hash": "295e7538d6d8b3e5"
     },
     {
       "month": 39,
-      "v": 85,
-      "banked": 13,
-      "nairaBank": 10589954,
-      "hash": "b7b280e6828fedbc"
+      "v": 86,
+      "banked": 17,
+      "nairaBank": 5089954,
+      "hash": "6205775afdebfe88"
     },
     {
       "month": 40,
-      "v": 86,
-      "banked": 12,
-      "nairaBank": 10589954,
-      "hash": "096120190e685083"
+      "v": 87,
+      "banked": 16,
+      "nairaBank": 5089954,
+      "hash": "daf50d4e71e41264"
     }
   ],
-  "finalHash": "096120190e685083"
+  "finalHash": "daf50d4e71e41264"
 }

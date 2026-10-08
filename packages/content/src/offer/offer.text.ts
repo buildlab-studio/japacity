@@ -111,6 +111,34 @@ export const offerText: Record<string, string> = {
     "A friend of a friend. 'Proof of funds? I do it every week. 3% monthly, cheaper than any bank. Just bring the first payment.'",
   "offer.held-funds-agent.choice.take": "Pay him and take the funds",
   "offer.held-funds-agent.choice.walk-away": "Walk away",
+
+  "offer.group-loan.name": "The women's group loan",
+  "offer.group-loan.title": "A loan from the group",
+  "offer.group-loan.body":
+    "The group at the market lends for a side business, nine months at 15%. They keep 15% as fees and hold 10% as savings until you finish, and every member stands behind every loan.",
+  "offer.group-loan.choice.take": "Join and borrow",
+  "offer.group-loan.choice.no": "Not now",
+
+  "offer.parents-group-debt.name": "The group at the door",
+  "offer.parents-group-debt.title": "The group at the door",
+  "offer.parents-group-debt.body":
+    "Your mother's shop loan went bad months ago. Three women from her group are sitting in the parlour. They want ₦120,000 today.",
+  "offer.parents-group-debt.choice.pay": "Pay them",
+  "offer.parents-group-debt.choice.no": "Say there is nothing",
+
+  "offer.stand-guarantor.name": "Stand guarantor",
+  "offer.stand-guarantor.title": "Will you stand for me?",
+  "offer.stand-guarantor.body":
+    "A cousin needs a guarantor for a group loan with {balance} still to pay. If he cannot pay, the group will come to you.",
+  "offer.stand-guarantor.choice.accept": "Stand for him",
+  "offer.stand-guarantor.choice.refuse": "Say no",
+
+  "offer.join-ajo.name": "The savings circle",
+  "offer.join-ajo.title": "Join the ajo",
+  "offer.join-ajo.body":
+    "Your neighbour runs a circle: ₦20,000 a month for ten months, and each month one member collects the whole pot. Miss a month and you are out.",
+  "offer.join-ajo.choice.join": "Join the circle",
+  "offer.join-ajo.choice.no": "Not this time",
   "offer.held-funds-agent.sign.cash-only": "He only takes cash.",
   "offer.held-funds-agent.sign.office": "He has an office, with his name on the door.",
   "offer.held-funds-agent.sign.receipt": "He gives a stamped receipt.",

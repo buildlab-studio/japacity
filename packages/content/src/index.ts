@@ -8,6 +8,7 @@ import { chapterTable } from "./chapter/chapter.data";
 import { chapterText } from "./chapter/chapter.text";
 import { countryTable } from "./country/country.data";
 import { countryText } from "./country/country.text";
+import { creditText } from "./credit/credit.text";
 import { documentTable } from "./document/document.data";
 import { documentText } from "./document/document.text";
 import { goalTable } from "./goal/goal.data";
@@ -75,6 +76,7 @@ export const textTables: Record<string, Record<string, string>> = {
   activityAbroad: activityAbroadText,
   chapter: chapterText,
   country: countryText,
+  credit: creditText,
   document: documentText,
   goal: goalText,
   era: eraText,
