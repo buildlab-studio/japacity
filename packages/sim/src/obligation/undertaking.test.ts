@@ -1,4 +1,4 @@
-import { content, withPeopleRoutes } from "@japacity/content";
+import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
 import type { Id, ObligationState, ReportLine } from "../engine/types";
@@ -8,7 +8,7 @@ import type { LifeOptions } from "../route/route.journey";
 import type { Game } from "../testing/play";
 import { isSponsorUndertaking } from "./undertaking";
 
-const used = withPeopleRoutes(content);
+const used = content;
 const UNDERTAKING: Id<"obligation"> = "obligation.undertaking-ca";
 const entry = content.obligation[UNDERTAKING]!;
 const ASSISTANCE = content.var["var.ca-assistance"]!.start;

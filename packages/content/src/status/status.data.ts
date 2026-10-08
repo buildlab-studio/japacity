@@ -48,7 +48,7 @@ const ITALY: ByCountry = { country: "country.italy", banMonths: 120, overstayBan
 /** Settled and citizen statuses: never removed, never detected. */
 const KEPT: Omit<ByCountry, "country"> = { banMonths: 0, overstayBanMonths: 0, detectBp: 0 };
 
-export const statusTable: Record<Id<"status">, StatusEntry> = {
+const wholeLifeStatuses: Record<Id<"status">, StatusEntry> = {
   // The United Kingdom
 
   "status.uk-student": {
@@ -204,11 +204,7 @@ export const statusTable: Record<Id<"status">, StatusEntry> = {
 };
 
 // docs/rules/people.md "Entries: routes and statuses", R-PEOPLE-024, 028, 029.
-// held out of `statusTable` with the partner and dependant routes:
-// status.test.ts pins thirteen statuses, the three that count to settlement,
-// and reads every string `months` as a variable, which `lead` is not. The
-// content route file's `withPeopleRoutes` joins them.
-export const peopleStatusTable: Record<Id<"status">, StatusEntry> = {
+const peopleStatuses: Record<Id<"status">, StatusEntry> = {
   "status.uk-partner": {
     ...BASE,
     ...UK,
@@ -242,3 +238,5 @@ export const peopleStatusTable: Record<Id<"status">, StatusEntry> = {
     settled: "status.uk-settled",
   },
 };
+
+export const statusTable: Record<Id<"status">, StatusEntry> = { ...wholeLifeStatuses, ...peopleStatuses };

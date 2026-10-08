@@ -1,11 +1,11 @@
-import { content, withPeopleRoutes } from "@japacity/content";
+import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
 import type { Id, PersonFacts } from "../engine/types";
 import { applyAs, life, sibling } from "../route/gates/people.journey";
 import type { Game } from "../testing/play";
 
-const used = withPeopleRoutes(content);
+const used = content;
 const ROOM: Id<"obligation"> = "obligation.rent-room-ca";
 const UPKEEP: Id<"obligation"> = "obligation.upkeep-ca";
 const COUCH = content.tuning.people.couchMonths;

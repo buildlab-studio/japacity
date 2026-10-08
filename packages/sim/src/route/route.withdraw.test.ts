@@ -1,4 +1,4 @@
-import { content, withPeopleRoutes } from "@japacity/content";
+import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
 import type { Id, RouteState, Tuning } from "../engine/types";
@@ -6,7 +6,7 @@ import type { Game } from "../testing/play";
 import { applyAs, facts, joint, life, scored, setFacts, SKILLED, UK_DEPENDANT, UK_PARTNER } from "./gates/people.journey";
 import { slot } from "./route.journey";
 
-const used = withPeopleRoutes(content);
+const used = content;
 const SURCHARGE_YEAR = content.var["var.uk-surcharge-year"]!.start;
 const PARTNER_FEE = content.var["var.uk-partner-fee"]!.start;
 const SETTLED = facts({ where: "abroad", country: "country.uk", status: "status.uk-settled", meetsFloor: { [UK_PARTNER]: true } });

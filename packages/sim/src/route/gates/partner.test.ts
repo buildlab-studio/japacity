@@ -1,4 +1,4 @@
-import { content, withPeopleRoutes } from "@japacity/content";
+import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
 import { check } from "../../engine/check";
@@ -10,7 +10,7 @@ import { refusalChanceBp } from "../route.logic";
 import { partnerGate } from "./partner";
 import { BOND, CA_SPOUSE, facts, interviewOpen, joint, life, readOf, scored, setFacts, setPeople, UK_PARTNER } from "./people.journey";
 
-const used = withPeopleRoutes(content);
+const used = content;
 const ukPartner = used.route[UK_PARTNER]!;
 const caSpouse = used.route[CA_SPOUSE]!;
 const APPLY_UK: Id<"activity"> = "activity.apply-uk-partner";

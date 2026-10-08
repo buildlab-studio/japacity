@@ -47,6 +47,8 @@ describe("words for life abroad", () => {
       "offer.returnee-hire",
       "offer.returnee-leave-again",
       "offer.sponsor-licence-lost",
+      // undertaking.md R-UNDERTAKING-010: social assistance in Canada.
+      "offer.ca-assistance",
       "offer.court-date",
     ]);
     const keys = offers.flatMap((offer) => [
@@ -57,8 +59,8 @@ describe("words for life abroad", () => {
       ...offer.signs.map((sign) => `${offer.id}.sign.${sign.key}`),
     ]);
     expect(missingWords(keys)).toEqual([]);
-    // The returnee offers come up at home, the sponsor's at work abroad (R-PLACE-003), and the court date abroad (R-HEALTH-006).
-    expect(offers.map((offer) => offer.where)).toEqual(["home", "home", "home", "home", "abroad", "abroad"]);
+    // The returnee offers come up at home, the sponsor's at work abroad (R-PLACE-003), assistance in Canada (R-UNDERTAKING-010), and the court date abroad (R-HEALTH-006).
+    expect(offers.map((offer) => offer.where)).toEqual(["home", "home", "home", "home", "abroad", "abroad", "abroad"]);
   });
 });
 

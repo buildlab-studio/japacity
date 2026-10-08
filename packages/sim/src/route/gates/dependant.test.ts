@@ -1,4 +1,4 @@
-import { content, withPeopleRoutes } from "@japacity/content";
+import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
 import { check } from "../../engine/check";
@@ -9,7 +9,7 @@ import { slot } from "../route.journey";
 import { dependantFee, dependantGate, leadStatusMonths } from "./dependant";
 import { applyAs, CA_ACCOMPANY, CANADA, facts, interviewOpen, joint, life, readOf, scored, setFacts, SKILLED, UK_DEPENDANT } from "./people.journey";
 
-const used = withPeopleRoutes(content);
+const used = content;
 const ukDependant = used.route[UK_DEPENDANT]!;
 const APPLY_UK: Id<"activity"> = "activity.apply-uk-dependant";
 const APPLY_CA: Id<"activity"> = "activity.apply-ca-accompany";

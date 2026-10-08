@@ -1,4 +1,4 @@
-import { content, withPeopleRoutes } from "@japacity/content";
+import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
 import type { Content, Id, PersonFacts } from "../../engine/types";
@@ -7,7 +7,7 @@ import type { LifeOptions } from "../route.journey";
 import { BOND, CANADA, facts, joint, life, readOf, setPeople, sibling } from "./people.journey";
 import { invites, pointsParts, pointsScore, pointsScoreAlone, pointsScoreWith, siblingPoints, spouseFactors } from "./points";
 
-const used = withPeopleRoutes(content);
+const used = content;
 const BONUS = content.points["points.canada"]!.siblingBonus;
 const YEAR = 12;
 

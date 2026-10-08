@@ -1,4 +1,4 @@
-import { content, withPeopleRoutes } from "@japacity/content";
+import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
 import type { ActivityEntry, Content, Id } from "../engine/types";
@@ -25,7 +25,7 @@ function withJobs(base: Content): Content {
   };
 }
 
-const used = withJobs(withPeopleRoutes(content));
+const used = withJobs(content);
 
 /** Ada moved abroad with a status and a job, each through its own kind's effect. */
 function abroad(country: Id<"country">, status: Id<"status">, held: Id<"activity"> | null, vars: Record<Id<"var">, number> = {}): Game {

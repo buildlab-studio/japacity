@@ -1,11 +1,11 @@
 import { describe, expect, test } from "vitest";
 
-import { content, text, withPeopleRoutes } from "../index";
+import { content, text } from "../index";
 
-const used = withPeopleRoutes(content);
+const used = content;
 const PEOPLE_ROUTES = ["route.uk-partner", "route.ca-spouse", "route.uk-dependant", "route.ca-accompany"] as const;
 
-describe("the people routes, held out until the gate test names them", () => {
+describe("the people routes", () => {
   test("[R-ENGINE-014] given the partner and dependant routes joined, when figures from people.md are read back, then each matches the page", () => {
     expect(used.route["route.uk-partner"]).toMatchObject({
       gate: "partner",
@@ -57,16 +57,12 @@ describe("the people routes, held out until the gate test names them", () => {
   });
 
   test("[R-ENGINE-014] given the people routes joined, when every route, status, activity and offer they bring is read, then each has a name, and each id they name exists", () => {
-    const added = [
-      ...PEOPLE_ROUTES,
-      ...Object.keys(used.activity).filter((id) => content.activity[id as keyof typeof content.activity] === undefined),
-      ...Object.keys(used.status).filter((id) => content.status[id as keyof typeof content.status] === undefined),
-      ...Object.keys(used.offer).filter((id) => content.offer[id as keyof typeof content.offer] === undefined),
-    ];
-    expect(added).toEqual(expect.arrayContaining(["activity.apply-uk-partner", "activity.apply-ca-spouse", "activity.apply-uk-dependant", "activity.apply-ca-accompany", "status.uk-partner", "status.uk-dependant", "offer.ca-assistance"]));
+    const brought = ["activity.apply-uk-partner", "activity.apply-ca-spouse", "activity.apply-uk-dependant", "activity.apply-ca-accompany", "status.uk-partner", "status.uk-dependant", "offer.ca-assistance"] as const;
+    const tables: Record<string, Record<string, unknown>> = { route: used.route, status: used.status, var: used.var, activity: used.activity, document: used.document, country: used.country, obligation: used.obligation, offer: used.offer };
+    expect(brought.filter((id) => tables[id.split(".")[0]!]?.[id] === undefined)).toEqual([]);
+    const added = [...PEOPLE_ROUTES, ...brought];
     expect(added.filter((id) => (text[`${id}.name`] ?? "") === "")).toEqual([]);
     const ids = JSON.stringify([used.route, used.activity, used.status, used.offer]).match(/"(route|status|var|activity|document|country|obligation)\.[a-z0-9-]+"/g) ?? [];
-    const tables: Record<string, Record<string, unknown>> = { route: used.route, status: used.status, var: used.var, activity: used.activity, document: used.document, country: used.country, obligation: used.obligation };
     const unknown = [...new Set(ids.map((quoted) => quoted.slice(1, -1)))].filter((id) => tables[id.split(".")[0]!]?.[id] === undefined);
     expect(unknown).toEqual([]);
   });

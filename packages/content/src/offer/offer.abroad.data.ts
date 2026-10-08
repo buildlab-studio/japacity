@@ -20,7 +20,7 @@ function returned(shapes: ReturnShape[]): Requirement[] {
   ];
 }
 
-export const abroadOfferTable: Record<Id<"offer">, OfferEntry> = {
+const lifeAbroadOffers: Record<Id<"offer">, OfferEntry> = {
   // Coming home (group `return`)
 
   // The question everyone asks.
@@ -226,9 +226,7 @@ export const abroadOfferTable: Record<Id<"offer">, OfferEntry> = {
   },
 };
 
-// held out of `abroadOfferTable`: abroad.test.ts pins the list of
-// offers abroad. The content route file's `withPeopleRoutes` joins it.
-export const peopleOfferTable: Record<Id<"offer">, OfferEntry> = {
+const assistanceOffers: Record<Id<"offer">, OfferEntry> = {
   // docs/rules/undertaking.md R-UNDERTAKING-010: social assistance, the same for
   // every resident in Canada whose bank and cash together are under the line.
   // The amount is fixed by content (the start of var.ca-assistance), so no player
@@ -266,3 +264,5 @@ export const peopleOfferTable: Record<Id<"offer">, OfferEntry> = {
     onExpire: "leave",
   },
 };
+
+export const abroadOfferTable: Record<Id<"offer">, OfferEntry> = { ...lifeAbroadOffers, ...assistanceOffers };

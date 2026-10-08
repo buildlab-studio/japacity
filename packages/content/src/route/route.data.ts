@@ -1,9 +1,7 @@
 // From docs/rules/route.md, "Entry: route.uk-masters", route-gates.md for the
 // sponsor, points, endorsement and contract routes, and road.md for the road.
-import type { ActivityEntry, ChecklistItem, Content, Cost, Id, Requirement, RouteEntry } from "@japacity/sim";
+import type { ActivityEntry, ChecklistItem, Cost, Id, Requirement, RouteEntry } from "@japacity/sim";
 
-import { peopleOfferTable } from "../offer/offer.abroad.data";
-import { peopleStatusTable } from "../status/status.data";
 
 const UK: Id<"route"> = "route.uk-masters";
 const CARE: Id<"route"> = "route.uk-care";
@@ -34,7 +32,7 @@ function step(route: Id<"route">, name: string): Requirement {
   return { type: "route/gate-step", route, step: name };
 }
 
-export const routeTable: Record<Id<"route">, RouteEntry> = {
+const wholeLifeRoutes: Record<Id<"route">, RouteEntry> = {
   "route.uk-masters": {
     id: UK,
     // docs/rules/route-gates.md R-GATE-001 and 003.
@@ -132,7 +130,8 @@ export const routeTable: Record<Id<"route">, RouteEntry> = {
   "route.uk-skilled": {
     id: SKILLED,
     gate: "sponsor",
-    dependants: null,
+    // R-PEOPLE-019.
+    dependants: "route.uk-dependant",
     country: "country.uk",
     status: "status.uk-sponsored",
     refusalBaseBp: 500,
@@ -173,7 +172,7 @@ export const routeTable: Record<Id<"route">, RouteEntry> = {
   "route.canada-points": {
     id: CANADA,
     gate: "points",
-    dependants: null,
+    dependants: "route.ca-accompany",
     country: "country.canada",
     status: "status.ca-resident",
     refusalBaseBp: 1000,
@@ -210,7 +209,7 @@ export const routeTable: Record<Id<"route">, RouteEntry> = {
   "route.uk-talent": {
     id: TALENT,
     gate: "endorsement",
-    dependants: null,
+    dependants: "route.uk-dependant",
     country: "country.uk",
     status: "status.uk-talent",
     refusalBaseBp: 300,
@@ -309,15 +308,6 @@ export const routeTable: Record<Id<"route">, RouteEntry> = {
 
 // docs/rules/people.md "Entries: routes and statuses", R-PEOPLE-019, 022 to 028,
 // and undertaking.md for the floor.
-//
-// these routes are held out of `routeTable`, with the statuses and
-// the offer they bring (status.data.ts, offer.abroad.data.ts). The content test of
-// R-GATE-004 (route.test.ts) expects the gates in content to be exactly the
-// whole-life five and every route to have a window, and the dependant routes
-// have none of their own. Adding them fails that test, which is not this
-// agent's to change. `withPeopleRoutes` joins them, the leads' `dependants`
-// and the apply activities to a content, as the tests do and as the content
-// index will once that test names the two new gates.
 
 const UK_PARTNER: Id<"route"> = "route.uk-partner";
 const CA_SPOUSE: Id<"route"> = "route.ca-spouse";
@@ -332,7 +322,7 @@ function partnerAbroad(country: Id<"country">, statuses: Id<"status">[]): Requir
 const UK_SPONSORS: Id<"status">[] = ["status.uk-settled", "status.uk-citizen"];
 const CA_SPONSORS: Id<"status">[] = ["status.ca-resident", "status.ca-citizen"];
 
-export const peopleRouteTable: Record<Id<"route">, RouteEntry> = {
+const peopleRoutes: Record<Id<"route">, RouteEntry> = {
   "route.uk-partner": {
     id: UK_PARTNER,
     gate: "partner",
@@ -452,13 +442,6 @@ export const peopleRouteTable: Record<Id<"route">, RouteEntry> = {
   },
 };
 
-/** R-PEOPLE-019: the routes a partner may follow as a dependant. Every other route brings none. */
-export const peopleDependants: Partial<Record<Id<"route">, Id<"route">>> = {
-  "route.uk-skilled": UK_DEPENDANT,
-  "route.uk-talent": UK_DEPENDANT,
-  "route.canada-points": CA_ACCOMPANY,
-};
-
 /** The health surcharge for one year of a worker's visa, in pounds, as the other gates' activities charge it. */
 const SURCHARGE_YEAR: Cost = { currency: "GBP", amount: { var: "var.uk-surcharge-year" }, reason: "fee-surcharge" };
 
@@ -516,22 +499,4 @@ export const peopleApplyActivities: Record<Id<"activity">, ActivityEntry> = {
   "activity.apply-ca-accompany": applying(CA_ACCOMPANY, [step(CA_ACCOMPANY, "joint"), step(CA_ACCOMPANY, "lead"), held("document.passport")], []),
 };
 
-/**
- * A content with the partner and dependant routes joined: the routes, the
- * leads' `dependants`, the apply activities, the two statuses and the
- * assistance offer, each held out for a content test that pins its table.
- */
-export function withPeopleRoutes(base: Content): Content {
-  const route = { ...base.route, ...peopleRouteTable };
-  for (const [lead, dependants] of Object.entries(peopleDependants) as [Id<"route">, Id<"route">][]) {
-    const entry = route[lead];
-    if (entry !== undefined) route[lead] = { ...entry, dependants };
-  }
-  return {
-    ...base,
-    route,
-    activity: { ...base.activity, ...peopleApplyActivities },
-    status: { ...base.status, ...peopleStatusTable },
-    offer: { ...base.offer, ...peopleOfferTable },
-  };
-}
+export const routeTable: Record<Id<"route">, RouteEntry> = { ...wholeLifeRoutes, ...peopleRoutes };

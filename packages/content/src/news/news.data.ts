@@ -22,7 +22,7 @@ const TALENT: Id<"route"> = "route.uk-talent";
 const GULF: Id<"route"> = "route.gulf-contract";
 
 /** Every route a player can see. The road never appears in the routes view (R-ROAD-001). */
-const EVERY_ROUTE: Id<"route">[] = [UK, CARE, SKILLED, CANADA, TALENT, GULF];
+const EVERY_ROUTE: Id<"route">[] = [UK, CARE, SKILLED, CANADA, TALENT, GULF, "route.uk-partner", "route.ca-spouse", "route.uk-dependant", "route.ca-accompany"];
 
 const WINDOWS: Id<"var">[] = [
   "var.uk-study-window",
