@@ -6,3 +6,4 @@ export * from "./characters";
 export * from "./ledger";
 export * from "./world";
 export * from "./switches";
+export * from "./moderation";

@@ -1,0 +1,28 @@
+// R-MODERATION-020: `POST /api/feedback { text, build, screen, mode }` from a
+// signed-in session. The reply says only whether it was kept.
+import { Hono } from "hono";
+
+import type { ServerDeps } from "../deps";
+import { sendFeedback } from "../moderation/feedback";
+import type { ServerRejection } from "../types";
+import { countryOf } from "./place";
+
+export function feedbackRoute(deps: ServerDeps): Hono {
+  const route = new Hono();
+
+  route.post("/api/feedback", async (c) => {
+    const session = await deps.session(c.req.raw);
+    if (session === null) return c.json<ServerRejection>({ ok: false, code: "signed-out", detail: "Sign in first." }, 401);
+    const body: unknown = await c.req.json().catch(() => null);
+    const sent = await sendFeedback(deps, session.account, countryOf(c.req.raw), body);
+    if (sent.ok) return c.json({ ok: true });
+    const rejection: ServerRejection = { ok: false, code: sent.code, detail: sent.detail };
+    if (sent.retryAfter !== undefined) {
+      rejection.retryAfter = sent.retryAfter;
+      c.header("Retry-After", String(sent.retryAfter));
+    }
+    return c.json(rejection, sent.status);
+  });
+
+  return route;
+}

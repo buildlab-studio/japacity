@@ -17,6 +17,9 @@ import { adminRoutes } from "./routes/admin";
 import { switchRoutes } from "./routes/admin-switches";
 import { adminAnalyticsRoutes } from "./routes/admin-analytics";
 import { countersRoute } from "./routes/counters";
+import { feedbackRoute } from "./routes/feedback";
+import { moderationAdminRoutes } from "./routes/moderation-admin";
+import { moderationPorts } from "./moderation/ports";
 
 export function makeApp(deps: ServerDeps, accounts?: Accounts): Hono {
   const app = new Hono();
@@ -33,6 +36,8 @@ export function makeApp(deps: ServerDeps, accounts?: Accounts): Hono {
   app.route("/", placeRoutes(deps));
   app.route("/api/admin", adminRoutes(deps));
   app.route("/", countersRoute(deps)).route("/api/admin", adminAnalyticsRoutes(deps));
+  app.route("/", moderationAdminRoutes(deps, moderationPorts(deps, accounts)));
+  app.route("/", feedbackRoute(deps));
 
   return app;
 }

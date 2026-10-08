@@ -26,6 +26,7 @@ import { placeSocketRoutes } from "./routes/place";
 
 export { Place } from "./place/place.object";
 import { MONEY_CRON, moneyJob } from "./jobs/money";
+import { dropOldFeedback } from "./moderation/feedback";
 
 export interface Env {
   SITE_URL: string;
@@ -112,5 +113,6 @@ export default {
     // R-ANALYTICS-008: before the money job, which forgets the day's active list once it has run.
     if (controller.cron === COUNTERS_CRON) ctx.waitUntil(countersJob(depsFor(env), isolateDayLog(depsFor(env))));
     if (controller.cron === MONEY_CRON) ctx.waitUntil(moneyJob(depsFor(env)));
+    if (controller.cron === "0 0 * * *") ctx.waitUntil(dropOldFeedback(depsFor(env)));
   },
 };

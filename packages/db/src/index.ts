@@ -1,14 +1,53 @@
 // The Postgres implementations of the store interfaces. Tests reach PGlite
 // through `@japacity/db/pglite`; nothing here imports it.
-import type { AccountStore, AuditStore, DeletionStore, LedgerStore, PairStore, PlayerStore, SwitchStore, WorldStore } from "@japacity/store";
+import type {
+  SwitchStore,
+  AccountStore,
+  AppealStore,
+  AuditStore,
+  BannedIdentityStore,
+  DeletionStore,
+  FeedbackStore,
+  LedgerStore,
+  ModerationLogStore,
+  PairStore,
+  PlayerStore,
+  WorldStore,
+} from "@japacity/store";
 
 import type { Handle } from "./handle";
-import { pgAccountStore, pgAuditStore, pgDeletionStore, pgLedgerStore, pgPlayerStores, pgSwitchStore, pgWorldStore } from "./stores";
+import {
+  pgSwitchStore,
+  pgAccountStore,
+  pgAppealStore,
+  pgAuditStore,
+  pgBannedIdentityStore,
+  pgDeletionStore,
+  pgFeedbackStore,
+  pgLedgerStore,
+  pgModerationLogStore,
+  pgPlayerStores,
+  pgWorldStore,
+} from "./stores";
 
 export { type Connection, connect } from "./connect";
 export { type Handle, oneConnection, type Queries } from "./handle";
 export * as schema from "./schema";
-export { pgAccountStore, pgAuditStore, pgCounterStore, pgDayLog, pgDeletionStore, pgLedgerStore, pgPlayerStores, pgSwitchStore, pgWorldStore } from "./stores";
+export {
+  pgSwitchStore,
+  pgCounterStore,
+  pgDayLog,
+  pgAccountStore,
+  pgAppealStore,
+  pgAuditStore,
+  pgBannedIdentityStore,
+  pgDeletionStore,
+  pgFeedbackStore,
+  pgLedgerStore,
+  pgModerationLogStore,
+  pgPlayerStores,
+  pgWorldStore,
+} from "./stores";
 
 export interface PgStores {
   player: PlayerStore;
@@ -19,6 +58,10 @@ export interface PgStores {
   ledger: LedgerStore;
   audit: AuditStore;
   switches: SwitchStore;
+  moderationLog: ModerationLogStore;
+  banned: BannedIdentityStore;
+  appeals: AppealStore;
+  feedback: FeedbackStore;
 }
 
 /** Every Postgres store over one handle, as the server builds them for one request. */
@@ -33,5 +76,9 @@ export function pgStores(handle: Handle): PgStores {
     ledger: pgLedgerStore(handle),
     audit: pgAuditStore(handle),
     switches: pgSwitchStore(handle),
+    moderationLog: pgModerationLogStore(handle),
+    banned: pgBannedIdentityStore(handle),
+    appeals: pgAppealStore(handle),
+    feedback: pgFeedbackStore(handle),
   };
 }

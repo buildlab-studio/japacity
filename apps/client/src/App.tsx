@@ -22,6 +22,7 @@ import { CreditView } from "./features/credit/CreditView";
 import { DocumentView } from "./features/document/DocumentView";
 import { GoalView } from "./features/goal/GoalView";
 import { JapacityView } from "./features/japacity/JapacityView";
+import { ModerationMenu } from "./features/moderation/ModerationMenu";
 import { NewsView } from "./features/news/NewsView";
 import { ObligationView } from "./features/obligation/ObligationView";
 import { OfferView } from "./features/offer/OfferView";
@@ -84,6 +85,7 @@ function Header() {
           {say("ui.japacity.title")}
           <JapacityView compact />
         </span>
+        <ModerationMenu />
         <AccountButton />
       </div>
     </header>
