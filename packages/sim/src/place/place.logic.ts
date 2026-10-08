@@ -312,23 +312,24 @@ function month(ctx: Ctx): BaseEvent[] {
 // Requirements
 // ---------------------------------------------------------------------------
 
-function judge(read: ReadCtx, requirement: Requirement): RequirementResult {
+function judgeIs(read: ReadCtx, requirement: Requirement): RequirementResult {
+  if (requirement.type !== "place/is") throw new Error(`place/is cannot judge ${requirement.type}.`);
+  const { place } = read.state;
+  return { met: place.where === requirement.where && (requirement.country === undefined || place.country === requirement.country) };
+}
+
+function judgeReturned(read: ReadCtx, requirement: Requirement): RequirementResult {
+  if (requirement.type !== "place/returned") throw new Error(`place/returned cannot judge ${requirement.type}.`);
+  const have = read.state.place.returns.filter((back) => requirement.shapes.includes(back.shape)).length;
+  return { met: have > 0, have, need: 1 };
+}
+
+function judgeMonthsHere(read: ReadCtx, requirement: Requirement): RequirementResult {
+  if (requirement.type !== "place/months-here") throw new Error(`place/months-here cannot judge ${requirement.type}.`);
   const { place, turn } = read.state;
-  switch (requirement.type) {
-    case "place/is":
-      return { met: place.where === requirement.where && (requirement.country === undefined || place.country === requirement.country) };
-    case "place/returned": {
-      const have = place.returns.filter((back) => requirement.shapes.includes(back.shape)).length;
-      return { met: have > 0, have, need: 1 };
-    }
-    case "place/months-here": {
-      const here = place.where === requirement.where;
-      const have = here ? turn.month - place.movedMonth : 0;
-      return { met: here && have >= requirement.months, have, need: requirement.months };
-    }
-    default:
-      throw new Error(`The place kind does not judge ${requirement.type}.`);
-  }
+  const here = place.where === requirement.where;
+  const have = here ? turn.month - place.movedMonth : 0;
+  return { met: here && have >= requirement.months, have, need: requirement.months };
 }
 
 // ---------------------------------------------------------------------------
@@ -421,7 +422,7 @@ export const placeKind: RegisteredKind<PlaceSlice, PlaceEvent> = {
   phases: { month },
   evolve,
   lines,
-  requirements: { "place/is": judge, "place/returned": judge, "place/months-here": judge },
+  requirements: { "place/is": judgeIs, "place/returned": judgeReturned, "place/months-here": judgeMonthsHere },
   invariants,
   view,
 };

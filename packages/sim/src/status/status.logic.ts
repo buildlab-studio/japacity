@@ -291,7 +291,7 @@ function runClock(ctx: Ctx): BaseEvent[] {
  */
 function expire(ctx: Ctx): BaseEvent[] {
   const now = currentOf(ctx);
-  if (now?.held.expiresMonth == null || ctx.state.turn.month < now.held.expiresMonth) return [];
+  if (now === null || now.held.expiresMonth === null || ctx.state.turn.month < now.held.expiresMonth) return [];
   const { next, nextIf } = now.entry;
   if (next !== null && coursePassed(ctx) && nextIf.every((requirement) => ctx.check(requirement).met)) {
     return grant(ctx, next, now.held.job, "next", null);
@@ -343,18 +343,16 @@ function month(ctx: Ctx): BaseEvent[] {
 // Requirements
 // ---------------------------------------------------------------------------
 
-function judge(read: ReadCtx, requirement: Requirement): RequirementResult {
+function judgeIs(read: ReadCtx, requirement: Requirement): RequirementResult {
+  if (requirement.type !== "status/is") throw new Error(`status/is cannot judge ${requirement.type}.`);
   const current = read.state.status.current;
-  switch (requirement.type) {
-    case "status/is":
-      return { met: current !== null && requirement.statuses.includes(current.entry) };
-    case "status/clock-under": {
-      const clock = current?.clock ?? null;
-      return clock === null ? { met: false, need: requirement.months } : { met: clock < requirement.months, have: clock, need: requirement.months };
-    }
-    default:
-      throw new Error(`The status kind does not judge ${requirement.type}.`);
-  }
+  return { met: current !== null && requirement.statuses.includes(current.entry) };
+}
+
+function judgeClockUnder(read: ReadCtx, requirement: Requirement): RequirementResult {
+  if (requirement.type !== "status/clock-under") throw new Error(`status/clock-under cannot judge ${requirement.type}.`);
+  const clock = read.state.status.current?.clock ?? null;
+  return clock === null ? { met: false, need: requirement.months } : { met: clock < requirement.months, have: clock, need: requirement.months };
 }
 
 // ---------------------------------------------------------------------------
@@ -534,7 +532,7 @@ export const statusKind: RegisteredKind<StatusSlice, StatusEvent> = {
   phases: { clocks, month },
   evolve,
   lines,
-  requirements: { "status/is": judge, "status/clock-under": judge },
+  requirements: { "status/is": judgeIs, "status/clock-under": judgeClockUnder },
   invariants,
   view,
 };

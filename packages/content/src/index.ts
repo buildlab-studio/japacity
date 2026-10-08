@@ -21,6 +21,7 @@ import { obligationText } from "./obligation/obligation.text";
 import { offerAbroadText } from "./offer/offer.abroad.text";
 import { offerTable } from "./offer/offer.data";
 import { offerText } from "./offer/offer.text";
+import { placeText } from "./place/place.text";
 import { pointsTable } from "./points/points.data";
 import { pointsText } from "./points/points.text";
 import { prologueTable } from "./prologue/prologue.data";
@@ -38,6 +39,7 @@ import { setpieceTable } from "./setpiece/setpiece.data";
 import { setpieceText } from "./setpiece/setpiece.text";
 import { statusTable } from "./status/status.data";
 import { turnText } from "./turn/turn.text";
+import { statusLinesText } from "./status/status.lines.text";
 import { statusText } from "./status/status.text";
 import { tuning } from "./tuning/tuning.data";
 import { varTable } from "./var/var.data";
@@ -80,6 +82,7 @@ export const textTables: Record<string, Record<string, string>> = {
   obligation: obligationText,
   offer: offerText,
   offerAbroad: offerAbroadText,
+  place: placeText,
   points: pointsText,
   prologue: prologueText,
   quality: qualityText,
@@ -90,6 +93,7 @@ export const textTables: Record<string, Record<string, string>> = {
   setpiece: setpieceText,
   turn: turnText,
   status: statusText,
+  statusLines: statusLinesText,
   var: varText,
   wallet: walletText,
 };
