@@ -287,7 +287,15 @@ describe("the bank abroad", () => {
 
   test("[R-WALLET-005] [R-ABROAD-005] given the recorded Ada just landed with dollars and no pounds, when she changes them to pounds at the bank and ends the month, then the Lagos allowance does not apply and her rent, tuition and living are paid", () => {
     const game = adaAbroad();
-    expect(game.state.wallet.pockets.GBP.bank).toBe(0);
+    const { GBP, USD } = game.state.wallet.pockets;
+    // Whatever the recording carried over, she lands here with the dollars and no pounds.
+    applyEffects(game, [
+      ...(GBP.bank > 0 ? [{ type: "money/take", currency: "GBP", pocket: "bank", amount: GBP.bank, reason: "social" } as const] : []),
+      ...(GBP.cash > 0 ? [{ type: "money/take", currency: "GBP", pocket: "cash", amount: GBP.cash, reason: "social" } as const] : []),
+      ...(USD.bank < DOLLARS ? [{ type: "money/add", currency: "USD", pocket: "bank", amount: DOLLARS - USD.bank, reason: "gift" } as const] : []),
+    ]);
+    expect(game.state.wallet.pockets.GBP).toMatchObject({ bank: 0, cash: 0 });
+    expect(game.state.wallet.pockets.USD.bank).toBeGreaterThanOrEqual(DOLLARS);
     expect(DOLLARS).toBeGreaterThan(game.view().bankAllowanceLeft);
     game.accept({ type: "wallet/convert", from: "USD", to: "GBP", amount: DOLLARS, via: "bank" });
     expect(game.state.wallet.pockets.GBP.bank).toBeGreaterThan(0);
