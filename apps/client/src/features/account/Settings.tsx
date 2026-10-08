@@ -1,9 +1,10 @@
-// The account settings: add a passkey (R-ACCOUNT-003), sign out, and delete
+// The account settings: add a passkey (R-ACCOUNT-003), any setting the shell
+// places in it, sign out, and delete
 // the account (R-ACCOUNT-016). Deleting asks for a session signed in within
 // the last 10 minutes; the server says when it is older, and then the player
 // signs in again or takes a code by email before it goes.
 import { UserRoundCog } from "lucide-react";
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 
 import { useGame } from "../../authority/GameProvider";
 import type { AccountApi, AuthResult } from "../../shared/net/auth";
@@ -14,7 +15,7 @@ import { CodeForm, failureWords } from "./CodeForm";
 
 type Step = "idle" | "warn" | "confirm";
 
-export function AccountSettings({ account }: { account: AccountApi }) {
+export function AccountSettings({ account, more = null }: { account: AccountApi; more?: ReactNode }) {
   const leave = useGame((state) => state.leave);
   const [step, setStep] = useState<Step>("idle");
   const [busy, setBusy] = useState(false);
@@ -79,6 +80,8 @@ export function AccountSettings({ account }: { account: AccountApi }) {
         </Button>
       </div>
 
+      {more}
+
       <div className="flex flex-col gap-3 border-t border-line pt-4">
         {step === "idle" ? (
           <div>
@@ -130,8 +133,8 @@ export function AccountSettings({ account }: { account: AccountApi }) {
   );
 }
 
-/** The header's way into the settings. Nothing offline. */
-export function AccountButton() {
+/** The header's way into the settings. Nothing offline. `more`: another feature's settings, placed by the shell. */
+export function AccountButton({ more = null }: { more?: ReactNode }) {
   const account = useGame((state) => state.account);
   const [open, setOpen] = useState(false);
   if (account === null) return null;
@@ -141,7 +144,7 @@ export function AccountButton() {
         <UserRoundCog size={18} />
       </Button>
       <Sheet open={open} onOpenChange={setOpen} title={say("ui.account.settings")}>
-        <AccountSettings account={account} />
+        <AccountSettings account={account} more={more} />
       </Sheet>
     </>
   );

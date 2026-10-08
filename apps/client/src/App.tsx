@@ -26,6 +26,8 @@ import { JapacityView } from "./features/japacity/JapacityView";
 import { ModerationMenu } from "./features/moderation/ModerationMenu";
 import { LotteryView } from "./features/lottery/LotteryView";
 import { NewsView } from "./features/news/NewsView";
+import { NotifyAsk } from "./features/notify/NotifyAsk";
+import { NotifySetting } from "./features/notify/NotifySetting";
 import { ObligationView } from "./features/obligation/ObligationView";
 import { OfferView } from "./features/offer/OfferView";
 import { PeopleView } from "./features/people/PeopleView";
@@ -93,7 +95,8 @@ function Header() {
         </span>
         <ModerationMenu />
         <GuidesMenu />
-        <AccountButton />
+        <AccountButton more={<NotifySetting />} />
+        <NotifyAsk />
       </div>
     </header>
   );

@@ -14,7 +14,7 @@ import type {
   StoreResult,
   Work,
 } from "@japacity/store";
-import { and, asc, desc, eq, gt, inArray, lte, or } from "drizzle-orm";
+import { and, asc, desc, eq, gt, inArray, isNull, lte, or, sql } from "drizzle-orm";
 
 import type { Handle, Queries } from "../handle";
 import { characters, commandLog, pairs, segments, snapshots } from "../schema";
@@ -45,7 +45,15 @@ function toPair(row: typeof pairs.$inferSelect): PairRow {
   return { key: row.key, a: row.a, b: row.b, v: row.v, record: row.record };
 }
 
-const characterColumns = { id: characters.id, account: characters.account, v: characters.v, refilledAt: characters.refilledAt, segment: characters.segment };
+const characterColumns = {
+  id: characters.id,
+  account: characters.account,
+  v: characters.v,
+  refilledAt: characters.refilledAt,
+  segment: characters.segment,
+  fullAt: characters.fullAt,
+  fullNotifiedAt: characters.fullNotifiedAt,
+};
 
 /** R-SERVER-007: one row, locked for the rest of the transaction; null for an unknown id. */
 async function lockRow(tx: Queries, id: string, strength: "update" | "share"): Promise<CharacterRow | null> {
@@ -256,7 +264,7 @@ export function pgPlayerStores(handle: Handle): { player: PlayerStore; pair: Pai
   const player: PlayerStore = {
     create: (input) =>
       handle.transaction(async (tx): Promise<StoreResult<Held>> => {
-        const row: CharacterRow = { id: input.id, account: input.account, v: 0, refilledAt: input.refilledAt, segment: 0 };
+        const row: CharacterRow = { id: input.id, account: input.account, v: 0, refilledAt: input.refilledAt, segment: 0, fullAt: null, fullNotifiedAt: null };
         const made = await tx.insert(characters).values(row).onConflictDoNothing().returning({ id: characters.id });
         if (made.length === 0) return refuse("exists", `Character ${input.id} already exists.`);
         const overlay = input.overlay ?? null;
@@ -292,6 +300,36 @@ export function pgPlayerStores(handle: Handle): { player: PlayerStore; pair: Pai
         await tx.delete(snapshots).where(eq(snapshots.character, id));
         await tx.delete(segments).where(eq(segments.character, id));
         await tx.delete(characters).where(eq(characters.id, id));
+      }),
+
+    setFullAt: (id, v, fullAt) =>
+      handle.read(async (db) => {
+        // A changed value clears the claim; the same value keeps it.
+        const updated = await db
+          .update(characters)
+          .set({ fullAt, fullNotifiedAt: sql`case when ${characters.fullAt} is not distinct from ${fullAt} then ${characters.fullNotifiedAt} else null end` })
+          .where(and(eq(characters.id, id), eq(characters.v, v)))
+          .returning({ id: characters.id });
+        return updated.length > 0;
+      }),
+
+    filled: (now) =>
+      handle.read(async (db) => {
+        const rows = await db
+          .select(characterColumns)
+          .from(characters)
+          .where(and(lte(characters.fullAt, now), isNull(characters.fullNotifiedAt)));
+        return rows.sort((left, right) => compareIds(left.id, right.id));
+      }),
+
+    claimFull: (id, fullAt, at) =>
+      handle.read(async (db) => {
+        const claimed = await db
+          .update(characters)
+          .set({ fullNotifiedAt: at })
+          .where(and(eq(characters.id, id), eq(characters.fullAt, fullAt), isNull(characters.fullNotifiedAt)))
+          .returning({ id: characters.id });
+        return claimed.length > 0;
       }),
   };
 

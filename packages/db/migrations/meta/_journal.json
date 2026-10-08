@@ -43,6 +43,13 @@
       "when": 1791461899055,
       "tag": "0005_people",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1791462055729,
+      "tag": "0006_notify",
+      "breakpoints": true
     }
   ]
 }

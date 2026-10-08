@@ -58,6 +58,7 @@ export async function signUp(server: TestServer, account: string): Promise<void>
     age: { passed: true, at: server.deps.now(), method: "declared" },
     createdAt: server.deps.now(),
     character: null,
+    notifyBankFull: false,
   });
   if (!made.ok) throw new Error(made.detail);
 }

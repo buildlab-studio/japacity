@@ -6,6 +6,7 @@ export { pgDeletionStore } from "./deletion";
 export { pgLedgerStore } from "./ledger";
 export { pgAppealStore, pgBannedIdentityStore, pgFeedbackStore, pgModerationLogStore } from "./moderation";
 export { pgPlayerStores } from "./player";
+export { pgPushStore } from "./push";
 export { pgWorldStore } from "./world";
 export { pgSwitchStore } from "./switches";
 export { pgConversationStore } from "./conversation";

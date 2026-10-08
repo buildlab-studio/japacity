@@ -4,7 +4,7 @@ import type { AccountRow, AccountStore } from "../types";
 import { must } from "./fixtures";
 
 function account(id: string): AccountRow {
-  return { id, country: "NG", age: { passed: true, at: 2_000, method: "declared" }, createdAt: 2_000, character: null };
+  return { id, country: "NG", age: { passed: true, at: 2_000, method: "declared" }, createdAt: 2_000, character: null, notifyBankFull: false };
 }
 
 /** The contract every AccountStore keeps. `make` returns an empty store each time it is called. */
@@ -41,6 +41,17 @@ export function suiteForAccountStore(make: () => Promise<AccountStore>): void {
       expect(same.character).toBe("char-a");
       expect((await store.get("account-1"))?.character).toBe("char-a");
       expect(await store.setCharacter("account-unknown", "char-c")).toMatchObject({ ok: false, code: "missing" });
+    });
+
+    test("[R-CLOCK-031] given a new account, when the bank-full setting is turned on and off, then it reads back each time, and an unknown id is refused with missing", async () => {
+      const store = await make();
+      must(await store.create(account("account-1")));
+
+      expect(must(await store.setNotify("account-1", true)).notifyBankFull).toBe(true);
+      expect((await store.get("account-1"))?.notifyBankFull).toBe(true);
+      expect(must(await store.setNotify("account-1", false)).notifyBankFull).toBe(false);
+      expect((await store.get("account-1"))?.notifyBankFull).toBe(false);
+      expect(await store.setNotify("account-unknown", true)).toMatchObject({ ok: false, code: "missing" });
     });
 
     test("[R-ACCOUNT-017] given an account with a character, when the character is cleared and the account removed, then nothing of it is read back", async () => {

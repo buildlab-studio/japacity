@@ -17,7 +17,7 @@ describe("GET /api/account", () => {
     const body = await reply.json<{ ok: true; account: Record<string, unknown> }>();
     expect(body.account).toEqual({ id: account, country: "NG", age: { passed: true, method: "declared" }, createdAt: expect.any(Number) as number, character: null });
     const row = await h.deps.stores.account.get(account);
-    expect(Object.keys(row ?? {}).sort()).toEqual(["age", "character", "country", "createdAt", "id"]);
+    expect(Object.keys(row ?? {}).sort()).toEqual(["age", "character", "country", "createdAt", "id", "notifyBankFull"]);
   });
 
   test("[R-ACCOUNT-015] given no session, when the row is read, then it answers signed-out", async () => {

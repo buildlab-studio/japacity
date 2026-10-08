@@ -31,6 +31,7 @@ export function pgDayLog(handle: Handle): DayLog {
             age: { passed: row.agePassed, at: row.ageAt, method: row.ageMethod },
             createdAt: row.createdAt,
             character: row.character,
+            notifyBankFull: row.notifyBankFull,
           }))
           .sort((left, right) => byCodeUnit(left.id, right.id));
       }),

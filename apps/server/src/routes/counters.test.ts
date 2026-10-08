@@ -37,7 +37,7 @@ function sized(size: number): string {
 }
 
 async function account(server: TestServer, id: string, over: Partial<AccountRow> & { sendUsageCounts?: boolean } = {}): Promise<void> {
-  const made = await server.deps.stores.account.create({ id, country: "NG", age: { passed: true, at: 0, method: "declared" }, createdAt: server.deps.now(), character: null, ...over });
+  const made = await server.deps.stores.account.create({ id, country: "NG", age: { passed: true, at: 0, method: "declared" }, createdAt: server.deps.now(), character: null, notifyBankFull: false, ...over });
   if (!made.ok) throw new Error(made.detail);
 }
 

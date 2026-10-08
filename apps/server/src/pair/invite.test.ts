@@ -15,7 +15,7 @@ async function accept(server: ReturnType<typeof pairServer>, account: string, co
 
 /** An account in `country` whose age screen is passed or not. */
 async function accountIn(server: ReturnType<typeof pairServer>, id: string, country: string, passed = true): Promise<void> {
-  const made = await server.deps.stores.account.create({ id, country, age: { passed, at: server.deps.now(), method: "declared" }, createdAt: server.deps.now(), character: null });
+  const made = await server.deps.stores.account.create({ id, country, age: { passed, at: server.deps.now(), method: "declared" }, createdAt: server.deps.now(), character: null, notifyBankFull: false });
   if (!made.ok) throw new Error(made.detail);
 }
 

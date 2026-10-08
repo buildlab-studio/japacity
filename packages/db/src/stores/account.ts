@@ -12,6 +12,7 @@ function toAccount(row: typeof accounts.$inferSelect): AccountRow {
     age: { passed: row.agePassed, at: row.ageAt, method: row.ageMethod },
     createdAt: row.createdAt,
     character: row.character,
+    notifyBankFull: row.notifyBankFull,
   };
 }
 
@@ -36,6 +37,7 @@ export function pgAccountStore(handle: Handle): AccountStore {
             ageMethod: row.age.method,
             createdAt: row.createdAt,
             character: row.character,
+            notifyBankFull: row.notifyBankFull,
           })
           .onConflictDoNothing()
           .returning();
@@ -53,6 +55,12 @@ export function pgAccountStore(handle: Handle): AccountStore {
         const [updated] = await tx.update(accounts).set({ character }).where(eq(accounts.id, id)).returning();
         if (updated === undefined) throw new Error(`Account ${id} vanished under its lock.`);
         return accept(toAccount(updated));
+      }),
+
+    setNotify: (id, on) =>
+      handle.read(async (db) => {
+        const [updated] = await db.update(accounts).set({ notifyBankFull: on }).where(eq(accounts.id, id)).returning();
+        return updated === undefined ? refuse("missing", `No account ${id}.`) : accept(toAccount(updated));
       }),
 
     remove: (id) =>

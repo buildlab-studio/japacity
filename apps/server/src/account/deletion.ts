@@ -6,6 +6,7 @@ import type { DeletionRow } from "@japacity/store";
 import type { ServerDeps } from "../deps";
 import { sha256Hex } from "../auth/hooks";
 import { leavePairs as leaveEveryPair } from "../pair/leave";
+import { stopNotices } from "../notify/notice";
 
 /** R-ACCOUNT-018: the one-way hash kept after the account is gone. */
 export function accountHash(account: string): Promise<string> {
@@ -24,6 +25,7 @@ export const leavePairs: LeavePairs = leaveEveryPair;
 export async function requestDeletion(deps: ServerDeps, account: string): Promise<DeletionRow> {
   const row = await deps.stores.account.get(account);
   await leavePairs(deps, account, row?.character ?? null);
+  await stopNotices(deps, account);
   const requestedAt = deps.now();
   const result = await deps.stores.deletion.request({
     account,

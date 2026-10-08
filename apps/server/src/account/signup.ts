@@ -37,6 +37,7 @@ export async function admitAccount(deps: ServerDeps, endpoint: GenericEndpointCo
     age: { passed: true, at: Number(pass.value), method: "declared" },
     createdAt: deps.now(),
     character: null,
+    notifyBankFull: false,
   });
   if (!created.ok) return refuse(created.code, created.detail);
   return { data: { id } };

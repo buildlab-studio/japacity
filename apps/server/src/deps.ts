@@ -20,6 +20,7 @@ import type {
   PlayerStore,
   PresenceStore,
   SwitchStore,
+  PushStore,
   WorldStore,
 } from "@japacity/store";
 import {
@@ -39,6 +40,7 @@ import {
   memoryPlayerStores,
   memoryPresenceStore,
   memorySwitchStore,
+  memoryPushStore,
   memoryWorldStore,
 } from "@japacity/store";
 
@@ -63,6 +65,7 @@ export interface Stores {
   invite: InviteStore;
   conversation: ConversationStore;
   moderation: ModerationStore;
+  push: PushStore;
 }
 
 /** R-SERVER-023: the current content and the one before, with any overlay already applied (R-SERVER-016). */
@@ -151,6 +154,7 @@ export function memoryStores(): Stores {
     invite: memoryInviteStore(),
     conversation: memoryConversationStore(),
     moderation: memoryModerationStore(),
+    push: memoryPushStore(),
   };
 }
 
