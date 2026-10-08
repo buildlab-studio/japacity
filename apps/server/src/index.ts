@@ -24,6 +24,7 @@ import { ticksJob } from "./jobs/ticks";
 import { MONEY_CRON, moneyJob } from "./jobs/money";
 import { dropOldFeedback } from "./moderation/feedback";
 import { advertLinksJob } from "./adverts/job";
+import { boardsWeekJob } from "./boards/job";
 import type { Place } from "./place/place.object";
 import type { PushKeys } from "./notify/webpush";
 import { isolateFor, openRequest, placeOfIn, profileOfIn } from "./production";
@@ -149,6 +150,8 @@ export default {
     job(({ deps }) => drawJob(deps, { beacon }, cron));
     job(({ deps }) => notifyJob(deps, pushKeys(env), cron));
     job(({ deps }) => advertLinksJob(deps, cron, (input, init) => fetch(input, init)));
+    // city.md R-CITY-039: the board figures' week turns on the five-minute cron.
+    job(({ deps }) => boardsWeekJob(deps, cron));
     if (cron === "0 0 * * *") job(({ deps }, auth) => runDeletions(deps, auth));
     // R-ANALYTICS-008, R-SERVER-011: both read the day's characters from the command log.
     if (cron === COUNTERS_CRON) job(({ deps, handle }) => countersJob(deps, pgDayLog(handle)));

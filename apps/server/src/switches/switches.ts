@@ -7,7 +7,18 @@ import type { DialChange, SwitchName, SwitchRow, SwitchStore } from "@japacity/s
 import type { ServerDeps } from "../deps";
 import type { ServerRejection } from "../types";
 
-export const SWITCH_NAMES: readonly SwitchName[] = ["signups", "lottery", "adverts", "partnerPlay"];
+export const SWITCH_NAMES: readonly SwitchName[] = [
+  "signups",
+  "lottery",
+  "adverts",
+  "partnerPlay",
+  // city.md R-CITY-039: one switch for each board.
+  "boards.this-week.everyone",
+  "boards.this-week.friends",
+  "boards.all-time.everyone",
+  "boards.all-time.friends",
+  "boards.joined-week",
+];
 
 /** Keyed by the store, so each isolate's store keeps its own and a test's fresh stores start empty. */
 const cache = new WeakMap<SwitchStore, { at: number; row: SwitchRow }>();
@@ -55,6 +66,11 @@ const WHAT: Record<SwitchName, string> = {
   lottery: "Lottery sales are paused.",
   adverts: "No adverts are served right now.",
   partnerPlay: "Playing with other players is paused.",
+  "boards.this-week.everyone": "This board is paused.",
+  "boards.this-week.friends": "This board is paused.",
+  "boards.all-time.everyone": "This board is paused.",
+  "boards.all-time.friends": "This board is paused.",
+  "boards.joined-week": "This board is paused.",
 };
 
 /** R-SERVER-031: the refusal for a request whose switch is off, answered 503. */

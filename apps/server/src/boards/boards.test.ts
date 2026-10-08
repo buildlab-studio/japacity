@@ -1,0 +1,357 @@
+import type { State } from "@japacity/sim";
+import { time } from "@japacity/sim";
+import type { SwitchName } from "@japacity/store";
+import { describe, expect, test } from "vitest";
+
+import type { Live } from "../authority/load";
+import { call, held, newLife, restMonth, send, testServer, type TestServer } from "../authority/testing";
+import { productionConfig, testConfig } from "../config";
+import { setSwitch } from "../switches/switches";
+import type { ServerRejection } from "../types";
+import type { BoardName, BoardReply } from "./board";
+import { BOARD_NAMES, BOARD_SWITCH } from "./board";
+import { noteFigures } from "./figures";
+import { boardsWeekJob } from "./job";
+import type { BoardPorts } from "./ports";
+import { STAND_IN_PORTS } from "./ports";
+import { lagosWeek, weekBeginsAt } from "./week";
+import { TICKS_CRON } from "../jobs/ticks";
+import { boardRoutes } from "../routes/boards";
+
+const EPOCH = productionConfig.clock.epoch;
+/** The Monday 00:00 in Lagos after the epoch. */
+const MONDAY = weekBeginsAt(lagosWeek(EPOCH) + 1);
+const UK = "route.uk-masters";
+
+const FOUR: BoardName[] = ["this-week.everyone", "this-week.friends", "all-time.everyone", "all-time.friends"];
+
+function pathOf(board: BoardName): string {
+  return board === "joined-week" ? "/api/boards/joined-week" : `/api/boards/${board.replace(".", "/")}`;
+}
+
+function board(server: TestServer, account: string | null, name: BoardName) {
+  return call<BoardReply | ServerRejection>(server, "GET", pathOf(name), account);
+}
+
+function reply(body: BoardReply | ServerRejection): BoardReply {
+  if (!body.ok) throw new Error(`Refused: ${body.code} ${body.detail}`);
+  return body;
+}
+
+/** The state with the UK route known: Ada's degree and grade then earn their weight. */
+function knowing(state: State): State {
+  const known = structuredClone(state);
+  const route = known.route[UK];
+  if (route === undefined) throw new Error("No UK route.");
+  route.state = "known";
+  return known;
+}
+
+/** A held character as a commit leaves it, for the figure writer. */
+async function liveOf(server: TestServer, character: string, loaded: State, state: State, storedV: number): Promise<Live> {
+  const found = await held(server, character);
+  return {
+    id: character,
+    account: found.character.account,
+    storedV,
+    content: server.deps.contents.current,
+    state: { ...state, v: storedV + 1 },
+    loaded,
+    refilledAt: found.character.refilledAt,
+    storedRefilledAt: found.character.refilledAt,
+    segment: 0,
+    opened: null,
+    rows: found.tail.length > 0 ? found.tail : [{ character, v: storedV + 1, tick: 0, sender: "player", command: restMonth({ v: storedV }), hash: "hash", at: server.deps.now() }],
+    snapshots: [],
+    sentFor: [],
+  };
+}
+
+/** Writes a figure straight into the store, for boards with many lines. */
+async function figure(server: TestServer, character: string, value: number | null, over: { before?: number | null; joinedAt?: number; account?: string; scenario?: string } = {}): Promise<void> {
+  const joinedAt = over.joinedAt ?? EPOCH;
+  await server.deps.stores.boards.setFigure({
+    character,
+    account: over.account ?? `account-of-${character}`,
+    scenario: over.scenario ?? "scenario.tunde",
+    joinedAt,
+    joinedWeek: lagosWeek(joinedAt),
+    listed: true,
+    v: ((await server.deps.stores.boards.get(character))?.v ?? 0) + 1,
+    before: over.before ?? null,
+    figure: value,
+    week: lagosWeek(server.deps.now()),
+  });
+}
+
+async function turnOff(server: TestServer, name: SwitchName, on = false): Promise<void> {
+  await setSwitch(server.deps, name, on, "account.owner", "test");
+}
+
+describe("the Lagos week", () => {
+  test("[R-CITY-039] given the last millisecond of a Sunday and the first of the Monday in Lagos, when the week is worked out, then the Monday begins the next week", () => {
+    expect(new Date(MONDAY).toISOString()).toBe("2026-10-11T23:00:00.000Z");
+    expect(lagosWeek(MONDAY)).toBe(lagosWeek(MONDAY - 1) + 1);
+    expect(lagosWeek(MONDAY + 7 * time.DAY_MS - 1)).toBe(lagosWeek(MONDAY));
+    expect(lagosWeek(MONDAY + 7 * time.DAY_MS)).toBe(lagosWeek(MONDAY) + 1);
+  });
+
+  test("[R-CITY-039] given every half hour across three weeks and moments from 1970 to 2100, when each week is worked out, then the moment falls inside that week's seven days, which begin on a Monday", () => {
+    const moments = [0, 1, 4_102_444_800_000];
+    for (let ms = MONDAY - 7 * time.DAY_MS; ms < MONDAY + 14 * time.DAY_MS; ms += 30 * time.MINUTE_MS) moments.push(ms - 1, ms);
+    for (const ms of moments) {
+      const week = lagosWeek(ms);
+      expect(weekBeginsAt(week)).toBeLessThanOrEqual(ms);
+      expect(ms).toBeLessThan(weekBeginsAt(week + 1));
+      expect(new Date(weekBeginsAt(week) + time.HOUR_MS).getUTCDay()).toBe(1);
+    }
+  });
+});
+
+describe("the figures a commit writes", () => {
+  test("[R-CITY-039] given a new life, when its first command is committed, then its row holds its scenario, its account's time and no figure yet", async () => {
+    const server = testServer();
+    const character = await newLife(server, "account.ada", "scenario.ada");
+    const start = await held(server, character);
+    await send(server, "account.ada", restMonth({ v: start.character.v }));
+    expect(await server.deps.stores.boards.get(character)).toMatchObject({
+      character,
+      account: "account.ada",
+      scenario: "scenario.ada",
+      joinedAt: EPOCH,
+      joinedWeek: lagosWeek(EPOCH),
+      listed: true,
+      figure: null,
+      week: lagosWeek(EPOCH),
+      weekStart: null,
+    });
+  });
+
+  test("[R-CITY-039] given a route that becomes known in a commit, when the figure is written, then the row holds the new figure and its week starts at the old one", async () => {
+    const server = testServer();
+    const character = await newLife(server, "account.ada", "scenario.ada");
+    const { snapshot } = await held(server, character);
+    await noteFigures(server.deps, [await liveOf(server, character, snapshot.state, knowing(snapshot.state), 0)]);
+    const row = await server.deps.stores.boards.get(character);
+    expect(row?.figure).toBeGreaterThan(0);
+    expect(row).toMatchObject({ weekStart: null, v: 1 });
+
+    const line = reply((await board(server, "account.ada", "this-week.everyone")).body).own;
+    expect(line).toEqual({ rank: 1, firstName: "Ada", figure: row?.figure, me: true, name: null });
+  });
+
+  test("[R-CITY-039] given a commit that leaves the figure where it was, when it is not the first, then nothing is written", async () => {
+    const server = testServer();
+    const character = await newLife(server, "account.ada", "scenario.ada");
+    const { snapshot } = await held(server, character);
+    await noteFigures(server.deps, [await liveOf(server, character, snapshot.state, snapshot.state, 4)]);
+    expect(await server.deps.stores.boards.get(character)).toBeNull();
+  });
+
+  test("[R-ACCOUNT-022] given a guest's commit, when its figure is written, then the row is on no board", async () => {
+    const server = testServer();
+    const character = await newLife(server, "account.guest", "scenario.ada");
+    const { snapshot } = await held(server, character);
+    const ports: BoardPorts = { ...STAND_IN_PORTS, guests: (accounts) => Promise.resolve(new Set(accounts)) };
+    await noteFigures(server.deps, [await liveOf(server, character, snapshot.state, knowing(snapshot.state), 0)], ports);
+    expect((await server.deps.stores.boards.get(character))?.listed).toBe(false);
+    expect(await server.deps.stores.boards.top({ when: "all-time", week: lagosWeek(server.deps.now()) }, 50)).toEqual([]);
+  });
+});
+
+describe("the week's turn", () => {
+  test("[R-CITY-039] given figures from last week, when the job runs on the Monday, then each figure is saved as the week's start, once", async () => {
+    const server = testServer();
+    await figure(server, "c1", 40, { before: 10 });
+    server.setNow(MONDAY - 1);
+    expect(await boardsWeekJob(server.deps, TICKS_CRON)).toBe(0);
+    server.setNow(MONDAY);
+    expect(await boardsWeekJob(server.deps, "0 0 * * *")).toBe(0);
+    expect(await boardsWeekJob(server.deps, TICKS_CRON)).toBe(1);
+    expect(await boardsWeekJob(server.deps, TICKS_CRON)).toBe(0);
+    expect(await server.deps.stores.boards.get("c1")).toMatchObject({ figure: 40, week: lagosWeek(MONDAY), weekStart: 40 });
+
+    await figure(server, "c1", 47);
+    expect((await server.deps.stores.boards.top({ when: "this-week", week: lagosWeek(MONDAY) }, 1))[0]?.score).toBe(7);
+  });
+});
+
+describe("the boards", () => {
+  test.each(FOUR)("[R-CITY-039] given the switch row as launched, when the %s board is asked for, then it answers", async (name) => {
+    const server = testServer();
+    await newLife(server, "account.ada", "scenario.ada");
+    const answered = await board(server, "account.ada", name);
+    expect(answered.status).toBe(200);
+    expect(reply(answered.body)).toMatchObject({ board: name, size: productionConfig.board.size });
+  });
+
+  test.each(FOUR)("[R-SERVER-031] given the %s board switched off, when it is asked for, then it is refused switched-off with Retry-After and the other three still answer", async (name) => {
+    const server = testServer();
+    await newLife(server, "account.ada", "scenario.ada");
+    await turnOff(server, BOARD_SWITCH[name]);
+    const refused = await board(server, "account.ada", name);
+    expect(refused.status).toBe(503);
+    expect(refused.body).toMatchObject({ ok: false, code: "switched-off" });
+    expect(refused.headers.get("Retry-After")).toBe(String(productionConfig.switches.retryMs / 1000));
+    expect(await server.deps.stores.boards.top({ when: "all-time", week: 0 }, 1)).toEqual([]);
+    for (const other of FOUR.filter((each) => each !== name)) expect((await board(server, "account.ada", other)).status).toBe(200);
+
+    await turnOff(server, BOARD_SWITCH[name], true);
+    expect((await board(server, "account.ada", name)).status).toBe(200);
+  });
+
+  test("[R-CITY-039] given the joined-week board as launched, when it is asked for, then it is refused switched-off; when switched on, then it ranks only the accounts made in the player's week", async () => {
+    const server = testServer();
+    expect(BOARD_NAMES).toContain("joined-week");
+    await figure(server, "early", 90, { joinedAt: EPOCH - 7 * time.DAY_MS });
+    await figure(server, "same", 20);
+    const character = await newLife(server, "account.ada", "scenario.ada");
+    await figure(server, character, 30, { account: "account.ada", scenario: "scenario.ada" });
+
+    const refused = await board(server, "account.ada", "joined-week");
+    expect(refused.status).toBe(503);
+    expect(refused.body).toMatchObject({ code: "switched-off" });
+
+    await turnOff(server, "boards.joined-week", true);
+    const cohort = reply((await board(server, "account.ada", "joined-week")).body);
+    expect(cohort.rows.map((row) => [row.rank, row.firstName, row.figure, row.me])).toEqual([
+      [1, "Ada", 30, true],
+      [2, "Tunde", 20, false],
+    ]);
+  });
+
+  test("[R-CITY-040] given more players than the board's size, when the player ranks below it, then the board holds exactly the size and the player's own line with its rank", async () => {
+    const server = testServer({ config: testConfig({ testing: { testLogin: true }, board: { size: 3 } }) });
+    for (const [at, value] of [90, 80, 70, 60].entries()) await figure(server, `c${String(at)}`, value);
+    const character = await newLife(server, "account.ada", "scenario.ada");
+    await figure(server, character, 10, { account: "account.ada", scenario: "scenario.ada" });
+
+    const read = reply((await board(server, "account.ada", "all-time.everyone")).body);
+    expect(read.size).toBe(3);
+    expect(read.rows.map((row) => row.figure)).toEqual([90, 80, 70]);
+    expect(read.rows.every((row) => row.name === null && row.firstName === "Tunde" && !row.me)).toBe(true);
+    expect(read.own).toEqual({ rank: 5, firstName: "Ada", figure: 10, me: true, name: null });
+
+    await figure(server, character, 75, { account: "account.ada", scenario: "scenario.ada" });
+    const inside = reply((await board(server, "account.ada", "all-time.everyone")).body);
+    expect(inside.rows.map((row) => [row.rank, row.me])).toEqual([
+      [1, false],
+      [2, false],
+      [3, true],
+    ]);
+    expect(inside.own?.rank).toBe(3);
+  });
+
+  test("[R-CITY-040] given equal figures, when the board is ranked, then the earlier account comes first", async () => {
+    const server = testServer();
+    await figure(server, "later", 50, { joinedAt: EPOCH + time.HOUR_MS, scenario: "scenario.zainab" });
+    await figure(server, "earlier", 50, { joinedAt: EPOCH, scenario: "scenario.ngozi" });
+    await newLife(server, "account.ada", "scenario.ada");
+    const read = reply((await board(server, "account.ada", "all-time.everyone")).body);
+    expect(read.rows.map((row) => row.firstName)).toEqual(["Ngozi", "Zainab"]);
+  });
+
+  test("[R-CITY-039] given a long-time leader and a new player who rose more since Monday, when this week is read, then the new player tops it and all time keeps the leader first", async () => {
+    const server = testServer();
+    server.setNow(MONDAY - time.HOUR_MS);
+    await figure(server, "leader", 80, { joinedAt: EPOCH - 30 * time.DAY_MS });
+    server.setNow(MONDAY + time.HOUR_MS);
+    expect(await boardsWeekJob(server.deps, TICKS_CRON)).toBe(1);
+    await figure(server, "leader", 84);
+    const character = await newLife(server, "account.ada", "scenario.ada");
+    await figure(server, character, 25, { account: "account.ada", scenario: "scenario.ada" });
+
+    const week = reply((await board(server, "account.ada", "this-week.everyone")).body);
+    expect(week.rows.map((row) => [row.rank, row.figure, row.me])).toEqual([
+      [1, 25, true],
+      [2, 4, false],
+    ]);
+    const ever = reply((await board(server, "account.ada", "all-time.everyone")).body);
+    expect(ever.rows.map((row) => [row.figure, row.me])).toEqual([
+      [84, false],
+      [25, true],
+    ]);
+  });
+
+  test("[R-CITY-040] given a friend joined by an invite and a stranger, when the friends board is read, then it ranks the player and the friend only, with display names", async () => {
+    const server = testServer();
+    const mine = await newLife(server, "account.ada", "scenario.ada");
+    const friend = await newLife(server, "account.tunde", "scenario.tunde");
+    await newLife(server, "account.zainab", "scenario.zainab");
+    await figure(server, mine, 30, { account: "account.ada", scenario: "scenario.ada" });
+    await figure(server, friend, 40, { account: "account.tunde", scenario: "scenario.tunde" });
+    await figure(server, "stranger", 99, { scenario: "scenario.zainab" });
+    const made = await server.deps.stores.invite.create({ code: "code-1", from: mine, account: "account.ada", slot: "partner", looking: "partner", fill: null, card: {}, madeAt: EPOCH, expires: EPOCH + time.DAY_MS });
+    expect(made.ok).toBe(true);
+    const pair = mine < friend ? `${mine}~${friend}` : `${friend}~${mine}`;
+    await server.deps.stores.invite.use("code-1", { by: friend, pair, at: EPOCH, before: [] });
+
+    const ports: BoardPorts = { ...STAND_IN_PORTS, displayNames: (accounts) => Promise.resolve(new Map(accounts.map((account) => [account, `@${account.slice("account.".length)}`]))) };
+    const app = boardRoutes(server.deps, ports);
+    const asked = await app.request("/api/boards/all-time/friends", { headers: { "x-test-account": "account.ada" } });
+    const read = reply(await asked.json<BoardReply>());
+    expect(read.rows).toEqual([
+      { rank: 1, firstName: "Tunde", figure: 40, me: false, name: "@tunde" },
+      { rank: 2, firstName: "Ada", figure: 30, me: true, name: "@ada" },
+    ]);
+
+    const everyone = reply(await (await app.request("/api/boards/all-time/everyone", { headers: { "x-test-account": "account.ada" } })).json<BoardReply>());
+    expect(everyone.rows.map((row) => row.name)).toEqual([null, null, null]);
+  });
+
+  test("[R-PEOPLE-056] given lives whose families are computer characters, when every board is read, then only the players' own characters are on it", async () => {
+    const server = testServer();
+    const characters: string[] = [];
+    for (const name of ["ada", "tunde", "zainab"]) {
+      const character = await newLife(server, `account.${name}`, `scenario.${name}`);
+      const { snapshot } = await held(server, character);
+      expect(Object.values(snapshot.state.people.slots).some((slot) => slot.state === "computer")).toBe(true);
+      await noteFigures(server.deps, [await liveOf(server, character, snapshot.state, knowing(snapshot.state), 0)]);
+      characters.push(character);
+    }
+    const rows = await server.deps.stores.boards.top({ when: "all-time", week: lagosWeek(server.deps.now()) }, 50);
+    expect(rows.map((row) => row.character).sort()).toEqual([...characters].sort());
+    const read = reply((await board(server, "account.ada", "all-time.everyone")).body);
+    expect(read.rows).toHaveLength(3);
+  });
+
+  test("[R-ACCOUNT-022] given a guest account, when it asks for a board, then it is refused and sees no board", async () => {
+    const server = testServer();
+    await newLife(server, "account.guest", "scenario.ada");
+    const ports: BoardPorts = { ...STAND_IN_PORTS, guests: (accounts) => Promise.resolve(new Set(accounts.filter((account) => account === "account.guest"))) };
+    const asked = await boardRoutes(server.deps, ports).request("/api/boards/this-week/everyone", { headers: { "x-test-account": "account.guest" } });
+    expect(asked.status).toBe(403);
+    expect(await asked.json()).toMatchObject({ ok: false, code: "not-legal" });
+  });
+
+  test("[R-CITY-039] given no session, no character or a board that does not exist, when a board is asked for, then each is refused", async () => {
+    const server = testServer();
+    expect((await board(server, null, "all-time.everyone")).body).toMatchObject({ code: "signed-out" });
+    await newLife(server, "account.ada", "scenario.ada");
+    await server.deps.stores.account.setCharacter("account.ada", null);
+    expect((await board(server, "account.ada", "all-time.everyone")).body).toMatchObject({ code: "no-character" });
+    for (const path of ["/api/boards/next-week/everyone", "/api/boards/all-time/family", "/api/boards/joined/week"]) {
+      const asked = await call<ServerRejection>(server, "GET", path, "account.ada");
+      expect([asked.status, asked.body.code]).toEqual([404, "unknown-id"]);
+    }
+  });
+});
+
+describe("the board switches on the admin page", () => {
+  test("[R-SERVER-031] given an admin, when the switch row is read and the joined-week board is turned on with a reason, then the five board switches are listed and the change is logged", async () => {
+    const owner = "account.owner";
+    const server = testServer({ config: testConfig({ testing: { testLogin: true }, admin: { accounts: [owner] } }) });
+    const row = await call<{ ok: true; switches: Record<string, boolean> }>(server, "GET", "/api/admin/switches", owner);
+    expect(row.body.switches).toMatchObject({
+      "boards.this-week.everyone": true,
+      "boards.this-week.friends": true,
+      "boards.all-time.everyone": true,
+      "boards.all-time.friends": true,
+      "boards.joined-week": false,
+    });
+
+    const set = await call<{ ok: boolean }>(server, "POST", "/api/admin/switches", owner, { name: "boards.joined-week", on: true, reason: "a week of play" });
+    expect(set.status).toBe(200);
+    expect((await server.deps.stores.switches.log()).map((logged) => logged.change)).toEqual([{ switch: "boards.joined-week", on: true }]);
+  });
+});

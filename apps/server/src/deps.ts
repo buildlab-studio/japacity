@@ -7,6 +7,7 @@ import type {
   AppealStore,
   AdvertStore,
   AuditStore,
+  BoardStore,
   CounterStore,
   BannedIdentityStore,
   DeletionStore,
@@ -29,6 +30,7 @@ import {
   memoryAppealStore,
   memoryAdvertStore,
   memoryAuditStore,
+  memoryBoardStore,
   memoryCounterStore,
   memoryBannedIdentityStore,
   memoryDeletionStore,
@@ -69,6 +71,8 @@ export interface Stores {
   moderation: ModerationStore;
   push: PushStore;
   adverts: AdvertStore;
+  /** city.md R-CITY-039, R-CITY-040. */
+  boards: BoardStore;
 }
 
 /** R-SERVER-023: the current content and the one before, with any overlay already applied (R-SERVER-016). */
@@ -170,6 +174,7 @@ export function memoryStores(): Stores {
     moderation: memoryModerationStore(),
     push: memoryPushStore(),
     adverts: memoryAdvertStore(),
+    boards: memoryBoardStore(),
   };
 }
 

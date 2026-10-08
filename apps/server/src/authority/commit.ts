@@ -9,6 +9,7 @@ import { markAfterCommit } from "../admin/money";
 import type { ServerDeps } from "../deps";
 import { rewardInviters } from "../pair/rewards";
 import { noteFills } from "../notify/fill";
+import { noteFigures } from "../boards/figures";
 import type { Diverged, Live } from "./load";
 
 /**
@@ -16,13 +17,14 @@ import type { Diverged, Live } from "./load";
  * moved without its player sending the command is nudged with its new version.
  * R-CLOCK-031: every held character's fill is noted. R-SERVER-011: every
  * character that logged a row has its money mark kept, from the state it was
- * loaded with, on the UTC day of the commit.
+ * loaded with, on the UTC day of the commit. city.md R-CITY-039: its board figure is written.
  */
 export async function afterCommit(deps: ServerDeps, lives: readonly Live[], by: Sender): Promise<void> {
   const day = utcDay(deps.now());
   for (const live of lives) if (live.rows.length > 0) await markAfterCommit(deps, live.id, live.loaded, day);
   await rewardInviters(deps, lives);
   await noteFills(deps, lives, by);
+  await noteFigures(deps, lives);
   if (by === "player") return;
   for (const live of lives) {
     if (live.rows.length > 0) await deps.stores.nudges.send(live.account, { nudge: "view", v: live.state.v });

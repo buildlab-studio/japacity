@@ -27,6 +27,7 @@ import { moderationRoutes } from "./routes/moderation";
 import { pairRoutes } from "./routes/pair";
 import { adminAdvertRoutes } from "./routes/admin-adverts";
 import { advertRoutes } from "./routes/adverts";
+import { boardRoutes } from "./routes/boards";
 import { COUNTED_PATHS, countRefusals } from "./analytics/count";
 import { isOn } from "./switches/switches";
 
@@ -56,6 +57,7 @@ export function makeApp(deps: ServerDeps, accounts?: Accounts): Hono {
   app.route("/", pairRoutes(deps));
   app.route("/", conversationRoutes(deps));
   app.route("/", moderationRoutes(deps));
+  app.route("/", boardRoutes(deps));
 
   return app;
 }
