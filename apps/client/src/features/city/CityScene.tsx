@@ -8,6 +8,7 @@ import { useEffect, useRef, useState } from "react";
 import { type Camera, type DirectionalLight, Fog, type Object3D, Vector3 } from "three";
 
 import { advanceClock } from "../../shared/three/clock";
+import { danceFigure } from "../../shared/three/dance";
 import { loadModel } from "../../shared/three/load";
 import { loadManifest } from "../../shared/three/manifest";
 import { poseFigure } from "../../shared/three/people";
@@ -108,7 +109,7 @@ function Place(props: WorldProps) {
       triangles: 0,
       frames: [],
       walker: walker.current,
-      people: world.crowd.length + 1,
+      people: world.crowd.length + world.dancers.length + 1,
       screenOf: (slot) => {
         const placed = world.crowd.find((entry) => entry.slot === slot);
         if (placed === undefined) return null;
@@ -135,6 +136,7 @@ function Place(props: WorldProps) {
       frames.current = [...frames.current, ms].slice(-100);
     }
     for (const { figure } of world.crowd) poseFigure(figure, time);
+    for (const { figure, dance } of world.dancers) danceFigure(figure, time, dance);
     const next = stepWalk(walker.current, delta);
     walker.current = next;
     world.own.root.position.set(next.x, 0, next.z);

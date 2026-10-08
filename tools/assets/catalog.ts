@@ -6,9 +6,13 @@ import { join } from "node:path";
 import type { BuildingSpec, SignStyle } from "@japacity/assets";
 import { buildBuilding, type BuildingOptions, DEFAULT_DISH_YAW, pole } from "@japacity/assets/kit";
 import { drawPattern } from "@japacity/assets/pattern";
+import { buildFamilyHouse } from "@japacity/assets-src/bld/family-house/build";
 import { buildFlyoverSpan } from "@japacity/assets-src/bld/flyover-span/build";
 import { buildStiltHouse } from "@japacity/assets-src/bld/stilt-house/build";
 import { buildTerminalFront } from "@japacity/assets-src/bld/terminal-front/build";
+import { type ArcadeSpec, buildArcade } from "@japacity/assets-src/bld/deira-arcade/build";
+import { buildRailwayBridge } from "@japacity/assets-src/bld/railway-bridge/build";
+import { buildTerrace, type TerraceSpec } from "@japacity/assets-src/bld/rye-lane-terrace/build";
 import { buildStadium } from "@japacity/assets-src/lm/national-stadium/build";
 import { buildBridgeSpan } from "@japacity/assets-src/lm/third-mainland-span/build";
 import { buildPerson } from "@japacity/assets-src/people/people";
@@ -20,11 +24,20 @@ import { buildCanoe } from "@japacity/assets-src/prop/canoe/build";
 import { buildFlagpole } from "@japacity/assets-src/prop/flagpole/build";
 import { buildMarketStall } from "@japacity/assets-src/prop/market-stall/build";
 import { buildRepairTable } from "@japacity/assets-src/prop/repair-table/build";
+import { buildBusShelter } from "@japacity/assets-src/prop/bus-shelter/build";
+import { buildFlagMast } from "@japacity/assets-src/prop/flag-mast/build";
+import { buildCookingFire } from "@japacity/assets-src/prop/cooking-fire/build";
+import { buildParlourSet } from "@japacity/assets-src/prop/parlour-set/build";
+import { buildPartySet } from "@japacity/assets-src/prop/party-set/build";
+import { buildPlasticChair } from "@japacity/assets-src/prop/plastic-chair/build";
 import { buildStall } from "@japacity/assets-src/prop/stall";
 import { buildTrolley } from "@japacity/assets-src/prop/trolley/build";
 import { buildContainerPhones } from "@japacity/assets-src/shop/container-phones/build";
+import { buildLottoKiosk } from "@japacity/assets-src/shop/lotto-kiosk/build";
 import { buildProvisions } from "@japacity/assets-src/shop/provisions/build";
 import { buildTaxi } from "@japacity/assets-src/veh/taxi/build";
+import { buildAbra } from "@japacity/assets-src/veh/abra/build";
+import { buildLabourBus } from "@japacity/assets-src/veh/labour-bus/build";
 import { buildDanfo, buildKeke, buildOkada } from "@japacity/assets-src/veh/vehicles";
 import { Group } from "three";
 
@@ -64,6 +77,11 @@ export interface CatalogEntry {
 const LEAD = "The lead, written as code in the design; ported to the pipeline by the pipeline work";
 const LAB = "Written as code; ported to the pipeline by the pipeline work";
 const ELEVATIONS: ViewName[] = ["front", "back", "left", "right", "threeQuarter"];
+const PLACES_A = "Written as code from the kit";
+/** Every dish in Peckham faces one way (R-ASSET-019); the terraces stand turned a quarter either way, so the yaw is given per side. */
+const PECKHAM_DISH_YAW = 2.4;
+/** Deira's blocks also stand turned a quarter either way; one yaw for the place's dishes. */
+const DEIRA_DISH_YAW = 1.9;
 
 function readJson<T>(path: string): T {
   return JSON.parse(readFileSync(path, "utf8")) as T;
@@ -85,15 +103,15 @@ export function personModel(mesh: PersonMesh): BakedModel {
   return model;
 }
 
-function buildingEntry(slug: string, place: string): CatalogEntry {
+function buildingEntry(slug: string, place: string, author = LEAD): CatalogEntry {
   const source = join("assets-src", "bld", slug);
   return {
     name: `bld_${slug}`,
     file: `places/${place}/bld_${slug}.glb`,
     place: `place.${place}`,
     source,
-    author: LEAD,
-    example: true,
+    author,
+    example: author === LEAD,
     views: [...ELEVATIONS, "plan", "phone"],
     build: () => {
       const { spec, options } = readJson<{ spec: BuildingSpec; options: BuildingOptions }>(join(ROOT, source, "spec.json"));
@@ -240,6 +258,61 @@ export const CATALOG: CatalogEntry[] = [
     views: [...ELEVATIONS, "phone"],
     build: () => staticModel("prop_stall", buildStall()),
   },
+  buildingEntry("bode-thomas-betting", "bode-thomas", PLACES_A),
+  { name: "shop_lotto-kiosk", file: "places/bode-thomas/shop_lotto-kiosk.glb", place: "place.bode-thomas", source: "assets-src/shop/lotto-kiosk", author: PLACES_A, views: [...ELEVATIONS, "plan", "phone"], build: () => staticModel("shop_lotto-kiosk", buildLottoKiosk({ board: "place.bode-thomas.sign.1", games: "place.bode-thomas.sign.5" }, { board: { board: "danfoYellow", ink: "green", painted: true }, games: { board: "black", ink: "white", painted: true } }), true) },
+  { name: "bld_family-house", file: "places/family-house/bld_family-house.glb", place: "place.family-house", source: "assets-src/bld/family-house", author: PLACES_A, views: [...ELEVATIONS, "plan", "phone"], build: () => staticModel("bld_family-house", buildFamilyHouse("place.family-house.sign.2", { board: "white", ink: "red", painted: true }, HUB_DISH_YAW)) },
+  { name: "prop_party-set", file: "places/family-house/prop_party-set.glb", place: "place.family-house", source: "assets-src/prop/party-set", author: PLACES_A, views: [...ELEVATIONS, "plan", "phone"], build: () => staticModel("prop_party-set", buildPartySet("place.family-house.sign.1", { board: "cream", ink: "wine" })) },
+  { name: "prop_parlour-set", file: "places/family-house/prop_parlour-set.glb", place: "place.family-house", source: "assets-src/prop/parlour-set", author: PLACES_A, views: [...ELEVATIONS, "plan", "phone"], build: () => staticModel("prop_parlour-set", buildParlourSet()) },
+  { name: "prop_cooking-fire", file: "places/family-house/prop_cooking-fire.glb", place: "place.family-house", source: "assets-src/prop/cooking-fire", author: PLACES_A, views: [...ELEVATIONS, "phone"], build: () => staticModel("prop_cooking-fire", buildCookingFire()) },
+  { name: "prop_plastic-chair", file: "shared/prop/prop_plastic-chair.glb", place: "shared", source: "assets-src/prop/plastic-chair", author: PLACES_A, views: [...ELEVATIONS, "phone"], build: () => staticModel("prop_plastic-chair", buildPlasticChair()) },
+  ...(["a", "b"] as const).map(
+    (variant): CatalogEntry => ({
+      name: `bld_rye-lane-terrace_${variant}`,
+      file: `places/peckham/bld_rye-lane-terrace_${variant}.glb`,
+      place: "place.peckham",
+      source: `assets-src/bld/rye-lane-terrace/${variant}`,
+      author: PLACES_A,
+      views: [...ELEVATIONS, "plan", "phone"],
+      build: () => {
+        const spec = readJson<TerraceSpec>(join(SOURCE, "bld", "rye-lane-terrace", variant, "spec.json"));
+        return staticModel(spec.name, buildTerrace(spec, PECKHAM_DISH_YAW));
+      },
+    }),
+  ),
+  {
+    name: "bld_railway-bridge",
+    file: "places/peckham/bld_railway-bridge.glb",
+    place: "place.peckham",
+    source: "assets-src/bld/railway-bridge",
+    author: PLACES_A,
+    views: [...ELEVATIONS, "plan", "phone"],
+    build: () =>
+      staticModel(
+        "bld_railway-bridge",
+        buildRailwayBridge(
+          { mouth: "place.peckham.sign.30", girder: "place.peckham.sign.31", market: "place.peckham.sign.32", lockup: "place.peckham.sign.33", second: "place.peckham.sign.34" },
+          { mouth: { board: "white", ink: "blue", border: "blue" }, girder: { board: "white", ink: "black" }, market: { board: "danfoYellow", ink: "black", painted: true } },
+        ),
+      ),
+  },
+  ...(["a", "b", "c"] as const).map(
+    (variant): CatalogEntry => ({
+      name: `bld_deira-arcade_${variant}`,
+      file: `places/deira/bld_deira-arcade_${variant}.glb`,
+      place: "place.deira",
+      source: `assets-src/bld/deira-arcade/${variant}`,
+      author: PLACES_A,
+      views: [...ELEVATIONS, "plan", "phone"],
+      build: () => {
+        const spec = readJson<ArcadeSpec>(join(SOURCE, "bld", "deira-arcade", variant, "spec.json"));
+        return staticModel(spec.name, buildArcade(spec, DEIRA_DISH_YAW));
+      },
+    }),
+  ),
+  { name: "veh_abra", file: "places/deira/veh_abra.glb", place: "place.deira", source: "assets-src/veh/abra", author: PLACES_A, views: [...ELEVATIONS, "phone"], ground: "lagoon", build: () => staticModel("veh_abra", buildAbra()) },
+  { name: "veh_labour-bus", file: "places/deira/veh_labour-bus.glb", place: "place.deira", source: "assets-src/veh/labour-bus", author: PLACES_A, views: [...ELEVATIONS, "phone"], build: () => staticModel("veh_labour-bus", buildLabourBus()) },
+  { name: "prop_flag-mast", file: "shared/prop/prop_flag-mast.glb", place: "shared", source: "assets-src/prop/flag-mast", author: PLACES_A, views: [...ELEVATIONS, "phone"], build: () => staticModel("prop_flag-mast", buildFlagMast()) },
+  { name: "prop_bus-shelter", file: "shared/prop/prop_bus-shelter.glb", place: "shared", source: "assets-src/prop/bus-shelter", author: PLACES_A, views: [...ELEVATIONS, "phone"], build: () => staticModel("prop_bus-shelter", buildBusShelter()) },
   ...([
     ["veh_danfo", buildDanfo],
     ["veh_keke", buildKeke],

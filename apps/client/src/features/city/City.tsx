@@ -18,7 +18,7 @@ import { CreditsSheet } from "./Credits";
 import { localDate, type Other, poolOf, sampleCrowd } from "./crowd";
 import { type Device, enterPlace, keepChoice, type Mode, type ModeChoice, modeSettings, observeFrame, readChoice, startingMode, watchFrames } from "./mode";
 import { overheard } from "./overheard";
-import { openGround, type PlaceFile } from "./placeFile";
+import { dancerShown, dressPlace, openGround, type PlaceFile, stageOf } from "./placeFile";
 import { personOfLook } from "./roster";
 import type { Picked } from "./scene.types";
 import { enterable, offersHere, openingPlace, openScene, reportHere } from "./staging";
@@ -148,20 +148,27 @@ export function City({ adverts }: { adverts?: (place: string) => ReactNode } = {
   }, [looking]);
 
   const entry = entryOf(placeId);
-  const file = usePlaceFile(entry, drawing);
+  const plainFile = usePlaceFile(entry, drawing);
+  const offers = entry === null ? [] : offersHere(view, entry.id, PLACES);
+  const openKey = offers.join("|");
+  // An open offer the place stages dresses it (R-CITY-011): the party set and its guests at the family house.
+  const dressed = useMemo(() => (plainFile === null ? null : dressPlace(plainFile, openKey === "" ? [] : openKey.split("|"))), [plainFile, openKey]);
+  const file = dressed?.file ?? null;
   const settings = modeSettings(mode, device(), city);
   const others = useMemo<Other[]>(() => (presence !== null && presence.place === placeId ? presence.others : []), [presence, placeId]);
   const today = useMemo<Other[]>(() => (presence !== null && presence.place === placeId ? (presence.today ?? []) : []), [presence, placeId]);
   const own = ownFile(view.scenario);
   // No resident wears the player's own outfit.
   const sample = useMemo(
-    () => (entry === null || file === null ? null : sampleCrowd(entry, poolOf(file.people.sample).filter((person) => person.file !== own), date, mode, city, others, today)),
-    [entry, file, date, mode, others, today, own],
+    () =>
+      entry === null || file === null
+        ? null
+        : sampleCrowd({ ...entry, crowd: dressed?.crowd ?? entry.crowd }, poolOf(file.people.sample).filter((person) => person.file !== own), date, mode, city, others, today),
+    [entry, file, dressed, date, mode, others, today, own],
   );
   const places = enterable(here, PLACES);
   const heard = entry === null ? null : overheard(view, entry.id, date, heardCount);
   const lines = entry === null ? [] : reportHere(view, entry.id, PLACES);
-  const offers = entry === null ? [] : offersHere(view, entry.id, PLACES);
   const ready = progress !== null && progress.loaded >= progress.total && failed === null;
   const name = entry === null ? "" : placeName(entry.id);
 
@@ -179,7 +186,7 @@ export function City({ adverts }: { adverts?: (place: string) => ReactNode } = {
       case "own":
         return cityWords("city.you");
       case "person": {
-        const shown = sample.people.find((person) => person.slot === picked.slot);
+        const shown = sample.people.find((person) => person.slot === picked.slot) ?? (file === null ? undefined : dancerShown(stageOf(file), picked.slot));
         if (shown === undefined) return "";
         if (shown.kind === "player") return shown.tag === null ? cityWords("city.card.stranger") : cityWords("city.card.player", { name: shown.tag });
         return cityWords("city.card.resident", { name: residentName(shown.person.sex, placeId, date, shown.slot), role: roleWords(shown.person.role) });

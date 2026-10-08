@@ -7,11 +7,12 @@ import { BufferGeometry, Color, CylinderGeometry, Float32BufferAttribute, Group,
 
 import { instanceModel } from "../../shared/three/instance";
 import { ownIndicator, nameTag } from "../../shared/three/marks";
-import { bunting, frondGeometry, instancedSheets, leaves, type MeshLevel, sheet, sheetGeometry, smoke, water } from "../../shared/three/motion";
+import { danceFigure } from "../../shared/three/dance";
+import { bunting, frondGeometry, instancedSheets, leaves, type MeshLevel, rideWater, sheet, sheetGeometry, smoke, stripedFlag, water } from "../../shared/three/motion";
 import { type Figure, figureOf } from "../../shared/three/people";
 import { placeCrowd, type Shown } from "./crowd";
 import type { ModeSettings } from "./mode";
-import type { Motion, Stage, Strip } from "./placeFile";
+import { DANCER_SLOT, type DanceName, type Motion, type Stage, type Strip } from "./placeFile";
 
 export function colourOf(name: string): Color {
   return new Color(paletteCss(isPaletteName(name) ? name : "concrete"));
@@ -25,6 +26,8 @@ export interface Placed {
 export interface World {
   root: Group;
   crowd: Placed[];
+  /** People on a dance loop, posed by `danceFigure` in the scene's one frame loop. */
+  dancers: { figure: Figure; dance: DanceName }[];
   own: Figure;
   indicator: Mesh;
 }
@@ -116,6 +119,19 @@ function along(from: Vector3, to: Vector3, count: number): Matrix4[] {
   });
 }
 
+/** A flag or a hang of one colour, or a row of them along a line when it runs `to` somewhere. */
+function plainSheet(motion: Motion, level: MeshLevel, colours: readonly Color[]): Object3D {
+  const kind = motion.kind === "flag" ? "flag" : "hang";
+  const [width, height] = motion.size ?? [1, 1];
+  const count = motion.count ?? 1;
+  const at = new Vector3(...motion.at);
+  if (motion.to !== undefined && count > 1) return instancedSheets(kind, sheetGeometry(kind, width, height, level), along(at, new Vector3(...motion.to), count), colours);
+  const one = sheet(kind, width, height, level, colours[0] ?? new Color(0xffffff));
+  one.position.copy(at);
+  one.rotation.y = motion.ry ?? 0;
+  return one;
+}
+
 /** One moving thing from the place's list, at the mesh level of the mode. */
 export function motionOf(motion: Motion, level: MeshLevel): Object3D {
   const at = new Vector3(...motion.at);
@@ -125,14 +141,15 @@ export function motionOf(motion: Motion, level: MeshLevel): Object3D {
   const count = motion.count ?? 1;
   const fewer = level === "fine" ? count : Math.max(1, Math.ceil((count * 2) / 3));
   switch (motion.kind) {
-    case "flag":
-    case "hang": {
-      if (motion.to !== undefined && count > 1) return instancedSheets(motion.kind, sheetGeometry(motion.kind, width, height, level), along(at, new Vector3(...motion.to), count), colours);
-      const one = sheet(motion.kind, width, height, level, first);
-      one.position.copy(at);
-      one.rotation.y = motion.ry ?? 0;
-      return one;
+    case "flag": {
+      if (motion.hoist === undefined && colours.length < 2) return plainSheet(motion, level, colours);
+      const flag = stripedFlag(width, height, level, colours, motion.hoist === undefined ? null : colourOf(motion.hoist));
+      flag.position.copy(at);
+      flag.rotation.y = motion.ry ?? 0;
+      return flag;
     }
+    case "hang":
+      return plainSheet(motion, level, colours);
     case "frond": {
       const palm = new Group();
       palm.name = "motion-palm";
@@ -230,6 +247,7 @@ export function buildWorld(stage: Stage, models: ReadonlyMap<string, Object3D>, 
     if (loaded === undefined || model.at.length === 0) continue;
     const copies = model.signs === undefined ? instanceModel(loaded, model.at, model.file) : buildingCopies(loaded, model.at, model.signs, model.file, text);
     if (model.signs === undefined) copies.userData = { file: model.file, signs: findSignAnchors(loaded).map((anchor) => anchor.key) };
+    if (model.bob === true) rideWater(copies);
     copies.traverse((object) => {
       object.castShadow = settings.shadows && castsShadow(model.file);
     });
@@ -254,6 +272,22 @@ export function buildWorld(stage: Stage, models: ReadonlyMap<string, Object3D>, 
     root.add(figure.root);
     crowd.push({ figure, slot: shown.slot });
   }
+  const dancers: World["dancers"] = [];
+  (stage.dancers ?? []).forEach((dancer, index) => {
+    const loaded = models.get(dancer.file);
+    if (loaded === undefined) return;
+    const slot = DANCER_SLOT + index;
+    const figure = figureOf(loaded, "stand", phaseOf(slot));
+    figure.root.position.set(dancer.at[0], 0, dancer.at[1]);
+    figure.root.rotation.y = dancer.at[2];
+    figure.root.userData = { slot };
+    figure.root.traverse((object) => {
+      object.castShadow = settings.shadows;
+    });
+    danceFigure(figure, 0, dancer.dance);
+    root.add(figure.root);
+    dancers.push({ figure, dance: dancer.dance });
+  });
   // the player's own character is drawn beside the sample, not in one of its slots, so a place shows the sample plus one.
   const ownModel = models.get(ownFile);
   if (ownModel === undefined) throw new Error(`${ownFile} did not load`);
@@ -267,7 +301,7 @@ export function buildWorld(stage: Stage, models: ReadonlyMap<string, Object3D>, 
   own.root.add(indicator);
   root.add(own.root);
   for (const motion of stage.motion) root.add(motionOf(motion, settings.mesh));
-  return { root, crowd, own, indicator };
+  return { root, crowd, dancers, own, indicator };
 }
 
 /** The sky behind the place and the colour of its fog: each leans from the sky's colour toward the ground's by the mode's haze. */
