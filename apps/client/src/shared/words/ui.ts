@@ -3,9 +3,11 @@
 // drafts in the voice of docs/rules/text.md. Every key here is a candidate to
 // move into content, where it can be rewritten. Numbers go in braces.
 import { onlineText } from "./online";
+import { peopleText } from "./people";
 
 export const uiText: Record<string, string> = {
   ...onlineText,
+  ...peopleText,
   "ui.game": "Japacity",
   "ui.loading": "Opening your life...",
   "ui.failed": "The game could not start: {why}",

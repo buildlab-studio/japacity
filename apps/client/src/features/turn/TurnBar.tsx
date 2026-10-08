@@ -23,7 +23,8 @@ export function TurnBar() {
   const endMonth = useGame((state) => state.endMonth);
   const sameAgain = useGame((state) => state.sameAgain);
   const used = plan.filter((pick) => pick !== null).length;
-  const blocked = blockedBy(view.ended, view.turns.banked, view.setpiece !== null);
+  // An interview with a question still to answer holds the month as a set piece does (R-INTERVIEW-004).
+  const blocked = blockedBy(view.ended, view.turns.banked, view.setpiece !== null || (view.interview?.question ?? null) !== null);
 
   return (
     <div className="flex flex-col gap-2">

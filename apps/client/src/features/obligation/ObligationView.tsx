@@ -11,6 +11,7 @@ import { Card, Empty, Panel, Tag } from "../../shared/ui/Panel";
 import { formatMoney, toMinor } from "../../shared/words/format";
 import { nameOf, say, sayCount } from "../../shared/words/text";
 import { CarCard } from "./CarCard";
+import { UndertakingCard } from "./UndertakingCard";
 
 type Owed = PlayerView["obligations"][number];
 
@@ -80,7 +81,13 @@ export function ObligationView() {
       ) : (
         <ul className="flex flex-col gap-3">
           {obligations.map((owed) =>
-            content.obligation[owed.entry]?.type === "car" ? <CarCard key={owed.id} owed={owed} /> : <OwedCard key={owed.id} owed={owed} />,
+            content.obligation[owed.entry]?.type === "car" ? (
+              <CarCard key={owed.id} owed={owed} />
+            ) : content.obligation[owed.entry]?.type === "undertaking" ? (
+              <UndertakingCard key={owed.id} owed={owed} />
+            ) : (
+              <OwedCard key={owed.id} owed={owed} />
+            ),
           )}
         </ul>
       )}

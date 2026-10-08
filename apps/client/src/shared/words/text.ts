@@ -5,6 +5,7 @@ import { content, text } from "@japacity/content";
 import type { Currency, MoneyParam, ReportParam } from "@japacity/sim";
 
 import { formatBand, formatBp, formatMoney, formatNumber, isCurrency, monthEnding } from "./format";
+import { peopleParam } from "./people";
 import { uiText } from "./ui";
 
 export type Params = Record<string, ReportParam>;
@@ -137,7 +138,7 @@ function stringParam(name: string, value: string, midSentence: boolean): string 
 /** One raw param from the simulation, as words. */
 export function formatParam(name: string, value: ReportParam, params: Params, key = "", midSentence = false): string {
   if (typeof value === "object") return formatMoney(value.amount, value.currency);
-  if (typeof value === "string") return stringParam(name, value, midSentence);
+  if (typeof value === "string") return (key.startsWith("line.people.") ? peopleParam(name, value, midSentence) : null) ?? stringParam(name, value, midSentence);
   if (name === "band") return formatBand(value);
   if (MONTH_PARAMS.has(name)) return formatNumber(monthEnding(value));
   if (name === "bp" || name.endsWith("Bp")) return formatBp(value);

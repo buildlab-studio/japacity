@@ -7,6 +7,7 @@ import { Briefcase, Lock, Plus, X } from "lucide-react";
 import { useState } from "react";
 
 import { useGame, useView } from "../../authority/GameProvider";
+import { bondName, timeWith } from "../../shared/sim/people";
 import { Button } from "../../shared/ui/Button";
 import { Card, Panel, Tag } from "../../shared/ui/Panel";
 import { shortfall } from "../../shared/words/cost";
@@ -143,8 +144,11 @@ function Locks() {
   );
 }
 
-function pickWords(pick: SlotPick): string {
-  return pick.param === null ? nameOf(pick.activity) : `${nameOf(pick.activity)}: ${paramWords(pick.param)}`;
+function pickWords(pick: SlotPick, view: PlayerView): string {
+  const named = pick.param === null ? nameOf(pick.activity) : `${nameOf(pick.activity)}: ${paramWords(pick.param)}`;
+  // Time with someone names the bond it goes to (R-PEOPLE-014).
+  const bond = timeWith(view, pick.activity);
+  return bond === null ? named : `${named} ${say("ui.people.time-with", { name: bondName(bond) })}`;
 }
 
 function Slots() {
@@ -162,11 +166,11 @@ function Slots() {
           <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-sunk text-xs font-semibold text-ink">
             {index + 1}
           </span>
-          <span className="flex-1">{pick === null ? say("ui.month.slot-empty") : pickWords(pick)}</span>
+          <span className="flex-1">{pick === null ? say("ui.month.slot-empty") : pickWords(pick, view)}</span>
           {pick === null ? null : (
             <button
               type="button"
-              aria-label={`${say("ui.month.slot-remove")}: ${pickWords(pick)}`}
+              aria-label={`${say("ui.month.slot-remove")}: ${pickWords(pick, view)}`}
               className="inline-flex size-9 items-center justify-center rounded-lg hover:bg-sunk"
               onClick={() => setSlot(index, null)}
             >
