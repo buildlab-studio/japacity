@@ -77,6 +77,7 @@ export const guideText: Record<string, string> = {
   "guide.page.numbers.name.return": "Coming home",
   "guide.page.numbers.name.road": "The road",
   "guide.page.numbers.name.route-gates": "What each route asks of you",
+  "guide.page.numbers.name.world": "The world on your screen",
   "guide.page.numbers.name.route": "Routes and schools",
   "guide.page.numbers.name.server": "The game's server",
   "guide.page.numbers.name.share": "Share cards",
