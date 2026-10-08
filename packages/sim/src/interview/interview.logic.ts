@@ -434,6 +434,18 @@ function computerAnswers(ctx: Ctx, open: Open, bond: Bond): string[] {
 }
 
 /**
+ * R-INTERVIEW-008: whose answers were a stand-in's. This side's from its own
+ * answers; the other side's when the stand-in is on for it as the result comes,
+ * since a command from the absent player turns it off (R-PEOPLE-043).
+ * the life does not know its side of the pair record and
+ * `interview/scored` carries no marks, so `a` holds this life's mark and `b`
+ * the other side's; the record's `standIn` on the command would make both exact.
+ */
+function standInMarks(open: Open, bond: Bond): { a: boolean; b: boolean } {
+  return { a: open.standIn, b: bond.with.kind === "player" && bond.standIn === "on" };
+}
+
+/**
  * R-INTERVIEW-006 and 009: compare, record the result, and on `caught` take
  * the standing. The refusal, the ban and the doubt are the route's, read from `last`.
  */
@@ -442,7 +454,7 @@ function score(ctx: Ctx, open: Open, bond: Bond, theirs: readonly string[]): Bas
   const matched = matchedCount(readOf(ctx), open, bond, theirs);
   const asked = open.questions.length;
   const result = resultOf(matched, asked, open.thin, numbers);
-  const scored: InterviewEvent = { type: "interview/scored", pair: open.pair, route: open.route, result, matched, asked, month: ctx.state.turn.month };
+  const scored: InterviewEvent = { type: "interview/scored", pair: open.pair, route: open.route, result, matched, asked, month: ctx.state.turn.month, standIn: standInMarks(open, bond) };
   const events = emit(ctx, "interview", [scored]);
   if (result === "caught") {
     const cause: Cause = { source: GENUINENESS, param: null, terms: {} };
@@ -515,7 +527,7 @@ function evolve(slice: InterviewSlice, event: InterviewEvent): InterviewSlice {
       // The answers stay in `open` until the result comes; the authority copies them into the record.
       return slice;
     case "interview/scored":
-      return { open: null, last: { route: event.route, result: event.result, matched: event.matched, asked: event.asked, month: event.month, standIn: { a: false, b: false } }, secret: { truths: null } };
+      return { open: null, last: { route: event.route, result: event.result, matched: event.matched, asked: event.asked, month: event.month, standIn: event.standIn }, secret: { truths: null } };
     case "interview/withdrawn":
       return { ...slice, open: null, secret: { truths: null } };
     default: {
@@ -554,7 +566,8 @@ function lines(event: InterviewEvent, state: State): ReportLine[] {
       // A computer's comparison follows at once; only a real partner keeps this side waiting (R-INTERVIEW-011).
       return bondFor(state, event.pair)?.bond.with.kind === "player" ? [{ key: "line.interview.waiting", params: {}, tone: "plain", attention: false, counts: [] }] : [];
     case "interview/scored":
-      return [scoredLine(event)];
+      // R-INTERVIEW-008: the report says when a stand-in answered for either side.
+      return event.standIn.a || event.standIn.b ? [scoredLine(event), { key: "line.interview.stood-in", params: {}, tone: "plain", attention: false, counts: [] }] : [scoredLine(event)];
     case "interview/withdrawn":
       return [{ key: "line.interview.withdrawn", params: { route: event.route }, tone: "plain", attention: true, counts: [] }];
     default: {
@@ -579,7 +592,7 @@ function view(read: ReadCtx): Pick<PlayerView, "interview"> {
     return { interview: { route: open.route, question, asked: open.answers.length, total: open.questions.length, waiting, standIn, result: null, matched: null } };
   }
   if (last === null) return { interview: null };
-  return { interview: { route: last.route, question: null, asked: last.asked, total: last.asked, waiting: false, standIn: false, result: last.result, matched: last.matched } };
+  return { interview: { route: last.route, question: null, asked: last.asked, total: last.asked, waiting: false, standIn: last.standIn.a || last.standIn.b, result: last.result, matched: last.matched } };
 }
 
 function invariants(state: State, content: Content): string[] {

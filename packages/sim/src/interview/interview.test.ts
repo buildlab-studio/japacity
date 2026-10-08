@@ -4,7 +4,7 @@ import { describe, expect } from "vitest";
 
 import { mulDiv } from "../engine/int";
 import type { Registry } from "../engine/kind";
-import type { ActivityEntry, Bond, Content, Ctx, Id, InterviewResult, Moment, PersonEntry, PersonFacts, RouteEntry, State } from "../engine/types";
+import type { Accepted, ActivityEntry, Bond, Content, Ctx, Id, InterviewResult, Moment, PersonEntry, PersonFacts, RouteEntry, State } from "../engine/types";
 import { viewFor } from "../engine/view";
 import { checkInvariants } from "../engine/invariants";
 import { registry } from "../kinds";
@@ -269,6 +269,20 @@ function pickRight(game: Game): string[] {
   return game.state.interview.open!.questions.map((asked) => {
     const question = entry.questions.find((candidate) => candidate.id === asked.id)!;
     return question.truth === null ? asked.options[0]! : truthOf(read, bond, question.truth, "them")!;
+  });
+}
+
+/** Hands the interview kind the sender, as the engine will once its Ctx carries it. */
+function standInKinds(): Registry {
+  return registry().map((kind) => {
+    if (kind.kind !== "interview") return kind;
+    const answer = interviewKind.commands!["interview/answer"]!;
+    const withSender = (ctx: Ctx): Ctx =>
+      new Proxy(ctx, {
+        has: (target, key) => key === "sender" || Reflect.has(target, key),
+        get: (target, key): unknown => (key === "sender" ? "stand-in" : Reflect.get(target, key)),
+      });
+    return { ...kind, commands: { ...kind.commands, "interview/answer": (ctx, command) => answer(withSender(ctx), command) } };
   });
 }
 
@@ -636,20 +650,6 @@ describe("a computer partner", () => {
 });
 
 describe("the stand-in", () => {
-  /** Hands the interview kind the sender, as the engine will once its Ctx carries it. */
-  function standInKinds(): Registry {
-    return registry().map((kind) => {
-      if (kind.kind !== "interview") return kind;
-      const answer = interviewKind.commands!["interview/answer"]!;
-      const withSender = (ctx: Ctx): Ctx =>
-        new Proxy(ctx, {
-          has: (target, key) => key === "sender" || Reflect.has(target, key),
-          get: (target, key): unknown => (key === "sender" ? "stand-in" : Reflect.get(target, key)),
-        });
-      return { ...kind, commands: { ...kind.commands, "interview/answer": (ctx, command) => answer(withSender(ctx), command) } };
-    });
-  }
-
   test("[R-INTERVIEW-008] given the stand-in answering a question with a truth, when its draw on people is under the stand-in recall, then it gives the truth, and otherwise a decoy", () => {
     const hit = seedWhere((seed) => draw(seed, "people", 0, 10000) < numbers.standInRecallBp);
     const miss = seedWhere((seed) => draw(seed, "people", 0, 10000) >= numbers.standInRecallBp);
@@ -696,6 +696,42 @@ describe("the stand-in", () => {
     expect(game.view().interview?.standIn).toBe(false);
     game.accept({ type: "interview/answer", question: "plans", option: "uk" });
     expect(game.view().interview).toMatchObject({ waiting: true, standIn: true });
+  });
+});
+
+describe("the stand-in mark on the result", () => {
+  /** Opens two questions, answers them in this life, and scores with the first option of each as the other side's. */
+  function scoredAfter(game: Game): Accepted {
+    game.accept({ type: "interview/open", pair: PAIR, route: PARTNER_ROUTE, questions: questionsFor(game, ["times-met", "plans"]) }, "authority");
+    for (const asked of game.state.interview.open!.questions) game.accept({ type: "interview/answer", question: asked.id, option: asked.options[0]! });
+    return game.accept({ type: "interview/scored", pair: PAIR, theirs: game.state.interview.open!.questions.map((asked) => asked.options[0]!) }, "authority");
+  }
+
+  test("[R-INTERVIEW-008] given the stand-in answering in this life, when the result comes, then the result keeps this side's mark, the view after the result says a stand-in answered, and so does the report", () => {
+    const game = sponsorLife({}, { kinds: standInKinds() });
+    const result = scoredAfter(game);
+    expect(game.state.interview.last?.standIn).toEqual({ a: true, b: false });
+    expect(game.view().interview).toMatchObject({ question: null, waiting: false, standIn: true });
+    expect(game.view().interview?.result).not.toBeNull();
+    expect(result.lines.map((line) => line.key)).toContain("line.interview.stood-in");
+  });
+
+  test("[R-INTERVIEW-008] given the stand-in on for the other side when the result comes, when this side answered itself, then the result keeps the other side's mark and the view and the report say a stand-in answered", () => {
+    const game = sponsorLife({ standIn: "on" });
+    const result = scoredAfter(game);
+    expect(game.state.interview.last?.standIn).toEqual({ a: false, b: true });
+    expect(game.view().interview).toMatchObject({ question: null, standIn: true });
+    expect(result.lines.map((line) => line.key)).toContain("line.interview.stood-in");
+  });
+
+  test("[R-INTERVIEW-008] given no stand-in on either side, or one only warned, when the result comes, then nothing is marked and the report does not mention a stand-in", () => {
+    for (const standIn of [null, "warned"] as const) {
+      const game = sponsorLife({ standIn });
+      const result = scoredAfter(game);
+      expect(game.state.interview.last?.standIn).toEqual({ a: false, b: false });
+      expect(game.view().interview?.standIn).toBe(false);
+      expect(result.lines.map((line) => line.key)).not.toContain("line.interview.stood-in");
+    }
   });
 });
 
