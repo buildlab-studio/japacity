@@ -29,7 +29,7 @@ export async function makeTick(deps: WorldDeps, previous: WorldTickRow | null): 
   const calendar = lagosCalendar(tickStartsAt(deps.config.clock, tick));
   const stepped = stepWorld(book, deps.secrets.worldSeed, content, calendar, content.tuning.director.onlineTickScale);
   if (stepped.world.tick !== tick) throw new Error(`The book after tick ${String(previous?.tick)} stepped to ${String(stepped.world.tick)}.`);
-  const world: World = { ...stepped.world, lottery: await lotteryFor(tick, deps.stores.world) };
+  const world: World = { ...stepped.world, lottery: await lotteryFor(tick, deps) };
   return { tick, world, book: stepped.book, content: content.version, hash: hashState({ world, book: stepped.book }) };
 }
 

@@ -8,6 +8,7 @@ import type { CharacterWrite, Refusal } from "@japacity/store";
 import { earnTurns } from "../clock/turns";
 import { tickAt, turnClock } from "../clock/view";
 import type { ServerDeps } from "../deps";
+import { sellTickets } from "../draw/sell";
 import { storedWorlds, tickRow } from "../world/ticks";
 import type { Diverged, Live } from "./load";
 import { apply, load } from "./load";
@@ -82,6 +83,8 @@ export async function transact<T>(deps: ServerDeps, ids: readonly string[], act:
     if (options.grant !== false) for (const live of lives) grantEarned(deps, live, turn);
     const acted = act(lives, turn);
     if (!acted.ok) return { writes: {}, result: { kind: "rejected", rejection: acted, lives, world, at } };
+    const unsold = await sellTickets(deps.stores.world, lives, world);
+    if (unsold !== null) return { writes: {}, result: { kind: "rejected", rejection: unsold, lives, world, at } };
     const characters = lives.map(writeOf).filter((write) => write !== null);
     return { writes: { characters }, result: { kind: "done", value: acted.value, lives, world, at } };
   });

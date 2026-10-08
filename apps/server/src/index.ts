@@ -12,10 +12,14 @@ import { contentsFor } from "./authority/overlay";
 import { productionConfig } from "./config";
 import { memoryStores, testSession, webRandomBytes } from "./deps";
 import type { ServerDeps } from "./deps";
+import { DRAND_URL, quicknet } from "./draw/beacon";
+import type { DrawKeys } from "./draw/draw";
 import { runDeletions } from "./jobs/deletion";
+import { drawJob } from "./jobs/draw";
 import { ticksJob } from "./jobs/ticks";
 import type { Place } from "./place/place.object";
 import { roomsFor } from "./place/place.rooms";
+import { drawRoute } from "./routes/draw";
 import { placeSocketRoutes } from "./routes/place";
 
 export { Place } from "./place/place.object";
@@ -25,6 +29,10 @@ export interface Env {
   SITE_URL: string;
   WORLD_SEED?: string;
   OVERLAY?: string;
+  /** R-LOTTERY-008: the HMAC key of the draw's ticket tokens, a secret of the deployment. */
+  DRAW_TOKEN_KEY?: string;
+  /** R-LOTTERY-007: the drand relay the beacon is read from. */
+  DRAND_URL?: string;
   COMMANDS_10S: RateLimit;
   COMMANDS_60S: RateLimit;
   READS_60S: RateLimit;
@@ -62,6 +70,10 @@ function authKeys(env: Env, waitUntil: (promise: Promise<unknown>) => void): Aut
   };
 }
 
+function drawKeys(env: Env): DrawKeys {
+  return { tokenKey: env.DRAW_TOKEN_KEY ?? "", beacon: quicknet(fetch, env.DRAND_URL ?? DRAND_URL) };
+}
+
 /** The deployment's dependencies, made once per isolate (R-SERVER-016). The stores move to packages/db when it lands. */
 function depsFor(env: Env): ServerDeps {
   deps ??= {
@@ -78,6 +90,7 @@ function depsFor(env: Env): ServerDeps {
   return deps;
 }
 
+/** The draw's keys from the bindings, until `ServerDeps` holds them. */
 export default {
   fetch(request: Request, env: Env, ctx: ExecutionContext): Response | Promise<Response> {
     const keys = authKeys(env, (promise) => ctx.waitUntil(promise));
@@ -85,12 +98,14 @@ export default {
     const built = { ...depsFor(env), session: sessionReader(auth) };
     // The character's place, name and look come from the core's reads when they are wired; until then no socket opens.
     return makeApp(built, { auth, keys })
+      .route("/", drawRoute(built, drawKeys(env)))
       .route("/", placeSocketRoutes(built, { rooms: roomsFor(env.PLACE, built.config.presence), placeOf: () => Promise.resolve(null), profileOf: () => Promise.resolve(null) }))
       .fetch(request);
   },
   scheduled(controller: ScheduledController, env: Env, ctx: ExecutionContext): void {
     // By cron: the world's ticks (R-CLOCK-012) every five minutes; deletions (R-ACCOUNT-017) and the money report (R-SERVER-011) daily.
     ctx.waitUntil(ticksJob(depsFor(env), controller.cron));
+    ctx.waitUntil(drawJob(depsFor(env), drawKeys(env), controller.cron));
     if (controller.cron === "0 0 * * *") ctx.waitUntil(runDeletions(depsFor(env), makeAuth(depsFor(env), authAdapter, authKeys(env, (promise) => ctx.waitUntil(promise)))));
     if (controller.cron === MONEY_CRON) ctx.waitUntil(moneyJob(depsFor(env)));
   },
