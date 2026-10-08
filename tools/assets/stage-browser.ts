@@ -1,13 +1,14 @@
 // Opens the stage in Playwright's own Chromium on the software renderer (decision 0005 section 3,
 // point 4): no executablePath, so Playwright finds the build it installed, and SwiftShader, so a
 // model gives the same pixels on every run.
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
-
+import { text } from "@japacity/content";
 import { type Browser, type BrowserContext, chromium, type Page } from "@playwright/test";
 
-import { ROOT, SOURCE } from "./catalog";
+import { ROOT } from "./catalog";
 import { type Server, startServer } from "./serve";
+
+/** A place's sign key: `place.<slug>.sign.<n>`. */
+export const SIGN_KEY = /^place\.[a-z0-9-]+\.sign\.[a-z0-9-]+$/;
 
 export const CHROMIUM_ARGS = ["--use-gl=angle", "--use-angle=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist"];
 
@@ -18,8 +19,9 @@ export interface Stage {
   close: () => Promise<void>;
 }
 
+/** Every sign's words from the content's text table (city.md R-CITY-024), so a render shows what the game shows. */
 export function signText(): Record<string, string> {
-  return (JSON.parse(readFileSync(join(SOURCE, "signs.json"), "utf8")) as { text: Record<string, string> }).text;
+  return Object.fromEntries(Object.entries(text).filter(([key]) => SIGN_KEY.test(key)));
 }
 
 export async function openStage(): Promise<Stage> {

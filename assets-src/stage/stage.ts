@@ -33,7 +33,7 @@ export type MaskView = "front" | "side" | "plan";
 
 export interface LoadOptions {
   url: string;
-  /** Sign text by key: the drafts in assets-src/signs.json until the place's text table has them. */
+  /** Sign text by key, from the content's text table. */
   text: Record<string, string>;
   /** Bone rotations (Euler XYZ) for a person, by bone name, and the hips' height if the pose moves it. */
   pose?: { rotations: Record<string, [number, number, number]>; hipsY?: number };
