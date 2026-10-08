@@ -243,7 +243,7 @@ describe("R-UNDERTAKING-011: the UK asks for no undertaking", () => {
   test("[R-UNDERTAKING-011] given the obligations and the partner gate, when they are read, then the only sponsor's undertaking is Canada's and departing on a partner route opens nothing of the gate's own", () => {
     const undertakings = Object.values(content.obligation).filter(isSponsorUndertaking);
     expect(undertakings.map((item) => [item.id, item.currency])).toEqual([[UNDERTAKING, "CAD"]]);
-    expect(partnerGate.onDepart).toBeUndefined();
+    expect("onDepart" in partnerGate).toBe(false);
   });
 });
 

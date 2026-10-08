@@ -141,11 +141,11 @@ describe("R-PEOPLE-026: applying on the partner gate", () => {
     const leading = married(UK_PARTNER);
     toKnown(leading, UK_PARTNER);
     setPeople(leading, (slice) => ({ ...slice, joint: { ...slice.joint!, lead: "me" } }));
-    leading.expectRejected({ type: "turn/end", slots: [slot(APPLY_UK)] }, "not-legal");
+    expect(leading.expectRejected({ type: "turn/end", slots: [slot(APPLY_UK)] }, "not-legal").code).toBe("not-legal");
     const home = married(UK_PARTNER);
     toKnown(home, UK_PARTNER);
     setFacts(home, (now) => ({ ...now, where: "home", country: null }));
-    home.expectRejected({ type: "turn/end", slots: [slot(APPLY_UK)] }, "not-legal");
+    expect(home.expectRejected({ type: "turn/end", slots: [slot(APPLY_UK)] }, "not-legal").code).toBe("not-legal");
   });
 
   test("[R-PEOPLE-026] given Canada's spouse route with no floor, when a resident spouse's facts say nothing of a floor, then the application goes in and the fee is taken", () => {
