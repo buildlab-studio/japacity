@@ -139,18 +139,29 @@ export const CAMPAIGNS: CampaignsReply = {
     {
       campaign: { id: "campaign-a1", advertiser: "advertiser-1", slots: ["advert.park-billboard"], regions: ["NG"], starts: NOW + DAY, ends: NOW + 30 * DAY, status: "pending", category: "education", place: null },
       advertiser: { id: "advertiser-1", businessName: "Brightpath Study Centre", registration: { country: "NG", number: "RC-000123" }, contactName: "Kemi Ade", contactEmail: "kemi@brightpath.example" },
+      checks: ["registered-business", "category", "accredited-institution", "no-charging-agent", "no-score-or-visa-promise", "regulator-approval"],
       creatives: [
-        { id: "creative-b2", campaign: "campaign-a1", file: { format: "png", width: 640, height: 320, bytes: 48_211 }, text: "Evening classes in Yaba.", link: "https://brightpath.example/classes", version: 1, status: "pending" },
+        { id: "creative-b2", campaign: "campaign-a1", file: { format: "png", width: 640, height: 320, bytes: 48_211 }, text: "Evening classes in Yaba.", link: "https://brightpath.example/classes", version: 1, status: "pending", checks: ["format", "not-game-like", "text", "link-domain"] },
       ],
       reviews: [],
+      counts: [],
     },
     {
       campaign: { id: "campaign-c3", advertiser: "advertiser-2", slots: ["advert.phone-tile"], regions: ["GB"], starts: NOW - DAY, ends: NOW + 6 * DAY, status: "live", category: "general", place: null },
       advertiser: { id: "advertiser-2", businessName: "Harbour Tea Room", registration: { country: "GB", number: "09876543" }, contactName: "Sam Lowe", contactEmail: "sam@harbourtea.example" },
-      creatives: [{ id: "creative-d4", campaign: "campaign-c3", file: { format: "webp", width: 320, height: 320, bytes: 20_480 }, text: "Tea by the water.", link: null, version: 1, status: "approved" }],
+      checks: ["registered-business", "category"],
+      creatives: [
+        { id: "creative-d4", campaign: "campaign-c3", file: { format: "webp", width: 320, height: 320, bytes: 20_480 }, text: "Tea by the water.", link: null, version: 1, status: "approved", checks: ["format", "not-game-like", "text"] },
+        { id: "creative-d4", campaign: "campaign-c3", file: { format: "webp", width: 320, height: 320, bytes: 20_911 }, text: "Tea and cake by the water.", link: null, version: 2, status: "refused", checks: ["format", "not-game-like", "text"] },
+      ],
       reviews: [
         { creative: "campaign-c3", version: 0, reviewer: "account.owner", at: NOW - 2 * DAY, checks: ["registered-business", "category"], bannedListVersion: "2026-10-08", outcome: "approved", note: "" },
         { creative: "creative-d4", version: 1, reviewer: "account.owner", at: NOW - 2 * DAY, checks: ["format", "not-game-like", "text"], bannedListVersion: "2026-10-08", outcome: "approved", note: "Clean." },
+        { creative: "creative-d4", version: 2, reviewer: "account.owner", at: NOW - DAY, checks: [], bannedListVersion: "2026-10-08", outcome: "refused", note: "Reads as a prize." },
+      ],
+      counts: [
+        { day: YESTERDAY - 1, slot: "advert.phone-tile", campaign: "campaign-c3", region: "GB", impressions: 1_204, taps: 31 },
+        { day: YESTERDAY, slot: "advert.phone-tile", campaign: "campaign-c3", region: "GB", impressions: 388, taps: 9 },
       ],
     },
   ],
