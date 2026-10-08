@@ -28,6 +28,7 @@ import type {
   StatusState,
   State,
 } from "../engine/types";
+import { cashWorkedThisMonth } from "../activity/activity.pay";
 import type { GrantWhy, LapseWhy, StatusEvent } from "./status.events";
 
 const MONTHS_PER_YEAR = 12;
@@ -258,16 +259,11 @@ function renew(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
 // Phases
 // ---------------------------------------------------------------------------
 
-/**
- * R-STATUS-005 and R-LADDER-003. the activity kind is to export
- * `cashWorkedThisMonth(read)`; until it does, holding a cash job is read as
- * cash work this month.
- */
+/** R-STATUS-005 and R-LADDER-003: cash work this month raises the detection chance. */
 function detect(ctx: Ctx): BaseEvent[] {
   const now = currentOf(ctx);
   if (now === null || !isOverstayer(ctx.content, now.held.entry)) return [];
-  const job = ctx.state.activity.job;
-  const cash = job !== null && ctx.content.activity[job]?.cash === true;
+  const cash = cashWorkedThisMonth(ctx);
   const chance = now.entry.detectBp + (cash ? ctx.content.tuning.ladder.cashDetectBp : 0);
   if (!ctx.random.chance("status", chance)) return [];
   return remove(ctx, { source: now.held.entry, param: null, terms: {} });

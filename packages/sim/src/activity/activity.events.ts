@@ -1,15 +1,49 @@
-import type { Currency, Id, SlotPick } from "../engine/types";
+import type { Currency, Id, MoneyParam, SlotPick } from "../engine/types";
 
 /** Why a slot did not happen (R-ACTIVITY-003). `param`: the pick is no longer one it may take. */
 export type SlotFailure = "requirements" | "param" | "cost";
+
+/** A prize at the kiosk (R-LUCK-005). */
+export type Prize = "small" | "mid" | "jackpot";
 
 export type ActivityEvent =
   /** A job was taken, replacing the one held, if any (R-ACTIVITY-006). */
   | { type: "activity/job-started"; job: Id<"activity">; previous: Id<"activity"> | null }
   /** The job was left. `why` is `quit` for the command, or what the effect said. Tenure is kept. */
   | { type: "activity/job-ended"; job: Id<"activity">; why: string }
-  /** A month in the job: tenure is now `tenure`. `pay` is what the salary was, for the report. */
-  | { type: "activity/month-worked"; job: Id<"activity">; tenure: number; pay: { currency: Currency; amount: number } | null }
+  /**
+   * A month in the job: tenure is now `tenure`. `pay` is what was paid before tax, null when
+   * nothing was. `naira` is a foreign pay's worth at the official rate that day. `first` marks
+   * the first pay of the life, or the first in a foreign currency (text.md "Money on screen").
+   */
+  | {
+      type: "activity/month-worked";
+      job: Id<"activity">;
+      tenure: number;
+      pay: { currency: Currency; amount: number } | null;
+      naira?: number;
+      first?: boolean;
+    }
+  /** A cash job's pay was not paid this month (R-LADDER-003). */
+  | { type: "activity/pay-withheld"; job: Id<"activity">; pay: MoneyParam }
+  /** A month on sick pay (R-HEALTH-004): `pay` is what was paid. */
+  | { type: "activity/sick-pay"; job: Id<"activity">; pay: MoneyParam }
+  /** A side job was taken, replacing the one held, if any (R-ACTIVITY-010). */
+  | { type: "activity/side-started"; side: Id<"activity">; previous: Id<"activity"> | null }
+  /** The side job was left. `why` is `quit` for the command, or why it could not go on. */
+  | { type: "activity/side-ended"; side: Id<"activity">; why: string }
+  /** A month in the side job. */
+  | { type: "activity/side-worked"; side: Id<"activity">; pay: MoneyParam | null }
+  /** The bus home was a robbery (R-ACTIVITY-011): the cash and the phone went. */
+  | { type: "activity/robbed"; cash: number; phone: number }
+  /** Overtime paid this much (ladders.md "Free slots abroad"). Changes nothing itself. */
+  | { type: "activity/overtime-paid"; job: Id<"activity">; pay: MoneyParam }
+  /** An attempt at the driving test (R-CAR-006). `attempt` counts from 1. */
+  | { type: "activity/driving-test"; attempt: number; passed: boolean }
+  /** A month at the lotto kiosk (R-LUCK-005). `prizes` holds one entry for each winning ticket. */
+  | { type: "activity/lotto-played"; tickets: number; stake: MoneyParam; prizes: Prize[]; won: MoneyParam }
+  /** A bet slip (R-LUCK-006). `won` is nothing on a loss. */
+  | { type: "activity/bet-placed"; stake: MoneyParam; won: MoneyParam }
   /** A free slot resolved and its cost and effects follow. Changes nothing itself. */
   | { type: "activity/slot-played"; slot: number; activity: Id<"activity">; param: string | null }
   /** A free slot failed: nothing paid, no effect. Changes nothing itself. */

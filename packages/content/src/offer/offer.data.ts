@@ -718,6 +718,8 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
   },
   "offer.job": {
     id: "offer.job",
+    // A hunt lands at home and abroad (R-LADDER-001).
+    where: "any",
     // group `job`, as the contract allows. offer.md is fixed later,
     // which lists it under "Money". It is never rolled, so R-OFFER-001's order is unchanged.
     group: "job",

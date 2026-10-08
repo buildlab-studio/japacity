@@ -4,7 +4,7 @@
 import type { ActivityEntry, Cost, Id, Requirement } from "@japacity/sim";
 
 import { dollars, naira, pct } from "../units";
-import { abroadActivityTable } from "./activity.abroad.data";
+import { abroadActivityTable, foreignPocketActivityTable } from "./activity.abroad.data";
 
 const UK: Id<"route"> = "route.uk-masters";
 const WINDOW: Id<"var"> = "var.uk-study-window";
@@ -29,7 +29,7 @@ function held(document: Id<"document">, min?: number): Requirement {
 /** The health surcharge for one year of a worker's visa, in pounds. */
 const SURCHARGE_YEAR: Cost = { currency: "GBP", amount: { var: "var.uk-surcharge-year" }, reason: "fee-surcharge" };
 
-export const activityTable:Record<Id<"activity">, ActivityEntry> = {
+export const activityTable: Record<Id<"activity">, ActivityEntry> = {
   // Jobs
 
   "activity.job-teacher": {
@@ -74,6 +74,8 @@ export const activityTable:Record<Id<"activity">, ActivityEntry> = {
   "activity.job-bank-officer": {
     id: "activity.job-bank-officer",
     slot: "main",
+    // R-HEALTH-004: the bank pays through a sick month.
+    sickLeave: true,
     requires: [
       { type: "quality/min", quality: "quality.edu-level", value: 3 },
       { type: "quality/min", quality: "quality.edu-grade", value: 3 },
@@ -91,6 +93,8 @@ export const activityTable:Record<Id<"activity">, ActivityEntry> = {
   "activity.job-bank-senior": {
     id: "activity.job-bank-senior",
     slot: "main",
+    // R-HEALTH-004: the bank pays through a sick month.
+    sickLeave: true,
     requires: [{ type: "activity/tenure", activities: ["activity.job-bank-officer"], months: 36 }],
     param: null,
     cost: [],
@@ -419,7 +423,103 @@ export const activityTable:Record<Id<"activity">, ActivityEntry> = {
     counts: [UK],
   },
 
+  // Side jobs (R-ACTIVITY-010): hunted like a job, held beside it, one free slot locked while kept.
+  // the contract's pay names no pocket; naira pay goes to cash and dollar pay to the bank.
+
+  "activity.night-support": {
+    id: "activity.night-support",
+    slot: "side",
+    requires: [
+      { type: "quality/min", quality: "quality.english", value: 50 },
+      { type: "quality/min", quality: "quality.tech", value: 20 },
+    ],
+    param: null,
+    cost: [],
+    pay: { currency: "USD", amount: dollars(350) },
+    hireBp: pct(30),
+    effects: [{ type: "quality/add", quality: "quality.wellbeing", amount: -6 }],
+    counts: [],
+  },
+  "activity.weekend-tutoring": {
+    id: "activity.weekend-tutoring",
+    slot: "side",
+    requires: [{ type: "quality/min", quality: "quality.edu-level", value: 3 }],
+    param: null,
+    cost: [],
+    pay: { currency: "NGN", amount: naira(60000) },
+    hireBp: pct(50),
+    effects: [{ type: "quality/add", quality: "quality.wellbeing", amount: -4 }],
+    counts: [],
+  },
+  "activity.ride-driving": {
+    id: "activity.ride-driving",
+    slot: "side",
+    requires: [{ type: "quality/min", quality: "quality.driving", value: 1 }],
+    param: null,
+    cost: [],
+    pay: { currency: "NGN", amount: naira(120000) },
+    hireBp: pct(45),
+    effects: [{ type: "quality/add", quality: "quality.wellbeing", amount: -7 }],
+    counts: [],
+  },
+
+  // The counter-moves to the one chance (R-ACTIVITY-011).
+
+  "activity.safe-ride": {
+    id: "activity.safe-ride",
+    slot: "free",
+    requires: [],
+    param: null,
+    cost: [{ currency: "NGN", amount: naira(25000), reason: "upkeep" }],
+    pay: null,
+    hireBp: null,
+    effects: [],
+    counts: [],
+  },
+  "activity.sleep-at-office": {
+    id: "activity.sleep-at-office",
+    slot: "free",
+    requires: [],
+    param: null,
+    cost: [],
+    pay: null,
+    hireBp: null,
+    effects: [
+      { type: "quality/add", quality: "quality.wellbeing", amount: -4 },
+      { type: "quality/add", quality: "quality.standing", amount: -1 },
+    ],
+    counts: [],
+  },
+
+  // The kiosk (R-LUCK-005, 006). the tickets, the stake and the draws are tuning, so the
+  // activity kind prices and draws them; the entries carry no cost and no effect.
+
+  "activity.play-lotto": {
+    id: "activity.play-lotto",
+    slot: "free",
+    requires: [],
+    param: null,
+    cost: [],
+    pay: null,
+    hireBp: null,
+    effects: [],
+    counts: [],
+  },
+  "activity.bet-slip": {
+    id: "activity.bet-slip",
+    slot: "free",
+    requires: [],
+    param: null,
+    cost: [],
+    pay: null,
+    hireBp: null,
+    effects: [],
+    counts: [],
+  },
+
   ...abroadActivityTable,
+  // The wallet keeps Canadian dollar and dirham pockets now (R-ABROAD-001).
+  ...foreignPocketActivityTable,
   // route-gates.md: the sponsor gate.
 
   "activity.find-sponsor": {

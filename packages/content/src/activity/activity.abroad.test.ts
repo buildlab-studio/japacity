@@ -46,9 +46,9 @@ describe("activities abroad", () => {
     }
   });
 
-  test("[R-ENGINE-014] given the activities abroad, when the content is read, then every one is in it and none held for the foreign pockets is yet", () => {
+  test("[R-ENGINE-014] [R-ABROAD-001] given the activities abroad, when the content is read, then every one is in it, the ones priced in the new pockets included", () => {
     expect(abroad.filter((entry) => content.activity[entry.id] !== entry).map((entry) => entry.id)).toEqual([]);
-    expect(pending.filter((entry) => entry.id in content.activity).map((entry) => entry.id)).toEqual([]);
+    expect(pending.filter((entry) => content.activity[entry.id] !== entry).map((entry) => entry.id)).toEqual([]);
   });
 
   test("[R-ENGINE-014] given the activities held for the foreign pockets, when every id they name is looked up, then each exists", () => {
@@ -91,7 +91,7 @@ describe("activities abroad", () => {
     const missing = all.flatMap((entry) => [`${entry.id}.name`, `${entry.id}.blurb`]).filter((key) => (text[key] ?? "").trim() === "");
     expect(missing).toEqual([]);
     // Every free-slot activity can show in one list, so each must read differently.
-    const free = [...Object.values(content.activity), ...pending].filter((entry) => entry.slot === "free");
+    const free = Object.values(content.activity).filter((entry) => entry.slot === "free");
     for (const field of ["name", "blurb"]) {
       const words = free.map((entry) => text[`${entry.id}.${field}`]);
       expect(words.filter((line, index) => words.indexOf(line) !== index)).toEqual([]);

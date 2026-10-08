@@ -50,4 +50,8 @@ export const walletText: Record<string, string> = {
   "line.wallet.fare": "Fare paid: {amount}.",
   "line.wallet.build": "Spent on the house: {amount}.",
   "line.wallet.win": "You won {amount}. A letter comes with it.",
+  "line.wallet.remit-app": "You send {sent} home by app. {naira} reaches your naira account.",
+  "line.wallet.remit-bank": "You send {sent} home through the bank. About {naira} reaches your naira account in month {readyMonth}.",
+  "line.wallet.remit-informal": "You hand {sent} to the man who sends money home. {naira} reaches your people in cash.",
+  "line.wallet.remit-lost": "You hand {sent} to the man who sends money home. It never arrives, and his number is off.",
 };

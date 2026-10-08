@@ -18,6 +18,7 @@ import type {
   ForeignCurrency,
   Id,
   Lot,
+  MoneyParam,
   Pocket,
   PocketBalance,
   ReadCtx,
@@ -28,13 +29,14 @@ import type {
   RequirementResult,
   State,
   Terms,
+  Tuning,
   WalletSlice,
   World,
 } from "../engine/types";
 
 /** Every foreign currency, in the order the rates are listed. */
 const FOREIGN_CURRENCIES: readonly ForeignCurrency[] = ["GBP", "USD", "CAD", "AED", "EUR"];
-import type { AnyPocket, WalletEvent } from "./wallet.events";
+import type { AnyPocket, RemitChannel, WalletEvent } from "./wallet.events";
 
 /** Every pocket the wallet keeps: naira and each foreign currency (R-ABROAD-001). */
 const CURRENCIES: readonly Currency[] = ["NGN", ...FOREIGN_CURRENCIES];
@@ -42,7 +44,9 @@ const ALLOWANCE: Id<"var"> = "var.fx-bank-allowance";
 const QUEUE: Id<"var"> = "var.fx-bank-queue";
 
 /** Reasons money comes in under. Every other reason except the two transfers is money going out. */
-const SOURCES: readonly Reason[] = ["opening", "salary", "gig", "gift", "sale", "loan", "held-funds", "refund", "deposit-return", "cash-work"];
+export const SOURCES: readonly Reason[] = ["opening", "salary", "gig", "gift", "sale", "loan", "held-funds", "refund", "deposit-return", "cash-work", "win"];
+/** A bank remit waits in the queue under an id with this prefix and arrives as a gift (R-ABROAD-006). */
+const REMIT_PREFIX = "remit";
 
 /**
  * The report line for each reason. The two transfers have lines of their own,
@@ -260,8 +264,13 @@ function move(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   // Locked money is never in `bank` here, so it cannot be moved (R-WALLET-010).
   if (amount > ctx.state.wallet.pockets[currency][from]) return reject("cannot-afford", `The ${from} pocket holds less than that.`);
   const events = [debit(currency, from, amount, "move"), credit(currency, to, amount, "move")];
-  const value = valueInKobo(amount, currency, officialRates(ctx.world));
-  if (to === "bank" && value > ctx.content.tuning.wallet.flagDepositAbove) events.push(lotOf(ctx.state, currency, amount, "move"));
+  if (to !== "bank") return events;
+  // R-WALLET-011. every move that leaves the month's cash paid in over the line is a lot of its own amount.
+  const month = ctx.state.turn.month;
+  const { cashIn } = ctx.state.wallet;
+  const kobo = (cashIn.month === month ? cashIn.kobo : 0) + valueInKobo(amount, currency, officialRates(ctx.world));
+  events.push({ type: "wallet/cash-paid-in", month, kobo });
+  if (kobo > ctx.content.tuning.wallet.flagDepositAbove) events.push(lotOf(ctx.state, currency, amount, "move"));
   return events;
 }
 
@@ -321,11 +330,100 @@ function convertAtBank(ctx: Ctx, from: Currency, to: Currency, amount: number): 
 function convert(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (command.type !== "wallet/convert") throw new Error(`wallet/convert cannot handle ${command.type}.`);
   const { from, to, amount, via } = command;
-  if (!isCurrency(from) || !isCurrency(to)) return reject("unknown-id", "Both currencies must be naira, pounds or dollars.");
+  if (!isCurrency(from) || !isCurrency(to)) return reject("unknown-id", "Both currencies must be ones the wallet keeps.");
   if (from === to) return reject("not-legal", "A conversion needs two different currencies.");
   if (via !== "bank" && via !== "aboki") return reject("not-legal", "Change money at the bank or at the aboki.");
   if (!isGoodAmount(amount)) return reject("bad-amount", "An amount is a whole number above zero.");
   return via === "bank" ? convertAtBank(ctx, from, to, amount) : convertAtAboki(ctx, from, to, amount);
+}
+
+// ---------------------------------------------------------------------------
+// Sending money home: R-ABROAD-006 and 008
+// ---------------------------------------------------------------------------
+
+const CHANNELS: readonly RemitChannel[] = ["app", "bank", "informal"];
+
+/** One channel's terms for an amount: the fee kept, and the naira that arrives. */
+export interface RemitTerms {
+  fee: number;
+  naira: number;
+}
+
+/**
+ * What each channel gives for an amount sent from a foreign bank pocket, from the
+ * view's rates and the content's tuning (R-ABROAD-008), so the interface quotes the
+ * same figures the command pays. The app pays the official rate less its margin;
+ * the bank the official rate, here today's, though the money arrives next month at
+ * that month's; the informal channel the street rate with no fee. the fee
+ * comes out of the amount sent, so the amount is what leaves the pocket.
+ */
+export function remitQuote(
+  rates: World["rates"],
+  remit: Tuning["remit"],
+  currency: ForeignCurrency,
+  amount: number,
+): Record<RemitChannel, RemitTerms> {
+  const { official, street } = rates[currency];
+  const appFee = bp(amount, remit.appFeeBp);
+  const bankFee = bp(amount, remit.bankFeeBp);
+  return {
+    app: { fee: appFee, naira: mulDiv(amount - appFee, official - bp(official, remit.appMarginBp), 100) },
+    bank: { fee: bankFee, naira: mulDiv(amount - bankFee, official, 100) },
+    informal: { fee: 0, naira: mulDiv(amount, street, 100) },
+  };
+}
+
+function isForeign(value: unknown): value is ForeignCurrency {
+  return isCurrency(value) && value !== "NGN";
+}
+
+/**
+ * `wallet/remit` (R-ABROAD-006): the amount leaves the currency's bank pocket as
+ * `remit` and the fee as `remit-fee`; the naira arrives as `gift`, documented, in
+ * the home bank pocket by app at once or by bank next month, or as cash by the
+ * informal channel, which may not arrive at all (stream `street`). only
+ * from abroad, since it sends money home.
+ */
+function remit(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
+  if (command.type !== "wallet/remit") throw new Error(`wallet/remit cannot handle ${command.type}.`);
+  const { currency, amount, channel } = command;
+  if (ctx.state.place.where !== "abroad") return reject("not-legal", "Money is sent home from abroad.");
+  if (!isForeign(currency)) return reject("unknown-id", `There is no foreign currency ${String(currency)}.`);
+  if (!CHANNELS.includes(channel)) return reject("not-legal", "Send money by app, by bank or through someone.");
+  if (!isGoodAmount(amount)) return reject("bad-amount", "An amount is a whole number above zero.");
+  if (amount > ctx.state.wallet.pockets[currency].bank) return reject("cannot-afford", `The ${currency} bank pocket holds less than that.`);
+  const terms = remitQuote(ctx.world.rates, ctx.content.tuning.remit, currency, amount)[channel];
+  if (terms.naira === 0) return reject("bad-amount", "That is too little to send.");
+  const month = ctx.state.turn.month;
+  const sent: MoneyParam = { currency, amount };
+  const events: WalletEvent[] = [debit(currency, "bank", amount - terms.fee, "remit"), debit(currency, "bank", terms.fee, "remit-fee")];
+  const remitted = (lost: boolean, readyMonth: number): WalletEvent => ({ type: "wallet/remitted", channel, sent, fee: terms.fee, naira: lost ? 0 : terms.naira, lost, readyMonth });
+  switch (channel) {
+    case "app":
+      events.push(credit("NGN", "bank", terms.naira, "gift"), remitted(false, month));
+      break;
+    case "bank": {
+      const conversion = { id: ctx.nextId(REMIT_PREFIX), from: currency, to: "NGN" as const, paid: amount - terms.fee, readyMonth: month + 1 };
+      events.push({ type: "wallet/queued", conversion }, remitted(false, month + 1));
+      break;
+    }
+    case "informal": {
+      const lost = ctx.random.chance("street", ctx.content.tuning.remit.informalLossBp);
+      if (!lost) events.push(credit("NGN", "cash", terms.naira, "gift"));
+      events.push(remitted(lost, month));
+      break;
+    }
+    default: {
+      const never: never = channel;
+      throw new Error(`Unknown channel ${String(never)}.`);
+    }
+  }
+  return moved(events);
+}
+
+/** A queued bank remit, as opposed to a queued purchase of foreign currency. */
+function isRemit(conversion: { id: string }): boolean {
+  return conversion.id.startsWith(`${REMIT_PREFIX}-`);
 }
 
 // ---------------------------------------------------------------------------
@@ -342,7 +440,8 @@ function settle(ctx: Ctx): BaseEvent[] {
   for (const conversion of state.wallet.queued) {
     if (conversion.readyMonth > month) continue;
     events.push({ type: "wallet/arrived", id: conversion.id });
-    events.push(credit(conversion.to, "bank", convertMinor(conversion.paid, conversion.from, conversion.to, official), "convert"));
+    const reason: Reason = isRemit(conversion) ? "gift" : "convert";
+    events.push(credit(conversion.to, "bank", convertMinor(conversion.paid, conversion.from, conversion.to, official), reason));
   }
   // R-WALLET-011: a lot is remembered for lotMonths whole months after the one it landed in.
   const keepFrom = month - content.tuning.wallet.lotMonths;
@@ -395,6 +494,10 @@ function evolve(slice: WalletSlice, event: WalletEvent): WalletSlice {
     }
     case "wallet/allowance-reset":
       return { ...slice, bought: { month: event.month, cents: 0 } };
+    case "wallet/cash-paid-in":
+      return { ...slice, cashIn: { month: event.month, kobo: event.kobo } };
+    case "wallet/remitted":
+      return slice;
     default: {
       const never: never = event;
       throw new Error(`Unknown wallet event ${JSON.stringify(never)}.`);
@@ -424,7 +527,14 @@ function lines(event: WalletEvent): ReportLine[] {
     }
     case "wallet/queued": {
       const { from, to, paid, readyMonth } = event.conversion;
+      // A bank remit is told by its own line.
+      if (isRemit(event.conversion)) return [];
       return [line("line.wallet.queued", { paid: { currency: from, amount: paid }, currency: to, readyMonth }, "plain")];
+    }
+    case "wallet/remitted": {
+      const naira: MoneyParam = { currency: "NGN", amount: event.naira };
+      if (event.lost) return [{ ...line("line.wallet.remit-lost", { sent: event.sent }, "bad"), attention: true }];
+      return [line(`line.wallet.remit-${event.channel}`, { sent: event.sent, naira, readyMonth: event.readyMonth }, "plain")];
     }
     case "wallet/lot-recorded":
       return [line("line.wallet.flagged", { amount: { currency: event.lot.currency, amount: event.lot.amount } }, "bad")];
@@ -432,6 +542,7 @@ function lines(event: WalletEvent): ReportLine[] {
     case "wallet/lots-dropped":
     case "wallet/bought":
     case "wallet/allowance-reset":
+    case "wallet/cash-paid-in":
       return [];
     default: {
       const never: never = event;
@@ -525,6 +636,7 @@ export const walletKind: RegisteredKind<WalletSlice, WalletEvent> = {
   commands: {
     "wallet/move": move,
     "wallet/convert": convert,
+    "wallet/remit": remit,
   },
   effects: {
     "money/add": addMoney,

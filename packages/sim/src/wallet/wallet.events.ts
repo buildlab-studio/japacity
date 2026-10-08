@@ -1,4 +1,4 @@
-import type { Currency, Lot, Pocket, QueuedConversion, Reason } from "../engine/types";
+import type { Currency, Lot, MoneyParam, Pocket, QueuedConversion, Reason } from "../engine/types";
 
 /** Where money sits: the two spendable pockets, and the locked one (R-WALLET-010). */
 export type AnyPocket = Pocket | "locked";
@@ -19,4 +19,14 @@ export type WalletEvent =
   /** A bank purchase used this much of the month's allowance, in US cents (R-WALLET-005). */
   | { type: "wallet/bought"; month: number; cents: number }
   /** A new month: the allowance is whole again (R-WALLET-005). */
-  | { type: "wallet/allowance-reset"; month: number };
+  | { type: "wallet/allowance-reset"; month: number }
+  /** Cash paid into the bank this month, in kobo at the official rate, now `kobo` in all (R-WALLET-011). */
+  | { type: "wallet/cash-paid-in"; month: number; kobo: number }
+  /**
+   * Money sent home (R-ABROAD-006). Its debits and credits are their own events.
+   * `naira` is what arrives, or will arrive with a bank transfer; `lost` is an informal one that never came.
+   */
+  | { type: "wallet/remitted"; channel: RemitChannel; sent: MoneyParam; fee: number; naira: number; lost: boolean; readyMonth: number };
+
+/** The ways money goes home (R-ABROAD-006). */
+export type RemitChannel = "app" | "bank" | "informal";
