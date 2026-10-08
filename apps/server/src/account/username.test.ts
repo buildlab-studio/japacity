@@ -21,20 +21,20 @@ describe("the username's text", () => {
 
   test("[R-ACCOUNT-024] given the reserved names in any capitals or spelling, when each is judged, then it is reserved", () => {
     for (const name of ["Japacity", "japa_city", "J4PACITY", "Admin", "adm1n", "aaadmin", "the_admin", "SUPPORT", "suppport_desk", "staff_ng", "0fficial", "Moderator", "m0d3rat0r"]) {
-      expect(nameProblem(name), name).toBe("reserved");
+      expect(nameProblem(name)).toBe("reserved");
     }
     expect(reservedNames.every((word) => nameProblem(word) === "reserved")).toBe(true);
   });
 
   test("[R-ACCOUNT-024] given the blocked words in any capitals or spelling, when each is judged, then it is blocked; ordinary names that only hold their letters apart are not", () => {
     expect(blockedWords.every((word) => nameProblem(word) === "blocked")).toBe(true);
-    for (const name of ["FUCK_off", "sh1t_happens", "b1tch", "big_ashawo"]) expect(nameProblem(name), name).toBe("blocked");
-    for (const name of ["Dickson_O", "Nazir_Kano", "Essex_girl", "Cassandra", "grapefruit"]) expect(nameProblem(name), name).toBeNull();
+    for (const name of ["FUCK_off", "sh1t_happens", "b1tch", "big_ashawo"]) expect(nameProblem(name)).toBe("blocked");
+    for (const name of ["Dickson_O", "Nazir_Kano", "Essex_girl", "Cassandra", "grapefruit"]) expect(nameProblem(name)).toBeNull();
   });
 
   test("[R-ACCOUNT-024] given names with and without a listed word, when their capitals change, then the judgement does not", () => {
     for (const name of ["tunde", "admin_ng", "b1tch", "ngozi_okafor", "j4pacity", "kemi_99"]) {
-      expect(nameProblem(name.toUpperCase()), name).toBe(nameProblem(name));
+      expect(nameProblem(name.toUpperCase())).toBe(nameProblem(name));
     }
   });
 

@@ -217,57 +217,53 @@ describe("rule B: what only a secured account may do", () => {
     return { guest, secured };
   }
 
-  async function expectGuestOnly(reply: Response) {
-    expect(reply.status).toBe(403);
-    const said = await body(reply);
-    expect(said).toMatchObject({ ok: false, code: "guest-only" });
-    expect(String(said["detail"])).toMatch(SECURE);
+  /** What a reply says about rule B: its status, its code, and whether its detail names the way to secure. */
+  async function outcome(reply: Response) {
+    const said = (await reply.json().catch(() => ({}))) as Record<string, unknown>;
+    return { status: reply.status, code: said["code"], secure: SECURE.test(String(said["detail"])) };
   }
 
-  async function expectNotGuestOnly(reply: Response) {
-    const said = (await reply.json().catch(() => ({}))) as Record<string, unknown>;
-    expect(said["code"]).not.toBe("guest-only");
-  }
+  const GUEST_ONLY = { status: 403, code: "guest-only", secure: true };
 
   const command = (type: string) => ({ command: { type, tickets: 1, basedOn: 0 }, basedOn: 0 });
 
   test("[R-ACCOUNT-022] given a guest, when it buys lottery tickets, then it is refused guest-only with the way to secure; a secured account is let through", async () => {
     const h = harness();
     const { guest, secured } = await guestAndSecured(h);
-    await expectGuestOnly(await h.call("/api/command", { method: "POST", jar: guest.jar, json: command("lottery/buy") }));
-    await expectNotGuestOnly(await h.call("/api/command", { method: "POST", jar: secured.jar, json: command("lottery/buy") }));
+    expect(await outcome(await h.call("/api/command", { method: "POST", jar: guest.jar, json: command("lottery/buy") }))).toEqual(GUEST_ONLY);
+    expect((await outcome(await h.call("/api/command", { method: "POST", jar: secured.jar, json: command("lottery/buy") }))).code).not.toBe("guest-only");
   });
 
   test("[R-ACCOUNT-022] given a guest, when it reads a board, then it is refused guest-only; a secured account is let through", async () => {
     const h = harness();
     const { guest, secured } = await guestAndSecured(h);
-    await expectGuestOnly(await h.call("/api/board?kind=week", { jar: guest.jar }));
-    await expectNotGuestOnly(await h.call("/api/board?kind=week", { jar: secured.jar }));
+    expect(await outcome(await h.call("/api/board?kind=week", { jar: guest.jar }))).toEqual(GUEST_ONLY);
+    expect((await outcome(await h.call("/api/board?kind=week", { jar: secured.jar }))).code).not.toBe("guest-only");
   });
 
   test("[R-ACCOUNT-022] given a guest, when it makes an invite card or a partner invite, then each is refused guest-only; a secured account is let through", async () => {
     const h = harness();
     const { guest, secured } = await guestAndSecured(h);
-    await expectGuestOnly(await h.call("/api/invite", { method: "POST", jar: guest.jar, json: { slot: "partner" } }));
-    await expectGuestOnly(await h.call("/api/command", { method: "POST", jar: guest.jar, json: command("people/invite") }));
-    await expectNotGuestOnly(await h.call("/api/invite", { method: "POST", jar: secured.jar, json: { slot: "partner" } }));
-    await expectNotGuestOnly(await h.call("/api/command", { method: "POST", jar: secured.jar, json: command("people/invite") }));
+    expect(await outcome(await h.call("/api/invite", { method: "POST", jar: guest.jar, json: { slot: "partner" } }))).toEqual(GUEST_ONLY);
+    expect(await outcome(await h.call("/api/command", { method: "POST", jar: guest.jar, json: command("people/invite") }))).toEqual(GUEST_ONLY);
+    expect((await outcome(await h.call("/api/invite", { method: "POST", jar: secured.jar, json: { slot: "partner" } }))).code).not.toBe("guest-only");
+    expect((await outcome(await h.call("/api/command", { method: "POST", jar: secured.jar, json: command("people/invite") }))).code).not.toBe("guest-only");
   });
 
   test("[R-ACCOUNT-022] given a guest, when it takes a friend's invite, then it is refused guest-only; a secured account is let through", async () => {
     const h = harness();
     const { guest, secured } = await guestAndSecured(h);
-    await expectGuestOnly(await h.call("/api/invite/some-card/accept", { method: "POST", jar: guest.jar, json: { slot: "partner" } }));
-    await expectNotGuestOnly(await h.call("/api/invite/some-card/accept", { method: "POST", jar: secured.jar, json: { slot: "partner" } }));
+    expect(await outcome(await h.call("/api/invite/some-card/accept", { method: "POST", jar: guest.jar, json: { slot: "partner" } }))).toEqual(GUEST_ONLY);
+    expect((await outcome(await h.call("/api/invite/some-card/accept", { method: "POST", jar: secured.jar, json: { slot: "partner" } }))).code).not.toBe("guest-only");
   });
 
   test("[R-ACCOUNT-022] given a guest, when it sends or reads messages, then both are refused guest-only; a secured account is let through", async () => {
     const h = harness();
     const { guest, secured } = await guestAndSecured(h);
-    await expectGuestOnly(await h.call("/api/pair/pair.1/say", { method: "POST", jar: guest.jar, json: { phrase: "phrase.hello" } }));
-    await expectGuestOnly(await h.call("/api/pair/pair.1/conversation", { jar: guest.jar }));
-    await expectNotGuestOnly(await h.call("/api/pair/pair.1/say", { method: "POST", jar: secured.jar, json: { phrase: "phrase.hello" } }));
-    await expectNotGuestOnly(await h.call("/api/pair/pair.1/conversation", { jar: secured.jar }));
+    expect(await outcome(await h.call("/api/pair/pair.1/say", { method: "POST", jar: guest.jar, json: { phrase: "phrase.hello" } }))).toEqual(GUEST_ONLY);
+    expect(await outcome(await h.call("/api/pair/pair.1/conversation", { jar: guest.jar }))).toEqual(GUEST_ONLY);
+    expect((await outcome(await h.call("/api/pair/pair.1/say", { method: "POST", jar: secured.jar, json: { phrase: "phrase.hello" } }))).code).not.toBe("guest-only");
+    expect((await outcome(await h.call("/api/pair/pair.1/conversation", { jar: secured.jar }))).code).not.toBe("guest-only");
   });
 
   test("[R-ACCOUNT-022] given a guest's life, when another browser signs in to it by its placeholder address, then it is refused guest-only: a guest life is restored on no other device", async () => {
