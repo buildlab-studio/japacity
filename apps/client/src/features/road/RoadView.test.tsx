@@ -1,3 +1,4 @@
+import { content } from "@japacity/content";
 import type { OfferView as Offer, PlayerView, ReportLine } from "@japacity/sim";
 import { fireEvent, screen, within } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
@@ -89,5 +90,15 @@ describe("the road's one panel", () => {
     expect(screen.queryByText(words("line.offer.opened", { offer: "offer.mum-shop" }))).toBeNull();
     expect(screen.queryByText(words("line.news.delivered", { story: "news.era-calm", stage: "announced", forYou: 1 }))).toBeNull();
     expect(screen.queryByText(words("line.route.heard", { route: "route.canada-points" }))).toBeNull();
+  });
+});
+
+describe("the city behind the road", () => {
+  test("[R-CITY-012] given the character on the road, when the road screen shows, then the city stands behind its panel at a stylised place", async () => {
+    await road(onTheRoad([RANSOM]));
+    const city = document.querySelector<HTMLElement>("[data-city]");
+    if (city === null) throw new Error("No city on the road screen.");
+    const shown = content.place[city.dataset.city as keyof typeof content.place];
+    expect(shown?.nameKind).toBe("stylised");
   });
 });
