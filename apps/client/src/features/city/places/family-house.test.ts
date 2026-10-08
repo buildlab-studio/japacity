@@ -7,11 +7,11 @@ import { describe, expect, test } from "vitest";
 
 import placeFile from "../../../../public/assets/places/family-house/place.json";
 import { engineView, richView } from "../../../shared/testing/fixtures";
-import { crowdSize } from "../crowd";
+import { crowdSize, poolOf, sampleCrowd } from "../crowd";
 import { dancerShown, DANCER_SLOT, dressPlace, filesOf } from "../placeFile";
 import { personOf } from "../roster";
 import { offersHere } from "../staging";
-import { allPalette, city, instancesOf, onGround, rowOf, signKeys, staged, totalsOf, wordsOf } from "./placeTesting";
+import { allPalette, city, instancesOf, measured, onGround, rowOf, signKeys, staged, totalsOf, wordsOf } from "./placeTesting";
 
 const { file, stage, entry } = staged(placeFile, "place.family-house");
 const PARTY = "offer.send-off-party";
@@ -27,6 +27,15 @@ describe("the family house's budget", () => {
       expect(totals[mode].drawCalls).toBeLessThanOrEqual(rowOf(file).drawCalls);
       expect(totals[mode].triangles).toBeLessThanOrEqual(rowOf(file).triangles);
     }
+  });
+
+  test("[R-ASSET-007] given the party set carrying the banner's sign anchor, when one copy of it is counted, then its sign faces add a draw call as a building's do", async () => {
+    const one = { ...file, instances: [{ file: "places/family-house/prop_party-set.glb", count: 1 }], people: { low: 0, high: 0, sample: [] } };
+    const totals = await totalsOf(one);
+    const bare = await totalsOf({ ...one, instances: [] });
+    const set = await measured("places/family-house/prop_party-set.glb");
+    expect(set.signs).toBeGreaterThan(0);
+    expect(totals.low.drawCalls - bare.low.drawCalls).toBe(set.drawCalls + 1);
   });
 
   test("[R-ASSET-007] given the house's file, when its counts are read, then the instances are the most copies of any dressing, its people the party's guests and dancers in each mode, and its colours palette names", () => {
@@ -83,6 +92,21 @@ describe("the send-off party", () => {
     expect(tapped?.kind).toBe("resident");
     expect(tapped?.person).toEqual(personOf("shared/chr/chr_iya.glb"));
     expect(dancerShown(dressed.stage, DANCER_SLOT + dancers.length)).toBeUndefined();
+  });
+
+  test("[R-CITY-016] given the party open on a hundred days, Saturdays' occasion dress included, when the guests are sampled beside the dancers, then no guest wears a dancer's outfit or another guest's", () => {
+    const { file: dressed, crowd } = dressPlace(file, [PARTY]);
+    if (crowd === null) throw new Error("Not dressed");
+    const dancing = party.dancers.map((dancer) => dancer.file);
+    const start = Date.UTC(2026, 0, 3);
+    for (let day = 0; day < 100; day += 1) {
+      const date = new Date(start + day * 86_400_000).toISOString().slice(0, 10);
+      for (const mode of ["low", "high"] as const) {
+        const guests = sampleCrowd({ ...entry, crowd }, poolOf(dressed.people.sample), date, mode, city, [], [], dancing).people.map((shown) => shown.person.file);
+        expect(guests.filter((guest) => dancing.includes(guest))).toEqual([]);
+        expect(new Set(guests).size).toBe(guests.length);
+      }
+    }
   });
 
   test("[R-CITY-024] given the house's boards, when they are read, then the notice on the gate and the banner have their words from the text table, and no copy of the house is lettered twice", () => {

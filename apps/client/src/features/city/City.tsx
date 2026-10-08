@@ -158,12 +158,12 @@ export function City({ adverts }: { adverts?: (place: string) => ReactNode } = {
   const others = useMemo<Other[]>(() => (presence !== null && presence.place === placeId ? presence.others : []), [presence, placeId]);
   const today = useMemo<Other[]>(() => (presence !== null && presence.place === placeId ? (presence.today ?? []) : []), [presence, placeId]);
   const own = ownFile(view.scenario);
-  // No resident wears the player's own outfit.
+  // No resident wears the player's own outfit or a dancer's.
   const sample = useMemo(
     () =>
       entry === null || file === null
         ? null
-        : sampleCrowd({ ...entry, crowd: dressed?.crowd ?? entry.crowd }, poolOf(file.people.sample).filter((person) => person.file !== own), date, mode, city, others, today),
+        : sampleCrowd({ ...entry, crowd: dressed?.crowd ?? entry.crowd }, poolOf(file.people.sample), date, mode, city, others, today, [own, ...(stageOf(file).dancers ?? []).map((dancer) => dancer.file)]),
     [entry, file, dressed, date, mode, others, today, own],
   );
   const places = enterable(here, PLACES);

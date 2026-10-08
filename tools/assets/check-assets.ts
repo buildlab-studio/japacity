@@ -280,7 +280,7 @@ export function placeTotals(place: PlaceFile, measured: ReadonlyMap<string, Meas
     const prefix = prefixOf(instance.file);
     const instanced = prefix === "bld" || prefix === "prop";
     drawCalls += instanced ? file.drawCalls : file.drawCalls * instance.count;
-    if (prefix === "bld" && file.signs > 0) drawCalls += instance.count;
+    if ((prefix === "bld" || prefix === "prop") && file.signs > 0) drawCalls += instance.count;
     triangles += file.triangles * instance.count;
   }
   let worstCalls = 0;
