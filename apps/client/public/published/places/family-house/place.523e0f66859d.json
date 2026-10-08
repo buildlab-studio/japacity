@@ -1,0 +1,593 @@
+{
+  "place": "place.family-house",
+  "scope": "interior",
+  "hub": false,
+  "note": "Which assets the place shows and how many, for the per-place budget (docs/rules/assets.md, R-ASSET-007). The city shell lays them out; counts are the most in view from the place's fixed cameras. The people figures are the send-off party's: five guests low and seven high, and its three dancers.",
+  "instances": [
+    {
+      "file": "places/family-house/bld_family-house.glb",
+      "count": 1
+    },
+    {
+      "file": "places/family-house/prop_parlour-set.glb",
+      "count": 1
+    },
+    {
+      "file": "shared/prop/prop_plastic-chair.glb",
+      "count": 18
+    },
+    {
+      "file": "places/family-house/prop_party-set.glb",
+      "count": 1
+    },
+    {
+      "file": "places/family-house/prop_cooking-fire.glb",
+      "count": 1
+    }
+  ],
+  "people": {
+    "low": 8,
+    "high": 10,
+    "sample": [
+      "shared/chr/chr_tunde.glb",
+      "shared/chr/chr_zainab.glb",
+      "shared/chr/chr_emeka.glb",
+      "shared/chr/chr_ngozi.glb",
+      "shared/chr/chr_kemi.glb",
+      "shared/chr/chr_tolani.glb",
+      "shared/chr/chr_bisi.glb",
+      "shared/chr/chr_ada.glb",
+      "shared/chr/chr_sade.glb",
+      "shared/chr/chr_femi.glb",
+      "shared/chr/chr_obi.glb",
+      "shared/chr/chr_kunle.glb",
+      "shared/chr/chr_tobi.glb",
+      "shared/chr/chr_segun.glb",
+      "shared/chr/chr_nonso.glb",
+      "shared/chr/chr_bayo.glb"
+    ]
+  },
+  "groundRoadSky": {
+    "drawCalls": 1,
+    "triangles": 102
+  },
+  "stage": {
+    "note": "The family house on its plot behind a fence wall, the gate at +Z on a laterite street. The veranda is the party room: place z -6 to 0 under the roof, open to the yard between four pillars; the rooms are behind its back wall. The player starts in the yard looking in. While offer.send-off-party is open the dressing replaces the parlour furniture with the party set, chairs along both walls and in the yard, the cooking fire, bunting, guests and three dancers.",
+    "ground": {
+      "size": [
+        70,
+        60
+      ],
+      "colour": "laterite"
+    },
+    "roads": [
+      {
+        "at": [
+          -1.0,
+          1.5,
+          0
+        ],
+        "size": [
+          15.0,
+          31.0
+        ],
+        "colour": "concrete"
+      },
+      {
+        "at": [
+          -1.0,
+          1.5,
+          0
+        ],
+        "size": [
+          15.0,
+          0.04
+        ],
+        "colour": "concreteWorn"
+      },
+      {
+        "at": [
+          -1.0,
+          8.0,
+          0
+        ],
+        "size": [
+          15.0,
+          0.04
+        ],
+        "colour": "concreteWorn"
+      },
+      {
+        "at": [
+          -3.5,
+          1.5,
+          1.5708
+        ],
+        "size": [
+          31.0,
+          0.04
+        ],
+        "colour": "concreteWorn"
+      },
+      {
+        "at": [
+          1.5,
+          1.5,
+          1.5708
+        ],
+        "size": [
+          31.0,
+          0.04
+        ],
+        "colour": "concreteWorn"
+      },
+      {
+        "at": [
+          2.4,
+          15.0,
+          1.5708
+        ],
+        "size": [
+          4.0,
+          3.6
+        ],
+        "colour": "concreteWorn"
+      },
+      {
+        "at": [
+          0,
+          21.0,
+          0
+        ],
+        "size": [
+          60,
+          6.5
+        ],
+        "colour": "laterite"
+      },
+      {
+        "at": [
+          0,
+          17.6,
+          0
+        ],
+        "size": [
+          60,
+          0.6
+        ],
+        "colour": "drain",
+        "dash": {
+          "colour": "concreteWorn",
+          "every": 1.4
+        }
+      }
+    ],
+    "light": {
+      "sun": [
+        22,
+        40,
+        26
+      ],
+      "sky": "sky",
+      "ground": "sand"
+    },
+    "start": [
+      -2.4,
+      7.0,
+      3.1416
+    ],
+    "models": [
+      {
+        "file": "places/family-house/bld_family-house.glb",
+        "at": [
+          [
+            -1.0,
+            1.5,
+            0
+          ]
+        ]
+      },
+      {
+        "file": "places/family-house/prop_parlour-set.glb",
+        "at": [
+          [
+            2.4,
+            -3.0,
+            -1.5708
+          ]
+        ]
+      },
+      {
+        "file": "shared/prop/prop_plastic-chair.glb",
+        "at": [
+          [
+            -5.6,
+            -1.0,
+            1.5708
+          ],
+          [
+            -4.0,
+            4.2,
+            2.6
+          ],
+          [
+            2.8,
+            3.4,
+            -2.2
+          ]
+        ]
+      }
+    ],
+    "people": [
+      [
+        -2.8,
+        -2.2,
+        0.6
+      ],
+      [
+        -4.3,
+        4.6,
+        2.4
+      ],
+      [
+        -6.6,
+        6.0,
+        1.4
+      ],
+      [
+        3.6,
+        12.6,
+        -2.0
+      ]
+    ],
+    "motion": [
+      {
+        "kind": "hang",
+        "at": [
+          -7.6,
+          1.95,
+          2.8
+        ],
+        "to": [
+          -7.6,
+          1.95,
+          10.2
+        ],
+        "count": 7,
+        "size": [
+          0.75,
+          0.95
+        ],
+        "colours": [
+          "blue",
+          "white",
+          "wine",
+          "danfoYellow",
+          "teal",
+          "white",
+          "red"
+        ]
+      },
+      {
+        "kind": "leaves",
+        "at": [
+          -1.0,
+          0,
+          8.0
+        ],
+        "size": [
+          12,
+          10
+        ],
+        "count": 16,
+        "colours": [
+          "khaki"
+        ]
+      },
+      {
+        "kind": "frond",
+        "at": [
+          5.0,
+          6.8,
+          9.5
+        ],
+        "count": 10,
+        "size": [
+          3.0,
+          0.85
+        ],
+        "colours": [
+          "roofGreen",
+          "green",
+          "pepper",
+          "wood"
+        ]
+      }
+    ],
+    "dressings": [
+      {
+        "offer": "offer.send-off-party",
+        "models": [
+          {
+            "file": "places/family-house/prop_party-set.glb",
+            "at": [
+              [
+                -1.0,
+                -3.4,
+                0
+              ]
+            ]
+          },
+          {
+            "file": "places/family-house/prop_cooking-fire.glb",
+            "at": [
+              [
+                3.4,
+                2.6,
+                -1.2
+              ]
+            ]
+          },
+          {
+            "file": "shared/prop/prop_plastic-chair.glb",
+            "at": [
+              [
+                -5.7,
+                -5.0,
+                1.5708
+              ],
+              [
+                -5.7,
+                -4.4,
+                1.5708
+              ],
+              [
+                -5.7,
+                -3.8,
+                1.5708
+              ],
+              [
+                -5.7,
+                -3.2,
+                1.5708
+              ],
+              [
+                -5.7,
+                -2.6,
+                1.5708
+              ],
+              [
+                -5.7,
+                -2.0,
+                1.5708
+              ],
+              [
+                -5.7,
+                -1.4,
+                1.5708
+              ],
+              [
+                3.7,
+                -5.0,
+                -1.5708
+              ],
+              [
+                3.7,
+                -4.4,
+                -1.5708
+              ],
+              [
+                3.7,
+                -3.8,
+                -1.5708
+              ],
+              [
+                3.7,
+                -3.2,
+                -1.5708
+              ],
+              [
+                3.7,
+                -2.6,
+                -1.5708
+              ],
+              [
+                3.7,
+                -2.0,
+                -1.5708
+              ],
+              [
+                3.7,
+                -1.4,
+                -1.5708
+              ],
+              [
+                -5.2,
+                1.6,
+                3.1416
+              ],
+              [
+                -4.6,
+                1.6,
+                3.1416
+              ],
+              [
+                -4.0,
+                1.6,
+                3.1416
+              ],
+              [
+                -3.4,
+                1.6,
+                3.1416
+              ]
+            ]
+          }
+        ],
+        "hide": [
+          "places/family-house/prop_parlour-set.glb",
+          "shared/prop/prop_plastic-chair.glb"
+        ],
+        "people": [
+          [
+            1.7,
+            -5.85,
+            0
+          ],
+          [
+            -4.9,
+            -3.6,
+            1.2
+          ],
+          [
+            3.0,
+            -2.6,
+            -0.5
+          ],
+          [
+            -4.6,
+            -1.5,
+            1.7
+          ],
+          [
+            -2.7,
+            1.2,
+            3.1416
+          ],
+          [
+            2.6,
+            3.4,
+            2.4
+          ],
+          [
+            0.7,
+            1.5,
+            2.9
+          ],
+          [
+            -3.5,
+            -4.6,
+            0.6
+          ]
+        ],
+        "prefer": {
+          "trader": [
+            5
+          ]
+        },
+        "motion": [
+          {
+            "kind": "bunting",
+            "at": [
+              -6.0,
+              2.62,
+              -0.25
+            ],
+            "to": [
+              4.0,
+              2.62,
+              -0.25
+            ],
+            "count": 26,
+            "colours": [
+              "green",
+              "white",
+              "gold",
+              "red",
+              "blue"
+            ]
+          },
+          {
+            "kind": "bunting",
+            "at": [
+              -5.75,
+              2.85,
+              -0.6
+            ],
+            "to": [
+              -5.75,
+              2.85,
+              -5.6
+            ],
+            "count": 14,
+            "colours": [
+              "white",
+              "green",
+              "wine",
+              "gold"
+            ]
+          },
+          {
+            "kind": "bunting",
+            "at": [
+              3.75,
+              2.85,
+              -0.6
+            ],
+            "to": [
+              3.75,
+              2.85,
+              -5.6
+            ],
+            "count": 14,
+            "colours": [
+              "gold",
+              "wine",
+              "green",
+              "white"
+            ]
+          },
+          {
+            "kind": "smoke",
+            "at": [
+              3.4,
+              0.9,
+              2.6
+            ],
+            "count": 24,
+            "colours": [
+              "hub",
+              "concrete",
+              "white",
+              "hub"
+            ]
+          }
+        ],
+        "dancers": [
+          {
+            "file": "shared/chr/chr_chief.glb",
+            "at": [
+              -1.9,
+              -2.4,
+              0
+            ],
+            "dance": "twoStep"
+          },
+          {
+            "file": "shared/chr/chr_iya.glb",
+            "at": [
+              -0.85,
+              -2.0,
+              0
+            ],
+            "dance": "shuffle"
+          },
+          {
+            "file": "shared/chr/chr_dayo.glb",
+            "at": [
+              0.15,
+              -2.5,
+              -0.2
+            ],
+            "dance": "twoStep"
+          }
+        ],
+        "crowd": {
+          "low": 5,
+          "high": 7,
+          "target": 7
+        }
+      }
+    ]
+  }
+}
