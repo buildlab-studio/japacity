@@ -2,13 +2,12 @@ import { describe, expect, test } from "vitest";
 
 import { BASE, fakeServer } from "../testing/server";
 import { betterAuthApi, CAPTCHA_HEADER } from "./auth";
-import { REFUSED_COOKIE } from "./contract";
 
 const TOKEN = "XXXX.DUMMY.TOKEN.XXXX";
 
-function account(cookie = "") {
+function account() {
   const server = fakeServer();
-  return { server, api: betterAuthApi({ baseUrl: BASE, fetch: server.fetch, cookie: () => cookie }) };
+  return { server, api: betterAuthApi({ baseUrl: BASE, fetch: server.fetch }) };
 }
 
 describe("the age screen's routes, as the server built them", () => {
@@ -35,10 +34,18 @@ describe("the age screen's routes, as the server built them", () => {
     expect(await api.declareAge("2000-01-01", null)).toBe("bot-check");
   });
 
-  test("[R-ACCOUNT-012] given the server's refusal cookie on the page, then the screen refuses without asking the server", async () => {
-    const { server, api } = account(`other=1; ${REFUSED_COOKIE}=1`);
+  test("[R-ACCOUNT-012] given a browser the server refused before, when it asks where it stands, then GET /api/age says refused and the screen refuses without asking again", async () => {
+    const { server, api } = account();
+    server.answer("GET /api/age", { body: { refused: true } });
     expect(await api.ageStatus()).toBe("refused");
-    expect(server.sent).toEqual([]);
+    expect(server.sent.map((request) => `${request.method} ${request.path}`)).toEqual(["GET /api/age"]);
+    expect(server.sent[0]?.credentials).toBe("include");
+  });
+
+  test("[R-ACCOUNT-011] given a region that is not open, when the browser asks where it stands, then GET /api/age's refusal is region-closed", async () => {
+    const { server, api } = account();
+    server.answer("GET /api/age", { status: 403, body: { ok: false, code: "region-closed", detail: "Sign-up is not open in this region." } });
+    expect(await api.ageStatus()).toBe("region-closed");
   });
 
   test("[R-ACCOUNT-011] given a region that is not open, then the age screen's answer is region-closed", async () => {
@@ -56,8 +63,9 @@ describe("the age screen's routes, as the server built them", () => {
     expect(await api.declareAge("2000-01-01", TOKEN)).toEqual({ full: true, retryAfter: 30 });
   });
 
-  test("[R-SERVER-032] given sign-ups open, when the browser asks where it stands, then the server's not-found is the age screen still to ask", async () => {
-    const { api } = account();
+  test("[R-SERVER-032] given sign-ups open and a browser never refused, when it asks where it stands, then the age screen is still to ask", async () => {
+    const { server, api } = account();
+    server.answer("GET /api/age", { body: { refused: false } });
     expect(await api.ageStatus()).toBe("unasked");
   });
 });

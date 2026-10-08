@@ -11,7 +11,7 @@ import { passkeyClient } from "@better-auth/passkey/client";
 import { createAuthClient } from "better-auth/client";
 import { emailOTPClient } from "better-auth/client/plugins";
 
-import { REFUSED_COOKIE, type AgeReply, type AgeRequest, type DeleteReply, type DeleteRequest, type ServerRejection } from "./contract";
+import { type AgeReply, type AgeRequest, type AgeStatus, type DeleteReply, type DeleteRequest, type ServerRejection } from "./contract";
 import { putUsageCounts, readAccount } from "./account";
 import { api, type Fetch } from "./http";
 
@@ -109,11 +109,6 @@ export function standing(reply: AgeReply): AgeAnswer {
   throw new Error(reply.detail);
 }
 
-/** True when the page holds the server's refusal cookie (R-ACCOUNT-012): the screen refuses without asking again. */
-export function refusedHere(cookie: string): boolean {
-  return cookie.split(";").some((part) => part.trim().startsWith(`${REFUSED_COOKIE}=`));
-}
-
 /** The server's answer to `DELETE /api/account` as the settings tell it. */
 export function deleted(reply: DeleteReply): AuthResult {
   if (reply.ok) return { ok: true };
@@ -129,7 +124,7 @@ function switchedOff(reply: unknown, status: number): Full | null {
   return refusal.code === "switched-off" ? { full: true, retryAfter: refusal.retryAfter ?? FULL_RETRY_FALLBACK_S } : null;
 }
 
-export function betterAuthApi({ baseUrl, fetch, cookie = () => (typeof document === "undefined" ? "" : document.cookie) }: { baseUrl: string; fetch?: Fetch; cookie?: () => string }): AccountApi {
+export function betterAuthApi({ baseUrl, fetch }: { baseUrl: string; fetch?: Fetch }): AccountApi {
   const base = baseUrl.replace(/\/+$/, "");
   const send: Fetch = fetch ?? ((input, init) => globalThis.fetch(input, init));
   const server = api({ baseUrl: base, fetch: send });
@@ -143,14 +138,14 @@ export function betterAuthApi({ baseUrl, fetch, cookie = () => (typeof document 
 
   return {
     async ageStatus() {
-      if (refusedHere(cookie())) return "refused";
-      // The server answers no read of the age screen; its switch gate does, with 503 while sign-ups are off (R-SERVER-031).
+      // `GET /api/age` reads the server's refusal cookie (R-ACCOUNT-012); its switch gate answers 503 first while sign-ups are off (R-SERVER-031).
       try {
         const response = await send(`${base}/api/age`, { method: "GET", credentials: "include", headers: { accept: "application/json" } });
         const reply: unknown = await response.json().catch(() => null);
         const closed = switchedOff(reply, response.status);
         if (closed !== null) return closed;
         if (typeof reply === "object" && reply !== null && (reply as Partial<ServerRejection>).code === "region-closed") return "region-closed";
+        if (response.ok && (reply as Partial<AgeStatus> | null)?.refused === true) return "refused";
       } catch {
         // Unreachable now: the age screen says so when it sends.
       }

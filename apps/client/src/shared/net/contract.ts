@@ -109,8 +109,10 @@ export interface AgeRequest {
 /** Read from apps/server/src/routes/age.ts: a pass, or `region-closed`, `under-age`, `bad-date`, `bot-check`, and `switched-off` while sign-ups are off. */
 export type AgeReply = { ok: true } | ServerRejection;
 
-/** Copied from apps/server/src/account/age.ts: set on a refusal and readable by the page, so the screen refuses without asking again. */
-export const REFUSED_COOKIE = "japacity-age-refused";
+/** Copied from apps/server/src/routes/age.ts: `GET /api/age`, whether this browser was refused at the age screen and must not be asked again (R-ACCOUNT-012). */
+export interface AgeStatus {
+  refused: boolean;
+}
 
 // ---------------------------------------------------------------------------
 // The account (account.md R-ACCOUNT-015, 016; analytics.md R-ANALYTICS-006).
@@ -268,10 +270,10 @@ export type ReportCite =
 export type ReportSubject = { account: string } | { campaign: string };
 
 /**
- * Read from apps/server/src/moderation/reports.ts `readReport`: a report that
- * cites no pair (an advert, a card, a phrase heard in a place).
- * `POST /api/moderation/report` reads only the pair form today; the
- * server reads this form with `readReport` once the route takes it.
+ * Read from apps/server/src/moderation/reports.ts `readReport`: the cite form of
+ * `POST /api/moderation/report`, for a report that cites no pair (an advert, a
+ * card, a phrase heard in a place). `subject` is left out for a card, whose
+ * inviter the server finds from the code, and for a phrase heard in a place.
  */
 export interface CiteReportRequest {
   subject?: ReportSubject;

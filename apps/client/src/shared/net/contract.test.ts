@@ -8,6 +8,8 @@ import { join } from "node:path";
 import ts from "typescript";
 import { describe, expect, test } from "vitest";
 
+import { reportBody } from "../moderation/BlockReport";
+
 const root = join(import.meta.dirname, "..", "..", "..", "..", "..");
 
 interface Copy {
@@ -29,7 +31,7 @@ const same = (file: string, ...names: string[]): Copy[] => names.map((name) => (
 const COPIES: Copy[] = [
   ...same(TYPES, "ServerCode", "ServerRejection", "ClockView", "ServerReply", "CommandRequest", "ViewReply", "WorldReply", "NewCharacterRequest", "PresenceReply"),
   ...same("packages/store/src/types.ts", "Nudge"),
-  ...same("apps/server/src/routes/age.ts", "AgeRequest"),
+  ...same("apps/server/src/routes/age.ts", "AgeRequest", "AgeStatus"),
   ...same("apps/server/src/routes/account.ts", "AccountView", "DeleteRequest"),
   ...same(INVITE, "InviteMade", "InviteShown", "InviteAccepted"),
   ...same(CONVERSATION, "PairRead", "Said", "ConversationRead"),
@@ -45,7 +47,6 @@ const COPIES: Copy[] = [
 /** The constants the client copies, compared by their initial value. */
 const CONSTANTS: Copy[] = [
   { client: [CONTRACT, "REPORT_REASONS"], server: [REPORTS, "REPORT_REASONS"] },
-  { client: [CONTRACT, "REFUSED_COOKIE"], server: ["apps/server/src/account/age.ts", "REFUSED_COOKIE"] },
 ];
 
 const printer = ts.createPrinter({ removeComments: true, newLine: ts.NewLineKind.LineFeed });
@@ -87,5 +88,15 @@ describe("the client's copies of the server's types", () => {
   test("a changed copy is caught", () => {
     expect(flat("interface a: string; b: number;")).not.toBe(flat("interface a: string;"));
     expect(flat(shapeOf(CONTRACT, "InviteMade"))).not.toBe(flat(shapeOf(INVITE, "InviteShown")));
+  });
+});
+
+describe("the report route's cite form", () => {
+  test("[R-MODERATION-004] given a card or a phrase heard in a place, when it is reported, then the body names no subject for the server to find; an advert names its campaign", () => {
+    expect(reportBody({ name: "Tunde" }, { card: "4f1e2d3c" }, "scam", false)).toEqual({ reason: "scam", cites: { card: "4f1e2d3c" } });
+    const heard = { place: "place.ojuelegba", phrase: "phrase.hello", at: 5 };
+    expect(reportBody({ name: "Someone" }, heard, "harassment", false)).toEqual({ reason: "harassment", cites: heard });
+    const slot = { campaign: "campaign-1", slot: "advert.billboard" };
+    expect(reportBody({ campaign: "campaign-1", name: "Mama Put" }, slot, "advert", false)).toEqual({ subject: { campaign: "campaign-1" }, reason: "advert", cites: slot });
   });
 });

@@ -26,9 +26,8 @@ const PLACES = Object.values(content.place);
 
 /**
  * The place a character's socket and presence are for: a content place id, as
- * the server's place routes require, and the one the city opens on.
- * the view names only home, abroad (with its country) or the road;
- * the server's `placeOf` must answer the same hub, or the socket is refused.
+ * the server's place routes require, and the one the city opens on. The
+ * server's `placeOfIn` answers the same hub, or the socket would be refused.
  */
 export function placeOf(view: PlayerView): string {
   return openingPlace({ where: view.place.where, country: view.place.country }, PLACES);
