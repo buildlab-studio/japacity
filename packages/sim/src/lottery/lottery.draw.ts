@@ -115,6 +115,14 @@ function concat(parts: Uint8Array[]): Uint8Array {
 // ---------------------------------------------------------------------------
 
 /**
+ * R-LOTTERY-008: the frozen list's SHA-256 in hex.
+ * the hash of the tokens' bytes in ticket order, eight bytes each, so the client's draw page recomputes it the way the server made it.
+ */
+export function listHashOf(tokens: readonly string[]): string {
+  return toHex(sha256(fromHex(tokens.join(""))));
+}
+
+/**
  * R-LOTTERY-009: the seed is the SHA-256 of the secret, the list's hash and the
  * beacon round's randomness, joined in that order.
  * each is given in hex and joined as the bytes the hex spells.
@@ -226,9 +234,37 @@ export function prizesFor(
   };
 }
 
-/** Contract item 6: the three tiers share the whole prize fund. For `checkContent`. */
+// ---------------------------------------------------------------------------
+// The house top-up
+// ---------------------------------------------------------------------------
+
+/**
+ * R-LOTTERY-021: the top-up of a draw that sold `count` tickets under its
+ * declared `topUpTickets`: the pot made up to that many tickets' worth, and 0
+ * once sales reach it.
+ */
+export function topUpFor(count: number, topUpTickets: number, ticket: number): number {
+  return Math.max(0, topUpTickets - count) * ticket;
+}
+
+/**
+ * R-LOTTERY-022: the part of a prize credited as `pot-top-up`: the prize times
+ * the top-up over the pot, rounded down. An empty pot pays nothing, so its part is 0.
+ */
+export function topUpPart(amount: number, topUp: number, pot: number): number {
+  return pot === 0 ? 0 : mulDiv(amount, topUp, pot);
+}
+
+/** Contract item 6: the three tiers share the whole prize fund, and the most the house can add is a whole number of kobo. For `checkContent`. */
 export function checkLotteryContent(content: Content): string[] {
   const tuning = content.tuning.lottery;
+  const problems: string[] = [];
   const total = tuning.jackpotBp + tuning.midBp + tuning.smallBp;
-  return total === BP_WHOLE ? [] : [`tuning.lottery: the tiers' shares add up to ${String(total)}, not ${String(BP_WHOLE)} (R-LOTTERY-012).`];
+  if (total !== BP_WHOLE) problems.push(`tuning.lottery: the tiers' shares add up to ${String(total)}, not ${String(BP_WHOLE)} (R-LOTTERY-012).`);
+  if (!Number.isSafeInteger(tuning.topUpTickets) || tuning.topUpTickets < 0) {
+    problems.push(`tuning.lottery: topUpTickets is ${String(tuning.topUpTickets)}, not a whole number from 0 (R-LOTTERY-021).`);
+  } else if (!Number.isSafeInteger(tuning.topUpTickets * tuning.ticket)) {
+    problems.push(`tuning.lottery: ${String(tuning.topUpTickets)} tickets' worth of top-up is past a whole number of kobo (R-LOTTERY-021).`);
+  }
+  return problems;
 }

@@ -16,12 +16,12 @@ const LOTTO: Id<"activity"> = "activity.play-lotto";
 
 type Draw = NonNullable<World["lottery"]>;
 
-function drawOf(draw: number, closesTick: number, last: LotteryResult | null = null): Draw {
-  return { draw, closesTick, fingerprint: "ab".repeat(32), beaconRound: 1000 + draw, potSoFar: 140000, last };
+function drawOf(draw: number, closesTick: number, last: LotteryResult | null = null, topUpTickets = 0): Draw {
+  return { draw, closesTick, fingerprint: "ab".repeat(32), beaconRound: 1000 + draw, potSoFar: 140000, topUpTickets, last };
 }
 
 function resultOf(draw: number, winners: LotteryResult["winners"]): LotteryResult {
-  return { draw, revealed: "cd".repeat(32), beaconRound: 1000 + draw, beaconRandomness: "ef".repeat(32), listHash: "01".repeat(32), count: 300, pot: 6000000, fund: 3300000, winners };
+  return { draw, revealed: "cd".repeat(32), beaconRound: 1000 + draw, beaconRandomness: "ef".repeat(32), listHash: "01".repeat(32), count: 300, pot: 6000000, topUp: 0, fund: 3300000, winners };
 }
 
 const FULL: LotteryResult["winners"] = [
@@ -175,16 +175,35 @@ describe("tickets", () => {
       tickets: 2,
       numbers: null,
       potSoFar: 140000,
+      topUpTickets: 0,
+      topUpSoFar: 0,
       fingerprint: "ab".repeat(32),
       last,
     });
+  });
+
+  test("[R-LOTTERY-023] given a declared top-up, when the view is read with sales under, at and over it, then the top-up so far makes the pot up to it and is 0 from there", () => {
+    const sold = (tickets: number): Draw => ({ ...drawOf(7, 1000, null, tuning.topUpTickets), potSoFar: tickets * tuning.ticket });
+    const { game, live } = play(sold(0));
+    expect(game.view().lottery).toMatchObject({ topUpTickets: tuning.topUpTickets, topUpSoFar: tuning.topUpTickets * tuning.ticket, potSoFar: 0 });
+    live.lottery = sold(tuning.topUpTickets - 1);
+    expect(game.view().lottery?.topUpSoFar).toBe(tuning.ticket);
+    live.lottery = sold(tuning.topUpTickets);
+    expect(game.view().lottery?.topUpSoFar).toBe(0);
+    live.lottery = sold(tuning.topUpTickets + 1);
+    expect(game.view().lottery?.topUpSoFar).toBe(0);
+  });
+
+  test("[R-LOTTERY-023] given a draw declared with no top-up, when the view is read, then it shows 0 tickets and 0 so far", () => {
+    const { game } = play(drawOf(7, 1000, null, 0));
+    expect(game.view().lottery).toMatchObject({ topUpTickets: 0, topUpSoFar: 0 });
   });
 });
 
 describe("paying", () => {
   const PRIZES = [
-    { tier: "jackpot", amount: 1320000 },
-    { tier: "small", amount: 165000 },
+    { tier: "jackpot", amount: 1320000, topUp: 0 },
+    { tier: "small", amount: 165000, topUp: 0 },
   ] as const;
 
   test("[R-LOTTERY-013] given a player, when lottery/pay is sent, then it is rejected with not-yours", () => {
@@ -212,9 +231,9 @@ describe("paying", () => {
 
   test("[R-LOTTERY-013] given only small prizes, when they are paid, then the letter is not staged", () => {
     const { game } = play();
-    const result = game.accept({ type: "lottery/pay", draw: 7, prizes: [{ tier: "small", amount: 165000 }] }, "authority");
+    const result = game.accept({ type: "lottery/pay", draw: 7, prizes: [{ tier: "small", amount: 165000, topUp: 0 }] }, "authority");
     expect(result.lines.find((line) => line.key === "line.lottery.letter")).toMatchObject({ big: false, attention: true });
-    const mid = game.accept({ type: "lottery/pay", draw: 8, prizes: [{ tier: "mid", amount: 99000 }] }, "authority");
+    const mid = game.accept({ type: "lottery/pay", draw: 8, prizes: [{ tier: "mid", amount: 99000, topUp: 0 }] }, "authority");
     expect(mid.lines.find((line) => line.key === "line.lottery.letter")?.big).toBe(true);
   });
 
@@ -223,7 +242,7 @@ describe("paying", () => {
     game.accept({ type: "lottery/pay", draw: 7, prizes: [...PRIZES] }, "authority");
     game.expectRejected({ type: "lottery/pay", draw: 7, prizes: [...PRIZES] }, "not-legal", "authority");
     game.expectRejected({ type: "lottery/pay", draw: 6, prizes: [...PRIZES] }, "not-legal", "authority");
-    game.accept({ type: "lottery/pay", draw: 8, prizes: [{ tier: "small", amount: 1 }] }, "authority");
+    game.accept({ type: "lottery/pay", draw: 8, prizes: [{ tier: "small", amount: 1, topUp: 0 }] }, "authority");
     expect(game.state.lottery.paid).toBe(8);
   });
 
@@ -231,8 +250,43 @@ describe("paying", () => {
     const { game } = play();
     game.expectRejected({ type: "lottery/pay", draw: 7, prizes: [] }, "bad-amount", "authority");
     for (const amount of [0, -5, Number("2.5")]) {
-      game.expectRejected({ type: "lottery/pay", draw: 7, prizes: [{ tier: "jackpot", amount }] }, "bad-amount", "authority");
+      game.expectRejected({ type: "lottery/pay", draw: 7, prizes: [{ tier: "jackpot", amount, topUp: 0 }] }, "bad-amount", "authority");
     }
+    expect(game.state.lottery.paid).toBeNull();
+  });
+});
+
+function creditedReasons(events: readonly { type: string }[]): unknown[] {
+  return events.flatMap((event) => (event.type === "wallet/credited" && "reason" in event ? [event.reason] : []));
+}
+
+describe("the house's part of a prize", () => {
+  test("[R-LOTTERY-022] given a prize with a top-up part, when it is paid, then the part is credited as pot-top-up, the rest as win, and the letter tells the whole prize", () => {
+    const { game } = play();
+    const before = game.state.wallet.pockets.NGN.bank;
+    const result = game.accept({ type: "lottery/pay", draw: 7, prizes: [{ tier: "jackpot", amount: 1320000, topUp: 1000000 }] }, "authority");
+    expect(game.state.wallet.pockets.NGN.bank).toBe(before + 1320000);
+    expect(result.events).toContainEqual({ type: "wallet/credited", currency: "NGN", pocket: "bank", amount: 320000, reason: "win" });
+    expect(result.events).toContainEqual({ type: "wallet/credited", currency: "NGN", pocket: "bank", amount: 1000000, reason: "pot-top-up" });
+    expect(result.events.some((event) => event.type === "wallet/lot-recorded")).toBe(false);
+    expect(result.lines.find((line) => line.key === "line.lottery.letter")?.params).toEqual({ draw: 7, won: { currency: "NGN", amount: 1320000 } });
+  });
+
+  test("[R-LOTTERY-022] given prizes all from sales or all from the top-up, when they are paid, then only the one reason is credited", () => {
+    const { game } = play();
+    const sales = game.accept({ type: "lottery/pay", draw: 7, prizes: [{ tier: "mid", amount: 99000, topUp: 0 }] }, "authority");
+    expect(creditedReasons(sales.events)).toEqual(["win"]);
+    const house = game.accept({ type: "lottery/pay", draw: 8, prizes: [{ tier: "mid", amount: 99000, topUp: 99000 }] }, "authority");
+    expect(creditedReasons(house.events)).toEqual(["pot-top-up"]);
+  });
+
+  test("[R-LOTTERY-022] given a top-up part under 0, over its prize or not whole, when the prize is paid, then it is rejected with bad-amount and nothing is paid", () => {
+    const { game } = play();
+    const bank = game.state.wallet.pockets.NGN.bank;
+    for (const topUp of [-1, 99001, Number("0.5"), Number.NaN]) {
+      game.expectRejected({ type: "lottery/pay", draw: 7, prizes: [{ tier: "mid", amount: 99000, topUp }] }, "bad-amount", "authority");
+    }
+    expect(game.state.wallet.pockets.NGN.bank).toBe(bank);
     expect(game.state.lottery.paid).toBeNull();
   });
 });

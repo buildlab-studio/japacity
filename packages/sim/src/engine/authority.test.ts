@@ -22,7 +22,7 @@ type PlayerCommand = Exclude<CommandType, AuthorityCommand>;
 type Totals = State["wallet"]["totals"]["in"];
 
 /** A draw on sale, as the online world carries it, so the life is played as it is online. */
-const ONLINE: NonNullable<World["lottery"]> = { draw: 3, closesTick: 56, fingerprint: "ab".repeat(32), beaconRound: 1, potSoFar: 0, last: null };
+const ONLINE: NonNullable<World["lottery"]> = { draw: 3, closesTick: 56, fingerprint: "ab".repeat(32), beaconRound: 1, potSoFar: 0, topUpTickets: 0, last: null };
 
 /** Each real life: every scenario at its start, the prologue's open and finished, and the recorded lives halfway and at their end. */
 function lives(): { name: string; state: State }[] {
@@ -87,13 +87,13 @@ const AUTHORITY_SAMPLES: Record<AuthorityCommand, Loose[]> = {
     { type: "turns/grant", count: content.tuning.turn.cap },
   ],
   "lottery/pay": [
-    { type: "lottery/pay", draw: ONLINE.draw, prizes: [{ tier: "small", amount: 500000 }] },
+    { type: "lottery/pay", draw: ONLINE.draw, prizes: [{ tier: "small", amount: 500000, topUp: 0 }] },
     {
       type: "lottery/pay",
       draw: ONLINE.draw,
       prizes: [
-        { tier: "jackpot", amount: 900000000 },
-        { tier: "mid", amount: 4000000 },
+        { tier: "jackpot", amount: 900000000, topUp: 0 },
+        { tier: "mid", amount: 4000000, topUp: 0 },
       ],
     },
   ],
