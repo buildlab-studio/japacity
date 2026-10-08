@@ -116,14 +116,17 @@ export function traditionalCount(size: number, traditionalBp: number): number {
  * The residents of one sample, each in an outfit no one else in it wears. The dress mix is held
  * exactly: the place's share of the sample, to the nearest person, is in traditional cloth, and the
  * hash of place, date and slot picks which slots and which people. A pool smaller than the sample
- * repeats people only once it is used up.
+ * repeats people only once it is used up. Outfits in `worn` (the player's own, the dancers on the
+ * floor) are already shown, so no resident is given one of them.
  */
-export function residents(place: PlaceFacts, pool: readonly Person[], date: string, size: number, city: CityTuning): Person[] {
-  const people = pool.length === 0 ? ROSTER : pool;
+export function residents(place: PlaceFacts, pool: readonly Person[], date: string, size: number, city: CityTuning, worn: readonly string[] = []): Person[] {
+  const shown = new Set(worn);
+  const open = (pool.length === 0 ? ROSTER : pool).filter((person) => !shown.has(person.file));
+  const people = open.length === 0 ? ROSTER : open;
   const slots = Array.from({ length: size }, (_, slot) => slot);
   const ranked = [...slots].sort((one, two) => hash(`${place.id}|${date}|${String(one)}|dress`) - hash(`${place.id}|${date}|${String(two)}|dress`) || one - two);
   const traditional = new Set(ranked.slice(0, traditionalCount(size, place.traditionalBp)));
-  const taken = new Set<string>();
+  const taken = new Set<string>(worn);
   return slots.map((slot) => {
     const dress = traditional.has(slot) ? "traditional" : "modern";
     const free = people.filter((person) => !taken.has(person.file));
@@ -146,10 +149,11 @@ export function playersRoom(size: number, city: CityTuning): number {
  * The sample: residents from the dress mix, then, when online, up to `playersRoom` of the slots at
  * the end taken by other players from the presence sample, each named only as the server named them.
  * Players seen today (R-CITY-036) take the slots after the live ones and stand at their spots like them.
+ * `worn` names outfits already on show outside the sample, which no resident is given.
  */
-export function sampleCrowd(place: PlaceFacts, pool: readonly Person[], date: string, mode: Mode, city: CityTuning, others: readonly Other[] = [], today: readonly Other[] = []): Sample {
+export function sampleCrowd(place: PlaceFacts, pool: readonly Person[], date: string, mode: Mode, city: CityTuning, others: readonly Other[] = [], today: readonly Other[] = [], worn: readonly string[] = []): Sample {
   const size = crowdSize(place, mode, city);
-  const people: Shown[] = residents(place, pool, date, size, city).map((person, slot) => ({ slot, person, kind: "resident", tag: null }));
+  const people: Shown[] = residents(place, pool, date, size, city, worn).map((person, slot) => ({ slot, person, kind: "resident", tag: null }));
   // R-CITY-036: those seen today take the slots after the live players, inside the room left for players.
   const players = [...others, ...today].slice(0, playersRoom(size, city));
   players.forEach((other, index) => {
