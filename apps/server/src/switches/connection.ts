@@ -3,7 +3,7 @@
 // and closes it: a client is never held across requests, as Hyperdrive asks.
 import type { Connection, Handle } from "@japacity/db";
 
-export function perCallHandle(open: () => Promise<Connection>): Handle {
+export function perCallHandle(open: () => Promise<Pick<Connection, "handle" | "close">>): Handle {
   const within = async <T>(run: (handle: Handle) => Promise<T>): Promise<T> => {
     const { handle, close } = await open();
     try {

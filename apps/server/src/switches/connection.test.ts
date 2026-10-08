@@ -3,7 +3,7 @@ import { describe, expect, test } from "vitest";
 
 import { perCallHandle } from "./connection";
 
-function opener(): { open: () => Promise<Connection>; opened: number; closed: number } {
+function opener(): { open: () => Promise<Pick<Connection, "handle" | "close">>; opened: number; closed: number } {
   const counts = { opened: 0, closed: 0 };
   const db = {} as Queries;
   return {

@@ -8,12 +8,14 @@ import { sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/pglite";
 import { migrate } from "drizzle-orm/pglite/migrator";
 
-import { type Handle, oneConnection } from "./handle";
+import { type Handle, oneConnection, type Queries } from "./handle";
 
-const MIGRATIONS = fileURLToPath(new URL("../migrations", import.meta.url));
+const MIGRATIONS = fileURLToPath(new URL("../migrations", import.meta.url).href);
 
 export interface PgliteConnection {
   handle: Handle;
+  /** The database as Drizzle sees it, for the auth library's adapter in the server's tests. */
+  db: Queries;
   /** Empties every table and restarts every sequence, for the next test. */
   empty: () => Promise<void>;
   close: () => Promise<void>;
@@ -26,6 +28,7 @@ export async function connectPglite(): Promise<PgliteConnection> {
   const handle = oneConnection(db);
   return {
     handle,
+    db,
     empty: () =>
       handle.read(async () => {
         const found = await db.execute<{ name: string }>(
