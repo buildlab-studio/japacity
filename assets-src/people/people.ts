@@ -6,7 +6,7 @@
 import type { PaletteName } from "@japacity/assets";
 import type { PatternSpec } from "@japacity/assets/pattern";
 
-import { type Blend, surface, type Surface } from "./blend";
+import { type Blend, frontAt, type Shape, surface, type Surface } from "./blend";
 import type { PersonBone, PersonMesh } from "./person.types";
 import { thin } from "./thin";
 
@@ -422,26 +422,25 @@ const capCloth = (f: Fab | undefined): { color: PaletteName; group: number } => 
 // ---------- hair and headwear ----------
 const HAIR: Record<HairName, (b: Buf, s: Spec) => void> = {
   lowcut: (b, s) => skullCap(b, { scale: 1.04, front: 0.068, back: -0.035, side: 0.02, color: s.hairColor }),
+  // An afro: a round mass and a crown of lumps, blended into one surface, the face cut out of its
+  // front from the hairline down, thinned and shown smooth.
   afro: (b, s) => {
-    const R = 0.166;
-    const cen: Vec = [0, HC + 0.056, -0.04];
+    const o: Vec = [0, HC + 0.05, -0.03];
+    const shapes: Shape[] = [{ kind: "ellipsoid", c: o, r: [0.152, 0.138, 0.155] }];
     const r = rng(5);
-    const lump = Array.from({ length: 60 }, () => 0.975 + r() * 0.05);
-    // How far down the sphere the hair comes: the hairline at the front, ear height at the sides, the nape at the back.
-    const reach = (th: number): number => lerp(2.0, 1.45, smooth((Math.sin(th) + 1) / 2));
-    const rings: Ring[] = [1, 0.74, 0.5, 0.26].map((f, ri) => ({
-      c: [0, cen[1] + R * Math.cos(1.6 * f), 0], ru: R, rv: R, w: wHead,
-      fn: (th: number, k: number): Vec => {
-        const ph = reach(th) * f;
-        const q = R * at(lump, ri * 12 + k);
-        return [cen[0] + q * Math.sin(ph) * Math.cos(th), cen[1] + q * Math.cos(ph), cen[2] + q * Math.sin(ph) * Math.sin(th)];
-      },
-    }));
-    rings.unshift({
-      c: [0, cen[1] + R * Math.cos(1.6) - 0.002, 0], ru: 0.1, rv: 0.1, w: wHead,
-      fn: (th: number) => headPoint(Math.max(-0.09, cen[1] + R * Math.cos(reach(th)) - HC + 0.004), th, 1.0),
-    });
-    tube(b, rings, { sides: 12, color: s.hairColor, capEnd: true, capEndOff: [0, R - R * Math.cos(1.6 * 0.26) + 0.004, -0.04] });
+    for (let i = 0; i < 26; i++) {
+      // Directions spread evenly over the sphere, kept off the face and the neck.
+      const y = 1 - (2 * (i + 0.5)) / 26;
+      const ring = Math.sqrt(1 - y * y);
+      const a = i * 2.39996;
+      const d: Vec = [ring * Math.cos(a), y, ring * Math.sin(a)];
+      if (d[1] < -0.55 || (d[2] > 0.45 && d[1] < 0.35)) continue;
+      shapes.push({ kind: "ball", c: add(o, mul(d, 0.128 + r() * 0.012)), r: 0.04 + r() * 0.012 });
+    }
+    // The face below the hairline, then the cheeks back to just in front of the ears.
+    const face: Shape = { kind: "ellipsoid", c: [0, HC - 0.07, 0.13], r: [0.105, 0.145, 0.13] };
+    const cheeks: Shape = { kind: "ellipsoid", c: [0, HC - 0.04, 0.19], r: [0.3, 0.14, 0.2] };
+    blended(b, { shapes, k: 0.035, cut: [face, cheeks], cutK: 0.02 }, { cell: 0.008, budget: 700, colour: s.hairColor, w: wHead });
   },
   braids: (b, s) => {
     skullCap(b, { scale: 1.06, front: 0.072, back: -0.03, side: 0.0, color: s.hairColor });
@@ -755,29 +754,72 @@ function buildSkirtZones(b: Buf, s: Spec, rows: number[][]): void {
   tube(b, rings, { sides: 10, ...fab(bot.fab) });
 }
 
-function buildHead(b: Buf, s: Spec): void {
-  tube(b, HEAD.slice(1, -1).map(([y, rx, rz, cz]): Ring => ({ c: [0, HC + y, cz], ru: rx, rv: rz, w: wHead })), { sides: 8, color: s.skin, capStart: true, capStartOff: [0, -0.027, 0.006], capEnd: true, capEndOff: [0, 0.022, 0] });
-  // A face is seven small numbers drawn from the person's name: eye height, spacing and size, nose width and length, mouth width and height, brows.
+/** A face is seven small numbers drawn from the person's name: eye height, spacing and size, nose width and length, mouth width and height, brows. */
+interface Face {
+  ey: number;
+  ex: number;
+  ew: number;
+  eh: number;
+  nw: number;
+  nl: number;
+  mw: number;
+  my: number;
+  brow: boolean;
+}
+function faceOf(s: Spec): Face {
   let h = 7;
   for (const ch of s.face ?? s.name) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
   const r = rng(h || 1);
   const j = (a: number): number => (r() - 0.5) * 2 * a;
-  const ey = 0.014 + j(0.007);
-  const ex = 0.036 + j(0.005);
-  const ew = 0.02 + j(0.004);
-  const eh = 0.026 + j(0.007);
-  const nw = 0.022 + j(0.006);
-  const nl = 0.03 + j(0.008);
-  const mw = 0.038 + j(0.01);
-  const my = -0.064 + j(0.006);
-  const brow = r() < 0.6;
+  return { ey: 0.014 + j(0.007), ex: 0.036 + j(0.005), ew: 0.02 + j(0.004), eh: 0.026 + j(0.007), nw: 0.022 + j(0.006), nl: 0.03 + j(0.008), mw: 0.038 + j(0.01), my: -0.064 + j(0.006), brow: r() < 0.6 };
+}
+
+// The head as blended shapes: a skull inside the old head's outline (so caps and hair still sit
+// outside it), a jaw and chin, cheeks, a brow, a nose from the face's numbers, and ears.
+function headBlend(f: Face): Blend {
+  const at0 = (x: number, y: number, z: number): Vec => [x, HC + y, z];
+  const noseY = -0.02 - (f.nl - 0.03) / 2;
+  return {
+    k: 0.022,
+    shapes: [
+      { kind: "ellipsoid", c: at0(0, 0.0, -0.002), r: [0.089, 0.116, 0.097] },
+      { kind: "ellipsoid", c: at0(0, -0.058, 0.016), r: [0.07, 0.056, 0.078] },
+      { kind: "ball", c: at0(0, -0.097, 0.048), r: 0.024 },
+      { kind: "ball", c: at0(0.042, -0.028, 0.062), r: 0.028 },
+      { kind: "ball", c: at0(-0.042, -0.028, 0.062), r: 0.028 },
+      { kind: "ellipsoid", c: at0(0, 0.036, 0.072), r: [0.068, 0.016, 0.024] },
+      { kind: "ellipsoid", c: at0(0, noseY, 0.09), r: [f.nw * 0.42, f.nl * 0.62, 0.02] },
+      { kind: "ball", c: at0(f.nw * 0.4, noseY - f.nl * 0.36, 0.093), r: 0.011 },
+      { kind: "ball", c: at0(-f.nw * 0.4, noseY - f.nl * 0.36, 0.093), r: 0.011 },
+      { kind: "ellipsoid", c: at0(0, f.my + 0.002, 0.08), r: [f.mw * 0.6, 0.016, 0.02] },
+      { kind: "ellipsoid", c: at0(0.09, -0.01, -0.004), r: [0.012, 0.024, 0.018] },
+      { kind: "ellipsoid", c: at0(-0.09, -0.01, -0.004), r: [0.012, 0.024, 0.018] },
+    ],
+  };
+}
+
+/** How far forward the face is at (x, y from the head centre), before the head is drawn larger. */
+function faceFront(f: Face, x: number, y: number): number {
+  return frontAt(headBlend(f), x, HC + y, 0.2, -0.1);
+}
+
+// A small lens lying on the face, for an eye, a brow or the mouth: smooth, in one colour.
+function lens(b: Buf, c: Vec, ru: number, rv: number, depth: number, colour: PaletteName, sides = 8): void {
+  tube(b, [{ c, ru, rv, w: wHead }], { sides, u: [1, 0, 0], v: [0, 1, 0], color: colour, capStart: true, capStartOff: [0, 0, -depth], capEnd: true, capEndOff: [0, 0, depth] });
+}
+
+function buildHead(b: Buf, s: Spec): void {
+  const f = faceOf(s);
+  blended(b, headBlend(f), { cell: 0.006, budget: 380, colour: s.skin, w: wHead });
   for (const sx of [-1, 1]) {
-    box(b, [sx * ex, HC + ey, 0.0822], [ew, eh, 0.012], "black", wHead);
-    box(b, [sx * 0.0925, HC - 0.004, -0.002], [0.01, 0.034, 0.02], s.skin, wHead);
-    if (brow) box(b, [sx * ex, HC + ey + eh / 2 + 0.011, 0.084], [ew + 0.012, 0.006, 0.01], s.hairColor, wHead);
+    const x = sx * f.ex;
+    lens(b, [x, HC + f.ey, faceFront(f, x, f.ey) + 0.003], f.ew * 0.6, f.eh * 0.55, 0.008, "black");
+    if (f.brow) {
+      const y = f.ey + f.eh / 2 + 0.012;
+      lens(b, [x, HC + y, faceFront(f, x, y) + 0.001], f.ew / 2 + 0.007, 0.0045, 0.005, s.hairColor, 6);
+    }
   }
-  box(b, [0, HC - 0.02 - (nl - 0.03) / 2, 0.103], [nw, nl, 0.02], s.skin, wHead);
-  box(b, [0, HC + my, 0.089], [mw, 0.008, 0.012], "lip", wHead);
+  lens(b, [0, HC + f.my, faceFront(f, 0, f.my)], f.mw * 0.55, 0.0055, 0.005, "lip");
 }
 
 function buildArm(b: Buf, P: Body, s: Spec, J: Joints, sd: "L" | "R"): void {
@@ -885,13 +927,29 @@ function buildExtras(b: Buf, s: Spec, J: Joints): void {
     box(b, add(tip, [sg * 0.006, -0.018, 0]), [0.01, 0.03, 0.07], s.bag, w);
   }
   if (s.phone === true) box(b, add(joint(J, "WR"), mul(joint(J, "dR"), 0.075)), [0.014, 0.075, 0.038], "black", [[B.handR, 1]]);
-  if (s.shades === true) box(b, [0, HC + 0.014, 0.084], [0.158, 0.034, 0.016], "black", wHead);
+  if (s.shades === true) {
+    const f = faceOf(s);
+    box(b, [0, HC + 0.014, faceFront(f, f.ex, 0.014) + 0.004], [0.158, 0.034, 0.016], "black", wHead);
+  }
   if (s.beard === true) {
-    smoothPart(b, "hair", () => tube(b, [
-      { c: [0, HC - 0.118, 0], ru: 0.05, rv: 0.05, w: wHead, fn: (th) => headPoint(-0.116, th, 1.12) },
-      { c: [0, HC - 0.07, 0], ru: 0.08, rv: 0.08, w: wHead, fn: (th) => headPoint(-0.074, th, 1.07) },
-      { c: [0, HC - 0.03, 0], ru: 0.09, rv: 0.09, w: wHead, fn: (th) => headPoint(-0.036, th, 1.035) },
-    ], { sides: 6, arc: [0.12, Math.PI - 0.12], color: s.hairColor, capStart: true }));
+    // The jaw, chin and lower cheeks grown a little, below the cheekbones, with the mouth left open.
+    const f = faceOf(s);
+    const at0 = (x: number, y: number, z: number): Vec => [x, HC + y, z];
+    smoothPart(b, "hair", () => blended(b, {
+      k: 0.02,
+      shapes: [
+        { kind: "ellipsoid", c: at0(0, -0.06, 0.018), r: [0.078, 0.064, 0.086] },
+        { kind: "ball", c: at0(0, -0.1, 0.05), r: 0.032 },
+        { kind: "ball", c: at0(0.05, -0.05, 0.05), r: 0.03 },
+        { kind: "ball", c: at0(-0.05, -0.05, 0.05), r: 0.03 },
+      ],
+      cut: [
+        { kind: "half", p: at0(0, f.my + 0.022, 0), n: [0, -1, 0] },
+        { kind: "half", p: at0(0, 0, -0.005), n: [0, 0, 1] },
+        { kind: "ellipsoid", c: at0(0, f.my, 0.09), r: [f.mw * 0.62, 0.011, 0.04] },
+      ],
+      cutK: 0.012,
+    }, { cell: 0.005, budget: 220, colour: s.hairColor, w: wHead }));
   }
   if (s.holding !== undefined) {
     // A bottle held up for sale.
