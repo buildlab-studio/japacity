@@ -30,6 +30,7 @@ const PLACES = Object.values(content.place);
 const HEARD_MS = 9000;
 const FALLBACK_OWN = "shared/chr/chr_tunde.glb";
 
+// the store on a branch keeps `presence` as { place, others: { name, look }[] }; the look is read as a chr_ name and the sample is used only when its place is the one shown.
 /** The presence sample the online store keeps (R-CITY-015); absent offline. */
 interface PresenceSample {
   place: string;

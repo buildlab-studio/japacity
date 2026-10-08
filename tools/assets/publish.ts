@@ -34,6 +34,7 @@ export function hashInName(published: string): string | null {
   return match?.[1] ?? null;
 }
 
+// the brief puts the hashed copies in public/assets; check-assets would refuse their names and rows there, so they go to public/published.
 export function publishedFolder(root: string): string {
   return join(root, "apps", "client", "public", "published");
 }

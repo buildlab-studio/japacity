@@ -80,6 +80,7 @@ export interface ModeSettings {
   crowd: number;
   /** Where the fog starts and is full, in metres. */
   fog: { near: number; far: number };
+  // atmosphere is haze only; a rim light would be a third light against R-ASSET-006, and rain has no rule for when it falls.
   atmosphere: boolean;
   antialias: boolean;
   /** Fine or coarse sheets and water: the dial that costs, not the motion (the decision). */

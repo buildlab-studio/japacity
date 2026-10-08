@@ -160,6 +160,7 @@ export function buildWorld(stage: Stage, models: ReadonlyMap<string, Object3D>, 
     root.add(figure.root);
     crowd.push({ figure, slot: shown.slot });
   });
+  // the player's own character is drawn beside the sample, not in one of its slots, so a place shows the sample plus one.
   const ownModel = models.get(ownFile);
   if (ownModel === undefined) throw new Error(`${ownFile} did not load`);
   const own = figureOf(ownModel, "stand", phaseOf(OWN_PHASE));
