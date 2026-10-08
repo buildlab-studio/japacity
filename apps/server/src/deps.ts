@@ -12,6 +12,9 @@ import type {
   FeedbackStore,
   LedgerStore,
   ModerationLogStore,
+  ConversationStore,
+  InviteStore,
+  ModerationStore,
   NudgeBus,
   PairStore,
   PlayerStore,
@@ -29,6 +32,9 @@ import {
   memoryFeedbackStore,
   memoryLedgerStore,
   memoryModerationLogStore,
+  memoryConversationStore,
+  memoryInviteStore,
+  memoryModerationStore,
   memoryNudgeBus,
   memoryPlayerStores,
   memoryPresenceStore,
@@ -54,6 +60,9 @@ export interface Stores {
   banned: BannedIdentityStore;
   appeals: AppealStore;
   feedback: FeedbackStore;
+  invite: InviteStore;
+  conversation: ConversationStore;
+  moderation: ModerationStore;
 }
 
 /** R-SERVER-023: the current content and the one before, with any overlay already applied (R-SERVER-016). */
@@ -139,6 +148,9 @@ export function memoryStores(): Stores {
     banned: memoryBannedIdentityStore(),
     appeals: memoryAppealStore(),
     feedback: memoryFeedbackStore(),
+    invite: memoryInviteStore(),
+    conversation: memoryConversationStore(),
+    moderation: memoryModerationStore(),
   };
 }
 

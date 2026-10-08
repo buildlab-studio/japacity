@@ -7,3 +7,4 @@ export * from "./ledger";
 export * from "./world";
 export * from "./switches";
 export * from "./moderation";
+export * from "./people";

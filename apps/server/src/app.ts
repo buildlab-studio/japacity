@@ -20,6 +20,10 @@ import { countersRoute } from "./routes/counters";
 import { feedbackRoute } from "./routes/feedback";
 import { moderationAdminRoutes } from "./routes/moderation-admin";
 import { moderationPorts } from "./moderation/ports";
+import { conversationRoutes } from "./routes/conversation";
+import { inviteRoutes } from "./routes/invite";
+import { moderationRoutes } from "./routes/moderation";
+import { pairRoutes } from "./routes/pair";
 
 export function makeApp(deps: ServerDeps, accounts?: Accounts): Hono {
   const app = new Hono();
@@ -38,6 +42,10 @@ export function makeApp(deps: ServerDeps, accounts?: Accounts): Hono {
   app.route("/", countersRoute(deps)).route("/api/admin", adminAnalyticsRoutes(deps));
   app.route("/", moderationAdminRoutes(deps, moderationPorts(deps, accounts)));
   app.route("/", feedbackRoute(deps));
+  app.route("/", inviteRoutes(deps));
+  app.route("/", pairRoutes(deps));
+  app.route("/", conversationRoutes(deps));
+  app.route("/", moderationRoutes(deps));
 
   return app;
 }

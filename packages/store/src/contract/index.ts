@@ -14,3 +14,6 @@ export { suiteForPlayerStore } from "./player.contract";
 export { suiteForPresenceStore } from "./presence.contract";
 export { suiteForWorldStore } from "./world.contract";
 export { suiteForSwitchStore } from "./switches.contract";
+export { suiteForConversationStore } from "./conversation.contract";
+export { suiteForInviteStore } from "./invite.contract";
+export { suiteForModerationStore } from "./report.contract";

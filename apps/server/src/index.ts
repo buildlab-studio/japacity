@@ -18,6 +18,7 @@ import { isolateDayLog } from "./analytics/daylog";
 import { COUNTERS_CRON, countersJob } from "./jobs/counters";
 import { runDeletions } from "./jobs/deletion";
 import { drawJob } from "./jobs/draw";
+import { standInJob } from "./jobs/stand-in";
 import { ticksJob } from "./jobs/ticks";
 import type { Place } from "./place/place.object";
 import { roomsFor } from "./place/place.rooms";
@@ -114,5 +115,6 @@ export default {
     if (controller.cron === COUNTERS_CRON) ctx.waitUntil(countersJob(depsFor(env), isolateDayLog(depsFor(env))));
     if (controller.cron === MONEY_CRON) ctx.waitUntil(moneyJob(depsFor(env)));
     if (controller.cron === "0 0 * * *") ctx.waitUntil(dropOldFeedback(depsFor(env)));
+    if (controller.cron === "0 0 * * *") ctx.waitUntil(standInJob(depsFor(env)));
   },
 };

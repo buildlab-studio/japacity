@@ -28,3 +28,5 @@ export type { SayPolicy, PlacePolicy, SayResult, SayRefusal } from "./pair/phras
 export { phraseChecks } from "./pair/phrase.check";
 export { inviteCard, inviteExpires, mayOpenInvite, useInvite, rewardFor, mayPair, INVITE_FILLS } from "./pair/pair.invite";
 export type { InviteCard, InviteSlot, LinkResult, Milestone, InviteProgress, InviteReward } from "./pair/pair.invite";
+// What one life knows of another (docs/rules/people.md R-PEOPLE-003, 005): the server sends it as `people/facts`.
+export { factsOf } from "./people/people.facts";

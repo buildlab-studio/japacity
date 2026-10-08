@@ -3,6 +3,7 @@
 export type * from "./types";
 export type * from "./analytics";
 export type * from "./moderation.types";
+export type * from "./pair.types";
 export { compareIds, pairIds, pairKey } from "./keys";
 export * from "./memory";
 export * from "./switches";

@@ -8,3 +8,6 @@ export { pgAppealStore, pgBannedIdentityStore, pgFeedbackStore, pgModerationLogS
 export { pgPlayerStores } from "./player";
 export { pgWorldStore } from "./world";
 export { pgSwitchStore } from "./switches";
+export { pgConversationStore } from "./conversation";
+export { pgInviteStore } from "./invite";
+export { pgModerationStore } from "./report";

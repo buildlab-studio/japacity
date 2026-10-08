@@ -36,6 +36,13 @@
       "when": 1791461645547,
       "tag": "0004_draw-list-top-up",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1791461899055,
+      "tag": "0005_people",
+      "breakpoints": true
     }
   ]
 }

@@ -8,6 +8,8 @@ import { viewFor } from "@japacity/sim";
 import { clockView } from "../clock/view";
 import type { ServerDeps } from "../deps";
 import type { ServerReply, ViewReply } from "../types";
+import { bookOf } from "../pair/book";
+import { bondedWith, carry } from "../pair/carry";
 import type { Answer } from "./answer";
 import { refusal } from "./answer";
 import { afterCommit, queueDiverged } from "./commit";
@@ -32,6 +34,13 @@ export async function characterOf(deps: ServerDeps, account: string): Promise<st
 
 function clockOf(deps: ServerDeps, live: Live, at: number) {
   return clockView(deps.config, at, live.state, live.refilledAt, live.content.tuning.turn.cap);
+}
+
+/** The held life of `character` among the lives of one transaction. */
+function liveOf(lives: readonly Live[], character: string): Live {
+  const live = lives.find((each) => each.id === character);
+  if (live === undefined) throw new Error(`${character} was not held.`);
+  return live;
 }
 
 function onlyLive(lives: readonly Live[]): Live {
@@ -63,23 +72,31 @@ export async function sendCommand(deps: ServerDeps, account: string, body: unkno
 
   // the stale check reads the stored version after the load, so a stale reply carries a true clock; nothing is written either way.
   const act: Act<ReportLine[]> = (lives, turn) => {
-    const live = onlyLive(lives);
+    const live = liveOf(lives, character);
     if (request.basedOn !== live.storedV) {
       return { ok: false, code: "stale", detail: `The command is based on version ${String(request.basedOn)}, the character is at ${String(live.storedV)}.` };
     }
+    const before = live.state;
     const result = turn.send(live, { ...request.command, basedOn: live.state.v }, "player");
-    return result.ok ? { ok: true, value: result.lines } : result;
+    if (!result.ok) return result;
+    // R-PAIR-004: what the command does to a shared record and the other life goes in the same transaction.
+    const book = bookOf(turn);
+    const carried = carry({ book, turn, lives }, live, before, result.events, "player");
+    if (carried !== null) return carried;
+    book.flush();
+    return { ok: true, value: result.lines };
   };
-  const outcome = await transact(deps, [character], act);
+  const outcome = await transact(deps, [character, ...(await bondedWith(deps, character))], act);
   switch (outcome.kind) {
     case "done": {
-      const live = onlyLive(outcome.lives);
-      await afterCommit(deps, outcome.lives, "player");
+      const live = liveOf(outcome.lives, character);
+      await afterCommit(deps, [live], "player");
+      await afterCommit(deps, outcome.lives.filter((each) => each !== live), "authority");
       const view = viewFor({ state: live.state, world: outcome.world, content: live.content });
       return { status: 200, body: { ok: true, view, lines: outcome.value, clock: clockOf(deps, live, outcome.at) } };
     }
     case "rejected":
-      return { status: 200, body: { ...outcome.rejection, clock: clockOf(deps, onlyLive(outcome.lives), outcome.at) } };
+      return { status: 200, body: { ...outcome.rejection, clock: clockOf(deps, liveOf(outcome.lives, character), outcome.at) } };
     case "diverged":
     case "refused":
       return unusual(deps, outcome);
