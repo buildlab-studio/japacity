@@ -6,7 +6,7 @@ import type { PlaceFile } from "./placeFile";
 import type { Walker } from "./walk";
 
 /** What a tap landed on, other than the ground. */
-export type Picked = { kind: "person"; slot: number } | { kind: "own" } | { kind: "model"; file: string; signs: string[] } | { kind: "action"; activity: string };
+export type Picked = { kind: "person"; slot: number } | { kind: "own" } | { kind: "model"; file: string; signs: string[] } | { kind: "action"; activity: string } | { kind: "ride"; vehicle: string } | { kind: "enter"; place: string };
 
 export interface SceneProps {
   place: string;
@@ -23,8 +23,8 @@ export interface SceneProps {
   onFailed: (why: string) => void;
   onPick: (picked: Picked) => void;
   onFrame: (frameMs: number) => void;
-  /** The world mode: the action a tapped model stages here, by its file, or null when it is scenery. */
-  actionOf?: (file: string) => string | null;
+  /** The world mode: what a tapped model does here, by its file: an action it stages, a ride, a door into a place, or nothing. */
+  actionOf?: (file: string) => Picked | null;
   /** The world mode: the camera starts pulled back and raised, and comes down to the street at the first tap. */
   overview?: boolean;
 }

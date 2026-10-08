@@ -197,14 +197,12 @@ function Place(props: WorldProps) {
     onTap();
     const picked = pickedOf(event.object);
     const probe = window.__city;
-    if (probe !== undefined) probe.lastTap = { picked, action: picked?.kind === "model" && actionOf !== undefined ? actionOf(picked.file) : null };
-    // In the world mode a thing that stages an action opens that action (docs/design/11, rule 3).
-    if (picked?.kind === "model" && actionOf !== undefined) {
-      const activity = actionOf(picked.file);
-      if (activity !== null) {
-        onPick({ kind: "action", activity });
-        return;
-      }
+    const does = picked?.kind === "model" && actionOf !== undefined ? actionOf(picked.file) : null;
+    if (probe !== undefined) probe.lastTap = { picked, action: does === null ? null : does.kind === "action" ? does.activity : does.kind === "ride" ? does.vehicle : does.kind === "enter" ? does.place : null };
+    // In the world mode a thing that stages an action, gives a ride or opens a door does that (docs/design/11, rules 3 and 13).
+    if (does !== null) {
+      onPick(does);
+      return;
     }
     // A person, the player, or a shopfront with its signs opens a card; anything else is ground to walk to.
     if (picked !== null && (picked.kind !== "model" || picked.signs.length > 0)) {

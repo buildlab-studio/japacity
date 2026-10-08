@@ -35,6 +35,8 @@ export interface FlyOverProps {
   country: CountryChoice;
   countries: readonly CountryChoice[];
   drawing: boolean;
+  /** A ride already chosen: the map opens and dives to this place by itself (rule 13). */
+  diveTo?: string | null;
   onGo: (id: string) => void;
   onClose: () => void;
 }
@@ -178,7 +180,7 @@ function lineWords(pin: Pin): string {
   return cityWords("city.map.line.things", { things: pin.things });
 }
 
-export function FlyOver({ pins, country, countries, drawing, onGo, onClose }: FlyOverProps) {
+export function FlyOver({ pins, country, countries, drawing, diveTo = null, onGo, onClose }: FlyOverProps) {
   const canvas = useRef<HTMLCanvasElement>(null);
   const labels = useRef<HTMLDivElement>(null);
   const diorama = useRef<Diorama | null>(null);
@@ -334,12 +336,8 @@ export function FlyOver({ pins, country, countries, drawing, onGo, onClose }: Fl
   const go = (pin: Pin): void => {
     setCard(null);
     const built = diorama.current;
-    if (built === null) {
-      onGo(pin.id);
-      return;
-    }
-    const entry = built.pins.find((placed) => placed.pin.id === pin.id);
-    if (entry === undefined) {
+    const entry = built?.pins.find((placed) => placed.pin.id === pin.id);
+    if (built === null || entry === undefined) {
       onGo(pin.id);
       return;
     }
@@ -353,6 +351,15 @@ export function FlyOver({ pins, country, countries, drawing, onGo, onClose }: Fl
       id: pin.id,
     };
   };
+  // A ride chosen in the place: the map shows the way, then dives (rule 13).
+  useEffect(() => {
+    if (diveTo === null) return;
+    const pin = pins.find((candidate) => candidate.id === diveTo);
+    if (pin === undefined) return;
+    const timer = window.setTimeout(() => go(pin), drawing ? 1100 : 0);
+    return () => window.clearTimeout(timer);
+    // The ride starts once for the place chosen; `go` reads the diorama at that moment.
+  }, [diveTo, pins, drawing]);
 
   const canGo = card !== null && card.state !== "not" && card.state !== "here";
 

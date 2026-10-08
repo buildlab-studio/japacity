@@ -41,6 +41,16 @@ const ACTIONS: Record<string, string> = {
   "shop_lotto-kiosk.glb": "activity.play-lotto",
   "bld_bode-thomas-betting.glb": "activity.bet-slip",
 };
+/** The things that give a ride, by the end of their model's file (rule 13). */
+const RIDES: Record<string, string> = { "veh_danfo.glb": "danfo", "veh_keke.glb": "keke", "veh_okada.glb": "okada" };
+/** Buildings that are doors into a place of their own, by the end of their model's file (rule 13). None of the built places has one yet. */
+const DOORS: Record<string, string> = {};
+/** Minutes by road between two places, from their positions: a base wait and a Lagos pace. */
+function minutesBetween(from: { latE3: number; lonE3: number }, to: { latE3: number; lonE3: number }): number {
+  const cos = Math.cos((from.latE3 / 1000) * (Math.PI / 180));
+  const metres = Math.hypot((to.lonE3 - from.lonE3) * 111.32 * cos, (to.latE3 - from.latE3) * 111.32);
+  return 8 + Math.round(metres / 120);
+}
 /** The home of each where: the family house, then the room abroad. */
 const HOMES: Record<string, string> = { home: "place.family-house", abroad: "place.the-room" };
 /** The family house stands on a made-up street (city.md), so the map gives it a spot in Surulere near the hub. */
@@ -168,6 +178,7 @@ export function City({
   const [date] = useState(() => localDate(new Date()));
   const [looking, setLooking] = useState(world);
   const [map, setMap] = useState(false);
+  const [diveTo, setDiveTo] = useState<string | null>(null);
   const [shipped, setShipped] = useState<Set<string> | null>(null);
   const [menu, setMenu] = useState(false);
   const [credits, setCredits] = useState(false);
@@ -278,6 +289,10 @@ export function City({
       }
       case "action":
         return nameOf(picked.activity);
+      case "ride":
+        return cityWords(`city.ride.${picked.vehicle}`);
+      case "enter":
+        return placeName(picked.place);
       default: {
         const never: never = picked;
         throw new Error(`Unknown pick: ${JSON.stringify(never)}`);
@@ -285,11 +300,27 @@ export function City({
     }
   };
 
-  const actionOf = (file: string): string | null => {
-    const found = Object.entries(ACTIONS).find(([suffix]) => file.endsWith(suffix))?.[1] ?? null;
-    if (found === null || entry === null || !(entry.stages as readonly string[]).includes(found)) return null;
-    return view.activities.some((option) => option.id === found) ? found : null;
+  const actionOf = (file: string): Picked | null => {
+    const action = Object.entries(ACTIONS).find(([suffix]) => file.endsWith(suffix))?.[1] ?? null;
+    if (action !== null && entry !== null && (entry.stages as readonly string[]).includes(action) && view.activities.some((option) => option.id === action)) return { kind: "action", activity: action };
+    const vehicle = Object.entries(RIDES).find(([suffix]) => file.endsWith(suffix))?.[1] ?? null;
+    if (vehicle !== null) return { kind: "ride", vehicle };
+    const door = Object.entries(DOORS).find(([suffix]) => file.endsWith(suffix))?.[1] ?? null;
+    if (door !== null && places.some((place) => place.id === door)) return { kind: "enter", place: door };
+    return null;
   };
+  // A ride plays as the fly-over's dive, then the place opens (rule 13).
+  const travel = (id: string): void => {
+    setPicked(null);
+    setDiveTo(id);
+    setMap(true);
+  };
+  useEffect(() => {
+    if (picked?.kind === "enter") {
+      setPlaceId(picked.place);
+      setPicked(null);
+    }
+  }, [picked]);
   const pins: Pin[] = (() => {
     if (!world) return [];
     const been = readKept(BEEN_KEY);
@@ -338,7 +369,24 @@ export function City({
         ) : null}
       </div>
 
-      {world && map ? <FlyOver pins={pins} country={shownCountry} countries={countries} drawing={drawing} onGo={(id) => { setPlaceId(id); setMap(false); }} onClose={() => setMap(false)} /> : null}
+      {world && map ? (
+        <FlyOver
+          pins={pins}
+          country={shownCountry}
+          countries={countries}
+          drawing={drawing}
+          diveTo={diveTo}
+          onGo={(id) => {
+            setPlaceId(id);
+            setMap(false);
+            setDiveTo(null);
+          }}
+          onClose={() => {
+            setMap(false);
+            setDiveTo(null);
+          }}
+        />
+      ) : null}
 
       {looking ? (
         <div className="pointer-events-none fixed inset-0 z-[36] flex flex-col justify-between gap-3 p-3 pt-[max(0.75rem,env(safe-area-inset-top))] pb-[max(0.75rem,env(safe-area-inset-bottom))]">
@@ -418,7 +466,7 @@ export function City({
                 {heardWords(heard.key, heard.params)}
               </p>
             )}
-            {picked === null || picked.kind === "action" ? null : <PersonCard picked={picked} words={cardWords()} onClose={() => setPicked(null)} />}
+            {picked === null || picked.kind === "action" || picked.kind === "ride" || picked.kind === "enter" ? null : <PersonCard picked={picked} words={cardWords()} onClose={() => setPicked(null)} />}
             {world && month !== undefined ? <div className="pointer-events-auto rounded-xl border border-line bg-paper/85 p-2 backdrop-blur-sm" data-month-bar>{month}</div> : null}
             <p className="pointer-events-auto self-start rounded-lg bg-paper/80 px-2 py-1 text-xs text-muted">{cityWords(world ? "city.world.tap" : "city.hold")}</p>
           </div>
@@ -479,6 +527,24 @@ export function City({
       <CreditsSheet open={credits} onOpenChange={setCredits} />
       <Sheet open={picked?.kind === "action"} onOpenChange={(open) => { if (!open) setPicked(null); }} title={picked?.kind === "action" ? cardWords() : ""}>
         {picked?.kind === "action" ? actions?.([picked.activity]) : null}
+      </Sheet>
+      <Sheet open={picked?.kind === "ride"} onOpenChange={(open) => { if (!open) setPicked(null); }} title={picked?.kind === "ride" ? cardWords() : ""} description={cityWords("city.ride.title")}>
+        {picked?.kind === "ride" ? (
+          <ul className="flex flex-col gap-1" aria-label={cityWords("city.ride.title")} data-ride-list>
+            {[...pins.filter((pin) => pin.state === "home"), ...pins.filter((pin) => pin.state !== "home" && pin.state !== "here" && pin.state !== "not")].map((pin) => {
+              const here = pins.find((candidate) => candidate.state === "here");
+              return (
+                <li key={pin.id}>
+                  <button type="button" onClick={() => travel(pin.id)} className="flex min-h-11 w-full items-center justify-between gap-3 rounded-lg px-3 text-left hover:bg-sunk">
+                    <span className="font-semibold">{pin.state === "home" ? cityWords("city.ride.home") : pin.name}</span>
+                    <span className="text-xs text-muted">{here === undefined ? "" : cityWords("city.ride.line", { minutes: minutesBetween(here.position, pin.position) })}</span>
+                  </button>
+                </li>
+              );
+            })}
+            {pins.filter((pin) => pin.state !== "here" && pin.state !== "not").length === 0 ? <li className="px-3 py-2 text-sm text-muted">{cityWords("city.ride.none")}</li> : null}
+          </ul>
+        ) : null}
       </Sheet>
     </>
   );
