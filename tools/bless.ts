@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 import { content as realContent } from "../packages/content/src/index";
 import type { Golden } from "../packages/sim/src/engine/golden";
 import { measure } from "../packages/sim/src/engine/golden";
+import { lifeStart, loadSave } from "../packages/sim/src/engine/replay";
 import type { Content } from "../packages/sim/src/engine/types";
 import { miniContent } from "../packages/sim/src/testing/miniContent";
 import { standInWorld } from "../packages/sim/src/world/standIn";
@@ -22,9 +23,16 @@ function toImportName(name: string): string {
 
 let changed = 0;
 for (const script of goldenScripts) {
-  const content = CONTENTS[script.save.content];
-  if (content === undefined) throw new Error(`${script.name}: no content with version ${script.save.content}.`);
-  const expected = measure(script.save, content, (tick) => standInWorld(script.save.worldSeed, tick, content));
+  const contents = loadSave(script.save).segments.map((segment) => {
+    const content = CONTENTS[segment.content];
+    if (content === undefined) throw new Error(`${script.name}: no content with version ${segment.content}.`);
+    return content;
+  });
+  const start = lifeStart(script.save);
+  if (start === null) throw new Error(`${script.name}: a golden starts a new life.`);
+  // The stand-in world under the first segment's content; a golden of several contents would need stored worlds.
+  const worldContent = contents[0]!;
+  const expected = measure(script.save, contents, (tick) => standInWorld(start.worldSeed, tick, worldContent));
   const golden: Golden = { name: script.name, save: script.save, ...expected };
   const path = `${goldensDir}${script.name}.json`;
   const before = existsSync(path) ? (JSON.parse(readFileSync(path, "utf8")) as Golden) : null;

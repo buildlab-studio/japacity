@@ -1398,16 +1398,40 @@ export interface KindModule<Slice, E extends BaseEvent> {
 // Saves and the authority
 // ---------------------------------------------------------------------------
 
-/** Everything needed to rebuild a state: R-ENGINE-010. */
-export interface Save {
-  schema: 1 | 2;
+/** One accepted command as a save records it: the command, the tick it was stepped at and who sent it. */
+export interface SavedCommand {
+  command: Command;
+  tick: number;
+  sender: Sender;
+}
+
+/** Where a segment begins: a new life from its scenario and seeds, or a state carried over (R-SERVER-020). */
+export type SegmentStart = { scenario: Id<"scenario">; seed: string; worldSeed: string } | { base: State };
+
+/** The commands accepted under one content version and one overlay (decision 0006). */
+export interface SaveSegment {
   content: string;
   /** The overlay's version, when the content was loaded with one (R-ENGINE-010). */
+  overlay?: string;
+  start: SegmentStart;
+  commands: SavedCommand[];
+}
+
+/** Everything needed to rebuild a state: R-ENGINE-010 and R-SERVER-020. Schema 3 is the save in segments. */
+export interface Save {
+  schema: 3;
+  segments: SaveSegment[];
+}
+
+/** A save of schema 1 or 2, before decision 0006: one segment, flat. `loadSave` reads it; nothing writes it as a save. */
+export interface FlatSave {
+  schema: 1 | 2;
+  content: string;
   overlay?: string;
   scenario: Id<"scenario">;
   seed: string;
   worldSeed: string;
-  commands: { command: Command; tick: number; sender: Sender }[];
+  commands: SavedCommand[];
 }
 
 export type Reply = { ok: true; view: PlayerView; lines: ReportLine[] } | Rejection;

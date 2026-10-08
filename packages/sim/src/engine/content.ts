@@ -52,7 +52,8 @@ export function checkContent(content: Content): string[] {
   walk(content, "content", (value, path) => {
     if (typeof value === "number" && !Number.isSafeInteger(value)) problems.push(`${path} is ${String(value)}, not a whole number.`);
     if (typeof value === "string" && ID.test(value) && !known.has(value)) problems.push(`${path} names ${value}, which does not exist.`);
-    if (value !== null && typeof value === "object" && !Array.isArray(value)) {
+    // The renames table's keys are ids this version no longer has (R-SERVER-022); its values must exist.
+    if (value !== null && typeof value === "object" && !Array.isArray(value) && path !== "content.renames") {
       for (const key of Object.keys(value)) {
         if (ID.test(key) && !known.has(key)) problems.push(`${path} has the key ${key}, which names nothing.`);
       }

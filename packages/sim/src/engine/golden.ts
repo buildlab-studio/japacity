@@ -1,9 +1,8 @@
 // Golden replays: a save and the figures it must produce, month by month, with
 // a hash of the final state. Shared by the golden test and `pnpm bless`.
-import { newState } from "./state";
-import { step } from "./step";
 import { hashState } from "./hash";
-import type { Content, Save, World } from "./types";
+import { playSave } from "./replay";
+import type { Content, FlatSave, Save, World } from "./types";
 
 export interface GoldenMonth {
   month: number;
@@ -20,26 +19,22 @@ export interface GoldenExpected {
 
 export interface Golden extends GoldenExpected {
   name: string;
-  save: Save;
+  /** A golden blessed before decision 0006 holds the flat save; `loadSave` reads either. */
+  save: Save | FlatSave;
 }
 
-/** Replays a save and measures what the golden records. Throws if any command is rejected. */
-export function measure(save: Save, content: Content, worldAt: (tick: number) => World): GoldenExpected {
-  let state = newState(save.scenario, save.seed, content);
+/** Replays a save, every segment in order, and measures what the golden records. Throws if any command is rejected. */
+export function measure(save: Save | FlatSave, contents: Content | readonly Content[], worldAt: (tick: number) => World): GoldenExpected {
   const months: GoldenMonth[] = [];
-  save.commands.forEach(({ command, tick, sender }, index) => {
-    const result = step(state, command, worldAt(tick), content, sender);
-    if (!result.ok) throw new Error(`Golden: command ${String(index)} (${command.type}) was rejected with ${result.code}: ${result.detail}`);
-    state = result.state;
-    if (command.type === "turn/end") {
-      months.push({
-        month: state.turn.month,
-        v: state.v,
-        banked: state.turn.banked,
-        nairaBank: state.wallet.pockets.NGN.bank,
-        hash: hashState(state),
-      });
-    }
+  const state = playSave(save, contents, worldAt, ({ entry, state: after }) => {
+    if (entry.command.type !== "turn/end") return;
+    months.push({
+      month: after.turn.month,
+      v: after.v,
+      banked: after.turn.banked,
+      nairaBank: after.wallet.pockets.NGN.bank,
+      hash: hashState(after),
+    });
   });
   return { months, finalHash: hashState(state) };
 }

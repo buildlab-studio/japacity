@@ -4,7 +4,7 @@ import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
 import { measure } from "../engine/golden";
-import { replay } from "../engine/replay";
+import { lifeStart, replay, savedCommands } from "../engine/replay";
 import { goldens } from "../goldens";
 import { lifeScripts } from "../goldens/scripts";
 import { standInWorld } from "../world/standIn";
@@ -23,14 +23,14 @@ const SLOTS_EVERY_PLAN_PLAYS = [
 describe("the three real lives as golden scripts", () => {
   test("[R-ENGINE-010] given the scripts, when listed, then there is one for each starting life", () => {
     // The three first-milestone lives. Ngozi's route needs the gates of the whole-life milestone before she can be scripted.
-    expect(lifeScripts.map((script) => script.save.scenario).sort()).toEqual(["scenario.ada", "scenario.tunde", "scenario.zainab"]);
-    for (const script of lifeScripts) expect(content.scenario[script.save.scenario]).toBeDefined();
+    expect(lifeScripts.map((script) => lifeStart(script.save)?.scenario).sort()).toEqual(["scenario.ada", "scenario.tunde", "scenario.zainab"]);
+    for (const script of lifeScripts) expect(content.scenario[lifeStart(script.save)!.scenario]).toBeDefined();
   });
 
   test.each(lifeScripts.map((script) => [script.name, script] as const))(
     "[R-ENGINE-001] [R-ENGINE-010] given %s, when its save is replayed twice through the real content, then every command is accepted, both replays agree month by month, and the flight leaves within 24 to 40 months with the life going on abroad",
     (_name, script) => {
-      const worldAt = (tick: number) => standInWorld(script.save.worldSeed, tick, content);
+      const worldAt = (tick: number) => standInWorld(lifeStart(script.save)!.worldSeed, tick, content);
       const first = measure(script.save, content, worldAt);
       const second = measure(script.save, content, worldAt);
       expect(second).toEqual(first);
@@ -45,7 +45,7 @@ describe("the three real lives as golden scripts", () => {
       // Chapter 3 is left out on purpose: a borrower whose held funds lapse while the visa is decided flies with it open (see the playtest report).
       expect(state.chapter.done).toEqual(expect.arrayContaining(["chapter.find-your-feet", "chapter.build-the-file"]));
 
-      const commands = script.save.commands.map((entry) => entry.command);
+      const commands = savedCommands(script.save).map((entry) => entry.command);
       const slots = new Set(commands.flatMap((command) => (command.type === "turn/end" ? command.slots.map((pick) => pick.activity) : [])));
       expect([...slots]).toEqual(expect.arrayContaining(SLOTS_EVERY_PLAN_PLAYS));
       const types = new Set(commands.map((command) => command.type));

@@ -3,8 +3,8 @@
 // the only part of the client that ever sees the seed. Screens talk to it only
 // through the Authority type, so the server can replace it later unchanged.
 import { content as realContent } from "@japacity/content";
-import type { Authority, Command, Content, Id, PlayerView, Reply, Save, Sender, State, World } from "@japacity/sim";
-import { newSave, newState, recordCommand, replay, standInWorld, step, time, viewFor } from "@japacity/sim";
+import type { Authority, Command, Content, FlatSave, Id, PlayerView, Reply, Save, Sender, State, World } from "@japacity/sim";
+import { lastSegment, lifeStart, loadSave, newSave, newState, recordCommand, replay, savedCommands, standInWorld, step, time, viewFor } from "@japacity/sim";
 
 /** The one localStorage key the life is kept under. */
 export const SAVE_KEY = "japacity.save";
@@ -56,27 +56,30 @@ function browserStorage(): Pick<Storage, "getItem" | "setItem"> | null {
   }
 }
 
-function isStored(value: unknown): value is Stored {
+/** A save in segments, or a flat one written before saves had segments (decision 0006). */
+function isSave(value: unknown): value is Save | FlatSave {
   if (typeof value !== "object" || value === null) return false;
-  const { save, clock } = value as Partial<Stored>;
+  const save = value as Record<string, unknown>;
+  if (save.schema === 3) return Array.isArray(save.segments) && save.segments.length > 0;
   return (
-    typeof save === "object" &&
-    save !== null &&
     (save.schema === 1 || save.schema === 2) &&
     typeof save.content === "string" &&
     typeof save.scenario === "string" &&
     typeof save.seed === "string" &&
     typeof save.worldSeed === "string" &&
-    Array.isArray(save.commands) &&
-    typeof clock === "object" &&
-    clock !== null &&
-    typeof clock.anchor === "number"
+    Array.isArray(save.commands)
   );
+}
+
+function isStored(value: unknown): value is { save: Save | FlatSave; clock: Stored["clock"] } {
+  if (typeof value !== "object" || value === null) return false;
+  const { save, clock } = value as { save?: unknown; clock?: Partial<Stored["clock"]> | null };
+  return isSave(save) && typeof clock === "object" && clock !== null && typeof clock.anchor === "number";
 }
 
 /** The tick the next command is sent at. Each accepted `turn/end` moves the world one tick (engine.md section 7). */
 function tickAfter(save: Save): number {
-  return save.commands.filter(({ command }) => command.type === "turn/end").length;
+  return savedCommands(save).filter(({ command }) => command.type === "turn/end").length;
 }
 
 export function localAuthority(options: LocalAuthorityOptions): LocalAuthority {
@@ -88,10 +91,11 @@ export function localAuthority(options: LocalAuthorityOptions): LocalAuthority {
 
   let state: State;
   let save: Save;
+  let worldSeed: string;
   let tick: number;
   let anchor: number;
 
-  const worldAt = (at: number): World => standInWorld(save.worldSeed, at, content);
+  const worldAt = (at: number): World => standInWorld(worldSeed, at, content);
 
   function persist(): void {
     if (storage === null) return;
@@ -106,7 +110,8 @@ export function localAuthority(options: LocalAuthorityOptions): LocalAuthority {
   function begin(scenario: Id<"scenario">): void {
     const seed = makeSeed();
     state = newState(scenario, seed, content);
-    save = newSave(scenario, seed, makeSeed(), content);
+    worldSeed = makeSeed();
+    save = newSave(scenario, seed, worldSeed, content);
     tick = 0;
     anchor = now();
   }
@@ -127,12 +132,19 @@ export function localAuthority(options: LocalAuthorityOptions): LocalAuthority {
       begin(firstScenario);
       return { kind: "replaced", why: "unreadable" };
     }
-    if (parsed.save.content !== content.version) {
+    const loaded = loadSave(parsed.save);
+    if (lastSegment(loaded).content !== content.version) {
       begin(firstScenario);
       return { kind: "replaced", why: "other-content" };
     }
+    const begun = lifeStart(loaded);
+    if (begun === null) {
+      begin(firstScenario);
+      return { kind: "replaced", why: "unreadable" };
+    }
     try {
-      save = parsed.save;
+      save = loaded;
+      worldSeed = begun.worldSeed;
       state = replay(save, content, worldAt).state;
       tick = tickAfter(save);
       anchor = parsed.clock.anchor;

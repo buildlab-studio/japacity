@@ -8,6 +8,9 @@ import type { BaseEvent, Content, Id, State } from "./types";
 /** The first instance number a new state hands out. */
 export const FIRST_INSTANCE = 1;
 
+/** The shape of the state this code builds. */
+export const STATE_SCHEMA = 2;
+
 /** A counter-backed IdSource, and a way to read where it got to. */
 export function idSource(start: number): IdSource & { peek(): number } {
   let next = start;
@@ -32,7 +35,7 @@ export function newStateWith(kinds: Registry, scenarioId: Id<"scenario">, seed: 
     if (!(key in slices)) throw new Error(`No kind built the ${key} slice.`);
   }
   return {
-    schema: 2,
+    schema: STATE_SCHEMA,
     content: content.version,
     v: 0,
     seed,
@@ -80,4 +83,42 @@ export function applyEventWith(kinds: Registry, state: State, event: BaseEvent, 
 
 export function applyEvent(state: State, event: BaseEvent, content: Content): State {
   return applyEventWith(registry(), state, event, content);
+}
+
+/** Every string equal to an old id, and every key that is one, renamed. The seed is never an id and is left alone. */
+function renamed(value: unknown, renames: Readonly<Record<string, string>>): unknown {
+  if (typeof value === "string") return renames[value] ?? value;
+  if (Array.isArray(value)) return value.map((item) => renamed(item, renames));
+  if (typeof value === "object" && value !== null) {
+    const out: Record<string, unknown> = {};
+    for (const [key, inner] of Object.entries(value)) out[renames[key] ?? key] = renamed(inner, renames);
+    return out;
+  }
+  return value;
+}
+
+/**
+ * A state carried from one content to the next (R-SERVER-022, decision 0006):
+ * ids renamed through the newer content's table, any slice the state lacks
+ * built by its kind's `initial` (decision 0003), the schema raised to the
+ * current shape and the newer content's version recorded. Pure. Between two
+ * loads of the same version (a new overlay, R-SERVER-024) nothing is renamed.
+ */
+export function upgradeStateWith(kinds: Registry, state: State, from: Content, to: Content): State {
+  if (state.content !== from.version) throw new Error(`The state is for content ${state.content}, not ${from.version}.`);
+  const renames = from.version === to.version ? {} : (to.renames ?? {});
+  const { seed, ...rest } = state;
+  const moved = { ...(renamed(rest, renames) as Omit<State, "seed">), seed } as State;
+  const scenario = to.scenario[moved.scenario];
+  if (scenario === undefined) throw new Error(`The content ${to.version} has no scenario ${moved.scenario}.`);
+  const ids = idSource(moved.nextInstance);
+  const slices: Partial<Record<SliceKey, unknown>> = {};
+  for (const kind of kinds) {
+    if (!(kind.kind in moved)) slices[kind.kind] = kind.initial(scenario, to, ids);
+  }
+  return { ...moved, ...(slices as Partial<Pick<State, SliceKey>>), schema: STATE_SCHEMA, content: to.version, nextInstance: ids.peek() };
+}
+
+export function upgradeState(state: State, from: Content, to: Content): State {
+  return upgradeStateWith(registry(), state, from, to);
 }
