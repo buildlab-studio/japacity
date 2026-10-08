@@ -52,7 +52,7 @@ describe("the dashboard's data", () => {
     for (const each of board.weeks) expect(new Date(`${each.week}T00:00:00Z`).getUTCDay()).toBe(1);
   });
 
-  test("[R-ANALYTICS-011] [R-GUIDE-015] given an ask counted before the early win, when the dashboard is built, then it is marked as a fault however small; asks after it are not", () => {
+  test("[R-ANALYTICS-011] given an ask counted before the early win, when the dashboard is built, then it is marked as a fault however small; asks after it are not", () => {
     expect(dashboard(content, LAST, [total(last, "ask/shown", "sign-in:after", 50), total(last, "ask/accepted", "notify:after", 20)]).askBeforeEarlyWin).toBe(false);
     expect(dashboard(content, LAST, [total(last, "ask/shown", "notify:before", 1)]).askBeforeEarlyWin).toBe(true);
   });
