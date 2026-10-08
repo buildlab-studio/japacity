@@ -21,6 +21,7 @@
     "assets:credits": "tsx tools/assets/credits.ts",
     "bless": "tsx tools/bless.ts",
     "record:lives": "tsx tools/record-lives.ts",
+    "rollback": "tsx apps/server/src/admin/rollback.main.ts",
     "check": "tsx tools/check.ts",
     "dev": "pnpm --filter @japacity/client dev",
     "build": "pnpm --filter @japacity/client build",

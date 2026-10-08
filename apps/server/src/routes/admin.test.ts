@@ -1,0 +1,75 @@
+import { describe, expect, test } from "vitest";
+
+import { countRejection } from "../admin/rejections";
+import { testDeps } from "../app.test";
+import { makeApp } from "../app";
+import { productionConfig, testConfig } from "../config";
+import { testSession } from "../deps";
+import { dayStart, utcDay } from "../admin/day";
+
+const ADMIN = "account.owner";
+const ROUTES = ["/api/admin/report?day=1", "/api/admin/alarms", "/api/admin/rejections", "/api/admin/rollback/character.nobody"];
+
+function admin() {
+  const config = testConfig({ testing: { testLogin: true }, admin: { accounts: [ADMIN] } });
+  return testDeps({ config, session: testSession(config) });
+}
+
+const as = (account: string | null): RequestInit => (account === null ? {} : { headers: { "x-test-account": account } });
+
+describe("the admin routes", () => {
+  test("[R-SERVER-012] given a session not in the admin accounts or none at all, when any admin route is fetched, then it answers 404 exactly as a route that does not exist", async () => {
+    const app = makeApp(admin());
+    const missing = await app.request("/api/admin/nothing-here", as(ADMIN));
+    const body = await missing.text();
+    expect(missing.status).toBe(404);
+    for (const path of ROUTES) {
+      for (const account of [null, "account.player"]) {
+        const reply = await app.request(path, as(account));
+        expect(reply.status).toBe(404);
+        expect(await reply.text()).toBe(body);
+      }
+    }
+  });
+
+  test("[R-SERVER-012] given the production config with no admin account, when the maintainer's own account asks, then the page does not exist", async () => {
+    const config = testConfig({ testing: { testLogin: true } });
+    const app = makeApp(testDeps({ config, session: testSession(config) }));
+    expect(productionConfig.admin.accounts).toEqual([]);
+    expect((await app.request("/api/admin/alarms", as(ADMIN))).status).toBe(404);
+  });
+
+  test("[R-SERVER-012] given an admin account, when each route is fetched, then it answers", async () => {
+    const app = makeApp(admin());
+    for (const path of ROUTES) expect((await app.request(path, as(ADMIN))).status).toBe(200);
+    expect(await (await app.request("/api/admin/alarms", as(ADMIN))).json()).toEqual({ ok: true, alarms: [] });
+    expect(await (await app.request("/api/admin/rollback/character.nobody", as(ADMIN))).json()).toEqual({ ok: false, code: "missing", detail: "No character character.nobody." });
+  });
+
+  test("[R-SERVER-011] given a day's totals, when the report is fetched, then it is that day's row; with no day it is the day that has just ended; a day that is not a whole number is refused", async () => {
+    const deps = admin();
+    const today = utcDay(deps.now());
+    await deps.stores.ledger.addDay(today - 1, { salary: { NGN: 5 } }, { rent: { GBP: 2 } });
+    await deps.stores.ledger.addDay(today, { gig: { NGN: 1 } }, {});
+    const app = makeApp(deps);
+
+    expect(await (await app.request(`/api/admin/report?day=${String(today)}`, as(ADMIN))).json()).toEqual({ ok: true, report: { day: today, created: { gig: { NGN: 1 } }, destroyed: {} } });
+    expect(await (await app.request("/api/admin/report", as(ADMIN))).json()).toEqual({ ok: true, report: { day: today - 1, created: { salary: { NGN: 5 } }, destroyed: { rent: { GBP: 2 } } } });
+    expect(dayStart(today)).toBeLessThanOrEqual(deps.now());
+    for (const bad of ["-1", "1.5", "x", ""]) expect((await app.request(`/api/admin/report?day=${bad}`, as(ADMIN))).status).toBe(400);
+  });
+
+  test("[R-SERVER-005] given rejections counted by code, when the admin reads them, then each code shows how many", async () => {
+    const app = makeApp(admin());
+    const read = async () => (await (await app.request("/api/admin/rejections", as(ADMIN))).json<{ counts: Record<string, number> }>()).counts;
+    const before = await read();
+
+    countRejection("stale");
+    countRejection("stale");
+    countRejection("rate-limited");
+
+    const after = await read();
+    expect((after.stale ?? 0) - (before.stale ?? 0)).toBe(2);
+    expect((after["rate-limited"] ?? 0) - (before["rate-limited"] ?? 0)).toBe(1);
+  });
+});

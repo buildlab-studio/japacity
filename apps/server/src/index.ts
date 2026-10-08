@@ -19,6 +19,7 @@ import { roomsFor } from "./place/place.rooms";
 import { placeSocketRoutes } from "./routes/place";
 
 export { Place } from "./place/place.object";
+import { MONEY_CRON, moneyJob } from "./jobs/money";
 
 export interface Env {
   SITE_URL: string;
@@ -88,8 +89,9 @@ export default {
       .fetch(request);
   },
   scheduled(controller: ScheduledController, env: Env, ctx: ExecutionContext): void {
-    // By cron: the world's ticks (R-CLOCK-012) every five minutes; deletions (R-ACCOUNT-017) daily. The money report (R-SERVER-011) mounts when the admin branch lands.
+    // By cron: the world's ticks (R-CLOCK-012) every five minutes; deletions (R-ACCOUNT-017) and the money report (R-SERVER-011) daily.
     ctx.waitUntil(ticksJob(depsFor(env), controller.cron));
     if (controller.cron === "0 0 * * *") ctx.waitUntil(runDeletions(depsFor(env), makeAuth(depsFor(env), authAdapter, authKeys(env, (promise) => ctx.waitUntil(promise)))));
+    if (controller.cron === MONEY_CRON) ctx.waitUntil(moneyJob(depsFor(env)));
   },
 };
