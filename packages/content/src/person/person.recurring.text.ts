@@ -32,4 +32,30 @@ export const personRecurringText: Record<string, string> = {
   "recurring.agent.line.3": "It is not a guarantee. But it is almost a guarantee.",
   "recurring.agent.line.4": "Pay half now. The other half when you see your visa. I am a reasonable man.",
   "recurring.agent.line.5": "Don't mind the people talking. They did not use me, that is their problem.",
+
+  // advice.md R-ADVICE-010: the men at Ojuelegba's stop. Any of them may be a fixer, an overpromiser or a scammer.
+  "recurring.tout.name": "Efosa",
+  "recurring.tout.blurb": "Stands by the bus stop at Ojuelegba with a folder under his arm. Says he can sort any paper.",
+  "recurring.tout.line.1": "Embassy people? I know them. Not by name, but I know them.",
+  "recurring.tout.line.2": "Why you go stand in that long queue? Give me one week.",
+  "recurring.tout.line.3": "Your file? Small thing. Small, small thing.",
+
+  "recurring.runner.name": "Timi",
+  "recurring.runner.blurb": "Always walking fast between the stop and somewhere else. Always on the phone.",
+  "recurring.runner.line.1": "Hold on, I dey on another call. Yes, yes, I dey come.",
+  "recurring.runner.line.2": "Today na today. Tomorrow the price go change.",
+  "recurring.runner.line.3": "You want fast or you want cheap? I get both.",
+
+  "recurring.middleman.name": "Nsikak",
+  "recurring.middleman.blurb": "Sits on the rail by the stop and talks slowly, like a man with all day.",
+  "recurring.middleman.line.1": "Me, I don't rush anybody. Think about it, then come back.",
+  "recurring.middleman.line.2": "Plenty people here will promise you heaven. Me, I promise paper.",
+  "recurring.middleman.line.3": "I have done this for many years. Ask around.",
+
+  // advice.md R-ADVICE-004 and 010: the licensed adviser at the hub's long desk.
+  "recurring.adviser.name": "Mrs Yagana",
+  "recurring.adviser.blurb": "A licensed adviser at the long desk at the hub. Her licence is framed on the wall behind her.",
+  "recurring.adviser.line.1": "I will tell you what you have, what you lack, and how long it takes. Not what you want to hear.",
+  "recurring.adviser.line.2": "Nobody can guarantee a visa. Anybody who says so is selling something.",
+  "recurring.adviser.line.3": "Bring every paper you have. I read all of it.",
 };

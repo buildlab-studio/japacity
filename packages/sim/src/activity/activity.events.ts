@@ -56,4 +56,11 @@ export type ActivityEvent =
   /** The slots sent this month, kept for "same again" (R-ACTIVITY-009). */
   | { type: "activity/slots-recorded"; slots: SlotPick[] }
   /** The activities that filled a slot this month, main, side or free, each once (R-ACTIVITY-012). */
-  | { type: "activity/played-counted"; activities: Id<"activity">[] };
+  | { type: "activity/played-counted"; activities: Id<"activity">[] }
+  /**
+   * Someone who went told the route's checklist as it stood in `month`, when they left (R-ADVICE-003).
+   * `wrong`: the item they have out of date, if the rules changed since; `metWrong`: the player meets it now. Changes nothing.
+   */
+  | { type: "activity/word-of-mouth"; route: Id<"route">; month: number; items: string[]; wrong: string | null; metWrong: boolean }
+  /** The adviser read the whole file (R-ADVICE-004): each route heard or known, whether it fits, what is missing, the months away. Changes nothing. */
+  | { type: "activity/advised"; routes: { route: Id<"route">; fits: boolean; missing: string[]; months: number }[] };

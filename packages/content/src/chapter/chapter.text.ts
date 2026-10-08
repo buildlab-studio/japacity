@@ -15,7 +15,7 @@ export const chapterText: Record<string, string> = {
   "chapter.find-your-feet.item.heard": "Hear of a way out",
   "chapter.find-your-feet.item.heard.nudge": "Someone at the meetup knows a way",
   "chapter.find-your-feet.item.known": "Look into it",
-  "chapter.find-your-feet.item.known.nudge": "Read up on it at the hub",
+  "chapter.find-your-feet.item.known.nudge": "Read the official page, or ask someone",
 
   "chapter.build-the-file.name": "Build the file",
   "chapter.build-the-file.title": "Build the file",

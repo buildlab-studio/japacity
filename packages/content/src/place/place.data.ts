@@ -138,7 +138,7 @@ const JOBS_ABROAD: Staged = [
 
 const entries: PlaceEntry[] = [
   // Lagos: public places.
-  lagos("place.ojuelegba", "Ojuelegba", "surulere", 6511, 3362, { hub: true, stages: ["offer.fuel-scarcity", "chapter.find-your-feet"], crowd: PACKED, traditionalBp: ROADSIDE }),
+  lagos("place.ojuelegba", "Ojuelegba", "surulere", 6511, 3362, { hub: true, stages: ["offer.fuel-scarcity", "chapter.find-your-feet", "activity.see-agent-stop", "offer.agent-stop", "offer.agent-promise", "offer.agent-papers"], crowd: PACKED, traditionalBp: ROADSIDE }),
   lagos("place.national-stadium", "National Stadium", "surulere", 6497, 3365, { crowd: QUIET, traditionalBp: STREET }),
   lagos("place.bode-thomas", "Bode Thomas Street", "surulere", 6490, 3355, { stages: ["activity.play-lotto", "activity.bet-slip"], crowd: BUSY, traditionalBp: STREET }),
   lagos("place.adeniran-ogunsanya", "Adeniran Ogunsanya Street", "surulere", 6494, 3357, { stages: ["activity.job-teacher"], crowd: BUSY, traditionalBp: STREET }),
@@ -146,7 +146,7 @@ const entries: PlaceEntry[] = [
   // The market is not a feature in OpenStreetMap: the position is Tejuosho Avenue's.
   lagos("place.tejuosho-market", "Tejuosho Market", "yaba", 6504, 3370, { stages: ["offer.mum-shop"], crowd: PACKED, traditionalBp: MARKET }),
   lagos("place.yaba", "Yaba", "yaba", 6507, 3375, {
-    stages: ["activity.meetup", "activity.learn-tech", "activity.build-portfolio", "activity.job-junior-dev", "activity.job-mid-dev", "activity.job-hunt", "activity.look-into-route", "activity.apply-to-school"],
+    stages: ["activity.meetup", "activity.learn-tech", "activity.build-portfolio", "activity.job-junior-dev", "activity.job-mid-dev", "activity.job-hunt", "activity.look-into-route", "activity.apply-to-school", "activity.see-adviser", "activity.ask-someone-who-went"],
     crowd: BUSY,
     traditionalBp: OFFICE,
   }),
@@ -222,7 +222,7 @@ const entries: PlaceEntry[] = [
   // Lagos: businesses by made-up name. Shopfronts are signs on their street, in place.text.ts.
   unnamed("place.yaba-hub", "business", "home", "lagos", "yaba", { crowd: QUIET, traditionalBp: HUB }),
   unnamed("place.olokun-office", "business", "home", "lagos", "victoria-island", { stages: ["offer.held-funds"], crowd: FEW, traditionalBp: OFFICE }),
-  unnamed("place.agent-office", "business", "home", "lagos", "ikeja", { stages: ["offer.held-funds-agent"], crowd: FEW, traditionalBp: OFFICE }),
+  unnamed("place.agent-office", "business", "home", "lagos", "ikeja", { stages: ["offer.held-funds-agent", "activity.see-agent-office", "offer.agent-office"], crowd: FEW, traditionalBp: OFFICE }),
 
   // Homes and stylised places: no real name, no area, no position, no sponsor.
   unnamed("place.family-house", "stylised", "home", "lagos", null, {
