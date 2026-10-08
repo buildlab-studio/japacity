@@ -48,7 +48,7 @@ export function quicknet(fetcher: typeof fetch = fetch, base: string = DRAND_URL
       try {
         const reply = await fetcher(`${base}/v2/beacons/quicknet/rounds/${String(round)}`);
         if (!reply.ok) return null;
-        const body = (await reply.json()) as { round?: unknown; signature?: unknown };
+        const body = await reply.json<{ round?: unknown; signature?: unknown }>();
         if (body.round !== round || typeof body.signature !== "string" || body.signature.length === 0) return null;
         return toHex(sha256(fromHex(body.signature)));
       } catch {
