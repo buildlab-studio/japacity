@@ -8,7 +8,7 @@ import { pgAccountStore, pgAuditStore, pgDeletionStore, pgLedgerStore, pgPlayerS
 export { type Connection, connect } from "./connect";
 export { type Handle, oneConnection, type Queries } from "./handle";
 export * as schema from "./schema";
-export { pgAccountStore, pgAuditStore, pgDeletionStore, pgLedgerStore, pgPlayerStores, pgWorldStore } from "./stores";
+export { pgAccountStore, pgAuditStore, pgCounterStore, pgDayLog, pgDeletionStore, pgLedgerStore, pgPlayerStores, pgWorldStore } from "./stores";
 
 export interface PgStores {
   player: PlayerStore;

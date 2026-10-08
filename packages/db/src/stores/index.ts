@@ -1,5 +1,7 @@
 export { pgAccountStore } from "./account";
 export { pgAuditStore } from "./audit";
+export { pgCounterStore } from "./counter";
+export { pgDayLog } from "./daylog";
 export { pgDeletionStore } from "./deletion";
 export { pgLedgerStore } from "./ledger";
 export { pgPlayerStores } from "./player";
