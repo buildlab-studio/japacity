@@ -13,6 +13,7 @@ import { engineView, fakeAuthority } from "./shared/testing/fixtures";
 import "./shared/testing/render";
 import { cardKey } from "./shared/ui/stage";
 import { say } from "./shared/words/text";
+import { onTheClassicPage } from "./shared/testing/classic";
 
 vi.mock("./shared/card/render", () => ({ renderCard: () => Promise.resolve({ ok: true, blob: new Blob(["card"], { type: "image/png" }), bytes: 4 }) }));
 
@@ -52,6 +53,9 @@ async function playing(view: PlayerView, earlyWin: boolean): Promise<GameStore> 
 
 const shareButtons = () => document.querySelectorAll("[data-share-button]");
 const cardTiles = () => document.querySelectorAll("[data-card-tile]");
+
+// The old month page these tests drive opens only with ?classic (R-WORLD-024).
+onTheClassicPage();
 
 describe("the share card waits for the early win", () => {
   test("[R-GUIDE-015] given a card due before the early win, when the shell shows, then neither the card, its tile nor its share button is on screen, and no ask is counted", async () => {

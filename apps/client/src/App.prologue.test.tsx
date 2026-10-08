@@ -8,6 +8,7 @@ import type { GameStore } from "./authority/store";
 import { nameOf, say, words } from "./shared/words/text";
 // Registers Testing Library's cleanup for this file.
 import "./shared/testing/render";
+import { onTheClassicPage } from "./shared/testing/classic";
 
 const PROLOGUE = "scenario.prologue";
 const HUNT = "activity.job-hunt";
@@ -33,6 +34,9 @@ async function moved(store: GameStore, v: number): Promise<void> {
     if ((store.getState().view?.v ?? 0) <= v) throw new Error("The view has not moved yet.");
   });
 }
+
+// The old month page these tests drive opens only with ?classic (R-WORLD-024).
+onTheClassicPage();
 
 describe("a life from sixteen in the app", () => {
   test("[R-PROLOGUE-008] given the start screen, when a life from sixteen is picked and played card by card, then the first month opens and looking for work finds the first job", async () => {

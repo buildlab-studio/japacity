@@ -13,6 +13,7 @@ import { say, sayCount, words } from "../../shared/words/text";
 import { drawSentences, PrologueView } from "./PrologueView";
 // Registers Testing Library's cleanup for this file.
 import "../../shared/testing/render";
+import { onTheClassicPage } from "../../shared/testing/classic";
 
 const PROLOGUE = "scenario.prologue";
 
@@ -64,6 +65,9 @@ async function walk(seed: string, pick: Pick): Promise<{ steps: string[]; greyed
   }
   return { steps, greyed, game };
 }
+
+// The old month page these tests drive opens only with ?classic (R-WORLD-024).
+onTheClassicPage();
 
 describe("the prologue screen", () => {
   test("[R-PROLOGUE-008] given a new life from sixteen, when it opens, then the opening card shows with its one answer and nothing drawn yet", async () => {

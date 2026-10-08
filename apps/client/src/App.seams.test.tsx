@@ -20,6 +20,7 @@ import type { AccountApi } from "./shared/net/auth";
 import { abroadView, engineView, fakeAuthority } from "./shared/testing/fixtures";
 import { renderWithView } from "./shared/testing/render";
 import { say } from "./shared/words/text";
+import { onTheClassicPage } from "./shared/testing/classic";
 
 vi.mock("./shared/card/render", () => ({ renderCard: () => Promise.resolve({ ok: true, blob: new Blob(["card"], { type: "image/png" }), bytes: 4 }) }));
 
@@ -49,6 +50,9 @@ async function playing(view: PlayerView = engineView("scenario.tunde")) {
   render(<App store={store} />);
   return store;
 }
+
+// The old month page these tests drive opens only with ?classic (R-WORLD-024).
+onTheClassicPage();
 
 describe("the interface counters", () => {
   test("[R-ANALYTICS-002] given the shell, when tabs are opened, then each opening counts its screen once, keyed by the feature that leads it", async () => {

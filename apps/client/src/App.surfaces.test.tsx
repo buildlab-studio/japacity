@@ -27,6 +27,7 @@ import { linkedFriend, PAIR, peopleGame, renderWithGame } from "./shared/testing
 import "./shared/testing/render";
 import { BASE, fakeServer, type FakeServer } from "./shared/testing/server";
 import { say } from "./shared/words/text";
+import { onTheClassicPage } from "./shared/testing/classic";
 
 const CODE = "c0ffeec0ffeec0ffeec0ffee";
 const THEM = "character-them";
@@ -96,6 +97,9 @@ const OPEN: Record<(typeof MODERATION_SURFACES)[number], (server: FakeServer) =>
     await screen.findByRole("dialog");
   },
 };
+
+// The old month page these tests drive opens only with ?classic (R-WORLD-024).
+onTheClassicPage();
 
 describe("the block and report control on every surface", () => {
   test.each(MODERATION_SURFACES.map((surface) => [surface]))("[R-MODERATION-003] given the %s surface online, when a player reaches it, then the report control is there", async (surface) => {
