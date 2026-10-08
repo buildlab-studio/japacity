@@ -2,7 +2,7 @@ import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
 import type { ActivityEntry, Content, Id } from "../engine/types";
-import { applyAs, CA_SPOUSE, facts, joint, life, readOf, setPeople, UK_PARTNER } from "../route/gates/people.journey";
+import { applyAs, BOND, CA_SPOUSE, facts, joint, life, readOf, setPeople, UK_PARTNER } from "../route/gates/people.journey";
 import type { Game } from "../testing/play";
 import { barUntilMonth, floorsMet, meetsFloor, payAYear, sponsorCheck } from "./sponsor-checks";
 
@@ -40,6 +40,51 @@ describe("R-UNDERTAKING-001: the checks in order", () => {
     expect(sponsorCheck(readOf(life(used)), UK_PARTNER)).toBe("status");
     expect(sponsorCheck(readOf(abroad("country.uk", "status.uk-settled", null)), UK_PARTNER)).toBe("floor");
     expect(sponsorCheck(readOf(abroad("country.uk", "status.uk-settled", JOB)), UK_PARTNER)).toBeNull();
+  });
+});
+
+describe("R-UNDERTAKING-001: agreeing to sponsor runs the checks", () => {
+  /** A married bond with a friend, with no joint yet, so a joint can be proposed on it. */
+  function married(game: Game): void {
+    joint(game, UK_PARTNER, "me", { stage: "married", facts: facts() });
+    setPeople(game, (slice) => ({ ...slice, joint: null }));
+  }
+
+  test("[R-UNDERTAKING-001] given a settled character abroad under the floor, and then one earning it, when each proposes to sponsor on the UK partner route, then the first is rejected naming the floor and the second's proposal goes out", () => {
+    const under = abroad("country.uk", "status.uk-settled", null);
+    married(under);
+    const rejected = under.expectRejected({ type: "people/propose", bond: BOND, step: "joint", route: UK_PARTNER, lead: "me" }, "not-legal");
+    expect(rejected.detail).toContain("floor");
+    const earning = abroad("country.uk", "status.uk-settled", JOB);
+    married(earning);
+    earning.accept({ type: "people/propose", bond: BOND, step: "joint", route: UK_PARTNER, lead: "me" });
+    expect(earning.state.people.bonds[BOND]?.pending.mine).toEqual({ step: "joint", route: UK_PARTNER, lead: "me" });
+  });
+
+  test("[R-UNDERTAKING-001] given a joint proposed with this life as sponsor, when it answers yes while failing the floor, then the answer is rejected naming the check, and no is accepted", () => {
+    const game = abroad("country.uk", "status.uk-settled", null);
+    married(game);
+    game.accept({ type: "people/proposal", pair: "pair-1", proposal: { step: "joint", route: UK_PARTNER, lead: "me" } }, "authority");
+    expect(game.expectRejected({ type: "people/answer", bond: BOND, step: "joint", yes: true }, "not-legal").detail).toContain("floor");
+    game.accept({ type: "people/answer", bond: BOND, step: "joint", yes: false });
+  });
+});
+
+describe("R-INTERVIEW-010: a caught sponsor's bar", () => {
+  test("[R-INTERVIEW-010] given a resident in Canada whose interview on the spouse route was caught, when the bar is read and a joint proposed, then sponsoring into Canada waits for the country's ban months and the view shows the month it lifts", () => {
+    const game = abroad("country.canada", "status.ca-resident", null);
+    const month = game.state.turn.month;
+    const ban = content.country["country.canada"]!.deceptionBanMonths;
+    game.state = { ...game.state, interview: { ...game.state.interview, last: { route: CA_SPOUSE, result: "caught", matched: 0, asked: 5, month } } };
+    expect(sponsorCheck(readOf(game), CA_SPOUSE)).toBe("bar");
+    expect(game.view().people.barUntilMonth).toBe(month + ban);
+    joint(game, CA_SPOUSE, "me", { stage: "married", facts: facts() });
+    setPeople(game, (slice) => ({ ...slice, joint: null }));
+    expect(game.expectRejected({ type: "people/propose", bond: BOND, step: "joint", route: CA_SPOUSE, lead: "me" }, "not-legal").detail).toContain("bar");
+    // The bar lifts in the month it names, as R-GATE-005 lifts the ban.
+    game.state = { ...game.state, interview: { ...game.state.interview, last: { route: CA_SPOUSE, result: "caught", matched: 0, asked: 5, month: month - ban } } };
+    expect(sponsorCheck(readOf(game), CA_SPOUSE)).toBeNull();
+    expect(game.view().people.barUntilMonth).toBeNull();
   });
 });
 

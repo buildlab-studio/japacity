@@ -64,8 +64,7 @@ export function holdsSponsorStatus(read: ReadCtx, route: Id<"route">): boolean {
  * R-UNDERTAKING-004: the month the bar lifts, for a character who arrived on a
  * partner route into a country with a `partnerBarMonths`, while that month is
  * still to come. Null: no bar now. The people view shows it as `barUntilMonth`.
- * the view's figure is the later of this and R-INTERVIEW-010's bar,
- * which the interview kind keeps; the people kind takes the later of the two.
+ * The view shows the later of this and R-INTERVIEW-010's bar (`sponsorBarUntil`).
  */
 export function barUntilMonth(read: ReadCtx): number | null {
   const arrived = read.state.people.arrived;
@@ -82,6 +81,26 @@ function barred(read: ReadCtx, route: Id<"route">): boolean {
   const arrived = read.state.people.arrived;
   if (arrived === null || barUntilMonth(read) === null) return false;
   return read.content.route[arrived.route]?.country === partnerRoute(read.content, route).country;
+}
+
+/**
+ * R-INTERVIEW-010: a sponsor whose interview was caught carries the applicant's
+ * ban as a bar on sponsoring into that country: the month it lifts while it is
+ * still to come, else null.
+ */
+export function interviewBarUntil(read: ReadCtx): { country: Id<"country">; until: number } | null {
+  const last = read.state.interview.last;
+  if (last === null || last.result !== "caught") return null;
+  const country = read.content.route[last.route]?.country ?? null;
+  if (country === null) return null;
+  const until = last.month + (read.content.country[country]?.deceptionBanMonths ?? 0);
+  return until > read.state.turn.month ? { country, until } : null;
+}
+
+/** R-UNDERTAKING-012, R-INTERVIEW-010: the later of the two bars, as the people view shows it. */
+export function sponsorBarUntil(read: ReadCtx): number | null {
+  const bars = [barUntilMonth(read), interviewBarUntil(read)?.until ?? null].filter((month): month is number => month !== null);
+  return bars.length === 0 ? null : Math.max(...bars);
 }
 
 /**
@@ -109,5 +128,7 @@ export function sponsorCheck(read: ReadCtx, route: Id<"route">): SponsorCheck | 
   if (!holdsSponsorStatus(read, route)) return "status";
   if (!meetsFloor(read, route)) return "floor";
   if (barred(read, route)) return "bar";
+  const interviewBar = interviewBarUntil(read);
+  if (interviewBar !== null && interviewBar.country === partnerRoute(read.content, route).country) return "bar";
   return undertakingBars(read, route);
 }

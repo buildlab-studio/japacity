@@ -33,6 +33,7 @@ import type {
   StatusEntry,
 } from "../engine/types";
 import { undertakingOpening } from "../obligation/undertaking";
+import { sponsorBarUntil, sponsorCheck } from "./sponsor-checks";
 import { AGE, computerFacts, jointRouteOf } from "./people.facts";
 import type { PeopleEvent } from "./people.events";
 
@@ -328,9 +329,9 @@ function jointProblem(ctx: Ctx, bond: Bond, route: Id<"route"> | undefined, lead
   if (!partnerGate && entry.dependants === null) return `${route} brings no partner.`;
   if (lead === "me") {
     if (partnerGate) {
-      // R-PEOPLE-026: the sponsor leads a partner route from abroad; their own checks are the undertaking's (R-UNDERTAKING-001).
-      const status = ctx.state.status.current?.entry ?? null;
-      return status !== null && ctx.state.place.country === entry.country && (entry.partner?.sponsorStatuses ?? []).includes(status) ? null : "Only a sponsor abroad leads a partner route.";
+      // R-PEOPLE-026, R-UNDERTAKING-001: the sponsor leads a partner route, and agreeing runs the sponsor's checks in this life.
+      const failed = sponsorCheck(ctx, route);
+      return failed === null ? null : `The sponsor's check failed: ${failed}.`;
     }
     const held = ctx.state.route[route]?.state ?? "unknown";
     const allows = statusAllows(ctx.content, ctx.state.status.current?.entry ?? null, ctx.state.activity.job);
@@ -475,6 +476,11 @@ function answer(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (!live(bond) || theirs === null || theirs.step !== command.step) return reject("not-legal", `No ${command.step} proposal is waiting on this bond.`);
   if (ctx.sender === "stand-in" && !standInMayAgree(ctx, command.bond, theirs, command.yes)) return reject("not-legal", "A stand-in says only yes, only to a joint the absent side allowed it to, and never to sponsoring.");
   if (command.yes && command.step === "marry" && !canPayShare(ctx)) return reject("cannot-afford", "The wedding share cannot be paid.");
+  // R-UNDERTAKING-001: a yes that makes this life the sponsor runs the sponsor's checks; the proposal comes in this life's terms.
+  if (command.yes && theirs.step === "joint" && theirs.lead === "me" && theirs.route !== null && ctx.content.route[theirs.route]?.gate === "partner") {
+    const failed = sponsorCheck(ctx, theirs.route);
+    if (failed !== null) return reject("not-legal", `The sponsor's check failed: ${failed}.`);
+  }
   return record(ctx, [{ type: "people/answered", bond: command.bond, step: command.step, yes: command.yes }]);
 }
 
@@ -1146,16 +1152,6 @@ function slotLabel(slice: PeopleSlice, slot: Slot): PlayerView["people"]["slots"
   }
 }
 
-/** R-UNDERTAKING-004: the month a sponsor who came in on a partner route may sponsor again. */
-function barUntil(read: ReadCtx): number | null {
-  const { arrived } = read.state.people;
-  if (arrived === null) return null;
-  const route = read.content.route[arrived.route];
-  if (route === undefined || route.gate !== "partner" || route.country === null) return null;
-  const bar = read.content.country[route.country]?.partnerBarMonths ?? 0;
-  return bar === 0 ? null : arrived.month + bar;
-}
-
 function view(read: ReadCtx): Pick<PlayerView, "people"> {
   const slice = read.state.people;
   // R-INTERVIEW-005: while an interview is open each side answers from memory.
@@ -1178,7 +1174,7 @@ function view(read: ReadCtx): Pick<PlayerView, "people"> {
       // the two scores of R-PEOPLE-030 are the points gate's; they are null until it gives them.
       joint: slice.joint === null ? null : { bond: slice.joint.bond, route: slice.joint.route, lead: slice.joint.lead, myScore: null, theirScore: null },
       sponsoring: slice.sponsoring,
-      barUntilMonth: barUntil(read),
+      barUntilMonth: sponsorBarUntil(read),
     },
   };
 }
