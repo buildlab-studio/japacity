@@ -38,6 +38,10 @@ import { healthComeUp } from "./health";
 import { appliesHere } from "../place/place.logic";
 import type { OfferEvent } from "./offer.events";
 import { luckTerms, markedChanceBp, rescueDue, WHIP_ROUND } from "./offer.luck";
+import { beingMade } from "../document/document.logic";
+import { HASTEN_TERM } from "../document/document.logic";
+import type { AgentKind, Look } from "./offer.agent";
+import { handedTerms, inFamily, isLook, kindOf, lookFinds, openAgent, PROMISE, shownTerms, standsAsAgent, tellsSeen } from "./offer.agent";
 
 /**
  * The groups that are rolled, in the order R-OFFER-001 takes them. `job` is
@@ -165,6 +169,8 @@ function scaleAsked(entry: OfferEntry, terms: Terms, factorBp: number): void {
 function openOffer(ctx: Ctx, entry: OfferEntry, extra: Terms): BaseEvent[] {
   const own: Terms = {};
   for (const [name, spec] of Object.entries(entry.terms)) own[name] = fixTerm(ctx, spec);
+  // R-ADVICE-005, 006: an agent's kind, fee and tells; R-OFFER-006's draws do not apply.
+  if (standsAsAgent(entry)) return record(ctx, { type: "offer/opened", item: openAgent(ctx, entry, own, extra) });
   if (entry.group === "family" && ctx.state.place.where === "abroad") scaleAsked(entry, own, ctx.content.tuning.remit.abroadBp);
   const fraud = ctx.random.chance("fraud", entry.fraudBp);
   const signs = entry.signs.filter((sign) => ctx.random.chance("offer", fraud ? sign.fraudBp : sign.honestBp)).map((sign) => sign.key);
@@ -270,7 +276,24 @@ function choiceProblem(read: ReadCtx, judge: Judge, item: OfferState, choice: Of
     return { code: "not-legal", detail: `The conditions for ${choice.id} do not hold.` };
   }
   if (!debitsPayable(read, judge, choice.effects, terms)) return { code: "cannot-afford", detail: `${choice.id} cannot be paid now.` };
+  if (inFamily(item.entry) && !floorKept(read, judge, choice.effects, terms)) {
+    return { code: "cannot-afford", detail: `${choice.id} would take the last of the cash an agent may never take.` };
+  }
+  if (isLook(choice.id) && item.signs.includes(choice.id)) return { code: "not-legal", detail: `${choice.id} is already done.` };
   return null;
+}
+
+/**
+ * R-ADVICE-008: an agent's fee never takes the last `floorNaira` of cash. The
+ * naira the choice takes from cash must leave the floor behind.
+ */
+function floorKept(read: ReadCtx, judge: Judge, effects: readonly Effect[], terms: Terms): boolean {
+  let fromCash = 0;
+  for (const effect of effects) {
+    if (effect.type === "money/take" && effect.currency === "NGN" && effect.pocket === "cash") fromCash += resolveAmount(read, effect.amount, terms);
+  }
+  if (fromCash === 0) return true;
+  return judge({ type: "money/min", currency: "NGN", amount: fromCash + read.content.tuning.advice.floorNaira, pocket: "cash" }, terms).met;
 }
 
 /** Carries out a choice (R-OFFER-003, R-OFFER-004). The source names the offer and the choice. */
@@ -278,6 +301,44 @@ function takeChoice(ctx: Ctx, item: OfferState, choice: OfferChoice, amount: num
   const effects = item.secret.fraud && choice.fraudEffects !== null ? choice.fraudEffects : choice.effects;
   const cause: Cause = { source: `${item.entry}.${choice.id}`, param: null, terms: { ...choiceTerms(item, amount), ...roadKind(ctx, item, choice) } };
   ctx.apply(effects, cause);
+}
+
+/** The agent's choice that pays him (R-ADVICE-005). */
+const TAKE = "take";
+
+/** The paper being made that is due first, in content order on a tie: what a fixer brings forward. */
+function nextPaper(ctx: Ctx): Id<"document"> | null {
+  let best: { id: Id<"document">; due: number } | null = null;
+  for (const id of Object.keys(ctx.content.document) as Id<"document">[]) {
+    const doc = ctx.state.document[id];
+    const due = doc === undefined ? null : beingMade(doc);
+    if (due !== null && (best === null || due < best.due)) best = { id, due };
+  }
+  return best?.id ?? null;
+}
+
+/**
+ * R-ADVICE-005, after the fee: a fixer brings the next paper forward, an
+ * overpromiser leaves his promise on the table, a scammer's fake papers come
+ * from the content's fraud effects. the next appointment (a school's
+ * answer, a visa decision) has no effect to move it, so only a paper moves.
+ */
+function agentPaid(ctx: Ctx, item: OfferState): BaseEvent[] {
+  const kind: AgentKind = kindOf(item);
+  const cause: Cause = { source: `${item.entry}.${TAKE}`, param: null, terms: {} };
+  const paper = kind === "fixer" ? nextPaper(ctx) : null;
+  const fee = typeof item.terms["fee"] === "number" ? item.terms["fee"] : 0;
+  const agent = typeof item.terms["agent"] === "string" ? item.terms["agent"] : item.entry;
+  const events = record(ctx, { type: "offer/agent-paid", id: item.id, entry: item.entry, kind, agent, fee, seen: tellsSeen(item), paper });
+  if (paper !== null) ctx.apply([{ type: "document/request", document: paper }], { ...cause, terms: { [HASTEN_TERM]: ctx.content.tuning.advice.fixerMonths } });
+  if (kind === "overpromiser") ctx.apply([{ type: "offer/open", offer: PROMISE }], { ...cause, terms: { agent } });
+  return events;
+}
+
+/** R-ADVICE-006: a look costs nothing and finds every tell it would find. The offer stays open. */
+function look(ctx: Ctx, item: OfferState, choice: Look): BaseEvent[] {
+  const found = lookFinds(entryOf(ctx.content, item.entry), item, choice, ctx.content.tuning.advice);
+  return record(ctx, { type: "offer/looked", id: item.id, entry: item.entry, look: choice, found });
 }
 
 /**
@@ -312,8 +373,10 @@ function choose(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (choice === undefined) return reject("not-legal", `${item.entry} has no choice ${String(command.choice)}.`);
   const problem = choiceProblem(readOf(ctx), judgeIn(ctx), item, choice, command.amount);
   if (problem !== null) return reject(problem.code, problem.detail);
+  if (inFamily(item.entry) && isLook(choice.id)) return look(ctx, item, choice.id);
   takeChoice(ctx, item, choice, choice.pick === null ? null : (command.amount ?? null));
-  return record(ctx, { type: "offer/taken", id: item.id, entry: item.entry, choice: choice.id });
+  const paid = standsAsAgent(entryOf(ctx.content, item.entry)) && choice.id === TAKE ? agentPaid(ctx, item) : [];
+  return [...paid, ...record(ctx, { type: "offer/taken", id: item.id, entry: item.entry, choice: choice.id })];
 }
 
 // ---------------------------------------------------------------------------
@@ -333,6 +396,11 @@ function expire(ctx: Ctx): BaseEvent[] {
     const entry = entryOf(ctx.content, item.entry);
     const choice = entry.onExpire === null ? undefined : entry.choices.find((candidate) => candidate.id === entry.onExpire);
     let applied: string | null = null;
+    // R-ADVICE-005: the overpromiser's month has come and nothing moved.
+    if (item.entry === PROMISE) {
+      const agent = typeof item.terms["agent"] === "string" ? item.terms["agent"] : item.entry;
+      events.push(...record(ctx, { type: "offer/promise-broken", id: item.id, agent, month: item.expiresMonth }));
+    }
     // "can be taken" means what offer/choose would accept: its conditions hold and its debits can be paid.
     if (choice !== undefined && choice.pick === null && choiceProblem(readOf(ctx), judgeIn(ctx), item, choice, undefined) === null) {
       takeChoice(ctx, item, choice, null);
@@ -458,13 +526,16 @@ function openEffect(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
   if (effect.type !== "offer/open") throw new Error(`offer/open cannot carry out ${effect.type}.`);
   const entry = entryOf(ctx.content, effect.offer);
   if (switchedOff(ctx.content, entry)) return [];
-  if (!conditionsHold(ctx, entry, cause.terms)) return [];
+  const handed = handedTerms(entry, inFamily(entry.id) && cause.param !== null ? { ...cause.terms, route: cause.param } : cause.terms);
+  if (!conditionsHold(ctx, entry, handed)) return [];
   if (reachedLimit(ctx.state, entry)) return [];
+  // R-ADVICE-005: an agent already on the table stays; going back to him does not draw him again.
+  if (standsAsAgent(entry) && isOpen(ctx.state, entry.id)) return [];
   // R-OFFER-007: the entry already open closes unanswered, with no lapse effects, and the new one
   // opens, so a job landed while an earlier job offer waits is the one on the table.
   const waiting = Object.values(ctx.state.offer.items).find((item) => item.entry === entry.id);
   const events = waiting === undefined ? [] : record(ctx, { type: "offer/replaced", id: waiting.id, entry: waiting.entry });
-  return [...events, ...openOffer(ctx, entry, cause.terms)];
+  return [...events, ...openOffer(ctx, entry, handed)];
 }
 
 /**
@@ -505,6 +576,15 @@ function evolve(slice: OfferSlice, event: OfferEvent): OfferSlice {
     case "offer/replaced":
     case "offer/closed":
       return without(slice, event.id);
+    case "offer/looked": {
+      const item = slice.items[event.id];
+      if (item === undefined) throw new Error(`${event.id} was looked at but is not open.`);
+      const signs = [...item.signs, ...event.found.filter((key) => !item.signs.includes(key)), event.look];
+      return { ...slice, items: { ...slice.items, [event.id]: { ...item, signs } } };
+    }
+    case "offer/agent-paid":
+    case "offer/promise-broken":
+      return slice;
     default: {
       const never: never = event;
       throw new Error(`Unknown offer event ${JSON.stringify(never)}.`);
@@ -514,6 +594,26 @@ function evolve(slice: OfferSlice, event: OfferEvent): OfferSlice {
 
 function line(key: string, params: ReportLine["params"], attention: boolean): ReportLine {
   return { key, params, tone: "plain", attention, counts: [] };
+}
+
+/** R-ADVICE-009: a scam told straight, naming the agent, the fee gone and every tell the player saw. */
+function agentLines(event: Extract<OfferEvent, { type: "offer/agent-paid" }>): ReportLine[] {
+  const amount = { currency: "NGN" as const, amount: event.fee };
+  switch (event.kind) {
+    case "scammer":
+      return [
+        { ...line("line.offer.agent-scam", { agent: event.agent, amount }, true), tone: "bad" },
+        ...event.seen.map((tell): ReportLine => ({ ...line("line.offer.agent-scam-tell", { tell: `advice.tell.${tell}` }, false), tone: "bad" })),
+      ];
+    case "fixer":
+      return [line(event.paper === null ? "line.offer.agent-paid-nothing-waiting" : "line.offer.agent-paid", { agent: event.agent, amount }, false)];
+    case "overpromiser":
+      return [line("line.offer.agent-paid", { agent: event.agent, amount }, false)];
+    default: {
+      const never: never = event.kind;
+      throw new Error(`Unknown agent kind ${String(never)}.`);
+    }
+  }
 }
 
 function lines(event: OfferEvent): ReportLine[] {
@@ -529,6 +629,14 @@ function lines(event: OfferEvent): ReportLine[] {
       return [line("line.offer.replaced", { offer: event.entry }, false)];
     case "offer/closed":
       return [line("line.offer.closed", { offer: event.entry }, false)];
+    case "offer/looked":
+      return event.found.length === 0
+        ? [line(`line.offer.${event.look}-nothing`, { offer: event.entry }, false)]
+        : event.found.map((tell) => line(`line.offer.${event.look}-found`, { offer: event.entry, tell: `advice.tell.${tell}` }, true));
+    case "offer/agent-paid":
+      return agentLines(event);
+    case "offer/promise-broken":
+      return [{ ...line("line.offer.agent-promise-broken", { agent: event.agent, month: event.month }, true), tone: "bad" }];
     default: {
       // Tests that stand in for this kind send events of their own through these lines, so an
       // unknown event says nothing rather than throwing.
@@ -568,7 +676,8 @@ export function offerView(read: ReadCtx, item: OfferState): OfferView {
     entry: item.entry,
     openedMonth: item.openedMonth,
     expiresMonth: item.expiresMonth,
-    terms: item.terms,
+    // R-ENGINE-007: an agent's kind is never shown.
+    terms: shownTerms(item.terms),
     signs: item.signs,
     choices: entryOf(read.content, item.entry).choices.map((choice) => {
       const pick = pickRange(item, choice);

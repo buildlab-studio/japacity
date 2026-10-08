@@ -11,6 +11,7 @@ import type { RegisteredKind } from "../engine/kind";
 import { turnInProgress } from "../engine/kind";
 import type {
   BaseEvent,
+  Cause,
   Content,
   Ctx,
   DocumentEntry,
@@ -104,25 +105,64 @@ function valueOnIssue(ctx: Ctx, entry: DocumentEntry): number | null {
   }
 }
 
+/** The route states that mean an application was sent (R-ROUTE-014). */
+const SENT: readonly string[] = ["applying", "granted", "departed"];
+
+/**
+ * R-ADVICE-008: a fake paper counts as used once an application rests on it:
+ * a route whose checklist asks for the paper has been sent, or was refused
+ * for the agent's papers. the record keeps no month of use, so a
+ * route's state and its last refusal are what show the use.
+ */
+export function usedInApplication(read: ReadCtx, id: Id<"document">): boolean {
+  return Object.values(read.content.route).some((route) => {
+    if (!route.checklist.some((item) => item.requirement.type === "document/held" && item.requirement.document === id)) return false;
+    const held = read.state.route[route.id];
+    if (held === undefined) return false;
+    return SENT.includes(held.state) || (held.lastRefusal?.reasons.includes("agent") ?? false);
+  });
+}
+
 /** Issue a copy now: held from this month, running out `validMonths` later (R-DOCUMENT-002). */
 function issue(ctx: Ctx, id: Id<"document">): DocumentEvent {
   const entry = entryOf(ctx.content, id);
   const month = ctx.state.turn.month;
-  return {
+  const event: DocumentEvent = {
     type: "document/issued",
     document: id,
     expiresMonth: entry.validMonths === null ? null : month + entry.validMonths,
     value: valueOnIssue(ctx, entry),
   };
+  // R-ADVICE-008: the mark of a fake once used stays on the record for the life.
+  return ctx.state.document[id]?.genuine === false && usedInApplication(readOfCtx(ctx), id) ? { ...event, genuine: false } : event;
+}
+
+/** The term a fixer's request carries: months to bring the copy being made forward (R-ADVICE-005). */
+export const HASTEN_TERM = "hasten";
+/** The term fake papers carry on their grant (R-ADVICE-008). */
+export const FAKE_TERM = "fake";
+
+/**
+ * R-ADVICE-005: a fixer brings the copy being made forward. the
+ * contract has no effect for this, so it is read as a request for a paper
+ * already being made that carries the term `hasten`. Never earlier than the
+ * earliest a request at this moment could be issued.
+ */
+function hasten(ctx: Ctx, id: Id<"document">, due: number, months: number): DocumentEvent {
+  const month = ctx.state.turn.month;
+  const earliest = turnInProgress(ctx) === null ? month + 1 : month;
+  return { type: "document/hastened", document: id, readyMonth: Math.max(earliest, due - months), was: due };
 }
 
 /** R-DOCUMENT-001, R-DOCUMENT-004. */
-function request(ctx: Ctx, effect: Effect): BaseEvent[] {
+function request(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
   if (effect.type !== "document/request") throw new Error(`The document kind cannot request from ${effect.type}.`);
   const id = effect.document;
   const entry = entryOf(ctx.content, id);
   const doc = ctx.state.document[id];
   const due = doc === undefined ? null : beingMade(doc);
+  const months = cause.terms[HASTEN_TERM];
+  if (due !== null && typeof months === "number") return [hasten(ctx, id, due, months)];
   if (due !== null) {
     // the first plan says a second request returns no events, and also
     // that the report says nothing happened. A line comes only from an event,
@@ -148,8 +188,14 @@ function request(ctx: Ctx, effect: Effect): BaseEvent[] {
  * R-DOCUMENT-006. a grant replaces whatever is there, so a copy being
  * made is the one issued, and the English test draws its band as on any issue.
  */
-function grant(ctx: Ctx, effect: Effect): BaseEvent[] {
+function grant(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
   if (effect.type !== "document/grant") throw new Error(`The document kind cannot grant from ${effect.type}.`);
+  // R-ADVICE-008. the contract has no effect for fake papers, so a grant whose cause carries the term `fake` makes one.
+  if (cause.terms[FAKE_TERM] === 1) {
+    const entry = entryOf(ctx.content, effect.document);
+    const event: DocumentEvent = { type: "document/faked", document: effect.document, expiresMonth: entry.validMonths === null ? null : ctx.state.turn.month + entry.validMonths };
+    return [event];
+  }
   return [issue(ctx, effect.document)];
 }
 
@@ -196,17 +242,28 @@ function evolve(slice: DocumentSlice, event: DocumentEvent): DocumentSlice {
     }
     case "document/already-pending":
       return slice;
-    case "document/issued":
-      return { ...slice, [event.document]: { state: "held", readyMonth: null, expiresMonth: event.expiresMonth, value: event.value } };
+    case "document/issued": {
+      const next: DocumentState = { state: "held", readyMonth: null, expiresMonth: event.expiresMonth, value: event.value };
+      return { ...slice, [event.document]: event.genuine === false ? { ...next, genuine: false } : next };
+    }
+    case "document/faked":
+      return { ...slice, [event.document]: { state: "held", genuine: false, readyMonth: null, expiresMonth: event.expiresMonth, value: null } };
+    case "document/hastened": {
+      const doc = slice[event.document];
+      if (doc === undefined) throw new Error(`${event.document} was brought forward but is not in the state.`);
+      return { ...slice, [event.document]: { ...doc, readyMonth: event.readyMonth } };
+    }
     case "document/expired": {
       const doc = slice[event.document];
       if (doc === undefined) throw new Error(`${event.document} expired but is not in the state.`);
       const due = beingMade(doc);
       // An old copy that runs out while a new one is made leaves only the new one, pending.
+      // R-ADVICE-008: an expired fake keeps its mark.
+      const mark = doc.genuine === false ? { genuine: false } : {};
       const next: DocumentState =
         due === null
           ? { ...doc, state: "expired", readyMonth: null }
-          : { state: "pending", readyMonth: due, expiresMonth: null, value: null };
+          : { state: "pending", readyMonth: due, expiresMonth: null, value: null, ...mark };
       return { ...slice, [event.document]: next };
     }
     case "document/voided":
@@ -233,6 +290,10 @@ function lines(event: DocumentEvent): ReportLine[] {
       return event.value === null
         ? [line("issued", { document: event.document }, "good")]
         : [line("issued-band", { document: event.document, band: event.value }, "good", true)];
+    case "document/faked":
+      return [line("faked", { document: event.document }, "bad", true)];
+    case "document/hastened":
+      return [line("hastened", { document: event.document, month: event.readyMonth }, "good")];
     case "document/expired":
       return [line("expired", { document: event.document }, "bad")];
     case "document/voided":
