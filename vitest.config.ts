@@ -79,6 +79,8 @@ export default defineConfig({
           include: [workersTests],
           isolate: false,
           maxWorkers: 1,
+          // One worker cannot share a group with the projects that run many, so this group runs after them.
+          sequence: { groupOrder: 1 },
         },
       },
       {
