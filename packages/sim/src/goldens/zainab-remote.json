@@ -4,7 +4,7 @@
     "schema": 2,
     "content": "m0.1",
     "scenario": "scenario.zainab",
-    "seed": "golden-zainab-1",
+    "seed": "golden-zainab-2",
     "worldSeed": "golden-world",
     "commands": [
       {
@@ -45,6 +45,16 @@
       },
       {
         "command": {
+          "type": "offer/choose",
+          "offer": "offer-4",
+          "choice": "manage",
+          "basedOn": 2
+        },
+        "tick": 2,
+        "sender": "player"
+      },
+      {
+        "command": {
           "type": "turn/end",
           "slots": [
             {
@@ -56,7 +66,7 @@
               "param": "activity.job-mid-dev"
             }
           ],
-          "basedOn": 2
+          "basedOn": 3
         },
         "tick": 2,
         "sender": "player"
@@ -64,17 +74,7 @@
       {
         "command": {
           "type": "offer/choose",
-          "offer": "offer-3",
-          "choice": "no",
-          "basedOn": 3
-        },
-        "tick": 3,
-        "sender": "player"
-      },
-      {
-        "command": {
-          "type": "offer/choose",
-          "offer": "offer-4",
+          "offer": "offer-5",
           "choice": "no",
           "basedOn": 4
         },
@@ -102,9 +102,19 @@
       {
         "command": {
           "type": "offer/choose",
-          "offer": "offer-5",
+          "offer": "offer-6",
           "choice": "accept",
           "basedOn": 6
+        },
+        "tick": 4,
+        "sender": "player"
+      },
+      {
+        "command": {
+          "type": "offer/choose",
+          "offer": "offer-7",
+          "choice": "no",
+          "basedOn": 7
         },
         "tick": 4,
         "sender": "player"
@@ -118,11 +128,11 @@
               "param": null
             },
             {
-              "activity": "activity.learn-tech",
+              "activity": "activity.rest",
               "param": null
             }
           ],
-          "basedOn": 7
+          "basedOn": 8
         },
         "tick": 4,
         "sender": "player"
@@ -132,55 +142,17 @@
           "type": "turn/end",
           "slots": [
             {
-              "activity": "activity.rest",
+              "activity": "activity.learn-tech",
               "param": null
             },
             {
-              "activity": "activity.rest",
+              "activity": "activity.learn-tech",
               "param": null
             }
           ],
-          "basedOn": 8
-        },
-        "tick": 5,
-        "sender": "player"
-      },
-      {
-        "command": {
-          "type": "offer/choose",
-          "offer": "offer-6",
-          "choice": "manage",
           "basedOn": 9
         },
-        "tick": 6,
-        "sender": "player"
-      },
-      {
-        "command": {
-          "type": "turn/end",
-          "slots": [
-            {
-              "activity": "activity.learn-tech",
-              "param": null
-            },
-            {
-              "activity": "activity.learn-tech",
-              "param": null
-            }
-          ],
-          "basedOn": 10
-        },
-        "tick": 6,
-        "sender": "player"
-      },
-      {
-        "command": {
-          "type": "offer/choose",
-          "offer": "offer-7",
-          "choice": "absent",
-          "basedOn": 11
-        },
-        "tick": 7,
+        "tick": 5,
         "sender": "player"
       },
       {
@@ -196,9 +168,9 @@
               "param": null
             }
           ],
-          "basedOn": 12
+          "basedOn": 10
         },
-        "tick": 7,
+        "tick": 6,
         "sender": "player"
       },
       {
@@ -206,7 +178,45 @@
           "type": "offer/choose",
           "offer": "offer-8",
           "choice": "no",
+          "basedOn": 11
+        },
+        "tick": 7,
+        "sender": "player"
+      },
+      {
+        "command": {
+          "type": "offer/choose",
+          "offer": "offer-9",
+          "choice": "no",
+          "basedOn": 12
+        },
+        "tick": 7,
+        "sender": "player"
+      },
+      {
+        "command": {
+          "type": "turn/end",
+          "slots": [
+            {
+              "activity": "activity.job-hunt",
+              "param": "activity.job-remote-dev"
+            },
+            {
+              "activity": "activity.rest",
+              "param": null
+            }
+          ],
           "basedOn": 13
+        },
+        "tick": 7,
+        "sender": "player"
+      },
+      {
+        "command": {
+          "type": "offer/choose",
+          "offer": "offer-10",
+          "choice": "absent",
+          "basedOn": 14
         },
         "tick": 8,
         "sender": "player"
@@ -224,19 +234,9 @@
               "param": null
             }
           ],
-          "basedOn": 14
-        },
-        "tick": 8,
-        "sender": "player"
-      },
-      {
-        "command": {
-          "type": "offer/choose",
-          "offer": "offer-9",
-          "choice": "leave",
           "basedOn": 15
         },
-        "tick": 9,
+        "tick": 8,
         "sender": "player"
       },
       {
@@ -259,17 +259,9 @@
       },
       {
         "command": {
-          "type": "turn/end",
-          "slots": [
-            {
-              "activity": "activity.job-hunt",
-              "param": "activity.job-remote-dev"
-            },
-            {
-              "activity": "activity.apply-to-school",
-              "param": "school.ashby"
-            }
-          ],
+          "type": "offer/choose",
+          "offer": "offer-11",
+          "choice": "leave",
           "basedOn": 17
         },
         "tick": 10,
@@ -277,27 +269,27 @@
       },
       {
         "command": {
-          "type": "offer/choose",
-          "offer": "offer-11",
-          "choice": "accept",
-          "basedOn": 18
-        },
-        "tick": 11,
-        "sender": "player"
-      },
-      {
-        "command": {
           "type": "turn/end",
           "slots": [
             {
-              "activity": "activity.rest",
-              "param": null
+              "activity": "activity.job-hunt",
+              "param": "activity.job-remote-dev"
             },
             {
               "activity": "activity.rest",
               "param": null
             }
           ],
+          "basedOn": 18
+        },
+        "tick": 10,
+        "sender": "player"
+      },
+      {
+        "command": {
+          "type": "offer/choose",
+          "offer": "offer-12",
+          "choice": "no",
           "basedOn": 19
         },
         "tick": 11,
@@ -305,21 +297,27 @@
       },
       {
         "command": {
-          "type": "wallet/convert",
-          "from": "USD",
-          "to": "NGN",
-          "amount": 26767,
-          "via": "bank",
+          "type": "turn/end",
+          "slots": [
+            {
+              "activity": "activity.job-hunt",
+              "param": "activity.job-remote-dev"
+            },
+            {
+              "activity": "activity.side-gig",
+              "param": null
+            }
+          ],
           "basedOn": 20
         },
-        "tick": 12,
+        "tick": 11,
         "sender": "player"
       },
       {
         "command": {
-          "type": "route/pay-deposit",
-          "route": "route.uk-masters",
-          "school": "school.northgate",
+          "type": "offer/choose",
+          "offer": "offer-13",
+          "choice": "accept",
           "basedOn": 21
         },
         "tick": 12,
@@ -327,11 +325,9 @@
       },
       {
         "command": {
-          "type": "wallet/convert",
-          "from": "USD",
-          "to": "NGN",
-          "amount": 235259,
-          "via": "bank",
+          "type": "offer/choose",
+          "offer": "offer-14",
+          "choice": "message",
           "basedOn": 22
         },
         "tick": 12,
@@ -339,17 +335,9 @@
       },
       {
         "command": {
-          "type": "turn/end",
-          "slots": [
-            {
-              "activity": "activity.side-gig",
-              "param": null
-            },
-            {
-              "activity": "activity.side-gig",
-              "param": null
-            }
-          ],
+          "type": "offer/choose",
+          "offer": "offer-15",
+          "choice": "no",
           "basedOn": 23
         },
         "tick": 12,
@@ -370,7 +358,7 @@
           ],
           "basedOn": 24
         },
-        "tick": 13,
+        "tick": 12,
         "sender": "player"
       },
       {
@@ -388,19 +376,7 @@
           ],
           "basedOn": 25
         },
-        "tick": 14,
-        "sender": "player"
-      },
-      {
-        "command": {
-          "type": "wallet/convert",
-          "from": "USD",
-          "to": "NGN",
-          "amount": 3032,
-          "via": "bank",
-          "basedOn": 26
-        },
-        "tick": 15,
+        "tick": 13,
         "sender": "player"
       },
       {
@@ -416,6 +392,16 @@
               "param": null
             }
           ],
+          "basedOn": 26
+        },
+        "tick": 14,
+        "sender": "player"
+      },
+      {
+        "command": {
+          "type": "offer/choose",
+          "offer": "offer-16",
+          "choice": "no",
           "basedOn": 27
         },
         "tick": 15,
@@ -423,12 +409,28 @@
       },
       {
         "command": {
-          "type": "wallet/convert",
-          "from": "USD",
-          "to": "NGN",
-          "amount": 2800,
-          "via": "bank",
+          "type": "turn/end",
+          "slots": [
+            {
+              "activity": "activity.side-gig",
+              "param": null
+            },
+            {
+              "activity": "activity.side-gig",
+              "param": null
+            }
+          ],
           "basedOn": 28
+        },
+        "tick": 15,
+        "sender": "player"
+      },
+      {
+        "command": {
+          "type": "offer/choose",
+          "offer": "offer-17",
+          "choice": "leave",
+          "basedOn": 29
         },
         "tick": 16,
         "sender": "player"
@@ -446,28 +448,24 @@
               "param": null
             }
           ],
-          "basedOn": 29
+          "basedOn": 30
         },
         "tick": 16,
         "sender": "player"
       },
       {
         "command": {
-          "type": "offer/choose",
-          "offer": "offer-14",
-          "choice": "no",
-          "basedOn": 30
-        },
-        "tick": 17,
-        "sender": "player"
-      },
-      {
-        "command": {
-          "type": "wallet/convert",
-          "from": "USD",
-          "to": "NGN",
-          "amount": 5935,
-          "via": "bank",
+          "type": "turn/end",
+          "slots": [
+            {
+              "activity": "activity.apply-to-school",
+              "param": "school.northgate"
+            },
+            {
+              "activity": "activity.side-gig",
+              "param": null
+            }
+          ],
           "basedOn": 31
         },
         "tick": 17,
@@ -488,7 +486,17 @@
           ],
           "basedOn": 32
         },
-        "tick": 17,
+        "tick": 18,
+        "sender": "player"
+      },
+      {
+        "command": {
+          "type": "route/pay-deposit",
+          "route": "route.uk-masters",
+          "school": "school.northgate",
+          "basedOn": 33
+        },
+        "tick": 19,
         "sender": "player"
       },
       {
@@ -496,29 +504,11 @@
           "type": "wallet/convert",
           "from": "USD",
           "to": "NGN",
-          "amount": 2326,
+          "amount": 191585,
           "via": "bank",
-          "basedOn": 33
-        },
-        "tick": 18,
-        "sender": "player"
-      },
-      {
-        "command": {
-          "type": "turn/end",
-          "slots": [
-            {
-              "activity": "activity.side-gig",
-              "param": null
-            },
-            {
-              "activity": "activity.side-gig",
-              "param": null
-            }
-          ],
           "basedOn": 34
         },
-        "tick": 18,
+        "tick": 19,
         "sender": "player"
       },
       {
@@ -542,7 +532,7 @@
       {
         "command": {
           "type": "offer/choose",
-          "offer": "offer-16",
+          "offer": "offer-20",
           "choice": "no",
           "basedOn": 36
         },
@@ -551,9 +541,11 @@
       },
       {
         "command": {
-          "type": "offer/choose",
-          "offer": "offer-17",
-          "choice": "ignore",
+          "type": "wallet/convert",
+          "from": "USD",
+          "to": "NGN",
+          "amount": 2448,
+          "via": "bank",
           "basedOn": 37
         },
         "tick": 20,
@@ -579,6 +571,68 @@
       },
       {
         "command": {
+          "type": "offer/choose",
+          "offer": "offer-21",
+          "choice": "trek",
+          "basedOn": 39
+        },
+        "tick": 21,
+        "sender": "player"
+      },
+      {
+        "command": {
+          "type": "offer/choose",
+          "offer": "offer-22",
+          "choice": "absent",
+          "basedOn": 40
+        },
+        "tick": 21,
+        "sender": "player"
+      },
+      {
+        "command": {
+          "type": "wallet/convert",
+          "from": "USD",
+          "to": "NGN",
+          "amount": 223,
+          "via": "bank",
+          "basedOn": 41
+        },
+        "tick": 21,
+        "sender": "player"
+      },
+      {
+        "command": {
+          "type": "turn/end",
+          "slots": [
+            {
+              "activity": "activity.rest",
+              "param": null
+            },
+            {
+              "activity": "activity.rest",
+              "param": null
+            }
+          ],
+          "basedOn": 42
+        },
+        "tick": 21,
+        "sender": "player"
+      },
+      {
+        "command": {
+          "type": "wallet/convert",
+          "from": "USD",
+          "to": "NGN",
+          "amount": 5630,
+          "via": "bank",
+          "basedOn": 43
+        },
+        "tick": 22,
+        "sender": "player"
+      },
+      {
+        "command": {
           "type": "turn/end",
           "slots": [
             {
@@ -590,9 +644,31 @@
               "param": null
             }
           ],
-          "basedOn": 39
+          "basedOn": 44
         },
-        "tick": 21,
+        "tick": 22,
+        "sender": "player"
+      },
+      {
+        "command": {
+          "type": "offer/choose",
+          "offer": "offer-23",
+          "choice": "manage",
+          "basedOn": 45
+        },
+        "tick": 23,
+        "sender": "player"
+      },
+      {
+        "command": {
+          "type": "wallet/convert",
+          "from": "USD",
+          "to": "NGN",
+          "amount": 2927,
+          "via": "bank",
+          "basedOn": 46
+        },
+        "tick": 23,
         "sender": "player"
       },
       {
@@ -608,19 +684,19 @@
               "param": null
             }
           ],
-          "basedOn": 40
+          "basedOn": 47
         },
-        "tick": 22,
+        "tick": 23,
         "sender": "player"
       },
       {
         "command": {
           "type": "offer/choose",
-          "offer": "offer-18",
-          "choice": "walk-away",
-          "basedOn": 41
+          "offer": "offer-24",
+          "choice": "leave",
+          "basedOn": 48
         },
-        "tick": 23,
+        "tick": 24,
         "sender": "player"
       },
       {
@@ -628,11 +704,11 @@
           "type": "wallet/convert",
           "from": "USD",
           "to": "NGN",
-          "amount": 9833,
+          "amount": 10687,
           "via": "bank",
-          "basedOn": 42
+          "basedOn": 49
         },
-        "tick": 23,
+        "tick": 24,
         "sender": "player"
       },
       {
@@ -648,9 +724,19 @@
               "param": null
             }
           ],
-          "basedOn": 43
+          "basedOn": 50
         },
-        "tick": 23,
+        "tick": 24,
+        "sender": "player"
+      },
+      {
+        "command": {
+          "type": "setpiece/answer",
+          "question": "why-uk",
+          "answer": "course",
+          "basedOn": 51
+        },
+        "tick": 25,
         "sender": "player"
       },
       {
@@ -658,9 +744,9 @@
           "type": "setpiece/answer",
           "question": "course",
           "answer": "detail",
-          "basedOn": 44
+          "basedOn": 52
         },
-        "tick": 24,
+        "tick": 25,
         "sender": "player"
       },
       {
@@ -668,19 +754,9 @@
           "type": "setpiece/answer",
           "question": "after",
           "answer": "return",
-          "basedOn": 45
+          "basedOn": 53
         },
-        "tick": 24,
-        "sender": "player"
-      },
-      {
-        "command": {
-          "type": "setpiece/answer",
-          "question": "living",
-          "answer": "figures",
-          "basedOn": 46
-        },
-        "tick": 24,
+        "tick": 25,
         "sender": "player"
       },
       {
@@ -688,11 +764,11 @@
           "type": "wallet/convert",
           "from": "USD",
           "to": "NGN",
-          "amount": 2903,
+          "amount": 4479,
           "via": "bank",
-          "basedOn": 47
+          "basedOn": 54
         },
-        "tick": 24,
+        "tick": 25,
         "sender": "player"
       },
       {
@@ -708,9 +784,9 @@
               "param": null
             }
           ],
-          "basedOn": 48
+          "basedOn": 55
         },
-        "tick": 24,
+        "tick": 25,
         "sender": "player"
       },
       {
@@ -718,20 +794,20 @@
           "type": "wallet/convert",
           "from": "USD",
           "to": "NGN",
-          "amount": 125039,
+          "amount": 125069,
           "via": "bank",
-          "basedOn": 49
+          "basedOn": 56
         },
-        "tick": 25,
+        "tick": 26,
         "sender": "player"
       },
       {
         "command": {
           "type": "route/depart",
           "route": "route.uk-masters",
-          "basedOn": 50
+          "basedOn": 57
         },
-        "tick": 25,
+        "tick": 26,
         "sender": "player"
       }
     ]
@@ -742,176 +818,183 @@
       "v": 1,
       "banked": 23,
       "nairaBank": 107000000,
-      "hash": "e89dc69725905d13"
+      "hash": "3c1887bb30e46476"
     },
     {
       "month": 2,
       "v": 2,
       "banked": 22,
       "nairaBank": 118500000,
-      "hash": "4369517fcfdfeaf4"
+      "hash": "b5f2c48d5b2047fd"
     },
     {
       "month": 3,
-      "v": 3,
+      "v": 4,
       "banked": 24,
       "nairaBank": 131500000,
-      "hash": "e33dffd5d67856d1"
+      "hash": "339c110734eb1757"
     },
     {
       "month": 4,
       "v": 6,
       "banked": 23,
       "nairaBank": 134500000,
-      "hash": "a1ba7eb20b049f1e"
+      "hash": "915fb0b8de64dda4"
     },
     {
       "month": 5,
-      "v": 8,
+      "v": 9,
       "banked": 22,
-      "nairaBank": 221500000,
-      "hash": "e629cf9a3bdb47c1"
+      "nairaBank": 223000000,
+      "hash": "5aa2751c4fc423cc"
     },
     {
       "month": 6,
-      "v": 9,
+      "v": 10,
       "banked": 21,
-      "nairaBank": 312500000,
-      "hash": "2b0f3fd637aa7317"
+      "nairaBank": 311000000,
+      "hash": "eabe042e8769a6cf"
     },
     {
       "month": 7,
       "v": 11,
       "banked": 20,
-      "nairaBank": 400500000,
-      "hash": "156b4ac2835e169d"
+      "nairaBank": 373450000,
+      "hash": "dbf686cb7bebb9f0"
     },
     {
       "month": 8,
-      "v": 13,
+      "v": 14,
       "banked": 19,
-      "nairaBank": 462950000,
-      "hash": "99069876bff947f5"
+      "nairaBank": 464450000,
+      "hash": "fde584cc18633094"
     },
     {
       "month": 9,
-      "v": 15,
+      "v": 16,
       "banked": 18,
-      "nairaBank": 566787094,
-      "hash": "9f70f1b419f6b632"
+      "nairaBank": 567598819,
+      "hash": "f36a628b90c32d3a"
     },
     {
       "month": 10,
       "v": 17,
       "banked": 17,
-      "nairaBank": 657787094,
-      "hash": "f6e11a6b9f209408"
+      "nairaBank": 658598819,
+      "hash": "c455278c8a5443ef"
     },
     {
       "month": 11,
-      "v": 18,
-      "banked": 24,
-      "nairaBank": 748787094,
-      "hash": "e564cf3924b23810"
+      "v": 19,
+      "banked": 16,
+      "nairaBank": 749598819,
+      "hash": "f9737a6050bc242c"
     },
     {
       "month": 12,
-      "v": 20,
-      "banked": 23,
-      "nairaBank": 729787094,
-      "hash": "bfc648937860fd35"
+      "v": 21,
+      "banked": 15,
+      "nairaBank": 852973509,
+      "hash": "2147d7ea3038c9e4"
     },
     {
       "month": 13,
-      "v": 24,
-      "banked": 22,
-      "nairaBank": 342330586,
-      "hash": "3a46f75a270ed17e"
+      "v": 25,
+      "banked": 14,
+      "nairaBank": 852973509,
+      "hash": "b241513eeabcdc50"
     },
     {
       "month": 14,
-      "v": 25,
-      "banked": 21,
-      "nairaBank": 342330586,
-      "hash": "d7ba8caa78fef72f"
+      "v": 26,
+      "banked": 13,
+      "nairaBank": 847265074,
+      "hash": "70f74df85229d7bf"
     },
     {
       "month": 15,
-      "v": 26,
-      "banked": 20,
-      "nairaBank": 340187724,
-      "hash": "0fcbc6eef240cb2d"
+      "v": 27,
+      "banked": 12,
+      "nairaBank": 847265074,
+      "hash": "6af393ad69fd8f6d"
     },
     {
       "month": 16,
-      "v": 28,
-      "banked": 19,
-      "nairaBank": 344397482,
-      "hash": "6cd80d348dff4197"
+      "v": 29,
+      "banked": 11,
+      "nairaBank": 847265074,
+      "hash": "7f0bd6dec40a550e"
     },
     {
       "month": 17,
-      "v": 30,
-      "banked": 18,
-      "nairaBank": 338665877,
-      "hash": "7f90ef8869296b88"
+      "v": 31,
+      "banked": 10,
+      "nairaBank": 847265074,
+      "hash": "19aa92d59faaf870"
     },
     {
       "month": 18,
-      "v": 33,
-      "banked": 17,
-      "nairaBank": 346969593,
-      "hash": "fa0de597d575c750"
+      "v": 32,
+      "banked": 9,
+      "nairaBank": 846207776,
+      "hash": "4216d9c5f3d0bf3a"
     },
     {
       "month": 19,
-      "v": 35,
-      "banked": 16,
-      "nairaBank": 350258040,
-      "hash": "63b4573a2a3b48b9"
+      "v": 33,
+      "banked": 24,
+      "nairaBank": 846207776,
+      "hash": "3353a6ae7905476f"
     },
     {
       "month": 20,
       "v": 36,
-      "banked": 15,
-      "nairaBank": 350258040,
-      "hash": "c16a688560193122"
+      "banked": 23,
+      "nairaBank": 344995410,
+      "hash": "2d9d262486c64420"
     },
     {
       "month": 21,
       "v": 39,
-      "banked": 14,
-      "nairaBank": 350258040,
-      "hash": "c299b8a358acbbed"
+      "banked": 22,
+      "nairaBank": 348436972,
+      "hash": "169d71b4fea9a409"
     },
     {
       "month": 22,
-      "v": 40,
-      "banked": 13,
-      "nairaBank": 350258040,
-      "hash": "f211a4a0057040cf"
+      "v": 43,
+      "banked": 21,
+      "nairaBank": 341829311,
+      "hash": "20847d364e7ee768"
     },
     {
       "month": 23,
-      "v": 41,
-      "banked": 12,
-      "nairaBank": 339951033,
-      "hash": "b2f0fd38fb076503"
+      "v": 45,
+      "banked": 20,
+      "nairaBank": 349774233,
+      "hash": "988197eb1861f7c0"
     },
     {
       "month": 24,
-      "v": 44,
-      "banked": 11,
-      "nairaBank": 14991196,
-      "hash": "97a5a404a8f7f3ac"
+      "v": 48,
+      "banked": 19,
+      "nairaBank": 340431511,
+      "hash": "142f60998bbb442a"
     },
     {
       "month": 25,
-      "v": 49,
+      "v": 51,
+      "banked": 18,
+      "nairaBank": 12731391,
+      "hash": "a7d03bc66dbf9c82"
+    },
+    {
+      "month": 26,
+      "v": 56,
       "banked": 24,
-      "nairaBank": 162277,
-      "hash": "abbed385ac6d3f82"
+      "nairaBank": 172999,
+      "hash": "96d8455e5485847c"
     }
   ],
-  "finalHash": "54e5afd387d228f9"
+  "finalHash": "3cb4ad7a19325fe0"
 }
