@@ -5,7 +5,7 @@ import type { ReactElement } from "react";
 import { afterEach } from "vitest";
 
 import { GameProvider } from "../../authority/GameProvider";
-import { createGameStore, forgetMonth, type GameStore } from "../../authority/store";
+import { createGameStore, type GameStore } from "../../authority/store";
 import { fakeAuthority, type FakeAuthority } from "./fixtures";
 
 // The client project runs without Vitest globals, so Testing Library cannot
@@ -21,8 +21,6 @@ export interface Rendered {
 
 export async function renderWithView(ui: ReactElement, view: PlayerView): Promise<Rendered> {
   const authority = fakeAuthority(view);
-  // Each render is its own load: a month the browser remembers from an earlier test is not this one's.
-  forgetMonth();
   const store = createGameStore(authority);
   await store.getState().refresh();
   render(<GameProvider store={store}>{ui}</GameProvider>);

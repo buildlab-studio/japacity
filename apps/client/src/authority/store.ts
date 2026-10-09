@@ -133,6 +133,8 @@ export interface GameStoreOptions {
   choosingLife?: boolean;
   notice?: string | null;
   account?: AccountApi | null;
+  /** True for the browser's own game: the month's plan and lines are kept across loads. */
+  rememberMonth?: boolean;
 }
 
 const REST: Id<"activity"> = "activity.rest";
@@ -231,7 +233,7 @@ function rememberedMonth(view: PlayerView): Partial<GameState> {
 export function createGameStore(authority: StoreAuthority, options: GameStoreOptions = {}): GameStore {
   const store = makeStore(authority, options);
   // R-WORLD-007, R-WORLD-008: a reload keeps the month's plan and what was done in it.
-  store.subscribe((state, before) => {
+  if (options.rememberMonth === true) store.subscribe((state, before) => {
     if (state.view === null) return;
     if (state.view.v === before.view?.v && state.plan === before.plan && state.monthLines === before.monthLines && state.lastMonthLines === before.lastMonthLines && state.cardClosed === before.cardClosed) return;
     writeMonth({ v: state.view.v, scenario: state.view.scenario, plan: state.plan, monthLines: state.monthLines, lastMonthLines: state.lastMonthLines, cardClosed: state.cardClosed });
@@ -249,7 +251,7 @@ function makeStore(authority: StoreAuthority, options: GameStoreOptions): GameSt
       // A fetch that set out before a command's reply can land after it: the older view is dropped.
       const held = get().view;
       if (held !== null && view.v < held.v) return;
-      set({ view, plan: fitPlan(get().plan, view.freeSlots), earlyWin: get().earlyWin || wonEarly(view, view.report?.lines ?? [], null), ...(held === null ? rememberedMonth(view) : {}) });
+      set({ view, plan: fitPlan(get().plan, view.freeSlots), earlyWin: get().earlyWin || wonEarly(view, view.report?.lines ?? [], null), ...(held === null && options.rememberMonth === true ? rememberedMonth(view) : {}) });
     }
 
     async function send(command: PlayerCommand): Promise<Reply | ServerRejection | null> {
