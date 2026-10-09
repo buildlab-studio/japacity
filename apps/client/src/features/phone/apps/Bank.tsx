@@ -14,10 +14,10 @@ import { changeQuote } from "../../../shared/words/cost";
 import { duesGap, heldElsewhere } from "../../../shared/words/dues";
 import { REMIT_CHANNELS, remitQuote, type RemitChannel } from "../../../shared/sim/remit";
 import { CURRENCIES, formatBp, formatMoney, HOME_CURRENCIES } from "../../../shared/words/format";
+import { type MoneyLine, moneyLines } from "../../../shared/words/money";
 import { lowerFirst, say, words } from "../../../shared/words/text";
 import { localCurrency } from "../../../shared/words/wayHome";
 import { Counter } from "../../../shared/world/Band";
-import { type MoneyLine, moneyLines } from "../../turn/month.results";
 import { Chips, Head, useAsk } from "../act";
 import { phoneWords } from "../phone.words";
 import { abroadWords, changeFirst, currencyList } from "./abroad";
@@ -52,7 +52,7 @@ export function savingsOf(view: PlayerView): { shown: number; required: number; 
 /**
  * The money that moved lately, newest last: the month just ended whole, as its results list it (its
  * mid-month moves and its end, in the results' order), then this month's moves so far. One source with
- * the results (features/turn/month.results.ts, `moneyLines`), so the two never differ (R-WORLD-019; the
+ * the results (shared/words/money.ts, `moneyLines`), so the two never differ (R-WORLD-019; the
  * : a payment split across pockets is one line, a bill's "paid this month" is the same
  * money, a fare paid on the way is a move, a change at the bank is told as the results tell it.
  */
