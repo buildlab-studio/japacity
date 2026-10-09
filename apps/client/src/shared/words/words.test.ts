@@ -136,7 +136,9 @@ describe("a job's gates in words", () => {
   });
 
   test("[R-TEXT-005] given every quality the player is shown, when its move is told, then it is said in words, never as a figure", () => {
-    const shown = Object.values(content.quality).filter((entry) => entry.shown && entry.id !== "quality.age-months");
+    // The age is a figure by nature; the degree's level and grade are named by the prologue's own lines (R-PROLOGUE-008).
+    const named = new Set(["quality.age-months", "quality.edu-level", "quality.edu-grade"]);
+    const shown = Object.values(content.quality).filter((entry) => entry.shown && !named.has(entry.id));
     expect(shown.length).toBeGreaterThan(8);
     for (const entry of shown) {
       for (const value of [entry.min, entry.max]) {
