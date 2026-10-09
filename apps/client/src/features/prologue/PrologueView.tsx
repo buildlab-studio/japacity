@@ -12,10 +12,10 @@ import { Button } from "../../shared/ui/Button";
 import { Card } from "../../shared/ui/Panel";
 import { Rejection } from "../../shared/ui/Rejection";
 import { ReportLines } from "../../shared/ui/ReportLines";
-import { formatMoney, playerMonth } from "../../shared/words/format";
+import { formatMoney } from "../../shared/words/format";
 import { AGE, valueWords, yearsOf } from "../../shared/words/quality";
 import { requirementSentence } from "../../shared/words/requirement";
-import { nameOf, say, sayCount, words } from "../../shared/words/text";
+import { bandWords, hasWords, nameOf, say, sayCount, words } from "../../shared/words/text";
 
 type Prologue = NonNullable<PlayerView["prologue"]>;
 type Draw = NonNullable<Prologue["draw"]>;
@@ -55,9 +55,18 @@ function ageYears(view: PlayerView): number {
   return yearsOf(view.qualities.find((quality) => quality.id === AGE)?.value ?? 0);
 }
 
-/** Why an answer is not open: its requirements in words, from content (R-PROLOGUE-003). */
-function whyNot(step: string, answer: string): string[] {
+/**
+ * Why an answer is not open (R-PROLOGUE-003): the situation in content's words, never the threshold
+ *: "your family would not have it". A money line carries the sum it needs.
+ * Only an answer content has no words for falls back to its requirements.
+ */
+export function whyNot(step: string, answer: string): string[] {
   const entry = content.prologue[step]?.answers.find((candidate) => candidate.id === answer);
+  const own = `prologue.${step}.answer.${answer}.why`;
+  if (hasWords(own)) {
+    const money = entry?.requires.find((requirement) => requirement.type === "money/min");
+    return [say(own, money?.type === "money/min" && typeof money.amount === "number" ? { amount: formatMoney(money.amount, money.currency) } : {})];
+  }
   return (entry?.requires ?? []).map((requirement) => requirementSentence(requirement));
 }
 
@@ -92,9 +101,34 @@ function Answers({ prologue }: { prologue: Prologue }) {
   );
 }
 
-/** What the last answer moved, beyond what the life so far already says. */
+const QUALITY_LINES = new Set(["line.quality.gain", "line.quality.loss", "line.quality.drift"]);
+const GRADE = "quality.edu-grade";
+const GRADED = "line.prologue.graded";
+
+/**
+ * A line that would tell a quality's figure, told as the situation instead: a
+ * quality with bands keeps its band line; one with levels says the level it is at ("Education now:
+ * Secondary school"); another says what moved in the prologue's own words, or only which way ("Portfolio
+ * up."). The degree's grade is said by its name. Null: the line is said by another already.
+ */
+export function situationLine(line: ReportLine, all: readonly ReportLine[] = []): ReportLine | null {
+  const { quality, value, grade } = line.params;
+  if (line.key === GRADED && typeof grade === "number" && hasWords(`${GRADE}.value.${String(grade)}`)) {
+    return { ...line, key: "prologue.line.graded", params: { grade: say(`${GRADE}.value.${String(grade)}`) } };
+  }
+  if (!QUALITY_LINES.has(line.key) || typeof quality !== "string" || typeof value !== "number" || bandWords(quality, value) !== null) return line;
+  // The grade is said once, by the graded line.
+  if (quality === GRADE && all.some((other) => other.key === GRADED)) return null;
+  const level = `${quality}.value.${String(value)}`;
+  if (hasWords(level)) return { ...line, key: "prologue.line.level", params: { quality: nameOf(quality), level: say(level) } };
+  const way = line.key.slice("line.quality.".length);
+  const moved = `prologue.line.${quality}.${way}`;
+  return hasWords(moved) ? { ...line, key: moved, params: {} } : { ...line, key: `prologue.line.moved.${way}`, params: { quality: nameOf(quality) } };
+}
+
+/** What the last answer moved, beyond what the life so far already says, each said as the situation. */
 function lastLines(lines: readonly ReportLine[]): ReportLine[] {
-  return lines.filter((line) => !SAID_IN_LIFE.has(line.key));
+  return lines.filter((line) => !SAID_IN_LIFE.has(line.key)).flatMap((line) => situationLine(line, lines) ?? []);
 }
 
 function Outcome({ prologue }: { prologue: Prologue }) {
@@ -169,11 +203,20 @@ export function prologueJustClosed(lines: readonly ReportLine[]): boolean {
   return lines.some((line) => line.key === PROLOGUE_CLOSED);
 }
 
+/** The story's first step, in its own nudge words, so the handover names where to start, never a month number. */
+export function firstStep(view: Pick<PlayerView, "chapter">): string | null {
+  const step = view.chapter.items.find((item) => !item.met)?.id ?? null;
+  if (view.chapter.current === null || step === null) return null;
+  const own = `${view.chapter.current}.item.${step}`;
+  return hasWords(`${own}.nudge`) ? say(`${own}.nudge`) : hasWords(own) ? say(own) : null;
+}
+
 /** The handover: the last answer's outcome, the life as it now stands, and the way into the first month. */
 export function PrologueHandover({ onDone }: { onDone: () => void }) {
   const view = useView();
   const lines = useGame((state) => state.lines);
   const shown = lastLines(lines);
+  const step = firstStep(view);
   return (
     <main className="mx-auto flex min-h-dvh max-w-xl flex-col gap-4 px-4 py-6" data-prologue-handover>
       <p className="text-sm font-semibold tracking-wide text-muted uppercase">{say("ui.prologue.title")}</p>
@@ -183,8 +226,13 @@ export function PrologueHandover({ onDone }: { onDone: () => void }) {
         {shown.length === 0 ? null : <ReportLines lines={shown} />}
       </Card>
       <LifeSoFar view={view} />
+      {step === null ? null : (
+        <p className="text-lg font-medium" data-first-step>
+          {say("prologue.handover.first", { step })}
+        </p>
+      )}
       <Button variant="primary" onClick={onDone} autoFocus>
-        {say("ui.prologue.start", { month: playerMonth(view.month) })}
+        {say("ui.prologue.start")}
         <ArrowRight size={18} />
       </Button>
     </main>

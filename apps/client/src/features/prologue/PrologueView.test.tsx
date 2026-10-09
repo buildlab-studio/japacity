@@ -10,7 +10,7 @@ import { gameAuthority, newGame } from "../../shared/testing/fixtures";
 import { formatNumber } from "../../shared/words/format";
 import { requirementSentence } from "../../shared/words/requirement";
 import { say, sayCount, words } from "../../shared/words/text";
-import { drawSentences, PrologueView } from "./PrologueView";
+import { drawSentences, PrologueView, whyNot } from "./PrologueView";
 // Registers Testing Library's cleanup for this file.
 import "../../shared/testing/render";
 import { onTheClassicPage } from "../../shared/testing/classic";
@@ -49,8 +49,11 @@ async function walk(seed: string, pick: Pick): Promise<{ steps: string[]; greyed
       if (!answer.allowed) {
         greyed.push(`${prologue.step}.${answer.id}`);
         const shown = card().querySelector(`[data-answer='${answer.id}']`)?.textContent ?? "";
+        // The reason is the situation in content's words, never the requirement's threshold.
         const requires = content.prologue[prologue.step]?.answers.find((entry) => entry.id === answer.id)?.requires ?? [];
-        for (const requirement of requires) expect(shown).toContain(requirementSentence(requirement));
+        expect(requires.length).toBeGreaterThan(0);
+        for (const reason of whyNot(prologue.step, answer.id)) expect(shown).toContain(reason);
+        for (const requirement of requires) expect(shown).not.toContain(requirementSentence(requirement));
       }
     }
     if (prologue.draw !== null) {
