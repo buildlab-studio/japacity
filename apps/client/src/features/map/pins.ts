@@ -3,7 +3,7 @@
 import { content } from "@japacity/content";
 
 import type { Pin, PinState, RideChoice } from "../../shared/world/contract";
-import { mapWords, RIDES, WAYS } from "./map.words";
+import { mapWords, WAYS } from "./map.words";
 import type { Position } from "./layout";
 
 /** A pin as the city hands it: the contract's, with the line optional until the city gives one. */
@@ -54,29 +54,13 @@ export function metresBetween(from: Position, to: Position): number {
   return Math.hypot((to.lonE3 - from.lonE3) * 111.32 * cos, (to.latE3 - from.latE3) * 111.32);
 }
 
-/** Minutes by danfo between two places, as the city's list reckoned them: a base wait and a Lagos pace. */
-export function danfoMinutes(from: Position, to: Position): number {
-  return 8 + Math.round(metresBetween(from, to) / 120);
-}
-
-const KOBO_PER_NAIRA = 100;
-/** Fares are asked in fifties of naira. */
-const FARE_STEP = 50;
-
 /**
- * The three ways to a place, each with its fare in kobo and its minutes. Fares are in naira while
- * tuning says so (`place.fareFromNaira`). No place entry carries a fare of its own, so the map's
- * table prices every ride (see `RIDES`).
+ * The three ways to a place, each with its fare in kobo and its minutes. The fare is the way's
+ * flat fare in tuning, the same the simulation takes for `place/ride` (R-PLACE-010, decision 0011);
+ * the minutes are the wait plus the straight-line distance at the way's pace.
  */
 export function rideChoices(from: Position, to: Position): RideChoice[] {
-  const km = metresBetween(from, to) / 1000;
-  const minutes = danfoMinutes(from, to);
-  // `fareFromNaira` is read as "the table's figures are whole naira"; when it is off they are
-  // taken as kobo already. Nothing says what it means for a ride inside a city, so it is still open.
-  const naira = content.tuning.place.fareFromNaira;
-  return WAYS.map((id) => {
-    const way = RIDES[id];
-    const fare = Math.ceil((way.board + way.perKm * km) / FARE_STEP) * FARE_STEP * (naira ? KOBO_PER_NAIRA : 1);
-    return { id, label: mapWords(`map.way.${id}`), fare, minutes: Math.max(3, Math.round((minutes * way.paceBp) / 10000)) };
-  });
+  const { fareKobo, metresPerMinute, waitMinutes } = content.tuning.city.ride;
+  const metres = metresBetween(from, to);
+  return WAYS.map((id) => ({ id, label: mapWords(`map.way.${id}`), fare: fareKobo[id], minutes: waitMinutes + Math.max(1, Math.round(metres / metresPerMinute[id])) }));
 }

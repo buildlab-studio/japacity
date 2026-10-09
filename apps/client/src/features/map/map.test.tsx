@@ -269,6 +269,20 @@ describe("the ride", () => {
     expect(onDone).toHaveBeenCalledTimes(1);
   });
 
+  test("[R-WORLD-017] given the city refusing the fare, when a way is chosen, then no ride plays and the sheet closes", async () => {
+    const onRide = vi.fn(() => Promise.resolve(false));
+    await renderWithView(<Map pins={lagosPins()} country={LAGOS} countries={COUNTRIES} drawing={false} onGo={() => undefined} onClose={() => undefined} onRide={onRide} />, engineView());
+    fireEvent.click(screen.getAllByRole("button").find((button) => button.dataset.stop === "place.bode-thomas") as HTMLElement);
+    const sheet = screen.getByRole("dialog", { name: headingOf(nameOf("place.bode-thomas")) });
+    fireEvent.click(sheet.querySelector("[data-ride-main]") as HTMLElement);
+    await act(async () => {
+      await Promise.resolve();
+    });
+    expect(onRide).toHaveBeenCalledTimes(1);
+    expect(screen.queryByRole("dialog", { name: headingOf(nameOf("place.bode-thomas")) })).toBeNull();
+    expect(screen.queryByText(mapWords("map.ride.to", { way: "Danfo", place: headingOf(nameOf("place.bode-thomas")) }))).toBeNull();
+  });
+
   test("[R-WORLD-017] given a ride already chosen from a danfo in the place, when the map opens, then the same ride plays and the place opens at its end", async () => {
     const onGo = vi.fn();
     const onRide = vi.fn();

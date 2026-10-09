@@ -147,6 +147,32 @@ describe("leaving", () => {
 });
 
 describe("coming home", () => {
+  test("[R-PLACE-010] given a character at home with the fare in cash, when a ride is sent, then the way's flat fare leaves cash as a fare and the ride is on record", () => {
+    const game = start({ content });
+    const fare = content.tuning.city.ride.fareKobo.keke;
+    const before = game.view().pockets.NGN.cash;
+    const result = game.accept({ type: "place/ride", from: "place.ojuelegba", to: "place.bode-thomas", way: "keke" });
+    expect(result.events.filter((event) => event.type === "wallet/debited")).toMatchObject([{ pocket: "cash", amount: fare, reason: "fare" }]);
+    expect(result.events.find((event) => event.type === "place/rode")).toMatchObject({ from: "place.ojuelegba", to: "place.bode-thomas", way: "keke", fare });
+    expect(game.view().pockets.NGN.cash).toBe(before - fare);
+    expect(game.view().place.where).toBe("home");
+  });
+
+  test("[R-PLACE-010] given the fare short in cash, the same place twice, a place elsewhere, or a character abroad, when a ride is sent, then it is refused and nothing is paid", () => {
+    const game = start({ content });
+    const cash = game.view().pockets.NGN.cash;
+    game.expectRejected({ type: "place/ride", from: "place.ojuelegba", to: "place.ojuelegba", way: "danfo" }, "not-legal");
+    game.expectRejected({ type: "place/ride", from: "place.ojuelegba", to: "place.peckham", way: "danfo" }, "not-legal");
+    game.expectRejected({ type: "place/ride", from: "place.ojuelegba", to: "place.nowhere", way: "danfo" }, "unknown-id");
+    // The okada's fare is the dearest: with cash moved to the bank under it, the ride cannot be paid.
+    const keep = content.tuning.city.ride.fareKobo.okada - 1;
+    game.accept({ type: "wallet/move", currency: "NGN", amount: cash - keep, to: "bank" });
+    game.expectRejected({ type: "place/ride", from: "place.ojuelegba", to: "place.bode-thomas", way: "okada" }, "cannot-afford");
+    expect(game.view().pockets.NGN.cash).toBe(keep);
+    const abroad = flown(content);
+    abroad.expectRejected({ type: "place/ride", from: "place.ojuelegba", to: "place.bode-thomas", way: "danfo" }, "not-legal");
+  });
+
   test("[R-PLACE-004] given a character at home, when return/home is sent, then it is rejected", () => {
     const game = readyLife(content);
     const rejected = game.expectRejected({ type: "return/home" }, "not-legal");

@@ -143,6 +143,7 @@ function playerSamples(state: State, world: World): Record<PlayerCommand, Loose[
     "prologue/choose": [{ type: "prologue/choose", step: "s", answer: "a" }, ...of("prologue/choose")],
     "status/renew": [{ type: "status/renew" }],
     "return/home": [{ type: "return/home" }, ...of("return/home")],
+    "place/ride": [{ type: "place/ride", from: "place.ojuelegba", to: "place.bode-thomas", way: "keke" }, { type: "place/ride", from: "place.ojuelegba", to: "place.ojuelegba", way: "danfo" }, ...of("place/ride")],
     "people/invite": [{ type: "people/invite", slot: "partner" }],
     "people/court": [{ type: "people/court", with: "person.none" }],
     "people/propose": [{ type: "people/propose", bond: "bond-1", step: "partner" }],

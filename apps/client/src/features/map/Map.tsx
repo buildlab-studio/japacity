@@ -26,8 +26,8 @@ export interface MapProps {
   /** The ride is over: the place opens. */
   onGo: (id: string) => void;
   onClose: () => void;
-  /** A way was chosen: its fare leaves the wallet through the city's command for a fare. */
-  onRide?: (choice: RideChoice, to: string) => void;
+  /** A way was chosen: the city sends `place/ride` for its fare, and answers whether it was accepted; the ride plays only then (R-PLACE-010). */
+  onRide?: (choice: RideChoice, to: string) => Promise<boolean> | boolean | void;
   /** Opens another country the player may switch to. */
   onCountry?: (id: string) => void;
   /** The home of the country shown, when it is also where the player stands. */
@@ -59,17 +59,28 @@ export function Map({ pins, country, countries, drawing, diveTo = null, diveBy =
     const to = stable.find((candidate) => candidate.id === diveTo);
     if (to === undefined) return;
     const choice = here === null ? undefined : rideChoices(here.position, to.position).find((way) => way.id === diveBy);
-    if (choice !== undefined) onRide?.(choice, to.id);
     setPicked(null);
-    setRiding({ id: to.id, way: diveBy });
+    start(choice, to.id, diveBy);
     // The ride starts once for the place chosen.
   }, [diveTo]);
 
+  /** The fare first: a ride the city refuses does not play, and the sheet closes. A city with nothing to say rides at once. */
+  const start = (choice: RideChoice | undefined, to: string, way: RideChoice["id"]): void => {
+    const answer = choice === undefined || onRide === undefined ? true : onRide(choice, to);
+    if (answer instanceof Promise) {
+      void answer.then((accepted) => {
+        if (accepted) setRiding({ id: to, way });
+      });
+    } else if (answer !== false) {
+      setRiding({ id: to, way });
+    }
+  };
+
   const go = (choice: RideChoice): void => {
     if (pin === null) return;
-    onRide?.(choice, pin.id);
+    const to = pin.id;
     setPicked(null);
-    setRiding({ id: pin.id, way: choice.id });
+    start(choice, to, choice.id);
   };
 
   const ridingTo = riding === null ? null : (stable.find((candidate) => candidate.id === riding.id) ?? null);

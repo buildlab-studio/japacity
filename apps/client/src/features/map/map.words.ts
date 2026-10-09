@@ -61,18 +61,5 @@ export function mapWords(key: string, params: Record<string, string | number> = 
   });
 }
 
-/**
- * How each way prices and paces a ride inside a city: a fare to board, a fare for each kilometre by
- * road (both in whole naira), and the minutes as a share of the danfo's, in basis points.
- */
-// no place entry carries a fare inside the city and tuning has only `place.fareFromNaira`.
-// These are working values from Lagos fares of 2026 for the maintainer to move into tuning.city (a `rides`
-// table) or into the place entries.
-export const RIDES: Record<RideChoice["id"], { board: number; perKm: number; paceBp: number }> = {
-  danfo: { board: 300, perKm: 60, paceBp: 10000 },
-  keke: { board: 400, perKm: 120, paceBp: 9000 },
-  okada: { board: 500, perKm: 160, paceBp: 6500 },
-};
-
 /** The ways in the order the sheet lists them: cheapest first. */
 export const WAYS: readonly RideChoice["id"][] = ["danfo", "keke", "okada"];

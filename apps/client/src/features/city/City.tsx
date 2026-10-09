@@ -17,7 +17,7 @@ import { blurbOf, nameOf, say, words } from "../../shared/words/text";
 import { AskSheet } from "../../shared/world/AskSheet";
 import { Band } from "../../shared/world/Band";
 import { cue } from "../../shared/sound/cues";
-import type { Ask } from "../../shared/world/contract";
+import type { Ask, RideChoice } from "../../shared/world/contract";
 import { Cut, useCut } from "../../shared/world/Cut";
 import { Nudge } from "../../shared/world/Nudge";
 import { ThumbBar } from "../../shared/world/ThumbBar";
@@ -178,6 +178,8 @@ export interface CityMapSlot {
   onClose: () => void;
   /** The home of the country shown, so it stays a house when the player stands there. */
   home: string | null;
+  /** A way chosen: the fare goes through `place/ride`, and the answer says whether the ride plays (R-PLACE-010). */
+  onRide?: (choice: RideChoice, to: string) => Promise<boolean>;
 }
 
 export function City({
@@ -213,6 +215,7 @@ export function City({
   cityMap?: (props: CityMapSlot) => ReactNode;
 } = {}) {
   const view = useView();
+  const send = useGame((state) => state.send);
   const presence = useGame((state) => (state as { presence?: PresenceSample | null }).presence ?? null);
   const drawing = useMemo(canDraw, []);
   const [date] = useState(() => localDate(new Date()));
@@ -545,6 +548,13 @@ export function City({
             onClose: () => {
               setMap(false);
               setDiveTo(null);
+            },
+            // R-PLACE-010: the fare leaves cash through the command, and the ride plays only once it is
+            // accepted; abroad the map asks no fare (decision 0011).
+            onRide: async (choice, to) => {
+              if (view.place.where !== "home") return true;
+              const reply = await send({ type: "place/ride", from: placeId as Id<"place">, to: to as Id<"place">, way: choice.id });
+              return reply?.ok === true;
             },
           })
         : null}

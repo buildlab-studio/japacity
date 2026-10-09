@@ -10,4 +10,6 @@ export type PlaceEvent =
   /** R-RETURN-004: a resident token lapses after too long away. */
   | { type: "place/token-lapsed"; status: Id<"status">; months: number }
   /** R-RETURN-005: the December visit opened in this month of the character's (R-PLACE-009's `decemberMonth`). */
-  | { type: "place/december-opened"; month: number };
+  | { type: "place/december-opened"; month: number }
+  /** R-PLACE-010: a ride inside the city, its fare paid from cash. */
+  | { type: "place/rode"; from: Id<"place">; to: Id<"place">; way: "danfo" | "keke" | "okada"; fare: number };

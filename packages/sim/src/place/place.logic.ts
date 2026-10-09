@@ -272,6 +272,30 @@ function returnHome(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
 }
 
 /**
+ * R-PLACE-010 (decision 0011): a ride between two places of the city. The fare is the way's flat
+ * fare in tuning, from naira cash. The simulation keeps no place of the city, so nothing here
+ * moves; the client moves once the ride is accepted.
+ */
+function ride(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
+  if (command.type !== "place/ride") throw new Error(`place/ride cannot handle ${command.type}.`);
+  const { from, to, way } = command;
+  if (ctx.state.place.where !== "home") return reject("not-legal", "A ride inside the city is for a character at home.");
+  const start = ctx.content.place[from];
+  const end = ctx.content.place[to];
+  if (start === undefined) return reject("unknown-id", `No place ${from}.`);
+  if (end === undefined) return reject("unknown-id", `No place ${to}.`);
+  if (from === to) return reject("not-legal", "A ride goes somewhere else.");
+  if (start.where !== "home" || end.where !== "home") return reject("not-legal", "A ride inside the city stays in the city.");
+  const fare = ctx.content.tuning.city.ride.fareKobo[way];
+  if (!ctx.check({ type: "money/min", currency: "NGN", amount: fare, pocket: "cash" }).met) {
+    return reject("cannot-afford", `The ${way} fare is ${String(fare)} kobo and cash cannot cover it.`);
+  }
+  const cause: Cause = { source: command.type, param: to, terms: { way } };
+  ctx.apply([{ type: "money/take", currency: "NGN", pocket: "cash", amount: fare, reason: "fare" }], cause);
+  return record(ctx, [{ type: "place/rode", from, to, way, fare }]);
+}
+
+/**
  * R-ROAD-007 and R-STATUS-008: the authority's way home, as `return/home`
  * does for the given shape with no fare. Abroad it is the same return. From
  * the road it is the assisted return: the family house takes the character
@@ -397,6 +421,9 @@ function evolve(slice: PlaceSlice, event: PlaceEvent): PlaceSlice {
       return { ...slice, heldAbroad: null };
     case "place/december-opened":
       return { ...slice, decemberMonth: event.month };
+    // R-PLACE-010: the simulation keeps no place of the city, so a ride changes nothing here.
+    case "place/rode":
+      return slice;
     default: {
       const never: never = event;
       throw new Error(`Unknown place event ${JSON.stringify(never)}.`);
@@ -431,6 +458,9 @@ function lines(event: PlaceEvent): ReportLine[] {
       return [line("token-lapsed", { status: event.status, months: event.months }, "bad", true)];
     // The set piece's own line tells the visit.
     case "place/december-opened":
+      return [];
+    // R-WORLD-017: arrival is a toast on the screen, and the fare's own ledger line tells the money.
+    case "place/rode":
       return [];
     default: {
       const never: never = event;
@@ -471,7 +501,7 @@ export const placeKind: RegisteredKind<PlaceSlice, PlaceEvent> = {
   kind: "place",
   // R-PLACE-001.
   initial: () => ({ where: "home", country: null, movedMonth: 0, returns: [], heldAbroad: null, decemberMonth: null }),
-  commands: { "return/home": returnHome },
+  commands: { "return/home": returnHome, "place/ride": ride },
   effects: {
     "place/move": move,
     // R-ROAD-007 and R-STATUS-008: the authority's way home.
