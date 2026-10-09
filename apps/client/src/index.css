@@ -3,42 +3,14 @@
    letters sit in the latin-ext and vietnamese subsets. */
 @import "@fontsource/danfo/index.css";
 
-/* Colour tokens. One accent, danfo yellow, always with dark ink on it. */
-:root {
-  --paper: #f7f1e6;
-  --surface: #fffaf1;
-  --sunk: #ece2d0;
-  --ink: #1d1a16;
-  --muted: #675e52;
-  --line: #ddd0ba;
-  --accent: #f2b705;
-  --accent-ink: #1d1a16;
-  --good: #1d6f37;
-  --bad: #a8261d;
-  color-scheme: light;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --paper: #171512;
-    --surface: #221f1a;
-    --sunk: #2e2a23;
-    --ink: #f3ece0;
-    --muted: #b3a895;
-    --line: #3d362d;
-    --accent: #f2b705;
-    --accent-ink: #1d1a16;
-    --good: #7fd298;
-    --bad: #ff9a90;
-    color-scheme: dark;
-  }
-}
-
-
 /* The world-first role tokens (docs/rules/world.md R-WORLD-021). A component names a role, never a
    colour. Two themes share the roles: adire (the default) and danfo (data-ui="danfo" on <html>).
-   The 3D world keeps its own colours in both. */
+   The 3D world keeps its own colours in both.
+   Sheets take their colour from the theme, never a stock warm off-white. The default is the wash
+   treatment (the sheet tinted by the theme: indigo-white, or newsprint grey); data-surface="dark" and
+   data-surface="print" on <html> hold the two others for the maintainer to compare. No screen offers them. */
 :root {
+  color-scheme: light;
   --strong: #1c2a5e;
   --strong-2: #2c3f87;
   --on-strong: #f3efe6;
@@ -47,13 +19,18 @@
   --pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='44' height='44'%3E%3Cg fill='none' stroke='%23f3efe6' stroke-opacity='.16' stroke-width='2'%3E%3Ccircle cx='22' cy='22' r='15'/%3E%3Ccircle cx='22' cy='22' r='8'/%3E%3C/g%3E%3Ccircle cx='22' cy='22' r='2.5' fill='%23f3efe6' fill-opacity='.16'/%3E%3C/svg%3E");
   --wall: #1c2a5e;
   --wall-text: #f3efe6;
-  --screen: #f3efe6;
-  --sheet: #fbf9f4;
+  --screen: #eef1f8;
+  --sheet: #f1f3f9;
   --sheet-2: #ffffff;
-  --sheet-muted: #e8e2d4;
+  --sheet-muted: #e1e6f2;
+  --sheet-pattern: none;
   --text: #131a33;
-  --text-2: #5a6078;
-  --sheet-line: rgba(19, 26, 51, 0.12);
+  --text-2: #56607e;
+  --sheet-line: rgba(28, 42, 94, 0.12);
+  /* A chosen row in a list: the theme's strong colour with its label colour for marks. */
+  --pick: var(--strong);
+  --on-pick: var(--on-strong);
+  --pick-mark: var(--signal);
   --action: #f2b705;
   --action-text: #131a33;
   --action-edge: #131a33;
@@ -65,7 +42,7 @@
   --water: #2c3f87;
   --land: #ece5d5;
   --land-2: #e1d8c4;
-  --road: #fbf9f4;
+  --road: #ffffff;
   --map-label: #5d564a;
   --paper-bill: #fbf7ec;
   --paper-ticket: #fff3c4;
@@ -77,6 +54,12 @@
   --app-bills: #7a3b69;
   --app-news: #4a5068;
   --app-settings: #8a8378;
+  /* Older names, kept as aliases of the roles so they follow the theme and the surface. */
+  --ink: var(--text);
+  --accent: var(--action);
+  --accent-ink: var(--action-text);
+  --good: var(--in);
+  --bad: var(--out);
 }
 
 :root[data-ui="danfo"] {
@@ -88,13 +71,13 @@
   --pattern: none;
   --wall: #f6f1e4;
   --wall-text: #17140f;
-  --screen: #f6f1e4;
-  --sheet: #fbf9f4;
-  --sheet-2: #ffffff;
-  --sheet-muted: #ece4cf;
+  --screen: #ecece7;
+  --sheet: #eeeeea;
+  --sheet-2: #fafaf8;
+  --sheet-muted: #e0e0da;
   --text: #17140f;
-  --text-2: #5e574a;
-  --sheet-line: rgba(23, 20, 15, 0.12);
+  --text-2: #5b5b55;
+  --sheet-line: rgba(23, 20, 15, 0.13);
   --scrim: rgba(10, 9, 6, 0.55);
   --device: #17140f;
   --water: #17140f;
@@ -103,6 +86,54 @@
   --road: #ffffff;
   --map-label: #5e574a;
   --app-chats: #17140f;
+}
+
+/* Sheets the colour of the bar. The pick flips so it still stands out: chalk on adire, yellow on danfo. */
+:root[data-surface="dark"] {
+  color-scheme: dark;
+  --sheet: #18234f;
+  --sheet-2: #22306a;
+  --sheet-muted: #2b3a7a;
+  --screen: #141d42;
+  --sheet-line: rgba(243, 239, 230, 0.13);
+  --text: #f3efe6;
+  --text-2: #aab3d6;
+  --action-edge: #0b1130;
+  --pick: #f3efe6;
+  --on-pick: #131a33;
+  --pick-mark: #131a33;
+}
+/* White paper with a faint dot pattern and firmer hairlines, like a printed form. */
+:root[data-surface="print"] {
+  --sheet: #ffffff;
+  --sheet-2: #f6f7fb;
+  --sheet-muted: #eceff6;
+  --screen: #ffffff;
+  --sheet-line: rgba(28, 42, 94, 0.2);
+  --text-2: #56607e;
+  --sheet-pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22'%3E%3Ccircle cx='11' cy='11' r='1.1' fill='%231c2a5e' fill-opacity='.07'/%3E%3C/svg%3E");
+}
+:root[data-ui="danfo"][data-surface="dark"] {
+  --sheet: #1d1b17;
+  --sheet-2: #2a2722;
+  --sheet-muted: #36322b;
+  --screen: #17140f;
+  --sheet-line: rgba(246, 241, 228, 0.13);
+  --text: #f6f1e4;
+  --text-2: #b8b2a4;
+  --action-edge: #000000;
+  --pick: #f2b705;
+  --on-pick: #17140f;
+  --pick-mark: #17140f;
+}
+:root[data-ui="danfo"][data-surface="print"] {
+  --sheet: #ffffff;
+  --sheet-2: #f7f7f4;
+  --sheet-muted: #efefea;
+  --screen: #ffffff;
+  --sheet-line: rgba(23, 20, 15, 0.2);
+  --text-2: #5b5b55;
+  --sheet-pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22'%3E%3Ccircle cx='11' cy='11' r='1.1' fill='%2317140f' fill-opacity='.07'/%3E%3C/svg%3E");
 }
 
 @theme inline {
@@ -115,6 +146,9 @@
   --color-text: var(--text);
   --color-text-2: var(--text-2);
   --color-sheet-line: var(--sheet-line);
+  --color-pick: var(--pick);
+  --color-on-pick: var(--on-pick);
+  --color-pick-mark: var(--pick-mark);
   --color-action: var(--action);
   --color-action-text: var(--action-text);
   --color-signal: var(--signal);
@@ -125,12 +159,7 @@
   --color-screen: var(--screen);
   --color-wall: var(--wall);
   --color-wall-text: var(--wall-text);
-  --color-paper: var(--paper);
-  --color-surface: var(--surface);
-  --color-sunk: var(--sunk);
   --color-ink: var(--ink);
-  --color-muted: var(--muted);
-  --color-line: var(--line);
   --color-accent: var(--accent);
   --color-accent-ink: var(--accent-ink);
   --color-good: var(--good);
@@ -143,8 +172,8 @@
 
 html,
 body {
-  background-color: var(--paper);
-  color: var(--ink);
+  background-color: var(--sheet);
+  color: var(--text);
 }
 
 body {
@@ -169,7 +198,7 @@ body {
 .num { font-variant-numeric: tabular-nums; font-weight: 800; letter-spacing: -0.02em; }
 .label { font-size: 11px; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; }
 .title { font-weight: 850; letter-spacing: -0.02em; }
-.panel { background: var(--sheet); color: var(--text); border-radius: 6px; box-shadow: 0 18px 40px rgba(10, 14, 30, 0.35); }
+.panel { background-color: var(--sheet); background-image: var(--sheet-pattern); color: var(--text); border-radius: 6px; box-shadow: 0 18px 40px rgba(10, 14, 30, 0.35); }
 .chip { background: var(--sheet); color: var(--text); border-radius: 4px; box-shadow: 0 2px 0 var(--sheet-line); }
 .btn-main { position: relative; display: flex; align-items: center; justify-content: space-between; width: 100%; height: 58px; padding: 0 18px; border-radius: 6px; background: var(--action); color: var(--action-text); font-weight: 850; font-size: 17px; box-shadow: inset 0 -4px 0 var(--action-edge); transition: transform 0.06s, box-shadow 0.06s; }
 .btn-main:active { transform: translateY(2px); box-shadow: inset 0 -1px 0 var(--action-edge); }
