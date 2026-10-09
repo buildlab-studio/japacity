@@ -18,7 +18,7 @@ import { ENGLISH_TEST, STUDY_ENGLISH, testChance } from "../../shared/words/test
 import { studyWords } from "./study";
 import { blurbOf, hasWords, lowerFirst, nameOf, paramWords, say, sayCount } from "../../shared/words/text";
 import { payAMonth } from "../../shared/words/pay";
-import { tierPay, withNextTier } from "../../shared/words/profile";
+import { countsWords, tierPay, withNextTier } from "../../shared/words/profile";
 import { ApplyFor, huntOrder, JobList } from "./JobList";
 import { RouteList } from "./RouteList";
 import { routesWords } from "./routes.words";
@@ -243,15 +243,6 @@ function plannedOnce(option: ActivityOption, plan: readonly (SlotPick | null)[],
   // R-ACTIVITY-013: an act marked once a month is planned once too.
   const once = entry?.once === true || entry?.requires.some((requirement) => requirement.type === "document/absent") === true;
   return once && plan.some((pick) => pick !== null && pick.activity === option.id && (pick.param ?? "") === param);
-}
-
-/** R-ACTIVITY-013: "Counts toward: the talent route", the routes the activity's entry counts toward, or null with none. */
-export function countsWords(id: string): string | null {
-  const routes = content.activity[id as keyof typeof content.activity]?.counts ?? [];
-  if (routes.length === 0) return null;
-  const named = routes.map((route) => (hasWords(`ui.counts.route.${route}`) ? say(`ui.counts.route.${route}`) : lowerFirst(nameOf(route))));
-  const list = named.length === 1 ? (named[0] ?? "") : `${named.slice(0, -1).join(", ")} ${say("ui.counts.and")} ${named.at(-1) ?? ""}`;
-  return say("ui.counts.toward", { routes: list });
 }
 
 /** Why an activity with a choice inside it has nothing to choose yet, in a few words for its button. */

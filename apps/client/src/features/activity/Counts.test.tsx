@@ -7,7 +7,8 @@ import { describe, expect, test } from "vitest";
 import { newGame, viewAfter } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { say } from "../../shared/words/text";
-import { ActivityPicker, countsWords } from "./ActivityView";
+import { countsWords } from "../../shared/words/profile";
+import { ActivityPicker } from "./ActivityView";
 
 const ACTS = ["activity.open-source", "activity.tech-posts", "activity.conference-talk", "activity.be-noticed", "activity.nurse-certification", "activity.masters-at-home"] as const;
 
