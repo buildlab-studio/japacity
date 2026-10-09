@@ -899,11 +899,14 @@ export function City({
     cutTo(() => setPartyBeat(true));
     // The cut runs once, as the answer lands.
   }, [partied]);
+  // The beat waits for the yard dressed for the party to be drawn, so its line never stands over an empty yard.
+  const yardReady = !drawing || ready;
+  const beatShown = partyBeat && yardReady;
   useEffect(() => {
-    if (!partyBeat) return;
+    if (!beatShown) return;
     const timer = window.setTimeout(() => setPartyBeat(false), PARTY_BEAT_MS);
     return () => window.clearTimeout(timer);
-  }, [partyBeat]);
+  }, [beatShown]);
   useEffect(() => {
     if (resultsOpen) setPartyBeat(false);
   }, [resultsOpen]);
@@ -1065,14 +1068,14 @@ export function City({
               {say("ui.world.whole")}
             </button>
           ) : null}
-          {heard !== null && !covered && !resultsOpen && !cardUp && said === null && !partyBeat ? (
+          {heard !== null && !covered && !resultsOpen && !cardUp && said === null && !beatShown ? (
             <p key={heardCount} className="chip drop pointer-events-none fixed bottom-[calc(max(14px,env(safe-area-inset-bottom))+76px)] left-3 z-[36] max-w-[70vw] px-3 py-1.5 text-[12px] font-bold" data-chatter>
               {heardWords(heard.key, heard.params)}
             </p>
           ) : null}
           <Toast words={toast.words} />
           <SaidLine said={covered || resultsOpen ? null : said} onTap={clearSaid} />
-          {partyBeat ? (
+          {beatShown ? (
             <button type="button" onClick={() => setPartyBeat(false)} className="pop pointer-events-auto fixed inset-x-0 bottom-[calc(max(14px,env(safe-area-inset-bottom))+124px)] z-[45] flex justify-center px-6" data-party-beat>
               <span role="status" className="band rounded-[6px] px-4 py-3 text-center text-[16px] leading-snug font-bold shadow-xl">
                 {words(PARTY_SAID)}
