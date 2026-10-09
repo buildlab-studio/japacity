@@ -8,6 +8,7 @@ import { palette } from "@japacity/assets";
 import type { PoseName } from "@japacity/assets-src/people/poses";
 import {
   BoxGeometry,
+  BufferAttribute,
   BufferGeometry,
   Color,
   DirectionalLight,
@@ -169,7 +170,7 @@ function part(w: number, h: number, d: number, x: number, y: number, z: number, 
 /**
  * The danfo's front from inside, in its own frame: the dashboard, the windscreen's pillars and
  * header, the roof, both front doors with their sills, the bench, the wheel and the kerb mirror.
- * Three draw calls, one per colour. Seen only in the pre-roll; from above the danfo is its model.
+ * One draw call. Seen only in the pre-roll; from above the danfo is its model.
  */
 function buildCab(keep: <T extends { dispose: () => void }>(thing: T) => T): Group {
   const cab = new Group();
@@ -195,15 +196,27 @@ function buildCab(keep: <T extends { dispose: () => void }>(thing: T) => T): Gro
     wheel,
   ];
   const seat = [part(1.62, 0.12, 0.5, 0, 0.84, 1.18), part(1.62, 0.36, 0.1, 0, 1.08, 0.9)];
-  for (const [pieces, colour] of [
+  // One draw call: each piece carries its colour in its vertices.
+  const pieces: BufferGeometry[] = [];
+  for (const [group, colour] of [
     [body, palette.danfoYellow],
     [trim, palette.charcoal],
     [seat, palette.seat],
   ] as const) {
-    const merged = keep(mergeGeometries(pieces.map((piece) => piece.toNonIndexed()), false));
-    for (const piece of pieces) piece.dispose();
-    cab.add(new Mesh(merged, keep(new MeshLambertMaterial({ color: colour }))));
+    const tint = new Color(colour);
+    for (const piece of group) {
+      const flat = piece.toNonIndexed();
+      piece.dispose();
+      const count = flat.getAttribute("position").count;
+      const colours = new Float32Array(count * 3);
+      for (let index = 0; index < count; index += 1) colours.set([tint.r, tint.g, tint.b], index * 3);
+      flat.setAttribute("color", new BufferAttribute(colours, 3));
+      pieces.push(flat);
+    }
   }
+  const merged = keep(mergeGeometries(pieces, false));
+  for (const piece of pieces) piece.dispose();
+  cab.add(new Mesh(merged, keep(new MeshLambertMaterial({ vertexColors: true }))));
   return cab;
 }
 

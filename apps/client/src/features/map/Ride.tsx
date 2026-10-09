@@ -160,18 +160,18 @@ export function Ride({ way, place, drawing, own = FALLBACK_OWN, seed = 0, onDone
     resize();
     window.addEventListener("resize", resize);
     const began = performance.now();
-    let last = began;
+    let last: number | null = null;
     let frame = 0;
     const loop = (now: number): void => {
       frame = requestAnimationFrame(loop);
-      const elapsed = now - began;
+      const elapsed = Math.max(0, now - began);
       ride.frame(elapsed, element.clientWidth / Math.max(1, element.clientHeight));
       renderer.render(ride.scene, ride.camera);
       const held = probe.current;
       held.drawCalls = renderer.info.render.calls;
       held.triangles = renderer.info.render.triangles;
       const kept = held.frameMs[elapsed < pre ? "pre" : "ride"];
-      kept.push(now - last);
+      if (last !== null) kept.push(now - last);
       if (kept.length > FRAMES_KEPT) kept.shift();
       last = now;
     };

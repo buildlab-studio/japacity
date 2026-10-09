@@ -17,6 +17,7 @@ import { mapWords } from "./map.words";
 import { mapPins, type MapPin, rideChoices } from "./pins";
 import { LINES, lineOf, PRE_MS, Ride, RIDE_MS } from "./Ride";
 import { headingOf } from "./RideSheet";
+import { buildRide } from "./rideScene";
 import { buildCityMap, drawCallsOf, readColours } from "./scene";
 
 afterEach(() => {
@@ -394,6 +395,18 @@ describe("the ride carries people", () => {
     expect(probe.line).toBeNull();
     expect(document.querySelector("[data-ride-line]")).toBeNull();
     expect(probe.figures).toEqual(["own"]);
+  });
+
+  test("[R-WORLD-017] given each way's scene before its people load, when either part plays, then it costs no more draw calls than the ride did before people, seven, so the people add only their own", () => {
+    for (const way of ["danfo", "keke", "okada", "walk"] as const) {
+      const scene = buildRide(way);
+      for (const phase of ["pre", "ride"] as const) {
+        scene.setPhase(phase);
+        scene.frame(phase === "pre" ? 300 : 3000, 0.46);
+        expect(drawCallsOf(scene.scene)).toBeLessThanOrEqual(7);
+      }
+      scene.dispose();
+    }
   });
 
   test("[R-WORLD-017] given an okada ride, when it plays out, then the pre-roll is at most a second and a half and counts inside the six seconds", async () => {
