@@ -93,7 +93,8 @@ async function goTo(page: Page, id: string): Promise<boolean> {
   await page.evaluate((stop) => document.querySelector<HTMLButtonElement>(`[data-stop="${stop}"]`)?.click(), id);
   const sheet = page.locator(`[data-ride-sheet="${id}"]`);
   await sheet.waitFor({ state: "visible", timeout: 10_000 });
-  await sheet.getByRole("button", { name: /^Go by/ }).first().click();
+  // "Go by danfo" for a stop, "Go home" for the home (R-WORLD-017).
+  await sheet.getByRole("button", { name: /^Go/ }).first().click();
   await waitPlace(page, id);
   return true;
 }

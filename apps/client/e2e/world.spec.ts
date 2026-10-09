@@ -96,6 +96,7 @@ test("[R-WORLD-007] [R-WORLD-008] End month opens the Month sheet; ending it sho
   await startLife(page);
   await placeDrawn(page);
   const place = (await page.locator("[data-band] h2").textContent()) ?? "";
+  const bandBefore = (await page.locator("[data-band]").textContent()) ?? "";
 
   await page.locator("[data-end-month]").click();
   const month = page.locator("[data-world-sheet='month']");
@@ -124,7 +125,9 @@ test("[R-WORLD-007] [R-WORLD-008] End month opens the Month sheet; ending it sho
   await results.getByRole("button", { name: `Back to ${place}` }).click();
   await expect(results).toHaveCount(0);
   await expect(page.locator("[data-band]")).toHaveAttribute("aria-hidden", "false");
-  await expect(page.locator("[data-band]")).toContainText("Month 2");
+  // The band's clock is the age, never a month number (R-WORLD-002): a month on, it reads one month older.
+  await expect(page.locator("[data-band]")).not.toHaveText(bandBefore);
+  await expect(page.locator("[data-band]")).toContainText(/\d+ yrs \d+ mo/);
   await expect(page.locator("[data-band] h2")).toHaveText(place);
 });
 
