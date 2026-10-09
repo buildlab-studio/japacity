@@ -441,6 +441,8 @@ export function City({
         return cityWords("city.thing.out");
       case "thing":
         return sceneWords(picked.thing.label);
+      case "command":
+        return say("ui.route.pay-deposit");
       default: {
         const never: never = picked;
         throw new Error(`Unknown pick: ${JSON.stringify(never)}`);
@@ -449,7 +451,9 @@ export function City({
   };
 
   // The things here and the acts the view allows now: an activity's act only while the view offers it here (R-WORLD-005).
-  const activityKey = view.activities.filter((option) => option.allowed).map((option) => option.id).join("|");
+  // A school's offer waiting makes the deposit payable (R-ROUTE-008): the bank's act shows while one does.
+  const depositDue = view.routes.flatMap((route) => route.schools.filter((school) => school.state === "offer").map((school) => ({ route: route.id, school: school.id })))[0] ?? null;
+  const activityKey = [...view.activities.filter((option) => option.allowed).map((option) => option.id), ...(depositDue === null ? [] : ["command:route/pay-deposit"])].join("|");
   const chapterNow = view.chapter.current;
   const offersKey = view.offers.map((offer) => offer.entry).join("|");
   const setpieceEntry = view.setpiece?.entry ?? null;
@@ -501,6 +505,10 @@ export function City({
         toast.show(done === `${act.label}.done` ? sceneWords(act.label) : done);
         return;
       }
+      // R-ROUTE-008: the school's deposit is paid at the bank through a card the world sends itself.
+      case "command":
+        setPicked(act.command === undefined ? null : { kind: "command", command: act.command });
+        return;
       // R-WORLD-005: a free act that fills a slot happens at once, seen on the thing; the line says it counts when the month ends.
       case "do": {
         setPicked(null);
@@ -591,6 +599,28 @@ export function City({
   const endBlocked = view.ended ? words("reject.ended") : view.setpiece !== null || (view.interview?.question ?? null) !== null ? words("reject.setpiece-open") : view.turns.banked < 1 ? words("reject.no-turns") : null;
   // One action, one sheet: a paper slip for a paper thing, a card for the rest.
   const ask: Ask | null = (() => {
+    if (world && picked?.kind === "command" && depositDue !== null) {
+      const school = content.school[depositDue.school];
+      if (school === undefined) return null;
+      const deposit = { amount: school.deposit, currency: "GBP" };
+      return {
+        form: "card",
+        icon: "bank",
+        who: hereName,
+        title: say("ui.route.pay-deposit"),
+        line: say("ui.world.deposit-line", { school: nameOf(depositDue.school), route: nameOf(depositDue.route) }),
+        cost: deposit,
+        button: say("ui.route.pay-deposit"),
+        act: () => {
+          void send({ type: "route/pay-deposit", route: depositDue.route, school: depositDue.school }).then((reply) => {
+            cue(reply?.ok === true ? "coin" : "tap");
+            if (reply?.ok === true) toast.show(say("ui.route.deposit-paid", { amount: formatMoney(school.deposit, "GBP") }));
+          });
+          setPicked(null);
+        },
+        dismiss: () => setPicked(null),
+      };
+    }
     if (!world || picked?.kind !== "action" || picked.more !== undefined) return null;
     const activity = picked.activity;
     const option = view.activities.find((candidate) => candidate.id === activity);
@@ -806,7 +836,7 @@ export function City({
                 {heardWords(heard.key, heard.params)}
               </p>
             )}
-            {picked === null || picked.kind === "action" || picked.kind === "ride" || picked.kind === "enter" || picked.kind === "inside" || picked.kind === "thing" ? null : <PersonCard picked={picked} words={cardWords()} onClose={() => setPicked(null)} />}
+            {picked === null || picked.kind === "action" || picked.kind === "command" || picked.kind === "ride" || picked.kind === "enter" || picked.kind === "inside" || picked.kind === "thing" ? null : <PersonCard picked={picked} words={cardWords()} onClose={() => setPicked(null)} />}
             {world ? null : (
               <p className="pointer-events-auto self-start rounded-lg bg-paper/80 px-2 py-1 text-xs text-muted">{cityWords("city.hold")}</p>
             )}

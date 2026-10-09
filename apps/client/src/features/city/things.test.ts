@@ -93,6 +93,20 @@ describe("what an act can open now", () => {
   });
 });
 
+describe("a command act", () => {
+  test("[R-ROUTE-008] [R-WORLD-005] given the bank counter, when a school's offer waits, then its deposit act shows and sends the payment; with none waiting it is gone", () => {
+    const found = builtPlaces().find((built) => built.folder === "bank-counter");
+    if (found === undefined) throw new Error("No bank counter");
+    const counter = (stageOf(found.file).things ?? []).find((thing) => thing.id === "counter");
+    expect(counter?.acts[0]).toMatchObject({ id: "deposit", kind: "command", command: "route/pay-deposit" });
+    expect(sceneWords(counter?.acts[0]?.label ?? "")).toBe(say("ui.route.pay-deposit"));
+    const due = stagedNow(new Set(["command:route/pay-deposit"]), new Set(), new Set(), null);
+    expect(thingsNow([counter as Thing], due)[0]?.acts.map((act) => act.id)).toContain("deposit");
+    const none = stagedNow(new Set(), new Set(), new Set(), null);
+    expect(thingsNow([counter as Thing], none)[0]?.acts.map((act) => act.id) ?? []).not.toContain("deposit");
+  });
+});
+
 describe("a seat", () => {
   test("[R-WORLD-005] given every built place, when its acts with a pose are read, then each has a seat to take, and a free act that fills a slot is a do act with the activity offered or gone", () => {
     const seated = builtPlaces().flatMap(({ folder, file }) => (stageOf(file).things ?? []).flatMap((thing) => thing.acts.filter((act) => act.pose !== undefined).map((act) => ({ folder, thing: thing.id, act }))));

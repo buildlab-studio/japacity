@@ -72,6 +72,7 @@ export function stagedNow(offered: ReadonlySet<string>, staged: ReadonlySet<stri
     if (stages.startsWith("offer.")) return openOffers.has(stages);
     if (stages.startsWith("setpiece.")) return stages === setpiece;
     if (stages.startsWith("chapter.")) return stages === chapter;
+    if (stages.startsWith("command:")) return offered.has(stages);
     return true;
   };
 }
@@ -84,6 +85,7 @@ export function thingsNow(things: readonly Thing[], offered: (stages: string) =>
   return things.flatMap((thing) => {
     // A sheet act stays while any entry it lists can open; the sheet shows only those that can.
     const acts = thing.acts.flatMap((act): Act[] => {
+      if (act.kind === "command") return offered(`command:${act.command ?? ""}`) ? [act] : [];
       if ((act.kind !== "sheet" && act.kind !== "do") || act.stages === undefined) return [act];
       if (act.kind === "do") return offered(act.stages) ? [act] : [];
       const all = [act.stages, ...(act.more ?? [])];

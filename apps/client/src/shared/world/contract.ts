@@ -21,7 +21,9 @@ export type ActKind =
   /** Ends the month from the bed at home: the same as the band's End month (R-WORLD-025). */
   | "end"
   /** Happens at once and fills a free slot of the month with the entry it stages, no sheet: rest on the bed (R-WORLD-005). */
-  | "do";
+  | "do"
+  /** Opens a card for a player command the world sends on its own: the school's deposit at the bank (R-ROUTE-008). */
+  | "command";
 
 export interface Act {
   /** The act's id within its thing: `sit`, `sleep`, `play-lotto`. */
@@ -33,6 +35,8 @@ export interface Act {
   stages?: string;
   /** For `sheet`: more entries listed on the same sheet, since a thing offers at most two acts and a third goes on a sheet (R-WORLD-005). */
   more?: string[];
+  /** For `command`: which command the card sends. */
+  command?: "route/pay-deposit";
   /** The pose the character takes on the thing once the act lands: sitting on it, lying on it (R-WORLD-005). */
   pose?: "sit" | "lie";
   /** Where the character is placed for the pose: on the seat or the bed, `[x, z, facing]` in the place's metres. */

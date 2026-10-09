@@ -151,7 +151,7 @@ const entries: PlaceEntry[] = [
   lagos("place.yaba", "Yaba", "yaba", 6507, 3375, {
     scope: "interior",
     assets: "yaba-hub",
-    stages: ["activity.meetup", "activity.learn-tech", "activity.build-portfolio", "activity.job-junior-dev", "activity.job-mid-dev", "activity.job-hunt", "activity.look-into-route", "activity.apply-to-school", "activity.see-adviser", "activity.ask-someone-who-went"],
+    stages: ["activity.meetup", "activity.learn-tech", "activity.build-portfolio", "activity.job-junior-dev", "activity.job-mid-dev", "activity.job-hunt", "activity.look-into-route", "activity.apply-to-school", "activity.see-adviser", "activity.ask-someone-who-went", "activity.job-bank-officer", "activity.job-bank-senior"],
     crowd: BUSY,
     traditionalBp: OFFICE,
   }),
@@ -228,7 +228,7 @@ const entries: PlaceEntry[] = [
 
   // Lagos: businesses by made-up name. Shopfronts are signs on their street, in place.text.ts.
   unnamed("place.yaba-hub", "business", "home", "lagos", "yaba", { crowd: QUIET, traditionalBp: HUB }),
-  unnamed("place.olokun-office", "business", "home", "lagos", "victoria-island", { assets: "bank-counter", stages: ["offer.held-funds", "offer.salary-loan", "activity.job-bank-officer", "activity.job-bank-senior"], crowd: FEW, traditionalBp: OFFICE }),
+  unnamed("place.olokun-office", "business", "home", "lagos", "victoria-island", { assets: "bank-counter", stages: ["offer.held-funds", "offer.salary-loan"], crowd: FEW, traditionalBp: OFFICE }),
   unnamed("place.agent-office", "business", "home", "lagos", "ikeja", { stages: ["offer.held-funds-agent", "offer.gulf-agent", "activity.see-agent-office", "offer.agent-office"], crowd: FEW, traditionalBp: OFFICE }),
 
   // Homes and stylised places: no real name, no area, no position, no sponsor.
