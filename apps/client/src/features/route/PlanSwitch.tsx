@@ -79,10 +79,11 @@ export function PlanSwitch({ route, onKeep, onSaid }: { route: Id<"route">; onKe
         {switchWords(choice)}
       </p>
       <div className="mt-3 flex items-center gap-2">
-        <button type="button" onClick={onKeep} className="press h-12 shrink-0 rounded-[6px] border-2 border-sheet-line px-4 text-[14px] font-bold" data-plan-keep>
+        <button type="button" onClick={onKeep} className="press h-12 shrink-0 whitespace-nowrap rounded-[6px] border-2 border-sheet-line px-3 text-[15px] font-bold" data-plan-keep>
           {say("route.plan.keep")}
         </button>
-        <button type="button" disabled={busy} onClick={() => void make()} className="btn-main press h-12 flex-1 justify-center text-[14px] font-bold disabled:opacity-70" data-plan-make>
+        {/* The main button's own size, made to fit beside Keep mine on one line at a phone's width. */}
+        <button type="button" disabled={busy} onClick={() => void make()} className="btn-main press min-w-0 flex-1 justify-center whitespace-nowrap" style={{ height: 48, padding: "0 12px", fontSize: 15 }} data-plan-make>
           {say("route.plan.make")}
         </button>
       </div>
