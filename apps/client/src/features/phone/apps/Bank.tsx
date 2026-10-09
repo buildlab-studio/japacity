@@ -1,18 +1,23 @@
 // Bank (docs/rules/world.md R-WORLD-018, 019): the balance as a counter, what is saved toward the
 // move, the last few money lines, and the two acts the wallet offers, Change money and Move money,
-// each chosen with a few chips and confirmed on its own card.
+// each chosen with a few chips and confirmed on its own card. Abroad the country's money stands
+// first, the naira and the dollars after it each with Change money, and a month whose dues pass the
+// country's money held leads with the gap and the way. Once flown, the
+// move's target is gone.
 import { content } from "@japacity/content";
 import type { Currency, PlayerView, Pocket, ReportLine, RouteView } from "@japacity/sim";
 import { ArrowLeftRight, MoveVertical } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { useView } from "../../../authority/GameProvider";
+import { duesGap, heldElsewhere } from "../../../shared/words/dues";
 import { CURRENCIES, formatMoney, HOME_CURRENCIES } from "../../../shared/words/format";
 import { lowerFirst, moneyParam, say, words } from "../../../shared/words/text";
 import { localCurrency } from "../../../shared/words/wayHome";
 import { Counter } from "../../../shared/world/Band";
 import { Chips, Head, useAsk } from "../act";
 import { phoneWords } from "../phone.words";
+import { abroadWords, changeFirst, currencyList } from "./abroad";
 
 /** The currencies this life deals in: the home three, and the country's own once abroad. */
 function dealtIn(view: Pick<PlayerView, "place">): Currency[] {
@@ -63,18 +68,30 @@ function currencyWords(currency: Currency): string {
   return say(`ui.currency.${currency}`);
 }
 
-function ChangeChooser({ onAsk }: { onAsk: ReturnType<typeof useAsk>["open"] }) {
+/** A change already pointed somewhere: from a row of money held, or from the gap's way. */
+interface ChangeStart {
+  from: Currency;
+  to: Currency;
+}
+
+function ChangeChooser({ onAsk, start }: { onAsk: ReturnType<typeof useAsk>["open"]; start?: ChangeStart }) {
   const view = useView();
   const currencies = dealtIn(view);
   const [via, setVia] = useState<"bank" | "aboki">("bank");
   const pocketOf = (currency: Currency) => (via === "bank" ? view.pockets[currency].bank : view.pockets[currency].cash);
-  const [from, setFrom] = useState<Currency>("NGN");
-  const [chosenTo, setTo] = useState<Currency>("GBP");
+  const [from, setFrom] = useState<Currency>(start?.from ?? "NGN");
+  const [chosenTo, setTo] = useState<Currency>(start?.to ?? "GBP");
   const [share, setShare] = useState<Share>("quarter");
   const to = chosenTo === from ? (currencies.find((currency) => currency !== from) ?? "NGN") : chosenTo;
   const amount = shareOf(pocketOf(from), share);
+  // Pointed from a row or the gap above, the chooser opens at the foot of the app: bring it into view.
+  const shown = useRef<HTMLDivElement>(null);
+  const pointed = start !== undefined;
+  useEffect(() => {
+    if (pointed && typeof shown.current?.scrollIntoView === "function") shown.current.scrollIntoView({ block: "nearest", behavior: "smooth" });
+  }, [pointed]);
   return (
-    <div className="mt-3 flex flex-col gap-2.5 rounded-[6px] border border-sheet-line bg-sheet-2 p-3" data-chooser="change">
+    <div ref={shown} className="mt-3 flex flex-col gap-2.5 rounded-[6px] border border-sheet-line bg-sheet-2 p-3" data-chooser="change">
       <Chips shown label={phoneWords("phone.bank.where")} value={via} onChange={setVia} options={[{ value: "bank", label: say("ui.wallet.via.bank") }, { value: "aboki", label: say("ui.wallet.via.aboki") }]} />
       <Chips shown label={phoneWords("phone.bank.from")} value={from} onChange={setFrom} options={currencies.map((currency) => ({ value: currency, label: currencyWords(currency) }))} />
       <Chips shown label={phoneWords("phone.bank.into")} value={to} onChange={setTo} options={currencies.filter((currency) => currency !== from).map((currency) => ({ value: currency, label: currencyWords(currency) }))} />
@@ -150,36 +167,100 @@ function MoveChooser({ onAsk }: { onAsk: ReturnType<typeof useAsk>["open"] }) {
   );
 }
 
+/** Abroad, a month whose dues pass the country's money held: the gap, then the way to close it. */
+function DuesGapCard({ onChange }: { onChange: (start: ChangeStart) => void }) {
+  const view = useView();
+  const gap = duesGap(view);
+  if (gap === null) return null;
+  const from = changeFirst(gap.from);
+  return (
+    <div className="mb-3 rounded-[6px] border-l-4 border-out bg-sheet-2 px-3 py-2.5" role="alert" data-dues-gap={gap.currency}>
+      <p className="text-[15px] font-bold">{abroadWords("phone.bank.dues", { due: formatMoney(gap.due, gap.currency), held: formatMoney(gap.held, gap.currency) })}</p>
+      {from === null ? null : (
+        <button type="button" className="press mt-2 flex min-h-11 w-full items-center gap-2 rounded-[5px] btn-dark px-3 text-left text-[14px] font-bold" onClick={() => onChange({ from, to: gap.currency })}>
+          <ArrowLeftRight size={16} className="shrink-0" aria-hidden />
+          <span>{abroadWords("phone.bank.dues.way", { from: currencyList(gap.from), to: lowerFirst(currencyWords(gap.currency)) })}</span>
+        </button>
+      )}
+    </div>
+  );
+}
+
+/** Abroad, each other money held as a row with its own Change money into the country's money. */
+function HeldElsewhere({ local, onChange }: { local: Currency; onChange: (start: ChangeStart) => void }) {
+  const view = useView();
+  const held = heldElsewhere(view, local);
+  if (held.length === 0) return null;
+  return (
+    <>
+      <Head>{abroadWords("phone.bank.held")}</Head>
+      <ul className="flex flex-col divide-y divide-sheet-line">
+        {held.map((currency) => (
+          <li key={currency} className="flex items-center justify-between gap-3 py-2" data-held={currency}>
+            <span className="min-w-0">
+              <span className="block text-[13px] text-text-2">{currencyWords(currency)}</span>
+              <span className="num block text-[17px]">{formatMoney(view.pockets[currency].bank + view.pockets[currency].cash, currency)}</span>
+            </span>
+            <button type="button" className="press flex min-h-10 shrink-0 items-center gap-1.5 rounded-[5px] border border-sheet-line bg-sheet-2 px-3 text-[13px] font-bold" onClick={() => onChange({ from: currency, to: local })}>
+              <ArrowLeftRight size={15} aria-hidden />
+              {say("ui.wallet.convert")}
+            </button>
+          </li>
+        ))}
+      </ul>
+    </>
+  );
+}
+
 export function Bank() {
   const view = useView();
   const { open, sheet } = useAsk();
   const [choosing, setChoosing] = useState<"change" | "move" | null>(null);
-  const savings = savingsOf(view);
+  const [start, setStart] = useState<ChangeStart | undefined>(undefined);
+  // The money the character lives on: the naira at home, the country's own abroad (R-WORLD-002).
+  const local = localCurrency(view);
+  const abroad = local !== null && local !== "NGN";
+  const shown: Currency = abroad ? local : "NGN";
+  // Once flown, the move is made: its target goes.
+  const savings = abroad ? null : savingsOf(view);
   const lately = moneyLines(view).slice(-LATELY);
   const others = CURRENCIES.filter((currency) => currency !== "NGN" && view.pockets[currency].bank + view.pockets[currency].cash > 0);
-  const toggle = (which: "change" | "move") => setChoosing(choosing === which ? null : which);
+  const toggle = (which: "change" | "move") => {
+    setStart(undefined);
+    setChoosing(choosing === which ? null : which);
+  };
+  const changeFrom = (pointed: ChangeStart) => {
+    setStart(pointed);
+    setChoosing("change");
+  };
 
   return (
     <div data-phone-app="bank">
-      <div className="band rounded-[6px] px-4 py-3">
+      {abroad && !view.ended ? <DuesGapCard onChange={changeFrom} /> : null}
+      <div className="band rounded-[6px] px-4 py-3" data-bank-balance={shown}>
         <div className="label label-strong">{phoneWords("phone.bank.balance")}</div>
-        <Counter value={view.pockets.NGN.bank} format={(value) => formatMoney(value, "NGN")} className="block text-[34px] leading-tight" />
-        <div className="text-[13px] opacity-85">{phoneWords("phone.bank.cash", { amount: formatMoney(view.pockets.NGN.cash, "NGN") })}</div>
-        {others.length === 0 ? null : (
+        <Counter value={view.pockets[shown].bank} format={(value) => formatMoney(value, shown)} className="block text-[34px] leading-tight" />
+        <div className="text-[13px] opacity-85">{phoneWords("phone.bank.cash", { amount: formatMoney(view.pockets[shown].cash, shown) })}</div>
+        {abroad || others.length === 0 ? null : (
           <div className="text-[13px] opacity-85">{phoneWords("phone.bank.also", { amounts: others.map((currency) => formatMoney(view.pockets[currency].bank + view.pockets[currency].cash, currency)).join(", ") })}</div>
         )}
       </div>
+      {abroad && !view.ended ? <HeldElsewhere local={local} onChange={changeFrom} /> : null}
 
-      <Head>{phoneWords("phone.bank.savings")}</Head>
-      {savings === null ? (
-        <p className="text-[14px] text-text-2">{phoneWords("phone.bank.savings.none")}</p>
-      ) : (
-        <div data-savings>
-          <div className="h-2.5 overflow-hidden rounded-full bg-sheet-muted" role="progressbar" aria-valuemin={0} aria-valuemax={savings.required} aria-valuenow={Math.min(savings.shown, savings.required)} aria-label={phoneWords("phone.bank.savings")}>
-            <div className="h-full rounded-full bg-in" style={{ width: `${String(Math.min(100, Math.floor((savings.shown * 100) / savings.required)))}%` }} />
-          </div>
-          <p className="num mt-1 text-[15px]">{phoneWords("phone.bank.savings.line", { shown: formatMoney(savings.shown, savings.currency), required: formatMoney(savings.required, savings.currency) })}</p>
-        </div>
+      {abroad ? null : (
+        <>
+          <Head>{phoneWords("phone.bank.savings")}</Head>
+          {savings === null ? (
+            <p className="text-[14px] text-text-2">{phoneWords("phone.bank.savings.none")}</p>
+          ) : (
+            <div data-savings>
+              <div className="h-2.5 overflow-hidden rounded-full bg-sheet-muted" role="progressbar" aria-valuemin={0} aria-valuemax={savings.required} aria-valuenow={Math.min(savings.shown, savings.required)} aria-label={phoneWords("phone.bank.savings")}>
+                <div className="h-full rounded-full bg-in" style={{ width: `${String(Math.min(100, Math.floor((savings.shown * 100) / savings.required)))}%` }} />
+              </div>
+              <p className="num mt-1 text-[15px]">{phoneWords("phone.bank.savings.line", { shown: formatMoney(savings.shown, savings.currency), required: formatMoney(savings.required, savings.currency) })}</p>
+            </div>
+          )}
+        </>
       )}
 
       <Head>{phoneWords("phone.bank.lines")}</Head>
@@ -207,7 +288,7 @@ export function Bank() {
               {say("ui.wallet.move")}
             </button>
           </div>
-          {choosing === "change" ? <ChangeChooser onAsk={open} /> : choosing === "move" ? <MoveChooser onAsk={open} /> : null}
+          {choosing === "change" ? <ChangeChooser key={start === undefined ? "free" : `${start.from}-${start.to}`} onAsk={open} {...(start === undefined ? {} : { start })} /> : choosing === "move" ? <MoveChooser onAsk={open} /> : null}
         </>
       )}
       {sheet}

@@ -7,7 +7,7 @@ import { describe, expect, test } from "vitest";
 
 import raw from "../../../../public/assets/places/peckham/place.json";
 import room from "../../../../public/assets/places/the-room/place.json";
-import { abroadView } from "../../../shared/testing/fixtures";
+import { abroadView, recordedGame, viewAfter } from "../../../shared/testing/fixtures";
 import { stageOf, type PlaceFile } from "../placeFile";
 import { sceneWords } from "../scene.words";
 import { stagedAt } from "../staging";
@@ -124,6 +124,23 @@ describe("Peckham's jobs", () => {
     const now = thingsNow(stage.things ?? [], stagedNow(offered, new Set(entry.stages), new Set(), null));
     expect(now.find((candidate) => candidate.id === "jobs-notice")?.acts.map((act) => act.stages)).toEqual(["activity.job-uk-retail-part"]);
     expect(now.find((candidate) => candidate.id === "agency")).toBeUndefined();
+  });
+
+  test("[R-WORLD-005] given Ada in London on a graduate visa, when the hunt's jobs are read at Peckham, then the agency stands with Warehouse, the act a tap turns into the hunt's card with that job, and the notice keeps shop and kitchen work", () => {
+    // a student's hunt asks for none of its jobs. Open work brings it.
+    const view = viewAfter(recordedGame("ada-careful"), [{ type: "status/grant", status: "status.uk-graduate" }]);
+    const jobs = view.activities.find((option) => option.id === "activity.job-hunt")?.params ?? [];
+    expect(jobs).toContain("activity.job-uk-warehouse");
+    // The care job asks for care work done before (two years in it), so on open work alone it is not yet asked for.
+    expect(jobs).not.toContain("activity.job-uk-senior-care");
+    const offered = new Set([...view.activities.filter((option) => option.allowed).map((option) => option.id), ...jobs]);
+    const now = thingsNow(stage.things ?? [], stagedNow(offered, new Set(entry.stages), new Set(), null));
+    const agency = now.find((candidate) => candidate.id === "agency");
+    expect(agency?.acts.map((act) => [act.id, act.kind, act.stages, sceneWords(act.label)])).toEqual([["warehouse-work", "sheet", "activity.job-uk-warehouse", "Warehouse"]]);
+    expect(sceneWords(agency?.label ?? "")).toBe("Job agency");
+    // City.tsx turns a sheet act whose entry is among the hunt's jobs into the hunt's card with that job chosen.
+    expect(jobs).toContain(agency?.acts[0]?.stages);
+    expect(now.find((candidate) => candidate.id === "jobs-notice")?.acts.map((act) => act.stages)).toEqual(["activity.job-uk-retail-part", "activity.job-uk-kitchen-cash"]);
   });
 
   test("[R-WORLD-011] given the jobs notice and the agency, when the pavements are read, then the notice stands on the far pavement before the shops and the agency's stand on the near one, each on its own copy", () => {

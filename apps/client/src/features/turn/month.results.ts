@@ -13,21 +13,54 @@ export interface MoneyLine {
   sign: 1 | -1;
   currency: Currency;
   amount: number;
+  /** A change of money: what came into the other currency, told in the line's words and counted in what was kept. */
+  gained?: { currency: Currency; amount: number };
 }
 
 /** Lines that carry an amount and a tone but move no money: a deposit flagged is a warning, not a flow. */
 const NOT_MOVED: ReadonlySet<string> = new Set(["line.wallet.flagged"]);
 
+const CONVERTED = "line.wallet.converted";
+const BANK_CHARGE = "line.wallet.bank-charge";
+
+/**
+ * What a change at the bank took in, from its charge. The wallet's line for a change tells only what
+ * came in; the charge just before it is R-WALLET-004's share of what was paid in, rounded down, so it
+ * pins that to within one unit. A whole figure, as the Bank's chips send, is taken when one fits.
+ */
+function paidIn(charge: number): number {
+  const share = content.tuning.wallet.bankChargeBp;
+  const low = Math.ceil((charge * 10_000) / share);
+  const high = Math.ceil(((charge + 1) * 10_000) / share) - 1;
+  const whole = Math.ceil(low / 100) * 100;
+  return whole <= high ? whole : Math.floor((low + high) / 2);
+}
+
+/**
+ * A change of money as one line (R-WALLET-004, R-WORLD-008): what went out of the one currency, the
+ * bank's charge left on its own line, with what came into the other in the line's own words. With
+ * no bank's charge just before it (the street, a change that waited), only what came in is known.
+ */
+function changeLine(line: ReportLine, before: ReportLine | undefined): MoneyLine[] {
+  const gained = moneyParam("amount", line.params, line.key);
+  if (gained === null || gained.amount === 0) return [];
+  const charge = before?.key === BANK_CHARGE ? moneyParam("amount", before.params, before.key) : null;
+  if (charge === null || charge.amount === 0 || charge.currency === gained.currency) return [{ line, sign: 1, currency: gained.currency, amount: gained.amount }];
+  return [{ line, sign: -1, currency: charge.currency, amount: paidIn(charge.amount) - charge.amount, gained: { currency: gained.currency, amount: gained.amount } }];
+}
+
 /**
  * The lines in or out, in the simulation's order, one line for each payment as the report reads
- * them. A good line with an amount is money in, a bad one money out; a plain line (a conversion,
- * a move between pockets) moves nothing the player keeps or loses. Only a line that tells money
+ * them. A good line with an amount is money in, a bad one money out; a change of money is one line
+ * with both sides; any other plain line (a move between pockets) moves nothing the player keeps or loses. Only a line that tells money
  * moving counts: a bill that could not be paid, or a scam told after its fee, is not money gone
  * twice (R-WORLD-008).
  */
 export function moneyLines(lines: readonly ReportLine[]): MoneyLine[] {
   // The prologue's years are not this month: their money is what the character starts with.
-  return tidyLines(afterPrologue(lines)).flatMap((line): MoneyLine[] => {
+  const tidy = tidyLines(afterPrologue(lines));
+  return tidy.flatMap((line, index): MoneyLine[] => {
+    if (line.key === CONVERTED) return changeLine(line, tidy[index - 1]);
     if (line.tone === "plain" || NOT_MOVED.has(line.key) || !movesMoney(line)) return [];
     const money = moneyParam("amount", line.params, line.key);
     if (money === null || money.amount === 0) return [];
@@ -81,9 +114,13 @@ export function storyLines(lines: readonly ReportLine[]): ReportLine[] {
 export function kept(lines: readonly MoneyLine[]): { currency: Currency; amount: number }[] {
   const order: Currency[] = [];
   const sums = new Map<Currency, number>();
-  for (const { currency, sign, amount } of lines) {
+  const add = (currency: Currency, amount: number): void => {
     if (!sums.has(currency)) order.push(currency);
-    sums.set(currency, (sums.get(currency) ?? 0) + sign * amount);
+    sums.set(currency, (sums.get(currency) ?? 0) + amount);
+  };
+  for (const { currency, sign, amount, gained } of lines) {
+    add(currency, sign * amount);
+    if (gained !== undefined) add(gained.currency, gained.amount);
   }
   return order.map((currency) => ({ currency, amount: sums.get(currency) ?? 0 }));
 }
