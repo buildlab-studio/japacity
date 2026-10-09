@@ -224,6 +224,11 @@ export const cityText: Record<string, string> = {
 
   "city.overheard.news": "“Did you hear? {head}”",
   "city.overheard.route": "“My cousin's friend went by {route}. It is not easy, they say.”",
+  // The room abroad's own talk (R-WORLD-026): the landlord, the radiator, a neighbour through the wall.
+  "city.overheard.room.1": "The landlord said Thursday for the boiler. Which Thursday, he did not say.",
+  "city.overheard.room.2": "Bleed the radiator, my sister. Na air dey inside, no be heat.",
+  "city.overheard.room.3": "Mummy, I don eat. I dey fine. Yes, I wear my jacket.",
+  "city.overheard.room.4": "Landlord says no visitors after ten. Since when?",
 
   "city.scene.at": "At {place}",
   "city.scene.answer": "Answer in your month",
@@ -294,7 +299,7 @@ export function placeName(id: string): string {
 export function heardWords(key: string, params: Record<string, string>): string {
   if (key === "city.overheard.news") return cityWords(key, { head: words(params.head ?? "") });
   if (key === "city.overheard.route") return cityWords(key, { route: runningName(params.route ?? "") });
-  return text[key] ?? key;
+  return text[key] ?? cityWords(key);
 }
 
 /** What a resident is called, from the same hash as the crowd: the same person has the same name all day. */
