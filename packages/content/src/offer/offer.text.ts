@@ -87,8 +87,8 @@ export const offerText: Record<string, string> = {
 
   "offer.fuel-scarcity.name": "Fuel scarcity",
   "offer.fuel-scarcity.title": "Fuel scarcity",
-  "offer.fuel-scarcity.body": "Queues at every station. Bus fare has doubled this week.",
-  "offer.fuel-scarcity.choice.pay": "Pay the fares",
+  "offer.fuel-scarcity.body": "Queues at every station. The fare to work and back has doubled this month.",
+  "offer.fuel-scarcity.choice.pay": "Pay the extra fares",
   "offer.fuel-scarcity.choice.trek": "Trek",
 
   "offer.recruiter-message.name": "A message from a recruiter",
