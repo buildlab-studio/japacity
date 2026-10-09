@@ -1,7 +1,9 @@
 // The front door (prologue.md R-PROLOGUE-009, 010): shown for a new life, or when a saved life could not
 // come along. Over the family compound, with the character at the gate, the player builds a person: a
 // look from the shipped people, a first name from the pool, and an archetype whose tile starts the
-// prologue with its preset. The five ready lives wait behind one card, unnamed. Nobody types.
+// prologue with its preset. The five ready lives wait behind one card, unnamed. Nobody types. Where a life may
+// be started over, the authority starts a tile's life on a seed that keeps its path open; where it may not (online,
+// one life an account), the tiles say the years may go another way (R-PROLOGUE-011).
 import { content } from "@japacity/content";
 import type { Id } from "@japacity/sim";
 import { ArrowLeft, ArrowRight, RefreshCw } from "lucide-react";
@@ -27,6 +29,8 @@ function freshRoll(): number {
 export function ScenarioView() {
   const notice = useGame((state) => state.notice);
   const chooseLife = useGame((state) => state.chooseLife);
+  // The life chooser cannot be opened again where a life is started only once (R-ACCOUNT-015).
+  const once = useGame((state) => state.openLifeChooser === null);
   const [stage, setStage] = useState<Stage>("you");
   const [look, setLook] = useState(() => gateLook());
   const [roll, setRoll] = useState(freshRoll);
@@ -123,6 +127,11 @@ export function ScenarioView() {
               </p>
             </div>
           </div>
+          {once ? (
+            <p className="mt-1.5 text-[12px] leading-snug text-text-2" data-door-once>
+              {say("prologue.archetype.once")}
+            </p>
+          ) : null}
           {/* Above the tiles, a small row, so the ready lives are seen without scrolling past six tiles. */}
           <button type="button" className="press mt-2.5 flex w-full items-center justify-between gap-2 rounded-[5px] border border-sheet-line px-3 py-2 text-left" onClick={() => setStage("ready")} data-ready-card>
             <span className="min-w-0">

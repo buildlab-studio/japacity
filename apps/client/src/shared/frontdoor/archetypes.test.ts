@@ -7,8 +7,8 @@ import { describe, expect, test } from "vitest";
 
 import { newGame } from "../testing/fixtures";
 import { say } from "../words/text";
-import { earlyStops, nextStepOf, ownWayOf } from "../words/sixteen";
-import { answersInOrder, ARCHETYPES, type Archetype, archetypeOf, presetAnswer } from "./archetypes";
+import { earlyStops, nextStepOf, ownWayOf, sixteenPath } from "../words/sixteen";
+import { answersInOrder, ARCHETYPES, type Archetype, archetypeOf, handoverKind, presetAnswer } from "./archetypes";
 
 const PROLOGUE = "scenario.prologue";
 const FIRST_CHAPTER = "chapter.find-your-feet";
@@ -240,6 +240,57 @@ describe("the tiles' words", () => {
   test("[R-PROLOGUE-010] given the trader's and the shop worker's tiles, then the road is said as the road through the desert, never bare", () => {
     for (const id of ["trader", "shop-worker"]) {
       expect(say(`prologue.archetype.${id}.opens`)).toMatch(/the road through the desert/);
+    }
+  });
+});
+
+describe("the handover reads the life as lived", () => {
+  test("[R-PROLOGUE-011] given lives on one draw each, as online, when the trader's tile is shut by the family and the life goes to university, then the handover says the years went another way and never names the trader; a trader's life kept says the trader", () => {
+    const trader = archetypeOf("trader")!;
+    const said = { kept: 0, off: 0 };
+    const wrong: string[] = [];
+    for (let at = 0; at < SEEDS; at += 1) {
+      const { game, kept } = play(trader, `trader-${String(at)}`);
+      const line = handoverKind(trader, game.view());
+      if (kept) {
+        said.kept += 1;
+        if (line !== "The trader. Six years under a spare parts master.") wrong.push(`${String(at)}: ${line}`);
+        continue;
+      }
+      // Shut out of the trade, most go through university. The few who then fail the exam twice end at a counter,
+      // which the view cannot tell from a master's thin settlement: those still read as a trade.
+      if (sixteenPath(game.view()) !== "degree") continue;
+      said.off += 1;
+      if (line !== say("prologue.handover.lived.degree") || line.includes(say("prologue.archetype.trader.name"))) wrong.push(`${String(at)}: ${line}`);
+    }
+    expect(wrong).toEqual([]);
+    expect(said.kept).toBeGreaterThan(0);
+    expect(said.off).toBeGreaterThan(0);
+  });
+
+  test("[R-PROLOGUE-011] given a degree tile whose life failed the exam twice and went to the counter, when it hands over, then it reads as work from school on, never the tile; a kept nurse says the nurse", () => {
+    const wrong: string[] = [];
+    let off = 0;
+    for (const archetype of ARCHETYPES.filter((one) => one.id !== "trader" && one.id !== "shop-worker")) {
+      for (let at = 0; at < SEEDS; at += 1) {
+        const { game, kept } = play(archetype, `${archetype.id}-${String(at)}`);
+        const line = handoverKind(archetype, game.view());
+        const tile = say(`prologue.archetype.${archetype.id}.name`);
+        if (kept && !line.startsWith(`${tile}. `)) wrong.push(`${archetype.id} ${String(at)}: ${line}`);
+        if (!kept) {
+          off += 1;
+          if (line !== say("prologue.handover.lived.trade")) wrong.push(`${archetype.id} ${String(at)}: ${line}`);
+        }
+      }
+    }
+    expect(wrong).toEqual([]);
+    expect(off).toBeGreaterThan(0);
+  });
+
+  test("[R-PROLOGUE-011] given the words for one life and for a life as lived, then each is there, plain, with no dash", () => {
+    for (const key of ["prologue.archetype.once", "prologue.handover.lived.degree", "prologue.handover.lived.capital", "prologue.handover.lived.trade"]) {
+      expect(say(key)).not.toBe(key);
+      expect(say(key)).not.toMatch(/[\u2013\u2014]/);
     }
   });
 });
