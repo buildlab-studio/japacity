@@ -130,3 +130,45 @@ describe("the jobs list on the hunt's card", () => {
     expect(later?.needs.length).toBeGreaterThan(0);
   });
 });
+
+describe("the jobs list as rows on the sheet", () => {
+  const nameOfJob = (id: string) => text[`${id}.name`] ?? id;
+  const applyButton = () => screen.getByRole("button", { name: `${say("ui.activity.add")}: ${nameOfJob(HUNT)}` });
+
+  test("[R-WORLD-021] given the hunt's card, when the list shows, then the rows sit on the sheet with no radio circle, and only the chosen row fills with the pick colour", async () => {
+    const view = engineView();
+    await renderWithView(<ActivityPicker only={[HUNT]} />, view);
+    const rows = within(screen.getByRole("radiogroup", { name: jobsWords("jobs.pick") })).getAllByRole("radio");
+    for (const row of rows) {
+      expect(row.querySelector(".rounded-full")).toBeNull();
+      expect(row.closest("li")?.className).toContain("border-sheet-line");
+      expect(row.className.includes("bg-pick")).toBe(row.getAttribute("aria-checked") === "true");
+    }
+    expect(rows.filter((row) => row.className.includes("bg-pick"))).toHaveLength(1);
+  });
+
+  test("[R-WORLD-006] given each job's chance, when its row shows, then a three-step gauge stands beside the word: one step for a long shot, two for a fair chance, three for likely", async () => {
+    const view = engineView();
+    const steps = { long: "1", fair: "2", likely: "3" } as const;
+    await renderWithView(<ActivityPicker only={[HUNT]} />, view);
+    for (const job of huntOf(view)) {
+      const row = document.querySelector(`[data-jobs] [data-job='${job}']`);
+      const band = chanceBand(jobChanceBp(entryOf(job), networkOf(view)));
+      expect(row?.querySelector("[data-gauge]")?.getAttribute("data-gauge")).toBe(steps[band]);
+      expect(row?.querySelector("[data-gauge]")?.children).toHaveLength(3);
+      expect(row?.querySelector(`[data-chance='${band}']`)?.textContent).toBe(jobsWords(`jobs.chance.${band}`));
+    }
+  });
+
+  test("[R-WORLD-006] given a row tapped, when the card's one main button shows, then it repeats the pick: Apply and the job's name", async () => {
+    const view = engineView();
+    const ordered = huntOrder(view, huntOf(view));
+    await renderWithView(<ActivityPicker only={[HUNT]} />, view);
+    expect(applyButton().textContent).toBe(`${jobsWords("jobs.apply")}${nameOfJob(ordered[0] ?? "")}`);
+    const last = ordered.at(-1) ?? "";
+    fireEvent.click(screen.getByRole("radio", { name: new RegExp(`^${nameOfJob(last)}`) }));
+    expect(applyButton().textContent).toBe(`${jobsWords("jobs.apply")}${nameOfJob(last)}`);
+    expect(applyButton().querySelector(`[data-apply-for='${last}']`)).not.toBeNull();
+    expect(document.querySelectorAll("[data-activity-picker] button:not([role='radio'])")).toHaveLength(1);
+  });
+});

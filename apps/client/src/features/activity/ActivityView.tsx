@@ -17,7 +17,7 @@ import { alreadyDone, needsWords, requirementSentence } from "../../shared/words
 import { ENGLISH_TEST, STUDY_ENGLISH, testChance } from "../../shared/words/test";
 import { blurbOf, hasWords, lowerFirst, nameOf, paramWords, say, sayCount } from "../../shared/words/text";
 import { payAMonth } from "../../shared/words/pay";
-import { huntOrder, JobList } from "./JobList";
+import { ApplyFor, huntOrder, JobList } from "./JobList";
 import { RouteList } from "./RouteList";
 import { routesWords } from "./routes.words";
 
@@ -293,6 +293,8 @@ function ActivityCard({ option }: { option: ActivityOption }) {
   const selectId = `param-${option.id}`;
   // R-WORLD-006: the English test says its chance of the band the route needs before the fee is paid.
   const chance = option.id === ENGLISH_TEST ? testChance(view) : null;
+  // A job picked from the list: one main button in the action colour that repeats the pick (R-WORLD-006, R-WORLD-021).
+  const applying = jobs !== null && chosenParam !== "" && !(full && option.allowed);
 
   return (
     <li>
@@ -370,13 +372,21 @@ function ActivityCard({ option }: { option: ActivityOption }) {
 
         <div className="mt-auto pt-1">
           <Button
-            small
+            small={!applying}
+            variant={applying ? "primary" : "secondary"}
             disabled={!canAdd}
             aria-label={`${say("ui.activity.add")}: ${name}`}
             onClick={() => addToPlan({ activity: option.id, param: needsParam ? chosenParam : null })}
+            className={applying ? "w-full justify-between" : ""}
           >
-            <Plus size={16} />
-            {full && option.allowed ? say("ui.activity.full") : say("ui.activity.do")}
+            {applying ? (
+              <ApplyFor id={chosenParam} />
+            ) : (
+              <>
+                <Plus size={16} />
+                {full && option.allowed ? say("ui.activity.full") : say("ui.activity.do")}
+              </>
+            )}
             {line === null ? null : (
               <span className={`text-xs font-semibold ${line.kind === "left" ? "opacity-80" : line.kind === "short" ? "text-bad" : ""}`} data-after={line.kind}>
                 {line.words}
