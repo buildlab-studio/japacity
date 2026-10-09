@@ -169,8 +169,9 @@ const COMPOSITIONS: Record<string, Composer> = {
     pen.circle(230, 520, 110, "danfoYellow");
     pen.rect(0, 560, 1000, 1000, "blue");
     skyline(pen, 600, [40, 70, 30, 90, 50, 60, 40, 80, 30, 50], "charcoal", null);
-    for (let row = 640; row < 1000; row += 70) pen.line(60 + (row % 140), row, 360 + (row % 140), row, 4, "marking");
-    for (let row = 680; row < 1000; row += 90) pen.line(560 - (row % 120), row, 900 - (row % 120), row, 4, "glass");
+    // Fewer, wider ripples: thin lines on the blue cost the JPEG the most (R-SHARE-009).
+    for (let row = 660; row < 1000; row += 110) pen.line(60 + (row % 140), row, 360 + (row % 140), row, 6, "marking");
+    for (let row = 720; row < 1000; row += 130) pen.line(560 - (row % 120), row, 900 - (row % 120), row, 6, "glass");
     plane(pen, 660, 220, 260, 14, "black", aspect);
   },
   "art.cold-street": (pen, aspect) => {
