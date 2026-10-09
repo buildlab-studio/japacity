@@ -66,3 +66,24 @@ export function poseFigure(figure: Figure, time: number, pose: PoseName = figure
   nudge("upperArmR", -sway * 0.05, 0, 0);
   if (hips !== undefined) hips.position.y += breath * 0.004;
 }
+
+/**
+ * Sets a figure's bones `share` of the way, 0 to 1, from one pose to another, with no breathing: a
+ * short move such as climbing onto a bike, where the poses alone would jump.
+ */
+export function blendFigure(figure: Figure, from: PoseName, to: PoseName, share: number): void {
+  const a = poseRotations(from);
+  const b = poseRotations(to);
+  const s = Math.min(1, Math.max(0, share));
+  for (const [name, bone] of figure.bones) {
+    const rest = figure.rest.get(name) ?? [0, 0, 0];
+    const p = a.rotations[name as keyof typeof a.rotations] ?? rest;
+    const q = b.rotations[name as keyof typeof b.rotations] ?? rest;
+    bone.rotation.set(p[0] + (q[0] - p[0]) * s, p[1] + (q[1] - p[1]) * s, p[2] + (q[2] - p[2]) * s);
+  }
+  const hips = figure.bones.get("hips");
+  if (hips === undefined) return;
+  const low = a.hipsY ?? POSE_HIPS;
+  const high = b.hipsY ?? POSE_HIPS;
+  hips.position.y = ((low + (high - low) * s) * figure.hipsY) / POSE_HIPS;
+}
