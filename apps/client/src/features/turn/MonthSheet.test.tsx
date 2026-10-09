@@ -1,13 +1,25 @@
 import { act, fireEvent, screen, waitFor } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
-import { engineView, richView } from "../../shared/testing/fixtures";
+import { slot } from "../../../../../packages/sim/src/route/route.journey";
+import { engineView, newGame, richView } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { nameOf, words } from "../../shared/words/text";
 import { MonthSheet } from "./MonthSheet";
 import { turnWords } from "./turn.words";
 
 const REST = "activity.rest" as const;
+const TEACHER = "activity.job-teacher" as const;
+
+/** Ada after a month's hunt that found the teacher's job, and the job taken. */
+function adaTeaching() {
+  const game = newGame("scenario.ada");
+  game.endTurn([slot("activity.job-hunt", TEACHER), slot(REST)]);
+  const offer = game.view().offers.find((candidate) => candidate.entry === "offer.job");
+  if (offer === undefined) throw new Error("The hunt found no job on this seed.");
+  game.accept({ type: "offer/choose", offer: offer.id, choice: "accept" });
+  return game.view();
+}
 
 function slots(state: "free" | "planned"): Element[] {
   return [...document.querySelectorAll(`[data-month-plan] [data-slot="${state}"]`)];
@@ -58,5 +70,27 @@ describe("the Month sheet", () => {
     const end = screen.getByRole<HTMLButtonElement>("button", { name: new RegExp(turnWords("turn.month.end")) });
     expect(end.disabled).toBe(true);
     expect(document.querySelector("[data-month-blocked]")?.textContent).toBe(words("reject.setpiece-open"));
+  });
+
+  test("[R-WORLD-007] given a job held, when the sheet shows, then the job is its first row and no line says the month is empty or quiet", async () => {
+    const view = adaTeaching();
+    expect(view.job.id).toBe(TEACHER);
+    await renderWithView(<MonthSheet />, view);
+    const rows = [...document.querySelectorAll("[data-month-sheet] li")];
+    expect(rows[0]?.textContent).toBe(turnWords("turn.month.working", { job: nameOf(TEACHER) }));
+    expect(rows[0]?.getAttribute("data-slot")).toBe("job");
+    const sheet = document.querySelector("[data-month-sheet]")?.textContent ?? "";
+    expect(sheet).not.toContain("Nothing yet");
+    expect(sheet).not.toContain("A quiet month");
+  });
+
+  test("[R-WORLD-007] given last month's hunt found the job now held, when Same again is tapped, then the hunt is not planned again and the rest of last month is", async () => {
+    const view = adaTeaching();
+    expect(view.lastSlots).toContainEqual({ activity: "activity.job-hunt", param: TEACHER });
+    const { store } = await renderWithView(<MonthSheet />, view);
+    fireEvent.click(screen.getByRole("button", { name: turnWords("ui.month.same-again") }));
+    const plan = store.getState().plan;
+    expect(plan.some((pick) => pick?.activity === "activity.job-hunt" && pick.param === TEACHER)).toBe(false);
+    expect(plan).toContainEqual({ activity: REST, param: null });
   });
 });
