@@ -3,6 +3,7 @@ import { join } from "node:path";
 
 import { content } from "@japacity/content";
 import { act, fireEvent, render, screen, within } from "@testing-library/react";
+import { Group } from "three";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
 import { engineView } from "../../shared/testing/fixtures";
@@ -407,6 +408,23 @@ describe("the ride carries people", () => {
       }
       scene.dispose();
     }
+  });
+
+  test("[R-WORLD-017] given an okada's pre-roll cut short mid-climb, when the ride plays, then the character sits behind the rider facing ahead", () => {
+    const scene = buildRide("okada");
+    scene.setPerson("rider", new Group());
+    scene.setPerson("own", new Group());
+    scene.frame(500, 0.46);
+    const own = scene.seats.find((seat) => seat.role === "own")?.group;
+    const rider = scene.seats.find((seat) => seat.role === "rider")?.group;
+    if (own === undefined || rider === undefined) throw new Error("No seats");
+    expect(own.rotation.y).toBeGreaterThan(0);
+    scene.setPhase("ride");
+    scene.frame(3000, 0.46);
+    expect(own.rotation.y).toBe(0);
+    expect(own.position.x).toBeCloseTo(rider.position.x, 5);
+    expect(own.position.z).toBeLessThan(rider.position.z);
+    scene.dispose();
   });
 
   test("[R-WORLD-017] given an okada ride, when it plays out, then the pre-roll is at most a second and a half and counts inside the six seconds", async () => {

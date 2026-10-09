@@ -373,13 +373,15 @@ export function buildRide(way: Way): RideScene {
       poseFigure(figure, time, "walk", ((-vehicle.position.z / 1.5) % 1 + 1) % 1);
       return;
     }
-    if (way === "okada" && phase === "pre") {
+    if (way === "okada") {
       // Climbing on: from beside the bike at the kerb, a short lift onto the seat behind the rider.
+      // Once the ride is on she is seated, however few frames the pre-roll drew.
       const at = seatsOf(way).find((spec) => spec.role === "own")?.at ?? [0, 0, 0];
-      const share = ease((ms - 200) / 700);
+      const share = phase === "pre" ? ease((ms - 200) / 700) : 1;
       own.group.position.set(-0.72 + (at[0] + 0.72) * share, at[1] * share + Math.sin(share * Math.PI) * 0.14, -0.62 + (at[2] + 0.62) * share);
       own.group.rotation.y = (Math.PI / 2) * (1 - share);
       if (share <= 0) poseFigure(figure, time, "stand");
+      else if (share >= 1) poseFigure(figure, time, "pillion");
       else blendFigure(figure, "stand", "pillion", share);
       return;
     }
@@ -395,8 +397,7 @@ export function buildRide(way: Way): RideScene {
   const frame = (ms: number, aspect: number): void => {
     const time = ms / 1000;
     if (ms < pre) {
-      const t = ms / 1000;
-      vehicle.position.z = way === "danfo" ? -(PULL * t * t) / 2 : 0;
+      vehicle.position.z = way === "danfo" ? -(PULL * time * time) / 2 : 0;
       vehicle.position.y = way === "danfo" ? Math.sin(time * 9) * 0.006 : Math.abs(Math.sin(time * 40)) * 0.004;
       posePeople(ms, time);
       const push = ease(ms / pre) * 0.12;
