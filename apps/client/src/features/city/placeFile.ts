@@ -87,6 +87,8 @@ export interface Stage {
   dancers?: Dancer[];
   /** How the place is dressed while an offer it stages is open. */
   dressings?: Dressing[];
+  /** What a room shows of a choice the month's plan holds (world.md R-WORLD-029): the pot steaming, the drum filled. */
+  shows?: Show[];
   /** The place's camera (world.md R-WORLD-009); a default from the start when absent. */
   shot?: Shot;
   /** The things the player can tap and what each does (world.md R-WORLD-005). */
@@ -120,6 +122,16 @@ export interface Dressing {
   dancers: Dancer[];
   /** The guests' sample, in place of the entry's figures (R-CITY-014). */
   crowd: { low: number; high: number; target: number };
+}
+
+/**
+ * A choice made this month, seen on its thing (world.md R-WORLD-029): while the month's plan holds the
+ * activity, its models and motion join the stage's. Nothing is hidden and no one moves.
+ */
+export interface Show {
+  activity: string;
+  models: Stage["models"];
+  motion: Motion[];
 }
 
 export interface PlaceFile {
@@ -190,6 +202,21 @@ export function dressPlace(file: PlaceFile, open: readonly string[]): { file: Pl
     ...(plain.inside === undefined ? {} : { inside: plain.inside }),
   };
   return { file: { ...file, stage: dressed }, crowd: dressing.crowd };
+}
+
+/**
+ * The place as the month's plan shows it (R-WORLD-029): the models and motion of every show whose
+ * activity is planned join the stage. The same file when the plan shows nothing here, so the scene
+ * is rebuilt only when what it shows changes.
+ */
+export function showPlanned(file: PlaceFile, planned: readonly string[]): PlaceFile {
+  const stage = stageOf(file);
+  const shown = (stage.shows ?? []).filter((show) => planned.includes(show.activity));
+  if (shown.length === 0) return file;
+  return {
+    ...file,
+    stage: { ...stage, models: [...stage.models, ...shown.flatMap((show) => show.models)], motion: [...stage.motion, ...shown.flatMap((show) => show.motion)] },
+  };
 }
 
 /** A dancer's slot, after every slot a sample can have, so a tap on one is told from a tap on the crowd. */

@@ -19,7 +19,7 @@ import { loadGrids } from "../../shared/three/motion";
 import { poseFigure } from "../../shared/three/people";
 import { BEHIND, cameraAim, EYE, FOV } from "./camera";
 import { limitMotion } from "./limits";
-import { filesOf, type Stage, stageOf } from "./placeFile";
+import { filesOf, type Spot, type Stage, stageOf } from "./placeFile";
 import type { CityProbe, ScenePick, SceneProps } from "./scene.types";
 import { sceneWords } from "./scene.words";
 import { aimShot, clampTurn, SHOT_FOV, SHOT_NEAR_PLANE, shotOf, snapZoom, widthEnds } from "./shot";
@@ -105,11 +105,12 @@ function lens(camera: Camera, fov: number, near: number): void {
   camera.updateProjectionMatrix();
 }
 
-/** Where the character stands and walks, the act that waits on the walk, and the file they stand in. */
+/** Where the character stands and walks, the act that waits on the walk, and the start of the place they stand in. */
 interface WalkState {
   walker: Walker;
   pending: { thing: Thing; act: Act } | null;
-  standing: SceneProps["file"] | null;
+  /** The start of the stage they stand on: a place dressed or shown anew keeps its start, so they keep their spot (R-WORLD-029). */
+  standing: Spot | null;
   /** The character sat down on a plain act and stays so until they walk. */
   sitting: boolean;
   /** The character lies on the thing (the bed, the couch) until they walk; lying raises them onto it. */
@@ -276,11 +277,11 @@ function Place(props: PlaceProps) {
       if (!alive) return;
       // A new place starts the character at its door. A rebuild of the same place (the crowd or the
       // mode changed) keeps where they stand and the act they are walking to (R-WORLD-010).
-      if (walk.current.standing !== file) {
+      if (walk.current.standing !== stage.start) {
         const [x, z, facing] = stage.start;
         walk.current.walker = standAt(x, z, facing);
         walk.current.pending = null;
-        walk.current.standing = file;
+        walk.current.standing = stage.start;
       }
       setWorld(buildWorld(stage, models, people, own, settings, text, place, roam));
     })().catch((error: unknown) => {
