@@ -108,9 +108,11 @@ describe("the bridge's price: when it opens", () => {
 
 describe("the bridge's price: what each does", () => {
   /** A life that rests one month and so tells how much cash it holds when the offers come up the month after. */
+  // The bank covers the month's upkeep, which is taken bank first (decision 0012) and would otherwise take the cash too (decision 0015).
+  const BANK = content.scenario["scenario.ada"]!.obligations[0]!.amount + street.theftNaira * 4;
   function cashAtComeUp(seed: string, cash: number): number {
     const twin = life(alone(BRIDGE_THEFT), seed);
-    setNaira(twin, cash, street.theftNaira * 4);
+    setNaira(twin, cash, BANK);
     twin.endTurn();
     return twin.state.wallet.pockets.NGN.cash;
   }
@@ -126,7 +128,7 @@ describe("the bridge's price: what each does", () => {
       const cash = base + (street.theftNaira - short) - cashAtComeUp(seed, base);
       expect(cashAtComeUp(seed, cash)).toBe(street.theftNaira - short);
       const game = life(alone(BRIDGE_THEFT), seed);
-      setNaira(game, cash, street.theftNaira * 4);
+      setNaira(game, cash, BANK);
       const result = game.endTurn([slot(SLEEP_ROUGH)]);
       const item = openedIn(result, BRIDGE_THEFT);
       expect(item?.terms.lost).toBe(line);
