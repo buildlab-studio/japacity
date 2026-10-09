@@ -32,6 +32,8 @@ export type PlayerCommand = Command extends infer C
 export interface StoreAuthority {
   view(): Promise<PlayerView>;
   send(command: Command): Promise<Reply | ServerRejection>;
+  /** The month's clock as this authority keeps it, for one that reports no clock through events (the local one): when the next month comes (R-WORLD-027). */
+  clock?(): ClockView | null;
 }
 
 export interface Shown {
@@ -258,11 +260,17 @@ export function createGameStore(authority: StoreAuthority, options: GameStoreOpt
 
 function makeStore(authority: StoreAuthority, options: GameStoreOptions): GameStore {
   return createStore<GameState>()((set, get) => {
+    /** The authority's own clock, when it keeps one and reports none through events. */
+    function ownClock(): Partial<GameState> {
+      const clock = authority.clock?.();
+      return clock === undefined ? {} : { clock };
+    }
+
     function take(view: PlayerView): void {
       // A fetch that set out before a command's reply can land after it: the older view is dropped.
       const held = get().view;
       if (held !== null && view.v < held.v) return;
-      set({ view, plan: fitPlan(get().plan, view.freeSlots), earlyWin: get().earlyWin || wonEarly(view, view.report?.lines ?? [], null), ...(held === null && options.rememberMonth === true ? rememberedMonth(view) : {}) });
+      set({ view, plan: fitPlan(get().plan, view.freeSlots), earlyWin: get().earlyWin || wonEarly(view, view.report?.lines ?? [], null), ...(held === null && options.rememberMonth === true ? rememberedMonth(view) : {}), ...ownClock() });
     }
 
     async function send(command: PlayerCommand): Promise<Reply | ServerRejection | null> {
@@ -283,6 +291,7 @@ function makeStore(authority: StoreAuthority, options: GameStoreOptions): GameSt
             lines: reply.lines,
             moments: bigLines(reply.lines),
             ...(ended ? { reportOpen: true, lastMonthLines: get().monthLines, monthLines: [], quiet: [] } : { monthLines: [...get().monthLines, ...reply.lines] }),
+            ...ownClock(),
           });
         } else {
           set({ rejection: { code: reply.code, words: rejectionWords(reply.code), ...("detail" in reply && typeof reply.detail === "string" ? { detail: reply.detail } : {}) } });

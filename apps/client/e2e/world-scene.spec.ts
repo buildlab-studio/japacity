@@ -79,13 +79,19 @@ async function startWorld(page: Page, mode: "low" | "high" = "high"): Promise<vo
 async function goTo(page: Page, id: string): Promise<boolean> {
   const current = await probe(page);
   if (current?.place === id) return true;
-  await page.getByRole("button", { name: "City" }).click();
-  const button = page.getByRole("list", { name: "Places" }).getByRole("button", { name: text[`${id}.name`] ?? id, exact: true });
-  if ((await button.count()) === 0) {
-    await page.keyboard.press("Escape");
+  // The map, a stop's board tapped on the screen, the ride sheet's first way (R-WORLD-015, R-WORLD-017).
+  await page.locator('[data-thumb="map"]').click();
+  await page.waitForSelector("[data-map]");
+  await page.waitForFunction(() => ((window as unknown as { __map?: { frames?: number } }).__map?.frames ?? 0) > 5, null, { timeout: 60_000 });
+  const board = await page.evaluate((stop) => (window as unknown as { __map?: { screenOf(stop: string): { x: number; y: number } | null } }).__map?.screenOf(stop) ?? null, id);
+  if (board === null) {
+    await page.locator("[data-map-close]").click();
     return false;
   }
-  await button.click();
+  await page.mouse.click(board.x, board.y);
+  const sheet = page.locator(`[data-ride-sheet="${id}"]`);
+  await sheet.waitFor({ state: "visible", timeout: 10_000 });
+  await sheet.getByRole("button", { name: /^Go by/ }).first().click();
   await waitPlace(page, id);
   return true;
 }

@@ -129,6 +129,7 @@ export const uiText: Record<string, string> = {
   "ui.results.unpaid.plain": "{obligation}: {amount} went unpaid.",
   "ui.results.unpaid.withdraw": "{obligation}: {amount} went unpaid. Miss the next one too and the university withdraws you, and your visa goes with it.",
   "ui.line.remit-landed": "Lands in your naira account at home: {amount}.",
+  "ui.results.changed-out": "Changed at the bank: {amount}.",
   "ui.results.changed": "Changed {paid} into {got}. The bank's charge comes to {amount}.",
   "ui.results.hunt-missed": "{job}: not this time.",
   "ui.results.hunt-offer": "An offer: {job}, {pay} a month.",

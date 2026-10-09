@@ -58,11 +58,16 @@ const STEP_WAYS: Record<string, StepWay> = {
 export const BOARD_WAY: StepWay = { go: "place.yaba", at: ["place.yaba:jobs", "place.ojuelegba:hub"] };
 
 /** The way to the chapter's next undone step, or null when the step has no place in the world (life abroad). */
-export function stepWayOf(view: StepView): StepWay | null {
+export function stepWayOf(view: StepView & Partial<Pick<PlayerView, "obligations">>): StepWay | null {
   const step = stepOf(view);
   if (view.chapter.current === null || step === null) return null;
+  // The plane blocked by held funds: the way is the bank's counter that takes them back.
+  if (view.chapter.current === "chapter.send-off" && step === "departed" && heldFundsOpen({ ...view, setpiece: null, interview: null, offers: [], report: null })) return HELD_FUNDS_WAY;
   return STEP_WAYS[`${view.chapter.current}.${step}`] ?? null;
 }
+
+/** Where held funds go back: the bank's counter (R-ROUTE-020). */
+const HELD_FUNDS_WAY: StepWay = { go: "place.olokun-office", at: ["place.olokun-office:counter"] };
 
 type StepView = Pick<PlayerView, "chapter"> & Partial<Pick<PlayerView, "scenario" | "qualities" | "pockets">>;
 
@@ -104,6 +109,7 @@ const STEP_ACTIVITY: Record<string, string> = {
   "chapter.build-the-file.offer": "activity.apply-to-school",
   "chapter.decision-day.tb": "activity.tb-test",
   "chapter.decision-day.applied": "activity.apply-for-visa",
+  "chapter.landing.job": "activity.job-hunt",
 };
 
 /** Other activities that also take a step when planned: the adviser's visit looks into the route. */
@@ -112,6 +118,25 @@ const STEP_ACTIVITY_ALSO: Record<string, readonly string[]> = {
 };
 
 type NudgeView = Pick<PlayerView, "setpiece" | "interview" | "offers" | "chapter" | "report"> & Partial<Pick<PlayerView, "documents" | "routes" | "month" | "activities" | "pockets" | "place" | "obligations" | "job" | "scenario" | "qualities">>;
+
+/** The nudge that sends a waiting life to the board for better pay. */
+export const BETTER_JOB = "ui.nudge.better-job";
+/** Held funds still open block the plane. */
+const HELD_FUNDS = "held-funds";
+
+/** True while funds held for the visa are still to be given back. */
+function heldFundsOpen(view: NudgeView): boolean {
+  return (view.obligations ?? []).some((owed) => content.obligation[owed.entry]?.type === HELD_FUNDS);
+}
+
+/** True when the jobs board holds a job that pays more a month than the one held. */
+function betterJobOnBoard(view: NudgeView): boolean {
+  const held = view.job?.id ?? null;
+  if (held === null) return false;
+  const pay = monthlyNaira(held);
+  const listed = view.activities?.find((option) => option.id === "activity.job-hunt")?.params ?? [];
+  return listed.some((job) => monthlyNaira(job) > pay);
+}
 
 /** A job's pay a month in naira, as the hunt's card says it; nothing for pay in another money. */
 function monthlyNaira(job: string): number {
@@ -134,7 +159,11 @@ function startedKey(view: NudgeView, own: string, stepKey: string, planned: read
   const paper = STEP_PAPER[stepKey];
   if (paper !== undefined) {
     const held = view.documents?.find((document) => document.id === paper);
-    if (held?.state === "pending" && has(`${own}.started`)) return { key: `${own}.started`, params: { when: inMonths(held.readyMonth ?? month, month) } };
+    if (held?.state === "pending") {
+      // A wait is a saving month: the board's better job comes before "work and save".
+      if (betterJobOnBoard(view) && has(BETTER_JOB)) return { key: BETTER_JOB };
+      if (has(`${own}.started`)) return { key: `${own}.started`, params: { when: inMonths(held.readyMonth ?? month, month) } };
+    }
   }
   const activity = STEP_ACTIVITY[stepKey];
   if (activity !== undefined) {
@@ -173,20 +202,23 @@ function startedKey(view: NudgeView, own: string, stepKey: string, planned: read
     return { key: `${own}.short`, params: { amount: formatMoney(route.funds.required - route.funds.shown, "GBP") } };
   }
   if (stepKey === "chapter.find-your-feet.job" && planned.includes("activity.job-hunt") && has(`${own}.started`)) return { key: `${own}.started` };
+  // The plane waits on the held funds: the nudge says what blocks it.
+  if (stepKey === "chapter.send-off.departed" && heldFundsOpen(view) && has(`${own}.blocked`)) return { key: `${own}.blocked` };
   if (stepKey === "chapter.build-the-file.english" && planned.includes("activity.sit-english-test") && has(`${own}.started`)) return { key: `${own}.started` };
   return null;
 }
 
 /** `has`: whether words exist for a key; content's and the interface's tables unless a test says otherwise. `planned`: the activities in this month's plan. */
-export function nudgeOf(view: NudgeView, has: (key: string) => boolean = hasWords, planned: readonly string[] = []): Nudge & { about: NudgeAbout } {
+export function nudgeOf(view: NudgeView, has: (key: string) => boolean = hasWords, planned: readonly string[] = [], newsRead = false): Nudge & { about: NudgeAbout } {
   if (view.setpiece !== null || (view.interview?.question ?? null) !== null) return { key: "ui.nudge.setpiece", about: "setpiece" };
+  // Abroad, whenever the month's dues pass the country's money held, the gap comes before the step;
+  // and before any ask when one more missed instalment ends the visa.
+  const { place, pockets, obligations } = view;
+  const gap = place === undefined || pockets === undefined || obligations === undefined ? null : duesGap({ place, pockets, obligations });
+  const visaAtStake = gap !== null && (obligations ?? []).some((owed) => owed.entry === "obligation.tuition" && owed.missed >= 1 && owed.due > 0);
+  if (visaAtStake && has("ui.nudge.dues-visa")) return { key: "ui.nudge.dues-visa", params: { due: formatMoney(gap.due, gap.currency), held: formatMoney(gap.held, gap.currency) }, about: "dues" };
   if (view.offers.length > 0) return { key: "ui.nudge.offer", about: "offer" };
-  // Abroad, whenever the month's dues pass the country's money held, the gap comes before the step.
-  {
-    const { place, pockets, obligations } = view;
-    const gap = place === undefined || pockets === undefined || obligations === undefined ? null : duesGap({ place, pockets, obligations });
-    if (gap !== null) return { key: "ui.nudge.dues", params: { due: formatMoney(gap.due, gap.currency), held: formatMoney(gap.held, gap.currency) }, about: "dues" };
-  }
+  if (gap !== null) return { key: "ui.nudge.dues", params: { due: formatMoney(gap.due, gap.currency), held: formatMoney(gap.held, gap.currency) }, about: "dues" };
   const step = stepOf(view);
   if (view.chapter.current !== null && step !== null) {
     // The story's own nudge words for the step when content has them (at most eight words), else the step's words.
@@ -197,6 +229,7 @@ export function nudgeOf(view: NudgeView, has: (key: string) => boolean = hasWord
   }
   // A report line waits when one of last month's lines asks for the player. Abroad, when the month's
   // dues pass the country's money held, that line says the gap.
-  if (view.report !== null && tidyLines(view.report.lines).some(asksAttention)) return { key: "ui.nudge.report", about: "report" };
+  // Once News has been read for this month's report, the line waits no more.
+  if (!newsRead && view.report !== null && tidyLines(view.report.lines).some(asksAttention)) return { key: "ui.nudge.report", about: "report" };
   return { key: "ui.nudge.end", about: "end" };
 }

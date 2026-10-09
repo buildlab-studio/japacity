@@ -41,6 +41,8 @@ export const worldText: Record<string, string> = {
   "ui.nudge.offer": "Someone is asking you something",
   "ui.nudge.report": "The month's news is in",
   "ui.nudge.dues": "Only {held} held for {due} due this month",
+  "ui.nudge.dues-visa": "Only {held} held for {due} due. One more miss ends your visa.",
+  "ui.nudge.better-job": "A better job is on the board while you wait.",
   "ui.nudge.hunt-planned": "You have applied for better pay. End the month.",
   "ui.nudge.end": "End the month when you are ready",
 };

@@ -95,6 +95,7 @@ export const chapterText: Record<string, string> = {
   "chapter.send-off.item.departed": "Board the plane",
   "chapter.send-off.item.departed.nudge": "Pack one bag and go to the airport",
   "chapter.send-off.item.departed.nudge.here": "Board the plane at the gate",
+  "chapter.send-off.item.departed.blocked": "Give the held funds back at the bank, then board.",
 
   // Report lines. The interface shows the chapter's close words with the
   // first, and the next chapter's opening words with the second.
@@ -112,6 +113,7 @@ export const chapterText: Record<string, string> = {
   "chapter.landing.item.room.nudge": "Find a room with a lock",
   "chapter.landing.item.job": "Work one month in a job here",
   "chapter.landing.item.job.nudge": "Find work here and keep it a month",
+  "chapter.landing.item.job.planned": "You have applied. End the month and see.",
   "chapter.landing.item.status": "Know what your visa lets you do",
   "chapter.landing.item.status.nudge": "Read what your visa lets you do",
   "chapter.landing.item.request": "Answer the first request from home",

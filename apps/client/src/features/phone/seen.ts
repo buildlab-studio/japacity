@@ -5,9 +5,10 @@ import { content } from "@japacity/content";
 import type { PlayerView } from "@japacity/sim";
 import { useSyncExternalStore } from "react";
 
+import { newsMarkOf, SEEN_KEY } from "../../shared/phone/newsSeen";
 import { familyFeedLines } from "./feed";
 
-export const SEEN_KEY = "japacity.phone.seen";
+export { SEEN_KEY };
 
 export const APP_IDS = ["bank", "chats", "japa", "jobs", "lotto", "bills", "news", "settings"] as const;
 export type AppId = (typeof APP_IDS)[number];
@@ -30,7 +31,6 @@ export function marksOf(view: PlayerView): Record<AppId, string> {
   const peopleLines = (view.report?.lines ?? []).filter((line) => line.key.startsWith("line.people.")).length;
   const chats = feed.length === 0 && peopleLines === 0 ? "" : `${String(view.month)}:${feed.at(-1)?.id ?? ""}:${String(peopleLines)}`;
   const bills = billsDue(view);
-  const stories = view.news.map((story) => `${story.id}.${story.stage}`).join(",");
   return {
     bank: "",
     chats,
@@ -38,7 +38,7 @@ export function marksOf(view: PlayerView): Record<AppId, string> {
     jobs: jobOffers(view).map((offer) => offer.id).join(","),
     lotto: view.lottery?.last === null || view.lottery?.last === undefined ? "" : String(view.lottery.last.draw),
     bills: bills.length === 0 ? "" : `${String(view.month)}:${bills.map((owed) => owed.id).join(",")}`,
-    news: view.report === null && stories === "" ? "" : `${String(view.report?.month ?? "")}:${stories}`,
+    news: newsMarkOf(view),
     settings: "",
   };
 }

@@ -4,6 +4,8 @@
 // through the Authority type, so the server can replace it later unchanged.
 import { content as realContent } from "@japacity/content";
 import type { Authority, Command, Content, FlatSave, Id, PlayerView, Reply, Save, Sender, State, World } from "@japacity/sim";
+
+import type { ClockView } from "../shared/net/contract";
 import { lastSegment, lifeStart, loadSave, newSave, newState, recordCommand, replay, savedCommands, standInWorld, step, time, viewFor } from "@japacity/sim";
 
 /** The one localStorage key the life is kept under. */
@@ -31,6 +33,8 @@ export interface LocalAuthorityOptions {
 
 export interface LocalAuthority extends Authority {
   readonly start: LifeStart;
+  /** When the next month comes, from the refill's anchor (R-WORLD-027); null while the bank is full. */
+  clock(): ClockView;
   /** Throws the current life away and starts another. Local only: the server will own this. */
   newLife(scenario: Id<"scenario">): Promise<PlayerView>;
 }
@@ -210,6 +214,12 @@ export function localAuthority(options: LocalAuthorityOptions): LocalAuthority {
       earnTurns();
       persist();
       return Promise.resolve(currentView());
+    },
+    clock() {
+      earnTurns();
+      const cap = content.tuning.turn.cap;
+      const next = options.fastClock ? now() : anchor + time.TURN_REFILL_MS;
+      return { tick, nextTickAt: next, nextTurnAt: state.turn.banked >= cap ? null : next };
     },
     send(command): Promise<Reply> {
       // A player may not grant turns: the engine rejects it as not-yours (R-TURN-005).

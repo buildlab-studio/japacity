@@ -17,6 +17,7 @@ import { Sheet } from "../../shared/ui/Sheet";
 import { formatMoney } from "../../shared/words/format";
 import { jobCardWords } from "../../shared/words/jobs";
 import { needsWords } from "../../shared/words/requirement";
+import { newsRead } from "../../shared/phone/newsSeen";
 import { sixteenPath } from "../../shared/words/sixteen";
 import { blurbOf, hasWords, inMonths, nameOf, paramWords, say, words } from "../../shared/words/text";
 import { ENGLISH_TEST, testChance } from "../../shared/words/test";
@@ -37,7 +38,7 @@ import { type CountryChoice, FlyOver, flyoverOn, type Pin, type PinState } from 
 import { crowdTuning } from "./limits";
 import { Phone, type PhoneApp } from "./Phone";
 import { localDate, type Other, poolOf, sampleCrowd } from "./crowd";
-import { BOARD_WAY, nudgeOf, stepThingHere, stepWayOf } from "./nudge";
+import { BETTER_JOB, BOARD_WAY, nudgeOf, stepThingHere, stepWayOf } from "./nudge";
 import { nudgeHere, stepOpen } from "./stepOpen";
 import { StillWaiting, stillWaiting } from "./StillWaiting";
 import { type Device, enterPlace, keepChoice, type Mode, type ModeChoice, modeSettings, observeFrame, readChoice, startingMode, watchFrames } from "./mode";
@@ -698,14 +699,14 @@ export function City({
   ];
   const shownCountry = countries.find((choice) => choice.locked === null) ?? countries[0] ?? { id: "lagos", name: cityWords("city.map.lagos"), locked: null };
 
-  const nudge = world ? nudgeOf(view, undefined, plan.flatMap((pick) => (pick === null ? [] : [pick.activity]))) : null;
+  const nudge = world ? nudgeOf(view, undefined, plan.flatMap((pick) => (pick === null ? [] : [pick.activity])), newsRead(view)) : null;
   // A question or an offer waiting on the player opens from the nudge; nothing else is on screen to open it (R-WORLD-001).
   const nudgeOpens = asks !== undefined && (nudge?.about === "setpiece" || nudge?.about === "offer");
   // The chapter's step opens its way (R-WORLD-003): the thing's acts when it stands here, the map at its stop
   // when it is elsewhere in the city, and the Month sheet when the step is the month's end.
   // A step short of money sends the player to the jobs board, where the money is; the funds step keeps the bank.
   const shortOfMoney = nudge?.about === "step" && (nudge.key.endsWith(".short") || nudge.key === "ui.nudge.hunt-planned") && !nudge.key.startsWith("chapter.decision-day.item.held");
-  const stepWay = nudge?.about === "step" ? (shortOfMoney ? BOARD_WAY : stepWayOf(view)) : null;
+  const stepWay = nudge?.about === "step" ? (shortOfMoney || nudge.key === BETTER_JOB ? BOARD_WAY : stepWayOf(view)) : null;
   const hereId = inside ? (insideEntry?.id ?? placeId) : placeId;
   const stepThing = stepWay === null || things === undefined ? null : stepThingHere(stepWay, hereId, things);
   // Abroad the map is a list, and a stop picked on it opens its sheet all the same.

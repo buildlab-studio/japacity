@@ -38,12 +38,15 @@ function paidIn(charge: number): number {
   return whole <= high ? whole : Math.floor((low + high) / 2);
 }
 
+/** The side of a change that went out, as the results tell it: its own line in the money paid in. */
+export const CHANGED_OUT = "ui.results.changed-out";
+
 /**
- * A change of money at the bank, counted as the band moves (R-WALLET-004, R-WORLD-008). Money changed is money moved between pockets, so only the side in the money
- * the character lives on counts: the pounds that came in abroad, as money in; the naira paid out at home,
- * as money out. The other side is not the money the results keep. The line's words say both sides, and
- * the bank's charge before it is folded in, never counted again. A change between two other monies
- * counts its net, the charge, in the money paid in.
+ * A change of money at the bank, counted as the band moves in every money it touched (R-WALLET-004,
+ * R-WORLD-008). The side that came in counts as money in, in
+ * its own money; the side paid in counts as money out, in its own money, so Kept shows every currency
+ * that moved and each matches its band. The bank's charge is folded into what was paid in and told in
+ * the line's words, never counted again.
  */
 function bankChange(line: ReportLine, charge: MoneyParam, local: Currency): MoneyLine[] {
   const gained = moneyParam("amount", line.params, line.key);
@@ -53,9 +56,11 @@ function bankChange(line: ReportLine, charge: MoneyParam, local: Currency): Mone
   // The charge valued in what came in, at the rate the rest of the money was changed at.
   const cost = gained.currency === local && net > 0 ? Math.round((charge.amount * gained.amount) / net) : charge.amount;
   const told: ReportLine = { ...line, key: CHANGED, params: { ...line.params, paid: { currency: charge.currency, amount: paid }, got: gained, amount: { currency: gained.currency === local ? gained.currency : charge.currency, amount: cost } } };
-  if (gained.currency === local) return [{ line: told, sign: 1, currency: gained.currency, amount: gained.amount }];
-  if (charge.currency === local) return [{ line: told, sign: -1, currency: charge.currency, amount: paid }];
-  return cost === 0 ? [] : [{ line: told, sign: -1, currency: charge.currency, amount: cost }];
+  const out: ReportLine = { ...line, key: CHANGED_OUT, params: { amount: { currency: charge.currency, amount: paid } } };
+  return [
+    { line: told, sign: 1, currency: gained.currency, amount: gained.amount },
+    { line: out, sign: -1, currency: charge.currency, amount: paid },
+  ];
 }
 
 /** Money sent home: the wallet tells both legs as good; the leg in the money the character lives on is money out. */
@@ -128,7 +133,6 @@ const STORY: readonly ((line: ReportLine) => boolean)[] = [
   (line) => line.key === GRANTED,
   isUnpaid,
   // R-OBLIGATION-014: what cooking and fetching water saved on the upkeep, each its own line.
-  (line) => line.key.startsWith("line.obligation.relief."),
   (line) => ["line.activity.hunt-hired", "line.activity.hunt-missed", "line.activity.job-started", "line.activity.side-started", "line.offer.opened"].includes(line.key),
   // The adviser's reading, paid for, leads the route's own lines.
   (line) => ["line.activity.adviser-missing", "line.activity.adviser-fits"].includes(line.key),
@@ -138,6 +142,8 @@ const STORY: readonly ((line: ReportLine) => boolean)[] = [
   (line) => line.key.startsWith("line.chapter.") || line.key.startsWith("line.goal.") || isSaid(line),
   (line) => line.key.startsWith("line.setpiece.") || line.key.startsWith("line.interview.") || line.key.startsWith("line.status."),
   forYou,
+  // The month's chores (food cooked, water fetched) come after the month's events.
+  (line) => line.key.startsWith("line.obligation.relief."),
 ];
 
 function storyRank(line: ReportLine): number {

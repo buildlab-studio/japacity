@@ -311,3 +311,55 @@ describe("the trader from sixteen with a shop's capital", () => {
     expect(words("chapter.find-your-feet.open.prologue.capital")).toContain("settlement");
   });
 });
+
+describe("the nudge", () => {
+  const base = { ...engineView(), setpiece: null, interview: null, offers: [], report: null };
+
+  test("[R-WORLD-003] given a paper on its way and a better-paid job on the board, when the nudge is read, then it sends the life to the board, not to wait", () => {
+    const file = { ...base, month: 10, chapter: { current: "chapter.build-the-file" as const, items: [{ id: "passport", met: false }], done: [] } };
+    const pending = { ...file, documents: [{ id: "document.passport" as const, state: "pending" as const, readyMonth: 12, expiresMonth: null, value: null }], job: { ...file.job, id: "activity.job-customer-service" as const } };
+    const hunt = pending.activities.find((option) => option.id === "activity.job-hunt");
+    const better = (hunt?.params ?? []).find((job) => job === "activity.job-junior-dev") ?? null;
+    if (better === null) throw new Error("The board lists no junior developer job.");
+    expect(nudgeOf(pending).key).toBe("ui.nudge.better-job");
+    const noBoard = { ...pending, activities: pending.activities.map((option) => (option.id === "activity.job-hunt" ? { ...option, params: [] } : option)) };
+    expect(nudgeOf(noBoard).key).toBe("chapter.build-the-file.item.passport.started");
+  });
+
+  test("[R-WORLD-003] given last month's report waiting and News read, when the nudge is read, then it moves on to the month's end", () => {
+    const line = { key: "line.offer.opened", params: { offer: "offer.nepa-bill" }, tone: "plain" as const, attention: true, counts: [] };
+    const reported = { ...base, chapter: { current: null, items: [], done: [] }, report: { month: 3, lines: [line], japacityBefore: null, japacityAfter: null, attention: true } };
+    expect(nudgeOf(reported).about).toBe("report");
+    expect(nudgeOf(reported, undefined, [], true).about).toBe("end");
+  });
+
+  test("[R-WORLD-003] given the landing chapter's job step with a hunt planned, when the nudge is read, then it says the application is in", () => {
+    const abroad = { ...base, chapter: { current: "chapter.landing" as const, items: [{ id: "job", met: false }], done: [] } };
+    expect(nudgeOf(abroad, undefined, ["activity.job-hunt"]).key).toBe("chapter.landing.item.job.planned");
+  });
+
+  test("[R-WORLD-003] given a tuition instalment already missed and the next not covered, when an ask is open too, then the dues come first and say the visa is at stake", () => {
+    const owed = base.obligations[0];
+    if (owed === undefined) throw new Error("No obligation to shape.");
+    const abroad = {
+      ...base,
+      place: { ...base.place, where: "abroad" as const, country: "country.uk" as const },
+      pockets: { ...base.pockets, GBP: { bank: 10_000, cash: 0, locked: 0 } },
+      obligations: [{ ...owed, entry: "obligation.tuition" as never, due: 300_000, missed: 1 }],
+      offers: [{ ...(richView().offers[0] ?? ({} as never)) }],
+    };
+    const nudge = nudgeOf(abroad);
+    expect(nudge.key).toBe("ui.nudge.dues-visa");
+    expect(nudge.about).toBe("dues");
+  });
+
+  test("[R-WORLD-003] [R-ROUTE-020] given the visa granted and held funds still open, when the plane's step is read, then the nudge says to give the funds back and the way is the bank's counter", () => {
+    const owed = base.obligations[0];
+    if (owed === undefined) throw new Error("No obligation to shape.");
+    const held = { ...base, chapter: { current: "chapter.send-off" as const, items: [{ id: "departed", met: false }], done: [] }, obligations: [{ ...owed, entry: "obligation.held-funds" as never, due: 0 }] };
+    expect(nudgeOf(held).key).toBe("chapter.send-off.item.departed.blocked");
+    expect(stepWayOf(held)?.go).toBe("place.olokun-office");
+    const clear = { ...held, obligations: [] };
+    expect(stepWayOf(clear)?.go).toBe("place.airport-lagos");
+  });
+});
