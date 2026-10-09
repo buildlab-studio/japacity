@@ -114,7 +114,8 @@ export const cityText: Record<string, string> = {
   "city.act.brother-fees": "School fees",
   "city.act.send-off": "The send-off",
   "city.act.pledge": "The pledge",
-  "city.act.pledge-small": "A small pledge",
+  // chapter.md R-CHAPTER-008: home's send-off, on the veranda the month of the grant.
+  "city.act.send-off-home": "Your send-off",
   "city.act.play-lotto": "Play",
   "city.act.bet-slip": "Bet",
   "city.act.find-your-feet": "Find work",
