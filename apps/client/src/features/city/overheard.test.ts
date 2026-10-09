@@ -1,6 +1,7 @@
 // Street talk abroad (docs/rules/world.md R-WORLD-026, city.md R-CITY-003, streets.md R-STREET-007):
 // a place abroad says only its own lines, never the Lagos talk of the news and the routes, and the
 // room abroad has its own short set: the landlord, the radiator, a neighbour through the wall.
+import { text } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
 import { abroadView } from "../../shared/testing/fixtures";
@@ -50,5 +51,15 @@ describe("talk overheard abroad", () => {
     expect(placeLines("place.nowhere-abroad")).toEqual([]);
     expect(heardHere(view, "place.nowhere-abroad")).toEqual([]);
     expect(overheard(view, "place.nowhere-abroad", "2026-10-09", 0)).toBeNull();
+  });
+
+  test("[R-WORLD-026] given every story's headline at every stage, when it is talked of in the street, then the talk sits inside one pair of curly quotes and carries no straight quote", () => {
+    const heads = Object.keys(text).filter((key) => key.startsWith("news.") && key.endsWith(".head"));
+    expect(heads.some((key) => (text[key] ?? "").startsWith('"'))).toBe(true);
+    for (const head of heads) {
+      const said = heardWords("city.overheard.news", { head });
+      expect(said).not.toContain('"');
+      expect(said.match(/[\u201c\u201d]/g)).toHaveLength(2);
+    }
   });
 });

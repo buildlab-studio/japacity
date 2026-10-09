@@ -4,6 +4,8 @@ import { describe, expect, test } from "vitest";
 
 import raw from "../../../../public/assets/places/agent-office/place.json";
 import type { Act } from "../../../shared/world/contract";
+import { heardWords } from "../city.words";
+import { placeLines } from "../overheard";
 import { sceneWords } from "../scene.words";
 import { stagedNow, thingSpot, thingsNow } from "../things";
 import { heldFundsOpen, offeredFrom } from "./offices.testing";
@@ -18,13 +20,15 @@ const thing = (id: string) => {
 };
 
 describe("the agent's office", () => {
-  test("[R-WORLD-005] given the recorded life after the deposit, with nothing on at the desk, when the office's things are read, then the agent still stands at his desk with one act to ask, and its line says nothing is on today", () => {
+  test("[R-WORLD-005] given the recorded life after the deposit, with nothing on at the desk, when the office's things are read, then the agent still stands at his desk with one act to ask, and he says himself that nothing is on today", () => {
     const view = heldFundsOpen();
     const shown = thingsNow(things, stagedNow(offeredFrom(view), new Set(entry.stages), new Set(view.offers.map((offer) => offer.entry)), null));
     expect(shown.find((candidate) => candidate.id === "desk")).toBeUndefined();
     const agent = shown.find((candidate) => candidate.id === "agent");
     expect(agent?.acts.map((act) => [act.kind, sceneWords(act.label)])).toEqual([["plain", "Agent"]]);
-    expect(sceneWords(`${agent?.acts[0]?.label ?? ""}.done`)).toMatch(/^The desk is empty today\. /);
+    // The man drawn at the desk speaks: the desk is never called empty while he sits at it.
+    expect(sceneWords(`${agent?.acts[0]?.label ?? ""}.done`)).toMatch(/^Not today\. /);
+    expect(sceneWords(`${agent?.acts[0]?.label ?? ""}.done`)).not.toMatch(/empty/i);
     expect(sceneWords(agent?.label ?? "")).toBe(sceneWords(thing("desk").label));
   });
 
@@ -47,14 +51,22 @@ describe("the agent's ask stands in for the desk", () => {
 });
 
 // with nothing on, the agent still says what he does and when to come back,
-// and the chip under his name says Agent, not "Ask what is on".
+// and the chip under his name says Agent, not "Ask what is on". he says it himself.
 describe("the agent with nothing on", () => {
-  test("[R-WORLD-005] given the desk with no offer open, when the agent's act is read, then its chip says Agent and its line keeps the empty desk, then says what he does and when to come back, two short lines more", () => {
+  test("[R-WORLD-005] given the desk with no offer open, when the agent's act is read, then its chip says Agent and the man at the desk says not today, what he does and when to come back", () => {
     const view = heldFundsOpen();
     const agent = thingsNow(things, stagedNow(offeredFrom(view), new Set(entry.stages), new Set(view.offers.map((offer) => offer.entry)), null)).find((candidate) => candidate.id === "agent");
     expect(agent?.acts.map((act) => [act.kind, sceneWords(act.label)])).toEqual([["plain", "Agent"]]);
     const said = sceneWords(`${agent?.acts[0]?.label ?? ""}.done`).split(/(?<=\.) /);
-    expect(said).toEqual(["The desk is empty today.", "He does papers, proof of funds and Dubai jobs.", "Try him again next month."]);
-    for (const line of said.slice(1)) expect(line.split(" ").length).toBeLessThanOrEqual(10);
+    expect(said).toEqual(["Not today.", "Papers, proof of funds, Dubai jobs: come back next month."]);
+    for (const line of said) expect(line.split(" ").length).toBeLessThanOrEqual(10);
+  });
+
+  test("[R-WORLD-026] [R-WORLD-005] given the agent who says not today, when the office's talk is read, then no line has him taking a passport or a fee: the talk is the people waiting", () => {
+    const talk = placeLines("place.agent-office").map((key) => heardWords(key, {}));
+    expect(talk.length).toBeGreaterThanOrEqual(3);
+    for (const line of talk) {
+      expect(line).not.toMatch(/\bwith us\b|^We |\bour people\b/i);
+    }
   });
 });
