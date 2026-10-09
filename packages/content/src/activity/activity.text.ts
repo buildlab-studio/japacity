@@ -80,7 +80,7 @@ export const activityText: Record<string, string> = {
   "activity.apply-gulf-contract.blurb": "The agent takes your passport and medical to the employer's office for the visa.",
 
   "activity.night-support.name": "Night support, foreign company",
-  "activity.night-support.blurb": "You answer chats for a company abroad through the night. They pay in dollars.",
+  "activity.night-support.blurb": "A side job beside your day job: you answer chats for a company abroad through the night, in dollars.",
   "activity.weekend-tutoring.name": "Weekend tutoring",
   "activity.weekend-tutoring.blurb": "Saturdays and Sundays in other people's houses, getting their children ready for exams.",
   "activity.ride-driving.name": "Driving for a ride app at night",

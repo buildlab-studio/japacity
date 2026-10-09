@@ -4,7 +4,7 @@ export const offerAbroadText: Record<string, string> = {
   "offer.street-find-uk.name": "Something on the street",
   "offer.street-find-uk.title": "A market behind the station",
   "offer.street-find-uk.body":
-    "There is a Saturday market behind the station. Suya on the grill, ankara on a rail, and an aunty selling puff-puff by the bag. She says you look like her sister's son.",
+    "There is a Saturday market behind the station. Suya on the grill, ankara on a rail, and an aunty selling puff-puff by the bag. She says you have her sister's face.",
   "offer.street-find-uk.choice.look": "Have a look",
 
   "offer.street-find-uae.name": "Something by the creek",
