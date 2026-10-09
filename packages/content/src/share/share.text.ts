@@ -102,7 +102,7 @@ export const shareText: Record<string, string> = {
   "share.official.platform.repository": "Code repository",
   "share.official.never.heading": "What we never do",
   "share.official.never.money": "We never ask you for money.",
-  "share.official.never.turns": "We never sell months.",
+  "share.official.never.turns": "We never sell turns.",
   "share.official.never.prize": "We never message you first about a prize.",
   "share.official.never.advert": "We never sell an advert by direct message.",
   "share.official.never.agents": "We have no agents.",
