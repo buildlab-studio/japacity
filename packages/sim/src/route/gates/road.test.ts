@@ -309,15 +309,17 @@ describe("the pitch", () => {
     expect(chanceOf(known(life({ qualities, change: all(atTen, moved) })))).toBe(radio.chanceBp + pressure.lowStandingBp + 2 * pressure.perYearOver30Bp - pressure.strongRouteBp);
   });
 
-  test("[R-ROAD-012] given a pitch open at home, when the granted visa is flown with it still open, then taking it abroad is refused and the chain never starts", () => {
+  test("[R-ROAD-012] [R-OFFER-005] given a pitch open at home, when the granted visa is flown with it still open, then the plane closes it unanswered, taking it is refused and the chain never starts", () => {
     const game = life({ change: HONEST_ROAD });
     const pitch = openPitch(game);
+    // Abroad, the pitch's take is not allowed even before the plane closes it (its `requires` is the character at home).
+    const athome = game.view().offers.find((offer) => offer.id === pitch.id);
+    expect(athome?.choices.find((choice) => choice.id === "take")?.allowed ?? false).toBe(true);
     game.state = { ...game.state, route: { ...game.state.route, [UK]: { ...game.state.route[UK]!, state: "granted" } } };
     game.accept({ type: "route/depart", route: UK });
     expect(game.state.place.where).toBe("abroad");
-    const open = game.view().offers.find((offer) => offer.id === pitch.id);
-    expect(open?.choices.find((choice) => choice.id === "take")?.allowed ?? false).toBe(false);
-    game.expectRejected({ type: "offer/choose", offer: pitch.id, choice: "take" }, "not-legal");
+    expect(game.view().offers.find((offer) => offer.id === pitch.id)).toBeUndefined();
+    game.expectRejected({ type: "offer/choose", offer: pitch.id, choice: "take" }, "unknown-id");
     expect(gateOf(game).step).toBeNull();
   });
 
