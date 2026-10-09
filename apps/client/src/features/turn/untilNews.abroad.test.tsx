@@ -229,9 +229,11 @@ describe("Until news abroad", () => {
     expect(quietLine(quiet[0] ?? [], "GBP").moved?.key).toBe(QUIET_PASSED);
     expect(rows[0]).toContain(`${money(quiet[0] ?? [])} ${words(QUIET_PASSED, { offer: FIND })}`);
     expect(words(QUIET_PASSED, { offer: FIND }).toLowerCase()).toContain(words("offer.street-find-uk.name").toLowerCase());
-    // The month after: the money, a story if the month had one, and the credit file's move ("Kept £340. Credit up.").
+    // The month after: the money, then the one thing that moved (a story when the month had one, else the credit file's move, "Credit up.").
     expect(rows[1]).toContain(money(quiet[1] ?? []));
-    expect(rows[1]).toContain(say(CREDIT_UP));
+    expect((quiet[1] ?? []).some((line) => line.key === CREDIT_UP)).toBe(true);
+    const story = quietLine(quiet[1] ?? [], "GBP").moved;
+    expect(rows[1]).toContain(story === null || story === undefined ? say(CREDIT_UP) : words(story.key, story.params));
     // One heading over the month that stopped the run, not two.
     const headings = [...document.querySelectorAll("h3")].map((heading) => heading.textContent);
     expect(headings.filter((heading) => heading === turnWords("turn.results.stopped"))).toHaveLength(1);

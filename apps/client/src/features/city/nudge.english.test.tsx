@@ -17,7 +17,9 @@ const PAPER = "document.english-test" as const;
 
 /** The file's English step open, with the result sat and on its way. */
 function waitingOnResult() {
-  const base = { ...engineView(), setpiece: null, interview: null, offers: [], report: null, month: 10 };
+  // The waiting months' acts (R-ACTIVITY-013) left out, so the wait's own words can be read.
+  const bare = engineView();
+  const base = { ...bare, activities: bare.activities.filter((option) => !["activity.open-source", "activity.tech-posts", "activity.be-noticed", "activity.nurse-certification"].includes(option.id)), setpiece: null, interview: null, offers: [], report: null, month: 10 };
   return {
     ...base,
     chapter: { current: "chapter.build-the-file" as const, items: [{ id: "passport", met: true }, { id: "transcript", met: true }, { id: "english", met: false }, { id: "offer", met: false }], done: [] },
