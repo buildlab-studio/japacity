@@ -182,11 +182,12 @@ export function tidyLines(lines: readonly ReportLine[]): ReportLine[] {
 function oneEndorsementStory(lines: readonly ReportLine[]): ReportLine[] {
   const refusedBody = lines.filter((line) => line.key === "line.route.endorsement-refused");
   if (refusedBody.length === 0) return [...lines];
-  const voided = new Set(lines.filter((line) => line.key === "line.document.voided").map((line) => String(line.params["document"] ?? "")));
+  const paper = (line: ReportLine): string | null => (typeof line.params["document"] === "string" ? line.params["document"] : null);
+  const voided = new Set(lines.filter((line) => line.key === "line.document.voided").map(paper));
   return lines.filter((line) => {
     if (line.key === "line.route.refused" && line.params["reason"] === "endorsement") return false;
-    if (line.key === "line.document.voided" && refusedBody.length > 0) return false;
-    if (line.key === "line.document.issued" && voided.has(String(line.params["document"] ?? ""))) return false;
+    if (line.key === "line.document.voided") return false;
+    if (line.key === "line.document.issued" && voided.has(paper(line))) return false;
     return true;
   });
 }
