@@ -6,6 +6,8 @@ export const documentText: Record<string, string> = {
   "document.transcript.name": "Degree transcript",
   "document.english-test.name": "English test result",
   "document.tb-certificate.name": "TB test certificate",
+  "document.police-certificate.name": "Police character certificate",
+  "document.police-certificate.blurb": "A letter from the police that says you have no record. The routes abroad ask for it. It lasts a year.",
   "document.cas.name": "Confirmation from the university",
   "document.home-licence.name": "Nigerian driving licence",
   "document.uk-licence.name": "UK driving licence",

@@ -220,7 +220,8 @@ const entries: PlaceEntry[] = [
 
   // Lagos: institutions, by plain description. An area and never a position.
   unnamed("place.passport-office", "institution", "home", "lagos", "ikoyi", { stages: [], crowd: BUSY, traditionalBp: OFFICE }),
-  unnamed("place.visa-centre", "institution", "home", "lagos", "victoria-island", { stages: ["activity.apply-for-visa", "setpiece.credibility-interview"], crowd: BUSY, traditionalBp: OFFICE }),
+  // R-DOCUMENT-007: the police certificate is asked at the notice here until a station is built.
+  unnamed("place.visa-centre", "institution", "home", "lagos", "victoria-island", { stages: ["activity.apply-for-visa", "setpiece.credibility-interview", "activity.get-police-certificate"], crowd: BUSY, traditionalBp: OFFICE }),
   unnamed("place.english-test-centre", "institution", "home", "lagos", "ikeja", { stages: ["activity.sit-english-test", "activity.study-english"], crowd: QUIET, traditionalBp: OFFICE }),
   // The staff nurse's job is on the clinic's notice, where a nurse from sixteen takes her first step (prologue.md R-PROLOGUE-010).
   unnamed("place.tb-clinic", "institution", "home", "lagos", "ikeja", { stages: ["activity.tb-test", "activity.gulf-medical", "activity.job-nurse"], crowd: QUIET, traditionalBp: OFFICE }),

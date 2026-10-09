@@ -396,6 +396,18 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
     effects: [{ type: "document/request", document: "document.tb-certificate" }],
     counts: [UK],
   },
+  // R-DOCUMENT-007: the police certificate, asked at the visa centre's notice until a station is built.
+  "activity.get-police-certificate": {
+    id: "activity.get-police-certificate",
+    slot: "free",
+    requires: [{ type: "document/absent", document: "document.police-certificate" }],
+    param: null,
+    cost: [{ currency: "NGN", amount: naira(5000), reason: "fee-document" }],
+    pay: null,
+    hireBp: null,
+    effects: [{ type: "document/request", document: "document.police-certificate" }],
+    counts: [CANADA, SKILLED, CARE, GULF],
+  },
   "activity.interview-prep": {
     id: "activity.interview-prep",
     slot: "free",
