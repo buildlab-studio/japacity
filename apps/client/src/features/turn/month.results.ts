@@ -81,7 +81,6 @@ export function moneyLines(lines: readonly ReportLine[], local: Currency = "NGN"
   const tidy = tidyLines(afterPrologue(lines));
   return tidy.flatMap((line, index): MoneyLine[] => {
     const next = tidy[index + 1];
-    const before = tidy[index - 1];
     if (line.key === BANK_CHARGE && (next?.key === CONVERTED || (next?.key === CONVERT_PAID && tidy[index + 2]?.key === CONVERTED))) return [];
     if (line.key === CONVERT_PAID) return [];
     if (line.key === CONVERTED) {
