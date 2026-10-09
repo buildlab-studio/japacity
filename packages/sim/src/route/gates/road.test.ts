@@ -309,6 +309,18 @@ describe("the pitch", () => {
     expect(chanceOf(known(life({ qualities, change: all(atTen, moved) })))).toBe(radio.chanceBp + pressure.lowStandingBp + 2 * pressure.perYearOver30Bp - pressure.strongRouteBp);
   });
 
+  test("[R-ROAD-012] given a pitch open at home, when the granted visa is flown with it still open, then taking it abroad is refused and the chain never starts", () => {
+    const game = life({ change: HONEST_ROAD });
+    const pitch = openPitch(game);
+    game.state = { ...game.state, route: { ...game.state.route, [UK]: { ...game.state.route[UK]!, state: "granted" } } };
+    game.accept({ type: "route/depart", route: UK });
+    expect(game.state.place.where).toBe("abroad");
+    const open = game.view().offers.find((offer) => offer.id === pitch.id);
+    expect(open?.choices.find((choice) => choice.id === "take")?.allowed ?? false).toBe(false);
+    game.expectRejected({ type: "offer/choose", offer: pitch.id, choice: "take" }, "not-legal");
+    expect(gateOf(game).step).toBeNull();
+  });
+
   test("[R-ROAD-002] given a strong route and no pressure on a pitch whose chance is below the figure, when the chance is read, then it stops at 0", () => {
     const game = life();
     game.state = { ...game.state, route: { ...game.state.route, [UK]: { ...game.state.route[UK]!, state: "granted" } } };

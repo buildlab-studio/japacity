@@ -78,7 +78,8 @@ const ROAD_WHEN: Requirement[] = [
  */
 const ROAD_TAKE: OfferChoice = {
   id: "take",
-  requires: [],
+  // R-ROAD-012: the road sets off from home. A pitch left open through a flight cannot be taken abroad.
+  requires: [{ type: "place/is", where: "home" }],
   pick: null,
   effects: [
     { type: "money/take", currency: "NGN", pocket: "any", amount: { term: "deposit" }, reason: "fee-agent" },
