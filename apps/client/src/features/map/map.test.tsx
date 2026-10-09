@@ -75,8 +75,8 @@ describe("the city as the map", () => {
     expect(state("place.bode-thomas")).toBe("been");
     expect(state("place.tejuosho-market")).toBe("can");
     expect(state("place.airport-lagos")).toBe("not");
-    // Unbuilt places are not on the map, and nothing from abroad is.
-    expect(state("place.yaba")).toBeUndefined();
+    // Unbuilt places are not on the map (Costain has no scene yet), and nothing from abroad is.
+    expect(state("place.costain")).toBeUndefined();
     expect(state("place.peckham")).toBeUndefined();
     expect(pins.every((pin) => pin.id === HOME || BUILT.has(pin.id as never))).toBe(true);
     // The home has no position of its own; it stands where the city puts it.

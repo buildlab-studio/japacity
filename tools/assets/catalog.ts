@@ -32,6 +32,9 @@ import { buildPartySet } from "@japacity/assets-src/prop/party-set/build";
 import { buildGrid } from "@japacity/assets-src/prop/motion/build";
 import { GRID_PIECES, gridFile, GRIDS, type GridPiece, MESH_LEVELS, type MeshLevel } from "@japacity/assets-src/prop/motion/grids";
 import { buildPlasticChair } from "@japacity/assets-src/prop/plastic-chair/build";
+import { buildRoom } from "@japacity/assets-src/bld/room/build";
+import { ROOMS, type RoomName } from "@japacity/assets-src/bld/room/rooms";
+import * as furniture from "@japacity/assets-src/prop/furniture";
 import { buildStall } from "@japacity/assets-src/prop/stall";
 import { buildTrolley } from "@japacity/assets-src/prop/trolley/build";
 import { buildContainerPhones } from "@japacity/assets-src/shop/container-phones/build";
@@ -172,6 +175,61 @@ function gridEntry(piece: GridPiece, level: MeshLevel): CatalogEntry {
       model.extras = { ...model.extras, motion, level, ...(pinned === null ? {} : { pinned }), footprint: "none" };
       return model;
     },
+  };
+}
+
+const PLACES_M6 = "Written as code from the kit for the world-first places";
+
+/** Each interior's room, its folder under places/ by the room's name (R-WORLD-011). */
+const ROOM_FOLDERS: Record<RoomName, string> = {
+  parlour: "family-house-parlour",
+  visa: "visa-centre",
+  agent: "agent-office",
+  test: "english-test-centre",
+  clinic: "tb-clinic",
+  bank: "bank-counter",
+  hub: "yaba-hub",
+  abroad: "the-room",
+  arrivals: "arrivals-hall",
+};
+
+/** The place each room's folder serves, for the register. */
+const ROOM_PLACES: Record<RoomName, string> = {
+  parlour: "place.family-house",
+  visa: "place.visa-centre",
+  agent: "place.agent-office",
+  test: "place.english-test-centre",
+  clinic: "place.tb-clinic",
+  bank: "place.olokun-office",
+  hub: "place.yaba",
+  abroad: "place.the-room",
+  arrivals: "place.airport-lagos",
+};
+
+function roomEntry(room: RoomName): CatalogEntry {
+  const spec = ROOMS[room];
+  return {
+    name: spec.name,
+    file: `places/${ROOM_FOLDERS[room]}/${spec.name}.glb`,
+    place: ROOM_PLACES[room],
+    source: `assets-src/bld/room/${room}`,
+    author: PLACES_M6,
+    views: [...ELEVATIONS, "plan", "phone"],
+    build: () => staticModel(spec.name, buildRoom(spec)),
+  };
+}
+
+/** A piece of furniture: shared when more than one room uses it, else in its room's folder. */
+function furniturePiece(name: string, folder: string, place: string, build: () => Group): CatalogEntry {
+  const shared = folder === "shared";
+  return {
+    name,
+    file: shared ? `shared/prop/${name}.glb` : `places/${folder}/${name}.glb`,
+    place: shared ? "shared" : place,
+    source: `assets-src/prop/${name.slice("prop_".length)}`,
+    author: PLACES_M6,
+    views: [...ELEVATIONS, "plan", "phone"],
+    build: () => staticModel(name, build()),
   };
 }
 
@@ -366,6 +424,27 @@ export const CATALOG: CatalogEntry[] = [
     }),
   ),
   ...GRID_PIECES.flatMap((piece) => MESH_LEVELS.map((level) => gridEntry(piece, level))),
+  ...(Object.keys(ROOMS) as RoomName[]).map(roomEntry),
+  furniturePiece("prop_room-door", "shared", "shared", furniture.buildRoomDoor),
+  furniturePiece("prop_waiting-chairs", "shared", "shared", furniture.buildWaitingChairs),
+  furniturePiece("prop_office-desk", "shared", "shared", furniture.buildOfficeDesk),
+  furniturePiece("prop_bed", "shared", "shared", furniture.buildBed),
+  furniturePiece("prop_dining-table", "shared", "shared", furniture.buildDiningTable),
+  furniturePiece("prop_sofa", "family-house-parlour", "place.family-house", furniture.buildSofa),
+  furniturePiece("prop_armchair", "family-house-parlour", "place.family-house", furniture.buildArmchair),
+  furniturePiece("prop_centre-table", "family-house-parlour", "place.family-house", furniture.buildCentreTable),
+  furniturePiece("prop_tv-stand", "family-house-parlour", "place.family-house", furniture.buildTvStand),
+  furniturePiece("prop_test-desk", "english-test-centre", "place.english-test-centre", furniture.buildTestDesk),
+  furniturePiece("prop_xray-stand", "tb-clinic", "place.tb-clinic", furniture.buildXrayStand),
+  furniturePiece("prop_bank-counter", "bank-counter", "place.olokun-office", furniture.buildBankCounter),
+  furniturePiece("prop_long-desk", "yaba-hub", "place.yaba", furniture.buildLongDesk),
+  furniturePiece("prop_jobs-board", "yaba-hub", "place.yaba", furniture.buildJobsBoard),
+  furniturePiece("prop_meetup-corner", "yaba-hub", "place.yaba", furniture.buildMeetupCorner),
+  furniturePiece("prop_window-frame", "the-room", "place.the-room", furniture.buildWindowFrame),
+  furniturePiece("prop_side-table", "the-room", "place.the-room", furniture.buildSideTable),
+  furniturePiece("prop_post", "the-room", "place.the-room", furniture.buildPost),
+  furniturePiece("prop_arrivals-rail", "arrivals-hall", "place.airport-lagos", furniture.buildArrivalsRail),
+  furniturePiece("prop_flight-board", "arrivals-hall", "place.airport-lagos", furniture.buildFlightBoard),
 ];
 
 export function findEntries(names: readonly string[]): CatalogEntry[] {

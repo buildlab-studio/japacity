@@ -28,6 +28,8 @@ type Staged = PlaceEntry["stages"];
 
 interface Shape {
   scope?: PlaceEntry["scope"];
+  /** The folder under public/assets/places/ when it is not the slug: a world-first place's own scene (docs/rules/world.md R-WORLD-011). */
+  assets?: string;
   hub?: boolean;
   occasion?: boolean;
   stages?: Staged;
@@ -58,7 +60,7 @@ function lagos(id: Id<"place">, realName: string, area: string, latE3: number, l
     stages: shape.stages ?? [],
     crowd: shape.crowd,
     traditionalBp: shape.traditionalBp,
-    assets: slugOf(id),
+    assets: shape.assets ?? slugOf(id),
   };
 }
 
@@ -81,7 +83,7 @@ function abroad(id: Id<"place">, country: Id<"country">, city: string, area: str
     stages: shape.stages ?? [],
     crowd: shape.crowd,
     traditionalBp: shape.traditionalBp,
-    assets: slugOf(id),
+    assets: shape.assets ?? slugOf(id),
   };
 }
 
@@ -111,7 +113,7 @@ function unnamed(
     stages: shape.stages ?? [],
     crowd: shape.crowd,
     traditionalBp: shape.traditionalBp,
-    assets: slugOf(id),
+    assets: shape.assets ?? slugOf(id),
   };
 }
 
@@ -138,14 +140,17 @@ const JOBS_ABROAD: Staged = [
 
 const entries: PlaceEntry[] = [
   // Lagos: public places.
-  lagos("place.ojuelegba", "Ojuelegba", "surulere", 6511, 3362, { hub: true, stages: ["offer.fuel-scarcity", "chapter.find-your-feet"], crowd: PACKED, traditionalBp: ROADSIDE }),
+  lagos("place.ojuelegba", "Ojuelegba", "surulere", 6511, 3362, { assets: "ojuelegba-front", hub: true, stages: ["offer.fuel-scarcity", "chapter.find-your-feet"], crowd: PACKED, traditionalBp: ROADSIDE }),
   lagos("place.national-stadium", "National Stadium", "surulere", 6497, 3365, { crowd: QUIET, traditionalBp: STREET }),
-  lagos("place.bode-thomas", "Bode Thomas Street", "surulere", 6490, 3355, { stages: ["activity.play-lotto", "activity.bet-slip"], crowd: BUSY, traditionalBp: STREET }),
+  lagos("place.bode-thomas", "Bode Thomas Street", "surulere", 6490, 3355, { assets: "bode-thomas-front", stages: ["activity.play-lotto", "activity.bet-slip"], crowd: BUSY, traditionalBp: STREET }),
   lagos("place.adeniran-ogunsanya", "Adeniran Ogunsanya Street", "surulere", 6494, 3357, { stages: ["activity.job-teacher"], crowd: BUSY, traditionalBp: STREET }),
   lagos("place.costain", "Costain", "surulere", 6482, 3369, { crowd: BUSY, traditionalBp: ROADSIDE }),
   // The market is not a feature in OpenStreetMap: the position is Tejuosho Avenue's.
-  lagos("place.tejuosho-market", "Tejuosho Market", "yaba", 6504, 3370, { stages: ["offer.mum-shop"], crowd: PACKED, traditionalBp: MARKET }),
+  lagos("place.tejuosho-market", "Tejuosho Market", "yaba", 6504, 3370, { assets: "tejuosho-front", stages: ["offer.mum-shop"], crowd: PACKED, traditionalBp: MARKET }),
+  // The hub in Yaba: the room Ojuelegba's hub door cuts to (docs/rules/world.md R-WORLD-013).
   lagos("place.yaba", "Yaba", "yaba", 6507, 3375, {
+    scope: "interior",
+    assets: "yaba-hub",
     stages: ["activity.meetup", "activity.learn-tech", "activity.build-portfolio", "activity.job-junior-dev", "activity.job-mid-dev", "activity.job-hunt", "activity.look-into-route", "activity.apply-to-school"],
     crowd: BUSY,
     traditionalBp: OFFICE,
@@ -203,6 +208,8 @@ const entries: PlaceEntry[] = [
   lagos("place.ikorodu", "Ikorodu", "ikorodu", 6619, 3504, { crowd: BUSY, traditionalBp: STREET }),
   // OpenStreetMap spells it "Mohammed"; the sign uses the official spelling. Exterior, with departures and arrivals inside.
   lagos("place.airport-lagos", "Murtala Muhammed International Airport", "ikeja", 6574, 3321, {
+    // the arrivals hall is an interior scene; the entry keeps "exterior" while the old terminal front's test reads its scope against the entry.
+    assets: "arrivals-hall",
     stages: ["chapter.send-off", "setpiece.december", "activity.december-home-uk", "activity.december-home-ca", "activity.december-home-uae"],
     crowd: BUSY,
     traditionalBp: AIRPORT,
@@ -221,11 +228,14 @@ const entries: PlaceEntry[] = [
 
   // Lagos: businesses by made-up name. Shopfronts are signs on their street, in place.text.ts.
   unnamed("place.yaba-hub", "business", "home", "lagos", "yaba", { crowd: QUIET, traditionalBp: HUB }),
-  unnamed("place.olokun-office", "business", "home", "lagos", "victoria-island", { stages: ["offer.held-funds"], crowd: FEW, traditionalBp: OFFICE }),
+  unnamed("place.olokun-office", "business", "home", "lagos", "victoria-island", { assets: "bank-counter", stages: ["offer.held-funds"], crowd: FEW, traditionalBp: OFFICE }),
   unnamed("place.agent-office", "business", "home", "lagos", "ikeja", { stages: ["offer.held-funds-agent"], crowd: FEW, traditionalBp: OFFICE }),
 
   // Homes and stylised places: no real name, no area, no position, no sponsor.
+  // Home opens in the compound; the house door cuts to the parlour (docs/rules/world.md R-WORLD-014).
   unnamed("place.family-house", "stylised", "home", "lagos", null, {
+    scope: "exterior",
+    assets: "family-house-compound",
     occasion: true,
     stages: [
       "activity.get-passport",
