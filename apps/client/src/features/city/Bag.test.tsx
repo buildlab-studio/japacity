@@ -2,13 +2,17 @@
 // scaled from the figure about its own spot and eased toward a new size so a rise is seen; what is
 // held sits on top; a small tag on the handle carries the figure; the probe reports the scale.
 import type { PlayerView } from "@japacity/sim";
+import { act, fireEvent, screen } from "@testing-library/react";
 import { Vector3 } from "three";
 import { afterEach, describe, expect, test } from "vitest";
 
 import parlourRaw from "../../../public/assets/places/family-house-parlour/place.json";
 import roomRaw from "../../../public/assets/places/the-room/place.json";
 import { engineView, recordedGame, recordedSave } from "../../shared/testing/fixtures";
+import { renderWithView } from "../../shared/testing/render";
+import { say } from "../../shared/words/text";
 import { BAG_EASE_SECONDS, BAG_EMPTY, BAG_FILE, BAG_FULL, BAG_HEIGHT, bagMatrix, bagPieces, bagScale, bagShare, bagSpot, easeBag, reportBag, tagWords } from "./Bag";
+import { City } from "./City";
 import { type PlaceFile, stageOf } from "./placeFile";
 import type { CityProbe } from "./scene.types";
 
@@ -121,6 +125,32 @@ describe("the tag and the probe", () => {
     expect(window.__city.bag).toEqual({ share: 0.5, goal: 0.6, scale: bagScaleAt(0.5), figure: 60, pieces: ["flyer"] });
     delete window.__city;
     expect(() => reportBag({ share: 0.5, goal: 0.6, figure: 60, pieces: [] })).not.toThrow();
+  });
+});
+
+describe("the rise in the world", () => {
+  /** Ada a few months in with a way out known, and the same life further on with the figure risen. */
+  function figures(): { before: PlayerView; after: PlayerView } {
+    const before = adaUntil((view) => view.japacity.percent !== null && view.report !== null);
+    const after = adaUntil((view) => (view.japacity.percent ?? 0) > (before.japacity.percent ?? 0) && view.report !== null);
+    return { before, after };
+  }
+
+  test("[R-WORLD-029] [R-JAPACITY-003] given the world in view, when the figure rises, then one rise flies over it for the gain; with the phone up over the world it waits until the phone is put away", async () => {
+    const { before, after } = figures();
+    const { store } = await renderWithView(<City world />, before);
+    expect(document.querySelector("[data-rise]")).toBeNull();
+    act(() => store.setState({ view: after }));
+    expect(document.querySelector("[data-rise]")?.textContent).toBe(`+${String((after.japacity.percent ?? 0) - (before.japacity.percent ?? 0))}`);
+    document.body.innerHTML = "";
+    const again = await renderWithView(<City world phone={(close) => <button type="button" onClick={close} data-put-away />} />, before);
+    fireEvent.click(screen.getByRole("button", { name: say("ui.world.phone") }));
+    act(() => again.store.setState({ view: after }));
+    expect(document.querySelector("[data-rise]")).toBeNull();
+    const putAway = document.querySelector<HTMLElement>("[data-put-away]");
+    if (putAway === null) throw new Error("No phone");
+    fireEvent.click(putAway);
+    expect(document.querySelector("[data-rise]")).not.toBeNull();
   });
 });
 
