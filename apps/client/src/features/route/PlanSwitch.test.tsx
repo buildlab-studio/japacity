@@ -107,7 +107,7 @@ describe("the switch on another way's page", () => {
   test("[R-CHAPTER-009] given the switch's words and each way's short name, when they are read, then a person says them: no exclamation mark, no dash", () => {
     const keys = Object.keys(text).filter((key) => key.startsWith("route.plan.") || key.endsWith(".short") || /^route\.[\w-]+\.file$/.test(key));
     expect(keys.length).toBeGreaterThanOrEqual(15);
-    for (const key of keys) expect(text[key]).not.toMatch(/[!–—]/);
+    for (const key of keys) expect(text[key]).not.toMatch(/[!\u2013\u2014]/);
     expect([UK, CARE, "route.uk-talent", "route.canada-points", "route.gulf-contract"].map((id) => text[`${id}.short`])).toEqual(["the master's", "care work", "the talent visa", "the points", "the Gulf"]);
   });
 });
