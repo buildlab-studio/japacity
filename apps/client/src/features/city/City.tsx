@@ -14,7 +14,7 @@ import { Button } from "../../shared/ui/Button";
 import { FullScreen } from "../../shared/ui/FullScreen";
 import { Sheet } from "../../shared/ui/Sheet";
 import { formatMoney, todayWords } from "../../shared/words/format";
-import { blurbOf, inMonths, nameOf, paramWords, say, words } from "../../shared/words/text";
+import { blurbOf, hasWords, inMonths, nameOf, paramWords, say, words } from "../../shared/words/text";
 import { AskSheet } from "../../shared/world/AskSheet";
 import { Band } from "../../shared/world/Band";
 import { cue } from "../../shared/sound/cues";
@@ -69,6 +69,22 @@ const HOMES: Record<string, string> = { home: "place.family-house", abroad: "pla
  * as a world-first place: the map shows only built places, and nothing with nothing to do (PENDING P25).
  */
 const OLD_FILES = new Set<string>();
+
+/**
+ * The first chapter's opening words for this life (R-WORLD-001): the
+ * scenario's own line when content has one, the prologue's by its path (a degree or a trade), else the
+ * chapter's line.
+ */
+function openingKey(view: Pick<PlayerView, "chapter" | "scenario" | "qualities">): string {
+  const chapter = view.chapter.current ?? "";
+  const slug = view.scenario.replace(/^scenario\./, "");
+  if (slug === "prologue") {
+    const edu = view.qualities.find((quality) => quality.id === "quality.edu-level")?.value ?? 0;
+    const path = `${chapter}.open.prologue.${edu >= 3 ? "degree" : "trade"}`;
+    if (hasWords(path)) return path;
+  } else if (hasWords(`${chapter}.open.${slug}`)) return `${chapter}.open.${slug}`;
+  return `${chapter}.open`;
+}
 /** A room that is a place of its own on the map, and the street its door opens onto: the hub's file names it as its inside (R-WORLD-013). */
 const OUTSIDE_OF: Record<string, string> = { "place.yaba": "place.ojuelegba" };
 /** How long a big line stays as a toast before the next, since the world shows no moment cards (R-WORLD-008). */
@@ -886,7 +902,7 @@ export function City({
             <FullScreen open onClose={() => setOpeningSeen(true)} title={nameOf(view.chapter.current)} tone="over">
               <div className="flex max-w-sm flex-col items-center gap-5 text-center" data-opening={view.chapter.current}>
                 <p className="label label-strong text-[11px] tracking-[0.3em] uppercase opacity-80">{nameOf(view.chapter.current)}</p>
-                <p className="text-[24px] leading-snug font-bold">{words(`${view.chapter.current}.open`)}</p>
+                <p className="text-[24px] leading-snug font-bold">{words(openingKey(view))}</p>
                 <p className="text-[15px] opacity-90">{say(nudge?.key ?? "ui.nudge.end", nudge?.params ?? {})}</p>
                 <Button onClick={() => setOpeningSeen(true)} data-opening-go>
                   {say("ui.opening.go")}

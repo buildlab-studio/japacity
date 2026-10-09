@@ -314,7 +314,7 @@ test.describe("the side job on a 390 px phone", () => {
         continue;
       }
       const hunt = page.locator("li", { has: page.getByRole("heading", { name: "Look for a job", exact: true }) });
-      await hunt.getByLabel("Which one").selectOption({ label: "Weekend tutoring" });
+      await hunt.getByRole("radio", { name: /^Weekend tutoring/ }).click();
       await page.getByRole("button", { name: "Add to month: Look for a job" }).click();
       await endMonthAndRead(page, `while looking for a side job, month ${String(month + 1)}`);
     }

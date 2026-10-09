@@ -106,7 +106,8 @@ function nameOf(id: string): string {
 /** Puts the view's next step in the plan through the activity cards. */
 async function planNextStep(page: Page, game: Game): Promise<void> {
   for (const pick of chapterNextStep(game.view(), content)) {
-    if (pick.param !== null) await page.locator(`[id="param-${pick.activity}"]`).selectOption(pick.param);
+    if (pick.param !== null && pick.activity === "activity.job-hunt") await page.locator(`[role="radio"][data-job="${pick.param}"]`).click();
+    else if (pick.param !== null) await page.locator(`[id="param-${pick.activity}"]`).selectOption(pick.param);
     await page.getByRole("button", { name: `Add to month: ${nameOf(pick.activity)}` }).click();
   }
 }
