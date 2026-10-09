@@ -38,6 +38,7 @@ import { healthComeUp } from "./health";
 import { appliesHere } from "../place/place.logic";
 import type { OfferEvent } from "./offer.events";
 import { luckTerms, markedChanceBp, rescueDue, WHIP_ROUND } from "./offer.luck";
+import { bridgeTerms } from "./offer.street";
 import { beingMade } from "../document/document.logic";
 import { HASTEN_TERM } from "../document/document.logic";
 import type { AgentKind, Look } from "./offer.agent";
@@ -174,6 +175,8 @@ function openOffer(ctx: Ctx, entry: OfferEntry, extra: Terms): BaseEvent[] {
   if (entry.group === "family" && ctx.state.place.where === "abroad") scaleAsked(entry, own, ctx.content.tuning.remit.abroadBp);
   const fraud = ctx.random.chance("fraud", entry.fraudBp);
   const signs = entry.signs.filter((sign) => ctx.random.chance("offer", fraud ? sign.fraudBp : sign.honestBp)).map((sign) => sign.key);
+  // R-STREET-004: the theft takes the cash as it opens, so this comes before the offer is recorded.
+  const bridge = bridgeTerms(ctx, entry);
   const month = ctx.state.turn.month;
   const item: OfferState = {
     id: ctx.nextId("offer"),
@@ -182,7 +185,7 @@ function openOffer(ctx: Ctx, entry: OfferEntry, extra: Terms): BaseEvent[] {
     expiresMonth: month + entry.expiresAfter,
     // a term handed over by the effect wins over one of the same name. None clash in content.
     // A luck offer's payment is read from the tuning as a term (R-LUCK-002, 007).
-    terms: { ...own, ...luckTerms(readOf(ctx), entry.id), ...extra },
+    terms: { ...own, ...luckTerms(readOf(ctx), entry.id), ...bridge, ...extra },
     signs,
     secret: { fraud },
   };

@@ -6,6 +6,7 @@ import type { Content, KindName } from "./types";
 import { placeChecks } from "../place/place.check";
 import { checkLotteryContent } from "../lottery/lottery.draw";
 import { agentProblems } from "../offer/offer.agent";
+import { bridgeProblems } from "../offer/offer.street";
 import { phraseChecks } from "../pair/phrase.check";
 
 const CONTENT_KINDS = [
@@ -78,6 +79,8 @@ export function checkContent(content: Content): string[] {
   problems.push(...checkLotteryContent(content));
   // R-ADVICE-007: no agent entry reads money, and the tells follow the kind.
   problems.push(...agentProblems(content));
+  // R-STREET-004: the bridge's price opens only after a night there, and never reads money.
+  problems.push(...bridgeProblems(content));
   // R-PAIR-010: every phrase's fill-ins have a source and nothing forbidden.
   problems.push(...phraseChecks(content));
   return problems;
