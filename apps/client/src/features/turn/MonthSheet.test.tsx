@@ -94,3 +94,13 @@ describe("the Month sheet", () => {
     expect(plan).toContainEqual({ activity: REST, param: null });
   });
 });
+
+describe("a held slot on the Month sheet", () => {
+  test("[R-TURN-009] [R-WORLD-007] given the burial holds a slot this month, when the sheet shows, then the held slot is a row in its own words above the free ones", async () => {
+    const view = { ...richView(), setpiece: null, interview: null };
+    await renderWithView(<MonthSheet />, { ...view, locks: [{ slots: 1, why: "burial", untilMonth: view.month }] });
+    const row = document.querySelector('[data-slot="lock"]');
+    expect(row?.textContent).toBe(words("ui.locks.row.burial"));
+    expect(row?.textContent).not.toMatch(/\d/);
+  });
+});

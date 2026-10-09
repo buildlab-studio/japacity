@@ -93,3 +93,17 @@ describe("the month's story on the results", () => {
     expect(words(`${SEND_OFF}.said.party`)).toContain("aunties");
   });
 });
+
+describe("the adviser's reading and the relative's gift", () => {
+  test("[R-WORLD-008] [R-ADVICE-004] given the adviser's reading beside a way out heard of, when the story is ranked, then her reading leads", () => {
+    const told = storyLines([line("line.route.heard", { route: "route.uk-masters" }), line("line.activity.adviser-missing", { route: "route.uk-masters", count: 3, months: 4 })]);
+    expect(told[0]?.key).toBe("line.activity.adviser-missing");
+  });
+
+  test("[R-WORLD-008] [R-LUCK-010] given the relative's gift answered, when the story is read, then the wallet's bare flag line is not told beside the answer's own words", () => {
+    const flagged = line("line.wallet.flagged", { amount: { currency: "USD", amount: 50_000 } });
+    expect(storyLines([flagged]).map((each) => each.key)).toContain("line.wallet.flagged");
+    const told = storyLines([flagged, line("line.offer.taken", { offer: "offer.relative-sends", choice: "take" })]);
+    expect(told.some((each) => each.key === "line.wallet.flagged")).toBe(false);
+  });
+});

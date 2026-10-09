@@ -242,6 +242,8 @@ describe("the nudge", () => {
     expect(nudgeOf(billed)).toMatchObject({ key: "chapter.build-the-file.item.english.short", params: { amount: formatMoney(9_900_000, "NGN") } });
     const first = { ...quiet, chapter: { current: "chapter.find-your-feet" as const, items: [{ id: "known", met: false }], done: [] } };
     expect(nudgeOf(first, undefined, ["activity.look-into-route"]).key).toBe("chapter.find-your-feet.item.known.planned");
+    // The adviser's visit looks into the route too.
+    expect(nudgeOf(first, undefined, ["activity.see-adviser"]).key).toBe("chapter.find-your-feet.item.known.planned.see-adviser");
     const heard = { ...first, chapter: { ...first.chapter, items: [{ id: "heard", met: false }] } };
     expect(nudgeOf(heard, undefined, ["activity.meetup"]).key).toBe("chapter.find-your-feet.item.heard.planned");
     const abroad = {

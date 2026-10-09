@@ -3,14 +3,15 @@
 // real End month with the reason it is held when it is. Nothing else plans the month: a slot fills
 // only when an act that takes one is chosen from its thing in the world. The shell's sheet frame
 // holds this.
-import type { PlayerView, SlotPick } from "@japacity/sim";
-import { Briefcase, Repeat, X } from "lucide-react";
+import type { PlayerView, SlotLock, SlotPick } from "@japacity/sim";
+import { Briefcase, Repeat, X, Lock } from "lucide-react";
 
 import { useGame, useGameStoreIfAny, useView } from "../../authority/GameProvider";
 import { slotted, slotsUsed, takesSlot } from "../../authority/store";
 import { cue } from "../../shared/sound/cues";
 import { Rejection } from "../../shared/ui/Rejection";
-import { nameOf, paramWords } from "../../shared/words/text";
+import { lockWords } from "../../shared/words/locks";
+import { hasWords, nameOf, paramWords, say } from "../../shared/words/text";
 import { blockedBy } from "./TurnBar";
 import { TurnClock } from "./TurnClock";
 import { turnWords } from "./turn.words";
@@ -43,6 +44,11 @@ function footWords(view: PlayerView, plan: readonly (SlotPick | null)[]): string
   return turnWords(working ? "turn.month.working-slots" : "ui.month.slots", { used, slots: view.freeSlots });
 }
 
+/** A held slot as a row of the plan: "At the burial", or the lock's sentence where content has no row words. */
+function lockRow(lock: SlotLock, month: number): string {
+  return hasWords(`ui.locks.row.${lock.why}`) ? say(`ui.locks.row.${lock.why}`) : lockWords(lock, month);
+}
+
 export function MonthSheet() {
   const view = useView();
   const plan = useGame((state) => state.plan);
@@ -64,6 +70,16 @@ export function MonthSheet() {
             <li key={row} className="flex min-h-11 items-center gap-2 rounded-[5px] bg-sheet-muted px-3 text-[15px] font-bold" data-slot="job">
               <Briefcase size={16} aria-hidden className="shrink-0 text-text-2" />
               <span className="min-w-0 flex-1 truncate">{row}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+      {view.locks.length === 0 ? null : (
+        <ul className="flex flex-col gap-1.5" aria-label={say("ui.locks.title")} data-month-locks>
+          {view.locks.map((lock, index) => (
+            <li key={`${lock.why}-${String(index)}`} className="flex min-h-11 items-center gap-2 rounded-[5px] bg-sheet-muted px-3 text-[15px] font-bold" data-slot="lock" data-lock={lock.why}>
+              <Lock size={16} aria-hidden className="shrink-0 text-text-2" />
+              <span className="min-w-0 flex-1 truncate">{lockRow(lock, view.month)}</span>
             </li>
           ))}
         </ul>

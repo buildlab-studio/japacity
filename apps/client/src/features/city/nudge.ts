@@ -102,6 +102,11 @@ const STEP_ACTIVITY: Record<string, string> = {
   "chapter.decision-day.applied": "activity.apply-for-visa",
 };
 
+/** Other activities that also take a step when planned: the adviser's visit looks into the route. */
+const STEP_ACTIVITY_ALSO: Record<string, readonly string[]> = {
+  "chapter.find-your-feet.known": ["activity.see-adviser"],
+};
+
 type NudgeView = Pick<PlayerView, "setpiece" | "interview" | "offers" | "chapter" | "report"> & Partial<Pick<PlayerView, "documents" | "routes" | "month" | "activities" | "pockets" | "place" | "obligations" | "job" | "scenario" | "qualities">>;
 
 /** A job's pay a month in naira, as the hunt's card says it; nothing for pay in another money. */
@@ -133,6 +138,13 @@ function startedKey(view: NudgeView, own: string, stepKey: string, planned: read
     if (planned.includes(activity)) {
       if (has(`${own}.planned`)) return { key: `${own}.planned` };
       if (has(`${own}.started`)) return { key: `${own}.started` };
+    }
+    // Another act that takes the step is planned: its own planned words where content has them.
+    const also = (STEP_ACTIVITY_ALSO[stepKey] ?? []).find((other) => planned.includes(other));
+    if (also !== undefined) {
+      const short = also.replace(/^activity\./, "");
+      if (has(`${own}.planned.${short}`)) return { key: `${own}.planned.${short}` };
+      if (has(`${own}.planned`)) return { key: `${own}.planned` };
     }
     // Short of money: the nudge names the gap and a way to it, instead of the thing again; once a hunt for better pay is
     // planned it says so, and once the job's pay covers the gap within a month it says to work and save.

@@ -25,7 +25,7 @@ describe("illness and the days lost, before the choice", () => {
     expect(screen.getByRole("button", { name: say("ui.offer.choice-cost", { choice: text["offer.illness.choice.ignore"]!, amount: thisMonth }) })).toBeDefined();
   });
 
-  test("[R-HEALTH-006] given a court date abroad, then its one choice says it holds a slot next month", async () => {
+  test("[R-HEALTH-006] given a court date abroad, then its one choice says it holds a slot this month", async () => {
     const game = recordedGame("ada-careful");
     expect(game.view().place.where).toBe("abroad");
     // The court date comes over a loan still owed abroad: what a repossessed car leaves behind.

@@ -128,6 +128,8 @@ const STORY: readonly ((line: ReportLine) => boolean)[] = [
   (line) => line.key === GRANTED,
   isUnpaid,
   (line) => ["line.activity.hunt-hired", "line.activity.hunt-missed", "line.activity.job-started", "line.activity.side-started", "line.offer.opened"].includes(line.key),
+  // The adviser's reading, paid for, leads the route's own lines.
+  (line) => ["line.activity.adviser-missing", "line.activity.adviser-fits"].includes(line.key),
   (line) => line.key.startsWith("line.route."),
   (line) => (line.key.startsWith("line.document.") && line.key !== "line.document.already-pending") || line.key.startsWith("line.activity.driving-"),
   (line) => line.key === "line.wallet.flagged",
@@ -144,12 +146,20 @@ function storyRank(line: ReportLine): number {
  * The month's story for the results (R-WORLD-008): the lines that move the story, not money, in
  * the order the results lead with them, at most `STORY_MAX`. The rest of the month stays in News.
  */
+/** The relative's gift answered says the flag and the way round it itself: the wallet's bare flag line is not told twice. */
+const RELATIVE_SENDS = "offer.relative-sends";
+function flagTold(lines: readonly ReportLine[]): boolean {
+  return lines.some((line) => line.key === "line.offer.taken" && line.params["offer"] === RELATIVE_SENDS);
+}
+
 export function storyLines(lines: readonly ReportLine[]): ReportLine[] {
   const tidy = tidyLines(afterPrologue(lines));
   // A hunt's offer already names the job and its pay: the offer it opens is not told again.
   const hired = tidy.some((line) => line.key === HIRED);
+  const flagged = flagTold(tidy);
   return tidy
     .filter((line) => !(hired && line.key === OPENED && line.params.offer === JOB_OFFER))
+    .filter((line) => !(flagged && line.key === "line.wallet.flagged"))
     .map((line, index) => ({ line, index, rank: storyRank(line) }))
     .filter((entry) => entry.rank !== -1)
     .sort((a, b) => a.rank - b.rank || a.index - b.index)
