@@ -119,7 +119,8 @@ export function Results({ place }: { place: string }) {
 
         {story.length === 0 ? null : (
           <section className="flex flex-col gap-1" aria-label={turnWords("turn.results.story")} data-results-story>
-            <h3 className="label text-text-2">{turnWords("turn.results.story")}</h3>
+            {/* After a run, "Then this month" above already heads the month that stopped it: one heading, not two (R-WORLD-028). */}
+            {quiet.length === 0 ? <h3 className="label text-text-2">{turnWords("turn.results.story")}</h3> : null}
             <ul className="flex flex-col">
               {story.map((line, index) => {
                 const told = toldOnResults(line);
