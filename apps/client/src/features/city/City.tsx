@@ -3,7 +3,7 @@
 // this screen's own state, and nothing here sends a command (R-CITY-001). The 3D scene is loaded
 // only where WebGL exists, so the panels never wait for it (R-CITY-018).
 import { content, text } from "@japacity/content";
-import type { Id, PlaceEntry, PlayerView } from "@japacity/sim";
+import type { Id, PlaceEntry, PlayerView, ReportLine } from "@japacity/sim";
 import { Clock, Map as MapIcon, Settings2, X } from "lucide-react";
 import { lazy, Suspense, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 
@@ -94,6 +94,28 @@ function openingKey(view: Pick<PlayerView, "chapter" | "scenario" | "qualities">
 const OUTSIDE_OF: Record<string, string> = { "place.yaba": "place.ojuelegba" };
 /** How long a big line stays as a toast before the next, since the world shows no moment cards (R-WORLD-008). */
 const MOMENT_MS = 2600;
+/** Home's send-off, and the party set its yard is dressed with once the party is the answer (R-CHAPTER-008). */
+const SEND_OFF = "offer.family-send-off";
+/** The family house's one party set and its guests, which its file keys to a party offer (R-CITY-011). */
+const PARTY_SET = "offer.send-off-party";
+/** The party's own line, told over the full yard. */
+const PARTY_SAID = `${SEND_OFF}.said.party`;
+/** How long the party's line stands over the yard: long enough to read it, then the yard is the player's again. */
+export const PARTY_BEAT_MS = 6000;
+
+/** True when this month's answers include home's send-off as the party. */
+export function partyThrown(lines: readonly ReportLine[]): boolean {
+  return lines.some((line) => line.key === "line.offer.taken" && line.params.offer === SEND_OFF && line.params.choice === "party");
+}
+
+/**
+ * What dresses the place: the open offers it stages, and once the party was the answer this month the
+ * party set and its guests, kept until the month ends.
+ */
+export function dressedBy(open: readonly string[], lines: readonly ReportLine[]): string[] {
+  return partyThrown(lines) && !open.includes(PARTY_SET) ? [...open, PARTY_SET] : [...open];
+}
+
 /** How long the band's second row peeks after its words change (from the design's bar). */
 const PEEK_MS = 5000;
 
@@ -329,7 +351,8 @@ export function City({
   useEffect(() => {
     if (!world || moments.length === 0) return;
     const line = moments[0];
-    if (line !== undefined) toast.show(words(line.key, line.params));
+    // The party's line is told by its own beat over the full yard, not as a passing toast.
+    if (line !== undefined && line.key !== PARTY_SAID) toast.show(words(line.key, line.params));
     const timer = window.setTimeout(nextMoment, MOMENT_MS);
     return () => window.clearTimeout(timer);
     // The toast is the city's; a new first line shows once the last has passed.
@@ -408,7 +431,9 @@ export function City({
   const entry = entryOf(placeId);
   const plainFile = usePlaceFile(entry, drawing);
   const offers = entry === null ? [] : offersHere(view, entry.id, PLACES);
-  const openKey = offers.join("|");
+  const monthLines = useGame((state) => state.monthLines);
+  const partied = world && partyThrown(monthLines);
+  const openKey = dressedBy(offers, partied ? monthLines : []).join("|");
   // An open offer the place stages dresses it (R-CITY-011): the party set and its guests at the family house.
   const dressed = useMemo(() => (plainFile === null ? null : dressPlace(plainFile, openKey === "" ? [] : openKey.split("|"))), [plainFile, openKey]);
   const outsideFile = dressed?.file ?? null;
@@ -808,6 +833,26 @@ export function City({
     };
   })();
 
+  // R-CHAPTER-008: the party answered, the sheet closes and the scene cuts to the full yard with the party's line over it, for a beat.
+  const [partyBeat, setPartyBeat] = useState(false);
+  const wasPartied = useRef(partied);
+  useEffect(() => {
+    const before = wasPartied.current;
+    wasPartied.current = partied;
+    if (!partied || before) return;
+    setAsksOpen(false);
+    setPicked(null);
+    cutTo(() => setPartyBeat(true));
+    // The cut runs once, as the answer lands.
+  }, [partied]);
+  useEffect(() => {
+    if (!partyBeat) return;
+    const timer = window.setTimeout(() => setPartyBeat(false), PARTY_BEAT_MS);
+    return () => window.clearTimeout(timer);
+  }, [partyBeat]);
+  useEffect(() => {
+    if (resultsOpen) setPartyBeat(false);
+  }, [resultsOpen]);
   // The Month sheet gives way to the results when the month ends; the asks sheet closes once nothing waits.
   useEffect(() => {
     if (reportOpen) {
@@ -964,6 +1009,13 @@ export function City({
             </p>
           ) : null}
           <Toast words={toast.words} />
+          {partyBeat ? (
+            <button type="button" onClick={() => setPartyBeat(false)} className="pop pointer-events-auto fixed inset-x-0 bottom-[calc(max(14px,env(safe-area-inset-bottom))+124px)] z-[45] flex justify-center px-6" data-party-beat>
+              <span role="status" className="band rounded-[6px] px-4 py-3 text-center text-[16px] leading-snug font-bold shadow-xl">
+                {words(PARTY_SAID)}
+              </span>
+            </button>
+          ) : null}
           <Cut cutting={cutting} />
           {!openingSeen && view.report === null && view.chapter.current !== null && !view.ended ? (
             <FullScreen open onClose={() => setOpeningSeen(true)} title={nameOf(view.chapter.current)} tone="over">
