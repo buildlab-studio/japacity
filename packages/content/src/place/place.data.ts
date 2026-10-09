@@ -266,6 +266,8 @@ const entries: PlaceEntry[] = [
 
   // Homes and stylised places: no real name, no area, no position, no sponsor.
   // Home opens in the compound; the house door cuts to the parlour (docs/rules/world.md R-WORLD-014).
+  // home.md R-HOME-006: the settlement on the lagoon the character may live in; its scene lands with the place builder.
+  lagos("place.makoko", "Makoko", "makoko", 6495, 3390, { scope: "exterior", crowd: BUSY, traditionalBp: OFFICE }),
   unnamed("place.family-house", "stylised", "home", "lagos", null, {
     scope: "exterior",
     assets: "family-house-compound",
