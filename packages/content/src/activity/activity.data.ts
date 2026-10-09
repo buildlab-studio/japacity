@@ -8,6 +8,7 @@ import { abroadActivityTable, foreignPocketActivityTable } from "./activity.abro
 import { peopleActivityTable } from "./activity.people.data";
 import { profileActivityTable } from "./activity.profile.data";
 import { roomActivityTable } from "./activity.room.data";
+import { shopActivityTable } from "./activity.shop.data";
 import { streetActivityTable } from "./activity.street.data";
 import { peopleApplyActivities } from "../route/route.data";
 
@@ -563,6 +564,8 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
   ...roomActivityTable,
   // activity.md R-ACTIVITY-013: the waiting months' acts.
   ...profileActivityTable,
+  // The trader's own shop.
+  ...shopActivityTable,
   // people.md: applying on the partner and dependant gates (R-PEOPLE-022, 026).
   ...peopleApplyActivities,
   // route-gates.md: the sponsor gate.
