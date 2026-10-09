@@ -25,7 +25,18 @@ export function forYou(line: ReportLine): boolean {
 const SAID_BETTER: readonly [better: string, plain: string][] = [
   ["line.activity.salary", "line.wallet.salary"],
   ["line.activity.gig", "line.wallet.gig"],
+  // R-ADVICE-009: the scam names the agent and says the fee is gone; the wallet's fee line is the same money.
+  ["line.offer.agent-scam", "line.wallet.fee-agent"],
 ];
+
+/**
+ * True for a line that tells money moving: the wallet's own lines, which tell every payment in or
+ * out, and the lines that say one of them better. Any other line with an amount (a bill missed, a
+ * debt in default) tells of money without moving it (R-WORLD-008).
+ */
+export function movesMoney(line: ReportLine): boolean {
+  return line.key.startsWith(WALLET) || SAID_BETTER.some(([better]) => better === line.key);
+}
 
 /** An obligation's charge repeats the wallet line that paid it, which names the spending better. */
 const CHARGED = "line.obligation.charged";

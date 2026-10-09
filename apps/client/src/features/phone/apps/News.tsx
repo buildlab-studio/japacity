@@ -2,7 +2,7 @@
 // (they stay here after the results sheet), and the stories that have reached the character.
 import type { NewsStage } from "@japacity/sim";
 
-import { useView } from "../../../authority/GameProvider";
+import { useGame, useView } from "../../../authority/GameProvider";
 import { tidyLines } from "../../../shared/words/lines";
 import { blurbOf, monthsAgo, nameOf, say, words } from "../../../shared/words/text";
 import { Head } from "../act";
@@ -13,6 +13,8 @@ const STAGE_ORDER: readonly NewsStage[] = ["in-force", "announced", "rumour", "e
 
 export function News() {
   const { news, era, report, month } = useView();
+  // R-WORLD-008: the month's lines stay here, those of what was done mid-month (an agent paid, an ask answered) first.
+  const midMonth = useGame((state) => state.lastMonthLines);
   const stories = [...news].sort((a, b) => STAGE_ORDER.indexOf(a.stage) - STAGE_ORDER.indexOf(b.stage) || b.since - a.since);
   return (
     <div data-phone-app="news">
@@ -28,7 +30,7 @@ export function News() {
         <div data-report={report.month}>
           <Head>{phoneWords("phone.news.month", { when: monthsAgo(report.month, month) })}</Head>
           <ul className="flex flex-col divide-y divide-sheet-line">
-            {tidyLines(report.lines).map((line, index) => (
+            {tidyLines([...midMonth, ...report.lines]).map((line, index) => (
               <li key={`${line.key}-${String(index)}`} className={`py-1.5 text-[14px] ${line.tone === "good" ? "text-in" : line.tone === "bad" ? "text-out" : "text-text"}`}>
                 {words(line.key, line.params)}
               </li>
