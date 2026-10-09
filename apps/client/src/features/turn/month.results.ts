@@ -4,7 +4,7 @@
 import { content } from "@japacity/content";
 import type { Currency, PlayerView, ReportLine } from "@japacity/sim";
 
-import { tidyLines } from "../../shared/words/lines";
+import { movesMoney, tidyLines } from "../../shared/words/lines";
 import { moneyParam } from "../../shared/words/text";
 
 export interface MoneyLine {
@@ -21,11 +21,13 @@ const NOT_MOVED: ReadonlySet<string> = new Set(["line.wallet.flagged"]);
 /**
  * The lines in or out, in the simulation's order, one line for each payment as the report reads
  * them. A good line with an amount is money in, a bad one money out; a plain line (a conversion,
- * a move between pockets) moves nothing the player keeps or loses.
+ * a move between pockets) moves nothing the player keeps or loses. Only a line that tells money
+ * moving counts: a bill that could not be paid, or a scam told after its fee, is not money gone
+ * twice (R-WORLD-008).
  */
 export function moneyLines(lines: readonly ReportLine[]): MoneyLine[] {
   return tidyLines(lines).flatMap((line): MoneyLine[] => {
-    if (line.tone === "plain" || NOT_MOVED.has(line.key)) return [];
+    if (line.tone === "plain" || NOT_MOVED.has(line.key) || !movesMoney(line)) return [];
     const money = moneyParam("amount", line.params, line.key);
     if (money === null || money.amount === 0) return [];
     return [{ line, sign: line.tone === "good" ? 1 : -1, currency: money.currency, amount: money.amount }];

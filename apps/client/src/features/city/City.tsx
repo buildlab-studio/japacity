@@ -24,7 +24,7 @@ import { Nudge } from "../../shared/world/Nudge";
 import { ThumbBar } from "../../shared/world/ThumbBar";
 import { Toast, useToast } from "../../shared/world/Toast";
 import { WorldSheet } from "../../shared/world/WorldSheet";
-import { cityWords, heardWords, placeName, residentName, roleWords } from "./city.words";
+import { cityWords, heardWords, papersLook, placeName, residentName, roleWords } from "./city.words";
 import { CreditsSheet } from "./Credits";
 import { type CountryChoice, FlyOver, flyoverOn, type Pin, type PinState } from "./FlyOver";
 import { crowdTuning } from "./limits";
@@ -522,8 +522,8 @@ export function City({
         return;
       case "plain": {
         setPicked(null);
-        // What the act did, in a line of its own when content has one; else its name.
-        const done = sceneWords(`${act.label}.done`);
+        // What the act did, in a line of its own when content has one; else its name. The papers box says what it holds (R-WORLD-019).
+        const done = act.label === "city.act.papers" ? papersLook(view.documents) : sceneWords(`${act.label}.done`);
         toast.show(done === `${act.label}.done` ? sceneWords(act.label) : done);
         return;
       }
@@ -972,7 +972,7 @@ export function City({
         </div>
       </Sheet>
       <CreditsSheet open={credits} onOpenChange={setCredits} />
-      {world ? <AskSheet ask={ask} have={view.pockets.NGN.cash} formatMoney={(amount, currency) => formatMoney(amount, currency as "NGN")} {...(askIcon === undefined ? {} : { icon: askIcon })} /> : null}
+      {world ? <AskSheet ask={ask} formatMoney={(amount, currency) => formatMoney(amount, currency as "NGN")} {...(askIcon === undefined ? {} : { icon: askIcon })} /> : null}
       {world && picked?.kind === "action" && ask === null ? (
         <WorldSheet open onClose={() => setPicked(null)} label={clock} title={cardWords()} mark="ask">
           {actions?.([picked.activity, ...(picked.more ?? [])])}

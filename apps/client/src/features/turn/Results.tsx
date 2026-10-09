@@ -50,7 +50,7 @@ export function Results({ place }: { place: string }) {
   if (report === null) return null;
   const draw = drawShown(view);
   const save = savings(view);
-  const news = otherLines(report.lines).length;
+  const news = otherLines([...midMonth, ...report.lines]).length;
   const close = (): void => {
     cue("close");
     setReportOpen(false);

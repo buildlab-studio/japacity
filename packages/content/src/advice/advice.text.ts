@@ -117,11 +117,11 @@ export const adviceText: Record<string, string> = {
   "line.offer.agent-paid-nothing-waiting": "You pay {agent} {amount}. He looks, but no paper of yours is waiting to be moved.",
   "line.offer.agent-scam": "{agent} was a scam. {amount} gone.",
   "line.offer.agent-scam-tell": "You had seen it: {tell}.",
-  "line.offer.agent-promise-broken": "Month {month} has come. Nothing has moved. {agent} does not pick up.",
+  "line.offer.agent-promise-broken": "The month he promised has come. Nothing has moved. {agent} does not pick up.",
 
   // The genuine mark and the fixer's work (R-ADVICE-005, 008).
   "line.document.faked": "You have the papers: {document}. They are not real, and a route that checks will know.",
-  "line.document.hastened": "Your {document} now comes in month {month}.",
+  "line.document.hastened": "Your {document} now comes {month}.",
 
   ...itemNames,
 };

@@ -57,7 +57,7 @@ export function useAsk(): { open: (spec: AskSpec) => void; sheet: ReactNode; ask
     };
     setShown({ ask, have: spec.have });
   };
-  const sheet = <AskSheet ask={shown?.ask ?? null} have={shown?.have ?? 0} formatMoney={(amount, currency) => formatMoney(amount, currency as Currency)} icon={iconFor} />;
+  const sheet = <AskSheet ask={shown?.ask ?? null} from={shown?.have ?? 0} formatMoney={(amount, currency) => formatMoney(amount, currency as Currency)} icon={iconFor} />;
   return { open, sheet, asking: shown !== null };
 }
 

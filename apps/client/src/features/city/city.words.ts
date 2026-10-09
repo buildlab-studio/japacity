@@ -92,7 +92,12 @@ export const cityText: Record<string, string> = {
   "city.act.sit": "Sit",
   "city.act.sit.done": "You sit for a while.",
   "city.act.turn-on.done": "The TV comes on, NEPA permitting.",
-  "city.act.papers.done": "Passport, certificates, the file. All in the box.",
+  // R-WORLD-019: what the box holds, as the Papers screen in Japa says it. `.done` alone is true in every state; the City fills the others through `papersLook`.
+  "city.act.papers.done": "The box under the bed, where the papers live. Japa on your phone says what is in it.",
+  "city.act.papers.empty": "The box is empty for now.",
+  "city.act.papers.some": "In the box: {papers}.",
+  "city.act.papers.all": "{papers}. All in the box.",
+  "city.act.papers.and": "{first} and {last}",
   "city.act.rest": "Rest here",
   "city.act.rest.done": "You lie down. A month's rest, counted when the month ends.",
   "city.act.turn-on": "Turn on",
@@ -256,6 +261,28 @@ export function cityWords(key: string, params: Record<string, string | number> =
     const value = params[name];
     return value === undefined ? whole : String(value);
   });
+}
+
+/** Names in a running list: "the passport", "the passport and the transcript", "a, b and c". */
+function listOf(names: readonly string[]): string {
+  if (names.length <= 1) return names[0] ?? "";
+  return cityWords("city.act.papers.and", { first: names.slice(0, -1).join(", "), last: names.at(-1) ?? "" });
+}
+
+/**
+ * R-WORLD-019: Look in the box says what is in it, as Japa's Papers screen does: empty when no
+ * paper is held, every paper by name when all are, else the ones held. The City shows this as
+ * the act's line, from the view's documents.
+ */
+export function papersLook(documents: readonly { id: string; state: string }[]): string {
+  const held = documents.filter((paper) => paper.state === "held").map((paper) => paper.id);
+  if (held.length === 0) return cityWords("city.act.papers.empty");
+  if (held.length === documents.length) {
+    // The list opens the sentence, so only its first name keeps a capital.
+    const all = listOf(held.map((id, index) => (index === 0 ? nameOf(id) : runningName(id))));
+    return cityWords("city.act.papers.all", { papers: all });
+  }
+  return cityWords("city.act.papers.some", { papers: listOf(held.map((id) => runningName(id))) });
 }
 
 /** A place's name as content gives it (R-CITY-024). */

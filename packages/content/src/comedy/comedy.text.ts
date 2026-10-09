@@ -36,9 +36,9 @@ export const comedyText: Record<string, string> = {
   "line.wallet.gift.v3": "A gift lands: {amount}. Your uncle says it is \"for something small\". Nobody says what.",
   "line.wallet.gift.v4": "A gift lands: {amount}. You say thank you in three messages and one sticker.",
 
-  "line.document.requested.v2": "Your {document} is on the way. It should be ready in month {month}. \"Should\" is doing a lot of work in that sentence.",
-  "line.document.requested.v3": "Your {document} is on the way. It should be ready in month {month}. The man at the desk says to check back. He says it to everyone.",
-  "line.document.requested.v4": "Your {document} is on the way. It should be ready in month {month}. You have a slip of paper. Guard it.",
+  "line.document.requested.v2": "Your {document} is on the way. It should be ready {month}. \"Should\" is doing a lot of work in that sentence.",
+  "line.document.requested.v3": "Your {document} is on the way. It should be ready {month}. The man at the desk says to check back. He says it to everyone.",
+  "line.document.requested.v4": "Your {document} is on the way. It should be ready {month}. You have a slip of paper. Guard it.",
 
   "line.document.issued.v2": "Your {document} is ready. You hold it the way people hold a newborn.",
   "line.document.issued.v3": "Your {document} is ready. The photo looks nothing like you, which is how you know it is official.",

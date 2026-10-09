@@ -6,6 +6,7 @@ import type { SlotPick } from "@japacity/sim";
 import { Repeat, X } from "lucide-react";
 
 import { useGame, useView } from "../../authority/GameProvider";
+import { slotted, slotsUsed, takesSlot } from "../../authority/store";
 import { cue } from "../../shared/sound/cues";
 import { Rejection } from "../../shared/ui/Rejection";
 import { nameOf, paramWords } from "../../shared/words/text";
@@ -31,9 +32,8 @@ export function MonthSheet() {
 
   return (
     <div className="flex flex-col gap-3" data-month-sheet>
-      {plan.length === 0 ? (
-        <p className="text-[14px] text-text-2">{turnWords("turn.month.no-slots")}</p>
-      ) : (
+      {slotted(plan).length === 0 ? <p className="text-[14px] text-text-2">{turnWords("turn.month.no-slots")}</p> : null}
+      {plan.length === 0 ? null : (
         <ol className="flex flex-col gap-1.5" aria-label={turnWords("turn.month.title")} data-month-plan>
           {plan.map((pick, index) =>
             pick === null ? (
@@ -43,6 +43,12 @@ export function MonthSheet() {
             ) : (
               <li key={`${pick.activity}-${String(index)}`} className="chip-in flex min-h-11 items-center gap-2 rounded-[5px] bg-sheet-muted py-1 pr-1 pl-3 text-[15px] font-bold" data-slot="planned">
                 <span className="min-w-0 flex-1 truncate">{pickWords(pick)}</span>
+                {/* R-TURN-006: the word of someone who went rides with the month and fills no slot. */}
+                {takesSlot(pick) ? null : (
+                  <span className="shrink-0 text-[12px] font-semibold text-text-2" data-slot-none>
+                    {turnWords("turn.month.no-slot")}
+                  </span>
+                )}
                 <button
                   type="button"
                   aria-label={turnWords("turn.month.remove", { activity: pickWords(pick) })}
@@ -90,7 +96,7 @@ export function MonthSheet() {
         >
           <span>{turnWords("turn.month.end")}</span>
           <span className="text-[13px] font-semibold opacity-80">
-            {plan.some((pick) => pick !== null) ? turnWords("ui.month.slots", { used: plan.filter((pick) => pick !== null).length, slots: view.freeSlots }) : turnWords("ui.month.rest")}
+            {slotsUsed(plan) > 0 ? turnWords("ui.month.slots", { used: slotsUsed(plan), slots: view.freeSlots }) : turnWords("ui.month.rest")}
           </span>
         </button>
         {blocked === null ? null : (

@@ -4,9 +4,9 @@
 // pockets first and the rest is bought from the naira bank at the bank rate,
 // plus the bank's charge (docs/rules/wallet.md, R-WALLET-009).
 import { content } from "@japacity/content";
-import { int, type Currency, type PlayerView } from "@japacity/sim";
+import { int, type Currency, type PlayerView, type SlotPick } from "@japacity/sim";
 
-type Money = { currency: Currency; amount: number };
+export type Money = { currency: Currency; amount: number };
 type Pockets = Pick<PlayerView, "pockets" | "rates">;
 
 /** A foreign amount in naira at the bank rate, before any charge. */
@@ -48,4 +48,36 @@ export function shortfall(view: Pockets, costs: readonly Money[]): Shortfall {
   const have = foreign ? naira.bank : naira.bank + naira.cash;
   const need = local + bought;
   return { foreign, need, have, short: Math.max(0, need - have) };
+}
+
+/** What the month's plan will already pay for when it ends, as the view prices each pick. */
+export function plannedCosts(view: Pick<PlayerView, "activities">, plan: readonly (SlotPick | null)[]): Money[] {
+  return plan.flatMap((pick) => (pick === null ? [] : (view.activities.find((option) => option.id === pick.activity)?.cost ?? [])));
+}
+
+/** What is left once a cost is paid, or how much is short: never both. */
+export type AfterPaying = { left: Money; short: null } | { left: null; short: Money };
+
+/**
+ * What paying these costs leaves, after what the month already plans, or how much is short, so
+ * a main button can say what is left after and stay shut when it cannot be paid (R-WORLD-006).
+ * A cost in one foreign currency held in its own pockets is told in that currency; anything that
+ * needs naira is told in naira, as `shortfall` counts it.
+ */
+export function afterPaying(view: Pockets, planned: readonly Money[], costs: readonly Money[]): AfterPaying {
+  const all = [...planned, ...costs];
+  const currencies = new Set(costs.map((cost) => cost.currency));
+  const [only] = currencies;
+  if (currencies.size === 1 && only !== undefined && only !== "NGN") {
+    const pocket = view.pockets[only];
+    const need = all.filter((cost) => cost.currency === only).reduce((sum, cost) => sum + cost.amount, 0);
+    if (pocket.bank + pocket.cash >= need) return { left: { currency: only, amount: pocket.bank + pocket.cash - need }, short: null };
+  }
+  const gap = shortfall(view, all);
+  return gap.short > 0 ? { left: null, short: { currency: "NGN", amount: gap.short } } : { left: { currency: "NGN", amount: gap.have - gap.need }, short: null };
+}
+
+/** The same for money the caller has counted itself (a bill paid now from held funds): one figure in the cost's currency. */
+export function afterHaving(have: number, cost: Money): AfterPaying {
+  return have >= cost.amount ? { left: { currency: cost.currency, amount: have - cost.amount }, short: null } : { left: null, short: { currency: cost.currency, amount: cost.amount - have } };
 }
