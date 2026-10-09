@@ -164,6 +164,10 @@ export const uiText: Record<string, string> = {
   "ui.line.offer-paid.offer.family-send-off": "The send-off: {amount}.",
   // Fuel scarcity's fares are not living costs.
   "ui.line.offer-paid.offer.fuel-scarcity": "Fuel scarcity: {amount} on fares.",
+  // A blow's money named for what it paid, never "Something went wrong".
+  "ui.line.offer-paid.offer.laptop-fault": "The laptop repair: {amount}.",
+  "ui.line.offer-paid.offer.illness": "Treatment for the illness: {amount}.",
+  "ui.line.offer-paid.offer.illness-worse": "Treatment for the illness: {amount}.",
   // An activity's spending, named for it (shared/words/lines.ts, activityPaid).
   "ui.line.activity-paid.activity.meetup": "The meetup: {amount}.",
   // The living costs charged at a new figure, with the story that moved them (lines.ts, upkeepMoved).
