@@ -7,6 +7,7 @@ import { describe, expect, test } from "vitest";
 import raw from "../../../../public/assets/places/deira/place.json";
 import { sceneWords } from "../scene.words";
 import { stagedAt } from "../staging";
+import { stagedNow, thingsNow } from "../things";
 import { frontageTests } from "./frontageTesting";
 import { copiesOf, staged, wordsOf } from "./placeTesting";
 
@@ -32,12 +33,33 @@ describe("Deira", () => {
     expect(stagedAt("activity.community-uae", { where: "abroad", country: "country.uae" }, Object.values(content.place))).toBe(ID);
   });
 
-  test("[R-WORLD-005] given the souk's other things, when they are read, then the gold shop and the spice stall are looked at, the cafe's chairs are sat on, and the taxi opens the ride sheet", () => {
+  test("[R-WORLD-005] given the souk's other things, when they are read, then the gold shop is looked at, the spice stall shopped at and looked at, the cafe's chairs sat on with the find beside them, and the taxi opens the ride sheet", () => {
     expect(thing("gold-shop").acts.map((act) => act.kind)).toEqual(["plain"]);
-    expect(thing("spice-stall").acts.map((act) => act.kind)).toEqual(["plain"]);
-    expect(thing("cafe").acts.map((act) => [act.kind, sceneWords(act.label)])).toEqual([["plain", "Sit"]]);
+    expect(thing("spice-stall").acts.map((act) => act.kind)).toEqual(["sheet", "plain"]);
+    expect(thing("cafe").acts.map((act) => [act.kind, sceneWords(act.label)])).toEqual([
+      ["plain", "Sit"],
+      ["sheet", "See what's on"],
+    ]);
     expect(thing("taxi").acts.map((act) => act.kind)).toEqual(["ride"]);
     expect(thing("taxi").file).toBe("places/deira/veh_taxi-dubai.glb");
+  });
+
+  test("[R-STREET-005] given the spice stall, when its first act is read, then Shop opens the street shopping's sheet, staged here for Dubai", () => {
+    expect(thing("spice-stall").acts[0]).toMatchObject({ id: "shop", kind: "sheet", stages: "activity.street-shopping-uae" });
+    expect(sceneWords(thing("spice-stall").acts[0]?.label ?? "")).toBe("Shop");
+    expect(stagedAt("activity.street-shopping-uae", { where: "abroad", country: "country.uae" }, Object.values(content.place))).toBe(ID);
+  });
+
+  test("[R-STREET-006] given the cafe, when the find in Dubai is open and then not, then its second act opens the find's sheet only while it is open, and Sit always stays", () => {
+    const things = stage.things ?? [];
+    const staged = new Set<string>(entry.stages);
+    const cafe = (open: string[]) => thingsNow(things, stagedNow(new Set(), staged, new Set(open), null)).find((candidate) => candidate.id === "cafe");
+    expect(cafe(["offer.street-find-uae"])?.acts.map((act) => [act.id, act.stages ?? null])).toEqual([
+      ["sit", null],
+      ["street-find", "offer.street-find-uae"],
+    ]);
+    expect(cafe([])?.acts.map((act) => act.id)).toEqual(["sit"]);
+    expect(stagedAt("offer.street-find-uae", { where: "abroad", country: "country.uae" }, Object.values(content.place))).toBe(ID);
   });
 
   test("[R-CITY-024] given the arcades across the road, when their boards are read, then the gold shops stand under at least two gold boards and the cafe under the cafeteria's", () => {
