@@ -48,6 +48,8 @@ const EASE = 7;
 const EDGE_MARGIN = 8;
 /** How high the character lies on a bed or a couch, about the mattress's top. */
 const LIE_Y = 0.5;
+/** The length of the lying body, feet to head, so it is centred on the seat. */
+const LIE_LENGTH = 1.6;
 const LABEL_Y = 2.6;
 /** The sun's shadow covers the place's width and this much round it, in metres. */
 const SHADOW_MARGIN = 4;
@@ -355,9 +357,16 @@ function Place(props: PlaceProps) {
     animateWorld(world, time, delta);
     const next = stepWalk(walk.current.walker, delta, walk.current.speed);
     walk.current.walker = next;
-    // Lying raises the character onto the thing and lays them along it; sitting and standing keep the ground.
-    world.own.root.position.set(next.x, walk.current.lying ? LIE_Y : 0, next.z);
-    world.own.root.rotation.set(walk.current.lying ? -Math.PI / 2 : 0, next.facing, 0);
+    // Lying raises the character onto the thing and lays them along it, centred on the seat with the head
+    // toward the facing; sitting and standing keep the ground.
+    if (walk.current.lying) {
+      const half = LIE_LENGTH / 2;
+      world.own.root.position.set(next.x - Math.sin(next.facing) * half, LIE_Y, next.z - Math.cos(next.facing) * half);
+      world.own.root.rotation.set(Math.PI / 2, next.facing, 0);
+    } else {
+      world.own.root.position.set(next.x, 0, next.z);
+      world.own.root.rotation.set(0, next.facing, 0);
+    }
     if (next.target === null) poseFigure(world.own, time, walk.current.sitting ? "sit" : "stand");
     else poseFigure(world.own, time, "walk", strideOf(next));
     // The act follows once the character has reached its thing; an act with a pose is seen on the thing (R-WORLD-005).
