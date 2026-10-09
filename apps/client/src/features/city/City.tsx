@@ -39,7 +39,7 @@ import { nudgeHere, stepOpen } from "./stepOpen";
 import { StillWaiting, stillWaiting } from "./StillWaiting";
 import { type Device, enterPlace, keepChoice, type Mode, type ModeChoice, modeSettings, observeFrame, readChoice, startingMode, watchFrames } from "./mode";
 import { overheard } from "./overheard";
-import { dancerShown, dressPlace, openGround, type PlaceFile, stageOf } from "./placeFile";
+import { dancerShown, dressPlace, openGround, type PlaceFile, showPlanned, stageOf } from "./placeFile";
 import { HOUSE, insideOf, roomOf } from "./room";
 import { personOfLook } from "./roster";
 import type { Picked, ScenePick } from "./scene.types";
@@ -459,7 +459,12 @@ export function City({
     const fresh = here.filter((id) => !been.includes(id));
     if (fresh.length > 0) keep(BEEN_KEY, [...been, ...fresh]);
   }, [world, placeId, inside, insideEntry]);
-  const file = useMemo(() => (outsideFile === null || !inside ? outsideFile : insideId === null ? roomOf(outsideFile, HOUSE) : insideFile), [outsideFile, inside, insideId, insideFile]);
+  // R-WORLD-029: a choice planned for the month is seen on its thing, the pot steaming once cooking is planned.
+  const plannedKey = plan.flatMap((pick) => (pick === null ? [] : [pick.activity])).join("|");
+  const file = useMemo(() => {
+    const here = outsideFile === null || !inside ? outsideFile : insideId === null ? roomOf(outsideFile, HOUSE) : insideFile;
+    return here === null ? null : showPlanned(here, plannedKey.split("|"));
+  }, [outsideFile, inside, insideId, insideFile, plannedKey]);
   useEffect(() => {
     setZoomed(false);
     setPicked(null);

@@ -248,6 +248,9 @@ const entries: PlaceEntry[] = [
       "activity.family-time",
       "activity.family-meeting",
       "activity.night-support",
+      // obligation.md R-OBLIGATION-014: the cooking corner and the water drum in the parlour.
+      "activity.cook-at-home",
+      "activity.fetch-water",
       "offer.nepa-bill",
       "offer.brother-fees",
       "offer.roof",
@@ -304,7 +307,7 @@ const entries: PlaceEntry[] = [
   unnamed("place.their-room", "stylised", "home", "lagos", null, { stages: ["activity.see-someone"], crowd: FEW, traditionalBp: OFFICE }),
   unnamed("place.the-room", "stylised", "abroad", null, null, {
     // The bed, the window and the laptop in the room abroad (R-WORLD-025; R-CITY-010 lets the country-less room stage what a country's own place also stages).
-    stages: ["activity.rest", "activity.community-uk", "activity.community-ca", "activity.call-home", "activity.job-hunt", "activity.send-money", "activity.rent-flat-uk", "activity.rent-flat-ca", "activity.phone-contract-uk", "activity.phone-contract-ca"],
+    stages: ["activity.rest", "activity.community-uk", "activity.community-ca", "activity.call-home", "activity.job-hunt", "activity.send-money", "activity.rent-flat-uk", "activity.rent-flat-ca", "activity.phone-contract-uk", "activity.phone-contract-ca", "activity.cook-at-home"],
     crowd: FEW,
     traditionalBp: OFFICE,
   }),

@@ -326,6 +326,8 @@ export type Effect =
   | { type: "offer/close"; offer: Id<"offer"> }
   // obligation, whole life
   | { type: "obligation/close"; obligationType: ObligationType }
+  /** The next charge of the open obligation of this type that applies where the character lives falls by `bp` of its amount, once (R-OBLIGATION-014). */
+  | { type: "obligation/relief"; obligationType: ObligationType; bp: number }
   // place (docs/rules/place.md)
   | { type: "place/move"; to: Where; country: Id<"country"> | null }
   /** The authority sends the character home with this shape, as `return/home` would (R-PLACE-004, R-ROAD-007, R-STATUS-008). */
@@ -1183,6 +1185,8 @@ export interface Tuning {
   chapter: { cardLines: number; sendOffNaira: number };
   /** `visit`: the second miss in a row, the officer and the group at the house (R-OBLIGATION-011). */
   groupLoan: { feeBp: number; savingsBp: number; vanishBp: number; visit: { standing: number; wellbeing: number } };
+  /** The room's basics (R-OBLIGATION-014): the share of the upkeep's next charge that cooking and fetching water take off, and the wellbeing cooking costs. */
+  room: { cookedBp: number; waterBp: number; cookWellbeing: number };
   /** The Friday draw (docs/rules/lottery.md): the ticket price, the cap per player, and the odds a draw takes when it opens (R-LOTTERY-021). */
   lottery: { ticket: number; maxTickets: number; odds: LotteryOdds };
   /** docs/rules/adverts.md Numbers. */
@@ -1535,6 +1539,14 @@ export interface ObligationState {
   bond: string | null;
   /** Months of assistance already charged on an undertaking. */
   charged: number;
+  /** Shares off the next charge, each from the activity that earned it, spent by that charge (R-OBLIGATION-014). Absent when there are none. */
+  relief?: Relief[];
+}
+
+/** One share off an obligation's next charge, in basis points of it, and the activity that earned it (R-OBLIGATION-014). */
+export interface Relief {
+  source: string;
+  bp: number;
 }
 
 export interface ObligationSlice {

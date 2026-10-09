@@ -119,7 +119,7 @@ const GRANTED = "line.route.granted";
 
 /**
  * The kinds of line that carry the month's story, in the order the results lead with them: the
- * visa granted, a bill that went unpaid, a hunt's answer, a job or an offer found, a way out heard
+ * visa granted, a bill that went unpaid, what the room's basics saved, a hunt's answer, a job or an offer found, a way out heard
  * of or moved on, a paper or a test band, a deposit that will be asked about, a chapter, a goal or
  * an answer told in its offer's own words, a set piece, the interview or a status, news about your
  * plans.
@@ -127,6 +127,8 @@ const GRANTED = "line.route.granted";
 const STORY: readonly ((line: ReportLine) => boolean)[] = [
   (line) => line.key === GRANTED,
   isUnpaid,
+  // R-OBLIGATION-014: what cooking and fetching water saved on the upkeep, each its own line.
+  (line) => line.key.startsWith("line.obligation.relief."),
   (line) => ["line.activity.hunt-hired", "line.activity.hunt-missed", "line.activity.job-started", "line.activity.side-started", "line.offer.opened"].includes(line.key),
   // The adviser's reading, paid for, leads the route's own lines.
   (line) => ["line.activity.adviser-missing", "line.activity.adviser-fits"].includes(line.key),

@@ -52,10 +52,11 @@ export function rowOf(file: PlaceFile): { drawCalls: number; triangles: number }
   return budgets.place[file.scope];
 }
 
-/** Every model's copies counted once, the most of any dressing's, as the file's instances. */
+/** Every model's copies counted once, the most of any dressing's, with what the room shows of the month's plan, as the file's instances. */
 export function instancesOf(stage: Stage): { file: string; count: number }[] {
   const counts = new Map<string, number>();
-  for (const model of [...stage.models, ...(stage.dressings ?? []).flatMap((dressing) => dressing.models)]) counts.set(model.file, Math.max(counts.get(model.file) ?? 0, model.at.length));
+  const extra = [...(stage.dressings ?? []).flatMap((dressing) => dressing.models), ...(stage.shows ?? []).flatMap((show) => show.models)];
+  for (const model of [...stage.models, ...extra]) counts.set(model.file, Math.max(counts.get(model.file) ?? 0, model.at.length));
   return [...counts].map(([file, count]) => ({ file, count }));
 }
 
@@ -75,7 +76,7 @@ export function coloursOf(stage: Stage): string[] {
     stage.light.sky,
     stage.light.ground,
     ...stage.roads.flatMap((road) => [road.colour, road.dash?.colour ?? road.colour]),
-    ...[...stage.motion, ...(stage.dressings ?? []).flatMap((dressing) => dressing.motion)].flatMap((motion) => [...motion.colours, ...(motion.hoist === undefined ? [] : [motion.hoist])]),
+    ...[...stage.motion, ...(stage.dressings ?? []).flatMap((dressing) => dressing.motion), ...(stage.shows ?? []).flatMap((show) => show.motion)].flatMap((motion) => [...motion.colours, ...(motion.hoist === undefined ? [] : [motion.hoist])]),
   ];
 }
 

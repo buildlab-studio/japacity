@@ -14,7 +14,7 @@ export type ObligationEvent =
    * A month's charge was paid in full (R-OBLIGATION-002). `principal` is the
    * part that lowered what is owed; `total` is everything taken.
    */
-  | { type: "obligation/charged"; id: string; entry: Id<"obligation">; total: number; interest: number; principal: number }
+  | { type: "obligation/charged"; id: string; entry: Id<"obligation">; total: number; interest: number; principal: number; relief?: { source: string; amount: number }[] }
   /** A month's charge could not be paid. `missed` is the count of misses in a row after this one (R-OBLIGATION-003). */
   | { type: "obligation/missed"; id: string; entry: Id<"obligation">; total: number; missed: number }
   /**
@@ -52,5 +52,10 @@ export type ObligationEvent =
    * the sponsored partner and now owes `amount` more for them (R-UNDERTAKING-007).
    */
   | { type: "obligation/assessed"; id: string; entry: Id<"obligation">; months: number; amount: number }
+  /**
+   * A share off the next charge, earned by the activity `source`: `bp` of the charge, spent by it
+   * whether it is paid or missed (R-OBLIGATION-014). `relief` on the charged event says what it took.
+   */
+  | { type: "obligation/relieved"; id: string; entry: Id<"obligation">; source: string; bp: number }
   /** Everything owed on an undertaking is paid: the misses and any default are lifted (R-UNDERTAKING-008). */
   | { type: "obligation/cleared"; id: string; entry: Id<"obligation"> };

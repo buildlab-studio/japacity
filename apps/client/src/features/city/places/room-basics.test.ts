@@ -1,0 +1,172 @@
+// The room down its length with the basics (docs/rules/world.md R-WORLD-029, obligation.md
+// R-OBLIGATION-014): the parlour at home and the room abroad, read from their shipped files and
+// the real content. The camera turned so the long side runs up a phone held upright, fitted to the
+// room's width with nothing cut off; the cooking corner, the drum at home only, the bed, the table,
+// the bag by the door, each with its act; and what the month's plan shows on the thing.
+import { content } from "@japacity/content";
+import type { PlayerView } from "@japacity/sim";
+import { describe, expect, test } from "vitest";
+
+import parlourRaw from "../../../../public/assets/places/family-house-parlour/place.json";
+import roomRaw from "../../../../public/assets/places/the-room/place.json";
+import type { Shot } from "../../../shared/world/contract";
+import { abroadView, engineView } from "../../../shared/testing/fixtures";
+import { type PlaceFile, showPlanned, stageOf } from "../placeFile";
+import { cameraAt, projected, SCREENS } from "../scene.testing";
+import { sceneWords } from "../scene.words";
+import { aimShot, shotOf, WHOLE } from "../shot";
+import { stagedNow, thingSpot, thingsNow } from "../things";
+import { instancesOf } from "./placeTesting";
+
+const parlour = parlourRaw as unknown as PlaceFile;
+const room = roomRaw as unknown as PlaceFile;
+const ROOMS = [
+  { name: "the parlour", file: parlour, place: "place.family-house" },
+  { name: "the room abroad", file: room, place: "place.the-room" },
+] as const;
+const COOK = "activity.cook-at-home";
+const WATER = "activity.fetch-water";
+
+/** The room's floor, 12 by 10 inside and its walls, and the tops of the two walls it has, from its ground. */
+function outline(file: PlaceFile): [number, number, number][] {
+  const [width, depth] = stageOf(file).ground.size;
+  const [x, z] = [width / 2, depth / 2];
+  const floor: [number, number, number][] = [[-x, 0, -z], [x, 0, -z], [x, 0, z], [-x, 0, z]];
+  // The back wall along -z and the side wall at the door's end, 3 m high.
+  const door = stageOf(file).start[0];
+  const side = Math.sign(door) * x;
+  return [...floor, [-x, 3, -z], [x, 3, -z], [side, 3, -z], [side, 3, z]];
+}
+
+/** The floor's share of the screen in the whole view on a phone held upright. */
+function floorShare(file: PlaceFile, shot: Shot): number {
+  const aspect = SCREENS.phone;
+  const camera = cameraAt(aimShot(shot, WHOLE, { x: 0, z: 0 }, aspect), aspect);
+  const corners = outline(file).slice(0, 4).map(([x, y, z]) => projected(camera, x, y, z));
+  let twice = 0;
+  corners.forEach((corner, index) => {
+    const next = corners[(index + 1) % corners.length] ?? corner;
+    twice += corner.x * next.y - next.x * corner.y;
+  });
+  // The screen runs -1 to 1 both ways: an area of 4.
+  return Math.abs(twice) / 2 / 4;
+}
+
+/** The shot both rooms had before, seen from the front. */
+const FRONT: Shot = { centre: [0, 0.6, -0.6], far: 30, near: 9, farPitch: 68, nearPitch: 36, turn: 30, yaw: 180, width: 14.5 };
+
+function thingOf(file: PlaceFile, id: string) {
+  const thing = (stageOf(file).things ?? []).find((candidate) => candidate.id === id);
+  if (thing === undefined) throw new Error(`No ${id}`);
+  return thing;
+}
+
+/** The things the view lets the player act on now, as the city reads them. */
+function actsNow(file: PlaceFile, place: string, view: PlayerView, extra: string[] = []): Record<string, string[]> {
+  const offered = new Set([...view.activities.filter((option) => option.allowed).map((option) => option.id), ...extra]);
+  const staged = new Set<string>(content.place[place as keyof typeof content.place]?.stages ?? []);
+  const now = thingsNow(stageOf(file).things ?? [], stagedNow(offered, staged, new Set(), null));
+  return Object.fromEntries(now.map((thing) => [thing.id, thing.acts.map((act) => act.id)]));
+}
+
+describe("the room down its length", () => {
+  test("[R-WORLD-029] given the parlour and the room abroad on a phone held upright, when the room opens whole, then the camera looks along the long side, the door's wall at the top, and the floor and both walls stand on screen with nothing cut off", () => {
+    for (const { name, file } of ROOMS) {
+      const shot = shotOf(stageOf(file));
+      // A quarter turn from the front: the 12 m side runs up the screen.
+      expect(Math.abs(shot.yaw ?? 0)).toBe(90);
+      const aspect = SCREENS.phone;
+      const camera = cameraAt(aimShot(shot, WHOLE, { x: 0, z: 0 }, aspect), aspect);
+      for (const [x, y, z] of outline(file)) {
+        const at = projected(camera, x, y, z);
+        expect({ name, x, y, z, shown: at.inFront && Math.abs(at.x) <= 1 && Math.abs(at.y) <= 1 }).toEqual({ name, x, y, z, shown: true });
+      }
+      // The door's end is the far end, at the top.
+      const [doorX, , doorZ] = stageOf(file).start;
+      const door = projected(camera, doorX, 0, doorZ);
+      const near = projected(camera, -doorX, 0, doorZ);
+      expect(door.y).toBeGreaterThan(near.y);
+    }
+  });
+
+  test("[R-WORLD-029] given the room fitted to its width, when the floor's share of the screen is measured against the front view it had, then it is more than half as large again on a phone (about 1.6 times: a 12 by 10 room cannot fill more of a tall screen with nothing cut off)", () => {
+    for (const { file } of ROOMS) {
+      const shot = shotOf(stageOf(file));
+      const before = floorShare(file, FRONT);
+      const after = floorShare(file, shot);
+      expect(after / before).toBeGreaterThan(1.5);
+      // Fitted to the room's width, not a fixed distance: the width is the room's own, a little over its 10 m.
+      expect(shot.width).toBeLessThan(stageOf(file).ground.size[0]);
+      expect(shot.width).toBeGreaterThanOrEqual(stageOf(file).ground.size[1]);
+    }
+  });
+});
+
+describe("the basics at home", () => {
+  test("[R-WORLD-029] [R-OBLIGATION-014] given the parlour, when its things are read, then the cooking corner cooks for the week, the drum fetches water, the bed rests and ends the month, and the bag by the door packs; each says its act in words", () => {
+    const acts = (id: string) => thingOf(parlour, id).acts.map((act) => [act.kind, act.stages ?? act.command ?? null, sceneWords(act.label)]);
+    expect(acts("cooking")).toEqual([["do", COOK, "Cook for the week"]]);
+    expect(acts("drum")).toEqual([["do", WATER, "Fetch water"]]);
+    expect(acts("bag")).toEqual([["command", "route/depart", "Pack and go"]]);
+    expect(acts("bed").map(([kind]) => kind)).toEqual(["do", "end"]);
+    expect(thingOf(parlour, "table").acts.length).toBeGreaterThan(0);
+    expect(["cooking", "drum", "bag"].map((id) => sceneWords(thingOf(parlour, id).label))).toEqual(["Cooking corner", "Water drum", "Bag"]);
+    // The bag stands by the door.
+    const bag = thingSpot(stageOf(parlour), thingOf(parlour, "bag"));
+    const door = thingSpot(stageOf(parlour), thingOf(parlour, "door"));
+    if (bag === null || door === null) throw new Error("The bag or the door stands nowhere");
+    expect(Math.hypot(bag[0] - door[0], bag[1] - door[1])).toBeLessThan(2);
+  });
+
+  test("[R-WORLD-029] [R-OBLIGATION-014] given Ada at home, when the parlour's acts are read for now, then cooking and water are both there, and the bag packs only once the route is granted", () => {
+    const now = actsNow(parlour, "place.family-house", engineView("scenario.ada"));
+    expect(now["cooking"]).toEqual(["cook"]);
+    expect(now["drum"]).toEqual(["fetch-water"]);
+    expect(now["bag"]).toBeUndefined();
+    const granted = actsNow(parlour, "place.family-house", engineView("scenario.ada"), ["command:route/depart"]);
+    expect(granted["bag"]).toEqual(["pack"]);
+  });
+});
+
+describe("the basics abroad", () => {
+  test("[R-WORLD-029] [R-OBLIGATION-014] given the room abroad, when its things are read and its acts for a life just landed, then the cooking corner cooks and there is no drum: the room has a tap", () => {
+    expect(thingOf(room, "cooking").acts.map((act) => [act.kind, act.stages])).toEqual([["do", COOK]]);
+    expect((stageOf(room).things ?? []).some((thing) => thing.id === "drum")).toBe(false);
+    expect(stageOf(room).models.some((model) => model.file.endsWith("prop_water-drum.glb"))).toBe(false);
+    expect(thingOf(room, "bag").acts.map((act) => act.command)).toEqual(["route/depart"]);
+    const now = actsNow(room, "place.the-room", abroadView());
+    expect(now["cooking"]).toEqual(["cook"]);
+    expect(content.place["place.the-room"]?.stages).not.toContain(WATER);
+  });
+});
+
+describe("the state on the thing", () => {
+  test("[R-WORLD-029] [R-OBLIGATION-014] given nothing planned, when the room is shown, then it is the file as shipped, so the scene is not rebuilt", () => {
+    expect(showPlanned(parlour, [])).toBe(parlour);
+    expect(showPlanned(parlour, ["activity.rest"])).toBe(parlour);
+  });
+
+  test("[R-WORLD-029] [R-OBLIGATION-014] given cooking planned for the month, when the room is shown at home and abroad, then steam rises over the pot of the cooking corner", () => {
+    for (const { name, file } of ROOMS) {
+      const shown = stageOf(showPlanned(file, [COOK]));
+      const steam = shown.motion.filter((motion) => motion.kind === "smoke");
+      expect(steam).toHaveLength(1);
+      const corner = thingSpot(stageOf(file), thingOf(file, "cooking"));
+      const at = steam[0]?.at;
+      if (corner === null || at === undefined) throw new Error(`${name}: no pot`);
+      expect(Math.hypot(at[0] - corner[0], at[2] - corner[1])).toBeLessThan(0.5);
+      expect(at[1]).toBeGreaterThan(0.9);
+      expect(stageOf(file).motion.some((motion) => motion.kind === "smoke")).toBe(false);
+    }
+  });
+
+  test("[R-WORLD-029] [R-OBLIGATION-014] given water planned for the month at home, when the parlour is shown, then the drum stands filled, its water over the drum's own spot, counted in the file's instances", () => {
+    const drum = stageOf(parlour).models.find((model) => model.file.endsWith("prop_water-drum.glb"))?.at[0];
+    const shown = stageOf(showPlanned(parlour, [WATER, COOK]));
+    const water = shown.models.find((model) => model.file.endsWith("prop_drum-water.glb"))?.at[0];
+    expect(water).toEqual(drum);
+    expect(stageOf(parlour).models.some((model) => model.file.endsWith("prop_drum-water.glb"))).toBe(false);
+    expect(parlour.instances).toEqual(instancesOf(stageOf(parlour)));
+    expect(room.instances).toEqual(instancesOf(stageOf(room)));
+  });
+});
