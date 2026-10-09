@@ -63,57 +63,63 @@ describe("the archetypes", () => {
   });
 
   test("[R-PROLOGUE-010] given every archetype on fresh lives over many seeds, when its preset is played, then each preset answer is sent while it is allowed, and only a card the archetype leaves open or one whose preset answer is shut shows", () => {
+    const wrong: string[] = [];
+    const shutSeen = new Map<string, number>();
     for (const archetype of ARCHETYPES) {
-      let shutSeen = 0;
       for (let at = 0; at < SEEDS; at += 1) {
         const { shown, shut, kept, game } = play(archetype, `${archetype.id}-${String(at)}`);
-        expect(game.state.prologue.open, `${archetype.id} ${String(at)}`).toBe(false);
-        shutSeen += shut.length;
-        for (const step of shown) expect(archetype.preset[step] === undefined || shut.includes(step), `${archetype.id} ${String(at)}: ${step} showed`).toBe(true);
+        if (game.state.prologue.open) wrong.push(`${archetype.id} ${String(at)}: still open`);
+        shutSeen.set(archetype.id, (shutSeen.get(archetype.id) ?? 0) + shut.length);
+        for (const step of shown) if (archetype.preset[step] !== undefined && !shut.includes(step)) wrong.push(`${archetype.id} ${String(at)}: ${step} showed`);
         // On its own path, the draw, the subjects, the course and the service are never a card.
-        if (kept)
-          for (const step of ["draw", "subjects", "course", "service", "strike-drag", "graduation", "settlement"]) expect(shown, `${archetype.id} ${String(at)}`).not.toContain(step);
+        const never = kept ? ["draw", "subjects", "course", "service", "strike-drag", "graduation", "settlement"] : [];
+        for (const step of never) if (shown.includes(step)) wrong.push(`${archetype.id} ${String(at)}: ${step} showed on the path`);
       }
-      // A degree preset is always allowed; the trader's master is shut to a city family that can pay for school.
-      if (archetype.id === "trader") expect(shutSeen).toBeGreaterThan(0);
-      else expect(shutSeen, archetype.id).toBe(0);
     }
+    expect(wrong).toEqual([]);
+    // A degree preset is always allowed; the trader's master is shut to a city family that can pay for school.
+    expect(Object.fromEntries(shutSeen)).toEqual({ developer: 0, nurse: 0, accountant: 0, writer: 0, trader: shutSeen.get("trader"), "shop-worker": 0 });
+    expect(shutSeen.get("trader")).toBeGreaterThan(0);
   });
 
   test("[R-PROLOGUE-010] given every archetype over many seeds, when its prologue closes on its own path, then the life is in the first chapter and at least one route the tile names is heard or can be heard", () => {
+    const wrong: string[] = [];
+    const keptBy = new Map<string, number>();
     for (const archetype of ARCHETYPES) {
-      let kept = 0;
       for (let at = 0; at < SEEDS; at += 1) {
         const played = play(archetype, `${archetype.id}-${String(at)}`);
         const { game } = played;
         const view = game.view();
-        expect(view.chapter.current).toBe(FIRST_CHAPTER);
+        if (view.chapter.current !== FIRST_CHAPTER) wrong.push(`${archetype.id} ${String(at)}: in ${String(view.chapter.current)}`);
         // Two failed exams send a degree life to the shop counter, and a city family keeps a child from the master: off the path, the tile's promise is not the life's.
         if (!played.kept) continue;
-        kept += 1;
+        keptBy.set(archetype.id, (keptBy.get(archetype.id) ?? 0) + 1);
         const read = { state: game.state, world: game.world(), content };
         const reached = archetype.routes.filter((id) => {
           const state = view.routes.find((route) => route.id === id)?.state;
           return (state !== undefined && state !== "unknown") || allMet(read, content.route[id]?.hearIf ?? []);
         });
-        expect(reached.length, `${archetype.id} ${String(at)}`).toBeGreaterThan(0);
+        if (reached.length === 0) wrong.push(`${archetype.id} ${String(at)}: no route`);
       }
-      expect(kept, archetype.id).toBeGreaterThan(SEEDS / 3);
     }
+    expect(wrong).toEqual([]);
+    // Most lives stay on their path.
+    for (const archetype of ARCHETYPES) expect(keptBy.get(archetype.id) ?? 0).toBeGreaterThan(SEEDS / 3);
   });
 
   test("[R-PROLOGUE-010] given every archetype but the shop worker and the trader, then a route of its own effort is reached without the road", () => {
     const ownEffort = new Set(["route.uk-masters", "route.uk-skilled", "route.uk-talent", "route.uk-care", "route.canada-points", "route.gulf-contract", "route.road"]);
-    for (const archetype of ARCHETYPES) {
-      expect(archetype.routes.some((route) => ownEffort.has(route)), archetype.id).toBe(true);
-      if (archetype.id === "trader" || archetype.id === "shop-worker") continue;
+    expect(ARCHETYPES.filter((archetype) => !archetype.routes.some((route) => ownEffort.has(route))).map((archetype) => archetype.id)).toEqual([]);
+    const wrong: string[] = [];
+    for (const archetype of ARCHETYPES.filter((one) => one.id !== "trader" && one.id !== "shop-worker")) {
       for (let at = 0; at < 10; at += 1) {
         const { game, kept } = play(archetype, `${archetype.id}-${String(at)}`);
         if (!kept) continue;
         const read = { state: game.state, world: game.world(), content };
         const reached = archetype.routes.filter((id) => id !== "route.road" && allMet(read, content.route[id]?.hearIf ?? []));
-        expect(reached.length, `${archetype.id} ${String(at)}`).toBeGreaterThan(0);
+        if (reached.length === 0) wrong.push(`${archetype.id} ${String(at)}`);
       }
     }
+    expect(wrong).toEqual([]);
   });
 });

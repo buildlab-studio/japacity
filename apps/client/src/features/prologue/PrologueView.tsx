@@ -1,15 +1,18 @@
 // The prologue: sixteen to the end of the service year, one card at a time
-// (prologue.md R-PROLOGUE-008). The card and its answers come from the view;
-// an answer not open is greyed with the reason. Above the card, what the last
-// answer's draw decided; below it, the life so far in sentences. When the last
-// card is answered the handover says so and opens the first month.
+// (prologue.md R-PROLOGUE-008), over the family compound with the character at
+// the gate (R-PROLOGUE-009). The card and its answers come from the view; an
+// answer not open is greyed with the reason. With an archetype kept beside the
+// save, its preset answers are sent for it and only the cards it leaves open
+// show, each headed by a short beat of what the draws decided (R-PROLOGUE-010);
+// the setting `prologue.full` shows every card. When the last card is answered
+// the handover says who the person is and opens the first month.
 import { content } from "@japacity/content";
 import type { PlayerView, ReportLine } from "@japacity/sim";
 import { ArrowRight } from "lucide-react";
+import { useEffect, useRef } from "react";
 
 import { useGame, useView } from "../../authority/GameProvider";
-import { Button } from "../../shared/ui/Button";
-import { Card } from "../../shared/ui/Panel";
+import { readPerson } from "../../authority/person";
 import { Rejection } from "../../shared/ui/Rejection";
 import { ReportLines } from "../../shared/ui/ReportLines";
 import { formatMoney, playerMonth } from "../../shared/words/format";
@@ -17,6 +20,8 @@ import { AGE, valueWords, yearsOf } from "../../shared/words/quality";
 import { requirementSentence } from "../../shared/words/requirement";
 import { nextStepOf, sixteenPath } from "../../shared/words/sixteen";
 import { bandWords, hasWords, nameOf, say, sayCount, words } from "../../shared/words/text";
+import { Gate, GateSheet } from "../scenario/Gate";
+import { type Archetype, answersInOrder, archetypeOf, fullPrologue, presetAnswer } from "./archetypes";
 
 type Prologue = NonNullable<PlayerView["prologue"]>;
 type Draw = NonNullable<Prologue["draw"]>;
@@ -71,27 +76,32 @@ export function whyNot(step: string, answer: string): string[] {
   return (entry?.requires ?? []).map((requirement) => requirementSentence(requirement));
 }
 
-function Answers({ prologue }: { prologue: Prologue }) {
+function Answers({ prologue, archetype, onAnswer }: { prologue: Prologue; archetype: Archetype | null; onAnswer: () => void }) {
   const send = useGame((state) => state.send);
   const busy = useGame((state) => state.busy);
   return (
-    <ul className="flex flex-col gap-2">
-      {prologue.answers.map((answer) => {
+    <ul className="flex flex-col gap-1.5">
+      {answersInOrder(archetype, prologue.step, prologue.answers).map((answer) => {
         const label = words(`prologue.${prologue.step}.answer.${answer.id}`);
+        const hint = `prologue.${prologue.step}.answer.${answer.id}.hint`;
         const reasons = answer.allowed ? [] : whyNot(prologue.step, answer.id);
         return (
-          <li key={answer.id} className="flex flex-col gap-1" data-answer={answer.id}>
-            <Button
-              variant={answer.allowed ? "secondary" : "quiet"}
-              className="w-full justify-start text-left"
+          <li key={answer.id} className="flex flex-col gap-0.5" data-answer={answer.id}>
+            <button
+              type="button"
+              className={`press flex min-h-12 w-full items-center gap-2 rounded-[5px] px-3 py-2 text-left text-[16px] font-extrabold ${answer.allowed ? "bg-sheet-muted text-text" : "bg-transparent text-text-2 opacity-70"}`}
               disabled={busy || !answer.allowed}
-              onClick={() => void send({ type: "prologue/choose", step: prologue.step, answer: answer.id })}
+              onClick={() => {
+                onAnswer();
+                void send({ type: "prologue/choose", step: prologue.step, answer: answer.id });
+              }}
             >
-              <span className="flex-1 py-2">{label}</span>
+              <span className="flex-1">{label}</span>
               {answer.allowed ? <ArrowRight size={18} className="shrink-0" /> : null}
-            </Button>
+            </button>
+            {answer.allowed && hasWords(hint) ? <p className="px-3 text-[12px] leading-snug text-text-2">{say(hint)}</p> : null}
             {reasons.length === 0 ? null : (
-              <p className="pl-4 text-sm text-muted">
+              <p className="px-3 text-[12px] leading-snug text-text-2">
                 {say("prologue.not-for-you")} {reasons.join(" ")}
               </p>
             )}
@@ -144,65 +154,133 @@ function Outcome({ prologue }: { prologue: Prologue }) {
   const shown = lastLines(lines, prologue.lastOutcome);
   if (prologue.lastOutcome === null && shown.length === 0) return null;
   return (
-    <Card tone="attention" className="flex flex-col gap-2" data-prologue-outcome>
-      <h2 className="text-sm font-semibold tracking-wide text-muted uppercase">{say("ui.prologue.then")}</h2>
-      {prologue.lastOutcome === null ? null : <p className="text-lg font-medium">{words(prologue.lastOutcome)}</p>}
+    <div className="mb-3 flex flex-col gap-1 border-l-4 border-l-action pl-3" data-prologue-outcome>
+      <h2 className="label text-text-2">{say("ui.prologue.then")}</h2>
+      {prologue.lastOutcome === null ? null : <p className="text-[15px] font-bold">{words(prologue.lastOutcome)}</p>}
       {shown.length === 0 ? null : <ReportLines lines={shown} />}
-    </Card>
+    </div>
+  );
+}
+
+/** What the draws decided while the preset played, as a short beat at the head of the card shown next (R-PROLOGUE-010). */
+function Beat({ beats }: { beats: readonly string[] }) {
+  if (beats.length === 0) return null;
+  return (
+    <div className="mb-3 flex flex-col gap-0.5 border-l-4 border-l-action pl-3 text-[14px] leading-snug" data-prologue-outcome data-beat>
+      {beats.map((beat) => (
+        <p key={beat}>{beat}</p>
+      ))}
+    </div>
   );
 }
 
 /** The draw, the qualities that have moved from nothing, and money, as they stand (R-PROLOGUE-008). No `draw` leaves the draw out. */
-function LifeSoFar({ view, draw }: { view: PlayerView; draw?: Draw | null }) {
+function LifeSoFar({ view, draw, open = false }: { view: PlayerView; draw?: Draw | null; open?: boolean }) {
   const held = view.qualities.filter((quality) => quality.id !== AGE && quality.value !== 0 && content.quality[quality.id]?.shown === true);
   const naira = view.pockets.NGN.bank + view.pockets.NGN.cash;
   return (
-    <section aria-label={say("ui.prologue.so-far")} className="flex flex-col gap-3" data-life-so-far>
-      <h2 className="text-sm font-semibold tracking-wide text-muted uppercase">{say("ui.prologue.so-far")}</h2>
-      <Card className="flex flex-col gap-3">
+    <details open={open} aria-label={say("ui.prologue.so-far")} className="mt-3 border-t border-sheet-line pt-2 text-[14px]" data-life-so-far>
+      <summary className="label cursor-pointer py-1 text-text-2">{say("ui.prologue.so-far")}</summary>
+      <div className="flex flex-col gap-2 pt-1">
         {draw === undefined ? null : draw === null ? (
-          <p className="text-muted">{say("ui.prologue.not-drawn")}</p>
+          <p className="text-text-2">{say("ui.prologue.not-drawn")}</p>
         ) : (
-          <ul className="flex flex-col gap-1" data-draw>
+          <ul className="flex flex-col gap-0.5" data-draw>
             {drawSentences(draw).map((sentence) => (
               <li key={sentence}>{sentence}</li>
             ))}
           </ul>
         )}
-        <p className="font-medium">{naira === 0 ? say("ui.prologue.money.none") : say("ui.prologue.money", { amount: formatMoney(naira, "NGN") })}</p>
+        <p className="font-bold">{naira === 0 ? say("ui.prologue.money.none") : say("ui.prologue.money", { amount: formatMoney(naira, "NGN") })}</p>
         {held.length === 0 ? null : (
-          <dl className="grid grid-cols-2 gap-x-4 gap-y-2 border-t border-line pt-3 text-sm">
+          <dl className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-[13px]">
             {held.map(({ id, value }) => (
               <div key={id} className="flex flex-col">
-                <dt className="text-muted">{nameOf(id)}</dt>
-                <dd className="font-semibold">{valueWords(id, value)}</dd>
+                <dt className="text-text-2">{nameOf(id)}</dt>
+                <dd className="font-bold">{valueWords(id, value)}</dd>
               </div>
             ))}
           </dl>
         )}
-      </Card>
-    </section>
+      </div>
+    </details>
   );
+}
+
+/** The archetype kept beside the save for this life, unless the setting `prologue.full` asks for every card. */
+export function presetArchetype(): Archetype | null {
+  if (fullPrologue()) return null;
+  return archetypeOf(readPerson()?.archetype);
+}
+
+/**
+ * Sends the archetype's preset answer while the card's is allowed (R-PROLOGUE-010), once per view, and
+ * keeps the outcomes the draws gave on the way, for the card shown next. Null `answer`: the card shows.
+ */
+function usePreset(view: PlayerView, prologue: Prologue, archetype: Archetype | null): { answer: string | null; beats: string[]; told: () => void } {
+  const send = useGame((state) => state.send);
+  const busy = useGame((state) => state.busy);
+  const rejected = useGame((state) => state.rejection !== null);
+  const sentAt = useRef<number | null>(null);
+  const outcomes = useRef<string[]>([]);
+  const drawTold = useRef(false);
+  const answer = archetype === null || rejected ? null : presetAnswer(archetype, prologue);
+  useEffect(() => {
+    if (answer === null || busy || sentAt.current === view.v) return;
+    sentAt.current = view.v;
+    if (prologue.lastOutcome !== null) outcomes.current.push(prologue.lastOutcome);
+    void send({ type: "prologue/choose", step: prologue.step, answer });
+  }, [answer, busy, view.v, prologue.step, prologue.lastOutcome, send]);
+  const beats = archetype === null ? [] : [...(prologue.draw !== null && !drawTold.current ? drawSentences(prologue.draw).slice(0, 2) : []), ...[...outcomes.current, ...(prologue.lastOutcome === null ? [] : [prologue.lastOutcome])].map((key) => words(key))];
+  return {
+    answer,
+    beats: [...new Set(beats)],
+    told: () => {
+      outcomes.current = [];
+      if (prologue.draw !== null) drawTold.current = true;
+    },
+  };
 }
 
 export function PrologueView() {
   const view = useView();
   const prologue = view.prologue;
   if (prologue === null) return null;
+  return <PrologueCard view={view} prologue={prologue} />;
+}
+
+function PrologueCard({ view, prologue }: { view: PlayerView; prologue: Prologue }) {
+  const archetype = presetArchetype();
+  const { answer, beats, told } = usePreset(view, prologue, archetype);
+  if (answer !== null)
+    return (
+      <Gate mark="prologue">
+        <GateSheet mark="years" label={say("ui.door.years")}>
+          <div className="flex items-baseline justify-between gap-3" data-prologue-years data-v={view.v}>
+            <p className="title text-[20px]">{say("ui.door.years")}</p>
+            <p className="num text-[14px] text-text-2">{say("ui.profile.age", { years: ageYears(view) })}</p>
+          </div>
+        </GateSheet>
+      </Gate>
+    );
   return (
-    <main className="mx-auto flex min-h-dvh max-w-xl flex-col gap-4 px-4 py-6" data-prologue={prologue.step} data-v={view.v}>
-      <div className="flex items-baseline justify-between gap-3">
-        <p className="text-sm font-semibold tracking-wide text-muted uppercase">{say("ui.prologue.title")}</p>
-        <p className="text-sm text-muted">{say("ui.profile.age", { years: ageYears(view) })}</p>
-      </div>
-      <Outcome prologue={prologue} />
-      <Card className="flex flex-col gap-4" data-prologue-card>
-        <h1 className="text-2xl leading-snug font-semibold">{words(`prologue.${prologue.step}.card`)}</h1>
-        <Rejection />
-        <Answers prologue={prologue} />
-      </Card>
-      <LifeSoFar view={view} draw={prologue.draw} />
-    </main>
+    <Gate mark="prologue">
+      <GateSheet mark="card" label={say("ui.prologue.title")}>
+        <div data-prologue={prologue.step} data-v={view.v}>
+          <div className="mb-2 flex items-baseline justify-between gap-3">
+            <p className="label text-text-2">{say("ui.prologue.title")}</p>
+            <p className="num text-[13px] text-text-2">{say("ui.profile.age", { years: ageYears(view) })}</p>
+          </div>
+          {archetype === null ? <Outcome prologue={prologue} /> : <Beat beats={beats} />}
+          <div className="flex flex-col gap-3" data-prologue-card>
+            <h1 className="title text-[22px] leading-tight">{words(`prologue.${prologue.step}.card`)}</h1>
+            <Rejection />
+            <Answers prologue={prologue} archetype={archetype} onAnswer={told} />
+          </div>
+          <LifeSoFar view={view} draw={prologue.draw} open={archetype === null} />
+        </div>
+      </GateSheet>
+    </Gate>
   );
 }
 
@@ -246,38 +324,55 @@ function storyLines(view: PlayerView): string[] {
   return told;
 }
 
-/** The handover: the last answer's outcome, the life as it now stands, and the way into the first month. */
+/** The handover: who the person is and what they were, the story the prologue built, and the way into the first month (R-PROLOGUE-010). */
 export function PrologueHandover({ onDone }: { onDone: () => void }) {
   const view = useView();
   const lines = useGame((state) => state.lines);
-  const shown = lastLines(lines);
+  const person = readPerson();
+  const archetype = presetArchetype();
+  const shown = archetype === null ? lastLines(lines) : [];
   const step = firstStep(view);
   const story = storyLines(view);
   return (
-    <main className="mx-auto flex min-h-dvh max-w-xl flex-col gap-4 px-4 py-6" data-prologue-handover>
-      <p className="text-sm font-semibold tracking-wide text-muted uppercase">{say("ui.prologue.title")}</p>
-      <Card tone="attention" className="flex flex-col gap-3">
-        <h1 className="text-2xl leading-snug font-semibold">{words(PROLOGUE_CLOSED)}</h1>
-        <p className="text-muted">{say("ui.profile.age", { years: ageYears(view) })}</p>
-        {story.length === 0 ? null : (
-          <div className="flex flex-col gap-2 text-lg" data-handover-story>
-            {story.map((sentence) => (
-              <p key={sentence}>{sentence}</p>
-            ))}
-          </div>
-        )}
-        {shown.length === 0 ? null : <ReportLines lines={shown} />}
-      </Card>
-      <LifeSoFar view={view} />
-      {step === null ? null : (
-        <p className="text-lg font-medium" data-first-step>
-          {say("prologue.handover.first", { step })}
-        </p>
-      )}
-      <Button variant="primary" onClick={onDone} autoFocus>
-        {say("ui.prologue.start", { month: playerMonth(view.month) })}
-        <ArrowRight size={18} />
-      </Button>
-    </main>
+    <Gate mark="handover">
+      <GateSheet
+        mark="handover"
+        label={say("ui.prologue.title")}
+        foot={
+          <>
+            {step === null ? null : (
+              <p className="mb-2 text-[15px] font-bold" data-first-step>
+                {say("prologue.handover.first", { step })}
+              </p>
+            )}
+            <button type="button" className="btn-main" onClick={onDone} autoFocus>
+              <span>{say("ui.prologue.start", { month: playerMonth(view.month) })}</span>
+              <ArrowRight size={18} />
+            </button>
+          </>
+        }
+      >
+        <div className="flex flex-col gap-2" data-prologue-handover>
+          <p className="label text-text-2">{say("ui.prologue.title")}</p>
+          {person === null ? null : <h1 className="title text-[26px] leading-none">{person.name}</h1>}
+          {archetype === null ? null : (
+            <p className="text-[15px] font-bold" data-handover-archetype>
+              {say("prologue.handover.archetype", { kind: say(`prologue.archetype.${archetype.id}.name`), was: say(`prologue.archetype.${archetype.id}.was`) })}
+            </p>
+          )}
+          {person === null ? <h1 className="title text-[22px] leading-tight">{words(PROLOGUE_CLOSED)}</h1> : null}
+          <p className="text-[13px] text-text-2">{say("ui.profile.age", { years: ageYears(view) })}</p>
+          {story.length === 0 ? null : (
+            <div className="flex flex-col gap-1.5 text-[15px]" data-handover-story>
+              {story.map((sentence) => (
+                <p key={sentence}>{sentence}</p>
+              ))}
+            </div>
+          )}
+          {shown.length === 0 ? null : <ReportLines lines={shown} />}
+          <LifeSoFar view={view} open={archetype === null} />
+        </div>
+      </GateSheet>
+    </Gate>
   );
 }
