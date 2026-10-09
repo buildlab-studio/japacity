@@ -4,7 +4,7 @@
 // bed; the papers themselves are a thing at home. Once a visa is granted it names the next step;
 // after the flight it shows the visa held, what it lets you do, and the landing's steps.
 import { content } from "@japacity/content";
-import type { Currency, Id, PlayerView, RouteView } from "@japacity/sim";
+import type { ChapterEntry, Currency, Id, PlayerView, RouteView } from "@japacity/sim";
 import { Check, ChevronLeft, ChevronRight, Circle, FileCheck, FileClock, FileX } from "lucide-react";
 import { use, useState } from "react";
 
@@ -35,6 +35,23 @@ function afterWords(key: string, params: Record<string, string> = {}): string {
 }
 
 /**
+ * The chapter that follows a chapter (R-CHAPTER-009): the next base by order, or its variant for the way
+ * out the current chapter follows. The engine reads the lean again at the close; the view does not carry
+ * it, so a variant's way out stands for it here.
+ */
+function chapterAfter(current: Id<"chapter">): ChapterEntry | undefined {
+  const entry = content.chapter[current];
+  const base = entry?.variantOf === undefined ? entry : content.chapter[entry.variantOf];
+  if (base === undefined) return undefined;
+  const next = Object.values(content.chapter)
+    .filter((candidate) => candidate.variantOf === undefined && candidate.order > base.order)
+    .sort((a, b) => a.order - b.order)[0];
+  if (next === undefined) return undefined;
+  const route = entry?.route;
+  return (route === undefined ? undefined : Object.values(content.chapter).find((candidate) => candidate.variantOf === next.id && candidate.route === route)) ?? next;
+}
+
+/**
  * The chapter whose steps lie ahead (R-WORLD-019): the current one while a step is undone, its steps
  * as the view marks them; once every step is met, the next by content's order, which opens when the
  * month ends, its steps not yet marked.
@@ -43,9 +60,30 @@ export function chapterAhead(chapter: PlayerView["chapter"]): { id: Id<"chapter"
   const current = chapter.current;
   if (current === null) return null;
   if (chapter.items.some((item) => !item.met)) return { id: current, now: true, items: chapter.items };
-  const order = content.chapter[current]?.order;
-  const next = order === undefined ? undefined : Object.values(content.chapter).find((entry) => entry.order === order + 1);
+  const next = chapterAfter(current);
   return next === undefined ? null : { id: next.id, now: false, items: next.items.map((item) => ({ id: item.id, met: false })) };
+}
+
+/**
+ * R-CHAPTER-009: the chapter's own checklist while it is a way out's variant (the care file, the talent
+ * file, the Gulf's), its items in the chapter's words, ticked as the chapter sheet ticks them. The
+ * master's chapters keep the route's steps alone.
+ */
+function ChapterSteps({ chapter }: { chapter: PlayerView["chapter"] }) {
+  const current = chapter.current;
+  if (current === null || content.chapter[current]?.variantOf === undefined) return null;
+  return (
+    <div data-chapter-steps={current}>
+      <Head>{nameOf(current)}</Head>
+      <ul className="flex flex-col">
+        {chapter.items.map((item) => (
+          <Step key={item.id} met={item.met}>
+            {words(`${current}.item.${item.id}`)}
+          </Step>
+        ))}
+      </ul>
+    </div>
+  );
 }
 
 /** The first step not done of the chapter ahead, in the story's words. */
@@ -330,6 +368,7 @@ export function Japa() {
       {/* The header names the route; the figure's route is said again only when it is another. */}
       {view.japacity.route === null || view.japacity.route === head?.id ? null : <p className="mt-1 text-[12px] text-text-2">{say("ui.japacity.of", { route: runningName(view.japacity.route) })}</p>}
       {next === null ? null : <NextStep step={next} />}
+      {ahead === null ? <ChapterSteps chapter={view.chapter} /> : null}
 
       {coming.length === 0 ? null : (
         <>
