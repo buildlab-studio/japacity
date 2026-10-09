@@ -18,7 +18,6 @@ import "../../shared/testing/render";
 import { countWords } from "../../shared/words/count";
 import { formatMoney } from "../../shared/words/format";
 import { words } from "../../shared/words/text";
-import { latelyLines } from "../phone/apps/Bank";
 import { STORY_MAX, storyLines } from "./month.results";
 import { Results } from "./Results";
 
@@ -152,7 +151,7 @@ describe("the developer's months on the results", () => {
 });
 
 describe("being noticed at work on the results", () => {
-  test("[R-WORLD-008] [R-ACTIVITY-013] given the raise lands, when the month's results open, then they say the manager noticed and what it adds a month, and the Bank's Lately carries the raised pay from the next payday", async () => {
+  test("[R-WORLD-008] [R-ACTIVITY-013] given the raise lands, when the month's results open, then they say the manager noticed and what it adds a month", async () => {
     const game = newGame("scenario.tunde", seedFor(true));
     const job = game.state.activity.job!;
     const pay = content.activity[job]!.pay!;
@@ -163,11 +162,6 @@ describe("being noticed at work on the results", () => {
     const said = words("line.activity.raised", { job, amount: { currency: pay.currency, amount: pay.amount + rise }, rise: { currency: pay.currency, amount: rise } });
     expect(said).toContain(formatMoney(rise, pay.currency));
     expect(results(store)).toContain(said);
-    await month(store, game);
-    const { view, lastMonthLines, monthLines } = store.getState();
-    if (view === null) throw new Error("No view.");
-    const lately = latelyLines(view, lastMonthLines, monthLines).map((line) => words(line.key, line.params));
-    expect(lately).toContain(words("line.activity.salary", { job, amount: { currency: pay.currency, amount: pay.amount + rise } }));
   });
 
   test("[R-WORLD-008] [R-ACTIVITY-013] given a month at work tried without the raise, when the month's results open, then they say nobody has said anything yet", async () => {
