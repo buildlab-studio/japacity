@@ -1,6 +1,7 @@
 // From docs/rules/advice.md: the four ways to look into a route and the
 // agents. The official page is `activity.look-into-route`; the friend, the
-// adviser and the two ways to an agent are here, with the agents' offers.
+// adviser and the two ways to an agent are here, with the agents' offers and
+// the chaser a friend puts the player onto (R-ADVICE-013).
 // Joined into the activity and offer tables in index.ts.
 import type { ActivityEntry, Id, OfferChoice, OfferEntry, Requirement } from "@japacity/sim";
 
@@ -15,6 +16,10 @@ const AT_STOP: Id<"offer"> = "offer.agent-stop";
 const AT_OFFICE: Id<"offer"> = "offer.agent-office";
 const PROMISE: Id<"offer"> = "offer.agent-promise";
 const PAPERS: Id<"offer"> = "offer.agent-papers";
+const CHASER: Id<"offer"> = "offer.agent-chaser";
+
+/** R-ADVICE-013: the papers a chaser follows up. The simulation's CHASED holds the same. */
+export const CHASED_PAPERS: Id<"document">[] = ["document.transcript", "document.police-certificate", "document.tb-certificate"];
 
 const ALL_BOND_STAGES = ["connected", "courting", "partner", "married"] as const;
 const NETWORK: Requirement = { type: "quality/min", quality: "quality.network", value: tuning.advice.networkToAsk };
@@ -52,6 +57,13 @@ const SOME_ROUTE_IN_VIEW: Requirement = {
 
 /** R-ADVICE-007: an agent appears by the place, the chapter and the routes, never by money. */
 const AGENT_WHEN: Requirement[] = [{ type: "place/is", where: "home" }, FIRST_CHAPTER_DONE, SOME_ROUTE_IN_VIEW];
+
+/** R-ADVICE-013, R-LUCK-001: a friend's chaser comes up by the place, the chapter and a paper she follows up being made, never by money. */
+const CHASER_WHEN: Requirement[] = [
+  { type: "place/is", where: "home" },
+  FIRST_CHAPTER_DONE,
+  { type: "any", of: CHASED_PAPERS.map((document): Requirement => ({ type: "document/pending", document })) },
+];
 
 // ---------------------------------------------------------------------------
 // The activities
@@ -105,6 +117,15 @@ const TAKE: OfferChoice = {
 
 const DECLINE: OfferChoice = { id: "decline", requires: [], pick: null, effects: [], fraudEffects: null };
 
+/** R-ADVICE-013: paying the friend's chaser. She comes about a paper, not a route, and is never a scam. */
+const CHASE: OfferChoice = {
+  id: "take",
+  requires: [],
+  pick: null,
+  effects: [{ type: "money/take", currency: "NGN", pocket: "any", amount: { term: "fee" }, reason: "fee-agent" }],
+  fraudEffects: null,
+};
+
 /** R-ADVICE-006: the three free looks. They change nothing but what the sheet shows. */
 function looks(): OfferChoice[] {
   const look = (id: string, requires: Requirement[]): OfferChoice => ({ id, requires, pick: null, effects: [], fraudEffects: null });
@@ -157,6 +178,19 @@ export const adviceOfferTable: Record<Id<"offer">, OfferEntry> = {
   ),
   // R-ADVICE-010: a desk in the agent's office, which only a fixer keeps (`fraudBp` 0). He carries no tell.
   [AT_OFFICE]: agent(AT_OFFICE, 1, 0, tells([], [])),
+  // R-ADVICE-013: the chaser a friend puts the player onto, about the paper of hers being made first.
+  // Always a chaser, so no tell beyond the fixer's (none here).
+  [CHASER]: {
+    ...agent(CHASER, 1, 0, tells([], [])),
+    // A friend's word is life, not money: rolled after the money offers, so it never takes their places.
+    group: "life",
+    when: CHASER_WHEN,
+    // a friend's word comes up about one month in seven while a paper she follows up is
+    // being made, and not again for six months. The page gives no chance.
+    chanceBp: 1500,
+    cooldown: 6,
+    choices: [CHASE, ...looks(), DECLINE],
+  },
   // R-ADVICE-005: the overpromiser's promise, which lapses in the month he named with nothing moved.
   [PROMISE]: {
     id: PROMISE,
@@ -166,7 +200,7 @@ export const adviceOfferTable: Record<Id<"offer">, OfferEntry> = {
     chanceBp: 0,
     cooldown: 0,
     maxTimes: null,
-    // he names the month after next.
+    // he names a month past the one a fixer would bring.
     expiresAfter: tuning.advice.fixerMonths + 1,
     terms: {},
     fraudBp: 0,

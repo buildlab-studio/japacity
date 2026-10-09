@@ -158,8 +158,9 @@ export const tuning: Tuning = {
 
   // luck.md. The jackpot, 1 in 100,000, is under one basis point, so its figure is draws out of a
   // million; the mid prize, 1 in 2,000, and the small one are basis points.
-  // advice.md: the four ways and the agents (R-ADVICE-003 to 011). Fees in kobo; a kind's fee is drawn from its range, and the ranges overlap so the fee never tells the kind.
-  advice: { warnings: false, networkToAsk: 40, adviserFee: naira(80000), agentKindsBp: { fixer: 5000, overpromiser: 3000, scammer: 2000 }, fees: { fixer: [naira(10000), naira(30000)], overpromiser: [naira(8000), naira(25000)], scammer: [naira(8000), naira(35000)] }, fixerMonths: 1, fakePapersFee: naira(20000), scamTells: 2, overpromiseTells: 1, floorNaira: naira(2000), warnMonths: 6 },
+  // advice.md: the four ways and the agents (R-ADVICE-003 to 013). Fees in kobo; a kind's fee is drawn from its range, and the ranges overlap so the fee never tells the kind.
+  // R-ADVICE-013: the chaser's share comes out of the fixer's; he is slower (one month to the fixer's two) and cheaper.
+  advice: { warnings: false, networkToAsk: 40, adviserFee: naira(80000), agentKindsBp: { fixer: 3000, chaser: 2000, overpromiser: 3000, scammer: 2000 }, fees: { fixer: [naira(10000), naira(30000)], overpromiser: [naira(8000), naira(25000)], scammer: [naira(8000), naira(35000)] }, chaserFee: [naira(5000), naira(12000)], fixerMonths: 2, chaserMonths: 1, fakePapersFee: naira(20000), scamTells: 2, overpromiseTells: 1, floorNaira: naira(2000), warnMonths: 6 },
   luck: {
     downUnder: 30,
     rescueAfterMonths: 12,

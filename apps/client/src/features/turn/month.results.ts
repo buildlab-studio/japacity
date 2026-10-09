@@ -20,6 +20,7 @@ export interface MoneyLine {
 const NOT_MOVED: ReadonlySet<string> = new Set(["line.wallet.flagged"]);
 
 const CONVERTED = "line.wallet.converted";
+const CONVERT_PAID = "line.wallet.convert-paid";
 const BANK_CHARGE = "line.wallet.bank-charge";
 
 /** A change at the bank as the results tell it: both sides in its words, and its net as the line's amount. */
@@ -48,10 +49,13 @@ export const CHANGED_OUT = "ui.results.changed-out";
  * that moved and each matches its band. The bank's charge is folded into what was paid in and told in
  * the line's words, never counted again.
  */
-function bankChange(line: ReportLine, charge: MoneyParam): MoneyLine[] {
+function bankChange(line: ReportLine, charge: MoneyParam, paidLine: ReportLine | undefined): MoneyLine[] {
   const gained = moneyParam("amount", line.params, line.key);
   if (gained === null || gained.amount === 0) return [];
-  const paid = paidIn(charge.amount);
+  // What was paid in: the wallet's own figure for the side changed plus the charge taken off it first; the charge alone
+  // places it only to within a unit (the papers builder's finding), so that is the fallback for an older recording.
+  const paidPart = paidLine === undefined ? null : moneyParam("amount", paidLine.params, paidLine.key);
+  const paid = paidPart === null ? paidIn(charge.amount) : paidPart.amount + charge.amount;
   // The charge in the money it was taken in, as the confirm sheet names it.
   const told: ReportLine = { ...line, key: CHANGED, params: { ...line.params, paid: { currency: charge.currency, amount: paid }, got: gained, amount: { currency: charge.currency, amount: charge.amount } } };
   const out: ReportLine = { ...line, key: CHANGED_OUT, params: { amount: { currency: charge.currency, amount: paid } } };
@@ -77,11 +81,15 @@ export function moneyLines(lines: readonly ReportLine[], local: Currency = "NGN"
   const tidy = tidyLines(afterPrologue(lines));
   return tidy.flatMap((line, index): MoneyLine[] => {
     const next = tidy[index + 1];
-    const before = tidy[index - 1];
-    if (line.key === BANK_CHARGE && next?.key === CONVERTED) return [];
+    if (line.key === BANK_CHARGE && (next?.key === CONVERTED || (next?.key === CONVERT_PAID && tidy[index + 2]?.key === CONVERTED))) return [];
+    if (line.key === CONVERT_PAID) return [];
     if (line.key === CONVERTED) {
-      const charge = before?.key === BANK_CHARGE ? moneyParam("amount", before.params, before.key) : null;
-      if (charge !== null && charge.amount > 0 && charge.currency !== moneyParam("amount", line.params, line.key)?.currency) return bankChange(line, charge);
+      // The bank's charge and the side paid in come just before what came in, in either order.
+      const justBefore = tidy.slice(Math.max(0, index - 2), index);
+      const chargeLine = justBefore.find((other) => other.key === BANK_CHARGE);
+      const charge = chargeLine === undefined ? null : moneyParam("amount", chargeLine.params, chargeLine.key);
+      const paidLine = justBefore.find((other) => other.key === CONVERT_PAID);
+      if (charge !== null && charge.amount > 0 && charge.currency !== moneyParam("amount", line.params, line.key)?.currency) return bankChange(line, charge, paidLine);
       // With no bank's charge just before it (the street, a change that waited), only what came in is known.
       const gained = moneyParam("amount", line.params, line.key);
       return gained === null || gained.amount === 0 ? [] : [{ line, sign: 1, currency: gained.currency, amount: gained.amount }];
@@ -98,7 +106,7 @@ export function moneyLines(lines: readonly ReportLine[], local: Currency = "NGN"
 export function otherLines(lines: readonly ReportLine[]): ReportLine[] {
   const money = new Set(moneyLines(lines).map((entry) => entry.line));
   // A change at the bank is told by the results' own line, the change and its charge together.
-  return tidyLines(lines).filter((line, index, all) => !money.has(line) && line.key !== CONVERTED && !(line.key === BANK_CHARGE && all[index + 1]?.key === CONVERTED));
+  return tidyLines(lines).filter((line, index, all) => !money.has(line) && line.key !== CONVERTED && line.key !== CONVERT_PAID && !(line.key === BANK_CHARGE && (all[index + 1]?.key === CONVERTED || (all[index + 1]?.key === CONVERT_PAID && all[index + 2]?.key === CONVERTED))));
 }
 
 /** The most story lines the results show; the rest stay in News. */

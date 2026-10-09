@@ -57,6 +57,7 @@ export const routeText: Record<string, string> = {
   "route.uk-care.item.sponsor": "A sponsor's certificate",
   "route.uk-care.item.tb": "TB certificate held",
   "route.uk-care.item.salary": "The sponsor pays at or above the bar",
+  "route.uk-care.item.police": "Police certificate held",
   "route.uk-care.item.applied": "Visa application sent",
 
   "route.uk-skilled.name": "Skilled work in the UK",
@@ -69,6 +70,7 @@ export const routeText: Record<string, string> = {
   "route.uk-skilled.item.salary": "The sponsor pays at or above the bar",
   "route.uk-skilled.item.funds": "Money to show for the first month",
   "route.uk-skilled.item.tb": "TB certificate held",
+  "route.uk-skilled.item.police": "Police certificate held",
   "route.uk-skilled.item.applied": "Visa application sent",
 
   "route.canada-points.name": "Permanent residence in Canada",
@@ -80,6 +82,7 @@ export const routeText: Record<string, string> = {
   "route.canada-points.item.funds": "Proof of funds covered",
   "route.canada-points.item.pool": "A profile in the pool",
   "route.canada-points.item.invited": "Invited to apply",
+  "route.canada-points.item.police": "Police certificate held",
   "route.canada-points.item.applied": "Application sent",
 
   "route.uk-talent.name": "The UK talent visa",
@@ -99,6 +102,7 @@ export const routeText: Record<string, string> = {
   "route.gulf-contract.item.passport": "Passport held",
   "route.gulf-contract.item.medical": "Work medical held",
   "route.gulf-contract.item.agent": "An agent with a contract",
+  "route.gulf-contract.item.police": "Police certificate held",
   "route.gulf-contract.item.applied": "Papers sent to the employer",
 
   // The road is never named to the player (road.md). This name is for the ledger and the end card only.

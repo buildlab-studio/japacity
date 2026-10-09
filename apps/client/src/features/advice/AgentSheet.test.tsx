@@ -236,3 +236,48 @@ describe("the sheet's words", () => {
     expect(document.body.textContent).not.toMatch(/[–—]/);
   });
 });
+
+describe("what he says he does", () => {
+  const TRANSCRIPT = "document.transcript";
+  const POLICE = "document.police-certificate";
+  const CHASER = "offer.agent-chaser";
+
+  test("[R-ADVICE-013] given an agent who says he knows someone inside, when his sheet opens, then it says so in plain words, names the paper and the office it comes from, and how many months sooner, and never names his kind", async () => {
+    const offer = stopOffer(["cash-only"]);
+    await renderWithView(sheet(), withOffers({ ...offer, terms: { ...offer.terms, pitch: "insider", paper: TRANSCRIPT, months: 2 } }));
+    const pitch = document.querySelector("[data-agent-pitch]");
+    expect(pitch?.querySelector("[data-agent-says-he]")?.textContent).toBe(text[`${STOP}.pitch.insider`]);
+    expect(pitch?.querySelector("[data-agent-moves]")?.textContent).toBe(
+      adviceWords("advice.moves", { document: "degree transcript", desk: text["advice.desk.document.transcript"]!, count: 2 }),
+    );
+    expect(pitch?.textContent).toContain("2 months sooner");
+    expect(document.body.textContent).not.toMatch(/fixer|chaser|scam|overpromis/i);
+  });
+
+  test("[R-ADVICE-013] given the chaser a friend puts you onto, when her sheet opens, then it says she will chase it for you and that the police certificate comes a month sooner, with her fee", async () => {
+    const offer: Offer = {
+      id: "offer-2",
+      entry: CHASER,
+      openedMonth: 3,
+      expiresMonth: 4,
+      terms: { who: 1, agent: `${CHASER}.who.1`, fee: 800_000, pitch: "chaser", paper: POLICE, months: 1 },
+      signs: [],
+      choices: allowed("take", "look-office", "look-licence", "look-name", "decline"),
+    };
+    await renderWithView(sheet([CHASER]), withOffers(offer));
+    expect(document.querySelector("[data-agent-who]")?.textContent).toBe("Hadiza");
+    expect(document.querySelector("[data-agent-says-he]")?.textContent).toBe(text[`${CHASER}.pitch.chaser`]);
+    expect(document.querySelector("[data-agent-moves]")?.textContent).toBe(
+      adviceWords("advice.moves.one", { document: "police character certificate", desk: text["advice.desk.document.police-certificate"]!, count: 1 }),
+    );
+    expect(document.querySelector("[data-agent-moves]")?.textContent).toContain("a month sooner");
+    expect(document.querySelector("[data-agent-fee]")?.textContent).toContain(formatMoney(800_000, "NGN"));
+  });
+
+  test("[R-ADVICE-013] given an agent with no paper of yours being made, when his sheet opens, then it says there is nothing to bring forward yet", async () => {
+    const offer = stopOffer([]);
+    await renderWithView(sheet(), withOffers({ ...offer, terms: { ...offer.terms, pitch: "chaser", paper: "", months: 1 } }));
+    expect(document.querySelector("[data-agent-says-he]")?.textContent).toBe(text[`${STOP}.pitch.chaser`]);
+    expect(document.querySelector("[data-agent-moves]")?.textContent).toBe(adviceWords("advice.moves.none"));
+  });
+});

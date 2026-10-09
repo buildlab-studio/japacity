@@ -47,6 +47,9 @@ export const adviceText: Record<string, string> = {
   "offer.agent-stop.sign.look-office": "You asked where his office is.",
   "offer.agent-stop.sign.look-licence": "You asked for his licence number.",
   "offer.agent-stop.sign.look-name": "You checked his name with someone you know.",
+  // What he says he does (R-ADVICE-013).
+  "offer.agent-stop.pitch.insider": "He says he knows someone inside the office.",
+  "offer.agent-stop.pitch.chaser": "He says he will chase it for you: the calls, the queues, the follow-up.",
 
   // The desk in the agent's office.
   "offer.agent-office.name": "The travel desk upstairs",
@@ -69,6 +72,40 @@ export const adviceText: Record<string, string> = {
   "offer.agent-office.sign.look-office": "You saw his office. His name is on the door.",
   "offer.agent-office.sign.look-licence": "You asked for his licence number.",
   "offer.agent-office.sign.look-name": "You checked his name with someone you know.",
+  "offer.agent-office.pitch.insider": "He knows someone inside the office.",
+
+  // The chaser a friend puts you onto, about the paper of yours being made (R-ADVICE-013).
+  "offer.agent-chaser.name": "A chaser your friend knows",
+  "offer.agent-chaser.title": "Terna sends you a number",
+  "offer.agent-chaser.body": "Terna sends her number: she follows up papers for people. Her fee is {fee}.",
+  "offer.agent-chaser.who.1.name": "Hadiza",
+  "offer.agent-chaser.pitch.chaser": "She will chase it for you: the calls, the queues, the follow-up.",
+  "offer.agent-chaser.choice.take": "Pay her",
+  "offer.agent-chaser.choice.look-office": "Ask where she works from",
+  "offer.agent-chaser.choice.look-licence": "Ask for her registration",
+  "offer.agent-chaser.choice.look-name": "Check her name with someone you know",
+  "offer.agent-chaser.choice.decline": "Not now",
+  "offer.agent-chaser.sign.cash-only": "She wants cash. No transfer.",
+  "offer.agent-chaser.sign.guarantee": "She says the visa is guaranteed.",
+  "offer.agent-chaser.sign.no-office": "She has no office.",
+  "offer.agent-chaser.sign.no-licence": "She has no registration to give.",
+  "offer.agent-chaser.sign.holds-passport": "She wants to keep your passport.",
+  "offer.agent-chaser.sign.pay-today": "She says pay today or the slot goes.",
+  "offer.agent-chaser.sign.price-low": "Her price is far below the official fees.",
+  "offer.agent-chaser.sign.friend-warned": "Sounds like the one your friend warned about.",
+  "offer.agent-chaser.sign.look-office": "She works from a desk by the gate. People know her there.",
+  "offer.agent-chaser.sign.look-licence": "She gives a business registration number.",
+  "offer.agent-chaser.sign.look-name": "You checked her name with someone you know.",
+
+  // What an agent would bring forward, and where from (R-ADVICE-013).
+  "advice.moves": "Your {document}, from {desk}: {count} months sooner.",
+  "advice.moves.one": "Your {document}, from {desk}: a month sooner.",
+  "advice.moves.none": "No paper of yours is being made yet, so there is nothing to bring forward.",
+  "advice.desk": "the office",
+  "advice.desk.document.transcript": "the registry",
+  "advice.desk.document.police-certificate": "the police station",
+  "advice.desk.document.tb-certificate": "the clinic",
+  "advice.desk.document.passport": "the passport office",
 
   // What an overpromiser leaves behind (R-ADVICE-005).
   "offer.agent-promise.name": "The agent's promise",
@@ -115,6 +152,8 @@ export const adviceText: Record<string, string> = {
   "line.offer.look-name-found": "You check his name: {tell}.",
   "line.offer.agent-paid": "You pay {agent} {amount}. He says he will move things along.",
   "line.offer.agent-paid-nothing-waiting": "You pay {agent} {amount}. He looks, but no paper of yours is waiting to be moved.",
+  "line.offer.agent-chaser-paid": "You pay {agent} {amount} to follow up your papers.",
+  "line.offer.agent-chaser-paid-nothing-waiting": "You pay {agent} {amount}. No paper of yours is waiting to be followed up.",
   "line.offer.agent-scam": "{agent} was a scam. {amount} gone.",
   "line.offer.agent-scam-tell": "You had seen it: {tell}.",
   "line.offer.agent-promise-broken": "The month he promised has come. Nothing has moved. {agent} does not pick up.",

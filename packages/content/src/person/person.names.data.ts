@@ -191,11 +191,14 @@ export const namePool: PoolName[] = [
 ];
 
 /** What a named person is in the story. A name never predicts it (names rule 5). */
-/** `tout`, `runner`, `middleman`: the agents at Ojuelegba's stop; `adviser`: the licensed adviser (advice.md R-ADVICE-010). */
-export type NamedRole = "life" | "partner" | "agent" | "friend" | "fx" | "landlord" | "auntie" | "relative" | "tout" | "runner" | "middleman" | "adviser";
+/**
+ * `tout`, `runner`, `middleman`: the agents at Ojuelegba's stop; `adviser`: the licensed adviser
+ * (advice.md R-ADVICE-010); `chaser`: the chasers a friend puts the player onto (R-ADVICE-013).
+ */
+export type NamedRole = "life" | "partner" | "agent" | "friend" | "fx" | "landlord" | "auntie" | "relative" | "tout" | "runner" | "middleman" | "adviser" | "chaser";
 
 /** Roles that take the player's money or may cheat them: no people holds two of these (names rule 5). */
-export const takingRoles: NamedRole[] = ["agent", "fx", "landlord", "tout", "runner", "middleman", "adviser"];
+export const takingRoles: NamedRole[] = ["agent", "fx", "landlord", "tout", "runner", "middleman", "adviser", "chaser"];
 
 export interface NamedPerson {
   name: string;
@@ -220,11 +223,13 @@ export const lifePeople: Record<Id<"scenario">, NamedPerson> = {
  */
 export const namedPeople: NamedPerson[] = [
   { name: "Kunle", people: "yoruba", role: "agent", keys: ["offer.held-funds-agent.name", "offer.held-funds-agent.title", "obligation.held-funds-agent.name"] },
-  { name: "Terna", people: "tiv", role: "friend", keys: ["offer.send-off-party.name", "offer.send-off-party.title", "prologue.friend.card", "chats.from.friend"] },
+  { name: "Terna", people: "tiv", role: "friend", keys: ["offer.send-off-party.name", "offer.send-off-party.title", "prologue.friend.card", "chats.from.friend", "offer.agent-chaser.title", "offer.agent-chaser.body"] },
   { name: "Tobi", people: "yoruba", role: "partner", keys: ["person.tobi-bank.name"] },
   { name: "Hauwa", people: "hausa-fulani", role: "partner", keys: ["person.amaka-nurse.name"] },
   { name: "Kelechi", people: "igbo", role: "partner", keys: ["person.kelechi-dev.name"] },
   { name: "Ejiro", people: "urhobo-isoko", role: "partner", keys: ["person.funmi-uk.name"] },
   { name: "Uduak", people: "efik-ibibio", role: "partner", keys: ["person.ifeoma-ca.name"] },
   { name: "Tonye", people: "ijaw", role: "partner", keys: ["person.chidi-dubai.name"] },
+  // advice.md R-ADVICE-013: the chaser a friend puts the player onto.
+  { name: "Hadiza", people: "hausa-fulani", role: "chaser", keys: ["offer.agent-chaser.who.1.name"] },
 ];

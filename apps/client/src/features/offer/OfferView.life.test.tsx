@@ -10,7 +10,7 @@ import { OfferView } from "./OfferView";
 import { moneyTerms, offerParams } from "./terms";
 
 /** How far back in Ada's recorded life a school's offer is held while the study window is open. */
-const SCHOLARSHIP_DROP = 61;
+const SCHOLARSHIP_DROP = 84;
 
 /** The card of the one offer open, by its title. */
 function cardOf(entry: string): HTMLElement {
