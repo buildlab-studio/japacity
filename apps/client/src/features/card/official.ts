@@ -42,15 +42,15 @@ export function officialPage(): string {
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>${escape(say("share.official.title"))}</title>
     <style>
-      :root { --paper: #f7f1e6; --ink: #1d1a16; --muted: #675e52; --line: #ddd0ba; color-scheme: light; }
-      @media (prefers-color-scheme: dark) { :root { --paper: #171512; --ink: #f3ece0; --muted: #b3a895; --line: #3d362d; color-scheme: dark; } }
-      body { margin: 0; background: var(--paper); color: var(--ink); font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+      :root { --sheet: #f1f3f9; --text: #131a33; --text-2: #56607e; --sheet-line: rgba(28, 42, 94, 0.12); color-scheme: light; }
+      @media (prefers-color-scheme: dark) { :root { --sheet: #18234f; --text: #f3efe6; --text-2: #aab3d6; --sheet-line: rgba(243, 239, 230, 0.13); color-scheme: dark; } }
+      body { margin: 0; background: var(--sheet); color: var(--text); font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
       main { max-width: 36rem; margin: 0 auto; padding: 2rem 1rem; }
       h1 { font-size: 2rem; margin: 0 0 0.5rem; }
       h2 { font-size: 1.25rem; margin: 2rem 0 0.5rem; }
       ul { padding: 0; list-style: none; }
-      li { padding: 0.5rem 0; border-bottom: 1px solid var(--line); }
-      .platform { display: block; color: var(--muted); font-size: 0.875rem; }
+      li { padding: 0.5rem 0; border-bottom: 1px solid var(--sheet-line); }
+      .platform { display: block; color: var(--text-2); font-size: 0.875rem; }
       a { color: inherit; overflow-wrap: anywhere; }
     </style>
   </head>

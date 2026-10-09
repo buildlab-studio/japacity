@@ -75,15 +75,15 @@ const FALLBACK: MapColours = {
   land: "#ece5d5",
   land2: "#e1d8c4",
   water: "#2c3f87",
-  road: "#fbf9f4",
+  road: "#ffffff",
   label: "#5d564a",
   signal: "#f2b705",
   inGreen: "#2a8656",
-  muted: "#e8e2d4",
+  muted: "#e1e6f2",
   strong: "#1c2a5e",
   onStrong: "#f3efe6",
   text: "#131a33",
-  text2: "#5a6078",
+  text2: "#56607e",
 };
 
 /** The map's colours from the theme's role tokens. */
