@@ -12,7 +12,7 @@ import { Counter } from "../../shared/world/Band";
 import { WorldSheet } from "../../shared/world/WorldSheet";
 import { formatMoney, formatNumber } from "../../shared/words/format";
 import { say, words } from "../../shared/words/text";
-import { drawShown, isUnpaid, kept, leadsAlone, localCurrency, moneyLines, savings, storyLines, toldOnResults, untoldLines } from "./month.results";
+import { drawShown, isUnpaid, kept, leadsAlone, localCurrency, moneyLines, quietLine, savings, storyLines, toldOnResults, untoldLines } from "./month.results";
 import { turnWords } from "./turn.words";
 
 /** True while the results sheet is up: the month has just ended and its staged wins have passed. */
@@ -26,6 +26,17 @@ function signed(sign: number, amount: number, currency: Parameters<typeof format
   return `${sign < 0 ? "-" : "+"}${formatMoney(Math.abs(amount), currency)}`;
 }
 
+/** A quiet month of an Until news run in its one line (R-WORLD-028): "Kept ₦96,000. Nothing else moved." */
+function quietWords(lines: Parameters<typeof quietLine>[0], currency: Parameters<typeof quietLine>[1]): string {
+  const { kept: net, moved } = quietLine(lines, currency);
+  const money = net === null ? null : turnWords(net < 0 ? "turn.results.quiet-down" : "turn.results.quiet-kept", { amount: formatMoney(Math.abs(net), currency) });
+  const rest = moved === null ? turnWords(money === null ? "turn.results.quiet-none" : "turn.results.quiet-still") : words(moved.key, moved.params);
+  return money === null ? rest : `${money} ${rest}`;
+}
+
+/** The chapter closed this month: its line says the months are full again (R-WORLD-027, R-TURN-004). */
+const CHAPTER_CLOSED = "line.chapter.closed";
+
 /** `place`: the name of where the player is, which the one main button returns them to. */
 export function Results({ place }: { place: string }) {
   const view = useView();
@@ -37,6 +48,7 @@ export function Results({ place }: { place: string }) {
   const clock = say("ui.world.age", { years: Math.floor(ageMonths / 12), months: ageMonths % 12 });
   const birthday = ageMonths > 0 && ageMonths % 12 === 0;
   const midMonth = useGame((state) => state.lastMonthLines);
+  const quiet = useGame((state) => state.quiet);
   const local = localCurrency(view);
   const lines = report === null ? [] : moneyLines([...midMonth, ...report.lines], local);
   const nets = kept(lines);
@@ -53,6 +65,7 @@ export function Results({ place }: { place: string }) {
   const save = savings(view);
   const story = storyLines([...midMonth, ...report.lines]);
   const news = untoldLines([...midMonth, ...report.lines]).length;
+  const chapterClosed = report.lines.some((line) => line.key === CHAPTER_CLOSED);
   const close = (): void => {
     cue("close");
     setReportOpen(false);
@@ -72,6 +85,20 @@ export function Results({ place }: { place: string }) {
       }
     >
       <div className="flex flex-col gap-4">
+        {quiet.length === 0 ? null : (
+          <section className="flex flex-col gap-1" aria-label={turnWords("turn.results.quiet")} data-results-quiet={quiet.length}>
+            <h3 className="label text-text-2">{turnWords("turn.results.quiet")}</h3>
+            <ul className="flex flex-col">
+              {quiet.map((lines, index) => (
+                <li key={index} className="flex items-baseline gap-3 border-b border-sheet-line py-2 last:border-b-0" data-quiet-line>
+                  <span className="num w-[72px] shrink-0 text-[12px] text-text-2">{say("ui.world.age", { years: Math.floor((ageMonths - quiet.length + index) / 12), months: (ageMonths - quiet.length + index) % 12 })}</span>
+                  <span className="min-w-0 flex-1 text-[14px] leading-snug font-semibold">{quietWords(lines, local)}</span>
+                </li>
+              ))}
+            </ul>
+            <h3 className="label mt-2 text-text-2">{turnWords("turn.results.stopped")}</h3>
+          </section>
+        )}
         {birthday ? <p className="text-[14px] font-bold text-strong" data-results-birthday>{turnWords("turn.results.birthday", { years: Math.floor(ageMonths / 12) })}</p> : null}
         {lines.length === 0 ? (
           // No money moved: said plainly, never "+₦0" (R-WORLD-008).
@@ -109,6 +136,12 @@ export function Results({ place }: { place: string }) {
             </ul>
           </section>
         )}
+
+        {chapterClosed ? (
+          <p className="text-[14px] font-bold text-strong" data-results-months-full>
+            {say("ui.months.full-again", { count: view.turns.banked })}
+          </p>
+        ) : null}
 
         <section className="flex flex-col gap-1" aria-label={turnWords("turn.results.money")}>
           <h3 className="label text-text-2">{turnWords("turn.results.money")}</h3>

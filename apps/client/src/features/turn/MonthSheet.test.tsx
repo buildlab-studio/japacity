@@ -40,10 +40,10 @@ describe("the Month sheet", () => {
     expect(store.getState().plan.every((pick) => pick === null)).toBe(true);
   });
 
-  test("[R-WORLD-007] given the sheet, then it holds the plan, the free slots, Same again as one chip and End month, and no list of activities", async () => {
+  test("[R-WORLD-007] [R-WORLD-028] given the sheet, then it holds the plan, the free slots, Same again as one chip, End month and Until news beside it, and no list of activities", async () => {
     await renderWithView(<MonthSheet />, richView());
     const buttons = screen.getAllByRole("button").map((button) => button.textContent);
-    expect(buttons).toEqual([turnWords("ui.month.same-again"), expect.stringContaining(turnWords("turn.month.end")) as unknown as string]);
+    expect(buttons).toEqual([turnWords("ui.month.same-again"), expect.stringContaining(turnWords("turn.month.end")) as unknown as string, expect.stringContaining(turnWords("ui.month.until-news")) as unknown as string]);
     expect(document.querySelector("[data-activity-picker], [data-activity]")).toBeNull();
   });
 

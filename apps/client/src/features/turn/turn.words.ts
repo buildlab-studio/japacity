@@ -35,6 +35,12 @@ export const turnText: Record<string, string> = {
   "turn.results.ready": "Ready to move",
   "turn.results.news": "The rest of the month's news is on your phone, in News.",
   "turn.results.back": "Back to {place}",
+  "turn.results.quiet": "The quiet months",
+  "turn.results.quiet-kept": "Kept {amount}.",
+  "turn.results.quiet-down": "Down {amount}.",
+  "turn.results.quiet-still": "Nothing else moved.",
+  "turn.results.quiet-none": "Nothing moved.",
+  "turn.results.stopped": "Then this month",
 };
 
 /** Words for a turn key: content's first, then the interface's, then these drafts. */

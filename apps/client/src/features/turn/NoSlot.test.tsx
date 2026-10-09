@@ -8,6 +8,7 @@ import { GameProvider } from "../../authority/GameProvider";
 import { createGameStore } from "../../authority/store";
 import { gameAuthority, newGame, viewAfter } from "../../shared/testing/fixtures";
 import "../../shared/testing/render";
+import { workingPlanned } from "../../shared/words/count";
 import { nameOf } from "../../shared/words/text";
 import { MonthSheet } from "./MonthSheet";
 import { turnWords } from "./turn.words";
@@ -49,7 +50,8 @@ describe("the word of someone who went", () => {
     });
     expect(added).toBe(true);
     expect(store.getState().plan).toHaveLength(view.freeSlots + 1);
-    expect(endButton().textContent).toContain(turnWords("ui.month.slots", { used: view.freeSlots, slots: view.freeSlots }));
+    // Tunde works: the slots planned are counted beside the job, in words.
+    expect(endButton().textContent).toContain(workingPlanned(view.freeSlots));
     expect(document.querySelectorAll("[data-slot-none]")).toHaveLength(1);
     expect(document.querySelector("[data-slot-none]")?.textContent).toBe(turnWords("turn.month.no-slot"));
     fireEvent.click(endButton());
