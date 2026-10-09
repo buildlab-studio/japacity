@@ -4,16 +4,28 @@
 // bed; the papers themselves are a thing at home.
 import type { PlayerView, RouteView } from "@japacity/sim";
 import { Check, ChevronLeft, ChevronRight, Circle, FileCheck, FileClock, FileX } from "lucide-react";
-import { useState } from "react";
+import { use, useState } from "react";
 
 import { useGame, useView } from "../../../authority/GameProvider";
 import { monthsLeft, SOON } from "../../../shared/words/expiry";
 import { formatBand } from "../../../shared/words/format";
 import { forMonths, inMonths, nameOf, runningName, say, sayCount, words } from "../../../shared/words/text";
-import { Head } from "../act";
+import { Head, PhoneSaid } from "../act";
 import { phoneWords } from "../phone.words";
 
 const ENGLISH_RESULT = "document.english-test";
+const OFFICIAL = "activity.look-into-route";
+
+/**
+ * R-ADVICE-002: the route whose official page can be read now: the plan's route when the page
+ * offers it, else the first route the page offers (a route only heard of, before any plan).
+ */
+export function officialRoute(view: PlayerView): string | null {
+  const official = view.activities.find((option) => option.id === OFFICIAL);
+  if (official?.allowed !== true || official.params === null || official.params.length === 0) return null;
+  const planned = planRoute(view)?.id;
+  return planned !== undefined && official.params.includes(planned) ? planned : (official.params[0] ?? null);
+}
 
 /** The route the plan follows: the japacity figure's route, else the furthest one heard of. */
 export function planRoute(view: PlayerView): RouteView | null {
@@ -92,6 +104,8 @@ export function Japa() {
   const [papers, setPapers] = useState(false);
   // R-ADVICE-002: the official page can be read from the phone: it goes into the month like the hub's desk would put it.
   const addToPlan = useGame((state) => state.addToPlan);
+  const plan = useGame((state) => state.plan);
+  const said = use(PhoneSaid);
   if (papers) {
     return (
       <div data-phone-app="japa">
@@ -100,8 +114,8 @@ export function Japa() {
     );
   }
   const route = planRoute(view);
-  const official = view.activities.find((option) => option.id === "activity.look-into-route");
-  const lookInto = route !== null && route.state === "heard" && official?.allowed === true && official.params?.includes(route.id) === true ? route.id : null;
+  const lookInto = view.ended ? null : officialRoute(view);
+  const planned = lookInto !== null && plan.some((pick) => pick !== null && pick.activity === OFFICIAL && pick.param === lookInto);
   const percent = view.japacity.percent;
   const held = view.documents.filter((paper) => paper.state === "held").length;
   const coming = remindersOf(view);
@@ -135,13 +149,19 @@ export function Japa() {
       )}
 
       {lookInto === null ? null : (
-        <button type="button" onClick={() => addToPlan({ activity: "activity.look-into-route", param: lookInto })} className="press mt-1 flex w-full items-center gap-2.5 rounded-[6px] border border-sheet-line bg-sheet-2 px-3 py-2.5 text-left" data-official-page>
+        <button
+          type="button"
+          disabled={planned}
+          onClick={() => said(addToPlan({ activity: OFFICIAL, param: lookInto }) ? say("ui.world.planned", { what: nameOf(OFFICIAL) }) : say("ui.world.full"))}
+          className="press mt-1 flex w-full items-center gap-2.5 rounded-[6px] border border-sheet-line bg-sheet-2 px-3 py-2.5 text-left disabled:opacity-70"
+          data-official-page={lookInto}
+        >
           <FileCheck size={18} className="shrink-0 text-text-2" aria-hidden />
           <span className="flex-1">
-            <span className="block text-[14px] font-bold">{nameOf("activity.look-into-route")}</span>
-            <span className="block text-[13px] text-text-2">{phoneWords("phone.japa.official")}</span>
+            <span className="block text-[14px] font-bold">{nameOf(OFFICIAL)}</span>
+            <span className="block text-[13px] text-text-2">{phoneWords(planned ? "phone.japa.official-planned" : "phone.japa.official", { route: runningName(lookInto) })}</span>
           </span>
-          <ChevronRight size={18} className="shrink-0 text-text-2" aria-hidden />
+          {planned ? <Check size={18} className="shrink-0 text-in" aria-hidden /> : <ChevronRight size={18} className="shrink-0 text-text-2" aria-hidden />}
         </button>
       )}
       <Head>{phoneWords("phone.japa.steps")}</Head>
