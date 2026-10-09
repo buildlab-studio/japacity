@@ -447,7 +447,8 @@ export const uiText: Record<string, string> = {
   "ui.prologue.parents.not": "Your parents did not get far in school.",
   "ui.prologue.money": "Money of your own: {amount}",
   "ui.prologue.money.none": "No money of your own yet.",
-  "ui.prologue.start": "Start month {month}",
+  // The handover's one button: Go, never a month number (world.md R-WORLD-002; prologue.md R-PROLOGUE-010).
+  "ui.prologue.start": "Go",
 
   // A new life
   "ui.life.title": "Who are you?",

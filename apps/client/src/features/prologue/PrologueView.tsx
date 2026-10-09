@@ -15,7 +15,7 @@ import { useGame, useView } from "../../authority/GameProvider";
 import { readPerson } from "../../authority/person";
 import { Rejection } from "../../shared/ui/Rejection";
 import { ReportLines } from "../../shared/ui/ReportLines";
-import { formatMoney, playerMonth } from "../../shared/words/format";
+import { formatMoney } from "../../shared/words/format";
 import { AGE, valueWords, yearsOf } from "../../shared/words/quality";
 import { requirementSentence } from "../../shared/words/requirement";
 import { nextStepOf, sixteenPath } from "../../shared/words/sixteen";
@@ -346,7 +346,7 @@ export function PrologueHandover({ onDone }: { onDone: () => void }) {
               </p>
             )}
             <button type="button" className="btn-main" onClick={onDone} autoFocus>
-              <span>{say("ui.prologue.start", { month: playerMonth(view.month) })}</span>
+              <span>{say("ui.prologue.start")}</span>
               <ArrowRight size={18} />
             </button>
           </>
