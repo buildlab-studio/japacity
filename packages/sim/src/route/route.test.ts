@@ -8,6 +8,7 @@ import type { ActivityEntry, Content, Currency, Id, ReadCtx, ReportLine, Require
 import { legalCommands } from "../testing/legal";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
+import { standInWorld } from "../world/standIn";
 import type { RouteKindEvent } from "./route.events";
 import {
   ASHBY,
@@ -1130,6 +1131,50 @@ describe("the first meetup", () => {
       const game = start({ content, scenario: "scenario.ada", seed: `meetup-${String(n)}` });
       game.endTurn([{ activity: "activity.meetup", param: null }]);
       expect(game.state.route["route.uk-masters"]?.state).not.toBe("unknown");
+    }
+  });
+
+  /** The first meetup of a fixed life on a seed, with no news to tell of a route first. */
+  function firstMeetup(scenario: Id<"scenario">, seed: string, before: (game: Game) => void = () => undefined): Game {
+    const game = start({ content, scenario, seed, worldAt: (tick) => ({ ...standInWorld("world-1", tick, content), news: [] }) });
+    before(game);
+    game.endTurn([{ activity: "activity.meetup", param: null }]);
+    return game;
+  }
+
+  test("[R-GUIDE-016] given a life with care 30 or more, when its first meetup is played on any seed, then the care route is heard of through the meetup", () => {
+    const care = content.scenario["scenario.ngozi"]?.qualities["quality.care"] ?? 0;
+    expect(care).toBeGreaterThanOrEqual(30);
+    for (let n = 0; n < 12; n += 1) {
+      const game = firstMeetup("scenario.ngozi", `care-${String(n)}`);
+      expect(game.state.route["route.uk-care"]).toMatchObject({ state: "heard", heardMonth: 1 });
+    }
+  });
+
+  test("[R-GUIDE-016] given tech 40 or more and care under 30, when the first meetup is played on any seed, then the talent route is heard of, though its own bar to hear is higher", () => {
+    const scenario = content.scenario["scenario.zainab"]!;
+    expect(scenario.qualities["quality.tech"]).toBeGreaterThanOrEqual(40);
+    expect(scenario.qualities["quality.care"]).toBeLessThan(30);
+    for (let n = 0; n < 12; n += 1) {
+      const game = firstMeetup("scenario.zainab", `tech-${String(n)}`);
+      expect(game.state.route["route.uk-talent"]?.state, `tech-${String(n)}`).toBe("heard");
+    }
+  });
+
+  test("[R-GUIDE-016] given the route that fits already heard, when the first meetup is played on any seed, then the next that fits is heard of, so the first meetup always tells of a way", () => {
+    for (let n = 0; n < 12; n += 1) {
+      const game = firstMeetup("scenario.ngozi", `told-${String(n)}`, (life) => applyEffects(life, [{ type: "route/hear", route: "route.uk-care", via: FRIEND }]));
+      expect(game.state.route["route.uk-care"]?.heardMonth).toBe(0);
+      expect(game.state.route["route.uk-masters"]?.state, `told-${String(n)}`).toBe("heard");
+    }
+  });
+
+  test("[R-GUIDE-016] given a life with schooling, when its first ask-around at the motor park is played on any seed, then the Gulf contract is heard of through the motor park", () => {
+    for (let n = 0; n < 12; n += 1) {
+      const game = start({ content, scenario: "scenario.tunde", seed: `park-${String(n)}` });
+      const result = game.endTurn([{ activity: "activity.ask-around", param: null }]);
+      expect(game.state.route["route.gulf-contract"]?.state).toBe("heard");
+      expect(result.lines).toContainEqual(expect.objectContaining({ key: "line.route.heard", params: { route: "route.gulf-contract", via: "motor-park" } }));
     }
   });
 });

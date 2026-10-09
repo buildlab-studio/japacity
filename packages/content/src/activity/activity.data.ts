@@ -285,6 +285,9 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
       { type: "route/hear", route: UK, chanceBp: pct(40), via: "meetup" },
       // route-gates.md: the talent route is heard of at a meetup, 20%.
       { type: "route/hear", route: TALENT, chanceBp: pct(20), via: "meetup" },
+      // guides.md R-GUIDE-016: a life with care 30 (the care route's own bar to hear) hears of care work at the meetup.
+      // No chance is given for it, so none is drawn and the offer stream keeps its walk.
+      { type: "route/hear", route: CARE, via: "meetup" },
     ],
     counts: [],
   },
