@@ -46,6 +46,8 @@ const EASE = 7;
 /** A label, and a thing's acts, float this high over the thing's spot. */
 /** How close to the screen's edge a label or a chip may stand. */
 const EDGE_MARGIN = 8;
+/** How high the character lies on a bed or a couch, about the mattress's top. */
+const LIE_Y = 0.5;
 const LABEL_Y = 2.6;
 /** The sun's shadow covers the place's width and this much round it, in metres. */
 const SHADOW_MARGIN = 4;
@@ -108,6 +110,8 @@ interface WalkState {
   standing: SceneProps["file"] | null;
   /** The character sat down on a plain act and stays so until they walk. */
   sitting: boolean;
+  /** The character lies on the thing (the bed, the couch) until they walk; lying raises them onto it. */
+  lying: boolean;
   /** The pace of the walk in hand: whatever the distance, a walk to a thing takes about WALK_SECONDS (R-WORLD-010). */
   speed: number;
 }
@@ -217,6 +221,7 @@ function Place(props: PlaceProps) {
     }
     walk.current.pending = null;
     walk.current.sitting = false;
+    walk.current.lying = false;
     pick.current({ kind: "thing", thing });
   };
   const chooseRef = useRef(choose);
@@ -350,15 +355,22 @@ function Place(props: PlaceProps) {
     animateWorld(world, time, delta);
     const next = stepWalk(walk.current.walker, delta, walk.current.speed);
     walk.current.walker = next;
-    world.own.root.position.set(next.x, 0, next.z);
-    world.own.root.rotation.y = next.facing;
+    // Lying raises the character onto the thing and lays them along it; sitting and standing keep the ground.
+    world.own.root.position.set(next.x, walk.current.lying ? LIE_Y : 0, next.z);
+    world.own.root.rotation.set(walk.current.lying ? -Math.PI / 2 : 0, next.facing, 0);
     if (next.target === null) poseFigure(world.own, time, walk.current.sitting ? "sit" : "stand");
     else poseFigure(world.own, time, "walk", strideOf(next));
-    // The act follows once the character has reached its thing; sitting is a plain act that shows (R-WORLD-005).
+    // The act follows once the character has reached its thing; an act with a pose is seen on the thing (R-WORLD-005).
     const waiting = walk.current.pending;
     if (waiting !== null && next.target === null) {
       walk.current.pending = null;
-      if (waiting.act.kind === "plain" && waiting.act.id === "sit") walk.current.sitting = true;
+      const pose = waiting.act.pose ?? (waiting.act.kind === "plain" && waiting.act.id === "sit" ? "sit" : null);
+      if (pose !== null) {
+        const seat = waiting.act.seat;
+        if (seat !== undefined) walk.current.walker = standAt(seat[0], seat[1], seat[2]);
+        walk.current.sitting = pose === "sit";
+        walk.current.lying = pose === "lie";
+      }
       pick.current({ kind: "act", thing: waiting.thing, act: waiting.act });
     }
     const aspect = state.size.width / Math.max(1, state.size.height);
@@ -476,6 +488,7 @@ function Place(props: PlaceProps) {
     else if (onWalkable(walkableOf(stage), point.x, point.z)) {
       walk.current.walker = walkTo(walk.current.walker, point.x, point.z);
       walk.current.sitting = false;
+      walk.current.lying = false;
     }
   };
 
@@ -514,7 +527,7 @@ export default function CityScene(props: SceneProps) {
   const raised = props.overview === true && props.roam !== true;
   const shot = useMemo(() => shotOf(stageOf(file)), [file]);
   const rig = useRef<Rig>(wholeRig());
-  const walk = useRef<WalkState>({ walker: standAt(0, 0, 0), pending: null, standing: null, sitting: false, speed: WALK_SPEED });
+  const walk = useRef<WalkState>({ walker: standAt(0, 0, 0), pending: null, standing: null, sitting: false, lying: false, speed: WALK_SPEED });
   const [markBox, setMarkBox] = useState<HTMLDivElement | null>(null);
   const holding = useRef<number | null>(null);
   const held = useRef(false);

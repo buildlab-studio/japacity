@@ -93,6 +93,17 @@ describe("what an act can open now", () => {
   });
 });
 
+describe("a seat", () => {
+  test("[R-WORLD-005] given every built place, when its acts with a pose are read, then each has a seat to take, and a free act that fills a slot is a do act with the activity offered or gone", () => {
+    const seated = builtPlaces().flatMap(({ folder, file }) => (stageOf(file).things ?? []).flatMap((thing) => thing.acts.filter((act) => act.pose !== undefined).map((act) => ({ folder, thing: thing.id, act }))));
+    expect(seated.length).toBeGreaterThan(5);
+    for (const { folder, thing, act } of seated) expect(act.seat, `${folder} ${thing} ${act.id}`).toHaveLength(3);
+    const rest: Thing = { id: "bed", file: "shared/prop/prop_bed.glb", copy: 0, label: "city.thing.bed", acts: [{ id: "rest", label: "city.act.rest", kind: "do", stages: "activity.rest", pose: "lie", seat: [0, 0, 0] }] };
+    expect(thingsNow([rest], (stages) => stages === "activity.rest")[0]).toBe(rest);
+    expect(thingsNow([rest], () => false)).toEqual([]);
+  });
+});
+
 describe("the things of the built places", () => {
   test("[R-WORLD-005] given every built place, when its things and acts are read, then each label has words and no thing offers more than two acts", () => {
     const files = builtPlaces().filter(({ file }) => stageOf(file).things !== undefined);
@@ -111,10 +122,11 @@ describe("the things of the built places", () => {
       const found = builtPlaces().find((built) => built.folder === folder);
       if (found === undefined) throw new Error(`No ${folder}`);
       const bed = (stageOf(found.file).things ?? []).find((thing) => thing.file.endsWith("prop_bed.glb"));
-      expect(bed?.acts.map((act) => [act.id, act.kind, act.stages])).toEqual([
-        ["rest", "sheet", "activity.rest"],
-        ["end-month", "end", undefined],
+      expect(bed?.acts.map((act) => [act.id, act.kind, act.stages, act.pose])).toEqual([
+        ["rest", "do", "activity.rest", "lie"],
+        ["end-month", "end", undefined, undefined],
       ]);
+      expect(bed?.acts[0]?.seat).toHaveLength(3);
       expect(sceneWords(bed?.acts[1]?.label ?? "")).toBe(say("ui.world.end-month"));
     }
   });

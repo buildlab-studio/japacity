@@ -300,7 +300,7 @@ function ActivityCard({ option }: { option: ActivityOption }) {
             onClick={() => addToPlan({ activity: option.id, param: needsParam ? chosenParam : null })}
           >
             <Plus size={16} />
-            {full && option.allowed ? say("ui.activity.full") : say("ui.activity.add")}
+            {full && option.allowed ? say("ui.activity.full") : say("ui.activity.do")}
           </Button>
         </div>
       </Card>

@@ -64,7 +64,7 @@ function Card({ ask, after, formatMoney, icon }: { ask: Ask; after: string | nul
         )}
         <button type="button" className="btn-main mt-4" onClick={ask.act} data-ask-main>
           <span>{ask.button}</span>
-          {after === null ? null : <span className="text-[13px] font-semibold opacity-80">{after}</span>}
+          <span className="text-[13px] font-semibold opacity-80">{after ?? say("ui.world.counts-at-end")}</span>
         </button>
       </div>
     </div>

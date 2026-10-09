@@ -84,7 +84,8 @@ export function thingsNow(things: readonly Thing[], offered: (stages: string) =>
   return things.flatMap((thing) => {
     // A sheet act stays while any entry it lists can open; the sheet shows only those that can.
     const acts = thing.acts.flatMap((act): Act[] => {
-      if (act.kind !== "sheet" || act.stages === undefined) return [act];
+      if ((act.kind !== "sheet" && act.kind !== "do") || act.stages === undefined) return [act];
+      if (act.kind === "do") return offered(act.stages) ? [act] : [];
       const all = [act.stages, ...(act.more ?? [])];
       const listed = all.filter(offered);
       if (listed.length === all.length) return [act];

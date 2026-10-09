@@ -501,6 +501,17 @@ export function City({
         toast.show(done === `${act.label}.done` ? sceneWords(act.label) : done);
         return;
       }
+      // R-WORLD-005: a free act that fills a slot happens at once, seen on the thing; the line says it counts when the month ends.
+      case "do": {
+        setPicked(null);
+        const option = act.stages === undefined ? undefined : view.activities.find((candidate) => candidate.id === act.stages);
+        if (option === undefined) return;
+        const added = addToPlan({ activity: option.id, param: option.params?.[0] ?? null });
+        cue(added ? "done" : "tap");
+        const done = sceneWords(`${act.label}.done`);
+        toast.show(added ? (done === `${act.label}.done` ? say("ui.world.planned", { what: nameOf(option.id) }) : done) : say("ui.world.full"));
+        return;
+      }
       default: {
         const never: never = act.kind;
         throw new Error(`Unknown act: ${String(never)}`);
@@ -593,13 +604,13 @@ export function City({
       title: nameOf(activity),
       line: blurbOf(activity) ?? "",
       cost: cost === null ? null : { amount: cost.amount, currency: cost.currency },
-      button: say("ui.activity.add"),
+      button: nameOf(activity),
       ...(paper ? { reference: todayWords().toUpperCase() } : {}),
       act: () => {
         const added = addToPlan({ activity: option.id, param: option.params?.[0] ?? null });
         cue(added ? (cost === null ? "done" : "coin") : "tap");
         setPicked(null);
-        toast.show(say(added ? "ui.world.added" : "ui.world.full"));
+        toast.show(added ? say("ui.world.planned", { what: nameOf(option.id) }) : say("ui.world.full"));
       },
       dismiss: () => setPicked(null),
     };

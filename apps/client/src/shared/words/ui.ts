@@ -84,6 +84,7 @@ export const uiText: Record<string, string> = {
   "ui.job.quit-no": "Keep the job",
   "ui.activity.title": "What to do with your free time",
   "ui.activity.add": "Add to month",
+  "ui.activity.do": "Do this",
   "ui.activity.full": "Every slot is planned",
   "ui.activity.cost": "Costs {amount}",
   "ui.activity.free": "No cost",

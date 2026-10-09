@@ -19,7 +19,9 @@ export type ActKind =
   /** Cuts back out of the room. */
   | "out"
   /** Ends the month from the bed at home: the same as the band's End month (R-WORLD-025). */
-  | "end";
+  | "end"
+  /** Happens at once and fills a free slot of the month with the entry it stages, no sheet: rest on the bed (R-WORLD-005). */
+  | "do";
 
 export interface Act {
   /** The act's id within its thing: `sit`, `sleep`, `play-lotto`. */
@@ -31,6 +33,10 @@ export interface Act {
   stages?: string;
   /** For `sheet`: more entries listed on the same sheet, since a thing offers at most two acts and a third goes on a sheet (R-WORLD-005). */
   more?: string[];
+  /** The pose the character takes on the thing once the act lands: sitting on it, lying on it (R-WORLD-005). */
+  pose?: "sit" | "lie";
+  /** Where the character is placed for the pose: on the seat or the bed, `[x, z, facing]` in the place's metres. */
+  seat?: [number, number, number];
 }
 
 /**
