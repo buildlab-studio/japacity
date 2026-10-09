@@ -425,7 +425,7 @@ export function City({
     const { thing, act } = scenePick;
     switch (act.kind) {
       case "sheet":
-        setPicked(act.stages === undefined ? null : { kind: "action", activity: act.stages });
+        setPicked(act.stages === undefined ? null : { kind: "action", activity: act.stages, ...(act.more === undefined ? {} : { more: act.more }) });
         return;
       case "ride":
         setPicked({ kind: "ride", vehicle: vehicleOf(thing) ?? "danfo" });
@@ -497,7 +497,7 @@ export function City({
   const endBlocked = view.ended ? words("reject.ended") : view.setpiece !== null || (view.interview?.question ?? null) !== null ? words("reject.setpiece-open") : view.turns.banked < 1 ? words("reject.no-turns") : null;
   // One action, one sheet: a paper slip for a paper thing, a card for the rest.
   const ask: Ask | null = (() => {
-    if (!world || picked?.kind !== "action") return null;
+    if (!world || picked?.kind !== "action" || picked.more !== undefined) return null;
     const activity = picked.activity;
     const option = view.activities.find((candidate) => candidate.id === activity);
     if (option === undefined) return null;
@@ -758,7 +758,7 @@ export function City({
       {world ? <AskSheet ask={ask} have={view.pockets.NGN.cash} formatMoney={(amount, currency) => formatMoney(amount, currency as "NGN")} /> : null}
       {world && picked?.kind === "action" && ask === null ? (
         <WorldSheet open onClose={() => setPicked(null)} label={clock} title={cardWords()} mark="ask">
-          {actions?.([picked.activity])}
+          {actions?.([picked.activity, ...(picked.more ?? [])])}
         </WorldSheet>
       ) : null}
       <Sheet open={!world && picked?.kind === "action"} onOpenChange={(open) => { if (!open) setPicked(null); }} title={picked?.kind === "action" ? cardWords() : ""}>

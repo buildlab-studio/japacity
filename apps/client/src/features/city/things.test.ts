@@ -68,6 +68,17 @@ describe("the straight walk", () => {
   });
 });
 
+describe("a third act on a sheet", () => {
+  test("[R-WORLD-005] given a desk whose act lists more entries, when some are offered, then the act stays listing only those, and goes once none is", () => {
+    const desk: Thing = { id: "desk", file: "places/x/prop_long-desk.glb", copy: 0, label: "city.thing.long-desk", acts: [{ id: "routes", label: "city.act.routes", kind: "sheet", stages: "activity.look-into-route", more: ["activity.see-adviser", "activity.ask-someone-who-went"] }] };
+    const some = thingsNow([desk], (stages) => stages === "activity.see-adviser" || stages === "activity.ask-someone-who-went");
+    expect(some[0]?.acts[0]).toEqual({ id: "routes", label: "city.act.routes", kind: "sheet", stages: "activity.see-adviser", more: ["activity.ask-someone-who-went"] });
+    expect(thingsNow([desk], (stages) => stages === "activity.look-into-route")[0]?.acts[0]).toEqual({ id: "routes", label: "city.act.routes", kind: "sheet", stages: "activity.look-into-route" });
+    expect(thingsNow([desk], () => false)).toEqual([]);
+    expect(thingsNow([desk], () => true)[0]).toBe(desk);
+  });
+});
+
 describe("what an act can open now", () => {
   test("[R-WORLD-005] given the view's offered activities, the open offers and the set piece asking, when a thing's acts are read, then an activity stays while offered and staged, an offer while open, the set piece while asking, and a chapter's step always", () => {
     const now = stagedNow(new Set(["activity.play-lotto"]), new Set(["activity.play-lotto", "activity.rest"]), new Set(["offer.nepa-bill"]), "setpiece.december");

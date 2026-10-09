@@ -12,7 +12,7 @@ export type Picked =
   | { kind: "own" }
   | { kind: "model"; file: string; signs: string[] }
   | { kind: "thing"; thing: Thing }
-  | { kind: "action"; activity: string }
+  | { kind: "action"; activity: string; more?: string[] }
   | { kind: "ride"; vehicle: string }
   | { kind: "enter"; place: string }
   | { kind: "inside" }
