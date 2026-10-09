@@ -63,6 +63,19 @@ export function walkSpot(stage: Pick<Stage, "models">, thing: Pick<Thing, "file"
 }
 
 /**
+ * Whether an act's entry has something to open now (R-WORLD-005): an activity the view offers and the
+ * place stages, an offer that is open, the set piece that is asking; a chapter's step always does.
+ */
+export function stagedNow(offered: ReadonlySet<string>, staged: ReadonlySet<string>, openOffers: ReadonlySet<string>, setpiece: string | null): (stages: string) => boolean {
+  return (stages) => {
+    if (stages.startsWith("activity.")) return offered.has(stages) && staged.has(stages);
+    if (stages.startsWith("offer.")) return openOffers.has(stages);
+    if (stages.startsWith("setpiece.")) return stages === setpiece;
+    return true;
+  };
+}
+
+/**
  * The things the player can act on now: an act that opens an activity's sheet stays only while the
  * view offers that activity, and a thing left with no act shows no label. Other acts always stay.
  */

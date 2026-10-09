@@ -6,7 +6,7 @@ import type { Thing } from "../../shared/world/contract";
 import { type PlaceFile, stageOf } from "./placeFile";
 import { builtPlaces } from "./scene.testing";
 import { sceneWords } from "./scene.words";
-import { MAX_ACTS, STOP_SHORT, thingSpot, thingsNow, thingsOf, vehicleOf, walkSpot } from "./things";
+import { MAX_ACTS, stagedNow, STOP_SHORT, thingSpot, thingsNow, thingsOf, vehicleOf, walkSpot } from "./things";
 
 const street = (bodeThomas as unknown as PlaceFile).stage;
 if (street === undefined) throw new Error("Bode Thomas has no stage");
@@ -65,6 +65,19 @@ describe("the straight walk", () => {
     expect(Math.abs(cross)).toBeLessThan(1e-9);
     const beside = { x: spot[0] + 1, z: spot[1] };
     expect(walkSpot(street, thing, beside)).toEqual([beside.x, beside.z]);
+  });
+});
+
+describe("what an act can open now", () => {
+  test("[R-WORLD-005] given the view's offered activities, the open offers and the set piece asking, when a thing's acts are read, then an activity stays while offered and staged, an offer while open, the set piece while asking, and a chapter's step always", () => {
+    const now = stagedNow(new Set(["activity.play-lotto"]), new Set(["activity.play-lotto", "activity.rest"]), new Set(["offer.nepa-bill"]), "setpiece.december");
+    expect(now("activity.play-lotto")).toBe(true);
+    expect(now("activity.rest")).toBe(false);
+    expect(now("offer.nepa-bill")).toBe(true);
+    expect(now("offer.roof")).toBe(false);
+    expect(now("setpiece.december")).toBe(true);
+    expect(now("setpiece.road-night")).toBe(false);
+    expect(now("chapter.find-your-feet")).toBe(true);
   });
 });
 

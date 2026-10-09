@@ -38,7 +38,7 @@ import { personOfLook } from "./roster";
 import type { Picked, ScenePick } from "./scene.types";
 import { sceneWords } from "./scene.words";
 import { enterable, offersHere, openingPlace, openScene, reportHere, type ViewPlace } from "./staging";
-import { thingsNow, thingsOf, vehicleOf } from "./things";
+import { stagedNow, thingsNow, thingsOf, vehicleOf } from "./things";
 
 const CityScene = lazy(() => import("./CityScene"));
 
@@ -354,7 +354,9 @@ export function City({
   const heard = entry === null ? null : overheard(view, entry.id, date, heardCount);
   const lines = entry === null ? [] : reportHere(view, entry.id, PLACES);
   const ready = progress !== null && progress.loaded >= progress.total && failed === null;
+  // The place's name, and inside a room that is another entry's (the hub's room is place.yaba) that entry's own name.
   const name = entry === null ? "" : placeName(entry.id);
+  const hereName = inside && insideEntry !== null && insideEntry.id !== entry?.id ? placeName(insideEntry.id) : inside ? cityWords("city.inside.name", { place: name }) : name;
 
   const choose = (next: ModeChoice): void => {
     chooseGraphics(next);
@@ -401,12 +403,14 @@ export function City({
 
   // The things here and the acts the view allows now: an activity's act only while the view offers it here (R-WORLD-005).
   const activityKey = view.activities.map((option) => option.id).join("|");
+  const offersKey = view.offers.map((offer) => offer.entry).join("|");
+  const setpieceEntry = view.setpiece?.entry ?? null;
   const things = useMemo(() => {
     if (!world || file === null) return undefined;
     const offered = new Set(activityKey.split("|"));
     const staged = new Set<string>([...(entry?.stages ?? []), ...(insideEntry?.stages ?? [])]);
-    return thingsNow(thingsOf(stageOf(file)), (stages) => !stages.startsWith("activity.") || (offered.has(stages) && staged.has(stages)));
-  }, [world, file, activityKey, entry, insideEntry]);
+    return thingsNow(thingsOf(stageOf(file)), stagedNow(offered, staged, new Set(offersKey.split("|")), setpieceEntry));
+  }, [world, file, activityKey, entry, insideEntry, offersKey, setpieceEntry]);
   // What the scene reports: a thing chosen shows its acts; an act becomes the sheet, the ride, the cut in or the cut out it stands for.
   // An act lands once the character has walked to its thing (R-WORLD-010); one that lands under a sheet, the phone, the map or the results is dropped.
   const readPick = (scenePick: ScenePick): void => {
@@ -502,7 +506,7 @@ export function City({
     return {
       form: paper ? "slip" : "card",
       icon: paper ? "ticket" : "hand",
-      who: name,
+      who: hereName,
       title: nameOf(activity),
       line: blurbOf(activity) ?? "",
       cost: cost === null ? null : { amount: cost.amount, currency: cost.currency },
@@ -614,7 +618,7 @@ export function City({
         <>
           <Band
             when={clock}
-            name={inside ? cityWords("city.inside.name", { place: name }) : name}
+            name={hereName}
             money={view.pockets.NGN.cash}
             formatMoney={(amount) => formatMoney(amount, "NGN")}
             onEndMonth={() => setMonthOpen(true)}
@@ -752,6 +756,11 @@ export function City({
       </Sheet>
       <CreditsSheet open={credits} onOpenChange={setCredits} />
       {world ? <AskSheet ask={ask} have={view.pockets.NGN.cash} formatMoney={(amount, currency) => formatMoney(amount, currency as "NGN")} /> : null}
+      {world && picked?.kind === "action" && ask === null ? (
+        <WorldSheet open onClose={() => setPicked(null)} label={clock} title={cardWords()} mark="ask">
+          {actions?.([picked.activity])}
+        </WorldSheet>
+      ) : null}
       <Sheet open={!world && picked?.kind === "action"} onOpenChange={(open) => { if (!open) setPicked(null); }} title={picked?.kind === "action" ? cardWords() : ""}>
         {picked?.kind === "action" ? actions?.([picked.activity]) : null}
       </Sheet>
@@ -765,7 +774,7 @@ export function City({
           {asks}
         </WorldSheet>
       ) : null}
-      {world ? results?.(inside ? cityWords("city.inside.name", { place: name }) : name) : null}
+      {world ? results?.(hereName) : null}
       {world && phone && handset !== undefined ? handset(() => setPhone(false), inside ? cityWords("city.inside.name", { place: name }) : name) : null}
       {world && phone && handset === undefined && apps !== undefined ? <Phone apps={apps} onClose={() => setPhone(false)} /> : null}
       <Sheet open={picked?.kind === "ride"} onOpenChange={(open) => { if (!open) setPicked(null); }} title={picked?.kind === "ride" ? cardWords() : ""} description={cityWords("city.ride.title")}>

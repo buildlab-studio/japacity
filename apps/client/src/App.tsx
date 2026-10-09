@@ -18,6 +18,7 @@ import { ActivityPicker } from "./features/activity/ActivityView";
 import { PlaceAdverts } from "./features/adverts/placed";
 import { EndingView } from "./features/card/EndingView";
 import { CardView } from "./features/card/ShareCard";
+import { ChapterView } from "./features/chapter/ChapterView";
 import { City } from "./features/city/City";
 import { Map } from "./features/map/Map";
 import { HeldShareCard } from "./features/notify/held";
@@ -62,7 +63,14 @@ function WorldPlaying() {
       <City
         world
         adverts={(place) => <PlaceAdverts place={place} />}
-        actions={(ids) => <ActivityPicker only={ids} />}
+        // A thing's act opens the sheet of what it stages (R-WORLD-005): an activity's card, an open offer, the set piece's question, or the chapter's steps.
+        actions={(ids) => {
+          const [first] = ids;
+          if (first?.startsWith("offer.") === true) return <OfferView only={(offer) => ids.includes(offer.entry)} />;
+          if (first?.startsWith("setpiece.") === true) return <SetpieceView />;
+          if (first?.startsWith("chapter.") === true) return <ChapterView />;
+          return <ActivityPicker only={ids} />;
+        }}
         month={<MonthSheet />}
         results={(place) => <Results place={place} />}
         asks={
