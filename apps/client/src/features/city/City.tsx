@@ -227,6 +227,9 @@ export function City({
   const addToPlan = useGame((state) => state.addToPlan);
   const [phone, setPhone] = useState(false);
   const [monthOpen, setMonthOpen] = useState(false);
+  // R-WORLD-002: the band's clock is the character's age with the turns left beside it; the simulation still counts months.
+  const ageMonths = view.qualities.find((quality) => quality.id === "quality.age-months")?.value ?? 0;
+  const clock = say("ui.world.clock", { years: Math.floor(ageMonths / 12), months: ageMonths % 12, turns: view.turns.banked });
   const [asksOpen, setAsksOpen] = useState(false);
   // R-WORLD-008: the results are up from the month's end until the player goes back to the place; the staged wins come first.
   const resultsOpen = useGame((state) => state.reportOpen && state.moments.length === 0) && world && view.report !== null;
@@ -404,6 +407,11 @@ export function City({
       case "out":
         setPicked({ kind: "out" });
         return;
+      // R-WORLD-025: the bed's End month is the band's, so the Month sheet opens the same way.
+      case "end":
+        setPicked(null);
+        setMonthOpen(true);
+        return;
       case "plain":
         setPicked(null);
         toast.show(sceneWords(act.label));
@@ -580,7 +588,7 @@ export function City({
       {world && looking ? (
         <>
           <Band
-            when={say("ui.world.month-of", { month: view.month + 1 })}
+            when={clock}
             name={inside ? cityWords("city.inside.name", { place: name }) : name}
             money={view.pockets.NGN.cash}
             formatMoney={(amount) => formatMoney(amount, "NGN")}
@@ -723,7 +731,7 @@ export function City({
         {picked?.kind === "action" ? actions?.([picked.activity]) : null}
       </Sheet>
       {world ? (
-        <WorldSheet open={monthOpen} onClose={() => setMonthOpen(false)} label={say("ui.world.month-of", { month: view.month + 1 })} title={cityWords("city.month.title")} mark="month">
+        <WorldSheet open={monthOpen} onClose={() => setMonthOpen(false)} label={clock} title={cityWords("city.month.title")} mark="month">
           {month}
         </WorldSheet>
       ) : null}

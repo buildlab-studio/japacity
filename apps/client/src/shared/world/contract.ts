@@ -17,7 +17,9 @@ export type ActKind =
   /** Cuts into the building's room (R-WORLD-013). */
   | "enter"
   /** Cuts back out of the room. */
-  | "out";
+  | "out"
+  /** Ends the month from the bed at home: the same as the band's End month (R-WORLD-025). */
+  | "end";
 
 export interface Act {
   /** The act's id within its thing: `sit`, `sleep`, `play-lotto`. */

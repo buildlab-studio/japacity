@@ -1,8 +1,10 @@
 import { describe, expect, test } from "vitest";
 
 import bodeThomas from "../../../public/assets/places/bode-thomas/place.json";
+import { say } from "../../shared/words/text";
 import type { Thing } from "../../shared/world/contract";
-import type { PlaceFile } from "./placeFile";
+import { type PlaceFile, stageOf } from "./placeFile";
+import { builtPlaces } from "./scene.testing";
 import { sceneWords } from "./scene.words";
 import { MAX_ACTS, STOP_SHORT, thingSpot, thingsNow, thingsOf, vehicleOf, walkSpot } from "./things";
 
@@ -63,5 +65,32 @@ describe("the straight walk", () => {
     expect(Math.abs(cross)).toBeLessThan(1e-9);
     const beside = { x: spot[0] + 1, z: spot[1] };
     expect(walkSpot(street, thing, beside)).toEqual([beside.x, beside.z]);
+  });
+});
+
+describe("the things of the built places", () => {
+  test("[R-WORLD-005] given every built place, when its things and acts are read, then each label has words and no thing offers more than two acts", () => {
+    const files = builtPlaces().filter(({ file }) => stageOf(file).things !== undefined);
+    expect(files.length).toBeGreaterThan(10);
+    for (const { folder, file } of files) {
+      for (const thing of stageOf(file).things ?? []) {
+        expect(sceneWords(thing.label), `${folder} ${thing.id}`).not.toBe(thing.label);
+        expect(thing.acts.length, `${folder} ${thing.id}`).toBeLessThanOrEqual(2);
+        for (const act of thing.acts) expect(sceneWords(act.label), `${folder} ${thing.id} ${act.id}`).not.toBe(act.label);
+      }
+    }
+  });
+
+  test("[R-WORLD-025] given the bed at home and the bed in the room abroad, when their acts are read, then each offers rest and End month, the band's own act", () => {
+    for (const folder of ["family-house-parlour", "the-room"]) {
+      const found = builtPlaces().find((built) => built.folder === folder);
+      if (found === undefined) throw new Error(`No ${folder}`);
+      const bed = (stageOf(found.file).things ?? []).find((thing) => thing.file.endsWith("prop_bed.glb"));
+      expect(bed?.acts.map((act) => [act.id, act.kind, act.stages])).toEqual([
+        ["rest", "sheet", "activity.rest"],
+        ["end-month", "end", undefined],
+      ]);
+      expect(sceneWords(bed?.acts[1]?.label ?? "")).toBe(say("ui.world.end-month"));
+    }
   });
 });

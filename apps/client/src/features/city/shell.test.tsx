@@ -53,6 +53,16 @@ describe("the world fills the screen", () => {
 });
 
 describe("the band and the thumb buttons", () => {
+  test("[R-WORLD-002] given a life, when the band renders, then its clock is the character's age in years and months with the turns left beside it, and no month number", async () => {
+    const view = engineView();
+    await renderWithView(world(), view);
+    const ageMonths = view.qualities.find((quality) => quality.id === "quality.age-months")?.value ?? 0;
+    expect(ageMonths).toBeGreaterThan(0);
+    const clock = say("ui.world.clock", { years: Math.floor(ageMonths / 12), months: ageMonths % 12, turns: view.turns.banked });
+    expect(within(band()).getByText(clock)).toBeTruthy();
+    expect(band().textContent).not.toContain(say("ui.world.month-of", { month: view.month + 1 }));
+  });
+
   test("[R-WORLD-002] given the results showing, when the band renders, then it hides, and it shows again once the player goes back", async () => {
     const { store } = await renderWithView(world(), richView());
     expect(band().getAttribute("aria-hidden")).toBe("false");

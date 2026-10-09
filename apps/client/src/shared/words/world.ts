@@ -12,6 +12,7 @@ export const worldText: Record<string, string> = {
   "ui.world.after": "After",
   "ui.world.free": "Free",
   "ui.world.month-of": "Month {month}",
+  "ui.world.clock": "{years}y {months}m, {turns} turns left",
   "ui.world.theme": "Look",
   "ui.world.theme.adire": "Adire",
   "ui.world.theme.danfo": "Danfo",
