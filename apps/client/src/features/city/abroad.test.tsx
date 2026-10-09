@@ -1,7 +1,7 @@
 // The world after the flight (docs/rules/world.md R-WORLD-002, 015, 016, 026): the band in the
 // country's money, the talk of the places abroad, and the map abroad as its list of stops. The scene
 // itself needs WebGL and is not drawn here; Ada's recorded life is flown and landed in London.
-import { fireEvent, screen, within } from "@testing-library/react";
+import { fireEvent, screen } from "@testing-library/react";
 import type { PlayerView } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
@@ -9,8 +9,7 @@ import { abroadGame, setPockets } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { formatMoney } from "../../shared/words/format";
 import { say } from "../../shared/words/text";
-import { Map } from "../map/Map";
-import { City } from "./City";
+import { City, type CityMapSlot } from "./City";
 
 /** Ada in the room abroad, with pounds in the bank and the naira still at home. */
 function landed(): PlayerView {
@@ -41,16 +40,24 @@ describe("the band abroad", () => {
 
 describe("the map abroad", () => {
   test("[R-WORLD-015] [R-WORLD-016] given Ada in London, when the map opens, then it lists the country's stops with the room as home, the other countries are shut for want of a visa, and only Lagos is not in this life yet", async () => {
-    await renderWithView(world({ cityMap: (props) => <Map {...props} /> }), landed());
+    let handed: CityMapSlot | null = null;
+    await renderWithView(
+      world({
+        cityMap: (props) => {
+          handed = props;
+          return <p data-map-slot />;
+        },
+      }),
+      landed(),
+    );
     fireEvent.click(screen.getByRole("button", { name: say("ui.world.map") }));
-    const stops = within(screen.getByRole("list", { name: "Stops" }))
-      .getAllByRole("button")
-      .map((button) => button.dataset.stop);
+    const slot = handed as CityMapSlot | null;
+    if (slot === null) throw new Error("The map was not handed its slot");
+    const stops = slot.pins.map((pin) => pin.id);
     expect(stops).toContain("place.peckham");
     expect(stops).toContain("place.the-room");
-    expect(stops.filter((stop) => stop?.startsWith("place.") !== true)).toEqual([]);
-    fireEvent.click(document.querySelector<HTMLElement>("[data-country]")!);
-    const reasons: Record<string, string> = Object.fromEntries([...document.querySelectorAll<HTMLElement>("[data-country-option]")].map((row) => [row.dataset.countryOption ?? "", row.lastElementChild?.textContent ?? ""]));
-    expect(reasons).toEqual({ lagos: "Not in this life yet", "country.uk": "You are here", "country.uae": "No visa yet", "country.canada": "No visa yet", "country.italy": "No visa yet" });
+    expect(slot.home).toBe("place.the-room");
+    expect(slot.country).toMatchObject({ id: "country.uk", locked: null });
+    expect(Object.fromEntries(slot.countries.map((choice) => [choice.id, choice.locked]))).toEqual({ lagos: "Not in this life yet", "country.uk": null, "country.uae": "No visa yet", "country.canada": "No visa yet", "country.italy": "No visa yet" });
   });
 });
