@@ -1,20 +1,28 @@
 // Jobs (docs/rules/world.md R-WORLD-018): the job held and the job offers the view lists. Quitting
 // and taking each open their own card; the commands are the ones the month page sent.
-import type { Id, OfferView } from "@japacity/sim";
+import { content } from "@japacity/content";
+import type { Id, OfferView, PlayerView } from "@japacity/sim";
 import { Briefcase } from "lucide-react";
 
 import { useView } from "../../../authority/GameProvider";
 import { formatMoney } from "../../../shared/words/format";
 import { payAMonth } from "../../../shared/words/pay";
+import { tierPay, withNextTier } from "../../../shared/words/profile";
 import { byMonths, nameOf, say, sayCount, words } from "../../../shared/words/text";
 import { Head, useAsk } from "../act";
 import { phoneWords } from "../phone.words";
 import { jobOffers } from "../seen";
 
-/** A job's pay a month as words, or null when content gives no figure (R-WORLD-006: the jobs list's figure). */
-function payWords(job: Id<"activity">): string | null {
-  const pay = payAMonth(job);
-  return pay === null ? null : say("ui.job.pay", { amount: formatMoney(pay.amount, pay.currency) });
+/**
+ * A job's pay a month as words, or null when content gives no figure (R-WORLD-006: the jobs list's figure). A side
+ * job paid by level says its tier's pay and what lifts it next (R-ACTIVITY-014).
+ */
+function payWords(job: Id<"activity">, view: Pick<PlayerView, "qualities">): string | null {
+  const tiered = (content.activity[job]?.tiers ?? []).length > 0;
+  const pay = tiered ? tierPay(view, job) : payAMonth(job);
+  if (pay === null) return null;
+  const words = say("ui.job.pay", { amount: formatMoney(pay.amount, pay.currency) });
+  return tiered ? withNextTier(view, job, words) : words;
 }
 
 /** The job an offer carries, from its terms. */
@@ -79,7 +87,7 @@ export function Jobs() {
       icon: "briefcase",
       who: words(`${offer.entry}.title`, offer.terms),
       title: offered === null ? phoneWords("phone.jobs.take.title") : nameOf(offered),
-      line: [words(`${offer.entry}.body`, offer.terms), offered === null ? null : payWords(offered)].filter((part): part is string => part !== null).join(" "),
+      line: [words(`${offer.entry}.body`, offer.terms), offered === null ? null : payWords(offered, view)].filter((part): part is string => part !== null).join(" "),
       cost: null,
       button: phoneWords("phone.jobs.take.button"),
       have: 0,
@@ -94,12 +102,12 @@ export function Jobs() {
       {job === null ? (
         <p className="text-[14px] text-text-2">{say("ui.job.none")}</p>
       ) : (
-        <JobRow name={nameOf(job)} lines={[payWords(job), sayCount("ui.job.months", view.job.months, { months: view.job.months })]} act={view.ended ? null : () => quit(false)} actLabel={phoneWords("phone.jobs.quit")} />
+        <JobRow name={nameOf(job)} lines={[payWords(job, view), sayCount("ui.job.months", view.job.months, { months: view.job.months })]} act={view.ended ? null : () => quit(false)} actLabel={phoneWords("phone.jobs.quit")} />
       )}
       {side === null ? null : (
         <>
           <Head>{phoneWords("phone.jobs.side")}</Head>
-          <JobRow name={nameOf(side)} lines={[payWords(side)]} act={view.ended ? null : () => quit(true)} actLabel={phoneWords("phone.jobs.quit")} />
+          <JobRow name={nameOf(side)} lines={[payWords(side, view)]} act={view.ended ? null : () => quit(true)} actLabel={phoneWords("phone.jobs.quit")} />
         </>
       )}
 
@@ -114,7 +122,7 @@ export function Jobs() {
               <li key={offer.id} data-offer={offer.id}>
                 <JobRow
                   name={offered === null ? words(`${offer.entry}.title`, offer.terms) : nameOf(offered)}
-                  lines={[offered === null ? null : payWords(offered), phoneWords("phone.jobs.answer-by", { when: byMonths(offer.expiresMonth, view.month) })]}
+                  lines={[offered === null ? null : payWords(offered, view), phoneWords("phone.jobs.answer-by", { when: byMonths(offer.expiresMonth, view.month) })]}
                   act={view.ended || takeChoice(offer) === null ? null : () => take(offer)}
                   actLabel={phoneWords("phone.jobs.take")}
                 />

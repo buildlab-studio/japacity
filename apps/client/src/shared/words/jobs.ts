@@ -6,6 +6,7 @@ import type { ActivityEntry, Id, PlayerView } from "@japacity/sim";
 
 import { formatMoney } from "./format";
 import { payAMonth } from "./pay";
+import { tierPay, withNextTier } from "./profile";
 import { hasWords, say, type Params } from "./text";
 
 export const jobsUiText: Record<string, string> = {
@@ -64,9 +65,17 @@ export function chanceOf(view: PlayerView, id: string): number {
   return entry === undefined ? 0 : jobChanceBp(entry, qualityOf(view, NETWORK));
 }
 
-export function payWords(id: string): string | null {
-  const pay = payAMonth(id);
+/** A job's pay a month in words; with the view, a side job paid by level says the tier it is paid at now (R-ACTIVITY-014). */
+export function payWords(id: string, view?: Pick<PlayerView, "qualities">): string | null {
+  const tiered = view !== undefined && (content.activity[id as Id<"activity">]?.tiers ?? []).length > 0;
+  const pay = tiered ? tierPay(view, id) : payAMonth(id);
   return pay === null ? null : jobsWords("jobs.pay", { amount: formatMoney(pay.amount, pay.currency) });
+}
+
+/** The pay now and what lifts it next, in one run of words: "₦60,000 a month; ₦90,000 at tech 50" (R-ACTIVITY-014). */
+export function payLiftWords(id: string, view: Pick<PlayerView, "qualities">): string | null {
+  const pay = payWords(id, view);
+  return pay === null ? null : withNextTier(view, id, pay);
 }
 
 /**
@@ -75,6 +84,6 @@ export function payWords(id: string): string | null {
  */
 export function jobCardWords(view: PlayerView, id: string): string {
   const chance = jobsWords(`jobs.chance.${chanceBand(chanceOf(view, id))}`);
-  const pay = payWords(id);
+  const pay = payLiftWords(id, view);
   return pay === null ? jobsWords("jobs.card.chance", { chance }) : jobsWords("jobs.card", { pay, chance });
 }
