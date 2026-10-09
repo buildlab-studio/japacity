@@ -108,7 +108,11 @@ function nameOf(id: string): string {
 async function planNextStep(page: Page, game: Game): Promise<void> {
   for (const pick of chapterNextStep(game.view(), content)) {
     if (pick.param !== null && pick.activity === "activity.job-hunt") await page.locator(`[role="radio"][data-job="${pick.param}"]`).click();
-    else if (pick.param !== null) await page.locator(`[id="param-${pick.activity}"]`).selectOption(pick.param);
+    else if (pick.param !== null) {
+      // One choice shows no select: the first meetup hears of one route (R-GUIDE-016), and the card takes it.
+      const select = page.locator(`[id="param-${pick.activity}"]`);
+      if ((await select.count()) > 0) await select.selectOption(pick.param);
+    }
     await page.getByRole("button", { name: `Add to month: ${nameOf(pick.activity)}` }).click();
   }
 }
