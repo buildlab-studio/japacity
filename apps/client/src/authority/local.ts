@@ -5,8 +5,11 @@
 import { content as realContent } from "@japacity/content";
 import type { Authority, Command, Content, FlatSave, Id, PlayerView, Reply, Save, Sender, State, World } from "@japacity/sim";
 
+import { archetypeOf, fullPrologue } from "../shared/frontdoor/archetypes";
+import { tileSeed } from "../shared/frontdoor/draw";
 import type { ClockView } from "../shared/net/contract";
 import { lastSegment, lifeStart, loadSave, newSave, newState, recordCommand, replay, savedCommands, standInWorld, step, time, viewFor } from "@japacity/sim";
+import { readPerson } from "./person";
 
 /** The one localStorage key the life is kept under. */
 export const SAVE_KEY = "japacity.save";
@@ -35,8 +38,12 @@ export interface LocalAuthority extends Authority {
   readonly start: LifeStart;
   /** When the next month comes, from the refill's anchor (R-WORLD-027); null while the bank is full. */
   clock(): ClockView;
-  /** Throws the current life away and starts another. Local only: the server will own this. */
-  newLife(scenario: Id<"scenario">): Promise<PlayerView>;
+  /**
+   * Throws the current life away and starts another, on the named seed when one is given. Without one, a life from
+   * sixteen through a tile kept beside the save starts on the front door's seed for that tile (R-PROLOGUE-011).
+   * Local only: the server will own this.
+   */
+  newLife(scenario: Id<"scenario">, seed?: string): Promise<PlayerView>;
 }
 
 /** What is kept under SAVE_KEY: the save, and when real time last earned a turn. */
@@ -101,6 +108,17 @@ export function localAuthority(options: LocalAuthorityOptions): LocalAuthority {
 
   const worldAt = (at: number): World => standInWorld(worldSeed, at, content);
 
+  /**
+   * R-PROLOGUE-011: a life from sixteen through a tile kept beside the save starts on the first of a few seeds named
+   * from the drawn one whose draw keeps the tile's path open, since here a life may be started over. A ready life,
+   * a life with no tile, and the full prologue keep the drawn seed.
+   */
+  function seedFor(scenario: Id<"scenario">, drawn: string): string {
+    if (content.scenario[scenario]?.prologue !== true || fullPrologue(storage)) return drawn;
+    const archetype = archetypeOf(readPerson(storage)?.archetype);
+    return archetype === null ? drawn : tileSeed(archetype, drawn, worldAt(0), content);
+  }
+
   function persist(): void {
     if (storage === null) return;
     const stored: Stored = { save, clock: { anchor } };
@@ -111,10 +129,12 @@ export function localAuthority(options: LocalAuthorityOptions): LocalAuthority {
     }
   }
 
-  function begin(scenario: Id<"scenario">): void {
-    const seed = makeSeed();
-    state = newState(scenario, seed, content);
+  /** Starts a life on the named seed, or on a fresh one (the front door's for a tile). */
+  function begin(scenario: Id<"scenario">, named?: string): void {
+    const drawn = named ?? makeSeed();
     worldSeed = makeSeed();
+    const seed = named ?? seedFor(scenario, drawn);
+    state = newState(scenario, seed, content);
     save = newSave(scenario, seed, worldSeed, content);
     tick = 0;
     anchor = now();
@@ -229,8 +249,8 @@ export function localAuthority(options: LocalAuthorityOptions): LocalAuthority {
       persist();
       return Promise.resolve({ ok: true, view: currentView(), lines: result.lines });
     },
-    newLife(scenario) {
-      begin(scenario);
+    newLife(scenario, seed) {
+      begin(scenario, seed);
       persist();
       return Promise.resolve(currentView());
     },

@@ -1,9 +1,10 @@
 import { content } from "@japacity/content";
 import type { Command, Content, Id, Save } from "@japacity/sim";
-import { lastSegment, savedCommands, time } from "@japacity/sim";
+import { lastSegment, lifeStart, savedCommands, time } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
 import { localAuthority, SAVE_KEY } from "./local";
+import { PERSON_KEY } from "./person";
 
 function memoryStorage() {
   const items = new Map<string, string>();
@@ -146,5 +147,53 @@ describe("the local authority", () => {
     expect(fresh.scenario).toBe(other);
     expect(fresh.month).toBe(0);
     expect(savedCommands(storedSave(storage))).toEqual([]);
+  });
+});
+
+describe("a life from sixteen through a tile, where a life may be started over", () => {
+  const PROLOGUE = "scenario.prologue" as Id<"scenario">;
+  const keepTile = (storage: ReturnType<typeof memoryStorage>, archetype: string | null) => storage.setItem(PERSON_KEY, JSON.stringify({ look: "chr_ada", name: "Ada", archetype }));
+  const seedOf = (storage: ReturnType<typeof memoryStorage>) => lifeStart(storedSave(storage))?.seed;
+
+  test("[R-PROLOGUE-011] given a named seed, when a new life is started on it, then the life is on that seed and its world on a fresh one", async () => {
+    const storage = memoryStorage();
+    const authority = localAuthority({ fastClock: true, storage, makeSeed: seeds(), now: () => 0 });
+    keepTile(storage, "trader");
+    await authority.newLife(PROLOGUE, "named-seed");
+    expect(lifeStart(storedSave(storage))).toMatchObject({ scenario: PROLOGUE, seed: "named-seed" });
+    expect(lifeStart(storedSave(storage))?.worldSeed).not.toBe("named-seed");
+  });
+
+  test("[R-PROLOGUE-011] given the trader's tile kept beside the save, when lives from sixteen are started again and again, then each starts on a seed named from the drawn one, and after the subjects the card lets him learn a trade", async () => {
+    const storage = memoryStorage();
+    const authority = localAuthority({ fastClock: true, storage, makeSeed: seeds(), now: () => 0 });
+    keepTile(storage, "trader");
+    const tried: string[] = [];
+    for (let life = 0; life < 12; life += 1) {
+      let view = await authority.newLife(PROLOGUE);
+      const seed = seedOf(storage) ?? "";
+      expect(seed).toMatch(/^seed-\d+-[0-7]$/);
+      tried.push(seed);
+      for (const [step, answer] of [["draw", "begin"], ["subjects", "commercial"]] as const) {
+        const reply = await authority.send({ type: "prologue/choose", step, answer, basedOn: view.v });
+        if (!reply.ok) throw new Error(`Rejected: ${reply.code}`);
+        view = reply.view;
+      }
+      expect(view.prologue?.step).toBe("after-school");
+      expect(view.prologue?.answers.find((answer) => answer.id === "apprentice")?.allowed, seed).toBe(true);
+    }
+    // The first seed alone would have shut the trade for some of them.
+    expect(tried.some((seed) => !seed.endsWith("-0"))).toBe(true);
+  });
+
+  test("[R-PROLOGUE-011] given no tile kept, or a ready life, when a new life is started, then it keeps the seed drawn for it", async () => {
+    const storage = memoryStorage();
+    const authority = localAuthority({ fastClock: true, storage, makeSeed: seeds(), now: () => 0 });
+    keepTile(storage, null);
+    await authority.newLife(PROLOGUE);
+    expect(seedOf(storage)).toMatch(/^seed-\d+$/);
+    keepTile(storage, "trader");
+    await authority.newLife("scenario.ada" as Id<"scenario">);
+    expect(seedOf(storage)).toMatch(/^seed-\d+$/);
   });
 });
