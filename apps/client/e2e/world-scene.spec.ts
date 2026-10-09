@@ -7,6 +7,7 @@ import { expect, type Page, test } from "@playwright/test";
 
 import { text } from "../../../packages/content/src/index";
 import budgets from "../../../assets-src/budgets.json" with { type: "json" };
+import { startReadyLife } from "./door";
 
 test.use({ viewport: { width: 390, height: 844 }, launchOptions: { args: ["--use-angle=swiftshader", "--enable-unsafe-swiftshader"] } });
 
@@ -53,7 +54,7 @@ async function waitPlace(page: Page, place: string | null): Promise<void> {
 async function startWorld(page: Page, mode: "low" | "high" = "high"): Promise<void> {
   await page.addInitScript((chosen) => window.localStorage.setItem("japacity.city.graphics", chosen), mode);
   await page.goto("/?world");
-  await page.getByRole("button", { name: /^Live this life/ }).first().click();
+  await startReadyLife(page);
   for (let step = 0; step < 40; step += 1) {
     if ((await page.locator("[data-band]").count()) > 0) break;
     const handover = page.locator("[data-prologue-handover] button");
@@ -61,7 +62,7 @@ async function startWorld(page: Page, mode: "low" | "high" = "high"): Promise<vo
       await handover.first().click();
       break;
     }
-    const start = page.getByRole("button", { name: /^Start month/ });
+    const start = page.getByRole("button", { name: /^Go$/ });
     if ((await start.count()) > 0) {
       await start.first().click();
       continue;

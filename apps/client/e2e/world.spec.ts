@@ -8,6 +8,7 @@ import { join } from "node:path";
 import { expect, test, type Page } from "@playwright/test";
 
 import { lifeSaves } from "../../../packages/sim/src/goldens/lives.data";
+import { startReadyLife } from "./door";
 
 test.use({ viewport: { width: 390, height: 844 }, launchOptions: { args: ["--use-angle=swiftshader", "--enable-unsafe-swiftshader"] } });
 
@@ -30,7 +31,7 @@ async function placeDrawn(page: Page): Promise<void> {
 
 async function startLife(page: Page): Promise<void> {
   await page.goto("/");
-  await page.getByRole("button", { name: /^Live this life/ }).first().click();
+  await startReadyLife(page);
   await expect(page.locator("[data-band]")).toBeVisible();
 }
 
@@ -82,7 +83,7 @@ test("[R-WORLD-001] [R-WORLD-024] the default address opens the world with the b
 test("[R-WORLD-024] ?classic opens the old month page with its header and tabs", async ({ page }, info) => {
   phoneOnly(info.project.name);
   await page.goto("/?classic");
-  await page.getByRole("button", { name: /^Live this life/ }).first().click();
+  await startReadyLife(page);
   await expect(page.getByRole("heading", { name: "Month 1", exact: true })).toBeVisible();
   await expect(page.locator("header")).toBeVisible();
   await expect(page.locator("[data-band]")).toHaveCount(0);

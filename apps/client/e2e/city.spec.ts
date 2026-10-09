@@ -4,6 +4,7 @@
 import { expect, test } from "@playwright/test";
 
 import budgets from "../../../assets-src/budgets.json" with { type: "json" };
+import { startReadyLife } from "./door";
 
 test.use({ launchOptions: { args: ["--use-angle=swiftshader", "--enable-unsafe-swiftshader"] } });
 
@@ -26,7 +27,7 @@ declare global {
 test("the hub opens, the character walks, a person's card opens, and the frame stays in budget", async ({ page }, info) => {
   test.setTimeout(120_000);
   await page.goto("/?classic");
-  await page.getByRole("button", { name: /^Live this life/ }).first().click();
+  await startReadyLife(page);
   await expect(page.getByRole("heading", { name: "Month 1", exact: true })).toBeVisible();
 
   await page.getByRole("button", { name: "Look around" }).click();
@@ -87,7 +88,7 @@ test("the hub opens, the character walks, a person's card opens, and the frame s
 
 test("the credits are reachable from the city's menu and credit the map data", async ({ page }) => {
   await page.goto("/?classic");
-  await page.getByRole("button", { name: /^Live this life/ }).first().click();
+  await startReadyLife(page);
   await page.getByRole("button", { name: "Look around" }).click();
   await page.getByRole("button", { name: "City" }).click();
   await page.getByRole("button", { name: "Credits" }).click();

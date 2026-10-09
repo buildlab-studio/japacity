@@ -115,7 +115,7 @@ export const onlineText: Record<string, string> = {
 
   // The bank-full notice (R-CLOCK-031)
   "ui.notify.ask.title": "Know when your months are full",
-  "ui.notify.ask.body": "Your turns build up while you are away. We can tell you on this device when you have banked all the months you can, and nothing else.",
+  "ui.notify.ask.body": "Your months build up while you are away. We can tell you on this device when you have banked all the months you can, and nothing else.",
   "ui.notify.ask.yes": "Tell me",
   "ui.notify.ask.no": "Not now",
   "ui.notify.setting": "Tell me when my months are full",

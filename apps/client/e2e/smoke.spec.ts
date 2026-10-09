@@ -4,6 +4,7 @@ import { expect, test, type Page } from "@playwright/test";
 import { content, text } from "../../../packages/content/src/index";
 import { lifeSaves } from "../../../packages/sim/src/goldens/lives.data";
 import { standInWorld } from "../../../packages/sim/src/world/standIn";
+import { startReadyLife, startArchetype } from "./door";
 
 /** Text that must never reach the player: kobo, a raw object, a missing value, a words key with no words. */
 const BROKEN: readonly [string, RegExp][] = [
@@ -37,7 +38,7 @@ test("a new player picks a life, ends a month and reads the report", async ({ pa
 
   // A fresh browser has no save, so the life chooser comes first.
   await expect(page.getByRole("heading", { name: "Who are you?" })).toBeVisible();
-  await page.getByRole("button", { name: /^Live this life/ }).first().click();
+  await startReadyLife(page);
 
   await expect(page.getByRole("heading", { name: "Month 1", exact: true })).toBeVisible();
   await page.getByRole("button", { name: "End month" }).click();
@@ -57,7 +58,7 @@ test("a new player picks a life, ends a month and reads the report", async ({ pa
 
 test("three months of play show no kobo, raw object, missing value or bare key", async ({ page }) => {
   await page.goto("/?classic");
-  await page.getByRole("button", { name: /^Live this life/ }).first().click();
+  await startReadyLife(page);
   await expect(page.getByRole("heading", { name: "Month 1", exact: true })).toBeVisible();
   await expectNothingBroken(page, "at the start");
 
@@ -86,7 +87,7 @@ test("three months of play show no kobo, raw object, missing value or bare key",
 
 test("a life from sixteen is played card by card to the first month", async ({ page }) => {
   await page.goto("/?classic");
-  await page.getByRole("button", { name: "Live this life: A life from sixteen" }).click();
+  await startArchetype(page, "The developer");
 
   const prologue = page.locator("[data-prologue]");
   await expect(prologue).toBeVisible();
@@ -100,7 +101,7 @@ test("a life from sixteen is played card by card to the first month", async ({ p
 
   await expect(handover).toBeVisible();
   await expectNothingBroken(page, "at the handover");
-  await page.getByRole("button", { name: "Start month 1" }).click();
+  await page.getByRole("button", { name: "Go", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Month 1", exact: true })).toBeVisible();
   await expectNothingBroken(page, "in the first month");
 });
@@ -302,7 +303,7 @@ test.describe("the side job on a 390 px phone", () => {
 
   test("a side job's words keep the card's width, with the quit button under them", async ({ page }) => {
     await page.goto("/?classic");
-    await page.getByRole("button", { name: /^Live this life/ }).first().click();
+    await startReadyLife(page);
     await expect(page.getByRole("heading", { name: "Month 1", exact: true })).toBeVisible();
 
     const side = page.locator("[data-side-job]");

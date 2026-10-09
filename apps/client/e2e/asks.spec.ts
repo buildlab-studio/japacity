@@ -9,6 +9,7 @@ import { content, text } from "../../../packages/content/src/index";
 import type { Command, Id, PlayerView, ReportLine } from "../../../packages/sim/src/engine/types";
 import { start, type Game } from "../../../packages/sim/src/testing/play";
 import { chapterNextStep, FIRST_SESSION_TURNS } from "../src/shared/testing/firstSession";
+import { startReadyLife } from "./door";
 
 const ONLINE = `http://localhost:${process.env.E2E_ONLINE_PORT ?? "5180"}`;
 test.use({ baseURL: ONLINE });
@@ -118,7 +119,7 @@ test("[R-GUIDE-015] [R-GUIDE-014] a new life played online as the next step sugg
 
   await expect(page.getByRole("heading", { name: "Who are you?" })).toBeVisible({ timeout: 20_000 });
   await expectNoAsk(page, "on the life chooser");
-  await page.getByRole("button", { name: `Live this life: ${nameOf(SCENARIO)}` }).click();
+  await startReadyLife(page, text[`${SCENARIO}.kind`]);
   await expect(page.getByRole("heading", { name: "Month 1", exact: true })).toBeVisible();
 
   let won = false;

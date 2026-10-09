@@ -3,6 +3,7 @@
 // the route and raises the ride sheet, and the ride plays and lands in the place. With MAP_SHOTS set
 // to a folder, the pictures of each step are saved there.
 import { expect, type Page, test } from "@playwright/test";
+import { startReadyLife } from "./door";
 
 test.use({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true, launchOptions: { args: ["--use-angle=swiftshader", "--enable-unsafe-swiftshader"] } });
 
@@ -33,7 +34,7 @@ async function shot(page: Page, name: string): Promise<void> {
 /** A new life in the world mode, played past its prologue by the first open answer each time. */
 async function startLife(page: Page): Promise<void> {
   await page.goto("/?world");
-  await page.getByRole("button", { name: /^Live this life/ }).first().click({ timeout: 30_000 });
+  await startReadyLife(page);
   for (let step = 0; step < 40; step += 1) {
     if ((await page.locator("[data-band]").count()) > 0) break;
     const handover = page.locator("[data-prologue-handover] button");
@@ -41,7 +42,7 @@ async function startLife(page: Page): Promise<void> {
       await handover.first().click();
       break;
     }
-    const start = page.getByRole("button", { name: /^Start month/ });
+    const start = page.getByRole("button", { name: /^Go$/ });
     if ((await start.count()) > 0) {
       await start.first().click();
       await page.waitForTimeout(400);
