@@ -75,7 +75,7 @@ describe("the routes list", () => {
     const SPONSOR = "activity.find-sponsor";
     const game = newGame("scenario.tunde");
     viewAfter(game, [{ type: "route/hear", route: SKILLED, via: "test" }]);
-    game.endTurn([{ activity: OFFICIAL as Id<"activity">, param: SKILLED }]);
+    game.endTurn([{ activity: OFFICIAL, param: SKILLED }]);
     const view = game.view();
     expect(view.activities.find((option) => option.id === SPONSOR)?.params).toContain(SKILLED);
     await renderWithView(<ActivityPicker only={[SPONSOR]} />, view);
