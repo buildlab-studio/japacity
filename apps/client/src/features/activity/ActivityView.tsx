@@ -18,6 +18,7 @@ import { ENGLISH_TEST, STUDY_ENGLISH, testChance } from "../../shared/words/test
 import { studyWords } from "./study";
 import { blurbOf, hasWords, lowerFirst, nameOf, paramWords, say, sayCount } from "../../shared/words/text";
 import { payAMonth } from "../../shared/words/pay";
+import { countsWords, tierPay, withNextTier } from "../../shared/words/profile";
 import { ApplyFor, huntOrder, JobList } from "./JobList";
 import { RouteList } from "./RouteList";
 import { routesWords } from "./routes.words";
@@ -88,7 +89,8 @@ function SideJob() {
   const [confirming, setConfirming] = useState(false);
   const side = view.job.side;
   if (side === null && !view.locks.some((lock) => lock.why === SIDE_JOB_LOCK)) return null;
-  const pay = side === null ? null : content.activity[side]?.pay;
+  // R-ACTIVITY-014: the side job's pay at its level now, and what lifts it next.
+  const pay = side === null ? null : tierPay(view, side);
   return (
     <Card data-side-job>
       {/* On a phone the quit button goes under the words, so they keep the card's width. */}
@@ -98,8 +100,8 @@ function SideJob() {
           <div className="flex min-w-0 flex-1 flex-col gap-1">
             <p className="text-xs font-semibold tracking-wide text-text-2 uppercase">{say("ui.side.title")}</p>
             {side === null ? null : <p className="font-semibold">{nameOf(side)}</p>}
-            {pay === null || pay === undefined || typeof pay.amount !== "number" ? null : (
-              <p className="text-sm font-medium tabular-nums">{say("ui.job.pay", { amount: formatMoney(pay.amount, pay.currency) })}</p>
+            {pay === null || side === null ? null : (
+              <p className="text-sm font-medium tabular-nums">{withNextTier(view, side, say("ui.job.pay", { amount: formatMoney(pay.amount, pay.currency) }))}</p>
             )}
             <p className="text-sm text-text-2">{say("ui.side.holds")}</p>
           </div>
@@ -237,7 +239,9 @@ function afterWords(paying: AfterPaying): string {
  * or on its way, so a second request in the same month would ask for what the first already asks.
  */
 function plannedOnce(option: ActivityOption, plan: readonly (SlotPick | null)[], param: string): boolean {
-  const once = content.activity[option.id]?.requires.some((requirement) => requirement.type === "document/absent") === true;
+  const entry = content.activity[option.id];
+  // R-ACTIVITY-013: an act marked once a month is planned once too.
+  const once = entry?.once === true || entry?.requires.some((requirement) => requirement.type === "document/absent") === true;
   return once && plan.some((pick) => pick !== null && pick.activity === option.id && (pick.param ?? "") === param);
 }
 
@@ -270,6 +274,7 @@ function ActivityCard({ option }: { option: ActivityOption }) {
   const [param, setParam] = useState<string>("");
   const name = nameOf(option.id);
   const blurb = blurbOf(option.id);
+  const counts = countsWords(option.id);
   // R-TURN-006: an activity that fills no slot can be planned however full the month is.
   const full = content.activity[option.id]?.slot !== "none" && !plan.includes(null);
   const needsParam = option.params !== null;
@@ -313,6 +318,11 @@ function ActivityCard({ option }: { option: ActivityOption }) {
           )}
         </div>
         {blurb === null ? null : <p className="text-sm text-text-2">{blurb}</p>}
+        {counts === null ? null : (
+          <p className="text-sm font-medium" data-counts>
+            {counts}
+          </p>
+        )}
         {chance === null ? null : (
           <div className="flex flex-col gap-1 text-sm" data-test-chance={chance.band}>
             <p className="font-medium">{chance.words}</p>

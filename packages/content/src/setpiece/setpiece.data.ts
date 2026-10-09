@@ -5,8 +5,18 @@ import { int, type Currency, type Effect, type Id, type Requirement, type Setpie
 import { countryTable } from "../country/country.data";
 import { tuning } from "../tuning/tuning.data";
 import { naira, pct } from "../units";
+import { NURSE_EXAM, TALK } from "../activity/activity.profile.data";
 
 const UK: Id<"route"> = "route.uk-masters";
+
+/**
+ * A quiz question (R-ACTIVITY-013): the right answer scores 1 and the rest 0. On the last question
+ * every answer marks the paper (`activity/exam`), so the pass is judged the moment it is answered.
+ */
+function examQuestion(id: string, answers: string[], right: string, last: boolean): SetpieceQuestion {
+  const mark: Effect[] = last ? [{ type: "activity/exam", activity: "activity.nurse-certification" }] : [];
+  return { id, when: [], answers: answers.map((answer) => ({ id: answer, score: answer === right ? 1 : 0, when: [], thenScore: null, effects: mark })) };
+}
 
 // ---------------------------------------------------------------------------
 // The December visit: return.md R-RETURN-005
@@ -347,5 +357,31 @@ export const setpieceTable: Record<Id<"setpiece">, SetpieceEntry> = {
     ask: 4,
     order: "fixed",
     questions: DECEMBER_COUNTRIES.flatMap(decemberQuestions),
+  },
+
+  // activity.md R-ACTIVITY-013: the nurse's certification, sat as three questions from the care route's
+  // own facts (the care guide), in the order written. A right answer scores 1; the last question's answers
+  // mark the paper, and two right is a pass.
+  [NURSE_EXAM]: {
+    id: NURSE_EXAM,
+    ask: 3,
+    order: "fixed",
+    questions: [
+      examQuestion("register", ["nmc", "embassy", "agent"], "nmc", false),
+      examQuestion("verify", ["six-months", "two-years", "at-once"], "two-years", false),
+      examQuestion("sponsorship", ["nurse", "nobody", "employer"], "employer", true),
+    ],
+  },
+  // R-ACTIVITY-013: the talk is one question, how it opens; the activity carries what the talk gives.
+  [TALK]: {
+    id: TALK,
+    ask: 1,
+    questions: [
+      {
+        id: "open",
+        when: [],
+        answers: ["demo", "story", "slides"].map((id) => ({ id, score: 0, when: [], thenScore: null, effects: [] })),
+      },
+    ],
   },
 };

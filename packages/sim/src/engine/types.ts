@@ -281,6 +281,8 @@ export type Effect =
   /** `side` names the side slot (the home side job ends at the flight, R-ACTIVITY-010). */
   | { type: "activity/end-job"; why: string; side?: true }
   | { type: "activity/gig"; min: number; max: number; perTech: number }
+  /** The open set piece is the named activity's quiz: its right answers are counted and a pass applies the quiz's effects (R-ACTIVITY-013). */
+  | { type: "activity/exam"; activity: Id<"activity"> }
   // document
   | { type: "document/request"; document: Id<"document"> }
   | { type: "document/grant"; document: Id<"document"> }
@@ -400,6 +402,14 @@ export interface ActivityEntry {
   needsCar?: boolean;
   /** Yearly bonus paid while the character has the car, in the pay's currency. */
   carBonus?: number;
+  /** A side job's pay by level: the highest tier whose `min` is met pays, else `pay` (docs/rules/activity.md R-ACTIVITY-014). Missing: no tiers. */
+  tiers?: ActivityTier[];
+  /** True: one slot a month at most; a second pick in the same month is not legal (R-ACTIVITY-013). Missing: no limit. */
+  once?: true;
+  /** Effects applied in the month the activity fills a slot for the `at`th time, and every `at`th time with `repeat` (R-ACTIVITY-013). Missing: none. */
+  onMonth?: ActivityMilestone[];
+  /** A quiz sat as a set piece: `pass` right answers or more apply `effects` when the paper is marked (R-ACTIVITY-013). Missing: no quiz. */
+  exam?: ActivityExam;
   requires: Requirement[];
   /** What the player picks along with a free-slot activity. */
   /** `route` lists routes heard of; `known-route` lists routes known (the sponsor's find). */
@@ -412,6 +422,26 @@ export interface ActivityEntry {
   hireBp: number | null;
   effects: Effect[];
   counts: Id<"route">[];
+}
+
+/** One rung of a side job's pay (R-ACTIVITY-014). */
+export interface ActivityTier {
+  min: { quality: Id<"quality">; value: number };
+  pay: Money;
+}
+
+/** Effects tied to the count of months an activity has filled a slot (R-ACTIVITY-013). */
+export interface ActivityMilestone {
+  at: number;
+  repeat?: true;
+  effects: Effect[];
+}
+
+/** A quiz: the set piece it is sat as, the right answers that pass, and what a pass gives (R-ACTIVITY-013). An answer is right when its `score` is above zero. */
+export interface ActivityExam {
+  setpiece: Id<"setpiece">;
+  pass: number;
+  effects: Effect[];
 }
 
 export interface DocumentEntry {
@@ -1188,6 +1218,8 @@ export interface Tuning {
   chapter: { cardLines: number; sendOffNaira: number };
   /** `visit`: the second miss in a row, the officer and the group at the house (R-OBLIGATION-011). */
   groupLoan: { feeBp: number; savingsBp: number; vanishBp: number; visit: { standing: number; wellbeing: number } };
+  /** The waiting months' acts (R-ACTIVITY-013): a raise's size and its chance each month the player tries to be noticed. */
+  activity: { raiseBp: number; raiseChanceBp: number };
   /** The room's basics (R-OBLIGATION-014): the share of the upkeep's next charge that cooking and fetching water take off, and the wellbeing cooking costs. */
   room: { cookedBp: number; waterBp: number; cookWellbeing: number };
   /** The Friday draw (docs/rules/lottery.md): the ticket price, the cap per player, and the odds a draw takes when it opens (R-LOTTERY-021). */
@@ -1380,6 +1412,8 @@ export interface ActivitySlice {
   lastSlots: SlotPick[];
   /** Months each activity filled a slot, main or free, over the whole life (R-ACTIVITY-012); the send-off card reads it. */
   played: Record<Id<"activity">, number>;
+  /** The jobs whose pay has risen once by `tuning.activity.raiseBp` (R-ACTIVITY-013). Missing: none yet. */
+  raised?: Id<"activity">[];
 }
 
 export interface PocketBalance {

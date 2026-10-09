@@ -17,6 +17,7 @@ import { Sheet } from "../../shared/ui/Sheet";
 import { cardKey, useCardsTurn } from "../../shared/ui/stage";
 import { formatMoney } from "../../shared/words/format";
 import { jobCardWords } from "../../shared/words/jobs";
+import { countsWords } from "../../shared/words/profile";
 import { needsWords } from "../../shared/words/requirement";
 import { newsRead } from "../../shared/phone/newsSeen";
 import { earlyStops, sixteenPath } from "../../shared/words/sixteen";
@@ -875,7 +876,8 @@ export function City({
               ? [blurbOf(activity), chance.words].filter((part): part is string => part !== null).join(" ")
               : school !== null
                 ? schoolSheetLine(view, school)
-                : (blurbOf(activity) ?? ""),
+                : // R-ACTIVITY-013: the card says what the act counts toward.
+                  [blurbOf(activity), countsWords(activity)].filter((part): part is string => part !== null).join(" "),
       cost: cost === null ? null : { amount: cost.amount, currency: cost.currency },
       button: nameOf(activity),
       ...(paper ? { reference: clock.toUpperCase() } : {}),

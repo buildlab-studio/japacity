@@ -13,6 +13,7 @@ import { type ChanceBand, chanceBand, chanceOf, jobCardWords, jobChanceBp, jobsW
 // The figures and words moved to shared/words/jobs.ts so the city can read them; the list's tests keep these names.
 export { type ChanceBand, chanceBand, jobCardWords, jobChanceBp };
 import { payAMonth } from "../../shared/words/pay";
+import { liftWords } from "../../shared/words/profile";
 
 /** A job's pay a month in its own currency, for ordering; pay in another currency than naira goes first, as the best paid. */
 function payRank(id: string): number {
@@ -79,8 +80,9 @@ function Gauge({ chance, chosen }: { chance: ChanceBand; chosen: boolean }) {
   );
 }
 
-function JobRow({ id, chance, chosen, onPick }: { id: string; chance: ChanceBand; chosen: boolean; onPick: (id: string) => void }) {
-  const pay = payWords(id);
+function JobRow({ view, id, chance, chosen, onPick }: { view: PlayerView; id: string; chance: ChanceBand; chosen: boolean; onPick: (id: string) => void }) {
+  const pay = payWords(id, view);
+  const lift = liftWords(view, id);
   return (
     <li className="border-b border-sheet-line last:border-b-0">
       <button
@@ -94,6 +96,11 @@ function JobRow({ id, chance, chosen, onPick }: { id: string; chance: ChanceBand
         <span className="flex min-w-0 flex-1 flex-col">
           <span className="font-bold">{nameOf(id)}</span>
           {pay === null ? null : <span className={`num text-[13px] ${chosen ? "opacity-80" : "text-text-2"}`}>{pay}</span>}
+          {lift === null ? null : (
+            <span className={`num text-[12px] ${chosen ? "opacity-80" : "text-text-2"}`} data-lift>
+              {lift}
+            </span>
+          )}
         </span>
         <span className="flex shrink-0 flex-col items-end gap-1">
           <Gauge chance={chance} chosen={chosen} />
@@ -129,7 +136,7 @@ export function JobList({ view, jobs, chosen, onPick }: { view: PlayerView; jobs
         </span>
         <ul role="radiogroup" aria-labelledby="jobs-pick" className="flex flex-col" data-jobs>
           {jobs.map((id) => (
-            <JobRow key={id} id={id} chance={chanceBand(chanceOf(view, id))} chosen={id === chosen} onPick={onPick} />
+            <JobRow key={id} view={view} id={id} chance={chanceBand(chanceOf(view, id))} chosen={id === chosen} onPick={onPick} />
           ))}
         </ul>
       </div>
@@ -143,7 +150,7 @@ export function JobList({ view, jobs, chosen, onPick }: { view: PlayerView; jobs
               <li key={job.id} className="flex flex-col border-b border-sheet-line px-3 py-2 text-text-2 last:border-b-0" data-job={job.id}>
                 <span className="flex items-baseline justify-between gap-2">
                   <span className="font-medium">{nameOf(job.id)}</span>
-                  <span className="num">{payWords(job.id)}</span>
+                  <span className="num">{payWords(job.id, view)}</span>
                 </span>
                 <span>{jobsWords("jobs.needs", { needs: job.needs.join("; ") })}</span>
               </li>

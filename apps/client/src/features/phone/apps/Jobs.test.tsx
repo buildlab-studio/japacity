@@ -1,7 +1,7 @@
 import type { Id } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
-import { abroadGame } from "../../../shared/testing/fixtures";
+import { abroadGame, newGame, viewAfter } from "../../../shared/testing/fixtures";
 import { renderWithView } from "../../../shared/testing/render";
 import { formatMoney } from "../../../shared/words/format";
 import { say } from "../../../shared/words/text";
@@ -29,5 +29,13 @@ describe("Jobs abroad", () => {
     const row = document.querySelector("[data-job-offers]");
     expect(row?.textContent).toContain(say("ui.job.pay", { amount: formatMoney(month.amount, month.currency) }));
     expect(row?.textContent).not.toContain(formatMoney(month.amount * 12, month.currency));
+  });
+});
+
+describe("a side job's level in Jobs", () => {
+  test("[R-ACTIVITY-014] given weekend tutoring held under its tech tier, when Jobs opens, then the side job's row says its pay now and what lifts it", async () => {
+    const view = viewAfter(newGame("scenario.ada"), [{ type: "activity/start-job", job: "activity.weekend-tutoring" }]);
+    await renderWithView(<Jobs />, view);
+    expect(document.querySelector("[data-phone-app=jobs]")?.textContent).toContain("Pays ₦60,000 a month; ₦90,000 at tech 50");
   });
 });

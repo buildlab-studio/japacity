@@ -33,4 +33,6 @@ export const documentTable: Record<Id<"document">, DocumentEntry> = {
   // The medical for the contract route (R-CONTRACT-003).
   // valid 3 months, as a Gulf work medical is; the page gives no validity.
   "document.medical": { id: "document.medical", wait: [1, 1], validMonths: 3, result: null },
+  // The nurse's certification (activity.md R-ACTIVITY-013): asked for by a pass at the clinic's quiz, two months, for good.
+  "document.nurse-certificate": { id: "document.nurse-certificate", wait: [2, 2], validMonths: null, result: null },
 };

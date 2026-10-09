@@ -292,6 +292,7 @@ export const EffectSchema = z.discriminatedUnion("type", [
   }),
   z.strictObject({ type: z.literal("activity/end-job"), why: z.string().min(1), side: z.literal(true).exactOptional() }),
   z.strictObject({ type: z.literal("activity/gig"), min: CountSchema, max: CountSchema, perTech: CountSchema }),
+  z.strictObject({ type: z.literal("activity/exam"), activity: idOf("activity") }),
   z.strictObject({ type: z.literal("document/request"), document: idOf("document") }),
   z.strictObject({ type: z.literal("document/grant"), document: idOf("document") }),
   z.strictObject({ type: z.literal("document/void"), document: idOf("document") }),
@@ -523,6 +524,7 @@ export const TuningSchema = z.strictObject({
   }),
   chapter: z.strictObject({ cardLines: z.int().positive(), sendOffNaira: CountSchema }),
   groupLoan: z.strictObject({ feeBp: BpSchema, savingsBp: BpSchema, vanishBp: BpSchema, visit: z.strictObject({ standing: IntSchema, wellbeing: IntSchema }) }),
+  activity: z.strictObject({ raiseBp: BpSchema, raiseChanceBp: BpSchema }),
   room: z.strictObject({ cookedBp: BpSchema, waterBp: BpSchema, cookWellbeing: CountSchema }),
   lottery: z.strictObject({
     ticket: CountSchema,

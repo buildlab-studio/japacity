@@ -24,6 +24,8 @@ export const documentText: Record<string, string> = {
   "document.endorsement.blurb": "A letter from the endorsing body saying your work leads the field. It lasts three months.",
   "document.medical.name": "Work medical",
   "document.medical.blurb": "The medical the Gulf employer asks for: blood tests, a chest X-ray and a stamp.",
+  "document.nurse-certificate.name": "Nursing certificate",
+  "document.nurse-certificate.blurb": "The certificate from the clinic's exam. Boards abroad read it beside your licence. It does not run out.",
 
   "line.document.requested": "Your {document} is on the way. It should be ready {month}.",
   "line.document.already-pending": "Your {document} is already being made. It should be ready {month}. This request changes nothing.",

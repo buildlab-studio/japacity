@@ -152,7 +152,28 @@ const entries: PlaceEntry[] = [
   lagos("place.yaba", "Yaba", "yaba", 6507, 3375, {
     scope: "interior",
     assets: "yaba-hub",
-    stages: ["activity.meetup", "activity.learn-tech", "activity.build-portfolio", "activity.interview-prep", "activity.job-junior-dev", "activity.job-mid-dev", "activity.job-hunt", "activity.look-into-route", "activity.apply-to-school", "activity.see-adviser", "activity.ask-someone-who-went", "activity.job-bank-officer", "activity.job-bank-senior"],
+    // activity.md R-ACTIVITY-013: open source and the talk at the desks, the talk itself at the meetup corner's
+    // screen, a master's beside the routes, being noticed at work beside the jobs board.
+    stages: [
+      "activity.meetup",
+      "activity.learn-tech",
+      "activity.build-portfolio",
+      "activity.interview-prep",
+      "activity.job-junior-dev",
+      "activity.job-mid-dev",
+      "activity.job-hunt",
+      "activity.look-into-route",
+      "activity.apply-to-school",
+      "activity.see-adviser",
+      "activity.ask-someone-who-went",
+      "activity.job-bank-officer",
+      "activity.job-bank-senior",
+      "activity.open-source",
+      "activity.conference-talk",
+      "setpiece.conference-talk",
+      "activity.masters-at-home",
+      "activity.be-noticed",
+    ],
     crowd: BUSY,
     traditionalBp: OFFICE,
   }),
@@ -224,7 +245,8 @@ const entries: PlaceEntry[] = [
   unnamed("place.visa-centre", "institution", "home", "lagos", "victoria-island", { stages: ["activity.apply-for-visa", "setpiece.credibility-interview", "activity.get-police-certificate"], crowd: BUSY, traditionalBp: OFFICE }),
   unnamed("place.english-test-centre", "institution", "home", "lagos", "ikeja", { stages: ["activity.sit-english-test", "activity.study-english"], crowd: QUIET, traditionalBp: OFFICE }),
   // The staff nurse's job is on the clinic's notice, where a nurse from sixteen takes her first step (prologue.md R-PROLOGUE-010).
-  unnamed("place.tb-clinic", "institution", "home", "lagos", "ikeja", { stages: ["activity.tb-test", "activity.gulf-medical", "activity.job-nurse"], crowd: QUIET, traditionalBp: OFFICE }),
+  // activity.md R-ACTIVITY-013: the nurse's certification on the notice, its exam sat on the chairs.
+  unnamed("place.tb-clinic", "institution", "home", "lagos", "ikeja", { stages: ["activity.tb-test", "activity.gulf-medical", "activity.job-nurse", "activity.nurse-certification", "setpiece.nurse-exam"], crowd: QUIET, traditionalBp: OFFICE }),
   unnamed("place.medical-centre", "institution", "home", "lagos", "ikeja", { crowd: QUIET, traditionalBp: OFFICE }),
   unnamed("place.university", "institution", "home", "lagos", "akoka", { scope: "exterior", stages: [], crowd: BUSY, traditionalBp: CAMPUS }),
   unnamed("place.general-hospital", "institution", "home", "lagos", "surulere", { stages: ["offer.illness", "offer.illness-worse"], crowd: BUSY, traditionalBp: STREET }),
@@ -233,7 +255,8 @@ const entries: PlaceEntry[] = [
 
   // Lagos: businesses by made-up name. Shopfronts are signs on their street, in place.text.ts.
   // Its own room, not the hub's: the hub's file with nothing staged here showed only the door (R-WORLD-005).
-  unnamed("place.yaba-hub", "business", "home", "lagos", "yaba", { assets: "inverter-room", crowd: QUIET, traditionalBp: HUB }),
+  // activity.md R-ACTIVITY-013: the posts are written at the room's long table of laptops.
+  unnamed("place.yaba-hub", "business", "home", "lagos", "yaba", { assets: "inverter-room", stages: ["activity.tech-posts"], crowd: QUIET, traditionalBp: HUB }),
   unnamed("place.olokun-office", "business", "home", "lagos", "victoria-island", { assets: "bank-counter", stages: ["offer.held-funds", "offer.salary-loan"], crowd: FEW, traditionalBp: OFFICE }),
   unnamed("place.agent-office", "business", "home", "lagos", "ikeja", { stages: ["offer.held-funds-agent", "offer.gulf-agent", "activity.see-agent-office", "offer.agent-office"], crowd: FEW, traditionalBp: OFFICE }),
 
