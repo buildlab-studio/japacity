@@ -35,6 +35,7 @@ import { Phone, type PhoneApp } from "./Phone";
 import { localDate, type Other, poolOf, sampleCrowd } from "./crowd";
 import { BOARD_WAY, nudgeOf, stepThingHere, stepWayOf } from "./nudge";
 import { nudgeHere, stepOpen } from "./stepOpen";
+import { StillWaiting, stillWaiting } from "./StillWaiting";
 import { type Device, enterPlace, keepChoice, type Mode, type ModeChoice, modeSettings, observeFrame, readChoice, startingMode, watchFrames } from "./mode";
 import { overheard } from "./overheard";
 import { dancerShown, dressPlace, openGround, type PlaceFile, stageOf } from "./placeFile";
@@ -1141,7 +1142,20 @@ export function City({
                   </button>
                 ),
               }
-            : {})}
+            : // An ask answered at its place lists what still waits elsewhere, and opens it.
+              picked.activity.startsWith("offer.") && asks !== undefined && stillWaiting(view.offers, [picked.activity, ...(picked.more ?? [])]).length > 0
+              ? {
+                  foot: (
+                    <StillWaiting
+                      offers={stillWaiting(view.offers, [picked.activity, ...(picked.more ?? [])])}
+                      onOpen={() => {
+                        setPicked(null);
+                        setAsksOpen(true);
+                      }}
+                    />
+                  ),
+                }
+              : {})}
         >
           {actions?.([picked.activity, ...(picked.more ?? [])])}
         </WorldSheet>

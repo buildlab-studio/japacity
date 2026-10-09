@@ -272,6 +272,9 @@ export const cityText: Record<string, string> = {
   "city.scene.answer": "Answer in your month",
   "city.report.here": "This month, here",
   "city.offer.here": "Waiting for you here: {offer}",
+  // An ask answered at its place, and what still waits elsewhere (StillWaiting.tsx).
+  "city.asks.still": "Still waiting on you: {what}.",
+  "city.asks.see": "See what waits",
 
   "city.credits": "Credits",
   "city.credits.map": "Map data",

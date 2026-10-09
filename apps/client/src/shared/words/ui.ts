@@ -376,7 +376,7 @@ export const uiText: Record<string, string> = {
 
   // Offers
   "ui.offer.title": "Waiting on you",
-  "ui.offer.none": "Nobody is asking you for anything right now.",
+  "ui.offer.none": "Nothing else waits on you here.",
   "ui.offer.expires": "Answer {when}",
   "ui.card.dismiss": "Tap to dismiss",
   "ui.in-months": "in {count} months",
