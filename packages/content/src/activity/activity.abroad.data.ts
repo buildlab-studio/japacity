@@ -15,6 +15,7 @@
 // R-CONTRACT-004) and has no hiring chance: it is started by departure, never hunted.
 import type { ActivityEntry, Effect, Id, Money, Requirement } from "@japacity/sim";
 
+import { tuning } from "../tuning/tuning.data";
 import { aed, cad, euros, pct, pounds } from "../units";
 
 const ABROAD: Requirement = { type: "place/is", where: "abroad" };
@@ -332,6 +333,16 @@ export const abroadActivityTable: Record<Id<"activity">, ActivityEntry> = {
   "activity.community-uk": free("activity.community-uk", "country.uk", [IN_UK], {
     cost: [{ currency: "GBP", amount: pounds(10), reason: "social" }],
     effects: [gain("quality.network", 4), wellbeing(4)],
+  }),
+  // streets.md R-STREET-005: shopping on the street, at Peckham and Deira. Each is in this table, not
+  // the foreign pockets' one, so that one keeps the activities the wallet's pockets brought in.
+  "activity.street-shopping-uk": free("activity.street-shopping-uk", "country.uk", [IN_UK], {
+    cost: [{ currency: "GBP", amount: tuning.street.shoppingGbp, reason: "social" }],
+    effects: [wellbeing(tuning.street.shoppingMood)],
+  }),
+  "activity.street-shopping-uae": free("activity.street-shopping-uae", "country.uae", [IN_UAE], {
+    cost: [{ currency: "AED", amount: tuning.street.shoppingAed, reason: "social" }],
+    effects: [wellbeing(tuning.street.shoppingMood)],
   }),
   // With a job that is not a student's part-time job. The extra quarter of the month's
   // pay (tuning.ladder.overtimeBp) has no effect type: the activity kind pays it.
