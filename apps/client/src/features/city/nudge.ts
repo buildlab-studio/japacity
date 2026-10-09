@@ -3,8 +3,9 @@
 // in its own nudge words; a report line waiting on the player; else the month's end.
 import type { PlayerView } from "@japacity/sim";
 
+import { formatMoney } from "../../shared/words/format";
 import { asksAttention, tidyLines } from "../../shared/words/lines";
-import { hasWords } from "../../shared/words/text";
+import { hasWords, inMonths } from "../../shared/words/text";
 import type { Nudge } from "../../shared/world/contract";
 
 /** What the nudge points at, so a tap on it can open the matching sheet. */
@@ -57,14 +58,55 @@ export function stepThingHere(way: StepWay, here: string | null, things: readonl
   return null;
 }
 
-/** `has`: whether words exist for a key; content's and the interface's tables unless a test says otherwise. */
-export function nudgeOf(view: Pick<PlayerView, "setpiece" | "interview" | "offers" | "chapter" | "report">, has: (key: string) => boolean = hasWords): Nudge & { about: NudgeAbout } {
+/** The paper a step waits on, so a started step can name the wait (R-WORLD-003). */
+const STEP_PAPER: Record<string, string> = {
+  "chapter.build-the-file.passport": "document.passport",
+  "chapter.build-the-file.transcript": "document.transcript",
+  "chapter.decision-day.tb": "document.tb-certificate",
+};
+
+/** The route the chapters follow, for the school's answer and the funds (chapter.md). */
+const STORY_ROUTE = "route.uk-masters";
+
+type NudgeView = Pick<PlayerView, "setpiece" | "interview" | "offers" | "chapter" | "report"> & Partial<Pick<PlayerView, "documents" | "routes" | "month">>;
+
+/**
+ * A step already started names the wait instead of the thing to do again:
+ * a paper on its way says when, a school applied to says when it answers, a hunt or a test planned
+ * says to end the month, and funds short of the line say how much more to show. Null: not started.
+ */
+function startedKey(view: NudgeView, own: string, stepKey: string, planned: readonly string[], has: (key: string) => boolean): { key: string; params?: Record<string, string | number> } | null {
+  const month = view.month ?? 0;
+  const paper = STEP_PAPER[stepKey];
+  if (paper !== undefined) {
+    const held = view.documents?.find((document) => document.id === paper);
+    if (held?.state === "pending" && has(`${own}.started`)) return { key: `${own}.started`, params: { when: inMonths(held.readyMonth ?? month, month) } };
+    return null;
+  }
+  const route = view.routes?.find((candidate) => candidate.id === STORY_ROUTE);
+  if (stepKey === "chapter.build-the-file.offer") {
+    const applied = route?.schools.find((school) => school.state === "pending") ?? null;
+    if (applied !== null && has(`${own}.started`)) return { key: `${own}.started`, params: { when: inMonths(applied.readyMonth, month) } };
+    return null;
+  }
+  if (stepKey === "chapter.decision-day.held" && route !== undefined && !route.funds.covered && route.funds.required > route.funds.shown && has(`${own}.short`)) {
+    return { key: `${own}.short`, params: { amount: formatMoney(route.funds.required - route.funds.shown, "GBP") } };
+  }
+  if (stepKey === "chapter.find-your-feet.job" && planned.includes("activity.job-hunt") && has(`${own}.started`)) return { key: `${own}.started` };
+  if (stepKey === "chapter.build-the-file.english" && planned.includes("activity.sit-english-test") && has(`${own}.started`)) return { key: `${own}.started` };
+  return null;
+}
+
+/** `has`: whether words exist for a key; content's and the interface's tables unless a test says otherwise. `planned`: the activities in this month's plan. */
+export function nudgeOf(view: NudgeView, has: (key: string) => boolean = hasWords, planned: readonly string[] = []): Nudge & { about: NudgeAbout } {
   if (view.setpiece !== null || (view.interview?.question ?? null) !== null) return { key: "ui.nudge.setpiece", about: "setpiece" };
   if (view.offers.length > 0) return { key: "ui.nudge.offer", about: "offer" };
   const step = view.chapter.items.find((item) => !item.met)?.id ?? null;
   if (view.chapter.current !== null && step !== null) {
     // The story's own nudge words for the step when content has them (at most eight words), else the step's words.
     const own = `${view.chapter.current}.item.${step}`;
+    const started = startedKey(view, own, `${view.chapter.current}.${step}`, planned, has);
+    if (started !== null) return { ...started, about: "step" };
     return { key: has(`${own}.nudge`) ? `${own}.nudge` : own, about: "step" };
   }
   // A report line waits when one of last month's lines asks for the player.

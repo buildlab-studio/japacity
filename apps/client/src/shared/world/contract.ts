@@ -107,6 +107,10 @@ export interface Ask {
   dismiss: () => void;
   /** For a slip: a reference line printed small at the top right. */
   reference?: string;
+  /** "now" when the act happens at once (a ride, the deposit, the plane); the default counts when the month ends. */
+  when?: "now" | "month";
+  /** A reason the act cannot happen yet, in words; the main button is shut and says it (R-WORLD-006). */
+  blocked?: string;
 }
 
 /** A pin on the map (R-WORLD-015). */

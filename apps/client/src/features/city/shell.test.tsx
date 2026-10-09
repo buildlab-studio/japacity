@@ -5,7 +5,8 @@ import { describe, expect, test, vi } from "vitest";
 
 import { engineView, richView } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
-import { say, words } from "../../shared/words/text";
+import { formatMoney } from "../../shared/words/format";
+import { inMonths, say, words } from "../../shared/words/text";
 import { City } from "./City";
 import { nudgeOf } from "./nudge";
 
@@ -103,7 +104,19 @@ describe("the band and the thumb buttons", () => {
     const clock = say("ui.world.clock", { years: Math.floor(ageMonths / 12), months: ageMonths % 12 });
     expect(within(band()).getByText(clock)).toBeTruthy();
     expect(band().textContent).not.toContain(say("ui.world.month-of", { month: view.month + 1 }));
-    expect(within(band()).getByText(say("ui.world.turns", { count: view.turns.banked }))).toBeTruthy();
+    // The turns left show only when three or fewer remain (R-WORLD-002).
+    expect(view.turns.banked).toBeGreaterThan(3);
+    expect(within(band()).queryByText(say("ui.world.turns", { count: view.turns.banked }))).toBeNull();
+    document.body.innerHTML = "";
+    await opened(world(), { ...view, turns: { ...view.turns, banked: 2 } });
+    expect(within(band()).getByText(say("ui.world.turns", { count: 2 }))).toBeTruthy();
+  });
+
+  test("[R-WORLD-003] given a chip open when the month ends, when the results show, then the chip is gone and the nudge is back", async () => {
+    const view = { ...engineView(), report: null };
+    const { store } = await opened(world(), view);
+    act(() => store.setState({ reportOpen: true, view: { ...view, report: richView().report } }));
+    expect(document.querySelector("[data-thing-chip]")).toBeNull();
   });
 
   test("[R-WORLD-002] given the results showing, when the band renders, then it hides, and it shows again once the player goes back", async () => {
@@ -179,6 +192,22 @@ describe("the nudge", () => {
     expect(nudgeOf(noStep).key).toBe("ui.nudge.end");
     const nothingWaits = rich.report === null ? null : { ...rich.report, lines: rich.report.lines.map((line) => ({ ...line, attention: false })) };
     expect(nudgeOf({ ...noStep, report: nothingWaits }).key).toBe("ui.nudge.end");
+  });
+
+  test("[R-WORLD-003] given a step already started, when the nudge is chosen, then it names the wait: a paper on its way, a school's answer, a hunt or a test planned, funds short", () => {
+    const base = { ...quiet, month: 10 };
+    const file = { ...base, chapter: { current: "chapter.build-the-file" as const, items: [{ id: "passport", met: false }, { id: "transcript", met: false }, { id: "english", met: false }, { id: "offer", met: false }], done: [] } };
+    const waiting = { ...file, documents: [{ id: "document.passport" as const, state: "pending" as const, readyMonth: 12, expiresMonth: null, value: null }] };
+    expect(nudgeOf(waiting)).toMatchObject({ key: "chapter.build-the-file.item.passport.started", params: { when: inMonths(12, 10) }, about: "step" });
+    expect(nudgeOf(file).key).toBe("chapter.build-the-file.item.passport.nudge");
+    const testing = { ...file, chapter: { ...file.chapter, items: [{ id: "english", met: false }, { id: "offer", met: false }] } };
+    expect(nudgeOf(testing, undefined, ["activity.sit-english-test"]).key).toBe("chapter.build-the-file.item.english.started");
+    const applied = { ...file, chapter: { ...file.chapter, items: [{ id: "offer", met: false }] }, routes: [{ ...richView().routes[0]!, id: "route.uk-masters" as const, schools: [{ id: "school.one" as never, state: "pending" as const, readyMonth: 11, discount: 0 }] }] };
+    expect(nudgeOf(applied)).toMatchObject({ key: "chapter.build-the-file.item.offer.started", params: { when: inMonths(11, 10) } });
+    const hunting = { ...base, chapter: { current: "chapter.find-your-feet" as const, items: [{ id: "job", met: false }], done: [] } };
+    expect(nudgeOf(hunting, undefined, ["activity.job-hunt"]).key).toBe("chapter.find-your-feet.item.job.started");
+    const short = { ...base, chapter: { current: "chapter.decision-day" as const, items: [{ id: "held", met: false }], done: [] }, routes: [{ ...richView().routes[0]!, id: "route.uk-masters" as const, funds: { heldMonths: 0, covered: false, shown: 100000, required: 300000 } }] };
+    expect(nudgeOf(short)).toMatchObject({ key: "chapter.decision-day.item.held.short", params: { amount: formatMoney(200000, "GBP") } });
   });
 
   test("[R-WORLD-003] given the story has nudge words for the step, when the nudge is chosen, then they are used over the step's own words", () => {

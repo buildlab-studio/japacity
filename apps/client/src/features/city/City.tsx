@@ -40,6 +40,7 @@ import type { Picked, ScenePick } from "./scene.types";
 import { sceneWords } from "./scene.words";
 import { enterable, offersHere, openingPlace, openScene, reportHere, type ViewPlace } from "./staging";
 import { stagedNow, thingsNow, thingsOf, vehicleOf } from "./things";
+import { stopReached } from "./stops";
 
 const CityScene = lazy(() => import("./CityScene"));
 
@@ -279,6 +280,7 @@ export function City({
   const { cutting, cutTo } = useCut();
   const toast = useToast();
   const addToPlan = useGame((state) => state.addToPlan);
+  const plan = useGame((state) => state.plan);
   const [phone, setPhone] = useState(false);
   const [monthOpen, setMonthOpen] = useState(false);
   // R-WORLD-002: the band's clock is the character's age with the turns left beside it; the simulation still counts months.
@@ -423,7 +425,7 @@ export function City({
   const ready = progress !== null && progress.loaded >= progress.total && failed === null;
   // The place's name, and inside a room that is another entry's (the hub's room is place.yaba) that entry's own name.
   const name = entry === null ? "" : placeName(entry.id);
-  const hereName = inside && insideEntry !== null && insideEntry.id !== entry?.id ? placeName(insideEntry.id) : inside ? cityWords("city.inside.name", { place: name }) : name;
+  const hereName = inside && insideEntry?.id === "place.yaba" ? say("ui.inside.hub") : inside && insideEntry !== null && insideEntry.id !== entry?.id ? placeName(insideEntry.id) : inside ? cityWords("city.inside.name", { place: name }) : name;
 
   const choose = (next: ModeChoice): void => {
     chooseGraphics(next);
@@ -472,7 +474,7 @@ export function City({
 
   // The things here and the acts the view allows now: an activity's act only while the view offers it here (R-WORLD-005).
   // A school's offer waiting makes the deposit payable (R-ROUTE-008): the bank's act shows while one does.
-  const depositDue = view.routes.flatMap((route) => route.schools.filter((school) => school.state === "offer").map((school) => ({ route: route.id, school: school.id })))[0] ?? null;
+  const depositDue = view.routes.filter((route) => route.school === null && route.depositPaid === 0).flatMap((route) => route.schools.filter((school) => school.state === "offer").map((school) => ({ route: route.id, school: school.id })))[0] ?? null;
   // A visa granted makes the flight boardable at the airport's gate (R-CHAPTER-006, route/depart).
   const departDue = view.routes.find((route) => route.state === "granted")?.id ?? null;
   // R-WORLD-005: a job on a place's board or stall is an act whenever the hunt can ask for it.
@@ -601,7 +603,8 @@ export function City({
     return places
       .filter((place) => (place.position !== null || place.id === home || (place.area !== null && shipped?.has(place.id) === true)) && (shipped === null || shipped.has(place.id) || place.id === home))
       .map((place) => {
-        const state: PinState = place.id === placeId ? "here" : place.id === home ? "home" : been.includes(place.id) ? "been" : shipped === null || shipped.has(place.id) ? "can" : "not";
+        const reached = stopReached(view.chapter, where, place.id);
+        const state: PinState = place.id === placeId ? "here" : place.id === home ? "home" : been.includes(place.id) ? "been" : !reached ? "not" : shipped === null || shipped.has(place.id) ? "can" : "not";
         return { id: place.id, name: placeName(place.id), state, position: spotOf(place), things: place.stages.length };
       });
   })();
@@ -612,7 +615,7 @@ export function City({
   ];
   const shownCountry = countries.find((choice) => choice.locked === null) ?? countries[0] ?? { id: "lagos", name: cityWords("city.map.lagos"), locked: null };
 
-  const nudge = world ? nudgeOf(view) : null;
+  const nudge = world ? nudgeOf(view, undefined, plan.flatMap((pick) => (pick === null ? [] : [pick.activity]))) : null;
   // A question or an offer waiting on the player opens from the nudge; nothing else is on screen to open it (R-WORLD-001).
   const nudgeOpens = asks !== undefined && (nudge?.about === "setpiece" || nudge?.about === "offer");
   // The chapter's step opens its way (R-WORLD-003): the thing's acts when it stands here, the map at its stop
@@ -651,13 +654,20 @@ export function City({
   const ask: Ask | null = (() => {
     if (world && picked?.kind === "command" && picked.command === "route/depart" && departDue !== null) {
       const route = departDue;
+      // The flight's cost from tuning unless the employer pays; held funds still open stop the flight (route/depart).
+      const flight = content.tuning.route.flight;
+      const employerPays = content.route[route]?.flightPaidByEmployer === true;
+      const heldOpen = view.obligations.some((owed) => content.obligation[owed.entry]?.type === "held-funds");
       return {
         form: "card",
         icon: "plane",
         who: hereName,
         title: say("ui.route.depart"),
         line: say("ui.world.depart-line", { route: nameOf(route) }),
-        cost: null,
+        // The flight's amount is a plain figure in tuning; a world variable would need the simulation's reading.
+        cost: employerPays || typeof flight.amount !== "number" ? null : { amount: flight.amount, currency: flight.currency },
+        when: "now",
+        ...(heldOpen ? { blocked: say("ui.world.depart-held") } : {}),
         button: say("ui.route.depart"),
         act: () => {
           void send({ type: "route/depart", route }).then((reply) => cue(reply?.ok === true ? "whoosh" : "tap"));
@@ -677,6 +687,7 @@ export function City({
         title: say("ui.route.pay-deposit"),
         line: say("ui.world.deposit-line", { school: nameOf(depositDue.school), route: nameOf(depositDue.route) }),
         cost: deposit,
+        when: "now",
         button: say("ui.route.pay-deposit"),
         act: () => {
           void send({ type: "route/pay-deposit", route: depositDue.route, school: depositDue.school }).then((reply) => {
@@ -696,7 +707,8 @@ export function City({
     // unless the thing tapped made the choice (a job on a board), when the card names it (R-WORLD-005).
     const chosen = picked.param !== undefined && option.params?.includes(picked.param) === true ? picked.param : null;
     if (option.params !== null && option.params.length > 1 && chosen === null) return null;
-    const cost = option.cost[0] ?? null;
+    const first = option.cost[0] ?? null;
+    const cost = first === null ? null : { ...first, amount: option.cost.filter((part) => part.currency === first.currency).reduce((sum, part) => sum + part.amount, 0) };
     const paper = activity === "activity.play-lotto" || activity === "activity.bet-slip";
     return {
       form: paper ? "slip" : "card",
@@ -719,10 +731,12 @@ export function City({
 
   // The Month sheet gives way to the results when the month ends; the asks sheet closes once nothing waits.
   useEffect(() => {
-    if (reportOpen) setMonthOpen(false);
+    if (reportOpen) {
+      setMonthOpen(false);
+      setPicked(null);
+    }
   }, [reportOpen]);
   // A pick added from the picker's sheet is said in a toast and the sheet closes, as the ask card does (R-WORLD-006).
-  const plan = useGame((state) => state.plan);
   const lastPlan = useRef(plan);
   useEffect(() => {
     const before = lastPlan.current;
@@ -836,7 +850,7 @@ export function City({
             money={view.pockets.NGN.cash + view.pockets.NGN.bank}
             formatMoney={(amount) => formatMoney(amount, "NGN")}
             onEndMonth={() => setMonthOpen(true)}
-            turns={view.turns.banked}
+            {...(view.turns.banked <= 3 ? { turns: view.turns.banked } : {})}
             endBlocked={endBlocked}
             hidden={map || resultsOpen}
             open={bandOpen}
@@ -844,7 +858,7 @@ export function City({
             more={
               !(phone || monthOpen || asksOpen || menu || credits || picked !== null) ? (
                 <div key={bandOpen ? "open" : `peek-${nudgeKey}-${comingKey}`} className={bandOpen ? "" : "drop"}>
-                  <Nudge nudge={nudge} {...(nudgeOpens ? { onTap: () => setAsksOpen(true) } : nudgeGoes ? { onTap: followStep } : {})} />
+                  <Nudge nudge={nudge} {...(nudgeOpens ? { onTap: () => setAsksOpen(true) } : nudgeGoes ? { onTap: followStep } : nudge?.about === "report" ? { onTap: () => setPhone(true) } : {})} />
                   {coming === null || !(bandOpen || peek) ? null : (
                     <p className="chip pointer-events-auto mt-1.5 inline-flex max-w-full items-center gap-1.5 px-2.5 py-1.5 text-[12px] font-bold" data-coming>
                       <Clock size={14} aria-hidden />
@@ -872,7 +886,7 @@ export function City({
             <FullScreen open onClose={() => setOpeningSeen(true)} title={nameOf(view.chapter.current)} tone="over">
               <div className="flex max-w-sm flex-col items-center gap-5 text-center" data-opening={view.chapter.current}>
                 <p className="label label-strong text-[11px] tracking-[0.3em] uppercase opacity-80">{nameOf(view.chapter.current)}</p>
-                <p className="font-display text-[28px] leading-tight">{words(`${view.chapter.current}.open`)}</p>
+                <p className="text-[24px] leading-snug font-bold">{words(`${view.chapter.current}.open`)}</p>
                 <p className="text-[15px] opacity-90">{say(nudge?.key ?? "ui.nudge.end", nudge?.params ?? {})}</p>
                 <Button onClick={() => setOpeningSeen(true)} data-opening-go>
                   {say("ui.opening.go")}
@@ -1034,7 +1048,7 @@ export function City({
         </WorldSheet>
       ) : null}
       {world && resultsShown ? results?.(inside && insideEntry !== null && insideEntry.id !== entry?.id ? placeName(insideEntry.id) : name) : null}
-      {world && phone && handset !== undefined ? handset(() => setPhone(false), inside ? cityWords("city.inside.name", { place: name }) : name) : null}
+      {world && phone && handset !== undefined ? handset(() => setPhone(false), inside ? hereName : name) : null}
       {world && phone && handset === undefined && apps !== undefined ? <Phone apps={apps} onClose={() => setPhone(false)} /> : null}
       <Sheet open={picked?.kind === "ride"} onOpenChange={(open) => { if (!open) setPicked(null); }} title={picked?.kind === "ride" ? cardWords() : ""} description={cityWords("city.ride.title")}>
         {picked?.kind === "ride" ? (
