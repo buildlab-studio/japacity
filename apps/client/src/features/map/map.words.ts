@@ -42,7 +42,6 @@ export const mapText: Record<string, string> = {
   "map.ride.skip": "Skip",
   // Turn back: you get down at the next stop and walk back; the fare is gone (R-WORLD-017, the design).
   "map.ride.turn-back": "Turn back",
-  "map.ride.turned-back": "You got down at the next stop and walked back.",
   // Where you are as the ride goes, in the card: pulling out, the road, the stop.
   "map.ride.along.start": "Pulling out of {from}.",
   "map.ride.along.road.1": "The traffic moves, for once.",

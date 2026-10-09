@@ -44,7 +44,10 @@ export function comingOf(view: Pick<PlayerView, "month" | "offers" | "documents"
   return list.filter((item) => item.month >= view.month).sort((a, b) => a.month - b.month);
 }
 
-/** The soonest, for the band's chip. */
+/** The kinds the band's chip may say: things to answer or wait on. The birthday and an age limit stand only in the list, so the chip never peeks for them. */
+const CHIP_KINDS: ReadonlySet<Coming["kind"]> = new Set(["offer", "paper", "visa"]);
+
+/** The soonest thing to answer or wait on, for the band's chip; null when there is none. */
 export function soonest(view: Parameters<typeof comingOf>[0]): Coming | null {
-  return comingOf(view)[0] ?? null;
+  return comingOf(view).find((item) => CHIP_KINDS.has(item.kind)) ?? null;
 }

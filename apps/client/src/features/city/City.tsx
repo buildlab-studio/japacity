@@ -10,7 +10,6 @@ import { lazy, Suspense, useEffect, useMemo, useRef, useState, type ReactNode } 
 import { useGame, useView } from "../../authority/GameProvider";
 import { keptLookFile } from "../../authority/person";
 import { chooseGraphics, setGraphicsMode } from "../../shared/graphics/mode";
-import { mapWords } from "../map/map.words";
 import { loadModel } from "../../shared/three/load";
 import { assetUrl, loadJson, loadManifest } from "../../shared/three/manifest";
 import { Button } from "../../shared/ui/Button";
@@ -1038,7 +1037,7 @@ export function City({
               setDiveTo(null);
               setRideBy(null);
               setMapPick(null);
-              toast.show(mapWords("map.ride.turned-back"));
+              toast.show(cityWords("city.ride.turned-back"));
             },
           })
         : null}

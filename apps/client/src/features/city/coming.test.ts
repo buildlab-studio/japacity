@@ -8,14 +8,14 @@ import { nameOf, say } from "../../shared/words/text";
 import { AGE_LIMIT_NEAR, ageMonthsOf, comingOf, soonest } from "./coming";
 
 describe("what is coming", () => {
-  test("[R-WORLD-002] given a new life, when the list is read, then the next birthday is on it as months away and the soonest is that", () => {
+  test("[R-WORLD-002] given a new life, when the list is read, then the next birthday is on it as months away, and the chip has nothing to say", () => {
     const view = engineView();
     const age = ageMonthsOf(view);
     const list = comingOf(view);
     expect(list.map((item) => item.kind)).toEqual(["birthday"]);
     expect(list[0]?.what).toBe(say("ui.world.coming.birthday", { age: Math.floor(age / 12) + 1 }));
     expect(list[0]?.month).toBe(view.month + 12 - (age % 12));
-    expect(soonest(view)).toEqual(list[0]);
+    expect(soonest(view)).toBeNull();
   });
 
   test("[R-WORLD-002] given open asks, a paper on its way and a visa awaited, when the list is read, then each is on it with its month and the list runs soonest first", () => {
@@ -32,8 +32,9 @@ describe("what is coming", () => {
     expect(list.find((item) => item.kind === "paper")).toMatchObject({ what: nameOf("document.passport"), month: 12 });
     expect(list.find((item) => item.kind === "visa")).toMatchObject({ what: nameOf("route.uk-masters"), month: 11 });
     expect(list.filter((item) => item.kind === "offer").length).toBe(view.offers.filter((offer) => offer.expiresMonth >= 10).length);
-    // Nothing past is listed.
+    // Nothing past is listed; the chip says the soonest thing to answer or wait on.
     expect(list.every((item) => item.month >= view.month)).toBe(true);
+    expect(soonest(view)).toEqual(list.find((item) => item.kind !== "birthday" && item.kind !== "age-limit"));
   });
 
   test("[R-WORLD-002] given the Gulf heard of and the character near its age limit, when the list is read, then the limit is on it as months away; far from it, or on a route unheard, it is not", () => {
