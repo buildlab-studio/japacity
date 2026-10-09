@@ -41,7 +41,7 @@ test("a new player picks a life, ends a month and reads the report", async ({ pa
   await startReadyLife(page);
 
   await expect(page.getByRole("heading", { name: "Month 1", exact: true })).toBeVisible();
-  await page.getByRole("button", { name: "End month" }).click();
+  await page.getByRole("button", { name: "Turn the page" }).click();
 
   const report = page.getByRole("dialog");
   await expect(report).toBeVisible();
@@ -70,7 +70,7 @@ test("three months of play show no kobo, raw object, missing value or bare key",
   for (const [index, activities] of months.entries()) {
     const month = index + 1;
     for (const activity of activities) await plan(page, activity);
-    await page.getByRole("button", { name: "End month" }).click();
+    await page.getByRole("button", { name: "Turn the page" }).click();
     const report = page.getByRole("dialog");
     await expect(report.getByRole("heading", { name: `Month ${String(month)}` })).toBeVisible();
     await expectNothingBroken(page, `in the report for month ${String(month)}`);
@@ -174,7 +174,7 @@ function monthsToDecember(): number {
 /** Ends the month, steps through any staged moments, reads the report and closes it. */
 async function endMonthAndRead(page: Page, when: string): Promise<void> {
   await openTab(page, "Month");
-  await page.getByRole("button", { name: "End month" }).click();
+  await page.getByRole("button", { name: "Turn the page" }).click();
   await expect(page.getByRole("dialog")).toBeVisible();
   const carryOn = page.getByRole("button", { name: /^(Carry on|Next)$/ });
   for (let shown = 0; shown < 5 && (await carryOn.isVisible()); shown += 1) await carryOn.click();

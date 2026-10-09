@@ -1,7 +1,7 @@
 // The world's own words (docs/rules/world.md), first drafts in the voice of docs/rules/text.md.
 // Content's table wins over these, so each key can move into content to be rewritten.
 export const worldText: Record<string, string> = {
-  "ui.world.end-month": "End month",
+  "ui.world.end-month": "Turn the page",
   "ui.world.map": "Map",
   "ui.world.phone": "Phone",
   "ui.world.whole": "See the whole place",
@@ -17,8 +17,8 @@ export const worldText: Record<string, string> = {
   "ui.world.month-of": "Month {month}",
   "ui.world.clock": "{years} yrs {months} mo",
   "ui.world.age": "{years} yrs {months} mo",
-  "ui.world.turns": "{count} months",
-  "ui.world.turns.one": "1 month",
+  "ui.world.turns": "{count} pages",
+  "ui.world.turns.one": "1 page",
   "ui.world.show-more": "Show more",
   "ui.world.show-less": "Show less",
   "ui.world.coming": "{what} {when}",

@@ -135,7 +135,7 @@ test("[R-GUIDE-015] [R-GUIDE-014] a new life played online as the next step sugg
     if (before) await expectNoAsk(page, `before month ${String(month)} ends`);
     await planNextStep(page, game);
     if (before) await expectNoAsk(page, `with month ${String(month)} planned`);
-    await page.getByRole("button", { name: "End month" }).click();
+    await page.getByRole("button", { name: "Turn the page" }).click();
 
     // The staged wins come first, then the report: none of them is an ask.
     await expect(page.getByRole("dialog")).toBeVisible();
