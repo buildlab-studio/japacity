@@ -1,45 +1,87 @@
-// The Third Mainland Bridge staged (city.md place.third-mainland-bridge): the span on its water in the
-// lagoon's colour, canoes on the moving water, houses on stilts with their washing, fish smoked on the shore.
+// The Third Mainland Bridge rebuilt as one frontage (city.md place.third-mainland-bridge, world.md
+// R-WORLD-011, streets.md R-STREET-004): the shore under one span, the deck overhead, mats on pallets
+// where people sleep, a drum fire, the lagoon's edge, and a danfo on the service road.
+import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
-import { BRIDGE } from "@japacity/assets-src/lm/third-mainland-span/build";
+import { BRIDGE, girderDepth } from "@japacity/assets-src/lm/third-mainland-span/build";
 
 import raw from "../../../../public/assets/places/third-mainland-bridge/place.json";
-import { staged, stagedPlaceTests } from "./staged";
+import { sceneWords } from "../scene.words";
+import { stagedAt } from "../staging";
+import { thingSpot, vehicleOf } from "../things";
+import { frontageTests } from "./frontageTesting";
+import { copiesOf, staged } from "./placeTesting";
 
 const ID = "place.third-mainland-bridge";
-const { stage, at } = staged(raw, ID);
+const { stage } = staged(raw, ID);
+const thing = (id: string) => {
+  const found = (stage.things ?? []).find((candidate) => candidate.id === id);
+  if (found === undefined) throw new Error(`No ${id}`);
+  return found;
+};
+const NIGHT = ["offer.bridge-night", "offer.bridge-theft", "offer.bridge-mosquitoes"];
 
 describe("the Third Mainland Bridge", () => {
-  stagedPlaceTests(raw, ID);
+  frontageTests(raw, ID);
 
-  test("[R-CITY-026] given the lagoon, when the place is read, then one water grid in the lagoon's colour lies under the whole near span, the still lagoon beyond it is the same colour, and every canoe and stilt house near the bridge stands in it", () => {
+  test("[R-STREET-004] given the mats under the bridge, when their acts are read, then sleeping rough is done on the spot lying on a mat, and the night's three blows open from the same mats on one sheet", () => {
+    const mats = thing("mats");
+    const [sleep, night] = mats.acts;
+    expect(sleep?.kind).toBe("do");
+    expect(sleep?.stages).toBe("activity.sleep-rough");
+    expect(sleep?.pose).toBe("lie");
+    expect(night?.kind).toBe("sheet");
+    expect([night?.stages, ...(night?.more ?? [])]).toEqual(NIGHT);
+    expect(mats.acts.map((act) => sceneWords(act.label))).toEqual(["Sleep here", "The night"]);
+  });
+
+  test("[R-STREET-004] given the sleeping spot, when it is read against the pallets and the deck, then it lies on a mat on a pallet and under the span's girder", () => {
+    const seat = thing("mats").acts[0]?.seat;
+    if (seat === undefined) throw new Error("No seat");
+    const pallets = stage.roads.filter((road) => road.colour === "wood");
+    expect(pallets.length).toBeGreaterThanOrEqual(3);
+    const onPallet = pallets.some((road) => Math.abs(seat[0] - road.at[0]) <= road.size[0] / 2 && Math.abs(seat[1] - road.at[1]) <= road.size[1] / 2);
+    expect(onPallet).toBe(true);
+    const [span] = copiesOf(stage, "lm_third-mainland-span.glb");
+    if (span === undefined) throw new Error("No span");
+    // Under the deck's near edge, and the girder there clears a standing person.
+    expect(Math.abs(seat[1] - span[1])).toBeLessThan(BRIDGE.deckWidth / 2 - 1.5);
+    const t = Math.max(-1, Math.min(1, ((seat[0] - span[0]) / BRIDGE.bay) * 2));
+    expect(BRIDGE.top - girderDepth(t)).toBeGreaterThan(2);
+  });
+
+  test("[R-CITY-011] given what the bridge stages, when the city looks for where each is shown at home, then sleeping rough and the night's blows are shown here", () => {
+    const places = Object.values(content.place);
+    for (const id of ["activity.sleep-rough", ...NIGHT]) expect(stagedAt(id, { where: "home", country: null }, places)).toBe(ID);
+  });
+
+  test("[R-WORLD-017] given the danfo on the service road, when it is tapped, then it opens the ride sheet for the danfo", () => {
+    const danfo = thing("danfo");
+    expect(danfo.acts.map((act) => act.kind)).toEqual(["ride"]);
+    expect(vehicleOf(danfo)).toBe("danfo");
+    expect(thingSpot(stage, danfo)).not.toBeNull();
+  });
+
+  test("[R-WORLD-005] given the drum fire, when its act is read, then warming your hands is a plain act that says what happened, and its smoke rises from it", () => {
+    const fire = thing("drum-fire");
+    expect(fire.acts.map((act) => act.kind)).toEqual(["plain"]);
+    expect(sceneWords("city.act.warm-hands.done")).not.toBe("city.act.warm-hands.done");
+    const spot = thingSpot(stage, fire);
+    const smoke = stage.motion.find((motion) => motion.kind === "smoke");
+    if (spot === null || smoke === undefined) throw new Error("No fire or smoke");
+    expect(Math.hypot(smoke.at[0] - spot[0], smoke.at[2] - spot[1])).toBeLessThan(0.5);
+  });
+
+  test("[R-CITY-026] given the lagoon's edge, when the place is read, then one water grid in the lagoon's colour lies beside the shore and nobody stands in it", () => {
     const water = stage.motion.filter((motion) => motion.kind === "water");
     expect(water).toHaveLength(1);
     const [grid] = water;
     if (grid === undefined) throw new Error("No water");
+    expect(grid.colours).toEqual(["lagoon"]);
     const [width, depth] = grid.size ?? [0, 0];
     const inside = ([x, z]: readonly number[]): boolean => Math.abs((x ?? 0) - grid.at[0]) <= width / 2 && Math.abs((z ?? 0) - grid.at[2]) <= depth / 2;
-    const [span] = at("lm_third-mainland-span.glb");
-    if (span === undefined) throw new Error("No span");
-    expect(inside([span[0], span[1] - BRIDGE.deckWidth / 2])).toBe(true);
-    expect(inside([span[0], span[1] + BRIDGE.deckWidth / 2])).toBe(true);
-    expect(stage.roads.some((road) => road.colour === grid.colours[0] && road.size[1] > depth)).toBe(true);
-    expect(at("prop_canoe.glb").filter((spot) => !inside(spot))).toEqual([]);
-    const near = at("bld_stilt-house.glb").filter(([, z]) => z > span[1]);
-    expect(near.length).toBeGreaterThanOrEqual(2);
-    expect(near.filter((spot) => !inside(spot))).toEqual([]);
-  });
-
-  test("[R-CITY-014] given the shore, when the crowd stands, then the first spot is a fisherman in a canoe and the player starts on dry ground facing the bridge", () => {
-    const [first] = stage.people;
-    if (first === undefined) throw new Error("No spots");
-    expect(Math.min(...at("prop_canoe.glb").map(([x, z]) => Math.hypot(x - first[0], z - first[1])))).toBeLessThan(0.5);
-    const water = stage.motion.find((motion) => motion.kind === "water");
-    const shore = (water?.at[2] ?? 0) + (water?.size?.[1] ?? 0) / 2;
-    expect(stage.start[1]).toBeGreaterThan(shore);
-    expect(Math.cos(stage.start[2])).toBeLessThan(-0.9);
-    expect(stage.motion.some((motion) => motion.kind === "smoke")).toBe(true);
-    expect(stage.motion.some((motion) => motion.kind === "hang")).toBe(true);
+    expect(stage.people.filter((spot) => inside(spot))).toEqual([]);
+    expect(inside(stage.start)).toBe(false);
   });
 });

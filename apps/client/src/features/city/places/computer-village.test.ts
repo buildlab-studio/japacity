@@ -1,6 +1,7 @@
 // Computer Village rebuilt as one frontage (city.md place.computer-village, world.md R-WORLD-011):
 // the phone plaza and the laptop house across the road, and on the near pavement the repair bench
-// where the laptop's fault and the side gig open, a phone shop, an accessories stall, a danfo and an okada.
+// where the laptop's fault and the side gig open, a phone shop where a phone is bought, an accessories stall
+// where the trade is learned and phones are sold (streets.md R-STREET-001 to 003), a danfo and an okada.
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
@@ -32,9 +33,27 @@ describe("Computer Village", () => {
     expect(bench.acts.map((act) => sceneWords(act.label))).toEqual(["The laptop", "Side gig"]);
   });
 
+  test("[R-STREET-001] given the phone stall, when its acts are read, then buying a phone opens as a sheet under its own words and looking stays a plain act", () => {
+    const stall = thing("phone-stall");
+    expect(stall.acts.map((act) => [act.kind, act.stages])).toEqual([
+      ["sheet", "activity.buy-phone"],
+      ["plain", undefined],
+    ]);
+    expect(stall.acts.map((act) => sceneWords(act.label))).toEqual(["Buy a phone", "Look"]);
+  });
+
+  test("[R-STREET-002] [R-STREET-003] given the accessories stall, when its acts are read, then the apprenticeship and the phone sales job each open as a sheet under their own words", () => {
+    const stall = thing("accessories");
+    expect(stall.acts.map((act) => [act.kind, act.stages])).toEqual([
+      ["sheet", "activity.apprentice-repair"],
+      ["sheet", "activity.job-phone-sales"],
+    ]);
+    expect(stall.acts.map((act) => sceneWords(act.label))).toEqual(["Learn repairs", "Sell phones"]);
+  });
+
   test("[R-CITY-011] given what Computer Village stages, when the city looks for where each is shown at home, then it is shown here", () => {
     const places = Object.values(content.place);
-    for (const id of ["offer.laptop-fault", "activity.side-gig"]) expect(stagedAt(id, { where: "home", country: null }, places)).toBe(ID);
+    for (const id of ["offer.laptop-fault", "activity.side-gig", "activity.buy-phone", "activity.job-phone-sales", "activity.apprentice-repair"]) expect(stagedAt(id, { where: "home", country: null }, places)).toBe(ID);
   });
 
   test("[R-CITY-014] given the repair bench, when the crowd stands, then the repairer keeps the spot behind it and those waiting stand on the near side", () => {
