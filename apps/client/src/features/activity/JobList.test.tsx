@@ -104,7 +104,8 @@ describe("the jobs list on the hunt's card", () => {
     const view = engineView();
     const out = jobsOutOfReach(view, huntOf(view));
     expect(out.map((job) => job.id)).toContain("activity.job-bank-senior");
-    expect(out.map((job) => job.id)).not.toContain("activity.job-nurse");
+    // The staff nurse is hunted (R-PROLOGUE-010), so a life without the care lists it apart with that need.
+    expect(out.find((job) => job.id === "activity.job-nurse")?.needs).toEqual([requirementSentence({ type: "quality/min", quality: "quality.care", value: 60 }, { routes: view.routes })]);
     await renderWithView(<ActivityPicker only={[HUNT]} />, view);
     const apart = screen.getByRole("list", { name: jobsWords("jobs.out-of-reach") });
     for (const job of out) {
