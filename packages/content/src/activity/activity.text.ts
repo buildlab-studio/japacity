@@ -1,4 +1,6 @@
 // Names are from docs/rules/activity.md. Blurbs are first drafts.
+import { activityStreetText } from "./activity.street.text";
+
 export const activityText: Record<string, string> = {
   "activity.job-teacher.name": "Private school teacher",
   "activity.job-teacher.blurb": "You teach a class of forty. The pay is small and it comes on time.",
@@ -127,4 +129,7 @@ export const activityText: Record<string, string> = {
   "activity.see-someone.blurb": "A month's evening out with the one you are seeing. It costs, and it counts.",
   "activity.call-someone.name": "Call someone",
   "activity.call-someone.blurb": "They are far away. A call costs nothing but the time.",
+
+  // streets.md (R-STREET-001 to 004, 008).
+  ...activityStreetText,
 };

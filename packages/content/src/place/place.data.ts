@@ -141,7 +141,8 @@ const JOBS_ABROAD: Staged = [
 const entries: PlaceEntry[] = [
   // Lagos: public places.
   lagos("place.ojuelegba", "Ojuelegba", "surulere", 6511, 3362, { assets: "ojuelegba-front", hub: true, stages: ["offer.fuel-scarcity", "chapter.find-your-feet", "activity.ask-around", "activity.see-agent-stop", "offer.agent-stop", "offer.agent-promise", "offer.agent-papers"], crowd: PACKED, traditionalBp: ROADSIDE }),
-  lagos("place.national-stadium", "National Stadium", "surulere", 6497, 3365, { crowd: QUIET, traditionalBp: STREET }),
+  // streets.md R-STREET-008: a morning run, and nothing else; it is a landmark.
+  lagos("place.national-stadium", "National Stadium", "surulere", 6497, 3365, { stages: ["activity.morning-run"], crowd: QUIET, traditionalBp: STREET }),
   lagos("place.bode-thomas", "Bode Thomas Street", "surulere", 6490, 3355, { assets: "bode-thomas-front", stages: ["activity.play-lotto", "activity.bet-slip"], crowd: BUSY, traditionalBp: STREET }),
   lagos("place.adeniran-ogunsanya", "Adeniran Ogunsanya Street", "surulere", 6494, 3357, { stages: ["activity.job-teacher"], crowd: BUSY, traditionalBp: STREET }),
   lagos("place.costain", "Costain", "surulere", 6482, 3369, { crowd: BUSY, traditionalBp: ROADSIDE }),
@@ -165,7 +166,8 @@ const entries: PlaceEntry[] = [
   lagos("place.oshodi", "Oshodi", "oshodi", 6556, 3351, { crowd: PACKED, traditionalBp: ROADSIDE }),
   lagos("place.maryland", "Maryland", "ikeja", 6577, 3366, { crowd: BUSY, traditionalBp: ROADSIDE }),
   lagos("place.ojota", "Ojota", "kosofe", 6587, 3379, { crowd: BUSY, traditionalBp: ROADSIDE }),
-  lagos("place.computer-village", "Computer Village", "ikeja", 6594, 3340, { stages: ["offer.laptop-fault", "activity.side-gig"], crowd: PACKED, traditionalBp: MARKET }),
+  // streets.md R-STREET-001 to 003: a phone, the sales job and the repair apprenticeship.
+  lagos("place.computer-village", "Computer Village", "ikeja", 6594, 3340, { stages: ["offer.laptop-fault", "activity.side-gig", "activity.buy-phone", "activity.job-phone-sales", "activity.apprentice-repair"], crowd: PACKED, traditionalBp: MARKET }),
   lagos("place.allen-avenue", "Allen Avenue", "ikeja", 6601, 3352, { stages: ["activity.ride-driving"], crowd: BUSY, traditionalBp: STREET }),
   lagos("place.ogba", "Ogba", "ogba", 6633, 3341, { crowd: BUSY, traditionalBp: STREET }),
   lagos("place.berger", "Berger", "ojodu", 6642, 3369, { crowd: BUSY, traditionalBp: ROADSIDE }),
@@ -174,8 +176,9 @@ const entries: PlaceEntry[] = [
   lagos("place.ikorodu-road", "Ikorodu Road", "kosofe", 6605, 3401, { crowd: BUSY, traditionalBp: ROADSIDE }),
   lagos("place.lagos-ibadan-expressway", "Lagos-Ibadan Expressway", "ikeja", 6610, 3370, { crowd: QUIET, traditionalBp: ROADSIDE }),
   lagos("place.gbagada", "Gbagada", "kosofe", 6558, 3384, { crowd: BUSY, traditionalBp: OFFICE }),
+  // streets.md R-STREET-004: sleeping rough under the span, and its price.
   lagos("place.third-mainland-bridge", "Third Mainland Bridge", "lagos-lagoon", 6502, 3402, {
-    stages: [],
+    stages: ["activity.sleep-rough", "offer.bridge-theft", "offer.bridge-mosquitoes", "offer.bridge-night"],
     crowd: QUIET,
     traditionalBp: OFFICE,
   }),

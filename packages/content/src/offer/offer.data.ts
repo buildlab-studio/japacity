@@ -8,6 +8,7 @@ import { abroadOfferTable } from "./offer.abroad.data";
 import { healthOfferTable } from "./offer.health.data";
 import { luckOfferTable } from "./offer.luck.data";
 import { peopleOfferTable } from "./offer.people.data";
+import { streetOfferTable } from "./offer.street.data";
 
 const UK: Id<"route"> = "route.uk-masters";
 
@@ -882,6 +883,8 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
   ...luckOfferTable,
   // people.md: the recovery after being left, and the papers marriage.
   ...peopleOfferTable,
+  // streets.md: the price of sleeping under the bridge (R-STREET-004).
+  ...streetOfferTable,
   // route-gates.md, "Entries: sponsor offers". group `money`, as the Gulf agent is, so R-OFFER-001 rolls them.
 
   "offer.sponsor-care-home": {

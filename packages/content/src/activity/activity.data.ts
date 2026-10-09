@@ -6,6 +6,7 @@ import type { ActivityEntry, Cost, Id, Requirement } from "@japacity/sim";
 import { dollars, naira, pct } from "../units";
 import { abroadActivityTable, foreignPocketActivityTable } from "./activity.abroad.data";
 import { peopleActivityTable } from "./activity.people.data";
+import { streetActivityTable } from "./activity.street.data";
 import { peopleApplyActivities } from "../route/route.data";
 
 const UK: Id<"route"> = "route.uk-masters";
@@ -526,6 +527,8 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
   ...foreignPocketActivityTable,
   // people.md: time with someone (R-PEOPLE-014).
   ...peopleActivityTable,
+  // streets.md: Computer Village, the bridge and the stadium (R-STREET-001 to 004, 008).
+  ...streetActivityTable,
   // people.md: applying on the partner and dependant gates (R-PEOPLE-022, 026).
   ...peopleApplyActivities,
   // route-gates.md: the sponsor gate.
