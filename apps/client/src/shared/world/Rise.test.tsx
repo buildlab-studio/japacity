@@ -41,23 +41,15 @@ describe("the rise of the figure", () => {
 
   test("[R-JAPACITY-003] given Tunde the borrower's life, when every month's figure is read in turn, then each rise is its gain and every fall is no rise", () => {
     const commands = recordedSave("tunde-borrower").commands.length;
-    let before: number | null = null;
-    let up = 0;
-    let down = 0;
-    for (let played = 0; played <= commands; played += 1) {
-      const now = recordedGame("tunde-borrower", commands - played).view().japacity.percent;
-      const rise = riseOf(before, now);
-      if (now !== null && (before === null || now > before)) {
-        expect(rise).toBe(now - (before ?? 0));
-        up += 1;
-      } else {
-        expect(rise).toBe(0);
-        if (now !== before) down += 1;
-      }
-      before = now;
-    }
-    expect(up).toBeGreaterThan(5);
-    expect(down).toBeGreaterThan(0);
+    const figures: (number | null)[] = [];
+    for (let played = 0; played <= commands; played += 1) figures.push(recordedGame("tunde-borrower", commands - played).view().japacity.percent);
+    const changes = figures.slice(1).map((now, index) => ({ before: figures[index] ?? null, now })).filter(({ before, now }) => before !== now);
+    const gains = changes.filter(({ before, now }) => now !== null && now > (before ?? 0));
+    const falls = changes.filter(({ before, now }) => now === null || (before !== null && now < before));
+    expect(gains.length).toBeGreaterThan(5);
+    expect(falls.length).toBeGreaterThan(0);
+    expect(gains.map(({ before, now }) => riseOf(before, now))).toEqual(gains.map(({ before, now }) => (now ?? 0) - (before ?? 0)));
+    expect(falls.map(({ before, now }) => riseOf(before, now))).toEqual(falls.map(() => 0));
   });
 
   test("[R-JAPACITY-003] [R-WORLD-023] given the world in view, when the figure rises, then one rise flies once in the band's colours and is gone after its time; when it falls, nothing flies and only the figure the bag reads moves", () => {
