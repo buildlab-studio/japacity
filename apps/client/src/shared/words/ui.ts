@@ -45,6 +45,13 @@ export const uiText: Record<string, string> = {
   "ui.world.depart-held": "The funds held for you must go back first: Phone, Bills, Pay now.",
   "ui.inside.hub": "The hub, Yaba",
   "ui.world.ask-away": "Someone is waiting for you at {place}.",
+  // Who waits, where content knows: the family house is Mama's.
+  "ui.world.ask-away.place.family-house": "Mama is waiting for you at home.",
+  // A country as the plane's line names it (features/city/City.tsx, the depart sheet).
+  "ui.country.place.country.uk": "the UK",
+  "ui.country.place.country.canada": "Canada",
+  "ui.country.place.country.uae": "the UAE",
+  "ui.country.place.country.italy": "Italy",
   "ui.world.go-there": "Go there",
   "ui.world.pay-back": "Pay back what is held",
   "ui.world.pay-back-line": "{amount} is held for you. Paid back, the plane is open.",
