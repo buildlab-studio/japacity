@@ -7,9 +7,10 @@ import { formatMoney } from "../../shared/words/format";
 import { asksAttention, tidyLines } from "../../shared/words/lines";
 import { hasWords, inMonths } from "../../shared/words/text";
 import type { Nudge } from "../../shared/world/contract";
+import { duesGap } from "../phone/apps/abroad";
 
-/** What the nudge points at, so a tap on it can open the matching sheet. */
-export type NudgeAbout = "setpiece" | "offer" | "step" | "report" | "end";
+/** What the nudge points at, so a tap on it can open the matching sheet. `dues`: the month's dues abroad pass the money held; it opens the Bank. */
+export type NudgeAbout = "setpiece" | "offer" | "step" | "report" | "dues" | "end";
 
 /**
  * Where a chapter's step is done (R-WORLD-003): the things that move it, as `<place>:<thing>` in
@@ -73,7 +74,7 @@ const STEP_PAPER: Record<string, string> = {
 /** The route the chapters follow, for the school's answer and the funds (chapter.md). */
 const STORY_ROUTE = "route.uk-masters";
 
-type NudgeView = Pick<PlayerView, "setpiece" | "interview" | "offers" | "chapter" | "report"> & Partial<Pick<PlayerView, "documents" | "routes" | "month">>;
+type NudgeView = Pick<PlayerView, "setpiece" | "interview" | "offers" | "chapter" | "report"> & Partial<Pick<PlayerView, "documents" | "routes" | "month" | "place" | "pockets" | "obligations">>;
 
 /**
  * A step already started names the wait instead of the thing to do again:
@@ -114,7 +115,13 @@ export function nudgeOf(view: NudgeView, has: (key: string) => boolean = hasWord
     if (started !== null) return { ...started, about: "step" };
     return { key: has(`${own}.nudge`) ? `${own}.nudge` : own, about: "step" };
   }
-  // A report line waits when one of last month's lines asks for the player.
-  if (view.report !== null && tidyLines(view.report.lines).some(asksAttention)) return { key: "ui.nudge.report", about: "report" };
+  // A report line waits when one of last month's lines asks for the player. Abroad, when the month's
+  // dues pass the country's money held, that line says the gap.
+  if (view.report !== null && tidyLines(view.report.lines).some(asksAttention)) {
+    const { place, pockets, obligations } = view;
+    const gap = place === undefined || pockets === undefined || obligations === undefined ? null : duesGap({ place, pockets, obligations });
+    if (gap !== null) return { key: "ui.nudge.dues", params: { due: formatMoney(gap.due, gap.currency), held: formatMoney(gap.held, gap.currency) }, about: "dues" };
+    return { key: "ui.nudge.report", about: "report" };
+  }
   return { key: "ui.nudge.end", about: "end" };
 }

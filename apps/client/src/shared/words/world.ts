@@ -39,5 +39,6 @@ export const worldText: Record<string, string> = {
   "ui.nudge.setpiece": "Something needs an answer",
   "ui.nudge.offer": "Someone is asking you something",
   "ui.nudge.report": "The month's news is in",
+  "ui.nudge.dues": "Only {held} held for {due} due this month",
   "ui.nudge.end": "End the month when you are ready",
 };
