@@ -1,16 +1,22 @@
 // The family house staged (city.md place.family-house, R-CITY-037): the party room as a place, the
 // veranda and the yard on an ordinary day, and the same house dressed for offer.send-off-party,
-// its guests idling and its dancers on the two dance loops while the offer is open.
+// its guests idling and its dancers on the two dance loops while the offer is open; and the compound's
+// veranda, where the family's pledge and home's own send-off (R-CHAPTER-008) are answered.
 import { content } from "@japacity/content";
 import type { PlayerView } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
+import compoundFile from "../../../../public/assets/places/family-house-compound/place.json";
 import placeFile from "../../../../public/assets/places/family-house/place.json";
 import { engineView, richView } from "../../../shared/testing/fixtures";
 import { crowdSize, poolOf, sampleCrowd } from "../crowd";
 import { dancerShown, DANCER_SLOT, dressPlace, filesOf } from "../placeFile";
 import { personOf } from "../roster";
+import { sceneWords } from "../scene.words";
 import { offersHere } from "../staging";
+import { MAX_ACTS, stagedNow, thingsNow } from "../things";
+import { checkLimits } from "../../../../../../tools/assets/world-check";
+import { actEntries } from "./frontageTesting";
 import { allPalette, city, instancesOf, measured, onGround, rowOf, signKeys, staged, totalsOf, wordsOf } from "./placeTesting";
 
 const { file, stage, entry } = staged(placeFile, "place.family-house");
@@ -121,5 +127,39 @@ describe("the send-off party", () => {
     expect(stage.people.every((spot) => onGround(stage, spot))).toBe(true);
     expect(stage.start[1]).toBeGreaterThan(0);
     expect(stage.start[2]).toBeCloseTo(Math.PI, 3);
+  });
+});
+
+describe("the compound's veranda", () => {
+  const SEND_OFF = "offer.family-send-off";
+  const PLEDGES = ["offer.family-pledge", "offer.family-pledge-small"];
+  const compound = staged(compoundFile, "place.family-house");
+  const veranda = compound.stage.things?.find((thing) => thing.id === "veranda");
+  if (veranda === undefined) throw new Error("The compound has no veranda");
+  const open = (offers: string[]): ReturnType<typeof thingsNow> => thingsNow([veranda], stagedNow(new Set(), new Set(compound.entry.stages), new Set(offers), null));
+
+  test("[R-CHAPTER-008] [R-WORLD-005] given the house in content, when what its compound's things open is read, then home's send-off is staged at the house and opens from the veranda, beside both pledges, in at most two acts", () => {
+    expect(compound.entry.stages).toContain(SEND_OFF);
+    expect(actEntries(compoundFile, "place.family-house")).toEqual(expect.arrayContaining([SEND_OFF, ...PLEDGES]));
+    expect(veranda.acts.length).toBeLessThanOrEqual(MAX_ACTS);
+    expect(checkLimits(compound.file)).toEqual([]);
+    const act = veranda.acts.find((each) => each.stages === SEND_OFF);
+    expect(act?.kind).toBe("sheet");
+    expect(sceneWords(act?.label ?? "")).toBe("Your send-off");
+  });
+
+  test("[R-CHAPTER-008] [R-WORLD-005] given only the send-off open, when the veranda's acts are read for now, then its one act opens the send-off's sheet; with nothing open the veranda offers nothing", () => {
+    const now = open([SEND_OFF]);
+    expect(now[0]?.acts.map((each) => [each.id, each.stages])).toEqual([["send-off-home", SEND_OFF]]);
+    expect(open([])).toEqual([]);
+  });
+
+  test("[R-WORLD-005] given either pledge open, when the veranda's acts are read for now, then the pledge's act opens that one, so each still opens from the veranda", () => {
+    for (const pledge of PLEDGES) {
+      const now = open([pledge]);
+      expect(now[0]?.acts.map((each) => [each.id, each.stages])).toEqual([["pledge", pledge]]);
+    }
+    const both = open([...PLEDGES, SEND_OFF]);
+    expect(both[0]?.acts.map((each) => each.id)).toEqual(["pledge", "send-off-home"]);
   });
 });

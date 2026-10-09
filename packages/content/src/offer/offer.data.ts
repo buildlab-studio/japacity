@@ -3,6 +3,7 @@
 // abroad and of coming home are in offer.abroad.data.ts and joined in at the end.
 import type { Id, OfferChoice, OfferEntry, Requirement } from "@japacity/sim";
 
+import { tuning } from "../tuning/tuning.data";
 import { naira, pct, pounds } from "../units";
 import { abroadOfferTable } from "./offer.abroad.data";
 import { healthOfferTable } from "./offer.health.data";
@@ -408,6 +409,49 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
       { id: "message", requires: [], pick: null, effects: [], fraudEffects: null },
     ],
     onExpire: "message",
+  },
+  // chapter.md R-CHAPTER-008: the month the visa is granted, home marks it. Certain while the route is
+  // granted, once. group `money`, though it is no money offer. R-OFFER-001 rolls money first and
+  // by id, so this one is rolled first of all; in `life` the grant month's loan offers took both of the
+  // month's places first (ada-careful) and it never opened before the flight. Not `family` either: it is
+  // the character's own send-off, so no sibling shares it (R-PEOPLE-034). The party is spent as any party is.
+  "offer.family-send-off": {
+    id: "offer.family-send-off",
+    group: "money",
+    when: [{ type: "route/state", route: UK, in: ["granted"] }],
+    chanceBp: pct(100),
+    cooldown: 0,
+    maxTimes: 1,
+    expiresAfter: 2,
+    terms: { cost: tuning.chapter.sendOffNaira },
+    fraudBp: 0,
+    signs: [],
+    choices: [
+      {
+        id: "party",
+        requires: [],
+        pick: null,
+        effects: [
+          { type: "money/take", currency: "NGN", pocket: "any", amount: { term: "cost" }, reason: "social" },
+          { type: "quality/add", quality: "quality.wellbeing", amount: 6 },
+          { type: "quality/add", quality: "quality.standing", amount: 4 },
+          { type: "quality/add", quality: "quality.network", amount: 3 },
+        ],
+        fraudEffects: null,
+      },
+      {
+        id: "dinner",
+        requires: [],
+        pick: null,
+        effects: [
+          { type: "quality/add", quality: "quality.wellbeing", amount: 3 },
+          { type: "quality/add", quality: "quality.standing", amount: 2 },
+        ],
+        fraudEffects: null,
+      },
+      { id: "skip", requires: [], pick: null, effects: [{ type: "quality/add", quality: "quality.standing", amount: -2 }], fraudEffects: null },
+    ],
+    onExpire: "dinner",
   },
   "offer.laptop-fault": {
     id: "offer.laptop-fault",

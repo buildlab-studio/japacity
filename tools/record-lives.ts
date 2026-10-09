@@ -40,9 +40,12 @@ const ABROAD: { name: string; life: Id<"scenario"> }[] = [
   { name: "zainab-abroad", life: "scenario.zainab" },
 ];
 
+/** The first seed tried, so a life whose first in-window seed fails a coupled test can be recorded on the next (RECORD_FROM=<n>). */
+const FROM = Number(process.env["RECORD_FROM"] ?? 0);
+
 function pick(want: (typeof WANTED)[number]): { seed: string; save: FlatSave; departed: number } {
   let fallback: { seed: string; save: FlatSave; departed: number } | null = null;
-  for (let n = 0; n < 80; n += 1) {
+  for (let n = FROM; n < FROM + 80; n += 1) {
     const seed = `golden-${want.life.slice("scenario.".length)}-${String(n)}`;
     const { record, game } = runLife(want.strategy, want.life, seed, content, { months: FLIGHT_WINDOW.last, worldSeed: WORLD, keepSave: true });
     if (record.departed === null || record.departed < FLIGHT_WINDOW.first || record.departed > FLIGHT_WINDOW.last || record.flown !== "route.uk-masters") continue;

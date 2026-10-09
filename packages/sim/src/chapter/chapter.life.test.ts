@@ -76,7 +76,7 @@ describe("the send-off card", () => {
   });
 
   test("[R-CHAPTER-006] [R-ENGINE-017] given the card's lines set to 2 in the tuning, when the card is read at the flight, then it names the two played most", () => {
-    const moved = { ...content, tuning: { ...content.tuning, chapter: { cardLines: 2 } } };
+    const moved = { ...content, tuning: { ...content.tuning, chapter: { ...content.tuning.chapter, cardLines: 2 } } };
     const game = flownAda(moved);
     const shown = game.view().card?.topActivities ?? [];
     expect(shown).toEqual(topActivities(flownAda(content).state, content).slice(0, 2));
