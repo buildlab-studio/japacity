@@ -8,7 +8,7 @@ import { newGame, recordedGame, viewAfter } from "../testing/fixtures";
 import { formatBand } from "./format";
 import { jobsWords } from "./jobs";
 import { tidyLines } from "./lines";
-import { bandChanceBp, bandNeeded, bandResultLine, englishOf, ISSUED_BAND_SHORT, possibleBands, testChance } from "./test";
+import { bandChanceBp, bandNeeded, bandResultLine, englishOf, ISSUED_BAND_MET, ISSUED_BAND_SHORT, possibleBands, testChance } from "./test";
 import { words } from "./text";
 
 const PAPER = "document.english-test";
@@ -86,15 +86,17 @@ describe("the English result", () => {
     expect(words(line.key, line.params)).toBe("Band 5.0. The route needs 6.0: study and sit again.");
   });
 
-  test("[R-WORLD-008] given a band of 6.0 or more, when the result is told, then the plain line stands", () => {
-    expect(bandResultLine(issued(60))).toEqual(issued(60));
+  // a pass says it meets the route's band, where the plain line said only the band.
+  test("[R-WORLD-008] given a band of 6.0 or more, when the result is told, then it says the band and that it meets the route's 6.0, in the plain line's tone", () => {
+    expect(bandResultLine(issued(60))).toEqual({ ...issued(60), key: ISSUED_BAND_MET, params: { ...issued(60).params, needed: formatBand(bandNeeded()) } });
+    expect(words(ISSUED_BAND_MET, bandResultLine(issued(65)).params)).toMatch(/Band 6\.5\. That meets the route's 6\.0\.$/);
     expect(bandResultLine(issued(55)).key).toBe(ISSUED_BAND_SHORT);
   });
 
-  test("[R-WORLD-008] given Ada's careful life, when her result is told by the engine, then it reaches 6.0 and its line is the plain one", () => {
+  test("[R-WORLD-008] given Ada's careful life, when her result is told by the engine, then it reaches 6.0 and its line says it meets the route's band", () => {
     const game = recordedGame("ada-careful");
     expect(game.view().documents.find((paper) => paper.id === PAPER)?.value).toBeGreaterThanOrEqual(bandNeeded());
-    // The tidy lines that reach the results keep the engine's key for a band that reaches the route's.
-    expect(tidyLines([issued(60)]).map((line) => bandResultLine(line).key)).toEqual(["line.document.issued-band"]);
+    // The tidy lines that reach the results say a band that reaches the route's meets it.
+    expect(tidyLines([issued(60)]).map((line) => bandResultLine(line).key)).toEqual([ISSUED_BAND_MET]);
   });
 });

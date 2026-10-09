@@ -32,6 +32,8 @@ export const routeText: Record<string, string> = {
   "line.route.deposit-refunded": "The deposit for {route} comes back, less the fee: {amount}.",
   "line.route.supported": "Your family will show {amount} for you.",
   "line.route.departed": "You fly out on {route}. Home is a phone call away now.",
+  // The job at home that ends with the flight, told beside the plane (the interface's variant of line.activity.job-ended).
+  "line.route.departed-job-ended": "The job at home ends with the flight: {job}.",
   // The sponsor and contract gates (route-gates.md). First drafts.
   "line.route.sponsor-recorded": "A sponsor for {route} sends you a certificate of sponsorship.",
   "line.route.sponsor-under-bar":

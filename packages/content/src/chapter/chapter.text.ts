@@ -2,7 +2,8 @@
 // double quotes mark the lines and are not part of the words. Item labels are
 // first drafts. Each item's `.nudge` is the nudge line that points at the thing
 // in the world that moves it (world.md R-WORLD-003, story/story.data.ts): one
-// sentence of at most eight words.
+// sentence of at most eight words. A `.nudge.here` reads in the step's own place,
+// where naming the place again would be odd.
 export const chapterText: Record<string, string> = {
   "chapter.find-your-feet.name": "Find your feet",
   "chapter.find-your-feet.title": "Find your feet",
@@ -21,6 +22,7 @@ export const chapterText: Record<string, string> = {
   "chapter.find-your-feet.close": "You have a salary and a word for what you want. Japa.",
   "chapter.find-your-feet.item.job": "Get a job",
   "chapter.find-your-feet.item.job.nudge": "Ask at the hub in Yaba",
+  "chapter.find-your-feet.item.job.nudge.here": "Find a job on the board",
   "chapter.find-your-feet.item.job.started": "You have applied. End the month and see.",
   "chapter.find-your-feet.item.pay": "Work one month in it",
   "chapter.find-your-feet.item.pay.nudge": "Work this month, then end it",
@@ -38,6 +40,7 @@ export const chapterText: Record<string, string> = {
   "chapter.build-the-file.close": "The offer letter is on your phone. You have read it eleven times.",
   "chapter.build-the-file.item.passport": "Get your passport",
   "chapter.build-the-file.item.passport.nudge": "Start your passport from the box at home",
+  "chapter.build-the-file.item.passport.nudge.here": "Start your passport from the papers box",
   "chapter.build-the-file.item.passport.started": "Your passport is coming, {when}. Work and save.",
   "chapter.build-the-file.item.passport.planned": "The passport is planned. End the month.",
   "chapter.build-the-file.item.passport.short": "Short {amount} for the passport: a better job, a gig, or family.",
@@ -50,11 +53,14 @@ export const chapterText: Record<string, string> = {
   "chapter.build-the-file.item.transcript.saving": "Your pay covers the transcript next month. Work and save.",
   "chapter.build-the-file.item.english": "Score band 6.0 or better in English",
   "chapter.build-the-file.item.english.nudge": "Score 6.0 at the English test centre",
-  "chapter.build-the-file.item.english.started": "The test is this month. End the month and see.",
+  "chapter.build-the-file.item.english.nudge.here": "Score 6.0: sit the test at the desk",
+  "chapter.build-the-file.item.english.planned": "The test is this month. End the month and see.",
+  "chapter.build-the-file.item.english.started": "Your result comes {when}.",
   "chapter.build-the-file.item.english.short": "Short {amount} for the test: a better job, a gig, or family.",
   "chapter.build-the-file.item.english.saving": "Your pay covers the test next month. Work and save.",
   "chapter.build-the-file.item.offer": "Get an offer from a university",
   "chapter.build-the-file.item.offer.nudge": "Apply to schools from the hub",
+  "chapter.build-the-file.item.offer.nudge.here": "Apply to schools at the desks",
   "chapter.build-the-file.item.offer.started": "The school answers {when}. Keep saving.",
   "chapter.build-the-file.item.offer.planned": "The application is planned. End the month.",
 
@@ -64,17 +70,20 @@ export const chapterText: Record<string, string> = {
   "chapter.decision-day.close": "Granted. You read the email standing up.",
   "chapter.decision-day.item.deposit": "Pay the deposit",
   "chapter.decision-day.item.deposit.nudge": "Pay the school deposit at the bank",
+  "chapter.decision-day.item.deposit.nudge.here": "Pay the school deposit at the counter",
   "chapter.decision-day.item.held": "Hold the funds for a month",
   "chapter.decision-day.item.held.nudge": "Keep the funds in place a full month",
   "chapter.decision-day.item.held.short": "Show {amount} more: the bank, the family, a loan.",
   "chapter.decision-day.item.tb": "Get your TB certificate",
   "chapter.decision-day.item.tb.nudge": "Get your TB test at the clinic",
+  "chapter.decision-day.item.tb.nudge.here": "Get your TB test at the desk",
   "chapter.decision-day.item.tb.started": "The TB certificate is coming, {when}.",
   "chapter.decision-day.item.tb.planned": "The TB test is planned. End the month.",
   "chapter.decision-day.item.tb.short": "Short {amount} for the TB test: the family, or a loan.",
   "chapter.decision-day.item.tb.saving": "Your pay covers the TB test next month. Work and save.",
   "chapter.decision-day.item.applied": "Send the visa application",
   "chapter.decision-day.item.applied.nudge": "Take your file to the visa centre",
+  "chapter.decision-day.item.applied.nudge.here": "Hand your file in at the desk",
   "chapter.decision-day.item.applied.planned": "The application is planned. End the month.",
   "chapter.decision-day.item.granted": "Get the visa",
   "chapter.decision-day.item.granted.nudge": "Wait for the email from the embassy",
@@ -85,6 +94,7 @@ export const chapterText: Record<string, string> = {
   "chapter.send-off.close": "The plane lifts over the lagoon. Lagos gets small.",
   "chapter.send-off.item.departed": "Board the plane",
   "chapter.send-off.item.departed.nudge": "Pack one bag and go to the airport",
+  "chapter.send-off.item.departed.nudge.here": "Board the plane at the gate",
 
   // Report lines. The interface shows the chapter's close words with the
   // first, and the next chapter's opening words with the second.

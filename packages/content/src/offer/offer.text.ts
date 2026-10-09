@@ -87,8 +87,8 @@ export const offerText: Record<string, string> = {
 
   "offer.fuel-scarcity.name": "Fuel scarcity",
   "offer.fuel-scarcity.title": "Fuel scarcity",
-  "offer.fuel-scarcity.body": "Queues at every station. Bus fare has doubled this week.",
-  "offer.fuel-scarcity.choice.pay": "Pay the fares",
+  "offer.fuel-scarcity.body": "Queues at every station. The fare to work and back has doubled this month.",
+  "offer.fuel-scarcity.choice.pay": "Pay the extra fares",
   "offer.fuel-scarcity.choice.trek": "Trek",
 
   "offer.recruiter-message.name": "A message from a recruiter",
@@ -190,7 +190,7 @@ export const offerText: Record<string, string> = {
 
   // Report lines. Each carries `offer`, the entry id, so the interface can show its title.
   "line.offer.opened": "Something new needs an answer: {offer}.",
-  "line.offer.taken": "You gave your answer to {offer}.",
+  "line.offer.taken": "Answered: {offer}.",
   "line.offer.lapsed": "{offer}: you let it pass. The time to answer is gone.",
   "line.offer.replaced": "The earlier one is off the table. A newer one takes its place.",
   "line.offer.closed": "{offer}: someone else in the family has seen to it.",

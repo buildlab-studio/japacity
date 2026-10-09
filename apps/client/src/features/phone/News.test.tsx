@@ -7,9 +7,9 @@ import { beforeEach, describe, expect, test } from "vitest";
 
 import { applyEffects, readyLife, slot, toKnown } from "../../../../../packages/sim/src/route/route.journey";
 import type { Game } from "../../../../../packages/sim/src/testing/play";
-import { abroadGame } from "../../shared/testing/fixtures";
+import { abroadGame, abroadView } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
-import { words } from "../../shared/words/text";
+import { say, words } from "../../shared/words/text";
 import { PhoneApps } from "./PhoneApps";
 import { reloadSeen } from "./seen";
 
@@ -73,5 +73,29 @@ describe("a bill missed, as News tells it", () => {
     expect(report).toMatch(/withdraws you/);
     // The content's one line for every miss is never shown as it is: each miss says its own cost.
     expect(report).not.toContain("You could not pay");
+  });
+});
+
+// after landing, a story about getting the visa is not for the character.
+describe("for you in News", () => {
+  async function storiesShown(view: ReturnType<typeof abroadView>) {
+    await renderWithView(<PhoneApps onClose={() => undefined} area="Peckham" now={() => new Date(2026, 9, 9, 12, 5)} talk={null} />, view);
+    fireEvent.click(document.querySelector<HTMLElement>('[data-app="news"]')!);
+    return [...document.querySelectorAll<HTMLElement>("[data-story]")];
+  }
+  const refusals = { id: "news.uk-refusals-up" as const, stage: "in-force" as const, since: 0, forYou: true };
+
+  test("[R-WORLD-019] given Ada landed on the route a story names, when News opens, then the story is not marked for you: her visa is behind her", async () => {
+    const view = abroadView();
+    expect(view.routes.find((route) => route.id === "route.uk-masters")?.state).toBe("departed");
+    const [story] = await storiesShown({ ...view, news: [{ ...refusals, since: view.month }] });
+    expect(story?.textContent).not.toContain(say("ui.news.for-you"));
+  });
+
+  test("[R-WORLD-019] given a route still in play that a story names, when News opens, then the story is marked for you", async () => {
+    const view = abroadView();
+    const inPlay = { ...view, routes: view.routes.map((route) => (route.id === "route.uk-masters" ? { ...route, state: "known" as const } : route)), news: [{ ...refusals, since: view.month }] };
+    const [story] = await storiesShown(inPlay);
+    expect(story?.textContent).toContain(say("ui.news.for-you"));
   });
 });

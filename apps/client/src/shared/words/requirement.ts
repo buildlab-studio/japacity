@@ -3,6 +3,7 @@
 // whether the requirement holds: the view's `missing` list already says so.
 import type { Amount, Id, Requirement, RouteStateName } from "@japacity/sim";
 
+import { countWords } from "./count";
 import { formatBand, formatBp, formatMoney, formatNumber, playerMonth } from "./format";
 import { AGE, yearsOf } from "./quality";
 import { bandWords, hasWords, lowerFirst, nameOf, runningName, say, sayCount } from "./text";
@@ -59,6 +60,23 @@ function bandAt(quality: string, value: number): { n: number; words: string } | 
   return n === undefined ? null : { n, words };
 }
 
+/** Time in months as a person says it: "three years" when it is whole years, else "six months". */
+export function timeWords(months: number): string {
+  if (months > 0 && months % 12 === 0) return say(months === 12 ? "ui.time.year" : "ui.time.years", { count: countWords(months / 12) });
+  return say(months === 1 ? "ui.time.month" : "ui.time.months", { count: countWords(months) });
+}
+
+/** A job as the person who does it: "a bank officer", "an engineer". */
+function asPerson(job: string): string {
+  const name = runningName(job);
+  return say(/^[aeiou]/i.test(name) ? "ui.req.an-job" : "ui.req.a-job", { job: name });
+}
+
+/** A sentence that opens on its own words keeps a capital at the start. */
+function opening(sentence: string): string {
+  return sentence.charAt(0).toUpperCase() + sentence.slice(1);
+}
+
 function list(names: readonly string[]): string {
   return names.join(say("ui.req.or"));
 }
@@ -96,9 +114,11 @@ export function requirementSentence(requirement: Requirement, context: SentenceC
     case "job/is":
       return say("ui.req.job-is", { jobs: list(requirement.activities.map(runningName)) });
     case "activity/tenure":
-      return requirement.activities.length === 0
-        ? sayCount("ui.req.tenure-any", requirement.months, { months: requirement.months })
-        : sayCount("ui.req.tenure", requirement.months, { months: requirement.months, jobs: list(requirement.activities.map(runningName)) });
+      return opening(
+        requirement.activities.length === 0
+          ? say("ui.req.tenure-any", { time: timeWords(requirement.months) })
+          : say("ui.req.tenure", { time: timeWords(requirement.months), jobs: list(requirement.activities.map(asPerson)) }),
+      );
     case "document/held":
       if (requirement.min === undefined) return say("ui.req.document-held", { document: nameOf(requirement.document) });
       if (requirement.document === ENGLISH_RESULT) {
@@ -161,7 +181,7 @@ export function requirementSentence(requirement: Requirement, context: SentenceC
     case "route/gate-step":
       return say("ui.req.route-gate-step", { route: nameOf(requirement.route), step: requirement.step });
     case "activity/local-tenure":
-      return sayCount("ui.req.local-tenure", requirement.months, { months: requirement.months });
+      return opening(say("ui.req.local-tenure", { time: timeWords(requirement.months) }));
     case "activity/played":
       return say("ui.req.activity-played", { activity: nameOf(requirement.activity) });
     case "setpiece/answered": {

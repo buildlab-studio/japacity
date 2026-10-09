@@ -64,7 +64,8 @@ describe("the month's story on the results", () => {
       line("line.chapter.closed", {}, "good"),
       line("line.activity.rested", { slots: 2 }),
     ];
-    expect(storyLines(lines).map((each) => each.key)).toEqual(["line.document.issued", "line.document.issued-band", "line.wallet.flagged", "line.chapter.closed"]);
+    // A band that reaches the route's is told as meeting it.
+    expect(storyLines(lines).map((each) => each.key)).toEqual(["line.document.issued", "line.document.issued-band-met", "line.wallet.flagged", "line.chapter.closed"]);
   });
 
   test("[R-WORLD-008] given more story than fits, when the results show, then six lines stand, offers and ways out first, and the rest is left to News", async () => {

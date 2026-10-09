@@ -13,7 +13,7 @@ import { assetUrl, loadJson, loadManifest } from "../../shared/three/manifest";
 import { Button } from "../../shared/ui/Button";
 import { FullScreen } from "../../shared/ui/FullScreen";
 import { Sheet } from "../../shared/ui/Sheet";
-import { formatMoney, todayWords } from "../../shared/words/format";
+import { formatMoney } from "../../shared/words/format";
 import { jobCardWords } from "../../shared/words/jobs";
 import { needsWords } from "../../shared/words/requirement";
 import { sixteenPath } from "../../shared/words/sixteen";
@@ -35,6 +35,8 @@ import { crowdTuning } from "./limits";
 import { Phone, type PhoneApp } from "./Phone";
 import { localDate, type Other, poolOf, sampleCrowd } from "./crowd";
 import { BOARD_WAY, nudgeOf, stepThingHere, stepWayOf } from "./nudge";
+import { nudgeHere, stepOpen } from "./stepOpen";
+import { StillWaiting, stillWaiting } from "./StillWaiting";
 import { type Device, enterPlace, keepChoice, type Mode, type ModeChoice, modeSettings, observeFrame, readChoice, startingMode, watchFrames } from "./mode";
 import { overheard } from "./overheard";
 import { dancerShown, dressPlace, openGround, type PlaceFile, stageOf } from "./placeFile";
@@ -45,6 +47,9 @@ import { sceneWords } from "./scene.words";
 import { enterable, offersHere, openingPlace, openScene, reportHere, type ViewPlace } from "./staging";
 import { stagedNow, thingsNow, thingsOf, vehicleOf } from "./things";
 import { stopReached } from "./stops";
+
+/** Nudges that name a wait with nothing to do but end months: the English result on its way. */
+const WAIT_ONLY: ReadonlySet<string> = new Set(["chapter.build-the-file.item.english.started"]);
 
 const CityScene = lazy(() => import("./CityScene"));
 
@@ -564,10 +569,10 @@ export function City({
     const { thing, act } = scenePick;
     switch (act.kind) {
       case "sheet":
-        // Money is sent home from the Bank, which shows the channels, the rate and what lands.
+        // Money is sent home from the Bank's send chooser, which shows the channels, the rate and what lands.
         if (act.stages === SEND_MONEY) {
           setPicked(null);
-          setPhoneApp("bank");
+          setPhoneApp("bank:send");
           setPhone(true);
           return;
         }
@@ -693,20 +698,35 @@ export function City({
   const hereId = inside ? (insideEntry?.id ?? placeId) : placeId;
   const stepThing = stepWay === null || things === undefined ? null : stepThingHere(stepWay, hereId, things);
   // Abroad the map is a list, and a stop picked on it opens its sheet all the same.
-  const nudgeGoes = stepWay !== null && (stepThing !== null || stepWay.go === null || where === "home" || where === "abroad");
+  // A result on its way is only waited for: its nudge says when it comes and opens nothing.
+  // The nudge as it reads here: a step's place is not named while the player stands in it.
+  const shownNudge = nudge === null || nudge.about !== "step" ? nudge : nudgeHere(nudge, stepThing);
+  const onlyWait = nudge !== null && WAIT_ONLY.has(nudge.key);
+  const nudgeGoes = !onlyWait && stepWay !== null && (stepThing !== null || stepWay.go === null || where === "home" || where === "abroad");
   const followStep = (): void => {
     if (stepWay === null) return;
-    if (stepThing !== null) {
-      const thing = things?.find((candidate) => candidate.id === stepThing);
-      if (thing !== undefined) setPicked({ kind: "thing", thing });
-      return;
+    const opens = stepOpen(stepWay, stepThing, view.activities.filter((option) => option.allowed).map((option) => option.id), placeId);
+    switch (opens.kind) {
+      case "act":
+        setPicked({ kind: "action", activity: opens.activity });
+        return;
+      case "thing": {
+        const thing = things?.find((candidate) => candidate.id === opens.thing);
+        if (thing !== undefined) setPicked({ kind: "thing", thing });
+        return;
+      }
+      case "month":
+        setMonthOpen(true);
+        return;
+      case "map":
+        setMapPick(opens.stop);
+        setMap(true);
+        return;
+      default: {
+        const never: never = opens;
+        throw new Error(`Unknown way: ${String(never)}`);
+      }
     }
-    if (stepWay.go === null) {
-      setMonthOpen(true);
-      return;
-    }
-    setMapPick(stepWay.go === placeId ? null : stepWay.go);
-    setMap(true);
   };
   // R-WORLD-002: the band's second row opens from its handle and peeks for a few seconds when its words change.
   const [bandOpen, setBandOpen] = useState(false);
@@ -822,7 +842,7 @@ export function City({
               : (blurbOf(activity) ?? ""),
       cost: cost === null ? null : { amount: cost.amount, currency: cost.currency },
       button: nameOf(activity),
-      ...(paper ? { reference: todayWords().toUpperCase() } : {}),
+      ...(paper ? { reference: clock.toUpperCase() } : {}),
       ...(option.allowed ? {} : { blocked: needsWords(option.missing) }),
       act: () => {
         const added = addToPlan({ activity: option.id, param: chosen ?? option.params?.[0] ?? null });
@@ -987,7 +1007,7 @@ export function City({
             more={
               !(phone || monthOpen || asksOpen || menu || credits || picked !== null) ? (
                 <div key={bandOpen ? "open" : `peek-${nudgeKey}-${comingKey}`} className={bandOpen ? "" : "drop"}>
-                  <Nudge nudge={nudge} {...(nudgeOpens ? { onTap: () => setAsksOpen(true) } : nudgeGoes ? { onTap: followStep } : nudge?.about === "report" ? { onTap: () => { setPhoneApp("news"); setPhone(true); } } : nudge?.about === "dues" ? { onTap: () => { setPhoneApp("bank"); setPhone(true); } } : {})} />
+                  <Nudge nudge={shownNudge} {...(nudgeOpens ? { onTap: () => setAsksOpen(true) } : nudgeGoes ? { onTap: followStep } : nudge?.about === "report" ? { onTap: () => { setPhoneApp("news"); setPhone(true); } } : nudge?.about === "dues" ? { onTap: () => { setPhoneApp("bank"); setPhone(true); } } : {})} />
                   {coming === null || !(bandOpen || peek) ? null : (
                     <p className="chip pointer-events-auto mt-1.5 inline-flex max-w-full items-center gap-1.5 px-2.5 py-1.5 text-[12px] font-bold" data-coming>
                       <Clock size={14} aria-hidden />
@@ -1023,7 +1043,7 @@ export function City({
               <div className="flex max-w-sm flex-col items-center gap-5 text-center" data-opening={view.chapter.current}>
                 <p className="label label-strong text-[11px] tracking-[0.3em] uppercase opacity-80">{nameOf(view.chapter.current)}</p>
                 <p className="text-[24px] leading-snug font-bold">{words(openingKey(view))}</p>
-                <p className="text-[15px] opacity-90">{say(nudge?.key ?? "ui.nudge.end", nudge?.params ?? {})}</p>
+                <p className="text-[15px] opacity-90">{say(shownNudge?.key ?? "ui.nudge.end", shownNudge?.params ?? {})}</p>
                 <Button
                   onClick={() => {
                     setOpeningSeen(true);
@@ -1171,11 +1191,24 @@ export function City({
                     data-chapter-go
                   >
                     <span>{say("ui.chapter.go")}</span>
-                    <span className="text-[13px] font-semibold opacity-80">{say(nudge?.key ?? "ui.nudge.end", nudge?.params ?? {})}</span>
+                    <span className="text-[13px] font-semibold opacity-80">{say(shownNudge?.key ?? "ui.nudge.end", shownNudge?.params ?? {})}</span>
                   </button>
                 ),
               }
-            : {})}
+            : // An ask answered at its place lists what still waits elsewhere, and opens it.
+              picked.activity.startsWith("offer.") && asks !== undefined && stillWaiting(view.offers, [picked.activity, ...(picked.more ?? [])]).length > 0
+              ? {
+                  foot: (
+                    <StillWaiting
+                      offers={stillWaiting(view.offers, [picked.activity, ...(picked.more ?? [])])}
+                      onOpen={() => {
+                        setPicked(null);
+                        setAsksOpen(true);
+                      }}
+                    />
+                  ),
+                }
+              : {})}
         >
           {actions?.([picked.activity, ...(picked.more ?? [])])}
         </WorldSheet>

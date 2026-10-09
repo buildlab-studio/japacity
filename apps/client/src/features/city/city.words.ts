@@ -142,7 +142,7 @@ export const cityText: Record<string, string> = {
   "city.act.agents": "The agents",
   // the agent at his desk when nothing is on; the fifth, P21: he says what he deals in and when to come back.
   "city.act.ask-desk": "Agent",
-  "city.act.ask-desk.done": "The desk is empty today. He does papers, proof of funds and Dubai jobs. Try him again next month.",
+  "city.act.ask-desk.done": "Not today. Papers, proof of funds, Dubai jobs: come back next month.",
   // the visa desk once the interview is over.
   "city.act.ask-visa-desk": "Ask at the desk",
   "city.act.ask-visa-desk.done": "Nothing is waiting for you at the desk today.",
@@ -272,6 +272,9 @@ export const cityText: Record<string, string> = {
   "city.scene.answer": "Answer in your month",
   "city.report.here": "This month, here",
   "city.offer.here": "Waiting for you here: {offer}",
+  // An ask answered at its place, and what still waits elsewhere (StillWaiting.tsx).
+  "city.asks.still": "Still waiting on you: {what}.",
+  "city.asks.see": "See what waits",
 
   "city.credits": "Credits",
   "city.credits.map": "Map data",
@@ -335,7 +338,8 @@ export function placeName(id: string): string {
 
 /** A line overheard, as words: the place's own line, or talk of a story or a route the view holds. */
 export function heardWords(key: string, params: Record<string, string>): string {
-  if (key === "city.overheard.news") return cityWords(key, { head: words(params.head ?? "") });
+  // A headline that is itself someone's words keeps them, without its own straight quotes, inside the speaker's curly ones.
+  if (key === "city.overheard.news") return cityWords(key, { head: words(params.head ?? "").replace(/^"(.*)"$/, "$1").replaceAll('"', "") });
   if (key === "city.overheard.route") return cityWords(key, { route: runningName(params.route ?? "") });
   return text[key] ?? cityWords(key);
 }

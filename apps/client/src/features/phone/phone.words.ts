@@ -65,7 +65,8 @@ export const phoneText: Record<string, string> = {
   "phone.chats.computer": "Your talk with {name} happens when you meet. Their news reaches you here.",
   "phone.chats.moment": "{words}",
 
-  "phone.japa.label": "Ready to go",
+  "phone.japa.label": "Japacity",
+  "phone.japa.gloss": "How ready you are to go",
   "phone.japa.none": "No way out yet. Keep your ears open.",
   "phone.japa.steps": "The steps",
   "phone.japa.papers": "Papers",

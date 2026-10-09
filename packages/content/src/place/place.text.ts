@@ -449,9 +449,9 @@ export const placeText: Record<string, string> = {
   "place.olokun-office.overheard.3": "Just pay the processing fee and we start.",
   "place.agent-office.name": "an office in Ikeja",
   "place.agent-office.blurb": "An office with a name on the door, a framed certificate and a waiting list.",
-  "place.agent-office.overheard.1": "We have a job waiting for you. Just pay for processing.",
-  "place.agent-office.overheard.2": "Leave your passport with us. We will submit it.",
-  "place.agent-office.overheard.3": "Plenty of our people are there already. Ask them.",
+  "place.agent-office.overheard.1": "He said a job is waiting. Only the processing fee first.",
+  "place.agent-office.overheard.2": "My cousin left her passport here in June. She is still waiting.",
+  "place.agent-office.overheard.3": "Third time I am coming. Every time, next month.",
 
   // Homes and stylised places.
   "place.family-house.name": "the family house",

@@ -205,7 +205,8 @@ describe("the nudge", () => {
     expect(nudgeOf(waiting)).toMatchObject({ key: "chapter.build-the-file.item.passport.started", params: { when: inMonths(12, 10) }, about: "step" });
     expect(nudgeOf(file).key).toBe("chapter.build-the-file.item.passport.nudge");
     const testing = { ...file, chapter: { ...file.chapter, items: [{ id: "english", met: false }, { id: "offer", met: false }] } };
-    expect(nudgeOf(testing, undefined, ["activity.sit-english-test"]).key).toBe("chapter.build-the-file.item.english.started");
+    // The test planned waits on the month's end; `.started` names the result on its way.
+    expect(nudgeOf(testing, undefined, ["activity.sit-english-test"]).key).toBe("chapter.build-the-file.item.english.planned");
     const applied = { ...file, chapter: { ...file.chapter, items: [{ id: "offer", met: false }] }, routes: [{ ...richView().routes[0]!, id: "route.uk-masters" as const, schools: [{ id: "school.one" as never, state: "pending" as const, readyMonth: 11, discount: 0 }] }] };
     expect(nudgeOf(applied)).toMatchObject({ key: "chapter.build-the-file.item.offer.started", params: { when: inMonths(11, 10) } });
     const hunting = { ...base, chapter: { current: "chapter.find-your-feet" as const, items: [{ id: "job", met: false }], done: [] } };

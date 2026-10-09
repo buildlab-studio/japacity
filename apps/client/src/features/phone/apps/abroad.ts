@@ -9,8 +9,9 @@ import { phoneWords } from "../phone.words";
 /** The Bank's words abroad, first drafts in the voice of docs/rules/text.md; content's and the phone's tables win. */
 const ABROAD_TEXT: Record<string, string> = {
   "phone.bank.dues": "Due this month: {due}. You hold {held}.",
-  "phone.bank.dues.way": "Change money: {from} to {to}",
-  "phone.bank.held": "Also held",
+  "phone.bank.dues.way": "{from} to {to}",
+  // Abroad, one Change money heads the other monies, each with its pair.
+  "phone.bank.pair": "{from} to {to}",
 };
 
 export function abroadWords(key: string, params: Record<string, string> = {}): string {

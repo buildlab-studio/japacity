@@ -31,10 +31,13 @@ const ICON: Record<AppId, string> = {
   settings: "settings",
 };
 
-function screenOf(id: AppId, account: ReactNode): ReactNode {
+/** What an app opens on: the Bank may open on its send chooser (`bank:send`). */
+type Opening = "send" | null;
+
+function screenOf(id: AppId, account: ReactNode, opening: Opening = null): ReactNode {
   switch (id) {
     case "bank":
-      return <Bank />;
+      return <Bank opening={opening} />;
     case "chats":
       return <Chats />;
     case "japa":
@@ -57,7 +60,7 @@ function screenOf(id: AppId, account: ReactNode): ReactNode {
 }
 
 /** The eight apps, each with its dot from what the player has not seen. */
-export function usePhoneApps({ account = null }: { account?: ReactNode } = {}): PhoneApp[] {
+export function usePhoneApps({ account = null, opening = null }: { account?: ReactNode; opening?: Opening } = {}): PhoneApp[] {
   const view = useView();
   const waiting = waitingOf(marksOf(view), useSeen());
   return APP_IDS.map((id) => ({
@@ -68,7 +71,7 @@ export function usePhoneApps({ account = null }: { account?: ReactNode } = {}): 
     screen: (
       <>
         <Refused />
-        {screenOf(id, account)}
+        {screenOf(id, account, id === "bank" ? opening : null)}
       </>
     ),
     waiting: waiting[id],
@@ -91,14 +94,15 @@ export interface PhoneAppsProps {
   /** The pair routes online, or null offline, for Chats. */
   talk?: PairTalk | null;
   now?: () => Date;
-  /** An app to open on. */
+  /** An app to open on; `bank:send` opens the Bank on its send chooser. */
   start?: string | null;
 }
 
 /** The handset with its apps, ready for the shell to show over the world. */
 export function PhoneApps({ onClose, area, account = null, talk = null, now, start = null }: PhoneAppsProps) {
   const view = useView();
-  const apps = usePhoneApps({ account });
+  const [app, act] = start === null ? [null, null] : start.split(":");
+  const apps = usePhoneApps({ account, opening: act === "send" ? "send" : null });
   const marks = marksOf(view);
   return (
     <PhoneTalk value={talk}>
@@ -107,7 +111,7 @@ export function PhoneApps({ onClose, area, account = null, talk = null, now, sta
         onClose={onClose}
         area={area}
         when={todayWords(now?.())}
-        start={start}
+        start={app ?? null}
         onOpen={(id) => {
           if ((APP_IDS as readonly string[]).includes(id)) markSeen(id as AppId, marks[id as AppId]);
         }}

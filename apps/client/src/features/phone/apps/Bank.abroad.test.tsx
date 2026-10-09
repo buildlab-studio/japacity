@@ -11,9 +11,11 @@ import { renderWithView } from "../../../shared/testing/render";
 import { bandMoney } from "../../../shared/world/Band";
 import { duesGap, heldElsewhere } from "../../../shared/words/dues";
 import { formatMoney } from "../../../shared/words/format";
+import { say } from "../../../shared/words/text";
 import { abroadWords } from "./abroad";
 import { Bank } from "./Bank";
 import { phoneWords } from "../phone.words";
+import { PhoneApps } from "../PhoneApps";
 
 /** Ada's careful life, replayed to the flight: the first morning abroad. */
 function landed(): PlayerView {
@@ -86,10 +88,11 @@ describe("the Bank abroad", () => {
     expect(first?.hasAttribute("data-dues-gap")).toBe(true);
     expect(first?.textContent).toContain(abroadWords("phone.bank.dues", { due: "£4,687", held: "£1,124" }));
     expect(abroadWords("phone.bank.dues", { due: "£4,687", held: "£1,124" })).toBe("Due this month: £4,687. You hold £1,124.");
-    expect(within(first ?? document.body).getByRole("button").textContent).toBe("Change money: naira or dollars to pounds");
+    // The way names the pair only: Change money is said once on the screen.
+    expect(within(first ?? document.body).getByRole("button").textContent).toBe("Naira or dollars to pounds");
   });
 
-  test("[R-WORLD-019] given Ada abroad, when the Bank opens, then the pounds stand first as the balance, and the naira and the dollars follow, each with Change money", async () => {
+  test("[R-WORLD-019] given Ada abroad, when the Bank opens, then the pounds stand first as the balance, and the naira and the dollars follow under Change money, each with its pair", async () => {
     const view = landed();
     await renderWithView(<Bank />, view);
     const balance = document.querySelector<HTMLElement>("[data-bank-balance]");
@@ -99,7 +102,14 @@ describe("the Bank abroad", () => {
     expect(rows.map((row) => row.getAttribute("data-held"))).toEqual(["NGN", "USD"]);
     expect(rows[0]?.textContent).toContain(formatMoney(view.pockets.NGN.bank, "NGN"));
     expect(rows[1]?.textContent).toContain(formatMoney(view.pockets.USD.bank, "USD"));
-    for (const row of rows) expect(within(row).getByRole("button").textContent).toBe("Change money");
+    expect(rows.map((row) => within(row).getByRole("button").textContent)).toEqual(["Naira to pounds", "Dollars to pounds"]);
+  });
+
+  test("[R-WORLD-019] given Ada abroad with the gap and two other monies, when the Bank opens, then Change money is said once on the screen, with the pairs under it", async () => {
+    await renderWithView(<Bank />, landed());
+    const app = document.querySelector<HTMLElement>('[data-phone-app="bank"]');
+    expect((app?.textContent ?? "").split(say("ui.wallet.convert")).length - 1).toBe(1);
+    expect(app?.querySelector("[data-change-pairs]")?.textContent).toContain(say("ui.wallet.convert"));
   });
 
   test("[R-WORLD-019] [R-WALLET-004] given the dollars' row, when its Change money is chosen and the card confirmed, then a quarter of the dollars goes into pounds at the bank", async () => {
@@ -136,5 +146,13 @@ describe("the Bank abroad", () => {
     setPockets(game, { GBP: dueOf(game.view()) });
     await renderWithView(<Bank />, game.view());
     expect(document.querySelector("[data-dues-gap]")).toBeNull();
+  });
+
+  // the room's phone says Send money home, so it opens the chooser itself.
+  test("[R-WORLD-019] given the phone opened on sending money home, when the handset shows, then the Bank opens with the send chooser out, not its front page", async () => {
+    await renderWithView(<PhoneApps onClose={() => undefined} area="The room" now={() => new Date(2026, 9, 9, 12, 5)} talk={null} start="bank:send" />, landed());
+    expect(document.querySelector('[data-phone-app="bank"]')).not.toBeNull();
+    expect(document.querySelector('[data-chooser="send"]')).not.toBeNull();
+    expect(document.querySelector('[data-bank-act="send"]')?.getAttribute("aria-expanded")).toBe("true");
   });
 });

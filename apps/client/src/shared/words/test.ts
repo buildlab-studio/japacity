@@ -16,6 +16,7 @@ const ENGLISH = "quality.english";
 const ENGLISH_PER = 100;
 const ISSUED_BAND = "line.document.issued-band";
 export const ISSUED_BAND_SHORT = "line.document.issued-band-short";
+export const ISSUED_BAND_MET = "line.document.issued-band-met";
 
 /**
  * The band the route asks for, held as the band times ten: the least the chapter's English item takes
@@ -75,12 +76,13 @@ export function testChance(view: { qualities: readonly { id: string; value: numb
 
 /**
  * The English result as the results say it (R-WORLD-008): a band under the one the route needs says so
- * and what next, in content's words; a band that reaches it keeps the plain line.
+ * and what next, in content's words; a band that reaches it says it meets the route's band.
  */
 export function bandResultLine(line: ReportLine): ReportLine {
   if (line.key !== ISSUED_BAND || line.params.document !== ENGLISH_PAPER) return line;
   const band = line.params.band;
   const needed = bandNeeded();
-  if (typeof band !== "number" || band >= needed) return line;
+  if (typeof band !== "number") return line;
+  if (band >= needed) return { ...line, key: ISSUED_BAND_MET, params: { ...line.params, needed: formatBand(needed) } };
   return { ...line, key: ISSUED_BAND_SHORT, tone: "bad", params: { ...line.params, needed: formatBand(needed) } };
 }
