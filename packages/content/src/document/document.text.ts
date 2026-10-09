@@ -27,6 +27,8 @@ export const documentText: Record<string, string> = {
   "line.document.already-pending": "Your {document} is already being made. It should be ready {month}. This request changes nothing.",
   "line.document.issued": "Your {document} is ready.",
   "line.document.issued-band": "Your {document} is out. Band {band}.",
+  // R-WORLD-008: a band under the one the route needs ({needed}) says so, and what next.
+  "line.document.issued-band-short": "Band {band}. The route needs {needed}: study and sit again.",
   "line.document.expired": "Your {document} has run out.",
   "line.document.voided": "Your {document} is no longer valid.",
 
