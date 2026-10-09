@@ -123,6 +123,27 @@ export const setpieceText: Record<string, string> = {
 
   // return.md. Questions are the page's.
 
+  // activity.md R-ACTIVITY-013. First drafts. The quiz's facts are the care guide's.
+  "setpiece.nurse-exam.name": "The certification exam",
+  "setpiece.nurse-exam.q.register": "A nurse trained in Nigeria wants to work in the UK. Who must register her first?",
+  "setpiece.nurse-exam.a.register.nmc": "The Nursing and Midwifery Council",
+  "setpiece.nurse-exam.a.register.embassy": "The British High Commission",
+  "setpiece.nurse-exam.a.register.agent": "The recruitment agent",
+  "setpiece.nurse-exam.q.verify": "How long must a nurse work after licensing before the council here verifies her for a board abroad?",
+  "setpiece.nurse-exam.a.verify.six-months": "Six months",
+  "setpiece.nurse-exam.a.verify.two-years": "Two years",
+  "setpiece.nurse-exam.a.verify.at-once": "No time. The letter comes at once",
+  "setpiece.nurse-exam.q.sponsorship": "Who pays for a nurse's certificate of sponsorship?",
+  "setpiece.nurse-exam.a.sponsorship.nurse": "The nurse, through an agent",
+  "setpiece.nurse-exam.a.sponsorship.nobody": "Nobody. A nurse needs none",
+  "setpiece.nurse-exam.a.sponsorship.employer": "The employer that sponsors her",
+
+  "setpiece.conference-talk.name": "The talk",
+  "setpiece.conference-talk.q.open": "The room at the hub is full and the screen is on. You have twenty minutes. How do you start?",
+  "setpiece.conference-talk.a.open.demo": "Run the code live",
+  "setpiece.conference-talk.a.open.story": "Tell them about the bug that cost you a weekend",
+  "setpiece.conference-talk.a.open.slides": "Read the slides as written",
+
   "setpiece.december.name": "December at home",
   ...decemberText(),
 };

@@ -56,13 +56,38 @@ export function carHolds(read: ReadCtx, entry: ActivityEntry): boolean {
   return entry.needsCar !== true || (hasCar(read.state, read.content) && licenceInForce(read));
 }
 
-/** The job's pay figure as written, a year or a month. Null when it reads a term not in hand. */
+/**
+ * R-ACTIVITY-014: the best-paying tier whose `min` the character meets, as a figure in the pay's
+ * currency, or null when no tier is met. A tier paid in another currency than the job's is a content error.
+ */
+export function tierFigure(read: ReadCtx, entry: ActivityEntry): number | null {
+  let best: number | null = null;
+  for (const tier of entry.tiers ?? []) {
+    if (entry.pay !== null && tier.pay.currency !== entry.pay.currency) throw new Error(`${entry.id} has a tier paid in ${tier.pay.currency}, not ${entry.pay.currency}.`);
+    if (!check(read, { type: "quality/min", quality: tier.min.quality, value: tier.min.value }).met) continue;
+    const figure = resolveAmount(read, tier.pay.amount, {});
+    if (best === null || figure > best) best = figure;
+  }
+  return best;
+}
+
+/** R-ACTIVITY-013: the job has had its one raise. */
+export function raisedJob(state: State, job: Id<"activity">): boolean {
+  return (state.activity.raised ?? []).includes(job);
+}
+
+/**
+ * The job's pay figure, a year or a month: as written, or its tier's when one is met (R-ACTIVITY-014),
+ * then the raise once it has come (R-ACTIVITY-013). Null when it reads a term not in hand.
+ */
 function payFigure(read: ReadCtx, entry: ActivityEntry, terms: Terms): number | null {
   if (entry.pay === null) return null;
   const { amount } = entry.pay;
   // a sponsor's job started without a salary recorded on the route has nothing to pay from, so it pays nothing.
   if (typeof amount === "object" && "term" in amount && typeof terms[amount.term] !== "number") return null;
-  return resolveAmount(read, amount, terms);
+  const written = resolveAmount(read, amount, terms);
+  const figure = Math.max(written, tierFigure(read, entry) ?? written);
+  return raisedJob(read.state, entry.id) ? figure + bp(figure, read.content.tuning.activity.raiseBp) : figure;
 }
 
 /** The bonus a year a job pays while the character has the car (R-LADDER-004). */

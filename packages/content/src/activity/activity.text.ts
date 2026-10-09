@@ -1,4 +1,5 @@
 // Names are from docs/rules/activity.md. Blurbs are first drafts.
+import { activityProfileText } from "./activity.profile.text";
 import { activityRoomText } from "./activity.room.text";
 import { activityStreetText } from "./activity.street.text";
 
@@ -140,4 +141,5 @@ export const activityText: Record<string, string> = {
   // streets.md (R-STREET-001 to 004, 008).
   ...activityStreetText,
   ...activityRoomText,
+  ...activityProfileText,
 };

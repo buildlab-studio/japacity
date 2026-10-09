@@ -293,6 +293,25 @@ export const obligationTable: Record<Id<"obligation">, ObligationEntry> = {
     onDefault: [{ type: "status/lose" }],
   },
 
+  // activity.md R-ACTIVITY-013: a master's at home, ₦1,800,000 in twelve monthly instalments, the
+  // principal handed over by the activity's first month. the page gives no default, so the grace
+  // is the whole term: fees fall behind and stay owed, and no school withdraws you from a course at home.
+  "obligation.masters-at-home": {
+    id: "obligation.masters-at-home",
+    type: "tuition",
+    where: "home",
+    currency: "NGN",
+    amount: 0,
+    rateBp: 0,
+    term: 12,
+    locksPrincipal: false,
+    sink: "fee-school",
+    interestSink: "fee-school",
+    grace: 12,
+    onMiss: [{ type: "quality/add", quality: "quality.standing", amount: -1 }],
+    onDefault: [],
+  },
+
   // car.md "Entries": £9,500, 10% down, 36 months, 30% at the end.
   "obligation.car": {
     id: "obligation.car",

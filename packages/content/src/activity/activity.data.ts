@@ -6,6 +6,7 @@ import type { ActivityEntry, Cost, Id, Requirement } from "@japacity/sim";
 import { dollars, naira, pct } from "../units";
 import { abroadActivityTable, foreignPocketActivityTable } from "./activity.abroad.data";
 import { peopleActivityTable } from "./activity.people.data";
+import { profileActivityTable } from "./activity.profile.data";
 import { roomActivityTable } from "./activity.room.data";
 import { streetActivityTable } from "./activity.street.data";
 import { peopleApplyActivities } from "../route/route.data";
@@ -445,6 +446,11 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
     param: null,
     cost: [],
     pay: { currency: "USD", amount: dollars(350) },
+    // R-ACTIVITY-014: a stronger tech hand takes the harder tickets. Working values.
+    tiers: [
+      { min: { quality: "quality.tech", value: 60 }, pay: { currency: "USD", amount: dollars(450) } },
+      { min: { quality: "quality.tech", value: 80 }, pay: { currency: "USD", amount: dollars(600) } },
+    ],
     hireBp: pct(30),
     effects: [{ type: "quality/add", quality: "quality.wellbeing", amount: -6 }],
     counts: [],
@@ -456,6 +462,8 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
     param: null,
     cost: [],
     pay: { currency: "NGN", amount: naira(60000) },
+    // R-ACTIVITY-014, the page's own example: coding lessons pay more than exam lessons.
+    tiers: [{ min: { quality: "quality.tech", value: 50 }, pay: { currency: "NGN", amount: naira(90000) } }],
     hireBp: pct(50),
     effects: [{ type: "quality/add", quality: "quality.wellbeing", amount: -4 }],
     counts: [],
@@ -467,6 +475,11 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
     param: null,
     cost: [],
     pay: { currency: "NGN", amount: naira(120000) },
+    // R-ACTIVITY-014: regular riders and an office account come through people. Working values.
+    tiers: [
+      { min: { quality: "quality.network", value: 70 }, pay: { currency: "NGN", amount: naira(150000) } },
+      { min: { quality: "quality.network", value: 85 }, pay: { currency: "NGN", amount: naira(180000) } },
+    ],
     hireBp: pct(45),
     effects: [{ type: "quality/add", quality: "quality.wellbeing", amount: -7 }],
     counts: [],
@@ -536,6 +549,8 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
   ...streetActivityTable,
   // obligation.md R-OBLIGATION-014: the room's basics, cooking and water.
   ...roomActivityTable,
+  // activity.md R-ACTIVITY-013: the waiting months' acts.
+  ...profileActivityTable,
   // people.md: applying on the partner and dependant gates (R-PEOPLE-022, 026).
   ...peopleApplyActivities,
   // route-gates.md: the sponsor gate.

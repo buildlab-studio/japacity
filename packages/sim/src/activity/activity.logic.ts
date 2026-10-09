@@ -31,6 +31,7 @@ import type {
   Requirement,
   RequirementResult,
   SchoolApplication,
+  SetpieceQuestion,
   SlotPick,
   State,
   Tuning,
@@ -50,6 +51,7 @@ import {
   monthlyPay,
   monthlyTax,
   overtimePay,
+  raisedJob,
 } from "./activity.pay";
 
 export { cashWorkedThisMonth, localTenure, sideJobHeld } from "./activity.pay";
@@ -76,6 +78,8 @@ const LOTTO: Id<"activity"> = "activity.play-lotto";
 const BET: Id<"activity"> = "activity.bet-slip";
 /** R-STREET-001: the phone is paid from cash, at the tuning's price. */
 const PHONE: Id<"activity"> = "activity.buy-phone";
+/** R-ACTIVITY-013: being noticed at work, a raise on a draw. */
+const NOTICED: Id<"activity"> = "activity.be-noticed";
 /** R-ACTIVITY-011: a slot of either keeps the bus home safe that month. */
 const COUNTER_MOVES: readonly Id<"activity">[] = ["activity.safe-ride", "activity.sleep-at-office"];
 
@@ -622,11 +626,21 @@ function requirementsHold(read: ReadCtx, entry: ActivityEntry, judge: Judge): bo
   return appliesHere(entry, read.state) && carHolds(read, entry) && allHold(entry.requires, judge);
 }
 
+/**
+ * R-ACTIVITY-013: an act sat as a set piece (the talk, the exam) needs the stage to itself. with a
+ * set piece already open from an earlier slot this month, it fails before it is paid, since its set piece
+ * could not open and what it gives would come without it.
+ */
+function opensSetpieceWhileOpen(ctx: Ctx, entry: ActivityEntry): boolean {
+  return ctx.state.setpiece.open !== null && entry.effects.some((effect) => effect.type === "setpiece/open");
+}
+
 /** Why a pick may not be played now, or null when it may. Requirements first, then the param, then the cost. */
 function slotProblem(ctx: Ctx, entry: ActivityEntry, pick: SlotPick, withCost: boolean): SlotFailure | null {
   const judge = judgeOf(ctx);
   const read = readOf(ctx);
   if (!requirementsHold(read, entry, judge)) return "requirements";
+  if (opensSetpieceWhileOpen(ctx, entry)) return "requirements";
   if (!paramAllowed(read, entry, pick.param, judge)) return "param";
   if (withCost && !canPayPrices(pricesOf(read, entry, pick.param), judge)) return "cost";
   return null;
@@ -740,16 +754,74 @@ function runById(ctx: Ctx, entry: ActivityEntry, pick: SlotPick, cause: Cause): 
       return friendTells(ctx, pick);
     case ADVISER:
       return adviserReads(ctx, cause);
+    case NOTICED:
+      return beNoticed(ctx);
     default:
       return [];
   }
+}
+
+/**
+ * R-ACTIVITY-013: one draw on `job` at `tuning.activity.raiseChanceBp`; a landed draw raises the held
+ * job's pay by `raiseBp`, once for each job. the page names no stream, and the raise is the
+ * job's, so it is drawn on `job`; a job already raised, or one with no pay of its own, draws nothing.
+ */
+function beNoticed(ctx: Ctx): BaseEvent[] {
+  const job = ctx.state.activity.job;
+  if (job === null || raisedJob(ctx.state, job)) return [];
+  const entry = jobEntry(ctx.content, job);
+  const read = readOf(ctx);
+  const now = monthlyPay(read, entry);
+  if (now === null) return [];
+  const raised = ctx.random.chance("job", ctx.content.tuning.activity.raiseChanceBp);
+  const after: ReadCtx = { ...read, state: { ...read.state, activity: { ...read.state.activity, raised: [...(read.state.activity.raised ?? []), job] } } };
+  const pay = raised ? (monthlyPay(after, entry) ?? now) : now;
+  return record(ctx, { type: "activity/noticed", job, raised, pay });
+}
+
+/**
+ * R-ACTIVITY-013: the effects tied to the months an activity has filled a slot, this month counted. The
+ * count before this month is the life's `played`, which the slots phase raises after every slot resolves.
+ */
+function milestones(ctx: Ctx, entry: ActivityEntry, cause: Cause): void {
+  const count = (ctx.state.activity.played[entry.id] ?? 0) + 1;
+  for (const step of entry.onMonth ?? []) {
+    if (count === step.at || (step.repeat === true && count % step.at === 0)) ctx.apply(step.effects, cause);
+  }
+}
+
+function questionIn(content: Content, setpiece: Id<"setpiece">, id: string): SetpieceQuestion | undefined {
+  const entry = content.setpiece[setpiece];
+  return entry?.questions.find((question) => question.id === id) ?? entry?.followUps?.find((question) => question.id === id);
+}
+
+/**
+ * R-ACTIVITY-013: the effect `activity/exam`, given with the quiz's last answer. The answers given in the
+ * open set piece are counted right when they score above zero in content (the quiz is opened with no route,
+ * so nothing is scored on the state); `pass` or more applies the quiz's effects under the activity.
+ */
+function examEffect(ctx: Ctx, effect: Extract<Effect, { type: "activity/exam" }>): BaseEvent[] {
+  const entry = ctx.content.activity[effect.activity];
+  const exam = entry?.exam;
+  const open = ctx.state.setpiece.open;
+  if (entry === undefined || exam === undefined || open === null || open.entry !== exam.setpiece) return [];
+  const right = open.questions.filter((question) => {
+    const given = open.answers[question];
+    return (questionIn(ctx.content, exam.setpiece, question)?.answers.find((answer) => answer.id === given)?.score ?? 0) > 0;
+  }).length;
+  const passed = right >= exam.pass;
+  const events = record(ctx, { type: "activity/exam-marked", activity: entry.id, right, asked: open.questions.length, pass: exam.pass, passed });
+  if (passed) ctx.apply(exam.effects, { source: entry.id, param: null, terms: {} });
+  return events;
 }
 
 /** One slot (R-ACTIVITY-003, R-ACTIVITY-004): checked again, paid, then its effects. A failure pays nothing. */
 function resolveSlot(ctx: Ctx, pick: SlotPick, slot: number): BaseEvent[] {
   const entry = ctx.content.activity[pick.activity];
   if (entry === undefined) throw new Error(`The slot names ${pick.activity}, which the turn check let through.`);
-  const why = slotProblem(ctx, entry, pick, true);
+  // R-ACTIVITY-013: an act done once a month at most; a second pick of it fails as a slot, with nothing paid.
+  const again = entry.once === true && turnSlots(ctx).slice(0, slot).some((earlier) => earlier.activity === entry.id);
+  const why = again ? "requirements" : slotProblem(ctx, entry, pick, true);
   if (why !== null) {
     return record(ctx, { type: "activity/slot-failed", slot, activity: entry.id, param: pick.param, why });
   }
@@ -758,6 +830,7 @@ function resolveSlot(ctx: Ctx, pick: SlotPick, slot: number): BaseEvent[] {
   payPrices(ctx, pricesOf(readOf(ctx), entry, pick.param), cause);
   events.push(...runById(ctx, entry, pick, cause));
   ctx.apply(entry.effects, cause);
+  milestones(ctx, entry, cause);
   return events;
 }
 
@@ -1074,6 +1147,14 @@ function lines(event: ActivityEvent, state: State): ReportLine[] {
     case "activity/slots-recorded":
     case "activity/played-counted":
       return [];
+    case "activity/noticed":
+      return event.raised
+        ? [line("line.activity.raised", { job: event.job, amount: event.pay }, "good", true)]
+        : [line("line.activity.not-noticed", { job: event.job }, "plain")];
+    case "activity/exam-marked":
+      return event.passed
+        ? [line("line.activity.exam-passed", { right: event.right, asked: event.asked }, "good", true)]
+        : [line("line.activity.exam-failed", { right: event.right, asked: event.asked, pass: event.pass }, "bad", true)];
     case "activity/word-of-mouth":
       return friendLines(event);
     case "activity/advised":
@@ -1131,6 +1212,8 @@ function evolve(slice: ActivitySlice, event: ActivityEvent): ActivitySlice {
       for (const id of event.activities) played[id] = (played[id] ?? 0) + 1;
       return { ...slice, played };
     }
+    case "activity/noticed":
+      return event.raised ? { ...slice, raised: [...(slice.raised ?? []), event.job] } : slice;
     case "activity/pay-withheld":
     case "activity/sick-pay":
     case "activity/side-worked":
@@ -1145,6 +1228,7 @@ function evolve(slice: ActivitySlice, event: ActivityEvent): ActivitySlice {
     case "activity/gig-paid":
     case "activity/word-of-mouth":
     case "activity/advised":
+    case "activity/exam-marked":
       return slice;
     default: {
       const never: never = event;
@@ -1161,6 +1245,9 @@ function invariants(state: State, content: Content): string[] {
   for (const [id, months] of Object.entries(tenure)) {
     if (id !== DRIVING_TEST && content.activity[id as Id<"activity">]?.slot !== "main") problems.push(`Tenure is kept for ${id}, which is not a job in content.`);
     if (!Number.isSafeInteger(months) || months < 0) problems.push(`Tenure in ${id} is ${String(months)}.`);
+  }
+  for (const id of state.activity.raised ?? []) {
+    if (content.activity[id]?.slot !== "main") problems.push(`The raise is kept for ${id}, which is not a job in content.`);
   }
   for (const pick of lastSlots) {
     if (content.activity[pick.activity]?.slot !== "free" && content.activity[pick.activity]?.slot !== "none") problems.push(`The last slots name ${pick.activity}, which is not a free-slot activity.`);
@@ -1189,6 +1276,10 @@ export const activityKind: RegisteredKind<ActivitySlice, ActivityEvent> = {
     "activity/gig": (ctx, effect, cause) => {
       if (effect.type !== "activity/gig") throw new Error(`gig cannot carry out ${effect.type}.`);
       return gigEffect(ctx, effect, cause);
+    },
+    "activity/exam": (ctx, effect) => {
+      if (effect.type !== "activity/exam") throw new Error(`exam cannot carry out ${effect.type}.`);
+      return examEffect(ctx, effect);
     },
   },
   phases: { main, slots },
