@@ -1,0 +1,117 @@
+// The rise (japacity.md R-JAPACITY-003, world.md R-WORLD-023; the design): every
+// rise of the figure flies up as "+9" in the band's colours toward the band and fades, one at a time and
+// never a queue; a fall shows nothing; while a sheet covers the world the figure waits, so the rise and
+// the bag's growth are seen together once it closes. Each motion is under half a second.
+import { act, cleanup, render } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
+
+import { recordedGame, recordedSave } from "../testing/fixtures";
+import { Rise, RISE_FLY_MS, RISE_MS, riseOf, useJapaRise } from "./Rise";
+
+beforeEach(() => {
+  vi.useFakeTimers();
+});
+
+afterEach(() => {
+  cleanup();
+  vi.useRealTimers();
+});
+
+function Harness({ percent, open }: { percent: number | null; open: boolean }) {
+  const japa = useJapaRise(percent, open);
+  return (
+    <>
+      <Rise rise={japa.rise} />
+      <i data-figure={japa.figure ?? "none"} />
+    </>
+  );
+}
+
+const rises = (): string[] => [...document.querySelectorAll("[data-rise]")].map((node) => node.textContent);
+const figure = (): string | null => document.querySelector("[data-figure]")?.getAttribute("data-figure") ?? null;
+
+describe("the rise of the figure", () => {
+  test("[R-JAPACITY-003] given the figure before and after, when a rise is read, then it is the points gained; the first figure of a route known counts from nothing; a fall or no change is no rise", () => {
+    expect(riseOf(20, 29)).toBe(9);
+    expect(riseOf(null, 10)).toBe(10);
+    expect(riseOf(29, 20)).toBe(0);
+    expect(riseOf(20, 20)).toBe(0);
+    expect(riseOf(10, null)).toBe(0);
+  });
+
+  test("[R-JAPACITY-003] given Tunde the borrower's life, when every month's figure is read in turn, then each rise is its gain and every fall is no rise", () => {
+    const commands = recordedSave("tunde-borrower").commands.length;
+    let before: number | null = null;
+    let up = 0;
+    let down = 0;
+    for (let played = 0; played <= commands; played += 1) {
+      const now = recordedGame("tunde-borrower", commands - played).view().japacity.percent;
+      const rise = riseOf(before, now);
+      if (now !== null && (before === null || now > before)) {
+        expect(rise).toBe(now - (before ?? 0));
+        up += 1;
+      } else {
+        expect(rise).toBe(0);
+        if (now !== before) down += 1;
+      }
+      before = now;
+    }
+    expect(up).toBeGreaterThan(5);
+    expect(down).toBeGreaterThan(0);
+  });
+
+  test("[R-JAPACITY-003] [R-WORLD-023] given the world in view, when the figure rises, then one rise flies once in the band's colours and is gone after its time; when it falls, nothing flies and only the figure the bag reads moves", () => {
+    const shown = render(<Harness percent={20} open />);
+    expect(rises()).toEqual([]);
+    expect(figure()).toBe("20");
+    shown.rerender(<Harness percent={29} open />);
+    expect(rises()).toEqual(["+9"]);
+    expect(document.querySelector("[data-rise] .band")).not.toBeNull();
+    expect(figure()).toBe("29");
+    act(() => {
+      vi.advanceTimersByTime(RISE_MS);
+    });
+    expect(rises()).toEqual([]);
+    shown.rerender(<Harness percent={24} open />);
+    expect(rises()).toEqual([]);
+    expect(figure()).toBe("24");
+    shown.rerender(<Harness percent={24} open />);
+    expect(rises()).toEqual([]);
+  });
+
+  test("[R-JAPACITY-003] given a sheet over the world, when the figure rises under it, then nothing flies and the bag keeps its size until it closes; then one rise flies for the whole gain", () => {
+    const shown = render(<Harness percent={20} open />);
+    shown.rerender(<Harness percent={26} open={false} />);
+    shown.rerender(<Harness percent={31} open={false} />);
+    expect(rises()).toEqual([]);
+    expect(figure()).toBe("20");
+    shown.rerender(<Harness percent={31} open />);
+    expect(rises()).toEqual(["+11"]);
+    expect(figure()).toBe("31");
+  });
+
+  test("[R-JAPACITY-003] given a rise still flying, when the figure rises again, then the new one takes its place: one at a time, never a queue", () => {
+    const shown = render(<Harness percent={30} open />);
+    shown.rerender(<Harness percent={33} open />);
+    shown.rerender(<Harness percent={40} open />);
+    expect(rises()).toEqual(["+7"]);
+    act(() => {
+      vi.advanceTimersByTime(RISE_MS);
+    });
+    expect(rises()).toEqual([]);
+  });
+
+  test("[R-WORLD-023] given the rise, then its flight is under half a second; it pops in with the shell's pop and holds still between", () => {
+    expect(RISE_FLY_MS).toBeLessThan(500);
+    const shown = render(<Harness percent={30} open />);
+    shown.rerender(<Harness percent={39} open />);
+    expect(document.querySelector("[data-rise] .pop")).not.toBeNull();
+    const flier = document.querySelector<HTMLElement>("[data-rise] .band");
+    expect(flier?.className).toContain(`duration-${String(RISE_FLY_MS)}`);
+    expect(document.querySelector("[data-rise]")?.getAttribute("data-flying")).toBe("false");
+    act(() => {
+      vi.advanceTimersByTime(RISE_MS - RISE_FLY_MS);
+    });
+    expect(document.querySelector("[data-rise]")?.getAttribute("data-flying")).toBe("true");
+  });
+});
