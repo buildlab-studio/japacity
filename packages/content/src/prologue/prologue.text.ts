@@ -154,6 +154,16 @@ export const prologueText: Record<string, string> = {
   "prologue.handover.lived.capital": "The years went another way: six years under a master, and a shop's capital.",
   "prologue.handover.lived.trade": "The years went another way: no university, work from school on.",
 
+  // The front door's typed name (R-PROLOGUE-009): what the box says, and why a name is refused.
+  "prologue.door.name.title": "Your name",
+  "prologue.door.name.hint": "Type it, or take one of these.",
+  "prologue.door.name.placeholder": "What people call you",
+  "prologue.door.name.short": "A name needs at least {shortest} letters.",
+  "prologue.door.name.long": "Keep it to {longest} letters.",
+  "prologue.door.name.letters": "Letters only. No numbers, spaces or signs.",
+  "prologue.door.name.reserved": "That name belongs to the game. Pick another.",
+  "prologue.door.name.blocked": "Not that name. Pick another.",
+
   "scenario.prologue.name": "A life from sixteen",
   "scenario.prologue.blurb": "Secondary school to the end of the service year. Your choices build where you start.",
 
