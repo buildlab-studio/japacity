@@ -36,11 +36,12 @@ import { buildRoom } from "@japacity/assets-src/bld/room/build";
 import { ROOMS, type RoomName } from "@japacity/assets-src/bld/room/rooms";
 import * as furniture from "@japacity/assets-src/prop/furniture";
 import { buildStall } from "@japacity/assets-src/prop/stall";
+import { buildStreetBench } from "@japacity/assets-src/prop/street-bench/build";
 import { buildTrolley } from "@japacity/assets-src/prop/trolley/build";
 import { buildContainerPhones } from "@japacity/assets-src/shop/container-phones/build";
 import { buildLottoKiosk } from "@japacity/assets-src/shop/lotto-kiosk/build";
 import { buildProvisions } from "@japacity/assets-src/shop/provisions/build";
-import { buildTaxi } from "@japacity/assets-src/veh/taxi/build";
+import { buildTaxi, DUBAI_TAXI } from "@japacity/assets-src/veh/taxi/build";
 import { buildAbra } from "@japacity/assets-src/veh/abra/build";
 import { buildLabourBus } from "@japacity/assets-src/veh/labour-bus/build";
 import { buildDanfo, buildKeke, buildOkada } from "@japacity/assets-src/veh/vehicles";
@@ -394,6 +395,9 @@ export const CATALOG: CatalogEntry[] = [
   ),
   { name: "veh_abra", file: "places/deira/veh_abra.glb", place: "place.deira", source: "assets-src/veh/abra", author: PLACES_A, views: [...ELEVATIONS, "phone"], ground: "lagoon", build: () => staticModel("veh_abra", buildAbra()) },
   { name: "veh_labour-bus", file: "places/deira/veh_labour-bus.glb", place: "place.deira", source: "assets-src/veh/labour-bus", author: PLACES_A, views: [...ELEVATIONS, "phone"], build: () => staticModel("veh_labour-bus", buildLabourBus()) },
+  // The pieces the three old places needed when they were rebuilt as frontages (docs/rules/world.md R-WORLD-011).
+  { name: "veh_taxi-dubai", file: "places/deira/veh_taxi-dubai.glb", place: "place.deira", source: "assets-src/veh/taxi", author: PLACES_A, views: [...ELEVATIONS, "phone"], build: () => staticModel("veh_taxi-dubai", buildTaxi(DUBAI_TAXI)) },
+  placePiece("prop_street-bench", "peckham", buildStreetBench),
   { name: "prop_flag-mast", file: "shared/prop/prop_flag-mast.glb", place: "shared", source: "assets-src/prop/flag-mast", author: PLACES_A, views: [...ELEVATIONS, "phone"], build: () => staticModel("prop_flag-mast", buildFlagMast()) },
   { name: "prop_bus-shelter", file: "shared/prop/prop_bus-shelter.glb", place: "shared", source: "assets-src/prop/bus-shelter", author: PLACES_A, views: [...ELEVATIONS, "phone"], build: () => staticModel("prop_bus-shelter", buildBusShelter()) },
   ...([

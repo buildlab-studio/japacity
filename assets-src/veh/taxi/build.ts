@@ -2,7 +2,9 @@
 // city's taxi yellow with a band of black and white checks down each side and a white roof light,
 // no company's name or livery (R-ASSET-010). Built along +x like the design's vehicles, then turned to
 // face +z. The wheels are round, so they are their own part, shaded smooth (R-ASSET-005).
-import { lowBox, setFootprint } from "@japacity/assets";
+// Dubai's taxi is the same saloon in cream with a red roof and no checks: the look of the city's
+// cabs, with no operator's name or mark on it.
+import { lowBox, type PaletteName, setFootprint } from "@japacity/assets";
 import { part } from "@japacity/assets/kit";
 import { Group } from "three";
 
@@ -10,12 +12,26 @@ import { cbox, facePlusZ, profile, wheel } from "../lab";
 
 export const TAXI = { length: 4.5, width: 1.74, height: 1.46 } as const;
 
-export function buildTaxi(): Group {
+/** How a city paints its taxis: the body, a roof of its own colour or none, and the band of checks or none. */
+export interface TaxiLivery {
+  name: string;
+  body: PaletteName;
+  roof: PaletteName | null;
+  checks: boolean;
+}
+
+export const LAGOS_TAXI: TaxiLivery = { name: "veh_taxi", body: "danfoYellow", roof: null, checks: true };
+export const DUBAI_TAXI: TaxiLivery = { name: "veh_taxi-dubai", body: "wallCream", roof: "red", checks: false };
+
+export function buildTaxi(livery: TaxiLivery = LAGOS_TAXI): Group {
   const g = new Group();
   const { width: w } = TAXI;
   const hw = w / 2;
   // The body as one side profile: bonnet, windscreen, roof, rear window, boot.
-  profile(g, [[-2.25, 0.32], [2.25, 0.32], [2.27, 0.78], [1.25, 0.9], [0.55, 1.4], [-0.95, 1.4], [-1.65, 0.92], [-2.27, 0.86]], w, "danfoYellow");
+  profile(g, [[-2.25, 0.32], [2.25, 0.32], [2.27, 0.78], [1.25, 0.9], [0.55, 1.4], [-0.95, 1.4], [-1.65, 0.92], [-2.27, 0.86]], w, livery.body);
+  // A roof of its own colour sits a few centimetres proud of the body's, so the two tops never fight.
+  const roof = livery.roof === null ? 0 : 0.04;
+  if (livery.roof !== null) cbox(g, 1.5, roof, w + 0.01, -0.2, 1.4 + roof / 2, 0, livery.roof);
   // The glass: windscreen and rear window on their slopes, the side windows split by the pillar.
   cbox(g, 0.03, 0.62, w - 0.2, 0.9, 1.15, 0, "glass", 0.62);
   cbox(g, 0.03, 0.58, w - 0.2, -1.3, 1.16, 0, "glass", -0.6);
@@ -23,8 +39,10 @@ export function buildTaxi(): Group {
     cbox(g, 0.62, 0.36, 0.02, 0.15, 1.13, s * (hw + 0.005), "glass");
     cbox(g, 0.66, 0.36, 0.02, -0.65, 1.13, s * (hw + 0.005), "glass");
     // The band of checks below the windows, in two rows.
-    for (let i = 0; i < 14; i++) {
-      for (let row = 0; row < 2; row++) cbox(g, 0.28, 0.07, 0.02, -1.82 + i * 0.28, 0.82 - row * 0.07, s * (hw + 0.006), (i + row) % 2 === 0 ? "black" : "white");
+    if (livery.checks) {
+      for (let i = 0; i < 14; i++) {
+        for (let row = 0; row < 2; row++) cbox(g, 0.28, 0.07, 0.02, -1.82 + i * 0.28, 0.82 - row * 0.07, s * (hw + 0.006), (i + row) % 2 === 0 ? "black" : "white");
+      }
     }
     // Door seams and handles.
     for (const x of [0.55, -0.3, -1.05]) cbox(g, 0.02, 0.5, 0.02, x, 0.62, s * (hw + 0.008), "black");
@@ -41,11 +59,11 @@ export function buildTaxi(): Group {
   }
   cbox(g, 0.02, 0.11, 0.4, 2.35, 0.4, 0, "white");
   cbox(g, 0.02, 0.11, 0.4, -2.35, 0.4, 0, "white");
-  cbox(g, 0.5, 0.16, 0.24, -0.2, 1.48, 0, "white");
+  cbox(g, 0.5, 0.16, 0.24, -0.2, 1.48 + roof, 0, "white");
   // The wheels.
   const wheels = part(g, "wheels");
   wheels.userData.smooth = true;
   for (const x of [1.4, -1.4]) for (const s of [1, -1]) wheel(wheels, 0.32, 0.2, x, 0.32, s * (hw - 0.08));
-  const root = facePlusZ(g, "veh_taxi");
+  const root = facePlusZ(g, livery.name);
   return setFootprint(root, [lowBox(root)]);
 }
