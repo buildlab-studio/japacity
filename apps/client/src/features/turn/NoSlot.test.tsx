@@ -10,6 +10,7 @@ import { gameAuthority, newGame, viewAfter } from "../../shared/testing/fixtures
 import "../../shared/testing/render";
 import { nameOf } from "../../shared/words/text";
 import { MonthSheet } from "./MonthSheet";
+import { workingPlanned } from "../../shared/words/count";
 import { turnWords } from "./turn.words";
 
 const FRIEND = "activity.ask-someone-who-went";
@@ -49,7 +50,8 @@ describe("the word of someone who went", () => {
     });
     expect(added).toBe(true);
     expect(store.getState().plan).toHaveLength(view.freeSlots + 1);
-    expect(endButton().textContent).toContain(turnWords("ui.month.slots", { used: view.freeSlots, slots: view.freeSlots }));
+    // The slots count only what fills one; with a job held the line says it as a person would.
+    expect(endButton().textContent).toContain(view.job.id === null ? turnWords("ui.month.slots", { used: view.freeSlots, slots: view.freeSlots }) : workingPlanned(view.freeSlots));
     expect(document.querySelectorAll("[data-slot-none]")).toHaveLength(1);
     expect(document.querySelector("[data-slot-none]")?.textContent).toBe(turnWords("turn.month.no-slot"));
     fireEvent.click(endButton());
