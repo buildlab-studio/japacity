@@ -232,6 +232,8 @@ export type Requirement =
   | { type: "route/gate-step"; route: Id<"route">; step: string }
   /** Months in any job in the current country. */
   | { type: "activity/local-tenure"; months: number }
+  /** The activity filled a slot in the month just played: a free slot sent with it, or the job or side job held (docs/rules/streets.md R-STREET-004). */
+  | { type: "activity/played"; activity: Id<"activity"> }
   /** The set piece has closed at least `times` times (default 1): docs/rules/route.md R-SETPIECE-006. */
   | { type: "setpiece/answered"; setpiece: Id<"setpiece">; times?: number }
   /** The last answer given to this question of this set piece was this one (R-SETPIECE-007). */
