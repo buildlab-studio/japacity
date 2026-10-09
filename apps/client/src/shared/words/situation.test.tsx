@@ -27,7 +27,7 @@ describe("the situation in plain words", () => {
   test("[R-TURN-009] [R-ACTIVITY-010] given a side job's lock, when its lines are read, then they name the side job in words, never its key", () => {
     const locked = words("line.turn.locked", { slots: 1, why: "side-job" });
     const unlocked = words("line.turn.unlocked", { why: "side-job" });
-    expect(locked).toBe("Your side job takes some of your time this month.");
+    expect(locked).toBe("Your side job has taken some of your time this month.");
     expect(unlocked).toBe("Your time is your own again. Your side job no longer takes it.");
     for (const said of [locked, unlocked]) expect(said).not.toContain("side-job");
   });
