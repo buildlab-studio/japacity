@@ -627,6 +627,8 @@ export interface OfferEntry {
   bad?: boolean;
   /** What the choice that takes the slot will lock, said a month ahead; the choice's own `turn/lock` effect does the locking (docs/rules/health.md R-HEALTH-006). */
   lockNext?: { slots: number; months: number; why: string };
+  /** False for a small ask abroad that needs no answer this month: an Until news run passes it and it lapses by `onExpire` (docs/rules/world.md R-WORLD-028). Absent means true. The simulation never reads it. */
+  news?: boolean;
   /** Rolled each month while these hold. */
   when: Requirement[];
   /** Zero: never rolled. It opens only when an effect opens it. */
@@ -1045,7 +1047,8 @@ export interface ScenarioEntry {
 
 /** Numbers that are rules more than entries. Each is named in a rule page. */
 export interface Tuning {
-  turn: { cap: number; start: number; freeSlots: number; freeSlotsNoJob: number; maxLocked: number };
+  /** `quietAskCap`: in pence; an ask that may cost more than this stays news on an Until news run (docs/rules/world.md R-WORLD-028). */
+  turn: { cap: number; start: number; freeSlots: number; freeSlotsNoJob: number; maxLocked: number; quietAskCap: number };
   quality: {
     wellbeingRest: number;
     wellbeingDriftTo: number;

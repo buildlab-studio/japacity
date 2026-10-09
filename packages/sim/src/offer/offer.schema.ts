@@ -38,6 +38,7 @@ export const OfferEntrySchema = z.strictObject({
   luck: z.boolean().exactOptional(),
   bad: z.boolean().exactOptional(),
   lockNext: z.strictObject({ slots: CountSchema, months: z.int().positive(), why: z.string().min(1) }).exactOptional(),
+  news: z.boolean().exactOptional(),
   when: z.array(RequirementSchema),
   chanceBp: BpSchema,
   cooldown: CountSchema,
