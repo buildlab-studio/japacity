@@ -48,6 +48,9 @@ export function mapPins({ places, here, home, homeSpot, been, built, open, name 
     });
 }
 
+/** A ride abroad takes about this long over the wait; the city's distances are not drawn yet. */
+const ABROAD_MINUTES = 25;
+
 /** Metres in a straight line between two positions. */
 export function metresBetween(from: Position, to: Position): number {
   const cos = Math.cos((from.latE3 / 1000) * (Math.PI / 180));
@@ -59,8 +62,10 @@ export function metresBetween(from: Position, to: Position): number {
  * flat fare in tuning, the same the simulation takes for `place/ride` (R-PLACE-010, decision 0011);
  * the minutes are the wait plus the straight-line distance at the way's pace.
  */
-export function rideChoices(from: Position, to: Position): RideChoice[] {
+export function rideChoices(from: Position, to: Position, country: string | null = null): RideChoice[] {
   const { fareKobo, metresPerMinute, waitMinutes } = content.tuning.city.ride;
+  // Abroad there is one way, named for the country, at no fare until the tuning carries fares in that country's money (decision 0011).
+  if (country !== null) return [{ id: "danfo", label: mapWords(`map.way.abroad.${country}`), fare: 0, minutes: waitMinutes + ABROAD_MINUTES }];
   const metres = metresBetween(from, to);
   return WAYS.map((id) => ({ id, label: mapWords(`map.way.${id}`), fare: fareKobo[id], minutes: waitMinutes + Math.max(1, Math.round(metres / metresPerMinute[id])) }));
 }

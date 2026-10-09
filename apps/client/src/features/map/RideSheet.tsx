@@ -64,6 +64,7 @@ export function RideSheet({ pin, home, ways, have, formatMoney, onChoose, onClos
     if (locked || way === undefined) return { label: mapWords("map.not-yet"), after: null, disabled: true };
     const label = mapWords(home ? "map.go-home" : "map.go", { way: way.label.toLowerCase() });
     if (short) return { label, after: mapWords("map.short", { amount: formatMoney(-left) }), disabled: true };
+    if (way.fare === 0) return { label, after: null, disabled: false };
     return { label, after: say("ui.world.left", { amount: formatMoney(left) }), disabled: false };
   })();
 
@@ -104,7 +105,7 @@ export function RideSheet({ pin, home, ways, have, formatMoney, onChoose, onClos
                       <Icon size={15} aria-hidden />
                       {choice.label}
                     </span>
-                    <span className="num text-[17px]">{formatMoney(choice.fare)}</span>
+                    <span className="num text-[17px]">{choice.fare === 0 ? say("ui.world.free") : formatMoney(choice.fare)}</span>
                     <span className="text-[12px] text-text-2">{mapWords("map.way.minutes", { minutes: choice.minutes })}</span>
                   </button>
                 );

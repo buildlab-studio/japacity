@@ -195,6 +195,25 @@ describe("the ride", () => {
     expect(okada.minutes).toBeLessThan(danfo.minutes);
   });
 
+  test("[R-WORLD-017] given a country abroad, when the ways are priced, then there is one way named for the country at no fare, and the sheet says so", async () => {
+    const ways = rideChoices({ latE3: 51473, lonE3: -70 }, { latE3: 51480, lonE3: -60 }, "country.uk");
+    expect(ways).toHaveLength(1);
+    expect(ways[0]).toMatchObject({ label: mapWords("map.way.abroad.country.uk"), fare: 0 });
+    expect(ways[0]?.minutes).toBeGreaterThan(0);
+    const uk: CountryChoice = { id: "country.uk", name: "United Kingdom", locked: null };
+    const pins = [
+      { id: "place.the-room", name: "The room", state: "here" as const, position: { latE3: 51473, lonE3: -70 }, things: 1 },
+      { id: "place.peckham", name: "Peckham", state: "can" as const, position: { latE3: 51480, lonE3: -60 }, things: 4 },
+    ];
+    await renderWithView(<Map pins={pins} country={uk} countries={[uk]} drawing={false} onGo={() => undefined} onClose={() => undefined} />, engineView());
+    fireEvent.click(screen.getAllByRole("button").find((button) => button.dataset.stop === "place.peckham") as HTMLElement);
+    const sheet = screen.getByRole("dialog", { name: headingOf("Peckham") });
+    expect(within(sheet).getAllByRole("radio")).toHaveLength(1);
+    expect(within(sheet).getByText(say("ui.world.free"))).toBeTruthy();
+    expect((sheet.querySelector("[data-ride-main]") as HTMLButtonElement).disabled).toBe(false);
+    expect(sheet.querySelector("[data-ride-main]")?.textContent).not.toContain(say("ui.world.left", { amount: "" }).trim());
+  });
+
   test("[R-WORLD-017] given a stop picked, when the ride sheet shows, then it names the place, gives each way's fare and minutes, and the main button says what is left after", async () => {
     const view = engineView();
     const pins = lagosPins();

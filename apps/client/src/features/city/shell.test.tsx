@@ -1,7 +1,7 @@
 // The world's shell over the place (docs/rules/world.md R-WORLD-001 to 004): what stands over the
 // scene, what hides when, and the nudge's choice. The scene itself needs WebGL and is not drawn here.
 import { act, fireEvent, screen, waitFor, within } from "@testing-library/react";
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 
 import { engineView, richView } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
@@ -110,6 +110,30 @@ describe("the band and the thumb buttons", () => {
     expect(document.querySelector("[data-cut]")?.getAttribute("data-cut")).toBe("true");
     expect(document.querySelector("[data-results-for]")).toBeNull();
     await waitFor(() => expect(document.querySelector("[data-results-for]")?.getAttribute("data-results-for")).toBe(shown));
+  });
+});
+
+describe("street talk", () => {
+  test("[R-WORLD-026] given a place with overheard lines, when the world shows, then one line of chatter stands in the bottom corner, changes with time, and hides while a sheet is open", async () => {
+    vi.useFakeTimers();
+    try {
+      await renderWithView(world(), engineView());
+      const chatter = (): HTMLElement | null => document.querySelector<HTMLElement>("[data-chatter]");
+      expect(chatter()).not.toBeNull();
+      const first = chatter()?.textContent ?? "";
+      expect(first.length).toBeGreaterThan(0);
+      expect(first).not.toMatch(/[\u2013\u2014]/);
+      const seen = new Set([first]);
+      for (let turn = 0; turn < 6; turn += 1) {
+        act(() => vi.advanceTimersByTime(9000));
+        seen.add(chatter()?.textContent ?? "");
+      }
+      expect(seen.size).toBeGreaterThan(1);
+      fireEvent.click(screen.getByRole("button", { name: say("ui.world.end-month") }));
+      expect(chatter()).toBeNull();
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });
 

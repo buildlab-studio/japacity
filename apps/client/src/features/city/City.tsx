@@ -66,7 +66,7 @@ const HOMES: Record<string, string> = { home: "place.family-house", abroad: "pla
  * The places whose files are the old page's, kept switched off (R-WORLD-024) until each is rebuilt
  * as a world-first place: the map shows only built places, and nothing with nothing to do (PENDING P25).
  */
-const OLD_FILES = new Set(["place.computer-village", "place.national-stadium", "place.third-mainland-bridge", "place.peckham", "place.deira"]);
+const OLD_FILES = new Set(["place.national-stadium", "place.third-mainland-bridge"]);
 /** A room that is a place of its own on the map, and the street its door opens onto: the hub's file names it as its inside (R-WORLD-013). */
 const OUTSIDE_OF: Record<string, string> = { "place.yaba": "place.ojuelegba" };
 /** How long the band's second row peeks after its words change (from the design's bar). */
@@ -656,7 +656,8 @@ export function City({
             pins,
             country: shownCountry,
             countries,
-            drawing,
+            // The drawn city is Lagos; abroad the map is its list of stops until that city is drawn (R-WORLD-015).
+            drawing: drawing && where === "home",
             diveTo,
             ...(rideBy === null ? {} : { by: rideBy }),
             home: HOMES[where] ?? null,
