@@ -59,7 +59,8 @@ describe("the world fills the screen", () => {
     expect(band()).toBeTruthy();
     expect(document.querySelector("[data-nudge]")).not.toBeNull();
     // The nudge is a button when it opens the way to what it names (R-WORLD-003); the band's handle shows only while something is coming (R-WORLD-002).
-    expect(screen.getAllByRole("button").map((button) => button.getAttribute("aria-label") ?? button.textContent)).toEqual([say("ui.world.end-month"), say(nudgeOf(view).key), say("ui.world.map"), say("ui.world.phone")]);
+    // The months the player may still play are part of the band, a glyph with the number (R-WORLD-027).
+    expect(screen.getAllByRole("button").map((button) => button.getAttribute("aria-label") ?? button.textContent)).toEqual([say("ui.months.label", { count: view.turns.banked }), say("ui.world.end-month"), say(nudgeOf(view).key), say("ui.world.map"), say("ui.world.phone")]);
     expect(document.querySelector("[data-report-here], [data-overheard], [data-scene]")).toBeNull();
     expect(screen.queryByRole("dialog")).toBeNull();
   });
@@ -100,7 +101,7 @@ describe("the world fills the screen", () => {
 });
 
 describe("the band and the thumb buttons", () => {
-  test("[R-WORLD-002] given a life, when the band renders, then its clock is the character's age in years and months with the turns left beside it, and no month number", async () => {
+  test("[R-WORLD-002] [R-WORLD-027] given a life, when the band renders, then its clock is the character's age in years and months with the months to play beside it at all times, and no month number", async () => {
     const view = engineView();
     await opened(world(), view);
     const ageMonths = view.qualities.find((quality) => quality.id === "quality.age-months")?.value ?? 0;
@@ -108,12 +109,12 @@ describe("the band and the thumb buttons", () => {
     const clock = say("ui.world.clock", { years: Math.floor(ageMonths / 12), months: ageMonths % 12 });
     expect(within(band()).getByText(clock)).toBeTruthy();
     expect(band().textContent).not.toContain(say("ui.world.month-of", { month: view.month + 1 }));
-    // The turns left show only when three or fewer remain (R-WORLD-002).
+    // R-WORLD-027 replaces the hide-until-three: the count shows at all times, as a glyph with the number, never as a sentence.
     expect(view.turns.banked).toBeGreaterThan(3);
-    expect(within(band()).queryByText(say("ui.world.turns", { count: view.turns.banked }))).toBeNull();
+    expect(within(band()).getByRole("button", { name: say("ui.months.label", { count: view.turns.banked }) }).textContent).toBe(String(view.turns.banked));
     document.body.innerHTML = "";
     await opened(world(), { ...view, turns: { ...view.turns, banked: 2 } });
-    expect(within(band()).getByText(say("ui.world.turns", { count: 2 }))).toBeTruthy();
+    expect(within(band()).getByRole("button", { name: say("ui.months.label", { count: 2 }) }).textContent).toBe("2");
   });
 
   test("[R-WORLD-003] given a chip open when the month ends, when the results show, then the chip is gone and the nudge is back", async () => {

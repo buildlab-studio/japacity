@@ -22,6 +22,8 @@ import { ENGLISH_TEST, testChance } from "../../shared/words/test";
 import { AskSheet } from "../../shared/world/AskSheet";
 import { Band, bandMoney } from "../../shared/world/Band";
 import { cue } from "../../shared/sound/cues";
+import { Walkthrough } from "../guides/Walkthrough";
+import { MonthCount } from "../turn/MonthCount";
 import type { Ask, RideChoice } from "../../shared/world/contract";
 import { Cut, useCut } from "../../shared/world/Cut";
 import { Nudge } from "../../shared/world/Nudge";
@@ -338,7 +340,7 @@ export function City({
   const plan = useGame((state) => state.plan);
   const [phone, setPhone] = useState(false);
   const [monthOpen, setMonthOpen] = useState(false);
-  // R-WORLD-002: the band's clock is the character's age with the turns left beside it; the simulation still counts months.
+  // R-WORLD-002, R-WORLD-027: the band's clock is the character's age, with the months the player may still play beside it at all times; the simulation still counts months.
   const ageMonths = view.qualities.find((quality) => quality.id === "quality.age-months")?.value ?? 0;
   const clock = say("ui.world.clock", { years: Math.floor(ageMonths / 12), months: ageMonths % 12 });
   const [asksOpen, setAsksOpen] = useState(false);
@@ -376,6 +378,8 @@ export function City({
   const [mapPick, setMapPick] = useState<string | null>(null);
   // The chapter's opening words stand over the world once, before the first month is played (R-WORLD-001).
   const [openingSeen, setOpeningSeen] = useState(false);
+  // R-WORLD-027: the first-play walkthrough starts once the opening words are passed, never before play.
+  const [walkFrom, setWalkFrom] = useState(false);
   // The app the phone opens on when the nudge sends the player to it (the month's news).
   const [phoneApp, setPhoneApp] = useState<string | null>(null);
   /** The way a vehicle in the place was tapped for, chosen on the ride sheet when the map opens from it (R-WORLD-017). */
@@ -999,7 +1003,7 @@ export function City({
             name={hereName}
             {...bandMoney(view)}
             onEndMonth={() => setMonthOpen(true)}
-            {...(view.turns.banked <= 3 ? { turns: view.turns.banked } : {})}
+            count={<MonthCount />}
             endBlocked={endBlocked}
             hidden={map || resultsOpen}
             open={bandOpen}
@@ -1038,8 +1042,17 @@ export function City({
             </button>
           ) : null}
           <Cut cutting={cutting} />
+          <Walkthrough active={walkFrom && openingSeen && !covered && !resultsOpen && !reportOpen && !menu && !credits && picked === null} />
           {!openingSeen && view.report === null && view.chapter.current !== null && !view.ended ? (
-            <FullScreen open onClose={() => setOpeningSeen(true)} title={nameOf(view.chapter.current)} tone="over">
+            <FullScreen
+              open
+              onClose={() => {
+                setOpeningSeen(true);
+                setWalkFrom(true);
+              }}
+              title={nameOf(view.chapter.current)}
+              tone="over"
+            >
               <div className="flex max-w-sm flex-col items-center gap-5 text-center" data-opening={view.chapter.current}>
                 <p className="label label-strong text-[11px] tracking-[0.3em] uppercase opacity-80">{nameOf(view.chapter.current)}</p>
                 <p className="text-[24px] leading-snug font-bold">{words(openingKey(view))}</p>
@@ -1047,6 +1060,7 @@ export function City({
                 <Button
                   onClick={() => {
                     setOpeningSeen(true);
+                    setWalkFrom(true);
                     if (nudgeGoes) followStep();
                   }}
                   data-opening-go
