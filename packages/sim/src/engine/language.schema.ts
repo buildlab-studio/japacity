@@ -338,6 +338,7 @@ export const EffectSchema = z.discriminatedUnion("type", [
   z.strictObject({ type: z.literal("offer/open"), offer: idOf("offer") }),
   z.strictObject({ type: z.literal("offer/close"), offer: idOf("offer") }),
   z.strictObject({ type: z.literal("obligation/close"), obligationType: ObligationTypeSchema }),
+  z.strictObject({ type: z.literal("obligation/relief"), obligationType: ObligationTypeSchema, bp: BpSchema }),
   z.strictObject({ type: z.literal("place/move"), to: WhereSchema, country: idOf("country").nullable() }),
   z.strictObject({ type: z.literal("place/return"), shape: ReturnShapeSchema }),
   z.strictObject({ type: z.literal("status/grant"), status: idOf("status"), job: idOf("activity").exactOptional() }),
@@ -522,6 +523,7 @@ export const TuningSchema = z.strictObject({
   }),
   chapter: z.strictObject({ cardLines: z.int().positive(), sendOffNaira: CountSchema }),
   groupLoan: z.strictObject({ feeBp: BpSchema, savingsBp: BpSchema, vanishBp: BpSchema, visit: z.strictObject({ standing: IntSchema, wellbeing: IntSchema }) }),
+  room: z.strictObject({ cookedBp: BpSchema, waterBp: BpSchema, cookWellbeing: CountSchema }),
   lottery: z.strictObject({
     ticket: CountSchema,
     maxTickets: CountSchema,

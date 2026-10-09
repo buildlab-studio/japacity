@@ -416,6 +416,7 @@ export const miniContent: Content = {
     },
     chapter: { cardLines: 3, sendOffNaira: 15000000 },
     groupLoan: { feeBp: 1500, savingsBp: 1000, vanishBp: 2500, visit: { standing: -12, wellbeing: -5 } },
+    room: { cookedBp: 1500, waterBp: 400, cookWellbeing: 2 },
     lottery: {
       ticket: 20000,
       maxTickets: 5,

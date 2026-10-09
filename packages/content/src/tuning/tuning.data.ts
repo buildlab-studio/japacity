@@ -201,6 +201,9 @@ export const tuning: Tuning = {
 
   // obligation.md, the group loan
   groupLoan: { feeBp: 1500, savingsBp: 1000, vanishBp: pct(25), visit: { standing: -12, wellbeing: -5 } },
+  // obligation.md R-OBLIGATION-014: cooking takes 15% off the upkeep's next charge and fetching water 4%, the maintainer's
+  // starting figures. the page gives no figure for the weekend cooking takes; 2 wellbeing, as a month of study costs.
+  room: { cookedBp: pct(15), waterBp: pct(4), cookWellbeing: 2 },
 
   // lottery.md Numbers, the Friday draw at fixed odds: 1 in 10 wins ₦500, 1 in 2,000 wins ₦50,000, 1 in 5,000 the jackpot from ₦200,000, growing by 10% of the sales of a week nobody hits it.
   // the page's cap of ₦2,000,000 returns ₦475 on a ₦200 ticket and fails R-LOTTERY-022; ₦380,000 gives the page's own "about ₦151 at the cap".

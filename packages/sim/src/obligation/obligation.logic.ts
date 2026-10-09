@@ -29,6 +29,7 @@ import type {
   ReadCtx,
   Reason,
   Rejection,
+  Relief,
   ReportLine,
   Requirement,
   RequirementResult,
@@ -171,19 +172,41 @@ export interface Charge {
   interest: number;
   /** The part of `base` that lowers what is owed. */
   principal: number;
+  /** What each relief took off `base`, already taken (R-OBLIGATION-014). Empty when the item has none. */
+  relief: { source: string; amount: number }[];
+}
+
+/**
+ * R-OBLIGATION-014: each relief on the item takes its share of the charge's base, never below zero.
+ * Each share is of the whole base, so the order of two reliefs changes nothing until the base runs out.
+ */
+function relieve(item: ObligationState, charge: Omit<Charge, "relief">): Charge {
+  let base = charge.base;
+  const relief: Charge["relief"] = [];
+  for (const { source, bp: share } of item.relief ?? []) {
+    const amount = Math.min(base, bp(charge.base, share));
+    base -= amount;
+    relief.push({ source, amount });
+  }
+  return { ...charge, base, relief };
 }
 
 /** R-CAR-001, 005: the car's monthly part stops at the final payment; at term end the final payment is the charge. */
 function carCharge(item: ObligationState, entry: ObligationEntry): Charge {
   const { final } = carTerms(entry);
-  if (item.monthsLeft === 0) return { base: item.outstanding, interest: 0, principal: item.outstanding };
+  if (item.monthsLeft === 0) return { base: item.outstanding, interest: 0, principal: item.outstanding, relief: [] };
   const scheduled = divCeil(Math.max(0, item.principal - final), entry.term ?? 1);
   const principal = Math.min(scheduled, Math.max(0, item.outstanding - final));
   // The ladder's rate is fixed at opening as the monthly interest, held in `amount` (see `openEffect`).
-  return { base: principal, interest: item.amount, principal };
+  return { base: principal, interest: item.amount, principal, relief: [] };
 }
 
 export function chargeOf(read: ReadCtx, item: ObligationState, entry: ObligationEntry): Charge {
+  return relieve(item, scheduledCharge(read, item, entry));
+}
+
+/** The charge as scheduled, before any relief. */
+function scheduledCharge(read: ReadCtx, item: ObligationState, entry: ObligationEntry): Omit<Charge, "relief"> {
   const interest = bp(item.principal, entry.rateBp);
   // Held funds are returned whole (R-OBLIGATION-008); only these types repay principal on a schedule.
   const scheduled = SCHEDULED_TYPES.includes(entry.type) && entry.term !== null ? divCeil(item.principal, entry.term) : 0;
@@ -226,7 +249,7 @@ function carArrears(item: ObligationState, entry: ObligationEntry): Charge & { m
   const months = Math.min(item.missed, item.monthsLeft ?? 0);
   const monthly = carCharge(item, entry);
   const principal = Math.min(months * monthly.principal, Math.max(0, item.outstanding - carTerms(entry).final));
-  return { months, base: principal, interest: months * monthly.interest, principal };
+  return { months, base: principal, interest: months * monthly.interest, principal, relief: [] };
 }
 
 /**
@@ -359,6 +382,7 @@ function pay(ctx: Ctx, item: ObligationState, entry: ObligationEntry, charge: Ch
     total: totalOf(charge),
     interest: charge.interest,
     principal: charge.principal,
+    ...(charge.relief.length === 0 ? {} : { relief: charge.relief }),
   });
   report(ctx, item, entry, ctx.content.tuning.credit.onTime);
   switch (entry.type) {
@@ -613,6 +637,21 @@ function closeEffect(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
   return events;
 }
 
+/**
+ * R-OBLIGATION-014: a share off the next charge of the open obligation of the type that applies where
+ * the character lives, the oldest when there are several. A source already on the item adds nothing,
+ * so cooking twice in a month takes the share once. With nothing open of the type, nothing happens.
+ */
+function reliefEffect(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
+  if (effect.type !== "obligation/relief") throw new Error(`obligation/relief cannot carry out ${effect.type}.`);
+  const item = openItems(ctx.state).find((open) => {
+    const entry = entryOf(ctx.content, open.entry);
+    return entry.type === effect.obligationType && open.state !== "defaulted" && appliesHere(entry, ctx.state);
+  });
+  if (item === undefined || effect.bp === 0 || (item.relief ?? []).some((relief) => relief.source === cause.source)) return [];
+  return record(ctx, { type: "obligation/relieved", id: item.id, entry: item.entry, source: cause.source, bp: effect.bp });
+}
+
 // ---------------------------------------------------------------------------
 // Paying early: R-OBLIGATION-008, R-CAR-003, 004
 // ---------------------------------------------------------------------------
@@ -714,6 +753,14 @@ function without(slice: ObligationSlice, id: string): ObligationSlice {
   return { ...slice, items };
 }
 
+/** The item with its reliefs spent by the charge that just fell (R-OBLIGATION-014). */
+function spent(item: ObligationState): ObligationState {
+  if (item.relief === undefined) return item;
+  const rest = { ...item };
+  delete rest.relief;
+  return rest;
+}
+
 function typeOf(content: Content, item: ObligationState): ObligationType {
   return entryOf(content, item.entry).type;
 }
@@ -724,7 +771,7 @@ function evolve(slice: ObligationSlice, event: ObligationEvent, _state: State, c
       return { ...slice, items: { ...slice.items, [event.item.id]: event.item } };
     case "obligation/charged":
       return withItem(slice, event.id, (item) => ({
-        ...item,
+        ...spent(item),
         // A paid charge ends a grace (R-OBLIGATION-003).
         state: item.state === "grace" ? "active" : item.state,
         outstanding: item.outstanding - event.principal,
@@ -733,14 +780,14 @@ function evolve(slice: ObligationSlice, event: ObligationEvent, _state: State, c
       }));
     case "obligation/missed":
       return withItem(slice, event.id, (item) => ({
-        ...item,
+        ...spent(item),
         // Only these types have a grace to be in. Upkeep and support carry no arrears (R-OBLIGATION-004).
         state: item.state === "active" && GRACE_TYPES.includes(typeOf(content, item)) ? "grace" : item.state,
         missed: event.missed,
       }));
     case "obligation/covered":
       return withItem(slice, event.id, (item) => ({
-        ...item,
+        ...spent(item),
         state: "grace",
         outstanding: item.outstanding - event.principal + event.total,
         monthsLeft: item.monthsLeft === null ? null : Math.max(0, item.monthsLeft - 1),
@@ -774,6 +821,10 @@ function evolve(slice: ObligationSlice, event: ObligationEvent, _state: State, c
       }));
     case "obligation/cleared":
       return withItem(slice, event.id, (item) => ({ ...item, state: "active", missed: 0 }));
+    case "obligation/relieved": {
+      const relief: Relief = { source: event.source, bp: event.bp };
+      return withItem(slice, event.id, (item) => ({ ...item, relief: [...(item.relief ?? []), relief] }));
+    }
     case "obligation/court":
     case "obligation/owned":
       return slice;
@@ -827,6 +878,11 @@ function defaultKey(entry: ObligationEntry): string {
   }
 }
 
+/** R-OBLIGATION-014: a relief is told in its activity's own words: `line.obligation.relief.cook-at-home`. */
+function reliefKey(source: string): string {
+  return `relief.${source.slice(source.indexOf(".") + 1)}`;
+}
+
 /** The key a miss is told with: the car's notice and the group's visit are their own (R-CAR-003, R-OBLIGATION-011). */
 function missKey(entry: ObligationEntry, missed: number): string {
   if (entry.type === "car" && missed === entry.grace) return "car-notice";
@@ -858,8 +914,11 @@ function lines(event: ObligationEvent, _state: State, content: Content): ReportL
   const money = (entry: Id<"obligation">, amount: number): MoneyParam => ({ currency: entryOf(content, entry).currency, amount });
   switch (event.type) {
     case "obligation/charged":
-      // Said quietly: the wallet's own lines already show the money leaving.
-      return event.total === 0 ? [] : [line("charged", { obligation: event.entry, amount: money(event.entry, event.total) }, "plain", false)];
+      // Said quietly: the wallet's own lines already show the money leaving. Each relief is its own line (R-OBLIGATION-014).
+      return [
+        ...(event.total === 0 ? [] : [line("charged", { obligation: event.entry, amount: money(event.entry, event.total) }, "plain", false)]),
+        ...(event.relief ?? []).filter((relief) => relief.amount > 0).map((relief) => line(reliefKey(relief.source), { obligation: event.entry, amount: money(event.entry, relief.amount) }, "good", false)),
+      ];
     case "obligation/missed":
       return [line(missKey(entryOf(content, event.entry), event.missed), { obligation: event.entry, amount: money(event.entry, event.total) }, "bad", true)];
     case "obligation/covered":
@@ -905,6 +964,7 @@ function lines(event: ObligationEvent, _state: State, content: Content): ReportL
       return [line("debt-grown", { obligation: event.entry, amount: money(event.entry, event.amount) }, "bad", true)];
     case "obligation/opened":
     case "obligation/repaid":
+    case "obligation/relieved":
       // The wallet's line for the loan, the locked money or the repayment says it.
       return [];
     default: {
@@ -948,6 +1008,10 @@ function invariants(state: State, content: Content): string[] {
     }
     if (item.state === "grace" && !GRACE_TYPES.includes(entry.type)) problems.push(`Obligation ${id} is in grace, but a ${entry.type} has none.`);
     if (item.state === "defaulted" && !DEBT_TYPES.includes(entry.type)) problems.push(`Obligation ${id} is in default, but a ${entry.type} does not stay open in default.`);
+    // R-OBLIGATION-014: one share per source, each a share of the charge.
+    const sources = (item.relief ?? []).map((relief) => relief.source);
+    if (new Set(sources).size !== sources.length) problems.push(`Obligation ${id} holds the same relief twice.`);
+    if ((item.relief ?? []).some((relief) => !Number.isSafeInteger(relief.bp) || relief.bp <= 0 || relief.bp > 10000)) problems.push(`Obligation ${id} holds a relief that is not a share.`);
   }
   return problems;
 }
@@ -1004,7 +1068,7 @@ export const obligationKind: RegisteredKind<ObligationSlice, ObligationEvent> = 
     return { items };
   },
   commands: { "obligation/pay": payCommand },
-  effects: { "obligation/open": openEffect, "obligation/close": closeEffect },
+  effects: { "obligation/open": openEffect, "obligation/close": closeEffect, "obligation/relief": reliefEffect },
   phases: { due },
   evolve,
   lines,
