@@ -17,9 +17,11 @@ const INTERVIEW: Id<"setpiece"> = "setpiece.credibility-interview";
 const entry = content.setpiece[INTERVIEW]!;
 const PREP: Id<"quality"> = "quality.interview-prep";
 const hintPrep = content.tuning.route.hintPrep;
-/** Every question in content order, and those asked of a clean file: the deposit question needs over 30% unexplained. */
+/** Every question in content order, and those asked of a clean file: the deposit question needs over 30% unexplained, the papers one a transcript that is not genuine. */
 const ALL = entry.questions.map((question) => question.id);
-const CLEAN = ALL.filter((id) => id !== "deposit");
+const CLEAN = ALL.filter((id) => id !== "deposit" && id !== "papers");
+/** The pool with the deposit question in it, as a file with unexplained money has it; the papers one still needs a fake. */
+const WITH_DEPOSIT = ALL.filter((id) => id !== "papers");
 
 const northgateOffers = (seed: string) => draw(seed, "school", 1, 10000) < offerChanceBp(content.school[NORTHGATE]!, 4, content.tuning.route);
 
@@ -48,6 +50,9 @@ function pageScore(question: string, answer: string, prep: number, unexplained: 
     "deposit.agreement": 0,
     "deposit.gift": -2,
     "deposit.savings": -2,
+    "papers.genuine": -2,
+    "papers.agent": -2,
+    "papers.admit": -1,
     "living.figures": prep >= 20 ? 1 : -1,
     "living.sort": -1,
   };
@@ -85,14 +90,14 @@ describe("opening the interview", () => {
   });
 
   test("[R-SETPIECE-001] given a share of unexplained money above 30%, when the application goes in, then the deposit question may be drawn too", () => {
-    const seed = seedWhere((candidate) => northgateOffers(candidate) && drawnQuestions(candidate, ALL, entry.ask).includes("deposit"));
+    const seed = seedWhere((candidate) => northgateOffers(candidate) && drawnQuestions(candidate, WITH_DEPOSIT, entry.ask).includes("deposit"));
     const game = life({ seed, pockets: { NGN: { bank: 1000000 * UNIT, cash: 40000000 * UNIT }, GBP: { bank: 40000 * UNIT, cash: 0 } } });
     toHeld(game);
     // Upkeep is taken from cash first each month, so what is banked is the cash that is left.
     game.accept({ type: "wallet/move", currency: "NGN", amount: game.state.wallet.pockets.NGN.cash, to: "bank" });
     expect(unexplainedBp(readOf(game), UK)).toBeGreaterThan(3000);
     game.endTurn([{ activity: "activity.apply-for-visa", param: null }]);
-    expect(game.state.setpiece.open?.questions).toEqual(drawnQuestions(seed, ALL, entry.ask));
+    expect(game.state.setpiece.open?.questions).toEqual(drawnQuestions(seed, WITH_DEPOSIT, entry.ask));
     expect(game.state.setpiece.open?.questions).toContain("deposit");
   });
 

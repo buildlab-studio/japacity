@@ -204,6 +204,19 @@ export const setpieceTable: Record<Id<"setpiece">, SetpieceEntry> = {
         ],
       },
       {
+        // R-ADVICE-008: the officer has checked the papers; a transcript that is not genuine is asked about, and no answer saves it.
+        id: "papers",
+        when: [
+          { type: "document/held", document: "document.transcript" },
+          { type: "not", of: { type: "document/genuine", document: "document.transcript" } },
+        ],
+        answers: [
+          { id: "genuine", score: -2, when: [], thenScore: null, effects: [] },
+          { id: "agent", score: -2, when: [], thenScore: null, effects: [] },
+          { id: "admit", score: -1, when: [], thenScore: null, effects: [] },
+        ],
+      },
+      {
         id: "living",
         when: [],
         answers: [

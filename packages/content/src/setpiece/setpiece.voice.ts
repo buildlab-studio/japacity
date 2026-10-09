@@ -15,6 +15,7 @@ export const setpieceVoice: Record<string, VoiceClip> = {
   "setpiece.credibility-interview.q.after": { clip: "officer/q-after", ms: 1749 },
   "setpiece.credibility-interview.q.course": { clip: "officer/q-course", ms: 1664 },
   "setpiece.credibility-interview.q.deposit": { clip: "officer/q-deposit", ms: 3285 },
+  "setpiece.credibility-interview.q.papers": { clip: "officer/q-papers", ms: 4629 },
   "setpiece.credibility-interview.q.living": { clip: "officer/q-living", ms: 2411 },
   "setpiece.credibility-interview.q.sponsor-who": { clip: "officer/q-sponsor-who", ms: 2219 },
   "setpiece.credibility-interview.q.agent-said": { clip: "officer/q-agent-said", ms: 2069 },

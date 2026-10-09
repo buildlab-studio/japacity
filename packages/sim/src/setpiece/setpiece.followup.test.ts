@@ -11,7 +11,8 @@ import type { Game } from "../testing/play";
 const INTERVIEW: Id<"setpiece"> = "setpiece.credibility-interview";
 const entry = content.setpiece[INTERVIEW]!;
 const PREP: Id<"quality"> = "quality.interview-prep";
-const CLEAN = entry.questions.map((question) => question.id).filter((id) => id !== "deposit");
+// A clean file is never asked about the deposit (over 30% unexplained) or the papers (a transcript that is not genuine).
+const CLEAN = entry.questions.map((question) => question.id).filter((id) => id !== "deposit" && id !== "papers");
 
 const northgateOffers = (seed: string) => draw(seed, "school", 1, 10000) < offerChanceBp(content.school[NORTHGATE]!, 4, content.tuning.route);
 

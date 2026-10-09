@@ -66,6 +66,10 @@ export const setpieceText: Record<string, string> = {
   "setpiece.credibility-interview.a.course.detail": "You walk through the modules and the project.",
   "setpiece.credibility-interview.a.course.brief": "It is a one-year master's in my field.",
 
+  "setpiece.credibility-interview.q.papers": "We checked your transcript with the university. They have no record of it. Explain.",
+  "setpiece.credibility-interview.a.papers.genuine": "It is genuine. The university must have made a mistake.",
+  "setpiece.credibility-interview.a.papers.agent": "An agent arranged it for me.",
+  "setpiece.credibility-interview.a.papers.admit": "Someone sold it to me. I did not know it was not real.",
   "setpiece.credibility-interview.q.deposit": "A large sum reached your account recently. Explain it.",
   "setpiece.credibility-interview.a.deposit.agreement": "It is a loan. Here is the agreement and the lender's licence.",
   "setpiece.credibility-interview.a.deposit.gift": "A gift from an uncle.",

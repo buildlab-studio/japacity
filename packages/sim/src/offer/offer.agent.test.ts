@@ -4,7 +4,8 @@ import { content, text } from "@japacity/content";
 import { fc, test } from "@fast-check/vitest";
 import { describe, expect } from "vitest";
 
-import type { Accepted, BaseEvent, Content, Id, Moment, OfferEntry, OfferState, ReportLine } from "../engine/types";
+import { check } from "../engine/check";
+import type { Accepted, BaseEvent, Content, Id, Moment, OfferEntry, OfferState, ReportLine, Requirement } from "../engine/types";
 import { hiddenPaths } from "../engine/view";
 import { applyEffects, answerFirst, READY, readyLife, slot, toApplied, toKnown, UK } from "../route/route.journey";
 import type { Game } from "../testing/play";
@@ -26,6 +27,7 @@ import {
   warningWhat,
 } from "./offer.agent";
 import type { OfferEvent } from "./offer.events";
+import { answerScore } from "../setpiece/setpiece.logic";
 
 const STOP: Id<"offer"> = "offer.agent-stop";
 const OFFICE: Id<"offer"> = "offer.agent-office";
@@ -283,6 +285,19 @@ describe("fake papers", () => {
     game.endTurn();
     expect(game.state.route[UK]).toMatchObject({ state: "known", bannedUntil: null });
     expect(game.state.route[UK]?.lastRefusal?.reasons[0]).toBe("agent");
+  });
+
+  test("[R-ADVICE-008] given a fake transcript, when the interview's questions are read, then the papers question is asked and every answer scores below zero; with a genuine transcript it is never asked", () => {
+    const interview = content.setpiece["setpiece.credibility-interview"]!;
+    const papers = interview.questions.find((question) => question.id === "papers")!;
+    const faked = withFakeTranscript();
+    const judgeFaked = (requirement: Requirement) => check({ state: faked.state, world: faked.world(), content }, requirement);
+    expect(papers.when.every((requirement) => judgeFaked(requirement).met)).toBe(true);
+    for (const answer of papers.answers) expect(answerScore(answer, judgeFaked)).toBeLessThan(0);
+    const honest = readyLife(content, { quiet: true });
+    const judgeHonest = (requirement: Requirement) => check({ state: honest.state, world: honest.world(), content }, requirement);
+    expect(honest.state.document["document.transcript"]?.state).toBe("held");
+    expect(papers.when.every((requirement) => judgeHonest(requirement).met)).toBe(false);
   });
 
   test("[R-ADVICE-008] given a fake never used, when the genuine paper is requested and issued, then the record is genuine; once used, the issued paper keeps the mark", () => {
