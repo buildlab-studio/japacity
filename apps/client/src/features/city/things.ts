@@ -82,13 +82,14 @@ export function stagedNow(offered: ReadonlySet<string>, staged: ReadonlySet<stri
 export function thingsNow(things: readonly Thing[], offered: (stages: string) => boolean): Thing[] {
   return things.flatMap((thing) => {
     // A sheet act stays while any entry it lists can open; the sheet shows only those that can.
-    const acts = thing.acts.flatMap((act) => {
+    const acts = thing.acts.flatMap((act): Act[] => {
       if (act.kind !== "sheet" || act.stages === undefined) return [act];
       const all = [act.stages, ...(act.more ?? [])];
       const listed = all.filter(offered);
       if (listed.length === all.length) return [act];
-      if (listed.length === 0) return [];
-      const [stages, ...more] = listed;
+      const stages = listed[0];
+      if (stages === undefined) return [];
+      const more = listed.slice(1);
       return [{ id: act.id, label: act.label, kind: act.kind, stages, ...(more.length === 0 ? {} : { more }) }];
     });
     return acts.length === 0 ? [] : [acts.length === thing.acts.length && acts.every((act, index) => act === thing.acts[index]) ? thing : { ...thing, acts }];
