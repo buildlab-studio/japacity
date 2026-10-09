@@ -2,13 +2,14 @@
 // figure, the route's steps, the papers as a step with their state, and what is coming up (the visa
 // decision, a paper's ready month). The Papers screen inside shows what is in the box under the
 // bed; the papers themselves are a thing at home.
-import type { PlayerView, RouteView } from "@japacity/sim";
+import { content } from "@japacity/content";
+import type { Currency, PlayerView, RouteView } from "@japacity/sim";
 import { Check, ChevronLeft, ChevronRight, Circle, FileCheck, FileClock, FileX } from "lucide-react";
 import { use, useState } from "react";
 
 import { useGame, useView } from "../../../authority/GameProvider";
 import { monthsLeft, SOON } from "../../../shared/words/expiry";
-import { formatBand } from "../../../shared/words/format";
+import { formatBand, formatMoney } from "../../../shared/words/format";
 import { forMonths, inMonths, nameOf, runningName, say, sayCount, words } from "../../../shared/words/text";
 import { Head, PhoneSaid } from "../act";
 import { phoneWords } from "../phone.words";
@@ -32,6 +33,55 @@ export function planRoute(view: PlayerView): RouteView | null {
   const lead = view.routes.find((route) => route.id === view.japacity.route);
   if (lead !== undefined) return lead;
   return view.routes.find((route) => route.state !== "unknown" && route.state !== "heard" && route.gate?.gate !== "road") ?? null;
+}
+
+/**
+ * The way out the Japa header names (R-WORLD-019), read as the nudge reads it: the plan's route,
+ * else a route only heard of, since a route heard of is already a way out to look into.
+ */
+export function headRoute(view: PlayerView): RouteView | null {
+  return planRoute(view) ?? view.routes.find((route) => route.state === "heard" && route.gate?.gate !== "road") ?? null;
+}
+
+export interface MoveCost {
+  key: string;
+  amount: number;
+  currency: Currency;
+}
+
+/**
+ * What the study route's "saved for the move" figure is made of, as R-ROUTE-009 counts the funds to
+ * show: the tuition still to pay (the school chosen, else the cheapest offer, else the cheapest
+ * school, less any discount and deposit), the living money for the months, and beside them the
+ * flight, paid in naira when the visa is granted. Empty for a route whose gate counts its own funds.
+ */
+export function moveCosts(route: RouteView): MoveCost[] {
+  const entry = content.route[route.id];
+  // The funds as the checklist reads them live, as the results' savings bar does; else the last month-end check.
+  const funds = new Set((entry?.checklist ?? []).filter((item) => item.requirement.type === "route/funds").map((item) => item.id));
+  const required = route.checklist.find((item) => funds.has(item.id) && item.need !== null)?.need ?? route.funds.required;
+  if (entry === undefined || route.gate !== null || required <= 0) return [];
+  const course = (id: string, discounted: boolean): number => {
+    const school = content.school[id as keyof typeof content.school];
+    const discount = discounted ? (route.schools.find((held) => held.id === id)?.discount ?? 0) : 0;
+    return (school?.tuition ?? 0) - discount;
+  };
+  const offers = route.schools.filter((school) => school.state === "offer").map((school) => school.id);
+  const tuition =
+    route.school !== null
+      ? course(route.school, true) - route.depositPaid
+      : offers.length > 0
+        ? Math.min(...offers.map((id) => course(id, true)))
+        : Math.min(...entry.schools.map((id) => course(id, false)));
+  const owed = Math.max(0, Math.min(tuition, required));
+  const currency: Currency = "GBP";
+  const flight = content.tuning.route.flight;
+  return [
+    { key: "ui.japa.cost.tuition", amount: owed, currency },
+    { key: "ui.japa.cost.living", amount: required - owed, currency },
+    { key: "ui.japa.cost.funds", amount: required, currency },
+    ...(typeof flight.amount === "number" ? [{ key: "ui.japa.cost.flight", amount: flight.amount, currency: flight.currency }] : []),
+  ];
 }
 
 /** What is coming up: the visa decision, and each paper on its way. */
@@ -114,6 +164,8 @@ export function Japa() {
     );
   }
   const route = planRoute(view);
+  const head = headRoute(view);
+  const costs = route === null ? [] : moveCosts(route);
   const lookInto = view.ended ? null : officialRoute(view);
   const planned = lookInto !== null && plan.some((pick) => pick !== null && pick.activity === OFFICIAL && pick.param === lookInto);
   const percent = view.japacity.percent;
@@ -124,7 +176,9 @@ export function Japa() {
       <div className="band flex items-end justify-between gap-3 rounded-[6px] px-4 py-3">
         <div className="min-w-0">
           <div className="label label-strong">{phoneWords("phone.japa.label")}</div>
-          <div className="title truncate text-[15px]">{route === null ? phoneWords("phone.japa.none") : nameOf(route.id)}</div>
+          <div className="title truncate text-[15px]" data-japa-route={head?.id ?? ""}>
+            {head === null ? phoneWords("phone.japa.none") : nameOf(head.id)}
+          </div>
         </div>
         {percent === null ? null : (
           <div className="num text-[44px] leading-none" data-japa-percent={percent}>
@@ -163,6 +217,19 @@ export function Japa() {
           </span>
           {planned ? <Check size={18} className="shrink-0 text-in" aria-hidden /> : <ChevronRight size={18} className="shrink-0 text-text-2" aria-hidden />}
         </button>
+      )}
+      {costs.length === 0 ? null : (
+        <>
+          <Head>{say("ui.japa.cost.title")}</Head>
+          <dl className="flex flex-col rounded-[6px] border border-sheet-line bg-sheet-2 px-3 py-1" data-move-costs>
+            {costs.map((cost) => (
+              <div key={cost.key} className={`flex items-baseline justify-between gap-3 py-1.5 text-[14px] ${cost.key === "ui.japa.cost.funds" ? "border-t border-sheet-line font-bold" : ""}`} data-cost={cost.key}>
+                <dt className="min-w-0">{say(cost.key)}</dt>
+                <dd className="num shrink-0">{formatMoney(cost.amount, cost.currency)}</dd>
+              </div>
+            ))}
+          </dl>
+        </>
       )}
       <Head>{phoneWords("phone.japa.steps")}</Head>
       <ul className="flex flex-col" data-steps>
