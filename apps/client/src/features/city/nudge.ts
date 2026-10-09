@@ -21,6 +21,8 @@ export type NudgeAbout = "setpiece" | "offer" | "step" | "report" | "dues" | "en
 export interface StepWay {
   go: string | null;
   at: readonly string[];
+  /** The step's own card, opened straight from its thing here instead of the thing's list. */
+  opens?: string;
 }
 
 const HUB_DESK: StepWay = { go: "place.yaba", at: ["place.yaba:desk", "place.ojuelegba:hub"] };
@@ -35,7 +37,7 @@ const STEP_WAYS: Record<string, StepWay> = {
   "chapter.build-the-file.passport": PAPERS,
   "chapter.build-the-file.transcript": PAPERS,
   "chapter.build-the-file.english": { go: "place.english-test-centre", at: ["place.english-test-centre:desk"] },
-  "chapter.build-the-file.offer": HUB_DESK,
+  "chapter.build-the-file.offer": { ...HUB_DESK, opens: "activity.apply-to-school" },
   "chapter.decision-day.deposit": { go: "place.olokun-office", at: ["place.olokun-office:counter"] },
   "chapter.decision-day.held": MONTH_END,
   "chapter.decision-day.tb": { go: "place.tb-clinic", at: ["place.tb-clinic:desk"] },

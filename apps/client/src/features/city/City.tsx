@@ -34,6 +34,7 @@ import { crowdTuning } from "./limits";
 import { Phone, type PhoneApp } from "./Phone";
 import { localDate, type Other, poolOf, sampleCrowd } from "./crowd";
 import { BOARD_WAY, nudgeOf, stepThingHere, stepWayOf } from "./nudge";
+import { stepOpen } from "./stepOpen";
 import { type Device, enterPlace, keepChoice, type Mode, type ModeChoice, modeSettings, observeFrame, readChoice, startingMode, watchFrames } from "./mode";
 import { overheard } from "./overheard";
 import { dancerShown, dressPlace, openGround, type PlaceFile, stageOf } from "./placeFile";
@@ -675,17 +676,28 @@ export function City({
   const nudgeGoes = !onlyWait && stepWay !== null && (stepThing !== null || stepWay.go === null || where === "home" || where === "abroad");
   const followStep = (): void => {
     if (stepWay === null) return;
-    if (stepThing !== null) {
-      const thing = things?.find((candidate) => candidate.id === stepThing);
-      if (thing !== undefined) setPicked({ kind: "thing", thing });
-      return;
+    const opens = stepOpen(stepWay, stepThing, view.activities.filter((option) => option.allowed).map((option) => option.id), placeId);
+    switch (opens.kind) {
+      case "act":
+        setPicked({ kind: "action", activity: opens.activity });
+        return;
+      case "thing": {
+        const thing = things?.find((candidate) => candidate.id === opens.thing);
+        if (thing !== undefined) setPicked({ kind: "thing", thing });
+        return;
+      }
+      case "month":
+        setMonthOpen(true);
+        return;
+      case "map":
+        setMapPick(opens.stop);
+        setMap(true);
+        return;
+      default: {
+        const never: never = opens;
+        throw new Error(`Unknown way: ${String(never)}`);
+      }
     }
-    if (stepWay.go === null) {
-      setMonthOpen(true);
-      return;
-    }
-    setMapPick(stepWay.go === placeId ? null : stepWay.go);
-    setMap(true);
   };
   // R-WORLD-002: the band's second row opens from its handle and peeks for a few seconds when its words change.
   const [bandOpen, setBandOpen] = useState(false);
