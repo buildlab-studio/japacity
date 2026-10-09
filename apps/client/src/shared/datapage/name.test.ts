@@ -9,7 +9,7 @@ const lists = { reserved: ["japacity", "admin", "support"], blocked: ["badword"]
 
 describe("the typed name", () => {
   test("[R-PROLOGUE-009] given a first name of letters inside the length, then it passes, with the marks Yoruba and Igbo names carry", () => {
-    for (const name of ["Ada", "Tobi", "Chukwuemeka", "Adébáyọ̀", "Ọlá", "Ngozi"]) expect(nameProblem(name, lists), name).toBeNull();
+    expect(["Ada", "Tobi", "Chukwuemeka", "Adébáyọ̀", "Ọlá", "Ngozi"].map((name) => nameProblem(name, lists))).toEqual([null, null, null, null, null, null]);
     expect(nameProblem("  Ada  ", lists)).toBeNull();
   });
 
@@ -22,7 +22,7 @@ describe("the typed name", () => {
   });
 
   test("[R-PROLOGUE-009] given anything but letters, then it is refused: digits, spaces, signs and emoji", () => {
-    for (const name of ["Ada1", "Ada Obi", "Ada_", "Ada!", "@ada", "Ada😀"]) expect(nameProblem(name, lists), name).toBe("letters");
+    expect(["Ada1", "Ada Obi", "Ada_", "Ada!", "@ada", "Ada😀"].map((name) => nameProblem(name, lists))).toEqual(Array.from({ length: 6 }, () => "letters"));
   });
 
   test("[R-PROLOGUE-009] given a reserved or a blocked word in any spelling, then it is refused, as the username's are", () => {
@@ -34,7 +34,8 @@ describe("the typed name", () => {
   });
 
   test("[R-PROLOGUE-009] given the door's own lists, then the reserved words the username rule names are in them, so the game's name is never a character's", () => {
-    for (const word of ["japacity", "admin", "support", "staff", "official", "moderator"]) expect(nameProblem(word[0]!.toUpperCase() + word.slice(1), DOOR_LISTS), word).toBe("reserved");
+    const words = ["japacity", "admin", "support", "staff", "official", "moderator"];
+    expect(words.map((word) => nameProblem(word[0]!.toUpperCase() + word.slice(1), DOOR_LISTS))).toEqual(words.map(() => "reserved"));
   });
 
   test("[R-PROLOGUE-009] given each problem, then the door says it in content's words", () => {
