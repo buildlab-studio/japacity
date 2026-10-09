@@ -116,6 +116,8 @@ function adaBeforeFlight(): string {
 /** On a phone a panel is behind its tab; on a desktop every panel shows and the tab bar is hidden. */
 async function openTab(page: Page, name: string): Promise<void> {
   const tabs = page.getByRole("navigation", { name: "Sections" });
+  // The bar is there once the shell has drawn; right after a reload it is not yet, and its absence would read as a desktop.
+  await page.getByRole("banner").waitFor();
   if (await tabs.isVisible()) await tabs.getByRole("button", { name }).click();
 }
 
@@ -196,6 +198,10 @@ test("a recorded life boards the plane, the flight gets the whole screen, and li
   await boardThePlane(page);
 
   const tabs = page.getByRole("navigation", { name: "Sections" });
+
+  // The bar is there once the shell has drawn; right after a reload it is not yet, and its absence would read as a desktop.
+
+  await page.getByRole("banner").waitFor();
   if (await tabs.isVisible()) {
     await expect(tabs.getByRole("button")).toHaveText(["Month", "You", "Money", "Status", "People", "Home"]);
   }
@@ -257,6 +263,10 @@ test("a life abroad answers the December visit, changes money and comes home", a
   for (let shown = 0; shown < 5 && (await carryOn.isVisible()); shown += 1) await carryOn.click();
 
   const tabs = page.getByRole("navigation", { name: "Sections" });
+
+  // The bar is there once the shell has drawn; right after a reload it is not yet, and its absence would read as a desktop.
+
+  await page.getByRole("banner").waitFor();
   if (await tabs.isVisible()) await expect(tabs.getByRole("button")).toHaveText(["Month", "You", "Money", "Japa", "People", "News"]);
   await openTab(page, "You");
   await expect(page.getByRole("list", { name: "Times you came home" })).toContainText("by choice");

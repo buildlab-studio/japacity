@@ -62,6 +62,8 @@ async function flyAda(page: Page, withShareSheet: boolean): Promise<void> {
   await page.goto("/?classic");
   await closeGranted(page);
   const tabs = page.getByRole("navigation", { name: "Sections" });
+  // The bar is there once the shell has drawn; right after a reload it is not yet, and its absence would read as a desktop.
+  await page.getByRole("banner").waitFor();
   if (await tabs.isVisible()) await tabs.getByRole("button", { name: "Japa" }).click();
   await page.getByRole("button", { name: "Board the plane" }).click();
   await page.getByRole("dialog").getByRole("button", { name: "Carry on" }).click();

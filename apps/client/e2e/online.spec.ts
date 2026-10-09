@@ -73,6 +73,8 @@ function viewOf(game: Game): Answer {
 /** On a phone a panel is behind its tab; on a desktop every panel shows and the tab bar is hidden. */
 async function openTab(page: Page, name: string): Promise<void> {
   const tabs = page.getByRole("navigation", { name: "Sections" });
+  // The bar is there once the shell has drawn; right after a reload it is not yet, and its absence would read as a desktop.
+  await page.getByRole("banner").waitFor();
   if (await tabs.isVisible()) await tabs.getByRole("button", { name }).click();
 }
 
