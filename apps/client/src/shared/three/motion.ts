@@ -288,21 +288,64 @@ const BOB = /* glsl */ `{
   transformed.y += sin(uTime * 1.4 + phase) * 0.05 - 0.04;
 }`;
 
+/** A travelling boat's pace along its lane in metres a second, and the seconds it takes to turn at each end. */
+export const LANE_SPEED = 0.9;
+export const LANE_TURN = 4;
+
+// A boat that travels (a canoe paddled along the channel): out along its own length, a slow turn at
+// the far end, back, and a turn at home, on the shared clock and phased by where it set off. Its
+// pointed ends make either way its bow, and the turn is about its middle.
+const GLIDE = /* glsl */ `{
+  #ifdef USE_INSTANCING
+  vec2 start = instanceMatrix[3].xz;
+  #else
+  vec2 start = vec2(0.0);
+  #endif
+  float leg = uGlide / ${LANE_SPEED.toFixed(2)};
+  float turn = ${LANE_TURN.toFixed(1)};
+  float trip = 2.0 * (leg + turn);
+  float into = mod(uTime + start.x * 3.1 + start.y * 1.7, trip);
+  float along = 0.0;
+  float heading = 0.0;
+  if (into < leg) {
+    along = smoothstep(0.0, 1.0, into / leg);
+  } else if (into < leg + turn) {
+    along = 1.0;
+    heading = 3.14159265 * (into - leg) / turn;
+  } else if (into < 2.0 * leg + turn) {
+    along = 1.0 - smoothstep(0.0, 1.0, (into - leg - turn) / leg);
+    heading = 3.14159265;
+  } else {
+    heading = 3.14159265 * (1.0 + (into - 2.0 * leg - turn) / turn);
+  }
+  transformed.xz = mat2(cos(heading), -sin(heading), sin(heading), cos(heading)) * transformed.xz;
+  transformed.z += along * uGlide;
+}`;
+
 /**
  * A boat's materials made to ride the water: each copy rolls, pitches and rises in the vertex
- * shader on the shared clock, phased by where it is moored, so no boat has a loop of its own.
+ * shader on the shared clock, phased by where it is moored, so no boat has a loop of its own. With
+ * `glide`, each copy also travels that many metres along its own length and back (GLIDE); it then
+ * casts no shadow, which would stay where it set off, and is never culled from where it set off.
  */
-export function rideWater(root: Object3D): void {
+export function rideWater(root: Object3D, glide = 0): void {
+  const moving = glide > 0;
   root.traverse((object) => {
     const mesh = object as Mesh;
     if (!mesh.isMesh) return;
+    if (moving) {
+      mesh.castShadow = false;
+      mesh.frustumCulled = false;
+    }
     const riding = (Array.isArray(mesh.material) ? mesh.material : [mesh.material]).map((material) => {
       const copy = material.clone();
       copy.onBeforeCompile = (shader) => {
         Object.assign(shader.uniforms, motionUniforms);
-        shader.vertexShader = HEAD + shader.vertexShader.replace("#include <begin_vertex>", `#include <begin_vertex>\n${BOB}`);
+        if (moving) shader.uniforms.uGlide = { value: glide };
+        const head = moving ? `${HEAD}uniform float uGlide;\n` : HEAD;
+        shader.vertexShader = head + shader.vertexShader.replace("#include <begin_vertex>", `#include <begin_vertex>\n${BOB}${moving ? `\n${GLIDE}` : ""}`);
       };
-      copy.customProgramCacheKey = () => `motion-bob-${material.uuid}`;
+      copy.customProgramCacheKey = () => `motion-${moving ? "glide" : "bob"}-${material.uuid}`;
       return copy;
     });
     mesh.material = riding.length === 1 && riding[0] !== undefined ? riding[0] : riding;

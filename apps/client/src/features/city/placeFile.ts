@@ -75,8 +75,10 @@ export interface Stage {
   /**
    * Every model and where each copy stands. `signs`, for a building whose file carries only its sign
    * anchors, gives each copy its own text keys in the anchors' order, so two copies never show the same boards.
+   * `bob` rides the copies on the water; `glide`, in metres, also sends each along its own length and
+   * back on the shared clock (a canoe paddled along the channel, R-CITY-027).
    */
-  models: { file: string; at: Spot[]; signs?: string[][]; bob?: boolean }[];
+  models: { file: string; at: Spot[]; signs?: string[][]; bob?: boolean; glide?: number }[];
   /** Where people of the crowd stand, in order of use: the low mode's sample takes the first spots. At least the high mode's crowd. */
   people: Spot[];
   /** Spots, by index into `people`, kept for someone of a role when the sample has one: a hawker among the vehicles, a trader at the stall. */

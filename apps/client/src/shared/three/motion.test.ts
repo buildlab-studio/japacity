@@ -1,9 +1,10 @@
 import { buildGrid } from "@japacity/assets-src/prop/motion/build";
 import { GRIDS } from "@japacity/assets-src/prop/motion/grids";
-import { type BufferGeometry, Color, InstancedMesh, type MeshLambertMaterial, Matrix4, Vector3 } from "three";
+import { BoxGeometry, type BufferGeometry, Color, Group, InstancedMesh, Mesh, MeshLambertMaterial, Matrix4, Vector3 } from "three";
 import { describe, expect, test } from "vitest";
 
-import { bunting, gridFilesOf, keepGrid, loadGrids, puffGeometry, sheetGeometry, smoke, water } from "./motion";
+import { instanceModel } from "./instance";
+import { bunting, gridFilesOf, keepGrid, loadGrids, puffGeometry, rideWater, sheetGeometry, smoke, water } from "./motion";
 import { PUFF_INDEX, PUFF_POSITIONS } from "./puff.data";
 
 describe("smoke", () => {
@@ -88,5 +89,39 @@ describe("mesh levels", () => {
     const shader = { uniforms: {}, vertexShader: "#include <begin_vertex>", fragmentShader: "#include <color_fragment>" };
     (tiles.material as MeshLambertMaterial).onBeforeCompile(shader as never, undefined as never);
     expect(shader.vertexShader).toContain("p = (instanceMatrix * vec4(position, 1.0)).xz;");
+  });
+});
+
+describe("riding the water", () => {
+  /** Two copies of a canoe-shaped box riding the water, and the vertex shader its one draw call compiles. */
+  function riding(glide?: number): { mesh: InstancedMesh; shader: { uniforms: Record<string, { value: unknown }>; vertexShader: string } } {
+    const canoe = new Group();
+    canoe.add(new Mesh(new BoxGeometry(0.9, 0.5, 6.4), new MeshLambertMaterial()));
+    const copies = instanceModel(canoe, [[0, 6, Math.PI / 2], [4, 10, -Math.PI / 2]], "canoe");
+    rideWater(copies, glide);
+    expect(copies.children).toHaveLength(1);
+    const mesh = copies.children[0] as InstancedMesh;
+    const shader = { uniforms: {}, vertexShader: "#include <begin_vertex>", fragmentShader: "" };
+    (mesh.material as MeshLambertMaterial).onBeforeCompile(shader as never, undefined as never);
+    return { mesh, shader };
+  }
+
+  test("[R-CITY-027] given canoes that travel a lane of 9 m, when their copies ride the water, then the vertex shader alone carries each out along its own length on the shared clock, turns it at the end and brings it back, in the one draw call, never culled or casting a shadow left behind", () => {
+    const { mesh, shader } = riding(9);
+    expect(mesh.count).toBe(2);
+    expect(mesh.frustumCulled).toBe(false);
+    expect(mesh.castShadow).toBe(false);
+    expect(shader.uniforms.uTime).toBeDefined();
+    expect(shader.uniforms.uGlide?.value).toBe(9);
+    expect(shader.vertexShader).toContain("uniform float uGlide;");
+    expect(shader.vertexShader).toMatch(/float into = mod\(uTime/);
+    expect(shader.vertexShader).toContain("transformed.z += along * uGlide;");
+  });
+
+  test("[R-CITY-027] given a moored canoe, when it rides the water, then it only bobs where it is tied", () => {
+    const { mesh, shader } = riding();
+    expect(mesh.frustumCulled).toBe(true);
+    expect(shader.vertexShader).toContain("float roll = sin(uTime");
+    expect(shader.vertexShader).not.toContain("uGlide");
   });
 });
