@@ -9,6 +9,7 @@ import { drawPattern } from "@japacity/assets/pattern";
 import { buildFamilyHouse } from "@japacity/assets-src/bld/family-house/build";
 import { buildFlyoverSpan } from "@japacity/assets-src/bld/flyover-span/build";
 import { buildStiltHouse } from "@japacity/assets-src/bld/stilt-house/build";
+import { buildRoomHouse, buildSchool, buildTallHouse } from "@japacity/assets-src/bld/makoko-house/build";
 import { buildTerminalFront } from "@japacity/assets-src/bld/terminal-front/build";
 import { type ArcadeSpec, buildArcade } from "@japacity/assets-src/bld/deira-arcade/build";
 import { buildRailwayBridge } from "@japacity/assets-src/bld/railway-bridge/build";
@@ -21,6 +22,9 @@ import type { PersonMesh } from "@japacity/assets-src/people/person.types";
 import { buildBales } from "@japacity/assets-src/prop/bales/build";
 import { buildBasins } from "@japacity/assets-src/prop/basins/build";
 import { buildCanoe } from "@japacity/assets-src/prop/canoe/build";
+import { buildCanoeGoods, buildCanoeSchool } from "@japacity/assets-src/prop/canoe-load/build";
+import { buildFishRacks } from "@japacity/assets-src/prop/fish-racks/build";
+import { buildPlankWalkway } from "@japacity/assets-src/prop/plank-walkway/build";
 import { buildFlagpole } from "@japacity/assets-src/prop/flagpole/build";
 import { buildMarketStall } from "@japacity/assets-src/prop/market-stall/build";
 import { buildRepairTable } from "@japacity/assets-src/prop/repair-table/build";
@@ -129,6 +133,7 @@ function buildingEntry(slug: string, place: string, author = LEAD): CatalogEntry
 }
 
 const PLACES_B = "Written as code from the kit";
+const MAKOKO = "The Makoko place agent, written as code from the kit";
 
 /** A piece one of the staged places needed, built from the kit by the agent that staged it. */
 function placePiece(name: string, place: string, build: () => Group, views: ViewName[] = [...ELEVATIONS, "phone"]): CatalogEntry {
@@ -324,6 +329,16 @@ export const CATALOG: CatalogEntry[] = [
   placePiece("veh_taxi", "airport-lagos", buildTaxi),
   placePiece("bld_stilt-house", "third-mainland-bridge", buildStiltHouse, [...ELEVATIONS, "plan", "phone"]),
   placePiece("prop_canoe", "third-mainland-bridge", buildCanoe),
+  // Makoko on the lagoon (home.md R-HOME-006): its houses, the classroom, the walk, the racks and the canoes that travel the channel.
+  ...([
+    ["bld_makoko-house_a", "a", () => buildRoomHouse()],
+    ["bld_makoko-house_b", "b", () => buildTallHouse("place.makoko.sign.2", { board: "white", ink: "blue", painted: true })],
+    ["bld_makoko-school", "school", () => buildSchool("place.makoko.sign.1", { board: "blue", ink: "white", painted: true })],
+  ] as const).map(([name, folder, build]): CatalogEntry => ({ ...placePiece(name, "makoko", build, [...ELEVATIONS, "plan", "phone"]), source: `assets-src/bld/makoko-house/${folder}`, author: MAKOKO, ground: "lagoon" })),
+  { ...placePiece("prop_plank-walkway", "makoko", buildPlankWalkway), author: MAKOKO, ground: "lagoon" },
+  { ...placePiece("prop_fish-racks", "makoko", () => buildFishRacks("place.makoko.sign.3", SIGN.painted)), author: MAKOKO, ground: "lagoon" },
+  { ...placePiece("prop_canoe-goods", "makoko", buildCanoeGoods), source: "assets-src/prop/canoe-load/goods", author: MAKOKO, ground: "lagoon" },
+  { ...placePiece("prop_canoe-school", "makoko", buildCanoeSchool), source: "assets-src/prop/canoe-load/school", author: MAKOKO, ground: "lagoon" },
   {
     name: "prop_pole",
     file: "shared/prop/prop_pole.glb",
