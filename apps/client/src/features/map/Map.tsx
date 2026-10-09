@@ -34,6 +34,8 @@ export interface MapProps {
   home?: string | null;
   /** The way to choose first on the ride sheet: the vehicle tapped in the place (R-WORLD-017). */
   by?: RideChoice["id"];
+  /** A stop to open picked, with its ride sheet up: the nudge's step elsewhere (R-WORLD-003). */
+  pickFirst?: string | null;
 }
 
 /** The pins as a key, so a new array with the same pins does not rebuild the city. */
@@ -41,14 +43,15 @@ function keyOf(pins: readonly MapPin[]): string {
   return pins.map((pin) => `${pin.id}:${pin.state}:${String(pin.position.latE3)}:${String(pin.position.lonE3)}:${pin.name}`).join("|");
 }
 
-export function Map({ pins, country, countries, drawing, diveTo = null, diveBy = "danfo", onGo, onClose, onRide, onCountry, home = null, by }: MapProps) {
+export function Map({ pins, country, countries, drawing, diveTo = null, diveBy = "danfo", onGo, onClose, onRide, onCountry, home = null, by, pickFirst = null }: MapProps) {
   const view = useView();
-  const have = view.pockets.NGN.cash;
+  // All the naira: the fare leaves cash first and the bank for the rest (R-PLACE-010).
+  const have = view.pockets.NGN.cash + view.pockets.NGN.bank;
   const key = keyOf(pins);
   // The pins handed in are rebuilt on every render of the city; only a change in them matters.
   const stable = useMemo(() => pins, [key]);
   const homeId = home ?? stable.find((pin) => pin.state === "home")?.id ?? null;
-  const [picked, setPicked] = useState<string | null>(null);
+  const [picked, setPicked] = useState<string | null>(pickFirst);
   const [riding, setRiding] = useState<{ id: string; way: RideChoice["id"] } | null>(null);
 
   const here = stable.find((pin) => pin.state === "here") ?? null;

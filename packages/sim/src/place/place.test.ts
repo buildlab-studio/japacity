@@ -164,13 +164,41 @@ describe("coming home", () => {
     game.expectRejected({ type: "place/ride", from: "place.ojuelegba", to: "place.ojuelegba", way: "danfo" }, "not-legal");
     game.expectRejected({ type: "place/ride", from: "place.ojuelegba", to: "place.peckham", way: "danfo" }, "not-legal");
     game.expectRejected({ type: "place/ride", from: "place.ojuelegba", to: "place.nowhere", way: "danfo" }, "unknown-id");
-    // The okada's fare is the dearest: with cash moved to the bank under it, the ride cannot be paid.
-    const keep = content.tuning.city.ride.fareKobo.okada - 1;
-    game.accept({ type: "wallet/move", currency: "NGN", amount: cash - keep, to: "bank" });
-    game.expectRejected({ type: "place/ride", from: "place.ojuelegba", to: "place.bode-thomas", way: "okada" }, "cannot-afford");
-    expect(game.view().pockets.NGN.cash).toBe(keep);
+    // A fare over the naira in both pockets together cannot be paid, and nothing leaves either pocket.
+    const total = cash + game.view().pockets.NGN.bank;
+    const ride = { ...content.tuning.city.ride, fareKobo: { ...content.tuning.city.ride.fareKobo, okada: total + 1 } };
+    const dear = start({ content: { ...content, tuning: { ...content.tuning, city: { ...content.tuning.city, ride } } } });
+    dear.expectRejected({ type: "place/ride", from: "place.ojuelegba", to: "place.bode-thomas", way: "okada" }, "cannot-afford");
+    expect(dear.view().pockets.NGN.cash + dear.view().pockets.NGN.bank).toBe(total);
     const abroad = flown(content);
     abroad.expectRejected({ type: "place/ride", from: "place.ojuelegba", to: "place.bode-thomas", way: "danfo" }, "not-legal");
+  });
+
+  test("[R-PLACE-010] given the fare over the cash but within the naira, when a ride is sent, then cash goes first and the bank pays the rest", () => {
+    const game = start({ content });
+    const fare = content.tuning.city.ride.fareKobo.okada;
+    const cash = game.view().pockets.NGN.cash;
+    // Leave less than the fare in cash, the rest in the bank.
+    const keep = fare - 1;
+    game.accept({ type: "wallet/move", currency: "NGN", amount: cash - keep, to: "bank" });
+    const bank = game.view().pockets.NGN.bank;
+    const result = game.accept({ type: "place/ride", from: "place.ojuelegba", to: "place.bode-thomas", way: "okada" });
+    expect(result.events.filter((event) => event.type === "wallet/debited")).toMatchObject([
+      { pocket: "cash", amount: keep, reason: "fare" },
+      { pocket: "bank", amount: 1, reason: "fare" },
+    ]);
+    expect(game.view().pockets.NGN.cash).toBe(0);
+    expect(game.view().pockets.NGN.bank).toBe(bank - 1);
+  });
+
+  test("[R-PLACE-010] given no naira at all, when the character goes on foot, then the ride is on record with no fare and nothing is debited", () => {
+    const ride = { ...content.tuning.city.ride, fareKobo: { ...content.tuning.city.ride.fareKobo, danfo: 1_000_000_000_000 } };
+    const game = start({ content: { ...content, tuning: { ...content.tuning, city: { ...content.tuning.city, ride } } } });
+    expect(content.tuning.city.ride.fareKobo.walk).toBe(0);
+    game.expectRejected({ type: "place/ride", from: "place.ojuelegba", to: "place.bode-thomas", way: "danfo" }, "cannot-afford");
+    const result = game.accept({ type: "place/ride", from: "place.ojuelegba", to: "place.bode-thomas", way: "walk" });
+    expect(result.events.filter((event) => event.type === "wallet/debited")).toEqual([]);
+    expect(result.events.find((event) => event.type === "place/rode")).toMatchObject({ way: "walk", fare: 0 });
   });
 
   test("[R-PLACE-004] given a character at home, when return/home is sent, then it is rejected", () => {

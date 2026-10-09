@@ -179,20 +179,23 @@ describe("one country at a time", () => {
 });
 
 describe("the ride", () => {
-  test("[R-WORLD-017] given two places, when the ways are priced, then there are a danfo, a keke and an okada, each with a fare in fifties of naira and minutes, the okada quickest", () => {
+  test("[R-WORLD-017] given two places, when the ways are priced, then there are a danfo, a keke, an okada and on foot, the vehicles each with a fare in fifties of naira and minutes, the okada quickest, on foot free and slowest", () => {
     const from = { latE3: 6511, lonE3: 3362 };
     const to = { latE3: 6594, lonE3: 3340 };
     const ways = rideChoices(from, to);
-    expect(ways.map((way) => way.id)).toEqual(["danfo", "keke", "okada"]);
+    expect(ways.map((way) => way.id)).toEqual(["danfo", "keke", "okada", "walk"]);
     for (const way of ways) {
       expect(way.fare % 5000).toBe(0);
-      expect(way.fare).toBeGreaterThan(0);
       expect(way.minutes).toBeGreaterThan(0);
     }
-    const [danfo, keke, okada] = ways as [RideChoice, RideChoice, RideChoice];
+    const [danfo, keke, okada, walk] = ways as [RideChoice, RideChoice, RideChoice, RideChoice];
+    expect(danfo.fare).toBeGreaterThan(0);
     expect(danfo.fare).toBeLessThan(keke.fare);
     expect(keke.fare).toBeLessThan(okada.fare);
     expect(okada.minutes).toBeLessThan(danfo.minutes);
+    expect(walk.fare).toBe(0);
+    expect(walk.minutes).toBeGreaterThan(danfo.minutes);
+    expect(walk.label).toBe(mapWords("map.way.walk"));
   });
 
   test("[R-WORLD-017] given a country abroad, when the ways are priced, then there is one way named for the country at no fare, and the sheet says so", async () => {
@@ -226,13 +229,14 @@ describe("the ride", () => {
     if (here === undefined || bode === undefined) throw new Error("No pins");
     const ways = rideChoices(here.position, bode.position);
     const radios = within(sheet).getAllByRole("radio");
-    expect(radios).toHaveLength(3);
+    expect(radios).toHaveLength(4);
     for (const way of ways) {
       const radio = radios.find((candidate) => candidate.dataset.way === way.id);
-      expect(radio?.textContent).toContain(formatMoney(way.fare, "NGN"));
+      expect(radio?.textContent).toContain(way.fare === 0 ? say("ui.world.free") : formatMoney(way.fare, "NGN"));
       expect(radio?.textContent).toContain(mapWords("map.way.minutes", { minutes: way.minutes }));
     }
-    const cash = view.pockets.NGN.cash;
+    // All the naira pay the fare, cash first (R-PLACE-010).
+    const cash = view.pockets.NGN.cash + view.pockets.NGN.bank;
     const main = (): HTMLElement => sheet.querySelector("[data-ride-main]") as HTMLElement;
     const danfo = ways[0] as RideChoice;
     expect(main().textContent).toContain(mapWords("map.go", { way: "danfo" }));
@@ -247,7 +251,7 @@ describe("the ride", () => {
 
   test("[R-WORLD-017] given too little money for a way, when the sheet shows, then the main button is shut and says how much is short", async () => {
     const view = engineView();
-    const poor = { ...view, pockets: { ...view.pockets, NGN: { ...view.pockets.NGN, cash: 10_000 } } };
+    const poor = { ...view, pockets: { ...view.pockets, NGN: { ...view.pockets.NGN, cash: 10_000, bank: 0 } } };
     await renderWithView(<Map pins={lagosPins()} country={LAGOS} countries={COUNTRIES} drawing={false} onGo={() => undefined} onClose={() => undefined} />, poor);
     fireEvent.click(screen.getAllByRole("button").find((button) => button.dataset.stop === "place.computer-village") as HTMLElement);
     const main = document.querySelector("[data-ride-main]") as HTMLButtonElement;

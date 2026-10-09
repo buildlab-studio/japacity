@@ -1,7 +1,7 @@
 // The ride sheet (docs/rules/world.md R-WORLD-017): picking a stop raises a card at the foot of the
 // map with the place's name and a line about it, the ways to go with a fare and minutes each, and one
 // main button that says what is left after. The map stays in view above it.
-import { Bike, Bus, CarTaxiFront, X } from "lucide-react";
+import { Bike, Bus, CarTaxiFront, Footprints, X } from "lucide-react";
 import { useState } from "react";
 
 import { blurbOf, say, words } from "../../shared/words/text";
@@ -23,7 +23,7 @@ export interface RideSheetProps {
   by?: RideChoice["id"];
 }
 
-const WAY_ICON = { danfo: Bus, keke: CarTaxiFront, okada: Bike } as const;
+const WAY_ICON = { danfo: Bus, keke: CarTaxiFront, okada: Bike, walk: Footprints } as const;
 
 /** The first sentence of a place's blurb: a line about it. */
 function firstSentence(blurb: string): string {
@@ -62,7 +62,7 @@ export function RideSheet({ pin, home, ways, have, formatMoney, onChoose, onClos
   const main = (() => {
     if (here) return { label: mapWords("map.stay"), after: null, disabled: false };
     if (locked || way === undefined) return { label: mapWords("map.not-yet"), after: null, disabled: true };
-    const label = mapWords(home ? "map.go-home" : "map.go", { way: way.label.toLowerCase() });
+    const label = way.id === "walk" ? mapWords(home ? "map.walk-home" : "map.walk") : mapWords(home ? "map.go-home" : "map.go", { way: way.label.toLowerCase() });
     if (short) return { label, after: mapWords("map.short", { amount: formatMoney(-left) }), disabled: true };
     if (way.fare === 0) return { label, after: null, disabled: false };
     return { label, after: say("ui.world.left", { amount: formatMoney(left) }), disabled: false };
@@ -87,7 +87,7 @@ export function RideSheet({ pin, home, ways, have, formatMoney, onChoose, onClos
             {lineOf(pin)}
           </p>
           {here || locked ? null : (
-            <div role="radiogroup" aria-label={mapWords("map.ways")} className="mt-3 grid grid-cols-3 gap-1.5">
+            <div role="radiogroup" aria-label={mapWords("map.ways")} className="mt-3 grid grid-cols-4 gap-1.5">
               {ways.map((choice) => {
                 const Icon = WAY_ICON[choice.id];
                 const on = choice.id === chosen;

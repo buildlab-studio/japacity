@@ -272,9 +272,10 @@ function returnHome(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
 }
 
 /**
- * R-PLACE-010 (decision 0011): a ride between two places of the city. The fare is the way's flat
- * fare in tuning, from naira cash. The simulation keeps no place of the city, so nothing here
- * moves; the client moves once the ride is accepted.
+ * R-PLACE-010 (decision 0011, amended 10 Oct): a ride between two places of the city. The fare is
+ * the way's flat fare in tuning, from naira cash first and the bank for the rest; on foot there is
+ * no fare, so a character with nothing can always move. The simulation keeps no place of the city,
+ * so nothing here moves; the client moves once the ride is accepted.
  */
 function ride(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (command.type !== "place/ride") throw new Error(`place/ride cannot handle ${command.type}.`);
@@ -287,11 +288,13 @@ function ride(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (from === to) return reject("not-legal", "A ride goes somewhere else.");
   if (start.where !== "home" || end.where !== "home") return reject("not-legal", "A ride inside the city stays in the city.");
   const fare = ctx.content.tuning.city.ride.fareKobo[way];
-  if (!ctx.check({ type: "money/min", currency: "NGN", amount: fare, pocket: "cash" }).met) {
-    return reject("cannot-afford", `The ${way} fare is ${String(fare)} kobo and cash cannot cover it.`);
-  }
   const cause: Cause = { source: command.type, param: to, terms: { way } };
-  ctx.apply([{ type: "money/take", currency: "NGN", pocket: "cash", amount: fare, reason: "fare" }], cause);
+  if (fare > 0) {
+    if (!ctx.check({ type: "money/min", currency: "NGN", amount: fare }).met) {
+      return reject("cannot-afford", `The ${way} fare is ${String(fare)} kobo and the naira cannot cover it.`);
+    }
+    ctx.apply([{ type: "money/take", currency: "NGN", pocket: "any", amount: fare, reason: "fare" }], cause);
+  }
   return record(ctx, [{ type: "place/rode", from, to, way, fare }]);
 }
 

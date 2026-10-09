@@ -1191,7 +1191,7 @@ export interface Tuning {
   /** docs/rules/analytics.md Numbers. */
   analytics: { batchSeconds: number; maxBatchBytes: number; maxCount: number; batchesPerHour: number; minShown: number; refD1Bp: number; refD7Bp: number };
   /** The city's crowd bands, the graphics modes' switches and the screen split (docs/rules/city.md). The simulation never reads it. */
-  city: { crowdLow: number; crowdHigh: number; playersMax: number; fridayBp: number; saturdayBp: number; raiseAfterMs: number; raiseFrameMs: number; dropAfterMs: number; dropFrameMs: number; maxPixelRatio: number; desktopMinWidth: number; idleAfterMs: number; idleFps: number; walkMmPerS: number; stopShortMm: number; tagNearMm: number; residentFloor: number; roam: boolean; flyover: boolean; indoorLow: number; indoorHigh: number; outdoorLow: number; outdoorHigh: number; motionSheets: number; ride: { fareKobo: { danfo: number; keke: number; okada: number }; metresPerMinute: { danfo: number; keke: number; okada: number }; waitMinutes: number } };
+  city: { crowdLow: number; crowdHigh: number; playersMax: number; fridayBp: number; saturdayBp: number; raiseAfterMs: number; raiseFrameMs: number; dropAfterMs: number; dropFrameMs: number; maxPixelRatio: number; desktopMinWidth: number; idleAfterMs: number; idleFps: number; walkMmPerS: number; stopShortMm: number; tagNearMm: number; residentFloor: number; roam: boolean; flyover: boolean; indoorLow: number; indoorHigh: number; outdoorLow: number; outdoorHigh: number; motionSheets: number; ride: { fareKobo: { danfo: number; keke: number; okada: number; walk: number }; metresPerMinute: { danfo: number; keke: number; okada: number; walk: number }; waitMinutes: number } };
   /** The people around the character (docs/rules/people.md Numbers). */
   people: { matchmaker: boolean; maxCourting: number; partnerMoments: number; marryAfterMonths: number; weddingShare: number; proposeCooldown: number; recourtMonths: number; gossipBp: number; weddingStanding: number; gossipStanding: number; endStanding: { courting: number; partner: number; married: number; applying: number }; endWellbeing: number; leftWellbeing: number; couchMonths: number; warnDays: number; standInDays: number; computerAfterMonths: number };
   /** Invites and phrases (docs/rules/pair.md Numbers). */
@@ -1694,7 +1694,7 @@ export type Command = { basedOn: number } & (
   | { type: "status/renew" }
   | { type: "return/home" }
   /** A ride between two places of the city (docs/rules/place.md R-PLACE-010, world.md R-WORLD-017, decision 0011). */
-  | { type: "place/ride"; from: Id<"place">; to: Id<"place">; way: "danfo" | "keke" | "okada" }
+  | { type: "place/ride"; from: Id<"place">; to: Id<"place">; way: "danfo" | "keke" | "okada" | "walk" }
   // online (docs/rules/lottery.md)
   | { type: "lottery/buy"; tickets: number }
   /** Sent by the authority alone, after the draw. */

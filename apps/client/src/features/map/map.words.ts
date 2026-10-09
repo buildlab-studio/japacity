@@ -24,6 +24,9 @@ export const mapText: Record<string, string> = {
   "map.way.danfo": "Danfo",
   "map.way.keke": "Keke",
   "map.way.okada": "Okada",
+  "map.way.walk": "On foot",
+  "map.walk": "Walk there",
+  "map.walk-home": "Walk home",
   "map.way.minutes": "{minutes} min",
   "map.way.abroad.country.uk": "Bus",
   "map.way.abroad.country.canada": "Bus",
@@ -66,4 +69,4 @@ export function mapWords(key: string, params: Record<string, string | number> = 
 }
 
 /** The ways in the order the sheet lists them: cheapest first. */
-export const WAYS: readonly RideChoice["id"][] = ["danfo", "keke", "okada"];
+export const WAYS: readonly RideChoice["id"][] = ["danfo", "keke", "okada", "walk"];
