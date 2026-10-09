@@ -80,7 +80,7 @@ function WorldPlaying() {
           ...((view.interview?.question ?? null) === null ? [] : [<InterviewView key="interview" />]),
           ...[...view.offers].sort((a, b) => a.expiresMonth - b.expiresMonth).map((offer) => <AgentSheets key={offer.id} ids={[offer.entry]} others={(only) => <OfferView only={(candidate) => candidate.id === offer.id && only(candidate)} />} />),
         ]}
-        phone={(close, area) => <PhoneApps onClose={close} area={area} account={<AccountButton more={<NotifySetting />} />} talk={talk} />}
+        phone={(close, area, app) => <PhoneApps onClose={close} area={area} account={<AccountButton more={<NotifySetting />} />} talk={talk} start={app ?? null} />}
         phoneWaiting={phoneWaiting}
         askIcon={iconFor}
         cityMap={(props) => <Map {...props} />}

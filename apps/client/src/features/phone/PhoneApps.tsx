@@ -91,10 +91,12 @@ export interface PhoneAppsProps {
   /** The pair routes online, or null offline, for Chats. */
   talk?: PairTalk | null;
   now?: () => Date;
+  /** An app to open on. */
+  start?: string | null;
 }
 
 /** The handset with its apps, ready for the shell to show over the world. */
-export function PhoneApps({ onClose, area, account = null, talk = null, now }: PhoneAppsProps) {
+export function PhoneApps({ onClose, area, account = null, talk = null, now, start = null }: PhoneAppsProps) {
   const view = useView();
   const apps = usePhoneApps({ account });
   const marks = marksOf(view);
@@ -105,6 +107,7 @@ export function PhoneApps({ onClose, area, account = null, talk = null, now }: P
         onClose={onClose}
         area={area}
         when={todayWords(now?.())}
+        start={start}
         onOpen={(id) => {
           if ((APP_IDS as readonly string[]).includes(id)) markSeen(id as AppId, marks[id as AppId]);
         }}

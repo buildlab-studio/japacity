@@ -277,7 +277,7 @@ export function City({
   /** The world mode's sheet for what the nudge names and waits on the player: the set piece's question, the offers (R-WORLD-003). A list shows one at a time, with Next (R-WORLD-006). */
   asks?: ReactNode | ReactNode[];
   /** The world mode's phone (R-WORLD-018), handed in by the shell: the handset over the place named `area`. */
-  phone?: (close: () => void, area: string) => ReactNode;
+  phone?: (close: () => void, area: string, app?: string | null) => ReactNode;
   /** A dot on the Phone button: an app has something new (R-WORLD-004). */
   phoneWaiting?: boolean;
   /** The icon for an ask card's corner, by the ask's icon name, from the shell's icon set. */
@@ -336,6 +336,8 @@ export function City({
   const [mapPick, setMapPick] = useState<string | null>(null);
   // The chapter's opening words stand over the world once, before the first month is played (R-WORLD-001).
   const [openingSeen, setOpeningSeen] = useState(false);
+  // The app the phone opens on when the nudge sends the player to it (the month's news).
+  const [phoneApp, setPhoneApp] = useState<string | null>(null);
   /** The way a vehicle in the place was tapped for, chosen on the ride sheet when the map opens from it (R-WORLD-017). */
   const [rideBy, setRideBy] = useState<RideChoice["id"] | null>(null);
   const [shipped, setShipped] = useState<Set<string> | null>(null);
@@ -873,7 +875,7 @@ export function City({
             more={
               !(phone || monthOpen || asksOpen || menu || credits || picked !== null) ? (
                 <div key={bandOpen ? "open" : `peek-${nudgeKey}-${comingKey}`} className={bandOpen ? "" : "drop"}>
-                  <Nudge nudge={nudge} {...(nudgeOpens ? { onTap: () => setAsksOpen(true) } : nudgeGoes ? { onTap: followStep } : nudge?.about === "report" ? { onTap: () => setPhone(true) } : {})} />
+                  <Nudge nudge={nudge} {...(nudgeOpens ? { onTap: () => setAsksOpen(true) } : nudgeGoes ? { onTap: followStep } : nudge?.about === "report" ? { onTap: () => { setPhoneApp("news"); setPhone(true); } } : {})} />
                   {coming === null || !(bandOpen || peek) ? null : (
                     <p className="chip pointer-events-auto mt-1.5 inline-flex max-w-full items-center gap-1.5 px-2.5 py-1.5 text-[12px] font-bold" data-coming>
                       <Clock size={14} aria-hidden />
@@ -884,7 +886,7 @@ export function City({
               ) : null
             }
           />
-          <ThumbBar onMap={() => setMap(true)} onPhone={() => setPhone(true)} phoneWaiting={phoneWaiting ?? view.offers.length > 0} hidden={map || resultsOpen} />
+          <ThumbBar onMap={() => setMap(true)} onPhone={() => { setPhoneApp(null); setPhone(true); }} phoneWaiting={phoneWaiting ?? view.offers.length > 0} hidden={map || resultsOpen} />
           {zoomed && !map ? (
             <button type="button" onClick={() => setZoomed(false)} className="chip drop pointer-events-auto fixed bottom-[calc(max(14px,env(safe-area-inset-bottom))+76px)] left-1/2 z-[38] -translate-x-1/2 px-3 py-2 text-[13px] font-bold" data-zoom-preset>
               {say("ui.world.whole")}
@@ -1063,7 +1065,7 @@ export function City({
         </WorldSheet>
       ) : null}
       {world && resultsShown ? results?.(inside && insideEntry !== null && insideEntry.id !== entry?.id ? placeName(insideEntry.id) : name) : null}
-      {world && phone && handset !== undefined ? handset(() => setPhone(false), inside ? hereName : name) : null}
+      {world && phone && handset !== undefined ? handset(() => { setPhone(false); setPhoneApp(null); }, inside ? hereName : name, phoneApp) : null}
       {world && phone && handset === undefined && apps !== undefined ? <Phone apps={apps} onClose={() => setPhone(false)} /> : null}
       <Sheet open={picked?.kind === "ride"} onOpenChange={(open) => { if (!open) setPicked(null); }} title={picked?.kind === "ride" ? cardWords() : ""} description={cityWords("city.ride.title")}>
         {picked?.kind === "ride" ? (

@@ -4,7 +4,7 @@
 // returns to the grid; the home bar puts the phone away. The apps are handed in as the contract's
 // `PhoneApp`, so the handset knows nothing of what they show.
 import { ChevronLeft, Maximize2, Minimize2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import type { PhoneApp } from "../../shared/world/contract";
 import { Toast, useToast } from "../../shared/world/Toast";
@@ -23,6 +23,8 @@ export interface PhoneProps {
   onOpen?: (id: string) => void;
   /** The clock, for tests. */
   now?: () => Date;
+  /** An app to open on, counted as seen (the nudge's "The month's news is in", R-WORLD-003). */
+  start?: string | null;
 }
 
 const CLOCK = new Intl.DateTimeFormat("en-GB", { hour: "2-digit", minute: "2-digit" });
@@ -40,8 +42,14 @@ function useClock(now: () => Date): string {
 
 const realNow = () => new Date();
 
-export function Phone({ apps, onClose, area, when, onOpen, now = realNow }: PhoneProps) {
-  const [open, setOpen] = useState<string | null>(null);
+export function Phone({ apps, onClose, area, when, onOpen, now = realNow, start = null }: PhoneProps) {
+  const [open, setOpen] = useState<string | null>(start);
+  const started = useRef(false);
+  useEffect(() => {
+    if (start === null || started.current) return;
+    started.current = true;
+    onOpen?.(start);
+  }, [start, onOpen]);
   const [grown, setGrown] = useState(false);
   const toast = useToast();
   const time = useClock(now);

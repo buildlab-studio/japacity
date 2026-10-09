@@ -40,6 +40,11 @@ const STEP_WAYS: Record<string, StepWay> = {
   "chapter.decision-day.applied": { go: "place.visa-centre", at: ["place.visa-centre:desk"] },
   "chapter.decision-day.granted": MONTH_END,
   "chapter.send-off.departed": { go: "place.airport-lagos", at: ["place.airport-lagos:gate"] },
+  // Abroad the nudge never opens the map (the map there is a list), so the steps are reached through `at`.
+  "chapter.landing.room": { go: "place.the-room", at: ["place.the-room:post"] },
+  "chapter.landing.job": { go: "place.peckham", at: ["place.peckham:jobs-notice", "place.peckham:agency", "place.deira:agency", "place.deira:site-bus"] },
+  "chapter.landing.request": { go: "place.the-room", at: ["place.the-room:phone"] },
+  "chapter.landing.file": MONTH_END,
 };
 
 /** The way to the chapter's next undone step, or null when the step has no place in the world (life abroad). */
