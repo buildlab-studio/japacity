@@ -97,13 +97,13 @@ export const adviceText: Record<string, string> = {
 
   // The four ways in the report (R-ADVICE-001).
   "line.route.looked-into-told": "Someone who went tells you about {route}. Now you know what it takes, as far as they know.",
-  "line.route.looked-into-advised": "The adviser goes through {route} with you. Now you know what it takes.",
+  "line.route.looked-into-advised": "The adviser goes through {route} with you, item by item.",
   "line.route.looked-into-agent": "The agent tells you what {route} takes. Only the official page is sure.",
   "line.activity.went-told": "Someone who went tells you what {route} asked when they left. Things may have moved since.",
   "line.activity.went-item": "They say you need: {item}.",
   "line.activity.went-out-of-date": "You already have this one, and it is not as they said: {item}. The rules have changed since they left.",
-  "line.activity.adviser-fits": "The adviser says {route} fits you now. Nothing is missing.",
-  "line.activity.adviser-missing": "The adviser says {route} does not fit yet. {count} things are missing, at least {months} months away.",
+  "line.activity.adviser-fits": "Her reading: {route} fits you now. Nothing is missing.",
+  "line.activity.adviser-missing": "Her reading: {route} does not fit yet. {count} things are missing, at least {months} months away.",
   "line.activity.adviser-item": "Missing: {item}.",
 
   // The agents in the report (R-ADVICE-005, 006, 009).
