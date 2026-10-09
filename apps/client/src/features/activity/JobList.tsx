@@ -8,7 +8,7 @@ import { formatMoney } from "../../shared/words/format";
 import { requirementSentence } from "../../shared/words/requirement";
 import { nameOf } from "../../shared/words/text";
 import { jobsWords } from "./jobs.words";
-import { payAMonth } from "./pay";
+import { payAMonth } from "../../shared/words/pay";
 
 const NETWORK = "quality.network";
 

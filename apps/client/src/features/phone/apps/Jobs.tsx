@@ -5,7 +5,7 @@ import { Briefcase } from "lucide-react";
 
 import { useView } from "../../../authority/GameProvider";
 import { formatMoney } from "../../../shared/words/format";
-import { payAMonth } from "../../activity/pay";
+import { payAMonth } from "../../../shared/words/pay";
 import { byMonths, nameOf, say, sayCount, words } from "../../../shared/words/text";
 import { Head, useAsk } from "../act";
 import { phoneWords } from "../phone.words";

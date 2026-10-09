@@ -8,7 +8,7 @@ import { formatMoney } from "../../shared/words/format";
 import { ActivityPicker } from "./ActivityView";
 import { chanceBand, jobCardWords, jobChanceBp } from "./JobList";
 import { jobsWords } from "./jobs.words";
-import { payAMonth } from "./pay";
+import { payAMonth } from "../../shared/words/pay";
 
 const SHOP = "activity.job-uk-retail-part" as Id<"activity">;
 const HUNT = "activity.job-hunt";

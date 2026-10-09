@@ -5,7 +5,7 @@ import { abroadGame } from "../../../shared/testing/fixtures";
 import { renderWithView } from "../../../shared/testing/render";
 import { formatMoney } from "../../../shared/words/format";
 import { say } from "../../../shared/words/text";
-import { payAMonth } from "../../activity/pay";
+import { payAMonth } from "../../../shared/words/pay";
 import { Jobs } from "./Jobs";
 
 const SHOP = "activity.job-uk-retail-part" as Id<"activity">;
