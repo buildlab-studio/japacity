@@ -7,6 +7,7 @@ import { checkInvariants } from "../engine/invariants";
 import type { ActivityEntry, Content, Currency, Id, ReadCtx, ReportLine, Requirement, RouteStateName, SchoolEntry, ForeignCurrency } from "../engine/types";
 import { legalCommands } from "../testing/legal";
 import type { Game } from "../testing/play";
+import { start } from "../testing/play";
 import type { RouteKindEvent } from "./route.events";
 import {
   ASHBY,
@@ -210,13 +211,18 @@ describe("hearing of a route and looking into it", () => {
     expect(watch.draws).toEqual({ offer: 1 });
   });
 
-  test("[R-ROUTE-002] given the real meetup's chance, when it is played, then the route is heard exactly when the offer draw falls under it", () => {
+  test("[R-ROUTE-002] [R-GUIDE-016] given the real meetup's chance, when a life's first meetup is played, then the route is heard whatever the draw; with one meetup already behind it, the route is heard exactly when the offer draw falls under the chance", () => {
     const chanceBp = content.activity["activity.meetup"]!.effects.find((effect) => effect.type === "route/hear");
     if (chanceBp?.type !== "route/hear" || chanceBp.chanceBp === undefined) throw new Error("The meetup has no chance to hear.");
     for (const seed of ["seed-0", "seed-1", "seed-2", "seed-3", "seed-4", "seed-5"]) {
-      const game = life({ quiet: true, seed });
-      game.endTurn([slot("activity.meetup")]);
-      expect(uk(game).state).toBe(draw(seed, "offer", 0, 10000) < chanceBp.chanceBp ? "heard" : "unknown");
+      const first = life({ quiet: true, seed });
+      first.endTurn([slot("activity.meetup")]);
+      expect(uk(first).state).toBe("heard");
+      const again = life({ quiet: true, seed });
+      // No command plays a meetup without hearing on the first, so the count is set as a life with one behind it would hold it.
+      again.state = { ...again.state, activity: { ...again.state.activity, played: { ...again.state.activity.played, "activity.meetup": 1 } } };
+      again.endTurn([slot("activity.meetup")]);
+      expect(uk(again).state).toBe(draw(seed, "offer", 0, 10000) < chanceBp.chanceBp ? "heard" : "unknown");
     }
   });
 
@@ -1117,4 +1123,14 @@ describe("the route's words", () => {
     });
     expect(wrong).toEqual([]);
   });
+
+describe("the first meetup", () => {
+  test("[R-GUIDE-016] given a new life, when its first meetup is played on any seed, then the story's route is heard of; the chance applies from the second meetup", () => {
+    for (let n = 0; n < 12; n += 1) {
+      const game = start({ content, scenario: "scenario.ada", seed: `meetup-${String(n)}` });
+      game.endTurn([{ activity: "activity.meetup", param: null }]);
+      expect(game.state.route["route.uk-masters"]?.state).not.toBe("unknown");
+    }
+  });
+});
 });

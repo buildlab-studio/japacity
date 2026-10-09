@@ -21,14 +21,14 @@ export interface StepWay {
   at: readonly string[];
 }
 
-const HUB_DESK: StepWay = { go: "place.ojuelegba", at: ["place.yaba:desk", "place.ojuelegba:hub"] };
+const HUB_DESK: StepWay = { go: "place.yaba", at: ["place.yaba:desk", "place.ojuelegba:hub"] };
 const PAPERS: StepWay = { go: "place.family-house", at: ["place.family-house:papers-box", "place.family-house:house"] };
 const MONTH_END: StepWay = { go: null, at: [] };
 
 const STEP_WAYS: Record<string, StepWay> = {
-  "chapter.find-your-feet.job": { go: "place.ojuelegba", at: ["place.yaba:jobs", "place.ojuelegba:hub"] },
+  "chapter.find-your-feet.job": { go: "place.yaba", at: ["place.yaba:jobs", "place.ojuelegba:hub"] },
   "chapter.find-your-feet.pay": MONTH_END,
-  "chapter.find-your-feet.heard": { go: "place.ojuelegba", at: ["place.yaba:meetup", "place.ojuelegba:hub"] },
+  "chapter.find-your-feet.heard": { go: "place.yaba", at: ["place.yaba:meetup", "place.ojuelegba:hub"] },
   "chapter.find-your-feet.known": HUB_DESK,
   "chapter.build-the-file.passport": PAPERS,
   "chapter.build-the-file.transcript": PAPERS,
@@ -73,7 +73,17 @@ const STEP_PAPER: Record<string, string> = {
 /** The route the chapters follow, for the school's answer and the funds (chapter.md). */
 const STORY_ROUTE = "route.uk-masters";
 
-type NudgeView = Pick<PlayerView, "setpiece" | "interview" | "offers" | "chapter" | "report"> & Partial<Pick<PlayerView, "documents" | "routes" | "month">>;
+/** The activity that does a step, so a step planned this month or short of money can say so. */
+const STEP_ACTIVITY: Record<string, string> = {
+  "chapter.build-the-file.passport": "activity.get-passport",
+  "chapter.build-the-file.transcript": "activity.get-transcript",
+  "chapter.build-the-file.english": "activity.sit-english-test",
+  "chapter.build-the-file.offer": "activity.apply-to-school",
+  "chapter.decision-day.tb": "activity.tb-test",
+  "chapter.decision-day.applied": "activity.apply-for-visa",
+};
+
+type NudgeView = Pick<PlayerView, "setpiece" | "interview" | "offers" | "chapter" | "report"> & Partial<Pick<PlayerView, "documents" | "routes" | "month" | "activities" | "pockets">>;
 
 /**
  * A step already started names the wait instead of the thing to do again:
@@ -86,7 +96,19 @@ function startedKey(view: NudgeView, own: string, stepKey: string, planned: read
   if (paper !== undefined) {
     const held = view.documents?.find((document) => document.id === paper);
     if (held?.state === "pending" && has(`${own}.started`)) return { key: `${own}.started`, params: { when: inMonths(held.readyMonth ?? month, month) } };
-    return null;
+  }
+  const activity = STEP_ACTIVITY[stepKey];
+  if (activity !== undefined) {
+    // Planned this month: the step waits on the month's end, not on another tap.
+    if (planned.includes(activity)) {
+      if (has(`${own}.planned`)) return { key: `${own}.planned` };
+      if (has(`${own}.started`)) return { key: `${own}.started` };
+    }
+    // Short of money: the nudge names the gap and a way to it, instead of the thing again.
+    const option = view.activities?.find((candidate) => candidate.id === activity);
+    const naira = option?.cost.filter((cost) => cost.currency === "NGN").reduce((sum, cost) => sum + cost.amount, 0) ?? 0;
+    const held = (view.pockets?.NGN.bank ?? 0) + (view.pockets?.NGN.cash ?? 0);
+    if (option !== undefined && !option.affordable && naira > held && has(`${own}.short`)) return { key: `${own}.short`, params: { amount: formatMoney(naira - held, "NGN") } };
   }
   const route = view.routes?.find((candidate) => candidate.id === STORY_ROUTE);
   if (stepKey === "chapter.build-the-file.offer") {
