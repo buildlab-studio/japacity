@@ -50,7 +50,7 @@ const hireTuning = content.tuning.quality;
 interface Ledger extends BaseEvent {
   type: "wallet/credited" | "wallet/debited";
   via: Effect["type"];
-  asked: Pocket | "any" | "locked" | "fee";
+  asked: Pocket | "any" | "transfer" | "locked" | "fee";
   currency: Currency;
   pocket: Pocket;
   amount: number;
@@ -88,7 +88,7 @@ const standInWallet: AnyKind = {
     },
     "money/take": (ctx, effect, cause) => {
       if (effect.type !== "money/take" || effect.pocket === "locked") throw new Error(effect.type);
-      const order: Pocket[] = effect.pocket === "any" ? ["cash", "bank"] : [effect.pocket];
+      const order: Pocket[] = effect.pocket === "any" ? ["cash", "bank"] : effect.pocket === "transfer" ? ["bank", "cash"] : [effect.pocket];
       return takeFrom(ctx, effect, effect.currency, ctx.amount(effect.amount, cause.terms), effect.reason, order, effect.pocket);
     },
     "money/pay-fee": (ctx, effect, cause) => {
@@ -229,7 +229,8 @@ const labActivities: ActivityEntry[] = [
     ],
     effects: [{ type: "quality/add", quality: "quality.tech", amount: 1 }],
   }),
-  free("activity.split", { cost: [{ currency: "NGN", amount: 3000000, reason: "fee-document" }] }),
+  // More than the bank holds, so a transfer spills into cash.
+  free("activity.split", { cost: [{ currency: "NGN", amount: 21000000, reason: "fee-document" }] }),
   free("activity.pounds", { cost: [{ currency: "GBP", amount: 30000, reason: "fee-visa" }], effects: [{ type: "quality/add", quality: "quality.tech", amount: 1 }] }),
   free("activity.var-fee", { cost: [{ currency: "NGN", amount: { var: "var.mini-fee" }, reason: "fee-document" }] }),
   free("activity.gig", { effects: [{ type: "activity/gig", min: 100000, max: 500000, perTech: 1000 }] }),
@@ -502,13 +503,13 @@ describe("resolving the slots", () => {
     expect(own(result, "activity/hunted")).toEqual([]);
   });
 
-  test("[R-ACTIVITY-004] given a naira cost, when it is paid, then it is taken from any pocket, cash first, under its own reason", () => {
+  test("[R-ACTIVITY-004] given a naira cost, when it is paid, then it is paid by transfer, the bank first and cash for the rest, under its own reason (decision 0012 as amended)", () => {
     const plain = lab("scenario.plain", labContent);
-    const cash = plain.game.state.wallet.pockets.NGN.cash;
+    const bank = plain.game.state.wallet.pockets.NGN.bank;
     const result = plain.end([pick("activity.split")]);
     expect(ledger(result)).toEqual([
-      { type: "wallet/debited", via: "money/take", asked: "any", currency: "NGN", pocket: "cash", amount: cash, reason: "fee-document" },
-      { type: "wallet/debited", via: "money/take", asked: "any", currency: "NGN", pocket: "bank", amount: 3000000 - cash, reason: "fee-document" },
+      { type: "wallet/debited", via: "money/take", asked: "transfer", currency: "NGN", pocket: "bank", amount: bank, reason: "fee-document" },
+      { type: "wallet/debited", via: "money/take", asked: "transfer", currency: "NGN", pocket: "cash", amount: 21000000 - bank, reason: "fee-document" },
     ]);
   });
 
@@ -516,9 +517,9 @@ describe("resolving the slots", () => {
     const plain = lab("scenario.plain", labContent);
     plain.apply([{ type: "money/add", currency: "NGN", pocket: "bank", amount: 50000000, reason: "gift" }]);
     const result = plain.end([pick("activity.two-fees")]);
+    // By transfer the bank covers each cost whole, one line each.
     expect(ledger(result).map((line) => [line.via, line.reason, line.amount])).toEqual([
-      ["money/take", "study", 2000000],
-      ["money/take", "study", 13000000],
+      ["money/take", "study", 15000000],
       ["money/take", "social", 15000000],
     ]);
     expect(own(result, "activity/slot-played")).toHaveLength(1);

@@ -373,10 +373,11 @@ describe("choosing", () => {
   test("[R-OFFER-003] given an open offer, when a choice is taken, then its effects apply with the offer as the source and the offer is removed", () => {
     const subject = lab();
     const item = subject.open("offer.nepa-bill")!;
-    const cash = subject.game.state.wallet.pockets.NGN.cash;
+    const bank = subject.game.state.wallet.pockets.NGN.bank;
     const result = subject.accept({ type: "offer/choose", offer: item.id, choice: "pay" });
-    expect(result.events).toContainEqual({ type: "wallet/debited", currency: "NGN", pocket: "cash", amount: 2500000, reason: "family" });
-    expect(subject.game.state.wallet.pockets.NGN.cash).toBe(cash - 2500000);
+    // A bill is paid by transfer, the bank first (decision 0012 as amended).
+    expect(result.events).toContainEqual({ type: "wallet/debited", currency: "NGN", pocket: "bank", amount: 2500000, reason: "family" });
+    expect(subject.game.state.wallet.pockets.NGN.bank).toBe(bank - 2500000);
     expect(qualityChanges(result, "offer.nepa-bill.pay")).toEqual([[STANDING, 3]]);
     expect(own(result, "offer/taken")).toEqual([{ type: "offer/taken", id: item.id, entry: "offer.nepa-bill", choice: "pay" }]);
     expect(subject.game.state.offer.items).toEqual({});

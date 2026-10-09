@@ -103,12 +103,12 @@ describe("home's send-off, the month of the grant", () => {
     expect(game.state.offer.timesOpened[SEND_OFF]).toBe(1);
   });
 
-  test("[R-CHAPTER-008] given the send-off open, when the party is chosen, then its cost leaves the naira cash first, wellbeing is up 6, standing 4 and network 3, and the results line is the party's", () => {
+  test("[R-CHAPTER-008] given the send-off open, when the party is chosen, then its cost leaves the naira by transfer, the bank first, wellbeing is up 6, standing 4 and network 3, and the results line is the party's", () => {
     const { game, item } = granted();
     const before = { money: naira(game), social: socialOut(game), wellbeing: quality(game, WELLBEING), standing: quality(game, STANDING), network: quality(game, NETWORK) };
-    expect(before.money.cash).toBeGreaterThanOrEqual(COST);
+    expect(before.money.bank).toBeGreaterThanOrEqual(COST);
     const result = game.accept({ type: "offer/choose", offer: item.id, choice: "party" });
-    expect(naira(game)).toEqual({ bank: before.money.bank, cash: before.money.cash - COST });
+    expect(naira(game)).toEqual({ bank: before.money.bank - COST, cash: before.money.cash });
     expect(socialOut(game)).toBe(before.social + COST);
     expect(quality(game, WELLBEING)).toBe(before.wellbeing + 6);
     expect(quality(game, STANDING)).toBe(before.standing + 4);
@@ -119,15 +119,15 @@ describe("home's send-off, the month of the grant", () => {
     expect(sendOff(game)).toBeUndefined();
   });
 
-  test("[R-CHAPTER-008] given less cash than the party costs, when it is chosen, then the cash goes first and the bank pays the rest", () => {
+  test("[R-CHAPTER-008] given less in the bank than the party costs, when it is chosen, then the bank goes first and cash pays the rest", () => {
     const short = 50000 * UNIT;
     const { game, item } = granted();
-    // Pay the cash into the bank until less than the party costs is left in hand.
-    game.accept({ type: "wallet/move", currency: "NGN", amount: naira(game).cash - short, to: "bank" });
-    expect(naira(game).cash).toBe(short);
-    const bank = naira(game).bank;
+    // Draw the bank down to cash until less than the party costs is left in it.
+    game.accept({ type: "wallet/move", currency: "NGN", amount: naira(game).bank - short, to: "cash" });
+    expect(naira(game).bank).toBe(short);
+    const cash = naira(game).cash;
     game.accept({ type: "offer/choose", offer: item.id, choice: "party" });
-    expect(naira(game)).toEqual({ bank: bank - (COST - short), cash: 0 });
+    expect(naira(game)).toEqual({ bank: 0, cash: cash - (COST - short) });
   });
 
   test("[R-CHAPTER-008] given the send-off open, when dinner is chosen, then nothing is paid, wellbeing is up 3 and standing 2, and its line is the dinner's", () => {
@@ -180,7 +180,7 @@ describe("home's send-off, the month of the grant", () => {
     expect([...kinds].sort()).toEqual(["money/take", "quality/add"]);
     expect(entry.choices.every((choice) => choice.fraudEffects === null && choice.pick === null && choice.requires.length === 0)).toBe(true);
     const party = entry.choices.find((choice) => choice.id === "party");
-    expect(party?.effects[0]).toEqual({ type: "money/take", currency: "NGN", pocket: "any", amount: { term: "cost" }, reason: "social" });
+    expect(party?.effects[0]).toEqual({ type: "money/take", currency: "NGN", pocket: "transfer", amount: { term: "cost" }, reason: "social" });
   });
 
   test("[R-CHAPTER-008] [R-OFFER-001] given the month's rolls, when their order is read, then the send-off is rolled first of all, so the grant month's loan offers never take both of the month's places before it", () => {

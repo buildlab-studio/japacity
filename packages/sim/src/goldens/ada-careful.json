@@ -1473,7 +1473,7 @@
       "v": 1,
       "banked": 23,
       "nairaBank": 8000000,
-      "hash": "808b91a251a0e3b1"
+      "hash": "9d798aebe898b251"
     },
     {
       "month": 2,
@@ -1500,15 +1500,15 @@
       "month": 5,
       "v": 9,
       "banked": 23,
-      "nairaBank": 63205488,
-      "hash": "e96c3bf4229cb22e"
+      "nairaBank": 59500000,
+      "hash": "435e4154f741e82e"
     },
     {
       "month": 6,
       "v": 11,
       "banked": 22,
       "nairaBank": 69000000,
-      "hash": "4a5249f4d20f6ed7"
+      "hash": "95cb7ad8ecab0f9b"
     },
     {
       "month": 7,

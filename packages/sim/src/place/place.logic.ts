@@ -245,7 +245,7 @@ function move(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
 /** How the fare is paid now: from the country's currency, or from naira as a foreign fee (R-PLACE-006). Null: it cannot be. */
 function farePayment(ctx: Ctx, fare: MoneyParam): Effect | null {
   const { currency, amount } = fare;
-  if (ctx.check({ type: "money/min", currency, amount }).met) return { type: "money/take", currency, pocket: "any", amount, reason: "fare" };
+  if (ctx.check({ type: "money/min", currency, amount }).met) return { type: "money/take", currency, pocket: "transfer", amount, reason: "fare" };
   if (!ctx.content.tuning.place.fareFromNaira || currency === "NGN") return null;
   if (!ctx.check({ type: "money/can-pay", currency, amount }).met) return null;
   return { type: "money/pay-fee", currency, amount, reason: "fare" };

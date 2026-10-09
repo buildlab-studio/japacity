@@ -22,14 +22,14 @@ describe("the December visit", () => {
     const fares = { uk: ["GBP", 310000], ca: ["CAD", 594000], uae: ["AED", 684000], it: ["EUR", 192000] } as const;
     for (const [suffix, [currency, amount]] of Object.entries(fares)) {
       expect(question(`go-${suffix}`).answers.map((answer) => answer.id)).toEqual(["stay", "go"]);
-      expect(effectsOf(`go-${suffix}`, "go")).toEqual([{ type: "money/take", currency, pocket: "any", amount, reason: "fare" }]);
+      expect(effectsOf(`go-${suffix}`, "go")).toEqual([{ type: "money/take", currency, pocket: "transfer", amount, reason: "fare" }]);
       expect(effectsOf(`go-${suffix}`, "stay")).toEqual([]);
     }
   });
 
   test("[R-RETURN-005] given the spending questions, when their answers are read, then each moves the page's qualities, the costly ones pay in the country's currency, and the free one comes first", () => {
     expect(effectsOf("party-uk", "big")).toEqual([
-      { type: "money/take", currency: "GBP", pocket: "any", amount: 22700, reason: "social" },
+      { type: "money/take", currency: "GBP", pocket: "transfer", amount: 22700, reason: "social" },
       { type: "quality/add", quality: "quality.standing", amount: 6 },
       { type: "quality/add", quality: "quality.wellbeing", amount: 6 },
       { type: "quality/add", quality: "quality.network", amount: 4 },

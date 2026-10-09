@@ -274,7 +274,7 @@ export const EffectSchema = z.discriminatedUnion("type", [
   z.strictObject({
     type: z.literal("money/take"),
     currency: CurrencySchema,
-    pocket: z.enum(["bank", "cash", "any", "locked"]),
+    pocket: z.enum(["bank", "cash", "any", "transfer", "locked"]),
     amount: AmountSchema,
     reason: ReasonSchema,
   }),

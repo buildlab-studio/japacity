@@ -269,7 +269,8 @@ export interface RequirementResult {
 export type Effect =
   // wallet
   | { type: "money/add"; currency: Currency; pocket: Pocket; amount: Amount; reason: Reason; flagged?: boolean; locked?: boolean }
-  | { type: "money/take"; currency: Currency; pocket: Pocket | "any" | "locked"; amount: Amount; reason: Reason }
+  /** `any`: cash first, then bank (the street); `transfer`: bank first, then cash (decision 0012 as amended: how Lagos pays by transfer, and abroad by tap). */
+  | { type: "money/take"; currency: Currency; pocket: Pocket | "any" | "transfer" | "locked"; amount: Amount; reason: Reason }
   /** Pay a foreign-currency fee from whatever the character holds: see R-WALLET-009. */
   | { type: "money/pay-fee"; currency: ForeignCurrency; amount: Amount; reason: Reason }
   // quality

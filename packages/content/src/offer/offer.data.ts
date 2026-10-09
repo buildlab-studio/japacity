@@ -108,7 +108,7 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
         requires: [],
         pick: null,
         effects: [
-          { type: "money/take", currency: "NGN", pocket: "any", amount: { term: "cost" }, reason: "family" },
+          { type: "money/take", currency: "NGN", pocket: "transfer", amount: { term: "cost" }, reason: "family" },
           { type: "quality/add", quality: "quality.standing", amount: 3 },
         ],
         fraudEffects: null,
@@ -144,7 +144,7 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
         requires: [],
         pick: null,
         effects: [
-          { type: "money/take", currency: "NGN", pocket: "any", amount: { term: "cost" }, reason: "family" },
+          { type: "money/take", currency: "NGN", pocket: "transfer", amount: { term: "cost" }, reason: "family" },
           { type: "quality/add", quality: "quality.standing", amount: 8 },
         ],
         fraudEffects: null,
@@ -154,7 +154,7 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
         requires: [],
         pick: null,
         effects: [
-          { type: "money/take", currency: "NGN", pocket: "any", amount: { term: "half" }, reason: "family" },
+          { type: "money/take", currency: "NGN", pocket: "transfer", amount: { term: "half" }, reason: "family" },
           { type: "quality/add", quality: "quality.standing", amount: 2 },
         ],
         fraudEffects: null,
@@ -187,7 +187,7 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
         requires: [],
         pick: null,
         effects: [
-          { type: "money/take", currency: "NGN", pocket: "any", amount: { term: "cost" }, reason: "family" },
+          { type: "money/take", currency: "NGN", pocket: "transfer", amount: { term: "cost" }, reason: "family" },
           { type: "quality/add", quality: "quality.standing", amount: 6 },
         ],
         fraudEffects: null,
@@ -197,7 +197,7 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
         requires: [],
         pick: null,
         effects: [
-          { type: "money/take", currency: "NGN", pocket: "any", amount: { term: "half" }, reason: "family" },
+          { type: "money/take", currency: "NGN", pocket: "transfer", amount: { term: "half" }, reason: "family" },
           { type: "quality/add", quality: "quality.standing", amount: 2 },
         ],
         fraudEffects: null,
@@ -230,7 +230,7 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
         requires: [],
         pick: null,
         effects: [
-          { type: "money/take", currency: "NGN", pocket: "any", amount: { term: "cost" }, reason: "family" },
+          { type: "money/take", currency: "NGN", pocket: "transfer", amount: { term: "cost" }, reason: "family" },
           { type: "quality/add", quality: "quality.standing", amount: 4 },
           { type: "quality/add", quality: "quality.network", amount: 3 },
           { type: "quality/add", quality: "quality.wellbeing", amount: 3 },
@@ -276,7 +276,7 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
         requires: [],
         pick: null,
         effects: [
-          { type: "money/take", currency: "NGN", pocket: "any", amount: { term: "cost" }, reason: "family" },
+          { type: "money/take", currency: "NGN", pocket: "transfer", amount: { term: "cost" }, reason: "family" },
           { type: "quality/add", quality: "quality.standing", amount: 10 },
         ],
         fraudEffects: null,
@@ -286,7 +286,7 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
         requires: [],
         pick: null,
         effects: [
-          { type: "money/take", currency: "NGN", pocket: "any", amount: { term: "half" }, reason: "family" },
+          { type: "money/take", currency: "NGN", pocket: "transfer", amount: { term: "half" }, reason: "family" },
           { type: "quality/add", quality: "quality.standing", amount: 3 },
         ],
         fraudEffects: null,
@@ -319,7 +319,7 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
         requires: [],
         pick: null,
         effects: [
-          { type: "money/take", currency: "NGN", pocket: "any", amount: { term: "cost" }, reason: "family" },
+          { type: "money/take", currency: "NGN", pocket: "transfer", amount: { term: "cost" }, reason: "family" },
           { type: "quality/add", quality: "quality.standing", amount: 3 },
           { type: "quality/add", quality: "quality.wellbeing", amount: 2 },
         ],
@@ -354,7 +354,7 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
         requires: [],
         pick: null,
         effects: [
-          { type: "money/take", currency: "NGN", pocket: "any", amount: { term: "cost" }, reason: "family" },
+          { type: "money/take", currency: "NGN", pocket: "transfer", amount: { term: "cost" }, reason: "family" },
           { type: "quality/add", quality: "quality.standing", amount: 7 },
         ],
         fraudEffects: null,
@@ -364,7 +364,7 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
         requires: [],
         pick: null,
         effects: [
-          { type: "money/take", currency: "NGN", pocket: "any", amount: { term: "token" }, reason: "family" },
+          { type: "money/take", currency: "NGN", pocket: "transfer", amount: { term: "token" }, reason: "family" },
           { type: "quality/add", quality: "quality.standing", amount: 1 },
         ],
         fraudEffects: null,
@@ -399,7 +399,7 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
         requires: [],
         pick: null,
         effects: [
-          { type: "money/take", currency: "NGN", pocket: "any", amount: naira(20000), reason: "social" },
+          { type: "money/take", currency: "NGN", pocket: "transfer", amount: naira(20000), reason: "social" },
           { type: "quality/add", quality: "quality.network", amount: 4 },
           { type: "quality/add", quality: "quality.wellbeing", amount: 4 },
           { type: "route/hear", route: UK, via: "friend" },
@@ -432,7 +432,7 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
         requires: [],
         pick: null,
         effects: [
-          { type: "money/take", currency: "NGN", pocket: "any", amount: { term: "cost" }, reason: "social" },
+          { type: "money/take", currency: "NGN", pocket: "transfer", amount: { term: "cost" }, reason: "social" },
           { type: "quality/add", quality: "quality.wellbeing", amount: 6 },
           { type: "quality/add", quality: "quality.standing", amount: 4 },
           { type: "quality/add", quality: "quality.network", amount: 3 },
@@ -471,7 +471,7 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
         id: "repair",
         requires: [],
         pick: null,
-        effects: [{ type: "money/take", currency: "NGN", pocket: "any", amount: naira(85000), reason: "mishap" }],
+        effects: [{ type: "money/take", currency: "NGN", pocket: "transfer", amount: naira(85000), reason: "mishap" }],
         fraudEffects: null,
       },
       {
@@ -504,7 +504,7 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
         id: "pay",
         requires: [],
         pick: null,
-        effects: [{ type: "money/take", currency: "NGN", pocket: "any", amount: naira(30000), reason: "upkeep" }],
+        effects: [{ type: "money/take", currency: "NGN", pocket: "transfer", amount: naira(30000), reason: "upkeep" }],
         fraudEffects: null,
       },
       {
@@ -626,7 +626,7 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
         requires: [],
         pick: { minTerm: "min", maxTerm: "max" },
         effects: [
-          { type: "money/take", currency: "NGN", pocket: "any", amount: { term: "amount", bp: pct(1) }, reason: "fee-agent" },
+          { type: "money/take", currency: "NGN", pocket: "transfer", amount: { term: "amount", bp: pct(1) }, reason: "fee-agent" },
           { type: "obligation/open", obligation: "obligation.held-funds", principal: { term: "amount" } },
         ],
         fraudEffects: null,
@@ -722,7 +722,7 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
         id: "pay",
         requires: [],
         pick: null,
-        effects: [{ type: "money/take", currency: "NGN", pocket: "any", amount: naira(120000), reason: "family" }],
+        effects: [{ type: "money/take", currency: "NGN", pocket: "transfer", amount: naira(120000), reason: "family" }],
         fraudEffects: null,
       },
       {

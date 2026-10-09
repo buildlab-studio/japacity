@@ -116,7 +116,7 @@ export function decemberQuestions({ country, suffix }: { country: Id<"country">;
     when: here,
     answers: [
       { ...answer("stay", []), closes: true },
-      paying("go", fare, [{ type: "money/take", currency: fare.currency, pocket: "any", amount: fare.amount, reason: "fare" }]),
+      paying("go", fare, [{ type: "money/take", currency: fare.currency, pocket: "transfer", amount: fare.amount, reason: "fare" }]),
     ],
   };
   const spending = SPENDING.map(
@@ -128,7 +128,7 @@ export function decemberQuestions({ country, suffix }: { country: Id<"country">;
         const reason = question.question === "gifts" ? "family" : "social";
         const gains = option.gains.map(([quality, amount]) => gain(quality, amount));
         if (price.amount === 0) return answer(option.id, gains);
-        return paying(option.id, price, [{ type: "money/take", currency: price.currency, pocket: "any", amount: price.amount, reason }, ...gains]);
+        return paying(option.id, price, [{ type: "money/take", currency: price.currency, pocket: "transfer", amount: price.amount, reason }, ...gains]);
       }),
     }),
   );

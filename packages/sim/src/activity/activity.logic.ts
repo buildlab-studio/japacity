@@ -334,7 +334,8 @@ function pricesOf(read: ReadCtx, entry: ActivityEntry, param: string | null): Pr
   if (entry.id === BET) prices.push({ currency: "NGN", amount: luck.stake, reason: "social", cash: true });
   if (entry.id === PHONE) prices.push({ currency: "NGN", amount: read.content.tuning.street.phonePrice, reason: "phone", cash: true });
   // R-ADVICE-004: the adviser's fee under its own reason (decision 0011).
-  if (entry.id === ADVISER) prices.push({ currency: "NGN", amount: read.content.tuning.advice.adviserFee, reason: "fee-advice", cash: true });
+  // The licensed adviser is paid by transfer like any office; the street prices above are cash first.
+  if (entry.id === ADVISER) prices.push({ currency: "NGN", amount: read.content.tuning.advice.adviserFee, reason: "fee-advice", cash: false });
   if (entry.id === DRIVING_TEST) {
     const currency = entry.country === undefined || entry.country === null ? null : read.content.country[entry.country]?.currency;
     if (currency === undefined || currency === null) throw new Error(`${entry.id} names no country to pay in.`);
@@ -344,12 +345,12 @@ function pricesOf(read: ReadCtx, entry: ActivityEntry, param: string | null): Pr
   return prices;
 }
 
-/** Pays each cost under its own reason: naira from any pocket, cash first (a street price too, decision 0012); a foreign fee by R-WALLET-009 (R-ACTIVITY-004). */
+/** Pays each cost under its own reason: naira by transfer, bank first, or cash first for a street price (decision 0012 as amended); a foreign fee by R-WALLET-009 (R-ACTIVITY-004). */
 function payPrices(ctx: Ctx, prices: readonly Price[], cause: Cause): void {
   for (const price of prices) {
     if (price.amount <= 0) continue;
     const { currency, amount, reason } = price;
-    if (currency === "NGN") ctx.apply([{ type: "money/take", currency, pocket: "any", amount, reason }], cause);
+    if (currency === "NGN") ctx.apply([{ type: "money/take", currency, pocket: price.cash ? "any" : "transfer", amount, reason }], cause);
     else ctx.apply([{ type: "money/pay-fee", currency, amount, reason }], cause);
   }
 }

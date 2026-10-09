@@ -125,13 +125,13 @@ describe("the licensed adviser", () => {
     }
   });
 
-  test("[R-ADVICE-004] given a heard route and the fee in cash, when the adviser is seen, then the fee comes from cash under the adviser's reason, the route is known, and her lines say what is missing and at least how many months", () => {
+  test("[R-ADVICE-004] given a heard route and the fee, when the adviser is seen, then the fee is paid by transfer under the adviser's reason, the route is known, and her lines say what is missing and at least how many months", () => {
     const game = heard();
     const read = { state: game.state, world: game.world(), content };
     const expected = adviserReading(read);
     const result = game.endTurn([slot(ADVISER)]);
     const debit = result.events.find((event) => event.type === "wallet/debited" && (event as unknown as { reason: string }).reason === "fee-advice") as unknown as { pocket: string; amount: number } | undefined;
-    expect(debit).toMatchObject({ pocket: "cash", amount: advice.adviserFee });
+    expect(debit).toMatchObject({ pocket: "bank", amount: advice.adviserFee });
     expect(game.state.route[UK]?.state).toBe("known");
     expect(result.lines.find((line) => line.key === "line.route.looked-into-advised")?.params).toEqual({ route: UK });
     const advised = eventOf(result, "activity/advised");
