@@ -140,7 +140,7 @@ const JOBS_ABROAD: Staged = [
 
 const entries: PlaceEntry[] = [
   // Lagos: public places.
-  lagos("place.ojuelegba", "Ojuelegba", "surulere", 6511, 3362, { assets: "ojuelegba-front", hub: true, stages: ["offer.fuel-scarcity", "chapter.find-your-feet", "activity.see-agent-stop", "offer.agent-stop", "offer.agent-promise", "offer.agent-papers"], crowd: PACKED, traditionalBp: ROADSIDE }),
+  lagos("place.ojuelegba", "Ojuelegba", "surulere", 6511, 3362, { assets: "ojuelegba-front", hub: true, stages: ["offer.fuel-scarcity", "chapter.find-your-feet", "activity.ask-around", "activity.see-agent-stop", "offer.agent-stop", "offer.agent-promise", "offer.agent-papers"], crowd: PACKED, traditionalBp: ROADSIDE }),
   lagos("place.national-stadium", "National Stadium", "surulere", 6497, 3365, { crowd: QUIET, traditionalBp: STREET }),
   lagos("place.bode-thomas", "Bode Thomas Street", "surulere", 6490, 3355, { assets: "bode-thomas-front", stages: ["activity.play-lotto", "activity.bet-slip"], crowd: BUSY, traditionalBp: STREET }),
   lagos("place.adeniran-ogunsanya", "Adeniran Ogunsanya Street", "surulere", 6494, 3357, { stages: ["activity.job-teacher"], crowd: BUSY, traditionalBp: STREET }),
@@ -167,7 +167,7 @@ const entries: PlaceEntry[] = [
   lagos("place.ojota", "Ojota", "kosofe", 6587, 3379, { crowd: BUSY, traditionalBp: ROADSIDE }),
   lagos("place.computer-village", "Computer Village", "ikeja", 6594, 3340, { stages: ["offer.laptop-fault", "activity.side-gig"], crowd: PACKED, traditionalBp: MARKET }),
   lagos("place.allen-avenue", "Allen Avenue", "ikeja", 6601, 3352, { stages: ["activity.ride-driving"], crowd: BUSY, traditionalBp: STREET }),
-  lagos("place.ogba", "Ogba", "ogba", 6633, 3341, { stages: ["offer.gulf-agent"], crowd: BUSY, traditionalBp: STREET }),
+  lagos("place.ogba", "Ogba", "ogba", 6633, 3341, { crowd: BUSY, traditionalBp: STREET }),
   lagos("place.berger", "Berger", "ojodu", 6642, 3369, { crowd: BUSY, traditionalBp: ROADSIDE }),
   lagos("place.agege", "Agege", "agege", 6625, 3311, { crowd: BUSY, traditionalBp: ROADSIDE }),
   lagos("place.mile-12-market", "Mile 12 Market", "kosofe", 6609, 3394, { crowd: PACKED, traditionalBp: MARKET }),
@@ -186,7 +186,7 @@ const entries: PlaceEntry[] = [
   // Not a feature in OpenStreetMap: the position is the Idumota bus stop's, the nearest feature found.
   lagos("place.balogun-market", "Balogun Market", "lagos-island", 6463, 3387, { stages: ["offer.aso-ebi"], crowd: PACKED, traditionalBp: MARKET }, { source: "own", licence: "ODbL-1.0", checked: CHECKED }),
   // The commercial stretch of the street; the page had 6456, 3384, which no result gave.
-  lagos("place.broad-street", "Broad Street", "lagos-island", 6454, 3390, { stages: ["offer.salary-loan"], crowd: BUSY, traditionalBp: STREET }),
+  lagos("place.broad-street", "Broad Street", "lagos-island", 6454, 3390, { crowd: BUSY, traditionalBp: STREET }),
   lagos("place.marina", "Marina", "lagos-island", 6446, 3395, { crowd: BUSY, traditionalBp: STREET }),
   // From the ferry terminal.
   lagos("place.cms", "CMS", "lagos-island", 6449, 3390, { crowd: PACKED, traditionalBp: ROADSIDE }),
@@ -219,8 +219,8 @@ const entries: PlaceEntry[] = [
   unnamed("place.passport-office", "institution", "home", "lagos", "ikoyi", { stages: [], crowd: BUSY, traditionalBp: OFFICE }),
   unnamed("place.visa-centre", "institution", "home", "lagos", "victoria-island", { stages: ["activity.apply-for-visa", "setpiece.credibility-interview"], crowd: BUSY, traditionalBp: OFFICE }),
   unnamed("place.english-test-centre", "institution", "home", "lagos", "ikeja", { stages: ["activity.sit-english-test", "activity.study-english"], crowd: QUIET, traditionalBp: OFFICE }),
-  unnamed("place.tb-clinic", "institution", "home", "lagos", "ikeja", { stages: ["activity.tb-test"], crowd: QUIET, traditionalBp: OFFICE }),
-  unnamed("place.medical-centre", "institution", "home", "lagos", "ikeja", { stages: ["activity.gulf-medical"], crowd: QUIET, traditionalBp: OFFICE }),
+  unnamed("place.tb-clinic", "institution", "home", "lagos", "ikeja", { stages: ["activity.tb-test", "activity.gulf-medical"], crowd: QUIET, traditionalBp: OFFICE }),
+  unnamed("place.medical-centre", "institution", "home", "lagos", "ikeja", { crowd: QUIET, traditionalBp: OFFICE }),
   unnamed("place.university", "institution", "home", "lagos", "akoka", { scope: "exterior", stages: [], crowd: BUSY, traditionalBp: CAMPUS }),
   unnamed("place.general-hospital", "institution", "home", "lagos", "surulere", { stages: ["offer.illness", "offer.illness-worse"], crowd: BUSY, traditionalBp: STREET }),
   unnamed("place.church", "institution", "home", "lagos", OWN_AREA, { occasion: true, stages: ["offer.harvest"], crowd: BUSY, traditionalBp: STREET }),
@@ -228,8 +228,8 @@ const entries: PlaceEntry[] = [
 
   // Lagos: businesses by made-up name. Shopfronts are signs on their street, in place.text.ts.
   unnamed("place.yaba-hub", "business", "home", "lagos", "yaba", { crowd: QUIET, traditionalBp: HUB }),
-  unnamed("place.olokun-office", "business", "home", "lagos", "victoria-island", { assets: "bank-counter", stages: ["offer.held-funds"], crowd: FEW, traditionalBp: OFFICE }),
-  unnamed("place.agent-office", "business", "home", "lagos", "ikeja", { stages: ["offer.held-funds-agent", "activity.see-agent-office", "offer.agent-office"], crowd: FEW, traditionalBp: OFFICE }),
+  unnamed("place.olokun-office", "business", "home", "lagos", "victoria-island", { assets: "bank-counter", stages: ["offer.held-funds", "offer.salary-loan"], crowd: FEW, traditionalBp: OFFICE }),
+  unnamed("place.agent-office", "business", "home", "lagos", "ikeja", { stages: ["offer.held-funds-agent", "offer.gulf-agent", "activity.see-agent-office", "offer.agent-office"], crowd: FEW, traditionalBp: OFFICE }),
 
   // Homes and stylised places: no real name, no area, no position, no sponsor.
   // Home opens in the compound; the house door cuts to the parlour (docs/rules/world.md R-WORLD-014).
@@ -256,7 +256,7 @@ const entries: PlaceEntry[] = [
   }),
   unnamed("place.motor-park", "stylised", "home", "lagos", null, {
     scope: "exterior",
-    stages: ["activity.ask-around", "offer.road-park", "offer.road-radio", "offer.road-cousin"],
+    stages: ["offer.road-park", "offer.road-radio", "offer.road-cousin"],
     crowd: PACKED,
     traditionalBp: ROADSIDE,
   }),
@@ -284,7 +284,8 @@ const entries: PlaceEntry[] = [
   // One shared room dressed per person: a friend's room, and a partner's home once courting (world.md R-WORLD-020).
   unnamed("place.their-room", "stylised", "home", "lagos", null, { stages: ["activity.see-someone"], crowd: FEW, traditionalBp: OFFICE }),
   unnamed("place.the-room", "stylised", "abroad", null, null, {
-    stages: ["activity.call-home", "activity.job-hunt", "activity.send-money", "activity.rent-flat-uk", "activity.rent-flat-ca", "activity.phone-contract-uk", "activity.phone-contract-ca"],
+    // The bed, the window and the laptop in the room abroad (R-WORLD-025; R-CITY-010 lets the country-less room stage what a country's own place also stages).
+    stages: ["activity.rest", "activity.community-uk", "activity.community-ca", "activity.call-home", "activity.job-hunt", "activity.send-money", "activity.rent-flat-uk", "activity.rent-flat-ca", "activity.phone-contract-uk", "activity.phone-contract-ca"],
     crowd: FEW,
     traditionalBp: OFFICE,
   }),

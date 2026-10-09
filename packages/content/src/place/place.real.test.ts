@@ -79,7 +79,7 @@ describe("real names as neutral scenery", () => {
     const lender = realNameChecks(withPlace({ ...place("place.olokun-office"), realName: "A Real Lender", sponsor: { key: "sponsor.lender" } }), text, realNames).join("\n");
     expect(lender).toMatch(/place\.olokun-office: carries the real name A Real Lender and lends, charges or employs through offer\.held-funds; only an invented name may \(R-CITY-041\)/);
     const agent = realNameChecks(withPlace({ ...place("place.agent-office"), realName: "A Real Agent" }), text, realNames).join("\n");
-    expect(agent).toMatch(/stages offer\.held-funds-agent, which can be a fraud, a mishap or bad news \(R-CITY-022\)/);
+    expect(agent).toMatch(/stages offer\.held-funds-agent, offer\.gulf-agent, which can be a fraud, a mishap or bad news \(R-CITY-022\)/);
     const employer = realNameChecks(withPlace({ ...place("place.workplace-abroad"), realName: "A Real Care Home" }), text, realNames).join("\n");
     expect(employer).toMatch(/A Real Care Home and employs through activity\.job-uk-care/);
   });
@@ -96,8 +96,8 @@ describe("real names as neutral scenery", () => {
 
   test("[R-CITY-022] given public places that stage a fraud or a mishap, when the place table is checked, then their public names stand as before", () => {
     expect(place("place.computer-village").stages).toContain("offer.laptop-fault");
-    expect(place("place.ogba").stages).toContain("offer.gulf-agent");
-    expect(realNameChecks(content, text, realNames).filter((problem) => /computer-village|ogba/.test(problem))).toEqual([]);
+    expect(place("place.ojuelegba").stages).toContain("offer.agent-stop");
+    expect(realNameChecks(content, text, realNames).filter((problem) => /computer-village|ojuelegba/.test(problem))).toEqual([]);
   });
 
   test("[R-CITY-041] given a real name on a sign, when the same name stands in an offer's words, then the check fails it", () => {
