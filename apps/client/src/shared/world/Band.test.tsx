@@ -43,8 +43,7 @@ describe("the band's money", () => {
       expect(currency).not.toBe("NGN");
       const view: PlayerView = { ...base, place: { ...base.place, country }, pockets: { ...base.pockets, [currency]: { bank: 70_000, cash: 4_600, locked: 0 } } };
       const money = bandMoney(view);
-      expect(money.money, country).toBe(74_600);
-      expect(money.formatMoney(74_600), country).toBe(formatMoney(74_600, currency));
+      expect({ country, money: money.money, shown: money.formatMoney(74_600) }).toEqual({ country, money: 74_600, shown: formatMoney(74_600, currency) });
     }
   });
 });

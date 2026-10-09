@@ -50,9 +50,7 @@ describe("the map abroad", () => {
     expect(stops).toContain("place.the-room");
     expect(stops.filter((stop) => stop?.startsWith("place.") !== true)).toEqual([]);
     fireEvent.click(document.querySelector<HTMLElement>("[data-country]")!);
-    const reasons = Object.fromEntries([...document.querySelectorAll<HTMLElement>("[data-country-option]")].map((row) => [row.dataset.countryOption, row.lastElementChild?.textContent ?? ""]));
-    expect(reasons.lagos).toBe("Not in this life yet");
-    expect(reasons["country.uk"]).toBe("You are here");
-    for (const shut of ["country.uae", "country.canada", "country.italy"]) expect(reasons[shut], shut).toBe("No visa yet");
+    const reasons: Record<string, string> = Object.fromEntries([...document.querySelectorAll<HTMLElement>("[data-country-option]")].map((row) => [row.dataset.countryOption ?? "", row.lastElementChild?.textContent ?? ""]));
+    expect(reasons).toEqual({ lagos: "Not in this life yet", "country.uk": "You are here", "country.uae": "No visa yet", "country.canada": "No visa yet", "country.italy": "No visa yet" });
   });
 });

@@ -33,10 +33,8 @@ describe("talk overheard abroad", () => {
     expect(set.length).toBeGreaterThanOrEqual(3);
     expect(own).toEqual([...placeLines(ROOM), ...set]);
     const said = set.map((key) => heardWords(key, {}));
-    for (const [index, words] of said.entries()) {
-      expect(words, set[index]).toBe(cityText[set[index] ?? ""]);
-      expect(DASHES.test(words), set[index]).toBe(false);
-    }
+    expect(said).toEqual(set.map((key) => cityText[key]));
+    expect(said.filter((words) => DASHES.test(words))).toEqual([]);
     expect(said.some((words) => /landlord/i.test(words))).toBe(true);
     expect(said.some((words) => /radiator/i.test(words))).toBe(true);
     expect(said.some((words) => /mummy|wall/i.test(words))).toBe(true);

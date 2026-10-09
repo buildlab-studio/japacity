@@ -1,20 +1,58 @@
 // Japa (docs/rules/world.md R-WORLD-018, 019): the plan as steps with a percent: the japacity
 // figure, the route's steps, the papers as a step with their state, and what is coming up (the visa
 // decision, a paper's ready month). The Papers screen inside shows what is in the box under the
-// bed; the papers themselves are a thing at home.
-import type { PlayerView, RouteView } from "@japacity/sim";
+// bed; the papers themselves are a thing at home. Once a visa is granted it names the next step;
+// after the flight it shows the visa held, what it lets you do, and the landing's steps.
+import { content } from "@japacity/content";
+import type { Id, PlayerView, RouteView } from "@japacity/sim";
 import { Check, ChevronLeft, ChevronRight, Circle, FileCheck, FileClock, FileX } from "lucide-react";
 import { use, useState } from "react";
 
 import { useGame, useView } from "../../../authority/GameProvider";
 import { monthsLeft, SOON } from "../../../shared/words/expiry";
 import { formatBand } from "../../../shared/words/format";
-import { forMonths, inMonths, nameOf, runningName, say, sayCount, words } from "../../../shared/words/text";
+import { blurbOf, forMonths, inMonths, nameOf, runningName, say, sayCount, words } from "../../../shared/words/text";
 import { Head, PhoneSaid } from "../act";
 import { phoneWords } from "../phone.words";
 
 const ENGLISH_RESULT = "document.english-test";
 const OFFICIAL = "activity.look-into-route";
+
+/** Japa's words after the grant and the flight, first drafts in the voice of docs/rules/text.md; content's and the phone's tables win. */
+const AFTER_TEXT: Record<string, string> = {
+  "phone.japa.next": "Next: {step}",
+  "phone.japa.visa.label": "Your visa",
+  "phone.japa.visa.none": "No visa here",
+  "phone.japa.visa.lets": "What it lets you do",
+  "phone.japa.visa.way-up": "The way up",
+  "phone.japa.chapter.soon": "Starts when this month ends.",
+};
+
+function afterWords(key: string, params: Record<string, string> = {}): string {
+  const said = phoneWords(key, params);
+  if (said !== key) return said;
+  return (AFTER_TEXT[key] ?? key).replace(/\{([A-Za-z][\w-]*)\}/g, (whole, name: string) => params[name] ?? whole);
+}
+
+/**
+ * The chapter whose steps lie ahead (R-WORLD-019): the current one while a step is undone, its steps
+ * as the view marks them; once every step is met, the next by content's order, which opens when the
+ * month ends, its steps not yet marked.
+ */
+export function chapterAhead(chapter: PlayerView["chapter"]): { id: Id<"chapter">; now: boolean; items: { id: string; met: boolean }[] } | null {
+  const current = chapter.current;
+  if (current === null) return null;
+  if (chapter.items.some((item) => !item.met)) return { id: current, now: true, items: chapter.items };
+  const order = content.chapter[current]?.order;
+  const next = order === undefined ? undefined : Object.values(content.chapter).find((entry) => entry.order === order + 1);
+  return next === undefined ? null : { id: next.id, now: false, items: next.items.map((item) => ({ id: item.id, met: false })) };
+}
+
+/** The first step not done of the chapter ahead, in the story's words. */
+function nextStepWords(ahead: NonNullable<ReturnType<typeof chapterAhead>>): string | null {
+  const step = ahead.items.find((item) => !item.met);
+  return step === undefined ? null : words(`${ahead.id}.item.${step.id}`);
+}
 
 /**
  * R-ADVICE-002: the route whose official page can be read now: the plan's route when the page
@@ -99,6 +137,77 @@ function Step({ met, children }: { met: boolean; children: string }) {
   );
 }
 
+function NextStep({ step }: { step: string }) {
+  return (
+    <p className="mt-2 flex items-center gap-2 rounded-[6px] border-l-4 border-signal bg-sheet-2 px-3 py-2 text-[14px] font-bold" data-japa-next>
+      <ChevronRight size={16} className="shrink-0" aria-hidden />
+      {afterWords("phone.japa.next", { step })}
+    </p>
+  );
+}
+
+/** After the flight (R-WORLD-019): the visa held and what it lets you do, then the landing's steps. */
+function Abroad({ view, onPapers }: { view: PlayerView; onPapers: () => void }) {
+  const held = view.status;
+  const ahead = chapterAhead(view.chapter);
+  const next = ahead?.now === true ? nextStepWords(ahead) : null;
+  const lets = held === null ? null : blurbOf(held.entry);
+  return (
+    <div data-phone-app="japa">
+      <div className="band rounded-[6px] px-4 py-3" data-japa-visa={held?.entry ?? ""}>
+        <div className="label label-strong">{afterWords("phone.japa.visa.label")}</div>
+        <div className="title truncate text-[18px]">{held === null ? afterWords("phone.japa.visa.none") : nameOf(held.entry)}</div>
+        {held === null ? null : (
+          <div className="mt-0.5 text-[13px] font-bold opacity-85">{held.monthsLeft === null ? say("ui.status.no-end") : sayCount("ui.status.months-left", held.monthsLeft, { months: held.monthsLeft })}</div>
+        )}
+      </div>
+      {held === null ? <p className="mt-2 text-[14px]">{say("ui.status.none")}</p> : null}
+      {lets === null ? null : (
+        <>
+          <Head>{afterWords("phone.japa.visa.lets")}</Head>
+          <p className="text-[14px]">{lets}</p>
+        </>
+      )}
+      {held?.clock === null || held?.clock === undefined ? null : <p className="mt-2 text-[14px] font-bold text-out">{sayCount("ui.status.clock", held.clock, { months: held.clock })}</p>}
+      {next === null ? null : <NextStep step={next} />}
+      {ahead === null ? null : (
+        <div data-landing={ahead.now ? "now" : "soon"}>
+          <Head>{nameOf(ahead.id)}</Head>
+          {ahead.now ? null : <p className="mb-1 text-[13px] text-text-2">{afterWords("phone.japa.chapter.soon")}</p>}
+          <ul className="flex flex-col">
+            {ahead.items.map((item) => (
+              <Step key={item.id} met={item.met}>
+                {words(`${ahead.id}.item.${item.id}`)}
+              </Step>
+            ))}
+          </ul>
+        </div>
+      )}
+      {held?.nextStep === null || held?.nextStep === undefined ? null : (
+        <>
+          <Head>{afterWords("phone.japa.visa.way-up")}</Head>
+          <p className="text-[14px]">{words(held.nextStep)}</p>
+        </>
+      )}
+      <PapersButton view={view} onOpen={onPapers} />
+    </div>
+  );
+}
+
+function PapersButton({ view, onOpen }: { view: PlayerView; onOpen: () => void }) {
+  const held = view.documents.filter((paper) => paper.state === "held").length;
+  return (
+    <button type="button" onClick={onOpen} className="press mt-1 flex w-full items-center gap-2.5 rounded-[6px] border border-sheet-line bg-sheet-2 px-3 py-2.5 text-left" data-open-papers>
+      {view.documents.length > 0 && held === view.documents.length ? <Check size={18} className="shrink-0 text-in" aria-hidden /> : <Circle size={18} className="shrink-0 text-text-2" aria-hidden />}
+      <span className="flex-1">
+        <span className="block text-[14px] font-bold">{phoneWords("phone.japa.papers")}</span>
+        <span className="block text-[13px] text-text-2">{view.documents.length === 0 ? phoneWords("phone.japa.papers.none") : phoneWords("phone.japa.papers.line", { held, count: view.documents.length })}</span>
+      </span>
+      <ChevronRight size={16} className="shrink-0 text-text-2" aria-hidden />
+    </button>
+  );
+}
+
 export function Japa() {
   const view = useView();
   const [papers, setPapers] = useState(false);
@@ -113,12 +222,15 @@ export function Japa() {
       </div>
     );
   }
+  if (view.place.where === "abroad") return <Abroad view={view} onPapers={() => setPapers(true)} />;
   const route = planRoute(view);
   const lookInto = view.ended ? null : officialRoute(view);
   const planned = lookInto !== null && plan.some((pick) => pick !== null && pick.activity === OFFICIAL && pick.param === lookInto);
   const percent = view.japacity.percent;
-  const held = view.documents.filter((paper) => paper.state === "held").length;
   const coming = remindersOf(view);
+  // Once a visa is granted the plan is done but the story is not: the next step, the plane, is named.
+  const ahead = view.routes.some((candidate) => candidate.state === "granted") ? chapterAhead(view.chapter) : null;
+  const next = ahead === null ? null : nextStepWords(ahead);
   return (
     <div data-phone-app="japa">
       <div className="band flex items-end justify-between gap-3 rounded-[6px] px-4 py-3">
@@ -134,6 +246,7 @@ export function Japa() {
         )}
       </div>
       {view.japacity.route === null ? null : <p className="mt-1 text-[12px] text-text-2">{say("ui.japacity.of", { route: runningName(view.japacity.route) })}</p>}
+      {next === null ? null : <NextStep step={next} />}
 
       {coming.length === 0 ? null : (
         <>
@@ -168,14 +281,7 @@ export function Japa() {
       <ul className="flex flex-col" data-steps>
         {route === null || route.state === "heard" ? null : route.checklist.map((item) => <Step key={item.id} met={item.met}>{words(`${route.id}.item.${item.id}`)}</Step>)}
       </ul>
-      <button type="button" onClick={() => setPapers(true)} className="press mt-1 flex w-full items-center gap-2.5 rounded-[6px] border border-sheet-line bg-sheet-2 px-3 py-2.5 text-left" data-open-papers>
-        {view.documents.length > 0 && held === view.documents.length ? <Check size={18} className="shrink-0 text-in" aria-hidden /> : <Circle size={18} className="shrink-0 text-text-2" aria-hidden />}
-        <span className="flex-1">
-          <span className="block text-[14px] font-bold">{phoneWords("phone.japa.papers")}</span>
-          <span className="block text-[13px] text-text-2">{view.documents.length === 0 ? phoneWords("phone.japa.papers.none") : phoneWords("phone.japa.papers.line", { held, count: view.documents.length })}</span>
-        </span>
-        <ChevronRight size={16} className="shrink-0 text-text-2" aria-hidden />
-      </button>
+      <PapersButton view={view} onOpen={() => setPapers(true)} />
     </div>
   );
 }
