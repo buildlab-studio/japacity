@@ -6,11 +6,12 @@ import type { Currency, PlayerView, Pocket, ReportLine, RouteView } from "@japac
 import { ArrowLeftRight, MoveVertical } from "lucide-react";
 import { useState } from "react";
 
-import { useView } from "../../../authority/GameProvider";
+import { useGame, useView } from "../../../authority/GameProvider";
 import { CURRENCIES, formatMoney, HOME_CURRENCIES } from "../../../shared/words/format";
-import { lowerFirst, moneyParam, say, words } from "../../../shared/words/text";
+import { lowerFirst, say, words } from "../../../shared/words/text";
 import { localCurrency } from "../../../shared/words/wayHome";
 import { Counter } from "../../../shared/world/Band";
+import { moneyLines as resultsMoney } from "../../turn/month.results";
 import { Chips, Head, useAsk } from "../act";
 import { phoneWords } from "../phone.words";
 
@@ -41,10 +42,15 @@ export function savingsOf(view: PlayerView): { shown: number; required: number; 
   return { shown, required, currency };
 }
 
-/** The report's lines that move money, newest last. */
-export function moneyLines(view: PlayerView): ReportLine[] {
-  const lines = view.report?.lines ?? [];
-  return lines.filter((line) => Object.keys(line.params).some((name) => moneyParam(name, line.params, line.key) !== null));
+/**
+ * The money that moved lately, newest last: the month just ended (its mid-month moves and its end)
+ * and this month's so far, each move once, as the results count them (R-WORLD-019: a payment split
+ * across pockets is one line, a bill's "paid this month" is the same money, a fare paid on the way
+ * is a move too).
+ */
+export function latelyLines(view: Pick<PlayerView, "report">, lastMonth: readonly ReportLine[], thisMonth: readonly ReportLine[]): ReportLine[] {
+  const ended = view.report === null ? [] : [...lastMonth, ...view.report.lines];
+  return [...resultsMoney(ended), ...resultsMoney(thisMonth)].map((entry) => entry.line);
 }
 
 const LATELY = 4;
@@ -155,7 +161,9 @@ export function Bank() {
   const { open, sheet } = useAsk();
   const [choosing, setChoosing] = useState<"change" | "move" | null>(null);
   const savings = savingsOf(view);
-  const lately = moneyLines(view).slice(-LATELY);
+  const lastMonth = useGame((state) => state.lastMonthLines);
+  const thisMonth = useGame((state) => state.monthLines);
+  const lately = latelyLines(view, lastMonth, thisMonth).slice(-LATELY);
   const others = CURRENCIES.filter((currency) => currency !== "NGN" && view.pockets[currency].bank + view.pockets[currency].cash > 0);
   const toggle = (which: "change" | "move") => setChoosing(choosing === which ? null : which);
 
