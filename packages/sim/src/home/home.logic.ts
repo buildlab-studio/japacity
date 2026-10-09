@@ -36,6 +36,9 @@ export const MAKOKO_UPKEEP: Id<"obligation"> = "obligation.upkeep-makoko";
 export const TAKEN_IN: Id<"offer"> = "offer.taken-in";
 export const WHERE_NEXT: Id<"offer"> = "offer.where-next";
 const STANDING: Id<"quality"> = "quality.standing";
+/** The words keys a line names a real player by: the other life's own name is never in this state. */
+export const HOME_FRIEND = "home.friend";
+export const HOME_GUEST = "home.guest";
 /** The bond stages a moment can be added at (R-PEOPLE-014): a friend only connected has no moments yet. */
 const MOMENT_STAGES: readonly string[] = ["courting", "partner", "married"];
 
@@ -308,10 +311,11 @@ function lines(event: HomeEvent): ReportLine[] {
       // Told straight (text.md R-TEXT-002): what went with the room is its own figure, not the wallet's.
       return [line("line.home.evicted", { lost: { currency: "NGN", amount: event.lost } }, "bad", true)];
     case "home/taken-in":
-      return [line("line.home.taken-in", { who: event.host === "friend" ? "player" : event.by, months: event.until - event.month }, "good", true)];
+      // A friend is named by the words for one (the pair's name is the other life's), someone of the story by their entry.
+      return [line("line.home.taken-in", { who: event.host === "friend" ? HOME_FRIEND : event.by, months: event.until - event.month }, "good", true)];
     case "home/hosted":
-      // A host's guest is always a real player: the people lines name one as `player`.
-      return [line("line.home.hosting", { who: "player", amount: { currency: "NGN", amount: event.amount } }, "bad", false)];
+      // A host's guest is always a real player, named by the words for one.
+      return [line("line.home.hosting", { who: HOME_GUEST, amount: { currency: "NGN", amount: event.amount } }, "bad", false)];
     case "home/taken-back":
     case "home/hosting":
       // The return and the authority's word are told by their own lines.
@@ -345,6 +349,7 @@ export function homeView(read: ReadCtx): PlayerView["home"] {
     guest: lives.guest,
     rent: charge === undefined ? null : { currency: "NGN", amount: charge.amount },
     evictionBp: evictionChanceBp(read),
+    moved: lives.moved,
   };
 }
 

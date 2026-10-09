@@ -2127,7 +2127,7 @@ export interface PlayerView {
   lottery: { ticket: number; maxTickets: number; draw: number; closesTick: number; onSale: boolean; tickets: number; numbers: number[] | null; jackpot: number; rolledOver: boolean; odds: LotteryOdds; fingerprint: string; last: LotteryResult | null } | null;
   /** R-ADVERT-003: whether an advert may show now (never on the road, in a set piece, or in a chapter with `noAdverts`). */
   adverts: boolean;
-  /** Where the character lives at home (docs/rules/home.md R-HOME-007): the monthly charge there, and the eviction chance a month in Makoko now. */
-  home: { place: HomePlace | null; since: number; guest: HomeSlice["guest"]; rent: MoneyParam | null; evictionBp: number };
+  /** Where the character lives at home (docs/rules/home.md R-HOME-007): the monthly charge there, the eviction chance a month in Makoko now, and the month of the last move, so the card shuts the move made this month. */
+  home: { place: HomePlace | null; since: number; guest: HomeSlice["guest"]; rent: MoneyParam | null; evictionBp: number; moved: number | null };
   report: TurnReport | null;
 }

@@ -126,14 +126,23 @@ const JOB_OFFER = "offer.job";
 /** The visa granted: the month's news, told first and alone in the lead. */
 const GRANTED = "line.route.granted";
 
+/** The settlement cleared (docs/rules/home.md R-HOME-003): it leads the month, before anything else. */
+const EVICTED = "line.home.evicted";
+
+/** True for the line that tells the room on the water is gone: first, and in the money's red as a bill unpaid is. */
+export function isEvicted(line: ReportLine): boolean {
+  return line.key === EVICTED;
+}
+
 /**
  * The kinds of line that carry the month's story, in the order the results lead with them: the
- * visa granted, a bill that went unpaid, what the room's basics saved, a hunt's answer, a job or an offer found, a way out heard
+ * room in Makoko cleared away, the visa granted, a bill that went unpaid, what the room's basics saved, a hunt's answer, a job or an offer found, a way out heard
  * of or moved on, a paper or a test band, a deposit that will be asked about, a chapter, a goal or
  * an answer told in its offer's own words, a set piece, the interview or a status, news about your
  * plans.
  */
 const STORY: readonly ((line: ReportLine) => boolean)[] = [
+  isEvicted,
   (line) => line.key === GRANTED,
   isUnpaid,
   // R-OBLIGATION-014: what cooking and fetching water saved on the upkeep, each its own line.

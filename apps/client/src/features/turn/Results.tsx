@@ -12,7 +12,7 @@ import { Counter } from "../../shared/world/Band";
 import { WorldSheet } from "../../shared/world/WorldSheet";
 import { formatMoney, formatNumber } from "../../shared/words/format";
 import { say, words } from "../../shared/words/text";
-import { drawShown, isUnpaid, kept, leadsAlone, localCurrency, moneyLines, quietLine, savings, storyLines, toldOnResults, untoldLines } from "./month.results";
+import { drawShown, isEvicted, isUnpaid, kept, leadsAlone, localCurrency, moneyLines, quietLine, savings, storyLines, toldOnResults, untoldLines } from "./month.results";
 import { turnWords } from "./turn.words";
 
 /** True while the results sheet is up: the month has just ended and its staged wins have passed. */
@@ -124,7 +124,8 @@ export function Results({ place }: { place: string }) {
             <ul className="flex flex-col">
               {story.map((line, index) => {
                 const told = toldOnResults(line);
-                const unpaid = isUnpaid(line);
+                // R-HOME-003: the room cleared away is told in the same red as a bill unpaid.
+                const unpaid = isUnpaid(line) || isEvicted(line);
                 const lead = leadsAlone(line);
                 // The grant leads alone, larger; a bill not paid is in red though no money moved.
                 const tone = lead ? "pb-3 text-[18px] leading-tight font-bold" : unpaid ? "text-[14px] leading-snug font-semibold text-out" : "text-[14px] leading-snug font-semibold";

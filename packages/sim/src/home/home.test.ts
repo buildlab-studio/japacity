@@ -135,7 +135,7 @@ describe("the slice", () => {
   test("[R-HOME-001] given a new life, when it starts, then the character lives at the family house with no guest and no move made", () => {
     const game = ada();
     expect(game.state.home).toEqual({ place: FAMILY, since: 0, guest: null, moved: null, evicted: null, hosting: null });
-    expect(game.view().home).toEqual({ place: FAMILY, since: 0, guest: null, rent: { currency: "NGN", amount: ADA_UPKEEP }, evictionBp: home.evictionBp });
+    expect(game.view().home).toEqual({ place: FAMILY, since: 0, guest: null, rent: { currency: "NGN", amount: ADA_UPKEEP }, evictionBp: home.evictionBp, moved: null });
   });
 
   test("[R-HOME-001] given a life in Makoko that flies abroad, when months pass there at a sure eviction chance, then the slice is kept as it was and never drawn on", () => {
@@ -320,7 +320,7 @@ describe("taken in", () => {
     expect(offerOf(other, TAKEN_IN)!.choices.find((choice) => choice.id === "friend")?.allowed).toBe(true);
     const result = choose(other, TAKEN_IN, "friend");
     expect(other.state.home).toMatchObject({ place: null, guest: { host: "friend", by: bond, until: 1 + home.guestMonths } });
-    expect(result.lines.map((line) => line.key)).toContain("line.home.taken-in");
+    expect(result.lines.find((line) => line.key === "line.home.taken-in")?.params).toEqual({ who: "home.friend", months: home.guestMonths });
   });
 
   test("[R-HOME-004] given Ada taken in by someone of the story, when the stay runs, then no upkeep is charged and the month it ends the where-next offer opens with makoko and family", () => {
@@ -401,7 +401,7 @@ describe("hosting", () => {
       expect(eventsOf(result, "wallet/credited")).toEqual(eventsOf(plain, "wallet/credited"));
     }
     expect(extras).toEqual([rise, rise, 0]);
-    const line = { who: "player", amount: { currency: "NGN", amount: rise } };
+    const line = { who: "home.guest", amount: { currency: "NGN", amount: rise } };
     expect(told).toEqual([line, line, null]);
     expect(game.state.home.hosting).toBeNull();
   });
