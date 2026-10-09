@@ -78,7 +78,7 @@ describe("side jobs by level", () => {
     for (const id of ["activity.night-support", "activity.weekend-tutoring", "activity.ride-driving"]) {
       const entry = entryOf(id);
       expect(entry.slot).toBe("side");
-      expect(entry.tiers?.length, id).toBeGreaterThan(0);
+      expect(entry.tiers?.length).toBeGreaterThan(0);
       for (const tier of entry.tiers ?? []) {
         expect(["quality.tech", "quality.english", "quality.network"]).toContain(tier.min.quality);
         expect(tier.pay.currency).toBe(entry.pay?.currency);

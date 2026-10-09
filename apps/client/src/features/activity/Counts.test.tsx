@@ -24,7 +24,7 @@ describe("what each act counts toward", () => {
     await renderWithView(<ActivityPicker only={[...ACTS]} />, view);
     for (const id of ACTS) {
       const routes = content.activity[id as Id<"activity">]?.counts ?? [];
-      expect(routes.length, id).toBeGreaterThan(0);
+      expect(routes.length).toBeGreaterThan(0);
       const line = cardOf(id).querySelector("[data-counts]")?.textContent ?? "";
       expect(line).toBe(countsWords(id));
       expect(line.startsWith("Counts toward: ")).toBe(true);
