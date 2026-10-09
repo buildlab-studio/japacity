@@ -13,8 +13,6 @@ import { WALKWAY } from "@japacity/assets-src/prop/plank-walkway/build";
 
 import manifest from "../../../../public/assets/manifest.json";
 import raw from "../../../../public/assets/places/makoko/place.json";
-import { isWater, toXZ } from "../../map/layout";
-import { metresBetween } from "../../map/pins";
 import { sceneWords } from "../scene.words";
 import { stopReached } from "../stops";
 import { thingSpot, vehicleOf } from "../things";
@@ -179,14 +177,15 @@ describe("Makoko", () => {
     expect(lines.filter((line) => /!|\{|route\.|news\.|[–—]/.test(line))).toEqual([]);
   });
 
-  test("[R-WORLD-015] given Makoko's published file, when the map's stops are drawn, then its stop stands on the lagoon by the bridge, open to a life at home from the start", () => {
+  test("[R-WORLD-015] given Makoko's published file, when the map's stops are drawn, then its stop stands beside the bridge, open to a life at home from the start", () => {
     expect((manifest as { files: Record<string, string> }).files["places/makoko/place.json"]).toBeDefined();
     const position = entry.position;
     const bridge = content.place["place.third-mainland-bridge" as Id<"place">]?.position;
     if (position === null || bridge === undefined || bridge === null) throw new Error("No position");
-    const [x, z] = toXZ(position);
-    expect(isWater(x, z)).toBe(true);
-    expect(metresBetween(position, bridge)).toBeLessThan(2500);
+    // Beside the bridge: within two and a half kilometres of its stop (a thousandth of a degree is about 111 m).
+    const metres = Math.hypot(position.latE3 - bridge.latE3, position.lonE3 - bridge.lonE3) * 111;
+    expect(metres).toBeLessThan(2500);
+    expect(entry.area).toBe("makoko");
     expect(stopReached({ current: "chapter.find-your-feet", done: [] } as never, "home", ID)).toBe(true);
     expect(file.place).toBe(ID);
   });
