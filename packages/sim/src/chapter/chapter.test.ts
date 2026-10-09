@@ -152,7 +152,8 @@ describe("a chapter that one item closes", () => {
           if (bank > 0) send({ type: "wallet/move", currency, amount: bank, to: "cash" }, tick);
         }
         expect(check({ state, world: worldAt(tick), content: used }, HELD).met).toBe(false);
-        const result = send(command, tick, sender);
+        // The granting month is ended with nothing planned: a recorded pick that needed the funds just moved out would refuse the whole turn.
+        const result = send(command.type === "turn/end" ? { type: "turn/end", slots: [] } : command, tick, sender);
         return { result, state, world: worldAt(tick) };
       }
       send(command, tick, sender);
