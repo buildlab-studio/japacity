@@ -5,7 +5,7 @@ import { content } from "@japacity/content";
 import type { Currency, MoneyParam, PlayerView, ReportLine } from "@japacity/sim";
 
 import { monthlyPayOf } from "../../shared/words/cost";
-import { afterPrologue, forYou, isSaid, movesMoney, tidyLines } from "../../shared/words/lines";
+import { afterPrologue, forYou, isSaid, movesMoney, tidyLines, toldUnpaid } from "../../shared/words/lines";
 import { moneyParam } from "../../shared/words/text";
 
 export interface MoneyLine {
@@ -157,28 +157,14 @@ export function leadsAlone(line: ReportLine): boolean {
   return line.key === GRANTED;
 }
 
-/** What a missed bill cost, by its entry: the credit file abroad, then the standing and the mood its miss takes. */
-function unpaidCost(obligation: string): string {
-  const entry = content.obligation[obligation as keyof typeof content.obligation];
-  if (entry === undefined) return "plain";
-  const takes = new Set(entry.onMiss.flatMap((effect) => (effect.type === "quality/add" && effect.amount < 0 ? [effect.quality] : [])));
-  const standing = takes.has("quality.standing");
-  const mood = takes.has("quality.wellbeing");
-  const quality = standing && mood ? "standing-mood" : standing ? "standing" : mood ? "mood" : null;
-  if (entry.reportsToCredit === true) return quality === "standing-mood" ? "credit-standing-mood" : "credit";
-  // A missed instalment costs nothing at once; the next one missed withdraws the student (R-STATUS-011).
-  if (quality === null && entry.onDefault.some((effect) => effect.type === "status/lose")) return "withdraw";
-  return quality ?? "plain";
-}
-
 /**
  * A story line as the results tell it (R-WORLD-008): a bill missed says its figure and what it
  * cost, a hunt says the job and its answer, an offer of work says the pay a month. Anything else
  * is told as News tells it.
  */
 export function toldOnResults(line: ReportLine): ReportLine {
-  const { obligation, job } = line.params;
-  if (line.key === "line.obligation.missed" && typeof obligation === "string") return { ...line, key: `ui.results.unpaid.${unpaidCost(obligation)}` };
+  const { job } = line.params;
+  if (line.key === "line.obligation.missed") return toldUnpaid(line);
   if (line.key === "line.activity.hunt-missed" && typeof job === "string") return { ...line, key: "ui.results.hunt-missed" };
   if (line.key === "line.activity.hunt-hired" && typeof job === "string") {
     const pay = monthlyPayOf(job);

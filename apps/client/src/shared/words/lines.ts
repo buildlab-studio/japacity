@@ -2,6 +2,7 @@
 // simulation tells each pocket and each kind its own line; the screen folds a
 // payment split across pockets into one total, and drops the second telling of
 // a payment another line already names.
+import { content } from "@japacity/content";
 import type { MoneyParam, ReportLine } from "@japacity/sim";
 
 import { bandResultLine } from "./test";
@@ -216,6 +217,31 @@ function paperFee(lines: readonly ReportLine[]): ReportLine[] {
     const document = next?.key === REQUESTED ? next.params.document : undefined;
     return line.key === DOCUMENT_FEE && typeof document === "string" ? { ...line, key: PAPER_FEE, params: { ...line.params, document } } : line;
   });
+}
+
+/** What a missed bill cost, by its entry: the credit file abroad, then the standing and the mood its miss takes. */
+function unpaidCost(obligation: string): string {
+  const entry = content.obligation[obligation as keyof typeof content.obligation];
+  if (entry === undefined) return "plain";
+  const takes = new Set(entry.onMiss.flatMap((effect) => (effect.type === "quality/add" && effect.amount < 0 ? [effect.quality] : [])));
+  const standing = takes.has("quality.standing");
+  const mood = takes.has("quality.wellbeing");
+  const quality = standing && mood ? "standing-mood" : standing ? "standing" : mood ? "mood" : null;
+  if (entry.reportsToCredit === true) return quality === "standing-mood" ? "credit-standing-mood" : "credit";
+  // A missed instalment costs nothing at once; the next one missed withdraws the student (R-STATUS-011).
+  if (quality === null && entry.onDefault.some((effect) => effect.type === "status/lose")) return "withdraw";
+  return quality ?? "plain";
+}
+
+/**
+ * A bill missed, told with its figure and what the miss cost (R-WORLD-008): the generic "standing and mood"
+ * line is false for a tuition instalment, whose miss costs nothing at once.
+ * The results and the News app tell it the same way.
+ */
+export function toldUnpaid(line: ReportLine): ReportLine {
+  const { obligation } = line.params;
+  if (line.key !== "line.obligation.missed" || typeof obligation !== "string") return line;
+  return { ...line, key: `ui.results.unpaid.${unpaidCost(obligation)}` };
 }
 
 export function tidyLines(lines: readonly ReportLine[]): ReportLine[] {

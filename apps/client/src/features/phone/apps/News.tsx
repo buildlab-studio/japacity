@@ -3,7 +3,7 @@
 import type { NewsStage } from "@japacity/sim";
 
 import { useGame, useView } from "../../../authority/GameProvider";
-import { tidyLines } from "../../../shared/words/lines";
+import { tidyLines, toldUnpaid } from "../../../shared/words/lines";
 import { blurbOf, monthsAgo, nameOf, say, words } from "../../../shared/words/text";
 import { Head } from "../act";
 import { phoneWords } from "../phone.words";
@@ -30,7 +30,7 @@ export function News() {
         <div data-report={report.month}>
           <Head>{phoneWords("phone.news.month", { when: monthsAgo(report.month, month) })}</Head>
           <ul className="flex flex-col divide-y divide-sheet-line">
-            {tidyLines([...midMonth, ...report.lines]).map((line, index) => (
+            {tidyLines([...midMonth, ...report.lines]).map(toldUnpaid).map((line, index) => (
               <li key={`${line.key}-${String(index)}`} className={`py-1.5 text-[14px] ${line.tone === "good" ? "text-in" : line.tone === "bad" ? "text-out" : "text-text"}`}>
                 {words(line.key, line.params)}
               </li>

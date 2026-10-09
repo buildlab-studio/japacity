@@ -7,6 +7,7 @@ import { beforeEach, describe, expect, test } from "vitest";
 
 import { applyEffects, readyLife, slot, toKnown } from "../../../../../packages/sim/src/route/route.journey";
 import type { Game } from "../../../../../packages/sim/src/testing/play";
+import { abroadGame } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { words } from "../../shared/words/text";
 import { PhoneApps } from "./PhoneApps";
@@ -57,5 +58,20 @@ describe("News keeps the month's lines", () => {
     }
     // The fee is told once: by the scam, not again by the wallet.
     expect(report).not.toContain(words("line.wallet.fee-agent", { amount: scam.params.amount ?? 0 }));
+  });
+});
+
+describe("a bill missed, as News tells it", () => {
+  test("[R-WORLD-008] [R-STATUS-011] given Ada abroad holding no pounds, when a tuition instalment goes unpaid, then News says what the miss costs, not the generic hit to standing and mood", async () => {
+    const game = abroadGame();
+    const tuition = game.view().obligations.find((owed) => owed.entry === "obligation.tuition" && owed.due > 0);
+    if (tuition === undefined) throw new Error("No tuition falls due in Ada's first month abroad.");
+    game.endTurn();
+    await renderWithView(<PhoneApps onClose={() => undefined} area="Peckham" now={() => new Date(2026, 9, 8, 12, 5)} talk={null} />, game.view());
+    fireEvent.click(document.querySelector<HTMLElement>('[data-app="news"]')!);
+    const report = document.querySelector("[data-report]")?.textContent ?? "";
+    expect(report).toMatch(/withdraws you/);
+    // The content's one line for every miss is never shown as it is: each miss says its own cost.
+    expect(report).not.toContain("You could not pay");
   });
 });
