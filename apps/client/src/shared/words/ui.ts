@@ -34,6 +34,9 @@ export const uiText: Record<string, string> = {
   "ui.month.planning": "Month {month}",
   "ui.month.banked": "{banked} of {cap} months banked",
   "ui.month.slots": "{used} of {slots} things planned",
+  // While working, what is planned beside the job, counted in words (shared/words/count.ts).
+  "ui.month.working-things": "Working, and {count} things planned beside the job",
+  "ui.month.working-things.one": "Working, and {count} thing planned beside the job",
   "ui.month.end": "End month",
   "ui.month.same-again": "Same again",
   "ui.month.clear": "Clear plan",

@@ -3,6 +3,7 @@
 // whether the requirement holds: the view's `missing` list already says so.
 import type { Amount, Id, Requirement, RouteStateName } from "@japacity/sim";
 
+import { countWords } from "./count";
 import { formatBand, formatBp, formatMoney, formatNumber, playerMonth } from "./format";
 import { AGE, yearsOf } from "./quality";
 import { bandWords, hasWords, lowerFirst, nameOf, runningName, say, sayCount } from "./text";
@@ -57,11 +58,6 @@ function bandAt(quality: string, value: number): { n: number; words: string } | 
   if (words === null) return null;
   const n = [0, 1, 2, 3].find((each) => say(`ui.band.${quality}.${String(each)}`) === words);
   return n === undefined ? null : { n, words };
-}
-
-/** A count as a person says it: words up to ten, figures above. */
-function countWords(count: number): string {
-  return hasWords(`ui.count.${String(count)}`) ? say(`ui.count.${String(count)}`) : formatNumber(count);
 }
 
 /** Time in months as a person says it: "three years" when it is whole years, else "six months". */
