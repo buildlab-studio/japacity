@@ -6,7 +6,8 @@ import type { Currency, PlayerView } from "@japacity/sim";
 import { Receipt } from "lucide-react";
 
 import { useView } from "../../../authority/GameProvider";
-import { formatMoney, todayWords } from "../../../shared/words/format";
+import { formatMoney } from "../../../shared/words/format";
+import { clockWords } from "../../../shared/words/quality";
 import { hasWords, nameOf, say, sayCount } from "../../../shared/words/text";
 import { useAsk, type AskSpec } from "../act";
 import { phoneWords } from "../phone.words";
@@ -63,7 +64,8 @@ export function Bills() {
     have: haveFor(view.pockets[currency], pay),
     command: { type: "obligation/pay", obligation: bill.id, amount: pay.amount },
     done: phoneWords("phone.bills.paid"),
-    reference: todayWords().toUpperCase(),
+    // The game's own time, as the band's clock says it, never the real calendar.
+    reference: clockWords(view.qualities).toUpperCase(),
   });
   return (
     <div data-phone-app="bills">

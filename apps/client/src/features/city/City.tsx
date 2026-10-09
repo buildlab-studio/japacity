@@ -13,7 +13,7 @@ import { assetUrl, loadJson, loadManifest } from "../../shared/three/manifest";
 import { Button } from "../../shared/ui/Button";
 import { FullScreen } from "../../shared/ui/FullScreen";
 import { Sheet } from "../../shared/ui/Sheet";
-import { formatMoney, todayWords } from "../../shared/words/format";
+import { formatMoney } from "../../shared/words/format";
 import { jobCardWords } from "../../shared/words/jobs";
 import { needsWords } from "../../shared/words/requirement";
 import { blurbOf, hasWords, inMonths, nameOf, paramWords, say, words } from "../../shared/words/text";
@@ -796,7 +796,7 @@ export function City({
               : (blurbOf(activity) ?? ""),
       cost: cost === null ? null : { amount: cost.amount, currency: cost.currency },
       button: nameOf(activity),
-      ...(paper ? { reference: todayWords().toUpperCase() } : {}),
+      ...(paper ? { reference: clock.toUpperCase() } : {}),
       ...(option.allowed ? {} : { blocked: needsWords(option.missing) }),
       act: () => {
         const added = addToPlan({ activity: option.id, param: chosen ?? option.params?.[0] ?? null });

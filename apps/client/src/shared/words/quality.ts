@@ -11,6 +11,12 @@ export function yearsOf(months: number): number {
   return Math.floor(months / MONTHS_IN_YEAR);
 }
 
+/** The character's age as the band's clock says it, "23 yrs 4 mo": the game's own time (R-WORLD-002). */
+export function clockWords(qualities: readonly { id: string; value: number }[]): string {
+  const age = qualities.find((quality) => quality.id === AGE)?.value ?? 0;
+  return say("ui.world.clock", { years: yearsOf(age), months: age % MONTHS_IN_YEAR });
+}
+
 /** A value as the player reads it: a named level where content names one, years for age, the band it is in, else the number. */
 export function valueWords(id: string, value: number): string {
   if (id === AGE) return say("ui.profile.age", { years: yearsOf(value) });
