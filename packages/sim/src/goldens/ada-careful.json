@@ -1413,19 +1413,9 @@
           {
             "command": {
               "type": "offer/choose",
-              "offer": "offer-27",
-              "choice": "no",
-              "basedOn": 108
-            },
-            "tick": 24,
-            "sender": "player"
-          },
-          {
-            "command": {
-              "type": "offer/choose",
               "offer": "offer-28",
               "choice": "no",
-              "basedOn": 109
+              "basedOn": 108
             },
             "tick": 24,
             "sender": "player"
@@ -1437,7 +1427,7 @@
               "to": "NGN",
               "amount": 46271,
               "via": "bank",
-              "basedOn": 110
+              "basedOn": 109
             },
             "tick": 24,
             "sender": "player"
@@ -1449,7 +1439,7 @@
               "to": "NGN",
               "amount": 694,
               "via": "bank",
-              "basedOn": 111
+              "basedOn": 110
             },
             "tick": 24,
             "sender": "player"
@@ -1459,7 +1449,7 @@
               "type": "obligation/pay",
               "obligation": "obligation-20",
               "amount": 1119311021,
-              "basedOn": 112
+              "basedOn": 111
             },
             "tick": 24,
             "sender": "player"
@@ -1468,7 +1458,7 @@
             "command": {
               "type": "route/depart",
               "route": "route.uk-masters",
-              "basedOn": 113
+              "basedOn": 112
             },
             "tick": 24,
             "sender": "player"
@@ -1644,8 +1634,8 @@
       "v": 108,
       "banked": 24,
       "nairaBank": 1132662163,
-      "hash": "467597d9b6593d51"
+      "hash": "0a1346bffc24e9ae"
     }
   ],
-  "finalHash": "25c898286f8537c6"
+  "finalHash": "57fe4dbdc98bfdcf"
 }
