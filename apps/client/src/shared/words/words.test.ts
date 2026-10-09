@@ -134,6 +134,17 @@ describe("a job's gates in words", () => {
     for (let value = 0; value <= (content.quality["quality.portfolio"]?.max ?? 10); value += 1) expect(valueWords("quality.portfolio", value)).not.toMatch(/\d/);
     expect(valueWords("quality.portfolio", 1)).toBe(say("ui.band.quality.portfolio.0"));
   });
+
+  test("[R-TEXT-005] given every quality the player is shown, when its move is told, then it is said in words, never as a figure", () => {
+    const shown = Object.values(content.quality).filter((entry) => entry.shown && entry.id !== "quality.age-months");
+    expect(shown.length).toBeGreaterThan(8);
+    for (const entry of shown) {
+      for (const value of [entry.min, entry.max]) {
+        expect(words("line.quality.gain", { quality: entry.id, points: 1, value })).not.toMatch(/\d/);
+        expect(valueWords(entry.id, value)).not.toMatch(/\d/);
+      }
+    }
+  });
 });
 
 describe("the words the world's sheets borrow", () => {
