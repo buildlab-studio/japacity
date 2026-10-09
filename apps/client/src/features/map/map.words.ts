@@ -42,6 +42,27 @@ export const mapText: Record<string, string> = {
   "map.ride.skip": "Skip",
   "map.ride.arrived": "{place}",
 
+  // The pre-roll's one line (R-WORLD-017): the okada's rider, the keke's driver, the danfo's
+  // conductor, each in his own voice. The ride's seed picks one of six.
+  "map.ride.line.okada.1": "Where you dey go? Climb, make we move.",
+  "map.ride.line.okada.2": "Hold me well o. Pothole full this road.",
+  "map.ride.line.okada.3": "Mind your leg. The exhaust dey hot.",
+  "map.ride.line.okada.4": "This road no good today. I go pass inside street.",
+  "map.ride.line.okada.5": "My person, sit well. We go reach sharp sharp.",
+  "map.ride.line.okada.6": "Traffic don hold for bridge. I know one corner.",
+  "map.ride.line.keke.1": "Enter for back. Sit well, we dey go.",
+  "map.ride.line.keke.2": "Hold the bar o. This road no smooth.",
+  "map.ride.line.keke.3": "Na only you? I go pick two more for road.",
+  "map.ride.line.keke.4": "I no dey enter express. We go pass inside.",
+  "map.ride.line.keke.5": "Rain fit fall. If e start, pull the side cover.",
+  "map.ride.line.keke.6": "Shift small. Make your bag no touch my back.",
+  "map.ride.line.danfo.1": "Enter with your change o.",
+  "map.ride.line.danfo.2": "Hold your change. I no get small money.",
+  "map.ride.line.danfo.3": "Front seat na three. Shift small.",
+  "map.ride.line.danfo.4": "Who never pay? Hand am come.",
+  "map.ride.line.danfo.5": "Driver, carry go. Everybody don settle.",
+  "map.ride.line.danfo.6": "No pay me with that torn note o.",
+
   // District names painted on the ground, by the area slug content gives each place.
   "map.area.surulere": "Surulere",
   "map.area.yaba": "Yaba",
