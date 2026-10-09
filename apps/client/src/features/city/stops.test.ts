@@ -23,4 +23,10 @@ describe("stops the story opens", () => {
     expect(stopReached(first, "abroad", "place.airport-lagos")).toBe(true);
     expect(view.place.where).toBe("home");
   });
+
+  test("[R-WORLD-015] [R-PROLOGUE-010] given a life whose own first step is at a place its chapter has not reached, when the stops are read, then that place is open and the others its chapter holds stay not yet", () => {
+    const first = { current: "chapter.find-your-feet" as const, items: [], done: [] };
+    expect(stopReached(first, "home", "place.tb-clinic", ["place.tb-clinic"])).toBe(true);
+    expect(stopReached(first, "home", "place.visa-centre", ["place.tb-clinic"])).toBe(false);
+  });
 });

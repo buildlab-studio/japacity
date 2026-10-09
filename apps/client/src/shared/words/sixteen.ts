@@ -100,6 +100,11 @@ export function ownWayOf(view: Life & Pick<PlayerView, "chapter"> & Partial<Pick
   return null;
 }
 
+/** The stops a life reaches before its chapter opens them: the nurse's clinic, where her job is. */
+export function earlyStops(life: Life & Held): string[] {
+  return sixteenNurse(life) ? [CLINIC_WAY.place] : [];
+}
+
 /** The master's own bar on the degree's grade (route.md: second class lower), from content. */
 function gradeBar(): number {
   for (const item of content.route[MASTERS]?.checklist ?? []) {

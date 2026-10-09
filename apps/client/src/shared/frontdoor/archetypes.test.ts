@@ -7,7 +7,7 @@ import { describe, expect, test } from "vitest";
 
 import { newGame } from "../testing/fixtures";
 import { say } from "../words/text";
-import { nextStepOf, ownWayOf } from "../words/sixteen";
+import { earlyStops, nextStepOf, ownWayOf } from "../words/sixteen";
 import { answersInOrder, ARCHETYPES, type Archetype, archetypeOf, presetAnswer } from "./archetypes";
 
 const PROLOGUE = "scenario.prologue";
@@ -164,6 +164,8 @@ describe("every tile's promise is kept by the life it starts", () => {
       if (nextStepOf(view) !== "job") wrong.push(`${String(at)}: first step ${String(nextStepOf(view))}`);
       const way = ownWayOf(view);
       if (way?.place !== CLINIC || way.activity !== NURSE_JOB) wrong.push(`${String(at)}: the first step's way is ${JSON.stringify(way)}`);
+      // The clinic's stop is open to her in the first chapter, though the chapter opens it only at decision day.
+      if (!earlyStops(view).includes(CLINIC)) wrong.push(`${String(at)}: the clinic is not open to her yet`);
       game.endTurn([{ activity: "activity.meetup", param: null }]);
       if (routeState(game, "route.uk-care") === "unknown") wrong.push(`${String(at)}: the first meetup told nothing of care`);
     }
