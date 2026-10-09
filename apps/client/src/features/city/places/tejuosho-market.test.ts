@@ -4,7 +4,10 @@ import { describe, expect, test } from "vitest";
 
 import { MARKET_STALL } from "@japacity/assets-src/prop/market-stall/build";
 
+import frontRaw from "../../../../public/assets/places/tejuosho-front/place.json";
 import raw from "../../../../public/assets/places/tejuosho-market/place.json";
+import type { Act } from "../../../shared/world/contract";
+import { sceneWords } from "../scene.words";
 import { nearest, staged, stagedPlaceTests } from "./staged";
 
 const ID = "place.tejuosho-market";
@@ -40,5 +43,20 @@ describe("Tejuosho Market", () => {
     expect(at("prop_basins.glb").length).toBeGreaterThanOrEqual(2);
     const aisle = stage.people.slice(0, 8).filter(([x]) => Math.abs(x) < 2.3);
     expect(aisle.length).toBeGreaterThanOrEqual(4);
+  });
+});
+
+describe("Mummy at her stall", () => {
+  test("[R-WORLD-005] given the market's front with no ask open at the stall, when its things are read, then Mummy stands at the stall with one act to greet her, and it goes while her ask can open", () => {
+    const front = staged(frontRaw, "place.tejuosho-market").stage;
+    const things = front.things ?? [];
+    const stall = things.find((candidate) => candidate.id === "mum-stall");
+    const mummy = things.find((candidate) => candidate.id === "mummy");
+    if (stall === undefined || mummy === undefined) throw new Error("The stall or Mummy is missing.");
+    expect(mummy.at).toEqual(stall.at);
+    const greet = mummy.acts[0] as Act & { unless?: string[] };
+    expect([greet.kind, sceneWords(greet.label)]).toEqual(["plain", "Greet Mummy"]);
+    expect(greet.unless).toEqual(stall.acts.map((act) => act.stages));
+    expect(sceneWords(`${greet.label}.done`)).toMatch(/Mummy/);
   });
 });

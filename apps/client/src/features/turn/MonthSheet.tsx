@@ -10,6 +10,7 @@ import { useGame, useGameStoreIfAny, useView } from "../../authority/GameProvide
 import { slotted, slotsUsed, takesSlot } from "../../authority/store";
 import { cue } from "../../shared/sound/cues";
 import { Rejection } from "../../shared/ui/Rejection";
+import { workingPlanned } from "../../shared/words/count";
 import { lockWords } from "../../shared/words/locks";
 import { hasWords, nameOf, paramWords, say } from "../../shared/words/text";
 import { blockedBy } from "./TurnBar";
@@ -41,7 +42,9 @@ function footWords(view: PlayerView, plan: readonly (SlotPick | null)[]): string
   const used = slotsUsed(plan);
   const working = view.job.id !== null;
   if (used === 0) return turnWords(working && plan.every((pick) => pick === null) ? "turn.month.working-rest" : "ui.month.rest");
-  return turnWords(working ? "turn.month.working-slots" : "ui.month.slots", { used, slots: view.freeSlots });
+  // Working: what is planned beside the job, counted as a person says it.
+  if (working) return workingPlanned(used);
+  return turnWords("ui.month.slots", { used, slots: view.freeSlots });
 }
 
 /** A held slot as a row of the plan: "At the burial", or the lock's sentence where content has no row words. */

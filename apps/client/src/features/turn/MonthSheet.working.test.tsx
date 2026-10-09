@@ -6,6 +6,7 @@ import { slot } from "../../../../../packages/sim/src/route/route.journey";
 import { engineView, newGame } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { MonthSheet } from "./MonthSheet";
+import { workingPlanned } from "../../shared/words/count";
 import { turnWords } from "./turn.words";
 
 function footer(): string {
@@ -41,8 +42,9 @@ describe("the Month sheet's footer", () => {
     const planned = view.activities.find((option) => option.allowed && option.params === null && option.id !== "activity.rest");
     if (planned === undefined) throw new Error("Nothing to plan beside the job.");
     act(() => store.getState().setSlot(0, { activity: planned.id, param: null }));
-    expect(footer()).toContain(turnWords("turn.month.working-slots", { used: 1, slots: view.freeSlots }));
-    expect(turnWords("turn.month.working-slots", { used: 1, slots: 2 })).toBe("Working. 1 of 2 things planned beside the job");
+    expect(footer()).toContain(workingPlanned(1));
+    expect(workingPlanned(1)).toBe("Working, and one thing planned beside the job");
+    expect(workingPlanned(2)).toBe("Working, and two things planned beside the job");
     // The job is said, not counted: the 2 is the time beside it.
     expect(view.freeSlots).toBe(2);
   });
