@@ -193,8 +193,9 @@ export const cityText: Record<string, string> = {
   "city.thing.chair": "Chair",
   "city.act.look-inverter": "Look",
   "city.act.look-inverter.done": "The inverter hums by the wall, its light green. When NEPA takes light, it is the reason the room stays full.",
-  "city.act.look-window": "Look out",
-  "city.act.look-window.done": "Yaba below the window: danfos nose to tail, and a boy selling recharge cards to the traffic.",
+  "city.thing.notices": "Notices",
+  "city.act.read-notices": "Read",
+  "city.act.read-notices.done": "Desks by the day, light and data included. Under it, in red marker: no sleeping on the benches.",
   // The streets abroad (docs/rules/streets.md R-STREET-005, 006): shopping at the grocer and the spice stall, and a find while one is open.
   "city.act.shop": "Shop",
   "city.act.street-find": "See what's on",
