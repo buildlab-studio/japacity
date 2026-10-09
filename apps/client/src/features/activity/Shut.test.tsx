@@ -45,6 +45,9 @@ describe("a shut button's reason", () => {
     expect(said.startsWith(`Short by ${short}:`)).toBe(true);
     // Only the one figure is short on the card.
     expect(card?.textContent?.match(/₦[\d,]+ short|Short by ₦[\d,]+/g)?.every((match) => match.includes(short))).toBe(true);
+    // The transcript asked for once this month is not offered again with a figure left.
+    expect(addButton(TRANSCRIPT).disabled).toBe(true);
+    expect(buttonLine(TRANSCRIPT)).toBe(say("ui.needs.planned"));
   });
 
   test("[R-WORLD-006] given no passport, when the English test's card shows, then its button is shut and says it needs the passport first", async () => {

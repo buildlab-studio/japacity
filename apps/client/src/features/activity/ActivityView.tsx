@@ -226,6 +226,15 @@ function afterWords(paying: AfterPaying): string {
   return paying.short === null ? say("ui.world.left", { amount: formatMoney(paying.left.amount, paying.left.currency) }) : say("ui.world.short", { amount: formatMoney(paying.short.amount, paying.short.currency) });
 }
 
+/**
+ * True when a paper's request is already in the month's plan: it asks that the paper not be held
+ * or on its way, so a second request in the same month would ask for what the first already asks.
+ */
+function plannedOnce(option: ActivityOption, plan: readonly (SlotPick | null)[], param: string): boolean {
+  const once = content.activity[option.id]?.requires.some((requirement) => requirement.type === "document/absent") === true;
+  return once && plan.some((pick) => pick !== null && pick.activity === option.id && (pick.param ?? "") === param);
+}
+
 /** Why an activity with a choice inside it has nothing to choose yet, in a few words for its button. */
 function nothingToPickWords(option: ActivityOption): string {
   const param = content.activity[option.id]?.param;
@@ -239,7 +248,8 @@ function nothingToPickWords(option: ActivityOption): string {
  * first when it is not allowed, how much is short when it cannot be paid, the engine's no when the
  * screen sees no gap, else what is left after.
  */
-function buttonLine(option: ActivityOption, paying: AfterPaying | null, view: PlayerView): { words: string; kind: "needs" | "short" | "left" } | null {
+function buttonLine(option: ActivityOption, paying: AfterPaying | null, view: PlayerView, planned: boolean): { words: string; kind: "needs" | "short" | "left" | "planned" } | null {
+  if (planned) return { words: say("ui.needs.planned"), kind: "planned" };
   if (!option.allowed) return { words: option.missing.length > 0 ? needsWords(option.missing, { routes: view.routes }) : nothingToPickWords(option), kind: "needs" };
   if (paying !== null && paying.short !== null) return { words: afterWords(paying), kind: "short" };
   if (!option.affordable) return { words: say("ui.needs.money"), kind: "short" };
@@ -261,9 +271,10 @@ function ActivityCard({ option }: { option: ActivityOption }) {
   // R-WORLD-006: what is left after, counting what the month already pays for; a cost that cannot be paid shuts the button.
   const planned = plannedCosts(view, plan);
   const paying = option.cost.length === 0 ? null : afterPaying(view, planned, option.cost);
-  const canAdd = option.allowed && option.affordable && (paying === null || paying.short === null) && !full && !ended && (!needsParam || chosenParam !== "");
-  const line = buttonLine(option, paying, view);
-  const cannotPay = option.allowed && (!option.affordable || (paying !== null && paying.short !== null));
+  const already = plannedOnce(option, plan, chosenParam);
+  const canAdd = option.allowed && option.affordable && (paying === null || paying.short === null) && !full && !ended && !already && (!needsParam || chosenParam !== "");
+  const line = buttonLine(option, paying, view, already);
+  const cannotPay = option.allowed && !already && (!option.affordable || (paying !== null && paying.short !== null));
   const selectId = `param-${option.id}`;
 
   return (
