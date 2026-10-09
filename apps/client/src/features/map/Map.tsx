@@ -11,7 +11,8 @@ import { CityMap } from "./CityMap";
 import { Countries } from "./Countries";
 import { mapWords } from "./map.words";
 import { type MapPin, rideChoices } from "./pins";
-import { Ride } from "./Ride";
+import { personOfLook } from "../city/roster";
+import { FALLBACK_OWN, preloadRide, Ride } from "./Ride";
 import { headingOf, RideSheet } from "./RideSheet";
 
 export interface MapProps {
@@ -89,6 +90,12 @@ export function Map({ pins, country, countries, drawing, diveTo = null, diveBy =
     start(choice, to, choice.id);
   };
 
+  // The character as the city shows them (City.tsx), and a seed so the same ride says the same line.
+  const own = personOfLook(`chr_${view.scenario.slice("scenario.".length)}`)?.file ?? FALLBACK_OWN;
+  useEffect(() => {
+    if (drawing) preloadRide(own);
+  }, [drawing, own]);
+
   const ridingTo = riding === null ? null : (stable.find((candidate) => candidate.id === riding.id) ?? null);
 
   return (
@@ -128,6 +135,8 @@ export function Map({ pins, country, countries, drawing, diveTo = null, diveBy =
           way={riding.way}
           place={ridingTo === null ? "" : headingOf(ridingTo.name)}
           drawing={drawing}
+          own={own}
+          seed={seedOf(`${riding.id}:${String(view.month)}`)}
           onDone={() => {
             const id = riding.id;
             setRiding(null);
@@ -137,6 +146,13 @@ export function Map({ pins, country, countries, drawing, diveTo = null, diveBy =
       )}
     </div>
   );
+}
+
+/** A small whole number from a string, the same every time. */
+function seedOf(key: string): number {
+  let hash = 0;
+  for (let index = 0; index < key.length; index += 1) hash = (hash * 31 + key.charCodeAt(index)) % 1000003;
+  return hash;
 }
 
 function dotClass(state: MapPin["state"], home: boolean): string {

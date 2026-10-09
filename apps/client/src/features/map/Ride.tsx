@@ -1,156 +1,90 @@
-// The ride (docs/rules/world.md R-WORLD-017): a short scene seen from above, about six seconds, of
-// the way chosen going along a road with buildings passing, under a band with "Danfo to <place>",
-// its progress, and Skip. When it ends the place opens. The same ride plays from the map and from a
-// danfo, keke or okada standing in a place.
-import { palette } from "@japacity/assets";
+// The ride (docs/rules/world.md R-WORLD-017): about six seconds under a band with "Danfo to
+// <place>", its progress, and Skip. By danfo, keke or okada it opens on a short pre-roll close to
+// the vehicle with the rider's, driver's or conductor's line as a chip, then the street from above
+// (rideScene.ts). Skip ends it all at once. When it ends the place opens. The same ride plays from
+// the map and from a danfo, keke or okada standing in a place.
 import { useEffect, useRef, useState } from "react";
 
-import { mountCanvas } from "../../shared/three/sharedRenderer";
-import {
-  BoxGeometry,
-  Color,
-  DirectionalLight,
-  Fog,
-  Group,
-  HemisphereLight,
-  IcosahedronGeometry,
-  InstancedMesh,
-  Mesh,
-  MeshLambertMaterial,
-  Object3D,
-  PerspectiveCamera,
-  PlaneGeometry,
-  Scene,
-  WebGLRenderer,
-} from "three";
-
+import { graphicsMode } from "../../shared/graphics/mode";
 import { loadModel } from "../../shared/three/load";
 import { loadManifest } from "../../shared/three/manifest";
-import type { RideChoice } from "../../shared/world/contract";
+import { mountCanvas } from "../../shared/three/sharedRenderer";
 import { mapWords } from "./map.words";
-import { sequence } from "./layout";
+import { buildRide, figuresOn, peopleOf, type Phase, preMsOf, RIDE_MS, type RideScene, type Role, type Way } from "./rideScene";
 
-/** How long a ride plays: about six seconds (R-WORLD-017). */
-export const RIDE_MS = 6000;
-/** Metres the vehicle covers in a ride; the street is laid out a little longer. */
-const TRAVEL = 150;
-const STREET = 240;
+export { PRE_MS, RIDE_MS } from "./rideScene";
+
+/** The look the city falls back to when the life's own person is not shipped (City.tsx). */
+export const FALLBACK_OWN = "shared/chr/chr_tunde.glb";
+
+/** Lines each speaker may say in the pre-roll, picked by the ride's seed (map.words.ts). */
+export const LINES = 6;
+
+/** What the browser test and the shooter read while a ride plays. */
+export interface RideProbe {
+  way: Way;
+  phase: Phase;
+  /** The key of the line in the chip, or null when none shows. */
+  line: string | null;
+  /** The figure groups on the vehicle now, by role (each counted from the start, before its model arrives). */
+  figures: Role[];
+  /** How many of those have their person's model in. */
+  loaded: number;
+  preMs: number;
+  /** The renderer's own count of the last frame. */
+  drawCalls: number;
+  triangles: number;
+  /** Milliseconds between frames, the last ones drawn, by phase. */
+  frameMs: Record<Phase, number[]>;
+}
+
+declare global {
+  interface Window {
+    __ride?: RideProbe;
+  }
+}
 
 export interface RideProps {
-  way: RideChoice["id"];
+  way: Way;
   /** The place's name, as the band says it. */
   place: string;
   drawing: boolean;
+  /** The character's own person file, as the city shows them. */
+  own?: string;
+  /** Picks the line in the pre-roll, so the same ride says the same thing. */
+  seed?: number;
   /** The ride is over, played out or skipped. Called once. */
   onDone: () => void;
 }
 
-interface Street {
-  renderer: WebGLRenderer;
-  scene: Scene;
-  camera: PerspectiveCamera;
-  vehicle: Group;
-  dispose: () => void;
+/** The key of the line said in a way's pre-roll: the okada's rider, the keke's driver, the danfo's conductor; none on foot. */
+export function lineOf(way: Way, seed: number): string | null {
+  if (way === "walk") return null;
+  return `map.ride.line.${way}.${String((Math.abs(Math.trunc(seed)) % LINES) + 1)}`;
 }
 
-/** A plain box in the way's colour, until the real model arrives (or where it cannot); on foot, a body-sized one that stays. */
-function standIn(way: RideChoice["id"]): Mesh {
-  const size = way === "danfo" ? [2.1, 2.2, 5.2] : way === "keke" ? [1.4, 1.7, 2.6] : way === "walk" ? [0.5, 1.7, 0.4] : [0.7, 1.3, 1.9];
-  const mesh = new Mesh(new BoxGeometry(size[0], size[1], size[2]), new MeshLambertMaterial({ color: way === "okada" ? palette.red : way === "walk" ? palette.charcoal : palette.danfoYellow }));
-  mesh.position.y = (size[1] ?? 1) / 2;
-  return mesh;
+/** Fetches the people and vehicle a ride may show, so its pre-roll does not open on an empty seat. */
+export function preloadRide(own: string): void {
+  void loadManifest()
+    .then((manifest) => {
+      const files = new Set<string>();
+      for (const way of ["danfo", "keke", "okada"] as const) {
+        files.add(`shared/veh/veh_${way}.glb`);
+        for (const file of Object.values(peopleOf(way, own))) files.add(file);
+      }
+      for (const file of files) void loadModel(manifest, file, () => undefined).catch(() => undefined);
+    })
+    .catch(() => undefined);
 }
 
-/** The street the ride goes along: a road, its markings, buildings each side and a few trees. */
-function buildStreet(renderer: WebGLRenderer, way: RideChoice["id"]): Street {
-  const scene = new Scene();
-  const air = new Color(palette.sky);
-  scene.background = air;
-  scene.fog = new Fog(air, 60, 140);
-  scene.add(new HemisphereLight(0xffffff, new Color(palette.sand), 1.8));
-  const sun = new DirectionalLight(0xfff0d0, 1.5);
-  sun.position.set(-20, 40, 10);
-  scene.add(sun);
-  const camera = new PerspectiveCamera(42, 1, 0.5, 400);
-  const disposables: { dispose: () => void }[] = [];
-  const keep = <T extends { dispose: () => void }>(thing: T): T => {
-    disposables.push(thing);
-    return thing;
-  };
+const FRAMES_KEPT = 240;
 
-  const ground = new Mesh(keep(new PlaneGeometry(80, STREET + 60)), keep(new MeshLambertMaterial({ color: palette.laterite })));
-  ground.rotation.x = -Math.PI / 2;
-  ground.position.z = -STREET / 2 + 20;
-  scene.add(ground);
-  const road = new Mesh(keep(new PlaneGeometry(8, STREET + 60)), keep(new MeshLambertMaterial({ color: palette.asphalt })));
-  road.rotation.x = -Math.PI / 2;
-  road.position.set(0, 0.03, -STREET / 2 + 20);
-  scene.add(road);
-
-  const holder = new Object3D();
-  const marks = new InstancedMesh(keep(new BoxGeometry(0.25, 0.04, 2.4)), keep(new MeshLambertMaterial({ color: palette.marking })), Math.ceil(STREET / 6));
-  for (let index = 0; index < marks.count; index += 1) {
-    holder.position.set(0, 0.06, 20 - index * 6);
-    holder.updateMatrix();
-    marks.setMatrixAt(index, holder.matrix);
-  }
-  scene.add(marks);
-
-  // Buildings both sides in two colours of wall, so the street passes in two draw calls.
-  const next = sequence(17);
-  const box = keep(new BoxGeometry(1, 1, 1));
-  box.translate(0, 0.5, 0);
-  const walls = [palette.wallCream, palette.wallPeach];
-  const lots: { x: number; z: number; w: number; d: number; h: number }[][] = [[], []];
-  for (const side of [-1, 1]) {
-    for (let z = 20; z > -STREET; z -= 7 + next() * 3) {
-      const w = 5 + next() * 4;
-      lots[next() < 0.5 ? 0 : 1]?.push({ x: side * (6.5 + w / 2), z, w, d: 5 + next() * 2, h: 3 + next() * 7 });
-    }
-  }
-  lots.forEach((group, colour) => {
-    const mesh = new InstancedMesh(box, keep(new MeshLambertMaterial({ color: walls[colour] ?? palette.wallCream })), group.length);
-    group.forEach((lot, index) => {
-      holder.position.set(lot.x, 0, lot.z);
-      holder.scale.set(lot.w, lot.h, lot.d);
-      holder.updateMatrix();
-      mesh.setMatrixAt(index, holder.matrix);
-    });
-    scene.add(mesh);
-  });
-  const trees = new InstancedMesh(keep(new IcosahedronGeometry(1.4, 0)), keep(new MeshLambertMaterial({ color: palette.green, flatShading: true })), 24);
-  for (let index = 0; index < trees.count; index += 1) {
-    holder.position.set((index % 2 === 0 ? -1 : 1) * 4.9, 2.2, 10 - index * 10 - next() * 4);
-    holder.scale.setScalar(0.8 + next() * 0.5);
-    holder.updateMatrix();
-    trees.setMatrixAt(index, holder.matrix);
-  }
-  scene.add(trees);
-
-  const vehicle = new Group();
-  const stand = standIn(way);
-  vehicle.add(stand);
-  vehicle.position.x = 1.8;
-  scene.add(vehicle);
-
-  return {
-    renderer,
-    scene,
-    camera,
-    vehicle,
-    dispose: () => {
-      for (const thing of disposables) thing.dispose();
-      stand.geometry.dispose();
-      (stand.material as MeshLambertMaterial).dispose();
-      // The renderer is shared across rides and kept (sharedRenderer.ts).
-    },
-  };
-}
-
-export function Ride({ way, place, drawing, onDone }: RideProps) {
+export function Ride({ way, place, drawing, own = FALLBACK_OWN, seed = 0, onDone }: RideProps) {
   const box = useRef<HTMLDivElement>(null);
   const done = useRef(false);
   const [started, setStarted] = useState(false);
+  const pre = preMsOf(way);
+  const [phase, setPhase] = useState<Phase>(pre > 0 ? "pre" : "ride");
   const finish = useRef(onDone);
   finish.current = onDone;
   const end = (): void => {
@@ -158,67 +92,101 @@ export function Ride({ way, place, drawing, onDone }: RideProps) {
     done.current = true;
     finish.current();
   };
+  const line = phase === "pre" ? lineOf(way, seed) : null;
 
-  // The ride ends by itself after its time; Skip ends it at once.
+  // The ride ends by itself after its time; Skip ends it at once. The pre-roll gives way to the street.
   useEffect(() => {
     const timer = window.setTimeout(end, RIDE_MS);
     const start = window.setTimeout(() => setStarted(true), 30);
+    const cut = pre > 0 ? window.setTimeout(() => setPhase("ride"), pre) : 0;
     return () => {
       window.clearTimeout(timer);
       window.clearTimeout(start);
+      window.clearTimeout(cut);
     };
   }, []);
 
+  // The scene is built whether or not it draws, so the probe can say who is on the vehicle.
+  const [ride, setRide] = useState<RideScene | null>(null);
+  const probe = useRef<RideProbe>({ way, phase, line, figures: [], loaded: 0, preMs: pre, drawCalls: 0, triangles: 0, frameMs: { pre: [], ride: [] } });
   useEffect(() => {
-    if (!drawing || box.current === null) return;
+    const built = buildRide(way);
+    setRide(built);
+    const held = probe.current;
+    window.__ride = held;
+    return () => {
+      if (window.__ride === held) delete window.__ride;
+      built.dispose();
+    };
+  }, [way]);
+  useEffect(() => {
+    if (ride === null) return;
+    ride.setPhase(phase);
+    Object.assign(probe.current, { phase, line, figures: figuresOn(ride) });
+  }, [phase, line, ride]);
+
+  useEffect(() => {
+    if (!drawing || box.current === null || ride === null) return;
     const { canvas: element, renderer, unmount } = mountCanvas("ride", box.current, "size-full");
-    const street = buildStreet(renderer, way);
+    // Phones first: the low mode draws at one pixel to the pixel and casts no shadows.
+    renderer.setPixelRatio(graphicsMode() === "low" ? 1 : Math.min(window.devicePixelRatio, 2));
+    renderer.shadowMap.enabled = false;
     let alive = true;
-    // The real vehicle replaces the stand-in when it has loaded; it is shared and kept loaded.
-    if (way !== "walk") void loadManifest()
-      .then((manifest) => loadModel(manifest, `shared/veh/veh_${way}.glb`, () => undefined))
-      .then((model) => {
-        if (!alive) return;
-        street.vehicle.clear();
-        const copy = model.clone();
-        copy.rotation.y = Math.PI;
-        street.vehicle.add(copy);
+    // The real vehicle and people replace their stand-ins as they load; all are shared and kept loaded.
+    void loadManifest()
+      .then((manifest) => {
+        if (way !== "walk") {
+          void loadModel(manifest, `shared/veh/veh_${way}.glb`, () => undefined)
+            .then((model) => {
+              if (!alive) return;
+              ride.setVehicle(model.clone());
+            })
+            .catch(() => undefined);
+        }
+        for (const [role, file] of Object.entries(peopleOf(way, own)) as [Role, string][]) {
+          void loadModel(manifest, file, () => undefined)
+            .then((model) => {
+              if (!alive) return;
+              ride.setPerson(role, model);
+              probe.current.loaded = ride.seats.filter((seat) => seat.figure !== null).length;
+            })
+            .catch(() => undefined);
+        }
       })
       .catch(() => undefined);
     const resize = (): void => {
-      street.renderer.setSize(element.clientWidth, element.clientHeight, false);
-      street.camera.aspect = element.clientWidth / Math.max(1, element.clientHeight);
-      street.camera.updateProjectionMatrix();
+      renderer.setSize(element.clientWidth, element.clientHeight, false);
     };
     resize();
     window.addEventListener("resize", resize);
     const began = performance.now();
+    let last = began;
     let frame = 0;
     const loop = (now: number): void => {
       frame = requestAnimationFrame(loop);
-      const share = Math.min(1, (now - began) / RIDE_MS);
-      // Pull away, cruise, and slow into the stop.
-      const eased = share < 0.15 ? (share * share) / 0.3 : share > 0.85 ? 1 - ((1 - share) * (1 - share)) / 0.3 : share - 0.075;
-      const z = -eased * TRAVEL;
-      street.vehicle.position.z = z;
-      street.vehicle.position.y = Math.abs(Math.sin(now / 90)) * 0.05;
-      street.camera.position.set(8, 34, z + 18);
-      street.camera.lookAt(0, 0, z - 10);
-      street.renderer.render(street.scene, street.camera);
+      const elapsed = now - began;
+      ride.frame(elapsed, element.clientWidth / Math.max(1, element.clientHeight));
+      renderer.render(ride.scene, ride.camera);
+      const held = probe.current;
+      held.drawCalls = renderer.info.render.calls;
+      held.triangles = renderer.info.render.triangles;
+      const kept = held.frameMs[elapsed < pre ? "pre" : "ride"];
+      kept.push(now - last);
+      if (kept.length > FRAMES_KEPT) kept.shift();
+      last = now;
     };
     frame = requestAnimationFrame(loop);
     return () => {
       alive = false;
       cancelAnimationFrame(frame);
       window.removeEventListener("resize", resize);
-      street.dispose();
       unmount();
     };
-  }, [drawing, way]);
+  }, [drawing, way, own, ride, pre]);
 
   const title = mapWords("map.ride.to", { way: mapWords(`map.way.${way}`), place });
   return (
-    <div className="fade fixed inset-0 z-[46] bg-strong" data-ride={way} aria-live="polite">
+    <div className="fade fixed inset-0 z-[46] bg-strong" data-ride={way} data-ride-phase={phase} aria-live="polite">
       {drawing ? <div ref={box} className="size-full" aria-hidden /> : null}
       <div className="pointer-events-none absolute inset-x-0 top-0 px-3 pt-[max(10px,env(safe-area-inset-top))]">
         <div className="band pointer-events-auto flex items-center gap-3 rounded-[6px] px-3 py-2.5 shadow-[0_10px_24px_rgba(10,14,30,0.35)]">
@@ -235,6 +203,11 @@ export function Ride({ way, place, drawing, onDone }: RideProps) {
           </button>
         </div>
       </div>
+      {line === null ? null : (
+        <p className="chip fade pointer-events-none absolute inset-x-6 bottom-[max(28px,env(safe-area-inset-bottom))] mx-auto w-fit max-w-[calc(100%-48px)] px-3.5 py-2.5 text-center text-[15px] leading-snug font-semibold" data-ride-line={line}>
+          {mapWords(line)}
+        </p>
+      )}
     </div>
   );
 }
