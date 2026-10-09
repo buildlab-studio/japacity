@@ -63,14 +63,15 @@ export function walkSpot(stage: Pick<Stage, "models">, thing: Pick<Thing, "file"
 }
 
 /**
- * Whether an act's entry has something to open now (R-WORLD-005): an activity the view offers and the
- * place stages, an offer that is open, the set piece that is asking; a chapter's step always does.
+ * Whether an act's entry has something to open now (R-WORLD-005): an activity the view allows and the
+ * place stages, an offer that is open, the set piece that is asking, the chapter in hand.
  */
-export function stagedNow(offered: ReadonlySet<string>, staged: ReadonlySet<string>, openOffers: ReadonlySet<string>, setpiece: string | null): (stages: string) => boolean {
+export function stagedNow(offered: ReadonlySet<string>, staged: ReadonlySet<string>, openOffers: ReadonlySet<string>, setpiece: string | null, chapter: string | null = null): (stages: string) => boolean {
   return (stages) => {
     if (stages.startsWith("activity.")) return offered.has(stages) && staged.has(stages);
     if (stages.startsWith("offer.")) return openOffers.has(stages);
     if (stages.startsWith("setpiece.")) return stages === setpiece;
+    if (stages.startsWith("chapter.")) return stages === chapter;
     return true;
   };
 }

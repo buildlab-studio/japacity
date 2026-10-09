@@ -80,8 +80,8 @@ describe("a third act on a sheet", () => {
 });
 
 describe("what an act can open now", () => {
-  test("[R-WORLD-005] given the view's offered activities, the open offers and the set piece asking, when a thing's acts are read, then an activity stays while offered and staged, an offer while open, the set piece while asking, and a chapter's step always", () => {
-    const now = stagedNow(new Set(["activity.play-lotto"]), new Set(["activity.play-lotto", "activity.rest"]), new Set(["offer.nepa-bill"]), "setpiece.december");
+  test("[R-WORLD-005] given the view's offered activities, the open offers and the set piece asking, when a thing's acts are read, then an activity stays while offered and staged, an offer while open, the set piece while asking, and the chapter in hand", () => {
+    const now = stagedNow(new Set(["activity.play-lotto"]), new Set(["activity.play-lotto", "activity.rest"]), new Set(["offer.nepa-bill"]), "setpiece.december", "chapter.find-your-feet");
     expect(now("activity.play-lotto")).toBe(true);
     expect(now("activity.rest")).toBe(false);
     expect(now("offer.nepa-bill")).toBe(true);
@@ -89,6 +89,7 @@ describe("what an act can open now", () => {
     expect(now("setpiece.december")).toBe(true);
     expect(now("setpiece.road-night")).toBe(false);
     expect(now("chapter.find-your-feet")).toBe(true);
+    expect(now("chapter.send-off")).toBe(false);
   });
 });
 

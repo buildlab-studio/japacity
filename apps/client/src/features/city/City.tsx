@@ -62,8 +62,19 @@ function minutesBetween(from: { latE3: number; lonE3: number }, to: { latE3: num
 const ROAM = (city as Partial<Record<"roam", boolean>>).roam ?? false;
 /** The home of each where: the family house, then the room abroad. */
 const HOMES: Record<string, string> = { home: "place.family-house", abroad: "place.the-room" };
+/**
+ * The places whose files are the old page's, kept switched off (R-WORLD-024) until each is rebuilt
+ * as a world-first place: the map shows only built places, and nothing with nothing to do (PENDING P25).
+ */
+const OLD_FILES = new Set(["place.computer-village", "place.national-stadium", "place.third-mainland-bridge", "place.peckham", "place.deira"]);
 /** A room that is a place of its own on the map, and the street its door opens onto: the hub's file names it as its inside (R-WORLD-013). */
 const OUTSIDE_OF: Record<string, string> = { "place.yaba": "place.ojuelegba" };
+/** The middle of an area's positioned places, for a built place that content gives no position of its own. */
+function areaSpot(area: string): { latE3: number; lonE3: number } | null {
+  const spots = PLACES.filter((place) => place.area === area && place.position !== null).map((place) => place.position as { latE3: number; lonE3: number });
+  if (spots.length === 0) return null;
+  return { latE3: Math.round(spots.reduce((sum, spot) => sum + spot.latE3, 0) / spots.length), lonE3: Math.round(spots.reduce((sum, spot) => sum + spot.lonE3, 0) / spots.length) };
+}
 /** The family house stands on a made-up street (city.md), so the map gives it a spot in Surulere near the hub. */
 const HOME_SPOT = { latE3: 6507, lonE3: 3359 };
 /** The countries the map can show, with why the others are shut, until the view says more. */
@@ -303,7 +314,7 @@ export function City({
     let alive = true;
     void loadManifest()
       .then((manifest) => {
-        if (alive) setShipped(new Set(PLACES.filter((place) => assetUrl(manifest, `places/${place.assets}/place.json`) !== null).map((place) => place.id)));
+        if (alive) setShipped(new Set(PLACES.filter((place) => !OLD_FILES.has(place.id) && assetUrl(manifest, `places/${place.assets}/place.json`) !== null).map((place) => place.id)));
       })
       .catch(() => {
         if (alive) setShipped(new Set());
@@ -418,15 +429,16 @@ export function City({
   };
 
   // The things here and the acts the view allows now: an activity's act only while the view offers it here (R-WORLD-005).
-  const activityKey = view.activities.map((option) => option.id).join("|");
+  const activityKey = view.activities.filter((option) => option.allowed).map((option) => option.id).join("|");
+  const chapterNow = view.chapter.current;
   const offersKey = view.offers.map((offer) => offer.entry).join("|");
   const setpieceEntry = view.setpiece?.entry ?? null;
   const things = useMemo(() => {
     if (!world || file === null) return undefined;
     const offered = new Set(activityKey.split("|"));
     const staged = new Set<string>([...(entry?.stages ?? []), ...(insideEntry?.stages ?? [])]);
-    return thingsNow(thingsOf(stageOf(file)), stagedNow(offered, staged, new Set(offersKey.split("|")), setpieceEntry));
-  }, [world, file, activityKey, entry, insideEntry, offersKey, setpieceEntry]);
+    return thingsNow(thingsOf(stageOf(file)), stagedNow(offered, staged, new Set(offersKey.split("|")), setpieceEntry, chapterNow));
+  }, [world, file, activityKey, entry, insideEntry, offersKey, setpieceEntry, chapterNow]);
   // What the scene reports: a thing chosen shows its acts; an act becomes the sheet, the ride, the cut in or the cut out it stands for.
   // An act lands once the character has walked to its thing (R-WORLD-010); one that lands under a sheet, the phone, the map or the results is dropped.
   const readPick = (scenePick: ScenePick): void => {
@@ -494,6 +506,8 @@ export function City({
       const outside = OUTSIDE_OF[placeId];
       if (inside) cutTo(() => setInside(false));
       else if (outside !== undefined) cutTo(() => setPlaceId(outside));
+      // A room with no street of its own (the arrivals hall): the door opens the map.
+      else setMap(true);
     }
     // The cut reads the latest state when it fires; only a new pick starts one.
   }, [picked]);
@@ -501,11 +515,22 @@ export function City({
     if (!world) return [];
     const been = readKept(BEEN_KEY);
     const home = HOMES[where] ?? null;
+    // A built place with no position of its own (an office or a clinic known by its area) stands at its area's middle, each a little apart.
+    const spotted = new Map<string, number>();
+    const spotOf = (place: PlaceEntry): { latE3: number; lonE3: number } => {
+      if (place.position !== null) return place.position;
+      if (place.id === home) return HOME_SPOT;
+      const area = place.area ?? "";
+      const index = spotted.get(area) ?? 0;
+      spotted.set(area, index + 1);
+      const middle = areaSpot(area) ?? HOME_SPOT;
+      return { latE3: middle.latE3 + (index % 2 === 0 ? 2 : -2) * Math.ceil(index / 2), lonE3: middle.lonE3 + 3 * index };
+    };
     return places
-      .filter((place) => (place.position !== null || place.id === home) && (shipped === null || shipped.has(place.id) || place.id === home))
+      .filter((place) => (place.position !== null || place.id === home || (place.area !== null && shipped?.has(place.id) === true)) && (shipped === null || shipped.has(place.id) || place.id === home))
       .map((place) => {
         const state: PinState = place.id === placeId ? "here" : place.id === home ? "home" : been.includes(place.id) ? "been" : shipped === null || shipped.has(place.id) ? "can" : "not";
-        return { id: place.id, name: placeName(place.id), state, position: place.position ?? HOME_SPOT, things: place.stages.length };
+        return { id: place.id, name: placeName(place.id), state, position: spotOf(place), things: place.stages.length };
       });
   })();
   // At home the map is Lagos; abroad it is the country the character is in. The rest are shut until a visa opens them.
