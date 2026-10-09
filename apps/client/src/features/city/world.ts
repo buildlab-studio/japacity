@@ -297,10 +297,10 @@ export function buildWorld(stage: Stage, models: ReadonlyMap<string, Object3D>, 
     if (loaded === undefined || model.at.length === 0) continue;
     const copies = model.signs === undefined ? instanceModel(loaded, model.at, model.file) : buildingCopies(loaded, model.at, model.signs, model.file, text);
     if (model.signs === undefined) copies.userData = { file: model.file, signs: findSignAnchors(loaded).map((anchor) => anchor.key) };
-    if (model.bob === true) rideWater(copies);
     copies.traverse((object) => {
       object.castShadow = settings.shadows && castsShadow(model.file);
     });
+    if (model.bob === true || model.glide !== undefined) rideWater(copies, model.glide);
     root.add(copies);
   }
   const crowd: Placed[] = [];

@@ -34,7 +34,7 @@ const probe = (page: Page) => page.evaluate(() => {
 });
 
 /** The places built with models that a new life at home can reach, by id. */
-const BUILT_AT_HOME = ["place.family-house", "place.ojuelegba", "place.bode-thomas", "place.tejuosho-market", "place.computer-village", "place.national-stadium", "place.third-mainland-bridge", "place.airport-lagos"];
+const BUILT_AT_HOME = ["place.family-house", "place.ojuelegba", "place.bode-thomas", "place.tejuosho-market", "place.computer-village", "place.national-stadium", "place.third-mainland-bridge", "place.makoko", "place.airport-lagos"];
 
 /** The people a place may show besides the player's own character (R-WORLD-011). */
 const CROWD = { exterior: { low: 6, high: 10 }, interior: { low: 4, high: 6 } } as const;

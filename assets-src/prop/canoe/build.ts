@@ -14,9 +14,8 @@ export const CANOE_SEAT = { stern: -0.4, bow: 0.7 } as const;
 
 const STATIONS = 10;
 
-export function buildCanoe(): Group {
-  const g = new Group();
-  const random = seeded(31);
+/** The hull alone, its painted bands and its two thwarts, in the frame `buildCanoe` builds in: the canoe's other loads start from it. */
+export function canoeHull(g: Group): void {
   const { length, beam: width, depth } = CANOE;
   // The hull as rings of four points along its length: the beam narrows to a point at each end and the sheer rises there.
   const rings: Vec3[][] = [];
@@ -63,8 +62,15 @@ export function buildCanoe(): Group {
       solid(g, band, side < 0 ? [[0, 3, 2, 1]] : [[0, 1, 2, 3]], i % 2 === 0 ? "red" : "white");
     }
   }
-  // Two thwarts, the paddle laid across them, a heap of net, a bailing bowl and a jerrycan.
   for (const z of [-1.3, 1.1]) box(g, width * 0.85, 0.04, 0.22, 0, depth - 0.08, z, "wood");
+}
+
+export function buildCanoe(): Group {
+  const g = new Group();
+  const random = seeded(31);
+  const { length, beam: width, depth } = CANOE;
+  canoeHull(g);
+  // The paddle laid across the thwarts, a heap of net, a bailing bowl and a jerrycan.
   box(g, 0.12, 0.03, 1.8, 0.15, depth - 0.02, 0.1, "darkWood", 0.2);
   box(g, 0.18, 0.03, 0.42, 0.33, depth - 0.02, -0.95, "darkWood", 0.2);
   for (let i = 0; i < 4; i++) lump(g, 0.14, -0.08 + random() * 0.16, 0.2, 1.5 + random() * 0.35, i % 2 === 0 ? "teal" : "khaki", [1.2, 0.6, 1.1]);
