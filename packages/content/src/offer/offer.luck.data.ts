@@ -90,7 +90,10 @@ export const luckOfferTable: Record<Id<"offer">, OfferEntry> = {
     onExpire: "ignore",
   },
 
-  // R-LUCK-010: a relative abroad sends $500 to the dollar bank pocket, a gift, flagged.
+  // R-LUCK-010: a relative abroad sends $500 to the dollar bank pocket, a gift, flagged. The sixth review
+  // gives the risk a way round, said before it is taken: asked for through her bank with a note, the
+  // gift is documented and not flagged. the brief has it land a month later; no effect credits
+  // money a month on, so it lands now.
   "offer.relative-sends": {
     id: "offer.relative-sends",
     group: "life",
@@ -109,6 +112,13 @@ export const luckOfferTable: Record<Id<"offer">, OfferEntry> = {
         requires: [],
         pick: null,
         effects: [{ type: "money/add", currency: "USD", pocket: "bank", amount: dollars(500), reason: "gift", flagged: true }],
+        fraudEffects: null,
+      },
+      {
+        id: "note",
+        requires: [],
+        pick: null,
+        effects: [{ type: "money/add", currency: "USD", pocket: "bank", amount: dollars(500), reason: "gift" }],
         fraudEffects: null,
       },
     ],

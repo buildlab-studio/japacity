@@ -118,11 +118,15 @@ export const uiText: Record<string, string> = {
   "ui.line.family-paid.offer.roof": "Toward the roof: {amount}.",
   "ui.line.family-paid.offer.harvest": "Your harvest pledge: {amount}.",
   "ui.line.family-paid.offer.uncle-burial": "Toward your uncle's burial: {amount}.",
+  "ui.line.family-paid.offer.village-burial": "The burial: {amount}.",
   "ui.line.family-paid.offer.parents-group-debt": "Toward your parents' group debt: {amount}.",
   // Another answer's money, named for its offer, so it never reads as the month's own salary (shared/words/lines.ts).
   "ui.line.offer-paid.offer.december-bonus": "A thirteenth month's pay: {amount}.",
+  "ui.line.offer-paid.offer.family-send-off": "The send-off: {amount}.",
   // A bill's payment named for the bill where the wallet's reason says it wrong (shared/words/lines.ts).
   "ui.line.charged.obligation.ajo": "Savings circle: {amount}.",
+  "ui.line.charged.obligation.held-funds": "The proof-of-funds loan's charge: {amount}.",
+  "ui.line.charged.obligation.held-funds-agent": "The proof-of-funds loan's charge: {amount}.",
   // A paper's fee, named for the paper asked for (shared/words/lines.ts).
   "ui.line.document-fee": "The {document}'s fee: {amount}.",
   // A quality's move told by the band it lands in, never its figure (shared/words/text.ts, bandWords).
@@ -184,7 +188,7 @@ export const uiText: Record<string, string> = {
   "ui.line.activity.lotto-won.one": "1 ticket for {stake}, and it comes in: {won}.",
   "ui.line.activity.lotto-lost.one": "1 ticket for {stake}. Nothing comes in.",
   "ui.line.status.clock-started.one": "The job is gone. You have 1 month to find another sponsor.",
-  "ui.line.activity.adviser-missing.one": "The adviser says {route} does not fit yet. {count} things are missing, at least 1 month away.",
+  "ui.line.activity.adviser-missing.one": "Her reading: {route} does not fit yet. {count} things are missing, at least 1 month away.",
   "ui.line.status.clock-ran.one": "1 month left on the clock.",
   "ui.line.status.renewed.one": "Renewed for 1 month. The fee: {fee}. The surcharge: {surcharge}.",
   "ui.line.status.removed.one": "They found you. You are put on a plane to Lagos, and {country} is closed to you for 1 month.",
@@ -397,7 +401,8 @@ export const uiText: Record<string, string> = {
   "ui.offer.lock.slots.one": "1 slot",
   "ui.offer.lock.when": "for {count} months",
   "ui.offer.lock.when.one": "this month",
-  "ui.offer.lock.next": "next month",
+  // A lock said a month ahead holds the month the ask is answered in: the ask comes with the month before's results.
+  "ui.offer.lock.next": "this month",
 
   // A set piece: an interview, the December visit, a night on the road
   "ui.setpiece.question": "Question {n} of {total}",
@@ -588,6 +593,13 @@ export const uiText: Record<string, string> = {
   "ui.locks.why.court": "a court date",
   "ui.locks.why.court-date": "a court date",
   "ui.locks.why.other": "something you cannot move",
+  // A held slot's own row on the Month sheet, by its reason.
+  "ui.locks.row.burial": "At the burial",
+  "ui.locks.row.village-burial": "At the burial",
+  "ui.locks.row.court": "At court",
+  "ui.locks.row.court-date": "At court",
+  "ui.locks.row.illness": "Ill in bed",
+  "ui.locks.row.side-job": "At your side job",
   "ui.side.title": "Side job",
   "ui.side.holds": "It pays, and it takes one of your things to do every month you keep it.",
   "ui.side.quit": "Quit the side job",
