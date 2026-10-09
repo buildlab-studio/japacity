@@ -5,13 +5,15 @@
 // country's money held leads with the gap and the way. Once flown, the
 // move's target is gone.
 import { content } from "@japacity/content";
-import type { Currency, PlayerView, Pocket, ReportLine, RouteView } from "@japacity/sim";
-import { ArrowLeftRight, MoveVertical } from "lucide-react";
+import { int, type Currency, type ForeignCurrency, type PlayerView, type Pocket, type ReportLine, type RouteView } from "@japacity/sim";
+import { ArrowLeftRight, MoveVertical, Send } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 import { useGame, useView } from "../../../authority/GameProvider";
+import { changeQuote } from "../../../shared/words/cost";
 import { duesGap, heldElsewhere } from "../../../shared/words/dues";
-import { CURRENCIES, formatMoney, HOME_CURRENCIES } from "../../../shared/words/format";
+import { REMIT_CHANNELS, remitQuote, type RemitChannel } from "../../../shared/sim/remit";
+import { CURRENCIES, formatBp, formatMoney, HOME_CURRENCIES } from "../../../shared/words/format";
 import { afterPrologue, movesMoney, tidyLines } from "../../../shared/words/lines";
 import { lowerFirst, moneyParam, say, words } from "../../../shared/words/text";
 import { localCurrency } from "../../../shared/words/wayHome";
@@ -82,6 +84,20 @@ function currencyWords(currency: Currency): string {
   return say(`ui.currency.${currency}`);
 }
 
+/**
+ * What a change says before it is confirmed: what goes in, what comes out
+ * in the other money, and what is held in both after, worked as the wallet works it.
+ */
+export function changeLine(view: Pick<PlayerView, "rates" | "pockets">, from: Currency, to: Currency, amount: number, via: "bank" | "aboki"): string {
+  const { got, charge } = changeQuote(view, from, to, amount, via);
+  const held = (currency: Currency) => view.pockets[currency].bank + view.pockets[currency].cash;
+  return [
+    say("ui.wallet.change.line", { amount: formatMoney(amount, from), currency: lowerFirst(currencyWords(to)) }),
+    via === "bank" ? say("ui.wallet.change.get.bank", { got: formatMoney(got.amount, to), charge: formatMoney(charge.amount, from) }) : say("ui.wallet.change.get.aboki", { got: formatMoney(got.amount, to) }),
+    say("ui.wallet.change.after", { from: formatMoney(held(from) - amount, from), to: formatMoney(held(to) + got.amount, to) }),
+  ].join(" ");
+}
+
 /** A change already pointed somewhere: from a row of money held, or from the gap's way. */
 interface ChangeStart {
   from: Currency;
@@ -123,7 +139,7 @@ function ChangeChooser({ onAsk, start }: { onAsk: ReturnType<typeof useAsk>["ope
               icon: "arrow-left-right",
               who: phoneWords(`phone.bank.change.who.${via}`),
               title: say("ui.wallet.convert"),
-              line: phoneWords("phone.bank.change.line", { amount: formatMoney(amount, from), currency: lowerFirst(currencyWords(to)) }),
+              line: changeLine(view, from, to, amount, via),
               cost: { amount, currency: from },
               button: phoneWords("phone.bank.change.button"),
               have: pocketOf(from),
@@ -181,6 +197,102 @@ function MoveChooser({ onAsk }: { onAsk: ReturnType<typeof useAsk>["open"] }) {
   );
 }
 
+/** Foreign money in a bank abroad that can be sent home, the country's own first. */
+function sendable(view: Pick<PlayerView, "pockets" | "place">): ForeignCurrency[] {
+  const local = localCurrency(view);
+  const held = CURRENCIES.filter((currency): currency is ForeignCurrency => currency !== "NGN" && view.pockets[currency].bank > 0);
+  return [...held.filter((currency) => currency === local), ...held.filter((currency) => currency !== local)];
+}
+
+/** What one unit of the money sent buys at home by each channel, as the wallet pays it (R-ABROAD-008). */
+function rateBy(view: Pick<PlayerView, "rates">, currency: ForeignCurrency, channel: RemitChannel): number {
+  // The rate before any fee: what one unit buys, the fee being said on its own.
+  const { official, street } = view.rates[currency];
+  const { appMarginBp } = content.tuning.remit;
+  return channel === "informal" ? street : channel === "app" ? official - int.bp(official, appMarginBp) : official;
+}
+
+/**
+ * Send money home (R-ABROAD-006, R-WORLD-006): the channels each with what
+ * they cost and how fast they land, an amount with the rate, the naira that lands and what is left
+ * here, then one card whose button says the amount. The money leaves at once whichever way it goes;
+ * the bank's transfer lands next month, and the card says so.
+ */
+function SendChooser({ onAsk }: { onAsk: ReturnType<typeof useAsk>["open"] }) {
+  const view = useView();
+  const options = sendable(view);
+  const [chosen, setCurrency] = useState<ForeignCurrency | null>(options[0] ?? null);
+  const [channel, setChannel] = useState<RemitChannel>("app");
+  const [share, setShare] = useState<Share>("quarter");
+  const currency = chosen !== null && options.includes(chosen) ? chosen : (options[0] ?? null);
+  if (currency === null) return <p className="mt-3 text-[14px] text-text-2" data-chooser="send">{say("ui.remit.nothing")}</p>;
+  const amount = shareOf(view.pockets[currency].bank, share);
+  const quote = amount > 0 ? remitQuote(view.rates, content.tuning.remit, currency, amount) : null;
+  const terms = quote?.[channel] ?? null;
+  const sent = formatMoney(amount, currency);
+  return (
+    <div className="mt-3 flex flex-col gap-2.5 rounded-[6px] border border-sheet-line bg-sheet-2 p-3" data-chooser="send">
+      {options.length > 1 ? <Chips shown label={say("ui.wallet.currency")} value={currency} onChange={setCurrency} options={options.map((value) => ({ value, label: currencyWords(value) }))} /> : null}
+      <div role="radiogroup" aria-label={say("ui.remit.channel")} className="flex flex-col gap-1.5">
+        <span className="label text-[10px] text-text-2" aria-hidden>
+          {say("ui.remit.channel")}
+        </span>
+        {REMIT_CHANNELS.map((option) => (
+          <button
+            key={option}
+            type="button"
+            role="radio"
+            aria-checked={option === channel}
+            onClick={() => setChannel(option)}
+            data-channel={option}
+            className={`press flex flex-col items-start gap-0.5 rounded-[5px] px-3 py-2 text-left ${option === channel ? "btn-dark" : "border border-sheet-line bg-sheet-2 text-text"}`}
+          >
+            <span className="text-[14px] font-bold">{say(`ui.remit.channel.${option}`)}</span>
+            <span className="text-[13px] leading-snug opacity-85">{say(`ui.remit.terms.${option}${option !== "informal" && feeBp(option) === 0 ? ".free" : ""}`, { fee: formatBp(feeBp(option)), loss: formatBp(content.tuning.remit.informalLossBp) })}</span>
+          </button>
+        ))}
+      </div>
+      <Chips shown label={phoneWords("phone.bank.how-much")} value={share} onChange={setShare} options={SHARES.map((value) => ({ value, label: phoneWords(`phone.bank.${value}`) }))} />
+      {terms === null || terms.naira === 0 ? (
+        <p className="text-[14px] text-text-2">{phoneWords("phone.bank.nothing")}</p>
+      ) : (
+        <>
+          <p className="text-[14px] leading-snug" data-send-quote>
+            {say("ui.remit.quote", { one: formatMoney(100, currency), rate: formatMoney(rateBy(view, currency, channel), "NGN"), naira: formatMoney(terms.naira, "NGN") })}
+          </p>
+          <button
+            type="button"
+            className="btn-main"
+            data-go="send"
+            onClick={() =>
+              onAsk({
+                form: "card",
+                icon: "landmark",
+                who: say("ui.remit.who"),
+                title: say("ui.remit.title"),
+                line: say(`ui.remit.line.${channel}${channel !== "informal" && terms.fee === 0 ? ".free" : ""}`, { sent, naira: formatMoney(terms.naira, "NGN"), fee: formatMoney(terms.fee, currency) }),
+                cost: { amount, currency },
+                button: say("ui.remit.go", { amount: sent }),
+                when: "now",
+                command: { type: "wallet/remit", currency, amount, channel },
+                done: say(channel === "bank" ? "ui.remit.sent-later" : "ui.remit.sent"),
+              })
+            }
+          >
+            <span>{say("ui.remit.go", { amount: sent })}</span>
+          </button>
+        </>
+      )}
+    </div>
+  );
+}
+
+/** A channel's fee, in basis points of the amount sent (R-ABROAD-006). */
+function feeBp(channel: RemitChannel): number {
+  const { appFeeBp, bankFeeBp } = content.tuning.remit;
+  return channel === "app" ? appFeeBp : channel === "bank" ? bankFeeBp : 0;
+}
+
 /** Abroad, a month whose dues pass the country's money held: the gap, then the way to close it. */
 function DuesGapCard({ onChange }: { onChange: (start: ChangeStart) => void }) {
   const view = useView();
@@ -229,7 +341,7 @@ function HeldElsewhere({ local, onChange }: { local: Currency; onChange: (start:
 export function Bank() {
   const view = useView();
   const { open, sheet } = useAsk();
-  const [choosing, setChoosing] = useState<"change" | "move" | null>(null);
+  const [choosing, setChoosing] = useState<"change" | "move" | "send" | null>(null);
   const [start, setStart] = useState<ChangeStart | undefined>(undefined);
   // The money the character lives on: the naira at home, the country's own abroad (R-WORLD-002).
   const local = localCurrency(view);
@@ -241,7 +353,7 @@ export function Bank() {
   const thisMonth = useGame((state) => state.monthLines);
   const lately = latelyLines(view, lastMonth, thisMonth).slice(-LATELY);
   const others = CURRENCIES.filter((currency) => currency !== "NGN" && view.pockets[currency].bank + view.pockets[currency].cash > 0);
-  const toggle = (which: "change" | "move") => {
+  const toggle = (which: "change" | "move" | "send") => {
     setStart(undefined);
     setChoosing(choosing === which ? null : which);
   };
@@ -304,7 +416,13 @@ export function Bank() {
               {say("ui.wallet.move")}
             </button>
           </div>
-          {choosing === "change" ? <ChangeChooser key={start === undefined ? "free" : `${start.from}-${start.to}`} onAsk={open} {...(start === undefined ? {} : { start })} /> : choosing === "move" ? <MoveChooser onAsk={open} /> : null}
+          {abroad ? (
+            <button type="button" className={`press mt-2 flex min-h-12 w-full items-center justify-center gap-2 rounded-[6px] text-[14px] font-bold ${choosing === "send" ? "btn-dark" : "border border-sheet-line bg-sheet-2"}`} aria-expanded={choosing === "send"} onClick={() => toggle("send")} data-act="send">
+              <Send size={17} aria-hidden />
+              {say("ui.remit.title")}
+            </button>
+          ) : null}
+          {choosing === "change" ? <ChangeChooser key={start === undefined ? "free" : `${start.from}-${start.to}`} onAsk={open} {...(start === undefined ? {} : { start })} /> : choosing === "move" ? <MoveChooser onAsk={open} /> : choosing === "send" ? <SendChooser onAsk={open} /> : null}
         </>
       )}
       {sheet}
