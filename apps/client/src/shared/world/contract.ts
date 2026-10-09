@@ -146,6 +146,8 @@ export interface RideChoice {
   label: string;
   fare: number;
   minutes: number;
+  /** Why the way cannot be taken: too far on foot (R-WORLD-017). */
+  shut?: "far";
 }
 
 /** An app on the phone (R-WORLD-018). */

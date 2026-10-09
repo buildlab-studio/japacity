@@ -277,6 +277,19 @@ function returnHome(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
  * no fare, so a character with nothing can always move. The simulation keeps no place of the city,
  * so nothing here moves; the client moves once the ride is accepted.
  */
+/** Metres on the ground for one thousandth of a degree, either way: near Lagos a degree of longitude is within one in a hundred of a degree of latitude, so one figure serves both. */
+const METRES_PER_E3 = 111;
+
+/**
+ * Whether two positions in thousandths of a degree are within `metres` of each other, in whole numbers:
+ * the two legs in metres and their squares against the square of the limit, so no root is taken.
+ */
+export function withinMetres(from: { latE3: number; lonE3: number }, to: { latE3: number; lonE3: number }, metres: number): boolean {
+  const dx = Math.abs(to.lonE3 - from.lonE3) * METRES_PER_E3;
+  const dy = Math.abs(to.latE3 - from.latE3) * METRES_PER_E3;
+  return dx * dx + dy * dy <= metres * metres;
+}
+
 function ride(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (command.type !== "place/ride") throw new Error(`place/ride cannot handle ${command.type}.`);
   const { from, to, way } = command;
@@ -287,6 +300,10 @@ function ride(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (end === undefined) return reject("unknown-id", `No place ${to}.`);
   if (from === to) return reject("not-legal", "A ride goes somewhere else.");
   if (start.where !== "home" || end.where !== "home") return reject("not-legal", "A ride inside the city stays in the city.");
+  // On foot only within walking distance: past it a fare is the only way, so a fare is a real cost.
+  if (way === "walk" && start.position !== null && end.position !== null && !withinMetres(start.position, end.position, ctx.content.tuning.city.ride.walkMetres)) {
+    return reject("not-legal", "Too far to walk.");
+  }
   const fare = bp(ctx.content.tuning.city.ride.fareKobo[way], fareBpOf(ctx));
   const cause: Cause = { source: command.type, param: to, terms: { way } };
   if (fare > 0) {

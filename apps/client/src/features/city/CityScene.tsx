@@ -449,7 +449,9 @@ function Place(props: PlaceProps) {
       shown.node.style.display = at === null ? "none" : "";
       if (at !== null) {
         shown.node.style.left = `${String(within(at.x, shown.node))}px`;
-        shown.node.style.top = `${String(at.y)}px`;
+        // The chip stands above its thing, and never under the band: a thing near the top of the screen gets its chip just under the band instead.
+        const bandBottom = document.querySelector("[data-band]")?.getBoundingClientRect().bottom ?? 0;
+        shown.node.style.top = `${String(Math.max(at.y, bandBottom + shown.node.offsetHeight + EDGE_MARGIN))}px`;
       }
     }
     const probe = window.__city;

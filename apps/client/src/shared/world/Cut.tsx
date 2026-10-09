@@ -1,6 +1,6 @@
 // The cut (docs/rules/world.md R-WORLD-013): the screen goes dark for under half a second, the scene
 // changes behind it, and it comes back. Every scene change but the ride goes through it.
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 // The hold at the darkest point: with the fades either side it reads as a cut, and it leaves the scene swap room under the half second (R-WORLD-013).
 export const CUT_MS = 260;
@@ -9,6 +9,13 @@ export const CUT_MS = 260;
 export function useCut(): { cutting: boolean; cutTo: (then: () => void) => void } {
   const [cutting, setCutting] = useState(false);
   const timers = useRef<number[]>([]);
+  // A cut still running when the scene unmounts is dropped, so no timer sets state on a gone screen.
+  useEffect(
+    () => () => {
+      for (const timer of timers.current) window.clearTimeout(timer);
+    },
+    [],
+  );
   const cutTo = useCallback((then: () => void) => {
     for (const timer of timers.current) window.clearTimeout(timer);
     setCutting(true);

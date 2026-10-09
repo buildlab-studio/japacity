@@ -39,7 +39,7 @@ export const uiText: Record<string, string> = {
   // While working, what is planned beside the job, counted in words (shared/words/count.ts).
   "ui.month.working-things": "Working, and {count} things planned beside the job",
   "ui.month.working-things.one": "Working, and {count} thing planned beside the job",
-  "ui.month.end": "End month",
+  "ui.month.end": "Turn the page",
   "ui.month.same-again": "Same again",
   "ui.month.clear": "Clear plan",
   "ui.month.plan": "This month",
@@ -62,20 +62,20 @@ export const uiText: Record<string, string> = {
   "ui.month.quiet.credit-down": "Credit down.",
   "ui.month.quiet.passed": "Passed by: {offer}.",
 
-  // The months the player may still play (R-WORLD-027): a glyph with the number, and its words at a tap.
+  // The pages left on the flip calendar (R-WORLD-027): each page a month of the character's life, the number on the glyph, the words at a tap.
   // The player never reads "turn" or "banked"; these restate the older drafts in online.ts and world.ts.
-  "ui.months.label": "Months you can play: {count}",
-  "ui.months.more": "You can play {count} more months.",
-  "ui.months.more.one": "You can play 1 more month.",
-  "ui.months.more.zero": "No months to play just now.",
-  "ui.months.next": "Next one in {wait}.",
-  "ui.months.arriving": "The next one is on its way.",
-  "ui.months.full": "Full: {count} months. A new chapter fills them again.",
-  "ui.months.full-again": "A new chapter: your months are full again, {count} to play.",
-  "ui.world.turns": "{count} months to play",
-  "ui.world.turns.one": "1 month to play",
-  "ui.clock.next": "Next month to play in {wait}",
-  "ui.clock.full": "Full: you hold every month you can. Play one to make room.",
+  "ui.months.label": "Pages left: {count}",
+  "ui.months.more": "{count} pages left. Each page is a month of your life.",
+  "ui.months.more.one": "1 page left. Each page is a month of your life.",
+  "ui.months.more.zero": "Your calendar is bare for now. Places, the phone and the plan are still yours.",
+  "ui.months.next": "Next page in {wait}.",
+  "ui.months.arriving": "The next page is on its way.",
+  "ui.months.full": "Full: {count} pages. A new chapter fills the calendar again.",
+  "ui.months.full-again": "A new chapter: your calendar is full again, {count} pages.",
+  "ui.world.turns": "{count} pages left",
+  "ui.world.turns.one": "1 page left",
+  "ui.clock.next": "Next page in {wait}",
+  "ui.clock.full": "Full: you hold every page you can. Turn one to make room.",
   "ui.clock.hours": "{hours}h {minutes}m",
   "ui.clock.minutes": "{minutes}m",
   "ui.notify.ask.title": "Know when your months are full",
@@ -83,10 +83,10 @@ export const uiText: Record<string, string> = {
   "ui.notify.setting": "Tell me when my months are full",
 
   // The first-play walkthrough (R-WORLD-027): four pointers, once per device.
-  "ui.walk.band": "Your age, your money, the months you can play",
+  "ui.walk.band": "Your age, your money, your calendar",
   "ui.walk.phone": "Your phone: chats, the bank, the news",
   "ui.walk.map": "The map: every place you can go",
-  "ui.walk.count": "The months you can play. Tap it to see when more come",
+  "ui.walk.count": "This is your calendar. Each page is a month of your life",
   "ui.walk.step": "{n} of {count}",
   // Each card says how to go on.
   "ui.walk.on": "Tap to go on",

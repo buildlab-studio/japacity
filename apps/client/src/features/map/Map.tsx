@@ -28,6 +28,8 @@ export interface MapProps {
   onClose: () => void;
   /** A way was chosen: the city sends `place/ride` for its fare, and answers whether it was accepted; the ride plays only then (R-PLACE-010). */
   onRide?: (choice: RideChoice, to: string) => Promise<boolean> | boolean | void;
+  /** Turn back on a ride: the character gets down at the next stop and walks back to `from`, the fare gone (R-WORLD-017). */
+  onTurnBack?: (from: string, to: string) => void;
   /** Opens another country the player may switch to. */
   onCountry?: (id: string) => void;
   /** The home of the country shown, when it is also where the player stands. */
@@ -43,7 +45,7 @@ function keyOf(pins: readonly MapPin[]): string {
   return pins.map((pin) => `${pin.id}:${pin.state}:${String(pin.position.latE3)}:${String(pin.position.lonE3)}:${pin.name}`).join("|");
 }
 
-export function Map({ pins, country, countries, drawing, diveTo = null, diveBy = "danfo", onGo, onClose, onRide, onCountry, home = null, by, pickFirst = null }: MapProps) {
+export function Map({ pins, country, countries, drawing, diveTo = null, diveBy = "danfo", onGo, onClose, onRide, onTurnBack, onCountry, home = null, by, pickFirst = null }: MapProps) {
   const view = useView();
   // All the naira: the fare leaves cash first and the bank for the rest (R-PLACE-010).
   const have = view.pockets.NGN.cash + view.pockets.NGN.bank;
@@ -136,11 +138,21 @@ export function Map({ pins, country, countries, drawing, diveTo = null, diveBy =
           drawing={drawing}
           own={own}
           seed={seedOf(`${riding.id}:${String(view.month)}`)}
+          {...(here === null ? {} : { from: headingOf(here.name) })}
           onDone={() => {
             const id = riding.id;
             setRiding(null);
             onGo(id);
           }}
+          {...(onTurnBack === undefined || here === null
+            ? {}
+            : {
+                onTurnBack: () => {
+                  const id = riding.id;
+                  setRiding(null);
+                  onTurnBack(here.id, id);
+                },
+              })}
         />
       )}
     </div>

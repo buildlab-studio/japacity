@@ -25,6 +25,7 @@ export const mapText: Record<string, string> = {
   "map.way.keke": "Keke",
   "map.way.okada": "Okada",
   "map.way.walk": "Walk",
+  "map.way.walk-far": "Too far to walk",
   "map.walk": "Walk there",
   "map.walk-home": "Walk home",
   "map.way.minutes": "{minutes} min",
@@ -40,6 +41,14 @@ export const mapText: Record<string, string> = {
   "map.not-now": "Not now",
   "map.ride.to": "{way} to {place}",
   "map.ride.skip": "Skip",
+  // Turn back: you get down at the next stop and walk back; the fare is gone (R-WORLD-017, the design).
+  "map.ride.turn-back": "Turn back",
+  // Where you are as the ride goes, in the card: pulling out, the road, the stop.
+  "map.ride.along.start": "Pulling out of {from}.",
+  "map.ride.along.road.1": "The traffic moves, for once.",
+  "map.ride.along.road.2": "A hold-up at the junction. Horns.",
+  "map.ride.along.road.3": "The driver cuts through a side street.",
+  "map.ride.along.near": "{to}. Your stop.",
   "map.ride.arrived": "{place}",
 
   // The pre-roll's one line (R-WORLD-017): the okada's rider, the keke's driver, the danfo's

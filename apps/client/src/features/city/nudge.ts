@@ -7,9 +7,9 @@ import type { Id, PlayerView } from "@japacity/sim";
 import { duesGap } from "../../shared/words/dues";
 import { formatMoney } from "../../shared/words/format";
 import { asksAttention, tidyLines } from "../../shared/words/lines";
-import { nextStepOf, ownWayOf } from "../../shared/words/sixteen";
+import { nextStepOf, ownRouteOf, ownWayOf } from "../../shared/words/sixteen";
 import { routeKeptBy } from "../../shared/words/keepJob";
-import { hasWords, inMonths } from "../../shared/words/text";
+import { hasWords, inMonths, nameOf } from "../../shared/words/text";
 import type { Nudge } from "../../shared/world/contract";
 
 /** What the nudge points at, so a tap on it can open the matching sheet. `dues`: the month's dues abroad pass the money held; it opens the Bank. */
@@ -25,11 +25,20 @@ export interface StepWay {
   at: readonly string[];
   /** The step's own card, opened straight from its thing here instead of the thing's list. */
   opens?: string;
+  /** The choice that card opens with: the life's own route on the official page (first). */
+  param?: string;
 }
 
 const HUB_DESK: StepWay = { go: "place.yaba", at: ["place.yaba:desk", "place.ojuelegba:hub"] };
 const PAPERS: StepWay = { go: "place.family-house", at: ["place.family-house:papers-box", "place.family-house:house"] };
 const MONTH_END: StepWay = { go: null, at: [] };
+const FIRST_CHAPTER = "chapter.find-your-feet";
+const OFFICIAL_PAGE = "activity.look-into-route";
+
+/** A route's name after "the page on": its first letter lowered. */
+function lowerFirst(words: string): string {
+  return words.charAt(0).toLowerCase() + words.slice(1);
+}
 const CLINIC_DESK: StepWay = { go: "place.tb-clinic", at: ["place.tb-clinic:desk"] };
 const CLINIC_NOTICE: StepWay = { go: "place.tb-clinic", at: ["place.tb-clinic:jobs-notice"] };
 const VISA_DESK: StepWay = { go: "place.visa-centre", at: ["place.visa-centre:desk"] };
@@ -98,6 +107,9 @@ export function stepWayOf(view: StepView & Partial<Pick<PlayerView, "obligations
   // A life's own way to its first steps, where its archetype has one the table does not name.
   const own = ownWay(view);
   if (own !== null) return { go: own.place, at: [`${own.place}:${own.thing}`] };
+  // The first chapter's "Look into it" reads the page of the life's own way out, so a nurse leans to care work and not to the master's she read of first (R-CHAPTER-009).
+  const route = ownRoute(view);
+  if (route !== null && view.chapter.current === FIRST_CHAPTER && step === "known") return { ...HUB_DESK, opens: OFFICIAL_PAGE, param: route };
   // The plane blocked by held funds: the way is the bank's counter that takes them back.
   if (view.chapter.current === "chapter.send-off" && step === "departed" && heldFundsOpen({ ...view, setpiece: null, interview: null, offers: [], report: null })) return HELD_FUNDS_WAY;
   return STEP_WAYS[`${view.chapter.current}.${step}`] ?? null;
@@ -116,6 +128,12 @@ function stepOf(view: StepView): string | null {
 }
 
 /** The life's own way to a first step (the nurse's clinic, the trade's motor park), when the view carries enough to tell. */
+function ownRoute(view: StepView): ReturnType<typeof ownRouteOf> {
+  const { scenario, qualities, pockets } = view;
+  if (scenario === undefined || qualities === undefined || pockets === undefined) return null;
+  return ownRouteOf({ scenario, qualities, pockets, ...(view.routes === undefined ? {} : { routes: view.routes }) });
+}
+
 function ownWay(view: StepView): ReturnType<typeof ownWayOf> {
   const { scenario, qualities, pockets } = view;
   if (scenario === undefined || qualities === undefined || pockets === undefined) return null;
@@ -342,6 +360,9 @@ export function nudgeOf(view: NudgeView, has: (key: string) => boolean = hasWord
     // The life's own way to the step has its own words (the nurse's clinic, the trade's motor park).
     const way = ownWay(view);
     if (way !== null && has(`${own}.nudge.${way.key}`)) return { key: `${own}.nudge.${way.key}`, about: "step" };
+    // "Look into it" names the page of the life's own way out (R-CHAPTER-009).
+    const route = view.chapter.current === FIRST_CHAPTER && step === "known" ? ownRoute(view) : null;
+    if (route !== null && has(`${own}.nudge.own`)) return { key: `${own}.nudge.own`, params: { route: lowerFirst(nameOf(route)) }, about: "step" };
     return { key: has(`${own}.nudge`) ? `${own}.nudge` : own, about: "step" };
   }
   // A report line waits when one of last month's lines asks for the player. Abroad, when the month's

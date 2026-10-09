@@ -39,6 +39,12 @@ describe("the nudge's Go on the application", () => {
     expect(stepOpen(way, "desk", [], "place.yaba")).toEqual({ kind: "thing", thing: "desk" });
   });
 
+  test("[R-WORLD-003] [R-CHAPTER-009] given a way that opens a card with a choice made, when its thing stands here and the card is offered, then the act carries the choice", () => {
+    const way = { go: "place.yaba", at: ["place.yaba:desk"], opens: "activity.look-into-route", param: "route.uk-care" };
+    expect(stepOpen(way, "desk", ["activity.look-into-route"], "place.yaba")).toEqual({ kind: "act", activity: "activity.look-into-route", param: "route.uk-care" });
+    expect(stepOpen(way, "desk", [], "place.yaba")).toEqual({ kind: "thing", thing: "desk" });
+  });
+
   test("[R-WORLD-003] given a step done by ending the month, or a step whose thing stands here with no card of its own, when the nudge is followed, then the Month sheet or the thing opens as before", () => {
     const monthEnd = stepWayOf({ chapter: { current: "chapter.find-your-feet", items: [{ id: "pay", met: false }], done: [] } });
     if (monthEnd === null) throw new Error("No way for the month's end.");

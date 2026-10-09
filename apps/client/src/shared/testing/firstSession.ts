@@ -7,6 +7,7 @@ import { earlyWinIn } from "../../features/guides/earlyWin";
 // The rule tests' game handle and its legal commands are the sim's own test tools.
 import { legalCommands } from "../../../../../packages/sim/src/testing/legal";
 import { start, type Game, type Loose } from "../../../../../packages/sim/src/testing/play";
+import { ownRouteOf } from "../words/sixteen";
 
 export const FIRST_SESSION_TURNS = 3;
 
@@ -56,7 +57,12 @@ function towards(view: PlayerView, content: Content, requirement: Requirement): 
   const first = (ids: readonly string[], param?: string) => ids.map((id) => pick(view, id, param)).find((found) => found !== null) ?? null;
   if (requirement.type === "job/any") return first(activitiesWith(content, ["activity/hunt"]));
   // "Any route of your own effort" (the first chapter's heard and known): the first way that fits.
-  if (requirement.type === "any") return requirement.of.map((one) => towards(view, content, one)).find((found) => found !== null) ?? null;
+  if (requirement.type === "any") {
+    // The life's own way out first (R-CHAPTER-009), then the page's order.
+    const own = ownRouteOf(view);
+    const ordered = [...requirement.of].sort((left, right) => Number(right.type === "route/state" && right.route === own) - Number(left.type === "route/state" && left.route === own));
+    return ordered.map((one) => towards(view, content, one)).find((found) => found !== null) ?? null;
+  }
   if (requirement.type !== "route/state") return null;
   const route = view.routes.find((entry) => entry.id === requirement.route);
   if (route?.state === "unknown") return first(activitiesWith(content, ["route/hear"], requirement.route));

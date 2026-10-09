@@ -66,7 +66,28 @@ export interface RideProps {
   seed?: number;
   /** The ride is over, played out or skipped. Called once. */
   onDone: () => void;
+  /** The place the ride left, as the band says it; the card says where you are as the ride goes. */
+  from?: string;
+  /** Turn back: the character gets down at the next stop and walks back, the fare gone. Called once, instead of `onDone`. */
+  onTurnBack?: () => void;
 }
+
+/** How many road lines the card may say in the middle of a ride (map.words.ts). */
+export const ROAD_LINES = 3;
+
+/**
+ * Where you are as the ride goes (the design): pulling out of the place left for the
+ * first third, a road line through the middle, the stop named near the end. `u` is the ride's progress
+ * after the pre-roll, 0 to 1.
+ */
+export function alongOf(u: number, seed: number): { key: string; needs: "from" | "to" | null } {
+  if (u < 0.34) return { key: "map.ride.along.start", needs: "from" };
+  if (u < 0.78) return { key: `map.ride.along.road.${String((Math.abs(Math.trunc(seed)) % ROAD_LINES) + 1)}`, needs: null };
+  return { key: "map.ride.along.near", needs: "to" };
+}
+
+/** How often the card reads the ride's clock for its line. */
+const ALONG_TICK_MS = 150;
 
 /** The key of the line said in a way's pre-roll: the okada's rider, the keke's driver, the danfo's conductor; none on foot. */
 export function lineOf(way: Way, seed: number): string | null {
@@ -116,7 +137,7 @@ export function preloadRide(own: string): void {
 
 const FRAMES_KEPT = 240;
 
-export function Ride({ way, place, drawing, own = FALLBACK_OWN, seed = 0, onDone }: RideProps) {
+export function Ride({ way, place, drawing, own = FALLBACK_OWN, seed = 0, onDone, from, onTurnBack }: RideProps) {
   const box = useRef<HTMLDivElement>(null);
   const done = useRef(false);
   const [started, setStarted] = useState(false);
@@ -129,17 +150,31 @@ export function Ride({ way, place, drawing, own = FALLBACK_OWN, seed = 0, onDone
     done.current = true;
     finish.current();
   };
-  const line = phase === "pre" ? lineOf(way, seed) : null;
+  const back = useRef(onTurnBack);
+  back.current = onTurnBack;
+  const turnBack = (): void => {
+    if (done.current) return;
+    done.current = true;
+    back.current?.();
+  };
+  // The card's line follows the ride's own clock, so it matches what is outside.
+  const [elapsed, setElapsed] = useState(0);
+  const along = phase === "ride" && from !== undefined ? alongOf(Math.min(1, Math.max(0, (elapsed - pre) / (RIDE_MS - pre))), seed) : null;
+  const line = phase === "pre" ? lineOf(way, seed) : along === null ? null : along.key;
+  const lineParams: Record<string, string> = along === null ? {} : along.needs === "from" && from !== undefined ? { from } : along.needs === "to" ? { to: place } : {};
 
   // The ride ends by itself after its time; Skip ends it at once. The pre-roll gives way to the street.
   useEffect(() => {
+    const began = Date.now();
     const timer = window.setTimeout(end, RIDE_MS);
     const start = window.setTimeout(() => setStarted(true), 30);
     const cut = pre > 0 ? window.setTimeout(() => setPhase("ride"), pre) : 0;
+    const tick = window.setInterval(() => setElapsed(Date.now() - began), ALONG_TICK_MS);
     return () => {
       window.clearTimeout(timer);
       window.clearTimeout(start);
       window.clearTimeout(cut);
+      window.clearInterval(tick);
     };
   }, []);
 
@@ -235,6 +270,11 @@ export function Ride({ way, place, drawing, own = FALLBACK_OWN, seed = 0, onDone
               <div className="h-full origin-left rounded-[2px] bg-signal" style={{ transform: `scaleX(${started ? 1 : 0})`, transition: `transform ${String(RIDE_MS - 30)}ms linear` }} data-ride-progress />
             </div>
           </div>
+          {onTurnBack === undefined ? null : (
+            <button type="button" onClick={turnBack} className="chip press h-9 shrink-0 px-3 text-[13px] font-bold" data-ride-turn-back>
+              {mapWords("map.ride.turn-back")}
+            </button>
+          )}
           <button type="button" onClick={end} className="chip press h-9 shrink-0 px-3 text-[13px] font-bold" data-ride-skip>
             {mapWords("map.ride.skip")}
           </button>
@@ -242,7 +282,7 @@ export function Ride({ way, place, drawing, own = FALLBACK_OWN, seed = 0, onDone
       </div>
       {line === null ? null : (
         <p className="chip fade pointer-events-none absolute inset-x-6 bottom-[max(28px,env(safe-area-inset-bottom))] mx-auto w-fit max-w-[calc(100%-48px)] px-3.5 py-2.5 text-center text-[15px] leading-snug font-semibold" data-ride-line={line}>
-          {mapWords(line)}
+          {mapWords(line, lineParams)}
         </p>
       )}
     </div>

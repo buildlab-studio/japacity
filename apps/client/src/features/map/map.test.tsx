@@ -16,7 +16,7 @@ import { buildGrid, isWater, nearestNode, nodePoint, routeBetween, toXZ, type XZ
 import { Map } from "./Map";
 import { mapWords } from "./map.words";
 import { mapPins, type MapPin, rideChoices } from "./pins";
-import { LINES, lineOf, PRE_MS, Ride, RIDE_MS } from "./Ride";
+import { alongOf, LINES, lineOf, PRE_MS, Ride, RIDE_MS } from "./Ride";
 import { headingOf } from "./RideSheet";
 import { buildRide } from "./rideScene";
 import { buildCityMap, drawCallsOf, readColours } from "./scene";
@@ -244,7 +244,8 @@ describe("the ride", () => {
     for (const way of ways) {
       const radio = radios.find((candidate) => candidate.dataset.way === way.id);
       expect(radio?.textContent).toContain(way.fare === 0 ? say("ui.world.free") : formatMoney(way.fare, "NGN"));
-      expect(radio?.textContent).toContain(mapWords("map.way.minutes", { minutes: way.minutes }));
+      // A walk past walking distance is shut and says so in place of its minutes (R-WORLD-017).
+      expect(radio?.textContent).toContain(way.shut === "far" ? mapWords("map.way.walk-far") : mapWords("map.way.minutes", { minutes: way.minutes }));
     }
     // All the naira pay the fare, cash first (R-PLACE-010).
     const cash = view.pockets.NGN.cash + view.pockets.NGN.bank;
@@ -301,6 +302,85 @@ describe("the ride", () => {
       await vi.advanceTimersByTimeAsync(RIDE_MS);
     });
     expect(onDone).toHaveBeenCalledTimes(1);
+  });
+
+  test("[R-WORLD-017] given a stop past walking distance, when the ride sheet shows, then the walk is shut and says it is too far, is never the chosen way, and a near stop keeps it open", async () => {
+    const pins = lagosPins();
+    const here = pins.find((pin) => pin.state === "here");
+    if (here === undefined) throw new Error("No here");
+    const limit = content.tuning.city.ride.walkMetres;
+    const far = { ...here.position, latE3: here.position.latE3 + Math.ceil((limit * 1.5) / 111.32) };
+    const near = { ...here.position, latE3: here.position.latE3 + Math.floor((limit * 0.5) / 111.32) };
+    expect(rideChoices(here.position, far).find((way) => way.id === "walk")?.shut).toBe("far");
+    expect(rideChoices(here.position, near).find((way) => way.id === "walk")?.shut).toBeUndefined();
+    const farPins = pins.map((pin) => (pin.id === "place.bode-thomas" ? { ...pin, position: far } : pin));
+    await renderWithView(<Map pins={farPins} country={LAGOS} countries={COUNTRIES} drawing={false} onGo={() => undefined} onClose={() => undefined} />, engineView());
+    fireEvent.click(screen.getAllByRole("button").find((button) => button.dataset.stop === "place.bode-thomas") as HTMLElement);
+    const sheet = screen.getByRole("dialog", { name: headingOf(nameOf("place.bode-thomas")) });
+    const walk = within(sheet).getAllByRole("radio").find((radio) => radio.dataset.way === "walk") as HTMLButtonElement;
+    expect(walk.disabled).toBe(true);
+    expect(walk.textContent).toContain(mapWords("map.way.walk-far"));
+    fireEvent.click(walk);
+    expect(walk.getAttribute("aria-checked")).toBe("false");
+  });
+
+  test("[R-WORLD-017] given a ride with the place it left, when it plays, then the card says where you are on the ride's own clock: pulling out, a road line, the stop near the end", async () => {
+    vi.useFakeTimers();
+    render(<Ride way="danfo" place="Bode Thomas Street" from="Ojuelegba" drawing={false} seed={1} onDone={() => undefined} />);
+    expect(alongOf(0, 1)).toEqual({ key: "map.ride.along.start", needs: "from" });
+    expect(alongOf(0.5, 1).key).toMatch(/^map\.ride\.along\.road\.[1-3]$/);
+    expect(alongOf(0.9, 1)).toEqual({ key: "map.ride.along.near", needs: "to" });
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(PRE_MS + 400);
+    });
+    expect(screen.getByText(mapWords("map.ride.along.start", { from: "Ojuelegba" }))).toBeTruthy();
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(2400);
+    });
+    expect(screen.getByText(mapWords(alongOf(0.5, 1).key))).toBeTruthy();
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(1800);
+    });
+    expect(screen.getByText(mapWords("map.ride.along.near", { to: "Bode Thomas Street" }))).toBeTruthy();
+  });
+
+  test("[R-WORLD-017] given a ride playing, when Turn back is tapped, then the ride ends once by turning back and never arrives; without a way back there is no such button", async () => {
+    vi.useFakeTimers();
+    const onDone = vi.fn();
+    const onTurnBack = vi.fn();
+    const { unmount } = render(<Ride way="keke" place="Tejuosho Market" from="Ojuelegba" drawing={false} onDone={onDone} onTurnBack={onTurnBack} />);
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(800);
+    });
+    fireEvent.click(screen.getByRole("button", { name: mapWords("map.ride.turn-back") }));
+    expect(onTurnBack).toHaveBeenCalledTimes(1);
+    fireEvent.click(screen.getByRole("button", { name: mapWords("map.ride.skip") }));
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(RIDE_MS);
+    });
+    expect(onDone).not.toHaveBeenCalled();
+    expect(onTurnBack).toHaveBeenCalledTimes(1);
+    unmount();
+    render(<Ride way="keke" place="Tejuosho Market" drawing={false} onDone={onDone} />);
+    expect(screen.queryByRole("button", { name: mapWords("map.ride.turn-back") })).toBeNull();
+  });
+
+  test("[R-WORLD-017] given the map with a way back, when a ride's Turn back is tapped, then the map says where the walk goes back to, and nothing arrives", async () => {
+    vi.useFakeTimers();
+    const onGo = vi.fn();
+    const onTurnBack = vi.fn();
+    const pins = lagosPins();
+    await renderWithView(<Map pins={pins} country={LAGOS} countries={COUNTRIES} drawing={false} onGo={onGo} onClose={() => undefined} onTurnBack={onTurnBack} />, engineView());
+    fireEvent.click(screen.getAllByRole("button").find((button) => button.dataset.stop === "place.bode-thomas") as HTMLElement);
+    const sheet = screen.getByRole("dialog", { name: headingOf(nameOf("place.bode-thomas")) });
+    fireEvent.click(sheet.querySelector("[data-ride-main]") as HTMLElement);
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(500);
+    });
+    fireEvent.click(screen.getByRole("button", { name: mapWords("map.ride.turn-back") }));
+    const here = pins.find((pin) => pin.state === "here");
+    expect(onTurnBack).toHaveBeenCalledWith(here?.id, "place.bode-thomas");
+    expect(onGo).not.toHaveBeenCalled();
   });
 
   test("[R-WORLD-017] given the city refusing the fare, when a way is chosen, then no ride plays and the sheet closes", async () => {

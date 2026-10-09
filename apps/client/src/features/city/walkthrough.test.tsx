@@ -38,7 +38,7 @@ describe("the first-play walkthrough", () => {
       if (shown !== null) fireEvent.click(shown);
     }
     expect(pointer()).toBeNull();
-    expect(say("ui.walk.band")).toBe("Your age, your money, the months you can play");
+    expect(say("ui.walk.band")).toBe("Your age, your money, your calendar");
   });
 
   test("[R-WORLD-027] given the walkthrough seen on this device, when another life is played, then it never shows again", async () => {

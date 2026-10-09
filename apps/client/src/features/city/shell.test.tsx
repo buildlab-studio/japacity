@@ -386,6 +386,27 @@ describe("the archetypes' own ways", () => {
     expect(stepWayOf(nurse)).toEqual({ go: "place.tb-clinic", at: ["place.tb-clinic:jobs-notice"] });
   });
 
+  test("[R-WORLD-003] [R-CHAPTER-009] given a nurse from sixteen in her job who has heard of care work and the master's, when the first step is read, then the nudge says to read the care page and the way opens that page with care chosen", () => {
+    const nurse = {
+      ...base,
+      chapter: { current: "chapter.find-your-feet" as const, items: [{ id: "job", met: true }, { id: "pay", met: true }, { id: "heard", met: true }, { id: "known", met: false }], done: [] },
+      qualities: base.qualities.map((quality) => (quality.id === "quality.edu-level" ? { ...quality, value: 3 } : quality.id === "quality.care" ? { ...quality, value: 60 } : quality)),
+      documents: [{ id: "document.nursing-licence" as const, state: "held" as const, readyMonth: null, expiresMonth: null, value: null }],
+      job: { id: "activity.job-nurse" as const, months: 1, side: null },
+      routes: [
+        { ...richView().routes[0]!, id: "route.uk-masters" as const, state: "heard" as const },
+        { ...richView().routes[0]!, id: "route.uk-care" as const, state: "heard" as const },
+      ],
+    };
+    expect(nudgeOf(nurse)).toEqual({ key: "chapter.find-your-feet.item.known.nudge.own", params: { route: "care work in the UK" }, about: "step" });
+    expect(say("chapter.find-your-feet.item.known.nudge.own", { route: "care work in the UK" })).toBe("Read the page on care work in the UK");
+    expect(stepWayOf(nurse)).toEqual({ go: "place.yaba", at: ["place.yaba:desk", "place.ojuelegba:hub"], opens: "activity.look-into-route", param: "route.uk-care" });
+    // A graduate with no way of her own keeps the table's words.
+    const graduate = { ...nurse, qualities: base.qualities.map((quality) => (quality.id === "quality.edu-level" ? { ...quality, value: 3 } : quality)), documents: [] };
+    expect(nudgeOf(graduate).key).toBe("chapter.find-your-feet.item.known.nudge");
+    expect(stepWayOf(graduate)).toEqual({ go: "place.yaba", at: ["place.yaba:desk", "place.ojuelegba:hub"] });
+  });
+
   test("[R-PROLOGUE-010] [R-WORLD-003] given a trader from sixteen who has heard of no way out, when the first step is read, then the nudge sends him to the motor park, and asking around planned says so", () => {
     const trader = {
       ...base,

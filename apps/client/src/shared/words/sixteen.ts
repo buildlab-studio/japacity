@@ -2,7 +2,7 @@
 // closes (R-PROLOGUE-006), so the path it built is read from the life as it stands: a degree from the
 // level of schooling, a shop's capital from the money a trade could only hold after a settlement.
 import { content } from "@japacity/content";
-import type { Id, PlayerView } from "@japacity/sim";
+import { FIRST_MEETUP_FITS, type Id, type PlayerView } from "@japacity/sim";
 
 /** `degree`: through university. `capital`: a trade with the master's settlement. `trade`: a trade or a shop counter without it. */
 export type SixteenPath = "degree" | "capital" | "trade";
@@ -98,6 +98,18 @@ export function ownWayOf(view: Life & Pick<PlayerView, "chapter"> & Partial<Pick
   const path = sixteenPath(view);
   if (step === MOTOR_PARK_WAY.step && (path === "trade" || path === "capital") && view.routes !== undefined && routeState(view, GULF) === "unknown") return MOTOR_PARK_WAY;
   return null;
+}
+
+/**
+ * The way out a life's own profile fits, once heard of: a trade's is the Gulf (the motor park), and a degree's is the
+ * first of the first meetup's fits whose bar it clears (R-GUIDE-016: care work for a nurse, the talent visa for a developer).
+ * Null for a life whose way is the master's, the chapters' default, or whose own way is not yet heard of.
+ */
+export function ownRouteOf(view: Life & Held): Id<"route"> | null {
+  const path = sixteenPath(view);
+  const own = path === "trade" || path === "capital" ? (GULF as Id<"route">) : (FIRST_MEETUP_FITS.find((fit) => fit.bar !== null && fit.bar.type === "quality/min" && qualityOf(view, fit.bar.quality) >= fit.bar.value)?.route ?? null);
+  if (own === null || own === MASTERS) return null;
+  return routeState(view, own) === "unknown" ? null : own;
 }
 
 /** The stops a life reaches before its chapter opens them: the nurse's clinic, where her job is. */

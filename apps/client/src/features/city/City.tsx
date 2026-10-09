@@ -55,6 +55,7 @@ import { SaidLine, useSaid } from "./Said";
 import { APPLY_TO_SCHOOL, SCHOOL_ICON, schoolSheetLine } from "./school";
 import { sceneWords } from "./scene.words";
 import { enterable, offersHere, openingPlace, openScene, reportHere, type ViewPlace } from "./staging";
+import { comingOf, soonest } from "./coming";
 import { stagedNow, thingsNow, thingsOf, vehicleOf, withMoreAt } from "./things";
 import { stopReached } from "./stops";
 
@@ -147,15 +148,6 @@ export function dressedBy(open: readonly string[], lines: readonly ReportLine[])
 
 /** How long the band's second row peeks after its words change (from the design's bar). */
 const PEEK_MS = 5000;
-
-/** What is coming soonest with a month to it: an offer's deadline, a paper's ready month, a visa decision (R-WORLD-002). */
-function soonest(view: PlayerView): { what: string; month: number } | null {
-  const coming: { what: string; month: number }[] = [];
-  for (const offer of view.offers) coming.push({ what: words(`${offer.entry}.name`), month: offer.expiresMonth });
-  for (const paper of view.documents) if (paper.state === "pending" && paper.readyMonth !== null) coming.push({ what: nameOf(paper.id), month: paper.readyMonth });
-  for (const route of view.routes) if (route.visa !== null && (route.state === "applying" || route.state === "known")) coming.push({ what: nameOf(route.id), month: route.visa.decisionMonth });
-  return coming.filter((item) => item.month >= view.month).sort((a, b) => a.month - b.month)[0] ?? null;
-}
 
 /** The middle of an area's positioned places, for a built place that content gives no position of its own. */
 function areaSpot(area: string): { latE3: number; lonE3: number } | null {
@@ -300,6 +292,8 @@ export interface CityMapSlot {
   home: string | null;
   /** A way chosen: the fare goes through `place/ride`, and the answer says whether the ride plays (R-PLACE-010). */
   onRide?: (choice: RideChoice, to: string) => Promise<boolean>;
+  /** Turn back on a ride: the walk back to `from`, the fare gone (R-WORLD-017). */
+  onTurnBack?: (from: string, to: string) => void;
   /** The way to choose first on the ride sheet: the vehicle tapped in the place (R-WORLD-017). */
   by?: RideChoice["id"];
   /** A stop to open picked: the nudge's step elsewhere (R-WORLD-003). */
@@ -408,6 +402,8 @@ export function City({
   const [shipped, setShipped] = useState<Set<string> | null>(null);
   const [menu, setMenu] = useState(false);
   const [credits, setCredits] = useState(false);
+  // The full list of what is coming, from the band's chip (R-WORLD-002).
+  const [comingOpen, setComingOpen] = useState(false);
   const [picked, setPicked] = useState<Picked | null>(null);
   const [progress, setProgress] = useState<{ loaded: number; total: number } | null>(null);
   const [failed, setFailed] = useState<string | null>(null);
@@ -755,7 +751,7 @@ export function City({
     const opens = stepOpen(stepWay, stepThing, view.activities.filter((option) => option.allowed).map((option) => option.id), placeId);
     switch (opens.kind) {
       case "act":
-        setPicked({ kind: "action", activity: opens.activity });
+        setPicked({ kind: "action", activity: opens.activity, ...(opens.param === undefined ? {} : { param: opens.param }) });
         return;
       case "thing": {
         const thing = things?.find((candidate) => candidate.id === opens.thing);
@@ -1034,6 +1030,14 @@ export function City({
               const reply = await send({ type: "place/ride", from: placeId as Id<"place">, to: to as Id<"place">, way: choice.id });
               return reply?.ok === true;
             },
+            // Turn back (R-WORLD-017): the first fare is gone and the character stays where they were; the simulation never moved them, so nothing more is sent.
+            onTurnBack: () => {
+              setMap(false);
+              setDiveTo(null);
+              setRideBy(null);
+              setMapPick(null);
+              toast.show(cityWords("city.ride.turned-back"));
+            },
           })
         : null}
       {world && map && (cityMap === undefined || flyoverOn()) ? (
@@ -1072,10 +1076,10 @@ export function City({
                 <div key={bandOpen ? "open" : `peek-${nudgeKey}-${comingKey}`} className={bandOpen ? "" : "drop"}>
                   <Nudge nudge={shownNudge} {...(nudgeOpens ? { onTap: () => setAsksOpen(true) } : nudgeGoes ? { onTap: followStep } : nudge?.about === "report" ? { onTap: () => { setPhoneApp("news"); setPhone(true); } } : nudge?.about === "dues" ? { onTap: () => { setPhoneApp("bank"); setPhone(true); } } : {})} />
                   {coming === null || !(bandOpen || peek) ? null : (
-                    <p className="chip pointer-events-auto mt-1.5 inline-flex max-w-full items-center gap-1.5 px-2.5 py-1.5 text-[12px] font-bold" data-coming>
+                    <button type="button" className="chip press pointer-events-auto mt-1.5 inline-flex max-w-full items-center gap-1.5 px-2.5 py-1.5 text-[12px] font-bold" data-coming onClick={() => setComingOpen(true)} aria-label={say("ui.world.coming-up")}>
                       <Clock size={14} aria-hidden />
                       <span className="truncate">{say("ui.world.coming", { what: coming.what, when: inMonths(coming.month, view.month) })}</span>
-                    </p>
+                    </button>
                   )}
                 </div>
               ) : null
@@ -1244,6 +1248,18 @@ export function City({
         </div>
       </Sheet>
       <CreditsSheet open={credits} onOpenChange={setCredits} />
+      {world ? (
+        <WorldSheet open={comingOpen} onClose={() => setComingOpen(false)} label={clock} title={say("ui.world.coming-up")} mark="coming">
+          <ul className="flex flex-col" data-coming-list>
+            {comingOf(view).map((item, index) => (
+              <li key={`${item.kind}-${String(index)}`} className="flex items-baseline justify-between gap-3 border-b border-sheet-line py-3 last:border-b-0" data-coming-row={item.kind}>
+                <span className="min-w-0 flex-1 text-[15px] font-semibold">{item.what}</span>
+                <span className="num shrink-0 text-[13px] text-text-2">{inMonths(item.month, view.month)}</span>
+              </li>
+            ))}
+          </ul>
+        </WorldSheet>
+      ) : null}
       {world ? <AskSheet ask={ask} formatMoney={(amount, currency) => formatMoney(amount, currency as "NGN")} {...(askIcon === undefined ? {} : { icon: askIcon })} /> : null}
       {world && picked?.kind === "action" && ask === null ? (
         <WorldSheet

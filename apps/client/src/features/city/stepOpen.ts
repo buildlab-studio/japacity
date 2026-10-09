@@ -5,11 +5,11 @@ import { hasWords } from "../../shared/words/text";
 import type { Nudge } from "../../shared/world/contract";
 import type { StepWay } from "./nudge";
 
-export type StepOpen = { kind: "act"; activity: string } | { kind: "thing"; thing: string } | { kind: "month" } | { kind: "map"; stop: string | null };
+export type StepOpen = { kind: "act"; activity: string; param?: string } | { kind: "thing"; thing: string } | { kind: "month" } | { kind: "map"; stop: string | null };
 
 /** `thing`: the step's thing standing here, if any. `offered`: the activities the view offers now. `here`: the place the player stands in. */
 export function stepOpen(way: StepWay, thing: string | null, offered: readonly string[], here: string): StepOpen {
-  if (thing !== null) return way.opens !== undefined && offered.includes(way.opens) ? { kind: "act", activity: way.opens } : { kind: "thing", thing };
+  if (thing !== null) return way.opens !== undefined && offered.includes(way.opens) ? { kind: "act", activity: way.opens, ...(way.param === undefined ? {} : { param: way.param }) } : { kind: "thing", thing };
   if (way.go === null) return { kind: "month" };
   return { kind: "map", stop: way.go === here ? null : way.go };
 }
