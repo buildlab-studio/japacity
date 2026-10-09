@@ -13,6 +13,8 @@ export const jobsUiText: Record<string, string> = {
   "jobs.chance.long": "A long shot",
   "jobs.out-of-reach": "Not open to you yet",
   "jobs.needs": "Needs: {needs}",
+  "jobs.card": "{pay}. {chance}.",
+  "jobs.card.chance": "{chance}.",
 };
 
 /** Words for a jobs key: content's first, then the interface's, then the list's own drafts. */

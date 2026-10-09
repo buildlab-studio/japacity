@@ -73,6 +73,15 @@ function Scene() {
   return <Plain />;
 }
 
+/**
+ * True while the officer's closing line is still to show, or shows, after the interview has closed (the
+ * : from an answer given in the room until the one button, Leave the room, is tapped. The
+ * sheet that holds the set piece keeps it while this holds, so the close is said before the sheet goes.
+ */
+export function useClosingOpen(): boolean {
+  return useStore(roomStore, (state) => state.closing !== null || (state.inRoom && state.answered));
+}
+
 export function SetpieceView() {
   return (
     <>

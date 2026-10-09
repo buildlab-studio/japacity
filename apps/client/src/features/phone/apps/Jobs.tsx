@@ -1,21 +1,20 @@
 // Jobs (docs/rules/world.md R-WORLD-018): the job held and the job offers the view lists. Quitting
 // and taking each open their own card; the commands are the ones the month page sent.
-import { content } from "@japacity/content";
 import type { Id, OfferView } from "@japacity/sim";
 import { Briefcase } from "lucide-react";
 
 import { useView } from "../../../authority/GameProvider";
 import { formatMoney } from "../../../shared/words/format";
+import { payAMonth } from "../../../shared/words/pay";
 import { byMonths, nameOf, say, sayCount, words } from "../../../shared/words/text";
 import { Head, useAsk } from "../act";
 import { phoneWords } from "../phone.words";
 import { jobOffers } from "../seen";
 
-/** A job's pay as words, or null when content gives no figure. */
+/** A job's pay a month as words, or null when content gives no figure (R-WORLD-006: the jobs list's figure). */
 function payWords(job: Id<"activity">): string | null {
-  const pay = content.activity[job]?.pay;
-  if (pay === null || pay === undefined || typeof pay.amount !== "number") return null;
-  return say("ui.job.pay", { amount: formatMoney(pay.amount, pay.currency) });
+  const pay = payAMonth(job);
+  return pay === null ? null : say("ui.job.pay", { amount: formatMoney(pay.amount, pay.currency) });
 }
 
 /** The job an offer carries, from its terms. */
