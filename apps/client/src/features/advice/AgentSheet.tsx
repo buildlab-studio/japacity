@@ -1,9 +1,10 @@
-// The agent's sheet in the world (docs/rules/advice.md R-ADVICE-005, 006, 009). The world's card
-// form, inside the sheet the shell opens for a tapped thing: who he is, his line with the fee, the
-// fee as the cost, the one tell that shows at once, and three free looks that find the rest before
-// any fee is paid. It never names his kind and never counts his tells: what he was is told after, in
-// the report line. The promise and the papers he leaves behind are the same card with their own
-// choices.
+// The agent's sheet in the world (docs/rules/advice.md R-ADVICE-005, 006, 009, 013). The world's
+// card form, inside the sheet the shell opens for a tapped thing: who he is, his line with the fee,
+// what he says he does (knows someone inside, or will chase it for you) and which paper that brings
+// how many months sooner, the fee as the cost, the one tell that shows at once, and three free looks
+// that find the rest before any fee is paid. It never names his kind and never counts his tells:
+// what he was is told after, in the report line. The promise and the papers he leaves behind are
+// the same card with their own choices.
 import type { OfferView as Offer, ReportLine, ReportParam } from "@japacity/sim";
 import { Check, Eye } from "lucide-react";
 import { useState, type ReactNode } from "react";
@@ -13,7 +14,7 @@ import { cue } from "../../shared/sound/cues";
 import { Rejection } from "../../shared/ui/Rejection";
 import { formatMoney } from "../../shared/words/format";
 import { tidyLines } from "../../shared/words/lines";
-import { hasWords, inMonths, nameOf, say, words } from "../../shared/words/text";
+import { hasWords, inMonths, nameOf, runningName, say, words } from "../../shared/words/text";
 import { afterPaying, plannedCosts } from "../../shared/words/cost";
 import { adviceWords } from "./advice.words";
 
@@ -44,6 +45,37 @@ function paramsOf(offer: Offer): Record<string, ReportParam> {
 function whoOf(offer: Offer): string {
   const agent = offer.terms.agent;
   return typeof agent === "string" && hasWords(`${agent}.name`) ? nameOf(agent) : nameOf(offer.entry);
+}
+
+/** What he says he does, the paper he names ("" for none) and the months sooner (R-ADVICE-013). Null when the offer carries none. */
+function pitchOf(offer: Offer): { pitch: string; paper: string; months: number } | null {
+  const { pitch, paper, months } = offer.terms;
+  if (typeof pitch !== "string" || typeof paper !== "string" || typeof months !== "number") return null;
+  return { pitch, paper, months };
+}
+
+/** The office a paper comes from, in the sheet's words: the registry for a transcript, else the office. */
+function deskOf(paper: string): string {
+  const key = `advice.desk.${paper}`;
+  return adviceWords(hasWords(key) ? key : "advice.desk");
+}
+
+/** R-ADVICE-013: his claim in plain words, then what it would bring forward and by how much. */
+function Pitch({ offer }: { offer: Offer }) {
+  const said = pitchOf(offer);
+  if (said === null) return null;
+  const moves =
+    said.paper === ""
+      ? adviceWords("advice.moves.none")
+      : adviceWords(said.months === 1 ? "advice.moves.one" : "advice.moves", { document: runningName(said.paper), desk: deskOf(said.paper), count: said.months });
+  return (
+    <section className="flex flex-col gap-1 rounded-[5px] bg-sheet-2 px-3 py-2 text-[15px] leading-snug" data-agent-pitch={said.pitch}>
+      <p data-agent-says-he>{words(`${offer.entry}.pitch.${said.pitch}`)}</p>
+      <p className="font-semibold" data-agent-moves>
+        {moves}
+      </p>
+    </section>
+  );
 }
 
 /** The looks on this offer, in content's order. */
@@ -241,6 +273,7 @@ export function AgentSheet({ offer, onChosen }: { offer: Offer; onChosen: (lines
   return (
     <article className="flex flex-col gap-3" data-agent-sheet={offer.entry}>
       <Head offer={offer} titled={false} />
+      <Pitch offer={offer} />
       {fee === null ? null : <Cost fee={fee} />}
       {tells.length === 0 ? null : (
         <section className="flex flex-col gap-1" aria-label={adviceWords("advice.notice")}>
