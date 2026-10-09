@@ -83,7 +83,9 @@ async function goTo(page: Page, id: string): Promise<boolean> {
   await page.locator('[data-thumb="map"]').click();
   await page.waitForSelector("[data-map]");
   await page.waitForFunction(() => ((window as unknown as { __map?: { frames?: number } }).__map?.frames ?? 0) > 5, null, { timeout: 60_000 });
-  const board = await page.evaluate((stop) => (window as unknown as { __map?: { screenOf(stop: string): { x: number; y: number } | null } }).__map?.screenOf(stop) ?? null, id);
+  // A stop not yet open to this life (R-WORLD-015: the story opens the map's stops) cannot be reached.
+  const state = await page.evaluate((stop) => (window as unknown as { __map?: { stops: { id: string; state: string }[] } }).__map?.stops.find((candidate) => candidate.id === stop)?.state ?? null, id);
+  const board = state === null || state === "not" ? null : await page.evaluate((stop) => (window as unknown as { __map?: { screenOf(stop: string): { x: number; y: number } | null } }).__map?.screenOf(stop) ?? null, id);
   if (board === null) {
     await page.locator("[data-map-close]").click();
     return false;

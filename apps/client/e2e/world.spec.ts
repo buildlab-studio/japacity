@@ -49,7 +49,7 @@ async function passMoments(page: Page): Promise<void> {
 async function visibleButtons(page: Page): Promise<string[]> {
   return page.evaluate(() =>
     [...document.querySelectorAll("button")]
-      .filter((button) => button.closest("[data-marks]") === null)
+      .filter((button) => button.closest("[data-marks]") === null && button.closest("[data-nudge]") === null)
       .filter((button) => {
         const box = button.getBoundingClientRect();
         const hidden = button.closest("[aria-hidden='true']") !== null || getComputedStyle(button).visibility === "hidden";
@@ -102,7 +102,9 @@ test("[R-WORLD-007] [R-WORLD-008] End month opens the Month sheet; ending it sho
   await expect(month).toBeVisible();
   await expect(month.getByRole("heading", { name: "This month" })).toBeVisible();
   await expect(month.locator("[data-slot='free']").first()).toBeVisible();
-  await expect(month.getByRole("button", { name: "Same again" })).toBeVisible();
+  // A fresh life has no last month to repeat: Same again waits for one (R-WORLD-007); Until news stands beside End month (R-WORLD-028).
+  await expect(month.getByRole("button", { name: "Same again" })).toHaveCount(0);
+  await expect(month.getByRole("button", { name: /^Until news/ })).toBeVisible();
   await expect(page.locator("[data-nudge]")).toHaveCount(0);
   await page.waitForTimeout(900);
   await shoot(page, "month");
