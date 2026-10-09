@@ -3,6 +3,7 @@
 // abroad and of coming home are in offer.abroad.data.ts and joined in at the end.
 import type { Id, OfferChoice, OfferEntry, Requirement } from "@japacity/sim";
 
+import { routeTable } from "../route/route.data";
 import { tuning } from "../tuning/tuning.data";
 import { naira, pct, pounds } from "../units";
 import { abroadOfferTable } from "./offer.abroad.data";
@@ -12,6 +13,12 @@ import { peopleOfferTable } from "./offer.people.data";
 import { streetOfferTable } from "./offer.street.data";
 
 const UK: Id<"route"> = "route.uk-masters";
+
+/** A route granted or flown on: the character is leaving, or has left. */
+const LEAVING: Requirement = {
+  type: "any",
+  of: Object.keys(routeTable).map((route): Requirement => ({ type: "route/state", route: route as Id<"route">, in: ["granted", "departed"] })),
+};
 
 /** "Not when broke": at least ₦150,000 in naira, bank and cash together. */
 const NOT_BROKE: Requirement = { type: "money/min", currency: "NGN", amount: naira(150000) };
@@ -778,6 +785,9 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
       { type: "quality/min", quality: "quality.standing", value: 40 },
       { type: "quality/min", quality: "quality.network", value: 20 },
       { type: "not", of: { type: "obligation/has", obligationType: "ajo" } },
+      // Ten months of shares have no place in a life whose visa is granted or that has flown.
+      // no requirement reads a flight's month, so a flight booked within three months is not kept out.
+      { type: "not", of: LEAVING },
     ],
     // luck.md gives 800 a month.
     chanceBp: 800,
