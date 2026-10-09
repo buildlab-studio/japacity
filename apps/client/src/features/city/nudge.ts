@@ -3,11 +3,11 @@
 // in its own nudge words; a report line waiting on the player; else the month's end.
 import type { PlayerView } from "@japacity/sim";
 
+import { duesGap } from "../../shared/words/dues";
 import { formatMoney } from "../../shared/words/format";
 import { asksAttention, tidyLines } from "../../shared/words/lines";
 import { hasWords, inMonths } from "../../shared/words/text";
 import type { Nudge } from "../../shared/world/contract";
-import { duesGap } from "../phone/apps/abroad";
 
 /** What the nudge points at, so a tap on it can open the matching sheet. `dues`: the month's dues abroad pass the money held; it opens the Bank. */
 export type NudgeAbout = "setpiece" | "offer" | "step" | "report" | "dues" | "end";

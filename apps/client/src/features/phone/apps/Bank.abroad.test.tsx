@@ -9,8 +9,9 @@ import { describe, expect, test } from "vitest";
 import { recordedGame, setPockets } from "../../../shared/testing/fixtures";
 import { renderWithView } from "../../../shared/testing/render";
 import { bandMoney } from "../../../shared/world/Band";
+import { duesGap, heldElsewhere } from "../../../shared/words/dues";
 import { formatMoney } from "../../../shared/words/format";
-import { abroadWords, duesGap, heldElsewhere } from "./abroad";
+import { abroadWords } from "./abroad";
 import { Bank } from "./Bank";
 import { phoneWords } from "../phone.words";
 

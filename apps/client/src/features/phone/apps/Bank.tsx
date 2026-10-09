@@ -10,13 +10,14 @@ import { ArrowLeftRight, MoveVertical } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 import { useView } from "../../../authority/GameProvider";
+import { duesGap, heldElsewhere } from "../../../shared/words/dues";
 import { CURRENCIES, formatMoney, HOME_CURRENCIES } from "../../../shared/words/format";
 import { lowerFirst, moneyParam, say, words } from "../../../shared/words/text";
 import { localCurrency } from "../../../shared/words/wayHome";
 import { Counter } from "../../../shared/world/Band";
 import { Chips, Head, useAsk } from "../act";
 import { phoneWords } from "../phone.words";
-import { abroadWords, changeFirst, currencyList, duesGap, heldElsewhere } from "./abroad";
+import { abroadWords, changeFirst, currencyList } from "./abroad";
 
 /** The currencies this life deals in: the home three, and the country's own once abroad. */
 function dealtIn(view: Pick<PlayerView, "place">): Currency[] {
