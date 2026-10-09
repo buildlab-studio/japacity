@@ -7,6 +7,16 @@ export const chapterText: Record<string, string> = {
   "chapter.find-your-feet.name": "Find your feet",
   "chapter.find-your-feet.title": "Find your feet",
   "chapter.find-your-feet.open": "Service year is over. The allowance has stopped. Everybody is asking what is next.",
+  // The opening line for each life, `open.<scenario's slug>`; the life from sixteen by its path: `prologue.degree` for
+  // a degree (edu-level 3 or more), `prologue.trade` for the trade or the shop counter. The plain line above stays as
+  // the fallback.
+  "chapter.find-your-feet.open.ada": "Service year is over. The allowance has stopped. Everybody is asking what is next.",
+  "chapter.find-your-feet.open.tunde": "Four years at the bank. The salary comes every month, and half of it is spoken for before it lands.",
+  "chapter.find-your-feet.open.zainab": "The code pays. Home gets its share first, every month, and the rest does not move you forward.",
+  "chapter.find-your-feet.open.ngozi": "Thirty months on the ward. Three more nurses left this year, and the shifts did not get shorter.",
+  "chapter.find-your-feet.open.aniekan": "Four years of marking. Your sister's fees are yours, and the laptop is where you go at night.",
+  "chapter.find-your-feet.open.prologue.degree": "The degree is done and the certificate is in a file. Everybody is asking what is next.",
+  "chapter.find-your-feet.open.prologue.trade": "Your years behind another man's counter are over. Now it is your own life, and everybody is asking what is next.",
   "chapter.find-your-feet.close": "You have a salary and a word for what you want. Japa.",
   "chapter.find-your-feet.item.job": "Get a job",
   "chapter.find-your-feet.item.job.nudge": "Ask at the hub in Yaba",

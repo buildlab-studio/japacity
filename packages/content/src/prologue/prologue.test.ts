@@ -237,3 +237,24 @@ describe("the life from sixteen starts in fair health", () => {
     expect(high).toBeLessThanOrEqual(content.quality[WELLBEING]?.max ?? 0);
   });
 });
+
+describe("opening words that fit the life", () => {
+  const OPEN = "chapter.find-your-feet.open";
+  const SERVICE = /service/i;
+
+  test("[R-WORLD-001] given each fixed life and both paths of the life from sixteen, when the first chapter's opening is looked up, then each has its own line, and only a life fresh from its service year says service is over", () => {
+    const fixed = Object.values(content.scenario).filter((scenario) => scenario.prologue !== true);
+    const keys = [...fixed.map((scenario) => `${OPEN}.${scenario.id.slice("scenario.".length)}`), `${OPEN}.prologue.degree`, `${OPEN}.prologue.trade`];
+    expect(keys.filter((key) => (text[key] ?? "").trim() === "")).toEqual([]);
+    const working = fixed.filter((scenario) => scenario.job !== null).map((scenario) => `${OPEN}.${scenario.id.slice("scenario.".length)}`);
+    expect(working.length).toBeGreaterThan(0);
+    expect([...working, `${OPEN}.prologue.degree`, `${OPEN}.prologue.trade`].filter((key) => SERVICE.test(text[key] ?? ""))).toEqual([]);
+    // The plain line stays for any life not named.
+    expect((text[OPEN] ?? "").trim()).not.toBe("");
+  });
+
+  test("[R-PROLOGUE-006] given the last card every path reaches, the trade and the shop counter included, when its question is read, then it does not say service is over", () => {
+    expect(text["prologue.home.card"]).toBeDefined();
+    expect(text["prologue.home.card"]).not.toMatch(SERVICE);
+  });
+});

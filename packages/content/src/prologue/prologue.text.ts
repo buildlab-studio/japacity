@@ -75,7 +75,7 @@ export const prologueText: Record<string, string> = {
   "prologue.friend.answer.tech": "Listen to the developers",
   "prologue.friend.answer.nowhere": "Dance and go home",
 
-  "prologue.home.card": "Service is over. Where do you sleep?",
+  "prologue.home.card": "You are on your own feet now. Where do you sleep?",
   "prologue.home.answer.family-house": "In the family house",
   "prologue.home.answer.room": "In a room of your own",
 
