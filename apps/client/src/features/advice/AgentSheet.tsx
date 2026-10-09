@@ -11,9 +11,9 @@ import { useState, type ReactNode } from "react";
 import { useGame, useView } from "../../authority/GameProvider";
 import { cue } from "../../shared/sound/cues";
 import { Rejection } from "../../shared/ui/Rejection";
-import { formatMoney, monthEnding } from "../../shared/words/format";
+import { formatMoney } from "../../shared/words/format";
 import { tidyLines } from "../../shared/words/lines";
-import { hasWords, nameOf, say, words } from "../../shared/words/text";
+import { hasWords, inMonths, nameOf, say, words } from "../../shared/words/text";
 import { adviceWords } from "./advice.words";
 
 /** Every entry of the agent family starts with this (R-ADVICE-005). */
@@ -127,7 +127,9 @@ function Lines({ lines, mark }: { lines: readonly ReportLine[]; mark: string }) 
 /** The one main button, with what is left after; then the way to say no (R-WORLD-006). */
 function Choices({ offer, main, onChosen }: { offer: Offer; main: Offer["choices"]; onChosen: (lines: ReportLine[]) => void }) {
   const { choose, idle } = useChoose();
-  const cash = useView().pockets.NGN.cash;
+  // The fee leaves cash first and the bank for the rest (decision 0012), so what is left after counts both.
+  const pockets = useView().pockets.NGN;
+  const cash = pockets.cash + pockets.bank;
   const fee = feeOf(offer) ?? 0;
   const decline = offer.choices.find((choice) => choice.id === DECLINE);
   const pick = (choice: string) => {
@@ -289,11 +291,12 @@ export function PapersSheet({ offer, onChosen }: { offer: Offer; onChosen: (line
  * saying nothing moved. The card sends nothing; the sheet's close leaves it waiting.
  */
 export function PromiseSheet({ offer }: { offer: Offer }) {
+  const view = useView();
   return (
     <article className="flex flex-col gap-3" data-agent-sheet={offer.entry}>
       <Head offer={offer} titled />
       <p className="border-y border-sheet-line py-2.5 text-[14px] font-semibold" data-agent-month>
-        {adviceWords("advice.promise.month", { month: monthEnding(offer.expiresMonth) })}
+        {adviceWords("advice.promise.month", { when: inMonths(offer.expiresMonth, view.month) })}
       </p>
     </article>
   );

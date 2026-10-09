@@ -157,12 +157,21 @@ describe("the licensed adviser", () => {
     expect(uk.months).toBeGreaterThanOrEqual(due - game.state.turn.month);
   });
 
-  test("[R-ADVICE-004] given cash one naira short of the fee, when the adviser is seen, then the slot fails and nothing is paid", () => {
+  test("[R-ADVICE-004] given cash one naira short of the fee and the rest in the bank, when the adviser is seen, then cash goes first and the bank pays the rest (decision 0012); with the naira short in both, the slot fails and nothing is paid", () => {
     const game = readyLife(content, { quiet: true, pockets: { NGN: { bank: 5000000 * 100, cash: advice.adviserFee - 100 } } });
     toHeard(game);
     const result = game.endTurn([slot(ADVISER)]);
-    expect(result.events.some((event) => event.type === "activity/slot-failed")).toBe(true);
-    expect(game.state.route[UK]?.state).toBe("heard");
+    expect(result.events.some((event) => event.type === "activity/slot-failed")).toBe(false);
+    // The month's upkeep goes first and takes the cash, so the fee comes from what is left: cash first, the bank for the rest, the whole fee.
+    const debits = result.events.filter((event) => event.type === "wallet/debited" && (event as unknown as { reason: string }).reason === "fee-advice") as unknown as { pocket: string; amount: number }[];
+    expect(debits.reduce((sum, debit) => sum + debit.amount, 0)).toBe(advice.adviserFee);
+    expect(debits.every((debit) => debit.pocket === "cash" || debit.pocket === "bank")).toBe(true);
+    expect(game.state.route[UK]?.state).toBe("known");
+    const poor = readyLife(content, { quiet: true, pockets: { NGN: { bank: 50, cash: advice.adviserFee - 100 } } });
+    toHeard(poor);
+    const failed = poor.endTurn([slot(ADVISER)]);
+    expect(failed.events.some((event) => event.type === "activity/slot-failed")).toBe(true);
+    expect(poor.state.route[UK]?.state).toBe("heard");
   });
 });
 

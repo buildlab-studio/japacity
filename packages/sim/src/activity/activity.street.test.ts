@@ -100,15 +100,20 @@ describe("Computer Village: a phone", () => {
     expect(result.events).toContainEqual({ type: "activity/rested", slots });
   });
 
-  test("[R-STREET-001] given cash one kobo short of the price and the rest in the bank, when the phone is bought, then the slot fails for its cost and nothing is paid; with the price exactly in cash it goes", () => {
+  test("[R-STREET-001] given cash one kobo short of the price and the rest in the bank, when the phone is bought, then cash goes first and the bank pays the kobo (decision 0012); with the naira short in both, the slot fails for its cost and nothing is paid", () => {
     const game = ada();
     setNaira(game, street.phonePrice - 1, street.phonePrice * 2);
+    expect(option(game, PHONE)).toMatchObject({ allowed: true, affordable: true });
+    const bought = game.endTurn([slot(PHONE)]);
+    expect(moved(bought, "phone")).toEqual([
+      { type: "wallet/debited", currency: "NGN", pocket: "cash", amount: street.phonePrice - 1, reason: "phone" },
+      { type: "wallet/debited", currency: "NGN", pocket: "bank", amount: 1, reason: "phone" },
+    ]);
+    setNaira(game, street.phonePrice - 1, 0);
     expect(option(game, PHONE)).toMatchObject({ allowed: true, affordable: false });
     const short = game.endTurn([slot(PHONE)]);
     expect(short.events).toContainEqual({ type: "activity/slot-failed", slot: 0, activity: PHONE, param: null, why: "cost" });
     expect(moved(short, "phone")).toEqual([]);
-    setNaira(game, street.phonePrice, 0);
-    expect(moved(game.endTurn([slot(PHONE)]), "phone")).toHaveLength(1);
   });
 
   test("[R-STREET-001] given a phone bought, when another is bought the next month, then it is a new phone: paid and lifted again", () => {

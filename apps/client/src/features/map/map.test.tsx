@@ -3,6 +3,7 @@ import { join } from "node:path";
 
 import { content } from "@japacity/content";
 import { act, fireEvent, render, screen, within } from "@testing-library/react";
+import { Group } from "three";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
 import { engineView } from "../../shared/testing/fixtures";
@@ -15,8 +16,9 @@ import { buildGrid, isWater, nearestNode, nodePoint, routeBetween, toXZ, type XZ
 import { Map } from "./Map";
 import { mapWords } from "./map.words";
 import { mapPins, type MapPin, rideChoices } from "./pins";
-import { Ride, RIDE_MS } from "./Ride";
+import { LINES, lineOf, PRE_MS, Ride, RIDE_MS } from "./Ride";
 import { headingOf } from "./RideSheet";
+import { buildRide } from "./rideScene";
 import { buildCityMap, drawCallsOf, readColours } from "./scene";
 
 afterEach(() => {
@@ -315,5 +317,141 @@ describe("the ride", () => {
     expect((onRide.mock.calls[0] as [RideChoice, string])[0].id).toBe("danfo");
     fireEvent.click(screen.getByRole("button", { name: mapWords("map.ride.skip") }));
     expect(onGo).toHaveBeenCalledWith("place.tejuosho-market");
+  });
+});
+
+describe("the ride carries people", () => {
+  const BAD = /[\u2013\u2014]/;
+
+  async function ride(way: RideChoice["id"], seed: number, onDone: () => void = () => undefined) {
+    vi.useFakeTimers();
+    render(<Ride way={way} place="Tejuosho Market" drawing={false} seed={seed} onDone={onDone} />);
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(50);
+    });
+    const probe = window.__ride;
+    if (probe === undefined) throw new Error("The ride set no probe");
+    return probe;
+  }
+
+  test("[R-WORLD-017] given each speaker, when his lines are read, then there are six, each in the words with no dash, and the seed picks one", () => {
+    expect(LINES).toBe(6);
+    for (const way of ["okada", "keke", "danfo"] as const) {
+      const seen = new Set<string>();
+      for (let seed = 0; seed < LINES; seed += 1) {
+        const key = lineOf(way, seed);
+        if (key === null) throw new Error(`No line for ${way}`);
+        expect(key.startsWith(`map.ride.line.${way}.`)).toBe(true);
+        const said = mapWords(key);
+        expect(said).not.toBe(key);
+        expect(said).not.toMatch(BAD);
+        seen.add(said);
+      }
+      expect(seen.size).toBe(LINES);
+      expect(lineOf(way, 7)).toBe(lineOf(way, 7 + LINES));
+    }
+    expect(lineOf("walk", 3)).toBeNull();
+  });
+
+  test("[R-WORLD-017] given an okada ride, when it plays, then the pre-roll shows the rider's line, the rider and the character are on the bike throughout, and the line goes with the pre-roll", async () => {
+    const probe = await ride("okada", 4);
+    const key = lineOf("okada", 4) ?? "";
+    expect(screen.getByText(mapWords(key))).toBeTruthy();
+    expect(probe.phase).toBe("pre");
+    expect(probe.line).toBe(key);
+    expect([...probe.figures].sort()).toEqual(["own", "rider"]);
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(PRE_MS);
+    });
+    expect(probe.phase).toBe("ride");
+    expect(probe.line).toBeNull();
+    expect(screen.queryByText(mapWords(key))).toBeNull();
+    expect([...probe.figures].sort()).toEqual(["own", "rider"]);
+  });
+
+  test("[R-WORLD-017] given a danfo ride, when it plays, then the pre-roll shows the conductor's line with the character and the driver in the cab, and from above nothing is drawn inside", async () => {
+    const probe = await ride("danfo", 2);
+    const key = lineOf("danfo", 2) ?? "";
+    expect(key.startsWith("map.ride.line.danfo.")).toBe(true);
+    expect(screen.getByText(mapWords(key))).toBeTruthy();
+    expect([...probe.figures].sort()).toEqual(["driver", "own"]);
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(PRE_MS);
+    });
+    expect(probe.phase).toBe("ride");
+    expect(probe.figures).toEqual([]);
+    expect(document.querySelector("[data-ride-line]")).toBeNull();
+  });
+
+  test("[R-WORLD-017] given a keke ride, when it plays, then the driver's line shows with the driver in front and the character on the back bench", async () => {
+    const probe = await ride("keke", 0);
+    expect(screen.getByText(mapWords(lineOf("keke", 0) ?? ""))).toBeTruthy();
+    expect([...probe.figures].sort()).toEqual(["driver", "own"]);
+  });
+
+  test("[R-WORLD-017] given a ride on foot, when it plays, then there is no pre-roll and no line, and the character walks", async () => {
+    const probe = await ride("walk", 5);
+    expect(probe.phase).toBe("ride");
+    expect(probe.preMs).toBe(0);
+    expect(probe.line).toBeNull();
+    expect(document.querySelector("[data-ride-line]")).toBeNull();
+    expect(probe.figures).toEqual(["own"]);
+  });
+
+  test("[R-WORLD-017] given each way's scene before its people load, when either part plays, then it costs no more draw calls than the ride did before people, seven, so the people add only their own", () => {
+    for (const way of ["danfo", "keke", "okada", "walk"] as const) {
+      const scene = buildRide(way);
+      for (const phase of ["pre", "ride"] as const) {
+        scene.setPhase(phase);
+        scene.frame(phase === "pre" ? 300 : 3000, 0.46);
+        expect(drawCallsOf(scene.scene)).toBeLessThanOrEqual(7);
+      }
+      scene.dispose();
+    }
+  });
+
+  test("[R-WORLD-017] given an okada's pre-roll cut short mid-climb, when the ride plays, then the character sits behind the rider facing ahead", () => {
+    const scene = buildRide("okada");
+    scene.setPerson("rider", new Group());
+    scene.setPerson("own", new Group());
+    scene.frame(500, 0.46);
+    const own = scene.seats.find((seat) => seat.role === "own")?.group;
+    const rider = scene.seats.find((seat) => seat.role === "rider")?.group;
+    if (own === undefined || rider === undefined) throw new Error("No seats");
+    expect(own.rotation.y).toBeGreaterThan(0);
+    scene.setPhase("ride");
+    scene.frame(3000, 0.46);
+    expect(own.rotation.y).toBe(0);
+    expect(own.position.x).toBeCloseTo(rider.position.x, 5);
+    expect(own.position.z).toBeLessThan(rider.position.z);
+    scene.dispose();
+  });
+
+  test("[R-WORLD-017] given an okada ride, when it plays out, then the pre-roll is at most a second and a half and counts inside the six seconds", async () => {
+    const onDone = vi.fn();
+    await ride("okada", 1, onDone);
+    expect(PRE_MS).toBeLessThanOrEqual(1500);
+    expect(RIDE_MS).toBeGreaterThanOrEqual(5000);
+    expect(RIDE_MS).toBeLessThanOrEqual(7000);
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(RIDE_MS - 260);
+    });
+    expect(onDone).not.toHaveBeenCalled();
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(260);
+    });
+    expect(onDone).toHaveBeenCalledTimes(1);
+  });
+
+  test("[R-WORLD-017] given the okada's pre-roll, when Skip is tapped, then the pre-roll and the ride end at once and not again", async () => {
+    const onDone = vi.fn();
+    await ride("okada", 3, onDone);
+    expect(document.querySelector("[data-ride-line]")).not.toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: mapWords("map.ride.skip") }));
+    expect(onDone).toHaveBeenCalledTimes(1);
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(RIDE_MS);
+    });
+    expect(onDone).toHaveBeenCalledTimes(1);
   });
 });

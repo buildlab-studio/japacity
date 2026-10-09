@@ -79,6 +79,19 @@ describe("a third act on a sheet", () => {
   });
 });
 
+describe("a job on a board", () => {
+  test("[R-WORLD-005] given the hunt can ask for a job the place stages, when the things are read, then the job's act shows; a job the hunt cannot ask for does not", () => {
+    const things: Thing[] = [
+      { id: "stall", label: "city.thing.accessories", file: "x.glb", copy: 0, acts: [{ id: "sales", kind: "sheet", label: "city.act.phone-sales", stages: "activity.job-phone-sales" }, { id: "learn", kind: "sheet", label: "city.act.apprentice", stages: "activity.apprentice-repair" }] },
+    ];
+    const staged = new Set(["activity.job-phone-sales", "activity.apprentice-repair"]);
+    const withJob = thingsNow(things, stagedNow(new Set(["activity.job-phone-sales", "activity.apprentice-repair"]), staged, new Set(), null));
+    expect(withJob[0]?.acts.map((act) => act.id)).toEqual(["sales", "learn"]);
+    const without = thingsNow(things, stagedNow(new Set(["activity.apprentice-repair"]), staged, new Set(), null));
+    expect(without[0]?.acts.map((act) => act.id)).toEqual(["learn"]);
+  });
+});
+
 describe("what an act can open now", () => {
   test("[R-WORLD-005] given the view's offered activities, the open offers and the set piece asking, when a thing's acts are read, then an activity stays while offered and staged, an offer while open, the set piece while asking, and the chapter in hand", () => {
     const now = stagedNow(new Set(["activity.play-lotto"]), new Set(["activity.play-lotto", "activity.rest"]), new Set(["offer.nepa-bill"]), "setpiece.december", "chapter.find-your-feet");

@@ -7,8 +7,8 @@ import { GameProvider } from "../../authority/GameProvider";
 import { createGameStore } from "../../authority/store";
 import { engineView } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
-import { formatMoney, monthEnding } from "../../shared/words/format";
-import { say, words } from "../../shared/words/text";
+import { formatMoney } from "../../shared/words/format";
+import { inMonths, say, words } from "../../shared/words/text";
 import { adviceUiText, adviceWords } from "./advice.words";
 import { AgentSheets } from "./AgentSheet";
 
@@ -146,7 +146,7 @@ describe("the agent's sheet", () => {
     const { authority } = await renderWithView(sheet(), view);
     const take = document.querySelector<HTMLButtonElement>("[data-agent-choice='take']")!;
     expect(take.textContent).toContain(text[`${STOP}.choice.take`]);
-    expect(take.textContent).toContain(say("ui.world.left", { amount: formatMoney(view.pockets.NGN.cash - FEE, "NGN") }));
+    expect(take.textContent).toContain(say("ui.world.left", { amount: formatMoney(view.pockets.NGN.cash + view.pockets.NGN.bank - FEE, "NGN") }));
     expect(screen.getByText(text[`${STOP}.choice.decline`]!)).toBeTruthy();
     fireEvent.click(take);
     await waitFor(() => expect(authority.sent.at(-1)).toMatchObject({ type: "offer/choose", offer: "offer-1", choice: "take" }));
@@ -187,7 +187,7 @@ describe("what he leaves behind", () => {
     const { authority } = await renderWithView(sheet([STOP]), view);
     const card = document.querySelector<HTMLElement>(`[data-agent-sheet='${PAPERS}']`)!;
     expect(within(card).getByText(words(`${PAPERS}.body`, { fee: { currency: "NGN", amount: papers.terms.fee as number } }))).toBeTruthy();
-    const left = say("ui.world.left", { amount: formatMoney(view.pockets.NGN.cash - (papers.terms.fee as number), "NGN") });
+    const left = say("ui.world.left", { amount: formatMoney(view.pockets.NGN.cash + view.pockets.NGN.bank - (papers.terms.fee as number), "NGN") });
     for (const paper of ["transcript", "tb-certificate", "medical"]) {
       const button = card.querySelector<HTMLButtonElement>(`[data-agent-choice='${paper}']`)!;
       expect(button.textContent).toBe(`${text[`${PAPERS}.choice.${paper}`]!}${left}`);
@@ -197,11 +197,12 @@ describe("what he leaves behind", () => {
     await waitFor(() => expect(authority.sent.at(-1)).toMatchObject({ type: "offer/choose", offer: "offer-2", choice: "decline" }));
   });
 
-  test("[R-ADVICE-005] given his promise, when its card opens, then it shows the month he named and sends nothing", async () => {
+  test("[R-ADVICE-005] given his promise, when its card opens, then it shows the month he named as months away (R-WORLD-002) and sends nothing", async () => {
     const promise: Offer = { id: "offer-3", entry: PROMISE, openedMonth: 3, expiresMonth: 5, terms: { agent: AGENT }, signs: [], choices: allowed("wait") };
-    const { authority } = await renderWithView(sheet([PROMISE]), withOffers(promise));
+    const view = withOffers(promise);
+    const { authority } = await renderWithView(sheet([PROMISE]), view);
     expect(screen.getByText(text[`${PROMISE}.body`]!)).toBeTruthy();
-    expect(document.querySelector("[data-agent-month]")?.textContent).toBe(adviceWords("advice.promise.month", { month: monthEnding(5) }));
+    expect(document.querySelector("[data-agent-month]")?.textContent).toBe(adviceWords("advice.promise.month", { when: inMonths(5, view.month) }));
     expect(screen.queryAllByRole("button")).toHaveLength(0);
     expect(authority.sent).toHaveLength(0);
   });

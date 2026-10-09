@@ -93,12 +93,12 @@ const TAKE: OfferChoice = {
   requires: [],
   pick: null,
   effects: [
-    { type: "money/take", currency: "NGN", pocket: "cash", amount: { term: "fee" }, reason: "fee-agent" },
+    { type: "money/take", currency: "NGN", pocket: "any", amount: { term: "fee" }, reason: "fee-agent" },
     { type: "route/look-into" },
   ],
   // R-ADVICE-005: a scammer gives nothing for the fee, and has papers to sell.
   fraudEffects: [
-    { type: "money/take", currency: "NGN", pocket: "cash", amount: { term: "fee" }, reason: "fee-agent" },
+    { type: "money/take", currency: "NGN", pocket: "any", amount: { term: "fee" }, reason: "fee-agent" },
     { type: "offer/open", offer: PAPERS },
   ],
 };
@@ -140,7 +140,7 @@ function fake(document: Id<"document">): OfferChoice {
     requires: [{ type: "document/absent", document }],
     pick: null,
     effects: [
-      { type: "money/take", currency: "NGN", pocket: "cash", amount: { term: "fee" }, reason: "fee-agent" },
+      { type: "money/take", currency: "NGN", pocket: "any", amount: { term: "fee" }, reason: "fee-agent" },
       { type: "document/grant", document },
     ],
     fraudEffects: null,

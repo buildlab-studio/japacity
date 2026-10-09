@@ -205,7 +205,6 @@ function GalleryView({ open, onClose, cards, scenario }: { open: boolean; onClos
                 <li key={cardKey(card)}>
                   <Button className="w-full justify-between" onClick={() => setShown(card)}>
                     <span>{say(`share.${card.kind}.title`)}</span>
-                    <span className="text-sm opacity-75">{say("share.gallery.month", { month: card.months })}</span>
                   </Button>
                 </li>
               ))}

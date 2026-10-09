@@ -59,13 +59,13 @@ export const peopleOfferTable: Record<Id<"offer">, OfferEntry> = {
     choices: [
       {
         id: "take",
-        requires: [{ type: "money/min", currency: "NGN", amount: { term: "fee" }, pocket: "cash" }],
+        requires: [{ type: "money/min", currency: "NGN", amount: { term: "fee" } }],
         pick: null,
         effects: [
-          { type: "money/take", currency: "NGN", pocket: "cash", amount: { term: "fee" }, reason: "fee-agent" },
+          { type: "money/take", currency: "NGN", pocket: "any", amount: { term: "fee" }, reason: "fee-agent" },
           { type: "people/moment", kind: "wedding" },
         ],
-        fraudEffects: [{ type: "money/take", currency: "NGN", pocket: "cash", amount: { term: "fee" }, reason: "fee-agent" }],
+        fraudEffects: [{ type: "money/take", currency: "NGN", pocket: "any", amount: { term: "fee" }, reason: "fee-agent" }],
       },
       { id: "walk-away", requires: [], pick: null, effects: [], fraudEffects: null },
     ],

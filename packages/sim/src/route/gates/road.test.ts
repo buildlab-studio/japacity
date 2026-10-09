@@ -371,11 +371,16 @@ describe("taking the pitch", () => {
     expect(after.lines.filter((line) => line.key.startsWith("line.route.road-"))).toEqual([]);
   });
 
-  test("[R-ROAD-003] given a pitch taken with too little cash for the deposit, when it is chosen, then it is refused with cannot-afford and nothing moves", () => {
-    const game = life({ change: HONEST_ROAD, pockets: { NGN: { bank: CASH, cash: 0 } } });
+  test("[R-ROAD-003] given a pitch taken with too little naira in cash and bank together, when it is chosen, then it is refused with cannot-afford and nothing moves; with the deposit in the bank alone it is paid, cash first and the bank for the rest (decision 0012)", () => {
+    const game = life({ change: HONEST_ROAD, pockets: { NGN: { bank: 0, cash: 0 } } });
     const pitch = openPitch(game);
     game.expectRejected({ type: "offer/choose", offer: pitch.id, choice: "take" }, "cannot-afford");
     expect(gateOf(game).step).toBeNull();
+    const banked = life({ change: HONEST_ROAD, pockets: { NGN: { bank: CASH, cash: 0 } } });
+    const offered = openPitch(banked);
+    const result = banked.accept({ type: "offer/choose", offer: offered.id, choice: "take" });
+    expect(result.events.filter((event) => event.type === "wallet/debited")).toMatchObject([{ pocket: "bank", amount: offered.terms["deposit"], reason: "fee-agent" }]);
+    expect(gateOf(banked).step).not.toBeNull();
   });
 });
 
