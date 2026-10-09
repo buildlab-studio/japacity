@@ -80,6 +80,8 @@ export const uiText: Record<string, string> = {
   "ui.walk.map": "The map: every place you can go",
   "ui.walk.count": "The months you can play. Tap it to see when more come",
   "ui.walk.step": "{n} of {count}",
+  // Each card says how to go on.
+  "ui.walk.on": "Tap to go on",
   "ui.world.now": "Now",
   "ui.world.pass": "Bus pass",
   "ui.world.depart-held": "The funds held for you must go back first: Phone, Bills, Pay now.",

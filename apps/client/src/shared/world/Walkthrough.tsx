@@ -43,7 +43,7 @@ export function markWalkSeen(): void {
   }
 }
 
-interface Spot {
+export interface Spot {
   x: number;
   top: number;
   bottom: number;
@@ -56,6 +56,14 @@ function spotOf(selector: string): Spot | null {
   return { x: box.left + box.width / 2, top: box.top, bottom: box.bottom };
 }
 
+/** The bottom of the nudge under the band, or null when none shows: a card below the band stands under it, never over it. */
+function nudgeBottom(): number | null {
+  const found = document.querySelector("[data-nudge]");
+  if (found === null) return null;
+  const box = found.getBoundingClientRect();
+  return box.height > 0 ? box.bottom : null;
+}
+
 /** The next pointer, or past the last once every one has shown. */
 function forward(at: number | null): number {
   return at === null ? 0 : Math.min(at + 1, WALK_STEPS.length);
@@ -66,12 +74,28 @@ const GUTTER = 12;
 const ARROW = 10;
 
 /**
+ * Where a pointer's card stands (R-WORLD-027): a thing in the top half gets its
+ * card below it, one in the bottom half above; a card below the band stands under the nudge (`clear`, its
+ * bottom), pointing up from there, so the nudge is never covered.
+ */
+export function cardPlace(spot: Spot | null, clear: number | null, width: number, height: number): { below: boolean; left: number; arrow: number; place: { top: number } | { bottom: number } } {
+  const x = spot?.x ?? width / 2;
+  const below = spot === null || spot.top < height / 2;
+  const left = Math.min(Math.max(GUTTER, x - CARD_WIDTH / 2), Math.max(GUTTER, width - GUTTER - CARD_WIDTH));
+  const arrow = Math.min(Math.max(14, x - left), CARD_WIDTH - 14);
+  const under = Math.max(spot?.bottom ?? height / 3, below && clear !== null ? clear : 0);
+  const place = below ? { top: under + ARROW + 4 } : { bottom: height - (spot?.top ?? (height * 2) / 3) + ARROW + 4 };
+  return { below, left, arrow, place };
+}
+
+/**
  * `active`: the opening words have just been passed and nothing covers the world. The walkthrough
  * starts the first time it is active on a device that has not seen it, and runs to its end.
  */
 export function Walkthrough({ active }: { active: boolean }) {
   const [step, setStep] = useState<number | null>(null);
   const [spot, setSpot] = useState<Spot | null>(null);
+  const [clear, setClear] = useState<number | null>(null);
 
   useEffect(() => {
     if (!active || step !== null || walkSeen()) return;
@@ -83,7 +107,10 @@ export function Walkthrough({ active }: { active: boolean }) {
   const current = step === null ? undefined : WALK_STEPS[step];
   useLayoutEffect(() => {
     if (current === undefined) return;
-    const measure = (): void => setSpot(spotOf(current.target));
+    const measure = (): void => {
+      setSpot(spotOf(current.target));
+      setClear(nudgeBottom());
+    };
     measure();
     window.addEventListener("resize", measure);
     return () => window.removeEventListener("resize", measure);
@@ -101,12 +128,7 @@ export function Walkthrough({ active }: { active: boolean }) {
   if (current === undefined || !active || step === null) return null;
   const width = typeof window === "undefined" ? 390 : window.innerWidth;
   const height = typeof window === "undefined" ? 844 : window.innerHeight;
-  const x = spot?.x ?? width / 2;
-  // A thing in the top half gets its card below it; one in the bottom half, above.
-  const below = spot === null || spot.top < height / 2;
-  const left = Math.min(Math.max(GUTTER, x - CARD_WIDTH / 2), Math.max(GUTTER, width - GUTTER - CARD_WIDTH));
-  const arrow = Math.min(Math.max(14, x - left), CARD_WIDTH - 14);
-  const place = below ? { top: (spot?.bottom ?? height / 3) + ARROW + 4 } : { bottom: height - (spot?.top ?? (height * 2) / 3) + ARROW + 4 };
+  const { below, left, arrow, place } = cardPlace(spot, clear, width, height);
 
   return (
     <div className="fixed inset-0 z-[55]" onClick={() => setStep(forward)} data-walkthrough={current.id}>
@@ -119,7 +141,10 @@ export function Walkthrough({ active }: { active: boolean }) {
         <p className="relative text-[15px] leading-snug font-bold" aria-live="polite">
           {say(current.words)}
         </p>
-        <p className="relative mt-1 text-[12px] font-semibold text-text-2">{say("ui.walk.step", { n: step + 1, count: WALK_STEPS.length })}</p>
+        <p className="relative mt-1 flex justify-between gap-2 text-[12px] font-semibold text-text-2">
+          <span>{say("ui.walk.step", { n: step + 1, count: WALK_STEPS.length })}</span>
+          <span data-walk-on>{say("ui.walk.on")}</span>
+        </p>
       </div>
     </div>
   );
