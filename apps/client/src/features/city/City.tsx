@@ -729,7 +729,7 @@ export function City({
     lastPlan.current = plan;
     if (!world || picked?.kind !== "action" || ask !== null) return;
     const added = plan.find((pick, index) => pick !== null && before[index] !== pick && !before.includes(pick));
-    if (added === undefined) return;
+    if (added === undefined || added === null) return;
     toast.show(say("ui.world.planned", { what: nameOf(added.activity) }));
     setPicked(null);
   }, [plan, world, picked, ask, toast]);

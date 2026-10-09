@@ -12,7 +12,8 @@ import { runLife } from "./players";
 import { cleanFile } from "./report";
 
 const FIXED: Id<"scenario">[] = ["scenario.ada", "scenario.tunde", "scenario.zainab", "scenario.ngozi"];
-const CAREFUL_SEEDS = 24;
+// Thirty-two careful seeds: since decision 0012 the risky players can pay for an agent's papers from the bank, so their files are no longer clean, and the clean study decisions come from the careful seeds alone.
+const CAREFUL_SEEDS = 32;
 const OTHER_SEEDS = 8;
 const MONTHS = 60;
 
