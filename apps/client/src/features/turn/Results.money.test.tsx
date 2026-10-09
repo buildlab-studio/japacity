@@ -167,29 +167,29 @@ describe("money named for what it was", () => {
     const circle = openOffer(game, "offer.join-ajo");
     game.accept({ type: "offer/choose", offer: circle.id, choice: "join" });
     const share = content.obligation["obligation.ajo"]?.amount ?? 0;
-    let potSeen = false;
-    for (let month = 0; month < 10 && !potSeen; month += 1) {
+    const months: { lines: ReportLine[]; moved: number }[] = [];
+    for (let month = 0; month < 10 && !months.some((played) => played.lines.some((line) => line.key === "line.obligation.pot")); month += 1) {
       if (game.state.turn.banked < 1) game.grant(content.tuning.turn.cap);
       const before = naira(game);
       const lines = game.endTurn().lines;
+      months.push({ lines, moved: naira(game) - before });
+    }
+    for (const { lines, moved } of months) {
       const said = moneyLines(lines).map((entry) => words(entry.line.key, entry.line.params));
       expect(said).toContain(`Savings circle: ${formatMoney(share, "NGN")}.`);
-      expect(said.some((line) => line.startsWith("Spent going out"))).toBe(false);
-      const pot = lines.find((line) => line.key === "line.obligation.pot");
-      if (pot !== undefined) {
-        potSeen = true;
-        const amount = pot.params.amount;
-        if (typeof amount !== "object") throw new Error("The pot carries no money.");
-        expect(said).toContain(words(pot.key, pot.params));
-        expect(words(pot.key, pot.params)).toContain(`The circle pays you ${formatMoney(amount.amount, "NGN")}`);
-        expect(said.some((line) => line.startsWith("A gift lands"))).toBe(false);
-        const bank = latelyLines({ report: { month: 0, lines, japacityBefore: null, japacityAfter: null, attention: false } }, [], []).map((line) => words(line.key, line.params));
-        expect(bank).toContain(words(pot.key, pot.params));
-        expect(bank).toContain(`Savings circle: ${formatMoney(share, "NGN")}.`);
-        expect(bank.some((line) => line.startsWith("A gift lands") || line.startsWith("Spent going out"))).toBe(false);
-      }
-      expect(keptNaira(lines)).toBe(naira(game) - before);
+      expect(said.some((line) => line.startsWith("Spent going out") || line.startsWith("A gift lands"))).toBe(false);
+      expect(keptNaira(lines)).toBe(moved);
     }
-    expect(potSeen).toBe(true);
+    const potMonth = months.find((played) => played.lines.some((line) => line.key === "line.obligation.pot"));
+    const pot = potMonth?.lines.find((line) => line.key === "line.obligation.pot");
+    const amount = pot?.params.amount;
+    if (potMonth === undefined || pot === undefined || typeof amount !== "object") throw new Error("The pot did not come within ten months.");
+    const told = words(pot.key, pot.params);
+    expect(told).toContain(`The circle pays you ${formatMoney(amount.amount, "NGN")}`);
+    expect(moneyLines(potMonth.lines).map((entry) => words(entry.line.key, entry.line.params))).toContain(told);
+    const bank = latelyLines({ report: { month: 0, lines: potMonth.lines, japacityBefore: null, japacityAfter: null, attention: false } }, [], []).map((line) => words(line.key, line.params));
+    expect(bank).toContain(told);
+    expect(bank).toContain(`Savings circle: ${formatMoney(share, "NGN")}.`);
+    expect(bank.some((line) => line.startsWith("A gift lands") || line.startsWith("Spent going out"))).toBe(false);
   });
 });
