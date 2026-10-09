@@ -336,7 +336,7 @@ export const CATALOG: CatalogEntry[] = [
     ["bld_makoko-school", "school", () => buildSchool("place.makoko.sign.1", { board: "blue", ink: "white", painted: true })],
   ] as const).map(([name, folder, build]): CatalogEntry => ({ ...placePiece(name, "makoko", build, [...ELEVATIONS, "plan", "phone"]), source: `assets-src/bld/makoko-house/${folder}`, author: MAKOKO, ground: "lagoon" })),
   { ...placePiece("prop_plank-walkway", "makoko", buildPlankWalkway), author: MAKOKO, ground: "lagoon" },
-  { ...placePiece("prop_fish-racks", "makoko", () => buildFishRacks("place.makoko.sign.3", SIGN.painted)), author: MAKOKO, ground: "lagoon" },
+  { ...placePiece("prop_fish-racks", "makoko", () => buildFishRacks("place.makoko.sign.3", { board: "danfoYellow", ink: "red", painted: true })), author: MAKOKO, ground: "lagoon" },
   { ...placePiece("prop_canoe-goods", "makoko", buildCanoeGoods), source: "assets-src/prop/canoe-load/goods", author: MAKOKO, ground: "lagoon" },
   { ...placePiece("prop_canoe-school", "makoko", buildCanoeSchool), source: "assets-src/prop/canoe-load/school", author: MAKOKO, ground: "lagoon" },
   {
