@@ -27,7 +27,7 @@ describe("the clinic's jobs notice", () => {
     const notice = (stage.things ?? []).find((thing) => thing.id === "jobs-notice")!;
     expect(sceneWords(notice.label)).toBe("Jobs notice");
     const spot = thingSpot(stage, notice);
-    expect(spot !== null && onGround(stage, spot)).toBe(true);
+    expect(spot !== null && onGround(stage, [spot[0], spot[1], 0])).toBe(true);
   });
 
   test("[R-PROLOGUE-010] given a life without that care, when the clinic's things are read, then the notice offers nothing", () => {
