@@ -83,12 +83,12 @@ function Group({ tab, current, children }: { tab: Tab; current: Tab; children: R
 function Header() {
   const view = useView();
   return (
-    <header className="sticky top-0 z-20 border-b border-line bg-paper/95 backdrop-blur-sm">
+    <header className="sticky top-0 z-20 border-b border-sheet-line bg-sheet">
       <div className="mx-auto flex max-w-[90rem] items-center gap-3 px-4 py-3">
         {/* On a phone the name would sit beside the japacity label, so it is kept for screen readers only. */}
         <h1 className="sr-only text-lg font-bold sm:not-sr-only">{say("ui.game")}</h1>
-        <span className="text-muted">{say("ui.month.planning", { month: playerMonth(view.month) })}</span>
-        <span className="ml-auto flex items-center gap-2 text-sm text-muted">
+        <span className="text-text-2">{say("ui.month.planning", { month: playerMonth(view.month) })}</span>
+        <span className="ml-auto flex items-center gap-2 text-sm text-text-2">
           {view.japacity.percent === null ? null : say("ui.japacity.title")}
           <JapacityView compact />
         </span>
@@ -105,7 +105,7 @@ function TabBar({ tabs, current, onChange }: { tabs: TabSet; current: Tab; onCha
   const view = useView();
   const waiting = view.offers.length > 0 || view.setpiece !== null || (view.interview?.question ?? null) !== null;
   return (
-    <nav aria-label={say("ui.tabs")} className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-paper pb-[env(safe-area-inset-bottom)] lg:hidden">
+    <nav aria-label={say("ui.tabs")} className="fixed inset-x-0 bottom-0 z-30 border-t border-sheet-line bg-sheet pb-[env(safe-area-inset-bottom)] lg:hidden">
       <ul className="grid grid-cols-6">
         {tabs.map(({ id, icon: Icon }) => (
           <li key={id}>
@@ -113,11 +113,11 @@ function TabBar({ tabs, current, onChange }: { tabs: TabSet; current: Tab; onCha
               type="button"
               aria-current={id === current ? "page" : undefined}
               onClick={() => onChange(id)}
-              className={`relative flex min-h-14 w-full flex-col items-center justify-center gap-0.5 text-xs ${id === current ? "font-semibold text-ink" : "text-muted"}`}
+              className={`relative flex min-h-14 w-full flex-col items-center justify-center gap-0.5 text-xs ${id === current ? "font-semibold text-ink" : "text-text-2"}`}
             >
               <Icon size={20} />
               {say(`ui.tab.${id}`)}
-              {id === "month" && waiting ? <span className="absolute top-2 right-[30%] size-2 rounded-full bg-accent ring-2 ring-paper" /> : null}
+              {id === "month" && waiting ? <span className="absolute top-2 right-[30%] size-2 rounded-full bg-accent ring-2 ring-sheet" /> : null}
               {id === current ? <span className="absolute inset-x-4 top-0 h-0.5 rounded-full bg-ink" /> : null}
             </button>
           </li>
@@ -159,7 +159,7 @@ function MonthGroup({ tab }: { tab: Tab }) {
 function ActionBar() {
   return (
     // One action bar: fixed above the tabs on a phone, at the foot of the plan on a desktop.
-    <div className="fixed inset-x-0 bottom-14 z-20 border-t border-line bg-paper/95 px-4 py-3 backdrop-blur-sm lg:sticky lg:bottom-4 lg:rounded-xl lg:border lg:bg-surface lg:shadow-lg">
+    <div className="fixed inset-x-0 bottom-14 z-20 border-t border-sheet-line bg-sheet px-4 py-3 lg:sticky lg:bottom-4 lg:rounded-xl lg:border lg:bg-sheet-2 lg:shadow-lg">
       <TurnBar />
     </div>
   );

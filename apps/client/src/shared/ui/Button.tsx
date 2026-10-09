@@ -4,8 +4,8 @@ type Variant = "primary" | "secondary" | "quiet";
 
 const VARIANTS: Record<Variant, string> = {
   primary: "bg-accent text-accent-ink font-semibold border border-accent hover:brightness-95",
-  secondary: "bg-surface text-ink border border-ink/70 hover:bg-sunk",
-  quiet: "bg-transparent text-ink underline underline-offset-4 decoration-line hover:decoration-ink",
+  secondary: "bg-sheet-2 text-ink border border-ink/70 hover:bg-sheet-muted",
+  quiet: "bg-transparent text-ink underline underline-offset-4 decoration-sheet-line hover:decoration-ink",
 };
 
 export interface ButtonProps extends ComponentProps<"button"> {

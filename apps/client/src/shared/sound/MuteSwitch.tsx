@@ -17,7 +17,7 @@ export function MuteSwitch() {
       title={label}
       data-muted={muted}
       onClick={() => setMuted(!muted)}
-      className="inline-flex size-11 shrink-0 items-center justify-center rounded-lg border border-line text-ink hover:bg-sunk focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
+      className="inline-flex size-11 shrink-0 items-center justify-center rounded-lg border border-sheet-line text-ink hover:bg-sheet-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
     >
       {muted ? <VolumeX size={20} aria-hidden /> : <Volume2 size={20} aria-hidden />}
     </button>
