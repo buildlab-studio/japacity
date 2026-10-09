@@ -45,6 +45,10 @@ const SEND_OFF: Id<"chapter"> = "chapter.send-off";
 const LANDING: Id<"chapter"> = "chapter.landing";
 const SECURE: Id<"chapter"> = "chapter.secure";
 const UK: Id<"route"> = "route.uk-masters";
+const CARE: Id<"route"> = "route.uk-care";
+const TALENT: Id<"route"> = "route.uk-talent";
+const POINTS: Id<"route"> = "route.canada-points";
+const GULF: Id<"route"> = "route.gulf-contract";
 
 const SIBLING: StorySignal = { on: "sibling" };
 const COURTING: StorySignal = { on: "bond", stages: ["courting"] };
@@ -91,6 +95,16 @@ export const chatLines: ChatLine[] = [
   // Bad news is written straight (text.md R-TEXT-002).
   family("chats.mum.refused", "mum", null, [{ on: "line", key: "line.route.refused" }], [THANKS]),
   friend("chats.friend.funds", DECISION, [{ on: "offer", offer: "offer.held-funds-agent" }], [THANKS]),
+
+  // The file and decision day of each other way out (chapter.md R-CHAPTER-009).
+  family("chats.dad.verification", "dad", "chapter.build-the-file-care", [{ on: "activity", activity: "activity.request-verification" }], [YES, THANKS]),
+  family("chats.dad.endorsement", "dad", "chapter.build-the-file-talent", [{ on: "activity", activity: "activity.apply-endorsement" }], [YES, THANKS]),
+  family("chats.mum.eca", "mum", "chapter.build-the-file-points", [{ on: "document", document: "document.eca", state: "pending" }], [THANKS]),
+  family("chats.mum.agent", "mum", "chapter.build-the-file-gulf", [{ on: "offer", offer: "offer.gulf-agent" }], [YES, THANKS]),
+  family("chats.mum.waiting-care", "mum", "chapter.decision-day-care", [{ on: "visa", route: CARE }], [THANKS]),
+  family("chats.mum.waiting-talent", "mum", "chapter.decision-day-talent", [{ on: "visa", route: TALENT }], [THANKS]),
+  family("chats.mum.waiting-points", "mum", "chapter.decision-day-points", [{ on: "visa", route: POINTS }], [THANKS]),
+  family("chats.dad.waiting-gulf", "dad", "chapter.decision-day-gulf", [{ on: "visa", route: GULF }], [YES, THANKS]),
 
   // The send-off.
   family("chats.mum.suitcase", "mum", SEND_OFF, [], [YES, THANKS]),
