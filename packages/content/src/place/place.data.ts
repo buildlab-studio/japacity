@@ -152,7 +152,7 @@ const entries: PlaceEntry[] = [
   lagos("place.yaba", "Yaba", "yaba", 6507, 3375, {
     scope: "interior",
     assets: "yaba-hub",
-    stages: ["activity.meetup", "activity.learn-tech", "activity.build-portfolio", "activity.job-junior-dev", "activity.job-mid-dev", "activity.job-hunt", "activity.look-into-route", "activity.apply-to-school", "activity.see-adviser", "activity.ask-someone-who-went", "activity.job-bank-officer", "activity.job-bank-senior"],
+    stages: ["activity.meetup", "activity.learn-tech", "activity.build-portfolio", "activity.interview-prep", "activity.job-junior-dev", "activity.job-mid-dev", "activity.job-hunt", "activity.look-into-route", "activity.apply-to-school", "activity.see-adviser", "activity.ask-someone-who-went", "activity.job-bank-officer", "activity.job-bank-senior"],
     crowd: BUSY,
     traditionalBp: OFFICE,
   }),
