@@ -55,6 +55,8 @@ function activitiesWith(content: Content, types: readonly string[], route?: stri
 function towards(view: PlayerView, content: Content, requirement: Requirement): SlotPick | null {
   const first = (ids: readonly string[], param?: string) => ids.map((id) => pick(view, id, param)).find((found) => found !== null) ?? null;
   if (requirement.type === "job/any") return first(activitiesWith(content, ["activity/hunt"]));
+  // "Any route of your own effort" (the first chapter's heard and known): the first way that fits.
+  if (requirement.type === "any") return requirement.of.map((one) => towards(view, content, one)).find((found) => found !== null) ?? null;
   if (requirement.type !== "route/state") return null;
   const route = view.routes.find((entry) => entry.id === requirement.route);
   if (route?.state === "unknown") return first(activitiesWith(content, ["route/hear"], requirement.route));
