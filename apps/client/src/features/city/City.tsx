@@ -11,6 +11,7 @@ import { useGame, useView } from "../../authority/GameProvider";
 import { chooseGraphics, setGraphicsMode } from "../../shared/graphics/mode";
 import { assetUrl, loadJson, loadManifest } from "../../shared/three/manifest";
 import { Button } from "../../shared/ui/Button";
+import { FullScreen } from "../../shared/ui/FullScreen";
 import { Sheet } from "../../shared/ui/Sheet";
 import { formatMoney, todayWords } from "../../shared/words/format";
 import { blurbOf, inMonths, nameOf, say, words } from "../../shared/words/text";
@@ -29,7 +30,7 @@ import { type CountryChoice, FlyOver, flyoverOn, type Pin, type PinState } from 
 import { crowdTuning } from "./limits";
 import { Phone, type PhoneApp } from "./Phone";
 import { localDate, type Other, poolOf, sampleCrowd } from "./crowd";
-import { nudgeOf } from "./nudge";
+import { nudgeOf, stepThingHere, stepWayOf } from "./nudge";
 import { type Device, enterPlace, keepChoice, type Mode, type ModeChoice, modeSettings, observeFrame, readChoice, startingMode, watchFrames } from "./mode";
 import { overheard } from "./overheard";
 import { dancerShown, dressPlace, openGround, type PlaceFile, stageOf } from "./placeFile";
@@ -228,6 +229,8 @@ export interface CityMapSlot {
   onRide?: (choice: RideChoice, to: string) => Promise<boolean>;
   /** The way to choose first on the ride sheet: the vehicle tapped in the place (R-WORLD-017). */
   by?: RideChoice["id"];
+  /** A stop to open picked: the nudge's step elsewhere (R-WORLD-003). */
+  pickFirst?: string | null;
 }
 
 export function City({
@@ -311,6 +314,10 @@ export function City({
   }, [world, reportOpen]);
   const [zoomed, setZoomed] = useState(false);
   const [diveTo, setDiveTo] = useState<string | null>(null);
+  // The stop the map opens on when the nudge sends the player somewhere (R-WORLD-003).
+  const [mapPick, setMapPick] = useState<string | null>(null);
+  // The chapter's opening words stand over the world once, before the first month is played (R-WORLD-001).
+  const [openingSeen, setOpeningSeen] = useState(false);
   /** The way a vehicle in the place was tapped for, chosen on the ride sheet when the map opens from it (R-WORLD-017). */
   const [rideBy, setRideBy] = useState<RideChoice["id"] | null>(null);
   const [shipped, setShipped] = useState<Set<string> | null>(null);
@@ -600,6 +607,26 @@ export function City({
   const nudge = world ? nudgeOf(view) : null;
   // A question or an offer waiting on the player opens from the nudge; nothing else is on screen to open it (R-WORLD-001).
   const nudgeOpens = asks !== undefined && (nudge?.about === "setpiece" || nudge?.about === "offer");
+  // The chapter's step opens its way (R-WORLD-003): the thing's acts when it stands here, the map at its stop
+  // when it is elsewhere in the city, and the Month sheet when the step is the month's end.
+  const stepWay = nudge?.about === "step" ? stepWayOf(view.chapter) : null;
+  const hereId = inside ? (insideEntry?.id ?? placeId) : placeId;
+  const stepThing = stepWay === null || things === undefined ? null : stepThingHere(stepWay, hereId, things);
+  const nudgeGoes = stepWay !== null && (stepThing !== null || stepWay.go === null || where === "home");
+  const followStep = (): void => {
+    if (stepWay === null) return;
+    if (stepThing !== null) {
+      const thing = things?.find((candidate) => candidate.id === stepThing);
+      if (thing !== undefined) setPicked({ kind: "thing", thing });
+      return;
+    }
+    if (stepWay.go === null) {
+      setMonthOpen(true);
+      return;
+    }
+    setMapPick(stepWay.go === placeId ? null : stepWay.go);
+    setMap(true);
+  };
   // R-WORLD-002: the band's second row opens from its handle and peeks for a few seconds when its words change.
   const [bandOpen, setBandOpen] = useState(false);
   const [peek, setPeek] = useState(true);
@@ -657,6 +684,8 @@ export function City({
     const activity = picked.activity;
     const option = view.activities.find((candidate) => candidate.id === activity);
     if (option === undefined) return null;
+    // A choice inside the activity (which job to hunt, which school) is the player's: the picker shows it, not a card that takes the first (R-WORLD-005).
+    if (option.params !== null && option.params.length > 1) return null;
     const cost = option.cost[0] ?? null;
     const paper = activity === "activity.play-lotto" || activity === "activity.bet-slip";
     return {
@@ -732,6 +761,7 @@ export function City({
             // The drawn city is Lagos; abroad the map is its list of stops until that city is drawn (R-WORLD-015).
             drawing: drawing && where === "home",
             diveTo,
+            pickFirst: mapPick,
             ...(rideBy === null ? {} : { by: rideBy }),
             home: HOMES[where] ?? null,
             onGo: (id) => {
@@ -739,12 +769,14 @@ export function City({
               setMap(false);
               setDiveTo(null);
               setRideBy(null);
+              setMapPick(null);
               toast.show(placeName(id));
             },
             onClose: () => {
               setMap(false);
               setDiveTo(null);
               setRideBy(null);
+              setMapPick(null);
             },
             // R-PLACE-010: the fare leaves cash through the command, and the ride plays only once it is
             // accepted; abroad the map asks no fare (decision 0011).
@@ -779,7 +811,7 @@ export function City({
           <Band
             when={clock}
             name={hereName}
-            money={view.pockets.NGN.cash}
+            money={view.pockets.NGN.cash + view.pockets.NGN.bank}
             formatMoney={(amount) => formatMoney(amount, "NGN")}
             onEndMonth={() => setMonthOpen(true)}
             turns={view.turns.banked}
@@ -788,10 +820,10 @@ export function City({
             open={bandOpen}
             onToggle={() => setBandOpen((open) => !open)}
             more={
-              (bandOpen || peek) && !(phone || monthOpen || asksOpen || menu || credits || picked !== null) ? (
+              !(phone || monthOpen || asksOpen || menu || credits || picked !== null) ? (
                 <div key={bandOpen ? "open" : `peek-${nudgeKey}-${comingKey}`} className={bandOpen ? "" : "drop"}>
-                  <Nudge nudge={nudge} {...(nudgeOpens ? { onTap: () => setAsksOpen(true) } : {})} />
-                  {coming === null ? null : (
+                  <Nudge nudge={nudge} {...(nudgeOpens ? { onTap: () => setAsksOpen(true) } : nudgeGoes ? { onTap: followStep } : {})} />
+                  {coming === null || !(bandOpen || peek) ? null : (
                     <p className="chip pointer-events-auto mt-1.5 inline-flex max-w-full items-center gap-1.5 px-2.5 py-1.5 text-[12px] font-bold" data-coming>
                       <Clock size={14} aria-hidden />
                       <span className="truncate">{say("ui.world.coming", { what: coming.what, when: inMonths(coming.month, view.month) })}</span>
@@ -814,6 +846,18 @@ export function City({
           ) : null}
           <Toast words={toast.words} />
           <Cut cutting={cutting} />
+          {!openingSeen && view.report === null && view.chapter.current !== null && !view.ended ? (
+            <FullScreen open onClose={() => setOpeningSeen(true)} title={nameOf(view.chapter.current)} tone="over">
+              <div className="flex max-w-sm flex-col items-center gap-5 text-center" data-opening={view.chapter.current}>
+                <p className="label label-strong text-[11px] tracking-[0.3em] uppercase opacity-80">{nameOf(view.chapter.current)}</p>
+                <p className="font-display text-[28px] leading-tight">{words(`${view.chapter.current}.open`)}</p>
+                <p className="text-[15px] opacity-90">{say(nudge?.key ?? "ui.nudge.end", nudge?.params ?? {})}</p>
+                <Button onClick={() => setOpeningSeen(true)} data-opening-go>
+                  {say("ui.opening.go")}
+                </Button>
+              </div>
+            </FullScreen>
+          ) : null}
         </>
       ) : null}
       {looking ? (

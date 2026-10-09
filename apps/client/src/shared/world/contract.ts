@@ -132,7 +132,7 @@ export interface CountryChoice {
 
 /** A way to travel (R-WORLD-017), with its fare in the wallet's smallest unit and the minutes. */
 export interface RideChoice {
-  id: "danfo" | "keke" | "okada";
+  id: "danfo" | "keke" | "okada" | "walk";
   label: string;
   fare: number;
   minutes: number;

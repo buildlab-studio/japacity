@@ -12,4 +12,4 @@ export type PlaceEvent =
   /** R-RETURN-005: the December visit opened in this month of the character's (R-PLACE-009's `decemberMonth`). */
   | { type: "place/december-opened"; month: number }
   /** R-PLACE-010: a ride inside the city, its fare paid from cash. */
-  | { type: "place/rode"; from: Id<"place">; to: Id<"place">; way: "danfo" | "keke" | "okada"; fare: number };
+  | { type: "place/rode"; from: Id<"place">; to: Id<"place">; way: "danfo" | "keke" | "okada" | "walk"; fare: number };

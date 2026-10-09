@@ -53,10 +53,10 @@ interface Street {
   dispose: () => void;
 }
 
-/** A plain box in the way's colour, until the real model arrives (or where it cannot). */
+/** A plain box in the way's colour, until the real model arrives (or where it cannot); on foot, a body-sized one that stays. */
 function standIn(way: RideChoice["id"]): Mesh {
-  const size = way === "danfo" ? [2.1, 2.2, 5.2] : way === "keke" ? [1.4, 1.7, 2.6] : [0.7, 1.3, 1.9];
-  const mesh = new Mesh(new BoxGeometry(size[0], size[1], size[2]), new MeshLambertMaterial({ color: way === "okada" ? palette.red : palette.danfoYellow }));
+  const size = way === "danfo" ? [2.1, 2.2, 5.2] : way === "keke" ? [1.4, 1.7, 2.6] : way === "walk" ? [0.5, 1.7, 0.4] : [0.7, 1.3, 1.9];
+  const mesh = new Mesh(new BoxGeometry(size[0], size[1], size[2]), new MeshLambertMaterial({ color: way === "okada" ? palette.red : way === "walk" ? palette.charcoal : palette.danfoYellow }));
   mesh.position.y = (size[1] ?? 1) / 2;
   return mesh;
 }
@@ -175,7 +175,7 @@ export function Ride({ way, place, drawing, onDone }: RideProps) {
     const street = buildStreet(renderer, way);
     let alive = true;
     // The real vehicle replaces the stand-in when it has loaded; it is shared and kept loaded.
-    void loadManifest()
+    if (way !== "walk") void loadManifest()
       .then((manifest) => loadModel(manifest, `shared/veh/veh_${way}.glb`, () => undefined))
       .then((model) => {
         if (!alive) return;
