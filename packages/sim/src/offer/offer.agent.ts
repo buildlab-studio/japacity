@@ -1,11 +1,21 @@
-// The agent family: docs/rules/advice.md R-ADVICE-005 to 012. An agent is an
-// offer whose kind (fixer, overpromiser, scammer) is drawn when it opens. The
-// kind fixes the tells he carries; one shows at once and the looks find the
-// rest. Nothing here reads money to decide who appears or what he is.
+// The agent family: docs/rules/advice.md R-ADVICE-005 to 013. An agent is an
+// offer whose kind (fixer, chaser, overpromiser, scammer) is drawn when it
+// opens. The kind fixes the tells he carries; one shows at once and the looks
+// find the rest. Nothing here reads money to decide who appears or what he is.
+import { beingMade } from "../document/document.logic";
 import { BP_WHOLE, divFloor } from "../engine/int";
-import type { Content, Ctx, Id, OfferEntry, OfferState, ReadCtx, Requirement, RouteEntry, Terms, Tuning } from "../engine/types";
+import type { Content, Ctx, Id, OfferEntry, OfferState, ReadCtx, Requirement, RouteEntry, State, Terms, Tuning } from "../engine/types";
 
-export type AgentKind = "fixer" | "overpromiser" | "scammer";
+/** R-ADVICE-005, 013: the four kinds, in the order the draw takes them. */
+export const AGENT_KINDS = ["fixer", "chaser", "overpromiser", "scammer"] as const;
+export type AgentKind = (typeof AGENT_KINDS)[number];
+
+/**
+ * R-ADVICE-013: what an agent says he does. The insider moves a paper's date
+ * himself (the fixer's way); the chaser follows it up for you. An honest agent
+ * says what he is; the others say one or the other.
+ */
+export type Pitch = "insider" | "chaser";
 
 /** Every entry of the family, the agents and what they open, has an id that starts with this. */
 export const AGENT_PREFIX = "offer.agent-";
@@ -13,11 +23,19 @@ export const AGENT_PREFIX = "offer.agent-";
 export const PROMISE: Id<"offer"> = "offer.agent-promise";
 /** What a scammer offers after the fee: fake papers. */
 export const PAPERS: Id<"offer"> = "offer.agent-papers";
+/** R-ADVICE-013: the chaser a friend puts the player onto. Always a chaser. */
+export const CHASER: Id<"offer"> = "offer.agent-chaser";
+/** R-ADVICE-013: the papers a chaser follows up. The fixer moves any paper. */
+export const CHASED: readonly Id<"document">[] = ["document.transcript", "document.police-certificate", "document.tb-certificate"];
 /**
  * The term that keeps the kind. the contract's `secret` holds only
  * `fraud`, so the kind rides as a term the view leaves out (R-ENGINE-007).
  */
 export const KIND_TERM = "kind";
+/** R-ADVICE-013: the terms the sheet reads: what he says he does, the paper he would move ("" for none) and by how many months. */
+export const PITCH_TERM = "pitch";
+export const PAPER_TERM = "paper";
+export const MONTHS_TERM = "months";
 /** Terms an effect may hand an agent's follow-up offers: who he is and the route he looked at. */
 const HANDED_TERMS = ["agent", "route"] as const;
 
@@ -57,11 +75,84 @@ export function hasDesk(entry: OfferEntry): boolean {
   return entry.fraudBp === 0;
 }
 
-/** R-ADVICE-005: the kind from one draw out of 10000 at the tuning's shares, fixer first. */
-export function kindAt(draw: number, shares: Tuning["advice"]["agentKindsBp"]): AgentKind {
-  if (draw < shares.fixer) return "fixer";
-  if (draw < shares.fixer + shares.overpromiser) return "overpromiser";
+/**
+ * The kind an entry always is, whatever the draw: the friend's chaser
+ * (R-ADVICE-013) and the desk upstairs (R-ADVICE-010). Null for the stop,
+ * where the draw decides.
+ */
+export function fixedKind(entry: OfferEntry): AgentKind | null {
+  if (entry.id === CHASER) return "chaser";
+  return hasDesk(entry) ? "fixer" : null;
+}
+
+type Shares = Tuning["advice"]["agentKindsBp"];
+
+/** Where each kind's band starts in the draw, in AGENT_KINDS order. */
+function bandStart(kind: AgentKind, shares: Shares): number {
+  let start = 0;
+  for (const each of AGENT_KINDS) {
+    if (each === kind) return start;
+    start += shares[each];
+  }
+  return start;
+}
+
+/** R-ADVICE-005, 013: the kind from one draw out of 10000 at the tuning's shares, fixer first, then the chaser. */
+export function kindAt(draw: number, shares: Shares): AgentKind {
+  for (const kind of AGENT_KINDS) if (draw < bandStart(kind, shares) + shares[kind]) return kind;
   return "scammer";
+}
+
+/**
+ * R-ADVICE-013: what the agent says he does, from the same draw as his kind,
+ * so no draw is added. An honest agent says what he is. An overpromiser or a
+ * scammer says insider or chaser in the proportion the honest kinds come in:
+ * the first part of his band in the fixer's share says insider, the rest
+ * chaser. So the claim never tells who is honest.
+ */
+export function pitchAt(draw: number, shares: Shares): Pitch {
+  const kind = kindAt(draw, shares);
+  switch (kind) {
+    case "fixer":
+      return "insider";
+    case "chaser":
+      return "chaser";
+    case "overpromiser":
+    case "scammer": {
+      const offset = draw - bandStart(kind, shares);
+      return offset * (shares.fixer + shares.chaser) < shares[kind] * shares.fixer ? "insider" : "chaser";
+    }
+    default: {
+      const never: never = kind;
+      throw new Error(`Unknown agent kind ${String(never)}.`);
+    }
+  }
+}
+
+/** R-ADVICE-005, 013: the range a kind's fee is drawn from. The chaser's is his own, cheaper one. */
+export function feeRange(kind: AgentKind, advice: Tuning["advice"]): readonly [number, number] {
+  return kind === "chaser" ? advice.chaserFee : advice.fees[kind];
+}
+
+/** R-ADVICE-005, 013: months a paper comes sooner for what he says he does: the insider's two, the chaser's one. */
+export function pitchMonths(pitch: Pitch, advice: Tuning["advice"]): number {
+  return pitch === "insider" ? advice.fixerMonths : advice.chaserMonths;
+}
+
+/**
+ * R-ADVICE-005, 013: the paper being made that is due first, in content order
+ * on a tie: what an insider brings forward. A chaser follows up only the
+ * papers in CHASED.
+ */
+export function paperToMove(state: State, content: Content, pitch: Pitch): Id<"document"> | null {
+  let best: { id: Id<"document">; due: number } | null = null;
+  for (const id of Object.keys(content.document) as Id<"document">[]) {
+    if (pitch === "chaser" && !CHASED.includes(id)) continue;
+    const doc = state.document[id];
+    const due = doc === undefined ? null : beingMade(doc);
+    if (due !== null && (best === null || due < best.due)) best = { id, due };
+  }
+  return best?.id ?? null;
 }
 
 /**
@@ -75,7 +166,9 @@ export function carriedTells(entry: OfferEntry, kind: AgentKind, advice: Tuning[
   const honest = entry.signs.filter((sign) => sign.honestBp === BP_WHOLE).map((sign) => sign.key);
   const fraud = entry.signs.filter((sign) => sign.fraudBp === BP_WHOLE).map((sign) => sign.key);
   switch (kind) {
+    // R-ADVICE-013: the chaser's signs are the fixer's.
     case "fixer":
+    case "chaser":
       return honest;
     case "scammer":
       return fraud;
@@ -92,8 +185,9 @@ export function carriedTells(entry: OfferEntry, kind: AgentKind, advice: Tuning[
 
 export function kindOf(item: OfferState): AgentKind {
   const kind = item.terms[KIND_TERM];
-  if (kind !== "fixer" && kind !== "overpromiser" && kind !== "scammer") throw new Error(`${item.id} is an agent with no kind.`);
-  return kind;
+  const found = AGENT_KINDS.find((each) => each === kind);
+  if (found === undefined) throw new Error(`${item.id} is an agent with no kind.`);
+  return found;
 }
 
 /** The tells a look finds on this agent: every one it would find, always (R-ADVICE-006). */
@@ -165,7 +259,7 @@ export function warned(read: ReadCtx, entry: OfferEntry, carried: readonly strin
 export function agentChecklist(route: RouteEntry | undefined, kind: AgentKind): string {
   if (route === undefined) return "";
   const items = route.checklist.map((item) => item.id);
-  if (kind === "fixer" || route.checklist.length === 0) return items.join(",");
+  if (kind === "fixer" || kind === "chaser" || route.checklist.length === 0) return items.join(",");
   const heaviest = route.checklist.reduce((best, item) => (item.weight > best.weight ? item : best));
   return items.filter((id) => id !== heaviest.id).join(",");
 }
@@ -191,16 +285,21 @@ export function handedTerms(entry: OfferEntry, terms: Terms): Terms {
 }
 
 /**
- * Opens an agent (R-ADVICE-005, 006): the kind on `offer`, then the fee from
- * the kind's range on `offer` in whole thousands, then the tells. One tell
- * shows at once: the first he carries. A friend's warning uncovers them all.
+ * Opens an agent (R-ADVICE-005, 006, 013): the kind on `offer`, then the fee
+ * from the kind's range on `offer` in whole thousands, then the tells. One
+ * tell shows at once: the first he carries. A friend's warning uncovers them
+ * all. What he says he does comes from the kind's draw, and the paper he
+ * names is the one he would move now.
  */
 export function openAgent(ctx: Ctx, entry: OfferEntry, own: Terms, extra: Terms): OfferState {
   const advice = ctx.content.tuning.advice;
-  const drawn = kindAt(ctx.random.int("offer", BP_WHOLE), advice.agentKindsBp);
-  const kind: AgentKind = hasDesk(entry) ? "fixer" : drawn;
-  const [min, max] = advice.fees[kind];
+  const draw = ctx.random.int("offer", BP_WHOLE);
+  const fixed = fixedKind(entry);
+  const kind: AgentKind = fixed ?? kindAt(draw, advice.agentKindsBp);
+  const pitch: Pitch = fixed === null ? pitchAt(draw, advice.agentKindsBp) : fixed === "chaser" ? "chaser" : "insider";
+  const [min, max] = feeRange(kind, advice);
   const fee = min + FEE_STEP * ctx.random.between("offer", 0, divFloor(max - min, FEE_STEP));
+  const paper = paperToMove(ctx.state, ctx.content, pitch);
   const carried = carriedTells(entry, kind, advice);
   const read: ReadCtx = { state: ctx.state, world: ctx.world, content: ctx.content };
   const signs = warned(read, entry, carried, advice.warnings) ? [...carried, WARNED] : carried.slice(0, 1);
@@ -211,7 +310,17 @@ export function openAgent(ctx: Ctx, entry: OfferEntry, own: Terms, extra: Terms)
     entry: entry.id,
     openedMonth: month,
     expiresMonth: month + entry.expiresAfter,
-    terms: { ...own, ...extra, agent: agentName(entry, own), fee, says: agentChecklist(route, kind), [KIND_TERM]: kind },
+    terms: {
+      ...own,
+      ...extra,
+      agent: agentName(entry, own),
+      fee,
+      says: agentChecklist(route, kind),
+      [PITCH_TERM]: pitch,
+      [PAPER_TERM]: paper ?? "",
+      [MONTHS_TERM]: pitchMonths(pitch, advice),
+      [KIND_TERM]: kind,
+    },
     signs,
     secret: { fraud: kind === "scammer" },
   };
@@ -262,8 +371,8 @@ export function agentProblems(content: Content): string[] {
       problems.push(`${entry.id}: opens before ${FIRST_CHAPTER} is done (R-ADVICE-012).`);
     }
     if (carriedTells(entry, "fixer", advice).length > 1) problems.push(`${entry.id}: a fixer carries more than one tell (R-ADVICE-006).`);
-    if (!hasDesk(entry) && carriedTells(entry, "scammer", advice).length < advice.scamTells) problems.push(`${entry.id}: a scammer carries fewer than ${String(advice.scamTells)} tells (R-ADVICE-006).`);
-    if (!hasDesk(entry) && carriedTells(entry, "overpromiser", advice).length < advice.overpromiseTells) problems.push(`${entry.id}: an overpromiser carries too few tells (R-ADVICE-006).`);
+    if (fixedKind(entry) === null && carriedTells(entry, "scammer", advice).length < advice.scamTells) problems.push(`${entry.id}: a scammer carries fewer than ${String(advice.scamTells)} tells (R-ADVICE-006).`);
+    if (fixedKind(entry) === null && carriedTells(entry, "overpromiser", advice).length < advice.overpromiseTells) problems.push(`${entry.id}: an overpromiser carries too few tells (R-ADVICE-006).`);
     for (const sign of entry.signs) {
       if (!findable.has(sign.key)) problems.push(`${entry.id}: no look finds the tell ${sign.key} (R-ADVICE-006).`);
     }

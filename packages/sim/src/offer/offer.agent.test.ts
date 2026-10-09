@@ -14,6 +14,7 @@ import {
   agentProblems,
   agentReadsMoney,
   carriedTells,
+  feeRange,
   kindAt,
   kindOf,
   KIND_TERM,
@@ -79,13 +80,15 @@ function cash(game: Game): number {
 }
 
 describe("who the agent is", () => {
-  test("[R-ADVICE-005] given every draw out of 10000, when the kind is read, then fixers, overpromisers and scammers come at exactly the tuning's shares", () => {
-    const counts: Record<AgentKind, number> = { fixer: 0, overpromiser: 0, scammer: 0 };
+  test("[R-ADVICE-005] [R-ADVICE-013] given every draw out of 10000, when the kind is read, then fixers, chasers, overpromisers and scammers come at exactly the tuning's shares", () => {
+    const counts: Record<AgentKind, number> = { fixer: 0, chaser: 0, overpromiser: 0, scammer: 0 };
     for (let draw = 0; draw < 10000; draw += 1) counts[kindAt(draw, advice.agentKindsBp)] += 1;
     expect(counts).toEqual(advice.agentKindsBp);
-    expect(kindAt(advice.agentKindsBp.fixer - 1, advice.agentKindsBp)).toBe("fixer");
-    expect(kindAt(advice.agentKindsBp.fixer, advice.agentKindsBp)).toBe("overpromiser");
-    expect(kindAt(advice.agentKindsBp.fixer + advice.agentKindsBp.overpromiser, advice.agentKindsBp)).toBe("scammer");
+    const { fixer, chaser, overpromiser } = advice.agentKindsBp;
+    expect(kindAt(fixer - 1, advice.agentKindsBp)).toBe("fixer");
+    expect(kindAt(fixer, advice.agentKindsBp)).toBe("chaser");
+    expect(kindAt(fixer + chaser, advice.agentKindsBp)).toBe("overpromiser");
+    expect(kindAt(fixer + chaser + overpromiser, advice.agentKindsBp)).toBe("scammer");
   });
 
   test.prop([fc.integer({ min: 0, max: 999 })], { numRuns: 12 })(
@@ -95,7 +98,7 @@ describe("who the agent is", () => {
       const item = openAt(game);
       const kind = kindOf(item);
       const fee = item.terms["fee"] as number;
-      const [min, max] = advice.fees[kind];
+      const [min, max] = feeRange(kind, advice);
       expect(fee).toBeGreaterThanOrEqual(min);
       expect(fee).toBeLessThanOrEqual(max);
       expect((fee - min) % 100000).toBe(0);
@@ -109,10 +112,10 @@ describe("who the agent is", () => {
   );
 
   test("[R-ADVICE-005] given 240 seeds, when the agent at the stop opens for each, then each kind comes near its share", () => {
-    const counts: Record<AgentKind, number> = { fixer: 0, overpromiser: 0, scammer: 0 };
+    const counts: Record<AgentKind, number> = { fixer: 0, chaser: 0, overpromiser: 0, scammer: 0 };
     const seeds = 240;
     for (let n = 0; n < seeds; n += 1) counts[kindOf(openAt(pastChapterOne(`share-${String(n)}`)))] += 1;
-    for (const kind of ["fixer", "overpromiser", "scammer"] as const) {
+    for (const kind of ["fixer", "chaser", "overpromiser", "scammer"] as const) {
       expect(Math.abs(counts[kind] * 10000 - advice.agentKindsBp[kind] * seeds)).toBeLessThan(800 * seeds);
     }
   });
@@ -205,7 +208,7 @@ describe("what the agent's appearance reads", () => {
 });
 
 describe("paying the agent", () => {
-  test("[R-ADVICE-001] [R-ADVICE-005] given a fixer and a paper being made, when he is paid, then the fee leaves cash, the route is known through him, and the paper comes a month sooner", () => {
+  test("[R-ADVICE-001] [R-ADVICE-005] given a fixer and a paper being made, when he is paid, then the fee leaves cash, the route is known through him, and the paper comes the fixer's months sooner", () => {
     const { game, item } = agentOfKind("fixer");
     applyEffects(game, [{ type: "document/request", document: "document.medical" }]);
     const due = game.state.document["document.medical"]!.readyMonth!;

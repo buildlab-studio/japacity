@@ -39,10 +39,9 @@ import { appliesHere } from "../place/place.logic";
 import type { OfferEvent } from "./offer.events";
 import { luckTerms, markedChanceBp, rescueDue, WHIP_ROUND } from "./offer.luck";
 import { bridgeTerms } from "./offer.street";
-import { beingMade } from "../document/document.logic";
 import { HASTEN_TERM } from "../document/document.logic";
-import type { AgentKind, Look } from "./offer.agent";
-import { handedTerms, inFamily, isLook, kindOf, lookFinds, openAgent, PROMISE, shownTerms, standsAsAgent, tellsSeen } from "./offer.agent";
+import type { AgentKind, Look, Pitch } from "./offer.agent";
+import { handedTerms, inFamily, isLook, kindOf, lookFinds, openAgent, paperToMove, pitchMonths, PROMISE, shownTerms, standsAsAgent, tellsSeen } from "./offer.agent";
 
 /**
  * The groups that are rolled, in the order R-OFFER-001 takes them. `job` is
@@ -309,31 +308,39 @@ function takeChoice(ctx: Ctx, item: OfferState, choice: OfferChoice, amount: num
 /** The agent's choice that pays him (R-ADVICE-005). */
 const TAKE = "take";
 
-/** The paper being made that is due first, in content order on a tie: what a fixer brings forward. */
-function nextPaper(ctx: Ctx): Id<"document"> | null {
-  let best: { id: Id<"document">; due: number } | null = null;
-  for (const id of Object.keys(ctx.content.document) as Id<"document">[]) {
-    const doc = ctx.state.document[id];
-    const due = doc === undefined ? null : beingMade(doc);
-    if (due !== null && (best === null || due < best.due)) best = { id, due };
+/** R-ADVICE-013: what an honest agent does for his fee; the others do nothing for it. */
+function honestWork(kind: AgentKind): Pitch | null {
+  switch (kind) {
+    case "fixer":
+      return "insider";
+    case "chaser":
+      return "chaser";
+    case "overpromiser":
+    case "scammer":
+      return null;
+    default: {
+      const never: never = kind;
+      throw new Error(`Unknown agent kind ${String(never)}.`);
+    }
   }
-  return best?.id ?? null;
 }
 
 /**
- * R-ADVICE-005, after the fee: a fixer brings the next paper forward, an
- * overpromiser leaves his promise on the table, a scammer's fake papers come
- * from the content's fraud effects. the next appointment (a school's
- * answer, a visa decision) has no effect to move it, so only a paper moves.
+ * R-ADVICE-005, 013, after the fee: a fixer brings the next paper forward by
+ * his months, a chaser the next paper she follows up by hers, an overpromiser
+ * leaves his promise on the table, a scammer's fake papers come from the
+ * content's fraud effects. the next appointment (a school's answer,
+ * a visa decision) has no effect to move it, so only a paper moves.
  */
 function agentPaid(ctx: Ctx, item: OfferState): BaseEvent[] {
   const kind: AgentKind = kindOf(item);
   const cause: Cause = { source: `${item.entry}.${TAKE}`, param: null, terms: {} };
-  const paper = kind === "fixer" ? nextPaper(ctx) : null;
+  const work = honestWork(kind);
+  const paper = work === null ? null : paperToMove(ctx.state, ctx.content, work);
   const fee = typeof item.terms["fee"] === "number" ? item.terms["fee"] : 0;
   const agent = typeof item.terms["agent"] === "string" ? item.terms["agent"] : item.entry;
   const events = record(ctx, { type: "offer/agent-paid", id: item.id, entry: item.entry, kind, agent, fee, seen: tellsSeen(item), paper });
-  if (paper !== null) ctx.apply([{ type: "document/request", document: paper }], { ...cause, terms: { [HASTEN_TERM]: ctx.content.tuning.advice.fixerMonths } });
+  if (paper !== null && work !== null) ctx.apply([{ type: "document/request", document: paper }], { ...cause, terms: { [HASTEN_TERM]: pitchMonths(work, ctx.content.tuning.advice) } });
   if (kind === "overpromiser") ctx.apply([{ type: "offer/open", offer: PROMISE }], { ...cause, terms: { agent } });
   return events;
 }
@@ -612,6 +619,9 @@ function agentLines(event: Extract<OfferEvent, { type: "offer/agent-paid" }>): R
       ];
     case "fixer":
       return [line(event.paper === null ? "line.offer.agent-paid-nothing-waiting" : "line.offer.agent-paid", { agent: event.agent, amount }, false)];
+    // R-ADVICE-013: her own words, since the friend's chaser is a woman and the men at the stop are not.
+    case "chaser":
+      return [line(event.paper === null ? "line.offer.agent-chaser-paid-nothing-waiting" : "line.offer.agent-chaser-paid", { agent: event.agent, amount }, false)];
     case "overpromiser":
       return [line("line.offer.agent-paid", { agent: event.agent, amount }, false)];
     default: {
