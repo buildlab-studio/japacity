@@ -340,7 +340,7 @@ function allHold(ctx: Ctx, requirements: readonly Requirement[]): boolean {
  * R-GUIDE-016: the routes a first meetup tells of, in the order a life's profile fits them. Each but the last
  * carries its own bar, which stands in for the route's `hearIf` on that first meetup; the last keeps its `hearIf`.
  */
-const FIRST_MEETUP_FITS: readonly { route: Id<"route">; bar: Requirement | null }[] = [
+export const FIRST_MEETUP_FITS: readonly { route: Id<"route">; bar: Requirement | null }[] = [
   { route: "route.uk-care", bar: { type: "quality/min", quality: "quality.care", value: 30 } },
   { route: "route.uk-talent", bar: { type: "quality/min", quality: "quality.tech", value: 40 } },
   { route: "route.uk-masters", bar: null },

@@ -7,6 +7,7 @@ export { checkContent } from "./engine/content";
 export { applyOverlay, checkOverlay } from "./engine/overlay";
 export type { Overlay } from "./engine/overlay";
 export { checkInvariants } from "./engine/invariants";
+export { FIRST_MEETUP_FITS } from "./route/route.logic";
 export { hashState, stableJson } from "./engine/hash";
 export { replay, newSave, recordCommand, loadSave, isFlatSave, lifeStart, savedCommands, lastSegment, openSegment } from "./engine/replay";
 export { viewFor, hiddenPaths } from "./engine/view";

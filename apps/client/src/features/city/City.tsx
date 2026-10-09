@@ -755,7 +755,7 @@ export function City({
     const opens = stepOpen(stepWay, stepThing, view.activities.filter((option) => option.allowed).map((option) => option.id), placeId);
     switch (opens.kind) {
       case "act":
-        setPicked({ kind: "action", activity: opens.activity });
+        setPicked({ kind: "action", activity: opens.activity, ...(opens.param === undefined ? {} : { param: opens.param }) });
         return;
       case "thing": {
         const thing = things?.find((candidate) => candidate.id === opens.thing);

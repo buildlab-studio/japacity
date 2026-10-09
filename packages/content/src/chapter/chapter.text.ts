@@ -35,6 +35,7 @@ export const chapterText: Record<string, string> = {
   "chapter.find-your-feet.item.heard.planned": "The meetup is planned. End the month.",
   "chapter.find-your-feet.item.known": "Look into it",
   "chapter.find-your-feet.item.known.nudge": "Read the official page, or ask someone",
+  "chapter.find-your-feet.item.known.nudge.own": "Read the page on {route}",
   "chapter.find-your-feet.item.known.planned": "The page is planned. End the month.",
   "chapter.find-your-feet.item.known.planned.see-adviser": "The adviser's visit is planned. End the month.",
 
