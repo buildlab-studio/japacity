@@ -76,6 +76,24 @@ export function whyNot(step: string, answer: string): string[] {
   return (entry?.requires ?? []).map((requirement) => requirementSentence(requirement));
 }
 
+/**
+ * The one line under an answer, with what it costs where it opens a bill: the home card's living costs
+ * a month. Null when content has no line for it.
+ */
+export function answerHint(step: string, answer: string): string | null {
+  const key = `prologue.${step}.answer.${answer}.hint`;
+  if (!hasWords(key)) return null;
+  const opens = content.prologue[step]?.answers.find((candidate) => candidate.id === answer)?.effects.find((effect) => effect.type === "obligation/open");
+  const amount = opens?.type === "obligation/open" && typeof opens.amount === "number" ? opens.amount : null;
+  const currency = opens?.type === "obligation/open" ? (content.obligation[opens.obligation]?.currency ?? "NGN") : "NGN";
+  return say(key, amount === null ? {} : { amount: formatMoney(amount, currency) });
+}
+
+/** True when an answer's line says a cost, which shows whether the answer is open or not. */
+function costsSaid(step: string, answer: string): boolean {
+  return content.prologue[step]?.answers.find((candidate) => candidate.id === answer)?.effects.some((effect) => effect.type === "obligation/open") === true;
+}
+
 function Answers({ prologue, archetype, onAnswer }: { prologue: Prologue; archetype: Archetype | null; onAnswer: () => void }) {
   const send = useGame((state) => state.send);
   const busy = useGame((state) => state.busy);
@@ -83,7 +101,7 @@ function Answers({ prologue, archetype, onAnswer }: { prologue: Prologue; archet
     <ul className="flex flex-col gap-1.5">
       {answersInOrder(archetype, prologue.step, prologue.answers).map((answer) => {
         const label = words(`prologue.${prologue.step}.answer.${answer.id}`);
-        const hint = `prologue.${prologue.step}.answer.${answer.id}.hint`;
+        const hint = answerHint(prologue.step, answer.id);
         const reasons = answer.allowed ? [] : whyNot(prologue.step, answer.id);
         return (
           <li key={answer.id} className="flex flex-col gap-0.5" data-answer={answer.id}>
@@ -99,7 +117,7 @@ function Answers({ prologue, archetype, onAnswer }: { prologue: Prologue; archet
               <span className="flex-1">{label}</span>
               {answer.allowed ? <ArrowRight size={18} className="shrink-0" /> : null}
             </button>
-            {answer.allowed && hasWords(hint) ? <p className="px-3 text-[12px] leading-snug text-text-2">{say(hint)}</p> : null}
+            {hint !== null && (answer.allowed || costsSaid(prologue.step, answer.id)) ? <p className="px-3 text-[12px] leading-snug text-text-2">{hint}</p> : null}
             {reasons.length === 0 ? null : (
               <p className="px-3 text-[12px] leading-snug text-text-2">
                 {say("prologue.not-for-you")} {reasons.join(" ")}
