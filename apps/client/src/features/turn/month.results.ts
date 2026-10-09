@@ -4,7 +4,7 @@
 import { content } from "@japacity/content";
 import type { Currency, PlayerView, ReportLine } from "@japacity/sim";
 
-import { movesMoney, tidyLines } from "../../shared/words/lines";
+import { afterPrologue, forYou, movesMoney, tidyLines } from "../../shared/words/lines";
 import { moneyParam } from "../../shared/words/text";
 
 export interface MoneyLine {
@@ -26,7 +26,8 @@ const NOT_MOVED: ReadonlySet<string> = new Set(["line.wallet.flagged"]);
  * twice (R-WORLD-008).
  */
 export function moneyLines(lines: readonly ReportLine[]): MoneyLine[] {
-  return tidyLines(lines).flatMap((line): MoneyLine[] => {
+  // The prologue's years are not this month: their money is what the character starts with.
+  return tidyLines(afterPrologue(lines)).flatMap((line): MoneyLine[] => {
     if (line.tone === "plain" || NOT_MOVED.has(line.key) || !movesMoney(line)) return [];
     const money = moneyParam("amount", line.params, line.key);
     if (money === null || money.amount === 0) return [];
@@ -38,6 +39,41 @@ export function moneyLines(lines: readonly ReportLine[]): MoneyLine[] {
 export function otherLines(lines: readonly ReportLine[]): ReportLine[] {
   const money = new Set(moneyLines(lines).map((entry) => entry.line));
   return tidyLines(lines).filter((line) => !money.has(line));
+}
+
+/** The most story lines the results show; the rest stay in News. */
+export const STORY_MAX = 6;
+
+/**
+ * The kinds of line that carry the month's story, in the order the results lead with them: a job
+ * or an offer found, a way out heard of or moved on, a paper or a test band, a deposit that will be
+ * asked about, a chapter or a goal, a set piece, the interview or a status, news about your plans.
+ */
+const STORY: readonly ((line: ReportLine) => boolean)[] = [
+  (line) => ["line.activity.hunt-hired", "line.activity.job-started", "line.activity.side-started", "line.offer.opened"].includes(line.key),
+  (line) => line.key.startsWith("line.route."),
+  (line) => (line.key.startsWith("line.document.") && line.key !== "line.document.already-pending") || line.key.startsWith("line.activity.driving-"),
+  (line) => line.key === "line.wallet.flagged",
+  (line) => line.key.startsWith("line.chapter.") || line.key.startsWith("line.goal."),
+  (line) => line.key.startsWith("line.setpiece.") || line.key.startsWith("line.interview.") || line.key.startsWith("line.status."),
+  forYou,
+];
+
+function storyRank(line: ReportLine): number {
+  return STORY.findIndex((matches) => matches(line));
+}
+
+/**
+ * The month's story for the results (R-WORLD-008): the lines that move the story, not money, in
+ * the order the results lead with them, at most `STORY_MAX`. The rest of the month stays in News.
+ */
+export function storyLines(lines: readonly ReportLine[]): ReportLine[] {
+  return tidyLines(afterPrologue(lines))
+    .map((line, index) => ({ line, index, rank: storyRank(line) }))
+    .filter((entry) => entry.rank !== -1)
+    .sort((a, b) => a.rank - b.rank || a.index - b.index)
+    .slice(0, STORY_MAX)
+    .map((entry) => entry.line);
 }
 
 /** What was kept in each currency the lines moved: in less out, in the order each first appears. */
@@ -85,4 +121,19 @@ export function savings(view: Pick<PlayerView, "routes" | "japacity">): { kind: 
     if (required > 0) return { kind: "funds", shown, required, currency };
   }
   return view.japacity.percent === null ? null : { kind: "percent", percent: view.japacity.percent };
+}
+
+function sameLine(a: ReportLine, b: ReportLine): boolean {
+  return a.key === b.key && JSON.stringify(a.params) === JSON.stringify(b.params);
+}
+
+/** The month's lines that neither the story nor the money tells on the results: these are left for News. */
+export function untoldLines(lines: readonly ReportLine[]): ReportLine[] {
+  const story = storyLines(lines);
+  return otherLines(lines).filter((line) => {
+    const at = story.findIndex((told) => sameLine(told, line));
+    if (at === -1) return true;
+    story.splice(at, 1);
+    return false;
+  });
 }

@@ -1,8 +1,9 @@
 // The month's results (docs/rules/world.md R-WORLD-008): when a month ends, one sheet over the scene
-// says what was kept as a counter, every line in or out with its sign, the draw's numbers with any of
-// the player's lit, the savings toward the move, then one button back to the place. The staged wins
-// (Moment) come first; the sheet opens once they have passed. The month's other lines are not listed
-// here: they live in the phone's News app.
+// says what was kept as a counter, then the month's story (an offer, a way out, a paper, a test band,
+// a chapter), every line in or out with its sign, the draw's numbers with any of the player's lit,
+// the savings toward the move, then one button back to the place. The staged wins (Moment) come
+// first; the sheet opens once they have passed. The month's other lines are not listed here: they
+// live in the phone's News app.
 import { useEffect, useState } from "react";
 
 import { useGame, useView } from "../../authority/GameProvider";
@@ -11,7 +12,7 @@ import { Counter } from "../../shared/world/Band";
 import { WorldSheet } from "../../shared/world/WorldSheet";
 import { formatMoney, formatNumber } from "../../shared/words/format";
 import { say, words } from "../../shared/words/text";
-import { drawShown, kept, localCurrency, moneyLines, otherLines, savings } from "./month.results";
+import { drawShown, kept, localCurrency, moneyLines, savings, storyLines, untoldLines } from "./month.results";
 import { turnWords } from "./turn.words";
 
 /** True while the results sheet is up: the month has just ended and its staged wins have passed. */
@@ -50,7 +51,8 @@ export function Results({ place }: { place: string }) {
   if (report === null) return null;
   const draw = drawShown(view);
   const save = savings(view);
-  const news = otherLines([...midMonth, ...report.lines]).length;
+  const story = storyLines([...midMonth, ...report.lines]);
+  const news = untoldLines([...midMonth, ...report.lines]).length;
   const close = (): void => {
     cue("close");
     setReportOpen(false);
@@ -80,6 +82,19 @@ export function Results({ place }: { place: string }) {
             <span className={`num text-[15px] ${net.amount < 0 ? "text-out" : "text-in"}`}>{signed(net.amount, net.amount, net.currency)}</span>
           </div>
         ))}
+
+        {story.length === 0 ? null : (
+          <section className="flex flex-col gap-1" aria-label={turnWords("turn.results.story")} data-results-story>
+            <h3 className="label text-text-2">{turnWords("turn.results.story")}</h3>
+            <ul className="flex flex-col">
+              {story.map((line, index) => (
+                <li key={`${line.key}-${String(index)}`} className="border-b border-sheet-line py-2 text-[14px] leading-snug font-semibold last:border-b-0" data-story-line={line.key} data-tone={line.tone}>
+                  {words(line.key, line.params)}
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
 
         <section className="flex flex-col gap-1" aria-label={turnWords("turn.results.money")}>
           <h3 className="label text-text-2">{turnWords("turn.results.money")}</h3>

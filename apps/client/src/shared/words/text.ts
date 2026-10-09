@@ -141,6 +141,11 @@ function opensSentence(whole: string, offset: number): boolean {
 
 function stringParam(name: string, value: string, midSentence: boolean): string {
   if (name === "pocket" && hasWords(`ui.pocket.${value}`)) return say(`ui.pocket.${value}`);
+  // A slot lock's reason (R-TURN-009), as the Month sheet says it: "your side job", never its key.
+  if (name === "why" && hasWords(`ui.locks.why.${value}`)) {
+    const why = say(`ui.locks.why.${value}`);
+    return midSentence ? why : why.charAt(0).toUpperCase() + why.slice(1);
+  }
   if (name === "currency" && hasWords(`ui.currency.${value}`)) return lowerFirst(say(`ui.currency.${value}`));
   if (name === "reason" && hasWords(`ui.refusal.${value}`)) return lowerFirst(say(`ui.refusal.${value}`));
   if (text[`${value}.name`] === undefined) return value;
@@ -181,8 +186,43 @@ function countedKey(key: string, params: Params): string {
   return typeof count === "number" && count === 1 && hasWords(`ui.${key}.one`) ? `ui.${key}.one` : key;
 }
 
+/** How many bands a quality's value is told in, from the bottom: the words never show the figure. */
+const BANDS = 4;
+
+/**
+ * A quality's value as the band it is in, as a sentence a person would say ("Your family has a
+ * little behind it"), or null when the quality has no band words. The figure itself never shows.
+ */
+export function bandWords(quality: string, value: number): string | null {
+  const entry = (content.quality as Record<string, { min: number; max: number } | undefined>)[quality];
+  if (entry === undefined || !hasWords(`ui.band.${quality}.0`)) return null;
+  const span = entry.max - entry.min + 1;
+  const band = Math.min(BANDS - 1, Math.max(0, Math.floor(((value - entry.min) * BANDS) / span)));
+  return say(`ui.band.${quality}.${String(band)}`);
+}
+
+/** Lines that tell a quality's figure, told by its band where it has one. */
+const QUALITY_MOVES: Record<string, string> = {
+  "line.quality.gain": "ui.line.quality.gain-band",
+  "line.quality.loss": "ui.line.quality.loss-band",
+  "line.quality.drift": "ui.line.quality.drift-band",
+};
+
+function bandLine(key: string, params: Params): string | null {
+  const banded = QUALITY_MOVES[key];
+  const { quality, value, points } = params;
+  if (banded === undefined || typeof quality !== "string" || typeof value !== "number") return null;
+  const band = bandWords(quality, value);
+  if (band === null) return null;
+  // From nothing (the prologue's draw), the band alone says where the character starts.
+  const fromNothing = key === "line.quality.gain" && points === value;
+  return say(fromNothing ? "ui.line.quality.start-band" : banded, { quality: nameOf(quality), band });
+}
+
 /** Words for a key the simulation chose (a report line, an offer body), with its raw params formatted. */
 export function words(key: string, params: Params = {}): string {
+  const banded = bandLine(key, params);
+  if (banded !== null) return banded;
   const template = lookup(countedKey(key, params));
   return template.replace(BRACE, (whole, name: string, offset: number) => {
     const value = params[name];

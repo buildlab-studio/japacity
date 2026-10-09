@@ -1,11 +1,12 @@
-// The Month sheet's contents (docs/rules/world.md R-WORLD-007): what is planned, as rows that can be
-// taken out (the slot empties), the free slots, Same again as one chip, and the real End month with
-// the reason it is held when it is. Nothing else plans the month: a slot fills only when an act that
-// takes one is chosen from its thing in the world. The shell's sheet frame holds this.
-import type { SlotPick } from "@japacity/sim";
-import { Repeat, X } from "lucide-react";
+// The Month sheet's contents (docs/rules/world.md R-WORLD-007): the job held, what is planned, as
+// rows that can be taken out (the slot empties), the free slots, Same again as one chip, and the
+// real End month with the reason it is held when it is. Nothing else plans the month: a slot fills
+// only when an act that takes one is chosen from its thing in the world. The shell's sheet frame
+// holds this.
+import type { PlayerView, SlotPick } from "@japacity/sim";
+import { Briefcase, Repeat, X } from "lucide-react";
 
-import { useGame, useView } from "../../authority/GameProvider";
+import { useGame, useGameStoreIfAny, useView } from "../../authority/GameProvider";
 import { slotted, slotsUsed, takesSlot } from "../../authority/store";
 import { cue } from "../../shared/sound/cues";
 import { Rejection } from "../../shared/ui/Rejection";
@@ -18,12 +19,25 @@ function pickWords(pick: SlotPick): string {
   return pick.param === null ? nameOf(pick.activity) : `${nameOf(pick.activity)}: ${paramWords(pick.param)}`;
 }
 
+const HUNT = "activity.job-hunt";
+
+/** A hunt for a job the character already holds: last month's search, done now that it paid off. */
+export function huntsHeldJob(pick: SlotPick | null, job: PlayerView["job"]): boolean {
+  return pick !== null && pick.activity === HUNT && pick.param !== null && (pick.param === job.id || pick.param === job.side);
+}
+
+/** The jobs held, as the sheet's first rows: the month's work is planned before anything else. */
+function jobRows(job: PlayerView["job"]): string[] {
+  return [...(job.id === null ? [] : [turnWords("turn.month.working", { job: nameOf(job.id) })]), ...(job.side === null ? [] : [turnWords("turn.month.side", { job: nameOf(job.side) })])];
+}
+
 export function MonthSheet() {
   const view = useView();
   const plan = useGame((state) => state.plan);
   const busy = useGame((state) => state.busy);
   const setSlot = useGame((state) => state.setSlot);
   const sameAgain = useGame((state) => state.sameAgain);
+  const store = useGameStoreIfAny();
   const endMonth = useGame((state) => state.endMonth);
   // An interview with a question still to answer holds the month as a set piece does (R-INTERVIEW-004).
   const blocked = blockedBy(view.ended, view.turns.banked, view.setpiece !== null || (view.interview?.question ?? null) !== null);
@@ -32,6 +46,16 @@ export function MonthSheet() {
 
   return (
     <div className="flex flex-col gap-3" data-month-sheet>
+      {jobRows(view.job).length === 0 ? null : (
+        <ul className="flex flex-col gap-1.5" data-month-jobs>
+          {jobRows(view.job).map((row) => (
+            <li key={row} className="flex min-h-11 items-center gap-2 rounded-[5px] bg-sheet-muted px-3 text-[15px] font-bold" data-slot="job">
+              <Briefcase size={16} aria-hidden className="shrink-0 text-text-2" />
+              <span className="min-w-0 flex-1 truncate">{row}</span>
+            </li>
+          ))}
+        </ul>
+      )}
       {slotted(plan).length === 0 ? <p className="text-[14px] text-text-2">{turnWords("turn.month.no-slots")}</p> : null}
       {plan.length === 0 ? null : (
         <ol className="flex flex-col gap-1.5" aria-label={turnWords("turn.month.title")} data-month-plan>
@@ -74,6 +98,10 @@ export function MonthSheet() {
             onClick={() => {
               cue("tap");
               sameAgain();
+              // R-WORLD-007: the search that found the job held now is not planned again.
+              (store?.getState().plan ?? []).forEach((pick, index) => {
+                if (huntsHeldJob(pick, view.job)) setSlot(index, null);
+              });
             }}
             data-same-again
           >

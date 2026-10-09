@@ -10,10 +10,10 @@ import { useGame, useView } from "../../authority/GameProvider";
 import { bondName, timeWith } from "../../shared/sim/people";
 import { Button } from "../../shared/ui/Button";
 import { Card, Panel, Tag } from "../../shared/ui/Panel";
-import { afterPaying, plannedCosts, shortfall, type AfterPaying } from "../../shared/words/cost";
+import { afterPaying, plannedCosts, shortfall, type AfterPaying, type Money } from "../../shared/words/cost";
 import { formatBand, formatMoney } from "../../shared/words/format";
 import { lockWords, SIDE_JOB_LOCK } from "../../shared/words/locks";
-import { alreadyDone, requirementSentence } from "../../shared/words/requirement";
+import { alreadyDone, needsWords, requirementSentence } from "../../shared/words/requirement";
 import { blurbOf, hasWords, lowerFirst, nameOf, paramWords, say, sayCount } from "../../shared/words/text";
 import { huntOrder, JobList } from "./JobList";
 
@@ -206,18 +206,55 @@ function noSchoolReasons(view: PlayerView): string[] {
   );
 }
 
-/** Which figure is short when an allowed activity cannot be paid for. */
-function cannotPayWords(view: PlayerView, option: ActivityOption): string {
+/**
+ * Which figure is short when an allowed activity cannot be paid for: the same figure the button
+ * says, counting what the month's plan already pays for (R-WORLD-006). With nothing short by the
+ * screen's count but the engine still saying no, it says so plainly and names no figure.
+ */
+function cannotPayWords(view: PlayerView, option: ActivityOption, planned: readonly Money[], paying: AfterPaying | null): string {
   const costs = option.cost.map((cost) => formatMoney(cost.amount, cost.currency)).join(" + ");
-  const gap = shortfall(view, option.cost);
-  if (gap.foreign) return say("ui.activity.short-foreign", { cost: costs, naira: formatMoney(gap.need, "NGN"), have: formatMoney(gap.have, "NGN") });
-  if (gap.short === 0) return say("ui.activity.cannot-pay");
-  return say("ui.activity.short", { short: formatMoney(gap.short, "NGN"), cost: costs, have: formatMoney(gap.have, "NGN") });
+  if (paying === null || paying.short === null) return say("ui.activity.cannot-pay");
+  const short = formatMoney(paying.short.amount, paying.short.currency);
+  const gap = shortfall(view, [...planned, ...option.cost]);
+  if (gap.foreign) return say("ui.activity.short-foreign", { short, cost: costs, naira: formatMoney(gap.need, "NGN"), have: formatMoney(gap.have, "NGN") });
+  const plannedNaira = shortfall(view, planned).need;
+  if (plannedNaira > 0) return say("ui.activity.short-planned", { short, cost: costs, planned: formatMoney(plannedNaira, "NGN"), have: formatMoney(gap.have, "NGN") });
+  return say("ui.activity.short", { short, cost: costs, have: formatMoney(gap.have, "NGN") });
 }
 
 /** The button's second line: what is left after, or how much is short, as the ask card says it. */
 function afterWords(paying: AfterPaying): string {
   return paying.short === null ? say("ui.world.left", { amount: formatMoney(paying.left.amount, paying.left.currency) }) : say("ui.world.short", { amount: formatMoney(paying.short.amount, paying.short.currency) });
+}
+
+/**
+ * True when a paper's request is already in the month's plan: it asks that the paper not be held
+ * or on its way, so a second request in the same month would ask for what the first already asks.
+ */
+function plannedOnce(option: ActivityOption, plan: readonly (SlotPick | null)[], param: string): boolean {
+  const once = content.activity[option.id]?.requires.some((requirement) => requirement.type === "document/absent") === true;
+  return once && plan.some((pick) => pick !== null && pick.activity === option.id && (pick.param ?? "") === param);
+}
+
+/** Why an activity with a choice inside it has nothing to choose yet, in a few words for its button. */
+function nothingToPickWords(option: ActivityOption): string {
+  const param = content.activity[option.id]?.param;
+  if (param === "route" || param === "known-route") return say("ui.needs.route");
+  if (param === "school") return say("ui.needs.school");
+  return say("ui.needs.nothing-to-pick");
+}
+
+/**
+ * The button's second line, one reason and never two that disagree (R-WORLD-006): what it needs
+ * first when it is not allowed, how much is short when it cannot be paid, the engine's no when the
+ * screen sees no gap, else what is left after.
+ */
+function buttonLine(option: ActivityOption, paying: AfterPaying | null, view: PlayerView, planned: boolean): { words: string; kind: "needs" | "short" | "left" | "planned" } | null {
+  if (planned) return { words: say("ui.needs.planned"), kind: "planned" };
+  if (!option.allowed) return { words: option.missing.length > 0 ? needsWords(option.missing, { routes: view.routes }) : nothingToPickWords(option), kind: "needs" };
+  if (paying !== null && paying.short !== null) return { words: afterWords(paying), kind: "short" };
+  if (!option.affordable) return { words: say("ui.needs.money"), kind: "short" };
+  return paying === null ? null : { words: afterWords(paying), kind: "left" };
 }
 
 function ActivityCard({ option }: { option: ActivityOption }) {
@@ -235,8 +272,12 @@ function ActivityCard({ option }: { option: ActivityOption }) {
   const jobs = content.activity[option.id]?.param === "job" ? huntOrder(view, option.params ?? []) : null;
   const chosenParam = needsParam ? (option.params?.includes(param) === true ? param : ((jobs ?? option.params)?.[0] ?? "")) : "";
   // R-WORLD-006: what is left after, counting what the month already pays for; a cost that cannot be paid shuts the button.
-  const paying = option.cost.length === 0 ? null : afterPaying(view, plannedCosts(view, plan), option.cost);
-  const canAdd = option.allowed && option.affordable && (paying === null || paying.short === null) && !full && !ended && (!needsParam || chosenParam !== "");
+  const planned = plannedCosts(view, plan);
+  const paying = option.cost.length === 0 ? null : afterPaying(view, planned, option.cost);
+  const already = plannedOnce(option, plan, chosenParam);
+  const canAdd = option.allowed && option.affordable && (paying === null || paying.short === null) && !full && !ended && !already && (!needsParam || chosenParam !== "");
+  const line = buttonLine(option, paying, view, already);
+  const cannotPay = option.allowed && !already && (!option.affordable || (paying !== null && paying.short !== null));
   const selectId = `param-${option.id}`;
 
   return (
@@ -268,7 +309,7 @@ function ActivityCard({ option }: { option: ActivityOption }) {
             </ul>
           </div>
         ) : null}
-        {option.allowed && !option.affordable ? <p className="text-sm text-bad">{cannotPayWords(view, option)}</p> : null}
+        {cannotPay ? <p className="text-sm text-bad">{cannotPayWords(view, option, planned, paying)}</p> : null}
 
         {needsParam && (option.allowed || option.params?.length === 0) ? (
           option.params?.length === 0 ? (
@@ -314,9 +355,9 @@ function ActivityCard({ option }: { option: ActivityOption }) {
           >
             <Plus size={16} />
             {full && option.allowed ? say("ui.activity.full") : say("ui.activity.do")}
-            {paying === null || !option.allowed ? null : (
-              <span className={`text-xs font-semibold ${paying.short === null ? "opacity-80" : "text-bad"}`} data-after={paying.short === null ? "left" : "short"}>
-                {afterWords(paying)}
+            {line === null ? null : (
+              <span className={`text-xs font-semibold ${line.kind === "left" ? "opacity-80" : line.kind === "short" ? "text-bad" : ""}`} data-after={line.kind}>
+                {line.words}
               </span>
             )}
           </Button>

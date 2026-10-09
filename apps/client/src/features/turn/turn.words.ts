@@ -8,10 +8,12 @@ import { hasWords, say } from "../../shared/words/text";
 export const turnText: Record<string, string> = {
   "turn.month.label": "Month {month}",
   "turn.month.title": "This month",
-  "turn.month.free": "Nothing yet",
+  "turn.month.free": "Free time",
+  "turn.month.working": "Working: {job}",
+  "turn.month.side": "Side job: {job}",
   "turn.month.hint": "Tap a person or a thing in the world to add it here.",
   "turn.month.remove": "Take out {activity}",
-  "turn.month.no-slots": "No free slots this month.",
+  "turn.month.no-slots": "No free time this month.",
   "turn.month.no-slot": "Takes no slot",
   "turn.month.end": "End month",
 
@@ -20,6 +22,7 @@ export const turnText: Record<string, string> = {
   "turn.results.birthday": "You turned {years} this month.",
   "turn.results.kept": "Kept this month",
   "turn.results.lost": "Down this month",
+  "turn.results.story": "This month",
   "turn.results.money": "In and out",
   "turn.results.no-money": "No money came in or went out.",
   "turn.results.draw": "Draw {draw}",
