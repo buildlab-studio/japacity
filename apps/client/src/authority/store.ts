@@ -6,6 +6,7 @@ import type { Command, Id, PlayerView, Reply, ReportLine, SlotPick } from "@japa
 import { createStore, type StoreApi } from "zustand/vanilla";
 
 import { earlyWinIn } from "../features/guides/earlyWin";
+import { againSlots, RUN_MONTHS, stopsRun } from "../features/turn/untilNews";
 import type { AccountApi } from "../shared/net/auth";
 import type { ClockView, PresenceReply, ServerCode, ServerRejection, WorldReply } from "../shared/net/contract";
 import { isReported } from "../shared/net/http";
@@ -96,10 +97,20 @@ export interface GameState {
   earlyWin: boolean;
   /** Counts the `messages` nudges heard, so an open conversation fetches what is new (R-PAIR-011). */
   messageNudges: number;
+  /**
+   * The quiet months of the last Until news run, oldest first, each as all of its lines (the first with
+   * what was done mid-month). The results tell each as one line above the month that stopped the run (R-WORLD-028).
+   */
+  quiet: ReportLine[][];
 
   refresh: () => Promise<void>;
   send: (command: PlayerCommand) => Promise<Reply | ServerRejection | null>;
   endMonth: () => Promise<Reply | ServerRejection | null>;
+  /**
+   * Until news (R-WORLD-028): ends months in a row, each its own `turn/end` with last month's slots
+   * (this month's plan first, when anything is planned), until something needs the player or six have passed.
+   */
+  untilNews: () => Promise<Reply | ServerRejection | null>;
   setSlot: (index: number, pick: SlotPick | null) => void;
   /** Puts a pick in the first empty slot, or after the slots when it fills none. False when every slot is full. */
   addToPlan: (pick: SlotPick) => boolean;
@@ -271,7 +282,7 @@ function makeStore(authority: StoreAuthority, options: GameStoreOptions): GameSt
             plan: fitPlan(ended ? [] : get().plan, reply.view.freeSlots),
             lines: reply.lines,
             moments: bigLines(reply.lines),
-            ...(ended ? { reportOpen: true, lastMonthLines: get().monthLines, monthLines: [] } : { monthLines: [...get().monthLines, ...reply.lines] }),
+            ...(ended ? { reportOpen: true, lastMonthLines: get().monthLines, monthLines: [], quiet: [] } : { monthLines: [...get().monthLines, ...reply.lines] }),
           });
         } else {
           set({ rejection: { code: reply.code, words: rejectionWords(reply.code), ...("detail" in reply && typeof reply.detail === "string" ? { detail: reply.detail } : {}) } });
@@ -309,6 +320,7 @@ function makeStore(authority: StoreAuthority, options: GameStoreOptions): GameSt
       accountNotice: null,
       earlyWin: false,
       messageNudges: 0,
+      quiet: [],
 
       async refresh() {
         try {
@@ -323,6 +335,52 @@ function makeStore(authority: StoreAuthority, options: GameStoreOptions): GameSt
         const reply = await send({ type: "turn/end", slots });
         if (reply?.ok === true) set({ plan: fitPlan([], reply.view.freeSlots), reportOpen: true });
         return reply;
+      },
+      async untilNews() {
+        const first = get();
+        if (first.view === null || first.busy) return null;
+        set({ busy: true, rejection: null });
+        const quiet: ReportLine[][] = [];
+        const moments: ReportLine[] = [];
+        let last: Reply | ServerRejection | null = null;
+        let accepted = 0;
+        try {
+          for (let months = 1; months <= RUN_MONTHS; months += 1) {
+            const view = get().view;
+            if (view === null) break;
+            const planned = get().plan.filter((pick): pick is SlotPick => pick !== null);
+            const slots = months === 1 && planned.length > 0 ? planned : againSlots(view);
+            const reply = await authority.send({ type: "turn/end", slots, basedOn: view.v });
+            last = reply;
+            if (!reply.ok) {
+              set({ rejection: { code: reply.code, words: rejectionWords(reply.code), ...("detail" in reply && typeof reply.detail === "string" ? { detail: reply.detail } : {}) } });
+              if (accepted === 0 && !get().signedOut) take(await authority.view());
+              // A month already ended stands as the one that stopped the run: its full results show.
+              quiet.pop();
+              break;
+            }
+            accepted += 1;
+            const told = [...(months === 1 ? get().monthLines : []), ...reply.lines];
+            moments.push(...bigLines(reply.lines));
+            // Each month lands in the store as it ends, so the month kept on the device follows the run.
+            set({
+              earlyWin: get().earlyWin || wonEarly(reply.view, reply.lines, slots),
+              view: reply.view,
+              plan: fitPlan([], reply.view.freeSlots),
+              lines: reply.lines,
+              lastMonthLines: months === 1 ? get().monthLines : [],
+              monthLines: [],
+            });
+            if (stopsRun(reply.view, reply.lines, months).length > 0) break;
+            quiet.push(told);
+          }
+        } catch (error) {
+          if (!isReported(error)) set({ failed: failure(error) });
+          quiet.pop();
+        } finally {
+          set({ busy: false, ...(accepted > 0 ? { quiet, moments, reportOpen: true } : {}) });
+        }
+        return last;
       },
       setSlot(index, pick) {
         const plan = [...get().plan];
@@ -371,7 +429,7 @@ function makeStore(authority: StoreAuthority, options: GameStoreOptions): GameSt
         if (options.life === undefined) return;
         const view = await options.life.newLife(scenario);
         forgetMonth();
-        set({ view, plan: fitPlan([], view.freeSlots), choosingLife: false, notice: null, lines: [], moments: [], rejection: null, monthLines: [], lastMonthLines: [], cardClosed: null });
+        set({ view, plan: fitPlan([], view.freeSlots), choosingLife: false, notice: null, lines: [], moments: [], rejection: null, monthLines: [], lastMonthLines: [], cardClosed: null, quiet: [] });
       },
       openLifeChooser: options.life === undefined || options.lifeAgain === false ? null : () => set({ choosingLife: true }),
       closeLifeChooser() {
@@ -409,7 +467,7 @@ function makeStore(authority: StoreAuthority, options: GameStoreOptions): GameSt
         set({ messageNudges: get().messageNudges + 1 });
       },
       leave(notice) {
-        set({ signedOut: true, accountNotice: notice, view: null, clock: null, world: null, presence: null, rejection: null, lines: [], moments: [] });
+        set({ signedOut: true, accountNotice: notice, view: null, clock: null, world: null, presence: null, rejection: null, lines: [], moments: [], quiet: [] });
       },
     };
   });

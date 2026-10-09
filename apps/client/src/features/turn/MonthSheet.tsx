@@ -16,16 +16,10 @@ import { hasWords, nameOf, paramWords, say } from "../../shared/words/text";
 import { blockedBy } from "./TurnBar";
 import { TurnClock } from "./TurnClock";
 import { turnWords } from "./turn.words";
+import { huntsHeldJob } from "./untilNews";
 
 function pickWords(pick: SlotPick): string {
   return pick.param === null ? nameOf(pick.activity) : `${nameOf(pick.activity)}: ${paramWords(pick.param)}`;
-}
-
-const HUNT = "activity.job-hunt";
-
-/** A hunt for a job the character already holds: last month's search, done now that it paid off. */
-export function huntsHeldJob(pick: SlotPick | null, job: PlayerView["job"]): boolean {
-  return pick !== null && pick.activity === HUNT && pick.param !== null && (pick.param === job.id || pick.param === job.side);
 }
 
 /** The jobs held, as the sheet's first rows: the month's work is planned before anything else. */
@@ -64,6 +58,43 @@ export function MonthSheet() {
   const blocked = blockedBy(view.ended, view.turns.banked, view.setpiece !== null || (view.interview?.question ?? null) !== null);
   const canRepeat = !(view.lastSlots.length === 0 && view.report === null) && !busy && !view.ended;
   const free = plan.some((pick) => pick === null);
+  const untilNews = useGame((state) => state.untilNews);
+  const abroad = view.place.where === "abroad";
+  const shut = busy || blocked !== null;
+  const endButton = (main: boolean) => (
+    <button
+      key="end"
+      type="button"
+      className={main ? "btn-main" : "chip press flex h-12 w-full items-center justify-between px-4 text-[15px] font-extrabold disabled:opacity-50"}
+      disabled={shut}
+      onClick={() => {
+        cue("tap");
+        void endMonth();
+      }}
+      data-month-end
+      data-main={main}
+    >
+      <span>{turnWords("turn.month.end")}</span>
+      <span className="truncate pl-2 text-[13px] font-semibold opacity-80">{footWords(view, plan)}</span>
+    </button>
+  );
+  const untilButton = (main: boolean) => (
+    <button
+      key="until"
+      type="button"
+      className={main ? "btn-main" : "chip press flex h-12 w-full items-center justify-between px-4 text-[15px] font-extrabold disabled:opacity-50"}
+      disabled={shut}
+      onClick={() => {
+        cue("tap");
+        void untilNews();
+      }}
+      data-month-until
+      data-main={main}
+    >
+      <span className="shrink-0">{turnWords("ui.month.until-news")}</span>
+      <span className="truncate pl-2 text-right text-[12px] leading-tight font-semibold opacity-80">{turnWords("ui.month.until-news-foot")}</span>
+    </button>
+  );
 
   return (
     <div className="flex flex-col gap-3" data-month-sheet>
@@ -143,21 +174,9 @@ export function MonthSheet() {
       ) : null}
       <Rejection />
       <div className="sticky bottom-0 -mx-4 -mb-4 flex flex-col gap-1.5 bg-sheet px-4 pt-2 pb-[max(16px,env(safe-area-inset-bottom))]">
-        <button
-          type="button"
-          className="btn-main"
-          disabled={busy || blocked !== null}
-          onClick={() => {
-            cue("tap");
-            void endMonth();
-          }}
-          data-month-end
-        >
-          <span>{turnWords("turn.month.end")}</span>
-          <span className="text-[13px] font-semibold opacity-80">
-            {footWords(view, plan)}
-          </span>
-        </button>
+        {/* R-WORLD-028: abroad the quiet months go by Until news, so it is the main button there and End month the second. */}
+        {abroad ? untilButton(true) : endButton(true)}
+        {abroad ? endButton(false) : untilButton(false)}
         {blocked === null ? null : (
           <p className="text-[13px] text-text-2" data-month-blocked>
             {blocked}

@@ -32,7 +32,7 @@ export const uiText: Record<string, string> = {
 
   // The month
   "ui.month.planning": "Month {month}",
-  "ui.month.banked": "{banked} of {cap} months banked",
+  "ui.month.banked": "{banked} of {cap} months to play",
   "ui.month.slots": "{used} of {slots} things planned",
   // While working, what is planned beside the job, counted in words (shared/words/count.ts).
   "ui.month.working-things": "Working, and {count} things planned beside the job",
@@ -44,6 +44,35 @@ export const uiText: Record<string, string> = {
   "ui.month.slot-empty": "Nothing yet",
   "ui.month.rest": "Nothing planned. You rest.",
   "ui.opening.go": "Go",
+  "ui.month.until-news": "Until news",
+  "ui.month.until-news-foot": "Stops when something needs you",
+
+  // The months the player may still play (R-WORLD-027): a glyph with the number, and its words at a tap.
+  // The player never reads "turn" or "banked"; these restate the older drafts in online.ts and world.ts.
+  "ui.months.label": "Months you can play: {count}",
+  "ui.months.more": "You can play {count} more months.",
+  "ui.months.more.one": "You can play 1 more month.",
+  "ui.months.more.zero": "No months to play just now.",
+  "ui.months.next": "Next one in {wait}.",
+  "ui.months.arriving": "The next one is on its way.",
+  "ui.months.full": "Full: {count} months. A new chapter fills them again.",
+  "ui.months.full-again": "A new chapter: your months are full again, {count} to play.",
+  "ui.world.turns": "{count} months to play",
+  "ui.world.turns.one": "1 month to play",
+  "ui.clock.next": "Next month to play in {wait}",
+  "ui.clock.full": "Full: you hold every month you can. Play one to make room.",
+  "ui.clock.hours": "{hours}h {minutes}m",
+  "ui.clock.minutes": "{minutes}m",
+  "ui.notify.ask.title": "Know when your months are full",
+  "ui.notify.ask.body": "Months to play build up while you are away. We can tell you on this device when you hold all the months you can, and nothing else.",
+  "ui.notify.setting": "Tell me when my months are full",
+
+  // The first-play walkthrough (R-WORLD-027): four pointers, once per device.
+  "ui.walk.band": "Your age, your money, the months you can play",
+  "ui.walk.phone": "Your phone: chats, the bank, the news",
+  "ui.walk.map": "The map: every place you can go",
+  "ui.walk.count": "The months you can play. Tap it to see when more come",
+  "ui.walk.step": "{n} of {count}",
   "ui.world.now": "Now",
   "ui.world.pass": "Bus pass",
   "ui.world.depart-held": "The funds held for you must go back first: Phone, Bills, Pay now.",

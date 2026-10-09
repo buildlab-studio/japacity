@@ -254,3 +254,14 @@ export function untoldLines(lines: readonly ReportLine[]): ReportLine[] {
     return false;
   });
 }
+
+/**
+ * A quiet month of an Until news run as its one line (R-WORLD-028): what was kept in the money the
+ * character lives on, and the one thing that moved, told as the results tell it, or nothing.
+ */
+export function quietLine(lines: readonly ReportLine[], local: Currency): { kept: number | null; moved: ReportLine | null } {
+  const money = moneyLines(lines, local);
+  const net = kept(money).find((entry) => entry.currency === local);
+  const [first] = storyLines(lines);
+  return { kept: money.length === 0 || net === undefined ? null : net.amount, moved: first === undefined ? null : toldOnResults(first) };
+}
