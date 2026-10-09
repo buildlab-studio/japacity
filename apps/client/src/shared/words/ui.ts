@@ -64,6 +64,17 @@ export const uiText: Record<string, string> = {
   "ui.report.japacity-none": "Japacity: no route yet",
   "ui.line.school-offer-plain": "{school} offers you a place.",
   "ui.line.savings-before": "Your savings from before: {amount}.",
+  // The results' own telling of a story line (features/turn/month.results.ts, toldOnResults): a bill
+  // not paid says its figure and what it cost; a hunt says its answer (R-WORLD-008).
+  "ui.results.unpaid.standing-mood": "{obligation}: {amount} went unpaid. Your standing and your mood took a hit.",
+  "ui.results.unpaid.standing": "{obligation}: {amount} went unpaid. Your standing took a hit.",
+  "ui.results.unpaid.mood": "{obligation}: {amount} went unpaid. Your mood took a hit.",
+  "ui.results.unpaid.credit": "{obligation}: {amount} went unpaid. A mark on your credit file.",
+  "ui.results.unpaid.credit-standing-mood": "{obligation}: {amount} went unpaid. A mark on your credit file, and your standing and your mood took a hit.",
+  "ui.results.unpaid.plain": "{obligation}: {amount} went unpaid.",
+  "ui.results.hunt-missed": "{job}: not this time.",
+  "ui.results.hunt-offer": "An offer: {job}, {pay} a month.",
+  "ui.results.hunt-offer-plain": "An offer: {job}.",
   // What the move takes, in the Japa app (the savings toward the move broken down).
   "ui.japa.cost.title": "What the move takes",
   "ui.japa.cost.tuition": "Tuition still to pay",

@@ -22,6 +22,7 @@ export const turnText: Record<string, string> = {
   "turn.results.birthday": "You turned {years} this month.",
   "turn.results.kept": "Kept this month",
   "turn.results.lost": "Down this month",
+  "turn.results.nothing-moved": "Nothing moved",
   "turn.results.story": "This month",
   "turn.results.money": "In and out",
   "turn.results.no-money": "No money came in or went out.",
