@@ -1,6 +1,7 @@
 // News (docs/rules/world.md R-WORLD-008, R-WORLD-018): the era line, the last month's report lines
 // (they stay here after the results sheet), and the stories that have reached the character.
-import type { NewsStage } from "@japacity/sim";
+import { content } from "@japacity/content";
+import type { NewsStage, RouteStateName } from "@japacity/sim";
 
 import { useGame, useView } from "../../../authority/GameProvider";
 import { tidyLines, toldUnpaid } from "../../../shared/words/lines";
@@ -11,8 +12,24 @@ import { phoneWords } from "../phone.words";
 /** What is happening now first, talk next, the past last. */
 const STAGE_ORDER: readonly NewsStage[] = ["in-force", "announced", "rumour", "ended"];
 
+/** A route the character has flown on, or holds a visa for, is behind them: its news no longer asks for them. */
+const BEHIND: readonly RouteStateName[] = ["granted", "departed"];
+
+/**
+ * A story is for the character only while it names a route still in play for them: the engine marks any story about a route they have heard of, so once landed, "Refusals climb" would
+ * still say for you.
+ */
+export function storyForYou(story: { id: string; forYou: boolean }, routes: readonly { id: string; state: RouteStateName }[]): boolean {
+  if (!story.forYou) return false;
+  const touches = content.news[story.id as keyof typeof content.news]?.touches ?? [];
+  return touches.some((route) => {
+    const state = routes.find((candidate) => candidate.id === route)?.state;
+    return state !== undefined && state !== "unknown" && !BEHIND.includes(state);
+  });
+}
+
 export function News() {
-  const { news, era, report, month } = useView();
+  const { news, era, report, month, routes } = useView();
   // R-WORLD-008: the month's lines stay here, those of what was done mid-month (an agent paid, an ask answered) first.
   const midMonth = useGame((state) => state.lastMonthLines);
   const stories = [...news].sort((a, b) => STAGE_ORDER.indexOf(a.stage) - STAGE_ORDER.indexOf(b.stage) || b.since - a.since);
@@ -45,10 +62,10 @@ export function News() {
       ) : (
         <ul className="flex flex-col gap-2">
           {stories.map((story) => (
-            <li key={story.id} data-story={story.id} className={`rounded-[6px] border bg-sheet-2 p-3 ${story.forYou ? "border-signal" : "border-sheet-line"}`}>
+            <li key={story.id} data-story={story.id} className={`rounded-[6px] border bg-sheet-2 p-3 ${storyForYou(story, routes) ? "border-signal" : "border-sheet-line"}`}>
               <p className="label text-text-2">
                 {say(`ui.news.stage.${story.stage}`)}
-                {story.forYou ? ` · ${say("ui.news.for-you")}` : ""}
+                {storyForYou(story, routes) ? ` · ${say("ui.news.for-you")}` : ""}
               </p>
               <p className="mt-0.5 text-[15px] font-bold">{words(`${story.id}.${story.stage}.head`)}</p>
               <p className="mt-0.5 text-[13px] text-text-2">{words(`${story.id}.${story.stage}.body`)}</p>
