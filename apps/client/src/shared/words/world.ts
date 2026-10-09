@@ -22,6 +22,10 @@ export const worldText: Record<string, string> = {
   "ui.world.show-more": "Show more",
   "ui.world.show-less": "Show less",
   "ui.world.coming": "{what} {when}",
+  // The whole list from the chip (R-WORLD-002): soonest first, each as months away.
+  "ui.world.coming-up": "Coming up",
+  "ui.world.coming.birthday": "Birthday, {age}",
+  "ui.world.coming.age-limit": "The age limit for {route}",
   "ui.world.ask-of": "{n} of {count}",
   "ui.world.ask-next": "Next",
   "ui.world.ask-back": "Back",
