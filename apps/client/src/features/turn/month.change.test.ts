@@ -36,12 +36,12 @@ describe("a change of money on the results", () => {
     const changes = money.filter((entry) => entry.line.key === CHANGED);
     expect(changes).toHaveLength(1);
     const change = changes[0];
-    const net = Math.round((charge * received) / (paid - charge));
     expect(change).toMatchObject({ sign: 1, currency: "GBP", amount: received });
     const said = words(change?.line.key ?? "", change?.line.params ?? {});
     expect(said).toContain(formatMoney(paid, "USD"));
     expect(said).toContain(formatMoney(received, "GBP"));
-    expect(said).toContain(formatMoney(net, "GBP"));
+    // The charge in the money it was taken in, as the confirm sheet says it.
+    expect(said).toContain(formatMoney(charge, "USD"));
     expect(money.some((entry) => entry.line.key === "line.wallet.bank-charge" || entry.line.key === "line.wallet.converted")).toBe(false);
   });
 

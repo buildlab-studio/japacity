@@ -44,6 +44,8 @@ export const uiText: Record<string, string> = {
   "ui.month.slot-empty": "Nothing yet",
   "ui.month.rest": "Nothing planned. You rest.",
   // The room's basics planned, which fill no slot, so the foot never says nothing is planned over them.
+  "ui.month.beside": "{what} this month",
+  "ui.month.working-beside": "Working, and {what}",
   "ui.month.chores.cook": "Cooking this month",
   "ui.month.chores.water": "Fetching water this month",
   "ui.month.chores.both": "Cooking and fetching water",
@@ -137,6 +139,7 @@ export const uiText: Record<string, string> = {
   "ui.results.unpaid.credit-standing-mood": "{obligation}: {amount} went unpaid. A mark on your credit file, and your standing and your mood took a hit.",
   "ui.results.unpaid.plain": "{obligation}: {amount} went unpaid.",
   "ui.results.unpaid.withdraw": "{obligation}: {amount} went unpaid. Miss the next one too and the university withdraws you, and your visa goes with it.",
+  "ui.line.goal-first": "A new goal: {goal}. {first}",
   "ui.line.remit-landed": "Lands in your naira account at home: {amount}.",
   "ui.results.changed-out": "Changed at the bank: {amount}.",
   "ui.results.changed": "Changed {paid} into {got}. The bank's charge comes to {amount}.",

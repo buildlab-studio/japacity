@@ -37,8 +37,10 @@ const WATER = "activity.fetch-water";
 function choreWords(plan: readonly (SlotPick | null)[], working: boolean): string | null {
   const cook = plan.some((pick) => pick?.activity === COOK);
   const water = plan.some((pick) => pick?.activity === WATER);
-  if (!cook && !water) return null;
-  return say(`ui.month.${working ? "working-chores" : "chores"}.${cook && water ? "both" : cook ? "cook" : "water"}`);
+  if (cook || water) return say(`ui.month.${working ? "working-chores" : "chores"}.${cook && water ? "both" : cook ? "cook" : "water"}`);
+  // Any other pick that fills no slot (the word of someone who went, R-TURN-006) is still something planned, never "nothing".
+  const beside = plan.find((pick): pick is SlotPick => pick !== null && !takesSlot(pick));
+  return beside === undefined ? null : say(working ? "ui.month.working-beside" : "ui.month.beside", { what: pickWords(beside) });
 }
 
 /**

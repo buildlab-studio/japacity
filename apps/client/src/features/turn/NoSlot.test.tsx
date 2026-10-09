@@ -72,7 +72,9 @@ describe("the word of someone who went", () => {
       store.getState().addToPlan({ activity: FRIEND, param: UK });
     });
     expect(document.querySelectorAll('[data-month-plan] [data-slot="free"]')).toHaveLength(view.freeSlots);
-    expect(endButton().textContent).toContain(turnWords("ui.month.rest"));
+    // Planned beside the slots, it is never "nothing".
+    expect(endButton().textContent).not.toContain(turnWords("ui.month.rest"));
+    expect(endButton().textContent).toContain(nameOf(FRIEND));
     fireEvent.click(screen.getByRole("button", { name: turnWords("turn.month.remove", { activity: `${nameOf(FRIEND)}: ${nameOf(UK)}` }) }));
     expect(store.getState().plan).toEqual(Array.from({ length: view.freeSlots }, () => null));
   });

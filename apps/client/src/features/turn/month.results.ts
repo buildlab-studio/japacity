@@ -48,14 +48,12 @@ export const CHANGED_OUT = "ui.results.changed-out";
  * that moved and each matches its band. The bank's charge is folded into what was paid in and told in
  * the line's words, never counted again.
  */
-function bankChange(line: ReportLine, charge: MoneyParam, local: Currency): MoneyLine[] {
+function bankChange(line: ReportLine, charge: MoneyParam): MoneyLine[] {
   const gained = moneyParam("amount", line.params, line.key);
   if (gained === null || gained.amount === 0) return [];
   const paid = paidIn(charge.amount);
-  const net = paid - charge.amount;
-  // The charge valued in what came in, at the rate the rest of the money was changed at.
-  const cost = gained.currency === local && net > 0 ? Math.round((charge.amount * gained.amount) / net) : charge.amount;
-  const told: ReportLine = { ...line, key: CHANGED, params: { ...line.params, paid: { currency: charge.currency, amount: paid }, got: gained, amount: { currency: gained.currency === local ? gained.currency : charge.currency, amount: cost } } };
+  // The charge in the money it was taken in, as the confirm sheet names it.
+  const told: ReportLine = { ...line, key: CHANGED, params: { ...line.params, paid: { currency: charge.currency, amount: paid }, got: gained, amount: { currency: charge.currency, amount: charge.amount } } };
   const out: ReportLine = { ...line, key: CHANGED_OUT, params: { amount: { currency: charge.currency, amount: paid } } };
   return [
     { line: told, sign: 1, currency: gained.currency, amount: gained.amount },
@@ -83,7 +81,7 @@ export function moneyLines(lines: readonly ReportLine[], local: Currency = "NGN"
     if (line.key === BANK_CHARGE && next?.key === CONVERTED) return [];
     if (line.key === CONVERTED) {
       const charge = before?.key === BANK_CHARGE ? moneyParam("amount", before.params, before.key) : null;
-      if (charge !== null && charge.amount > 0 && charge.currency !== moneyParam("amount", line.params, line.key)?.currency) return bankChange(line, charge, local);
+      if (charge !== null && charge.amount > 0 && charge.currency !== moneyParam("amount", line.params, line.key)?.currency) return bankChange(line, charge);
       // With no bank's charge just before it (the street, a change that waited), only what came in is known.
       const gained = moneyParam("amount", line.params, line.key);
       return gained === null || gained.amount === 0 ? [] : [{ line, sign: 1, currency: gained.currency, amount: gained.amount }];

@@ -2,7 +2,7 @@
 // simulation tells each pocket and each kind its own line; the screen folds a
 // payment split across pockets into one total, and drops the second telling of
 // a payment another line already names.
-import { content } from "@japacity/content";
+import { content, text } from "@japacity/content";
 import type { MoneyParam, ReportLine } from "@japacity/sim";
 
 import { bandResultLine } from "./test";
@@ -255,7 +255,7 @@ export function toldUnpaid(line: ReportLine): ReportLine {
 
 export function tidyLines(lines: readonly ReportLine[]): ReportLine[] {
   // Named before the retold go, so a payment named for its offer is never taken for the month's own.
-  return oneGoalLine(jobEndsWithFlight(upkeepMoved(oneEndorsementStory(savedBefore(dropRetold(paperFee(activityPaid(paidAs(paidFor(foldPockets(lines))))))))))).map(variant).map(remitLanded);
+  return oneGoalLine(jobEndsWithFlight(upkeepMoved(oneEndorsementStory(savedBefore(dropRetold(paperFee(activityPaid(paidAs(paidFor(foldPockets(lines))))))))))).map(variant).map(remitLanded).map(goalFirst);
 }
 
 const PLAYED = "line.activity.played";
@@ -326,6 +326,14 @@ const GOAL_DONE = "line.goal.done";
 function oneGoalLine(lines: readonly ReportLine[]): ReportLine[] {
   const reached = new Set(lines.filter((line) => line.key === GOAL_DONE).map((line) => line.params.goal));
   return lines.filter((line) => !(line.key === GOAL_OPENED && reached.has(line.params.goal)));
+}
+
+/** A goal opened names its first act when content has one (`goal.<id>.first`). */
+const GOAL_FIRST = "ui.line.goal-first";
+function goalFirst(line: ReportLine): ReportLine {
+  const goal = line.params["goal"];
+  if (line.key !== GOAL_OPENED || typeof goal !== "string" || !hasWords(`${goal}.first`)) return line;
+  return { ...line, key: GOAL_FIRST, params: { ...line.params, first: text[`${goal}.first`] ?? "" } };
 }
 
 /** Money sent home lands in the naira account at home: that leg says so, instead of "sent home" twice. */
