@@ -24,8 +24,8 @@ export const prologueText: Record<string, string> = {
   "prologue.exam.answer.expo": "Buy the expo",
   "prologue.exam.outcome.pass": "You pass. Admission letters go out next month.",
   "prologue.exam.outcome.pass-caught": "You pass, but someone saw the expo. Your family heard.",
-  "prologue.exam.outcome.fail": "You did not reach the cut-off.",
-  "prologue.exam.outcome.fail-caught": "You did not reach the cut-off, and someone saw the expo. Your family heard.",
+  "prologue.exam.outcome.fail": "Your score comes back.",
+  "prologue.exam.outcome.fail-caught": "Your score comes back, and someone saw the expo. Your family heard.",
 
   "prologue.retake.card": "150 was the cut-off. You did not reach it.",
   "prologue.retake.answer.again": "Sit it again next year",
@@ -80,7 +80,7 @@ export const prologueText: Record<string, string> = {
   "prologue.service.answer.skip": "Skip it and work",
   "prologue.service.answer.redeploy.why": "your family does not know anyone who can move a posting.",
 
-  "prologue.friend.card": "Terna's send-off. Everybody is talking about where they are going.",
+  "prologue.friend.card": "Terna, your friend from school, takes you to a send-off. Everybody is talking about where they are going.",
   "prologue.friend.answer.uk": "Listen to the ones going to the UK",
   "prologue.friend.answer.canada": "Listen to the ones going to Canada",
   "prologue.friend.answer.tech": "Listen to the developers",

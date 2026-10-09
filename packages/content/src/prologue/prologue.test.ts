@@ -258,3 +258,21 @@ describe("opening words that fit the life", () => {
     expect(text["prologue.home.card"]).not.toMatch(SERVICE);
   });
 });
+
+describe("lines that fit the life from sixteen", () => {
+  test("[R-TEXT-005] given an exam failed, when its outcome shows above the retake card, then the cut-off is told once, not by both", () => {
+    const fails = (content.prologue.exam?.answers ?? []).flatMap((answer) => (answer.draw ?? []).filter((outcome) => outcome.next === "retake"));
+    expect(fails.length).toBeGreaterThan(1);
+    for (const outcome of fails) {
+      const told = `${text[`prologue.exam.outcome.${outcome.id}`] ?? ""} ${text["prologue.retake.card"] ?? ""}`;
+      expect(told.match(/cut-off/g), outcome.id).toHaveLength(1);
+    }
+  });
+
+  test("[R-TEXT-005] given the friend the send-off card names, when it is read, then it says who he is, and the send-off is not his own, which comes later in the game", () => {
+    const card = text["prologue.friend.card"] ?? "";
+    expect(card).toMatch(/Terna, your friend from school,/);
+    expect(card).not.toMatch(/Terna's send-off/);
+    expect(text["offer.send-off-party.title"]).toBe("Terna's send-off");
+  });
+});
