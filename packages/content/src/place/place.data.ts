@@ -152,7 +152,7 @@ const entries: PlaceEntry[] = [
   lagos("place.yaba", "Yaba", "yaba", 6507, 3375, {
     scope: "interior",
     assets: "yaba-hub",
-    stages: ["activity.meetup", "activity.learn-tech", "activity.build-portfolio", "activity.job-junior-dev", "activity.job-mid-dev", "activity.job-hunt", "activity.look-into-route", "activity.apply-to-school", "activity.see-adviser", "activity.ask-someone-who-went", "activity.job-bank-officer", "activity.job-bank-senior"],
+    stages: ["activity.meetup", "activity.learn-tech", "activity.build-portfolio", "activity.interview-prep", "activity.job-junior-dev", "activity.job-mid-dev", "activity.job-hunt", "activity.look-into-route", "activity.apply-to-school", "activity.see-adviser", "activity.ask-someone-who-went", "activity.job-bank-officer", "activity.job-bank-senior"],
     crowd: BUSY,
     traditionalBp: OFFICE,
   }),
@@ -230,7 +230,8 @@ const entries: PlaceEntry[] = [
   unnamed("place.mosque", "institution", "home", "lagos", OWN_AREA, { scope: "exterior", crowd: BUSY, traditionalBp: STREET }),
 
   // Lagos: businesses by made-up name. Shopfronts are signs on their street, in place.text.ts.
-  unnamed("place.yaba-hub", "business", "home", "lagos", "yaba", { crowd: QUIET, traditionalBp: HUB }),
+  // Its own room, not the hub's: the hub's file with nothing staged here showed only the door (R-WORLD-005).
+  unnamed("place.yaba-hub", "business", "home", "lagos", "yaba", { assets: "inverter-room", crowd: QUIET, traditionalBp: HUB }),
   unnamed("place.olokun-office", "business", "home", "lagos", "victoria-island", { assets: "bank-counter", stages: ["offer.held-funds", "offer.salary-loan"], crowd: FEW, traditionalBp: OFFICE }),
   unnamed("place.agent-office", "business", "home", "lagos", "ikeja", { stages: ["offer.held-funds-agent", "offer.gulf-agent", "activity.see-agent-office", "offer.agent-office"], crowd: FEW, traditionalBp: OFFICE }),
 

@@ -15,6 +15,7 @@ import { formatBand, formatMoney } from "../../shared/words/format";
 import { lockWords, SIDE_JOB_LOCK } from "../../shared/words/locks";
 import { alreadyDone, requirementSentence } from "../../shared/words/requirement";
 import { blurbOf, hasWords, lowerFirst, nameOf, paramWords, say, sayCount } from "../../shared/words/text";
+import { huntOrder, JobList } from "./JobList";
 
 const ENGLISH_RESULT = "document.english-test";
 const GRADE = "quality.edu-grade";
@@ -230,7 +231,9 @@ function ActivityCard({ option }: { option: ActivityOption }) {
   // R-TURN-006: an activity that fills no slot can be planned however full the month is.
   const full = content.activity[option.id]?.slot !== "none" && !plan.includes(null);
   const needsParam = option.params !== null;
-  const chosenParam = needsParam ? (option.params?.includes(param) === true ? param : (option.params?.[0] ?? "")) : "";
+  // A job to hunt is picked from a list of rows with pay and chance, the likely and best paid first (R-WORLD-006).
+  const jobs = content.activity[option.id]?.param === "job" ? huntOrder(view, option.params ?? []) : null;
+  const chosenParam = needsParam ? (option.params?.includes(param) === true ? param : ((jobs ?? option.params)?.[0] ?? "")) : "";
   // R-WORLD-006: what is left after, counting what the month already pays for; a cost that cannot be paid shuts the button.
   const paying = option.cost.length === 0 ? null : afterPaying(view, plannedCosts(view, plan), option.cost);
   const canAdd = option.allowed && option.affordable && (paying === null || paying.short === null) && !full && !ended && (!needsParam || chosenParam !== "");
@@ -281,6 +284,8 @@ function ActivityCard({ option }: { option: ActivityOption }) {
             ) : (
               <p className="text-sm text-muted">{say(content.activity[option.id]?.param === "route" || content.activity[option.id]?.param === "known-route" ? "ui.activity.no-route" : "ui.activity.nothing-to-pick")}</p>
             )
+          ) : jobs !== null ? (
+            <JobList view={view} jobs={jobs} chosen={chosenParam} onPick={setParam} />
           ) : (
             <label htmlFor={selectId} className="flex flex-col gap-1 text-sm">
               <span className="font-medium">{say("ui.activity.pick")}</span>

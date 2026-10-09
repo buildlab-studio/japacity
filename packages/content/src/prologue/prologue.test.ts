@@ -187,3 +187,74 @@ describe("the prologue's steps", () => {
     expect(content.tuning.prologue.startAgeMonths).toBe(192);
   });
 });
+
+const WELLBEING = "quality.wellbeing";
+
+function wellbeingAdded(effects: readonly Effect[]): number {
+  return effects.reduce((sum, effect) => sum + (effect.type === "quality/add" && effect.quality === WELLBEING ? effect.amount : 0), 0);
+}
+
+/** The lowest and highest wellbeing any path closes on, from the draw card's start, along the answers age allows (as `walk` does). */
+function wellbeingAtClose(steps: Record<string, PrologueStep>): { low: number; high: number } {
+  let low = Number.POSITIVE_INFINITY;
+  let high = Number.NEGATIVE_INFINITY;
+  const visit = (id: string, age: number, wellbeing: number, depth: number): void => {
+    const step = steps[id];
+    if (step === undefined) throw new Error(`The step ${id} does not exist`);
+    if (depth > 40) throw new Error(`The prologue loops at ${id}`);
+    for (const answer of step.answers.filter((given) => given.requires.every((requirement) => canHold(requirement, age)))) {
+      const outcomes = answer.draw ?? [{ id: "", bp: 10000, effects: [], next: answer.next ?? step.next }];
+      for (const outcome of outcomes) {
+        const after = wellbeing + wellbeingAdded(answer.effects) + wellbeingAdded(outcome.effects);
+        const next = outcome.next ?? answer.next ?? step.next;
+        if (next === null) {
+          low = Math.min(low, after);
+          high = Math.max(high, after);
+        } else {
+          visit(next, age + step.months, after, depth + 1);
+        }
+      }
+    }
+  };
+  visit(FIRST, START_AGE, 0, 0);
+  return { low, high };
+}
+
+describe("the life from sixteen starts in fair health", () => {
+  const fixed = Object.values(content.scenario).filter((scenario) => scenario.prologue !== true).map((scenario) => scenario.qualities[WELLBEING] ?? 0);
+
+  test("[R-PROLOGUE-002] given the draw card that begins the prologue, when it is answered, then wellbeing starts inside the band the fixed lives start in, not at its minimum", () => {
+    const begin = content.prologue[FIRST]?.answers.find((answer) => answer.id === "begin");
+    const start = wellbeingAdded(begin?.effects ?? []);
+    expect(fixed.length).toBeGreaterThan(0);
+    expect(start).toBeGreaterThanOrEqual(Math.min(...fixed));
+    expect(start).toBeLessThanOrEqual(Math.max(...fixed));
+  });
+
+  test("[R-PROLOGUE-006] given every path through the prologue, when its wellbeing is added up from the draw card, then every life closes above the run-down line and no higher than the scale allows", () => {
+    const { low, high } = wellbeingAtClose(content.prologue);
+    expect(low).toBeGreaterThanOrEqual(content.tuning.health.runDownBelow);
+    expect(high).toBeLessThanOrEqual(content.quality[WELLBEING]?.max ?? 0);
+  });
+});
+
+describe("opening words that fit the life", () => {
+  const OPEN = "chapter.find-your-feet.open";
+  const SERVICE = /service/i;
+
+  test("[R-WORLD-001] given each fixed life and both paths of the life from sixteen, when the first chapter's opening is looked up, then each has its own line, and only a life fresh from its service year says service is over", () => {
+    const fixed = Object.values(content.scenario).filter((scenario) => scenario.prologue !== true);
+    const keys = [...fixed.map((scenario) => `${OPEN}.${scenario.id.slice("scenario.".length)}`), `${OPEN}.prologue.degree`, `${OPEN}.prologue.trade`];
+    expect(keys.filter((key) => (text[key] ?? "").trim() === "")).toEqual([]);
+    const working = fixed.filter((scenario) => scenario.job !== null).map((scenario) => `${OPEN}.${scenario.id.slice("scenario.".length)}`);
+    expect(working.length).toBeGreaterThan(0);
+    expect([...working, `${OPEN}.prologue.degree`, `${OPEN}.prologue.trade`].filter((key) => SERVICE.test(text[key] ?? ""))).toEqual([]);
+    // The plain line stays for any life not named.
+    expect((text[OPEN] ?? "").trim()).not.toBe("");
+  });
+
+  test("[R-PROLOGUE-006] given the last card every path reaches, the trade and the shop counter included, when its question is read, then it does not say service is over", () => {
+    expect(text["prologue.home.card"]).toBeDefined();
+    expect(text["prologue.home.card"]).not.toMatch(SERVICE);
+  });
+});

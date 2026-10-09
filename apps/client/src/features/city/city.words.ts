@@ -188,6 +188,14 @@ export const cityText: Record<string, string> = {
   "city.act.morning-run.done": "Four laps before the sun is hot. It counts when the month ends.",
   "city.act.look-gate": "Look",
   "city.act.look-gate.done": "The gate is chained. Through the bars, grass grows in the stands.",
+  // The Inverter Room (place.yaba-hub): desks by the day in Yaba.
+  "city.thing.inverter": "Inverter",
+  "city.thing.chair": "Chair",
+  "city.act.look-inverter": "Look",
+  "city.act.look-inverter.done": "The inverter hums by the wall, its light green. When NEPA takes light, it is the reason the room stays full.",
+  "city.thing.notices": "Notices",
+  "city.act.read-notices": "Read",
+  "city.act.read-notices.done": "Desks by the day, light and data included. Under it, in red marker: no sleeping on the benches.",
   // The streets abroad (docs/rules/streets.md R-STREET-005, 006): shopping at the grocer and the spice stall, and a find while one is open.
   "city.act.shop": "Shop",
   "city.act.street-find": "See what's on",
