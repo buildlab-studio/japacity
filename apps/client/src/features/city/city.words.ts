@@ -140,9 +140,9 @@ export const cityText: Record<string, string> = {
   "city.act.routes": "Ask about routes",
   "city.act.jobs": "Jobs",
   "city.act.agents": "The agents",
-  // the agent at his desk when nothing is on.
-  "city.act.ask-desk": "Ask what is on",
-  "city.act.ask-desk.done": "The desk is empty today. Come back when something is on.",
+  // the agent at his desk when nothing is on; the fifth, P21: he says what he deals in and when to come back.
+  "city.act.ask-desk": "Agent",
+  "city.act.ask-desk.done": "The desk is empty today. He does papers, proof of funds and Dubai jobs. Try him again next month.",
   // the visa desk once the interview is over.
   "city.act.ask-visa-desk": "Ask at the desk",
   "city.act.ask-visa-desk.done": "Nothing is waiting for you at the desk today.",
@@ -221,6 +221,9 @@ export const cityText: Record<string, string> = {
   "city.act.job-warehouse": "Warehouse",
   "city.act.job-guard": "Guard work",
   "city.act.job-cleaner": "Cleaning work",
+  // the notice once none of its jobs is open (one held, or none on these papers).
+  "city.act.read-jobs-notice": "Read",
+  "city.act.read-jobs-notice.done": "Shop work and kitchen work, by the till. Nothing new on it is open to you this month.",
   "city.act.look-typing": "Look",
   "city.act.look-typing.done": "Visa, ID and labour papers typed while you wait. Every contract here passes a desk like this.",
   "city.act.look-site-bus": "Look",

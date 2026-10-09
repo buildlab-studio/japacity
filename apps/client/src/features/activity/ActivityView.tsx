@@ -14,6 +14,7 @@ import { afterPaying, plannedCosts, shortfall, type AfterPaying, type Money } fr
 import { formatBand, formatMoney } from "../../shared/words/format";
 import { lockWords, SIDE_JOB_LOCK } from "../../shared/words/locks";
 import { alreadyDone, needsWords, requirementSentence } from "../../shared/words/requirement";
+import { ENGLISH_TEST, STUDY_ENGLISH, testChance } from "../../shared/words/test";
 import { blurbOf, hasWords, lowerFirst, nameOf, paramWords, say, sayCount } from "../../shared/words/text";
 import { payAMonth } from "../../shared/words/pay";
 import { huntOrder, JobList } from "./JobList";
@@ -290,6 +291,8 @@ function ActivityCard({ option }: { option: ActivityOption }) {
   const line = unpicked ? { words: routesWords("routes.pick-first"), kind: "needs" as const } : buttonLine(option, paying, view, already);
   const cannotPay = option.allowed && !already && (!option.affordable || (paying !== null && paying.short !== null));
   const selectId = `param-${option.id}`;
+  // R-WORLD-006: the English test says its chance of the band the route needs before the fee is paid.
+  const chance = option.id === ENGLISH_TEST ? testChance(view) : null;
 
   return (
     <li>
@@ -307,6 +310,12 @@ function ActivityCard({ option }: { option: ActivityOption }) {
           )}
         </div>
         {blurb === null ? null : <p className="text-sm text-muted">{blurb}</p>}
+        {chance === null ? null : (
+          <div className="flex flex-col gap-1 text-sm" data-test-chance={chance.band}>
+            <p className="font-medium">{chance.words}</p>
+            {chance.study === null ? null : <p className="text-muted">{chance.study}</p>}
+          </div>
+        )}
 
         {option.missing.length > 0 ? (
           <div className="text-sm">
@@ -430,7 +439,10 @@ export function ActivityView() {
 /** The world mode's sheet (docs/design/11, rule 12): only the activities `only` names, as the cards above show them. */
 export function ActivityPicker({ only }: { only: readonly string[] }) {
   const view = useView();
-  const options = view.activities.filter((option) => only.includes(option.id));
+  // On a long shot the test's sheet carries the study act too, so studying first is one tap away (R-WORLD-006).
+  const studyFirst = only.includes(ENGLISH_TEST) && !only.includes(STUDY_ENGLISH) && testChance(view).study !== null;
+  const shown = studyFirst ? [...only, STUDY_ENGLISH] : only;
+  const options = view.activities.filter((option) => shown.includes(option.id)).sort((a, b) => shown.indexOf(a.id) - shown.indexOf(b.id));
   return (
     <ul className="grid gap-3" data-activity-picker>
       {options.map((option) => (

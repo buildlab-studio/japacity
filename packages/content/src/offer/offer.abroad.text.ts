@@ -6,12 +6,19 @@ export const offerAbroadText: Record<string, string> = {
   "offer.street-find-uk.body":
     "There is a Saturday market behind the station. Suya on the grill, ankara on a rail, and an aunty selling puff-puff by the bag. She says you have her sister's face.",
   "offer.street-find-uk.choice.look": "Have a look",
+  // The line after each answer. `walk-on` waits for its choice in offer.abroad.data.ts.
+  "offer.street-find-uk.said.look": "You buy puff-puff and stay for the suya. For an hour it feels like home.",
+  "offer.street-find-uk.choice.walk-on": "Walk on",
+  "offer.street-find-uk.said.walk-on": "You walk on to the bus. The smell of suya follows you for a street.",
 
   "offer.street-find-uae.name": "Something by the creek",
   "offer.street-find-uae.title": "A dhow at the creek",
   "offer.street-find-uae.body":
     "A wooden dhow is loading at the creek: fridges, tyres, mattresses tied with rope. One of the crew says it sails tonight for the other side of the sea.",
   "offer.street-find-uae.choice.look": "Stay and watch",
+  "offer.street-find-uae.said.look": "You watch them load until the light goes. One of the crew hands you sweet tea.",
+  "offer.street-find-uae.choice.walk-on": "Walk on",
+  "offer.street-find-uae.said.walk-on": "You walk back along the creek. By morning the dhow is gone.",
 
   "offer.returnee-question.name": "So when are you going back?",
   "offer.returnee-question.title": "So when are you going back?",
