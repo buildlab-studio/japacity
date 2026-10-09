@@ -23,8 +23,8 @@ describe("the agent's office", () => {
     const shown = thingsNow(things, stagedNow(offeredFrom(view), new Set(entry.stages), new Set(view.offers.map((offer) => offer.entry)), null));
     expect(shown.find((candidate) => candidate.id === "desk")).toBeUndefined();
     const agent = shown.find((candidate) => candidate.id === "agent");
-    expect(agent?.acts.map((act) => [act.kind, sceneWords(act.label)])).toEqual([["plain", "Ask what is on"]]);
-    expect(sceneWords(`${agent?.acts[0]?.label ?? ""}.done`)).toBe("The desk is empty today. Come back when something is on.");
+    expect(agent?.acts.map((act) => [act.kind, sceneWords(act.label)])).toEqual([["plain", "Agent"]]);
+    expect(sceneWords(`${agent?.acts[0]?.label ?? ""}.done`)).toMatch(/^The desk is empty today\. /);
     expect(sceneWords(agent?.label ?? "")).toBe(sceneWords(thing("desk").label));
   });
 
@@ -43,5 +43,18 @@ describe("the agent's ask stands in for the desk", () => {
     expect(open.find((candidate) => candidate.id === "desk")?.acts.map((act) => act.stages)).toEqual(["offer.held-funds-agent"]);
     expect(open.find((candidate) => candidate.id === "agent")).toBeUndefined();
     expect(read([]).find((candidate) => candidate.id === "agent")?.acts.map((act) => act.id)).toEqual(["ask"]);
+  });
+});
+
+// with nothing on, the agent still says what he does and when to come back,
+// and the chip under his name says Agent, not "Ask what is on".
+describe("the agent with nothing on", () => {
+  test("[R-WORLD-005] given the desk with no offer open, when the agent's act is read, then its chip says Agent and its line keeps the empty desk, then says what he does and when to come back, two short lines more", () => {
+    const view = heldFundsOpen();
+    const agent = thingsNow(things, stagedNow(offeredFrom(view), new Set(entry.stages), new Set(view.offers.map((offer) => offer.entry)), null)).find((candidate) => candidate.id === "agent");
+    expect(agent?.acts.map((act) => [act.kind, sceneWords(act.label)])).toEqual([["plain", "Agent"]]);
+    const said = sceneWords(`${agent?.acts[0]?.label ?? ""}.done`).split(/(?<=\.) /);
+    expect(said).toEqual(["The desk is empty today.", "He does papers, proof of funds and Dubai jobs.", "Try him again next month."]);
+    for (const line of said.slice(1)) expect(line.split(" ").length).toBeLessThanOrEqual(10);
   });
 });
