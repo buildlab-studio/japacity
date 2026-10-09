@@ -195,7 +195,9 @@ export function drawShown(view: Pick<PlayerView, "lottery">): { draw: number; nu
  * funds to show, the japacity figure stands for how far the move is; with neither, nothing.
  */
 // the first plan names "the goal's figure from the view"; goals carry no money figure, so the route's funds stand in.
-export function savings(view: Pick<PlayerView, "routes" | "japacity">): { kind: "funds"; shown: number; required: number; currency: Currency } | { kind: "percent"; percent: number } | null {
+export function savings(view: Pick<PlayerView, "routes" | "japacity"> & Partial<Pick<PlayerView, "place">>): { kind: "funds"; shown: number; required: number; currency: Currency } | { kind: "percent"; percent: number } | null {
+  // Once flown, the move is made: no target on the results.
+  if (view.place?.where === "abroad") return null;
   const route = view.routes.find((candidate) => candidate.id === view.japacity.route) ?? null;
   if (route !== null) {
     const ids = new Set((content.route[route.id]?.checklist ?? []).filter((item) => item.requirement.type === "route/funds").map((item) => item.id));

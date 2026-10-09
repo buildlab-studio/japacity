@@ -82,7 +82,7 @@ export function ChapterView() {
           </>
         ) : (
           <>
-            <h2 className="font-display text-3xl leading-tight">{words(`${current}.title`)}</h2>
+            <h2 className="text-2xl leading-tight font-bold">{words(`${current}.title`)}</h2>
             <p className="text-muted italic">{words(`${current}.open`)}</p>
             <Items chapter={current} />
           </>

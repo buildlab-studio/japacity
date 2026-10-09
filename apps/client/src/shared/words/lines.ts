@@ -171,5 +171,22 @@ function paidFor(lines: readonly ReportLine[]): ReportLine[] {
 }
 
 export function tidyLines(lines: readonly ReportLine[]): ReportLine[] {
-  return paidFor(savedBefore(dropRetold(foldPockets(lines)))).map(variant);
+  return oneEndorsementStory(paidFor(savedBefore(dropRetold(foldPockets(lines))))).map(variant);
+}
+
+/**
+ * An endorsement judged the month it is issued (R-ENDORSE-002) tells four lines at once: ready, the body's
+ * refusal, a visa refused for a route never applied for, and the letter voided. One story is enough: the
+ * body's refusal stands; the ready line, the refusal noted on the route and the voiding go.
+ */
+function oneEndorsementStory(lines: readonly ReportLine[]): ReportLine[] {
+  const refusedBody = lines.filter((line) => line.key === "line.route.endorsement-refused");
+  if (refusedBody.length === 0) return [...lines];
+  const voided = new Set(lines.filter((line) => line.key === "line.document.voided").map((line) => String(line.params["document"] ?? "")));
+  return lines.filter((line) => {
+    if (line.key === "line.route.refused" && line.params["reason"] === "endorsement") return false;
+    if (line.key === "line.document.voided" && refusedBody.length > 0) return false;
+    if (line.key === "line.document.issued" && voided.has(String(line.params["document"] ?? ""))) return false;
+    return true;
+  });
 }

@@ -84,4 +84,17 @@ describe("lines that read right", () => {
   test("given a bank queue, then what was paid shows in the currency it was paid in", () => {
     expect(words("line.wallet.queued", { from: "NGN", currency: "USD", paid: 50_000_000, readyMonth: 4 })).toContain(formatMoney(50_000_000, "NGN"));
   });
+
+describe("one endorsement story", () => {
+  test("[R-WORLD-008] given an endorsement issued, refused by the body, refused on the route and voided in one month, when the lines are tidied, then only the body's refusal is told", () => {
+    const lines: ReportLine[] = [
+      { key: "line.document.issued", params: { document: "document.endorsement" }, tone: "good" },
+      { key: "line.route.endorsement-refused", params: { route: "route.uk-talent" }, tone: "bad" },
+      { key: "line.route.refused", params: { route: "route.uk-talent", reason: "endorsement" }, tone: "bad" },
+      { key: "line.document.voided", params: { document: "document.endorsement" }, tone: "bad" },
+      { key: "line.route.granted", params: { route: "route.uk-masters" }, tone: "good" },
+    ];
+    expect(tidyLines(lines).map((line) => line.key)).toEqual(["line.route.endorsement-refused", "line.route.granted"]);
+  });
+});
 });

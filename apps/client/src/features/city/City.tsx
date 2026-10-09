@@ -762,8 +762,9 @@ export function City({
       form: paper ? "slip" : "card",
       icon: paper ? "ticket" : "hand",
       who: hereName,
-      title: chosen === null ? nameOf(activity) : `${nameOf(activity)}: ${paramWords(chosen)}`,
-      line: blurbOf(activity) ?? "",
+      // A side job on the hunt's card says it sits beside the day job and carries its own line.
+      title: chosen === null ? nameOf(activity) : content.activity[chosen as Id<"activity">]?.slot === "side" ? say("ui.world.side-job-title", { job: paramWords(chosen) }) : `${nameOf(activity)}: ${paramWords(chosen)}`,
+      line: (chosen !== null && content.activity[chosen as Id<"activity">]?.slot === "side" ? blurbOf(chosen) : null) ?? blurbOf(activity) ?? "",
       cost: cost === null ? null : { amount: cost.amount, currency: cost.currency },
       button: nameOf(activity),
       ...(paper ? { reference: todayWords().toUpperCase() } : {}),
