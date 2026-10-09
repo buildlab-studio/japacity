@@ -389,6 +389,8 @@ export const uiText: Record<string, string> = {
   "ui.route.school.naira": "About {naira} from naira at the bank rate, with the bank's charge.",
   "ui.route.school.short": "Not enough for the deposit: it needs {need} in the naira bank and you have {have}. Short by {short}. Cash does not count.",
   "ui.route.schools.before": "What the universities ask",
+  // The sheet that sends papers to one university names it, its deposit and the chance.
+  "ui.route.apply-sheet": "Your papers go to {school}. If it says yes, the deposit is {deposit}. Chance of an offer: {chance}.",
   "ui.route.foreign-fee": "Fees in pounds are bought from naira at the bank rate, plus the bank's charge.",
   "ui.route.school.chosen": "Deposit paid",
   "ui.route.pay-deposit": "Pay the deposit",

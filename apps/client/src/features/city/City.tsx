@@ -32,6 +32,7 @@ import { Toast, useToast } from "../../shared/world/Toast";
 import { MonthCount } from "../../shared/world/MonthCount";
 import { Walkthrough } from "../../shared/world/Walkthrough";
 import { WorldSheet } from "../../shared/world/WorldSheet";
+import { APPLY_TO_SCHOOL, SCHOOL_ICON, schoolSheetLine } from "../route/school";
 import { choreSaving } from "./chores";
 import { cityWords, heardWords, papersLook, placeName, residentName, roleWords } from "./city.words";
 import { CreditsSheet } from "./Credits";
@@ -854,9 +855,11 @@ export function City({
     const first = option.cost[0] ?? null;
     const cost = first === null ? null : { ...first, amount: option.cost.filter((part) => part.currency === first.currency).reduce((sum, part) => sum + part.amount, 0) };
     const paper = activity === "activity.play-lotto" || activity === "activity.bet-slip";
+    // One university to apply to: the sheet names it, its deposit and the chance, under a building.
+    const school = activity === APPLY_TO_SCHOOL ? (chosen ?? (option.params?.length === 1 ? (option.params[0] ?? null) : null)) : null;
     return {
       form: paper ? "slip" : "card",
-      icon: paper ? "ticket" : "hand",
+      icon: paper ? "ticket" : school !== null ? SCHOOL_ICON : "hand",
       who: hereName,
       // A side job on the hunt's card says it sits beside the day job and carries its own line; a job a board names carries its pay and chance.
       title: chosen === null ? nameOf(activity) : content.activity[chosen as Id<"activity">]?.slot === "side" ? say("ui.world.side-job-title", { job: paramWords(chosen) }) : `${nameOf(activity)}: ${paramWords(chosen)}`,
@@ -867,7 +870,9 @@ export function City({
             ? [blurbOf(activity), jobCardWords(view, chosen)].filter((part): part is string => part !== null).join(" ")
             : chance !== null
               ? [blurbOf(activity), chance.words].filter((part): part is string => part !== null).join(" ")
-              : (blurbOf(activity) ?? ""),
+              : school !== null
+                ? schoolSheetLine(view, school)
+                : (blurbOf(activity) ?? ""),
       cost: cost === null ? null : { amount: cost.amount, currency: cost.currency },
       button: nameOf(activity),
       ...(paper ? { reference: clock.toUpperCase() } : {}),
