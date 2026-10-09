@@ -1,13 +1,19 @@
 // Hands the game store to every screen below it.
 import type { PlayerView } from "@japacity/sim";
-import { createContext, use, type ReactNode } from "react";
+import { createContext, use, useEffect, type ReactNode } from "react";
 import { useStore } from "zustand";
 
+import { setNow } from "../shared/words/now";
 import type { GameState, GameStore } from "./store";
 
 const GameContext = createContext<GameStore | null>(null);
 
 export function GameProvider({ store, children }: { store: GameStore; children: ReactNode }) {
+  // R-WORLD-002: the month in hand for the words is this game's while it is on screen, and nobody's after.
+  useEffect(() => {
+    setNow(store.getState().view?.month ?? null);
+    return () => setNow(null);
+  }, [store]);
   return <GameContext value={store}>{children}</GameContext>;
 }
 

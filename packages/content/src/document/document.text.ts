@@ -23,20 +23,20 @@ export const documentText: Record<string, string> = {
   "document.medical.name": "Work medical",
   "document.medical.blurb": "The medical the Gulf employer asks for: blood tests, a chest X-ray and a stamp.",
 
-  "line.document.requested": "Your {document} is on the way. It should be ready in month {month}.",
-  "line.document.already-pending": "Your {document} is already being made. It should be ready in month {month}. This request changes nothing.",
+  "line.document.requested": "Your {document} is on the way. It should be ready {month}.",
+  "line.document.already-pending": "Your {document} is already being made. It should be ready {month}. This request changes nothing.",
   "line.document.issued": "Your {document} is ready.",
   "line.document.issued-band": "Your {document} is out. Band {band}.",
   "line.document.expired": "Your {document} has run out.",
   "line.document.voided": "Your {document} is no longer valid.",
 
   // The phone's reminders (world.md R-WORLD-019, story/story.notice.data.ts). {month} is the month
-  // the paper is due.
+  // the paper is due, told as months away (world.md R-WORLD-002).
   "document.english-test.reminder.book": "English test: book it. Take your passport from the box first.",
-  "document.english-test.reminder.due": "English test: your result comes in month {month}.",
+  "document.english-test.reminder.due": "English test: your result comes {month}.",
   "document.tb-certificate.reminder.book": "TB test: take your passport to the clinic.",
-  "document.passport.reminder.due": "Passport: ready to collect in month {month}.",
-  "document.transcript.reminder.due": "Transcript: your school says month {month}.",
+  "document.passport.reminder.due": "Passport: ready to collect {month}.",
+  "document.transcript.reminder.due": "Transcript: your school says it is ready {month}.",
   "document.passport.reminder.expired": "Your passport has run out. Renew it before anything else.",
   "document.english-test.reminder.expired": "Your English result has run out. Sit the test again.",
   "document.tb-certificate.reminder.expired": "Your TB certificate has run out. Get another before you apply.",

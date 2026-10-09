@@ -5,6 +5,7 @@ import { content, text } from "@japacity/content";
 import type { Currency, MoneyParam, ReportParam } from "@japacity/sim";
 
 import { formatBand, formatBp, formatMoney, formatNumber, isCurrency, monthEnding } from "./format";
+import { nowMonth } from "./now";
 import { peopleParam } from "./people";
 import { uiText } from "./ui";
 
@@ -49,8 +50,19 @@ const MONEY_PARAMS = new Set([
   "max",
 ]);
 
-/** Params that name a month in content's lines: each is a month whose end brings what the line says. */
+/**
+ * Params that name a month in content's lines: each is a month whose end brings what the line
+ * says. They read as months away from the month in hand ("in 2 months"), so no running month
+ * number shows (R-WORLD-002); `until` reads as how long it holds ("for 3 more months").
+ */
 const MONTH_PARAMS = new Set(["month", "until", "readyMonth"]);
+
+/** A stamped month in a line, as months away from the month in hand; with no game on screen, as its number. */
+function monthParam(name: string, stamped: number): string {
+  const now = nowMonth();
+  if (now === null) return say(name === "until" ? "ui.until-month" : "ui.in-month", { month: formatNumber(monthEnding(stamped)) });
+  return name === "until" ? forMonths(stamped, now) : inMonths(stamped, now);
+}
 
 /** A line with one of these is about a quality or a score, so its bare `amount` is points, never money. */
 const QUALITY_LINE_PARAMS = ["quality", "points", "band"];
@@ -140,7 +152,7 @@ export function formatParam(name: string, value: ReportParam, params: Params, ke
   if (typeof value === "object") return formatMoney(value.amount, value.currency);
   if (typeof value === "string") return (key.startsWith("line.people.") ? peopleParam(name, value, midSentence) : null) ?? stringParam(name, value, midSentence);
   if (name === "band") return formatBand(value);
-  if (MONTH_PARAMS.has(name)) return formatNumber(monthEnding(value));
+  if (MONTH_PARAMS.has(name)) return monthParam(name, value);
   if (name === "bp" || name.endsWith("Bp")) return formatBp(value);
   if (isBareMoney(name, params)) return formatMoney(value, bareCurrency(name, params, key));
   return formatNumber(value);
@@ -202,6 +214,12 @@ export function inMonths(stamped: number, now: number): string {
 export function byMonths(stamped: number, now: number): string {
   const count = Math.max(0, stamped - now);
   return sayCount("ui.by-months", count, { count });
+}
+
+/** How long something holds until a stamped month, told as "for 3 more months", "for one more month", "until this month ends" (R-WORLD-002). */
+export function forMonths(stamped: number, now: number): string {
+  const count = Math.max(0, stamped - now);
+  return sayCount("ui.for-months", count, { count });
 }
 
 /** A month gone by, told as "2 months ago", "Last month", "This month" (R-WORLD-002). */

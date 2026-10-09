@@ -10,6 +10,7 @@ import type { AccountApi } from "../shared/net/auth";
 import type { ClockView, PresenceReply, ServerCode, ServerRejection, WorldReply } from "../shared/net/contract";
 import { isReported } from "../shared/net/http";
 import { tidyLines } from "../shared/words/lines";
+import { setNow } from "../shared/words/now";
 import { sayCount } from "../shared/words/text";
 import { uiText } from "../shared/words/ui";
 import type { AuthorityEvent } from "./remote";
@@ -158,6 +159,15 @@ function fitPlan(plan: readonly (SlotPick | null)[], slots: number): (SlotPick |
 }
 
 export function createGameStore(authority: StoreAuthority, options: GameStoreOptions = {}): GameStore {
+  const store = makeStore(authority, options);
+  // R-WORLD-002: the words tell a stamped month as months away from the view's month, kept beside them.
+  store.subscribe((state, before) => {
+    if (state.view !== before.view) setNow(state.view?.month ?? null);
+  });
+  return store;
+}
+
+function makeStore(authority: StoreAuthority, options: GameStoreOptions): GameStore {
   return createStore<GameState>()((set, get) => {
     function take(view: PlayerView): void {
       // A fetch that set out before a command's reply can land after it: the older view is dropped.

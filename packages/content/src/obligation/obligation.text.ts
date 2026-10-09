@@ -37,7 +37,7 @@ export const obligationText: Record<string, string> = {
 
   // Life abroad, the car, the group loan and the savings circle.
   "line.obligation.car-notice": "Two car payments missed in a row. A notice has come from the lender: this month is {amount}, and the car is at risk.",
-  "line.obligation.car-court": "The lender has gone to court over the car. Unless the arrears are cleared, it is taken in month {month}.",
+  "line.obligation.car-court": "The lender has gone to court over the car. Unless the arrears are cleared, it is taken {month}.",
   "line.obligation.caught-up": "{obligation}: {amount} paid. The arrears are cleared.",
   "line.obligation.repossessed": "The car has been taken. Nothing more is owed on it.",
   "line.obligation.repossessed-owing": "The car has been taken. After its sale you still owe {shortfall}, and there is a court judgment on your file.",

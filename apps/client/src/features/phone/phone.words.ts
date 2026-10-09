@@ -77,7 +77,7 @@ export const phoneText: Record<string, string> = {
   "phone.japa.visa": "Visa decision {when}.",
   "phone.japa.paper-ready": "{paper}: ready {when}.",
   "phone.japa.paper-pending": "Ready {when}",
-  "phone.japa.paper-valid": "Valid until {when}",
+  "phone.japa.paper-valid": "Valid {when}",
   "phone.japa.reminders": "Coming up",
 
   "phone.jobs.held": "Your job",

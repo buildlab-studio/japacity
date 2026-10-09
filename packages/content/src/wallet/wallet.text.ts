@@ -35,7 +35,7 @@ export const walletText: Record<string, string> = {
   // Transfers and the bank's queue.
   "line.wallet.converted": "Changed money. {amount} in hand.",
   "line.wallet.moved": "Moved {amount} to {pocket}.",
-  "line.wallet.queued": "The bank has your {paid}. Your foreign currency comes in month {readyMonth}.",
+  "line.wallet.queued": "The bank has your {paid}. Your foreign currency comes {readyMonth}.",
   "line.wallet.flagged": "A deposit of {amount} came from somewhere a visa officer will ask about. It will show for three months.",
   "line.wallet.rent": "Rent paid: {amount}.",
   "line.wallet.deposit-return": "Your deposit came back: {amount}.",
@@ -57,7 +57,7 @@ export const walletText: Record<string, string> = {
   "line.wallet.undertaking": "The undertaking you signed takes {amount}.",
   "line.wallet.assistance": "Social assistance comes in: {amount}.",
   "line.wallet.remit-app": "You send {sent} home by app. {naira} reaches your naira account.",
-  "line.wallet.remit-bank": "You send {sent} home through the bank. About {naira} reaches your naira account in month {readyMonth}.",
+  "line.wallet.remit-bank": "You send {sent} home through the bank. About {naira} reaches your naira account {readyMonth}.",
   "line.wallet.remit-informal": "You hand {sent} to the man who sends money home. {naira} reaches your people in cash.",
   "line.wallet.remit-lost": "You hand {sent} to the man who sends money home. It never arrives, and his number is off.",
 };

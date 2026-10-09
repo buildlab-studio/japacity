@@ -18,16 +18,16 @@ export const routeText: Record<string, string> = {
   // Report lines. First drafts.
   "line.route.heard": "You hear about {route}. People are talking about it.",
   "line.route.looked-into": "You read the official page for {route}: the full list of what it asks, as it stands. It says nothing about your own chances.",
-  "line.route.school-applied": "Your application to {school} is in. The answer is due in month {month}.",
+  "line.route.school-applied": "Your application to {school} is in. The answer is due {month}.",
   "line.route.school-offer": "{school} offers you a place. Discount off the tuition: {discount}.",
   "line.route.school-rejected": "{school} turns you down.",
   "line.route.deposit-paid": "Deposit paid to {school}: {amount}. The university sends its confirmation.",
   "line.route.funds-covered": "Funds checked for {route}: {shown} shown against {required} required. Months covered in a row: {months}.",
   "line.route.funds-short": "Funds checked for {route}: {shown} shown against {required} required. Not covered.",
-  "line.route.applied": "Visa application sent for {route}. The decision comes in month {month}.",
+  "line.route.applied": "Visa application sent for {route}. The decision comes {month}.",
   "line.route.granted": "The visa for {route} is granted.",
   "line.route.refused": "The visa for {route} is refused. The letter gives the reason as {reason}.",
-  "line.route.banned": "Deception on a {route} application: every route into that country is closed to you until month {month}.",
+  "line.route.banned": "Deception on a {route} application: every route into that country is closed to you. It opens again {month}.",
   "line.route.unbanned": "The ban on {route} has ended. The route is open to you again.",
   "line.route.deposit-refunded": "The deposit for {route} comes back, less the fee: {amount}.",
   "line.route.supported": "Your family will show {amount} for you.",
@@ -172,8 +172,8 @@ export const routeText: Record<string, string> = {
   "line.route.withdrawn": "Your application for {route} is withdrawn. The fee is not returned.",
 
   // The visa appointment and its reminders (world.md R-WORLD-019, story/story.notice.data.ts).
-  // {month} is the decision month.
+  // {month} is the decision month, told as months away (world.md R-WORLD-002).
   "route.uk-masters.reminder.appointment": "Visa appointment: take the file from under the bed, then go.",
   "route.uk-masters.reminder.interview": "Your interview is now. The officer is waiting.",
-  "route.uk-masters.reminder.decision": "Visa decision expected in month {month}.",
+  "route.uk-masters.reminder.decision": "Visa decision expected {month}.",
 };

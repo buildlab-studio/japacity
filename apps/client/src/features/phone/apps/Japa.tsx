@@ -9,7 +9,7 @@ import { useState } from "react";
 import { useGame, useView } from "../../../authority/GameProvider";
 import { monthsLeft, SOON } from "../../../shared/words/expiry";
 import { formatBand } from "../../../shared/words/format";
-import { inMonths, nameOf, runningName, say, sayCount, words } from "../../../shared/words/text";
+import { forMonths, inMonths, nameOf, runningName, say, sayCount, words } from "../../../shared/words/text";
 import { Head } from "../act";
 import { phoneWords } from "../phone.words";
 
@@ -64,7 +64,7 @@ function Papers({ onBack }: { onBack: () => void }) {
                         ? say("ui.document.expired")
                         : paper.expiresMonth === null
                           ? say("ui.document.held")
-                          : phoneWords("phone.japa.paper-valid", { when: inMonths(paper.expiresMonth, month) })}
+                          : phoneWords("phone.japa.paper-valid", { when: forMonths(paper.expiresMonth, month) })}
                   </p>
                   {soon && left !== null ? <p className="text-[13px] font-bold text-out">{sayCount("ui.document.expires-soon", left, { months: left })}</p> : null}
                   {paper.id === ENGLISH_RESULT && paper.value !== null ? <p className="text-[13px] font-bold">{say("ui.document.band", { band: formatBand(paper.value) })}</p> : null}
