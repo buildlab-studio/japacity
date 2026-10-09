@@ -5,6 +5,7 @@
 import { content, text } from "@japacity/content";
 import type { Id, PlayerView } from "@japacity/sim";
 
+import { hasWords } from "../../shared/words/text";
 import { hash } from "./crowd";
 
 export interface Heard {
@@ -32,7 +33,17 @@ function hearsLagos(place: string): boolean {
 }
 
 /** Everything that may be overheard here today, from the view only. */
-export function heardHere(view: Pick<PlayerView, "news" | "routes">, place: string): Heard[] {
+/** The family's own lines while home's send-off is open at the house: those, and no rumour. */
+function sendOffLines(view: Pick<PlayerView, "offers">, place: string): string[] {
+  if (place !== "place.family-house" || !view.offers.some((offer) => offer.entry === "offer.family-send-off")) return [];
+  const keys: string[] = [];
+  for (let n = 1; hasWords(`place.family-house.send-off.overheard.${String(n)}`); n += 1) keys.push(`place.family-house.send-off.overheard.${String(n)}`);
+  return keys;
+}
+
+export function heardHere(view: Pick<PlayerView, "news" | "routes"> & Partial<Pick<PlayerView, "offers">>, place: string): Heard[] {
+  const sendOff = sendOffLines({ offers: view.offers ?? [] }, place);
+  if (sendOff.length > 0) return sendOff.map((key) => ({ key, params: {} }));
   const own = [...placeLines(place), ...(OWN_SET[place] ?? [])].map((key) => ({ key, params: {} }));
   if (!hearsLagos(place)) return own;
   return [
@@ -43,7 +54,7 @@ export function heardHere(view: Pick<PlayerView, "news" | "routes">, place: stri
 }
 
 /** The `nth` line heard in a place on a day, or null when there is nothing to hear. */
-export function overheard(view: Pick<PlayerView, "news" | "routes">, place: string, date: string, nth: number): Heard | null {
+export function overheard(view: Pick<PlayerView, "news" | "routes"> & Partial<Pick<PlayerView, "offers">>, place: string, date: string, nth: number): Heard | null {
   const lines = heardHere(view, place);
   return lines.length === 0 ? null : (lines[hash(`${place}|${date}|overheard|${String(nth)}`) % lines.length] ?? null);
 }

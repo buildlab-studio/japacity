@@ -4,6 +4,7 @@
 // a payment another line already names.
 import type { MoneyParam, ReportLine } from "@japacity/sim";
 
+import { bandResultLine } from "./test";
 import { hasWords, moneyParam } from "./text";
 
 const WALLET = "line.wallet.";
@@ -143,7 +144,8 @@ function variant(line: ReportLine): ReportLine {
     const discount = moneyParam("discount", line.params, line.key);
     if (discount !== null && discount.amount === 0) return { ...line, key: "ui.line.school-offer-plain" };
   }
-  return line;
+  // The English result under the band the route needs says so and what next.
+  return bandResultLine(line);
 }
 
 /** Money earned in the prologue's years is what the character brings to the first month, not pay for this one. */

@@ -42,6 +42,7 @@ export const uiText: Record<string, string> = {
   "ui.month.rest": "Nothing planned. You rest.",
   "ui.opening.go": "Go",
   "ui.world.now": "Now",
+  "ui.world.pass": "Bus pass",
   "ui.world.depart-held": "The funds held for you must go back first: Phone, Bills, Pay now.",
   "ui.inside.hub": "The hub, Yaba",
   "ui.world.ask-away": "Someone is waiting for you at {place}.",

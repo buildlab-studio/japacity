@@ -70,6 +70,7 @@ describe("something interesting on the street", () => {
       expect(entry.when).toEqual([{ type: "place/is", where: "abroad", country: want.country }]);
       expect(entry.choices).toEqual([
         { id: "look", requires: [], pick: null, effects: [{ type: "quality/add", quality: "quality.wellbeing", amount: street.findMood }], fraudEffects: null },
+        { id: "walk-on", requires: [], pick: null, effects: [], fraudEffects: null },
       ]);
     }
   });

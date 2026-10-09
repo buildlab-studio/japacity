@@ -17,6 +17,7 @@ import { formatMoney, todayWords } from "../../shared/words/format";
 import { jobCardWords } from "../../shared/words/jobs";
 import { needsWords } from "../../shared/words/requirement";
 import { blurbOf, hasWords, inMonths, nameOf, paramWords, say, words } from "../../shared/words/text";
+import { ENGLISH_TEST, testChance } from "../../shared/words/test";
 import { AskSheet } from "../../shared/world/AskSheet";
 import { Band, bandMoney } from "../../shared/world/Band";
 import { cue } from "../../shared/sound/cues";
@@ -764,6 +765,9 @@ export function City({
     // unless the thing tapped made the choice (a job on a board), when the card names it (R-WORLD-005).
     const chosen = picked.param !== undefined && option.params?.includes(picked.param) === true ? picked.param : null;
     if (option.params !== null && (option.params.length > 1 || content.activity[activity as keyof typeof content.activity]?.param === "job") && chosen === null) return null;
+    // R-WORLD-006: on a long shot the English test's sheet is the picker, which carries the study act beside the test.
+    const chance = activity === ENGLISH_TEST ? testChance(view) : null;
+    if (chance !== null && chance.study !== null) return null;
     const first = option.cost[0] ?? null;
     const cost = first === null ? null : { ...first, amount: option.cost.filter((part) => part.currency === first.currency).reduce((sum, part) => sum + part.amount, 0) };
     const paper = activity === "activity.play-lotto" || activity === "activity.bet-slip";
@@ -778,7 +782,9 @@ export function City({
           ? (blurbOf(chosen) ?? blurbOf(activity) ?? "")
           : chosen !== null && content.activity[activity as Id<"activity">]?.param === "job"
             ? [blurbOf(activity), jobCardWords(view, chosen)].filter((part): part is string => part !== null).join(" ")
-            : (blurbOf(activity) ?? ""),
+            : chance !== null
+              ? [blurbOf(activity), chance.words].filter((part): part is string => part !== null).join(" ")
+              : (blurbOf(activity) ?? ""),
       cost: cost === null ? null : { amount: cost.amount, currency: cost.currency },
       button: nameOf(activity),
       ...(paper ? { reference: todayWords().toUpperCase() } : {}),

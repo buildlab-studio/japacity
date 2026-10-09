@@ -214,7 +214,7 @@ describe("the ride", () => {
     fireEvent.click(screen.getAllByRole("button").find((button) => button.dataset.stop === "place.peckham") as HTMLElement);
     const sheet = screen.getByRole("dialog", { name: headingOf("Peckham") });
     expect(within(sheet).getAllByRole("radio")).toHaveLength(1);
-    expect(within(sheet).getByText(say("ui.world.free"))).toBeTruthy();
+    expect(within(sheet).getByText(say("ui.world.pass"))).toBeTruthy();
     expect((sheet.querySelector("[data-ride-main]") as HTMLButtonElement).disabled).toBe(false);
     expect(sheet.querySelector("[data-ride-main]")?.textContent).not.toContain(say("ui.world.left", { amount: "" }).trim());
   });

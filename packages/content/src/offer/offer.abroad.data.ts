@@ -35,7 +35,11 @@ function streetFind(id: Id<"offer">, country: Id<"country">): OfferEntry {
     terms: {},
     fraudBp: 0,
     signs: [],
-    choices: [{ id: "look", requires: [], pick: null, effects: [{ type: "quality/add", quality: "quality.wellbeing", amount: tuning.street.findMood }], fraudEffects: null }],
+    choices: [
+      { id: "look", requires: [], pick: null, effects: [{ type: "quality/add", quality: "quality.wellbeing", amount: tuning.street.findMood }], fraudEffects: null },
+      // a second answer, walking on, with nothing gained or lost.
+      { id: "walk-on", requires: [], pick: null, effects: [], fraudEffects: null },
+    ],
     // Left alone, the moment passes and nothing happens.
     onExpire: null,
   };

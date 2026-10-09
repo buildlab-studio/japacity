@@ -105,7 +105,7 @@ export function RideSheet({ pin, home, ways, have, formatMoney, onChoose, onClos
                       <Icon size={15} aria-hidden />
                       {choice.label}
                     </span>
-                    <span className="num text-[17px]">{choice.fare === 0 ? say("ui.world.free") : formatMoney(choice.fare)}</span>
+                    <span className="num text-[17px]">{choice.fare === 0 ? say(choice.id === "walk" ? "ui.world.free" : "ui.world.pass") : formatMoney(choice.fare)}</span>
                     <span className="text-[12px] text-text-2">{mapWords("map.way.minutes", { minutes: choice.minutes })}</span>
                   </button>
                 );
