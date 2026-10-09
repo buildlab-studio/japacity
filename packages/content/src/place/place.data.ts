@@ -272,15 +272,27 @@ const entries: PlaceEntry[] = [
 
   // Abroad. the design table's shares are for Lagos; abroad uses the hub and office share.
   abroad("place.heathrow", "country.uk", "london", "heathrow", "London Heathrow Airport", 51468, -459, { scope: "interior", crowd: BUSY, traditionalBp: AIRPORT }),
-  // streets.md R-STREET-005 and 006: the grocer's shopping and the find on the street.
-  abroad("place.peckham", "country.uk", "london", "peckham", "Peckham", 51473, -70, { hub: true, stages: ["activity.street-shopping-uk", "offer.street-find-uk"], crowd: BUSY, traditionalBp: HUB }),
+  // streets.md R-STREET-005 and 006: the grocer's shopping and the find on the street. The UK jobs the hunt
+  // can ask for, on the jobs notice by the grocer and at the job agency's stand (world.md R-WORLD-005).
+  abroad("place.peckham", "country.uk", "london", "peckham", "Peckham", 51473, -70, {
+    hub: true,
+    stages: ["activity.street-shopping-uk", "offer.street-find-uk", "activity.job-uk-retail-part", "activity.job-uk-kitchen-cash", "activity.job-uk-senior-care", "activity.job-uk-nurse", "activity.job-uk-warehouse"],
+    crowd: BUSY,
+    traditionalBp: HUB,
+  }),
   abroad("place.rye-lane", "country.uk", "london", "peckham", "Rye Lane", 51468, -69, { stages: ["activity.send-money", "activity.community-uk"], crowd: BUSY, traditionalBp: HUB }),
   abroad("place.peckham-rye-station", "country.uk", "london", "peckham", "Peckham Rye", 51470, -69, { stages: ["activity.job-uk-courier-cash"], crowd: BUSY, traditionalBp: HUB }),
   abroad("place.calgary-airport", "country.canada", "calgary", "north-east", "Calgary International Airport", 51122, -114014, { scope: "interior", crowd: QUIET, traditionalBp: AIRPORT }),
   // The city's position, not the street's: the street is made up.
   abroad("place.calgary-north-east", "country.canada", "calgary", "north-east", "Northeast Calgary", 51046, -114058, { hub: true, stages: ["activity.community-ca"], crowd: QUIET, traditionalBp: HUB }),
   abroad("place.dubai-airport", "country.uae", "dubai", "garhoud", "Dubai International Airport", 25252, 55367, { scope: "interior", crowd: PACKED, traditionalBp: AIRPORT }),
-  abroad("place.deira", "country.uae", "dubai", "deira", "Deira", 25273, 55305, { hub: true, stages: ["activity.community-uae", "activity.street-shopping-uae", "offer.street-find-uae"], crowd: PACKED, traditionalBp: HUB }),
+  // The Gulf jobs at the typing centre and the site bus; both come by the agent's contract (world.md R-WORLD-005).
+  abroad("place.deira", "country.uae", "dubai", "deira", "Deira", 25273, 55305, {
+    hub: true,
+    stages: ["activity.community-uae", "activity.street-shopping-uae", "offer.street-find-uae", "activity.job-gulf-guard", "activity.job-gulf-cleaner"],
+    crowd: PACKED,
+    traditionalBp: HUB,
+  }),
   abroad("place.naif", "country.uae", "dubai", "deira", "Naif", 25272, 55310, { crowd: PACKED, traditionalBp: HUB }),
   abroad("place.castel-volturno", "country.italy", "castel-volturno", "castel-volturno", "Castel Volturno", 41034, 13941, { hub: true, crowd: QUIET, traditionalBp: HUB }),
   abroad("place.via-domitiana", "country.italy", "castel-volturno", "castel-volturno", "Via Domitiana", 40929, 14025, { stages: ["activity.overtime"], crowd: QUIET, traditionalBp: HUB }),

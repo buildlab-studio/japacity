@@ -7,6 +7,7 @@ import { describe, expect, test } from "vitest";
 
 import raw from "../../../../public/assets/places/peckham/place.json";
 import room from "../../../../public/assets/places/the-room/place.json";
+import { abroadView } from "../../../shared/testing/fixtures";
 import { stageOf, type PlaceFile } from "../placeFile";
 import { sceneWords } from "../scene.words";
 import { stagedAt } from "../staging";
@@ -84,5 +85,53 @@ describe("Peckham", () => {
       expect(z).toBeGreaterThan(kerb);
       expect(z).toBeLessThan(stage.start[1]);
     }
+  });
+});
+
+// Work at Peckham: the UK jobs the hunt can ask for are staged at a jobs
+// notice by the grocer and a job agency's stand, so a job open to the player is an act there.
+describe("Peckham's jobs", () => {
+  const UK = { where: "abroad", country: "country.uk" } as const;
+  const NOTICE = ["activity.job-uk-retail-part", "activity.job-uk-kitchen-cash"];
+  const AGENCY = ["activity.job-uk-senior-care", "activity.job-uk-nurse", "activity.job-uk-warehouse"];
+
+  test("[R-WORLD-005] [R-CITY-010] given the UK's hunted jobs, when Peckham is read, then shop and kitchen work are on the jobs notice by the grocer and care and warehouse work at the agency, each staged here for the UK and opened as the hunt's card", () => {
+    expect(thing("jobs-notice").acts.map((act) => [act.kind, act.stages, ...(act.more ?? [])])).toEqual([
+      ["sheet", "activity.job-uk-retail-part"],
+      ["sheet", "activity.job-uk-kitchen-cash"],
+    ]);
+    expect(thing("jobs-notice").acts.map((act) => sceneWords(act.label))).toEqual(["Shop work", "Kitchen work"]);
+    expect(thing("agency").acts.map((act) => [act.kind, act.stages, ...(act.more ?? [])])).toEqual([
+      ["sheet", "activity.job-uk-senior-care", "activity.job-uk-nurse"],
+      ["sheet", "activity.job-uk-warehouse"],
+    ]);
+    expect(thing("agency").acts.map((act) => sceneWords(act.label))).toEqual(["Care work", "Warehouse"]);
+    for (const job of [...NOTICE, ...AGENCY]) {
+      expect(content.activity[job as keyof typeof content.activity]?.hireBp ?? null).not.toBeNull();
+      expect(stagedAt(job, UK, Object.values(content.place))).toBe(ID);
+    }
+    expect(sceneWords(thing("jobs-notice").label)).toBe("Jobs notice");
+    expect(sceneWords(thing("agency").label)).toBe("Job agency");
+  });
+
+  test("[R-WORLD-005] given Ada landed in London on a student visa, when the hunt's jobs are read at Peckham, then the jobs notice offers the shop job alone and the agency stands without an act", () => {
+    const view = abroadView();
+    const hunt = view.activities.find((option) => option.id === "activity.job-hunt");
+    expect(hunt?.allowed).toBe(true);
+    const jobs = hunt?.params ?? [];
+    expect(jobs).toEqual(["activity.job-uk-retail-part"]);
+    const offered = new Set([...view.activities.filter((option) => option.allowed).map((option) => option.id), ...jobs]);
+    const now = thingsNow(stage.things ?? [], stagedNow(offered, new Set(entry.stages), new Set(), null));
+    expect(now.find((candidate) => candidate.id === "jobs-notice")?.acts.map((act) => act.stages)).toEqual(["activity.job-uk-retail-part"]);
+    expect(now.find((candidate) => candidate.id === "agency")).toBeUndefined();
+  });
+
+  test("[R-WORLD-011] given the jobs notice and the agency, when the pavements are read, then the notice stands on the far pavement before the shops and the agency's stand on the near one, each on its own copy", () => {
+    const [notice] = copiesOf(stage, "prop_jobs-board.glb");
+    const [stand] = copiesOf(stage, "prop_stall.glb");
+    if (notice === undefined || stand === undefined) throw new Error("No notice or stand");
+    expect(notice[1]).toBeLessThan(-3.3);
+    expect(stand[1]).toBeGreaterThan(3.3);
+    expect(stand[1]).toBeLessThan(stage.start[1]);
   });
 });
