@@ -6,7 +6,7 @@ import { describe, expect, test } from "vitest";
 import { App } from "./App";
 import { bootGame } from "./authority/boot";
 import { SAVE_KEY } from "./authority/local";
-import { startReadyLife } from "./features/scenario/frontDoor.testing";
+import { startReadyLife } from "./shared/frontdoor/frontDoor.testing";
 import { say } from "./shared/words/text";
 // Registers Testing Library's cleanup for this file.
 import "./shared/testing/render";

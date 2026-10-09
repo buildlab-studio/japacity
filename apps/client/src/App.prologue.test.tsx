@@ -4,8 +4,8 @@ import { afterEach, describe, expect, test } from "vitest";
 
 import { App } from "./App";
 import { bootGame } from "./authority/boot";
-import { FULL_PROLOGUE_KEY } from "./features/prologue/archetypes";
-import { startArchetype } from "./features/scenario/frontDoor.testing";
+import { FULL_PROLOGUE_KEY } from "./shared/frontdoor/archetypes";
+import { startArchetype } from "./shared/frontdoor/frontDoor.testing";
 import type { GameStore } from "./authority/store";
 import { nameOf, say, words } from "./shared/words/text";
 // Registers Testing Library's cleanup for this file.

@@ -10,9 +10,9 @@ import { useMemo, useState } from "react";
 import { useGame } from "../../authority/GameProvider";
 import { keepPerson, readPerson } from "../../authority/person";
 import { blurbOf, say } from "../../shared/words/text";
-import { ARCHETYPES, type ArchetypeId } from "../prologue/archetypes";
-import { Gate, GateSheet, gateLook } from "./Gate";
-import { LOOKS, lookOf, namesFor } from "./looks";
+import { ARCHETYPES, type ArchetypeId } from "../../shared/frontdoor/archetypes";
+import { Gate, GateSheet, gateLook } from "../../shared/frontdoor/Gate";
+import { LOOKS, lookOf, namesFor } from "../../shared/frontdoor/looks";
 
 const FROM_SIXTEEN = "scenario.prologue" as Id<"scenario">;
 /** The ready lives: every scenario but the life from sixteen, each named by its kind, never its person. */

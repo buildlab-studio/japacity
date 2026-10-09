@@ -8,13 +8,13 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useRef, useState } from "react";
 import type { Object3D } from "three";
 
-import { advanceClock } from "../../shared/three/clock";
-import { loadModel } from "../../shared/three/load";
-import { loadJson, loadManifest } from "../../shared/three/manifest";
-import { figureOf, poseFigure } from "../../shared/three/people";
-import { modeSettings } from "../city/mode";
-import { filesOf, type PlaceFile, stageOf } from "../city/placeFile";
-import { animateWorld, buildWorld, colourOf, skyColours, type World } from "../city/world";
+import { advanceClock } from "../three/clock";
+import { loadModel } from "../three/load";
+import { loadJson, loadManifest } from "../three/manifest";
+import { figureOf, poseFigure } from "../three/people";
+import { modeSettings } from "../../features/city/mode";
+import { filesOf, type PlaceFile, stageOf } from "../../features/city/placeFile";
+import { animateWorld, buildWorld, colourOf, skyColours, type World } from "../../features/city/world";
 
 /** The compound's file under places/: the family house's own (place.family-house). */
 const COMPOUND = "family-house-compound";

@@ -2,7 +2,7 @@
 // name, then a ready life by its kind, or an archetype's tile.
 import { fireEvent, screen } from "@testing-library/react";
 
-import { say } from "../../shared/words/text";
+import { say } from "../words/text";
 
 /** From the first sheet to the archetypes. */
 export async function toTheArchetypes(): Promise<void> {

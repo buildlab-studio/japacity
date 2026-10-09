@@ -5,7 +5,7 @@ import { content } from "@japacity/content";
 import { allMet } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
-import { newGame } from "../../shared/testing/fixtures";
+import { newGame } from "../testing/fixtures";
 import { answersInOrder, ARCHETYPES, type Archetype, presetAnswer } from "./archetypes";
 
 const PROLOGUE = "scenario.prologue";

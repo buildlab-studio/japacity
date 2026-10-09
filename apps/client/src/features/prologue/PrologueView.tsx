@@ -20,8 +20,8 @@ import { AGE, valueWords, yearsOf } from "../../shared/words/quality";
 import { requirementSentence } from "../../shared/words/requirement";
 import { nextStepOf, sixteenPath } from "../../shared/words/sixteen";
 import { bandWords, hasWords, nameOf, say, sayCount, words } from "../../shared/words/text";
-import { Gate, GateSheet } from "../scenario/Gate";
-import { type Archetype, answersInOrder, archetypeOf, fullPrologue, presetAnswer } from "./archetypes";
+import { Gate, GateSheet } from "../../shared/frontdoor/Gate";
+import { type Archetype, answersInOrder, archetypeOf, fullPrologue, presetAnswer } from "../../shared/frontdoor/archetypes";
 
 type Prologue = NonNullable<PlayerView["prologue"]>;
 type Draw = NonNullable<Prologue["draw"]>;

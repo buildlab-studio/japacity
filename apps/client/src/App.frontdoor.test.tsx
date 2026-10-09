@@ -1,4 +1,4 @@
-// The front door on the real content (prologue.md R-PROLOGUE-009, 010): a person built over the family
+// The front door in the app, on the real content (prologue.md R-PROLOGUE-009, 010): a person built over the family
 // compound from a look, a name from the pool and an archetype, never a named life picked; the preset
 // played for the archetype and only its open cards shown; the handover saying who the person is; the
 // look kept beside the save and drawn by the city and the rides.
@@ -8,22 +8,22 @@ import { savedCommands } from "@japacity/sim";
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
 
-import { App } from "../../App";
-import { bootGame } from "../../authority/boot";
-import { SAVE_KEY } from "../../authority/local";
-import { PERSON_KEY, readPerson } from "../../authority/person";
-import type { GameStore } from "../../authority/store";
-import { countInto } from "../../shared/analytics/start";
-import { type CounterRow, makeCounters } from "../../shared/analytics/counters";
-import { say, words } from "../../shared/words/text";
-import { ownFile } from "../city/City";
-import { ROSTER } from "../city/roster";
-import { ownLook } from "../map/Ride";
-import { answersInOrder, ARCHETYPES, archetypeOf, FULL_PROLOGUE_KEY } from "../prologue/archetypes";
-import { startArchetype, startReadyLife, toTheArchetypes } from "./frontDoor.testing";
-import { LOOKS, namesFor, NAMES_SHOWN } from "./looks";
+import { App } from "./App";
+import { bootGame } from "./authority/boot";
+import { SAVE_KEY } from "./authority/local";
+import { PERSON_KEY, readPerson } from "./authority/person";
+import type { GameStore } from "./authority/store";
+import { countInto } from "./shared/analytics/start";
+import { type CounterRow, makeCounters } from "./shared/analytics/counters";
+import { say, words } from "./shared/words/text";
+import { ownFile } from "./features/city/City";
+import { ROSTER } from "./features/city/roster";
+import { ownLook } from "./features/map/Ride";
+import { answersInOrder, ARCHETYPES, archetypeOf, FULL_PROLOGUE_KEY } from "./shared/frontdoor/archetypes";
+import { startArchetype, startReadyLife, toTheArchetypes } from "./shared/frontdoor/frontDoor.testing";
+import { LOOKS, namesFor, NAMES_SHOWN } from "./shared/frontdoor/looks";
 // Registers Testing Library's cleanup for this file.
-import "../../shared/testing/render";
+import "./shared/testing/render";
 
 const FIXED = (Object.keys(content.scenario) as Id<"scenario">[]).filter((id) => content.scenario[id]?.prologue !== true);
 /** Every starting life's person's name, first names included: none may be offered at the door. */
