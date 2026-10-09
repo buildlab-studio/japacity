@@ -55,8 +55,8 @@ describe("Mummy at her stall", () => {
     if (stall === undefined || mummy === undefined) throw new Error("The stall or Mummy is missing.");
     expect(mummy.at).toEqual(stall.at);
     const greet = mummy.acts[0] as Act & { unless?: string[] };
-    expect([greet.kind, sceneWords(greet.label)]).toEqual(["plain", "Greet Mummy"]);
+    expect([greet.kind, sceneWords(greet.label)]).toEqual(["plain", "Greet Mama"]);
     expect(greet.unless).toEqual(stall.acts.map((act) => act.stages));
-    expect(sceneWords(`${greet.label}.done`)).toMatch(/Mummy/);
+    expect(sceneWords(`${greet.label}.done`)).toMatch(/Mama/);
   });
 });

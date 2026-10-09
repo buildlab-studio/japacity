@@ -152,7 +152,7 @@ export const uiText: Record<string, string> = {
   // What a family request's money paid for, in place of "Sent to family" (shared/words/lines.ts).
   "ui.line.family-paid.offer.nepa-bill": "The NEPA bill: {amount}.",
   "ui.line.family-paid.offer.brother-fees": "Your brother's school fees: {amount}.",
-  "ui.line.family-paid.offer.mum-shop": "For Mummy's shop: {amount}.",
+  "ui.line.family-paid.offer.mum-shop": "For Mama's shop: {amount}.",
   "ui.line.family-paid.offer.aso-ebi": "Aso ebi for the wedding: {amount}.",
   "ui.line.family-paid.offer.roof": "Toward the roof: {amount}.",
   "ui.line.family-paid.offer.harvest": "Your harvest pledge: {amount}.",

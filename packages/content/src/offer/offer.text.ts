@@ -21,8 +21,8 @@ export const offerText: Record<string, string> = {
   "offer.brother-fees.choice.half": "Pay half",
   "offer.brother-fees.choice.no": "Say you cannot",
 
-  "offer.mum-shop.name": "Mummy's shop",
-  "offer.mum-shop.title": "Mummy's shop",
+  "offer.mum-shop.name": "Mama's shop",
+  "offer.mum-shop.title": "Mama's shop",
   "offer.mum-shop.body":
     "The supplier has stopped giving on credit. {cost} would restock the provisions before the month ends.",
   "offer.mum-shop.choice.give": "Give all of it",
@@ -150,9 +150,9 @@ export const offerText: Record<string, string> = {
   "offer.stand-guarantor.choice.refuse": "Say no",
 
   "offer.join-ajo.name": "The savings circle",
-  "offer.join-ajo.title": "Join the ajo",
+  "offer.join-ajo.title": "Join the savings circle (ajo)",
   "offer.join-ajo.body":
-    "Your neighbour runs a circle: ₦20,000 a month for ten months, and each month one member collects the whole pot. Miss a month and you are out.",
+    "Your neighbour runs a savings circle: ₦20,000 a month for ten months, and each month one member collects the whole pot. Miss a month and you are out.",
   "offer.join-ajo.choice.join": "Join the circle",
   "offer.join-ajo.choice.no": "Not this time",
   "offer.held-funds-agent.sign.cash-only": "He only takes cash.",
@@ -309,8 +309,9 @@ export const offerText: Record<string, string> = {
   "offer.whip-round.choice.accept": "Take it, and thank them",
   "offer.whip-round.choice.decline": "Thank them, and give it back",
 
-  "offer.telco-promo.name": "You have won",
-  "offer.telco-promo.title": "You have won",
+  // Named as what it is, a message, so the results never read it as a prize won.
+  "offer.telco-promo.name": "A message says you have won",
+  "offer.telco-promo.title": "A message says you have won",
   "offer.telco-promo.body": "'CONGRATULATIONS! Your line has won in our anniversary promo. Send N2,000 to claim your prize today.'",
   "offer.telco-promo.sign.shortcode": "It came from the network's own short code.",
   "offer.telco-promo.sign.reply-now": "It says you must reply within the hour.",
