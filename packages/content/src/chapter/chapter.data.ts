@@ -4,6 +4,8 @@ import type { ChapterEntry, Id, Requirement } from "@japacity/sim";
 import { naira } from "../units";
 
 const UK: Id<"route"> = "route.uk-masters";
+/** The ways out a life takes by its own effort (not through a partner): the first chapter counts any of them. */
+const OWN_ROUTES: Id<"route">[] = ["route.uk-masters", "route.uk-care", "route.uk-talent", "route.uk-skilled", "route.canada-points", "route.gulf-contract"];
 
 /** The formal routes a second grant can come on. The road grants nothing. */
 const SECOND_ROUTES: Id<"route">[] = ["route.uk-masters", "route.uk-care", "route.uk-skilled", "route.canada-points", "route.uk-talent", "route.gulf-contract"];
@@ -16,8 +18,9 @@ export const chapterTable: Record<Id<"chapter">, ChapterEntry> = {
       { id: "job", requirement: { type: "job/any" } },
       // One month in any job: an empty list counts every job.
       { id: "pay", requirement: { type: "activity/tenure", activities: [], months: 1 } },
-      { id: "heard", requirement: { type: "route/state", route: UK, in: ["heard", "known", "applying", "granted", "departed"] } },
-      { id: "known", requirement: { type: "route/state", route: UK, in: ["known", "applying", "granted", "departed"] } },
+      // A route of your own effort (chapter.md: "have heard of a route").
+      { id: "heard", requirement: { type: "any", of: OWN_ROUTES.map((route) => ({ type: "route/state" as const, route, in: ["heard", "known", "applying", "granted", "departed"] })) } },
+      { id: "known", requirement: { type: "any", of: OWN_ROUTES.map((route) => ({ type: "route/state" as const, route, in: ["known", "applying", "granted", "departed"] })) } },
     ],
   },
   "chapter.build-the-file": {

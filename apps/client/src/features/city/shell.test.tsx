@@ -294,7 +294,7 @@ describe("the nudge", () => {
 });
 
 describe("the trader from sixteen with a shop's capital", () => {
-  test("[R-WORLD-001] [R-WORLD-003] given a settled trader at his handover, when the world opens, then the opening words speak of the settlement and the nudge sends him to the meetup, not the board", () => {
+  test("[R-WORLD-001] [R-WORLD-003] given a settled trader at his handover, when the world opens, then the opening words speak of the settlement and the nudge sends him to the motor park, not the board", () => {
     const game = newGame("scenario.prologue", "sixteen-0");
     for (let turn = 0; turn < 40 && game.state.prologue.open; turn += 1) {
       const prologue = game.view().prologue!;
@@ -306,8 +306,9 @@ describe("the trader from sixteen with a shop's capital", () => {
     expect(view.chapter.current).toBe("chapter.find-your-feet");
     const nudge = nudgeOf({ ...view, setpiece: null, interview: null, offers: [], report: null });
     expect(nudge.about).toBe("step");
-    expect(nudge.key.startsWith("chapter.find-your-feet.item.heard")).toBe(true);
-    expect(stepWayOf(view)?.go).toBe("place.yaba");
+    // a trade hears of its way out at the motor park, not the meetup.
+    expect(nudge.key).toBe("chapter.find-your-feet.item.heard.nudge.motor-park");
+    expect(stepWayOf(view)?.go).toBe("place.ojuelegba");
     expect(words("chapter.find-your-feet.open.prologue.capital")).toContain("settlement");
   });
 });
@@ -361,5 +362,36 @@ describe("the nudge", () => {
     expect(stepWayOf(held)?.go).toBe("place.olokun-office");
     const clear = { ...held, obligations: [] };
     expect(stepWayOf(clear)?.go).toBe("place.airport-lagos");
+  });
+});
+
+describe("the archetypes' own ways", () => {
+  const base = { ...engineView(), setpiece: null, interview: null, offers: [], report: null, scenario: "scenario.prologue" as const };
+
+  test("[R-PROLOGUE-010] [R-WORLD-003] given a nurse from sixteen with her licence and no job, when the first step is read, then the nudge sends her to the staff nurse job at the clinic", () => {
+    const nurse = {
+      ...base,
+      chapter: { current: "chapter.find-your-feet" as const, items: [{ id: "job", met: false }, { id: "pay", met: false }, { id: "heard", met: false }, { id: "known", met: false }], done: [] },
+      qualities: base.qualities.map((quality) => (quality.id === "quality.edu-level" ? { ...quality, value: 3 } : quality.id === "quality.care" ? { ...quality, value: 60 } : quality)),
+      documents: [{ id: "document.nursing-licence" as const, state: "held" as const, readyMonth: null, expiresMonth: null, value: null }],
+      job: { id: null, months: 0, side: null },
+      routes: [],
+    };
+    expect(nudgeOf(nurse).key).toBe("chapter.find-your-feet.item.job.nudge.clinic");
+    expect(stepWayOf(nurse)).toEqual({ go: "place.tb-clinic", at: ["place.tb-clinic:jobs-notice"] });
+  });
+
+  test("[R-PROLOGUE-010] [R-WORLD-003] given a trader from sixteen who has heard of no way out, when the first step is read, then the nudge sends him to the motor park, and asking around planned says so", () => {
+    const trader = {
+      ...base,
+      chapter: { current: "chapter.find-your-feet" as const, items: [{ id: "job", met: false }, { id: "pay", met: false }, { id: "heard", met: false }, { id: "known", met: false }], done: [] },
+      qualities: base.qualities.map((quality) => (quality.id === "quality.edu-level" ? { ...quality, value: 1 } : quality)),
+      pockets: { ...base.pockets, NGN: { ...base.pockets.NGN, cash: 600_000_000, bank: 0 } },
+      routes: [],
+      job: { id: null, months: 0, side: null },
+    };
+    expect(nudgeOf(trader).key).toBe("chapter.find-your-feet.item.heard.nudge.motor-park");
+    expect(stepWayOf(trader)).toEqual({ go: "place.ojuelegba", at: ["place.ojuelegba:motor-park"] });
+    expect(nudgeOf(trader, undefined, ["activity.ask-around"]).key).toBe("chapter.find-your-feet.item.heard.planned.ask-around");
   });
 });

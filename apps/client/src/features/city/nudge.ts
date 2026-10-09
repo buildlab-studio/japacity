@@ -7,7 +7,7 @@ import type { Id, PlayerView } from "@japacity/sim";
 import { duesGap } from "../../shared/words/dues";
 import { formatMoney } from "../../shared/words/format";
 import { asksAttention, tidyLines } from "../../shared/words/lines";
-import { nextStepOf } from "../../shared/words/sixteen";
+import { nextStepOf, ownWayOf } from "../../shared/words/sixteen";
 import { hasWords, inMonths } from "../../shared/words/text";
 import type { Nudge } from "../../shared/world/contract";
 
@@ -61,6 +61,9 @@ export const BOARD_WAY: StepWay = { go: "place.yaba", at: ["place.yaba:jobs", "p
 export function stepWayOf(view: StepView & Partial<Pick<PlayerView, "obligations">>): StepWay | null {
   const step = stepOf(view);
   if (view.chapter.current === null || step === null) return null;
+  // A life's own way to its first steps, where its archetype has one the table does not name.
+  const own = ownWay(view);
+  if (own !== null) return { go: own.place, at: [`${own.place}:${own.thing}`] };
   // The plane blocked by held funds: the way is the bank's counter that takes them back.
   if (view.chapter.current === "chapter.send-off" && step === "departed" && heldFundsOpen({ ...view, setpiece: null, interview: null, offers: [], report: null })) return HELD_FUNDS_WAY;
   return STEP_WAYS[`${view.chapter.current}.${step}`] ?? null;
@@ -69,13 +72,20 @@ export function stepWayOf(view: StepView & Partial<Pick<PlayerView, "obligations
 /** Where held funds go back: the bank's counter (R-ROUTE-020). */
 const HELD_FUNDS_WAY: StepWay = { go: "place.olokun-office", at: ["place.olokun-office:counter"] };
 
-type StepView = Pick<PlayerView, "chapter"> & Partial<Pick<PlayerView, "scenario" | "qualities" | "pockets">>;
+type StepView = Pick<PlayerView, "chapter"> & Partial<Pick<PlayerView, "scenario" | "qualities" | "pockets" | "routes" | "documents" | "job">>;
 
 /** The chapter's next undone step: for a trader from sixteen with a shop's capital, the meetup and the page before the board. */
 function stepOf(view: StepView): string | null {
   const { scenario, qualities, pockets } = view;
   if (scenario !== undefined && qualities !== undefined && pockets !== undefined) return nextStepOf({ chapter: view.chapter, scenario, qualities, pockets });
   return view.chapter.items.find((item) => !item.met)?.id ?? null;
+}
+
+/** The life's own way to a first step (the nurse's clinic, the trade's motor park), when the view carries enough to tell. */
+function ownWay(view: StepView): ReturnType<typeof ownWayOf> {
+  const { scenario, qualities, pockets } = view;
+  if (scenario === undefined || qualities === undefined || pockets === undefined) return null;
+  return ownWayOf({ chapter: view.chapter, scenario, qualities, pockets, ...(view.routes === undefined ? {} : { routes: view.routes }), ...(view.documents === undefined ? {} : { documents: view.documents }), ...(view.job === undefined ? {} : { job: view.job }) });
 }
 
 /** The thing in `here` that the step's way names, the first of its order that stands among `things`. */
@@ -115,6 +125,8 @@ const STEP_ACTIVITY: Record<string, string> = {
 /** Other activities that also take a step when planned: the adviser's visit looks into the route. */
 const STEP_ACTIVITY_ALSO: Record<string, readonly string[]> = {
   "chapter.find-your-feet.known": ["activity.see-adviser"],
+  // A trade hears of its way out at the motor park.
+  "chapter.find-your-feet.heard": ["activity.ask-around"],
 };
 
 type NudgeView = Pick<PlayerView, "setpiece" | "interview" | "offers" | "chapter" | "report"> & Partial<Pick<PlayerView, "documents" | "routes" | "month" | "activities" | "pockets" | "place" | "obligations" | "job" | "scenario" | "qualities">>;
@@ -225,6 +237,9 @@ export function nudgeOf(view: NudgeView, has: (key: string) => boolean = hasWord
     const own = `${view.chapter.current}.item.${step}`;
     const started = startedKey(view, own, `${view.chapter.current}.${step}`, planned, has);
     if (started !== null) return { ...started, about: "step" };
+    // The life's own way to the step has its own words (the nurse's clinic, the trade's motor park).
+    const way = ownWay(view);
+    if (way !== null && has(`${own}.nudge.${way.key}`)) return { key: `${own}.nudge.${way.key}`, about: "step" };
     return { key: has(`${own}.nudge`) ? `${own}.nudge` : own, about: "step" };
   }
   // A report line waits when one of last month's lines asks for the player. Abroad, when the month's
