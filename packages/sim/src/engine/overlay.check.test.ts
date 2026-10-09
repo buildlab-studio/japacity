@@ -88,6 +88,12 @@ describe("checkOverlay: numbers only", () => {
     expect(checkOverlay(content, overlay)).toEqual([expect.stringMatching(/^renames is fixed/)]);
   });
 
+  test("[R-PROLOGUE-002] [R-SERVER-014] given an overlay that gives a fixed life more siblings than the prologue could draw, when checked, then it is refused by the schema before any life is built", () => {
+    const [id] = Object.keys(content.scenario);
+    const overlay = overlayAt(content, "dials-siblings", [[["scenario", id!, "siblings"], 300000000]]);
+    expect(checkOverlay(content, overlay)).toEqual([expect.stringMatching(/does not fit the content schemas/)]);
+  });
+
   test("[R-ENGINE-017] [R-ENGINE-014] given an overlay whose result breaks a schema, when checked, then the reason applyOverlay gives is returned", () => {
     expect(checkOverlay(content, { version: "dials-bad", tuning: { turn: { cap: -1 } } })).toEqual([expect.stringMatching(/does not fit the content schemas/)]);
   });

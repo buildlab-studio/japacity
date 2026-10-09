@@ -471,7 +471,7 @@ export const TuningSchema = z.strictObject({
   ladder: z.strictObject({ cashDetectBp: BpSchema, accountRent: CountSchema, overtimeBp: BpSchema, oneChanceBp: BpSchema, phone: CountSchema, robberyWellbeing: IntSchema }),
   prologue: z.strictObject({
     startAgeMonths: CountSchema,
-    siblings: z.tuple([CountSchema, CountSchema]),
+    siblings: z.tuple([CountSchema.max(6), CountSchema.max(6)]),
     familyMeans: z.tuple([CountSchema, CountSchema]),
     cityBp: BpSchema,
     parentsEducatedBp: BpSchema,
