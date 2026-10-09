@@ -12,6 +12,7 @@ export const turnText: Record<string, string> = {
   "turn.month.working": "Working: {job}",
   "turn.month.side": "Side job: {job}",
   "turn.month.working-rest": "Working. Nothing else planned.",
+  "turn.month.working-slots": "Working. {used} of {slots} things planned beside the job",
   "turn.month.hint": "Tap a person or a thing in the world to add it here.",
   "turn.month.remove": "Take out {activity}",
   "turn.month.no-slots": "No free time this month.",
