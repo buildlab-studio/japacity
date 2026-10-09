@@ -1,7 +1,7 @@
 // First drafts for the offers of life abroad and of coming home. The pages name
 // what each one is about; the words are new.
 export const offerAbroadText: Record<string, string> = {
-  "offer.street-find-uk.name": "Something on the street",
+  "offer.street-find-uk.name": "A market behind the station",
   "offer.street-find-uk.title": "A market behind the station",
   "offer.street-find-uk.body":
     "There is a Saturday market behind the station. Suya on the grill, ankara on a rail, and an aunty selling puff-puff by the bag. She says you have her sister's face.",
@@ -11,7 +11,7 @@ export const offerAbroadText: Record<string, string> = {
   "offer.street-find-uk.choice.walk-on": "Walk on",
   "offer.street-find-uk.said.walk-on": "You walk on to the bus. The smell of suya follows you for a street.",
 
-  "offer.street-find-uae.name": "Something by the creek",
+  "offer.street-find-uae.name": "A dhow at the creek",
   "offer.street-find-uae.title": "A dhow at the creek",
   "offer.street-find-uae.body":
     "A wooden dhow is loading at the creek: fridges, tyres, mattresses tied with rope. One of the crew says it sails tonight for the other side of the sea.",

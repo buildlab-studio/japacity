@@ -43,6 +43,13 @@ export const uiText: Record<string, string> = {
   "ui.month.plan": "This month",
   "ui.month.slot-empty": "Nothing yet",
   "ui.month.rest": "Nothing planned. You rest.",
+  // The room's basics planned, which fill no slot, so the foot never says nothing is planned over them.
+  "ui.month.chores.cook": "Cooking this month",
+  "ui.month.chores.water": "Fetching water this month",
+  "ui.month.chores.both": "Cooking and fetching water",
+  "ui.month.working-chores.cook": "Working, and cooking",
+  "ui.month.working-chores.water": "Working, and fetching water",
+  "ui.month.working-chores.both": "Working, cooking, water",
   "ui.opening.go": "Go",
   "ui.month.until-news": "Until news",
   "ui.month.until-news-foot": "Stops when something needs you",
@@ -73,6 +80,8 @@ export const uiText: Record<string, string> = {
   "ui.walk.map": "The map: every place you can go",
   "ui.walk.count": "The months you can play. Tap it to see when more come",
   "ui.walk.step": "{n} of {count}",
+  // Each card says how to go on.
+  "ui.walk.on": "Tap to go on",
   "ui.world.now": "Now",
   "ui.world.pass": "Bus pass",
   "ui.world.depart-held": "The funds held for you must go back first: Phone, Bills, Pay now.",
@@ -146,7 +155,7 @@ export const uiText: Record<string, string> = {
   // What a family request's money paid for, in place of "Sent to family" (shared/words/lines.ts).
   "ui.line.family-paid.offer.nepa-bill": "The NEPA bill: {amount}.",
   "ui.line.family-paid.offer.brother-fees": "Your brother's school fees: {amount}.",
-  "ui.line.family-paid.offer.mum-shop": "For Mummy's shop: {amount}.",
+  "ui.line.family-paid.offer.mum-shop": "For Mama's shop: {amount}.",
   "ui.line.family-paid.offer.aso-ebi": "Aso ebi for the wedding: {amount}.",
   "ui.line.family-paid.offer.roof": "Toward the roof: {amount}.",
   "ui.line.family-paid.offer.harvest": "Your harvest pledge: {amount}.",
@@ -158,6 +167,10 @@ export const uiText: Record<string, string> = {
   "ui.line.offer-paid.offer.family-send-off": "The send-off: {amount}.",
   // Fuel scarcity's fares are not living costs.
   "ui.line.offer-paid.offer.fuel-scarcity": "Fuel scarcity: {amount} on fares.",
+  // A blow's money named for what it paid, never "Something went wrong".
+  "ui.line.offer-paid.offer.laptop-fault": "The laptop repair: {amount}.",
+  "ui.line.offer-paid.offer.illness": "Treatment for the illness: {amount}.",
+  "ui.line.offer-paid.offer.illness-worse": "Treatment for the illness: {amount}.",
   // An activity's spending, named for it (shared/words/lines.ts, activityPaid).
   "ui.line.activity-paid.activity.meetup": "The meetup: {amount}.",
   // The living costs charged at a new figure, with the story that moved them (lines.ts, upkeepMoved).
@@ -332,6 +345,9 @@ export const uiText: Record<string, string> = {
   "ui.obligation.none": "Nothing owed.",
   "ui.obligation.due": "Due this month: {amount}",
   "ui.obligation.outstanding": "Still owed: {amount}",
+  // A bill taken every few months, in a month none is taken.
+  "ui.obligation.next": "Next payment {when}.",
+  "ui.obligation.next.obligation.tuition": "Next instalment {when}.",
   "ui.obligation.months-left": "{months} months left",
   "ui.obligation.months-left.one": "1 month left",
   "ui.obligation.missed": "Missed {count} payments in a row",
@@ -379,6 +395,8 @@ export const uiText: Record<string, string> = {
   "ui.route.school.naira": "About {naira} from naira at the bank rate, with the bank's charge.",
   "ui.route.school.short": "Not enough for the deposit: it needs {need} in the naira bank and you have {have}. Short by {short}. Cash does not count.",
   "ui.route.schools.before": "What the universities ask",
+  // The sheet that sends papers to one university names it, its deposit and the chance.
+  "ui.route.apply-sheet": "Your papers go to {school}. If it says yes, the deposit is {deposit}. Chance of an offer: {chance}.",
   "ui.route.foreign-fee": "Fees in pounds are bought from naira at the bank rate, plus the bank's charge.",
   "ui.route.school.chosen": "Deposit paid",
   "ui.route.pay-deposit": "Pay the deposit",

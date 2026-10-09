@@ -23,7 +23,7 @@ import { filesOf, type Spot, type Stage, stageOf } from "./placeFile";
 import type { CityProbe, ScenePick, SceneProps } from "./scene.types";
 import { sceneWords } from "./scene.words";
 import { aimShot, clampTurn, SHOT_FOV, SHOT_NEAR_PLANE, shotOf, snapZoom, widthEnds } from "./shot";
-import { thingSpot, walkSpot } from "./things";
+import { thingSpot, walkBeforeAct } from "./things";
 import { standAt, stepWalk, strideOf, WALK_SPEED, type Walker, walkRoute, walkTo } from "./walk";
 import { walkableOf } from "./walk/map";
 import { findRoute } from "./walk/route";
@@ -215,18 +215,26 @@ function Place(props: PlaceProps) {
   const stage: Stage = useMemo(() => (roam ? plain : { ...plain, motion: limitMotion(plain.motion, level) }), [plain, roam, level]);
   const peopleKey = people.map((shown) => `${shown.person.file}:${String(shown.tag)}`).join("|");
 
+  /** Starts the walk to a thing; false when the character already stands at it. */
+  const walkFor = (thing: Thing): boolean => {
+    const to = walkBeforeAct(stage, thing, walk.current.walker);
+    if (to === null) return false;
+    const far = Math.hypot(to[0] - walk.current.walker.x, to[1] - walk.current.walker.z);
+    walk.current.speed = Math.max(WALK_SPEED, far / WALK_SECONDS);
+    walk.current.walker = walkTo(walk.current.walker, to[0], to[1]);
+    walk.current.sitting = false;
+    walk.current.lying = false;
+    return true;
+  };
   const choose = (thing: Thing): void => {
-    const to = walkSpot(stage, thing, walk.current.walker);
-    if (to !== null) {
-      const far = Math.hypot(to[0] - walk.current.walker.x, to[1] - walk.current.walker.z);
-      walk.current.speed = Math.max(WALK_SPEED, far / WALK_SECONDS);
-      walk.current.walker = walkTo(walk.current.walker, to[0], to[1]);
-    }
+    walkFor(thing);
     walk.current.pending = null;
     walk.current.sitting = false;
     walk.current.lying = false;
     pick.current({ kind: "thing", thing });
   };
+  const walkForRef = useRef(walkFor);
+  walkForRef.current = walkFor;
   const chooseRef = useRef(choose);
   chooseRef.current = choose;
 
@@ -248,6 +256,8 @@ function Place(props: PlaceProps) {
     const node = chipNode(chosen, (act) => {
       // Tapping an act again ends the walk at once (R-WORLD-010).
       if (walk.current.pending?.act === act && walk.current.walker.target !== null) walk.current.walker = stepWalk(walk.current.walker, 3600, walk.current.speed);
+      // Acts opened for a thing the character was not sent to (the nudge's way) still wait for the walk: the words start at the thing.
+      else if (walk.current.walker.target === null) walkForRef.current(chosen);
       walk.current.pending = { thing: chosen, act };
     });
     markBox.append(node);
