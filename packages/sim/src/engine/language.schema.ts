@@ -443,6 +443,7 @@ export const TuningSchema = z.strictObject({
   offer: z.strictObject({ maxNewPerMonth: CountSchema, maxOpen: CountSchema }),
   place: z.strictObject({ brokeLine: CountSchema, fareFromNaira: z.boolean() }),
   street: z.strictObject({ phonePrice: CountSchema, phoneMood: CountSchema, phoneNetwork: CountSchema, salesPay: CountSchema, salesHireBp: BpSchema, apprenticeTech: CountSchema, apprenticeUntil: CountSchema, theftBp: BpSchema, theftNaira: CountSchema, mosquitoBp: BpSchema, harassBp: BpSchema, harassMood: CountSchema, shoppingGbp: CountSchema, shoppingAed: CountSchema, shoppingMood: CountSchema, findBp: BpSchema, findMood: CountSchema, runMood: CountSchema }),
+  parcel: z.strictObject({ handling: CountSchema, laptopMood: CountSchema, clothesPrep: CountSchema }),
   status: z.strictObject({ courseMonths: CountSchema }),
   credit: z.strictObject({
     onTime: CountSchema,

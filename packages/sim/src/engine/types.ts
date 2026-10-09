@@ -1159,6 +1159,8 @@ export interface Tuning {
   place: { brokeLine: number; fareFromNaira: boolean };
   /** The streets' life (docs/rules/streets.md R-STREET-001 to 008). */
   street: { phonePrice: number; phoneMood: number; phoneNetwork: number; salesPay: number; salesHireBp: number; apprenticeTech: number; apprenticeUntil: number; theftBp: number; theftNaira: number; mosquitoBp: number; harassBp: number; harassMood: number; shoppingGbp: number; shoppingAed: number; shoppingMood: number; findBp: number; findMood: number; runMood: number };
+  /** Things shipped home: the cargo office's handling charge, and what a laptop and clothes give (the parcel offer, `offer.parcel-shipped`). */
+  parcel: { handling: number; laptopMood: number; clothesPrep: number };
   status: { courseMonths: number };
   /** `judgmentCap`: while a judgment stands, `credit/min` above it is never met (R-CREDIT-006). */
   /** `cleanMonths`: months without a miss before the file drifts up (R-CREDIT-003). */

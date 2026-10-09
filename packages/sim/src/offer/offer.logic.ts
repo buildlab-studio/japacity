@@ -40,6 +40,7 @@ import { evictedThisMonth } from "../home/home.logic";
 import type { OfferEvent } from "./offer.events";
 import { luckTerms, markedChanceBp, rescueDue, WHIP_ROUND } from "./offer.luck";
 import { bridgeTerms } from "./offer.street";
+import { birthdayMonth, PARCEL, parcelHolds, parcelTerms } from "./offer.parcel";
 import { HASTEN_TERM } from "../document/document.logic";
 import type { AgentKind, Look, Pitch } from "./offer.agent";
 import { handedTerms, inFamily, isLook, kindOf, lookFinds, openAgent, paperToMove, pitchMonths, PROMISE, shownTerms, standsAsAgent, tellsSeen } from "./offer.agent";
@@ -177,6 +178,8 @@ function openOffer(ctx: Ctx, entry: OfferEntry, extra: Terms): BaseEvent[] {
   const signs = entry.signs.filter((sign) => ctx.random.chance("offer", fraud ? sign.fraudBp : sign.honestBp)).map((sign) => sign.key);
   // R-STREET-004: the theft takes the cash as it opens, so this comes before the offer is recorded.
   const bridge = bridgeTerms(ctx, entry);
+  // Things shipped home: who sent it and the thing in it, drawn on `offer`.
+  const parcel = parcelTerms(readOf(ctx), ctx.random, entry);
   const month = ctx.state.turn.month;
   const item: OfferState = {
     id: ctx.nextId("offer"),
@@ -185,7 +188,7 @@ function openOffer(ctx: Ctx, entry: OfferEntry, extra: Terms): BaseEvent[] {
     expiresMonth: month + entry.expiresAfter,
     // a term handed over by the effect wins over one of the same name. None clash in content.
     // A luck offer's payment is read from the tuning as a term (R-LUCK-002, 007).
-    terms: { ...own, ...luckTerms(readOf(ctx), entry.id), ...bridge, ...extra },
+    terms: { ...own, ...luckTerms(readOf(ctx), entry.id), ...bridge, ...parcel, ...extra },
     signs,
     secret: { fraud },
   };
@@ -278,6 +281,7 @@ function choiceProblem(read: ReadCtx, judge: Judge, item: OfferState, choice: Of
   if (!choice.requires.every((requirement) => judge(requirement, terms).met)) {
     return { code: "not-legal", detail: `The conditions for ${choice.id} do not hold.` };
   }
+  if (!parcelHolds(item, choice)) return { code: "not-legal", detail: `The parcel does not hold ${choice.id}.` };
   if (!debitsPayable(read, judge, choice.effects, terms)) return { code: "cannot-afford", detail: `${choice.id} cannot be paid now.` };
   if (inFamily(item.entry) && !floorKept(read, judge, choice.effects, terms)) {
     return { code: "cannot-afford", detail: `${choice.id} would take the last of the cash an agent may never take.` };
@@ -514,6 +518,19 @@ function whipRound(ctx: Ctx): BaseEvent[] {
   return openOffer(ctx, entry, {});
 }
 
+/**
+ * Things shipped home: on a birthday month, with a relative abroad in the story, the parcel opens
+ * by its own rule, after the month's rolls so it moves none of them, outside the monthly limits as
+ * the whip-round is. It respects its entry's place, its `when` and its limit of times, and a parcel
+ * still waiting is never shipped again.
+ */
+function parcelShipped(ctx: Ctx): BaseEvent[] {
+  const entry = ctx.content.offer[PARCEL];
+  if (entry === undefined || isOpen(ctx.state, entry.id) || reachedLimit(ctx.state, entry)) return [];
+  if (!birthdayMonth(ctx.state) || !conditionsHold(ctx, entry, {})) return [];
+  return openOffer(ctx, entry, {});
+}
+
 function comeUp(ctx: Ctx): BaseEvent[] {
   const { maxNewPerMonth, maxOpen } = ctx.content.tuning.offer;
   const events: BaseEvent[] = [];
@@ -531,6 +548,7 @@ function comeUp(ctx: Ctx): BaseEvent[] {
   // R-HEALTH-002, R-HEALTH-003: illness, its relapse and its worse turn, on the stream `health`.
   events.push(...healthComeUp(ctx, (entry, terms) => openOffer(ctx, entry, terms)));
   events.push(...whipRound(ctx));
+  events.push(...parcelShipped(ctx));
   return events;
 }
 
@@ -698,7 +716,8 @@ export function offerView(read: ReadCtx, item: OfferState): OfferView {
     // R-ENGINE-007: an agent's kind is never shown.
     terms: shownTerms(item.terms),
     signs: item.signs,
-    choices: entryOf(read.content, item.entry).choices.map((choice) => {
+    // A parcel shows only the thing in it.
+    choices: entryOf(read.content, item.entry).choices.filter((choice) => parcelHolds(item, choice)).map((choice) => {
       const pick = pickRange(item, choice);
       const allowed = choiceProblem(read, judge, item, choice, pick?.min) === null;
       return { id: choice.id, allowed, pick };
