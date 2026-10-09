@@ -63,8 +63,10 @@ function GameSheet(props: AskSheetProps) {
   return <Sheet {...props} main={mainOf(paying, props.formatMoney)} />;
 }
 
-function Sheet({ ask, formatMoney, icon, main }: AskSheetProps & { main: Main }) {
+function Sheet({ ask, formatMoney, icon, main: counted }: AskSheetProps & { main: Main }) {
   const open = ask !== null;
+  // A reason from the world shuts the button and takes the second line (R-WORLD-006).
+  const main: Main = ask?.blocked === undefined ? counted : { after: ask.blocked, figure: null, shut: true };
   return (
     <Dialog.Root
       open={open}
@@ -105,7 +107,7 @@ function Card({ ask, main, formatMoney, icon }: { ask: Ask; main: Main; formatMo
         )}
         <button type="button" className="btn-main mt-4" onClick={ask.act} disabled={main.shut} data-ask-main data-short={main.shut ? "true" : undefined}>
           <span>{ask.button}</span>
-          <span className="text-[13px] font-semibold opacity-80">{main.after ?? say("ui.world.counts-at-end")}</span>
+          <span className="text-[13px] font-semibold opacity-80">{main.after ?? say(ask.when === "now" ? "ui.world.now" : "ui.world.counts-at-end")}</span>
         </button>
       </div>
     </div>

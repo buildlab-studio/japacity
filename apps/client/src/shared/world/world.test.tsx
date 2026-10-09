@@ -5,6 +5,7 @@ afterEach(() => {
   cleanup();
 });
 
+import { say } from "../words/text";
 import { AskSheet } from "./AskSheet";
 import { Band } from "./Band";
 import { THEME_KEY } from "./contract";
@@ -81,6 +82,21 @@ describe("the sheet", () => {
     fireEvent.click(main);
     expect(act).toHaveBeenCalledTimes(1);
     expect(document.querySelector("[data-ask-form]")?.getAttribute("data-ask-form")).toBe("card");
+  });
+
+  test("[R-WORLD-006] given an ask that happens at once, when it opens, then its second line says Now; given a reason from the world that stops it, then the button is shut and says the reason", () => {
+    const act = vi.fn();
+    render(<AskSheet ask={{ ...ask("card", act, () => undefined), cost: null, when: "now" }} have={4_850_000} formatMoney={(amount) => naira(amount)} />);
+    const main = screen.getByRole("button", { name: /Pay it/ });
+    expect(main.textContent).toContain(say("ui.world.now"));
+    expect((main as HTMLButtonElement).disabled).toBe(false);
+    cleanup();
+    render(<AskSheet ask={{ ...ask("card", act, () => undefined), when: "now", blocked: say("ui.world.depart-held") }} have={4_850_000} formatMoney={(amount) => naira(amount)} />);
+    const shut = screen.getByRole("button", { name: /Pay it/ });
+    expect((shut as HTMLButtonElement).disabled).toBe(true);
+    expect(shut.textContent).toContain(say("ui.world.depart-held"));
+    fireEvent.click(shut);
+    expect(act).not.toHaveBeenCalled();
   });
 
   test("[R-WORLD-006] given a slip ask, when it opens, then it carries the reference and a Not now beside the main button, and Not now dismisses", () => {
