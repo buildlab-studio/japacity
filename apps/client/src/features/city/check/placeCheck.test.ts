@@ -2,9 +2,11 @@ import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
 import hubFile from "../../../../public/assets/places/ojuelegba/place.json";
+import makokoFile from "../../../../public/assets/places/makoko/place.json";
+import { advanceClock, type MotionUniforms } from "../../../shared/three/clock";
 import { crowdSize } from "../crowd";
 import type { PlaceFile } from "../placeFile";
-import { type CheckInput, runOf, tapsOf } from "./placeCheck";
+import { CHECK_CLOCK, type CheckInput, runOf, startClock, tapsOf } from "./placeCheck";
 
 const hub = content.place["place.ojuelegba"];
 if (hub === undefined) throw new Error("The hub is missing from content");
@@ -31,6 +33,19 @@ describe("the place check's runs", () => {
       expect(run.settings.pixelRatio).toBe(mode === "low" ? 1 : Math.min(2, city.maxPixelRatio));
       expect(run.people).toHaveLength(crowdSize(hub, mode, city));
       expect(run.people.map((shown) => shown.person.file)).not.toContain(OWN);
+    }
+  });
+
+  test("[R-CITY-027] given the clock moved on by the places checked before, when the next place is built, then the clock starts again at the moment every place starts at, whatever the place and the mode", () => {
+    const makoko = content.place["place.makoko"];
+    if (makoko === undefined) throw new Error("Makoko is missing from content");
+    const runs = (["low", "high"] as const).flatMap((mode) => [runOf(input(mode, true)), runOf({ ...input(mode, true), file: makokoFile as unknown as PlaceFile, entry: makoko })]);
+    for (const run of runs) {
+      const uniforms = { uTime: { value: 0 }, uWind: { value: null } } as unknown as MotionUniforms;
+      for (let frame = 0; frame < 900; frame += 1) advanceClock(1 / 30, uniforms);
+      expect(uniforms.uTime.value).toBeGreaterThan(29);
+      startClock(run, uniforms);
+      expect(uniforms.uTime.value).toBe(CHECK_CLOCK);
     }
   });
 

@@ -19,7 +19,7 @@ import type { Stage } from "../placeFile";
 import { type Point, routeMap } from "../walk/map";
 import { findRoute } from "../walk/route";
 import { animateWorld, buildWorld, colourOf, skyColours, type World } from "../world";
-import { type CheckInput, type PlaceRun, runOf, tapsOf } from "./placeCheck";
+import { type CheckInput, type PlaceRun, runOf, startClock, tapsOf } from "./placeCheck";
 
 /** One frame of the city's clock at 30 frames a second. */
 const STEP = 1 / 30;
@@ -93,6 +93,7 @@ const placeCheck = {
   async build(input: CheckInput): Promise<void> {
     await document.fonts.load(`64px ${SIGN_FONT}`).catch(() => undefined);
     const run = runOf(input);
+    startClock(run);
     const { scene, camera, world, models } = await build(run);
     current?.renderer.dispose();
     current?.renderer.forceContextLoss();
