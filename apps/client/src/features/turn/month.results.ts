@@ -2,7 +2,7 @@
 // lines with their signs, what was kept, the draw's numbers with any of the player's lit, and the
 // savings toward the move. Plain functions over the view, so the sheet only lays them out.
 import { content } from "@japacity/content";
-import type { Currency, PlayerView, ReportLine } from "@japacity/sim";
+import type { Currency, MoneyParam, PlayerView, ReportLine } from "@japacity/sim";
 
 import { monthlyPayOf } from "../../shared/words/cost";
 import { afterPrologue, forYou, isSaid, movesMoney, tidyLines } from "../../shared/words/lines";
@@ -14,8 +14,6 @@ export interface MoneyLine {
   sign: 1 | -1;
   currency: Currency;
   amount: number;
-  /** A change of money: what came into the other currency, told in the line's words and counted in what was kept. */
-  gained?: { currency: Currency; amount: number };
 }
 
 /** Lines that carry an amount and a tone but move no money: a deposit flagged is a warning, not a flow. */
@@ -23,6 +21,9 @@ const NOT_MOVED: ReadonlySet<string> = new Set(["line.wallet.flagged"]);
 
 const CONVERTED = "line.wallet.converted";
 const BANK_CHARGE = "line.wallet.bank-charge";
+
+/** A change at the bank as the results tell it: both sides in its words, and its net as the line's amount. */
+export const CHANGED = "ui.results.changed";
 
 /**
  * What a change at the bank took in, from its charge. The wallet's line for a change tells only what
@@ -38,30 +39,46 @@ function paidIn(charge: number): number {
 }
 
 /**
- * A change of money as one line (R-WALLET-004, R-WORLD-008): what went out of the one currency, the
- * bank's charge left on its own line, with what came into the other in the line's own words. With
- * no bank's charge just before it (the street, a change that waited), only what came in is known.
+ * A change of money at the bank, counted once (R-WALLET-004, R-WORLD-008).
+ * Money changed is money moved between pockets, so the change nets to its charge: what went out at
+ * the bank's own rate, less what came in. That net is told in the money the character lives on when
+ * either side is it (the dollars out at the rate, the pounds in), else in the money paid in. The
+ * line's words say both sides; the bank's charge before it is folded in, never counted again.
  */
-function changeLine(line: ReportLine, before: ReportLine | undefined): MoneyLine[] {
+function bankChange(line: ReportLine, charge: MoneyParam, local: Currency): MoneyLine[] {
   const gained = moneyParam("amount", line.params, line.key);
   if (gained === null || gained.amount === 0) return [];
-  const charge = before?.key === BANK_CHARGE ? moneyParam("amount", before.params, before.key) : null;
-  if (charge === null || charge.amount === 0 || charge.currency === gained.currency) return [{ line, sign: 1, currency: gained.currency, amount: gained.amount }];
-  return [{ line, sign: -1, currency: charge.currency, amount: paidIn(charge.amount) - charge.amount, gained: { currency: gained.currency, amount: gained.amount } }];
+  const paid = paidIn(charge.amount);
+  const net = paid - charge.amount;
+  // The charge valued in what came in, at the rate the rest of the money was changed at.
+  const cost = gained.currency === local && net > 0 ? Math.round((charge.amount * gained.amount) / net) : charge.amount;
+  const currency = gained.currency === local ? gained.currency : charge.currency;
+  const told: ReportLine = { ...line, key: CHANGED, params: { ...line.params, paid: { currency: charge.currency, amount: paid }, got: gained, amount: { currency, amount: cost } } };
+  return cost === 0 ? [] : [{ line: told, sign: -1, currency, amount: cost }];
 }
 
 /**
  * The lines in or out, in the simulation's order, one line for each payment as the report reads
- * them. A good line with an amount is money in, a bad one money out; a change of money is one line
- * with both sides; any other plain line (a move between pockets) moves nothing the player keeps or loses. Only a line that tells money
- * moving counts: a bill that could not be paid, or a scam told after its fee, is not money gone
- * twice (R-WORLD-008).
+ * them. A good line with an amount is money in, a bad one money out; a change at the bank is one line
+ * that counts only its net, in `local`, the money the character lives on (naira when not given); any
+ * other plain line (a move between pockets) moves nothing the player keeps or loses. Only a line that
+ * tells money moving counts: a bill that could not be paid, or a scam told after its fee, is not
+ * money gone twice (R-WORLD-008).
  */
-export function moneyLines(lines: readonly ReportLine[]): MoneyLine[] {
+export function moneyLines(lines: readonly ReportLine[], local: Currency = "NGN"): MoneyLine[] {
   // The prologue's years are not this month: their money is what the character starts with.
   const tidy = tidyLines(afterPrologue(lines));
   return tidy.flatMap((line, index): MoneyLine[] => {
-    if (line.key === CONVERTED) return changeLine(line, tidy[index - 1]);
+    const next = tidy[index + 1];
+    const before = tidy[index - 1];
+    if (line.key === BANK_CHARGE && next?.key === CONVERTED) return [];
+    if (line.key === CONVERTED) {
+      const charge = before?.key === BANK_CHARGE ? moneyParam("amount", before.params, before.key) : null;
+      if (charge !== null && charge.amount > 0 && charge.currency !== moneyParam("amount", line.params, line.key)?.currency) return bankChange(line, charge, local);
+      // With no bank's charge just before it (the street, a change that waited), only what came in is known.
+      const gained = moneyParam("amount", line.params, line.key);
+      return gained === null || gained.amount === 0 ? [] : [{ line, sign: 1, currency: gained.currency, amount: gained.amount }];
+    }
     if (line.tone === "plain" || NOT_MOVED.has(line.key) || !movesMoney(line)) return [];
     const money = moneyParam("amount", line.params, line.key);
     if (money === null || money.amount === 0) return [];
@@ -72,7 +89,8 @@ export function moneyLines(lines: readonly ReportLine[]): MoneyLine[] {
 /** The lines that are not money: these live in the phone's News app. */
 export function otherLines(lines: readonly ReportLine[]): ReportLine[] {
   const money = new Set(moneyLines(lines).map((entry) => entry.line));
-  return tidyLines(lines).filter((line) => !money.has(line));
+  // A change at the bank is told by the results' own line, the change and its charge together.
+  return tidyLines(lines).filter((line, index, all) => !money.has(line) && line.key !== CONVERTED && !(line.key === BANK_CHARGE && all[index + 1]?.key === CONVERTED));
 }
 
 /** The most story lines the results show; the rest stay in News. */
@@ -177,10 +195,7 @@ export function kept(lines: readonly MoneyLine[]): { currency: Currency; amount:
     if (!sums.has(currency)) order.push(currency);
     sums.set(currency, (sums.get(currency) ?? 0) + amount);
   };
-  for (const { currency, sign, amount, gained } of lines) {
-    add(currency, sign * amount);
-    if (gained !== undefined) add(gained.currency, gained.amount);
-  }
+  for (const { currency, sign, amount } of lines) add(currency, sign * amount);
   return order.map((currency) => ({ currency, amount: sums.get(currency) ?? 0 }));
 }
 

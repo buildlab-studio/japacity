@@ -87,6 +87,7 @@ export const uiText: Record<string, string> = {
   "ui.results.unpaid.credit-standing-mood": "{obligation}: {amount} went unpaid. A mark on your credit file, and your standing and your mood took a hit.",
   "ui.results.unpaid.plain": "{obligation}: {amount} went unpaid.",
   "ui.results.unpaid.withdraw": "{obligation}: {amount} went unpaid. Miss the next one too and the university withdraws you, and your visa goes with it.",
+  "ui.results.changed": "Changed {paid} into {got}. The bank's charge comes to {amount}.",
   "ui.results.hunt-missed": "{job}: not this time.",
   "ui.results.hunt-offer": "An offer: {job}, {pay} a month.",
   "ui.results.hunt-offer-plain": "An offer: {job}.",
