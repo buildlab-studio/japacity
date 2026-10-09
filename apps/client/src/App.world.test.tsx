@@ -7,6 +7,7 @@ import { afterEach, describe, expect, test } from "vitest";
 
 import { App, classicAsked } from "./App";
 import { bootGame } from "./authority/boot";
+import { mapWords } from "./features/map/map.words";
 import { nameOf, say } from "./shared/words/text";
 // Registers Testing Library's cleanup for this file.
 import "./shared/testing/render";
@@ -32,6 +33,9 @@ describe("the world is the game", () => {
     await startLife();
     // The chapter's opening words stand over the world first (R-WORLD-001); Go passes them.
     (await screen.findByRole("button", { name: say("ui.opening.go") })).click();
+    // Go takes the step's way (the map with the stop picked); close it to see the world.
+    const mapClose = await screen.findByRole("button", { name: mapWords("map.close") }).catch(() => null);
+    if (mapClose !== null) mapClose.click();
     expect(await screen.findByRole("button", { name: say("ui.world.end-month") })).toBeTruthy();
     expect(document.querySelector("[data-band]")).not.toBeNull();
     expect(document.querySelector("[data-thumb='map']")).not.toBeNull();

@@ -259,6 +259,7 @@ export function City({
   apps,
   results,
   asks,
+  asksAt,
   phone: handset,
   phoneWaiting,
   askIcon,
@@ -277,6 +278,8 @@ export function City({
   results?: (place: string) => ReactNode;
   /** The world mode's sheet for what the nudge names and waits on the player: the set piece's question, the offers (R-WORLD-003). A list shows one at a time, with Next (R-WORLD-006). */
   asks?: ReactNode | ReactNode[];
+  /** For each ask, the place it must be answered at, or null: away from it the sheet shows who waits and a way there (R-WORLD-006). */
+  asksAt?: (string | null)[];
   /** The world mode's phone (R-WORLD-018), handed in by the shell: the handset over the place named `area`. */
   phone?: (close: () => void, area: string, app?: string | null) => ReactNode;
   /** A dot on the Phone button: an app has something new (R-WORLD-004). */
@@ -444,7 +447,7 @@ export function City({
   const ready = progress !== null && progress.loaded >= progress.total && failed === null;
   // The place's name, and inside a room that is another entry's (the hub's room is place.yaba) that entry's own name.
   const name = entry === null ? "" : placeName(entry.id);
-  const hereName = inside && insideEntry?.id === "place.yaba" ? say("ui.inside.hub") : inside && insideEntry !== null && insideEntry.id !== entry?.id ? placeName(insideEntry.id) : inside ? cityWords("city.inside.name", { place: name }) : name;
+  const hereName = (inside && insideEntry?.id === "place.yaba") || placeId === "place.yaba" ? say("ui.inside.hub") : inside && insideEntry !== null && insideEntry.id !== entry?.id ? placeName(insideEntry.id) : inside ? cityWords("city.inside.name", { place: name }) : name;
 
   const choose = (next: ModeChoice): void => {
     chooseGraphics(next);
@@ -498,10 +501,13 @@ export function City({
   const departDue = view.routes.find((route) => route.state === "granted")?.id ?? null;
   // R-WORLD-005: a job on a place's board or stall is an act whenever the hunt can ask for it.
   const hunt = view.activities.find((option) => option.id === "activity.job-hunt");
-  const jobIds = hunt?.allowed === true ? (hunt.params ?? []) : [];
+  // The board stays while a job is held: the hunt's jobs show, and the card says why it is shut.
+  const jobIds = hunt?.params ?? [];
+  // Held funds still open are paid back at the counter through a command act (R-ROUTE-008).
+  const heldDue = view.obligations.find((owed) => content.obligation[owed.entry]?.type === "held-funds") ?? null;
   // An activity shut only by a paper not yet held (the English test before the passport) still stands in the world, shut with its reason.
   const paperShut = view.activities.filter((option) => !option.allowed && option.missing.length > 0 && option.missing.every((need) => need.type === "document/held")).map((option) => option.id);
-  const activityKey = [...view.activities.filter((option) => option.allowed).map((option) => option.id), ...paperShut, ...jobIds, ...(depositDue === null ? [] : ["command:route/pay-deposit"]), ...(departDue === null ? [] : ["command:route/depart"])].join("|");
+  const activityKey = [...view.activities.filter((option) => option.allowed).map((option) => option.id), ...paperShut, ...(hunt === undefined ? [] : [hunt.id]), ...jobIds, ...(heldDue === null ? [] : ["command:obligation/pay"]), ...(depositDue === null ? [] : ["command:route/pay-deposit"]), ...(departDue === null ? [] : ["command:route/depart"])].join("|");
   const chapterNow = view.chapter.current;
   const offersKey = view.offers.map((offer) => offer.entry).join("|");
   const setpieceEntry = view.setpiece?.entry ?? null;
@@ -626,7 +632,7 @@ export function City({
       .map((place) => {
         const reached = stopReached(view.chapter, where, place.id);
         const state: PinState = place.id === placeId ? "here" : place.id === home ? "home" : been.includes(place.id) ? "been" : !reached ? "not" : shipped === null || shipped.has(place.id) ? "can" : "not";
-        return { id: place.id, name: placeName(place.id), state, position: spotOf(place), things: place.stages.length };
+        return { id: place.id, name: place.id === "place.yaba" ? say("ui.inside.hub") : placeName(place.id), state, position: spotOf(place), things: place.stages.length };
       });
   })();
   // At home the map is Lagos; abroad it is the country the character is in. The rest are shut until a visa opens them.
@@ -692,6 +698,27 @@ export function City({
         button: say("ui.route.depart"),
         act: () => {
           void send({ type: "route/depart", route }).then((reply) => cue(reply?.ok === true ? "whoosh" : "tap"));
+          setPicked(null);
+        },
+        dismiss: () => setPicked(null),
+      };
+    }
+    if (world && picked?.kind === "command" && picked.command === "obligation/pay" && heldDue !== null) {
+      const amount = heldDue.outstanding;
+      return {
+        form: "card",
+        icon: "bank",
+        who: hereName,
+        title: say("ui.world.pay-back"),
+        line: say("ui.world.pay-back-line", { amount: formatMoney(amount, "NGN") }),
+        cost: { amount, currency: "NGN" },
+        when: "now",
+        button: say("ui.world.pay-back"),
+        act: () => {
+          void send({ type: "obligation/pay", obligation: heldDue.id, amount }).then((reply) => {
+            cue(reply?.ok === true ? "coin" : "tap");
+            if (reply?.ok === true) toast.show(say("ui.world.pay-back-paid"));
+          });
           setPicked(null);
         },
         dismiss: () => setPicked(null),
@@ -875,7 +902,7 @@ export function City({
             endBlocked={endBlocked}
             hidden={map || resultsOpen}
             open={bandOpen}
-            onToggle={() => setBandOpen((open) => !open)}
+            {...(coming === null ? {} : { onToggle: () => setBandOpen((open) => !open) })}
             more={
               !(phone || monthOpen || asksOpen || menu || credits || picked !== null) ? (
                 <div key={bandOpen ? "open" : `peek-${nudgeKey}-${comingKey}`} className={bandOpen ? "" : "drop"}>
@@ -909,7 +936,13 @@ export function City({
                 <p className="label label-strong text-[11px] tracking-[0.3em] uppercase opacity-80">{nameOf(view.chapter.current)}</p>
                 <p className="text-[24px] leading-snug font-bold">{words(openingKey(view))}</p>
                 <p className="text-[15px] opacity-90">{say(nudge?.key ?? "ui.nudge.end", nudge?.params ?? {})}</p>
-                <Button onClick={() => setOpeningSeen(true)} data-opening-go>
+                <Button
+                  onClick={() => {
+                    setOpeningSeen(true);
+                    if (nudgeGoes) followStep();
+                  }}
+                  data-opening-go
+                >
                   {say("ui.opening.go")}
                 </Button>
               </div>
@@ -1031,7 +1064,31 @@ export function City({
       <CreditsSheet open={credits} onOpenChange={setCredits} />
       {world ? <AskSheet ask={ask} formatMoney={(amount, currency) => formatMoney(amount, currency as "NGN")} {...(askIcon === undefined ? {} : { icon: askIcon })} /> : null}
       {world && picked?.kind === "action" && ask === null ? (
-        <WorldSheet open onClose={() => setPicked(null)} label={clock} title={cardWords()} mark="ask">
+        <WorldSheet
+          open
+          onClose={() => setPicked(null)}
+          label={clock}
+          title={cardWords()}
+          mark="ask"
+          {...(picked.activity.startsWith("chapter.") && nudgeGoes
+            ? {
+                foot: (
+                  <button
+                    type="button"
+                    className="btn-main"
+                    onClick={() => {
+                      setPicked(null);
+                      followStep();
+                    }}
+                    data-chapter-go
+                  >
+                    <span>{say("ui.chapter.go")}</span>
+                    <span className="text-[13px] font-semibold opacity-80">{say(nudge?.key ?? "ui.nudge.end", nudge?.params ?? {})}</span>
+                  </button>
+                ),
+              }
+            : {})}
+        >
           {actions?.([picked.activity, ...(picked.more ?? [])])}
         </WorldSheet>
       ) : null}
@@ -1047,7 +1104,7 @@ export function City({
         <WorldSheet
           open={asksOpen}
           onClose={() => setAsksOpen(false)}
-          label={askList === null || askCount < 2 ? name : say("ui.world.ask-of", { n: Math.min(askIndex, askCount - 1) + 1, count: askCount })}
+          label={askList === null || askCount < 2 ? hereName : say("ui.world.ask-of", { n: Math.min(askIndex, askCount - 1) + 1, count: askCount })}
           title={say(nudge?.key ?? "ui.nudge.end")}
           mark="asks"
           {...(askList !== null && askCount > 1
@@ -1065,7 +1122,31 @@ export function City({
               }
             : {})}
         >
-          {askList === null ? asks : askList[Math.min(askIndex, Math.max(0, askCount - 1))]}
+          {(() => {
+            const index = Math.min(askIndex, Math.max(0, askCount - 1));
+            const at = asksAt?.[askList === null ? 0 : index] ?? null;
+            const there = at !== null && (placeId === at || (inside && insideEntry?.id === at));
+            if (at !== null && !there) {
+              return (
+                <div className="flex flex-col gap-4" data-ask-away={at}>
+                  <p className="text-[15px] leading-snug text-text-2">{say("ui.world.ask-away", { place: placeName(at) })}</p>
+                  <button
+                    type="button"
+                    className="btn-main"
+                    onClick={() => {
+                      setAsksOpen(false);
+                      setMapPick(at === placeId ? null : at);
+                      setMap(true);
+                    }}
+                    data-ask-go
+                  >
+                    {say("ui.world.go-there")}
+                  </button>
+                </div>
+              );
+            }
+            return askList === null ? asks : askList[index];
+          })()}
         </WorldSheet>
       ) : null}
       {world && resultsShown ? results?.(inside && insideEntry !== null && insideEntry.id !== entry?.id ? placeName(insideEntry.id) : name) : null}

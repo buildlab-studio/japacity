@@ -8,6 +8,7 @@ import { renderWithView } from "../../shared/testing/render";
 import { formatMoney } from "../../shared/words/format";
 import { inMonths, say, words } from "../../shared/words/text";
 import { City } from "./City";
+import { cityWords } from "./city.words";
 import { nudgeOf } from "./nudge";
 
 const world = (extra: Partial<Parameters<typeof City>[0]> = {}) => <City world month={<p data-month-body>month</p>} results={(place) => <p data-results-for={place} />} {...extra} />;
@@ -17,6 +18,9 @@ async function opened(ui: Parameters<typeof renderWithView>[0], view: Parameters
   const rendered = await renderWithView(ui, view);
   const go = document.querySelector<HTMLElement>("[data-opening-go]");
   if (go !== null) fireEvent.click(go);
+  // Go takes the step's way, which may open the map; these tests want the world under it.
+  const mapClose = screen.queryByRole("button", { name: cityWords("city.close") });
+  if (mapClose !== null) fireEvent.click(mapClose);
   return rendered;
 }
 
@@ -54,8 +58,8 @@ describe("the world fills the screen", () => {
     await opened(world(), view);
     expect(band()).toBeTruthy();
     expect(document.querySelector("[data-nudge]")).not.toBeNull();
-    // The nudge is a button when it opens the way to what it names (R-WORLD-003).
-    expect(screen.getAllByRole("button").map((button) => button.getAttribute("aria-label") ?? button.textContent)).toEqual([say("ui.world.end-month"), say("ui.world.show-more"), say(nudgeOf(view).key), say("ui.world.map"), say("ui.world.phone")]);
+    // The nudge is a button when it opens the way to what it names (R-WORLD-003); the band's handle shows only while something is coming (R-WORLD-002).
+    expect(screen.getAllByRole("button").map((button) => button.getAttribute("aria-label") ?? button.textContent)).toEqual([say("ui.world.end-month"), say(nudgeOf(view).key), say("ui.world.map"), say("ui.world.phone")]);
     expect(document.querySelector("[data-report-here], [data-overheard], [data-scene]")).toBeNull();
     expect(screen.queryByRole("dialog")).toBeNull();
   });
@@ -208,6 +212,27 @@ describe("the nudge", () => {
     expect(nudgeOf(hunting, undefined, ["activity.job-hunt"]).key).toBe("chapter.find-your-feet.item.job.started");
     const short = { ...base, chapter: { current: "chapter.decision-day" as const, items: [{ id: "held", met: false }], done: [] }, routes: [{ ...richView().routes[0]!, id: "route.uk-masters" as const, funds: { heldMonths: 0, covered: false, shown: 100000, required: 300000 } }] };
     expect(nudgeOf(short)).toMatchObject({ key: "chapter.decision-day.item.held.short", params: { amount: formatMoney(200000, "GBP") } });
+  });
+
+  test("[R-WORLD-003] given a step planned this month, or one the player cannot afford, when the nudge is chosen, then it says so: the planned step waits on the month, the dear one names the gap", () => {
+    const file = { ...quiet, month: 10, chapter: { current: "chapter.build-the-file" as const, items: [{ id: "passport", met: false }], done: [] } };
+    expect(nudgeOf(file, undefined, ["activity.get-passport"]).key).toBe("chapter.build-the-file.item.passport.planned");
+    const dear = {
+      ...file,
+      pockets: { ...file.pockets, NGN: { ...file.pockets.NGN, bank: 100000, cash: 0 } },
+      activities: file.activities.map((option) => (option.id === "activity.get-passport" ? { ...option, affordable: false, cost: [{ currency: "NGN" as const, amount: 10000000, reason: "fee-document" as const }] } : option)),
+    };
+    expect(nudgeOf(dear)).toMatchObject({ key: "chapter.build-the-file.item.passport.short", params: { amount: formatMoney(9900000, "NGN") } });
+  });
+
+  test("[R-WORLD-006] given an ask that belongs at the family house, when the sheet opens elsewhere, then it says someone waits there and one button goes there", async () => {
+    const view = { ...richView(), setpiece: null, interview: null };
+    await opened(world({ asks: [<p key="a" data-ask="a">the send-off</p>], asksAt: ["place.family-house"] }), view);
+    fireEvent.click(screen.getByRole("button", { name: say("ui.nudge.offer") }));
+    const sheet = screen.getByRole("dialog");
+    expect(sheet.querySelector("[data-ask-away]")?.getAttribute("data-ask-away")).toBe("place.family-house");
+    expect(within(sheet).queryByText("the send-off")).toBeNull();
+    expect(within(sheet).getByRole("button", { name: say("ui.world.go-there") })).toBeTruthy();
   });
 
   test("[R-WORLD-003] given the story has nudge words for the step, when the nudge is chosen, then they are used over the step's own words", () => {
