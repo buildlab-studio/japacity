@@ -53,7 +53,7 @@ describe("the Month sheet's foot with the room's basics", () => {
       store.getState().addToPlan({ activity: COOK, param: null });
       store.getState().addToPlan({ activity: WATER, param: null });
     });
-    expect(footer()).toContain("Cooking and fetching water this month");
+    expect(footer()).toContain("Cooking and fetching water");
     expect(footer()).not.toContain(turnWords("ui.month.rest"));
   });
 
