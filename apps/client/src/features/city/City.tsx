@@ -684,6 +684,8 @@ export function City({
     const activity = picked.activity;
     const option = view.activities.find((candidate) => candidate.id === activity);
     if (option === undefined) return null;
+    // A choice inside the activity (which job to hunt, which school) is the player's: the picker shows it, not a card that takes the first (R-WORLD-005).
+    if (option.params !== null && option.params.length > 1) return null;
     const cost = option.cost[0] ?? null;
     const paper = activity === "activity.play-lotto" || activity === "activity.bet-slip";
     return {
