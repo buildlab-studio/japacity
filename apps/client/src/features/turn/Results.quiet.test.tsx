@@ -1,7 +1,6 @@
 // The results after an Until news run (docs/rules/world.md R-WORLD-028), and the chapter's months
 // full again (R-WORLD-027), on the real engine and the real content.
 import { content } from "@japacity/content";
-import type { Id } from "@japacity/sim";
 import { render } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
@@ -20,7 +19,7 @@ describe("the results after a run", () => {
     const game = newGame("scenario.tunde", "seed-0");
     const store = createGameStore(gameAuthority(game));
     await store.getState().refresh();
-    store.getState().addToPlan({ activity: "activity.get-transcript" as Id<"activity">, param: null });
+    store.getState().addToPlan({ activity: "activity.get-transcript", param: null });
     await store.getState().endMonth();
     await store.getState().untilNews();
     const { quiet, view } = store.getState();
