@@ -402,6 +402,8 @@ export const placeText: Record<string, string> = {
   "place.english-test-centre.overheard.2": "Show your passport again at the door.",
   "place.english-test-centre.overheard.3": "The listening was fast. I lost the second section.",
   // One clinic, two sides: the visa's TB test and the ward where a nurse from sixteen works.
+  "place.makoko.name": "Makoko",
+  "place.makoko.blurb": "Houses on legs over the water. Canoes for streets.",
   "place.tb-clinic.name": "the clinic",
   "place.tb-clinic.blurb": "The TB test on one side, the ward on the other.",
   "place.tb-clinic.overheard.1": "Do not open the envelope. The embassy will open it.",
