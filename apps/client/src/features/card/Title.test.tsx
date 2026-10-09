@@ -23,7 +23,7 @@ describe("a card's title", () => {
     ["send-off", "share.send-off.title"],
   ] as const)("[R-SHARE-004] given the %s card, when it shows, then its title is in the plain face, not the display caps", async (kind, key) => {
     await renderWithView(<CardView />, adaWith(kind));
-    const title = screen.getByRole("heading", { name: text[key] });
+    const title = screen.getByRole("heading", { name: text[key] ?? key });
     expect(title.className).toContain("font-sans");
     expect(title.className).not.toContain("font-display");
   });
