@@ -14,10 +14,10 @@ import { changeQuote } from "../../../shared/words/cost";
 import { duesGap, heldElsewhere } from "../../../shared/words/dues";
 import { REMIT_CHANNELS, remitQuote, type RemitChannel } from "../../../shared/sim/remit";
 import { CURRENCIES, formatBp, formatMoney, HOME_CURRENCIES } from "../../../shared/words/format";
-import { afterPrologue, movesMoney, tidyLines } from "../../../shared/words/lines";
-import { lowerFirst, moneyParam, say, words } from "../../../shared/words/text";
+import { lowerFirst, say, words } from "../../../shared/words/text";
 import { localCurrency } from "../../../shared/words/wayHome";
 import { Counter } from "../../../shared/world/Band";
+import { type MoneyLine, moneyLines } from "../../turn/month.results";
 import { Chips, Head, useAsk } from "../act";
 import { phoneWords } from "../phone.words";
 import { abroadWords, changeFirst, currencyList } from "./abroad";
@@ -50,25 +50,21 @@ export function savingsOf(view: PlayerView): { shown: number; required: number; 
 }
 
 /**
- * The money that moved lately, newest last: the month just ended (its mid-month moves and its end)
- * and this month's so far, each move once, as the results count them (R-WORLD-019: a payment split
- * across pockets is one line, a bill's "paid this month" is the same money, a fare paid on the way
- * is a move too).
+ * The money that moved lately, newest last: the month just ended whole, as its results list it (its
+ * mid-month moves and its end, in the results' order), then this month's moves so far. One source with
+ * the results (features/turn/month.results.ts, `moneyLines`), so the two never differ (R-WORLD-019; the
+ * : a payment split across pockets is one line, a bill's "paid this month" is the same
+ * money, a fare paid on the way is a move, a change at the bank is told as the results tell it.
  */
-export function latelyLines(view: Pick<PlayerView, "report">, lastMonth: readonly ReportLine[], thisMonth: readonly ReportLine[]): ReportLine[] {
-  const ended = view.report === null ? [] : [...lastMonth, ...view.report.lines];
-  return [...moved(ended), ...moved(thisMonth)];
+export function latelyMoney(view: Pick<PlayerView, "report">, lastMonth: readonly ReportLine[], thisMonth: readonly ReportLine[], local: Currency = "NGN"): MoneyLine[] {
+  const ended = view.report === null ? [] : moneyLines([...lastMonth, ...view.report.lines], local);
+  return [...ended, ...moneyLines(thisMonth, local)];
 }
 
-/** A deposit flagged carries its amount as a warning; no money moves with it. */
-const FLAGGED = "line.wallet.flagged";
-
-/** The lines that tell money moving, tidied as the month's results tidy them (features/turn/month.results.ts, `moneyLines`). */
-function moved(lines: readonly ReportLine[]): ReportLine[] {
-  return tidyLines(afterPrologue(lines)).filter((line) => line.tone !== "plain" && line.key !== FLAGGED && movesMoney(line) && (moneyParam("amount", line.params, line.key)?.amount ?? 0) !== 0);
+/** Lately's lines as the report's lines, in Lately's order. */
+export function latelyLines(view: Pick<PlayerView, "report">, lastMonth: readonly ReportLine[], thisMonth: readonly ReportLine[], local: Currency = "NGN"): ReportLine[] {
+  return latelyMoney(view, lastMonth, thisMonth, local).map((entry) => entry.line);
 }
-
-const LATELY = 4;
 
 type Share = "quarter" | "half" | "all";
 const SHARES: readonly Share[] = ["quarter", "half", "all"];
@@ -357,7 +353,7 @@ export function Bank({ opening: openOn = null }: { opening?: "change" | "move" |
   const savings = abroad ? null : savingsOf(view);
   const lastMonth = useGame((state) => state.lastMonthLines);
   const thisMonth = useGame((state) => state.monthLines);
-  const lately = latelyLines(view, lastMonth, thisMonth).slice(-LATELY);
+  const lately = latelyMoney(view, lastMonth, thisMonth, local ?? "NGN");
   const others = CURRENCIES.filter((currency) => currency !== "NGN" && view.pockets[currency].bank + view.pockets[currency].cash > 0);
   const pairsShown = abroad && heldElsewhere(view, local).length > 0;
   const toggle = (which: "change" | "move" | "send") => {
@@ -403,8 +399,8 @@ export function Bank({ opening: openOn = null }: { opening?: "change" | "move" |
         <p className="text-[14px] text-text-2">{phoneWords("phone.bank.lines.none")}</p>
       ) : (
         <ul className="flex flex-col divide-y divide-sheet-line" data-money-lines>
-          {lately.map((line, index) => (
-            <li key={`${line.key}-${String(index)}`} className={`py-1.5 text-[14px] ${line.tone === "good" ? "text-in" : line.tone === "bad" ? "text-out" : "text-text"}`}>
+          {lately.map(({ line, sign }, index) => (
+            <li key={`${line.key}-${String(index)}`} className={`py-1.5 text-[14px] ${sign > 0 ? "text-in" : "text-out"}`} data-sign={sign}>
               {words(line.key, line.params)}
             </li>
           ))}
