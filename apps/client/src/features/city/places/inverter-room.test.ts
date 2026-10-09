@@ -98,19 +98,23 @@ describe("the Inverter Room's things", () => {
   test("[R-WORLD-005] given the room's things, when their names and acts are read, then each stands at a copy of a staged model, offers one or two acts, its name and every act's label resolve, and a plain act says what happened", () => {
     expect(things.length).toBeGreaterThanOrEqual(4);
     expect(new Set(things.map((one) => one.id)).size).toBe(things.length);
+    const wrong: string[] = [];
+    const say = (bad: boolean, what: string) => {
+      if (bad) wrong.push(what);
+    };
     for (const one of things) {
       const copies = stage.models.find((model) => model.file === one.file)?.at.length ?? 0;
-      expect(one.copy, one.id).toBeLessThan(copies);
-      expect(thingSpot(stage, one), one.id).not.toBeNull();
-      expect(one.acts.length, one.id).toBeGreaterThanOrEqual(1);
-      expect(one.acts.length, one.id).toBeLessThanOrEqual(2);
-      expect(sceneWords(one.label), one.id).not.toBe(one.label);
+      say(one.copy >= copies, `${one.id} stands at no copy`);
+      say(thingSpot(stage, one) === null, `${one.id} has no spot`);
+      say(one.acts.length < 1 || one.acts.length > 2, `${one.id} offers ${String(one.acts.length)} acts`);
+      say(sceneWords(one.label) === one.label, `${one.id} has no name`);
       for (const act of one.acts) {
-        expect(sceneWords(act.label), `${one.id} ${act.id}`).not.toBe(act.label);
-        if (act.kind === "sheet") expect(act.stages, `${one.id} ${act.id}`).toBeDefined();
-        if (act.kind === "plain") expect(sceneWords(`${act.label}.done`), `${one.id} ${act.id}`).not.toBe(`${act.label}.done`);
+        say(sceneWords(act.label) === act.label, `${one.id} ${act.id} has no label`);
+        say(act.kind === "sheet" && act.stages === undefined, `${one.id} ${act.id} stages nothing`);
+        say(act.kind === "plain" && sceneWords(`${act.label}.done`) === `${act.label}.done`, `${one.id} ${act.id} says nothing`);
       }
     }
+    expect(wrong).toEqual([]);
   });
 
   test("[R-WORLD-005] given the inverter, a chair and the window, when their acts are read, then the inverter offers a look, the chair a seat the character takes, and the window a line, each happening at once with no sheet", () => {
