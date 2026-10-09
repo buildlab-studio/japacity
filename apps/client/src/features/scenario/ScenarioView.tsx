@@ -58,15 +58,15 @@ export function ScenarioView() {
             </button>
           }
         >
-          <h1 className="title text-[24px] leading-tight">{say("ui.life.title")}</h1>
-          <p className="mt-1 text-[14px] leading-snug text-text-2">{say("ui.life.intro")}</p>
+          <h1 className="title text-[22px] leading-tight">{say("ui.life.title")}</h1>
+          <p className="mt-0.5 text-[13px] leading-snug text-text-2">{say("ui.life.intro")}</p>
           {notice === null ? null : (
             <p role="status" className="mt-3 rounded-[5px] border-l-4 border-l-action bg-sheet-muted p-3 text-[14px]">
               {say(notice)}
             </p>
           )}
-          <h2 className="label mt-4 text-text-2">{say("ui.door.look")}</h2>
-          <div className="-mx-4 mt-2 grid auto-cols-[52px] grid-flow-col grid-rows-2 gap-1.5 overflow-x-auto px-4 pb-1" role="radiogroup" aria-label={say("ui.door.look")} data-looks>
+          <h2 className="label mt-3 text-text-2">{say("ui.door.look")}</h2>
+          <div className="-mx-4 mt-2 grid auto-cols-[44px] grid-flow-col grid-rows-2 gap-1.5 overflow-x-auto px-4 pb-1" role="radiogroup" aria-label={say("ui.door.look")} data-looks>
             {LOOKS.map((one, index) => {
               const on = one.id === look;
               return (
@@ -78,14 +78,14 @@ export function ScenarioView() {
                   aria-label={say("ui.door.look.one", { n: index + 1 })}
                   data-look={one.id}
                   onClick={() => setLook(one.id)}
-                  className={`press flex h-[78px] items-end justify-center overflow-hidden rounded-[5px] ${on ? "bg-strong outline-2 outline-offset-1 outline-action" : "bg-sheet-muted"}`}
+                  className={`press flex h-[64px] items-end justify-center overflow-hidden rounded-[5px] ${on ? "bg-strong outline-2 outline-offset-1 outline-action" : "bg-sheet-muted"}`}
                 >
-                  {one.picture === "" ? null : <img src={one.picture} alt="" className="h-[74px] w-auto" draggable={false} />}
+                  {one.picture === "" ? null : <img src={one.picture} alt="" className="h-[60px] w-auto" draggable={false} />}
                 </button>
               );
             })}
           </div>
-          <div className="mt-4 flex items-center justify-between">
+          <div className="mt-2 flex items-center justify-between">
             <h2 className="label text-text-2">{say("ui.door.name")}</h2>
             <button type="button" className="press flex items-center gap-1.5 rounded-[5px] px-2 py-1.5 text-[13px] font-bold text-text-2" onClick={() => setRoll((was) => was + 1)}>
               <RefreshCw size={14} /> {say("ui.door.reroll")}
@@ -101,7 +101,7 @@ export function ScenarioView() {
                   role="radio"
                   aria-checked={on}
                   onClick={() => setPicked(one)}
-                  className={`press truncate rounded-[5px] px-2 py-3 text-[15px] font-extrabold ${on ? "bg-strong text-on-strong" : "bg-sheet-muted text-text"}`}
+                  className={`press truncate rounded-[5px] px-2 py-2.5 text-[15px] font-extrabold ${on ? "bg-strong text-on-strong" : "bg-sheet-muted text-text"}`}
                 >
                   {one}
                 </button>

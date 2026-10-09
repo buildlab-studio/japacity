@@ -6,7 +6,8 @@ import { describe, expect, test } from "vitest";
 import { App } from "./App";
 import { bootGame } from "./authority/boot";
 import { SAVE_KEY } from "./authority/local";
-import { nameOf, say } from "./shared/words/text";
+import { startReadyLife } from "./features/scenario/frontDoor.testing";
+import { say } from "./shared/words/text";
 // Registers Testing Library's cleanup for this file.
 import "./shared/testing/render";
 import { onTheClassicPage } from "./shared/testing/classic";
@@ -25,8 +26,8 @@ describe("the app", () => {
     render(<App store={store} />);
     expect(screen.getByRole("heading", { name: say("ui.life.title") })).toBeDefined();
 
-    const first = Object.keys(content.scenario)[0]!;
-    fireEvent.click(screen.getByRole("button", { name: `${say("ui.life.start")}: ${nameOf(first)}` }));
+    // Through the front door to the first ready life (R-PROLOGUE-009).
+    await startReadyLife(Object.keys(content.scenario)[0]!);
     expect(await screen.findByRole("heading", { name: say("ui.month.planning", { month: 1 }) })).toBeDefined();
     // With no route yet the header shows no japacity label and no placeholder beside it.
     const header = document.querySelector("header")!;

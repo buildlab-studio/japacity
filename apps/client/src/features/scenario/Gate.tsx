@@ -63,7 +63,7 @@ export function Gate({ look, facingSheet = true, children, mark }: GateProps) {
 /** The sheet over the compound: one panel rising from the bottom, its body scrolling inside it, under at most half the screen. */
 export function GateSheet({ children, foot, mark, label }: { children: ReactNode; foot?: ReactNode; mark?: string; label?: string }) {
   return (
-    <section aria-label={label} className="panel rise pointer-events-auto mx-2 mb-2 flex max-h-[min(54dvh,520px)] flex-col overflow-hidden" data-gate-sheet={mark ?? ""}>
+    <section aria-label={label} className="panel rise pointer-events-auto mx-2 mb-2 flex max-h-[min(58dvh,540px)] flex-col overflow-hidden" data-gate-sheet={mark ?? ""}>
       <div className="min-h-0 flex-1 overflow-y-auto p-4">{children}</div>
       {foot === undefined ? null : <div className="shrink-0 border-t border-sheet-line px-4 pt-3 pb-[max(14px,env(safe-area-inset-bottom))]">{foot}</div>}
     </section>

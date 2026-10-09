@@ -30,10 +30,10 @@ const TO_SHEET = 0;
 /** How quickly the character turns round, a share a second. */
 const TURN = 5;
 /** The camera: this far back along the street and this high, looking down at this pitch, so the character stands in the top part of a tall screen. */
-const BACK = 6.5;
-const HIGH = 2.6;
-const LOOK_DOWN = (24 * Math.PI) / 180;
-const FOV = 50;
+const BACK = 10;
+const HIGH = 4;
+const LOOK_DOWN = (31 * Math.PI) / 180;
+const FOV = 60;
 
 export interface FrontSceneProps {
   /** The look's file, `shared/chr/chr_ada.glb`. */

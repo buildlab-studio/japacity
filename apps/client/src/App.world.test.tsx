@@ -2,13 +2,14 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { content } from "@japacity/content";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "vitest";
 
 import { App, classicAsked } from "./App";
 import { bootGame } from "./authority/boot";
 import { mapWords } from "./features/map/map.words";
-import { nameOf, say } from "./shared/words/text";
+import { startReadyLife } from "./features/scenario/frontDoor.testing";
+import { say } from "./shared/words/text";
 // Registers Testing Library's cleanup for this file.
 import "./shared/testing/render";
 
@@ -19,8 +20,8 @@ function memoryStorage() {
 
 async function startLife(): Promise<void> {
   render(<App store={bootGame({ storage: memoryStorage(), fastClock: true })} />);
-  const first = Object.keys(content.scenario)[0]!;
-  fireEvent.click(await screen.findByRole("button", { name: `${say("ui.life.start")}: ${nameOf(first)}` }));
+  // Through the front door to the first ready life (R-PROLOGUE-009).
+  await startReadyLife(Object.keys(content.scenario)[0]!);
 }
 
 afterEach(() => {
