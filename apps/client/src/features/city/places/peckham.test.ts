@@ -2,12 +2,15 @@
 // shops across the road with the grocer's produce out front and the hair shop beside it, and on the
 // near pavement the bus stop and a bench. It is the hub abroad in London; the community act is staged
 // in the room abroad, not here.
+import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
 import raw from "../../../../public/assets/places/peckham/place.json";
 import room from "../../../../public/assets/places/the-room/place.json";
 import { stageOf, type PlaceFile } from "../placeFile";
 import { sceneWords } from "../scene.words";
+import { stagedAt } from "../staging";
+import { stagedNow, thingsNow } from "../things";
 import { frontageTests } from "./frontageTesting";
 import { copiesOf, staged, wordsOf } from "./placeTesting";
 
@@ -29,13 +32,34 @@ describe("Peckham", () => {
     expect(window).toContain("activity.community-uk");
   });
 
-  test("[R-WORLD-005] given Rye Lane's things, when they are read, then the grocer and the barber are looked at, the bench is sat on and the bus stop opens the ride sheet", () => {
-    expect(thing("grocer").acts.map((act) => act.kind)).toEqual(["plain"]);
+  test("[R-WORLD-005] given Rye Lane's things, when they are read, then the grocer is shopped at and looked at, the barber looked at, the bench sat on with the find beside it, and the bus stop opens the ride sheet", () => {
+    expect(thing("grocer").acts.map((act) => act.kind)).toEqual(["sheet", "plain"]);
     expect(thing("barber").acts.map((act) => act.kind)).toEqual(["plain"]);
-    expect(thing("bench").acts.map((act) => [act.kind, sceneWords(act.label)])).toEqual([["plain", "Sit"]]);
+    expect(thing("bench").acts.map((act) => [act.kind, sceneWords(act.label)])).toEqual([
+      ["plain", "Sit"],
+      ["sheet", "See what's on"],
+    ]);
     expect(thing("stop").acts.map((act) => act.kind)).toEqual(["ride"]);
     expect(thing("bench").file.endsWith("prop_street-bench.glb")).toBe(true);
     expect(thing("stop").file.endsWith("prop_bus-shelter.glb")).toBe(true);
+  });
+
+  test("[R-STREET-005] given the grocer, when its first act is read, then Shop opens the street shopping's sheet, staged here for the UK", () => {
+    expect(thing("grocer").acts[0]).toMatchObject({ id: "shop", kind: "sheet", stages: "activity.street-shopping-uk" });
+    expect(sceneWords(thing("grocer").acts[0]?.label ?? "")).toBe("Shop");
+    expect(stagedAt("activity.street-shopping-uk", { where: "abroad", country: "country.uk" }, Object.values(content.place))).toBe(ID);
+  });
+
+  test("[R-STREET-006] given the bench, when the find in the UK is open and then not, then its second act opens the find's sheet only while it is open, and Sit always stays", () => {
+    const things = stage.things ?? [];
+    const staged = new Set<string>(entry.stages);
+    const bench = (open: string[]) => thingsNow(things, stagedNow(new Set(), staged, new Set(open), null)).find((candidate) => candidate.id === "bench");
+    expect(bench(["offer.street-find-uk"])?.acts.map((act) => [act.id, act.stages ?? null])).toEqual([
+      ["sit", null],
+      ["street-find", "offer.street-find-uk"],
+    ]);
+    expect(bench([])?.acts.map((act) => act.id)).toEqual(["sit"]);
+    expect(stagedAt("offer.street-find-uk", { where: "abroad", country: "country.uk" }, Object.values(content.place))).toBe(ID);
   });
 
   test("[R-CITY-024] given the terraces across the road, when their boards are read, then the grocer's and the hair shop's boards stand over them, with the Nigerian restaurant along the row", () => {

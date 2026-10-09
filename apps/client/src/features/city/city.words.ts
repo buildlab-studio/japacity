@@ -167,6 +167,9 @@ export const cityText: Record<string, string> = {
   "city.act.look-gold.done": "Bangles in every window. Nobody is in a hurry.",
   "city.act.look-spices": "Look",
   "city.act.look-spices.done": "Dried lemons, cardamom, and a pepper that smells like home.",
+  // The streets abroad (docs/rules/streets.md R-STREET-005, 006): shopping at the grocer and the spice stall, and a find while one is open.
+  "city.act.shop": "Shop",
+  "city.act.street-find": "See what's on",
   "city.inside.name": "Inside {place}",
   "city.inside.out": "Step outside",
   "city.ride.title": "Where to?",
