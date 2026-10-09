@@ -240,6 +240,23 @@ describe("moving", () => {
   });
 });
 
+describe("the home point", () => {
+  test("[R-HOME-006] given Ada in Makoko, when she cooks and fetches water in a month, then the reliefs come off Makoko's upkeep, the one open", () => {
+    const there = inMakoko(NEVER);
+    const twin = inMakoko(NEVER);
+    const played = there.endTurn([
+      { activity: "activity.cook-at-home", param: null },
+      { activity: "activity.fetch-water", param: null },
+    ]);
+    const plain = twin.endTurn();
+    const full = upkeepPaid(plain);
+    const { cookedBp, waterBp } = content.tuning.room;
+    expect(upkeepPaid(played)).toBe(full - bp(full, cookedBp) - bp(full, waterBp));
+    const relieved = played.lines.filter((line) => line.key.startsWith("line.obligation.relief.")).map((line) => line.params["obligation"]);
+    expect(relieved).toEqual([MAKOKO_UPKEEP, MAKOKO_UPKEEP]);
+  });
+});
+
 describe("eviction", () => {
   test("[R-HOME-003] given Ada in Makoko at a sure eviction chance, when the month ends, then the room is gone, the rent closes with nothing owed, standing does not fall, and the line is told straight", () => {
     const { game, result } = evicted();
