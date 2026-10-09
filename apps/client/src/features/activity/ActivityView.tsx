@@ -16,6 +16,8 @@ import { lockWords, SIDE_JOB_LOCK } from "../../shared/words/locks";
 import { alreadyDone, needsWords, requirementSentence } from "../../shared/words/requirement";
 import { blurbOf, hasWords, lowerFirst, nameOf, paramWords, say, sayCount } from "../../shared/words/text";
 import { huntOrder, JobList } from "./JobList";
+import { RouteList } from "./RouteList";
+import { routesWords } from "./routes.words";
 
 const ENGLISH_RESULT = "document.english-test";
 const GRADE = "quality.edu-grade";
@@ -270,13 +272,18 @@ function ActivityCard({ option }: { option: ActivityOption }) {
   const needsParam = option.params !== null;
   // A job to hunt is picked from a list of rows with pay and chance, the likely and best paid first (R-WORLD-006).
   const jobs = content.activity[option.id]?.param === "job" ? huntOrder(view, option.params ?? []) : null;
-  const chosenParam = needsParam ? (option.params?.includes(param) === true ? param : ((jobs ?? option.params)?.[0] ?? "")) : "";
+  // A route is picked from a list too; with more than one, nothing is picked for the player.
+  const kind = content.activity[option.id]?.param;
+  const routes = kind === "route" || kind === "known-route" ? (option.params ?? []) : null;
+  const firstParam = routes !== null && routes.length > 1 ? "" : ((jobs ?? option.params)?.[0] ?? "");
+  const chosenParam = needsParam ? (option.params?.includes(param) === true ? param : firstParam) : "";
   // R-WORLD-006: what is left after, counting what the month already pays for; a cost that cannot be paid shuts the button.
   const planned = plannedCosts(view, plan);
   const paying = option.cost.length === 0 ? null : afterPaying(view, planned, option.cost);
   const already = plannedOnce(option, plan, chosenParam);
   const canAdd = option.allowed && option.affordable && (paying === null || paying.short === null) && !full && !ended && !already && (!needsParam || chosenParam !== "");
-  const line = buttonLine(option, paying, view, already);
+  const unpicked = routes !== null && option.allowed && chosenParam === "";
+  const line = unpicked ? { words: routesWords("routes.pick-first"), kind: "needs" as const } : buttonLine(option, paying, view, already);
   const cannotPay = option.allowed && !already && (!option.affordable || (paying !== null && paying.short !== null));
   const selectId = `param-${option.id}`;
 
@@ -327,6 +334,8 @@ function ActivityCard({ option }: { option: ActivityOption }) {
             )
           ) : jobs !== null ? (
             <JobList view={view} jobs={jobs} chosen={chosenParam} onPick={setParam} />
+          ) : routes !== null ? (
+            <RouteList view={view} routes={routes} chosen={chosenParam} onPick={setParam} label={`routes-${option.id}`} />
           ) : (
             <label htmlFor={selectId} className="flex flex-col gap-1 text-sm">
               <span className="font-medium">{say("ui.activity.pick")}</span>
