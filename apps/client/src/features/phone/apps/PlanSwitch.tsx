@@ -1,4 +1,4 @@
-// The plan and the switch between ways out (docs/rules/chapter.md R-CHAPTER-009): a way's page says what
+// The plan and the switch between ways out, a way's page inside Japa (docs/rules/chapter.md R-CHAPTER-009): a way's page says what
 // making it the plan would do to japacity against the plan, the japacity kind's figures from the view, and
 // offers Keep mine or Make this the plan. Making it the plan records the choice the chapters follow from
 // the next close (`chapter/lean`) and, for a way only heard of, plans its official page for the month.
@@ -6,8 +6,8 @@ import type { Id, PlayerView, SlotPick } from "@japacity/sim";
 import { ChevronLeft } from "lucide-react";
 import { useState } from "react";
 
-import { useGame, useView } from "../../authority/GameProvider";
-import { blurbOf, nameOf, say } from "../../shared/words/text";
+import { useGame, useView } from "../../../authority/GameProvider";
+import { blurbOf, nameOf, say } from "../../../shared/words/text";
 
 const OFFICIAL = "activity.look-into-route";
 

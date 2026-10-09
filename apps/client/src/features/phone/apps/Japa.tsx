@@ -14,9 +14,9 @@ import { useGame, useView } from "../../../authority/GameProvider";
 import { monthsLeft, SOON } from "../../../shared/words/expiry";
 import { formatBand, formatMoney } from "../../../shared/words/format";
 import { blurbOf, forMonths, hasWords, inMonths, nameOf, runningName, say, sayCount, words } from "../../../shared/words/text";
-import { RoutePage } from "../../route/PlanSwitch";
 import { Head, PhoneSaid } from "../act";
 import { phoneWords } from "../phone.words";
+import { RoutePage } from "./PlanSwitch";
 
 const ENGLISH_RESULT = "document.english-test";
 const OFFICIAL = "activity.look-into-route";

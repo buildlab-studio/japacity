@@ -6,13 +6,13 @@ import type { Id } from "@japacity/sim";
 import { act, fireEvent, render } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
-import { slot } from "../../../../../packages/sim/src/route/route.journey";
-import type { Game } from "../../../../../packages/sim/src/testing/play";
-import { GameProvider } from "../../authority/GameProvider";
-import { createGameStore, type GameStore } from "../../authority/store";
-import { gameAuthority, newGame } from "../../shared/testing/fixtures";
-import "../../shared/testing/render";
-import { say } from "../../shared/words/text";
+import { slot } from "../../../../../../packages/sim/src/route/route.journey";
+import type { Game } from "../../../../../../packages/sim/src/testing/play";
+import { GameProvider } from "../../../authority/GameProvider";
+import { createGameStore, type GameStore } from "../../../authority/store";
+import { gameAuthority, newGame } from "../../../shared/testing/fixtures";
+import "../../../shared/testing/render";
+import { say } from "../../../shared/words/text";
 import { RoutePage, switchOf } from "./PlanSwitch";
 
 const UK: Id<"route"> = "route.uk-masters";
