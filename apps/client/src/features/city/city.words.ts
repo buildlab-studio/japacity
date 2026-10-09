@@ -279,7 +279,7 @@ export const cityText: Record<string, string> = {
   // The room abroad's own talk (R-WORLD-026): the landlord, the radiator, a neighbour through the wall.
   "city.overheard.room.1": "The landlord said Thursday for the boiler. Which Thursday, he did not say.",
   "city.overheard.room.2": "Bleed the radiator, my sister. Na air dey inside, no be heat.",
-  "city.overheard.room.3": "Mama, I don eat. I dey fine. Yes, I wear my jacket.",
+  "city.overheard.room.3": "Mummy, I don eat. I dey fine. Yes, I wear my jacket.",
   "city.overheard.room.4": "Landlord says no visitors after ten. Since when?",
 
   "city.scene.at": "At {place}",

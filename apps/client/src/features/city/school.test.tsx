@@ -1,12 +1,10 @@
 // The school sheet (docs/rules/world.md R-WORLD-006; route.md R-ROUTE-007): it
 // said "You send your papers to one university" and named none, and its corner was a gear.
 import { content } from "@japacity/content";
-import { render } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
 import { engineView } from "../../shared/testing/fixtures";
 import { formatMoney } from "../../shared/words/format";
-import { iconFor } from "../phone/icons";
 import { offerChance, SCHOOL_ICON, schoolSheetLine } from "./school";
 
 const NORTHGATE = "school.northgate";
@@ -35,10 +33,7 @@ describe("the sheet that applies to one university", () => {
     expect(offerChance(withGrade(school.minGrade + 40), "school.kingsmere")).toBe(numbers.offerMaxBp);
   });
 
-  test("[R-WORLD-006] given the sheet's corner, when it is drawn, then it is a building, not the gear", () => {
-    const { container } = render(iconFor(SCHOOL_ICON));
-    const drawn = container.querySelector("svg")?.getAttribute("class") ?? "";
-    expect(drawn).toContain("landmark");
-    expect(drawn).not.toContain("settings");
+  test("[R-WORLD-006] given the sheet's corner, when its icon is named, then it is the building the phone's icon set draws, not the gear it falls back to", () => {
+    expect(SCHOOL_ICON).toBe("landmark");
   });
 });

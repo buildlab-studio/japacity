@@ -12,7 +12,8 @@ describe("a goal's first thing to do", () => {
     const first = (goal: string): string => text[`${goal}.first`] ?? "";
     expect(goals.filter((goal) => first(goal) === "")).toEqual([]);
     expect(goals.filter((goal) => first(goal).split(" ").length > 14)).toEqual([]);
-    expect(goals.filter((goal) => /[–—]/.test(first(goal)))).toEqual([]);
+    const dashes = [String.fromCharCode(0x2013), String.fromCharCode(0x2014)];
+    expect(goals.filter((goal) => dashes.some((dash) => first(goal).includes(dash)))).toEqual([]);
     expect(text["goal.clean-file.first"]).toBe("Pay every bill on time; a clean file opens a flat.");
   });
 });
