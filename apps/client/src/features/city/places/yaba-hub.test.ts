@@ -39,3 +39,23 @@ describe("the hub's desk", () => {
     expect(none[0]?.acts ?? []).toEqual([]);
   });
 });
+
+describe("the hub's jobs board", () => {
+  const board = stage.things?.find((thing) => thing.id === "jobs");
+  if (board === undefined) throw new Error("The hub has no jobs board");
+  const HUNT = "activity.job-hunt";
+  const jobs = ["activity.job-junior-dev", "activity.job-bank-officer"];
+
+  test("[R-WORLD-005] given the hunt open and jobs the board lists offered, when the board's act is read for now, then it opens the hunt's sheet, where the job is chosen from the list, not the first job's card", () => {
+    const now = thingsNow([board], stagedNow(new Set([HUNT, ...jobs]), new Set(entry.stages), new Set(), null));
+    expect(now[0]?.acts).toHaveLength(1);
+    expect(now[0]?.acts[0]?.stages).toBe(HUNT);
+  });
+
+  test("[R-WORLD-005] given the board, when what it lists is read, then every job the hub stages is on it, so each still opens from a thing there", () => {
+    const listed = new Set(board.acts.flatMap((act) => [act.stages, ...(act.more ?? [])]));
+    const staffed = entry.stages.filter((id) => content.activity[id as keyof typeof content.activity]?.slot === "main");
+    expect(staffed.length).toBeGreaterThan(0);
+    expect(staffed.filter((id) => !listed.has(id))).toEqual([]);
+  });
+});
