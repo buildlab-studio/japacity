@@ -43,6 +43,13 @@ export const uiText: Record<string, string> = {
   "ui.month.plan": "This month",
   "ui.month.slot-empty": "Nothing yet",
   "ui.month.rest": "Nothing planned. You rest.",
+  // The room's basics planned, which fill no slot, so the foot never says nothing is planned over them.
+  "ui.month.chores.cook": "Cooking this month",
+  "ui.month.chores.water": "Fetching water this month",
+  "ui.month.chores.both": "Cooking and fetching water this month",
+  "ui.month.working-chores.cook": "Working, and cooking this month",
+  "ui.month.working-chores.water": "Working, and fetching water this month",
+  "ui.month.working-chores.both": "Working, cooking and fetching water",
   "ui.opening.go": "Go",
   "ui.month.until-news": "Until news",
   "ui.month.until-news-foot": "Stops when something needs you",

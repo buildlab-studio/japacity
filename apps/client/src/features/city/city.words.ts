@@ -110,8 +110,11 @@ export const cityText: Record<string, string> = {
   "city.act.rest.done": "You lie down. A month's rest, counted when the month ends.",
   "city.act.cook": "Cook for the week",
   "city.act.cook.done": "The pot is on. Food for the week, counted when the month ends.",
+  // What the tap takes off this month's living costs, said at once.
+  "city.act.cook.saved": "Cooked for the week: {amount} less on this month's living costs.",
   "city.act.fetch-water": "Fetch water",
   "city.act.fetch-water.done": "The drum is full. Counted when the month ends.",
+  "city.act.fetch-water.saved": "Water fetched: {amount} less.",
   "city.act.pack": "Pack and go",
   "city.act.turn-on": "Turn on",
   "city.act.papers": "Look in the box",

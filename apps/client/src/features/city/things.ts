@@ -62,6 +62,20 @@ export function walkSpot(stage: Pick<Stage, "models">, thing: Pick<Thing, "file"
   return [from.x + dx * share, from.z + dz * share];
 }
 
+/** Nearer than this to a thing's spot, the character is at it and no walk starts. */
+const AT_THING = 0.05;
+
+/**
+ * Where the character walks before an act on a thing lands (R-WORLD-010, R-WORLD-005): the act and its
+ * words start at the thing, also when its acts were opened by the nudge with no walk yet (the seventh
+ * review). Null when the character already stands there, or the thing has no spot.
+ */
+export function walkBeforeAct(stage: Pick<Stage, "models">, thing: Pick<Thing, "file" | "copy" | "at">, from: { x: number; z: number }): [number, number] | null {
+  const to = walkSpot(stage, thing, from);
+  if (to === null) return null;
+  return Math.hypot(to[0] - from.x, to[1] - from.z) < AT_THING ? null : to;
+}
+
 /**
  * Whether an act's entry has something to open now (R-WORLD-005): an activity the view allows and the
  * place stages, an offer that is open, the set piece that is asking, the chapter in hand.

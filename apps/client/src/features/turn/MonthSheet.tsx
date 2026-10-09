@@ -27,6 +27,20 @@ function jobRows(job: PlayerView["job"]): string[] {
   return [...(job.id === null ? [] : [turnWords("turn.month.working", { job: nameOf(job.id) })]), ...(job.side === null ? [] : [turnWords("turn.month.side", { job: nameOf(job.side) })])];
 }
 
+const COOK = "activity.cook-at-home";
+const WATER = "activity.fetch-water";
+
+/**
+ * The room's basics planned, which fill no slot, said so the foot never reads "Nothing planned" over
+ * them. Null when neither is planned.
+ */
+function choreWords(plan: readonly (SlotPick | null)[], working: boolean): string | null {
+  const cook = plan.some((pick) => pick?.activity === COOK);
+  const water = plan.some((pick) => pick?.activity === WATER);
+  if (!cook && !water) return null;
+  return say(`ui.month.${working ? "working-chores" : "chores"}.${cook && water ? "both" : cook ? "cook" : "water"}`);
+}
+
 /**
  * The End month button's second line: what is planned of the free time. While working, the job is
  * said and the count is only of the time beside it, so the job is never read as one of the things
@@ -35,7 +49,7 @@ function jobRows(job: PlayerView["job"]): string[] {
 function footWords(view: PlayerView, plan: readonly (SlotPick | null)[]): string {
   const used = slotsUsed(plan);
   const working = view.job.id !== null;
-  if (used === 0) return turnWords(working && plan.every((pick) => pick === null) ? "turn.month.working-rest" : "ui.month.rest");
+  if (used === 0) return choreWords(plan, working) ?? turnWords(working && plan.every((pick) => pick === null) ? "turn.month.working-rest" : "ui.month.rest");
   // Working: what is planned beside the job, counted as a person says it.
   if (working) return workingPlanned(used);
   return turnWords("ui.month.slots", { used, slots: view.freeSlots });

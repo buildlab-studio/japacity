@@ -14,6 +14,7 @@ import { assetUrl, loadJson, loadManifest } from "../../shared/three/manifest";
 import { Button } from "../../shared/ui/Button";
 import { FullScreen } from "../../shared/ui/FullScreen";
 import { Sheet } from "../../shared/ui/Sheet";
+import { cardKey, useCardsTurn } from "../../shared/ui/stage";
 import { formatMoney } from "../../shared/words/format";
 import { jobCardWords } from "../../shared/words/jobs";
 import { needsWords } from "../../shared/words/requirement";
@@ -31,6 +32,7 @@ import { Toast, useToast } from "../../shared/world/Toast";
 import { MonthCount } from "../../shared/world/MonthCount";
 import { Walkthrough } from "../../shared/world/Walkthrough";
 import { WorldSheet } from "../../shared/world/WorldSheet";
+import { choreSaving } from "./chores";
 import { cityWords, heardWords, papersLook, placeName, residentName, roleWords } from "./city.words";
 import { CreditsSheet } from "./Credits";
 import { type CountryChoice, FlyOver, flyoverOn, type Pin, type PinState } from "./FlyOver";
@@ -46,6 +48,7 @@ import { dancerShown, dressPlace, openGround, type PlaceFile, showPlanned, stage
 import { HOUSE, insideOf, roomOf } from "./room";
 import { personOf, personOfLook } from "./roster";
 import type { Picked, ScenePick } from "./scene.types";
+import { SaidLine, useSaid } from "./Said";
 import { sceneWords } from "./scene.words";
 import { enterable, offersHere, openingPlace, openScene, reportHere, type ViewPlace } from "./staging";
 import { stagedNow, thingsNow, thingsOf, vehicleOf } from "./things";
@@ -111,6 +114,19 @@ const PARTY_SET = "offer.send-off-party";
 const PARTY_SAID = `${SEND_OFF}.said.party`;
 /** How long the party's line stands over the yard: long enough to read it, then the yard is the player's again. */
 export const PARTY_BEAT_MS = 6000;
+
+/**
+ * The line a free act that fills a slot says at the tap (R-WORLD-005): what cooking or fetching water
+ * takes off this month's living costs, as a figure; else its own words, else
+ * that it is planned.
+ */
+export function doneWords(label: string, view: Pick<PlayerView, "obligations" | "place">, activity: string): string {
+  const saving = choreSaving(view, activity);
+  const saved = `${label}.saved`;
+  if (saving !== null && sceneWords(saved) !== saved) return sceneWords(saved, { amount: formatMoney(saving.amount, saving.currency) });
+  const done = sceneWords(`${label}.done`);
+  return done === `${label}.done` ? say("ui.world.planned", { what: nameOf(activity) }) : done;
+}
 
 /** True when this month's answers include home's send-off as the party. */
 export function partyThrown(lines: readonly ReportLine[]): boolean {
@@ -392,6 +408,8 @@ export function City({
   const [progress, setProgress] = useState<{ loaded: number; total: number } | null>(null);
   const [failed, setFailed] = useState<string | null>(null);
   const [heardCount, setHeardCount] = useState(0);
+  // An act's own line (the agent's "Not today", the pot on the fire) stands until tapped or SAID_MS has passed, never a passing toast.
+  const { said, show: sayAct, clear: clearSaid } = useSaid();
   const [choice, setChoice] = useState<ModeChoice>(() => readChoice(storage()));
   const [mode, setMode] = useState<Mode>(() => startingMode(device(), city, choice));
   const watch = useRef(watchFrames(mode, choice !== "auto"));
@@ -617,7 +635,7 @@ export function City({
         setPicked(null);
         // What the act did, in a line of its own when content has one; else its name. The papers box says what it holds (R-WORLD-019).
         const done = act.label === "city.act.papers" ? papersLook(view.documents) : sceneWords(`${act.label}.done`);
-        toast.show(done === `${act.label}.done` ? sceneWords(act.label) : done);
+        sayAct(done === `${act.label}.done` ? sceneWords(act.label) : done);
         return;
       }
       // R-ROUTE-008: the school's deposit is paid at the bank through a card the world sends itself.
@@ -631,8 +649,7 @@ export function City({
         if (option === undefined) return;
         const added = addToPlan({ activity: option.id, param: option.params?.[0] ?? null });
         cue(added ? "done" : "tap");
-        const done = sceneWords(`${act.label}.done`);
-        toast.show(added ? (done === `${act.label}.done` ? say("ui.world.planned", { what: nameOf(option.id) }) : done) : say("ui.world.full"));
+        sayAct(added ? doneWords(act.label, view, option.id) : say("ui.world.full"));
         return;
       }
       default: {
@@ -913,6 +930,14 @@ export function City({
   }, [setpieceOver, picked]);
   // R-WORLD-022: a sheet, the phone or the map opening over the world, and closing back to it.
   const covered = world && (monthOpen || asksOpen || ask !== null || picked?.kind === "ride" || phone || map);
+  // A share card up over the world (a chapter's card) keeps the street talk away from its foot.
+  const cardsTurn = useCardsTurn();
+  const cardClosed = useGame((state) => state.cardClosed);
+  const cardUp = world && cardsTurn && cardKey(view.card) !== null && cardClosed !== cardKey(view.card);
+  // An act's line gives way to anything that covers the world.
+  useEffect(() => {
+    if (covered || resultsOpen) clearSaid();
+  }, [covered, resultsOpen]);
   const wasCovered = useRef(covered);
   useEffect(() => {
     if (covered === wasCovered.current) return;
@@ -1035,12 +1060,13 @@ export function City({
               {say("ui.world.whole")}
             </button>
           ) : null}
-          {heard !== null && !covered && !resultsOpen ? (
+          {heard !== null && !covered && !resultsOpen && !cardUp && said === null && !partyBeat ? (
             <p key={heardCount} className="chip drop pointer-events-none fixed bottom-[calc(max(14px,env(safe-area-inset-bottom))+76px)] left-3 z-[36] max-w-[70vw] px-3 py-1.5 text-[12px] font-bold" data-chatter>
               {heardWords(heard.key, heard.params)}
             </p>
           ) : null}
           <Toast words={toast.words} />
+          <SaidLine said={covered || resultsOpen ? null : said} onTap={clearSaid} />
           {partyBeat ? (
             <button type="button" onClick={() => setPartyBeat(false)} className="pop pointer-events-auto fixed inset-x-0 bottom-[calc(max(14px,env(safe-area-inset-bottom))+124px)] z-[45] flex justify-center px-6" data-party-beat>
               <span role="status" className="band rounded-[6px] px-4 py-3 text-center text-[16px] leading-snug font-bold shadow-xl">
