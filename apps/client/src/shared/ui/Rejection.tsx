@@ -11,7 +11,10 @@ export function Rejection() {
   return (
     <div role="alert" className="flex items-start gap-3 rounded-xl border border-bad bg-surface p-3 text-bad">
       <CircleAlert size={20} className="mt-0.5 shrink-0" />
-      <p className="flex-1">{rejection.words}</p>
+      <div className="flex-1">
+        <p>{rejection.words}</p>
+        {rejection.detail === undefined ? null : <p className="mt-1 text-sm">{rejection.detail}</p>}
+      </div>
       <button type="button" className="text-sm underline underline-offset-4" onClick={dismiss}>
         {say("ui.dismiss")}
       </button>

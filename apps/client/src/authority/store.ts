@@ -36,6 +36,8 @@ export interface Shown {
   code: ServerCode;
   /** The player's words for it, from content. */
   words: string;
+  /** The authority's own sentence, which names the slot or the thing refused. */
+  detail?: string;
 }
 
 /** What the store needs beyond the contract to start a life over. Local only. */
@@ -180,7 +182,7 @@ export function createGameStore(authority: StoreAuthority, options: GameStoreOpt
             ...(ended ? { reportOpen: true } : {}),
           });
         } else {
-          set({ rejection: { code: reply.code, words: rejectionWords(reply.code) } });
+          set({ rejection: { code: reply.code, words: rejectionWords(reply.code), ...("detail" in reply && typeof reply.detail === "string" ? { detail: reply.detail } : {}) } });
           // The state may have moved on (a stale command): show the latest.
           if (!get().signedOut) take(await authority.view());
         }

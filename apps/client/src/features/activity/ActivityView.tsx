@@ -259,7 +259,7 @@ function ActivityCard({ option }: { option: ActivityOption }) {
         ) : null}
         {option.allowed && !option.affordable ? <p className="text-sm text-bad">{cannotPayWords(view, option)}</p> : null}
 
-        {needsParam && option.allowed ? (
+        {needsParam && (option.allowed || option.params?.length === 0) ? (
           option.params?.length === 0 ? (
             content.activity[option.id]?.param === "school" ? (
               <div className="text-sm">
@@ -271,7 +271,7 @@ function ActivityCard({ option }: { option: ActivityOption }) {
                 </ul>
               </div>
             ) : (
-              <p className="text-sm text-muted">{say("ui.activity.nothing-to-pick")}</p>
+              <p className="text-sm text-muted">{say(content.activity[option.id]?.param === "route" || content.activity[option.id]?.param === "known-route" ? "ui.activity.no-route" : "ui.activity.nothing-to-pick")}</p>
             )
           ) : (
             <label htmlFor={selectId} className="flex flex-col gap-1 text-sm">

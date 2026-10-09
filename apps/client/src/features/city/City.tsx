@@ -62,6 +62,8 @@ function minutesBetween(from: { latE3: number; lonE3: number }, to: { latE3: num
 const ROAM = (city as Partial<Record<"roam", boolean>>).roam ?? false;
 /** The home of each where: the family house, then the room abroad. */
 const HOMES: Record<string, string> = { home: "place.family-house", abroad: "place.the-room" };
+/** A room that is a place of its own on the map, and the street its door opens onto: the hub's file names it as its inside (R-WORLD-013). */
+const OUTSIDE_OF: Record<string, string> = { "place.yaba": "place.ojuelegba" };
 /** The family house stands on a made-up street (city.md), so the map gives it a spot in Surulere near the hub. */
 const HOME_SPOT = { latE3: 6507, lonE3: 3359 };
 /** The countries the map can show, with why the others are shut, until the view says more. */
@@ -199,6 +201,8 @@ export interface CityMapSlot {
   home: string | null;
   /** A way chosen: the fare goes through `place/ride`, and the answer says whether the ride plays (R-PLACE-010). */
   onRide?: (choice: RideChoice, to: string) => Promise<boolean>;
+  /** The way to choose first on the ride sheet: the vehicle tapped in the place (R-WORLD-017). */
+  by?: RideChoice["id"];
 }
 
 export function City({
@@ -211,6 +215,7 @@ export function City({
   asks,
   phone: handset,
   phoneWaiting,
+  askIcon,
   cityMap,
 }: {
   adverts?: (place: string) => ReactNode;
@@ -230,6 +235,8 @@ export function City({
   phone?: (close: () => void, area: string) => ReactNode;
   /** A dot on the Phone button: an app has something new (R-WORLD-004). */
   phoneWaiting?: boolean;
+  /** The icon for an ask card's corner, by the ask's icon name, from the shell's icon set. */
+  askIcon?: (name: string) => ReactNode;
   /** The world mode's map (R-WORLD-015 to 017), handed in by the shell; the fly-over stands in without it. */
   cityMap?: (props: CityMapSlot) => ReactNode;
 } = {}) {
@@ -253,8 +260,17 @@ export function City({
   // R-WORLD-008: the results are up from the month's end until the player goes back to the place; the staged wins come first.
   const resultsOpen = useGame((state) => state.reportOpen && state.moments.length === 0) && world && view.report !== null;
   const reportOpen = useGame((state) => state.reportOpen);
+  // R-WORLD-025: the scene goes dark, then the results sheet (which reads the report's state itself).
+  const [resultsShown, setResultsShown] = useState(false);
+  useEffect(() => {
+    if (world && reportOpen) cutTo(() => setResultsShown(true));
+    else setResultsShown(false);
+    // The cut runs once as the report opens.
+  }, [world, reportOpen]);
   const [zoomed, setZoomed] = useState(false);
   const [diveTo, setDiveTo] = useState<string | null>(null);
+  /** The way a vehicle in the place was tapped for, chosen on the ride sheet when the map opens from it (R-WORLD-017). */
+  const [rideBy, setRideBy] = useState<RideChoice["id"] | null>(null);
   const [shipped, setShipped] = useState<Set<string> | null>(null);
   const [menu, setMenu] = useState(false);
   const [credits, setCredits] = useState(false);
@@ -383,7 +399,7 @@ export function City({
         return signs.length === 0 ? name : signs.map((said) => said.replace(/\n/g, " ")).join(". ");
       }
       case "action":
-        return nameOf(picked.activity);
+        return picked.label === undefined ? nameOf(picked.activity) : sceneWords(picked.label);
       case "ride":
         return cityWords(`city.ride.${picked.vehicle}`);
       case "enter":
@@ -425,11 +441,16 @@ export function City({
     const { thing, act } = scenePick;
     switch (act.kind) {
       case "sheet":
-        setPicked(act.stages === undefined ? null : { kind: "action", activity: act.stages, ...(act.more === undefined ? {} : { more: act.more }) });
+        setPicked(act.stages === undefined ? null : { kind: "action", activity: act.stages, ...(act.more === undefined ? {} : { more: act.more, label: act.label }) });
         return;
-      case "ride":
-        setPicked({ kind: "ride", vehicle: vehicleOf(thing) ?? "danfo" });
+      case "ride": {
+        // R-WORLD-017: the vehicle's act opens the same ride sheet as the map, with its way chosen.
+        const vehicle = vehicleOf(thing) ?? "danfo";
+        setPicked(null);
+        setRideBy(vehicle === "keke" || vehicle === "okada" ? vehicle : "danfo");
+        setMap(true);
         return;
+      }
       case "enter":
         setPicked({ kind: "inside" });
         return;
@@ -469,7 +490,10 @@ export function City({
     }
     if (picked?.kind === "out") {
       setPicked(null);
-      cutTo(() => setInside(false));
+      // R-WORLD-013: the door cuts out to the street. A room reached from the map (the hub in Yaba) steps out to the place whose door opens into it.
+      const outside = OUTSIDE_OF[placeId];
+      if (inside) cutTo(() => setInside(false));
+      else if (outside !== undefined) cutTo(() => setPlaceId(outside));
     }
     // The cut reads the latest state when it fires; only a new pick starts one.
   }, [picked]);
@@ -575,16 +599,19 @@ export function City({
             countries,
             drawing,
             diveTo,
+            ...(rideBy === null ? {} : { by: rideBy }),
             home: HOMES[where] ?? null,
             onGo: (id) => {
               setPlaceId(id);
               setMap(false);
               setDiveTo(null);
+              setRideBy(null);
               toast.show(placeName(id));
             },
             onClose: () => {
               setMap(false);
               setDiveTo(null);
+              setRideBy(null);
             },
             // R-PLACE-010: the fare leaves cash through the command, and the ride plays only once it is
             // accepted; abroad the map asks no fare (decision 0011).
@@ -624,13 +651,6 @@ export function City({
             onEndMonth={() => setMonthOpen(true)}
             endBlocked={endBlocked}
             hidden={map || resultsOpen}
-            aside={
-              inside ? (
-                <button type="button" onClick={() => cutTo(() => setInside(false))} className="label-strong self-start text-[11px] font-bold underline" data-step-outside>
-                  {say("ui.world.step-outside")}
-                </button>
-              ) : null
-            }
           />
           <Nudge nudge={nudge} hidden={map || phone || monthOpen || asksOpen || menu || credits || resultsOpen || picked !== null} {...(nudgeOpens ? { onTap: () => setAsksOpen(true) } : {})} />
           <ThumbBar onMap={() => setMap(true)} onPhone={() => setPhone(true)} phoneWaiting={phoneWaiting ?? view.offers.length > 0} hidden={map || resultsOpen} />
@@ -755,7 +775,7 @@ export function City({
         </div>
       </Sheet>
       <CreditsSheet open={credits} onOpenChange={setCredits} />
-      {world ? <AskSheet ask={ask} have={view.pockets.NGN.cash} formatMoney={(amount, currency) => formatMoney(amount, currency as "NGN")} /> : null}
+      {world ? <AskSheet ask={ask} have={view.pockets.NGN.cash} formatMoney={(amount, currency) => formatMoney(amount, currency as "NGN")} {...(askIcon === undefined ? {} : { icon: askIcon })} /> : null}
       {world && picked?.kind === "action" && ask === null ? (
         <WorldSheet open onClose={() => setPicked(null)} label={clock} title={cardWords()} mark="ask">
           {actions?.([picked.activity, ...(picked.more ?? [])])}
@@ -774,7 +794,7 @@ export function City({
           {asks}
         </WorldSheet>
       ) : null}
-      {world ? results?.(hereName) : null}
+      {world && resultsShown ? results?.(hereName) : null}
       {world && phone && handset !== undefined ? handset(() => setPhone(false), inside ? cityWords("city.inside.name", { place: name }) : name) : null}
       {world && phone && handset === undefined && apps !== undefined ? <Phone apps={apps} onClose={() => setPhone(false)} /> : null}
       <Sheet open={picked?.kind === "ride"} onOpenChange={(open) => { if (!open) setPicked(null); }} title={picked?.kind === "ride" ? cardWords() : ""} description={cityWords("city.ride.title")}>

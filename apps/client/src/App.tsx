@@ -25,13 +25,13 @@ import { HeldShareCard } from "./features/notify/held";
 import { NotifySetting } from "./features/notify/NotifySetting";
 import { OfferView } from "./features/offer/OfferView";
 import { usePairApi } from "./features/people/pairApi";
+import { iconFor } from "./features/phone/icons";
 import { PhoneApps, usePhoneWaiting } from "./features/phone/PhoneApps";
 import { InterviewView } from "./features/interview/InterviewView";
 import { PrologueHandover, prologueJustClosed, PrologueView } from "./features/prologue/PrologueView";
 import { RoadView } from "./features/road/RoadView";
 import { ScenarioView } from "./features/scenario/ScenarioView";
 import { SetpieceView } from "./features/setpiece/SetpieceView";
-import { Moment } from "./features/turn/Moment";
 import { MonthSheet } from "./features/turn/MonthSheet";
 import { Results } from "./features/turn/Results";
 import { say } from "./shared/words/text";
@@ -55,6 +55,12 @@ function WorldPlaying() {
   const talk = usePairApi();
   const phoneWaiting = usePhoneWaiting();
   const reportOpen = useGame((state) => state.reportOpen);
+  // R-WORLD-008: the month's end lands as one results sheet; the old page's moment cards are not shown, so their lines go straight through.
+  const moments = useGame((state) => state.moments);
+  const nextMoment = useGame((state) => state.nextMoment);
+  useEffect(() => {
+    if (moments.length > 0) nextMoment();
+  }, [moments, nextMoment]);
   useScreenCount("world");
   useScreenCount(reportOpen ? "report" : null);
   useScreenCount(view.setpiece === null ? null : "setpiece");
@@ -82,6 +88,7 @@ function WorldPlaying() {
         }
         phone={(close, area) => <PhoneApps onClose={close} area={area} account={<AccountButton more={<NotifySetting />} />} talk={talk} />}
         phoneWaiting={phoneWaiting}
+        askIcon={iconFor}
         cityMap={(props) => <Map {...props} />}
       />
       {/* The share card opens full screen when it is due; its tile on the old page has no place in the world. */}
@@ -90,7 +97,6 @@ function WorldPlaying() {
           <CardView />
         </HeldShareCard>
       </div>
-      <Moment />
     </div>
   );
 }

@@ -1,6 +1,6 @@
 // The world's shell over the place (docs/rules/world.md R-WORLD-001 to 004): what stands over the
 // scene, what hides when, and the nudge's choice. The scene itself needs WebGL and is not drawn here.
-import { act, fireEvent, screen, within } from "@testing-library/react";
+import { act, fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
 import { engineView, richView } from "../../shared/testing/fixtures";
@@ -86,11 +86,13 @@ describe("the band and the thumb buttons", () => {
     expect(thumbs().getAttribute("aria-hidden")).toBe("true");
   });
 
-  test("[R-WORLD-008] given the month ended, when the shell shows, then the results are handed the name of where the player is", async () => {
+  test("[R-WORLD-008] [R-WORLD-025] given the month ended, when the shell shows, then the scene goes dark first, and the results are handed the name of where the player is", async () => {
     const { store } = await renderWithView(world(), engineView());
     const shown = band().querySelector("h2")?.textContent ?? "";
     act(() => store.setState({ reportOpen: true }));
-    expect(document.querySelector("[data-results-for]")?.getAttribute("data-results-for")).toBe(shown);
+    expect(document.querySelector("[data-cut]")?.getAttribute("data-cut")).toBe("true");
+    expect(document.querySelector("[data-results-for]")).toBeNull();
+    await waitFor(() => expect(document.querySelector("[data-results-for]")?.getAttribute("data-results-for")).toBe(shown));
   });
 });
 

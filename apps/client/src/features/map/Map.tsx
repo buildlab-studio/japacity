@@ -32,6 +32,8 @@ export interface MapProps {
   onCountry?: (id: string) => void;
   /** The home of the country shown, when it is also where the player stands. */
   home?: string | null;
+  /** The way to choose first on the ride sheet: the vehicle tapped in the place (R-WORLD-017). */
+  by?: RideChoice["id"];
 }
 
 /** The pins as a key, so a new array with the same pins does not rebuild the city. */
@@ -39,7 +41,7 @@ function keyOf(pins: readonly MapPin[]): string {
   return pins.map((pin) => `${pin.id}:${pin.state}:${String(pin.position.latE3)}:${String(pin.position.lonE3)}:${pin.name}`).join("|");
 }
 
-export function Map({ pins, country, countries, drawing, diveTo = null, diveBy = "danfo", onGo, onClose, onRide, onCountry, home = null }: MapProps) {
+export function Map({ pins, country, countries, drawing, diveTo = null, diveBy = "danfo", onGo, onClose, onRide, onCountry, home = null, by }: MapProps) {
   const view = useView();
   const have = view.pockets.NGN.cash;
   const key = keyOf(pins);
@@ -114,7 +116,7 @@ export function Map({ pins, country, countries, drawing, diveTo = null, diveBy =
           {mapWords("map.hint")}
         </p>
       ) : (
-        <RideSheet key={pin.id} pin={pin} home={pin.id === homeId} ways={ways} have={have} formatMoney={(amount) => formatMoney(amount, "NGN")} onChoose={go} onClose={() => setPicked(null)} />
+        <RideSheet key={pin.id} pin={pin} home={pin.id === homeId} ways={ways} have={have} formatMoney={(amount) => formatMoney(amount, "NGN")} onChoose={go} onClose={() => setPicked(null)} {...(by === undefined ? {} : { by })} />
       )}
 
       {riding === null ? null : (

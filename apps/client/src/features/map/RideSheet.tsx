@@ -19,6 +19,8 @@ export interface RideSheetProps {
   formatMoney: (amount: number) => string;
   onChoose: (way: RideChoice) => void;
   onClose: () => void;
+  /** The way chosen first, when a vehicle in the place was tapped (R-WORLD-017). */
+  by?: RideChoice["id"];
 }
 
 const WAY_ICON = { danfo: Bus, keke: CarTaxiFront, okada: Bike } as const;
@@ -49,8 +51,8 @@ export function headingOf(name: string): string {
   return name.length === 0 ? name : name.charAt(0).toUpperCase() + name.slice(1);
 }
 
-export function RideSheet({ pin, home, ways, have, formatMoney, onChoose, onClose }: RideSheetProps) {
-  const [chosen, setChosen] = useState<RideChoice["id"]>(ways[0]?.id ?? "danfo");
+export function RideSheet({ pin, home, ways, have, formatMoney, onChoose, onClose, by }: RideSheetProps) {
+  const [chosen, setChosen] = useState<RideChoice["id"]>(by !== undefined && ways.some((way) => way.id === by) ? by : (ways[0]?.id ?? "danfo"));
   const way = ways.find((candidate) => candidate.id === chosen) ?? ways[0];
   const here = pin.state === "here";
   const locked = pin.state === "not";

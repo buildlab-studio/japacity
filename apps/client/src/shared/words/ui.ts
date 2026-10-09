@@ -99,6 +99,7 @@ export const uiText: Record<string, string> = {
   "ui.activity.no-band": "no English result",
   "ui.activity.pick": "Which one",
   "ui.activity.nothing-to-pick": "Nothing to pick yet.",
+  "ui.activity.no-route": "No route to look into yet. Someone at home may know a way.",
   "ui.activity.tickets": "{count} tickets",
   "ui.activity.tickets.one": "1 ticket",
 
