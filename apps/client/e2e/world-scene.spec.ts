@@ -174,10 +174,11 @@ test("[R-WORLD-005] given Bode Thomas, when a thing or its label is tapped, then
   test.setTimeout(300_000);
   await startWorld(page);
   await goTo(page, "place.bode-thomas");
-  const kiosk = await page.evaluate(() => (window as unknown as { __city?: Probe }).__city?.screenOfThing?.("play-lotto") ?? null);
+  const kiosk = await page.evaluate(() => (window as unknown as { __city?: Probe }).__city?.screenOfThing?.("kiosk") ?? null);
   expect(kiosk).not.toBeNull();
-  await page.locator('[data-mark="play-lotto"]').click();
-  const chip = page.locator('[data-thing-chip="play-lotto"]');
+  // Marks and chips are keyed by the thing, not the act (CityScene: `dataset.mark = thing.id`).
+  await page.locator('[data-mark="kiosk"]').click();
+  const chip = page.locator('[data-thing-chip="kiosk"]');
   await expect(chip).toBeVisible();
   await expect(chip).toContainText(text["city.thing.lotto"] ?? "Lotto");
   const acts = chip.locator("[data-act]");
@@ -198,7 +199,7 @@ test("[R-WORLD-005] given Bode Thomas, when a thing or its label is tapped, then
   // A tap on the danfo itself, not its label, floats its ride.
   const danfo = await page.evaluate(() => (window as unknown as { __city?: Probe }).__city?.screenOfThing?.("veh_danfo") ?? null);
   if (danfo === null) throw new Error("The danfo is not on screen");
-  const ride = page.locator('[data-thing-chip="veh_danfo"]');
+  const ride = page.locator('[data-thing-chip="danfo"]');
   for (const [dx, dy] of [[0, 0], [12, -6], [-12, -6], [0, -14], [20, 0], [-20, 0]] as const) {
     await page.mouse.click(danfo.x + dx, danfo.y + dy);
     if (await ride.waitFor({ state: "visible", timeout: 2000 }).then(() => true, () => false)) break;
@@ -229,8 +230,8 @@ test("[R-WORLD-013] given the family house, when the house's Go in is chosen, th
     };
     requestAnimationFrame(watch);
   });
-  await page.locator('[data-mark="enter"]').click();
-  await page.locator('[data-thing-chip="enter"] [data-act]').first().click();
+  await page.locator('[data-mark="house"]').click();
+  await page.locator('[data-thing-chip="house"] [data-act="enter"]').click();
   await page.waitForFunction(() => (window as unknown as { __cut: { ended: number } }).__cut.ended > 0, null, { timeout: 60_000 });
   const cut = await page.evaluate(() => (window as unknown as { __cut: { darkFrom: number; darkTo: number; began: number; ended: number } }).__cut);
   console.log(`the cut: dark for ${String(Math.round(cut.darkTo - cut.darkFrom))} ms, ${String(Math.round(cut.ended - cut.began))} ms from first shade to lifting`);
@@ -244,7 +245,7 @@ test("[R-WORLD-013] given the family house, when the house's Go in is chosen, th
   expect(room?.fits).toEqual({ width: true, offScreen: [] });
   await page.locator('[data-mark="door"]').click();
   await page.locator('[data-thing-chip="door"] [data-act]').first().click();
-  await expect(page.locator('[data-mark="enter"]')).toBeVisible({ timeout: 60_000 });
+  await expect(page.locator('[data-mark="house"]')).toBeVisible({ timeout: 60_000 });
 });
 
 for (const mode of ["low", "high"] as const) {

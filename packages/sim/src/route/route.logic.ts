@@ -579,6 +579,10 @@ function depart(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   // R-PEOPLE-027: an arrival through a partner is recorded for the bar and the assistance count (R-UNDERTAKING-004, 010).
   if (entry.gate === "partner") ctx.apply([{ type: "people/arrived", route: entry.id }], cause);
   gate.onDepart?.(ctx, entry, held, cause);
+  // R-OFFER-005: an open ask that belongs at home (the family's send-off, a pitch at the park) cannot be
+  // answered abroad; the plane closes it unanswered, as a lapse with no choice, so nothing waits on the player abroad.
+  const homeOnly = Object.values(ctx.state.offer.items).filter((item) => ctx.content.offer[item.entry]?.where === "home");
+  if (homeOnly.length > 0) ctx.apply(homeOnly.map((item) => ({ type: "offer/close" as const, offer: item.entry })), cause);
   return [...events, ...endBeforeSettingOff(ctx)];
 }
 

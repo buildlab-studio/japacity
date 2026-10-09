@@ -429,6 +429,8 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
   "offer.family-send-off": {
     id: "offer.family-send-off",
     group: "money",
+    // R-CHAPTER-008: answered at the house; the plane closes it unanswered (R-OFFER-005).
+    where: "home",
     when: [{ type: "route/state", route: UK, in: ["granted"] }],
     chanceBp: pct(100),
     cooldown: 0,
