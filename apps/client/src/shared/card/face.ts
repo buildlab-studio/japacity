@@ -1,7 +1,7 @@
 // What is on a share card, as words, read from the view's card alone
 // (docs/rules/share.md R-SHARE-004 to R-SHARE-008, R-SHARE-011). The screen's
 // card and the drawn image both read this, so they never say different things.
-import type { ShareKind } from "@japacity/content";
+import { content, type ShareKind } from "@japacity/content";
 import type { Id, PlayerView } from "@japacity/sim";
 
 import { hasWords, nameOf, say, sayCount, words } from "../words/text";
@@ -44,6 +44,34 @@ const MOST = 3;
 /** The road's cards tell a story, not a score. */
 const STORY_KINDS: ReadonlySet<ShareKind> = new Set(["real-story", "lost"]);
 
+/** The moments that come only once the character has flown. */
+const ABROAD_KINDS: ReadonlySet<ShareKind> = new Set(["first-pay-abroad", "secured", "december"]);
+
+/** The chapter the plane opens: it and every chapter after it are lived abroad. */
+const LANDING = "chapter.landing";
+
+/** The cards' words for the moments abroad, first drafts in the voice of docs/rules/text.md; content's table wins. */
+const CARD_TEXT: Record<string, string> = {
+  "share.first-pay-abroad.body": "A room with a lock, a job, and the first month's pay in.",
+};
+
+export function cardWords(key: string): string {
+  return hasWords(key) ? say(key) : (CARD_TEXT[key] ?? key);
+}
+
+/**
+ * The japacity figure is how ready the move is, so a card for a moment after the flight carries none
+ * (R-SHARE-004, "where the moment has them"): the first pay abroad, a status
+ * secured, the December visit, and the landing's chapter or one after it.
+ */
+function afterTheFlight(card: ShareCard): boolean {
+  if (ABROAD_KINDS.has(card.kind)) return true;
+  if (card.kind !== "chapter" || card.chapter === undefined || card.chapter === null) return false;
+  const order = content.chapter[card.chapter]?.order;
+  const landing = content.chapter[LANDING]?.order;
+  return order !== undefined && landing !== undefined && order >= landing;
+}
+
 function artOf(card: ShareCard): string {
   const byChapter = card.kind === "chapter" && card.chapter !== undefined && card.chapter !== null ? `share.${card.chapter}.art` : null;
   return say(byChapter !== null && hasWords(byChapter) ? byChapter : `share.${card.kind}.art`);
@@ -65,9 +93,10 @@ function bodyOf(card: ShareCard): string | null {
       return hasWords("road.real-story.line") ? say("road.real-story.line") : say("ui.card.real-story.body");
     case "lost":
       return sayCount("ui.card.lost.body", card.months, { months: card.months });
+    case "first-pay-abroad":
+      return cardWords("share.first-pay-abroad.body");
     case "chapter":
     case "granted":
-    case "first-pay-abroad":
     case "secured":
     case "december":
     case "draw-win":
@@ -102,7 +131,7 @@ export function cardFace(card: ShareCard, scenario: Id<"scenario"> | null): Card
     chapter: card.kind === "chapter" && card.chapter !== undefined && card.chapter !== null ? nameOf(card.chapter) : null,
     name: story ? null : nameFor(card, scenario),
     route: story || card.route === null ? null : nameOf(card.route),
-    percent: story ? null : card.percent,
+    percent: story || afterTheFlight(card) ? null : card.percent,
     percentLabel: say(hasWords(label) ? label : "share.japacity"),
     monthsLabel: say("share.months"),
     standingLabel: say("share.standing"),
