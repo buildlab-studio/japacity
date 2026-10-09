@@ -282,6 +282,27 @@ export function Japa() {
   // Once a visa is granted the plan is done but the story is not: the next step, the plane, is named.
   const ahead = view.routes.some((candidate) => candidate.state === "granted") ? chapterAhead(view.chapter) : null;
   const next = ahead === null ? null : nextStepWords(ahead);
+  // The page offered may be about another way than the plan's: then it stands under its own heading,
+  // after the plan's costs, and names its route, so Canada is never offered under the UK.
+  const otherWay = lookInto !== null && route !== null && lookInto !== route.id;
+  const officialCard =
+    lookInto === null ? null : (
+      <button
+        type="button"
+        disabled={planned}
+        onClick={() => said(addToPlan({ activity: OFFICIAL, param: lookInto }) ? say("ui.world.planned", { what: nameOf(OFFICIAL) }) : say("ui.world.full"))}
+        className="press mt-1 flex w-full items-center gap-2.5 rounded-[6px] border border-sheet-line bg-sheet-2 px-3 py-2.5 text-left disabled:opacity-70"
+        data-official-page={lookInto}
+        data-official-other={otherWay ? "true" : undefined}
+      >
+        <FileCheck size={18} className="shrink-0 text-text-2" aria-hidden />
+        <span className="flex-1">
+          <span className="block text-[14px] font-bold">{otherWay ? say("ui.japa.official.title-route", { route: runningName(lookInto) }) : nameOf(OFFICIAL)}</span>
+          <span className="block text-[13px] text-text-2">{phoneWords(planned ? "phone.japa.official-planned" : "phone.japa.official", { route: runningName(lookInto) })}</span>
+        </span>
+        {planned ? <Check size={18} className="shrink-0 text-in" aria-hidden /> : <ChevronRight size={18} className="shrink-0 text-text-2" aria-hidden />}
+      </button>
+    );
   return (
     <div data-phone-app="japa">
       <div className="band flex items-end justify-between gap-3 rounded-[6px] px-4 py-3">
@@ -314,22 +335,7 @@ export function Japa() {
         </>
       )}
 
-      {lookInto === null ? null : (
-        <button
-          type="button"
-          disabled={planned}
-          onClick={() => said(addToPlan({ activity: OFFICIAL, param: lookInto }) ? say("ui.world.planned", { what: nameOf(OFFICIAL) }) : say("ui.world.full"))}
-          className="press mt-1 flex w-full items-center gap-2.5 rounded-[6px] border border-sheet-line bg-sheet-2 px-3 py-2.5 text-left disabled:opacity-70"
-          data-official-page={lookInto}
-        >
-          <FileCheck size={18} className="shrink-0 text-text-2" aria-hidden />
-          <span className="flex-1">
-            <span className="block text-[14px] font-bold">{nameOf(OFFICIAL)}</span>
-            <span className="block text-[13px] text-text-2">{phoneWords(planned ? "phone.japa.official-planned" : "phone.japa.official", { route: runningName(lookInto) })}</span>
-          </span>
-          {planned ? <Check size={18} className="shrink-0 text-in" aria-hidden /> : <ChevronRight size={18} className="shrink-0 text-text-2" aria-hidden />}
-        </button>
-      )}
+      {officialCard === null || otherWay ? null : officialCard}
       {costs.length === 0 ? null : (
         <>
           <Head>{say("ui.japa.cost.title")}</Head>
@@ -343,6 +349,12 @@ export function Japa() {
           </dl>
         </>
       )}
+      {officialCard !== null && otherWay ? (
+        <>
+          <Head>{say("ui.japa.official.other")}</Head>
+          {officialCard}
+        </>
+      ) : null}
       <Head>{phoneWords("phone.japa.steps")}</Head>
       <ul className="flex flex-col" data-steps>
         {route === null || route.state === "heard" ? null : route.checklist.map((item) => <Step key={item.id} met={item.met}>{words(`${route.id}.item.${item.id}`)}</Step>)}

@@ -12,9 +12,12 @@ const WALLET = "line.wallet.";
 /** A story reaching the player: never something to answer, even when it is for you. */
 const NEWS = "line.news.delivered";
 
+/** The prologue's years are told, never asked: its lines (the degree graded) need nothing of the player. */
+const PROLOGUE_TOLD = ["line.prologue.", "prologue.line."];
+
 /** True when the line waits on the player. A news story never does; one for you is marked as for you instead. */
 export function asksAttention(line: ReportLine): boolean {
-  return line.attention && line.key !== NEWS;
+  return line.attention && line.key !== NEWS && !PROLOGUE_TOLD.some((told) => line.key.startsWith(told));
 }
 
 /** True for a news story about the player's own plans. */
@@ -28,6 +31,8 @@ const SAID_BETTER: readonly [better: string, plain: string][] = [
   ["line.activity.gig", "line.wallet.gig"],
   // R-ADVICE-009: the scam names the agent and says the fee is gone; the wallet's fee line is the same money.
   ["line.offer.agent-scam", "line.wallet.fee-agent"],
+  // R-LUCK-009: the circle's pot lands as a gift in the wallet; the pot's own line says whose money it is.
+  ["line.obligation.pot", "line.wallet.gift"],
 ];
 
 /**
@@ -38,6 +43,15 @@ const LOCKED_ONLY: ReadonlySet<string> = new Set(["line.wallet.held-funds", "lin
 
 /** A family request's payment, named for what it paid (see `paidFor`): still the wallet's money moving. */
 const FAMILY_PAID = "ui.line.family-paid.";
+
+/** Any other answer's money, named for the offer that moved it (see `paidFor`): a thirteenth month is not a second salary. */
+const OFFER_PAID = "ui.line.offer-paid.";
+
+/** A bill's payment, named for the bill when the wallet's reason says it wrong (see `paidAs`): a savings circle is not going out. */
+const CHARGED_AS = "ui.line.charged.";
+
+/** The interface's names for a payment: the wallet's money moving, said for what it paid. */
+const NAMED: readonly string[] = [FAMILY_PAID, OFFER_PAID, CHARGED_AS, "ui.line.document-fee"];
 
 /** The prologue's last line: what came before it is the years before the first month. */
 export const PROLOGUE_CLOSED = "line.prologue.closed";
@@ -53,7 +67,7 @@ const SAVINGS_BEFORE = "ui.line.savings-before";
  */
 export function movesMoney(line: ReportLine): boolean {
   if (LOCKED_ONLY.has(line.key)) return false;
-  return line.key.startsWith(WALLET) || line.key.startsWith(FAMILY_PAID) || SAID_BETTER.some(([better]) => better === line.key);
+  return line.key.startsWith(WALLET) || NAMED.some((named) => line.key.startsWith(named)) || SAID_BETTER.some(([better]) => better === line.key);
 }
 
 /** The lines told after the prologue closed: the month itself. All of them when there was no prologue. */
@@ -112,7 +126,7 @@ function dropRetold(lines: readonly ReportLine[]): ReportLine[] {
       take(lines.findIndex((other, at) => !dropped.has(at) && other.key === plain && sameMoney(moneyOf(other), moneyOf(line))));
     }
     if (line.key === CHARGED) {
-      const paid = lines.some((other) => other.key.startsWith(WALLET) && other.tone === "bad" && sameMoney(moneyOf(other), moneyOf(line)));
+      const paid = lines.some((other) => (other.key.startsWith(WALLET) || other.key.startsWith(CHARGED_AS)) && other.tone === "bad" && sameMoney(moneyOf(other), moneyOf(line)));
       if (paid) take(index);
     }
   });
@@ -159,21 +173,54 @@ const TAKEN = "line.offer.taken";
 const LAPSED = "line.offer.lapsed";
 
 /**
- * Money a family request took, said as what it paid for ("The NEPA bill"), from the answer the
- * offer's line gives after it. A payment the interface has no words for stays "Sent to family".
+ * Money an answer moved, said as what it was for, from the answer the offer's line gives after it:
+ * a family request as what it paid for ("The NEPA bill"), and any other offer with words for its
+ * money as that offer ("A thirteenth month's pay"), so it never reads as the month's own salary
+ * told twice. A payment the interface has no words for keeps the wallet's.
  */
 function paidFor(lines: readonly ReportLine[]): ReportLine[] {
   return lines.map((line, index) => {
-    if (line.key !== FAMILY) return line;
+    if (!line.key.startsWith(WALLET)) return line;
     const next = lines.slice(index + 1).find((other) => other.key === TAKEN || other.key.startsWith(WALLET));
     const offer = next?.key === TAKEN ? next.params.offer : undefined;
-    const key = typeof offer === "string" ? `${FAMILY_PAID}${offer}` : null;
+    if (typeof offer !== "string") return line;
+    const key = line.key === FAMILY ? `${FAMILY_PAID}${offer}` : `${OFFER_PAID}${offer}`;
+    return hasWords(key) ? { ...line, key } : line;
+  });
+}
+
+/**
+ * A bill's payment said as the bill, where the wallet's reason names it wrong: the wallet tells a
+ * share paid into the savings circle by its sink, going out; the bill's own line just after it says
+ * which bill it was, as the NEPA bill is named for what it paid.
+ */
+function paidAs(lines: readonly ReportLine[]): ReportLine[] {
+  return lines.map((line, index) => {
+    const next = lines[index + 1];
+    if (!line.key.startsWith(WALLET) || line.tone !== "bad" || next?.key !== CHARGED || !sameMoney(moneyOf(line), moneyOf(next))) return line;
+    const { obligation } = next.params;
+    const key = typeof obligation === "string" ? `${CHARGED_AS}${obligation}` : null;
     return key !== null && hasWords(key) ? { ...line, key } : line;
   });
 }
 
+/** A paper's fee and the paper asked for just after it. */
+const DOCUMENT_FEE = "line.wallet.fee-document";
+const REQUESTED = "line.document.requested";
+const PAPER_FEE = "ui.line.document-fee";
+
+/** A paper's fee said as that paper's ("The transcript's fee"), not as money paid at some office. */
+function paperFee(lines: readonly ReportLine[]): ReportLine[] {
+  return lines.map((line, index) => {
+    const next = lines[index + 1];
+    const document = next?.key === REQUESTED ? next.params.document : undefined;
+    return line.key === DOCUMENT_FEE && typeof document === "string" ? { ...line, key: PAPER_FEE, params: { ...line.params, document } } : line;
+  });
+}
+
 export function tidyLines(lines: readonly ReportLine[]): ReportLine[] {
-  return oneEndorsementStory(paidFor(savedBefore(dropRetold(foldPockets(lines))))).map(variant);
+  // Named before the retold go, so a payment named for its offer is never taken for the month's own.
+  return oneEndorsementStory(savedBefore(dropRetold(paperFee(paidAs(paidFor(foldPockets(lines))))))).map(variant);
 }
 
 /**

@@ -24,8 +24,13 @@ export interface AskSpec {
   line: string;
   cost: { amount: number; currency: Currency } | null;
   button: string;
-  /** What the cost comes out of now, for "what is left after". */
-  have: number;
+  /**
+   * What the cost comes out of now, for "what is left after". Left out, the sheet counts the pockets
+   * itself and holds what is left against the month's dues, so the card warns before a bill goes unpaid.
+   */
+  have?: number;
+  /** "now" when the act happens at once; the default counts when the month ends (R-WORLD-006). */
+  when?: Ask["when"];
   command: PlayerCommand;
   /** The toast once it is done. */
   done: string;
@@ -34,7 +39,7 @@ export interface AskSpec {
 
 /** One sheet at a time for an app: `open` shows a card or a slip, `sheet` is the element to render. */
 export function useAsk(): { open: (spec: AskSpec) => void; sheet: ReactNode; asking: boolean } {
-  const [shown, setShown] = useState<{ ask: Ask; have: number } | null>(null);
+  const [shown, setShown] = useState<{ ask: Ask; have: number | undefined } | null>(null);
   const send = useGame((state) => state.send);
   const said = use(PhoneSaid);
   const open = (spec: AskSpec) => {
@@ -47,6 +52,7 @@ export function useAsk(): { open: (spec: AskSpec) => void; sheet: ReactNode; ask
       cost: spec.cost,
       button: spec.button,
       ...(spec.reference === undefined ? {} : { reference: spec.reference }),
+      ...(spec.when === undefined ? {} : { when: spec.when }),
       act: () => {
         setShown(null);
         void send(spec.command).then((reply) => {
@@ -57,7 +63,8 @@ export function useAsk(): { open: (spec: AskSpec) => void; sheet: ReactNode; ask
     };
     setShown({ ask, have: spec.have });
   };
-  const sheet = <AskSheet ask={shown?.ask ?? null} from={shown?.have ?? 0} formatMoney={(amount, currency) => formatMoney(amount, currency as Currency)} icon={iconFor} />;
+  const have = shown === null ? 0 : shown.have;
+  const sheet = <AskSheet ask={shown?.ask ?? null} {...(have === undefined ? {} : { from: have })} formatMoney={(amount, currency) => formatMoney(amount, currency as Currency)} icon={iconFor} />;
   return { open, sheet, asking: shown !== null };
 }
 

@@ -4,7 +4,7 @@
 // pockets first and the rest is bought from the naira bank at the bank rate,
 // plus the bank's charge (docs/rules/wallet.md, R-WALLET-009).
 import { content } from "@japacity/content";
-import { int, type Currency, type MoneyParam, type PlayerView, type SlotPick } from "@japacity/sim";
+import { int, type Currency, type ForeignCurrency, type MoneyParam, type PlayerView, type SlotPick } from "@japacity/sim";
 
 export type Money = { currency: Currency; amount: number };
 type Pockets = Pick<PlayerView, "pockets" | "rates">;
@@ -132,4 +132,22 @@ export function afterPaying(view: Pockets, planned: readonly Money[], costs: rea
 /** The same for money the caller has counted itself (a bill paid now from held funds): one figure in the cost's currency. */
 export function afterHaving(have: number, cost: Money): AfterPaying {
   return have >= cost.amount ? { left: { currency: cost.currency, amount: have - cost.amount }, short: null, due: null } : { left: null, short: { currency: cost.currency, amount: cost.amount - have } };
+}
+
+/**
+ * What a change of money gives, worked as the wallet works it (R-WALLET-004, R-WALLET-007), so the
+ * Change money card can say "You get £8,436" before it is confirmed. At the
+ * bank: the charge comes off what is paid in and the rest goes at the official rate. With the FX man:
+ * the street rate, less his spread on a sale; his count can still come up short. The engine decides.
+ */
+export function changeQuote(view: Pick<PlayerView, "rates">, from: Currency, to: Currency, amount: number, via: "bank" | "aboki"): { got: Money; charge: Money } {
+  const rates = (which: "official" | "street") => Object.fromEntries(Object.entries(view.rates).map(([currency, rate]) => [currency, rate[which]])) as Record<ForeignCurrency, number>;
+  if (via === "bank") {
+    const charge = int.bp(amount, content.tuning.wallet.bankChargeBp);
+    return { got: { currency: to, amount: int.convertMinor(amount - charge, from, to, rates("official")) }, charge: { currency: from, amount: charge } };
+  }
+  const street = rates("street");
+  const sell = from === "NGN" ? 0 : street[from] - int.bp(street[from], content.tuning.wallet.streetSpreadBp);
+  const naira = from === "NGN" ? amount : int.mulDiv(amount, sell, 100);
+  return { got: { currency: to, amount: to === "NGN" ? naira : int.convertMinor(naira, "NGN", to, street) }, charge: { currency: from, amount: 0 } };
 }

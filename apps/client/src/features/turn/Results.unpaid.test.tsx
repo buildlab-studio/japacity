@@ -77,6 +77,20 @@ describe("money that was not paid", () => {
     expect(told.slice(0, unpaid.length)).toEqual(unpaid);
     expect(words(rentLine?.key ?? "", rentLine?.params)).toContain(formatMoney(rent.due, "GBP"));
   });
+
+  test("[R-WORLD-008] [R-STATUS-011] given Ada abroad holding no pounds, when a tuition instalment goes unpaid, then the results say what it costs: one more missed and the university withdraws her, and her visa with it", () => {
+    const game = abroadGame();
+    const tuition = game.view().obligations.find((owed) => owed.entry === "obligation.tuition" && owed.due > 0);
+    if (tuition === undefined) throw new Error("No tuition falls due in Ada's first month abroad.");
+    const { lines } = game.endTurn();
+    const told = storyLines(lines).map((line) => toldOnResults(line));
+    const missed = told.find((line) => line.params.obligation === "obligation.tuition");
+    expect(missed?.key).toBe("ui.results.unpaid.withdraw");
+    const said = words(missed?.key ?? "", missed?.params);
+    expect(said).toContain(formatMoney(tuition.due, "GBP"));
+    expect(said).toMatch(/withdraws you/);
+    expect(said).toMatch(/visa/);
+  });
 });
 
 describe("a hunt's answer on the results", () => {

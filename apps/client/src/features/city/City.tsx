@@ -56,6 +56,8 @@ const FALLBACK_OWN = "shared/chr/chr_tunde.glb";
 // The world mode (docs/design/11-the-world-first.md), a prototype the maintainer judges before it becomes rules.
 const LAST_KEY = "japacity.city.last";
 const BEEN_KEY = "japacity.city.been";
+/** Sending money home: an act whose sheet is the Bank's, where the money is. */
+const SEND_MONEY = "activity.send-money";
 /** Minutes by road between two places, from their positions: a base wait and a Lagos pace. */
 function minutesBetween(from: { latE3: number; lonE3: number }, to: { latE3: number; lonE3: number }): number {
   const cos = Math.cos((from.latE3 / 1000) * (Math.PI / 180));
@@ -536,6 +538,13 @@ export function City({
     const { thing, act } = scenePick;
     switch (act.kind) {
       case "sheet":
+        // Money is sent home from the Bank, which shows the channels, the rate and what lands.
+        if (act.stages === SEND_MONEY) {
+          setPicked(null);
+          setPhoneApp("bank");
+          setPhone(true);
+          return;
+        }
         // A job's act opens the hunt's card with that job chosen (R-WORLD-005).
         if (act.stages !== undefined && jobIds.includes(act.stages)) {
           setPicked({ kind: "action", activity: "activity.job-hunt", param: act.stages });
@@ -698,7 +707,7 @@ export function City({
         icon: "plane",
         who: hereName,
         title: say("ui.route.depart"),
-        line: say("ui.world.depart-line", { route: nameOf(route) }),
+        line: say("ui.world.depart-line", { country: say(`ui.country.place.${content.route[route]?.country ?? ""}`) }),
         // The flight's amount is a plain figure in tuning; a world variable would need the simulation's reading.
         cost: employerPays || typeof flight.amount !== "number" ? null : { amount: flight.amount, currency: flight.currency },
         when: "now",
@@ -779,7 +788,7 @@ export function City({
       title: chosen === null ? nameOf(activity) : content.activity[chosen as Id<"activity">]?.slot === "side" ? say("ui.world.side-job-title", { job: paramWords(chosen) }) : `${nameOf(activity)}: ${paramWords(chosen)}`,
       line:
         chosen !== null && content.activity[chosen as Id<"activity">]?.slot === "side"
-          ? (blurbOf(chosen) ?? blurbOf(activity) ?? "")
+          ? [blurbOf(chosen) ?? blurbOf(activity), jobCardWords(view, chosen)].filter((part): part is string => part !== null).join(" ")
           : chosen !== null && content.activity[activity as Id<"activity">]?.param === "job"
             ? [blurbOf(activity), jobCardWords(view, chosen)].filter((part): part is string => part !== null).join(" ")
             : chance !== null
@@ -1155,7 +1164,7 @@ export function City({
             if (at !== null && !there) {
               return (
                 <div className="flex flex-col gap-4" data-ask-away={at}>
-                  <p className="text-[15px] leading-snug text-text-2">{say("ui.world.ask-away", { place: placeName(at) })}</p>
+                  <p className="text-[15px] leading-snug text-text-2">{say(hasWords(`ui.world.ask-away.${at}`) ? `ui.world.ask-away.${at}` : "ui.world.ask-away", { place: placeName(at) })}</p>
                   <button
                     type="button"
                     className="btn-main"

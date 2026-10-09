@@ -37,9 +37,9 @@ export function Results({ place }: { place: string }) {
   const clock = say("ui.world.age", { years: Math.floor(ageMonths / 12), months: ageMonths % 12 });
   const birthday = ageMonths > 0 && ageMonths % 12 === 0;
   const midMonth = useGame((state) => state.lastMonthLines);
-  const lines = report === null ? [] : moneyLines([...midMonth, ...report.lines]);
-  const nets = kept(lines);
   const local = localCurrency(view);
+  const lines = report === null ? [] : moneyLines([...midMonth, ...report.lines], local);
+  const nets = kept(lines);
   const main = nets.find((net) => net.currency === local) ?? nets[0] ?? { currency: local, amount: 0 };
   const rest = nets.filter((net) => net !== main);
   // The counter counts up from nothing each time the sheet opens.

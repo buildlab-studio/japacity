@@ -31,6 +31,18 @@ function jobRows(job: PlayerView["job"]): string[] {
   return [...(job.id === null ? [] : [turnWords("turn.month.working", { job: nameOf(job.id) })]), ...(job.side === null ? [] : [turnWords("turn.month.side", { job: nameOf(job.side) })])];
 }
 
+/**
+ * The End month button's second line: what is planned of the free time. While working, the job is
+ * said and the count is only of the time beside it, so the job is never read as one of the things
+ * planned.
+ */
+function footWords(view: PlayerView, plan: readonly (SlotPick | null)[]): string {
+  const used = slotsUsed(plan);
+  const working = view.job.id !== null;
+  if (used === 0) return turnWords(working && plan.every((pick) => pick === null) ? "turn.month.working-rest" : "ui.month.rest");
+  return turnWords(working ? "turn.month.working-slots" : "ui.month.slots", { used, slots: view.freeSlots });
+}
+
 export function MonthSheet() {
   const view = useView();
   const plan = useGame((state) => state.plan);
@@ -124,7 +136,7 @@ export function MonthSheet() {
         >
           <span>{turnWords("turn.month.end")}</span>
           <span className="text-[13px] font-semibold opacity-80">
-            {slotsUsed(plan) > 0 ? turnWords("ui.month.slots", { used: slotsUsed(plan), slots: view.freeSlots }) : turnWords(view.job.id !== null && plan.every((pick) => pick === null) ? "turn.month.working-rest" : "ui.month.rest")}
+            {footWords(view, plan)}
           </span>
         </button>
         {blocked === null ? null : (

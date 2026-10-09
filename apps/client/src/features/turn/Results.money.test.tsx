@@ -9,8 +9,10 @@ import { describe, expect, test } from "vitest";
 import { stepWith } from "../../../../../packages/sim/src/engine/step";
 import { applyEffects, readyLife, slot, toKnown, withEffects } from "../../../../../packages/sim/src/route/route.journey";
 import { legalCommands } from "../../../../../packages/sim/src/testing/legal";
-import type { Game } from "../../../../../packages/sim/src/testing/play";
-import { newGame } from "../../shared/testing/fixtures";
+import { start, type Game } from "../../../../../packages/sim/src/testing/play";
+import { standInWorld } from "@japacity/sim";
+import { newGame, openOffer } from "../../shared/testing/fixtures";
+import { formatMoney } from "../../shared/words/format";
 import { tidyLines } from "../../shared/words/lines";
 import { words } from "../../shared/words/text";
 import { kept, moneyLines } from "./month.results";
@@ -124,5 +126,65 @@ describe("money that never moved the naira", () => {
     expect(words(bill?.line.key ?? "", bill?.line.params)).toMatch(/^The NEPA bill:/);
     expect(tidyLines(paid).some((line) => line.key === "line.wallet.family")).toBe(false);
     expect(keptNaira([...paid, ...end])).toBe(naira(game) - before);
+  });
+});
+
+/** Ada in a world where every month is December, holding a job, so the thirteenth month can open. */
+function decemberAtHome(): Game {
+  const game = start({
+    scenario: "scenario.ada",
+    content,
+    worldAt: (tick) => {
+      const world = standInWorld("world-1", tick, content);
+      return { ...world, vars: { ...world.vars, "var.season-december": 1 } };
+    },
+  });
+  applyEffects(game, [{ type: "activity/start-job", job: "activity.job-teacher" }]);
+  game.endTurn();
+  return game;
+}
+
+describe("money named for what it was", () => {
+  test("[R-WORLD-008] given a thirteenth month taken mid-month and the month's salary paid at its end, when the month's money is read, then each is told once in its own words, and what was kept is the naira's move over the whole month", () => {
+    const game = decemberAtHome();
+    const offer = openOffer(game, "offer.december-bonus");
+    const pay = offer.terms["pay"];
+    if (typeof pay !== "number") throw new Error("The thirteenth month has no pay.");
+    const before = naira(game);
+    const mid = game.accept({ type: "offer/choose", offer: offer.id, choice: "take" }).lines;
+    const end = game.endTurn().lines;
+    const money = moneyLines([...mid, ...end]);
+    const paidIn = money.filter((entry) => entry.sign === 1 && entry.amount === pay);
+    expect(paidIn.map((entry) => entry.line.key)).toEqual(["ui.line.offer-paid.offer.december-bonus", "line.activity.salary"]);
+    expect(words(paidIn[0]?.line.key ?? "", paidIn[0]?.line.params)).toBe(`A thirteenth month's pay: ${formatMoney(pay, "NGN")}.`);
+    expect(money.some((entry) => entry.line.key === "line.wallet.salary")).toBe(false);
+    expect(keptNaira([...mid, ...end])).toBe(naira(game) - before);
+  });
+
+  test("[R-WORLD-008] [R-WORLD-019] given the savings circle joined, when its months end, then each share reads as the circle, the pot as the circle paying you, and what was kept is what moved", () => {
+    const game = newGame("scenario.tunde");
+    const circle = openOffer(game, "offer.join-ajo");
+    game.accept({ type: "offer/choose", offer: circle.id, choice: "join" });
+    const share = content.obligation["obligation.ajo"]?.amount ?? 0;
+    const months: { lines: ReportLine[]; moved: number }[] = [];
+    for (let month = 0; month < 10 && !months.some((played) => played.lines.some((line) => line.key === "line.obligation.pot")); month += 1) {
+      if (game.state.turn.banked < 1) game.grant(content.tuning.turn.cap);
+      const before = naira(game);
+      const lines = game.endTurn().lines;
+      months.push({ lines, moved: naira(game) - before });
+    }
+    for (const { lines, moved } of months) {
+      const said = moneyLines(lines).map((entry) => words(entry.line.key, entry.line.params));
+      expect(said).toContain(`Savings circle: ${formatMoney(share, "NGN")}.`);
+      expect(said.some((line) => line.startsWith("Spent going out") || line.startsWith("A gift lands"))).toBe(false);
+      expect(keptNaira(lines)).toBe(moved);
+    }
+    const potMonth = months.find((played) => played.lines.some((line) => line.key === "line.obligation.pot"));
+    const pot = potMonth?.lines.find((line) => line.key === "line.obligation.pot");
+    const amount = pot?.params.amount;
+    if (potMonth === undefined || pot === undefined || typeof amount !== "object") throw new Error("The pot did not come within ten months.");
+    const told = words(pot.key, pot.params);
+    expect(told).toContain(`The circle pays you ${formatMoney(amount.amount, "NGN")}`);
+    expect(moneyLines(potMonth.lines).map((entry) => words(entry.line.key, entry.line.params))).toContain(told);
   });
 });

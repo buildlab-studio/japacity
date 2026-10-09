@@ -90,7 +90,8 @@ describe("what an answer moved", () => {
     const land = situationLine(line("line.quality.gain", { quality: "quality.land", points: 1, value: 1 }))!;
     expect(words(land.key, land.params)).not.toMatch(/\d/);
     const portfolio = situationLine(line("line.quality.gain", { quality: "quality.portfolio", points: 1, value: 1 }))!;
-    expect(words(portfolio.key, portfolio.params)).toBe(`${say("quality.portfolio.name")} up.`);
+    // The portfolio has band words now, so from nothing it is said by its band (R-TEXT-005).
+    expect(words(portfolio.key, portfolio.params)).toBe(`${say("ui.band.quality.portfolio.0")}.`);
   });
 
   test("[R-TEXT-005] given a whole life from sixteen, when every card's outcome is read, then none says a quality's figure", async () => {

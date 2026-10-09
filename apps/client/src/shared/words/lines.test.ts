@@ -2,8 +2,11 @@ import type { ReportLine } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
 import { formatMoney } from "./format";
-import { tidyLines } from "./lines";
-import { words } from "./text";
+import { slot } from "../../../../../packages/sim/src/route/route.journey";
+import { legalCommands } from "../../../../../packages/sim/src/testing/legal";
+import { newGame } from "../testing/fixtures";
+import { asksAttention, tidyLines } from "./lines";
+import { bandWords, nameOf, runningName, words } from "./text";
 
 const line = (key: string, params: ReportLine["params"], tone: ReportLine["tone"] = "plain"): ReportLine => ({ key, params, tone, attention: false, counts: [] });
 
@@ -64,7 +67,8 @@ describe("one line per payment", () => {
 describe("lines that read right", () => {
   test("given a quality change, then its amount is points, never money", () => {
     expect(words("line.quality.loss", { quality: "quality.wellbeing", points: 4, value: 60 })).not.toMatch(/₦|£/);
-    expect(words("line.quality.worn", { quality: "quality.wellbeing", points: 2 })).toBe("Work takes 2 off your wellbeing.");
+    // Said without its figure (R-TEXT-005).
+    expect(words("line.quality.worn", { quality: "quality.wellbeing", points: 2 })).toBe("Work wears on your wellbeing.");
   });
 
   test("given a school's discount in pounds as a bare number, then it shows in pounds", () => {
@@ -97,4 +101,50 @@ describe("one endorsement story", () => {
     expect(tidyLines(lines).map((line) => line.key)).toEqual(["line.route.endorsement-refused", "line.route.granted"]);
   });
 });
+});
+
+describe("a quality's move in words", () => {
+  test("[R-TEXT-005] given a quality moved up while its band is low, or down while it is high, when the line is told, then it says the move alone, never a band that reads the other way, and no figure", () => {
+    const up = words("line.quality.gain", { quality: "quality.network", points: 2, value: 5 });
+    const down = words("line.quality.loss", { quality: "quality.wellbeing", points: 3, value: 95 });
+    expect(up).toBe(`${nameOf("quality.network")} up.`);
+    expect(down).toBe(`${nameOf("quality.wellbeing")} down.`);
+    expect(up).not.toContain(bandWords("quality.network", 5) ?? "-");
+    expect(down).not.toContain(bandWords("quality.wellbeing", 95) ?? "-");
+    for (const said of [up, down]) expect(said).not.toMatch(/\d/);
+    // From nothing (the prologue's draw), the band alone still says where the character starts.
+    expect(words("line.quality.gain", { quality: "quality.network", points: 5, value: 5 })).toBe(`${bandWords("quality.network", 5) ?? ""}.`);
+  });
+});
+
+describe("what needs the player", () => {
+  test("[R-PROLOGUE-008] given the life from sixteen played to its degree, when the graded line is read, then it is told and never tagged as needing the player", () => {
+    const game = newGame("scenario.prologue");
+    const told: ReportLine[] = [];
+    for (let guard = 0; guard < 60 && game.state.prologue.open && !told.some((each) => each.key === "line.prologue.graded"); guard += 1) {
+      const [first] = legalCommands(game.view());
+      if (first === undefined) throw new Error("The prologue is open with no legal answer.");
+      told.push(...game.accept(first).lines);
+    }
+    const graded = told.find((each) => each.key === "line.prologue.graded");
+    // The simulation marks it for attention; the screen tells it as what happened.
+    expect(graded?.attention).toBe(true);
+    expect(told.filter((each) => each.key.startsWith("line.prologue.")).some(asksAttention)).toBe(false);
+    expect(asksAttention({ ...line("line.prologue.graded", { grade: 3 }), attention: true })).toBe(false);
+    expect(asksAttention({ ...line("line.offer.opened", { offer: "offer.job" }), attention: true })).toBe(true);
+  });
+});
+
+describe("a paper's fee", () => {
+  test("[R-WORLD-008] given Ada asking for her transcript and her passport in one month, when the month's lines are tidied, then each fee is said as that paper's, never as money paid at some office", () => {
+    const game = newGame("scenario.ada");
+    const lines = game.endTurn([slot("activity.get-transcript", null), slot("activity.get-passport", null)]).lines;
+    const shown = read(lines);
+    const fees = lines.filter((each) => each.key === "line.wallet.fee-document");
+    expect(fees).toHaveLength(2);
+    expect(shown).toContain(`The ${runningName("document.transcript")}'s fee: ${formatMoney(2_500_000, "NGN")}.`);
+    expect(runningName("document.transcript")).toMatch(/^[a-z].*transcript$/);
+    expect(shown.some((said) => said.startsWith("The passport's fee: "))).toBe(true);
+    expect(shown.some((said) => said.startsWith("Paid at the office"))).toBe(false);
+  });
 });

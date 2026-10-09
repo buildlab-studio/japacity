@@ -3,6 +3,9 @@ import type { Requirement } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
 import { formatBand, formatMoney, formatRate } from "./format";
+import { newGame } from "../testing/fixtures";
+import { jobCardWords, jobsWords } from "./jobs";
+import { valueWords } from "./quality";
 import { requirementSentence } from "./requirement";
 import { LOWER_KINDS, lowerFirst, nameOf, PROPER_WORDS, runningName, say, words } from "./text";
 import { uiText } from "./ui";
@@ -90,7 +93,8 @@ describe("names mid-sentence", () => {
 
 describe("requirement sentences", () => {
   const cases: [Requirement, string][] = [
-    [{ type: "quality/min", quality: "quality.tech", value: 40 }, `${text["quality.tech.name"]!} 40 or more`],
+    // A quality's gate is said by its band, never its figure (R-TEXT-005).
+    [{ type: "quality/min", quality: "quality.tech", value: 40 }, say("ui.req.band.quality.tech.1")],
     [{ type: "quality/min", quality: "quality.edu-grade", value: 3 }, `${text["quality.edu-grade.name"]!}: ${text["quality.edu-grade.value.3"]!} or better`],
     [{ type: "document/held", document: "document.passport" }, `${text["document.passport.name"]!} in hand`],
     [{ type: "document/held", document: "document.english-test", min: 60 }, say("ui.req.document-held-band", { document: text["document.english-test.name"]!, band: formatBand(60) })],
@@ -107,5 +111,53 @@ describe("requirement sentences", () => {
   test("given every requirement in content's activities, then each has a sentence with no raw braces", () => {
     const all = Object.values(content.activity).flatMap((entry) => entry.requires);
     for (const requirement of all) expect(requirementSentence(requirement)).not.toMatch(/[{}]/);
+  });
+});
+
+describe("a job's gates in words", () => {
+  test("[R-TEXT-005] given every job's gates in content, when they are said, then each quality is said by its band, never its figure", () => {
+    const jobs = Object.values(content.activity).filter((entry) => entry.pay !== null && entry.pay !== undefined);
+    const gates = jobs.flatMap((entry) => entry.requires).filter((requirement) => requirement.type === "quality/min" || requirement.type === "quality/max");
+    expect(gates.length).toBeGreaterThan(0);
+    for (const gate of gates) expect(requirementSentence(gate)).not.toMatch(/\d/);
+  });
+
+  test("[R-TEXT-005] given the gates the review read, when they are said, then they read as a person would say them", () => {
+    expect(requirementSentence({ type: "quality/min", quality: "quality.english", value: 50 })).toBe("More than basic English");
+    expect(requirementSentence({ type: "quality/min", quality: "quality.tech", value: 60 })).toBe("Good tech");
+    expect(requirementSentence({ type: "quality/min", quality: "quality.portfolio", value: 3 })).toBe("A portfolio with a few pieces");
+    expect(requirementSentence({ type: "quality/min", quality: "quality.driving", value: 1 })).toBe("Someone who can drive");
+    expect(jobsWords("jobs.needs", { needs: requirementSentence({ type: "quality/min", quality: "quality.english", value: 50 }) })).toBe("Needs: More than basic English");
+  });
+
+  test("[R-TEXT-005] given the handover's life so far, when the portfolio is read, then it is said in words, not as a figure", () => {
+    for (let value = 0; value <= (content.quality["quality.portfolio"]?.max ?? 10); value += 1) expect(valueWords("quality.portfolio", value)).not.toMatch(/\d/);
+    expect(valueWords("quality.portfolio", 1)).toBe(say("ui.band.quality.portfolio.0"));
+  });
+});
+
+describe("the words the world's sheets borrow", () => {
+  test("[R-WORLD-006] given every route that flies, when the plane's line is said, then it names the country, never the route's name with an apostrophe", () => {
+    const countries = new Set(Object.values(content.route).flatMap((route) => (route?.country === undefined || route.country === null ? [] : [route.country])));
+    expect(countries.size).toBeGreaterThan(0);
+    for (const country of countries) {
+      const line = say("ui.world.depart-line", { country: say(`ui.country.place.${country}`) });
+      expect(line).not.toMatch(/\{|'s\.$|ui\./);
+    }
+    expect(say("ui.world.depart-line", { country: say("ui.country.place.country.uk") })).toBe("The visa is in your passport and the ticket is yours. Board, and the next place is the UK.");
+  });
+
+  test("[R-WORLD-006] [R-CHAPTER-008] given the send-off waiting at the family house, when the asks say who waits, then Mama is named and home is the place", () => {
+    expect(say("ui.world.ask-away.place.family-house")).toBe("Mama is waiting for you at home.");
+    expect(say("ui.world.ask-away.place.family-house")).toContain(text["family.from.mum"] ?? "-");
+  });
+
+  test("[R-WORLD-005] given the night shift beside a day job, when its card words are read, then they carry its pay a month and its chance, as the board's do", () => {
+    const view = newGame("scenario.ada").view();
+    const said = jobCardWords(view, "activity.night-support");
+    const pay = content.activity["activity.night-support"]?.pay;
+    if (pay === null || pay === undefined || typeof pay.amount !== "number") throw new Error("The night shift has no pay.");
+    expect(said).toContain(formatMoney(pay.amount, pay.currency));
+    expect(["jobs.chance.likely", "jobs.chance.fair", "jobs.chance.long"].some((key) => said.includes(jobsWords(key)))).toBe(true);
   });
 });
