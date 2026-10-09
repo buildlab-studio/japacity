@@ -59,12 +59,12 @@ function PaidBar({ figures }: { figures: CarFigures }) {
   const label = say("ui.car.paid", { paid: formatMoney(paid, currency), price: formatMoney(price, currency) });
   return (
     <div className="flex flex-col gap-1">
-      <div role="meter" aria-label={label} aria-valuemin={0} aria-valuemax={price} aria-valuenow={paid} className="relative h-4 w-full rounded-full bg-sunk">
+      <div role="meter" aria-label={label} aria-valuemin={0} aria-valuemax={price} aria-valuenow={paid} className="relative h-4 w-full rounded-full bg-sheet-muted">
         <div className="h-full rounded-full bg-accent" style={{ width: at(paid) }} />
         <span aria-hidden="true" className="absolute -top-1 h-6 w-0.5 bg-ink" style={{ left: at(third) }} />
         <span aria-hidden="true" className="absolute -top-1 h-6 w-0.5 bg-good" style={{ left: at(half) }} />
       </div>
-      <div className="relative h-5 text-xs text-muted" aria-hidden="true">
+      <div className="relative h-5 text-xs text-text-2" aria-hidden="true">
         <span className="absolute -translate-x-1/2" style={{ left: at(third) }}>
           {say("ui.car.third-mark")}
         </span>
@@ -137,7 +137,7 @@ export function CarCard({ owed }: { owed: Owed }) {
             )}
           </div>
         )}
-        {canHandBack ? null : <p className="text-xs text-muted">{say("ui.car.hand-back-when", { amount: formatMoney(half, currency) })}</p>}
+        {canHandBack ? null : <p className="text-xs text-text-2">{say("ui.car.hand-back-when", { amount: formatMoney(half, currency) })}</p>}
       </Card>
     </li>
   );

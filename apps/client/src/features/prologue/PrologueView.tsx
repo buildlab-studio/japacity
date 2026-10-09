@@ -91,7 +91,7 @@ function Answers({ prologue }: { prologue: Prologue }) {
               {answer.allowed ? <ArrowRight size={18} className="shrink-0" /> : null}
             </Button>
             {reasons.length === 0 ? null : (
-              <p className="pl-4 text-sm text-muted">
+              <p className="pl-4 text-sm text-text-2">
                 {say("prologue.not-for-you")} {reasons.join(" ")}
               </p>
             )}
@@ -145,7 +145,7 @@ function Outcome({ prologue }: { prologue: Prologue }) {
   if (prologue.lastOutcome === null && shown.length === 0) return null;
   return (
     <Card tone="attention" className="flex flex-col gap-2" data-prologue-outcome>
-      <h2 className="text-sm font-semibold tracking-wide text-muted uppercase">{say("ui.prologue.then")}</h2>
+      <h2 className="text-sm font-semibold tracking-wide text-text-2 uppercase">{say("ui.prologue.then")}</h2>
       {prologue.lastOutcome === null ? null : <p className="text-lg font-medium">{words(prologue.lastOutcome)}</p>}
       {shown.length === 0 ? null : <ReportLines lines={shown} />}
     </Card>
@@ -158,10 +158,10 @@ function LifeSoFar({ view, draw }: { view: PlayerView; draw?: Draw | null }) {
   const naira = view.pockets.NGN.bank + view.pockets.NGN.cash;
   return (
     <section aria-label={say("ui.prologue.so-far")} className="flex flex-col gap-3" data-life-so-far>
-      <h2 className="text-sm font-semibold tracking-wide text-muted uppercase">{say("ui.prologue.so-far")}</h2>
+      <h2 className="text-sm font-semibold tracking-wide text-text-2 uppercase">{say("ui.prologue.so-far")}</h2>
       <Card className="flex flex-col gap-3">
         {draw === undefined ? null : draw === null ? (
-          <p className="text-muted">{say("ui.prologue.not-drawn")}</p>
+          <p className="text-text-2">{say("ui.prologue.not-drawn")}</p>
         ) : (
           <ul className="flex flex-col gap-1" data-draw>
             {drawSentences(draw).map((sentence) => (
@@ -171,10 +171,10 @@ function LifeSoFar({ view, draw }: { view: PlayerView; draw?: Draw | null }) {
         )}
         <p className="font-medium">{naira === 0 ? say("ui.prologue.money.none") : say("ui.prologue.money", { amount: formatMoney(naira, "NGN") })}</p>
         {held.length === 0 ? null : (
-          <dl className="grid grid-cols-2 gap-x-4 gap-y-2 border-t border-line pt-3 text-sm">
+          <dl className="grid grid-cols-2 gap-x-4 gap-y-2 border-t border-sheet-line pt-3 text-sm">
             {held.map(({ id, value }) => (
               <div key={id} className="flex flex-col">
-                <dt className="text-muted">{nameOf(id)}</dt>
+                <dt className="text-text-2">{nameOf(id)}</dt>
                 <dd className="font-semibold">{valueWords(id, value)}</dd>
               </div>
             ))}
@@ -192,8 +192,8 @@ export function PrologueView() {
   return (
     <main className="mx-auto flex min-h-dvh max-w-xl flex-col gap-4 px-4 py-6" data-prologue={prologue.step} data-v={view.v}>
       <div className="flex items-baseline justify-between gap-3">
-        <p className="text-sm font-semibold tracking-wide text-muted uppercase">{say("ui.prologue.title")}</p>
-        <p className="text-sm text-muted">{say("ui.profile.age", { years: ageYears(view) })}</p>
+        <p className="text-sm font-semibold tracking-wide text-text-2 uppercase">{say("ui.prologue.title")}</p>
+        <p className="text-sm text-text-2">{say("ui.profile.age", { years: ageYears(view) })}</p>
       </div>
       <Outcome prologue={prologue} />
       <Card className="flex flex-col gap-4" data-prologue-card>
@@ -255,10 +255,10 @@ export function PrologueHandover({ onDone }: { onDone: () => void }) {
   const story = storyLines(view);
   return (
     <main className="mx-auto flex min-h-dvh max-w-xl flex-col gap-4 px-4 py-6" data-prologue-handover>
-      <p className="text-sm font-semibold tracking-wide text-muted uppercase">{say("ui.prologue.title")}</p>
+      <p className="text-sm font-semibold tracking-wide text-text-2 uppercase">{say("ui.prologue.title")}</p>
       <Card tone="attention" className="flex flex-col gap-3">
         <h1 className="text-2xl leading-snug font-semibold">{words(PROLOGUE_CLOSED)}</h1>
-        <p className="text-muted">{say("ui.profile.age", { years: ageYears(view) })}</p>
+        <p className="text-text-2">{say("ui.profile.age", { years: ageYears(view) })}</p>
         {story.length === 0 ? null : (
           <div className="flex flex-col gap-2 text-lg" data-handover-story>
             {story.map((sentence) => (

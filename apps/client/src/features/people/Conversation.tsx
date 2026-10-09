@@ -31,11 +31,11 @@ function Row({ row, mine, name }: { row: ConversationRow; mine: boolean; name: s
   const words = phraseWords(row.phrase, row.fill);
   return (
     <li className={`flex flex-col gap-0.5 ${mine ? "items-end" : "items-start"}`} data-row={row.id}>
-      <span className="text-xs text-muted">{mine ? say("ui.talk.you") : name}</span>
-      <span className={`max-w-[85%] rounded-2xl px-3 py-2 ${mine ? "bg-ink text-paper" : "border border-line bg-surface"}`}>{words}</span>
+      <span className="text-xs text-text-2">{mine ? say("ui.talk.you") : name}</span>
+      <span className={`max-w-[85%] rounded-2xl px-3 py-2 ${mine ? "bg-strong text-on-strong" : "border border-sheet-line bg-sheet-2"}`}>{words}</span>
       {mine ? (
         row.readAt === null ? null : (
-          <span className="flex items-center gap-1 text-xs text-muted">
+          <span className="flex items-center gap-1 text-xs text-text-2">
             <Check size={12} />
             {say("ui.talk.read")}
           </span>
@@ -130,7 +130,7 @@ export function Conversation({ api, pair, name }: { api: PairApi; pair: string; 
   const mine = (row: ConversationRow) => them !== null && row.sender !== them;
 
   return (
-    <section aria-label={say("ui.talk.title")} className="flex flex-col gap-3 rounded-lg border border-line p-3" data-conversation={pair}>
+    <section aria-label={say("ui.talk.title")} className="flex flex-col gap-3 rounded-lg border border-sheet-line p-3" data-conversation={pair}>
       <div className="flex items-start justify-between gap-2">
         <h4 className="flex items-center gap-2 font-semibold">
           <MessageCircle size={16} />
@@ -140,9 +140,9 @@ export function Conversation({ api, pair, name }: { api: PairApi; pair: string; 
           {say("ui.talk.more")}
         </Button>
       </div>
-      <p className="text-sm text-muted">{say("ui.talk.help")}</p>
+      <p className="text-sm text-text-2">{say("ui.talk.help")}</p>
       {rows.length === 0 ? (
-        <p className="text-sm text-muted">{say("ui.talk.empty")}</p>
+        <p className="text-sm text-text-2">{say("ui.talk.empty")}</p>
       ) : (
         <ol ref={thread} className="flex max-h-72 flex-col gap-2 overflow-y-auto pb-1">
           {rows.map((row) => (
@@ -167,7 +167,7 @@ export function Conversation({ api, pair, name }: { api: PairApi; pair: string; 
             setPhraseId(event.target.value as Id<"phrase">);
             setFill(null);
           }}
-          className="min-h-11 rounded-lg border border-line bg-paper px-3"
+          className="min-h-11 rounded-lg border border-sheet-line bg-sheet px-3"
         >
           {PHRASES.map((entry) => (
             <option key={entry.id} value={entry.id}>
@@ -180,7 +180,7 @@ export function Conversation({ api, pair, name }: { api: PairApi; pair: string; 
             <label htmlFor={`${id}-fill`} className="text-sm font-medium">
               {say("ui.talk.fill")}
             </label>
-            <select id={`${id}-fill`} value={chosenFill ?? ""} onChange={(event) => setFill(event.target.value)} className="min-h-11 rounded-lg border border-line bg-paper px-3">
+            <select id={`${id}-fill`} value={chosenFill ?? ""} onChange={(event) => setFill(event.target.value)} className="min-h-11 rounded-lg border border-sheet-line bg-sheet px-3">
               {fills.map((value) => (
                 <option key={value} value={value}>
                   {fillWords(phrase.id, phrase.fill ?? "", value)}

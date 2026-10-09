@@ -31,13 +31,13 @@ export function UndertakingCard({ owed }: { owed: Owed }) {
           <h3 className="font-semibold">{nameOf(owed.entry)}</h3>
           <Tag tone={owed.state === "active" ? "plain" : "bad"}>{say(`ui.obligation.state.${owed.state}`)}</Tag>
         </div>
-        {blurb === null ? null : <p className="text-sm text-muted">{blurb}</p>}
+        {blurb === null ? null : <p className="text-sm text-text-2">{blurb}</p>}
         <p className="text-sm">{sayCount("ui.undertaking.months-left", months, { months })}</p>
         <p className="text-sm">{sayCount("ui.undertaking.charged", owed.charged, { months: owed.charged })}</p>
         <p className="font-medium tabular-nums">{owed.outstanding > 0 ? say("ui.undertaking.owed", { amount: formatMoney(owed.outstanding, currency) }) : say("ui.undertaking.nothing-owed")}</p>
         {owed.due > 0 ? <p className="text-sm tabular-nums">{say("ui.obligation.due", { amount: formatMoney(owed.due, currency) })}</p> : null}
         {owed.missed > 0 ? <p className="text-sm text-bad">{sayCount("ui.obligation.missed", owed.missed, { count: owed.missed })}</p> : null}
-        <p className="text-sm text-muted">{say("ui.undertaking.assistance", { amount: formatMoney(assistance, currency) })}</p>
+        <p className="text-sm text-text-2">{say("ui.undertaking.assistance", { amount: formatMoney(assistance, currency) })}</p>
         {ended || owed.outstanding === 0 ? null : (
           <div>
             <Button small disabled={busy} onClick={() => void send({ type: "obligation/pay", obligation: owed.id, amount: owed.outstanding })}>

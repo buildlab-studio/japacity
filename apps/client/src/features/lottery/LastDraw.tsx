@@ -18,9 +18,9 @@ export function Tiers({ result, showTickets = false }: { result: LotteryResult; 
             <span className="font-medium">{say(`ui.lottery.tier.${tier.tier}`)}</span>
             {tier.tickets.length === 0 ? null : <span className="font-semibold tabular-nums">{formatMoney(tier.amount, "NGN")}</span>}
           </div>
-          <span className="text-sm text-muted">{sayCount("ui.lottery.tier-line", tier.tickets.length, { tickets: tier.tickets.length, amount: formatMoney(tier.amount, "NGN") })}</span>
+          <span className="text-sm text-text-2">{sayCount("ui.lottery.tier-line", tier.tickets.length, { tickets: tier.tickets.length, amount: formatMoney(tier.amount, "NGN") })}</span>
           {showTickets && tier.tickets.length > 0 ? (
-            <span className="text-xs text-muted tabular-nums">{say("ui.lottery.tier-tickets", { numbers: tier.tickets.map((ticket) => formatNumber(ticket)).join(", ") })}</span>
+            <span className="text-xs text-text-2 tabular-nums">{say("ui.lottery.tier-tickets", { numbers: tier.tickets.map((ticket) => formatNumber(ticket)).join(", ") })}</span>
           ) : null}
         </li>
       ))}
@@ -31,7 +31,7 @@ export function Tiers({ result, showTickets = false }: { result: LotteryResult; 
 export function LastDraw({ result, onCheck }: { result: LotteryResult; onCheck: (() => void) | null }) {
   return (
     <Card className="flex flex-col gap-3" data-lottery-last={result.draw}>
-      <p className="text-xs font-semibold tracking-widest text-muted uppercase">{say("ui.lottery.last")}</p>
+      <p className="text-xs font-semibold tracking-widest text-text-2 uppercase">{say("ui.lottery.last")}</p>
       <p className="text-sm">{say("ui.lottery.last-line", { draw: result.draw, count: formatNumber(result.count) })}</p>
       <p className="text-sm font-medium" data-lottery-last-hit={resultCounts(result).hit}>
         {resultCounts(result).hit

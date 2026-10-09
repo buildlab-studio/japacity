@@ -22,7 +22,7 @@ export function TurnView() {
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <h2 className="text-2xl font-bold">{say("ui.month.planning", { month: playerMonth(view.month) })}</h2>
-        <span className="text-muted">{say("ui.month.banked", { banked: view.turns.banked, cap: view.turns.cap })}</span>
+        <span className="text-text-2">{say("ui.month.banked", { banked: view.turns.banked, cap: view.turns.cap })}</span>
       </div>
 
       {view.ended ? <Card tone="attention">{say("ui.month.over")}</Card> : null}
@@ -52,7 +52,7 @@ export function TurnView() {
           )}
         </div>
         {report === null ? (
-          <p className="mt-2 text-muted">{say("ui.report.none")}</p>
+          <p className="mt-2 text-text-2">{say("ui.report.none")}</p>
         ) : (
           <div className="mt-2 max-h-48 overflow-y-auto">
             <ReportBody report={report} waiting={view.setpiece !== null} />

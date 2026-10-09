@@ -50,7 +50,7 @@ function Close({ lottery }: { lottery: Lottery }) {
   return (
     <p className="flex flex-wrap items-baseline gap-x-2 text-sm" data-lottery-close={at}>
       <span className="font-medium">{say("ui.lottery.closes", { when: closeWords(at) })}</span>
-      <span className="text-muted tabular-nums">{open ? say("ui.lottery.closes-in", { wait: waitWords(at - now) }) : say("ui.lottery.closed")}</span>
+      <span className="text-text-2 tabular-nums">{open ? say("ui.lottery.closes-in", { wait: waitWords(at - now) }) : say("ui.lottery.closed")}</span>
     </p>
   );
 }
@@ -61,11 +61,11 @@ function Jackpot({ lottery }: { lottery: Lottery }) {
   const since = lottery.rolledOver ? say("ui.lottery.rolled") : lottery.last === null ? null : say("ui.lottery.restarted");
   return (
     <div className="flex flex-col gap-1" data-lottery-jackpot={lottery.jackpot} data-rolled-over={lottery.rolledOver}>
-      <p className="text-xs font-semibold tracking-widest text-muted uppercase">{say("ui.lottery.jackpot")}</p>
+      <p className="text-xs font-semibold tracking-widest text-text-2 uppercase">{say("ui.lottery.jackpot")}</p>
       <p className="font-display text-4xl leading-none tabular-nums">{formatMoney(lottery.jackpot, "NGN")}</p>
       {since === null ? null : <p className="text-sm font-medium">{since}</p>}
       {odds.jackpotGrowthBp > 0 ? (
-        <p className="text-sm text-muted">{say("ui.lottery.grows", { share: formatBp(odds.jackpotGrowthBp), cap: formatMoney(odds.jackpotCap, "NGN") })}</p>
+        <p className="text-sm text-text-2">{say("ui.lottery.grows", { share: formatBp(odds.jackpotGrowthBp), cap: formatMoney(odds.jackpotCap, "NGN") })}</p>
       ) : null}
     </div>
   );
@@ -75,11 +75,11 @@ function Odds({ lottery }: { lottery: Lottery }) {
   const weeks = lottery.odds.forcedWinWeeks;
   return (
     <div className="flex flex-col gap-1.5">
-      <p className="text-xs font-semibold tracking-widest text-muted uppercase">{say("ui.lottery.odds")}</p>
+      <p className="text-xs font-semibold tracking-widest text-text-2 uppercase">{say("ui.lottery.odds")}</p>
       <Chances odds={lottery.odds} jackpot={lottery.jackpot} />
-      <p className="text-xs text-muted">{say("ui.lottery.shared")}</p>
+      <p className="text-xs text-text-2">{say("ui.lottery.shared")}</p>
       {weeks === null ? null : (
-        <p className="text-xs text-muted" data-lottery-forced>
+        <p className="text-xs text-text-2" data-lottery-forced>
           {say("ui.lottery.forced", { weeks: formatNumber(weeks) })}
         </p>
       )}
@@ -105,12 +105,12 @@ function Tickets({ lottery }: { lottery: Lottery }) {
     <div className="flex flex-col gap-3">
       <p className="text-sm">{say("ui.lottery.price", { price: formatMoney(lottery.ticket, "NGN"), max: lottery.maxTickets })}</p>
       <div className="flex items-start gap-2" data-lottery-held={lottery.tickets}>
-        <Ticket size={18} className="mt-0.5 shrink-0 text-muted" />
+        <Ticket size={18} className="mt-0.5 shrink-0 text-text-2" />
         <div className="flex flex-col gap-1.5">
           <span className="font-medium">{sayCount("ui.lottery.held", lottery.tickets, { count: lottery.tickets })}</span>
           <span aria-hidden className="flex gap-1.5">
             {Array.from({ length: lottery.maxTickets }, (_, index) => (
-              <span key={index} className={`h-3 w-5 rounded-sm border ${index < lottery.tickets ? "border-accent bg-accent" : "border-line"}`} />
+              <span key={index} className={`h-3 w-5 rounded-sm border ${index < lottery.tickets ? "border-accent bg-accent" : "border-sheet-line"}`} />
             ))}
           </span>
         </div>
@@ -120,17 +120,17 @@ function Tickets({ lottery }: { lottery: Lottery }) {
       ) : null}
       <Rejection />
       {closed ? (
-        <p className="text-sm text-muted" data-lottery-closed>
+        <p className="text-sm text-text-2" data-lottery-closed>
           {say("ui.lottery.closed-buy")}
         </p>
       ) : full ? (
-        <p className="text-sm text-muted">{say("ui.lottery.full")}</p>
+        <p className="text-sm text-text-2">{say("ui.lottery.full")}</p>
       ) : most === 0 ? (
-        <p className="text-sm text-muted">{say("ui.lottery.short", { bank: formatMoney(bank, "NGN") })}</p>
+        <p className="text-sm text-text-2">{say("ui.lottery.short", { bank: formatMoney(bank, "NGN") })}</p>
       ) : (
         <div className="flex flex-col gap-2">
           <div className="flex flex-wrap items-center gap-2">
-            <div role="group" aria-label={say("ui.lottery.how-many")} className="inline-flex items-center rounded-lg border border-line">
+            <div role="group" aria-label={say("ui.lottery.how-many")} className="inline-flex items-center rounded-lg border border-sheet-line">
               <button type="button" aria-label={say("ui.lottery.fewer")} disabled={count <= 1} onClick={() => setWanted(count - 1)} className="inline-flex size-11 items-center justify-center disabled:opacity-40">
                 <Minus size={18} />
               </button>
@@ -145,7 +145,7 @@ function Tickets({ lottery }: { lottery: Lottery }) {
               {sayCount("ui.lottery.buy", count, { count, cost: formatMoney(cost, "NGN") })}
             </Button>
           </div>
-          <p className="text-xs text-muted">{say("ui.lottery.from-bank", { bank: formatMoney(bank, "NGN") })}</p>
+          <p className="text-xs text-text-2">{say("ui.lottery.from-bank", { bank: formatMoney(bank, "NGN") })}</p>
         </div>
       )}
     </div>
@@ -157,16 +157,16 @@ function Seal({ lottery }: { lottery: Lottery }) {
   const round = world !== null && world.draw === lottery.draw ? world.beaconRound : null;
   return (
     <details className="group text-sm">
-      <summary className="flex cursor-pointer list-none items-center gap-2 text-muted">
+      <summary className="flex cursor-pointer list-none items-center gap-2 text-text-2">
         <ShieldCheck size={16} />
         <span className="min-w-0 truncate">{say("ui.lottery.fingerprint", { print: `${lottery.fingerprint.slice(0, 12)}...` })}</span>
       </summary>
       <div className="mt-2 flex flex-col gap-2">
-        <code className="block rounded-lg bg-sunk p-2 text-xs break-all" data-lottery-fingerprint>
+        <code className="block rounded-lg bg-sheet-muted p-2 text-xs break-all" data-lottery-fingerprint>
           {lottery.fingerprint}
         </code>
-        {round === null ? null : <p className="text-muted">{say("ui.lottery.round", { round: formatNumber(round) })}</p>}
-        <p className="text-muted">{say("ui.lottery.sealed-why")}</p>
+        {round === null ? null : <p className="text-text-2">{say("ui.lottery.round", { round: formatNumber(round) })}</p>}
+        <p className="text-text-2">{say("ui.lottery.sealed-why")}</p>
       </div>
     </details>
   );

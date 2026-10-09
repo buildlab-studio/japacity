@@ -99,9 +99,9 @@ function AmountPicker({ min, max, value, onChange }: { min: number; max: number;
         max={maxMajor}
         value={toMajor(value)}
         onChange={(event) => set(Number(event.target.value))}
-        className="min-h-11 rounded-lg border border-line bg-paper px-3 tabular-nums"
+        className="min-h-11 rounded-lg border border-sheet-line bg-sheet px-3 tabular-nums"
       />
-      <p id={`${id}-bounds`} className="text-xs text-muted">
+      <p id={`${id}-bounds`} className="text-xs text-text-2">
         {say("ui.offer.bounds", { min: formatMoney(min, "NGN"), max: formatMoney(max, "NGN") })}
       </p>
     </div>
@@ -126,7 +126,7 @@ function OfferCard({ offer, onChosen }: { offer: Offer; onChosen: (lines: Report
         <JobFigures terms={offer.terms} />
         <p>{words(`${offer.entry}.body`, params)}</p>
         {offer.signs.length === 0 ? null : (
-          <div className="flex flex-col gap-1 rounded-lg bg-sunk p-3 text-sm">
+          <div className="flex flex-col gap-1 rounded-lg bg-sheet-muted p-3 text-sm">
             <p className="flex items-center gap-2 font-medium">
               <Eye size={16} />
               {say("ui.offer.signs")}
@@ -169,14 +169,14 @@ function OfferCard({ offer, onChosen }: { offer: Offer; onChosen: (lines: Report
 /** What the last choice moved, so a choice is never silent. */
 function Outcome({ lines, onClose }: { lines: ReportLine[]; onClose: () => void }) {
   return (
-    <div role="status" className="flex flex-col gap-1 rounded-xl border border-line bg-surface p-4">
+    <div role="status" className="flex flex-col gap-1 rounded-xl border border-sheet-line bg-sheet-2 p-4">
       <div className="flex items-start justify-between gap-2">
         <h3 className="font-semibold">{say("ui.offer.outcome")}</h3>
-        <button type="button" aria-label={say("ui.dismiss")} className="inline-flex size-9 items-center justify-center rounded-lg hover:bg-sunk" onClick={onClose}>
+        <button type="button" aria-label={say("ui.dismiss")} className="inline-flex size-9 items-center justify-center rounded-lg hover:bg-sheet-muted" onClick={onClose}>
           <X size={16} />
         </button>
       </div>
-      {lines.length === 0 ? <p className="text-sm text-muted">{say("ui.offer.outcome-none")}</p> : <ReportLines lines={[...tidyLines(lines)].sort((a, b) => Number(isSaid(b)) - Number(isSaid(a)))} />}
+      {lines.length === 0 ? <p className="text-sm text-text-2">{say("ui.offer.outcome-none")}</p> : <ReportLines lines={[...tidyLines(lines)].sort((a, b) => Number(isSaid(b)) - Number(isSaid(a)))} />}
     </div>
   );
 }

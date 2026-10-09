@@ -28,8 +28,8 @@ export function ReportBody({ report }: { report: TurnReport; waiting?: boolean }
   return (
     <div className="flex flex-col gap-3">
       {needsAnswer ? <p className="font-medium">{say("ui.report.attention")}</p> : null}
-      {report.lines.length === 0 ? <p className="text-muted">{say("ui.report.quiet")}</p> : <ReportLines lines={report.lines} />}
-      <p className={moved ? "font-semibold" : "text-muted"}>{japacityWords(report.japacityBefore, report.japacityAfter)}</p>
+      {report.lines.length === 0 ? <p className="text-text-2">{say("ui.report.quiet")}</p> : <ReportLines lines={report.lines} />}
+      <p className={moved ? "font-semibold" : "text-text-2"}>{japacityWords(report.japacityBefore, report.japacityAfter)}</p>
     </div>
   );
 }

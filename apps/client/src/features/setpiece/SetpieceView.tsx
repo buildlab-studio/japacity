@@ -29,12 +29,12 @@ function Plain() {
           <MessageCircleQuestion size={22} className="mt-0.5 shrink-0" />
           <div className="flex flex-col gap-1">
             <h2 className="text-lg font-semibold">{nameOf(setpiece.entry)}</h2>
-            <p className="text-sm text-muted">{say("ui.setpiece.blocks")}</p>
+            <p className="text-sm text-text-2">{say("ui.setpiece.blocks")}</p>
           </div>
         </div>
         {question === null ? null : (
           <>
-            <p className="text-sm font-medium text-muted">{say("ui.setpiece.question", { n: setpiece.asked + 1, total: setpiece.total })}</p>
+            <p className="text-sm font-medium text-text-2">{say("ui.setpiece.question", { n: setpiece.asked + 1, total: setpiece.total })}</p>
             <p className="text-xl font-semibold">{words(`${setpiece.entry}.q.${question.id}`)}</p>
             <ul className="flex flex-col gap-2">
               {question.answers.map((answer) => {
