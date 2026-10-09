@@ -52,7 +52,10 @@ const OFFER_PAID = "ui.line.offer-paid.";
 const CHARGED_AS = "ui.line.charged.";
 
 /** The interface's names for a payment: the wallet's money moving, said for what it paid. */
-const NAMED: readonly string[] = [FAMILY_PAID, OFFER_PAID, CHARGED_AS, "ui.line.document-fee"];
+/** The naira leg of money sent home, named for where it lands. */
+const REMIT_LANDED = "ui.line.remit-landed";
+
+const NAMED: readonly string[] = [FAMILY_PAID, OFFER_PAID, CHARGED_AS, "ui.line.document-fee", REMIT_LANDED];
 
 /** The prologue's last line: what came before it is the years before the first month. */
 export const PROLOGUE_CLOSED = "line.prologue.closed";
@@ -246,7 +249,13 @@ export function toldUnpaid(line: ReportLine): ReportLine {
 
 export function tidyLines(lines: readonly ReportLine[]): ReportLine[] {
   // Named before the retold go, so a payment named for its offer is never taken for the month's own.
-  return oneEndorsementStory(savedBefore(dropRetold(paperFee(paidAs(paidFor(foldPockets(lines))))))).map(variant);
+  return oneEndorsementStory(savedBefore(dropRetold(paperFee(paidAs(paidFor(foldPockets(lines))))))).map(variant).map(remitLanded);
+}
+
+/** Money sent home lands in the naira account at home: that leg says so, instead of "sent home" twice. */
+function remitLanded(line: ReportLine): ReportLine {
+  const money = moneyParam("amount", line.params, line.key);
+  return line.key === "line.wallet.remit" && money?.currency === "NGN" ? { ...line, key: REMIT_LANDED } : line;
 }
 
 /**

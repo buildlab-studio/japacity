@@ -96,6 +96,7 @@ export const uiText: Record<string, string> = {
   "ui.results.unpaid.credit-standing-mood": "{obligation}: {amount} went unpaid. A mark on your credit file, and your standing and your mood took a hit.",
   "ui.results.unpaid.plain": "{obligation}: {amount} went unpaid.",
   "ui.results.unpaid.withdraw": "{obligation}: {amount} went unpaid. Miss the next one too and the university withdraws you, and your visa goes with it.",
+  "ui.line.remit-landed": "Lands in your naira account at home: {amount}.",
   "ui.results.changed": "Changed {paid} into {got}. The bank's charge comes to {amount}.",
   "ui.results.hunt-missed": "{job}: not this time.",
   "ui.results.hunt-offer": "An offer: {job}, {pay} a month.",
@@ -662,7 +663,7 @@ export const uiText: Record<string, string> = {
   "ui.remit.arrives": "Arrives: {naira}. Fee: {fee}",
   "ui.remit.send": "Send it",
   // The Bank's send money home abroad (features/phone/apps/Bank.tsx, SendChooser).
-  "ui.remit.who": "To the family at home",
+  "ui.remit.who": "To your naira account at home. What the family asks for is paid from it.",
   "ui.remit.terms.app": "The app's rate, a little under the bank's, and a fee of {fee}. Lands today in the bank at home.",
   "ui.remit.terms.app.free": "No fee, but the app's rate is a little under the bank's. Lands today in the bank at home.",
   "ui.remit.terms.bank": "The bank's rate and a fee of {fee}. Lands next month in the bank at home.",

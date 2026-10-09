@@ -100,6 +100,11 @@ function monthlyNaira(job: string): number {
   return pay === null || pay.currency !== "NGN" || typeof pay.amount !== "number" ? 0 : pay.amount;
 }
 
+/** The month's naira bills at its end: the upkeep, a savings circle's share, a loan's instalment. */
+function nairaDues(view: NudgeView): number {
+  return (view.obligations ?? []).reduce((sum, owed) => (owed.due > 0 && content.obligation[owed.entry as Id<"obligation">]?.currency === "NGN" ? sum + owed.due : sum), 0);
+}
+
 /**
  * A step already started names the wait instead of the thing to do again:
  * a paper on its way says when, a school applied to says when it answers, a hunt or a test planned
@@ -126,8 +131,9 @@ function startedKey(view: NudgeView, own: string, stepKey: string, planned: read
     const held = (view.pockets?.NGN.bank ?? 0) + (view.pockets?.NGN.cash ?? 0);
     if (option !== undefined && !option.affordable && naira > held) {
       if (planned.includes("activity.job-hunt")) return { key: "ui.nudge.hunt-planned" };
+      // What next month leaves: the pay less the month's bills. Only when that closes the gap is "work and save" true.
       const pay = view.job?.id === null || view.job?.id === undefined ? 0 : monthlyNaira(view.job.id);
-      if (pay >= naira - held && has(`${own}.saving`)) return { key: `${own}.saving` };
+      if (pay - nairaDues(view) >= naira - held && has(`${own}.saving`)) return { key: `${own}.saving` };
       if (has(`${own}.short`)) return { key: `${own}.short`, params: { amount: formatMoney(naira - held, "NGN") } };
     }
   }

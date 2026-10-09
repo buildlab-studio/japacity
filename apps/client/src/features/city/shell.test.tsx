@@ -237,6 +237,9 @@ describe("the nudge", () => {
     // A job whose month's pay covers the gap: the nudge says to work and save.
     const paid = { ...dear, job: { ...dear.job, id: "activity.job-junior-dev" as const } };
     expect(nudgeOf(paid).key).toBe("chapter.build-the-file.item.english.saving");
+    // The month's bills eat the pay: the nudge says the gap, never "work and save".
+    const billed = { ...paid, obligations: [{ ...paid.obligations[0]!, due: 40_000_000, entry: "obligation.upkeep" as never }] };
+    expect(nudgeOf(billed)).toMatchObject({ key: "chapter.build-the-file.item.english.short", params: { amount: formatMoney(9_900_000, "NGN") } });
     const first = { ...quiet, chapter: { current: "chapter.find-your-feet" as const, items: [{ id: "known", met: false }], done: [] } };
     expect(nudgeOf(first, undefined, ["activity.look-into-route"]).key).toBe("chapter.find-your-feet.item.known.planned");
     const heard = { ...first, chapter: { ...first.chapter, items: [{ id: "heard", met: false }] } };

@@ -143,7 +143,8 @@ describe("the dots", () => {
     openApp("jobs");
     fireEvent.click(screen.getByRole("button", { name: "Back" }));
     expect(tile("jobs").querySelector("[data-dot]")).toBeNull();
-    expect(Object.keys(localStorage)).toEqual([SEEN_KEY]);
+    // The month the store remembers (japacity.month) sits beside it; what was seen has one key of its own.
+    expect(Object.keys(localStorage).filter((key) => key.startsWith("japacity.phone"))).toEqual([SEEN_KEY]);
     const kept = JSON.parse(localStorage.getItem(SEEN_KEY) ?? "{}") as Record<string, string>;
     expect(kept.jobs).toBe(marksOf(busyView()).jobs);
     act(() => reloadSeen());

@@ -179,8 +179,63 @@ function fitPlan(plan: readonly (SlotPick | null)[], slots: number): (SlotPick |
   return [...kept, ...plan.filter((pick): pick is SlotPick => pick !== null && !takesSlot(pick))];
 }
 
+/** What the browser keeps of the month between loads: the plan, the lines so far, and the card closed. */
+const MONTH_KEY = "japacity.month";
+
+interface MonthMemory {
+  /** The view the memory belongs to: a reload lands on the same view, so the same number. */
+  v: number;
+  scenario: string;
+  plan: (SlotPick | null)[];
+  monthLines: ReportLine[];
+  lastMonthLines: ReportLine[];
+  cardClosed: string | null;
+}
+
+function readMonth(): MonthMemory | null {
+  try {
+    const raw = localStorage.getItem(MONTH_KEY);
+    if (raw === null) return null;
+    const held: unknown = JSON.parse(raw);
+    if (typeof held !== "object" || held === null || typeof (held as MonthMemory).v !== "number" || !Array.isArray((held as MonthMemory).plan)) return null;
+    return held as MonthMemory;
+  } catch {
+    return null;
+  }
+}
+
+function writeMonth(memory: MonthMemory): void {
+  try {
+    localStorage.setItem(MONTH_KEY, JSON.stringify(memory));
+  } catch {
+    // Private windows and full stores: the month is kept in memory alone.
+  }
+}
+
+/** Drops what the browser remembers of the month: a new life, or a test's own load. */
+export function forgetMonth(): void {
+  try {
+    localStorage.removeItem(MONTH_KEY);
+  } catch {
+    // Nothing kept, nothing to drop.
+  }
+}
+
+/** Puts the month the browser remembers back into the store, when it belongs to this very view. */
+function rememberedMonth(view: PlayerView): Partial<GameState> {
+  const memory = readMonth();
+  if (memory === null || memory.v !== view.v || memory.scenario !== view.scenario) return {};
+  return { plan: fitPlan(memory.plan, view.freeSlots), monthLines: memory.monthLines, lastMonthLines: memory.lastMonthLines, cardClosed: memory.cardClosed };
+}
+
 export function createGameStore(authority: StoreAuthority, options: GameStoreOptions = {}): GameStore {
   const store = makeStore(authority, options);
+  // R-WORLD-007, R-WORLD-008: a reload keeps the month's plan and what was done in it.
+  store.subscribe((state, before) => {
+    if (state.view === null) return;
+    if (state.view.v === before.view?.v && state.plan === before.plan && state.monthLines === before.monthLines && state.lastMonthLines === before.lastMonthLines && state.cardClosed === before.cardClosed) return;
+    writeMonth({ v: state.view.v, scenario: state.view.scenario, plan: state.plan, monthLines: state.monthLines, lastMonthLines: state.lastMonthLines, cardClosed: state.cardClosed });
+  });
   // R-WORLD-002: the words tell a stamped month as months away from the view's month, kept beside them.
   store.subscribe((state, before) => {
     if (state.view !== before.view) setNow(state.view?.month ?? null);
@@ -194,7 +249,7 @@ function makeStore(authority: StoreAuthority, options: GameStoreOptions): GameSt
       // A fetch that set out before a command's reply can land after it: the older view is dropped.
       const held = get().view;
       if (held !== null && view.v < held.v) return;
-      set({ view, plan: fitPlan(get().plan, view.freeSlots), earlyWin: get().earlyWin || wonEarly(view, view.report?.lines ?? [], null) });
+      set({ view, plan: fitPlan(get().plan, view.freeSlots), earlyWin: get().earlyWin || wonEarly(view, view.report?.lines ?? [], null), ...(held === null ? rememberedMonth(view) : {}) });
     }
 
     async function send(command: PlayerCommand): Promise<Reply | ServerRejection | null> {
@@ -313,7 +368,8 @@ function makeStore(authority: StoreAuthority, options: GameStoreOptions): GameSt
       async chooseLife(scenario) {
         if (options.life === undefined) return;
         const view = await options.life.newLife(scenario);
-        set({ view, plan: fitPlan([], view.freeSlots), choosingLife: false, notice: null, lines: [], moments: [], rejection: null });
+        forgetMonth();
+        set({ view, plan: fitPlan([], view.freeSlots), choosingLife: false, notice: null, lines: [], moments: [], rejection: null, monthLines: [], lastMonthLines: [], cardClosed: null });
       },
       openLifeChooser: options.life === undefined || options.lifeAgain === false ? null : () => set({ choosingLife: true }),
       closeLifeChooser() {
