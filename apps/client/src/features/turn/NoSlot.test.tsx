@@ -11,7 +11,6 @@ import "../../shared/testing/render";
 import { workingPlanned } from "../../shared/words/count";
 import { nameOf } from "../../shared/words/text";
 import { MonthSheet } from "./MonthSheet";
-import { workingPlanned } from "../../shared/words/count";
 import { turnWords } from "./turn.words";
 
 const FRIEND = "activity.ask-someone-who-went";
