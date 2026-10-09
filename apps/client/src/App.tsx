@@ -80,6 +80,12 @@ function WorldPlaying() {
           ...((view.interview?.question ?? null) === null ? [] : [<InterviewView key="interview" />]),
           ...[...view.offers].sort((a, b) => a.expiresMonth - b.expiresMonth).map((offer) => <AgentSheets key={offer.id} ids={[offer.entry]} others={(only) => <OfferView only={(candidate) => candidate.id === offer.id && only(candidate)} />} />),
         ]}
+        // An ask that belongs at home (the family's send-off, R-CHAPTER-008) is answered there: away from it the sheet says who waits and offers the way (R-WORLD-006).
+        asksAt={[
+          ...(view.setpiece === null ? [] : [null]),
+          ...((view.interview?.question ?? null) === null ? [] : [null]),
+          ...[...view.offers].sort((a, b) => a.expiresMonth - b.expiresMonth).map((offer) => (AT_HOME.has(offer.entry) ? "place.family-house" : null)),
+        ]}
         phone={(close, area, app) => <PhoneApps onClose={close} area={area} account={<AccountButton more={<NotifySetting />} />} talk={talk} start={app ?? null} />}
         phoneWaiting={phoneWaiting}
         askIcon={iconFor}
@@ -120,6 +126,9 @@ function Shell() {
     );
   return <WorldPlaying />;
 }
+
+/** Offers answered only at the family house. */
+const AT_HOME = new Set<string>(["offer.family-send-off"]);
 
 /** `path`: the page's path, for tests; the browser's own otherwise. */
 export function App({ store: given, path }: { store?: GameStore; path?: string }) {

@@ -13,7 +13,7 @@ export type Picked =
   | { kind: "model"; file: string; signs: string[] }
   | { kind: "thing"; thing: Thing }
   | { kind: "action"; activity: string; more?: string[]; label?: string; param?: string }
-  | { kind: "command"; command: "route/pay-deposit" | "route/depart" }
+  | { kind: "command"; command: "route/pay-deposit" | "route/depart" | "obligation/pay" }
   | { kind: "ride"; vehicle: string }
   | { kind: "enter"; place: string }
   | { kind: "inside" }

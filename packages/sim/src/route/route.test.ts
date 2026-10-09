@@ -7,6 +7,7 @@ import { checkInvariants } from "../engine/invariants";
 import type { ActivityEntry, Content, Currency, Id, ReadCtx, ReportLine, Requirement, RouteStateName, SchoolEntry, ForeignCurrency } from "../engine/types";
 import { legalCommands } from "../testing/legal";
 import type { Game } from "../testing/play";
+import { start } from "../testing/play";
 import type { RouteKindEvent } from "./route.events";
 import {
   ASHBY,
@@ -1117,4 +1118,14 @@ describe("the route's words", () => {
     });
     expect(wrong).toEqual([]);
   });
+
+describe("the first meetup", () => {
+  test("[R-GUIDE-016] given a new life, when its first meetup is played on any seed, then the story's route is heard of; the chance applies from the second meetup", () => {
+    for (let n = 0; n < 12; n += 1) {
+      const game = start({ content, scenario: "scenario.ada", seed: `meetup-${String(n)}` });
+      game.endTurn([{ activity: "activity.meetup", param: null }]);
+      expect(game.state.route["route.uk-masters"]?.state).not.toBe("unknown");
+    }
+  });
+});
 });
