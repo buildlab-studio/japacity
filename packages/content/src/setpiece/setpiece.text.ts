@@ -63,7 +63,7 @@ export const setpieceText: Record<string, string> = {
   "setpiece.credibility-interview.a.after.stay": "Find any job there and stay.",
 
   "setpiece.credibility-interview.q.course": "Tell me what the course covers.",
-  "setpiece.credibility-interview.a.course.detail": "You walk through the modules and the project.",
+  "setpiece.credibility-interview.a.course.detail": "Four modules, then a project. I can take you through each one.",
   "setpiece.credibility-interview.a.course.brief": "It is a one-year master's in my field.",
 
   "setpiece.credibility-interview.q.papers": "We checked your transcript with the university. They have no record of it. Explain.",
@@ -76,7 +76,7 @@ export const setpieceText: Record<string, string> = {
   "setpiece.credibility-interview.a.deposit.savings": "Savings I moved from another account.",
 
   "setpiece.credibility-interview.q.living": "Where will you live, and what will it cost you a month?",
-  "setpiece.credibility-interview.a.living.figures": "You give the hall, the rent and the bus fare.",
+  "setpiece.credibility-interview.a.living.figures": "A hall near the campus. The rent and the bus fare are in my budget.",
   "setpiece.credibility-interview.a.living.sort": "I will sort that out when I arrive.",
 
   // R-SETPIECE-008: the follow-ups. First drafts.
