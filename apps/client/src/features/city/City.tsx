@@ -66,7 +66,7 @@ const HOMES: Record<string, string> = { home: "place.family-house", abroad: "pla
  * The places whose files are the old page's, kept switched off (R-WORLD-024) until each is rebuilt
  * as a world-first place: the map shows only built places, and nothing with nothing to do (PENDING P25).
  */
-const OLD_FILES = new Set(["place.national-stadium", "place.third-mainland-bridge"]);
+const OLD_FILES = new Set<string>();
 /** A room that is a place of its own on the map, and the street its door opens onto: the hub's file names it as its inside (R-WORLD-013). */
 const OUTSIDE_OF: Record<string, string> = { "place.yaba": "place.ojuelegba" };
 /** How long a big line stays as a toast before the next, since the world shows no moment cards (R-WORLD-008). */
