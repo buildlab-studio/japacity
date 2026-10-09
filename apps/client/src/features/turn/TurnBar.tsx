@@ -3,6 +3,7 @@
 import { Repeat } from "lucide-react";
 
 import { useGame, useView } from "../../authority/GameProvider";
+import { slotsUsed } from "../../authority/store";
 import { Button } from "../../shared/ui/Button";
 import { Rejection } from "../../shared/ui/Rejection";
 import { say, words } from "../../shared/words/text";
@@ -22,7 +23,7 @@ export function TurnBar() {
   const busy = useGame((state) => state.busy);
   const endMonth = useGame((state) => state.endMonth);
   const sameAgain = useGame((state) => state.sameAgain);
-  const used = plan.filter((pick) => pick !== null).length;
+  const used = slotsUsed(plan);
   // An interview with a question still to answer holds the month as a set piece does (R-INTERVIEW-004).
   const blocked = blockedBy(view.ended, view.turns.banked, view.setpiece !== null || (view.interview?.question ?? null) !== null);
 

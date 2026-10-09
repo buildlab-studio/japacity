@@ -222,7 +222,8 @@ function ActivityCard({ option }: { option: ActivityOption }) {
   const [param, setParam] = useState<string>("");
   const name = nameOf(option.id);
   const blurb = blurbOf(option.id);
-  const full = !plan.includes(null);
+  // R-TURN-006: an activity that fills no slot can be planned however full the month is.
+  const full = content.activity[option.id]?.slot !== "none" && !plan.includes(null);
   const needsParam = option.params !== null;
   const chosenParam = needsParam ? (option.params?.includes(param) === true ? param : (option.params?.[0] ?? "")) : "";
   const canAdd = option.allowed && option.affordable && !full && !ended && (!needsParam || chosenParam !== "");

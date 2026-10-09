@@ -12,6 +12,7 @@ export const turnText: Record<string, string> = {
   "turn.month.hint": "Tap something in the world to fill a slot.",
   "turn.month.remove": "Take out {activity}",
   "turn.month.no-slots": "No free slots this month.",
+  "turn.month.no-slot": "Takes no slot",
   "turn.month.end": "End month",
 
   "turn.results.label": "The month is done",

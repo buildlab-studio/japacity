@@ -1,7 +1,7 @@
 // The game store: the current view, the month being planned, and the last
 // thing the authority said. Screens read from here and send through here, so
 // none of them ever holds a state, a seed or a version number of its own.
-import { text } from "@japacity/content";
+import { content, text } from "@japacity/content";
 import type { Command, Id, PlayerView, Reply, ReportLine, SlotPick } from "@japacity/sim";
 import { createStore, type StoreApi } from "zustand/vanilla";
 
@@ -59,7 +59,10 @@ export interface GameState {
   monthLines: ReportLine[];
   /** The month just ended's mid-month lines, shown with its report. */
   lastMonthLines: ReportLine[];
-  /** One entry per free slot. Null is an empty slot, which rests. */
+  /**
+   * One entry per free slot, null for an empty one, which rests; then any pick that fills no slot
+   * (the word of someone who went, R-TURN-006), after the slots.
+   */
   plan: (SlotPick | null)[];
   /** True right after a month ends, so the report opens. */
   reportOpen: boolean;
@@ -98,7 +101,7 @@ export interface GameState {
   send: (command: PlayerCommand) => Promise<Reply | ServerRejection | null>;
   endMonth: () => Promise<Reply | ServerRejection | null>;
   setSlot: (index: number, pick: SlotPick | null) => void;
-  /** Puts a pick in the first empty slot. False when every slot is full. */
+  /** Puts a pick in the first empty slot, or after the slots when it fills none. False when every slot is full. */
   addToPlan: (pick: SlotPick) => boolean;
   sameAgain: () => void;
   clearPlan: () => void;
@@ -151,11 +154,29 @@ function wonEarly(view: PlayerView, lines: readonly ReportLine[], slots: readonl
   return view.chapter.done.length > 0 || view.goals.done.length > 0 || earlyWinIn(lines, slots) !== null;
 }
 
-/** Keeps the picks that still fit, and pads with empty slots up to the count. */
+/** True when a pick fills one of the month's slots: an activity whose `slot` is `none` fills none (R-TURN-006, R-ADVICE-003). */
+export function takesSlot(pick: SlotPick): boolean {
+  return content.activity[pick.activity]?.slot !== "none";
+}
+
+/** The picks that fill slots, empty slots among them: the plan's first part. */
+export function slotted(plan: readonly (SlotPick | null)[]): (SlotPick | null)[] {
+  return plan.filter((pick) => pick === null || takesSlot(pick));
+}
+
+/** The picks planned that fill a slot, for "1 of 2 free slots planned". */
+export function slotsUsed(plan: readonly (SlotPick | null)[]): number {
+  return plan.filter((pick) => pick !== null && takesSlot(pick)).length;
+}
+
+/**
+ * Keeps the picks that still fit, and pads with empty slots up to the count. A pick that fills no
+ * slot is kept after the slots, whatever the count (R-TURN-006).
+ */
 function fitPlan(plan: readonly (SlotPick | null)[], slots: number): (SlotPick | null)[] {
-  const kept = plan.slice(0, slots);
+  const kept = slotted(plan).slice(0, slots);
   while (kept.length < slots) kept.push(null);
-  return kept;
+  return [...kept, ...plan.filter((pick): pick is SlotPick => pick !== null && !takesSlot(pick))];
 }
 
 export function createGameStore(authority: StoreAuthority, options: GameStoreOptions = {}): GameStore {
@@ -249,11 +270,18 @@ function makeStore(authority: StoreAuthority, options: GameStoreOptions): GameSt
       setSlot(index, pick) {
         const plan = [...get().plan];
         if (index < 0 || index >= plan.length) return;
+        const slots = slotted(plan).length;
         plan[index] = pick;
-        set({ plan });
+        // A pick that fills no slot, taken out, leaves no empty slot behind.
+        set({ plan: fitPlan(plan, slots) });
       },
       addToPlan(pick) {
         const plan = [...get().plan];
+        if (!takesSlot(pick)) {
+          // Planned once is enough: asking twice in a month is the same word.
+          if (!plan.some((held) => held !== null && held.activity === pick.activity && held.param === pick.param)) set({ plan: [...plan, pick] });
+          return true;
+        }
         const empty = plan.indexOf(null);
         if (empty === -1) return false;
         plan[empty] = pick;
@@ -268,7 +296,7 @@ function makeStore(authority: StoreAuthority, options: GameStoreOptions): GameSt
         set({ plan: fitPlan(last, view.freeSlots) });
       },
       clearPlan() {
-        set({ plan: fitPlan([], get().plan.length) });
+        set({ plan: fitPlan([], slotted(get().plan).length) });
       },
       dismissRejection() {
         set({ rejection: null });
