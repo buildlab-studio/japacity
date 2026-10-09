@@ -79,6 +79,8 @@ export const cityText: Record<string, string> = {
   "city.thing.test-desk": "Test desk",
   "city.thing.nurse": "Nurse",
   "city.thing.counter": "Counter",
+  // the clerk at the bank's counter takes back held funds still open.
+  "city.thing.clerk": "Clerk",
   "city.thing.long-desk": "Desks",
   "city.thing.jobs-board": "Jobs board",
   "city.thing.meetup": "Meetup",
@@ -87,6 +89,8 @@ export const cityText: Record<string, string> = {
   "city.thing.laptop": "Laptop",
   "city.thing.post": "Post",
   "city.thing.arrivals-gate": "Arrivals",
+  // the gate that boards the plane reads as the way out.
+  "city.thing.departures": "Departures",
   "city.thing.flight-board": "Flights",
   "city.thing.trolley": "Trolley",
   "city.act.sit": "Sit",
@@ -136,6 +140,9 @@ export const cityText: Record<string, string> = {
   "city.act.routes": "Ask about routes",
   "city.act.jobs": "Jobs",
   "city.act.agents": "The agents",
+  // the agent at his desk when nothing is on.
+  "city.act.ask-desk": "Ask what is on",
+  "city.act.ask-desk.done": "The desk is empty today. Come back when something is on.",
   "city.act.build-portfolio": "Build",
   "city.act.junior-dev": "Junior job",
   "city.act.mid-dev": "Mid job",
