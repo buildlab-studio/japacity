@@ -11,6 +11,7 @@ import { SoundNotice } from "./shared/sound/SoundNotice";
 import { GameProvider, useGame, useView } from "./authority/GameProvider";
 import type { GameStore } from "./authority/store";
 import { AccountGate } from "./features/account/AccountGate";
+import { AgentSheets } from "./features/advice/AgentSheet";
 import { inviteCodeOf, InvitePage } from "./features/account/InvitePage";
 import { AdminRoute } from "./features/admin/AdminRoute";
 import { AccountButton } from "./features/account/Settings";
@@ -72,7 +73,7 @@ function WorldPlaying() {
         // A thing's act opens the sheet of what it stages (R-WORLD-005): an activity's card, an open offer, the set piece's question, or the chapter's steps.
         actions={(ids) => {
           const [first] = ids;
-          if (first?.startsWith("offer.") === true) return <OfferView only={(offer) => ids.includes(offer.entry)} />;
+          if (first?.startsWith("offer.") === true) return <AgentSheets ids={ids} others={(only) => <OfferView only={only} />} />;
           if (first?.startsWith("setpiece.") === true) return <SetpieceView />;
           if (first?.startsWith("chapter.") === true) return <ChapterView />;
           return <ActivityPicker only={ids} />;
