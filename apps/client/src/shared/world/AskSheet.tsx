@@ -158,7 +158,22 @@ function Slip({ ask, main, formatMoney }: { ask: Ask; main: Main; formatMoney: A
           <span>{ask.reference ?? ""}</span>
         </div>
         <Dialog.Title className="mt-3 text-center text-[12px] tracking-[0.35em] uppercase">{ask.title}</Dialog.Title>
-        {ask.cost === null ? null : <div className="num mt-1 text-center font-mono text-[42px] leading-none">{formatMoney(ask.cost.amount, ask.cost.currency)}</div>}
+        {ask.rows !== undefined ? (
+          <div className="mt-3 flex flex-col gap-1 border-t border-dashed border-text/30 pt-3 text-[13px]">
+            {ask.rows.map((row) => (
+              <div key={row.label} className={`flex justify-between gap-3 ${row.strong === true ? "font-bold" : ""}`} data-slip-row {...(row.strong === true ? { "data-strong": "true" } : {})}>
+                <span data-slip-label>{row.label}</span>
+                <span className="text-right" data-slip-value>
+                  {row.value}
+                </span>
+              </div>
+            ))}
+          </div>
+        ) : ask.cost === null ? null : (
+          <div className="num mt-1 text-center font-mono text-[42px] leading-none" data-slip-figure>
+            {formatMoney(ask.cost.amount, ask.cost.currency)}
+          </div>
+        )}
         <div className="mt-3 border-t border-dashed border-text/30 pt-3 text-[13px] leading-snug">{ask.line}</div>
         {main.after === null ? null : (
           <div className={`mt-2 flex justify-between gap-3 text-[12px] ${main.shut || main.warn === true ? "font-bold text-out" : "text-text-2"}`} data-ask-after>
