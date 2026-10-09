@@ -7,11 +7,11 @@ import { describe, expect, test } from "vitest";
 
 import raw from "../../../../public/assets/places/peckham/place.json";
 import room from "../../../../public/assets/places/the-room/place.json";
-import { abroadView, recordedGame, viewAfter } from "../../../shared/testing/fixtures";
+import { abroadGame, abroadView, recordedGame, viewAfter } from "../../../shared/testing/fixtures";
 import { stageOf, type PlaceFile } from "../placeFile";
 import { sceneWords } from "../scene.words";
 import { stagedAt } from "../staging";
-import { stagedNow, thingsNow } from "../things";
+import { stagedNow, thingSpot, thingsNow } from "../things";
 import { frontageTests } from "./frontageTesting";
 import { copiesOf, staged, wordsOf } from "./placeTesting";
 
@@ -150,5 +150,35 @@ describe("Peckham's jobs", () => {
     expect(notice[1]).toBeLessThan(-3.3);
     expect(stand[1]).toBeGreaterThan(3.3);
     expect(stand[1]).toBeLessThan(stage.start[1]);
+  });
+});
+
+// Once hired the notice stays. On a student visa the hunt lists only the shop job,
+// and the hunt never lists the job held (activity.logic.ts huntableJobs), so once the shop job is taken
+// neither of the notice's acts can open; the notice's reader stands in for them, as the agent's ask does at
+// his desk, and the notice keeps its label at the same copy.
+describe("Peckham's notice once hired", () => {
+  const NOTICE = ["activity.job-uk-retail-part", "activity.job-uk-kitchen-cash"];
+  const read = (view: ReturnType<typeof abroadView>) => {
+    const jobs = view.activities.find((option) => option.id === "activity.job-hunt")?.params ?? [];
+    const offered = new Set([...view.activities.filter((option) => option.allowed).map((option) => option.id), "activity.job-hunt", ...jobs]);
+    return thingsNow(stage.things ?? [], stagedNow(offered, new Set(entry.stages), new Set(), null)).filter((candidate) => candidate.file === thing("jobs-notice").file && candidate.copy === thing("jobs-notice").copy);
+  };
+
+  test("[R-WORLD-005] given Ada in London who took the shop job, when Peckham's things are read, then the jobs notice still stands with one act to read it, and its line says nothing new on it is open to her", () => {
+    const view = viewAfter(abroadGame(), [{ type: "activity/start-job", job: "activity.job-uk-retail-part" }]);
+    expect(view.job.id).toBe("activity.job-uk-retail-part");
+    const notice = read(view);
+    expect(notice.map((candidate) => sceneWords(candidate.label))).toEqual(["Jobs notice"]);
+    expect(notice[0]?.acts.map((act) => [act.kind, sceneWords(act.label)])).toEqual([["plain", "Read"]]);
+    expect(sceneWords(`${notice[0]?.acts[0]?.label ?? ""}.done`)).toBe("Shop work and kitchen work, by the till. Nothing new on it is open to you this month.");
+  });
+
+  test("[R-WORLD-005] given Ada just landed with the shop job open, when the notice is read, then its job acts show and the reader is gone; it names every job the notice holds", () => {
+    const notice = read(abroadView());
+    expect(notice.map((candidate) => candidate.id)).toEqual(["jobs-notice"]);
+    const reader = (stage.things ?? []).find((candidate) => candidate.id === "jobs-notice-read");
+    expect([...((reader?.acts[0] as { unless?: string[] } | undefined)?.unless ?? [])].sort()).toEqual([...NOTICE].sort());
+    expect(thingSpot(stage, reader ?? thing("jobs-notice"))).toEqual(thingSpot(stage, thing("jobs-notice")));
   });
 });

@@ -221,6 +221,9 @@ export const cityText: Record<string, string> = {
   "city.act.job-warehouse": "Warehouse",
   "city.act.job-guard": "Guard work",
   "city.act.job-cleaner": "Cleaning work",
+  // the notice once none of its jobs is open (one held, or none on these papers).
+  "city.act.read-jobs-notice": "Read",
+  "city.act.read-jobs-notice.done": "Shop work and kitchen work, by the till. Nothing new on it is open to you this month.",
   "city.act.look-typing": "Look",
   "city.act.look-typing.done": "Visa, ID and labour papers typed while you wait. Every contract here passes a desk like this.",
   "city.act.look-site-bus": "Look",
