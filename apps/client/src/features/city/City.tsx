@@ -442,7 +442,7 @@ export function City({
       case "thing":
         return sceneWords(picked.thing.label);
       case "command":
-        return say("ui.route.pay-deposit");
+        return say(picked.command === "route/depart" ? "ui.route.depart" : "ui.route.pay-deposit");
       default: {
         const never: never = picked;
         throw new Error(`Unknown pick: ${JSON.stringify(never)}`);
@@ -453,7 +453,9 @@ export function City({
   // The things here and the acts the view allows now: an activity's act only while the view offers it here (R-WORLD-005).
   // A school's offer waiting makes the deposit payable (R-ROUTE-008): the bank's act shows while one does.
   const depositDue = view.routes.flatMap((route) => route.schools.filter((school) => school.state === "offer").map((school) => ({ route: route.id, school: school.id })))[0] ?? null;
-  const activityKey = [...view.activities.filter((option) => option.allowed).map((option) => option.id), ...(depositDue === null ? [] : ["command:route/pay-deposit"])].join("|");
+  // A visa granted makes the flight boardable at the airport's gate (R-CHAPTER-006, route/depart).
+  const departDue = view.routes.find((route) => route.state === "granted")?.id ?? null;
+  const activityKey = [...view.activities.filter((option) => option.allowed).map((option) => option.id), ...(depositDue === null ? [] : ["command:route/pay-deposit"]), ...(departDue === null ? [] : ["command:route/depart"])].join("|");
   const chapterNow = view.chapter.current;
   const offersKey = view.offers.map((offer) => offer.entry).join("|");
   const setpieceEntry = view.setpiece?.entry ?? null;
@@ -599,7 +601,24 @@ export function City({
   const endBlocked = view.ended ? words("reject.ended") : view.setpiece !== null || (view.interview?.question ?? null) !== null ? words("reject.setpiece-open") : view.turns.banked < 1 ? words("reject.no-turns") : null;
   // One action, one sheet: a paper slip for a paper thing, a card for the rest.
   const ask: Ask | null = (() => {
-    if (world && picked?.kind === "command" && depositDue !== null) {
+    if (world && picked?.kind === "command" && picked.command === "route/depart" && departDue !== null) {
+      const route = departDue;
+      return {
+        form: "card",
+        icon: "plane",
+        who: hereName,
+        title: say("ui.route.depart"),
+        line: say("ui.world.depart-line", { route: nameOf(route) }),
+        cost: null,
+        button: say("ui.route.depart"),
+        act: () => {
+          void send({ type: "route/depart", route }).then((reply) => cue(reply?.ok === true ? "whoosh" : "tap"));
+          setPicked(null);
+        },
+        dismiss: () => setPicked(null),
+      };
+    }
+    if (world && picked?.kind === "command" && picked.command === "route/pay-deposit" && depositDue !== null) {
       const school = content.school[depositDue.school];
       if (school === undefined) return null;
       const deposit = { amount: school.deposit, currency: "GBP" };

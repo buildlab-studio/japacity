@@ -107,6 +107,20 @@ describe("a command act", () => {
   });
 });
 
+describe("the gate", () => {
+  test("[R-CHAPTER-006] [R-WORLD-005] given the arrivals hall's gate, when a visa is granted, then its act boards the plane, and with none granted it is gone", () => {
+    const found = builtPlaces().find((built) => built.folder === "arrivals-hall");
+    if (found === undefined) throw new Error("No arrivals hall");
+    const gate = (stageOf(found.file).things ?? []).find((thing) => thing.id === "gate");
+    expect(gate?.acts[0]).toMatchObject({ id: "depart", kind: "command", command: "route/depart" });
+    expect(sceneWords(gate?.acts[0]?.label ?? "")).toBe(say("ui.route.depart"));
+    const granted = stagedNow(new Set(["command:route/depart"]), new Set(), new Set(), null, "chapter.send-off");
+    expect(thingsNow([gate as Thing], granted)[0]?.acts.map((act) => act.id)).toEqual(["depart", "send-off"]);
+    const none = stagedNow(new Set(), new Set(), new Set(), null, "chapter.send-off");
+    expect(thingsNow([gate as Thing], none)[0]?.acts.map((act) => act.id)).toEqual(["send-off"]);
+  });
+});
+
 describe("a seat", () => {
   test("[R-WORLD-005] given every built place, when its acts with a pose are read, then each has a seat to take, and a free act that fills a slot is a do act with the activity offered or gone", () => {
     const seated = builtPlaces().flatMap(({ folder, file }) => (stageOf(file).things ?? []).flatMap((thing) => thing.acts.filter((act) => act.pose !== undefined).map((act) => ({ folder, thing: thing.id, act }))));
