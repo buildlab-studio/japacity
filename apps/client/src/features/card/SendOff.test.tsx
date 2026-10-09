@@ -1,6 +1,7 @@
 import { screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
+import { playedWords, standingWords } from "../../shared/card/face";
 import { recordedGame } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { nameOf, say } from "../../shared/words/text";
@@ -15,8 +16,8 @@ describe("the send-off card from the engine", () => {
     const face = (await screen.findByRole("dialog")).querySelector("[data-share-card='send-off']") as HTMLElement;
     expect(within(face).getByText(nameOf(card.route!))).toBeDefined();
     expect(face.textContent).toContain(`${String(card.percent)}%`);
-    expect(within(face).getByText(String(card.months))).toBeDefined();
-    expect(within(face).getByText(String(card.standing))).toBeDefined();
+    expect(within(face).getByText(playedWords(card.months))).toBeDefined();
+    expect(within(face).getByText(standingWords(card.standing))).toBeDefined();
     for (const id of card.topActivities.slice(0, 3)) expect(within(face).getByText(nameOf(id))).toBeDefined();
     expect(within(face).getByText(say("ui.card.is-a-game"))).toBeDefined();
   });

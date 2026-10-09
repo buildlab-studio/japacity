@@ -124,7 +124,7 @@ export function MonthSheet() {
         >
           <span>{turnWords("turn.month.end")}</span>
           <span className="text-[13px] font-semibold opacity-80">
-            {slotsUsed(plan) > 0 ? turnWords("ui.month.slots", { used: slotsUsed(plan), slots: view.freeSlots }) : turnWords("ui.month.rest")}
+            {slotsUsed(plan) > 0 ? turnWords("ui.month.slots", { used: slotsUsed(plan), slots: view.freeSlots }) : turnWords(view.job.id !== null && plan.every((pick) => pick === null) ? "turn.month.working-rest" : "ui.month.rest")}
           </span>
         </button>
         {blocked === null ? null : (

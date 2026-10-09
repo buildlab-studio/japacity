@@ -9,9 +9,10 @@ import type { Currency, PlayerView, Pocket, ReportLine, RouteView } from "@japac
 import { ArrowLeftRight, MoveVertical } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
-import { useView } from "../../../authority/GameProvider";
+import { useGame, useView } from "../../../authority/GameProvider";
 import { duesGap, heldElsewhere } from "../../../shared/words/dues";
 import { CURRENCIES, formatMoney, HOME_CURRENCIES } from "../../../shared/words/format";
+import { afterPrologue, movesMoney, tidyLines } from "../../../shared/words/lines";
 import { lowerFirst, moneyParam, say, words } from "../../../shared/words/text";
 import { localCurrency } from "../../../shared/words/wayHome";
 import { Counter } from "../../../shared/world/Band";
@@ -46,10 +47,23 @@ export function savingsOf(view: PlayerView): { shown: number; required: number; 
   return { shown, required, currency };
 }
 
-/** The report's lines that move money, newest last. */
-export function moneyLines(view: PlayerView): ReportLine[] {
-  const lines = view.report?.lines ?? [];
-  return lines.filter((line) => Object.keys(line.params).some((name) => moneyParam(name, line.params, line.key) !== null));
+/**
+ * The money that moved lately, newest last: the month just ended (its mid-month moves and its end)
+ * and this month's so far, each move once, as the results count them (R-WORLD-019: a payment split
+ * across pockets is one line, a bill's "paid this month" is the same money, a fare paid on the way
+ * is a move too).
+ */
+export function latelyLines(view: Pick<PlayerView, "report">, lastMonth: readonly ReportLine[], thisMonth: readonly ReportLine[]): ReportLine[] {
+  const ended = view.report === null ? [] : [...lastMonth, ...view.report.lines];
+  return [...moved(ended), ...moved(thisMonth)];
+}
+
+/** A deposit flagged carries its amount as a warning; no money moves with it. */
+const FLAGGED = "line.wallet.flagged";
+
+/** The lines that tell money moving, tidied as the month's results tidy them (features/turn/month.results.ts, `moneyLines`). */
+function moved(lines: readonly ReportLine[]): ReportLine[] {
+  return tidyLines(afterPrologue(lines)).filter((line) => line.tone !== "plain" && line.key !== FLAGGED && movesMoney(line) && (moneyParam("amount", line.params, line.key)?.amount ?? 0) !== 0);
 }
 
 const LATELY = 4;
@@ -223,7 +237,9 @@ export function Bank() {
   const shown: Currency = abroad ? local : "NGN";
   // Once flown, the move is made: its target goes.
   const savings = abroad ? null : savingsOf(view);
-  const lately = moneyLines(view).slice(-LATELY);
+  const lastMonth = useGame((state) => state.lastMonthLines);
+  const thisMonth = useGame((state) => state.monthLines);
+  const lately = latelyLines(view, lastMonth, thisMonth).slice(-LATELY);
   const others = CURRENCIES.filter((currency) => currency !== "NGN" && view.pockets[currency].bank + view.pockets[currency].cash > 0);
   const toggle = (which: "change" | "move") => {
     setStart(undefined);

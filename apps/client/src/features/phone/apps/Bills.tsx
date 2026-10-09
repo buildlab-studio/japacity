@@ -36,6 +36,17 @@ function noticeWords(owed: Owed, currency: Currency): string {
   return hasWords(key) ? say(key, { amount }) : phoneWords("phone.bills.notice", { name: nameOf(owed.entry), amount });
 }
 
+/**
+ * What the slip counts the payment from, so "after" says the money the character keeps. Held funds
+ * go back from the locked pocket and leave the naira in bank and cash untouched, so once the locked
+ * pocket holds the sum, what is left after is that naira; short of it, the
+ * locked pocket is what is short.
+ */
+function haveFor(pocket: PlayerView["pockets"][Currency], pay: NonNullable<ReturnType<typeof payNow>>): number {
+  if (!pay.locked) return pocket.bank + pocket.cash;
+  return pocket.locked >= pay.amount ? pocket.bank + pocket.cash + pay.amount : pocket.locked;
+}
+
 export function Bills() {
   const view = useView();
   const { open, sheet } = useAsk();
@@ -49,7 +60,7 @@ export function Bills() {
     line: pay.line,
     cost: { amount: pay.amount, currency },
     button: pay.button,
-    have: pay.locked ? view.pockets[currency].locked : view.pockets[currency].bank + view.pockets[currency].cash,
+    have: haveFor(view.pockets[currency], pay),
     command: { type: "obligation/pay", obligation: bill.id, amount: pay.amount },
     done: phoneWords("phone.bills.paid"),
     reference: todayWords().toUpperCase(),

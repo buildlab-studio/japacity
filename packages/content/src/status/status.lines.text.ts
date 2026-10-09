@@ -1,10 +1,10 @@
 // First drafts: the report lines of the status kind (docs/rules/status.md). Kept apart from
 // the entries' words, which the content check keeps free of report lines.
 export const statusLinesText: Record<string, string> = {
-  "line.status.granted": "You hold {status} now.",
-  "line.status.moved-on": "Your status moves on: you hold {status} now.",
-  "line.status.settled": "Settled. You hold {status} now. The fee: {fee}.",
-  "line.status.citizen": "You take the oath. You hold {status} now. The fee: {fee}.",
+  "line.status.granted": "Your papers now read: {status}.",
+  "line.status.moved-on": "Your status moves on. Your papers now read: {status}.",
+  "line.status.settled": "Settled. Your papers now read: {status}. The fee: {fee}.",
+  "line.status.citizen": "You take the oath. Your papers now read: {status}. The fee: {fee}.",
   "line.status.lapsed-expired": "{status} has run out. You have no right to be here now.",
   "line.status.lapsed-clock": "The clock ran out on {status}. You have no right to be here now.",
   "line.status.lapsed-lost": "{status} is gone. You have no right to be here now.",

@@ -12,7 +12,7 @@ import { Counter } from "../../shared/world/Band";
 import { WorldSheet } from "../../shared/world/WorldSheet";
 import { formatMoney, formatNumber } from "../../shared/words/format";
 import { say, words } from "../../shared/words/text";
-import { drawShown, kept, localCurrency, moneyLines, savings, storyLines, untoldLines } from "./month.results";
+import { drawShown, isUnpaid, kept, leadsAlone, localCurrency, moneyLines, savings, storyLines, toldOnResults, untoldLines } from "./month.results";
 import { turnWords } from "./turn.words";
 
 /** True while the results sheet is up: the month has just ended and its staged wins have passed. */
@@ -73,10 +73,17 @@ export function Results({ place }: { place: string }) {
     >
       <div className="flex flex-col gap-4">
         {birthday ? <p className="text-[14px] font-bold text-strong" data-results-birthday>{turnWords("turn.results.birthday", { years: Math.floor(ageMonths / 12) })}</p> : null}
-        <div className="flex items-baseline justify-between gap-3" data-results-kept={main.amount}>
-          <span className="text-[14px] font-semibold">{turnWords(main.amount < 0 ? "turn.results.lost" : "turn.results.kept")}</span>
-          <Counter value={counted} format={(value) => signed(value, value, main.currency)} className={`text-[32px] leading-none ${main.amount < 0 ? "text-out" : "text-in"}`} />
-        </div>
+        {lines.length === 0 ? (
+          // No money moved: said plainly, never "+₦0" (R-WORLD-008).
+          <div className="flex items-baseline justify-between gap-3" data-results-kept={0}>
+            <span className="text-[22px] leading-none font-bold">{turnWords("turn.results.nothing-moved")}</span>
+          </div>
+        ) : (
+          <div className="flex items-baseline justify-between gap-3" data-results-kept={main.amount}>
+            <span className="text-[14px] font-semibold">{turnWords(main.amount < 0 ? "turn.results.lost" : "turn.results.kept")}</span>
+            <Counter value={counted} format={(value) => signed(value, value, main.currency)} className={`text-[32px] leading-none ${main.amount < 0 ? "text-out" : "text-in"}`} />
+          </div>
+        )}
         {rest.map((net) => (
           <div key={net.currency} className="-mt-3 flex justify-end">
             <span className={`num text-[15px] ${net.amount < 0 ? "text-out" : "text-in"}`}>{signed(net.amount, net.amount, net.currency)}</span>
@@ -87,11 +94,18 @@ export function Results({ place }: { place: string }) {
           <section className="flex flex-col gap-1" aria-label={turnWords("turn.results.story")} data-results-story>
             <h3 className="label text-text-2">{turnWords("turn.results.story")}</h3>
             <ul className="flex flex-col">
-              {story.map((line, index) => (
-                <li key={`${line.key}-${String(index)}`} className="border-b border-sheet-line py-2 text-[14px] leading-snug font-semibold last:border-b-0" data-story-line={line.key} data-tone={line.tone}>
-                  {words(line.key, line.params)}
-                </li>
-              ))}
+              {story.map((line, index) => {
+                const told = toldOnResults(line);
+                const unpaid = isUnpaid(line);
+                const lead = leadsAlone(line);
+                // The grant leads alone, larger; a bill not paid is in red though no money moved.
+                const tone = lead ? "pb-3 text-[18px] leading-tight font-bold" : unpaid ? "text-[14px] leading-snug font-semibold text-out" : "text-[14px] leading-snug font-semibold";
+                return (
+                  <li key={`${line.key}-${String(index)}`} className={`border-b border-sheet-line py-2 last:border-b-0 ${tone}`} data-story-line={line.key} data-tone={line.tone} data-unpaid={unpaid ? "true" : undefined} data-story-lead={lead ? "true" : undefined}>
+                    {words(told.key, told.params)}
+                  </li>
+                );
+              })}
             </ul>
           </section>
         )}

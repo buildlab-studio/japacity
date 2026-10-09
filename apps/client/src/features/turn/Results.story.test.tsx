@@ -10,7 +10,7 @@ import { slot } from "../../../../../packages/sim/src/route/route.journey";
 import { newGame } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { words } from "../../shared/words/text";
-import { kept, moneyLines, STORY_MAX, storyLines } from "./month.results";
+import { kept, moneyLines, STORY_MAX, storyLines, toldOnResults } from "./month.results";
 import { Results } from "./Results";
 import { turnWords } from "./turn.words";
 
@@ -32,7 +32,9 @@ describe("the month's story on the results", () => {
     const story = document.querySelector("[data-results-story]");
     expect(story?.querySelector("h3")?.textContent).toBe(turnWords("turn.results.story"));
     const told = [...(story?.querySelectorAll("li") ?? [])].map((row) => row.textContent);
-    expect(told).toContain(words(hired.key, hired.params));
+    // The job found is told as the results tell it: an offer, with its pay a month.
+    const found = toldOnResults(hired);
+    expect(told).toContain(words(found.key, found.params));
     expect(told).toContain(words(offer.key, offer.params));
     // Kept first, then the story, then the money.
     const order = [...document.querySelectorAll("[data-results-kept], [data-results-story], [data-results-lines]")].map((node) => (node.hasAttribute("data-results-kept") ? "kept" : node.hasAttribute("data-results-story") ? "story" : "money"));

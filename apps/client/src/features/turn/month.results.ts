@@ -4,6 +4,7 @@
 import { content } from "@japacity/content";
 import type { Currency, PlayerView, ReportLine } from "@japacity/sim";
 
+import { monthlyPayOf } from "../../shared/words/cost";
 import { afterPrologue, forYou, isSaid, movesMoney, tidyLines } from "../../shared/words/lines";
 import { moneyParam } from "../../shared/words/text";
 
@@ -77,14 +78,28 @@ export function otherLines(lines: readonly ReportLine[]): ReportLine[] {
 /** The most story lines the results show; the rest stay in News. */
 export const STORY_MAX = 6;
 
+/** A charge that fell due and could not be paid: no money moved, but the month went wrong (R-WORLD-008). */
+const UNPAID: ReadonlySet<string> = new Set(["line.obligation.missed", "line.obligation.car-notice", "line.obligation.group-visit", "line.obligation.group-covered"]);
+
+/** True for a line that tells a bill not paid. */
+export function isUnpaid(line: ReportLine): boolean {
+  return UNPAID.has(line.key);
+}
+
+/** The visa granted: the month's news, told first and alone in the lead. */
+const GRANTED = "line.route.granted";
+
 /**
- * The kinds of line that carry the month's story, in the order the results lead with them: a job
- * or an offer found, a way out heard of or moved on, a paper or a test band, a deposit that will be
- * asked about, a chapter, a goal or an answer told in its offer's own words, a set piece, the
- * interview or a status, news about your plans.
+ * The kinds of line that carry the month's story, in the order the results lead with them: the
+ * visa granted, a bill that went unpaid, a hunt's answer, a job or an offer found, a way out heard
+ * of or moved on, a paper or a test band, a deposit that will be asked about, a chapter, a goal or
+ * an answer told in its offer's own words, a set piece, the interview or a status, news about your
+ * plans.
  */
 const STORY: readonly ((line: ReportLine) => boolean)[] = [
-  (line) => ["line.activity.hunt-hired", "line.activity.job-started", "line.activity.side-started", "line.offer.opened"].includes(line.key),
+  (line) => line.key === GRANTED,
+  isUnpaid,
+  (line) => ["line.activity.hunt-hired", "line.activity.hunt-missed", "line.activity.job-started", "line.activity.side-started", "line.offer.opened"].includes(line.key),
   (line) => line.key.startsWith("line.route."),
   (line) => (line.key.startsWith("line.document.") && line.key !== "line.document.already-pending") || line.key.startsWith("line.activity.driving-"),
   (line) => line.key === "line.wallet.flagged",
@@ -108,6 +123,39 @@ export function storyLines(lines: readonly ReportLine[]): ReportLine[] {
     .sort((a, b) => a.rank - b.rank || a.index - b.index)
     .slice(0, STORY_MAX)
     .map((entry) => entry.line);
+}
+
+/** True for the line that leads the results alone: the visa granted. */
+export function leadsAlone(line: ReportLine): boolean {
+  return line.key === GRANTED;
+}
+
+/** What a missed bill cost, by its entry: the credit file abroad, then the standing and the mood its miss takes. */
+function unpaidCost(obligation: string): string {
+  const entry = content.obligation[obligation as keyof typeof content.obligation];
+  if (entry === undefined) return "plain";
+  const takes = new Set(entry.onMiss.flatMap((effect) => (effect.type === "quality/add" && effect.amount < 0 ? [effect.quality] : [])));
+  const standing = takes.has("quality.standing");
+  const mood = takes.has("quality.wellbeing");
+  const quality = standing && mood ? "standing-mood" : standing ? "standing" : mood ? "mood" : null;
+  if (entry.reportsToCredit === true) return quality === "standing-mood" ? "credit-standing-mood" : "credit";
+  return quality ?? "plain";
+}
+
+/**
+ * A story line as the results tell it (R-WORLD-008): a bill missed says its figure and what it
+ * cost, a hunt says the job and its answer, an offer of work says the pay a month. Anything else
+ * is told as News tells it.
+ */
+export function toldOnResults(line: ReportLine): ReportLine {
+  const { obligation, job } = line.params;
+  if (line.key === "line.obligation.missed" && typeof obligation === "string") return { ...line, key: `ui.results.unpaid.${unpaidCost(obligation)}` };
+  if (line.key === "line.activity.hunt-missed" && typeof job === "string") return { ...line, key: "ui.results.hunt-missed" };
+  if (line.key === "line.activity.hunt-hired" && typeof job === "string") {
+    const pay = monthlyPayOf(job);
+    return pay === null ? { ...line, key: "ui.results.hunt-offer-plain" } : { ...line, key: "ui.results.hunt-offer", params: { ...line.params, pay } };
+  }
+  return line;
 }
 
 /** What was kept in each currency the lines moved: in less out, in the order each first appears. */

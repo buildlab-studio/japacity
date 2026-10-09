@@ -2,6 +2,7 @@ import type { PlayerView } from "@japacity/sim";
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
+import { playedWords, standingWords } from "../../shared/card/face";
 import { abroadView } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { nameOf, say, words } from "../../shared/words/text";
@@ -33,8 +34,8 @@ describe("the share cards", () => {
     expect(within(card).getByText(words("chapter.send-off.title"))).toBeDefined();
     expect(within(card).getByText(nameOf("route.uk-masters"))).toBeDefined();
     expect(card.textContent).toContain("82%");
-    expect(within(card).getByText("35")).toBeDefined();
-    expect(within(card).getByText("61")).toBeDefined();
+    expect(within(card).getByText(playedWords(35))).toBeDefined();
+    expect(within(card).getByText(standingWords(61))).toBeDefined();
     for (const id of SEND_OFF.topActivities) expect(within(card).getByText(nameOf(id))).toBeDefined();
     expect(within(card).getByText(say("ui.card.is-a-game"))).toBeDefined();
     expect(within(card).getByText(say("ui.game"))).toBeDefined();

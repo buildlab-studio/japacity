@@ -4,7 +4,7 @@ import { afterEach, describe, expect, test, vi } from "vitest";
 import { recordedGame } from "../testing/fixtures";
 import { ART_IDS, artShapes } from "./art";
 import { encodeUnder, QUALITIES, underLimit } from "./encode";
-import { cardFace, cardLink, type ShareCard } from "./face";
+import { cardFace, cardLink, playedWords, standingWords, type ShareCard } from "./face";
 import { fakeCanvas } from "./fakeCanvas";
 import { cardSteps, previewSteps, wrap, type Measure, type Step, type TextStep } from "./layout";
 import { renderCard, renderPreview } from "./render";
@@ -58,13 +58,16 @@ describe("what is on a card", () => {
     }
   });
 
-  test("[R-SHARE-004] given Ada's send-off, when laid out, then her first name, the route, the japacity figure, the months, the standing and what she did most are drawn", () => {
+  test("[R-SHARE-004] [R-TEXT-005] given Ada's send-off, when laid out, then her first name, the route, the japacity figure, the time played in years and months, the standing as its band and what she did most are drawn", () => {
     const card = adaCard();
     const steps = cardSteps(cardFace(card, "scenario.ada"), SIZE, measure);
     expect(role(steps, "name")[0]?.text).toBe("Ada");
     expect(role(steps, "route")[0]?.text).toBe(text[`${card.route!}.name`]);
     expect(role(steps, "percent")[0]?.text).toBe(String(card.percent));
-    expect(role(steps, "value").map((step) => step.text)).toEqual([String(card.months), String(card.standing)]);
+    const [months, ...standing] = role(steps, "value").map((step) => step.text);
+    expect(months).toBe(playedWords(card.months));
+    expect(standing.join(" ")).toBe(standingWords(card.standing));
+    expect(standingWords(card.standing)).not.toBe("");
     expect(role(steps, "most")).toHaveLength(Math.min(3, card.topActivities.length));
   });
 
@@ -74,7 +77,7 @@ describe("what is on a card", () => {
     expect(face.art).toBe(text["share.chapter.build-the-file.art"]);
   });
 
-  test("[R-SHARE-005] given every kind and figures at their edges, when the card is laid out, then no sum of money is drawn and the only numbers are the figure, the months and the standing", () => {
+  test("[R-SHARE-005] given every kind and figures at their edges, when the card is laid out, then no sum of money is drawn and the only numbers are the figure and the time played's years and months", () => {
     for (const kind of shareKinds) {
       for (const [percent, months, standing] of [
         [0, 0, 0],
@@ -83,7 +86,8 @@ describe("what is on a card", () => {
       ] as const) {
         const card = { ...cardOf(kind), percent, months, standing };
         const steps = cardSteps(cardFace(card, "scenario.ada"), SIZE, measure);
-        const allowed = new Set([String(percent), String(months), String(standing)]);
+        // The lost card's body still counts its months on the road.
+        const allowed = new Set([String(percent), String(months), String(Math.floor(months / 12)), String(months % 12)]);
         for (const step of texts(steps)) {
           expect(step.text).not.toMatch(MONEY);
           for (const number of step.text.match(/\d+/g) ?? []) expect(allowed.has(number)).toBe(true);

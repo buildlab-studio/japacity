@@ -127,13 +127,12 @@ export function cardSteps(face: CardFace, size: Size, measure: Measure): Step[] 
     put("label", face.percentLabel, (y += unit(52)), unit(32), 400, "sans", tone.soft);
   }
   if (face.stats !== null) {
-    const middle = pad + Math.round(inner / 2);
-    y += unit(64);
-    put("label", face.monthsLabel, y, unit(32), 400, "sans", tone.soft);
-    text.push({ op: "text", role: "label", text: face.standingLabel, x: middle, y, size: unit(32), weight: 400, family: "sans", color: tone.soft, align: "left" });
-    y += unit(76);
-    put("value", String(face.stats.months), y, unit(68), 700, "sans", tone.ink);
-    text.push({ op: "text", role: "value", text: String(face.stats.standing), x: middle, y, size: unit(68), weight: 700, family: "sans", color: tone.ink, align: "left" });
+    // The time played and how home sees the character are words now, each on its own row.
+    const value = unit(48);
+    put("label", face.monthsLabel, (y += unit(64)), unit(32), 400, "sans", tone.soft);
+    put("value", face.stats.months, (y += unit(60)), value, 700, "sans", tone.ink);
+    put("label", face.standingLabel, (y += unit(64)), unit(32), 400, "sans", tone.soft);
+    for (const line of wrapped(face.stats.standing, value, "sans", 700)) put("value", line, (y += unit(60)), value, 700, "sans", tone.ink);
   }
   if (face.most.length > 0) {
     put("label", face.mostLabel, (y += unit(64)), unit(32), 400, "sans", tone.soft);
@@ -152,7 +151,8 @@ export function cardSteps(face: CardFace, size: Size, measure: Measure): Step[] 
   const footText: TextStep[] = [];
   const foot = (role: TextRole, words: string, at: number, sizePx: number, weight: TextStep["weight"], family: Family, align: TextStep["align"] = "left") =>
     footText.push({ op: "text", role, text: words, x: align === "left" ? pad : size.width - pad, y: at, size: sizePx, weight, family, color: tone.ink, align });
-  foot("sender", face.sender, rule + unit(96), unit(72), 400, "display");
+  // The word mark in the plain face: in the display caps its Y reads as a 3.
+  foot("sender", face.sender, rule + unit(96), unit(64), 700, "sans");
   foot("disclaimer", face.disclaimer, rule + unit(88), unit(44), 700, "sans", "right");
   foot("address", face.address, rule + unit(168), unit(38), 600, "sans");
   foot("official", face.officialLine, rule + unit(226), unit(32), 400, "sans");
@@ -197,7 +197,7 @@ export function previewSteps(face: Pick<CardFace, "kind" | "kicker" | "title" | 
   put("kicker", face.kicker.toUpperCase(), y, unit(26), 700, "sans");
   const title = unit(66);
   for (const line of wrap(face.title, width, (part) => measure(part, title, "display", 400))) put("title", line, (y += unit(76)), title, 400, "display");
-  put("sender", face.sender, size.height - unit(150), unit(52), 400, "display");
+  put("sender", face.sender, size.height - unit(150), unit(48), 700, "sans");
   put("disclaimer", face.disclaimer, size.height - unit(96), unit(34), 700, "sans");
   put("address", face.address, size.height - unit(52), unit(28), 600, "sans");
   return steps;

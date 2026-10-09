@@ -2,7 +2,7 @@
 import { realNames, realNameSigns } from "./place.real";
 
 export const placeText: Record<string, string> = {
-  "line.place.arrived": "You land in {country}. Everything costs more than you planned for.",
+  "line.place.arrived": "The plane lands: {country}. Everything costs more than you planned for.",
   "line.place.on-road": "You leave by road. Nobody at home knows the whole plan.",
   "line.place.returned-with-papers": "You come home from {country} with papers in your pocket. The door stays open behind you.",
   "line.place.returned-by-choice": "You come home from {country} because you chose to. People still ask why.",
