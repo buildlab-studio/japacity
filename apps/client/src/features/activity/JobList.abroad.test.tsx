@@ -1,3 +1,4 @@
+import { content } from "@japacity/content";
 import type { Id } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
@@ -5,6 +6,7 @@ import { abroadView } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { formatMoney } from "../../shared/words/format";
 import { ActivityPicker } from "./ActivityView";
+import { chanceBand, jobCardWords, jobChanceBp } from "./JobList";
 import { jobsWords } from "./jobs.words";
 import { payAMonth } from "./pay";
 
@@ -21,5 +23,16 @@ describe("the jobs list abroad", () => {
     const row = document.querySelector(`[data-jobs] [data-job='${SHOP}']`);
     expect(row?.textContent).toContain(jobsWords("jobs.pay", { amount: formatMoney(month.amount, month.currency) }));
     expect(row?.textContent).not.toContain(formatMoney(month.amount * 12, month.currency));
+  });
+});
+
+describe("a job named by a board or a notice", () => {
+  test("[R-WORLD-006] given Ada in the UK and the shop job on Peckham's notice, when the hunt's card names it, then its words say the pay a month and the chance, as the list's row does", () => {
+    const view = abroadView();
+    const month = payAMonth(SHOP);
+    if (month === null) throw new Error("The shop job has no pay");
+    const said = jobCardWords(view, SHOP);
+    expect(said).toBe(`${jobsWords("jobs.pay", { amount: formatMoney(month.amount, month.currency) })}. ${jobsWords(`jobs.chance.${chanceBand(jobChanceBp(content.activity[SHOP]!, view.qualities.find((quality) => quality.id === "quality.network")?.value ?? 0))}`)}.`);
+    expect(said).not.toContain(formatMoney(month.amount * 12, month.currency));
   });
 });

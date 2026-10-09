@@ -66,6 +66,16 @@ function payWords(id: string): string | null {
   return pay === null ? null : jobsWords("jobs.pay", { amount: formatMoney(pay.amount, pay.currency) });
 }
 
+/**
+ * A job's pay a month and its chance in words, as its row on the list says them, for the hunt's card when a
+ * board or a notice names the job.
+ */
+export function jobCardWords(view: PlayerView, id: string): string {
+  const chance = jobsWords(`jobs.chance.${chanceBand(chanceOf(view, id))}`);
+  const pay = payWords(id);
+  return pay === null ? jobsWords("jobs.card.chance", { chance }) : jobsWords("jobs.card", { pay, chance });
+}
+
 /** Whether the view shows a requirement met; one the view cannot judge counts as unmet, so it is named. */
 function metNow(view: PlayerView, requirement: Requirement): boolean {
   if (requirement.type === "quality/min") return qualityOf(view, requirement.quality) >= requirement.value;
