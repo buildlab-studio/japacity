@@ -11,6 +11,7 @@ export const ScenarioEntrySchema = z.strictObject({
   tenure: z.record(idOf("activity"), CountSchema),
   // At most the prologue's draw allows (R-PROLOGUE-002: one to six), so no overlay can build a life with a million sibling slots.
   siblings: CountSchema.max(6),
+  sex: z.enum(["f", "m"]).exactOptional(),
   pockets: z.partialRecord(CurrencySchema, z.strictObject({ bank: CountSchema, cash: CountSchema })),
   documents: z.array(
     z.strictObject({

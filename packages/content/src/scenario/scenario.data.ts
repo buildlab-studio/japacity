@@ -8,6 +8,7 @@ import { naira } from "../units";
 export const scenarioTable: Record<Id<"scenario">, ScenarioEntry> = {
   "scenario.ada": {
     id: "scenario.ada",
+    sex: "f",
     qualities: {
       // 23 years 2 months.
       "quality.age-months": 278,
@@ -41,6 +42,7 @@ export const scenarioTable: Record<Id<"scenario">, ScenarioEntry> = {
   },
   "scenario.tunde": {
     id: "scenario.tunde",
+    sex: "m",
     qualities: {
       // 28 years 6 months.
       "quality.age-months": 342,
@@ -75,6 +77,7 @@ export const scenarioTable: Record<Id<"scenario">, ScenarioEntry> = {
   },
   "scenario.zainab": {
     id: "scenario.zainab",
+    sex: "f",
     qualities: {
       // 25 years.
       "quality.age-months": 300,
@@ -119,6 +122,7 @@ export const scenarioTable: Record<Id<"scenario">, ScenarioEntry> = {
  */
 export const ngoziScenario: ScenarioEntry = {
   id: "scenario.ngozi",
+  sex: "f",
   qualities: {
     // 27 years.
     "quality.age-months": 324,
@@ -169,6 +173,7 @@ export const ngoziScenario: ScenarioEntry = {
  */
 export const aniekanScenario: ScenarioEntry = {
   id: "scenario.aniekan",
+  sex: "m",
   qualities: {
     // 26 years.
     "quality.age-months": 312,

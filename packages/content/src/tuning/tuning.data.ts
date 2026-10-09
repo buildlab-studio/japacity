@@ -104,6 +104,8 @@ export const tuning: Tuning = {
 
   // place.md
   place: { brokeLine: naira(500000), fareFromNaira: true },
+  // streets.md: the hidden places' life (R-STREET-001 to 008).
+  street: { phonePrice: naira(45000), phoneMood: 6, phoneNetwork: 3, salesPay: naira(70000), salesHireBp: 6000, apprenticeTech: 4, apprenticeUntil: 60, theftBp: 2000, theftNaira: naira(5000), mosquitoBp: 3500, harassBp: 3000, harassMood: 8, shoppingGbp: 2000, shoppingAed: 8000, shoppingMood: 5, findBp: 1500, findMood: 4, runMood: 8 },
   // status.md R-STATUS-011: months a student status must be held for the course to count as passed.
   status: { courseMonths: 12 },
 

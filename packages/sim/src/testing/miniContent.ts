@@ -351,6 +351,7 @@ export const miniContent: Content = {
     },
     offer: { maxNewPerMonth: 2, maxOpen: 4 },
     place: { brokeLine: 50000000, fareFromNaira: true },
+    street: { phonePrice: 4500000, phoneMood: 6, phoneNetwork: 3, salesPay: 7000000, salesHireBp: 6000, apprenticeTech: 4, apprenticeUntil: 60, theftBp: 2000, theftNaira: 500000, mosquitoBp: 3500, harassBp: 3000, harassMood: 8, shoppingGbp: 2000, shoppingAed: 8000, shoppingMood: 5, findBp: 1500, findMood: 4, runMood: 8 },
     status: { courseMonths: 12 },
     credit: { onTime: 3, onMiss: 12, onDefault: 30, drift: 1, driftTo: 40, judgmentMonths: 72, judgmentCap: 20, returnPenalty: 20, cleanMonths: 12 },
     car: { lessons: 220000, testFee: 8500, passBp: 5500, passPerAttemptBp: 500, passCapBp: 9000 },

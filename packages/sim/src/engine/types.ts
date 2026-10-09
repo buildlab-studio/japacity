@@ -1031,6 +1031,8 @@ export interface ScenarioEntry {
   tenure: Record<Id<"activity">, number>;
   /** Siblings the life starts with (R-PEOPLE-010). */
   siblings: number;
+  /** The character's sex, where the life says (docs/rules/streets.md R-STREET-009); the prologue's life does not. */
+  sex?: "f" | "m";
   pockets: Partial<Record<Currency, { bank: number; cash: number }>>;
   documents: { document: Id<"document">; monthsLeft: number | null; value: number | null }[];
   obligations: { obligation: Id<"obligation">; amount: number }[];
@@ -1098,6 +1100,8 @@ export interface Tuning {
   };
   offer: { maxNewPerMonth: number; maxOpen: number };
   place: { brokeLine: number; fareFromNaira: boolean };
+  /** The streets' life (docs/rules/streets.md R-STREET-001 to 008). */
+  street: { phonePrice: number; phoneMood: number; phoneNetwork: number; salesPay: number; salesHireBp: number; apprenticeTech: number; apprenticeUntil: number; theftBp: number; theftNaira: number; mosquitoBp: number; harassBp: number; harassMood: number; shoppingGbp: number; shoppingAed: number; shoppingMood: number; findBp: number; findMood: number; runMood: number };
   status: { courseMonths: number };
   /** `judgmentCap`: while a judgment stands, `credit/min` above it is never met (R-CREDIT-006). */
   /** `cleanMonths`: months without a miss before the file drifts up (R-CREDIT-003). */
