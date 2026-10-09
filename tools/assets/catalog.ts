@@ -434,6 +434,7 @@ export const CATALOG: CatalogEntry[] = [
   furniturePiece("prop_armchair", "family-house-parlour", "place.family-house", furniture.buildArmchair),
   furniturePiece("prop_centre-table", "family-house-parlour", "place.family-house", furniture.buildCentreTable),
   furniturePiece("prop_tv-stand", "family-house-parlour", "place.family-house", furniture.buildTvStand),
+  furniturePiece("prop_papers-box", "family-house-parlour", "place.family-house", furniture.buildPapersBox),
   furniturePiece("prop_test-desk", "english-test-centre", "place.english-test-centre", furniture.buildTestDesk),
   furniturePiece("prop_xray-stand", "tb-clinic", "place.tb-clinic", furniture.buildXrayStand),
   furniturePiece("prop_bank-counter", "bank-counter", "place.olokun-office", furniture.buildBankCounter),
