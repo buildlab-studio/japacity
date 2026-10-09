@@ -421,7 +421,7 @@ function agree(ctx: Ctx, id: string, proposal: Proposal): BaseEvent[] | Rejectio
       if (!canPayShare(ctx)) return reject("cannot-afford", "The wedding share cannot be paid.");
       const events = record(ctx, [agreed]);
       const share = ctx.content.tuning.people.weddingShare;
-      events.push(...ctx.apply([{ type: "money/take", currency: "NGN", pocket: "any", amount: share, reason: "wedding" }, { type: "quality/add", quality: STANDING, amount: ctx.content.tuning.people.weddingStanding }], cause));
+      events.push(...ctx.apply([{ type: "money/take", currency: "NGN", pocket: "transfer", amount: share, reason: "wedding" }, { type: "quality/add", quality: STANDING, amount: ctx.content.tuning.people.weddingStanding }], cause));
       const moment: Moment = { n: bond.moments.length + 1, by: "me", kind: "wedding", spot: drawFrom(ctx, WEDDING_SPOTS), what: WEDDING_WHAT, tick: ctx.world.tick };
       events.push(...record(ctx, [{ type: "people/moment-added", bond: id, moment }]));
       return events;

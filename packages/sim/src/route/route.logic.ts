@@ -541,7 +541,7 @@ function depart(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (!entry.flightPaidByEmployer) {
     const pay: Effect =
       flight.currency === "NGN"
-        ? { type: "money/take", currency: "NGN", pocket: "any", amount, reason: "flight" }
+        ? { type: "money/take", currency: "NGN", pocket: "transfer", amount, reason: "flight" }
         : { type: "money/pay-fee", currency: flight.currency, amount, reason: "flight" };
     ctx.apply([pay], cause);
   }

@@ -54,7 +54,7 @@ export const healthOfferTable: Record<Id<"offer">, OfferEntry> = {
         requires: [],
         pick: null,
         effects: [
-          { type: "money/take", currency: "NGN", pocket: "any", amount: { term: "hospital" }, reason: "mishap" },
+          { type: "money/take", currency: "NGN", pocket: "transfer", amount: { term: "hospital" }, reason: "mishap" },
           BED_REST,
           { type: "quality/add", quality: WELLBEING, amount: 20 },
           FORCED,
@@ -67,7 +67,7 @@ export const healthOfferTable: Record<Id<"offer">, OfferEntry> = {
         pick: null,
         // Course 1: the relapse is drawn at the chemist's chance.
         effects: [
-          { type: "money/take", currency: "NGN", pocket: "any", amount: { term: "chemist" }, reason: "mishap" },
+          { type: "money/take", currency: "NGN", pocket: "transfer", amount: { term: "chemist" }, reason: "mishap" },
           { type: "quality/add", quality: WELLBEING, amount: 8 },
           { type: "quality/add", quality: COURSE, amount: 1 },
         ],
@@ -107,7 +107,7 @@ export const healthOfferTable: Record<Id<"offer">, OfferEntry> = {
         pick: null,
         // Course 4: answered.
         effects: [
-          { type: "money/take", currency: "NGN", pocket: "any", amount: { term: "hospital" }, reason: "mishap" },
+          { type: "money/take", currency: "NGN", pocket: "transfer", amount: { term: "hospital" }, reason: "mishap" },
           lock(2, 2, "illness"),
           FORCED,
           { type: "quality/add", quality: COURSE, amount: 1 },
@@ -146,7 +146,7 @@ export const healthOfferTable: Record<Id<"offer">, OfferEntry> = {
         id: "go",
         requires: [],
         pick: null,
-        effects: [{ type: "money/take", currency: "NGN", pocket: "any", amount: naira(60000), reason: "family" }, BURIAL_LOCK, FORCED],
+        effects: [{ type: "money/take", currency: "NGN", pocket: "transfer", amount: naira(60000), reason: "family" }, BURIAL_LOCK, FORCED],
         fraudEffects: null,
       },
       {
@@ -154,7 +154,7 @@ export const healthOfferTable: Record<Id<"offer">, OfferEntry> = {
         requires: [],
         pick: null,
         effects: [
-          { type: "money/take", currency: "NGN", pocket: "any", amount: naira(100000), reason: "family" },
+          { type: "money/take", currency: "NGN", pocket: "transfer", amount: naira(100000), reason: "family" },
           { type: "quality/add", quality: STANDING, amount: -3 },
         ],
         fraudEffects: null,

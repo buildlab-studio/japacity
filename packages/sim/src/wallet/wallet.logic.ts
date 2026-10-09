@@ -257,10 +257,16 @@ function takeMoney(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
   const { currency, reason } = effect;
   const pocket = ctx.state.wallet.pockets[currency];
   if (effect.pocket === "any") {
-    // Cash first, then bank, never locked ("Pockets" in wallet.md). R-WALLET-001: all or nothing.
+    // The street: cash first, then bank, never locked ("Pockets" in wallet.md). R-WALLET-001: all or nothing.
     if (pocket.cash + pocket.bank < amount) return [];
     const fromCash = Math.min(pocket.cash, amount);
     return moved([debit(currency, "cash", fromCash, reason), debit(currency, "bank", amount - fromCash, reason)]);
+  }
+  if (effect.pocket === "transfer") {
+    // A transfer: the bank first, then cash, never locked (decision 0012 as amended). All or nothing.
+    if (pocket.cash + pocket.bank < amount) return [];
+    const fromBank = Math.min(pocket.bank, amount);
+    return moved([debit(currency, "bank", fromBank, reason), debit(currency, "cash", amount - fromBank, reason)]);
   }
   if (pocket[effect.pocket] < amount) return [];
   return [debit(currency, effect.pocket, amount, reason)];
