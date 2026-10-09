@@ -194,11 +194,30 @@ const BANDS = 4;
  * little behind it"), or null when the quality has no band words. The figure itself never shows.
  */
 export function bandWords(quality: string, value: number): string | null {
-  const entry = (content.quality as Record<string, { min: number; max: number } | undefined>)[quality];
-  if (entry === undefined || !hasWords(`ui.band.${quality}.0`)) return null;
+  const entry = bandedRange(quality);
+  if (entry === null) return null;
   const span = entry.max - entry.min + 1;
   const band = Math.min(BANDS - 1, Math.max(0, Math.floor(((value - entry.min) * BANDS) / span)));
   return say(`ui.band.${quality}.${String(band)}`);
+}
+
+/** A quality's range when it has band words, else null. */
+function bandedRange(quality: string): { min: number; max: number } | null {
+  const entry = (content.quality as Record<string, { min: number; max: number } | undefined>)[quality];
+  return entry === undefined || !hasWords(`ui.band.${quality}.0`) ? null : entry;
+}
+
+/**
+ * The band a gate on a quality opens at, said as a promise ("once your tech is good"): the lowest band
+ * whose every value meets the gate, else the top band. Null when the quality has no band words.
+ */
+export function bandOpening(quality: string, gate: number): number | null {
+  const entry = bandedRange(quality);
+  if (entry === null) return null;
+  const span = entry.max - entry.min + 1;
+  // The lowest value in band n is the first whose share of the range reaches n quarters.
+  const opens = [0, 1, 2, 3].find((n) => entry.min + Math.ceil((n * span) / BANDS) >= gate);
+  return opens ?? BANDS - 1;
 }
 
 /** Lines that tell a quality's figure, told by its band where it has one. */
@@ -213,7 +232,9 @@ function bandLine(key: string, params: Params): string | null {
   const { quality, value, points } = params;
   if (banded === undefined || typeof quality !== "string" || typeof value !== "number") return null;
   const band = bandWords(quality, value);
-  if (band === null) return null;
+  // A quality with a named level and no bands (education, the degree grade) says the level, never its figure.
+  const label = `${quality}.value.${String(value)}`;
+  if (band === null) return hasWords(label) ? say("ui.line.quality.label", { quality: nameOf(quality), value: say(label) }) : null;
   // From nothing (the prologue's draw), the band alone says where the character starts.
   const fromNothing = key === "line.quality.gain" && points === value;
   return say(fromNothing ? "ui.line.quality.start-band" : banded, { quality: nameOf(quality), band });
