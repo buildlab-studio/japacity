@@ -35,6 +35,7 @@ import { buildPlasticChair } from "@japacity/assets-src/prop/plastic-chair/build
 import { buildRoom } from "@japacity/assets-src/bld/room/build";
 import { ROOMS, type RoomName } from "@japacity/assets-src/bld/room/rooms";
 import * as furniture from "@japacity/assets-src/prop/furniture";
+import * as basics from "@japacity/assets-src/places/room-basics/build";
 import { buildStall } from "@japacity/assets-src/prop/stall";
 import { buildStreetBench } from "@japacity/assets-src/prop/street-bench/build";
 import { buildTrolley } from "@japacity/assets-src/prop/trolley/build";
@@ -221,6 +222,11 @@ function roomEntry(room: RoomName): CatalogEntry {
 }
 
 /** A piece of furniture: shared when more than one room uses it, else in its room's folder. */
+/** The room's basics (world.md R-WORLD-029), written as code from the kit beside the rooms they furnish. */
+function basicsPiece(name: string, folder: string, place: string, build: () => Group): CatalogEntry {
+  return { ...furniturePiece(name, folder, place, build), source: "assets-src/places/room-basics", author: "Written as code from the kit" };
+}
+
 function furniturePiece(name: string, folder: string, place: string, build: () => Group): CatalogEntry {
   const shared = folder === "shared";
   return {
@@ -450,6 +456,11 @@ export const CATALOG: CatalogEntry[] = [
   furniturePiece("prop_post", "the-room", "place.the-room", furniture.buildPost),
   furniturePiece("prop_arrivals-rail", "arrivals-hall", "place.airport-lagos", furniture.buildArrivalsRail),
   furniturePiece("prop_flight-board", "arrivals-hall", "place.airport-lagos", furniture.buildFlightBoard),
+  basicsPiece("prop_cooking-corner", "shared", "shared", basics.buildCookingCorner),
+  basicsPiece("prop_travel-bag", "shared", "shared", basics.buildTravelBag),
+  basicsPiece("prop_lantern", "shared", "shared", basics.buildLantern),
+  basicsPiece("prop_water-drum", "family-house-parlour", "place.family-house", basics.buildWaterDrum),
+  basicsPiece("prop_drum-water", "family-house-parlour", "place.family-house", basics.buildDrumWater),
 ];
 
 export function findEntries(names: readonly string[]): CatalogEntry[] {
