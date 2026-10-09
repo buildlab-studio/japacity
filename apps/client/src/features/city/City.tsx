@@ -543,10 +543,10 @@ export function City({
     const { thing, act } = scenePick;
     switch (act.kind) {
       case "sheet":
-        // Money is sent home from the Bank, which shows the channels, the rate and what lands.
+        // Money is sent home from the Bank's send chooser, which shows the channels, the rate and what lands.
         if (act.stages === SEND_MONEY) {
           setPicked(null);
-          setPhoneApp("bank");
+          setPhoneApp("bank:send");
           setPhone(true);
           return;
         }

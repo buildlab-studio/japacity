@@ -305,21 +305,26 @@ function DuesGapCard({ onChange }: { onChange: (start: ChangeStart) => void }) {
       {from === null ? null : (
         <button type="button" className="press mt-2 flex min-h-11 w-full items-center gap-2 rounded-[5px] btn-dark px-3 text-left text-[14px] font-bold" onClick={() => onChange({ from, to: gap.currency })}>
           <ArrowLeftRight size={16} className="shrink-0" aria-hidden />
-          <span>{abroadWords("phone.bank.dues.way", { from: currencyList(gap.from), to: lowerFirst(currencyWords(gap.currency)) })}</span>
+          <span>{opening(abroadWords("phone.bank.dues.way", { from: currencyList(gap.from), to: lowerFirst(currencyWords(gap.currency)) }))}</span>
         </button>
       )}
     </div>
   );
 }
 
-/** Abroad, each other money held as a row with its own Change money into the country's money. */
+/** A pair's words open a line of their own with a capital. */
+function opening(words: string): string {
+  return words.charAt(0).toUpperCase() + words.slice(1);
+}
+
+/** Abroad, each other money held as a row under one Change money, with its pair into the country's money. */
 function HeldElsewhere({ local, onChange }: { local: Currency; onChange: (start: ChangeStart) => void }) {
   const view = useView();
   const held = heldElsewhere(view, local);
   if (held.length === 0) return null;
   return (
-    <>
-      <Head>{abroadWords("phone.bank.held")}</Head>
+    <div data-change-pairs>
+      <Head>{say("ui.wallet.convert")}</Head>
       <ul className="flex flex-col divide-y divide-sheet-line">
         {held.map((currency) => (
           <li key={currency} className="flex items-center justify-between gap-3 py-2" data-held={currency}>
@@ -329,19 +334,20 @@ function HeldElsewhere({ local, onChange }: { local: Currency; onChange: (start:
             </span>
             <button type="button" className="press flex min-h-10 shrink-0 items-center gap-1.5 rounded-[5px] border border-sheet-line bg-sheet-2 px-3 text-[13px] font-bold" onClick={() => onChange({ from: currency, to: local })}>
               <ArrowLeftRight size={15} aria-hidden />
-              {say("ui.wallet.convert")}
+              {abroadWords("phone.bank.pair", { from: currencyWords(currency), to: lowerFirst(currencyWords(local)) })}
             </button>
           </li>
         ))}
       </ul>
-    </>
+    </div>
   );
 }
 
-export function Bank() {
+/** `opening`: a chooser to open on, as the room's phone opens Send money home. */
+export function Bank({ opening: openOn = null }: { opening?: "change" | "move" | "send" | null } = {}) {
   const view = useView();
   const { open, sheet } = useAsk();
-  const [choosing, setChoosing] = useState<"change" | "move" | "send" | null>(null);
+  const [choosing, setChoosing] = useState<"change" | "move" | "send" | null>(openOn);
   const [start, setStart] = useState<ChangeStart | undefined>(undefined);
   // The money the character lives on: the naira at home, the country's own abroad (R-WORLD-002).
   const local = localCurrency(view);
@@ -353,6 +359,7 @@ export function Bank() {
   const thisMonth = useGame((state) => state.monthLines);
   const lately = latelyLines(view, lastMonth, thisMonth).slice(-LATELY);
   const others = CURRENCIES.filter((currency) => currency !== "NGN" && view.pockets[currency].bank + view.pockets[currency].cash > 0);
+  const pairsShown = abroad && heldElsewhere(view, local).length > 0;
   const toggle = (which: "change" | "move" | "send") => {
     setStart(undefined);
     setChoosing(choosing === which ? null : which);
@@ -407,10 +414,13 @@ export function Bank() {
       {view.ended ? null : (
         <>
           <div className="mt-4 grid grid-cols-2 gap-2">
-            <button type="button" className={`press flex min-h-12 items-center justify-center gap-2 rounded-[6px] text-[14px] font-bold ${choosing === "change" ? "btn-dark" : "border border-sheet-line bg-sheet-2"}`} aria-expanded={choosing === "change"} onClick={() => toggle("change")}>
-              <ArrowLeftRight size={17} aria-hidden />
-              {say("ui.wallet.convert")}
-            </button>
+            {/* Abroad with other monies held, Change money heads their pairs above; it is not said again here. */}
+            {pairsShown ? null : (
+              <button type="button" className={`press flex min-h-12 items-center justify-center gap-2 rounded-[6px] text-[14px] font-bold ${choosing === "change" ? "btn-dark" : "border border-sheet-line bg-sheet-2"}`} aria-expanded={choosing === "change"} onClick={() => toggle("change")}>
+                <ArrowLeftRight size={17} aria-hidden />
+                {say("ui.wallet.convert")}
+              </button>
+            )}
             <button type="button" className={`press flex min-h-12 items-center justify-center gap-2 rounded-[6px] text-[14px] font-bold ${choosing === "move" ? "btn-dark" : "border border-sheet-line bg-sheet-2"}`} aria-expanded={choosing === "move"} onClick={() => toggle("move")}>
               <MoveVertical size={17} aria-hidden />
               {say("ui.wallet.move")}
