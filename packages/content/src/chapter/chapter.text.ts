@@ -16,6 +16,7 @@ export const chapterText: Record<string, string> = {
   "chapter.find-your-feet.open.ngozi": "Thirty months on the ward. Three more nurses left this year, and the shifts did not get shorter.",
   "chapter.find-your-feet.open.aniekan": "Four years of marking. Your sister's fees are yours, and the laptop is where you go at night.",
   "chapter.find-your-feet.open.prologue.degree": "The degree is done and the certificate is in a file. Everybody is asking what is next.",
+  "chapter.find-your-feet.open.prologue.capital": "Six years under a master, and the settlement is in hand. Everybody is asking when the shop opens.",
   "chapter.find-your-feet.open.prologue.trade": "Your years behind another man's counter are over. Now it is your own life, and everybody is asking what is next.",
   "chapter.find-your-feet.close": "You have a salary and a word for what you want. Japa.",
   "chapter.find-your-feet.item.job": "Get a job",

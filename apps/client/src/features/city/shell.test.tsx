@@ -3,13 +3,13 @@
 import { act, fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, test, vi } from "vitest";
 
-import { engineView, richView } from "../../shared/testing/fixtures";
+import { engineView, newGame, richView } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { formatMoney } from "../../shared/words/format";
 import { inMonths, say, words } from "../../shared/words/text";
 import { City } from "./City";
 import { cityWords } from "./city.words";
-import { nudgeOf } from "./nudge";
+import { nudgeOf, stepWayOf } from "./nudge";
 
 const world = (extra: Partial<Parameters<typeof City>[0]> = {}) => <City world month={<p data-month-body>month</p>} results={(place) => <p data-results-for={place} />} {...extra} />;
 
@@ -286,5 +286,24 @@ describe("the nudge", () => {
     expect(nudge()).toBe(say("ui.nudge.offer"));
     fireEvent.click(screen.getByRole("button", { name: say("ui.world.end-month") }));
     expect(nudge()).toBeNull();
+  });
+});
+
+describe("the trader from sixteen with a shop's capital", () => {
+  test("[R-WORLD-001] [R-WORLD-003] given a settled trader at his handover, when the world opens, then the opening words speak of the settlement and the nudge sends him to the meetup, not the board", () => {
+    const game = newGame("scenario.prologue", "sixteen-0");
+    for (let turn = 0; turn < 40 && game.state.prologue.open; turn += 1) {
+      const prologue = game.view().prologue!;
+      const allowed = prologue.answers.filter((answer) => answer.allowed).map((answer) => answer.id);
+      const answer = ["apprentice", "spare-parts", "stay", "settle", "nowhere", "room"].find((id) => allowed.includes(id)) ?? allowed[0] ?? "";
+      game.accept({ type: "prologue/choose", step: prologue.step, answer });
+    }
+    const view = game.view();
+    expect(view.chapter.current).toBe("chapter.find-your-feet");
+    const nudge = nudgeOf({ ...view, setpiece: null, interview: null, offers: [], report: null });
+    expect(nudge.about).toBe("step");
+    expect(nudge.key.startsWith("chapter.find-your-feet.item.heard")).toBe(true);
+    expect(stepWayOf(view)?.go).toBe("place.yaba");
+    expect(words("chapter.find-your-feet.open.prologue.capital")).toContain("settlement");
   });
 });
