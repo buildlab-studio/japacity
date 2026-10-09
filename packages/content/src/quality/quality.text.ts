@@ -40,7 +40,7 @@ export const qualityText: Record<string, string> = {
   // Report lines. {quality} is an id: the interface shows its name.
   "line.quality.gain": "{quality} up {points}, to {value}.",
   "line.quality.loss": "{quality} down {points}, to {value}.",
-  "line.quality.worn": "Work takes {points} off your {quality}.",
+  "line.quality.worn": "Work wears on your {quality}.",
   "line.quality.drift": "{quality} settles by {points}, to {value}.",
   "line.quality.run-down": "You are run down, and it has gone on for months. Rest, or you will fall ill.",
 };

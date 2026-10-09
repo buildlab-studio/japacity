@@ -5,7 +5,7 @@ import type { Amount, Id, Requirement, RouteStateName } from "@japacity/sim";
 
 import { formatBand, formatBp, formatMoney, formatNumber, playerMonth } from "./format";
 import { AGE, yearsOf } from "./quality";
-import { hasWords, lowerFirst, nameOf, runningName, say, sayCount } from "./text";
+import { bandWords, hasWords, lowerFirst, nameOf, runningName, say, sayCount } from "./text";
 
 /** What the sentence may read from the view to say more than the requirement alone. */
 export interface SentenceContext {
@@ -51,6 +51,14 @@ function qualityValue(quality: string, value: number): string {
   return hasWords(label) ? say(label) : formatNumber(value);
 }
 
+/** The band a quality's figure sits in, by its number and its words, or null when the quality has no band words. */
+function bandAt(quality: string, value: number): { n: number; words: string } | null {
+  const words = bandWords(quality, value);
+  if (words === null) return null;
+  const n = [0, 1, 2, 3].find((each) => say(`ui.band.${quality}.${String(each)}`) === words);
+  return n === undefined ? null : { n, words };
+}
+
 function list(names: readonly string[]): string {
   return names.join(say("ui.req.or"));
 }
@@ -64,16 +72,23 @@ export function requirementSentence(requirement: Requirement, context: SentenceC
     case "quality/min": {
       if (requirement.quality === AGE) return say("ui.req.age-min", { years: yearsOf(requirement.value) });
       const label = `${requirement.quality}.value.${String(requirement.value)}`;
-      // Levels with names read better as "Degree grade: Second class upper or better".
-      if (hasWords(label)) return say("ui.req.quality-min-label", { quality: nameOf(requirement.quality), value: say(label) });
+      const own = `ui.req.min.${requirement.quality}`;
+      // A level with a name: "A portfolio with a few pieces of work", "Degree grade: Second class upper or better".
+      if (hasWords(label)) return hasWords(own) ? say(own, { value: lowerFirst(say(label)) }) : say("ui.req.quality-min-label", { quality: nameOf(requirement.quality), value: say(label) });
+      // A quality with bands is said by the band the gate sits in, never its figure (R-TEXT-005).
+      const band = bandAt(requirement.quality, requirement.value);
+      if (band !== null) return hasWords(`ui.req.band.${requirement.quality}.${String(band.n)}`) ? say(`ui.req.band.${requirement.quality}.${String(band.n)}`) : say("ui.req.quality-min-band", { quality: nameOf(requirement.quality), band: band.words });
       return say("ui.req.quality-min", { quality: nameOf(requirement.quality), value: requirement.value });
     }
-    case "quality/max":
+    case "quality/max": {
       if (requirement.quality === AGE) return say("ui.req.age-max", { years: yearsOf(requirement.value) });
+      const band = bandAt(requirement.quality, requirement.value);
+      if (band !== null) return say("ui.req.quality-max-band", { band: band.words });
       return say("ui.req.quality-max", {
         quality: nameOf(requirement.quality),
         value: qualityValue(requirement.quality, requirement.value),
       });
+    }
     case "job/any":
       return say("ui.req.job-any");
     case "job/none":

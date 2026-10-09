@@ -3,6 +3,8 @@ import type { Requirement } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
 import { formatBand, formatMoney, formatRate } from "./format";
+import { jobsWords } from "./jobs";
+import { valueWords } from "./quality";
 import { requirementSentence } from "./requirement";
 import { LOWER_KINDS, lowerFirst, nameOf, PROPER_WORDS, runningName, say, words } from "./text";
 import { uiText } from "./ui";
@@ -90,7 +92,8 @@ describe("names mid-sentence", () => {
 
 describe("requirement sentences", () => {
   const cases: [Requirement, string][] = [
-    [{ type: "quality/min", quality: "quality.tech", value: 40 }, `${text["quality.tech.name"]!} 40 or more`],
+    // A quality's gate is said by its band, never its figure (R-TEXT-005).
+    [{ type: "quality/min", quality: "quality.tech", value: 40 }, say("ui.req.band.quality.tech.1")],
     [{ type: "quality/min", quality: "quality.edu-grade", value: 3 }, `${text["quality.edu-grade.name"]!}: ${text["quality.edu-grade.value.3"]!} or better`],
     [{ type: "document/held", document: "document.passport" }, `${text["document.passport.name"]!} in hand`],
     [{ type: "document/held", document: "document.english-test", min: 60 }, say("ui.req.document-held-band", { document: text["document.english-test.name"]!, band: formatBand(60) })],
@@ -107,5 +110,27 @@ describe("requirement sentences", () => {
   test("given every requirement in content's activities, then each has a sentence with no raw braces", () => {
     const all = Object.values(content.activity).flatMap((entry) => entry.requires);
     for (const requirement of all) expect(requirementSentence(requirement)).not.toMatch(/[{}]/);
+  });
+});
+
+describe("a job's gates in words", () => {
+  test("[R-TEXT-005] given every job's gates in content, when they are said, then each quality is said by its band, never its figure", () => {
+    const jobs = Object.values(content.activity).filter((entry) => entry.pay !== null && entry.pay !== undefined);
+    const gates = jobs.flatMap((entry) => entry.requires).filter((requirement) => requirement.type === "quality/min" || requirement.type === "quality/max");
+    expect(gates.length).toBeGreaterThan(0);
+    for (const gate of gates) expect(requirementSentence(gate)).not.toMatch(/\d/);
+  });
+
+  test("[R-TEXT-005] given the gates the review read, when they are said, then they read as a person would say them", () => {
+    expect(requirementSentence({ type: "quality/min", quality: "quality.english", value: 50 })).toBe("More than basic English");
+    expect(requirementSentence({ type: "quality/min", quality: "quality.tech", value: 60 })).toBe("Good tech");
+    expect(requirementSentence({ type: "quality/min", quality: "quality.portfolio", value: 3 })).toBe("A portfolio with a few pieces");
+    expect(requirementSentence({ type: "quality/min", quality: "quality.driving", value: 1 })).toBe("Someone who can drive");
+    expect(jobsWords("jobs.needs", { needs: requirementSentence({ type: "quality/min", quality: "quality.english", value: 50 }) })).toBe("Needs: More than basic English");
+  });
+
+  test("[R-TEXT-005] given the handover's life so far, when the portfolio is read, then it is said in words, not as a figure", () => {
+    for (let value = 0; value <= (content.quality["quality.portfolio"]?.max ?? 10); value += 1) expect(valueWords("quality.portfolio", value)).not.toMatch(/\d/);
+    expect(valueWords("quality.portfolio", 1)).toBe(say("ui.band.quality.portfolio.0"));
   });
 });
