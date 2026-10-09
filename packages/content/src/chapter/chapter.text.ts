@@ -58,7 +58,7 @@ export const chapterText: Record<string, string> = {
   "chapter.build-the-file.item.english.saving": "Your pay covers the test next month. Work and save.",
   "chapter.build-the-file.item.offer": "Get an offer from a university",
   "chapter.build-the-file.item.offer.nudge": "Apply to schools from the hub",
-  "chapter.build-the-file.item.offer.nudge.here": "Apply to schools at the long desk",
+  "chapter.build-the-file.item.offer.nudge.here": "Apply to schools at the desks",
   "chapter.build-the-file.item.offer.started": "The school answers {when}. Keep saving.",
   "chapter.build-the-file.item.offer.planned": "The application is planned. End the month.",
 
