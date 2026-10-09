@@ -143,6 +143,9 @@ export const cityText: Record<string, string> = {
   // the agent at his desk when nothing is on.
   "city.act.ask-desk": "Ask what is on",
   "city.act.ask-desk.done": "The desk is empty today. Come back when something is on.",
+  // the visa desk once the interview is over.
+  "city.act.ask-visa-desk": "Ask at the desk",
+  "city.act.ask-visa-desk.done": "Nothing is waiting for you at the desk today.",
   "city.act.build-portfolio": "Build",
   "city.act.junior-dev": "Junior job",
   "city.act.mid-dev": "Mid job",
