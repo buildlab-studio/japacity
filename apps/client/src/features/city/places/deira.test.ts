@@ -74,3 +74,36 @@ describe("Deira", () => {
     expect(Math.abs(table[0] - (arcade[0] - 4))).toBeLessThan(1);
   });
 });
+
+// Work at Deira: the UAE's jobs are staged at the typing centre that does
+// the labour papers and at the site bus. Both come by the agent's contract and the hunt never asks
+// for them (activity.abroad.data.ts: no hire chance), so each thing is looked at, and its job act
+// opens only for a job the hunt can ask for.
+describe("Deira's jobs", () => {
+  const UAE = { where: "abroad", country: "country.uae" } as const;
+
+  test("[R-WORLD-005] [R-CITY-010] given the UAE's jobs, when Deira is read, then the guard's job is at the typing centre and the cleaner's at the site bus, each staged here for the UAE, and both things are looked at", () => {
+    expect(thing("agency").acts.map((act) => [act.kind, act.stages ?? null])).toEqual([
+      ["sheet", "activity.job-gulf-guard"],
+      ["plain", null],
+    ]);
+    expect(thing("site-bus").acts.map((act) => [act.kind, act.stages ?? null])).toEqual([
+      ["sheet", "activity.job-gulf-cleaner"],
+      ["plain", null],
+    ]);
+    expect(thing("agency").file).toBe("places/deira/bld_deira-arcade_b.glb");
+    expect(thing("site-bus").file).toBe("places/deira/veh_labour-bus.glb");
+    for (const job of ["activity.job-gulf-guard", "activity.job-gulf-cleaner"]) expect(stagedAt(job, UAE, Object.values(content.place))).toBe(ID);
+    const [, typing] = stage.models.find((model) => model.file.endsWith("bld_deira-arcade_b.glb"))?.signs?.[0] ?? [];
+    expect(wordsOf(typing ?? "")).toContain("TYPING CENTRE");
+  });
+
+  test("[R-WORLD-005] given a Gulf job started by the agent's contract, when the hunt cannot ask for it, then its act does not show and the thing keeps its look", () => {
+    for (const job of ["activity.job-gulf-guard", "activity.job-gulf-cleaner"] as const) expect(content.activity[job]?.hireBp).toBeNull();
+    const now = thingsNow(stage.things ?? [], stagedNow(new Set(), new Set(entry.stages), new Set(), null));
+    expect(now.find((candidate) => candidate.id === "agency")?.acts.map((act) => act.kind)).toEqual(["plain"]);
+    expect(now.find((candidate) => candidate.id === "site-bus")?.acts.map((act) => act.kind)).toEqual(["plain"]);
+    const hunted = thingsNow(stage.things ?? [], stagedNow(new Set(["activity.job-gulf-guard"]), new Set(entry.stages), new Set(), null));
+    expect(hunted.find((candidate) => candidate.id === "agency")?.acts.map((act) => act.stages ?? null)).toEqual(["activity.job-gulf-guard", null]);
+  });
+});

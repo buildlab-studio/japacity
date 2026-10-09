@@ -1,9 +1,12 @@
 // The top band (docs/rules/world.md R-WORLD-002): the month and the place's name, the money as a
 // counter, and End month. Nothing else. It hides while riding and while the results show.
+import type { PlayerView } from "@japacity/sim";
 import { ChevronDown } from "lucide-react";
 import { type ReactNode, useEffect, useRef, useState } from "react";
 
+import { formatMoney } from "../words/format";
 import { say } from "../words/text";
+import { localCurrency } from "../words/wayHome";
 
 /** How long the money takes to count to its new value: under half a second (R-WORLD-023). */
 export const COUNT_MS = 450;
@@ -43,6 +46,17 @@ export function Counter({ value, format, className = "" }: { value: number; form
       {format(shown)}
     </span>
   );
+}
+
+/**
+ * The money the band counts (R-WORLD-002): the money the character lives on where they are, bank and
+ * cash together. At home the naira; abroad the country's own, so the naira left at home shows only in
+ * the Bank app.
+ */
+export function bandMoney(view: Pick<PlayerView, "place" | "pockets">): Pick<BandProps, "money" | "formatMoney"> {
+  const currency = localCurrency(view) ?? "NGN";
+  const pocket = view.pockets[currency];
+  return { money: pocket.bank + pocket.cash, formatMoney: (value) => formatMoney(value, currency) };
 }
 
 export interface BandProps {

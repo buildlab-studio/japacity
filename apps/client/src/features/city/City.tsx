@@ -16,7 +16,7 @@ import { Sheet } from "../../shared/ui/Sheet";
 import { formatMoney, todayWords } from "../../shared/words/format";
 import { blurbOf, hasWords, inMonths, nameOf, paramWords, say, words } from "../../shared/words/text";
 import { AskSheet } from "../../shared/world/AskSheet";
-import { Band } from "../../shared/world/Band";
+import { Band, bandMoney } from "../../shared/world/Band";
 import { cue } from "../../shared/sound/cues";
 import type { Ask, RideChoice } from "../../shared/world/contract";
 import { Cut, useCut } from "../../shared/world/Cut";
@@ -627,7 +627,7 @@ export function City({
   // At home the map is Lagos; abroad it is the country the character is in. The rest are shut until a visa opens them.
   const countries: CountryChoice[] = [
     { id: "lagos", name: cityWords("city.map.lagos"), locked: where === "home" ? null : cityWords("city.map.not-open") },
-    ...COUNTRIES.map((id) => ({ id, name: nameOf(id), locked: where === "abroad" && id === country ? null : cityWords(where === "home" ? "city.map.no-visa" : "city.map.not-open") })),
+    ...COUNTRIES.map((id) => ({ id, name: nameOf(id), locked: where === "abroad" && id === country ? null : cityWords(where === "road" ? "city.map.not-open" : "city.map.no-visa") })),
   ];
   const shownCountry = countries.find((choice) => choice.locked === null) ?? countries[0] ?? { id: "lagos", name: cityWords("city.map.lagos"), locked: null };
 
@@ -863,8 +863,7 @@ export function City({
           <Band
             when={clock}
             name={hereName}
-            money={view.pockets.NGN.cash + view.pockets.NGN.bank}
-            formatMoney={(amount) => formatMoney(amount, "NGN")}
+            {...bandMoney(view)}
             onEndMonth={() => setMonthOpen(true)}
             {...(view.turns.banked <= 3 ? { turns: view.turns.banked } : {})}
             endBlocked={endBlocked}

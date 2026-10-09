@@ -1,13 +1,14 @@
 // The official page from the phone (docs/rules/advice.md R-ADVICE-002): Japa offers it whenever it
 // can be read, a route only heard of included, says it takes one slot, and plans it; and the
 // papers' dates read as months away (docs/rules/world.md R-WORLD-002).
+import { content } from "@japacity/content";
 import type { PlayerView } from "@japacity/sim";
 import { act, fireEvent, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, test } from "vitest";
 
-import { newGame, richView, viewAfter } from "../../shared/testing/fixtures";
+import { abroadView, newGame, recordedGame, richView, viewAfter } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
-import { forMonths, nameOf, runningName, say } from "../../shared/words/text";
+import { blurbOf, forMonths, nameOf, runningName, say, sayCount, words } from "../../shared/words/text";
 import { PhoneApps } from "./PhoneApps";
 import { phoneWords } from "./phone.words";
 import { reloadSeen } from "./seen";
@@ -77,5 +78,57 @@ describe("the official page in Japa", () => {
     expect(paper?.textContent).toContain(phoneWords("phone.japa.paper-valid", { when: forMonths(held.expiresMonth, view.month) }));
     expect(document.querySelector("[data-papers]")?.textContent).not.toMatch(/month \d|until in/i);
     expect(screen.getByText(phoneWords("phone.japa.papers.title"))).toBeTruthy();
+  });
+});
+
+// Japa after the grant and after the flight (docs/rules/world.md R-WORLD-019, the review's finding
+// 28): once granted it names the next step; once flown it shows the visa held, what it lets you do,
+// and the landing chapter's steps, never "Ready to go".
+describe("Japa after the grant and the flight", () => {
+  const LANDING = "chapter.landing";
+
+  test("[R-WORLD-019] given Ada's visa granted and the plane not yet boarded, when Japa opens, then the plan still stands at its percent and the next step is to board the plane", async () => {
+    const view = recordedGame("ada-careful", 1).view();
+    expect(view.routes.find((route) => route.id === UK)?.state).toBe("granted");
+    await openJapa(view);
+    const app = document.querySelector<HTMLElement>('[data-phone-app="japa"]');
+    expect(app?.querySelector("[data-japa-percent]")).not.toBeNull();
+    expect(app?.querySelector("[data-japa-next]")?.textContent).toContain(words("chapter.send-off.item.departed"));
+    expect(app?.querySelector("[data-japa-visa]")).toBeNull();
+  });
+
+  test("[R-WORLD-019] given Ada just landed in London, when Japa opens, then it shows the visa she holds, what it lets her do, the months left and the way up, with the landing's steps to come, and no percent or Ready to go", async () => {
+    const view = abroadView();
+    const held = view.status;
+    if (held === null) throw new Error("Ada landed with no status.");
+    expect(view.chapter.current).not.toBe(LANDING);
+    await openJapa(view);
+    const app = document.querySelector<HTMLElement>('[data-phone-app="japa"]');
+    expect(app?.querySelector("[data-japa-percent]")).toBeNull();
+    expect(app?.textContent).not.toContain(phoneWords("phone.japa.label"));
+    const visa = app?.querySelector<HTMLElement>("[data-japa-visa]");
+    expect(visa?.dataset.japaVisa).toBe(held.entry);
+    expect(visa?.textContent).toContain(nameOf(held.entry));
+    expect(app?.textContent).toContain(blurbOf(held.entry) ?? "no blurb");
+    expect(app?.textContent).toContain(sayCount("ui.status.months-left", held.monthsLeft ?? 0, { months: held.monthsLeft ?? 0 }));
+    expect(app?.textContent).toContain(words(held.nextStep ?? "no next step"));
+    const steps = [...(app?.querySelectorAll<HTMLElement>("[data-landing] [data-met]") ?? [])].map((step) => step.textContent);
+    expect(steps).toEqual((content.chapter[LANDING]?.items ?? []).map((item) => words(`${LANDING}.item.${item.id}`)));
+    expect(app?.querySelector("[data-landing]")?.getAttribute("data-landing")).toBe("soon");
+    expect(app?.querySelector("[data-japa-next]")).toBeNull();
+  });
+
+  test("[R-WORLD-019] given Ada a month into life abroad, when Japa opens, then the landing's steps carry what is done, and the next is its first step not done", async () => {
+    const view = abroadView(1);
+    expect(view.chapter.current).toBe(LANDING);
+    const next = view.chapter.items.find((item) => !item.met);
+    if (next === undefined) throw new Error("The landing is already done.");
+    await openJapa(view);
+    const app = document.querySelector<HTMLElement>('[data-phone-app="japa"]');
+    expect(app?.querySelector("[data-landing]")?.getAttribute("data-landing")).toBe("now");
+    expect(app?.querySelector("[data-japa-next]")?.textContent).toContain(words(`${LANDING}.item.${next.id}`));
+    const steps = [...(app?.querySelectorAll<HTMLElement>("[data-landing] [data-met]") ?? [])].map((step) => [step.textContent, step.dataset.met]);
+    expect(steps).toEqual(view.chapter.items.map((item) => [words(`${LANDING}.item.${item.id}`), item.met ? "true" : "false"]));
+    expect(app?.querySelector("[data-japa-percent]")).toBeNull();
   });
 });

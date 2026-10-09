@@ -199,6 +199,22 @@ export const cityText: Record<string, string> = {
   // The streets abroad (docs/rules/streets.md R-STREET-005, 006): shopping at the grocer and the spice stall, and a find while one is open.
   "city.act.shop": "Shop",
   "city.act.street-find": "See what's on",
+  // Work abroad (world.md R-WORLD-005): the jobs notice and the agency in Peckham, the typing centre and the site bus in Deira, and money home from the room.
+  "city.thing.jobs-notice": "Jobs notice",
+  "city.thing.agency": "Job agency",
+  "city.thing.typing-centre": "Typing centre",
+  "city.thing.site-bus": "Site bus",
+  "city.act.job-shop": "Shop work",
+  "city.act.job-kitchen": "Kitchen work",
+  "city.act.job-care": "Care work",
+  "city.act.job-warehouse": "Warehouse",
+  "city.act.job-guard": "Guard work",
+  "city.act.job-cleaner": "Cleaning work",
+  "city.act.look-typing": "Look",
+  "city.act.look-typing.done": "Visa, ID and labour papers typed while you wait. Every contract here passes a desk like this.",
+  "city.act.look-site-bus": "Look",
+  "city.act.look-site-bus.done": "The bus to the site leaves before six. Twelve hours, then back to the camp.",
+  "city.act.send-money": "Send money home",
   "city.inside.name": "Inside {place}",
   "city.inside.out": "Step outside",
   "city.ride.title": "Where to?",
@@ -232,6 +248,11 @@ export const cityText: Record<string, string> = {
 
   "city.overheard.news": "“Did you hear? {head}”",
   "city.overheard.route": "“My cousin's friend went by {route}. It is not easy, they say.”",
+  // The room abroad's own talk (R-WORLD-026): the landlord, the radiator, a neighbour through the wall.
+  "city.overheard.room.1": "The landlord said Thursday for the boiler. Which Thursday, he did not say.",
+  "city.overheard.room.2": "Bleed the radiator, my sister. Na air dey inside, no be heat.",
+  "city.overheard.room.3": "Mummy, I don eat. I dey fine. Yes, I wear my jacket.",
+  "city.overheard.room.4": "Landlord says no visitors after ten. Since when?",
 
   "city.scene.at": "At {place}",
   "city.scene.answer": "Answer in your month",
@@ -302,7 +323,7 @@ export function placeName(id: string): string {
 export function heardWords(key: string, params: Record<string, string>): string {
   if (key === "city.overheard.news") return cityWords(key, { head: words(params.head ?? "") });
   if (key === "city.overheard.route") return cityWords(key, { route: runningName(params.route ?? "") });
-  return text[key] ?? key;
+  return text[key] ?? cityWords(key);
 }
 
 /** What a resident is called, from the same hash as the crowd: the same person has the same name all day. */
