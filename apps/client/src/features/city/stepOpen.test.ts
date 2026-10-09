@@ -68,14 +68,14 @@ describe("the nudge where the player stands", () => {
     for (const { chapter, step, file, place, names } of cases) {
       const way = stepWayOf({ current: chapter, items: [{ id: step, met: false }], done: [] });
       if (way === null) throw new Error(`${chapter}.${step} has no way.`);
-      const thing = stepThingHere(way, place, staged(file, place as never).stage.things ?? []);
-      expect(thing, `${chapter}.${step} at ${place}`).not.toBeNull();
+      const thing = stepThingHere(way, place, staged(file, place).stage.things ?? []);
+      expect(thing).not.toBeNull();
       const elsewhere = { key: `${chapter}.item.${step}.nudge` };
       expect(say(elsewhere.key)).toMatch(names);
       const here = nudgeHere(elsewhere, thing);
       expect(here.key).toBe(`${elsewhere.key}.here`);
       const said = say(here.key);
-      expect(said, here.key).not.toMatch(names);
+      expect(said).not.toMatch(names);
       expect(said.split(" ").length).toBeLessThanOrEqual(8);
       expect(said.split(/[.!?] /)).toHaveLength(1);
       // Away from it, the nudge keeps the place.
