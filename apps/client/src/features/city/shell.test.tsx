@@ -5,11 +5,19 @@ import { describe, expect, test, vi } from "vitest";
 
 import { engineView, richView } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
-import { say } from "../../shared/words/text";
+import { say, words } from "../../shared/words/text";
 import { City } from "./City";
 import { nudgeOf } from "./nudge";
 
 const world = (extra: Partial<Parameters<typeof City>[0]> = {}) => <City world month={<p data-month-body>month</p>} results={(place) => <p data-results-for={place} />} {...extra} />;
+
+/** Renders the world and passes the chapter's opening words when a life has not played a month yet (R-WORLD-001). */
+async function opened(ui: Parameters<typeof renderWithView>[0], view: Parameters<typeof renderWithView>[1]): Promise<Awaited<ReturnType<typeof renderWithView>>> {
+  const rendered = await renderWithView(ui, view);
+  const go = document.querySelector<HTMLElement>("[data-opening-go]");
+  if (go !== null) fireEvent.click(go);
+  return rendered;
+}
 
 function band(): HTMLElement {
   const found = document.querySelector<HTMLElement>("[data-band]");
@@ -24,11 +32,29 @@ function thumbs(): HTMLElement {
 }
 
 describe("the world fills the screen", () => {
+  test("[R-WORLD-001] given a life that has not played a month, when the world opens, then the chapter's opening words stand over the dimmed world with the nudge, and Go dismisses them", async () => {
+    const view = engineView();
+    await renderWithView(world(), view);
+    const opening = document.querySelector<HTMLElement>("[data-opening]");
+    if (opening === null || view.chapter.current === null) throw new Error("No opening");
+    expect(opening.dataset.opening).toBe(view.chapter.current);
+    expect(opening.textContent).toContain(words(`${view.chapter.current}.open`));
+    expect(opening.textContent).toContain(say(nudgeOf(view).key));
+    fireEvent.click(screen.getByRole("button", { name: say("ui.opening.go") }));
+    expect(document.querySelector("[data-opening]")).toBeNull();
+    // A life with a month behind it opens straight on the world.
+    document.body.innerHTML = "";
+    await renderWithView(world(), richView());
+    expect(document.querySelector("[data-opening]")).toBeNull();
+  });
+
   test("[R-WORLD-001] given a life in the world, when it opens, then only the band, the nudge and the Map and Phone buttons stand over the place", async () => {
-    await renderWithView(world(), engineView());
+    const view = engineView();
+    await opened(world(), view);
     expect(band()).toBeTruthy();
     expect(document.querySelector("[data-nudge]")).not.toBeNull();
-    expect(screen.getAllByRole("button").map((button) => button.getAttribute("aria-label") ?? button.textContent)).toEqual([say("ui.world.end-month"), say("ui.world.show-more"), say("ui.world.map"), say("ui.world.phone")]);
+    // The nudge is a button when it opens the way to what it names (R-WORLD-003).
+    expect(screen.getAllByRole("button").map((button) => button.getAttribute("aria-label") ?? button.textContent)).toEqual([say("ui.world.end-month"), say("ui.world.show-more"), say(nudgeOf(view).key), say("ui.world.map"), say("ui.world.phone")]);
     expect(document.querySelector("[data-report-here], [data-overheard], [data-scene]")).toBeNull();
     expect(screen.queryByRole("dialog")).toBeNull();
   });
@@ -59,7 +85,7 @@ describe("the world fills the screen", () => {
   });
 
   test("[R-WORLD-001] given the world, when End month is tapped, then the Month sheet opens over it with the month's contents and closes back to it", async () => {
-    await renderWithView(world(), engineView());
+    await opened(world(), engineView());
     fireEvent.click(screen.getByRole("button", { name: say("ui.world.end-month") }));
     const sheet = screen.getByRole("dialog");
     expect(within(sheet).getByText("month")).toBeTruthy();
@@ -71,7 +97,7 @@ describe("the world fills the screen", () => {
 describe("the band and the thumb buttons", () => {
   test("[R-WORLD-002] given a life, when the band renders, then its clock is the character's age in years and months with the turns left beside it, and no month number", async () => {
     const view = engineView();
-    await renderWithView(world(), view);
+    await opened(world(), view);
     const ageMonths = view.qualities.find((quality) => quality.id === "quality.age-months")?.value ?? 0;
     expect(ageMonths).toBeGreaterThan(0);
     const clock = say("ui.world.clock", { years: Math.floor(ageMonths / 12), months: ageMonths % 12 });
@@ -81,7 +107,7 @@ describe("the band and the thumb buttons", () => {
   });
 
   test("[R-WORLD-002] given the results showing, when the band renders, then it hides, and it shows again once the player goes back", async () => {
-    const { store } = await renderWithView(world(), richView());
+    const { store } = await opened(world(), richView());
     expect(band().getAttribute("aria-hidden")).toBe("false");
     act(() => store.setState({ reportOpen: true }));
     expect(band().getAttribute("aria-hidden")).toBe("true");
@@ -90,21 +116,21 @@ describe("the band and the thumb buttons", () => {
   });
 
   test("[R-WORLD-002] given the staged wins still to show, when the month has ended, then the band stays until the results come up", async () => {
-    const { store } = await renderWithView(world(), richView());
+    const { store } = await opened(world(), richView());
     const view = richView();
     act(() => store.setState({ reportOpen: true, moments: view.report?.lines.slice(0, 1) ?? [] }));
     expect(band().getAttribute("aria-hidden")).toBe("false");
   });
 
   test("[R-WORLD-004] given the results showing, when the thumb bar renders, then Map and Phone hide with it", async () => {
-    const { store } = await renderWithView(world(), richView());
+    const { store } = await opened(world(), richView());
     expect(thumbs().getAttribute("aria-hidden")).toBe("false");
     act(() => store.setState({ reportOpen: true }));
     expect(thumbs().getAttribute("aria-hidden")).toBe("true");
   });
 
   test("[R-WORLD-008] [R-WORLD-025] given the month ended, when the shell shows, then the scene goes dark first, and the results are handed the name of where the player is", async () => {
-    const { store } = await renderWithView(world(), engineView());
+    const { store } = await opened(world(), engineView());
     const shown = band().querySelector("h2")?.textContent ?? "";
     act(() => store.setState({ reportOpen: true }));
     expect(document.querySelector("[data-cut]")?.getAttribute("data-cut")).toBe("true");
@@ -117,7 +143,7 @@ describe("street talk", () => {
   test("[R-WORLD-026] given a place with overheard lines, when the world shows, then one line of chatter stands in the bottom corner, changes with time, and hides while a sheet is open", async () => {
     vi.useFakeTimers();
     try {
-      await renderWithView(world(), engineView());
+      await opened(world(), engineView());
       const chatter = (): HTMLElement | null => document.querySelector<HTMLElement>("[data-chatter]");
       expect(chatter()).not.toBeNull();
       const first = chatter()?.textContent ?? "";
@@ -169,7 +195,7 @@ describe("the nudge", () => {
   });
 
   test("[R-WORLD-003] given an offer waiting, when it opens, then the nudge says so; and the nudge hides while the Month sheet is open", async () => {
-    const { store } = await renderWithView(world(), { ...richView(), setpiece: null, interview: null, offers: [] });
+    const { store } = await opened(world(), { ...richView(), setpiece: null, interview: null, offers: [] });
     const nudge = () => document.querySelector("[data-nudge]")?.textContent ?? null;
     expect(nudge()).not.toBe(say("ui.nudge.offer"));
     const view = store.getState().view;

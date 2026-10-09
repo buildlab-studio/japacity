@@ -60,21 +60,22 @@ export function MonthSheet() {
         </ol>
       )}
       {free ? <p className="text-[13px] text-text-2">{turnWords("turn.month.hint")}</p> : null}
-      <div>
-        <button
-          type="button"
-          className="chip press inline-flex h-9 items-center gap-1.5 px-3 text-[13px] font-bold disabled:opacity-50"
-          onClick={() => {
-            cue("tap");
-            sameAgain();
-          }}
-          disabled={!canRepeat}
-          data-same-again
-        >
-          <Repeat size={15} aria-hidden />
-          {turnWords("ui.month.same-again")}
-        </button>
-      </div>
+      {canRepeat ? (
+        <div>
+          <button
+            type="button"
+            className="chip press inline-flex h-9 items-center gap-1.5 px-3 text-[13px] font-bold"
+            onClick={() => {
+              cue("tap");
+              sameAgain();
+            }}
+            data-same-again
+          >
+            <Repeat size={15} aria-hidden />
+            {turnWords("ui.month.same-again")}
+          </button>
+        </div>
+      ) : null}
       <Rejection />
       <div className="sticky bottom-0 -mx-4 -mb-4 flex flex-col gap-1.5 bg-sheet px-4 pt-2 pb-[max(16px,env(safe-area-inset-bottom))]">
         <button
@@ -88,7 +89,9 @@ export function MonthSheet() {
           data-month-end
         >
           <span>{turnWords("turn.month.end")}</span>
-          <span className="text-[13px] font-semibold opacity-80">{turnWords("ui.month.slots", { used: plan.filter((pick) => pick !== null).length, slots: view.freeSlots })}</span>
+          <span className="text-[13px] font-semibold opacity-80">
+            {plan.some((pick) => pick !== null) ? turnWords("ui.month.slots", { used: plan.filter((pick) => pick !== null).length, slots: view.freeSlots }) : turnWords("ui.month.rest")}
+          </span>
         </button>
         {blocked === null ? null : (
           <p className="text-[13px] text-text-2" data-month-blocked>
