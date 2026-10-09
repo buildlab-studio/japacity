@@ -103,7 +103,13 @@ describe("the front door", () => {
     fireEvent.click(screen.getByRole("button", { name: new RegExp(`^${say("ui.door.ready")}`) }));
     said.push(sheet().textContent);
     expect(document.querySelector("[data-gate] [data-front-scene]")).not.toBeNull();
-    for (const name of NAMED) for (const words of said) expect(words).not.toContain(name);
+    // No starting life's person is offered: not by full name, and no name to pick is one of theirs.
+    const fullNames = FIXED.map((id) => text[`${id}.name`] ?? "");
+    expect(said.filter((words) => fullNames.some((name) => words.includes(name)))).toEqual([]);
+    fireEvent.click(screen.getByRole("button", { name: say("ui.door.back") }));
+    fireEvent.click(screen.getByRole("button", { name: say("ui.door.back") }));
+    const offered = within(screen.getByRole("radiogroup", { name: say("ui.door.name") })).getAllByRole("radio").map((radio) => radio.textContent);
+    expect(offered.filter((name) => NAMED.includes(name))).toEqual([]);
     expect(said.join(" ")).not.toContain(say("ui.life.start"));
   });
 
