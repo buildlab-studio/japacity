@@ -12,7 +12,8 @@ import { nudgeOf } from "./nudge";
 /** Ada landed in London with the family's send-off answered, as the review played it: nothing asks but the month's news. */
 function landed(): Game {
   const game = recordedGame("ada-careful");
-  for (const offer of game.view().offers) game.accept({ type: "offer/choose", offer: offer.id, choice: "skip" });
+  // Each open offer answered with its last choice, the one that says no (the send-off's skip, the ajo's no).
+  for (const offer of game.view().offers) game.accept({ type: "offer/choose", offer: offer.id, choice: offer.choices.at(-1)?.id ?? "skip" });
   return game;
 }
 

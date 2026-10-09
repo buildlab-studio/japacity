@@ -32,7 +32,7 @@ import { type CountryChoice, FlyOver, flyoverOn, type Pin, type PinState } from 
 import { crowdTuning } from "./limits";
 import { Phone, type PhoneApp } from "./Phone";
 import { localDate, type Other, poolOf, sampleCrowd } from "./crowd";
-import { nudgeOf, stepThingHere, stepWayOf } from "./nudge";
+import { BOARD_WAY, nudgeOf, stepThingHere, stepWayOf } from "./nudge";
 import { type Device, enterPlace, keepChoice, type Mode, type ModeChoice, modeSettings, observeFrame, readChoice, startingMode, watchFrames } from "./mode";
 import { overheard } from "./overheard";
 import { dancerShown, dressPlace, openGround, type PlaceFile, stageOf } from "./placeFile";
@@ -651,10 +651,13 @@ export function City({
   const nudgeOpens = asks !== undefined && (nudge?.about === "setpiece" || nudge?.about === "offer");
   // The chapter's step opens its way (R-WORLD-003): the thing's acts when it stands here, the map at its stop
   // when it is elsewhere in the city, and the Month sheet when the step is the month's end.
-  const stepWay = nudge?.about === "step" ? stepWayOf(view.chapter) : null;
+  // A step short of money sends the player to the jobs board, where the money is; the funds step keeps the bank.
+  const shortOfMoney = nudge?.about === "step" && (nudge.key.endsWith(".short") || nudge.key === "ui.nudge.hunt-planned") && !nudge.key.startsWith("chapter.decision-day.item.held");
+  const stepWay = nudge?.about === "step" ? (shortOfMoney ? BOARD_WAY : stepWayOf(view.chapter)) : null;
   const hereId = inside ? (insideEntry?.id ?? placeId) : placeId;
   const stepThing = stepWay === null || things === undefined ? null : stepThingHere(stepWay, hereId, things);
-  const nudgeGoes = stepWay !== null && (stepThing !== null || stepWay.go === null || where === "home");
+  // Abroad the map is a list, and a stop picked on it opens its sheet all the same.
+  const nudgeGoes = stepWay !== null && (stepThing !== null || stepWay.go === null || where === "home" || where === "abroad");
   const followStep = (): void => {
     if (stepWay === null) return;
     if (stepThing !== null) {
@@ -717,6 +720,8 @@ export function City({
         line: say("ui.world.pay-back-line", { amount: formatMoney(amount, "NGN") }),
         cost: { amount, currency: "NGN" },
         when: "now",
+        // The repayment leaves the funds held for the character, never the pockets: the second line says so instead of a figure left.
+        note: say("ui.world.pay-back-note"),
         button: say("ui.world.pay-back"),
         act: () => {
           void send({ type: "obligation/pay", obligation: heldDue.id, amount }).then((reply) => {

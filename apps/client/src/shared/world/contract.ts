@@ -113,6 +113,8 @@ export interface Ask {
   when?: "now" | "month";
   /** A reason the act cannot happen yet, in words; the main button is shut and says it (R-WORLD-006). */
   blocked?: string;
+  /** A second line for the main button in place of what is left after, when the cost does not come from the pockets. */
+  note?: string;
 }
 
 /** A pin on the map (R-WORLD-015). */

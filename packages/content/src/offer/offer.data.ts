@@ -605,6 +605,8 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
     group: "money",
     when: [
       { type: "route/deposit", route: UK },
+      // Once the visa is granted the funds have done their work: no loan to hold them.
+      { type: "not", of: { type: "route/state", route: UK, in: ["granted", "departed"] } },
       { type: "job/any" },
       SIX_MONTHS_IN_ANY_JOB,
       { type: "quality/min", quality: "quality.standing", value: 40 },

@@ -9,7 +9,7 @@ import { earlyWinIn } from "../features/guides/earlyWin";
 import type { AccountApi } from "../shared/net/auth";
 import type { ClockView, PresenceReply, ServerCode, ServerRejection, WorldReply } from "../shared/net/contract";
 import { isReported } from "../shared/net/http";
-import { tidyLines } from "../shared/words/lines";
+import { isSaid, tidyLines } from "../shared/words/lines";
 import { setNow } from "../shared/words/now";
 import { sayCount } from "../shared/words/text";
 import { uiText } from "../shared/words/ui";
@@ -144,9 +144,9 @@ export function rejectionWords(code: ServerCode): string {
 
 const failure = (error: unknown) => (error instanceof Error ? error.message : String(error));
 
-/** The lines that get a moment of their own, once each payment is told once. */
+/** The lines that get a moment of their own, once each payment is told once; an offer's answer said in its own words is one. */
 function bigLines(lines: readonly ReportLine[]): ReportLine[] {
-  return tidyLines(lines).filter((line) => line.big === true);
+  return tidyLines(lines).filter((line) => line.big === true || isSaid(line));
 }
 
 /** R-GUIDE-014: the view or the lines just shown hold the early win. */
