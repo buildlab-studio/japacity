@@ -28,16 +28,27 @@ export function storyForYou(story: { id: string; forYou: boolean }, routes: read
   });
 }
 
-/** Money that went unpaid leads News as it leads the results (R-WORLD-008). */
+/** The settlement cleared (docs/rules/home.md R-HOME-003): it leads News as it leads the results. */
+const EVICTED: ReadonlySet<string> = new Set(["line.home.evicted", "line.home.evicted-no-cash"]);
+/** The story of the clearing, carried the month it happens: the character's own news, so the world's schedule never holds it. */
+const CLEARED = "news.makoko-cleared";
+
+function leads(line: ReportLine): boolean {
+  return EVICTED.has(line.key) || isUnpaid(line) || line.key.startsWith("ui.results.unpaid");
+}
+
+/** Money that went unpaid leads News as it leads the results (R-WORLD-008), after the room cleared away. */
 function newsOrder(lines: readonly ReportLine[]): ReportLine[] {
-  return [...lines.filter((line) => isUnpaid(line) || line.key.startsWith("ui.results.unpaid")), ...lines.filter((line) => !(isUnpaid(line) || line.key.startsWith("ui.results.unpaid")))];
+  return [...lines.filter((line) => EVICTED.has(line.key)), ...lines.filter((line) => leads(line) && !EVICTED.has(line.key)), ...lines.filter((line) => !leads(line))];
 }
 
 export function News() {
   const { news, era, report, month, routes } = useView();
   // R-WORLD-008: the month's lines stay here, those of what was done mid-month (an agent paid, an ask answered) first.
   const midMonth = useGame((state) => state.lastMonthLines);
-  const stories = [...news].sort((a, b) => STAGE_ORDER.indexOf(a.stage) - STAGE_ORDER.indexOf(b.stage) || b.since - a.since);
+  const world = [...news].sort((a, b) => STAGE_ORDER.indexOf(a.stage) - STAGE_ORDER.indexOf(b.stage) || b.since - a.since);
+  const cleared = (report?.lines ?? []).some((line) => EVICTED.has(line.key));
+  const stories = cleared ? [{ id: CLEARED, stage: "in-force" as const, since: report?.month ?? month, forYou: false }, ...world] : world;
   return (
     <div data-phone-app="news">
       {era === null ? null : (

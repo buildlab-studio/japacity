@@ -11,6 +11,7 @@ import { clockWords } from "../../../shared/words/quality";
 import { hasWords, inMonths, nameOf, say, sayCount } from "../../../shared/words/text";
 import { useAsk, type AskSpec } from "../act";
 import { phoneWords } from "../phone.words";
+import { HomeCard } from "./Home";
 
 type Owed = PlayerView["obligations"][number];
 
@@ -88,6 +89,8 @@ export function Bills() {
   });
   return (
     <div data-phone-app="bills">
+      {/* R-HOME-007: where the character lives and what it costs, above the bills it brings. */}
+      <HomeCard />
       {owed.length === 0 ? (
         <p className="text-[14px] text-text-2">{say("ui.obligation.none")}</p>
       ) : (

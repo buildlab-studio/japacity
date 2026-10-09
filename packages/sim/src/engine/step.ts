@@ -30,6 +30,7 @@ export const AUTHORITY_COMMANDS = [
   "people/family-request",
   "interview/open",
   "interview/scored",
+  "home/host",
 ] as const satisfies readonly CommandType[];
 
 /** Which kind owns each command, by the part before the slash. */
@@ -49,6 +50,7 @@ export const COMMAND_OWNER: Record<PrefixOf<CommandType>, SliceKey> = {
   status: "status",
   return: "place",
   place: "place",
+  home: "home",
 };
 
 export function commandOwner(type: CommandType): SliceKey {

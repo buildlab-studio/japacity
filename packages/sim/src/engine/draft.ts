@@ -60,6 +60,7 @@ export const EFFECT_OWNER: Record<PrefixOf<EffectType>, SliceKey> = {
   status: "status",
   credit: "credit",
   goal: "goal",
+  home: "home",
 };
 
 /** Apply one event to the draft and collect its report lines. An event already applied is skipped. */

@@ -1,6 +1,6 @@
 // The phone's icons by name (the contract's `PhoneApp.icon` and `Ask.icon` are names, so plain data
 // can carry them). Lucide's own names, so a new one is one line.
-import { ArrowLeftRight, Briefcase, Landmark, MessageCircle, MoveVertical, Newspaper, Plane, Receipt, Settings, Ticket, type LucideIcon } from "lucide-react";
+import { ArrowLeftRight, Briefcase, House, Landmark, MessageCircle, MoveVertical, Newspaper, Plane, Receipt, Settings, Ticket, type LucideIcon } from "lucide-react";
 
 const ICONS: Record<string, LucideIcon> = {
   landmark: Landmark,
@@ -13,6 +13,7 @@ const ICONS: Record<string, LucideIcon> = {
   settings: Settings,
   "arrow-left-right": ArrowLeftRight,
   "move-vertical": MoveVertical,
+  house: House,
 };
 
 export function PhoneIcon({ name, size = 24 }: { name: string; size?: number }) {

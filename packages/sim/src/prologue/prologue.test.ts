@@ -148,6 +148,7 @@ const OTHERS: { [T in Exclude<CommandType, "prologue/choose" | (typeof AUTHORITY
   "people/consent": { type: "people/consent", bond: "bond-1" },
   "people/end": { type: "people/end", bond: "bond-1" },
   "interview/answer": { type: "interview/answer", question: "q", option: "a" },
+  "home/move": { type: "home/move", to: "place.makoko" },
 };
 
 describe("a new prologue", () => {

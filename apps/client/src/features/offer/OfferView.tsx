@@ -12,7 +12,7 @@ import { ReportLines } from "../../shared/ui/ReportLines";
 import { isSaid, tidyLines } from "../../shared/words/lines";
 import { formatMoney, toMajor, toMinor } from "../../shared/words/format";
 import { routeKeptBy } from "../../shared/words/keepJob";
-import { byMonths, nameOf, say, sayCount, words } from "../../shared/words/text";
+import { byMonths, hasWords, nameOf, say, sayCount, words } from "../../shared/words/text";
 import { payAMonth } from "../../shared/words/pay";
 import { offerParams } from "./terms";
 
@@ -170,6 +170,14 @@ function OfferCard({ offer, onChosen }: { offer: Offer; onChosen: (lines: Report
               </Button>
           ))}
         </div>
+        {/* A shut answer says why, where content gives the reason (the taken-in friend, home.md R-HOME-004). */}
+        {offer.choices
+          .filter((choice) => !choice.allowed && hasWords(`${offer.entry}.choice.${choice.id}.shut`))
+          .map((choice) => (
+            <p key={choice.id} className="text-sm text-text-2" data-choice-shut={choice.id}>
+              {words(`${offer.entry}.choice.${choice.id}.shut`, params)}
+            </p>
+          ))}
       </Card>
     </li>
   );

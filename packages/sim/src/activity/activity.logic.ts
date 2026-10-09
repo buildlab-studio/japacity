@@ -1002,6 +1002,7 @@ function judgeJob(read: ReadCtx, requirement: Requirement): RequirementResult {
     case "wallet/total":
     case "place/returned":
     case "place/months-here":
+    case "home/host":
     case "not":
     case "any":
       throw new Error(`The activity kind does not judge ${requirement.type}.`);

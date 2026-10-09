@@ -20,6 +20,7 @@ import { documentText } from "./document/document.text";
 import { familyText } from "./family/family.text";
 import { goalTable } from "./goal/goal.data";
 import { goalText } from "./goal/goal.text";
+import { homeText } from "./home/home.text";
 import { guideTable } from "./guide/guide.data";
 import { guideText } from "./guide/guide.text";
 import { lotteryText } from "./lottery/lottery.text";
@@ -139,6 +140,7 @@ export const textTables: Record<string, Record<string, string>> = {
   document: documentText,
   goal: goalText,
   guide: guideText,
+  home: homeText,
   interview: interviewText,
   lottery: lotteryText,
   era: eraText,

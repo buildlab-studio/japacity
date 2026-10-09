@@ -113,6 +113,8 @@ const AUTHORITY_SAMPLES: Record<AuthorityCommand, Loose[]> = {
   "people/family-request": [{ type: "people/family-request", offer: "offer.nepa-bill", terms: {} }],
   "interview/open": [{ type: "interview/open", pair: "pair-1", route: "route.uk-masters", questions: [{ id: "q1", options: ["a", "b"] }] }],
   "interview/scored": [{ type: "interview/scored", pair: "pair-1", theirs: ["a"] }],
+  // docs/rules/home.md R-HOME-005: a guest staying, never money.
+  "home/host": [{ type: "home/host", pair: "pair-1", until: 3 }],
 };
 
 
@@ -155,6 +157,11 @@ function playerSamples(state: State, world: World): Record<PlayerCommand, Loose[
     "lottery/buy": [
       { type: "lottery/buy", tickets: 1 },
       { type: "lottery/buy", tickets: content.tuning.lottery.maxTickets + 1 },
+    ],
+    // docs/rules/home.md R-HOME-002: the move, and the move to where the character already lives.
+    "home/move": [
+      { type: "home/move", to: "place.makoko" },
+      { type: "home/move", to: "place.family-house" },
     ],
   };
 }
@@ -202,6 +209,8 @@ describe("the authority's reach", () => {
         "people/family-request",
         "interview/open",
         "interview/scored",
+        // docs/rules/home.md R-HOME-005: a joined player's character staying with this one.
+        "home/host",
       ].sort(),
     );
   });
