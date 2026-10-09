@@ -77,4 +77,15 @@ describe("the month's story on the results", () => {
     expect(document.querySelectorAll("[data-results-story] li")).toHaveLength(STORY_MAX);
     expect(screen.getByText(turnWords("turn.results.news"))).toBeDefined();
   });
+
+  test("[R-CHAPTER-008] given home's send-off answered with the party, or lapsed into dinner, when the story is read, then each is told in the offer's own words for that answer, and an answer with no words of its own stays plain", () => {
+    const SEND_OFF = "offer.family-send-off";
+    const told = storyLines([
+      line("line.offer.taken", { offer: SEND_OFF, choice: "party" }),
+      line("line.offer.lapsed", { offer: SEND_OFF, choice: "dinner" }),
+      line("line.offer.taken", { offer: "offer.nepa-bill", choice: "pay" }),
+    ]);
+    expect(told.map((each) => words(each.key, each.params))).toEqual([words(`${SEND_OFF}.said.party`), words(`${SEND_OFF}.said.dinner`)]);
+    expect(words(`${SEND_OFF}.said.party`)).toContain("aunties");
+  });
 });

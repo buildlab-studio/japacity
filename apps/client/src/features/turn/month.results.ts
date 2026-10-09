@@ -4,7 +4,7 @@
 import { content } from "@japacity/content";
 import type { Currency, PlayerView, ReportLine } from "@japacity/sim";
 
-import { afterPrologue, forYou, movesMoney, tidyLines } from "../../shared/words/lines";
+import { afterPrologue, forYou, isSaid, movesMoney, tidyLines } from "../../shared/words/lines";
 import { moneyParam } from "../../shared/words/text";
 
 export interface MoneyLine {
@@ -47,14 +47,15 @@ export const STORY_MAX = 6;
 /**
  * The kinds of line that carry the month's story, in the order the results lead with them: a job
  * or an offer found, a way out heard of or moved on, a paper or a test band, a deposit that will be
- * asked about, a chapter or a goal, a set piece, the interview or a status, news about your plans.
+ * asked about, a chapter, a goal or an answer told in its offer's own words, a set piece, the
+ * interview or a status, news about your plans.
  */
 const STORY: readonly ((line: ReportLine) => boolean)[] = [
   (line) => ["line.activity.hunt-hired", "line.activity.job-started", "line.activity.side-started", "line.offer.opened"].includes(line.key),
   (line) => line.key.startsWith("line.route."),
   (line) => (line.key.startsWith("line.document.") && line.key !== "line.document.already-pending") || line.key.startsWith("line.activity.driving-"),
   (line) => line.key === "line.wallet.flagged",
-  (line) => line.key.startsWith("line.chapter.") || line.key.startsWith("line.goal."),
+  (line) => line.key.startsWith("line.chapter.") || line.key.startsWith("line.goal.") || isSaid(line),
   (line) => line.key.startsWith("line.setpiece.") || line.key.startsWith("line.interview.") || line.key.startsWith("line.status."),
   forYou,
 ];

@@ -118,8 +118,27 @@ function dropRetold(lines: readonly ReportLine[]): ReportLine[] {
   return lines.filter((_, index) => !dropped.has(index));
 }
 
+/** Where content has an offer's own words for one answer, `<offer>.said.<choice>` (R-CHAPTER-008). */
+const SAID = ".said.";
+
+/** True for an answer to an offer told in the offer's own words. */
+export function isSaid(line: ReportLine): boolean {
+  return line.key.startsWith("offer.") && line.key.includes(SAID);
+}
+
+/** An offer answered, or lapsed into a choice, told in the offer's words for that choice when content has them. */
+function saidFor(line: ReportLine): string | null {
+  if (line.key !== TAKEN && line.key !== LAPSED) return null;
+  const { offer, choice } = line.params;
+  if (typeof offer !== "string" || typeof choice !== "string") return null;
+  const key = `${offer}${SAID}${choice}`;
+  return hasWords(key) ? key : null;
+}
+
 /** A line whose words read wrong for its figures gets the interface's variant. */
 function variant(line: ReportLine): ReportLine {
+  const said = saidFor(line);
+  if (said !== null) return { ...line, key: said };
   if (line.key === "line.route.school-offer") {
     const discount = moneyParam("discount", line.params, line.key);
     if (discount !== null && discount.amount === 0) return { ...line, key: "ui.line.school-offer-plain" };
@@ -135,6 +154,7 @@ function savedBefore(lines: readonly ReportLine[]): ReportLine[] {
 
 const FAMILY = "line.wallet.family";
 const TAKEN = "line.offer.taken";
+const LAPSED = "line.offer.lapsed";
 
 /**
  * Money a family request took, said as what it paid for ("The NEPA bill"), from the answer the
