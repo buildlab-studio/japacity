@@ -4,7 +4,7 @@
 import type { ShareKind } from "@japacity/content";
 import type { Id, PlayerView } from "@japacity/sim";
 
-import { hasWords, nameOf, say, sayCount, words } from "../words/text";
+import { bandWords, hasWords, nameOf, say, sayCount, words } from "../words/text";
 
 export type ShareCard = NonNullable<PlayerView["card"]>;
 
@@ -24,8 +24,11 @@ export interface CardFace {
   monthsLabel: string;
   standingLabel: string;
   mostLabel: string;
-  /** Null where the moment has no figures to show: the road's two cards. */
-  stats: { months: number; standing: number } | null;
+  /**
+   * The time played as years and months, and how home sees the character as its band, never a
+   * figure (docs/rules/text.md R-TEXT-005). Null where the moment has no figures to show: the road's two cards.
+   */
+  stats: { months: string; standing: string } | null;
   /** The things done most, as words, at most three. */
   most: string[];
   body: string | null;
@@ -40,6 +43,21 @@ export interface CardFace {
 }
 
 const MOST = 3;
+
+/** Months played as a person says them: "2 years", "1 year and 3 months", "5 months". */
+export function playedWords(months: number): string {
+  const years = Math.floor(months / 12);
+  const rest = months % 12;
+  const yearWords = sayCount("ui.card.played.years", years, { count: years });
+  const monthWords = sayCount("ui.card.played.months", rest, { count: rest });
+  if (years === 0) return monthWords;
+  return rest === 0 ? yearWords : say("ui.card.played.years-months", { years: yearWords, months: monthWords });
+}
+
+/** How home sees the character, as the standing's band. */
+export function standingWords(standing: number): string {
+  return bandWords("quality.standing", standing) ?? "";
+}
 
 /** The road's cards tell a story, not a score. */
 const STORY_KINDS: ReadonlySet<ShareKind> = new Set(["real-story", "lost"]);
@@ -107,7 +125,7 @@ export function cardFace(card: ShareCard, scenario: Id<"scenario"> | null): Card
     monthsLabel: say("share.months"),
     standingLabel: say("share.standing"),
     mostLabel: say("share.most"),
-    stats: story ? null : { months: card.months, standing: card.standing },
+    stats: story ? null : { months: playedWords(card.months), standing: standingWords(card.standing) },
     most: story ? [] : card.topActivities.slice(0, MOST).map((id) => nameOf(id)),
     body: bodyOf(card),
     credits: creditsOf(card),

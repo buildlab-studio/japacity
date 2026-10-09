@@ -38,7 +38,9 @@ function Footer({ face }: { face: CardFace }) {
   return (
     <div className="flex flex-col gap-0.5 border-t border-current/30 pt-2 text-sm">
       <div className="flex items-end justify-between gap-2">
-        <span className="font-display text-xl leading-none">{face.sender}</span>
+        <span className="font-sans text-xl leading-none font-black" data-word-mark>
+          {face.sender}
+        </span>
         <span className="font-semibold" data-game-line>
           {face.disclaimer}
         </span>
@@ -69,14 +71,14 @@ function Figures({ face }: { face: CardFace }) {
         </div>
       )}
       {face.stats === null ? null : (
-        <dl className="grid grid-cols-2 gap-2 text-xs">
+        <dl className="flex flex-col gap-1.5 text-xs">
           <div>
             <dt className="opacity-75">{face.monthsLabel}</dt>
-            <dd className="text-xl font-bold tabular-nums">{face.stats.months}</dd>
+            <dd className="text-base leading-snug font-bold">{face.stats.months}</dd>
           </div>
           <div>
             <dt className="opacity-75">{face.standingLabel}</dt>
-            <dd className="text-xl font-bold tabular-nums">{face.stats.standing}</dd>
+            <dd className="text-base leading-snug font-bold">{face.stats.standing}</dd>
           </div>
         </dl>
       )}

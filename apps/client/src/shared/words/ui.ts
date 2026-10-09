@@ -64,6 +64,13 @@ export const uiText: Record<string, string> = {
   "ui.report.japacity-none": "Japacity: no route yet",
   "ui.line.school-offer-plain": "{school} offers you a place.",
   "ui.line.savings-before": "Your savings from before: {amount}.",
+  // The time played on a share card, in years and months (shared/card/face.ts, playedWords).
+  "ui.card.played.years": "{count} years",
+  "ui.card.played.years.one": "1 year",
+  "ui.card.played.months": "{count} months",
+  "ui.card.played.months.one": "1 month",
+  "ui.card.played.months.zero": "Under a month",
+  "ui.card.played.years-months": "{years} and {months}",
   // The results' own telling of a story line (features/turn/month.results.ts, toldOnResults): a bill
   // not paid says its figure and what it cost; a hunt says its answer (R-WORLD-008).
   "ui.results.unpaid.standing-mood": "{obligation}: {amount} went unpaid. Your standing and your mood took a hit.",
