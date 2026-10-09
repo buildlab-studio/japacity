@@ -15,7 +15,7 @@ import { crowdSize } from "../crowd";
 import { crowdTuning } from "../limits";
 import { personOfLook } from "../roster";
 import { sceneWords } from "../scene.words";
-import { thingSpot , withMoreAt } from "../things";
+import { thingSpot, withMoreAt } from "../things";
 import { groundGeometry } from "../world";
 import { allPalette, city, instancesOf, measured, rowOf, signKeys, staged, totalsOf, wordsOf } from "./placeTesting";
 
