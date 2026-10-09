@@ -151,6 +151,24 @@ describe("the slice", () => {
   });
 });
 
+describe("coming back", () => {
+  test("[R-HOME-001] [R-HOME-002] given a life that left from Makoko, when it comes home, then the family house takes it back at its own charge, the card says so at once and the slice follows at the next month, with no draw on the water", () => {
+    const game = inMakoko(ALWAYS);
+    applyEffects(game, [{ type: "place/move", to: "abroad", country: "country.uk" }]);
+    month(game);
+    applyEffects(game, [{ type: "place/move", to: "home", country: null }]);
+    expect(openEntries(game)).toContain(FAMILY_UPKEEP);
+    expect(openEntries(game)).not.toContain(MAKOKO_UPKEEP);
+    expect(game.view().home.place).toBe(FAMILY);
+    const result = month(game);
+    expect(eventsOf(result, "home/taken-back")).toHaveLength(1);
+    expect(eventsOf(result, "home/evicted")).toEqual([]);
+    expect(game.state.home).toMatchObject({ place: FAMILY, guest: null });
+    expect(game.state.draws.home ?? 0).toBe(0);
+    expect(checkInvariants(game.state, content)).toEqual([]);
+  });
+});
+
 describe("moving", () => {
   test("[R-HOME-002] given Ada at the family house with the rent split across cash and bank, when she moves to Makoko, then the first month's rent comes out of cash first then the bank, the family's upkeep closes and Makoko's opens at the tuning's charge", () => {
     const game = ada();
