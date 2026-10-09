@@ -148,15 +148,8 @@ export function buildBed(): Group {
   // A wrapper thrown over the foot of the bed.
   box(g, w + 0.02, 0.04, 0.8, 0, 0.6, 0.45, "indigo");
   quad(at(g, w / 2 + 0.012, 0.45, Math.PI / 2), 0.8, 0.3, 0, 0.34, 0, "indigo");
-  // The box under the bed, pulled out at the side: blue tin with a padlock.
-  const tin = at(g, w / 2 + 0.05, 0.1, 0);
-  box(tin, 0.6, 0.11, 0.42, 0, 0.01, 0, "blue");
-  box(tin, 0.62, 0.03, 0.44, 0, 0.12, 0, "basin");
-  box(tin, 0.06, 0.07, 0.03, 0.3, 0.05, 0.0, "gold");
-  return setFootprint(g, [
-    { x: 0, z: 0, width: w, depth: l },
-    { x: w / 2 + 0.05, z: 0.1, width: 0.62, depth: 0.44 },
-  ]);
+  // The papers box is its own thing at the bed's foot (R-WORLD-019), so the bed carries no tin.
+  return setFootprint(g, [{ x: 0, z: 0, width: w, depth: l }]);
 }
 
 // ---------------------------------------------------------------------------

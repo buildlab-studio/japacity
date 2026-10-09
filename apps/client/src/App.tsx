@@ -84,7 +84,7 @@ function WorldPlaying() {
           <div className="flex flex-col gap-4">
             <SetpieceView />
             <InterviewView />
-            <OfferView />
+            <AgentSheets ids={view.offers.map((offer) => offer.entry)} others={(only) => <OfferView only={only} />} />
           </div>
         }
         phone={(close, area) => <PhoneApps onClose={close} area={area} account={<AccountButton more={<NotifySetting />} />} talk={talk} />}
