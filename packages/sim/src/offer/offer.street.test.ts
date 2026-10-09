@@ -124,7 +124,8 @@ describe("the bridge's price: what each does", () => {
       [1, `${BRIDGE_THEFT}.nothing`],
     ] as const) {
       // The month's own movements before the offers come up are the same whether the night is rough or not.
-      const base = street.theftNaira * 2;
+      // Cash enough for the upkeep (taken cash first, R-OBLIGATION-002) and then some, so the month's movements are linear in the cash.
+      const base = content.scenario["scenario.ada"]!.obligations[0]!.amount + street.theftNaira * 2;
       const cash = base + (street.theftNaira - short) - cashAtComeUp(seed, base);
       expect(cashAtComeUp(seed, cash)).toBe(street.theftNaira - short);
       const game = life(alone(BRIDGE_THEFT), seed);
