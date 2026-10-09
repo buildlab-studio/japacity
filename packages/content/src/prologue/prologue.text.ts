@@ -24,8 +24,8 @@ export const prologueText: Record<string, string> = {
   "prologue.exam.answer.expo": "Buy the expo",
   "prologue.exam.outcome.pass": "You pass. Admission letters go out next month.",
   "prologue.exam.outcome.pass-caught": "You pass, but someone saw the expo. Your family heard.",
-  "prologue.exam.outcome.fail": "You did not reach the cut-off.",
-  "prologue.exam.outcome.fail-caught": "You did not reach the cut-off, and someone saw the expo. Your family heard.",
+  "prologue.exam.outcome.fail": "Your score comes back.",
+  "prologue.exam.outcome.fail-caught": "Your score comes back, and someone saw the expo. Your family heard.",
 
   "prologue.retake.card": "150 was the cut-off. You did not reach it.",
   "prologue.retake.answer.again": "Sit it again next year",
@@ -80,7 +80,7 @@ export const prologueText: Record<string, string> = {
   "prologue.service.answer.skip": "Skip it and work",
   "prologue.service.answer.redeploy.why": "your family does not know anyone who can move a posting.",
 
-  "prologue.friend.card": "Terna's send-off. Everybody is talking about where they are going.",
+  "prologue.friend.card": "Terna, your friend from school, takes you to a send-off. Everybody is talking about where they are going.",
   "prologue.friend.answer.uk": "Listen to the ones going to the UK",
   "prologue.friend.answer.canada": "Listen to the ones going to Canada",
   "prologue.friend.answer.tech": "Listen to the developers",
@@ -123,6 +123,14 @@ export const prologueText: Record<string, string> = {
   // The prologue's screen, in the situation's words.
   "prologue.not-for-you": "Not for you:",
   "prologue.handover.first": "Your first step: {step}.",
+  // The handover keeps the story the prologue built: what the money is and can do now,
+  // where the character sleeps and what it costs, and a first step in the handover's own words where the nudge's do not fit.
+  "prologue.handover.capital": "{amount} in hand, the shop's capital. It is the move's money now, if you want it to be.",
+  "prologue.handover.home.family-house": "You sleep in the family house. Living costs: {amount} a month.",
+  "prologue.handover.home.room": "You sleep in a room of your own. Living costs: {amount} a month.",
+  "prologue.handover.step.heard": "Go to the meetup in Yaba and hear of a way out",
+  // The master's settlement, said as itself and not as side work.
+  "prologue.line.settlement": "The settlement: {amount}.",
   "prologue.line.level": "{quality} now: {level}.",
   "prologue.line.graded": "Your degree comes out: {grade}.",
   "prologue.line.quality.land.gain": "You have a plot of land to your name now.",

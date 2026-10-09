@@ -15,6 +15,7 @@ import { ReportLines } from "../../shared/ui/ReportLines";
 import { formatMoney, playerMonth } from "../../shared/words/format";
 import { AGE, valueWords, yearsOf } from "../../shared/words/quality";
 import { requirementSentence } from "../../shared/words/requirement";
+import { nextStepOf, sixteenPath } from "../../shared/words/sixteen";
 import { bandWords, hasWords, nameOf, say, sayCount, words } from "../../shared/words/text";
 
 type Prologue = NonNullable<PlayerView["prologue"]>;
@@ -126,14 +127,21 @@ export function situationLine(line: ReportLine, all: readonly ReportLine[] = [])
   return hasWords(moved) ? { ...line, key: moved, params: {} } : { ...line, key: `prologue.line.moved.${way}`, params: { quality: nameOf(quality) } };
 }
 
-/** What the last answer moved, beyond what the life so far already says, each said as the situation. */
-function lastLines(lines: readonly ReportLine[]): ReportLine[] {
-  return lines.filter((line) => !SAID_IN_LIFE.has(line.key)).flatMap((line) => situationLine(line, lines) ?? []);
+const SETTLEMENT = "prologue.settlement.outcome.";
+const EARNED = "line.wallet.gig";
+
+/** What the last answer moved, beyond what the life so far already says, each said as the situation. The master's settlement is said as itself, not as side work. */
+function lastLines(lines: readonly ReportLine[], outcome: string | null = null): ReportLine[] {
+  const settled = outcome?.startsWith(SETTLEMENT) === true;
+  return lines
+    .filter((line) => !SAID_IN_LIFE.has(line.key))
+    .flatMap((line) => situationLine(line, lines) ?? [])
+    .map((line) => (settled && line.key === EARNED ? { ...line, key: "prologue.line.settlement" } : line));
 }
 
 function Outcome({ prologue }: { prologue: Prologue }) {
   const lines = useGame((state) => state.lines);
-  const shown = lastLines(lines);
+  const shown = lastLines(lines, prologue.lastOutcome);
   if (prologue.lastOutcome === null && shown.length === 0) return null;
   return (
     <Card tone="attention" className="flex flex-col gap-2" data-prologue-outcome>
@@ -203,12 +211,39 @@ export function prologueJustClosed(lines: readonly ReportLine[]): boolean {
   return lines.some((line) => line.key === PROLOGUE_CLOSED);
 }
 
-/** The story's first step, in its own nudge words, so the handover names where to start, never a month number. */
-export function firstStep(view: Pick<PlayerView, "chapter">): string | null {
-  const step = view.chapter.items.find((item) => !item.met)?.id ?? null;
+/**
+ * The story's first step, in its own nudge words, so the handover names where to start, never a month number (the
+ * A trader with capital starts at the meetup or the official page; the
+ * handover has its own words for a step whose nudge is not something to do.
+ */
+export function firstStep(view: Pick<PlayerView, "chapter" | "scenario" | "qualities" | "pockets">): string | null {
+  const step = nextStepOf(view);
   if (view.chapter.current === null || step === null) return null;
   const own = `${view.chapter.current}.item.${step}`;
+  if (hasWords(`prologue.handover.step.${step}`)) return say(`prologue.handover.step.${step}`);
   return hasWords(`${own}.nudge`) ? say(`${own}.nudge`) : hasWords(own) ? say(own) : null;
+}
+
+const UPKEEP = "obligation.upkeep";
+
+/** The home the last card chose, by the living costs it opened (R-PROLOGUE-006), from content's own answers. */
+function homeChosen(view: PlayerView): { answer: string; amount: number } | null {
+  const upkeep = view.obligations.find((obligation) => obligation.entry === UPKEEP);
+  if (upkeep === undefined) return null;
+  for (const answer of content.prologue.home?.answers ?? []) {
+    const opens = answer.effects.some((effect) => effect.type === "obligation/open" && effect.obligation === UPKEEP && effect.amount === upkeep.amount);
+    if (opens && hasWords(`prologue.handover.home.${answer.id}`)) return { answer: answer.id, amount: upkeep.amount };
+  }
+  return null;
+}
+
+/** The story the prologue built, kept at the handover: a shop's capital and what it can do now, and where the character sleeps. */
+function storyLines(view: PlayerView): string[] {
+  const told: string[] = [];
+  if (sixteenPath(view) === "capital") told.push(say("prologue.handover.capital", { amount: formatMoney(view.pockets.NGN.bank + view.pockets.NGN.cash, "NGN") }));
+  const home = homeChosen(view);
+  if (home !== null) told.push(say(`prologue.handover.home.${home.answer}`, { amount: formatMoney(home.amount, "NGN") }));
+  return told;
 }
 
 /** The handover: the last answer's outcome, the life as it now stands, and the way into the first month. */
@@ -217,12 +252,20 @@ export function PrologueHandover({ onDone }: { onDone: () => void }) {
   const lines = useGame((state) => state.lines);
   const shown = lastLines(lines);
   const step = firstStep(view);
+  const story = storyLines(view);
   return (
     <main className="mx-auto flex min-h-dvh max-w-xl flex-col gap-4 px-4 py-6" data-prologue-handover>
       <p className="text-sm font-semibold tracking-wide text-muted uppercase">{say("ui.prologue.title")}</p>
       <Card tone="attention" className="flex flex-col gap-3">
         <h1 className="text-2xl leading-snug font-semibold">{words(PROLOGUE_CLOSED)}</h1>
         <p className="text-muted">{say("ui.profile.age", { years: ageYears(view) })}</p>
+        {story.length === 0 ? null : (
+          <div className="flex flex-col gap-2 text-lg" data-handover-story>
+            {story.map((sentence) => (
+              <p key={sentence}>{sentence}</p>
+            ))}
+          </div>
+        )}
         {shown.length === 0 ? null : <ReportLines lines={shown} />}
       </Card>
       <LifeSoFar view={view} />
