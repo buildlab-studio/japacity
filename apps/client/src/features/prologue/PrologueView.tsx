@@ -21,7 +21,7 @@ import { requirementSentence } from "../../shared/words/requirement";
 import { gradeShort, nextStepOf, ownWayOf, sixteenPath } from "../../shared/words/sixteen";
 import { bandWords, hasWords, nameOf, say, sayCount, words } from "../../shared/words/text";
 import { Gate, GateSheet } from "../../shared/frontdoor/Gate";
-import { type Archetype, answersInOrder, archetypeOf, fullPrologue, presetAnswer } from "../../shared/frontdoor/archetypes";
+import { type Archetype, answersInOrder, archetypeOf, fullPrologue, handoverKind, presetAnswer } from "../../shared/frontdoor/archetypes";
 
 type Prologue = NonNullable<PlayerView["prologue"]>;
 type Draw = NonNullable<Prologue["draw"]>;
@@ -382,7 +382,7 @@ export function PrologueHandover({ onDone }: { onDone: () => void }) {
           {person === null ? null : <h1 className="title text-[26px] leading-none">{person.name}</h1>}
           {archetype === null ? null : (
             <p className="text-[15px] font-bold" data-handover-archetype>
-              {say("prologue.handover.archetype", { kind: say(`prologue.archetype.${archetype.id}.name`), was: say(`prologue.archetype.${archetype.id}.was`) })}
+              {handoverKind(archetype, view)}
             </p>
           )}
           {person === null ? <h1 className="title text-[22px] leading-tight">{words(PROLOGUE_CLOSED)}</h1> : null}
