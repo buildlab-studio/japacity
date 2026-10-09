@@ -2,9 +2,8 @@
 // ask for is a row with its pay a month and its chance in words, and the jobs at home still out of reach are listed
 // apart with what each still needs. A row is picked by a tap; the list replaces the bare select.
 import { content } from "@japacity/content";
-import type { ActivityEntry, Id, PlayerView, Requirement } from "@japacity/sim";
+import type { ActivityEntry, PlayerView, Requirement } from "@japacity/sim";
 
-import { formatMoney } from "../../shared/words/format";
 import { requirementSentence } from "../../shared/words/requirement";
 import { nameOf } from "../../shared/words/text";
 import { type ChanceBand, chanceBand, chanceOf, jobCardWords, jobChanceBp, jobsWords, payWords } from "../../shared/words/jobs";
