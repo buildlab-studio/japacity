@@ -180,7 +180,7 @@ describe("a life from sixteen through a tile, where a life may be started over",
         view = reply.view;
       }
       expect(view.prologue?.step).toBe("after-school");
-      expect(view.prologue?.answers.find((answer) => answer.id === "apprentice")?.allowed, seed).toBe(true);
+      expect({ seed, apprentice: view.prologue?.answers.find((answer) => answer.id === "apprentice")?.allowed }).toEqual({ seed, apprentice: true });
     }
     // The first seed alone would have shut the trade for some of them.
     expect(tried.some((seed) => !seed.endsWith("-0"))).toBe(true);
@@ -193,7 +193,7 @@ describe("a life from sixteen through a tile, where a life may be started over",
     await authority.newLife(PROLOGUE);
     expect(seedOf(storage)).toMatch(/^seed-\d+$/);
     keepTile(storage, "trader");
-    await authority.newLife("scenario.ada" as Id<"scenario">);
+    await authority.newLife("scenario.ada");
     expect(seedOf(storage)).toMatch(/^seed-\d+$/);
   });
 });
