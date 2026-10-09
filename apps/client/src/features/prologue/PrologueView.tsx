@@ -18,7 +18,7 @@ import { ReportLines } from "../../shared/ui/ReportLines";
 import { formatMoney } from "../../shared/words/format";
 import { AGE, valueWords, yearsOf } from "../../shared/words/quality";
 import { requirementSentence } from "../../shared/words/requirement";
-import { nextStepOf, sixteenPath } from "../../shared/words/sixteen";
+import { gradeShort, nextStepOf, ownWayOf, sixteenPath } from "../../shared/words/sixteen";
 import { bandWords, hasWords, nameOf, say, sayCount, words } from "../../shared/words/text";
 import { Gate, GateSheet } from "../../shared/frontdoor/Gate";
 import { type Archetype, answersInOrder, archetypeOf, fullPrologue, presetAnswer } from "../../shared/frontdoor/archetypes";
@@ -292,12 +292,15 @@ export function prologueJustClosed(lines: readonly ReportLine[]): boolean {
 /**
  * The story's first step, in its own nudge words, so the handover names where to start, never a month number (the
  * A trader with capital starts at the meetup or the official page; the
- * handover has its own words for a step whose nudge is not something to do.
+ * handover has its own words for a step whose nudge is not something to do. A life whose archetype takes its first
+ * step somewhere of its own says that place: the nurse's job at the clinic, a trade's motor park.
  */
-export function firstStep(view: Pick<PlayerView, "chapter" | "scenario" | "qualities" | "pockets">): string | null {
+export function firstStep(view: Pick<PlayerView, "chapter" | "scenario" | "qualities" | "pockets"> & Partial<Pick<PlayerView, "documents" | "routes" | "job">>): string | null {
   const step = nextStepOf(view);
   if (view.chapter.current === null || step === null) return null;
   const own = `${view.chapter.current}.item.${step}`;
+  const way = ownWayOf(view);
+  if (way !== null && hasWords(`prologue.handover.step.${way.step}.${way.key}`)) return say(`prologue.handover.step.${way.step}.${way.key}`);
   if (hasWords(`prologue.handover.step.${step}`)) return say(`prologue.handover.step.${step}`);
   return hasWords(`${own}.nudge`) ? say(`${own}.nudge`) : hasWords(own) ? say(own) : null;
 }
@@ -315,10 +318,14 @@ function homeChosen(view: PlayerView): { answer: string; amount: number } | null
   return null;
 }
 
-/** The story the prologue built, kept at the handover: a shop's capital and what it can do now, and where the character sleeps. */
+/**
+ * The story the prologue built, kept at the handover: a shop's capital and what it can do now, a
+ * grade that keeps doors shut and the one it does not, and where the character sleeps.
+ */
 function storyLines(view: PlayerView): string[] {
   const told: string[] = [];
   if (sixteenPath(view) === "capital") told.push(say("prologue.handover.capital", { amount: formatMoney(view.pockets.NGN.bank + view.pockets.NGN.cash, "NGN") }));
+  if (gradeShort(view)) told.push(say("prologue.handover.grade-short"));
   const home = homeChosen(view);
   if (home !== null) told.push(say(`prologue.handover.home.${home.answer}`, { amount: formatMoney(home.amount, "NGN") }));
   return told;

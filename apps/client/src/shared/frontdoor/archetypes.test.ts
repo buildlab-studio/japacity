@@ -6,7 +6,9 @@ import { allMet } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
 import { newGame } from "../testing/fixtures";
-import { answersInOrder, ARCHETYPES, type Archetype, presetAnswer } from "./archetypes";
+import { say } from "../words/text";
+import { nextStepOf, ownWayOf } from "../words/sixteen";
+import { answersInOrder, ARCHETYPES, type Archetype, archetypeOf, presetAnswer } from "./archetypes";
 
 const PROLOGUE = "scenario.prologue";
 const FIRST_CHAPTER = "chapter.find-your-feet";
@@ -121,5 +123,121 @@ describe("the archetypes", () => {
       }
     }
     expect(wrong).toEqual([]);
+  });
+});
+
+/** The figure a requirement on `quality` in `requirements` asks for. */
+function barOf(requirements: readonly { type: string; quality?: string; value?: number }[], quality: string): number {
+  const bar = requirements.find((requirement) => requirement.type === "quality/min" && requirement.quality === quality)?.value;
+  if (bar === undefined) throw new Error(`No bar on ${quality}.`);
+  return bar;
+}
+
+function qualityOf(game: ReturnType<typeof newGame>, id: string): number {
+  return game.view().qualities.find((quality) => quality.id === id)?.value ?? 0;
+}
+
+function routeState(game: ReturnType<typeof newGame>, id: string): string {
+  return game.view().routes.find((route) => route.id === id)?.state ?? "unknown";
+}
+
+const NURSE_JOB = "activity.job-nurse";
+const CLINIC = "place.tb-clinic";
+const HUNT = "activity.job-hunt";
+const GRADE = "quality.edu-grade";
+/** The master's own bar on the degree's grade: second class lower (route.md). */
+const GRADE_BAR = barOf((content.route["route.uk-masters"]?.checklist ?? []).map((item) => item.requirement), GRADE);
+
+describe("every tile's promise is kept by the life it starts", () => {
+  test("[R-PROLOGUE-010] [R-GUIDE-016] given the nurse over many seeds on her own path, when she hands over, then care is at the staff nurse's bar with the licence held, the job is staged at the clinic and the hunt can ask for it there, and her first step is that job at the clinic; her first meetup tells of care work", () => {
+    const nurse = archetypeOf("nurse")!;
+    const bar = barOf(content.activity[NURSE_JOB]?.requires ?? [], "quality.care");
+    expect(content.place[CLINIC]?.stages).toContain(NURSE_JOB);
+    const wrong: string[] = [];
+    for (let at = 0; at < SEEDS; at += 1) {
+      const { game, kept } = play(nurse, `nurse-${String(at)}`);
+      if (!kept) continue;
+      const view = game.view();
+      if (qualityOf(game, "quality.care") < bar) wrong.push(`${String(at)}: care ${String(qualityOf(game, "quality.care"))}`);
+      if (!view.documents.some((paper) => paper.id === "document.nursing-licence" && paper.state === "held")) wrong.push(`${String(at)}: no licence`);
+      if (!(view.activities.find((option) => option.id === HUNT)?.params ?? []).includes(NURSE_JOB)) wrong.push(`${String(at)}: the hunt cannot ask for the job`);
+      if (nextStepOf(view) !== "job") wrong.push(`${String(at)}: first step ${String(nextStepOf(view))}`);
+      const way = ownWayOf(view);
+      if (way?.place !== CLINIC || way.activity !== NURSE_JOB) wrong.push(`${String(at)}: the first step's way is ${JSON.stringify(way)}`);
+      game.endTurn([{ activity: "activity.meetup", param: null }]);
+      if (routeState(game, "route.uk-care") === "unknown") wrong.push(`${String(at)}: the first meetup told nothing of care`);
+    }
+    expect(wrong).toEqual([]);
+  });
+
+  test("[R-PROLOGUE-010] [R-GUIDE-016] given the developer over many seeds on his own path, when he hands over, then the grade is at the master's bar and tech hears of the talent route at his first meetup, or it was heard at the send-off", () => {
+    const developer = archetypeOf("developer")!;
+    expect(developer.preset["hustle"]).toEqual(["focus"]);
+    expect(developer.preset["side-skill"]).toEqual(["code"]);
+    const wrong: string[] = [];
+    for (let at = 0; at < SEEDS; at += 1) {
+      const { game, kept } = play(developer, `developer-${String(at)}`);
+      if (!kept) continue;
+      if (qualityOf(game, GRADE) < GRADE_BAR) wrong.push(`${String(at)}: grade ${String(qualityOf(game, GRADE))}`);
+      game.endTurn([{ activity: "activity.meetup", param: null }]);
+      if (routeState(game, "route.uk-talent") === "unknown") wrong.push(`${String(at)}: no talent route after the first meetup`);
+    }
+    expect(wrong).toEqual([]);
+  });
+
+  test("[R-PROLOGUE-010] [R-GUIDE-016] [R-ROAD-012] given the trader and the shop worker over many seeds, when each hands over, then the first step is asking around at the motor park, the first ask-around hears of the Gulf contract, and the road's pitches can reach him at home", () => {
+    const wrong: string[] = [];
+    for (const archetype of ARCHETYPES.filter((one) => one.id === "trader" || one.id === "shop-worker")) {
+      for (let at = 0; at < SEEDS; at += 1) {
+        const { game, kept } = play(archetype, `${archetype.id}-${String(at)}`);
+        // A city family keeps a child from the master, and the child goes to university instead.
+        if (!kept) continue;
+        const view = game.view();
+        if (nextStepOf(view) !== "heard") wrong.push(`${archetype.id} ${String(at)}: first step ${String(nextStepOf(view))}`);
+        const way = ownWayOf(view);
+        if (way?.place !== "place.ojuelegba" || way.thing !== "motor-park" || way.activity !== "activity.ask-around") wrong.push(`${archetype.id} ${String(at)}: the first step's way is ${JSON.stringify(way)}`);
+        const read = { state: game.state, world: game.world(), content };
+        if (!allMet(read, content.offer["offer.road-park"]?.when ?? [])) wrong.push(`${archetype.id} ${String(at)}: the road's pitch cannot reach him`);
+        game.endTurn([{ activity: "activity.ask-around", param: null }]);
+        if (routeState(game, "route.gulf-contract") === "unknown") wrong.push(`${archetype.id} ${String(at)}: the Gulf unheard after the first ask-around`);
+        if (ownWayOf(game.view()) !== null) wrong.push(`${archetype.id} ${String(at)}: still sent to the motor park`);
+      }
+    }
+    expect(wrong).toEqual([]);
+  });
+
+  test("[R-PROLOGUE-010] [R-GUIDE-016] given the accountant and the writer over many seeds on their own path, when each plays a first meetup, then the master's is heard of, a route their tiles name", () => {
+    const wrong: string[] = [];
+    for (const archetype of ARCHETYPES.filter((one) => one.id === "accountant" || one.id === "writer")) {
+      expect(archetype.routes).toContain("route.uk-masters");
+      for (let at = 0; at < SEEDS; at += 1) {
+        const { game, kept } = play(archetype, `${archetype.id}-${String(at)}`);
+        if (!kept) continue;
+        game.endTurn([{ activity: "activity.meetup", param: null }]);
+        if (routeState(game, "route.uk-masters") === "unknown") wrong.push(`${archetype.id} ${String(at)}`);
+      }
+    }
+    expect(wrong).toEqual([]);
+  });
+});
+
+describe("the tiles' words", () => {
+  test("[R-PROLOGUE-010] given every archetype over many seeds, when its prologue closes, then its tile names the age it hands over at, in years, as the middle life of its seeds does", () => {
+    const said: Record<string, number> = {};
+    const found: Record<string, number> = {};
+    for (const archetype of ARCHETYPES) {
+      const months = Array.from({ length: SEEDS }, (_, at) => qualityOf(play(archetype, `${archetype.id}-${String(at)}`).game, "quality.age-months")).sort((a, b) => a - b);
+      found[archetype.id] = Math.round((months[Math.floor(SEEDS / 2)] ?? 0) / 12);
+      said[archetype.id] = Number(/about (\d+)/.exec(say(`prologue.archetype.${archetype.id}.opens`))?.[1] ?? -1);
+    }
+    expect(said).toEqual(found);
+    // The sheet above the tiles names no one age for all of them.
+    expect(say("ui.door.path.hint")).not.toMatch(/\d/);
+  });
+
+  test("[R-PROLOGUE-010] given the trader's and the shop worker's tiles, then the road is said as the road through the desert, never bare", () => {
+    for (const id of ["trader", "shop-worker"]) {
+      expect(say(`prologue.archetype.${id}.opens`)).toMatch(/the road through the desert/);
+    }
   });
 });

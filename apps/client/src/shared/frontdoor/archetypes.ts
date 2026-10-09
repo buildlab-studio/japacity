@@ -49,7 +49,8 @@ const degree = (subjects: string, course: string, side: string, hustle: string):
 export const ARCHETYPES: readonly Archetype[] = [
   {
     id: "developer",
-    preset: degree("science", "computer-science", "code", "freelance"),
+    // Focus in the final year keeps the grade at the master's and the bank's bar; code stays the side skill.
+    preset: degree("science", "computer-science", "code", "focus"),
     leaning: { friend: "tech" },
     routes: ["route.uk-talent", "route.uk-skilled", "route.uk-masters"],
   },
