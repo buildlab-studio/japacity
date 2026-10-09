@@ -27,7 +27,7 @@ export function middleMonths(archetype: Archetype): number {
     const id: string | undefined = presetAnswer(archetype, { step: at, answers: all }) ?? archetype.leaning[at] ?? step.answers[0]?.id;
     const answer: PrologueStep["answers"][number] | undefined = step.answers.find((one) => one.id === id) ?? step.answers[0];
     if (answer === undefined) break;
-    const outcome = answer.draw === null ? undefined : likeliest(answer.draw);
+    const outcome: NonNullable<PrologueStep["answers"][number]["draw"]>[number] | undefined = answer.draw === null ? undefined : likeliest(answer.draw);
     months += step.months;
     at = outcome?.next ?? answer.next ?? step.next;
     if (at === DETOUR) {
