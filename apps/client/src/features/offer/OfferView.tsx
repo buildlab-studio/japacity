@@ -11,6 +11,7 @@ import { Card, Empty, Panel, Tag } from "../../shared/ui/Panel";
 import { ReportLines } from "../../shared/ui/ReportLines";
 import { formatMoney, toMajor, toMinor } from "../../shared/words/format";
 import { byMonths, nameOf, say, sayCount, words } from "../../shared/words/text";
+import { payAMonth } from "../../shared/words/pay";
 import { offerParams } from "./terms";
 
 /** A content amount as a figure, when the offer's terms or the entry say it outright. */
@@ -61,8 +62,8 @@ function choiceLabel(offer: Offer, choice: Offer["choices"][number]): string {
 function JobFigures({ terms }: { terms: Terms }) {
   const job = terms.job;
   if (typeof job !== "string") return null;
-  const pay = content.activity[job as keyof typeof content.activity]?.pay;
-  const amount = pay === null || pay === undefined || typeof pay.amount !== "number" ? null : formatMoney(pay.amount, pay.currency);
+  const pay = payAMonth(job);
+  const amount = pay === null ? null : formatMoney(pay.amount, pay.currency);
   return <p className="font-semibold">{amount === null ? nameOf(job) : say("ui.offer.job", { job: nameOf(job), amount })}</p>;
 }
 

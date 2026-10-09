@@ -7,45 +7,11 @@ import type { ActivityEntry, Id, PlayerView, Requirement } from "@japacity/sim";
 import { formatMoney } from "../../shared/words/format";
 import { requirementSentence } from "../../shared/words/requirement";
 import { nameOf } from "../../shared/words/text";
-import { jobsWords } from "./jobs.words";
+import { type ChanceBand, chanceBand, chanceOf, jobCardWords, jobChanceBp, jobsWords, payWords } from "../../shared/words/jobs";
+
+// The figures and words moved to shared/words/jobs.ts so the city can read them; the list's tests keep these names.
+export { type ChanceBand, chanceBand, jobCardWords, jobChanceBp };
 import { payAMonth } from "../../shared/words/pay";
-
-const NETWORK = "quality.network";
-
-/** From 60% a month a hunt is likely, from 30% a fair chance, and below that a long shot. */
-const LIKELY_BP = 6000;
-const FAIR_BP = 3000;
-
-export type ChanceBand = "likely" | "fair" | "long";
-
-export function chanceBand(bp: number): ChanceBand {
-  if (bp >= LIKELY_BP) return "likely";
-  if (bp >= FAIR_BP) return "fair";
-  return "long";
-}
-
-/**
- * A month's chance of the hunt landing this job, as the hunt rolls it (activity.logic.ts hireChanceBp, R-ACTIVITY-005):
- * the job's own chance plus the network's share, under the cap. The remote-hiring boom's bonus is the world's and is
- * not in the view, so the remote job may read a band low while it lasts.
- */
-export function jobChanceBp(entry: Pick<ActivityEntry, "hireBp">, network: number): number {
-  const { networkHireBp, hireMaxBp } = content.tuning.quality;
-  return Math.min(hireMaxBp, (entry.hireBp ?? 0) + networkHireBp * network);
-}
-
-function entryOf(id: string): ActivityEntry | undefined {
-  return content.activity[id as Id<"activity">];
-}
-
-function qualityOf(view: PlayerView, id: string): number {
-  return view.qualities.find((quality) => quality.id === id)?.value ?? 0;
-}
-
-function chanceOf(view: PlayerView, id: string): number {
-  const entry = entryOf(id);
-  return entry === undefined ? 0 : jobChanceBp(entry, qualityOf(view, NETWORK));
-}
 
 /** A job's pay a month in its own currency, for ordering; pay in another currency than naira goes first, as the best paid. */
 function payRank(id: string): number {
@@ -61,19 +27,8 @@ export function huntOrder(view: PlayerView, jobs: readonly string[]): string[] {
   return [...jobs].sort((a, b) => BAND_RANK[chanceBand(chanceOf(view, a))] - BAND_RANK[chanceBand(chanceOf(view, b))] || payRank(b) - payRank(a));
 }
 
-function payWords(id: string): string | null {
-  const pay = payAMonth(id);
-  return pay === null ? null : jobsWords("jobs.pay", { amount: formatMoney(pay.amount, pay.currency) });
-}
-
-/**
- * A job's pay a month and its chance in words, as its row on the list says them, for the hunt's card when a
- * board or a notice names the job.
- */
-export function jobCardWords(view: PlayerView, id: string): string {
-  const chance = jobsWords(`jobs.chance.${chanceBand(chanceOf(view, id))}`);
-  const pay = payWords(id);
-  return pay === null ? jobsWords("jobs.card.chance", { chance }) : jobsWords("jobs.card", { pay, chance });
+function qualityOf(view: PlayerView, id: string): number {
+  return view.qualities.find((quality) => quality.id === id)?.value ?? 0;
 }
 
 /** Whether the view shows a requirement met; one the view cannot judge counts as unmet, so it is named. */

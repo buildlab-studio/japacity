@@ -32,7 +32,7 @@ import { InterviewView } from "./features/interview/InterviewView";
 import { PrologueHandover, prologueJustClosed, PrologueView } from "./features/prologue/PrologueView";
 import { RoadView } from "./features/road/RoadView";
 import { ScenarioView } from "./features/scenario/ScenarioView";
-import { SetpieceView } from "./features/setpiece/SetpieceView";
+import { SetpieceView, useClosingOpen } from "./features/setpiece/SetpieceView";
 import { MonthSheet } from "./features/turn/MonthSheet";
 import { Results } from "./features/turn/Results";
 import { say } from "./shared/words/text";
@@ -56,6 +56,8 @@ function WorldPlaying() {
   const talk = usePairApi();
   const phoneWaiting = usePhoneWaiting();
   const reportOpen = useGame((state) => state.reportOpen);
+  // The officer's closing line holds the asks sheet after the interview closes, until Leave the room.
+  const closing = useClosingOpen();
   useScreenCount("world");
   useScreenCount(reportOpen ? "report" : null);
   useScreenCount(view.setpiece === null ? null : "setpiece");
@@ -76,16 +78,17 @@ function WorldPlaying() {
         results={(place) => <Results place={place} />}
         // R-WORLD-006: one ask at a time: the set piece's question, the interview's, then each open offer on its own.
         asks={[
-          ...(view.setpiece === null ? [] : [<SetpieceView key="setpiece" />]),
+          ...(view.setpiece === null && !closing ? [] : [<SetpieceView key="setpiece" />]),
           ...((view.interview?.question ?? null) === null ? [] : [<InterviewView key="interview" />]),
           ...[...view.offers].sort((a, b) => a.expiresMonth - b.expiresMonth).map((offer) => <AgentSheets key={offer.id} ids={[offer.entry]} others={(only) => <OfferView only={(candidate) => candidate.id === offer.id && only(candidate)} />} />),
         ]}
         // An ask that belongs at home (the family's send-off, R-CHAPTER-008) is answered there: away from it the sheet says who waits and offers the way (R-WORLD-006).
         asksAt={[
-          ...(view.setpiece === null ? [] : [null]),
+          ...(view.setpiece === null && !closing ? [] : [null]),
           ...((view.interview?.question ?? null) === null ? [] : [null]),
           ...[...view.offers].sort((a, b) => a.expiresMonth - b.expiresMonth).map((offer) => (AT_HOME.has(offer.entry) ? "place.family-house" : null)),
         ]}
+        asksHold={closing}
         phone={(close, area, app) => <PhoneApps onClose={close} area={area} account={<AccountButton more={<NotifySetting />} />} talk={talk} start={app ?? null} />}
         phoneWaiting={phoneWaiting}
         askIcon={iconFor}

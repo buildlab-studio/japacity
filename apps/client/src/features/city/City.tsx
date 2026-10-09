@@ -14,6 +14,7 @@ import { Button } from "../../shared/ui/Button";
 import { FullScreen } from "../../shared/ui/FullScreen";
 import { Sheet } from "../../shared/ui/Sheet";
 import { formatMoney, todayWords } from "../../shared/words/format";
+import { jobCardWords } from "../../shared/words/jobs";
 import { needsWords } from "../../shared/words/requirement";
 import { blurbOf, hasWords, inMonths, nameOf, paramWords, say, words } from "../../shared/words/text";
 import { AskSheet } from "../../shared/world/AskSheet";
@@ -260,6 +261,7 @@ export function City({
   results,
   asks,
   asksAt,
+  asksHold,
   phone: handset,
   phoneWaiting,
   askIcon,
@@ -280,6 +282,8 @@ export function City({
   asks?: ReactNode | ReactNode[];
   /** For each ask, the place it must be answered at, or null: away from it the sheet shows who waits and a way there (R-WORLD-006). */
   asksAt?: (string | null)[];
+  /** True while an ask still says its last line after what it asked has closed (the officer's close): the sheet that holds it stays open. */
+  asksHold?: boolean;
   /** The world mode's phone (R-WORLD-018), handed in by the shell: the handset over the place named `area`. */
   phone?: (close: () => void, area: string, app?: string | null) => ReactNode;
   /** A dot on the Phone button: an app has something new (R-WORLD-004). */
@@ -486,7 +490,7 @@ export function City({
       case "thing":
         return sceneWords(picked.thing.label);
       case "command":
-        return say(picked.command === "route/depart" ? "ui.route.depart" : "ui.route.pay-deposit");
+        return say(picked.command === "route/depart" ? "ui.route.depart" : picked.command === "obligation/pay" ? "ui.world.pay-back" : "ui.route.pay-deposit");
       default: {
         const never: never = picked;
         throw new Error(`Unknown pick: ${JSON.stringify(never)}`);
@@ -754,7 +758,7 @@ export function City({
     // A choice inside the activity (which job to hunt, which school) is the player's: the picker shows it, not a card that takes the first,
     // unless the thing tapped made the choice (a job on a board), when the card names it (R-WORLD-005).
     const chosen = picked.param !== undefined && option.params?.includes(picked.param) === true ? picked.param : null;
-    if (option.params !== null && option.params.length > 1 && chosen === null) return null;
+    if (option.params !== null && (option.params.length > 1 || content.activity[activity as keyof typeof content.activity]?.param === "job") && chosen === null) return null;
     const first = option.cost[0] ?? null;
     const cost = first === null ? null : { ...first, amount: option.cost.filter((part) => part.currency === first.currency).reduce((sum, part) => sum + part.amount, 0) };
     const paper = activity === "activity.play-lotto" || activity === "activity.bet-slip";
@@ -762,9 +766,14 @@ export function City({
       form: paper ? "slip" : "card",
       icon: paper ? "ticket" : "hand",
       who: hereName,
-      // A side job on the hunt's card says it sits beside the day job and carries its own line.
+      // A side job on the hunt's card says it sits beside the day job and carries its own line; a job a board names carries its pay and chance.
       title: chosen === null ? nameOf(activity) : content.activity[chosen as Id<"activity">]?.slot === "side" ? say("ui.world.side-job-title", { job: paramWords(chosen) }) : `${nameOf(activity)}: ${paramWords(chosen)}`,
-      line: (chosen !== null && content.activity[chosen as Id<"activity">]?.slot === "side" ? blurbOf(chosen) : null) ?? blurbOf(activity) ?? "",
+      line:
+        chosen !== null && content.activity[chosen as Id<"activity">]?.slot === "side"
+          ? (blurbOf(chosen) ?? blurbOf(activity) ?? "")
+          : chosen !== null && content.activity[activity as Id<"activity">]?.param === "job"
+            ? [blurbOf(activity), jobCardWords(view, chosen)].filter((part): part is string => part !== null).join(" ")
+            : (blurbOf(activity) ?? ""),
       cost: cost === null ? null : { amount: cost.amount, currency: cost.currency },
       button: nameOf(activity),
       ...(paper ? { reference: todayWords().toUpperCase() } : {}),
@@ -798,8 +807,13 @@ export function City({
     setPicked(null);
   }, [plan, world, picked, ask, toast]);
   useEffect(() => {
-    if (!nudgeOpens) setAsksOpen(false);
-  }, [nudgeOpens]);
+    if (!nudgeOpens && asksHold !== true) setAsksOpen(false);
+  }, [nudgeOpens, asksHold]);
+  // A set piece's sheet opened from its thing closes once the set piece is over and its last line said.
+  const setpieceOver = view.setpiece === null && asksHold !== true;
+  useEffect(() => {
+    if (setpieceOver && picked?.kind === "action" && picked.activity.startsWith("setpiece.")) setPicked(null);
+  }, [setpieceOver, picked]);
   // R-WORLD-022: a sheet, the phone or the map opening over the world, and closing back to it.
   const covered = world && (monthOpen || asksOpen || ask !== null || picked?.kind === "ride" || phone || map);
   const wasCovered = useRef(covered);

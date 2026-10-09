@@ -35,6 +35,8 @@ export interface Act {
   stages?: string;
   /** For `sheet`: more entries listed on the same sheet, since a thing offers at most two acts and a third goes on a sheet (R-WORLD-005). */
   more?: string[];
+  /** For `plain`: the entries whose acts stand in its place; it shows only while none of them can open (the agent at an empty desk). */
+  unless?: string[];
   /** For `command`: which command the card sends. */
   command?: "route/pay-deposit" | "route/depart" | "obligation/pay";
   /** The pose the character takes on the thing once the act lands: sitting on it, lying on it (R-WORLD-005). */

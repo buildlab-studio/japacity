@@ -35,3 +35,13 @@ describe("the agent's office", () => {
     expect(thingSpot(stage, thing("agent"))).toEqual(thingSpot(stage, thing("desk")));
   });
 });
+
+describe("the agent's ask stands in for the desk", () => {
+  test("[R-WORLD-005] given an entry the desk lists open, when the office's things are read, then the desk's act shows and the agent's ask is gone; with none open, the ask stays", () => {
+    const read = (open: string[]) => thingsNow(things, stagedNow(new Set(), new Set(entry.stages), new Set(open), null));
+    const open = read(["offer.held-funds-agent"]);
+    expect(open.find((candidate) => candidate.id === "desk")?.acts.map((act) => act.stages)).toEqual(["offer.held-funds-agent"]);
+    expect(open.find((candidate) => candidate.id === "agent")).toBeUndefined();
+    expect(read([]).find((candidate) => candidate.id === "agent")?.acts.map((act) => act.id)).toEqual(["ask"]);
+  });
+});
