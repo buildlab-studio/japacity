@@ -78,9 +78,9 @@ export interface OwnWay {
 }
 
 /** The nurse's first step: the staff nurse's job, staged at the clinic. */
-const CLINIC_WAY: OwnWay = { step: "job", key: "clinic", place: "place.tb-clinic" as Id<"place">, thing: "jobs-notice", activity: NURSE_JOB };
+const CLINIC_WAY: OwnWay = { step: "job", key: "clinic", place: "place.tb-clinic", thing: "jobs-notice", activity: NURSE_JOB };
 /** A trade's first step: asking around at the motor park in Ojuelegba, where the Gulf is heard. */
-const MOTOR_PARK_WAY: OwnWay = { step: "heard", key: "motor-park", place: "place.ojuelegba" as Id<"place">, thing: "motor-park", activity: "activity.ask-around" as Id<"activity"> };
+const MOTOR_PARK_WAY: OwnWay = { step: "heard", key: "motor-park", place: "place.ojuelegba", thing: "motor-park", activity: "activity.ask-around" };
 
 function routeState(view: Held, route: string): string {
   return view.routes?.find((one) => one.id === route)?.state ?? "unknown";
