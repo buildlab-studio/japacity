@@ -21,7 +21,7 @@ function Body({ which }: { which: NoticeCase }) {
       {which === "on" ? <VolumeX size={16} aria-label={soundWords("sound.notice.on.action")} className="shrink-0 opacity-70" /> : null}
     </>
   );
-  const box = "pointer-events-auto flex items-center gap-2 rounded-full border border-sheet-line bg-sheet-2 px-3 py-1.5 text-sm shadow-lg";
+  const box = "pointer-events-auto flex items-center gap-2 rounded-[4px] border border-sheet-line bg-sheet-2 px-3 py-1.5 text-sm shadow-lg";
   if (which === "unsupported") return <p className={box}>{content}</p>;
   return (
     <button type="button" className={`${box} min-h-9 hover:bg-sheet-muted focus-visible:outline-2 focus-visible:outline-ink`} onClick={() => tapNotice(which)}>

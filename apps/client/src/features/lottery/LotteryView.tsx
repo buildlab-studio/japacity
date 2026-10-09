@@ -130,7 +130,7 @@ function Tickets({ lottery }: { lottery: Lottery }) {
       ) : (
         <div className="flex flex-col gap-2">
           <div className="flex flex-wrap items-center gap-2">
-            <div role="group" aria-label={say("ui.lottery.how-many")} className="inline-flex items-center rounded-lg border border-sheet-line">
+            <div role="group" aria-label={say("ui.lottery.how-many")} className="inline-flex items-center rounded-md border border-sheet-line">
               <button type="button" aria-label={say("ui.lottery.fewer")} disabled={count <= 1} onClick={() => setWanted(count - 1)} className="inline-flex size-11 items-center justify-center disabled:opacity-40">
                 <Minus size={18} />
               </button>
@@ -162,7 +162,7 @@ function Seal({ lottery }: { lottery: Lottery }) {
         <span className="min-w-0 truncate">{say("ui.lottery.fingerprint", { print: `${lottery.fingerprint.slice(0, 12)}...` })}</span>
       </summary>
       <div className="mt-2 flex flex-col gap-2">
-        <code className="block rounded-lg bg-sheet-muted p-2 text-xs break-all" data-lottery-fingerprint>
+        <code className="block rounded-md bg-sheet-muted p-2 text-xs break-all" data-lottery-fingerprint>
           {lottery.fingerprint}
         </code>
         {round === null ? null : <p className="text-text-2">{say("ui.lottery.round", { round: formatNumber(round) })}</p>}

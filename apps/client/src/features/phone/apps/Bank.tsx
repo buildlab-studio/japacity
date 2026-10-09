@@ -389,8 +389,8 @@ export function Bank({ opening: openOn = null }: { opening?: "change" | "move" |
             <p className="text-[14px] text-text-2">{phoneWords("phone.bank.savings.none")}</p>
           ) : (
             <div data-savings>
-              <div className="h-2.5 overflow-hidden rounded-full bg-sheet-muted" role="progressbar" aria-valuemin={0} aria-valuemax={savings.required} aria-valuenow={Math.min(savings.shown, savings.required)} aria-label={phoneWords("phone.bank.savings")}>
-                <div className="h-full rounded-full bg-in" style={{ width: `${String(Math.min(100, Math.floor((savings.shown * 100) / savings.required)))}%` }} />
+              <div className="h-2.5 overflow-hidden rounded-[2px] bg-sheet-muted" role="progressbar" aria-valuemin={0} aria-valuemax={savings.required} aria-valuenow={Math.min(savings.shown, savings.required)} aria-label={phoneWords("phone.bank.savings")}>
+                <div className="h-full rounded-[2px] bg-in" style={{ width: `${String(Math.min(100, Math.floor((savings.shown * 100) / savings.required)))}%` }} />
               </div>
               <p className="num mt-1 text-[15px]">{phoneWords("phone.bank.savings.line", { shown: formatMoney(savings.shown, savings.currency), required: formatMoney(savings.required, savings.currency) })}</p>
             </div>

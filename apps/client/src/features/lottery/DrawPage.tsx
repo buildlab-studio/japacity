@@ -45,7 +45,7 @@ function Fact({ label, children }: { label: string; children: ReactNode }) {
 }
 
 function Hex({ value }: { value: string }) {
-  return <code className="block rounded-lg bg-sheet-muted p-2 text-xs break-all">{value}</code>;
+  return <code className="block rounded-md bg-sheet-muted p-2 text-xs break-all">{value}</code>;
 }
 
 function Verdict({ good, yes, no, mark }: { good: boolean; yes: string; no: string; mark: string }) {
@@ -66,7 +66,7 @@ function List({ list, tickets }: { list: string[]; tickets: (Tier | null)[] | nu
         {open ? say("ui.lottery.page.hide-list") : say("ui.lottery.page.show-list")}
       </button>
       {open ? (
-        <ol className="grid max-h-64 grid-cols-1 gap-1 overflow-y-auto rounded-lg bg-sheet-muted p-2 font-mono text-xs sm:grid-cols-2" data-draw-list>
+        <ol className="grid max-h-64 grid-cols-1 gap-1 overflow-y-auto rounded-md bg-sheet-muted p-2 font-mono text-xs sm:grid-cols-2" data-draw-list>
           {list.map((token, index) => {
             const tier = tickets?.[index] ?? null;
             return (
@@ -97,7 +97,7 @@ export function DrawPage({ draw, load }: { draw: number; load: LoadDraw }) {
         {say("ui.lottery.page.how")}
       </p>
       {check === null ? null : (
-        <div className="flex flex-col gap-2 rounded-xl border border-sheet-line bg-sheet-2 p-3" data-draw-checks>
+        <div className="flex flex-col gap-2 rounded-md border border-sheet-line bg-sheet-2 p-3" data-draw-checks>
           <Verdict mark="winners" good={check.matches} yes={say("ui.lottery.page.check.winners")} no={say("ui.lottery.page.check.winners-bad")} />
           <Verdict mark="fingerprint" good={check.fingerprint} yes={say("ui.lottery.page.check.fingerprint")} no={say("ui.lottery.page.check.fingerprint-bad")} />
           <Verdict mark="list" good={check.list} yes={say("ui.lottery.page.check.list")} no={say("ui.lottery.page.check.list-bad")} />

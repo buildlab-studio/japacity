@@ -115,7 +115,7 @@ export function ShareCardFace({ card, scenario = null }: { card: ShareCard; scen
   return (
     <article
       data-share-card={card.kind}
-      className={`flex aspect-[9/16] w-[min(calc(100vw-2rem),24rem)] flex-col justify-between gap-3 overflow-hidden rounded-3xl p-5 shadow-2xl ${TONES[card.kind]}`}
+      className={`flex aspect-[9/16] w-[min(calc(100vw-2rem),24rem)] flex-col justify-between gap-3 overflow-hidden rounded-md p-5 shadow-2xl ${TONES[card.kind]}`}
     >
       <Stripes />
       <div className="flex flex-col gap-1">

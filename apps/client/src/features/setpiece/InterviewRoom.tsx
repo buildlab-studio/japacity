@@ -110,7 +110,7 @@ const NOTICE_ICONS: Record<NoticeCase, typeof Volume2 | null> = { on: Volume2, b
 function HeaderNotice() {
   const [notice, done] = useNoticeHere();
   const Icon = notice === null ? null : NOTICE_ICONS[notice.which];
-  const box = "flex items-center gap-2 self-start rounded-full border border-sheet-line bg-sheet-2 px-3 py-1.5 text-sm";
+  const box = "flex items-center gap-2 self-start rounded-[4px] border border-sheet-line bg-sheet-2 px-3 py-1.5 text-sm";
   const content =
     notice === null ? null : (
       <>

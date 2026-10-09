@@ -81,7 +81,7 @@ export function MoneyTab({ api, onRollback }: { api: AdminApi; onRollback: (char
             ) : (
               <ul className="flex flex-col gap-2" aria-label={words("admin.money.alarms")}>
                 {list.map((alarm, at) => (
-                  <li key={at} className="flex flex-wrap items-center gap-3 rounded-lg border border-bad p-3">
+                  <li key={at} className="flex flex-wrap items-center gap-3 rounded-md border border-bad p-3">
                     <span className="flex-1">{alarmWords(alarm)}</span>
                     {alarm.kind === "draw" ? null : (
                       <Button small onClick={() => onRollback(alarm.character)}>

@@ -26,7 +26,7 @@ function FrontPage() {
   const { era, month } = useView();
   if (era === null) return null;
   return (
-    <div className="flex flex-col gap-1 rounded-2xl border-2 border-ink bg-sheet-2 p-4" data-era={era.id}>
+    <div className="flex flex-col gap-1 rounded-md border-2 border-ink bg-sheet-2 p-4" data-era={era.id}>
       <p className="text-xs font-semibold tracking-widest text-text-2 uppercase">{say("ui.news.era")}</p>
       <h3 className="font-display text-3xl leading-tight">{nameOf(era.id)}</h3>
       <p className="text-sm font-medium text-text-2 tabular-nums" data-era-months>
@@ -53,7 +53,7 @@ function DrawnLine() {
   const last = lottery?.last ?? null;
   if (last === null) return null;
   return (
-    <div className="flex flex-col gap-1 rounded-2xl border border-sheet-line bg-sheet-2 p-4" data-news-drawn={last.draw}>
+    <div className="flex flex-col gap-1 rounded-md border border-sheet-line bg-sheet-2 p-4" data-news-drawn={last.draw}>
       <p className="text-xs font-semibold tracking-widest text-text-2 uppercase">{say("ui.news.draw-kicker")}</p>
       <p className="font-medium">{drawnWords(last)}</p>
     </div>

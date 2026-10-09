@@ -195,7 +195,7 @@ function GuidePage({ input, id, pages }: { input: SiteInput; id: Id<"guide">; pa
           {say("guide.page.opening", { date: shownDay(guide.checkedOn) })}
         </p>
         {input.stale.includes(id) ? (
-          <p role="note" className="rounded-lg border border-sheet-line bg-sheet-muted px-3 py-2 font-semibold" data-stale>
+          <p role="note" className="rounded-md border border-sheet-line bg-sheet-muted px-3 py-2 font-semibold" data-stale>
             {say("guide.page.stale")}
           </p>
         ) : null}

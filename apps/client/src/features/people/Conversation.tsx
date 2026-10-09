@@ -32,7 +32,7 @@ function Row({ row, mine, name }: { row: ConversationRow; mine: boolean; name: s
   return (
     <li className={`flex flex-col gap-0.5 ${mine ? "items-end" : "items-start"}`} data-row={row.id}>
       <span className="text-xs text-text-2">{mine ? say("ui.talk.you") : name}</span>
-      <span className={`max-w-[85%] rounded-2xl px-3 py-2 ${mine ? "bg-strong text-on-strong" : "border border-sheet-line bg-sheet-2"}`}>{words}</span>
+      <span className={`max-w-[85%] rounded-md px-3 py-2 ${mine ? "bg-strong text-on-strong" : "border border-sheet-line bg-sheet-2"}`}>{words}</span>
       {mine ? (
         row.readAt === null ? null : (
           <span className="flex items-center gap-1 text-xs text-text-2">
@@ -130,7 +130,7 @@ export function Conversation({ api, pair, name }: { api: PairApi; pair: string; 
   const mine = (row: ConversationRow) => them !== null && row.sender !== them;
 
   return (
-    <section aria-label={say("ui.talk.title")} className="flex flex-col gap-3 rounded-lg border border-sheet-line p-3" data-conversation={pair}>
+    <section aria-label={say("ui.talk.title")} className="flex flex-col gap-3 rounded-md border border-sheet-line p-3" data-conversation={pair}>
       <div className="flex items-start justify-between gap-2">
         <h4 className="flex items-center gap-2 font-semibold">
           <MessageCircle size={16} />
@@ -167,7 +167,7 @@ export function Conversation({ api, pair, name }: { api: PairApi; pair: string; 
             setPhraseId(event.target.value as Id<"phrase">);
             setFill(null);
           }}
-          className="min-h-11 rounded-lg border border-sheet-line bg-sheet px-3"
+          className="min-h-11 rounded-md border border-sheet-line bg-sheet px-3"
         >
           {PHRASES.map((entry) => (
             <option key={entry.id} value={entry.id}>
@@ -180,7 +180,7 @@ export function Conversation({ api, pair, name }: { api: PairApi; pair: string; 
             <label htmlFor={`${id}-fill`} className="text-sm font-medium">
               {say("ui.talk.fill")}
             </label>
-            <select id={`${id}-fill`} value={chosenFill ?? ""} onChange={(event) => setFill(event.target.value)} className="min-h-11 rounded-lg border border-sheet-line bg-sheet px-3">
+            <select id={`${id}-fill`} value={chosenFill ?? ""} onChange={(event) => setFill(event.target.value)} className="min-h-11 rounded-md border border-sheet-line bg-sheet px-3">
               {fills.map((value) => (
                 <option key={value} value={value}>
                   {fillWords(phrase.id, phrase.fill ?? "", value)}

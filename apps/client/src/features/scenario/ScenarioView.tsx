@@ -20,7 +20,7 @@ export function ScenarioView() {
         <p className="text-text-2">{say("ui.life.intro")}</p>
       </div>
       {notice === null ? null : (
-        <p role="status" className="rounded-xl border-l-4 border-l-accent bg-sheet-2 p-4">
+        <p role="status" className="rounded-md border-l-4 border-l-accent bg-sheet-2 p-4">
           {say(notice)}
         </p>
       )}

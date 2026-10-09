@@ -33,7 +33,7 @@ function Review({ title, what, required, send, onDone }: { title: string; what: 
     return body.checks.length === 0 ? words("admin.review.confirm.none", { outcome: verb, what }) : words("admin.review.confirm", { outcome: verb, what, checks: body.checks.join(", ") });
   };
   return (
-    <fieldset aria-labelledby={legend} className="flex flex-col gap-3 rounded-lg border border-sheet-line p-3">
+    <fieldset aria-labelledby={legend} className="flex flex-col gap-3 rounded-md border border-sheet-line p-3">
       <legend id={legend} className="px-1 font-semibold">
         {title}
       </legend>
@@ -57,7 +57,7 @@ function Review({ title, what, required, send, onDone }: { title: string; what: 
 function CreativeVersion({ api, creative, onDone }: { api: AdminApi; creative: ReviewedCreative; onDone: () => void }) {
   const name = words("admin.creative.title", { id: creative.id, version: creative.version });
   return (
-    <li data-creative={`${creative.id}@${String(creative.version)}`} className="flex flex-col gap-2 rounded-lg border border-sheet-line p-3">
+    <li data-creative={`${creative.id}@${String(creative.version)}`} className="flex flex-col gap-2 rounded-md border border-sheet-line p-3">
       <div className="flex flex-wrap items-center gap-2">
         <h4 className="font-semibold">{name}</h4>
         <Tag tone={creative.status === "approved" ? "good" : creative.status === "refused" ? "bad" : "accent"}>{creative.status}</Tag>
@@ -85,7 +85,7 @@ function CampaignCard({ api, row, onDone }: { api: AdminApi; row: CampaignRow; o
   const showing = campaign.status === "live" || campaign.status === "approved";
   const title = words("admin.campaign.title", { id: campaign.id });
   return (
-    <li data-campaign={campaign.id} className="flex flex-col gap-3 rounded-xl border border-sheet-line bg-sheet-2 p-4">
+    <li data-campaign={campaign.id} className="flex flex-col gap-3 rounded-md border border-sheet-line bg-sheet-2 p-4">
       <div className="flex flex-wrap items-center gap-2">
         <h3 className="font-semibold">{title}</h3>
         <Tag tone={STATUS_TONE[campaign.status]}>{campaign.status}</Tag>

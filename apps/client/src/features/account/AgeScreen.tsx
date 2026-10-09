@@ -57,7 +57,7 @@ export function AgeScreen({ account, sitekey, load, onStanding }: AgeScreenProps
       </div>
       <label className="flex flex-col gap-1">
         <span className="text-sm font-medium">{say("ui.account.age.label")}</span>
-        <input className="min-h-11 rounded-lg border border-sheet-line bg-sheet-2 px-3 text-base" type="date" autoComplete="bday" value={birth} onChange={(event) => setBirth(event.target.value)} />
+        <input className="min-h-11 rounded-md border border-sheet-line bg-sheet-2 px-3 text-base" type="date" autoComplete="bday" value={birth} onChange={(event) => setBirth(event.target.value)} />
       </label>
       <div>
         <Button type="submit" variant="primary" disabled={busy}>

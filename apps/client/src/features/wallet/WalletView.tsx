@@ -33,7 +33,7 @@ function Field({ label, children }: { label: string; children: (id: string) => R
   );
 }
 
-const inputClass = "min-h-11 rounded-lg border border-sheet-line bg-sheet-2 px-3";
+const inputClass = "min-h-11 rounded-md border border-sheet-line bg-sheet-2 px-3";
 
 function CurrencySelect({ id, value, onChange, exclude }: { id: string; value: Currency; onChange: (value: Currency) => void; exclude?: Currency }) {
   const view = useView();
@@ -54,7 +54,7 @@ function Choice<T extends string>({ name, value, options, onChange }: { name: st
       {options.map((option) => (
         <label
           key={option.value}
-          className={`flex min-h-11 cursor-pointer items-center gap-2 rounded-lg border px-3 ${value === option.value ? "border-ink bg-sheet-muted" : "border-sheet-line"}`}
+          className={`flex min-h-11 cursor-pointer items-center gap-2 rounded-md border px-3 ${value === option.value ? "border-ink bg-sheet-muted" : "border-sheet-line"}`}
         >
           <input type="radio" name={name} value={option.value} checked={value === option.value} onChange={() => onChange(option.value)} />
           {option.label}

@@ -110,7 +110,7 @@ export function AccountGate({ load = loadTurnstile, sitekey, embedded = false }:
     <main className="mx-auto flex min-h-dvh max-w-md flex-col gap-6 px-4 py-8">
       <p className="text-xl font-bold">{say("ui.game")}</p>
       {notice === null ? null : (
-        <p role="status" className="rounded-xl border-l-4 border-l-accent bg-sheet-2 p-4">
+        <p role="status" className="rounded-md border-l-4 border-l-accent bg-sheet-2 p-4">
           {say(notice)}
         </p>
       )}

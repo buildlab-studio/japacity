@@ -82,7 +82,7 @@ function Sheet({ ask, formatMoney, icon, main: counted }: AskSheetProps & { main
       }}
     >
       <Dialog.Portal>
-        <Dialog.Backdrop className="fade fixed inset-0 z-40 bg-gradient-to-t from-scrim to-transparent data-closed:pointer-events-none data-ending-style:pointer-events-none" />
+        <Dialog.Backdrop className="fade fixed inset-0 z-40 bg-scrim/60 data-closed:pointer-events-none data-ending-style:pointer-events-none" />
         <Dialog.Popup className="fixed inset-x-0 bottom-0 z-50 outline-hidden data-closed:pointer-events-none data-ending-style:pointer-events-none" data-ask-form={ask?.form}>
           {ask === null ? null : ask.form === "card" ? <Card ask={ask} main={main} formatMoney={formatMoney} icon={icon} /> : <Slip ask={ask} main={main} formatMoney={formatMoney} />}
         </Dialog.Popup>
@@ -100,7 +100,7 @@ function Card({ ask, main, formatMoney, icon }: { ask: Ask; main: Main; formatMo
           <Dialog.Description className="label label-strong truncate">{ask.who}</Dialog.Description>
           <Dialog.Title className="title text-[24px] leading-none">{ask.title}</Dialog.Title>
         </div>
-        <Dialog.Close aria-label={say("ui.world.close")} className="absolute top-2 right-2 flex size-9 items-center justify-center rounded-full text-on-strong/80">
+        <Dialog.Close aria-label={say("ui.world.close")} className="absolute top-2 right-2 flex size-9 items-center justify-center rounded-[5px] text-on-strong/80">
           <X size={18} />
         </Dialog.Close>
       </div>

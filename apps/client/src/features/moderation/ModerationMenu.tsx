@@ -54,7 +54,7 @@ export function FeedbackForm({ moderation, screen, max }: { moderation: Moderati
     >
       <label className="flex flex-col gap-1">
         <span className="font-medium">{words("ui.feedback.label")}</span>
-        <textarea value={text} rows={5} onChange={(event) => setText(event.target.value)} className="rounded-lg border border-sheet-line bg-sheet-2 p-3 text-ink" />
+        <textarea value={text} rows={5} onChange={(event) => setText(event.target.value)} className="rounded-md border border-sheet-line bg-sheet-2 p-3 text-ink" />
       </label>
       <p className={`text-sm ${used > max ? "text-bad" : "text-text-2"}`}>{words("ui.feedback.count", { used, max })}</p>
       <div>
@@ -118,7 +118,7 @@ export function NoticeView({ moderation, standing, onChange }: { moderation: Mod
       {standing.actions.length === 0 ? null : (
         <ul className="flex flex-col gap-3">
           {standing.actions.map((action) => (
-            <li key={action.entry} className="flex flex-col gap-2 rounded-xl border border-sheet-line bg-sheet-2 p-4">
+            <li key={action.entry} className="flex flex-col gap-2 rounded-md border border-sheet-line bg-sheet-2 p-4">
               <p>{actionWords(action)}</p>
               {action.appeal === null ? (
                 <>

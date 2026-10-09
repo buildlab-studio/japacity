@@ -166,9 +166,9 @@ function Slots() {
       {plan.map((pick, index) => (
         <li
           key={index}
-          className={`flex min-h-14 items-center gap-2 rounded-xl border px-3 py-2 ${pick === null ? "border-dashed border-sheet-line text-text-2" : "border-ink/60 bg-sheet-2"}`}
+          className={`flex min-h-14 items-center gap-2 rounded-md border px-3 py-2 ${pick === null ? "border-dashed border-sheet-line text-text-2" : "border-ink/60 bg-sheet-2"}`}
         >
-          <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-sheet-muted text-xs font-semibold text-ink">
+          <span className="flex size-6 shrink-0 items-center justify-center rounded-[4px] bg-sheet-muted text-xs font-semibold text-ink">
             {index + 1}
           </span>
           <span className="flex-1">{pick === null ? say("ui.month.slot-empty") : pickWords(pick, view)}</span>
@@ -176,7 +176,7 @@ function Slots() {
             <button
               type="button"
               aria-label={`${say("ui.month.slot-remove")}: ${pickWords(pick, view)}`}
-              className="inline-flex size-9 items-center justify-center rounded-lg hover:bg-sheet-muted"
+              className="inline-flex size-9 items-center justify-center rounded-md hover:bg-sheet-muted"
               onClick={() => setSlot(index, null)}
             >
               <X size={16} />
@@ -358,7 +358,7 @@ function ActivityCard({ option }: { option: ActivityOption }) {
                 id={selectId}
                 value={chosenParam}
                 onChange={(event) => setParam(event.target.value)}
-                className="min-h-11 rounded-lg border border-sheet-line bg-sheet px-3"
+                className="min-h-11 rounded-md border border-sheet-line bg-sheet px-3"
               >
                 {option.params?.map((value) => (
                   <option key={value} value={value}>
@@ -429,7 +429,7 @@ export function ActivityView() {
           ))}
         </ul>
         {later.length === 0 ? null : (
-          <details className="rounded-xl border border-sheet-line bg-sheet-2 p-4" data-later>
+          <details className="rounded-md border border-sheet-line bg-sheet-2 p-4" data-later>
             <summary className="cursor-pointer font-semibold">
               {say("ui.activity.later")} <span className="font-normal text-text-2">({later.length})</span>
             </summary>

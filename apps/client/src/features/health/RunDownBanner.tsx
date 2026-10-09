@@ -14,7 +14,7 @@ export function RunDownBanner({ className = "" }: { className?: string }) {
   if (!runDown) return null;
   const wellbeing = qualities.find((quality) => quality.id === WELLBEING)?.value ?? 0;
   return (
-    <div role="alert" data-run-down className={`flex items-start gap-3 rounded-2xl border-2 border-bad bg-sheet-2 p-4 ${className}`}>
+    <div role="alert" data-run-down className={`flex items-start gap-3 rounded-md border-2 border-bad bg-sheet-2 p-4 ${className}`}>
       <HeartPulse size={28} className="mt-0.5 shrink-0 text-bad" />
       <div className="flex flex-col gap-1">
         <p className="text-lg font-bold">{say("ui.health.run-down")}</p>

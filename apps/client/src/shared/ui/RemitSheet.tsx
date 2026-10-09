@@ -15,7 +15,7 @@ import { CURRENCIES, formatBp, formatMoney, toMinor } from "../words/format";
 import { say } from "../words/text";
 import { localCurrency } from "../words/wayHome";
 
-const inputClass = "min-h-11 rounded-lg border border-sheet-line bg-sheet-2 px-3";
+const inputClass = "min-h-11 rounded-md border border-sheet-line bg-sheet-2 px-3";
 
 function isForeign(currency: Currency): currency is ForeignCurrency {
   return currency !== "NGN";
@@ -89,7 +89,7 @@ function RemitForm({ onDone }: { onDone: () => void }) {
             <label
               key={option}
               data-channel={option}
-              className={`flex cursor-pointer items-start gap-3 rounded-lg border p-3 ${channel === option ? "border-ink bg-sheet-muted" : "border-sheet-line"}`}
+              className={`flex cursor-pointer items-start gap-3 rounded-md border p-3 ${channel === option ? "border-ink bg-sheet-muted" : "border-sheet-line"}`}
             >
               <input type="radio" name="channel" value={option} checked={channel === option} onChange={() => setChannel(option)} className="mt-1" />
               <span className="flex flex-1 flex-col gap-0.5">

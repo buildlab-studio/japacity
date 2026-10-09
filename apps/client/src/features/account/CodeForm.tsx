@@ -27,7 +27,7 @@ export interface CodeFormProps {
   onSignedIn: () => void;
 }
 
-const FIELD = "min-h-11 rounded-lg border border-sheet-line bg-sheet-2 px-3 text-base";
+const FIELD = "min-h-11 rounded-md border border-sheet-line bg-sheet-2 px-3 text-base";
 
 export function CodeForm({ account, bot = null, spentBot, email: known, sendLabel, confirm, goLabel, onSignedIn }: CodeFormProps) {
   const [email, setEmail] = useState(known ?? "");

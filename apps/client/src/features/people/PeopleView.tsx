@@ -100,7 +100,7 @@ function Candidates() {
     <div className="flex flex-col gap-2">
       <h3 className="font-semibold">{say("ui.people.candidates")}</h3>
       {chosen === null ? null : (
-        <p role="status" className="rounded-lg bg-sheet-muted p-3 text-sm">
+        <p role="status" className="rounded-md bg-sheet-muted p-3 text-sm">
           {say("ui.people.chosen", { name: nameOf(chosen) })}
         </p>
       )}
@@ -206,7 +206,7 @@ export function PeopleView() {
           </>
         )}
         {ended.length === 0 ? null : (
-          <details className="rounded-xl border border-sheet-line bg-sheet-2 p-4" data-ended>
+          <details className="rounded-md border border-sheet-line bg-sheet-2 p-4" data-ended>
             <summary className="cursor-pointer font-semibold">
               {say("ui.people.ended.title")} <span className="font-normal text-text-2">({ended.length})</span>
             </summary>

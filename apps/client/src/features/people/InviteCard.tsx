@@ -32,7 +32,7 @@ function CardFace({ looking, fill }: { looking: Looking; fill: string | null }) 
   const view = useView();
   const { percent, route } = view.japacity;
   return (
-    <figure className="flex flex-col gap-1 rounded-xl border-2 border-ink bg-sheet p-4" data-invite-card>
+    <figure className="flex flex-col gap-1 rounded-md border-2 border-ink bg-sheet p-4" data-invite-card>
       <p className="font-display text-xl">{nameOf(view.scenario)}</p>
       <p className="text-sm">
         {percent === null ? say("ui.people.invite.japacity-none") : say("ui.people.invite.japacity", { percent: `${String(percent)}%` })}
@@ -141,7 +141,7 @@ export function InviteMaker({ slot }: { slot: string }) {
       <label htmlFor={`${id}-fill`} className="text-sm font-medium">
         {say("ui.people.invite.fill")}
       </label>
-      <select id={`${id}-fill`} value={fill} onChange={(event) => setFill(event.target.value)} className="min-h-11 rounded-lg border border-sheet-line bg-sheet px-3">
+      <select id={`${id}-fill`} value={fill} onChange={(event) => setFill(event.target.value)} className="min-h-11 rounded-md border border-sheet-line bg-sheet px-3">
         <option value="">{say("ui.people.invite.fill.none")}</option>
         {fills.map((value) => (
           <option key={value} value={value}>

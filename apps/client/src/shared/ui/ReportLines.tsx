@@ -14,7 +14,7 @@ function Line({ line }: { line: ReportLine }) {
   return (
     <li
       data-attention={attention ? "true" : undefined}
-      className={`flex items-start gap-2 rounded-lg py-2 ${attention ? "border-l-4 border-l-accent bg-sheet-2 pl-3" : ""}`}
+      className={`flex items-start gap-2 rounded-md py-2 ${attention ? "border-l-4 border-l-accent bg-sheet-2 pl-3" : ""}`}
     >
       <Icon size={18} className={`mt-0.5 shrink-0 ${toneClass}`} />
       <div className="flex flex-1 flex-col gap-1">

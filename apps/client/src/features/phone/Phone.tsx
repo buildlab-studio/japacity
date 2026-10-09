@@ -59,7 +59,7 @@ export function Phone({ apps, onClose, area, when, onOpen, now = realNow, start 
     onOpen?.(id);
   };
   const grow = (
-    <button type="button" onClick={() => setGrown(!grown)} aria-label={phoneWords(grown ? "phone.shrink" : "phone.grow")} aria-pressed={grown} data-grow className="press flex size-9 items-center justify-center rounded-full">
+    <button type="button" onClick={() => setGrown(!grown)} aria-label={phoneWords(grown ? "phone.shrink" : "phone.grow")} aria-pressed={grown} data-grow className="press flex size-9 items-center justify-center rounded-[5px]">
       {grown ? <Minimize2 size={17} aria-hidden /> : <Maximize2 size={17} aria-hidden />}
     </button>
   );
@@ -116,7 +116,7 @@ export function Phone({ apps, onClose, area, when, onOpen, now = realNow, start 
               ) : (
                 <>
                   <div className="band flex items-center gap-1 px-2 pt-3 pb-2">
-                    <button type="button" onClick={() => setOpen(null)} aria-label={phoneWords("phone.back")} data-phone-back className="press flex size-9 items-center justify-center rounded-full">
+                    <button type="button" onClick={() => setOpen(null)} aria-label={phoneWords("phone.back")} data-phone-back className="press flex size-9 items-center justify-center rounded-[5px]">
                       <ChevronLeft size={22} aria-hidden />
                     </button>
                     <h2 className="title min-w-0 flex-1 truncate text-[20px]">{app.name}</h2>
@@ -129,7 +129,7 @@ export function Phone({ apps, onClose, area, when, onOpen, now = realNow, start 
               )}
               <div className={`flex justify-center pt-1 pb-2 ${app === null ? "wall" : "bg-sheet"}`}>
                 <button type="button" onClick={onClose} aria-label={phoneWords("phone.close")} data-home-bar className="flex h-6 w-40 items-center justify-center">
-                  <span className={`h-[5px] w-28 rounded-full ${app === null ? "bg-wall-text/70" : "bg-text/40"}`} />
+                  <span className={`h-[5px] w-28 rounded-[2px] ${app === null ? "bg-wall-text/70" : "bg-text/40"}`} />
                 </button>
               </div>
             </div>

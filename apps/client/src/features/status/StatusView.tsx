@@ -28,7 +28,7 @@ export function ClockBanner({ className = "" }: { className?: string }) {
   const clock = view.status?.clock ?? null;
   if (clock === null || view.status === null) return null;
   return (
-    <div role="alert" data-clock className={`flex items-center gap-4 rounded-2xl bg-bad p-4 text-on-strong ${className}`}>
+    <div role="alert" data-clock className={`flex items-center gap-4 rounded-md bg-bad p-4 text-on-strong ${className}`}>
       <AlarmClock size={36} className="shrink-0" />
       <p className="font-display text-6xl leading-none tabular-nums">{clock}</p>
       <div className="flex flex-col">

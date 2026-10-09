@@ -24,9 +24,9 @@ function MarkMeter({ file }: { file: File }) {
         aria-valuemin={0}
         aria-valuemax={MARK_MAX}
         aria-valuenow={file.mark}
-        className="relative h-4 w-full rounded-full bg-sheet-muted"
+        className="relative h-4 w-full rounded-[2px] bg-sheet-muted"
       >
-        <div className="h-full rounded-full bg-accent" style={{ width: `${String(file.mark)}%` }} />
+        <div className="h-full rounded-[2px] bg-accent" style={{ width: `${String(file.mark)}%` }} />
         {file.needs.map((need) => (
           <span
             key={need.id}

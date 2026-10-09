@@ -21,7 +21,7 @@ export function Card({ children, className = "", tone = "plain", ...rest }: Comp
   const toneClass =
     tone === "attention" ? "border-l-4 border-l-accent" : tone === "muted" ? "opacity-80" : "";
   return (
-    <div {...rest} className={`rounded-xl border border-sheet-line bg-sheet-2 p-4 ${toneClass} ${className}`}>
+    <div {...rest} className={`rounded-md border border-sheet-line bg-sheet-2 p-4 ${toneClass} ${className}`}>
       {children}
     </div>
   );
@@ -40,5 +40,5 @@ export function Tag({ children, tone = "plain" }: { children: ReactNode; tone?: 
         : tone === "bad"
           ? "border border-bad text-bad"
           : "border border-sheet-line text-text-2";
-  return <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${toneClass}`}>{children}</span>;
+  return <span className={`inline-flex items-center gap-1 rounded-[4px] px-2 py-0.5 text-xs font-medium ${toneClass}`}>{children}</span>;
 }

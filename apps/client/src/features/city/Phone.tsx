@@ -32,13 +32,13 @@ export function Phone({ apps, onClose }: { apps: readonly PhoneApp[]; onClose: (
             <span className="flex-1 px-1 text-sm font-semibold text-text-2">{cityWords("city.phone")}</span>
           ) : (
             <>
-              <button type="button" onClick={() => setOpen(null)} aria-label={cityWords("city.phone.back")} className="inline-flex size-9 items-center justify-center rounded-lg hover:bg-sheet-muted">
+              <button type="button" onClick={() => setOpen(null)} aria-label={cityWords("city.phone.back")} className="inline-flex size-9 items-center justify-center rounded-md hover:bg-sheet-muted">
                 <ChevronLeft size={20} />
               </button>
               <h2 className="flex-1 truncate font-display text-lg">{app.name}</h2>
             </>
           )}
-          <button type="button" onClick={onClose} aria-label={cityWords("city.close")} className="inline-flex size-9 items-center justify-center rounded-lg hover:bg-sheet-muted">
+          <button type="button" onClick={onClose} aria-label={cityWords("city.close")} className="inline-flex size-9 items-center justify-center rounded-md hover:bg-sheet-muted">
             <X size={18} />
           </button>
         </div>
@@ -46,8 +46,8 @@ export function Phone({ apps, onClose }: { apps: readonly PhoneApp[]; onClose: (
           <ul className="grid grid-cols-3 gap-4 p-5" aria-label={cityWords("city.phone.apps")}>
             {apps.map((candidate) => (
               <li key={candidate.id} className="flex flex-col items-center gap-1.5">
-                <button type="button" onClick={() => setOpen(candidate.id)} data-app={candidate.id} className="relative flex size-16 items-center justify-center rounded-2xl text-2xl font-bold text-white shadow-md" style={undefined}>
-                  <span className={`absolute inset-0 rounded-2xl ${candidate.tile}`} aria-hidden />
+                <button type="button" onClick={() => setOpen(candidate.id)} data-app={candidate.id} className="relative flex size-16 items-center justify-center rounded-md text-2xl font-bold text-white shadow-md" style={undefined}>
+                  <span className={`absolute inset-0 rounded-md ${candidate.tile}`} aria-hidden />
                   <span className="relative">{candidate.letter}</span>
                   {candidate.waiting === true ? <span className="absolute -top-1 -right-1 size-3.5 rounded-full border-2 border-on-strong bg-bad" aria-hidden /> : null}
                 </button>

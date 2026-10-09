@@ -39,7 +39,7 @@ function useBoard(api: BoardsApi, board: BoardName): { asked: Asked; again: () =
 
 function Picker<T extends string>({ legend, options, chosen, words, onChoose }: { legend: string; options: readonly T[]; chosen: T; words: (option: T) => string; onChoose: (option: T) => void }) {
   return (
-    <div role="radiogroup" aria-label={legend} className="grid grid-cols-2 gap-1 rounded-xl border border-sheet-line bg-sheet-muted p-1">
+    <div role="radiogroup" aria-label={legend} className="grid grid-cols-2 gap-1 rounded-md border border-sheet-line bg-sheet-muted p-1">
       {options.map((option) => (
         <button
           key={option}
@@ -48,7 +48,7 @@ function Picker<T extends string>({ legend, options, chosen, words, onChoose }: 
           aria-checked={option === chosen}
           data-pick={option}
           onClick={() => onChoose(option)}
-          className={`min-h-11 rounded-lg px-3 text-sm font-medium focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink ${option === chosen ? "bg-sheet-2 text-ink shadow-sm" : "text-text-2"}`}
+          className={`min-h-11 rounded-md px-3 text-sm font-medium focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink ${option === chosen ? "bg-sheet-2 text-ink shadow-sm" : "text-text-2"}`}
         >
           {words(option)}
         </button>

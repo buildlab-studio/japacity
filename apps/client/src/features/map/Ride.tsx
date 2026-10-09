@@ -230,8 +230,8 @@ export function Ride({ way, place, drawing, own = FALLBACK_OWN, seed = 0, onDone
             <div className="title truncate text-[17px] leading-tight" data-ride-title>
               {title}
             </div>
-            <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-on-strong/20" role="progressbar" aria-label={title} aria-valuemin={0} aria-valuemax={100}>
-              <div className="h-full origin-left rounded-full bg-signal" style={{ transform: `scaleX(${started ? 1 : 0})`, transition: `transform ${String(RIDE_MS - 30)}ms linear` }} data-ride-progress />
+            <div className="mt-1.5 h-1.5 overflow-hidden rounded-[2px] bg-on-strong/20" role="progressbar" aria-label={title} aria-valuemin={0} aria-valuemax={100}>
+              <div className="h-full origin-left rounded-[2px] bg-signal" style={{ transform: `scaleX(${started ? 1 : 0})`, transition: `transform ${String(RIDE_MS - 30)}ms linear` }} data-ride-progress />
             </div>
           </div>
           <button type="button" onClick={end} className="chip press h-9 shrink-0 px-3 text-[13px] font-bold" data-ride-skip>

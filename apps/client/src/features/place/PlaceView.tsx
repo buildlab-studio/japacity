@@ -90,7 +90,7 @@ function WayHomeCard() {
         </div>
       </div>
       {shape === null ? null : (
-        <div className="flex flex-col gap-1 rounded-lg bg-sheet-muted p-3 text-sm">
+        <div className="flex flex-col gap-1 rounded-md bg-sheet-muted p-3 text-sm">
           <p className="font-medium">{say(`ui.place.shape-now.${shape}`)}</p>
           <p>{say("ui.place.standing", { change: signed(standing) })}</p>
           <p className="text-text-2">{say("ui.place.what-closes")}</p>

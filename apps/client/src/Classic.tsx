@@ -118,7 +118,7 @@ function TabBar({ tabs, current, onChange }: { tabs: TabSet; current: Tab; onCha
               <Icon size={20} />
               {say(`ui.tab.${id}`)}
               {id === "month" && waiting ? <span className="absolute top-2 right-[30%] size-2 rounded-full bg-accent ring-2 ring-sheet" /> : null}
-              {id === current ? <span className="absolute inset-x-4 top-0 h-0.5 rounded-full bg-ink" /> : null}
+              {id === current ? <span className="absolute inset-x-4 top-0 h-0.5 bg-ink" /> : null}
             </button>
           </li>
         ))}
@@ -159,7 +159,7 @@ function MonthGroup({ tab }: { tab: Tab }) {
 function ActionBar() {
   return (
     // One action bar: fixed above the tabs on a phone, at the foot of the plan on a desktop.
-    <div className="fixed inset-x-0 bottom-14 z-20 border-t border-sheet-line bg-sheet px-4 py-3 lg:sticky lg:bottom-4 lg:rounded-xl lg:border lg:bg-sheet-2 lg:shadow-lg">
+    <div className="fixed inset-x-0 bottom-14 z-20 border-t border-sheet-line bg-sheet px-4 py-3 lg:sticky lg:bottom-4 lg:rounded-md lg:border lg:bg-sheet-2 lg:shadow-lg">
       <TurnBar />
     </div>
   );

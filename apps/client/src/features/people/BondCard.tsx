@@ -105,7 +105,7 @@ function Pending({ bond }: { bond: BondView }) {
   const { mine, theirs } = bond.pending;
   if (mine === null && theirs === null) return null;
   return (
-    <div className="flex flex-col gap-2 rounded-lg bg-sheet-muted p-3 text-sm">
+    <div className="flex flex-col gap-2 rounded-md bg-sheet-muted p-3 text-sm">
       {mine === null ? null : (
         <div className="flex flex-wrap items-center gap-2">
           <p className="flex-1">
@@ -149,7 +149,7 @@ function JointForm({ bond, onSent }: { bond: BondView; onSent: (lines: ReportLin
   const chosen = route !== null && routes.includes(route) ? route : (routes[0] ?? null);
   return (
     <form
-      className="flex flex-col gap-2 rounded-lg border border-sheet-line p-3 text-sm"
+      className="flex flex-col gap-2 rounded-md border border-sheet-line p-3 text-sm"
       aria-label={say("ui.people.propose.joint")}
       onSubmit={(event) => {
         event.preventDefault();
@@ -162,7 +162,7 @@ function JointForm({ bond, onSent }: { bond: BondView; onSent: (lines: ReportLin
       <label htmlFor={`${id}-route`} className="font-medium">
         {say("ui.people.propose.joint.route")}
       </label>
-      <select id={`${id}-route`} value={chosen ?? ""} onChange={(event) => setRoute(event.target.value as Id<"route">)} className="min-h-11 rounded-lg border border-sheet-line bg-sheet px-3">
+      <select id={`${id}-route`} value={chosen ?? ""} onChange={(event) => setRoute(event.target.value as Id<"route">)} className="min-h-11 rounded-md border border-sheet-line bg-sheet px-3">
         {routes.map((value) => (
           <option key={value} value={value}>
             {nameOf(value)}
@@ -262,7 +262,7 @@ function Joint({ bond }: { bond: BondView }) {
       if (change.standInMay !== undefined) setStandIn(change.standInMay);
     });
   return (
-    <div className="flex flex-col gap-2 rounded-lg border border-sheet-line p-3 text-sm" data-joint>
+    <div className="flex flex-col gap-2 rounded-md border border-sheet-line p-3 text-sm" data-joint>
       <h4 className="font-semibold">{say("ui.people.joint")}</h4>
       <p>{say("ui.people.joint.on", { route: nameOf(joint.route), lead: say(`ui.people.joint.lead.${joint.lead}`) })}</p>
       {joint.myScore === null || joint.theirScore === null ? null : <p>{say("ui.people.joint.scores", { mine: formatNumber(joint.myScore), theirs: formatNumber(joint.theirScore) })}</p>}
@@ -315,7 +315,7 @@ function End({ bond }: { bond: BondView }) {
     );
   }
   return (
-    <div role="group" aria-label={say("ui.people.end")} className="flex flex-col gap-2 rounded-lg border border-bad p-3 text-sm">
+    <div role="group" aria-label={say("ui.people.end")} className="flex flex-col gap-2 rounded-md border border-bad p-3 text-sm">
       <p>{costWords}</p>
       {cost.joint ? <p>{say("ui.people.end.joint")}</p> : null}
       <div className="flex flex-wrap gap-2">
@@ -366,7 +366,7 @@ function Answered({ lines }: { lines: ReportLine[] }) {
   const declined = lines.some((line) => line.key === DECLINED);
   const months = content.tuning.people.proposeCooldown;
   return (
-    <div role="status" className="flex flex-col gap-1 rounded-lg bg-sheet-muted p-3 text-sm">
+    <div role="status" className="flex flex-col gap-1 rounded-md bg-sheet-muted p-3 text-sm">
       <ReportLines lines={lines} />
       {declined ? <p className="text-text-2">{sayCount("ui.people.declined.cooldown", months, { months })}</p> : null}
     </div>

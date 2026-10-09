@@ -164,8 +164,8 @@ export function Results({ place }: { place: string }) {
 function Bar({ value, max, label }: { value: number; max: number; label: string }) {
   const share = max <= 0 ? 0 : Math.min(1, Math.max(0, value / max));
   return (
-    <div role="progressbar" aria-label={label} aria-valuemin={0} aria-valuemax={max} aria-valuenow={Math.min(value, max)} className="h-2.5 w-full overflow-hidden rounded-full bg-sheet-muted">
-      <div className="h-full rounded-full bg-strong transition-[width] duration-450" style={{ width: `${String(share * 100)}%` }} />
+    <div role="progressbar" aria-label={label} aria-valuemin={0} aria-valuemax={max} aria-valuenow={Math.min(value, max)} className="h-2.5 w-full overflow-hidden rounded-[2px] bg-sheet-muted">
+      <div className="h-full rounded-[2px] bg-strong transition-[width] duration-450" style={{ width: `${String(share * 100)}%` }} />
     </div>
   );
 }

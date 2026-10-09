@@ -106,7 +106,7 @@ export function GatePanel({ route }: { route: RouteView }) {
   if (gate === null || gate.gate === "road" || route.state === "heard" || route.state === "unknown") return null;
   const currency = countryCurrency(route);
   return (
-    <div className="flex flex-col gap-2 rounded-lg border border-sheet-line p-3" data-gate={gate.gate}>
+    <div className="flex flex-col gap-2 rounded-md border border-sheet-line p-3" data-gate={gate.gate}>
       <h4 className="text-sm font-semibold">{say(`ui.gate.${gate.gate}.title`)}</h4>
       {gate.gate === "sponsor" ? <Sponsor gate={gate} currency={currency} /> : null}
       {gate.gate === "points" ? <Points gate={gate} month={month} /> : null}

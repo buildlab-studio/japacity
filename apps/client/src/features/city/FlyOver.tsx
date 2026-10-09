@@ -211,7 +211,7 @@ export function FlyOver({ pins, country, countries, drawing, diveTo = null, onGo
       mark.type = "button";
       mark.textContent = entry.pin.name;
       mark.dataset.pin = entry.pin.id;
-      mark.className = `pointer-events-auto absolute -translate-x-1/2 -translate-y-full rounded-lg px-2 py-1 text-xs font-bold whitespace-nowrap shadow ${pinClass(entry.pin.state)}`;
+      mark.className = `pointer-events-auto absolute -translate-x-1/2 -translate-y-full rounded-md px-2 py-1 text-xs font-bold whitespace-nowrap shadow ${pinClass(entry.pin.state)}`;
       mark.onclick = () => setCard(entry.pin);
       labelBox.append(mark);
       return { mark, entry };
@@ -383,7 +383,7 @@ export function FlyOver({ pins, country, countries, drawing, diveTo = null, onGo
         <ul className="absolute inset-x-3 top-28 flex flex-col gap-1" aria-label={cityWords("city.places")}>
           {pins.map((pin) => (
             <li key={pin.id}>
-              <button type="button" data-pin={pin.id} onClick={() => setCard(pin)} className={`w-full rounded-lg px-3 py-2 text-left text-sm font-semibold ${pinClass(pin.state)}`}>
+              <button type="button" data-pin={pin.id} onClick={() => setCard(pin)} className={`w-full rounded-md px-3 py-2 text-left text-sm font-semibold ${pinClass(pin.state)}`}>
                 {pin.name}
               </button>
             </li>
@@ -398,20 +398,20 @@ export function FlyOver({ pins, country, countries, drawing, diveTo = null, onGo
             aria-haspopup="listbox"
             aria-expanded={menu}
             onClick={() => setMenu((open) => !open)}
-            className="inline-flex min-h-9 items-center gap-1 rounded-xl bg-ink px-3 text-sm font-bold text-accent shadow"
+            className="inline-flex min-h-9 items-center gap-1 rounded-md bg-ink px-3 text-sm font-bold text-accent shadow"
           >
             {country.name}
             <ChevronDown size={14} />
           </button>
           {menu ? (
-            <ul role="listbox" aria-label={cityWords("city.map.country")} className="absolute top-full left-0 mt-1 flex min-w-64 flex-col gap-1 rounded-2xl bg-sheet-2 p-1.5 shadow-lg">
+            <ul role="listbox" aria-label={cityWords("city.map.country")} className="absolute top-full left-0 mt-1 flex min-w-64 flex-col gap-1 rounded-md bg-sheet-2 p-1.5 shadow-lg">
               {countries.map((choice) => (
                 <li
                   key={choice.id}
                   role="option"
                   aria-selected={choice.id === country.id}
                   aria-disabled={choice.locked !== null}
-                  className={`flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold ${choice.id === country.id ? "bg-accent/30" : ""} ${choice.locked === null ? "" : "text-text-2"}`}
+                  className={`flex items-center gap-2 rounded-md px-3 py-2 text-sm font-semibold ${choice.id === country.id ? "bg-accent/30" : ""} ${choice.locked === null ? "" : "text-text-2"}`}
                 >
                   {choice.locked === null ? null : <Lock size={12} />}
                   <span className="whitespace-nowrap">{choice.name}</span>
@@ -421,7 +421,7 @@ export function FlyOver({ pins, country, countries, drawing, diveTo = null, onGo
             </ul>
           ) : null}
         </div>
-        <button type="button" onClick={onClose} aria-label={cityWords("city.close")} className="pointer-events-auto inline-flex size-10 items-center justify-center rounded-xl bg-sheet/90 shadow">
+        <button type="button" onClick={onClose} aria-label={cityWords("city.close")} className="pointer-events-auto inline-flex size-10 items-center justify-center rounded-md bg-sheet/90 shadow">
           <X size={18} />
         </button>
       </div>
@@ -429,9 +429,9 @@ export function FlyOver({ pins, country, countries, drawing, diveTo = null, onGo
       {card === null ? (
         <p className="pointer-events-none absolute inset-x-0 bottom-[max(0.75rem,env(safe-area-inset-bottom))] text-center text-xs text-text-2">{cityWords("city.map.hint")}</p>
       ) : (
-        <div role="dialog" aria-label={card.name} data-map-card className="absolute inset-x-0 bottom-0 flex flex-col gap-3 rounded-t-3xl bg-strong p-4 pb-[max(1rem,env(safe-area-inset-bottom))] text-on-strong shadow-2xl">
+        <div role="dialog" aria-label={card.name} data-map-card className="absolute inset-x-0 bottom-0 flex flex-col gap-3 rounded-t-md bg-strong p-4 pb-[max(1rem,env(safe-area-inset-bottom))] text-on-strong shadow-2xl">
           <div className="flex items-center gap-2">
-            <span className={`rounded-full px-2.5 py-0.5 text-xs font-bold ${pinClass(card.state)}`}>{tagWords(card.state)}</span>
+            <span className={`rounded-[4px] px-2.5 py-0.5 text-xs font-bold ${pinClass(card.state)}`}>{tagWords(card.state)}</span>
             <h2 className="font-display text-xl leading-tight">{card.name}</h2>
           </div>
           <p className="text-sm opacity-90">{lineWords(card)}</p>

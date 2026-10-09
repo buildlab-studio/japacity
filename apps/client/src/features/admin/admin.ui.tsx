@@ -12,7 +12,7 @@ export type Reply = { ok: true } | AdminRefusal;
 /** A refusal as the server worded it, with its code and any checks it named as missing. */
 export function Refusal({ reply }: { reply: AdminRefusal }) {
   return (
-    <div role="alert" className="flex flex-col gap-1 rounded-lg border border-bad p-3 text-bad">
+    <div role="alert" className="flex flex-col gap-1 rounded-md border border-bad p-3 text-bad">
       <p>{reply.code === undefined ? words("admin.refused", { detail: reply.detail }) : words("admin.refused.code", { code: reply.code, detail: reply.detail })}</p>
       {reply.missing === undefined || reply.missing.length === 0 ? null : <p>{words("admin.missing", { missing: reply.missing.join(", ") })}</p>}
     </div>
@@ -46,7 +46,7 @@ export function Loaded<T extends Reply>({ reply, children }: { reply: T | null; 
 
 export function Table({ caption, head, rows }: { caption: string; head: readonly string[]; rows: readonly (readonly ReactNode[])[] }) {
   return (
-    <div className="max-w-full overflow-x-auto rounded-lg border border-sheet-line">
+    <div className="max-w-full overflow-x-auto rounded-md border border-sheet-line">
       <table className="w-full border-collapse text-left text-sm">
         <caption className="px-3 py-2 text-left font-semibold">{caption}</caption>
         <thead>
@@ -82,7 +82,7 @@ export function Table({ caption, head, rows }: { caption: string; head: readonly
   );
 }
 
-const INPUT = "min-h-11 rounded-lg border border-sheet-line bg-sheet-2 px-3 text-ink";
+const INPUT = "min-h-11 rounded-md border border-sheet-line bg-sheet-2 px-3 text-ink";
 
 export function Field({ label, hint, ...rest }: { label: string; hint?: string } & ComponentProps<"input">) {
   const id = useId();

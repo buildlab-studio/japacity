@@ -59,8 +59,8 @@ function PaidBar({ figures }: { figures: CarFigures }) {
   const label = say("ui.car.paid", { paid: formatMoney(paid, currency), price: formatMoney(price, currency) });
   return (
     <div className="flex flex-col gap-1">
-      <div role="meter" aria-label={label} aria-valuemin={0} aria-valuemax={price} aria-valuenow={paid} className="relative h-4 w-full rounded-full bg-sheet-muted">
-        <div className="h-full rounded-full bg-accent" style={{ width: at(paid) }} />
+      <div role="meter" aria-label={label} aria-valuemin={0} aria-valuemax={price} aria-valuenow={paid} className="relative h-4 w-full rounded-[2px] bg-sheet-muted">
+        <div className="h-full rounded-[2px] bg-accent" style={{ width: at(paid) }} />
         <span aria-hidden="true" className="absolute -top-1 h-6 w-0.5 bg-ink" style={{ left: at(third) }} />
         <span aria-hidden="true" className="absolute -top-1 h-6 w-0.5 bg-good" style={{ left: at(half) }} />
       </div>

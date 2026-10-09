@@ -254,9 +254,9 @@ function usePlaceFile(place: PlaceEntry | null, drawing: boolean): PlaceFile | n
 
 function PersonCard({ picked, onClose, words: said }: { picked: Picked; onClose: () => void; words: string }) {
   return (
-    <div role="dialog" aria-label={said} className="pointer-events-auto flex items-start gap-3 rounded-xl border border-sheet-line bg-sheet-2 p-4 shadow-lg" data-card={picked.kind}>
+    <div role="dialog" aria-label={said} className="pointer-events-auto flex items-start gap-3 rounded-md border border-sheet-line bg-sheet-2 p-4 shadow-lg" data-card={picked.kind}>
       <p className="flex-1">{said}</p>
-      <button type="button" aria-label={cityWords("city.close")} onClick={onClose} className="inline-flex size-9 items-center justify-center rounded-lg border border-sheet-line">
+      <button type="button" aria-label={cityWords("city.close")} onClick={onClose} className="inline-flex size-9 items-center justify-center rounded-md border border-sheet-line">
         <X size={18} />
       </button>
     </div>
@@ -1061,7 +1061,7 @@ export function City({
       {looking ? (
         <div className="pointer-events-none fixed inset-0 z-[36] flex flex-col justify-between gap-3 p-3 pt-[max(0.75rem,env(safe-area-inset-top))] pb-[max(0.75rem,env(safe-area-inset-bottom))]">
           {world ? null : (
-            <div className="pointer-events-auto flex flex-wrap items-center gap-2 rounded-xl border border-sheet-line bg-sheet p-2">
+            <div className="pointer-events-auto flex flex-wrap items-center gap-2 rounded-md border border-sheet-line bg-sheet p-2">
               <div className="flex min-w-0 flex-1 flex-col px-1">
                 <h2 className="truncate font-display text-xl leading-tight">{name}</h2>
                 {sample === null ? null : <p className="text-xs text-text-2">{cityWords(`city.band.${sample.band}`)}</p>}
@@ -1077,11 +1077,11 @@ export function City({
           )}
 
           <div className="flex flex-col gap-2 lg:max-w-md">
-            {loading ? <p className="pointer-events-auto rounded-lg bg-sheet/90 px-3 py-2 text-sm">{cityWords("city.loading", { place: name, percent })}</p> : null}
-            {failed === null ? null : <p className="pointer-events-auto rounded-lg bg-sheet/90 px-3 py-2 text-sm text-bad">{cityWords("city.failed", { place: name })}</p>}
+            {loading ? <p className="pointer-events-auto rounded-md bg-sheet/90 px-3 py-2 text-sm">{cityWords("city.loading", { place: name, percent })}</p> : null}
+            {failed === null ? null : <p className="pointer-events-auto rounded-md bg-sheet/90 px-3 py-2 text-sm text-bad">{cityWords("city.failed", { place: name })}</p>}
             {/* In the world only the band, the nudge and the two thumb buttons stand over the place (R-WORLD-001): the question, the offers and the month's lines open from the nudge, the results and the phone. */}
             {!world && scene !== null && scene.place === placeId ? (
-              <div className="pointer-events-auto flex flex-col gap-2 rounded-xl border border-accent bg-sheet-2 p-4 shadow-lg" data-scene={scene.setpiece}>
+              <div className="pointer-events-auto flex flex-col gap-2 rounded-md border border-accent bg-sheet-2 p-4 shadow-lg" data-scene={scene.setpiece}>
                 <p className="text-sm text-text-2">{cityWords("city.scene.at", { place: name })}</p>
                 {scene.question === null ? null : <p className="text-lg font-semibold">{words(scene.question)}</p>}
                 <div>
@@ -1092,12 +1092,12 @@ export function City({
               </div>
             ) : null}
             {(world ? [] : offers).map((offer) => (
-              <p key={offer} className="pointer-events-auto rounded-lg border border-sheet-line bg-sheet-2 px-3 py-2 text-sm">
+              <p key={offer} className="pointer-events-auto rounded-md border border-sheet-line bg-sheet-2 px-3 py-2 text-sm">
                 {cityWords("city.offer.here", { offer: placeName(offer) })}
               </p>
             ))}
             {world || lines.length === 0 ? null : (
-              <div className="pointer-events-auto flex flex-col gap-1 rounded-xl border border-sheet-line bg-sheet-2 p-3 text-sm" data-report-here>
+              <div className="pointer-events-auto flex flex-col gap-1 rounded-md border border-sheet-line bg-sheet-2 p-3 text-sm" data-report-here>
                 <p className="font-semibold">{cityWords("city.report.here")}</p>
                 {lines.map((line, index) => (
                   <p key={`${line.key}-${String(index)}`}>{words(line.key, line.params)}</p>
@@ -1106,13 +1106,13 @@ export function City({
             )}
             {world ? null : adverts?.(placeId)}
             {world || heard === null ? null : (
-              <p className="pointer-events-auto self-start rounded-2xl rounded-bl-sm bg-strong px-3 py-2 text-sm text-on-strong" data-overheard>
+              <p className="pointer-events-auto self-start rounded-md rounded-bl-sm bg-strong px-3 py-2 text-sm text-on-strong" data-overheard>
                 {heardWords(heard.key, heard.params)}
               </p>
             )}
             {picked === null || picked.kind === "action" || picked.kind === "command" || picked.kind === "ride" || picked.kind === "enter" || picked.kind === "inside" || picked.kind === "thing" ? null : <PersonCard picked={picked} words={cardWords()} onClose={() => setPicked(null)} />}
             {world ? null : (
-              <p className="pointer-events-auto self-start rounded-lg bg-sheet/80 px-2 py-1 text-xs text-text-2">{cityWords("city.hold")}</p>
+              <p className="pointer-events-auto self-start rounded-md bg-sheet/80 px-2 py-1 text-xs text-text-2">{cityWords("city.hold")}</p>
             )}
           </div>
         </div>
@@ -1139,7 +1139,7 @@ export function City({
                     setPlaceId(place.id);
                     setMenu(false);
                   }}
-                  className={`flex min-h-11 w-full items-center justify-between rounded-lg px-3 text-left hover:bg-sheet-muted ${place.id === placeId ? "font-semibold" : ""}`}
+                  className={`flex min-h-11 w-full items-center justify-between rounded-md px-3 text-left hover:bg-sheet-muted ${place.id === placeId ? "font-semibold" : ""}`}
                 >
                   {placeName(place.id)}
                   {place.id === placeId ? <span className="text-xs text-text-2">{cityWords("city.here")}</span> : null}
@@ -1280,7 +1280,7 @@ export function City({
               const here = pins.find((candidate) => candidate.state === "here");
               return (
                 <li key={pin.id}>
-                  <button type="button" onClick={() => travel(pin.id)} className="flex min-h-11 w-full items-center justify-between gap-3 rounded-lg px-3 text-left hover:bg-sheet-muted">
+                  <button type="button" onClick={() => travel(pin.id)} className="flex min-h-11 w-full items-center justify-between gap-3 rounded-md px-3 text-left hover:bg-sheet-muted">
                     <span className="font-semibold">{pin.state === "home" ? cityWords("city.ride.home") : pin.name}</span>
                     <span className="text-xs text-text-2">{here === undefined ? "" : cityWords("city.ride.line", { minutes: minutesBetween(here.position, pin.position) })}</span>
                   </button>

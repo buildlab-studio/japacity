@@ -72,7 +72,7 @@ function AdvertCard({ slot, served, open, onOpenChange }: { slot: Id<"advert">; 
               href={served.link}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex min-h-11 items-center justify-center rounded-lg border border-accent bg-accent px-4 font-semibold text-accent-ink"
+              className="inline-flex min-h-11 items-center justify-center rounded-md border border-accent bg-accent px-4 font-semibold text-accent-ink"
             >
               {say("advert.card.leaving.go")}
             </a>

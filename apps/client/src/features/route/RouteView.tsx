@@ -72,7 +72,7 @@ function Schools({ route }: { route: Route }) {
           const deposit = shortfall(view, [{ currency: "GBP", amount: entry.deposit }]);
           const grade = hasWords(`${GRADE}.value.${String(entry.minGrade)}`) ? lowerFirst(say(`${GRADE}.value.${String(entry.minGrade)}`)) : String(entry.minGrade);
           return (
-            <li key={id} data-school={id} className="flex flex-col gap-2 rounded-lg border border-sheet-line p-3">
+            <li key={id} data-school={id} className="flex flex-col gap-2 rounded-md border border-sheet-line p-3">
               <div className="flex flex-wrap items-center gap-2">
                 <span className="flex-1 font-medium">{nameOf(id)}</span>
                 {status === null || school === undefined ? null : (

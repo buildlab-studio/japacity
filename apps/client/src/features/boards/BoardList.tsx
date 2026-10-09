@@ -17,7 +17,7 @@ function Line({ row, when }: { row: BoardRow; when: When }) {
     <li
       data-board-line={row.rank}
       data-me={row.me ? "true" : undefined}
-      className={`flex min-h-11 items-center gap-3 rounded-lg px-3 py-2 ${row.me ? "bg-accent/15 font-semibold ring-1 ring-accent" : "odd:bg-sheet-muted/60"}`}
+      className={`flex min-h-11 items-center gap-3 rounded-md px-3 py-2 ${row.me ? "bg-accent/15 font-semibold ring-1 ring-accent" : "odd:bg-sheet-muted/60"}`}
     >
       <span className="w-10 shrink-0 text-right font-semibold tabular-nums" aria-label={say("ui.boards.rank", { rank: row.rank })}>
         {row.rank}

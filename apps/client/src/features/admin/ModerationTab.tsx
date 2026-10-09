@@ -55,7 +55,7 @@ function Briefs({ title, list }: { title: string; list: AccountSummary["made"] }
 /** R-MODERATION-013: one account's standing. Never an email, a seed or a character's state. */
 function Standing({ role, summary }: { role: string; summary: AccountSummary }) {
   return (
-    <div data-account={summary.account} className="flex flex-col gap-2 rounded-lg border border-sheet-line p-3 text-sm">
+    <div data-account={summary.account} className="flex flex-col gap-2 rounded-md border border-sheet-line p-3 text-sm">
       <h4 className="font-semibold">{words("admin.account.title", { role, account: summary.account })}</h4>
       <p>
         {summary.region === null ? words("admin.account.region.none") : words("admin.account.region", { region: summary.region })},{" "}
@@ -169,7 +169,7 @@ function Item({ api, item, onDone }: { api: AdminApi; item: QueueItem; onDone: (
   const waited = words("admin.moderation.waited", { at: utcTime(item.at), age: duration(item.age) });
   if (item.kind === "appeal") {
     return (
-      <li data-item={item.id} className="flex flex-col gap-3 rounded-xl border border-sheet-line bg-sheet-2 p-4">
+      <li data-item={item.id} className="flex flex-col gap-3 rounded-md border border-sheet-line bg-sheet-2 p-4">
         <h3 className="font-semibold">{words("admin.moderation.appeal", { id: item.id })}</h3>
         <p className="text-sm text-text-2">{waited}</p>
         <p>
@@ -183,7 +183,7 @@ function Item({ api, item, onDone }: { api: AdminApi; item: QueueItem; onDone: (
     );
   }
   return (
-    <li data-item={item.id} className="flex flex-col gap-3 rounded-xl border border-sheet-line bg-sheet-2 p-4">
+    <li data-item={item.id} className="flex flex-col gap-3 rounded-md border border-sheet-line bg-sheet-2 p-4">
       <div className="flex flex-wrap items-center gap-2">
         <h3 className="font-semibold">{words("admin.moderation.report", { id: item.id, reason: item.reason })}</h3>
         {item.unverified ? <Tag tone="bad">{words("admin.moderation.unverified")}</Tag> : null}
@@ -293,7 +293,7 @@ export function ModerationTab({ api }: { api: AdminApi }) {
     <div className="flex flex-col gap-8">
       <Section title={words("admin.moderation.queue")} action={<ReloadButton onClick={queue.reload} />}>
         {answer === null ? null : (
-          <div role="status" aria-label={words("admin.moderation.answer")} className="rounded-lg border border-sheet-line bg-sheet-muted p-3">
+          <div role="status" aria-label={words("admin.moderation.answer")} className="rounded-md border border-sheet-line bg-sheet-muted p-3">
             {answer}
           </div>
         )}

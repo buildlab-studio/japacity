@@ -9,7 +9,7 @@ export function Rejection() {
   const dismiss = useGame((state) => state.dismissRejection);
   if (rejection === null) return null;
   return (
-    <div role="alert" className="flex items-start gap-3 rounded-xl border border-bad bg-sheet-2 p-3 text-bad">
+    <div role="alert" className="flex items-start gap-3 rounded-md border border-bad bg-sheet-2 p-3 text-bad">
       <CircleAlert size={20} className="mt-0.5 shrink-0" />
       <div className="flex-1">
         <p>{rejection.words}</p>
