@@ -25,6 +25,7 @@ export const mapText: Record<string, string> = {
   "map.way.keke": "Keke",
   "map.way.okada": "Okada",
   "map.way.walk": "Walk",
+  "map.way.walk-far": "Too far to walk",
   "map.walk": "Walk there",
   "map.walk-home": "Walk home",
   "map.way.minutes": "{minutes} min",

@@ -1030,9 +1030,8 @@ export function City({
               const reply = await send({ type: "place/ride", from: placeId as Id<"place">, to: to as Id<"place">, way: choice.id });
               return reply?.ok === true;
             },
-            // Turn back (R-WORLD-017): the first fare is gone; the walk back is a free ride the city records, and the character stays where they were.
-            onTurnBack: (from, to) => {
-              if (view.place.where === "home") void send({ type: "place/ride", from: to as Id<"place">, to: from as Id<"place">, way: "walk" });
+            // Turn back (R-WORLD-017): the first fare is gone and the character stays where they were; the simulation never moved them, so nothing more is sent.
+            onTurnBack: () => {
               setMap(false);
               setDiveTo(null);
               setRideBy(null);

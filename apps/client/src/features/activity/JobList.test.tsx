@@ -112,6 +112,13 @@ describe("the jobs list on the hunt's card", () => {
       const row = within(apart).getByText(text[`${job.id}.name`] ?? job.id).closest("li");
       if (row === null) throw new Error(`${job.id} has no row`);
       expect(within(row).getByText(payWords(job.id))).toBeDefined();
+      // The needs fold behind the row: a count until the row is tapped, then each need.
+      const fold = within(row).getByRole("button");
+      expect(fold.getAttribute("aria-expanded")).toBe("false");
+      expect(within(row).getByText(jobsWords("jobs.needs-count", { count: job.needs.length }))).toBeDefined();
+      for (const need of job.needs) expect(within(row).queryByText(need, { exact: false })).toBeNull();
+      fireEvent.click(fold);
+      expect(fold.getAttribute("aria-expanded")).toBe("true");
       for (const need of job.needs) expect(within(row).getByText(need, { exact: false })).toBeDefined();
       expect(within(row).queryByRole("radio")).toBeNull();
     }
@@ -171,6 +178,7 @@ describe("the jobs list as rows on the sheet", () => {
     fireEvent.click(screen.getByRole("radio", { name: new RegExp(`^${nameOfJob(last)}`) }));
     expect(applyButton().textContent).toBe(`${jobsWords("jobs.apply")}${nameOfJob(last)}`);
     expect(applyButton().querySelector(`[data-apply-for='${last}']`)).not.toBeNull();
-    expect(document.querySelectorAll("[data-activity-picker] button:not([role='radio'])")).toHaveLength(1);
+    // The rows out of reach fold their needs behind a button of their own (aria-expanded); the card's one main button is the rest.
+    expect(document.querySelectorAll("[data-activity-picker] button:not([role='radio']):not([aria-expanded])")).toHaveLength(1);
   });
 });

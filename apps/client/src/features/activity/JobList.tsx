@@ -4,6 +4,8 @@
 // on the sheet, divided by hairlines; the chosen row fills with the pick colour (R-WORLD-021), and the chance is a
 // small three-step gauge beside its word.
 import { content } from "@japacity/content";
+import { ChevronDown } from "lucide-react";
+import { useState } from "react";
 import type { ActivityEntry, PlayerView, Requirement } from "@japacity/sim";
 
 import { requirementSentence } from "../../shared/words/requirement";
@@ -113,6 +115,36 @@ function JobRow({ view, id, chance, chosen, onPick }: { view: PlayerView; id: st
   );
 }
 
+/**
+ * A job out of reach as one row: its name and its pay on one line that never wraps, and what it still needs folded
+ * behind a tap, so the list is read at a glance and the words come only when asked.
+ */
+function OutRow({ job, pay }: { job: OutOfReach; pay: string | null }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <li className="border-b border-sheet-line last:border-b-0" data-job={job.id}>
+      <button type="button" className="press flex w-full items-center gap-2 px-3 py-2.5 text-left text-text-2" aria-expanded={open} onClick={() => setOpen((was) => !was)} data-job-needs={job.needs.length}>
+        <span className="flex min-w-0 flex-1 flex-col">
+          <span className="truncate font-medium">{nameOf(job.id)}</span>
+          <span className="text-[12px]">{jobsWords("jobs.needs-count", { count: job.needs.length })}</span>
+        </span>
+        {pay === null ? null : <span className="num shrink-0 whitespace-nowrap text-[13px]">{pay}</span>}
+        <ChevronDown size={16} aria-hidden className={`shrink-0 transition-transform ${open ? "rotate-180" : ""}`} />
+      </button>
+      {open ? (
+        <ul className="flex flex-col gap-1 px-3 pb-3 text-[13px] text-text-2" data-job-needs-list>
+          {job.needs.map((need) => (
+            <li key={need} className="flex gap-2">
+              <span aria-hidden>·</span>
+              <span>{need}</span>
+            </li>
+          ))}
+        </ul>
+      ) : null}
+    </li>
+  );
+}
+
 /** The main button's words when it applies for the picked job: the act, then the job, so the button repeats the pick. */
 export function ApplyFor({ id }: { id: string }) {
   return (
@@ -147,13 +179,7 @@ export function JobList({ view, jobs, chosen, onPick }: { view: PlayerView; jobs
           </span>
           <ul aria-labelledby="jobs-out" className="flex flex-col" data-jobs-out>
             {out.map((job) => (
-              <li key={job.id} className="flex flex-col border-b border-sheet-line px-3 py-2 text-text-2 last:border-b-0" data-job={job.id}>
-                <span className="flex items-baseline justify-between gap-2">
-                  <span className="font-medium">{nameOf(job.id)}</span>
-                  <span className="num">{payWords(job.id, view)}</span>
-                </span>
-                <span>{jobsWords("jobs.needs", { needs: job.needs.join("; ") })}</span>
-              </li>
+              <OutRow key={job.id} job={job} pay={payWords(job.id, view)} />
             ))}
           </ul>
         </div>

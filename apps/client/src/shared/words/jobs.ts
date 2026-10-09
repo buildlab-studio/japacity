@@ -18,6 +18,8 @@ export const jobsUiText: Record<string, string> = {
   "jobs.chance.long": "A long shot",
   "jobs.out-of-reach": "Not open to you yet",
   "jobs.needs": "Needs: {needs}",
+  "jobs.needs-count": "Needs {count} things first",
+  "jobs.needs-count.one": "Needs 1 thing first",
   "jobs.card": "{pay}. {chance}.",
   "jobs.card.chance": "{chance}.",
 };

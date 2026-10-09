@@ -244,7 +244,8 @@ describe("the ride", () => {
     for (const way of ways) {
       const radio = radios.find((candidate) => candidate.dataset.way === way.id);
       expect(radio?.textContent).toContain(way.fare === 0 ? say("ui.world.free") : formatMoney(way.fare, "NGN"));
-      expect(radio?.textContent).toContain(mapWords("map.way.minutes", { minutes: way.minutes }));
+      // A walk past walking distance is shut and says so in place of its minutes (R-WORLD-017).
+      expect(radio?.textContent).toContain(way.shut === "far" ? mapWords("map.way.walk-far") : mapWords("map.way.minutes", { minutes: way.minutes }));
     }
     // All the naira pay the fare, cash first (R-PLACE-010).
     const cash = view.pockets.NGN.cash + view.pockets.NGN.bank;
@@ -301,6 +302,26 @@ describe("the ride", () => {
       await vi.advanceTimersByTimeAsync(RIDE_MS);
     });
     expect(onDone).toHaveBeenCalledTimes(1);
+  });
+
+  test("[R-WORLD-017] given a stop past walking distance, when the ride sheet shows, then the walk is shut and says it is too far, is never the chosen way, and a near stop keeps it open", async () => {
+    const pins = lagosPins();
+    const here = pins.find((pin) => pin.state === "here");
+    if (here === undefined) throw new Error("No here");
+    const limit = content.tuning.city.ride.walkMetres;
+    const far = { ...here.position, latE3: here.position.latE3 + Math.ceil((limit * 1.5) / 111.32) };
+    const near = { ...here.position, latE3: here.position.latE3 + Math.floor((limit * 0.5) / 111.32) };
+    expect(rideChoices(here.position, far).find((way) => way.id === "walk")?.shut).toBe("far");
+    expect(rideChoices(here.position, near).find((way) => way.id === "walk")?.shut).toBeUndefined();
+    const farPins = pins.map((pin) => (pin.id === "place.bode-thomas" ? { ...pin, position: far } : pin));
+    await renderWithView(<Map pins={farPins} country={LAGOS} countries={COUNTRIES} drawing={false} onGo={() => undefined} onClose={() => undefined} />, engineView());
+    fireEvent.click(screen.getAllByRole("button").find((button) => button.dataset.stop === "place.bode-thomas") as HTMLElement);
+    const sheet = screen.getByRole("dialog", { name: headingOf(nameOf("place.bode-thomas")) });
+    const walk = within(sheet).getAllByRole("radio").find((radio) => radio.dataset.way === "walk") as HTMLButtonElement;
+    expect(walk.disabled).toBe(true);
+    expect(walk.textContent).toContain(mapWords("map.way.walk-far"));
+    fireEvent.click(walk);
+    expect(walk.getAttribute("aria-checked")).toBe("false");
   });
 
   test("[R-WORLD-017] given a ride with the place it left, when it plays, then the card says where you are on the ride's own clock: pulling out, a road line, the stop near the end", async () => {

@@ -53,7 +53,7 @@ export function headingOf(name: string): string {
 
 export function RideSheet({ pin, home, ways, have, formatMoney, onChoose, onClose, by }: RideSheetProps) {
   const [chosen, setChosen] = useState<RideChoice["id"]>(by !== undefined && ways.some((way) => way.id === by) ? by : (ways[0]?.id ?? "danfo"));
-  const way = ways.find((candidate) => candidate.id === chosen) ?? ways[0];
+  const way = ways.find((candidate) => candidate.id === chosen && candidate.shut === undefined) ?? ways.find((candidate) => candidate.shut === undefined);
   const here = pin.state === "here";
   const locked = pin.state === "not";
   const left = way === undefined ? have : have - way.fare;
@@ -91,22 +91,25 @@ export function RideSheet({ pin, home, ways, have, formatMoney, onChoose, onClos
               {ways.map((choice) => {
                 const Icon = WAY_ICON[choice.id];
                 const on = choice.id === chosen;
+                const shut = choice.shut !== undefined;
                 return (
                   <button
                     key={choice.id}
                     type="button"
                     role="radio"
                     aria-checked={on}
+                    disabled={shut}
                     onClick={() => setChosen(choice.id)}
                     data-way={choice.id}
-                    className={`press flex flex-col items-start gap-0.5 rounded-[6px] border-2 px-2.5 py-2 text-left ${on ? "border-signal bg-sheet-2" : "border-sheet-line bg-sheet"}`}
+                    data-shut={choice.shut}
+                    className={`press flex flex-col items-start gap-0.5 rounded-[6px] border-2 px-2.5 py-2 text-left ${on ? "border-signal bg-sheet-2" : "border-sheet-line bg-sheet"} ${shut ? "opacity-50" : ""}`}
                   >
                     <span className="flex items-center gap-1.5 text-[13px] font-bold">
                       <Icon size={15} aria-hidden />
                       {choice.label}
                     </span>
                     <span className="num text-[17px]">{choice.fare === 0 ? say(choice.id === "walk" ? "ui.world.free" : "ui.world.pass") : formatMoney(choice.fare)}</span>
-                    <span className="text-[12px] text-text-2">{mapWords("map.way.minutes", { minutes: choice.minutes })}</span>
+                    <span className="text-[12px] text-text-2">{shut ? mapWords("map.way.walk-far") : mapWords("map.way.minutes", { minutes: choice.minutes })}</span>
                   </button>
                 );
               })}
