@@ -8,10 +8,10 @@ import { useState } from "react";
 
 import { useGame, useView } from "../../../authority/GameProvider";
 import { CURRENCIES, formatMoney, HOME_CURRENCIES } from "../../../shared/words/format";
-import { lowerFirst, say, words } from "../../../shared/words/text";
+import { afterPrologue, movesMoney, tidyLines } from "../../../shared/words/lines";
+import { lowerFirst, moneyParam, say, words } from "../../../shared/words/text";
 import { localCurrency } from "../../../shared/words/wayHome";
 import { Counter } from "../../../shared/world/Band";
-import { moneyLines as resultsMoney } from "../../turn/month.results";
 import { Chips, Head, useAsk } from "../act";
 import { phoneWords } from "../phone.words";
 
@@ -50,7 +50,15 @@ export function savingsOf(view: PlayerView): { shown: number; required: number; 
  */
 export function latelyLines(view: Pick<PlayerView, "report">, lastMonth: readonly ReportLine[], thisMonth: readonly ReportLine[]): ReportLine[] {
   const ended = view.report === null ? [] : [...lastMonth, ...view.report.lines];
-  return [...resultsMoney(ended), ...resultsMoney(thisMonth)].map((entry) => entry.line);
+  return [...moved(ended), ...moved(thisMonth)];
+}
+
+/** A deposit flagged carries its amount as a warning; no money moves with it. */
+const FLAGGED = "line.wallet.flagged";
+
+/** The lines that tell money moving, tidied as the month's results tidy them (features/turn/month.results.ts, `moneyLines`). */
+function moved(lines: readonly ReportLine[]): ReportLine[] {
+  return tidyLines(afterPrologue(lines)).filter((line) => line.tone !== "plain" && line.key !== FLAGGED && movesMoney(line) && (moneyParam("amount", line.params, line.key)?.amount ?? 0) !== 0);
 }
 
 const LATELY = 4;
