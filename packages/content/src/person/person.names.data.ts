@@ -191,10 +191,11 @@ export const namePool: PoolName[] = [
 ];
 
 /** What a named person is in the story. A name never predicts it (names rule 5). */
-export type NamedRole = "life" | "partner" | "agent" | "friend" | "fx" | "landlord" | "auntie" | "relative";
+/** `tout`, `runner`, `middleman`: the agents at Ojuelegba's stop; `adviser`: the licensed adviser (advice.md R-ADVICE-010). */
+export type NamedRole = "life" | "partner" | "agent" | "friend" | "fx" | "landlord" | "auntie" | "relative" | "tout" | "runner" | "middleman" | "adviser";
 
 /** Roles that take the player's money or may cheat them: no people holds two of these (names rule 5). */
-export const takingRoles: NamedRole[] = ["agent", "fx", "landlord"];
+export const takingRoles: NamedRole[] = ["agent", "fx", "landlord", "tout", "runner", "middleman", "adviser"];
 
 export interface NamedPerson {
   name: string;

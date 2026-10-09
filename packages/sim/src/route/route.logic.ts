@@ -42,7 +42,7 @@ import { cardOf, cardsAllowed, reportLines } from "../chapter/chapter.card";
 import { routePercent } from "../japacity/japacity.logic";
 import { bannedUntil as placeBannedUntil } from "../place/place.logic";
 import { GATES } from "./gates";
-import type { ApplicationFigures, DecisionTerms, GateEffectHandler } from "./gates";
+import type { ApplicationFigures, Decision, DecisionTerms, GateEffectHandler } from "./gates";
 import { EVERY_TERM } from "./gates";
 import { endBeforeSettingOff } from "./gates/road";
 import type { RefusalReason, RouteKindEvent } from "./route.events";
@@ -353,13 +353,26 @@ function hear(ctx: Ctx, effect: Effect): BaseEvent[] {
 }
 
 /** R-ROUTE-004: the slot's param names the route. Only a heard route becomes known. */
+/** R-ADVICE-001: the official page is the look-into activity; its line is the one R-ROUTE-004 always gave. */
+const OFFICIAL_PAGE = "activity.look-into-route";
+
+/**
+ * The route a look names: the slot's param, or the term `route` an agent's
+ * offer carries (R-ADVICE-001), since an offer's choice has no param.
+ */
+function lookedRoute(ctx: Ctx, cause: Cause): Id<"route"> | null {
+  const named = cause.param ?? cause.terms["route"];
+  return typeof named === "string" && ctx.content.route[named as Id<"route">] !== undefined ? (named as Id<"route">) : null;
+}
+
 function lookInto(ctx: Ctx, _effect: Effect, cause: Cause): BaseEvent[] {
-  const route = cause.param as Id<"route"> | null;
-  if (route === null || ctx.content.route[route] === undefined) return [];
+  const route = lookedRoute(ctx, cause);
+  if (route === null) return [];
   if (routeOf(ctx.state, route).state !== "heard") return [];
   const country = entryOf(ctx.content, route).country;
   if (banned(readOf(ctx), country)) return [];
-  return [moved(route, "known")];
+  // R-ADVICE-001: each of the four ways looks into the route; the event names the way unless it is the official page.
+  return [cause.source === OFFICIAL_PAGE ? moved(route, "known") : moved(route, "known", cause.source)];
 }
 
 /**
@@ -609,6 +622,30 @@ function fundsCheck(ctx: Ctx, route: Id<"route">): BaseEvent[] {
   return record(ctx, { type: "route/funds-checked", route, funds, was: held.funds.covered });
 }
 
+/**
+ * The papers an application on this route rests on: every document its
+ * checklist asks to be held (R-ADVICE-008).
+ */
+export function papersOf(entry: RouteEntry): Id<"document">[] {
+  return entry.checklist.flatMap((item) => (item.requirement.type === "document/held" ? [item.requirement.document] : []));
+}
+
+/**
+ * R-ADVICE-008: a route refuses an application that rests on fake papers,
+ * before any draw, with the reason `agent` (the agent's papers did not hold
+ * up). Every route's checklist asks for its papers to be genuine, judged by
+ * `document/genuine` on each paper held. no ban, since nothing here
+ * takes a status or ends a life; whether a fake knowingly used
+ * should carry R-GATE-005's deception ban.
+ */
+function withPapers(read: ReadCtx, entry: RouteEntry, decision: Decision): Decision {
+  if (decision.wait === true || decision.override !== null) return decision;
+  const fake = papersOf(entry).some(
+    (document) => check(read, { type: "document/held", document }).met && !check(read, { type: "document/genuine", document }).met,
+  );
+  return fake ? { ...decision, override: "agent", bans: false } : decision;
+}
+
 /** R-ROUTE-016 to 019: one draw on `visa`, from the figures recorded on the day of submission. */
 function decide(ctx: Ctx, route: Id<"route">): BaseEvent[] {
   const held = routeOf(ctx.state, route);
@@ -618,7 +655,7 @@ function decide(ctx: Ctx, route: Id<"route">): BaseEvent[] {
   const numbers = ctx.content.tuning.route;
   const entry = entryOf(ctx.content, route);
   // R-GATE-002: the gate says which terms the draw reads, and whether something refuses before any draw.
-  const decision = GATES[entry.gate].decision(readOf(ctx), entry, held);
+  const decision = withPapers(readOf(ctx), entry, GATES[entry.gate].decision(readOf(ctx), entry, held));
   if (decision.wait === true) return [];
   const chance = refusalChanceBp(
     numbers,
@@ -847,13 +884,22 @@ function pounds(amount: number): MoneyParam {
   return { currency: FUNDS_CURRENCY, amount };
 }
 
+/** R-ADVICE-001: the way a route was looked into, for its line. The official page keeps the line it always had. */
+function lookedLine(via: string | undefined): string {
+  if (via === undefined) return "looked-into";
+  if (via === "activity.ask-someone-who-went") return "looked-into-told";
+  if (via === "activity.see-adviser") return "looked-into-advised";
+  if (via.startsWith("offer.agent-")) return "looked-into-agent";
+  return "looked-into";
+}
+
 function movedLines(event: Extract<RouteKindEvent, { type: "route/moved" }>): ReportLine[] {
   const { route, to } = event;
   switch (to) {
     case "heard":
       return [line("heard", { route, via: event.via ?? FRIEND }, "good")];
     case "known":
-      return [line("looked-into", { route }, "good")];
+      return [line(lookedLine(event.via), { route }, "good")];
     // The grant and the send-off are staged wins (docs/rules/text.md, "Money on screen").
     case "granted":
       return [{ ...line("granted", { route }, "good", true), big: true }];

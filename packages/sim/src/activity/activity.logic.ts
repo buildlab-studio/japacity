@@ -39,6 +39,7 @@ import { appliesHere } from "../place/place.logic";
 import { isKept, statusEntry, workAllows } from "../status/status.logic";
 import { activeLocks, freeSlots } from "../turn/turn.logic";
 import type { ActivityEvent, Prize, SlotFailure } from "./activity.events";
+import { ADVISER, adviserReading, FRIEND, friendWord } from "./activity.advice";
 import {
   carHolds,
   DRIVING_TEST,
@@ -329,6 +330,8 @@ function pricesOf(read: ReadCtx, entry: ActivityEntry, param: string | null): Pr
   const { luck, car } = read.content.tuning;
   if (entry.id === LOTTO) prices.push({ currency: "NGN", amount: luck.ticket * ticketsOf(param, luck), reason: "social", cash: true });
   if (entry.id === BET) prices.push({ currency: "NGN", amount: luck.stake, reason: "social", cash: true });
+  // R-ADVICE-004. the contract's reasons have no `fee-advice`; the adviser's fee goes under `fee-agent`.
+  if (entry.id === ADVISER) prices.push({ currency: "NGN", amount: read.content.tuning.advice.adviserFee, reason: "fee-agent", cash: true });
   if (entry.id === DRIVING_TEST) {
     const currency = entry.country === undefined || entry.country === null ? null : read.content.country[entry.country]?.currency;
     if (currency === undefined || currency === null) throw new Error(`${entry.id} names no country to pay in.`);
@@ -702,6 +705,23 @@ function betSlip(ctx: Ctx, cause: Cause): BaseEvent[] {
   return events;
 }
 
+/** R-ADVICE-003: someone who went tells the checklist as it stood when they left. Their look-into is the entry's effect. */
+function friendTells(ctx: Ctx, pick: SlotPick): BaseEvent[] {
+  const route = pick.param as Id<"route"> | null;
+  if (route === null || ctx.content.route[route] === undefined) return [];
+  return record(ctx, { type: "activity/word-of-mouth", route, ...friendWord(readOf(ctx), route) });
+}
+
+/** R-ADVICE-004: the adviser reads every route heard or known, then looks into every one only heard. */
+function adviserReads(ctx: Ctx, cause: Cause): BaseEvent[] {
+  const routes = adviserReading(readOf(ctx));
+  const events = record(ctx, { type: "activity/advised", routes });
+  for (const { route } of routes) {
+    if (ctx.state.route[route]?.state === "heard") ctx.apply([{ type: "route/look-into" }], { ...cause, param: route });
+  }
+  return events;
+}
+
 /** What the activities the kind runs by id do, after their costs. */
 function runById(ctx: Ctx, entry: ActivityEntry, pick: SlotPick, cause: Cause): BaseEvent[] {
   switch (entry.id) {
@@ -713,6 +733,10 @@ function runById(ctx: Ctx, entry: ActivityEntry, pick: SlotPick, cause: Cause): 
       return lotto(ctx, pick, cause);
     case BET:
       return betSlip(ctx, cause);
+    case FRIEND:
+      return friendTells(ctx, pick);
+    case ADVISER:
+      return adviserReads(ctx, cause);
     default:
       return [];
   }
@@ -1034,11 +1058,39 @@ function lines(event: ActivityEvent, state: State): ReportLine[] {
     case "activity/slots-recorded":
     case "activity/played-counted":
       return [];
+    case "activity/word-of-mouth":
+      return friendLines(event);
+    case "activity/advised":
+      return event.routes.flatMap(adviserLines);
     default: {
       const never: never = event;
       throw new Error(`Unknown activity event ${JSON.stringify(never)}.`);
     }
   }
+}
+
+/** The checklist item's words, by the key the route's words use, as a param the interface names (`<key>.name`). */
+function itemParam(route: Id<"route">, item: string): string {
+  return `${route}.item.${item}`;
+}
+
+/**
+ * R-ADVICE-003: the friend's checklist, the out-of-date item said the same way
+ * as the rest, and marked out of date only when the player meets it.
+ */
+function friendLines(event: Extract<ActivityEvent, { type: "activity/word-of-mouth" }>): ReportLine[] {
+  const told = event.items.map((item) => line("line.activity.went-item", { item: itemParam(event.route, item) }, "plain"));
+  const marked = event.wrong !== null && event.metWrong ? [line("line.activity.went-out-of-date", { item: itemParam(event.route, event.wrong) }, "plain", true)] : [];
+  return [line("line.activity.went-told", { route: event.route }, "plain"), ...told, ...marked];
+}
+
+/** R-ADVICE-004: fits or not, what is missing, and "at least N months". */
+function adviserLines(reading: Extract<ActivityEvent, { type: "activity/advised" }>["routes"][number]): ReportLine[] {
+  if (reading.fits) return [line("line.activity.adviser-fits", { route: reading.route }, "good")];
+  return [
+    line("line.activity.adviser-missing", { route: reading.route, count: reading.missing.length, months: reading.months }, "plain", true),
+    ...reading.missing.map((item) => line("line.activity.adviser-item", { item: itemParam(reading.route, item) }, "plain")),
+  ];
 }
 
 function evolve(slice: ActivitySlice, event: ActivityEvent): ActivitySlice {
@@ -1075,6 +1127,8 @@ function evolve(slice: ActivitySlice, event: ActivityEvent): ActivitySlice {
     case "activity/rested":
     case "activity/hunted":
     case "activity/gig-paid":
+    case "activity/word-of-mouth":
+    case "activity/advised":
       return slice;
     default: {
       const never: never = event;

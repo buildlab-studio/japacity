@@ -6,6 +6,8 @@ import { activityTable } from "./activity/activity.data";
 import { advertTable } from "./advert/advert.data";
 import { advertText } from "./advert/advert.text";
 import { activityText } from "./activity/activity.text";
+import { adviceActivityTable, adviceOfferTable } from "./advice/advice.data";
+import { adviceText } from "./advice/advice.text";
 import { counterTable } from "./analytics/analytics.data";
 import { chapterTable } from "./chapter/chapter.data";
 import { chapterText } from "./chapter/chapter.text";
@@ -94,13 +96,14 @@ export type { OfficialAccount, OfficialPlatform, ShareKind } from "./share/share
 export const content: Content = {
   version: "m0.1",
   quality: qualityTable,
-  activity: activityTable,
+  // advice.md: the friend, the adviser and the agents.
+  activity: { ...activityTable, ...adviceActivityTable },
   document: documentTable,
   school: schoolTable,
   route: routeTable,
   setpiece: setpieceTable,
   obligation: obligationTable,
-  offer: offerTable,
+  offer: { ...offerTable, ...adviceOfferTable },
   chapter: chapterTable,
   var: varTable,
   news: newsTable,
@@ -129,6 +132,7 @@ export const textTables: Record<string, Record<string, string>> = {
   activity: activityText,
   activityAbroad: activityAbroadText,
   advert: advertText,
+  advice: adviceText,
   chapter: chapterText,
   country: countryText,
   credit: creditText,

@@ -4,8 +4,8 @@ import { text } from "../index";
 import { recurringPeople } from "./person.recurring.data";
 
 describe("the recurring people", () => {
-  test("[R-PEOPLE-053] given the recurring people, when they are listed, then there is one FX man, one landlord, one auntie and one agent, each from a different people", () => {
-    expect(recurringPeople.map((person) => person.role).sort()).toEqual(["agent", "auntie", "fx", "landlord"]);
+  test("[R-PEOPLE-053] [R-ADVICE-010] given the recurring people, when they are listed, then there is one FX man, one landlord, one auntie, one agent at the desk, three at the stop and one adviser, each from a different people", () => {
+    expect(recurringPeople.map((person) => person.role).sort()).toEqual(["adviser", "agent", "auntie", "fx", "landlord", "middleman", "runner", "tout"]);
     expect(new Set(recurringPeople.map((person) => person.people)).size).toBe(recurringPeople.length);
   });
 
