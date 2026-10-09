@@ -102,7 +102,7 @@ function monthlyNaira(job: string): number {
 
 /** The month's naira bills at its end: the upkeep, a savings circle's share, a loan's instalment. */
 function nairaDues(view: NudgeView): number {
-  return (view.obligations ?? []).reduce((sum, owed) => (owed.due > 0 && content.obligation[owed.entry as Id<"obligation">]?.currency === "NGN" ? sum + owed.due : sum), 0);
+  return (view.obligations ?? []).reduce((sum, owed) => (owed.due > 0 && content.obligation[owed.entry]?.currency === "NGN" ? sum + owed.due : sum), 0);
 }
 
 /**
