@@ -11,8 +11,7 @@ import { CityMap } from "./CityMap";
 import { Countries } from "./Countries";
 import { mapWords } from "./map.words";
 import { type MapPin, rideChoices } from "./pins";
-import { personOfLook } from "../city/roster";
-import { FALLBACK_OWN, preloadRide, Ride } from "./Ride";
+import { ownLook, preloadRide, Ride } from "./Ride";
 import { headingOf, RideSheet } from "./RideSheet";
 
 export interface MapProps {
@@ -91,7 +90,7 @@ export function Map({ pins, country, countries, drawing, diveTo = null, diveBy =
   };
 
   // The character as the city shows them (City.tsx), and a seed so the same ride says the same line.
-  const own = personOfLook(`chr_${view.scenario.slice("scenario.".length)}`)?.file ?? FALLBACK_OWN;
+  const own = ownLook(view.scenario);
   useEffect(() => {
     if (drawing) preloadRide(own);
   }, [drawing, own]);

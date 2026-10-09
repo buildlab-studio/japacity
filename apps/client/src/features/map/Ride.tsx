@@ -7,7 +7,7 @@ import { useEffect, useRef, useState } from "react";
 
 import { graphicsMode } from "../../shared/graphics/mode";
 import { loadModel } from "../../shared/three/load";
-import { loadManifest } from "../../shared/three/manifest";
+import { loadManifest, type PublishManifest } from "../../shared/three/manifest";
 import { mountCanvas, sharedRenderer } from "../../shared/three/sharedRenderer";
 import { mapWords } from "./map.words";
 import { buildRide, figuresOn, peopleOf, type Phase, PRE_MS, preMsOf, RIDE_MS, type RideScene, type Role, type Way } from "./rideScene";
@@ -16,6 +16,16 @@ export { PRE_MS, RIDE_MS } from "./rideScene";
 
 /** The look the city falls back to when the life's own person is not shipped (City.tsx). */
 export const FALLBACK_OWN = "shared/chr/chr_tunde.glb";
+
+/** The life's own person file as the city names it (City.tsx), shipped or not; `shownOwn` settles it. */
+export function ownLook(scenario: string): string {
+  return `shared/chr/chr_${scenario.slice("scenario.".length)}.glb`;
+}
+
+/** The character the ride shows: the life's own person where it is shipped, else the city's fallback. */
+function shownOwn(manifest: PublishManifest, own: string): string {
+  return manifest.files[own] === undefined ? FALLBACK_OWN : own;
+}
 
 /** Lines each speaker may say in the pre-roll, picked by the ride's seed (map.words.ts). */
 export const LINES = 6;
@@ -74,12 +84,13 @@ const warmed = new Set<string>();
 export function preloadRide(own: string): void {
   void loadManifest()
     .then(async (manifest) => {
+      const shown = shownOwn(manifest, own);
       for (const way of ["okada", "keke", "danfo"] as const) {
-        const key = `${way}:${own}`;
+        const key = `${way}:${shown}`;
         if (warmed.has(key)) continue;
         warmed.add(key);
         try {
-          const people = Object.entries(peopleOf(way, own)) as [Role, string][];
+          const people = Object.entries(peopleOf(way, shown)) as [Role, string][];
           const [vehicle, ...persons] = await Promise.all([loadModel(manifest, `shared/veh/veh_${way}.glb`, () => undefined), ...people.map(([, file]) => loadModel(manifest, file, () => undefined))]);
           const ride = buildRide(way);
           ride.setVehicle(vehicle.clone());
@@ -168,7 +179,7 @@ export function Ride({ way, place, drawing, own = FALLBACK_OWN, seed = 0, onDone
             })
             .catch(() => undefined);
         }
-        for (const [role, file] of Object.entries(peopleOf(way, own)) as [Role, string][]) {
+        for (const [role, file] of Object.entries(peopleOf(way, shownOwn(manifest, own))) as [Role, string][]) {
           void loadModel(manifest, file, () => undefined)
             .then((model) => {
               if (!alive) return;
