@@ -34,7 +34,7 @@ import { crowdTuning } from "./limits";
 import { Phone, type PhoneApp } from "./Phone";
 import { localDate, type Other, poolOf, sampleCrowd } from "./crowd";
 import { BOARD_WAY, nudgeOf, stepThingHere, stepWayOf } from "./nudge";
-import { stepOpen } from "./stepOpen";
+import { nudgeHere, stepOpen } from "./stepOpen";
 import { type Device, enterPlace, keepChoice, type Mode, type ModeChoice, modeSettings, observeFrame, readChoice, startingMode, watchFrames } from "./mode";
 import { overheard } from "./overheard";
 import { dancerShown, dressPlace, openGround, type PlaceFile, stageOf } from "./placeFile";
@@ -672,6 +672,8 @@ export function City({
   const stepThing = stepWay === null || things === undefined ? null : stepThingHere(stepWay, hereId, things);
   // Abroad the map is a list, and a stop picked on it opens its sheet all the same.
   // A result on its way is only waited for: its nudge says when it comes and opens nothing.
+  // The nudge as it reads here: a step's place is not named while the player stands in it.
+  const shownNudge = nudge === null || nudge.about !== "step" ? nudge : nudgeHere(nudge, stepThing);
   const onlyWait = nudge !== null && WAIT_ONLY.has(nudge.key);
   const nudgeGoes = !onlyWait && stepWay !== null && (stepThing !== null || stepWay.go === null || where === "home" || where === "abroad");
   const followStep = (): void => {
@@ -958,7 +960,7 @@ export function City({
             more={
               !(phone || monthOpen || asksOpen || menu || credits || picked !== null) ? (
                 <div key={bandOpen ? "open" : `peek-${nudgeKey}-${comingKey}`} className={bandOpen ? "" : "drop"}>
-                  <Nudge nudge={nudge} {...(nudgeOpens ? { onTap: () => setAsksOpen(true) } : nudgeGoes ? { onTap: followStep } : nudge?.about === "report" ? { onTap: () => { setPhoneApp("news"); setPhone(true); } } : nudge?.about === "dues" ? { onTap: () => { setPhoneApp("bank"); setPhone(true); } } : {})} />
+                  <Nudge nudge={shownNudge} {...(nudgeOpens ? { onTap: () => setAsksOpen(true) } : nudgeGoes ? { onTap: followStep } : nudge?.about === "report" ? { onTap: () => { setPhoneApp("news"); setPhone(true); } } : nudge?.about === "dues" ? { onTap: () => { setPhoneApp("bank"); setPhone(true); } } : {})} />
                   {coming === null || !(bandOpen || peek) ? null : (
                     <p className="chip pointer-events-auto mt-1.5 inline-flex max-w-full items-center gap-1.5 px-2.5 py-1.5 text-[12px] font-bold" data-coming>
                       <Clock size={14} aria-hidden />
@@ -987,7 +989,7 @@ export function City({
               <div className="flex max-w-sm flex-col items-center gap-5 text-center" data-opening={view.chapter.current}>
                 <p className="label label-strong text-[11px] tracking-[0.3em] uppercase opacity-80">{nameOf(view.chapter.current)}</p>
                 <p className="text-[24px] leading-snug font-bold">{words(openingKey(view))}</p>
-                <p className="text-[15px] opacity-90">{say(nudge?.key ?? "ui.nudge.end", nudge?.params ?? {})}</p>
+                <p className="text-[15px] opacity-90">{say(shownNudge?.key ?? "ui.nudge.end", shownNudge?.params ?? {})}</p>
                 <Button
                   onClick={() => {
                     setOpeningSeen(true);
@@ -1135,7 +1137,7 @@ export function City({
                     data-chapter-go
                   >
                     <span>{say("ui.chapter.go")}</span>
-                    <span className="text-[13px] font-semibold opacity-80">{say(nudge?.key ?? "ui.nudge.end", nudge?.params ?? {})}</span>
+                    <span className="text-[13px] font-semibold opacity-80">{say(shownNudge?.key ?? "ui.nudge.end", shownNudge?.params ?? {})}</span>
                   </button>
                 ),
               }

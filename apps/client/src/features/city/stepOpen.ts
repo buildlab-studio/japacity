@@ -1,6 +1,8 @@
 // What following the chapter's step opens (docs/rules/world.md R-WORLD-003): the step's own card when it
 // has one and its thing stands here, else the thing's acts; the Month sheet when the
 // step is the month's end; else the map with the step's stop picked (none when the player stands there).
+import { hasWords } from "../../shared/words/text";
+import type { Nudge } from "../../shared/world/contract";
 import type { StepWay } from "./nudge";
 
 export type StepOpen = { kind: "act"; activity: string } | { kind: "thing"; thing: string } | { kind: "month" } | { kind: "map"; stop: string | null };
@@ -10,4 +12,14 @@ export function stepOpen(way: StepWay, thing: string | null, offered: readonly s
   if (thing !== null) return way.opens !== undefined && offered.includes(way.opens) ? { kind: "act", activity: way.opens } : { kind: "thing", thing };
   if (way.go === null) return { kind: "month" };
   return { kind: "map", stop: way.go === here ? null : way.go };
+}
+
+/**
+ * The nudge as it reads where the player stands: a step's words that name its place give way to the
+ * story's `.here` words once the step's thing stands here: "Ask at
+ * the hub in Yaba" in the hub reads "Find a job on the board".
+ */
+export function nudgeHere<Shown extends Nudge>(nudge: Shown, thing: string | null): Shown {
+  const here = `${nudge.key}.here`;
+  return thing !== null && nudge.key.endsWith(".nudge") && hasWords(here) ? { ...nudge, key: here } : nudge;
 }

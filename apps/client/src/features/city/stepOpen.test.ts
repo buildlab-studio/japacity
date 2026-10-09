@@ -3,10 +3,17 @@
 // tap; the desk's chip keeps its list for a player who browses.
 import { describe, expect, test } from "vitest";
 
+import airport from "../../../public/assets/places/arrivals-hall/place.json";
+import bank from "../../../public/assets/places/bank-counter/place.json";
+import parlour from "../../../public/assets/places/family-house-parlour/place.json";
+import testCentre from "../../../public/assets/places/english-test-centre/place.json";
+import clinic from "../../../public/assets/places/tb-clinic/place.json";
+import visaCentre from "../../../public/assets/places/visa-centre/place.json";
 import raw from "../../../public/assets/places/yaba-hub/place.json";
+import { say } from "../../shared/words/text";
 import { stepThingHere, stepWayOf } from "./nudge";
 import { staged } from "./places/placeTesting";
-import { stepOpen } from "./stepOpen";
+import { nudgeHere, stepOpen } from "./stepOpen";
 
 const { stage } = staged(raw, "place.yaba");
 const things = stage.things ?? [];
@@ -40,5 +47,39 @@ describe("the nudge's Go on the application", () => {
     if (jobs === null) throw new Error("No way for the job.");
     expect(stepOpen(jobs, "jobs", ["activity.job-hunt"], "place.yaba")).toEqual({ kind: "thing", thing: "jobs" });
     expect(stepOpen(jobs, null, [], "place.yaba")).toEqual({ kind: "map", stop: null });
+  });
+});
+
+// The smaller notes of the nudge names the place only while the player is elsewhere.
+
+describe("the nudge where the player stands", () => {
+  const cases = [
+    { chapter: "chapter.find-your-feet", step: "job", file: raw, place: "place.yaba", names: /hub|Yaba/ },
+    { chapter: "chapter.build-the-file", step: "passport", file: parlour, place: "place.family-house", names: /home/ },
+    { chapter: "chapter.build-the-file", step: "english", file: testCentre, place: "place.english-test-centre", names: /centre/ },
+    { chapter: "chapter.build-the-file", step: "offer", file: raw, place: "place.yaba", names: /hub/ },
+    { chapter: "chapter.decision-day", step: "deposit", file: bank, place: "place.olokun-office", names: /bank/ },
+    { chapter: "chapter.decision-day", step: "tb", file: clinic, place: "place.tb-clinic", names: /clinic/ },
+    { chapter: "chapter.decision-day", step: "applied", file: visaCentre, place: "place.visa-centre", names: /visa centre/ },
+    { chapter: "chapter.send-off", step: "departed", file: airport, place: "place.airport-lagos", names: /airport/ },
+  ] as const;
+
+  test("[R-WORLD-003] given each step whose nudge names a place, when the player stands where its thing is, then the nudge drops the place, in one sentence of at most eight words", () => {
+    for (const { chapter, step, file, place, names } of cases) {
+      const way = stepWayOf({ current: chapter, items: [{ id: step, met: false }], done: [] });
+      if (way === null) throw new Error(`${chapter}.${step} has no way.`);
+      const thing = stepThingHere(way, place, staged(file, place as never).stage.things ?? []);
+      expect(thing, `${chapter}.${step} at ${place}`).not.toBeNull();
+      const elsewhere = { key: `${chapter}.item.${step}.nudge` };
+      expect(say(elsewhere.key)).toMatch(names);
+      const here = nudgeHere(elsewhere, thing);
+      expect(here.key).toBe(`${elsewhere.key}.here`);
+      const said = say(here.key);
+      expect(said, here.key).not.toMatch(names);
+      expect(said.split(" ").length).toBeLessThanOrEqual(8);
+      expect(said.split(/[.!?] /)).toHaveLength(1);
+      // Away from it, the nudge keeps the place.
+      expect(nudgeHere(elsewhere, null)).toEqual(elsewhere);
+    }
   });
 });
