@@ -67,7 +67,10 @@ export const phoneText: Record<string, string> = {
 
   "phone.japa.label": "Japacity",
   "phone.japa.gloss": "How ready you are to go",
-  "phone.japa.none": "No way out yet. Keep your ears open.",
+  "phone.japa.none": "No plan yet. Hear of a way out first.",
+  "phone.japa.plan": "Your plan: {route}",
+  "phone.japa.others": "Other ways out",
+  "phone.japa.mark": "{what}: {when}.",
   "phone.japa.steps": "The steps",
   "phone.japa.papers": "Papers",
   "phone.japa.official": "Free, takes one slot this month. The full list for {route}, as it stands today.",
