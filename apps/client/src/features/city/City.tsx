@@ -8,6 +8,7 @@ import { Clock, Map as MapIcon, Settings2, X } from "lucide-react";
 import { lazy, Suspense, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 
 import { useGame, useView } from "../../authority/GameProvider";
+import { keptLookFile } from "../../authority/person";
 import { chooseGraphics, setGraphicsMode } from "../../shared/graphics/mode";
 import { assetUrl, loadJson, loadManifest } from "../../shared/three/manifest";
 import { Button } from "../../shared/ui/Button";
@@ -39,7 +40,7 @@ import { type Device, enterPlace, keepChoice, type Mode, type ModeChoice, modeSe
 import { overheard } from "./overheard";
 import { dancerShown, dressPlace, openGround, type PlaceFile, stageOf } from "./placeFile";
 import { HOUSE, insideOf, roomOf } from "./room";
-import { personOfLook } from "./roster";
+import { personOf, personOfLook } from "./roster";
 import type { Picked, ScenePick } from "./scene.types";
 import { sceneWords } from "./scene.words";
 import { enterable, offersHere, openingPlace, openScene, reportHere, type ViewPlace } from "./staging";
@@ -178,9 +179,9 @@ function storage(): Storage | null {
   }
 }
 
-/** The player's own look: the starting life's person where one is shipped. */
-function ownFile(scenario: string): string {
-  return personOfLook(`chr_${scenario.slice("scenario.".length)}`)?.file ?? FALLBACK_OWN;
+/** The player's own look: the one built at the front door (R-PROLOGUE-009), else the starting life's person where one is shipped. */
+export function ownFile(scenario: string, kept: string | null = keptLookFile()): string {
+  return (kept === null ? null : personOf(kept)?.file) ?? personOfLook(`chr_${scenario.slice("scenario.".length)}`)?.file ?? FALLBACK_OWN;
 }
 
 function entryOf(id: string): PlaceEntry | null {
@@ -437,7 +438,8 @@ export function City({
   const settings = modeSettings(mode, device(), city);
   const others = useMemo<Other[]>(() => (presence !== null && presence.place === placeId ? presence.others : []), [presence, placeId]);
   const today = useMemo<Other[]>(() => (presence !== null && presence.place === placeId ? (presence.today ?? []) : []), [presence, placeId]);
-  const own = ownFile(view.scenario);
+  // The look is read once a life, not on every frame of the city (R-PROLOGUE-009).
+  const own = useMemo(() => ownFile(view.scenario), [view.scenario]);
   // No resident wears the player's own outfit or a dancer's.
   // In the world a place shows at most the crowd its scope allows in the mode; the party keeps its ten (R-WORLD-011).
   const crowdEntry = inside && insideEntry !== null ? insideEntry : entry;
