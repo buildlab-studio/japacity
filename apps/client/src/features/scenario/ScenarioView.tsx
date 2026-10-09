@@ -123,7 +123,15 @@ export function ScenarioView() {
               </p>
             </div>
           </div>
-          <ul className="mt-3 grid grid-cols-2 gap-1.5" data-archetypes>
+          {/* Above the tiles, a small row, so the ready lives are seen without scrolling past six tiles. */}
+          <button type="button" className="press mt-2.5 flex w-full items-center justify-between gap-2 rounded-[5px] border border-sheet-line px-3 py-2 text-left" onClick={() => setStage("ready")} data-ready-card>
+            <span className="min-w-0">
+              <span className="block text-[14px] font-extrabold">{say("ui.door.ready")}</span>
+              <span className="block truncate text-[12px] text-text-2">{say("ui.door.ready.hint")}</span>
+            </span>
+            <ArrowRight size={16} className="shrink-0" />
+          </button>
+          <ul className="mt-2.5 grid grid-cols-2 gap-1.5" data-archetypes>
             {ARCHETYPES.map((archetype) => (
               <li key={archetype.id}>
                 <button
@@ -141,13 +149,6 @@ export function ScenarioView() {
               </li>
             ))}
           </ul>
-          <button type="button" className="press mt-3 flex w-full items-center justify-between rounded-[5px] border border-sheet-line px-3 py-3 text-left" onClick={() => setStage("ready")} data-ready-card>
-            <span>
-              <span className="block text-[15px] font-extrabold">{say("ui.door.ready")}</span>
-              <span className="block text-[12px] text-text-2">{say("ui.door.ready.hint")}</span>
-            </span>
-            <ArrowRight size={18} />
-          </button>
         </GateSheet>
       ) : (
         <GateSheet key="ready" mark="ready" label={say("ui.door.ready.title")}>

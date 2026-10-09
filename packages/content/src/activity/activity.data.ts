@@ -153,9 +153,10 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
   },
 
   // Ngozi's job (route-gates.md, the last table): a staff nurse at ₦180,000 a month.
-  // the page names the job only on the starting life and gives no chance or
-  // monthly effects. A nurse starts at care 60, so that is what it needs; it has no
-  // hiring chance of its own, and its month is a care job's: wellbeing -4, care +1.
+  // a nurse starts at care 60, so that is what it needs, and its month is a care job's:
+  // wellbeing -4, care +1. The nurse from sixteen hunts it at the clinic (prologue.md R-PROLOGUE-010,
+  // no page gives its hiring chance; 50% is taken, between the
+  // teacher's 70% and the junior developer's 35%: the wards are short of nurses.
   "activity.job-nurse": {
     id: "activity.job-nurse",
     slot: "main",
@@ -163,7 +164,7 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
     param: null,
     cost: [],
     pay: { currency: "NGN", amount: naira(180000) },
-    hireBp: null,
+    hireBp: pct(50),
     effects: [
       { type: "quality/add", quality: "quality.wellbeing", amount: -4 },
       { type: "quality/add", quality: "quality.care", amount: 1 },
@@ -285,6 +286,9 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
       { type: "route/hear", route: UK, chanceBp: pct(40), via: "meetup" },
       // route-gates.md: the talent route is heard of at a meetup, 20%.
       { type: "route/hear", route: TALENT, chanceBp: pct(20), via: "meetup" },
+      // guides.md R-GUIDE-016: a life with care 30 (the care route's own bar to hear) hears of care work at the meetup.
+      // No chance is given for it, so none is drawn and the offer stream keeps its walk.
+      { type: "route/hear", route: CARE, via: "meetup" },
     ],
     counts: [],
   },
@@ -573,8 +577,8 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
     id: "activity.renew-licence",
     slot: "free",
     where: "home",
-    // only a nurse renews. Care 40 is what the prologue's nurses leave with; a renewal already
-    // being made blocks another (R-DOCUMENT-004 keeps the held one in force meanwhile).
+    // only a nurse renews. Care 40 is well under what every nurse holds (the prologue's leave with 60);
+    // a renewal already being made blocks another (R-DOCUMENT-004 keeps the held one in force meanwhile).
     requires: [
       { type: "quality/min", quality: "quality.care", value: 40 },
       { type: "not", of: { type: "document/pending", document: "document.nursing-licence" } },

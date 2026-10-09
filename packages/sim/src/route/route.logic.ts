@@ -337,6 +337,24 @@ function allHold(ctx: Ctx, requirements: readonly Requirement[]): boolean {
 }
 
 /**
+ * R-GUIDE-016: the routes a first meetup tells of, in the order a life's profile fits them. Each but the last
+ * carries its own bar, which stands in for the route's `hearIf` on that first meetup; the last keeps its `hearIf`.
+ */
+const FIRST_MEETUP_FITS: readonly { route: Id<"route">; bar: Requirement | null }[] = [
+  { route: "route.uk-care", bar: { type: "quality/min", quality: "quality.care", value: 30 } },
+  { route: "route.uk-talent", bar: { type: "quality/min", quality: "quality.tech", value: 40 } },
+  { route: "route.uk-masters", bar: null },
+];
+
+/**
+ * The route the first meetup of a life hears of for sure (R-GUIDE-016): the first that fits the profile and is
+ * still unknown, so a way already heard of never leaves the first meetup with nothing to tell.
+ */
+function firstMeetupFit(ctx: Ctx): { route: Id<"route">; bar: Requirement | null } | null {
+  return FIRST_MEETUP_FITS.find((fit) => routeOf(ctx.state, fit.route).state === "unknown" && (fit.bar === null || ctx.check(fit.bar).met)) ?? null;
+}
+
+/**
  * R-ROUTE-002. Hearing is talk that comes up, not a school's draw, so a chance
  * to hear draws on `offer`. The draw comes first, and only for a route still
  * unknown.
@@ -347,11 +365,13 @@ function hear(ctx: Ctx, effect: Effect): BaseEvent[] {
   if (routeOf(ctx.state, effect.route).state !== "unknown") return [];
   // R-PLACE-008: a removal bans every route into that country for its months.
   if (banned(readOf(ctx), entry.country)) return [];
-  // R-GUIDE-016: the first meetup of a life hears of the story's route for sure (a nil chance stays nil); the chance applies from the second on. The draw is made either way, so the stream keeps its walk (R-ROUTE-002).
-  const sure = effect.via === "meetup" && entry.id === "route.uk-masters" && (effect.chanceBp ?? 0) > 0 && (ctx.state.activity.played["activity.meetup"] ?? 0) === 0;
+  // R-GUIDE-016: the first meetup of a life hears for sure of the route that fits the life (a nil chance stays nil); the chance applies from the second on. The draw is made either way, so the stream keeps its walk (R-ROUTE-002).
+  const fit = effect.via === "meetup" && (ctx.state.activity.played["activity.meetup"] ?? 0) === 0 ? firstMeetupFit(ctx) : null;
+  const sure = fit !== null && fit.route === entry.id && (effect.chanceBp ?? 0) > 0;
   const rolled = effect.chanceBp === undefined ? true : ctx.random.chance("offer", effect.chanceBp);
   if (!sure && !rolled) return [];
-  if (!allHold(ctx, entry.hearIf)) return [];
+  // The sure hear stands on the profile's bar where the rule gives one (R-GUIDE-016), on the route's own `hearIf` otherwise.
+  if (!(sure && fit.bar !== null) && !allHold(ctx, entry.hearIf)) return [];
   return [moved(entry.id, "heard", effect.via)];
 }
 

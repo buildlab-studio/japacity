@@ -238,6 +238,8 @@ export const prologueTable: Record<string, PrologueStep> = {
 
   // No choice: one answer is allowed. The grade (2 plus grade base, +1 at 4000, -1 at 2000 after `expo`, kept
   // between 2 and 5) is the prologue kind's: an answer has no field for it. Care 30 or more is a nurse.
+  // Graduating as a nurse adds care 30 with the licence, so the course and the licence leave her at care 60,
+  // the staff nurse's bar (prologue.md R-PROLOGUE-010).
   graduation: {
     id: "graduation",
     months: 3,
@@ -246,7 +248,7 @@ export const prologueTable: Record<string, PrologueStep> = {
       answer("results", [add(EDU_LEVEL, 3)], {
         requires: [{ type: "quality/max", quality: "quality.care", value: 29 }],
       }),
-      answer("results-nurse", [add(EDU_LEVEL, 3), add("quality.care", 10), { type: "document/grant", document: "document.nursing-licence" }], {
+      answer("results-nurse", [add(EDU_LEVEL, 3), add("quality.care", 30), { type: "document/grant", document: "document.nursing-licence" }], {
         requires: [{ type: "quality/min", quality: "quality.care", value: 30 }],
       }),
     ],

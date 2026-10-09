@@ -315,7 +315,8 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
     where: "any",
     when: [NOT_BROKE],
     chanceBp: pct(6),
-    cooldown: 6,
+    // A harvest is once a year: never a second pledge within twelve months.
+    cooldown: 12,
     maxTimes: null,
     expiresAfter: 1,
     terms: { cost: naira(30000) },
@@ -396,7 +397,9 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
     when: [{ type: "quality/min", quality: "quality.edu-level", value: 3 }],
     chanceBp: pct(5),
     cooldown: 5,
-    maxTimes: null,
+    // Terna leaves once. keeping it from a life from sixteen, whose prologue
+    // took him to a send-off, needs a requirement that reads the prologue; none does.
+    maxTimes: 1,
     expiresAfter: 1,
     terms: {},
     fraudBp: 0,
@@ -558,7 +561,9 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
   "offer.salary-loan": {
     id: "offer.salary-loan",
     group: "money",
-    when: [{ type: "job/any" }, SIX_MONTHS_IN_ANY_JOB, CREDIT_CLEAN],
+    // Twelve months deducted at source have no place in a life whose visa is granted or that has flown, as the
+    // savings circle.
+    when: [{ type: "job/any" }, SIX_MONTHS_IN_ANY_JOB, CREDIT_CLEAN, { type: "not", of: LEAVING }],
     chanceBp: pct(8),
     cooldown: 6,
     maxTimes: null,

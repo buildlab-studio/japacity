@@ -529,7 +529,7 @@ describe("whole-life rules that cross kinds", () => {
     if (game.state.prologue.step === "strike-drag") choose(game, "back");
     expect(moved("code", ["quality.tech"])).toEqual([15]);
     choose(game, "focus");
-    expect(moved("results-nurse", ["quality.edu-level", "quality.care"])).toEqual([3, 10]);
+    expect(moved("results-nurse", ["quality.edu-level", "quality.care"])).toEqual([3, 30]);
     expect(game.view().documents.find((paper) => paper.id === "document.nursing-licence")?.state).toBe("held");
     const cash = game.state.wallet.pockets.NGN.cash;
     expect(moved("serve", ["quality.standing", "quality.network", "quality.wellbeing"])).toEqual([8, 8, 4]);

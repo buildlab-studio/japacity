@@ -18,7 +18,7 @@ import { formatMoney } from "../../shared/words/format";
 import { jobCardWords } from "../../shared/words/jobs";
 import { needsWords } from "../../shared/words/requirement";
 import { newsRead } from "../../shared/phone/newsSeen";
-import { sixteenPath } from "../../shared/words/sixteen";
+import { earlyStops, sixteenPath } from "../../shared/words/sixteen";
 import { blurbOf, hasWords, inMonths, nameOf, paramWords, say, words } from "../../shared/words/text";
 import { ENGLISH_TEST, testChance } from "../../shared/words/test";
 import { AskSheet } from "../../shared/world/AskSheet";
@@ -684,10 +684,12 @@ export function City({
       const middle = areaSpot(area) ?? HOME_SPOT;
       return { latE3: middle.latE3 + (index % 2 === 0 ? 2 : -2) * Math.ceil(index / 2), lonE3: middle.lonE3 + 3 * index };
     };
+    // A life's own first step opens its place before the chapter does (prologue.md R-PROLOGUE-010).
+    const early = earlyStops(view);
     return places
       .filter((place) => (place.position !== null || place.id === home || (place.area !== null && shipped?.has(place.id) === true)) && (shipped === null || shipped.has(place.id) || place.id === home))
       .map((place) => {
-        const reached = stopReached(view.chapter, where, place.id);
+        const reached = stopReached(view.chapter, where, place.id, early);
         const state: PinState = place.id === placeId ? "here" : place.id === home ? "home" : been.includes(place.id) ? "been" : !reached ? "not" : shipped === null || shipped.has(place.id) ? "can" : "not";
         return { id: place.id, name: place.id === "place.yaba" ? say("ui.inside.hub") : placeName(place.id), state, position: spotOf(place), things: place.stages.length };
       });

@@ -274,3 +274,15 @@ describe("lines that fit the life from sixteen", () => {
     expect(text["offer.send-off-party.title"]).toBe("Terna's send-off");
   });
 });
+
+describe("the nurse's course makes a nurse", () => {
+  const careAdded = (step: string, answer: string): number =>
+    (content.prologue[step]?.answers.find((found) => found.id === answer)?.effects ?? []).reduce((sum, effect) => sum + (effect.type === "quality/add" && effect.quality === "quality.care" ? effect.amount : 0), 0);
+
+  test("[R-PROLOGUE-010] given the nursing course and the graduation as a nurse, when their care is added, then it reaches the staff nurse's bar, and the graduation grants the licence", () => {
+    const bar = content.activity["activity.job-nurse"]?.requires.find((requirement) => requirement.type === "quality/min" && requirement.quality === "quality.care");
+    expect(bar?.type === "quality/min" ? bar.value : null).toBe(60);
+    expect(careAdded("course", "nursing") + careAdded("graduation", "results-nurse")).toBe(60);
+    expect(content.prologue["graduation"]?.answers.find((answer) => answer.id === "results-nurse")?.effects).toContainEqual({ type: "document/grant", document: "document.nursing-licence" });
+  });
+});

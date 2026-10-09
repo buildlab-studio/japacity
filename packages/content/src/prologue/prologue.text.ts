@@ -124,25 +124,26 @@ export const prologueText: Record<string, string> = {
   "prologue.shop.answer.stay": "Stay and know everybody",
   "prologue.shop.answer.save": "Save every naira",
 
-  // The archetypes (R-PROLOGUE-010): the tile's name, what it was, what it opens; and the handover's line.
+  // The archetypes (R-PROLOGUE-010): the tile's name, what it was, what it opens with the age it hands over at
+  // (the middle of its lives over many seeds, in whole years: the archetypes' test reads it); and the handover's line.
   "prologue.archetype.developer.name": "The developer",
   "prologue.archetype.developer.was": "Science, then computer science",
-  "prologue.archetype.developer.opens": "Opens: tech work in the UK, a master's",
+  "prologue.archetype.developer.opens": "Opens: tech work in the UK, a master's. Hands over at about 24",
   "prologue.archetype.nurse.name": "The nurse",
   "prologue.archetype.nurse.was": "Science, then nursing school",
-  "prologue.archetype.nurse.opens": "Opens: care work in the UK, the Gulf",
+  "prologue.archetype.nurse.opens": "Opens: care work in the UK, the Gulf. Hands over at about 24",
   "prologue.archetype.accountant.name": "The accountant",
   "prologue.archetype.accountant.was": "Commercial, then accounting",
-  "prologue.archetype.accountant.opens": "Opens: Canada's points, skilled work in the UK",
+  "prologue.archetype.accountant.opens": "Opens: Canada's points, skilled work in the UK. Hands over at about 24",
   "prologue.archetype.writer.name": "The writer",
   "prologue.archetype.writer.was": "Arts, then mass communication",
-  "prologue.archetype.writer.opens": "Opens: a UK master's, Canada's points",
+  "prologue.archetype.writer.opens": "Opens: a UK master's, Canada's points. Hands over at about 24",
   "prologue.archetype.trader.name": "The trader",
   "prologue.archetype.trader.was": "Six years under a spare parts master",
-  "prologue.archetype.trader.opens": "Opens: a Gulf contract, the road",
+  "prologue.archetype.trader.opens": "Opens: a Gulf contract, the road through the desert to Europe. Hands over at about 24",
   "prologue.archetype.shop-worker.name": "The shop worker",
   "prologue.archetype.shop-worker.was": "Straight from school to a shop counter",
-  "prologue.archetype.shop-worker.opens": "Opens: a Gulf contract, the road",
+  "prologue.archetype.shop-worker.opens": "Opens: a Gulf contract, the road through the desert to Europe. Hands over at about 22",
   "prologue.handover.archetype": "{kind}. {was}.",
 
   "scenario.prologue.name": "A life from sixteen",
@@ -163,6 +164,11 @@ export const prologueText: Record<string, string> = {
   "prologue.handover.home.family-house": "You sleep in the family house. Living costs: {amount} a month.",
   "prologue.handover.home.room": "You sleep in a room of your own. Living costs: {amount} a month.",
   "prologue.handover.step.heard": "Go to the meetup in Yaba and hear of a way out",
+  // A life's own first step where its archetype has a place for it: `step.<step>.<way>`.
+  "prologue.handover.step.job.clinic": "Apply for the staff nurse job at the clinic",
+  "prologue.handover.step.heard.motor-park": "Ask around at the motor park",
+  // A degree under the master's and the bank's bar on the grade.
+  "prologue.handover.grade-short": "Your grade keeps the master's and the bank shut. The talent route reads your work, not your grade.",
   // The master's settlement, said as itself and not as side work.
   "prologue.line.settlement": "The settlement: {amount}.",
   "prologue.line.level": "{quality} now: {level}.",

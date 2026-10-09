@@ -13,9 +13,12 @@ export const OPENS_WITH: Record<string, Id<"chapter">> = {
   "place.airport-lagos": "chapter.send-off",
 };
 
-/** True when the story has reached the place: no chapter ties it, or that chapter is current or done, or the character is abroad. */
-export function stopReached(chapter: PlayerView["chapter"], where: PlayerView["place"]["where"], place: string): boolean {
+/**
+ * True when the story has reached the place: no chapter ties it, or that chapter is current or done, or the character is abroad,
+ * or the life's own first step is there (`early`: the nurse's clinic, prologue.md R-PROLOGUE-010).
+ */
+export function stopReached(chapter: PlayerView["chapter"], where: PlayerView["place"]["where"], place: string, early: readonly string[] = []): boolean {
   const opens = OPENS_WITH[place];
-  if (opens === undefined || where !== "home") return true;
+  if (opens === undefined || where !== "home" || early.includes(place)) return true;
   return chapter.current === opens || chapter.done.includes(opens);
 }

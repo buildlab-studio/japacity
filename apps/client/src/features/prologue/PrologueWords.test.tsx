@@ -129,7 +129,7 @@ describe("the life from sixteen keeps the story its prologue built", () => {
     expect(afterSettlement).not.toContain("side work");
   });
 
-  test("[R-TEXT-005] given a trader settled generously, in a room of his own, when the handover shows, then land is said in words, the capital is named with what it can do now, the room and its living costs are said, and the meetup comes first", async () => {
+  test("[R-TEXT-005] [R-PROLOGUE-010] given a trader settled generously, in a room of his own, when the handover shows, then land is said in words, the capital is named with what it can do now, the room and its living costs are said, and the motor park comes first", async () => {
     const { game } = await walk("sixteen-0", trader);
     await screen.findByRole("heading", { name: words("line.prologue.closed") });
     const view = game.view();
@@ -140,7 +140,8 @@ describe("the life from sixteen keeps the story its prologue built", () => {
     const story = document.querySelector("[data-handover-story]")?.textContent ?? "";
     expect(story).toContain("₦6,000,000 in hand, the shop's capital. It is the move's money now, if you want it to be.");
     expect(story).toContain("You sleep in a room of your own. Living costs: ₦180,000 a month.");
-    expect(document.querySelector("[data-first-step]")?.textContent).toBe("Your first step: Go to the meetup in Yaba and hear of a way out.");
+    // the Gulf is heard at the motor park, so a trade's first step is there, not at the meetup.
+    expect(document.querySelector("[data-first-step]")?.textContent).toBe("Your first step: Ask around at the motor park.");
   });
 
   test("[R-PROLOGUE-008] given a graduate at the family house, when the handover shows, then it says where he sleeps and what it costs, and speaks of no shop's capital", async () => {
@@ -149,5 +150,56 @@ describe("the life from sixteen keeps the story its prologue built", () => {
     const story = document.querySelector("[data-handover-story]")?.textContent ?? "";
     expect(story).toContain("You sleep in the family house. Living costs: ₦95,000 a month.");
     expect(story).not.toMatch(/capital/);
+  });
+});
+
+describe("the handover says the archetype's own first step", () => {
+  /** The nurse's path: science, the exam, nursing, books, focus, the service year, the UK crowd, the family house. */
+  const NURSE = ["begin", "science", "jamb", "study", "again", "nursing", "federal", "wait", "back", "books", "focus", "results-nurse", "serve", "uk", "family-house"];
+  const nurse = (allowed: readonly string[]) => NURSE.find((id) => allowed.includes(id)) ?? allowed[0] ?? "";
+
+  test("[R-PROLOGUE-010] given a nurse from sixteen, when the handover shows, then her first step is the staff nurse's job at the clinic", async () => {
+    const { game } = await walk("nurse-handover", nurse);
+    await screen.findByRole("heading", { name: words("line.prologue.closed") });
+    expect(game.view().qualities.find((quality) => quality.id === "quality.care")?.value).toBe(60);
+    expect(document.querySelector("[data-first-step]")?.textContent).toBe("Your first step: Apply for the staff nurse job at the clinic.");
+  });
+
+  test("[R-PROLOGUE-010] given a shop worker from sixteen, when the handover shows, then the first step is asking around at the motor park", async () => {
+    const shop = ["begin", "commercial", "work", "save", "nowhere", "family-house"];
+    await walk("shop-handover", (allowed) => shop.find((id) => allowed.includes(id)) ?? allowed[0] ?? "");
+    await screen.findByRole("heading", { name: words("line.prologue.closed") });
+    expect(document.querySelector("[data-first-step]")?.textContent).toBe("Your first step: Ask around at the motor park.");
+  });
+
+  /** A graduate who took nothing for the grade: code on the side, freelance in the final year. */
+  const LOOSE = ["begin", "science", "jamb", "study", "again", "computer-science", "federal", "wait", "back", "code", "freelance", "results", "serve", "nowhere", "family-house"];
+  const loose = (allowed: readonly string[]) => LOOSE.find((id) => allowed.includes(id)) ?? allowed[0] ?? "";
+
+  /** The first seed whose loose graduate's grade lands on `low` (true: under the master's bar), played on the engine alone. */
+  function seedWhose(low: boolean): string {
+    const bar = content.route["route.uk-masters"]?.checklist.flatMap((item) => (item.requirement.type === "quality/min" && item.requirement.quality === "quality.edu-grade" ? [item.requirement.value] : []))[0] ?? 0;
+    for (let n = 0; n < 40; n += 1) {
+      const game = newGame(PROLOGUE, `grade-${String(n)}`);
+      for (let guard = 0; guard < 40 && game.state.prologue.open; guard += 1) {
+        const prologue = game.view().prologue!;
+        game.accept({ type: "prologue/choose", step: prologue.step, answer: loose(prologue.answers.filter((answer) => answer.allowed).map((answer) => answer.id)) });
+      }
+      const grade = game.view().qualities.find((quality) => quality.id === "quality.edu-grade")?.value ?? 0;
+      if (grade < bar === low) return `grade-${String(n)}`;
+    }
+    throw new Error("No seed in 40 lands there.");
+  }
+
+  test("[R-PROLOGUE-010] given a graduate whose grade is under second class lower, when the handover shows, then one line says the master's and the bank are shut and the talent route is not", async () => {
+    await walk(seedWhose(true), loose);
+    await screen.findByRole("heading", { name: words("line.prologue.closed") });
+    expect(document.querySelector("[data-handover-story]")?.textContent).toContain("Your grade keeps the master's and the bank shut. The talent route reads your work, not your grade.");
+  });
+
+  test("[R-PROLOGUE-010] given a graduate at the bar, when the handover shows, then no line speaks of the grade", async () => {
+    await walk(seedWhose(false), loose);
+    await screen.findByRole("heading", { name: words("line.prologue.closed") });
+    expect(document.querySelector("[data-handover-story]")?.textContent).not.toMatch(/grade/);
   });
 });

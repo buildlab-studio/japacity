@@ -514,7 +514,8 @@ export const uiText: Record<string, string> = {
   "ui.door.next": "Next",
   "ui.door.next.then": "What you did",
   "ui.door.path": "What you did",
-  "ui.door.path.hint": "Up to about 22. Pick one and live it.",
+  // Each tile says the age its life hands over at, so the sheet names none.
+  "ui.door.path.hint": "Pick one and live it from sixteen.",
   "ui.door.back": "Back",
   "ui.door.ready": "Start from a ready life",
   "ui.door.ready.hint": "Skip the years before. Start at work.",
