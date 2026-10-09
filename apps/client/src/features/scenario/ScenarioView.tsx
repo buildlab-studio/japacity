@@ -113,7 +113,7 @@ export function ScenarioView() {
       ) : stage === "path" ? (
         <GateSheet key="path" mark="path" label={say("ui.door.path")}>
           <div className="flex items-center gap-2">
-            <button type="button" aria-label={say("ui.door.back")} className="press -ml-1 flex size-9 items-center justify-center rounded-full bg-sheet-muted" onClick={() => setStage("you")}>
+            <button type="button" aria-label={say("ui.door.back")} className="press -ml-1 flex size-9 items-center justify-center rounded-[5px] bg-sheet-muted" onClick={() => setStage("you")}>
               <ArrowLeft size={18} />
             </button>
             <div className="min-w-0">
@@ -152,7 +152,7 @@ export function ScenarioView() {
       ) : (
         <GateSheet key="ready" mark="ready" label={say("ui.door.ready.title")}>
           <div className="flex items-center gap-2">
-            <button type="button" aria-label={say("ui.door.back")} className="press -ml-1 flex size-9 items-center justify-center rounded-full bg-sheet-muted" onClick={() => setStage("path")}>
+            <button type="button" aria-label={say("ui.door.back")} className="press -ml-1 flex size-9 items-center justify-center rounded-[5px] bg-sheet-muted" onClick={() => setStage("path")}>
               <ArrowLeft size={18} />
             </button>
             <h1 className="title text-[22px] leading-tight">{say("ui.door.ready.title")}</h1>

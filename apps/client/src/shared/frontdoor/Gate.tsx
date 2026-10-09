@@ -45,8 +45,11 @@ export function Gate({ look, facingSheet = true, children, mark }: GateProps) {
         data-front-scene
         aria-hidden
         // The compound's own colours, the sky over the yard's wall: the 3D world keeps its colours in both themes (R-WORLD-021).
-        style={{ background: `linear-gradient(${paletteCss("sky")} 0 30%, ${paletteCss("wallCream")} 30% 44%, ${paletteCss("laterite")} 44%)` }}
+        style={{ background: paletteCss("laterite") }}
       >
+        {/* Three flat bands, the sky, the wall and the ground: no gradient (R-WORLD-021). */}
+        <div aria-hidden className="absolute inset-x-0 top-0 h-[30%]" style={{ background: paletteCss("sky") }} />
+        <div aria-hidden className="absolute inset-x-0 top-[30%] h-[14%]" style={{ background: paletteCss("wallCream") }} />
         {drawing ? (
           <Suspense fallback={null}>
             <FrontScene look={shown?.file ?? "shared/chr/chr_ada.glb"} facingSheet={facingSheet} />
