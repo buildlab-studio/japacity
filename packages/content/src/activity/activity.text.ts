@@ -26,7 +26,7 @@ export const activityText: Record<string, string> = {
   "activity.job-hunt.name": "Look for a job",
   "activity.job-hunt.blurb": "You send applications and follow up on every lead.",
   "activity.study-english.name": "Study for the English test",
-  "activity.study-english.blurb": "You buy the practice books and work through them at night.",
+  "activity.study-english.blurb": "You buy the practice books and work through them at night. A month of study lifts your chance at the test.",
   "activity.learn-tech.name": "Take a coding course",
   "activity.learn-tech.blurb": "You pay for a course and do the exercises after work.",
   "activity.build-portfolio.name": "Build something to show",

@@ -45,6 +45,9 @@ import { enterable, offersHere, openingPlace, openScene, reportHere, type ViewPl
 import { stagedNow, thingsNow, thingsOf, vehicleOf } from "./things";
 import { stopReached } from "./stops";
 
+/** Nudges that name a wait with nothing to do but end months: the English result on its way. */
+const WAIT_ONLY: ReadonlySet<string> = new Set(["chapter.build-the-file.item.english.started"]);
+
 const CityScene = lazy(() => import("./CityScene"));
 
 const city = content.tuning.city;
@@ -667,7 +670,9 @@ export function City({
   const hereId = inside ? (insideEntry?.id ?? placeId) : placeId;
   const stepThing = stepWay === null || things === undefined ? null : stepThingHere(stepWay, hereId, things);
   // Abroad the map is a list, and a stop picked on it opens its sheet all the same.
-  const nudgeGoes = stepWay !== null && (stepThing !== null || stepWay.go === null || where === "home" || where === "abroad");
+  // A result on its way is only waited for: its nudge says when it comes and opens nothing.
+  const onlyWait = nudge !== null && WAIT_ONLY.has(nudge.key);
+  const nudgeGoes = !onlyWait && stepWay !== null && (stepThing !== null || stepWay.go === null || where === "home" || where === "abroad");
   const followStep = (): void => {
     if (stepWay === null) return;
     if (stepThing !== null) {

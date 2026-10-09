@@ -74,6 +74,8 @@ export function stepThingHere(way: StepWay, here: string | null, things: readonl
 const STEP_PAPER: Record<string, string> = {
   "chapter.build-the-file.passport": "document.passport",
   "chapter.build-the-file.transcript": "document.transcript",
+  // The English result is a paper too: once sat, the nudge says when it comes.
+  "chapter.build-the-file.english": "document.english-test",
   "chapter.decision-day.tb": "document.tb-certificate",
 };
 

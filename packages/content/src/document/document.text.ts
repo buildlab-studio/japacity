@@ -29,6 +29,7 @@ export const documentText: Record<string, string> = {
   "line.document.issued-band": "Your {document} is out. Band {band}.",
   // R-WORLD-008: a band under the one the route needs ({needed}) says so, and what next.
   "line.document.issued-band-short": "Band {band}. The route needs {needed}: study and sit again.",
+  "line.document.issued-band-met": "Your {document} is out. Band {band}. That meets the route's {needed}.",
   "line.document.expired": "Your {document} has run out.",
   "line.document.voided": "Your {document} is no longer valid.",
 
