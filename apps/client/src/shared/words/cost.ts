@@ -4,7 +4,7 @@
 // pockets first and the rest is bought from the naira bank at the bank rate,
 // plus the bank's charge (docs/rules/wallet.md, R-WALLET-009).
 import { content } from "@japacity/content";
-import { int, type Currency, type PlayerView, type SlotPick } from "@japacity/sim";
+import { int, type Currency, type MoneyParam, type PlayerView, type SlotPick } from "@japacity/sim";
 
 export type Money = { currency: Currency; amount: number };
 type Pockets = Pick<PlayerView, "pockets" | "rates">;
@@ -55,29 +55,81 @@ export function plannedCosts(view: Pick<PlayerView, "activities">, plan: readonl
   return plan.flatMap((pick) => (pick === null ? [] : (view.activities.find((option) => option.id === pick.activity)?.cost ?? [])));
 }
 
-/** What is left once a cost is paid, or how much is short: never both. */
-export type AfterPaying = { left: Money; short: null } | { left: null; short: Money };
+/**
+ * What is left once a cost is paid, or how much is short: never both. `due` is what falls due at
+ * the month's end in the same currency, when what is left (and the month's pay) will not meet it.
+ */
+export type AfterPaying = { left: Money; short: null; due: Money | null } | { left: null; short: Money };
+
+/**
+ * A job's pay a month, from content: a job abroad is paid by the year and its month is a twelfth,
+ * as the simulation pays it (activity.pay.ts, `paidYearly`). Null when content gives no figure.
+ */
+export function monthlyPayOf(job: string): MoneyParam | null {
+  const entry = content.activity[job as keyof typeof content.activity];
+  const pay = entry?.pay ?? null;
+  if (pay === null || typeof pay.amount !== "number") return null;
+  return { currency: pay.currency, amount: entry?.where === "abroad" ? int.divFloor(pay.amount, 12) : pay.amount };
+}
+
+/** The month's dues against the pay that comes in before them (docs/rules/engine.md section 4: the job pays, then the bills are taken). */
+export interface MonthDues {
+  due: Money[];
+  pay: Money[];
+}
+
+/** What the month's end takes, by currency, and the jobs' pay that arrives first. */
+export function monthDues(view: Pick<PlayerView, "obligations" | "job">): MonthDues {
+  const sum = (moneys: Money[]): Money[] => {
+    const totals = new Map<Currency, number>();
+    for (const { currency, amount } of moneys) totals.set(currency, (totals.get(currency) ?? 0) + amount);
+    return [...totals].map(([currency, amount]) => ({ currency, amount }));
+  };
+  const due = view.obligations.flatMap((owed): Money[] => {
+    const currency = content.obligation[owed.entry]?.currency;
+    return currency === undefined || owed.due <= 0 ? [] : [{ currency, amount: owed.due }];
+  });
+  const pay = [view.job.id, view.job.side].flatMap((job): Money[] => {
+    const monthly = job === null ? null : monthlyPayOf(job);
+    return monthly === null ? [] : [monthly];
+  });
+  return { due: sum(due), pay: sum(pay) };
+}
+
+/** The dues in `left`'s currency when what is left and the month's pay will not meet them, else null. */
+function dueOver(left: Money, dues: MonthDues | null): Money | null {
+  if (dues === null) return null;
+  const due = dues.due.find((each) => each.currency === left.currency)?.amount ?? 0;
+  const pay = dues.pay.find((each) => each.currency === left.currency)?.amount ?? 0;
+  return due > 0 && left.amount + pay < due ? { currency: left.currency, amount: due } : null;
+}
 
 /**
  * What paying these costs leaves, after what the month already plans, or how much is short, so
  * a main button can say what is left after and stay shut when it cannot be paid (R-WORLD-006).
  * A cost in one foreign currency held in its own pockets is told in that currency; anything that
- * needs naira is told in naira, as `shortfall` counts it.
+ * needs naira is told in naira, as `shortfall` counts it. With `dues`, what is left is held against
+ * what the month's end takes, so the card can warn before a bill goes unpaid.
  */
-export function afterPaying(view: Pockets, planned: readonly Money[], costs: readonly Money[]): AfterPaying {
+export function afterPaying(view: Pockets, planned: readonly Money[], costs: readonly Money[], dues: MonthDues | null = null): AfterPaying {
   const all = [...planned, ...costs];
   const currencies = new Set(costs.map((cost) => cost.currency));
   const [only] = currencies;
   if (currencies.size === 1 && only !== undefined && only !== "NGN") {
     const pocket = view.pockets[only];
     const need = all.filter((cost) => cost.currency === only).reduce((sum, cost) => sum + cost.amount, 0);
-    if (pocket.bank + pocket.cash >= need) return { left: { currency: only, amount: pocket.bank + pocket.cash - need }, short: null };
+    if (pocket.bank + pocket.cash >= need) {
+      const left = { currency: only, amount: pocket.bank + pocket.cash - need };
+      return { left, short: null, due: dueOver(left, dues) };
+    }
   }
   const gap = shortfall(view, all);
-  return gap.short > 0 ? { left: null, short: { currency: "NGN", amount: gap.short } } : { left: { currency: "NGN", amount: gap.have - gap.need }, short: null };
+  if (gap.short > 0) return { left: null, short: { currency: "NGN", amount: gap.short } };
+  const left: Money = { currency: "NGN", amount: gap.have - gap.need };
+  return { left, short: null, due: dueOver(left, dues) };
 }
 
 /** The same for money the caller has counted itself (a bill paid now from held funds): one figure in the cost's currency. */
 export function afterHaving(have: number, cost: Money): AfterPaying {
-  return have >= cost.amount ? { left: { currency: cost.currency, amount: have - cost.amount }, short: null } : { left: null, short: { currency: cost.currency, amount: cost.amount - have } };
+  return have >= cost.amount ? { left: { currency: cost.currency, amount: have - cost.amount }, short: null, due: null } : { left: null, short: { currency: cost.currency, amount: cost.amount - have } };
 }

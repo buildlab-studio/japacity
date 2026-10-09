@@ -13,7 +13,8 @@ import { formatMoney } from "../../shared/words/format";
 import { newGame, recordedGame, abroadGame } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { nameOf, words } from "../../shared/words/text";
-import { monthlyPayOf, storyLines, toldOnResults } from "./month.results";
+import { monthlyPayOf } from "../../shared/words/cost";
+import { storyLines, toldOnResults } from "./month.results";
 import { Results } from "./Results";
 import { turnWords } from "./turn.words";
 

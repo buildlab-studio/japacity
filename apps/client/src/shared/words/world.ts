@@ -8,6 +8,7 @@ export const worldText: Record<string, string> = {
   "ui.world.not-now": "Not now",
   "ui.world.close": "Close",
   "ui.world.left": "{amount} left",
+  "ui.world.left-due": "{left} left, {due} due at the month's end",
   "ui.world.short": "{amount} short",
   "ui.world.short-label": "Short",
   "ui.world.costs": "Costs",

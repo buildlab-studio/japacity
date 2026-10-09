@@ -2,8 +2,9 @@
 // lines with their signs, what was kept, the draw's numbers with any of the player's lit, and the
 // savings toward the move. Plain functions over the view, so the sheet only lays them out.
 import { content } from "@japacity/content";
-import { int, type Currency, type MoneyParam, type PlayerView, type ReportLine } from "@japacity/sim";
+import type { Currency, PlayerView, ReportLine } from "@japacity/sim";
 
+import { monthlyPayOf } from "../../shared/words/cost";
 import { afterPrologue, forYou, isSaid, movesMoney, tidyLines } from "../../shared/words/lines";
 import { moneyParam } from "../../shared/words/text";
 
@@ -94,17 +95,6 @@ export function storyLines(lines: readonly ReportLine[]): ReportLine[] {
 /** True for the line that leads the results alone: the visa granted. */
 export function leadsAlone(line: ReportLine): boolean {
   return line.key === GRANTED;
-}
-
-/**
- * A job's pay a month, from content: a job abroad is paid by the year and its month is a twelfth,
- * as the simulation pays it (activity.pay.ts, `paidYearly`). Null when content gives no figure.
- */
-export function monthlyPayOf(job: string): MoneyParam | null {
-  const entry = content.activity[job as keyof typeof content.activity];
-  const pay = entry?.pay ?? null;
-  if (pay === null || typeof pay.amount !== "number") return null;
-  return { currency: pay.currency, amount: entry?.where === "abroad" ? int.divFloor(pay.amount, 12) : pay.amount };
 }
 
 /** What a missed bill cost, by its entry: the credit file abroad, then the standing and the mood its miss takes. */
