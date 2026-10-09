@@ -109,7 +109,7 @@ describe("R-CONTRACT-001: hearing of the Gulf", () => {
     expect(routeOf(game).state).toBe("heard");
     toKnown(game);
     const view = game.view().routes.find((route) => route.id === GULF)!;
-    expect(view.checklist.map((item) => item.id)).toEqual(["passport", "medical", "agent", "applied"]);
+    expect(view.checklist.map((item) => item.id)).toEqual(["passport", "medical", "agent", "police", "applied"]);
   });
 
   test("[R-CONTRACT-003] given no schooling, when it asks around at the motor park, then the Gulf is not heard of; with secondary school it is", () => {
