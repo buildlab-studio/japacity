@@ -17,6 +17,11 @@ export function GameProvider({ store, children }: { store: GameStore; children: 
   return <GameContext value={store}>{children}</GameContext>;
 }
 
+/** The game store when a screen is inside a game, or null for a piece shown on its own (a sheet in a test). */
+export function useGameStoreIfAny(): GameStore | null {
+  return use(GameContext);
+}
+
 function useGameStore(): GameStore {
   const store = use(GameContext);
   if (store === null) throw new Error("A screen was rendered outside the GameProvider.");

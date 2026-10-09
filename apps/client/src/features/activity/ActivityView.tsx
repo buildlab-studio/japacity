@@ -10,7 +10,7 @@ import { useGame, useView } from "../../authority/GameProvider";
 import { bondName, timeWith } from "../../shared/sim/people";
 import { Button } from "../../shared/ui/Button";
 import { Card, Panel, Tag } from "../../shared/ui/Panel";
-import { shortfall } from "../../shared/words/cost";
+import { afterPaying, plannedCosts, shortfall, type AfterPaying } from "../../shared/words/cost";
 import { formatBand, formatMoney } from "../../shared/words/format";
 import { lockWords, SIDE_JOB_LOCK } from "../../shared/words/locks";
 import { alreadyDone, requirementSentence } from "../../shared/words/requirement";
@@ -214,6 +214,11 @@ function cannotPayWords(view: PlayerView, option: ActivityOption): string {
   return say("ui.activity.short", { short: formatMoney(gap.short, "NGN"), cost: costs, have: formatMoney(gap.have, "NGN") });
 }
 
+/** The button's second line: what is left after, or how much is short, as the ask card says it. */
+function afterWords(paying: AfterPaying): string {
+  return paying.short === null ? say("ui.world.left", { amount: formatMoney(paying.left.amount, paying.left.currency) }) : say("ui.world.short", { amount: formatMoney(paying.short.amount, paying.short.currency) });
+}
+
 function ActivityCard({ option }: { option: ActivityOption }) {
   const plan = useGame((state) => state.plan);
   const addToPlan = useGame((state) => state.addToPlan);
@@ -226,7 +231,9 @@ function ActivityCard({ option }: { option: ActivityOption }) {
   const full = content.activity[option.id]?.slot !== "none" && !plan.includes(null);
   const needsParam = option.params !== null;
   const chosenParam = needsParam ? (option.params?.includes(param) === true ? param : (option.params?.[0] ?? "")) : "";
-  const canAdd = option.allowed && option.affordable && !full && !ended && (!needsParam || chosenParam !== "");
+  // R-WORLD-006: what is left after, counting what the month already pays for; a cost that cannot be paid shuts the button.
+  const paying = option.cost.length === 0 ? null : afterPaying(view, plannedCosts(view, plan), option.cost);
+  const canAdd = option.allowed && option.affordable && (paying === null || paying.short === null) && !full && !ended && (!needsParam || chosenParam !== "");
   const selectId = `param-${option.id}`;
 
   return (
@@ -302,6 +309,11 @@ function ActivityCard({ option }: { option: ActivityOption }) {
           >
             <Plus size={16} />
             {full && option.allowed ? say("ui.activity.full") : say("ui.activity.do")}
+            {paying === null || !option.allowed ? null : (
+              <span className={`text-xs font-semibold ${paying.short === null ? "opacity-80" : "text-bad"}`} data-after={paying.short === null ? "left" : "short"}>
+                {afterWords(paying)}
+              </span>
+            )}
           </Button>
         </div>
       </Card>
