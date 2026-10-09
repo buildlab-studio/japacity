@@ -73,7 +73,7 @@ function GameSheet(props: AskSheetProps) {
 function Sheet({ ask, formatMoney, icon, main: counted }: AskSheetProps & { main: Main }) {
   const open = ask !== null;
   // A reason from the world shuts the button and takes the second line (R-WORLD-006).
-  const main: Main = ask?.blocked === undefined ? counted : { after: ask.blocked, figure: null, shut: true };
+  const main: Main = ask?.blocked !== undefined ? { after: ask.blocked, figure: null, shut: true } : ask?.note !== undefined ? { after: ask.note, figure: null, shut: false } : counted;
   return (
     <Dialog.Root
       open={open}

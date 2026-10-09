@@ -9,6 +9,7 @@ import { useGame, useView } from "../../authority/GameProvider";
 import { Button } from "../../shared/ui/Button";
 import { Card, Empty, Panel, Tag } from "../../shared/ui/Panel";
 import { ReportLines } from "../../shared/ui/ReportLines";
+import { isSaid, tidyLines } from "../../shared/words/lines";
 import { formatMoney, toMajor, toMinor } from "../../shared/words/format";
 import { byMonths, nameOf, say, sayCount, words } from "../../shared/words/text";
 import { payAMonth } from "../../shared/words/pay";
@@ -175,7 +176,7 @@ function Outcome({ lines, onClose }: { lines: ReportLine[]; onClose: () => void 
           <X size={16} />
         </button>
       </div>
-      {lines.length === 0 ? <p className="text-sm text-muted">{say("ui.offer.outcome-none")}</p> : <ReportLines lines={lines} />}
+      {lines.length === 0 ? <p className="text-sm text-muted">{say("ui.offer.outcome-none")}</p> : <ReportLines lines={[...tidyLines(lines)].sort((a, b) => Number(isSaid(b)) - Number(isSaid(a)))} />}
     </div>
   );
 }

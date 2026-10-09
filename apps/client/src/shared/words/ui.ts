@@ -49,6 +49,7 @@ export const uiText: Record<string, string> = {
   "ui.world.pay-back": "Pay back what is held",
   "ui.world.pay-back-line": "{amount} is held for you. Paid back, the plane is open.",
   "ui.world.pay-back-paid": "Paid back.",
+  "ui.world.pay-back-note": "From the funds held for you. Nothing leaves your pocket.",
   "ui.chapter.go": "Go",
   "ui.world.side-job-title": "A side job: {job}",
   "ui.month.slot-remove": "Take out",

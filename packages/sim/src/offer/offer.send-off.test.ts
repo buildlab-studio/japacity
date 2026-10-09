@@ -190,4 +190,16 @@ describe("home's send-off, the month of the grant", () => {
   test("[R-CHAPTER-008] given the house in content, when what it stages is read, then the send-off is staged there", () => {
     expect(content.place["place.family-house"]?.stages).toContain(SEND_OFF);
   });
+
+describe("no funds loan after the grant", () => {
+  test("[R-ROUTE-020] given the visa granted, when months pass, then offer.held-funds never opens again", () => {
+    const { game } = granted();
+    for (let month = 0; month < 6; month += 1) {
+      game.endTurn();
+      expect(game.view().offers.some((offer) => offer.entry === "offer.held-funds")).toBe(false);
+    }
+    const when = content.offer["offer.held-funds"]?.when ?? [];
+    expect(when.some((need) => need.type === "not" && need.of.type === "route/state" && need.of.in.includes("granted"))).toBe(true);
+  });
+});
 });

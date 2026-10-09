@@ -11,7 +11,7 @@ export function Nudge({ nudge, hidden = false, onTap }: { nudge: NudgeWords | nu
   const inner = (
     <>
       <span className="size-2 shrink-0 rounded-full bg-signal" aria-hidden />
-      <span className="truncate">{words}</span>
+      <span className="line-clamp-2">{words}</span>
     </>
   );
   return (

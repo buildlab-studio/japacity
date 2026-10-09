@@ -225,6 +225,31 @@ describe("the nudge", () => {
     expect(nudgeOf(dear)).toMatchObject({ key: "chapter.build-the-file.item.passport.short", params: { amount: formatMoney(9900000, "NGN") } });
   });
 
+  test("[R-WORLD-003] given a step short of money, when a hunt is planned or the job's pay covers the gap, then the nudge says so; given the page or the meetup planned, then it waits on the month; abroad the dues gap comes before the step", () => {
+    const file = { ...quiet, month: 10, chapter: { current: "chapter.build-the-file" as const, items: [{ id: "english", met: false }], done: [] } };
+    const dear = {
+      ...file,
+      pockets: { ...file.pockets, NGN: { ...file.pockets.NGN, bank: 100000, cash: 0 } },
+      activities: file.activities.map((option) => (option.id === "activity.sit-english-test" ? { ...option, affordable: false, cost: [{ currency: "NGN" as const, amount: 10000000, reason: "fee-test" as const }] } : option)),
+    };
+    expect(nudgeOf(dear).key).toBe("chapter.build-the-file.item.english.short");
+    expect(nudgeOf(dear, undefined, ["activity.job-hunt"]).key).toBe("ui.nudge.hunt-planned");
+    // A job whose month's pay covers the gap: the nudge says to work and save.
+    const paid = { ...dear, job: { ...dear.job, id: "activity.job-junior-dev" as const } };
+    expect(nudgeOf(paid).key).toBe("chapter.build-the-file.item.english.saving");
+    const first = { ...quiet, chapter: { current: "chapter.find-your-feet" as const, items: [{ id: "known", met: false }], done: [] } };
+    expect(nudgeOf(first, undefined, ["activity.look-into-route"]).key).toBe("chapter.find-your-feet.item.known.planned");
+    const heard = { ...first, chapter: { ...first.chapter, items: [{ id: "heard", met: false }] } };
+    expect(nudgeOf(heard, undefined, ["activity.meetup"]).key).toBe("chapter.find-your-feet.item.heard.planned");
+    const abroad = {
+      ...file,
+      place: { ...file.place, where: "abroad" as const, country: "country.uk" as const },
+      pockets: { ...file.pockets, GBP: { bank: 10000, cash: 0, locked: 0 } },
+      obligations: [{ ...file.obligations[0]!, due: 500000, entry: "obligation.rent-room-uk" as never }],
+    };
+    expect(nudgeOf(abroad).about).toBe("dues");
+  });
+
   test("[R-WORLD-006] given an ask that belongs at the family house, when the sheet opens elsewhere, then it says someone waits there and one button goes there", async () => {
     const view = { ...richView(), setpiece: null, interview: null };
     await opened(world({ asks: [<p key="a" data-ask="a">the send-off</p>], asksAt: ["place.family-house"] }), view);

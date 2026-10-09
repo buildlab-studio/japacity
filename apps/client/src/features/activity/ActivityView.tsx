@@ -15,6 +15,7 @@ import { formatBand, formatMoney } from "../../shared/words/format";
 import { lockWords, SIDE_JOB_LOCK } from "../../shared/words/locks";
 import { alreadyDone, needsWords, requirementSentence } from "../../shared/words/requirement";
 import { blurbOf, hasWords, lowerFirst, nameOf, paramWords, say, sayCount } from "../../shared/words/text";
+import { payAMonth } from "../../shared/words/pay";
 import { huntOrder, JobList } from "./JobList";
 import { RouteList } from "./RouteList";
 import { routesWords } from "./routes.words";
@@ -275,7 +276,10 @@ function ActivityCard({ option }: { option: ActivityOption }) {
   // A route is picked from a list too; with more than one, nothing is picked for the player.
   const kind = content.activity[option.id]?.param;
   const routes = kind === "route" || kind === "known-route" ? (option.params ?? []) : null;
-  const firstParam = routes !== null && routes.length > 1 ? "" : ((jobs ?? option.params)?.[0] ?? "");
+  // With a job held, the first pick is the first listed job that pays more than it.
+  const heldPay = view.job.id === null ? 0 : (payAMonth(view.job.id)?.amount ?? 0);
+  const betterJob = jobs?.find((id) => (payAMonth(id)?.amount ?? 0) > heldPay) ?? null;
+  const firstParam = routes !== null && routes.length > 1 ? "" : (betterJob ?? (jobs ?? option.params)?.[0] ?? "");
   const chosenParam = needsParam ? (option.params?.includes(param) === true ? param : firstParam) : "";
   // R-WORLD-006: what is left after, counting what the month already pays for; a cost that cannot be paid shuts the button.
   const planned = plannedCosts(view, plan);
