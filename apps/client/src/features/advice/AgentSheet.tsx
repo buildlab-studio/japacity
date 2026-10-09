@@ -12,6 +12,7 @@ import { useGame, useView } from "../../authority/GameProvider";
 import { cue } from "../../shared/sound/cues";
 import { Rejection } from "../../shared/ui/Rejection";
 import { formatMoney, monthEnding } from "../../shared/words/format";
+import { tidyLines } from "../../shared/words/lines";
 import { hasWords, nameOf, say, words } from "../../shared/words/text";
 import { adviceWords } from "./advice.words";
 
@@ -63,6 +64,17 @@ function saysOf(offer: Offer): string[] {
   return says.split(",").map((item) => words(`${route}.item.${item}.name`));
 }
 
+/**
+ * The lines of a reply the sheet shows: the agent's own and the papers' (R-ADVICE-006, 009), not the
+ * ledger's or the generic "you answered" line, which the month's report keeps. Every line when none is.
+ */
+const TOLD = ["line.offer.agent-", "line.offer.look-", "line.document."];
+
+function toldLines(lines: readonly ReportLine[]): ReportLine[] {
+  const told = lines.filter((line) => TOLD.some((prefix) => line.key.startsWith(prefix)));
+  return told.length > 0 ? told : tidyLines(lines);
+}
+
 type Choose = (offer: Offer, choice: string) => Promise<ReportLine[] | null>;
 
 function useChoose(): { choose: Choose; idle: boolean } {
@@ -76,13 +88,14 @@ function useChoose(): { choose: Choose; idle: boolean } {
   return { choose, idle: !busy && !ended };
 }
 
-function Head({ offer }: { offer: Offer }) {
+/** Who he is and his line. The sheet's own head names the agent; what he leaves behind carries its title. */
+function Head({ offer, titled }: { offer: Offer; titled: boolean }) {
   return (
     <div>
       <p className="label text-text-2" data-agent-who>
         {whoOf(offer)}
       </p>
-      <h3 className="title text-[21px] leading-tight">{words(`${offer.entry}.title`, paramsOf(offer))}</h3>
+      {titled ? <h3 className="title text-[21px] leading-tight">{words(`${offer.entry}.title`, paramsOf(offer))}</h3> : null}
       <p className="mt-2 text-[15px] leading-snug text-text-2" data-agent-line>
         {words(`${offer.entry}.body`, paramsOf(offer))}
       </p>
@@ -102,7 +115,7 @@ function Cost({ fee }: { fee: number }) {
 function Lines({ lines, mark }: { lines: readonly ReportLine[]; mark: string }) {
   return (
     <ul role="status" className="flex flex-col gap-1 rounded-[5px] bg-sheet-muted px-3 py-2 text-[14px] leading-snug" data-lines={mark}>
-      {lines.map((line, index) => (
+      {toldLines(lines).map((line, index) => (
         <li key={`${line.key}-${String(index)}`} className={`pop ${line.tone === "bad" ? "font-semibold text-out" : ""}`}>
           {words(line.key, line.params)}
         </li>
@@ -124,7 +137,8 @@ function Choices({ offer, main, onChosen }: { offer: Offer; main: Offer["choices
     });
   };
   return (
-    <div className="flex flex-col gap-1.5">
+    // The foot stays in view while the sheet scrolls, as the Month sheet's does.
+    <div className="sticky -bottom-4 -mx-4 -mb-4 flex flex-col gap-1.5 bg-sheet px-4 pt-2 pb-[max(16px,env(safe-area-inset-bottom))]">
       {main.map((choice, index) => (
         <button
           key={choice.id}
@@ -148,10 +162,27 @@ function Choices({ offer, main, onChosen }: { offer: Offer; main: Offer["choices
   );
 }
 
+/** What the last look's reply said, by the look, and the signs on the offer before it. */
+interface Found {
+  look: string;
+  lines: ReportLine[];
+  before: readonly string[];
+}
+
+const TELL_PARAM = "advice.tell.";
+
+/** The tells a look's reply names as found that the player had not seen before it: its lines' `tell` params. */
+function freshTells(found: Found | null): Set<string> {
+  const tells = (found?.lines ?? []).flatMap((line) => {
+    const tell = line.params.tell;
+    return typeof tell === "string" && tell.startsWith(TELL_PARAM) ? [tell.slice(TELL_PARAM.length)] : [];
+  });
+  return new Set(tells.filter((tell) => !(found?.before ?? []).includes(tell)));
+}
+
 /** The free looks (R-ADVICE-006): each sends its choice, costs nothing, and shows what it found before any fee. */
-function Looks({ offer }: { offer: Offer }) {
+function Looks({ offer, found, setFound }: { offer: Offer; found: Found | null; setFound: (found: Found) => void }) {
   const { choose, idle } = useChoose();
-  const [found, setFound] = useState<{ look: string; lines: ReportLine[] } | null>(null);
   const looks = looksOf(offer);
   if (looks.length === 0) return null;
   const nobody = looks.some((choice) => !choice.allowed && !offer.signs.includes(choice.id));
@@ -177,7 +208,7 @@ function Looks({ offer }: { offer: Offer }) {
             onClick={() => {
               cue("tap");
               void choose(offer, choice.id).then((lines) => {
-                if (lines !== null) setFound({ look: choice.id, lines });
+                if (lines !== null) setFound({ look: choice.id, lines, before: offer.signs });
               });
             }}
             data-look={choice.id}
@@ -188,7 +219,8 @@ function Looks({ offer }: { offer: Offer }) {
         );
       })}
       {nobody ? <p className="text-[13px] text-text-2">{adviceWords("advice.look.nobody")}</p> : null}
-      {found === null ? null : <Lines lines={found.lines} mark={found.look} />}
+      {/* What a look finds joins "You notice" above, marked as just found; its reply shows here only when it found nothing new. */}
+      {found === null || freshTells(found).size > 0 ? null : <Lines lines={found.lines} mark={found.look} />}
     </section>
   );
 }
@@ -199,23 +231,30 @@ export function AgentSheet({ offer, onChosen }: { offer: Offer; onChosen: (lines
   const tells = tellsOf(offer);
   const says = saysOf(offer);
   const take = offer.choices.filter((choice) => choice.id === TAKE);
+  const [found, setFound] = useState<Found | null>(null);
+  const fresh = freshTells(found);
   return (
     <article className="flex flex-col gap-3" data-agent-sheet={offer.entry}>
-      <Head offer={offer} />
+      <Head offer={offer} titled={false} />
       {fee === null ? null : <Cost fee={fee} />}
       {tells.length === 0 ? null : (
         <section className="flex flex-col gap-1" aria-label={adviceWords("advice.notice")}>
           <p className="label">{adviceWords("advice.notice")}</p>
           <ul className="flex flex-col gap-1">
             {tells.map((tell) => (
-              <li key={tell} className="pop rounded-[5px] border-l-4 border-signal bg-sheet-2 px-3 py-2 text-[15px] leading-snug" data-tell={tell}>
+              <li
+                key={tell}
+                className={`pop rounded-[5px] border-l-4 bg-sheet-2 px-3 py-2 text-[15px] leading-snug ${fresh.has(tell) ? "border-out font-semibold" : "border-signal"}`}
+                data-tell={tell}
+                data-fresh={fresh.has(tell) ? "" : undefined}
+              >
                 {words(`${offer.entry}.sign.${tell}`)}
               </li>
             ))}
           </ul>
         </section>
       )}
-      <Looks offer={offer} />
+      <Looks offer={offer} found={found} setFound={setFound} />
       {says.length === 0 ? null : (
         <section className="flex flex-col gap-1" aria-label={adviceWords("advice.says")} data-agent-says>
           <p className="label">{adviceWords("advice.says")}</p>
@@ -237,7 +276,7 @@ export function PapersSheet({ offer, onChosen }: { offer: Offer; onChosen: (line
   const fee = feeOf(offer);
   return (
     <article className="flex flex-col gap-3" data-agent-sheet={offer.entry}>
-      <Head offer={offer} />
+      <Head offer={offer} titled />
       {fee === null ? null : <Cost fee={fee} />}
       <Choices offer={offer} main={offer.choices.filter((choice) => choice.id !== DECLINE)} onChosen={onChosen} />
     </article>
@@ -252,7 +291,7 @@ export function PapersSheet({ offer, onChosen }: { offer: Offer; onChosen: (line
 export function PromiseSheet({ offer }: { offer: Offer }) {
   return (
     <article className="flex flex-col gap-3" data-agent-sheet={offer.entry}>
-      <Head offer={offer} />
+      <Head offer={offer} titled />
       <p className="border-y border-sheet-line py-2.5 text-[14px] font-semibold" data-agent-month>
         {adviceWords("advice.promise.month", { month: monthEnding(offer.expiresMonth) })}
       </p>

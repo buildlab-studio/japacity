@@ -97,8 +97,31 @@ describe("the agent's sheet", () => {
     expect(authority.sent.some((command) => command.type === "offer/choose" && command.choice === "take")).toBe(false);
     expect([...document.querySelectorAll("[data-tell]")].map((node) => node.getAttribute("data-tell"))).toEqual(["cash-only", "no-office"]);
     expect(screen.getByText(text[`${STOP}.sign.no-office`]!)).toBeTruthy();
-    expect(within(document.querySelector<HTMLElement>("[data-lines='look-office']")!).getByText(words("line.offer.look-office-found", found[0]!.params))).toBeTruthy();
+    expect([...document.querySelectorAll("[data-fresh]")].map((node) => node.getAttribute("data-tell"))).toEqual(["no-office"]);
     expect(document.querySelector("[data-look-done]")?.textContent).toContain(text[`${STOP}.sign.look-office`]);
+  });
+
+  test("[R-ADVICE-006] given his sheet, when a look finds nothing, then the reply's words say so and no tell is added", async () => {
+    const before = withOffers(stopOffer(["cash-only"]));
+    const after = withOffers(stopOffer(["cash-only", "look-licence"]));
+    const nothing = [line("line.offer.look-licence-nothing", { offer: STOP })];
+    await renderStepping(before, after, nothing);
+    fireEvent.click(screen.getByRole("button", { name: text[`${STOP}.choice.look-licence`]! }));
+    await waitFor(() => expect(document.querySelector("[data-lines='look-licence']")).not.toBeNull());
+    expect(screen.getByText(words("line.offer.look-licence-nothing", nothing[0]!.params))).toBeTruthy();
+    expect(document.querySelectorAll("[data-tell]")).toHaveLength(1);
+    expect(document.querySelectorAll("[data-fresh]")).toHaveLength(0);
+  });
+
+  test("[R-ADVICE-006] given a tell already shown, when a look finds only that one again, then the reply's words say so and nothing is marked as just found", async () => {
+    const before = withOffers(stopOffer(["cash-only"]));
+    const after = withOffers(stopOffer(["cash-only", "look-name"]));
+    const again = [line("line.offer.look-name-found", { offer: STOP, tell: "advice.tell.cash-only" })];
+    await renderStepping(before, after, again);
+    fireEvent.click(screen.getByRole("button", { name: text[`${STOP}.choice.look-name`]! }));
+    await waitFor(() => expect(document.querySelector("[data-lines='look-name']")).not.toBeNull());
+    expect(screen.getByText(words("line.offer.look-name-found", again[0]!.params))).toBeTruthy();
+    expect(document.querySelectorAll("[data-fresh]")).toHaveLength(0);
   });
 
   test("[R-ADVICE-006] given nobody to check his name with, when his sheet opens, then that look cannot be made and the sheet says why", async () => {
