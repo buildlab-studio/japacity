@@ -4,7 +4,9 @@
 import { check } from "../engine/check";
 import type { RegisteredKind } from "../engine/kind";
 import { emit } from "../engine/kind";
-import type { BaseEvent, ChapterEntry, ChapterSlice, Content, Ctx, Id, PlayerView, ReadCtx, ReportLine, Requirement, RequirementResult, RouteSlice } from "../engine/types";
+import { reject } from "../engine/reject";
+import type { BaseEvent, ChapterEntry, ChapterSlice, Command, Content, Ctx, Id, PlayerView, ReadCtx, Rejection, ReportLine, Requirement, RequirementResult, RouteSlice } from "../engine/types";
+import { checklistView, routePercent } from "../japacity/japacity.logic";
 import { cardOf, cardsAllowed, reportLines, topActivities } from "./chapter.card";
 import type { ChapterEvent } from "./chapter.events";
 
@@ -46,10 +48,22 @@ function leanCandidates(content: Content): Id<"route">[] {
  * in the same month. Every graduate hears of Canada's points by month 5, so a list read first would turn a
  * master's life to the points file; read in time, the nurse who reads the care page first gets the care
  * file and a life that looked into the master's first keeps the master's file. The master's when the life
- * has heard of none of them.
+ * has heard of none of them. A way the player made the plan (`chosen`, the `chapter/lean` command) comes
+ * before all of these while it is heard of or further on.
  */
-export function leanRoute(routes: RouteSlice, content: Content): Id<"route"> {
+export function leanRoute(routes: RouteSlice, content: Content, chosen: Id<"route"> | null = null): Id<"route"> {
+  return planOf(routes, content, chosen) ?? BASE_ROUTE;
+}
+
+/** True when the life has heard of the route or gone further with it. */
+function live(routes: RouteSlice, id: Id<"route">): boolean {
+  return routes[id] !== undefined && routes[id].state !== "unknown";
+}
+
+/** R-CHAPTER-009: the lean as the view names it: the chosen way, else the order in time, else none heard of. */
+function planOf(routes: RouteSlice, content: Content, chosen: Id<"route"> | null): Id<"route"> | null {
   const candidates = leanCandidates(content);
+  if (chosen !== null && candidates.includes(chosen) && live(routes, chosen)) return chosen;
   const first = (month: (id: Id<"route">) => number | null): Id<"route"> | null => {
     let best: { id: Id<"route">; month: number } | null = null;
     for (const id of candidates) {
@@ -58,10 +72,42 @@ export function leanRoute(routes: RouteSlice, content: Content): Id<"route"> {
     }
     return best?.id ?? null;
   };
-  const live = (id: Id<"route">) => routes[id] !== undefined && routes[id].state !== "unknown";
-  const looked = first((id) => (live(id) ? (routes[id]?.knownMonth ?? null) : null));
-  const heard = first((id) => (live(id) ? (routes[id]?.heardMonth ?? null) : null));
-  return looked ?? heard ?? BASE_ROUTE;
+  const looked = first((id) => (live(routes, id) ? (routes[id]?.knownMonth ?? null) : null));
+  const heard = first((id) => (live(routes, id) ? (routes[id]?.heardMonth ?? null) : null));
+  return looked ?? heard;
+}
+
+/**
+ * Each way the plan can take that the life has heard of, with the figure the japacity kind gives it: its
+ * own once looked into (R-JAPACITY-001, 002), and while only heard of, the sum its checklist earns now,
+ * so the switch can say what making it the plan would do.
+ */
+function waysOf(read: ReadCtx): PlayerView["plan"]["ways"] {
+  return leanCandidates(read.content)
+    .filter((id) => read.content.route[id] !== undefined && live(read.state.route, id))
+    .map((route) => {
+      const percent = routePercent(read, route) ?? checklistView(read, route).reduce((total, item) => total + item.earned, 0);
+      return { route, percent: Math.min(100, Math.max(0, percent)) };
+    });
+}
+
+/** The states past the plan: once a visa is granted the chapters no longer follow a lean. */
+const PAST_PLAN = new Set(["granted", "departed"]);
+
+/** R-CHAPTER-009: the player makes a way heard of or looked into the plan; the chapters follow it from the next close. */
+function leanCommand(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
+  if (command.type !== "chapter/lean") throw new Error(`chapter/lean cannot handle ${command.type}.`);
+  const { route } = command;
+  if (ctx.content.route[route] === undefined) return reject("unknown-id", `${String(route)} is not a route.`);
+  if (!leanCandidates(ctx.content).includes(route)) return reject("not-legal", `${route} has no file of its own for the chapters to follow.`);
+  if (!live(ctx.state.route, route)) return reject("not-legal", `Nobody has told the character of ${route} yet.`);
+  if (ctx.state.place.where !== "home" || Object.values(ctx.state.route).some((held) => PAST_PLAN.has(held.state))) {
+    return reject("not-legal", "A visa is granted: the plan is done.");
+  }
+  // A lean read from the order in time may still be chosen: the choice holds it when another page is read first.
+  if (ctx.state.chapter.chosen === route) return reject("not-legal", `${route} is the plan already.`);
+  const leaned: ChapterEvent = { type: "chapter/leaned", route };
+  return [leaned];
 }
 
 /** R-CHAPTER-009: the chapter that takes a base's turn: its variant for the lean route when content has one, else the base. */
@@ -73,10 +119,10 @@ function standingIn(content: Content, base: ChapterEntry, lean: Id<"route">): Id
  * The chapter that follows by its base's order, or null after the last (R-CHAPTER-004), with the
  * lean read again as the chapter closes (R-CHAPTER-009).
  */
-function nextAfter(content: Content, entry: ChapterEntry, routes: RouteSlice): Id<"chapter"> | null {
+function nextAfter(content: Content, entry: ChapterEntry, routes: RouteSlice, chosen: Id<"route"> | null): Id<"chapter"> | null {
   const base = entry.variantOf === undefined ? entry : entryOf(content, entry.variantOf);
   const next = byOrder(content).find((candidate) => candidate.order > base.order);
-  return next === undefined ? null : standingIn(content, next, leanRoute(routes, content));
+  return next === undefined ? null : standingIn(content, next, leanRoute(routes, content, chosen));
 }
 
 /** R-CHAPTER-002: every item met, or the one item the entry names in `closesOn`. */
@@ -96,7 +142,7 @@ function closeFinished(ctx: Ctx): BaseEvent[] {
   if (current === null) return [];
   const entry = entryOf(ctx.content, current);
   if (!finished(entry, (requirement) => ctx.check(requirement).met)) return [];
-  const closed: ChapterEvent = { type: "chapter/closed", chapter: current, next: nextAfter(ctx.content, entry, ctx.state.route) };
+  const closed: ChapterEvent = { type: "chapter/closed", chapter: current, next: nextAfter(ctx.content, entry, ctx.state.route, ctx.state.chapter.chosen ?? null) };
   // Applied first, so the report reads the close before the refill it pays for.
   emit(ctx, "chapter", [closed]);
   const refilled = ctx.apply([{ type: "turn/refill" }], { source: current, param: null, terms: {} });
@@ -107,10 +153,12 @@ function evolve(slice: ChapterSlice, event: ChapterEvent): ChapterSlice {
   switch (event.type) {
     case "chapter/closed":
       // R-CHAPTER-003: done only grows. Nothing ever takes a chapter out of it.
-      return { current: event.next, done: [...slice.done, event.chapter] };
+      return { ...slice, current: event.next, done: [...slice.done, event.chapter] };
+    case "chapter/leaned":
+      return { ...slice, chosen: event.route };
     default: {
-      const never: never = event.type;
-      throw new Error(`Unknown chapter event ${String(never)}.`);
+      const never: never = event;
+      throw new Error(`Unknown chapter event ${JSON.stringify(never)}.`);
     }
   }
 }
@@ -128,9 +176,12 @@ function lines(event: ChapterEvent): ReportLine[] {
       const opened: ReportLine = { key: "line.chapter.opened", params: { chapter: event.next }, tone: "plain", attention: false, counts: [] };
       return [closed, opened];
     }
+    // The switch says what it did on the page; the month's report has nothing to add.
+    case "chapter/leaned":
+      return [];
     default: {
-      const never: never = event.type;
-      throw new Error(`Unknown chapter event ${String(never)}.`);
+      const never: never = event;
+      throw new Error(`Unknown chapter event ${JSON.stringify(never)}.`);
     }
   }
 }
@@ -191,6 +242,7 @@ export const chapterKind: RegisteredKind<ChapterSlice, ChapterEvent> = {
   initial(_scenario, content) {
     return { current: byOrder(content)[0]?.id ?? null, done: [] };
   },
+  commands: { "chapter/lean": leanCommand },
   phases: { chapter: closeFinished },
   evolve,
   lines,
@@ -208,12 +260,15 @@ export const chapterKind: RegisteredKind<ChapterSlice, ChapterEvent> = {
     if (new Set(bases).size !== bases.length) problems.push(`A base chapter's turn is done twice, by it and a variant: ${done.join(", ")}.`);
     if (current !== null && !done.includes(current) && bases.includes(baseChapterOf(content, current))) problems.push(`The current chapter ${current} stands in for one already done.`);
     if (new Set(done).size !== done.length) problems.push(`A chapter is done more than once: ${done.join(", ")}.`);
+    const { chosen } = state.chapter;
+    if (chosen !== undefined && content.route[chosen] === undefined) problems.push(`The chosen plan ${chosen} is not a route in content.`);
     return problems;
   },
   // R-CHAPTER-005: each item of the current chapter, judged against the state as it is now.
   view: (read) => {
     const { current, done } = read.state.chapter;
     const items = current === null ? [] : entryOf(read.content, current).items.map((item) => ({ id: item.id, met: check(read, item.requirement).met }));
-    return { chapter: { current, items, done } };
+    const lean = planOf(read.state.route, read.content, read.state.chapter.chosen ?? null);
+    return { chapter: { current, items, done }, plan: { route: lean, ways: waysOf(read) } };
   },
 };
