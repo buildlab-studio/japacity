@@ -113,7 +113,7 @@ test("[R-WORLD-007] [R-WORLD-008] End month opens the Month sheet; ending it sho
   await passMoments(page);
   const results = page.locator("[data-world-sheet='results']");
   await expect(results).toBeVisible();
-  await expect(results.getByRole("heading", { name: "Month 1 is done" })).toBeVisible();
+  await expect(results.getByRole("heading", { name: "The month is done" })).toBeVisible();
   await expect(results.locator("[data-results-kept]")).toBeVisible();
   // The band and the thumb buttons step back while the results show.
   await expect(page.locator("[data-band]")).toHaveAttribute("aria-hidden", "true");

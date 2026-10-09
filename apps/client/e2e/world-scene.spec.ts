@@ -85,12 +85,12 @@ async function goTo(page: Page, id: string): Promise<boolean> {
   await page.waitForFunction(() => ((window as unknown as { __map?: { frames?: number } }).__map?.frames ?? 0) > 5, null, { timeout: 60_000 });
   // A stop not yet open to this life (R-WORLD-015: the story opens the map's stops) cannot be reached.
   const state = await page.evaluate((stop) => (window as unknown as { __map?: { stops: { id: string; state: string }[] } }).__map?.stops.find((candidate) => candidate.id === stop)?.state ?? null, id);
-  const board = state === null || state === "not" ? null : await page.evaluate((stop) => (window as unknown as { __map?: { screenOf(stop: string): { x: number; y: number } | null } }).__map?.screenOf(stop) ?? null, id);
-  if (board === null) {
+  if (state === null || state === "not") {
     await page.locator("[data-map-close]").click();
     return false;
   }
-  await page.mouse.click(board.x, board.y);
+  // The stops list stands for the screen reader while the map draws; its button picks the stop as a tap on the board does.
+  await page.evaluate((stop) => document.querySelector<HTMLButtonElement>(`[data-stop="${stop}"]`)?.click(), id);
   const sheet = page.locator(`[data-ride-sheet="${id}"]`);
   await sheet.waitFor({ state: "visible", timeout: 10_000 });
   await sheet.getByRole("button", { name: /^Go by/ }).first().click();
