@@ -14,7 +14,7 @@ import { Button } from "../../shared/ui/Button";
 import { FullScreen } from "../../shared/ui/FullScreen";
 import { Sheet } from "../../shared/ui/Sheet";
 import { formatMoney, todayWords } from "../../shared/words/format";
-import { blurbOf, inMonths, nameOf, say, words } from "../../shared/words/text";
+import { blurbOf, inMonths, nameOf, paramWords, say, words } from "../../shared/words/text";
 import { AskSheet } from "../../shared/world/AskSheet";
 import { Band } from "../../shared/world/Band";
 import { cue } from "../../shared/sound/cues";
@@ -475,7 +475,10 @@ export function City({
   const depositDue = view.routes.flatMap((route) => route.schools.filter((school) => school.state === "offer").map((school) => ({ route: route.id, school: school.id })))[0] ?? null;
   // A visa granted makes the flight boardable at the airport's gate (R-CHAPTER-006, route/depart).
   const departDue = view.routes.find((route) => route.state === "granted")?.id ?? null;
-  const activityKey = [...view.activities.filter((option) => option.allowed).map((option) => option.id), ...(depositDue === null ? [] : ["command:route/pay-deposit"]), ...(departDue === null ? [] : ["command:route/depart"])].join("|");
+  // R-WORLD-005: a job on a place's board or stall is an act whenever the hunt can ask for it.
+  const hunt = view.activities.find((option) => option.id === "activity.job-hunt");
+  const jobIds = hunt?.allowed === true ? (hunt.params ?? []) : [];
+  const activityKey = [...view.activities.filter((option) => option.allowed).map((option) => option.id), ...jobIds, ...(depositDue === null ? [] : ["command:route/pay-deposit"]), ...(departDue === null ? [] : ["command:route/depart"])].join("|");
   const chapterNow = view.chapter.current;
   const offersKey = view.offers.map((offer) => offer.entry).join("|");
   const setpieceEntry = view.setpiece?.entry ?? null;
@@ -499,6 +502,11 @@ export function City({
     const { thing, act } = scenePick;
     switch (act.kind) {
       case "sheet":
+        // A job's act opens the hunt's card with that job chosen (R-WORLD-005).
+        if (act.stages !== undefined && jobIds.includes(act.stages)) {
+          setPicked({ kind: "action", activity: "activity.job-hunt", param: act.stages });
+          return;
+        }
         setPicked(act.stages === undefined ? null : { kind: "action", activity: act.stages, ...(act.more === undefined ? {} : { more: act.more, label: act.label }) });
         return;
       case "ride": {
@@ -684,21 +692,23 @@ export function City({
     const activity = picked.activity;
     const option = view.activities.find((candidate) => candidate.id === activity);
     if (option === undefined) return null;
-    // A choice inside the activity (which job to hunt, which school) is the player's: the picker shows it, not a card that takes the first (R-WORLD-005).
-    if (option.params !== null && option.params.length > 1) return null;
+    // A choice inside the activity (which job to hunt, which school) is the player's: the picker shows it, not a card that takes the first,
+    // unless the thing tapped made the choice (a job on a board), when the card names it (R-WORLD-005).
+    const chosen = picked.param !== undefined && option.params?.includes(picked.param) === true ? picked.param : null;
+    if (option.params !== null && option.params.length > 1 && chosen === null) return null;
     const cost = option.cost[0] ?? null;
     const paper = activity === "activity.play-lotto" || activity === "activity.bet-slip";
     return {
       form: paper ? "slip" : "card",
       icon: paper ? "ticket" : "hand",
       who: hereName,
-      title: nameOf(activity),
+      title: chosen === null ? nameOf(activity) : `${nameOf(activity)}: ${paramWords(chosen)}`,
       line: blurbOf(activity) ?? "",
       cost: cost === null ? null : { amount: cost.amount, currency: cost.currency },
       button: nameOf(activity),
       ...(paper ? { reference: todayWords().toUpperCase() } : {}),
       act: () => {
-        const added = addToPlan({ activity: option.id, param: option.params?.[0] ?? null });
+        const added = addToPlan({ activity: option.id, param: chosen ?? option.params?.[0] ?? null });
         cue(added ? (cost === null ? "done" : "coin") : "tap");
         setPicked(null);
         toast.show(added ? say("ui.world.planned", { what: nameOf(option.id) }) : say("ui.world.full"));
@@ -711,6 +721,18 @@ export function City({
   useEffect(() => {
     if (reportOpen) setMonthOpen(false);
   }, [reportOpen]);
+  // A pick added from the picker's sheet is said in a toast and the sheet closes, as the ask card does (R-WORLD-006).
+  const plan = useGame((state) => state.plan);
+  const lastPlan = useRef(plan);
+  useEffect(() => {
+    const before = lastPlan.current;
+    lastPlan.current = plan;
+    if (!world || picked?.kind !== "action" || ask !== null) return;
+    const added = plan.find((pick, index) => pick !== null && before[index] !== pick && !before.includes(pick));
+    if (added === undefined) return;
+    toast.show(say("ui.world.planned", { what: nameOf(added.activity) }));
+    setPicked(null);
+  }, [plan, world, picked, ask, toast]);
   useEffect(() => {
     if (!nudgeOpens) setAsksOpen(false);
   }, [nudgeOpens]);

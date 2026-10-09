@@ -11,9 +11,9 @@ import { useState, type ReactNode } from "react";
 import { useGame, useView } from "../../authority/GameProvider";
 import { cue } from "../../shared/sound/cues";
 import { Rejection } from "../../shared/ui/Rejection";
-import { formatMoney, monthEnding } from "../../shared/words/format";
+import { formatMoney } from "../../shared/words/format";
 import { tidyLines } from "../../shared/words/lines";
-import { hasWords, nameOf, say, words } from "../../shared/words/text";
+import { hasWords, inMonths, nameOf, say, words } from "../../shared/words/text";
 import { adviceWords } from "./advice.words";
 
 /** Every entry of the agent family starts with this (R-ADVICE-005). */
@@ -289,11 +289,12 @@ export function PapersSheet({ offer, onChosen }: { offer: Offer; onChosen: (line
  * saying nothing moved. The card sends nothing; the sheet's close leaves it waiting.
  */
 export function PromiseSheet({ offer }: { offer: Offer }) {
+  const view = useView();
   return (
     <article className="flex flex-col gap-3" data-agent-sheet={offer.entry}>
       <Head offer={offer} titled />
       <p className="border-y border-sheet-line py-2.5 text-[14px] font-semibold" data-agent-month>
-        {adviceWords("advice.promise.month", { month: monthEnding(offer.expiresMonth) })}
+        {adviceWords("advice.promise.month", { when: inMonths(offer.expiresMonth, view.month) })}
       </p>
     </article>
   );

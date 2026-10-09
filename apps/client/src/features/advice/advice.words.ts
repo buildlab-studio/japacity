@@ -14,7 +14,7 @@ export const adviceUiText: Record<string, string> = {
   "advice.says": "What he says you need",
   "advice.says.sure": "Only the official page at the hub's desk is sure.",
   "advice.short": "His fee would take the last of your cash.",
-  "advice.promise.month": "The month on the card: {month}",
+  "advice.promise.month": "The card says: {when}",
   "advice.gone": "He has gone.",
 };
 

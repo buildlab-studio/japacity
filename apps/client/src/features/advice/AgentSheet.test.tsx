@@ -7,8 +7,8 @@ import { GameProvider } from "../../authority/GameProvider";
 import { createGameStore } from "../../authority/store";
 import { engineView } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
-import { formatMoney, monthEnding } from "../../shared/words/format";
-import { say, words } from "../../shared/words/text";
+import { formatMoney } from "../../shared/words/format";
+import { inMonths, say, words } from "../../shared/words/text";
 import { adviceUiText, adviceWords } from "./advice.words";
 import { AgentSheets } from "./AgentSheet";
 
@@ -197,11 +197,12 @@ describe("what he leaves behind", () => {
     await waitFor(() => expect(authority.sent.at(-1)).toMatchObject({ type: "offer/choose", offer: "offer-2", choice: "decline" }));
   });
 
-  test("[R-ADVICE-005] given his promise, when its card opens, then it shows the month he named and sends nothing", async () => {
+  test("[R-ADVICE-005] given his promise, when its card opens, then it shows the month he named as months away (R-WORLD-002) and sends nothing", async () => {
     const promise: Offer = { id: "offer-3", entry: PROMISE, openedMonth: 3, expiresMonth: 5, terms: { agent: AGENT }, signs: [], choices: allowed("wait") };
-    const { authority } = await renderWithView(sheet([PROMISE]), withOffers(promise));
+    const view = withOffers(promise);
+    const { authority } = await renderWithView(sheet([PROMISE]), view);
     expect(screen.getByText(text[`${PROMISE}.body`]!)).toBeTruthy();
-    expect(document.querySelector("[data-agent-month]")?.textContent).toBe(adviceWords("advice.promise.month", { month: monthEnding(5) }));
+    expect(document.querySelector("[data-agent-month]")?.textContent).toBe(adviceWords("advice.promise.month", { when: inMonths(5, view.month) }));
     expect(screen.queryAllByRole("button")).toHaveLength(0);
     expect(authority.sent).toHaveLength(0);
   });
