@@ -47,6 +47,9 @@ export const activityText: Record<string, string> = {
   // R-WORLD-006: the chance of the band the route needs, said before the fee is paid ({chance} is likely, a fair chance or a long shot).
   "activity.sit-english-test.chance": "Band {band} this sitting: {chance}.",
   "activity.sit-english-test.study-first": "Study first: a month of study lifts the chance.",
+  // When one month of study cannot lift it, the card says how many.
+  "activity.sit-english-test.study-months": "Study first: {count} months of study lift the chance.",
+  "activity.sit-english-test.study-year": "Study first: it takes more than a year of study to lift the chance.",
   "activity.apply-to-school.name": "Apply to a university",
   "activity.apply-to-school.blurb": "You send your papers to one university and wait for its answer.",
   "activity.family-meeting.name": "Call a family meeting",

@@ -15,6 +15,7 @@ import { formatBand, formatMoney } from "../../shared/words/format";
 import { lockWords, SIDE_JOB_LOCK } from "../../shared/words/locks";
 import { alreadyDone, needsWords, requirementSentence } from "../../shared/words/requirement";
 import { ENGLISH_TEST, STUDY_ENGLISH, testChance } from "../../shared/words/test";
+import { studyWords } from "./study";
 import { blurbOf, hasWords, lowerFirst, nameOf, paramWords, say, sayCount } from "../../shared/words/text";
 import { payAMonth } from "../../shared/words/pay";
 import { ApplyFor, huntOrder, JobList } from "./JobList";
@@ -315,7 +316,7 @@ function ActivityCard({ option }: { option: ActivityOption }) {
         {chance === null ? null : (
           <div className="flex flex-col gap-1 text-sm" data-test-chance={chance.band}>
             <p className="font-medium">{chance.words}</p>
-            {chance.study === null ? null : <p className="text-text-2">{chance.study}</p>}
+            {chance.study === null ? null : <p className="text-text-2">{studyWords(view)}</p>}
           </div>
         )}
 
