@@ -5,9 +5,20 @@
 import { useEffect, useRef, useState } from "react";
 
 import { useGame, useView } from "../../authority/GameProvider";
-import { cue } from "../../shared/sound/cues";
-import { say, sayCount } from "../../shared/words/text";
-import { waitWords } from "./TurnClock";
+import { cue } from "../sound/cues";
+import { say, sayCount } from "../words/text";
+
+const SECOND_MS = 1000;
+const MINUTE_MS = 60 * SECOND_MS;
+const HOUR_MS = 60 * MINUTE_MS;
+
+/** A wait on the server's clock in words: "1h 40m", "25m", "under a minute" (R-CLOCK-007). */
+export function waitWords(ms: number): string {
+  if (ms < MINUTE_MS) return say("ui.clock.under-minute");
+  const hours = Math.floor(ms / HOUR_MS);
+  const minutes = Math.floor((ms % HOUR_MS) / MINUTE_MS);
+  return hours > 0 ? say("ui.clock.hours", { hours, minutes: String(minutes).padStart(2, "0") }) : say("ui.clock.minutes", { minutes });
+}
 
 /** The count drawn on a small calendar: the number on the page, the binding rings over it. */
 export function MonthGlyph({ n, size = 26 }: { n: number; size?: number }) {

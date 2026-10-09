@@ -4,7 +4,7 @@
 // and it never shows again: the device keeps that it was seen, as the phone keeps its seen marks.
 import { useEffect, useLayoutEffect, useState } from "react";
 
-import { say } from "../../shared/words/text";
+import { say } from "../words/text";
 
 export const WALK_KEY = "japacity.walkthrough";
 

@@ -6,9 +6,9 @@ import { describe, expect, test } from "vitest";
 import { engineView, richView } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { say } from "../../shared/words/text";
-import { City } from "../city/City";
-import { cityWords } from "../city/city.words";
-import { WALK_KEY, WALK_STEPS } from "./Walkthrough";
+import { WALK_KEY, WALK_STEPS } from "../../shared/world/Walkthrough";
+import { City } from "./City";
+import { cityWords } from "./city.words";
 
 const world = () => <City world month={<p>month</p>} results={(place) => <p data-results-for={place} />} />;
 

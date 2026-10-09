@@ -5,19 +5,14 @@ import { useEffect, useRef, useState } from "react";
 
 import { useGame } from "../../authority/GameProvider";
 import { say } from "../../shared/words/text";
+import { waitWords } from "../../shared/world/MonthCount";
 
 const SECOND_MS = 1000;
-const MINUTE_MS = 60 * SECOND_MS;
-const HOUR_MS = 60 * MINUTE_MS;
 /** How often to ask again when the view still shows the old time after reaching zero (a device clock running ahead). */
 export const ASK_AGAIN_MS = 30 * SECOND_MS;
 
-export function waitWords(ms: number): string {
-  if (ms < MINUTE_MS) return say("ui.clock.under-minute");
-  const hours = Math.floor(ms / HOUR_MS);
-  const minutes = Math.floor((ms % HOUR_MS) / MINUTE_MS);
-  return hours > 0 ? say("ui.clock.hours", { hours, minutes: String(minutes).padStart(2, "0") }) : say("ui.clock.minutes", { minutes });
-}
+// The wait's words are the band's count's, so both read the same (R-WORLD-027).
+export { waitWords };
 
 export function TurnClock() {
   const nextTurnAt = useGame((state) => state.clock?.nextTurnAt);

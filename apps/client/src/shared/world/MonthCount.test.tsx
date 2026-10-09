@@ -5,10 +5,10 @@ import type { PlayerView } from "@japacity/sim";
 import { act, fireEvent, screen } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
-import { engineView } from "../../shared/testing/fixtures";
-import { renderWithView } from "../../shared/testing/render";
-import { uiText } from "../../shared/words/ui";
-import { say } from "../../shared/words/text";
+import { engineView } from "../testing/fixtures";
+import { renderWithView } from "../testing/render";
+import { say } from "../words/text";
+import { uiText } from "../words/ui";
 import { countWords, MonthCount } from "./MonthCount";
 
 const MINUTE = 60_000;
