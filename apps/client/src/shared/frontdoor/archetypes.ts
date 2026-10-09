@@ -30,6 +30,11 @@ const THROUGH: Readonly<Record<string, readonly string[]>> = {
   settlement: ["settle"],
 };
 
+/** The steps an archetype chooses for itself: its preset without the steps every life passes the same way. */
+export function ownSteps(archetype: Archetype): string[] {
+  return Object.keys(archetype.preset).filter((step) => !(step in THROUGH));
+}
+
 const degree = (subjects: string, course: string, side: string, hustle: string): Record<string, readonly string[]> => ({
   ...THROUGH,
   subjects: [subjects],
