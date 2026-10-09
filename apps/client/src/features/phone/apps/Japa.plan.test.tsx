@@ -93,6 +93,21 @@ describe("the other ways in Japa", () => {
   });
 });
 
+describe("the official page follows the plan", () => {
+  test("[R-CHAPTER-009] [R-ADVICE-002] given the nurse who made the master's the plan while it is only heard of, when Japa shows, then the master's page is the plan's own card, planned, never under another way's heading", async () => {
+    const game = nurseOnCare();
+    game.accept({ type: "chapter/lean", route: UK });
+    const { store } = await renderWithView(<Japa />, game.view());
+    act(() => {
+      store.getState().addToPlan({ activity: LOOK, param: UK });
+    });
+    const card = document.querySelector("[data-official-page]");
+    expect(card?.getAttribute("data-official-page")).toBe(UK);
+    expect(card?.getAttribute("data-official-other")).toBeNull();
+    expect(card?.hasAttribute("disabled")).toBe(true);
+  });
+});
+
 describe("the plan's marks", () => {
   test("[R-CHAPTER-009] [R-WORLD-002] given the master's the plan with a school's answer due, when the marks are read, then the answer is one with its month, and Japa's Coming up says it as months away", async () => {
     // Ada with her papers in hand, so the application goes in the month after she reads the page.

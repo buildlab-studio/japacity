@@ -97,12 +97,13 @@ function nextStepWords(ahead: NonNullable<ReturnType<typeof chapterAhead>>): str
 
 /**
  * R-ADVICE-002: the route whose official page can be read now: the plan's route when the page
- * offers it, else the first route the page offers (a route only heard of, before any plan).
+ * offers it (the plan the chapters follow, R-CHAPTER-009, else the figure's), else the first route
+ * the page offers (a route only heard of, before any plan).
  */
 export function officialRoute(view: PlayerView): string | null {
   const official = view.activities.find((option) => option.id === OFFICIAL);
   if (official?.allowed !== true || official.params === null || official.params.length === 0) return null;
-  const planned = planRoute(view)?.id;
+  const planned = view.plan.route ?? planRoute(view)?.id;
   return planned !== undefined && official.params.includes(planned) ? planned : (official.params[0] ?? null);
 }
 
@@ -381,7 +382,7 @@ export function Japa() {
   const next = ahead === null ? null : nextStepWords(ahead);
   // The page offered may be about another way than the plan's: then it stands under its own heading,
   // after the plan's costs, and names its route, so Canada is never offered under the UK.
-  const otherWay = lookInto !== null && route !== null && lookInto !== route.id;
+  const otherWay = lookInto !== null && route !== null && lookInto !== (lean ?? route.id);
   const officialCard =
     lookInto === null ? null : (
       <button
