@@ -175,7 +175,7 @@ const entries: PlaceEntry[] = [
   lagos("place.lagos-ibadan-expressway", "Lagos-Ibadan Expressway", "ikeja", 6610, 3370, { crowd: QUIET, traditionalBp: ROADSIDE }),
   lagos("place.gbagada", "Gbagada", "kosofe", 6558, 3384, { crowd: BUSY, traditionalBp: OFFICE }),
   lagos("place.third-mainland-bridge", "Third Mainland Bridge", "lagos-lagoon", 6502, 3402, {
-    stages: ["activity.job-bank-officer", "activity.job-bank-senior"],
+    stages: [],
     crowd: QUIET,
     traditionalBp: OFFICE,
   }),
@@ -228,7 +228,7 @@ const entries: PlaceEntry[] = [
 
   // Lagos: businesses by made-up name. Shopfronts are signs on their street, in place.text.ts.
   unnamed("place.yaba-hub", "business", "home", "lagos", "yaba", { crowd: QUIET, traditionalBp: HUB }),
-  unnamed("place.olokun-office", "business", "home", "lagos", "victoria-island", { assets: "bank-counter", stages: ["offer.held-funds", "offer.salary-loan"], crowd: FEW, traditionalBp: OFFICE }),
+  unnamed("place.olokun-office", "business", "home", "lagos", "victoria-island", { assets: "bank-counter", stages: ["offer.held-funds", "offer.salary-loan", "activity.job-bank-officer", "activity.job-bank-senior"], crowd: FEW, traditionalBp: OFFICE }),
   unnamed("place.agent-office", "business", "home", "lagos", "ikeja", { stages: ["offer.held-funds-agent", "offer.gulf-agent", "activity.see-agent-office", "offer.agent-office"], crowd: FEW, traditionalBp: OFFICE }),
 
   // Homes and stylised places: no real name, no area, no position, no sponsor.

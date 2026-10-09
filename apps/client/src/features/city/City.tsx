@@ -308,13 +308,6 @@ export function City({
   useEffect(() => {
     setPlaceId(world ? lastPlace(here) : openingPlace(here, PLACES));
   }, [here, world]);
-  // The world mode remembers where the player stopped and where they have been (rules 5 and 7).
-  useEffect(() => {
-    if (!world) return;
-    keep(LAST_KEY, [placeId]);
-    const been = readKept(BEEN_KEY);
-    if (!been.includes(placeId)) keep(BEEN_KEY, [...been, placeId]);
-  }, [world, placeId]);
   useEffect(() => {
     if (!world || !drawing) return;
     let alive = true;
@@ -363,6 +356,15 @@ export function City({
   const insideId = insideOf(outsideFile);
   const insideFile = useRoomFile(insideId, drawing);
   const insideEntry = insideId === null ? null : (entryOf(insideFile?.place ?? "") ?? PLACES.find((place) => place.assets === insideId) ?? entryOf(insideId) ?? entry);
+  // The world mode remembers where the player stopped and where they have been (rules 5 and 7).
+  useEffect(() => {
+    if (!world) return;
+    keep(LAST_KEY, [placeId]);
+    const been = readKept(BEEN_KEY);
+    const here = inside && insideEntry !== null ? [placeId, insideEntry.id] : [placeId];
+    const fresh = here.filter((id) => !been.includes(id));
+    if (fresh.length > 0) keep(BEEN_KEY, [...been, ...fresh]);
+  }, [world, placeId, inside, insideEntry]);
   const file = useMemo(() => (outsideFile === null || !inside ? outsideFile : insideId === null ? roomOf(outsideFile, HOUSE) : insideFile), [outsideFile, inside, insideId, insideFile]);
   useEffect(() => {
     setZoomed(false);
@@ -848,7 +850,7 @@ export function City({
           {askList === null ? asks : askList[Math.min(askIndex, Math.max(0, askCount - 1))]}
         </WorldSheet>
       ) : null}
-      {world && resultsShown ? results?.(hereName) : null}
+      {world && resultsShown ? results?.(inside && insideEntry !== null && insideEntry.id !== entry?.id ? placeName(insideEntry.id) : name) : null}
       {world && phone && handset !== undefined ? handset(() => setPhone(false), inside ? cityWords("city.inside.name", { place: name }) : name) : null}
       {world && phone && handset === undefined && apps !== undefined ? <Phone apps={apps} onClose={() => setPhone(false)} /> : null}
       <Sheet open={picked?.kind === "ride"} onOpenChange={(open) => { if (!open) setPicked(null); }} title={picked?.kind === "ride" ? cardWords() : ""} description={cityWords("city.ride.title")}>
