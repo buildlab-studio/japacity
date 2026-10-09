@@ -89,3 +89,29 @@ describe("the store online", () => {
     expect(store.getState()).toMatchObject({ signedOut: true, view: null, accountNotice: "ui.account.notice.deleted" });
   });
 });
+
+describe("the month kept through a reload", () => {
+  test("[R-WORLD-007] [R-WORLD-008] given a plan, lines mid-month and a card closed, when a new store loads the same view, then it has them all; when the view has moved on, then none", async () => {
+    localStorage.clear();
+    const line = { key: "line.wallet.social", params: { amount: { currency: "NGN" as const, amount: 100 } }, tone: "bad" as const, attention: false, counts: [] };
+    const first = createGameStore({ view: () => Promise.resolve(at(7)), send: () => Promise.resolve({ ok: true, view: at(7), lines: [line] }) }, { rememberMonth: true });
+    await first.getState().refresh();
+    first.getState().setSlot(0, { activity: "activity.rest", param: null });
+    await first.getState().send({ type: "wallet/move", currency: "NGN", amount: 1, to: "cash" });
+    first.getState().closeCard("card-1");
+    const again = createGameStore({ view: () => Promise.resolve(at(7)), send: () => Promise.resolve({ ok: true, view: at(7), lines: [] }) }, { rememberMonth: true });
+    await again.getState().refresh();
+    expect(again.getState().plan[0]).toEqual({ activity: "activity.rest", param: null });
+    expect(again.getState().monthLines).toEqual([line]);
+    expect(again.getState().cardClosed).toBe("card-1");
+    const later = createGameStore({ view: () => Promise.resolve(at(8)), send: () => Promise.resolve({ ok: true, view: at(8), lines: [] }) }, { rememberMonth: true });
+    await later.getState().refresh();
+    expect(later.getState().plan.every((pick) => pick === null)).toBe(true);
+    expect(later.getState().monthLines).toEqual([]);
+    expect(later.getState().cardClosed).toBeNull();
+    // A store without the option, as every test's, remembers nothing.
+    const plain = createGameStore({ view: () => Promise.resolve(at(7)), send: () => Promise.resolve({ ok: true, view: at(7), lines: [] }) });
+    await plain.getState().refresh();
+    expect(plain.getState().monthLines).toEqual([]);
+  });
+});
