@@ -62,8 +62,8 @@ function free(id: Id<"activity">, requires: Requirement[], param: ActivityEntry[
 }
 
 export const adviceActivityTable: Record<Id<"activity">, ActivityEntry> = {
-  // R-ADVICE-003. the page says no slot, and the turn counts every pick against the free slots; it takes one until the turn kind lets an activity take none.
-  [FRIEND]: free(FRIEND, [KNOWS_ONE_WHO_WENT], "route", [{ type: "route/look-into" }]),
+  // R-ADVICE-003: free and no slot; the word of a friend rides with the month.
+  [FRIEND]: { ...free(FRIEND, [KNOWS_ONE_WHO_WENT], "route", [{ type: "route/look-into" }]), slot: "none" },
   // R-ADVICE-004: the fee is the activity kind's, from the tuning, paid from cash; the reading and the looks are its too.
   [ADVISER]: free(ADVISER, [SOME_ROUTE_IN_VIEW], null, []),
   // R-ADVICE-005, 010: going to the stop or up to the office brings the agent there to the table, about the route named.

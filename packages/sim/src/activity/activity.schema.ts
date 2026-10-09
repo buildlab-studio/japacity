@@ -16,7 +16,7 @@ import type { ActivityEntry } from "../engine/types";
 
 export const ActivityEntrySchema = z.strictObject({
   id: idOf("activity"),
-  slot: z.enum(["main", "free", "side"]),
+  slot: z.enum(["main", "free", "side", "none"]),
   sickLeave: z.boolean().exactOptional(),
   where: WhereEntrySchema.exactOptional(),
   country: idOf("country").nullable().exactOptional(),

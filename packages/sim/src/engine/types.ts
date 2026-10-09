@@ -376,8 +376,8 @@ export interface QualityEntry {
 
 export interface ActivityEntry {
   id: Id<"activity">;
-  /** `side` holds one free slot while kept: docs/rules/activity.md R-ACTIVITY-010. */
-  slot: "main" | "free" | "side";
+  /** `side` holds one free slot while kept: docs/rules/activity.md R-ACTIVITY-010. `none` fills no slot: it rides with the month (R-TURN-006, R-ADVICE-003). */
+  slot: "main" | "free" | "side" | "none";
   /** A job that keeps paying through a sick month (docs/rules/health.md R-HEALTH-004). Missing means no. */
   sickLeave?: boolean;
   /** Where it applies. Missing means `home`. docs/rules/ladders.md R-LADDER-001. */
@@ -1134,7 +1134,8 @@ export interface Tuning {
   };
   /** `downUnder`: wellbeing or standing under this is "down" (R-LUCK-003); `rescueAfterMonths`: months played before the whip-round (R-LUCK-002). */
   /** advice.md: the four ways to look into a route, and the agents. */
-  advice: { networkToAsk: number; adviserFee: number; agentKindsBp: { fixer: number; overpromiser: number; scammer: number }; fees: { fixer: [number, number]; overpromiser: [number, number]; scammer: [number, number] }; fixerMonths: number; fakePapersFee: number; scamTells: number; overpromiseTells: number; floorNaira: number; warnMonths: number };
+  /** `warnings`: the friend's warning in the shared world, switched off offline (R-ADVICE-011). */
+  advice: { warnings: boolean; networkToAsk: number; adviserFee: number; agentKindsBp: { fixer: number; overpromiser: number; scammer: number }; fees: { fixer: [number, number]; overpromiser: [number, number]; scammer: [number, number] }; fixerMonths: number; fakePapersFee: number; scamTells: number; overpromiseTells: number; floorNaira: number; warnMonths: number };
   luck: {
     downUnder: number;
     rescueAfterMonths: number;

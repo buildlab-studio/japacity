@@ -2,7 +2,7 @@
 import { reject } from "../engine/reject";
 import type { RegisteredKind } from "../engine/kind";
 import { turnInProgress } from "../engine/kind";
-import type { BaseEvent, Command, Content, Ctx, ReadCtx, Rejection, SlotLock, State, TurnSlice } from "../engine/types";
+import type { BaseEvent, Command, Content, Ctx, Id, ReadCtx, Rejection, SlotLock, SlotPick, State, TurnSlice } from "../engine/types";
 import { japacity } from "../japacity/japacity.logic";
 import type { TurnEvent } from "./turn.events";
 
@@ -36,8 +36,10 @@ function validateEnd(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (state.setpiece.open !== null) return reject("setpiece-open", "Finish the open set piece first.");
   if (!Array.isArray(command.slots)) return reject("not-legal", "The slots must be a list.");
   const allowed = freeSlots(state, content);
-  if (command.slots.length > allowed) {
-    return reject("not-legal", `This month has ${String(allowed)} free slots, and ${String(command.slots.length)} were filled.`);
+  // R-TURN-006: a pick of an activity that fills no slot rides with the month and is not counted.
+  const filled = command.slots.filter((pick) => content.activity[(pick as SlotPick | null)?.activity ?? ("" as Id<"activity">)]?.slot !== "none").length;
+  if (filled > allowed) {
+    return reject("not-legal", `This month has ${String(allowed)} free slots, and ${String(filled)} were filled.`);
   }
   return [];
 }

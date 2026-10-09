@@ -23,7 +23,6 @@ import {
   readWarning,
   warned,
   WARNED,
-  WARNINGS_ON,
   warningWhat,
 } from "./offer.agent";
 import type { OfferEvent } from "./offer.events";
@@ -312,7 +311,7 @@ describe("a friend's warning", () => {
     const what = warningWhat({ place: "place.ojuelegba", promise: GULF, tells });
     expect(readWarning(what)).toEqual({ place: "place.ojuelegba", promise: GULF, tells: [...tells].sort() });
     for (const name of ["Efosa", "Timi", "Nsikak", "Ameh"]) expect(what).not.toContain(name);
-    expect(WARNINGS_ON).toBe(false);
+    expect(content.tuning.advice.warnings).toBe(false);
   });
 
   test("[R-ADVICE-011] given a bond who warned of a man with the same tells at the stop, when the switch is on, then he is uncovered inside the warning's months and not after, nor for other tells, nor with the switch off", () => {

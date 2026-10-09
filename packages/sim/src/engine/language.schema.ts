@@ -483,7 +483,7 @@ export const TuningSchema = z.strictObject({
     grade: z.strictObject({ base: CountSchema, upBp: BpSchema, downBp: BpSchema, min: CountSchema, max: CountSchema }),
     privateSession: CountSchema,
   }),
-  advice: z.strictObject({ networkToAsk: CountSchema, adviserFee: CountSchema, agentKindsBp: z.strictObject({ fixer: BpSchema, overpromiser: BpSchema, scammer: BpSchema }), fees: z.strictObject({ fixer: z.tuple([CountSchema, CountSchema]), overpromiser: z.tuple([CountSchema, CountSchema]), scammer: z.tuple([CountSchema, CountSchema]) }), fixerMonths: CountSchema, fakePapersFee: CountSchema, scamTells: CountSchema, overpromiseTells: CountSchema, floorNaira: CountSchema, warnMonths: CountSchema }),
+  advice: z.strictObject({ warnings: z.boolean(), networkToAsk: CountSchema, adviserFee: CountSchema, agentKindsBp: z.strictObject({ fixer: BpSchema, overpromiser: BpSchema, scammer: BpSchema }), fees: z.strictObject({ fixer: z.tuple([CountSchema, CountSchema]), overpromiser: z.tuple([CountSchema, CountSchema]), scammer: z.tuple([CountSchema, CountSchema]) }), fixerMonths: CountSchema, fakePapersFee: CountSchema, scamTells: CountSchema, overpromiseTells: CountSchema, floorNaira: CountSchema, warnMonths: CountSchema }),
   luck: z.strictObject({
     downUnder: CountSchema,
     rescueAfterMonths: CountSchema,

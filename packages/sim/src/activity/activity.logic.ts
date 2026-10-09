@@ -643,7 +643,7 @@ function validateSlots(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
     const where = `Slot ${String(index + 1)}`;
     if (!isPick(pick)) return reject("not-legal", `${where} is not an activity and a param.`);
     const entry = ctx.content.activity[pick.activity];
-    if (entry?.slot !== "free") return reject("not-legal", `${where}: ${pick.activity} is not a free-slot activity.`);
+    if (entry?.slot !== "free" && entry?.slot !== "none") return reject("not-legal", `${where}: ${pick.activity} is not a free-slot activity.`);
     // Cost is not checked here: a slot that cannot be paid fails when it resolves (R-ACTIVITY-003).
     const problem = slotProblem(ctx, entry, pick, false);
     if (problem === "requirements") return reject("not-legal", `${where}: ${entry.id} cannot be done here and now.`);
@@ -770,7 +770,8 @@ function slots(ctx: Ctx): BaseEvent[] {
   // the engine, not the count after the job's toll in `main`.
   const turn = turnInProgress(ctx);
   const allowed = turn === null ? freeSlots(ctx.state, ctx.content) : turn.freeSlots;
-  const empty = Math.max(0, allowed - picks.length);
+  const counted = picks.filter((pick) => ctx.content.activity[pick.activity]?.slot !== "none").length;
+  const empty = Math.max(0, allowed - counted);
   if (empty > 0) {
     events.push(...record(ctx, { type: "activity/rested", slots: empty }));
     if (ctx.content.quality[WELLBEING] !== undefined) {
@@ -936,7 +937,7 @@ export function activityOptions(read: ReadCtx): ActivityOption[] {
   const judge: Judge = (requirement) => check(read, requirement);
   const abroad = read.state.place.where === "abroad";
   return Object.values(read.content.activity)
-    .filter((entry) => entry.slot === "free" && (!abroad || appliesHere(entry, read.state)))
+    .filter((entry) => (entry.slot === "free" || entry.slot === "none") && (!abroad || appliesHere(entry, read.state)))
     .map((entry) => {
       const params = paramsFor(read, entry, judge);
       const waiting = entry.param === "school" && params?.length === 0 ? schoolWait(read) : [];
@@ -1147,7 +1148,7 @@ function invariants(state: State, content: Content): string[] {
     if (!Number.isSafeInteger(months) || months < 0) problems.push(`Tenure in ${id} is ${String(months)}.`);
   }
   for (const pick of lastSlots) {
-    if (content.activity[pick.activity]?.slot !== "free") problems.push(`The last slots name ${pick.activity}, which is not a free-slot activity.`);
+    if (content.activity[pick.activity]?.slot !== "free" && content.activity[pick.activity]?.slot !== "none") problems.push(`The last slots name ${pick.activity}, which is not a free-slot activity.`);
   }
   return problems;
 }

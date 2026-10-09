@@ -31,12 +31,6 @@ export const LOOK_FINDS: Record<Look, readonly string[]> = {
 };
 /** The sign a friend's warning adds: "sounds like the one your friend warned about" (R-ADVICE-011). */
 export const WARNED = "friend-warned";
-/**
- * R-ADVICE-011 is the online milestone's: off until then, with its tests
- * running through the switch. a constant until the tuning carries a
- * switch; `tuning.advice.warnings`.
- */
-export const WARNINGS_ON = false;
 
 /** Steps a fee is drawn in: ₦1,000, in kobo. */
 const FEE_STEP = 100000;
@@ -209,7 +203,7 @@ export function openAgent(ctx: Ctx, entry: OfferEntry, own: Terms, extra: Terms)
   const fee = min + FEE_STEP * ctx.random.between("offer", 0, divFloor(max - min, FEE_STEP));
   const carried = carriedTells(entry, kind, advice);
   const read: ReadCtx = { state: ctx.state, world: ctx.world, content: ctx.content };
-  const signs = warned(read, entry, carried, WARNINGS_ON) ? [...carried, WARNED] : carried.slice(0, 1);
+  const signs = warned(read, entry, carried, advice.warnings) ? [...carried, WARNED] : carried.slice(0, 1);
   const route = typeof extra["route"] === "string" ? ctx.content.route[extra["route"] as Id<"route">] : undefined;
   const month = ctx.state.turn.month;
   return {

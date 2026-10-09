@@ -75,7 +75,19 @@ describe("someone who went", () => {
     const result = at.endTurn([slot(FRIEND, UK)]);
     expect(at.state.route[UK]?.state).toBe("known");
     expect(result.lines.find((line) => line.key === "line.route.looked-into-told")?.params).toEqual({ route: UK });
-    expect(content.activity[FRIEND]).toMatchObject({ cost: [], param: "route" });
+    expect(content.activity[FRIEND]).toMatchObject({ cost: [], param: "route", slot: "none" });
+  });
+
+  test("[R-ADVICE-003] [R-TURN-006] given every free slot filled, when the friend is asked as well, then the turn is accepted, the friend fills no slot, and no slot rests", () => {
+    const game = heard(advice.networkToAsk);
+    const rest = slot("activity.rest");
+    const free = game.view().freeSlots;
+    expect(free).toBeGreaterThan(0);
+    game.expectRejected({ type: "turn/end", slots: [...Array.from({ length: free }, () => rest), rest] }, "not-legal");
+    const result = game.endTurn([...Array.from({ length: free }, () => rest), slot(FRIEND, UK)]);
+    expect(game.state.route[UK]?.state).toBe("known");
+    expect(result.events.find((event) => event.type === "activity/rested")).toBeUndefined();
+    expect(game.view().activities.some((option) => option.id === FRIEND)).toBe(true);
   });
 
   test("[R-ADVICE-003] given no change to the route's rules, when the friend is asked, then they tell every item of the checklist as it stood when they left, and none is wrong", () => {

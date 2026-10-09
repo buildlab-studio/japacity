@@ -825,7 +825,7 @@ describe("the view of activities", () => {
     const game = start({ content, scenario: "scenario.ada" });
     const read: ReadCtx = { state: game.state, world: game.world(), content };
     const view = game.view();
-    const freeIds = Object.values(content.activity).filter((entry) => entry.slot === "free").map((entry) => entry.id);
+    const freeIds = Object.values(content.activity).filter((entry) => entry.slot === "free" || entry.slot === "none").map((entry) => entry.id);
     expect(view.activities.map((option) => option.id)).toEqual(freeIds);
     const portfolio = view.activities.find((option) => option.id === "activity.build-portfolio")!;
     expect(portfolio).toMatchObject({ allowed: false, missing: content.activity["activity.build-portfolio"]!.requires, params: null, cost: [], affordable: true });
