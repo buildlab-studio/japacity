@@ -6,7 +6,7 @@ import type { Command, Id, PlayerView, Reply, ReportLine, SlotPick } from "@japa
 import { createStore, type StoreApi } from "zustand/vanilla";
 
 import { earlyWinIn } from "../features/guides/earlyWin";
-import { againSlots, RUN_MONTHS, stopsRun } from "../features/turn/untilNews";
+import { againSlots, creditMoved, RUN_MONTHS, stopsRun } from "../features/turn/untilNews";
 import type { AccountApi } from "../shared/net/auth";
 import type { ClockView, PresenceReply, ServerCode, ServerRejection, WorldReply } from "../shared/net/contract";
 import { isReported } from "../shared/net/http";
@@ -101,7 +101,8 @@ export interface GameState {
   messageNudges: number;
   /**
    * The quiet months of the last Until news run, oldest first, each as all of its lines (the first with
-   * what was done mid-month). The results tell each as one line above the month that stopped the run (R-WORLD-028).
+   * what was done mid-month), and a last line when the credit file moved over it. The results tell each
+   * as one line above the month that stopped the run (R-WORLD-028).
    */
   quiet: ReportLine[][];
 
@@ -369,7 +370,8 @@ function makeStore(authority: StoreAuthority, options: GameStoreOptions): GameSt
               break;
             }
             accepted += 1;
-            const told = [...(months === 1 ? get().monthLines : []), ...reply.lines];
+            const credit = creditMoved(view, reply.view);
+            const told = [...(months === 1 ? get().monthLines : []), ...reply.lines, ...(credit === null ? [] : [credit])];
             moments.push(...bigLines(reply.lines));
             // Each month lands in the store as it ends, so the month kept on the device follows the run.
             set({

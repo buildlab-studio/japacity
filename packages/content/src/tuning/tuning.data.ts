@@ -13,6 +13,8 @@ export const tuning: Tuning = {
     freeSlotsNoJob: 3,
     // R-TURN-009
     maxLocked: 2,
+    // world.md R-WORLD-028: an ask abroad that may cost more than £50 stops an Until news run.
+    quietAskCap: pounds(50),
   },
 
   // quality.md, and activity.md for the hiring figures.

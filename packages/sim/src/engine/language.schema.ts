@@ -378,7 +378,7 @@ export type TermSpecMatches = Proof<Same<z.infer<typeof TermSpecSchema>, TermSpe
 // ---------------------------------------------------------------------------
 
 export const TuningSchema = z.strictObject({
-  turn: z.strictObject({ cap: CountSchema, start: CountSchema, freeSlots: CountSchema, freeSlotsNoJob: CountSchema, maxLocked: CountSchema }),
+  turn: z.strictObject({ cap: CountSchema, start: CountSchema, freeSlots: CountSchema, freeSlotsNoJob: CountSchema, maxLocked: CountSchema, quietAskCap: CountSchema }),
   quality: z.strictObject({
     wellbeingRest: CountSchema,
     wellbeingDriftTo: CountSchema,
