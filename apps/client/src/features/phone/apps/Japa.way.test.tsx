@@ -9,7 +9,7 @@ import { toKnown } from "../../../../../../packages/sim/src/route/route.journey"
 import { newGame, viewAfter } from "../../../shared/testing/fixtures";
 import { renderWithView } from "../../../shared/testing/render";
 import { formatMoney } from "../../../shared/words/format";
-import { nameOf, say } from "../../../shared/words/text";
+import { nameOf, runningName, say } from "../../../shared/words/text";
 import { phoneWords } from "../phone.words";
 import { Japa, moveCosts } from "./Japa";
 
@@ -52,5 +52,28 @@ describe("the way out in Japa", () => {
       const row = shown?.querySelector(`[data-cost="${cost.key}"]`);
       expect(row?.textContent).toBe(`${say(cost.key)}${formatMoney(cost.amount, cost.currency)}`);
     }
+  });
+});
+
+describe("the official page follows its route", () => {
+  test("[R-ADVICE-002] [R-WORLD-019] given the UK master's looked into and Canada only heard of, when Japa shows, then Canada's page stands under its own heading after the UK's costs and names Canada, never under the UK", async () => {
+    const game = newGame("scenario.ada");
+    toKnown(game);
+    const canada = Object.keys(content.route).find((id) => content.route[id as keyof typeof content.route]?.country === "country.canada");
+    if (canada === undefined) throw new Error("No route to Canada in content.");
+    const view = viewAfter(game, [{ type: "route/hear", route: canada as typeof UK, via: "test" }]);
+    const official = view.activities.find((option) => option.id === "activity.look-into-route");
+    expect(official?.params).not.toContain(UK);
+    await renderWithView(<Japa />, view);
+    const card = document.querySelector<HTMLElement>("[data-official-page]");
+    const page = card?.getAttribute("data-official-page") ?? "";
+    expect(page).not.toBe(UK);
+    expect(card?.getAttribute("data-official-other")).toBe("true");
+    expect(card?.textContent).toContain(say("ui.japa.official.title-route", { route: runningName(page) }));
+    const costs = document.querySelector("[data-move-costs]");
+    expect(costs).not.toBeNull();
+    // After the plan's costs, under a heading of its own.
+    expect((costs?.compareDocumentPosition(card!) ?? 0) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(card?.previousElementSibling?.textContent).toBe(say("ui.japa.official.other"));
   });
 });

@@ -93,6 +93,9 @@ export const uiText: Record<string, string> = {
   "ui.results.hunt-offer-plain": "An offer: {job}.",
   // What the move takes, in the Japa app (the savings toward the move broken down).
   "ui.japa.cost.title": "What the move takes",
+  // The official page offered for a way other than the plan's (features/phone/apps/Japa.tsx).
+  "ui.japa.official.other": "Another way out",
+  "ui.japa.official.title-route": "The official page on {route}",
   "ui.japa.cost.tuition": "Tuition still to pay",
   "ui.japa.cost.living": "Living money to show",
   "ui.japa.cost.funds": "Funds to show in all",
