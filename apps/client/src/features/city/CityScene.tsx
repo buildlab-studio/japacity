@@ -99,6 +99,13 @@ function lens(camera: Camera, fov: number, near: number): void {
   camera.updateProjectionMatrix();
 }
 
+/** Where the character stands and walks, the act that waits on the walk, and the file they stand in. */
+interface WalkState {
+  walker: Walker;
+  pending: { thing: Thing; act: Act } | null;
+  standing: SceneProps["file"] | null;
+}
+
 interface PlaceProps extends SceneProps {
   /** The DOM box the labels and the acts are laid out in. */
   markBox: HTMLDivElement | null;
@@ -106,6 +113,8 @@ interface PlaceProps extends SceneProps {
   plan: number;
   /** The raised view's state, moved by the gestures. */
   rig: MutableRefObject<Rig>;
+  /** The character's walk and the act waiting on it, held outside the canvas so a remount keeps them (R-WORLD-010). */
+  walk: MutableRefObject<WalkState>;
   /** The place's shot. */
   shot: Shot;
   /** True when the view is the raised shot; false for the street camera. */
@@ -172,12 +181,11 @@ function Place(props: PlaceProps) {
   const things = useMemo(() => props.things ?? [], [props.things]);
   const chosen = props.chosen ?? null;
   const [world, setWorld] = useState<World | null>(null);
-  const walker = useRef<Walker>(standAt(0, 0, 0));
+  const { walk } = props;
   const planShare = useRef(0);
   const sun = useRef<DirectionalLight>(null);
   const frames = useRef<number[]>([]);
   /** An act chosen while the character still walks to its thing: it follows on arrival (R-WORLD-010). */
-  const pending = useRef<{ thing: Thing; act: Act } | null>(null);
   const labels = useRef<{ thing: Thing; node: HTMLButtonElement }[]>([]);
   const chip = useRef<{ thing: Thing; node: HTMLDivElement } | null>(null);
   const pick = useRef(onPick);
@@ -192,9 +200,9 @@ function Place(props: PlaceProps) {
   const peopleKey = people.map((shown) => `${shown.person.file}:${String(shown.tag)}`).join("|");
 
   const choose = (thing: Thing): void => {
-    const to = walkSpot(stage, thing, walker.current);
-    if (to !== null) walker.current = walkTo(walker.current, to[0], to[1]);
-    pending.current = null;
+    const to = walkSpot(stage, thing, walk.current.walker);
+    if (to !== null) walk.current.walker = walkTo(walk.current.walker, to[0], to[1]);
+    walk.current.pending = null;
     pick.current({ kind: "thing", thing });
   };
   const chooseRef = useRef(choose);
@@ -216,7 +224,7 @@ function Place(props: PlaceProps) {
   useEffect(() => {
     if (markBox === null || chosen === null) return;
     const node = chipNode(chosen, (act) => {
-      pending.current = { thing: chosen, act };
+      walk.current.pending = { thing: chosen, act };
     });
     markBox.append(node);
     chip.current = { thing: chosen, node };
@@ -243,9 +251,14 @@ function Place(props: PlaceProps) {
       );
       await loadGrids(stage.motion.map((motion) => motion.kind), settings.mesh, (path) => loadModel(manifest, path, text));
       if (!alive) return;
-      const [x, z, facing] = stage.start;
-      walker.current = standAt(x, z, facing);
-      pending.current = null;
+      // A new place starts the character at its door. A rebuild of the same place (the crowd or the
+      // mode changed) keeps where they stand and the act they are walking to (R-WORLD-010).
+      if (walk.current.standing !== file) {
+        const [x, z, facing] = stage.start;
+        walk.current.walker = standAt(x, z, facing);
+        walk.current.pending = null;
+        walk.current.standing = file;
+      }
       setWorld(buildWorld(stage, models, people, own, settings, text, place, roam));
     })().catch((error: unknown) => {
       if (alive) onFailed(error instanceof Error ? error.message : String(error));
@@ -268,7 +281,7 @@ function Place(props: PlaceProps) {
       drawCalls: 0,
       triangles: 0,
       frames: [],
-      walker: walker.current,
+      walker: walk.current.walker,
       people: world.crowd.length + world.dancers.length + 1,
       sheets: stage.motion.filter((motion) => SHEET_KINDS.has(motion.kind)).length,
       ...(sun.current === null ? {} : { shadow: { bias: sun.current.shadow.bias, normalBias: sun.current.shadow.normalBias, reach: sun.current.shadow.camera.right } }),
@@ -319,16 +332,16 @@ function Place(props: PlaceProps) {
       frames.current = [...frames.current, ms].slice(-100);
     }
     animateWorld(world, time, delta);
-    const next = stepWalk(walker.current, delta);
-    walker.current = next;
+    const next = stepWalk(walk.current.walker, delta);
+    walk.current.walker = next;
     world.own.root.position.set(next.x, 0, next.z);
     world.own.root.rotation.y = next.facing;
     if (next.target === null) poseFigure(world.own, time, "stand");
     else poseFigure(world.own, time, "walk", strideOf(next));
     // The act follows once the character has reached its thing.
-    const waiting = pending.current;
+    const waiting = walk.current.pending;
     if (waiting !== null && next.target === null) {
-      pending.current = null;
+      walk.current.pending = null;
       pick.current({ kind: "act", thing: waiting.thing, act: waiting.act });
     }
     const aspect = state.size.width / Math.max(1, state.size.height);
@@ -428,12 +441,12 @@ function Place(props: PlaceProps) {
       return;
     }
     if (world === null) return;
-    pending.current = null;
+    walk.current.pending = null;
     props.onClear?.();
     const point = { x: event.point.x, z: event.point.z };
     // The roaming city routes round the things in the way; the world walks straight, and only on its walkable ground.
-    if (world.routes !== null) walker.current = walkRoute(walker.current, findRoute(world.routes, walker.current, point));
-    else if (onWalkable(walkableOf(stage), point.x, point.z)) walker.current = walkTo(walker.current, point.x, point.z);
+    if (world.routes !== null) walk.current.walker = walkRoute(walk.current.walker, findRoute(world.routes, walk.current.walker, point));
+    else if (onWalkable(walkableOf(stage), point.x, point.z)) walk.current.walker = walkTo(walk.current.walker, point.x, point.z);
   };
 
   const { sky, background, fog } = skyColours(stage.light.sky, stage.light.ground, settings.haze);
@@ -471,6 +484,7 @@ export default function CityScene(props: SceneProps) {
   const raised = props.overview === true && props.roam !== true;
   const shot = useMemo(() => shotOf(stageOf(file)), [file]);
   const rig = useRef<Rig>(wholeRig());
+  const walk = useRef<WalkState>({ walker: standAt(0, 0, 0), pending: null, standing: null });
   const [markBox, setMarkBox] = useState<HTMLDivElement | null>(null);
   const holding = useRef<number | null>(null);
   const held = useRef(false);
@@ -577,6 +591,7 @@ export default function CityScene(props: SceneProps) {
           markBox={markBox}
           plan={plan ? 1 : 0}
           rig={rig}
+          walk={walk}
           shot={shot}
           raised={raised}
           takeTap={() => {

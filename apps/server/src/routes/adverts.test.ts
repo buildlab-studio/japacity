@@ -397,7 +397,7 @@ describe("categories, regions and places", () => {
   test("[R-ADVERT-018] given a place that stages an offer that can be a fraud, when a campaign would name it, then it is refused", async () => {
     const app = makeApp(world());
     const reply = await campaign(app, { category: "named-place", place: { place: "place.agent-office", name: "Real Agents", sign: "REAL AGENTS" } });
-    expect(reply.body.refusals).toEqual(["place.agent-office stages offer.held-funds-agent, which can be a fraud, and a named place hosts no bad event (R-ADVERT-018)."]);
+    expect(reply.body.refusals).toEqual(["place.agent-office stages offer.held-funds-agent, offer.gulf-agent, which can be a fraud, and a named place hosts no bad event (R-ADVERT-018)."]);
   });
 
   test("[R-ADVERT-019] given a bank, an embassy, a visa centre, a test centre or a government office, when a campaign would name it, then it is refused", async () => {

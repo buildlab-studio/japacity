@@ -136,6 +136,25 @@ function entryOf(id: string): PlaceEntry | null {
   return content.place[id as Id<"place">] ?? null;
 }
 
+/** A room's file by its folder under places/, fetched when the place outside it is entered (R-WORLD-013); null while unknown or missing. */
+function useRoomFile(folder: string | null, drawing: boolean): PlaceFile | null {
+  const [file, setFile] = useState<{ folder: string; file: PlaceFile } | null>(null);
+  useEffect(() => {
+    if (folder === null || !drawing) return;
+    let alive = true;
+    void loadManifest()
+      .then((manifest) => loadJson<PlaceFile>(manifest, `places/${folder}/place.json`))
+      .catch(() => null)
+      .then((found) => {
+        if (alive && found !== null) setFile({ folder, file: found });
+      });
+    return () => {
+      alive = false;
+    };
+  }, [folder, drawing]);
+  return file !== null && file.folder === folder ? file.file : null;
+}
+
 /** A place's file, fetched by its hashed name when the place is entered (R-CITY-018). */
 function usePlaceFile(place: PlaceEntry | null, drawing: boolean): PlaceFile | null {
   const [file, setFile] = useState<{ place: string; file: PlaceFile } | null>(null);
@@ -304,12 +323,13 @@ export function City({
   // An open offer the place stages dresses it (R-CITY-011): the party set and its guests at the family house.
   const dressed = useMemo(() => (plainFile === null ? null : dressPlace(plainFile, openKey === "" ? [] : openKey.split("|"))), [plainFile, openKey]);
   const outsideFile = dressed?.file ?? null;
-  // Inside, the scene is the room the place's door opens into, an interior file like any other, fetched
-  // with the place so the cut is quick (R-WORLD-013); a place that names no room has one cut from its own file.
+  // Inside, the scene is the room the place's door opens into: the file's `inside` names its folder under
+  // places/, fetched with the place so the cut is quick (R-WORLD-013); the room's own file names the entry
+  // it belongs to (the hub's room is place.yaba, the parlour the family house). A place that names no room
+  // has one cut from its own file.
   const insideId = insideOf(outsideFile);
-  // an interior is read through its content entry's assets folder; an interior with no place entry cannot be opened yet.
-  const insideEntry = insideId === null ? null : entryOf(insideId);
-  const insideFile = usePlaceFile(insideEntry, drawing);
+  const insideFile = useRoomFile(insideId, drawing);
+  const insideEntry = insideId === null ? null : (entryOf(insideFile?.place ?? "") ?? PLACES.find((place) => place.assets === insideId) ?? entryOf(insideId) ?? entry);
   const file = useMemo(() => (outsideFile === null || !inside ? outsideFile : insideId === null ? roomOf(outsideFile, HOUSE) : insideFile), [outsideFile, inside, insideId, insideFile]);
   useEffect(() => {
     setZoomed(false);
@@ -388,9 +408,14 @@ export function City({
     return thingsNow(thingsOf(stageOf(file)), (stages) => !stages.startsWith("activity.") || (offered.has(stages) && staged.has(stages)));
   }, [world, file, activityKey, entry, insideEntry]);
   // What the scene reports: a thing chosen shows its acts; an act becomes the sheet, the ride, the cut in or the cut out it stands for.
+  // An act lands once the character has walked to its thing (R-WORLD-010); one that lands under a sheet, the phone, the map or the results is dropped.
   const readPick = (scenePick: ScenePick): void => {
     if (scenePick.kind !== "act") {
       setPicked(scenePick);
+      return;
+    }
+    if (monthOpen || asksOpen || phone || map || resultsOpen) {
+      setPicked(null);
       return;
     }
     const { thing, act } = scenePick;

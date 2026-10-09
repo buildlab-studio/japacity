@@ -56,7 +56,7 @@ export const cityText: Record<string, string> = {
   "city.thing.danfo": "Danfo",
   "city.thing.keke": "Keke",
   "city.thing.okada": "Okada",
-  "city.thing.house": "Go in",
+  "city.thing.house": "House",
   "city.thing.out": "Out",
   // The thirteen world-first places' things and acts (docs/rules/world.md R-WORLD-005), first drafts in the voice of text.md.
   "city.thing.sofa": "Sofa",
