@@ -138,6 +138,7 @@ const OTHERS: { [T in Exclude<CommandType, "prologue/choose" | (typeof AUTHORITY
   "wallet/remit": { type: "wallet/remit", currency: "GBP", amount: 100, channel: "app" },
   "status/renew": { type: "status/renew" },
   "return/home": { type: "return/home" },
+  "place/ride": { type: "place/ride", from: "place.ojuelegba", to: "place.bode-thomas", way: "danfo" },
   "lottery/buy": { type: "lottery/buy", tickets: 1 },
   "people/invite": { type: "people/invite", slot: "partner" },
   "people/court": { type: "people/court", with: "person.a" },
