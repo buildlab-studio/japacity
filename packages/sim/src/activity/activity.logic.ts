@@ -309,12 +309,12 @@ export function canPayAll(
   return [...totals].every(([currency, amount]) => judge({ type: "money/can-pay", currency, amount }).met);
 }
 
-/** Prices paid from cash alone are judged against the cash pocket; the rest as `canPayAll` does. */
+/**
+ * Every price is judged as `canPayAll` does: a naira price from cash and bank together, cash first
+ * (decision 0012: a street price is cash first, never cash alone; only the street takes cash by itself).
+ */
 function canPayPrices(prices: readonly Price[], judge: Judge): boolean {
-  const cash = new Map<Currency, number>();
-  for (const price of prices) if (price.cash) cash.set(price.currency, (cash.get(price.currency) ?? 0) + price.amount);
-  const fromCash = [...cash].every(([currency, amount]) => judge({ type: "money/min", currency, amount, pocket: "cash" }).met);
-  return fromCash && canPayAll(prices.filter((price) => !price.cash), judge);
+  return canPayAll(prices, judge);
 }
 
 /** The ticket count a lotto pick names, or 1 when the pick names none the kiosk sells. */
@@ -344,13 +344,12 @@ function pricesOf(read: ReadCtx, entry: ActivityEntry, param: string | null): Pr
   return prices;
 }
 
-/** Pays each cost under its own reason: naira from any pocket, cash first; a foreign fee by R-WALLET-009 (R-ACTIVITY-004). */
+/** Pays each cost under its own reason: naira from any pocket, cash first (a street price too, decision 0012); a foreign fee by R-WALLET-009 (R-ACTIVITY-004). */
 function payPrices(ctx: Ctx, prices: readonly Price[], cause: Cause): void {
   for (const price of prices) {
     if (price.amount <= 0) continue;
     const { currency, amount, reason } = price;
-    if (price.cash) ctx.apply([{ type: "money/take", currency, pocket: "cash", amount, reason }], cause);
-    else if (currency === "NGN") ctx.apply([{ type: "money/take", currency, pocket: "any", amount, reason }], cause);
+    if (currency === "NGN") ctx.apply([{ type: "money/take", currency, pocket: "any", amount, reason }], cause);
     else ctx.apply([{ type: "money/pay-fee", currency, amount, reason }], cause);
   }
 }

@@ -127,7 +127,9 @@ function Lines({ lines, mark }: { lines: readonly ReportLine[]; mark: string }) 
 /** The one main button, with what is left after; then the way to say no (R-WORLD-006). */
 function Choices({ offer, main, onChosen }: { offer: Offer; main: Offer["choices"]; onChosen: (lines: ReportLine[]) => void }) {
   const { choose, idle } = useChoose();
-  const cash = useView().pockets.NGN.cash;
+  // The fee leaves cash first and the bank for the rest (decision 0012), so what is left after counts both.
+  const pockets = useView().pockets.NGN;
+  const cash = pockets.cash + pockets.bank;
   const fee = feeOf(offer) ?? 0;
   const decline = offer.choices.find((choice) => choice.id === DECLINE);
   const pick = (choice: string) => {

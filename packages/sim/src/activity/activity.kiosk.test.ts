@@ -72,12 +72,12 @@ describe("the lotto kiosk", () => {
     expect(game.state.wallet.lots).toEqual([]);
   });
 
-  test("[R-LUCK-005] given naira only in the bank, when tickets are played, then the slot fails for its cost: the kiosk takes cash", () => {
+  test("[R-LUCK-005] given naira only in the bank, when tickets are played, then the kiosk is paid from the bank: cash first, the bank for the rest (decision 0012)", () => {
     const game = ada();
     game.accept({ type: "wallet/move", currency: "NGN", amount: game.state.wallet.pockets.NGN.cash, to: "bank" });
     const result = game.endTurn([slot(LOTTO, "1")]);
-    expect(result.events).toContainEqual({ type: "activity/slot-failed", slot: 0, activity: LOTTO, param: "1", why: "cost" });
-    expect(moneyOf(result, "social")).toEqual([]);
+    expect(result.events.some((event) => event.type === "activity/slot-failed")).toBe(false);
+    expect(moneyOf(result, "social")).toMatchObject([{ pocket: "bank", amount: luck.ticket }]);
   });
 
   test("[R-LUCK-005] given the kiosk's odds, when the expected return on a ticket is worked out from the numbers, then it is under half the stake", () => {

@@ -287,16 +287,16 @@ function choiceProblem(read: ReadCtx, judge: Judge, item: OfferState, choice: Of
 }
 
 /**
- * R-ADVICE-008: an agent's fee never takes the last `floorNaira` of cash. The
- * naira the choice takes from cash must leave the floor behind.
+ * R-ADVICE-008: an agent's fee never takes the last `floorNaira` of the naira. The naira the choice
+ * takes (cash first, then the bank, decision 0012) must leave the floor behind in cash and bank together.
  */
 function floorKept(read: ReadCtx, judge: Judge, effects: readonly Effect[], terms: Terms): boolean {
-  let fromCash = 0;
+  let taken = 0;
   for (const effect of effects) {
-    if (effect.type === "money/take" && effect.currency === "NGN" && effect.pocket === "cash") fromCash += resolveAmount(read, effect.amount, terms);
+    if (effect.type === "money/take" && effect.currency === "NGN" && (effect.pocket === "cash" || effect.pocket === "any")) taken += resolveAmount(read, effect.amount, terms);
   }
-  if (fromCash === 0) return true;
-  return judge({ type: "money/min", currency: "NGN", amount: fromCash + read.content.tuning.advice.floorNaira, pocket: "cash" }, terms).met;
+  if (taken === 0) return true;
+  return judge({ type: "money/min", currency: "NGN", amount: taken + read.content.tuning.advice.floorNaira }, terms).met;
 }
 
 /** Carries out a choice (R-OFFER-003, R-OFFER-004). The source names the offer and the choice. */

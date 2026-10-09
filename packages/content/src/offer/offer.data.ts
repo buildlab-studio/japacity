@@ -42,7 +42,7 @@ function takeSponsor(route: Id<"route">, employer: string): OfferChoice {
     pick: null,
     effects: [{ ...record, fraud: false }],
     fraudEffects: [
-      { type: "money/take", currency: "NGN", pocket: "cash", amount: { term: "fee" }, reason: "fee-agent" },
+      { type: "money/take", currency: "NGN", pocket: "any", amount: { term: "fee" }, reason: "fee-agent" },
       { ...record, fraud: true },
     ],
   };
@@ -73,11 +73,11 @@ const ROAD_TAKE: OfferChoice = {
   requires: [],
   pick: null,
   effects: [
-    { type: "money/take", currency: "NGN", pocket: "cash", amount: { term: "deposit" }, reason: "fee-agent" },
+    { type: "money/take", currency: "NGN", pocket: "any", amount: { term: "deposit" }, reason: "fee-agent" },
     { type: "route/road-step", step: "night" },
   ],
   fraudEffects: [
-    { type: "money/take", currency: "NGN", pocket: "cash", amount: { term: "deposit" }, reason: "fee-agent" },
+    { type: "money/take", currency: "NGN", pocket: "any", amount: { term: "deposit" }, reason: "fee-agent" },
     { type: "route/road-step", step: "fraud" },
   ],
 };
@@ -617,11 +617,11 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
         requires: [],
         pick: { minTerm: "min", maxTerm: "max" },
         effects: [
-          { type: "money/take", currency: "NGN", pocket: "cash", amount: { term: "amount", bp: pct(4) }, reason: "fee-agent" },
+          { type: "money/take", currency: "NGN", pocket: "any", amount: { term: "amount", bp: pct(4) }, reason: "fee-agent" },
           { type: "obligation/open", obligation: "obligation.held-funds-agent", principal: { term: "amount" } },
         ],
         fraudEffects: [
-          { type: "money/take", currency: "NGN", pocket: "cash", amount: { term: "amount", bp: pct(4) }, reason: "fee-agent" },
+          { type: "money/take", currency: "NGN", pocket: "any", amount: { term: "amount", bp: pct(4) }, reason: "fee-agent" },
         ],
       },
       { id: "walk-away", requires: [], pick: null, effects: [], fraudEffects: null },
@@ -1030,11 +1030,11 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
         pick: null,
         // The fee is paid either way (R-CONTRACT-002); only the record knows the difference.
         effects: [
-          { type: "money/take", currency: "NGN", pocket: "cash", amount: { term: "fee" }, reason: "fee-agent" },
+          { type: "money/take", currency: "NGN", pocket: "any", amount: { term: "fee" }, reason: "fee-agent" },
           { type: "route/record-sponsor", route: "route.gulf-contract", employer: "gulf-agent", salary: 0, fraud: false },
         ],
         fraudEffects: [
-          { type: "money/take", currency: "NGN", pocket: "cash", amount: { term: "fee" }, reason: "fee-agent" },
+          { type: "money/take", currency: "NGN", pocket: "any", amount: { term: "fee" }, reason: "fee-agent" },
           { type: "route/record-sponsor", route: "route.gulf-contract", employer: "gulf-agent", salary: 0, fraud: true },
         ],
       },

@@ -146,7 +146,7 @@ describe("the agent's sheet", () => {
     const { authority } = await renderWithView(sheet(), view);
     const take = document.querySelector<HTMLButtonElement>("[data-agent-choice='take']")!;
     expect(take.textContent).toContain(text[`${STOP}.choice.take`]);
-    expect(take.textContent).toContain(say("ui.world.left", { amount: formatMoney(view.pockets.NGN.cash - FEE, "NGN") }));
+    expect(take.textContent).toContain(say("ui.world.left", { amount: formatMoney(view.pockets.NGN.cash + view.pockets.NGN.bank - FEE, "NGN") }));
     expect(screen.getByText(text[`${STOP}.choice.decline`]!)).toBeTruthy();
     fireEvent.click(take);
     await waitFor(() => expect(authority.sent.at(-1)).toMatchObject({ type: "offer/choose", offer: "offer-1", choice: "take" }));
@@ -187,7 +187,7 @@ describe("what he leaves behind", () => {
     const { authority } = await renderWithView(sheet([STOP]), view);
     const card = document.querySelector<HTMLElement>(`[data-agent-sheet='${PAPERS}']`)!;
     expect(within(card).getByText(words(`${PAPERS}.body`, { fee: { currency: "NGN", amount: papers.terms.fee as number } }))).toBeTruthy();
-    const left = say("ui.world.left", { amount: formatMoney(view.pockets.NGN.cash - (papers.terms.fee as number), "NGN") });
+    const left = say("ui.world.left", { amount: formatMoney(view.pockets.NGN.cash + view.pockets.NGN.bank - (papers.terms.fee as number), "NGN") });
     for (const paper of ["transcript", "tb-certificate", "medical"]) {
       const button = card.querySelector<HTMLButtonElement>(`[data-agent-choice='${paper}']`)!;
       expect(button.textContent).toBe(`${text[`${PAPERS}.choice.${paper}`]!}${left}`);
