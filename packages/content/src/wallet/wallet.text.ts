@@ -20,6 +20,7 @@ export const walletText: Record<string, string> = {
   "line.wallet.fee-visa": "Visa fee paid: {amount}.",
   "line.wallet.fee-surcharge": "Health surcharge paid: {amount}.",
   "line.wallet.fee-agent": "Paid to the agent: {amount}.",
+  "line.wallet.fee-advice": "Paid to the adviser: {amount}.",
   "line.wallet.bank-charge": "The bank takes its charge: {amount}.",
   "line.wallet.loan-repay": "Loan repayment: {amount}.",
   "line.wallet.loan-interest": "Interest on the loan: {amount}.",

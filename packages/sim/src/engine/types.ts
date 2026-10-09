@@ -72,6 +72,8 @@ export type Reason =
   | "fee-visa"
   | "fee-surcharge"
   | "fee-agent"
+  /** A licensed adviser's fee (docs/rules/advice.md R-ADVICE-004, decision 0011), a sink. */
+  | "fee-advice"
   | "bank-charge"
   | "loan-repay"
   | "loan-interest"
@@ -1686,6 +1688,8 @@ export type Command = { basedOn: number } & (
   | { type: "prologue/choose"; step: string; answer: string }
   | { type: "status/renew" }
   | { type: "return/home" }
+  /** A ride between two places of the city (docs/rules/place.md R-PLACE-010, world.md R-WORLD-017, decision 0011). */
+  | { type: "place/ride"; from: Id<"place">; to: Id<"place">; way: "danfo" | "keke" | "okada" }
   // online (docs/rules/lottery.md)
   | { type: "lottery/buy"; tickets: number }
   /** Sent by the authority alone, after the draw. */

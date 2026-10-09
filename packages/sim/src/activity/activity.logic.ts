@@ -330,8 +330,8 @@ function pricesOf(read: ReadCtx, entry: ActivityEntry, param: string | null): Pr
   const { luck, car } = read.content.tuning;
   if (entry.id === LOTTO) prices.push({ currency: "NGN", amount: luck.ticket * ticketsOf(param, luck), reason: "social", cash: true });
   if (entry.id === BET) prices.push({ currency: "NGN", amount: luck.stake, reason: "social", cash: true });
-  // R-ADVICE-004. the contract's reasons have no `fee-advice`; the adviser's fee goes under `fee-agent`.
-  if (entry.id === ADVISER) prices.push({ currency: "NGN", amount: read.content.tuning.advice.adviserFee, reason: "fee-agent", cash: true });
+  // R-ADVICE-004: the adviser's fee under its own reason (decision 0011).
+  if (entry.id === ADVISER) prices.push({ currency: "NGN", amount: read.content.tuning.advice.adviserFee, reason: "fee-advice", cash: true });
   if (entry.id === DRIVING_TEST) {
     const currency = entry.country === undefined || entry.country === null ? null : read.content.country[entry.country]?.currency;
     if (currency === undefined || currency === null) throw new Error(`${entry.id} names no country to pay in.`);

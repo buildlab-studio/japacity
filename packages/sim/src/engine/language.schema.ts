@@ -73,6 +73,7 @@ export const ReasonSchema = z.enum([
   "fee-visa",
   "fee-surcharge",
   "fee-agent",
+  "fee-advice",
   "bank-charge",
   "loan-repay",
   "loan-interest",
