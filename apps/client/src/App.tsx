@@ -19,6 +19,7 @@ import { PlaceAdverts } from "./features/adverts/placed";
 import { EndingView } from "./features/card/EndingView";
 import { CardView } from "./features/card/ShareCard";
 import { City } from "./features/city/City";
+import { Map } from "./features/map/Map";
 import { HeldShareCard } from "./features/notify/held";
 import { NotifySetting } from "./features/notify/NotifySetting";
 import { OfferView } from "./features/offer/OfferView";
@@ -73,6 +74,7 @@ function WorldPlaying() {
         }
         phone={(close, area) => <PhoneApps onClose={close} area={area} account={<AccountButton more={<NotifySetting />} />} talk={talk} />}
         phoneWaiting={phoneWaiting}
+        cityMap={(props) => <Map {...props} />}
       />
       {/* The share card opens full screen when it is due; its tile on the old page has no place in the world. */}
       <div hidden>
