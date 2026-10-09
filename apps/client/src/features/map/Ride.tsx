@@ -5,6 +5,7 @@
 // the map and from a danfo, keke or okada standing in a place.
 import { useEffect, useRef, useState } from "react";
 
+import { keptLookFile } from "../../authority/person";
 import { graphicsMode } from "../../shared/graphics/mode";
 import { loadModel } from "../../shared/three/load";
 import { loadManifest, type PublishManifest } from "../../shared/three/manifest";
@@ -17,9 +18,9 @@ export { PRE_MS, RIDE_MS } from "./rideScene";
 /** The look the city falls back to when the life's own person is not shipped (City.tsx). */
 export const FALLBACK_OWN = "shared/chr/chr_tunde.glb";
 
-/** The life's own person file as the city names it (City.tsx), shipped or not; `shownOwn` settles it. */
-export function ownLook(scenario: string): string {
-  return `shared/chr/chr_${scenario.slice("scenario.".length)}.glb`;
+/** The life's own person file as the city names it (City.tsx): the look built at the front door (R-PROLOGUE-009), else the life's person, shipped or not; `shownOwn` settles it. */
+export function ownLook(scenario: string, kept: string | null = keptLookFile()): string {
+  return kept ?? `shared/chr/chr_${scenario.slice("scenario.".length)}.glb`;
 }
 
 /** The character the ride shows: the life's own person where it is shipped, else the city's fallback. */

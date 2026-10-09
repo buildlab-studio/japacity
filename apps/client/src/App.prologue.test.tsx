@@ -1,9 +1,11 @@
 import { content } from "@japacity/content";
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { describe, expect, test } from "vitest";
+import { afterEach, describe, expect, test } from "vitest";
 
 import { App } from "./App";
 import { bootGame } from "./authority/boot";
+import { FULL_PROLOGUE_KEY } from "./shared/frontdoor/archetypes";
+import { startArchetype } from "./shared/frontdoor/frontDoor.testing";
 import type { GameStore } from "./authority/store";
 import { nameOf, say, words } from "./shared/words/text";
 // Registers Testing Library's cleanup for this file.
@@ -37,13 +39,18 @@ async function moved(store: GameStore, v: number): Promise<void> {
 
 // The old month page these tests drive opens only with ?classic (R-WORLD-024).
 onTheClassicPage();
+afterEach(() => {
+  localStorage.clear();
+});
 
 describe("a life from sixteen in the app", () => {
   test("[R-PROLOGUE-008] given the start screen, when a life from sixteen is picked and played card by card, then the first month opens and looking for work finds the first job", async () => {
     const store = bootGame({ storage: memoryStorage(), fastClock: true, makeSeed: seeds() });
     render(<App store={store} />);
     expect(content.scenario[PROLOGUE]).toBeDefined();
-    fireEvent.click(screen.getByRole("button", { name: `${say("ui.life.start")}: ${nameOf(PROLOGUE)}` }));
+    // Every card, one answer each: the setting prologue.full, through an archetype's tile (R-PROLOGUE-009, 010).
+    localStorage.setItem(FULL_PROLOGUE_KEY, "on");
+    await startArchetype("developer");
     expect(await screen.findByRole("heading", { name: words("prologue.draw.card") })).toBeDefined();
 
     for (let guard = 0; guard < 40; guard += 1) {
