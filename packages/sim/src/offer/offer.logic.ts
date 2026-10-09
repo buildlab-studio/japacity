@@ -36,6 +36,7 @@ import { monthlyPay } from "../activity/activity.pay";
 import { routePercent } from "../japacity/japacity.logic";
 import { healthComeUp } from "./health";
 import { appliesHere } from "../place/place.logic";
+import { evictedThisMonth } from "../home/home.logic";
 import type { OfferEvent } from "./offer.events";
 import { luckTerms, markedChanceBp, rescueDue, WHIP_ROUND } from "./offer.luck";
 import { bridgeTerms } from "./offer.street";
@@ -517,9 +518,12 @@ function comeUp(ctx: Ctx): BaseEvent[] {
   const { maxNewPerMonth, maxOpen } = ctx.content.tuning.offer;
   const events: BaseEvent[] = [];
   let opened = 0;
+  // R-HOME-003: the month the settlement is cleared, no other blow comes up beside it.
+  const cleared = evictedThisMonth(ctx.state);
   for (const entry of rollOrder(ctx.content)) {
     // Checked before each roll: an offer opened this month counts toward both limits.
     if (opened >= maxNewPerMonth || Object.keys(ctx.state.offer.items).length >= maxOpen) break;
+    if (cleared && entry.bad === true) continue;
     if (!mayRoll(ctx, entry) || !ctx.random.chance("offer", rollChanceBp(ctx, entry))) continue;
     events.push(...openOffer(ctx, entry, {}));
     opened += 1;

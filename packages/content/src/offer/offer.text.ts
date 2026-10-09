@@ -2,6 +2,7 @@
 // quotes mark the body and are not part of the words; single quotes inside are
 // speech and stay. Names and choice labels are first drafts.
 import { offerHealthText } from "./offer.health.text";
+import { offerHomeText } from "./offer.home.text";
 import { offerStreetText } from "./offer.street.text";
 
 export const offerText: Record<string, string> = {
@@ -300,6 +301,7 @@ export const offerText: Record<string, string> = {
   // health.md
   ...offerHealthText,
   ...offerStreetText,
+  ...offerHomeText,
 
   // Luck: luck.md. First drafts, rewritten for voice.
   "offer.whip-round.name": "A whip-round",

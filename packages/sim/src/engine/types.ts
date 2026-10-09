@@ -43,7 +43,9 @@ export type KindName =
   | "phrase"
   | "era"
   | "country"
-  | "points";
+  | "points"
+  // Added for living at home: docs/rules/home.md.
+  | "home";
 
 /** An entry id: the kind, a dot, then a lower-case slug with hyphens. */
 export type Id<K extends KindName> = `${K}.${string}`;
@@ -131,7 +133,9 @@ export type Stream =
   | "lotto"
   | "health"
   /** The people kind's draws: courting, a computer's answers, gossip (docs/rules/people.md). */
-  | "people";
+  | "people"
+  /** The settlement cleared (docs/rules/home.md R-HOME-003), on its own stream so living in Makoko moves no other draw. */
+  | "home";
 
 /** Where a character is. `road` is the chain in docs/rules/road.md. */
 export type Where = "home" | "abroad" | "road";
@@ -139,6 +143,10 @@ export type Where = "home" | "abroad" | "road";
 export type WhereEntry = "home" | "abroad" | "any";
 /** The shapes of a return home: docs/rules/place.md R-PLACE-005. */
 export type ReturnShape = "removed" | "assisted" | "broke" | "by-choice" | "with-papers";
+/** Where the character lives at home: docs/rules/home.md R-HOME-001. */
+export type HomePlace = "place.family-house" | "place.makoko";
+/** Who takes the character in after an eviction (R-HOME-004). */
+export type HomeHost = "friend" | "someone";
 /** What a status lets you do for work: docs/rules/status.md R-STATUS-002. */
 export type WorkRule = "any" | "part" | "one-employer" | "cash" | "none";
 /** A route's gate: docs/rules/route-gates.md. */
@@ -252,6 +260,8 @@ export type Requirement =
   | { type: "place/returned"; shapes: ReturnShape[] }
   /** The character has been where they are, in `where`, for at least this many months. */
   | { type: "place/months-here"; where: Where; months: number }
+  /** A host of this kind would take the character in now (docs/rules/home.md R-HOME-004). */
+  | { type: "home/host"; host: HomeHost }
   | { type: "not"; of: Requirement }
   | { type: "any"; of: Requirement[] };
 
@@ -350,7 +360,12 @@ export type Effect =
   /** Locks free slots for some months (R-TURN-009). */
   | { type: "turn/lock"; slots: number; months: number; why: string }
   /** The one final ending: the road's `lost` (R-ROAD-008). Departure no longer ends the life. */
-  | { type: "turn/finish" };
+  | { type: "turn/finish" }
+  // home (docs/rules/home.md)
+  /** The move an answer makes, as `home/move` does (R-HOME-002, R-HOME-004). */
+  | { type: "home/move"; place: HomePlace }
+  /** The character is taken in by a host of this kind for `tuning.home.guestMonths` (R-HOME-004). */
+  | { type: "home/guest"; host: HomeHost };
 
 export type EffectType = Effect["type"];
 
@@ -1246,6 +1261,8 @@ export interface Tuning {
   interview: { ask: number; decoys: number; passBp: number; failBp: number; caughtBelowBp: number; thinMoments: number; thinMonths: number; doubtBp: number; standInRecallBp: number; caughtStanding: number };
   /** The sponsor's undertaking (docs/rules/undertaking.md Numbers). */
   undertaking: { months: number; assistanceUnder: number };
+  /** Living at home (docs/rules/home.md Numbers). `returnStanding` is the standing change of a move back to the family house. */
+  home: { makokoUpkeep: number; evictionBp: number; evictionLossNaira: number; guestMonths: number; hostBp: number; returnStanding: number };
 }
 
 export interface Content {
@@ -1716,6 +1733,23 @@ export interface State {
   lottery: LotterySlice;
   people: PeopleSlice;
   interview: InterviewSlice;
+  home: HomeSlice;
+}
+
+/** Where the character lives at home (docs/rules/home.md R-HOME-001, 002, 003, 005). */
+export interface HomeSlice {
+  /** Null after an eviction and while a guest. */
+  place: HomePlace | null;
+  /** The month the character came to live where they live. */
+  since: number;
+  /** While taken in: the kind of host, who it is (a bond or a person entry) and the month the stay ends. */
+  guest: { host: HomeHost | null; by: string | null; until: number } | null;
+  /** The month of the last move, for once a month (R-HOME-002). Null before any. */
+  moved: number | null;
+  /** The month of the last eviction (R-HOME-003). Null before any. */
+  evicted: number | null;
+  /** A real player's character staying with this one, as the authority sent it, and the last month of the stay (R-HOME-005). */
+  hosting: { pair: string; until: number } | null;
 }
 
 /** This character's tickets in the draw that is open (docs/rules/lottery.md). */
@@ -1783,6 +1817,10 @@ export type Command = { basedOn: number } & (
   /** `thin`: the applicant's measure of the record (R-INTERVIEW-012). Missing: measured in this life. */
   | { type: "interview/open"; pair: string; route: Id<"route">; questions: { id: string; options: string[] }[]; thin?: boolean }
   | { type: "interview/scored"; pair: string; theirs: string[] }
+  // home (docs/rules/home.md)
+  | { type: "home/move"; to: HomePlace }
+  /** From the authority alone: a joined player's character stays with this one until `until`, or no longer with null (R-HOME-005). */
+  | { type: "home/host"; pair: string; until: number | null }
 );
 
 export type CommandType = Command["type"];
@@ -2089,5 +2127,7 @@ export interface PlayerView {
   lottery: { ticket: number; maxTickets: number; draw: number; closesTick: number; onSale: boolean; tickets: number; numbers: number[] | null; jackpot: number; rolledOver: boolean; odds: LotteryOdds; fingerprint: string; last: LotteryResult | null } | null;
   /** R-ADVERT-003: whether an advert may show now (never on the road, in a set piece, or in a chapter with `noAdverts`). */
   adverts: boolean;
+  /** Where the character lives at home (docs/rules/home.md R-HOME-007): the monthly charge there, and the eviction chance a month in Makoko now. */
+  home: { place: HomePlace | null; since: number; guest: HomeSlice["guest"]; rent: MoneyParam | null; evictionBp: number };
   report: TurnReport | null;
 }

@@ -3,6 +3,8 @@
 // Every object is strict, so a misspelt or extra key fails the content check.
 import { z } from "zod";
 
+import { HomeHostSchema, HomePlaceSchema, HomeTuningSchema } from "../home/home.schema";
+
 import type {
   Amount,
   Cost,
@@ -241,6 +243,7 @@ export const RequirementSchema = z.discriminatedUnion("type", [
   z.strictObject({ type: z.literal("wallet/total"), flow: z.enum(["in", "out"]), reason: ReasonSchema, currency: CurrencySchema, amount: AmountSchema }),
   z.strictObject({ type: z.literal("place/returned"), shapes: z.array(ReturnShapeSchema).min(1) }),
   z.strictObject({ type: z.literal("place/months-here"), where: WhereSchema, months: CountSchema }),
+  z.strictObject({ type: z.literal("home/host"), host: HomeHostSchema }),
   z.strictObject({
     type: z.literal("not"),
     get of(): z.ZodType<Requirement> {
@@ -353,6 +356,8 @@ export const EffectSchema = z.discriminatedUnion("type", [
   z.strictObject({ type: z.literal("turn/refill") }),
   z.strictObject({ type: z.literal("turn/lock"), slots: CountSchema, months: z.int().positive(), why: z.string().min(1) }),
   z.strictObject({ type: z.literal("turn/finish") }),
+  z.strictObject({ type: z.literal("home/move"), place: HomePlaceSchema }),
+  z.strictObject({ type: z.literal("home/guest"), host: HomeHostSchema }),
 ]);
 
 export type EffectMatches = Proof<Same<z.infer<typeof EffectSchema>, Effect>>;
@@ -567,6 +572,7 @@ export const TuningSchema = z.strictObject({
   pair: z.strictObject({ inviteDays: CountSchema, maxOpenInvites: CountSchema, rewardFriends: CountSchema, phrasesPerHour: CountSchema, placePhrasesPerMinute: CountSchema }),
   interview: z.strictObject({ ask: CountSchema, decoys: CountSchema, passBp: BpSchema, failBp: BpSchema, caughtBelowBp: BpSchema, thinMoments: CountSchema, thinMonths: CountSchema, doubtBp: BpSchema, standInRecallBp: BpSchema, caughtStanding: IntSchema }),
   undertaking: z.strictObject({ months: CountSchema, assistanceUnder: CountSchema }),
+  home: HomeTuningSchema,
 });
 
 export type TuningMatches = Proof<Same<z.infer<typeof TuningSchema>, Tuning>>;

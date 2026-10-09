@@ -87,6 +87,7 @@ export const guideText: Record<string, string> = {
   "guide.page.numbers.name.turn": "Months",
   "guide.page.numbers.name.undertaking": "Sponsoring a partner",
   "guide.page.numbers.name.wallet": "Money",
+  "guide.page.numbers.name.home": "Where you live",
 
   // The credits (R-GUIDE-008, R-GUIDE-009, R-GUIDE-010).
   "guide.page.credits.title": "Credits",

@@ -8,6 +8,7 @@ import { tuning } from "../tuning/tuning.data";
 import { naira, pct, pounds } from "../units";
 import { abroadOfferTable } from "./offer.abroad.data";
 import { healthOfferTable } from "./offer.health.data";
+import { homeOfferTable } from "./offer.home.data";
 import { luckOfferTable } from "./offer.luck.data";
 import { peopleOfferTable } from "./offer.people.data";
 import { streetOfferTable } from "./offer.street.data";
@@ -949,6 +950,7 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
   ...peopleOfferTable,
   // streets.md: the price of sleeping under the bridge (R-STREET-004).
   ...streetOfferTable,
+  ...homeOfferTable,
   // route-gates.md, "Entries: sponsor offers". group `money`, as the Gulf agent is, so R-OFFER-001 rolls them.
 
   "offer.sponsor-care-home": {

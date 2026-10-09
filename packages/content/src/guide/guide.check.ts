@@ -35,6 +35,7 @@ const KIND_NAMES = [
   "era",
   "country",
   "points",
+  "home",
 ] as const;
 
 /** Fails to compile if the contract gains or loses a kind without this list following. */

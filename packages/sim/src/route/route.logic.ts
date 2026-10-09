@@ -797,6 +797,7 @@ function judge(read: ReadCtx, requirement: Requirement): RequirementResult {
     case "wallet/total":
     case "place/returned":
     case "place/months-here":
+    case "home/host":
     case "not":
     case "any":
       throw new Error(`The route kind does not judge ${requirement.type}.`);

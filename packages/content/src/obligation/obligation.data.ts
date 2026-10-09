@@ -115,6 +115,24 @@ export const obligationTable: Record<Id<"obligation">, ObligationEntry> = {
     ],
     onDefault: [],
   },
+  // home.md: the room on the lagoon, in place of the family's upkeep while the character lives there (R-HOME-002).
+  "obligation.upkeep-makoko": {
+    id: "obligation.upkeep-makoko",
+    type: "upkeep",
+    currency: "NGN",
+    amount: tuning.home.makokoUpkeep,
+    rateBp: 0,
+    term: null,
+    locksPrincipal: false,
+    sink: "upkeep",
+    interestSink: "upkeep",
+    grace: 0,
+    onMiss: [
+      { type: "quality/add", quality: "quality.standing", amount: -3 },
+      { type: "quality/add", quality: "quality.wellbeing", amount: -5 },
+    ],
+    onDefault: [],
+  },
   "obligation.home-support": {
     id: "obligation.home-support",
     // Support for the family follows the character abroad (R-PLACE-002, R-ABROAD-007).

@@ -46,6 +46,7 @@ const REQUIREMENT_TYPES = [
   "people/bond",
   "people/sibling-abroad",
   "people/joint",
+  "home/host",
   "not",
   "any",
 ] as const;

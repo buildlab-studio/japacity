@@ -669,6 +669,8 @@ export const uiText: Record<string, string> = {
   "ui.req.place-returned-shapes": "Back home from abroad, {shapes}",
   "ui.req.routes-state": "{states} on one of: {routes}",
   "ui.req.place-months-here": "{months} months {where}",
+  "ui.req.home-host.friend": "A friend with a place in Lagos",
+  "ui.req.home-host.someone": "Someone with a place in Lagos",
   "ui.req.place-months-here.one": "1 month {where}",
   "ui.place.home": "at home",
   "ui.place.abroad": "abroad",
