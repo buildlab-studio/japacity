@@ -34,6 +34,7 @@ export const walletText: Record<string, string> = {
 
   // Transfers and the bank's queue.
   "line.wallet.converted": "Changed money. {amount} in hand.",
+  "line.wallet.convert-paid": "Changed at the bank: {amount}.",
   "line.wallet.moved": "Moved {amount} to {pocket}.",
   "line.wallet.queued": "The bank has your {paid}. Your foreign currency comes {readyMonth}.",
   "line.wallet.flagged": "A deposit of {amount} came from somewhere a visa officer will ask about. It will show for three months.",

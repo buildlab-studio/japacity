@@ -543,7 +543,8 @@ function lines(event: WalletEvent): ReportLine[] {
       const { currency, amount, reason } = event;
       // A transfer is one line for the pair, told from the side the money arrives on.
       const money = { currency, amount };
-      if (reason === "convert") return event.type === "wallet/credited" ? [line("line.wallet.converted", { amount: money }, "plain")] : [];
+      // A change tells what came in; the side paid in is told too, plainly, so the screen never has to guess it from the charge.
+      if (reason === "convert") return [line(event.type === "wallet/credited" ? "line.wallet.converted" : "line.wallet.convert-paid", { amount: money }, "plain")];
       if (reason === "move") return event.type === "wallet/credited" ? [line("line.wallet.moved", { amount: money, pocket: event.pocket }, "plain")] : [];
       const key = REASON_LINE[reason];
       return key === null ? [] : [line(key, { amount: money }, SOURCES.includes(reason) ? "good" : "bad")];
