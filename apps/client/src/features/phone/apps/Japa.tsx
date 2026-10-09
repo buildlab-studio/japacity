@@ -327,7 +327,8 @@ export function Japa() {
           </div>
         )}
       </div>
-      {view.japacity.route === null ? null : <p className="mt-1 text-[12px] text-text-2">{say("ui.japacity.of", { route: runningName(view.japacity.route) })}</p>}
+      {/* The header names the route; the figure's route is said again only when it is another. */}
+      {view.japacity.route === null || view.japacity.route === head?.id ? null : <p className="mt-1 text-[12px] text-text-2">{say("ui.japacity.of", { route: runningName(view.japacity.route) })}</p>}
       {next === null ? null : <NextStep step={next} />}
 
       {coming.length === 0 ? null : (
