@@ -69,6 +69,8 @@ const HOMES: Record<string, string> = { home: "place.family-house", abroad: "pla
 const OLD_FILES = new Set(["place.national-stadium", "place.third-mainland-bridge"]);
 /** A room that is a place of its own on the map, and the street its door opens onto: the hub's file names it as its inside (R-WORLD-013). */
 const OUTSIDE_OF: Record<string, string> = { "place.yaba": "place.ojuelegba" };
+/** How long a big line stays as a toast before the next, since the world shows no moment cards (R-WORLD-008). */
+const MOMENT_MS = 2600;
 /** How long the band's second row peeks after its words change (from the design's bar). */
 const PEEK_MS = 5000;
 
@@ -289,6 +291,17 @@ export function City({
   // R-WORLD-008: the results are up from the month's end until the player goes back to the place; the staged wins come first.
   const resultsOpen = useGame((state) => state.reportOpen && state.moments.length === 0) && world && view.report !== null;
   const reportOpen = useGame((state) => state.reportOpen);
+  // R-WORLD-008: the old page's moment cards are not shown over the world; a big line (the flight, a win) is said as a toast and passes.
+  const moments = useGame((state) => state.moments);
+  const nextMoment = useGame((state) => state.nextMoment);
+  useEffect(() => {
+    if (!world || moments.length === 0) return;
+    const line = moments[0];
+    if (line !== undefined) toast.show(words(line.key, line.params));
+    const timer = window.setTimeout(nextMoment, MOMENT_MS);
+    return () => window.clearTimeout(timer);
+    // The toast is the city's; a new first line shows once the last has passed.
+  }, [world, moments, nextMoment]);
   // R-WORLD-025: the scene goes dark, then the results sheet (which reads the report's state itself).
   const [resultsShown, setResultsShown] = useState(false);
   useEffect(() => {

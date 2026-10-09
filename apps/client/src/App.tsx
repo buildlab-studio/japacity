@@ -56,12 +56,6 @@ function WorldPlaying() {
   const talk = usePairApi();
   const phoneWaiting = usePhoneWaiting();
   const reportOpen = useGame((state) => state.reportOpen);
-  // R-WORLD-008: the month's end lands as one results sheet; the old page's moment cards are not shown, so their lines go straight through.
-  const moments = useGame((state) => state.moments);
-  const nextMoment = useGame((state) => state.nextMoment);
-  useEffect(() => {
-    if (moments.length > 0) nextMoment();
-  }, [moments, nextMoment]);
   useScreenCount("world");
   useScreenCount(reportOpen ? "report" : null);
   useScreenCount(view.setpiece === null ? null : "setpiece");
