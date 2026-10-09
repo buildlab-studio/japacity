@@ -2,7 +2,8 @@
 // changes behind it, and it comes back. Every scene change but the ride goes through it.
 import { useCallback, useRef, useState } from "react";
 
-export const CUT_MS = 320;
+// The hold at the darkest point: with the fades either side it reads as a cut, and it leaves the scene swap room under the half second (R-WORLD-013).
+export const CUT_MS = 260;
 
 /** `cutTo(then)` darkens the screen, runs `then` at the darkest point, and lifts the dark again. */
 export function useCut(): { cutting: boolean; cutTo: (then: () => void) => void } {
@@ -13,8 +14,9 @@ export function useCut(): { cutting: boolean; cutTo: (then: () => void) => void 
     setCutting(true);
     timers.current = [
       window.setTimeout(() => {
-        then();
+        // The lift is timed from the darkest point, before the change runs: a slow scene swap eats into the hold instead of stretching the dark past the rule.
         timers.current.push(window.setTimeout(() => setCutting(false), CUT_MS));
+        then();
       }, CUT_MS),
     ];
   }, []);

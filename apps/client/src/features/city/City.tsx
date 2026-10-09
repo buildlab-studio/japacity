@@ -10,6 +10,7 @@ import { lazy, Suspense, useEffect, useMemo, useRef, useState, type ReactNode } 
 import { useGame, useView } from "../../authority/GameProvider";
 import { keptLookFile } from "../../authority/person";
 import { chooseGraphics, setGraphicsMode } from "../../shared/graphics/mode";
+import { loadModel } from "../../shared/three/load";
 import { assetUrl, loadJson, loadManifest } from "../../shared/three/manifest";
 import { Button } from "../../shared/ui/Button";
 import { FullScreen } from "../../shared/ui/FullScreen";
@@ -46,7 +47,7 @@ import { nudgeHere, stepOpen } from "./stepOpen";
 import { StillWaiting, stillWaiting } from "./StillWaiting";
 import { type Device, enterPlace, keepChoice, type Mode, type ModeChoice, modeSettings, observeFrame, readChoice, startingMode, watchFrames } from "./mode";
 import { overheard } from "./overheard";
-import { dancerShown, dressPlace, openGround, type PlaceFile, showPlanned, stageOf } from "./placeFile";
+import { dancerShown, dressPlace, filesOf, openGround, type PlaceFile, showPlanned, stageOf } from "./placeFile";
 import { HOUSE, insideOf, roomOf } from "./room";
 import { personOf, personOfLook } from "./roster";
 import type { Picked, ScenePick } from "./scene.types";
@@ -476,6 +477,13 @@ export function City({
   const insideId = insideOf(outsideFile);
   const insideFile = useRoomFile(insideId, drawing);
   const insideEntry = insideId === null ? null : (entryOf(insideFile?.place ?? "") ?? PLACES.find((place) => place.assets === insideId) ?? entryOf(insideId) ?? entry);
+  // The room's models are fetched and decoded while the player still stands outside, so the cut into it stays short (R-WORLD-013).
+  useEffect(() => {
+    if (insideFile === null || inside || !drawing) return;
+    void loadManifest()
+      .then((manifest) => Promise.all(filesOf(insideFile, []).map((path) => loadModel(manifest, path, (key) => text[key]))))
+      .catch(() => undefined);
+  }, [insideFile, inside, drawing]);
   // The world mode remembers where the player stopped and where they have been (rules 5 and 7).
   useEffect(() => {
     if (!world) return;
@@ -613,7 +621,12 @@ export function City({
           setPicked({ kind: "action", activity: "activity.job-hunt", param: act.stages });
           return;
         }
-        setPicked(act.stages === undefined ? null : { kind: "action", activity: act.stages, ...(act.more === undefined ? {} : { more: act.more, label: act.label }) });
+        // The thing's own choice inside the entry (the kiosk's one ticket) rides along, so the act's slip opens rather than the picker (R-WORLD-005).
+        setPicked(
+          act.stages === undefined
+            ? null
+            : { kind: "action", activity: act.stages, ...(act.param === undefined ? {} : { param: act.param }), ...(act.more === undefined ? {} : { more: act.more, label: act.label }) },
+        );
         return;
       case "ride": {
         // R-WORLD-017: the vehicle's act opens the same ride sheet as the map, with its way chosen.

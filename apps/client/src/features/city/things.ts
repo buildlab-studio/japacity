@@ -35,9 +35,17 @@ export function tableThings(stage: Pick<Stage, "models">): Thing[] {
   return found;
 }
 
-/** The place's things: its file's own, or the tables' for a file that has none, each with at most two acts. */
+/** The choice a thing's act makes inside the entry it stages, where the thing's own words make it: the kiosk's "Buy a ticket" is one ticket (R-WORLD-005). */
+const OWN_CHOICE: Record<string, string> = { "activity.play-lotto": "1" };
+
+function withOwnChoice(act: Act): Act {
+  const choice = act.kind === "sheet" && act.param === undefined && act.stages !== undefined ? OWN_CHOICE[act.stages] : undefined;
+  return choice === undefined ? act : { ...act, param: choice };
+}
+
+/** The place's things: its file's own, or the tables' for a file that has none, each with at most two acts, each act with the choice its words make. */
 export function thingsOf(stage: Pick<Stage, "models" | "things">): Thing[] {
-  return (stage.things ?? tableThings(stage)).map((thing) => (thing.acts.length > MAX_ACTS ? { ...thing, acts: thing.acts.slice(0, MAX_ACTS) } : thing));
+  return (stage.things ?? tableThings(stage)).map((thing) => ({ ...thing, acts: thing.acts.slice(0, MAX_ACTS).map(withOwnChoice) }));
 }
 
 /** Where a thing stands: its model's copy, or the spot it names when its model is not in the place. Null when it has neither. */

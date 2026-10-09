@@ -198,7 +198,7 @@ test("[R-WORLD-005] given Bode Thomas, when a thing or its label is tapped, then
   await expect(page.locator("[data-ask-form=slip]")).toHaveCount(0);
 
   // A tap on the danfo itself, not its label, floats its ride.
-  const danfo = await page.evaluate(() => (window as unknown as { __city?: Probe }).__city?.screenOfThing?.("veh_danfo") ?? null);
+  const danfo = await page.evaluate(() => (window as unknown as { __city?: Probe }).__city?.screenOfThing?.("danfo") ?? null);
   if (danfo === null) throw new Error("The danfo is not on screen");
   const ride = page.locator('[data-thing-chip="danfo"]');
   for (const [dx, dy] of [[0, 0], [12, -6], [-12, -6], [0, -14], [20, 0], [-20, 0]] as const) {

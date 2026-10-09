@@ -33,6 +33,8 @@ export interface Act {
   kind: ActKind;
   /** For `sheet`: the entry the act stages (`activity.play-lotto`, `offer.nepa-bill`). */
   stages?: string;
+  /** For `sheet`: the choice inside the staged entry that the thing itself makes, as a board names its job: the kiosk's one ticket (R-WORLD-005). */
+  param?: string;
   /** For `sheet`: more entries listed on the same sheet, since a thing offers at most two acts and a third goes on a sheet (R-WORLD-005). */
   more?: string[];
   /** For `plain`: the entries whose acts stand in its place; it shows only while none of them can open (the agent at an empty desk). */
