@@ -68,7 +68,8 @@ describe("the world fills the screen", () => {
   test("[R-WORLD-001] given a set piece and offers waiting, when the world opens, then nothing of them stands over the place until the nudge is tapped, and the sheet opens over it", async () => {
     await renderWithView(world({ asks: <p data-asks-body>asks</p> }), richView());
     expect(document.querySelector("[data-scene], [data-asks-body]")).toBeNull();
-    fireEvent.click(screen.getByRole("button", { name: say("ui.nudge.setpiece") }));
+    // The set piece is staged elsewhere, so the nudge says it waits there (R-CITY-011); its tap opens the sheet all the same.
+    fireEvent.click(document.querySelector<HTMLElement>("[data-nudge-open]") as HTMLElement);
     const sheet = screen.getByRole("dialog");
     expect(within(sheet).getByText("asks")).toBeTruthy();
     expect(band()).toBeTruthy();
@@ -76,7 +77,8 @@ describe("the world fills the screen", () => {
 
   test("[R-WORLD-006] given three asks waiting, when the nudge is tapped, then the sheet shows one at a time, counted, with Next and Back", async () => {
     await renderWithView(world({ asks: [<p key="a" data-ask="a">first</p>, <p key="b" data-ask="b">second</p>, <p key="c" data-ask="c">third</p>] }), richView());
-    fireEvent.click(screen.getByRole("button", { name: say("ui.nudge.setpiece") }));
+    // The set piece is staged elsewhere, so the nudge says it waits there (R-CITY-011); its tap opens the sheet all the same.
+    fireEvent.click(document.querySelector<HTMLElement>("[data-nudge-open]") as HTMLElement);
     const sheet = screen.getByRole("dialog");
     expect(within(sheet).getByText("first")).toBeTruthy();
     expect(within(sheet).queryByText("second")).toBeNull();
@@ -259,6 +261,8 @@ describe("the nudge", () => {
 
   test("[R-WORLD-006] given an ask that belongs at the family house, when the sheet opens elsewhere, then it says someone waits there and one button goes there", async () => {
     const view = { ...richView(), setpiece: null, interview: null };
+    // The player stands on Bode Thomas Street, not at home (the city never moves them to an ask's place by itself, R-CITY-011).
+    localStorage.setItem("japacity.city.last", JSON.stringify(["place.bode-thomas"]));
     await opened(world({ asks: [<p key="a" data-ask="a">the send-off</p>], asksAt: ["place.family-house"] }), view);
     fireEvent.click(screen.getByRole("button", { name: say("ui.nudge.offer") }));
     const sheet = screen.getByRole("dialog");
@@ -384,6 +388,15 @@ describe("the archetypes' own ways", () => {
     };
     expect(nudgeOf(nurse).key).toBe("chapter.find-your-feet.item.job.nudge.clinic");
     expect(stepWayOf(nurse)).toEqual({ go: "place.tb-clinic", at: ["place.tb-clinic:jobs-notice"] });
+  });
+
+  test("[R-WORLD-003] given a chapter whose every item is met, when the nudge is chosen, then it says the chapter is done and to turn the page, never a goal's first act", () => {
+    const done = {
+      ...base,
+      chapter: { current: "chapter.send-off" as const, items: [{ id: "departed", met: true }], done: [] },
+      goals: { open: [{ id: "goal.buy-land" as const, items: [{ id: "land", met: false }] }], done: [] },
+    };
+    expect(nudgeOf(done)).toEqual({ key: "ui.nudge.chapter-done", about: "end" });
   });
 
   test("[R-WORLD-003] [R-CHAPTER-009] given a nurse from sixteen in her job who has heard of care work and the master's, when the first step is read, then the nudge says to read the care page and the way opens that page with care chosen", () => {

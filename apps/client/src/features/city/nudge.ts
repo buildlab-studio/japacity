@@ -365,6 +365,8 @@ export function nudgeOf(view: NudgeView, has: (key: string) => boolean = hasWord
     if (route !== null && has(`${own}.nudge.own`)) return { key: `${own}.nudge.own`, params: { route: lowerFirst(nameOf(route)) }, about: "step" };
     return { key: has(`${own}.nudge`) ? `${own}.nudge` : own, about: "step" };
   }
+  // A chapter with every item met closes when the page turns: say that, never a goal's act over it.
+  if (view.chapter.current !== null && has("ui.nudge.chapter-done")) return { key: "ui.nudge.chapter-done", about: "end" };
   // A report line waits when one of last month's lines asks for the player. Abroad, when the month's
   // dues pass the country's money held, that line says the gap.
   // Once News has been read for this month's report, the line waits no more.

@@ -44,6 +44,7 @@ function outcome(id: string, bp: number, effects: Effect[], next: string | null)
 }
 
 const TECH = "quality.tech";
+const CARE = "quality.care";
 const ENGLISH = "quality.english";
 const NETWORK = "quality.network";
 const STANDING = "quality.standing";
@@ -277,6 +278,10 @@ export const prologueTable: Record<string, PrologueStep> = {
       answer("canada", [{ type: "route/hear", route: "route.canada-points", via: "friend" }]),
       answer("tech", [{ type: "route/hear", route: "route.uk-talent", via: "friend" }], {
         requires: [{ type: "quality/min", quality: TECH, value: 40 }],
+      }),
+      // The nurses' crowd: a life with care behind it hears of care work abroad at its own send-off, so its chapters lean that way.
+      answer("care", [{ type: "route/hear", route: "route.uk-care", via: "friend" }], {
+        requires: [{ type: "quality/min", quality: CARE, value: 30 }],
       }),
       answer("nowhere", [add(STANDING, 2), add(WELLBEING, 3)]),
     ],
