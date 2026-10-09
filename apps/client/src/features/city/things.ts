@@ -43,6 +43,28 @@ function withOwnChoice(act: Act): Act {
   return choice === undefined ? act : { ...act, param: choice };
 }
 
+// the places' files list what each desk's sheet offers; the entries added since (the care, talent, points and Gulf files' steps, R-CHAPTER-009) are listed here until the files carry them.
+/** More entries a thing's sheet act lists, by `<place>:<thing>:<act>`. */
+const MORE_AT: Record<string, readonly string[]> = {
+  "place.tb-clinic:jobs-notice:certify": ["activity.request-verification"],
+  "place.yaba:desk:routes": ["activity.find-sponsor", "activity.apply-endorsement", "activity.enter-pool"],
+  "place.visa-centre:desk:apply": ["activity.apply-uk-care", "activity.apply-uk-talent"],
+  "place.family-house:papers-box:start": ["activity.get-eca"],
+  "place.agent-office:desk:visit": ["activity.apply-gulf-contract"],
+};
+
+/** The things with the entries this table adds to their sheets at `place`. */
+export function withMoreAt(things: readonly Thing[], place: string): Thing[] {
+  return things.map((thing) => ({
+    ...thing,
+    acts: thing.acts.map((act) => {
+      const extra = MORE_AT[`${place}:${thing.id}:${act.id}`];
+      if (extra === undefined || act.kind !== "sheet") return act;
+      return { ...act, more: [...new Set([...(act.more ?? []), ...extra])] };
+    }),
+  }));
+}
+
 /** The place's things: its file's own, or the tables' for a file that has none, each with at most two acts, each act with the choice its words make. */
 export function thingsOf(stage: Pick<Stage, "models" | "things">): Thing[] {
   return (stage.things ?? tableThings(stage)).map((thing) => ({ ...thing, acts: thing.acts.slice(0, MAX_ACTS).map(withOwnChoice) }));

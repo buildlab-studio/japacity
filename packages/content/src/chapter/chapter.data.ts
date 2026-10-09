@@ -160,7 +160,8 @@ export const chapterTable: Record<Id<"chapter">, ChapterEntry> = {
   "chapter.send-off": {
     id: "chapter.send-off",
     order: 12,
-    items: [{ id: "departed", requirement: { type: "route/state", route: UK, in: ["departed"] } }],
+    // The flight on any way out of the player's own effort closes the send-off (R-CHAPTER-009).
+    items: [{ id: "departed", requirement: { type: "any", of: OWN_ROUTES.map((route) => ({ type: "route/state" as const, route, in: ["departed"] })) } }],
   },
   "chapter.landing": {
     id: "chapter.landing",

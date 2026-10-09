@@ -15,7 +15,7 @@ import { crowdSize } from "../crowd";
 import { crowdTuning } from "../limits";
 import { personOfLook } from "../roster";
 import { sceneWords } from "../scene.words";
-import { thingSpot } from "../things";
+import { thingSpot , withMoreAt } from "../things";
 import { groundGeometry } from "../world";
 import { allPalette, city, instancesOf, measured, rowOf, signKeys, staged, totalsOf, wordsOf } from "./placeTesting";
 
@@ -29,7 +29,8 @@ export function cappedCrowd(id: Id<"place">, mode: "low" | "high"): number {
 /** Every entry a place's things open, as their acts list them. */
 export function actEntries(raw: unknown, id: Id<"place">): string[] {
   const { stage } = staged(raw, id);
-  return (stage.things ?? []).flatMap((thing) => thing.acts.flatMap((act) => [...(act.stages === undefined ? [] : [act.stages]), ...(act.more ?? [])]));
+  // The things as the game reads them: the file's own, with the entries the client's table adds to the desks' sheets (R-CHAPTER-009).
+  return withMoreAt(stage.things ?? [], id).flatMap((thing) => thing.acts.flatMap((act) => [...(act.stages === undefined ? [] : [act.stages]), ...(act.more ?? [])]));
 }
 
 /** The tests every rebuilt frontage shares; `raw` is the place's file as imported. */

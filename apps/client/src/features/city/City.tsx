@@ -55,7 +55,7 @@ import { SaidLine, useSaid } from "./Said";
 import { APPLY_TO_SCHOOL, SCHOOL_ICON, schoolSheetLine } from "./school";
 import { sceneWords } from "./scene.words";
 import { enterable, offersHere, openingPlace, openScene, reportHere, type ViewPlace } from "./staging";
-import { stagedNow, thingsNow, thingsOf, vehicleOf } from "./things";
+import { stagedNow, thingsNow, thingsOf, vehicleOf, withMoreAt } from "./things";
 import { stopReached } from "./stops";
 
 /** Nudges that name a wait with nothing to do but end months: the English result on its way. */
@@ -593,8 +593,8 @@ export function City({
     if (!world || file === null) return undefined;
     const offered = new Set(activityKey.split("|"));
     const staged = new Set<string>([...(entry?.stages ?? []), ...(insideEntry?.stages ?? [])]);
-    return thingsNow(thingsOf(stageOf(file)), stagedNow(offered, staged, new Set(offersKey.split("|")), setpieceEntry, chapterNow));
-  }, [world, file, activityKey, entry, insideEntry, offersKey, setpieceEntry, chapterNow]);
+    return thingsNow(withMoreAt(thingsOf(stageOf(file)), inside && insideEntry !== null ? insideEntry.id : placeId), stagedNow(offered, staged, new Set(offersKey.split("|")), setpieceEntry, chapterNow));
+  }, [world, file, activityKey, entry, inside, insideEntry, placeId, offersKey, setpieceEntry, chapterNow]);
   // What the scene reports: a thing chosen shows its acts; an act becomes the sheet, the ride, the cut in or the cut out it stands for.
   // An act lands once the character has walked to its thing (R-WORLD-010); one that lands under a sheet, the phone, the map or the results is dropped.
   const readPick = (scenePick: ScenePick): void => {

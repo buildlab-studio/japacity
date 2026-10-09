@@ -24,6 +24,18 @@ describe("stops the story opens", () => {
     expect(view.place.where).toBe("home");
   });
 
+  test("[R-WORLD-015] [R-CHAPTER-009] given a chapter standing in for a base by route, when the stops are read, then the base's stops open with it and stay open once it is done", () => {
+    const careFile = { current: "chapter.build-the-file-care" as const, items: [], done: ["chapter.find-your-feet" as const] };
+    expect(stopReached(careFile, "home", "place.english-test-centre")).toBe(true);
+    expect(stopReached(careFile, "home", "place.agent-office")).toBe(true);
+    expect(stopReached(careFile, "home", "place.visa-centre")).toBe(false);
+    const gulfDecision = { current: "chapter.decision-day-gulf" as const, items: [], done: ["chapter.find-your-feet" as const, "chapter.build-the-file-gulf" as const] };
+    expect(stopReached(gulfDecision, "home", "place.english-test-centre")).toBe(true);
+    expect(stopReached(gulfDecision, "home", "place.tb-clinic")).toBe(true);
+    expect(stopReached(gulfDecision, "home", "place.visa-centre")).toBe(true);
+    expect(stopReached(gulfDecision, "home", "place.airport-lagos")).toBe(false);
+  });
+
   test("[R-WORLD-015] [R-PROLOGUE-010] given a life whose own first step is at a place its chapter has not reached, when the stops are read, then that place is open and the others its chapter holds stay not yet", () => {
     const first = { current: "chapter.find-your-feet" as const, items: [], done: [] };
     expect(stopReached(first, "home", "place.tb-clinic", ["place.tb-clinic"])).toBe(true);

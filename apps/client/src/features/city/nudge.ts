@@ -30,6 +30,11 @@ export interface StepWay {
 const HUB_DESK: StepWay = { go: "place.yaba", at: ["place.yaba:desk", "place.ojuelegba:hub"] };
 const PAPERS: StepWay = { go: "place.family-house", at: ["place.family-house:papers-box", "place.family-house:house"] };
 const MONTH_END: StepWay = { go: null, at: [] };
+const CLINIC_DESK: StepWay = { go: "place.tb-clinic", at: ["place.tb-clinic:desk"] };
+const CLINIC_NOTICE: StepWay = { go: "place.tb-clinic", at: ["place.tb-clinic:jobs-notice"] };
+const VISA_DESK: StepWay = { go: "place.visa-centre", at: ["place.visa-centre:desk"] };
+const POLICE_NOTICE: StepWay = { go: "place.visa-centre", at: ["place.visa-centre:police-notice"] };
+const AGENT_DESK: StepWay = { go: "place.agent-office", at: ["place.agent-office:desk"] };
 
 const STEP_WAYS: Record<string, StepWay> = {
   "chapter.find-your-feet.job": { go: "place.yaba", at: ["place.yaba:jobs", "place.ojuelegba:hub"] },
@@ -42,9 +47,37 @@ const STEP_WAYS: Record<string, StepWay> = {
   "chapter.build-the-file.offer": { ...HUB_DESK, opens: "activity.apply-to-school" },
   "chapter.decision-day.deposit": { go: "place.olokun-office", at: ["place.olokun-office:counter"] },
   "chapter.decision-day.held": MONTH_END,
-  "chapter.decision-day.tb": { go: "place.tb-clinic", at: ["place.tb-clinic:desk"] },
-  "chapter.decision-day.applied": { go: "place.visa-centre", at: ["place.visa-centre:desk"] },
+  "chapter.decision-day.tb": CLINIC_DESK,
+  "chapter.decision-day.applied": VISA_DESK,
   "chapter.decision-day.granted": MONTH_END,
+  // R-CHAPTER-009: the file and decision day of each way out of the player's own effort.
+  "chapter.build-the-file-care.tenure": MONTH_END,
+  "chapter.build-the-file-care.verification": CLINIC_NOTICE,
+  "chapter.build-the-file-care.sponsor": HUB_DESK,
+  "chapter.build-the-file-care.applied": VISA_DESK,
+  "chapter.build-the-file-talent.portfolio": HUB_DESK,
+  "chapter.build-the-file-talent.endorsement": HUB_DESK,
+  "chapter.build-the-file-talent.applied": VISA_DESK,
+  "chapter.build-the-file-points.eca": PAPERS,
+  "chapter.build-the-file-points.english": { go: "place.english-test-centre", at: ["place.english-test-centre:desk"] },
+  "chapter.build-the-file-points.pool": HUB_DESK,
+  "chapter.build-the-file-points.invited": MONTH_END,
+  "chapter.build-the-file-gulf.medical": CLINIC_DESK,
+  "chapter.build-the-file-gulf.agent": AGENT_DESK,
+  "chapter.build-the-file-gulf.contract": AGENT_DESK,
+  "chapter.decision-day-care.tb": CLINIC_DESK,
+  "chapter.decision-day-care.police": POLICE_NOTICE,
+  "chapter.decision-day-care.applied": VISA_DESK,
+  "chapter.decision-day-care.granted": MONTH_END,
+  "chapter.decision-day-talent.tb": CLINIC_DESK,
+  "chapter.decision-day-talent.applied": VISA_DESK,
+  "chapter.decision-day-talent.granted": MONTH_END,
+  "chapter.decision-day-points.police": POLICE_NOTICE,
+  "chapter.decision-day-points.applied": MONTH_END,
+  "chapter.decision-day-points.granted": MONTH_END,
+  "chapter.decision-day-gulf.police": POLICE_NOTICE,
+  "chapter.decision-day-gulf.applied": AGENT_DESK,
+  "chapter.decision-day-gulf.granted": MONTH_END,
   "chapter.send-off.departed": { go: "place.airport-lagos", at: ["place.airport-lagos:gate"] },
   // Abroad the nudge never opens the map (the map there is a list), so the steps are reached through `at`.
   "chapter.landing.room": { go: "place.the-room", at: ["place.the-room:post"] },
@@ -105,6 +138,17 @@ const STEP_PAPER: Record<string, string> = {
   // The English result is a paper too: once sat, the nudge says when it comes.
   "chapter.build-the-file.english": "document.english-test",
   "chapter.decision-day.tb": "document.tb-certificate",
+  // R-CHAPTER-009: the papers of the other files.
+  "chapter.build-the-file-care.verification": "document.nmcn-verification",
+  "chapter.build-the-file-talent.endorsement": "document.endorsement",
+  "chapter.build-the-file-points.eca": "document.eca",
+  "chapter.build-the-file-points.english": "document.english-test",
+  "chapter.build-the-file-gulf.medical": "document.medical",
+  "chapter.decision-day-care.tb": "document.tb-certificate",
+  "chapter.decision-day-care.police": "document.police-certificate",
+  "chapter.decision-day-talent.tb": "document.tb-certificate",
+  "chapter.decision-day-points.police": "document.police-certificate",
+  "chapter.decision-day-gulf.police": "document.police-certificate",
 };
 
 /** The route the chapters follow, for the school's answer and the funds (chapter.md). */
@@ -121,6 +165,26 @@ const STEP_ACTIVITY: Record<string, string> = {
   "chapter.decision-day.tb": "activity.tb-test",
   "chapter.decision-day.applied": "activity.apply-for-visa",
   "chapter.landing.job": "activity.job-hunt",
+  // R-CHAPTER-009: the acts of the other files.
+  "chapter.build-the-file-care.verification": "activity.request-verification",
+  "chapter.build-the-file-care.sponsor": "activity.find-sponsor",
+  "chapter.build-the-file-care.applied": "activity.apply-uk-care",
+  "chapter.build-the-file-talent.portfolio": "activity.build-portfolio",
+  "chapter.build-the-file-talent.endorsement": "activity.apply-endorsement",
+  "chapter.build-the-file-talent.applied": "activity.apply-uk-talent",
+  "chapter.build-the-file-points.eca": "activity.get-eca",
+  "chapter.build-the-file-points.english": "activity.sit-english-test",
+  "chapter.build-the-file-points.pool": "activity.enter-pool",
+  "chapter.build-the-file-gulf.medical": "activity.gulf-medical",
+  "chapter.build-the-file-gulf.contract": "activity.apply-gulf-contract",
+  "chapter.decision-day-care.tb": "activity.tb-test",
+  "chapter.decision-day-care.police": "activity.get-police-certificate",
+  "chapter.decision-day-care.applied": "activity.apply-uk-care",
+  "chapter.decision-day-talent.tb": "activity.tb-test",
+  "chapter.decision-day-talent.applied": "activity.apply-uk-talent",
+  "chapter.decision-day-points.police": "activity.get-police-certificate",
+  "chapter.decision-day-gulf.police": "activity.get-police-certificate",
+  "chapter.decision-day-gulf.applied": "activity.apply-gulf-contract",
 };
 
 /** Other activities that also take a step when planned: the adviser's visit looks into the route. */
