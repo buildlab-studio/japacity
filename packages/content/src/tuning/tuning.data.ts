@@ -203,6 +203,8 @@ export const tuning: Tuning = {
   groupLoan: { feeBp: 1500, savingsBp: 1000, vanishBp: pct(25), visit: { standing: -12, wellbeing: -5 } },
   // obligation.md R-OBLIGATION-014: cooking takes 15% off the upkeep's next charge and fetching water 4%, the maintainer's
   // starting figures. the page gives no figure for the weekend cooking takes; 2 wellbeing, as a month of study costs.
+  // activity.md R-ACTIVITY-013: being noticed raises the job's pay 10%, once, on a 30% draw.
+  activity: { raiseBp: pct(10), raiseChanceBp: pct(30) },
   room: { cookedBp: pct(15), waterBp: pct(4), cookWellbeing: 2 },
 
   // lottery.md Numbers, the Friday draw at fixed odds: 1 in 10 wins ₦500, 1 in 2,000 wins ₦50,000, 1 in 5,000 the jackpot from ₦200,000, growing by 10% of the sales of a week nobody hits it.
