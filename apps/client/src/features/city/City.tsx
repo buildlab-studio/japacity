@@ -10,6 +10,7 @@ import { lazy, Suspense, useEffect, useMemo, useRef, useState, type ReactNode } 
 import { useGame, useView } from "../../authority/GameProvider";
 import { keptLookFile } from "../../authority/person";
 import { chooseGraphics, setGraphicsMode } from "../../shared/graphics/mode";
+import { mapWords } from "../map/map.words";
 import { loadModel } from "../../shared/three/load";
 import { assetUrl, loadJson, loadManifest } from "../../shared/three/manifest";
 import { Button } from "../../shared/ui/Button";
@@ -300,6 +301,8 @@ export interface CityMapSlot {
   home: string | null;
   /** A way chosen: the fare goes through `place/ride`, and the answer says whether the ride plays (R-PLACE-010). */
   onRide?: (choice: RideChoice, to: string) => Promise<boolean>;
+  /** Turn back on a ride: the walk back to `from`, the fare gone (R-WORLD-017). */
+  onTurnBack?: (from: string, to: string) => void;
   /** The way to choose first on the ride sheet: the vehicle tapped in the place (R-WORLD-017). */
   by?: RideChoice["id"];
   /** A stop to open picked: the nudge's step elsewhere (R-WORLD-003). */
@@ -1033,6 +1036,15 @@ export function City({
               if (view.place.where !== "home") return true;
               const reply = await send({ type: "place/ride", from: placeId as Id<"place">, to: to as Id<"place">, way: choice.id });
               return reply?.ok === true;
+            },
+            // Turn back (R-WORLD-017): the first fare is gone; the walk back is a free ride the city records, and the character stays where they were.
+            onTurnBack: (from, to) => {
+              if (view.place.where === "home") void send({ type: "place/ride", from: to as Id<"place">, to: from as Id<"place">, way: "walk" });
+              setMap(false);
+              setDiveTo(null);
+              setRideBy(null);
+              setMapPick(null);
+              toast.show(mapWords("map.ride.turned-back"));
             },
           })
         : null}
