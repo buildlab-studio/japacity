@@ -8,7 +8,7 @@ import { Receipt } from "lucide-react";
 import { useView } from "../../../authority/GameProvider";
 import { formatMoney } from "../../../shared/words/format";
 import { clockWords } from "../../../shared/words/quality";
-import { hasWords, nameOf, say, sayCount } from "../../../shared/words/text";
+import { hasWords, inMonths, nameOf, say, sayCount } from "../../../shared/words/text";
 import { useAsk, type AskSpec } from "../act";
 import { phoneWords } from "../phone.words";
 
@@ -25,6 +25,25 @@ export function payNow(owed: Owed): { amount: number; line: string; button: stri
   if (type === "held-funds") return owed.outstanding > 0 ? { amount: owed.outstanding, line: phoneWords("phone.bills.held.line"), button: say("ui.obligation.return"), locked: true } : null;
   if (type === "car") return owed.missed > 0 && owed.due > 0 ? { amount: owed.due, line: phoneWords("phone.bills.car.line"), button: phoneWords("phone.bills.car.button"), locked: false } : null;
   if (type === "undertaking") return owed.outstanding > 0 ? { amount: owed.outstanding, line: phoneWords("phone.bills.undertaking.line"), button: phoneWords("phone.bills.undertaking.button"), locked: false } : null;
+  return null;
+}
+
+/**
+ * When a bill taken every few months comes next, said as months away (R-WORLD-002), in a month none is
+ * taken: "Next instalment in 2 months.". Null for a bill due now,
+ * one behind, or one taken every month.
+ */
+export function nextTaken(owed: Owed, month: number): string | null {
+  const every = content.obligation[owed.entry]?.everyMonths;
+  if (every === undefined || every <= 1 || owed.due > 0 || owed.missed > 0 || owed.outstanding <= 0) return null;
+  // The view's "this month" is the month after the one in hand, as `due` reads it.
+  for (let ahead = 1; ahead <= every + 1; ahead += 1) {
+    const age = month + ahead - owed.openedMonth - 1;
+    if (age >= 0 && age % every === 0) {
+      const own = `ui.obligation.next.${owed.entry}`;
+      return say(hasWords(own) ? own : "ui.obligation.next", { when: inMonths(month + ahead, month + 1) });
+    }
+  }
   return null;
 }
 
@@ -84,7 +103,7 @@ export function Bills() {
                     <p className="text-[14px] font-bold">{bill.due > 0 ? noticeWords(bill, currency) : nameOf(bill.entry)}</p>
                     {bill.outstanding > 0 ? <p className="num text-[13px] text-text-2">{say("ui.obligation.outstanding", { amount: formatMoney(bill.outstanding, currency) })}</p> : null}
                     {bill.missed > 0 ? <p className="text-[13px] font-bold text-out">{sayCount("ui.obligation.missed", bill.missed, { count: bill.missed })}</p> : null}
-                    {pay === null ? <p className="text-[13px] text-text-2">{phoneWords("phone.bills.auto")}</p> : null}
+                    {pay === null ? <p className="text-[13px] text-text-2">{nextTaken(bill, view.month) ?? phoneWords("phone.bills.auto")}</p> : null}
                   </div>
                   {bill.state === "active" ? null : <span className="label shrink-0 text-out">{say(`ui.obligation.state.${bill.state}`)}</span>}
                 </div>

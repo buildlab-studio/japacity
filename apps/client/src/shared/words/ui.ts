@@ -344,6 +344,9 @@ export const uiText: Record<string, string> = {
   "ui.obligation.none": "Nothing owed.",
   "ui.obligation.due": "Due this month: {amount}",
   "ui.obligation.outstanding": "Still owed: {amount}",
+  // A bill taken every few months, in a month none is taken.
+  "ui.obligation.next": "Next payment {when}.",
+  "ui.obligation.next.obligation.tuition": "Next instalment {when}.",
   "ui.obligation.months-left": "{months} months left",
   "ui.obligation.months-left.one": "1 month left",
   "ui.obligation.missed": "Missed {count} payments in a row",
