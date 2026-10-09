@@ -3,7 +3,9 @@
 // it and lights the route there along the roads. One scene, instanced (see scene.ts).
 import { content } from "@japacity/content";
 import { useEffect, useRef } from "react";
-import { PerspectiveCamera, Vector3, WebGLRenderer } from "three";
+import { PerspectiveCamera, Vector3 } from "three";
+
+import { mountCanvas } from "../../shared/three/sharedRenderer";
 
 import { buildCityMap, type CityMap as Drawn, readColours } from "./scene";
 import { BOUNDS, districts, routeBetween, toXZ, type XZ } from "./layout";
@@ -92,16 +94,14 @@ function aim(camera: PerspectiveCamera, view: View): void {
 }
 
 export function CityMap({ pins, home, picked, onPick }: CityMapProps) {
-  const canvas = useRef<HTMLCanvasElement>(null);
+  const box = useRef<HTMLDivElement>(null);
   const drawn = useRef<{ map: Drawn; camera: PerspectiveCamera; want: View; view: View } | null>(null);
   const pick = useRef(onPick);
   pick.current = onPick;
 
   useEffect(() => {
-    const element = canvas.current;
-    if (element === null) return;
-    const renderer = new WebGLRenderer({ canvas: element, antialias: true, powerPreference: "high-performance" });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    if (box.current === null) return;
+    const { canvas: element, renderer, unmount } = mountCanvas("map", box.current, "size-full touch-none", "data-city-map");
     const named = (area: string): boolean => mapText[`map.area.${area}`] !== undefined;
     const map = buildCityMap(pins, {
       colours: readColours(),
@@ -253,8 +253,8 @@ export function CityMap({ pins, home, picked, onPick }: CityMapProps) {
       element.removeEventListener("pointercancel", pointerUp);
       element.removeEventListener("wheel", wheel);
       map.dispose();
-      renderer.dispose();
-      renderer.forceContextLoss();
+      // The renderer is shared and kept (sharedRenderer.ts); only the canvas leaves the box.
+      unmount();
       drawn.current = null;
       if (window.__map === probe) delete window.__map;
     };
@@ -279,5 +279,5 @@ export function CityMap({ pins, home, picked, onPick }: CityMapProps) {
     state.want = framing(route, state.camera, true);
   }, [picked, pins, home]);
 
-  return <canvas ref={canvas} className="size-full touch-none" aria-hidden data-city-map />;
+  return <div ref={box} className="size-full touch-none" aria-hidden />;
 }

@@ -4,6 +4,8 @@
 // danfo, keke or okada standing in a place.
 import { palette } from "@japacity/assets";
 import { useEffect, useRef, useState } from "react";
+
+import { mountCanvas } from "../../shared/three/sharedRenderer";
 import {
   BoxGeometry,
   Color,
@@ -60,9 +62,7 @@ function standIn(way: RideChoice["id"]): Mesh {
 }
 
 /** The street the ride goes along: a road, its markings, buildings each side and a few trees. */
-function buildStreet(canvas: HTMLCanvasElement, way: RideChoice["id"]): Street {
-  const renderer = new WebGLRenderer({ canvas, antialias: true, powerPreference: "high-performance" });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+function buildStreet(renderer: WebGLRenderer, way: RideChoice["id"]): Street {
   const scene = new Scene();
   const air = new Color(palette.sky);
   scene.background = air;
@@ -142,15 +142,13 @@ function buildStreet(canvas: HTMLCanvasElement, way: RideChoice["id"]): Street {
       for (const thing of disposables) thing.dispose();
       stand.geometry.dispose();
       (stand.material as MeshLambertMaterial).dispose();
-      renderer.dispose();
-      // The browser keeps a handful of contexts; one is released for each ride.
-      renderer.forceContextLoss();
+      // The renderer is shared across rides and kept (sharedRenderer.ts).
     },
   };
 }
 
 export function Ride({ way, place, drawing, onDone }: RideProps) {
-  const canvas = useRef<HTMLCanvasElement>(null);
+  const box = useRef<HTMLDivElement>(null);
   const done = useRef(false);
   const [started, setStarted] = useState(false);
   const finish = useRef(onDone);
@@ -172,9 +170,9 @@ export function Ride({ way, place, drawing, onDone }: RideProps) {
   }, []);
 
   useEffect(() => {
-    if (!drawing || canvas.current === null) return;
-    const element = canvas.current;
-    const street = buildStreet(element, way);
+    if (!drawing || box.current === null) return;
+    const { canvas: element, renderer, unmount } = mountCanvas("ride", box.current, "size-full");
+    const street = buildStreet(renderer, way);
     let alive = true;
     // The real vehicle replaces the stand-in when it has loaded; it is shared and kept loaded.
     void loadManifest()
@@ -214,13 +212,14 @@ export function Ride({ way, place, drawing, onDone }: RideProps) {
       cancelAnimationFrame(frame);
       window.removeEventListener("resize", resize);
       street.dispose();
+      unmount();
     };
   }, [drawing, way]);
 
   const title = mapWords("map.ride.to", { way: mapWords(`map.way.${way}`), place });
   return (
     <div className="fade fixed inset-0 z-[46] bg-strong" data-ride={way} aria-live="polite">
-      {drawing ? <canvas ref={canvas} className="size-full" aria-hidden /> : null}
+      {drawing ? <div ref={box} className="size-full" aria-hidden /> : null}
       <div className="pointer-events-none absolute inset-x-0 top-0 px-3 pt-[max(10px,env(safe-area-inset-top))]">
         <div className="band pointer-events-auto flex items-center gap-3 rounded-[6px] px-3 py-2.5 shadow-[0_10px_24px_rgba(10,14,30,0.35)]">
           <div className="min-w-0 flex-1">
