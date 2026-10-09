@@ -115,3 +115,39 @@ describe("the handover", () => {
     expect(document.querySelector("[data-life-so-far]")?.textContent).toContain(valueWords(WELLBEING, wellbeing));
   });
 });
+
+describe("the life from sixteen keeps the story its prologue built", () => {
+  /** Spare parts under a master, the settlement, no way out heard at the send-off, and a room of his own. */
+  const TRADER = ["apprentice", "spare-parts", "stay", "settle", "nowhere", "room"];
+  const trader = (allowed: readonly string[]) => TRADER.find((id) => allowed.includes(id)) ?? allowed[0] ?? "";
+
+  test("[R-PROLOGUE-008] given a generous settlement, when the send-off card shows what happened, then the money is named as the settlement, not as side work", async () => {
+    const { outcomes } = await walk("sixteen-0", trader);
+    const afterSettlement = outcomes.find((outcome) => outcome.includes(words("prologue.settlement.outcome.generous")));
+    expect(afterSettlement).toBeDefined();
+    expect(afterSettlement).toContain("The settlement: ₦6,000,000.");
+    expect(afterSettlement).not.toContain("side work");
+  });
+
+  test("[R-TEXT-005] given a trader settled generously, in a room of his own, when the handover shows, then land is said in words, the capital is named with what it can do now, the room and its living costs are said, and the meetup comes first", async () => {
+    const { game } = await walk("sixteen-0", trader);
+    await screen.findByRole("heading", { name: words("line.prologue.closed") });
+    const view = game.view();
+    expect(view.qualities.find((quality) => quality.id === "quality.land")?.value).toBe(1);
+    const held = [...document.querySelectorAll("[data-life-so-far] dd")].map((value) => value.textContent);
+    expect(held).toContain(say("ui.band.quality.land.1"));
+    expect(held.filter((value) => /\d/.test(value))).toEqual([]);
+    const story = document.querySelector("[data-handover-story]")?.textContent ?? "";
+    expect(story).toContain("₦6,000,000 in hand, the shop's capital. It is the move's money now, if you want it to be.");
+    expect(story).toContain("You sleep in a room of your own. Living costs: ₦180,000 a month.");
+    expect(document.querySelector("[data-first-step]")?.textContent).toBe("Your first step: Go to the meetup in Yaba and hear of a way out.");
+  });
+
+  test("[R-PROLOGUE-008] given a graduate at the family house, when the handover shows, then it says where he sleeps and what it costs, and speaks of no shop's capital", async () => {
+    await walk("prologue-first", (allowed) => allowed[0] ?? "");
+    await screen.findByRole("heading", { name: words("line.prologue.closed") });
+    const story = document.querySelector("[data-handover-story]")?.textContent ?? "";
+    expect(story).toContain("You sleep in the family house. Living costs: ₦95,000 a month.");
+    expect(story).not.toMatch(/capital/);
+  });
+});

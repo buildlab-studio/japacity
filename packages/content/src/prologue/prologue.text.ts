@@ -123,6 +123,14 @@ export const prologueText: Record<string, string> = {
   // The prologue's screen, in the situation's words.
   "prologue.not-for-you": "Not for you:",
   "prologue.handover.first": "Your first step: {step}.",
+  // The handover keeps the story the prologue built: what the money is and can do now,
+  // where the character sleeps and what it costs, and a first step in the handover's own words where the nudge's do not fit.
+  "prologue.handover.capital": "{amount} in hand, the shop's capital. It is the move's money now, if you want it to be.",
+  "prologue.handover.home.family-house": "You sleep in the family house. Living costs: {amount} a month.",
+  "prologue.handover.home.room": "You sleep in a room of your own. Living costs: {amount} a month.",
+  "prologue.handover.step.heard": "Go to the meetup in Yaba and hear of a way out",
+  // The master's settlement, said as itself and not as side work.
+  "prologue.line.settlement": "The settlement: {amount}.",
   "prologue.line.level": "{quality} now: {level}.",
   "prologue.line.graded": "Your degree comes out: {grade}.",
   "prologue.line.quality.land.gain": "You have a plot of land to your name now.",
