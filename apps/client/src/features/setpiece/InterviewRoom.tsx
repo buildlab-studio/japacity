@@ -5,13 +5,14 @@
 // sound. The player's character never speaks: a voice would never match the one they made.
 import { OFFICER_REACTIONS, setpieceVoice } from "@japacity/content";
 import type { PlayerView } from "@japacity/sim";
-import { DoorOpen, MessageCircleQuestion } from "lucide-react";
+import { DoorOpen, MessageCircleQuestion, Volume2, VolumeX } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useStore } from "zustand";
 
 import { useGame, useView } from "../../authority/GameProvider";
 import { MuteSwitch } from "../../shared/sound/MuteSwitch";
-import { beginScene, endScene, hush, preload, soundMode, speakAll, type SpokenLine, wakeSound } from "../../shared/sound/sound";
+import { beginScene, clearNotice, endScene, hush, NOTICE_MS, type NoticeCase, preload, soundMode, soundStore, speakAll, type SpokenLine, tapNotice, wakeSound } from "../../shared/sound/sound";
+import { soundWords } from "../../shared/sound/sound.words";
 import { useSound } from "../../shared/sound/useSound";
 import { Button } from "../../shared/ui/Button";
 import { Card, Tag } from "../../shared/ui/Panel";
@@ -77,13 +78,75 @@ function Officer({ lines, onTap }: { lines: { key: string; main: boolean }[]; on
   );
 }
 
+type Notice = { which: NoticeCase; id: number };
+
+/**
+ * The game's sound notice, taken into the room's header the moment it is raised, so nothing of the
+ * sheet sits over the band's money and End month. It keeps the
+ * notice's rules: once a scene, gone by itself after a few seconds, never needing to be closed.
+ */
+function useNoticeHere(): [Notice | null, () => void] {
+  const [held, setHeld] = useState<Notice | null>(null);
+  useEffect(() => {
+    const take = (notice: Notice | null): void => {
+      if (notice === null) return;
+      clearNotice(notice.id);
+      setHeld(notice);
+    };
+    take(soundStore.getState().notice);
+    return soundStore.subscribe((state) => take(state.notice));
+  }, []);
+  useEffect(() => {
+    if (held === null) return;
+    const timer = setTimeout(() => setHeld(null), NOTICE_MS);
+    return () => clearTimeout(timer);
+  }, [held]);
+  return [held, () => setHeld(null)];
+}
+
+const NOTICE_ICONS: Record<NoticeCase, typeof Volume2 | null> = { on: Volume2, blocked: VolumeX, saver: VolumeX, unsupported: null };
+
+/** The notice in the header: read out politely, never taking the focus; a tap does what the corner's tap does. */
+function HeaderNotice() {
+  const [notice, done] = useNoticeHere();
+  const Icon = notice === null ? null : NOTICE_ICONS[notice.which];
+  const box = "flex items-center gap-2 self-start rounded-full border border-line bg-surface px-3 py-1.5 text-sm";
+  const content =
+    notice === null ? null : (
+      <>
+        {Icon === null ? null : <Icon size={16} aria-hidden className="shrink-0" />}
+        <span>{soundWords(`sound.notice.${notice.which}`)}</span>
+        {notice.which === "on" ? <VolumeX size={16} aria-label={soundWords("sound.notice.on.action")} className="shrink-0 opacity-70" /> : null}
+      </>
+    );
+  return (
+    <div role="status" aria-live="polite" data-sound-notice={notice?.which ?? "none"} data-notice-here className="flex">
+      {notice === null ? null : notice.which === "unsupported" ? (
+        <p className={box}>{content}</p>
+      ) : (
+        <button
+          type="button"
+          className={`${box} min-h-9 hover:bg-sunk focus-visible:outline-2 focus-visible:outline-ink`}
+          onClick={() => {
+            done();
+            tapNotice(notice.which);
+          }}
+        >
+          {content}
+        </button>
+      )}
+    </div>
+  );
+}
+
 function Header({ entry, open }: { entry: Setpiece["entry"]; open: boolean }) {
   return (
     <div className="flex items-start gap-3">
       <MessageCircleQuestion size={22} className="mt-0.5 shrink-0" />
-      <div className="flex flex-1 flex-col gap-1">
+      <div className="flex min-w-0 flex-1 flex-col gap-1">
         <h2 className="text-lg font-semibold">{nameOf(entry)}</h2>
         {open ? <p className="text-sm text-muted">{say("ui.setpiece.blocks")}</p> : null}
+        <HeaderNotice />
       </div>
       <MuteSwitch />
     </div>
