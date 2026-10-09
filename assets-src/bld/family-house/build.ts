@@ -64,11 +64,12 @@ export function buildFamilyHouse(notice: string, style: SignStyle, dishYaw: numb
   for (const x of [-3, 0.4, 3]) barredWindow(rear, x, 0);
   stain(rear, 0, 0, w, 0.6, "wallPeachWorn");
 
-  // The veranda: a tiled floor, its two end walls, the ceiling and the lintel on four pillars.
+  // The veranda: a tiled floor, its two end walls, the ceiling and the lintel on four pillars. The grout
+  // lines stand a clear centimetre over the tiles so the two never fight (docs/rules/world.md R-WORLD-012).
   const deep = front - veranda;
   floorQuad(g, w, deep, 0, 0.012, (front + veranda) / 2, "wallCream");
-  for (let x = -half + 0.6; x < half; x += 0.6) floorQuad(g, 0.025, deep, x, 0.016, (front + veranda) / 2, "wallCreamWorn");
-  for (let z = veranda + 0.6; z < front; z += 0.6) floorQuad(g, w, 0.025, 0, 0.016, z, "wallCreamWorn");
+  for (let x = -half + 0.6; x < half; x += 0.6) floorQuad(g, 0.025, deep, x, 0.024, (front + veranda) / 2, "wallCreamWorn");
+  for (let z = veranda + 0.6; z < front; z += 0.6) floorQuad(g, w, 0.025, 0, 0.024, z, "wallCreamWorn");
   for (const x of [-half + 0.1, half - 0.1]) {
     box(g, 0.2, walls, deep - 1.2, x, 0, veranda + (deep - 1.2) / 2, "wallPeach");
   }
