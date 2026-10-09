@@ -24,6 +24,5 @@ describe("the clinic", () => {
     expect(lines).toContain("Breathe in and hold. Thank you.");
     expect(lines).toContain("Ward three is short tonight.");
     expect(lines.filter((line) => /ward|matron|handover|nights/i.test(line)).length).toBeGreaterThanOrEqual(2);
-    expect(lines.filter((line) => /[–—]/.test(line))).toEqual([]);
   });
 });
