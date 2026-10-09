@@ -24,8 +24,9 @@ import { gallery, useKept } from "./gallery";
 /** True inside the full-screen sheet, where the card's title names the dialog. */
 const InDialog = createContext(false);
 
+/** The card's title in the plain face, as the word mark: the display caps read hard on a phone. */
 function CardTitle({ children }: { children: ReactNode }) {
-  const className = "font-display text-3xl leading-tight";
+  const className = "font-sans text-3xl leading-tight font-black";
   return use(InDialog) ? <Dialog.Title className={className}>{children}</Dialog.Title> : <h2 className={className}>{children}</h2>;
 }
 

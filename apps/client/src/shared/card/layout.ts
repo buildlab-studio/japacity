@@ -112,8 +112,9 @@ export function cardSteps(face: CardFace, size: Size, measure: Measure): Step[] 
   const kicker = unit(34);
   put("kicker", face.kicker.toUpperCase(), (y += kicker), kicker, 700, "sans", tone.soft);
   y += unit(28);
-  const title = unit(92);
-  for (const line of wrapped(face.title, title, "display", 400)) put("title", line, (y += unit(100)), title, 400, "display", tone.ink);
+  // The title in the plain face, as the word mark: in the display caps "A CHAPTER CLOSES" reads hard.
+  const title = unit(84);
+  for (const line of wrapped(face.title, title, "sans", 700)) put("title", line, (y += unit(96)), title, 700, "sans", tone.ink);
   if (face.chapter !== null) put("chapter", face.chapter, (y += unit(64)), unit(48), 600, "sans", tone.ink);
   if (face.name !== null) put("name", face.name, (y += unit(64)), unit(46), 700, "sans", tone.ink);
   if (face.route !== null) put("route", face.route, (y += unit(56)), unit(40), 400, "sans", tone.ink);
@@ -196,7 +197,7 @@ export function previewSteps(face: Pick<CardFace, "kind" | "kicker" | "title" | 
   let y = unit(96);
   put("kicker", face.kicker.toUpperCase(), y, unit(26), 700, "sans");
   const title = unit(66);
-  for (const line of wrap(face.title, width, (part) => measure(part, title, "display", 400))) put("title", line, (y += unit(76)), title, 400, "display");
+  for (const line of wrap(face.title, width, (part) => measure(part, title, "sans", 700))) put("title", line, (y += unit(76)), title, 700, "sans");
   put("sender", face.sender, size.height - unit(150), unit(48), 700, "sans");
   put("disclaimer", face.disclaimer, size.height - unit(96), unit(34), 700, "sans");
   put("address", face.address, size.height - unit(52), unit(28), 600, "sans");

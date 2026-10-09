@@ -39,4 +39,15 @@ describe("a card in words", () => {
       expect(mark?.family).toBe("sans");
     }
   });
+
+  test("[R-SHARE-004] given every kind of card the recorded lives reach, when the card and its preview are laid out, then the title is drawn in the plain face, not the display caps", () => {
+    const card = recordedGame("ada-careful").view().card;
+    if (card === null) throw new Error("Ada's recorded life has no card.");
+    const face = cardFace(card, "scenario.ada");
+    for (const steps of [cardSteps(face, SIZE, measure), previewSteps(face, SIZE, measure)]) {
+      const titles = steps.filter((step): step is TextStep => step.op === "text" && step.role === "title");
+      expect(titles.length).toBeGreaterThan(0);
+      for (const title of titles) expect(title.family).toBe("sans");
+    }
+  });
 });
