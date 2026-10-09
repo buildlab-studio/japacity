@@ -190,7 +190,7 @@ export const offerText: Record<string, string> = {
 
   // Report lines. Each carries `offer`, the entry id, so the interface can show its title.
   "line.offer.opened": "Something new needs an answer: {offer}.",
-  "line.offer.taken": "You gave your answer to {offer}.",
+  "line.offer.taken": "Answered: {offer}.",
   "line.offer.lapsed": "{offer}: you let it pass. The time to answer is gone.",
   "line.offer.replaced": "The earlier one is off the table. A newer one takes its place.",
   "line.offer.closed": "{offer}: someone else in the family has seen to it.",

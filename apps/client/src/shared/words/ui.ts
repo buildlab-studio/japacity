@@ -120,6 +120,15 @@ export const uiText: Record<string, string> = {
   "ui.line.family-paid.offer.parents-group-debt": "Toward your parents' group debt: {amount}.",
   // Another answer's money, named for its offer, so it never reads as the month's own salary (shared/words/lines.ts).
   "ui.line.offer-paid.offer.december-bonus": "A thirteenth month's pay: {amount}.",
+  // Fuel scarcity's fares are not living costs.
+  "ui.line.offer-paid.offer.fuel-scarcity": "Fuel scarcity: {amount} on fares.",
+  // An activity's spending, named for it (shared/words/lines.ts, activityPaid).
+  "ui.line.activity-paid.activity.meetup": "The meetup: {amount}.",
+  // The living costs charged at a new figure, with the story that moved them (lines.ts, upkeepMoved).
+  "ui.line.upkeep-up": "Living costs are up to {amount} a month.",
+  "ui.line.upkeep-down": "Living costs are down to {amount} a month.",
+  "ui.line.upkeep-up.news.fuel-subsidy": "Living costs are up to {amount} a month. The fuel subsidy is gone.",
+  "ui.line.upkeep-down.news.inflation-eases": "Living costs are down to {amount} a month. Prices are steadying.",
   // A bill's payment named for the bill where the wallet's reason says it wrong (shared/words/lines.ts).
   "ui.line.charged.obligation.ajo": "Savings circle: {amount}.",
   // A paper's fee, named for the paper asked for (shared/words/lines.ts).

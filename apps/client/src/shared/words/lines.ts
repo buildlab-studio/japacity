@@ -51,8 +51,14 @@ const OFFER_PAID = "ui.line.offer-paid.";
 /** A bill's payment, named for the bill when the wallet's reason says it wrong (see `paidAs`): a savings circle is not going out. */
 const CHARGED_AS = "ui.line.charged.";
 
+/** An activity's spending, named for the activity that spent it (see `activityPaid`): a meetup is not just going out. */
+const ACTIVITY_PAID = "ui.line.activity-paid.";
+
+/** The living costs charged at a new figure, said as the rise and its reason (see `upkeepMoved`). */
+const UPKEEP_MOVED = "ui.line.upkeep-";
+
 /** The interface's names for a payment: the wallet's money moving, said for what it paid. */
-const NAMED: readonly string[] = [FAMILY_PAID, OFFER_PAID, CHARGED_AS, "ui.line.document-fee"];
+const NAMED: readonly string[] = [FAMILY_PAID, OFFER_PAID, CHARGED_AS, "ui.line.document-fee", ACTIVITY_PAID, UPKEEP_MOVED];
 
 /** The prologue's last line: what came before it is the years before the first month. */
 export const PROLOGUE_CLOSED = "line.prologue.closed";
@@ -246,7 +252,77 @@ export function toldUnpaid(line: ReportLine): ReportLine {
 
 export function tidyLines(lines: readonly ReportLine[]): ReportLine[] {
   // Named before the retold go, so a payment named for its offer is never taken for the month's own.
-  return oneEndorsementStory(savedBefore(dropRetold(paperFee(paidAs(paidFor(foldPockets(lines))))))).map(variant);
+  return oneGoalLine(jobEndsWithFlight(upkeepMoved(oneEndorsementStory(savedBefore(dropRetold(paperFee(activityPaid(paidAs(paidFor(foldPockets(lines))))))))))).map(variant);
+}
+
+const PLAYED = "line.activity.played";
+
+/**
+ * Money an activity spent, said as that activity where the interface has words for it: the meetup's
+ * cost is "The meetup", not "Spent going out". The activity's played line
+ * comes just before the money it spent.
+ */
+function activityPaid(lines: readonly ReportLine[]): ReportLine[] {
+  return lines.map((line, index) => {
+    const before = lines[index - 1];
+    const activity = before?.key === PLAYED ? before.params.activity : undefined;
+    if (!line.key.startsWith(WALLET) || line.tone !== "bad" || typeof activity !== "string") return line;
+    const key = `${ACTIVITY_PAID}${activity}`;
+    return hasWords(key) ? { ...line, key } : line;
+  });
+}
+
+const UPKEEP = "line.wallet.upkeep";
+const NEWS_DELIVERED = "line.news.delivered";
+const INFLATION = "var.inflation";
+
+/** How a story moves the living costs at home when it comes into force: up, down, or not at all. */
+function inflationMove(story: string): "up" | "down" | null {
+  const entry = content.news[story as keyof typeof content.news];
+  if (entry === undefined) return null;
+  const moves = [...(entry.director?.adds ?? []), ...entry.standIn.sets].filter((change) => change.var === INFLATION).map((change) => change.value);
+  if (moves.length === 0) return null;
+  return moves.reduce((sum, value) => sum + value, 0) >= 0 ? "up" : "down";
+}
+
+/**
+ * The month the living costs at home are first charged at a new figure says so, with the reason
+ *: the story that moved prices comes into force in the same month's lines,
+ * and the charge it moved is that month's living costs. Told on the living costs' own line, so the
+ * figure stays in the money.
+ */
+function upkeepMoved(lines: readonly ReportLine[]): ReportLine[] {
+  const story = lines.find((line) => line.key === NEWS_DELIVERED && line.params.stage === "in-force" && typeof line.params.story === "string" && inflationMove(line.params.story) !== null)?.params.story;
+  if (typeof story !== "string") return [...lines];
+  const way = inflationMove(story);
+  const at = lines.findIndex((line) => line.key === UPKEEP && moneyOf(line)?.currency === "NGN");
+  if (way === null || at === -1) return [...lines];
+  const told = hasWords(`${UPKEEP_MOVED}${way}.${story}`) ? `${UPKEEP_MOVED}${way}.${story}` : `${UPKEEP_MOVED}${way}`;
+  return lines.map((line, index) => (index === at ? { ...line, key: told } : line));
+}
+
+const DEPARTED = "line.route.departed";
+const JOB_ENDED = "line.activity.job-ended";
+/** The job at home that ends with the flight, told beside the plane. */
+export const JOB_ENDS_WITH_FLIGHT = "line.route.departed-job-ended";
+
+/** A job held at home ends the month the plane leaves: told right after the flight, as part of it, not only in News. */
+function jobEndsWithFlight(lines: readonly ReportLine[]): ReportLine[] {
+  const departed = lines.findIndex((line) => line.key === DEPARTED);
+  if (departed === -1 || !lines.some((line) => line.key === JOB_ENDED)) return [...lines];
+  const ended = lines.filter((line) => line.key === JOB_ENDED).map((line) => ({ ...line, key: JOB_ENDS_WITH_FLIGHT }));
+  const rest = lines.filter((line) => line.key !== JOB_ENDED);
+  const at = rest.findIndex((line) => line.key === DEPARTED);
+  return [...rest.slice(0, at + 1), ...ended, ...rest.slice(at + 1)];
+}
+
+const GOAL_OPENED = "line.goal.opened";
+const GOAL_DONE = "line.goal.done";
+
+/** A goal opened and reached in the same month is told once, as reached. */
+function oneGoalLine(lines: readonly ReportLine[]): ReportLine[] {
+  const reached = new Set(lines.filter((line) => line.key === GOAL_DONE).map((line) => line.params.goal));
+  return lines.filter((line) => !(line.key === GOAL_OPENED && reached.has(line.params.goal)));
 }
 
 /**
