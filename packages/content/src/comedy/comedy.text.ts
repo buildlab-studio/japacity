@@ -11,9 +11,9 @@ export const comedyText: Record<string, string> = {
   "line.activity.job-started.v3": "You start a new job: {job}. The office chair squeaks. It is yours anyway.",
   "line.activity.job-started.v4": "You start a new job: {job}. By evening, somebody's cousin is asking if they are hiring.",
 
-  "line.activity.rested.v2": "Free slots given to rest: {slots}. Your phone rang twice. You let it.",
-  "line.activity.rested.v3": "Free slots given to rest: {slots}. Nobody could reach you. That was the plan.",
-  "line.activity.rested.v4": "Free slots given to rest: {slots}. You slept like someone with no deadlines. You have deadlines.",
+  "line.activity.rested.v2": "You rest when you have the time. Your phone rang twice. You let it.",
+  "line.activity.rested.v3": "You rest when you have the time. Nobody could reach you. That was the plan.",
+  "line.activity.rested.v4": "You rest when you have the time. You slept like someone with no deadlines. You have deadlines.",
 
   "line.activity.played.v2": "This month: {activity}. Your mother calls it progress when she tells people.",
   "line.activity.played.v3": "This month: {activity}. The plan is moving, at about the speed of Third Mainland at six.",

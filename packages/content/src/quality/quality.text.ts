@@ -42,5 +42,5 @@ export const qualityText: Record<string, string> = {
   "line.quality.loss": "{quality} down {points}, to {value}.",
   "line.quality.worn": "Work takes {points} off your {quality}.",
   "line.quality.drift": "{quality} settles by {points}, to {value}.",
-  "line.quality.run-down": "You are run down. {quality} has stayed under {below} month after month and is {value} now. Rest, or you will fall ill.",
+  "line.quality.run-down": "You are run down, and it has gone on for months. Rest, or you will fall ill.",
 };

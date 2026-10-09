@@ -231,7 +231,7 @@ export const newsText: Record<string, string> = {
   "news.fuel-subsidy.announced.head": "Fuel subsidy removed",
   "news.fuel-subsidy.announced.body": "Pump prices will rise this week. So will everything else.",
   "news.fuel-subsidy.in-force.head": "Prices have jumped",
-  "news.fuel-subsidy.in-force.body": "Rent, food and transport all cost more. Your upkeep has gone up.",
+  "news.fuel-subsidy.in-force.body": "Rent, food and transport all cost more. Your living costs have gone up.",
 
   "news.inflation-eases.name": "Inflation is easing",
   "news.inflation-eases.rumour.head": "Prices may be steadying",
@@ -239,7 +239,7 @@ export const newsText: Record<string, string> = {
   "news.inflation-eases.announced.head": "Inflation is easing",
   "news.inflation-eases.announced.body": "The statistics office says prices are rising more slowly.",
   "news.inflation-eases.in-force.head": "Prices have steadied",
-  "news.inflation-eases.in-force.body": "Upkeep is still high, but it has stopped climbing so fast.",
+  "news.inflation-eases.in-force.body": "Living costs are still high, but they have stopped climbing so fast.",
 
   "news.strike-starts.name": "The lecturers go on strike",
   "news.strike-starts.rumour.head": "Lecturers threaten to strike",

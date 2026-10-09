@@ -71,10 +71,10 @@ export const shareText: Record<string, string> = {
   "share.first-name.scenario.aniekan": "Aniekan",
 
   "share.route": "Route",
-  "share.japacity": "Japacity so far",
+  "share.japacity": "Ready to go",
   "share.send-off.japacity": "Japacity on the day you flew",
   "share.months": "Months played",
-  "share.standing": "Standing at home",
+  "share.standing": "How home sees you",
   "share.most": "What you did most",
 
   "share.button.share": "Share the card",
