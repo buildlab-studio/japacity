@@ -132,3 +132,28 @@ describe("Japa after the grant and the flight", () => {
     expect(app?.querySelector("[data-japa-percent]")).toBeNull();
   });
 });
+
+// one name for the readiness figure, Japacity, glossed where the figure shows.
+describe("the figure's one name", () => {
+  test("[R-WORLD-019] [R-TEXT-005] given a life with no way out yet, when Japa opens, then its head names the figure Japacity and never says ready to go", async () => {
+    const view = newGame("scenario.ada").view();
+    expect(view.japacity.route).toBeNull();
+    await openJapa(view);
+    const head = document.querySelector<HTMLElement>("[data-japa-head]");
+    expect(head?.textContent).toContain("Japacity");
+    expect(head?.textContent).toContain(phoneWords("phone.japa.none"));
+    expect(head?.textContent).not.toMatch(/ready/i);
+  });
+
+  test("[R-WORLD-019] [R-TEXT-005] given a route in play with its figure, when Japa opens, then the head names it Japacity with a one-line gloss, and the cards call it Japacity too", async () => {
+    const view = richView();
+    expect(view.japacity.percent).not.toBeNull();
+    await openJapa(view);
+    const head = document.querySelector<HTMLElement>("[data-japa-head]");
+    expect(head?.querySelector("[data-japa-label]")?.textContent).toBe("Japacity");
+    expect(head?.querySelector("[data-japa-gloss]")?.textContent).toBe(phoneWords("phone.japa.gloss"));
+    expect(phoneWords("phone.japa.gloss")).toMatch(/^How ready you are to go/);
+    for (const key of ["share.japacity", "share.send-off.japacity", "ui.card.japacity"]) expect(say(key)).toMatch(/^Japacity\b/);
+    expect(say("share.japacity")).not.toMatch(/^Ready to go$/i);
+  });
+});

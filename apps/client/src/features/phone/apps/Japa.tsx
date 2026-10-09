@@ -305,12 +305,20 @@ export function Japa() {
     );
   return (
     <div data-phone-app="japa">
-      <div className="band flex items-end justify-between gap-3 rounded-[6px] px-4 py-3">
+      <div className="band flex items-end justify-between gap-3 rounded-[6px] px-4 py-3" data-japa-head>
         <div className="min-w-0">
-          <div className="label label-strong">{phoneWords("phone.japa.label")}</div>
+          <div className="label label-strong" data-japa-label>
+            {phoneWords("phone.japa.label")}
+          </div>
           <div className="title truncate text-[15px]" data-japa-route={head?.id ?? ""}>
             {head === null ? phoneWords("phone.japa.none") : nameOf(head.id)}
           </div>
+          {/* The figure's one name says once what it means, where the figure shows. */}
+          {percent === null ? null : (
+            <div className="mt-0.5 text-[12px] opacity-85" data-japa-gloss>
+              {phoneWords("phone.japa.gloss")}
+            </div>
+          )}
         </div>
         {percent === null ? null : (
           <div className="num text-[44px] leading-none" data-japa-percent={percent}>

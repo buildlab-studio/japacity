@@ -69,8 +69,8 @@ describe("the situation in plain words", () => {
     expect(words(rested[0]?.key ?? "", rested[0]?.params)).not.toMatch(/\d/);
   });
 
-  test("[R-TEXT-005] given the share card's labels, then they say what a person would: ready to go and how home sees you", () => {
-    expect(say("share.japacity")).toBe("Ready to go");
+  test("[R-TEXT-005] given the share card's labels, then they say what a person would: the figure's one name with what it means, and how home sees you", () => {
+    expect(say("share.japacity")).toBe("Japacity, how ready you are to go");
     expect(say("share.standing")).toBe("How home sees you");
     expect(Object.values(uiText).some((said) => /Japacity so far/.test(said))).toBe(false);
   });
