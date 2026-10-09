@@ -69,7 +69,9 @@ describe("the months to play", () => {
       expect(document.querySelector("[data-month-flip]")).toBeNull();
       act(() => store.setState({ view: { ...view, turns: { ...view.turns, banked: 11 } } }));
       expect(document.querySelector("[data-month-flip]")).not.toBeNull();
-      act(() => vi.advanceTimersByTime(FLIP_MS + 1));
+      act(() => {
+        vi.advanceTimersByTime(FLIP_MS + 1);
+      });
       expect(document.querySelector("[data-month-flip]")).toBeNull();
       // A refill is no page turned.
       act(() => store.setState({ view: { ...view, turns: { ...view.turns, banked: 24 } } }));
