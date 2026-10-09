@@ -140,7 +140,8 @@ describe("the jobs list as rows on the sheet", () => {
     await renderWithView(<ActivityPicker only={[HUNT]} />, view);
     const rows = within(screen.getByRole("radiogroup", { name: jobsWords("jobs.pick") })).getAllByRole("radio");
     for (const row of rows) {
-      expect(row.querySelector(".rounded-full")).toBeNull();
+      // No radio circle: the only drawn mark in a row is the chance gauge.
+      expect(row.querySelectorAll("span[aria-hidden]:not([data-gauge])")).toHaveLength(0);
       expect(row.closest("li")?.className).toContain("border-sheet-line");
       expect(row.className.includes("bg-pick")).toBe(row.getAttribute("aria-checked") === "true");
     }
