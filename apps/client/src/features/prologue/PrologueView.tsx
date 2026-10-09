@@ -265,7 +265,7 @@ function PrologueCard({ view, prologue }: { view: PlayerView; prologue: Prologue
     );
   return (
     <Gate mark="prologue">
-      <GateSheet mark="card" label={say("ui.prologue.title")}>
+      <GateSheet key={view.v} mark="card" label={say("ui.prologue.title")}>
         <div data-prologue={prologue.step} data-v={view.v}>
           <div className="mb-2 flex items-baseline justify-between gap-3">
             <p className="label text-text-2">{say("ui.prologue.title")}</p>
