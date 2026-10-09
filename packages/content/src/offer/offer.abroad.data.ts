@@ -20,6 +20,27 @@ function returned(shapes: ReturnShape[]): Requirement[] {
   ];
 }
 
+/** R-STREET-006: a find on the street of one country; its one choice is to look. */
+function streetFind(id: Id<"offer">, country: Id<"country">): OfferEntry {
+  return {
+    id,
+    group: "life",
+    where: "abroad",
+    bad: false,
+    when: [{ type: "place/is", where: "abroad", country }],
+    chanceBp: tuning.street.findBp,
+    cooldown: 2,
+    maxTimes: null,
+    expiresAfter: 1,
+    terms: {},
+    fraudBp: 0,
+    signs: [],
+    choices: [{ id: "look", requires: [], pick: null, effects: [{ type: "quality/add", quality: "quality.wellbeing", amount: tuning.street.findMood }], fraudEffects: null }],
+    // Left alone, the moment passes and nothing happens.
+    onExpire: null,
+  };
+}
+
 const lifeAbroadOffers: Record<Id<"offer">, OfferEntry> = {
   // Coming home (group `return`)
 
@@ -190,6 +211,13 @@ const lifeAbroadOffers: Record<Id<"offer">, OfferEntry> = {
     ],
     onExpire: "stay",
   },
+
+  // The street abroad (group `life`)
+
+  // streets.md R-STREET-006: something interesting on the street, while the character is in that country.
+  // The kind has no versions of an offer's body, so each country's find has one body.
+  "offer.street-find-uk": streetFind("offer.street-find-uk", "country.uk"),
+  "offer.street-find-uae": streetFind("offer.street-find-uae", "country.uae"),
 
   // Abroad (group `abroad`)
 
