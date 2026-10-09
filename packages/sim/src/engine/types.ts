@@ -1178,8 +1178,8 @@ export interface Tuning {
     sickPayBp: number;
     gapMonths: number;
   };
-  /** `cardLines`: the lines the send-off card names (R-CHAPTER-006). */
-  chapter: { cardLines: number };
+  /** `cardLines`: the lines the send-off card names (R-CHAPTER-006). `sendOffNaira`: the party at the house the month of the grant, in kobo (R-CHAPTER-008). */
+  chapter: { cardLines: number; sendOffNaira: number };
   /** `visit`: the second miss in a row, the officer and the group at the house (R-OBLIGATION-011). */
   groupLoan: { feeBp: number; savingsBp: number; vanishBp: number; visit: { standing: number; wellbeing: number } };
   /** The Friday draw (docs/rules/lottery.md): the ticket price, the cap per player, and the odds a draw takes when it opens (R-LOTTERY-021). */

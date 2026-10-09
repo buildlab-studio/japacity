@@ -65,6 +65,19 @@ export const offerText: Record<string, string> = {
   "offer.send-off-party.choice.go": "Go",
   "offer.send-off-party.choice.message": "Send him a message",
 
+  // chapter.md R-CHAPTER-008. `.said.<choice>` is what the results say once the choice is taken, or lapsed into.
+  "offer.family-send-off.name": "Your send-off at home",
+  "offer.family-send-off.title": "Your send-off at home",
+  "offer.family-send-off.body":
+    "Your mother, the evening the email comes: 'So you are really going. We cannot just let you go like that. Rice, small chops, a canopy in the yard, everybody. {cost} will do it. Or come and eat with us, just the family.'",
+  "offer.family-send-off.choice.party": "Throw the party",
+  "offer.family-send-off.choice.dinner": "Just dinner at home",
+  "offer.family-send-off.choice.skip": "No time for it",
+  "offer.family-send-off.said.party":
+    "The yard is full: your aunties, the neighbours from across the road, Pastor, two old classmates. They pray over your journey and dance you out.",
+  "offer.family-send-off.said.dinner": "Just the family round the table. Your mother makes your favourite stew. Nobody talks about the visa.",
+  "offer.family-send-off.said.skip": "No send-off. You are packing. Your mother says she understands.",
+
   "offer.laptop-fault.name": "The laptop",
   "offer.laptop-fault.title": "The laptop",
   "offer.laptop-fault.body":

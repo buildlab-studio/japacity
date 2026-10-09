@@ -414,7 +414,7 @@ export const miniContent: Content = {
       sickPayBp: 5000,
       gapMonths: 10,
     },
-    chapter: { cardLines: 3 },
+    chapter: { cardLines: 3, sendOffNaira: 15000000 },
     groupLoan: { feeBp: 1500, savingsBp: 1000, vanishBp: 2500, visit: { standing: -12, wellbeing: -5 } },
     lottery: {
       ticket: 20000,

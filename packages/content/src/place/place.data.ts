@@ -254,6 +254,8 @@ const entries: PlaceEntry[] = [
       "offer.family-pledge",
       "offer.family-pledge-small",
       "offer.send-off-party",
+      // chapter.md R-CHAPTER-008: home's own send-off, the month of the grant.
+      "offer.family-send-off",
     ],
     crowd: FEW,
     traditionalBp: STREET,

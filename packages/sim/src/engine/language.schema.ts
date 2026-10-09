@@ -520,7 +520,7 @@ export const TuningSchema = z.strictObject({
     sickPayBp: BpSchema,
     gapMonths: CountSchema,
   }),
-  chapter: z.strictObject({ cardLines: z.int().positive() }),
+  chapter: z.strictObject({ cardLines: z.int().positive(), sendOffNaira: CountSchema }),
   groupLoan: z.strictObject({ feeBp: BpSchema, savingsBp: BpSchema, vanishBp: BpSchema, visit: z.strictObject({ standing: IntSchema, wellbeing: IntSchema }) }),
   lottery: z.strictObject({
     ticket: CountSchema,

@@ -196,7 +196,8 @@ export const tuning: Tuning = {
   },
 
   // chapter.md R-CHAPTER-006: the send-off card names the three lines played most.
-  chapter: { cardLines: 3 },
+  // R-CHAPTER-008: what the send-off party at the house costs.
+  chapter: { cardLines: 3, sendOffNaira: naira(150000) },
 
   // obligation.md, the group loan
   groupLoan: { feeBp: 1500, savingsBp: 1000, vanishBp: pct(25), visit: { standing: -12, wellbeing: -5 } },
