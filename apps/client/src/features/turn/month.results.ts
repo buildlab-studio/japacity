@@ -86,6 +86,11 @@ export function isUnpaid(line: ReportLine): boolean {
   return UNPAID.has(line.key);
 }
 
+/** A hunt that brought an offer, and the job offer it opens for the answer. */
+const HIRED = "line.activity.hunt-hired";
+const OPENED = "line.offer.opened";
+const JOB_OFFER = "offer.job";
+
 /** The visa granted: the month's news, told first and alone in the lead. */
 const GRANTED = "line.route.granted";
 
@@ -117,7 +122,11 @@ function storyRank(line: ReportLine): number {
  * the order the results lead with them, at most `STORY_MAX`. The rest of the month stays in News.
  */
 export function storyLines(lines: readonly ReportLine[]): ReportLine[] {
-  return tidyLines(afterPrologue(lines))
+  const tidy = tidyLines(afterPrologue(lines));
+  // A hunt's offer already names the job and its pay: the offer it opens is not told again.
+  const hired = tidy.some((line) => line.key === HIRED);
+  return tidy
+    .filter((line) => !(hired && line.key === OPENED && line.params.offer === JOB_OFFER))
     .map((line, index) => ({ line, index, rank: storyRank(line) }))
     .filter((entry) => entry.rank !== -1)
     .sort((a, b) => a.rank - b.rank || a.index - b.index)
@@ -139,6 +148,8 @@ function unpaidCost(obligation: string): string {
   const mood = takes.has("quality.wellbeing");
   const quality = standing && mood ? "standing-mood" : standing ? "standing" : mood ? "mood" : null;
   if (entry.reportsToCredit === true) return quality === "standing-mood" ? "credit-standing-mood" : "credit";
+  // A missed instalment costs nothing at once; the next one missed withdraws the student (R-STATUS-011).
+  if (quality === null && entry.onDefault.some((effect) => effect.type === "status/lose")) return "withdraw";
   return quality ?? "plain";
 }
 

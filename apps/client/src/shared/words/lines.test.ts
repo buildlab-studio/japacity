@@ -3,7 +3,7 @@ import { describe, expect, test } from "vitest";
 
 import { formatMoney } from "./format";
 import { tidyLines } from "./lines";
-import { words } from "./text";
+import { bandWords, nameOf, words } from "./text";
 
 const line = (key: string, params: ReportLine["params"], tone: ReportLine["tone"] = "plain"): ReportLine => ({ key, params, tone, attention: false, counts: [] });
 
@@ -97,4 +97,18 @@ describe("one endorsement story", () => {
     expect(tidyLines(lines).map((line) => line.key)).toEqual(["line.route.endorsement-refused", "line.route.granted"]);
   });
 });
+});
+
+describe("a quality's move in words", () => {
+  test("[R-TEXT-005] given a quality moved up while its band is low, or down while it is high, when the line is told, then it says the move alone, never a band that reads the other way, and no figure", () => {
+    const up = words("line.quality.gain", { quality: "quality.network", points: 2, value: 5 });
+    const down = words("line.quality.loss", { quality: "quality.wellbeing", points: 3, value: 95 });
+    expect(up).toBe(`${nameOf("quality.network")} up.`);
+    expect(down).toBe(`${nameOf("quality.wellbeing")} down.`);
+    expect(up).not.toContain(bandWords("quality.network", 5) ?? "-");
+    expect(down).not.toContain(bandWords("quality.wellbeing", 95) ?? "-");
+    for (const said of [up, down]) expect(said).not.toMatch(/\d/);
+    // From nothing (the prologue's draw), the band alone still says where the character starts.
+    expect(words("line.quality.gain", { quality: "quality.network", points: 5, value: 5 })).toBe(`${bandWords("quality.network", 5) ?? ""}.`);
+  });
 });

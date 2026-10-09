@@ -86,6 +86,7 @@ export const uiText: Record<string, string> = {
   "ui.results.unpaid.credit": "{obligation}: {amount} went unpaid. A mark on your credit file.",
   "ui.results.unpaid.credit-standing-mood": "{obligation}: {amount} went unpaid. A mark on your credit file, and your standing and your mood took a hit.",
   "ui.results.unpaid.plain": "{obligation}: {amount} went unpaid.",
+  "ui.results.unpaid.withdraw": "{obligation}: {amount} went unpaid. Miss the next one too and the university withdraws you, and your visa goes with it.",
   "ui.results.hunt-missed": "{job}: not this time.",
   "ui.results.hunt-offer": "An offer: {job}, {pay} a month.",
   "ui.results.hunt-offer-plain": "An offer: {job}.",
@@ -104,10 +105,15 @@ export const uiText: Record<string, string> = {
   "ui.line.family-paid.offer.harvest": "Your harvest pledge: {amount}.",
   "ui.line.family-paid.offer.uncle-burial": "Toward your uncle's burial: {amount}.",
   "ui.line.family-paid.offer.parents-group-debt": "Toward your parents' group debt: {amount}.",
+  // Another answer's money, named for its offer, so it never reads as the month's own salary (shared/words/lines.ts).
+  "ui.line.offer-paid.offer.december-bonus": "A thirteenth month's pay: {amount}.",
+  // A bill's payment named for the bill where the wallet's reason says it wrong (shared/words/lines.ts).
+  "ui.line.charged.obligation.ajo": "Savings circle: {amount}.",
   // A quality's move told by the band it lands in, never its figure (shared/words/text.ts, bandWords).
   "ui.line.quality.start-band": "{band}.",
-  "ui.line.quality.gain-band": "{quality} up. {band}.",
-  "ui.line.quality.loss-band": "{quality} down. {band}.",
+  // A move says the move only: its band can sit the other way ("Wellbeing down" while you still feel strong), and both together read as a contradiction.
+  "ui.line.quality.gain-band": "{quality} up.",
+  "ui.line.quality.loss-band": "{quality} down.",
   "ui.line.quality.drift-band": "{quality} settles. {band}.",
   "ui.band.quality.family-means.0": "Your family has nothing spare",
   "ui.band.quality.family-means.1": "Your family gets by",

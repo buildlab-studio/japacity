@@ -21,7 +21,7 @@ function line(key: string, params: ReportLine["params"], tone: ReportLine["tone"
 }
 
 describe("the month's story on the results", () => {
-  test("[R-WORLD-008] given Ada's first month hunting for work, when the results show, then the job found and the offer stand under This month, after what was kept and before the money", async () => {
+  test("[R-WORLD-008] given Ada's first month hunting for work, when the results show, then the job found stands under This month as one offer, after what was kept and before the money", async () => {
     const game = newGame("scenario.ada");
     const { lines } = game.endTurn([slot("activity.job-hunt", TEACHER)]);
     const hired = lines.find((each) => each.key === "line.activity.hunt-hired");
@@ -35,7 +35,9 @@ describe("the month's story on the results", () => {
     // The job found is told as the results tell it: an offer, with its pay a month.
     const found = toldOnResults(hired);
     expect(told).toContain(words(found.key, found.params));
-    expect(told).toContain(words(offer.key, offer.params));
+    // One line for an offer: the offer it opens is not told again.
+    expect(told).not.toContain(words(offer.key, offer.params));
+    expect(told.filter((row) => row === words(found.key, found.params))).toHaveLength(1);
     // Kept first, then the story, then the money.
     const order = [...document.querySelectorAll("[data-results-kept], [data-results-story], [data-results-lines]")].map((node) => (node.hasAttribute("data-results-kept") ? "kept" : node.hasAttribute("data-results-story") ? "story" : "money"));
     expect(order).toEqual(["kept", "story", "money"]);
