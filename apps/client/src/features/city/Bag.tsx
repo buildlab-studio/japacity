@@ -4,7 +4,7 @@
 // papers, the flyer of a way out), a few pieces from the kit, and a small tag on the handle carries the
 // figure. Nothing else: no particles, no glow. Loaded with the scene, inside its canvas.
 import { box } from "@japacity/assets/kit";
-import { drawSign } from "@japacity/assets/load";
+import { paletteCss } from "@japacity/assets";
 import type { PlayerView } from "@japacity/sim";
 import { useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useMemo, useRef } from "react";
@@ -19,9 +19,9 @@ export const BAG_HEIGHT = 0.5;
 /** The top of the zip along it, where what is packed sits. */
 const BAG_TOP = 0.518;
 /** The bag's scale along its own length, height and depth with nothing toward leaving: it sags. */
-export const BAG_EMPTY: readonly [number, number, number] = [0.8, 0.4, 0.8];
+export const BAG_EMPTY: readonly [number, number, number] = [0.7, 0.4, 0.7];
 /** And at 100: packed full and standing. */
-export const BAG_FULL: readonly [number, number, number] = [1.15, 1.25, 1.15];
+export const BAG_FULL: readonly [number, number, number] = [1.2, 1.25, 1.2];
 /** The bag reaches a new size in about this long. */
 export const BAG_EASE_SECONDS = 0.5;
 /** The share of the way left that goes in a second: about a twentieth is left after half a second. */
@@ -119,17 +119,47 @@ function piecesOf(pieces: readonly BagPiece[]): Group {
   return g;
 }
 
-/** The luggage tag: the figure lettered as a sign is, on a small card that always faces the camera. */
+/** The tag's width and height in metres: about the bag's own length, so the figure reads on a phone from the room's whole view. */
+const TAG_SIZE: readonly [number, number] = [1, 0.5];
+
+/** The luggage tag: a card cut to a point with its string hole, the figure on it in bold, always facing the camera. */
 function tagOf(words: string): Sprite {
   const canvas = document.createElement("canvas");
-  canvas.width = 128;
-  canvas.height = 64;
+  canvas.width = 256;
+  canvas.height = 128;
   const ctx = canvas.getContext("2d");
-  if (ctx !== null) drawSign(ctx, [0, 0, 128, 64], words, { board: "cream", ink: "indigo", border: "indigo" });
+  if (ctx !== null) {
+    ctx.fillStyle = paletteCss("cream");
+    ctx.strokeStyle = paletteCss("indigo");
+    ctx.lineWidth = 8;
+    // The point and the string hole at the right, toward the bag it hangs from.
+    ctx.beginPath();
+    ctx.moveTo(6, 6);
+    ctx.lineTo(208, 6);
+    ctx.lineTo(250, 64);
+    ctx.lineTo(208, 122);
+    ctx.lineTo(6, 122);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = paletteCss("indigo");
+    ctx.beginPath();
+    ctx.arc(216, 64, 10, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.font = "900 84px system-ui, sans-serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(words, 104, 68, 186);
+  }
   const texture = new CanvasTexture(canvas);
   texture.colorSpace = SRGBColorSpace;
-  const sprite = new Sprite(new SpriteMaterial({ map: texture }));
-  sprite.scale.set(0.56, 0.28, 1);
+  // Drawn over the floor it hangs above whatever the view's pitch, as a label is.
+  const sprite = new Sprite(new SpriteMaterial({ map: texture, transparent: true, depthTest: false, depthWrite: false }));
+  sprite.renderOrder = 1;
+  sprite.scale.set(TAG_SIZE[0], TAG_SIZE[1], 1);
+  // It hangs just below the bag on screen, on the open floor, so it never hides the bag, the character coming in at
+  // the door beside it, or the labels of the things along the wall behind it.
+  sprite.center.set(0.5, 2);
   sprite.name = "bag-tag";
   return sprite;
 }
@@ -187,7 +217,7 @@ export default function Bag({ stage, figure, documents, routes }: BagProps) {
       onTop.current.position.y = BAG_TOP * scale[1];
       onTop.current.scale.set(scale[0], 1, scale[2]);
     }
-    if (tagAt.current !== null) tagAt.current.position.set(0.24 * scale[0], BAG_TOP * scale[1] + 0.2, 0.1 * scale[2]);
+    if (tagAt.current !== null) tagAt.current.position.set(0, BAG_TOP * scale[1] + 0.05, 0);
     reportBag({ share: now, goal, figure, pieces });
   });
 
