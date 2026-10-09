@@ -9,8 +9,8 @@ import { useGame, useView } from "../../authority/GameProvider";
 import { cue } from "../../shared/sound/cues";
 import { Counter } from "../../shared/world/Band";
 import { WorldSheet } from "../../shared/world/WorldSheet";
-import { formatMoney, formatNumber, monthEnding } from "../../shared/words/format";
-import { words } from "../../shared/words/text";
+import { formatMoney, formatNumber } from "../../shared/words/format";
+import { say, words } from "../../shared/words/text";
 import { drawShown, kept, localCurrency, moneyLines, otherLines, savings } from "./month.results";
 import { turnWords } from "./turn.words";
 
@@ -31,6 +31,10 @@ export function Results({ place }: { place: string }) {
   const shown = useResultsOpen();
   const setReportOpen = useGame((state) => state.setReportOpen);
   const report = view.report;
+  // R-WORLD-002: no month number; the character's age stands small beside what was kept, and a birthday is said.
+  const ageMonths = view.qualities.find((quality) => quality.id === "quality.age-months")?.value ?? 0;
+  const clock = say("ui.world.age", { years: Math.floor(ageMonths / 12), months: ageMonths % 12 });
+  const birthday = ageMonths > 0 && ageMonths % 12 === 0;
   const midMonth = useGame((state) => state.lastMonthLines);
   const lines = report === null ? [] : moneyLines([...midMonth, ...report.lines]);
   const nets = kept(lines);
@@ -56,8 +60,8 @@ export function Results({ place }: { place: string }) {
     <WorldSheet
       open={shown}
       onClose={close}
-      label={turnWords("turn.results.label")}
-      title={turnWords("turn.results.title", { month: monthEnding(report.month) })}
+      label={clock}
+      title={turnWords("turn.results.title")}
       mark="results"
       foot={
         <button type="button" className="btn-main" onClick={close} data-results-back>
@@ -66,6 +70,7 @@ export function Results({ place }: { place: string }) {
       }
     >
       <div className="flex flex-col gap-4">
+        {birthday ? <p className="text-[14px] font-bold text-strong" data-results-birthday>{turnWords("turn.results.birthday", { years: Math.floor(ageMonths / 12) })}</p> : null}
         <div className="flex items-baseline justify-between gap-3" data-results-kept={main.amount}>
           <span className="text-[14px] font-semibold">{turnWords(main.amount < 0 ? "turn.results.lost" : "turn.results.kept")}</span>
           <Counter value={counted} format={(value) => signed(value, value, main.currency)} className={`text-[32px] leading-none ${main.amount < 0 ? "text-out" : "text-in"}`} />

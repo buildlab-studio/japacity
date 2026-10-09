@@ -8,12 +8,13 @@ export interface FullScreenProps {
   onClose: () => void;
   /** The dialog's accessible name. */
   title: string;
-  tone?: "accent" | "ink";
+  tone?: "accent" | "ink" | "over";
   children: ReactNode;
 }
 
 export function FullScreen({ open, onClose, title, tone = "ink", children }: FullScreenProps) {
-  const toneClass = tone === "accent" ? "bg-accent text-accent-ink" : "bg-ink text-paper";
+  // R-WORLD-001: a moment over the world keeps the scene visible and moving behind it, dimmed; a tap outside its face dismisses it.
+  const toneClass = tone === "accent" ? "bg-accent/90 text-accent-ink" : tone === "over" ? "bg-scrim/80 text-paper backdrop-blur-[2px]" : "bg-ink text-paper";
   return (
     <Dialog.Root open={open} onOpenChange={(next) => (next ? null : onClose())}>
       <Dialog.Portal>

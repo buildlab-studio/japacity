@@ -3,9 +3,8 @@
 import type { NewsStage } from "@japacity/sim";
 
 import { useView } from "../../../authority/GameProvider";
-import { monthEnding } from "../../../shared/words/format";
 import { tidyLines } from "../../../shared/words/lines";
-import { blurbOf, nameOf, say, words } from "../../../shared/words/text";
+import { blurbOf, monthsAgo, nameOf, say, words } from "../../../shared/words/text";
 import { Head } from "../act";
 import { phoneWords } from "../phone.words";
 
@@ -13,7 +12,7 @@ import { phoneWords } from "../phone.words";
 const STAGE_ORDER: readonly NewsStage[] = ["in-force", "announced", "rumour", "ended"];
 
 export function News() {
-  const { news, era, report } = useView();
+  const { news, era, report, month } = useView();
   const stories = [...news].sort((a, b) => STAGE_ORDER.indexOf(a.stage) - STAGE_ORDER.indexOf(b.stage) || b.since - a.since);
   return (
     <div data-phone-app="news">
@@ -27,7 +26,7 @@ export function News() {
 
       {report === null ? null : (
         <div data-report={report.month}>
-          <Head>{phoneWords("phone.news.month", { month: monthEnding(report.month) })}</Head>
+          <Head>{phoneWords("phone.news.month", { when: monthsAgo(report.month, month) })}</Head>
           <ul className="flex flex-col divide-y divide-sheet-line">
             {tidyLines(report.lines).map((line, index) => (
               <li key={`${line.key}-${String(index)}`} className={`py-1.5 text-[14px] ${line.tone === "good" ? "text-in" : line.tone === "bad" ? "text-out" : "text-text"}`}>

@@ -14,7 +14,7 @@ import { newGame, openOffer, richAbroadView, richView } from "../testing/fixture
 import { renderWithView } from "../testing/render";
 import { monthEnding, playerMonth } from "./format";
 import { requirementSentence } from "./requirement";
-import { nameOf, say, words } from "./text";
+import { byMonths, nameOf, say, words } from "./text";
 
 const PASSPORT = "document.passport";
 
@@ -30,12 +30,13 @@ describe("one count for months", () => {
     expect(monthEnding(1)).toBe(playerMonth(0));
   });
 
-  test("[R-OFFER-005] given an offer that lapses when this month ends, then it says to answer by this month's number, and after the month it is gone", async () => {
+  test("[R-OFFER-005] given an offer that lapses when this month ends, then it says to answer this month, with no month number, and after the month it is gone", async () => {
     const game = newGame("scenario.ada");
     const offer = openOffer(game, "offer.nepa-bill");
     const view = game.view();
     await renderWithView(<OfferView />, view);
-    expect(screen.getByText(say("ui.offer.expires", { month: header(view) }))).toBeDefined();
+    expect(screen.getByText(say("ui.offer.expires", { when: byMonths(offer.expiresMonth, view.month) }))).toBeDefined();
+    expect(screen.queryByText(/month \d+/i)).toBeNull();
     game.endTurn();
     expect(game.view().offers.some((open) => open.id === offer.id)).toBe(false);
   });

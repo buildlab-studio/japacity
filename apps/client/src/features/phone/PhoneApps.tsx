@@ -5,7 +5,7 @@
 import type { ReactNode } from "react";
 
 import { useView } from "../../authority/GameProvider";
-import { playerMonth } from "../../shared/words/format";
+import { todayWords } from "../../shared/words/format";
 import type { PhoneApp } from "../../shared/world/contract";
 import { Refused } from "./act";
 import { Bank } from "./apps/Bank";
@@ -104,7 +104,7 @@ export function PhoneApps({ onClose, area, account = null, talk = null, now }: P
         apps={apps}
         onClose={onClose}
         area={area}
-        when={phoneWords("phone.wall.month", { month: playerMonth(view.month) })}
+        when={todayWords(now?.())}
         onOpen={(id) => {
           if ((APP_IDS as readonly string[]).includes(id)) markSeen(id as AppId, marks[id as AppId]);
         }}

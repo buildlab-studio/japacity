@@ -6,7 +6,7 @@ import type { Currency, PlayerView } from "@japacity/sim";
 import { Receipt } from "lucide-react";
 
 import { useView } from "../../../authority/GameProvider";
-import { formatMoney, playerMonth } from "../../../shared/words/format";
+import { formatMoney, todayWords } from "../../../shared/words/format";
 import { hasWords, nameOf, say, sayCount } from "../../../shared/words/text";
 import { useAsk, type AskSpec } from "../act";
 import { phoneWords } from "../phone.words";
@@ -52,7 +52,7 @@ export function Bills() {
     have: pay.locked ? view.pockets[currency].locked : view.pockets[currency].bank + view.pockets[currency].cash,
     command: { type: "obligation/pay", obligation: bill.id, amount: pay.amount },
     done: phoneWords("phone.bills.paid"),
-    reference: phoneWords("phone.wall.month", { month: playerMonth(view.month) }).toUpperCase(),
+    reference: todayWords().toUpperCase(),
   });
   return (
     <div data-phone-app="bills">

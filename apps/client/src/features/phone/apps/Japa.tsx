@@ -8,8 +8,8 @@ import { useState } from "react";
 
 import { useGame, useView } from "../../../authority/GameProvider";
 import { monthsLeft, SOON } from "../../../shared/words/expiry";
-import { formatBand, monthEnding } from "../../../shared/words/format";
-import { nameOf, runningName, say, sayCount, words } from "../../../shared/words/text";
+import { formatBand } from "../../../shared/words/format";
+import { inMonths, nameOf, runningName, say, sayCount, words } from "../../../shared/words/text";
 import { Head } from "../act";
 import { phoneWords } from "../phone.words";
 
@@ -26,10 +26,10 @@ export function planRoute(view: PlayerView): RouteView | null {
 export function remindersOf(view: PlayerView): string[] {
   const out: string[] = [];
   for (const route of view.routes) {
-    if (route.visa !== null && (route.state === "applying" || route.state === "known")) out.push(phoneWords("phone.japa.visa", { month: monthEnding(route.visa.decisionMonth) }));
+    if (route.visa !== null && (route.state === "applying" || route.state === "known")) out.push(phoneWords("phone.japa.visa", { when: inMonths(route.visa.decisionMonth, view.month) }));
   }
   for (const paper of view.documents) {
-    if (paper.state === "pending" && paper.readyMonth !== null) out.push(phoneWords("phone.japa.paper-ready", { paper: nameOf(paper.id), month: monthEnding(paper.readyMonth) }));
+    if (paper.state === "pending" && paper.readyMonth !== null) out.push(phoneWords("phone.japa.paper-ready", { paper: nameOf(paper.id), when: inMonths(paper.readyMonth, view.month) }));
   }
   return out;
 }
@@ -59,14 +59,14 @@ function Papers({ onBack }: { onBack: () => void }) {
                   <p className={`text-[15px] font-bold ${paper.state === "expired" ? "line-through" : ""}`}>{nameOf(paper.id)}</p>
                   <p className="text-[13px] text-text-2">
                     {paper.state === "pending" && paper.readyMonth !== null
-                      ? say("ui.document.pending", { month: monthEnding(paper.readyMonth) })
+                      ? phoneWords("phone.japa.paper-pending", { when: inMonths(paper.readyMonth, month) })
                       : paper.state === "expired"
                         ? say("ui.document.expired")
                         : paper.expiresMonth === null
                           ? say("ui.document.held")
-                          : say("ui.document.expires", { month: monthEnding(paper.expiresMonth) })}
+                          : phoneWords("phone.japa.paper-valid", { when: inMonths(paper.expiresMonth, month) })}
                   </p>
-                  {soon && left !== null ? <p className="text-[13px] font-bold text-out">{sayCount("ui.document.expires-soon", left, { months: left, month: monthEnding(paper.expiresMonth ?? 0) })}</p> : null}
+                  {soon && left !== null ? <p className="text-[13px] font-bold text-out">{sayCount("ui.document.expires-soon", left, { months: left })}</p> : null}
                   {paper.id === ENGLISH_RESULT && paper.value !== null ? <p className="text-[13px] font-bold">{say("ui.document.band", { band: formatBand(paper.value) })}</p> : null}
                 </div>
               </li>

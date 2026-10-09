@@ -24,7 +24,7 @@ import type { CityProbe, ScenePick, SceneProps } from "./scene.types";
 import { sceneWords } from "./scene.words";
 import { aimShot, clampTurn, SHOT_FOV, SHOT_NEAR_PLANE, shotOf, snapZoom, widthEnds } from "./shot";
 import { thingSpot, walkSpot } from "./things";
-import { standAt, stepWalk, strideOf, type Walker, walkRoute, walkTo } from "./walk";
+import { standAt, stepWalk, strideOf, WALK_SPEED, type Walker, walkRoute, walkTo } from "./walk";
 import { walkableOf } from "./walk/map";
 import { findRoute } from "./walk/route";
 import { SHEET_KINDS } from "../../../../../tools/assets/world-check";
@@ -108,7 +108,12 @@ interface WalkState {
   standing: SceneProps["file"] | null;
   /** The character sat down on a plain act and stays so until they walk. */
   sitting: boolean;
+  /** The pace of the walk in hand: whatever the distance, a walk to a thing takes about WALK_SECONDS (R-WORLD-010). */
+  speed: number;
 }
+
+/** A walk to a thing takes about this long whatever the distance; a second tap ends it at once (R-WORLD-010). */
+export const WALK_SECONDS = 1;
 
 interface PlaceProps extends SceneProps {
   /** The DOM box the labels and the acts are laid out in. */
@@ -205,7 +210,11 @@ function Place(props: PlaceProps) {
 
   const choose = (thing: Thing): void => {
     const to = walkSpot(stage, thing, walk.current.walker);
-    if (to !== null) walk.current.walker = walkTo(walk.current.walker, to[0], to[1]);
+    if (to !== null) {
+      const far = Math.hypot(to[0] - walk.current.walker.x, to[1] - walk.current.walker.z);
+      walk.current.speed = Math.max(WALK_SPEED, far / WALK_SECONDS);
+      walk.current.walker = walkTo(walk.current.walker, to[0], to[1]);
+    }
     walk.current.pending = null;
     walk.current.sitting = false;
     pick.current({ kind: "thing", thing });
@@ -229,6 +238,8 @@ function Place(props: PlaceProps) {
   useEffect(() => {
     if (markBox === null || chosen === null) return;
     const node = chipNode(chosen, (act) => {
+      // Tapping an act again ends the walk at once (R-WORLD-010).
+      if (walk.current.pending?.act === act && walk.current.walker.target !== null) walk.current.walker = stepWalk(walk.current.walker, 3600, walk.current.speed);
       walk.current.pending = { thing: chosen, act };
     });
     markBox.append(node);
@@ -337,7 +348,7 @@ function Place(props: PlaceProps) {
       frames.current = [...frames.current, ms].slice(-100);
     }
     animateWorld(world, time, delta);
-    const next = stepWalk(walk.current.walker, delta);
+    const next = stepWalk(walk.current.walker, delta, walk.current.speed);
     walk.current.walker = next;
     world.own.root.position.set(next.x, 0, next.z);
     world.own.root.rotation.y = next.facing;
@@ -425,6 +436,11 @@ function Place(props: PlaceProps) {
   const tapped = (event: ThreeEvent<MouseEvent>): void => {
     event.stopPropagation();
     if (!looking || takeTap()) return;
+    // A second tap while an act waits on a walk ends the walk at once (R-WORLD-010).
+    if (walk.current.pending !== null && walk.current.walker.target !== null) {
+      walk.current.walker = stepWalk(walk.current.walker, 3600, walk.current.speed);
+      return;
+    }
     const hit = hitOf(event.object);
     let picked: ScenePick | null = hit;
     if (hit?.kind === "model") {
@@ -498,7 +514,7 @@ export default function CityScene(props: SceneProps) {
   const raised = props.overview === true && props.roam !== true;
   const shot = useMemo(() => shotOf(stageOf(file)), [file]);
   const rig = useRef<Rig>(wholeRig());
-  const walk = useRef<WalkState>({ walker: standAt(0, 0, 0), pending: null, standing: null, sitting: false });
+  const walk = useRef<WalkState>({ walker: standAt(0, 0, 0), pending: null, standing: null, sitting: false, speed: WALK_SPEED });
   const [markBox, setMarkBox] = useState<HTMLDivElement | null>(null);
   const holding = useRef<number | null>(null);
   const held = useRef(false);

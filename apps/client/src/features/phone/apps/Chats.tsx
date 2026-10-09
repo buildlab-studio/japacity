@@ -9,8 +9,7 @@ import { createContext, Fragment, use, useCallback, useEffect, useRef, useState 
 import { useGame, useView } from "../../../authority/GameProvider";
 import type { ConversationReply, PairReply, SayReply } from "../../../shared/net/contract";
 import { bondName, conversationPhrases, fillWords, momentWords, phraseWords, type BondView } from "../../../shared/sim/people";
-import { playerMonth } from "../../../shared/words/format";
-import { say, words } from "../../../shared/words/text";
+import { monthsAgo, say, words } from "../../../shared/words/text";
 import { Head } from "../act";
 import { familyFeedLines } from "../feed";
 import { phoneWords } from "../phone.words";
@@ -53,7 +52,7 @@ function Family() {
           {feed.map((line, index) => (
             <Fragment key={`${line.id}-${String(line.month)}`}>
               {index === 0 || feed[index - 1]?.month !== line.month ? (
-                <li className="label self-center py-1 text-[10px] text-text-2">{phoneWords("phone.wall.month", { month: playerMonth(line.month) })}</li>
+                <li className="label self-center py-1 text-[10px] text-text-2">{monthsAgo(line.month, view.month)}</li>
               ) : null}
               <Bubble from={line.from}>{line.words}</Bubble>
             </Fragment>

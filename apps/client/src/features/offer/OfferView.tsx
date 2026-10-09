@@ -9,8 +9,8 @@ import { useGame, useView } from "../../authority/GameProvider";
 import { Button } from "../../shared/ui/Button";
 import { Card, Empty, Panel, Tag } from "../../shared/ui/Panel";
 import { ReportLines } from "../../shared/ui/ReportLines";
-import { formatMoney, monthEnding, toMajor, toMinor } from "../../shared/words/format";
-import { nameOf, say, sayCount, words } from "../../shared/words/text";
+import { formatMoney, toMajor, toMinor } from "../../shared/words/format";
+import { byMonths, nameOf, say, sayCount, words } from "../../shared/words/text";
 import { offerParams } from "./terms";
 
 /** A content amount as a figure, when the offer's terms or the entry say it outright. */
@@ -109,7 +109,7 @@ function AmountPicker({ min, max, value, onChange }: { min: number; max: number;
 function OfferCard({ offer, onChosen }: { offer: Offer; onChosen: (lines: ReportLine[]) => void }) {
   const send = useGame((state) => state.send);
   const busy = useGame((state) => state.busy);
-  const ended = useView().ended;
+  const { ended, month } = useView();
   const picking = offer.choices.find((choice) => choice.pick !== null);
   const [amount, setAmount] = useState<number>(picking?.pick?.min ?? 0);
   const params = offerParams(offer);
@@ -119,7 +119,7 @@ function OfferCard({ offer, onChosen }: { offer: Offer; onChosen: (lines: Report
       <Card tone="attention" className="flex flex-col gap-3">
         <div className="flex flex-wrap items-start justify-between gap-2">
           <h3 className="text-lg font-semibold">{words(`${offer.entry}.title`, params)}</h3>
-          <Tag>{say("ui.offer.expires", { month: monthEnding(offer.expiresMonth) })}</Tag>
+          <Tag>{say("ui.offer.expires", { when: byMonths(offer.expiresMonth, month) })}</Tag>
         </div>
         <JobFigures terms={offer.terms} />
         <p>{words(`${offer.entry}.body`, params)}</p>

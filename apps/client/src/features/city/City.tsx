@@ -3,8 +3,8 @@
 // this screen's own state, and nothing here sends a command (R-CITY-001). The 3D scene is loaded
 // only where WebGL exists, so the panels never wait for it (R-CITY-018).
 import { content, text } from "@japacity/content";
-import type { Id, PlaceEntry } from "@japacity/sim";
-import { Map as MapIcon, Settings2, X } from "lucide-react";
+import type { Id, PlaceEntry, PlayerView } from "@japacity/sim";
+import { Clock, Map as MapIcon, Settings2, X } from "lucide-react";
 import { lazy, Suspense, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 
 import { useGame, useView } from "../../authority/GameProvider";
@@ -12,8 +12,8 @@ import { chooseGraphics, setGraphicsMode } from "../../shared/graphics/mode";
 import { assetUrl, loadJson, loadManifest } from "../../shared/three/manifest";
 import { Button } from "../../shared/ui/Button";
 import { Sheet } from "../../shared/ui/Sheet";
-import { formatMoney } from "../../shared/words/format";
-import { blurbOf, nameOf, say, words } from "../../shared/words/text";
+import { formatMoney, todayWords } from "../../shared/words/format";
+import { blurbOf, inMonths, nameOf, say, words } from "../../shared/words/text";
 import { AskSheet } from "../../shared/world/AskSheet";
 import { Band } from "../../shared/world/Band";
 import { cue } from "../../shared/sound/cues";
@@ -69,6 +69,18 @@ const HOMES: Record<string, string> = { home: "place.family-house", abroad: "pla
 const OLD_FILES = new Set(["place.computer-village", "place.national-stadium", "place.third-mainland-bridge", "place.peckham", "place.deira"]);
 /** A room that is a place of its own on the map, and the street its door opens onto: the hub's file names it as its inside (R-WORLD-013). */
 const OUTSIDE_OF: Record<string, string> = { "place.yaba": "place.ojuelegba" };
+/** How long the band's second row peeks after its words change (from the design's bar). */
+const PEEK_MS = 5000;
+
+/** What is coming soonest with a month to it: an offer's deadline, a paper's ready month, a visa decision (R-WORLD-002). */
+function soonest(view: PlayerView): { what: string; month: number } | null {
+  const coming: { what: string; month: number }[] = [];
+  for (const offer of view.offers) coming.push({ what: words(`${offer.entry}.name`), month: offer.expiresMonth });
+  for (const paper of view.documents) if (paper.state === "pending" && paper.readyMonth !== null) coming.push({ what: nameOf(paper.id), month: paper.readyMonth });
+  for (const route of view.routes) if (route.visa !== null && (route.state === "applying" || route.state === "known")) coming.push({ what: nameOf(route.id), month: route.visa.decisionMonth });
+  return coming.filter((item) => item.month >= view.month).sort((a, b) => a.month - b.month)[0] ?? null;
+}
+
 /** The middle of an area's positioned places, for a built place that content gives no position of its own. */
 function areaSpot(area: string): { latE3: number; lonE3: number } | null {
   const spots = PLACES.filter((place) => place.area === area && place.position !== null).map((place) => place.position as { latE3: number; lonE3: number });
@@ -266,7 +278,7 @@ export function City({
   const [monthOpen, setMonthOpen] = useState(false);
   // R-WORLD-002: the band's clock is the character's age with the turns left beside it; the simulation still counts months.
   const ageMonths = view.qualities.find((quality) => quality.id === "quality.age-months")?.value ?? 0;
-  const clock = say("ui.world.clock", { years: Math.floor(ageMonths / 12), months: ageMonths % 12, turns: view.turns.banked });
+  const clock = say("ui.world.clock", { years: Math.floor(ageMonths / 12), months: ageMonths % 12 });
   const [asksOpen, setAsksOpen] = useState(false);
   const [askIndex, setAskIndex] = useState(0);
   const askList = Array.isArray(asks) ? asks : null;
@@ -554,6 +566,17 @@ export function City({
   const nudge = world ? nudgeOf(view) : null;
   // A question or an offer waiting on the player opens from the nudge; nothing else is on screen to open it (R-WORLD-001).
   const nudgeOpens = asks !== undefined && (nudge?.about === "setpiece" || nudge?.about === "offer");
+  // R-WORLD-002: the band's second row opens from its handle and peeks for a few seconds when its words change.
+  const [bandOpen, setBandOpen] = useState(false);
+  const [peek, setPeek] = useState(true);
+  const nudgeKey = nudge?.key ?? "";
+  const coming = soonest(view);
+  const comingKey = coming === null ? "" : `${coming.what}|${String(coming.month)}`;
+  useEffect(() => {
+    setPeek(true);
+    const timer = window.setTimeout(() => setPeek(false), PEEK_MS);
+    return () => window.clearTimeout(timer);
+  }, [nudgeKey, comingKey, view.turns.banked]);
   const endBlocked = view.ended ? words("reject.ended") : view.setpiece !== null || (view.interview?.question ?? null) !== null ? words("reject.setpiece-open") : view.turns.banked < 1 ? words("reject.no-turns") : null;
   // One action, one sheet: a paper slip for a paper thing, a card for the rest.
   const ask: Ask | null = (() => {
@@ -571,7 +594,7 @@ export function City({
       line: blurbOf(activity) ?? "",
       cost: cost === null ? null : { amount: cost.amount, currency: cost.currency },
       button: say("ui.activity.add"),
-      ...(paper ? { reference: say("ui.world.month-of", { month: view.month + 1 }).toUpperCase() } : {}),
+      ...(paper ? { reference: todayWords().toUpperCase() } : {}),
       act: () => {
         const added = addToPlan({ activity: option.id, param: option.params?.[0] ?? null });
         cue(added ? (cost === null ? "done" : "coin") : "tap");
@@ -685,15 +708,35 @@ export function City({
             money={view.pockets.NGN.cash}
             formatMoney={(amount) => formatMoney(amount, "NGN")}
             onEndMonth={() => setMonthOpen(true)}
+            turns={view.turns.banked}
             endBlocked={endBlocked}
             hidden={map || resultsOpen}
+            open={bandOpen}
+            onToggle={() => setBandOpen((open) => !open)}
+            more={
+              (bandOpen || peek) && !(phone || monthOpen || asksOpen || menu || credits || picked !== null) ? (
+                <div key={bandOpen ? "open" : `peek-${nudgeKey}-${comingKey}`} className={bandOpen ? "" : "drop"}>
+                  <Nudge nudge={nudge} {...(nudgeOpens ? { onTap: () => setAsksOpen(true) } : {})} />
+                  {coming === null ? null : (
+                    <p className="chip pointer-events-auto mt-1.5 inline-flex max-w-full items-center gap-1.5 px-2.5 py-1.5 text-[12px] font-bold" data-coming>
+                      <Clock size={14} aria-hidden />
+                      <span className="truncate">{say("ui.world.coming", { what: coming.what, when: inMonths(coming.month, view.month) })}</span>
+                    </p>
+                  )}
+                </div>
+              ) : null
+            }
           />
-          <Nudge nudge={nudge} hidden={map || phone || monthOpen || asksOpen || menu || credits || resultsOpen || picked !== null} {...(nudgeOpens ? { onTap: () => setAsksOpen(true) } : {})} />
           <ThumbBar onMap={() => setMap(true)} onPhone={() => setPhone(true)} phoneWaiting={phoneWaiting ?? view.offers.length > 0} hidden={map || resultsOpen} />
           {zoomed && !map ? (
             <button type="button" onClick={() => setZoomed(false)} className="chip drop pointer-events-auto fixed bottom-[calc(max(14px,env(safe-area-inset-bottom))+76px)] left-1/2 z-[38] -translate-x-1/2 px-3 py-2 text-[13px] font-bold" data-zoom-preset>
               {say("ui.world.whole")}
             </button>
+          ) : null}
+          {heard !== null && !covered && !resultsOpen ? (
+            <p key={heardCount} className="chip drop pointer-events-none fixed bottom-[calc(max(14px,env(safe-area-inset-bottom))+76px)] left-3 z-[36] max-w-[70vw] px-3 py-1.5 text-[12px] font-bold" data-chatter>
+              {heardWords(heard.key, heard.params)}
+            </p>
           ) : null}
           <Toast words={toast.words} />
           <Cut cutting={cutting} />

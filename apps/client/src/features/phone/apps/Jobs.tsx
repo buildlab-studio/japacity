@@ -5,8 +5,8 @@ import type { Id, OfferView } from "@japacity/sim";
 import { Briefcase } from "lucide-react";
 
 import { useView } from "../../../authority/GameProvider";
-import { formatMoney, monthEnding } from "../../../shared/words/format";
-import { nameOf, say, sayCount, words } from "../../../shared/words/text";
+import { formatMoney } from "../../../shared/words/format";
+import { byMonths, nameOf, say, sayCount, words } from "../../../shared/words/text";
 import { Head, useAsk } from "../act";
 import { phoneWords } from "../phone.words";
 import { jobOffers } from "../seen";
@@ -115,7 +115,7 @@ export function Jobs() {
               <li key={offer.id} data-offer={offer.id}>
                 <JobRow
                   name={offered === null ? words(`${offer.entry}.title`, offer.terms) : nameOf(offered)}
-                  lines={[offered === null ? null : payWords(offered), phoneWords("phone.jobs.answer-by", { month: monthEnding(offer.expiresMonth) })]}
+                  lines={[offered === null ? null : payWords(offered), phoneWords("phone.jobs.answer-by", { when: byMonths(offer.expiresMonth, view.month) })]}
                   act={view.ended || takeChoice(offer) === null ? null : () => take(offer)}
                   actLabel={phoneWords("phone.jobs.take")}
                 />

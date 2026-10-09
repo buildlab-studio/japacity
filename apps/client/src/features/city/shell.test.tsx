@@ -28,7 +28,7 @@ describe("the world fills the screen", () => {
     await renderWithView(world(), engineView());
     expect(band()).toBeTruthy();
     expect(document.querySelector("[data-nudge]")).not.toBeNull();
-    expect(screen.getAllByRole("button").map((button) => button.textContent)).toEqual([say("ui.world.end-month"), say("ui.world.map"), say("ui.world.phone")]);
+    expect(screen.getAllByRole("button").map((button) => button.getAttribute("aria-label") ?? button.textContent)).toEqual([say("ui.world.end-month"), say("ui.world.show-more"), say("ui.world.map"), say("ui.world.phone")]);
     expect(document.querySelector("[data-report-here], [data-overheard], [data-scene]")).toBeNull();
     expect(screen.queryByRole("dialog")).toBeNull();
   });
@@ -74,9 +74,10 @@ describe("the band and the thumb buttons", () => {
     await renderWithView(world(), view);
     const ageMonths = view.qualities.find((quality) => quality.id === "quality.age-months")?.value ?? 0;
     expect(ageMonths).toBeGreaterThan(0);
-    const clock = say("ui.world.clock", { years: Math.floor(ageMonths / 12), months: ageMonths % 12, turns: view.turns.banked });
+    const clock = say("ui.world.clock", { years: Math.floor(ageMonths / 12), months: ageMonths % 12 });
     expect(within(band()).getByText(clock)).toBeTruthy();
     expect(band().textContent).not.toContain(say("ui.world.month-of", { month: view.month + 1 }));
+    expect(within(band()).getByText(say("ui.world.turns", { count: view.turns.banked }))).toBeTruthy();
   });
 
   test("[R-WORLD-002] given the results showing, when the band renders, then it hides, and it shows again once the player goes back", async () => {

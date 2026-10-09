@@ -1,5 +1,6 @@
 // The top band (docs/rules/world.md R-WORLD-002): the month and the place's name, the money as a
 // counter, and End month. Nothing else. It hides while riding and while the results show.
+import { ChevronDown } from "lucide-react";
 import { type ReactNode, useEffect, useRef, useState } from "react";
 
 import { say } from "../words/text";
@@ -45,38 +46,53 @@ export function Counter({ value, format, className = "" }: { value: number; form
 }
 
 export interface BandProps {
-  /** The small line over the name: "Month 6". */
+  /** The clock: the character's age, small over the name. */
   when: string;
   /** The place's name, or the room's. */
   name: string;
   money: number;
   formatMoney: (value: number) => string;
   onEndMonth: () => void;
+  /** The turns left to spend, under End month. */
+  turns?: number;
   /** Why the month cannot end now, or null when it can. */
   endBlocked?: string | null;
   hidden?: boolean;
-  /** A small control under the name, such as Step outside. */
-  aside?: ReactNode;
+  /** The second row (the nudge, what is coming), shown while the band is open or peeking; the handle under the band opens it (R-WORLD-002). */
+  more?: ReactNode;
+  open?: boolean;
+  onToggle?: () => void;
 }
 
-export function Band({ when, name, money, formatMoney, onEndMonth, endBlocked = null, hidden = false, aside }: BandProps) {
+/**
+ * The band is one slim row (R-WORLD-002): the place and the clock, the money, End month with the turns
+ * left. A handle under it opens the second row; closed, that row peeks for a few seconds whenever its
+ * words change, then gets out of the way.
+ */
+export function Band({ when, name, money, formatMoney, onEndMonth, turns, endBlocked = null, hidden = false, more, open = false, onToggle }: BandProps) {
   return (
-    <div className={`pointer-events-none fixed inset-x-0 top-0 z-[38] px-3 pt-[max(10px,env(safe-area-inset-top))] transition-opacity duration-300 ${hidden ? "opacity-0" : ""}`} data-band aria-hidden={hidden}>
-      <div className="flex items-stretch gap-2">
-        <div className="band pointer-events-auto flex min-w-0 flex-1 flex-col justify-center rounded-[6px] px-3 py-2 shadow-[0_10px_24px_rgba(10,14,30,0.35)]">
-          <div className="label label-strong">{when}</div>
-          <h2 className="title truncate text-[19px] leading-tight">{name}</h2>
-          {aside}
+    <div className={`pointer-events-none fixed inset-x-0 top-0 z-[38] px-3 pt-[max(10px,env(safe-area-inset-top))] transition-opacity duration-300 ${hidden ? "opacity-0" : ""}`} data-band aria-hidden={hidden} data-open={open}>
+      <div className="band pointer-events-auto flex h-[54px] items-center gap-1.5 rounded-[6px] pl-3 pr-1.5 shadow-[0_8px_20px_rgba(10,14,30,0.3)]">
+        <div className="min-w-0 flex-1 leading-none">
+          <div className="label label-strong truncate text-[9px]">{when}</div>
+          <h2 className="title mt-0.5 truncate text-[16px] leading-tight">{name}</h2>
         </div>
-        <div className="pointer-events-auto flex flex-col items-end justify-between gap-1">
-          <div className="chip px-2.5 py-1.5">
-            <Counter value={money} format={formatMoney} className="text-[19px]" />
-          </div>
-          <button type="button" className="btn-dark press h-8 px-3 text-[12px] disabled:opacity-60" onClick={onEndMonth} disabled={endBlocked !== null} title={endBlocked ?? undefined} data-end-month>
-            {say("ui.world.end-month")}
+        <div className="chip px-2 py-1">
+          <Counter value={money} format={formatMoney} className="text-[14px]" />
+        </div>
+        <button type="button" className="press flex h-[42px] flex-col items-end justify-center rounded-[5px] bg-white/12 px-2 leading-tight disabled:opacity-60" onClick={onEndMonth} disabled={endBlocked !== null} title={endBlocked ?? undefined} aria-label={say("ui.world.end-month")} data-end-month>
+          <span className="text-[12px] font-extrabold">{say("ui.world.end-month")}</span>
+          {turns === undefined ? null : <span className="num text-[11px] font-bold opacity-80">{say("ui.world.turns", { count: turns })}</span>}
+        </button>
+      </div>
+      {onToggle === undefined ? null : (
+        <div className="flex justify-center">
+          <button type="button" className="band pointer-events-auto -mt-px flex h-5 w-12 items-center justify-center rounded-b-[6px]" onClick={onToggle} aria-label={say(open ? "ui.world.show-less" : "ui.world.show-more")} aria-expanded={open} data-band-handle>
+            <ChevronDown size={14} strokeWidth={2.6} className={open ? "rotate-180" : ""} aria-hidden />
           </button>
         </div>
-      </div>
+      )}
+      {more}
     </div>
   );
 }

@@ -4,7 +4,7 @@ import { describe, expect, test } from "vitest";
 
 import { engineView, richView } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
-import { formatMoney, monthEnding } from "../../shared/words/format";
+import { formatMoney } from "../../shared/words/format";
 import { words } from "../../shared/words/text";
 import { drawShown, kept, localCurrency, moneyLines, otherLines, savings } from "./month.results";
 import { Results } from "./Results";
@@ -90,7 +90,8 @@ describe("the results sheet", () => {
     expect(screen.queryByRole("dialog")).toBeNull();
     act(() => store.setState({ reportOpen: true }));
     const sheet = screen.getByRole("dialog");
-    expect(within(sheet).getByText(turnWords("turn.results.title", { month: monthEnding(11) }))).toBeTruthy();
+    expect(within(sheet).getByText(turnWords("turn.results.title"))).toBeTruthy();
+    expect(within(sheet).queryByText(/Month \d+/)).toBeNull();
     expect(sheet.querySelector("[data-results-kept]")?.getAttribute("data-results-kept")).toBe("35000000");
     const rows = [...sheet.querySelectorAll("[data-results-lines] li")];
     expect(rows.map((row) => row.getAttribute("data-sign"))).toEqual(["1", "-1"]);

@@ -15,7 +15,7 @@ export function Nudge({ nudge, hidden = false, onTap }: { nudge: NudgeWords | nu
     </>
   );
   return (
-    <div className="pointer-events-none fixed inset-x-0 top-[calc(max(10px,env(safe-area-inset-top))+82px)] z-[38] px-3" data-nudge>
+    <div className="pointer-events-none mt-1.5 flex items-start justify-between gap-2" data-nudge>
       {onTap === undefined ? (
         <div key={words} className={line}>
           {inner}

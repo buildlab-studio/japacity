@@ -192,6 +192,24 @@ export function say(key: string, params: Params = {}): string {
  * Words for a count: `<key>.one` when the count is one and `<key>.zero` when it
  * is none, where those exist, so the screen never says "1 months".
  */
+/** A month the simulation stamps, told as months from the month in hand: "in 2 months", "next month", "this month" (R-WORLD-002). */
+export function inMonths(stamped: number, now: number): string {
+  const count = Math.max(0, stamped - now);
+  return sayCount("ui.in-months", count, { count });
+}
+
+/** A deadline the month ends on, told as "by next month", "within 3 months", "this month" (R-WORLD-002). */
+export function byMonths(stamped: number, now: number): string {
+  const count = Math.max(0, stamped - now);
+  return sayCount("ui.by-months", count, { count });
+}
+
+/** A month gone by, told as "2 months ago", "Last month", "This month" (R-WORLD-002). */
+export function monthsAgo(stamped: number, now: number): string {
+  const count = Math.max(0, now - stamped);
+  return sayCount("ui.months-ago", count, { count });
+}
+
 export function sayCount(key: string, count: number, params: Params = {}): string {
   const exact = count === 1 ? `${key}.one` : count === 0 ? `${key}.zero` : null;
   return say(exact !== null && hasWords(exact) ? exact : key, params);

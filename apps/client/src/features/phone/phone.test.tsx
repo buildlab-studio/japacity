@@ -12,6 +12,8 @@ import { GRAPHICS_KEY } from "./apps/Settings";
 import { familyFeedLines } from "./feed";
 import { PhoneApps } from "./PhoneApps";
 import { APP_IDS, marksOf, reloadSeen, SEEN_KEY, waitingOf } from "./seen";
+import { todayWords } from "../../shared/words/format";
+import { inMonths } from "../../shared/words/text";
 
 const NOON = () => new Date(2026, 9, 8, 12, 5);
 
@@ -81,7 +83,7 @@ describe("the handset", () => {
   test("[R-WORLD-018] given the phone opens, when it rises, then the wallpaper shows the time, the month and the area, and the grid holds the eight apps four across", async () => {
     await openPhone(engineView());
     expect(document.querySelector("[data-phone-time]")?.textContent).toBe("12:05");
-    expect(screen.getByText("Month 1")).toBeTruthy();
+    expect(screen.getByText(todayWords(NOON()))).toBeTruthy();
     expect(document.querySelector("[data-phone-area]")?.textContent).toBe("Ojuelegba");
     const grid = screen.getByRole("list", { name: "Apps" });
     expect(grid.className).toContain("grid-cols-4");
@@ -263,7 +265,7 @@ describe("what the phone carries", () => {
     openApp("japa");
     expect(document.querySelector("[data-japa-percent]")?.getAttribute("data-japa-percent")).toBe("64");
     expect(document.querySelectorAll("[data-steps] [data-met]")).toHaveLength(view.routes[0]!.checklist.length);
-    expect(screen.getByText("Transcript: ready at the end of month 12.", { exact: false })).toBeTruthy();
+    expect(screen.getByText(`Transcript: ready ${inMonths(12, view.month)}.`, { exact: false })).toBeTruthy();
     fireEvent.click(document.querySelector<HTMLElement>("[data-open-papers]")!);
     expect(screen.getByText("The box under the bed")).toBeTruthy();
     expect([...document.querySelectorAll("[data-paper]")].map((paper) => paper.getAttribute("data-state"))).toEqual(["held", "held", "pending"]);

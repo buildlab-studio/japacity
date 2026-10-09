@@ -269,15 +269,19 @@ export function CardView() {
         </Button>
       </Card>
       {galleryTile}
-      <FullScreen open={open} onClose={close} title={say(`share.${card.kind}.ready`)}>
-        <InDialog value>
-          <ShareCardFace card={card} scenario={scenario} />
-        </InDialog>
-        <ShareButton card={card} scenario={scenario} />
-        <p className="max-w-sm text-center text-sm opacity-80">{say("ui.card.how")}</p>
-        <Button variant="secondary" onClick={close}>
-          {say("ui.report.close")}
-        </Button>
+      <FullScreen open={open} onClose={close} title={say(`share.${card.kind}.ready`)} tone="over">
+        {/* R-WORLD-001: one tap on the dimmed world dismisses the moment; the face and its buttons keep their taps. */}
+        <button type="button" aria-label={say("ui.card.dismiss")} onClick={close} className="absolute inset-0 cursor-default" data-card-scrim />
+        <div className="relative flex flex-col items-center gap-3" onClick={(event) => event.stopPropagation()}>
+          <InDialog value>
+            <ShareCardFace card={card} scenario={scenario} />
+          </InDialog>
+          <ShareButton card={card} scenario={scenario} />
+          <p className="max-w-sm text-center text-sm opacity-80">{say("ui.card.how")}</p>
+          <Button variant="secondary" onClick={close}>
+            {say("ui.report.close")}
+          </Button>
+        </div>
       </FullScreen>
     </>
   );

@@ -74,8 +74,10 @@ export const phoneText: Record<string, string> = {
   "phone.japa.papers.title": "The box under the bed",
   "phone.japa.papers.hint": "The papers stay at home in the box under the bed. On the day of an appointment, you take them with you.",
   "phone.japa.papers.none": "The box is empty for now.",
-  "phone.japa.visa": "Visa decision at the end of month {month}.",
-  "phone.japa.paper-ready": "{paper}: ready at the end of month {month}.",
+  "phone.japa.visa": "Visa decision {when}.",
+  "phone.japa.paper-ready": "{paper}: ready {when}.",
+  "phone.japa.paper-pending": "Ready {when}",
+  "phone.japa.paper-valid": "Valid until {when}",
   "phone.japa.reminders": "Coming up",
 
   "phone.jobs.held": "Your job",
@@ -84,7 +86,7 @@ export const phoneText: Record<string, string> = {
   "phone.jobs.offers.none": "No job offers right now.",
   "phone.jobs.quit": "Quit",
   "phone.jobs.take": "Take it",
-  "phone.jobs.answer-by": "Answer by the end of month {month}",
+  "phone.jobs.answer-by": "Answer {when}",
   "phone.jobs.take.title": "Take the job?",
   "phone.jobs.take.button": "Take the job",
   "phone.jobs.quit.title": "Quit the job?",
@@ -113,7 +115,7 @@ export const phoneText: Record<string, string> = {
   "phone.bills.undertaking.button": "Pay it off",
   "phone.bills.paid": "Paid",
 
-  "phone.news.month": "Month {month}, in short",
+  "phone.news.month": "{when}, in short",
 
   "phone.settings.look": "Look",
   "phone.settings.sound": "Sound",

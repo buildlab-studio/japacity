@@ -81,6 +81,11 @@ export function monthEnding(raw: number): number {
   return playerMonth(raw - 1);
 }
 
+/** The real date for the phone's wallpaper and a slip's reference, since the world runs on the real calendar (R-WORLD-002). */
+export function todayWords(now: Date = new Date()): string {
+  return new Intl.DateTimeFormat("en-NG", { weekday: "short", day: "numeric", month: "short" }).format(now);
+}
+
 const plain = new Intl.NumberFormat("en-NG", { maximumFractionDigits: 0 });
 
 export function formatNumber(value: number): string {

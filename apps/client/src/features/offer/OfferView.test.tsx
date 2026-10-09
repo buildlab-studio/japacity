@@ -6,7 +6,7 @@ import { describe, expect, test } from "vitest";
 import { engineView, richView } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { formatMoney } from "../../shared/words/format";
-import { nameOf, say, words } from "../../shared/words/text";
+import { byMonths, nameOf, say, words } from "../../shared/words/text";
 import { OfferView } from "./OfferView";
 
 describe("offers", () => {
@@ -16,11 +16,12 @@ describe("offers", () => {
   });
 
   test("given an offer with terms, then the title and body are content's words with the terms filled in", async () => {
-    await renderWithView(<OfferView />, richView());
+    const view = richView();
+    await renderWithView(<OfferView />, view);
     expect(screen.getByRole("heading", { name: text["offer.land-buyer.title"]! })).toBeDefined();
     const body = text["offer.land-buyer.body"]!.replace("{price}", formatMoney(900_000_000, "NGN"));
     expect(screen.getByText(body)).toBeDefined();
-    expect(screen.getByText(say("ui.offer.expires", { month: 12 }))).toBeDefined();
+    expect(screen.getByText(say("ui.offer.expires", { when: byMonths(12, view.month) }))).toBeDefined();
   });
 
   test("given an offer with signs, then each sign shown is in content's words", async () => {

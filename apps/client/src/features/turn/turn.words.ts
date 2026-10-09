@@ -15,7 +15,8 @@ export const turnText: Record<string, string> = {
   "turn.month.end": "End month",
 
   "turn.results.label": "The month is done",
-  "turn.results.title": "Month {month} is done",
+  "turn.results.title": "The month is done",
+  "turn.results.birthday": "You turned {years} this month.",
   "turn.results.kept": "Kept this month",
   "turn.results.lost": "Down this month",
   "turn.results.money": "In and out",
