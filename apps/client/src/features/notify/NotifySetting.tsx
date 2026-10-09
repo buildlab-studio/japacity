@@ -78,7 +78,7 @@ export function NotifySetting({ api, device }: NotifySettingProps) {
 
   const note = status.on ? null : noteFor(permission);
   return (
-    <div className="flex flex-col gap-2 border-t border-line pt-4">
+    <div className="flex flex-col gap-2 border-t border-sheet-line pt-4">
       <label className="flex min-h-11 items-center justify-between gap-3">
         <span>{say("ui.notify.setting")}</span>
         <input
@@ -90,7 +90,7 @@ export function NotifySetting({ api, device }: NotifySettingProps) {
           onChange={(event) => void change(event.currentTarget.checked)}
         />
       </label>
-      {note === null ? null : <p className="text-sm text-muted">{note}</p>}
+      {note === null ? null : <p className="text-sm text-text-2">{note}</p>}
       {problem === null ? null : (
         <p role="alert" className="text-bad">
           {problem}

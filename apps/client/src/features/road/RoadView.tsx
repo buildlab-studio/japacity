@@ -141,12 +141,12 @@ export function RoadView({ offers = null, city = null }: { offers?: ((only: (off
   return (
     <main className="mx-auto flex min-h-dvh max-w-xl flex-col gap-4 px-4 py-6" data-road>
       {city}
-      <p className="text-sm font-semibold tracking-wide text-muted uppercase">{say("ui.road.title")}</p>
+      <p className="text-sm font-semibold tracking-wide text-text-2 uppercase">{say("ui.road.title")}</p>
       <ChainCard />
       {shown.length === 0 || offers === null ? null : offers((offer) => shown.includes(offer))}
       {report === null || lines.length === 0 ? null : (
         <Card className="flex flex-col gap-2">
-          <h2 className="text-sm font-semibold text-muted">{say("ui.report.title", { month: monthEnding(report.month) })}</h2>
+          <h2 className="text-sm font-semibold text-text-2">{say("ui.report.title", { month: monthEnding(report.month) })}</h2>
           <ReportLines lines={lines} />
         </Card>
       )}

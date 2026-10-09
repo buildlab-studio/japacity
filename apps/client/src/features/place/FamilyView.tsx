@@ -19,10 +19,10 @@ export function FamilyView() {
     <Panel title={say("ui.family.title")}>
       <Card className="flex flex-col gap-3" data-family>
         <div className="flex items-start gap-3">
-          <Users size={20} className="mt-0.5 shrink-0 text-muted" />
+          <Users size={20} className="mt-0.5 shrink-0 text-text-2" />
           <div className="flex flex-col gap-1">
             <p className="font-medium tabular-nums">{say("ui.family.naira", { bank: formatMoney(naira.bank, "NGN"), cash: formatMoney(naira.cash, "NGN") })}</p>
-            <p className="text-sm text-muted">{say("ui.family.why")}</p>
+            <p className="text-sm text-text-2">{say("ui.family.why")}</p>
           </div>
         </div>
         {support.length === 0 ? null : (

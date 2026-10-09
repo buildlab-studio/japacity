@@ -50,7 +50,7 @@ function SlotCard({ slotKey, slot, bond, api }: { slotKey: string; slot: SlotVie
       <Card className="flex flex-col gap-2" data-slot={slotKey} data-state={slot.state}>
         <div className="flex flex-wrap items-start justify-between gap-2">
           <div className="flex flex-col">
-            <span className="text-xs font-semibold tracking-wide text-muted uppercase">{slotTitle(slotKey)}</span>
+            <span className="text-xs font-semibold tracking-wide text-text-2 uppercase">{slotTitle(slotKey)}</span>
             <span className="flex items-center gap-2 font-semibold">
               {name ?? say(`ui.people.slot.state.${slot.state}`)}
               {slot.label === null ? null : <Mark label={slot.label} />}
@@ -58,8 +58,8 @@ function SlotCard({ slotKey, slot, bond, api }: { slotKey: string; slot: SlotVie
           </div>
           {bond === null || kind === "sibling" ? null : <Tag>{say(`ui.people.stage.${bond.stage}`)}</Tag>}
         </div>
-        {parent !== null && slot.state === "computer" ? <p className="text-sm text-muted">{say(`ui.people.parent.blurb.${parent}`)}</p> : null}
-        {blurb === null ? null : <p className="text-sm text-muted">{blurb}</p>}
+        {parent !== null && slot.state === "computer" ? <p className="text-sm text-text-2">{say(`ui.people.parent.blurb.${parent}`)}</p> : null}
+        {blurb === null ? null : <p className="text-sm text-text-2">{blurb}</p>}
         {kind === "sibling" && bond !== null && slot.state === "computer" ? <p className="text-sm">{siblingWhere(bond)}</p> : null}
         {kind === "sibling" && slot.state === "player" ? <p className="text-sm">{say("ui.people.sibling.friend")}</p> : null}
         {kind === "sibling" && slot.state === "player" && bond !== null ? <Facts bond={bond} /> : null}
@@ -100,7 +100,7 @@ function Candidates() {
     <div className="flex flex-col gap-2">
       <h3 className="font-semibold">{say("ui.people.candidates")}</h3>
       {chosen === null ? null : (
-        <p role="status" className="rounded-lg bg-sunk p-3 text-sm">
+        <p role="status" className="rounded-md bg-sheet-muted p-3 text-sm">
           {say("ui.people.chosen", { name: nameOf(chosen) })}
         </p>
       )}
@@ -116,7 +116,7 @@ function Candidates() {
                   <Mark label="computer" />
                 </p>
                 <p className="text-sm">{blurbOf(person)}</p>
-                <p className="text-xs text-muted">{livesWords(person)}</p>
+                <p className="text-xs text-text-2">{livesWords(person)}</p>
                 <div className="mt-auto">
                   <Button
                     small
@@ -164,7 +164,7 @@ export function PeopleView() {
   return (
     <>
       <Panel title={say("ui.people.title")}>
-        <p className="flex items-start gap-2 text-sm text-muted">
+        <p className="flex items-start gap-2 text-sm text-text-2">
           <Users size={16} className="mt-0.5 shrink-0" />
           {say("ui.people.intro")}
         </p>
@@ -197,7 +197,7 @@ export function PeopleView() {
           <Empty>{say("ui.people.see.how", { see: nameOf(SEE), call: nameOf(CALL) })}</Empty>
         ) : (
           <>
-            <p className="text-sm text-muted">{say("ui.people.see.how", { see: nameOf(SEE), call: nameOf(CALL) })}</p>
+            <p className="text-sm text-text-2">{say("ui.people.see.how", { see: nameOf(SEE), call: nameOf(CALL) })}</p>
             <ul className="flex flex-col gap-3">
               {open.map((bond) => (
                 <BondCard key={bond.id} bond={bond} api={api} />
@@ -206,9 +206,9 @@ export function PeopleView() {
           </>
         )}
         {ended.length === 0 ? null : (
-          <details className="rounded-xl border border-line bg-surface p-4" data-ended>
+          <details className="rounded-md border border-sheet-line bg-sheet-2 p-4" data-ended>
             <summary className="cursor-pointer font-semibold">
-              {say("ui.people.ended.title")} <span className="font-normal text-muted">({ended.length})</span>
+              {say("ui.people.ended.title")} <span className="font-normal text-text-2">({ended.length})</span>
             </summary>
             <ul className="mt-3 flex flex-col gap-2">
               {ended.map((bond) => (

@@ -62,7 +62,7 @@ export function Facts({ bond }: { bond: BondView }) {
   return (
     <div className="flex flex-col gap-1">
       <h4 className="text-sm font-semibold">{say("ui.people.facts")}</h4>
-      <ul className="flex flex-wrap gap-x-3 gap-y-1 text-sm text-muted">
+      <ul className="flex flex-wrap gap-x-3 gap-y-1 text-sm text-text-2">
         {items.map((item) => (
           <li key={item}>{item}</li>
         ))}
@@ -73,22 +73,22 @@ export function Facts({ bond }: { bond: BondView }) {
 
 /** The time together, newest first, hidden while an interview is open (R-INTERVIEW-005). */
 export function Moments({ bond }: { bond: BondView }) {
-  if (bond.moments === null) return <p className="text-sm text-muted">{say("ui.people.moments.hidden", { piece: interviewName() })}</p>;
+  if (bond.moments === null) return <p className="text-sm text-text-2">{say("ui.people.moments.hidden", { piece: interviewName() })}</p>;
   const newest = [...bond.moments].reverse();
   const shown = newest.slice(0, MOMENTS_SHOWN);
   return (
     <div className="flex flex-col gap-1">
       <h4 className="text-sm font-semibold">
-        {say("ui.people.moments")} <span className="font-normal text-muted">({sayCount("ui.people.moments.count", bond.moments.length, { count: bond.moments.length })})</span>
+        {say("ui.people.moments")} <span className="font-normal text-text-2">({sayCount("ui.people.moments.count", bond.moments.length, { count: bond.moments.length })})</span>
       </h4>
       {shown.length === 0 ? (
-        <p className="text-sm text-muted">{say("ui.people.moments.none")}</p>
+        <p className="text-sm text-text-2">{say("ui.people.moments.none")}</p>
       ) : (
         <ol className="flex flex-col gap-0.5 text-sm">
           {shown.map((moment) => (
             <li key={moment.n}>{momentWords(moment)}</li>
           ))}
-          {newest.length > shown.length ? <li className="text-muted">{say("ui.people.moments.more", { count: newest.length - shown.length })}</li> : null}
+          {newest.length > shown.length ? <li className="text-text-2">{say("ui.people.moments.more", { count: newest.length - shown.length })}</li> : null}
         </ol>
       )}
     </div>
@@ -105,7 +105,7 @@ function Pending({ bond }: { bond: BondView }) {
   const { mine, theirs } = bond.pending;
   if (mine === null && theirs === null) return null;
   return (
-    <div className="flex flex-col gap-2 rounded-lg bg-sunk p-3 text-sm">
+    <div className="flex flex-col gap-2 rounded-md bg-sheet-muted p-3 text-sm">
       {mine === null ? null : (
         <div className="flex flex-wrap items-center gap-2">
           <p className="flex-1">
@@ -145,11 +145,11 @@ function JointForm({ bond, onSent }: { bond: BondView; onSent: (lines: ReportLin
   const routes = jointRoutes(view);
   const [route, setRoute] = useState<Id<"route"> | null>(routes[0] ?? null);
   const [lead, setLead] = useState<"me" | "them">("me");
-  if (routes.length === 0) return <p className="text-sm text-muted">{say("ui.people.propose.joint.none")}</p>;
+  if (routes.length === 0) return <p className="text-sm text-text-2">{say("ui.people.propose.joint.none")}</p>;
   const chosen = route !== null && routes.includes(route) ? route : (routes[0] ?? null);
   return (
     <form
-      className="flex flex-col gap-2 rounded-lg border border-line p-3 text-sm"
+      className="flex flex-col gap-2 rounded-md border border-sheet-line p-3 text-sm"
       aria-label={say("ui.people.propose.joint")}
       onSubmit={(event) => {
         event.preventDefault();
@@ -162,7 +162,7 @@ function JointForm({ bond, onSent }: { bond: BondView; onSent: (lines: ReportLin
       <label htmlFor={`${id}-route`} className="font-medium">
         {say("ui.people.propose.joint.route")}
       </label>
-      <select id={`${id}-route`} value={chosen ?? ""} onChange={(event) => setRoute(event.target.value as Id<"route">)} className="min-h-11 rounded-lg border border-line bg-paper px-3">
+      <select id={`${id}-route`} value={chosen ?? ""} onChange={(event) => setRoute(event.target.value as Id<"route">)} className="min-h-11 rounded-md border border-sheet-line bg-sheet px-3">
         {routes.map((value) => (
           <option key={value} value={value}>
             {nameOf(value)}
@@ -203,8 +203,8 @@ function Held({ bond }: { bond: BondView }) {
   if (bond.pending.theirs !== null || bond.pending.mine !== null || view.ended) return null;
   const left = momentsLeft(bond);
   const until = coolingUntil(view, bond);
-  if (bond.stage === "courting" && left > 0) return <p className="text-sm text-muted">{sayCount("ui.people.courting.next", left, { count: left })}</p>;
-  if (until !== null && stepsFor(view, bond).length > 0) return <p className="text-sm text-muted">{say("ui.people.cooldown", { month: playerMonth(until) })}</p>;
+  if (bond.stage === "courting" && left > 0) return <p className="text-sm text-text-2">{sayCount("ui.people.courting.next", left, { count: left })}</p>;
+  if (until !== null && stepsFor(view, bond).length > 0) return <p className="text-sm text-text-2">{say("ui.people.cooldown", { month: playerMonth(until) })}</p>;
   return null;
 }
 
@@ -239,7 +239,7 @@ function Proposals({ bond, onSent }: { bond: BondView; onSent: (lines: ReportLin
           </Button>
         ) : null}
       </div>
-      {steps.includes("marry") ? <p className="text-xs text-muted">{say("ui.people.propose.marry-share", { amount: formatMoney(content.tuning.people.weddingShare, "NGN") })}</p> : null}
+      {steps.includes("marry") ? <p className="text-xs text-text-2">{say("ui.people.propose.marry-share", { amount: formatMoney(content.tuning.people.weddingShare, "NGN") })}</p> : null}
       {joint ? <JointForm bond={bond} onSent={onSent} /> : null}
     </div>
   );
@@ -262,7 +262,7 @@ function Joint({ bond }: { bond: BondView }) {
       if (change.standInMay !== undefined) setStandIn(change.standInMay);
     });
   return (
-    <div className="flex flex-col gap-2 rounded-lg border border-line p-3 text-sm" data-joint>
+    <div className="flex flex-col gap-2 rounded-md border border-sheet-line p-3 text-sm" data-joint>
       <h4 className="font-semibold">{say("ui.people.joint")}</h4>
       <p>{say("ui.people.joint.on", { route: nameOf(joint.route), lead: say(`ui.people.joint.lead.${joint.lead}`) })}</p>
       {joint.myScore === null || joint.theirScore === null ? null : <p>{say("ui.people.joint.scores", { mine: formatNumber(joint.myScore), theirs: formatNumber(joint.theirScore) })}</p>}
@@ -275,7 +275,7 @@ function Joint({ bond }: { bond: BondView }) {
           {say("ui.people.consent.funds.no")}
         </Button>
       </div>
-      <p className="text-xs text-muted">{say("ui.people.consent.funds.help")}</p>
+      <p className="text-xs text-text-2">{say("ui.people.consent.funds.help")}</p>
       {bond.label === "computer" ? null : (
         <>
           <div className="flex flex-wrap gap-2">
@@ -286,7 +286,7 @@ function Joint({ bond }: { bond: BondView }) {
               {say("ui.people.consent.stand-in.no")}
             </Button>
           </div>
-          <p className="text-xs text-muted">{say("ui.people.consent.stand-in.help")}</p>
+          <p className="text-xs text-text-2">{say("ui.people.consent.stand-in.help")}</p>
         </>
       )}
     </div>
@@ -315,7 +315,7 @@ function End({ bond }: { bond: BondView }) {
     );
   }
   return (
-    <div role="group" aria-label={say("ui.people.end")} className="flex flex-col gap-2 rounded-lg border border-bad p-3 text-sm">
+    <div role="group" aria-label={say("ui.people.end")} className="flex flex-col gap-2 rounded-md border border-bad p-3 text-sm">
       <p>{costWords}</p>
       {cost.joint ? <p>{say("ui.people.end.joint")}</p> : null}
       <div className="flex flex-wrap gap-2">
@@ -366,9 +366,9 @@ function Answered({ lines }: { lines: ReportLine[] }) {
   const declined = lines.some((line) => line.key === DECLINED);
   const months = content.tuning.people.proposeCooldown;
   return (
-    <div role="status" className="flex flex-col gap-1 rounded-lg bg-sunk p-3 text-sm">
+    <div role="status" className="flex flex-col gap-1 rounded-md bg-sheet-muted p-3 text-sm">
       <ReportLines lines={lines} />
-      {declined ? <p className="text-muted">{sayCount("ui.people.declined.cooldown", months, { months })}</p> : null}
+      {declined ? <p className="text-text-2">{sayCount("ui.people.declined.cooldown", months, { months })}</p> : null}
     </div>
   );
 }
@@ -416,7 +416,7 @@ export function EndedBond({ bond }: { bond: BondView }) {
           <Tag>{say("ui.people.stage.ended")}</Tag>
         </div>
         <Moments bond={bond} />
-        <p className="text-sm text-muted">{say("ui.people.ended.recourt", { months: content.tuning.people.recourtMonths })}</p>
+        <p className="text-sm text-text-2">{say("ui.people.ended.recourt", { months: content.tuning.people.recourtMonths })}</p>
       </Card>
     </li>
   );

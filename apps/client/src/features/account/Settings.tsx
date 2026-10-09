@@ -53,7 +53,7 @@ export function UsageCounts({ account }: { account: AccountApi }) {
         <input type="checkbox" className="size-5 accent-ink" checked={on ?? true} disabled={on === null || busy} onChange={(event) => void change(event.target.checked)} />
         {say("ui.account.usage")}
       </label>
-      <p className="text-sm text-muted">{say("ui.account.usage.help")}</p>
+      <p className="text-sm text-text-2">{say("ui.account.usage.help")}</p>
       {problem === null ? null : (
         <p role="alert" className="text-sm text-bad">
           {problem}
@@ -136,7 +136,7 @@ export function AccountSettings({ account, more = null }: { account: AccountApi;
 
       {more}
 
-      <div className="flex flex-col gap-3 border-t border-line pt-4">
+      <div className="flex flex-col gap-3 border-t border-sheet-line pt-4">
         {step === "idle" ? (
           <div>
             <Button variant="quiet" disabled={busy} onClick={() => setStep("warn")}>
@@ -176,7 +176,7 @@ export function AccountSettings({ account, more = null }: { account: AccountApi;
             <Button variant="quiet" disabled={busy} onClick={() => void run(() => account.signInWithGoogle(null), (result) => setProblem(failureWords(result)))}>
               {say("ui.account.google")}
             </Button>
-            <p className="text-sm text-muted">{say("ui.account.delete.google")}</p>
+            <p className="text-sm text-text-2">{say("ui.account.delete.google")}</p>
             <div>
               <Button disabled={busy} onClick={() => setStep("idle")}>
                 {say("ui.account.delete.keep")}

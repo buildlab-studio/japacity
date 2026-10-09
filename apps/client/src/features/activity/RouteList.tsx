@@ -23,19 +23,19 @@ function RouteRow({ id, state, chosen, onPick }: { id: string; state: string | n
         aria-checked={chosen}
         data-route={id}
         onClick={() => onPick(id)}
-        className={`flex min-h-12 w-full items-start gap-3 rounded-lg border px-3 py-2 text-left ${chosen ? "border-ink bg-sunk" : "border-line bg-paper"}`}
+        className={`flex min-h-12 w-full items-start gap-3 rounded-md border px-3 py-2 text-left ${chosen ? "border-ink bg-sheet-muted" : "border-sheet-line bg-sheet"}`}
       >
-        <span aria-hidden className={`mt-1 size-4 shrink-0 rounded-full border-2 ${chosen ? "border-ink bg-ink" : "border-line"}`} />
+        <span aria-hidden className={`mt-1 size-4 shrink-0 rounded-[4px] border-2 ${chosen ? "border-ink bg-ink" : "border-sheet-line"}`} />
         <span className="flex min-w-0 flex-1 flex-col">
           <span className="flex items-baseline justify-between gap-2">
             <span className="font-medium">{nameOf(id)}</span>
             {state === null ? null : (
-              <span className="shrink-0 text-xs font-semibold text-muted" data-route-state>
+              <span className="shrink-0 text-xs font-semibold text-text-2" data-route-state>
                 {state}
               </span>
             )}
           </span>
-          {blurb === null ? null : <span className="text-sm text-muted">{blurb}</span>}
+          {blurb === null ? null : <span className="text-sm text-text-2">{blurb}</span>}
         </span>
       </button>
     </li>

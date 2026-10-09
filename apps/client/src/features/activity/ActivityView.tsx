@@ -17,7 +17,7 @@ import { alreadyDone, needsWords, requirementSentence } from "../../shared/words
 import { ENGLISH_TEST, STUDY_ENGLISH, testChance } from "../../shared/words/test";
 import { blurbOf, hasWords, lowerFirst, nameOf, paramWords, say, sayCount } from "../../shared/words/text";
 import { payAMonth } from "../../shared/words/pay";
-import { huntOrder, JobList } from "./JobList";
+import { ApplyFor, huntOrder, JobList } from "./JobList";
 import { RouteList } from "./RouteList";
 import { routesWords } from "./routes.words";
 
@@ -35,7 +35,7 @@ function Job() {
   return (
     <Card>
       <div className="flex items-start gap-3">
-        <Briefcase size={20} className="mt-0.5 shrink-0 text-muted" />
+        <Briefcase size={20} className="mt-0.5 shrink-0 text-text-2" />
         <div className="flex flex-1 flex-col gap-1">
           {job === null ? (
             <p>{say("ui.job.none")}</p>
@@ -45,7 +45,7 @@ function Job() {
               {pay === null || pay === undefined || typeof pay.amount !== "number" ? null : (
                 <p className="text-sm font-medium tabular-nums">{say("ui.job.pay", { amount: formatMoney(pay.amount, pay.currency) })}</p>
               )}
-              <p className="text-sm text-muted">{sayCount("ui.job.months", view.job.months, { months: view.job.months })}</p>
+              <p className="text-sm text-text-2">{sayCount("ui.job.months", view.job.months, { months: view.job.months })}</p>
             </>
           )}
         </div>
@@ -56,7 +56,7 @@ function Job() {
         )}
       </div>
       {confirming ? (
-        <div className="mt-3 flex flex-col gap-2 border-t border-line pt-3">
+        <div className="mt-3 flex flex-col gap-2 border-t border-sheet-line pt-3">
           <p>{say("ui.job.quit-sure")}</p>
           <div className="flex flex-wrap gap-2">
             <Button
@@ -93,14 +93,14 @@ function SideJob() {
       {/* On a phone the quit button goes under the words, so they keep the card's width. */}
       <div className="flex flex-col gap-3 @sm:flex-row @sm:items-start">
         <div className="flex min-w-0 flex-1 items-start gap-3" data-side-words>
-          <Briefcase size={20} className="mt-0.5 shrink-0 text-muted" />
+          <Briefcase size={20} className="mt-0.5 shrink-0 text-text-2" />
           <div className="flex min-w-0 flex-1 flex-col gap-1">
-            <p className="text-xs font-semibold tracking-wide text-muted uppercase">{say("ui.side.title")}</p>
+            <p className="text-xs font-semibold tracking-wide text-text-2 uppercase">{say("ui.side.title")}</p>
             {side === null ? null : <p className="font-semibold">{nameOf(side)}</p>}
             {pay === null || pay === undefined || typeof pay.amount !== "number" ? null : (
               <p className="text-sm font-medium tabular-nums">{say("ui.job.pay", { amount: formatMoney(pay.amount, pay.currency) })}</p>
             )}
-            <p className="text-sm text-muted">{say("ui.side.holds")}</p>
+            <p className="text-sm text-text-2">{say("ui.side.holds")}</p>
           </div>
         </div>
         {confirming ? null : (
@@ -112,7 +112,7 @@ function SideJob() {
         )}
       </div>
       {confirming ? (
-        <div className="mt-3 flex flex-wrap gap-2 border-t border-line pt-3">
+        <div className="mt-3 flex flex-wrap gap-2 border-t border-sheet-line pt-3">
           <Button
             small
             variant="primary"
@@ -141,7 +141,7 @@ function Locks() {
     <ul className="flex flex-col gap-1 text-sm" aria-label={say("ui.locks.title")}>
       {locks.map((lock, index) => (
         <li key={`${lock.why}-${String(index)}`} data-lock={lock.why} className="flex items-start gap-2">
-          <Lock size={14} className="mt-0.5 shrink-0 text-muted" />
+          <Lock size={14} className="mt-0.5 shrink-0 text-text-2" />
           <span>{lockWords(lock, month)}</span>
         </li>
       ))}
@@ -160,15 +160,15 @@ function Slots() {
   const view = useView();
   const plan = useGame((state) => state.plan);
   const setSlot = useGame((state) => state.setSlot);
-  if (view.freeSlots === 0) return <p className="text-muted">{say("ui.month.no-slots")}</p>;
+  if (view.freeSlots === 0) return <p className="text-text-2">{say("ui.month.no-slots")}</p>;
   return (
     <ol className="grid gap-2 @md:grid-cols-3" aria-label={say("ui.month.plan")}>
       {plan.map((pick, index) => (
         <li
           key={index}
-          className={`flex min-h-14 items-center gap-2 rounded-xl border px-3 py-2 ${pick === null ? "border-dashed border-line text-muted" : "border-ink/60 bg-surface"}`}
+          className={`flex min-h-14 items-center gap-2 rounded-md border px-3 py-2 ${pick === null ? "border-dashed border-sheet-line text-text-2" : "border-ink/60 bg-sheet-2"}`}
         >
-          <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-sunk text-xs font-semibold text-ink">
+          <span className="flex size-6 shrink-0 items-center justify-center rounded-[4px] bg-sheet-muted text-xs font-semibold text-ink">
             {index + 1}
           </span>
           <span className="flex-1">{pick === null ? say("ui.month.slot-empty") : pickWords(pick, view)}</span>
@@ -176,7 +176,7 @@ function Slots() {
             <button
               type="button"
               aria-label={`${say("ui.month.slot-remove")}: ${pickWords(pick, view)}`}
-              className="inline-flex size-9 items-center justify-center rounded-lg hover:bg-sunk"
+              className="inline-flex size-9 items-center justify-center rounded-md hover:bg-sheet-muted"
               onClick={() => setSlot(index, null)}
             >
               <X size={16} />
@@ -293,6 +293,8 @@ function ActivityCard({ option }: { option: ActivityOption }) {
   const selectId = `param-${option.id}`;
   // R-WORLD-006: the English test says its chance of the band the route needs before the fee is paid.
   const chance = option.id === ENGLISH_TEST ? testChance(view) : null;
+  // A job picked from the list: one main button in the action colour that repeats the pick (R-WORLD-006, R-WORLD-021).
+  const applying = jobs !== null && chosenParam !== "" && !(full && option.allowed);
 
   return (
     <li>
@@ -309,11 +311,11 @@ function ActivityCard({ option }: { option: ActivityOption }) {
             </Tag>
           )}
         </div>
-        {blurb === null ? null : <p className="text-sm text-muted">{blurb}</p>}
+        {blurb === null ? null : <p className="text-sm text-text-2">{blurb}</p>}
         {chance === null ? null : (
           <div className="flex flex-col gap-1 text-sm" data-test-chance={chance.band}>
             <p className="font-medium">{chance.words}</p>
-            {chance.study === null ? null : <p className="text-muted">{chance.study}</p>}
+            {chance.study === null ? null : <p className="text-text-2">{chance.study}</p>}
           </div>
         )}
 
@@ -343,7 +345,7 @@ function ActivityCard({ option }: { option: ActivityOption }) {
                 </ul>
               </div>
             ) : (
-              <p className="text-sm text-muted">{say(content.activity[option.id]?.param === "route" || content.activity[option.id]?.param === "known-route" ? "ui.activity.no-route" : "ui.activity.nothing-to-pick")}</p>
+              <p className="text-sm text-text-2">{say(content.activity[option.id]?.param === "route" || content.activity[option.id]?.param === "known-route" ? "ui.activity.no-route" : "ui.activity.nothing-to-pick")}</p>
             )
           ) : jobs !== null ? (
             <JobList view={view} jobs={jobs} chosen={chosenParam} onPick={setParam} />
@@ -356,7 +358,7 @@ function ActivityCard({ option }: { option: ActivityOption }) {
                 id={selectId}
                 value={chosenParam}
                 onChange={(event) => setParam(event.target.value)}
-                className="min-h-11 rounded-lg border border-line bg-paper px-3"
+                className="min-h-11 rounded-md border border-sheet-line bg-sheet px-3"
               >
                 {option.params?.map((value) => (
                   <option key={value} value={value}>
@@ -370,13 +372,21 @@ function ActivityCard({ option }: { option: ActivityOption }) {
 
         <div className="mt-auto pt-1">
           <Button
-            small
+            small={!applying}
+            variant={applying ? "primary" : "secondary"}
             disabled={!canAdd}
             aria-label={`${say("ui.activity.add")}: ${name}`}
             onClick={() => addToPlan({ activity: option.id, param: needsParam ? chosenParam : null })}
+            className={applying ? "w-full justify-between" : ""}
           >
-            <Plus size={16} />
-            {full && option.allowed ? say("ui.activity.full") : say("ui.activity.do")}
+            {applying ? (
+              <ApplyFor id={chosenParam} />
+            ) : (
+              <>
+                <Plus size={16} />
+                {full && option.allowed ? say("ui.activity.full") : say("ui.activity.do")}
+              </>
+            )}
             {line === null ? null : (
               <span className={`text-xs font-semibold ${line.kind === "left" ? "opacity-80" : line.kind === "short" ? "text-bad" : ""}`} data-after={line.kind}>
                 {line.words}
@@ -419,11 +429,11 @@ export function ActivityView() {
           ))}
         </ul>
         {later.length === 0 ? null : (
-          <details className="rounded-xl border border-line bg-surface p-4" data-later>
+          <details className="rounded-md border border-sheet-line bg-sheet-2 p-4" data-later>
             <summary className="cursor-pointer font-semibold">
-              {say("ui.activity.later")} <span className="font-normal text-muted">({later.length})</span>
+              {say("ui.activity.later")} <span className="font-normal text-text-2">({later.length})</span>
             </summary>
-            <p className="mt-2 text-sm text-muted">{say("ui.activity.later-hint", { count: later.length })}</p>
+            <p className="mt-2 text-sm text-text-2">{say("ui.activity.later-hint", { count: later.length })}</p>
             <ul className="mt-3 grid gap-3 @lg:grid-cols-2">
               {later.map((option) => (
                 <ActivityCard key={option.id} option={option} />

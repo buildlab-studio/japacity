@@ -30,13 +30,13 @@ export function WorldSheet({ open, onClose, label, title, children, foot, mark }
       }}
     >
       <Dialog.Portal>
-        <Dialog.Backdrop className="fade fixed inset-0 z-40 bg-gradient-to-t from-scrim to-transparent data-closed:pointer-events-none data-ending-style:pointer-events-none" />
+        <Dialog.Backdrop className="fade fixed inset-0 z-40 bg-scrim/60 data-closed:pointer-events-none data-ending-style:pointer-events-none" />
         <Dialog.Popup className="fixed inset-x-0 bottom-0 z-50 outline-hidden data-closed:pointer-events-none data-ending-style:pointer-events-none" data-world-sheet={mark}>
           <div className="panel rise mx-2 mb-2 flex max-h-[min(78dvh,640px)] flex-col overflow-hidden">
             <div className="band relative shrink-0 px-4 pt-4 pb-3 pr-12">
               <Dialog.Description className="label label-strong truncate">{label}</Dialog.Description>
               <Dialog.Title className="title text-[24px] leading-tight">{title}</Dialog.Title>
-              <Dialog.Close aria-label={say("ui.world.close")} className="absolute top-2 right-2 flex size-9 items-center justify-center rounded-full text-on-strong/80">
+              <Dialog.Close aria-label={say("ui.world.close")} className="absolute top-2 right-2 flex size-9 items-center justify-center rounded-[5px] text-on-strong/80">
                 <X size={18} />
               </Dialog.Close>
             </div>

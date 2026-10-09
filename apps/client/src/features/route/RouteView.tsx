@@ -25,8 +25,8 @@ function Checklist({ route }: { route: Route }) {
         return (
           <li key={item.id} data-met={item.met ? "true" : "false"} className="flex flex-col gap-1">
             <div className="flex items-start gap-2">
-              {item.met ? <Check size={18} className="mt-0.5 shrink-0 text-good" /> : <Circle size={18} className="mt-0.5 shrink-0 text-muted" />}
-              <span className={item.met ? "text-muted line-through" : ""}>{label}</span>
+              {item.met ? <Check size={18} className="mt-0.5 shrink-0 text-good" /> : <Circle size={18} className="mt-0.5 shrink-0 text-text-2" />}
+              <span className={item.met ? "text-text-2 line-through" : ""}>{label}</span>
             </div>
             {partial ? (
               <div className="pl-6">
@@ -72,7 +72,7 @@ function Schools({ route }: { route: Route }) {
           const deposit = shortfall(view, [{ currency: "GBP", amount: entry.deposit }]);
           const grade = hasWords(`${GRADE}.value.${String(entry.minGrade)}`) ? lowerFirst(say(`${GRADE}.value.${String(entry.minGrade)}`)) : String(entry.minGrade);
           return (
-            <li key={id} data-school={id} className="flex flex-col gap-2 rounded-lg border border-line p-3">
+            <li key={id} data-school={id} className="flex flex-col gap-2 rounded-md border border-sheet-line p-3">
               <div className="flex flex-wrap items-center gap-2">
                 <span className="flex-1 font-medium">{nameOf(id)}</span>
                 {status === null || school === undefined ? null : (
@@ -91,10 +91,10 @@ function Schools({ route }: { route: Route }) {
                   : say("ui.route.school.costs", { deposit: formatMoney(entry.deposit, "GBP"), tuition: formatMoney(entry.tuition, "GBP") })}
               </p>
               {school === undefined ? (
-                <p className="text-sm text-muted">{say("ui.route.school.asks", { band: formatBand(entry.minBand), grade })}</p>
+                <p className="text-sm text-text-2">{say("ui.route.school.asks", { band: formatBand(entry.minBand), grade })}</p>
               ) : null}
               {route.school === null ? (
-                <p className="text-sm text-muted">{say("ui.route.school.naira", { naira: formatMoney(deposit.need, "NGN") })}</p>
+                <p className="text-sm text-text-2">{say("ui.route.school.naira", { naira: formatMoney(deposit.need, "NGN") })}</p>
               ) : null}
               {canPay && deposit.short > 0 ? (
                 <p className="text-sm text-bad">
@@ -116,7 +116,7 @@ function Schools({ route }: { route: Route }) {
           );
         })}
       </ul>
-      {route.school === null ? <p className="text-xs text-muted">{say("ui.route.foreign-fee")}</p> : null}
+      {route.school === null ? <p className="text-xs text-text-2">{say("ui.route.foreign-fee")}</p> : null}
     </div>
   );
 }
@@ -140,7 +140,7 @@ function Funds({ route }: { route: Route }) {
     <div className="flex flex-col gap-2" data-funds>
       <h4 className="text-sm font-semibold">{say("ui.route.funds")}</h4>
       {required === 0 ? (
-        <p className="text-sm text-muted">{say("ui.route.funds.none-needed")}</p>
+        <p className="text-sm text-text-2">{say("ui.route.funds.none-needed")}</p>
       ) : (
         <>
           <Meter value={shown} max={required} label={say("ui.route.funds")} />
@@ -150,8 +150,8 @@ function Funds({ route }: { route: Route }) {
               {say("ui.route.funds.short", { short: formatMoney(short, currency), naira: formatMoney(atBankRate(view, currency, short), "NGN") })}
             </p>
           ) : null}
-          <p className="text-sm text-muted">{say("ui.route.funds.what")}</p>
-          <p className="text-sm text-muted">{sayCount("ui.route.funds.held", route.funds.heldMonths, { months: route.funds.heldMonths })}</p>
+          <p className="text-sm text-text-2">{say("ui.route.funds.what")}</p>
+          <p className="text-sm text-text-2">{sayCount("ui.route.funds.held", route.funds.heldMonths, { months: route.funds.heldMonths })}</p>
         </>
       )}
       {route.support === null ? null : (
@@ -201,7 +201,7 @@ function RouteCard({ route }: { route: Route }) {
             </span>
           )}
         </div>
-        {hasWords(`${route.id}.blurb`) ? <p className="text-sm text-muted">{blurb}</p> : null}
+        {hasWords(`${route.id}.blurb`) ? <p className="text-sm text-text-2">{blurb}</p> : null}
         <div className="flex flex-wrap gap-2">
           <Tag tone={route.state === "granted" || route.state === "departed" ? "good" : "plain"}>{say(`ui.route.state.${route.state}`)}</Tag>
           <Tag tone={route.window === "closed" ? "bad" : route.window === "narrowing" ? "accent" : "plain"}>{say(`ui.route.window.${route.window}`)}</Tag>

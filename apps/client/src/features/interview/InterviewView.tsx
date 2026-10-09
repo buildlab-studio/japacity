@@ -25,7 +25,7 @@ function Question({ interview }: { interview: Interview }) {
   if (question === null) return null;
   return (
     <>
-      <p className="text-sm font-medium text-muted">{say("ui.interview.question", { n: interview.asked + 1, total: interview.total })}</p>
+      <p className="text-sm font-medium text-text-2">{say("ui.interview.question", { n: interview.asked + 1, total: interview.total })}</p>
       <p className="text-xl font-semibold">{words(`${ENTRY}.q.${question.id}`)}</p>
       <ul className="flex flex-col gap-2">
         {question.options.map((option) => (
@@ -79,13 +79,13 @@ export function InterviewView() {
           {interview.waiting ? <Hourglass size={22} className="mt-0.5 shrink-0" /> : <MessagesSquare size={22} className="mt-0.5 shrink-0" />}
           <div className="flex flex-col gap-1">
             <h2 className="text-lg font-semibold">{nameOf(ENTRY)}</h2>
-            <p className="text-sm text-muted">{say("ui.interview.for", { route: runningName(interview.route) })}</p>
-            {interview.question === null ? null : <p className="text-sm text-muted">{say("ui.interview.blocks")}</p>}
+            <p className="text-sm text-text-2">{say("ui.interview.for", { route: runningName(interview.route) })}</p>
+            {interview.question === null ? null : <p className="text-sm text-text-2">{say("ui.interview.blocks")}</p>}
           </div>
         </div>
         <Question interview={interview} />
         {interview.waiting ? <p>{say("ui.interview.waiting")}</p> : null}
-        {interview.standIn ? <p className="text-sm text-muted">{say("ui.interview.stand-in")}</p> : null}
+        {interview.standIn ? <p className="text-sm text-text-2">{say("ui.interview.stand-in")}</p> : null}
       </Card>
     </section>
   );

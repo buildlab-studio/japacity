@@ -15,7 +15,7 @@ import { CURRENCIES, formatBp, formatMoney, toMinor } from "../words/format";
 import { say } from "../words/text";
 import { localCurrency } from "../words/wayHome";
 
-const inputClass = "min-h-11 rounded-lg border border-line bg-surface px-3";
+const inputClass = "min-h-11 rounded-md border border-sheet-line bg-sheet-2 px-3";
 
 function isForeign(currency: Currency): currency is ForeignCurrency {
   return currency !== "NGN";
@@ -45,7 +45,7 @@ function RemitForm({ onDone }: { onDone: () => void }) {
   const currencyId = useId();
   const amount = parseAmount(typed);
 
-  if (currency === null) return <p className="text-muted">{say("ui.remit.nothing")}</p>;
+  if (currency === null) return <p className="text-text-2">{say("ui.remit.nothing")}</p>;
   const inBank = view.pockets[currency].bank;
   const quote = amount === null ? null : remitQuote(view.rates, content.tuning.remit, currency, amount);
   const tooMuch = amount !== null && amount > inBank;
@@ -79,7 +79,7 @@ function RemitForm({ onDone }: { onDone: () => void }) {
           {say("ui.remit.amount", { currency: say(`ui.currency.${currency}`).toLowerCase() })}
         </label>
         <input id={amountId} inputMode="decimal" value={typed} onChange={(event) => setTyped(event.target.value)} className={inputClass} />
-        <p className={`text-sm ${tooMuch ? "text-bad" : "text-muted"}`}>{say("ui.remit.in-bank", { amount: formatMoney(inBank, currency) })}</p>
+        <p className={`text-sm ${tooMuch ? "text-bad" : "text-text-2"}`}>{say("ui.remit.in-bank", { amount: formatMoney(inBank, currency) })}</p>
       </div>
       <fieldset className="flex flex-col gap-2">
         <legend className="mb-1 text-sm font-medium">{say("ui.remit.channel")}</legend>
@@ -89,12 +89,12 @@ function RemitForm({ onDone }: { onDone: () => void }) {
             <label
               key={option}
               data-channel={option}
-              className={`flex cursor-pointer items-start gap-3 rounded-lg border p-3 ${channel === option ? "border-ink bg-sunk" : "border-line"}`}
+              className={`flex cursor-pointer items-start gap-3 rounded-md border p-3 ${channel === option ? "border-ink bg-sheet-muted" : "border-sheet-line"}`}
             >
               <input type="radio" name="channel" value={option} checked={channel === option} onChange={() => setChannel(option)} className="mt-1" />
               <span className="flex flex-1 flex-col gap-0.5">
                 <span className="font-medium">{say(`ui.remit.channel.${option}`)}</span>
-                <span className="text-sm text-muted">{say(`ui.remit.how.${option}`, { loss: formatBp(content.tuning.remit.informalLossBp) })}</span>
+                <span className="text-sm text-text-2">{say(`ui.remit.how.${option}`, { loss: formatBp(content.tuning.remit.informalLossBp) })}</span>
                 {terms === undefined ? null : (
                   <span className="text-sm tabular-nums" data-arrives>
                     {say("ui.remit.arrives", { naira: formatMoney(terms.naira, "NGN"), fee: formatMoney(terms.fee, currency) })}

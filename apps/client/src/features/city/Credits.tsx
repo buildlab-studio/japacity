@@ -83,7 +83,7 @@ export function CreditsSheet({ open, onOpenChange }: { open: boolean; onOpenChan
   }, [open, credits]);
   return (
     <Sheet open={open} onOpenChange={onOpenChange} title={cityWords("city.credits")}>
-      {credits === null ? <p className="text-muted">{cityWords("city.credits.loading")}</p> : <CreditsList credits={credits} />}
+      {credits === null ? <p className="text-text-2">{cityWords("city.credits.loading")}</p> : <CreditsList credits={credits} />}
     </Sheet>
   );
 }

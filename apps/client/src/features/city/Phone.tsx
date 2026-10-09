@@ -25,20 +25,20 @@ export function Phone({ apps, onClose }: { apps: readonly PhoneApp[]; onClose: (
   const [open, setOpen] = useState<string | null>(null);
   const app = apps.find((candidate) => candidate.id === open) ?? null;
   return (
-    <div className="fixed inset-0 z-[44] flex items-end justify-center bg-ink/40 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur-sm sm:items-center" data-phone role="dialog" aria-label={cityWords("city.phone")}>
-      <div className="flex max-h-[88dvh] w-full max-w-sm flex-col overflow-hidden rounded-[2rem] border-[6px] border-ink bg-paper shadow-2xl">
-        <div className="flex items-center gap-2 border-b border-line px-3 py-2">
+    <div className="fixed inset-0 z-[44] flex items-end justify-center bg-scrim p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:items-center" data-phone role="dialog" aria-label={cityWords("city.phone")}>
+      <div className="flex max-h-[88dvh] w-full max-w-sm flex-col overflow-hidden rounded-[2rem] border-[6px] border-ink bg-sheet shadow-2xl">
+        <div className="flex items-center gap-2 border-b border-sheet-line px-3 py-2">
           {app === null ? (
-            <span className="flex-1 px-1 text-sm font-semibold text-muted">{cityWords("city.phone")}</span>
+            <span className="flex-1 px-1 text-sm font-semibold text-text-2">{cityWords("city.phone")}</span>
           ) : (
             <>
-              <button type="button" onClick={() => setOpen(null)} aria-label={cityWords("city.phone.back")} className="inline-flex size-9 items-center justify-center rounded-lg hover:bg-sunk">
+              <button type="button" onClick={() => setOpen(null)} aria-label={cityWords("city.phone.back")} className="inline-flex size-9 items-center justify-center rounded-md hover:bg-sheet-muted">
                 <ChevronLeft size={20} />
               </button>
               <h2 className="flex-1 truncate font-display text-lg">{app.name}</h2>
             </>
           )}
-          <button type="button" onClick={onClose} aria-label={cityWords("city.close")} className="inline-flex size-9 items-center justify-center rounded-lg hover:bg-sunk">
+          <button type="button" onClick={onClose} aria-label={cityWords("city.close")} className="inline-flex size-9 items-center justify-center rounded-md hover:bg-sheet-muted">
             <X size={18} />
           </button>
         </div>
@@ -46,10 +46,10 @@ export function Phone({ apps, onClose }: { apps: readonly PhoneApp[]; onClose: (
           <ul className="grid grid-cols-3 gap-4 p-5" aria-label={cityWords("city.phone.apps")}>
             {apps.map((candidate) => (
               <li key={candidate.id} className="flex flex-col items-center gap-1.5">
-                <button type="button" onClick={() => setOpen(candidate.id)} data-app={candidate.id} className="relative flex size-16 items-center justify-center rounded-2xl text-2xl font-bold text-white shadow-md" style={undefined}>
-                  <span className={`absolute inset-0 rounded-2xl ${candidate.tile}`} aria-hidden />
+                <button type="button" onClick={() => setOpen(candidate.id)} data-app={candidate.id} className="relative flex size-16 items-center justify-center rounded-md text-2xl font-bold text-white shadow-md" style={undefined}>
+                  <span className={`absolute inset-0 rounded-md ${candidate.tile}`} aria-hidden />
                   <span className="relative">{candidate.letter}</span>
-                  {candidate.waiting === true ? <span className="absolute -top-1 -right-1 size-3.5 rounded-full border-2 border-paper bg-bad" aria-hidden /> : null}
+                  {candidate.waiting === true ? <span className="absolute -top-1 -right-1 size-3.5 rounded-full border-2 border-on-strong bg-bad" aria-hidden /> : null}
                 </button>
                 <span className="text-sm font-semibold">{candidate.name}</span>
               </li>

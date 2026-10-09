@@ -28,7 +28,7 @@ export function ClockBanner({ className = "" }: { className?: string }) {
   const clock = view.status?.clock ?? null;
   if (clock === null || view.status === null) return null;
   return (
-    <div role="alert" data-clock className={`flex items-center gap-4 rounded-2xl bg-bad p-4 text-paper ${className}`}>
+    <div role="alert" data-clock className={`flex items-center gap-4 rounded-md bg-bad p-4 text-on-strong ${className}`}>
       <AlarmClock size={36} className="shrink-0" />
       <p className="font-display text-6xl leading-none tabular-nums">{clock}</p>
       <div className="flex flex-col">
@@ -49,12 +49,12 @@ function Renew({ held }: { held: Held }) {
   const needsJob = held.work === "one-employer" && view.job.id === null;
   const gap = shortfall(view, [{ currency: cost.currency, amount: cost.fee + cost.surcharge }]);
   return (
-    <div className="flex flex-col gap-2 border-t border-line pt-3" data-renew>
+    <div className="flex flex-col gap-2 border-t border-sheet-line pt-3" data-renew>
       <h4 className="text-sm font-semibold">{say("ui.status.renew-title", { months: cost.months })}</h4>
       <p className="text-sm tabular-nums">
         {say("ui.status.renew-fees", { fee: formatMoney(cost.fee, cost.currency), surcharge: formatMoney(cost.surcharge, cost.currency), total: formatMoney(cost.fee + cost.surcharge, cost.currency) })}
       </p>
-      {gap.foreign && gap.need > 0 ? <p className="text-sm text-muted">{say("ui.status.renew-naira", { naira: formatMoney(gap.need, "NGN") })}</p> : null}
+      {gap.foreign && gap.need > 0 ? <p className="text-sm text-text-2">{say("ui.status.renew-naira", { naira: formatMoney(gap.need, "NGN") })}</p> : null}
       {gap.short > 0 ? <p className="text-sm text-bad">{say("ui.status.renew-short", { short: formatMoney(gap.short, "NGN") })}</p> : null}
       {needsJob ? <p className="text-sm text-bad">{say("ui.status.renew-needs-job")}</p> : null}
       <Rejection />
@@ -82,13 +82,13 @@ function Renew({ held }: { held: Held }) {
           </Button>
         </div>
       )}
-      <p className="text-xs text-muted">{say("ui.status.fee-note")}</p>
+      <p className="text-xs text-text-2">{say("ui.status.fee-note")}</p>
     </div>
   );
 }
 
 function Settling({ held }: { held: Held }) {
-  if (held.settleMonths === null) return <p className="text-sm text-muted">{say("ui.status.no-settle")}</p>;
+  if (held.settleMonths === null) return <p className="text-sm text-text-2">{say("ui.status.no-settle")}</p>;
   const label = say("ui.status.lawful", { months: held.lawfulMonths, need: held.settleMonths });
   return (
     <div className="flex flex-col gap-1" data-lawful>
@@ -109,10 +109,10 @@ export function StatusView() {
       ) : (
         <Card className="flex flex-col gap-3">
           <div className="flex items-start gap-3">
-            <BadgeCheck size={22} className="mt-0.5 shrink-0 text-muted" />
+            <BadgeCheck size={22} className="mt-0.5 shrink-0 text-text-2" />
             <div className="flex flex-1 flex-col gap-1">
               <h3 className="text-lg font-semibold">{nameOf(held.entry)}</h3>
-              {blurbOf(held.entry) === null ? null : <p className="text-sm text-muted">{blurbOf(held.entry)}</p>}
+              {blurbOf(held.entry) === null ? null : <p className="text-sm text-text-2">{blurbOf(held.entry)}</p>}
             </div>
           </div>
           <div className="flex flex-wrap gap-2">

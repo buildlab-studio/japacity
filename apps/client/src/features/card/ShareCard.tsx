@@ -99,14 +99,14 @@ function Figures({ face }: { face: CardFace }) {
 
 const TONES: Record<ShareKind, string> = {
   "send-off": "bg-accent text-accent-ink",
-  "real-story": "bg-paper text-ink",
-  lost: "bg-paper text-ink",
-  chapter: "bg-paper text-ink",
-  granted: "bg-paper text-ink",
-  "first-pay-abroad": "bg-paper text-ink",
-  secured: "bg-paper text-ink",
-  december: "bg-paper text-ink",
-  "draw-win": "bg-paper text-ink",
+  "real-story": "bg-sheet text-ink",
+  lost: "bg-sheet text-ink",
+  chapter: "bg-sheet text-ink",
+  granted: "bg-sheet text-ink",
+  "first-pay-abroad": "bg-sheet text-ink",
+  secured: "bg-sheet text-ink",
+  december: "bg-sheet text-ink",
+  "draw-win": "bg-sheet text-ink",
 };
 
 /** One card, laid out at nine by sixteen so it reads as the image it makes. Without a scenario it names no character. */
@@ -115,7 +115,7 @@ export function ShareCardFace({ card, scenario = null }: { card: ShareCard; scen
   return (
     <article
       data-share-card={card.kind}
-      className={`flex aspect-[9/16] w-[min(calc(100vw-2rem),24rem)] flex-col justify-between gap-3 overflow-hidden rounded-3xl p-5 shadow-2xl ${TONES[card.kind]}`}
+      className={`flex aspect-[9/16] w-[min(calc(100vw-2rem),24rem)] flex-col justify-between gap-3 overflow-hidden rounded-md p-5 shadow-2xl ${TONES[card.kind]}`}
     >
       <Stripes />
       <div className="flex flex-col gap-1">

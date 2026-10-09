@@ -33,7 +33,7 @@ function Field({ label, children }: { label: string; children: (id: string) => R
   );
 }
 
-const inputClass = "min-h-11 rounded-lg border border-line bg-surface px-3";
+const inputClass = "min-h-11 rounded-md border border-sheet-line bg-sheet-2 px-3";
 
 function CurrencySelect({ id, value, onChange, exclude }: { id: string; value: Currency; onChange: (value: Currency) => void; exclude?: Currency }) {
   const view = useView();
@@ -54,7 +54,7 @@ function Choice<T extends string>({ name, value, options, onChange }: { name: st
       {options.map((option) => (
         <label
           key={option.value}
-          className={`flex min-h-11 cursor-pointer items-center gap-2 rounded-lg border px-3 ${value === option.value ? "border-ink bg-sunk" : "border-line"}`}
+          className={`flex min-h-11 cursor-pointer items-center gap-2 rounded-md border px-3 ${value === option.value ? "border-ink bg-sheet-muted" : "border-sheet-line"}`}
         >
           <input type="radio" name={name} value={option.value} checked={value === option.value} onChange={() => onChange(option.value)} />
           {option.label}
@@ -191,7 +191,7 @@ export function WalletView() {
     <Panel title={say("ui.wallet.title")}>
       <Card className="flex flex-col gap-3">
         <table className="w-full text-left">
-          <thead className="text-sm text-muted">
+          <thead className="text-sm text-text-2">
             <tr>
               <th scope="col" className="font-normal" />
               <th scope="col" className="font-normal">{say("ui.wallet.bank")}</th>
@@ -203,11 +203,11 @@ export function WalletView() {
             {held.map((currency) => {
               const pocket = view.pockets[currency];
               return (
-                <tr key={currency} className="border-t border-line">
+                <tr key={currency} className="border-t border-sheet-line">
                   <th scope="row" className="py-2 pr-2 text-sm font-medium">{say(`ui.currency.${currency}`)}</th>
                   <td className="py-2 pr-2 font-semibold tabular-nums">{formatMoney(pocket.bank, currency)}</td>
                   <td className="py-2 pr-2 tabular-nums">{formatMoney(pocket.cash, currency)}</td>
-                  <td className="py-2 tabular-nums text-muted">{formatMoney(pocket.locked, currency)}</td>
+                  <td className="py-2 tabular-nums text-text-2">{formatMoney(pocket.locked, currency)}</td>
                 </tr>
               );
             })}
@@ -229,7 +229,7 @@ export function WalletView() {
       <Card className="flex flex-col gap-2">
         <h3 className="font-semibold">{say("ui.wallet.rates")}</h3>
         <table className="w-full text-left text-sm" data-rates>
-          <thead className="text-muted">
+          <thead className="text-text-2">
             <tr>
               <th scope="col" className="font-normal" />
               <th scope="col" className="font-normal">{say("ui.wallet.rate.official")}</th>
@@ -246,7 +246,7 @@ export function WalletView() {
             ))}
           </tbody>
         </table>
-        {view.bankAllowanceLeft !== null && <p className="text-sm text-muted">{say("ui.wallet.allowance", { amount: formatMoney(view.bankAllowanceLeft, "USD") })}</p>}
+        {view.bankAllowanceLeft !== null && <p className="text-sm text-text-2">{say("ui.wallet.allowance", { amount: formatMoney(view.bankAllowanceLeft, "USD") })}</p>}
       </Card>
 
       {view.queued.length === 0 ? null : (

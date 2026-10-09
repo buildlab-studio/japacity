@@ -40,7 +40,7 @@ export function TurnClock() {
   if (nextTurnAt === undefined) return null;
   const words = nextTurnAt === null ? say("ui.clock.full") : now >= nextTurnAt ? say("ui.clock.arriving") : say("ui.clock.next", { wait: waitWords(nextTurnAt - now) });
   return (
-    <span className="text-xs text-muted" data-turn-clock>
+    <span className="text-xs text-text-2" data-turn-clock>
       {words}
     </span>
   );

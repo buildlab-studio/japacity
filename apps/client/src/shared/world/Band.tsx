@@ -90,7 +90,7 @@ export function Band({ when, name, money, formatMoney, onEndMonth, turns, count,
     <div className={`pointer-events-none fixed inset-x-0 top-0 z-[38] px-3 pt-[max(10px,env(safe-area-inset-top))] transition-opacity duration-300 ${hidden ? "opacity-0" : ""}`} data-band aria-hidden={hidden} data-open={open}>
       <div className="band pointer-events-auto flex h-[54px] items-center gap-1.5 rounded-[6px] pl-3 pr-1.5 shadow-[0_8px_20px_rgba(10,14,30,0.3)]">
         <div className="min-w-0 flex-1 leading-none">
-          <div className="label label-strong truncate text-[9px]">{when}</div>
+          <div className="label label-strong truncate text-[9px] tabular-nums">{when}</div>
           <h2 className="title mt-0.5 truncate text-[16px] leading-tight">{name}</h2>
         </div>
         {count}

@@ -18,7 +18,7 @@ function Quality({ id, value }: { id: string; value: number }) {
   const ranged = entry !== undefined && id !== AGE && !hasWords(`${id}.value.${String(value)}`);
   return (
     <div className="flex flex-col gap-1">
-      <dt className="text-sm text-muted">{nameOf(id)}</dt>
+      <dt className="text-sm text-text-2">{nameOf(id)}</dt>
       <dd className="font-semibold">{valueWords(id, value)}</dd>
       {ranged ? <Meter value={value - entry.min} max={entry.max - entry.min} label={nameOf(id)} tone="ink" /> : null}
     </div>
@@ -41,7 +41,7 @@ export function QualityView() {
           ))}
         </dl>
         {later.length === 0 ? null : (
-          <details className="border-t border-line pt-3" data-later>
+          <details className="border-t border-sheet-line pt-3" data-later>
             <summary className="cursor-pointer text-sm font-semibold">{say("ui.profile.later")}</summary>
             <dl className="mt-3 grid gap-3 @sm:grid-cols-2">
               {later.map(({ id, value }) => (

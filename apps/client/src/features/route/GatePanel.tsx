@@ -23,7 +23,7 @@ export function countryCurrency(route: RouteView): Currency {
 }
 
 function Sponsor({ gate, currency }: { gate: Extract<RouteGateView, { gate: "sponsor" }>; currency: Currency }) {
-  if (gate.employer === null) return <p className="text-sm text-muted">{say("ui.gate.sponsor.none")}</p>;
+  if (gate.employer === null) return <p className="text-sm text-text-2">{say("ui.gate.sponsor.none")}</p>;
   return (
     <div className="flex flex-col gap-1 text-sm">
       <p>{say("ui.gate.sponsor.who", { employer: employerWords(gate.employer) })}</p>
@@ -46,21 +46,21 @@ function Points({ gate, month }: { gate: Extract<RouteGateView, { gate: "points"
       </p>
       <Meter value={gate.points} max={gate.cutoff} label={say("ui.gate.points.title")} tone="ink" />
       <p className={short > 0 ? "text-bad" : "text-good"}>{short > 0 ? say("ui.gate.points.short", { short: formatNumber(short) }) : say("ui.gate.points.over")}</p>
-      {gate.careCutoff === null ? null : <p className="text-muted">{say("ui.gate.points.care", { cutoff: formatNumber(gate.careCutoff) })}</p>}
+      {gate.careCutoff === null ? null : <p className="text-text-2">{say("ui.gate.points.care", { cutoff: formatNumber(gate.careCutoff) })}</p>}
       {gate.invitedMonth !== null ? (
         <p className="font-medium text-good">{say("ui.gate.points.invited", { month: monthEnding(gate.invitedMonth) })}</p>
       ) : gate.poolMonth === null ? (
-        <p className="text-muted">{say("ui.gate.points.no-pool")}</p>
+        <p className="text-text-2">{say("ui.gate.points.no-pool")}</p>
       ) : (
         <p>{say("ui.gate.points.pool", { month: monthEnding(gate.poolMonth), ends: monthEnding(gate.profileEndsMonth ?? gate.poolMonth), left: Math.max(0, (gate.profileEndsMonth ?? month) - month) })}</p>
       )}
-      <p className="text-xs text-muted">{say("ui.gate.points.clock")}</p>
+      <p className="text-xs text-text-2">{say("ui.gate.points.clock")}</p>
     </div>
   );
 }
 
 function Endorsement({ gate, month }: { gate: Extract<RouteGateView, { gate: "endorsement" }>; month: number }) {
-  if (gate.refusedMonth === null) return <p className="text-sm text-muted">{say("ui.gate.endorsement.none")}</p>;
+  if (gate.refusedMonth === null) return <p className="text-sm text-text-2">{say("ui.gate.endorsement.none")}</p>;
   const cooled = gate.cooledFromMonth !== null && month >= gate.cooledFromMonth;
   return (
     <div className="flex flex-col gap-1 text-sm">
@@ -71,13 +71,13 @@ function Endorsement({ gate, month }: { gate: Extract<RouteGateView, { gate: "en
 }
 
 function Contract({ gate, currency }: { gate: Extract<RouteGateView, { gate: "contract" }>; currency: Currency }) {
-  if (gate.employer === null) return <p className="text-sm text-muted">{say("ui.gate.contract.none")}</p>;
+  if (gate.employer === null) return <p className="text-sm text-text-2">{say("ui.gate.contract.none")}</p>;
   return (
     <div className="flex flex-col gap-1 text-sm">
       <p>{say("ui.gate.contract.who", { employer: employerWords(gate.employer) })}</p>
       {gate.role === null ? null : <p>{say("ui.gate.contract.role", { role: hasWords(`ui.gate.role.${gate.role}`) ? say(`ui.gate.role.${gate.role}`) : gate.role })}</p>}
       {gate.salary === null ? null : <p className="font-medium tabular-nums">{say("ui.gate.contract.salary", { salary: formatMoney(gate.salary, currency) })}</p>}
-      <p className="text-muted">{say("ui.gate.contract.passport")}</p>
+      <p className="text-text-2">{say("ui.gate.contract.passport")}</p>
     </div>
   );
 }
@@ -86,7 +86,7 @@ function Contract({ gate, currency }: { gate: Extract<RouteGateView, { gate: "co
 function Bond({ gate }: { gate: Extract<RouteGateView, { gate: "partner" | "dependant" }> }) {
   const { people } = useView();
   const bond = gate.bond === null ? undefined : people.bonds.find((held) => held.id === gate.bond);
-  if (bond === undefined) return <p className="text-sm text-muted">{say("ui.gate.bond.none")}</p>;
+  if (bond === undefined) return <p className="text-sm text-text-2">{say("ui.gate.bond.none")}</p>;
   return (
     <div className="flex flex-col gap-1 text-sm">
       {bond.stage === "ended" ? (
@@ -94,7 +94,7 @@ function Bond({ gate }: { gate: Extract<RouteGateView, { gate: "partner" | "depe
       ) : (
         <p>{say("ui.gate.bond.with", { name: bondName(bond), stage: say(`ui.people.stage.${bond.stage}`).toLowerCase() })}</p>
       )}
-      <p className="text-muted">{gate.lead === null ? say("ui.gate.lead.none") : say("ui.gate.lead.state", { state: say(`ui.route.state.${gate.lead}`).toLowerCase() })}</p>
+      <p className="text-text-2">{gate.lead === null ? say("ui.gate.lead.none") : say("ui.gate.lead.state", { state: say(`ui.route.state.${gate.lead}`).toLowerCase() })}</p>
     </div>
   );
 }
@@ -106,7 +106,7 @@ export function GatePanel({ route }: { route: RouteView }) {
   if (gate === null || gate.gate === "road" || route.state === "heard" || route.state === "unknown") return null;
   const currency = countryCurrency(route);
   return (
-    <div className="flex flex-col gap-2 rounded-lg border border-line p-3" data-gate={gate.gate}>
+    <div className="flex flex-col gap-2 rounded-md border border-sheet-line p-3" data-gate={gate.gate}>
       <h4 className="text-sm font-semibold">{say(`ui.gate.${gate.gate}.title`)}</h4>
       {gate.gate === "sponsor" ? <Sponsor gate={gate} currency={currency} /> : null}
       {gate.gate === "points" ? <Points gate={gate} month={month} /> : null}

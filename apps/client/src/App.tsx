@@ -116,14 +116,14 @@ function Shell() {
   if (failed !== null) return <p className="p-4 text-bad">{say("ui.failed", { why: failed })}</p>;
   if (signedOut) return <AccountGate />;
   if (choosingLife) return <ScenarioView />;
-  if (view === null) return <p className="p-4 text-muted">{say("ui.loading")}</p>;
+  if (view === null) return <p className="p-4 text-text-2">{say("ui.loading")}</p>;
   if (view.prologue !== null) return <PrologueView />;
   if (prologueJustClosed(lines) && handedOver !== view.v) return <PrologueHandover onDone={() => setHandedOver(view.v)} />;
   if (view.ended && view.card !== null && view.card.kind !== "send-off") return <EndingView />;
   if (view.place.where === "road") return <RoadView offers={(only) => <OfferView only={only} />} city={<City adverts={(place) => <PlaceAdverts place={place} />} />} />;
   if (classicMode())
     return (
-      <Suspense fallback={<p className="p-4 text-muted">{say("ui.loading")}</p>}>
+      <Suspense fallback={<p className="p-4 text-text-2">{say("ui.loading")}</p>}>
         <Classic />
       </Suspense>
     );

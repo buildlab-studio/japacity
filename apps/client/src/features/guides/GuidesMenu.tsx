@@ -15,7 +15,7 @@ import { CREDITS_PATH, GUIDES_ROOT, guidePath, MADE_PATH, NUMBERS_PATH, SOURCES_
 function PageLink({ href, children }: { href: string; children: string }) {
   return (
     <li>
-      <a href={href} target="_blank" rel="noopener" className="underline underline-offset-4 decoration-line hover:decoration-ink">
+      <a href={href} target="_blank" rel="noopener" className="underline underline-offset-4 decoration-sheet-line hover:decoration-ink">
         {children}
       </a>
     </li>
@@ -54,7 +54,7 @@ export function GuidesMenu() {
               </PageLink>
             ))}
           </ul>
-          <ul className="flex flex-col gap-2 border-t border-line pt-4">
+          <ul className="flex flex-col gap-2 border-t border-sheet-line pt-4">
             <PageLink href={GUIDES_ROOT}>{say("guide.page.all-guides")}</PageLink>
             <PageLink href={NUMBERS_PATH}>{say("guide.page.numbers.index")}</PageLink>
             <PageLink href={SOURCES_PATH}>{say("guide.page.sources-page")}</PageLink>

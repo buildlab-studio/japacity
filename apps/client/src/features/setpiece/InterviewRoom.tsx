@@ -68,9 +68,9 @@ function useSpoken(keys: readonly string[], on: string): { unlocked: boolean; sk
 function Officer({ lines, onTap }: { lines: { key: string; main: boolean }[]; onTap: () => void }) {
   return (
     <figure className="flex flex-col gap-1" data-officer onClick={onTap}>
-      <figcaption className="text-xs font-semibold tracking-wide text-muted uppercase">{roomWords("room.officer")}</figcaption>
+      <figcaption className="text-xs font-semibold tracking-wide text-text-2 uppercase">{roomWords("room.officer")}</figcaption>
       {lines.map((line) => (
-        <p key={line.key} data-line={line.key} className={line.main ? "text-xl font-semibold" : "text-muted italic"}>
+        <p key={line.key} data-line={line.key} className={line.main ? "text-xl font-semibold" : "text-text-2 italic"}>
           {words(line.key)}
         </p>
       ))}
@@ -110,7 +110,7 @@ const NOTICE_ICONS: Record<NoticeCase, typeof Volume2 | null> = { on: Volume2, b
 function HeaderNotice() {
   const [notice, done] = useNoticeHere();
   const Icon = notice === null ? null : NOTICE_ICONS[notice.which];
-  const box = "flex items-center gap-2 self-start rounded-full border border-line bg-surface px-3 py-1.5 text-sm";
+  const box = "flex items-center gap-2 self-start rounded-[4px] border border-sheet-line bg-sheet-2 px-3 py-1.5 text-sm";
   const content =
     notice === null ? null : (
       <>
@@ -126,7 +126,7 @@ function HeaderNotice() {
       ) : (
         <button
           type="button"
-          className={`${box} min-h-9 hover:bg-sunk focus-visible:outline-2 focus-visible:outline-ink`}
+          className={`${box} min-h-9 hover:bg-sheet-muted focus-visible:outline-2 focus-visible:outline-ink`}
           onClick={() => {
             done();
             tapNotice(notice.which);
@@ -145,7 +145,7 @@ function Header({ entry, open }: { entry: Setpiece["entry"]; open: boolean }) {
       <MessageCircleQuestion size={22} className="mt-0.5 shrink-0" />
       <div className="flex min-w-0 flex-1 flex-col gap-1">
         <h2 className="text-lg font-semibold">{nameOf(entry)}</h2>
-        {open ? <p className="text-sm text-muted">{say("ui.setpiece.blocks")}</p> : null}
+        {open ? <p className="text-sm text-text-2">{say("ui.setpiece.blocks")}</p> : null}
         <HeaderNotice />
       </div>
       <MuteSwitch />
@@ -184,7 +184,7 @@ function Question({ setpiece, question }: { setpiece: Setpiece; question: NonNul
   const { unlocked, skip } = useSpoken(keys, `${String(setpiece.asked)}:${question.id}`);
   return (
     <>
-      <p className="flex items-center gap-2 text-sm font-medium text-muted">
+      <p className="flex items-center gap-2 text-sm font-medium text-text-2">
         {say("ui.setpiece.question", { n: setpiece.asked + 1, total: setpiece.total })}
         {question.followUp ? <Tag>{roomWords("room.follow-up")}</Tag> : null}
       </p>

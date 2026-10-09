@@ -140,7 +140,7 @@ export function DecemberScene() {
           <Gift size={22} className="mt-0.5 shrink-0" />
           <div className="flex flex-col gap-1">
             <h2 className="text-lg font-semibold">{nameOf(DECEMBER)}</h2>
-            <p className="text-sm text-muted">{say("ui.setpiece.blocks")}</p>
+            <p className="text-sm text-text-2">{say("ui.setpiece.blocks")}</p>
           </div>
         </div>
         <Button small variant="primary" onClick={() => setAside(null)}>

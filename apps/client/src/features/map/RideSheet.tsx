@@ -78,7 +78,7 @@ export function RideSheet({ pin, home, ways, have, formatMoney, onChoose, onClos
             </div>
             <h2 className="title text-[23px] leading-tight">{headingOf(pin.name)}</h2>
           </div>
-          <button type="button" onClick={onClose} aria-label={mapWords("map.not-now")} className="absolute top-2 right-2 flex size-9 items-center justify-center rounded-full text-on-strong/80">
+          <button type="button" onClick={onClose} aria-label={mapWords("map.not-now")} className="absolute top-2 right-2 flex size-9 items-center justify-center rounded-[5px] text-on-strong/80">
             <X size={18} />
           </button>
         </div>

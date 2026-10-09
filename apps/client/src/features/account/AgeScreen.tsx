@@ -53,11 +53,11 @@ export function AgeScreen({ account, sitekey, load, onStanding }: AgeScreenProps
     <form className="flex flex-col gap-4" onSubmit={(event) => void answer(event)} noValidate>
       <div className="flex flex-col gap-2">
         <h1 className="text-3xl font-bold">{say("ui.account.age.title")}</h1>
-        <p className="text-muted">{say("ui.account.age.intro")}</p>
+        <p className="text-text-2">{say("ui.account.age.intro")}</p>
       </div>
       <label className="flex flex-col gap-1">
         <span className="text-sm font-medium">{say("ui.account.age.label")}</span>
-        <input className="min-h-11 rounded-lg border border-line bg-surface px-3 text-base" type="date" autoComplete="bday" value={birth} onChange={(event) => setBirth(event.target.value)} />
+        <input className="min-h-11 rounded-md border border-sheet-line bg-sheet-2 px-3 text-base" type="date" autoComplete="bday" value={birth} onChange={(event) => setBirth(event.target.value)} />
       </label>
       <div>
         <Button type="submit" variant="primary" disabled={busy}>
@@ -71,7 +71,7 @@ export function AgeScreen({ account, sitekey, load, onStanding }: AgeScreenProps
       )}
       {sitekey === null ? null : (
         <div className="flex flex-col gap-2">
-          <p className="text-sm text-muted">{say("ui.account.bot")}</p>
+          <p className="text-sm text-text-2">{say("ui.account.bot")}</p>
           <Turnstile sitekey={sitekey} load={load} round={round} onToken={setBot} />
         </div>
       )}

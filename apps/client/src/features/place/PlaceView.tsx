@@ -25,7 +25,7 @@ function Where() {
   return (
     <Card className="flex flex-col gap-2">
       <div className="flex items-start gap-3">
-        <MapPin size={20} className="mt-0.5 shrink-0 text-muted" />
+        <MapPin size={20} className="mt-0.5 shrink-0 text-text-2" />
         <div className="flex flex-col gap-1">
           <p className="text-lg font-semibold">
             {where === "abroad" && country !== null
@@ -34,7 +34,7 @@ function Where() {
                 : say("ui.place.in", { country: nameOf(country) })
               : say(`ui.place.now.${where}`)}
           </p>
-          <p className="text-sm text-muted">{sayCount("ui.place.months-here", monthsHere, { months: monthsHere })}</p>
+          <p className="text-sm text-text-2">{sayCount("ui.place.months-here", monthsHere, { months: monthsHere })}</p>
         </div>
       </div>
       {heldAbroad === null ? null : <p className="text-sm">{say("ui.place.token", { status: nameOf(heldAbroad) })}</p>}
@@ -76,29 +76,29 @@ function WayHomeCard() {
   return (
     <Card tone={assisted ? "attention" : "plain"} className="flex flex-col gap-3" data-way-home>
       <div className="flex items-start gap-3">
-        <House size={20} className="mt-0.5 shrink-0 text-muted" />
+        <House size={20} className="mt-0.5 shrink-0 text-text-2" />
         <div className="flex flex-col gap-1">
           <h3 className="font-semibold">{say("ui.place.way-home")}</h3>
           <p className="tabular-nums">{say("ui.place.fare", { fare: formatMoney(fare.amount, fare.currency) })}</p>
           {december ? (
             <p className="text-sm font-medium">{say("ui.place.fare-december-now", { fare: formatMoney(offPeak.amount, offPeak.currency) })}</p>
           ) : entry === undefined ? null : (
-            <p className="text-sm text-muted">{say("ui.place.fare-december", { fare: formatMoney(int.bp(offPeak.amount, entry.decemberFactorBp), offPeak.currency) })}</p>
+            <p className="text-sm text-text-2">{say("ui.place.fare-december", { fare: formatMoney(int.bp(offPeak.amount, entry.decemberFactorBp), offPeak.currency) })}</p>
           )}
           {paidFrom === "naira" ? <p className="text-sm">{say("ui.place.fare-naira", { naira: formatMoney(naira, "NGN") })}</p> : null}
           {paidFrom === null && !assisted ? <p className="text-sm text-bad">{say("ui.place.fare-short", { fare: formatMoney(fare.amount, fare.currency), naira: formatMoney(naira, "NGN") })}</p> : null}
         </div>
       </div>
       {shape === null ? null : (
-        <div className="flex flex-col gap-1 rounded-lg bg-sunk p-3 text-sm">
+        <div className="flex flex-col gap-1 rounded-md bg-sheet-muted p-3 text-sm">
           <p className="font-medium">{say(`ui.place.shape-now.${shape}`)}</p>
           <p>{say("ui.place.standing", { change: signed(standing) })}</p>
-          <p className="text-muted">{say("ui.place.what-closes")}</p>
+          <p className="text-text-2">{say("ui.place.what-closes")}</p>
         </div>
       )}
       <Rejection />
       {shape === null || view.ended ? null : sure ? (
-        <div className="flex flex-col gap-2 border-t border-line pt-3">
+        <div className="flex flex-col gap-2 border-t border-sheet-line pt-3">
           <p>{say(assisted ? "ui.place.assisted-sure" : "ui.place.go-sure")}</p>
           <div className="flex flex-wrap gap-2">
             <Button
@@ -124,9 +124,9 @@ function WayHomeCard() {
           </Button>
         </div>
       )}
-      {assisted ? <p className="text-sm text-muted">{say("ui.place.assisted-why")}</p> : null}
-      {shape === null ? <p className="text-sm text-muted">{say("ui.place.no-way")}</p> : null}
-      <p className="text-xs text-muted">{say("ui.place.fare-note")}</p>
+      {assisted ? <p className="text-sm text-text-2">{say("ui.place.assisted-why")}</p> : null}
+      {shape === null ? <p className="text-sm text-text-2">{say("ui.place.no-way")}</p> : null}
+      <p className="text-xs text-text-2">{say("ui.place.fare-note")}</p>
     </Card>
   );
 }

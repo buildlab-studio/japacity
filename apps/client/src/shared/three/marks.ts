@@ -26,7 +26,7 @@ export function nameTag(name: string, doc: Document = document): Sprite {
     ctx.beginPath();
     ctx.roundRect((256 - width) / 2, 10, width, 44, 22);
     ctx.fill();
-    ctx.fillStyle = "#fffaf1";
+    ctx.fillStyle = "#f3efe6";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.fillText(name, 128, 33, 232);

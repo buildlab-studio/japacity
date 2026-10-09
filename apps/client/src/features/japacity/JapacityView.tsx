@@ -20,7 +20,7 @@ export function JapacityView({ compact = false }: { compact?: boolean }) {
   }
 
   return (
-    <section aria-label={say("ui.japacity.title")} className="flex flex-col gap-1 rounded-2xl bg-ink p-5 text-paper">
+    <section aria-label={say("ui.japacity.title")} className="flex flex-col gap-1 rounded-md bg-strong p-5 text-on-strong">
       <h2 className="text-sm font-semibold tracking-wide uppercase opacity-80">{say("ui.japacity.title")}</h2>
       {none ? (
         <p className="font-display text-4xl leading-tight">{say("ui.japacity.none")}</p>

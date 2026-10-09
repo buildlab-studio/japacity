@@ -35,7 +35,7 @@ export function GoalView() {
   if (open.length === 0 && done.length === 0) {
     return view.place.where === "abroad" ? (
       <Panel title={say("ui.goal.title")}>
-        <p className="text-muted">{say("ui.goal.none")}</p>
+        <p className="text-text-2">{say("ui.goal.none")}</p>
       </Panel>
     ) : null;
   }
@@ -47,15 +47,15 @@ export function GoalView() {
             <li key={goal.id} data-goal={goal.id}>
               <Card className="flex flex-col gap-2">
                 <h3 className="font-semibold">{nameOf(goal.id)}</h3>
-                {blurbOf(goal.id) === null ? null : <p className="text-sm text-muted">{blurbOf(goal.id)}</p>}
+                {blurbOf(goal.id) === null ? null : <p className="text-sm text-text-2">{blurbOf(goal.id)}</p>}
                 <ul className="flex flex-col gap-1">
                   {goal.items.map((item) => (
                     <li key={item.id} data-met={item.met ? "true" : "false"} className="flex items-start gap-2 text-sm">
-                      {item.met ? <Check size={16} className="mt-0.5 shrink-0 text-good" /> : <Circle size={16} className="mt-0.5 shrink-0 text-muted" />}
-                      <span className={item.met ? "text-muted line-through" : ""}>
+                      {item.met ? <Check size={16} className="mt-0.5 shrink-0 text-good" /> : <Circle size={16} className="mt-0.5 shrink-0 text-text-2" />}
+                      <span className={item.met ? "text-text-2 line-through" : ""}>
                         {goalItemWords(goal.id, item.id)}
                         {goalItemOptions(goal.id, item.id).length < 2 ? null : (
-                          <span className="mt-1 block text-muted" data-one-of>
+                          <span className="mt-1 block text-text-2" data-one-of>
                             {say("ui.chapter.one-of")} {goalItemOptions(goal.id, item.id).join("; ")}
                           </span>
                         )}

@@ -51,14 +51,14 @@ function CardFace({ shown }: { shown: InviteShown }) {
   const slot = text[card.looking.slotKey] ?? card.looking.slot;
   const fill = card.looking.fillKey === null ? "" : (text[card.looking.fillKey] ?? "");
   return (
-    <figure className="flex flex-col gap-1 rounded-xl border-2 border-ink bg-paper p-4" data-invite-card>
+    <figure className="flex flex-col gap-1 rounded-md border-2 border-ink bg-sheet p-4" data-invite-card>
       <p className="font-display text-2xl">{text[card.name] ?? say("ui.invite.someone")}</p>
       <p className="text-sm">
         {card.japacity.percent === null ? say("ui.people.invite.japacity-none") : say("ui.people.invite.japacity", { percent: `${String(card.japacity.percent)}%` })}
-        {card.japacity.route === null ? null : <span className="text-muted">, {runningName(card.japacity.route)}</span>}
+        {card.japacity.route === null ? null : <span className="text-text-2">, {runningName(card.japacity.route)}</span>}
       </p>
       <p className="font-semibold">{words(card.looking.key, { slot, fill }).trim()}</p>
-      <p className="text-xs text-muted">{text[card.game] ?? ""}</p>
+      <p className="text-xs text-text-2">{text[card.game] ?? ""}</p>
     </figure>
   );
 }
@@ -163,7 +163,7 @@ export function InvitePage({ code, server: given, onDone, ...gate }: InvitePageP
       <p className="text-xl font-bold">{say("ui.game")}</p>
       <h1 className="text-2xl font-bold">{say("ui.invite.title")}</h1>
       <CardFace shown={stage.shown} />
-      <p className="text-sm text-muted">{say("ui.invite.days", { days: content.tuning.pair.inviteDays })}</p>
+      <p className="text-sm text-text-2">{say("ui.invite.days", { days: content.tuning.pair.inviteDays })}</p>
       {/* R-MODERATION-003: a card is something the game did not write. */}
       <BlockReport who={{ name: text[stage.shown.card.name] ?? say("ui.invite.someone") }} cites={{ card: code }} surface="invite-card" />
       {stage.kind === "taken" ? (
@@ -191,7 +191,7 @@ export function InvitePage({ code, server: given, onDone, ...gate }: InvitePageP
       ) : signedIn ? (
         <Accept server={server} code={code} shown={stage.shown} onTaken={() => setStage({ kind: "taken", shown: stage.shown })} />
       ) : (
-        <p className="text-muted">{say("ui.account.loading")}</p>
+        <p className="text-text-2">{say("ui.account.loading")}</p>
       )}
     </main>
   );

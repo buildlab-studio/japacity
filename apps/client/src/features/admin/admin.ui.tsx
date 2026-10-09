@@ -12,7 +12,7 @@ export type Reply = { ok: true } | AdminRefusal;
 /** A refusal as the server worded it, with its code and any checks it named as missing. */
 export function Refusal({ reply }: { reply: AdminRefusal }) {
   return (
-    <div role="alert" className="flex flex-col gap-1 rounded-lg border border-bad p-3 text-bad">
+    <div role="alert" className="flex flex-col gap-1 rounded-md border border-bad p-3 text-bad">
       <p>{reply.code === undefined ? words("admin.refused", { detail: reply.detail }) : words("admin.refused.code", { code: reply.code, detail: reply.detail })}</p>
       {reply.missing === undefined || reply.missing.length === 0 ? null : <p>{words("admin.missing", { missing: reply.missing.join(", ") })}</p>}
     </div>
@@ -39,18 +39,18 @@ export function useLoad<T extends Reply>(load: () => Promise<T>): { reply: T | n
 
 /** The answer of a load: loading, the refusal, or the page made from it. */
 export function Loaded<T extends Reply>({ reply, children }: { reply: T | null; children: (ok: Extract<T, { ok: true }>) => ReactNode }) {
-  if (reply === null) return <p className="text-muted">{words("admin.loading")}</p>;
+  if (reply === null) return <p className="text-text-2">{words("admin.loading")}</p>;
   if (!reply.ok) return <Refusal reply={reply} />;
   return <>{children(reply as Extract<T, { ok: true }>)}</>;
 }
 
 export function Table({ caption, head, rows }: { caption: string; head: readonly string[]; rows: readonly (readonly ReactNode[])[] }) {
   return (
-    <div className="max-w-full overflow-x-auto rounded-lg border border-line">
+    <div className="max-w-full overflow-x-auto rounded-md border border-sheet-line">
       <table className="w-full border-collapse text-left text-sm">
         <caption className="px-3 py-2 text-left font-semibold">{caption}</caption>
         <thead>
-          <tr className="border-y border-line bg-sunk">
+          <tr className="border-y border-sheet-line bg-sheet-muted">
             {head.map((name) => (
               <th key={name} scope="col" className="px-3 py-2 font-medium whitespace-nowrap">
                 {name}
@@ -61,13 +61,13 @@ export function Table({ caption, head, rows }: { caption: string; head: readonly
         <tbody>
           {rows.length === 0 ? (
             <tr>
-              <td colSpan={head.length} className="px-3 py-2 text-muted">
+              <td colSpan={head.length} className="px-3 py-2 text-text-2">
                 {words("admin.none")}
               </td>
             </tr>
           ) : (
             rows.map((cells, row) => (
-              <tr key={row} className="border-t border-line align-top">
+              <tr key={row} className="border-t border-sheet-line align-top">
                 {cells.map((cell, column) => (
                   <td key={column} className="px-3 py-2">
                     {cell}
@@ -82,7 +82,7 @@ export function Table({ caption, head, rows }: { caption: string; head: readonly
   );
 }
 
-const INPUT = "min-h-11 rounded-lg border border-line bg-surface px-3 text-ink";
+const INPUT = "min-h-11 rounded-md border border-sheet-line bg-sheet-2 px-3 text-ink";
 
 export function Field({ label, hint, ...rest }: { label: string; hint?: string } & ComponentProps<"input">) {
   const id = useId();
@@ -143,7 +143,7 @@ export function Confirm<T extends Reply>({ label, summary, send, blocked = null,
           {label}
         </Button>
       </div>
-      {blocked === null ? null : <p className="text-sm text-muted">{blocked}</p>}
+      {blocked === null ? null : <p className="text-sm text-text-2">{blocked}</p>}
       {answer === null ? null : answer.ok ? (
         <div role="status" className="text-sm">
           {done === undefined ? words("admin.done") : done(answer as Extract<T, { ok: true }>)}

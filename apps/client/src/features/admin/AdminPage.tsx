@@ -51,8 +51,8 @@ export function AdminPage({ api, tab: first = "money" }: { api: AdminApi; tab?: 
     switches: () => <SwitchesTab api={api} />,
   };
   return (
-    <div className="min-h-dvh bg-paper text-ink" data-page="admin">
-      <header className="sticky top-0 z-20 border-b border-line bg-paper/95 backdrop-blur-sm">
+    <div className="min-h-dvh bg-sheet text-ink" data-page="admin">
+      <header className="sticky top-0 z-20 border-b border-sheet-line bg-sheet">
         <div className="mx-auto flex max-w-[90rem] flex-wrap items-center gap-3 px-4 py-3">
           <h1 className="text-lg font-bold">{words("admin.title")}</h1>
           <a href="/" className="ml-auto text-sm underline underline-offset-4">
@@ -69,7 +69,7 @@ export function AdminPage({ api, tab: first = "money" }: { api: AdminApi; tab?: 
               aria-selected={id === tab}
               aria-controls="admin-panel"
               onClick={() => setTab(id)}
-              className={`min-h-11 shrink-0 border-b-2 px-3 text-sm ${id === tab ? "border-ink font-semibold" : "border-transparent text-muted"}`}
+              className={`min-h-11 shrink-0 border-b-2 px-3 text-sm ${id === tab ? "border-ink font-semibold" : "border-transparent text-text-2"}`}
             >
               {words(TAB_WORDS[id])}
             </button>

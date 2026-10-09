@@ -1,6 +1,8 @@
 // The hunt's jobs as a list (docs/rules/world.md R-WORLD-006): each job the hunt can
 // ask for is a row with its pay a month and its chance in words, and the jobs at home still out of reach are listed
-// apart with what each still needs. A row is picked by a tap; the list replaces the bare select.
+// apart with what each still needs. A row is picked by a tap; the list replaces the bare select. The rows sit straight
+// on the sheet, divided by hairlines; the chosen row fills with the pick colour (R-WORLD-021), and the chance is a
+// small three-step gauge beside its word.
 import { content } from "@japacity/content";
 import type { ActivityEntry, PlayerView, Requirement } from "@japacity/sim";
 
@@ -60,32 +62,63 @@ export function jobsOutOfReach(view: PlayerView, open: readonly string[]): OutOf
     .filter((job) => job.needs.length > 0);
 }
 
+const GAUGE: Record<ChanceBand, 1 | 2 | 3> = { long: 1, fair: 2, likely: 3 };
+
+/** The chance as a small three-step gauge, so it reads at a glance beside its word. */
+function Gauge({ chance, chosen }: { chance: ChanceBand; chosen: boolean }) {
+  const steps = GAUGE[chance];
+  return (
+    <span aria-hidden className="flex items-end gap-[3px]" data-gauge={steps}>
+      {([1, 2, 3] as const).map((step) => (
+        <span
+          key={step}
+          className={`w-[5px] rounded-[1px] ${step === 1 ? "h-2.5" : step === 2 ? "h-3.5" : "h-[18px]"} ${step <= steps ? (chosen ? "bg-pick-mark" : "bg-text") : chosen ? "bg-on-pick/25" : "bg-sheet-line"}`}
+        />
+      ))}
+    </span>
+  );
+}
+
 function JobRow({ id, chance, chosen, onPick }: { id: string; chance: ChanceBand; chosen: boolean; onPick: (id: string) => void }) {
   const pay = payWords(id);
   return (
-    <li>
+    <li className="border-b border-sheet-line last:border-b-0">
       <button
         type="button"
         role="radio"
         aria-checked={chosen}
         data-job={id}
         onClick={() => onPick(id)}
-        className={`flex min-h-12 w-full items-center gap-3 rounded-lg border px-3 py-2 text-left ${chosen ? "border-ink bg-sunk" : "border-line bg-paper"}`}
+        className={`flex min-h-12 w-full items-center gap-3 rounded-[5px] px-3 py-2.5 text-left ${chosen ? "bg-pick text-on-pick" : ""}`}
       >
-        <span aria-hidden className={`size-4 shrink-0 rounded-full border-2 ${chosen ? "border-ink bg-ink" : "border-line"}`} />
-        <span className="flex flex-1 flex-col">
-          <span className="font-medium">{nameOf(id)}</span>
-          {pay === null ? null : <span className="text-sm tabular-nums">{pay}</span>}
+        <span className="flex min-w-0 flex-1 flex-col">
+          <span className="font-bold">{nameOf(id)}</span>
+          {pay === null ? null : <span className={`num text-[13px] ${chosen ? "opacity-80" : "text-text-2"}`}>{pay}</span>}
         </span>
-        <span className={`text-xs font-semibold ${chance === "likely" ? "text-good" : chance === "long" ? "text-muted" : ""}`} data-chance={chance}>
-          {jobsWords(`jobs.chance.${chance}`)}
+        <span className="flex shrink-0 flex-col items-end gap-1">
+          <Gauge chance={chance} chosen={chosen} />
+          <span className={`text-[11px] font-semibold ${chosen ? "opacity-80" : "text-text-2"}`} data-chance={chance}>
+            {jobsWords(`jobs.chance.${chance}`)}
+          </span>
         </span>
       </button>
     </li>
   );
 }
 
-/** The hunt's jobs as rows to tap, in `huntOrder`, and the jobs out of reach apart. */
+/** The main button's words when it applies for the picked job: the act, then the job, so the button repeats the pick. */
+export function ApplyFor({ id }: { id: string }) {
+  return (
+    <>
+      <span>{jobsWords("jobs.apply")}</span>
+      <span className="min-w-0 truncate text-[13px] font-semibold opacity-80" data-apply-for={id}>
+        {nameOf(id)}
+      </span>
+    </>
+  );
+}
+
+/** The hunt's jobs as rows on the sheet, in `huntOrder`, and the jobs out of reach apart. */
 export function JobList({ view, jobs, chosen, onPick }: { view: PlayerView; jobs: readonly string[]; chosen: string; onPick: (id: string) => void }) {
   const out = jobsOutOfReach(view, jobs);
   return (
@@ -94,7 +127,7 @@ export function JobList({ view, jobs, chosen, onPick }: { view: PlayerView; jobs
         <span className="font-medium" id="jobs-pick">
           {jobsWords("jobs.pick")}
         </span>
-        <ul role="radiogroup" aria-labelledby="jobs-pick" className="flex flex-col gap-1.5" data-jobs>
+        <ul role="radiogroup" aria-labelledby="jobs-pick" className="flex flex-col" data-jobs>
           {jobs.map((id) => (
             <JobRow key={id} id={id} chance={chanceBand(chanceOf(view, id))} chosen={id === chosen} onPick={onPick} />
           ))}
@@ -102,15 +135,15 @@ export function JobList({ view, jobs, chosen, onPick }: { view: PlayerView; jobs
       </div>
       {out.length === 0 ? null : (
         <div className="flex flex-col gap-1">
-          <span className="font-medium text-muted" id="jobs-out">
+          <span className="font-medium text-text-2" id="jobs-out">
             {jobsWords("jobs.out-of-reach")}
           </span>
-          <ul aria-labelledby="jobs-out" className="flex flex-col gap-1.5" data-jobs-out>
+          <ul aria-labelledby="jobs-out" className="flex flex-col" data-jobs-out>
             {out.map((job) => (
-              <li key={job.id} className="flex flex-col rounded-lg border border-dashed border-line px-3 py-2 text-muted" data-job={job.id}>
+              <li key={job.id} className="flex flex-col border-b border-sheet-line px-3 py-2 text-text-2 last:border-b-0" data-job={job.id}>
                 <span className="flex items-baseline justify-between gap-2">
                   <span className="font-medium">{nameOf(job.id)}</span>
-                  <span className="tabular-nums">{payWords(job.id)}</span>
+                  <span className="num">{payWords(job.id)}</span>
                 </span>
                 <span>{jobsWords("jobs.needs", { needs: job.needs.join("; ") })}</span>
               </li>

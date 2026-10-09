@@ -93,7 +93,7 @@ export function BlockReport({ who, cites, surface, onBlocked }: BlockReportProps
         {words("ui.report")}
       </Button>
       {note === null ? null : (
-        <p role="status" className={`text-sm ${note.tone === "bad" ? "text-bad" : "text-muted"}`}>
+        <p role="status" className={`text-sm ${note.tone === "bad" ? "text-bad" : "text-text-2"}`}>
           {note.text}
         </p>
       )}

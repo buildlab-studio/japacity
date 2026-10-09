@@ -122,8 +122,8 @@ function Page({ say, title, description, input, children }: { say: Words; title:
           <script key={src} type="module" src={src} />
         ))}
       </head>
-      <body className="min-h-dvh bg-paper text-ink">
-        <header className="border-b border-line">
+      <body className="min-h-dvh bg-sheet text-ink">
+        <header className="border-b border-sheet-line">
           <nav aria-label={say("guide.page.menu")} className="mx-auto flex max-w-3xl flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3 text-sm">
             <a href="/" className="font-semibold">
               {say("guide.page.play")}
@@ -140,8 +140,8 @@ function Page({ say, title, description, input, children }: { say: Words; title:
           </nav>
         </header>
         <main className="mx-auto flex max-w-3xl flex-col gap-6 px-4 py-8 leading-relaxed">{children}</main>
-        <footer className="border-t border-line">
-          <div className="mx-auto flex max-w-3xl flex-col gap-2 px-4 py-6 text-sm text-muted">
+        <footer className="border-t border-sheet-line">
+          <div className="mx-auto flex max-w-3xl flex-col gap-2 px-4 py-6 text-sm text-text-2">
             <p>{say("guide.page.game-note")}</p>
             <p className="flex flex-wrap gap-x-4">
               <a href="/" className={LINK}>
@@ -169,7 +169,7 @@ function SourceList({ say, sources }: { say: Words; sources: readonly { title: s
           <a href={source.url} className={LINK} rel="noreferrer">
             {source.title}
           </a>
-          {source.readOn === null ? null : <span className="text-muted">, {say("guide.page.read-on", { date: shownDay(source.readOn) })}</span>}
+          {source.readOn === null ? null : <span className="text-text-2">, {say("guide.page.read-on", { date: shownDay(source.readOn) })}</span>}
         </li>
       ))}
     </ul>
@@ -191,11 +191,11 @@ function GuidePage({ input, id, pages }: { input: SiteInput; id: Id<"guide">; pa
     <Page say={say} title={title} description={say("guide.page.opening", { date: shownDay(guide.checkedOn) })} input={input}>
       <article className="flex flex-col gap-6">
         <h1 className="text-3xl font-bold">{title}</h1>
-        <p className="text-muted" data-opening>
+        <p className="text-text-2" data-opening>
           {say("guide.page.opening", { date: shownDay(guide.checkedOn) })}
         </p>
         {input.stale.includes(id) ? (
-          <p role="note" className="rounded-lg border border-line bg-sunk px-3 py-2 font-semibold" data-stale>
+          <p role="note" className="rounded-md border border-sheet-line bg-sheet-muted px-3 py-2 font-semibold" data-stale>
             {say("guide.page.stale")}
           </p>
         ) : null}
@@ -248,7 +248,7 @@ function GuidesIndex({ input }: { input: SiteInput }) {
             <a href={guidePath(guide.id)} className={LINK}>
               {say(`${guide.id}.title`)}
             </a>
-            <span className="text-sm text-muted" data-routes>
+            <span className="text-sm text-text-2" data-routes>
               {routesLine(say, guide.routes)}
             </span>
           </li>
@@ -288,7 +288,7 @@ function SourcesPage({ input, pages }: { input: SiteInput; pages: readonly RuleP
       ))}
       <section className="flex flex-col gap-2" data-group="real-story">
         <h2 className="text-2xl font-semibold">{say("guide.page.sources.journalism")}</h2>
-        <p className="text-muted">{say("guide.page.sources.journalism-note")}</p>
+        <p className="text-text-2">{say("guide.page.sources.journalism-note")}</p>
         <ul className="flex list-disc flex-col gap-1 pl-5">
           {credits.map((key) => {
             const url = REAL_STORY_LINKS[key];
@@ -332,7 +332,7 @@ function NumbersPage({ input, page }: { input: SiteInput; page: RulePage }) {
           <thead>
             <tr>
               {table.header.map((cell) => (
-                <th key={cell} className="border-b border-line p-2 font-semibold">
+                <th key={cell} className="border-b border-sheet-line p-2 font-semibold">
                   {plainCell(say, cell)}
                 </th>
               ))}
@@ -342,7 +342,7 @@ function NumbersPage({ input, page }: { input: SiteInput; page: RulePage }) {
             {table.rows.map((row, index) => (
               <tr key={index} data-working={row.working ? "" : undefined}>
                 {row.cells.map((cell, at) => (
-                  <td key={at} className="border-b border-line p-2 align-top">
+                  <td key={at} className="border-b border-sheet-line p-2 align-top">
                     {inline(cell).map((part, partAt) =>
                       part.kind === "link" ? (
                         <a key={partAt} href={part.url} className={LINK} rel="noreferrer">
@@ -356,7 +356,7 @@ function NumbersPage({ input, page }: { input: SiteInput; page: RulePage }) {
                     )}
                   </td>
                 ))}
-                {row.working ? <td className="border-b border-line p-2 font-semibold">{say("guide.page.numbers.working")}</td> : <td className="border-b border-line p-2" />}
+                {row.working ? <td className="border-b border-sheet-line p-2 font-semibold">{say("guide.page.numbers.working")}</td> : <td className="border-b border-sheet-line p-2" />}
               </tr>
             ))}
           </tbody>

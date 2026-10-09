@@ -32,7 +32,7 @@ function PayLoan({ owed, currency }: { owed: Owed; currency: Currency }) {
     >
       <label htmlFor={id} className="flex flex-1 flex-col gap-1 text-sm">
         <span className="font-medium">{say("ui.wallet.amount")}</span>
-        <input id={id} inputMode="decimal" value={typed} onChange={(event) => setTyped(event.target.value)} className="min-h-11 rounded-lg border border-line bg-paper px-3" />
+        <input id={id} inputMode="decimal" value={typed} onChange={(event) => setTyped(event.target.value)} className="min-h-11 rounded-md border border-sheet-line bg-sheet px-3" />
       </label>
       <Button type="submit" small disabled={amount === null || busy}>
         {say("ui.obligation.pay")} {amount === null ? null : formatMoney(amount, currency)}
@@ -56,7 +56,7 @@ function OwedCard({ owed }: { owed: Owed }) {
         </div>
         <p className="font-medium tabular-nums">{say("ui.obligation.due", { amount: formatMoney(owed.due, currency) })}</p>
         {owed.outstanding > 0 ? <p className="text-sm tabular-nums">{say("ui.obligation.outstanding", { amount: formatMoney(owed.outstanding, currency) })}</p> : null}
-        {owed.monthsLeft === null ? null : <p className="text-sm text-muted">{sayCount("ui.obligation.months-left", owed.monthsLeft, { months: owed.monthsLeft })}</p>}
+        {owed.monthsLeft === null ? null : <p className="text-sm text-text-2">{sayCount("ui.obligation.months-left", owed.monthsLeft, { months: owed.monthsLeft })}</p>}
         {owed.missed > 0 ? <p className="text-sm text-bad">{sayCount("ui.obligation.missed", owed.missed, { count: owed.missed })}</p> : null}
         {ended ? null : entry?.type === "loan" && owed.outstanding > 0 ? (
           <PayLoan owed={owed} currency={currency} />

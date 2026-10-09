@@ -24,9 +24,9 @@ function MarkMeter({ file }: { file: File }) {
         aria-valuemin={0}
         aria-valuemax={MARK_MAX}
         aria-valuenow={file.mark}
-        className="relative h-4 w-full rounded-full bg-sunk"
+        className="relative h-4 w-full rounded-[2px] bg-sheet-muted"
       >
-        <div className="h-full rounded-full bg-accent" style={{ width: `${String(file.mark)}%` }} />
+        <div className="h-full rounded-[2px] bg-accent" style={{ width: `${String(file.mark)}%` }} />
         {file.needs.map((need) => (
           <span
             key={need.id}
@@ -36,7 +36,7 @@ function MarkMeter({ file }: { file: File }) {
           />
         ))}
       </div>
-      <div className="relative h-5 text-xs text-muted" aria-hidden="true">
+      <div className="relative h-5 text-xs text-text-2" aria-hidden="true">
         {file.needs.map((need) => (
           <span key={need.id} className="absolute -translate-x-1/2 tabular-nums" style={{ left: `${String(need.creditMin)}%` }}>
             {need.creditMin}
@@ -62,21 +62,21 @@ export function CreditView() {
     <Panel title={say("ui.credit.title")}>
       <Card className="flex flex-col gap-3">
         <div className="flex items-start gap-3">
-          <Gauge size={22} className="mt-0.5 shrink-0 text-muted" />
+          <Gauge size={22} className="mt-0.5 shrink-0 text-text-2" />
           <p className="flex items-baseline gap-2">
             <span className="font-display text-4xl leading-none tabular-nums">{file.mark}</span>
-            <span className="text-muted">{say("ui.credit.of", { max: MARK_MAX })}</span>
+            <span className="text-text-2">{say("ui.credit.of", { max: MARK_MAX })}</span>
           </p>
         </div>
         <MarkMeter file={file} />
-        <p className="text-sm text-muted">
+        <p className="text-sm text-text-2">
           {sayCount("ui.credit.on-time", file.onTime, { count: file.onTime })} {sayCount("ui.credit.missed", file.missed, { count: file.missed })}
         </p>
         {capped ? <p className="text-sm font-medium text-bad">{say("ui.credit.judgment", { month: monthEnding(file.judgmentUntil ?? 0), cap })}</p> : null}
         <div className="flex flex-col gap-1 text-sm" data-next-ten>
           <h3 className="font-semibold">{say("ui.credit.next-ten", { mark: Math.min(MARK_MAX, file.mark + STEP) })}</h3>
           {next.length === 0 ? (
-            <p className="text-muted">{say("ui.credit.next-none")}</p>
+            <p className="text-text-2">{say("ui.credit.next-none")}</p>
           ) : (
             <ul className="list-disc pl-5">
               {next.map((need) => (
@@ -92,7 +92,7 @@ export function CreditView() {
           </p>
         )}
         {later.length === 0 ? null : (
-          <p className="text-sm text-muted">
+          <p className="text-sm text-text-2">
             <span className="font-medium">{say("ui.credit.later")} </span>
             {later.map((need) => say("ui.credit.need", { name: nameOf(need.id), min: need.creditMin })).join(", ")}
           </p>

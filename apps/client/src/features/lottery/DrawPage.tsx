@@ -38,14 +38,14 @@ function useDraw(draw: number, load: LoadDraw): Fetched {
 function Fact({ label, children }: { label: string; children: ReactNode }) {
   return (
     <div className="flex flex-col gap-1">
-      <dt className="text-xs font-semibold tracking-wide text-muted uppercase">{label}</dt>
+      <dt className="text-xs font-semibold tracking-wide text-text-2 uppercase">{label}</dt>
       <dd className="text-sm">{children}</dd>
     </div>
   );
 }
 
 function Hex({ value }: { value: string }) {
-  return <code className="block rounded-lg bg-sunk p-2 text-xs break-all">{value}</code>;
+  return <code className="block rounded-md bg-sheet-muted p-2 text-xs break-all">{value}</code>;
 }
 
 function Verdict({ good, yes, no, mark }: { good: boolean; yes: string; no: string; mark: string }) {
@@ -61,12 +61,12 @@ function List({ list, tickets }: { list: string[]; tickets: (Tier | null)[] | nu
   const [open, setOpen] = useState(false);
   return (
     <div className="flex flex-col gap-2">
-      <p className="text-sm text-muted">{say("ui.lottery.page.list-note")}</p>
+      <p className="text-sm text-text-2">{say("ui.lottery.page.list-note")}</p>
       <button type="button" className="self-start text-sm underline underline-offset-4" onClick={() => setOpen(!open)}>
         {open ? say("ui.lottery.page.hide-list") : say("ui.lottery.page.show-list")}
       </button>
       {open ? (
-        <ol className="grid max-h-64 grid-cols-1 gap-1 overflow-y-auto rounded-lg bg-sunk p-2 font-mono text-xs sm:grid-cols-2" data-draw-list>
+        <ol className="grid max-h-64 grid-cols-1 gap-1 overflow-y-auto rounded-md bg-sheet-muted p-2 font-mono text-xs sm:grid-cols-2" data-draw-list>
           {list.map((token, index) => {
             const tier = tickets?.[index] ?? null;
             return (
@@ -84,7 +84,7 @@ function List({ list, tickets }: { list: string[]; tickets: (Tier | null)[] | nu
 
 export function DrawPage({ draw, load }: { draw: number; load: LoadDraw }) {
   const fetched = useDraw(draw, load);
-  if (fetched.kind === "loading") return <p className="text-muted">{say("ui.lottery.page.loading")}</p>;
+  if (fetched.kind === "loading") return <p className="text-text-2">{say("ui.lottery.page.loading")}</p>;
   if (fetched.kind === "failed") return <p className="text-bad">{say("ui.lottery.page.failed")}</p>;
   const { reply } = fetched;
   const { result, list } = reply;
@@ -92,12 +92,12 @@ export function DrawPage({ draw, load }: { draw: number; load: LoadDraw }) {
 
   return (
     <div className="flex flex-col gap-5" data-draw-page={reply.draw}>
-      <p className="text-muted">{say("ui.lottery.page.intro")}</p>
+      <p className="text-text-2">{say("ui.lottery.page.intro")}</p>
       <p className="text-sm" data-draw-how>
         {say("ui.lottery.page.how")}
       </p>
       {check === null ? null : (
-        <div className="flex flex-col gap-2 rounded-xl border border-line bg-surface p-3" data-draw-checks>
+        <div className="flex flex-col gap-2 rounded-md border border-sheet-line bg-sheet-2 p-3" data-draw-checks>
           <Verdict mark="winners" good={check.matches} yes={say("ui.lottery.page.check.winners")} no={say("ui.lottery.page.check.winners-bad")} />
           <Verdict mark="fingerprint" good={check.fingerprint} yes={say("ui.lottery.page.check.fingerprint")} no={say("ui.lottery.page.check.fingerprint-bad")} />
           <Verdict mark="list" good={check.list} yes={say("ui.lottery.page.check.list")} no={say("ui.lottery.page.check.list-bad")} />
@@ -147,7 +147,7 @@ export function DrawPage({ draw, load }: { draw: number; load: LoadDraw }) {
           </Fact>
         )}
       </dl>
-      {list === null ? <p className="text-sm text-muted">{say("ui.lottery.page.open")}</p> : result === null ? <p className="text-sm text-muted">{say("ui.lottery.page.waiting")}</p> : null}
+      {list === null ? <p className="text-sm text-text-2">{say("ui.lottery.page.open")}</p> : result === null ? <p className="text-sm text-text-2">{say("ui.lottery.page.waiting")}</p> : null}
     </div>
   );
 }

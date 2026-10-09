@@ -54,16 +54,16 @@ export function FeedbackForm({ moderation, screen, max }: { moderation: Moderati
     >
       <label className="flex flex-col gap-1">
         <span className="font-medium">{words("ui.feedback.label")}</span>
-        <textarea value={text} rows={5} onChange={(event) => setText(event.target.value)} className="rounded-lg border border-line bg-surface p-3 text-ink" />
+        <textarea value={text} rows={5} onChange={(event) => setText(event.target.value)} className="rounded-md border border-sheet-line bg-sheet-2 p-3 text-ink" />
       </label>
-      <p className={`text-sm ${used > max ? "text-bad" : "text-muted"}`}>{words("ui.feedback.count", { used, max })}</p>
+      <p className={`text-sm ${used > max ? "text-bad" : "text-text-2"}`}>{words("ui.feedback.count", { used, max })}</p>
       <div>
         <Button type="submit" variant="primary" disabled={busy || used === 0 || used > max}>
           {words("ui.feedback.send")}
         </Button>
       </div>
       {note === null ? null : (
-        <p role="status" className={note.tone === "bad" ? "text-bad" : "text-muted"}>
+        <p role="status" className={note.tone === "bad" ? "text-bad" : "text-text-2"}>
           {note.text}
         </p>
       )}
@@ -118,11 +118,11 @@ export function NoticeView({ moderation, standing, onChange }: { moderation: Mod
       {standing.actions.length === 0 ? null : (
         <ul className="flex flex-col gap-3">
           {standing.actions.map((action) => (
-            <li key={action.entry} className="flex flex-col gap-2 rounded-xl border border-line bg-surface p-4">
+            <li key={action.entry} className="flex flex-col gap-2 rounded-md border border-sheet-line bg-sheet-2 p-4">
               <p>{actionWords(action)}</p>
               {action.appeal === null ? (
                 <>
-                  <p className="text-sm text-muted">{words("ui.notice.appeal.intro")}</p>
+                  <p className="text-sm text-text-2">{words("ui.notice.appeal.intro")}</p>
                   <div>
                     <Button disabled={busy} onClick={() => void appeal(action.entry)}>
                       {words("ui.notice.appeal")}
@@ -130,7 +130,7 @@ export function NoticeView({ moderation, standing, onChange }: { moderation: Mod
                   </div>
                 </>
               ) : (
-                <p className="text-sm text-muted">{appealWords(action.appeal)}</p>
+                <p className="text-sm text-text-2">{appealWords(action.appeal)}</p>
               )}
             </li>
           ))}
@@ -138,11 +138,11 @@ export function NoticeView({ moderation, standing, onChange }: { moderation: Mod
       )}
       {standing.reports.length === 0 ? null : (
         <section className="flex flex-col gap-2">
-          <h3 className="text-sm font-semibold tracking-wide text-muted uppercase">{words("ui.notice.reports")}</h3>
+          <h3 className="text-sm font-semibold tracking-wide text-text-2 uppercase">{words("ui.notice.reports")}</h3>
           <ul className="flex flex-col gap-1">
             {standing.reports.map((report) => (
               <li key={report.id} className="flex justify-between gap-3">
-                <span className="text-muted">{DAY_FORMAT.format(report.at)}</span>
+                <span className="text-text-2">{DAY_FORMAT.format(report.at)}</span>
                 <span>{words(report.status === "open" ? "ui.notice.report.open" : report.outcome === "acted" ? "ui.notice.report.acted" : "ui.notice.report.no-action")}</span>
               </li>
             ))}

@@ -33,7 +33,7 @@ export function TurnBar() {
       <div className="flex items-center gap-3">
         <div className="flex min-w-0 flex-1 flex-col text-sm leading-tight">
           <span className="font-semibold">{say("ui.month.slots", { used, slots: view.freeSlots })}</span>
-          <span className="text-muted">{say("ui.month.banked", { banked: view.turns.banked, cap: view.turns.cap })}</span>
+          <span className="text-text-2">{say("ui.month.banked", { banked: view.turns.banked, cap: view.turns.cap })}</span>
           <TurnClock />
         </div>
         <Button
@@ -49,7 +49,7 @@ export function TurnBar() {
           {say("ui.month.end")}
         </Button>
       </div>
-      {blocked === null ? null : <p className="text-sm text-muted">{blocked}</p>}
+      {blocked === null ? null : <p className="text-sm text-text-2">{blocked}</p>}
     </div>
   );
 }

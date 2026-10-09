@@ -10,6 +10,7 @@ import { hasWords, say, type Params } from "./text";
 
 export const jobsUiText: Record<string, string> = {
   "jobs.pick": "Which job",
+  "jobs.apply": "Apply",
   "jobs.pay": "{amount} a month",
   "jobs.chance.likely": "Likely",
   "jobs.chance.fair": "A fair chance",

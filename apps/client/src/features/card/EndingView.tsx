@@ -12,7 +12,7 @@ export function EndingView() {
   if (card === null) return null;
   const story: NonNullable<PlayerView["card"]> = { ...card, kind: "real-story" };
   return (
-    <main className="flex min-h-dvh flex-col items-center gap-6 bg-ink px-4 py-8 text-paper" data-ending>
+    <main className="flex min-h-dvh flex-col items-center gap-6 bg-strong px-4 py-8 text-on-strong" data-ending>
       <h1 className="sr-only">{say("ui.card.lost.title")}</h1>
       <div className="flex flex-wrap justify-center gap-6">
         {card.kind === "real-story" ? null : <ShareCardFace card={card} />}
