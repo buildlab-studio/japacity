@@ -4,7 +4,7 @@
 // a payment another line already names.
 import type { MoneyParam, ReportLine } from "@japacity/sim";
 
-import { moneyParam } from "./text";
+import { hasWords, moneyParam } from "./text";
 
 const WALLET = "line.wallet.";
 
@@ -30,12 +30,35 @@ const SAID_BETTER: readonly [better: string, plain: string][] = [
 ];
 
 /**
+ * Wallet lines whose money never reaches the naira the player sees: held funds sit locked from the
+ * day they land to the day they go back (R-OBLIGATION-007), so neither end is kept or lost.
+ */
+const LOCKED_ONLY: ReadonlySet<string> = new Set(["line.wallet.held-funds", "line.wallet.held-funds-return"]);
+
+/** A family request's payment, named for what it paid (see `paidFor`): still the wallet's money moving. */
+const FAMILY_PAID = "ui.line.family-paid.";
+
+/** The prologue's last line: what came before it is the years before the first month. */
+export const PROLOGUE_CLOSED = "line.prologue.closed";
+
+/** The prologue's earnings, said as what the character brings into the first month. */
+const SAVINGS_BEFORE = "ui.line.savings-before";
+
+/**
  * True for a line that tells money moving: the wallet's own lines, which tell every payment in or
  * out, and the lines that say one of them better. Any other line with an amount (a bill missed, a
- * debt in default) tells of money without moving it (R-WORLD-008).
+ * debt in default) tells of money without moving it, and neither does money that only sits locked
+ * or was saved in the years before the first month (R-WORLD-008).
  */
 export function movesMoney(line: ReportLine): boolean {
-  return line.key.startsWith(WALLET) || SAID_BETTER.some(([better]) => better === line.key);
+  if (LOCKED_ONLY.has(line.key)) return false;
+  return line.key.startsWith(WALLET) || line.key.startsWith(FAMILY_PAID) || SAID_BETTER.some(([better]) => better === line.key);
+}
+
+/** The lines told after the prologue closed: the month itself. All of them when there was no prologue. */
+export function afterPrologue(lines: readonly ReportLine[]): ReportLine[] {
+  const closed = lines.findLastIndex((line) => line.key === PROLOGUE_CLOSED);
+  return closed === -1 ? [...lines] : lines.slice(closed + 1);
 }
 
 /** An obligation's charge repeats the wallet line that paid it, which names the spending better. */
@@ -104,6 +127,29 @@ function variant(line: ReportLine): ReportLine {
   return line;
 }
 
+/** Money earned in the prologue's years is what the character brings to the first month, not pay for this one. */
+function savedBefore(lines: readonly ReportLine[]): ReportLine[] {
+  const closed = lines.findLastIndex((line) => line.key === PROLOGUE_CLOSED);
+  return lines.map((line, index) => (index < closed && line.key === "line.wallet.gig" ? { ...line, key: SAVINGS_BEFORE } : line));
+}
+
+const FAMILY = "line.wallet.family";
+const TAKEN = "line.offer.taken";
+
+/**
+ * Money a family request took, said as what it paid for ("The NEPA bill"), from the answer the
+ * offer's line gives after it. A payment the interface has no words for stays "Sent to family".
+ */
+function paidFor(lines: readonly ReportLine[]): ReportLine[] {
+  return lines.map((line, index) => {
+    if (line.key !== FAMILY) return line;
+    const next = lines.slice(index + 1).find((other) => other.key === TAKEN || other.key.startsWith(WALLET));
+    const offer = next?.key === TAKEN ? next.params.offer : undefined;
+    const key = typeof offer === "string" ? `${FAMILY_PAID}${offer}` : null;
+    return key !== null && hasWords(key) ? { ...line, key } : line;
+  });
+}
+
 export function tidyLines(lines: readonly ReportLine[]): ReportLine[] {
-  return dropRetold(foldPockets(lines)).map(variant);
+  return paidFor(savedBefore(dropRetold(foldPockets(lines)))).map(variant);
 }

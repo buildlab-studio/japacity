@@ -1,13 +1,18 @@
 // The results count only what moved (docs/rules/world.md R-WORLD-008), played on the real engine:
-// a bill that could not be paid is told but not counted as money gone, and an agent's fee is
-// counted once though the scam is told after it (docs/rules/advice.md R-ADVICE-009).
+// a bill that could not be paid is told but not counted as money gone, an agent's fee is counted
+// once though the scam is told after it (docs/rules/advice.md R-ADVICE-009), and neither the
+// prologue's years nor money that only sits locked counts as kept.
 import { content } from "@japacity/content";
-import type { ReportLine } from "@japacity/sim";
+import type { Effect, ReportLine } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
-import { applyEffects, readyLife, slot, toKnown } from "../../../../../packages/sim/src/route/route.journey";
+import { stepWith } from "../../../../../packages/sim/src/engine/step";
+import { applyEffects, readyLife, slot, toKnown, withEffects } from "../../../../../packages/sim/src/route/route.journey";
+import { legalCommands } from "../../../../../packages/sim/src/testing/legal";
 import type { Game } from "../../../../../packages/sim/src/testing/play";
 import { newGame } from "../../shared/testing/fixtures";
+import { tidyLines } from "../../shared/words/lines";
+import { words } from "../../shared/words/text";
 import { kept, moneyLines } from "./month.results";
 
 function naira(game: Game): number {
@@ -59,5 +64,65 @@ describe("what the results count", () => {
     const counted = moneyLines([...mid, ...end]).filter((entry) => entry.amount === fee && entry.sign === -1);
     expect(counted.map((entry) => entry.line.key)).toEqual(["line.offer.agent-scam"]);
     expect(keptNaira([...mid, ...end])).toBe(naira(game) - before);
+  });
+});
+
+/** Carries out effects as `applyEffects` does, and returns the lines they tell, as a choice's reply would. */
+function effectLines(game: Game, effects: Effect[]): ReportLine[] {
+  const result = stepWith(withEffects(effects), game.state, { type: "offer/choose", offer: "x", choice: "y", basedOn: game.state.v }, game.world(), game.content);
+  if (!result.ok) throw new Error(`The effects were rejected with ${result.code}: ${result.detail}`);
+  game.state = result.state;
+  return result.lines;
+}
+
+describe("money that never moved the naira", () => {
+  test("[R-WORLD-008] given the life from sixteen, when its first month ends, then the prologue's earnings are not counted as kept, and read as savings from before", () => {
+    const game = newGame("scenario.prologue");
+    const prologue: ReportLine[] = [];
+    for (let guard = 0; guard < 60 && game.state.prologue.open; guard += 1) {
+      const [first] = legalCommands(game.view());
+      if (first === undefined) throw new Error("The prologue is open with no legal answer.");
+      prologue.push(...game.accept(first).lines);
+    }
+    const earned = prologue.filter((line) => line.key === "line.wallet.gig");
+    expect(earned.length).toBeGreaterThan(0);
+    const before = naira(game);
+    const end = game.endTurn().lines;
+    expect(keptNaira([...prologue, ...end])).toBe(naira(game) - before);
+    const shown = tidyLines([...prologue, ...end]).map((line) => words(line.key, line.params));
+    for (const line of earned) {
+      expect(shown).toContain(words("ui.line.savings-before", line.params));
+      expect(shown).not.toContain(words(line.key, line.params));
+    }
+  });
+
+  test("[R-WORLD-008] [R-OBLIGATION-007] given held funds taken and returned in one month, when the month ends, then neither the locked money nor its return is counted, and what was kept is what really moved", () => {
+    const game = newGame("scenario.ada");
+    const before = naira(game);
+    const taken = effectLines(game, [{ type: "obligation/open", obligation: "obligation.held-funds", principal: 1_119_311_000 }]);
+    expect(taken.some((line) => line.key === "line.wallet.held-funds")).toBe(true);
+    const held = Object.values(game.state.obligation.items).find((item) => item.entry === "obligation.held-funds");
+    if (held === undefined) throw new Error("No held funds opened.");
+    const returned = game.accept({ type: "obligation/pay", obligation: held.id, amount: held.outstanding }).lines;
+    expect(returned.some((line) => line.key === "line.wallet.held-funds-return")).toBe(true);
+    const end = game.endTurn().lines;
+    const all = [...taken, ...returned, ...end];
+    expect(moneyLines(all).some((entry) => entry.line.key.startsWith("line.wallet.held-funds") && entry.line.key !== "line.wallet.held-funds-interest")).toBe(false);
+    expect(keptNaira(all)).toBe(naira(game) - before);
+  });
+
+  test("[R-WORLD-008] given the NEPA bill paid, when the month's lines are read, then its line says the bill, not money sent to family, and it is counted as money out", () => {
+    const game = newGame("scenario.ada");
+    applyEffects(game, [{ type: "offer/open", offer: "offer.nepa-bill" }]);
+    const offer = game.view().offers.find((candidate) => candidate.entry === "offer.nepa-bill");
+    if (offer === undefined) throw new Error("The NEPA bill did not open.");
+    const before = naira(game);
+    const paid = game.accept({ type: "offer/choose", offer: offer.id, choice: "pay" }).lines;
+    const end = game.endTurn().lines;
+    const bill = moneyLines([...paid, ...end]).find((entry) => entry.line.key === "ui.line.family-paid.offer.nepa-bill");
+    expect(bill?.sign).toBe(-1);
+    expect(words(bill?.line.key ?? "", bill?.line.params)).toMatch(/^The NEPA bill:/);
+    expect(tidyLines(paid).some((line) => line.key === "line.wallet.family")).toBe(false);
+    expect(keptNaira([...paid, ...end])).toBe(naira(game) - before);
   });
 });
