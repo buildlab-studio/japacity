@@ -45,7 +45,7 @@ export const uiText: Record<string, string> = {
   "ui.month.rest": "Nothing planned. You rest.",
   "ui.opening.go": "Go",
   "ui.month.until-news": "Until news",
-  "ui.month.until-news-foot": "Same again until something needs you",
+  "ui.month.until-news-foot": "Stops when something needs you",
 
   // The months the player may still play (R-WORLD-027): a glyph with the number, and its words at a tap.
   // The player never reads "turn" or "banked"; these restate the older drafts in online.ts and world.ts.
