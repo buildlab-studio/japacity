@@ -125,7 +125,7 @@ describe("street talk", () => {
       expect(first).not.toMatch(/[\u2013\u2014]/);
       const seen = new Set([first]);
       for (let turn = 0; turn < 6; turn += 1) {
-        act(() => vi.advanceTimersByTime(9000));
+        void act(() => vi.advanceTimersByTime(9000));
         seen.add(chatter()?.textContent ?? "");
       }
       expect(seen.size).toBeGreaterThan(1);
