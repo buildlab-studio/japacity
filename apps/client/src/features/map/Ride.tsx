@@ -143,6 +143,8 @@ function buildStreet(canvas: HTMLCanvasElement, way: RideChoice["id"]): Street {
       stand.geometry.dispose();
       (stand.material as MeshLambertMaterial).dispose();
       renderer.dispose();
+      // The browser keeps a handful of contexts; one is released for each ride.
+      renderer.forceContextLoss();
     },
   };
 }

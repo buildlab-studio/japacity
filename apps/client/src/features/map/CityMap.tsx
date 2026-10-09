@@ -254,6 +254,7 @@ export function CityMap({ pins, home, picked, onPick }: CityMapProps) {
       element.removeEventListener("wheel", wheel);
       map.dispose();
       renderer.dispose();
+      renderer.forceContextLoss();
       drawn.current = null;
       if (window.__map === probe) delete window.__map;
     };

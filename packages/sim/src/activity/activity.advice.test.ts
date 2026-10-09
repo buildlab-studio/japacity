@@ -118,6 +118,12 @@ describe("someone who went", () => {
 });
 
 describe("the licensed adviser", () => {
+  test("[R-ADVICE-012] given every starting life, when its cash is read, then the adviser's fee is above it", () => {
+    for (const scenario of Object.values(content.scenario)) {
+      expect(scenario.pockets.NGN?.cash ?? 0, scenario.id).toBeLessThan(advice.adviserFee);
+    }
+  });
+
   test("[R-ADVICE-004] given a heard route and the fee in cash, when the adviser is seen, then the fee comes from cash under the adviser's reason, the route is known, and her lines say what is missing and at least how many months", () => {
     const game = heard();
     const read = { state: game.state, world: game.world(), content };

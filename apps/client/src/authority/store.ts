@@ -54,6 +54,10 @@ export interface GameState {
   rejection: Shown | null;
   /** The lines of the last accepted command. */
   lines: ReportLine[];
+  /** The lines of what was done mid-month (an ask paid, an offer taken), kept for the month's results (R-WORLD-008). */
+  monthLines: ReportLine[];
+  /** The month just ended's mid-month lines, shown with its report. */
+  lastMonthLines: ReportLine[];
   /** One entry per free slot. Null is an empty slot, which rests. */
   plan: (SlotPick | null)[];
   /** True right after a month ends, so the report opens. */
@@ -179,7 +183,7 @@ export function createGameStore(authority: StoreAuthority, options: GameStoreOpt
             plan: fitPlan(ended ? [] : get().plan, reply.view.freeSlots),
             lines: reply.lines,
             moments: bigLines(reply.lines),
-            ...(ended ? { reportOpen: true } : {}),
+            ...(ended ? { reportOpen: true, lastMonthLines: get().monthLines, monthLines: [] } : { monthLines: [...get().monthLines, ...reply.lines] }),
           });
         } else {
           set({ rejection: { code: reply.code, words: rejectionWords(reply.code), ...("detail" in reply && typeof reply.detail === "string" ? { detail: reply.detail } : {}) } });
@@ -201,6 +205,8 @@ export function createGameStore(authority: StoreAuthority, options: GameStoreOpt
       busy: false,
       rejection: null,
       lines: [],
+      monthLines: [],
+      lastMonthLines: [],
       plan: [],
       reportOpen: false,
       moments: [],

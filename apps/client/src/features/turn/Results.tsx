@@ -31,7 +31,8 @@ export function Results({ place }: { place: string }) {
   const shown = useResultsOpen();
   const setReportOpen = useGame((state) => state.setReportOpen);
   const report = view.report;
-  const lines = report === null ? [] : moneyLines(report.lines);
+  const midMonth = useGame((state) => state.lastMonthLines);
+  const lines = report === null ? [] : moneyLines([...midMonth, ...report.lines]);
   const nets = kept(lines);
   const local = localCurrency(view);
   const main = nets.find((net) => net.currency === local) ?? nets[0] ?? { currency: local, amount: 0 };

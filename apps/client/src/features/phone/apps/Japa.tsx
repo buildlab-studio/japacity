@@ -6,7 +6,7 @@ import type { PlayerView, RouteView } from "@japacity/sim";
 import { Check, ChevronLeft, ChevronRight, Circle, FileCheck, FileClock, FileX } from "lucide-react";
 import { useState } from "react";
 
-import { useView } from "../../../authority/GameProvider";
+import { useGame, useView } from "../../../authority/GameProvider";
 import { monthsLeft, SOON } from "../../../shared/words/expiry";
 import { formatBand, monthEnding } from "../../../shared/words/format";
 import { nameOf, runningName, say, sayCount, words } from "../../../shared/words/text";
@@ -90,6 +90,8 @@ function Step({ met, children }: { met: boolean; children: string }) {
 export function Japa() {
   const view = useView();
   const [papers, setPapers] = useState(false);
+  // R-ADVICE-002: the official page can be read from the phone: it goes into the month like the hub's desk would put it.
+  const addToPlan = useGame((state) => state.addToPlan);
   if (papers) {
     return (
       <div data-phone-app="japa">
@@ -98,6 +100,8 @@ export function Japa() {
     );
   }
   const route = planRoute(view);
+  const official = view.activities.find((option) => option.id === "activity.look-into-route");
+  const lookInto = route !== null && route.state === "heard" && official?.allowed === true && official.params?.includes(route.id) === true ? route.id : null;
   const percent = view.japacity.percent;
   const held = view.documents.filter((paper) => paper.state === "held").length;
   const coming = remindersOf(view);
@@ -130,6 +134,16 @@ export function Japa() {
         </>
       )}
 
+      {lookInto === null ? null : (
+        <button type="button" onClick={() => addToPlan({ activity: "activity.look-into-route", param: lookInto })} className="press mt-1 flex w-full items-center gap-2.5 rounded-[6px] border border-sheet-line bg-sheet-2 px-3 py-2.5 text-left" data-official-page>
+          <FileCheck size={18} className="shrink-0 text-text-2" aria-hidden />
+          <span className="flex-1">
+            <span className="block text-[14px] font-bold">{nameOf("activity.look-into-route")}</span>
+            <span className="block text-[13px] text-text-2">{phoneWords("phone.japa.official")}</span>
+          </span>
+          <ChevronRight size={18} className="shrink-0 text-text-2" aria-hidden />
+        </button>
+      )}
       <Head>{phoneWords("phone.japa.steps")}</Head>
       <ul className="flex flex-col" data-steps>
         {route === null || route.state === "heard" ? null : route.checklist.map((item) => <Step key={item.id} met={item.met}>{words(`${route.id}.item.${item.id}`)}</Step>)}

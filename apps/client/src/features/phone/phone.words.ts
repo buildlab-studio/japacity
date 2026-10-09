@@ -69,6 +69,7 @@ export const phoneText: Record<string, string> = {
   "phone.japa.none": "No way out yet. Keep your ears open.",
   "phone.japa.steps": "The steps",
   "phone.japa.papers": "Papers",
+  "phone.japa.official": "Free, one slot. The route's full list, as it stands today.",
   "phone.japa.papers.line": "{held} of {count} in the box",
   "phone.japa.papers.title": "The box under the bed",
   "phone.japa.papers.hint": "The papers stay at home in the box under the bed. On the day of an appointment, you take them with you.",
