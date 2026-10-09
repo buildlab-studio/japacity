@@ -1,10 +1,10 @@
 // News (docs/rules/world.md R-WORLD-008, R-WORLD-018): the era line, the last month's report lines
 // (they stay here after the results sheet), and the stories that have reached the character.
 import { content } from "@japacity/content";
-import type { NewsStage, RouteStateName } from "@japacity/sim";
+import type { NewsStage, ReportLine, RouteStateName } from "@japacity/sim";
 
 import { useGame, useView } from "../../../authority/GameProvider";
-import { tidyLines, toldUnpaid } from "../../../shared/words/lines";
+import { isUnpaid, tidyLines, toldUnpaid } from "../../../shared/words/lines";
 import { blurbOf, monthsAgo, nameOf, say, words } from "../../../shared/words/text";
 import { Head } from "../act";
 import { phoneWords } from "../phone.words";
@@ -28,6 +28,11 @@ export function storyForYou(story: { id: string; forYou: boolean }, routes: read
   });
 }
 
+/** Money that went unpaid leads News as it leads the results (R-WORLD-008). */
+function newsOrder(lines: readonly ReportLine[]): ReportLine[] {
+  return [...lines.filter((line) => isUnpaid(line) || line.key.startsWith("ui.results.unpaid")), ...lines.filter((line) => !(isUnpaid(line) || line.key.startsWith("ui.results.unpaid")))];
+}
+
 export function News() {
   const { news, era, report, month, routes } = useView();
   // R-WORLD-008: the month's lines stay here, those of what was done mid-month (an agent paid, an ask answered) first.
@@ -47,7 +52,7 @@ export function News() {
         <div data-report={report.month}>
           <Head>{phoneWords("phone.news.month", { when: monthsAgo(report.month, month) })}</Head>
           <ul className="flex flex-col divide-y divide-sheet-line">
-            {tidyLines([...midMonth, ...report.lines]).map(toldUnpaid).map((line, index) => (
+            {newsOrder(tidyLines([...midMonth, ...report.lines]).map(toldUnpaid)).map((line, index) => (
               <li key={`${line.key}-${String(index)}`} className={`py-1.5 text-[14px] ${line.tone === "good" ? "text-in" : line.tone === "bad" ? "text-out" : "text-text"}`}>
                 {words(line.key, line.params)}
               </li>

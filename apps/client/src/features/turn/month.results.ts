@@ -5,7 +5,7 @@ import { content } from "@japacity/content";
 import type { Currency, MoneyParam, PlayerView, ReportLine } from "@japacity/sim";
 
 import { monthlyPayOf } from "../../shared/words/cost";
-import { afterPrologue, forYou, isSaid, movesMoney, tidyLines, toldUnpaid } from "../../shared/words/lines";
+import { afterPrologue, forYou, isSaid, isUnpaid, movesMoney, tidyLines, toldUnpaid } from "../../shared/words/lines";
 import { moneyParam } from "../../shared/words/text";
 
 export interface MoneyLine {
@@ -113,12 +113,10 @@ export function otherLines(lines: readonly ReportLine[]): ReportLine[] {
 export const STORY_MAX = 6;
 
 /** A charge that fell due and could not be paid: no money moved, but the month went wrong (R-WORLD-008). */
-const UNPAID: ReadonlySet<string> = new Set(["line.obligation.missed", "line.obligation.car-notice", "line.obligation.group-visit", "line.obligation.group-covered"]);
+
 
 /** True for a line that tells a bill not paid. */
-export function isUnpaid(line: ReportLine): boolean {
-  return UNPAID.has(line.key);
-}
+export { isUnpaid };
 
 /** A hunt that brought an offer, and the job offer it opens for the answer. */
 const HIRED = "line.activity.hunt-hired";

@@ -4,7 +4,8 @@
 import { useEffect, useState } from "react";
 
 /** How long an act's line stands when it is not tapped away: as long as the party's beat. */
-export const SAID_MS = 6000;
+/** A line stays until tapped, or this long: enough to read twice. */
+export const SAID_MS = 20_000;
 
 export interface Said {
   words: string;

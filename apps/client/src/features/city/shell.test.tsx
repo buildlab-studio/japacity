@@ -202,7 +202,7 @@ describe("the nudge", () => {
   test("[R-WORLD-003] given a step already started, when the nudge is chosen, then it names the wait: a paper on its way, a school's answer, a hunt or a test planned, funds short", () => {
     const base = { ...quiet, month: 10 };
     const file = { ...base, chapter: { current: "chapter.build-the-file" as const, items: [{ id: "passport", met: false }, { id: "transcript", met: false }, { id: "english", met: false }, { id: "offer", met: false }], done: [] } };
-    const waiting = { ...file, documents: [{ id: "document.passport" as const, state: "pending" as const, readyMonth: 12, expiresMonth: null, value: null }] };
+    const waiting = noMeanwhile({ ...file, documents: [{ id: "document.passport" as const, state: "pending" as const, readyMonth: 12, expiresMonth: null, value: null }] });
     expect(nudgeOf(waiting)).toMatchObject({ key: "chapter.build-the-file.item.passport.started", params: { when: inMonths(12, 10) }, about: "step" });
     expect(nudgeOf(file).key).toBe("chapter.build-the-file.item.passport.nudge");
     const testing = { ...file, chapter: { ...file.chapter, items: [{ id: "english", met: false }, { id: "offer", met: false }] } };
@@ -313,12 +313,17 @@ describe("the trader from sixteen with a shop's capital", () => {
   });
 });
 
+/** The waiting months' acts (R-ACTIVITY-013) left out, so a test can read the wait's own words. */
+function noMeanwhile<T extends { activities: { id: string }[] }>(view: T): T {
+  return { ...view, activities: view.activities.filter((option) => !["activity.open-source", "activity.tech-posts", "activity.be-noticed", "activity.nurse-certification"].includes(option.id)) };
+}
+
 describe("the nudge", () => {
   const base = { ...engineView(), setpiece: null, interview: null, offers: [], report: null };
 
   test("[R-WORLD-003] given a paper on its way and a better-paid job on the board, when the nudge is read, then it sends the life to the board, not to wait", () => {
     const file = { ...base, month: 10, chapter: { current: "chapter.build-the-file" as const, items: [{ id: "passport", met: false }], done: [] } };
-    const pending = { ...file, documents: [{ id: "document.passport" as const, state: "pending" as const, readyMonth: 12, expiresMonth: null, value: null }], job: { ...file.job, id: "activity.job-customer-service" as const } };
+    const pending = noMeanwhile({ ...file, documents: [{ id: "document.passport" as const, state: "pending" as const, readyMonth: 12, expiresMonth: null, value: null }], job: { ...file.job, id: "activity.job-customer-service" as const } });
     const hunt = pending.activities.find((option) => option.id === "activity.job-hunt");
     const better = (hunt?.params ?? []).find((job) => job === "activity.job-junior-dev") ?? null;
     if (better === null) throw new Error("The board lists no junior developer job.");
@@ -393,5 +398,43 @@ describe("the archetypes' own ways", () => {
     expect(nudgeOf(trader).key).toBe("chapter.find-your-feet.item.heard.nudge.motor-park");
     expect(stepWayOf(trader)).toEqual({ go: "place.ojuelegba", at: ["place.ojuelegba:motor-park"] });
     expect(nudgeOf(trader, undefined, ["activity.ask-around"]).key).toBe("chapter.find-your-feet.item.heard.planned.ask-around");
+  });
+});
+
+describe("the nudge (the waiting months' acts)", () => {
+  const base = { ...engineView(), setpiece: null, interview: null, offers: [], report: null };
+  const waiting = noMeanwhile({ ...base, month: 10, chapter: { current: "chapter.build-the-file" as const, items: [{ id: "passport", met: false }], done: [] }, documents: [{ id: "document.passport" as const, state: "pending" as const, readyMonth: 12, expiresMonth: null, value: null }] });
+
+  test("[R-WORLD-003] [R-SPONSOR-005] given a nurse in the nursing job with the care route in play, when a better-paid job sits on the board, then the nudge never sends her off the job", () => {
+    const nurse = { ...waiting, job: { ...waiting.job, id: "activity.job-nurse" as const }, routes: [{ ...richView().routes[0]!, id: "route.uk-care" as const, state: "heard" as const }] };
+    expect(nudgeOf(nurse).key).not.toBe("ui.nudge.better-job");
+    const unknown = { ...nurse, routes: [] };
+    expect(nudgeOf(unknown).key).toBe("ui.nudge.better-job");
+  });
+
+  test("[R-WORLD-003] given a hunt planned while a job is held and a paper on its way, when the nudge is read, then it says the application is in", () => {
+    const working = { ...waiting, job: { ...waiting.job, id: "activity.job-customer-service" as const } };
+    expect(nudgeOf(working, undefined, ["activity.job-hunt"]).key).toBe("ui.nudge.hunt-planned");
+  });
+
+  test("[R-WORLD-003] given a hunt missed last month and other jobs on the board, when the first chapter's job step is read, then the nudge names another way", () => {
+    const missed = { ...base, chapter: { current: "chapter.find-your-feet" as const, items: [{ id: "job", met: false }], done: [] }, report: { month: 3, lines: [{ key: "line.activity.hunt-missed", params: { job: "activity.job-nurse" }, tone: "bad" as const, attention: false, counts: [] }], japacityBefore: null, japacityAfter: null, attention: false } };
+    expect(nudgeOf(missed).key).toBe("chapter.find-your-feet.item.job.nudge.again");
+  });
+
+  test("[R-WORLD-003] [R-GOAL-003] given every chapter done and a goal open with a first act, when the nudge is read, then it names the goal's first act", () => {
+    const settled = { ...base, chapter: { current: null, items: [], done: [] }, goals: { open: [{ id: "goal.own-door" as const, items: [{ id: "flat", met: false }] }], done: [] } };
+    const nudge = nudgeOf(settled);
+    expect(nudge.key).toBe("goal.own-door.first");
+    expect(nudge.about).toBe("goal");
+  });
+
+  test("[R-ACTIVITY-013] [R-WORLD-003] given a paper on its way and the life's own act open this month, when the nudge is read, then it names that act, and once planned it moves on", () => {
+    const offered = (id: string) => ({ id, allowed: true, affordable: true, cost: [], missing: [], params: null }) as never;
+    const coder = { ...waiting, qualities: waiting.qualities.map((quality) => (quality.id === "quality.tech" ? { ...quality, value: 45 } : quality)), activities: [...waiting.activities, offered("activity.open-source"), offered("activity.tech-posts")] };
+    expect(nudgeOf(coder).key).toBe("ui.nudge.meanwhile.open-source");
+    // Planned, the next act that fits comes up; with every one planned, the wait's own words stand.
+    expect(nudgeOf(coder, undefined, ["activity.open-source"]).key).toBe("ui.nudge.meanwhile.tech-posts");
+    expect(nudgeOf(coder, undefined, ["activity.open-source", "activity.tech-posts"]).key).toBe("chapter.build-the-file.item.passport.started");
   });
 });

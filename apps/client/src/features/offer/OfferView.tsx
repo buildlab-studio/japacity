@@ -11,6 +11,7 @@ import { Card, Empty, Panel, Tag } from "../../shared/ui/Panel";
 import { ReportLines } from "../../shared/ui/ReportLines";
 import { isSaid, tidyLines } from "../../shared/words/lines";
 import { formatMoney, toMajor, toMinor } from "../../shared/words/format";
+import { routeKeptBy } from "../../shared/words/keepJob";
 import { byMonths, nameOf, say, sayCount, words } from "../../shared/words/text";
 import { payAMonth } from "../../shared/words/pay";
 import { offerParams } from "./terms";
@@ -63,9 +64,17 @@ function choiceLabel(offer: Offer, choice: Offer["choices"][number]): string {
 function JobFigures({ terms }: { terms: Terms }) {
   const job = terms.job;
   if (typeof job !== "string") return null;
+  const view = useView();
   const pay = payAMonth(job);
   const amount = pay === null ? null : formatMoney(pay.amount, pay.currency);
-  return <p className="font-semibold">{amount === null ? nameOf(job) : say("ui.offer.job", { job: nameOf(job), amount })}</p>;
+  const kept = routeKeptBy(view);
+  return (
+    <>
+      <p className="font-semibold">{amount === null ? nameOf(job) : say("ui.offer.job", { job: nameOf(job), amount })}</p>
+      {/* A way out that counts the months in the job held: the offer says what taking another ends. */}
+      {kept === null || job === view.job.id ? null : <p className="text-sm text-out" data-offer-job-ends>{say("ui.offer.job-ends")}</p>}
+    </>
+  );
 }
 
 /** Whole naira steps for the picker; the engine takes kobo. */

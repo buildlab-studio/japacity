@@ -51,7 +51,7 @@ export const routeText: Record<string, string> = {
   "route.uk-care.blurb":
     "A health and care visa with a sponsor's certificate. For nurses and carers, if the door is open to people applying from home.",
   "route.uk-care.item.licence": "Nursing licence held",
-  "route.uk-care.item.verification": "Council verification held",
+  "route.uk-care.item.verification": "Council verification held (it needs 24 months as a nurse first)",
   "route.uk-care.item.passport": "Passport held",
   "route.uk-care.item.english": "English result at band 4.0 or better",
   "route.uk-care.item.sponsor": "A sponsor's certificate",

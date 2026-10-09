@@ -242,6 +242,13 @@ function unpaidCost(obligation: string): string {
   return quality ?? "plain";
 }
 
+/** A charge that fell due and could not be paid: no money moved, but the month went wrong (R-WORLD-008). */
+const UNPAID: ReadonlySet<string> = new Set(["line.obligation.missed", "line.obligation.missed-part", "line.obligation.car-notice", "line.obligation.group-visit", "line.obligation.group-covered"]);
+
+export function isUnpaid(line: ReportLine): boolean {
+  return UNPAID.has(line.key);
+}
+
 /**
  * A bill missed, told with its figure and what the miss cost (R-WORLD-008): the generic "standing and mood"
  * line is false for a tuition instalment, whose miss costs nothing at once.
@@ -249,7 +256,9 @@ function unpaidCost(obligation: string): string {
  */
 export function toldUnpaid(line: ReportLine): ReportLine {
   const { obligation } = line.params;
-  if (line.key !== "line.obligation.missed" || typeof obligation !== "string") return line;
+  if (typeof obligation !== "string") return line;
+  if (line.key === "line.obligation.missed-part") return { ...line, key: `ui.results.unpaid-part.${unpaidCost(obligation)}` };
+  if (line.key !== "line.obligation.missed") return line;
   return { ...line, key: `ui.results.unpaid.${unpaidCost(obligation)}` };
 }
 

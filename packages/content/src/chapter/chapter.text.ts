@@ -24,6 +24,7 @@ export const chapterText: Record<string, string> = {
   "chapter.find-your-feet.item.job.nudge": "Ask at the hub in Yaba",
   "chapter.find-your-feet.item.job.nudge.here": "Find a job on the board",
   "chapter.find-your-feet.item.job.nudge.clinic": "Apply for the staff nurse job at the clinic",
+  "chapter.find-your-feet.item.job.nudge.again": "Not this time. Try again, or another job on the board.",
   "chapter.find-your-feet.item.job.started": "You have applied. End the month and see.",
   "chapter.find-your-feet.item.pay": "Work one month in it",
   "chapter.find-your-feet.item.pay.nudge": "Work this month, then end it",

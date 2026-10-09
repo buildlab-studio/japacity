@@ -99,3 +99,16 @@ describe("for you in News", () => {
     expect(story?.textContent).toContain(say("ui.news.for-you"));
   });
 });
+
+describe("the order of the month's lines in News", () => {
+  test("[R-WORLD-008] given a missed instalment told after the month's wellbeing lines, when News shows the report, then the miss comes first", async () => {
+    const game = abroadGame();
+    const tuition = game.view().obligations.find((owed) => owed.entry === "obligation.tuition" && owed.due > 0);
+    if (tuition === undefined) throw new Error("No tuition falls due in Ada's first month abroad.");
+    game.endTurn();
+    await renderWithView(<PhoneApps onClose={() => undefined} area="Peckham" now={() => new Date(2026, 9, 8, 12, 5)} talk={null} />, game.view());
+    fireEvent.click(document.querySelector<HTMLElement>('[data-app="news"]')!);
+    const first = document.querySelector("[data-report] li")?.textContent ?? "";
+    expect(first).toMatch(/went unpaid|short\./);
+  });
+});

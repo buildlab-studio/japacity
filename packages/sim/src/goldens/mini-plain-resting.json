@@ -180,16 +180,16 @@
       "month": 5,
       "v": 5,
       "banked": 19,
-      "nairaBank": 2000000,
-      "hash": "955472c30b3b3fad"
+      "nairaBank": 0,
+      "hash": "131c79de12e6e2ae"
     },
     {
       "month": 6,
       "v": 6,
       "banked": 18,
-      "nairaBank": 2000000,
-      "hash": "9d91bafa262ead44"
+      "nairaBank": 0,
+      "hash": "ca69451e468042d6"
     }
   ],
-  "finalHash": "9d91bafa262ead44"
+  "finalHash": "ca69451e468042d6"
 }

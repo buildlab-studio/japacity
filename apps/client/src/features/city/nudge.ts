@@ -8,11 +8,12 @@ import { duesGap } from "../../shared/words/dues";
 import { formatMoney } from "../../shared/words/format";
 import { asksAttention, tidyLines } from "../../shared/words/lines";
 import { nextStepOf, ownWayOf } from "../../shared/words/sixteen";
+import { routeKeptBy } from "../../shared/words/keepJob";
 import { hasWords, inMonths } from "../../shared/words/text";
 import type { Nudge } from "../../shared/world/contract";
 
 /** What the nudge points at, so a tap on it can open the matching sheet. `dues`: the month's dues abroad pass the money held; it opens the Bank. */
-export type NudgeAbout = "setpiece" | "offer" | "step" | "report" | "dues" | "end";
+export type NudgeAbout = "setpiece" | "offer" | "step" | "report" | "dues" | "goal" | "end";
 
 /**
  * Where a chapter's step is done (R-WORLD-003): the things that move it, as `<place>:<thing>` in
@@ -70,7 +71,7 @@ export function stepWayOf(view: StepView & Partial<Pick<PlayerView, "obligations
 }
 
 /** Where held funds go back: the bank's counter (R-ROUTE-020). */
-const HELD_FUNDS_WAY: StepWay = { go: "place.olokun-office", at: ["place.olokun-office:counter"] };
+const HELD_FUNDS_WAY: StepWay = { go: "place.olokun-office", at: ["place.olokun-office:clerk"] };
 
 type StepView = Pick<PlayerView, "chapter"> & Partial<Pick<PlayerView, "scenario" | "qualities" | "pockets" | "routes" | "documents" | "job">>;
 
@@ -129,22 +130,53 @@ const STEP_ACTIVITY_ALSO: Record<string, readonly string[]> = {
   "chapter.find-your-feet.heard": ["activity.ask-around"],
 };
 
-type NudgeView = Pick<PlayerView, "setpiece" | "interview" | "offers" | "chapter" | "report"> & Partial<Pick<PlayerView, "documents" | "routes" | "month" | "activities" | "pockets" | "place" | "obligations" | "job" | "scenario" | "qualities">>;
+type NudgeView = Pick<PlayerView, "setpiece" | "interview" | "offers" | "chapter" | "report"> & Partial<Pick<PlayerView, "documents" | "routes" | "month" | "activities" | "pockets" | "place" | "obligations" | "job" | "scenario" | "qualities" | "goals">>;
 
 /** The nudge that sends a waiting life to the board for better pay. */
 export const BETTER_JOB = "ui.nudge.better-job";
 /** Held funds still open block the plane. */
 const HELD_FUNDS = "held-funds";
 
+/** The waiting months' acts by profile (R-ACTIVITY-013): the act a life with nothing else to do is pointed at, where it is offered and not yet planned. */
+const MEANWHILE: readonly { act: string; fits: (view: NudgeView) => boolean }[] = [
+  { act: "nurse-certification", fits: (view) => qualityOf(view, "quality.care") >= 50 && (view.documents ?? []).some((paper) => paper.id === "document.nursing-licence" && paper.state === "held") },
+  { act: "open-source", fits: (view) => qualityOf(view, "quality.tech") >= 40 },
+  { act: "tech-posts", fits: (view) => qualityOf(view, "quality.tech") >= 30 },
+  { act: "be-noticed", fits: (view) => (view.job?.months ?? 0) >= 6 },
+];
+
+/** Where each waiting-month act is taken (the m18 builders' stagings). */
+export const MEANWHILE_WAYS: Readonly<Record<string, StepWay>> = {
+  "nurse-certification": { go: "place.tb-clinic", at: ["place.tb-clinic:jobs-notice"] },
+  "open-source": { go: "place.yaba", at: ["place.yaba:desk"] },
+  "tech-posts": { go: "place.yaba-hub", at: ["place.yaba-hub:laptops"] },
+  "be-noticed": { go: "place.yaba", at: ["place.yaba:jobs"] },
+};
+
+function qualityOf(view: NudgeView, id: string): number {
+  return view.qualities?.find((quality) => quality.id === id)?.value ?? 0;
+}
+
+/** The short id of the waiting-month act that fits this life and stands open this month, or null. */
+export function meanwhileOf(view: NudgeView, planned: readonly string[]): string | null {
+  for (const { act, fits } of MEANWHILE) {
+    const id = `activity.${act}`;
+    const option = view.activities?.find((candidate) => candidate.id === id);
+    if (option !== undefined && option.allowed && !planned.includes(id) && fits(view)) return act;
+  }
+  return null;
+}
+
 /** True while funds held for the visa are still to be given back. */
 function heldFundsOpen(view: NudgeView): boolean {
   return (view.obligations ?? []).some((owed) => content.obligation[owed.entry]?.type === HELD_FUNDS);
 }
 
-/** True when the jobs board holds a job that pays more a month than the one held. */
+/** True when the jobs board holds a job that pays more a month than the one held, and the one held is not one a way out counts the months of. */
 function betterJobOnBoard(view: NudgeView): boolean {
   const held = view.job?.id ?? null;
   if (held === null) return false;
+  if (view.job !== undefined && routeKeptBy({ job: view.job, ...(view.routes === undefined ? {} : { routes: view.routes }) }) !== null) return false;
   const pay = monthlyNaira(held);
   const listed = view.activities?.find((option) => option.id === "activity.job-hunt")?.params ?? [];
   return listed.some((job) => monthlyNaira(job) > pay);
@@ -172,8 +204,12 @@ function startedKey(view: NudgeView, own: string, stepKey: string, planned: read
   if (paper !== undefined) {
     const held = view.documents?.find((document) => document.id === paper);
     if (held?.state === "pending") {
-      // A wait is a saving month: the board's better job comes before "work and save".
+      // A hunt planned while working says so; a wait is a saving month: the board's better job
+      // comes before "work and save"; else the archetype's own act for the wait (R-ACTIVITY-013).
+      if (planned.includes("activity.job-hunt") && (view.job?.id ?? null) !== null) return { key: "ui.nudge.hunt-planned" };
       if (betterJobOnBoard(view) && has(BETTER_JOB)) return { key: BETTER_JOB };
+      const meanwhile = meanwhileOf(view, planned);
+      if (meanwhile !== null && has(`ui.nudge.meanwhile.${meanwhile}`)) return { key: `ui.nudge.meanwhile.${meanwhile}` };
       if (has(`${own}.started`)) return { key: `${own}.started`, params: { when: inMonths(held.readyMonth ?? month, month) } };
     }
   }
@@ -226,7 +262,7 @@ export function nudgeOf(view: NudgeView, has: (key: string) => boolean = hasWord
   // Abroad, whenever the month's dues pass the country's money held, the gap comes before the step;
   // and before any ask when one more missed instalment ends the visa.
   const { place, pockets, obligations } = view;
-  const gap = place === undefined || pockets === undefined || obligations === undefined ? null : duesGap({ place, pockets, obligations });
+  const gap = place === undefined || pockets === undefined || obligations === undefined ? null : duesGap({ place, pockets, obligations, ...(view.job === undefined ? {} : { job: view.job }) });
   const visaAtStake = gap !== null && (obligations ?? []).some((owed) => owed.entry === "obligation.tuition" && owed.missed >= 1 && owed.due > 0);
   if (visaAtStake && has("ui.nudge.dues-visa")) return { key: "ui.nudge.dues-visa", params: { due: formatMoney(gap.due, gap.currency), held: formatMoney(gap.held, gap.currency) }, about: "dues" };
   if (view.offers.length > 0) return { key: "ui.nudge.offer", about: "offer" };
@@ -237,6 +273,8 @@ export function nudgeOf(view: NudgeView, has: (key: string) => boolean = hasWord
     const own = `${view.chapter.current}.item.${step}`;
     const started = startedKey(view, own, `${view.chapter.current}.${step}`, planned, has);
     if (started !== null) return { ...started, about: "step" };
+    // A hunt missed last month: the nudge names another job on the board too.
+    if (step === "job" && (view.report?.lines ?? []).some((line) => line.key === "line.activity.hunt-missed") && (view.activities?.find((option) => option.id === "activity.job-hunt")?.params?.length ?? 0) > 1 && has(`${own}.nudge.again`)) return { key: `${own}.nudge.again`, about: "step" };
     // The life's own way to the step has its own words (the nurse's clinic, the trade's motor park).
     const way = ownWay(view);
     if (way !== null && has(`${own}.nudge.${way.key}`)) return { key: `${own}.nudge.${way.key}`, about: "step" };
@@ -246,5 +284,8 @@ export function nudgeOf(view: NudgeView, has: (key: string) => boolean = hasWord
   // dues pass the country's money held, that line says the gap.
   // Once News has been read for this month's report, the line waits no more.
   if (!newsRead && view.report !== null && tidyLines(view.report.lines).some(asksAttention)) return { key: "ui.nudge.report", about: "report" };
+  // With no chapter step left, the nearest open goal names its first act (R-GOAL-003).
+  const goal = view.goals?.open.find((open) => open.items.some((item) => !item.met) && has(`${open.id}.first`));
+  if (goal !== undefined) return { key: `${goal.id}.first`, about: "goal" };
   return { key: "ui.nudge.end", about: "end" };
 }

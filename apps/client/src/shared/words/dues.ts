@@ -5,6 +5,7 @@
 import { content } from "@japacity/content";
 import type { Currency, PlayerView } from "@japacity/sim";
 
+import { monthlyPayOf } from "./cost";
 import { CURRENCIES } from "./format";
 import { localCurrency } from "./wayHome";
 
@@ -29,11 +30,14 @@ export function heldElsewhere(view: Pick<PlayerView, "pockets">, local: Currency
  * home, and abroad when what is held covers them. Read from the view at any moment, so it shows on
  * landing, at the start of a month and until the gap is closed.
  */
-export function duesGap(view: Pick<PlayerView, "place" | "pockets" | "obligations">): DuesGap | null {
+export function duesGap(view: Pick<PlayerView, "place" | "pockets" | "obligations"> & Partial<Pick<PlayerView, "job">>): DuesGap | null {
   const currency = localCurrency(view);
   if (currency === null || currency === "NGN") return null;
   const due = view.obligations.reduce((sum, owed) => (owed.due > 0 && content.obligation[owed.entry]?.currency === currency ? sum + owed.due : sum), 0);
   const held = view.pockets[currency].bank + view.pockets[currency].cash;
-  if (due <= held) return null;
+  // The month's pay comes in before the bills are taken (engine.md section 4): it covers them too.
+  const pay = view.job?.id === null || view.job?.id === undefined ? null : monthlyPayOf(view.job.id);
+  const coming = pay !== null && pay.currency === currency ? pay.amount : 0;
+  if (due <= held + coming) return null;
   return { currency, due, held, from: heldElsewhere(view, currency) };
 }

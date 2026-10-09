@@ -43,6 +43,10 @@ export const worldText: Record<string, string> = {
   "ui.nudge.dues": "Only {held} held for {due} due this month",
   "ui.nudge.dues-visa": "Only {held} held for {due} due. One more miss ends your visa.",
   "ui.nudge.better-job": "A better job is on the board while you wait.",
+  "ui.nudge.meanwhile.nurse-certification": "Meanwhile: sit the nursing certification at the clinic.",
+  "ui.nudge.meanwhile.open-source": "Meanwhile: put your code where people see it, at the hub.",
+  "ui.nudge.meanwhile.tech-posts": "Meanwhile: post what you know, from the laptops.",
+  "ui.nudge.meanwhile.be-noticed": "Meanwhile: get noticed at work. Ask on the board.",
   "ui.nudge.hunt-planned": "You have applied for better pay. End the month.",
   "ui.nudge.end": "End the month when you are ready",
 };

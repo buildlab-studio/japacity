@@ -41,7 +41,7 @@ import { type CountryChoice, FlyOver, flyoverOn, type Pin, type PinState } from 
 import { crowdTuning } from "./limits";
 import { Phone, type PhoneApp } from "./Phone";
 import { localDate, type Other, poolOf, sampleCrowd } from "./crowd";
-import { BETTER_JOB, BOARD_WAY, nudgeOf, stepThingHere, stepWayOf } from "./nudge";
+import { BETTER_JOB, BOARD_WAY, MEANWHILE_WAYS, nudgeOf, stepThingHere, stepWayOf } from "./nudge";
 import { nudgeHere, stepOpen } from "./stepOpen";
 import { StillWaiting, stillWaiting } from "./StillWaiting";
 import { type Device, enterPlace, keepChoice, type Mode, type ModeChoice, modeSettings, observeFrame, readChoice, startingMode, watchFrames } from "./mode";
@@ -727,7 +727,8 @@ export function City({
   // when it is elsewhere in the city, and the Month sheet when the step is the month's end.
   // A step short of money sends the player to the jobs board, where the money is; the funds step keeps the bank.
   const shortOfMoney = nudge?.about === "step" && (nudge.key.endsWith(".short") || nudge.key === "ui.nudge.hunt-planned") && !nudge.key.startsWith("chapter.decision-day.item.held");
-  const stepWay = nudge?.about === "step" ? (shortOfMoney || nudge.key === BETTER_JOB ? BOARD_WAY : stepWayOf(view)) : null;
+  const meanwhileAct = nudge?.key.startsWith("ui.nudge.meanwhile.") === true ? nudge.key.slice("ui.nudge.meanwhile.".length) : null;
+  const stepWay = nudge?.about === "step" ? (shortOfMoney || nudge.key === BETTER_JOB ? BOARD_WAY : meanwhileAct !== null ? (MEANWHILE_WAYS[meanwhileAct] ?? null) : stepWayOf(view)) : null;
   const hereId = inside ? (insideEntry?.id ?? placeId) : placeId;
   const stepThing = stepWay === null || things === undefined ? null : stepThingHere(stepWay, hereId, things);
   // Abroad the map is a list, and a stop picked on it opens its sheet all the same.

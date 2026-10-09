@@ -10,6 +10,7 @@ export const obligationText: Record<string, string> = {
   // Report lines. Each carries `obligation`, the entry id, so the interface can name it.
   "line.obligation.charged": "{obligation}: {amount} paid this month.",
   "line.obligation.missed": "You could not pay {amount} this month. Your standing and your mood took a hit.",
+  "line.obligation.missed-part": "{obligation}: {paid} paid, {short} short. Your standing and your mood took a hit.",
   "line.obligation.defaulted": "The loan has gone bad. The lender wants the {amount} still owed and will take it from your account.",
   "line.obligation.seized": "The lender took {amount} from your account toward the loan.",
   "line.obligation.taken-back": "The interest was not paid. The lender has taken back the {amount} that was held for you.",

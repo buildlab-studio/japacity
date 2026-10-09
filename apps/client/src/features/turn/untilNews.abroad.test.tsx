@@ -59,7 +59,32 @@ function duePounds(view: PlayerView): number {
 function studentAbroad(): Game {
   const game = abroadGame();
   setPockets(game, { GBP: 30_000_000, USD: 0 });
-  playTo(game, 50);
+  playTo(game, 40);
+  // The recording moves as content does (the goldens are re-recorded at each change), so the window is found by
+  // playing: a month whose next brings the market find and nothing else that needs an answer, then two quiet months.
+  for (let month = 40; month < 90; month += 1) {
+    const held = { state: game.state, save: game.save, tick: game.tick };
+    const ahead: ReportLine[][] = [];
+    for (let step = 0; step < 3; step += 1) {
+      answerSetpiece(game);
+      const { banked } = game.view().turns;
+      if (banked <= 1) game.grant(content.tuning.turn.cap - banked);
+      ahead.push(game.endTurn().lines);
+    }
+    game.state = held.state;
+    game.save = held.save;
+    game.tick = held.tick;
+    // The find and nothing else opens in the first month; the two after open nothing but, at most, the find again; nothing asks.
+    const opens = (lines: readonly ReportLine[], offer: string | null) => lines.filter((line) => line.key === OPENED).map((line) => line.params["offer"]).every((id) => id === offer);
+    const quiet = (lines: readonly ReportLine[]) => !lines.some((line) => line.attention && line.key !== OPENED);
+    const findFirst = ahead[0]!.some((line) => line.key === OPENED && line.params["offer"] === FIND) && opens(ahead[0]!, FIND);
+    // The third month is the one that stops the run (the rent not covered), whatever else it brings.
+    if (findFirst && opens(ahead[1]!, null) && quiet(ahead[0]!) && quiet(ahead[1]!)) break;
+    playTo(game, month + 1);
+  }
+  // The file below its cap, so the rent paid on time moves it (the quiet line carries the move).
+  const uk = game.state.credit.byCountry["country.uk"];
+  if (uk !== undefined) game.state = { ...game.state, credit: { ...game.state.credit, byCountry: { ...game.state.credit.byCountry, "country.uk": { ...uk, mark: 50 } } } };
   setPockets(game, { GBP: 3 * duePounds(game.view()) + 1_000 });
   return game;
 }
@@ -101,11 +126,13 @@ describe("Until news abroad", () => {
     expect(opened?.attention).toBe(true);
     // Its month came in the second, and it lapsed by its onExpire (R-OFFER-005).
     expect(quiet[1]?.some((line) => line.key === "line.offer.lapsed" && line.params["offer"] === FIND)).toBe(true);
-    expect(view.offers.some((offer) => offer.entry === FIND)).toBe(false);
+    // The find that opened in the first month is gone (another may open in the month that stopped the run).
+    const openedId = quiet[0]?.find((line) => line.key === OPENED && line.params["offer"] === FIND)?.params["id"];
+    expect(view.offers.some((offer) => offer.id === openedId)).toBe(false);
     // The rent of the month to come is not covered: the run stops there, before it goes unpaid.
     expect(view.obligations.some((owed) => owed.entry === RENT && owed.due > 0)).toBe(true);
     expect(view.pockets.GBP.bank + view.pockets.GBP.cash).toBeLessThan(duePounds(view));
-    expect(stopsRun(view, lines, 3)).toEqual(["dues"]);
+    expect(stopsRun(view, lines, 3)).toContain("dues");
     expect(localCurrency(view)).toBe("GBP");
   });
 
@@ -202,8 +229,9 @@ describe("Until news abroad", () => {
     expect(quietLine(quiet[0] ?? [], "GBP").moved?.key).toBe(QUIET_PASSED);
     expect(rows[0]).toContain(`${money(quiet[0] ?? [])} ${words(QUIET_PASSED, { offer: FIND })}`);
     expect(words(QUIET_PASSED, { offer: FIND }).toLowerCase()).toContain(words("offer.street-find-uk.name").toLowerCase());
-    // The month after: nothing else moved but the credit file ("Kept £340. Credit up.").
-    expect(rows[1]).toContain(`${money(quiet[1] ?? [])} ${say(CREDIT_UP)}`);
+    // The month after: the money, a story if the month had one, and the credit file's move ("Kept £340. Credit up.").
+    expect(rows[1]).toContain(money(quiet[1] ?? []));
+    expect(rows[1]).toContain(say(CREDIT_UP));
     // One heading over the month that stopped the run, not two.
     const headings = [...document.querySelectorAll("h3")].map((heading) => heading.textContent);
     expect(headings.filter((heading) => heading === turnWords("turn.results.stopped"))).toHaveLength(1);

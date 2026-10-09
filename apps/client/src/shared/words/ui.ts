@@ -138,6 +138,13 @@ export const uiText: Record<string, string> = {
   "ui.card.played.years-months": "{years} and {months}",
   // The results' own telling of a story line (features/turn/month.results.ts, toldOnResults): a bill
   // not paid says its figure and what it cost; a hunt says its answer (R-WORLD-008).
+  "ui.results.unpaid-part.standing-mood": "{obligation}: {paid} paid, {short} short. Your standing and your mood took a hit.",
+  "ui.results.unpaid-part.standing": "{obligation}: {paid} paid, {short} short. Your standing took a hit.",
+  "ui.results.unpaid-part.mood": "{obligation}: {paid} paid, {short} short. Your mood took a hit.",
+  "ui.results.unpaid-part.credit": "{obligation}: {paid} paid, {short} short. A mark on your credit file.",
+  "ui.results.unpaid-part.credit-standing-mood": "{obligation}: {paid} paid, {short} short. A mark on your credit file, and your standing and your mood took a hit.",
+  "ui.results.unpaid-part.plain": "{obligation}: {paid} paid, {short} short.",
+  "ui.results.unpaid-part.withdraw": "{obligation}: {paid} paid, {short} short.",
   "ui.results.unpaid.standing-mood": "{obligation}: {amount} went unpaid. Your standing and your mood took a hit.",
   "ui.results.unpaid.standing": "{obligation}: {amount} went unpaid. Your standing took a hit.",
   "ui.results.unpaid.mood": "{obligation}: {amount} went unpaid. Your mood took a hit.",
@@ -462,6 +469,7 @@ export const uiText: Record<string, string> = {
   "ui.offer.amount": "How much",
   "ui.offer.bounds": "From {min} up to {max}",
   "ui.offer.job": "{job}, paying {amount} a month",
+  "ui.offer.job-ends": "Taking it ends your months as a nurse. The care route needs twenty-four of them.",
   "ui.offer.choice-cost": "{choice}: {amount}",
   "ui.offer.outcome": "What changed",
   "ui.offer.outcome-none": "Done. Nothing else moved.",

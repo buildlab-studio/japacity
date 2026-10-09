@@ -159,19 +159,21 @@ describe("the monthly charge", () => {
 });
 
 describe("paid in full or missed", () => {
-  test("[R-OBLIGATION-002] given exactly the charge, when the month ends, then it is paid; one kobo less and nothing is taken", () => {
+  test("[R-OBLIGATION-002] given exactly the charge, when the month ends, then it is paid; one kobo less and what is held goes toward it, the shortfall the miss", () => {
     const exact = start({ scenario: ADA, content });
     setNaira(exact, ADA_UPKEEP);
     expect(ofType(exact.endTurn(), "obligation/charged")).toHaveLength(1);
     expect(exact.state.wallet.pockets.NGN.bank).toBe(0);
 
+    // One kobo less: the upkeep takes what is held and the shortfall is the miss (decision 0015).
     const short = start({ scenario: ADA, content });
     setNaira(short, ADA_UPKEEP - 1);
     const result = short.endTurn();
     expect(ofType(result, "obligation/charged")).toEqual([]);
-    expect(ofType(result, "obligation/missed")).toHaveLength(1);
-    expect(debits(result)).toEqual([]);
-    expect(short.state.wallet.pockets.NGN.bank).toBe(ADA_UPKEEP - 1);
+    expect(ofType(result, "obligation/missed")).toMatchObject([{ paid: ADA_UPKEEP - 1, total: ADA_UPKEEP }]);
+    expect(debits(result)).toMatchObject([{ currency: "NGN", amount: ADA_UPKEEP - 1, reason: "upkeep" }]);
+    expect(short.state.wallet.pockets.NGN.bank).toBe(0);
+    expect(result.lines.find((line) => line.key === "line.obligation.missed-part")).toMatchObject({ tone: "bad", attention: true });
   });
 
   test("[R-OBLIGATION-002] given cash and bank, when a loan is charged, then naira is taken cash first then bank, the principal part under its sink and interest under its interest sink", () => {
@@ -307,20 +309,21 @@ describe("default", () => {
     expect(item(game, loan.id)?.state).toBe("defaulted");
     expect(game.view().obligations.find((owed) => owed.id === loan.id)?.due).toBe(principal);
 
-    // Too little for the upkeep, so it is missed and the whole bank goes to the lender.
+    // Too little for the upkeep: it is charged first (R-OBLIGATION-001) and takes every naira held (decision 0015), so
+    // the lender finds nothing this month and what is owed stands.
     setNaira(game, 3000000, 5000000);
     const partly = game.endTurn();
-    expect(ofType(partly, "obligation/seized")).toEqual([{ type: "obligation/seized", id: loan.id, entry: SALARY_LOAN, amount: 3000000 }]);
-    expect(debits(partly)).toEqual([{ type: "wallet/debited", currency: "NGN", pocket: "bank", amount: 3000000, reason: "loan-repay" }]);
-    expect(game.state.wallet.pockets.NGN).toMatchObject({ bank: 0, cash: 5000000 });
-    expect(item(game, loan.id)?.outstanding).toBe(principal - 3000000);
+    expect(ofType(partly, "obligation/missed")).toMatchObject([{ entry: UPKEEP, paid: 8000000 }]);
+    expect(ofType(partly, "obligation/seized")).toEqual([]);
+    expect(game.state.wallet.pockets.NGN).toMatchObject({ bank: 0, cash: 0 });
+    expect(item(game, loan.id)?.outstanding).toBe(principal);
 
     setNaira(game, ADA_UPKEEP + 50000000, 0);
     const rest = game.endTurn();
-    expect(ofType(rest, "obligation/seized")).toEqual([{ type: "obligation/seized", id: loan.id, entry: SALARY_LOAN, amount: principal - 3000000 }]);
+    expect(ofType(rest, "obligation/seized")).toEqual([{ type: "obligation/seized", id: loan.id, entry: SALARY_LOAN, amount: principal }]);
     expect(ofType(rest, "obligation/closed")).toEqual([{ type: "obligation/closed", id: loan.id, entry: SALARY_LOAN, why: "paid" }]);
     expect(item(game, loan.id)).toBeUndefined();
-    expect(game.state.wallet.pockets.NGN.bank).toBe(50000000 - (principal - 3000000));
+    expect(game.state.wallet.pockets.NGN.bank).toBe(50000000 - principal);
   });
 });
 
@@ -388,7 +391,8 @@ describe("held funds", () => {
     expect(ofType(result, "obligation/taken-back")).toEqual([{ type: "obligation/taken-back", id: held.id, entry: HELD, amount: principal }]);
     expect(debits(result)).toContainEqual({ type: "wallet/debited", currency: "NGN", pocket: "locked", amount: principal, reason: "held-funds-return" });
     expect(qualityChanges(result, HELD).map((event) => [event.quality, event.amount])).toEqual([[STANDING, -5]]);
-    expect(game.state.wallet.pockets.NGN).toMatchObject({ locked: 0, bank: 1000000 });
+    // The upkeep, short, took the bank's naira first (decision 0015).
+    expect(game.state.wallet.pockets.NGN).toMatchObject({ locked: 0, bank: 0 });
     expect(item(game, held.id)).toBeUndefined();
     const line = result.lines.find((entry) => entry.key === "line.obligation.taken-back");
     expect(line).toMatchObject({ tone: "bad", attention: true });
@@ -646,8 +650,8 @@ describe("the group loan", () => {
     expect(game.state.quality[CREDIT]).toBe(credit + 1);
     expect(third.lines.find((line) => line.key === "line.obligation.group-default")).toMatchObject({ tone: "bad", attention: true });
 
-    // From then on the lender takes from the bank, as any defaulted loan.
-    setNaira(game, 5000000);
+    // From then on the lender takes from the bank, as any defaulted loan (the upkeep, charged first, is paid in full here).
+    setNaira(game, ADA_UPKEEP + 5000000);
     const taken = month(game);
     expect(ofType(taken, "obligation/seized")).toEqual([{ type: "obligation/seized", id: loan.id, entry: GROUP_LOAN, amount: 5000000 }]);
     // The credit mark now keeps every group loan closed.

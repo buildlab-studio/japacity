@@ -16,7 +16,7 @@ export type ObligationEvent =
    */
   | { type: "obligation/charged"; id: string; entry: Id<"obligation">; total: number; interest: number; principal: number; relief?: { source: string; amount: number }[] }
   /** A month's charge could not be paid. `missed` is the count of misses in a row after this one (R-OBLIGATION-003). */
-  | { type: "obligation/missed"; id: string; entry: Id<"obligation">; total: number; missed: number }
+  | { type: "obligation/missed"; id: string; entry: Id<"obligation">; total: number; missed: number; paid?: number }
   /**
    * A first miss in a row on a group loan: the group paid the lender and the
    * charge is added to what is owed (R-OBLIGATION-011). `principal` is the part

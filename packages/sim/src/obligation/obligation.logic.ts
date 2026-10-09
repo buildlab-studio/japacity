@@ -494,7 +494,11 @@ function miss(ctx: Ctx, item: ObligationState, entry: ObligationEntry, charge: C
     ctx.apply(entry.onMiss, cause);
     return events;
   }
-  const events = record(ctx, { type: "obligation/missed", id: item.id, entry: item.entry, total: totalOf(charge), missed });
+  // R-OBLIGATION-002 (decision 0015): the upkeep takes what the naira holds and the shortfall is the miss, so a bill
+  // short by a little never leaves the whole month's money untouched and the results saying nothing moved.
+  const paid = entry.type === "upkeep" && entry.currency === "NGN" ? Math.min(totalOf(charge), ctx.state.wallet.pockets.NGN.cash + ctx.state.wallet.pockets.NGN.bank) : 0;
+  if (paid > 0) take(ctx, cause, entry.currency, "any", paid, "upkeep");
+  const events = record(ctx, { type: "obligation/missed", id: item.id, entry: item.entry, total: totalOf(charge), missed, ...(paid > 0 ? { paid } : {}) });
   ctx.apply(entry.type === "group-loan" ? groupMissEffects(ctx, entry, missed) : entry.onMiss, cause);
   // R-OBLIGATION-004: upkeep and support never default. R-OBLIGATION-005: the miss that passes the grace applies onMiss, then onDefault.
   const defaults = GRACE_TYPES.includes(entry.type) && missed > entry.grace;
@@ -920,6 +924,7 @@ function lines(event: ObligationEvent, _state: State, content: Content): ReportL
         ...(event.relief ?? []).filter((relief) => relief.amount > 0).map((relief) => line(reliefKey(relief.source), { obligation: event.entry, amount: money(event.entry, relief.amount) }, "good", false)),
       ];
     case "obligation/missed":
+      if (event.paid !== undefined && event.paid > 0) return [line("missed-part", { obligation: event.entry, amount: money(event.entry, event.total), paid: money(event.entry, event.paid), short: money(event.entry, event.total - event.paid) }, "bad", true)];
       return [line(missKey(entryOf(content, event.entry), event.missed), { obligation: event.entry, amount: money(event.entry, event.total) }, "bad", true)];
     case "obligation/covered":
       return [line("group-covered", { obligation: event.entry, amount: money(event.entry, event.total) }, "bad", true)];
