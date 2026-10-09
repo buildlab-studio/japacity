@@ -80,13 +80,12 @@ function WorldPlaying() {
         }}
         month={<MonthSheet />}
         results={(place) => <Results place={place} />}
-        asks={
-          <div className="flex flex-col gap-4">
-            <SetpieceView />
-            <InterviewView />
-            <AgentSheets ids={view.offers.map((offer) => offer.entry)} others={(only) => <OfferView only={only} />} />
-          </div>
-        }
+        // R-WORLD-006: one ask at a time: the set piece's question, the interview's, then each open offer on its own.
+        asks={[
+          ...(view.setpiece === null ? [] : [<SetpieceView key="setpiece" />]),
+          ...((view.interview?.question ?? null) === null ? [] : [<InterviewView key="interview" />]),
+          ...view.offers.map((offer) => <AgentSheets key={offer.id} ids={[offer.entry]} others={(only) => <OfferView only={(candidate) => candidate.id === offer.id && only(candidate)} />} />),
+        ]}
         phone={(close, area) => <PhoneApps onClose={close} area={area} account={<AccountButton more={<NotifySetting />} />} talk={talk} />}
         phoneWaiting={phoneWaiting}
         askIcon={iconFor}

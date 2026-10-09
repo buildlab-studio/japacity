@@ -226,6 +226,10 @@ describe("paying the agent", () => {
     expect(game.state.document["document.medical"]!.readyMonth).toBe(due);
     const promise = Object.values(game.state.offer.items).find((candidate) => candidate.entry === PROMISE)!;
     expect(promise.terms["agent"]).toBe(item.terms["agent"]);
+    // Waiting changes nothing and keeps the promise open.
+    const waited = game.accept({ type: "offer/choose", offer: promise.id, choice: "wait" });
+    expect(waited.events.filter((event) => event.type.startsWith("offer/"))).toEqual([]);
+    expect(game.state.offer.items[promise.id]).toBeDefined();
     const lines: ReportLine[] = [];
     for (let month = 0; month < 4 && game.state.offer.items[promise.id] !== undefined; month += 1) lines.push(...game.endTurn().lines);
     expect(lines.find((line) => line.key === "line.offer.agent-promise-broken")?.params).toEqual({ agent: item.terms["agent"], month: promise.expiresMonth });

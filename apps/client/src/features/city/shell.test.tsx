@@ -42,6 +42,22 @@ describe("the world fills the screen", () => {
     expect(band()).toBeTruthy();
   });
 
+  test("[R-WORLD-006] given three asks waiting, when the nudge is tapped, then the sheet shows one at a time, counted, with Next and Back", async () => {
+    await renderWithView(world({ asks: [<p key="a" data-ask="a">first</p>, <p key="b" data-ask="b">second</p>, <p key="c" data-ask="c">third</p>] }), richView());
+    fireEvent.click(screen.getByRole("button", { name: say("ui.nudge.setpiece") }));
+    const sheet = screen.getByRole("dialog");
+    expect(within(sheet).getByText("first")).toBeTruthy();
+    expect(within(sheet).queryByText("second")).toBeNull();
+    expect(within(sheet).getByText(say("ui.world.ask-of", { n: 1, count: 3 }))).toBeTruthy();
+    fireEvent.click(within(sheet).getByRole("button", { name: say("ui.world.ask-next") }));
+    expect(within(sheet).getByText("second")).toBeTruthy();
+    fireEvent.click(within(sheet).getByRole("button", { name: say("ui.world.ask-next") }));
+    expect(within(sheet).getByText("third")).toBeTruthy();
+    expect(within(sheet).getByRole<HTMLButtonElement>("button", { name: say("ui.world.ask-next") }).disabled).toBe(true);
+    fireEvent.click(within(sheet).getByRole("button", { name: say("ui.world.ask-back") }));
+    expect(within(sheet).getByText("second")).toBeTruthy();
+  });
+
   test("[R-WORLD-001] given the world, when End month is tapped, then the Month sheet opens over it with the month's contents and closes back to it", async () => {
     await renderWithView(world(), engineView());
     fireEvent.click(screen.getByRole("button", { name: say("ui.world.end-month") }));

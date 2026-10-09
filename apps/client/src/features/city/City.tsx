@@ -240,8 +240,8 @@ export function City({
   apps?: readonly PhoneApp[];
   /** The world mode's results sheet when a month ends (R-WORLD-008), given the name of where the player is. */
   results?: (place: string) => ReactNode;
-  /** The world mode's sheet for what the nudge names and waits on the player: the set piece's question, the offers (R-WORLD-003). */
-  asks?: ReactNode;
+  /** The world mode's sheet for what the nudge names and waits on the player: the set piece's question, the offers (R-WORLD-003). A list shows one at a time, with Next (R-WORLD-006). */
+  asks?: ReactNode | ReactNode[];
   /** The world mode's phone (R-WORLD-018), handed in by the shell: the handset over the place named `area`. */
   phone?: (close: () => void, area: string) => ReactNode;
   /** A dot on the Phone button: an app has something new (R-WORLD-004). */
@@ -268,6 +268,12 @@ export function City({
   const ageMonths = view.qualities.find((quality) => quality.id === "quality.age-months")?.value ?? 0;
   const clock = say("ui.world.clock", { years: Math.floor(ageMonths / 12), months: ageMonths % 12, turns: view.turns.banked });
   const [asksOpen, setAsksOpen] = useState(false);
+  const [askIndex, setAskIndex] = useState(0);
+  const askList = Array.isArray(asks) ? asks : null;
+  const askCount = askList?.length ?? 0;
+  useEffect(() => {
+    if (askIndex >= askCount) setAskIndex(0);
+  }, [askIndex, askCount]);
   // R-WORLD-008: the results are up from the month's end until the player goes back to the place; the staged wins come first.
   const resultsOpen = useGame((state) => state.reportOpen && state.moments.length === 0) && world && view.report !== null;
   const reportOpen = useGame((state) => state.reportOpen);
@@ -474,10 +480,13 @@ export function City({
         setPicked(null);
         setMonthOpen(true);
         return;
-      case "plain":
+      case "plain": {
         setPicked(null);
-        toast.show(sceneWords(act.label));
+        // What the act did, in a line of its own when content has one; else its name.
+        const done = sceneWords(`${act.label}.done`);
+        toast.show(done === `${act.label}.done` ? sceneWords(act.label) : done);
         return;
+      }
       default: {
         const never: never = act.kind;
         throw new Error(`Unknown act: ${String(never)}`);
@@ -815,8 +824,28 @@ export function City({
         </WorldSheet>
       ) : null}
       {world && asks !== undefined ? (
-        <WorldSheet open={asksOpen} onClose={() => setAsksOpen(false)} label={name} title={say(nudge?.key ?? "ui.nudge.end")} mark="asks">
-          {asks}
+        <WorldSheet
+          open={asksOpen}
+          onClose={() => setAsksOpen(false)}
+          label={askList === null || askCount < 2 ? name : say("ui.world.ask-of", { n: Math.min(askIndex, askCount - 1) + 1, count: askCount })}
+          title={say(nudge?.key ?? "ui.nudge.end")}
+          mark="asks"
+          {...(askList !== null && askCount > 1
+            ? {
+                foot: (
+                  <div className="flex items-center justify-between gap-2" data-asks-foot>
+                    <button type="button" className="chip press px-3 py-2 text-[13px] font-bold disabled:opacity-40" disabled={askIndex === 0} onClick={() => setAskIndex((index) => Math.max(0, index - 1))} data-asks-back>
+                      {say("ui.world.ask-back")}
+                    </button>
+                    <button type="button" className="chip press px-3 py-2 text-[13px] font-bold disabled:opacity-40" disabled={askIndex >= askCount - 1} onClick={() => setAskIndex((index) => Math.min(askCount - 1, index + 1))} data-asks-next>
+                      {say("ui.world.ask-next")}
+                    </button>
+                  </div>
+                ),
+              }
+            : {})}
+        >
+          {askList === null ? asks : askList[Math.min(askIndex, Math.max(0, askCount - 1))]}
         </WorldSheet>
       ) : null}
       {world && resultsShown ? results?.(hereName) : null}

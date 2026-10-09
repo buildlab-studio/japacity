@@ -374,6 +374,8 @@ function choose(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   const problem = choiceProblem(readOf(ctx), judgeIn(ctx), item, choice, command.amount);
   if (problem !== null) return reject(problem.code, problem.detail);
   if (inFamily(item.entry) && isLook(choice.id)) return look(ctx, item, choice.id);
+  // R-ADVICE-005: waiting on a promise changes nothing and keeps it open; the month passing tells the rest.
+  if (item.entry === PROMISE && choice.id === "wait") return [];
   takeChoice(ctx, item, choice, choice.pick === null ? null : (command.amount ?? null));
   const paid = standsAsAgent(entryOf(ctx.content, item.entry)) && choice.id === TAKE ? agentPaid(ctx, item) : [];
   return [...paid, ...record(ctx, { type: "offer/taken", id: item.id, entry: item.entry, choice: choice.id })];

@@ -44,6 +44,8 @@ const PINCH_PX = 260;
 /** How quickly the view eases to where it is going, a share a second. */
 const EASE = 7;
 /** A label, and a thing's acts, float this high over the thing's spot. */
+/** How close to the screen's edge a label or a chip may stand. */
+const EDGE_MARGIN = 8;
 const LABEL_Y = 2.6;
 /** The sun's shadow covers the place's width and this much round it, in metres. */
 const SHADOW_MARGIN = 4;
@@ -104,6 +106,8 @@ interface WalkState {
   walker: Walker;
   pending: { thing: Thing; act: Act } | null;
   standing: SceneProps["file"] | null;
+  /** The character sat down on a plain act and stays so until they walk. */
+  sitting: boolean;
 }
 
 interface PlaceProps extends SceneProps {
@@ -203,6 +207,7 @@ function Place(props: PlaceProps) {
     const to = walkSpot(stage, thing, walk.current.walker);
     if (to !== null) walk.current.walker = walkTo(walk.current.walker, to[0], to[1]);
     walk.current.pending = null;
+    walk.current.sitting = false;
     pick.current({ kind: "thing", thing });
   };
   const chooseRef = useRef(choose);
@@ -336,12 +341,13 @@ function Place(props: PlaceProps) {
     walk.current.walker = next;
     world.own.root.position.set(next.x, 0, next.z);
     world.own.root.rotation.y = next.facing;
-    if (next.target === null) poseFigure(world.own, time, "stand");
+    if (next.target === null) poseFigure(world.own, time, walk.current.sitting ? "sit" : "stand");
     else poseFigure(world.own, time, "walk", strideOf(next));
-    // The act follows once the character has reached its thing.
+    // The act follows once the character has reached its thing; sitting is a plain act that shows (R-WORLD-005).
     const waiting = walk.current.pending;
     if (waiting !== null && next.target === null) {
       walk.current.pending = null;
+      if (waiting.act.kind === "plain" && waiting.act.id === "sit") walk.current.sitting = true;
       pick.current({ kind: "act", thing: waiting.thing, act: waiting.act });
     }
     const aspect = state.size.width / Math.max(1, state.size.height);
@@ -379,12 +385,17 @@ function Place(props: PlaceProps) {
       light.target.position.set(cx, 0, cz);
       light.target.updateMatrixWorld();
     }
+    // A label or a chip near the screen's edge is held inside it, since it is centred on its thing.
+    const within = (x: number, node: HTMLElement): number => {
+      const half = node.offsetWidth / 2 + EDGE_MARGIN;
+      return Math.min(Math.max(x, half), Math.max(half, state.size.width - half));
+    };
     for (const { thing, node } of labels.current) {
       const spot = thingSpot(stage, thing);
       const at = spot === null || chip.current?.thing.id === thing.id ? null : onScreen(state.camera, state.size, spot[0], LABEL_Y, spot[1], 1.05);
       node.style.display = at === null ? "none" : "";
       if (at !== null) {
-        node.style.left = `${String(at.x)}px`;
+        node.style.left = `${String(within(at.x, node))}px`;
         node.style.top = `${String(at.y)}px`;
       }
     }
@@ -394,7 +405,7 @@ function Place(props: PlaceProps) {
       const at = spot === null ? null : onScreen(state.camera, state.size, spot[0], LABEL_Y, spot[1], 1.2);
       shown.node.style.display = at === null ? "none" : "";
       if (at !== null) {
-        shown.node.style.left = `${String(at.x)}px`;
+        shown.node.style.left = `${String(within(at.x, shown.node))}px`;
         shown.node.style.top = `${String(at.y)}px`;
       }
     }
@@ -446,7 +457,10 @@ function Place(props: PlaceProps) {
     const point = { x: event.point.x, z: event.point.z };
     // The roaming city routes round the things in the way; the world walks straight, and only on its walkable ground.
     if (world.routes !== null) walk.current.walker = walkRoute(walk.current.walker, findRoute(world.routes, walk.current.walker, point));
-    else if (onWalkable(walkableOf(stage), point.x, point.z)) walk.current.walker = walkTo(walk.current.walker, point.x, point.z);
+    else if (onWalkable(walkableOf(stage), point.x, point.z)) {
+      walk.current.walker = walkTo(walk.current.walker, point.x, point.z);
+      walk.current.sitting = false;
+    }
   };
 
   const { sky, background, fog } = skyColours(stage.light.sky, stage.light.ground, settings.haze);
@@ -484,7 +498,7 @@ export default function CityScene(props: SceneProps) {
   const raised = props.overview === true && props.roam !== true;
   const shot = useMemo(() => shotOf(stageOf(file)), [file]);
   const rig = useRef<Rig>(wholeRig());
-  const walk = useRef<WalkState>({ walker: standAt(0, 0, 0), pending: null, standing: null });
+  const walk = useRef<WalkState>({ walker: standAt(0, 0, 0), pending: null, standing: null, sitting: false });
   const [markBox, setMarkBox] = useState<HTMLDivElement | null>(null);
   const holding = useRef<number | null>(null);
   const held = useRef(false);
