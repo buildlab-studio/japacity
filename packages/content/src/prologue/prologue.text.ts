@@ -147,6 +147,12 @@ export const prologueText: Record<string, string> = {
   "prologue.archetype.shop-worker.was": "Straight from school to a shop counter",
   "prologue.archetype.shop-worker.opens": "Opens: a Gulf contract, the road through the desert to Europe. Hands over at about 22",
   "prologue.handover.archetype": "{kind}. {was}.",
+  // R-PROLOGUE-011: where a life cannot be started over (online, one life an account), the tiles say the draw may
+  // turn the years, and a handover whose life left its tile's path reads the life as lived, never the tile.
+  "prologue.archetype.once": "One life. The family you are born to may send the years another way.",
+  "prologue.handover.lived.degree": "The years went another way: school, then university.",
+  "prologue.handover.lived.capital": "The years went another way: six years under a master, and a shop's capital.",
+  "prologue.handover.lived.trade": "The years went another way: no university, work from school on.",
 
   "scenario.prologue.name": "A life from sixteen",
   "scenario.prologue.blurb": "Secondary school to the end of the service year. Your choices build where you start.",
