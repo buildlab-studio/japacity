@@ -1,78 +1,64 @@
-// Peckham staged as the hub abroad in London (city.md place.peckham, R-CITY-013): Rye Lane between
-// its terraces down to the railway bridge by Peckham Rye station, measured as the build check
-// measures it and read for what the place must show.
+// Peckham rebuilt as one frontage on Rye Lane (city.md place.peckham, world.md R-WORLD-011): the
+// shops across the road with the grocer's produce out front and the hair shop beside it, and on the
+// near pavement the bus stop and a bench. It is the hub abroad in London; the community act is staged
+// in the room abroad, not here.
 import { describe, expect, test } from "vitest";
 
-import placeFile from "../../../../public/assets/places/peckham/place.json";
-import { allPalette, copiesOf, highCrowd, instancesOf, lowCrowd, onGround, rowOf, signKeys, staged, totalsOf, wordsOf } from "./placeTesting";
+import raw from "../../../../public/assets/places/peckham/place.json";
+import room from "../../../../public/assets/places/the-room/place.json";
+import { stageOf, type PlaceFile } from "../placeFile";
+import { sceneWords } from "../scene.words";
+import { frontageTests } from "./frontageTesting";
+import { copiesOf, staged, wordsOf } from "./placeTesting";
 
-const { file, stage, entry } = staged(placeFile, "place.peckham");
-const QUARTER = Math.PI / 2;
+const ID = "place.peckham";
+const { file, stage, entry } = staged(raw, ID);
+const thing = (id: string) => {
+  const found = (stage.things ?? []).find((candidate) => candidate.id === id);
+  if (found === undefined) throw new Error(`No ${id}`);
+  return found;
+};
 
-describe("Peckham's budget", () => {
-  test("[R-ASSET-007] given Peckham's shipped files measured as the build check measures them, when the place is counted, then both modes fit the exterior row, since the hub abroad comes on arrival and not in the first download", async () => {
+describe("Peckham", () => {
+  frontageTests(raw, ID);
+
+  test("[R-CITY-013] given the hub abroad in London, when its file is read, then the entry is the country's hub and the file is not the first download, and the community act waits in the room abroad", () => {
     expect(entry.hub).toBe(true);
     expect(file.hub).toBe(false);
-    expect(file.scope).toBe("exterior");
-    const totals = await totalsOf(file);
-    for (const mode of ["low", "high"] as const) {
-      expect(totals[mode].drawCalls).toBeLessThanOrEqual(rowOf(file).drawCalls);
-      expect(totals[mode].triangles).toBeLessThanOrEqual(rowOf(file).triangles);
-    }
+    const window = (stageOf(room as unknown as PlaceFile).things ?? []).flatMap((candidate) => candidate.acts.map((act) => act.stages));
+    expect(window).toContain("activity.community-uk");
   });
 
-  test("[R-ASSET-007] given Peckham's file, when its counts are read, then the instances are the copies staged, the crowd is the client's in each mode, and the floor is one draw call of palette colours", () => {
-    expect(file.instances).toEqual(instancesOf(stage));
-    expect(file.people.low).toBe(lowCrowd(entry));
-    expect(file.people.high).toBe(highCrowd(entry));
-    expect(placeFile.groundRoadSky.drawCalls).toBe(1);
-    expect(allPalette(stage)).toBe(true);
-  });
-});
-
-describe("Rye Lane", () => {
-  test("[R-CITY-013] given the hub abroad, when its stage is read, then the railway bridge crosses the street ahead of the start with the station's name on it, terraces face the street from both sides, and the bus stop stands at the kerb", () => {
-    const [bridge] = copiesOf(stage, "bld_railway-bridge.glb");
-    if (bridge === undefined) throw new Error("No bridge");
-    expect(bridge[1]).toBeLessThan(stage.start[1]);
-    expect(wordsOf("place.peckham.sign.31")).toBe("PECKHAM RYE");
-    expect(wordsOf("place.peckham.sign.30")).toContain("STATION");
-    const terraces = [...copiesOf(stage, "bld_rye-lane-terrace_a.glb"), ...copiesOf(stage, "bld_rye-lane-terrace_b.glb")];
-    const left = terraces.filter(([x, , turn]) => x < 0 && Math.abs(turn - QUARTER) < 1e-3);
-    const right = terraces.filter(([x, , turn]) => x > 0 && Math.abs(turn + QUARTER) < 1e-3);
-    expect(left.length).toBeGreaterThanOrEqual(2);
-    expect(right.length).toBeGreaterThanOrEqual(2);
-    const kerbs = stage.roads.filter((road) => road.raise !== undefined).map((road) => Math.abs(road.at[0]));
-    const [shelter] = copiesOf(stage, "prop_bus-shelter.glb");
-    if (shelter === undefined) throw new Error("No bus stop");
-    expect(Math.abs(shelter[0]) - Math.min(...kerbs)).toBeLessThan(2.5);
+  test("[R-WORLD-005] given Rye Lane's things, when they are read, then the grocer and the barber are looked at, the bench is sat on and the bus stop opens the ride sheet", () => {
+    expect(thing("grocer").acts.map((act) => act.kind)).toEqual(["plain"]);
+    expect(thing("barber").acts.map((act) => act.kind)).toEqual(["plain"]);
+    expect(thing("bench").acts.map((act) => [act.kind, sceneWords(act.label)])).toEqual([["plain", "Sit"]]);
+    expect(thing("stop").acts.map((act) => act.kind)).toEqual(["ride"]);
+    expect(thing("bench").file.endsWith("prop_street-bench.glb")).toBe(true);
+    expect(thing("stop").file.endsWith("prop_bus-shelter.glb")).toBe(true);
   });
 
-  test("[R-CITY-024] given the terraces standing six times and the bridge's boards, when the copies are lettered, then every copy has its own keys with words, the chicken shop and the Nigerian restaurant among them, and no key shows twice", () => {
-    const keys = signKeys(stage);
-    expect(new Set(keys).size).toBe(keys.length);
-    expect(keys.every((key) => key.startsWith("place.peckham.sign.") && wordsOf(key).trim() !== "")).toBe(true);
-    const words = keys.map(wordsOf);
-    expect(words.some((said) => said.includes("CHICKEN"))).toBe(true);
+  test("[R-CITY-024] given the terraces across the road, when their boards are read, then the grocer's and the hair shop's boards stand over them, with the Nigerian restaurant along the row", () => {
+    const boards = stage.models.flatMap((model) => (model.signs ?? []).flat());
+    const words = boards.map(wordsOf);
+    expect(words.some((said) => said.includes("AFRO-CARIBBEAN"))).toBe(true);
+    expect(words.some((said) => said.includes("HAIR"))).toBe(true);
     expect(words.some((said) => said.includes("NIGERIAN RESTAURANT"))).toBe(true);
-    const lettered = stage.models.filter((model) => model.signs !== undefined);
-    expect(lettered.map((model) => model.signs?.length)).toEqual(lettered.map((model) => model.at.length));
+    const [grocer] = copiesOf(stage, thing("grocer").file.split("/").pop() ?? "");
+    const [terrace] = copiesOf(stage, "bld_rye-lane-terrace_a.glb");
+    const lettered = stage.models.find((model) => model.file.endsWith("bld_rye-lane-terrace_a.glb"));
+    if (grocer === undefined || terrace === undefined || lettered === undefined) throw new Error("No grocer or terrace");
+    expect(wordsOf(lettered.signs?.[0]?.[2] ?? "")).toContain("AFRO-CARIBBEAN");
+    // The grocer's board is the row's third, five metres right of its middle (bld/rye-lane-terrace).
+    expect(Math.abs(grocer[0] - (terrace[0] + 5))).toBeLessThan(1);
   });
 
-  test("[R-CITY-014] given Peckham's crowd spots, when the high mode's sample stands, then there are spots for all of it on the ground, and the traders' spots are at the stalls under the arches", () => {
-    expect(stage.people.length).toBeGreaterThanOrEqual(highCrowd(entry));
-    expect(stage.people.every((spot) => onGround(stage, spot))).toBe(true);
-    expect(onGround(stage, stage.start)).toBe(true);
-    const stalls = copiesOf(stage, "prop_stall.glb");
-    for (const index of stage.prefer?.trader ?? []) {
-      const spot = stage.people[index];
-      if (spot === undefined) throw new Error(`No spot ${String(index)}`);
-      expect(index).toBeLessThan(highCrowd(entry));
-      expect(stalls.some(([x, z]) => Math.hypot(x - spot[0], z - spot[1]) < 1.5)).toBe(true);
+  test("[R-WORLD-011] given the bus stop and the bench, when the near pavement is read, then both stand between the kerb and the player's start", () => {
+    const kerb = Math.max(...stage.roads.filter((road) => road.raise !== undefined && road.raise > 0.1).map((road) => road.at[1]));
+    for (const id of ["stop", "bench"]) {
+      const [, z] = copiesOf(stage, thing(id).file.split("/").pop() ?? "")[0] ?? [0, 0];
+      expect(z).toBeGreaterThan(kerb);
+      expect(z).toBeLessThan(stage.start[1]);
     }
-  });
-
-  test("[R-CITY-025] given Peckham's motion, when it is read, then bunting crosses the street, fabrics hang at the market arch, the grill smokes and leaves blow, each one moving thing on the shared clock", () => {
-    expect(stage.motion.map((motion) => motion.kind)).toEqual(expect.arrayContaining(["bunting", "hang", "smoke", "leaves"]));
   });
 });
