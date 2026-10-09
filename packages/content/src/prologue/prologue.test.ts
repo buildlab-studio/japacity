@@ -187,3 +187,53 @@ describe("the prologue's steps", () => {
     expect(content.tuning.prologue.startAgeMonths).toBe(192);
   });
 });
+
+const WELLBEING = "quality.wellbeing";
+
+function wellbeingAdded(effects: readonly Effect[]): number {
+  return effects.reduce((sum, effect) => sum + (effect.type === "quality/add" && effect.quality === WELLBEING ? effect.amount : 0), 0);
+}
+
+/** The lowest and highest wellbeing any path closes on, from the draw card's start, along the answers age allows (as `walk` does). */
+function wellbeingAtClose(steps: Record<string, PrologueStep>): { low: number; high: number } {
+  let low = Number.POSITIVE_INFINITY;
+  let high = Number.NEGATIVE_INFINITY;
+  const visit = (id: string, age: number, wellbeing: number, depth: number): void => {
+    const step = steps[id];
+    if (step === undefined) throw new Error(`The step ${id} does not exist`);
+    if (depth > 40) throw new Error(`The prologue loops at ${id}`);
+    for (const answer of step.answers.filter((given) => given.requires.every((requirement) => canHold(requirement, age)))) {
+      const outcomes = answer.draw ?? [{ id: "", bp: 10000, effects: [], next: answer.next ?? step.next }];
+      for (const outcome of outcomes) {
+        const after = wellbeing + wellbeingAdded(answer.effects) + wellbeingAdded(outcome.effects);
+        const next = outcome.next ?? answer.next ?? step.next;
+        if (next === null) {
+          low = Math.min(low, after);
+          high = Math.max(high, after);
+        } else {
+          visit(next, age + step.months, after, depth + 1);
+        }
+      }
+    }
+  };
+  visit(FIRST, START_AGE, 0, 0);
+  return { low, high };
+}
+
+describe("the life from sixteen starts in fair health", () => {
+  const fixed = Object.values(content.scenario).filter((scenario) => scenario.prologue !== true).map((scenario) => scenario.qualities[WELLBEING] ?? 0);
+
+  test("[R-PROLOGUE-002] given the draw card that begins the prologue, when it is answered, then wellbeing starts inside the band the fixed lives start in, not at its minimum", () => {
+    const begin = content.prologue[FIRST]?.answers.find((answer) => answer.id === "begin");
+    const start = wellbeingAdded(begin?.effects ?? []);
+    expect(fixed.length).toBeGreaterThan(0);
+    expect(start).toBeGreaterThanOrEqual(Math.min(...fixed));
+    expect(start).toBeLessThanOrEqual(Math.max(...fixed));
+  });
+
+  test("[R-PROLOGUE-006] given every path through the prologue, when its wellbeing is added up from the draw card, then every life closes above the run-down line and no higher than the scale allows", () => {
+    const { low, high } = wellbeingAtClose(content.prologue);
+    expect(low).toBeGreaterThanOrEqual(content.tuning.health.runDownBelow);
+    expect(high).toBeLessThanOrEqual(content.quality[WELLBEING]?.max ?? 0);
+  });
+});

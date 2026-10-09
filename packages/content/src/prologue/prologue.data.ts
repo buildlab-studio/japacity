@@ -56,12 +56,20 @@ const FIRST_RETAKE_ONLY: Requirement = { type: "quality/max", quality: "quality.
 /** The shop job after school: edu-level 1, ₦70,000 a month saved for a year. */
 const SHOP_WORK: Effect[] = [add(EDU_LEVEL, 1), earned(naira(300000))];
 
+/**
+ * R-PROLOGUE-001 starts every quality at its minimum, and nothing on the page lifts wellbeing from 0, so
+ * the life opened run down and fell ill by its third month. The draw card's answer gives the sixteen-year-old the
+ * wellbeing the fixed lives start with (50 to 70); the answers after it move it by -22 to +15, so every path closes
+ * above the run-down line.
+ */
+const START_WELLBEING = 60;
+
 export const prologueTable: Record<string, PrologueStep> = {
   draw: {
     id: "draw",
     months: 0,
     next: "subjects",
-    answers: [answer("begin", [])],
+    answers: [answer("begin", [add(WELLBEING, START_WELLBEING)])],
   },
 
   subjects: {
