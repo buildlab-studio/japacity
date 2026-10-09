@@ -462,6 +462,12 @@ export const placeText: Record<string, string> = {
   "place.family-house.overheard.1": "Who left the gate open?",
   "place.family-house.overheard.2": "Your uncle called again. He wants to know when you are going.",
   "place.family-house.overheard.3": "Food is in the pot. Warm it.",
+  // The family's own talk while your send-off is on: no stranger's rumour in the compound that night.
+  // Waiting for overheard.ts to read them during the send-off.
+  "place.family-house.send-off.overheard.1": "Who is carrying the jollof to the back?",
+  "place.family-house.send-off.overheard.2": "Your aunty says she will cry at the airport. She has started already.",
+  "place.family-house.send-off.overheard.3": "Bring more chairs. Mama Bisi's people have come.",
+  "place.family-house.send-off.overheard.4": "Call us when you land. Every Sunday, you hear?",
   "place.motor-park.name": "the motor park",
   "place.motor-park.blurb": "Buses, touts and men who know a man. Ask quietly and somebody always knows a way.",
   "place.motor-park.overheard.1": "Where you dey go? I fit help you.",
