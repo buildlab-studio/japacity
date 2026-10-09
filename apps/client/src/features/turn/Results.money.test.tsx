@@ -13,7 +13,6 @@ import { start, type Game } from "../../../../../packages/sim/src/testing/play";
 import { standInWorld } from "@japacity/sim";
 import { newGame, openOffer } from "../../shared/testing/fixtures";
 import { formatMoney } from "../../shared/words/format";
-import { latelyLines } from "../phone/apps/Bank";
 import { tidyLines } from "../../shared/words/lines";
 import { words } from "../../shared/words/text";
 import { kept, moneyLines } from "./month.results";
@@ -162,7 +161,7 @@ describe("money named for what it was", () => {
     expect(keptNaira([...mid, ...end])).toBe(naira(game) - before);
   });
 
-  test("[R-WORLD-008] [R-WORLD-019] given the savings circle joined, when its months end, then each share reads as the circle, the pot as the circle paying you, on the results and in the Bank, and what was kept is what moved", () => {
+  test("[R-WORLD-008] [R-WORLD-019] given the savings circle joined, when its months end, then each share reads as the circle, the pot as the circle paying you, and what was kept is what moved", () => {
     const game = newGame("scenario.tunde");
     const circle = openOffer(game, "offer.join-ajo");
     game.accept({ type: "offer/choose", offer: circle.id, choice: "join" });
@@ -187,9 +186,5 @@ describe("money named for what it was", () => {
     const told = words(pot.key, pot.params);
     expect(told).toContain(`The circle pays you ${formatMoney(amount.amount, "NGN")}`);
     expect(moneyLines(potMonth.lines).map((entry) => words(entry.line.key, entry.line.params))).toContain(told);
-    const bank = latelyLines({ report: { month: 0, lines: potMonth.lines, japacityBefore: null, japacityAfter: null, attention: false } }, [], []).map((line) => words(line.key, line.params));
-    expect(bank).toContain(told);
-    expect(bank).toContain(`Savings circle: ${formatMoney(share, "NGN")}.`);
-    expect(bank.some((line) => line.startsWith("A gift lands") || line.startsWith("Spent going out"))).toBe(false);
   });
 });

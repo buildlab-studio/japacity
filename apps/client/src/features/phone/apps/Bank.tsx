@@ -417,7 +417,7 @@ export function Bank() {
             </button>
           </div>
           {abroad ? (
-            <button type="button" className={`press mt-2 flex min-h-12 w-full items-center justify-center gap-2 rounded-[6px] text-[14px] font-bold ${choosing === "send" ? "btn-dark" : "border border-sheet-line bg-sheet-2"}`} aria-expanded={choosing === "send"} onClick={() => toggle("send")} data-act="send">
+            <button type="button" className={`press mt-2 flex min-h-12 w-full items-center justify-center gap-2 rounded-[6px] text-[14px] font-bold ${choosing === "send" ? "btn-dark" : "border border-sheet-line bg-sheet-2"}`} aria-expanded={choosing === "send"} onClick={() => toggle("send")} data-bank-act="send">
               <Send size={17} aria-hidden />
               {say("ui.remit.title")}
             </button>

@@ -57,7 +57,7 @@ describe("Send money home", () => {
   test("[R-WORLD-006] [R-ABROAD-006] given Ada just landed, when Send money home opens in the Bank, then each channel says what it costs and how fast it lands, and the amount says its rate and the naira that lands", async () => {
     const view = recordedGame("ada-careful").view();
     await renderWithView(<Bank />, view);
-    fireEvent.click(document.querySelector<HTMLElement>('[data-act="send"]')!);
+    fireEvent.click(document.querySelector<HTMLElement>('[data-bank-act="send"]')!);
     const chooser = document.querySelector<HTMLElement>('[data-chooser="send"]');
     expect(chooser).not.toBeNull();
     const channels = [...(chooser?.querySelectorAll<HTMLElement>("[data-channel]") ?? [])];
@@ -76,7 +76,7 @@ describe("Send money home", () => {
   test("[R-WORLD-006] [R-ABROAD-006] given a quarter of the pounds by app, when the card opens and is confirmed, then its button says Send and the amount with what is left in pounds, and the money goes at once", async () => {
     const view = recordedGame("ada-careful").view();
     const { authority } = await renderWithView(<Bank />, view);
-    fireEvent.click(document.querySelector<HTMLElement>('[data-act="send"]')!);
+    fireEvent.click(document.querySelector<HTMLElement>('[data-bank-act="send"]')!);
     fireEvent.click(document.querySelector<HTMLElement>('[data-go="send"]')!);
     const quarter = Math.floor(view.pockets.GBP.bank / 4 / 100) * 100;
     const main = document.querySelector<HTMLElement>("[data-ask-main]");
@@ -91,7 +91,7 @@ describe("Send money home", () => {
   test("[R-WORLD-006] [R-ABROAD-006] given the bank's transfer picked, when the card opens, then its line says the naira lands next month", async () => {
     const view = recordedGame("ada-careful").view();
     await renderWithView(<Bank />, view);
-    fireEvent.click(document.querySelector<HTMLElement>('[data-act="send"]')!);
+    fireEvent.click(document.querySelector<HTMLElement>('[data-bank-act="send"]')!);
     fireEvent.click(document.querySelector<HTMLElement>('[data-channel="bank"]')!);
     fireEvent.click(document.querySelector<HTMLElement>('[data-go="send"]')!);
     const quarter = Math.floor(view.pockets.GBP.bank / 4 / 100) * 100;
