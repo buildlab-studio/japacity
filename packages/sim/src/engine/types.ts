@@ -688,6 +688,10 @@ export interface ChapterEntry {
   closesOn?: string;
   /** R-ADVERT-003: no advert shows while this chapter is open. */
   noAdverts?: boolean;
+  /** R-CHAPTER-009: the way out this variant is for. Set with `variantOf`, never alone. */
+  route?: Id<"route">;
+  /** R-CHAPTER-009: the base chapter this one stands in for when the life leans to `route`. */
+  variantOf?: Id<"chapter">;
 }
 
 /** docs/rules/adverts.md: a slot an advert may fill. The simulation never reads it. */

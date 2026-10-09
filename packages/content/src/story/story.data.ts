@@ -70,6 +70,8 @@ const HOUSE: Id<"place"> = "place.family-house";
 const ROOM: Id<"place"> = "place.the-room";
 const BANK: Id<"place"> = "place.olokun-office";
 const VISA: Id<"place"> = "place.visa-centre";
+const CLINIC: Id<"place"> = "place.tb-clinic";
+const AGENT: Id<"place"> = "place.agent-office";
 
 export const storySteps: StoryStep[] = [
   // Find your feet: the hub in Yaba carries the first chapter.
@@ -93,6 +95,38 @@ export const storySteps: StoryStep[] = [
   step(DECISION, "tb", { place: "place.tb-clinic", thing: "nurse-desk", app: null, act: { entry: "activity.tb-test" }, fromBox: true }),
   step(DECISION, "applied", { place: VISA, thing: "desk", app: null, act: { entry: "activity.apply-for-visa" }, fromBox: true }),
   step(DECISION, "granted", { place: VISA, thing: "desk", app: "japa", act: { wait: true } }),
+
+  // The file and decision day of each other way out (chapter.md R-CHAPTER-009). the file stays in
+  // the box for these rows (the four rows that take it to a desk are the master's); each row names where the
+  // step is taken: the clinic's desk, the hub's desk, the visa centre, the agent's office.
+  step("chapter.build-the-file-care", "tenure", { place: CLINIC, thing: "nurse-desk", app: "japa", act: { wait: true } }),
+  step("chapter.build-the-file-care", "verification", { place: CLINIC, thing: "nurse-desk", app: "japa", act: { entry: "activity.request-verification" } }),
+  step("chapter.build-the-file-care", "sponsor", { place: HUB, thing: "long-desk", app: "japa", act: { entry: "activity.find-sponsor" } }),
+  step("chapter.build-the-file-care", "applied", { place: VISA, thing: "desk", app: null, act: { entry: "activity.apply-uk-care" } }),
+  step("chapter.build-the-file-talent", "portfolio", { place: HUB, thing: "long-desk", app: null, act: { entry: "activity.build-portfolio" } }),
+  step("chapter.build-the-file-talent", "endorsement", { place: HUB, thing: "long-desk", app: "japa", act: { entry: "activity.apply-endorsement" } }),
+  step("chapter.build-the-file-talent", "applied", { place: VISA, thing: "desk", app: null, act: { entry: "activity.apply-uk-talent" } }),
+  step("chapter.build-the-file-points", "eca", { place: HOUSE, inside: true, thing: "papers-box", app: "japa", act: { entry: "activity.get-eca" } }),
+  step("chapter.build-the-file-points", "english", { place: "place.english-test-centre", thing: "test-desk", app: null, act: { entry: "activity.sit-english-test" } }),
+  step("chapter.build-the-file-points", "pool", { place: HUB, thing: "long-desk", app: "japa", act: { entry: "activity.enter-pool" } }),
+  step("chapter.build-the-file-points", "invited", { place: HUB, thing: null, app: "japa", act: { wait: true } }),
+  step("chapter.build-the-file-gulf", "medical", { place: CLINIC, thing: "nurse-desk", app: null, act: { entry: "activity.gulf-medical" } }),
+  step("chapter.build-the-file-gulf", "agent", { place: AGENT, thing: "agent-desk", app: null, act: { entry: "offer.gulf-agent" } }),
+  step("chapter.build-the-file-gulf", "contract", { place: AGENT, thing: "agent-desk", app: null, act: { entry: "activity.apply-gulf-contract" } }),
+  step("chapter.decision-day-care", "tb", { place: CLINIC, thing: "nurse-desk", app: null, act: { entry: "activity.tb-test" } }),
+  step("chapter.decision-day-care", "police", { place: VISA, thing: "desk", app: null, act: { entry: "activity.get-police-certificate" } }),
+  step("chapter.decision-day-care", "applied", { place: VISA, thing: "desk", app: null, act: { entry: "activity.apply-uk-care" } }),
+  step("chapter.decision-day-care", "granted", { place: VISA, thing: "desk", app: "japa", act: { wait: true } }),
+  step("chapter.decision-day-talent", "tb", { place: CLINIC, thing: "nurse-desk", app: null, act: { entry: "activity.tb-test" } }),
+  step("chapter.decision-day-talent", "applied", { place: VISA, thing: "desk", app: null, act: { entry: "activity.apply-uk-talent" } }),
+  step("chapter.decision-day-talent", "granted", { place: VISA, thing: "desk", app: "japa", act: { wait: true } }),
+  step("chapter.decision-day-points", "police", { place: VISA, thing: "desk", app: null, act: { entry: "activity.get-police-certificate" } }),
+  // The invitation sends the application and takes the fee (R-POINTS-003): nothing is tapped.
+  step("chapter.decision-day-points", "applied", { place: HUB, thing: null, app: "japa", act: { wait: true } }),
+  step("chapter.decision-day-points", "granted", { place: HUB, thing: null, app: "japa", act: { wait: true } }),
+  step("chapter.decision-day-gulf", "police", { place: VISA, thing: "desk", app: null, act: { entry: "activity.get-police-certificate" } }),
+  step("chapter.decision-day-gulf", "applied", { place: AGENT, thing: "agent-desk", app: null, act: { entry: "activity.apply-gulf-contract" } }),
+  step("chapter.decision-day-gulf", "granted", { place: AGENT, thing: "agent-desk", app: "japa", act: { wait: true } }),
 
   // The send-off.
   step(SEND_OFF, "departed", { place: "place.airport-lagos", thing: "gate", app: "japa", act: { command: "route/depart" }, fromBox: true }),

@@ -4,7 +4,7 @@
 import { check } from "../engine/check";
 import type { RegisteredKind } from "../engine/kind";
 import { emit } from "../engine/kind";
-import type { BaseEvent, ChapterEntry, ChapterSlice, Content, Ctx, Id, PlayerView, ReadCtx, ReportLine, Requirement, RequirementResult } from "../engine/types";
+import type { BaseEvent, ChapterEntry, ChapterSlice, Content, Ctx, Id, PlayerView, ReadCtx, ReportLine, Requirement, RequirementResult, RouteSlice } from "../engine/types";
 import { cardOf, cardsAllowed, reportLines, topActivities } from "./chapter.card";
 import type { ChapterEvent } from "./chapter.events";
 
@@ -12,20 +12,71 @@ import type { ChapterEvent } from "./chapter.events";
 const SEND_OFF: Id<"chapter"> = "chapter.send-off";
 const CLOSED_LINE = "line.chapter.closed";
 
-/** Every chapter in content, by order. */
-function byOrder(content: Content): ChapterEntry[] {
-  return Object.values(content.chapter).sort((a, b) => a.order - b.order);
-}
+/** The way out the base chapters are written for: the lean when the life leans to no variant's route (R-CHAPTER-009). */
+const BASE_ROUTE: Id<"route"> = "route.uk-masters";
 
-/** The chapter that follows by order, or null after the last (R-CHAPTER-004). */
-function nextAfter(content: Content, entry: ChapterEntry): Id<"chapter"> | null {
-  return byOrder(content).find((candidate) => candidate.order > entry.order)?.id ?? null;
+/** Every base chapter in content, by order. A variant only ever stands in for its base (R-CHAPTER-009). */
+function byOrder(content: Content): ChapterEntry[] {
+  return Object.values(content.chapter)
+    .filter((entry) => entry.variantOf === undefined)
+    .sort((a, b) => a.order - b.order);
 }
 
 function entryOf(content: Content, id: Id<"chapter">): ChapterEntry {
   const entry = content.chapter[id];
   if (entry === undefined) throw new Error(`The content has no chapter ${id}.`);
   return entry;
+}
+
+/** R-CHAPTER-009: the base chapter a chapter stands in for, or itself when it is a base. */
+export function baseChapterOf(content: Content, id: Id<"chapter">): Id<"chapter"> {
+  return content.chapter[id]?.variantOf ?? id;
+}
+
+/** The routes the variants are written for, in content's order, then the base's: the order a tie is broken in. */
+function leanCandidates(content: Content): Id<"route">[] {
+  const named = Object.values(content.chapter).flatMap((entry) => (entry.route === undefined ? [] : [entry.route]));
+  return [...new Set([...named, BASE_ROUTE])];
+}
+
+/**
+ * R-CHAPTER-009: the way out the life leans to. "the first own-effort route the life has heard
+ * of or looked into" is read in time, not by the page's list. The route looked into first wins, else the
+ * route heard of first; the page's order (care, talent, points, the Gulf, the master's) only breaks a tie
+ * in the same month. Every graduate hears of Canada's points by month 5, so a list read first would turn a
+ * master's life to the points file; read in time, the nurse who reads the care page first gets the care
+ * file and a life that looked into the master's first keeps the master's file. The master's when the life
+ * has heard of none of them.
+ */
+export function leanRoute(routes: RouteSlice, content: Content): Id<"route"> {
+  const candidates = leanCandidates(content);
+  const first = (month: (id: Id<"route">) => number | null): Id<"route"> | null => {
+    let best: { id: Id<"route">; month: number } | null = null;
+    for (const id of candidates) {
+      const at = month(id);
+      if (at !== null && (best === null || at < best.month)) best = { id, month: at };
+    }
+    return best?.id ?? null;
+  };
+  const live = (id: Id<"route">) => routes[id] !== undefined && routes[id].state !== "unknown";
+  const looked = first((id) => (live(id) ? (routes[id]?.knownMonth ?? null) : null));
+  const heard = first((id) => (live(id) ? (routes[id]?.heardMonth ?? null) : null));
+  return looked ?? heard ?? BASE_ROUTE;
+}
+
+/** R-CHAPTER-009: the chapter that takes a base's turn: its variant for the lean route when content has one, else the base. */
+function standingIn(content: Content, base: ChapterEntry, lean: Id<"route">): Id<"chapter"> {
+  return Object.values(content.chapter).find((entry) => entry.variantOf === base.id && entry.route === lean)?.id ?? base.id;
+}
+
+/**
+ * The chapter that follows by its base's order, or null after the last (R-CHAPTER-004), with the
+ * lean read again as the chapter closes (R-CHAPTER-009).
+ */
+function nextAfter(content: Content, entry: ChapterEntry, routes: RouteSlice): Id<"chapter"> | null {
+  const base = entry.variantOf === undefined ? entry : entryOf(content, entry.variantOf);
+  const next = byOrder(content).find((candidate) => candidate.order > base.order);
+  return next === undefined ? null : standingIn(content, next, leanRoute(routes, content));
 }
 
 /** R-CHAPTER-002: every item met, or the one item the entry names in `closesOn`. */
@@ -45,7 +96,7 @@ function closeFinished(ctx: Ctx): BaseEvent[] {
   if (current === null) return [];
   const entry = entryOf(ctx.content, current);
   if (!finished(entry, (requirement) => ctx.check(requirement).met)) return [];
-  const closed: ChapterEvent = { type: "chapter/closed", chapter: current, next: nextAfter(ctx.content, entry) };
+  const closed: ChapterEvent = { type: "chapter/closed", chapter: current, next: nextAfter(ctx.content, entry, ctx.state.route) };
   // Applied first, so the report reads the close before the refill it pays for.
   emit(ctx, "chapter", [closed]);
   const refilled = ctx.apply([{ type: "turn/refill" }], { source: current, param: null, terms: {} });
@@ -84,10 +135,13 @@ function lines(event: ChapterEvent): ReportLine[] {
   }
 }
 
-/** `chapter/done`: the chapter has been finished, whatever has happened since (R-CHAPTER-003). */
+/**
+ * `chapter/done`: the chapter has been finished, whatever has happened since (R-CHAPTER-003). A base is
+ * done when the variant that stood in for it is (R-CHAPTER-009).
+ */
 function judgeDone(read: ReadCtx, requirement: Requirement): RequirementResult {
   if (requirement.type !== "chapter/done") throw new Error(`The chapter kind cannot judge ${requirement.type}.`);
-  return { met: read.state.chapter.done.includes(requirement.chapter) };
+  return { met: read.state.chapter.done.some((id) => id === requirement.chapter || baseChapterOf(read.content, id) === requirement.chapter) };
 }
 
 // ---------------------------------------------------------------------------
@@ -149,6 +203,10 @@ export const chapterKind: RegisteredKind<ChapterSlice, ChapterEvent> = {
     for (const id of done) {
       if (content.chapter[id] === undefined) problems.push(`The done chapter ${id} is not in content.`);
     }
+    // R-CHAPTER-009: one chapter takes each base's turn, the base or one of its variants. Repeats of one id are named above.
+    const bases = [...new Set(done)].map((id) => baseChapterOf(content, id));
+    if (new Set(bases).size !== bases.length) problems.push(`A base chapter's turn is done twice, by it and a variant: ${done.join(", ")}.`);
+    if (current !== null && !done.includes(current) && bases.includes(baseChapterOf(content, current))) problems.push(`The current chapter ${current} stands in for one already done.`);
     if (new Set(done).size !== done.length) problems.push(`A chapter is done more than once: ${done.join(", ")}.`);
     return problems;
   },

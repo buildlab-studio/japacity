@@ -4,8 +4,41 @@ import type { ChapterEntry, Id, Requirement } from "@japacity/sim";
 import { naira } from "../units";
 
 const UK: Id<"route"> = "route.uk-masters";
+const CARE: Id<"route"> = "route.uk-care";
+const TALENT: Id<"route"> = "route.uk-talent";
+const POINTS: Id<"route"> = "route.canada-points";
+const GULF: Id<"route"> = "route.gulf-contract";
+const FILE: Id<"chapter"> = "chapter.build-the-file";
+const DECISION: Id<"chapter"> = "chapter.decision-day";
 /** The ways out a life takes by its own effort (not through a partner): the first chapter counts any of them. */
 const OWN_ROUTES: Id<"route">[] = ["route.uk-masters", "route.uk-care", "route.uk-talent", "route.uk-skilled", "route.canada-points", "route.gulf-contract"];
+
+function held(document: Id<"document">, min?: number): Requirement {
+  return min === undefined ? { type: "document/held", document } : { type: "document/held", document, min };
+}
+
+function gateStep(route: Id<"route">, step: string): Requirement {
+  return { type: "route/gate-step", route, step };
+}
+
+function applied(route: Id<"route">): Requirement {
+  return { type: "route/state", route, in: ["applying", "granted", "departed"] };
+}
+
+function granted(route: Id<"route">): Requirement {
+  return { type: "route/state", route, in: ["granted", "departed"] };
+}
+
+/**
+ * R-CHAPTER-009: a base chapter's variant for one way out. Its order sits after its base's and before the
+ * next base's, so the orders stay one apiece; the engine follows the bases' order and only ever puts a
+ * variant in its base's turn.
+ */
+function variant(base: Id<"chapter">, route: Id<"route">, order: number, items: ChapterEntry["items"], closesOn?: string): ChapterEntry {
+  const slug = route === CARE ? "care" : route === TALENT ? "talent" : route === POINTS ? "points" : "gulf";
+  const id: Id<"chapter"> = `${base}-${slug}`;
+  return { id, order, items, variantOf: base, route, ...(closesOn === undefined ? {} : { closesOn }) };
+}
 
 /** The formal routes a second grant can come on. The road grants nothing. */
 const SECOND_ROUTES: Id<"route">[] = ["route.uk-masters", "route.uk-care", "route.uk-skilled", "route.canada-points", "route.uk-talent", "route.gulf-contract"];
@@ -36,7 +69,7 @@ export const chapterTable: Record<Id<"chapter">, ChapterEntry> = {
   },
   "chapter.decision-day": {
     id: "chapter.decision-day",
-    order: 3,
+    order: 7,
     items: [
       { id: "deposit", requirement: { type: "route/deposit", route: UK } },
       { id: "held", requirement: { type: "route/funds", route: UK, heldMonths: 1 } },
@@ -47,14 +80,91 @@ export const chapterTable: Record<Id<"chapter">, ChapterEntry> = {
     // A grant is decision day whether or not the held funds lasted (R-CHAPTER-002).
     closesOn: "granted",
   },
+
+  // R-CHAPTER-009: the file and decision day for each way out of the player's own effort. The orders
+  // between the bases keep one order to a chapter; the engine reads the base's.
+  "chapter.build-the-file-care": variant(FILE, CARE, 3, [
+    // Twenty-four months as a nurse: the home council's rule before it verifies (R-SPONSOR-005).
+    { id: "tenure", requirement: { type: "activity/tenure", activities: ["activity.job-nurse"], months: 24 } },
+    { id: "verification", requirement: held("document.nmcn-verification") },
+    { id: "sponsor", requirement: gateStep(CARE, "sponsor") },
+    { id: "applied", requirement: applied(CARE) },
+  ]),
+  "chapter.build-the-file-talent": variant(FILE, TALENT, 4, [
+    // The endorsement's bar for the portfolio (R-ENDORSE-001).
+    { id: "portfolio", requirement: { type: "quality/min", quality: "quality.portfolio", value: 3 } },
+    // the endorsement gate's only step is its cooldown, so the item reads the endorsement held, as the route's checklist does.
+    { id: "endorsement", requirement: held("document.endorsement") },
+    { id: "applied", requirement: applied(TALENT) },
+  ]),
+  "chapter.build-the-file-points": variant(FILE, POINTS, 5, [
+    { id: "eca", requirement: held("document.eca") },
+    // Band 6.0, CLB 7 (R-POINTS-002), held as the band times ten.
+    { id: "english", requirement: held("document.english-test", 60) },
+    { id: "pool", requirement: gateStep(POINTS, "pool") },
+    { id: "invited", requirement: gateStep(POINTS, "invited") },
+  ]),
+  "chapter.build-the-file-gulf": variant(FILE, GULF, 6, [
+    { id: "medical", requirement: held("document.medical") },
+    // The contract gate's one step: an agent recorded with the contract's terms (route-gates.md, the code's reading).
+    { id: "agent", requirement: gateStep(GULF, "sponsor") },
+    // the page calls the contract a gate step, and the gate has one. The contract is made when the
+    // agent takes your papers to the employer (`activity.apply-gulf-contract`), so the item is the route applied.
+    { id: "contract", requirement: applied(GULF) },
+  ]),
+  "chapter.decision-day-care": variant(
+    DECISION,
+    CARE,
+    8,
+    [
+      { id: "tb", requirement: held("document.tb-certificate") },
+      { id: "police", requirement: held("document.police-certificate") },
+      { id: "applied", requirement: applied(CARE) },
+      { id: "granted", requirement: granted(CARE) },
+    ],
+    "granted",
+  ),
+  "chapter.decision-day-talent": variant(
+    DECISION,
+    TALENT,
+    9,
+    [
+      { id: "tb", requirement: held("document.tb-certificate") },
+      { id: "applied", requirement: applied(TALENT) },
+      { id: "granted", requirement: granted(TALENT) },
+    ],
+    "granted",
+  ),
+  "chapter.decision-day-points": variant(
+    DECISION,
+    POINTS,
+    10,
+    [
+      { id: "police", requirement: held("document.police-certificate") },
+      { id: "applied", requirement: applied(POINTS) },
+      { id: "granted", requirement: granted(POINTS) },
+    ],
+    "granted",
+  ),
+  "chapter.decision-day-gulf": variant(
+    DECISION,
+    GULF,
+    11,
+    [
+      { id: "police", requirement: held("document.police-certificate") },
+      { id: "applied", requirement: applied(GULF) },
+      { id: "granted", requirement: granted(GULF) },
+    ],
+    "granted",
+  ),
   "chapter.send-off": {
     id: "chapter.send-off",
-    order: 4,
+    order: 12,
     items: [{ id: "departed", requirement: { type: "route/state", route: UK, in: ["departed"] } }],
   },
   "chapter.landing": {
     id: "chapter.landing",
-    order: 5,
+    order: 13,
     items: [
       // A roof: an open rent obligation. the Gulf worker is housed by the employer
       // and pays no rent (abroad-money.md), so holding that status meets it too.
@@ -102,7 +212,7 @@ export const chapterTable: Record<Id<"chapter">, ChapterEntry> = {
   },
   "chapter.secure": {
     id: "chapter.secure",
-    order: 6,
+    order: 14,
     // One item that is an `any`, so one path closes the chapter (R-CHAPTER-007).
     items: [
       {

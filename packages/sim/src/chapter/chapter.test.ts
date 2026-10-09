@@ -221,7 +221,9 @@ describe("the last chapter", () => {
 
   test("[R-CHAPTER-004] given the real chapters, when they are put in order, then the main journey runs from finding your feet to the send-off and on to landing and secure, and nothing follows the last", () => {
     const ordered = Object.values(content.chapter).sort((a: ChapterEntry, b: ChapterEntry) => a.order - b.order);
-    expect(ordered.map((entry) => entry.id)).toEqual([FEET, FILE, "chapter.decision-day", "chapter.send-off", "chapter.landing", "chapter.secure"]);
+    // R-CHAPTER-009: the variants stand in for a base in its turn, so the journey is the bases'.
+    const journey = ordered.filter((entry) => entry.variantOf === undefined);
+    expect(journey.map((entry) => entry.id)).toEqual([FEET, FILE, "chapter.decision-day", "chapter.send-off", "chapter.landing", "chapter.secure"]);
     expect(new Set(ordered.map((entry) => entry.order)).size).toBe(ordered.length);
   });
 });
