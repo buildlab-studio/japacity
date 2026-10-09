@@ -1,0 +1,132 @@
+import { content, text } from "@japacity/content";
+import type { ActivityEntry, PlayerView } from "@japacity/sim";
+import { fireEvent, screen, within } from "@testing-library/react";
+import { describe, expect, test } from "vitest";
+
+import { engineView } from "../../shared/testing/fixtures";
+import { renderWithView } from "../../shared/testing/render";
+import { formatMoney } from "../../shared/words/format";
+import { requirementSentence } from "../../shared/words/requirement";
+import { say } from "../../shared/words/text";
+import { ActivityPicker } from "./ActivityView";
+import { chanceBand, huntOrder, jobChanceBp, jobsOutOfReach } from "./JobList";
+import { jobsWords } from "./jobs.words";
+
+const HUNT = "activity.job-hunt";
+const NETWORK = "quality.network";
+
+function huntOf(view: PlayerView): string[] {
+  const hunt = view.activities.find((option) => option.id === HUNT);
+  if (hunt?.allowed !== true || hunt.params === null || hunt.params.length < 2) throw new Error("The hunt cannot ask for two jobs here.");
+  return hunt.params;
+}
+
+function entryOf(id: string): ActivityEntry {
+  const entry = content.activity[id as ActivityEntry["id"]];
+  if (entry === undefined) throw new Error(`No entry ${id}`);
+  return entry;
+}
+
+function networkOf(view: PlayerView): number {
+  return view.qualities.find((quality) => quality.id === NETWORK)?.value ?? 0;
+}
+
+function payWords(id: string): string {
+  const pay = entryOf(id).pay;
+  if (pay === null || typeof pay.amount !== "number") throw new Error(`${id} has no figure for its pay`);
+  return jobsWords("jobs.pay", { amount: formatMoney(pay.amount, pay.currency) });
+}
+
+describe("the chance in words", () => {
+  const { likelyBp, fairBp } = { likelyBp: 6000, fairBp: 3000 };
+
+  test("[R-WORLD-006] given a hiring chance at each edge of a band, when it is put in words, then likely starts at 60%, a fair chance at 30%, and below that it is a long shot", () => {
+    expect(chanceBand(likelyBp)).toBe("likely");
+    expect(chanceBand(likelyBp - 1)).toBe("fair");
+    expect(chanceBand(fairBp)).toBe("fair");
+    expect(chanceBand(fairBp - 1)).toBe("long");
+    expect(chanceBand(0)).toBe("long");
+  });
+
+  test("[R-ACTIVITY-005] given a job and the character's network, when its chance is read, then it is the job's own chance plus the network's share, never over the cap, as the hunt rolls it", () => {
+    const { networkHireBp, hireMaxBp } = content.tuning.quality;
+    const teacher = entryOf("activity.job-teacher");
+    const bank = entryOf("activity.job-bank-officer");
+    expect(jobChanceBp(bank, 0)).toBe(bank.hireBp);
+    expect(jobChanceBp(bank, 10)).toBe((bank.hireBp ?? 0) + 10 * networkHireBp);
+    expect(jobChanceBp(teacher, 100)).toBe(Math.min(hireMaxBp, (teacher.hireBp ?? 0) + 100 * networkHireBp));
+    expect(jobChanceBp({ hireBp: hireMaxBp }, 10)).toBe(hireMaxBp);
+  });
+});
+
+describe("the jobs list on the hunt's card", () => {
+  test("[R-WORLD-006] given Ada's first month, when the hunt's card shows, then every job the hunt can ask for is a row with its name, its pay a month and its chance in words, with no bare select", async () => {
+    const view = engineView();
+    const jobs = huntOf(view);
+    await renderWithView(<ActivityPicker only={[HUNT]} />, view);
+    expect(document.querySelector(`select[id="param-${HUNT}"]`)).toBeNull();
+    const list = screen.getByRole("radiogroup", { name: jobsWords("jobs.pick") });
+    const rows = within(list).getAllByRole("radio");
+    expect(rows).toHaveLength(jobs.length);
+    for (const job of jobs) {
+      const row = within(list).getByRole("radio", { name: new RegExp(`^${text[`${job}.name`] ?? job}`) });
+      const band = chanceBand(jobChanceBp(entryOf(job), networkOf(view)));
+      expect(within(row).getByText(payWords(job))).toBeDefined();
+      expect(within(row).getByText(jobsWords(`jobs.chance.${band}`))).toBeDefined();
+    }
+  });
+
+  test("[R-WORLD-006] given the teacher's pay under Ada's living costs, when the list is ordered, then the likely jobs come first, the best paid of them on top, and that row is the one chosen", async () => {
+    const view = engineView();
+    const ordered = huntOrder(view, huntOf(view));
+    const bands = ordered.map((job) => chanceBand(jobChanceBp(entryOf(job), networkOf(view))));
+    const rank = { likely: 0, fair: 1, long: 2 } as const;
+    expect(bands.map((band) => rank[band])).toEqual([...bands.map((band) => rank[band])].sort((a, b) => a - b));
+    expect(ordered[0]).not.toBe("activity.job-teacher");
+    await renderWithView(<ActivityPicker only={[HUNT]} />, view);
+    const checked = screen.getAllByRole("radio").filter((row) => row.getAttribute("aria-checked") === "true");
+    expect(checked).toHaveLength(1);
+    expect(checked[0]?.getAttribute("data-job")).toBe(ordered[0]);
+  });
+
+  test("[R-WORLD-006] given a row tapped, when the hunt is added to the month, then the slot carries that job", async () => {
+    const view = engineView();
+    const jobs = huntOf(view);
+    const { store } = await renderWithView(<ActivityPicker only={[HUNT]} />, view);
+    const last = huntOrder(view, jobs).at(-1) ?? "";
+    fireEvent.click(screen.getByRole("radio", { name: new RegExp(`^${text[`${last}.name`] ?? last}`) }));
+    expect(screen.getByRole("radio", { name: new RegExp(`^${text[`${last}.name`] ?? last}`) }).getAttribute("aria-checked")).toBe("true");
+    fireEvent.click(screen.getByRole("button", { name: `${say("ui.activity.add")}: ${text[`${HUNT}.name`] ?? HUNT}` }));
+    expect(store.getState().plan[0]).toEqual({ activity: HUNT, param: last });
+  });
+
+  test("[R-WORLD-006] given jobs at home the hunt cannot ask for yet, when the card shows, then each is listed apart with its pay and what it still needs, and cannot be picked", async () => {
+    const view = engineView();
+    const out = jobsOutOfReach(view, huntOf(view));
+    expect(out.map((job) => job.id)).toContain("activity.job-bank-senior");
+    expect(out.map((job) => job.id)).not.toContain("activity.job-nurse");
+    await renderWithView(<ActivityPicker only={[HUNT]} />, view);
+    const apart = screen.getByRole("list", { name: jobsWords("jobs.out-of-reach") });
+    for (const job of out) {
+      const row = within(apart).getByText(text[`${job.id}.name`] ?? job.id).closest("li");
+      if (row === null) throw new Error(`${job.id} has no row`);
+      expect(within(row).getByText(payWords(job.id))).toBeDefined();
+      for (const need of job.needs) expect(within(row).getByText(need, { exact: false })).toBeDefined();
+      expect(within(row).queryByRole("radio")).toBeNull();
+    }
+    const senior = out.find((job) => job.id === "activity.job-bank-senior");
+    expect(senior?.needs).toEqual(entryOf("activity.job-bank-senior").requires.map((requirement) => requirementSentence(requirement)));
+  });
+
+  test("[R-WORLD-006] given a need the character already meets, when an out-of-reach job's needs are read, then only what is still missing is named", () => {
+    const view = engineView();
+    const mid = jobsOutOfReach(view, huntOf(view)).find((job) => job.id === "activity.job-mid-dev");
+    const tech = view.qualities.find((quality) => quality.id === "quality.tech")?.value ?? 0;
+    expect(tech).toBeLessThan(60);
+    expect(mid?.needs).toContain(requirementSentence({ type: "quality/min", quality: "quality.tech", value: 60 }));
+    const skilled: PlayerView = { ...view, qualities: view.qualities.map((quality) => (quality.id === "quality.tech" ? { ...quality, value: 90 } : quality)) };
+    const later = jobsOutOfReach(skilled, huntOf(view)).find((job) => job.id === "activity.job-mid-dev");
+    expect(later?.needs).not.toContain(requirementSentence({ type: "quality/min", quality: "quality.tech", value: 60 }));
+    expect(later?.needs.length).toBeGreaterThan(0);
+  });
+});
