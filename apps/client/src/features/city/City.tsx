@@ -664,7 +664,8 @@ export function City({
         who: hereName,
         title: say("ui.route.depart"),
         line: say("ui.world.depart-line", { route: nameOf(route) }),
-        cost: employerPays ? null : { amount: flight.amount, currency: flight.currency },
+        // The flight's amount is a plain figure in tuning; a world variable would need the simulation's reading.
+        cost: employerPays || typeof flight.amount !== "number" ? null : { amount: flight.amount, currency: flight.currency },
         when: "now",
         ...(heldOpen ? { blocked: say("ui.world.depart-held") } : {}),
         button: say("ui.route.depart"),
