@@ -36,6 +36,7 @@ const REQUIREMENT_TYPES = [
   "obligation/has",
   "route/gate-step",
   "activity/local-tenure",
+  "activity/played",
   "setpiece/answered",
   "wallet/total",
   "place/returned",

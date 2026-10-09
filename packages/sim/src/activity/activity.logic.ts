@@ -74,6 +74,8 @@ export const REST_SOURCE = "rest";
 const OVERTIME: Id<"activity"> = "activity.overtime";
 const LOTTO: Id<"activity"> = "activity.play-lotto";
 const BET: Id<"activity"> = "activity.bet-slip";
+/** R-STREET-001: the phone is paid from cash, at the tuning's price. */
+const PHONE: Id<"activity"> = "activity.buy-phone";
 /** R-ACTIVITY-011: a slot of either keeps the bus home safe that month. */
 const COUNTER_MOVES: readonly Id<"activity">[] = ["activity.safe-ride", "activity.sleep-at-office"];
 
@@ -330,6 +332,7 @@ function pricesOf(read: ReadCtx, entry: ActivityEntry, param: string | null): Pr
   const { luck, car } = read.content.tuning;
   if (entry.id === LOTTO) prices.push({ currency: "NGN", amount: luck.ticket * ticketsOf(param, luck), reason: "social", cash: true });
   if (entry.id === BET) prices.push({ currency: "NGN", amount: luck.stake, reason: "social", cash: true });
+  if (entry.id === PHONE) prices.push({ currency: "NGN", amount: read.content.tuning.street.phonePrice, reason: "phone", cash: true });
   // R-ADVICE-004: the adviser's fee under its own reason (decision 0011).
   if (entry.id === ADVISER) prices.push({ currency: "NGN", amount: read.content.tuning.advice.adviserFee, reason: "fee-advice", cash: true });
   if (entry.id === DRIVING_TEST) {
@@ -863,6 +866,16 @@ export function tenureAcross(state: State, activities: readonly Id<"activity">[]
   return counted.reduce((sum, id) => sum + (state.activity.tenure[id] ?? 0), 0);
 }
 
+/**
+ * R-STREET-004: what filled a slot in the month just played, the way R-ACTIVITY-012 counts it: the
+ * job and the side job held, and every free slot sent. At the `come-up` phase the slots sent are this
+ * month's, recorded at `slots`. a slot that failed still counts, as it does for R-ACTIVITY-012.
+ */
+function playedThisMonth(state: State): Set<Id<"activity">> {
+  const { job, side, lastSlots } = state.activity;
+  return new Set<Id<"activity">>([...(job === null ? [] : [job]), ...(side === null ? [] : [side]), ...lastSlots.map((pick) => pick.activity)]);
+}
+
 function judgeJob(read: ReadCtx, requirement: Requirement): RequirementResult {
   const job = read.state.activity.job;
   switch (requirement.type) {
@@ -880,6 +893,8 @@ function judgeJob(read: ReadCtx, requirement: Requirement): RequirementResult {
       const have = localTenure(read);
       return { met: have >= requirement.months, have, need: requirement.months };
     }
+    case "activity/played":
+      return { met: playedThisMonth(read.state).has(requirement.activity) };
     case "quality/min":
     case "quality/max":
     case "document/held":
@@ -1185,6 +1200,7 @@ export const activityKind: RegisteredKind<ActivitySlice, ActivityEvent> = {
     "job/is": judgeJob,
     "activity/tenure": judgeJob,
     "activity/local-tenure": judgeJob,
+    "activity/played": judgeJob,
   },
   invariants,
   view: (read) => ({

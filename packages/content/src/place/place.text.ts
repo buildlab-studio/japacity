@@ -55,6 +55,9 @@ export const placeText: Record<string, string> = {
   "place.national-stadium.overheard.2": "Park well. The boys here will ask you for something.",
   "place.national-stadium.overheard.3": "My father watched matches here. Now look at the stands.",
   "place.national-stadium.overheard.4": "Cold water! Cold one, buy cold water!",
+  // The kiosk at the gate (streets.md R-STREET-008).
+  "place.national-stadium.sign.1": "COLD WATER\nAND MINERALS",
+  "place.national-stadium.sign.2": "GATE B\nNO PARKING",
   "place.bode-thomas.name": "Bode Thomas Street",
   "place.bode-thomas.blurb": "A shopping street in Surulere. A lotto kiosk, a betting shop and a pharmacy share one row of shopfronts.",
   // The boards the street's models carry: the kiosk 1 and 5, the betting shop's building 2 to 4, the shop rows 6 to 13, the plazas 14 to 21.
@@ -249,6 +252,9 @@ export const placeText: Record<string, string> = {
   "place.third-mainland-bridge.overheard.2": "We go reach office late. This bridge no dey move.",
   "place.third-mainland-bridge.overheard.3": "Keep your phone inside. No put am for window.",
   "place.third-mainland-bridge.overheard.4": "The fish from this side of the lagoon na the sweetest.",
+  // The kiosk under the span (streets.md R-STREET-004).
+  "place.third-mainland-bridge.sign.1": "PURE WATER\nSOLD HERE",
+  "place.third-mainland-bridge.sign.2": "RECHARGE CARD\nAVAILABLE",
   "place.carter-bridge.name": "Carter Bridge",
   "place.carter-bridge.blurb": "The bridge from Iddo to the Island.",
   "place.carter-bridge.overheard.1": "Drop me at the foot of the bridge. I go waka the rest.",

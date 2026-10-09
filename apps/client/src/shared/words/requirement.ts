@@ -147,6 +147,8 @@ export function requirementSentence(requirement: Requirement, context: SentenceC
       return say("ui.req.route-gate-step", { route: nameOf(requirement.route), step: requirement.step });
     case "activity/local-tenure":
       return sayCount("ui.req.local-tenure", requirement.months, { months: requirement.months });
+    case "activity/played":
+      return say("ui.req.activity-played", { activity: nameOf(requirement.activity) });
     case "setpiece/answered": {
       const times = requirement.times ?? 1;
       return sayCount("ui.req.setpiece-answered", times, { setpiece: nameOf(requirement.setpiece), times });

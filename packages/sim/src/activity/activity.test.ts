@@ -395,6 +395,8 @@ describe("the params a free activity may take now", () => {
       // Side jobs are hunted like jobs (R-ACTIVITY-010).
       "activity.night-support",
       "activity.weekend-tutoring",
+      // Computer Village's sales job (streets.md R-STREET-002).
+      "activity.job-phone-sales",
     ]);
     const tunde = start({ content, scenario: "scenario.tunde" });
     expect(paramsFor(readWith(tunde, (state) => state), huntEntry)).toEqual([
@@ -403,6 +405,7 @@ describe("the params a free activity may take now", () => {
       "activity.job-bank-senior",
       "activity.weekend-tutoring",
       "activity.ride-driving",
+      "activity.job-phone-sales",
     ]);
   });
 
