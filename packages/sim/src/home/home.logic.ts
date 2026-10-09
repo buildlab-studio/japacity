@@ -308,8 +308,8 @@ function lines(event: HomeEvent): ReportLine[] {
     case "home/moved":
       return [line("line.home.moved", { place: event.to }, "plain", false)];
     case "home/evicted":
-      // Told straight (text.md R-TEXT-002): what went with the room is its own figure, not the wallet's.
-      return [line("line.home.evicted", { lost: { currency: "NGN", amount: event.lost } }, "bad", true)];
+      // Told straight (text.md R-TEXT-002): what went with the room is its own figure, not the wallet's; with no cash held, none is named.
+      return [line(event.lost > 0 ? "line.home.evicted" : "line.home.evicted-no-cash", { lost: { currency: "NGN", amount: event.lost } }, "bad", true)];
     case "home/taken-in":
       // A friend is named by the words for one (the pair's name is the other life's), someone of the story by their entry.
       return [line("line.home.taken-in", { who: event.host === "friend" ? HOME_FRIEND : event.by, months: event.until - event.month }, "good", true)];

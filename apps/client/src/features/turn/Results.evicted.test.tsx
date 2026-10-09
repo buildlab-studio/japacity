@@ -44,9 +44,9 @@ describe("the eviction month's results", () => {
   });
 
   test("[R-HOME-003] given an eviction month that also brought other news, when the story is ordered, then the eviction still comes first", () => {
-    const evicted: ReportLine = { key: "line.home.evicted", params: { lost: { currency: "NGN", amount: 0 } }, tone: "bad", attention: true, counts: [] };
+    const evicted: ReportLine = { key: "line.home.evicted-no-cash", params: { lost: { currency: "NGN", amount: 0 } }, tone: "bad", attention: true, counts: [] };
     const granted: ReportLine = { key: "line.route.granted", params: { route: "route.uk-masters" }, tone: "good", attention: true, counts: [] };
     const unpaid: ReportLine = { key: "line.obligation.missed", params: { obligation: "obligation.upkeep-makoko", amount: { currency: "NGN", amount: 100 } }, tone: "bad", attention: true, counts: [] };
-    expect(storyLines([unpaid, granted, evicted]).map((line) => line.key)).toEqual(["line.home.evicted", "line.route.granted", "line.obligation.missed"]);
+    expect(storyLines([unpaid, granted, evicted]).map((line) => line.key)).toEqual(["line.home.evicted-no-cash", "line.route.granted", "line.obligation.missed"]);
   });
 });

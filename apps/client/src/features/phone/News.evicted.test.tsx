@@ -30,7 +30,8 @@ describe("News the month of the clearing", () => {
     game.endTurn();
     await openNews(game.view());
     const first = document.querySelector<HTMLElement>("[data-report] li");
-    expect(first?.textContent).toBe(words("line.home.evicted", { lost: { currency: "NGN", amount: 0 } }));
+    // Her cash is all in the bank, so none went with the room and none is named.
+    expect(first?.textContent).toBe(words("line.home.evicted-no-cash"));
     const story = document.querySelector<HTMLElement>('[data-story="news.makoko-cleared"]');
     expect(story?.textContent).toContain(words("news.makoko-cleared.in-force.head"));
   });

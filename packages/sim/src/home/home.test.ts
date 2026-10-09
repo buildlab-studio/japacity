@@ -289,8 +289,10 @@ describe("eviction", () => {
       expect(game.state.wallet.pockets.NGN.cash).toBe(held - Math.min(held, home.evictionLossNaira));
       expect(eventsOf(result, "wallet/debited").filter((event) => event["reason"] === "mishap" && event["pocket"] === "bank")).toEqual([]);
     }
-    const { game } = evicted(0);
+    const { game, result } = evicted(0);
     expect(game.state.wallet.pockets.NGN.cash).toBe(0);
+    // With no cash held, the line names none.
+    expect(result.lines.find((line) => line.key.startsWith("line.home.evicted"))?.key).toBe("line.home.evicted-no-cash");
   });
 
   test("[R-HOME-003] given Ada down (wellbeing under the line), when the view tells the eviction chance, then it is halved as R-LUCK-003 halves a bad offer", () => {

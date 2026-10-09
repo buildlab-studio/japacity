@@ -126,12 +126,12 @@ const JOB_OFFER = "offer.job";
 /** The visa granted: the month's news, told first and alone in the lead. */
 const GRANTED = "line.route.granted";
 
-/** The settlement cleared (docs/rules/home.md R-HOME-003): it leads the month, before anything else. */
-const EVICTED = "line.home.evicted";
+/** The settlement cleared (docs/rules/home.md R-HOME-003), with cash lost or none: it leads the month, before anything else. */
+const EVICTED: ReadonlySet<string> = new Set(["line.home.evicted", "line.home.evicted-no-cash"]);
 
 /** True for the line that tells the room on the water is gone: first, and in the money's red as a bill unpaid is. */
 export function isEvicted(line: ReportLine): boolean {
-  return line.key === EVICTED;
+  return EVICTED.has(line.key);
 }
 
 /**
