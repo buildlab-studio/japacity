@@ -130,6 +130,20 @@ describe("a job's gates in words", () => {
     expect(jobsWords("jobs.needs", { needs: requirementSentence({ type: "quality/min", quality: "quality.english", value: 50 }) })).toBe("Needs: More than basic English");
   });
 
+  test("[R-TEXT-005] given a job that asks for time in another, when its gate is said, then the time reads as a person says it and the job as the person who does it", () => {
+    expect(requirementSentence({ type: "activity/tenure", activities: ["activity.job-bank-officer"], months: 36 })).toBe("Three years as a bank officer");
+    expect(jobsWords("jobs.needs", { needs: requirementSentence({ type: "activity/tenure", activities: ["activity.job-bank-officer"], months: 36 }) })).toBe("Needs: Three years as a bank officer");
+    expect(requirementSentence({ type: "activity/tenure", activities: ["activity.job-nurse"], months: 24 })).toBe(`Two years as a ${runningName("activity.job-nurse")}`);
+    expect(requirementSentence({ type: "activity/tenure", activities: ["activity.job-junior-dev", "activity.job-mid-dev"], months: 6 })).toBe(`Six months as a ${runningName("activity.job-junior-dev")} or a ${runningName("activity.job-mid-dev")}`);
+    expect(requirementSentence({ type: "activity/tenure", activities: [], months: 24 })).toBe("Two years in any job");
+    expect(requirementSentence({ type: "activity/tenure", activities: [], months: 1 })).toBe("One month in any job");
+    expect(requirementSentence({ type: "activity/tenure", activities: [], months: 18 })).toBe("18 months in any job");
+    // Every tenure gate in content reads with no "months in" a job's name.
+    const gates = Object.values(content.activity).flatMap((entry) => entry.requires).filter((requirement) => requirement.type === "activity/tenure");
+    expect(gates.length).toBeGreaterThan(0);
+    for (const gate of gates) expect(requirementSentence(gate)).not.toMatch(/months in (?!any job)/);
+  });
+
   test("[R-TEXT-005] given the handover's life so far, when the portfolio is read, then it is said in words, not as a figure", () => {
     for (let value = 0; value <= (content.quality["quality.portfolio"]?.max ?? 10); value += 1) expect(valueWords("quality.portfolio", value)).not.toMatch(/\d/);
     expect(valueWords("quality.portfolio", 1)).toBe(say("ui.band.quality.portfolio.0"));

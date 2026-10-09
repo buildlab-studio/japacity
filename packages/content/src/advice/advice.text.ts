@@ -14,7 +14,7 @@ const itemNames: Record<string, string> = Object.fromEntries(
 export const adviceText: Record<string, string> = {
   // The friend (R-ADVICE-003).
   "activity.ask-someone-who-went.name": "Ask someone who went",
-  "activity.ask-someone-who-went.blurb": "Free. They tell you what the route asked when they left. Things may have changed since.",
+  "activity.ask-someone-who-went.blurb": "They tell you what the route asked when they left. Things may have changed since.",
   // The adviser (R-ADVICE-004).
   "activity.see-adviser.name": "See the licensed adviser",
   "activity.see-adviser.blurb": "She reads your whole file and tells you the truth about every route you know of. It costs money.",
