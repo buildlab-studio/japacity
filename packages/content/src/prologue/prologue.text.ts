@@ -120,10 +120,8 @@ export const prologueText: Record<string, string> = {
   "line.prologue.headline": "On the radio at home: {story}.",
   "line.prologue.closed": "That is how you got here. Your story starts now.",
 
-  // The prologue's screen, in the situation's words: content's
-  // table wins over the interface's drafts, so these replace "Not open to you:" and "Start month {month}".
-  "ui.prologue.not-open": "Not for you:",
-  "ui.prologue.start": "Go",
+  // The prologue's screen, in the situation's words.
+  "prologue.not-for-you": "Not for you:",
   "prologue.handover.first": "Your first step: {step}.",
   "prologue.line.level": "{quality} now: {level}.",
   "prologue.line.graded": "Your degree comes out: {grade}.",

@@ -67,7 +67,7 @@ describe("a greyed answer", () => {
     const { greyed } = await walk("prologue-first", (allowed) => allowed[0] ?? "");
     const shown = greyed.get("after-school.apprentice");
     expect(shown).toBeDefined();
-    expect(shown).toContain(`${say("ui.prologue.not-open")} ${whyNot("after-school", "apprentice")[0] ?? ""}`);
+    expect(shown).toContain(`${say("prologue.not-for-you")} ${whyNot("after-school", "apprentice")[0] ?? ""}`);
     expect(shown).toContain("Not for you: your family would not have it.");
     expect(shown).not.toMatch(/39|13|Family means/);
   });
@@ -101,15 +101,15 @@ describe("what an answer moved", () => {
 });
 
 describe("the handover", () => {
-  test("[R-PROLOGUE-006] given the last card answered, when the handover shows, then it names the story's first step, its button is Go with no month number, and the wellbeing is the band of the life as it stands", async () => {
+  test("[R-PROLOGUE-006] given the last card answered, when the handover shows, then it names the story's first step above its button, and the wellbeing is the band of the life as it stands", async () => {
     const { game } = await walk("prologue-first", (allowed) => allowed[0] ?? "");
     await screen.findByRole("heading", { name: words("line.prologue.closed") });
     const view = game.view();
     const step = firstStep(view);
     expect(step).toBe(say("chapter.find-your-feet.item.job.nudge"));
     expect(document.querySelector("[data-first-step]")?.textContent).toBe(`Your first step: ${step ?? ""}.`);
-    const go = screen.getByRole("button", { name: say("ui.prologue.start") });
-    expect(go.textContent).not.toMatch(/month|\d/i);
+    const go = screen.getByRole("button", { name: say("ui.prologue.start", { month: 1 }) });
+    expect(go.previousElementSibling).toBe(document.querySelector("[data-first-step]"));
     const wellbeing = view.qualities.find((quality) => quality.id === WELLBEING)?.value ?? -1;
     expect(document.querySelector("[data-life-so-far]")?.textContent).toContain(valueWords(WELLBEING, wellbeing));
   });

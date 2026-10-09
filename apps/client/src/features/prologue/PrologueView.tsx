@@ -12,7 +12,7 @@ import { Button } from "../../shared/ui/Button";
 import { Card } from "../../shared/ui/Panel";
 import { Rejection } from "../../shared/ui/Rejection";
 import { ReportLines } from "../../shared/ui/ReportLines";
-import { formatMoney } from "../../shared/words/format";
+import { formatMoney, playerMonth } from "../../shared/words/format";
 import { AGE, valueWords, yearsOf } from "../../shared/words/quality";
 import { requirementSentence } from "../../shared/words/requirement";
 import { bandWords, hasWords, nameOf, say, sayCount, words } from "../../shared/words/text";
@@ -91,7 +91,7 @@ function Answers({ prologue }: { prologue: Prologue }) {
             </Button>
             {reasons.length === 0 ? null : (
               <p className="pl-4 text-sm text-muted">
-                {say("ui.prologue.not-open")} {reasons.join(" ")}
+                {say("prologue.not-for-you")} {reasons.join(" ")}
               </p>
             )}
           </li>
@@ -232,7 +232,7 @@ export function PrologueHandover({ onDone }: { onDone: () => void }) {
         </p>
       )}
       <Button variant="primary" onClick={onDone} autoFocus>
-        {say("ui.prologue.start")}
+        {say("ui.prologue.start", { month: playerMonth(view.month) })}
         <ArrowRight size={18} />
       </Button>
     </main>
