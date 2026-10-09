@@ -287,7 +287,7 @@ function ride(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (end === undefined) return reject("unknown-id", `No place ${to}.`);
   if (from === to) return reject("not-legal", "A ride goes somewhere else.");
   if (start.where !== "home" || end.where !== "home") return reject("not-legal", "A ride inside the city stays in the city.");
-  const fare = ctx.content.tuning.city.ride.fareKobo[way];
+  const fare = bp(ctx.content.tuning.city.ride.fareKobo[way], fareBpOf(ctx));
   const cause: Cause = { source: command.type, param: to, terms: { way } };
   if (fare > 0) {
     if (!ctx.check({ type: "money/min", currency: "NGN", amount: fare }).met) {
@@ -483,8 +483,21 @@ function view(read: ReadCtx): Pick<PlayerView, "place"> {
       returns: [...state.place.returns].reverse(),
       heldAbroad: state.place.heldAbroad?.status ?? null,
       fareHome: fareHome(read),
+      fareBp: fareBpOf(read),
     },
   };
+}
+
+/** The fuel scarcity's ask, which doubles the city's fares for the month it is on. */
+const FUEL_SCARCITY = "offer.fuel-scarcity" as const;
+
+/**
+ * R-PLACE-010: the month's fares as basis points of the flat fares. The month the fuel scarcity opens
+ * (answered or not: `lastOpened` keeps the month), every ride costs `tuning.city.ride.scarcityBp` of
+ * its fare; any other month, the fare as it stands.
+ */
+export function fareBpOf(read: Pick<ReadCtx, "state" | "content">): number {
+  return read.state.offer.lastOpened[FUEL_SCARCITY] === read.state.turn.month ? read.content.tuning.city.ride.scarcityBp : 10000;
 }
 
 function invariants(state: State, content: Content): string[] {

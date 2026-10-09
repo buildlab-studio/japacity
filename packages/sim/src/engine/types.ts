@@ -1198,7 +1198,7 @@ export interface Tuning {
   /** docs/rules/analytics.md Numbers. */
   analytics: { batchSeconds: number; maxBatchBytes: number; maxCount: number; batchesPerHour: number; minShown: number; refD1Bp: number; refD7Bp: number };
   /** The city's crowd bands, the graphics modes' switches and the screen split (docs/rules/city.md). The simulation never reads it. */
-  city: { crowdLow: number; crowdHigh: number; playersMax: number; fridayBp: number; saturdayBp: number; raiseAfterMs: number; raiseFrameMs: number; dropAfterMs: number; dropFrameMs: number; maxPixelRatio: number; desktopMinWidth: number; idleAfterMs: number; idleFps: number; walkMmPerS: number; stopShortMm: number; tagNearMm: number; residentFloor: number; roam: boolean; flyover: boolean; indoorLow: number; indoorHigh: number; outdoorLow: number; outdoorHigh: number; motionSheets: number; ride: { fareKobo: { danfo: number; keke: number; okada: number; walk: number }; metresPerMinute: { danfo: number; keke: number; okada: number; walk: number }; waitMinutes: number } };
+  city: { crowdLow: number; crowdHigh: number; playersMax: number; fridayBp: number; saturdayBp: number; raiseAfterMs: number; raiseFrameMs: number; dropAfterMs: number; dropFrameMs: number; maxPixelRatio: number; desktopMinWidth: number; idleAfterMs: number; idleFps: number; walkMmPerS: number; stopShortMm: number; tagNearMm: number; residentFloor: number; roam: boolean; flyover: boolean; indoorLow: number; indoorHigh: number; outdoorLow: number; outdoorHigh: number; motionSheets: number; ride: { fareKobo: { danfo: number; keke: number; okada: number; walk: number }; metresPerMinute: { danfo: number; keke: number; okada: number; walk: number }; waitMinutes: number; scarcityBp: number } };
   /** The people around the character (docs/rules/people.md Numbers). */
   people: { matchmaker: boolean; maxCourting: number; partnerMoments: number; marryAfterMonths: number; weddingShare: number; proposeCooldown: number; recourtMonths: number; gossipBp: number; weddingStanding: number; gossipStanding: number; endStanding: { courting: number; partner: number; married: number; applying: number }; endWellbeing: number; leftWellbeing: number; couchMonths: number; warnDays: number; standInDays: number; computerAfterMonths: number };
   /** Invites and phrases (docs/rules/pair.md Numbers). */
@@ -1999,7 +1999,7 @@ export interface PlayerView {
   chapter: { current: Id<"chapter"> | null; items: { id: string; met: boolean }[]; done: Id<"chapter">[] };
   news: { id: Id<"news">; stage: NewsStage; since: number; forYou: boolean }[];
   /** `fareHome` is the fare from the country the character is in, December factor applied, or null at home (R-PLACE-006). */
-  place: { where: Where; country: Id<"country"> | null; monthsHere: number; returns: PlaceSlice["returns"]; heldAbroad: Id<"status"> | null; fareHome: MoneyParam | null };
+  place: { where: Where; country: Id<"country"> | null; monthsHere: number; returns: PlaceSlice["returns"]; heldAbroad: Id<"status"> | null; fareHome: MoneyParam | null; fareBp: number };
   status: {
     entry: Id<"status">;
     monthsLeft: number | null;

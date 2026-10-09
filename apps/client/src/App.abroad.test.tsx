@@ -78,7 +78,7 @@ describe("the shell by where the character is", () => {
     const base = abroadView();
     const view: PlayerView = {
       ...base,
-      place: { where: "road", country: null, monthsHere: 1, returns: [], heldAbroad: null, fareHome: null },
+      place: { where: "road", country: null, monthsHere: 1, returns: [], heldAbroad: null, fareHome: null, fareBp: 10000 },
       status: null,
       credit: null,
       japacity: { percent: 40, route: "route.uk-masters" },

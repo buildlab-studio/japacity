@@ -100,7 +100,7 @@ describe("where you are and the way home", () => {
           { month: 30, shape: "broke", country: "country.uk" },
         ],
         heldAbroad: "status.uk-settled",
-        fareHome: null,
+        fareHome: null, fareBp: 10000,
       },
     };
     await renderWithView(<PlaceView />, view);

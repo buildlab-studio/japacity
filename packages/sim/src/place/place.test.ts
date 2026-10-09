@@ -102,7 +102,7 @@ describe("a new character", () => {
   test("[R-PLACE-001] given a new life, when it starts, then the character is at home with no country, no move and no return on record", () => {
     const game = start({ content });
     expect(game.state.place).toEqual({ where: "home", country: null, movedMonth: 0, returns: [], heldAbroad: null, decemberMonth: null });
-    expect(game.view().place).toEqual({ where: "home", country: null, monthsHere: 0, returns: [], heldAbroad: null, fareHome: null });
+    expect(game.view().place).toEqual({ where: "home", country: null, monthsHere: 0, returns: [], heldAbroad: null, fareHome: null, fareBp: 10000 });
   });
 });
 
@@ -156,6 +156,22 @@ describe("coming home", () => {
     expect(result.events.find((event) => event.type === "place/rode")).toMatchObject({ from: "place.ojuelegba", to: "place.bode-thomas", way: "keke", fare });
     expect(game.view().pockets.NGN.cash).toBe(before - fare);
     expect(game.view().place.where).toBe("home");
+  });
+
+  test("[R-PLACE-010] given the fuel scarcity's ask opened this month, when a ride is sent, then every fare is the scarcity's share of its flat figure and the view says the month's factor; the month after, the fares stand as they were", () => {
+    const game = start({ content });
+    const month = game.state.turn.month;
+    game.state = { ...game.state, offer: { ...game.state.offer, lastOpened: { ...game.state.offer.lastOpened, "offer.fuel-scarcity": month } } };
+    const { scarcityBp, fareKobo } = content.tuning.city.ride;
+    expect(scarcityBp).toBe(20000);
+    expect(game.view().place.fareBp).toBe(scarcityBp);
+    const before = game.view().pockets.NGN.cash;
+    const result = game.accept({ type: "place/ride", from: "place.ojuelegba", to: "place.bode-thomas", way: "danfo" });
+    const doubled = Math.floor((fareKobo.danfo * scarcityBp) / 10000);
+    expect(result.events.find((event) => event.type === "place/rode")).toMatchObject({ way: "danfo", fare: doubled });
+    expect(game.view().pockets.NGN.cash).toBe(before - doubled);
+    game.endTurn([]);
+    expect(game.view().place.fareBp).toBe(10000);
   });
 
   test("[R-PLACE-010] given the fare short in cash, the same place twice, a place elsewhere, or a character abroad, when a ride is sent, then it is refused and nothing is paid", () => {
@@ -436,6 +452,7 @@ describe("the view and the record", () => {
       ],
       heldAbroad: null,
       fareHome: null,
+      fareBp: 10000,
     });
   });
 

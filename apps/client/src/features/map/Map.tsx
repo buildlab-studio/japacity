@@ -57,14 +57,14 @@ export function Map({ pins, country, countries, drawing, diveTo = null, diveBy =
   const here = stable.find((pin) => pin.state === "here") ?? null;
   const pin = stable.find((candidate) => candidate.id === picked) ?? null;
   const abroad = country.id === "lagos" ? null : country.id;
-  const ways = useMemo(() => (pin === null || here === null ? [] : rideChoices(here.position, pin.position, abroad)), [pin, here, abroad]);
+  const ways = useMemo(() => (pin === null || here === null ? [] : rideChoices(here.position, pin.position, abroad, view.place.fareBp)), [pin, here, abroad, view.place.fareBp]);
 
   // A ride chosen in the place plays at once, the same ride as from the map.
   useEffect(() => {
     if (diveTo === null) return;
     const to = stable.find((candidate) => candidate.id === diveTo);
     if (to === undefined) return;
-    const choice = here === null ? undefined : rideChoices(here.position, to.position, abroad).find((way) => way.id === diveBy);
+    const choice = here === null ? undefined : rideChoices(here.position, to.position, abroad, view.place.fareBp).find((way) => way.id === diveBy);
     setPicked(null);
     start(choice, to.id, diveBy);
     // The ride starts once for the place chosen.

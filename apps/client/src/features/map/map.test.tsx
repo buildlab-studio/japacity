@@ -181,6 +181,15 @@ describe("one country at a time", () => {
 });
 
 describe("the ride", () => {
+  test("[R-WORLD-017] [R-PLACE-010] given the month's fare factor from the view, when the ways are priced, then each vehicle's fare is that share of its flat figure and walking stays free", () => {
+    const from = { latE3: 6511, lonE3: 3362 };
+    const to = { latE3: 6594, lonE3: 3340 };
+    const plain = rideChoices(from, to);
+    const dear = rideChoices(from, to, null, 20000);
+    for (const [index, way] of dear.entries()) expect(way.fare).toBe((plain[index]?.fare ?? 0) * 2);
+    expect(dear.find((way) => way.id === "walk")?.fare).toBe(0);
+  });
+
   test("[R-WORLD-017] given two places, when the ways are priced, then there are a danfo, a keke, an okada and on foot, the vehicles each with a fare in fifties of naira and minutes, the okada quickest, on foot free and slowest", () => {
     const from = { latE3: 6511, lonE3: 3362 };
     const to = { latE3: 6594, lonE3: 3340 };
