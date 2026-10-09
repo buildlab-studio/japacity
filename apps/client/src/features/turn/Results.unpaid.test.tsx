@@ -109,9 +109,10 @@ describe("a hunt's answer on the results", () => {
 });
 
 describe("the grant leads", () => {
-  test("[R-WORLD-008] given Ada's recorded life in the month of her grant, when the results show, then the grant is the first story line, alone in the lead, and the asks and the loan come after it", async () => {
-    // The recorded life up to the month's end that brought the grant (its command 107 of 113).
-    const game = recordedGame("ada-careful", 5);
+  test("[R-WORLD-008] given Ada's recorded life in the month of her grant, when the results show, then the grant is the first story line, alone in the lead, and no funds loan opens that month", async () => {
+    // The recorded life up to the month's end that brought the grant, found by walking back from the flight.
+    let game = recordedGame("ada-careful", 1);
+    for (let back = 1; back < 16 && !(game.view().report?.lines ?? []).some((line) => line.key === "line.route.granted"); back += 1) game = recordedGame("ada-careful", back);
     const lines = game.view().report?.lines ?? [];
     expect(lines.some((line) => line.key === "line.route.granted")).toBe(true);
     await showResults(game, lines);
@@ -119,7 +120,7 @@ describe("the grant leads", () => {
     expect(rows[0]?.getAttribute("data-story-line")).toBe("line.route.granted");
     expect(rows[0]?.getAttribute("data-story-lead")).toBe("true");
     expect(rows.filter((row) => row.getAttribute("data-story-lead") === "true")).toHaveLength(1);
-    const offers = rows.filter((row) => row.getAttribute("data-story-line") === "line.offer.opened");
-    expect(offers.length).toBeGreaterThan(0);
+    // R-ROUTE-020: once granted, no held-funds loan is offered.
+    expect(game.view().offers.some((offer) => offer.entry === "offer.held-funds")).toBe(false);
   });
 });
