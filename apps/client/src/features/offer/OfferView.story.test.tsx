@@ -14,9 +14,8 @@ import type { Game } from "../../../../../packages/sim/src/testing/play";
 import { newGame, openOffer } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { formatMoney } from "../../shared/words/format";
-import { tidyLines } from "../../shared/words/lines";
+import { movesMoney, tidyLines } from "../../shared/words/lines";
 import { say, words } from "../../shared/words/text";
-import { moneyLines } from "../turn/month.results";
 import { OfferView } from "./OfferView";
 
 const BURIAL: Id<"offer"> = "offer.village-burial";
@@ -30,9 +29,11 @@ function told(lines: readonly ReportLine[]): string[] {
   return tidyLines(lines).map((line) => words(line.key, line.params));
 }
 
-/** The money lines of one answer as the results say them. */
+/** The money lines of one answer as the results and the bank say them. */
 function paid(lines: readonly ReportLine[]): string[] {
-  return moneyLines(lines).map((entry) => words(entry.line.key, entry.line.params));
+  return tidyLines(lines)
+    .filter(movesMoney)
+    .map((line) => words(line.key, line.params));
 }
 
 function answer(game: Game, entry: Id<"offer">, choice: string): ReportLine[] {
