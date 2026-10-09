@@ -451,12 +451,29 @@ export const uiText: Record<string, string> = {
 
   // A new life
   "ui.life.title": "Who are you?",
-  "ui.life.intro": "Pick a life in Lagos and find your way out of the country, with the right papers and enough money to land on your feet.",
+  "ui.life.intro": "Build a life in Lagos and find your way out of the country, with the right papers and enough money to land on your feet.",
   "ui.life.start": "Live this life",
   "ui.life.again": "Start a new life",
   "ui.life.notice.other-content": "Your saved life was made for an older version of the game, so it could not come along. A new life has started.",
   "ui.life.notice.unreadable": "Your saved life could not be read. A new life has started.",
   "ui.dismiss": "Close",
+
+  // The front door (prologue.md R-PROLOGUE-009, 010): a look, a name, an archetype, over the compound.
+  "ui.door.look": "Your look",
+  "ui.door.look.one": "Look {n}",
+  "ui.door.name": "Your name",
+  "ui.door.reroll": "Other names",
+  "ui.door.next": "Next",
+  "ui.door.next.then": "What you did",
+  "ui.door.path": "What you did",
+  "ui.door.path.hint": "Up to about 22. Pick one and live it.",
+  "ui.door.back": "Back",
+  "ui.door.ready": "Start from a ready life",
+  "ui.door.ready.hint": "Skip the years before. Start at work.",
+  "ui.door.ready.title": "A ready life",
+  "ui.door.begin": "Begin",
+  "ui.door.years": "The years go by",
+  "ui.door.so-far": "Your life so far",
 
   // Requirements, as short sentences for "why not"
   "ui.req.quality-min": "{quality} {value} or more",
