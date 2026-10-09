@@ -8,9 +8,9 @@ import { useEffect, useRef, useState } from "react";
 import { graphicsMode } from "../../shared/graphics/mode";
 import { loadModel } from "../../shared/three/load";
 import { loadManifest } from "../../shared/three/manifest";
-import { mountCanvas } from "../../shared/three/sharedRenderer";
+import { mountCanvas, sharedRenderer } from "../../shared/three/sharedRenderer";
 import { mapWords } from "./map.words";
-import { buildRide, figuresOn, peopleOf, type Phase, preMsOf, RIDE_MS, type RideScene, type Role, type Way } from "./rideScene";
+import { buildRide, figuresOn, peopleOf, type Phase, PRE_MS, preMsOf, RIDE_MS, type RideScene, type Role, type Way } from "./rideScene";
 
 export { PRE_MS, RIDE_MS } from "./rideScene";
 
@@ -63,16 +63,41 @@ export function lineOf(way: Way, seed: number): string | null {
   return `map.ride.line.${way}.${String((Math.abs(Math.trunc(seed)) % LINES) + 1)}`;
 }
 
-/** Fetches the people and vehicle a ride may show, so its pre-roll does not open on an empty seat. */
+/** The ways whose shaders the ride's renderer has compiled this session, by the character shown. */
+const warmed = new Set<string>();
+
+/**
+ * Fetches the people and vehicle each way may show and compiles their shaders on the ride's renderer
+ * while the map is open, so the pre-roll's first frame does not stall on them (a phone compiles
+ * slowly, and the pre-roll is short).
+ */
 export function preloadRide(own: string): void {
   void loadManifest()
-    .then((manifest) => {
-      const files = new Set<string>();
-      for (const way of ["danfo", "keke", "okada"] as const) {
-        files.add(`shared/veh/veh_${way}.glb`);
-        for (const file of Object.values(peopleOf(way, own))) files.add(file);
+    .then(async (manifest) => {
+      for (const way of ["okada", "keke", "danfo"] as const) {
+        const key = `${way}:${own}`;
+        if (warmed.has(key)) continue;
+        warmed.add(key);
+        try {
+          const people = Object.entries(peopleOf(way, own)) as [Role, string][];
+          const [vehicle, ...persons] = await Promise.all([loadModel(manifest, `shared/veh/veh_${way}.glb`, () => undefined), ...people.map(([, file]) => loadModel(manifest, file, () => undefined))]);
+          const ride = buildRide(way);
+          ride.setVehicle(vehicle.clone());
+          people.forEach(([role], index) => {
+            const model = persons[index];
+            if (model !== undefined) ride.setPerson(role, model);
+          });
+          const { renderer } = sharedRenderer("ride");
+          for (const phase of ["pre", "ride"] as const) {
+            ride.setPhase(phase);
+            ride.frame(phase === "pre" ? 0 : PRE_MS, 0.46);
+            await renderer.compileAsync(ride.scene, ride.camera);
+          }
+          ride.dispose();
+        } catch {
+          warmed.delete(key);
+        }
       }
-      for (const file of files) void loadModel(manifest, file, () => undefined).catch(() => undefined);
     })
     .catch(() => undefined);
 }
