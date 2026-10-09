@@ -8,6 +8,7 @@ import { formatMoney } from "../../shared/words/format";
 import { requirementSentence } from "../../shared/words/requirement";
 import { nameOf } from "../../shared/words/text";
 import { jobsWords } from "./jobs.words";
+import { payAMonth } from "./pay";
 
 const NETWORK = "quality.network";
 
@@ -46,10 +47,10 @@ function chanceOf(view: PlayerView, id: string): number {
   return entry === undefined ? 0 : jobChanceBp(entry, qualityOf(view, NETWORK));
 }
 
-/** A job's pay a month in naira, for ordering; pay in another currency goes first, as the best paid. */
+/** A job's pay a month in its own currency, for ordering; pay in another currency than naira goes first, as the best paid. */
 function payRank(id: string): number {
-  const pay = entryOf(id)?.pay;
-  if (pay === null || pay === undefined || typeof pay.amount !== "number") return 0;
+  const pay = payAMonth(id);
+  if (pay === null) return 0;
   return pay.currency === "NGN" ? pay.amount : Number.MAX_SAFE_INTEGER;
 }
 
@@ -61,9 +62,8 @@ export function huntOrder(view: PlayerView, jobs: readonly string[]): string[] {
 }
 
 function payWords(id: string): string | null {
-  const pay = entryOf(id)?.pay;
-  if (pay === null || pay === undefined || typeof pay.amount !== "number") return null;
-  return jobsWords("jobs.pay", { amount: formatMoney(pay.amount, pay.currency) });
+  const pay = payAMonth(id);
+  return pay === null ? null : jobsWords("jobs.pay", { amount: formatMoney(pay.amount, pay.currency) });
 }
 
 /** Whether the view shows a requirement met; one the view cannot judge counts as unmet, so it is named. */
