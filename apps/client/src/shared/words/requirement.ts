@@ -197,3 +197,27 @@ export function anyOptions(requirement: Requirement, context: SentenceContext = 
   }
   return sentences;
 }
+
+/** True for a requirement that asks only that some route be heard of or looked into. */
+function asksForRoute(requirement: Requirement): boolean {
+  if (requirement.type === "route/state") return requirement.in.includes("heard") || requirement.in.includes("known");
+  return requirement.type === "any" && requirement.of.length > 0 && requirement.of.every(asksForRoute);
+}
+
+/**
+ * Why a shut button is shut, in a few words for the button itself (R-WORLD-006): the first thing
+ * missing, said as what it needs ("Needs your passport first", "Needs a route you have heard of").
+ * The card's list under it says every missing thing in full.
+ */
+export function needsWords(missing: readonly Requirement[], context: SentenceContext = {}): string {
+  const [first] = missing;
+  if (first === undefined) return say("ui.needs.nothing-to-pick");
+  if (alreadyDone(first, context)) return say("ui.needs.done");
+  if (first.type === "document/held" && first.min === undefined) return say("ui.needs.document", { document: runningName(first.document) });
+  if (first.type === "document/held" && first.document === ENGLISH_RESULT && first.min !== undefined) return say("ui.needs.band", { band: formatBand(first.min) });
+  if (first.type === "route/state" && first.in.length === 1 && first.in[0] === "known") return say("ui.needs.route-known", { route: runningName(first.route) });
+  if (asksForRoute(first)) return say("ui.needs.route");
+  if (first.type === "chapter/done") return say("ui.needs.chapter", { chapter: nameOf(first.chapter) });
+  if (first.type === "place/is" && first.where === "abroad") return say("ui.needs.abroad");
+  return say("ui.needs.other", { what: lowerFirst(requirementSentence(first, context)) });
+}
