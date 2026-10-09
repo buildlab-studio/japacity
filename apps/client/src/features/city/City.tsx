@@ -258,7 +258,7 @@ export function City({
   const [date] = useState(() => localDate(new Date()));
   const [looking, setLooking] = useState(world);
   const [map, setMap] = useState(false);
-  const [inside, setInside] = useState(false);
+  const [inside, setInside] = useState(() => world && readKept(LAST_KEY)[1] === "inside");
   const { cutting, cutTo } = useCut();
   const toast = useToast();
   const addToPlan = useGame((state) => state.addToPlan);
@@ -359,7 +359,7 @@ export function City({
   // The world mode remembers where the player stopped and where they have been (rules 5 and 7).
   useEffect(() => {
     if (!world) return;
-    keep(LAST_KEY, [placeId]);
+    keep(LAST_KEY, inside ? [placeId, "inside"] : [placeId]);
     const been = readKept(BEEN_KEY);
     const here = inside && insideEntry !== null ? [placeId, insideEntry.id] : [placeId];
     const fresh = here.filter((id) => !been.includes(id));

@@ -63,6 +63,7 @@ export const uiText: Record<string, string> = {
   "ui.line.activity.lotto-won.one": "1 ticket for {stake}, and it comes in: {won}.",
   "ui.line.activity.lotto-lost.one": "1 ticket for {stake}. Nothing comes in.",
   "ui.line.status.clock-started.one": "The job is gone. You have 1 month to find another sponsor.",
+  "ui.line.activity.adviser-missing.one": "The adviser says {route} does not fit yet. {count} things are missing, at least 1 month away.",
   "ui.line.status.clock-ran.one": "1 month left on the clock.",
   "ui.line.status.renewed.one": "Renewed for 1 month. The fee: {fee}. The surcharge: {surcharge}.",
   "ui.line.status.removed.one": "They found you. You are put on a plane to Lagos, and {country} is closed to you for 1 month.",

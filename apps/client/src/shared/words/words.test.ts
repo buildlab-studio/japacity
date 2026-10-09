@@ -27,7 +27,7 @@ describe("words", () => {
 
   test("given a param that is an id, then its name from content is used, lower-cased in running text", () => {
     expect(words("ui.japacity.of", { route: "route.uk-masters" })).toBe(`on ${lowerFirst(text["route.uk-masters.name"]!)}`);
-    expect(words("line.activity.hunt-missed", { job: "activity.job-teacher" })).toBe("You look for work as private school teacher. Nothing yet.");
+    expect(words("line.activity.hunt-missed", { job: "activity.job-teacher" })).toBe("You look for work: Private school teacher. Nothing yet.");
     expect(words("line.document.issued", { document: "document.english-test" })).toBe("Your English test result is ready.");
     expect(words("line.activity.hunt-hired", { job: "activity.job-teacher" })).toMatch(/\. Private school teacher wants you\.$/);
   });

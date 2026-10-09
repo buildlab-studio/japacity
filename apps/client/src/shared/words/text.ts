@@ -159,6 +159,7 @@ const LINE_COUNTS: Record<string, string> = {
   "line.status.renewed": "months",
   "line.status.removed": "months",
   "line.place.token-lapsed": "months",
+  "line.activity.adviser-missing": "months",
 };
 
 function countedKey(key: string, params: Params): string {

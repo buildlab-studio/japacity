@@ -103,7 +103,7 @@ export const activityText: Record<string, string> = {
   "line.activity.failed-cost": "{activity} did not happen. You could not pay for it.",
   "line.activity.rested": "Free slots given to rest: {slots}.",
   "line.activity.hunt-hired": "Your search pays off. {job} wants you.",
-  "line.activity.hunt-missed": "You look for work as {job}. Nothing yet.",
+  "line.activity.hunt-missed": "You look for work: {job}. Nothing yet.",
   "line.activity.gig": "The side gig pays {amount}, cash.",
   "line.activity.salary-first-foreign": "Your first pay from {job}: {amount}. At home that is {naira}.",
   "line.activity.salary-first-abroad": "Your first pay abroad, from {job}: {amount}. Back home that is {naira}.",
