@@ -36,7 +36,7 @@ describe("words that mislead", () => {
     expect(within(picker).getByRole("option", { name: "5 tickets" })).toBeDefined();
     expect(document.body.textContent).not.toMatch(/\d\.name/);
     fireEvent.change(picker, { target: { value: "3" } });
-    fireEvent.click(screen.getByRole("button", { name: `${say("ui.activity.add")}: ${text[`${LOTTO}.name`] ?? LOTTO}` }));
+    fireEvent.click(screen.getByRole("button", { name: `${text[`${LOTTO}.name`] ?? LOTTO}` }));
     expect(store.getState().plan[0]).toEqual({ activity: LOTTO, param: "3" });
     expect(screen.getByText(`${text[`${LOTTO}.name`] ?? ""}: ${paramWords("3")}`)).toBeDefined();
   });

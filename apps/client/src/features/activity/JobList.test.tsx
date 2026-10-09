@@ -7,7 +7,6 @@ import { engineView } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { formatMoney } from "../../shared/words/format";
 import { requirementSentence } from "../../shared/words/requirement";
-import { say } from "../../shared/words/text";
 import { ActivityPicker } from "./ActivityView";
 import { chanceBand, huntOrder, jobChanceBp, jobsOutOfReach } from "./JobList";
 import { jobsWords } from "./jobs.words";
@@ -96,7 +95,7 @@ describe("the jobs list on the hunt's card", () => {
     const last = huntOrder(view, jobs).at(-1) ?? "";
     fireEvent.click(screen.getByRole("radio", { name: new RegExp(`^${text[`${last}.name`] ?? last}`) }));
     expect(screen.getByRole("radio", { name: new RegExp(`^${text[`${last}.name`] ?? last}`) }).getAttribute("aria-checked")).toBe("true");
-    fireEvent.click(screen.getByRole("button", { name: `${say("ui.activity.add")}: ${text[`${HUNT}.name`] ?? HUNT}` }));
+    fireEvent.click(screen.getByRole("button", { name: `${text[`${HUNT}.name`] ?? HUNT}` }));
     expect(store.getState().plan[0]).toEqual({ activity: HUNT, param: last });
   });
 
@@ -141,7 +140,7 @@ describe("the jobs list on the hunt's card", () => {
 
 describe("the jobs list as rows on the sheet", () => {
   const nameOfJob = (id: string) => text[`${id}.name`] ?? id;
-  const applyButton = () => screen.getByRole("button", { name: `${say("ui.activity.add")}: ${nameOfJob(HUNT)}` });
+  const applyButton = () => screen.getByRole("button", { name: `${nameOfJob(HUNT)}` });
 
   test("[R-WORLD-021] given the hunt's card, when the list shows, then the rows sit on the sheet with no radio circle, and only the chosen row fills with the pick colour", async () => {
     const view = engineView();

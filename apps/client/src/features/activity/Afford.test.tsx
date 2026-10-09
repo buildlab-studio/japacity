@@ -15,7 +15,7 @@ import { ActivityPicker } from "./ActivityView";
 const TB = "activity.tb-test";
 const TRANSCRIPT = "activity.get-transcript";
 
-const addButton = (id: string): HTMLButtonElement => screen.getByRole<HTMLButtonElement>("button", { name: `${say("ui.activity.add")}: ${nameOf(id)}` });
+const addButton = (id: string): HTMLButtonElement => screen.getByRole<HTMLButtonElement>("button", { name: `${nameOf(id)}` });
 
 function naira(view: PlayerView): number {
   return view.pockets.NGN.bank + view.pockets.NGN.cash;

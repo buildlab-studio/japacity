@@ -36,8 +36,7 @@ export const scenarioTable: Record<Id<"scenario">, ScenarioEntry> = {
     // R-PEOPLE-010: working values until scenario.md gives each life its count.
     siblings: 2,
     tenure: {},
-    // Four months of the family's upkeep behind her, so a slow hunt does not run her dry.
-    pockets: { NGN: { bank: naira(380000), cash: naira(25000) } },
+    pockets: { NGN: { bank: naira(180000), cash: naira(25000) } },
     documents: [],
     obligations: [{ obligation: "obligation.upkeep", amount: naira(95000) }],
   },
