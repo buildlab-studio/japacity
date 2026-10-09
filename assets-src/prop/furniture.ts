@@ -163,6 +163,33 @@ export function buildBed(): Group {
 // The parlour
 // ---------------------------------------------------------------------------
 
+/**
+ * The tin box the family keeps its papers in (R-WORLD-019): blue, the lid a shade lighter, the paint
+ * worn to the metal along the lid's front edge, a padlock on its hasp and the edge of a sheet caught
+ * under the lid. Its front faces +Z, the way it is pulled out from under the bed. Every face that looks
+ * up stands over FLOOR_MAX, so it never shares a height with the floor or a rug.
+ */
+export function buildPapersBox(): Group {
+  const g = new Group();
+  g.name = "prop_papers-box";
+  const w = 0.4;
+  const d = 0.3;
+  const body = 0.15;
+  const lid = 0.03;
+  box(g, w, body, d, 0, 0, 0, "blue");
+  box(g, w + 0.02, lid, d + 0.02, 0, body, 0, "basin");
+  // Worn to the metal: the lid's front edge and one bottom corner where it is dragged out.
+  quad(g, 0.2, lid - 0.008, -0.09, body + 0.004, d / 2 + 0.011, "hub");
+  quad(g, 0.1, 0.05, w / 2 - 0.06, 0.004, d / 2 + 0.001, "zinc");
+  // A sheet caught under the lid, its edge out at the front.
+  box(g, 0.18, 0.008, 0.06, 0.1, body + 0.002, d / 2 + 0.01, "cream");
+  // The hasp and its padlock, and a handle at each end.
+  box(g, 0.05, 0.07, 0.012, -0.12, 0.08, d / 2 + 0.006, "hub");
+  box(g, 0.04, 0.05, 0.02, -0.12, 0.06, d / 2 + 0.018, "gold");
+  for (const side of [-1, 1]) box(g, 0.02, 0.025, 0.12, side * (w / 2 + 0.01), 0.1, 0, "hub");
+  return setFootprint(g, [{ x: 0, z: 0, width: w + 0.02, depth: d + 0.02 }]);
+}
+
 /** A seat of the parlour suite in wine with a cream cover on its back, in its own frame facing +Z. */
 function seat(g: Object3D, width: number): void {
   box(g, width, 0.42, 0.78, 0, 0, 0, "wine");

@@ -93,6 +93,7 @@ export const cityText: Record<string, string> = {
   "city.act.rest": "Rest",
   "city.act.turn-on": "Turn on",
   "city.act.papers": "Look in the box",
+  "city.act.papers-start": "Start a paper",
   "city.act.go-in": "Go in",
   "city.act.go-out": "Go out",
   "city.act.ride": "Ride",

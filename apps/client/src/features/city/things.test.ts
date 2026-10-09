@@ -118,4 +118,24 @@ describe("the things of the built places", () => {
       expect(sceneWords(bed?.acts[1]?.label ?? "")).toBe(say("ui.world.end-month"));
     }
   });
+
+  test("[R-WORLD-019] given the parlour, when its papers box is read, then it stands at the bed, starts the passport with the transcript on the same sheet, offers a look, and its words resolve", () => {
+    const found = builtPlaces().find((built) => built.folder === "family-house-parlour");
+    if (found === undefined) throw new Error("No parlour");
+    const stage = stageOf(found.file);
+    const box = (stage.things ?? []).find((thing) => thing.id === "papers-box");
+    if (box === undefined) throw new Error("No papers box");
+    expect(box.file).toBe("places/family-house-parlour/prop_papers-box.glb");
+    const copyOf = (file: string) => stage.models.find((model) => model.file === file)?.at[0];
+    const tin = copyOf(box.file);
+    const bed = copyOf("shared/prop/prop_bed.glb");
+    if (tin === undefined || bed === undefined) throw new Error("The box or the bed stands nowhere");
+    expect(Math.hypot(tin[0] - bed[0], tin[1] - bed[1])).toBeLessThan(1.5);
+    expect(box.acts.map((act) => [act.id, act.kind, act.stages, act.more])).toEqual([
+      ["start", "sheet", "activity.get-passport", ["activity.get-transcript"]],
+      ["look", "plain", undefined, undefined],
+    ]);
+    expect(sceneWords(box.label)).toBe("Papers box");
+    expect(box.acts.map((act) => sceneWords(act.label))).toEqual(["Start a paper", "Look in the box"]);
+  });
 });
