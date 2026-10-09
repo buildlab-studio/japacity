@@ -17,16 +17,16 @@ function Line({ row, when }: { row: BoardRow; when: When }) {
     <li
       data-board-line={row.rank}
       data-me={row.me ? "true" : undefined}
-      className={`flex min-h-11 items-center gap-3 rounded-lg px-3 py-2 ${row.me ? "bg-accent/15 font-semibold ring-1 ring-accent" : "odd:bg-sunk/60"}`}
+      className={`flex min-h-11 items-center gap-3 rounded-lg px-3 py-2 ${row.me ? "bg-accent/15 font-semibold ring-1 ring-accent" : "odd:bg-sheet-muted/60"}`}
     >
       <span className="w-10 shrink-0 text-right font-semibold tabular-nums" aria-label={say("ui.boards.rank", { rank: row.rank })}>
         {row.rank}
       </span>
       <span className="flex min-w-0 flex-1 flex-col">
         <span className="truncate">{row.name ?? row.firstName}</span>
-        {row.name === null ? null : <span className="truncate text-xs font-normal text-muted">{row.firstName}</span>}
+        {row.name === null ? null : <span className="truncate text-xs font-normal text-text-2">{row.firstName}</span>}
       </span>
-      {row.me ? <span className="text-xs font-medium text-muted uppercase">{say("ui.boards.you")}</span> : null}
+      {row.me ? <span className="text-xs font-medium text-text-2 uppercase">{say("ui.boards.you")}</span> : null}
       <span className="shrink-0 tabular-nums">{figureWords(row, when)}</span>
     </li>
   );
@@ -38,7 +38,7 @@ export default function BoardList({ reply, when, friends }: { reply: BoardReply;
   // Above the list, so a player far down a long board sees their place without scrolling.
   const ownLine = ownShown ? null : (
     <div className="flex flex-col gap-1" data-board-own>
-      <p className="text-xs font-semibold tracking-wide text-muted uppercase">{say("ui.boards.your-place")}</p>
+      <p className="text-xs font-semibold tracking-wide text-text-2 uppercase">{say("ui.boards.your-place")}</p>
       {own === null ? (
         <p className="text-sm">{say("ui.boards.no-route")}</p>
       ) : (
@@ -52,7 +52,7 @@ export default function BoardList({ reply, when, friends }: { reply: BoardReply;
     <div className="flex flex-col gap-3" data-board={reply.board}>
       {ownLine}
       {reply.rows.length === 0 ? (
-        <p className="text-muted">{say(friends ? "ui.boards.empty.friends" : "ui.boards.empty")}</p>
+        <p className="text-text-2">{say(friends ? "ui.boards.empty.friends" : "ui.boards.empty")}</p>
       ) : (
         <ol className="flex flex-col gap-1" data-board-lines>
           {reply.rows.map((row) => (

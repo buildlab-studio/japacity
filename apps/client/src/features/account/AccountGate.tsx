@@ -76,7 +76,7 @@ export function AccountGate({ load = loadTurnstile, sitekey, embedded = false }:
     if (typeof standing === "object") return <Full retryAfter={standing.retryAfter} check={check} onOpen={() => undefined} />;
     switch (standing) {
       case "loading":
-        return <p className="text-muted">{say("ui.account.loading")}</p>;
+        return <p className="text-text-2">{say("ui.account.loading")}</p>;
       case "failed":
         return <p role="alert">{say("ui.account.fail.unreachable")}</p>;
       case "region-closed":
@@ -110,7 +110,7 @@ export function AccountGate({ load = loadTurnstile, sitekey, embedded = false }:
     <main className="mx-auto flex min-h-dvh max-w-md flex-col gap-6 px-4 py-8">
       <p className="text-xl font-bold">{say("ui.game")}</p>
       {notice === null ? null : (
-        <p role="status" className="rounded-xl border-l-4 border-l-accent bg-surface p-4">
+        <p role="status" className="rounded-xl border-l-4 border-l-accent bg-sheet-2 p-4">
           {say(notice)}
         </p>
       )}

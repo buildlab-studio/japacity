@@ -24,11 +24,11 @@ function Items({ chapter }: { chapter: Id<"chapter"> }) {
         const options = itemOptions(chapter, item.id, view);
         return (
           <li key={item.id} data-met={item.met ? "true" : "false"} className="flex items-start gap-2">
-            {item.met ? <Check size={18} className="mt-0.5 shrink-0 text-good" /> : <Circle size={18} className="mt-0.5 shrink-0 text-muted" />}
+            {item.met ? <Check size={18} className="mt-0.5 shrink-0 text-good" /> : <Circle size={18} className="mt-0.5 shrink-0 text-text-2" />}
             <div className="flex flex-col gap-1">
-              <span className={item.met ? "text-muted line-through" : ""}>{words(`${chapter}.item.${item.id}`)}</span>
+              <span className={item.met ? "text-text-2 line-through" : ""}>{words(`${chapter}.item.${item.id}`)}</span>
               {options.length < 2 ? null : (
-                <div className="text-sm text-muted" data-one-of>
+                <div className="text-sm text-text-2" data-one-of>
                   <p className="font-medium">{say("ui.chapter.one-of")}</p>
                   <ul className="list-disc pl-5">
                     {options.map((option) => (
@@ -51,13 +51,13 @@ function LongGame() {
   return (
     <div className="flex flex-col gap-2" data-long-game>
       <h2 className="font-display text-3xl leading-tight">{say("ui.chapter.long-game")}</h2>
-      <p className="text-muted">{say(goals.open.length === 0 ? "ui.chapter.long-game-none" : "ui.chapter.long-game-intro")}</p>
+      <p className="text-text-2">{say(goals.open.length === 0 ? "ui.chapter.long-game-none" : "ui.chapter.long-game-intro")}</p>
       {goals.open.length === 0 ? null : (
         <ul className="flex flex-col gap-1">
           {goals.open.map((goal) => (
             <li key={goal.id} className="flex items-baseline justify-between gap-3">
               <span>{nameOf(goal.id)}</span>
-              <span className="text-sm text-muted tabular-nums">
+              <span className="text-sm text-text-2 tabular-nums">
                 {say("ui.chapter.goal-items", { met: goal.items.filter((item) => item.met).length, total: goal.items.length })}
               </span>
             </li>
@@ -83,13 +83,13 @@ export function ChapterView() {
         ) : (
           <>
             <h2 className="text-2xl leading-tight font-bold">{words(`${current}.title`)}</h2>
-            <p className="text-muted italic">{words(`${current}.open`)}</p>
+            <p className="text-text-2 italic">{words(`${current}.open`)}</p>
             <Items chapter={current} />
           </>
         )}
         {chapter.done.length === 0 ? null : (
-          <div className="flex flex-wrap items-center gap-2 border-t border-line pt-3 text-sm">
-            <span className="text-muted">{say("ui.chapter.done")}:</span>
+          <div className="flex flex-wrap items-center gap-2 border-t border-sheet-line pt-3 text-sm">
+            <span className="text-text-2">{say("ui.chapter.done")}:</span>
             {chapter.done.map((id) => (
               <Tag key={id} tone="good">
                 {words(`${id}.title`)}

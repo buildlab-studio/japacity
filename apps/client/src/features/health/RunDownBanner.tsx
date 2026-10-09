@@ -14,14 +14,14 @@ export function RunDownBanner({ className = "" }: { className?: string }) {
   if (!runDown) return null;
   const wellbeing = qualities.find((quality) => quality.id === WELLBEING)?.value ?? 0;
   return (
-    <div role="alert" data-run-down className={`flex items-start gap-3 rounded-2xl border-2 border-bad bg-surface p-4 ${className}`}>
+    <div role="alert" data-run-down className={`flex items-start gap-3 rounded-2xl border-2 border-bad bg-sheet-2 p-4 ${className}`}>
       <HeartPulse size={28} className="mt-0.5 shrink-0 text-bad" />
       <div className="flex flex-col gap-1">
         <p className="text-lg font-bold">{say("ui.health.run-down")}</p>
         <p className="text-sm tabular-nums">
           {say("ui.health.run-down-figure", { quality: nameOf(WELLBEING), value: wellbeing, line: content.tuning.health.runDownBelow })}
         </p>
-        <p className="text-sm text-muted">{say("ui.health.run-down-help")}</p>
+        <p className="text-sm text-text-2">{say("ui.health.run-down-help")}</p>
       </div>
     </div>
   );

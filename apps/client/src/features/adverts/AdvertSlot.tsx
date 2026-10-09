@@ -65,8 +65,8 @@ function AdvertCard({ slot, served, open, onOpenChange }: { slot: Id<"advert">; 
       {served.link === null ? null : leaving ? (
         <div className="flex flex-col gap-3" data-advert-leaving>
           <p className="font-semibold">{say("advert.card.leaving.title")}</p>
-          <p className="text-muted">{say("advert.card.leaving.body")}</p>
-          <p className="break-all text-sm text-muted">{served.link}</p>
+          <p className="text-text-2">{say("advert.card.leaving.body")}</p>
+          <p className="break-all text-sm text-text-2">{served.link}</p>
           <div className="flex flex-wrap gap-2">
             <a
               href={served.link}
@@ -103,13 +103,13 @@ export function AdvertSlot({ slot, served, baseUrl = "", onCount }: AdvertSlotPr
   if (!shown) return null;
   const ratio = { aspectRatio: `${String(entry.width)} / ${String(entry.height)}` };
   if (served === null || served === undefined) {
-    return <div data-advert-slot={slot} data-advert-empty role="img" aria-label={say("advert.empty")} style={ratio} className="w-full rounded-md border border-line bg-sunk" />;
+    return <div data-advert-slot={slot} data-advert-empty role="img" aria-label={say("advert.empty")} style={ratio} className="w-full rounded-md border border-sheet-line bg-sheet-muted" />;
   }
   return (
     <div ref={ref} data-advert-slot={slot} className="relative w-full" style={ratio}>
       <button
         type="button"
-        className="block size-full overflow-hidden rounded-md border border-line focus-visible:outline-2 focus-visible:outline-ink"
+        className="block size-full overflow-hidden rounded-md border border-sheet-line focus-visible:outline-2 focus-visible:outline-ink"
         onClick={() => {
           setOpen(true);
           onCount?.(ADVERT_COUNTERS.tap, slot);
@@ -117,7 +117,7 @@ export function AdvertSlot({ slot, served, baseUrl = "", onCount }: AdvertSlotPr
       >
         <img src={`${baseUrl}${served.image}`} width={served.width} height={served.height} alt={`${say("advert.label")}: ${served.advertiser}`} className="size-full object-cover" />
       </button>
-      <span data-advert-label className="pointer-events-none absolute top-1 left-1 rounded-sm bg-ink px-1.5 py-0.5 text-xs font-semibold text-paper">
+      <span data-advert-label className="pointer-events-none absolute top-1 left-1 rounded-sm bg-strong px-1.5 py-0.5 text-xs font-semibold text-on-strong">
         {say("advert.label")}
       </span>
       <AdvertCard slot={slot} served={served} open={open} onOpenChange={setOpen} />

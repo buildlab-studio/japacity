@@ -77,7 +77,7 @@ export function MoneyTab({ api, onRollback }: { api: AdminApi; onRollback: (char
         <Loaded reply={alarms.reply}>
           {({ alarms: list }) =>
             list.length === 0 ? (
-              <p className="text-muted">{words("admin.money.alarms.none")}</p>
+              <p className="text-text-2">{words("admin.money.alarms.none")}</p>
             ) : (
               <ul className="flex flex-col gap-2" aria-label={words("admin.money.alarms")}>
                 {list.map((alarm, at) => (
@@ -103,7 +103,7 @@ export function RejectionsTab({ api }: { api: AdminApi }) {
   const counts = useLoad(() => api.rejections());
   return (
     <Section title={words("admin.rejections.title")} action={<ReloadButton onClick={counts.reload} />}>
-      <p className="text-muted">{words("admin.rejections.note")}</p>
+      <p className="text-text-2">{words("admin.rejections.note")}</p>
       <Loaded reply={counts.reply}>
         {({ counts: byCode }) => (
           <Table
@@ -145,7 +145,7 @@ export function RollbackTab({ api, character: given }: { api: AdminApi; characte
   const id = character.trim();
   return (
     <Section title={words("admin.rollback.title")}>
-      <p className="text-muted">{words("admin.rollback.intro")}</p>
+      <p className="text-text-2">{words("admin.rollback.intro")}</p>
       <Field label={words("admin.rollback.character")} value={character} onChange={(event) => setCharacter(event.target.value)} />
       <Confirm
         label={words("admin.rollback.run")}

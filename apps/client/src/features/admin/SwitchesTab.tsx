@@ -35,7 +35,7 @@ function SwitchRow({ api, name, on, onDone }: { api: AdminApi; name: SwitchName;
   const [reason, setReason] = useState("");
   const why = reason.trim();
   return (
-    <li data-switch={name} className="flex flex-col gap-3 rounded-lg border border-line p-3">
+    <li data-switch={name} className="flex flex-col gap-3 rounded-lg border border-sheet-line p-3">
       <div className="flex items-center gap-2">
         <span className="font-semibold">{switchName(name)}</span>
         <Tag tone={on ? "good" : "bad"}>{words(on ? "admin.switch.on" : "admin.switch.off")}</Tag>
@@ -70,7 +70,7 @@ function DialRow({ api, dial, now, onDone }: { api: AdminApi; dial: DialName; no
   const held = dial === "placeTarget" ? (now.placeTargets[place] ?? null) : now[dial];
   const reasonBlock = why === "" ? words("admin.reason.needed") : null;
   return (
-    <li data-dial={dial} className="flex flex-col gap-3 rounded-lg border border-line p-3">
+    <li data-dial={dial} className="flex flex-col gap-3 rounded-lg border border-sheet-line p-3">
       <div className="flex flex-wrap items-center gap-2">
         <span className="font-semibold">{name}</span>
         <Tag>{held === null ? words("admin.dial.unset") : String(held)}</Tag>

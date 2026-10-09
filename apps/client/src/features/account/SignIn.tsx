@@ -44,7 +44,7 @@ export function SignIn({ account, sitekey, load, onSignedIn }: SignInProps) {
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-2">
         <h1 className="text-3xl font-bold">{say("ui.account.title")}</h1>
-        <p className="text-muted">{say("ui.account.intro")}</p>
+        <p className="text-text-2">{say("ui.account.intro")}</p>
       </div>
       <div className="flex flex-col gap-3">
         <Button variant="primary" disabled={busy} onClick={() => void run(() => account.signInWithGoogle(bot), true)}>
@@ -62,7 +62,7 @@ export function SignIn({ account, sitekey, load, onSignedIn }: SignInProps) {
       )}
       {sitekey === null ? null : (
         <div className="flex flex-col gap-2">
-          <p className="text-sm text-muted">{say("ui.account.bot")}</p>
+          <p className="text-sm text-text-2">{say("ui.account.bot")}</p>
           <Turnstile sitekey={sitekey} load={load} round={round} onToken={setBot} />
         </div>
       )}

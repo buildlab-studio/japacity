@@ -36,7 +36,7 @@ function Briefs({ title, list }: { title: string; list: AccountSummary["made"] }
     <div>
       <h5 className="font-medium">{title}</h5>
       {list.length === 0 ? (
-        <p className="text-muted">{words("admin.none")}</p>
+        <p className="text-text-2">{words("admin.none")}</p>
       ) : (
         <ul className="list-disc pl-5">
           {list.map((report) => (
@@ -55,7 +55,7 @@ function Briefs({ title, list }: { title: string; list: AccountSummary["made"] }
 /** R-MODERATION-013: one account's standing. Never an email, a seed or a character's state. */
 function Standing({ role, summary }: { role: string; summary: AccountSummary }) {
   return (
-    <div data-account={summary.account} className="flex flex-col gap-2 rounded-lg border border-line p-3 text-sm">
+    <div data-account={summary.account} className="flex flex-col gap-2 rounded-lg border border-sheet-line p-3 text-sm">
       <h4 className="font-semibold">{words("admin.account.title", { role, account: summary.account })}</h4>
       <p>
         {summary.region === null ? words("admin.account.region.none") : words("admin.account.region", { region: summary.region })},{" "}
@@ -66,7 +66,7 @@ function Standing({ role, summary }: { role: string; summary: AccountSummary }) 
       <div>
         <h5 className="font-medium">{words("admin.account.actions")}</h5>
         {summary.actions.length === 0 ? (
-          <p className="text-muted">{words("admin.none")}</p>
+          <p className="text-text-2">{words("admin.none")}</p>
         ) : (
           <ul className="list-disc pl-5">
             {summary.actions.map((entry) => (
@@ -105,7 +105,7 @@ function CloseReport({ api, item, onDone }: { api: AdminApi; item: string; onDon
   const daysOk = WHOLE.test(days) && Number(days) >= 1 && Number(days) <= MAX_DAYS;
   const blocked = needsDays && !daysOk ? words("admin.close.days") : action === "refer" && body.trim() === "" ? words("admin.close.body") : null;
   return (
-    <div className="flex flex-col gap-3 border-t border-line pt-3">
+    <div className="flex flex-col gap-3 border-t border-sheet-line pt-3">
       <div className="grid gap-3 sm:grid-cols-2">
         <Choice label={words("admin.close.action")} value={action} options={ACTION_OPTIONS} onChange={setAction} />
         <Choice label={words("admin.close.reason")} value={reason} options={REASON_OPTIONS} onChange={setReason} />
@@ -139,7 +139,7 @@ function DecideAppeal({ api, item, onDone }: { api: AdminApi; item: string; onDo
   const [reason, setReason] = useState<ReportReason>("other");
   const [note, setNote] = useState("");
   return (
-    <div className="flex flex-col gap-3 border-t border-line pt-3">
+    <div className="flex flex-col gap-3 border-t border-sheet-line pt-3">
       <div className="grid gap-3 sm:grid-cols-2">
         <Choice
           label={words("admin.decide.outcome")}
@@ -169,9 +169,9 @@ function Item({ api, item, onDone }: { api: AdminApi; item: QueueItem; onDone: (
   const waited = words("admin.moderation.waited", { at: utcTime(item.at), age: duration(item.age) });
   if (item.kind === "appeal") {
     return (
-      <li data-item={item.id} className="flex flex-col gap-3 rounded-xl border border-line bg-surface p-4">
+      <li data-item={item.id} className="flex flex-col gap-3 rounded-xl border border-sheet-line bg-sheet-2 p-4">
         <h3 className="font-semibold">{words("admin.moderation.appeal", { id: item.id })}</h3>
-        <p className="text-sm text-muted">{waited}</p>
+        <p className="text-sm text-text-2">{waited}</p>
         <p>
           {item.entry === null
             ? words("admin.moderation.against.missing")
@@ -183,12 +183,12 @@ function Item({ api, item, onDone }: { api: AdminApi; item: QueueItem; onDone: (
     );
   }
   return (
-    <li data-item={item.id} className="flex flex-col gap-3 rounded-xl border border-line bg-surface p-4">
+    <li data-item={item.id} className="flex flex-col gap-3 rounded-xl border border-sheet-line bg-sheet-2 p-4">
       <div className="flex flex-wrap items-center gap-2">
         <h3 className="font-semibold">{words("admin.moderation.report", { id: item.id, reason: item.reason })}</h3>
         {item.unverified ? <Tag tone="bad">{words("admin.moderation.unverified")}</Tag> : null}
       </div>
-      <p className="text-sm text-muted">{waited}</p>
+      <p className="text-sm text-text-2">{waited}</p>
       <p>{"account" in item.subject ? words("admin.moderation.subject.account", { account: item.subject.account }) : words("admin.moderation.subject.campaign", { campaign: item.subject.campaign })}</p>
       <p>{words("admin.moderation.cites", { cites: citeWords(item.cites) })}</p>
       {item.hold === null ? null : <p>{words("admin.moderation.hold", { until: utcTime(item.hold.until) })}</p>}
@@ -238,7 +238,7 @@ function LogView({ api }: { api: AdminApi }) {
           {words("admin.log.show")}
         </Button>
       </form>
-      {named ? null : <p className="text-sm text-muted">{words("admin.log.need")}</p>}
+      {named ? null : <p className="text-sm text-text-2">{words("admin.log.need")}</p>}
       {asked === null ? null : (
         <Loaded reply={reply}>
           {({ entries }) => (
@@ -293,7 +293,7 @@ export function ModerationTab({ api }: { api: AdminApi }) {
     <div className="flex flex-col gap-8">
       <Section title={words("admin.moderation.queue")} action={<ReloadButton onClick={queue.reload} />}>
         {answer === null ? null : (
-          <div role="status" aria-label={words("admin.moderation.answer")} className="rounded-lg border border-line bg-sunk p-3">
+          <div role="status" aria-label={words("admin.moderation.answer")} className="rounded-lg border border-sheet-line bg-sheet-muted p-3">
             {answer}
           </div>
         )}
@@ -304,7 +304,7 @@ export function ModerationTab({ api }: { api: AdminApi }) {
                 {words("admin.moderation.summary", { count: view.items.length, oldest: duration(view.oldest), target: duration(view.target), overdue: view.overdue })}
               </p>
               {view.items.length === 0 ? (
-                <p className="text-muted">{words("admin.moderation.empty")}</p>
+                <p className="text-text-2">{words("admin.moderation.empty")}</p>
               ) : (
                 <ol className="flex flex-col gap-4" aria-label={words("admin.moderation.queue")}>
                   {view.items.map((item) => (

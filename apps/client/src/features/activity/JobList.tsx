@@ -70,14 +70,14 @@ function JobRow({ id, chance, chosen, onPick }: { id: string; chance: ChanceBand
         aria-checked={chosen}
         data-job={id}
         onClick={() => onPick(id)}
-        className={`flex min-h-12 w-full items-center gap-3 rounded-lg border px-3 py-2 text-left ${chosen ? "border-ink bg-sunk" : "border-line bg-paper"}`}
+        className={`flex min-h-12 w-full items-center gap-3 rounded-lg border px-3 py-2 text-left ${chosen ? "border-ink bg-sheet-muted" : "border-sheet-line bg-sheet"}`}
       >
-        <span aria-hidden className={`size-4 shrink-0 rounded-full border-2 ${chosen ? "border-ink bg-ink" : "border-line"}`} />
+        <span aria-hidden className={`size-4 shrink-0 rounded-full border-2 ${chosen ? "border-ink bg-ink" : "border-sheet-line"}`} />
         <span className="flex flex-1 flex-col">
           <span className="font-medium">{nameOf(id)}</span>
           {pay === null ? null : <span className="text-sm tabular-nums">{pay}</span>}
         </span>
-        <span className={`text-xs font-semibold ${chance === "likely" ? "text-good" : chance === "long" ? "text-muted" : ""}`} data-chance={chance}>
+        <span className={`text-xs font-semibold ${chance === "likely" ? "text-good" : chance === "long" ? "text-text-2" : ""}`} data-chance={chance}>
           {jobsWords(`jobs.chance.${chance}`)}
         </span>
       </button>
@@ -102,12 +102,12 @@ export function JobList({ view, jobs, chosen, onPick }: { view: PlayerView; jobs
       </div>
       {out.length === 0 ? null : (
         <div className="flex flex-col gap-1">
-          <span className="font-medium text-muted" id="jobs-out">
+          <span className="font-medium text-text-2" id="jobs-out">
             {jobsWords("jobs.out-of-reach")}
           </span>
           <ul aria-labelledby="jobs-out" className="flex flex-col gap-1.5" data-jobs-out>
             {out.map((job) => (
-              <li key={job.id} className="flex flex-col rounded-lg border border-dashed border-line px-3 py-2 text-muted" data-job={job.id}>
+              <li key={job.id} className="flex flex-col rounded-lg border border-dashed border-sheet-line px-3 py-2 text-text-2" data-job={job.id}>
                 <span className="flex items-baseline justify-between gap-2">
                   <span className="font-medium">{nameOf(job.id)}</span>
                   <span className="tabular-nums">{payWords(job.id)}</span>

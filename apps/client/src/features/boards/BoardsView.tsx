@@ -39,7 +39,7 @@ function useBoard(api: BoardsApi, board: BoardName): { asked: Asked; again: () =
 
 function Picker<T extends string>({ legend, options, chosen, words, onChoose }: { legend: string; options: readonly T[]; chosen: T; words: (option: T) => string; onChoose: (option: T) => void }) {
   return (
-    <div role="radiogroup" aria-label={legend} className="grid grid-cols-2 gap-1 rounded-xl border border-line bg-sunk p-1">
+    <div role="radiogroup" aria-label={legend} className="grid grid-cols-2 gap-1 rounded-xl border border-sheet-line bg-sheet-muted p-1">
       {options.map((option) => (
         <button
           key={option}
@@ -48,7 +48,7 @@ function Picker<T extends string>({ legend, options, chosen, words, onChoose }: 
           aria-checked={option === chosen}
           data-pick={option}
           onClick={() => onChoose(option)}
-          className={`min-h-11 rounded-lg px-3 text-sm font-medium focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink ${option === chosen ? "bg-surface text-ink shadow-sm" : "text-muted"}`}
+          className={`min-h-11 rounded-lg px-3 text-sm font-medium focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink ${option === chosen ? "bg-sheet-2 text-ink shadow-sm" : "text-text-2"}`}
         >
           {words(option)}
         </button>
@@ -80,12 +80,12 @@ function Refused({ answer, again }: { answer: Exclude<BoardAnswer, { ok: true }>
 
 function Lines({ api, when, who }: { api: BoardsApi; when: When; who: Who }) {
   const { asked, again } = useBoard(api, boardOf(when, who));
-  if (asked.state === "loading") return <p className="text-sm text-muted" aria-live="polite">{say("ui.boards.loading")}</p>;
+  if (asked.state === "loading") return <p className="text-sm text-text-2" aria-live="polite">{say("ui.boards.loading")}</p>;
   if (asked.state === "failed") return <Note action={{ label: say("ui.boards.retry"), run: again }}>{say("ui.boards.failed")}</Note>;
   const { answer } = asked;
   if (!answer.ok) return <Refused answer={answer} again={again} />;
   return (
-    <Suspense fallback={<p className="text-sm text-muted">{say("ui.boards.loading")}</p>}>
+    <Suspense fallback={<p className="text-sm text-text-2">{say("ui.boards.loading")}</p>}>
       <BoardList reply={answer} when={when} friends={who === "friends"} />
     </Suspense>
   );
@@ -110,7 +110,7 @@ export function Boards({ api }: { api: BoardsApi }) {
       <Card className="flex flex-col gap-3" data-boards>
         <Picker legend={say("ui.boards.when")} options={WHENS} chosen={when} words={(option) => say(`ui.boards.when.${option}`)} onChoose={setWhen} />
         <Picker legend={say("ui.boards.who")} options={WHOS} chosen={who} words={(option) => say(`ui.boards.who.${option}`)} onChoose={setWho} />
-        <p className="text-sm text-muted">{say(who === "friends" ? "ui.boards.about.friends" : `ui.boards.about.${when}`)}</p>
+        <p className="text-sm text-text-2">{say(who === "friends" ? "ui.boards.about.friends" : `ui.boards.about.${when}`)}</p>
         <Lines api={api} when={when} who={who} />
       </Card>
       <JoinedWeek api={api} />
