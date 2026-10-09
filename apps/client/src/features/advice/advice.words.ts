@@ -13,7 +13,7 @@ export const adviceUiText: Record<string, string> = {
   "advice.look.nobody": "You know nobody to ask yet.",
   "advice.says": "What he says you need",
   "advice.says.sure": "Only the official page at the hub's desk is sure.",
-  "advice.short": "His fee would take the last of your cash.",
+  "advice.short": "His fee would take the last of your money.",
   "advice.promise.month": "The card says: {when}",
   "advice.gone": "He has gone.",
 };

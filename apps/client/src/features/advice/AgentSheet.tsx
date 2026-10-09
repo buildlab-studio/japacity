@@ -14,6 +14,7 @@ import { Rejection } from "../../shared/ui/Rejection";
 import { formatMoney } from "../../shared/words/format";
 import { tidyLines } from "../../shared/words/lines";
 import { hasWords, inMonths, nameOf, say, words } from "../../shared/words/text";
+import { afterPaying, plannedCosts } from "../../shared/words/cost";
 import { adviceWords } from "./advice.words";
 
 /** Every entry of the agent family starts with this (R-ADVICE-005). */
@@ -127,10 +128,12 @@ function Lines({ lines, mark }: { lines: readonly ReportLine[]; mark: string }) 
 /** The one main button, with what is left after; then the way to say no (R-WORLD-006). */
 function Choices({ offer, main, onChosen }: { offer: Offer; main: Offer["choices"]; onChosen: (lines: ReportLine[]) => void }) {
   const { choose, idle } = useChoose();
-  // The fee leaves cash first and the bank for the rest (decision 0012), so what is left after counts both.
-  const pockets = useView().pockets.NGN;
-  const cash = pockets.cash + pockets.bank;
+  // The fee leaves cash first and the bank for the rest (decision 0012): what is left after counts both pockets and the month's plan, and a short fee says the gap (R-WORLD-006).
+  const view = useView();
+  const plan = useGame((state) => state.plan);
   const fee = feeOf(offer) ?? 0;
+  const paying = fee > 0 ? afterPaying(view, plannedCosts(view, plan), [{ currency: "NGN", amount: fee }]) : null;
+  const after = paying === null ? null : paying.short === null ? say("ui.world.left", { amount: formatMoney(paying.left.amount, "NGN") }) : say("ui.world.short", { amount: formatMoney(paying.short.amount, "NGN") });
   const decline = offer.choices.find((choice) => choice.id === DECLINE);
   const pick = (choice: string) => {
     cue(choice === DECLINE ? "close" : "coin");
@@ -151,7 +154,7 @@ function Choices({ offer, main, onChosen }: { offer: Offer; main: Offer["choices
           data-agent-choice={choice.id}
         >
           <span>{words(`${offer.entry}.choice.${choice.id}`)}</span>
-          <span className="text-[13px] font-semibold opacity-80">{say("ui.world.left", { amount: formatMoney(cash - fee, "NGN") })}</span>
+          {after === null ? null : <span className="text-[13px] font-semibold opacity-80">{after}</span>}
         </button>
       ))}
       {main.length > 0 && main.every((choice) => !choice.allowed) ? <p className="text-[13px] text-text-2">{adviceWords("advice.short")}</p> : null}

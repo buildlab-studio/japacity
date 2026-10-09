@@ -69,13 +69,13 @@ describe("the situation in plain words", () => {
     expect(words(rested[0]?.key ?? "", rested[0]?.params)).not.toMatch(/\d/);
   });
 
-  test("given the share card's labels, then they say what a person would: ready to go and how home sees you", () => {
+  test("[R-TEXT-005] given the share card's labels, then they say what a person would: ready to go and how home sees you", () => {
     expect(say("share.japacity")).toBe("Ready to go");
     expect(say("share.standing")).toBe("How home sees you");
     expect(Object.values(uiText).some((said) => /Japacity so far/.test(said))).toBe(false);
   });
 
-  test("given the first screen, when a life is picked, then the line under Who are you? names leaving", async () => {
+  test("[R-TEXT-006] given the first screen, when a life is picked, then the line under Who are you? names leaving", async () => {
     await renderWithView(<ScenarioView />, newGame("scenario.ada").view());
     expect(screen.getByRole("heading", { name: say("ui.life.title") })).toBeDefined();
     const intro = say("ui.life.intro");

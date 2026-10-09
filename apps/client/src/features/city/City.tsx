@@ -14,6 +14,7 @@ import { Button } from "../../shared/ui/Button";
 import { FullScreen } from "../../shared/ui/FullScreen";
 import { Sheet } from "../../shared/ui/Sheet";
 import { formatMoney, todayWords } from "../../shared/words/format";
+import { needsWords } from "../../shared/words/requirement";
 import { blurbOf, hasWords, inMonths, nameOf, paramWords, say, words } from "../../shared/words/text";
 import { AskSheet } from "../../shared/world/AskSheet";
 import { Band, bandMoney } from "../../shared/world/Band";
@@ -498,7 +499,9 @@ export function City({
   // R-WORLD-005: a job on a place's board or stall is an act whenever the hunt can ask for it.
   const hunt = view.activities.find((option) => option.id === "activity.job-hunt");
   const jobIds = hunt?.allowed === true ? (hunt.params ?? []) : [];
-  const activityKey = [...view.activities.filter((option) => option.allowed).map((option) => option.id), ...jobIds, ...(depositDue === null ? [] : ["command:route/pay-deposit"]), ...(departDue === null ? [] : ["command:route/depart"])].join("|");
+  // An activity shut only by a paper not yet held (the English test before the passport) still stands in the world, shut with its reason.
+  const paperShut = view.activities.filter((option) => !option.allowed && option.missing.length > 0 && option.missing.every((need) => need.type === "document/held")).map((option) => option.id);
+  const activityKey = [...view.activities.filter((option) => option.allowed).map((option) => option.id), ...paperShut, ...jobIds, ...(depositDue === null ? [] : ["command:route/pay-deposit"]), ...(departDue === null ? [] : ["command:route/depart"])].join("|");
   const chapterNow = view.chapter.current;
   const offersKey = view.offers.map((offer) => offer.entry).join("|");
   const setpieceEntry = view.setpiece?.entry ?? null;
@@ -737,6 +740,7 @@ export function City({
       cost: cost === null ? null : { amount: cost.amount, currency: cost.currency },
       button: nameOf(activity),
       ...(paper ? { reference: todayWords().toUpperCase() } : {}),
+      ...(option.allowed ? {} : { blocked: needsWords(option.missing) }),
       act: () => {
         const added = addToPlan({ activity: option.id, param: chosen ?? option.params?.[0] ?? null });
         cue(added ? (cost === null ? "done" : "coin") : "tap");
