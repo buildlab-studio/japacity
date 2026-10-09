@@ -16,6 +16,7 @@ import { Sheet } from "../../shared/ui/Sheet";
 import { formatMoney } from "../../shared/words/format";
 import { jobCardWords } from "../../shared/words/jobs";
 import { needsWords } from "../../shared/words/requirement";
+import { sixteenPath } from "../../shared/words/sixteen";
 import { blurbOf, hasWords, inMonths, nameOf, paramWords, say, words } from "../../shared/words/text";
 import { ENGLISH_TEST, testChance } from "../../shared/words/test";
 import { AskSheet } from "../../shared/world/AskSheet";
@@ -85,12 +86,12 @@ const OLD_FILES = new Set<string>();
  * scenario's own line when content has one, the prologue's by its path (a degree or a trade), else the
  * chapter's line.
  */
-function openingKey(view: Pick<PlayerView, "chapter" | "scenario" | "qualities">): string {
+function openingKey(view: Pick<PlayerView, "chapter" | "scenario" | "qualities" | "pockets">): string {
   const chapter = view.chapter.current ?? "";
   const slug = view.scenario.replace(/^scenario\./, "");
   if (slug === "prologue") {
-    const edu = view.qualities.find((quality) => quality.id === "quality.edu-level")?.value ?? 0;
-    const path = `${chapter}.open.prologue.${edu >= 3 ? "degree" : "trade"}`;
+    // The path the prologue built: a degree, a trade, or a trade with the master's settlement in hand.
+    const path = `${chapter}.open.prologue.${sixteenPath(view) ?? "trade"}`;
     if (hasWords(path)) return path;
   } else if (hasWords(`${chapter}.open.${slug}`)) return `${chapter}.open.${slug}`;
   return `${chapter}.open`;
@@ -668,7 +669,7 @@ export function City({
   // when it is elsewhere in the city, and the Month sheet when the step is the month's end.
   // A step short of money sends the player to the jobs board, where the money is; the funds step keeps the bank.
   const shortOfMoney = nudge?.about === "step" && (nudge.key.endsWith(".short") || nudge.key === "ui.nudge.hunt-planned") && !nudge.key.startsWith("chapter.decision-day.item.held");
-  const stepWay = nudge?.about === "step" ? (shortOfMoney ? BOARD_WAY : stepWayOf(view.chapter)) : null;
+  const stepWay = nudge?.about === "step" ? (shortOfMoney ? BOARD_WAY : stepWayOf(view)) : null;
   const hereId = inside ? (insideEntry?.id ?? placeId) : placeId;
   const stepThing = stepWay === null || things === undefined ? null : stepThingHere(stepWay, hereId, things);
   // Abroad the map is a list, and a stop picked on it opens its sheet all the same.

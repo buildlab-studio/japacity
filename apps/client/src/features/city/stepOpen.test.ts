@@ -22,7 +22,7 @@ const offerStep = { current: "chapter.build-the-file" as const, items: [{ id: "p
 
 describe("the nudge's Go on the application", () => {
   test("[R-WORLD-003] [R-WORLD-006] given the offer step and the player at the hub, when the nudge is followed, then the application's own card opens, not the desk's chip", () => {
-    const way = stepWayOf(offerStep);
+    const way = stepWayOf({ chapter: offerStep });
     if (way === null) throw new Error("The offer step has no way.");
     const thing = stepThingHere(way, "place.yaba", things);
     expect(thing).toBe("desk");
@@ -33,17 +33,17 @@ describe("the nudge's Go on the application", () => {
   });
 
   test("[R-WORLD-003] given the offer step away from the hub, when the nudge is followed, then the map opens with the hub picked; given the application not offered, the desk's chip opens", () => {
-    const way = stepWayOf(offerStep);
+    const way = stepWayOf({ chapter: offerStep });
     if (way === null) throw new Error("The offer step has no way.");
     expect(stepOpen(way, null, [APPLY], "place.family-house")).toEqual({ kind: "map", stop: "place.yaba" });
     expect(stepOpen(way, "desk", [], "place.yaba")).toEqual({ kind: "thing", thing: "desk" });
   });
 
   test("[R-WORLD-003] given a step done by ending the month, or a step whose thing stands here with no card of its own, when the nudge is followed, then the Month sheet or the thing opens as before", () => {
-    const monthEnd = stepWayOf({ current: "chapter.find-your-feet", items: [{ id: "pay", met: false }], done: [] });
+    const monthEnd = stepWayOf({ chapter: { current: "chapter.find-your-feet", items: [{ id: "pay", met: false }], done: [] } });
     if (monthEnd === null) throw new Error("No way for the month's end.");
     expect(stepOpen(monthEnd, null, [], "place.yaba")).toEqual({ kind: "month" });
-    const jobs = stepWayOf({ current: "chapter.find-your-feet", items: [{ id: "job", met: false }], done: [] });
+    const jobs = stepWayOf({ chapter: { current: "chapter.find-your-feet", items: [{ id: "job", met: false }], done: [] } });
     if (jobs === null) throw new Error("No way for the job.");
     expect(stepOpen(jobs, "jobs", ["activity.job-hunt"], "place.yaba")).toEqual({ kind: "thing", thing: "jobs" });
     expect(stepOpen(jobs, null, [], "place.yaba")).toEqual({ kind: "map", stop: null });
@@ -66,7 +66,7 @@ describe("the nudge where the player stands", () => {
 
   test("[R-WORLD-003] given each step whose nudge names a place, when the player stands where its thing is, then the nudge drops the place, in one sentence of at most eight words", () => {
     for (const { chapter, step, file, place, names } of cases) {
-      const way = stepWayOf({ current: chapter, items: [{ id: step, met: false }], done: [] });
+      const way = stepWayOf({ chapter: { current: chapter, items: [{ id: step, met: false }], done: [] } });
       if (way === null) throw new Error(`${chapter}.${step} has no way.`);
       const thing = stepThingHere(way, place, staged(file, place).stage.things ?? []);
       expect(thing).not.toBeNull();

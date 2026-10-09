@@ -32,6 +32,7 @@ function bootLocal(options: Partial<LocalAuthorityOptions>): GameStore {
   const { start } = authority;
   return createGameStore(authority, {
     life: authority,
+    rememberMonth: true,
     choosingLife: start.kind !== "loaded",
     notice: start.kind === "replaced" ? `ui.life.notice.${start.why}` : null,
   });
@@ -40,7 +41,7 @@ function bootLocal(options: Partial<LocalAuthorityOptions>): GameStore {
 function bootRemote(baseUrl: string): GameStore {
   const remote = remoteAuthority({ baseUrl });
   // One life per account online (R-ACCOUNT-015): the chooser opens only when the server says there is none.
-  const store = createGameStore(remote, { life: remote, lifeAgain: false, account: betterAuthApi({ baseUrl }) });
+  const store = createGameStore(remote, { life: remote, lifeAgain: false, rememberMonth: true, account: betterAuthApi({ baseUrl }) });
   goOnline({ store, remote });
   startCounting({ baseUrl });
   // R-ANALYTICS-006: an account that turned the counters off stays off from the first screen.

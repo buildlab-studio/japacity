@@ -30,14 +30,14 @@ function changedAbroad(amount: (dollars: number) => number): { lines: ReportLine
 }
 
 describe("a change of money on the results", () => {
-  test("[R-WORLD-008] [R-WALLET-004] given a quarter of Ada's dollars changed into pounds at the bank, when the month's money is read, then the change is one line in pounds that says both sides, with the bank's charge folded in", () => {
+  test("[R-WORLD-008] [R-WALLET-004] given a quarter of Ada's dollars changed into pounds at the bank, when the month's money is read, then the change is one line that says both sides with the bank's charge folded in, counted as the pounds that came in", () => {
     const { lines, paid, charge, received } = changedAbroad((dollars) => Math.floor(dollars / 4 / 100) * 100);
     const money = moneyLines(lines, "GBP");
     const changes = money.filter((entry) => entry.line.key === CHANGED);
     expect(changes).toHaveLength(1);
     const change = changes[0];
     const net = Math.round((charge * received) / (paid - charge));
-    expect(change).toMatchObject({ sign: -1, currency: "GBP", amount: net });
+    expect(change).toMatchObject({ sign: 1, currency: "GBP", amount: received });
     const said = words(change?.line.key ?? "", change?.line.params ?? {});
     expect(said).toContain(formatMoney(paid, "USD"));
     expect(said).toContain(formatMoney(received, "GBP"));
@@ -45,11 +45,11 @@ describe("a change of money on the results", () => {
     expect(money.some((entry) => entry.line.key === "line.wallet.bank-charge" || entry.line.key === "line.wallet.converted")).toBe(false);
   });
 
-  test("[R-WORLD-008] [R-WALLET-004] given the change, when what was kept is counted, then no dollars show, and the pounds kept are the band's move from the change to the month's end less the change's net, never the pounds that came in", () => {
-    const { lines, paid, charge, received, band } = changedAbroad((dollars) => Math.floor(dollars / 4 / 100) * 100);
+  test("[R-WORLD-008] [R-WALLET-004] given the change, when what was kept is counted, then no dollars show, and the pounds kept are the band's move over the whole month, the pounds that came in among them", () => {
+    const { lines, received, band } = changedAbroad((dollars) => Math.floor(dollars / 4 / 100) * 100);
     const nets = kept(moneyLines(lines, "GBP"));
     expect(nets.find((net) => net.currency === "USD")).toBeUndefined();
-    expect(nets.find((net) => net.currency === "GBP")?.amount).toBe(band.ended - band.changed - Math.round((charge * received) / (paid - charge)));
+    expect(nets.find((net) => net.currency === "GBP")?.amount).toBe(band.ended - band.changed + received);
   });
 
   test("[R-WORLD-008] [R-WALLET-004] given all the dollars changed, a figure no chip rounds, when the change is read, then what went out shows as the whole dollars it was", () => {
@@ -68,7 +68,7 @@ describe("a change of money on the results", () => {
     expect(kept(moneyLines([line]))).toEqual([{ currency: "GBP", amount: 50_000 }]);
   });
 
-  test("[R-WORLD-008] [R-WALLET-004] given naira changed into pounds at the bank at home, when what was kept is counted, then the naira count only the bank's charge and no pounds show as kept", () => {
+  test("[R-WORLD-008] [R-WALLET-004] given naira changed into pounds at the bank at home, when what was kept is counted, then the naira count what was paid in, as the band fell, and no pounds show as kept", () => {
     const game = newGame("scenario.tunde");
     const naira = (): number => game.view().pockets.NGN.bank + game.view().pockets.NGN.cash;
     const before = naira();
@@ -79,7 +79,27 @@ describe("a change of money on the results", () => {
     expect(before - changed).toBe(paid);
     const money = moneyLines(told, "NGN");
     expect(money).toHaveLength(1);
-    expect(money[0]).toMatchObject({ sign: -1, currency: "NGN", amount: charge });
-    expect(kept(money)).toEqual([{ currency: "NGN", amount: -charge }]);
+    expect(money[0]).toMatchObject({ sign: -1, currency: "NGN", amount: paid });
+    expect(kept(money)).toEqual([{ currency: "NGN", amount: -paid }]);
+    expect(words(money[0]?.line.key ?? "", money[0]?.line.params)).toContain(formatMoney(charge, "NGN"));
+  });
+
+  test("[R-WORLD-008] [R-ABROAD-006] given pounds sent home by app, when the month's money is read, then the pounds count as money out and the naira as landed at home, never both as sent", () => {
+    const game = recordedGame("ada-careful");
+    const pounds = game.view().pockets.GBP.bank;
+    const sent = Math.floor(pounds / 2 / 100) * 100;
+    const nairaBefore = game.view().pockets.NGN.bank;
+    const told = game.accept({ type: "wallet/remit", currency: "GBP", amount: sent, channel: "app" }).lines;
+    const landed = game.view().pockets.NGN.bank - nairaBefore;
+    expect(landed).toBeGreaterThan(0);
+    const money = moneyLines(told, "GBP");
+    expect(money.find((entry) => entry.currency === "GBP")).toMatchObject({ sign: -1, amount: sent });
+    const naira = money.find((entry) => entry.currency === "NGN");
+    expect(naira).toMatchObject({ sign: 1, amount: landed });
+    expect(words(naira?.line.key ?? "", naira?.line.params)).toBe(`Lands in your naira account at home: ${formatMoney(landed, "NGN")}.`);
+    expect(kept(money)).toEqual([
+      { currency: "GBP", amount: -sent },
+      { currency: "NGN", amount: landed },
+    ]);
   });
 });

@@ -39,11 +39,11 @@ function paidIn(charge: number): number {
 }
 
 /**
- * A change of money at the bank, counted once (R-WALLET-004, R-WORLD-008).
- * Money changed is money moved between pockets, so the change nets to its charge: what went out at
- * the bank's own rate, less what came in. That net is told in the money the character lives on when
- * either side is it (the dollars out at the rate, the pounds in), else in the money paid in. The
- * line's words say both sides; the bank's charge before it is folded in, never counted again.
+ * A change of money at the bank, counted as the band moves (R-WALLET-004, R-WORLD-008). Money changed is money moved between pockets, so only the side in the money
+ * the character lives on counts: the pounds that came in abroad, as money in; the naira paid out at home,
+ * as money out. The other side is not the money the results keep. The line's words say both sides, and
+ * the bank's charge before it is folded in, never counted again. A change between two other monies
+ * counts its net, the charge, in the money paid in.
  */
 function bankChange(line: ReportLine, charge: MoneyParam, local: Currency): MoneyLine[] {
   const gained = moneyParam("amount", line.params, line.key);
@@ -52,10 +52,14 @@ function bankChange(line: ReportLine, charge: MoneyParam, local: Currency): Mone
   const net = paid - charge.amount;
   // The charge valued in what came in, at the rate the rest of the money was changed at.
   const cost = gained.currency === local && net > 0 ? Math.round((charge.amount * gained.amount) / net) : charge.amount;
-  const currency = gained.currency === local ? gained.currency : charge.currency;
-  const told: ReportLine = { ...line, key: CHANGED, params: { ...line.params, paid: { currency: charge.currency, amount: paid }, got: gained, amount: { currency, amount: cost } } };
-  return cost === 0 ? [] : [{ line: told, sign: -1, currency, amount: cost }];
+  const told: ReportLine = { ...line, key: CHANGED, params: { ...line.params, paid: { currency: charge.currency, amount: paid }, got: gained, amount: { currency: gained.currency === local ? gained.currency : charge.currency, amount: cost } } };
+  if (gained.currency === local) return [{ line: told, sign: 1, currency: gained.currency, amount: gained.amount }];
+  if (charge.currency === local) return [{ line: told, sign: -1, currency: charge.currency, amount: paid }];
+  return cost === 0 ? [] : [{ line: told, sign: -1, currency: charge.currency, amount: cost }];
 }
+
+/** Money sent home: the wallet tells both legs as good; the leg in the money the character lives on is money out. */
+const REMIT = "line.wallet.remit";
 
 /**
  * The lines in or out, in the simulation's order, one line for each payment as the report reads
@@ -82,6 +86,7 @@ export function moneyLines(lines: readonly ReportLine[], local: Currency = "NGN"
     if (line.tone === "plain" || NOT_MOVED.has(line.key) || !movesMoney(line)) return [];
     const money = moneyParam("amount", line.params, line.key);
     if (money === null || money.amount === 0) return [];
+    if (line.key === REMIT && money.currency === local) return [{ line, sign: -1, currency: money.currency, amount: money.amount }];
     return [{ line, sign: line.tone === "good" ? 1 : -1, currency: money.currency, amount: money.amount }];
   });
 }

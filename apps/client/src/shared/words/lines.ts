@@ -58,7 +58,10 @@ const ACTIVITY_PAID = "ui.line.activity-paid.";
 const UPKEEP_MOVED = "ui.line.upkeep-";
 
 /** The interface's names for a payment: the wallet's money moving, said for what it paid. */
-const NAMED: readonly string[] = [FAMILY_PAID, OFFER_PAID, CHARGED_AS, "ui.line.document-fee", ACTIVITY_PAID, UPKEEP_MOVED];
+/** The naira leg of money sent home, named for where it lands. */
+const REMIT_LANDED = "ui.line.remit-landed";
+
+const NAMED: readonly string[] = [FAMILY_PAID, OFFER_PAID, CHARGED_AS, "ui.line.document-fee", REMIT_LANDED, ACTIVITY_PAID, UPKEEP_MOVED];
 
 /** The prologue's last line: what came before it is the years before the first month. */
 export const PROLOGUE_CLOSED = "line.prologue.closed";
@@ -252,7 +255,7 @@ export function toldUnpaid(line: ReportLine): ReportLine {
 
 export function tidyLines(lines: readonly ReportLine[]): ReportLine[] {
   // Named before the retold go, so a payment named for its offer is never taken for the month's own.
-  return oneGoalLine(jobEndsWithFlight(upkeepMoved(oneEndorsementStory(savedBefore(dropRetold(paperFee(activityPaid(paidAs(paidFor(foldPockets(lines))))))))))).map(variant);
+  return oneGoalLine(jobEndsWithFlight(upkeepMoved(oneEndorsementStory(savedBefore(dropRetold(paperFee(activityPaid(paidAs(paidFor(foldPockets(lines))))))))))).map(variant).map(remitLanded);
 }
 
 const PLAYED = "line.activity.played";
@@ -323,6 +326,12 @@ const GOAL_DONE = "line.goal.done";
 function oneGoalLine(lines: readonly ReportLine[]): ReportLine[] {
   const reached = new Set(lines.filter((line) => line.key === GOAL_DONE).map((line) => line.params.goal));
   return lines.filter((line) => !(line.key === GOAL_OPENED && reached.has(line.params.goal)));
+}
+
+/** Money sent home lands in the naira account at home: that leg says so, instead of "sent home" twice. */
+function remitLanded(line: ReportLine): ReportLine {
+  const money = moneyParam("amount", line.params, line.key);
+  return line.key === "line.wallet.remit" && money?.currency === "NGN" ? { ...line, key: REMIT_LANDED } : line;
 }
 
 /**
