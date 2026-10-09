@@ -117,23 +117,23 @@ describe("the Inverter Room's things", () => {
     expect(wrong).toEqual([]);
   });
 
-  test("[R-WORLD-005] given the inverter, a chair and the window, when their acts are read, then the inverter offers a look, the chair a seat the character takes, and the window a line, each happening at once with no sheet", () => {
+  test("[R-WORLD-005] given the inverter, a chair and the notices, when their acts are read, then the inverter offers a look, the chair a seat the character takes, and the notices a line, each happening at once with no sheet", () => {
     const inverter = thing("inverter");
     const chair = thing("chair");
-    const window = thing("window");
+    const notices = thing("notices");
     expect(sceneWords(inverter?.label ?? "")).toBe("Inverter");
     expect(inverter?.acts.map((act) => [act.kind, sceneWords(act.label)])).toEqual([["plain", "Look"]]);
     const sit = chair?.acts[0];
     expect(sit?.kind).toBe("plain");
     expect(sit?.pose).toBe("sit");
     expect(sit?.seat).toBeDefined();
-    expect(window?.acts.map((act) => act.kind)).toEqual(["plain"]);
-    for (const act of [...(inverter?.acts ?? []), ...(window?.acts ?? [])]) expect(sceneWords(`${act.label}.done`).length).toBeGreaterThan(20);
+    expect(notices?.acts.map((act) => act.kind)).toEqual(["plain"]);
+    for (const act of [...(inverter?.acts ?? []), ...(notices?.acts ?? [])]) expect(sceneWords(`${act.label}.done`).length).toBeGreaterThan(20);
   });
 
-  test("[R-WORLD-005] given a month where the view offers nothing, when the room's things are read for now, then the inverter, the chair, the window and the door keep their acts, so the room is never a door alone", () => {
+  test("[R-WORLD-005] given a month where the view offers nothing, when the room's things are read for now, then the inverter, the chair, the notices and the door keep their acts, so the room is never a door alone", () => {
     const now = thingsNow(thingsOf(stage), () => false);
-    expect(now.filter((one) => one.acts.length > 0).map((one) => one.id).sort()).toEqual(["chair", "door", "inverter", "window"]);
+    expect(now.filter((one) => one.acts.length > 0).map((one) => one.id).sort()).toEqual(["chair", "door", "inverter", "notices"]);
   });
 
   test("[R-WORLD-005] given what the room stages in content, when its things' acts are read, then every staged entry opens from an act of a thing there", () => {
