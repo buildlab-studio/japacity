@@ -120,7 +120,8 @@ describe("someone who went", () => {
 describe("the licensed adviser", () => {
   test("[R-ADVICE-012] given every starting life, when its cash is read, then the adviser's fee is above it", () => {
     for (const scenario of Object.values(content.scenario)) {
-      expect(scenario.pockets.NGN?.cash ?? 0, scenario.id).toBeLessThan(advice.adviserFee);
+      expect({ life: scenario.id, cash: scenario.pockets.NGN?.cash ?? 0 }).toEqual({ life: scenario.id, cash: expect.any(Number) as number });
+      expect(scenario.pockets.NGN?.cash ?? 0).toBeLessThan(advice.adviserFee);
     }
   });
 
