@@ -81,7 +81,7 @@ async function fakeServer(page: Page): Promise<Faked> {
 /** Every ask R-GUIDE-015 names that the shell holds back: a sign-in method, the notice, a share, an invite. */
 const ASKS = {
   "sign-in": (page: Page) => page.getByRole("button", { name: "Continue with Google" }),
-  notify: (page: Page) => page.getByRole("dialog", { name: "Know when your turns are full" }),
+  notify: (page: Page) => page.getByRole("dialog", { name: "Know when your months are full" }),
   share: (page: Page) => page.locator("[data-share-button], [data-card-tile]"),
   // The card maker for the partner slot, the sibling's invite and the card's link, in the DOM whether or not their tab shows.
   invite: (page: Page) => page.locator('form[aria-label="Ask a friend"], [data-slot] button:text-is("Ask a friend to be this sibling"), button:text-is("Get the link")'),

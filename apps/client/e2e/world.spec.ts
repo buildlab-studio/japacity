@@ -74,7 +74,8 @@ test("[R-WORLD-001] [R-WORLD-024] the default address opens the world with the b
   await expect(page.locator("[data-thumb='phone']")).toBeVisible();
   await expect(page.locator("[data-nudge]")).toBeVisible();
   await placeDrawn(page);
-  expect(await visibleButtons(page)).toEqual(["End month", "Map", "Phone"]);
+  // The band's month count stands with them (R-WORLD-027).
+  expect((await visibleButtons(page)).sort()).toEqual(["End month", "Map", "Months you can play: 24", "Phone"].sort());
   await expect(page.locator("header")).toHaveCount(0);
   await expect(page.locator("[data-tab]")).toHaveCount(0);
   await shoot(page, "open");

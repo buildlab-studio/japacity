@@ -78,7 +78,7 @@ test("three months of play show no kobo, raw object, missing value or bare key",
     await expect(page.getByRole("heading", { name: `Month ${String(month + 1)}`, exact: true })).toBeVisible();
     // The first click after the sheet closes must land.
     await page.getByRole("button", { name: "Same again" }).click();
-    await expect(page.getByText(/^[1-9] of \d free slots planned$/)).toBeVisible();
+    await expect(page.getByText(/^[1-9] of \d things planned$|^Working, and (one|two|three) things? planned beside the job$/)).toBeVisible();
     const remove = page.getByRole("button", { name: /^Take out/ });
     while ((await remove.count()) > 0) await remove.first().click();
     await expectNothingBroken(page, `in month ${String(month + 1)}`);
@@ -205,10 +205,10 @@ test("a recorded life boards the plane, the flight gets the whole screen, and li
   await expect(page.getByRole("heading", { name: "The way home" })).toBeVisible();
   await expectNothingBroken(page, "on landing");
 
-  // The life abroad survives a reload, and the card due this month comes back with it.
+  // The life abroad survives a reload; the card closed before it stays closed, since the month's memory keeps that (R-WORLD-008).
   await page.reload();
-  await closeSendOff(page);
   await openTab(page, "Home");
+  await expect(page.locator("[data-share-card]")).toHaveCount(0);
   await expect(page.getByRole("heading", { name: "The way home" })).toBeVisible();
 
   // A month abroad and its report; the card had its month and does not come back, after a reload either.

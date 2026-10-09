@@ -63,7 +63,7 @@ function overlaps(a: { x: number; y: number; width: number; height: number }, b:
 
 /** The notice, while shown, covers neither the question nor any answer. */
 async function expectNoticeClear(page: Page): Promise<void> {
-  const notice = page.locator("[data-sound-notice] > *");
+  const notice = page.locator("[data-sound-notice][data-notice-here] > *");
   if ((await notice.count()) === 0) return;
   const box = await notice.boundingBox();
   if (box === null) return;
@@ -97,7 +97,7 @@ for (const [app, userAgent] of Object.entries(IN_APP)) {
       await lobby.getByRole("button", { name: "Enter the interview room" }).click();
       await expect(room(page).getByText(text[`${VOICED}.officer.greet`]!)).toBeVisible();
       // Sound plays, or the browser held it back and says so: either way the text is the scene.
-      await expect(page.locator("[data-sound-notice]")).toHaveAttribute("data-sound-notice", /^(on|blocked)$/);
+      await expect(page.locator("[data-sound-notice][data-notice-here]")).toHaveAttribute("data-sound-notice", /^(on|blocked)$/);
       await expectNoticeClear(page);
       await shoot(page, `interview-room-${app}`, info.project.name);
       await answerThrough(page);
@@ -120,7 +120,7 @@ test.describe("saving data", () => {
   test("with data-saver on, nothing is fetched, the notice says why, and the interview plays in text", async ({ page }, info) => {
     const voice = await seed(page, { saveData: true });
     await room(page).getByRole("button", { name: "Enter the interview room" }).click();
-    await expect(page.locator("[data-sound-notice]")).toHaveAttribute("data-sound-notice", "saver");
+    await expect(page.locator("[data-sound-notice][data-notice-here]")).toHaveAttribute("data-sound-notice", "saver");
     await expect(room(page).locator("[data-answers='open']")).toBeVisible();
     await expectNoticeClear(page);
     await shoot(page, "interview-saver", info.project.name);

@@ -167,7 +167,7 @@ describe("coming home", () => {
     expect(game.view().place.fareBp).toBe(scarcityBp);
     const before = game.view().pockets.NGN.cash;
     const result = game.accept({ type: "place/ride", from: "place.ojuelegba", to: "place.bode-thomas", way: "danfo" });
-    const doubled = Math.floor((fareKobo.danfo * scarcityBp) / 10000);
+    const doubled = bp(fareKobo.danfo, scarcityBp);
     expect(result.events.find((event) => event.type === "place/rode")).toMatchObject({ way: "danfo", fare: doubled });
     expect(game.view().pockets.NGN.cash).toBe(before - doubled);
     game.endTurn([]);
