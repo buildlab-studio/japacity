@@ -347,9 +347,10 @@ function hear(ctx: Ctx, effect: Effect): BaseEvent[] {
   if (routeOf(ctx.state, effect.route).state !== "unknown") return [];
   // R-PLACE-008: a removal bans every route into that country for its months.
   if (banned(readOf(ctx), entry.country)) return [];
-  // R-GUIDE-016: the first meetup of a life hears of the story's route for sure; the chance applies from the second on.
-  const sure = effect.via === "meetup" && entry.id === "route.uk-masters" && (ctx.state.activity.played["activity.meetup"] ?? 0) === 0;
-  if (!sure && effect.chanceBp !== undefined && !ctx.random.chance("offer", effect.chanceBp)) return [];
+  // R-GUIDE-016: the first meetup of a life hears of the story's route for sure (a nil chance stays nil); the chance applies from the second on. The draw is made either way, so the stream keeps its walk (R-ROUTE-002).
+  const sure = effect.via === "meetup" && entry.id === "route.uk-masters" && (effect.chanceBp ?? 0) > 0 && (ctx.state.activity.played["activity.meetup"] ?? 0) === 0;
+  const rolled = effect.chanceBp === undefined ? true : ctx.random.chance("offer", effect.chanceBp);
+  if (!sure && !rolled) return [];
   if (!allHold(ctx, entry.hearIf)) return [];
   return [moved(entry.id, "heard", effect.via)];
 }

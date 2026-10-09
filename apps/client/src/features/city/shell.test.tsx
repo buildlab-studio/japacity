@@ -6,7 +6,6 @@ import { describe, expect, test, vi } from "vitest";
 import { engineView, richView } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { formatMoney } from "../../shared/words/format";
-import { mapWords } from "../map/map.words";
 import { inMonths, say, words } from "../../shared/words/text";
 import { City } from "./City";
 import { cityWords } from "./city.words";
@@ -20,7 +19,7 @@ async function opened(ui: Parameters<typeof renderWithView>[0], view: Parameters
   const go = document.querySelector<HTMLElement>("[data-opening-go]");
   if (go !== null) fireEvent.click(go);
   // Go takes the step's way, which may open the map; these tests want the world under it.
-  const mapClose = screen.queryByRole("button", { name: mapWords("map.close") }) ?? screen.queryByRole("button", { name: cityWords("city.close") });
+  const mapClose = screen.queryByRole("button", { name: cityWords("city.close") });
   if (mapClose !== null) fireEvent.click(mapClose);
   return rendered;
 }
