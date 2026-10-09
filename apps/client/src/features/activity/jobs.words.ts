@@ -12,7 +12,7 @@ export const jobsUiText: Record<string, string> = {
   "jobs.chance.fair": "A fair chance",
   "jobs.chance.long": "A long shot",
   "jobs.out-of-reach": "Not open to you yet",
-  "jobs.needs": "Needs {needs}",
+  "jobs.needs": "Needs: {needs}",
 };
 
 /** Words for a jobs key: content's first, then the interface's, then the list's own drafts. */

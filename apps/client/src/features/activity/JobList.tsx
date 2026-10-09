@@ -148,7 +148,7 @@ export function JobList({ view, jobs, chosen, onPick }: { view: PlayerView; jobs
                   <span className="font-medium">{nameOf(job.id)}</span>
                   <span className="tabular-nums">{payWords(job.id)}</span>
                 </span>
-                <span>{jobsWords("jobs.needs", { needs: job.needs.join(", ") })}</span>
+                <span>{jobsWords("jobs.needs", { needs: job.needs.join("; ") })}</span>
               </li>
             ))}
           </ul>
