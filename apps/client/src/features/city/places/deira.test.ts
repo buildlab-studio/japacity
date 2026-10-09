@@ -5,6 +5,8 @@ import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
 import raw from "../../../../public/assets/places/deira/place.json";
+import { tidyLines } from "../../../shared/words/lines";
+import { words } from "../../../shared/words/text";
 import { sceneWords } from "../scene.words";
 import { stagedAt } from "../staging";
 import { stagedNow, thingsNow } from "../things";
@@ -105,5 +107,14 @@ describe("Deira's jobs", () => {
     expect(now.find((candidate) => candidate.id === "site-bus")?.acts.map((act) => act.kind)).toEqual(["plain"]);
     const hunted = thingsNow(stage.things ?? [], stagedNow(new Set(["activity.job-gulf-guard"]), new Set(entry.stages), new Set(), null));
     expect(hunted.find((candidate) => candidate.id === "agency")?.acts.map((act) => act.stages ?? null)).toEqual(["activity.job-gulf-guard", null]);
+  });
+});
+
+// The dhow at the creek: the answer is followed by a line in the find's own words.
+describe("the find by the creek", () => {
+  test("[R-WORLD-006] given the find answered with Stay and watch, when the taken line is told, then it is said in the find's own words", () => {
+    const [said] = tidyLines([{ key: "line.offer.taken", params: { offer: "offer.street-find-uae", choice: "look" }, tone: "plain", attention: false, counts: [] }]);
+    expect(said?.key).toBe("offer.street-find-uae.said.look");
+    expect(words(said?.key ?? "", said?.params ?? {})).toBe("You watch them load until the light goes. One of the crew hands you sweet tea.");
   });
 });

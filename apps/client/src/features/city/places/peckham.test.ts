@@ -7,7 +7,9 @@ import { describe, expect, test } from "vitest";
 
 import raw from "../../../../public/assets/places/peckham/place.json";
 import room from "../../../../public/assets/places/the-room/place.json";
-import { abroadGame, abroadView, recordedGame, viewAfter } from "../../../shared/testing/fixtures";
+import { abroadGame, abroadView, openOffer, recordedGame, viewAfter } from "../../../shared/testing/fixtures";
+import { tidyLines } from "../../../shared/words/lines";
+import { words } from "../../../shared/words/text";
 import { stageOf, type PlaceFile } from "../placeFile";
 import { sceneWords } from "../scene.words";
 import { stagedAt } from "../staging";
@@ -180,5 +182,18 @@ describe("Peckham's notice once hired", () => {
     const reader = (stage.things ?? []).find((candidate) => candidate.id === "jobs-notice-read");
     expect([...((reader?.acts[0] as { unless?: string[] } | undefined)?.unless ?? [])].sort()).toEqual([...NOTICE].sort());
     expect(thingSpot(stage, reader ?? thing("jobs-notice"))).toEqual(thingSpot(stage, thing("jobs-notice")));
+  });
+});
+
+// The market behind the station: an answer that is followed by a line in the find's own words.
+describe("the market's find in London", () => {
+  test("[R-WORLD-006] given the find open, when Ada has a look, then the line the engine tells is said in the find's own words for that answer", () => {
+    const game = abroadGame();
+    const offer = openOffer(game, "offer.street-find-uk");
+    expect(offer.choices.map((choice) => choice.id)).toContain("look");
+    const reply = game.accept({ type: "offer/choose", offer: offer.id, choice: "look" });
+    if (!reply.ok) throw new Error("The look was refused.");
+    const said = tidyLines(reply.lines).filter((line) => line.key.startsWith("offer.street-find-uk.said."));
+    expect(said.map((line) => words(line.key, line.params))).toEqual(["You buy puff-puff and stay for the suya. For an hour it feels like home."]);
   });
 });
