@@ -2,7 +2,7 @@ import { content, text } from "@japacity/content";
 import { screen, within } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
-import { newGame, openOffer, recordedGame } from "../../shared/testing/fixtures";
+import { newGame, openOffer, recordedGame, recordedSave, viewAfter } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { formatMoney } from "../../shared/words/format";
 import { say, words } from "../../shared/words/text";
@@ -14,7 +14,18 @@ import { moneyTerms, offerParams } from "./terms";
  * R-ACTIVITY-015: the life was re-cut with its now-acts sent at once and is longer, so the offer is held 103 to 121
  * commands back (it was 84); the middle is taken.
  */
-const SCHOLARSHIP_DROP = 112;
+/** The first cut of the recording, counted from its end, at which the scholarship round can open with a school's offer held: found, since the recording moves as content does. */
+function scholarshipDrop(): number {
+  const save = recordedSave("ada-careful");
+  for (let drop = 1; drop < save.commands.length; drop += 1) {
+    const game = recordedGame("ada-careful", drop);
+    if (!game.view().routes.some((route) => route.schools.some((school) => school.state === "offer"))) continue;
+    const opened = viewAfter(game, [{ type: "offer/open", offer: "offer.scholarship-round" }]).offers.some((item) => item.entry === "offer.scholarship-round");
+    if (opened) return drop;
+  }
+  throw new Error("No cut of Ada's life opens the scholarship round with a school's offer held.");
+}
+const SCHOLARSHIP_DROP = scholarshipDrop();
 
 /** The card of the one offer open, by its title. */
 function cardOf(entry: string): HTMLElement {

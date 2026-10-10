@@ -1,6 +1,5 @@
 // The Bank abroad (docs/rules/world.md R-WORLD-002, R-WORLD-019): on
-// Ada's recorded life, landed in London with £746 (£1,124 before the life was re-cut for R-ACTIVITY-015, its now-acts
-// sent at once) while rent, living costs and a tuition instalment
+// Ada's recorded life, landed in London with £1,124 (the figure follows the recording as it is re-cut) while rent, living costs and a tuition instalment
 // of £4,687 fall due, the app leads with the gap and the way to close it, then the pounds, then the
 // naira and the dollars each with Change money. Once flown, the move's target is gone.
 import type { Command, PlayerView } from "@japacity/sim";
@@ -36,13 +35,13 @@ function sent(authority: { sent: Command[] }): unknown[] {
 }
 
 describe("the month's dues abroad", () => {
-  test("[R-WORLD-019] given Ada landed in London holding £746 with rent, living costs and tuition due, when the dues are read, then the gap is the pounds due against the pounds held, and the naira and dollars are the way", () => {
+  test("[R-WORLD-019] given Ada landed in London holding £1,124 with rent, living costs and tuition due, when the dues are read, then the gap is the pounds due against the pounds held, and the naira and dollars are the way", () => {
     const view = landed();
     expect(view.place.where).toBe("abroad");
     const gap = duesGap(view);
     expect(gap).toEqual({ currency: "GBP", due: dueOf(view), held: view.pockets.GBP.bank + view.pockets.GBP.cash, from: ["NGN", "USD"] });
     expect(formatMoney(gap?.due ?? 0, "GBP")).toBe("£4,687");
-    expect(formatMoney(gap?.held ?? 0, "GBP")).toBe("£746");
+    expect(formatMoney(gap?.held ?? 0, "GBP")).toBe("£1,124");
   });
 
   test("[R-WORLD-019] given the pounds held equal to the month's dues, when the dues are read, then there is no gap; a penny less and the gap shows", () => {
@@ -71,7 +70,7 @@ describe("the month's dues abroad", () => {
     expect(duesGap(view)).not.toBeNull();
     const band = bandMoney(view);
     expect(band.money).toBe(view.pockets.GBP.bank + view.pockets.GBP.cash);
-    expect(band.formatMoney(band.money)).toBe("£746");
+    expect(band.formatMoney(band.money)).toBe("£1,124");
   });
 
   test("[R-WORLD-019] given money held in naira and dollars, when the other money is listed, then the naira comes first and a currency with nothing in it is left out", () => {
@@ -87,8 +86,8 @@ describe("the Bank abroad", () => {
     const app = document.querySelector<HTMLElement>('[data-phone-app="bank"]');
     const first = app?.firstElementChild as HTMLElement | null;
     expect(first?.hasAttribute("data-dues-gap")).toBe(true);
-    expect(first?.textContent).toContain(abroadWords("phone.bank.dues", { due: "£4,687", held: "£746" }));
-    expect(abroadWords("phone.bank.dues", { due: "£4,687", held: "£746" })).toBe("Due this month: £4,687. You hold £746.");
+    expect(first?.textContent).toContain(abroadWords("phone.bank.dues", { due: "£4,687", held: "£1,124" }));
+    expect(abroadWords("phone.bank.dues", { due: "£4,687", held: "£1,124" })).toBe("Due this month: £4,687. You hold £1,124.");
     // The way names the pair only: Change money is said once on the screen.
     expect(within(first ?? document.body).getByRole("button").textContent).toBe("Naira or dollars to pounds");
   });

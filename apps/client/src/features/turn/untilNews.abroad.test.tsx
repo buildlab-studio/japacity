@@ -4,7 +4,7 @@
 // reached do.
 import { content } from "@japacity/content";
 import type { Effect, Id, OfferEntry, PlayerView, ReportLine } from "@japacity/sim";
-import { render } from "@testing-library/react";
+import { act, render } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
 import { stepWith } from "../../../../../packages/sim/src/engine/step";
@@ -212,6 +212,8 @@ describe("Until news abroad", () => {
     const store = createGameStore(gameAuthority(studentAbroad()));
     await store.getState().refresh();
     await store.getState().untilNews();
+    // An answer's big line stands as a staged moment before the sheet (R-WORLD-008): passed here, as Carry on passes it.
+    act(() => store.setState({ moments: [] }));
     const { quiet } = store.getState();
     render(
       <GameProvider store={store}>
