@@ -200,6 +200,7 @@ export const uiText: Record<string, string> = {
   // An activity's spending, named for it (shared/words/lines.ts, activityPaid).
   "ui.line.activity-paid.activity.meetup": "The meetup: {amount}.",
   "ui.line.activity-paid.activity.play-lotto": "A lotto ticket: {amount}.",
+  "ui.line.activity-paid.activity.bet-slip": "A bet slip: {amount}.",
   // The living costs charged at a new figure, with the story that moved them (lines.ts, upkeepMoved).
   "ui.line.upkeep-up": "Living costs are up to {amount} a month.",
   "ui.line.upkeep-down": "Living costs are down to {amount} a month.",

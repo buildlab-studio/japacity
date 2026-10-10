@@ -110,12 +110,9 @@ export function officialRoute(view: PlayerView): string | null {
   return planned !== undefined && official.params.includes(planned) ? planned : (official.params[0] ?? null);
 }
 
-/** The route the plan follows: the japacity figure's route, else the furthest one heard of. */
-export function planRoute(view: PlayerView): RouteView | null {
-  const lead = view.routes.find((route) => route.id === view.japacity.route);
-  if (lead !== undefined) return lead;
-  return view.routes.find((route) => route.state !== "unknown" && route.state !== "heard" && route.gate?.gate !== "road") ?? null;
-}
+import { planRoute } from "../../../shared/words/savings";
+
+export { planRoute };
 
 /**
  * The way out the Japa header names (R-WORLD-019), read as the nudge reads it: the plan's route,

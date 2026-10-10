@@ -8,6 +8,7 @@ import { monthlyPayOf } from "../../shared/words/cost";
 import { countWords } from "../../shared/words/count";
 import { afterPrologue, forYou, isSaid, isUnpaid, tidyLines, toldUnpaid } from "../../shared/words/lines";
 import { BANK_CHARGE, CONVERT_PAID, CONVERTED, type MoneyLine, moneyLines } from "../../shared/words/money";
+import { savingsOf } from "../../shared/words/savings";
 
 // The month's money lines live in shared/words/money.ts, so the Bank's Lately reads the same lines (R-WORLD-019).
 export { CHANGED, CHANGED_OUT, type MoneyLine, moneyLines } from "../../shared/words/money";
@@ -204,9 +205,20 @@ export function drawShown(view: Pick<PlayerView, "lottery">): { draw: number; nu
  * funds to show, the japacity figure stands for how far the move is; with neither, nothing.
  */
 // the first plan names "the goal's figure from the view"; goals carry no money figure, so the route's funds stand in.
+/** True for the whole view the Bank's figure reads; a test's slice takes the older path. */
+function wholeView(view: Pick<PlayerView, "routes" | "japacity">): view is PlayerView {
+  return ["plan", "pockets", "rates", "activities", "documents"].every((key) => key in view);
+}
+
 export function savings(view: Pick<PlayerView, "routes" | "japacity"> & Partial<Pick<PlayerView, "place">>): { kind: "funds"; shown: number; required: number; currency: Currency } | { kind: "percent"; percent: number } | null {
   // Once flown, the move is made: no target on the results.
   if (view.place?.where === "abroad") return null;
+  // A whole view reads the Bank's own figure, so the two never disagree (R-WORLD-019).
+  if (wholeView(view)) {
+    const shared = savingsOf(view);
+    if (shared !== null) return { kind: "funds", ...shared };
+    return view.japacity.percent === null ? null : { kind: "percent", percent: view.japacity.percent };
+  }
   const route = view.routes.find((candidate) => candidate.id === view.japacity.route) ?? null;
   if (route !== null) {
     const ids = new Set((content.route[route.id]?.checklist ?? []).filter((item) => item.requirement.type === "route/funds").map((item) => item.id));
