@@ -278,10 +278,8 @@ export const prologueText: Record<string, string> = {
   "prologue.not-for-you": "Not for you:",
   "prologue.handover.first": "Your first step: {step}.",
   // The handover keeps the story the prologue built: what the money is and can do now,
-  // where the character sleeps and what it costs, and a first step in the handover's own words where the nudge's do not fit.
+  // and a first step in the handover's own words where the nudge's do not fit.
   "prologue.handover.capital": "{amount} in hand, the shop's capital. It is the move's money now, if you want it to be.",
-  "prologue.handover.home.family-house": "You sleep in the family house. Living costs: {amount} a month.",
-  "prologue.handover.home.makoko": "You sleep in a room on the water in Makoko. Living costs: {amount} a month.",
   "prologue.handover.step.heard": "Go to the meetup in Yaba and hear of a way out",
   // A life's own first step where its archetype has a place for it: `step.<step>.<way>`.
   "prologue.handover.step.job.clinic": "Apply for the staff nurse job at the clinic",
