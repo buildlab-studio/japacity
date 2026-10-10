@@ -71,6 +71,9 @@ test("three months of play show no kobo, raw object, missing value or bare key",
     const month = index + 1;
     for (const activity of activities) await plan(page, activity);
     await page.getByRole("button", { name: "Next month" }).click();
+    // A staged moment may come first (an answer told over the page, R-WORLD-008); Carry on takes it away.
+    const carryOn = page.getByRole("button", { name: /^(Carry on|Next)$/ });
+    for (let shown = 0; shown < 5 && (await carryOn.isVisible().catch(() => false)); shown += 1) await carryOn.click();
     const report = page.getByRole("dialog");
     await expect(report.getByRole("heading", { name: `Month ${String(month)}` })).toBeVisible();
     await expectNothingBroken(page, `in the report for month ${String(month)}`);
