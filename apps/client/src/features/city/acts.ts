@@ -81,3 +81,15 @@ export function saysWhyOnCard(option: Pick<PlayerView["activities"][number], "al
   if (option.missing.length > 0) return !option.missing.every(done);
   return option.params?.length === 0;
 }
+
+/**
+ * The asks sheet's header (R-WORLD-006): with several asks, which one this is of those the sheet opened with, so it
+ * counts up as each is answered; over a set piece of several questions (the exam), which of its own questions this is,
+ * never "3 of 3" over its first question once the other asks are answered. Null
+ * with one ask and nothing to count.
+ */
+export function askHeader(at: { total: number; left: number; index: number; setpiece: Pick<NonNullable<PlayerView["setpiece"]>, "asked" | "total"> | null }): { n: number; count: number } | null {
+  if (at.setpiece !== null && at.setpiece.total > 1) return { n: Math.min(at.setpiece.asked + 1, at.setpiece.total), count: at.setpiece.total };
+  if (at.total < 2) return null;
+  return { n: at.total - at.left + Math.min(at.index, at.left - 1) + 1, count: at.total };
+}

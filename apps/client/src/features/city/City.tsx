@@ -5,7 +5,7 @@
 import { content, text } from "@japacity/content";
 import type { Id, PlaceEntry, PlayerView, ReportLine } from "@japacity/sim";
 import { Clock, Map as MapIcon, Settings2, X } from "lucide-react";
-import { lazy, Suspense, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { isValidElement, lazy, Suspense, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 
 import { useGame, useView } from "../../authority/GameProvider";
 import { readPerson } from "../../authority/person";
@@ -39,7 +39,7 @@ import { Rise, useJapaRise } from "../../shared/world/Rise";
 import { Walkthrough } from "../../shared/world/Walkthrough";
 import { WorldSheet } from "../../shared/world/WorldSheet";
 import { actOnCard, answersNow, nowLineIn } from "../../shared/words/acts";
-import { actsOffered, answerAsk, isPaper } from "./acts";
+import { actsOffered, answerAsk, askHeader, isPaper } from "./acts";
 import { choreSaving } from "./chores";
 import { cityWords, heardWords, papersLook, placeName, residentName, roleWords } from "./city.words";
 import { CreditsSheet } from "./Credits";
@@ -402,6 +402,11 @@ export function City({
     if (!asksOpen) askTotal.current = askCount;
     else if (askCount > askTotal.current) askTotal.current = askCount;
   }, [askIndex, askCount]);
+  // Over the set piece (the exam), the header counts its own questions, not the asks.
+  const shownAsk = askList?.[Math.min(askIndex, Math.max(0, askCount - 1))];
+  const onSetpiece = isValidElement(shownAsk) && shownAsk.key === "setpiece" ? view.setpiece : null;
+  const header = askList === null ? null : askHeader({ total: askTotal.current, left: askCount, index: askIndex, setpiece: onSetpiece });
+  const askLabel = header === null ? null : say("ui.world.ask-of", header);
   // R-WORLD-008: the results are up from the month's end until the player goes back to the place; the staged wins come first.
   const resultsOpen = useGame((state) => state.reportOpen && state.moments.length === 0) && world && view.report !== null;
   const reportOpen = useGame((state) => state.reportOpen);
@@ -1422,7 +1427,7 @@ export function City({
         <WorldSheet
           open={asksOpen}
           onClose={() => setAsksOpen(false)}
-          label={askList === null || askTotal.current < 2 ? hereName : say("ui.world.ask-of", { n: askTotal.current - askCount + Math.min(askIndex, askCount - 1) + 1, count: askTotal.current })}
+          label={askLabel ?? hereName}
           title={say(nudge?.key ?? "ui.nudge.end")}
           mark="asks"
           {...(askList !== null && askCount > 1
