@@ -18,7 +18,7 @@ import { ReportLines } from "../../shared/ui/ReportLines";
 import { formatMoney } from "../../shared/words/format";
 import { AGE, valueWords, yearsOf } from "../../shared/words/quality";
 import { requirementSentence } from "../../shared/words/requirement";
-import { gradeShort, nextStepOf, ownWayOf, sixteenPath } from "../../shared/words/sixteen";
+import { gradeShort, nextStepOf, ownWayOf, RACKS_STEP, racksAtHand, sixteenPath } from "../../shared/words/sixteen";
 import { bandWords, hasWords, nameOf, say, sayCount, words } from "../../shared/words/text";
 import { Gate, GateSheet } from "../../shared/frontdoor/Gate";
 import { type Archetype, answersInOrder, archetypeOf, fullPrologue, handoverKind, presetAnswer, withAge } from "../../shared/frontdoor/archetypes";
@@ -46,13 +46,22 @@ function comfortableFrom(): number {
   return content.quality[FAMILY_MEANS]?.max ?? 0;
 }
 
-/** The draw as sentences, never as a bare figure (R-PROLOGUE-002, 008). */
-export function drawSentences(draw: Draw): string[] {
+/** A tile's own opening lines, where content has them: where it grew up and what home was. */
+function tileOpening(archetype: Pick<Archetype, "id"> | null): [string, string] | null {
+  if (archetype === null) return null;
+  const [where, home] = [`prologue.archetype.${archetype.id}.begin.where`, `prologue.archetype.${archetype.id}.begin.home`];
+  return hasWords(where) && hasWords(home) ? [say(where), say(home)] : null;
+}
+
+/**
+ * The draw as sentences, never as a bare figure (R-PROLOGUE-002, 008). A tile with its own opening says it in place of
+ * the draw's town and means (the child of the water grew up on the lagoon, R-PROLOGUE-012); the rest is the draw's.
+ */
+export function drawSentences(draw: Draw, archetype: Pick<Archetype, "id"> | null = null): string[] {
   const strained = content.tuning.prologue.waecStrain.under;
   const means = draw.familyMeans < strained ? "low" : draw.familyMeans < comfortableFrom() ? "middle" : "high";
   return [
-    say(`ui.prologue.town.${draw.town}`),
-    say(`ui.prologue.means.${means}`),
+    ...(tileOpening(archetype) ?? [say(`ui.prologue.town.${draw.town}`), say(`ui.prologue.means.${means}`)]),
     sayCount("ui.prologue.siblings", draw.siblings, { count: draw.siblings }),
     say(draw.parentsEducated ? "ui.prologue.parents.educated" : "ui.prologue.parents.not"),
   ];
@@ -194,7 +203,7 @@ function Beat({ beats }: { beats: readonly string[] }) {
 }
 
 /** The draw, the qualities that have moved from nothing, and money, as they stand (R-PROLOGUE-008). No `draw` leaves the draw out. */
-function LifeSoFar({ view, draw, open = false }: { view: PlayerView; draw?: Draw | null; open?: boolean }) {
+function LifeSoFar({ view, draw, open = false, archetype = null }: { view: PlayerView; draw?: Draw | null; open?: boolean; archetype?: Archetype | null }) {
   const held = view.qualities.filter((quality) => quality.id !== AGE && quality.value !== 0 && content.quality[quality.id]?.shown === true);
   const naira = view.pockets.NGN.bank + view.pockets.NGN.cash;
   return (
@@ -205,7 +214,7 @@ function LifeSoFar({ view, draw, open = false }: { view: PlayerView; draw?: Draw
           <p className="text-text-2">{say("ui.prologue.not-drawn")}</p>
         ) : (
           <ul className="flex flex-col gap-0.5" data-draw>
-            {drawSentences(draw).map((sentence) => (
+            {drawSentences(draw, archetype).map((sentence) => (
               <li key={sentence}>{sentence}</li>
             ))}
           </ul>
@@ -251,7 +260,7 @@ function usePreset(view: PlayerView, prologue: Prologue, archetype: Archetype | 
     if (prologue.lastOutcome !== null) outcomes.current.push(prologue.lastOutcome);
     void send({ type: "prologue/choose", step: prologue.step, answer });
   }, [answer, busy, view.v, prologue.step, prologue.lastOutcome, send]);
-  const beats = archetype === null ? [] : [...(prologue.draw !== null && !drawTold.current ? drawSentences(prologue.draw).slice(0, 2) : []), ...[...outcomes.current, ...(prologue.lastOutcome === null ? [] : [prologue.lastOutcome])].map((key) => words(key))];
+  const beats = archetype === null ? [] : [...(prologue.draw !== null && !drawTold.current ? drawSentences(prologue.draw, archetype).slice(0, 2) : []), ...[...outcomes.current, ...(prologue.lastOutcome === null ? [] : [prologue.lastOutcome])].map((key) => words(key))];
   return {
     answer,
     beats: [...new Set(beats)],
@@ -297,7 +306,7 @@ function PrologueCard({ view, prologue }: { view: PlayerView; prologue: Prologue
             <Rejection />
             <Answers prologue={prologue} archetype={archetype} onAnswer={told} />
           </div>
-          <LifeSoFar view={view} draw={prologue.draw} open={archetype === null} />
+          <LifeSoFar view={view} draw={prologue.draw} open={archetype === null} archetype={archetype} />
         </div>
       </GateSheet>
     </Gate>
@@ -314,10 +323,13 @@ export function prologueJustClosed(lines: readonly ReportLine[]): boolean {
  * A trader with capital starts at the meetup or the official page; the
  * handover has its own words for a step whose nudge is not something to do. A life whose archetype takes its first
  * step somewhere of its own says that place: the nurse's job at the clinic, a trade's motor park.
+ * A life in Makoko's room with no job says the racks beside it, as the band's nudge does at the same moment (R-ACTIVITY-017;
+ * ; the motor park comes after.
  */
-export function firstStep(view: Pick<PlayerView, "chapter" | "scenario" | "qualities" | "pockets"> & Partial<Pick<PlayerView, "documents" | "routes" | "job">>): string | null {
+export function firstStep(view: Pick<PlayerView, "chapter" | "scenario" | "qualities" | "pockets"> & Partial<Pick<PlayerView, "documents" | "routes" | "job" | "activities">>): string | null {
   const step = nextStepOf(view);
   if (view.chapter.current === null || step === null) return null;
+  if (racksAtHand(view)) return say(RACKS_STEP);
   const own = `${view.chapter.current}.item.${step}`;
   const way = ownWayOf(view);
   if (way !== null && hasWords(`prologue.handover.step.${way.step}.${way.key}`)) return say(`prologue.handover.step.${way.step}.${way.key}`);

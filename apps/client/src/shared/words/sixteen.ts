@@ -149,6 +149,25 @@ export function earlyStops(life: Life & Held): string[] {
   return sixteenNurse(life) ? [CLINIC_WAY.place] : [];
 }
 
+/** The fish racks at Makoko, the child of the water's work at hand (R-ACTIVITY-017). */
+export const RACKS = "activity.job-fish-racks";
+/** The first chapter's words for the racks: the band's nudge and the handover's first step say the same. */
+export const RACKS_STEP = `${FIRST_CHAPTER}.item.job.nudge.racks`;
+
+/**
+ * The racks are the work at hand (R-ACTIVITY-017): the first chapter, no job held, its job step undone and the racks on
+ * the board, as they are for a life in Makoko's room. Then the racks come before the life's own way out, at the
+ * handover as on the band, and the motor park comes after.
+ */
+export function racksAtHand(view: Pick<PlayerView, "chapter"> & Partial<Pick<PlayerView, "job" | "activities">>): boolean {
+  return (
+    view.chapter.current === FIRST_CHAPTER &&
+    (view.job?.id ?? null) === null &&
+    view.chapter.items.some((item) => item.id === "job" && !item.met) &&
+    (view.activities?.find((option) => option.id === "activity.job-hunt")?.params ?? []).includes(RACKS)
+  );
+}
+
 /** The master's own bar on the degree's grade (route.md: second class lower), from content. */
 function gradeBar(): number {
   for (const item of content.route[MASTERS]?.checklist ?? []) {

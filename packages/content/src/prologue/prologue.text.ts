@@ -184,6 +184,10 @@ export const prologueText: Record<string, string> = {
   "prologue.archetype.water.nudge.job": "Find work in town. The rent on the water is small, so most of the pay stays.",
   "prologue.archetype.water.nudge.heard": "Paddle to the bridge and ask around at the motor park.",
   "prologue.archetype.water.nudge.shop": "That is a shop's capital. Take a stall at the market.",
+  // The begin card by tile: a tile with its own two lines says them in place of the draw's town
+  // and means, so a life that grew up in Makoko never opens in a small town.
+  "prologue.archetype.water.begin.where": "You grow up on the lagoon, in a house on stilts in Makoko.",
+  "prologue.archetype.water.begin.home": "A canoe takes you to school. The fish racks feed the house.",
   "prologue.handover.archetype": "{kind}. {was}.",
   // R-PROLOGUE-011: where a life cannot be started over (online, one life an account), the tiles say the draw may
   // turn the years, and a handover whose life left its tile's path reads the life as lived, never the tile.
