@@ -30,7 +30,7 @@ function OpenInBrowser({ agent }: { agent: string }) {
   const link = here === "" ? null : browserLink(here, agent);
   if (link !== null) {
     return (
-      <a className="inline-flex min-h-11 items-center justify-center rounded-lg border border-ink/70 bg-surface px-4" href={link}>
+      <a className="inline-flex min-h-11 items-center justify-center rounded-lg border border-ink/70 bg-sheet-2 px-4" href={link}>
         {say("ui.secure.open")}
       </a>
     );
@@ -106,7 +106,7 @@ export function SecureSheet({ account, open, onOpenChange, reason, problem: give
             </Button>
           )}
           <div className="flex flex-col gap-2">
-            {inApp ? null : <p className="text-sm text-muted">{say("ui.secure.or")}</p>}
+            {inApp ? null : <p className="text-sm text-text-2">{say("ui.secure.or")}</p>}
             <CodeForm account={account} sendLabel={say("ui.secure.code.send")} goLabel={say("ui.secure.code.go")} onSignedIn={kept} />
           </div>
           {problem === null ? null : (
@@ -240,7 +240,7 @@ export function GuestReminder({ afterFirstChapter = false }: { afterFirstChapter
   const [open, setOpen] = useState(false);
   if (account === null || !guest || (afterFirstChapter && !firstDone)) return null;
   return (
-    <div className="flex flex-col gap-2 rounded-xl border border-line bg-surface p-3" data-guest-reminder>
+    <div className="flex flex-col gap-2 rounded-xl border border-sheet-line bg-sheet-2 p-3" data-guest-reminder>
       <p>{say("ui.guest.reminder")}</p>
       <div>
         <Button small onClick={() => setOpen(true)}>

@@ -97,7 +97,7 @@ export function Username({ account }: { account: AccountApi }) {
   return (
     <div className="flex flex-col gap-2" data-username>
       <p>{say("ui.account.name.current", { name: me.username })}</p>
-      {waiting ? <p className="text-sm text-muted">{say("ui.account.name.wait", { date: dayOf(me.renameFrom) })}</p> : null}
+      {waiting ? <p className="text-sm text-text-2">{say("ui.account.name.wait", { date: dayOf(me.renameFrom) })}</p> : null}
       {!waiting && !editing ? (
         <div className="flex flex-col gap-1">
           <div>
@@ -105,14 +105,14 @@ export function Username({ account }: { account: AccountApi }) {
               {say("ui.account.name.change")}
             </Button>
           </div>
-          {me.renameFrom === 0 ? <p className="text-sm text-muted">{say("ui.account.name.free")}</p> : null}
+          {me.renameFrom === 0 ? <p className="text-sm text-text-2">{say("ui.account.name.free")}</p> : null}
         </div>
       ) : null}
       {editing ? (
         <form className="flex flex-col gap-2" onSubmit={(event) => void save(event)} noValidate>
           <label className="flex flex-col gap-1">
             <span className="text-sm font-medium">{say("ui.account.name.label")}</span>
-            <input className="min-h-11 rounded-lg border border-line bg-surface px-3 text-base" autoComplete="off" autoCapitalize="off" spellCheck={false} maxLength={20} value={name} onChange={(event) => setName(event.target.value)} />
+            <input className="min-h-11 rounded-lg border border-sheet-line bg-sheet-2 px-3 text-base" autoComplete="off" autoCapitalize="off" spellCheck={false} maxLength={20} value={name} onChange={(event) => setName(event.target.value)} />
           </label>
           <div className="flex flex-wrap gap-2">
             <Button type="submit" variant="primary" disabled={busy}>

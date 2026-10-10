@@ -208,7 +208,7 @@ export function GuestForm({ door, onReturning }: GuestFormProps) {
           {say("ui.account.name.go")}
         </Button>
       </div>
-      <div className="border-t border-line pt-3">
+      <div className="border-t border-sheet-line pt-3">
         <Button variant="quiet" onClick={onReturning}>
           {say("ui.account.start.returning")}
         </Button>
