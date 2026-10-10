@@ -15,7 +15,7 @@ import type { ServerConfig } from "../config";
 import { memoryStores, openLimiters } from "../deps";
 import type { Limiters, ServerDeps, Stores } from "../deps";
 import { makeAuth } from "./auth";
-import type { Auth, AuthKeys, OtpMessage } from "./auth";
+import type { Auth, AuthKeys, AuthNotice, OtpMessage } from "./auth";
 import { memoryAuthAdapter, memoryAuthTables } from "./memory";
 import type { AuthTables } from "./memory";
 import { sessionReader } from "./session";
@@ -69,13 +69,15 @@ export interface Harness {
   app: Hono;
   tables: AuthTables;
   sent: OtpMessage[];
+  /** The notices sent to accounts' emails (R-ACCOUNT-003). */
+  notices: AuthNotice[];
   background: Promise<unknown>[];
   helpers: () => Promise<TestHelpers>;
   /** A request to the app as a browser from `country` at `ip`, carrying the jar's cookies and keeping the ones it sets. */
   call: (path: string, init?: RequestInit & { jar?: Jar; country?: string; ip?: string; json?: unknown }) => Promise<Response>;
   /** The age screen passed with a date of birth from 1990 and the dummy Turnstile token. */
   passAge: (jar: Jar, over?: { dateOfBirth?: string; country?: string; token?: string }) => Promise<Response>;
-  /** Sends a code to `email` and returns it as the test utilities captured it. */
+  /** Sends a code to `email` and returns it as the stand-in for the send was given it. */
   codeFor: (email: string, jar: Jar, ip?: string) => Promise<string>;
   /** A whole sign-up by email code; the jar ends signed in. Returns the account id. */
   signUp: (email: string, jar?: Jar, country?: string) => Promise<{ jar: Jar; account: string }>;
@@ -99,6 +101,7 @@ export interface HarnessOptions {
 export function harness(options: HarnessOptions = {}): Harness {
   const config = options.config ?? testConfig({ testing: { captureOtp: true } });
   const sent: OtpMessage[] = [];
+  const notices: AuthNotice[] = [];
   const background: Promise<unknown>[] = [];
   const tables = memoryAuthTables();
   let seed = 7;
@@ -117,12 +120,15 @@ export function harness(options: HarnessOptions = {}): Harness {
     siteUrl: SITE,
     google: { clientId: "test-google-client", clientSecret: "test-google-secret" },
     turnstile: { secretKey: options.turnstileSecret ?? TURNSTILE_TEST.passSecret, siteVerifyUrl: STUB_SITEVERIFY, fetch: turnstileStub(options.turnstileHost ?? new URL(SITE).hostname) },
-    sendOtp:
-      options.sendOtp ??
-      ((message) => {
-        sent.push(message);
-        return Promise.resolve();
-      }),
+    // R-ACCOUNT-005: every code is kept as it is sent, the only place a test can read it.
+    sendOtp: (message) => {
+      sent.push(message);
+      return options.sendOtp?.(message) ?? Promise.resolve();
+    },
+    sendNotice: (notice) => {
+      notices.push(notice);
+      return Promise.resolve();
+    },
     background: (promise) => {
       background.push(promise);
     },
@@ -156,8 +162,8 @@ export function harness(options: HarnessOptions = {}): Harness {
   const codeFor: Harness["codeFor"] = async (email, jar, ip) => {
     const reply = await call("/api/auth/email-otp/send-verification-otp", { method: "POST", jar, ...(ip === undefined ? {} : { ip }), json: { email, type: "sign-in" } });
     if (reply.status !== 200) throw new Error(`The code send answered ${reply.status}: ${await reply.text()}`);
-    const code = (await helpers()).getOTP?.(email.toLowerCase());
-    if (code === undefined) throw new Error(`No code was captured for ${email}.`);
+    const code = sent.findLast((message) => message.email.toLowerCase() === email.toLowerCase())?.otp;
+    if (code === undefined) throw new Error(`No code was sent to ${email}.`);
     return code;
   };
 
@@ -171,5 +177,5 @@ export function harness(options: HarnessOptions = {}): Harness {
     return { jar, account: body.user.id };
   };
 
-  return { deps, auth, keys, app, tables, sent, background, helpers, call, passAge, codeFor, signUp };
+  return { deps, auth, keys, app, tables, sent, notices, background, helpers, call, passAge, codeFor, signUp };
 }

@@ -11,7 +11,9 @@
   "compatibility_flags": ["nodejs_compat"],
   "workers_dev": false,
   "vars": {
-    "SITE_URL": "https://japacity.com"
+    // The game's address. The auth library, the passkeys, the bot
+    // check's host and the origin check on writes trust only this.
+    "SITE_URL": "https://play.japacity.com"
   },
   // R-CLOCK-012: the world's ticks every five minutes. R-SERVER-011: the money report at 00:00 UTC.
   "triggers": { "crons": ["*/5 * * * *", "0 0 * * *"] },

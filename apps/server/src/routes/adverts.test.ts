@@ -441,6 +441,61 @@ describe("what is stored and shared", () => {
   });
 });
 
+describe("what one account can add to a campaign's day", () => {
+  const player = (account: string) => ({ id: account, country: "NG", age: { passed: true, at: 0, method: "declared" as const }, createdAt: EPOCH, character: null, notifyBankFull: false, sendUsageCounts: true });
+
+  async function send(app: App, account: string, rows: { name: string; key: string; count: number }[]): Promise<number> {
+    const reply = await app.request("/api/counters", { method: "POST", headers: { "content-type": "text/plain", "x-test-account": account }, body: JSON.stringify({ rows }) });
+    return reply.status;
+  }
+
+  function totals(deps: ServerDeps, id: string) {
+    return deps.stores.adverts.counts(id).then((rows) => rows.map(({ day, slot, impressions, taps }) => ({ day, slot, impressions, taps })));
+  }
+
+  test("[R-ADVERT-020] given one account, when its impressions and taps on a slot reach the day's allowance exactly, then all count; past it the batch is accepted and the rest is dropped", async () => {
+    const clock = { at: EPOCH };
+    const deps = world(clock);
+    const app = makeApp(deps);
+    const { campaign: id } = await live(app);
+    await deps.stores.account.create(player("account.player"));
+    const { impressions, taps } = deps.config.advert.countsPerAccountDay;
+    expect({ impressions, taps }).toEqual({ impressions: 200, taps: 20 });
+    const day = int.divFloor(EPOCH, time.DAY_MS);
+
+    expect(await send(app, "account.player", [{ name: ADVERT_COUNTERS.impression, key: "advert.road-billboard", count: impressions - 1 }, { name: ADVERT_COUNTERS.tap, key: "advert.road-billboard", count: taps - 1 }])).toBe(204);
+    expect(await send(app, "account.player", [{ name: ADVERT_COUNTERS.impression, key: "advert.road-billboard", count: 1 }, { name: ADVERT_COUNTERS.tap, key: "advert.road-billboard", count: 1 }])).toBe(204);
+    expect(await totals(deps, id)).toEqual([{ day, slot: "advert.road-billboard", impressions, taps }]);
+
+    expect(await send(app, "account.player", [{ name: ADVERT_COUNTERS.impression, key: "advert.road-billboard", count: 1 }, { name: ADVERT_COUNTERS.tap, key: "advert.road-billboard", count: 1 }])).toBe(204);
+    expect(await totals(deps, id)).toEqual([{ day, slot: "advert.road-billboard", impressions, taps }]);
+  });
+
+  test("[R-ADVERT-020] given a row that crosses the allowance, when it arrives, then only the part within it counts, while another account, another slot and the next day each start afresh", async () => {
+    const clock = { at: EPOCH };
+    const deps = world(clock);
+    const app = makeApp(deps);
+    const { campaign: id } = await live(app, { slots: ["advert.road-billboard", "advert.park-billboard"] });
+    await deps.stores.account.create(player("account.player"));
+    await deps.stores.account.create(player("account.other"));
+    const { impressions, taps } = deps.config.advert.countsPerAccountDay;
+    const day = int.divFloor(EPOCH, time.DAY_MS);
+
+    expect(await send(app, "account.player", [{ name: ADVERT_COUNTERS.impression, key: "advert.road-billboard", count: impressions - 3 }])).toBe(204);
+    expect(await send(app, "account.player", [{ name: ADVERT_COUNTERS.impression, key: "advert.road-billboard", count: 10 }, { name: ADVERT_COUNTERS.tap, key: "advert.road-billboard", count: taps + 5 }])).toBe(204);
+    expect(await send(app, "account.player", [{ name: ADVERT_COUNTERS.impression, key: "advert.park-billboard", count: 4 }])).toBe(204);
+    expect(await send(app, "account.other", [{ name: ADVERT_COUNTERS.impression, key: "advert.road-billboard", count: 2 }])).toBe(204);
+    expect(await totals(deps, id)).toEqual([
+      { day, slot: "advert.park-billboard", impressions: 4, taps: 0 },
+      { day, slot: "advert.road-billboard", impressions: impressions + 2, taps },
+    ]);
+
+    clock.at = EPOCH + time.DAY_MS;
+    expect(await send(app, "account.player", [{ name: ADVERT_COUNTERS.impression, key: "advert.road-billboard", count: 1 }])).toBe(204);
+    expect((await totals(deps, id)).filter((row) => row.day === day + 1)).toEqual([{ day: day + 1, slot: "advert.road-billboard", impressions: 1, taps: 0 }]);
+  });
+});
+
 describe("the wiring to the admin log and the counters", () => {
   test("[R-MODERATION-015] [R-ADVERT-012] [R-ADVERT-014] given a campaign approved, a creative approved, another refused and the campaign pulled, when the admin log is read, then each decision is there once with the admin, the time and the item", async () => {
     const clock = { at: EPOCH };

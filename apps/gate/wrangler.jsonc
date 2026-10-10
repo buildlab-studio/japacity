@@ -8,7 +8,7 @@
   "main": "src/index.ts",
   "compatibility_date": "2026-09-01",
   "workers_dev": false,
-  // Placeholder: the game's address while friends play. the maintainer sets the host he chose.
+  // The game's address: the host of the server's SITE_URL.
   "routes": [{ "pattern": "play.japacity.com/*", "zone_name": "japacity.com" }],
   "vars": {
     // The game's X handle without the @, once the maintainer has claimed it. Empty: the screen shows no X link.

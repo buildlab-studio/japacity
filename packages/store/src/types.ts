@@ -408,7 +408,8 @@ export interface LedgerStore {
 /** R-SERVER-009, R-SERVER-021: rows a correction or an upgrade took out of play. */
 export interface AuditEntry {
   character: string;
-  why: "rollback" | "upgrade" | "alarm";
+  /** `passkey`: a passkey bound to an account (R-ACCOUNT-003); the alarm list never reads these rows. */
+  why: "rollback" | "upgrade" | "alarm" | "passkey";
   at: number;
   note: string;
   segments: SegmentRow[];
