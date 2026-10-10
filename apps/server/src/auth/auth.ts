@@ -61,9 +61,13 @@ export interface AuthKeys {
 /** R-ACCOUNT-006: the session cookie's attributes, whatever the library's defaults become. */
 export const COOKIE_ATTRIBUTES = { httpOnly: true, secure: true, sameSite: "lax" } as const;
 
-/** R-ACCOUNT-005: the test utilities exist only while the test server's config turns them on. */
-function testPlugins(captureOtp: boolean): BetterAuthPlugin[] {
-  return captureOtp ? [testUtils({ captureOTP: true }) as BetterAuthPlugin] : [];
+/**
+ * R-ACCOUNT-005: the test utilities exist only while the test server's config
+ * turns them on. They capture no code: the database holds only its hash, so
+ * the tests read a code from the stand-in for the send.
+ */
+function testPlugins(testServer: boolean): BetterAuthPlugin[] {
+  return testServer ? [testUtils() as BetterAuthPlugin] : [];
 }
 
 export function makeAuth(deps: ServerDeps, adapter: Adapter, keys: AuthKeys) {
@@ -74,7 +78,8 @@ export function makeAuth(deps: ServerDeps, adapter: Adapter, keys: AuthKeys) {
       otpLength: config.auth.otp.length,
       expiresIn: config.auth.otp.expiresIn,
       allowedAttempts: config.auth.otp.attempts,
-      storeOTP: "plain",
+      // R-ACCOUNT-002, the database keeps only a code's hash.
+      storeOTP: "hashed",
       resendStrategy: "rotate",
       // The library hands this promise to `advanced.backgroundTasks` without awaiting it.
       sendVerificationOTP: (message) => keys.sendOtp(message),
