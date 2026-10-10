@@ -1,14 +1,19 @@
 name: check
 
-# Runs by hand only while the build pushes many times a day: the organisation is on
-# the free plan and the repository is private, so Actions minutes are counted.
-# At the readiness stage restore:
-#   push:
-#     branches: [main]
-#   pull_request:
-# and enable the workflow again on GitHub (it was disabled there on 8 Oct 2026).
+# The quick checks on every push to main and every pull request: typecheck, lint and the unit tests
+# (about four minutes). The full check (`pnpm check`: the rules and assets checks too) and the browser
+# suite stay local, run before every push by the maintainer's watcher, so Actions minutes stay low on the
+# free plan. Enabled on GitHub by the maintainer on 10 Oct 2026.
 on:
+  push:
+    branches: [main]
+  pull_request:
   workflow_dispatch:
+
+# A newer push to the same branch cancels the run in progress.
+concurrency:
+  group: check-${{ github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
@@ -16,6 +21,7 @@ permissions:
 jobs:
   check:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7
         with:
@@ -32,7 +38,9 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      - run: pnpm check
+      - run: pnpm typecheck
+      - run: pnpm lint
+      - run: pnpm test
 
       - name: Protected files
         if: github.event_name == 'pull_request'
