@@ -115,11 +115,13 @@ export function stepWayOf(view: StepView & Partial<Pick<PlayerView, "obligations
   // A life's own way to its first steps, where its archetype has one the table does not name.
   // While a life in Makoko's room has no job, the racks beside it come first (R-ACTIVITY-017).
   if (racksAtHand(view)) return RACKS_WAY;
-  const own = ownWay(view);
-  if (own !== null) return { go: own.place, at: [`${own.place}:${own.thing}`] };
   // The first chapter's "Look into it" reads the page of the life's own way out, so a nurse leans to care work and not to the master's she read of first (R-CHAPTER-009).
+  // It comes before the life's own way to its first steps: that way names the hub's desk with no act, and a tap on the
+  // nudge then offered the desk's chips (the course, the adviser's fee) in place of the free page (the forty-month driver runs, 10 Oct).
   const route = ownRoute(view);
   if (route !== null && view.chapter.current === FIRST_CHAPTER && step === "known") return { ...HUB_DESK, opens: OFFICIAL_PAGE, param: route };
+  const own = ownWay(view);
+  if (own !== null) return { go: own.place, at: [`${own.place}:${own.thing}`] };
   // The plane blocked by held funds: the way is the bank's counter that takes them back.
   if (view.chapter.current === "chapter.send-off" && step === "departed" && heldFundsOpen({ ...view, setpiece: null, interview: null, offers: [], report: null })) return HELD_FUNDS_WAY;
   // The care file's detour, where the nudge names one.

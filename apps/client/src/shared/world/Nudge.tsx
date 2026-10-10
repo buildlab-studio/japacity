@@ -4,7 +4,7 @@
 import { say } from "../words/text";
 import type { Nudge as NudgeWords } from "./contract";
 
-export function Nudge({ nudge, hidden = false, onTap }: { nudge: NudgeWords | null; hidden?: boolean; onTap?: () => void }) {
+export function Nudge({ nudge, hidden = false, onTap, opens }: { nudge: NudgeWords | null; hidden?: boolean; onTap?: () => void; /** The act the step's way opens, for tests and the play driver. */ opens?: string }) {
   if (nudge === null || hidden) return null;
   const words = say(nudge.key, nudge.params ?? {});
   const line = "drop inline-flex max-w-full items-center gap-2 rounded-[4px] bg-sheet/95 py-1.5 pr-3 pl-2 text-[13px] font-semibold text-text shadow";
@@ -15,7 +15,7 @@ export function Nudge({ nudge, hidden = false, onTap }: { nudge: NudgeWords | nu
     </>
   );
   return (
-    <div className="pointer-events-none mt-1.5 flex items-start justify-between gap-2" data-nudge>
+    <div className="pointer-events-none mt-1.5 flex items-start justify-between gap-2" data-nudge data-nudge-opens={opens}>
       {onTap === undefined ? (
         <div key={words} className={line}>
           {inner}

@@ -182,6 +182,8 @@ function chipNode(thing: Thing, onAct: (act: Act) => void): HTMLDivElement {
     const button = document.createElement("button");
     button.type = "button";
     button.dataset.act = act.id;
+    // The activity a sheet act opens, for tests and the play driver (the nudge names it in data-nudge-opens).
+    if (act.kind === "sheet" && act.stages !== undefined) button.dataset.activity = act.stages;
     button.className = "rounded-[5px] bg-action px-3 py-2 text-[13px] font-extrabold whitespace-nowrap text-action-text";
     button.textContent = sceneWords(act.label);
     button.onclick = () => onAct(act);

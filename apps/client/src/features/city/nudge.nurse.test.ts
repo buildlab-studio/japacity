@@ -211,6 +211,18 @@ describe("the nurse's nudges point at the chip that holds the act", () => {
     expect(view.activities.find((option) => option.id === "activity.look-into-route")?.params).toContain(CARE);
   });
 
+  test("[R-WORLD-003] [R-CHAPTER-009] given the tile's nurse at the known step, when the step's way is read, then it is the hub's desk opening the official page on care work, not the life's own way to its first job with no act", () => {
+    const game = tileNurse("nurse-known-way");
+    hire(game);
+    const view = until(game, (now) => now.chapter.items.find((item) => item.id === "pay")?.met === true, 3);
+    expect(view.chapter.items.find((item) => item.id === "known")?.met).toBe(false);
+    const way = stepWayOf(view);
+    expect(way).toMatchObject({ go: "place.yaba", opens: "activity.look-into-route", param: CARE });
+    // At the desk the tap opens the page itself (stepOpen's act), never the desk's other chips (the forty-month driver runs, 10 Oct).
+    const offered = view.activities.filter((option) => option.allowed).map((option) => option.id);
+    expect(stepOpen(way!, "desk", offered, "place.yaba")).toMatchObject({ kind: "act", activity: "activity.look-into-route", param: CARE });
+  });
+
   test("[R-WORLD-003] [R-ACTIVITY-013] given the tile's nurse months into her job while the council works, when the nudge is read, then it never sends her to the hub's board to get noticed", () => {
     const game = tileNurse("nurse-noticed");
     hire(game);
