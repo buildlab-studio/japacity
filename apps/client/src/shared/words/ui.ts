@@ -263,7 +263,7 @@ export const uiText: Record<string, string> = {
   "ui.band.quality.family-stake.2": "The family has put money into your leaving",
   "ui.band.quality.family-stake.3": "The family has put money into your leaving",
   // Content's lines at a count of one (shared/words/text.ts, LINE_COUNTS)
-  "ui.line.setpiece.opened.one": "{setpiece}: 1 question to answer before the month can end.",
+  "ui.line.setpiece.opened.one": "{setpiece}: 1 question waiting for you.",
   "ui.line.activity.lotto-won.one": "1 ticket for {stake}, and it came in: {won}.",
   "ui.line.activity.lotto-lost.one": "1 ticket for {stake}. Nothing came in.",
   "ui.line.status.clock-started.one": "The job is gone. You have 1 month to find another sponsor.",
