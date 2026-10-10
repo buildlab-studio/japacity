@@ -1468,7 +1468,19 @@ export function City({
         </WorldSheet>
       ) : null}
       {world && resultsShown ? results?.(inside && insideEntry !== null && insideEntry.id !== entry?.id ? placeName(insideEntry.id) : name) : null}
-      {world && phone && handset !== undefined ? handset(() => { setPhone(false); setPhoneApp(null); }, inside ? hereName : name, phoneApp) : null}
+      {world && phone && handset !== undefined
+        ? handset(
+            () => {
+              setPhone(false);
+              setPhoneApp(null);
+              // The bed opened the phone for the month's lines: putting it away goes on to the month's end.
+              if (phoneThen === "month") setMonthOpen(true);
+              setPhoneThen(null);
+            },
+            inside ? hereName : name,
+            phoneApp,
+          )
+        : null}
       {world && phone && handset === undefined && apps !== undefined ? (
         <Phone
           apps={apps}
