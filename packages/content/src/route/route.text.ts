@@ -88,7 +88,7 @@ export const routeText: Record<string, string> = {
   "route.uk-talent.name": "The UK talent visa",
   "route.uk-talent.blurb":
     "For people whose work speaks for them. An endorsing body reads your portfolio first, then the visa.",
-  "route.uk-talent.item.tech": "Tech skill at 75 or more",
+  "route.uk-talent.item.tech": "Strong tech",
   "route.uk-talent.item.portfolio": "Three pieces of work to show",
   "route.uk-talent.item.network": "People who will write for you",
   "route.uk-talent.item.passport": "Passport held",
