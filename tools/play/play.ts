@@ -222,7 +222,7 @@ async function settle(run: Run, when: string): Promise<void> {
     if (await shown(card)) {
       log(run, `card over the world ${when}: ${await words(card)}`);
       await shot(run, `card ${when}`);
-      const closer = card.getByRole("button", { name: /^(Close|Carry on|Next|Go|Not now|OK)$/ });
+      const closer = card.getByRole("button", { name: /^(Close|Carry on|Next|Go|Done|Not now|OK)$/ });
       await tap(run, (await shown(closer)) ? closer : card.getByRole("button").last(), "the card's button");
       await page.waitForTimeout(400);
       continue;
@@ -253,7 +253,8 @@ async function intoTheWorld(run: Run): Promise<boolean> {
 
 // A month ---------------------------------------------------------------------------------------
 
-const OPEN_SHEET = "[data-world-sheet]:not([data-world-sheet='month']):not([data-world-sheet='results'])";
+/** A sheet over the world that asks something: a world sheet other than the month's and its results, or a thing's own sheet. */
+const OPEN_SHEET = "[data-world-sheet]:not([data-world-sheet='month']):not([data-world-sheet='results']), [role='dialog']:not([data-world-sheet])";
 
 /** Buttons that pick among choices rather than act: a job in a list, a tab. */
 const PICKER_ROLES = new Set(["radio", "checkbox", "tab", "switch", "option"]);
@@ -278,7 +279,7 @@ async function mainButton(sheet: Locator): Promise<Locator | null> {
 async function closeSheets(run: Run): Promise<void> {
   const { page } = run;
   for (let step = 0; step < 3; step += 1) {
-    const sheet = page.locator("[data-world-sheet]");
+    const sheet = page.locator(OPEN_SHEET);
     if (!(await shown(sheet))) return;
     await page.keyboard.press("Escape");
     await page.waitForTimeout(400);
@@ -315,18 +316,11 @@ async function followNudge(run: Run, month: number): Promise<void> {
       await tap(run, page.locator("[data-map-close]"), "Close the map");
       break;
     }
-    const act = page.locator("[data-act]");
-    if (await shown(act)) {
-      const names = (await act.allInnerTexts()).map((name) => oneLine(name, 40)).join(", ");
-      log(run, `acts over the thing: ${names}; tapping the first`);
-      await tap(run, act, "the first act");
-      await page.waitForTimeout(1_000);
-      continue;
-    }
     const sheet = page.locator(OPEN_SHEET);
     if (await shown(sheet)) {
-      const mark = (await sheet.first().getAttribute("data-world-sheet")) ?? "sheet";
-      log(run, `${mark} sheet: ${await words(sheet, 240)}`);
+      const mark = (await sheet.first().getAttribute("data-world-sheet")) ?? "thing";
+      const before = await words(sheet, 400);
+      log(run, `${mark} sheet: ${oneLine(before, 240)}`);
       await shot(run, `month ${String(month)} ${mark} sheet`);
       const main = await mainButton(sheet.first());
       if (main === null) {
@@ -339,8 +333,19 @@ async function followNudge(run: Run, month: number): Promise<void> {
       await page.waitForTimeout(1_200);
       const toast = page.locator("[data-toast]");
       if (await shown(toast)) log(run, `toast: ${await words(toast)}`);
-      // A sheet whose act is done closes itself; one that stays open has said what it had to.
-      if (await shown(page.locator(OPEN_SHEET))) break;
+      // A sheet whose act is done closes or changes (to the next ask, or a card saying what happened);
+      // one that stays as it was has nothing more to do here.
+      if ((await shown(page.locator(OPEN_SHEET))) && (await words(page.locator(OPEN_SHEET), 400)) === before) break;
+      continue;
+    }
+    // The act chips stay over the thing while its sheet is open, so they come after the sheet.
+    const act = page.locator("[data-act]");
+    if (await shown(act)) {
+      const names = (await act.allInnerTexts()).map((name) => oneLine(name, 40)).join(", ");
+      log(run, `acts over the thing: ${names}; tapping the first`);
+      await tap(run, act, "the first act");
+      // The character walks to the thing before its sheet opens (R-WORLD-005).
+      await appear(page.locator(OPEN_SHEET), SHORT);
       continue;
     }
     break;
