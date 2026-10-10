@@ -4,7 +4,7 @@
 // returns to the grid; the home bar puts the phone away. The apps are handed in as the contract's
 // `PhoneApp`, so the handset knows nothing of what they show.
 import { ChevronLeft, Maximize2, Minimize2 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { type ReactNode, useEffect, useRef, useState } from "react";
 
 import type { PhoneApp } from "../../shared/world/contract";
 import { Toast, useToast } from "../../shared/world/Toast";
@@ -25,6 +25,8 @@ export interface PhoneProps {
   now?: () => Date;
   /** An app to open on, counted as seen (the nudge's "The month's news is in", R-WORLD-003). */
   start?: string | null;
+  /** What the wallpaper tells between the clock and the apps: the month's acts telling of themselves (R-WORLD-030). */
+  notices?: ReactNode;
 }
 
 const CLOCK = new Intl.DateTimeFormat("en-GB", { hour: "2-digit", minute: "2-digit" });
@@ -42,7 +44,7 @@ function useClock(now: () => Date): string {
 
 const realNow = () => new Date();
 
-export function Phone({ apps, onClose, area, when, onOpen, now = realNow, start = null }: PhoneProps) {
+export function Phone({ apps, onClose, area, when, onOpen, now = realNow, start = null, notices = null }: PhoneProps) {
   const [open, setOpen] = useState<string | null>(start);
   const started = useRef(false);
   useEffect(() => {
@@ -92,6 +94,7 @@ export function Phone({ apps, onClose, area, when, onOpen, now = realNow, start 
                     </div>
                     {grow}
                   </div>
+                  {notices}
                   <ul className="mt-auto grid grid-cols-4 gap-x-2 gap-y-4 px-4 pt-6 pb-4" aria-label={phoneWords("phone.apps")}>
                     {apps.map((candidate) => (
                       <li key={candidate.id} className="flex flex-col items-center gap-1">
