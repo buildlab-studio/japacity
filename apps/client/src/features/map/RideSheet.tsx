@@ -53,8 +53,17 @@ export function headingOf(name: string): string {
   return name.length === 0 ? name : name.charAt(0).toUpperCase() + name.slice(1);
 }
 
+/**
+ * The way the sheet opens on: the vehicle tapped in the place, else the first way open whose fare the money held pays,
+ * so a stop in walking distance with no fare in hand opens on Walk; else the first way.
+ */
+export function firstWay(ways: readonly RideChoice[], have: number, by?: RideChoice["id"]): RideChoice["id"] {
+  if (by !== undefined && ways.some((way) => way.id === by)) return by;
+  return ways.find((way) => way.shut === undefined && way.fare <= have)?.id ?? ways[0]?.id ?? "danfo";
+}
+
 export function RideSheet({ pin, home, ways, have, formatMoney, onChoose, onClose, onStay, by }: RideSheetProps) {
-  const [chosen, setChosen] = useState<RideChoice["id"]>(by !== undefined && ways.some((way) => way.id === by) ? by : (ways[0]?.id ?? "danfo"));
+  const [chosen, setChosen] = useState<RideChoice["id"]>(() => firstWay(ways, have, by));
   const way = ways.find((candidate) => candidate.id === chosen && candidate.shut === undefined) ?? ways.find((candidate) => candidate.shut === undefined);
   const here = pin.state === "here";
   const locked = pin.state === "not";

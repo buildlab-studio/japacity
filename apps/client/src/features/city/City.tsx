@@ -805,7 +805,8 @@ export function City({
   ];
   const shownCountry = countries.find((choice) => choice.locked === null) ?? countries[0] ?? { id: "lagos", name: cityWords("city.map.lagos"), locked: null };
 
-  const nudge = world ? nudgeOf(view, undefined, plan.flatMap((pick) => (pick === null ? [] : [pick.activity])), newsRead(view)) : null;
+  // Where the character stands, for the free step when nothing can be paid.
+  const nudge = world ? nudgeOf(view, undefined, plan.flatMap((pick) => (pick === null ? [] : [pick.activity])), newsRead(view), { here: placeId, home, stops: pins }) : null;
   // A question or an offer waiting on the player opens from the nudge; nothing else is on screen to open it (R-WORLD-001).
   const nudgeOpens = asks !== undefined && (nudge?.about === "setpiece" || nudge?.about === "offer");
   // The chapter's step opens its way (R-WORLD-003): the thing's acts when it stands here, the map at its stop
@@ -813,7 +814,7 @@ export function City({
   // A step short of money sends the player to the jobs board, where the money is; the funds step keeps the bank.
   const shortOfMoney = nudge?.about === "step" && (nudge.key.endsWith(".short") || nudge.key === "ui.nudge.hunt-planned") && !nudge.key.startsWith("chapter.decision-day.item.held");
   const meanwhileAct = nudge?.key.startsWith("ui.nudge.meanwhile.") === true ? nudge.key.slice("ui.nudge.meanwhile.".length) : null;
-  const stepWay = nudge?.about === "step" ? (shortOfMoney || nudge.key === BETTER_JOB ? BOARD_WAY : meanwhileAct !== null ? (MEANWHILE_WAYS[meanwhileAct] ?? null) : stepWayOf(view)) : null;
+  const stepWay = nudge?.about === "step" ? (nudge.way ?? (shortOfMoney || nudge.key === BETTER_JOB ? BOARD_WAY : meanwhileAct !== null ? (MEANWHILE_WAYS[meanwhileAct] ?? null) : stepWayOf(view))) : null;
   const hereId = inside ? (insideEntry?.id ?? placeId) : placeId;
   const stepThing = stepWay === null || things === undefined ? null : stepThingHere(stepWay, hereId, things);
   // Abroad the map is a list, and a stop picked on it opens its sheet all the same.

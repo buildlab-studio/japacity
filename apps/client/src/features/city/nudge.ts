@@ -7,7 +7,7 @@ import type { Id, PlayerView } from "@japacity/sim";
 import { duesGap } from "../../shared/words/dues";
 import { formatMoney } from "../../shared/words/format";
 import { asksAttention, tidyLines } from "../../shared/words/lines";
-import { nextStepOf, ownRouteOf, ownWayOf, RACKS_STEP, racksAtHand, wardMonths } from "../../shared/words/sixteen";
+import { nextStepOf, ownRouteOf, ownWayOf, RACKS, RACKS_STEP, racksAtHand, wardMonths } from "../../shared/words/sixteen";
 import { routeKeptBy } from "../../shared/words/keepJob";
 import { hasWords, inMonths, nameOf, say } from "../../shared/words/text";
 import type { Nudge } from "../../shared/world/contract";
@@ -464,8 +464,67 @@ function startedKey(view: NudgeView, own: string, stepKey: string, plannedOnly: 
   return null;
 }
 
-/** `has`: whether words exist for a key; content's and the interface's tables unless a test says otherwise. `planned`: the activities in this month's plan. */
-export function nudgeOf(view: NudgeView, has: (key: string) => boolean = hasWords, planned: readonly string[] = [], newsRead = false): Nudge & { about: NudgeAbout } {
+/**
+ * Where the character stands and the stops the map shows, each with its position, so the nudge can tell a stop on foot
+ * from one that needs a fare. `home` is the home stop of the city.
+ */
+export interface Reach {
+  here: string;
+  home: string | null;
+  stops: readonly { id: string; position: { latE3: number; lonE3: number } }[];
+}
+
+const MAKOKO = "place.makoko";
+/** The stops whose jobs board takes a hunt (BOARD_WAY's places). */
+const BOARD_STOPS: readonly string[] = BOARD_WAY.at.map((entry) => entry.split(":")[0] ?? "");
+
+/** Metres in a straight line between two positions, as the map measures a walk (R-WORLD-017). */
+function metresApart(from: Reach["stops"][number]["position"], to: Reach["stops"][number]["position"]): number {
+  const cos = Math.cos((from.latE3 / 1000) * (Math.PI / 180));
+  return Math.hypot((to.lonE3 - from.lonE3) * 111.32 * cos, (to.latE3 - from.latE3) * 111.32);
+}
+
+/** True when the stop is where the character stands, or close enough to walk to (R-WORLD-017's walking distance). */
+function onFoot(reach: Reach, to: string): boolean {
+  if (to === reach.here) return true;
+  const from = reach.stops.find((stop) => stop.id === reach.here)?.position;
+  const there = reach.stops.find((stop) => stop.id === to)?.position;
+  return from !== undefined && there !== undefined && metresApart(from, there) <= content.tuning.city.ride.walkMetres;
+}
+
+/** The cheapest paid ride this month, in kobo: the way's flat fare under the month's fares (R-PLACE-010). */
+function cheapestFare(view: NudgeView): number {
+  const { fareKobo } = content.tuning.city.ride;
+  const fares = Object.entries(fareKobo).filter(([way, fare]) => way !== "walk" && fare > 0).map(([, fare]) => fare);
+  const bp = view.place?.fareBp ?? 10_000;
+  return Math.floor((Math.min(...fares) * bp) / 10_000);
+}
+
+/**
+ * When nothing can be paid, a free step: the step's stop needs a fare the naira held cannot
+ * pay and is too far to walk, so the nudge names what can be done on foot instead: walking home where home is near
+ * enough, the racks for a life in Makoko with no job, a job on a board within reach. Null when the step can be reached,
+ * or when nothing free is near.
+ */
+export function freeStep(view: NudgeView & StepView, reach: Reach, has: (key: string) => boolean = hasWords): (Nudge & { about: NudgeAbout; way: StepWay }) | null {
+  const held = (view.pockets?.NGN.cash ?? 0) + (view.pockets?.NGN.bank ?? 0);
+  if (held >= cheapestFare(view)) return null;
+  const way = stepWayOf(view);
+  if (way === null || way.go === null) return null;
+  if (way.at.some((entry) => entry.startsWith(`${reach.here}:`)) || onFoot(reach, way.go)) return null;
+  const jobless = (view.job?.id ?? null) === null;
+  const board = view.activities?.find((option) => option.id === "activity.job-hunt")?.params ?? [];
+  if (reach.home !== null && reach.home !== reach.here && onFoot(reach, reach.home) && has("ui.nudge.broke.home")) return { key: "ui.nudge.broke.home", about: "step", way: { go: reach.home, at: [] } };
+  if (jobless && board.includes(RACKS) && onFoot(reach, MAKOKO) && has("ui.nudge.broke.racks")) return { key: "ui.nudge.broke.racks", about: "step", way: RACKS_WAY };
+  if (jobless && board.length > 0 && BOARD_STOPS.some((stop) => onFoot(reach, stop)) && has("ui.nudge.broke.job")) return { key: "ui.nudge.broke.job", about: "step", way: BOARD_WAY };
+  return null;
+}
+
+/**
+ * `has`: whether words exist for a key; content's and the interface's tables unless a test says otherwise. `planned`: the
+ * activities in this month's plan. `reach`: where the character stands, for the free step when nothing can be paid.
+ */
+export function nudgeOf(view: NudgeView, has: (key: string) => boolean = hasWords, planned: readonly string[] = [], newsRead = false, reach?: Reach): Nudge & { about: NudgeAbout; way?: StepWay } {
   if (view.setpiece !== null || (view.interview?.question ?? null) !== null) return { key: "ui.nudge.setpiece", about: "setpiece" };
   // Abroad, whenever the month's dues pass the country's money held, the gap comes before the step;
   // and before any ask when one more missed instalment ends the visa.
@@ -475,6 +534,9 @@ export function nudgeOf(view: NudgeView, has: (key: string) => boolean = hasWord
   if (visaAtStake && has("ui.nudge.dues-visa")) return { key: "ui.nudge.dues-visa", params: { due: formatMoney(gap.due, gap.currency), held: formatMoney(gap.held, gap.currency) }, about: "dues" };
   if (view.offers.length > 0) return { key: "ui.nudge.offer", about: "offer" };
   if (gap !== null) return { key: "ui.nudge.dues", params: { due: formatMoney(gap.due, gap.currency), held: formatMoney(gap.held, gap.currency) }, about: "dues" };
+  // Nothing can be paid and the step's stop is a ride away: a free step on foot comes first.
+  const free = reach === undefined ? null : freeStep(view, reach, has);
+  if (free !== null) return free;
   // While a life in Makoko's room has no job, the racks beside it come before any other step (R-ACTIVITY-017).
   // Applied at once (R-ACTIVITY-015) counts as planned: the racks' nudge then says the wait, not the racks again.
   const huntTaken = planned.includes("activity.job-hunt") || (view.activities ?? []).some((option) => option.id === "activity.job-hunt" && option.done);
