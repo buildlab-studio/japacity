@@ -4,7 +4,7 @@
 // says in plain sight that Japacity is a game, is sent by the game itself, and
 // is offered, never sent: nothing leaves the device until the player taps.
 import { Dialog } from "@base-ui/react/dialog";
-import type { ShareKind } from "@japacity/content";
+import type { JapaType, ShareKind } from "@japacity/content";
 import type { Id } from "@japacity/sim";
 import { createContext, use, useEffect, useRef, useState, type ReactNode } from "react";
 
@@ -12,14 +12,16 @@ import { useGame, useView } from "../../authority/GameProvider";
 import { counting } from "../../shared/analytics/start";
 import type { Encoded } from "../../shared/card/encode";
 import { cardFace, type CardFace, type ShareCard } from "../../shared/card/face";
-import { renderCard } from "../../shared/card/render";
+import { renderCard, renderStub } from "../../shared/card/render";
+import { stubFace, type StubFace } from "../../shared/card/stub";
 import { browserDevice, canShareFiles, sendCard, type Device } from "../../shared/card/travel";
 import { Button } from "../../shared/ui/Button";
 import { FullScreen } from "../../shared/ui/FullScreen";
 import { Card } from "../../shared/ui/Panel";
 import { cardKey, useCardsTurn } from "../../shared/ui/stage";
+import { japaTypeOf } from "../../shared/words/japaType";
 import { say } from "../../shared/words/text";
-import { gallery, useKept } from "./gallery";
+import { gallery, useKept, type Kept } from "./gallery";
 
 /** True inside the full-screen sheet, where the card's title names the dialog. */
 const InDialog = createContext(false);
@@ -35,7 +37,7 @@ function Stripes() {
   return <div aria-hidden="true" className="h-3 w-full shrink-0 bg-[repeating-linear-gradient(90deg,var(--ink)_0_18px,var(--accent)_18px_36px)]" />;
 }
 
-function Footer({ face }: { face: CardFace }) {
+function Footer({ face }: { face: Pick<CardFace, "sender" | "disclaimer" | "address" | "officialLine"> }) {
   return (
     <div className="flex flex-col gap-0.5 border-t border-current/30 pt-2 text-sm">
       <div className="flex items-end justify-between gap-2">
@@ -136,6 +138,48 @@ export function ShareCardFace({ card, scenario = null }: { card: ShareCard; scen
   );
 }
 
+/** One field of the stub: its name small, its value large. */
+function StubField({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <div className="flex min-w-0 flex-col">
+      <span className="text-[0.6875rem] font-bold tracking-widest opacity-75">{label.toUpperCase()}</span>
+      <span className="text-lg leading-tight font-black break-words">{children}</span>
+    </div>
+  );
+}
+
+/** The send-off's ticket stub on screen (R-SHARE-004): the same words the drawn stub carries, laid out as a ticket. */
+export function StubCardFace({ face }: { face: StubFace }) {
+  return (
+    <article data-share-card="stub" className="flex w-[min(calc(100vw-2rem),36rem)] flex-col gap-3 rounded-md bg-accent p-3 text-accent-ink shadow-2xl">
+      <div className="flex flex-wrap rounded-md bg-sheet text-ink">
+        <div className="flex min-w-0 flex-[3] flex-col gap-2 p-3">
+          <p className="text-xs font-bold">{face.kicker}</p>
+          {face.name === null ? null : (
+            <p className="font-sans text-2xl leading-none font-black" data-card-name>
+              {face.name}
+            </p>
+          )}
+          <div className="grid grid-cols-2 gap-x-3 gap-y-2">
+            <StubField label={face.labels.from}>{face.fields.from}</StubField>
+            <StubField label={face.labels.to}>{face.fields.to}</StubField>
+            <StubField label={face.labels.months}>{face.fields.months}</StubField>
+            {face.fields.japacity === null ? null : <StubField label={face.labels.japacity}>{`${face.fields.japacity}%`}</StubField>}
+          </div>
+        </div>
+        {face.type === null ? null : (
+          <div className="flex min-w-[9rem] flex-[2] flex-col gap-1.5 border-l-2 border-dashed border-ink/30 p-3" data-type-badge>
+            <p className="text-[0.6875rem] font-bold tracking-widest opacity-75">{face.type.label.toUpperCase()}</p>
+            <p className="rounded-md bg-accent px-2 py-1.5 text-base leading-tight font-black text-accent-ink">{face.type.name}</p>
+            <p className="text-xs">{face.type.line}</p>
+          </div>
+        )}
+      </div>
+      <Footer face={face} />
+    </article>
+  );
+}
+
 type Status = "idle" | "making" | "shared" | "saved" | "cancelled" | "failed";
 
 const STATUS_WORDS: Record<Exclude<Status, "idle" | "cancelled">, string> = {
@@ -151,16 +195,18 @@ const STATUS_WORDS: Record<Exclude<Status, "idle" | "cancelled">, string> = {
  * share sheet the image is drawn as the card opens, because the sheet must be
  * called while the tap still counts.
  */
-export function ShareButton({ card, scenario, device = browserDevice() }: { card: ShareCard; scenario: Id<"scenario">; device?: Device }) {
+export function ShareButton({ card, scenario, stub = null, device = browserDevice() }: { card: ShareCard; scenario: Id<"scenario">; stub?: StubFace | null; device?: Device }) {
   const [status, setStatus] = useState<Status>("idle");
   const face = cardFace(card, scenario);
   const sheet = canShareFiles(device);
   const drawn = useRef<Promise<Encoded> | null>(null);
   const key = cardKey(card);
+  const render = () => (stub === null ? renderCard(face) : renderStub(stub));
   useEffect(() => {
-    drawn.current = sheet && face.shareable ? renderCard(face).catch((): Encoded => ({ ok: false, reason: "no-image", bytes: 0 })) : null;
-    // The card's key names everything drawn on it, so the face is not a dependency.
-  }, [key, sheet]);
+    drawn.current = sheet && face.shareable ? render().catch((): Encoded => ({ ok: false, reason: "no-image", bytes: 0 })) : null;
+    setStatus("idle");
+    // The card's key and which of the two is picked name everything drawn, so the faces are not dependencies.
+  }, [key, sheet, stub === null]);
   if (!face.shareable) return <p className="max-w-sm text-center text-sm opacity-80">{say("share.not-shareable")}</p>;
   const label = sheet ? say("share.button.share") : say("share.button.save");
   const go = async () => {
@@ -168,7 +214,7 @@ export function ShareButton({ card, scenario, device = browserDevice() }: { card
     // R-ANALYTICS-002: pressed, and completed once the card was shared or saved.
     counting().count("share/pressed", card.kind);
     try {
-      const made = await (drawn.current ?? renderCard(face));
+      const made = await (drawn.current ?? render());
       const sent = made.ok ? await sendCard(made.blob, card.kind, device) : "failed";
       if (sent === "shared" || sent === "saved") counting().count("share/completed", card.kind);
       setStatus(sent);
@@ -190,9 +236,39 @@ export function ShareButton({ card, scenario, device = browserDevice() }: { card
   );
 }
 
+/**
+ * A card with its share button; at the send-off, the card and the ticket stub side by side to pick from
+ * (R-SHARE-001: the stub is due beside the send-off card, and the player picks which to share).
+ */
+function CardToShare({ card, scenario, type }: { card: ShareCard; scenario: Id<"scenario">; type: JapaType | null }) {
+  const [picked, setPicked] = useState<"card" | "stub">("card");
+  const stub = stubFace(card, scenario, type);
+  if (stub === null) {
+    return (
+      <>
+        <ShareCardFace card={card} scenario={scenario} />
+        <ShareButton card={card} scenario={scenario} />
+      </>
+    );
+  }
+  return (
+    <>
+      <div role="group" aria-label={say("share.stub.ready")} className="flex gap-2" data-card-pick>
+        {(["card", "stub"] as const).map((which) => (
+          <Button key={which} small variant={picked === which ? "primary" : "secondary"} aria-pressed={picked === which} onClick={() => setPicked(which)} data-pick={which}>
+            {say(`share.stub.pick.${which}`)}
+          </Button>
+        ))}
+      </div>
+      {picked === "card" ? <ShareCardFace card={card} scenario={scenario} /> : <StubCardFace face={stub} />}
+      <ShareButton card={card} scenario={scenario} stub={picked === "stub" ? stub : null} />
+    </>
+  );
+}
+
 /** The cards had in this life, each to open and share again. */
-function GalleryView({ open, onClose, cards, scenario }: { open: boolean; onClose: () => void; cards: ShareCard[]; scenario: Id<"scenario"> }) {
-  const [shown, setShown] = useState<ShareCard | null>(null);
+function GalleryView({ open, onClose, cards, scenario }: { open: boolean; onClose: () => void; cards: Kept[]; scenario: Id<"scenario"> }) {
+  const [shown, setShown] = useState<Kept | null>(null);
   const close = () => {
     setShown(null);
     onClose();
@@ -204,10 +280,10 @@ function GalleryView({ open, onClose, cards, scenario }: { open: boolean; onClos
           <>
             <Dialog.Title className="font-display text-3xl">{say("share.gallery.title")}</Dialog.Title>
             <ul className="flex w-full max-w-sm flex-col gap-2" data-gallery>
-              {cards.map((card) => (
-                <li key={cardKey(card)}>
-                  <Button className="w-full justify-between" onClick={() => setShown(card)}>
-                    <span>{say(`share.${card.kind}.title`)}</span>
+              {cards.map((entry) => (
+                <li key={entry.key}>
+                  <Button className="w-full justify-between" onClick={() => setShown(entry)}>
+                    <span>{say(`share.${entry.card.kind}.title`)}</span>
                   </Button>
                 </li>
               ))}
@@ -215,8 +291,7 @@ function GalleryView({ open, onClose, cards, scenario }: { open: boolean; onClos
           </>
         ) : (
           <>
-            <ShareCardFace card={shown} scenario={scenario} />
-            <ShareButton card={shown} scenario={scenario} />
+            <CardToShare card={shown.card} scenario={scenario} type={shown.type ?? null} />
             <Button variant="quiet" onClick={() => setShown(null)}>
               {say("share.gallery.back")}
             </Button>
@@ -245,7 +320,9 @@ export function CardView() {
   const key = cardKey(card);
   const [reopened, setReopened] = useState(false);
   const [galleryOpen, setGalleryOpen] = useState(false);
-  const others = kept.filter((entry) => entry.key !== key).map((entry) => entry.card);
+  const others = kept.filter((entry) => entry.key !== key);
+  // Read when the send-off is due, kept with its card when it closes (decision 0018).
+  const type = japaTypeOf(view);
   const galleryTile =
     others.length === 0 ? null : (
       <div>
@@ -259,7 +336,7 @@ export function CardView() {
   const open = turn && (closed !== key || reopened);
   const close = () => {
     closeCard(key);
-    gallery.getState().keep(scenario, card);
+    gallery.getState().keep(scenario, card, type);
     setReopened(false);
   };
   return (
@@ -276,9 +353,8 @@ export function CardView() {
         <button type="button" aria-label={say("ui.card.dismiss")} onClick={close} className="absolute inset-0 cursor-default" data-card-scrim />
         <div className="relative flex flex-col items-center gap-3" onClick={(event) => event.stopPropagation()}>
           <InDialog value>
-            <ShareCardFace card={card} scenario={scenario} />
+            <CardToShare card={card} scenario={scenario} type={type} />
           </InDialog>
-          <ShareButton card={card} scenario={scenario} />
           <p className="max-w-sm text-center text-sm opacity-80">{say("ui.card.how")}</p>
           <Button variant="secondary" onClick={close}>
             {say("ui.report.close")}

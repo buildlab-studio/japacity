@@ -1,6 +1,7 @@
 // The cards a player has had, kept on this device only (docs/rules/share.md
 // R-SHARE-011: a card is never stored on the server). A card goes in when it is
 // closed, once.
+import type { JapaType } from "@japacity/content";
 import type { Id } from "@japacity/sim";
 import { useStore } from "zustand";
 import { createStore } from "zustand/vanilla";
@@ -12,11 +13,13 @@ export interface Kept {
   key: string;
   scenario: Id<"scenario">;
   card: ShareCard;
+  /** The japa type read when the send-off was due, kept with that card (decision 0018); absent on every other card. */
+  type?: JapaType;
 }
 
 interface Gallery {
   kept: Kept[];
-  keep: (scenario: Id<"scenario">, card: ShareCard) => void;
+  keep: (scenario: Id<"scenario">, card: ShareCard, type?: JapaType | null) => void;
   clear: () => void;
 }
 
@@ -44,10 +47,10 @@ function save(kept: Kept[]): void {
 
 export const gallery = createStore<Gallery>()((set, get) => ({
   kept: load(),
-  keep(scenario, card) {
+  keep(scenario, card, type = null) {
     const key = cardKey(card);
     if (key === null || get().kept.some((entry) => entry.key === key && entry.scenario === scenario)) return;
-    const kept = [{ key, scenario, card }, ...get().kept].slice(0, MOST_KEPT);
+    const kept = [{ key, scenario, card, ...(type === null ? {} : { type }) }, ...get().kept].slice(0, MOST_KEPT);
     save(kept);
     set({ kept });
   },
@@ -65,4 +68,12 @@ export const gallery = createStore<Gallery>()((set, get) => ({
 export function useKept(scenario: Id<"scenario">, month: number): Kept[] {
   const kept = useStore(gallery, (state) => state.kept);
   return kept.filter((entry) => entry.scenario === scenario && entry.card.months <= month);
+}
+
+/**
+ * The japa type this life was read as at its send-off, kept on this device with the send-off card, or null
+ * before the send-off has been closed. The data page reads it here (decision 0018: "kept on the data page").
+ */
+export function keptType(kept: readonly Kept[]): JapaType | null {
+  return kept.find((entry) => entry.card.kind === "send-off" && entry.type !== undefined)?.type ?? null;
 }
