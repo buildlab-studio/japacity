@@ -67,12 +67,19 @@ export const uiText: Record<string, string> = {
   // The pages left on the flip calendar (R-WORLD-027): each page a month of the character's life, the number on the glyph, the words at a tap.
   // The player never reads "turn" or "banked"; these restate the older drafts in online.ts and world.ts.
   "ui.months.label": "Pages left: {count}",
-  "ui.months.more": "{count} pages left. Each page is a month of your life.",
-  "ui.months.more.one": "1 page left. Each page is a month of your life.",
-  "ui.months.more.zero": "Your calendar is bare for now. Places, the phone and the plan are still yours.",
-  "ui.months.next": "Next page in {wait}.",
-  "ui.months.arriving": "The next page is on its way.",
-  "ui.months.full": "Full: {count} pages. A new chapter fills the calendar again.",
+  // R-TEXT-008: a tap on the count gives facts, each an icon and a few words, never a paragraph.
+  "ui.months.fact.left": "{count} pages left",
+  "ui.months.fact.left.one": "1 page left",
+  "ui.months.fact.page": "1 page = 1 month of your life",
+  "ui.months.fact.next": "Next page in {wait}",
+  "ui.months.fact.arriving": "Next page on its way",
+  "ui.months.fact.full": "Full: {count} pages",
+  "ui.months.fact.chapter": "A new chapter fills it again",
+  "ui.months.fact.refilled": "Full again: {count} pages",
+  "ui.months.fact.none": "No pages left",
+  "ui.months.fact.places": "Places: free",
+  "ui.months.fact.phone": "The phone: free",
+  "ui.months.fact.plan": "The plan: free",
   "ui.months.full-again": "A new chapter: your calendar is full again, {count} pages.",
   // The calendar filled again between months, not by a chapter: said on the band and the results.
   "ui.months.refilled": "Your pages are full again: {count} to play.",

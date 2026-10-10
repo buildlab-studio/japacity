@@ -2,6 +2,7 @@
 // the number on it, on the band beside the age at all times, each page a month of the character's life.
 // Never a sentence on the band and never a prompt: a tap gives the words, the count and when the next
 // page comes, or that the calendar is full. The page turned flips over on the glyph, on the spot.
+import { BookOpen, Calendar, CalendarCheck, CalendarDays, CalendarX, Clock, Flag, Map as MapIcon, Smartphone, type LucideIcon } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 import { useGame, useView } from "../../authority/GameProvider";
@@ -59,17 +60,42 @@ export function MonthGlyph({ n, size = 26, flip = false }: { n: number; size?: n
 /** How long the page takes to flip over on the spot. */
 export const FLIP_MS = 600;
 
+/** One fact a tap on the count gives: its icon and a few words (R-TEXT-008). */
+export interface CountFact {
+  id: string;
+  icon: LucideIcon;
+  words: string;
+}
+
 /**
- * The words a tap on the count gives (R-WORLD-027): "You can play 12 more months. Next one in 1h 40m.",
- * or "Full" when the bank holds its most. The wait is the server's clock, read through the store; the
- * local authority reports none, so only the count is said there.
+ * The facts a tap on the count gives (R-WORLD-027, R-TEXT-008): the pages left, that a page is a month of your life,
+ * and when the next page comes; "Full" when the bank holds its most, with the chapter that fills it again; out of
+ * pages, none left, when the next comes and what is still free. The wait is the server's clock, read through the
+ * store; the local authority reports none, so no wait is said there.
  */
-export function countWords(banked: number, cap: number, nextTurnAt: number | null | undefined, now: number): string {
-  if (banked >= cap) return say("ui.months.full", { count: cap });
-  const count = sayCount("ui.months.more", banked, { count: banked });
-  if (nextTurnAt === undefined || nextTurnAt === null) return count;
-  const next = now >= nextTurnAt ? say("ui.months.arriving") : say("ui.months.next", { wait: waitWords(nextTurnAt - now) });
-  return `${count} ${next}`;
+export function countFacts(banked: number, cap: number, nextTurnAt: number | null | undefined, now: number): CountFact[] {
+  if (banked >= cap) {
+    return [
+      { id: "full", icon: CalendarCheck, words: say("ui.months.fact.full", { count: cap }) },
+      { id: "chapter", icon: BookOpen, words: say("ui.months.fact.chapter") },
+    ];
+  }
+  const next: CountFact[] =
+    nextTurnAt === undefined || nextTurnAt === null ? [] : [{ id: "next", icon: Clock, words: now >= nextTurnAt ? say("ui.months.fact.arriving") : say("ui.months.fact.next", { wait: waitWords(nextTurnAt - now) }) }];
+  if (banked === 0) {
+    return [
+      { id: "none", icon: CalendarX, words: say("ui.months.fact.none") },
+      ...next,
+      { id: "places", icon: MapIcon, words: say("ui.months.fact.places") },
+      { id: "phone", icon: Smartphone, words: say("ui.months.fact.phone") },
+      { id: "plan", icon: Flag, words: say("ui.months.fact.plan") },
+    ];
+  }
+  return [
+    { id: "left", icon: Calendar, words: sayCount("ui.months.fact.left", banked, { count: banked }) },
+    { id: "page", icon: CalendarDays, words: say("ui.months.fact.page") },
+    ...next,
+  ];
 }
 
 /** How long the words stay before they fold away by themselves. */
@@ -142,9 +168,14 @@ export function MonthCount() {
         <MonthGlyph n={banked} flip={flip} />
       </button>
       {open ? (
-        <p className="panel drop pointer-events-auto fixed inset-x-3 top-[calc(max(10px,env(safe-area-inset-top))+62px)] z-[39] mx-auto max-w-[360px] px-3.5 py-3 text-[14px] leading-snug font-semibold" aria-live="polite" data-month-count-words>
-          {refilled ? say("ui.months.refilled", { count: banked }) : countWords(banked, cap, nextTurnAt, now)}
-        </p>
+        <ul className="panel drop pointer-events-auto fixed inset-x-3 top-[calc(max(10px,env(safe-area-inset-top))+62px)] z-[39] mx-auto flex max-w-[360px] flex-col gap-1.5 px-3.5 py-3 text-[14px] leading-tight font-semibold" aria-live="polite" data-month-count-words>
+          {(refilled ? [{ id: "refilled", icon: CalendarCheck, words: say("ui.months.fact.refilled", { count: banked }) }] : countFacts(banked, cap, nextTurnAt, now)).map((fact) => (
+            <li key={fact.id} className="flex items-center gap-2" data-count-fact={fact.id}>
+              <fact.icon size={18} className="shrink-0 text-strong" aria-hidden />
+              <span>{fact.words}</span>
+            </li>
+          ))}
+        </ul>
       ) : null}
     </div>
   );

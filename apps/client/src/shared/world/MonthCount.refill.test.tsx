@@ -22,11 +22,11 @@ function words(): string | null {
 }
 
 describe("the pages full again on the band", () => {
-  test("[R-WORLD-027] given one page left, when the pages come back to the most in the same month, then the band says the pages are full again", async () => {
+  test("[R-WORLD-027] [R-TEXT-008] given one page left, when the pages come back to the most in the same month, then the band says the pages are full again, as one fact", async () => {
     const { store } = await renderWithView(<MonthCount />, withBank(1));
     expect(words()).toBeNull();
     act(() => store.setState({ view: withBank(CAP) }));
-    expect(words()).toBe("Your pages are full again: 24 to play.");
+    expect(words()).toBe("Full again: 24 pages");
   });
 
   test("[R-WORLD-027] given one page left, when a month ends and a chapter fills the calendar, then the band opens no words of its own", async () => {
