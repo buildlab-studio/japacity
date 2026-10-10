@@ -628,7 +628,7 @@ export function ScenarioView({ guest = null }: { guest?: DoorGuest | null }) {
                         <span className="block truncate text-[13.5px] font-extrabold">
                           {say(`ui.door.home.${one}`)} <span className={`font-semibold ${on ? "opacity-80" : "text-text-2"}`}>· {say(`ui.door.home.where.${one}`)}</span>
                         </span>
-                        <span className={`block truncate text-[12px] ${on ? "opacity-85" : "text-text-2"}`} data-home-costs>
+                        <span className={`block text-[12px] leading-snug ${on ? "opacity-85" : "text-text-2"}`} data-home-costs>
                           {say(`ui.door.home.costs.${one}`, { amount: formatMoney(monthly, "NGN"), rent: formatMoney(rentYear ?? 0, "NGN") })}
                         </span>
                       </span>

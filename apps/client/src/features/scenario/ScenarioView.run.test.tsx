@@ -19,7 +19,7 @@ import { askReadyLives } from "../../shared/frontdoor/ready";
 import { ARCHETYPES, moneyDrawn, savingsOf } from "../../shared/frontdoor/archetypes";
 import { formatMoney } from "../../shared/words/format";
 import { say } from "../../shared/words/text";
-import { text } from "@japacity/content";
+import { content, text } from "@japacity/content";
 import { fitHome, pocketIn, ScenarioView, startIn } from "./ScenarioView";
 // Registers Testing Library's cleanup for this file.
 import "../../shared/testing/render";
@@ -297,7 +297,7 @@ describe("the run through the front door", () => {
       for (const home of homes.slice(0, -1)) {
         const id = home.dataset["home"] as keyof typeof monthly;
         expect(home.textContent).toContain(`${say(`ui.door.home.${id}`)} · ${say(`ui.door.home.where.${id}`)}`);
-        expect(home.querySelector("[data-home-costs]")?.textContent).toBe(say(`ui.door.home.costs.${id}`, { amount: formatMoney(monthly[id], "NGN"), rent: formatMoney(40000000, "NGN") }));
+        expect(home.querySelector("[data-home-costs]")?.textContent).toBe(say(`ui.door.home.costs.${id}`, { amount: formatMoney(monthly[id], "NGN"), rent: formatMoney(content.tuning.home.compound.rentYear, "NGN") }));
         const left = savingsOf(tile) - now[id] - monthly[id];
         expect(pocketIn(tile, 0, id)).toBe(left);
         // What the band shows at Begin: the savings less the move-in, the month's living named apart.
@@ -316,6 +316,8 @@ describe("the run through the front door", () => {
       expect(goal.textContent).toBe(`${say("ui.door.home.self-contain")} · ${say("ui.door.home.where.self-contain")}${say("ui.door.home.costs.self-contain", { amount: formatMoney(84000000, "NGN") })}${say("ui.door.home.goal")}`);
     }
     expect(say("ui.door.home.costs.family-house", { amount: "₦95,000" })).toBe("Then ₦95,000 a month · family around");
+    // The room's ₦50,000 is living costs, its rent a year's apart (the review builder's report).
+    expect(document.querySelector("[data-home='compound-room'] [data-home-costs]")?.textContent).toBe(`Living costs ${formatMoney(content.tuning.home.compound.upkeep, "NGN")} a month · rent ${formatMoney(content.tuning.home.compound.rentYear, "NGN")} a year`);
     // The trade's settlement is drawn, so its figure is "about"; no other tile's is.
     expect(ARCHETYPES.filter((tile) => moneyDrawn(tile)).map((tile) => tile.id)).toEqual(["trader"]);
     // A home picked is kept through another tile; a home left as it was follows the tile.

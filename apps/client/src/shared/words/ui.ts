@@ -621,7 +621,7 @@ export const uiText: Record<string, string> = {
   "ui.door.home.where.self-contain": "Yaba",
   "ui.door.home.costs.family-house": "Then {amount} a month · family around",
   "ui.door.home.costs.makoko": "Then {amount} a month · rent next month",
-  "ui.door.home.costs.compound-room": "Then {amount} a month · rent yearly",
+  "ui.door.home.costs.compound-room": "Living costs {amount} a month · rent {rent} a year",
   "ui.door.home.costs.self-contain": "{amount} a year with fees",
   "ui.door.home.left": "left",
   // What the band shows at Begin: the savings less the move-in; the month's living is named apart.
