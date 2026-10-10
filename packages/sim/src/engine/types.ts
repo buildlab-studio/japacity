@@ -296,7 +296,7 @@ export interface RequirementResult {
 export type Effect =
   // wallet
   | { type: "money/add"; currency: Currency; pocket: Pocket; amount: Amount; reason: Reason; flagged?: boolean; locked?: boolean }
-  /** `any`: cash first, then bank (the street); `transfer`: bank first, then cash (decision 0012 as amended: how Lagos pays by transfer, and abroad by tap). */
+  /** `any`: the street, cash first at or under `tuning.wallet.cashUpTo` and bank first above it (R-WALLET-018); `transfer`: bank first, then cash (decision 0012 as amended: how Lagos pays by transfer, and abroad by tap). */
   | { type: "money/take"; currency: Currency; pocket: Pocket | "any" | "transfer" | "locked"; amount: Amount; reason: Reason }
   /** Pay a foreign-currency fee from whatever the character holds: see R-WALLET-009. */
   | { type: "money/pay-fee"; currency: ForeignCurrency; amount: Amount; reason: Reason }
@@ -1152,6 +1152,10 @@ export interface Tuning {
     streetShortLossBp: [min: number, max: number];
     lotMonths: number;
     flagDepositAbove: number;
+    /** A naira credit of work, a gig, a prize or the prologue's earnings at or under this lands in cash, above it in the bank; a street debit at or under it is cash first (R-WALLET-018). */
+    cashUpTo: number;
+    /** Naira cash over this at a month's close draws the once-in-a-life warning (R-WALLET-019). */
+    cashWarnAt: number;
   };
   rate: {
     start: Record<ForeignCurrency, number>;
@@ -1514,13 +1518,15 @@ export interface WalletSlice {
   /** Cash moved into the bank in the given month, in kobo at the official rate, for R-WALLET-011's monthly threshold. */
   cashIn: { month: number; kobo: number };
   /**
-   * The month in hand's money in less out, by currency, as the results sheet counts it (decision 0021, R-WORLD-008):
-   * a change counts each side in its own money; a move between pockets and held funds locked and given back count
-   * nothing; nothing before the prologue closed counts. Missing until money moves in the month, and cleared as it closes.
+   * The month in hand's money in less out, by currency, as the results sheet counts it (decision 0021 as amended, R-WORLD-008):
+   * a change's two sides, a move between pockets and held funds locked and given back count nothing (a change's bank
+   * charge and a short count are money out); nothing before the prologue closed counts. Missing until money moves in the month, and cleared as it closes.
    */
   monthNet?: Partial<Record<Currency, number>>;
   /** Months ended whose net in the money of the place was above zero (decision 0021). Missing until the first, so no state hash moves before one. */
   keptMonths?: number;
+  /** True once the cash warning was told (R-WALLET-019). Missing until then, so no state hash moves before it. */
+  cashWarned?: true;
 }
 
 export interface DocumentState {

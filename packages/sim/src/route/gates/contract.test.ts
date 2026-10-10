@@ -136,13 +136,15 @@ describe("R-CONTRACT-002: the agent", () => {
     expect(when.every((requirement) => judge(shut, requirement))).toBe(false);
   });
 
-  test("[R-CONTRACT-002] given an honest agent taken, when it is carried out, then the fee leaves cash as an agent's fee and the agent is recorded with the salary in fils and the role", () => {
+  test("[R-CONTRACT-002] [R-WALLET-018] given an honest agent taken, when it is carried out, then the fee, over the line for cash, leaves the bank first as an agent's fee and the agent is recorded with the salary in fils and the role", () => {
     const game = life();
     toKnown(game);
-    const cash = game.state.wallet.pockets.NGN.cash;
+    const { bank, cash } = game.state.wallet.pockets.NGN;
     const fees = game.state.wallet.totals.out["fee-agent"]?.NGN ?? 0;
+    expect(100000000).toBeGreaterThan(game.content.tuning.wallet.cashUpTo);
     takeAgent(game, GUARD);
-    expect(game.state.wallet.pockets.NGN.cash).toBe(cash - 100000000);
+    const fromBank = Math.min(bank, 100000000);
+    expect(game.state.wallet.pockets.NGN).toMatchObject({ bank: bank - fromBank, cash: cash - (100000000 - fromBank) });
     expect(game.state.wallet.totals.out["fee-agent"]?.NGN).toBe(fees + 100000000);
     expect(routeOf(game).gate).toEqual({ gate: "contract", agent: { employer: "gulf-agent", salary: 180000, role: "guard" } });
   });

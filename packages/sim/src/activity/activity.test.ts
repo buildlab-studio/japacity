@@ -789,7 +789,34 @@ describe("side gigs", () => {
     expect(ledger(result).map((line) => line.amount)).toEqual([200000 + 1000 * tech]);
   });
 
-  test("[R-ACTIVITY-008] given the real side gig, when it resolves, then the pay lies between its figures plus the tech figure", () => {
+  test("[R-WALLET-018] [R-ACTIVITY-008] given a gig that pays exactly the line for cash, when it resolves, then it lands in cash; with the line one kobo lower, in the bank", () => {
+    const tech = lab("scenario.plain", labContent).game.state.quality["quality.tech"]!;
+    const pay = 200000 + 1000 * tech;
+    const at = (cashUpTo: number): Ledger[] => {
+      const used: Content = { ...labContent, tuning: { ...labContent.tuning, wallet: { ...labContent.tuning.wallet, cashUpTo } } };
+      return ledger(lab("scenario.plain", used).end([pick("activity.fixed-gig")])).filter((line) => line.reason === "gig");
+    };
+    expect(at(pay).map((line) => [line.pocket, line.amount])).toEqual([["cash", pay]]);
+    expect(at(pay - 1).map((line) => [line.pocket, line.amount])).toEqual([["bank", pay]]);
+  });
+
+  test("[R-WALLET-018] given naira cash work, when its month is paid at the line for cash and one kobo over it, then the first lands in cash and the second in the bank, both as cash work; a month's salary lands in the bank however small", () => {
+    const line = labContent.tuning.wallet.cashUpTo;
+    const paid = (extra: Partial<ActivityEntry>): [string, number, string][] => {
+      const work = job("activity.job-hand", extra);
+      const used: Content = { ...labContent, activity: { ...labContent.activity, [work.id]: work } };
+      const subject = lab("scenario.plain", used);
+      subject.apply([{ type: "activity/start-job", job: work.id }]);
+      return ledger(subject.end([]))
+        .filter((money) => money.reason === "cash-work" || money.reason === "salary")
+        .map((money) => [money.pocket, money.amount, money.reason]);
+    };
+    expect(paid({ cash: true, pay: { currency: "NGN", amount: line } })).toEqual([["cash", line, "cash-work"]]);
+    expect(paid({ cash: true, pay: { currency: "NGN", amount: line + 1 } })).toEqual([["bank", line + 1, "cash-work"]]);
+    expect(paid({ pay: { currency: "NGN", amount: line } })).toEqual([["bank", line, "salary"]]);
+  });
+
+  test("[R-ACTIVITY-008] [R-WALLET-018] given the real side gig, when it resolves, then the pay lies between its figures plus the tech figure, in the pocket its size takes", () => {
     const zainab = lab("scenario.zainab");
     const tech = zainab.game.state.quality["quality.tech"]!;
     const gig = content.activity["activity.side-gig"]!.effects[0]!;
@@ -799,7 +826,7 @@ describe("side gigs", () => {
     if (!result.ok) throw new Error(`The side gig was refused with ${result.code}.`);
     const paid = ledger(result).filter((line) => line.reason === "gig");
     expect(paid).toHaveLength(1);
-    expect(paid[0]!.pocket).toBe("cash");
+    expect(paid[0]!.pocket).toBe(paid[0]!.amount <= content.tuning.wallet.cashUpTo ? "cash" : "bank");
     expect(paid[0]!.amount).toBeGreaterThanOrEqual(gig.min + gig.perTech * tech);
     expect(paid[0]!.amount).toBeLessThanOrEqual(gig.max + gig.perTech * tech);
   });

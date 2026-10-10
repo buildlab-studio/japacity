@@ -53,11 +53,11 @@ describe("the lotto kiosk", () => {
     game.endTurn([slot(LOTTO, String(luck.maxTickets))]);
   });
 
-  test("[R-LUCK-005] given tickets bought, when they are drawn, then each costs the ticket price from cash under social, each is one draw on `lotto`, and winnings go to the bank as a win that is never a lot", () => {
+  test("[R-LUCK-005] [R-WALLET-018] given tickets bought, when they are drawn, then each costs the ticket price from cash under social, each is one draw on `lotto`, and winnings go as a win that is never a lot to the pocket their size takes: cash at or under the line, the bank over it", () => {
     const game = ada();
     let won = 0;
     for (let month = 0; month < 20 && won === 0; month += 1) {
-      // Upkeep is taken cash first, so the stake is put back in hand each month.
+      // The stake is put in hand each month, so the tickets, a street price under the line, are paid from cash.
       applyEffects(game, [{ type: "money/add", currency: "NGN", pocket: "cash", amount: luck.ticket * 3, reason: "gift" }]);
       const n = game.state.draws.lotto ?? 0;
       const prizes = [0, 1, 2].map((ticket) => expectedPrize(draw(game.state.seed, "lotto", n + ticket, PER_MILLION)));
@@ -67,7 +67,8 @@ describe("the lotto kiosk", () => {
       const total = prizes.reduce((sum, hit) => sum + (hit?.amount ?? 0), 0);
       const played = result.events.find((event): event is Extract<ActivityEvent, { type: "activity/lotto-played" }> => event.type === "activity/lotto-played");
       expect(played?.prizes).toEqual(prizes.flatMap((hit) => (hit === null ? [] : [hit.prize])));
-      expect(moneyOf(result, "win")).toEqual(total === 0 ? [] : [{ type: "wallet/credited", currency: "NGN", pocket: "bank", amount: total, reason: "win" }]);
+      const pocket = total <= content.tuning.wallet.cashUpTo ? "cash" : "bank";
+      expect(moneyOf(result, "win")).toEqual(total === 0 ? [] : [{ type: "wallet/credited", currency: "NGN", pocket, amount: total, reason: "win" }]);
       won += total;
     }
     expect(won).toBeGreaterThan(0);
@@ -126,7 +127,7 @@ describe("the lotto kiosk", () => {
 });
 
 describe("the bet slip", () => {
-  test("[R-LUCK-006] given a bet slip, when it is played, then the stake leaves cash, the draw on `lotto` decides, a win pays the odds on the stake to cash as a win with wellbeing +2, and a loss costs wellbeing 2", () => {
+  test("[R-LUCK-006] [R-WALLET-018] given a bet slip, when it is played, then the stake leaves cash, the draw on `lotto` decides, a win pays the odds on the stake, a sum under the line, to cash as a win with wellbeing +2, and a loss costs wellbeing 2", () => {
     const game = ada();
     const outcomes = new Set<boolean>();
     for (let month = 0; month < 20 && outcomes.size < 2; month += 1) {
@@ -135,6 +136,7 @@ describe("the bet slip", () => {
       const wins = draw(game.state.seed, "lotto", n, 10000) < luck.betWinBp;
       const result = game.endTurn([slot(BET)]);
       expect(moneyOf(result, "social")).toEqual([{ type: "wallet/debited", currency: "NGN", pocket: "cash", amount: luck.stake, reason: "social" }]);
+      expect(bp(luck.stake, luck.betOddsBp)).toBeLessThanOrEqual(content.tuning.wallet.cashUpTo);
       expect(moneyOf(result, "win")).toEqual(wins ? [{ type: "wallet/credited", currency: "NGN", pocket: "cash", amount: bp(luck.stake, luck.betOddsBp), reason: "win" }] : []);
       expect(result.events).toContainEqual({ type: "quality/changed", quality: "quality.wellbeing", amount: wins ? 2 : -2, source: BET });
       outcomes.add(wins);

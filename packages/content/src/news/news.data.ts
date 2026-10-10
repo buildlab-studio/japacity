@@ -583,6 +583,21 @@ const stories: Record<Id<"news">, NewsEntry> = {
     endsAfter: null,
     adds: [{ var: "var.inflation", value: -800 }],
   }),
+  // wallet.md R-WALLET-019: the world warns before the one-chance bus bites (R-ACTIVITY-011). The opening era is
+  // calm, so the story is told in a life's first months at home; it moves no variable and is told once. The pool
+  // is rolled in id order under a cap of new stories a tick (R-DIRECTOR-003), and its id sorts after the UK
+  // stories that are certain on the first tick, so it never moves the recruiting fair a month later.
+  "news.warning-one-chance": pool({
+    id: "news.warning-one-chance",
+    touches: [],
+    group: "home",
+    needs: [era("era.calm")],
+    chanceBp: pct(100),
+    rumourLead: 0,
+    forceLag: 2,
+    endsAfter: null,
+    once: true,
+  }),
   "news.strike-starts": pool({
     id: "news.strike-starts",
     touches: [UK],
@@ -682,6 +697,7 @@ const SOURCES: Record<Id<"news">, Sources> = {
   "news.passport-fee-doubles": told("official"),
   "news.fuel-subsidy": told("radio", "street"),
   "news.inflation-eases": told("official", "paper"),
+  "news.warning-one-chance": told("radio", "street"),
   "news.strike-starts": told("radio", "paper", "radio"),
   "news.pandemic-borders": told("radio", "paper", "official"),
   "news.remote-hiring-boom": told("paper", "street", "paper"),

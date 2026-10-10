@@ -176,22 +176,23 @@ describe("paid in full or missed", () => {
     expect(result.lines.find((line) => line.key === "line.obligation.missed-part")).toMatchObject({ tone: "bad", attention: true });
   });
 
-  test("[R-OBLIGATION-002] given cash and bank, when a loan is charged, then naira is taken cash first then bank, the principal part under its sink and interest under its interest sink", () => {
+  test("[R-OBLIGATION-002] [R-WALLET-018] given cash and bank, when a loan is charged, then naira is taken as the street pays by its size, each charge over the line for cash the bank first then cash, the principal part under its sink and interest under its interest sink", () => {
     const game = start({ scenario: ADA, content });
     const entry = entryOf(SALARY_LOAN);
     const principal = 100000000;
     const loan = open(game, SALARY_LOAN, principal);
     const part = divCeil(principal, entry.term!);
     const interest = bp(principal, entry.rateBp);
-    // Enough cash for the upkeep and most of the loan's principal part.
-    const cash = ADA_UPKEEP + part - 333334;
-    setNaira(game, 50000000, cash);
+    // Enough in the bank for the upkeep and most of the loan's principal part; each charge is over the line for cash.
+    for (const charge of [ADA_UPKEEP, part, interest]) expect(charge).toBeGreaterThan(content.tuning.wallet.cashUpTo);
+    const bank = ADA_UPKEEP + part - 333334;
+    setNaira(game, bank, 50000000);
     const result = game.endTurn();
     expect(debits(result)).toEqual([
-      { type: "wallet/debited", currency: "NGN", pocket: "cash", amount: ADA_UPKEEP, reason: "upkeep" },
-      { type: "wallet/debited", currency: "NGN", pocket: "cash", amount: part - 333334, reason: entry.sink },
-      { type: "wallet/debited", currency: "NGN", pocket: "bank", amount: 333334, reason: entry.sink },
-      { type: "wallet/debited", currency: "NGN", pocket: "bank", amount: interest, reason: entry.interestSink },
+      { type: "wallet/debited", currency: "NGN", pocket: "bank", amount: ADA_UPKEEP, reason: "upkeep" },
+      { type: "wallet/debited", currency: "NGN", pocket: "bank", amount: part - 333334, reason: entry.sink },
+      { type: "wallet/debited", currency: "NGN", pocket: "cash", amount: 333334, reason: entry.sink },
+      { type: "wallet/debited", currency: "NGN", pocket: "cash", amount: interest, reason: entry.interestSink },
     ]);
     expect(entry.sink).toBe("loan-repay");
     expect(entry.interestSink).toBe("loan-interest");
@@ -400,14 +401,15 @@ describe("held funds", () => {
 });
 
 describe("paying early", () => {
-  test("[R-OBLIGATION-008] given a loan, when any whole amount up to what is owed is paid, then it is taken cash first under loan-repay and the outstanding falls", () => {
+  test("[R-OBLIGATION-008] [R-WALLET-018] given a loan, when any whole amount up to what is owed is paid, then it is taken under loan-repay as the street pays by its size, a sum over the line for cash the bank first then cash, and the outstanding falls", () => {
     const game = start({ scenario: ADA, content });
     const loan = open(game, SALARY_LOAN, 10000000);
-    setNaira(game, 20000000, 1000000);
+    setNaira(game, 1000000, 20000000);
+    expect(1500000).toBeGreaterThan(content.tuning.wallet.cashUpTo);
     const result = game.accept({ type: "obligation/pay", obligation: loan.id, amount: 1500000 });
     expect(debits(result)).toEqual([
-      { type: "wallet/debited", currency: "NGN", pocket: "cash", amount: 1000000, reason: "loan-repay" },
-      { type: "wallet/debited", currency: "NGN", pocket: "bank", amount: 500000, reason: "loan-repay" },
+      { type: "wallet/debited", currency: "NGN", pocket: "bank", amount: 1000000, reason: "loan-repay" },
+      { type: "wallet/debited", currency: "NGN", pocket: "cash", amount: 500000, reason: "loan-repay" },
     ]);
     expect(item(game, loan.id)?.outstanding).toBe(8500000);
   });

@@ -5,7 +5,8 @@ import { content } from "@japacity/content";
 import type { Currency, PlayerView, ReportLine } from "@japacity/sim";
 
 import { afterPrologue, forYou, isSaid, isUnpaid, tidyLines } from "../../shared/words/lines";
-import { BANK_CHARGE, CONVERT_PAID, CONVERTED, type MoneyLine, moneyLines } from "../../shared/words/money";
+import { BANK_CHARGE, CHANGED, CHANGED_OUT, CHANGED_QUEUED, CHANGED_SMALL, CHANGED_STREET, CHANGED_STREET_OUT, CONVERT_PAID, CONVERTED, type MoneyLine, moneyLines } from "../../shared/words/money";
+import { moneyParam } from "../../shared/words/text";
 import type { PayView } from "../../shared/words/cost";
 import { savingsOf } from "../../shared/words/savings";
 import { EXAM_MARKED, PIECE, PIECE_MORE, asPiece, toldOnResults } from "../../shared/words/told";
@@ -45,6 +46,9 @@ export { isUnpaid };
 const HIRED = "line.activity.hunt-hired";
 const OPENED = "line.offer.opened";
 const JOB_OFFER = "offer.job";
+
+/** Someone who cares says cash on you is cash at risk (R-WALLET-019): told on the results, not left for News. */
+const CASH_WARNING = "line.wallet.cash-warning";
 
 /** The visa granted: the month's news, told first and alone in the lead. */
 const GRANTED = "line.route.granted";
@@ -86,7 +90,8 @@ const STORY: readonly ((line: ReportLine) => boolean)[] = [
   (line) => ["line.activity.adviser-missing", "line.activity.adviser-fits"].includes(line.key),
   (line) => line.key.startsWith("line.route."),
   (line) => (line.key.startsWith("line.document.") && line.key !== "line.document.already-pending") || line.key.startsWith("line.activity.driving-"),
-  (line) => line.key === "line.wallet.flagged",
+  // R-WALLET-019: the warning about cash on you is told with the deposit that will be asked about.
+  (line) => line.key === "line.wallet.flagged" || line.key === CASH_WARNING,
   (line) => line.key.startsWith("line.chapter.") || line.key.startsWith("line.goal.") || isSaid(line),
   (line) => line.key.startsWith("line.setpiece.") || line.key.startsWith("line.interview.") || line.key.startsWith("line.status."),
   forYou,
@@ -131,7 +136,17 @@ export function leadsAlone(line: ReportLine): boolean {
   return line.key === GRANTED;
 }
 
-/** What was kept in each currency the lines moved: in less out, in the order each first appears. */
+/** A change at the bank as the results tell it: its `amount` is the bank's charge, which stays money out. */
+const BANK_CHANGED: ReadonlySet<string> = new Set([CHANGED, CHANGED_SMALL]);
+/** The sides of a change, told on their own lines and counted for nothing: a change is a move, not spending. */
+const CHANGE_SIDES: ReadonlySet<string> = new Set([CHANGED_OUT, CHANGED_STREET, CHANGED_STREET_OUT, CHANGED_QUEUED, CONVERTED]);
+
+/**
+ * What was kept in each currency the lines moved: in less out, in the order each first appears. A change of money
+ * counts for nothing either way (decision 0021 as amended, R-WORLD-008): its two sides are left out, and only the
+ * bank's charge stays as money out, as the wallet counts the month (R-WALLET-015). An FX man's short count is its
+ * own line, money out.
+ */
 export function kept(lines: readonly MoneyLine[]): { currency: Currency; amount: number }[] {
   const order: Currency[] = [];
   const sums = new Map<Currency, number>();
@@ -139,7 +154,15 @@ export function kept(lines: readonly MoneyLine[]): { currency: Currency; amount:
     if (!sums.has(currency)) order.push(currency);
     sums.set(currency, (sums.get(currency) ?? 0) + amount);
   };
-  for (const { currency, sign, amount } of lines) add(currency, sign * amount);
+  for (const { line, currency, sign, amount } of lines) {
+    if (CHANGE_SIDES.has(line.key)) continue;
+    if (BANK_CHANGED.has(line.key)) {
+      const charge = moneyParam("amount", line.params, line.key);
+      if (charge !== null && charge.amount > 0) add(charge.currency, -charge.amount);
+      continue;
+    }
+    add(currency, sign * amount);
+  }
   return order.map((currency) => ({ currency, amount: sums.get(currency) ?? 0 }));
 }
 

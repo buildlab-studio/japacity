@@ -43,6 +43,10 @@ export const tuning: Tuning = {
     streetShortLossBp: [pct(3), pct(8)],
     lotMonths: 3,
     flagDepositAbove: naira(500000),
+    // Decision 0022: a day's small work is paid in hand; past a few thousand naira people ask for a transfer.
+    cashUpTo: naira(10000),
+    // R-WALLET-019: cash on you past this is cash a one-chance bus can take.
+    cashWarnAt: naira(100000),
   },
 
   // rate.md

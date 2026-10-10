@@ -10,7 +10,7 @@ import { slot } from "../../../../../packages/sim/src/route/route.journey";
 import { newGame } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { words } from "../../shared/words/text";
-import { kept, moneyLines, STORY_MAX, storyLines, toldOnResults } from "./month.results";
+import { kept, moneyLines, STORY_MAX, storyLines, toldOnResults, untoldLines } from "./month.results";
 import { Results } from "./Results";
 import { turnWords } from "./turn.words";
 
@@ -107,5 +107,19 @@ describe("the adviser's reading and the relative's gift", () => {
     expect(storyLines([flagged]).map((each) => each.key)).toContain("line.wallet.flagged");
     const told = storyLines([flagged, line("line.offer.taken", { offer: "offer.relative-sends", choice: "take" })]);
     expect(told.some((each) => each.key === "line.wallet.flagged")).toBe(false);
+  });
+
+  test("[R-WALLET-019] [R-WORLD-008] given a month that closes with more naira cash than the warning line, when the results are read, then Mama's warning is told among the month's story, in her words with no figure, as no money line, and is not left for News", () => {
+    const game = newGame("scenario.tunde");
+    const short = content.tuning.wallet.cashWarnAt + 1 - game.view().pockets.NGN.cash;
+    game.accept({ type: "wallet/move", currency: "NGN", amount: short, to: "cash" });
+    const { lines } = game.endTurn([]);
+    expect(game.view().pockets.NGN.cash).toBeGreaterThan(content.tuning.wallet.cashWarnAt);
+    const warning = lines.find((each) => each.key === "line.wallet.cash-warning");
+    expect(warning).toMatchObject({ attention: true, params: {} });
+    expect(storyLines(lines).map((each) => each.key)).toContain("line.wallet.cash-warning");
+    expect(moneyLines(lines).some((each) => each.line.key === "line.wallet.cash-warning")).toBe(false);
+    expect(untoldLines(lines).some((each) => each.key === "line.wallet.cash-warning")).toBe(false);
+    expect(words("line.wallet.cash-warning", {})).toMatch(/^Mama/);
   });
 });

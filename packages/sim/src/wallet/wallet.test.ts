@@ -1,5 +1,5 @@
 import { fc, test } from "@fast-check/vitest";
-import { content, text } from "@japacity/content";
+import { badNews, content, text } from "@japacity/content";
 import { describe, expect } from "vitest";
 
 import { check } from "../engine/check";
@@ -14,7 +14,7 @@ import type { Game } from "../testing/play";
 import { start } from "../testing/play";
 import { standInWorld } from "../world/standIn";
 import type { WalletEvent } from "./wallet.events";
-import { REASON_LINE } from "./wallet.logic";
+import { pocketFor, REASON_LINE } from "./wallet.logic";
 
 const tuning = content.tuning.wallet;
 const ALLOWANCE: Id<"var"> = "var.fx-bank-allowance";
@@ -115,19 +115,20 @@ describe("pockets and debits", () => {
     expect(game.state.wallet.pockets.NGN.cash).toBe(0);
   });
 
-  test("[R-WALLET-001] given cash and bank, when an effect takes from any pocket, then cash goes first, then bank, and too much takes nothing", () => {
+  test("[R-WALLET-001] [R-WALLET-018] given cash and bank, when an effect takes a sum over the line for cash from any pocket, then the bank goes first, then cash, and too much takes nothing", () => {
     const { game } = play();
     const { bank, cash } = game.state.wallet.pockets.NGN;
     const tooMuch = apply(game, [{ type: "money/take", currency: "NGN", pocket: "any", amount: bank + cash + 1, reason: "family" }]);
     expect(walletEvents(tooMuch)).toEqual([]);
     expect(judge(game, { type: "money/can-pay", currency: "NGN", amount: bank + cash + 1 }).met).toBe(false);
     expect(judge(game, { type: "money/can-pay", currency: "NGN", amount: bank + cash }).met).toBe(true);
-    const taken = apply(game, [{ type: "money/take", currency: "NGN", pocket: "any", amount: cash + 500, reason: "family" }]);
+    expect(bank + 500).toBeGreaterThan(tuning.cashUpTo);
+    const taken = apply(game, [{ type: "money/take", currency: "NGN", pocket: "any", amount: bank + 500, reason: "family" }]);
     expect(walletEvents(taken)).toEqual([
-      { type: "wallet/debited", currency: "NGN", pocket: "cash", amount: cash, reason: "family" },
-      { type: "wallet/debited", currency: "NGN", pocket: "bank", amount: 500, reason: "family" },
+      { type: "wallet/debited", currency: "NGN", pocket: "bank", amount: bank, reason: "family" },
+      { type: "wallet/debited", currency: "NGN", pocket: "cash", amount: 500, reason: "family" },
     ]);
-    expect(game.state.wallet.pockets.NGN).toEqual({ bank: bank - 500, cash: 0, locked: 0 });
+    expect(game.state.wallet.pockets.NGN).toEqual({ bank: 0, cash: cash - 500, locked: 0 });
   });
 
   test("[R-WALLET-001] given a debit from the bank, when it cannot be met in full, then no pocket goes below zero and the invariants hold", () => {
@@ -138,6 +139,109 @@ describe("pockets and debits", () => {
     expect(game.state.wallet.pockets.NGN.bank).toBe(bank);
     expect(game.state.wallet.pockets.USD).toEqual({ bank: 0, cash: 0, locked: 0 });
     expect(checkInvariants(game.state, content)).toEqual([]);
+  });
+});
+
+/** Sets the naira pockets to these figures through the engine, as gifts and mishaps. */
+function setNaira(game: Game, pockets: { cash: number; bank: number }): void {
+  const held = game.state.wallet.pockets.NGN;
+  const effects: Effect[] = [];
+  if (held.cash > 0) effects.push({ type: "money/take", currency: "NGN", pocket: "cash", amount: held.cash, reason: "mishap" });
+  if (held.bank > 0) effects.push({ type: "money/take", currency: "NGN", pocket: "bank", amount: held.bank, reason: "mishap" });
+  if (pockets.cash > 0) effects.push({ type: "money/add", currency: "NGN", pocket: "cash", amount: pockets.cash, reason: "gift" });
+  if (pockets.bank > 0) effects.push({ type: "money/add", currency: "NGN", pocket: "bank", amount: pockets.bank, reason: "gift" });
+  apply(game, effects);
+  expect(game.state.wallet.pockets.NGN).toMatchObject(pockets);
+}
+
+describe("money lands where it would (decision 0022)", () => {
+  test("[R-WALLET-018] given the line for cash, when a sum at it and one kobo over are read, then the first changes hands as cash and the second goes by the bank", () => {
+    expect(tuning.cashUpTo).toBe(1_000_000);
+    expect(pocketFor(tuning.cashUpTo, tuning)).toBe("cash");
+    expect(pocketFor(1, tuning)).toBe("cash");
+    expect(pocketFor(tuning.cashUpTo + 1, tuning)).toBe("bank");
+  });
+
+  test("[R-WALLET-018] given cash short of a street price at the line, when it is taken from any pocket, then cash goes first and the bank pays the rest", () => {
+    const { game } = play();
+    setNaira(game, { cash: 300_000, bank: 5_000_000 });
+    const taken = apply(game, [{ type: "money/take", currency: "NGN", pocket: "any", amount: tuning.cashUpTo, reason: "social" }]);
+    expect(walletEvents(taken)).toEqual([
+      { type: "wallet/debited", currency: "NGN", pocket: "cash", amount: 300_000, reason: "social" },
+      { type: "wallet/debited", currency: "NGN", pocket: "bank", amount: tuning.cashUpTo - 300_000, reason: "social" },
+    ]);
+  });
+
+  test("[R-WALLET-018] given the bank short of a street price one kobo over the line, when it is taken from any pocket, then the bank goes first and cash pays the rest", () => {
+    const { game } = play();
+    setNaira(game, { cash: 5_000_000, bank: 200_000 });
+    const taken = apply(game, [{ type: "money/take", currency: "NGN", pocket: "any", amount: tuning.cashUpTo + 1, reason: "social" }]);
+    expect(walletEvents(taken)).toEqual([
+      { type: "wallet/debited", currency: "NGN", pocket: "bank", amount: 200_000, reason: "social" },
+      { type: "wallet/debited", currency: "NGN", pocket: "cash", amount: tuning.cashUpTo + 1 - 200_000, reason: "social" },
+    ]);
+  });
+
+  test("[R-WALLET-018] [R-WALLET-010] given locked money, when the street takes more than cash and bank hold, at or over the line, then nothing is taken and the locked money stays", () => {
+    const { game } = play();
+    setNaira(game, { cash: 400_000, bank: 400_000 });
+    apply(game, [{ type: "money/add", currency: "NGN", pocket: "bank", amount: 9_000_000, reason: "held-funds", locked: true }]);
+    for (const amount of [800_001, tuning.cashUpTo + 1]) {
+      expect(walletEvents(apply(game, [{ type: "money/take", currency: "NGN", pocket: "any", amount, reason: "social" }]))).toEqual([]);
+    }
+    expect(game.state.wallet.pockets.NGN).toEqual({ cash: 400_000, bank: 400_000, locked: 9_000_000 });
+  });
+
+  test("[R-WALLET-018] given a credit or a debit that names its pocket, when it is over or under the line, then it keeps the pocket it names", () => {
+    const { game } = play();
+    setNaira(game, { cash: 5_000_000, bank: 5_000_000 });
+    const named = apply(game, [
+      { type: "money/add", currency: "NGN", pocket: "cash", amount: tuning.cashUpTo + 1, reason: "gift" },
+      { type: "money/add", currency: "NGN", pocket: "bank", amount: 100, reason: "gift" },
+      { type: "money/take", currency: "NGN", pocket: "cash", amount: tuning.cashUpTo + 1, reason: "mishap" },
+      { type: "money/take", currency: "NGN", pocket: "bank", amount: 100, reason: "mishap" },
+    ]);
+    expect(walletEvents(named).map((event) => (event.type === "wallet/credited" || event.type === "wallet/debited" ? event.pocket : null))).toEqual(["cash", "bank", "cash", "bank"]);
+  });
+});
+
+describe("the world warns about cash (R-WALLET-019)", () => {
+  const WARNING = "line.wallet.cash-warning";
+
+  function warnings(lines: readonly { key: string }[]): number {
+    return lines.filter((line) => line.key === WARNING).length;
+  }
+
+  test("[R-WALLET-019] given naira cash at the warning line when the month closes, then nothing is said; one kobo over the next month, Mama says it once, with attention and no figure; over it again later, nothing more", () => {
+    const { game } = play();
+    expect(tuning.cashWarnAt).toBe(10_000_000);
+    setNaira(game, { cash: tuning.cashWarnAt, bank: 50_000_000 });
+    const at = game.endTurn();
+    expect(game.state.wallet.pockets.NGN.cash).toBe(tuning.cashWarnAt);
+    expect(warnings(at.lines)).toBe(0);
+    expect(game.state.wallet).not.toHaveProperty("cashWarned");
+    setNaira(game, { cash: tuning.cashWarnAt + 1, bank: 50_000_000 });
+    const over = game.endTurn();
+    // Nothing moves by itself: the cash is still cash once it is said.
+    expect(game.state.wallet.pockets.NGN.cash).toBe(tuning.cashWarnAt + 1);
+    expect(over.events.some((event) => (event as WalletEvent).type === "wallet/debited" && (event as Extract<WalletEvent, { type: "wallet/debited" }>).reason === "move")).toBe(false);
+    expect(over.lines.filter((line) => line.key === WARNING)).toEqual([{ key: WARNING, params: {}, tone: "plain", attention: true, counts: [] }]);
+    expect(over.events.filter((event) => event.type === "wallet/cash-warned")).toHaveLength(1);
+    expect(game.state.wallet.cashWarned).toBe(true);
+    for (let month = 0; month < 2; month += 1) {
+      setNaira(game, { cash: tuning.cashWarnAt * 3, bank: 50_000_000 });
+      expect(warnings(game.endTurn().lines)).toBe(0);
+    }
+    expect(checkInvariants(game.state, content)).toEqual([]);
+  });
+
+  test("[R-WALLET-019] given the warning's words, when they are read, then a person says that cash on you is at risk and the bank is safer, with no figure, written straight", () => {
+    const words = text[WARNING] ?? "";
+    expect(words).toMatch(/^Mama/);
+    expect(words).toMatch(/bank/);
+    expect(words).not.toMatch(/\{|\d|₦/);
+    // Bad news is written straight, with no joke version (text.md R-TEXT-002).
+    expect(badNews(WARNING, words)).toBe(true);
   });
 });
 

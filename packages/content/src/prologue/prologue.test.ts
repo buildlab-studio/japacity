@@ -175,7 +175,8 @@ describe("the prologue's steps", () => {
     ]);
     const effects = (step: string, answer: string) => steps[step]?.answers.find((found) => found.id === answer)?.effects ?? [];
     // Kobo: the service year's ₦500,000, the private session's ₦2,500,000, the generous settlement's ₦6,000,000.
-    expect(effects("service", "serve")).toContainEqual({ type: "money/add", currency: "NGN", pocket: "cash", amount: 50000000, reason: "gig" });
+    // Earnings that size land in the bank (wallet.md R-WALLET-018).
+    expect(effects("service", "serve")).toContainEqual({ type: "money/add", currency: "NGN", pocket: "bank", amount: 50000000, reason: "gig" });
     expect(effects("university", "private")).toContainEqual({
       type: "money/add",
       currency: "NGN",
@@ -184,7 +185,7 @@ describe("the prologue's steps", () => {
       reason: "gift",
       flagged: true,
     });
-    expect(draw("settlement", "settle")?.[0]?.effects).toContainEqual({ type: "money/add", currency: "NGN", pocket: "cash", amount: 600000000, reason: "gig" });
+    expect(draw("settlement", "settle")?.[0]?.effects).toContainEqual({ type: "money/add", currency: "NGN", pocket: "bank", amount: 600000000, reason: "gig" });
     expect(effects("home", "family-house")).toContainEqual({ type: "obligation/open", obligation: "obligation.upkeep", amount: 9500000 });
     expect(effects("home", "room")).toContainEqual({ type: "obligation/open", obligation: "obligation.upkeep", amount: 18000000 });
     expect(content.tuning.prologue.startAgeMonths).toBe(192);

@@ -243,6 +243,12 @@ export const newsText: Record<string, string> = {
   "news.inflation-eases.in-force.head": "Prices have steadied",
   "news.inflation-eases.in-force.body": "Living costs are still high, but they have stopped climbing so fast.",
 
+  "news.warning-one-chance.name": "Robbed inside a one-chance bus",
+  "news.warning-one-chance.announced.head": "Robbed inside a one-chance bus",
+  "news.warning-one-chance.announced.body": "Four passengers boarded a danfo at night. The men already inside were robbers. They took every passenger's cash and phone.",
+  "news.warning-one-chance.in-force.head": "The police warn about one-chance buses",
+  "news.warning-one-chance.in-force.body": "Board at the park, not on the road after dark. Carry small cash for transport. The rest is safer in the bank.",
+
   "news.strike-starts.name": "The lecturers go on strike",
   "news.strike-starts.rumour.head": "Lecturers threaten to strike",
   "news.strike-starts.rumour.body": "The union has given the government two weeks.",

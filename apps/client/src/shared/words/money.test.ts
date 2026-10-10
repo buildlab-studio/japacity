@@ -1,7 +1,8 @@
 // The money that changes hands, on the results and the Bank's Lately (docs/rules/world.md R-WORLD-008,
 // R-WORLD-019; wallet.md R-WALLET-004, 006, 007, 015). "Kept this month +₦91,000 / +£54"
 // while the band fell by ₦1,228,031, because the FX man's change showed only the pounds that came in. Every
-// change shows both sides, each in its own money, and the figure kept is the simulation's own count.
+// change shows both sides, each in its own money, and the figure kept is the simulation's own count: since decision 0021
+// as amended, a change counts for nothing in it either way, and only a bank's charge stays money out.
 import { content } from "@japacity/content";
 import type { Currency, FlatSave, ReportLine, World } from "@japacity/sim";
 import { int, standInWorld } from "@japacity/sim";
@@ -45,7 +46,7 @@ function queuedWorld(tick: number): World {
 }
 
 describe("the money that changes hands", () => {
-  test("[R-WORLD-008] [R-WALLET-007] given naira changed into pounds with the FX man, when the month's money is read, then the pounds came in and the naira went out, each on its line in its own money, and what is kept in each is the wallet's own count", () => {
+  test("[R-WORLD-008] [R-WALLET-007] [R-WALLET-015] given naira changed into pounds with the FX man, when the month's money is read, then the pounds came in and the naira went out, each on its line in its own money, and what is kept counts the change for nothing, as the wallet's own count does", () => {
     const paid = 50_000_000;
     const game = withCash(paid);
     const before = game.view().pockets;
@@ -63,14 +64,14 @@ describe("the money that changes hands", () => {
     expect(change).toContain(formatMoney(paid, "NGN"));
     expect(change).toContain(formatMoney(got, "GBP"));
     expect(words(money[1]!.line.key, money[1]!.line.params)).toContain(formatMoney(paid, "NGN"));
+    // No short count was drawn, so the change moved nothing kept in either money.
+    expect(told.lines.some((line) => line.key === "line.wallet.short-count")).toBe(false);
     const nets = kept(money);
-    expect(nets).toEqual([
-      { currency: "GBP", amount: got },
-      { currency: "NGN", amount: -paid },
-    ]);
+    expect(nets).toEqual([]);
     // R-WALLET-015: the sheet's figure and the wallet's count of the month agree, in every money (a move to cash counts nothing).
-    expect(nets.find((net) => net.currency === "NGN")?.amount).toBe(simNet(game, "NGN"));
-    expect(nets.find((net) => net.currency === "GBP")?.amount).toBe(simNet(game, "GBP"));
+    expect(nets.find((net) => net.currency === "NGN")?.amount ?? 0).toBe(simNet(game, "NGN"));
+    expect(nets.find((net) => net.currency === "GBP")?.amount ?? 0).toBe(simNet(game, "GBP"));
+    expect(game.state.wallet).not.toHaveProperty("monthNet");
   });
 
   test("[R-WORLD-008] [R-WALLET-007] given pounds changed back into naira with the FX man, when the month's money is read, then the naira came in and the pounds went out, each in its own money", () => {
@@ -90,16 +91,17 @@ describe("the money that changes hands", () => {
     expect(change).toContain(formatMoney(got, "NGN"));
   });
 
-  test("[R-WORLD-008] [R-WALLET-006] given naira paid in at the bank while its queue holds foreign money back, when each month's money is read, then the naira count as gone the month they leave and the pounds as come the month they land, as the wallet counts them", () => {
+  test("[R-WORLD-008] [R-WALLET-006] [R-WALLET-015] given naira paid in at the bank while its queue holds foreign money back, when each month's money is read, then the naira are told the month they leave and the pounds the month they land, and only the bank's charge counts, as gone the month it is taken, as the wallet counts it", () => {
     const game = start({ scenario: "scenario.tunde", content, worldAt: queuedWorld });
     const paid = 10_000_000;
     const told = game.accept({ type: "wallet/convert", from: "NGN", to: "GBP", amount: paid, via: "bank" });
     expect(told.ok).toBe(true);
     expect(told.lines.some((line) => line.key === "line.wallet.queued")).toBe(true);
     const now = moneyLines(told.lines);
-    // The charge and the side paid in: all of it naira out, nothing in yet.
+    // The charge and the side paid in: both told as naira out, nothing in yet; only the charge counts in what is kept.
     expect(now.every((entry) => entry.sign === -1 && entry.currency === "NGN")).toBe(true);
-    expect(kept(now)).toEqual([{ currency: "NGN", amount: -paid }]);
+    const charge = Math.floor((paid * content.tuning.wallet.bankChargeBp) / 10_000);
+    expect(kept(now)).toEqual([{ currency: "NGN", amount: -charge }]);
     expect(kept(now)[0]?.amount).toBe(simNet(game, "NGN"));
     expect(said(told.lines).join(" ")).toContain(formatMoney(paid - Math.floor((paid * content.tuning.wallet.bankChargeBp) / 10_000), "NGN"));
     // The pounds land in the settle phase of a later month's end, and count there.
@@ -112,6 +114,8 @@ describe("the money that changes hands", () => {
     expect(pounds).toHaveLength(1);
     expect(pounds[0]).toMatchObject({ sign: 1 });
     expect(game.view().pockets.GBP.bank).toBe(pounds[0]?.amount);
+    // The pounds that landed are the change's other side: told, and kept as nothing.
+    expect(kept(pounds)).toEqual([]);
   });
 
   test("[R-WORLD-008] [R-WALLET-015] given every recorded life, when each month closes, then the figure the results show as kept in the money of the place is the wallet's own net for that month, to the kobo", () => {

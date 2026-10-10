@@ -283,18 +283,20 @@ describe("R-SPONSOR-002: taking a sponsor", () => {
     expect(game.state.wallet).toEqual(wallet);
   });
 
-  test("[R-SPONSOR-002] given the care home's fraud, when it is taken, then its fee leaves cash as an agent's fee and a sponsor is recorded all the same", () => {
+  test("[R-SPONSOR-002] [R-WALLET-018] given the care home's fraud, when it is taken, then its fee, over the line for cash, leaves the bank first and cash for the rest as an agent's fee, and a sponsor is recorded all the same", () => {
     const pockets = { NGN: { bank: 2000000 * UNIT, cash: 6000000 * UNIT }, GBP: { bank: 40000 * UNIT, cash: 0 } };
     const honest = ngozi({ pockets });
     const fraud = ngozi({ pockets });
     toKnown(honest, CARE);
     toKnown(fraud, CARE);
     const terms: Terms = { salary: 2650000, fee: 450000000 };
-    const cash = fraud.state.wallet.pockets.NGN.cash;
+    const { bank, cash } = fraud.state.wallet.pockets.NGN;
     const fees = fraud.state.wallet.totals.out["fee-agent"]?.NGN ?? 0;
     applyEffects(honest, offerEffects("offer.sponsor-care-home", false), terms);
     applyEffects(fraud, offerEffects("offer.sponsor-care-home", true), terms);
-    expect(fraud.state.wallet.pockets.NGN.cash).toBe(cash - 450000000);
+    // The bank holds ₦2,000,000 of the ₦4,500,000 fee; cash pays the rest.
+    expect(bank).toBeLessThan(450000000);
+    expect(fraud.state.wallet.pockets.NGN).toMatchObject({ bank: 0, cash: cash - (450000000 - bank) });
     expect(fraud.state.wallet.totals.out["fee-agent"]?.NGN).toBe(fees + 450000000);
     expect(routeOf(fraud, CARE).gate).toEqual(routeOf(honest, CARE).gate);
     // The fraud is never in the view: the two routes look the same.

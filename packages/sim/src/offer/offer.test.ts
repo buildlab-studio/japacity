@@ -447,21 +447,22 @@ describe("choosing", () => {
     expect(exact.game.state.wallet.pockets.NGN.cash).toBe(0);
   });
 
-  test("[R-OFFER-003] given an agent's fee with the naira short in cash and bank together, when the offer is taken, then it is rejected with cannot-afford; with cash short and the bank holding the rest, cash goes first and the bank pays the rest (decision 0012)", () => {
+  test("[R-OFFER-003] [R-WALLET-018] given an agent's fee with the naira short in cash and bank together, when the offer is taken, then it is rejected with cannot-afford; with the bank short and cash holding the rest, the fee being over the line for cash, the bank goes first and cash pays the rest", () => {
     const subject = lab({ scenario: TUNDE, routeHolds: true, content: variant({ "offer.held-funds-agent": { fraudBp: 0 } }) });
     const item = subject.open("offer.held-funds-agent")!;
     const amount = item.terms.min as number;
     const fee = bp(amount, 400);
+    expect(fee).toBeGreaterThan(content.tuning.wallet.cashUpTo);
     setNaira(subject, 0, fee - 1);
     expect(subject.reject({ type: "offer/choose", offer: item.id, choice: "take", amount }, "cannot-afford").code).toBe("cannot-afford");
-    setNaira(subject, amount + 1, fee - 1);
+    setNaira(subject, fee - 1, amount + 1);
     const result = subject.accept({ type: "offer/choose", offer: item.id, choice: "take", amount });
     expect(result.events.filter((event) => event.type === "wallet/debited" && (event as { reason?: string }).reason === "fee-agent")).toEqual([
-      { type: "wallet/debited", currency: "NGN", pocket: "cash", amount: fee - 1, reason: "fee-agent" },
-      { type: "wallet/debited", currency: "NGN", pocket: "bank", amount: 1, reason: "fee-agent" },
+      { type: "wallet/debited", currency: "NGN", pocket: "bank", amount: fee - 1, reason: "fee-agent" },
+      { type: "wallet/debited", currency: "NGN", pocket: "cash", amount: 1, reason: "fee-agent" },
     ]);
-    // The fee is gone, cash first; the funds he holds sit locked, and the bank keeps the rest.
-    expect(subject.game.state.wallet.pockets.NGN).toEqual({ bank: amount, cash: 0, locked: amount });
+    // The fee is gone, the bank first; the funds he holds sit locked, and cash keeps the rest.
+    expect(subject.game.state.wallet.pockets.NGN).toEqual({ bank: 0, cash: amount, locked: amount });
   });
 });
 

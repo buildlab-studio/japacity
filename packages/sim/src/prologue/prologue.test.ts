@@ -174,13 +174,13 @@ describe("a new prologue", () => {
     (type) => {
       const fresh = newGame("others");
       fresh.expectRejected(OTHERS[type], "prologue-open");
-      // Mid-prologue too, with money in hand.
+      // Mid-prologue too, with money held: a year's earnings, in the bank by their size (R-WALLET-018).
       const later = seedWhere("others-work", (game) => {
         choose(game, "begin");
         pick(game, "science");
         pick(game, "work");
       }, () => true);
-      expect(later.state.wallet.pockets.NGN.cash).toBeGreaterThan(0);
+      expect(later.state.wallet.pockets.NGN.bank).toBeGreaterThan(0);
       later.expectRejected(OTHERS[type], "prologue-open");
     },
   );
@@ -296,12 +296,13 @@ describe("answers", () => {
     expect(withRequires.filter((at) => !refusedSeen.has(at))).toEqual([]);
   });
 
-  test("[R-PROLOGUE-003] given the shop job after school, when it is chosen, then its cash arrives as gig money in the cash pocket", () => {
+  test("[R-PROLOGUE-003] [R-WALLET-018] given the shop job after school, when it is chosen, then its year's earnings arrive as gig money in the bank, being over the line for cash", () => {
     const game = newGame("shop");
     choose(game, "begin");
     pick(game, "commercial");
     choose(game, "work");
-    expect(game.state.wallet.pockets.NGN).toEqual({ bank: 0, cash: 30000000, locked: 0 });
+    expect(30000000).toBeGreaterThan(game.content.tuning.wallet.cashUpTo);
+    expect(game.state.wallet.pockets.NGN).toEqual({ bank: 30000000, cash: 0, locked: 0 });
     expect(game.state.wallet.totals.in.gig?.NGN).toBe(30000000);
     expect(quality(game, "quality.edu-level")).toBe(1);
     expect(game.state.prologue.step).toBe("shop");
@@ -400,7 +401,7 @@ function playStep(game: Game) {
 }
 
 describe("age", () => {
-  test("[R-PROLOGUE-004] given the apprenticeship path, when it is played to the end, then the character is about 22 with capital in cash, no degree and a network in the market", () => {
+  test("[R-PROLOGUE-004] [R-WALLET-018] given the apprenticeship path, when it is played to the end, then the character is about 22 with capital in the bank, no degree and a network in the market", () => {
     const game = seedWhere("apprentice", (played) => {
       choose(played, "begin");
       pick(played, "arts");
@@ -417,7 +418,7 @@ describe("age", () => {
     // 192 + 12 + 6 + 72 + 1: six years under the master.
     expect(quality(game, AGE)).toBe(283);
     expect(quality(game, AGE)).toBeGreaterThanOrEqual(264);
-    expect(game.state.wallet.pockets.NGN.cash).toBeGreaterThanOrEqual(40000000);
+    expect(game.state.wallet.pockets.NGN.bank).toBeGreaterThanOrEqual(40000000);
     expect(quality(game, "quality.edu-level")).toBe(1);
     expect(quality(game, "quality.edu-grade")).toBe(0);
     expect(quality(game, "quality.network")).toBeGreaterThanOrEqual(20);
@@ -628,7 +629,7 @@ describe("the view", () => {
     expect(view.prologue?.draw).toEqual(game.state.prologue.draw);
     expect(view.prologue?.answers.map((answer) => answer.id)).toEqual(["stay", "save"]);
     expect(view.qualities.find((held) => held.id === "quality.edu-level")?.value).toBe(1);
-    expect(view.pockets.NGN.cash).toBe(30000000);
+    expect(view.pockets.NGN.bank).toBe(30000000);
     expect(text[`prologue.${view.prologue!.step}.card`]).toBeTruthy();
     expect(hiddenPaths(view)).toEqual([]);
   });
