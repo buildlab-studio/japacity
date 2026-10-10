@@ -18,7 +18,7 @@ import { FullScreen } from "../../shared/ui/FullScreen";
 import { Sheet } from "../../shared/ui/Sheet";
 import { cardKey, useCardsTurn } from "../../shared/ui/stage";
 import { formatMoney } from "../../shared/words/format";
-import { jobCardWords } from "../../shared/words/jobs";
+import { jobCardLine, jobCardWords } from "../../shared/words/jobs";
 import { countsWords } from "../../shared/words/profile";
 import { needsWords } from "../../shared/words/requirement";
 import { newsRead } from "../../shared/phone/newsSeen";
@@ -60,7 +60,7 @@ import { SaidLine, useSaid } from "./Said";
 import { APPLY_TO_SCHOOL, SCHOOL_ICON, schoolSheetLine } from "./school";
 import { sceneWords } from "./scene.words";
 import { enterable, offersHere, openingPlace, openScene, reportHere, type ViewPlace } from "./staging";
-import { comingOf, soonest } from "./coming";
+import { type Coming, comingOf, soonest } from "./coming";
 import { stagedNow, thingsNow, thingsOf, vehicleOf, withMoreAt } from "./things";
 import { stopReached } from "./stops";
 
@@ -148,6 +148,16 @@ export function doneWords(label: string, view: Pick<PlayerView, "obligations" | 
 }
 
 /** True when this month's answers include home's send-off as the party. */
+/**
+ * The band's chip names the nudge's own wait (R-WORLD-002, R-WORLD-003): the nudge "Ask for the endorsement
+ * again in 6 months" over the chip "You can ask for the endorsement again, in 6 months". A step's wait carries its `when`;
+ * a chip for something to wait on in that same month is the same wait, so the row peeks with the nudge alone.
+ */
+export function chipFolds(nudge: { about: string; params?: Record<string, string | number> } | null, coming: Coming | null, month: number): boolean {
+  if (nudge === null || coming === null || nudge.about !== "step" || coming.kind === "offer") return false;
+  return nudge.params?.when === inMonths(coming.month, month);
+}
+
 export function partyThrown(lines: readonly ReportLine[]): boolean {
   return lines.some((line) => line.key === "line.offer.taken" && line.params.offer === SEND_OFF && line.params.choice === "party");
 }
@@ -958,7 +968,7 @@ export function City({
         chosen !== null && content.activity[chosen as Id<"activity">]?.slot === "side"
           ? [blurbOf(chosen) ?? blurbOf(activity), jobCardWords(view, chosen)].filter((part): part is string => part !== null).join(" ")
           : chosen !== null && content.activity[activity as Id<"activity">]?.param === "job"
-            ? [blurbOf(activity), jobCardWords(view, chosen)].filter((part): part is string => part !== null).join(" ")
+            ? jobCardLine(view, activity, chosen)
             : chance !== null
               ? [blurbOf(activity), chance.words].filter((part): part is string => part !== null).join(" ")
               : school !== null
@@ -1169,7 +1179,7 @@ export function City({
               !(phone || monthOpen || asksOpen || menu || credits || picked !== null) ? (
                 <div key={bandOpen ? "open" : `peek-${nudgeKey}-${comingKey}`} className={bandOpen ? "" : "drop"}>
                   <Nudge nudge={shownNudge} {...(nudgeOpens ? { onTap: () => setAsksOpen(true) } : nudgeGoes ? { onTap: followStep } : nudge?.about === "report" ? { onTap: () => { setPhoneApp("news"); setPhone(true); } } : nudge?.about === "dues" ? { onTap: () => { setPhoneApp("bank"); setPhone(true); } } : {})} />
-                  {coming === null || !(bandOpen || peek) ? null : (
+                  {coming === null || !(bandOpen || (peek && !chipFolds(nudge, coming, view.month))) ? null : (
                     <button type="button" className="chip press pointer-events-auto mt-1.5 inline-flex max-w-full items-center gap-1.5 px-2.5 py-1.5 text-[12px] font-bold" data-coming onClick={() => setComingOpen(true)} aria-label={say("ui.world.coming-up")}>
                       <Clock size={14} aria-hidden />
                       <span className="truncate">{say("ui.world.coming", { what: coming.what, when: inMonths(coming.month, view.month) })}</span>

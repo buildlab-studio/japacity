@@ -353,7 +353,9 @@ export const uiText: Record<string, string> = {
   "ui.wallet.change.line": "{amount} into {currency}, at today's rate.",
   "ui.wallet.change.get.bank": "You get {got}. The bank's charge is {charge}.",
   "ui.wallet.change.get.aboki": "You get {got} in cash, if he counts it right.",
-  "ui.wallet.change.after": "After, you hold {from} and {to}.",
+  // The pocket the change lands in, as the button reads the pocket it is paid from.
+  "ui.wallet.change.after.bank": "After, you hold {to} in the bank.",
+  "ui.wallet.change.after.aboki": "After, you hold {to} in cash.",
   "ui.wallet.move": "Move money",
   "ui.wallet.from": "From",
   "ui.wallet.to": "To",
@@ -662,6 +664,7 @@ export const uiText: Record<string, string> = {
   "ui.req.not-held": "Only without {document} in hand",
   "ui.req.any": "One of: {inner}",
   "ui.req.any-route": "A way out you have heard of",
+  "ui.req.any-abroad-or-circle": "Someone you know abroad, or a wide enough circle",
   "ui.req.place-is": "Be {where}",
   "ui.req.status-is": "Hold {statuses}",
   "ui.req.status-clock-under": "A status clock with under {months} months left",

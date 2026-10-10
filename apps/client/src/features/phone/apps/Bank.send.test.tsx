@@ -32,7 +32,7 @@ function card(): HTMLElement {
 }
 
 describe("Change money says what you get", () => {
-  test("[R-WORLD-006] [R-WALLET-004] given Ada just landed with dollars, when all of them are set to change into pounds at the bank, then the card says the pounds she gets, the figure the engine gives, and what she holds in both monies after", async () => {
+  test("[R-WORLD-006] [R-WALLET-004] given Ada just landed with dollars, when all of them are set to change into pounds at the bank, then the card says the pounds she gets, the figure the engine gives, and what she holds in both monies after: the pounds in the bank on the line, the dollars left on the button", async () => {
     const game = recordedGame("ada-careful");
     const view = game.view();
     await renderWithView(<Bank />, view);
@@ -48,7 +48,9 @@ describe("Change money says what you get", () => {
     const got = poundsAfter - poundsBefore;
     expect(got).toBeGreaterThan(0);
     expect(told).toContain(`You get ${formatMoney(got, "GBP")}.`);
-    expect(told).toContain(say("ui.wallet.change.after", { from: formatMoney(0, "USD"), to: formatMoney(poundsAfter, "GBP") }));
+    // Both monies after: the pounds in the bank on the line, the dollars left on the button, each said once.
+    expect(told).toContain(say("ui.wallet.change.after.bank", { to: formatMoney(game.view().pockets.GBP.bank, "GBP") }));
+    expect(told).toContain(say("ui.world.left", { amount: formatMoney(0, "USD") }));
     expect(told).toContain(formatMoney(Math.floor((dollars * content.tuning.wallet.bankChargeBp) / 10_000), "USD"));
   });
 });

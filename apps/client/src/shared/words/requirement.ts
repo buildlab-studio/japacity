@@ -165,6 +165,8 @@ export function requirementSentence(requirement: Requirement, context: SentenceC
     case "any":
       // Any way out heard of, as the adviser asks: one line, never every route by name.
       if (requirement.of.length > 2 && requirement.of.every(asksForRoute)) return say("ui.req.any-route");
+      // Someone abroad or the network, as the word of someone who went asks: one plain line, never "One of: With a partner or ...".
+      if (abroadOrCircle(requirement.of)) return say("ui.req.any-abroad-or-circle");
       return say("ui.req.any", { inner: list(requirement.of.map((inner) => requirementSentence(inner, context))) });
     // Whole-life requirements (docs/rules/place.md and after). Plain first drafts.
     case "place/is":
@@ -236,6 +238,11 @@ export function anyOptions(requirement: Requirement, context: SentenceContext = 
     } else sentences.push(requirementSentence(inner, context));
   }
   return sentences;
+}
+
+/** True for a choice between a person abroad and a wide enough network, the two ways to someone who went (R-ADVICE-003). */
+function abroadOrCircle(of: readonly Requirement[]): boolean {
+  return of.length === 2 && of.some((inner) => inner.type === "people/bond" && inner.where === "abroad") && of.some((inner) => inner.type === "quality/min" && inner.quality === "quality.network");
 }
 
 /** True for a requirement that asks only that some route be heard of or looked into. */

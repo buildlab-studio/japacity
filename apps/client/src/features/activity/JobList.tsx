@@ -10,10 +10,10 @@ import type { ActivityEntry, PlayerView, Requirement } from "@japacity/sim";
 
 import { requirementSentence } from "../../shared/words/requirement";
 import { nameOf } from "../../shared/words/text";
-import { type ChanceBand, chanceBand, chanceOf, jobCardWords, jobChanceBp, jobsWords, payWords } from "../../shared/words/jobs";
+import { type ChanceBand, chanceBand, chanceOf, huntBand, jobCardLine, jobCardWords, jobChanceBp, jobsWords, payWords } from "../../shared/words/jobs";
 
 // The figures and words moved to shared/words/jobs.ts so the city can read them; the list's tests keep these names.
-export { type ChanceBand, chanceBand, jobCardWords, jobChanceBp };
+export { type ChanceBand, chanceBand, chanceOf, huntBand, jobCardLine, jobCardWords, jobChanceBp };
 import { payAMonth } from "../../shared/words/pay";
 import { liftWords } from "../../shared/words/profile";
 
@@ -24,7 +24,8 @@ function payRank(id: string): number {
   return pay.currency === "NGN" ? pay.amount : Number.MAX_SAFE_INTEGER;
 }
 
-const BAND_RANK: Record<ChanceBand, number> = { likely: 0, fair: 1, long: 2 };
+// As good as certain orders with the likely, so the racks lead only where the character lives by them (R-ACTIVITY-017).
+const BAND_RANK: Record<ChanceBand, number> = { certain: 0, likely: 0, fair: 1, long: 2 };
 
 /** The fish racks at Makoko: work at hand for a life living there (R-ACTIVITY-017). */
 const RACKS = "activity.job-fish-racks";
@@ -35,7 +36,7 @@ const RACKS = "activity.job-fish-racks";
  */
 export function huntOrder(view: PlayerView, jobs: readonly string[]): string[] {
   const atHand = view.home.place === "place.makoko" ? RACKS : null;
-  return [...jobs].sort((a, b) => Number(b === atHand) - Number(a === atHand) || BAND_RANK[chanceBand(chanceOf(view, a))] - BAND_RANK[chanceBand(chanceOf(view, b))] || payRank(b) - payRank(a));
+  return [...jobs].sort((a, b) => Number(b === atHand) - Number(a === atHand) || BAND_RANK[huntBand(chanceOf(view, a))] - BAND_RANK[huntBand(chanceOf(view, b))] || payRank(b) - payRank(a));
 }
 
 function qualityOf(view: PlayerView, id: string): number {
@@ -72,7 +73,7 @@ export function jobsOutOfReach(view: PlayerView, open: readonly string[]): OutOf
     .filter((job) => job.needs.length > 0);
 }
 
-const GAUGE: Record<ChanceBand, 1 | 2 | 3> = { long: 1, fair: 2, likely: 3 };
+const GAUGE: Record<ChanceBand, 1 | 2 | 3> = { long: 1, fair: 2, likely: 3, certain: 3 };
 
 /** The chance as a small three-step gauge, so it reads at a glance beside its word. */
 function Gauge({ chance, chosen }: { chance: ChanceBand; chosen: boolean }) {
@@ -175,7 +176,7 @@ export function JobList({ view, jobs, chosen, onPick }: { view: PlayerView; jobs
         </span>
         <ul role="radiogroup" aria-labelledby="jobs-pick" className="flex flex-col" data-jobs>
           {jobs.map((id) => (
-            <JobRow key={id} view={view} id={id} chance={chanceBand(chanceOf(view, id))} chosen={id === chosen} onPick={onPick} />
+            <JobRow key={id} view={view} id={id} chance={huntBand(chanceOf(view, id))} chosen={id === chosen} onPick={onPick} />
           ))}
         </ul>
       </div>

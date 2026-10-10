@@ -101,15 +101,18 @@ function currencyWords(currency: Currency): string {
 
 /**
  * What a change says before it is confirmed: what goes in, what comes out
- * in the other money, and what is held in both after, worked as the wallet works it.
+ * in the other money, and what that money comes to after, worked as the wallet works it. It reads the
+ * pocket the change is paid from and lands in, as the button does: the bank at the bank, the cash with
+ * the FX man. What is left of the money paid is the button's to say, once.
  */
 export function changeLine(view: Pick<PlayerView, "rates" | "pockets">, from: Currency, to: Currency, amount: number, via: "bank" | "aboki"): string {
   const { got, charge } = changeQuote(view, from, to, amount, via);
-  const held = (currency: Currency) => view.pockets[currency].bank + view.pockets[currency].cash;
+  const held = via === "bank" ? view.pockets[to].bank : view.pockets[to].cash;
   return [
     say("ui.wallet.change.line", { amount: formatMoney(amount, from), currency: lowerFirst(currencyWords(to)) }),
     via === "bank" ? say("ui.wallet.change.get.bank", { got: formatMoney(got.amount, to), charge: formatMoney(charge.amount, from) }) : say("ui.wallet.change.get.aboki", { got: formatMoney(got.amount, to) }),
-    say("ui.wallet.change.after", { from: formatMoney(held(from) - amount, from), to: formatMoney(held(to) + got.amount, to) }),
+    // With none of that money there before, what you get is what you hold: said once.
+    ...(held === 0 ? [] : [say(`ui.wallet.change.after.${via}`, { to: formatMoney(held + got.amount, to) })]),
   ].join(" ");
 }
 

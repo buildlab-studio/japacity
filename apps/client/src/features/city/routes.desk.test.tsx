@@ -44,7 +44,7 @@ function routesAct(view: PlayerView): Act | undefined {
 }
 
 describe("the routes at the hub's desk", () => {
-  test("[R-WORLD-005] [R-WORLD-006] [R-ADVICE-001] given a developer's first month with no way out heard of, when Ask about routes is opened, then the sheet keeps the act's name, the adviser's card leads, and the word of someone who went stands shut with the network it needs", () => {
+  test("[R-WORLD-005] [R-WORLD-006] [R-ADVICE-001] given a developer's first month with no way out heard of, when Ask about routes is opened, then the sheet keeps the act's name, the adviser's card leads, and the word of someone who went stands shut with what it needs: someone abroad or a wide enough circle", () => {
     const view = developer().view();
     expect(view.activities.find((option) => option.id === ADVISER)?.allowed).toBe(false);
     expect(view.activities.find((option) => option.id === FRIEND)?.allowed).toBe(false);
@@ -55,8 +55,8 @@ describe("the routes at the hub's desk", () => {
     const needs = (id: string): string[] => (view.activities.find((option) => option.id === id)?.missing ?? []).map((requirement) => requirementSentence(requirement, { routes: view.routes }));
     // The adviser's need in one line, never every route by name.
     expect(needs(ADVISER)).toEqual([say("ui.req.any-route")]);
-    // The network the word of someone who went needs, said by its band (R-TEXT-005).
-    expect(needs(FRIEND).join(" ")).toContain(requirementSentence({ type: "quality/min", quality: "quality.network", value: content.tuning.advice.networkToAsk }));
+    // What the word of someone who went needs, a person abroad or the network, in one plain line, the band never a figure (R-TEXT-005).
+    expect(needs(FRIEND)).toEqual([say("ui.req.any-abroad-or-circle")]);
   });
 
   test("[R-WORLD-005] [R-ADVICE-001] given a way out heard of, when Ask about routes is opened, then the adviser's card leads, before the official page", () => {

@@ -13,6 +13,7 @@ export const jobsUiText: Record<string, string> = {
   "jobs.pick": "Which job",
   "jobs.apply": "Apply",
   "jobs.pay": "{amount} a month",
+  "jobs.chance.certain": "As good as certain",
   "jobs.chance.likely": "Likely",
   "jobs.chance.fair": "A fair chance",
   "jobs.chance.long": "A long shot",
@@ -40,9 +41,10 @@ const NETWORK = "quality.network";
 const LIKELY_BP = 6000;
 const FAIR_BP = 3000;
 
-export type ChanceBand = "likely" | "fair" | "long";
+/** A hunt at the bar every hunt stops at is as good as certain (see `huntBand`); any other chance has the three. */
+export type ChanceBand = "certain" | "likely" | "fair" | "long";
 
-export function chanceBand(bp: number): ChanceBand {
+export function chanceBand(bp: number): Exclude<ChanceBand, "certain"> {
   if (bp >= LIKELY_BP) return "likely";
   if (bp >= FAIR_BP) return "fair";
   return "long";
@@ -60,6 +62,14 @@ export function jobChanceBp(entry: Pick<ActivityEntry, "hireBp">, network: numbe
 
 function qualityOf(view: PlayerView, id: string): number {
   return view.qualities.find((quality) => quality.id === id)?.value ?? 0;
+}
+
+/**
+ * A job's chance in a hunt as a band: at the bar every hunt stops at (R-ACTIVITY-005, `tuning.quality.hireMaxBp`) it is
+ * as good as certain (the racks, R-ACTIVITY-017), else the three bands.
+ */
+export function huntBand(bp: number): ChanceBand {
+  return bp >= content.tuning.quality.hireMaxBp ? "certain" : chanceBand(bp);
 }
 
 export function chanceOf(view: PlayerView, id: string): number {
@@ -85,7 +95,17 @@ export function payLiftWords(id: string, view: Pick<PlayerView, "qualities">): s
  * board or a notice names the job.
  */
 export function jobCardWords(view: PlayerView, id: string): string {
-  const chance = jobsWords(`jobs.chance.${chanceBand(chanceOf(view, id))}`);
+  const chance = jobsWords(`jobs.chance.${huntBand(chanceOf(view, id))}`);
   const pay = payLiftWords(id, view);
   return pay === null ? jobsWords("jobs.card.chance", { chance }) : jobsWords("jobs.card", { pay, chance });
+}
+
+/**
+ * The line of a hunt's card that names one job (R-WORLD-006): the job's own words where content has them, `<job>.card`
+ * else its blurb, and only then the hunt's ("You send applications"), then its pay and chance. The racks spoke as a
+ * hunt for applications; they speak as the racks.
+ */
+export function jobCardLine(view: PlayerView, hunt: string, job: string): string {
+  const own = text[`${job}.card`] ?? text[`${job}.blurb`] ?? text[`${hunt}.blurb`] ?? null;
+  return [own, jobCardWords(view, job)].filter((part): part is string => part !== null).join(" ");
 }
