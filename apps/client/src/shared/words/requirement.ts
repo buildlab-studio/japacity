@@ -163,6 +163,8 @@ export function requirementSentence(requirement: Requirement, context: SentenceC
       if (requirement.of.type === "document/held") return say("ui.req.not-held", { document: runningName(requirement.of.document) });
       return say("ui.req.not", { inner: requirementSentence(requirement.of, context) });
     case "any":
+      // Any way out heard of, as the adviser asks: one line, never every route by name.
+      if (requirement.of.length > 2 && requirement.of.every(asksForRoute)) return say("ui.req.any-route");
       return say("ui.req.any", { inner: list(requirement.of.map((inner) => requirementSentence(inner, context))) });
     // Whole-life requirements (docs/rules/place.md and after). Plain first drafts.
     case "place/is":

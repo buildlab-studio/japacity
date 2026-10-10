@@ -652,6 +652,7 @@ export const uiText: Record<string, string> = {
   "ui.req.not-pending": "Wait: your {document} is already on the way",
   "ui.req.not-held": "Only without {document} in hand",
   "ui.req.any": "One of: {inner}",
+  "ui.req.any-route": "A way out you have heard of",
   "ui.req.place-is": "Be {where}",
   "ui.req.status-is": "Hold {statuses}",
   "ui.req.status-clock-under": "A status clock with under {months} months left",

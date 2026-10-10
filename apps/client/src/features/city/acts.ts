@@ -39,13 +39,20 @@ export function answerAsk(line: ReportLine, where: { who: string; clock: string 
 }
 
 /**
+ * Ways to ask about a route that stand on their sheet while shut, with the reason: the adviser
+ * until a way out is heard of, the word of someone who went until the network reaches one. So "Ask about routes" never
+ * opens on a sheet with nothing about routes.
+ */
+const STANDS_SHUT: ReadonlySet<string> = new Set(["activity.see-adviser", "activity.ask-someone-who-went"]);
+
+/**
  * The activities a place's things may offer now (R-WORLD-005): those the view allows; one shut only by a paper not
- * yet held, which still stands with its reason; and the hunt's board with its jobs, which stays while a job is held.
+ * yet held, or a way to ask about a route, which still stands with its reason; and the hunt's board with its jobs, which stays while a job is held.
  * A now-act done this month is not allowed again, and the board goes with the hunt asked this month: the thing's
  * chip shows the act again next month, not this one (R-ACTIVITY-015).
  */
 export function actsOffered(view: Pick<PlayerView, "activities">): string[] {
-  const paperShut = view.activities.filter((option) => !option.allowed && !option.done && option.missing.length > 0 && option.missing.every((need) => need.type === "document/held")).map((option) => option.id);
+  const paperShut = view.activities.filter((option) => !option.allowed && !option.done && option.missing.length > 0 && (option.missing.every((need) => need.type === "document/held") || STANDS_SHUT.has(option.id))).map((option) => option.id);
   const hunt = view.activities.find((option) => option.id === "activity.job-hunt");
   const board = hunt === undefined || hunt.done ? [] : [hunt.id, ...(hunt.params ?? [])];
   return [...new Set([...view.activities.filter((option) => option.allowed).map((option) => option.id), ...paperShut, ...board])];

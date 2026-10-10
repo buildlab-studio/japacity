@@ -53,14 +53,26 @@ const MORE_AT: Record<string, readonly string[]> = {
   "place.agent-office:desk:visit": ["activity.apply-gulf-contract"],
 };
 
-/** The things with the entries this table adds to their sheets at `place`. */
+/**
+ * The entry a thing's sheet act lists first, by `<place>:<thing>:<act>`: at the hub's desk, "Ask about routes" leads with
+ * the adviser's card, so the act's name holds before any way out is heard of.
+ */
+const FIRST_AT: Record<string, string> = {
+  "place.yaba:desk:routes": "activity.see-adviser",
+};
+
+/** The things with the entries these tables add to their sheets at `place`, and the one each lists first. */
 export function withMoreAt(things: readonly Thing[], place: string): Thing[] {
   return things.map((thing) => ({
     ...thing,
     acts: thing.acts.map((act) => {
-      const extra = MORE_AT[`${place}:${thing.id}:${act.id}`];
-      if (extra === undefined || act.kind !== "sheet") return act;
-      return { ...act, more: [...new Set([...(act.more ?? []), ...extra])] };
+      const at = `${place}:${thing.id}:${act.id}`;
+      const extra = MORE_AT[at];
+      const first = FIRST_AT[at];
+      if ((extra === undefined && first === undefined) || act.kind !== "sheet" || act.stages === undefined) return act;
+      const all = [...new Set([...(first === undefined ? [] : [first]), act.stages, ...(act.more ?? []), ...(extra ?? [])])];
+      const [stages = act.stages, ...more] = all;
+      return { ...act, stages, ...(more.length === 0 ? {} : { more }) };
     }),
   }));
 }
