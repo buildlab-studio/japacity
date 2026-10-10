@@ -1,6 +1,6 @@
 // Place: docs/rules/place.md, R-PLACE-001 to 009, and the mechanics of coming
 // home in return.md. A character is at home, abroad in one country, or on the road.
-import { worldVarOr } from "../engine/check";
+import { check, worldVarOr } from "../engine/check";
 import { bp, convertMinor, divFloor } from "../engine/int";
 import type { RegisteredKind } from "../engine/kind";
 import { emit } from "../engine/kind";
@@ -24,11 +24,14 @@ import type {
   RequirementResult,
   ReturnShape,
   State,
+  WayHome,
   WhereEntry,
 } from "../engine/types";
 import { countryEntry, isKept, isOverstayer, removalBanMonths, statusEntry } from "../status/status.logic";
 import { homeCharges } from "../home/home.logic";
 import type { PlaceEvent } from "./place.events";
+import { feeInNaira, walletAfter } from "../wallet/wallet.logic";
+import type { Payment } from "../wallet/wallet.logic";
 import { CURRENCIES, officialRates } from "../wallet/wallet.rates";
 
 const STANDING: Id<"quality"> = "quality.standing";
@@ -228,12 +231,45 @@ function move(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
 }
 
 /** How the fare is paid now: from the country's currency, or from naira as a foreign fee (R-PLACE-006). Null: it cannot be. */
-function farePayment(ctx: Ctx, fare: MoneyParam): Effect | null {
+function farePayment(read: ReadCtx, fare: MoneyParam): Payment | null {
   const { currency, amount } = fare;
-  if (ctx.check({ type: "money/min", currency, amount }).met) return { type: "money/take", currency, pocket: "transfer", amount, reason: "fare" };
-  if (!ctx.content.tuning.place.fareFromNaira || currency === "NGN") return null;
-  if (!ctx.check({ type: "money/can-pay", currency, amount }).met) return null;
+  if (check(read, { type: "money/min", currency, amount }).met) return { type: "money/take", currency, pocket: "transfer", amount, reason: "fare" };
+  if (!read.content.tuning.place.fareFromNaira || currency === "NGN") return null;
+  if (!check(read, { type: "money/can-pay", currency, amount }).met) return null;
   return { type: "money/pay-fee", currency, amount, reason: "fare" };
+}
+
+/** R-ROAD-009: from the far shore the only way home is the assisted scheme, with no fare. */
+function fromFarShore(read: ReadCtx): boolean {
+  return read.state.status.current?.entry === IRREGULAR;
+}
+
+/**
+ * R-PLACE-011: the way home today, as `returnHome` would take it, for the view: the fare and where it comes from, the
+ * shape by `returnShape` read after the fare is paid as the wallet pays it, and the standing by the shape and the
+ * capital. From the far shore the return is assisted with no fare (R-ROAD-009). Null when not abroad.
+ */
+export function wayHomeOf(read: ReadCtx): WayHome | null {
+  const fare = fareHome(read);
+  const country = read.state.place.country;
+  if (fare === null || country === null) return null;
+  const entry = countryEntry(read.content, country);
+  const offPeak: MoneyParam = { currency: entry.currency, amount: entry.fare };
+  const naira = fare.currency === "NGN" ? fare.amount : feeInNaira(read, fare.currency, fare.amount);
+  const standing = (after: ReadCtx, shape: ReturnShape): number => read.content.tuning.return.standing[shape] + capitalBonus(after);
+  const payment = farePayment(read, fare);
+  // The command's own order: a fare that cannot be paid by one who holds a status is refused before the far shore is read.
+  if (payment === null && !holdsNoStatus(read)) return { fare, offPeak, paidFrom: null, naira, shape: null, standing: 0 };
+  if (fromFarShore(read)) return { fare, offPeak, paidFrom: null, naira, shape: "assisted", standing: standing(read, "assisted") };
+  if (payment === null) {
+    const shape = returnShape(read, false);
+    return { fare, offPeak, paidFrom: null, naira, shape, standing: standing(read, shape) };
+  }
+  const wallet = walletAfter(read, payment);
+  if (wallet === null) return { fare, offPeak, paidFrom: null, naira, shape: null, standing: 0 };
+  const after: ReadCtx = { ...read, state: { ...read.state, wallet } };
+  const shape = returnShape(after, true);
+  return { fare, offPeak, paidFrom: payment.type === "money/take" ? "local" : "naira", naira, shape, standing: standing(after, shape) };
 }
 
 /**
@@ -250,8 +286,7 @@ function returnHome(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
     return reject("cannot-afford", `The fare home is ${String(fare.amount)} in ${fare.currency} and cannot be paid.`);
   }
   const cause: Cause = { source: command.type, param: ctx.state.place.country, terms: {} };
-  // R-ROAD-009: from the far shore the only way home is the assisted scheme, with no fare.
-  if (ctx.state.status.current?.entry === IRREGULAR) return comeHome(ctx, "assisted", cause);
+  if (fromFarShore(ctx)) return comeHome(ctx, "assisted", cause);
   if (payment !== null) ctx.apply([payment], cause);
   return comeHome(ctx, returnShape(ctx, payment !== null), cause);
 }
@@ -481,6 +516,7 @@ function view(read: ReadCtx): Pick<PlayerView, "place"> {
       heldAbroad: state.place.heldAbroad?.status ?? null,
       fareHome: fareHome(read),
       fareBp: fareBpOf(read),
+      wayHome: wayHomeOf(read),
     },
   };
 }

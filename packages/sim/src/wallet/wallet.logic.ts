@@ -163,23 +163,66 @@ interface FeePlan {
   charge: number;
 }
 
-/**
- * How a foreign fee would be paid now, or null if it cannot be paid in full.
- * The naira leg rounds up, so the fee is always covered to the penny.
- */
-function planFee(read: ReadCtx, currency: ForeignCurrency, amount: number): FeePlan | null {
+/** The foreign fee's split: what that currency's own pockets give, and the naira leg for the rest with the bank's charge. */
+function feeSplit(read: Pick<ReadCtx, "state" | "world" | "content">, currency: ForeignCurrency, amount: number): FeePlan {
   const pocket = read.state.wallet.pockets[currency];
   const fromBank = Math.min(pocket.bank, amount);
   const fromCash = Math.min(pocket.cash, amount - fromBank);
   const rest = amount - fromBank - fromCash;
   if (rest === 0) return { fromBank, fromCash, bought: 0, naira: 0, charge: 0 };
-  if (worldVarOr(read.world, QUEUE) > 0) return null;
   // R-WALLET-005: the naira leg settles an invoice rather than buying currency, so it does not
   // count against the month's allowance.
   const naira = mulDivCeil(rest, read.world.rates[currency].official, 100);
-  const charge = bp(naira, read.content.tuning.wallet.bankChargeBp);
-  if (naira + charge > read.state.wallet.pockets.NGN.bank) return null;
-  return { fromBank, fromCash, bought: rest, naira, charge };
+  return { fromBank, fromCash, bought: rest, naira, charge: bp(naira, read.content.tuning.wallet.bankChargeBp) };
+}
+
+/**
+ * How a foreign fee would be paid now, or null if it cannot be paid in full.
+ * The naira leg rounds up, so the fee is always covered to the penny.
+ */
+function planFee(read: ReadCtx, currency: ForeignCurrency, amount: number): FeePlan | null {
+  const plan = feeSplit(read, currency, amount);
+  if (plan.bought === 0) return plan;
+  if (worldVarOr(read.world, QUEUE) > 0) return null;
+  if (plan.naira + plan.charge > read.state.wallet.pockets.NGN.bank) return null;
+  return plan;
+}
+
+/**
+ * R-WALLET-009, for a forecast: the naira a foreign fee would take from the naira bank now, the bank's charge
+ * included, whether or not the bank holds it; nothing while the currency's own pockets cover the fee.
+ */
+export function feeInNaira(read: Pick<ReadCtx, "state" | "world" | "content">, currency: ForeignCurrency, amount: number): number {
+  const plan = feeSplit(read, currency, amount);
+  return plan.naira + plan.charge;
+}
+
+function feeEvents(plan: FeePlan, currency: ForeignCurrency, reason: Reason): WalletEvent[] {
+  return moved([
+    debit("NGN", "bank", plan.naira, "convert"),
+    debit("NGN", "bank", plan.charge, "bank-charge"),
+    credit(currency, "bank", plan.bought, "convert"),
+    debit(currency, "bank", plan.fromBank + plan.bought, reason),
+    debit(currency, "cash", plan.fromCash, reason),
+  ]);
+}
+
+/** A payment a forecast can make: a whole amount taken from a pocket, or a foreign fee. */
+export type Payment = { type: "money/take"; currency: Currency; pocket: "any" | "transfer" | AnyPocket; amount: number; reason: Reason } | { type: "money/pay-fee"; currency: ForeignCurrency; amount: number; reason: Reason };
+
+/**
+ * The wallet once a payment is made exactly as the wallet makes it, or null when it would not be: what a forecast
+ * reads (the way home, R-PLACE-011) so that it never books money its own way.
+ */
+export function walletAfter(read: ReadCtx, payment: Payment): WalletSlice | null {
+  const events = payment.type === "money/take" ? takeEvents(read.state, payment.currency, payment.pocket, payment.amount, payment.reason) : feePlanned(read, payment);
+  if (events === null) return null;
+  return events.reduce((slice, event) => evolve(slice, event, read.state), read.state.wallet);
+}
+
+function feePlanned(read: ReadCtx, payment: Extract<Payment, { type: "money/pay-fee" }>): WalletEvent[] | null {
+  const plan = planFee(read, payment.currency, payment.amount);
+  return plan === null ? null : feeEvents(plan, payment.currency, payment.reason);
 }
 
 function payFee(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
@@ -189,13 +232,7 @@ function payFee(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
   // All or nothing: the caller learns it could not be paid through money/can-pay.
   if (plan === null) return [];
   const { currency, reason } = effect;
-  return moved([
-    debit("NGN", "bank", plan.naira, "convert"),
-    debit("NGN", "bank", plan.charge, "bank-charge"),
-    credit(currency, "bank", plan.bought, "convert"),
-    debit(currency, "bank", plan.fromBank + plan.bought, reason),
-    debit(currency, "cash", plan.fromCash, reason),
-  ]);
+  return feeEvents(plan, currency, reason);
 }
 
 // ---------------------------------------------------------------------------
@@ -225,26 +262,29 @@ function addMoney(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
   return events;
 }
 
-function takeMoney(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
-  if (effect.type !== "money/take") throw new Error(`money/take cannot carry out ${effect.type}.`);
-  const amount = effectAmount(ctx, effect.amount, cause.terms);
+/** The debits a whole amount taken from a pocket makes, or null when it cannot be taken: R-WALLET-001, all or nothing. */
+function takeEvents(state: State, currency: Currency, from: "any" | "transfer" | AnyPocket, amount: number, reason: Reason): WalletEvent[] | null {
   if (amount === 0) return [];
-  const { currency, reason } = effect;
-  const pocket = ctx.state.wallet.pockets[currency];
-  if (effect.pocket === "any") {
-    // The street: cash first, then bank, never locked ("Pockets" in wallet.md). R-WALLET-001: all or nothing.
-    if (pocket.cash + pocket.bank < amount) return [];
+  const pocket = state.wallet.pockets[currency];
+  if (from === "any") {
+    // The street: cash first, then bank, never locked ("Pockets" in wallet.md).
+    if (pocket.cash + pocket.bank < amount) return null;
     const fromCash = Math.min(pocket.cash, amount);
     return moved([debit(currency, "cash", fromCash, reason), debit(currency, "bank", amount - fromCash, reason)]);
   }
-  if (effect.pocket === "transfer") {
-    // A transfer: the bank first, then cash, never locked (decision 0012 as amended). All or nothing.
-    if (pocket.cash + pocket.bank < amount) return [];
+  if (from === "transfer") {
+    // A transfer: the bank first, then cash, never locked (decision 0012 as amended).
+    if (pocket.cash + pocket.bank < amount) return null;
     const fromBank = Math.min(pocket.bank, amount);
     return moved([debit(currency, "bank", fromBank, reason), debit(currency, "cash", amount - fromBank, reason)]);
   }
-  if (pocket[effect.pocket] < amount) return [];
-  return [debit(currency, effect.pocket, amount, reason)];
+  if (pocket[from] < amount) return null;
+  return [debit(currency, from, amount, reason)];
+}
+
+function takeMoney(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
+  if (effect.type !== "money/take") throw new Error(`money/take cannot carry out ${effect.type}.`);
+  return takeEvents(ctx.state, effect.currency, effect.pocket, effectAmount(ctx, effect.amount, cause.terms), effect.reason) ?? [];
 }
 
 // ---------------------------------------------------------------------------

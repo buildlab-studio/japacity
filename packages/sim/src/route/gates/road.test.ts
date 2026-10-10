@@ -1027,7 +1027,7 @@ describe("on the road", () => {
     expect(offerOf(home, "offer.nepa-bill")).toBeDefined();
   });
 
-  test("[R-ROAD-009] given the far shore and the fare to hand, when the character asks to go home, then it is the assisted return and no fare is paid: there is no going home by choice from there", () => {
+  test("[R-ROAD-009] [R-PLACE-011] given the far shore and the fare to hand, when the character asks to go home, then it is the assisted return and no fare is paid: there is no going home by choice from there", () => {
     const game = life({ change: all(HONEST_ROAD, rows({ desert: ON, compound: ON, coast: ON, sea: ON })) });
     toTruth(game);
     answer(game, "truth", "pay");
@@ -1036,6 +1036,8 @@ describe("on the road", () => {
     const fare = content.country["country.italy"]!.fare * 3;
     applyEffects(game, [{ type: "money/add", currency: "EUR", pocket: "bank", amount: fare, reason: "gift" }]);
     const pockets = game.state.wallet.pockets;
+    // R-PLACE-011: the way home the view forecasts is the same assisted return, with no fare taken.
+    expect(game.view().place.wayHome).toMatchObject({ paidFrom: null, shape: "assisted" });
     game.accept({ type: "return/home" });
     expect(game.state.place.returns.at(-1)).toMatchObject({ shape: "assisted", country: "country.italy" });
     expect(game.state.wallet.pockets.EUR).toEqual(pockets.EUR);

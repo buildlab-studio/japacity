@@ -141,6 +141,20 @@ export type Stream =
 export type Where = "home" | "abroad" | "road";
 /** Where an entry applies. */
 export type WhereEntry = "home" | "abroad" | "any";
+/**
+ * The way home today, as `return/home` would take it (place.md R-PLACE-011): the fare now and off peak, where it
+ * would come from (the country's money, naira through the bank, or nobody), the naira it takes when bought from
+ * naira, the shape the return would take (null when it would be refused) and the standing it would bring.
+ */
+export interface WayHome {
+  fare: MoneyParam;
+  offPeak: MoneyParam;
+  paidFrom: "local" | "naira" | null;
+  naira: number;
+  shape: ReturnShape | null;
+  standing: number;
+}
+
 /** The shapes of a return home: docs/rules/place.md R-PLACE-005. */
 export type ReturnShape = "removed" | "assisted" | "broke" | "by-choice" | "with-papers";
 /** Why the home card's move is shut (R-HOME-008): a move made this month, or the first month's rent not held. */
@@ -2135,7 +2149,8 @@ export interface PlayerView {
   };
   news: { id: Id<"news">; stage: NewsStage; since: number; forYou: boolean }[];
   /** `fareHome` is the fare from the country the character is in, December factor applied, or null at home (R-PLACE-006). */
-  place: { where: Where; country: Id<"country"> | null; monthsHere: number; returns: PlaceSlice["returns"]; heldAbroad: Id<"status"> | null; fareHome: MoneyParam | null; fareBp: number };
+  /** `wayHome` (R-PLACE-011): the way home from where the character is today, as `return/home` would take it; null when not abroad. */
+  place: { where: Where; country: Id<"country"> | null; monthsHere: number; returns: PlaceSlice["returns"]; heldAbroad: Id<"status"> | null; fareHome: MoneyParam | null; fareBp: number; wayHome: WayHome | null };
   status: {
     entry: Id<"status">;
     monthsLeft: number | null;

@@ -3,7 +3,7 @@ import type { PlayerView } from "@japacity/sim";
 import { fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
-import { abroadView, engineView } from "../../shared/testing/fixtures";
+import { abroadGame, abroadView, engineView, setPockets, viewAfter } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { nairaForFee } from "../../shared/words/cost";
 import { formatMoney } from "../../shared/words/format";
@@ -29,9 +29,11 @@ describe("where you are and the way home", () => {
   });
 
   test("[R-PLACE-004] given Ada abroad with no pounds and naira enough, then the fare shows with what it takes from naira, and going home sends return/home", async () => {
-    const base = abroadView();
-    expect(base.pockets.GBP.bank + base.pockets.GBP.cash).toBeLessThan(UK.fare);
-    const view: PlayerView = { ...base, pockets: { ...base.pockets, NGN: { bank: 500_000_000, cash: 0, locked: 0 } } };
+    // the pockets are set through the wallet, so the engine's forecast reads them.
+    const game = abroadGame();
+    setPockets(game, { NGN: 500_000_000 });
+    const view = game.view();
+    expect(view.pockets.GBP.bank + view.pockets.GBP.cash).toBeLessThan(UK.fare);
     const { authority } = await renderWithView(<PlaceView />, view);
     const card = screen.getByText(say("ui.place.way-home")).closest("[data-way-home]") as HTMLElement;
     expect(within(card).getByText(say("ui.place.fare", { fare: formatMoney(UK.fare, "GBP") }))).toBeDefined();
@@ -42,25 +44,21 @@ describe("where you are and the way home", () => {
   });
 
   test("[R-PLACE-005] given Ada on a student visa with pounds for the fare and savings besides, and naira at home no more than the broke line, then the return she would make today reads by choice, before it happens, with no capital to add to the standing", async () => {
-    const base = abroadView();
-    const view: PlayerView = {
-      ...base,
-      pockets: { ...base.pockets, GBP: { bank: 200_000, cash: 0, locked: 0 }, NGN: { bank: content.tuning.place.brokeLine, cash: 0, locked: 0 } },
-    };
-    expect(wayHome(view)).toMatchObject({ paidFrom: "local", shape: "by-choice" });
+    const game = abroadGame();
+    setPockets(game, { GBP: 200_000, NGN: content.tuning.place.brokeLine });
+    const view = game.view();
+    expect(wayHome(view)).toMatchObject({ paidFrom: "local", shape: "by-choice", standing: content.tuning.return.standing["by-choice"] });
     await renderWithView(<PlaceView />, view);
     expect(screen.getByText(say("ui.place.shape-now.by-choice"))).toBeDefined();
     expect(screen.getByText(say("ui.place.standing", { change: String(content.tuning.return.standing["by-choice"]) }))).toBeDefined();
   });
 
   test("[R-PLACE-004] given no status and nothing to pay the fare with, then the assisted return is the way home", async () => {
-    const base = abroadView();
-    const empty = { bank: 0, cash: 0, locked: 0 };
-    const view: PlayerView = {
-      ...base,
-      status: null,
-      pockets: { NGN: empty, GBP: empty, USD: empty, CAD: empty, AED: empty, EUR: empty },
-    };
+    const game = abroadGame();
+    setPockets(game, { NGN: 0, GBP: 0, USD: 0, CAD: 0, AED: 0, EUR: 0 });
+    const view = viewAfter(game, [{ type: "status/lose" }]);
+    // Losing the visa leaves only the country's overstayer status, which is no permission to be there (R-PLACE-004).
+    expect(view.status?.entry).toBe(UK.overstayer);
     expect(wayHome(view)).toMatchObject({ paidFrom: null, shape: "assisted" });
     const { authority } = await renderWithView(<PlaceView />, view);
     expect(screen.getByText(say("ui.place.assisted-why"))).toBeDefined();
@@ -71,18 +69,18 @@ describe("where you are and the way home", () => {
 
   test("[R-PLACE-004] given Ada landed with dollars but neither pounds nor naira enough for the fare, then she is told to change money first", async () => {
     // The recorded life moves as the content does, so the pockets are pinned here: dollars only.
-    const base = abroadView();
-    const empty = { bank: 0, cash: 0, locked: 0 };
-    const view: PlayerView = { ...base, pockets: { ...base.pockets, NGN: empty, GBP: empty, USD: { bank: 500000, cash: 0, locked: 0 } } };
+    const game = abroadGame();
+    setPockets(game, { NGN: 0, GBP: 0, USD: 500000 });
+    const view = game.view();
     expect(wayHome(view)).toMatchObject({ paidFrom: null, shape: null });
     await renderWithView(<PlaceView />, view);
     expect(screen.getByText(say("ui.place.fare-short", { fare: formatMoney(UK.fare, "GBP"), naira: formatMoney(nairaForFee(view, "GBP", UK.fare), "NGN") }))).toBeDefined();
   });
 
   test("[R-PLACE-004] given a status held and no money for the fare, then there is no way home today and no button", async () => {
-    const base = abroadView();
-    const empty = { bank: 0, cash: 0, locked: 0 };
-    const view: PlayerView = { ...base, pockets: { NGN: empty, GBP: empty, USD: empty, CAD: empty, AED: empty, EUR: empty } };
+    const game = abroadGame();
+    setPockets(game, { NGN: 0, GBP: 0, USD: 0, CAD: 0, AED: 0, EUR: 0 });
+    const view = game.view();
     await renderWithView(<PlaceView />, view);
     expect(screen.getByText(say("ui.place.no-way"))).toBeDefined();
     expect(screen.queryByRole("button", { name: say("ui.place.go") })).toBeNull();
@@ -100,7 +98,7 @@ describe("where you are and the way home", () => {
           { month: 30, shape: "broke", country: "country.uk" },
         ],
         heldAbroad: "status.uk-settled",
-        fareHome: null, fareBp: 10000,
+        fareHome: null, fareBp: 10000, wayHome: null,
       },
     };
     await renderWithView(<PlaceView />, view);

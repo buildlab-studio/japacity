@@ -102,7 +102,7 @@ describe("a new character", () => {
   test("[R-PLACE-001] given a new life, when it starts, then the character is at home with no country, no move and no return on record", () => {
     const game = start({ content });
     expect(game.state.place).toEqual({ where: "home", country: null, movedMonth: 0, returns: [], heldAbroad: null, decemberMonth: null });
-    expect(game.view().place).toEqual({ where: "home", country: null, monthsHere: 0, returns: [], heldAbroad: null, fareHome: null, fareBp: 10000 });
+    expect(game.view().place).toEqual({ where: "home", country: null, monthsHere: 0, returns: [], heldAbroad: null, fareHome: null, fareBp: 10000, wayHome: null });
   });
 });
 
@@ -468,8 +468,35 @@ describe("the view and the record", () => {
       heldAbroad: null,
       fareHome: null,
       fareBp: 10000,
+      wayHome: null,
     });
   });
+
+  const forecastBase = flown(content);
+  test.prop([fc.integer({ min: 0, max: 4 * brokeLine }), fc.integer({ min: 0, max: 2 * ukFare }), fc.boolean()], { numRuns: 60 })(
+    "[R-PLACE-011] given any naira and pounds in the bank, with the visa held or lost, when the way home is read and then taken, then the view said the fare's source, the shape and the standing the return brings, and no way when it is refused",
+    (nairaBank, poundBank, lost) => {
+      const game = flown(content);
+      game.state = forecastBase.state;
+      leave(game, nairaBank, poundBank);
+      if (lost) applyEffects(game, [{ type: "status/lose" }]);
+      const forecast = game.view().place.wayHome;
+      if (forecast === null) throw new Error("No way home is forecast abroad.");
+      expect(forecast.fare).toEqual(fareHome(readOf(game)));
+      const pounds = game.state.wallet.pockets.GBP.bank;
+      const naira = game.state.wallet.pockets.NGN.bank;
+      if (forecast.shape === null) {
+        game.expectRejected({ type: "return/home" }, "cannot-afford");
+        return;
+      }
+      const { moved, shape } = comeHome(game);
+      expect(shape).toBe(forecast.shape);
+      expect(moved).toBe(forecast.standing);
+      if (forecast.paidFrom === "local") expect(game.state.wallet.pockets.GBP.bank).toBe(pounds - forecast.fare.amount);
+      if (forecast.paidFrom === "naira") expect(game.state.wallet.pockets.NGN.bank).toBe(naira - forecast.naira);
+      if (forecast.paidFrom === null) expect(game.state.wallet.pockets.NGN.bank).toBe(naira);
+    },
+  );
 
   test("[R-RETURN-007] given a return, when the routes are read, then the departed route and its record are as they were", () => {
     const game = flown(content);
