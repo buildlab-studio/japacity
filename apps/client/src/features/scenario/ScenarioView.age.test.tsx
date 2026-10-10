@@ -1,17 +1,18 @@
-// The age the door prints (prologue.md R-PROLOGUE-004, R-PROLOGUE-009): "About 24" at the door
-// opened at 23 yrs 1 mo for one developer and 25 yrs 0 mo for a nurse, since the cards' draws (an exam retaken, a strike)
-// add their months. The simulation keeps the years the cards take; the door says so in a second line, and the page
-// prints the same "About" as the door.
+// The age the door prints (prologue.md R-PROLOGUE-004, R-PROLOGUE-009; decision 0023): the
+// age picked is the age the life starts at, to the year. The door shows the tile's own year, the year its path reaches
+// with no setback, and the page prints the same true number; a retake or a strike costs years of work before that
+// age, never the age, and the page's setback chip says the work it cost.
 import { fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "vitest";
 
 import { GameProvider } from "../../authority/GameProvider";
 import { localAuthority } from "../../authority/local";
 import { createGameStore } from "../../authority/store";
-import { aboutYears, middleMonths } from "../../shared/datapage/years";
-import { ARCHETYPES, answersInOrder, archetypeOf, presetAnswer } from "../../shared/frontdoor/archetypes";
+import { startYearFor } from "../../shared/datapage/age";
+import { ARCHETYPES, archetypeOf, doorAnswer, withAge } from "../../shared/frontdoor/archetypes";
 import { newGame } from "../../shared/testing/fixtures";
 import { say } from "../../shared/words/text";
+import { type TrailStep, yearChips } from "../prologue/years";
 import { ScenarioView } from "./ScenarioView";
 // Registers Testing Library's cleanup for this file.
 import "../../shared/testing/render";
@@ -21,7 +22,6 @@ afterEach(() => {
 });
 
 const AGE = "quality.age-months";
-const YEAR = 12;
 
 function door(): void {
   const authority = localAuthority({ fastClock: true, storage: null, makeSeed: () => "run-seed", now: () => 0 });
@@ -35,46 +35,64 @@ function door(): void {
 
 const next = (label: string) => screen.getByRole("button", { name: new RegExp(`^${label}`) });
 
-/** The life a tile hands over, played on the engine with its preset; the steps the cards took on the way. */
-function handedOver(id: string, seed: string): { months: number; steps: string[] } {
-  const archetype = archetypeOf(id)!;
+/** The life a tile hands over stepped `older` years on the door, played on the engine with its preset; its age and the trail the page keeps. */
+function handedOver(id: string, older: number, seed: string): { months: number; trail: TrailStep[]; life: ReturnType<ReturnType<typeof newGame>["view"]> } {
+  const archetype = withAge(archetypeOf(id)!, older);
   const game = newGame("scenario.prologue", seed);
-  const steps: string[] = [];
+  const trail: TrailStep[] = [];
   for (let guard = 0; guard < 60 && game.state.prologue.open; guard += 1) {
     const prologue = game.view().prologue!;
-    steps.push(prologue.step);
-    const answer = presetAnswer(archetype, prologue) ?? answersInOrder(archetype, prologue.step, prologue.answers).find((one) => one.allowed)?.id;
-    if (answer === undefined) throw new Error(`No open answer at ${prologue.step}.`);
+    const answer = doorAnswer(archetype, prologue);
+    if (answer === null) throw new Error(`No open answer at ${prologue.step}.`);
+    trail.push({ step: prologue.step, answer, outcome: null });
     game.accept({ type: "prologue/choose", step: prologue.step, answer });
   }
-  return { months: game.view().qualities.find((quality) => quality.id === AGE)?.value ?? 0, steps };
+  return { months: game.view().qualities.find((quality) => quality.id === AGE)?.value ?? 0, trail, life: game.view() };
 }
 
+const passed = (life: { trail: TrailStep[] }, step: string): boolean => life.trail.some((one) => one.step === step);
+
 describe("the door's age and the page's", () => {
-  test.each(ARCHETYPES.map((archetype) => [archetype.id, (archetype.preset["after-school"] ?? []).includes("jamb")] as const))("[R-PROLOGUE-009] [R-PROLOGUE-013] given the %s's tile with the age under it, when the age shows and the page is printed, then both say the same \"About\", and no line under the age speaks of a year an exam can cost (the tile sits the exam: %s)", (id, exam) => {
+  test.each(ARCHETYPES.map((archetype) => archetype.id))("[R-PROLOGUE-004] [R-PROLOGUE-009] [R-PROLOGUE-013] given the %s's tile with the age under it, when the age shows and the page is printed, then both say the year its path reaches with no setback, the year its tile says, and never \"about\"", (id) => {
     door();
     fireEvent.change(screen.getByRole("textbox", { name: say("prologue.door.name.title") }), { target: { value: "Bola" } });
     fireEvent.click(next(say("ui.door.next")));
     fireEvent.click(screen.getByRole("radio", { name: say(`prologue.archetype.${id}.name`) }));
-    const about = say("prologue.door.age.years", { years: aboutYears(middleMonths(archetypeOf(id)!)) });
-    expect(document.querySelector("[data-age-years]")?.textContent).toBe(about);
+    const year = startYearFor(archetypeOf(id)!, 0);
+    expect(say(`prologue.archetype.${id}.opens`)).toContain(`from ${String(year)}`);
+    expect(document.querySelector("[data-age-years]")?.textContent).toBe(say("prologue.door.age.years", { years: year }));
     expect(document.querySelector("[data-age-give]")).toBeNull();
-    expect(document.body.textContent).not.toMatch(/give or take/i);
-    expect(typeof exam).toBe("boolean");
+    expect(document.querySelector("[data-door-age]")?.textContent).not.toMatch(/about|give or take/i);
     fireEvent.click(next(say("ui.door.next")));
-    expect(document.querySelector("[data-page] [data-field='age']")?.textContent).toContain(about);
-    expect(say("prologue.page.age.about", { years: 24 })).toBe(say("prologue.door.age.years", { years: 24 }));
+    expect(document.querySelector("[data-page] [data-field='age']")?.textContent).toContain(say("prologue.page.age.years", { years: year }));
+    expect(document.querySelector("[data-page] [data-field='age']")?.textContent).not.toMatch(/about/i);
   });
 
-  test("[R-PROLOGUE-004] [R-PROLOGUE-009] given two nurses at the same step of the door and the same strike, when one passes the exam and one retakes it, then the one who retook opens one year older, as the door's second line says", () => {
-    const lives = Array.from({ length: 40 }, (_, at) => handedOver("nurse", `nurse-age-${String(at)}`));
-    const struck = (life: { steps: string[] }): boolean => life.steps.includes("strike-drag");
-    const retook = (life: { steps: string[] }): boolean => life.steps.includes("retake");
-    const passed = lives.find((life) => !retook(life) && !struck(life));
-    const again = lives.find((life) => retook(life) && !struck(life));
-    if (passed === undefined || again === undefined) throw new Error("No pair of nurses in 40 seeds.");
-    expect(Math.floor((again.months - passed.months) / YEAR)).toBe(1);
-    // The door's own figure is the life that passes, so the one who retook is a year past it, never two.
-    expect(Math.abs(aboutYears(again.months) - aboutYears(passed.months))).toBe(1);
+  test("[R-PROLOGUE-004] [R-PROLOGUE-009] given nurses stepped two years older on the door, when some retake the exam and some pass, then every one of them starts in the year picked, and at her own year none retakes", () => {
+    const picked = startYearFor(archetypeOf("nurse")!, 2);
+    const lives = Array.from({ length: 40 }, (_, at) => handedOver("nurse", 2, `nurse-age-${String(at)}`));
+    expect(lives.some((life) => passed(life, "retake"))).toBe(true);
+    expect(lives.some((life) => !passed(life, "retake"))).toBe(true);
+    for (const life of lives) expect(Math.floor(life.months / 12)).toBe(picked);
+    const own = Array.from({ length: 40 }, (_, at) => handedOver("nurse", 0, `nurse-age-${String(at)}`));
+    expect(own.some((life) => passed(life, "retake") || passed(life, "strike-drag"))).toBe(false);
+    for (const life of own) expect(Math.floor(life.months / 12)).toBe(startYearFor(archetypeOf("nurse")!, 0));
+  });
+
+  test("[R-PROLOGUE-004] [R-PROLOGUE-014] given a degree three years older with a retake, a strike or both, when the page tells the years, then each setback's chip says the work it cost before the age picked", () => {
+    const lives = Array.from({ length: 80 }, (_, at) => handedOver("developer", 3, `chips-${String(at)}`));
+    const notes = (life: (typeof lives)[number]): Record<string, string | null> =>
+      Object.fromEntries(yearChips({ draw: null, steps: life.trail }, life.life).filter((chip) => chip.state === "setback").map((chip) => [chip.id.replace(/-\d+$/, ""), chip.note]));
+    const year = say("ui.page.year.lost.one");
+    // The degree's path ends at 23 and 1 month. A retake (its year and the exam again, 15 months) puts it past 24: a
+    // year of work lost. A strike alone (8 months) leaves it in 23: no work lost. After a retake, the strike puts it past 25.
+    const retakeOnly = lives.find((life) => passed(life, "retake") && !passed(life, "strike-drag"));
+    const strikeOnly = lives.find((life) => !passed(life, "retake") && passed(life, "strike-drag"));
+    const both = lives.find((life) => passed(life, "retake") && passed(life, "strike-drag"));
+    if (retakeOnly === undefined || strikeOnly === undefined || both === undefined) throw new Error("Not every setback came in 80 seeds.");
+    expect(notes(retakeOnly)).toEqual({ retake: year });
+    expect(notes(strikeOnly)).toEqual({ strike: say("ui.page.year.lost.zero") });
+    expect(notes(both)).toEqual({ retake: year, strike: year });
+    for (const life of [retakeOnly, strikeOnly, both]) expect(Math.floor(life.months / 12)).toBe(startYearFor(archetypeOf("developer")!, 3));
   });
 });

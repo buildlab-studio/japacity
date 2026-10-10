@@ -3,7 +3,8 @@
 // of the archetype's answers that is allowed, and where a draw has shut them all, the open answer that suits
 // the archetype best (`doorAnswer`), so no card shows for a new life. The words for each live in content under
 // `prologue.archetype.<id>.*`.
-import type { Id, PlayerView } from "@japacity/sim";
+import { content } from "@japacity/content";
+import type { Id, PlayerView, PrologueStep } from "@japacity/sim";
 
 import { sixteenPath } from "../words/sixteen";
 import { say } from "../words/text";
@@ -12,6 +13,27 @@ type Prologue = NonNullable<PlayerView["prologue"]>;
 
 /** The life from sixteen: the only scenario a tile starts. */
 export const FROM_SIXTEEN = "scenario.prologue" as Id<"scenario">;
+
+const AGE = "quality.age-months";
+const YEAR = 12;
+/** An age card's answer: the year the life starts at (R-PROLOGUE-004). */
+const START = /^start-(\d+)$/;
+
+/** The year an age card's answer picks, or null for any other answer. */
+export function startYearOf(answer: string): number | null {
+  const found = START.exec(answer);
+  return found === null ? null : Number(found[1]);
+}
+
+/** The age cards (R-PROLOGUE-004, decision 0023): the steps whose answers are all years, one for each path after school. */
+export const AGE_CARDS: readonly string[] = Object.values(content.prologue)
+  .filter((step) => step.answers.length > 0 && step.answers.every((answer) => startYearOf(answer.id) !== null))
+  .map((step) => step.id);
+
+/** An age card's years, youngest first, so the first open one is the year its path reaches. */
+function cardYears(card: string): string[] {
+  return [...(content.prologue[card]?.answers ?? [])].sort((a, b) => (startYearOf(a.id) ?? 0) - (startYearOf(b.id) ?? 0)).map((answer) => answer.id);
+}
 
 export type ArchetypeId = "developer" | "nurse" | "accountant" | "writer" | "trader" | "shop-worker" | "water";
 
@@ -37,8 +59,8 @@ const THROUGH: Readonly<Record<string, readonly string[]>> = {
   "strike-drag": ["back"],
   graduation: ["results-nurse", "results"],
   settlement: ["settle"],
-  // The age card: the years as they went, unless the front door set a step (withAge, R-PROLOGUE-009).
-  age: ["as-is"],
+  // The age cards: the youngest year open, the age the path reaches, unless the front door set one (withAge, R-PROLOGUE-009).
+  ...Object.fromEntries(AGE_CARDS.map((card) => [card, cardYears(card)])),
   exam: ["study"],
   retake: ["again"],
   strike: ["wait"],
@@ -48,9 +70,12 @@ const THROUGH: Readonly<Record<string, readonly string[]>> = {
 /** The steps every life passes the same way, which are no archetype's own choice. */
 export const THROUGH_STEPS: ReadonlySet<string> = new Set(Object.keys(THROUGH));
 
-/** The steps an archetype chooses for itself: its preset without the steps every life passes the same way, unless it answers one its own way. */
+/**
+ * The steps an archetype chooses for itself: its preset without the steps every life passes the same way, unless it
+ * answers one its own way. The age cards are the door's, never the tile's: a year set there names every path's card.
+ */
 export function ownSteps(archetype: Archetype): string[] {
-  return Object.keys(archetype.preset).filter((step) => !(step in THROUGH) || (archetype.preset[step] ?? []).join() !== (THROUGH[step] ?? []).join());
+  return Object.keys(archetype.preset).filter((step) => !AGE_CARDS.includes(step) && (!(step in THROUGH) || (archetype.preset[step] ?? []).join() !== (THROUGH[step] ?? []).join()));
 }
 
 /** `friend`: the crowd at the send-off, the answers in order, the first that is open taken (the table's preset). */
@@ -125,14 +150,52 @@ export function archetypeOf(id: string | null | undefined): Archetype | null {
   return ARCHETYPES.find((archetype) => archetype.id === id) ?? null;
 }
 
+/** The outcome of a draw that is no setback (R-PROLOGUE-004): the first that leads neither to a retake nor to a strike. */
+function plainOutcome(step: PrologueStep, answer: PrologueStep["answers"][number]): string | null {
+  const outcomes = answer.draw ?? [];
+  const plain = outcomes.find((outcome) => !["retake", "strike-drag"].includes(outcome.next ?? ""));
+  return plain?.next ?? answer.next ?? step.next;
+}
+
 /**
- * The tile with the age the front door set (R-PROLOGUE-009): the step's answer at the age card, then each step
- * nearer the tile's own age, so a card the draws pushed past a limit still takes the nearest step it can.
+ * The year a tile's life starts at with no step on the door (R-PROLOGUE-004, decision 0023): its cards answered as the
+ * tile answers them, each draw with no setback, up to its age card, and the youngest year that card opens there: the age
+ * its path reaches with no setback, the age the tile says.
+ */
+export function lowestYear(archetype: Archetype): number {
+  let months = content.tuning.prologue.startAgeMonths;
+  let at: string | null = "draw";
+  for (let guard = 0; guard < 40 && at !== null; guard += 1) {
+    const step: PrologueStep | undefined = content.prologue[at];
+    if (step === undefined) break;
+    if (AGE_CARDS.includes(at)) {
+      const open = step.answers.find((answer) => answer.requires.every((requirement) => requirement.type !== "quality/max" || requirement.quality !== AGE || months <= requirement.value));
+      return startYearOf(open?.id ?? "") ?? Math.floor(months / YEAR);
+    }
+    const all = step.answers.map((answer) => ({ id: answer.id, allowed: true }));
+    const id = presetAnswer(archetype, { step: at, answers: all }) ?? step.answers[0]?.id;
+    const answer = step.answers.find((one) => one.id === id) ?? step.answers[0];
+    if (answer === undefined) break;
+    months += step.months;
+    at = plainOutcome(step, answer);
+  }
+  return Math.floor(months / YEAR);
+}
+
+/**
+ * The tile with the age the front door set (R-PROLOGUE-009, decision 0023): `years` older than the year its path
+ * reaches, sent as that year on whichever age card the life comes to; a year shut there gives way to the nearest
+ * open one above, then below.
  */
 export function withAge(archetype: Archetype, years: number): Archetype {
-  const way = years < 0 ? "younger" : "older";
-  const steps = Array.from({ length: Math.abs(years) }, (_, at) => `${way}-${String(Math.abs(years) - at)}`);
-  return { ...archetype, preset: { ...archetype.preset, age: [...steps, "as-is"] } };
+  const year = lowestYear(archetype) + Math.max(0, years);
+  const order = (card: string): string[] => {
+    const all = cardYears(card);
+    const above = all.filter((id) => (startYearOf(id) ?? 0) >= year);
+    const below = all.filter((id) => (startYearOf(id) ?? 0) < year).reverse();
+    return [...above, ...below];
+  };
+  return { ...archetype, preset: { ...archetype.preset, ...Object.fromEntries(AGE_CARDS.map((card) => [card, order(card)])) } };
 }
 
 /** The homes the door can start a life in (R-PROLOGUE-013): the home step's answers, the three homes play backs (R-HOME-001). */

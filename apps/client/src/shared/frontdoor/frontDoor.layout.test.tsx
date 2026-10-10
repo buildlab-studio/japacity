@@ -18,7 +18,7 @@ function memoryStorage() {
 }
 
 describe("Your life so far", () => {
-  test("[R-PROLOGUE-010] [R-PROLOGUE-013] given the second screen, then no ready life is on it, the tiles come first with the first chosen, each tile says its tag, what it was, the routes it opens and the age it hands over at, and the age stands under them", async () => {
+  test("[R-PROLOGUE-010] [R-PROLOGUE-013] given the second screen, then no ready life is on it, the tiles come first with the first chosen, each tile says its tag, what it was, the routes it opens and the age it hands over from, and the age stands under them", async () => {
     render(<App store={bootGame({ storage: memoryStorage(), fastClock: true, makeSeed: () => "front-door-layout" })} />);
     await toTheArchetypes();
     expect(document.querySelector("[data-ready-card], [data-ready], [data-ready-entry]")).toBeNull();
@@ -31,7 +31,8 @@ describe("Your life so far", () => {
       const tile = document.querySelector<HTMLElement>(`[data-archetype='${archetype.id}']`)!;
       expect(tile.getAttribute("aria-checked")).toBe(at === 0 ? "true" : "false");
       expect([...tile.children].map((line) => line.textContent)).toEqual([say(`ui.door.tag.${archetype.id}`), say(`prologue.archetype.${archetype.id}.name`), say(`prologue.archetype.${archetype.id}.was`), say(`prologue.archetype.${archetype.id}.opens`)]);
-      expect(tile.textContent).toMatch(/Opens: .+Hands over at about \d+/);
+      // The age its path reaches with no setback (R-PROLOGUE-004): a true number, never "about".
+      expect(tile.textContent).toMatch(/Opens: .+Hands over from \d+$/);
     }
     expect(new Set(ARCHETYPES.map((archetype) => say(`ui.door.tag.${archetype.id}`)))).toEqual(new Set(["Balanced", "Head start", "Money first", "Hard start"]));
   });

@@ -641,8 +641,10 @@ export const uiText: Record<string, string> = {
   "ui.page.year.exam.passed": "Passed",
   "ui.page.year.exam.failed": "Not passed",
   "ui.page.year.retake": "A retake",
-  "ui.page.year.lost": "{count} months lost",
-  "ui.page.year.lost.one": "One month lost",
+  // The work a retake or a strike cost before the age picked (R-PROLOGUE-004, decision 0023), in whole years.
+  "ui.page.year.lost": "{count} years of work lost",
+  "ui.page.year.lost.one": "A year of work lost",
+  "ui.page.year.lost.zero": "No work lost",
   "ui.page.year.strike": "A strike",
   "ui.page.year.university": "University",
   "ui.page.year.private": "Private university",

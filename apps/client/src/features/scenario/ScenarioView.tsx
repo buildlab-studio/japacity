@@ -24,14 +24,13 @@ import { takeReadyAsk } from "../../shared/frontdoor/ready";
 import { DataPage, type PageFields, Stamp } from "../../shared/datapage/DataPage";
 import { type DoorDraft, type DoorStage, keepDoor, readDoor } from "../../shared/datapage/door";
 import { NAME_LONGEST, nameProblem, problemWords } from "../../shared/datapage/name";
-import { ageSteps, ageStepWords, stepsOpen } from "../../shared/datapage/age";
-import { aboutYears, middleMonths, readyMonths } from "../../shared/datapage/years";
+import { ageStepWords, startYearFor, stepsOpen, yearsWorked } from "../../shared/datapage/age";
+import { readyMonths, yearsOf } from "../../shared/datapage/years";
 
 /** The ready lives: every scenario but the life from sixteen, each named by its kind, never its person. */
 const READY = (Object.keys(content.scenario) as Id<"scenario">[]).filter((id) => content.scenario[id]?.prologue !== true);
 /** The three screens, for the progress marks over the scene. */
 const SCREENS: readonly DoorStage[] = ["you", "life", "page"];
-const YEAR = 12;
 /** How long the stamp sits on a ready life's page before the life starts. */
 export const STAMP_MS = 900;
 
@@ -79,7 +78,7 @@ export function homeFigures(home: Home): { now: number; monthly: number; rentYea
  * moving in takes and the first month's living. Below nothing, the shortfall, or for the room the figure still needed.
  */
 export function pocketIn(archetype: Archetype, years: number, home: Home): number {
-  const saved = ageSteps().find((step) => step.years === years)?.saved ?? 0;
+  const saved = yearsWorked(years).saved;
   const { now, monthly } = homeFigures(home);
   return savingsOf(archetype) + saved - now - monthly;
 }
@@ -129,10 +128,11 @@ function before(draft: DoorDraft): DoorStage | null {
 function fieldsOf(draft: DoorDraft): PageFields {
   const archetype = draft.ready === null ? archetypeOf(draft.archetype) : null;
   const ready = READY.find((id) => id === draft.ready) ?? null;
-  const months = archetype !== null ? middleMonths(archetype) + draft.age * YEAR : ready !== null ? readyMonths(ready) : null;
+  // The year picked is the year the life starts at (R-PROLOGUE-004, decision 0023): a true number, never "about".
+  const years = archetype !== null ? startYearFor(archetype, Math.max(0, draft.age)) : ready !== null ? yearsOf(readyMonths(ready)) : null;
   return {
     name: draft.name.trim(),
-    age: months === null ? "" : say("prologue.page.age.about", { years: aboutYears(months) }),
+    age: years === null ? "" : say("prologue.page.age.years", { years }),
     path: archetype !== null ? say(`prologue.archetype.${archetype.id}.name`) : ready !== null ? say(`${ready}.kind`) : "",
     ready: say("prologue.page.ready.figure", { percent: 0 }),
     photo: lookOf(draft.look)?.picture ?? "",
@@ -239,11 +239,13 @@ export function ScenarioView({ guest = null }: { guest?: DoorGuest | null }) {
   const back = before(draft);
 
   const archetype = draft.ready === null ? archetypeOf(draft.archetype) : null;
-  const middle = archetype === null ? null : middleMonths(archetype);
+  const lowest = archetype === null ? null : startYearFor(archetype, 0);
   const home: Home | null = archetype === null ? null : fitHome(archetype, draft.age, { home: draft.home ?? homeOf(archetype), homePicked: true });
-  const open = middle === null ? [0] : stepsOpen(middle);
+  const open = archetype === null ? [0] : stepsOpen(archetype);
+  // Years older than the tile's own, kept inside the steps open (a run kept from before may hold a younger step).
+  const older = Math.min(Math.max(0, draft.age), Math.max(...open));
   const step = (by: number): void => {
-    const next = draft.age + by;
+    const next = older + by;
     if (open.includes(next)) change({ age: next, ...(archetype === null ? {} : { home: fitHome(archetype, next, draft) }) });
   };
 
@@ -427,22 +429,22 @@ export function ScenarioView({ guest = null }: { guest?: DoorGuest | null }) {
               );
             })}
           </ul>
-          {middle === null ? null : (
+          {lowest === null ? null : (
             <section className="mt-3" aria-label={say("prologue.door.age")} data-door-age>
               <h2 className="label text-text-2">{say("prologue.door.age")}</h2>
               <div className="mt-1.5 flex items-center justify-between rounded-[6px] bg-sheet-muted p-1" data-age-steps>
-                <button type="button" className="press flex size-11 items-center justify-center rounded-[5px] bg-sheet disabled:opacity-40" aria-label={say("prologue.door.age.younger")} disabled={!open.includes(draft.age - 1)} onClick={() => step(-1)}>
+                <button type="button" className="press flex size-11 items-center justify-center rounded-[5px] bg-sheet disabled:opacity-40" aria-label={say("prologue.door.age.younger")} disabled={!open.includes(older - 1)} onClick={() => step(-1)}>
                   <ChevronLeft size={20} />
                 </button>
                 <p className="title num text-[22px]" data-age-years>
-                  {say("prologue.door.age.years", { years: aboutYears(middle + draft.age * YEAR) })}
+                  {say("prologue.door.age.years", { years: lowest + older })}
                 </p>
-                <button type="button" className="press flex size-11 items-center justify-center rounded-[5px] bg-sheet disabled:opacity-40" aria-label={say("prologue.door.age.older")} disabled={!open.includes(draft.age + 1)} onClick={() => step(1)}>
+                <button type="button" className="press flex size-11 items-center justify-center rounded-[5px] bg-sheet disabled:opacity-40" aria-label={say("prologue.door.age.older")} disabled={!open.includes(older + 1)} onClick={() => step(1)}>
                   <ChevronRight size={20} />
                 </button>
               </div>
               <p className="mt-1.5 text-center text-[13px] font-bold" data-age-does>
-                {ageStepWords(draft.age, middle)}
+                {ageStepWords(older, lowest)}
               </p>
             </section>
           )}

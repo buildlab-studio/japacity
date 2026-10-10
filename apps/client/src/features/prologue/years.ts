@@ -1,7 +1,7 @@
 // The years before, as the page tells them (prologue.md R-PROLOGUE-014): the view keeps no prologue once it closes
 // (R-PROLOGUE-006), so while the presets run the screen keeps the family the game drew and each step's answer and
 // outcome on the device, and the page reads them back as fact chips: the school certificate, the course or the
-// trade, a retake or a strike as a setback with its months, the service. A life whose trail was lost reads its path
+// trade, a retake or a strike as a setback with the work it cost, the service. A life whose trail was lost reads its path
 // from the life as it stands.
 import { content } from "@japacity/content";
 import type { PlayerView } from "@japacity/sim";
@@ -89,9 +89,37 @@ export interface YearChip {
   state: MarkState | null;
 }
 
-function monthsLost(step: string): string {
-  const months = content.prologue[step]?.months ?? 0;
-  return sayCount("ui.page.year.lost", months, { count: months });
+const YEAR = 12;
+
+function monthsOf(step: string): number {
+  return content.prologue[step]?.months ?? 0;
+}
+
+/**
+ * The work each setback cost, by its place in the trail (R-PROLOGUE-004, decision 0023). The age picked is the age the
+ * life starts at, so a retake (its year and the exam again) or a strike puts the path's end later and leaves fewer years
+ * of work before that age: the years of work the setback moved the end past, in months, counting the setbacks in turn.
+ */
+function workLost(steps: readonly TrailStep[]): Map<number, number> {
+  const costs = new Map<number, number>();
+  for (const [at, one] of steps.entries()) {
+    if (one.step === "retake" && one.answer === "again") costs.set(at, monthsOf("retake") + (steps[at + 1]?.step === "exam" ? monthsOf("exam") : 0));
+    if (one.step === "strike-drag") costs.set(at, monthsOf("strike-drag"));
+  }
+  const end = content.tuning.prologue.startAgeMonths + steps.reduce((sum, one) => sum + monthsOf(one.step), 0);
+  let reached = end - [...costs.values()].reduce((sum, cost) => sum + cost, 0);
+  const lost = new Map<number, number>();
+  for (const [at, cost] of costs) {
+    const before = Math.floor(reached / YEAR);
+    reached += cost;
+    lost.set(at, (Math.floor(reached / YEAR) - before) * YEAR);
+  }
+  return lost;
+}
+
+function lostWords(months: number): string {
+  const years = Math.floor(months / YEAR);
+  return sayCount("ui.page.year.lost", years, { count: years });
 }
 
 /** The chips of the years before, in the order they were lived, from the trail; from the life's path when the trail is lost. */
@@ -108,6 +136,7 @@ export function yearChips(trail: Trail, life: Pick<PlayerView, "scenario" | "qua
     if (path === "degree") chips.push({ id: "university", icon: GraduationCap, label: say("ui.page.year.university"), note: null, state: "done" });
     return chips;
   }
+  const lost = workLost(steps);
   for (const [at, one] of steps.entries()) {
     const after = steps[at + 1]?.step ?? null;
     switch (one.step) {
@@ -122,13 +151,13 @@ export function yearChips(trail: Trail, life: Pick<PlayerView, "scenario" | "qua
         }
         break;
       case "retake":
-        if (one.answer === "again") chips.push({ id: `retake-${String(at)}`, icon: TriangleAlert, label: say("ui.page.year.retake"), note: monthsLost("retake"), state: "setback" });
+        if (one.answer === "again") chips.push({ id: `retake-${String(at)}`, icon: TriangleAlert, label: say("ui.page.year.retake"), note: lostWords(lost.get(at) ?? 0), state: "setback" });
         break;
       case "course":
         chips.push({ id: "university", icon: GraduationCap, label: say(steps.some((later) => later.step === "university" && later.answer === "private") ? "ui.page.year.private" : "ui.page.year.university"), note: words(`prologue.course.answer.${one.answer}`), state: visited.has("graduation") ? "done" : "waiting" });
         break;
       case "strike-drag":
-        chips.push({ id: "strike", icon: CalendarX, label: say("ui.page.year.strike"), note: monthsLost("strike-drag"), state: "setback" });
+        chips.push({ id: "strike", icon: CalendarX, label: say("ui.page.year.strike"), note: lostWords(lost.get(at) ?? 0), state: "setback" });
         break;
       case "service":
         chips.push({ id: "service", icon: Flag, label: say("ui.page.year.service"), note: say(`ui.page.year.service.${one.answer}`), state: one.answer === "skip" ? "failed" : "done" });
