@@ -74,6 +74,8 @@ export const uiText: Record<string, string> = {
   "ui.months.arriving": "The next page is on its way.",
   "ui.months.full": "Full: {count} pages. A new chapter fills the calendar again.",
   "ui.months.full-again": "A new chapter: your calendar is full again, {count} pages.",
+  // The calendar filled again between months, not by a chapter: said on the band and the results.
+  "ui.months.refilled": "Your pages are full again: {count} to play.",
   "ui.world.turns": "{count} pages left",
   "ui.world.turns.one": "1 page left",
   "ui.clock.next": "Next page in {wait}",

@@ -86,9 +86,19 @@ export function MonthCount() {
   // The page turned flips over on the glyph, on the spot: the count going down by one is the turn.
   const [flip, setFlip] = useState(false);
   const last = useRef(banked);
+  const lastMonth = useRef(view.month);
+  // The calendar full again between months, not by a chapter, is said on the band at once.
+  const [refilled, setRefilled] = useState(false);
   useEffect(() => {
     const was = last.current;
+    const wasMonth = lastMonth.current;
     last.current = banked;
+    lastMonth.current = view.month;
+    if (banked >= cap && banked > was && view.month === wasMonth) {
+      setRefilled(true);
+      setOpen(true);
+      return;
+    }
     if (banked !== was - 1) return;
     setFlip(true);
     const done = window.setTimeout(() => setFlip(false), FLIP_MS);
@@ -96,7 +106,10 @@ export function MonthCount() {
   }, [banked]);
 
   useEffect(() => {
-    if (!open) return;
+    if (!open) {
+      setRefilled(false);
+      return;
+    }
     setNow(Date.now());
     const tick = window.setInterval(() => setNow(Date.now()), 1000);
     const fold = window.setTimeout(() => setOpen(false), SHOWN_MS);
@@ -130,7 +143,7 @@ export function MonthCount() {
       </button>
       {open ? (
         <p className="panel drop pointer-events-auto fixed inset-x-3 top-[calc(max(10px,env(safe-area-inset-top))+62px)] z-[39] mx-auto max-w-[360px] px-3.5 py-3 text-[14px] leading-snug font-semibold" aria-live="polite" data-month-count-words>
-          {countWords(banked, cap, nextTurnAt, now)}
+          {refilled ? say("ui.months.refilled", { count: banked }) : countWords(banked, cap, nextTurnAt, now)}
         </p>
       ) : null}
     </div>
