@@ -24,7 +24,7 @@ import { limitMotion } from "./limits";
 import { filesOf, type Spot, type Stage, stageOf } from "./placeFile";
 import type { CityProbe, ScenePick, SceneProps } from "./scene.types";
 import { sceneWords } from "./scene.words";
-import { aimShot, clampTurn, SHOT_FOV, SHOT_NEAR_PLANE, shotOf, snapZoom, widthEnds } from "./shot";
+import { aimShot, clampTurn, roomShot, SHOT_FOV, SHOT_NEAR_PLANE, shotOf, snapZoom, widthEnds } from "./shot";
 import { thingSpot, walkBeforeAct } from "./things";
 import { standAt, stepWalk, strideOf, WALK_SPEED, type Walker, walkRoute, walkTo } from "./walk";
 import { walkableOf } from "./walk/map";
@@ -554,7 +554,7 @@ export default function CityScene(props: SceneProps & { children?: ReactNode }) 
   const pointers = useRef(new Map<number, { x: number; y: number }>());
   const { settings, looking, file, zoomed = false, onZoomed } = props;
   const raised = props.overview === true && props.roam !== true;
-  const shot = useMemo(() => shotOf(stageOf(file)), [file]);
+  const shot = useMemo(() => roomShot(shotOf(stageOf(file)), stageOf(file), file.scope), [file]);
   const rig = useRef<Rig>(wholeRig());
   const walk = useRef<WalkState>({ walker: standAt(0, 0, 0), pending: null, standing: null, sitting: false, lying: false, speed: WALK_SPEED });
   const [markBox, setMarkBox] = useState<HTMLDivElement | null>(null);
