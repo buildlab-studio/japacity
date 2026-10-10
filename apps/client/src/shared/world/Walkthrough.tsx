@@ -2,7 +2,7 @@
 // played, the Map and Phone thumbs each carry a short word at their foot until each is tapped once; the calendar's tap
 // says its own words (R-WORLD-027). The device keeps what was tapped under the walkthrough's old key, and keeps that
 // it has played once both were, as the walkthrough kept that it was seen.
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { say } from "../words/text";
 
@@ -68,14 +68,18 @@ export function markPlayed(): void {
 }
 
 /**
- * The thumbs tapped on this device, and a tap that keeps it. `played`: the life opened with a month behind it, so the
+ * The thumbs tapped on this device, and a tap that keeps it. `mapOpen`: the map is open now, however it was opened. `played`: the life opened with a month behind it, so the
  * device has played already (a save from before the labels): it is kept as played and no label shows.
  */
-export function useFirstUse(played: boolean): { tapped: ReadonlySet<FirstThumb>; tap: (thumb: FirstThumb) => void } {
+export function useFirstUse(played: boolean, mapOpen = false): { tapped: ReadonlySet<FirstThumb>; tap: (thumb: FirstThumb) => void } {
   const [tapped, setTapped] = useState<ReadonlySet<FirstThumb>>(() => {
     if (played && thumbsTapped().size === 0) markPlayed();
     return thumbsTapped();
   });
+  // The map opened any way, by the nudge as by its thumb, has been found: its label goes.
+  useEffect(() => {
+    if (mapOpen) setTapped((now) => (now.has("map") ? now : markThumbTapped("map")));
+  }, [mapOpen]);
   return {
     tapped,
     tap: (thumb) => {

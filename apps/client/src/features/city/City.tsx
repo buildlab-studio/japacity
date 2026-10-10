@@ -458,7 +458,7 @@ export function City({
   // chapter's title for a moment, a later chapter's card with Go (R-CHAPTER-011).
   const [openingSeen, setOpeningSeen] = useState(false);
   // Nothing lectures before play (R-WORLD-033): the thumbs carry a word until each is tapped once.
-  const firstUse = useFirstUse(view.report !== null);
+  const firstUse = useFirstUse(view.report !== null, map);
   // The app the phone opens on when the nudge sends the player to it (the month's news).
   const [phoneApp, setPhoneApp] = useState<string | null>(null);
   /** The way a vehicle in the place was tapped for, chosen on the ride sheet when the map opens from it (R-WORLD-017). */
