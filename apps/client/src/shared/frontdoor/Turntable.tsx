@@ -6,24 +6,17 @@ import { paletteCss } from "@japacity/assets";
 import { text } from "@japacity/content";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useRef, useState } from "react";
-import { Color } from "three";
+import { Box3, Color } from "three";
 
 import { advanceClock } from "../three/clock";
 import { loadModel } from "../three/load";
 import { loadManifest } from "../three/manifest";
 import { type Figure, figureOf, poseFigure } from "../three/people";
 import { readLook, wear } from "./colours";
+import { FOV, framing, LIFT, PLINTH_HIGH, PLINTH_RADIUS, STANDING } from "./framing";
 import { idOf } from "./looks";
 import { type Spin, SLOW_TURN, turnFrame } from "./spin";
 import { type LookStyle, reportOwn, styleKey } from "./style";
-
-/** The plinth: a low round the figure stands on, this wide and this high. */
-const PLINTH_RADIUS = 0.7;
-const PLINTH_HIGH = 0.1;
-/** The design's framing: the camera back and up from the figure, looking at its middle, so the whole look stands in the space above the sheet. */
-const CAMERA: readonly [number, number, number] = [0, 1.25, 4.4];
-const LOOK_AT_Y = 0.88;
-const FOV = 30;
 
 export interface TurntableProps {
   /** The look's file, `shared/chr/chr_ada.glb`. */
@@ -49,6 +42,7 @@ function Stand({ look, spin, style, onShown }: TurntableProps) {
   worn.current = style;
   const key = styleKey(style);
   const facing = useRef(0);
+  const high = useRef(STANDING);
   const speed = useRef(SLOW_TURN);
   const camera = useThree((state) => state.camera);
 
@@ -60,6 +54,10 @@ function Stand({ look, spin, style, onShown }: TurntableProps) {
       if (!alive) return;
       const made = figureOf(model, "stand", 0.7);
       dress(made.root, look, worn.current);
+      // The look's own height, hair and gele included, so a tall head-tie is never cut by the header.
+      const box = new Box3().setFromObject(made.root);
+      const read = box.max.y - Math.min(0, box.min.y);
+      high.current = Number.isFinite(read) && read > 1.2 && read < 2.6 ? read : STANDING;
       setFigure({ look, figure: made });
       onShown?.();
     })().catch(() => undefined);
@@ -85,7 +83,9 @@ function Stand({ look, spin, style, onShown }: TurntableProps) {
 
   useFrame((_, delta) => {
     const time = advanceClock(delta);
-    camera.lookAt(0, LOOK_AT_Y, 0);
+    const frame = framing(high.current);
+    camera.position.set(0, frame.middle + LIFT, frame.distance);
+    camera.lookAt(0, frame.middle, 0);
     if (figure === null) return;
     const turned = turnFrame(spin, facing.current, speed.current, delta);
     facing.current = turned.angle;
@@ -111,7 +111,7 @@ function Stand({ look, spin, style, onShown }: TurntableProps) {
 
 export default function Turntable(props: TurntableProps) {
   return (
-    <Canvas dpr={[1, 2]} gl={{ alpha: true, antialias: true }} camera={{ fov: FOV, near: 0.1, far: 40, position: [...CAMERA] }} aria-hidden data-turntable-canvas>
+    <Canvas dpr={[1, 2]} gl={{ alpha: true, antialias: true }} camera={{ fov: FOV, near: 0.1, far: 40, position: [0, 1.25, 4.4] }} aria-hidden data-turntable-canvas>
       <Stand {...props} />
     </Canvas>
   );

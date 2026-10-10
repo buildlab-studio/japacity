@@ -1,6 +1,6 @@
 // The first two screens of the front door as the design draws them (prologue.md R-PROLOGUE-009, 013): the theme's
-// own band from edge to edge, the header at the top, the figure alone on its turntable in the space between, with the
-// name over it and the path and age beneath the name, "Drag to turn" at its foot, and the sheet under it. No compound
+// own band from edge to edge, the header at the top, the name over the figure and the path and age beneath the name,
+// the figure alone on its turntable filling the space between them and the sheet, whole from hair to shoes, "Drag to turn" at its foot, and the sheet under it. No compound
 // behind the figure here; the compound and its plinth stand behind the page and the world. Where WebGL is missing,
 // or until the figure stands, the look's own picture stands in.
 import { lazy, type PointerEvent, type ReactNode, Suspense, useMemo, useRef, useState } from "react";
@@ -53,6 +53,11 @@ export function Stand({ look, style, mark, head, name, caption, children }: Stan
   return (
     <div className="band-2 fixed inset-0 flex flex-col overflow-hidden" data-gate={mark} data-look={shown?.id} data-stand>
       <div className="shrink-0 px-3 pt-[max(12px,env(safe-area-inset-top))]">{head}</div>
+      {/* The name and the path and age stand over the figure, never on it: the figure fills the space under them. */}
+      <div className="pointer-events-none shrink-0 pt-1.5 text-center leading-tight" data-stand-name>
+        <div className="truncate px-4 text-[15px] font-extrabold">{name === "" ? say("prologue.page.empty") : name}</div>
+        <div className="num truncate px-4 text-[12px] opacity-75">{caption}</div>
+      </div>
       <div
         className="relative min-h-0 flex-1"
         data-turntable
@@ -74,10 +79,6 @@ export function Stand({ look, style, mark, head, name, caption, children }: Stan
         ) : (
           standIn
         )}
-        <div className="pointer-events-none absolute inset-x-0 top-1 text-center" data-stand-name>
-          <div className="truncate px-4 text-[15px] font-extrabold">{name === "" ? say("prologue.page.empty") : name}</div>
-          <div className="num truncate px-4 text-[12px] opacity-75">{caption}</div>
-        </div>
         <div className="label pointer-events-none absolute inset-x-0 bottom-1.5 text-center text-[10px] opacity-55" data-stand-drag>
           {say("prologue.door.drag")}
         </div>
