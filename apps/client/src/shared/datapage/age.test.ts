@@ -100,6 +100,9 @@ describe("the age card", () => {
     expect(ageStepWords(1, 23 * 12)).toBe(say("prologue.age.older", { amount: formatMoney(ageSteps().find((step) => step.years === 1)!.saved, "NGN") }));
     expect(ageStepWords(-2, 23 * 12)).toBe(say("prologue.age.younger", { count: limit - 21 }));
     expect(ageStepWords(0, 23 * 12)).toBe(say("prologue.age.as-is", { count: limit - 23 }));
+    // Counted from the age the step lands at: 23 years and 9 months is 6 whole years before 30, beside "24 years old".
+    expect(ageStepWords(0, 23 * 12 + 9)).toBe(say("prologue.age.as-is", { count: limit - 24 }));
+    expect(ageStepWords(-1, 23 * 12 + 9)).toBe(say("prologue.age.younger", { count: limit - 23 }));
     expect(ageStepWords(1, 23 * 12)).toContain("₦120,000");
     expect(ageStepWords(2, 23 * 12)).toContain("passport");
   });
