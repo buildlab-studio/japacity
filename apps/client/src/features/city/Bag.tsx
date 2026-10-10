@@ -132,7 +132,7 @@ function tagOf(words: string): Sprite {
     ctx.fillStyle = paletteCss("cream");
     ctx.strokeStyle = paletteCss("indigo");
     ctx.lineWidth = 8;
-    // The point and the string hole at the right, toward the bag it hangs from.
+    // The card cut to a point at one end, with its string hole.
     ctx.beginPath();
     ctx.moveTo(6, 6);
     ctx.lineTo(208, 6);
@@ -172,7 +172,7 @@ function bagBody(scene: Object3D, kept: Object3D | null): Object3D | null {
 
 export interface BagProps {
   stage: Stage;
-  /** The figure as the band shows it, or null with no route yet. */
+  /** The figure as the world shows it (it waits while a sheet covers the world), or null with no route yet. */
   figure: number | null;
   documents: PlayerView["documents"];
   routes: PlayerView["routes"];
