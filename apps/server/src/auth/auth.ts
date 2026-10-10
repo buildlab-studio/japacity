@@ -23,7 +23,7 @@ import { admitAccount, admitMethod, admitSession } from "../account/signup";
 import type { TurnstileKeys } from "../account/turnstile";
 import { requestDeletion } from "../account/deletion";
 import type { ServerDeps } from "../deps";
-import { emailSendLimit, endSessionsOnUnlink } from "./hooks";
+import { afterAuth, beforeAuth } from "./hooks";
 import { signedInWith } from "./session";
 
 /** The memory adapter in tests; Drizzle's adapter has the same shape. */
@@ -36,15 +36,24 @@ export interface OtpMessage {
   type: "sign-in" | "email-verification" | "forget-password" | "change-email";
 }
 
+/** R-ACCOUNT-003: what the account's email is told, by a send the request never awaits. */
+export interface AuthNotice {
+  email: string;
+  kind: "passkey-added";
+  at: number;
+}
+
 /** The deployment's keys and outside services for sign-in. */
 export interface AuthKeys {
   /** Signs the session cookie. At least 32 random characters. */
   secret: string;
-  /** The game's own address, e.g. `https://japacity.com`; the passkeys' relying party is its host (R-ACCOUNT-003). */
+  /** The game's own address, `https://play.japacity.com`; the passkeys' relying party is its host (R-ACCOUNT-003). */
   siteUrl: string;
   google: { clientId: string; clientSecret: string };
   turnstile: TurnstileKeys;
   sendOtp: (message: OtpMessage) => Promise<void>;
+  /** R-ACCOUNT-003: sends a notice to an account's email. */
+  sendNotice: (notice: AuthNotice) => Promise<void>;
   /** Keeps a promise alive past the reply: the request's `waitUntil` on Workers. */
   background: (promise: Promise<unknown>) => void;
 }
@@ -52,9 +61,13 @@ export interface AuthKeys {
 /** R-ACCOUNT-006: the session cookie's attributes, whatever the library's defaults become. */
 export const COOKIE_ATTRIBUTES = { httpOnly: true, secure: true, sameSite: "lax" } as const;
 
-/** R-ACCOUNT-005: the test utilities exist only while the test server's config turns them on. */
-function testPlugins(captureOtp: boolean): BetterAuthPlugin[] {
-  return captureOtp ? [testUtils({ captureOTP: true }) as BetterAuthPlugin] : [];
+/**
+ * R-ACCOUNT-005: the test utilities exist only while the test server's config
+ * turns them on. They capture no code: the database holds only its hash, so
+ * the tests read a code from the stand-in for the send.
+ */
+function testPlugins(testServer: boolean): BetterAuthPlugin[] {
+  return testServer ? [testUtils() as BetterAuthPlugin] : [];
 }
 
 export function makeAuth(deps: ServerDeps, adapter: Adapter, keys: AuthKeys) {
@@ -65,7 +78,8 @@ export function makeAuth(deps: ServerDeps, adapter: Adapter, keys: AuthKeys) {
       otpLength: config.auth.otp.length,
       expiresIn: config.auth.otp.expiresIn,
       allowedAttempts: config.auth.otp.attempts,
-      storeOTP: "plain",
+      // R-ACCOUNT-002, the database keeps only a code's hash.
+      storeOTP: "hashed",
       resendStrategy: "rotate",
       // The library hands this promise to `advanced.backgroundTasks` without awaiting it.
       sendVerificationOTP: (message) => keys.sendOtp(message),
@@ -132,8 +146,8 @@ export function makeAuth(deps: ServerDeps, adapter: Adapter, keys: AuthKeys) {
       },
     },
     hooks: {
-      before: emailSendLimit(deps),
-      after: endSessionsOnUnlink(),
+      before: beforeAuth(deps),
+      after: afterAuth(deps, keys),
     },
     advanced: {
       useSecureCookies: true,

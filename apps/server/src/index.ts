@@ -90,6 +90,11 @@ function sendOtp(): Promise<void> {
   return Promise.reject(new Error("No email provider is configured."));
 }
 
+/** R-ACCOUNT-003: the notices go by the same provider as the codes; until one is chosen none is sent. */
+function sendNotice(): Promise<void> {
+  return Promise.reject(new Error("No email provider is configured."));
+}
+
 function authKeys(env: Env, waitUntil: (promise: Promise<unknown>) => void): AuthKeys {
   return {
     secret: env.BETTER_AUTH_SECRET,
@@ -97,6 +102,7 @@ function authKeys(env: Env, waitUntil: (promise: Promise<unknown>) => void): Aut
     google: { clientId: env.GOOGLE_CLIENT_ID, clientSecret: env.GOOGLE_CLIENT_SECRET },
     turnstile: { secretKey: env.TURNSTILE_SECRET_KEY },
     sendOtp,
+    sendNotice,
     background: waitUntil,
   };
 }

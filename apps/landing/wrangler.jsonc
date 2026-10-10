@@ -17,7 +17,7 @@
     "SITE_URL": "https://japacity.com",
     // "true" on launch day: the page shows the play link instead of "opens soon".
     "LANDING_LIVE": "false",
-    // Placeholder: the game's address the play link opens. the maintainer sets the one he chose.
+    // The game's address the play link opens: the server's SITE_URL.
     "LANDING_PLAY_URL": "https://play.japacity.com",
     // The game's X handle without the @, once the maintainer has claimed it. Empty: no X link.
     "LANDING_X_HANDLE": "",
