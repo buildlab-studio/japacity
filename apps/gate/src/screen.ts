@@ -1,11 +1,18 @@
-// The one screen anyone without the invite sees. Plain HTML, no script, no form, no picture
-// of its own. Words are first drafts for the maintainer to retype in his own voice.
+// The one screen anyone without the invite sees. Plain HTML, no form, no picture of its own, and
+// one script only: Cloudflare Web Analytics' beacon, while the maintainer has set its token (the maintainer,
+// 11 Oct 2026). Words are first drafts for the maintainer to retype in his own voice.
 
 const TITLE = "Japacity";
 const LINE = "The game opens soon.";
 const INVITED = "Got an invite link from a friend? Open it again on this phone.";
 const DESCRIPTION = "A browser game about japa: the job, the transcript, the funds, the visa officer, and the life after.";
 const HANDLE = /^[A-Za-z0-9_]{1,15}$/;
+/** A Web Analytics site token: letters and digits only, so it can sit in the beacon's attribute as it is. */
+const TOKEN = /^[A-Za-z0-9]{1,64}$/;
+
+/** Where the beacon comes from, and where it reports: the only script and the only connection the screen may make. */
+export const BEACON_SCRIPT = "https://static.cloudflareinsights.com";
+export const BEACON_REPORTS = "https://cloudflareinsights.com";
 
 function escapeHtml(text: string): string {
   return text.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;");
@@ -17,8 +24,19 @@ export function xLink(handle: string): string {
   return `<a class="x" href="https://x.com/${handle}" rel="me">@${handle} on X</a>`;
 }
 
+/** True when the token can be served: set, and nothing but letters and digits. */
+export function beaconOn(token: string): boolean {
+  return TOKEN.test(token);
+}
+
+/** Web Analytics' beacon, the screen's one script, or nothing while the token is unset or not a token. */
+export function beacon(token: string): string {
+  if (!beaconOn(token)) return "";
+  return `<script defer src="${BEACON_SCRIPT}/beacon.min.js" data-cf-beacon='{"token": "${token}", "spa": false}'></script>`;
+}
+
 /** The screen. `siteUrl` is the holding page, whose card picture the link preview borrows. */
-export function renderScreen(xHandle: string, siteUrl: string): string {
+export function renderScreen(xHandle: string, siteUrl: string, analyticsToken = ""): string {
   const card = `${siteUrl}/card.png`;
   return `<!doctype html>
 <html lang="en-NG">
@@ -57,6 +75,7 @@ p{margin:0 0 20px}
 <p class="invited">${escapeHtml(INVITED)}</p>
 ${xLink(xHandle)}
 </main>
+${beacon(analyticsToken)}
 </body>
 </html>
 `;
