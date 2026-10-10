@@ -62,8 +62,11 @@ export type ActivityEvent =
    * `wrong`: the item they have out of date, if the rules changed since; `metWrong`: the player meets it now. Changes nothing.
    */
   | { type: "activity/word-of-mouth"; route: Id<"route">; items: string[]; wrong: string | null; metWrong: boolean }
-  /** R-ACTIVITY-013: a month of trying to be noticed at the job held. `raised`: the draw landed and the job's pay rose from `was` to `pay` a month. */
-  | { type: "activity/noticed"; job: Id<"activity">; raised: boolean; pay: MoneyParam; was: MoneyParam }
+  /**
+   * R-ACTIVITY-013: a month of trying to be noticed at the job held. `raised`: the draw landed and the job's pay rose
+   * from `was` to `pay` a month. `month`: the month it was played, kept with a raise for the Jobs app.
+   */
+  | { type: "activity/noticed"; job: Id<"activity">; raised: boolean; pay: MoneyParam; was: MoneyParam; month: number }
   /** R-ACTIVITY-013: a course at home in progress ended with the flight; its fees close with it. */
   | { type: "activity/course-ended"; activity: Id<"activity"> }
   /** R-ACTIVITY-013: a month of open source that added no piece; `first` for the life's first. Changes nothing. */

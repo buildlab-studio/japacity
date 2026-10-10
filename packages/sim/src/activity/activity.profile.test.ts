@@ -280,6 +280,33 @@ describe("each act's outcome told the month it happens", () => {
   });
 });
 
+describe("the raise in the view", () => {
+  test("[R-ACTIVITY-013] given the raise lands, when the view is read, then the job carries its pay with the raise and the month it landed, the month of the report that told it", () => {
+    const game = start({ content, scenario: "scenario.tunde", seed: seedFor(true) });
+    const job = game.state.activity.job!;
+    const base = figure(entryOf(job).pay!);
+    expect(game.view().job.raise).toBeUndefined();
+    month(game, [slot(NOTICED)]);
+    // The month the raise landed is the month of the report that told it, as News stamps it.
+    const landed = game.view().report?.month;
+    expect(game.view().report?.lines.map((line) => line.key)).toContain("line.activity.raised");
+    expect(game.view().job.raise).toEqual({ pay: { currency: entryOf(job).pay!.currency, amount: base + bp(base, content.tuning.activity.raiseBp) }, month: landed });
+    month(game, []);
+    expect(game.view().job.raise?.month).toBe(landed);
+  });
+
+  test("[R-ACTIVITY-013] given the draw misses, or the raised job is left, when the view is read, then the job carries no raise", () => {
+    const missed = start({ content, scenario: "scenario.tunde", seed: seedFor(false) });
+    month(missed, [slot(NOTICED)]);
+    expect(missed.view().job.raise).toBeUndefined();
+    const raised = start({ content, scenario: "scenario.tunde", seed: seedFor(true) });
+    month(raised, [slot(NOTICED)]);
+    expect(raised.view().job.raise).toBeDefined();
+    raised.accept({ type: "activity/quit" });
+    expect(raised.view().job.raise).toBeUndefined();
+  });
+});
+
 describe("the nurse's certification", () => {
   /** Ngozi sits the exam and answers the three questions right or wrong as given. */
   function sit(answers: boolean[], seed?: string): { game: Game; marked: Accepted; paid: Accepted } {

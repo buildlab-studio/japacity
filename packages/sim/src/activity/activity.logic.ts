@@ -779,7 +779,18 @@ function beNoticed(ctx: Ctx): BaseEvent[] {
   const raised = ctx.random.chance("job", ctx.content.tuning.activity.raiseChanceBp);
   const after: ReadCtx = { ...read, state: { ...read.state, activity: { ...read.state.activity, raised: [...(read.state.activity.raised ?? []), job] } } };
   const pay = raised ? (monthlyPay(after, entry) ?? now) : now;
-  return record(ctx, { type: "activity/noticed", job, raised, pay, was: now });
+  return record(ctx, { type: "activity/noticed", job, raised, pay, was: now, month: ctx.state.turn.month });
+}
+
+/**
+ * R-ACTIVITY-013: the raise from being noticed, for the Jobs app. The held job's pay a
+ * month with the raise and the month it landed; nothing while the job held has no raise or no pay of its own.
+ */
+function raiseView(read: ReadCtx): { raise?: { pay: MoneyParam; month: number | null } } {
+  const job = read.state.activity.job;
+  if (job === null || !raisedJob(read.state, job)) return {};
+  const pay = monthlyPay(read, jobEntry(read.content, job));
+  return pay === null ? {} : { raise: { pay, month: read.state.activity.raisedIn?.[job] ?? null } };
 }
 
 /** Why the flight ends a job: the move abroad (R-PLACE-003). */
@@ -1258,7 +1269,7 @@ function evolve(slice: ActivitySlice, event: ActivityEvent): ActivitySlice {
       return { ...slice, played };
     }
     case "activity/noticed":
-      return event.raised ? { ...slice, raised: [...(slice.raised ?? []), event.job] } : slice;
+      return event.raised ? { ...slice, raised: [...(slice.raised ?? []), event.job], raisedIn: { ...slice.raisedIn, [event.job]: event.month } } : slice;
     case "activity/pay-withheld":
     case "activity/sick-pay":
     case "activity/side-worked":
@@ -1347,6 +1358,7 @@ export const activityKind: RegisteredKind<ActivitySlice, ActivityEvent> = {
       id: read.state.activity.job,
       months: read.state.activity.job === null ? 0 : (read.state.activity.tenure[read.state.activity.job] ?? 0),
       side: read.state.activity.side,
+      ...raiseView(read),
     },
     activities: activityOptions(read),
     lastSlots: read.state.activity.lastSlots,

@@ -1435,6 +1435,8 @@ export interface ActivitySlice {
   played: Record<Id<"activity">, number>;
   /** The jobs whose pay has risen once by `tuning.activity.raiseBp` (R-ACTIVITY-013). Missing: none yet. */
   raised?: Id<"activity">[];
+  /** The month each raise landed, for the Jobs app (R-ACTIVITY-013). Missing until a raise lands, so no state hash moves before one. */
+  raisedIn?: Record<Id<"activity">, number>;
 }
 
 export interface PocketBalance {
@@ -2058,7 +2060,11 @@ export interface PlayerView {
   /** The run-down warning stands: two months under the wellbeing line (R-HEALTH-001, R-HEALTH-007). */
   runDown: boolean;
   /** The job, its tenure, and the side job held if any (R-ACTIVITY-010). */
-  job: { id: Id<"activity"> | null; months: number; side: Id<"activity"> | null };
+  /**
+   * `raise` (R-ACTIVITY-013): the held job's pay a month with the raise from being noticed, and the month the raise
+   * landed (null for a raise kept from before the month was recorded). Absent while the job held has no raise.
+   */
+  job: { id: Id<"activity"> | null; months: number; side: Id<"activity"> | null; raise?: { pay: MoneyParam; month: number | null } };
   freeSlots: number;
   activities: ActivityOption[];
   lastSlots: SlotPick[];
