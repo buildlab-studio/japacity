@@ -134,6 +134,8 @@ export const uiText: Record<string, string> = {
   "ui.report.japacity-none": "Japacity: no route yet",
   "ui.line.school-offer-plain": "{school} offered you a place.",
   "ui.line.savings-before": "Your savings from before: {amount}.",
+  // A move to a home with rent, told once with the rent it paid (home.md R-HOME-002).
+  "ui.line.home-moved": "Home is {place} now: {amount} a month.",
   // The time played on a share card, in years and months (shared/card/face.ts, playedWords).
   "ui.card.played.years": "{count} years",
   "ui.card.played.years.one": "1 year",
@@ -161,6 +163,9 @@ export const uiText: Record<string, string> = {
   "ui.line.remit-landed": "Landed in your naira account at home: {amount}.",
   "ui.results.changed-out": "Changed at the bank: {amount}.",
   "ui.results.changed": "Changed {paid} into {got}. The bank's charge came to {amount}.",
+  "ui.results.changed-small": "Changed {paid} into {got} at the bank.",
+  // An answer with what was chosen.
+  "ui.results.answered": "Answered: {offer}. You chose: {chosen}.",
   "ui.results.changed-street": "Changed {paid} into {got} with the FX man.",
   "ui.results.changed-street-out": "Handed to the FX man: {amount}.",
   "ui.results.changed-queued": "Paid in at the bank for {currency}: {amount}. They come {readyMonth}.",
@@ -319,6 +324,10 @@ export const uiText: Record<string, string> = {
   "ui.needs.money": "Cannot be paid now",
   "ui.needs.foreign": "Needs {currency}",
   "ui.needs.planned": "In this month's plan",
+  // A shut card's button, when the card itself lists why.
+  "ui.needs.not-yet": "Not yet",
+  // The one job an act starts, held already: the shop open (R-ACTIVITY-016).
+  "ui.needs.running": "It is open already",
   "ui.needs.other": "Not yet: {what}",
   "ui.activity.later": "Later, abroad",
   "ui.activity.later-hint": "{count} things you can only do once you have left.",
@@ -352,6 +361,7 @@ export const uiText: Record<string, string> = {
   // What a change says before it is confirmed (features/phone/apps/Bank.tsx, changeLine).
   "ui.wallet.change.line": "{amount} into {currency}, at today's rate.",
   "ui.wallet.change.get.bank": "You get {got}. The bank's charge is {charge}.",
+  "ui.wallet.change.get.bank-small": "You get {got}.",
   "ui.wallet.change.get.aboki": "You get {got} in cash, if he counts it right.",
   // The pocket the change lands in, as the button reads the pocket it is paid from.
   "ui.wallet.change.after.bank": "After, you hold {to} in the bank.",
@@ -662,6 +672,7 @@ export const uiText: Record<string, string> = {
   "ui.req.not": "Not while this holds: {inner}",
   "ui.req.not-pending": "Wait: your {document} is already on the way",
   "ui.req.not-held": "Only without {document} in hand",
+  "ui.req.not-job": "{job} is open already",
   "ui.req.any": "One of: {inner}",
   "ui.req.any-route": "A way out you have heard of",
   "ui.req.any-abroad-or-circle": "Someone you know abroad, or a wide enough circle",

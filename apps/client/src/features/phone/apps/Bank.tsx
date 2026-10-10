@@ -14,9 +14,9 @@ import { changeQuote } from "../../../shared/words/cost";
 import { duesGap, heldElsewhere } from "../../../shared/words/dues";
 import { REMIT_CHANNELS, remitQuote, type RemitChannel } from "../../../shared/sim/remit";
 import { CURRENCIES, formatBp, formatMoney, HOME_CURRENCIES } from "../../../shared/words/format";
-import { type MoneyLine, moneyLines } from "../../../shared/words/money";
+import { chargeShown, type MoneyLine, moneyLines } from "../../../shared/words/money";
 import { lowerFirst, say, words } from "../../../shared/words/text";
-import { savedFor, savingsOf } from "../../../shared/words/savings";
+import { savedFor, savingsOf, savingsRoute } from "../../../shared/words/savings";
 import { localCurrency } from "../../../shared/words/wayHome";
 import { Counter } from "../../../shared/world/Band";
 import { Chips, Head, useAsk } from "../act";
@@ -42,6 +42,17 @@ export { savedFor, savingsOf };
 export function latelyMoney(view: Pick<PlayerView, "report">, lastMonth: readonly ReportLine[], thisMonth: readonly ReportLine[], local: Currency = "NGN"): MoneyLine[] {
   const ended = view.report === null ? [] : moneyLines([...lastMonth, ...view.report.lines], local);
   return [...ended, ...moneyLines(thisMonth, local)];
+}
+
+/**
+ * How the savings are said: what is held of the figure, or once it is met, that it is enough and what the figure is
+ * for, the fees alone or the funds to show and the fees (R-WORLD-019).
+ */
+function savingsKey(view: PlayerView, savings: { shown: number; required: number }): string {
+  if (savings.shown < savings.required) return "phone.bank.savings.line";
+  const route = savingsRoute(view);
+  const funds = (route === null ? [] : (content.route[route.id]?.checklist ?? [])).some((item) => item.requirement.type === "route/funds");
+  return funds ? "phone.bank.savings.met.funds" : "phone.bank.savings.met.fees";
 }
 
 /** Lately's lines as the report's lines, in Lately's order. */
@@ -110,7 +121,10 @@ export function changeLine(view: Pick<PlayerView, "rates" | "pockets">, from: Cu
   const held = via === "bank" ? view.pockets[to].bank : view.pockets[to].cash;
   return [
     say("ui.wallet.change.line", { amount: formatMoney(amount, from), currency: lowerFirst(currencyWords(to)) }),
-    via === "bank" ? say("ui.wallet.change.get.bank", { got: formatMoney(got.amount, to), charge: formatMoney(charge.amount, from) }) : say("ui.wallet.change.get.aboki", { got: formatMoney(got.amount, to) }),
+    // A charge that rounds to nothing is not said: "The bank's charge is £0".
+    via === "aboki"
+      ? say("ui.wallet.change.get.aboki", { got: formatMoney(got.amount, to) })
+      : say(chargeShown(charge.amount, from) ? "ui.wallet.change.get.bank" : "ui.wallet.change.get.bank-small", { got: formatMoney(got.amount, to), charge: formatMoney(charge.amount, from) }),
     // With none of that money there before, what you get is what you hold: said once.
     ...(held === 0 ? [] : [say(`ui.wallet.change.after.${via}`, { to: formatMoney(held + got.amount, to) })]),
   ].join(" ");
@@ -433,7 +447,14 @@ export function Bank({ opening: openOn = null }: { opening?: "change" | "move" |
         <Counter value={view.pockets[shown].bank} format={(value) => formatMoney(value, shown)} className="block text-[34px] leading-tight" />
         <div className="text-[13px] opacity-85">{phoneWords("phone.bank.cash", { amount: formatMoney(view.pockets[shown].cash, shown) })}</div>
         {abroad || others.length === 0 ? null : (
-          <div className="text-[13px] opacity-85">{phoneWords("phone.bank.also", { amounts: others.map((currency) => formatMoney(view.pockets[currency].bank + view.pockets[currency].cash, currency)).join(", ") })}</div>
+          // Each other money says where it is held, the bank or cash.
+          <div className="text-[13px] opacity-85" data-bank-also>
+            {phoneWords("phone.bank.also", {
+              amounts: others
+                .flatMap((currency) => (["bank", "cash"] as const).filter((pocket) => view.pockets[currency][pocket] > 0).map((pocket) => phoneWords(`phone.bank.also.${pocket}`, { amount: formatMoney(view.pockets[currency][pocket], currency) })))
+                .join(", "),
+            })}
+          </div>
         )}
       </div>
       {abroad && !view.ended ? <HeldElsewhere local={local} onChange={changeFrom} /> : null}
@@ -448,7 +469,9 @@ export function Bank({ opening: openOn = null }: { opening?: "change" | "move" |
               <div className="h-2.5 overflow-hidden rounded-[2px] bg-sheet-muted" role="progressbar" aria-valuemin={0} aria-valuemax={savings.required} aria-valuenow={Math.min(savings.shown, savings.required)} aria-label={phoneWords("phone.bank.savings")}>
                 <div className="h-full rounded-[2px] bg-in" style={{ width: `${String(Math.min(100, Math.floor((savings.shown * 100) / savings.required)))}%` }} />
               </div>
-              <p className="num mt-1 text-[15px]">{phoneWords("phone.bank.savings.line", { shown: formatMoney(savings.shown, savings.currency), required: formatMoney(savings.required, savings.currency) })}</p>
+              <p className="num mt-1 text-[15px]" data-savings-met={savings.shown >= savings.required ? "true" : undefined}>
+                {phoneWords(savingsKey(view, savings), { shown: formatMoney(savings.shown, savings.currency), required: formatMoney(savings.required, savings.currency) })}
+              </p>
             </div>
           )}
         </>

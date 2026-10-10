@@ -61,7 +61,10 @@ const UPKEEP_MOVED = "ui.line.upkeep-";
 /** The naira leg of money sent home, named for where it lands. */
 const REMIT_LANDED = "ui.line.remit-landed";
 
-const NAMED: readonly string[] = [FAMILY_PAID, OFFER_PAID, CHARGED_AS, "ui.line.document-fee", REMIT_LANDED, ACTIVITY_PAID, UPKEEP_MOVED];
+/** The move to a home with rent, said as the move with what it costs a month (see `movedWithRent`). */
+const HOME_MOVED_RENT = "ui.line.home-moved";
+
+const NAMED: readonly string[] = [FAMILY_PAID, OFFER_PAID, CHARGED_AS, "ui.line.document-fee", REMIT_LANDED, ACTIVITY_PAID, UPKEEP_MOVED, HOME_MOVED_RENT];
 
 /** The prologue's last line: what came before it is the years before the first month. */
 export const PROLOGUE_CLOSED = "line.prologue.closed";
@@ -289,7 +292,7 @@ export function toldUnpaid(line: ReportLine): ReportLine {
 
 export function tidyLines(lines: readonly ReportLine[]): ReportLine[] {
   // Named before the retold go, so a payment named for its offer is never taken for the month's own.
-  return oneGoalLine(jobEndsWithFlight(upkeepMoved(oneEndorsementStory(savedBefore(dropRetold(paperFee(activityPaid(paidAs(paidFor(foldPockets(lines))))))))))).map(variant).map(remitLanded).map(goalFirst);
+  return readyNotOnTheWay(oneGoalLine(jobEndsWithFlight(movedWithRent(upkeepMoved(oneEndorsementStory(savedBefore(dropRetold(paperFee(activityPaid(paidAs(paidFor(foldPockets(lines))))))))))))).map(variant).map(remitLanded).map(goalFirst);
 }
 
 /** A slot played, and a now-act done at once (R-ACTIVITY-015): each comes just before the money it spent. */
@@ -342,6 +345,34 @@ function upkeepMoved(lines: readonly ReportLine[]): ReportLine[] {
   return lines.map((line, index) => (index === at ? { ...line, key: told } : line));
 }
 
+/** The room's first charge met by the rent paid on the move (home.md R-HOME-002): the move's line told it already. */
+const MOVE_PAID = "line.obligation.relief.move";
+
+/**
+ * A move to a home with rent is one line with the rent it paid (R-HOME-002): "Home is Makoko
+ * now: ₦25,000 a month." in the money, in place of the move's own line and a "Living costs" beside it. The rent comes
+ * just after the move made from the phone, or just before it when an answer paid it. The month's end says nothing
+ * more of it: that charge was met on the move.
+ */
+function movedWithRent(lines: readonly ReportLine[]): ReportLine[] {
+  const paid = new Map<number, number>();
+  lines.forEach((line, index) => {
+    if (line.key !== HOME_MOVED) return;
+    const at = [index + 1, index - 1].find((near) => {
+      const rent = lines[near];
+      return rent !== undefined && rent.key === UPKEEP && rent.tone === "bad" && moneyOf(rent)?.currency === "NGN" && ![...paid.values()].includes(near);
+    });
+    if (at !== undefined) paid.set(index, at);
+  });
+  const rents = new Set(paid.values());
+  return lines.flatMap((line, index): ReportLine[] => {
+    if (line.key === MOVE_PAID || rents.has(index)) return [];
+    const at = paid.get(index);
+    const rent = at === undefined ? undefined : lines[at];
+    return rent === undefined ? [line] : [{ ...rent, key: HOME_MOVED_RENT, params: { ...rent.params, place: line.params["place"] ?? "" } }];
+  });
+}
+
 const DEPARTED = "line.route.departed";
 const JOB_ENDED = "line.activity.job-ended";
 /** The job at home that ends with the flight, told beside the plane. */
@@ -355,6 +386,17 @@ function jobEndsWithFlight(lines: readonly ReportLine[]): ReportLine[] {
   const rest = lines.filter((line) => line.key !== JOB_ENDED);
   const at = rest.findIndex((line) => line.key === DEPARTED);
   return [...rest.slice(0, at + 1), ...ended, ...rest.slice(at + 1)];
+}
+
+const ISSUED = "line.document.issued";
+
+/**
+ * A paper asked for and issued in the same month is told once, as ready: never "on the way, ready this month" beside
+ * "ready".
+ */
+function readyNotOnTheWay(lines: readonly ReportLine[]): ReportLine[] {
+  const ready = new Set(lines.filter((line) => line.key === ISSUED).map((line) => line.params["document"]));
+  return lines.filter((line) => !(line.key === REQUESTED && ready.has(line.params["document"])));
 }
 
 const GOAL_OPENED = "line.goal.opened";

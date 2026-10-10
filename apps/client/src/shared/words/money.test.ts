@@ -4,7 +4,7 @@
 // change shows both sides, each in its own money, and the figure kept is the simulation's own count.
 import { content } from "@japacity/content";
 import type { Currency, FlatSave, ReportLine, World } from "@japacity/sim";
-import { standInWorld } from "@japacity/sim";
+import { int, standInWorld } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
 import { lifeSaves } from "../../../../../packages/sim/src/goldens/lives.data";
@@ -13,8 +13,10 @@ import { start, type Game } from "../../../../../packages/sim/src/testing/play";
 import { kept, localCurrency } from "../../features/turn/month.results";
 import { newGame } from "../testing/fixtures";
 import { formatMoney } from "./format";
+import { changeLine } from "../../features/phone/apps/Bank";
 import { moneyLines } from "./money";
-import { words } from "./text";
+import { newsLines } from "./told";
+import { moneyParam, words } from "./text";
 
 const SAVES: Record<string, FlatSave> = { ...lifeSaves, ...newLifeSaves };
 
@@ -141,5 +143,26 @@ describe("the money that changes hands", () => {
     const three = game.accept({ type: "activity/now", activity: "activity.play-lotto", param: "3" });
     expect(said(three.lines)).toEqual([`- Lotto tickets: ${formatMoney(ticket * 3, "NGN")}.`]);
   });
-});
 
+  test("[R-WORLD-008] [R-WALLET-004] given pounds changed into naira at the bank for a charge that rounds to nothing, when the sheet before it and the month's money tell it, then no charge of £0 is said; a charge of a pound or more still is", () => {
+    const game = newGame("scenario.tunde");
+    game.accept({ type: "wallet/convert", from: "NGN", to: "GBP", amount: 16_617_500, via: "bank" });
+    const nothing = formatMoney(0, "GBP");
+    // The confirm sheet before the change.
+    expect(changeLine(game.view(), "GBP", "NGN", 2_200, "bank")).not.toContain(nothing);
+    const small = game.accept({ type: "wallet/convert", from: "GBP", to: "NGN", amount: 2_200, via: "bank" });
+    const charge = moneyParam("amount", small.lines.find((line) => line.key === "line.wallet.bank-charge")!.params, "line.wallet.bank-charge")!;
+    expect(charge.amount).toBeGreaterThan(0);
+    expect(formatMoney(charge.amount, "GBP")).toBe(nothing);
+    const told = said(small.lines);
+    expect(told.join(" ")).not.toContain(nothing);
+    expect(told[0]).toContain(formatMoney(2_200, "GBP"));
+    // News reads the same lines.
+    expect(newsLines(small.lines, []).map((line) => words(line.key, line.params)).join(" ")).not.toContain(nothing);
+    // A charge that shows as a figure is still said, on the sheet and on the line.
+    const bigCharge = formatMoney(int.bp(10_000_000, content.tuning.wallet.bankChargeBp), "NGN");
+    expect(changeLine(game.view(), "NGN", "GBP", 10_000_000, "bank")).toContain(bigCharge);
+    const big = game.accept({ type: "wallet/convert", from: "NGN", to: "GBP", amount: 10_000_000, via: "bank" });
+    expect(said(big.lines)[0]).toContain(bigCharge);
+  });
+});

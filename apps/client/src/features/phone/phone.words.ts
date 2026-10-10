@@ -28,8 +28,13 @@ export const phoneText: Record<string, string> = {
   "phone.bank.balance": "In the bank",
   "phone.bank.cash": "Cash on you: {amount}",
   "phone.bank.also": "Also held: {amounts}",
+  "phone.bank.also.bank": "{amount} in the bank",
+  "phone.bank.also.cash": "{amount} in cash",
   "phone.bank.savings": "Saved for the move",
   "phone.bank.savings.line": "{shown} of {required}",
+  // The figure met, and what it is for.
+  "phone.bank.savings.met.fees": "{shown}. Enough for the move's fees, {required}.",
+  "phone.bank.savings.met.funds": "{shown}. Enough to show the funds and pay the fees, {required}.",
   "phone.bank.savings.none": "No figure to save toward yet. A way out sets one.",
   // A plan whose way costs nothing to save for (the Gulf contract: the employer pays).
   "phone.bank.savings.paid": "Your plan costs nothing to save for. The employer pays the way.",

@@ -4,6 +4,7 @@
 import { content } from "@japacity/content";
 import type { Currency, MoneyParam, ReportLine } from "@japacity/sim";
 
+import { formatMoney } from "./format";
 import { afterPrologue, movesMoney, tidyLines } from "./lines";
 import { moneyParam } from "./text";
 
@@ -24,6 +25,13 @@ export const BANK_CHARGE = "line.wallet.bank-charge";
 
 /** A change at the bank as the results tell it: both sides in its words, and its net as the line's amount. */
 export const CHANGED = "ui.results.changed";
+/** The same, for a charge too small to show as a figure: no "The bank's charge came to £0". */
+export const CHANGED_SMALL = "ui.results.changed-small";
+
+/** True when a charge shows as a figure; one that rounds to nothing ("£0") is not said at all. */
+export function chargeShown(amount: number, currency: Currency): boolean {
+  return formatMoney(amount, currency) !== formatMoney(0, currency);
+}
 
 /**
  * What a change at the bank took in, from its charge. The wallet's line for a change tells only what
@@ -56,7 +64,7 @@ function bankChange(line: ReportLine, charge: MoneyParam, paidLine: ReportLine |
   const paidPart = paidLine === undefined ? null : moneyParam("amount", paidLine.params, paidLine.key);
   const paid = paidPart === null ? paidIn(charge.amount) : paidPart.amount + charge.amount;
   // The charge in the money it was taken in, as the confirm sheet names it.
-  const told: ReportLine = { ...line, key: CHANGED, params: { ...line.params, paid: { currency: charge.currency, amount: paid }, got: gained, amount: { currency: charge.currency, amount: charge.amount } } };
+  const told: ReportLine = { ...line, key: chargeShown(charge.amount, charge.currency) ? CHANGED : CHANGED_SMALL, params: { ...line.params, paid: { currency: charge.currency, amount: paid }, got: gained, amount: { currency: charge.currency, amount: charge.amount } } };
   const out: ReportLine = { ...line, key: CHANGED_OUT, params: { amount: { currency: charge.currency, amount: paid } } };
   return [
     { line: told, sign: 1, currency: gained.currency, amount: gained.amount },
@@ -138,19 +146,18 @@ const LOTTO_PAID = "ui.line.activity-paid.activity.play-lotto";
 const LOTTO_TICKETS = "ui.results.lotto-tickets";
 
 /**
- * The lines in or out, in the simulation's order, one line for each payment as the report reads
- * them. A good line with an amount is money in, a bad one money out; a change counts both sides, each
- * in its own money (R-WORLD-008), at the bank or with the FX man, and a side paid in while the bank's
- * queue holds the other back counts the month it leaves. Any other plain line (a move between pockets)
- * moves nothing the player keeps or loses. Only a line that tells money moving counts: a bill that
- * could not be paid, or a scam told after its fee, is not money gone twice. `local` is the money the
- * character lives on (naira when not given).
+ * Each of the month's lines (already tidied) as the money tells it: the money lines it stands for, none when another
+ * line's telling took it up or it moved nothing to tell (a charge of nothing), or null when it is no money line at all
+ * and is told as itself. A good line with an amount is money in, a bad one money out; a change counts both sides,
+ * each in its own money (R-WORLD-008), at the bank or with the FX man, and a side paid in while the bank's queue
+ * holds the other back counts the month it leaves. Any other plain line (a move between pockets) moves nothing the
+ * player keeps or loses. Only a line that tells money moving counts: a bill that could not be paid, or a scam told
+ * after its fee, is not money gone twice. News reads this to tell the month in the results' words (the eleventh
+ * review).
  */
-export function moneyLines(lines: readonly ReportLine[], local: Currency = "NGN"): MoneyLine[] {
-  // The prologue's years are not this month: their money is what the character starts with.
-  const tidy = tidyLines(afterPrologue(lines));
+export function moneyTold(tidy: readonly ReportLine[], local: Currency = "NGN"): (MoneyLine[] | null)[] {
   const { found, taken } = changesOf(tidy);
-  return tidy.flatMap((line, index): MoneyLine[] => {
+  return tidy.map((line, index): MoneyLine[] | null => {
     if (taken.has(index)) return [];
     const change = found.get(index);
     if (change !== undefined) {
@@ -164,11 +171,21 @@ export function moneyLines(lines: readonly ReportLine[], local: Currency = "NGN"
       return gained === null || gained.amount === 0 ? [] : [{ line, sign: 1, currency: gained.currency, amount: gained.amount }];
     }
     if (line.key === CONVERT_PAID) return paidAlone(line, tidy[index + 1]);
-    if (line.tone === "plain" || NOT_MOVED.has(line.key) || !movesMoney(line)) return [];
+    if (line.tone === "plain" || NOT_MOVED.has(line.key) || !movesMoney(line)) return null;
     const money = moneyParam("amount", line.params, line.key);
-    if (money === null || money.amount === 0) return [];
+    if (money === null) return null;
+    if (money.amount === 0) return [];
     if (line.key === REMIT && money.currency === local) return [{ line, sign: -1, currency: money.currency, amount: money.amount }];
     const told = line.key === LOTTO_PAID && money.amount > content.tuning.luck.ticket ? { ...line, key: LOTTO_TICKETS } : line;
     return [{ line: told, sign: line.tone === "good" ? 1 : -1, currency: money.currency, amount: money.amount }];
   });
+}
+
+/**
+ * The lines in or out, in the simulation's order, one line for each payment as the report reads them (`moneyTold`).
+ * `local` is the money the character lives on (naira when not given).
+ */
+export function moneyLines(lines: readonly ReportLine[], local: Currency = "NGN"): MoneyLine[] {
+  // The prologue's years are not this month: their money is what the character starts with.
+  return moneyTold(tidyLines(afterPrologue(lines)), local).flatMap((told) => told ?? []);
 }

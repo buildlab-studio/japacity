@@ -280,6 +280,7 @@ export const offerText: Record<string, string> = {
   "offer.gulf-agent.body":
     "'Dubai. Security or cleaning, accommodation included, {salary} a month. Visa and ticket are sorted. Bring {fee} and your passport.'",
   "offer.gulf-agent.choice.take": "Pay him and give him your passport",
+  "offer.gulf-agent.choice.take.shut": "He needs your passport, and you do not hold one yet. Get it first.",
   "offer.gulf-agent.choice.walk-away": "Walk away",
   "offer.gulf-agent.sign.office": "He has an office, with his name on the door.",
   "offer.gulf-agent.sign.receipt": "He gives a stamped receipt.",

@@ -8,6 +8,7 @@ import { describe, expect, test } from "vitest";
 import { newGame, setPockets } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { formatMoney } from "../../shared/words/format";
+import { requirementSentence } from "../../shared/words/requirement";
 import { nameOf, runningName, say } from "../../shared/words/text";
 import { ActivityPicker } from "./ActivityView";
 
@@ -56,17 +57,26 @@ describe("a shut button's reason", () => {
     expect(sitting?.missing).toEqual([{ type: "document/held", document: "document.passport" }]);
     await renderWithView(<ActivityPicker only={[ENGLISH_TEST]} />, view);
     expect(addButton(ENGLISH_TEST).disabled).toBe(true);
-    expect(buttonLine(ENGLISH_TEST)).toBe(say("ui.needs.document", { document: runningName("document.passport") }));
-    expect(buttonLine(ENGLISH_TEST)).toBe("Needs your passport first");
+    // Restated for the card's "Not yet:" list says the passport once; the shut button says only "Not yet".
+    expect(buttonLine(ENGLISH_TEST)).toBe(say("ui.needs.not-yet"));
     expect(addButton(ENGLISH_TEST).querySelector("[data-after]")?.getAttribute("data-after")).toBe("needs");
+    const card = addButton(ENGLISH_TEST).closest("li")?.textContent ?? "";
+    expect(card).toContain(requirementSentence({ type: "document/held", document: "document.passport" }));
+    expect(card).not.toContain(say("ui.needs.document", { document: runningName("document.passport") }));
   });
 
-  test("[R-WORLD-006] given no route heard of, when the adviser's and the official page's cards show, then each button says it needs a route you have heard of, never what is left", async () => {
+  test("[R-WORLD-006] given no route heard of, when the adviser's and the official page's cards show, then each card says once that it needs a route you have heard of and its button is shut, never what is left", async () => {
     const view = newGame("scenario.ada").view();
     await renderWithView(<ActivityPicker only={[ADVISER, OFFICIAL]} />, view);
     for (const id of [ADVISER, OFFICIAL]) {
       expect(addButton(id).disabled).toBe(true);
-      expect(buttonLine(id)).toBe(say("ui.needs.route"));
+      // Restated for the card says once, above, that it needs a route; the button says only "Not yet".
+      expect(buttonLine(id)).toBe(say("ui.needs.not-yet"));
+      const card = addButton(id).closest("li")?.textContent ?? "";
+      const missing = view.activities.find((option) => option.id === id)?.missing ?? [];
+      const why = missing.length > 0 ? missing.map((requirement) => requirementSentence(requirement, { routes: view.routes })) : [say("ui.activity.no-route")];
+      for (const said of why) expect(card.split(said)).toHaveLength(2);
+      expect(card).not.toContain(say("ui.needs.route"));
     }
     expect(document.body.textContent).not.toContain(say("ui.activity.cannot-pay"));
   });

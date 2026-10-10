@@ -2,7 +2,7 @@
 // from the requirement's own data and content's names. It never judges
 // whether the requirement holds: the view's `missing` list already says so.
 import { content } from "@japacity/content";
-import type { Amount, Id, Requirement, RouteStateName } from "@japacity/sim";
+import type { ActivityOption, Amount, Id, Requirement, RouteStateName } from "@japacity/sim";
 
 import { countWords } from "./count";
 import { formatBand, formatBp, formatMoney, formatNumber, playerMonth } from "./format";
@@ -161,6 +161,8 @@ export function requirementSentence(requirement: Requirement, context: SentenceC
     case "not":
       if (requirement.of.type === "document/pending") return say("ui.req.not-pending", { document: runningName(requirement.of.document) });
       if (requirement.of.type === "document/held") return say("ui.req.not-held", { document: runningName(requirement.of.document) });
+      // The one job this act starts, held already: the shop open.
+      if (requirement.of.type === "job/is" && requirement.of.activities.length === 1) return say("ui.req.not-job", { job: nameOf(requirement.of.activities[0] ?? "") });
       return say("ui.req.not", { inner: requirementSentence(requirement.of, context) });
     case "any":
       // Any way out heard of, as the adviser asks: one line, never every route by name.
@@ -259,6 +261,8 @@ function asksForRoute(requirement: Requirement): boolean {
 export function needsWords(missing: readonly Requirement[], context: SentenceContext = {}): string {
   const [first] = missing;
   if (first === undefined) return say("ui.needs.nothing-to-pick");
+  // A job this act would start, running already, is the whole story whatever else is short (the shop open, R-ACTIVITY-016).
+  if (missing.some((need) => need.type === "not" && need.of.type === "job/is" && need.of.activities.length === 1)) return say("ui.needs.running");
   if (alreadyDone(first, context)) return say("ui.needs.done");
   if (first.type === "document/held" && first.min === undefined) return say("ui.needs.document", { document: runningName(first.document) });
   if (first.type === "document/held" && first.document === ENGLISH_RESULT && first.min !== undefined) return say("ui.needs.band", { band: formatBand(first.min) });
@@ -288,4 +292,15 @@ export function checklistWords(route: Id<"route">, item: string): string {
   if (band === null) return own;
   const needs = `ui.req.band.${requirement.quality}.${String(band)}`;
   return hasWords(needs) ? say(needs) : say("ui.req.quality-min-band", { quality: nameOf(requirement.quality), band: say(`ui.band.${requirement.quality}.${String(band)}`) });
+}
+
+/**
+ * True when a shut card says why itself (R-ADVICE-001, R-WORLD-006): its "Not yet:" list, or
+ * the sentence that there is nothing to choose yet ("No route to look into yet"). The reason is said once, there; the
+ * button is shut and says only "Not yet". A card whose needs are all done already says that instead.
+ */
+export function saysWhyOnCard(option: Pick<ActivityOption, "allowed" | "missing" | "params">, done: (requirement: Requirement) => boolean): boolean {
+  if (option.allowed) return false;
+  if (option.missing.length > 0) return !option.missing.every(done);
+  return option.params?.length === 0;
 }
