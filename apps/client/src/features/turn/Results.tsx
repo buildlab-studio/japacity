@@ -1,9 +1,5 @@
-// The month's results (docs/rules/world.md R-WORLD-008): when a month ends, one sheet over the scene
-// says what was kept as a counter, then the month's story (an offer, a way out, a paper, a test band,
-// a chapter), every line in or out with its sign, the draw's numbers with any of the player's lit,
-// the savings toward the move, then one button back to the place. The staged wins (Moment) come
-// first; the sheet opens once they have passed. The month's other lines are not listed here: they
-// live in the phone's News app.
+// The month's results (docs/rules/world.md R-WORLD-008). The staged wins (Moment) come first; the sheet
+// opens once they have passed.
 import { useEffect, useState } from "react";
 
 import { useGame, useView } from "../../authority/GameProvider";

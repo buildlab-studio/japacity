@@ -1,8 +1,5 @@
-// The phone (docs/rules/world.md R-WORLD-018): a handset that rises over the scene, slightly
-// tilted, with a wallpaper of the time, the month and the area, and a grid of apps, four across, a
-// dot on an app with something new. One tap grows it to nearly the whole screen and back. Back
-// returns to the grid; the home bar puts the phone away. The apps are handed in as the contract's
-// `PhoneApp`, so the handset knows nothing of what they show.
+// The phone (docs/rules/world.md R-WORLD-018), its apps four across. The apps are handed in as the
+// contract's `PhoneApp`, so the handset knows nothing of what they show.
 import { ChevronLeft, Maximize2, Minimize2 } from "lucide-react";
 import { type ReactNode, useEffect, useRef, useState } from "react";
 

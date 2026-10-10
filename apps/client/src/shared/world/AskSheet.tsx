@@ -1,8 +1,5 @@
-// One action, one sheet (docs/rules/world.md R-WORLD-006). The sheet takes the form of what it
-// shows: a card for an ask or a choice, a paper slip with a torn edge for a paper thing. One main
-// button, which also says what is left after; one way to say not now. The scene stays in view.
-// A main button the player cannot pay for is shut and says how much is short, as the ride sheet
-// does, so nothing is planned or sent that cannot be paid.
+// One action, one sheet (docs/rules/world.md R-WORLD-006). A main button the player cannot pay for is
+// shut and says how much is short, as the ride sheet does, so nothing is planned or sent that cannot be paid.
 import { Dialog } from "@base-ui/react/dialog";
 import type { Currency } from "@japacity/sim";
 import { TriangleAlert, X } from "lucide-react";

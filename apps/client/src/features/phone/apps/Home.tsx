@@ -1,8 +1,5 @@
-// The phone's home card (docs/rules/home.md R-HOME-007), at the top of Bills: where the character
-// lives in Lagos, what it costs a month, the move (shut with its reason when the rent is short or a
-// move was made this month), and while a guest, who took them in and for how long. The engine
-// still decides (R-HOME-002); the card only mirrors what it would refuse. The risk of the water is
-// said once, plainly.
+// The phone's home card (docs/rules/home.md R-HOME-007), at the top of Bills. The engine still decides
+// (R-HOME-002); the card only mirrors what it would refuse.
 import { content } from "@japacity/content";
 import type { HomePlace, PlayerView } from "@japacity/sim";
 import { House } from "lucide-react";

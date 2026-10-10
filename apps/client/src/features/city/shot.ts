@@ -1,8 +1,6 @@
-// The camera of a place (docs/rules/world.md R-WORLD-009): always raised, never at eye level and
-// never straight down. The whole view looks at the place's centre from far enough back that the
-// place's width fits the screen whatever its shape; the close view looks at the character. The
-// pinch moves between them and snaps to one on release; one finger turns the view within the place's
-// limit. Pure: the scene feeds in the view and the screen's shape and reads back where to stand.
+// The camera of a place (docs/rules/world.md R-WORLD-009). The whole view looks at the place's centre
+// from far enough back that its width fits the screen; the close view looks at the character. Pure:
+// the scene feeds in the view and the screen's shape and reads back where to stand.
 import type { Shot } from "../../shared/world/contract";
 import type { Point } from "./camera";
 import type { Stage } from "./placeFile";

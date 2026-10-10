@@ -3,8 +3,7 @@
 // is read; never a toast that passes in a second and gives way to the street's talk.
 import { useEffect, useState } from "react";
 
-/** How long an act's line stands when it is not tapped away: as long as the party's beat. */
-/** A line stays until tapped, or this long: enough to read twice. */
+/** A line stays until tapped, or this long: as long as the party's beat, enough to read twice. */
 export const SAID_MS = 20_000;
 
 export interface Said {

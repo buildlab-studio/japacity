@@ -1,8 +1,6 @@
-// The full screen (docs/rules/server.md R-SERVER-032): what a new visitor sees
-// while sign-ups are switched off. One line, no sign-in form, and a check
-// that runs by itself once the server's wait is over. The button checks again
-// only after that wait too, so a crowd waiting here never asks faster than
-// the server allows.
+// The full screen (docs/rules/server.md R-SERVER-032). Its check runs by itself once the server's wait
+// is over, and the button checks again only after that wait too, so a crowd waiting here never asks
+// faster than the server allows.
 import { useCallback, useEffect, useState } from "react";
 
 import { Button } from "../../shared/ui/Button";

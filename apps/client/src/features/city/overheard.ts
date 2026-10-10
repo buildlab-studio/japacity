@@ -32,7 +32,6 @@ function hearsLagos(place: string): boolean {
   return where === "home" || where === "road";
 }
 
-/** Everything that may be overheard here today, from the view only. */
 /** The family's own lines while home's send-off is open at the house: those, and no rumour. */
 function sendOffLines(view: Pick<PlayerView, "offers">, place: string): string[] {
   if (place !== "place.family-house" || !view.offers.some((offer) => offer.entry === "offer.family-send-off")) return [];
@@ -41,6 +40,7 @@ function sendOffLines(view: Pick<PlayerView, "offers">, place: string): string[]
   return keys;
 }
 
+/** Everything that may be overheard here today, from the view only. */
 export function heardHere(view: Pick<PlayerView, "news" | "routes"> & Partial<Pick<PlayerView, "offers">>, place: string): Heard[] {
   const sendOff = sendOffLines({ offers: view.offers ?? [] }, place);
   if (sendOff.length > 0) return sendOff.map((key) => ({ key, params: {} }));

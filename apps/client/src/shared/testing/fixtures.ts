@@ -224,11 +224,6 @@ export function decemberAbroadGame(): Game {
   return game;
 }
 
-/**
- * A life a while abroad, built by hand on the engine's arrival: a sponsored
- * worker whose job has gone, a credit file, goals, a car on finance, a side
- * job, a send-off card and an era. For the parts whose kinds are stubs.
- */
 /** R-CAR-007's figures as the sim's view would carry them for this car item, so fixtures and tests agree with the engine. */
 export function carViewOf(owed: Omit<PlayerView["obligations"][number], "car">, month: number): NonNullable<PlayerView["obligations"][number]["car"]> {
   const entry = content.obligation[owed.entry];
@@ -253,6 +248,11 @@ export function carViewOf(owed: Omit<PlayerView["obligations"][number], "car">, 
   };
 }
 
+/**
+ * A life a while abroad, built by hand on the engine's arrival: a sponsored
+ * worker whose job has gone, a credit file, goals, a car on finance, a side
+ * job, a send-off card and an era. For the parts whose kinds are stubs.
+ */
 export function richAbroadView(): PlayerView {
   const base = abroadView();
   const owed = {

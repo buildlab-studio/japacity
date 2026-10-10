@@ -1,9 +1,5 @@
-// The ride (docs/rules/world.md R-WORLD-017, R-WORLD-032): about six seconds under a band with
-// "Danfo to <place>", its progress, and Skip. By danfo, keke or okada it opens on a short pre-roll
-// outside at the stop with the rider's, driver's or conductor's line as a chip, then cuts by itself
-// between its angles on its own clock (rideScene.ts), with a short dark at each cut. There is no
-// view switch. Skip ends it all at once. When it ends the place opens. The same ride plays from the
-// map and from a danfo, keke or okada standing in a place.
+// The ride (docs/rules/world.md R-WORLD-017, R-WORLD-032). The angles and their cuts are rideScene.ts's;
+// the rider's, driver's or conductor's line shows as a chip.
 import { useEffect, useRef, useState } from "react";
 
 import { keptLookFile } from "../../authority/person";

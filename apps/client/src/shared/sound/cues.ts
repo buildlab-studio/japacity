@@ -1,8 +1,6 @@
-// The interface's small sounds (docs/rules/world.md R-WORLD-022): made on the fly with Web Audio, no
-// files. A tap, a sheet opening and closing, a thing done, a coin, the ride's whoosh, the month's end.
-// Muted, nothing is made: no audio context is created and nothing is fetched. The spoken lines and
-// their wake-up in sound.ts are untouched; the cues keep their own small context, made inside the
-// first tap that plays one.
+// The interface's small sounds (docs/rules/world.md R-WORLD-022). Muted, no audio context is created.
+// The spoken lines and their wake-up in sound.ts are untouched; the cues keep their own small context,
+// made inside the first tap that plays one.
 import { soundStore } from "./sound";
 
 export type Cue = "tap" | "open" | "close" | "done" | "coin" | "whoosh" | "month";

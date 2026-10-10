@@ -147,7 +147,6 @@ export function doneWords(label: string, view: Pick<PlayerView, "obligations" | 
   return done === `${label}.done` ? say("ui.world.planned", { what: nameOf(activity) }) : done;
 }
 
-/** True when this month's answers include home's send-off as the party. */
 /**
  * The band's chip names the nudge's own wait (R-WORLD-002, R-WORLD-003): the nudge "Ask for the endorsement
  * again in 6 months" over the chip "You can ask for the endorsement again, in 6 months". A step's wait carries its `when`;
@@ -158,6 +157,7 @@ export function chipFolds(nudge: { about: string; params?: Record<string, string
   return nudge.params?.when === inMonths(coming.month, month);
 }
 
+/** True when this month's answers include home's send-off as the party. */
 export function partyThrown(lines: readonly ReportLine[]): boolean {
   return lines.some((line) => line.key === "line.offer.taken" && line.params.offer === SEND_OFF && line.params.choice === "party");
 }
@@ -306,7 +306,6 @@ function PersonCard({ picked, onClose, words: said }: { picked: Picked; onClose:
   );
 }
 
-/** `adverts`: the shell's advert slots for the place on screen (R-ADVERT-001), placed beside what is said there. */
 /** What the city hands its map: the same as the fly-over took. */
 export interface CityMapSlot {
   pins: readonly Pin[];
@@ -344,6 +343,7 @@ export function City({
   askIcon,
   cityMap,
 }: {
+  /** `adverts`: the shell's advert slots for the place on screen (R-ADVERT-001), placed beside what is said there. */
   adverts?: (place: string) => ReactNode;
   /** Lines of the month waiting on the phone (R-WORLD-030): at home the bed opens them before the month can end. */
   signalsWaiting?: boolean;

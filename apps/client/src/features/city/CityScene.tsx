@@ -43,13 +43,13 @@ const TURN_PER_PX = 0.25;
 const PINCH_PX = 260;
 /** How quickly the view eases to where it is going, a share a second. */
 const EASE = 7;
-/** A label, and a thing's acts, float this high over the thing's spot. */
 /** How close to the screen's edge a label or a chip may stand. */
 const EDGE_MARGIN = 8;
 /** How high the character lies on a bed or a couch, about the mattress's top. */
 const LIE_Y = 0.5;
 /** The length of the lying body, feet to head, so it is centred on the seat. */
 const LIE_LENGTH = 1.6;
+/** A label, and a thing's acts, float this high over the thing's spot. */
 const LABEL_Y = 2.6;
 /** The sun's shadow covers the place's width and this much round it, in metres. */
 const SHADOW_MARGIN = 4;

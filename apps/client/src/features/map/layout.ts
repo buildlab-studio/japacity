@@ -35,14 +35,14 @@ export const BOUNDS = (() => {
   return { west, east, north, south };
 })();
 
+/** Past the map's edges, so the water runs on when the view is panned to the edge. */
+const BEYOND = { north: 6700, south: 6300, west: 3230, east: 3500 } as const;
+
 /**
  * The water, drawn by hand from the shape of the city: the lagoon east of the mainland, the channel
  * between the mainland and the island, the harbour west of the island, and the sea along the foot.
  * Each ring is [lat, lon] in thousandths of a degree.
  */
-/** Past the map's edges, so the water runs on when the view is panned to the edge. */
-const BEYOND = { north: 6700, south: 6300, west: 3230, east: 3500 } as const;
-
 const WATER_RINGS: readonly (readonly (readonly [number, number])[])[] = [
   [
     [BEYOND.north, 3420],

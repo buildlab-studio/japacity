@@ -57,13 +57,13 @@ const ACTIVITY_PAID = "ui.line.activity-paid.";
 /** The living costs charged at a new figure, said as the rise and its reason (see `upkeepMoved`). */
 const UPKEEP_MOVED = "ui.line.upkeep-";
 
-/** The interface's names for a payment: the wallet's money moving, said for what it paid. */
 /** The naira leg of money sent home, named for where it lands. */
 const REMIT_LANDED = "ui.line.remit-landed";
 
 /** The move to a home with rent, said as the move with what it costs a month (see `movedWithRent`). */
 const HOME_MOVED_RENT = "ui.line.home-moved";
 
+/** The interface's names for a payment: the wallet's money moving, said for what it paid. */
 const NAMED: readonly string[] = [FAMILY_PAID, OFFER_PAID, CHARGED_AS, "ui.line.document-fee", REMIT_LANDED, ACTIVITY_PAID, UPKEEP_MOVED, HOME_MOVED_RENT];
 
 /** The prologue's last line: what came before it is the years before the first month. */

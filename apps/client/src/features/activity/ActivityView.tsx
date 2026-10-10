@@ -216,11 +216,6 @@ function noSchoolReasons(view: PlayerView): string[] {
 }
 
 /**
- * Which figure is short when an allowed activity cannot be paid for: the same figure the button
- * says, counting what the month's plan already pays for (R-WORLD-006). With nothing short by the
- * screen's count but the engine still saying no, it says so plainly and names no figure.
- */
-/**
  * A cost in another money than the one lived on, more than is held of it: what it needs in that money,
  * or null. When the naira cannot buy it at the bank now (its queue holds foreign money back, R-WALLET-009),
  * the card says the money and the way, never only that it cannot be paid.
@@ -242,6 +237,11 @@ function foreignWords(need: { amount: number; currency: Currency; held: number }
   return say(need.held > 0 ? "ui.activity.needs-foreign-more" : "ui.activity.needs-foreign", { amount: formatMoney(need.amount, need.currency), currency: moneyName(need.currency) });
 }
 
+/**
+ * Which figure is short when an allowed activity cannot be paid for: the same figure the button
+ * says, counting what the month's plan already pays for (R-WORLD-006). With nothing short by the
+ * screen's count but the engine still saying no, it says so plainly and names no figure.
+ */
 function cannotPayWords(view: PlayerView, option: ActivityOption, planned: readonly Money[], paying: AfterPaying | null): string {
   const costs = option.cost.map((cost) => formatMoney(cost.amount, cost.currency)).join(" + ");
   const foreign = paying === null || paying.short === null ? foreignNeed(view, option) : null;
