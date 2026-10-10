@@ -156,7 +156,7 @@ export default defineConfig({
         },
       },
       {
-        // The friends' gate in front of the game's address (apps/gate/README.md).
+        // The gate that owns the game's root before launch, with its waitlist (apps/gate/README.md).
         plugins: [
           cloudflareTest({
             wrangler: { configPath: gateWrangler },
@@ -170,13 +170,6 @@ export default defineConfig({
         test: {
           name: "gate",
           include: ["apps/gate/src/**/*.test.ts"],
-        },
-      },
-      {
-        test: {
-          name: "landing",
-          environment: "node",
-          include: ["apps/landing/src/**/*.test.ts"],
         },
       },
       {

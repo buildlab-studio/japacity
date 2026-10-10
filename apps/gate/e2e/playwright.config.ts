@@ -1,5 +1,5 @@
 // The gate's browser test at phone size: wrangler dev runs the gate on its own, in front of
-// a stand-in game (game.ts), so the screen and the admit flow are seen as a phone sees them.
+// a stand-in game (game.ts), so the waitlist page and the admit flow are seen as a phone sees them.
 import { fileURLToPath } from "node:url";
 
 import { defineConfig, devices } from "@playwright/test";

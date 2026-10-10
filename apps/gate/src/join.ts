@@ -1,4 +1,4 @@
-// What a join may do: one insert, after the address is cleaned. Kept out of the
+// What a join to the waitlist may do: one insert, after the address is cleaned. Kept out of the
 // entry module because the Workers runtime allows that module only handler exports.
 
 /** The one statement the page may run. Insert only; a repeat address changes nothing. */
