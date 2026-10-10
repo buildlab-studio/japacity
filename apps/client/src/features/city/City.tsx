@@ -1056,7 +1056,8 @@ export function City({
               people={sample.people}
               own={own}
               settings={settings}
-              looking={looking && !map}
+              // The opening words stand alone over the dimmed world (R-WORLD-001): no thing label shows through the chapter's caption.
+              looking={looking && !map && !openingUp}
               text={(key) => text[key]}
               onProgress={(loaded, total) => setProgress({ loaded, total })}
               onFailed={setFailed}

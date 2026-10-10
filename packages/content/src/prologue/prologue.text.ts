@@ -200,7 +200,7 @@ export const prologueText: Record<string, string> = {
   "prologue.door.print": "Print my page",
   "prologue.door.age": "Your age",
   "prologue.door.age.hint": "Older starts with more saved. Younger has more years before the age limits.",
-  "prologue.door.age.years": "{years} years old",
+  "prologue.door.age.years": "About {years}",
   "prologue.door.age.younger": "Younger",
   "prologue.door.age.older": "Older",
   "prologue.door.print.then": "Your page",
