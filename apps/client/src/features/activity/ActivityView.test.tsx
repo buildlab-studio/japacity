@@ -140,13 +140,16 @@ describe("the month plan", () => {
     expect(screen.queryByText(say("ui.activity.why-not"))).toBeNull();
   });
 
-  test("given a job held one month, then the card shows its pay and says one month", async () => {
+  test("[R-WALLET-016] given a job held one month, then the card shows the view's pay, never content's written figure, and says one month", async () => {
     const base = engineView("scenario.tunde");
     const job = base.job.id ?? "activity.rest";
-    await renderWithView(<ActivityView />, { ...base, job: { id: job, months: 1, side: null, pay: null, sidePay: null } });
-    const pay = content.activity[job]?.pay;
-    if (pay === null || pay === undefined || typeof pay.amount !== "number") throw new Error("The job has no pay.");
+    const written = content.activity[job]?.pay;
+    if (written === null || written === undefined || typeof written.amount !== "number") throw new Error("The job has no pay.");
+    // The month as the wallet will book it differs from the written figure (after tax or a raise).
+    const pay = { currency: written.currency, amount: written.amount - 123_400 };
+    await renderWithView(<ActivityView />, { ...base, job: { id: job, months: 1, side: null, pay, sidePay: null } });
     expect(screen.getByText(say("ui.job.pay", { amount: formatMoney(pay.amount, pay.currency) }))).toBeDefined();
+    expect(screen.queryByText(say("ui.job.pay", { amount: formatMoney(written.amount, written.currency) }))).toBeNull();
     expect(screen.getByText("1 month in")).toBeDefined();
   });
 });

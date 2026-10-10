@@ -86,3 +86,18 @@ describe("the raise in Jobs", () => {
     expect(text).not.toContain("Raised");
   });
 });
+
+describe("the pay Jobs says", () => {
+  test("[R-WALLET-016] given a job held whose month the wallet books at another figure than content's, when Jobs opens, then the row says the view's pay and never the written one", async () => {
+    const game = newGame("scenario.tunde");
+    const job = game.state.activity.job!;
+    const written = content.activity[job]!.pay!;
+    if (typeof written.amount !== "number") throw new Error("A fixed pay was expected.");
+    const view = game.view();
+    const pay = { currency: written.currency, amount: written.amount - 250_000 };
+    await renderWithView(<Jobs />, { ...view, job: { ...view.job, pay } });
+    const text = document.querySelector("[data-phone-app=jobs]")?.textContent ?? "";
+    expect(text).toContain(say("ui.job.pay", { amount: formatMoney(pay.amount, pay.currency) }));
+    expect(text).not.toContain(say("ui.job.pay", { amount: formatMoney(written.amount, written.currency) }));
+  });
+});
