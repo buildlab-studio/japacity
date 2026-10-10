@@ -1,6 +1,5 @@
 // The front door's header, as designed (prologue.md R-PROLOGUE-013): Back as a round translucent
-// button, the screen's title centred over three short progress dashes, and on the first two screens Shuffle (its icon
-// and its word) and Skip as round translucent buttons on the right. The translucency is the band's own chalk, never a
+// button, the screen's title centred over three short progress dashes, and on the first two screens Shuffle (its icon alone) and Skip as round translucent buttons on the right. The translucency is the band's own chalk, never a
 // colour of its own (R-WORLD-021).
 import { ChevronLeft, Shuffle } from "lucide-react";
 
@@ -40,9 +39,8 @@ export function DoorHead({ title, at, count, onBack, onShuffle, onSkip }: DoorHe
       </div>
       {faster ? (
         <div className="flex shrink-0 gap-1.5">
-          <button type="button" className={`${ROUND} gap-1 px-3 text-[13px] font-bold`} aria-label={say("ui.door.shuffle.all")} onClick={onShuffle} data-door-shuffle>
-            <Shuffle size={16} aria-hidden />
-            {say("ui.door.shuffle")}
+          <button type="button" className={`${ROUND} w-10`} aria-label={say("ui.door.shuffle.all")} title={say("ui.door.shuffle.all")} onClick={onShuffle} data-door-shuffle>
+            <Shuffle size={18} aria-hidden />
           </button>
           <button type="button" className={`${ROUND} px-3.5 text-[14px] font-bold`} onClick={onSkip} data-door-skip>
             {say("ui.door.skip")}
