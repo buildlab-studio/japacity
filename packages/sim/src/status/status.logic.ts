@@ -259,7 +259,21 @@ function partnerStillSponsors(read: ReadCtx, status: Id<"status">): boolean {
   );
 }
 
-/** R-STATUS-006. */
+/**
+ * R-STATUS-012: why asking to renew the held status would be refused, or null when it would be taken (cost aside).
+ * The command and the view's terms both read it, so terms show only where the renewal is legal.
+ */
+function renewRefusal(read: ReadCtx, held: NonNullable<StatusSlice["current"]>, entry: StatusEntry): string | null {
+  if (entry.renewMonths <= 0 || held.expiresMonth === null) return `${held.entry} does not renew.`;
+  // R-STATUS-006 as amended: a status the employer renews (`renewBp`, no fee var) is never renewed at the player's asking.
+  if (entry.renewFeeVar === null) return `${held.entry} renews only by the employer's choice.`;
+  const job = read.state.activity.job;
+  if (entry.work === "one-employer" && (job === null || (held.job !== null && held.job !== job))) return `${held.entry} renews only while the job is held.`;
+  if (entry.tiedTo === "partner" && !partnerStillSponsors(read, entry.id)) return `${held.entry} renews only while the bond holds and the sponsor meets the floor.`;
+  return null;
+}
+
+/** R-STATUS-006, R-STATUS-012. */
 function renew(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (command.type !== "status/renew") throw new Error(`status/renew cannot handle ${command.type}.`);
   // R-PEOPLE-044: a stand-in never spends.
@@ -267,14 +281,8 @@ function renew(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   const now = currentOf(ctx);
   if (now === null) return reject("not-legal", "No status is held.");
   const { held, entry } = now;
-  if (entry.renewMonths <= 0 || held.expiresMonth === null) return reject("not-legal", `${held.entry} does not renew.`);
-  // R-STATUS-006 as amended: a status the employer renews (`renewBp`, no fee var) is never renewed at the player's asking.
-  if (entry.renewFeeVar === null) return reject("not-legal", `${held.entry} renews only by the employer's choice.`);
-  const job = ctx.state.activity.job;
-  if (entry.work === "one-employer" && (job === null || (held.job !== null && held.job !== job))) {
-    return reject("not-legal", `${held.entry} renews only while the job is held.`);
-  }
-  if (entry.tiedTo === "partner" && !partnerStillSponsors(ctx, entry.id)) return reject("not-legal", `${held.entry} renews only while the bond holds and the sponsor meets the floor.`);
+  const refused = renewRefusal(ctx, held, entry);
+  if (refused !== null || held.expiresMonth === null || entry.renewFeeVar === null) return reject("not-legal", refused ?? `${held.entry} does not renew.`);
   const currency = foreignCurrencyOf(ctx.content, entry.country);
   const fee = worldVar(ctx, entry.renewFeeVar);
   const surcharge = entry.surchargeYearVar === null ? 0 : mulDiv(worldVar(ctx, entry.surchargeYearVar), entry.renewMonths, MONTHS_PER_YEAR);
@@ -557,12 +565,9 @@ function view(read: ReadCtx): Pick<PlayerView, "status"> {
   };
 }
 
-/** R-STATUS-010: what `status/renew` would cost today, or null when asking is not how this status renews. */
+/** R-STATUS-010, R-STATUS-012: what `status/renew` would cost today, or null wherever `renew` would refuse it. */
 function renewTerms(read: ReadCtx, held: NonNullable<StatusSlice["current"]>, entry: StatusEntry): NonNullable<PlayerView["status"]>["renew"] {
-  if (entry.renewMonths <= 0 || held.expiresMonth === null || entry.renewFeeVar === null) return null;
-  // R-STATUS-010: null whenever asking would be refused, so a one-employer status out of its job shows no terms (the same test as `renew`).
-  const job = read.state.activity.job;
-  if (entry.work === "one-employer" && (job === null || (held.job !== null && held.job !== job))) return null;
+  if (renewRefusal(read, held, entry) !== null || entry.renewFeeVar === null) return null;
   const currency = foreignCurrencyOf(read.content, entry.country);
   const fee = worldVar(read, entry.renewFeeVar);
   const surcharge = entry.surchargeYearVar === null ? 0 : mulDiv(worldVar(read, entry.surchargeYearVar), entry.renewMonths, MONTHS_PER_YEAR);
