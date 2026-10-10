@@ -171,6 +171,15 @@ describe("the jobs list as rows on the sheet", () => {
     }
   });
 
+  test("[R-ACTIVITY-017] given a life living in Makoko, when the board is ordered, then the fish racks lead it; at the family house they take their place by chance and pay", () => {
+    const base = engineView();
+    const jobs = [...huntOf(base), "activity.job-fish-racks"];
+    const makoko = { ...base, home: { ...base.home, place: "place.makoko" as const } };
+    expect(huntOrder(makoko, jobs)[0]).toBe("activity.job-fish-racks");
+    expect(huntOrder(base, jobs)[0]).not.toBe("activity.job-fish-racks");
+    expect([...huntOrder(makoko, jobs)].sort()).toEqual([...jobs].sort());
+  });
+
   test("[R-WORLD-006] given a row tapped, when the card's one main button shows, then it repeats the pick: Apply and the job's name", async () => {
     const view = engineView();
     const ordered = huntOrder(view, huntOf(view));

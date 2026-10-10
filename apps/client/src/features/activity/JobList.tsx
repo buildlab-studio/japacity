@@ -26,9 +26,16 @@ function payRank(id: string): number {
 
 const BAND_RANK: Record<ChanceBand, number> = { likely: 0, fair: 1, long: 2 };
 
-/** The jobs in the order the list shows them: the likely first, then the fair chances, then the long shots, the best paid first in each. */
+/** The fish racks at Makoko: work at hand for a life living there (R-ACTIVITY-017). */
+const RACKS = "activity.job-fish-racks";
+
+/**
+ * The jobs in the order the list shows them: the likely first, then the fair chances, then the long shots, the best paid
+ * first in each. While the character lives in Makoko the racks lead the list, as the nudge names them (R-ACTIVITY-017).
+ */
 export function huntOrder(view: PlayerView, jobs: readonly string[]): string[] {
-  return [...jobs].sort((a, b) => BAND_RANK[chanceBand(chanceOf(view, a))] - BAND_RANK[chanceBand(chanceOf(view, b))] || payRank(b) - payRank(a));
+  const atHand = view.home.place === "place.makoko" ? RACKS : null;
+  return [...jobs].sort((a, b) => Number(b === atHand) - Number(a === atHand) || BAND_RANK[chanceBand(chanceOf(view, a))] - BAND_RANK[chanceBand(chanceOf(view, b))] || payRank(b) - payRank(a));
 }
 
 function qualityOf(view: PlayerView, id: string): number {
