@@ -202,7 +202,8 @@ describe("the jobs list as rows on the sheet", () => {
       ...view,
       activities: view.activities.map((option) => {
         if (option.id !== HUNT) return option;
-        const { sure: _sure, ...rest } = option;
+        const rest = { ...option };
+        delete rest.sure;
         return rest;
       }),
     };

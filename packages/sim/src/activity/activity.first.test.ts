@@ -117,7 +117,7 @@ describe("the sure first hunt", () => {
       game.endTurn([{ activity: HUNT, param: best }]);
       const lines = game.view().report?.lines ?? [];
       const landed = lines.find((line) => line.key === "line.activity.hunt-hired");
-      expect(landed, seed).toBeDefined();
+      expect(landed).toBeDefined();
       expect([best, wages[0]]).toContain(landed?.params["job"]);
       expect(game.view().offers.some((offer) => offer.entry === "offer.job")).toBe(true);
       expect(game.view().activities.find((option) => option.id === HUNT)?.sure).toBeUndefined();
