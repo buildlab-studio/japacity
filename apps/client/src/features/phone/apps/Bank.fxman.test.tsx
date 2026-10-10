@@ -41,7 +41,6 @@ describe("the FX man's sheet reads the cash he is paid from", () => {
     const view = heldAtHome();
     await changeAllWithTheFxMan(view);
     const told = card().textContent ?? "";
-    const cash = view.pockets.NGN.cash;
     expect(told).toContain(say("ui.world.left", { amount: formatMoney(0, "NGN") }));
     // What the bank holds is not what the FX man is paid from: the line never says it.
     expect(told).not.toContain(formatMoney(view.pockets.NGN.bank, "NGN"));
