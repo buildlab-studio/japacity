@@ -4,7 +4,7 @@ import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
 import { newGame } from "../testing/fixtures";
-import { nextStepOf, sixteenPath } from "./sixteen";
+import { nextStepOf, RACKS, racksAtHand, sixteenPath } from "./sixteen";
 
 const SETTLED = new Set(["prologue.settlement.outcome.generous", "prologue.settlement.outcome.fair"]);
 
@@ -63,5 +63,22 @@ describe("the first step for a trader with capital", () => {
     expect(sixteenPath(view)).toBe("degree");
     expect(nextStepOf(view)).toBe(view.chapter.items.find((item) => !item.met)?.id);
     expect(content.chapter[view.chapter.current!]).toBeDefined();
+  });
+});
+
+describe("the racks at hand", () => {
+  /** The child of the water's answers (R-PROLOGUE-012), and the shop worker's, the same years at the family house. */
+  const WATER = ["begin", "commercial", "work", "save", "nowhere", "makoko"];
+  const SHOP = ["begin", "commercial", "work", "save", "nowhere", "family-house"];
+  const by = (answers: readonly string[]) => (allowed: readonly string[]) => answers.find((id) => allowed.includes(id)) ?? allowed[0] ?? "";
+
+  test("[R-ACTIVITY-017] given a life handed over in Makoko's room with no job, when the racks are read, then they are at hand, and for the same years at the family house they are not", () => {
+    for (const seed of ["racks-0", "racks-1", "racks-2"]) {
+      const water = play(seed, by(WATER)).view;
+      expect(water.activities.find((option) => option.id === "activity.job-hunt")?.params).toContain(RACKS);
+      expect(racksAtHand(water)).toBe(true);
+      expect(racksAtHand({ ...water, job: { ...water.job, id: RACKS } })).toBe(false);
+      expect(racksAtHand(play(seed, by(SHOP)).view)).toBe(false);
+    }
   });
 });
