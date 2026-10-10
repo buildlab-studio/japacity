@@ -198,10 +198,11 @@ describe("every tile's promise is kept by the life it starts", () => {
         if (nextStepOf(view) !== "heard") wrong.push(`${archetype.id} ${String(at)}: first step ${String(nextStepOf(view))}`);
         const way = ownWayOf(view);
         if (way?.place !== "place.ojuelegba" || way.thing !== "motor-park" || way.activity !== "activity.ask-around") wrong.push(`${archetype.id} ${String(at)}: the first step's way is ${JSON.stringify(way)}`);
-        game.endTurn([{ activity: "activity.ask-around", param: null }]);
-        // The man at the park asks only someone who has asked around there: judged once she has.
+        // The man at the park asks only someone who has asked around there this month: judged once he has, before the month ends.
+        game.accept({ type: "activity/now", activity: "activity.ask-around", param: null });
         const read = { state: game.state, world: game.world(), content };
         if (!allMet(read, content.offer["offer.road-park"]?.when ?? [])) wrong.push(`${archetype.id} ${String(at)}: the road's pitch cannot reach him`);
+        game.endTurn([]);
         if (routeState(game, "route.gulf-contract") === "unknown") wrong.push(`${archetype.id} ${String(at)}: the Gulf unheard after the first ask-around`);
         if (ownWayOf(game.view()) !== null) wrong.push(`${archetype.id} ${String(at)}: still sent to the motor park`);
       }
@@ -400,10 +401,11 @@ describe("the child of the water (R-PROLOGUE-012)", () => {
         const view = game.view();
         const way = ownWayOf(view);
         if (who === "water" && (nextStepOf(view) !== "heard" || way?.thing !== "motor-park" || way.activity !== "activity.ask-around")) wrong.push(`${String(at)}: the first step's way is ${JSON.stringify(way)}`);
-        game.endTurn([{ activity: "activity.ask-around", param: null }]);
-        // The man at the park asks only someone who has asked around there: judged once she has.
+        // The man at the park asks only someone who has asked around there this month: judged once she has, before the month ends.
+        game.accept({ type: "activity/now", activity: "activity.ask-around", param: null });
         const read = { state: game.state, world: game.world(), content };
         if (who === "water" && !allMet(read, content.offer["offer.road-park"]?.when ?? [])) wrong.push(`${String(at)}: the road's pitch cannot reach it`);
+        game.endTurn([]);
         if (routeState(game, "route.gulf-contract") !== "unknown") heard[who] += 1;
       }
     }
