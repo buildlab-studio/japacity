@@ -39,6 +39,11 @@ function replay(name: string, commands?: number): Game {
 }
 
 /** The commands of a recorded life up to and including its nth `turn/end`. */
+/** The months a recorded life plays. */
+function monthsOf(name: string): number {
+  return (SAVES[name]?.commands ?? []).filter((entry) => entry.command.type === "turn/end").length;
+}
+
 function upToMonth(name: string, month: number): number {
   const commands = SAVES[name]?.commands ?? [];
   let seen = 0;
@@ -104,7 +109,8 @@ describe("the months kept", () => {
 
   test("[R-WORLD-008] given a month in hand, when money moves before the month ends, then it is held as the month's net and not counted until the month closes", () => {
     // Zainab's remote dollars changed into naira: money in, in the money of the place, before the month ends.
-    const game = replay("zainab-remote", upToMonth("zainab-remote", 30));
+    // A month late in her life at home, before the flight, whichever month the cut flies in.
+    const game = replay("zainab-remote", upToMonth("zainab-remote", Math.min(30, monthsOf("zainab-remote") - 2)));
     const before = game.view().keptMonths;
     game.accept({ type: "wallet/convert", from: "USD", to: "NGN", amount: game.state.wallet.pockets.USD.bank, via: "bank" });
     expect(game.state.wallet.monthNet?.NGN ?? 0).toBeGreaterThan(0);

@@ -1143,7 +1143,8 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
     where: "home",
     pressure: ROAD_PRESSURE,
     kinds: ROAD_KINDS,
-    when: ROAD_WHEN,
+    // The man at the park asks only someone who has asked around there: never a life that never went.
+    when: [...ROAD_WHEN, { type: "activity/played", activity: "activity.ask-around" }],
     chanceBp: 500,
     cooldown: 4,
     maxTimes: null,

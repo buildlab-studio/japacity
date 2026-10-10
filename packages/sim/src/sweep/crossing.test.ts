@@ -403,6 +403,8 @@ describe("whole-life rules that cross kinds", () => {
     const debtEntry: Id<"obligation"> = "obligation.agent-debt";
     const play = (seed: string): Game | null => {
       const game = readyLife(content, { seed, quiet: true, pockets: { NGN: { bank: 0, cash: 3000000 * UNIT } } });
+      // The man at the park asks only someone who has asked around there.
+      game.accept({ type: "activity/now", activity: "activity.ask-around", param: null });
       applyEffects(game, [{ type: "offer/open", offer: "offer.road-park" }]);
       const pitch = game.view().offers.find((offer) => offer.entry === "offer.road-park");
       if (pitch === undefined) return null;
