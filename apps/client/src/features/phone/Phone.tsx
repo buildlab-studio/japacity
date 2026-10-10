@@ -70,11 +70,14 @@ export function Phone({ apps, onClose, area, when, onOpen, now = realNow, start 
     <PhoneSaid value={toast.show}>
       <div className="fixed inset-0 z-[44]" role="dialog" aria-modal="true" aria-label={phoneWords("phone.title")} data-phone data-grown={grown}>
         <button type="button" tabIndex={-1} aria-hidden onClick={onClose} className="fade absolute inset-0 cursor-default bg-scrim" />
+        {/* Grown and small share one anchor (the bottom middle, shifted half its width) and set the same four
+            numbers, so growing and shrinking move every edge together; a width or edge left to "auto" cannot
+            animate and would snap. */}
         <div
-          className={`absolute transition-[inset,width,height,rotate] duration-300 ease-out ${
+          className={`absolute left-1/2 -translate-x-1/2 transition-[bottom,width,height,rotate] duration-300 ease-[cubic-bezier(0.2,0.8,0.2,1)] ${
             grown
-              ? "inset-x-2 top-[max(8px,env(safe-area-inset-top))] bottom-[max(8px,env(safe-area-inset-bottom))]"
-              : "bottom-[max(12px,env(safe-area-inset-bottom))] left-1/2 h-[min(78dvh,600px)] w-[min(88vw,340px)] -translate-x-1/2 -rotate-2"
+              ? "bottom-[max(8px,env(safe-area-inset-bottom))] h-[calc(100dvh-max(8px,env(safe-area-inset-top))-max(8px,env(safe-area-inset-bottom)))] w-[calc(100vw-16px)] rotate-0"
+              : "bottom-[max(12px,env(safe-area-inset-bottom))] h-[min(78dvh,600px)] w-[min(88vw,340px)] -rotate-2"
           }`}
           data-handset
         >

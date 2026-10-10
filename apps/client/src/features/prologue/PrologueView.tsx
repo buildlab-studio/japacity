@@ -325,15 +325,17 @@ export function firstStep(view: Pick<PlayerView, "chapter" | "scenario" | "quali
   return hasWords(`${own}.nudge`) ? say(`${own}.nudge`) : hasWords(own) ? say(own) : null;
 }
 
-const UPKEEP = "obligation.upkeep";
-
-/** The home the last card chose, by the living costs it opened (R-PROLOGUE-006), from content's own answers. */
+/**
+ * The home the last card chose, by the living costs it opened (R-PROLOGUE-006), from content's own answers: each
+ * answer names the upkeep it opens, the family's or Makoko's (R-PROLOGUE-012).
+ */
 function homeChosen(view: PlayerView): { answer: string; amount: number } | null {
-  const upkeep = view.obligations.find((obligation) => obligation.entry === UPKEEP);
-  if (upkeep === undefined) return null;
   for (const answer of content.prologue.home?.answers ?? []) {
-    const opens = answer.effects.some((effect) => effect.type === "obligation/open" && effect.obligation === UPKEEP && effect.amount === upkeep.amount);
-    if (opens && hasWords(`prologue.handover.home.${answer.id}`)) return { answer: answer.id, amount: upkeep.amount };
+    for (const effect of answer.effects) {
+      if (effect.type !== "obligation/open" || typeof effect.amount !== "number") continue;
+      const owed = view.obligations.find((obligation) => obligation.entry === effect.obligation && obligation.amount === effect.amount);
+      if (owed !== undefined && hasWords(`prologue.handover.home.${answer.id}`)) return { answer: answer.id, amount: owed.amount };
+    }
   }
   return null;
 }
