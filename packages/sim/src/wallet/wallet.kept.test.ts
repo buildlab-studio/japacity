@@ -59,7 +59,7 @@ function netOf(events: readonly BaseEvent[], currency: Currency): number {
 }
 
 describe("the months kept", () => {
-  test("[R-WORLD-008] given each recorded life, when each month closes, then its net is the month's ledger in the money of the place where it ended, and the count is the months whose net was above zero", () => {
+  test("[R-WALLET-015] [R-WORLD-008] given each recorded life, when each month closes, then its net is the month's ledger in the money of the place where it ended, and the count is the months whose net was above zero", () => {
     for (const [name, save] of Object.entries(SAVES)) {
       const game = start({ content, scenario: save.scenario, seed: save.seed, worldSeed: save.worldSeed });
       const month: BaseEvent[] = [];
