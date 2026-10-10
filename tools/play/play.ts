@@ -1,6 +1,6 @@
 // pnpm play --out <folder> [--life developer] [--months 3]
 // Plays the game on a phone-sized browser from the front door: the name it fills, an archetype's tile (or a
-// ready life), the page and Begin, the page filling as the years go by and opening the world by itself, the
+// ready life), the page and Begin, the page filling as the years go by and Go opening the world, the
 // first chapter's title, then each month: the nudge followed, the month ended, the results read. Last it opens every app on the phone. It takes a
 // picture at each step into the folder given and prints a plain log, also saved there as play.log.
 // It changes nothing in the repository. See tools/play/README.md.
@@ -138,8 +138,8 @@ async function frontDoor(run: Run, button: string): Promise<boolean> {
 }
 
 /**
- * The years before: the page fills as the presets run, with no card (prologue.md R-PROLOGUE-010, 014), then opens
- * the world by itself. A card is a problem now; it is answered with its first answer so the run goes on.
+ * The years before: the page fills as the presets run, with no card (prologue.md R-PROLOGUE-010, 014), then waits
+ * for Go. A card is a problem now; it is answered with its first answer so the run goes on.
  */
 async function yearsBefore(run: Run): Promise<void> {
   const { page } = run;
@@ -152,10 +152,7 @@ async function yearsBefore(run: Run): Promise<void> {
       log(run, `page: ${await words(handover, 400)}`);
       await page.waitForTimeout(1_200);
       await shot(run, "your page filled");
-      if (await appear(band, 6_000)) {
-        log(run, "the world opened by itself");
-        return;
-      }
+      // The page waits for the player (R-PROLOGUE-014): Go opens the world.
       await tap(run, page.getByRole("button", { name: "Go", exact: true }), "Go on the page");
       return;
     }

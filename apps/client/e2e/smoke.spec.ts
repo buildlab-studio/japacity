@@ -88,9 +88,9 @@ test("three months of play show no kobo, raw object, missing value or bare key",
   }
 });
 
-test("a life from sixteen fills its page with no card and opens the first month", async ({ page }) => {
+test("[R-PROLOGUE-014] a life from sixteen fills its page with no card, waits on it, and opens the first month on Go", async ({ page }) => {
   await page.goto("/?classic");
-  await startArchetype(page, "The developer");
+  await startArchetype(page, "The developer", 30_000, true);
 
   // The years go by on the page with no card (prologue.md R-PROLOGUE-010, 014).
   const handover = page.locator("[data-gate='handover']");
@@ -100,7 +100,10 @@ test("a life from sixteen fills its page with no card and opens the first month"
   await expect(handover.locator("[data-years] [data-fact]").first()).toBeVisible();
   await expect(handover.locator("[data-page] [data-stamp]")).toBeVisible();
   await expectNothingBroken(page, "on the page");
-  // The page opens the world by itself, a moment after the stamp.
+  // The page waits for the player (R-PROLOGUE-014): still there after the stamp, until Go.
+  await page.waitForTimeout(4_000);
+  await expect(handover).toBeVisible();
+  await handover.getByRole("button", { name: "Go", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Month 1", exact: true })).toBeVisible({ timeout: 6_000 });
   await expectNothingBroken(page, "in the first month");
 });

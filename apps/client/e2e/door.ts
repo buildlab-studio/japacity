@@ -1,5 +1,5 @@
 // The way through the front door for a browser test (prologue.md R-PROLOGUE-013, 014): three screens with everything
-// chosen. A tile: Next, the tile, Print my page, Begin; its page fills and opens the world by itself. A ready life: the
+// chosen. A tile: Next, the tile, Print my page, Begin; its page fills and waits for Go (R-PROLOGUE-014). A ready life: the
 // test asks for the ready lives as Settings does and opens the door again, then Next, Pick on its kind, Begin.
 import type { Page } from "@playwright/test";
 
@@ -37,10 +37,21 @@ export async function startReadyLife(page: Page, kind?: string, timeout = 30_000
   await passOpeningWords(page);
 }
 
-/** Next, the archetype's tile, Print my page, Begin: the life from sixteen on that preset, its page left to fill. */
-export async function startArchetype(page: Page, archetype: string, timeout = 30_000): Promise<void> {
+/** The page as the handover waits for the player (R-PROLOGUE-014): Go on it, once its years are in, if it shows. */
+export async function passThePage(page: Page, timeout = 30_000): Promise<void> {
+  const go = page.locator("[data-page-handover]").getByRole("button", { name: "Go", exact: true });
+  await go.waitFor({ state: "visible", timeout }).catch(() => undefined);
+  if (await go.isVisible().catch(() => false)) await go.click();
+}
+
+/**
+ * Next, the archetype's tile, Print my page, Begin: the life from sixteen on that preset. Its page fills and is passed
+ * with Go, unless `stay` leaves it on screen.
+ */
+export async function startArchetype(page: Page, archetype: string, timeout = 30_000, stay = false): Promise<void> {
   await page.getByRole("button", { name: /^Next/ }).first().click({ timeout });
   await page.getByRole("radio", { name: archetype, exact: true }).click({ timeout });
   await page.getByRole("button", { name: /^Print my page/ }).first().click({ timeout });
   await begin(page, timeout);
+  if (!stay) await passThePage(page, timeout);
 }

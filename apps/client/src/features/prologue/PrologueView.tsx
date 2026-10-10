@@ -2,7 +2,7 @@
 // the character at the gate (R-PROLOGUE-009). A new life never shows a card: its archetype answers every step
 // (R-PROLOGUE-010) while the page over the compound fills as the years go by, and when the last answer is in, the
 // page is the handover (R-PROLOGUE-014): the family the game drew turned over, the years before as fact chips, the
-// money as it stands, the stamp, and the world opens by itself. A life with no archetype (the setting
+// money as it stands, the stamp, and the world opens when Go is tapped. A life with no archetype (the setting
 // `prologue.full`, or a fixed life a test starts) shows each card, one at a time, its answers greyed with the reason.
 import { content } from "@japacity/content";
 import type { PlayerView, ReportLine } from "@japacity/sim";
@@ -319,10 +319,9 @@ export function firstStep(view: Pick<PlayerView, "chapter" | "scenario" | "quali
 }
 
 
-/** When the family's card turns over on the handover page, the stamp lands, and the world opens after it (R-PROLOGUE-014). */
+/** When the family's card turns over on the handover page and the stamp lands; the world opens only on Go or a tap (R-PROLOGUE-014). */
 export const TURN_MS = 450;
 export const STAMP_AT_MS = 1100;
-export const OPEN_AFTER_MS = 2000;
 
 /** The page's "So far": the tile while the life went its way, else the life as lived, never the tile (R-PROLOGUE-011, 014). */
 function pathShown(archetype: Archetype | null, view: PlayerView, page: PageFields): string {
@@ -395,7 +394,7 @@ function Stat({ label, value, mark }: { label: string; value: string; mark: stri
  * The page over the compound after Begin (R-PROLOGUE-014). While the years go by (`onDone` absent) the page shows the
  * person and the age growing, the family still face down and the chips as the trail has them. As the handover, the
  * family turns over once, the years before stand as chips with the story's own, the money and japacity as they
- * stand, the stamp lands, and the world opens by itself or on a tap.
+ * stand, the stamp lands, and the world opens when Go is tapped, or the page.
  */
 function PageScreen({ view, archetype, draw, onDone }: { view: PlayerView; archetype: Archetype | null; draw: Draw | null; onDone?: () => void }) {
   const person = readPerson();
@@ -410,7 +409,8 @@ function PageScreen({ view, archetype, draw, onDone }: { view: PlayerView; arche
   };
   useEffect(() => {
     if (!handover) return;
-    const timers = [window.setTimeout(() => setTurned(true), TURN_MS), window.setTimeout(() => setStamped(true), STAMP_AT_MS), window.setTimeout(finish, STAMP_AT_MS + OPEN_AFTER_MS)];
+    // The page waits for the player: ten facts are not read in three seconds.
+    const timers = [window.setTimeout(() => setTurned(true), TURN_MS), window.setTimeout(() => setStamped(true), STAMP_AT_MS)];
     return () => timers.forEach((timer) => window.clearTimeout(timer));
     // The page's timeline runs once, as the handover opens.
   }, [handover]);

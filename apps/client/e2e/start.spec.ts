@@ -8,6 +8,7 @@ import { expect, test, type Page } from "@playwright/test";
 import { content } from "../../../packages/content/src/index";
 import { finishPrologue, start } from "../../../packages/sim/src/testing/play";
 import { standInWorld } from "../../../packages/sim/src/world/standIn";
+import { passThePage } from "./door";
 
 const ONLINE = `http://localhost:${process.env.E2E_ONLINE_PORT ?? "5180"}`;
 test.use({ baseURL: ONLINE });
@@ -157,6 +158,7 @@ test("[R-ACCOUNT-029] [R-ACCOUNT-021] Play leads to the age screen, the three-sc
   await page.waitForTimeout(800);
   await shoot(page, "page", info.project.name);
   await page.getByRole("button", { name: /^Begin/ }).click();
+  await passThePage(page, 20_000);
   await expect(page.locator("[data-thumb='map']")).toBeVisible({ timeout: 20_000 });
   await expect(page.locator("[data-thumb='phone']")).toBeVisible();
 
