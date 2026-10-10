@@ -27,7 +27,8 @@ export interface ServerConfig {
   presence: { maxPerObject: number; sample: number; nudgeEveryMs: number; attachmentBytes: number; todayMax: number };
   /** account.md Numbers. */
   account: { minAge: number; refusedCookieDays: number; deleteFreshMs: number; deleteWithinDays: number; maxCharacters: number };
-  auth: { otp: { length: number; expiresIn: number; attempts: number }; limits: { otpSendPer60s: number } };
+  /** R-ACCOUNT-002, R-ACCOUNT-014. */
+  auth: { otp: { length: number; expiresIn: number; attempts: number }; limits: { otpSendPer60s: number; otpSendPerDay: number } };
   /** R-ACCOUNT-007: the policy table. */
   regions: Regions;
   /** R-SERVER-012: the accounts that may read the admin page. Empty in production until the maintainer adds one. */
@@ -91,7 +92,7 @@ export const productionConfig: ServerConfig = {
   clock: { epoch: DEFAULT_EPOCH, worldTickMs: time.WORLD_TICK_MS, turnRefillMs: time.TURN_REFILL_MS, worldFetchSpreadMs: 60 * time.SECOND_MS },
   presence: { maxPerObject: 2000, sample: 20, nudgeEveryMs: 10 * time.SECOND_MS, attachmentBytes: 1024, todayMax: 20 },
   account: { minAge: 18, refusedCookieDays: 30, deleteFreshMs: 10 * time.MINUTE_MS, deleteWithinDays: 30, maxCharacters: 1 },
-  auth: { otp: { length: 6, expiresIn: 300, attempts: 3 }, limits: { otpSendPer60s: 3 } },
+  auth: { otp: { length: 6, expiresIn: 300, attempts: 3 }, limits: { otpSendPer60s: 3, otpSendPerDay: 10 } },
   regions: launchRegions,
   admin: { accounts: [] },
   lottery: { secretBits: 256, beacon: { genesis: 1692803367, period: 3, url: "https://api.drand.sh" } },

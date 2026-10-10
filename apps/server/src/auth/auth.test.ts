@@ -4,6 +4,7 @@ import { productionConfig, testConfig } from "../config";
 import { banIdentities, emailIdentity } from "../moderation/identities";
 import { setSwitch } from "../switches/switches";
 import { makeAuth } from "./auth";
+import { EMAIL_DAY_WINDOW_MS, EMAIL_LIMIT_WINDOW_MS, pruneLimitRows } from "./hooks";
 import { memoryAuthAdapter } from "./memory";
 import { SITE, harness, makeJar } from "./testing";
 
@@ -284,6 +285,28 @@ describe("the sign-in limits", () => {
       statuses.push(reply.status);
     }
     expect(statuses).toEqual([...Array.from({ length: limit }, () => 200), 429]);
+    expect(JSON.stringify(h.tables.rateLimit)).not.toContain("example.com");
+  });
+
+  test("[R-ACCOUNT-014] given code sends to one email spaced past the minute limit, when one more than the daily cap is sent within a day, then it is refused, and a day after the first it is sent again", async () => {
+    let now = Date.UTC(2026, 9, 10, 9, 0, 0);
+    const h = harness({ now: () => now });
+    const { otpSendPerDay } = h.deps.config.auth.limits;
+    const send = async (n: number) => (await h.call("/api/auth/email-otp/send-verification-otp", { method: "POST", ip: `198.51.100.${String(100 + n)}`, json: { email: "ada@example.com", type: "sign-in" } })).status;
+    const first = now;
+    const statuses: number[] = [];
+    for (let n = 0; n <= otpSendPerDay; n++) {
+      statuses.push(await send(n));
+      now += EMAIL_LIMIT_WINDOW_MS;
+    }
+    expect(statuses).toEqual([...Array.from({ length: otpSendPerDay }, () => 200), 429]);
+    // The daily row outlives the prune of the minute rows.
+    await pruneLimitRows((await h.auth.$context).adapter, now);
+    expect(await send(otpSendPerDay + 1)).toBe(429);
+    now = first + EMAIL_DAY_WINDOW_MS - 1;
+    expect(await send(otpSendPerDay + 2)).toBe(429);
+    now = first + EMAIL_DAY_WINDOW_MS;
+    expect(await send(otpSendPerDay + 3)).toBe(200);
     expect(JSON.stringify(h.tables.rateLimit)).not.toContain("example.com");
   });
 

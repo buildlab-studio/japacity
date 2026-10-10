@@ -88,6 +88,8 @@ export interface HarnessOptions {
   turnstileSecret?: string;
   /** The limits; open unless a test counts them. */
   limits?: Limiters;
+  /** The server's clock; the machine's unless a test moves it. */
+  now?: () => number;
 }
 
 export function harness(options: HarnessOptions = {}): Harness {
@@ -103,7 +105,7 @@ export function harness(options: HarnessOptions = {}): Harness {
     secrets: { worldSeed: "test-world-seed", banSalt: "test-ban-salt", drawTokenKey: "test-draw-token-key" },
     limits: options.limits ?? openLimiters,
     session: () => Promise.resolve(null),
-    now: () => Date.now(),
+    now: options.now ?? (() => Date.now()),
     randomBytes: (count) => Uint8Array.from({ length: count }, () => (seed = (seed * 48271) % 2147483647) & 255),
   };
   const keys: AuthKeys = {
