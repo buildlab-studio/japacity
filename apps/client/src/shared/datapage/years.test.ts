@@ -12,7 +12,7 @@ import { readyMonths, yearsOf } from "./years";
 describe("the page's age before a life begins", () => {
   test("[R-PROLOGUE-004] [R-PROLOGUE-009] given every tile, then the page's age at the tile's own is the one its tile says it hands over from", () => {
     for (const archetype of ARCHETYPES) {
-      const said = Number(/from (\d+)/.exec(say(`prologue.archetype.${archetype.id}.opens`))?.[1] ?? -1);
+      const said = Number(/at (\d+)/.exec(say(`prologue.archetype.${archetype.id}.opens`))?.[1] ?? -1);
       expect({ [archetype.id]: startYearFor(archetype, 0) }).toEqual({ [archetype.id]: said });
     }
   });

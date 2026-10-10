@@ -227,7 +227,7 @@ describe("the tiles' words", () => {
     for (const archetype of ARCHETYPES) {
       const years = Array.from({ length: SEEDS }, (_, at) => Math.floor(qualityOf(play(archetype, `${archetype.id}-${String(at)}`).game, "quality.age-months") / 12));
       found[archetype.id] = [...new Set(years)];
-      said[archetype.id] = Number(/from (\d+)/.exec(say(`prologue.archetype.${archetype.id}.opens`))?.[1] ?? -1);
+      said[archetype.id] = Number(/at (\d+)/.exec(say(`prologue.archetype.${archetype.id}.opens`))?.[1] ?? -1);
     }
     expect(found).toEqual(Object.fromEntries(Object.entries(said).map(([id, year]) => [id, [year]])));
     // The sheet above the tiles names no one age for all of them.

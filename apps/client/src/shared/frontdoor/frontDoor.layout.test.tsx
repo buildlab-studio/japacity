@@ -1,7 +1,7 @@
 // The second screen as a first-time player meets it (prologue.md R-PROLOGUE-010, 013), as the
 // design lab draws it: the tiles as single rows with the first chosen, each with its name in bold and its tag at the
 // right, the one line of what it was, its savings, and on the chosen row the routes it opens as chips; the full line
-// of what it opens and the age it hands over from is read out with the row; the age under them, and no ready life.
+// of what it opens and the age it starts at is read out with the row; the age under them, and no ready life.
 import { render } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
@@ -39,7 +39,7 @@ describe("Your life so far", () => {
       expect(opensChips(archetype.id).length).toBeGreaterThan(0);
       // The age its path reaches with no setback (R-PROLOGUE-004): a true number, never "about", read out with the row.
       expect(tile.getAttribute("aria-description")).toBe(say(`prologue.archetype.${archetype.id}.opens`));
-      expect(tile.getAttribute("aria-description")).toMatch(/Opens: .+Hands over from \d+$/);
+      expect(tile.getAttribute("aria-description")).toMatch(/Opens: .+Starts at \d+, or older$/);
     }
     expect(new Set(ARCHETYPES.map((archetype) => say(`ui.door.tag.${archetype.id}`)))).toEqual(new Set(["Balanced", "Head start", "Money first", "Hard start"]));
   });

@@ -228,7 +228,7 @@ export function savingsOf(archetype: Pick<Archetype, "id">): number {
   return Number.isInteger(figure) ? figure * 100 : 0;
 }
 
-/** The routes a tile opens as short words for its chips, from its one line of what it opens: "Opens: a, b. Hands over from 23". */
+/** The routes a tile opens as short words for its chips, from its one line of what it opens: "Opens: a, b. Starts at 23, or older". */
 export function opensChips(id: string): string[] {
   const line = say(`prologue.archetype.${id}.opens`).replace(/^[^:]*:\s*/, "");
   const ways = line.split(/\.\s/)[0] ?? "";
