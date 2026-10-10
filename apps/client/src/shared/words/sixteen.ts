@@ -144,9 +144,16 @@ export function ownRouteOf(view: Life & Held): Id<"route"> | null {
   return routeState(view, own) === "unknown" ? null : own;
 }
 
-/** The stops a life reaches before its chapter opens them: the nurse's clinic, where her job is. */
-export function earlyStops(life: Life & Held): string[] {
-  return sixteenNurse(life) ? [CLINIC_WAY.place] : [];
+const CARE_WORK = "route.uk-care";
+
+/**
+ * The stops a life reaches before its chapter opens them: the nurse's clinic, where her job is,
+ * and for any life whose plan is care work, or whose chapter is the care file's, the clinic where the council, the
+ * certification and the TB test are.
+ */
+export function earlyStops(life: Life & Held & Partial<Pick<PlayerView, "plan" | "chapter">>): string[] {
+  const careFile = life.plan?.route === CARE_WORK || (life.chapter?.current !== null && life.chapter?.current !== undefined && content.chapter[life.chapter.current]?.route === CARE_WORK);
+  return sixteenNurse(life) || careFile ? [CLINIC_WAY.place] : [];
 }
 
 /** The fish racks at Makoko, the child of the water's work at hand (R-ACTIVITY-017). */
