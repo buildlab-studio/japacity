@@ -2,6 +2,7 @@
 // board, cartons and bags waiting, a clerk at the counter, and the player's parcel there while one
 // waits (docs/rules/world.md R-WORLD-005, R-WORLD-011; city.md R-CITY-011, R-CITY-024). The street's
 // own file, as the game loads it, also passes every frontage check.
+import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
 import placeFile from "../../../public/assets/places/bode-thomas-front/place.json";
@@ -9,6 +10,7 @@ import { dressPlace, type Stage } from "../../features/city/placeFile";
 import { frontageTests } from "../../features/city/places/frontageTesting";
 import { copiesOf, staged, wordsOf } from "../../features/city/places/placeTesting";
 import { sceneWords } from "../../features/city/scene.words";
+import { offersHere, stagedAt } from "../../features/city/staging";
 import { stagedNow, thingsNow } from "../../features/city/things";
 import { PARCEL } from "./parcel.ask";
 
@@ -23,6 +25,13 @@ describe("Bode Thomas Street's frontage", () => {
 });
 
 describe("the cargo office", () => {
+  test("[R-CITY-010] given a parcel waiting at home, when the city asks where it is staged, then it is Bode Thomas Street, so the street is dressed for it there", () => {
+    const places = Object.values(content.place);
+    expect(stagedAt(PARCEL, { where: "home", country: null }, places)).toBe("place.bode-thomas");
+    const view = { offers: [{ entry: PARCEL }], place: { where: "home", country: null } } as unknown as Parameters<typeof offersHere>[0];
+    expect(offersHere(view, "place.bode-thomas", places)).toEqual([PARCEL]);
+  });
+
   test("[R-WORLD-005] given the street's things, when the cargo office is read, then it stands at the booth, is named, and its one act opens the parcel's sheet", () => {
     if (cargo === undefined) throw new Error("No cargo office on the street");
     expect(cargo.file.endsWith(BOOTH)).toBe(true);
