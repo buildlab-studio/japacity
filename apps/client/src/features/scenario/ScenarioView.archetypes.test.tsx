@@ -79,18 +79,22 @@ describe("the age set at the door", () => {
 });
 
 describe("the home picked at the door", () => {
-  test("[R-PROLOGUE-013] [R-PROLOGUE-010] given the developer's tile with Makoko picked under it, when the life is played, then the home step takes Makoko and the life closes in Makoko's room", async () => {
+  test("[R-PROLOGUE-013] [R-PROLOGUE-010] given the accountant's tile with the room of her own picked under it, when the life is played, then the home step takes the room, its year and fees are paid and the life closes in the room owing the next year's rent in twelve months", async () => {
+    // Makoko is the child of the water's alone; the room is every tile's.
     const store = bootGame({ storage: localStorage, fastClock: true, makeSeed: () => "run-makoko" });
     render(<App store={store} />);
     await toTheArchetypes();
-    fireEvent.click(await screen.findByRole("radio", { name: say("prologue.archetype.developer.name") }));
-    fireEvent.click(screen.getByRole("radio", { name: say("ui.door.home.makoko") }));
+    fireEvent.click(await screen.findByRole("radio", { name: say("prologue.archetype.accountant.name") }));
+    expect(screen.queryByRole("radio", { name: say("ui.door.home.makoko") })).toBeNull();
+    fireEvent.click(screen.getByRole("radio", { name: say("ui.door.home.compound-room") }));
     fireEvent.click(screen.getByRole("button", { name: new RegExp(`^${say("ui.door.next")}`) }));
     fireEvent.click(screen.getByRole("button", { name: new RegExp(`^${say("ui.door.begin")}`) }));
     expect(await throughTheYears(store)).toBe(false);
     const raw = JSON.parse(localStorage.getItem(SAVE_KEY)!) as { save: Parameters<typeof savedCommands>[0] };
     const chosen = savedCommands(raw.save).flatMap(({ command }) => (command.type === "prologue/choose" ? [command] : []));
-    expect(chosen.find((command) => command.step === "home")?.answer).toBe("makoko");
-    expect(store.getState().view?.home.place).toBe("place.makoko");
+    expect(chosen.find((command) => command.step === "home")?.answer).toBe("compound-room");
+    const view = store.getState().view!;
+    expect(view.home.place).toBe("place.compound-room");
+    expect(view.obligations.map((owed) => owed.entry).sort()).toEqual(["obligation.rent-compound", "obligation.upkeep-compound"]);
   }, 30000);
 });
