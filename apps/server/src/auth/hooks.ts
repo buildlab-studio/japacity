@@ -170,7 +170,7 @@ async function notePasskey(deps: ServerDeps, keys: AuthKeys, ctx: HookContext): 
   const session = await getSessionFromCtx(ctx);
   const note: PasskeyNote = { account: passkey.userId, passkey: passkey.id, admin: deps.config.admin.accounts.includes(passkey.userId), signedInWith: session === null ? "other" : openedWith(session) };
   const at = deps.now();
-  await deps.stores.audit.retire({ character: PASSKEY_ROWS, why: "alarm", at, note: JSON.stringify(note), segments: [], log: [], snapshots: [] });
+  await deps.stores.audit.retire({ character: PASSKEY_ROWS, why: "passkey", at, note: JSON.stringify(note), segments: [], log: [], snapshots: [] });
   const user = await ctx.context.internalAdapter.findUserById(passkey.userId);
   if (user === null || user.email === "") return;
   keys.background(keys.sendNotice({ email: user.email, kind: "passkey-added", at }));
