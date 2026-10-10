@@ -475,7 +475,7 @@ export const uiText: Record<string, string> = {
   "ui.offer.choice-cost": "{choice}: {amount}",
   "ui.offer.outcome": "What changed",
   "ui.offer.outcome-none": "Done. Nothing else moved.",
-  "ui.offer.lock": "Takes {slots} {when}",
+  "ui.offer.lock": "takes {slots} {when}",
   "ui.offer.lock.slots": "{count} of your things to do",
   "ui.offer.lock.slots.one": "one of your things to do",
   "ui.offer.lock.when": "for {count} months",

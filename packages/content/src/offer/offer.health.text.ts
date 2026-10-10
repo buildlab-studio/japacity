@@ -18,7 +18,7 @@ export const offerHealthText: Record<string, string> = {
   "offer.village-burial.name": "A burial in the village",
   "offer.village-burial.title": "A burial in the village",
   "offer.village-burial.body":
-    "Your father: 'My uncle has died. The burial is this month, in the village, and the family expects to see you there.' The trip is ₦60,000 and uses some of this month's free time.",
+    "Your father: 'My uncle has died. The burial is this month, in the village, and the family expects to see you there.' The trip is ₦60,000.",
   "offer.village-burial.choice.go": "Travel home for it",
   "offer.village-burial.choice.send-money": "Send ₦100,000 instead",
   "offer.village-burial.choice.absent": "Stay away",
