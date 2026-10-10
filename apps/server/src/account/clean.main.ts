@@ -37,6 +37,7 @@ if (url === undefined || url === "") {
       google: { clientId: "", clientSecret: "" },
       turnstile: { secretKey: "" },
       sendOtp: () => Promise.reject(new Error("The clean-up sends no email.")),
+      sendNotice: () => Promise.reject(new Error("The clean-up sends no email.")),
       background: () => undefined,
     });
     const result = await cleanCli(deps, auth, process.argv.slice(2));
