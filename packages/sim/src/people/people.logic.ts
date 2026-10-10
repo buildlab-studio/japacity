@@ -951,6 +951,13 @@ function evolveEnded(slice: PeopleSlice, event: Extract<PeopleEvent, { type: "pe
   if (next.joint?.bond === event.bond) next = { ...next, joint: null };
   if (next.sponsoring?.bond === event.bond) next = { ...next, sponsoring: null };
   if (next.slots[PARTNER_SLOT]?.bond === event.bond) next = withSlot(next, PARTNER_SLOT, emptySlot("empty"));
+  // R-PEOPLE-040 (decision 0027): a sibling slot whose player started a new life goes back to a computer sibling, drawn
+  // again at the next month's start as an undrawn slot is (R-PEOPLE-047).
+  if (event.by === "restart") {
+    for (const [slot, held] of Object.entries(next.slots)) {
+      if (slot.startsWith(SIBLING_PREFIX) && held.bond === event.bond) next = withSlot(next, slot, emptySlot("computer"));
+    }
+  }
   return next;
 }
 

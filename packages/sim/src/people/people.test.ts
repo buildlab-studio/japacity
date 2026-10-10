@@ -658,6 +658,23 @@ describe("letting people down", () => {
     expect(game.state.people.bonds[bond]?.ended?.by).toBe(why);
   });
 
+  test("[R-PEOPLE-040] [R-PEOPLE-047] given a real sibling joined to this life, when their player starts a new life, then the bond ends as a restart at no cost, its line is told, and the slot is drawn again as a computer sibling at the next month's start", () => {
+    const game = life();
+    game.accept({ type: "people/invite", slot: "sibling-1", looking: "sibling", fill: "to-start-out-with-me" });
+    game.accept({ type: "people/link", slot: "sibling-1", pair: "pair-1", facts: FACTS }, "authority");
+    const bond = game.state.people.slots["sibling-1"]?.bond;
+    if (bond === undefined || bond === null) throw new Error("The link made no sibling bond.");
+    const result = game.accept({ type: "people/ended", pair: "pair-1", why: "restart" }, "authority");
+    expect(qualityChange(result.events, "quality.standing", bond)).toBe(0);
+    expect(qualityChange(result.events, "quality.wellbeing", bond)).toBe(0);
+    expect(game.state.people.bonds[bond]?.ended?.by).toBe("restart");
+    expect(result.lines.map((line) => line.key)).toContain("line.people.ended-restart");
+    expect(game.state.people.slots["sibling-1"]).toMatchObject({ state: "computer", bond: null, person: null });
+    turn(game);
+    expect(game.state.people.slots["sibling-1"]?.state).toBe("computer");
+    expect(game.state.people.slots["sibling-1"]?.person).not.toBeNull();
+  });
+
   test("[R-PEOPLE-039] given an ended bond with Tobi, when the months pass, then the record stays, and Tobi is a candidate again only from the recourt month", () => {
     const game = life();
     const bond = court(game, TOBI);
