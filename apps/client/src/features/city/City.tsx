@@ -33,6 +33,7 @@ import { Nudge } from "../../shared/world/Nudge";
 import { ThumbBar } from "../../shared/world/ThumbBar";
 import { Toast, useToast } from "../../shared/world/Toast";
 import { MonthCount } from "../../shared/world/MonthCount";
+import { Rise, useJapaRise } from "../../shared/world/Rise";
 import { Walkthrough } from "../../shared/world/Walkthrough";
 import { WorldSheet } from "../../shared/world/WorldSheet";
 import { choreSaving } from "./chores";
@@ -63,6 +64,7 @@ import { stopReached } from "./stops";
 const WAIT_ONLY: ReadonlySet<string> = new Set(["chapter.build-the-file.item.english.started"]);
 
 const CityScene = lazy(() => import("./CityScene"));
+const Bag = lazy(() => import("./Bag"));
 
 const city = content.tuning.city;
 const PLACES = Object.values(content.place);
@@ -957,6 +959,9 @@ export function City({
   const cardsTurn = useCardsTurn();
   const cardClosed = useGame((state) => state.cardClosed);
   const cardUp = world && cardsTurn && cardKey(view.card) !== null && cardClosed !== cardKey(view.card);
+  // Japacity shown two ways (R-WORLD-029): the rise flies and the bag by the door grows once nothing covers the world, so both are seen together.
+  const openingUp = !openingSeen && view.report === null && view.chapter.current !== null && !view.ended;
+  const japa = useJapaRise(view.japacity.percent, world && looking && !covered && !resultsOpen && !map && !cardUp && !openingUp);
   // An act's line gives way to anything that covers the world.
   useEffect(() => {
     if (covered || resultsOpen) clearSaid();
@@ -993,7 +998,13 @@ export function City({
                 watch.current = next;
                 if (next.mode !== mode) setMode(next.mode);
               }}
-            />
+            >
+              {world ? (
+                <Suspense fallback={null}>
+                  <Bag stage={stageOf(file)} figure={japa.figure} documents={view.documents} routes={view.routes} />
+                </Suspense>
+              ) : null}
+            </CityScene>
           </Suspense>
         ) : null}
       </div>
@@ -1096,6 +1107,7 @@ export function City({
               {heardWords(heard.key, heard.params)}
             </p>
           ) : null}
+          <Rise rise={japa.rise} />
           <Toast words={toast.words} />
           <SaidLine said={covered || resultsOpen ? null : said} onTap={clearSaid} />
           {beatShown ? (
