@@ -124,11 +124,12 @@ describe("a room seen down its length (R-WORLD-029)", () => {
           if (!onScreen(lower, cx, 0, cz)) cut.push(`${folder} corner ${String(cx)},${String(cz)} at ${String(aspect)}`);
         }
       }
-      // On the phone the review used, the figure at the door stands at least a third taller than from the file's pitch.
-      const tall = (camera: ReturnType<typeof cameraAt>): number => projected(camera, x, 1.7, z).y - projected(camera, x, 0, z).y;
+      // On the phone the review used, the figure at the door either fills at least 7% of the screen's height (the room in a
+      // compound, whose file sets its own pitch) or stands at least a third taller than from the file's pitch (the long rooms).
+      const tall = (camera: ReturnType<typeof cameraAt>): number => (projected(camera, x, 1.7, z).y - projected(camera, x, 0, z).y) / 2;
       const upright = cameraAt(aimShot(roomShot(shotOf(stage), stage, file.scope), WHOLE, { x, z }, SCREENS.phone), SCREENS.phone);
       const overhead = cameraAt(aimShot(shotOf(stage), WHOLE, { x, z }, SCREENS.phone), SCREENS.phone);
-      if (tall(upright) <= tall(overhead) * 1.3) small.push(folder);
+      if (tall(upright) <= 0.07 && tall(upright) <= tall(overhead) * 1.3) small.push(`${folder} at ${String(tall(upright))}`);
     }
     expect(cut).toEqual([]);
     expect(small).toEqual([]);
