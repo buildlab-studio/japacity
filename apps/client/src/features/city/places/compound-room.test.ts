@@ -8,6 +8,8 @@ import { describe, expect, test } from "vitest";
 
 import raw from "../../../../public/assets/places/compound-room/place.json";
 import { engineView } from "../../../shared/testing/fixtures";
+import { cameraAt, projected, SCREENS } from "../scene.testing";
+import { aimShot, shotOf, WHOLE } from "../shot";
 import { type PlaceFile, stageOf } from "../placeFile";
 import { sceneWords } from "../scene.words";
 import { homeStagesAt } from "../staging";
@@ -82,6 +84,21 @@ describe("the room in a compound", () => {
     const elsewhere = actsNow(engineView("scenario.ada"), "place.family-house");
     expect(elsewhere["cooking"]).toBeUndefined();
     expect(elsewhere["drum"]).toBeUndefined();
+  });
+
+  test("[R-HOME-010] [R-WORLD-029] given the room in a compound, about 4 by 3.5 metres, when it opens whole on a phone held upright, then its five things stand within a few steps of the character at the door, and the character reads at a phone's size: over 7 in a hundred of the screen's height, where the room of 16 by 9 metres gave it 3", () => {
+    const [x, z] = stage.start;
+    for (const id of ["bed", "papers-box", "cooking", "drum", "bag"]) {
+      const spot = thingSpot(stage, thingOf(id));
+      if (spot === null) throw new Error(`${id} stands nowhere`);
+      expect({ id, close: Math.hypot(spot[0] - x, spot[1] - z) < 2.5 }).toEqual({ id, close: true });
+    }
+    const aspect = SCREENS.phone;
+    const camera = cameraAt(aimShot(shotOf(stage), WHOLE, { x, z }, aspect), aspect);
+    const foot = projected(camera, x, 0, z);
+    const head = projected(camera, x, 1.7, z);
+    // The screen runs -1 to 1 from foot to top.
+    expect((head.y - foot.y) / 2).toBeGreaterThan(0.07);
   });
 
   test("[R-HOME-006] given a life living in Makoko, when Makoko's room is read, then the family house's acts are staged on the water too", () => {

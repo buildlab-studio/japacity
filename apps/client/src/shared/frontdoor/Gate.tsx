@@ -6,6 +6,7 @@
 import { lazy, type PointerEvent, type ReactNode, Suspense, useMemo, useRef, useState } from "react";
 
 import { readPerson } from "../../authority/person";
+import { backdropOf, SCRIM } from "./backdrop";
 import { LOOKS, lookOf } from "./looks";
 import { DRAG_TURN, type Spin } from "./spin";
 import type { LookStyle } from "./style";
@@ -92,6 +93,8 @@ export function Gate({ look, children, mark, over, style }: GateProps) {
           standIn
         )}
       </div>
+      {/* "Your page" keeps the compound dimmed under the same scrim as the screens before it (R-PROLOGUE-016). */}
+      {backdropOf(mark) === "compound" ? <div className="band-2 pointer-events-none absolute inset-0" style={{ opacity: SCRIM, outline: "none" }} data-scrim aria-hidden /> : null}
       {over === undefined ? null : <div className="pointer-events-none absolute inset-x-0 top-0 flex flex-col px-3 pt-[max(10px,env(safe-area-inset-top))]">{over}</div>}
       <div className="pointer-events-none absolute inset-x-0 bottom-0 flex max-h-full flex-col justify-end">{children}</div>
     </div>

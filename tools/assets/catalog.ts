@@ -38,6 +38,7 @@ import { GRID_PIECES, gridFile, GRIDS, type GridPiece, MESH_LEVELS, type MeshLev
 import { buildPlasticChair } from "@japacity/assets-src/prop/plastic-chair/build";
 import { buildRoom } from "@japacity/assets-src/bld/room/build";
 import { ROOMS, type RoomName } from "@japacity/assets-src/bld/room/rooms";
+import { buildTailorCorner } from "@japacity/assets-src/bld/tailor/build";
 import * as furniture from "@japacity/assets-src/prop/furniture";
 import * as basics from "@japacity/assets-src/places/room-basics/build";
 import { buildStall } from "@japacity/assets-src/prop/stall";
@@ -452,6 +453,16 @@ export const CATALOG: CatalogEntry[] = [
   ),
   ...GRID_PIECES.flatMap((piece) => MESH_LEVELS.map((level) => gridEntry(piece, level))),
   ...(Object.keys(ROOMS) as RoomName[]).map(roomEntry),
+  // The tailor's corner behind the front door's first screen (prologue.md R-PROLOGUE-016), from the room's builder.
+  {
+    name: "bld_tailor-corner",
+    file: "places/tailor-corner/bld_tailor-corner.glb",
+    place: "place.family-house",
+    source: "assets-src/bld/tailor",
+    author: "Written as code from the kit",
+    views: [...ELEVATIONS, "plan", "phone"],
+    build: () => staticModel("bld_tailor-corner", buildTailorCorner()),
+  },
   furniturePiece("prop_room-door", "shared", "shared", furniture.buildRoomDoor),
   furniturePiece("prop_waiting-chairs", "shared", "shared", furniture.buildWaitingChairs),
   furniturePiece("prop_office-desk", "shared", "shared", furniture.buildOfficeDesk),

@@ -11,35 +11,23 @@ import type { Mesh, Object3D } from "three";
 
 import { advanceClock } from "../three/clock";
 import { loadModel } from "../three/load";
-import { loadJson, loadManifest } from "../three/manifest";
+import { loadManifest } from "../three/manifest";
 import { figureOf, poseFigure } from "../three/people";
 import { modeSettings } from "../../features/city/mode";
 import { filesOf, type PlaceFile, stageOf } from "../../features/city/placeFile";
 import { animateWorld, buildWorld, colourOf, skyColours, type World } from "../../features/city/world";
 import { readLook, wear } from "./colours";
+import { BACK, compoundCamera, FOV, GATE, HIGH, loadCompound, PLACE } from "./compound";
 import { doorPixels } from "./pixels";
 import { idOf } from "./looks";
 import { type Spin, SLOW_TURN, turnFrame } from "./spin";
 import { type LookStyle, reportOwn, styleKey } from "./style";
 
-/** The compound's file under places/: the family house's own (place.family-house). */
-const COMPOUND = "family-house-compound";
-const PLACE = "place.family-house";
-/**
- * Where the character stands: on the street just outside the gate, which the house's model puts at
- * x 3.4 of a plot centred on the house at (-1, 1.5), the gate on its +Z side 15.5 m out.
- */
-export const GATE: readonly [number, number] = [2.4, 18.1];
 /** Facing the street, toward the camera and the sheet: where the slow turn starts. */
 const TO_SHEET = 0;
 /** The plinth: a low round of concrete the figure stands on, this wide and this high. */
 const PLINTH_RADIUS = 0.62;
 const PLINTH_HIGH = 0.14;
-/** The camera: this far back along the street and this high, looking down at this pitch, so the figure on its plinth stands large in the top part of a tall screen. */
-const BACK = 6.2;
-const HIGH = 2.9;
-const LOOK_DOWN = (24 * Math.PI) / 180;
-const FOV = 50;
 
 export interface FrontSceneProps {
   /** The look's file, `shared/chr/chr_ada.glb`. */
@@ -156,8 +144,9 @@ function Compound({ file, look, spin, style, onShown }: FrontSceneProps & { file
     plinth.current?.position.set(GATE[0], PLINTH_HIGH / 2, GATE[1]);
     world.own.root.rotation.set(0, facing.current, 0);
     poseFigure(world.own, time, "stand");
-    camera.position.set(GATE[0], HIGH, GATE[1] + BACK);
-    camera.lookAt(GATE[0], HIGH - Math.tan(LOOK_DOWN) * BACK, GATE[1]);
+    const shot = compoundCamera();
+    camera.position.set(...shot.position);
+    camera.lookAt(...shot.target);
     if (window.__front !== undefined) window.__front.facing = facing.current;
   });
 
@@ -182,8 +171,7 @@ export default function FrontScene(props: FrontSceneProps) {
   const [file, setFile] = useState<PlaceFile | null>(null);
   useEffect(() => {
     let alive = true;
-    void loadManifest()
-      .then((manifest) => loadJson<PlaceFile>(manifest, `places/${COMPOUND}/place.json`))
+    void loadCompound()
       .then((found) => {
         if (alive && found !== null) setFile(found);
       })

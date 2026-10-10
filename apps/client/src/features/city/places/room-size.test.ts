@@ -1,8 +1,10 @@
 // The room at its new length (docs/rules/world.md R-WORLD-011 as amended on 10 Oct 2026, the review item
 // 15): the parlour at home and the room abroad are about 16 by 9 metres, so seen down their length they fill
-// a phone held upright. Refurnished so nothing floats: every piece stands on the floor between the walls, what
-// stood against a wall still does, and both modes stay inside the indoor row's budget. Read from the shipped
-// files, measured as the build check measures them, and passed through the place check itself.
+// a phone held upright. The room in a compound is the size such a room is, about 4 by 3.5 metres, its five things
+// close around the character. Refurnished so nothing floats: every piece
+// stands on the floor between the walls, what stood against a wall still does, and both modes stay inside the
+// indoor row's budget. Read from the shipped files, measured as the build check measures them, and passed through
+// the place check itself.
 import { type Footprint, placeFootprint } from "@japacity/assets";
 import { describe, expect, test } from "vitest";
 
@@ -17,13 +19,13 @@ import { measured, rowOf, totalsOf } from "./placeTesting";
 const parlour = parlourRaw as unknown as PlaceFile;
 const room = roomRaw as unknown as PlaceFile;
 const compound = compoundRaw as unknown as PlaceFile;
-const LENGTH = 16;
-const WIDTH = 9;
+const LONG: readonly [number, number] = [16, 9];
+const COMPOUND_ROOM: readonly [number, number] = [4, 3.5];
 const ROOMS_HERE = [
-  { name: "the parlour", file: parlour, shell: ROOMS.parlour, side: -1, against: ["prop_tv-stand.glb", "prop_bed.glb"] },
-  { name: "the room abroad", file: room, shell: ROOMS.abroad, side: 1, against: ["prop_bed.glb", "prop_window-frame.glb", "prop_side-table.glb"] },
-  // home.md R-HOME-010: the room in a compound, the same length, its mattress against the back wall.
-  { name: "the room in a compound", file: compound, shell: ROOMS.compound, side: 1, against: ["prop_bed.glb"] },
+  { name: "the parlour", file: parlour, shell: ROOMS.parlour, size: LONG, side: -1, against: ["prop_tv-stand.glb", "prop_bed.glb"] },
+  { name: "the room abroad", file: room, shell: ROOMS.abroad, size: LONG, side: 1, against: ["prop_bed.glb", "prop_window-frame.glb", "prop_side-table.glb"] },
+  // home.md R-HOME-010: the room in a compound, its mattress against the back wall.
+  { name: "the room in a compound", file: compound, shell: ROOMS.compound, size: COMPOUND_ROOM, side: 1, against: ["prop_bed.glb"] },
 ] as const;
 
 /** Each copy of each model but the room's own shell, with its footprint boxes' extents in the place's frame. */
@@ -46,8 +48,9 @@ async function extents(file: PlaceFile): Promise<{ file: string; x0: number; x1:
 }
 
 describe("the room at its new length", () => {
-  test("[R-WORLD-011] given the parlour, the room abroad and the room in a compound, when their shells are read and measured, then each is 16 by 9 metres inside, its long side along x, the way the camera looks down it", async () => {
-    for (const { name, file, shell } of ROOMS_HERE) {
+  test("[R-WORLD-011] [R-HOME-010] given the parlour, the room abroad and the room in a compound, when their shells are read and measured, then the parlour and the room abroad are 16 by 9 metres inside and the room in a compound 4 by 3.5, each with its long side along x, the way the camera looks down it", async () => {
+    for (const { name, file, shell, size } of ROOMS_HERE) {
+      const [LENGTH, WIDTH] = size;
       expect({ name, size: shell.size }).toEqual({ name, size: [LENGTH, WIDTH] });
       const shipped = await measured(stageOf(file).models[0]!.file);
       // The walls stand 0.2 m thick outside the floor, their heads a little more.
@@ -58,8 +61,9 @@ describe("the room at its new length", () => {
     }
   });
 
-  test("[R-WORLD-011] given each room's ground and walkable floor, when the place check reads them, then the floor runs about 16 by 9 metres and the check passes, as it does a bare 16 by 9 room; a hall of 20 by 20 still fails", () => {
-    for (const { name, file } of ROOMS_HERE) {
+  test("[R-WORLD-011] given each room's ground and walkable floor, when the place check reads them, then the floor runs as its shell does, about 16 by 9 metres or 4 by 3.5, and the check passes, as it does a bare 16 by 9 room; a hall of 20 by 20 still fails", () => {
+    for (const { name, file, size } of ROOMS_HERE) {
+      const [LENGTH, WIDTH] = size;
       const stage = stageOf(file);
       expect({ name, ground: stage.ground.size }).toEqual({ name, ground: [LENGTH + 0.6, WIDTH + 0.6] });
       const [long, short] = walkableSize(stage);
@@ -73,7 +77,8 @@ describe("the room at its new length", () => {
   });
 
   test("[R-WORLD-011] [R-WORLD-029] given every piece in each room, when its footprint is placed, then it stands on the floor between the walls, what stood against the back wall still does, and the door is on the side wall", async () => {
-    for (const { name, file, side, against } of ROOMS_HERE) {
+    for (const { name, file, side, against, size } of ROOMS_HERE) {
+      const [LENGTH, WIDTH] = size;
       const pieces = await extents(file);
       for (const piece of pieces) {
         const inside = piece.x0 >= -LENGTH / 2 - 0.02 && piece.x1 <= LENGTH / 2 + 0.02 && piece.z0 >= -WIDTH / 2 - 0.02 && piece.z1 <= WIDTH / 2;
