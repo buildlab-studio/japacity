@@ -56,4 +56,6 @@ export const activityNowText: Record<string, string> = {
   "line.activity.enter-pool.now": "Your profile is in the pool. The draws come when they come.",
   "line.activity.find-sponsor.now": "Your CV is out to the employers who sponsor. They answer with the month.",
   "line.activity.job-hunt.now": "The manager takes your CV: {param}. They will call by the end of the month.",
+  // The clinic has no manager with a CV: its own line.
+  "line.activity.job-hunt.now.job-nurse": "The matron takes your papers. She will say by the end of the month.",
 };

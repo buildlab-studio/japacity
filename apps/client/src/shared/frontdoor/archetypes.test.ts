@@ -385,7 +385,7 @@ describe("the child of the water (R-PROLOGUE-012)", () => {
     expect(reached).toEqual({ water: lives, home: 0 });
   });
 
-  test("[R-PROLOGUE-012] [R-GUIDE-016] given the child of the water over many seeds, when it hands over, then its first step is asking around at the motor park, its first ask-around hears of the Gulf in at least the trader's share of seeds, and the road's pitches can reach it at home", () => {
+  test("[R-PROLOGUE-012] [R-GUIDE-016] given the child of the water over many seeds, when it hands over, then the chapter's step is asking around at the motor park (the handover says the racks first while they are work at hand, R-ACTIVITY-017), its first ask-around hears of the Gulf in at least the trader's share of seeds, and the road's pitches can reach it at home", () => {
     expect(water.routes).toEqual(["route.gulf-contract", "route.road"]);
     const heard = { water: 0, trader: 0 };
     const kept = { water: 0, trader: 0 };
