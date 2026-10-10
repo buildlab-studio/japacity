@@ -23,6 +23,9 @@ export const activitySignals: Record<string, ActivitySignal> = {
   "activity.job-phone-sales.signal.1": { week: 1, words: "The stall: a customer bargained for an hour and bought the cheapest one." },
   "activity.job-nurse.signal.1": { week: 1, words: "The ward: your shift ran late. You came home at eleven." },
   "activity.job-nurse.signal.2": { week: 3, words: "The ward: two nights in a row. The matron says you are steady." },
+  // The trader's own shop (R-ACTIVITY-016).
+  "activity.run-shop.signal.1": { week: 1, words: "The shop: the first week's takings in the tin. You restocked on Friday." },
+  "activity.run-shop.signal.2": { week: 3, words: "The shop: a regular now. She sends her neighbour." },
 
   // Jobs abroad.
   "activity.job-uk-nurse.signal.1": { week: 1, words: "The ward: twelve hours and a handover. You ate standing up." },
