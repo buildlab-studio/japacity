@@ -9,7 +9,7 @@ import { localAuthority } from "../../authority/local";
 import { createGameStore, type GameStore } from "../../authority/store";
 import { DAYS_IN_MONTH, dueSignals, isMonthAct, monthActs, signalsOf, waitingSignals } from "./days";
 import { atHome, CITY_LAST_KEY } from "./standing";
-import { currentDays, forgetDays, watchDays } from "./days.store";
+import { currentDays, forgetDays, tellSignals, watchDays } from "./days.store";
 
 /** The month-acts of docs/rules/activity.md R-ACTIVITY-015 beside every job and side job. */
 const MONTH_ACTS_FREE = [
@@ -48,7 +48,7 @@ function twoStops(): [Id<"place">, Id<"place">] {
   const home = Object.values(content.place).filter((place) => place.where === "home" && place.id !== "place.family-house");
   const other = home[0];
   if (other === undefined) throw new Error("No place in the city beside the family house.");
-  return ["place.family-house" as Id<"place">, other.id];
+  return ["place.family-house", other.id];
 }
 
 async function ride(store: GameStore, from: Id<"place">, to: Id<"place">): Promise<void> {
@@ -74,35 +74,27 @@ afterEach(() => {
 
 describe("the lines each month-act says of itself", () => {
   test("[R-WORLD-030] given every job, side job and month-act in content, when its lines are looked up, then it has one or two, each with a week of the month", () => {
-    const acts = [...Object.values(content.activity).filter((entry) => entry.slot === "main" || entry.slot === "side").map((entry) => entry.id), ...MONTH_ACTS_FREE];
-    for (const id of acts) {
-      expect(content.activity[id as Id<"activity">], id).toBeDefined();
+    const acts = [...Object.values(content.activity).filter((entry) => entry.slot === "main" || entry.slot === "side").map((entry) => entry.id as string), ...MONTH_ACTS_FREE];
+    expect(acts.length).toBeGreaterThan(40);
+    const wrong = acts.filter((id) => {
       const lines = signalsOf(id);
-      expect(lines.length, id).toBeGreaterThanOrEqual(1);
-      expect(lines.length, id).toBeLessThanOrEqual(2);
-      expect(isMonthAct(id), id).toBe(true);
-      for (const line of lines) {
-        expect(line.week).toBeGreaterThanOrEqual(1);
-        expect(line.week).toBeLessThanOrEqual(DAYS_IN_MONTH / 7);
-      }
-    }
+      const weeksFit = lines.every((line) => line.week >= 1 && line.week <= DAYS_IN_MONTH / 7);
+      return !(id in content.activity) || lines.length < 1 || lines.length > 2 || !isMonthAct(id) || !weeksFit;
+    });
+    expect(wrong).toEqual([]);
   });
 
   test("[R-WORLD-030] given every line in content, when its key is read, then it names an activity in content, its words are short, and they carry no figure in braces", () => {
-    for (const [key, signal] of Object.entries(activitySignals)) {
+    const wrong = Object.entries(activitySignals).filter(([key, signal]) => {
       const found = /^(activity\.[a-z-]+)\.signal\.([12])$/.exec(key);
-      expect(found, key).not.toBeNull();
-      expect(content.activity[found![1] as Id<"activity">], key).toBeDefined();
-      expect(signal.words).not.toMatch(/[{}]/);
-      expect(signal.words.length, key).toBeLessThanOrEqual(100);
-    }
+      return found === null || !(found[1]! in content.activity) || /[{}]/.test(signal.words) || signal.words.length > 100;
+    });
+    expect(wrong).toEqual([]);
   });
 
   test("[R-WORLD-030] given a now-act, when it is asked whether it tells of itself, then it does not: the kiosk, asking around and the job hunt answer at once", () => {
-    for (const id of ["activity.play-lotto", "activity.ask-around", "activity.job-hunt", "activity.get-passport", "activity.meetup"]) {
-      expect(isMonthAct(id), id).toBe(false);
-      expect(signalsOf(id)).toEqual([]);
-    }
+    const nowActs = ["activity.play-lotto", "activity.ask-around", "activity.job-hunt", "activity.get-passport", "activity.meetup"];
+    expect(nowActs.filter((id) => isMonthAct(id) || signalsOf(id).length > 0)).toEqual([]);
   });
 });
 
@@ -176,8 +168,9 @@ describe("a planned course tells of itself on its day, at home", () => {
     expect(due()).toEqual([]);
     await ride(store, house, other);
     expect(due()).toEqual([`${COURSE}.signal.1`]);
-    // The third week of the course: two weeks on from its first day.
-    while (day() < 1 + 14) {
+    // Planned on day 1, the course's first day is the next; its third week starts two weeks on.
+    expect(currentDays()?.since[COURSE]).toBe(1);
+    while (day() < 1 + 1 + 14) {
       expect(due()).not.toContain(`${COURSE}.signal.2`);
       await ride(store, day() % 2 === 0 ? house : other, day() % 2 === 0 ? other : house);
     }
@@ -208,9 +201,13 @@ describe("a planned course tells of itself on its day, at home", () => {
     const view = store.getState().view!;
     const waiting = waitingSignals(currentDays()!, view, store.getState().plan);
     expect(waiting.map((signal) => signal.key)).toEqual([`${COURSE}.signal.1`]);
-    const { tellSignals } = await import("./days.store");
     tellSignals(waiting.map((signal) => signal.key));
     expect(waitingSignals(currentDays()!, view, store.getState().plan)).toEqual([]);
+    await store.getState().endMonth();
+    store.getState().addToPlan({ activity: COURSE, param: null });
+    expect(waitingSignals(currentDays()!, store.getState().view!, store.getState().plan)).toEqual([]);
+    await ride(store, house, other);
+    expect(waitingSignals(currentDays()!, store.getState().view!, store.getState().plan).map((signal) => signal.key)).toEqual([`${COURSE}.signal.1`]);
     stop();
   });
 });
