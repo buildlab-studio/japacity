@@ -75,7 +75,8 @@ export function MonthSheet() {
   const endMonth = useGame((state) => state.endMonth);
   // An interview with a question still to answer holds the month as a set piece does (R-INTERVIEW-004).
   const blocked = blockedBy(view.ended, view.turns.banked, view.setpiece !== null || (view.interview?.question ?? null) !== null);
-  const canRepeat = !(view.lastSlots.length === 0 && view.report === null) && !busy && !view.ended;
+  // Same again repeats a month that had something in it: after one with nothing planned it would plan nothing.
+  const canRepeat = view.lastSlots.length > 0 && !busy && !view.ended;
   const free = plan.some((pick) => pick === null);
   const untilNews = useGame((state) => state.untilNews);
   const abroad = view.place.where === "abroad";
