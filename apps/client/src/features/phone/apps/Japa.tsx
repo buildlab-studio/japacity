@@ -13,7 +13,7 @@ import { use, useState } from "react";
 import { useGame, useView } from "../../../authority/GameProvider";
 import { monthsLeft, SOON } from "../../../shared/words/expiry";
 import { formatBand, formatMoney } from "../../../shared/words/format";
-import { type PlanMark, planMarks } from "../../../shared/words/plan";
+import { planMarks } from "../../../shared/words/plan";
 import { checklistWords } from "../../../shared/words/requirement";
 import { blurbOf, forMonths, hasWords, inMonths, nameOf, runningName, say, sayCount, words } from "../../../shared/words/text";
 import { Head, PhoneSaid } from "../act";
