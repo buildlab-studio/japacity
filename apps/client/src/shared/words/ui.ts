@@ -134,6 +134,8 @@ export const uiText: Record<string, string> = {
   "ui.report.japacity-none": "Japacity: no route yet",
   "ui.line.school-offer-plain": "{school} offered you a place.",
   "ui.line.savings-before": "Your savings from before: {amount}.",
+  // A move to a home with rent, told once with the rent it paid (home.md R-HOME-002).
+  "ui.line.home-moved": "Home is {place} now: {amount} a month.",
   // The time played on a share card, in years and months (shared/card/face.ts, playedWords).
   "ui.card.played.years": "{count} years",
   "ui.card.played.years.one": "1 year",
