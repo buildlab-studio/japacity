@@ -12,9 +12,9 @@ export const LEGAL_LINKS = [
 
 export function LegalLinks() {
   return (
-    <nav aria-label={say("ui.legal.label")} className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted">
+    <nav aria-label={say("ui.legal.label")} className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-text-2">
       {LEGAL_LINKS.map((link) => (
-        <a key={link.href} href={link.href} target="_blank" rel="noopener" className="underline underline-offset-4 decoration-line hover:decoration-ink">
+        <a key={link.href} href={link.href} target="_blank" rel="noopener" className="underline underline-offset-4 decoration-sheet-line hover:decoration-text">
           {say(link.words)}
         </a>
       ))}
