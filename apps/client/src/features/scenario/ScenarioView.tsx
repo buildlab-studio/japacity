@@ -1,13 +1,7 @@
-// The front door (prologue.md R-PROLOGUE-009, 010, 011), run as the design's data page onboarding (the review
-// items 14 and 15): over the family compound, the player's figure turns on a plinth above, under the hook "What's your
-// japacity?" from the first second (item 18), and one question a screen
-// sits in a sheet below: the look, the archetype's tile (or one of the ready lives behind one card), the name, typed,
-// with three from the pool under the box, and for a tile the age in steps either side of its own, each step saying
-// what it does (the prologue's age card carries the effects; the tile's preset sends it). "Print my page" prints every answer onto the travel data page with the look
-// as the photo; "Begin" stamps it "Ready to start" and the life starts, the tile's preset playing as before. The run
-// is kept as it goes, so a reload at any step comes back to that step; nothing of the life is written before Begin.
-// Where a life may be started over, the authority starts a tile's life on a seed that keeps its path open; where it
-// may not (online, one life an account), the tiles say the years may go another way (R-PROLOGUE-011).
+// The front door (prologue.md R-PROLOGUE-009, 010, 011), run as the design's data page onboarding
+//, under the hook "What's your japacity?" from the first second (item 18).
+// The run is kept as it goes, so a reload at any step comes back to that step; nothing of the life is
+// written before Begin.
 import { content } from "@japacity/content";
 import type { Id } from "@japacity/sim";
 import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight, RefreshCw } from "lucide-react";

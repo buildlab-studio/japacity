@@ -29,6 +29,9 @@ function dealtIn(view: Pick<PlayerView, "place">): Currency[] {
   return local === null || HOME_CURRENCIES.includes(local) ? [...HOME_CURRENCIES] : [...HOME_CURRENCIES, local];
 }
 
+/** The savings figures, shared with the results sheet (R-WORLD-019); kept here for the Bank's own tests. */
+export { savedFor, savingsOf };
+
 /**
  * The money that moved lately, newest last: the month just ended whole, as its results list it (its
  * mid-month moves and its end, in the results' order), then this month's moves so far. One source with
@@ -36,9 +39,6 @@ function dealtIn(view: Pick<PlayerView, "place">): Currency[] {
  * : a payment split across pockets is one line, a bill's "paid this month" is the same
  * money, a fare paid on the way is a move, a change at the bank is told as the results tell it.
  */
-/** The savings figures, shared with the results sheet (R-WORLD-019); kept here for the Bank's own tests. */
-export { savedFor, savingsOf };
-
 export function latelyMoney(view: Pick<PlayerView, "report">, lastMonth: readonly ReportLine[], thisMonth: readonly ReportLine[], local: Currency = "NGN"): MoneyLine[] {
   const ended = view.report === null ? [] : moneyLines([...lastMonth, ...view.report.lines], local);
   return [...ended, ...moneyLines(thisMonth, local)];

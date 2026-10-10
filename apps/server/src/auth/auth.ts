@@ -1,6 +1,6 @@
 // The Better Auth instance (R-ACCOUNT-001 to 006, 014). Made from the
 // server's dependencies and a database adapter: the memory adapter in tests,
-// Drizzle's once packages/db lands. On Workers it is made inside each request
+// Drizzle's (drizzle.ts) on the Worker. On Workers it is made inside each request
 // (decision 0004, section 1), so the send of an email code can hand its
 // promise to that request's `waitUntil`.
 // https://better-auth.com/docs/integrations/hono

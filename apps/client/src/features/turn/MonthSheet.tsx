@@ -1,8 +1,5 @@
-// The Month sheet's contents (docs/rules/world.md R-WORLD-007): the job held, what is planned, as
-// rows that can be taken out (the slot empties), the free slots, Same again as one chip, and the
-// real End month with the reason it is held when it is. Nothing else plans the month: a slot fills
-// only when an act that takes one is chosen from its thing in the world. The shell's sheet frame
-// holds this.
+// The Month sheet's contents (docs/rules/world.md R-WORLD-007), with the job held and the reason End
+// month is held when it is. The shell's sheet frame holds this.
 import type { PlayerView, SlotLock, SlotPick } from "@japacity/sim";
 import { Briefcase, Repeat, X, Lock } from "lucide-react";
 import { useEffect } from "react";

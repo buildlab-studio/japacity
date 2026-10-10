@@ -84,10 +84,8 @@ export function askCost(entry: OfferEntry, terms: Record<string, unknown>, view:
 }
 
 /**
- * True for a small ask abroad that needs no answer this month (R-WORLD-028): content marks it
- * `news: false` and no answer costs more than `tuning.turn.quietAskCap`. A run passes it, and the
- * offer kind answers it by its `onExpire` when its month comes (R-OFFER-005). Anything else, a money
- * ask, the family's, a status clock, the credit file, stays news.
+ * True for a small ask abroad that a run passes (R-WORLD-028). The offer kind answers it by its
+ * `onExpire` when its month comes (R-OFFER-005).
  */
 export function quietAsk(entry: OfferEntry | undefined, terms: Record<string, unknown>, view: Pick<PlayerView, "place" | "pockets" | "rates">): boolean {
   if (entry === undefined || entry.news !== false || view.place.where !== "abroad") return false;
@@ -104,12 +102,8 @@ function opensQuietAsk(view: PlayerView, line: ReportLine): boolean {
 }
 
 /**
- * What stops a run after a month (R-WORLD-028), from the view after it and the month's lines: a line
- * that asks for attention (a small ask abroad aside), a paper or an answer landing, dues not covered,
- * the months to play at three or fewer, a set piece or an interview question open, a job lost, a
- * status clock started (R-STATUS-003), a goal reached, the sixth month, or the life over. The month's
- * own lines are read, and the report's when they are not given. Empty when the month was quiet and
- * the run goes on.
+ * What stops a run after a month (R-WORLD-028, and the life over), from the view after it and the
+ * month's lines, or the report's when they are not given. Empty when the month was quiet.
  */
 export function stopsRun(view: PlayerView, lines: readonly ReportLine[], months: number): RunStop[] {
   const stops: RunStop[] = [];

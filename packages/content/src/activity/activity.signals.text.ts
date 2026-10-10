@@ -1,8 +1,7 @@
-// What each month-act says of itself as the month passes (docs/rules/world.md R-WORLD-030): one or
-// two lines an act, keyed `activity.<id>.signal.<n>`, each with the week of the act it comes in (1 is
-// the act's first week). The interface counts the days and tells them on the phone once the
-// character is home; the simulation never reads them. Lines are said every month the act is on, so
-// none counts modules or names a first time. First drafts in the voice of docs/rules/text.md.
+// What each month-act says of itself as the month passes: docs/rules/world.md R-WORLD-030. Keyed
+// `activity.<id>.signal.<n>`, each with the week of the act it comes in (1 is the act's first week).
+// Lines are said every month the act is on, so none counts modules or names a first time. First
+// drafts in the voice of docs/rules/text.md.
 
 export interface ActivitySignal {
   /** The week of the act the line comes in: 1 to 4. */

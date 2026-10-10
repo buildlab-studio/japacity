@@ -1,9 +1,4 @@
-// The sponsor gate: docs/rules/route-gates.md R-SPONSOR-001 to 007. A sponsor
-// offer, or a sponsor found by looking, records an employer and a salary on the
-// route; applying needs that salary at the route's bar, the qualification
-// papers, the English band and, on the skilled route, the maintenance funds
-// covered at a month end. The decision reads strictness, earlier refusals and
-// the good grade, and a fraud sponsor is refused whatever the draw.
+// The sponsor gate: docs/rules/route-gates.md R-SPONSOR-001 to 007.
 //
 // This module imports nothing from the route kind or the engine's checker at
 // run time: both import the gate table, and the table imports this file.

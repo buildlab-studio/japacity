@@ -1,7 +1,5 @@
-// The age screen (R-ACCOUNT-012): before any sign-in method, a date of birth
-// with no date filled in and no hint of the age needed. The server decides
-// and keeps no date of birth; this screen only sends what was typed, with the
-// bot check's token, which the server reads here, the one step every new
+// The age screen (R-ACCOUNT-012). The server decides and keeps no date of birth; this screen only sends
+// what was typed, with the bot check's token, which the server reads here, the one step every new
 // account takes (R-ACCOUNT-013, apps/server/src/routes/age.ts).
 import { useState, type FormEvent } from "react";
 

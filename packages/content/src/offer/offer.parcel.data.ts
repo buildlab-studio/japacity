@@ -1,18 +1,7 @@
-// Things shipped home. On a birthday, a relative abroad ships the character something, and it waits
-// at the cargo office on Bode Thomas Street until it is collected for the clerk's handling charge.
-// Joined into the offer table in offer.data.ts; its words are in offer.parcel.text.ts.
-//
-// The offer kind opens it by its own rule on a birthday month (offer.parcel.ts in the simulation),
-// never by a roll, while this `when` holds: at home, with a relative abroad in the story. That is a
-// sibling whose facts put them abroad, or the aunty abroad once she has heard the character is
-// travelling (the same aunty and the same condition as `offer.relative-sends`). As it opens, the kind
-// hands over who sent it (`from`, a words key) and draws on `offer` which of the sender's choices
-// the parcel holds (`holds`); only that choice can be taken.
-//
-// The things live here, as the parcel's choices, since each is a set of effects the game already
-// has: a phone gives what buying one at Computer Village gives (R-STREET-001), a laptop lifts the
-// mood (no rule asks for one), clothes stand the character up a little at an interview, and
-// foodstuff relieves the next month's living costs as cooking does (R-OBLIGATION-014).
+// Things shipped home: docs/rules/streets.md R-STREET-010, opened by offer.parcel.ts in the simulation.
+// Joined into the offer table in offer.data.ts; its words are in offer.parcel.text.ts. The aunty is the
+// one of `offer.relative-sends`, on the same condition. The things live here, as the parcel's choices,
+// since each is a set of effects the game already has.
 import type { Effect, Id, OfferChoice, OfferEntry, Requirement } from "@japacity/sim";
 
 import { streetActivityTable } from "../activity/activity.street.data";

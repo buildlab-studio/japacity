@@ -131,8 +131,10 @@ function Wait() {
   );
 }
 
-/** `offers` draws the offer panel for the offers it is given: the shell hands in the offer screen. */
-/** The city behind the road's panel comes from the shell as an element (R-CITY-012): a feature never imports another. */
+/**
+ * `offers` draws the offer panel for the offers it is given: the shell hands in the offer screen.
+ * The city behind the road's panel comes from the shell as an element (R-CITY-012): a feature never imports another.
+ */
 export function RoadView({ offers = null, city = null }: { offers?: ((only: (offer: OfferView) => boolean) => ReactNode) | null; city?: ReactNode }) {
   const view = useView();
   const report = view.report;

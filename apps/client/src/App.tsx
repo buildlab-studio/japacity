@@ -137,7 +137,6 @@ function Shell() {
   return <WorldPlaying />;
 }
 
-/** Offers answered only at the family house. */
 /** The offers answered in a place of the city: the send-off at home, the parcel at the cargo office (R-STREET-010). */
 const OFFER_PLACES: Record<string, string> = { "offer.family-send-off": "place.family-house", "offer.parcel-shipped": "place.bode-thomas" };
 

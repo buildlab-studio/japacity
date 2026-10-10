@@ -1,8 +1,6 @@
 // Fairness: docs/rules/director.md R-DIRECTOR-007. A story may move only the
-// world's variables, so it cannot lower a quality, remove a document or close
-// an obligation the player chose, and a recorded visa application keeps the
-// rules it was sent under (R-ROUTE-014). These checks hold stories to that
-// shape, and hold every era to an end, a name and an era that may follow it.
+// world's variables, which keeps it inside that rule. These checks hold stories
+// to that shape, and every era to an end, a name and an era that may follow it.
 import type { Content, Id, NewsEntry, Requirement } from "../engine/types";
 import { isWorldRequirement } from "./director";
 

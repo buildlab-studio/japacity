@@ -1,7 +1,5 @@
 // Obligations: docs/rules/obligation.md, and for life abroad abroad-money.md
-// R-ABROAD-003 to 005, car.md R-CAR-003 to 005 and luck.md R-LUCK-009. Anything
-// owed on a schedule: upkeep, money sent home, loans, funds held for you by a
-// lender, rent, a phone, a car, tuition, a group loan, a savings circle. The
+// R-ABROAD-003 to 005, car.md R-CAR-003 to 005 and luck.md R-LUCK-009. The
 // scenario's obligations are real from the first state and get instance ids from
 // the engine's counter (R-SCENARIO-002).
 import { rateFor } from "../credit/credit.logic";

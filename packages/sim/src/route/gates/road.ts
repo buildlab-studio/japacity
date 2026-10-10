@@ -1,9 +1,5 @@
-// The road: docs/rules/road.md, R-ROAD-001 to 012, under the fifteen rules of
-// docs/brainstorm/02 section 6. It has no checklist, no application and no
-// decision draw. A pitch that is taken opens the night meeting; the truth
-// comes a month later; paying or calling home sets the character on the road,
-// where the chain runs in `clocks`, one draw a month on stream `road`, until it
-// ends at the far shore, in the assisted return, or in the ending.
+// The road: docs/rules/road.md R-ROAD-001 to 012, under the fifteen rules of
+// docs/brainstorm/02 section 6. The chain runs in `clocks`.
 //
 // The gate's state carries the step, the months at it and, before the chain
 // starts, the money the men will ask for. Its notes name lines `line.route.<note>`.

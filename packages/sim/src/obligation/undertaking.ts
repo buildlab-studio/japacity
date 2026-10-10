@@ -1,10 +1,6 @@
 // The sponsor's undertaking: docs/rules/undertaking.md R-UNDERTAKING-006 to
-// 009 and 012. A promise to the state, not to the partner: it opens with
-// nothing owed when the sponsored partner lands, grows by `var.ca-assistance`
-// for each month of assistance the partner's facts show, is paid in full or
-// missed, and closes only when its months have passed with nothing owed. The
-// obligation kind calls these for an undertaking whose sink is `undertaking`;
-// any other undertaking (a guarantee) keeps the kind's own path.
+// 009 and 012. The obligation kind calls these for an undertaking whose sink is
+// `undertaking`; any other undertaking (a guarantee) keeps the kind's own path.
 import { worldVar } from "../engine/check";
 import { emit } from "../engine/kind";
 import { reject } from "../engine/reject";

@@ -97,16 +97,16 @@ function storyRank(line: ReportLine): number {
   return STORY.findIndex((matches) => matches(line));
 }
 
-/**
- * The month's story for the results (R-WORLD-008): the lines that move the story, not money, in
- * the order the results lead with them, at most `STORY_MAX` of the month's events and then every chore. The rest of the month stays in News.
- */
 /** The relative's gift answered says the flag and the way round it itself: the wallet's bare flag line is not told twice. */
 const RELATIVE_SENDS = "offer.relative-sends";
 function flagTold(lines: readonly ReportLine[]): boolean {
   return lines.some((line) => line.key === "line.offer.taken" && line.params["offer"] === RELATIVE_SENDS);
 }
 
+/**
+ * The month's story for the results (R-WORLD-008): the lines that move the story, not money, in
+ * the order the results lead with them, at most `STORY_MAX` of the month's events and then every chore. The rest of the month stays in News.
+ */
 export function storyLines(lines: readonly ReportLine[]): ReportLine[] {
   const tidy = tidyLines(afterPrologue(lines));
   // A hunt's offer already names the job and its pay: the offer it opens is not told again.
@@ -158,17 +158,17 @@ export function drawShown(view: Pick<PlayerView, "lottery">): { draw: number; nu
   return { draw: last.draw, numbers, matched: numbers.filter((number) => mine.has(number)) };
 }
 
+/** True for the whole view the Bank's figure reads; a test's slice takes the older path. */
+function wholeView(view: Pick<PlayerView, "routes" | "japacity">): view is PlayerView {
+  return ["plan", "pockets", "rates", "activities", "documents"].every((key) => key in view);
+}
+
 /**
  * The savings toward the move: the shown funds against what the route in play needs, in its
  * country's money, read live from the checklist's funds item as the route screen reads it. With no
  * funds to show, the japacity figure stands for how far the move is; with neither, nothing.
  */
 // the first plan names "the goal's figure from the view"; goals carry no money figure, so the route's funds stand in.
-/** True for the whole view the Bank's figure reads; a test's slice takes the older path. */
-function wholeView(view: Pick<PlayerView, "routes" | "japacity">): view is PlayerView {
-  return ["plan", "pockets", "rates", "activities", "documents"].every((key) => key in view);
-}
-
 export function savings(view: Pick<PlayerView, "routes" | "japacity"> & Partial<Pick<PlayerView, "place">>): { kind: "funds"; shown: number; required: number; currency: Currency } | { kind: "percent"; percent: number } | null {
   // Once flown, the move is made: no target on the results.
   if (view.place?.where === "abroad") return null;

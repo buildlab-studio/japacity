@@ -1,11 +1,6 @@
-// The ride's scene (docs/rules/world.md R-WORLD-017, R-WORLD-032): the street the ride goes along,
-// the vehicle, and the people on it. A ride by danfo, keke or okada opens on a short pre-roll outside
-// at the stop (the okada at the kerb with the character climbing on behind the rider, the keke with
-// its driver and the character on the back bench, the danfo at its door with the two in front), then
-// cuts by itself on its own clock: from above, then for the danfo the window and the seat inside it,
-// and on a keke or an okada the rider ahead and the open street. On foot there is no pre-roll: the
-// character walks, seen from above. Everything here is plain three.js with no renderer, so a test can
-// read the scene it builds.
+// The ride's scene (docs/rules/world.md R-WORLD-017, R-WORLD-032): the street, the vehicle and the people
+// on it, with the pre-roll and the angles the rules give. Everything here is plain three.js with no
+// renderer, so a test can read the scene it builds.
 import { palette } from "@japacity/assets";
 import type { PoseName } from "@japacity/assets-src/people/poses";
 import {

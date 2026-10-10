@@ -1,10 +1,5 @@
-// The dependant gate: docs/rules/people.md R-PEOPLE-019 to 024. A partner goes
-// with the one who leads: the lead's route or the lead's status must allow it,
-// as the lead's facts on the bond show (R-PEOPLE-001). Applying reads the joint,
-// the lead's progress and, for the UK, the maintenance funds unless the lead has
-// a year in the country; the fee is the lead route's own when the block says so.
-// The decision waits while the lead's route is applying, refuses with `lead`
-// when it was refused, and reads the interview only where one was held.
+// The dependant gate: docs/rules/people.md R-PEOPLE-019 to 024. The lead is
+// known only by the facts on the bond (R-PEOPLE-001).
 //
 // The people kind holds the bonds and the joint; this module only reads them.
 import { worldVar } from "../../engine/check";

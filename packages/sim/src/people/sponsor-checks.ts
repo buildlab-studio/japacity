@@ -1,9 +1,5 @@
-// The sponsor's checks: docs/rules/undertaking.md R-UNDERTAKING-002 to 005,
-// judged in the sponsor's own life when they agree to sponsor (R-UNDERTAKING-001),
-// and the month the five-year bar lifts (R-UNDERTAKING-004, 012). Pure readings
-// of one state: the people kind calls them when a joint with this life as
-// sponsor is proposed or answered, and `factsOf` reports the floor as
-// `meetsFloor` (R-UNDERTAKING-003). Nothing here writes a slice.
+// The sponsor's checks: docs/rules/undertaking.md R-UNDERTAKING-001 to 005 and 012.
+// Pure readings of one state, called by the people kind. Nothing here writes a slice.
 import { jobTerms, MONTHS_PER_YEAR, paidYearly } from "../activity/activity.pay";
 import { resolveAmount, worldVar } from "../engine/check";
 import type { Content, Id, Money, ReadCtx, RouteEntry } from "../engine/types";

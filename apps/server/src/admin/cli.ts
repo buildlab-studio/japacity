@@ -1,8 +1,8 @@
 // `pnpm rollback check <character>` and `pnpm rollback apply <character>`
-// (R-SERVER-008, R-SERVER-009). Against `DATABASE_URL` through packages/db
-// once that package exists; until then `--memory <save.json>` stores the save
-// as that character in the memory stores and runs the tool there, and an
-// applied correction ends with the process.
+// (R-SERVER-008, R-SERVER-009). Running it against `DATABASE_URL` through
+// packages/db is not built yet; `--memory <save.json>` stores the save as that
+// character in the memory stores and runs the tool there, and an applied
+// correction ends with the process.
 import { content } from "@japacity/content";
 import type { FlatSave, Save } from "@japacity/sim";
 import { loadSave } from "@japacity/sim";
