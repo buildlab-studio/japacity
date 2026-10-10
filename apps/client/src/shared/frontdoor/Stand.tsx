@@ -1,23 +1,26 @@
 // The first two screens of the front door as the design draws them (prologue.md R-PROLOGUE-009, 013): the theme's
 // own band from edge to edge, the header at the top, the name over the figure and the path and age beneath the name,
-// the figure alone on its turntable filling the space between them and the sheet, whole from hair to shoes, "Drag to turn" at its foot, and the sheet under it. No compound
-// behind the figure here; the compound and its plinth stand behind the page and the world. Where WebGL is missing,
-// or until the figure stands, the look's own picture stands in.
+// the figure alone on its turntable filling the space between them and the sheet, whole from hair to shoes, "Drag to turn" at its foot, and the sheet under it.
+// Behind the figure, under a translucent scrim of the band, the tailor's corner on the first screen and the family
+// compound on the second, each drawn once and still (R-PROLOGUE-016). Where WebGL is missing, or until the figure
+// stands, the look's own picture stands in, on the band alone.
 import { lazy, type PointerEvent, type ReactNode, Suspense, useMemo, useRef, useState } from "react";
 
 import { say } from "../words/text";
+import { backdropOf, SCRIM } from "./backdrop";
 import { canDraw } from "./Gate";
 import { lookOf } from "./looks";
 import { DRAG_TURN, type Spin } from "./spin";
 import type { LookStyle } from "./style";
 
 const Turntable = lazy(() => import("./Turntable"));
+const Backdrop = lazy(() => import("./BackdropScene"));
 
 export interface StandProps {
   /** The look on the turntable, `chr_ada`. */
   look: string;
   style?: LookStyle | undefined;
-  /** A mark for tests and pictures: `data-gate` carries it, as the gate's does. */
+  /** The screen, `you`, `life` or `ready`: `data-gate` carries it, as the gate's does, and it names what stands behind the figure. */
   mark: string;
   /** The row over the figure: the way back, where the run is, and the ways to go faster. */
   head: ReactNode;
@@ -32,6 +35,7 @@ export function Stand({ look, style, mark, head, name, caption, children }: Stan
   const drawing = useMemo(canDraw, []);
   const [drawn, setDrawn] = useState(false);
   const shown = lookOf(look);
+  const backdrop = drawing ? backdropOf(mark) : null;
   const spin = useRef<Spin>({ dragging: false, pending: 0, last: 0 }).current;
   const grab = (event: PointerEvent<HTMLDivElement>): void => {
     event.currentTarget.setPointerCapture(event.pointerId);
@@ -52,6 +56,17 @@ export function Stand({ look, style, mark, head, name, caption, children }: Stan
     );
   return (
     <div className="band-2 fixed inset-0 flex flex-col overflow-hidden" data-gate={mark} data-look={shown?.id} data-stand>
+      {backdrop === null ? null : (
+        <>
+          {/* Under everything on the screen, over the band's own colour: the backdrop, then the band again, see-through. */}
+          <div className="pointer-events-none absolute inset-0 -z-10" data-backdrop={backdrop} aria-hidden>
+            <Suspense fallback={null}>
+              <Backdrop kind={backdrop} look={shown?.file ?? "shared/chr/chr_ada.glb"} />
+            </Suspense>
+          </div>
+          <div className="band-2 pointer-events-none absolute inset-0 -z-10" style={{ opacity: SCRIM, outline: "none" }} data-scrim aria-hidden />
+        </>
+      )}
       <div className="shrink-0 px-3 pt-[max(12px,env(safe-area-inset-top))]">{head}</div>
       {/* The name and the path and age stand over the figure, never on it: the figure fills the space under them. */}
       <div className="pointer-events-none shrink-0 pt-1.5 text-center leading-tight" data-stand-name>
