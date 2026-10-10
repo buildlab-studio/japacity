@@ -418,8 +418,9 @@ describe("the archetypes' own ways", () => {
         { ...richView().routes[0]!, id: "route.uk-care" as const, state: "heard" as const },
       ],
     };
-    expect(nudgeOf(nurse)).toEqual({ key: "chapter.find-your-feet.item.known.nudge.own", params: { route: "care work in the UK" }, about: "step" });
-    expect(say("chapter.find-your-feet.item.known.nudge.own", { route: "care work in the UK" })).toBe("Read the page on care work in the UK");
+    // The page is read in Japa, one tap away, never a ride to the hub: `.needs` words open Japa.
+    expect(nudgeOf(nurse)).toEqual({ key: "chapter.find-your-feet.item.known.own.needs", params: { route: "care work" }, about: "step" });
+    expect(say("chapter.find-your-feet.item.known.own.needs", { route: "care work" })).toBe("Read about care work in Japa");
     expect(stepWayOf(nurse)).toEqual({ go: "place.yaba", at: ["place.yaba:desk", "place.ojuelegba:hub"], opens: "activity.look-into-route", param: "route.uk-care" });
     // A graduate with no way of her own keeps the table's words.
     const graduate = { ...nurse, qualities: base.qualities.map((quality) => (quality.id === "quality.edu-level" ? { ...quality, value: 3 } : quality)), documents: [] };

@@ -37,6 +37,8 @@ export const chapterText: Record<string, string> = {
   "chapter.find-your-feet.item.known": "Look into it",
   "chapter.find-your-feet.item.known.nudge": "Read the official page, or ask someone",
   "chapter.find-your-feet.item.known.nudge.own": "Read the page on {route}",
+  // The page of the life's own way out, read in Japa: a tap on `.needs` words opens Japa.
+  "chapter.find-your-feet.item.known.own.needs": "Read about {route} in Japa",
   "chapter.find-your-feet.item.known.planned": "Reading planned. Tap Next month.",
   "chapter.find-your-feet.item.known.planned.see-adviser": "Adviser booked. Tap Next month.",
   // A trader from sixteen with the settlement, in her own words: her job is her own shop.
@@ -121,6 +123,9 @@ export const chapterText: Record<string, string> = {
   "chapter.build-the-file-care.item.applied.planned": "Application planned. Tap Next month.",
   // The months on the ward counted, when nothing else of hers is to do.
   "chapter.build-the-file-care.item.tenure.count": "Keep nursing: {done} of {need} months done",
+  // Japa's count of the same months, and the council's, while they run.
+  "chapter.build-the-file-care.item.tenure.japa": "{done} of {need} months on the ward",
+  "chapter.build-the-file-care.item.verification.japa.pending": "The council answers {when}",
   // The care file's detours: the licence renewed, a sponsor at the bar, the window shut.
   "chapter.build-the-file-care.item.licence": "Renew your nursing licence",
   "chapter.build-the-file-care.item.licence.nudge": "Renew your nursing licence at the clinic",

@@ -74,7 +74,11 @@ export function settle(game: Game, take: (entry: string) => boolean = (entry) =>
     const view = game.view();
     const question = view.setpiece?.question ?? null;
     if (question !== null) {
-      const answer = question.allowed[0];
+      // She knows her work: the answer that scores most, from content, else the first allowed.
+      const asked = view.setpiece === null ? undefined : content.setpiece[view.setpiece.entry];
+      const answers = [...(asked?.questions ?? []), ...(asked?.followUps ?? [])].find((one) => one.id === question.id)?.answers ?? [];
+      const best = [...answers].filter((one) => question.allowed.includes(one.id)).sort((a, b) => b.score - a.score)[0]?.id;
+      const answer = best ?? question.allowed[0];
       if (answer === undefined) throw new Error(`No answer to ${question.id}.`);
       game.accept({ type: "setpiece/answer", question: question.id, answer });
       continue;

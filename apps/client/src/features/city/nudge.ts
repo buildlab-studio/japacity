@@ -7,9 +7,9 @@ import type { Id, PlayerView } from "@japacity/sim";
 import { duesGap } from "../../shared/words/dues";
 import { formatMoney } from "../../shared/words/format";
 import { asksAttention, tidyLines } from "../../shared/words/lines";
-import { nextStepOf, ownRouteOf, ownWayOf, RACKS_STEP, racksAtHand } from "../../shared/words/sixteen";
+import { nextStepOf, ownRouteOf, ownWayOf, RACKS_STEP, racksAtHand, wardMonths } from "../../shared/words/sixteen";
 import { routeKeptBy } from "../../shared/words/keepJob";
-import { hasWords, inMonths, nameOf } from "../../shared/words/text";
+import { hasWords, inMonths, nameOf, say } from "../../shared/words/text";
 import type { Nudge } from "../../shared/world/contract";
 
 /** What the nudge points at, so a tap on it can open the matching sheet. `dues`: the month's dues abroad pass the money held; it opens the Bank. */
@@ -272,7 +272,7 @@ const MEANWHILE: readonly { act: string; fits: (view: NudgeView) => boolean }[] 
   { act: "open-source", fits: (view) => qualityOf(view, "quality.tech") >= 40 },
   { act: "tech-posts", fits: (view) => qualityOf(view, "quality.tech") >= 30 },
   // Not for the staff nurse: getting noticed counts toward the study visa and Canada's points, never care work, and her
-  // ward is the clinic, never the hub's board. It stands on the clinic's notice for her to find.
+  // ward is the clinic, never the hub's board. The act stays on the hub's board alone (R-CITY-010).
   { act: "be-noticed", fits: (view) => (view.job?.months ?? 0) >= 6 && view.job?.id !== NURSE_JOB },
 ];
 
@@ -349,14 +349,6 @@ function careDetour(view: CareView, step: string): string | null {
   const first = missing.find((paper) => now(paper.item, paper.step)) ?? missing.find((paper) => pending(paper.step)) ?? missing[0];
   if (first !== undefined) return first.step;
   return care.window === "closed" ? WINDOW_STEP : null;
-}
-
-/** The months on the ward the care file counts, and how many it needs (R-SPONSOR-005), from the chapter's own item. */
-function tenureCount(view: Pick<PlayerView, "chapter"> & Partial<Pick<PlayerView, "job">>): { done: number; need: number } | null {
-  const requirement = content.chapter[view.chapter.current as Id<"chapter">]?.items.find((item) => item.id === TENURE)?.requirement;
-  if (requirement?.type !== "activity/tenure") return null;
-  const months = view.job !== undefined && requirement.activities.includes(view.job.id as Id<"activity">) ? view.job.months : 0;
-  return { done: Math.min(months, requirement.months), need: requirement.months };
 }
 
 /** True while funds held for the visa are still to be given back. */
@@ -499,15 +491,17 @@ export function nudgeOf(view: NudgeView, has: (key: string) => boolean = hasWord
     const started = startedKey(view, own, detour ?? `${view.chapter.current}.${step}`, planned, has);
     if (started !== null) return { ...started, about: "step" };
     // The months on the ward, counted, when there is nothing else of hers to do.
-    const count = care && step === TENURE && detour === null ? tenureCount(view) : null;
+    const count = care && step === TENURE && detour === null ? wardMonths(view) : null;
     if (count !== null && has(`${own}.count`)) return { key: `${own}.count`, params: { done: count.done, need: count.need }, about: "step" };
     // A hunt missed last month: the nudge names another job on the board too.
     if (step === "job" && (view.report?.lines ?? []).some((line) => line.key === "line.activity.hunt-missed") && (view.activities?.find((option) => option.id === "activity.job-hunt")?.params?.length ?? 0) > 1 && has(`${own}.nudge.again`)) return { key: `${own}.nudge.again`, about: "step" };
     // The life's own way to the step has its own words (the nurse's clinic, the trade's motor park).
     const way = ownWay(view);
     if (way !== null && has(`${own}.nudge.${way.key}`)) return { key: `${own}.nudge.${way.key}`, about: "step" };
-    // "Look into it" names the page of the life's own way out (R-CHAPTER-009).
+    // "Look into it" names the page of the life's own way out (R-CHAPTER-009), read in Japa, one tap away wherever she
+    // stands, never a ride to the hub: `.needs` words open Japa, as the needs do.
     const route = view.chapter.current === FIRST_CHAPTER && step === "known" ? ownRoute(view) : null;
+    if (route !== null && has(`${own}.own.needs`)) return { key: `${own}.own.needs`, params: { route: has(`${route}.short`) ? say(`${route}.short`) : lowerFirst(nameOf(route)) }, about: "step" };
     if (route !== null && has(`${own}.nudge.own`)) return { key: `${own}.nudge.own`, params: { route: lowerFirst(nameOf(route)) }, about: "step" };
     return { key: has(`${own}.nudge`) ? `${own}.nudge` : own, about: "step" };
   }

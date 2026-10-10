@@ -9,10 +9,12 @@ import { describe, expect, test } from "vitest";
 import clinic from "../../../public/assets/places/tb-clinic/place.json";
 import { earlyStops } from "../../shared/words/sixteen";
 import { hasWords, say } from "../../shared/words/text";
+import { officialRoute } from "../phone/apps/Japa";
 import { actsOffered } from "./acts";
 import { nudgeOf, stepThingHere, stepWayOf } from "./nudge";
 import { CARE, hearCare, hire, month, readCare, readyNurse, tileNurse, until } from "./nurse.testing";
 import { type PlaceFile, stageOf } from "./placeFile";
+import { sceneWords } from "./scene.words";
 import { stepOpen } from "./stepOpen";
 import { stagedNow, thingsNow, thingsOf, withMoreAt } from "./things";
 import { stopReached } from "./stops";
@@ -70,6 +72,7 @@ const ACT_OF: Record<string, string> = {
   "chapter.build-the-file-care.item.sponsor": "activity.find-sponsor",
   "chapter.build-the-file-care.item.salary": "activity.find-sponsor",
   "chapter.build-the-file-care.item.applied": "activity.apply-uk-care",
+  "ui.nudge.meanwhile.nurse-certification": "activity.nurse-certification",
 };
 
 /** The act the nudge names this month, if it is one the player can take now: what a player who follows the nudge does. */
@@ -79,6 +82,13 @@ function followed(view: PlayerView): SlotPick[] {
   const option = view.activities.find((candidate) => candidate.id === act);
   if (act === undefined || option?.allowed !== true || !option.affordable) return [];
   return [{ activity: act, param: act === "activity.find-sponsor" ? CARE : null } as SlotPick];
+}
+
+const CARE_CHAPTER = new Set([FILE, "chapter.decision-day-care"]);
+
+/** As `followed`, but the licence is left to run out: the months before a lapse, played as a player who never renews early. */
+function followedButLicence(view: PlayerView): SlotPick[] {
+  return followed(view).filter((pick) => pick.activity !== "activity.renew-licence");
 }
 
 describe("the nurse's way never opens a shut place", () => {
@@ -173,5 +183,92 @@ describe("the nurse's way never opens a shut place", () => {
       expect(said.split(/\s+/).filter(Boolean).length).toBeLessThan(NUDGE_WORDS);
       expect(said).not.toMatch(/[{}]|[.]$/);
     }
+  });
+});
+
+describe("the nurse's nudges point at the chip that holds the act", () => {
+  test("[R-WORLD-003] [R-WORLD-005] given the ready nurse at the council's step, when the clinic's notice is read, then the chip that holds the act is named the council and lists the verification and the licence's renewal", () => {
+    const view = readyInTheFile().view();
+    const notice = clinicThings(view).find((thing) => thing.id === stepThingHere(stepWayOf(view)!, CLINIC, clinicThings(view)));
+    const council = notice?.acts.find((act) => [act.stages, ...(act.more ?? [])].includes("activity.request-verification"));
+    expect(sceneWords(council?.label ?? "")).toBe("The council");
+    expect([council?.stages, ...(council?.more ?? [])]).toEqual(expect.arrayContaining(["activity.request-verification", "activity.renew-licence"]));
+  });
+
+  test("[R-WORLD-003] [R-CHAPTER-009] given the tile's nurse at work who has heard of care work, when the page is next, then the nudge names the page in Japa in under eight words and its tap opens Japa, where the care page is one tap away", () => {
+    const game = tileNurse("nurse-page");
+    hire(game);
+    const view = until(game, (now) => now.chapter.items.find((item) => item.id === "pay")?.met === true, 3);
+    expect(view.chapter.items.find((item) => item.id === "known")?.met).toBe(false);
+    const nudge = nudgeOf(view);
+    expect(nudge).toEqual({ key: "chapter.find-your-feet.item.known.own.needs", params: { route: "care work" }, about: "step" });
+    // A step's `.needs` words open Japa on a tap (City.tsx's `nudgeNeeds`), never the map.
+    expect(nudge.key.endsWith(".needs")).toBe(true);
+    const said = say(nudge.key, nudge.params);
+    expect(said).toBe("Read about care work in Japa");
+    expect(said.split(/\s+/).length).toBeLessThan(NUDGE_WORDS);
+    expect(officialRoute(view)).toBe(CARE);
+  });
+
+  test("[R-WORLD-003] [R-ACTIVITY-013] given the tile's nurse months into her job while the council works, when the nudge is read, then it never sends her to the hub's board to get noticed", () => {
+    const game = tileNurse("nurse-noticed");
+    hire(game);
+    readCare(game);
+    const asked: string[] = [];
+    until(game, (view) => view.documents.some((paper) => paper.id === "document.nmcn-verification"), 40, (view) => (view.activities.find((option) => option.id === "activity.request-verification")?.allowed === true ? [{ activity: "activity.request-verification", param: null }] : []));
+    for (let months = 0; months < 6; months += 1) {
+      const view = game.view();
+      asked.push(nudgeOf(view).key, stepWayOf(view)?.go ?? "month");
+      month(game, followed(view));
+    }
+    expect(asked).not.toContain("ui.nudge.meanwhile.be-noticed");
+    expect(asked).not.toContain("place.yaba");
+    expect(game.view().job.months).toBeGreaterThanOrEqual(6);
+  });
+});
+
+describe("the nurse's waiting months and her licence", () => {
+  test("[R-WORLD-003] [R-ACTIVITY-013] given the tile's nurse on the ward, when the nudge is read each month of the twenty-four, then it names one thing of hers to do or counts the months, never keep nursing alone", () => {
+    const game = tileNurse("nurse-ward");
+    hire(game);
+    readCare(game);
+    until(game, (view) => view.chapter.current === FILE, 4);
+    const said: string[] = [];
+    until(
+      game,
+      (view) => view.chapter.items.find((item) => item.id === "tenure")?.met === true,
+      30,
+      (view) => {
+        const nudge = nudgeOf(view);
+        said.push(say(nudge.key, nudge.params ?? {}));
+        return followed(view);
+      },
+    );
+    expect(said.length).toBeGreaterThan(12);
+    expect(said).not.toContain(say(`${FILE}.item.tenure.nudge`));
+    // The months counted, each month a count that rises: "Keep nursing: 14 of 24 months done".
+    const counts = said.filter((line) => line.startsWith("Keep nursing:")).map((line) => Number(/(\d+) of 24/.exec(line)?.[1]));
+    expect(counts.length).toBeGreaterThan(0);
+    expect(counts.every((count, at) => at === 0 || count > (counts[at - 1] ?? 0))).toBe(true);
+    // The first thing of hers to do in those months is her passport, before the months are only counted.
+    expect(said.findIndex((line) => line === say("chapter.build-the-file.item.passport.nudge"))).toBeLessThan(said.findIndex((line) => line.startsWith("Keep nursing:")));
+  });
+
+  test("[R-WORLD-003] [R-DOCUMENT-004] given the tile's nurse whose licence runs out in the care file, when the nudge is read, then it names the renewal at the clinic, its tap there opens the renewal's card, and once renewed the licence is held and the nudge moves on", () => {
+    // Care work stays shut to applicants from abroad, as it was in the review: no sponsor answers and the file waits.
+    const game = tileNurse("nurse-licence");
+    hire(game);
+    readCare(game);
+    const lapsed = until(game, (view) => view.documents.some((paper) => paper.id === "document.nursing-licence" && paper.state === "expired"), 60, followedButLicence);
+    expect(CARE_CHAPTER.has(lapsed.chapter.current ?? "")).toBe(true);
+    expect(nudgeOf(lapsed)).toEqual({ key: `${FILE}.item.licence.nudge`, about: "step" });
+    expect(say(`${FILE}.item.licence.nudge`)).toBe("Renew your nursing licence at the clinic");
+    expect(stepWayOf(lapsed)?.go).toBe(CLINIC);
+    expect(reached(lapsed, CLINIC)).toBe(true);
+    expect(opensAt(lapsed, CLINIC)).toEqual({ kind: "act", activity: "activity.renew-licence" });
+    month(game, followed(lapsed));
+    const renewed = game.view();
+    expect(renewed.documents.find((paper) => paper.id === "document.nursing-licence")?.state).toBe("held");
+    expect(nudgeOf(renewed).key).not.toMatch(/item\.licence/);
   });
 });

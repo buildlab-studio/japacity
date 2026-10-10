@@ -46,7 +46,8 @@ function withOwnChoice(act: Act): Act {
 // the places' files list what each desk's sheet offers; the entries added since (the care, talent, points and Gulf files' steps, R-CHAPTER-009) are listed here until the files carry them.
 /** More entries a thing's sheet act lists, by `<place>:<thing>:<act>`. */
 const MORE_AT: Record<string, readonly string[]> = {
-  "place.tb-clinic:jobs-notice:certify": ["activity.request-verification"],
+  // The council's chip holds its acts: the certification, the verification and the licence's renewal.
+  "place.tb-clinic:jobs-notice:certify": ["activity.request-verification", "activity.renew-licence"],
   "place.yaba:desk:routes": ["activity.find-sponsor", "activity.apply-endorsement", "activity.enter-pool"],
   "place.visa-centre:desk:apply": ["activity.apply-uk-care", "activity.apply-uk-talent"],
   "place.family-house:papers-box:start": ["activity.get-eca"],
