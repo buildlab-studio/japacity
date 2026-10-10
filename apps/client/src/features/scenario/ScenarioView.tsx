@@ -1,5 +1,6 @@
 // The front door (prologue.md R-PROLOGUE-009, 010, 011), run as the design's data page onboarding (the review
-// items 14 and 15): over the family compound, the player's figure turns on a plinth above, and one question a screen
+// items 14 and 15): over the family compound, the player's figure turns on a plinth above, under the hook "What's your
+// japacity?" from the first second (item 18), and one question a screen
 // sits in a sheet below: the look, the archetype's tile (or one of the ready lives behind one card), the name, typed,
 // with three from the pool under the box. "Print my page" prints every answer onto the travel data page with the look
 // as the photo; "Begin" stamps it "Ready to start" and the life starts, the tile's preset playing as before. The run
@@ -148,6 +149,12 @@ export function ScenarioView() {
   const over = (
     <>
       <Progress draft={draft} onBack={back === null || stamped ? null : () => go(back)} />
+      {/* The hook from the first second (the review): the question over the figure, before the look. */}
+      {draft.stage === "you" || draft.stage === "begun" ? (
+        <p className="band title mx-auto mt-3 rounded-[6px] px-4 py-2 text-center text-[26px] leading-tight shadow-[0_8px_20px_rgba(10,14,30,0.3)]" data-door-hook>
+          {say("prologue.door.hook")}
+        </p>
+      ) : null}
       {draft.stage === "page" ? (
         <div className="pointer-events-auto mx-auto mt-2 w-full max-w-[420px]">
           <DataPage page={fieldsOf(draft)} print stamp={stamped ? <Stamp words={say("prologue.page.stamp.ready")} turn={-12} big /> : null} />
