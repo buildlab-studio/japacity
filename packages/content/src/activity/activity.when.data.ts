@@ -72,10 +72,17 @@ const NOW_ACTS: Record<string, Now> = {
   "activity.job-hunt": "once",
 };
 
-/** Every entry with its `when`, and a purchase marked (R-ACTIVITY-015). */
+/**
+ * Every entry with its `when`, and a purchase marked (R-ACTIVITY-015). An entry that already says when it answers is
+ * kept as the same object, so a table sorted where it is written stays itself in content.
+ */
 export function withWhen(table: Record<Id<"activity">, ActivityEntry>): Record<Id<"activity">, ActivityEntry> {
   const sorted: Record<Id<"activity">, ActivityEntry> = {};
   for (const [id, entry] of Object.entries(table) as [Id<"activity">, ActivityEntry][]) {
+    if (entry.when !== undefined) {
+      sorted[id] = entry;
+      continue;
+    }
     const now = NOW_ACTS[id];
     sorted[id] = now === undefined ? { ...entry, when: "month" } : { ...entry, when: "now", ...(now === "purchase" ? { purchase: true as const } : {}) };
   }
