@@ -4,7 +4,7 @@ import { content } from "@japacity/content";
 import type { Id, Reply, ReportLine, SlotPick } from "@japacity/sim";
 
 import type { ServerRejection } from "../net/contract";
-import { words } from "./text";
+import { hasWords, words } from "./text";
 
 const NOW_LINE = /^line\.activity\.[a-z0-9-]+\.now$/;
 
@@ -23,9 +23,19 @@ export function nowActOf(line: ReportLine): string {
   return typeof line.params.activity === "string" ? line.params.activity : "";
 }
 
+/**
+ * A now-line's words: the line's own for the thing picked where content has one (`<key>.<slug>`: the racks' answer to a
+ * hunt), else the line with its param.
+ */
+export function nowLineWords(line: Pick<ReportLine, "key" | "params">): string {
+  const { param } = line.params;
+  const own = typeof param === "string" ? `${line.key}.${param.replace(/^[a-z]+\./, "")}` : null;
+  return words(own !== null && hasWords(own) ? own : line.key, line.params);
+}
+
 /** What the place says for a now-act with no paper to wait on (the official page read from the phone): its now-line with the act and its param. */
 export function nowSaid(activity: string, param: string | null): string {
-  return words(`line.activity.${activity.replace(/^activity\./, "")}.now`, param === null ? { activity } : { activity, param });
+  return nowLineWords({ key: `line.activity.${activity.replace(/^activity\./, "")}.now`, params: param === null ? { activity } : { activity, param } });
 }
 
 /** What a card's button needs of the game store. */

@@ -3,8 +3,8 @@
 // `actOnCard` in shared/words/acts.ts, which the picker and the phone use too.
 import type { PlayerView, ReportLine } from "@japacity/sim";
 
-import { nowActOf } from "../../shared/words/acts";
-import { nameOf, say, words } from "../../shared/words/text";
+import { nowActOf, nowLineWords } from "../../shared/words/acts";
+import { nameOf, say } from "../../shared/words/text";
 import type { Ask } from "../../shared/world/contract";
 
 /** The paper things bought at the kiosk: their slip stays in the hand with the answer on it. */
@@ -27,7 +27,7 @@ export function answerAsk(line: ReportLine, where: { who: string; clock: string 
     icon: paper ? "ticket" : "hand",
     who: where.who,
     title: nameOf(activity),
-    line: words(line.key, line.params),
+    line: nowLineWords(line),
     cost: null,
     button: say("ui.world.done"),
     when: "now",

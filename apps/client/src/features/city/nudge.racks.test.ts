@@ -2,6 +2,9 @@
 // life in Makoko's room holds no job, the nudge names the fish racks beside the room and its way goes there; the
 // shop worker's tile, at the family house, keeps the board in town. Real content, real draws.
 import { text } from "@japacity/content";
+import { nowLineIn } from "../../shared/words/acts";
+import { say } from "../../shared/words/text";
+import { answerAsk } from "./acts";
 import { describe, expect, test } from "vitest";
 
 import { answersInOrder, archetypeOf, presetAnswer } from "../../shared/frontdoor/archetypes";
@@ -58,5 +61,15 @@ describe("the racks as the work at hand", () => {
     expect(view.job.id).toBeNull();
     expect(nudgeOf({ ...view, offers: [] }).key).not.toBe(RACKS_NUDGE);
     expect(stepWayOf(view)?.go).not.toBe("place.makoko");
+  });
+
+  test("[R-ACTIVITY-017] given the child of the water at the racks, when the hunt is asked there, then the place answers in the racks' own words, not a manager taking a CV; another job keeps the hunt's line", () => {
+    const game = play("water", "racks-nudge-0");
+    const said = nowLineIn(game.accept({ type: "activity/now", activity: HUNT, param: RACKS }).lines);
+    if (said === null) throw new Error("The racks gave no answer.");
+    const close = (): void => undefined;
+    expect(answerAsk(said, { who: "Makoko", clock: "21Y 7M" }, close).line).toBe(say("line.activity.job-hunt.now.job-fish-racks"));
+    const desk = { ...said, params: { ...said.params, param: "activity.job-customer-service" } };
+    expect(answerAsk(desk, { who: "Yaba", clock: "21Y 7M" }, close).line).toContain(text["line.activity.job-hunt.now"]?.split(":")[0] ?? "");
   });
 });
