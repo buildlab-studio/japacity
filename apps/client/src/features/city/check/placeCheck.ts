@@ -4,6 +4,7 @@
 import type { PlaceEntry } from "@japacity/sim";
 
 import type { PlaceInput } from "../../../../../../tools/assets/place-check.types";
+import { type MotionUniforms, motionUniforms } from "../../../shared/three/clock";
 import { hash, poolOf, type Shown, sampleCrowd } from "../crowd";
 import { type CityTuning, type ModeSettings, modeSettings } from "../mode";
 import type { PlaceFile, Stage } from "../placeFile";
@@ -20,6 +21,23 @@ export interface PlaceRun {
   settings: ModeSettings;
   text: Record<string, string>;
   moving: boolean;
+  /**
+   * The shared clock's time when the place is built. Every place starts at the same moment, so what
+   * the crowd's crossers and the canoes on their lanes show does not hang on the places checked before.
+   */
+  clock: number;
+}
+
+/** The clock's time every place of the check is built at. */
+export const CHECK_CLOCK = 0;
+
+/**
+ * Sets the shared clock back to the run's start before its place is built. The page checks every
+ * place in turn and the clock moves on through each; without this a place's crossers and canoes stand
+ * wherever the places before it left the clock, and its count hangs on what was checked first.
+ */
+export function startClock(run: Pick<PlaceRun, "clock">, uniforms: MotionUniforms = motionUniforms): void {
+  uniforms.uTime.value = run.clock;
 }
 
 export function runOf(input: CheckInput): PlaceRun {
@@ -27,7 +45,7 @@ export function runOf(input: CheckInput): PlaceRun {
   if (stage === undefined) throw new Error(`${input.file.place} has no stage`);
   const pool = poolOf(input.file.people.sample).filter((person) => person.file !== input.own);
   const people = sampleCrowd(input.entry, pool, input.date, input.mode, input.city).people;
-  return { place: input.file.place, stage, people, own: input.own, settings: modeSettings(input.mode, input.device, input.city), text: input.text, moving: input.moving };
+  return { place: input.file.place, stage, people, own: input.own, settings: modeSettings(input.mode, input.device, input.city), text: input.text, moving: input.moving, clock: CHECK_CLOCK };
 }
 
 /** How far past its walkable ground a tap of the check may land, as a player's thumb does. */
