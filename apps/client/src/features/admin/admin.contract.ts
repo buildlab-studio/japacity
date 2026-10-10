@@ -299,16 +299,20 @@ export const SWITCH_NAMES: readonly SwitchName[] = [
 export interface Dials {
   placeTargets: Record<string, number>;
   computerAfterMonths: number | null;
-  topUpTickets: number | null;
 }
 
 /** packages/store/src/switches.ts DialChange. */
 export type DialChange =
   | { dial: "placeTarget"; place: string; value: number | null }
-  | { dial: "computerAfterMonths"; value: number | null }
-  | { dial: "topUpTickets"; value: number | null };
+  | { dial: "computerAfterMonths"; value: number | null };
 
-export type SettingChange = { switch: SwitchName; on: boolean } | DialChange;
+/** packages/store/src/switches.ts RetiredDialChange. */
+export interface RetiredDialChange {
+  dial: "topUpTickets";
+  value: number | null;
+}
+
+export type SettingChange = { switch: SwitchName; on: boolean } | DialChange | RetiredDialChange;
 
 /** packages/store/src/switches.ts SwitchLogRow. */
 export interface SwitchLogRow {

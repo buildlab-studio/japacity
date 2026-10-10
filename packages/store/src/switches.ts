@@ -24,23 +24,27 @@ export type SwitchName = keyof Switches;
 /**
  * R-SERVER-030: the dials. A dial left unset (absent or null) falls back to
  * the content's number: the place entry's `crowd.target` (R-CITY-032),
- * `tuning.people.computerAfterMonths` (R-PEOPLE-060), `tuning.lottery.topUpTickets` (R-LOTTERY-021).
+ * `tuning.people.computerAfterMonths` (R-PEOPLE-060). The lottery's runs on `tuning.lottery.odds` (R-LOTTERY-021).
  */
 export interface Dials {
   /** By place id. */
   placeTargets: Record<string, number>;
   computerAfterMonths: number | null;
-  topUpTickets: number | null;
 }
 
 /** One dial set to a whole number from 0, or unset with null. */
 export type DialChange =
   | { dial: "placeTarget"; place: string; value: number | null }
-  | { dial: "computerAfterMonths"; value: number | null }
-  | { dial: "topUpTickets"; value: number | null };
+  | { dial: "computerAfterMonths"; value: number | null };
+
+/** The raffle's top-up dial, retired by decision 0010: only a log line written before it went carries one. */
+export interface RetiredDialChange {
+  dial: "topUpTickets";
+  value: number | null;
+}
 
 /** What one logged change did. */
-export type SettingChange = { switch: SwitchName; on: boolean } | DialChange;
+export type SettingChange = { switch: SwitchName; on: boolean } | DialChange | RetiredDialChange;
 
 /** R-SERVER-031: who changed what, when and why. `n` rises with every change. */
 export interface SwitchLogRow {
@@ -69,7 +73,7 @@ export const DEFAULT_SWITCH_ROW: SwitchRow = {
     "boards.all-time.friends": true,
     "boards.joined-week": false,
   },
-  dials: { placeTargets: {}, computerAfterMonths: null, topUpTickets: null },
+  dials: { placeTargets: {}, computerAfterMonths: null },
 };
 
 /**

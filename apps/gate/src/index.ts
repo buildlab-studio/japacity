@@ -4,7 +4,7 @@
 // deletes the route and the game's Worker is the root. Nothing about a visitor is stored. This
 // module exports only the handler and its Env: the runtime refuses other exports here.
 import { admits, codeMatches, cookieFor } from "./gate";
-import { renderScreen } from "./screen";
+import { BEACON_REPORTS, BEACON_SCRIPT, beaconOn, renderScreen } from "./screen";
 
 export interface Env {
   /** Also the code in the invite link. Set with `wrangler secret put GATE_SECRET`. */
@@ -13,19 +13,21 @@ export interface Env {
   GATE_X_HANDLE: string;
   /** The game's address, where the screen's card picture is. */
   SITE_URL: string;
+  /** The Cloudflare Web Analytics site token. Empty: the screen carries no script. */
+  ANALYTICS_TOKEN?: string | undefined;
   /** The gate's own files: only the card picture. */
   ASSETS: Fetcher;
 }
 
 const PRIVATE = { "cache-control": "no-store", "referrer-policy": "no-referrer", "x-robots-tag": "noindex" };
 
-const SCREEN_HEADERS = {
-  ...PRIVATE,
-  "content-type": "text/html; charset=utf-8",
-  "x-content-type-options": "nosniff",
-  "x-frame-options": "DENY",
-  "content-security-policy": "default-src 'none'; style-src 'unsafe-inline'; form-action 'none'; base-uri 'none'; frame-ancestors 'none'",
-};
+const SCREEN_POLICY = "default-src 'none'; style-src 'unsafe-inline'; form-action 'none'; base-uri 'none'; frame-ancestors 'none'";
+
+/** The screen's headers. With the analytics token set, the policy lets in the beacon and its reports, and nothing else. */
+function screenHeaders(analyticsToken: string): Record<string, string> {
+  const policy = beaconOn(analyticsToken) ? `${SCREEN_POLICY}; script-src ${BEACON_SCRIPT}; connect-src ${BEACON_REPORTS}` : SCREEN_POLICY;
+  return { ...PRIVATE, "content-type": "text/html; charset=utf-8", "x-content-type-options": "nosniff", "x-frame-options": "DENY", "content-security-policy": policy };
+}
 
 /** The screen's link preview picture, the gate's one file. */
 const CARD = "/card.png";
@@ -56,7 +58,8 @@ function admit(setCookie: string): Response {
 function refuse(request: Request, url: URL, env: Env): Response {
   const page = (request.method === "GET" || request.method === "HEAD") && !url.pathname.startsWith("/api/");
   if (!page) return new Response("Not open yet", { status: 403, headers: { ...PRIVATE, "content-type": "text/plain; charset=utf-8" } });
-  return new Response(renderScreen(env.GATE_X_HANDLE, env.SITE_URL), { status: 200, headers: SCREEN_HEADERS });
+  const token = env.ANALYTICS_TOKEN ?? "";
+  return new Response(renderScreen(env.GATE_X_HANDLE, env.SITE_URL, token), { status: 200, headers: screenHeaders(token) });
 }
 
 export default {

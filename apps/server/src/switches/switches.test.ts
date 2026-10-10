@@ -15,7 +15,7 @@ import { drawJob } from "../jobs/draw";
 import { TICKS_CRON } from "../jobs/ticks";
 import type { ServerRejection, ServerReply } from "../types";
 import { AUTHORITY_COMMANDS } from "../../../../packages/sim/src/engine/step";
-import { COMPUTER_DIAL, computerAfterMonths, lotteryOdds, namedContent, placeTarget, topUpTickets } from "./dials";
+import { COMPUTER_DIAL, computerAfterMonths, lotteryOdds, namedContent, placeTarget } from "./dials";
 import { rollbackCheck } from "../admin/rollback";
 import { GATED_COMMANDS } from "./gate";
 import { SWITCH_NAMES, readSwitches } from "./switches";
@@ -234,7 +234,7 @@ describe("the admin routes for switches and dials", () => {
         const sent = await target.app.request(path, {
           method,
           headers: { "content-type": "application/json", ...(account === null ? {} : { "x-test-account": account }) },
-          ...(method === "POST" ? { body: JSON.stringify({ name: "lottery", on: false, dial: "topUpTickets", value: 1, reason: "x" }) } : {}),
+          ...(method === "POST" ? { body: JSON.stringify({ name: "lottery", on: false, dial: "computerAfterMonths", value: 1, reason: "x" }) } : {}),
         });
         expect(sent.status).toBe(404);
         expect(await sent.text()).toBe(body);
@@ -251,18 +251,18 @@ describe("the admin routes for switches and dials", () => {
     await call(target, "POST", "/api/admin/dials", "account.second", { dial: "placeTarget", place: "place.ojuelegba", value: 12, reason: "quiet night" });
     target.wait(5_000);
     await call(target, "POST", "/api/admin/switches", "account.second", { name: "lottery", on: true, reason: "fixed" });
-    await call(target, "POST", "/api/admin/dials", ADMIN, { dial: "topUpTickets", value: null, reason: "crowd came" });
+    await call(target, "POST", "/api/admin/dials", ADMIN, { dial: "computerAfterMonths", value: null, reason: "crowd came" });
 
     const { body } = await call<{ ok: true; log: { at: number; admin: string; reason: string; change: unknown }[] }>(target, "GET", "/api/admin/switches/log", ADMIN);
     expect(body.log.map(({ at, admin, reason, change }) => ({ at: at - epoch, admin, reason, change }))).toEqual([
       { at: 0, admin: ADMIN, reason: "draw fault", change: { switch: "lottery", on: false } },
       { at: 5_000, admin: "account.second", reason: "quiet night", change: { dial: "placeTarget", place: "place.ojuelegba", value: 12 } },
       { at: 10_000, admin: "account.second", reason: "fixed", change: { switch: "lottery", on: true } },
-      { at: 10_000, admin: ADMIN, reason: "crowd came", change: { dial: "topUpTickets", value: null } },
+      { at: 10_000, admin: ADMIN, reason: "crowd came", change: { dial: "computerAfterMonths", value: null } },
     ]);
     expect(await call(target, "GET", "/api/admin/switches", ADMIN)).toMatchObject({
       status: 200,
-      body: { ok: true, switches: { signups: true, lottery: true, adverts: true, partnerPlay: true }, dials: { placeTargets: { "place.ojuelegba": 12 }, computerAfterMonths: null, topUpTickets: null } },
+      body: { ok: true, switches: { signups: true, lottery: true, adverts: true, partnerPlay: true }, dials: { placeTargets: { "place.ojuelegba": 12 }, computerAfterMonths: null } },
     });
   });
 
@@ -278,8 +278,10 @@ describe("the admin routes for switches and dials", () => {
       ["/api/admin/dials", { dial: "placeTarget", place: "place.nowhere", value: 1, reason: "x" }],
       ["/api/admin/dials", { dial: "placeTarget", place: "place.ojuelegba", value: high + 1, reason: "x" }],
       ["/api/admin/dials", { dial: "computerAfterMonths", value: -1, reason: "x" }],
-      ["/api/admin/dials", { dial: "topUpTickets", value: 2.5, reason: "x" }],
-      ["/api/admin/dials", { dial: "topUpTickets", value: "5", reason: "x" }],
+      ["/api/admin/dials", { dial: "computerAfterMonths", value: 2.5, reason: "x" }],
+      ["/api/admin/dials", { dial: "computerAfterMonths", value: "5", reason: "x" }],
+      // The raffle's top-up dial, retired by decision 0010, is no dial now.
+      ["/api/admin/dials", { dial: "topUpTickets", value: 5, reason: "x" }],
       ["/api/admin/dials", { dial: "surge", value: 1, reason: "x" }],
     ];
     for (const [path, body] of bad) expect((await call(target, "POST", path, ADMIN, body)).status).toBe(400);
@@ -298,7 +300,6 @@ describe("the dials' readers", () => {
     const target = testServer({ contents: { current: applyOverlay(content, overlay), previous: null } });
     expect(await computerAfterMonths(target.deps)).toBe(7);
     expect(lotteryOdds(target.deps)).toEqual({ ...content.tuning.lottery.odds, smallPerMillion: SENTINEL });
-    expect(await topUpTickets()).toBe(0);
     for (const [id, entry] of Object.entries(content.place)) expect(await placeTarget(target.deps, id)).toBe(entry.crowd.target);
   });
 
@@ -306,16 +307,13 @@ describe("the dials' readers", () => {
     const target = server();
     expect(await computerAfterMonths(target.deps)).toBe(content.tuning.people.computerAfterMonths);
     expect(lotteryOdds(target.deps)).toEqual(content.tuning.lottery.odds);
-    expect(await topUpTickets()).toBe(0);
   });
 
-  test("[R-SERVER-030] [R-LOTTERY-021] given the raffle's top-up dial set to 5,000 and then unset, when the switched-off reader is read, then it reads nothing and gives 0 both times", async () => {
+  test("[R-SERVER-030] [R-LOTTERY-021] given the raffle's top-up retired by decision 0010, when its dial is sent, then it is refused as no dial, nothing is logged and the row holds no top-up", async () => {
     const target = server();
-    expect((await call(target, "POST", "/api/admin/dials", ADMIN, { dial: "topUpTickets", value: 5000, reason: "test" })).status).toBe(200);
-    expect((await target.deps.stores.switches.read()).dials.topUpTickets).toBe(5000);
-    expect(await topUpTickets()).toBe(0);
-    await call(target, "POST", "/api/admin/dials", ADMIN, { dial: "topUpTickets", value: null, reason: "test" });
-    expect(await topUpTickets()).toBe(0);
+    expect((await call(target, "POST", "/api/admin/dials", ADMIN, { dial: "topUpTickets", value: 5000, reason: "test" })).status).toBe(400);
+    expect(await target.deps.stores.switches.log()).toEqual([]);
+    expect(Object.keys((await target.deps.stores.switches.read()).dials)).not.toContain("topUpTickets");
   });
 
   test("[R-SERVER-030] given each dial set to 0 and then unset, when it is read, then it is 0 while set and falls back once unset", async () => {
@@ -324,20 +322,16 @@ describe("the dials' readers", () => {
     for (const body of [
       { dial: "placeTarget", place: "place.ojuelegba", value: 0 },
       { dial: "computerAfterMonths", value: 0 },
-      { dial: "topUpTickets", value: 0 },
     ]) {
       expect((await call(target, "POST", "/api/admin/dials", ADMIN, { ...body, reason: "test" })).status).toBe(200);
     }
     expect(await placeTarget(target.deps, "place.ojuelegba")).toBe(0);
     expect(await computerAfterMonths(target.deps)).toBe(0);
-    expect(await topUpTickets()).toBe(0);
 
     await call(target, "POST", "/api/admin/dials", ADMIN, { dial: "placeTarget", place: "place.ojuelegba", value: null, reason: "test" });
     await call(target, "POST", "/api/admin/dials", ADMIN, { dial: "computerAfterMonths", value: null, reason: "test" });
-    await call(target, "POST", "/api/admin/dials", ADMIN, { dial: "topUpTickets", value: null, reason: "test" });
     expect(await placeTarget(target.deps, "place.ojuelegba")).toBe(entry.crowd.target);
     expect(await computerAfterMonths(target.deps)).toBe(content.tuning.people.computerAfterMonths);
-    expect(await topUpTickets()).toBe(0);
   });
 
   test("[R-SERVER-030] given a place target set at the place's high and the content later lowering high, when it is read, then it is the new high", async () => {

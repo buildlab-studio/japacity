@@ -3,6 +3,7 @@ import type { ReportLine } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
 import { chapterNextStep, FIRST_SESSION_TURNS, playFirstSession, startingLives, type FirstSession } from "../../shared/testing/firstSession";
+import { words } from "../../shared/words/text";
 import { earlyWinIn, isEarlyWin } from "./earlyWin";
 
 const line = (key: string, tone: ReportLine["tone"] = "good"): ReportLine => ({ key, params: {}, tone, attention: false, counts: [] });
@@ -36,10 +37,11 @@ describe("the first session", () => {
     for (const session of sessions) expect(session.earlyWin!.month).toBeLessThanOrEqual(FIRST_SESSION_TURNS);
   }, 120000);
 
-  test("[R-GUIDE-014] given a life whose months are all left to rest, when its first three are played, then a route heard from the news is not an early win", () => {
+  test("[R-GUIDE-014] [R-TEXT-007] given a life whose months are all left to rest, when its first three are played, then a route heard on the radio says the radio as its source and is not an early win", () => {
     const session = playFirstSession({ name: "resting", scenario: "scenario.ada", answers: {} }, { nextStep: () => [] });
     const heard = session.months.flatMap((month) => month.lines).filter((found) => found.key === "line.route.heard");
     expect(heard.length).toBeGreaterThan(0);
+    for (const found of heard) expect(words(found.key, found.params)).toMatch(/^On the radio: /);
     expect(session.earlyWin).toBeNull();
   });
 

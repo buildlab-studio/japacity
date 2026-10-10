@@ -197,7 +197,7 @@ describe("the draw's alarm", () => {
     await storeWorlds(deps, SAVE);
     const odds = deps.contents.current.tuning.lottery.odds;
     const prize = typeof paid === "number" ? { amount: paid } : paid;
-    await deps.stores.world.putDraw({ draw: 0, secret: "s", fingerprint: "f", beaconRound: 1, topUpTickets: 0, odds, jackpot: result.owed });
+    await deps.stores.world.putDraw({ draw: 0, secret: "s", fingerprint: "f", beaconRound: 1, odds, jackpot: result.owed });
     for (const character of new Set(buys.map((buy) => buy.character))) {
       await createLife(deps, character, SAVE);
       const own = buys.filter((buy) => buy.character === character);

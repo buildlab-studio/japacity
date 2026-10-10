@@ -634,6 +634,8 @@ export const uiText: Record<string, string> = {
   "ui.door.home.short": "short",
   "ui.door.home.needed": "needed",
   "ui.door.home.goal": "A goal",
+  // The goal the savings already cover: it stays on the row, locked, and says so (R-PROLOGUE-013).
+  "ui.door.home.reached": "reached",
   "ui.door.home.said.left": "About {amount} left after moving in",
   "ui.door.home.said.short": "{amount} short of moving in",
   "ui.door.home.said.needed": "{amount} more needed to move in",
@@ -653,7 +655,7 @@ export const uiText: Record<string, string> = {
   "ui.door.edit.life": "Path and age",
   "ui.page.field.family": "Family",
   // The page as designed (R-PROLOGUE-009): its type line and the fields it had and we lacked.
-  "ui.page.type-line": "Type P · NGA",
+  "ui.page.type-line": "Type P · JPC",
   "ui.page.field.nationality": "Nationality",
   "ui.page.nationality": "Nigerian",
   "ui.page.field.path": "Path",

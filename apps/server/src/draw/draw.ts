@@ -11,7 +11,7 @@ import { sendAuthority } from "../authority/command";
 import { tickAt, tickStartsAt } from "../clock/view";
 import type { ServerDeps } from "../deps";
 import { drawResults, drawSeed, fingerprintOf, jackpotHit, listHashOf, openingJackpot, rollJackpot, toHex } from "../../../../packages/sim/src/lottery/lottery.draw";
-import { lotteryOdds, topUpTickets } from "../switches/dials";
+import { lotteryOdds } from "../switches/dials";
 import type { Beacon } from "./beacon";
 import { roundAfter } from "./beacon";
 
@@ -114,7 +114,7 @@ export async function openDraw(deps: DrawDeps, beacon: Pick<Beacon, "genesis" | 
   const jackpot = openingJackpot(before?.result ?? null, odds);
   const secret = toHex(deps.randomBytes(SECRET_BYTES));
   const beaconRound = roundAfter(beacon, tickStartsAt(deps.config.clock, closesTickOf(draw)));
-  const put = await deps.stores.world.putDraw({ draw, secret, fingerprint: fingerprintOf(secret, draw), beaconRound, topUpTickets: await topUpTickets(), odds, jackpot });
+  const put = await deps.stores.world.putDraw({ draw, secret, fingerprint: fingerprintOf(secret, draw), beaconRound, odds, jackpot });
   if (put.ok) return put.value;
   // Two openers at once: the first stored wins and the second reads it.
   const winner = await deps.stores.world.draw(draw);

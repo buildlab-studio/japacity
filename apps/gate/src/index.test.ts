@@ -184,3 +184,45 @@ describe("without the cookie", () => {
     }
   });
 });
+
+describe("Web Analytics on the screen", () => {
+  const TOKEN = "0123456789abcdef0123456789abcdef";
+
+  test("given no analytics token, when the screen is served, then it carries no script and its policy allows none", async () => {
+    for (const token of ["", undefined]) {
+      const response = await worker.fetch(new Request(`${HOST}/`), { ...env, ANALYTICS_TOKEN: token });
+      const html = await response.clone().text();
+      expect(html).not.toMatch(/<script|cloudflareinsights/);
+      expect(response.headers.get("content-security-policy")).not.toMatch(/script-src|connect-src/);
+      expect(await shown(response)).toEqual(SCREEN);
+    }
+  });
+
+  test("given the analytics token, when the screen is served, then the beacon is its one script, with the token, and the policy allows that script and its reports and nothing else", async () => {
+    const response = await worker.fetch(new Request(`${HOST}/`), { ...env, ANALYTICS_TOKEN: TOKEN });
+    const html = await response.clone().text();
+    expect(html.match(/<script/g)).toHaveLength(1);
+    expect(html).toContain(`<script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "${TOKEN}", "spa": false}'></script>`);
+    expect(html).not.toMatch(/<form|<input|<button/);
+    const policy = response.headers.get("content-security-policy") ?? "";
+    expect(policy).toContain("default-src 'none'");
+    expect(policy).toContain("script-src https://static.cloudflareinsights.com;");
+    expect(policy.endsWith("connect-src https://cloudflareinsights.com")).toBe(true);
+    expect(policy.match(/script-src [^;]+/)?.[0]).toBe("script-src https://static.cloudflareinsights.com");
+    expect(await shown(response)).toEqual(SCREEN);
+  });
+
+  test("given a token that is not one, when the screen is served, then no script is sent", async () => {
+    for (const token of ["'><script>alert(1)</script>", "abc def", "a".repeat(65)]) {
+      const response = await worker.fetch(new Request(`${HOST}/`), { ...env, ANALYTICS_TOKEN: token });
+      expect(await response.clone().text()).not.toContain("<script");
+      expect(response.headers.get("content-security-policy")).not.toContain("script-src");
+    }
+  });
+
+  test("given an admitted phone and the token set, when the game is opened, then the game's reply is handed on untouched", async () => {
+    const cookie = await admittedCookie();
+    const response = await worker.fetch(new Request(`${HOST}/`, { headers: { cookie } }), { ...env, ANALYTICS_TOKEN: TOKEN });
+    expect(await response.text()).toBe("game /");
+  });
+});

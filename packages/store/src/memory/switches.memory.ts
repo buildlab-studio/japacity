@@ -12,9 +12,6 @@ function withDial(row: SwitchRow, change: DialChange): SwitchRow {
     case "computerAfterMonths":
       dials.computerAfterMonths = change.value;
       break;
-    case "topUpTickets":
-      dials.topUpTickets = change.value;
-      break;
     default: {
       const never: never = change;
       throw new Error(`Unknown dial ${JSON.stringify(never)}.`);

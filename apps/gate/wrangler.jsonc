@@ -19,7 +19,9 @@
     // The game's X handle without the @, once the maintainer has claimed it. Empty: the screen shows no X link.
     "GATE_X_HANDLE": "",
     // The game's address, where the screen's card picture is.
-    "SITE_URL": "https://japacity.app"
+    "SITE_URL": "https://japacity.app",
+    // The Cloudflare Web Analytics site token (apps/gate/README.md says where it comes from). Empty: the screen carries no script.
+    "ANALYTICS_TOKEN": ""
   }
   // The secret, set by the maintainer with `wrangler secret put GATE_SECRET` and never written here.
   // It is also the code in the invite link. Unset or empty, the gate admits nobody.

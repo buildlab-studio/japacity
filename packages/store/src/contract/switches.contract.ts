@@ -56,16 +56,16 @@ export function suiteForSwitchStore(make: () => Promise<SwitchStore>): void {
       const store = await make();
       await store.setDial({ dial: "placeTarget", place: "place.ojuelegba", value: 40 }, "account.owner", "launch", 1);
       await store.setDial({ dial: "placeTarget", place: "place.yaba", value: 0 }, "account.owner", "launch", 2);
-      await store.setDial({ dial: "computerAfterMonths", value: 3 }, "account.owner", "launch", 3);
-      const set = await store.setDial({ dial: "topUpTickets", value: 5_000 }, "account.owner", "launch", 4);
+      const set = await store.setDial({ dial: "computerAfterMonths", value: 3 }, "account.owner", "launch", 3);
 
-      const dials = { placeTargets: { "place.ojuelegba": 40, "place.yaba": 0 }, computerAfterMonths: 3, topUpTickets: 5_000 };
+      const dials = { placeTargets: { "place.ojuelegba": 40, "place.yaba": 0 }, computerAfterMonths: 3 };
       expect(set).toEqual({ ok: true, value: { switches: DEFAULT_SWITCH_ROW.switches, dials } });
       expect(await store.read()).toEqual({ switches: DEFAULT_SWITCH_ROW.switches, dials });
 
       await store.setDial({ dial: "placeTarget", place: "place.ojuelegba", value: null }, "account.owner", "crowd came", 5);
-      await store.setDial({ dial: "topUpTickets", value: null }, "account.owner", "crowd came", 6);
-      expect((await store.read()).dials).toEqual({ placeTargets: { "place.yaba": 0 }, computerAfterMonths: 3, topUpTickets: null });
+      expect((await store.read()).dials).toEqual({ placeTargets: { "place.yaba": 0 }, computerAfterMonths: 3 });
+      await store.setDial({ dial: "computerAfterMonths", value: null }, "account.owner", "crowd came", 6);
+      expect((await store.read()).dials).toEqual({ placeTargets: { "place.yaba": 0 }, computerAfterMonths: null });
     });
 
     test("[R-SERVER-030] given a dial value below 0, above the largest or not whole, when it is set, then it is refused with bad-write, the row keeps its value and nothing is logged", async () => {

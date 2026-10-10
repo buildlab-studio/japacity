@@ -40,10 +40,8 @@ function dialChangeOf(deps: ServerDeps, body: Record<string, unknown>): DialChan
     }
     case "computerAfterMonths":
       return { dial: "computerAfterMonths", value };
-    case "topUpTickets":
-      return { dial: "topUpTickets", value };
     default:
-      return "dial is placeTarget, computerAfterMonths or topUpTickets.";
+      return "dial is placeTarget or computerAfterMonths.";
   }
 }
 

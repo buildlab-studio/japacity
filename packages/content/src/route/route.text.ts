@@ -16,7 +16,17 @@ export const routeText: Record<string, string> = {
   "route.uk-masters.item.applied": "Visa application sent",
 
   // Report lines. First drafts.
-  "line.route.heard": "You heard of {route} this month.",
+  // A route heard of, said by where the word came from and never as what the player heard (R-TEXT-007; the maintainer's
+  // the review: never tell them what they heard). The interface picks `line.route.heard.<via>` by the line's `via`;
+  // the bare line is for a source it has no words for.
+  "line.route.heard": "Word came round of {route}.",
+  "line.route.heard.meetup": "At the meetup: {route}.",
+  "line.route.heard.motor-park": "At the motor park: {route}.",
+  "line.route.heard.returnee": "From someone back from abroad: {route}.",
+  "line.route.heard.friend": "From a friend: {route}.",
+  "line.route.heard.news": "On the radio: {route}.",
+  "line.route.heard.sibling": "From a sibling abroad: {route}.",
+  "line.route.heard.partner": "On the joint plan: {route}.",
   "line.route.looked-into": "You read the official page for {route}: the full list of what it asks, as it stands. It said nothing about your own chances.",
   "line.route.school-applied": "Your application to {school} is in. The answer is due {month}.",
   "line.route.school-offer": "{school} offered you a place. Discount off the tuition: {discount}.",

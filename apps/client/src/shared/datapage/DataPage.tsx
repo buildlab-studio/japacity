@@ -4,7 +4,8 @@
 // own data. It prints on the door, after Begin and on the band's page. No stamp lands on it until a visa is granted:
 // the visa's is the first, round and red, and the steps after it stamp beneath. Pale green security paper with green
 // ink of its own: like the danfo yellow on things in the world, these colours belong to the page and never change with
-// the theme. Never a real number, a coat of arms or an issuing authority.
+// the theme. Never a real number, a coat of arms or an issuing authority, and the country code is the game's own
+// made-up "JPC", never a real one. A faint JAPACITY mark runs across the paper, so a picture of it reads as the game's.
 import type { CSSProperties } from "react";
 
 import type { LookStyle } from "../frontdoor/style";
@@ -19,6 +20,9 @@ const SECURITY = [
   "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='40'%3E%3Cg fill='none' stroke='%230d5732' stroke-opacity='.11'%3E%3Cpath d='M0 20 C20 0 40 40 60 20 S100 0 120 20'/%3E%3Cpath d='M0 26 C20 6 40 46 60 26 S100 6 120 26'/%3E%3Cpath d='M0 14 C20 -6 40 34 60 14 S100 -6 120 14'/%3E%3C/g%3E%3C/svg%3E\")",
   "repeating-radial-gradient(circle at 82% 40%, transparent 0 7px, rgba(13, 87, 50, 0.07) 7px 8px)",
 ].join(", ");
+
+/** The game's own made-up country code, in the type line and the strip: never a real one. */
+export const PAGE_CODE = "JPC";
 
 /** How far apart the fields drop in when the page prints, so they land one after another. */
 const PRINT_STEP_MS = 110;
@@ -72,7 +76,7 @@ export function mrz(words: string, length: number): string {
 /** The strip's two lines: the name after the page's own code, then the district, the age and how ready. */
 export function stripLines(name: string, strip: Strip): [string, string] {
   const age = strip.years === null ? "" : `${String(strip.years)}Y${strip.months === null ? "" : `${String(strip.months)}M`}`;
-  return [`P<NGA${mrz(name, 25)}`, mrz(`${strip.district}<<${age}<<${strip.percent === null ? "" : String(strip.percent)}`, 30)];
+  return [`P<${PAGE_CODE}${mrz(name, 25)}`, mrz(`${strip.district}<<${age}<<${strip.percent === null ? "" : String(strip.percent)}`, 30)];
 }
 
 function Field({ id, label, value, delay }: { id: string; label: string; value: string; delay: number | null }) {
@@ -163,6 +167,12 @@ export function DataPage({ page, print = false }: { page: PageFields; print?: bo
           ))}
         </div>
       )}
+      {/* The game's mark, faint across the paper, as designed. */}
+      <div className="pointer-events-none absolute inset-0 flex items-center justify-center overflow-hidden" aria-hidden data-page-mark>
+        <span className="-rotate-[18deg] font-mono text-[44px] font-black tracking-[0.3em] whitespace-nowrap uppercase" style={{ color: PAGE_COLOURS.ink, opacity: 0.07 }}>
+          {say("ui.game")}
+        </span>
+      </div>
       {lines === null ? null : (
         <div className="px-3 py-2 font-mono text-[11px] leading-snug tracking-[0.12em]" style={{ background: "rgba(12, 58, 36, 0.07)", color: "rgba(12, 58, 36, 0.8)" }} data-page-strip aria-hidden>
           <div className="truncate">{lines[0]}</div>

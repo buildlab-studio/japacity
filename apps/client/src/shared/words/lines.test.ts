@@ -1,4 +1,5 @@
 import type { ReportLine } from "@japacity/sim";
+import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
 import { formatMoney } from "./format";
@@ -159,3 +160,35 @@ describe("the stall's takings", () => {
   });
 });
 
+
+describe("a route heard of", () => {
+  /** Every `via` a route is heard by: the ones content's effects name and the ones the simulation names itself. */
+  const vias = (): string[] => {
+    const named = [...JSON.stringify(content).matchAll(/\{"type":"route\/hear"[^{}]*?"via":"([^"]+)"/g)].map((found) => found[1]!);
+    return [...new Set([...named, "friend", "news", "sibling", "partner"])].sort();
+  };
+
+  test("[R-TEXT-007] given a route heard of by any source, when the line is told, then it names where the word came from and never tells the player what they heard", () => {
+    expect(vias()).toEqual(expect.arrayContaining(["meetup", "motor-park", "returnee"]));
+    const said = new Set<string>();
+    for (const via of vias()) {
+      const shown = words("line.route.heard", { route: "route.uk-masters", via });
+      expect(shown).toContain(nameOf("route.uk-masters"));
+      // The source named on any that fails, so a miss says which.
+      expect(/\byou\b|\byour\b|heard|talking/i.test(shown) ? via : null).toBeNull();
+      expect({ via, shown }).not.toEqual({ via, shown: words("line.route.heard", { route: "route.uk-masters" }) });
+      said.add(shown);
+    }
+    expect(said.size).toBe(vias().length);
+    expect(words("line.route.heard", { route: "route.uk-masters", via: "meetup" })).toBe(`At the meetup: ${nameOf("route.uk-masters")}.`);
+    // A source with no words of its own still says no "you".
+    expect(words("line.route.heard", { route: "route.uk-masters", via: "unnamed" })).toBe(`Word came round of ${runningName("route.uk-masters")}.`);
+  });
+
+  test("[R-TEXT-007] given Ada's first month at the meetup, when the line is told, then it says the meetup was the source", () => {
+    const game = newGame("scenario.ada");
+    const heard = game.endTurn([slot("activity.meetup", null)]).lines.filter((each) => each.key === "line.route.heard");
+    expect(heard.length).toBeGreaterThan(0);
+    for (const each of heard) expect(words(each.key, each.params)).toMatch(/^At the meetup: /);
+  });
+});

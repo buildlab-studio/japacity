@@ -182,7 +182,7 @@ export const SWITCH_ROW: Switches = {
 export const SWITCHES: SwitchesReply = {
   ok: true,
   switches: SWITCH_ROW,
-  dials: { placeTargets: { "place.ojuelegba": 40 }, computerAfterMonths: null, topUpTickets: 25 },
+  dials: { placeTargets: { "place.ojuelegba": 40 }, computerAfterMonths: 25 },
 };
 
 export const SWITCH_LOG: SwitchLogReply = {

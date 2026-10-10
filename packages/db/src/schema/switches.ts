@@ -20,7 +20,6 @@ export const switches = pgTable(
     "boards.joined-week": boolean("boards_joined_week").notNull().default(false),
     placeTargets: jsonb("place_targets").$type<Record<string, number>>().notNull().default({}),
     computerAfterMonths: integer("computer_after_months"),
-    topUpTickets: integer("top_up_tickets"),
   },
   (table) => [check("switches_one_row", sql`${table.id} = 1`)],
 );

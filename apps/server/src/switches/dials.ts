@@ -22,15 +22,6 @@ export async function computerAfterMonths(deps: Reads): Promise<number> {
   return (await readSwitches(deps)).dials.computerAfterMonths ?? deps.contents.current.tuning.people.computerAfterMonths;
 }
 
-/**
- * The raffle's house top-up, switched off by decision 0010: a draw at fixed
- * odds has no pot to make up, so the reader reads nothing and every draw opens
- * with 0. The dial is still stored and still set from the admin page.
- */
-export function topUpTickets(): Promise<number> {
-  return Promise.resolve(0);
-}
-
 /** R-LOTTERY-021: the odds and amounts of the private settings, overlay applied, read once when a draw opens. */
 export function lotteryOdds(deps: Pick<ServerDeps, "contents">): LotteryOdds {
   return deps.contents.current.tuning.lottery.odds;
