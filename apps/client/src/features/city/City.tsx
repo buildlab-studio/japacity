@@ -40,6 +40,7 @@ import { FirstUseLabels, useFirstUse } from "../../shared/world/Walkthrough";
 import { WorldSheet } from "../../shared/world/WorldSheet";
 import { actOnCard, answersNow, nowLineIn } from "../../shared/words/acts";
 import { actsOffered, answerAsk, askHeader, isPaper } from "./acts";
+import { ComingList } from "./ComingList";
 import { choreSaving } from "./chores";
 import { cityWords, heardWords, papersLook, placeName, residentName, roleWords } from "./city.words";
 import { CreditsSheet } from "./Credits";
@@ -60,7 +61,7 @@ import { SaidLine, useSaid } from "./Said";
 import { APPLY_TO_SCHOOL, SCHOOL_ICON, schoolSheetLine } from "./school";
 import { sceneWords } from "./scene.words";
 import { enterable, offersHere, openingPlace, openScene, reportHere, type ViewPlace } from "./staging";
-import { type Coming, comingOf, soonest } from "../../shared/words/coming";
+import { type Coming, soonest } from "../../shared/words/coming";
 import { stagedNow, thingsNow, thingsOf, vehicleOf, withMoreAt } from "./things";
 import { stopReached } from "./stops";
 
@@ -1380,14 +1381,7 @@ export function City({
       <CreditsSheet open={credits} onOpenChange={setCredits} />
       {world ? (
         <WorldSheet open={comingOpen} onClose={() => setComingOpen(false)} label={clock} title={say("ui.world.coming-up")} mark="coming">
-          <ul className="flex flex-col" data-coming-list>
-            {comingOf(view).map((item, index) => (
-              <li key={`${item.kind}-${String(index)}`} className="flex items-baseline justify-between gap-3 border-b border-sheet-line py-3 last:border-b-0" data-coming-row={item.kind}>
-                <span className="min-w-0 flex-1 text-[15px] font-semibold">{item.what}</span>
-                <span className="num shrink-0 text-[13px] text-text-2">{inMonths(item.month, view.month)}</span>
-              </li>
-            ))}
-          </ul>
+          <ComingList view={view} />
         </WorldSheet>
       ) : null}
       {world ? <AskSheet ask={ask} formatMoney={(amount, currency) => formatMoney(amount, currency as "NGN")} {...(askIcon === undefined ? {} : { icon: askIcon })} /> : null}
