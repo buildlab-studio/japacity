@@ -1,7 +1,7 @@
 // pnpm check:scrub: the repository holds what the game declares to players and
 // none of the legal or privacy planning behind it. Words that mark that
 // planning fail the check in every file git would publish, except the two
-// pages players read, LICENSES.md and this list itself.
+// pages players read, the test that reads them, LICENSES.md and this list itself.
 //
 // Usage: pnpm check:scrub
 import { execFileSync } from "node:child_process";
@@ -65,8 +65,9 @@ export const TELL_TALES: readonly TellTale[] = [
 
 /** Paths, from the repository root, that may carry the words. */
 export const ALLOWED: ReadonlySet<string> = new Set([
-  "apps/client/public/legal/terms.html",
-  "apps/client/public/legal/privacy.html",
+  "apps/client/src/features/legal/terms.html",
+  "apps/client/src/features/legal/privacy.html",
+  "apps/client/src/features/legal/legal.test.ts",
   "LICENSES.md",
   "tools/scrub-check.ts",
 ]);

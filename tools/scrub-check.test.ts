@@ -38,11 +38,12 @@ describe("the scrub check", () => {
     expect(findTellTales("packages/content/src/news/news.text.ts", words)).toEqual([]);
   });
 
-  test("given the two player pages and LICENSES.md, when they carry the words, then they are allowed", () => {
+  test("given the two player pages, the test that reads them and LICENSES.md, when they carry the words, then they are allowed", () => {
     const planted = TELL_TALES.map((tale) => tale.example).join("\n");
     for (const file of ALLOWED) expect(findTellTales(file, planted)).toEqual([]);
-    expect(ALLOWED).toContain("apps/client/public/legal/terms.html");
-    expect(ALLOWED).toContain("apps/client/public/legal/privacy.html");
+    expect(ALLOWED).toContain("apps/client/src/features/legal/terms.html");
+    expect(ALLOWED).toContain("apps/client/src/features/legal/privacy.html");
+    expect(ALLOWED).toContain("apps/client/src/features/legal/legal.test.ts");
     expect(ALLOWED).toContain("LICENSES.md");
   });
 
@@ -57,7 +58,7 @@ describe("the scrub check", () => {
       ".gitignore": "notes/\n",
       "docs/planted.md": `Fine.\n${sample}\n`,
       "notes/local.md": sample,
-      "apps/client/public/legal/privacy.html": sample,
+      "apps/client/src/features/legal/privacy.html": sample,
       "README.md": "A game.",
     });
     const hits = scrubTree(root);
