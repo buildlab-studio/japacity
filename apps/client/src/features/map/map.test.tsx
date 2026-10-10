@@ -621,7 +621,7 @@ describe("the ride cuts between its angles by itself", () => {
     expect(darkAt("walk", 3000)).toBe(0);
   });
 
-  test("[R-WORLD-032] given a danfo's scene, when each angle is framed, then the stop is seen from outside, above from high over the street, the window from the aisle out to the kerb with the cab's pillars drawn, and the seat from a back seat facing the road with the row in front", () => {
+  test("[R-WORLD-032] given a danfo's scene, when each angle is framed, then the stop is seen from outside, above from high over the street, the window from the aisle out to the road with the cab's pillars drawn, and the seat from a back seat facing the road with the row in front", () => {
     const scene = buildRide("danfo");
     scene.setPerson("own", new Group());
     scene.setPerson("driver", new Group());
@@ -636,7 +636,7 @@ describe("the ride cuts between its angles by itself", () => {
 
     scene.frame(at("outside"), 0.46);
     expect(inside(cameraIn(scene).at)).toBe(false);
-    expect(cameraIn(scene).at.x).toBeLessThan(-1.2);
+    expect(Math.abs(cameraIn(scene).at.x)).toBeGreaterThan(1.2);
     expect(cab.visible).toBe(false);
 
     scene.frame(at("above"), 0.46);
@@ -647,7 +647,8 @@ describe("the ride cuts between its angles by itself", () => {
     scene.frame(at("window"), 0.46);
     const window_ = cameraIn(scene);
     expect(inside(window_.at)).toBe(true);
-    expect(window_.facing.x).toBeLessThan(-0.7);
+    // Out of a window on the road's side, so the street slides past rather than a wall of shops.
+    expect(window_.facing.x).toBeGreaterThan(0.7);
     expect(cab.visible).toBe(true);
     expect([...figuresOn(scene)].sort()).toEqual(["driver", "own"]);
 

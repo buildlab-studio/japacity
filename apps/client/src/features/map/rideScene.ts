@@ -256,11 +256,11 @@ function buildCab(keep: <T extends { dispose: () => void }>(thing: T) => T): Gro
     part(0.08, 0.72, 0.08, -0.86, 1.61, 0.62),
     // The roof back to the rear door, and each side's panel under the windows and band over them.
     part(1.76, 0.04, 2.6, 0, 1.99, -1.0),
-    ...[0.86, -0.86].flatMap((x) => [part(0.06, 0.78, 2.9, x, 0.83, -0.85), part(0.06, 0.18, 2.9, x, 1.88, -0.85)]),
+    ...[0.86, -0.86].flatMap((x) => [part(0.06, 0.6, 2.9, x, 0.75, -0.85), part(0.06, 0.12, 2.9, x, 1.91, -0.85)]),
     // The pillars between the sliding windows.
-    ...[0.86, -0.86].flatMap((x) => [-2.2, -1.1, -0.2].map((z) => part(0.08, 0.66, 0.1, x, 1.5, z))),
+    ...[0.86, -0.86].flatMap((x) => [-2.0, -1.2, -0.4].map((z) => part(0.08, 0.8, 0.1, x, 1.45, z))),
   ];
-  const rail = [0.88, -0.88].map((x) => part(0.04, 0.04, 2.9, x, 1.52, -0.85));
+  const rail = [0.88, -0.88].map((x) => part(0.04, 0.04, 2.9, x, 1.45, -0.85));
   const wheel = new TorusGeometry(0.19, 0.025, 4, 14);
   wheel.rotateX(-0.75);
   wheel.translate(0.42, 1.24, 1.66);
@@ -487,8 +487,8 @@ export function buildRide(way: Way): RideScene {
       case "outside":
         camera.fov = 46;
         camera.near = 0.2;
-        // At the stop, from the kerb: the danfo by its door, the keke and the okada close beside them.
-        if (way === "danfo") aimFrom([-4.6 + push * 2, 2.1, 3.4], [-0.6, 1.2, 0.2]);
+        // At the stop: the danfo from the road's side, clear of the trees along the kerb; the keke and the okada close beside them at the kerb.
+        if (way === "danfo") aimFrom([5.0 - push * 2, 2.2, 5.2], [0.2, 1.1, 0.4]);
         else if (way === "keke") aimFrom([-3.6 + push * 2, 1.35, 1.6], [-0.1, 1.0, -0.2]);
         else aimFrom([-3.6 + push * 2, 1.45, 1.5 - push], [-0.25, 0.9, -0.3]);
         return;
@@ -504,22 +504,28 @@ export function buildRide(way: Way): RideScene {
         }
         return;
       case "window":
-        // From the aisle out of one sliding window on the kerb side, a pillar either side and the rail across it.
-        camera.fov = 75;
+        // From the aisle out of one sliding window on the road's side, a pillar either side and the rail across
+        // it: the road, its marks and the far side slide past (the kerb side is a wall of shops at arm's length).
+        camera.fov = 62;
         camera.near = 0.05;
-        aimFrom([0.6, 1.55, -0.65], [-3, 1.42, -0.2]);
+        aimFrom([-0.7, 1.5, -0.8], [3, 1.05, -0.6]);
         return;
       case "seat":
         // From a back seat: the two in front at the edges, the roof, the dashboard, the road through the windscreen.
-        camera.fov = 72;
+        camera.fov = 60;
         camera.near = 0.05;
-        aimFrom([0.05, 1.62, -0.6], [-0.05, 1.15, 6]);
+        aimFrom([0, 1.7, -0.3], [0, 1.05, 6]);
         return;
       case "ahead":
         // Where the character sits, a little up and out, past the rider's or driver's shoulder to the street ahead.
         camera.fov = 75;
         camera.near = 0.08;
-        if (way === "keke") aimFrom([-0.12, 1.62, -0.66], [0.1, 1.05, 9]);
+        // The keke's windscreen is solid in its model, so the view goes ahead out of the open side on the road's
+        // side, the driver beside it under the canopy.
+        if (way === "keke") {
+          camera.fov = 60;
+          aimFrom([-0.2, 1.64, -0.55], [3.6, 0.9, 6]);
+        }
         else aimFrom([0.16, 1.68, -0.62], [-0.05, 1.0, 9]);
         return;
       default: {
@@ -547,6 +553,8 @@ export function buildRide(way: Way): RideScene {
       vehicle.position.y = way === "walk" ? 0 : Math.abs(Math.sin(time * 11)) * bob;
     }
     posePeople(ms, time);
+    // Where the camera is the character's own eyes, her head is not drawn around it.
+    seatOf("own")?.figure?.bones.get("head")?.scale.setScalar(shown === "ahead" ? 0.01 : 1);
     placeCamera(shown, ms);
     camera.aspect = aspect;
     camera.updateProjectionMatrix();
