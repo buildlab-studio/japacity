@@ -1,54 +1,41 @@
-// Cooking and fetching water said at the tap and counted on the Month sheet (docs/rules/world.md
-// R-WORLD-005, R-WORLD-007, R-WORLD-029; obligation.md R-OBLIGATION-014): the
-// tap says what comes off this month's living costs, and the sheet's foot never says nothing is planned.
-import { content } from "@japacity/content";
-import { int } from "@japacity/sim";
+// Cooking, fetching water and rest at the tap (docs/rules/world.md R-WORLD-005, R-WORLD-029; text.md R-TEXT-008;
+// obligation.md R-OBLIGATION-014): the scene shows the act, so the tap tells no line; the
+// thing's label says it is planned ("Resting" on the bed), and the Month sheet and the results carry what it counts.
 import { describe, expect, test } from "vitest";
 
-import { engineView, newGame, setPockets } from "../../shared/testing/fixtures";
-import { formatMoney } from "../../shared/words/format";
-import { doneWords } from "./City";
-import { choreSaving } from "./chores";
+import compoundFile from "../../../public/assets/places/compound-room/place.json";
+import parlourFile from "../../../public/assets/places/family-house-parlour/place.json";
+import { say } from "../../shared/words/text";
+import { doActLine, plannedMarks } from "./actLines";
+import { type PlaceFile, stageOf } from "./placeFile";
+import { thingsOf } from "./things";
 
 const COOK = "activity.cook-at-home";
 const WATER = "activity.fetch-water";
-const DRUM = "activity.fill-drum";
+const REST = "activity.rest";
 
-function upkeepDue(view: ReturnType<typeof engineView>): number {
-  const owed = view.obligations.find((item) => content.obligation[item.entry]?.type === "upkeep");
-  if (owed === undefined) throw new Error("Ada has no living costs.");
-  return owed.due;
-}
-
-describe("the compound's drum at the tap", () => {
-  test("[R-OBLIGATION-014] given Ada in the room in a compound, when she fills the drum from the yard's tap, then the tap says the drum is full and no money comes off", () => {
-    const game = newGame("scenario.ada");
-    setPockets(game, { NGN: 5_000_000_00 });
-    game.accept({ type: "home/move", to: "place.compound-room" });
-    const view = game.view();
-    expect(choreSaving(view, DRUM)).toBeNull();
-    expect(doneWords("city.act.fill-drum", view, DRUM)).toBe("The drum is full.");
-    // Cooking still saves there: the room's living costs are food and light.
-    expect(choreSaving(view, COOK)).not.toBeNull();
-  });
-});
+const things = thingsOf(stageOf(parlourFile as unknown as PlaceFile));
 
 describe("the room's basics at the tap", () => {
-  test("[R-WORLD-005] given Ada at home with her living costs, when she cooks for the week, then the tap says what comes off this month's living costs, as a figure", () => {
-    const view = engineView("scenario.ada");
-    const off = int.bp(upkeepDue(view), content.tuning.room.cookedBp);
-    expect(off).toBeGreaterThan(0);
-    expect(doneWords("city.act.cook", view, COOK)).toBe(`Cooked for the week: ${formatMoney(off, "NGN")} less on this month's living costs.`);
+  test("[R-WORLD-005] [R-TEXT-008] given the parlour, when cooking, water and rest are planned at the tap, then no line is told and each thing's label carries its state", () => {
+    expect(doActLine(true)).toBeNull();
+    const marks = plannedMarks(things, new Set([COOK, WATER, REST]));
+    expect(marks.cooking).toBe(say("ui.world.thing.planned"));
+    expect(marks.drum).toBe(say("ui.world.thing.planned"));
+    expect(marks.bed).toBe(say("ui.world.thing.resting"));
   });
 
-  test("[R-WORLD-005] given Ada at home, when she fetches water, then the tap says the water's share off the living costs", () => {
-    const view = engineView("scenario.ada");
-    const off = int.bp(upkeepDue(view), content.tuning.room.waterBp);
-    expect(doneWords("city.act.fetch-water", view, WATER)).toBe(`Water fetched: ${formatMoney(off, "NGN")} less.`);
+  test("[R-WORLD-005] given nothing planned, when the labels are read, then none carries a state", () => {
+    expect(plannedMarks(things, new Set())).toEqual({});
   });
 
-  test("[R-WORLD-005] given no living costs to take a share of, when the pot goes on, then the tap keeps its plain words", () => {
-    const view = { ...engineView("scenario.ada"), obligations: [] };
-    expect(doneWords("city.act.cook", view, COOK)).toBe("The pot is on. Food for the week, counted when the month ends.");
+  test("[R-WORLD-005] given the month's free time all planned, when cooking is tapped, then the corner tells it is full", () => {
+    expect(doActLine(false)).toEqual({ kind: "tell", words: say("ui.world.full") });
+  });
+
+  test("[R-OBLIGATION-014] [R-TEXT-008] given the room in a compound, when the drum is filled from the yard's tap, then no line is told, no money comes off, and the drum's label says it is planned", () => {
+    const compound = thingsOf(stageOf(compoundFile as unknown as PlaceFile));
+    expect(doActLine(true)).toBeNull();
+    expect(plannedMarks(compound, new Set(["activity.fill-drum"])).drum).toBe(say("ui.world.thing.planned"));
   });
 });

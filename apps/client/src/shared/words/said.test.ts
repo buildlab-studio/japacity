@@ -1,5 +1,5 @@
 // Words that read wrong in play, checked on the lines the real engine tells: a status with its article, the landing with
-// the country's own name, a chapter closed with no turns, the toast for an act planned, and the
+// the country's own name, a chapter closed with no turns, the phone's line for an act planned, and the
 // market's aunty saying a thing that fits a woman or a man.
 import { text } from "@japacity/content";
 import { describe, expect, test } from "vitest";
@@ -38,7 +38,7 @@ describe("words that fit", () => {
     expect(said).not.toMatch(/turn/i);
   });
 
-  test("[R-WORLD-006] given an act planned from its sheet, when the toast says so, then it is the act's name and planned", () => {
+  test("[R-WORLD-006] given an act planned from a sheet on the phone, when the corner tells it, then it is the act's name and planned", () => {
     expect(say("ui.world.planned", { what: nameOf("activity.job-hunt") })).toBe(`${nameOf("activity.job-hunt")}: planned.`);
   });
 

@@ -27,8 +27,9 @@ describe("the agent's office", () => {
     const agent = shown.find((candidate) => candidate.id === "agent");
     expect(agent?.acts.map((act) => [act.kind, sceneWords(act.label)])).toEqual([["plain", "Agent"]]);
     // The man drawn at the desk speaks: the desk is never called empty while he sits at it.
-    expect(sceneWords(`${agent?.acts[0]?.label ?? ""}.done`)).toMatch(/^Not today\. /);
-    expect(sceneWords(`${agent?.acts[0]?.label ?? ""}.done`)).not.toMatch(/empty/i);
+    // He says it over his own head (R-WORLD-005): his own words, no narration round them.
+    expect(sceneWords(`${agent?.acts[0]?.label ?? ""}.says`)).toMatch(/^Not today\. /);
+    expect(sceneWords(`${agent?.acts[0]?.label ?? ""}.says`)).not.toMatch(/empty/i);
     expect(sceneWords(agent?.label ?? "")).toBe(sceneWords(thing("desk").label));
   });
 
@@ -57,7 +58,7 @@ describe("the agent with nothing on", () => {
     const view = heldFundsOpen();
     const agent = thingsNow(things, stagedNow(offeredFrom(view), new Set(entry.stages), new Set(view.offers.map((offer) => offer.entry)), null)).find((candidate) => candidate.id === "agent");
     expect(agent?.acts.map((act) => [act.kind, sceneWords(act.label)])).toEqual([["plain", "Agent"]]);
-    const said = sceneWords(`${agent?.acts[0]?.label ?? ""}.done`).split(/(?<=\.) /);
+    const said = sceneWords(`${agent?.acts[0]?.label ?? ""}.says`).split(/(?<=\.) /);
     expect(said).toEqual(["Not today.", "Papers, proof of funds, Dubai jobs: come back next month."]);
     for (const line of said) expect(line.split(" ").length).toBeLessThanOrEqual(10);
   });

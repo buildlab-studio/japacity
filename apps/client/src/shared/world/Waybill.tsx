@@ -13,7 +13,7 @@ import { SheetClose } from "./WorldSheet";
 export interface ParcelWaybillProps {
   /** Closes the slip, after Collect it lands or on not now; the sheet the slip stands in (the asks sheet) lowers too, so a parcel left waiting never holds the screen (R-WORLD-006). */
   onClose: () => void;
-  /** What the answer said, for the screen's toast. */
+  /** What the answer said, for a line the screen tells in its corner. */
   onCollected?: (lines: ReportLine[]) => void;
 }
 

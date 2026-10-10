@@ -92,7 +92,7 @@ test("[R-WORLD-015] [R-WORLD-017] given a life at home on a phone, when the map 
   await expect(page.locator("[data-ride-main]")).toContainText("left");
   await shot(page, "02-stop-picked-route-lit");
 
-  // The ride: a short scene with its band and Skip, then the place opens with a toast.
+  // The ride: a short scene with its band and Skip, then the place opens with its name told in the corner (R-WORLD-026).
   await page.locator('[data-way="danfo"]').click();
   await page.locator("[data-ride-main]").click();
   await expect(page.locator("[data-ride]")).toBeVisible();
@@ -100,7 +100,7 @@ test("[R-WORLD-015] [R-WORLD-017] given a life at home on a phone, when the map 
   await page.waitForTimeout(2600);
   await shot(page, "03-ride");
   await expect(page.locator("[data-ride]")).toBeHidden({ timeout: 8000 });
-  await expect(page.locator("[data-toast]")).toBeVisible();
+  await expect(page.locator("[data-corner] [data-told]").last()).toBeVisible();
   await page.waitForFunction((id) => (window as unknown as { __city?: CityProbe }).__city?.place === id, target, { timeout: 30_000 });
   await shot(page, "04-arrived");
 });

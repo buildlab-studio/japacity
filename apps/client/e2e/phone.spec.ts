@@ -70,8 +70,9 @@ test("[R-WORLD-018] the phone rises over the world, grows and comes back, opens 
   await page.waitForTimeout(400);
   await shot(page, "phone-04-bank-card");
   await page.locator("[data-ask-main]").click();
-  await expect(page.locator("[data-toast]")).toHaveText("Money changed");
-  await expect(page.locator("[data-toast]")).toHaveCount(0, { timeout: 5_000 });
+  // The phone's act is told in the corner over the handset, and goes after about seven seconds (R-WORLD-026).
+  await expect(page.locator("[data-phone] [data-told]")).toHaveText("Money changed");
+  await expect(page.locator("[data-phone] [data-told]")).toHaveCount(0, { timeout: 9_000 });
   await page.getByRole("button", { name: "Back" }).click();
 
   await page.locator('[data-app="chats"]').click();

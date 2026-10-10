@@ -8,6 +8,8 @@ import { describe, expect, test } from "vitest";
 import clinicFile from "../../../../public/assets/places/tb-clinic/place.json";
 import hubFile from "../../../../public/assets/places/yaba-hub/place.json";
 import roomFile from "../../../../public/assets/places/inverter-room/place.json";
+import { say } from "../../../shared/words/text";
+import { plannedMarks } from "../actLines";
 import { sceneWords } from "../scene.words";
 import { stagedNow, thingsNow } from "../things";
 import { staged } from "./placeTesting";
@@ -39,14 +41,16 @@ describe("the waiting months' acts on their things", () => {
     }
   });
 
-  test("[R-ACTIVITY-013] [R-WORLD-005] given the posts offered, when the laptops' act is read for now, then it happens at once with the character seated, and with the posts not offered the laptops offer nothing", () => {
+  test("[R-ACTIVITY-013] [R-WORLD-005] given the posts offered, when the laptops' act is read for now, then it happens at once with the character seated and no line, its label saying planned, and with the posts not offered the laptops offer nothing", () => {
     const { stage, entry } = staged(roomFile, "place.yaba-hub");
     const laptops = stage.things?.find((candidate) => candidate.id === "laptops");
     if (laptops === undefined) throw new Error("The room has no laptops");
     const post = laptops.acts[0];
     expect(post?.kind).toBe("do");
     expect(post?.pose).toBe("sit");
-    expect(sceneWords(`${post?.label ?? ""}.done`)).toMatch(/counts when the month ends/);
+    // The seat shows the act, so it says no line; the laptops' label says it is planned (R-WORLD-005, R-TEXT-008).
+    expect(sceneWords(`${post?.label ?? ""}.done`)).toBe(`${post?.label ?? ""}.done`);
+    expect(plannedMarks([laptops], new Set(["activity.tech-posts"]))).toEqual({ laptops: say("ui.world.thing.planned") });
     const offered = thingsNow([laptops], stagedNow(new Set(["activity.tech-posts"]), new Set(entry.stages), new Set(), null));
     expect(offered[0]?.acts.map((act) => act.stages)).toEqual(["activity.tech-posts"]);
     expect(thingsNow([laptops], stagedNow(new Set(), new Set(entry.stages), new Set(), null))).toEqual([]);

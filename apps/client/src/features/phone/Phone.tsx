@@ -4,7 +4,7 @@ import { ChevronLeft, Maximize2, Minimize2 } from "lucide-react";
 import { type ReactNode, useEffect, useRef, useState } from "react";
 
 import type { PhoneApp } from "../../shared/world/contract";
-import { Toast, useToast } from "../../shared/world/Toast";
+import { Corner, tell } from "../../shared/world/Lines";
 import { PhoneSaid } from "./act";
 import { PhoneIcon } from "./icons";
 import { phoneWords } from "./phone.words";
@@ -50,7 +50,6 @@ export function Phone({ apps, onClose, area, when, onOpen, now = realNow, start 
     onOpen?.(start);
   }, [start, onOpen]);
   const [grown, setGrown] = useState(false);
-  const toast = useToast();
   const time = useClock(now);
   const app = apps.find((candidate) => candidate.id === open) ?? null;
   const openApp = (id: string) => {
@@ -64,7 +63,7 @@ export function Phone({ apps, onClose, area, when, onOpen, now = realNow, start 
   );
 
   return (
-    <PhoneSaid value={toast.show}>
+    <PhoneSaid value={tell}>
       <div className="fixed inset-0 z-[44]" role="dialog" aria-modal="true" aria-label={phoneWords("phone.title")} data-phone data-grown={grown}>
         <button type="button" tabIndex={-1} aria-hidden onClick={onClose} className="fade absolute inset-0 cursor-default bg-scrim" />
         {/* Grown and small share one anchor (the bottom middle, shifted half its width) and set the same four
@@ -138,7 +137,8 @@ export function Phone({ apps, onClose, area, when, onOpen, now = realNow, start 
             </div>
           </div>
         </div>
-        <Toast words={toast.words} />
+        {/* What an app's act did is told over the handset, in the corner's own look, so it is read while the phone covers the world (R-WORLD-026). */}
+        <Corner told />
       </div>
     </PhoneSaid>
   );

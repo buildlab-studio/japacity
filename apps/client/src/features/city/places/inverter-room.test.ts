@@ -10,6 +10,7 @@ import { checkFaces, type ModelFace } from "../../../../../../tools/assets/faces
 import { checkWalkable } from "../../../../../../tools/assets/footprint-check";
 import { checkLimits, SHEET_KINDS, WORLD_LIMITS } from "../../../../../../tools/assets/world-check";
 import placeFile from "../../../../public/assets/places/inverter-room/place.json";
+import { plainActLine } from "../actLines";
 import { crowdSize } from "../crowd";
 import { crowdTuning } from "../limits";
 import { personOfLook } from "../roster";
@@ -95,7 +96,7 @@ describe("the Inverter Room's file", () => {
 });
 
 describe("the Inverter Room's things", () => {
-  test("[R-WORLD-005] given the room's things, when their names and acts are read, then each stands at a copy of a staged model, offers one or two acts, its name and every act's label resolve, and a plain act says what happened", () => {
+  test("[R-WORLD-005] given the room's things, when their names and acts are read, then each stands at a copy of a staged model, offers one or two acts, its name and every act's label resolve, and a plain act says what happened unless the scene shows it", () => {
     expect(things.length).toBeGreaterThanOrEqual(4);
     expect(new Set(things.map((one) => one.id)).size).toBe(things.length);
     const wrong: string[] = [];
@@ -111,7 +112,8 @@ describe("the Inverter Room's things", () => {
       for (const act of one.acts) {
         say(sceneWords(act.label) === act.label, `${one.id} ${act.id} has no label`);
         say(act.kind === "sheet" && act.stages === undefined, `${one.id} ${act.id} stages nothing`);
-        say(act.kind === "plain" && sceneWords(`${act.label}.done`) === `${act.label}.done`, `${one.id} ${act.id} says nothing`);
+        say(act.kind === "plain" && act.pose === undefined && plainActLine(one, act, []) === null, `${one.id} ${act.id} says nothing`);
+        say(act.kind === "plain" && act.pose !== undefined && plainActLine(one, act, []) !== null, `${one.id} ${act.id} says a line the scene shows`);
       }
     }
     expect(wrong).toEqual([]);

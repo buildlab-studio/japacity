@@ -424,7 +424,7 @@ export const placeText: Record<string, string> = {
   "place.makoko.act.canoe": "Go by canoe",
   "place.makoko.thing.racks": "Fish racks",
   "place.makoko.act.racks": "Look",
-  "place.makoko.act.racks.done": "Fish laid in rows over the fire, and smoke in your eyes. It sells by the basin.",
+  "place.makoko.act.racks.done": "Fish laid in rows over the fire. It sells by the basin.",
   // R-ACTIVITY-017: the racks are work at hand for the child of the water.
   "place.makoko.act.racks-work": "Work the racks",
   "place.makoko.thing.school": "School",
@@ -490,15 +490,17 @@ export const placeText: Record<string, string> = {
   // The family house's boards: the send-off banner on the party set, and the notice painted on the gate. Neither is a business name.
   "place.family-house.sign.1": "SAFE JOURNEY",
   "place.family-house.sign.2": "THIS HOUSE IS\nNOT FOR SALE",
-  "place.family-house.overheard.1": "Who left the gate open?",
+  "place.family-house.overheard.1": "Your father is asking who left the gate open.",
   "place.family-house.overheard.2": "Your uncle called again. He wants to know when you are going.",
-  "place.family-house.overheard.3": "Food is in the pot. Warm it.",
+  "place.family-house.overheard.3": "Mama kept food in the pot for you. Warm it.",
   // home.md R-HOME-010: the room in a compound in Ojuelegba. The neighbours' talk through the wall.
   "place.compound-room.name": "your room in Ojuelegba",
   "place.compound-room.blurb": "One room in a compound of ten. One tap in the yard for everybody, and the buses all night.",
-  "place.compound-room.overheard.1": "Whose turn is it to sweep the yard?",
-  "place.compound-room.overheard.2": "The tap is running. Bring your buckets before it stops.",
-  "place.compound-room.overheard.3": "Light has come. Charge everything now.",
+  "place.compound-room.overheard.1": "Whose turn to sweep the compound this week?",
+  "place.compound-room.overheard.2": "Next door: who used my water?",
+  "place.compound-room.overheard.3": "The compound tap is running. Ten rooms, one tap: bring your buckets.",
+  "place.compound-room.overheard.4": "The landlord says the gate locks at eleven. Every room.",
+  "place.compound-room.overheard.5": "Light has come. The whole compound is charging phones.",
   // The family's own talk while your send-off is on: no stranger's rumour in the compound that night.
   // Waiting for overheard.ts to read them during the send-off.
   "place.family-house.send-off.overheard.1": "Who is carrying the jollof to the back?",
@@ -649,7 +651,7 @@ export const placeText: Record<string, string> = {
   "place.their-room.blurb": "Somebody else's room, as they keep it. You are a guest here.",
   "place.the-room.name": "the room",
   "place.the-room.blurb": "A shared room. One bed, one window, a bag still half packed.",
-  "place.the-room.overheard.1": "Who used my pot? Wash it.",
+  "place.the-room.overheard.1": "Who used my pot in the shared kitchen? Wash it.",
   "place.the-room.overheard.2": "Quiet, I have the early shift.",
   "place.the-room.overheard.3": "Rent is due on Friday. Have you got your share?",
   "place.test-centre-abroad.name": "the test centre",

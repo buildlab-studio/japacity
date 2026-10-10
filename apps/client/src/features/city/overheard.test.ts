@@ -62,4 +62,22 @@ describe("talk overheard abroad", () => {
       expect(said.match(/[\u201c\u201d]/g)).toHaveLength(2);
     }
   });
+
+  test("[R-WORLD-026] given the room in a compound, when its own lines are read, then each names what only a compound has: the compound itself, next door, its one tap for the rooms, the landlord; none could be the family's yard", () => {
+    const said = placeLines("place.compound-room").map((key) => heardWords(key, {}));
+    expect(said.length).toBeGreaterThanOrEqual(4);
+    for (const words of said) expect({ words, named: /compound|next door|landlord|rooms?\b/i.test(words) }).toEqual({ words, named: true });
+    expect(said.some((words) => /sweep the compound/i.test(words))).toBe(true);
+    expect(said.some((words) => /^Next door: /.test(words))).toBe(true);
+    expect(said.some((words) => /one tap/i.test(words))).toBe(true);
+    expect(said.some((words) => /landlord/i.test(words))).toBe(true);
+    expect(said.filter((words) => /\byard\b/i.test(words))).toEqual([]);
+  });
+
+  test("[R-WORLD-026] given the family house, when its own lines are read, then each is the family's: a father, Mama or an uncle, never a line any home could hear", () => {
+    const said = placeLines("place.family-house").map((key) => heardWords(key, {}));
+    expect(said.length).toBeGreaterThanOrEqual(3);
+    for (const words of said) expect({ words, family: /father|mama|uncle|aunty/i.test(words) }).toEqual({ words, family: true });
+  });
 });
+
