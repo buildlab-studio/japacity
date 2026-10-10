@@ -65,7 +65,7 @@ export function ageRoutes(deps: ServerDeps, { auth, keys }: Accounts): Hono<Sess
     }
 
     // the bot check runs here, the one step every new account takes, and not on the library's sign-in routes, which also serve returning players (R-ACCOUNT-013).
-    const check = await checkTurnstile(keys.turnstile, request.headers.get("x-captcha-response"), request.headers.get("cf-connecting-ip"));
+    const check = await checkTurnstile(keys.turnstile, request.headers.get("x-captcha-response"), request.headers.get("cf-connecting-ip"), new URL(keys.siteUrl).hostname);
     if (!check.ok) return c.json<AgeReply>(rejection("bot-check", check.reason), 403);
 
     const nonce = hex(deps.randomBytes(16));

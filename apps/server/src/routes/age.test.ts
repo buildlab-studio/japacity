@@ -129,6 +129,17 @@ describe("the bot check at sign-up", () => {
     }
   });
 
+  test("[R-ACCOUNT-013] given a token Turnstile says was solved on another host, when the screen is sent, then the check fails and no pass is given", async () => {
+    for (const host of ["elsewhere.example", "japacity.test.elsewhere.example", ""]) {
+      const h = harness({ turnstileHost: host });
+      const jar = makeJar();
+      const reply = await h.passAge(jar, { token: TURNSTILE_TEST.dummyToken });
+      expect({ host, status: reply.status }).toEqual({ host, status: 403 });
+      expect(await reply.json()).toMatchObject({ code: "bot-check", detail: "hostname-mismatch" });
+      expect(jar.cookies.has(PASS_COOKIE)).toBe(false);
+    }
+  });
+
   test("[R-ACCOUNT-013] given one pass, when two accounts are made with it, then the second is refused", async () => {
     const h = harness();
     const jar = makeJar();

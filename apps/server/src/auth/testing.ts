@@ -24,14 +24,16 @@ export const SITE = "https://japacity.test";
 export const SECRET = "test-secret-that-is-long-enough-for-the-library-0123456789";
 export const STUB_SITEVERIFY = "https://turnstile.stub/siteverify";
 
-/** Cloudflare's three test secrets, answered as Cloudflare documents them. */
-export const turnstileStub: typeof fetch = async (_input, init) => {
-  const body = JSON.parse(typeof init?.body === "string" ? init.body : "{}") as { secret?: string; response?: string };
-  const answer = (success: boolean, codes: string[]) => new Response(JSON.stringify({ success, "error-codes": codes }), { headers: { "content-type": "application/json" } });
-  if (body.secret === TURNSTILE_TEST.passSecret) return Promise.resolve(answer(true, []));
-  if (body.secret === TURNSTILE_TEST.spentSecret) return Promise.resolve(answer(false, ["timeout-or-duplicate"]));
-  return Promise.resolve(answer(false, ["invalid-input-response"]));
-};
+/** Cloudflare's three test secrets, answered as Cloudflare documents them, a pass naming `hostname` as where the token was solved. */
+export function turnstileStub(hostname: string): typeof fetch {
+  return async (_input, init) => {
+    const body = JSON.parse(typeof init?.body === "string" ? init.body : "{}") as { secret?: string; response?: string };
+    const answer = (success: boolean, codes: string[]) => new Response(JSON.stringify({ success, "error-codes": codes, ...(success ? { hostname } : {}) }), { headers: { "content-type": "application/json" } });
+    if (body.secret === TURNSTILE_TEST.passSecret) return Promise.resolve(answer(true, []));
+    if (body.secret === TURNSTILE_TEST.spentSecret) return Promise.resolve(answer(false, ["timeout-or-duplicate"]));
+    return Promise.resolve(answer(false, ["invalid-input-response"]));
+  };
+}
 
 /** A browser's cookies across requests. */
 export interface Jar {
@@ -88,6 +90,8 @@ export interface HarnessOptions {
   turnstileSecret?: string;
   /** The limits; open unless a test counts them. */
   limits?: Limiters;
+  /** The host the Turnstile stand-in says a passed token was solved on; the site's own unless a test names another. */
+  turnstileHost?: string;
   /** The server's clock; the machine's unless a test moves it. */
   now?: () => number;
 }
@@ -112,7 +116,7 @@ export function harness(options: HarnessOptions = {}): Harness {
     secret: SECRET,
     siteUrl: SITE,
     google: { clientId: "test-google-client", clientSecret: "test-google-secret" },
-    turnstile: { secretKey: options.turnstileSecret ?? TURNSTILE_TEST.passSecret, siteVerifyUrl: STUB_SITEVERIFY, fetch: turnstileStub },
+    turnstile: { secretKey: options.turnstileSecret ?? TURNSTILE_TEST.passSecret, siteVerifyUrl: STUB_SITEVERIFY, fetch: turnstileStub(options.turnstileHost ?? new URL(SITE).hostname) },
     sendOtp:
       options.sendOtp ??
       ((message) => {
