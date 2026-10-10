@@ -535,6 +535,8 @@ describe("whole-life rules that cross kinds", () => {
     expect(moved("serve", ["quality.standing", "quality.network", "quality.wellbeing"])).toEqual([8, 8, 4]);
     expect(game.state.wallet.pockets.NGN.cash - cash).toBe(500000 * UNIT);
     choose(game, "uk");
+    // The age step keeps the age the path reached (R-PROLOGUE-004).
+    choose(game, "as-is");
     expect(uk(game).state).toBe("heard");
     expect(moved("family-house", ["quality.standing"])).toEqual([3]);
     expect(game.state.prologue.open).toBe(false);
