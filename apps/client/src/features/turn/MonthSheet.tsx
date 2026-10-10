@@ -13,6 +13,7 @@ import { Rejection } from "../../shared/ui/Rejection";
 import { workingPlanned } from "../../shared/words/count";
 import { lockWords } from "../../shared/words/locks";
 import { hasWords, nameOf, paramWords, say } from "../../shared/words/text";
+import { stretchedWords } from "../days/stretch";
 import { blockedBy } from "./TurnBar";
 import { TurnClock } from "./TurnClock";
 import { turnWords } from "./turn.words";
@@ -77,6 +78,8 @@ export function MonthSheet() {
   const untilNews = useGame((state) => state.untilNews);
   const abroad = view.place.where === "abroad";
   const shut = busy || blocked !== null;
+  // R-WORLD-030: the plan that stretches the character is said before the page turns.
+  const stretched = stretchedWords(view, plan);
   const endButton = (main: boolean) => (
     <button
       key="end"
@@ -190,6 +193,11 @@ export function MonthSheet() {
       ) : null}
       <Rejection />
       <div className="sticky bottom-0 -mx-4 -mb-4 flex flex-col gap-1.5 bg-sheet px-4 pt-2 pb-[max(16px,env(safe-area-inset-bottom))]">
+        {stretched === null ? null : (
+          <p className="text-[13px] font-semibold text-text-2" data-month-stretched>
+            {stretched}
+          </p>
+        )}
         {/* R-WORLD-028: abroad the quiet months go by Until news, so it is the main button there and End month the second. */}
         {abroad ? untilButton(true) : endButton(true)}
         {abroad ? endButton(false) : untilButton(false)}
