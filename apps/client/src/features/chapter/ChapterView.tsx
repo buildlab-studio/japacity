@@ -1,4 +1,4 @@
-// The main journey: the current chapter's title, opening line and items. An
+// The main journey: the current chapter's title, opening line and items, in the life's own words. An
 // item that any one of several paths meets lists them as "one of" (chapter 6,
 // Secure). Once every chapter is done the long game takes the chapter's place:
 // the open goals, each with how many of its items are met (R-CHAPTER-007).
@@ -9,6 +9,7 @@ import { Check, Circle } from "lucide-react";
 import { useView } from "../../authority/GameProvider";
 import { Card, Tag } from "../../shared/ui/Panel";
 import { anyOptions } from "../../shared/words/requirement";
+import { openingKey, ownWords } from "../../shared/words/sixteen";
 import { nameOf, say, words } from "../../shared/words/text";
 
 function itemOptions(chapter: Id<"chapter">, item: string, view: PlayerView): string[] {
@@ -26,7 +27,7 @@ function Items({ chapter }: { chapter: Id<"chapter"> }) {
           <li key={item.id} data-met={item.met ? "true" : "false"} className="flex items-start gap-2">
             {item.met ? <Check size={18} className="mt-0.5 shrink-0 text-good" /> : <Circle size={18} className="mt-0.5 shrink-0 text-text-2" />}
             <div className="flex flex-col gap-1">
-              <span className={item.met ? "text-text-2 line-through" : ""}>{words(`${chapter}.item.${item.id}`)}</span>
+              <span className={item.met ? "text-text-2 line-through" : ""}>{words(ownWords(view, `${chapter}.item.${item.id}`))}</span>
               {options.length < 2 ? null : (
                 <div className="text-sm text-text-2" data-one-of>
                   <p className="font-medium">{say("ui.chapter.one-of")}</p>
@@ -69,7 +70,8 @@ function LongGame() {
 }
 
 export function ChapterView() {
-  const { chapter } = useView();
+  const view = useView();
+  const { chapter } = view;
   const current = chapter.current;
   const allDone = current === null && chapter.done.length > 0;
   return (
@@ -83,7 +85,7 @@ export function ChapterView() {
         ) : (
           <>
             <h2 className="text-2xl leading-tight font-bold">{words(`${current}.title`)}</h2>
-            <p className="text-text-2 italic">{words(`${current}.open`)}</p>
+            <p className="text-text-2 italic">{words(openingKey(view))}</p>
             <Items chapter={current} />
           </>
         )}

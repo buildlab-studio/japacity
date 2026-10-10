@@ -12,6 +12,11 @@ const WEEKS_PER_YEAR = 52;
 export const DRIVING_TEST: Id<"activity"> = "activity.driving-test";
 /** The rented courier account: `tuning.ladder.accountRent` a week comes off its pay. */
 export const COURIER: Id<"activity"> = "activity.job-uk-courier-cash";
+/**
+ * The trader's own shop: its takings grow a little with each month it has stood.
+ * tuning has no key for the shop's growth; it reads `tuning.activity.raiseBp` as the share a full year adds.
+ */
+export const SHOP: Id<"activity"> = "activity.run-shop";
 const HOME_LICENCE: Id<"document"> = "document.home-licence";
 const UK_LICENCE: Id<"document"> = "document.uk-licence";
 
@@ -76,6 +81,13 @@ export function raisedJob(state: State, job: Id<"activity">): boolean {
   return (state.activity.raised ?? []).includes(job);
 }
 
+/** The shop's growth on its written takings: the yearly share, pro rata for the months it has stood before this one. */
+function shopGrowth(read: ReadCtx, entry: ActivityEntry, written: number): number {
+  if (entry.id !== SHOP) return 0;
+  const months = read.state.activity.tenure[SHOP] ?? 0;
+  return mulDiv(bp(written, read.content.tuning.activity.raiseBp), months, MONTHS_PER_YEAR);
+}
+
 /**
  * The job's pay figure, a year or a month: as written, or its tier's when one is met (R-ACTIVITY-014),
  * then the raise once it has come (R-ACTIVITY-013). Null when it reads a term not in hand.
@@ -86,7 +98,7 @@ function payFigure(read: ReadCtx, entry: ActivityEntry, terms: Terms): number | 
   // a sponsor's job started without a salary recorded on the route has nothing to pay from, so it pays nothing.
   if (typeof amount === "object" && "term" in amount && typeof terms[amount.term] !== "number") return null;
   const written = resolveAmount(read, amount, terms);
-  const figure = Math.max(written, tierFigure(read, entry) ?? written);
+  const figure = Math.max(written, tierFigure(read, entry) ?? written) + shopGrowth(read, entry, written);
   return raisedJob(read.state, entry.id) ? figure + bp(figure, read.content.tuning.activity.raiseBp) : figure;
 }
 

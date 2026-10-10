@@ -6,9 +6,8 @@ import type { Currency, PlayerView, ReportLine } from "@japacity/sim";
 
 import { monthlyPayOf } from "../../shared/words/cost";
 import { countWords } from "../../shared/words/count";
-import { afterPrologue, forYou, isSaid, isUnpaid, movesMoney, tidyLines, toldUnpaid } from "../../shared/words/lines";
+import { afterPrologue, forYou, isSaid, isUnpaid, tidyLines, toldUnpaid } from "../../shared/words/lines";
 import { BANK_CHARGE, CONVERT_PAID, CONVERTED, type MoneyLine, moneyLines } from "../../shared/words/money";
-import { moneyParam } from "../../shared/words/text";
 
 // The month's money lines live in shared/words/money.ts, so the Bank's Lately reads the same lines (R-WORLD-019).
 export { CHANGED, CHANGED_OUT, type MoneyLine, moneyLines } from "../../shared/words/money";

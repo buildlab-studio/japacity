@@ -1645,6 +1645,8 @@ export interface OfferSlice {
 export interface ChapterSlice {
   current: Id<"chapter"> | null;
   done: Id<"chapter">[];
+  /** The way out the player made the plan (R-CHAPTER-009), read before the order looked into; absent until one is chosen. */
+  chosen?: Id<"route">;
 }
 
 export interface NewsSlice {
@@ -1832,6 +1834,9 @@ export type Command = { basedOn: number } & (
   | { type: "home/move"; to: HomePlace }
   /** From the authority alone: a joined player's character stays with this one until `until`, or no longer with null (R-HOME-005). */
   | { type: "home/host"; pair: string; until: number | null }
+  // chapter (docs/rules/chapter.md R-CHAPTER-009)
+  /** Make a way out heard of or looked into the plan the chapters follow. */
+  | { type: "chapter/lean"; route: Id<"route"> }
 );
 
 export type CommandType = Command["type"];
@@ -2087,6 +2092,13 @@ export interface PlayerView {
   obligations: (ObligationState & { due: number; car: CarView | null })[];
   offers: OfferView[];
   chapter: { current: Id<"chapter"> | null; items: { id: string; met: boolean }[]; done: Id<"chapter">[] };
+  /** The chapter kind's plan (R-CHAPTER-009), beside its chapter part so that part keeps its shape. */
+  plan: {
+    /** The way out the chapters follow, or null while no own-effort way is heard of. */
+    route: Id<"route"> | null;
+    /** Each own-effort way heard of or further on, with the figure its checklist earns now (R-JAPACITY-001), for the switch. */
+    ways: { route: Id<"route">; percent: number }[];
+  };
   news: { id: Id<"news">; stage: NewsStage; since: number; forYou: boolean }[];
   /** `fareHome` is the fare from the country the character is in, December factor applied, or null at home (R-PLACE-006). */
   place: { where: Where; country: Id<"country"> | null; monthsHere: number; returns: PlaceSlice["returns"]; heldAbroad: Id<"status"> | null; fareHome: MoneyParam | null; fareBp: number };

@@ -113,7 +113,7 @@ async function planNextStep(page: Page, game: Game): Promise<void> {
       const select = page.locator(`[id="param-${pick.activity}"]`);
       if ((await select.count()) > 0) await select.selectOption(pick.param);
     }
-    await page.getByRole("button", { name: `Add to month: ${nameOf(pick.activity)}` }).click();
+    await page.getByRole("button", { name: nameOf(pick.activity), exact: true }).click();
   }
 }
 
@@ -135,7 +135,7 @@ test("[R-GUIDE-015] [R-GUIDE-014] a new life played online as the next step sugg
     if (before) await expectNoAsk(page, `before month ${String(month)} ends`);
     await planNextStep(page, game);
     if (before) await expectNoAsk(page, `with month ${String(month)} planned`);
-    await page.getByRole("button", { name: "Turn the page" }).click();
+    await page.getByRole("button", { name: "Next month" }).click();
 
     // The staged wins come first, then the report: none of them is an ask.
     await expect(page.getByRole("dialog")).toBeVisible();

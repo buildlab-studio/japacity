@@ -1,7 +1,7 @@
 // The world's own words (docs/rules/world.md), first drafts in the voice of docs/rules/text.md.
 // Content's table wins over these, so each key can move into content to be rewritten.
 export const worldText: Record<string, string> = {
-  "ui.world.end-month": "Turn the page",
+  "ui.world.end-month": "Next month",
   "ui.world.map": "Map",
   "ui.world.phone": "Phone",
   "ui.world.whole": "See the whole place",
@@ -52,5 +52,9 @@ export const worldText: Record<string, string> = {
   "ui.nudge.meanwhile.tech-posts": "Post what you know, at the laptops",
   "ui.nudge.meanwhile.be-noticed": "Get noticed: ask at the jobs board",
   "ui.nudge.hunt-planned": "Applied for better pay. Tap Next month.",
+  // A chapter with every item met closes when the page turns.
+  "ui.nudge.chapter-done": "The chapter is done. Tap Next month.",
+  // A set piece staged elsewhere waits there; the player goes to it.
+  "ui.nudge.setpiece-away": "{what} waits for you at {place}.",
   "ui.nudge.end": "Tap Next month when you are ready",
 };

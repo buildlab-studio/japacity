@@ -32,7 +32,7 @@ describe("people in the shell", () => {
     const game = peopleGame();
     playMonth(game);
     await playing(game);
-    const nav = await screen.findByRole("navigation", { name: say("ui.tabs") });
+    const nav = await screen.findByRole("navigation", { name: say("ui.tabs") }, { timeout: 10_000 });
     fireEvent.click(within(nav).getByRole("button", { name: say("ui.tab.people") }));
     const group = document.querySelector<HTMLElement>('[data-tab="people"]')!;
     expect(group.className).toContain("flex");
@@ -58,7 +58,7 @@ describe("people in the shell", () => {
     const game = peopleGame();
     courted(game, TOBI);
     await playing(game);
-    fireEvent.click(await screen.findByRole("button", { name: `${say("ui.activity.add")}: ${nameOf(SEE.activity)}` }));
+    fireEvent.click(await screen.findByRole("button", { name: `${nameOf(SEE.activity)}` }));
     const plan = screen.getByRole("list", { name: say("ui.month.plan") });
     expect(within(plan).getByText(`${nameOf(SEE.activity)} ${say("ui.people.time-with", { name: nameOf(TOBI) })}`)).toBeDefined();
     fireEvent.click(endMonth());

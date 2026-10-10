@@ -439,12 +439,13 @@ export function City({
       alive = false;
     };
   }, [world, drawing]);
-  // An open set piece is shown where it is staged (R-CITY-011).
+  // An open set piece is shown where it is staged (R-CITY-011); staged elsewhere, it waits there and the nudge says so, since the city never moves the player without a ride.
   const scene = openScene(view, PLACES);
   const sceneAt = scene?.place ?? null;
+  // The old page's city still shows the set piece where it is staged (it has no rides to get there).
   useEffect(() => {
-    if (sceneAt !== null) setPlaceId(sceneAt);
-  }, [sceneAt]);
+    if (!world && sceneAt !== null) setPlaceId(sceneAt);
+  }, [world, sceneAt]);
   useEffect(() => {
     watch.current = enterPlace(watch.current);
     setInside(false);
@@ -745,7 +746,13 @@ export function City({
   // Abroad the map is a list, and a stop picked on it opens its sheet all the same.
   // A result on its way is only waited for: its nudge says when it comes and opens nothing.
   // The nudge as it reads here: a step's place is not named while the player stands in it.
-  const shownNudge = nudge === null || nudge.about !== "step" ? nudge : nudgeHere(nudge, stepThing);
+  const sceneAway = sceneAt !== null && sceneAt !== placeId && !(inside && insideEntry?.id === sceneAt);
+  const shownNudge =
+    nudge?.about === "setpiece" && sceneAway && scene !== null
+      ? { key: "ui.nudge.setpiece-away", params: { what: nameOf(scene.setpiece), place: placeName(sceneAt) }, about: "setpiece" as const }
+      : nudge === null || nudge.about !== "step"
+        ? nudge
+        : nudgeHere(nudge, stepThing);
   const onlyWait = nudge !== null && WAIT_ONLY.has(nudge.key);
   const nudgeGoes = !onlyWait && stepWay !== null && (stepThing !== null || stepWay.go === null || where === "home" || where === "abroad");
   const followStep = (): void => {

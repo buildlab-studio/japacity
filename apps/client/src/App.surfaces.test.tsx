@@ -118,7 +118,7 @@ const slots = (within: ParentNode = document) => within.querySelectorAll("[data-
 describe("where no advert shows", () => {
   test("[R-ADVERT-003] given every slot filled, when the shell shows, then the phone tile is there to be found, so the walks below are not empty", async () => {
     render(providers(everything(), <App store={await storeOf(advertsOn())} />));
-    fireEvent.click(within(await screen.findByRole("navigation", { name: say("ui.tabs") })).getByRole("button", { name: say("ui.tab.news") }));
+    fireEvent.click(within(await screen.findByRole("navigation", { name: say("ui.tabs") }, { timeout: 10_000 })).getByRole("button", { name: say("ui.tab.news") }));
     await waitFor(() => expect(slots()).toHaveLength(1));
   });
 

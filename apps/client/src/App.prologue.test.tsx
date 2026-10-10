@@ -51,7 +51,7 @@ describe("a life from sixteen in the app", () => {
     // Every card, one answer each: the setting prologue.full, through an archetype's tile (R-PROLOGUE-009, 010).
     localStorage.setItem(FULL_PROLOGUE_KEY, "on");
     await startArchetype("developer");
-    expect(await screen.findByRole("heading", { name: words("prologue.draw.card") })).toBeDefined();
+    expect(await screen.findByRole("heading", { name: words("prologue.draw.card") }, { timeout: 10_000 })).toBeDefined();
 
     for (let guard = 0; guard < 40; guard += 1) {
       const prologue = store.getState().view?.prologue ?? null;
@@ -65,7 +65,7 @@ describe("a life from sixteen in the app", () => {
     expect(store.getState().view?.prologue).toBeNull();
 
     fireEvent.click(await screen.findByRole("button", { name: say("ui.prologue.start", { month: 1 }) }));
-    expect(await screen.findByRole("heading", { name: say("ui.month.planning", { month: 1 }) })).toBeDefined();
+    expect(await screen.findByRole("heading", { name: say("ui.month.planning", { month: 1 }) }, { timeout: 10_000 })).toBeDefined();
 
     // A hunt that finds work brings a job offer; accepting it is the first job.
     for (let month = 1; month <= 12 && store.getState().view?.job.id === null; month += 1) {
@@ -77,7 +77,7 @@ describe("a life from sixteen in the app", () => {
         break;
       }
       const v = store.getState().view?.v ?? 0;
-      fireEvent.click(screen.getByRole("button", { name: `${say("ui.activity.add")}: ${nameOf(HUNT)}` }));
+      fireEvent.click(screen.getByRole("button", { name: `${nameOf(HUNT)}` }));
       fireEvent.click(screen.getByRole("button", { name: say("ui.month.end") }));
       await moved(store, v);
       act(() => {

@@ -294,3 +294,9 @@ describe("the handover reads the life as lived", () => {
     }
   });
 });
+
+describe("the nurse's send-off", () => {
+  test("[R-PROLOGUE-011] given the nurse's tile, then her send-off leaning is the nurses' crowd, so care work is heard before any page is read", () => {
+    expect(ARCHETYPES.find((tile) => tile.id === "nurse")?.leaning).toEqual({ friend: "care" });
+  });
+});

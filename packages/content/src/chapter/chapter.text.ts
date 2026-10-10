@@ -38,6 +38,13 @@ export const chapterText: Record<string, string> = {
   "chapter.find-your-feet.item.known.nudge.own": "Read the page on {route}",
   "chapter.find-your-feet.item.known.planned": "Reading planned. Tap Next month.",
   "chapter.find-your-feet.item.known.planned.see-adviser": "Adviser booked. Tap Next month.",
+  // A trader from sixteen with the settlement, in her own words: her job is her own shop.
+  "chapter.find-your-feet.item.job.capital": "Open the shop with the settlement",
+  "chapter.find-your-feet.item.job.nudge.shop": "Open your shop at Tejuosho market",
+  "chapter.find-your-feet.item.job.planned.open-shop": "Shop opens. Tap Next month.",
+  "chapter.find-your-feet.item.pay.capital": "Keep the shop open a month",
+  "chapter.find-your-feet.item.heard.capital": "Hear who is travelling, and how",
+  "chapter.find-your-feet.item.known.capital": "Find out what the way out takes",
 
   "chapter.build-the-file.name": "Build the file",
   "chapter.build-the-file.title": "Build the file",

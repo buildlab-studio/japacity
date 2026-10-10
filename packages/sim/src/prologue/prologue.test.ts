@@ -149,6 +149,7 @@ const OTHERS: { [T in Exclude<CommandType, "prologue/choose" | (typeof AUTHORITY
   "people/end": { type: "people/end", bond: "bond-1" },
   "interview/answer": { type: "interview/answer", question: "q", option: "a" },
   "home/move": { type: "home/move", to: "place.makoko" },
+  "chapter/lean": { type: "chapter/lean", route: "route.uk-masters" },
 };
 
 describe("a new prologue", () => {

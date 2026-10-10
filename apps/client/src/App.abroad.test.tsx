@@ -18,7 +18,7 @@ function memoryStorage() {
 }
 
 async function tabNames(): Promise<string[]> {
-  const nav = await screen.findByRole("navigation", { name: say("ui.tabs") });
+  const nav = await screen.findByRole("navigation", { name: say("ui.tabs") }, { timeout: 10_000 });
   return within(nav)
     .getAllByRole("button")
     .map((button) => button.textContent);

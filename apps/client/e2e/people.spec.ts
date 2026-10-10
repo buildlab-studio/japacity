@@ -118,7 +118,7 @@ test("a bond carries its time together, and time planned with someone names them
   await seed(page, game);
 
   await openTab(page, "Month");
-  await page.getByRole("button", { name: "Add to month: See someone" }).click();
+  await page.getByRole("button", { name: "See someone", exact: true }).click();
   await expect(page.getByRole("list", { name: "This month" })).toContainText("See someone with Tobi");
 
   await openTab(page, "People");
@@ -173,7 +173,7 @@ test("the interview asks one question at a time and holds the month until the la
   const interview = page.getByRole("region", { name: "The relationship interview" });
   await expect(interview).toBeVisible();
   await expect(interview).toContainText("Question 1 of 3");
-  await expect(page.getByRole("button", { name: "Turn the page" })).toBeDisabled();
+  await expect(page.getByRole("button", { name: "Next month" })).toBeDisabled();
   await interview.scrollIntoViewIfNeeded();
   await expectNothingBroken(page, "in the interview");
   await shoot(page, "interview", info.project.name);
@@ -182,5 +182,5 @@ test("the interview asks one question at a time and holds the month until the la
   await interview.getByRole("button", { name: "A town back home" }).click();
   await interview.getByRole("button", { name: "In the UK" }).click();
   await expect(interview).toContainText("Your answers are in.");
-  await expect(page.getByRole("button", { name: "Turn the page" })).toBeEnabled();
+  await expect(page.getByRole("button", { name: "Next month" })).toBeEnabled();
 });

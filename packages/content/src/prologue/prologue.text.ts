@@ -97,6 +97,9 @@ export const prologueText: Record<string, string> = {
   "prologue.friend.answer.canada.hint": "They talk of points and a profile.",
   "prologue.friend.answer.tech": "The developers",
   "prologue.friend.answer.tech.hint": "They talk of tech work abroad.",
+  "prologue.friend.answer.care": "The nurses",
+  "prologue.friend.answer.care.hint": "They talk of care homes abroad that sponsor.",
+  "prologue.friend.answer.care.why": "you have no care behind you to follow them.",
   "prologue.friend.answer.nowhere": "Dance and go home",
   "prologue.friend.answer.tech.why": "you do not know enough tech to follow them.",
 

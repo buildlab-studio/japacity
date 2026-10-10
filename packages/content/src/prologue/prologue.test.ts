@@ -286,3 +286,14 @@ describe("the nurse's course makes a nurse", () => {
     expect(content.prologue["graduation"]?.answers.find((answer) => answer.id === "results-nurse")?.effects).toContainEqual({ type: "document/grant", document: "document.nursing-licence" });
   });
 });
+
+describe("the send-off's crowds", () => {
+  test("[R-PROLOGUE-011] given the friend's card, then a life with care behind it may follow the nurses and hears of care work, and a life without cannot", () => {
+    const card = content.prologue.friend;
+    const care = card?.answers.find((answer) => answer.id === "care");
+    expect(care?.effects).toEqual([{ type: "route/hear", route: "route.uk-care", via: "friend" }]);
+    expect(care?.requires).toEqual([{ type: "quality/min", quality: "quality.care", value: 30 }]);
+    expect(text["prologue.friend.answer.care"]).toBe("The nurses");
+    expect(text["prologue.friend.answer.care.why"]).toBeDefined();
+  });
+});

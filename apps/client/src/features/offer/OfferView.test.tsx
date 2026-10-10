@@ -104,3 +104,24 @@ describe("offers", () => {
     expect(status.textContent).toContain(words(moved.key, moved.params));
   });
 });
+
+describe("a job offer's warning", () => {
+  test("[R-ACTIVITY-010] [R-WORLD-003] given a nurse on the care route offered a side job, then the offer never says the job ends her months as a nurse; a main job elsewhere still does", async () => {
+    const base = richView();
+    const offer = base.offers[0];
+    if (offer === undefined) throw new Error("No offer");
+    const nurse = {
+      ...base,
+      job: { id: "activity.job-nurse" as const, months: 3, side: null },
+      routes: [{ ...base.routes[0]!, id: "route.uk-care" as const, state: "heard" as const }],
+    };
+    const side = Object.values(content.activity).find((entry) => entry.slot === "side" && entry.hireBp !== null);
+    const main = Object.values(content.activity).find((entry) => entry.slot === "main" && entry.hireBp !== null && entry.id !== "activity.job-nurse");
+    if (side === undefined || main === undefined) throw new Error("No side or main job in content");
+    await renderWithView(<OfferView />, { ...nurse, offers: [{ ...offer, terms: { ...offer.terms, job: side.id } }] });
+    expect(document.querySelector("[data-offer-job-ends]")).toBeNull();
+    document.body.innerHTML = "";
+    await renderWithView(<OfferView />, { ...nurse, offers: [{ ...offer, terms: { ...offer.terms, job: main.id } }] });
+    expect(document.querySelector("[data-offer-job-ends]")).not.toBeNull();
+  });
+});

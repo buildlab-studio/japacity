@@ -2,7 +2,9 @@
 // figure, the route's steps, the papers as a step with their state, and what is coming up (the visa
 // decision, a paper's ready month). The Papers screen inside shows what is in the box under the
 // bed; the papers themselves are a thing at home. Once a visa is granted it names the next step;
-// after the flight it shows the visa held, what it lets you do, and the landing's steps.
+// after the flight it shows the visa held, what it lets you do, and the landing's steps. The head names
+// the plan the chapters follow with its file, and each other way heard of opens its page with the switch
+// (docs/rules/chapter.md R-CHAPTER-009).
 import { content } from "@japacity/content";
 import type { ChapterEntry, Currency, Id, PlayerView, RouteView } from "@japacity/sim";
 import { Check, ChevronLeft, ChevronRight, Circle, FileCheck, FileClock, FileX } from "lucide-react";
@@ -11,10 +13,12 @@ import { use, useState } from "react";
 import { useGame, useView } from "../../../authority/GameProvider";
 import { monthsLeft, SOON } from "../../../shared/words/expiry";
 import { formatBand, formatMoney } from "../../../shared/words/format";
+import { planMarks } from "../../../shared/words/plan";
 import { checklistWords } from "../../../shared/words/requirement";
-import { blurbOf, forMonths, inMonths, nameOf, runningName, say, sayCount, words } from "../../../shared/words/text";
+import { blurbOf, forMonths, hasWords, inMonths, nameOf, runningName, say, sayCount, words } from "../../../shared/words/text";
 import { Head, PhoneSaid } from "../act";
 import { phoneWords } from "../phone.words";
+import { RoutePage } from "./PlanSwitch";
 
 const ENGLISH_RESULT = "document.english-test";
 const OFFICIAL = "activity.look-into-route";
@@ -36,11 +40,11 @@ function afterWords(key: string, params: Record<string, string> = {}): string {
 }
 
 /**
- * The chapter that follows a chapter (R-CHAPTER-009): the next base by order, or its variant for the way
- * out the current chapter follows. The engine reads the lean again at the close; the view does not carry
- * it, so a variant's way out stands for it here.
+ * The chapter that follows a chapter (R-CHAPTER-009): the next base by order, or its variant for the plan
+ * the view names, as the engine reads the lean again at the close; without one, the way out the current
+ * chapter follows stands for it.
  */
-function chapterAfter(current: Id<"chapter">): ChapterEntry | undefined {
+function chapterAfter(current: Id<"chapter">, lean: Id<"route"> | null): ChapterEntry | undefined {
   const entry = content.chapter[current];
   const base = entry?.variantOf === undefined ? entry : content.chapter[entry.variantOf];
   if (base === undefined) return undefined;
@@ -48,7 +52,7 @@ function chapterAfter(current: Id<"chapter">): ChapterEntry | undefined {
     .filter((candidate) => candidate.variantOf === undefined && candidate.order > base.order)
     .sort((a, b) => a.order - b.order)[0];
   if (next === undefined) return undefined;
-  const route = entry?.route;
+  const route = lean ?? entry?.route;
   return (route === undefined ? undefined : Object.values(content.chapter).find((candidate) => candidate.variantOf === next.id && candidate.route === route)) ?? next;
 }
 
@@ -57,11 +61,11 @@ function chapterAfter(current: Id<"chapter">): ChapterEntry | undefined {
  * as the view marks them; once every step is met, the next by content's order, which opens when the
  * month ends, its steps not yet marked.
  */
-export function chapterAhead(chapter: PlayerView["chapter"]): { id: Id<"chapter">; now: boolean; items: { id: string; met: boolean }[] } | null {
+export function chapterAhead(chapter: PlayerView["chapter"], lean: Id<"route"> | null = null): { id: Id<"chapter">; now: boolean; items: { id: string; met: boolean }[] } | null {
   const current = chapter.current;
   if (current === null) return null;
   if (chapter.items.some((item) => !item.met)) return { id: current, now: true, items: chapter.items };
-  const next = chapterAfter(current);
+  const next = chapterAfter(current, lean);
   return next === undefined ? null : { id: next.id, now: false, items: next.items.map((item) => ({ id: item.id, met: false })) };
 }
 
@@ -95,12 +99,13 @@ function nextStepWords(ahead: NonNullable<ReturnType<typeof chapterAhead>>): str
 
 /**
  * R-ADVICE-002: the route whose official page can be read now: the plan's route when the page
- * offers it, else the first route the page offers (a route only heard of, before any plan).
+ * offers it (the plan the chapters follow, R-CHAPTER-009, else the figure's), else the first route
+ * the page offers (a route only heard of, before any plan).
  */
 export function officialRoute(view: PlayerView): string | null {
   const official = view.activities.find((option) => option.id === OFFICIAL);
   if (official?.allowed !== true || official.params === null || official.params.length === 0) return null;
-  const planned = planRoute(view)?.id;
+  const planned = view.plan.route ?? planRoute(view)?.id;
   return planned !== undefined && official.params.includes(planned) ? planned : (official.params[0] ?? null);
 }
 
@@ -160,7 +165,7 @@ export function moveCosts(route: RouteView): MoveCost[] {
   ];
 }
 
-/** What is coming up: the visa decision, and each paper on its way. */
+/** What is coming up: the visa decision, each paper on its way, and the plan's marks. */
 export function remindersOf(view: PlayerView): string[] {
   const out: string[] = [];
   for (const route of view.routes) {
@@ -169,6 +174,7 @@ export function remindersOf(view: PlayerView): string[] {
   for (const paper of view.documents) {
     if (paper.state === "pending" && paper.readyMonth !== null) out.push(phoneWords("phone.japa.paper-ready", { paper: nameOf(paper.id), when: inMonths(paper.readyMonth, view.month) }));
   }
+  for (const mark of planMarks(view)) out.push(phoneWords("phone.japa.mark", { what: mark.what, when: inMonths(mark.month, view.month) }));
   return out;
 }
 
@@ -237,7 +243,7 @@ function NextStep({ step }: { step: string }) {
 /** After the flight (R-WORLD-019): the visa held and what it lets you do, then the landing's steps. */
 function Abroad({ view, onPapers }: { view: PlayerView; onPapers: () => void }) {
   const held = view.status;
-  const ahead = chapterAhead(view.chapter);
+  const ahead = chapterAhead(view.chapter, view.plan.route);
   const next = ahead?.now === true ? nextStepWords(ahead) : null;
   const lets = held === null ? null : blurbOf(held.entry);
   return (
@@ -282,6 +288,25 @@ function Abroad({ view, onPapers }: { view: PlayerView; onPapers: () => void }) 
   );
 }
 
+/** "Your plan: Care work in the UK", the route's name its own element, with the file its chapters build beneath. */
+function PlanHead({ route }: { route: Id<"route"> }) {
+  const [before = "", after = ""] = phoneWords("phone.japa.plan", { route: "\u0000" }).split("\u0000");
+  return (
+    <>
+      <div className="title truncate text-[15px]" data-japa-plan={route}>
+        {before}
+        <span data-japa-route={route}>{nameOf(route)}</span>
+        {after}
+      </div>
+      {hasWords(`${route}.file`) ? (
+        <div className="text-[12px] font-bold opacity-85" data-japa-file>
+          {say(`${route}.file`)}
+        </div>
+      ) : null}
+    </>
+  );
+}
+
 function PapersButton({ view, onOpen }: { view: PlayerView; onOpen: () => void }) {
   const held = view.documents.filter((paper) => paper.state === "held").length;
   return (
@@ -299,6 +324,7 @@ function PapersButton({ view, onOpen }: { view: PlayerView; onOpen: () => void }
 export function Japa() {
   const view = useView();
   const [papers, setPapers] = useState(false);
+  const [page, setPage] = useState<Id<"route"> | null>(null);
   // R-ADVICE-002: the official page can be read from the phone: it goes into the month like the hub's desk would put it.
   const addToPlan = useGame((state) => state.addToPlan);
   const plan = useGame((state) => state.plan);
@@ -311,19 +337,29 @@ export function Japa() {
     );
   }
   if (view.place.where === "abroad") return <Abroad view={view} onPapers={() => setPapers(true)} />;
+  if (page !== null) {
+    return (
+      <div data-phone-app="japa">
+        <RoutePage route={page} onClose={() => setPage(null)} back={phoneWords("phone.app.japa")} onSaid={said} />
+      </div>
+    );
+  }
   const route = planRoute(view);
-  const head = headRoute(view);
+  // R-CHAPTER-009: the head names the plan the chapters follow; with none, the way the nudge reads.
+  const lean = view.plan.route;
+  const head = lean === null ? headRoute(view) : (view.routes.find((each) => each.id === lean) ?? null);
+  const others = lean === null ? [] : view.plan.ways.filter((way) => way.route !== lean);
   const costs = route === null ? [] : moveCosts(route);
   const lookInto = view.ended ? null : officialRoute(view);
   const planned = lookInto !== null && plan.some((pick) => pick !== null && pick.activity === OFFICIAL && pick.param === lookInto);
   const percent = view.japacity.percent;
   const coming = remindersOf(view);
   // Once a visa is granted the plan is done but the story is not: the next step, the plane, is named.
-  const ahead = view.routes.some((candidate) => candidate.state === "granted") ? chapterAhead(view.chapter) : null;
+  const ahead = view.routes.some((candidate) => candidate.state === "granted") ? chapterAhead(view.chapter, lean) : null;
   const next = ahead === null ? null : nextStepWords(ahead);
   // The page offered may be about another way than the plan's: then it stands under its own heading,
   // after the plan's costs, and names its route, so Canada is never offered under the UK.
-  const otherWay = lookInto !== null && route !== null && lookInto !== route.id;
+  const otherWay = lookInto !== null && route !== null && lookInto !== (lean ?? route.id);
   const officialCard =
     lookInto === null ? null : (
       <button
@@ -349,9 +385,13 @@ export function Japa() {
           <div className="label label-strong" data-japa-label>
             {phoneWords("phone.japa.label")}
           </div>
-          <div className="title truncate text-[15px]" data-japa-route={head?.id ?? ""}>
-            {head === null ? phoneWords("phone.japa.none") : nameOf(head.id)}
-          </div>
+          {lean === null || head === null ? (
+            <div className="title truncate text-[15px]" data-japa-route={head?.id ?? ""}>
+              {head === null ? phoneWords("phone.japa.none") : nameOf(head.id)}
+            </div>
+          ) : (
+            <PlanHead route={head.id} />
+          )}
           {/* The figure's one name says once what it means, where the figure shows. */}
           {percent === null ? null : (
             <div className="mt-0.5 text-[12px] opacity-85" data-japa-gloss>
@@ -370,6 +410,24 @@ export function Japa() {
       {view.japacity.route === null || view.japacity.route === head?.id ? null : <p className="mt-1 text-[12px] text-text-2">{say("ui.japacity.of", { route: runningName(view.japacity.route) })}</p>}
       {next === null ? null : <NextStep step={next} />}
       {ahead === null ? <ChapterSteps chapter={view.chapter} /> : null}
+      {others.length === 0 ? null : (
+        <div data-japa-others>
+          <Head>{phoneWords("phone.japa.others")}</Head>
+          <ul className="flex flex-col gap-1.5">
+            {others.map((way) => (
+              <li key={way.route}>
+                <button type="button" onClick={() => setPage(way.route)} className="press flex w-full items-center gap-2.5 rounded-[6px] border border-sheet-line bg-sheet-2 px-3 py-2.5 text-left" data-other-way={way.route}>
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate text-[14px] font-bold">{nameOf(way.route)}</span>
+                    <span className="block text-[13px] text-text-2">{say(`ui.route.state.${view.routes.find((held) => held.id === way.route)?.state ?? "heard"}`)}</span>
+                  </span>
+                  <ChevronRight size={16} className="shrink-0 text-text-2" aria-hidden />
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       {coming.length === 0 ? null : (
         <>

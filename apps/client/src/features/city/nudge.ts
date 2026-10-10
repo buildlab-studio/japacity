@@ -295,6 +295,8 @@ function startedKey(view: NudgeView, own: string, stepKey: string, planned: read
       if (has(`${own}.started`)) return { key: `${own}.started`, params: { when: inMonths(held.readyMonth ?? month, month) } };
     }
   }
+  // The trader's shop planned at her stall (R-ACTIVITY-016): the job step has no hunt to name, so its own planned words say it.
+  if (stepKey === "chapter.find-your-feet.job" && planned.includes("activity.open-shop") && has(`${own}.planned.open-shop`)) return { key: `${own}.planned.open-shop` };
   const activity = STEP_ACTIVITY[stepKey];
   if (activity !== undefined) {
     // Planned this month: the step waits on the month's end, not on another tap.
@@ -369,6 +371,8 @@ export function nudgeOf(view: NudgeView, has: (key: string) => boolean = hasWord
   // dues pass the country's money held, that line says the gap.
   // Once News has been read for this month's report, the line waits no more.
   if (!newsRead && view.report !== null && tidyLines(view.report.lines).some(asksAttention)) return { key: "ui.nudge.report", about: "report" };
+  // A chapter with every item met closes when the month ends: say that, never a goal's act over it.
+  if (view.chapter.current !== null && has("ui.nudge.chapter-done")) return { key: "ui.nudge.chapter-done", about: "end" };
   // With no chapter step left, the nearest open goal names its first act (R-GOAL-003).
   const goal = view.goals?.open.find((open) => open.items.some((item) => !item.met) && has(`${open.id}.first`));
   if (goal !== undefined) return { key: `${goal.id}.first`, about: "goal" };
