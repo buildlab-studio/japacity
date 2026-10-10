@@ -1,5 +1,6 @@
 // The prologue in the situation's words: no threshold on a greyed
-// answer, no figure in what an answer moved, and a handover that names the first step and the real band.
+// answer, no figure in what an answer moved, and a page as the handover (R-PROLOGUE-014) that names the first step,
+// the money as it stands, and the story's facts as chips.
 import { content } from "@japacity/content";
 import type { ReportLine } from "@japacity/sim";
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
@@ -8,7 +9,7 @@ import { describe, expect, test } from "vitest";
 import { App } from "../../App";
 import { createGameStore } from "../../authority/store";
 import { gameAuthority, newGame } from "../../shared/testing/fixtures";
-import { valueWords } from "../../shared/words/quality";
+import { formatMoney } from "../../shared/words/format";
 import { say, words } from "../../shared/words/text";
 import { firstStep, situationLine, whyNot } from "./PrologueView";
 // Registers Testing Library's cleanup for this file.
@@ -16,7 +17,11 @@ import "../../shared/testing/render";
 import { onTheClassicPage } from "../../shared/testing/classic";
 
 const PROLOGUE = "scenario.prologue";
-const WELLBEING = "quality.wellbeing";
+
+/** The text of a story chip on the page, or "" when the page has none of that kind. */
+function storyChip(id: string): string {
+  return document.querySelector(`[data-handover-story] [data-fact='${id}']`)?.textContent ?? "";
+}
 
 onTheClassicPage();
 
@@ -101,8 +106,8 @@ describe("what an answer moved", () => {
   });
 });
 
-describe("the handover", () => {
-  test("[R-PROLOGUE-006] given the last card answered, when the handover shows, then it names the story's first step above its button, and the wellbeing is the band of the life as it stands", async () => {
+describe("the page as the handover", () => {
+  test("[R-PROLOGUE-006] [R-PROLOGUE-014] given the last card answered, when the page shows, then it names the story's first step above its button, and the money is the life's as it stands", async () => {
     const { game } = await walk("prologue-first", (allowed) => allowed[0] ?? "");
     await screen.findByRole("heading", { name: words("line.prologue.closed") });
     const view = game.view();
@@ -111,8 +116,7 @@ describe("the handover", () => {
     expect(document.querySelector("[data-first-step]")?.textContent).toBe(`Your first step: ${step ?? ""}.`);
     const go = screen.getByRole("button", { name: say("ui.prologue.start", { month: 1 }) });
     expect(go.previousElementSibling).toBe(document.querySelector("[data-first-step]"));
-    const wellbeing = view.qualities.find((quality) => quality.id === WELLBEING)?.value ?? -1;
-    expect(document.querySelector("[data-life-so-far]")?.textContent).toContain(valueWords(WELLBEING, wellbeing));
+    expect(document.querySelector("[data-stat='money']")?.textContent).toBe(`${formatMoney(view.pockets.NGN.bank + view.pockets.NGN.cash, "NGN")}${say("ui.page.money")}`);
   });
 });
 
@@ -129,27 +133,27 @@ describe("the life from sixteen keeps the story its prologue built", () => {
     expect(afterSettlement).not.toContain("side work");
   });
 
-  test("[R-TEXT-005] [R-PROLOGUE-010] given a trader settled generously, in a room of his own, when the handover shows, then land is said in words, the capital is named with what it can do now, the room and its living costs are said, and the motor park comes first", async () => {
+  test("[R-TEXT-005] [R-PROLOGUE-010] [R-PROLOGUE-014] given a trader settled generously, in a room of his own, when the page shows, then the settlement's plot is said in words with no figure, the capital is a chip with its sum, the room and its living costs are said, and the motor park comes first", async () => {
     const { game } = await walk("sixteen-0", trader);
     await screen.findByRole("heading", { name: words("line.prologue.closed") });
     const view = game.view();
     expect(view.qualities.find((quality) => quality.id === "quality.land")?.value).toBe(1);
-    const held = [...document.querySelectorAll("[data-life-so-far] dd")].map((value) => value.textContent);
-    expect(held).toContain(say("ui.band.quality.land.1"));
-    expect(held.filter((value) => /\d/.test(value))).toEqual([]);
-    const story = document.querySelector("[data-handover-story]")?.textContent ?? "";
-    expect(story).toContain("₦6,000,000 in hand, the shop's capital. It is the move's money now, if you want it to be.");
-    expect(story).toContain("You sleep in a room of your own. Living costs: ₦180,000 a month.");
+    const settlement = document.querySelector("[data-years] [data-fact='settlement']");
+    expect(settlement?.textContent).toBe(`${say("ui.page.year.settlement")}${say("ui.page.year.settlement.generous")}`);
+    expect(settlement?.textContent).toMatch(/plot/);
+    expect(settlement?.textContent).not.toMatch(/\d/);
+    expect(storyChip("capital")).toBe("A shop's capital₦6,000,000");
+    expect(storyChip("home")).toBe("A room of your own₦180,000 a month");
     // the Gulf is heard at the motor park, so a trade's first step is there, not at the meetup.
     expect(document.querySelector("[data-first-step]")?.textContent).toBe("Your first step: Ask around at the motor park.");
   });
 
-  test("[R-PROLOGUE-008] given a graduate at the family house, when the handover shows, then it says where he sleeps and what it costs, and speaks of no shop's capital", async () => {
+  test("[R-PROLOGUE-008] [R-PROLOGUE-014] given a graduate at the family house, when the page shows, then it says where he sleeps and what it costs, and speaks of no shop's capital", async () => {
     await walk("prologue-first", (allowed) => allowed[0] ?? "");
     await screen.findByRole("heading", { name: words("line.prologue.closed") });
-    const story = document.querySelector("[data-handover-story]")?.textContent ?? "";
-    expect(story).toContain("You sleep in the family house. Living costs: ₦95,000 a month.");
-    expect(story).not.toMatch(/capital/);
+    expect(storyChip("home")).toBe("Family house₦95,000 a month");
+    expect(storyChip("capital")).toBe("");
+    expect(document.querySelector("[data-handover-story]")?.textContent).not.toMatch(/capital/);
   });
 });
 
@@ -191,15 +195,17 @@ describe("the handover says the archetype's own first step", () => {
     throw new Error("No seed in 40 lands there.");
   }
 
-  test("[R-PROLOGUE-010] given a graduate whose grade is under second class lower, when the handover shows, then one line says the master's and the bank are shut and the talent route is not", async () => {
+  test("[R-PROLOGUE-010] [R-PROLOGUE-014] given a graduate whose grade is under second class lower, when the page shows, then a setback chip says the master's and the bank are shut", async () => {
     await walk(seedWhose(true), loose);
     await screen.findByRole("heading", { name: words("line.prologue.closed") });
-    expect(document.querySelector("[data-handover-story]")?.textContent).toContain("Your grade keeps the master's and the bank shut. The talent route reads your work, not your grade.");
+    expect(storyChip("grade")).toBe("GradeMaster's and bank shut");
+    expect(document.querySelector("[data-handover-story] [data-fact='grade']")?.getAttribute("data-state")).toBe("setback");
   });
 
-  test("[R-PROLOGUE-010] given a graduate at the bar, when the handover shows, then no line speaks of the grade", async () => {
+  test("[R-PROLOGUE-010] [R-PROLOGUE-014] given a graduate at the bar, when the page shows, then no chip speaks of the grade", async () => {
     await walk(seedWhose(false), loose);
     await screen.findByRole("heading", { name: words("line.prologue.closed") });
-    expect(document.querySelector("[data-handover-story]")?.textContent).not.toMatch(/grade/);
+    expect(storyChip("grade")).toBe("");
+    expect(document.querySelector("[data-handover-story]")?.textContent).not.toMatch(/grade/i);
   });
 });

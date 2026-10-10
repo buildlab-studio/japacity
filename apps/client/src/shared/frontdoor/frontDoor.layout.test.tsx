@@ -1,5 +1,6 @@
-// The archetypes' sheet as a first-time player meets it (prologue.md R-PROLOGUE-009, 010):
-// the ready lives in reach above the six tiles, and each tile its own age.
+// The second screen as a first-time player meets it (prologue.md R-PROLOGUE-010, 013): the
+// tiles with the first chosen, each with its tag, its own age and the routes it opens in words, the age under them,
+// and no ready life (they are behind Settings).
 import { render } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
@@ -16,17 +17,22 @@ function memoryStorage() {
   return { getItem: (key: string) => items.get(key) ?? null, setItem: (key: string, value: string) => void items.set(key, value) };
 }
 
-describe("the archetypes' sheet", () => {
-  test("[R-PROLOGUE-009] [R-PROLOGUE-010] given the sheet of what you did, then the ready lives' row comes before the six tiles, and each tile says the age its life hands over at", async () => {
+describe("Your life so far", () => {
+  test("[R-PROLOGUE-010] [R-PROLOGUE-013] given the second screen, then no ready life is on it, the tiles come first with the first chosen, each tile says its tag, what it was, the routes it opens and the age it hands over at, and the age stands under them", async () => {
     render(<App store={bootGame({ storage: memoryStorage(), fastClock: true, makeSeed: () => "front-door-layout" })} />);
     await toTheArchetypes();
-    const ready = document.querySelector("[data-ready-card]");
+    expect(document.querySelector("[data-ready-card], [data-ready], [data-ready-entry]")).toBeNull();
+    expect(document.body.textContent).not.toContain(say("ui.door.ready"));
     const tiles = document.querySelector("[data-archetypes]");
-    if (ready === null || tiles === null) throw new Error("No ready row or no tiles.");
-    expect(ready.compareDocumentPosition(tiles) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(ready.textContent).toContain(say("ui.door.ready"));
-    for (const archetype of ARCHETYPES) {
-      expect(document.querySelector(`[data-archetype='${archetype.id}']`)?.textContent).toMatch(/Hands over at about \d+/);
+    const age = document.querySelector("[data-door-age]");
+    if (tiles === null || age === null) throw new Error("No tiles or no age.");
+    expect(tiles.compareDocumentPosition(age) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    for (const [at, archetype] of ARCHETYPES.entries()) {
+      const tile = document.querySelector<HTMLElement>(`[data-archetype='${archetype.id}']`)!;
+      expect(tile.getAttribute("aria-checked")).toBe(at === 0 ? "true" : "false");
+      expect([...tile.children].map((line) => line.textContent)).toEqual([say(`ui.door.tag.${archetype.id}`), say(`prologue.archetype.${archetype.id}.name`), say(`prologue.archetype.${archetype.id}.was`), say(`prologue.archetype.${archetype.id}.opens`)]);
+      expect(tile.textContent).toMatch(/Opens: .+Hands over at about \d+/);
     }
+    expect(new Set(ARCHETYPES.map((archetype) => say(`ui.door.tag.${archetype.id}`)))).toEqual(new Set(["Balanced", "Head start", "Money first", "Hard start"]));
   });
 });

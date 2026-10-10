@@ -8,7 +8,7 @@ import { afterEach, describe, expect, test } from "vitest";
 import { App, classicAsked } from "./App";
 import { bootGame } from "./authority/boot";
 import { mapWords } from "./features/map/map.words";
-import { startReadyLife } from "./shared/frontdoor/frontDoor.testing";
+import { askReadyLives, startReadyLife } from "./shared/frontdoor/frontDoor.testing";
 import { say } from "./shared/words/text";
 // Registers Testing Library's cleanup for this file.
 import "./shared/testing/render";
@@ -19,8 +19,9 @@ function memoryStorage() {
 }
 
 async function startLife(): Promise<void> {
+  // Through the front door to the first ready life, on a run Settings asked for (R-PROLOGUE-013).
+  askReadyLives();
   render(<App store={bootGame({ storage: memoryStorage(), fastClock: true })} />);
-  // Through the front door to the first ready life (R-PROLOGUE-009).
   await startReadyLife(Object.keys(content.scenario)[0]!);
 }
 

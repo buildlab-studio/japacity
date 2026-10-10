@@ -1,6 +1,6 @@
-// The front door in the app, on the real content (prologue.md R-PROLOGUE-009, 010): a person built over the family
-// compound from a look, a typed name with three from the pool and an archetype, never a named life picked; the preset
-// played for the archetype and only its open cards shown; the handover saying who the person is; the
+// The front door in the app, on the real content (prologue.md R-PROLOGUE-009, 010, 013, 014): a person built over the
+// family compound from a look, a name filled from the pool (a dice, or typed) and an archetype, never a named life
+// picked; the preset played for the archetype with no card; the page as the handover saying who the person is; the
 // look kept beside the save and drawn by the city and the rides.
 import { content, namePool, text } from "@japacity/content";
 import type { Id } from "@japacity/sim";
@@ -19,9 +19,9 @@ import { say, words } from "./shared/words/text";
 import { ownFile } from "./features/city/City";
 import { ROSTER } from "./features/city/roster";
 import { ownLook } from "./features/map/Ride";
-import { answersInOrder, ARCHETYPES, archetypeOf, FULL_PROLOGUE_KEY } from "./shared/frontdoor/archetypes";
-import { nameAndBegin, startArchetype, startReadyLife, toTheArchetypes } from "./shared/frontdoor/frontDoor.testing";
-import { LOOKS, namesFor, NAMES_SHOWN } from "./shared/frontdoor/looks";
+import { ARCHETYPES, archetypeOf, FULL_PROLOGUE_KEY } from "./shared/frontdoor/archetypes";
+import { askReadyLives, begin, startArchetype, startReadyLife, toTheArchetypes } from "./shared/frontdoor/frontDoor.testing";
+import { LOOKS, lookOf, namesFor, NAMES_SHOWN } from "./shared/frontdoor/looks";
 // Registers Testing Library's cleanup for this file.
 import "./shared/testing/render";
 
@@ -79,7 +79,7 @@ afterEach(() => {
 });
 
 describe("the front door", () => {
-  test("[R-PROLOGUE-009] given no save, when the game opens, then the family compound stands under a sheet that asks who you are, with the look strip in two rows of the city's passers-by, the name typed on a screen of its own under three names, and no named life anywhere", async () => {
+  test("[R-PROLOGUE-009] [R-PROLOGUE-013] given no save, when the game opens, then the family compound stands under a sheet that asks who you are, with a name already filled from the pool and the look strip in two rows of the city's passers-by on the same screen, and no named life anywhere", async () => {
     door();
     expect(await screen.findByRole("heading", { name: say("ui.life.title") }, { timeout: 10_000 })).toBeDefined();
     // Never a bare page: the compound is under every sheet of the door.
@@ -92,53 +92,44 @@ describe("the front door", () => {
     expect(LOOKS.map((look) => look.file).sort()).toEqual([...passersBy].sort());
     for (const id of ["chr_ada", "chr_tunde", "chr_zainab", "chr_ngozi", "chr_tobi", "chr_femi", "chr_kemi", "chr_bisi"]) expect(LOOKS.some((look) => look.id === id)).toBe(true);
     for (const id of ["chr_hawker_a", "chr_corper", "chr_chief", "chr_rider", "chr_iya"]) expect(LOOKS.some((look) => look.id === id)).toBe(false);
-    // One question a screen: the look's sheet holds no name.
-    expect(document.querySelector("input")).toBeNull();
+    // The name and the look share the first screen; the name is filled already, never one of a starting life's people.
+    const box = screen.getByRole<HTMLInputElement>("textbox", { name: say("prologue.door.name.title") });
+    expect(box.value.length).toBeGreaterThan(1);
+    expect(NAMED).not.toContain(box.value);
 
     const said: string[] = [sheet().textContent];
     await toTheArchetypes();
     said.push(sheet().textContent);
     expect(document.querySelector("[data-gate] [data-front-scene]")).not.toBeNull();
-    fireEvent.click(screen.getByRole("button", { name: new RegExp(`^${say("ui.door.ready")}`) }));
-    said.push(sheet().textContent);
-    expect(document.querySelector("[data-gate] [data-front-scene]")).not.toBeNull();
-    // No starting life's person is offered: not by full name, and no name to take is one of theirs.
+    // No starting life's person is offered: not by full name.
     const fullNames = FIXED.map((id) => text[`${id}.name`] ?? "");
     expect(said.filter((words) => fullNames.some((name) => words.includes(name)))).toEqual([]);
-    fireEvent.click(screen.getByRole("button", { name: say("ui.door.back") }));
-    fireEvent.click(screen.getByRole("button", { name: say("prologue.archetype.writer.name") }));
-    // The name is typed (the review), with three names from the pool under the box.
-    expect(screen.getByRole("textbox", { name: say("prologue.door.name.title") })).toBeDefined();
-    const offered = within(screen.getByRole("group", { name: say("prologue.door.name.suggested") })).getAllByRole("button").map((button) => button.textContent);
-    expect(offered).toHaveLength(NAMES_SHOWN);
-    expect(offered.filter((name) => NAMED.includes(name))).toEqual([]);
-    said.push(sheet().textContent);
     expect(said.join(" ")).not.toContain(say("ui.life.start"));
   });
 
-  test("[R-PROLOGUE-009] given a look tapped, then the character at the gate wears it, and the three names under the name box, and three more on a reroll, come from the pool for that look's sex", async () => {
+  test("[R-PROLOGUE-009] [R-PROLOGUE-013] given a look tapped, then the character at the gate wears it, and the name filled, and each name the dice gives, comes from the pool for that look's sex and is no starting life's person", async () => {
     door();
+    const box = () => screen.getByRole<HTMLInputElement>("textbox", { name: say("prologue.door.name.title") });
     for (const look of [LOOKS.find((one) => one.sex === "m")!, LOOKS.find((one) => one.sex === "f")!]) {
       fireEvent.click(document.querySelector(`[role="radio"][data-look="${look.id}"]`)!);
       expect(document.querySelector("[data-gate]")?.getAttribute("data-look")).toBe(look.id);
-      await toTheArchetypes();
-      fireEvent.click(screen.getByRole("button", { name: say("prologue.archetype.writer.name") }));
-      expect(document.querySelector("[data-gate]")?.getAttribute("data-look")).toBe(look.id);
-      const shown = () => within(screen.getByRole("group", { name: say("prologue.door.name.suggested") })).getAllByRole("button").map((button) => button.textContent);
-      const first = shown();
-      fireEvent.click(screen.getByRole("button", { name: say("ui.door.reroll") }));
-      const second = shown();
-      expect(second).not.toEqual(first);
-      for (const name of [...first, ...second]) {
+      const names = [box().value];
+      for (let roll = 0; roll < 6; roll += 1) {
+        fireEvent.click(screen.getByRole("button", { name: say("ui.door.reroll") }));
+        names.push(box().value);
+      }
+      expect(new Set(names).size).toBeGreaterThan(3);
+      for (const name of names) {
         const sexes = sexOfName(name);
         expect(sexes.size).toBeGreaterThan(0);
         expect(sexes.has(look.sex) || sexes.has("either")).toBe(true);
         expect(NAMED).not.toContain(name);
       }
-      expect(new Set(first).size).toBe(NAMES_SHOWN);
-      fireEvent.click(screen.getByRole("button", { name: say("ui.door.back") }));
+      await toTheArchetypes();
+      expect(document.querySelector("[data-gate]")?.getAttribute("data-look")).toBe(look.id);
       fireEvent.click(screen.getByRole("button", { name: say("ui.door.back") }));
     }
+    expect(lookOf(document.querySelector("[data-gate]")?.getAttribute("data-look"))?.sex).toBe("f");
   });
 
   test("[R-PROLOGUE-009] given many rolls, then every name offered is a pool name that suits the look, and three differ each time", () => {
@@ -152,6 +143,7 @@ describe("the front door", () => {
   });
 
   test("[R-PROLOGUE-009] given a look picked, a name typed and a ready life begun, then the person is kept beside the save under its one key, and the city and the rides draw that look", async () => {
+    askReadyLives();
     const { store, storage } = door();
     const look = LOOKS.find((one) => one.id === "chr_femi")!;
     fireEvent.click(document.querySelector(`[role="radio"][data-look="${look.id}"]`)!);
@@ -166,10 +158,11 @@ describe("the front door", () => {
     expect(ownFile("scenario.ngozi", null)).toBe("shared/chr/chr_ngozi.glb");
   });
 
-  test("[R-PROLOGUE-009] given the ready lives' card, then the five fixed lives show unnamed by their kind and blurb, each with Pick, and a pick goes on to the name and the page, whose Begin starts that life", async () => {
+  test("[R-PROLOGUE-013] given a run Settings asked for, then its second screen lists the five fixed lives unnamed by their kind and blurb, each with Pick, and a pick goes on to the page, whose Begin starts that life", async () => {
+    askReadyLives();
     const { store } = door();
-    await toTheArchetypes();
-    fireEvent.click(screen.getByRole("button", { name: new RegExp(`^${say("ui.door.ready")}`) }));
+    await screen.findByRole("heading", { name: say("ui.life.title") }, { timeout: 10_000 });
+    fireEvent.click(screen.getByRole("button", { name: new RegExp(`^${say("ui.door.next")}`) }));
     const lives = [...document.querySelectorAll<HTMLElement>("[data-ready-life]")];
     expect(lives.map((life) => life.dataset["readyLife"])).toEqual(FIXED);
     expect(FIXED).toHaveLength(5);
@@ -180,13 +173,16 @@ describe("the front door", () => {
       expect(within(life).getByRole("button", { name: `${say("prologue.door.pick")}: ${say(`${id}.kind`)}` })).toBeDefined();
       for (const word of [" he ", " she ", " his ", " her ", " him "]) expect(` ${text[`${id}.blurb`] ?? ""} `.toLowerCase()).not.toContain(word);
     }
+    // No starting life's person is named on the list.
+    const fullNames = FIXED.map((id) => text[`${id}.name`] ?? "");
+    expect(fullNames.filter((name) => sheet().textContent.includes(name))).toEqual([]);
     fireEvent.click(screen.getByRole("button", { name: `${say("prologue.door.pick")}: ${say("scenario.tunde.kind")}` }));
-    await nameAndBegin();
+    await begin();
     await waitFor(() => expect(store.getState().view?.scenario).toBe("scenario.tunde"));
     expect(store.getState().view?.prologue).toBeNull();
   });
 
-  test("[R-PROLOGUE-009] given the six archetypes, then each tile says its name, one line of what it was and one line of what it opens, and no more", async () => {
+  test("[R-PROLOGUE-010] [R-PROLOGUE-013] given the seven archetypes, then each tile says its tag, its name, one line of what it was and one line of what it opens, and no more", async () => {
     door();
     await toTheArchetypes();
     const tiles = [...document.querySelectorAll<HTMLElement>("[data-archetype]")];
@@ -194,58 +190,47 @@ describe("the front door", () => {
     for (const tile of tiles) {
       const id = tile.dataset["archetype"]!;
       const lines = [...tile.children].map((line) => line.textContent);
-      expect(lines).toEqual([say(`prologue.archetype.${id}.name`), say(`prologue.archetype.${id}.was`), say(`prologue.archetype.${id}.opens`)]);
-      expect(lines[2]).toMatch(/^Opens: /);
+      expect(lines).toEqual([say(`ui.door.tag.${id}`), say(`prologue.archetype.${id}.name`), say(`prologue.archetype.${id}.was`), say(`prologue.archetype.${id}.opens`)]);
+      expect(lines[3]).toMatch(/^Opens: /);
     }
   });
 });
 
 describe("a life from sixteen built from an archetype", () => {
-  test("[R-PROLOGUE-010] given the nurse's tile, when the prologue opens, then the client sends the preset for her, the cards she leaves open show over the compound with a short beat, and the handover names her and her archetype above the home and the first step", async () => {
+  test("[R-PROLOGUE-010] [R-PROLOGUE-014] given the nurse's tile, when the prologue opens, then the client sends her preset at every step with no card, the page fills over the compound, and as the handover it names her and her archetype above the family, the years and the first step", async () => {
     const nurse = archetypeOf("nurse")!;
     const { store, storage } = door();
     await startArchetype("nurse");
-    const shown: string[] = [];
-    let beat = false;
-    for (let guard = 0; guard < 40; guard += 1) {
-      await waitFor(() => {
-        const view = store.getState().view;
-        if (view?.prologue === null) return;
-        if (document.querySelector("[data-prologue-card]") === null) throw new Error("No card yet.");
-      });
-      const view = store.getState().view!;
-      if (view.prologue === null) break;
-      const prologue = view.prologue;
-      shown.push(prologue.step);
-      expect(document.querySelector("[data-gate] [data-front-scene]")).not.toBeNull();
-      expect(screen.getByRole("heading", { name: words(`prologue.${prologue.step}.card`) })).toBeDefined();
-      beat ||= document.querySelector("[data-beat]") !== null;
-      const answer = answersInOrder(nurse, prologue.step, prologue.answers).find((one) => one.allowed)!;
-      const card = document.querySelector<HTMLElement>("[data-prologue-card]")!;
-      const v = view.v;
-      fireEvent.click(within(card).getByRole("button", { name: words(`prologue.${prologue.step}.answer.${answer.id}`) }));
-      await waitFor(() => expect(store.getState().view?.v).toBeGreaterThan(v));
-    }
-    expect(store.getState().view?.prologue).toBeNull();
-    // Only the cards the nurse leaves open: the exam's way (and a retake), the strike, the send-off, where to sleep.
-    expect(shown.filter((step) => !["exam", "retake", "strike", "friend", "home"].includes(step))).toEqual([]);
-    expect(shown).toContain("exam");
-    expect(shown.at(-1)).toBe("home");
-    expect(beat).toBe(true);
-    // Every step the nurse names was sent with her answer.
+    let card = false;
+    await waitFor(
+      () => {
+        card ||= document.querySelector("[data-prologue-card]") !== null;
+        if (store.getState().view?.prologue !== null || document.querySelector("[data-page-handover]") === null) throw new Error("The years are still going by.");
+      },
+      { timeout: 10_000, interval: 5 },
+    );
+    expect(card).toBe(false);
+    expect(document.querySelector("[data-gate] [data-front-scene]")).not.toBeNull();
+    // Every step was sent with one of her answers, the exam, the strike, the send-off and the home included.
     const raw = JSON.parse(storage.getItem(SAVE_KEY)!) as { save: Parameters<typeof savedCommands>[0] };
     const chosen = savedCommands(raw.save).flatMap(({ command }) => (command.type === "prologue/choose" ? [command] : []));
     expect(chosen.filter(({ step, answer }) => nurse.preset[step] !== undefined && !(nurse.preset[step] ?? []).includes(answer))).toEqual([]);
-    expect(chosen.map((command) => command.step)).toEqual(expect.arrayContaining(["subjects", "after-school", "course", "side-skill", "hustle", "service"]));
+    expect(chosen.map((command) => command.step)).toEqual(expect.arrayContaining(["subjects", "after-school", "exam", "course", "strike", "side-skill", "hustle", "service", "friend", "home"]));
 
     const person = readPerson()!;
-    const handover = await screen.findByRole("heading", { name: person.name }, { timeout: 10_000 });
-    expect(handover).toBeDefined();
+    expect(await screen.findByRole("heading", { name: person.name })).toBeDefined();
     const archetypeLine = document.querySelector("[data-handover-archetype]")?.textContent;
     expect(archetypeLine).toBe("The nurse. Science, then nursing school.");
-    const story = document.querySelector("[data-handover-story]")!;
-    expect(archetypeLine === undefined ? -1 : document.body.textContent.indexOf(archetypeLine)).toBeLessThan(document.body.textContent.indexOf(story.textContent));
+    const at = (selector: string): number => {
+      const found = document.querySelector(selector);
+      if (found === null) throw new Error(`No ${selector}.`);
+      return document.body.textContent.indexOf(found.textContent);
+    };
+    expect(at("[data-handover-archetype]")).toBeLessThan(at("[data-family]"));
+    expect(at("[data-family]")).toBeLessThan(at("[data-years]"));
+    expect(document.querySelector("[data-years] [data-fact='university']")?.textContent).toContain(words("prologue.course.answer.nursing"));
     expect(document.querySelector("[data-first-step]")).not.toBeNull();
+    expect(document.querySelector("[data-page] [data-field='path']")?.textContent).toContain(say("prologue.archetype.nurse.name"));
     fireEvent.click(screen.getByRole("button", { name: say("ui.prologue.start", { month: 1 }) }));
     await waitFor(() => expect(document.querySelector("[data-gate]")).toBeNull());
     expect(store.getState().view?.chapter.current).toBe("chapter.find-your-feet");
@@ -278,7 +263,7 @@ describe("a life from sixteen built from an archetype", () => {
   test("[R-PROLOGUE-009] given the front door and then the prologue, when each opens, then each counts its screen once", async () => {
     door();
     await startArchetype("writer");
-    await waitFor(() => expect(document.querySelector("[data-prologue-card]")).not.toBeNull());
+    await waitFor(() => expect(document.querySelector("[data-page-handover]")).not.toBeNull(), { timeout: 10_000 });
     restore();
     restore = () => undefined;
     const screens = rows.filter((row) => row.name === "screen/opened");

@@ -1,18 +1,17 @@
-// The child of the water's first minute (prologue.md R-PROLOGUE-010, R-PROLOGUE-012): its begin
-// card speaks of the lagoon, not of a small town, and its handover's first step is the band's nudge at the same
-// moment, the racks beside the room, with the motor park after. The band's nudge says `RACKS_STEP` while `racksAtHand`
+// The child of the water's first minute (prologue.md R-PROLOGUE-010, R-PROLOGUE-012, R-PROLOGUE-014): its family on the page speaks of the lagoon, not of a small town, and its page's first step is the band's nudge
+// at the same moment, the racks beside the room, with the motor park after. The band's nudge says `RACKS_STEP` while `racksAtHand`
 // holds (features/city/nudge.racks.test.ts), so the handover reads the same shared test and words. Real content, real draws.
-import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { render, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "vitest";
 
 import { App } from "../../App";
 import { keepPerson } from "../../authority/person";
 import { createGameStore } from "../../authority/store";
-import { answersInOrder, archetypeOf, presetAnswer } from "../../shared/frontdoor/archetypes";
+import { archetypeOf, doorAnswer } from "../../shared/frontdoor/archetypes";
 import { gameAuthority, newGame } from "../../shared/testing/fixtures";
 import { RACKS, RACKS_STEP, racksAtHand } from "../../shared/words/sixteen";
-import { say, words } from "../../shared/words/text";
-import { drawSentences, firstStep, PrologueHandover } from "./PrologueView";
+import { say } from "../../shared/words/text";
+import { drawSentences, firstStep, PageHandover } from "./PrologueView";
 // Registers Testing Library's cleanup for this file.
 import { renderWithView } from "../../shared/testing/render";
 
@@ -30,8 +29,8 @@ function play(id: string, seed: string): ReturnType<typeof newGame> {
   const game = newGame(PROLOGUE, seed);
   for (let guard = 0; guard < 40 && game.state.prologue.open; guard += 1) {
     const prologue = game.view().prologue!;
-    const open = presetAnswer(archetype, prologue) ?? answersInOrder(archetype, prologue.step, prologue.answers).find((answer) => answer.allowed)?.id;
-    if (open === undefined) throw new Error(`No open answer at ${prologue.step}.`);
+    const open = doorAnswer(archetype, prologue);
+    if (open === null) throw new Error(`No open answer at ${prologue.step}.`);
     game.accept({ type: "prologue/choose", step: prologue.step, answer: open });
   }
   return game;
@@ -53,21 +52,25 @@ describe("the child of the water's begin card", () => {
     expect(drawSentences(draw, archetypeOf("shop-worker")).slice(0, 2)).toEqual([say("ui.prologue.town.town"), say("ui.prologue.means.low")]);
   });
 
-  test("[R-PROLOGUE-012] [R-PROLOGUE-010] given the child of the water played through the screen, when its one open card shows, then the beat over it is the lagoon's, never a small town", async () => {
+  test("[R-PROLOGUE-012] [R-PROLOGUE-014] given the child of the water played through the screen, when its page fills, then no card shows and the family turned over is the house on stilts in Makoko, never a small town", async () => {
     keepPerson({ look: "chr_ada", name: "Ebi", archetype: "water" });
     const game = newGame(PROLOGUE, "water-begin");
     const store = createGameStore(gameAuthority(game));
     await store.getState().refresh();
     render(<App store={store} />);
-    await screen.findByRole("heading", { name: words("prologue.friend.card") });
-    const beat = document.querySelector("[data-beat]")?.textContent ?? "";
-    expect(beat).toContain(say("prologue.archetype.water.begin.where"));
-    expect(beat).toContain(say("prologue.archetype.water.begin.home"));
-    expect(document.body.textContent).not.toContain(say("ui.prologue.town.town"));
-    expect(document.body.textContent).not.toContain(say("ui.prologue.town.city"));
-    const card = document.querySelector<HTMLElement>("[data-prologue-card]")!;
-    fireEvent.click(within(card).getAllByRole("button")[0]!);
-    await waitFor(() => expect(store.getState().view?.prologue).toBeNull());
+    let card = false;
+    await waitFor(
+      () => {
+        card ||= document.querySelector("[data-prologue-card]") !== null;
+        expect(document.querySelector("[data-family='turned']")).not.toBeNull();
+      },
+      { timeout: 5000 },
+    );
+    expect(card).toBe(false);
+    expect(store.getState().view?.prologue).toBeNull();
+    expect(document.querySelector("[data-family-title]")?.textContent).toBe(say("ui.page.family.water"));
+    expect(document.body.textContent).not.toContain(say("ui.page.family.town"));
+    expect(document.body.textContent).not.toContain(say("ui.page.family.city"));
   });
 });
 
@@ -80,7 +83,7 @@ describe("the child of the water's first step", () => {
       expect(racksAtHand(view)).toBe(true);
       expect(firstStep(view)).toBe(say(RACKS_STEP));
     }
-    await renderWithView(<PrologueHandover onDone={() => undefined} />, play("water", "water-step-0").view());
+    await renderWithView(<PageHandover onDone={() => undefined} />, play("water", "water-step-0").view());
     expect(document.querySelector("[data-first-step]")?.textContent).toBe(say("prologue.handover.first", { step: say(RACKS_STEP) }));
   });
 

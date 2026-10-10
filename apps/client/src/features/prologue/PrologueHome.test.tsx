@@ -5,7 +5,8 @@ import { describe, expect, test } from "vitest";
 import { engineView } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { formatMoney } from "../../shared/words/format";
-import { answerHint, PrologueHandover, PrologueView } from "./PrologueView";
+import { say } from "../../shared/words/text";
+import { answerHint, PageHandover, PrologueView } from "./PrologueView";
 
 /** The living costs an answer of the home card opens, from content. */
 function upkeepOf(answer: string): number {
@@ -32,8 +33,8 @@ describe("the home card", () => {
   });
 });
 
-describe("the handover's home line", () => {
-  test("[R-PROLOGUE-012] given a life that closed on a room in Makoko, when the handover tells where it sleeps, then the line is Makoko's with its rent", async () => {
+describe("the page's home", () => {
+  test("[R-PROLOGUE-012] [R-PROLOGUE-014] given a life that closed on a room in Makoko, when the page tells where it sleeps, then the home chip is Makoko's room with its rent a month", async () => {
     const base = engineView();
     const rent = upkeepOf("makoko");
     const family = base.obligations[0];
@@ -43,7 +44,9 @@ describe("the handover's home line", () => {
       home: { ...base.home, place: "place.makoko" as const, rent: { currency: "NGN" as const, amount: rent } },
       obligations: [{ ...family, entry: "obligation.upkeep-makoko" as const, amount: rent }],
     };
-    await renderWithView(<PrologueHandover onDone={() => undefined} />, view);
-    expect(document.body.textContent).toContain(`You sleep in a room on the water in Makoko. Living costs: ${formatMoney(rent, "NGN")} a month.`);
+    await renderWithView(<PageHandover onDone={() => undefined} />, view);
+    const home = document.querySelector("[data-handover-story] [data-fact='home']");
+    expect(home?.textContent).toBe(`${say("ui.page.home.makoko")}${say("ui.page.home.costs", { amount: formatMoney(rent, "NGN") })}`);
+    expect(home?.textContent).toBe("A room in Makoko₦25,000 a month");
   });
 });

@@ -6,7 +6,7 @@ import { describe, expect, test } from "vitest";
 import { App } from "./App";
 import { bootGame } from "./authority/boot";
 import { SAVE_KEY } from "./authority/local";
-import { startReadyLife } from "./shared/frontdoor/frontDoor.testing";
+import { askReadyLives, startReadyLife } from "./shared/frontdoor/frontDoor.testing";
 import { say } from "./shared/words/text";
 // Registers Testing Library's cleanup for this file.
 import "./shared/testing/render";
@@ -22,11 +22,12 @@ onTheClassicPage();
 
 describe("the app", () => {
   test("given no save, when a life is picked and a month ended, then the report shows month 1", async () => {
+    // Through the front door to the first ready life, on a run Settings asked for (R-PROLOGUE-013).
+    askReadyLives();
     const store = bootGame({ storage: memoryStorage(), fastClock: true });
     render(<App store={store} />);
     expect(screen.getByRole("heading", { name: say("ui.life.title") })).toBeDefined();
 
-    // Through the front door to the first ready life (R-PROLOGUE-009).
     await startReadyLife(Object.keys(content.scenario)[0]!);
     expect(await screen.findByRole("heading", { name: say("ui.month.planning", { month: 1 }) }, { timeout: 10_000 })).toBeDefined();
     // With no route yet the header shows no japacity label and no placeholder beside it.

@@ -5,8 +5,12 @@
 /** The one localStorage key the run is kept under. */
 export const DOOR_KEY = "japacity.door";
 
-/** The steps of the run, in order; `ready` is the ready lives' list beside the tiles; `begun` once Begin was pressed. */
-export const DOOR_STAGES = ["you", "path", "ready", "name", "age", "page", "begun"] as const;
+/**
+ * The steps of the run, in order (R-PROLOGUE-013): `you` (the name and the look), `life` (the tiles and the age under
+ * them), `page`; `ready` is the ready lives' list in the place of the tiles, for a run Settings asked for; `begun` once
+ * Begin was pressed.
+ */
+export const DOOR_STAGES = ["you", "life", "ready", "page", "begun"] as const;
 export type DoorStage = (typeof DOOR_STAGES)[number];
 
 export interface DoorDraft {
@@ -17,8 +21,12 @@ export interface DoorDraft {
   archetype: string | null;
   /** The ready life picked instead of a tile, or null. */
   ready: string | null;
-  /** The name as typed so far. */
+  /** The name as it stands: filled from the pool, or typed. */
   name: string;
+  /** True once the player typed the name: a new look then keeps it, where a filled one follows the look's sex. */
+  typed?: boolean;
+  /** True for a run Settings asked for: its second screen lists the ready lives in the place of the tiles. */
+  asked?: boolean;
   /** Which three names the pool suggests. */
   roll: number;
   /** Years from the tile's own age (R-PROLOGUE-009): negative is younger. */
@@ -39,7 +47,7 @@ function browserStorage(): (Read & Write) | null {
 
 function isDraft(value: unknown): value is DoorDraft {
   if (typeof value !== "object" || value === null) return false;
-  const { stage, look, archetype, ready, name, roll, age } = value as Record<string, unknown>;
+  const { stage, look, archetype, ready, name, roll, age, typed, asked } = value as Record<string, unknown>;
   return (
     typeof stage === "string" &&
     (DOOR_STAGES as readonly string[]).includes(stage) &&
@@ -50,7 +58,9 @@ function isDraft(value: unknown): value is DoorDraft {
     typeof roll === "number" &&
     Number.isInteger(roll) &&
     typeof age === "number" &&
-    Number.isInteger(age)
+    Number.isInteger(age) &&
+    (typed === undefined || typeof typed === "boolean") &&
+    (asked === undefined || typeof asked === "boolean")
   );
 }
 
