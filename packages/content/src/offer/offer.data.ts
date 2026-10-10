@@ -1094,7 +1094,9 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
     choices: [
       {
         id: "take",
-        requires: [],
+        // He takes the passport with the fee (R-ADVICE-006): with none held there is nothing to hand him yet, and the
+        // contract step stays unticked until there is.
+        requires: [{ type: "document/held", document: "document.passport" }],
         pick: null,
         // The fee is paid either way (R-CONTRACT-002); only the record knows the difference.
         effects: [
