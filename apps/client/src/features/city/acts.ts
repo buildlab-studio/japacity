@@ -5,6 +5,7 @@ import { content } from "@japacity/content";
 import type { Id, PlayerView, ReportLine } from "@japacity/sim";
 
 import { nowActOf, nowLineWords } from "../../shared/words/acts";
+import { kioskCapReached } from "../../shared/words/lotto";
 import { nameOf, say } from "../../shared/words/text";
 import type { Ask } from "../../shared/world/contract";
 
@@ -14,6 +15,18 @@ const PAPER: ReadonlySet<string> = new Set(["activity.play-lotto", "activity.bet
 /** True when the act's sheet is a paper slip (a ticket, a bet), not a card. */
 export function isPaper(activity: string): boolean {
   return PAPER.has(activity);
+}
+
+/** The kiosk's answer to a ticket bought, and the line it says once the month's ceiling is reached (R-LUCK-005). */
+const KIOSK_NOW = "line.activity.play-lotto.now";
+export const KIOSK_CAP = "line.activity.play-lotto.cap";
+
+/**
+ * The kiosk's answer as the month stands (R-LUCK-005): once this month's tickets reach the
+ * most one slip sells, the kiosk says so in its own voice in place of "Ticket bought". Any other answer is as it came.
+ */
+export function kioskAnswer(line: ReportLine, monthLines: readonly ReportLine[]): ReportLine {
+  return line.key === KIOSK_NOW && kioskCapReached(monthLines) ? { ...line, key: KIOSK_CAP } : line;
 }
 
 /**

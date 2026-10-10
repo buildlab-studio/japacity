@@ -5,6 +5,8 @@ export const activityNowText: Record<string, string> = {
   // The act itself among the month's lines, as "This month: ..." tells a slot.
   "line.activity.played-now": "Done this month: {activity}.",
   "line.activity.play-lotto.now": "Ticket bought. The draw is on the radio, Friday.",
+  // luck.md R-LUCK-005, the kiosk says the month's ceiling in its own voice once the buyer reaches it.
+  "line.activity.play-lotto.cap": "The kiosk man says: that is five this month, my friend. Keep the rest for transport.",
   "line.activity.bet-slip.now": "Slip stamped. The matches play at the weekend.",
   "line.activity.ask-around.now": "The driver says: Dubai, if you have the papers.",
   "line.activity.look-into-route.now": "The official page for {param}, read to the end. Now you know what it asks.",

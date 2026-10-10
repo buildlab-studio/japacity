@@ -2,11 +2,24 @@
 // the lottery view. Buying stays at the kiosk in the street; the phone only tells.
 import { Ticket } from "lucide-react";
 
-import { useView } from "../../../authority/GameProvider";
+import { useGame, useView } from "../../../authority/GameProvider";
+import { FactChip } from "../../../shared/ui/FactChip";
 import { formatMoney, formatNumber } from "../../../shared/words/format";
+import { lottoMonth } from "../../../shared/words/lotto";
 import { say, sayCount } from "../../../shared/words/text";
 import { Head } from "../act";
 import { phoneWords } from "../phone.words";
+
+/** What this month's tickets cost (R-LUCK-005): the month's lines, so the kiosk and the app agree. */
+function ThisMonth() {
+  const { tickets, spent } = lottoMonth(useGame((state) => state.monthLines));
+  if (spent === null) return null;
+  return (
+    <div className="mt-3" data-lotto-month={tickets}>
+      <FactChip icon={Ticket} label={phoneWords(tickets === 1 ? "phone.lotto.month.one" : "phone.lotto.month", { count: tickets })} note={phoneWords("phone.lotto.month-cost", { amount: formatMoney(spent.amount, spent.currency) })} id="lotto-month" />
+    </div>
+  );
+}
 
 export function Lotto() {
   const { lottery } = useView();
@@ -14,6 +27,7 @@ export function Lotto() {
     return (
       <div data-phone-app="lotto">
         <p className="text-[14px] text-text-2">{phoneWords("phone.lotto.offline")}</p>
+        <ThisMonth />
       </div>
     );
   }
@@ -41,6 +55,7 @@ export function Lotto() {
           <p className="text-[13px] text-text-2">{phoneWords("phone.lotto.buy-where")}</p>
         </div>
       </div>
+      <ThisMonth />
 
       {last === null ? null : (
         <div data-last-draw={last.draw}>

@@ -39,7 +39,8 @@ import { Rise, useJapaRise } from "../../shared/world/Rise";
 import { FirstUseLabels, useFirstUse } from "../../shared/world/Walkthrough";
 import { WorldSheet } from "../../shared/world/WorldSheet";
 import { actOnCard, answersNow, nowLineIn } from "../../shared/words/acts";
-import { actsOffered, answerAsk, askHeader, isPaper } from "./acts";
+import { actsOffered, answerAsk, askHeader, isPaper, KIOSK_CAP, kioskAnswer } from "./acts";
+import { kioskCapReached } from "../../shared/words/lotto";
 import { ComingList } from "./ComingList";
 import { choreSaving } from "./chores";
 import { cityWords, heardWords, papersLook, placeName, residentName, roleWords } from "./city.words";
@@ -880,7 +881,7 @@ export function City({
   // One action, one sheet: a paper slip for a paper thing, a card for the rest.
   const ask: Ask | null = (() => {
     if (world && answer !== null) {
-      return answerAsk(answer, { who: hereName, clock }, () => {
+      return answerAsk(kioskAnswer(answer, monthLines), { who: hereName, clock }, () => {
         cue("close");
         setAnswer(null);
         setPicked(null);
@@ -1001,8 +1002,11 @@ export function City({
               ? [blurbOf(activity), chance.words].filter((part): part is string => part !== null).join(" ")
               : school !== null
                 ? schoolSheetLine(view, school)
-                : // R-ACTIVITY-013: the card says what the act counts toward.
-                  [blurbOf(activity), countsWords(activity)].filter((part): part is string => part !== null).join(" "),
+                : // R-LUCK-005: past the month's ceiling the kiosk says it before it sells again.
+                  activity === "activity.play-lotto" && kioskCapReached(monthLines)
+                  ? words(KIOSK_CAP)
+                  : // R-ACTIVITY-013: the card says what the act counts toward.
+                    [blurbOf(activity), countsWords(activity)].filter((part): part is string => part !== null).join(" "),
       cost: cost === null ? null : { amount: cost.amount, currency: cost.currency },
       button: nameOf(activity),
       // R-ACTIVITY-015: an act done at once says "Now" under its button; a month-act counts when the month ends.
