@@ -47,7 +47,7 @@ describe("the band after a refusal", () => {
     expect(chipFolds(nudge, coming, view.month)).toBe(true);
     expect(chipFolds(nudge, { ...coming!, month: coming!.month + 1 }, view.month)).toBe(false);
     expect(chipFolds(nudge, { ...coming!, kind: "offer" }, view.month)).toBe(false);
-    expect(chipFolds({ key: "ui.nudge.end", about: "end" }, coming, view.month)).toBe(false);
+    expect(chipFolds({ ...nudge, about: "end" }, coming, view.month)).toBe(false);
   });
 
   test("[R-WORLD-002] given the endorsement refused, when the band's row peeks, then the nudge says the wait once and no chip says it again; the handle still opens the chip", async () => {
