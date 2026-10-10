@@ -177,6 +177,9 @@ function requestedFor(line: ReportLine): string | null {
 function variant(line: ReportLine): ReportLine {
   const said = saidFor(line) ?? requestedFor(line);
   if (said !== null) return { ...line, key: said };
+  // A job with its own words for its pay says them: the stall's takings are not a salary.
+  const job = line.params["job"];
+  if (line.key === "line.activity.salary" && typeof job === "string" && hasWords(`${line.key}.${job}`)) return { ...line, key: `${line.key}.${job}` };
   if (line.key === "line.route.school-offer") {
     const discount = moneyParam("discount", line.params, line.key);
     if (discount !== null && discount.amount === 0) return { ...line, key: "ui.line.school-offer-plain" };
