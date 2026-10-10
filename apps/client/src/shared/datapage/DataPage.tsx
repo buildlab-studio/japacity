@@ -144,9 +144,9 @@ export function DataPage({ page, print = false }: { page: PageFields; print?: bo
           {page.type === undefined ? null : <Field id="type" label={say("prologue.page.type")} value={page.type.name} delay={delay()} />}
         </div>
       </div>
-      {/* The family the game drew and how ready, in a row under the photo; ready as a big figure on the right. */}
-      <div className="flex items-end gap-3 px-3 pb-2">
-        <div className="min-w-0 flex-1">{page.family === undefined ? null : <Field id="family" label={say("ui.page.field.family")} value={page.family} delay={delay()} />}</div>
+      {/* The family the game drew and how ready beside it, in a row under the photo; ready as the big figure. */}
+      <div className="flex gap-3 px-3 pb-2">
+        <div className="min-w-0">{page.family === undefined ? null : <Field id="family" label={say("ui.page.field.family")} value={page.family} delay={delay()} />}</div>
         <div className="shrink-0 text-right" data-field="ready">
           <div className={LABEL} style={{ opacity: 0.62 }}>
             {say("prologue.page.ready")}
