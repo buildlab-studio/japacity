@@ -228,7 +228,8 @@ describe("a life from sixteen built from an archetype", () => {
     expect(chosen.map((command) => command.step)).toEqual(expect.arrayContaining(["subjects", "after-school", "exam", "course", "strike", "side-skill", "hustle", "service", "friend", "home"]));
 
     const person = readPerson()!;
-    expect(await screen.findByRole("heading", { name: person.name })).toBeDefined();
+    // The name prints on the data page itself, as the design's page screen has it, not as a heading in the sheet.
+    expect((await screen.findAllByText(person.name)).length).toBeGreaterThan(0);
     const archetypeLine = document.querySelector("[data-handover-archetype]")?.textContent;
     expect(archetypeLine).toBe("The nurse. Science, then nursing school.");
     const at = (selector: string): number => {
