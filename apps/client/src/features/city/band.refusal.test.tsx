@@ -12,7 +12,7 @@ import { renderWithView } from "../../shared/testing/render";
 import { inMonths, say } from "../../shared/words/text";
 import { City, chipFolds } from "./City";
 import { cityWords } from "./city.words";
-import { soonest } from "./coming";
+import { soonest } from "../../shared/words/coming";
 import { nudgeOf } from "./nudge";
 
 const TALENT: Id<"route"> = "route.uk-talent";

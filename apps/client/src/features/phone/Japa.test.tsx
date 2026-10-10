@@ -10,6 +10,8 @@ import { abroadView, newGame, recordedGame, richView, viewAfter } from "../../sh
 import { renderWithView } from "../../shared/testing/render";
 import { nowSaid } from "../../shared/words/acts";
 import { blurbOf, forMonths, inMonths, nameOf, runningName, say, sayCount, words } from "../../shared/words/text";
+import { comingOf } from "../../shared/words/coming";
+import { remindersOf } from "./apps/Japa";
 import { PhoneApps } from "./PhoneApps";
 import { phoneWords } from "./phone.words";
 import { reloadSeen } from "./seen";
@@ -81,6 +83,24 @@ describe("the official page in Japa", () => {
     expect(paper?.textContent).toContain(phoneWords("phone.japa.paper-valid", { when: forMonths(held.expiresMonth, view.month) }));
     expect(document.querySelector("[data-papers]")?.textContent).not.toMatch(/month \d|until in/i);
     expect(screen.getByText(phoneWords("phone.japa.papers.title"))).toBeTruthy();
+  });
+});
+
+describe("Japa's reminders, from the one coming list", () => {
+  test("[R-WORLD-002] [R-WORLD-019] given a paper due before a visa decision and an ask open, when the reminders are read, then they are the coming list's paper and visa in its order, soonest first, and no ask, birthday or past date", () => {
+    const base = richView();
+    const view: PlayerView = {
+      ...base,
+      month: 10,
+      documents: [{ id: "document.passport", state: "pending", readyMonth: 12, expiresMonth: null, value: null, onItsWay: 12 }],
+      routes: [{ ...base.routes[0]!, id: "route.uk-masters", state: "applying", visa: { submittedMonth: 9, decisionMonth: 14 } }],
+    };
+    const coming = comingOf(view).filter((item) => item.kind === "paper" || item.kind === "visa" || item.kind === "plan");
+    expect(coming.map((item) => item.kind)).toEqual(["paper", "visa"]);
+    expect(remindersOf(view)).toEqual([
+      phoneWords("phone.japa.paper-ready", { paper: nameOf("document.passport"), when: inMonths(12, 10) }),
+      phoneWords("phone.japa.visa", { when: inMonths(14, 10) }),
+    ]);
   });
 });
 

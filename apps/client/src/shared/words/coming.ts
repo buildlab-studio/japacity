@@ -1,12 +1,13 @@
 // What is coming with a month to it (docs/rules/world.md R-WORLD-002): the soonest under the band, and
 // the whole list from the chip, soonest first, each as months away and never as a month number. Only
 // dates the player can act on or is waiting on: an ask's deadline, a paper on its way, a visa decision,
-// the next birthday, and a route's age limit once it is near (the design).
+// the next birthday, and a route's age limit once it is near (the design). In shared/ so the
+// city's band and the phone's Japa read one list in one order.
 import { content } from "@japacity/content";
 import type { PlayerView } from "@japacity/sim";
 
-import { planMarks } from "../../shared/words/plan";
-import { nameOf, say, words } from "../../shared/words/text";
+import { planMarks } from "./plan";
+import { nameOf, say, words } from "./text";
 
 export interface Coming {
   what: string;

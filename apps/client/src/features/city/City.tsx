@@ -60,7 +60,7 @@ import { SaidLine, useSaid } from "./Said";
 import { APPLY_TO_SCHOOL, SCHOOL_ICON, schoolSheetLine } from "./school";
 import { sceneWords } from "./scene.words";
 import { enterable, offersHere, openingPlace, openScene, reportHere, type ViewPlace } from "./staging";
-import { type Coming, comingOf, soonest } from "./coming";
+import { type Coming, comingOf, soonest } from "../../shared/words/coming";
 import { stagedNow, thingsNow, thingsOf, vehicleOf, withMoreAt } from "./things";
 import { stopReached } from "./stops";
 

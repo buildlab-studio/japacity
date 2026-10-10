@@ -3,8 +3,8 @@
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
-import { engineView, newGame, richView, viewAfter } from "../../shared/testing/fixtures";
-import { nameOf, say } from "../../shared/words/text";
+import { engineView, newGame, richView, viewAfter } from "../testing/fixtures";
+import { nameOf, say } from "./text";
 import { AGE_LIMIT_NEAR, ageMonthsOf, comingOf, soonest } from "./coming";
 
 describe("what is coming", () => {

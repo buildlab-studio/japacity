@@ -14,7 +14,7 @@ import { useGame, useView } from "../../../authority/GameProvider";
 import { actOnCard, nowSaid } from "../../../shared/words/acts";
 import { monthsLeft, SOON } from "../../../shared/words/expiry";
 import { formatBand, formatMoney } from "../../../shared/words/format";
-import { planMarks } from "../../../shared/words/plan";
+import { type Coming, comingOf } from "../../../shared/words/coming";
 import { checklistWords } from "../../../shared/words/requirement";
 import { planRoute } from "../../../shared/words/savings";
 import { wardMonths } from "../../../shared/words/sixteen";
@@ -164,17 +164,34 @@ export function moveCosts(route: RouteView): MoveCost[] {
   ];
 }
 
-/** What is coming up: the visa decision, each paper on its way, and the plan's marks. */
+/** What is coming that Japa's reminders say: the plan's own waits, not an ask, a birthday or an age limit. */
+type Reminder = Coming & { kind: "visa" | "paper" | "plan" };
+
+function isReminder(item: Coming): item is Reminder {
+  return item.kind === "visa" || item.kind === "paper" || item.kind === "plan";
+}
+
+function reminderWords(item: Reminder, month: number): string {
+  const when = inMonths(item.month, month);
+  switch (item.kind) {
+    case "visa":
+      return phoneWords("phone.japa.visa", { when });
+    case "paper":
+      return phoneWords("phone.japa.paper-ready", { paper: item.what, when });
+    case "plan":
+      return phoneWords("phone.japa.mark", { what: item.what, when });
+    default: {
+      const never: never = item.kind;
+      return never;
+    }
+  }
+}
+
+/** What is coming up: the city's one list (`comingOf`), in its order, kept to the plan's waits. */
 export function remindersOf(view: PlayerView): string[] {
-  const out: string[] = [];
-  for (const route of view.routes) {
-    if (route.visa !== null && route.state === "applying") out.push(phoneWords("phone.japa.visa", { when: inMonths(route.visa.decisionMonth, view.month) }));
-  }
-  for (const paper of view.documents) {
-    if (paper.onItsWay !== null) out.push(phoneWords("phone.japa.paper-ready", { paper: nameOf(paper.id), when: inMonths(paper.onItsWay, view.month) }));
-  }
-  for (const mark of planMarks(view)) out.push(phoneWords("phone.japa.mark", { what: mark.what, when: inMonths(mark.month, view.month) }));
-  return out;
+  return comingOf(view)
+    .filter(isReminder)
+    .map((item) => reminderWords(item, view.month));
 }
 
 function Papers({ onBack }: { onBack: () => void }) {
