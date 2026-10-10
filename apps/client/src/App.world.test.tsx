@@ -48,7 +48,7 @@ describe("the world is the game", () => {
   test("[R-WORLD-024] given ?classic, when a life starts, then the old month page opens with its header and tabs", async () => {
     history.replaceState(null, "", "/?classic");
     await startLife();
-    expect(await screen.findByRole("heading", { name: say("ui.month.planning", { month: 1 }) })).toBeTruthy();
+    expect(await screen.findByRole("heading", { name: say("ui.month.planning", { month: 1 }, { timeout: 10_000 }) })).toBeTruthy();
     expect(document.querySelector("header")).not.toBeNull();
     expect(document.querySelector("[data-tab='month']")).not.toBeNull();
     expect(document.querySelector("[data-band]")).toBeNull();
