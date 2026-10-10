@@ -11,6 +11,7 @@ import budgets from "../../../../../../assets-src/budgets.json";
 import { checkFaces, type ModelFace } from "../../../../../../tools/assets/faces-check";
 import { checkWalkable } from "../../../../../../tools/assets/footprint-check";
 import { checkLimits, SHEET_KINDS, WORLD_LIMITS } from "../../../../../../tools/assets/world-check";
+import { plainActLine } from "../actLines";
 import { crowdSize } from "../crowd";
 import { crowdTuning } from "../limits";
 import { personOfLook } from "../roster";
@@ -115,7 +116,7 @@ export function frontageTests(raw: unknown, id: Id<"place">): void {
     expect(keys.filter((key) => !key.startsWith(`${id}.sign.`) || wordsOf(key).trim() === "")).toEqual([]);
   });
 
-  test(`[R-WORLD-005] given ${id}'s things, when their names and acts are read, then each stands at a copy of a staged model, offers one or two acts, its name and every act's label resolve through the scene's words, and a plain act says what happened`, () => {
+  test(`[R-WORLD-005] given ${id}'s things, when their names and acts are read, then each stands at a copy of a staged model, offers one or two acts, its name and every act's label resolve through the scene's words, and a plain act says what happened unless the scene shows it`, () => {
     const things = stage.things ?? [];
     expect(things.length).toBeGreaterThanOrEqual(3);
     expect(new Set(things.map((thing) => thing.id)).size).toBe(things.length);
@@ -129,7 +130,8 @@ export function frontageTests(raw: unknown, id: Id<"place">): void {
       for (const act of thing.acts) {
         expect(sceneWords(act.label), `${thing.id} ${act.id}`).not.toBe(act.label);
         if (act.kind === "sheet") expect(act.stages, `${thing.id} ${act.id}`).toBeDefined();
-        if (act.kind === "plain") expect(sceneWords(`${act.label}.done`), `${thing.id} ${act.id}`).not.toBe(`${act.label}.done`);
+        // A plain act tells its line or a person speaks; one with a pose is seen, and says nothing (R-WORLD-005, R-TEXT-008).
+        if (act.kind === "plain") expect(plainActLine(thing, act, []) === null, `${thing.id} ${act.id}`).toBe(act.pose !== undefined);
       }
     }
   });

@@ -25,7 +25,8 @@ describe("the visa desk after the interview", () => {
     expect(shown.find((candidate) => candidate.id === "desk")).toBeUndefined();
     const officer = shown.find((candidate) => candidate.id === "officer");
     expect(sceneWords(officer?.label ?? "")).toBe("Visa desk");
-    expect(officer?.acts.map((act) => [act.kind, sceneWords(act.label), sceneWords(`${act.label}.done`)])).toEqual([["plain", "Ask at the desk", "Nothing is waiting for you at the desk today."]]);
+    // The officer says it over his own head (R-WORLD-005).
+    expect(officer?.acts.map((act) => [act.kind, sceneWords(act.label), sceneWords(`${act.label}.who`), sceneWords(`${act.label}.says`)])).toEqual([["plain", "Ask at the desk", "The officer", "Nothing for you today."]]);
   });
 
   test("[R-INTERVIEW-005] given the desk's ask, when what stands in its place is read, then it names the application and the interview, the desk's own acts, at the desk's own spot", () => {

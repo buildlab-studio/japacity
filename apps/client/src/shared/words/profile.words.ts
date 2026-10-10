@@ -22,7 +22,6 @@ export const profileText: Record<string, string> = {
   // The things and acts that stage them (R-WORLD-005).
   "city.thing.laptops": "Laptops",
   "city.act.post": "Post about your work",
-  "city.act.post.done": "You write a thread on what you built. It counts when the month ends.",
   "city.act.talk": "Give the talk",
   "city.act.certify": "Certification",
   "city.act.exam": "Sit the exam",

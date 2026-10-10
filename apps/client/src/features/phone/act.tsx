@@ -1,6 +1,6 @@
 // How an app acts (docs/rules/world.md R-WORLD-006, R-WORLD-018): every act that costs or decides
 // opens the shared sheet with its own card; the main button sends the same command the old screens
-// sent, and a toast says it is done. A refusal shows in the app, in content's words.
+// sent, and the corner tells it is done. A refusal shows in the app, in content's words.
 import type { Currency } from "@japacity/sim";
 import { CircleAlert, X } from "lucide-react";
 import { createContext, use, useState, type ReactNode } from "react";
@@ -13,7 +13,7 @@ import type { Ask } from "../../shared/world/contract";
 import { iconFor } from "./icons";
 import { phoneWords } from "./phone.words";
 
-/** The phone's toast: an app says what happened, the handset shows it. */
+/** The phone's told line: an app says what happened, the corner over the handset shows it (R-WORLD-026). */
 export const PhoneSaid = createContext<(words: string) => void>(() => undefined);
 
 export interface AskSpec {
@@ -32,7 +32,7 @@ export interface AskSpec {
   /** "now" when the act happens at once; the default counts when the month ends (R-WORLD-006). */
   when?: Ask["when"];
   command: PlayerCommand;
-  /** The toast once it is done. */
+  /** The line told in the corner once it is done. */
   done: string;
   reference?: string;
 }

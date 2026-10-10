@@ -33,7 +33,7 @@ import type { Ask, RideChoice } from "../../shared/world/contract";
 import { Cut, useCut } from "../../shared/world/Cut";
 import { Nudge } from "../../shared/world/Nudge";
 import { ThumbBar } from "../../shared/world/ThumbBar";
-import { Toast, useToast } from "../../shared/world/Toast";
+import { Corner, hear, hush, resetLines, speak, SpeechBubble, tell, useStreetTalk } from "../../shared/world/Lines";
 import { MonthCount } from "../../shared/world/MonthCount";
 import { Rise, useJapaRise } from "../../shared/world/Rise";
 import { FirstUseLabels, useFirstUse } from "../../shared/world/Walkthrough";
@@ -42,8 +42,8 @@ import { actOnCard, answersNow, nowLineIn } from "../../shared/words/acts";
 import { actsOffered, answerAsk, askHeader, isPaper, KIOSK_CAP, kioskAnswer } from "./acts";
 import { kioskCapReached } from "../../shared/words/lotto";
 import { ComingList } from "./ComingList";
-import { choreSaving } from "./chores";
-import { cityWords, heardWords, papersLook, placeName, residentName, roleWords } from "./city.words";
+import { doActLine, lightBack, plainActLine, plannedMarks } from "./actLines";
+import { cityWords, heardWords, placeName, residentName, roleWords } from "./city.words";
 import { CreditsSheet } from "./Credits";
 import { type CountryChoice, FlyOver, flyoverOn, type Pin, type PinState } from "./FlyOver";
 import { crowdTuning } from "./limits";
@@ -58,7 +58,6 @@ import { dancerShown, dressPlace, filesOf, openGround, type PlaceFile, showPlann
 import { HOUSE, insideOf, roomOf } from "./room";
 import { personOf, personOfLook } from "./roster";
 import type { Picked, ScenePick } from "./scene.types";
-import { SaidLine, useSaid } from "./Said";
 import { APPLY_TO_SCHOOL, SCHOOL_ICON, schoolSheetLine } from "./school";
 import { sceneWords } from "./scene.words";
 import { enterable, homeStagesAt, offersHere, openingPlace, openScene, reportHere, type ViewPlace } from "./staging";
@@ -74,7 +73,7 @@ const Bag = lazy(() => import("./Bag"));
 
 const city = content.tuning.city;
 const PLACES = Object.values(content.place);
-/** How long a line overheard stays before the next is heard. */
+/** How long a line overheard stays before the next is heard, off the world (the classic page). */
 const HEARD_MS = 9000;
 const FALLBACK_OWN = "shared/chr/chr_tunde.glb";
 
@@ -144,7 +143,7 @@ function ChapterTitle({ chapter, onGone }: { chapter: string; onGone: () => void
 
 /** A room that is a place of its own on the map, and the street its door opens onto: the hub's file names it as its inside (R-WORLD-013). */
 const OUTSIDE_OF: Record<string, string> = { "place.yaba": "place.ojuelegba" };
-/** How long a big line stays as a toast before the next, since the world shows no moment cards (R-WORLD-008). */
+/** How long a big line leads the corner before the next is told, since the world shows no moment cards (R-WORLD-008). */
 const MOMENT_MS = 2600;
 /** Home's send-off, and the party set its yard is dressed with once the party is the answer (R-CHAPTER-008). */
 const SEND_OFF = "offer.family-send-off";
@@ -155,18 +154,10 @@ const PARTY_SAID = `${SEND_OFF}.said.party`;
 /** How long the party's line stands over the yard: long enough to read it, then the yard is the player's again. */
 export const PARTY_BEAT_MS = 6000;
 
-/**
- * The line a free act that fills a slot says at the tap (R-WORLD-005): what cooking or fetching water
- * takes off this month's living costs, as a figure; else its own words, else
- * that it is planned.
- */
-export function doneWords(label: string, view: Pick<PlayerView, "obligations" | "place">, activity: string): string {
-  const saving = choreSaving(view, activity);
-  const saved = `${label}.saved`;
-  if (saving !== null && sceneWords(saved) !== saved) return sceneWords(saved, { amount: formatMoney(saving.amount, saving.currency) });
-  const done = sceneWords(`${label}.done`);
-  return done === `${label}.done` ? say("ui.world.planned", { what: nameOf(activity) }) : done;
-}
+/** How long after a person's words what follows is told in the corner, as designed. */
+const THEN_MS = 1400;
+/** How long after Mama's words the next compound is heard. */
+const UP_NEPA_MS = 2200;
 
 /**
  * The band's chip names the nudge's own wait (R-WORLD-002, R-WORLD-003): the nudge "Ask for the endorsement
@@ -402,7 +393,8 @@ export function City({
   const [map, setMap] = useState(false);
   const [inside, setInside] = useState(() => world && readKept(LAST_KEY)[1] === "inside");
   const { cutting, cutTo } = useCut();
-  const toast = useToast();
+  // The world opens with nothing said yet: lines from a life before are not carried into this one.
+  useEffect(() => resetLines(), []);
   const addToPlan = useGame((state) => state.addToPlan);
   const plan = useGame((state) => state.plan);
   /** What opens once the phone is put away: the Month sheet when the bed opened the phone for the month's lines (R-WORLD-030). */
@@ -431,17 +423,17 @@ export function City({
   // R-WORLD-008: the results are up from the month's end until the player goes back to the place; the staged wins come first.
   const resultsOpen = useGame((state) => state.reportOpen && state.moments.length === 0) && world && view.report !== null;
   const reportOpen = useGame((state) => state.reportOpen);
-  // R-WORLD-008: the old page's moment cards are not shown over the world; a big line (the flight, a win) is said as a toast and passes.
+  // R-WORLD-008: the old page's moment cards are not shown over the world; a big line (the flight, a win) is told in the corner and passes.
   const moments = useGame((state) => state.moments);
   const nextMoment = useGame((state) => state.nextMoment);
   useEffect(() => {
     if (!world || moments.length === 0) return;
     const line = moments[0];
-    // The party's line is told by its own beat over the full yard, not as a passing toast.
-    if (line !== undefined && line.key !== PARTY_SAID) toast.show(words(line.key, line.params));
+    // The party's line is told by its own beat over the full yard, not again in the corner.
+    if (line !== undefined && line.key !== PARTY_SAID) tell(words(line.key, line.params));
     const timer = window.setTimeout(nextMoment, MOMENT_MS);
     return () => window.clearTimeout(timer);
-    // The toast is the city's; a new first line shows once the last has passed.
+    // The corner is the city's; the next big line is told once the last has led a while.
   }, [world, moments, nextMoment]);
   // R-WORLD-025: the scene goes dark, then the results sheet (which reads the report's state itself).
   const [resultsShown, setResultsShown] = useState(false);
@@ -476,8 +468,6 @@ export function City({
   const [progress, setProgress] = useState<{ loaded: number; total: number } | null>(null);
   const [failed, setFailed] = useState<string | null>(null);
   const [heardCount, setHeardCount] = useState(0);
-  // An act's own line (the agent's "Not today", the pot on the fire) stands until tapped or SAID_MS has passed, never a passing toast.
-  const { said, show: sayAct, clear: clearSaid } = useSaid();
   const [choice, setChoice] = useState<ModeChoice>(() => readChoice(storage()));
   const [mode, setMode] = useState<Mode>(() => startingMode(device(), city, choice));
   const watch = useRef(watchFrames(mode, choice !== "auto"));
@@ -533,10 +523,10 @@ export function City({
     setProgress(null);
   }, [placeId]);
   useEffect(() => {
-    if (!looking) return;
+    if (!looking || world) return;
     const timer = window.setInterval(() => setHeardCount((count) => count + 1), HEARD_MS);
     return () => window.clearInterval(timer);
-  }, [looking]);
+  }, [looking, world]);
 
   const entry = entryOf(placeId);
   const plainFile = usePlaceFile(entry, drawing);
@@ -730,16 +720,21 @@ export function City({
         return;
       case "plain": {
         setPicked(null);
-        // What the act did, in a line of its own when content has one; else its name. The papers box says what it holds (R-WORLD-019).
-        const done = act.label === "city.act.papers" ? papersLook(view.documents) : sceneWords(`${act.label}.done`);
-        sayAct(done === `${act.label}.done` ? sceneWords(act.label) : done);
+        // A person at the thing speaks over their head and what follows is told in the corner; a thing tells its line;
+        // an act the scene shows (sit) says nothing. The papers box says what it holds (R-WORLD-019).
+        const line = plainActLine(thing, act, view.documents);
+        if (line?.kind === "say") {
+          speak(line.who, line.name, line.words);
+          const then = line.then;
+          if (then !== null) window.setTimeout(() => tell(then), THEN_MS);
+        } else if (line?.kind === "tell") tell(line.words);
         return;
       }
       // R-ROUTE-008: the school's deposit is paid at the bank through a card the world sends itself.
       case "command":
         setPicked(act.command === undefined ? null : { kind: "command", command: act.command });
         return;
-      // R-WORLD-005: a free act that fills a slot happens at once, seen on the thing; the line says it counts when the month ends.
+      // R-WORLD-005: a free act that fills a slot happens at once, seen on the thing, with no line: its label says it is planned.
       case "do": {
         setPicked(null);
         const option = act.stages === undefined ? undefined : view.activities.find((candidate) => candidate.id === act.stages);
@@ -751,7 +746,8 @@ export function City({
         }
         const added = addToPlan({ activity: option.id, param: option.params?.[0] ?? null });
         cue(added ? "done" : "tap");
-        sayAct(added ? doneWords(act.label, view, option.id) : say("ui.world.full"));
+        const line = doActLine(added);
+        if (line?.kind === "tell") tell(line.words);
         return;
       }
       default: {
@@ -941,7 +937,7 @@ export function City({
         act: () => {
           void send({ type: "obligation/pay", obligation: heldDue.id, amount }).then((reply) => {
             cue(reply?.ok === true ? "coin" : "tap");
-            if (reply?.ok === true) toast.show(say("ui.world.pay-back-paid"));
+            if (reply?.ok === true) tell(say("ui.world.pay-back-paid"));
           });
           setPicked(null);
         },
@@ -964,7 +960,7 @@ export function City({
         act: () => {
           void send({ type: "route/pay-deposit", route: depositDue.route, school: depositDue.school }).then((reply) => {
             cue(reply?.ok === true ? "coin" : "tap");
-            if (reply?.ok === true) toast.show(say("ui.route.deposit-paid", { amount: formatMoney(school.deposit, "GBP") }));
+            if (reply?.ok === true) tell(say("ui.route.deposit-paid", { amount: formatMoney(school.deposit, "GBP") }));
           });
           setPicked(null);
         },
@@ -980,7 +976,7 @@ export function City({
           send({ type: "offer/choose", offer: offer.id, choice }).then((reply) => {
             cue(reply?.ok === true ? "coin" : "tap");
             setPicked(null);
-            if (reply?.ok === true) toast.show(words(`${PARCEL}.said.${choice}`));
+            if (reply?.ok === true) tell(cityWords("city.told.parcel"));
             return null;
           }),
       });
@@ -1041,10 +1037,10 @@ export function City({
         const pick = { activity: option.id, param: chosen ?? option.params?.[0] ?? null };
         void actOnCard(pick, { send, addToPlan }).then((acted) => {
           cue(acted === "answered" || acted === "planned" ? (cost === null ? "done" : "coin") : "tap");
-          // The place answers an act done at once in the same sheet; a refusal is said by the store.
+          // The place answers an act done at once in the same sheet; a refusal is said by the store. A planned act is its thing's label's state, never a line.
           if (acted === "answered") return;
           setPicked(null);
-          if (acted !== "refused") toast.show(acted === "planned" ? say("ui.world.planned", { what: nameOf(option.id) }) : say("ui.world.full"));
+          if (acted !== "refused" && acted !== "planned") tell(say("ui.world.full"));
         });
       },
       dismiss: () => setPicked(null),
@@ -1081,7 +1077,7 @@ export function City({
       setPicked(null);
     }
   }, [reportOpen]);
-  // A pick added from the picker's sheet is said in a toast and the sheet closes, as the ask card does (R-WORLD-006).
+  // A pick added from the picker's sheet closes the sheet, as the ask card does (R-WORLD-006); its thing's label says it is planned.
   const lastPlan = useRef(plan);
   useEffect(() => {
     const before = lastPlan.current;
@@ -1089,9 +1085,8 @@ export function City({
     if (!world || picked?.kind !== "action" || ask !== null) return;
     const added = plan.find((pick, index) => pick !== null && before[index] !== pick && !before.includes(pick));
     if (added === undefined || added === null) return;
-    toast.show(say("ui.world.planned", { what: nameOf(added.activity) }));
     setPicked(null);
-  }, [plan, world, picked, ask, toast]);
+  }, [plan, world, picked, ask]);
   useEffect(() => {
     if (!nudgeOpens && asksHold !== true) setAsksOpen(false);
   }, [nudgeOpens, asksHold]);
@@ -1109,10 +1104,34 @@ export function City({
   // Japacity shown two ways (R-WORLD-029): the rise flies and the bag by the door grows once nothing covers the world, so both are seen together.
   const openingUp = !openingSeen && view.report === null && view.chapter.current !== null && !view.ended;
   const japa = useJapaRise(view.japacity.percent, world && looking && !covered && !resultsOpen && !map && !cardUp && !openingUp);
-  // An act's line gives way to anything that covers the world.
+  // R-WORLD-026: the corner and the bubble show only while nothing covers the world; the street's talk comes only then.
+  const worldFree = world && looking && !covered && !resultsOpen && !cardUp && !beatShown;
+  const heardNth = useRef(0);
+  useStreetTalk(() => {
+    if (entry === null) return null;
+    const heardNow = overheard(view, entry.id, date, heardNth.current);
+    heardNth.current += 1;
+    return heardNow === null ? null : heardWords(heardNow.key, heardNow.params);
+  }, worldFree);
+  // A person speaks only in the place they stand in: going elsewhere takes their words down.
+  useEffect(() => hush(), [placeId, inside]);
+  // R-WORLD-005: the light bill paid at home, Mama says so over her head, the corner tells the bill paid, and a moment later the next compound is heard.
+  const thingsHere = useRef(things);
+  thingsHere.current = things;
+  const lightSeen = useRef(lastLines);
   useEffect(() => {
-    if (covered || resultsOpen) clearSaid();
-  }, [covered, resultsOpen]);
+    if (lightSeen.current === lastLines) return;
+    lightSeen.current = lastLines;
+    const light = world ? lightBack(lastLines, thingsHere.current ?? []) : null;
+    if (light === null) return;
+    speak(light.who, light.name, light.words);
+    tell(light.told);
+    const heard = light.heard;
+    const timer = window.setTimeout(() => hear(heard), UP_NEPA_MS);
+    return () => window.clearTimeout(timer);
+  }, [lastLines, world]);
+  // The thing's label says what of it is planned this month (R-WORLD-005).
+  const marks = useMemo(() => (things === undefined ? {} : plannedMarks(things, new Set(plannedKey.split("|")))), [things, plannedKey]);
   const wasCovered = useRef(covered);
   useEffect(() => {
     if (covered === wasCovered.current) return;
@@ -1141,7 +1160,7 @@ export function City({
               onProgress={(loaded, total) => setProgress({ loaded, total })}
               onFailed={setFailed}
               onPick={readPick}
-              {...(world ? { overview: true, roam: ROAM, ...(things === undefined ? {} : { things }), chosen: picked?.kind === "thing" ? picked.thing : null, onClear: () => setPicked(null), zoomed, onZoomed: setZoomed } : {})}
+              {...(world ? { overview: true, roam: ROAM, ...(things === undefined ? {} : { things, marks }), chosen: picked?.kind === "thing" ? picked.thing : null, onClear: () => setPicked(null), zoomed, onZoomed: setZoomed } : {})}
               onFrame={(frameMs) => {
                 const next = observeFrame(watch.current, frameMs, city);
                 watch.current = next;
@@ -1175,7 +1194,7 @@ export function City({
               setDiveTo(null);
               setRideBy(null);
               setMapPick(null);
-              toast.show(placeName(id));
+              tell(placeName(id));
             },
             onClose: () => {
               setMap(false);
@@ -1196,7 +1215,7 @@ export function City({
               setDiveTo(null);
               setRideBy(null);
               setMapPick(null);
-              toast.show(cityWords("city.ride.turned-back"));
+              tell(cityWords("city.ride.turned-back"));
             },
           })
         : null}
@@ -1252,14 +1271,9 @@ export function City({
               {say("ui.world.whole")}
             </button>
           ) : null}
-          {heard !== null && !covered && !resultsOpen && !cardUp && said === null && !beatShown ? (
-            <p key={heardCount} className="chip drop pointer-events-none fixed bottom-[calc(max(14px,env(safe-area-inset-bottom))+76px)] left-3 z-[36] max-w-[70vw] px-3 py-1.5 text-[12px] font-bold" data-chatter>
-              {heardWords(heard.key, heard.params)}
-            </p>
-          ) : null}
+          <Corner hidden={!worldFree} />
+          <SpeechBubble hidden={!worldFree} anchored={drawing && ready} />
           <Rise rise={japa.rise} />
-          <Toast words={toast.words} />
-          <SaidLine said={covered || resultsOpen ? null : said} onTap={clearSaid} />
           {beatShown ? (
             <button type="button" onClick={() => setPartyBeat(false)} className="pop pointer-events-auto fixed inset-x-0 bottom-[calc(max(14px,env(safe-area-inset-bottom))+124px)] z-[45] flex justify-center px-6" data-party-beat>
               <span role="status" className="band rounded-[6px] px-4 py-3 text-center text-[16px] leading-snug font-bold shadow-xl">

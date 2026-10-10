@@ -14,6 +14,7 @@ import { type Camera, type DirectionalLight, Fog, type Object3D, PerspectiveCame
 import { keptStyleOf } from "../../authority/person";
 import { wear } from "../../shared/frontdoor/colours";
 import type { Act, Shot, Thing } from "../../shared/world/contract";
+import { bubbleSpot } from "../../shared/world/Lines";
 import { advanceClock } from "../../shared/three/clock";
 import { loadModel } from "../../shared/three/load";
 import { loadManifest } from "../../shared/three/manifest";
@@ -151,12 +152,19 @@ function Idle({ looking }: { looking: boolean }) {
   return null;
 }
 
-/** A thing's label: its name, over it, tapped like the thing itself. */
-function labelNode(thing: Thing, onTap: () => void): HTMLButtonElement {
+/** A thing's label: its name, over it, tapped like the thing itself; with the state of an act planned this month beside it. */
+function labelNode(thing: Thing, onTap: () => void, state: string | undefined): HTMLButtonElement {
   const node = document.createElement("button");
   node.type = "button";
   node.textContent = sceneWords(thing.label);
   node.dataset.mark = thing.id;
+  if (state !== undefined) {
+    const tag = document.createElement("span");
+    tag.dataset.thingState = state;
+    tag.className = "ml-1.5 rounded-[3px] bg-strong px-1.5 py-px align-[1px] text-[10px] font-extrabold text-on-strong";
+    tag.textContent = state;
+    node.append(tag);
+  }
   node.className = "chip pointer-events-auto absolute -translate-x-1/2 -translate-y-full whitespace-nowrap px-2.5 py-1 text-[12px] font-extrabold";
   node.style.display = "none";
   node.onclick = onTap;
@@ -197,7 +205,7 @@ function chipNode(thing: Thing, onAct: (act: Act) => void): HTMLDivElement {
 }
 
 function Place(props: PlaceProps) {
-  const { place, file, people, own, settings, text, onProgress, onFailed, onPick, onFrame, looking, labelsHidden = false, plan, takeTap, markBox, rig, shot, raised } = props;
+  const { place, file, people, own, settings, text, onProgress, onFailed, onPick, onFrame, looking, labelsHidden = false, plan, takeTap, markBox, rig, shot, raised, marks } = props;
   const roam = props.overview !== true || props.roam === true;
   const things = useMemo(() => props.things ?? [], [props.things]);
   const chosen = props.chosen ?? null;
@@ -246,14 +254,14 @@ function Place(props: PlaceProps) {
   // The labels live in the DOM box beside the canvas, one over each thing; the frame loop moves them.
   useEffect(() => {
     if (markBox === null) return;
-    const made = things.map((thing) => ({ thing, node: labelNode(thing, () => chooseRef.current(thing)) }));
+    const made = things.map((thing) => ({ thing, node: labelNode(thing, () => chooseRef.current(thing), marks?.[thing.id]) }));
     for (const { node } of made) markBox.append(node);
     labels.current = made;
     return () => {
       for (const { node } of made) node.remove();
       labels.current = [];
     };
-  }, [things, markBox]);
+  }, [things, markBox, marks]);
 
   // The chosen thing's acts float over it until another tap puts them away.
   useEffect(() => {
@@ -441,10 +449,24 @@ function Place(props: PlaceProps) {
       const half = node.offsetWidth / 2 + EDGE_MARGIN;
       return Math.min(Math.max(x, half), Math.max(half, state.size.width - half));
     };
+    // A person's words stand over them as the camera moves (R-WORLD-005): the bubble follows its speaker, whose label gives way to it.
+    const bubble = document.querySelector<HTMLElement>("[data-speech]");
+    const speaker = bubble === null ? undefined : things.find((thing) => thing.id === bubble.dataset.speech);
+    const voice = speaker === undefined ? null : thingSpot(stage, speaker);
+    if (bubble !== null) {
+      if (voice === null) bubble.style.visibility = "hidden";
+      else {
+        const at = new Vector3(voice[0], LABEL_Y, voice[1]).project(state.camera);
+        const bandBottom = document.querySelector("[data-band]")?.getBoundingClientRect().bottom ?? 0;
+        const spot = bubbleSpot(at, state.size, { width: bubble.offsetWidth, height: bubble.offsetHeight }, bandBottom);
+        bubble.style.transform = `translate(${String(spot.x)}px, ${String(spot.y)}px)`;
+        bubble.style.visibility = spot.shown ? "visible" : "hidden";
+      }
+    }
     const laid: { node: HTMLElement; box: LabelBox }[] = [];
     for (const { thing, node } of labels.current) {
       const spot = thingSpot(stage, thing);
-      const at = spot === null || chip.current?.thing.id === thing.id ? null : onScreen(state.camera, state.size, spot[0], LABEL_Y, spot[1], 1.05);
+      const at = spot === null || chip.current?.thing.id === thing.id || (voice !== null && speaker?.id === thing.id) ? null : onScreen(state.camera, state.size, spot[0], LABEL_Y, spot[1], 1.05);
       // No label while the opening words stand over the world (R-WORLD-001).
       node.style.display = at === null || labelsHidden ? "none" : "";
       if (at !== null && !labelsHidden) laid.push({ node, box: { x: within(at.x, node), y: at.y, width: node.offsetWidth, height: node.offsetHeight } });

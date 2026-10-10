@@ -43,8 +43,8 @@ describe("the party at home", () => {
     });
     expect(beat.textContent).toBe(PARTY);
     expect(screen.queryByText("another ask")).toBeNull();
-    // Told once: not again as a toast beside it.
-    expect(document.querySelector("[data-toast]")?.textContent ?? "").not.toContain(PARTY);
+    // Told once: not again in the corner beside it.
+    expect(document.querySelector("[data-corner]")?.textContent ?? "").not.toContain(PARTY);
     fireEvent.click(beat);
     expect(document.querySelector("[data-party-beat]")).toBeNull();
     act(() => store.setState({ monthLines: [taken("party"), taken("party")] }));

@@ -45,6 +45,8 @@ export interface SceneProps {
   roam?: boolean;
   /** The world mode: the things the player can tap here, each with the acts the view allows now (R-WORLD-005). */
   things?: readonly Thing[];
+  /** The world mode: a state its label carries by thing id, while an act of it is planned this month ("Planned", "Resting"; R-WORLD-005). */
+  marks?: Readonly<Record<string, string>>;
   /** The world mode: the thing whose name and acts float over it, or null. */
   chosen?: Thing | null;
   /** The world mode: a tap on open ground, which puts away the thing's acts. */
