@@ -17,8 +17,6 @@ import type {
   ReadCtx,
   Rejection,
   ReportLine,
-  Requirement,
-  RequirementResult,
   SetpieceAnswer,
   SetpieceEntry,
   SetpieceQuestion,
@@ -26,13 +24,13 @@ import type {
   State,
 } from "../engine/types";
 import type { SetpieceEvent } from "./setpiece.events";
+import type { Judge } from "../japacity/japacity.logic";
 
 const PREP: Id<"quality"> = "quality.interview-prep";
 const DECEMBER: Id<"setpiece"> = "setpiece.december";
 const GO = "go";
 
 type Open = NonNullable<SetpieceSlice["open"]>;
-type Judge = (requirement: Requirement) => RequirementResult;
 
 function entryOf(content: Content, id: Id<"setpiece">): SetpieceEntry {
   const entry = content.setpiece[id];

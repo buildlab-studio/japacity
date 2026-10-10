@@ -37,7 +37,7 @@ import type {
 } from "../engine/types";
 import { appliesHere } from "../place/place.logic";
 import { isKept, statusEntry, workAllows } from "../status/status.logic";
-import { activeLocks, freeSlots } from "../turn/turn.logic";
+import { activeLocks, fillsSlot, freeSlots } from "../turn/turn.logic";
 import type { ActivityEvent, Prize, SlotFailure } from "./activity.events";
 import { ADVISER, adviserReading, FRIEND, friendWord } from "./activity.advice";
 import {
@@ -53,6 +53,7 @@ import {
   raisedJob,
 } from "./activity.pay";
 import { officialRates } from "../wallet/wallet.rates";
+import type { Judge } from "../japacity/japacity.logic";
 
 export { cashWorkedThisMonth, localTenure, sideJobHeld } from "./activity.pay";
 
@@ -101,8 +102,6 @@ const FIRST_PAY_ABROAD = "line.activity.salary-first-abroad";
 export const PER_MILLION = 1000000;
 const BP_IN_MILLION = 100;
 
-/** Judges one requirement. Inside a step it is `ctx.check`; outside, the engine's `check`. */
-export type Judge = (requirement: Requirement) => RequirementResult;
 
 /** Applies this kind's events at once, so the rest of the handler sees them. */
 function record(ctx: Ctx, ...events: ActivityEvent[]): BaseEvent[] {
@@ -972,7 +971,7 @@ function slots(ctx: Ctx): BaseEvent[] {
   // the engine, not the count after the job's toll in `main`.
   const turn = turnInProgress(ctx);
   const allowed = turn === null ? freeSlots(ctx.state, ctx.content) : turn.freeSlots;
-  const counted = picks.filter((pick) => ctx.content.activity[pick.activity]?.slot !== "none").length;
+  const counted = picks.filter((pick) => fillsSlot(ctx.content, pick.activity)).length;
   const empty = Math.max(0, allowed - counted);
   if (empty > 0) {
     events.push(...record(ctx, { type: "activity/rested", slots: empty }));
