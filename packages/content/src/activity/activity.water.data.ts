@@ -7,8 +7,11 @@ import type { ActivityEntry, Id } from "@japacity/sim";
 import { naira } from "../units";
 
 export const RACKS: Id<"activity"> = "activity.job-fish-racks";
-/** "A high hire chance": four months in five before the network's share (R-ACTIVITY-005). */
-const RACKS_HIRE_BP = 8000;
+/**
+ * Work at hand: the bar every hunt stops at (R-ACTIVITY-005, `tuning.quality.hireMaxBp`), so "not
+ * this time" is rare. A certain hire would need the bar lifted for the racks alone, which is the decision.
+ */
+const RACKS_HIRE_BP = 9500;
 
 export const waterActivityTable: Record<Id<"activity">, ActivityEntry> = {
   // Edu-level 0: no schooling asked. "lives in Makoko" reads as the room on the lagoon being rented, so a

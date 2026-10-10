@@ -7,7 +7,7 @@ import type { Id, PlayerView } from "@japacity/sim";
 import { duesGap } from "../../shared/words/dues";
 import { formatMoney } from "../../shared/words/format";
 import { asksAttention, tidyLines } from "../../shared/words/lines";
-import { nextStepOf, ownRouteOf, ownWayOf } from "../../shared/words/sixteen";
+import { nextStepOf, ownRouteOf, ownWayOf, RACKS_STEP, racksAtHand } from "../../shared/words/sixteen";
 import { routeKeptBy } from "../../shared/words/keepJob";
 import { hasWords, inMonths, nameOf } from "../../shared/words/text";
 import type { Nudge } from "../../shared/world/contract";
@@ -120,12 +120,6 @@ export function stepWayOf(view: StepView & Partial<Pick<PlayerView, "obligations
 
 /** The fish racks beside the room in Makoko, else the board in town that lists them too (R-ACTIVITY-017). */
 const RACKS_WAY: StepWay = { go: "place.makoko", at: ["place.makoko:racks", "place.yaba:jobs", "place.ojuelegba:hub"] };
-const RACKS = "activity.job-fish-racks";
-
-/** The racks are the work at hand (R-ACTIVITY-017): the first chapter, no job held and the racks on the board, as they are for a life in Makoko's room. */
-function racksAtHand(view: StepView): boolean {
-  return view.chapter.current === FIRST_CHAPTER && (view.job?.id ?? null) === null && view.chapter.items.some((item) => item.id === "job" && !item.met) && (view.activities?.find((option) => option.id === "activity.job-hunt")?.params ?? []).includes(RACKS);
-}
 
 /** Where held funds go back: the bank's counter (R-ROUTE-020). */
 const HELD_FUNDS_WAY: StepWay = { go: "place.olokun-office", at: ["place.olokun-office:clerk"] };
@@ -181,6 +175,22 @@ const STEP_PAPER: Record<string, string> = {
   "chapter.decision-day-points.police": "document.police-certificate",
   "chapter.decision-day-gulf.police": "document.police-certificate",
 };
+
+/**
+ * A step whose route can refuse it and make the player wait before asking again (R-ENDORSE-002): the endorsement. While
+ * the wait runs the step names when it opens again, never the act it shuts.
+ */
+const STEP_REFUSAL: Record<string, string> = {
+  "chapter.build-the-file-talent.endorsement": "route.uk-talent",
+};
+
+/** The month a refused step can be asked for again, from the route's refusal in the view, or null when no wait runs. */
+function refusalWait(view: NudgeView, stepKey: string): number | null {
+  const route = STEP_REFUSAL[stepKey];
+  const gate = route === undefined ? undefined : view.routes?.find((candidate) => candidate.id === route)?.gate;
+  if (gate?.gate !== "endorsement" || gate.refusedMonth === null || gate.cooledFromMonth === null) return null;
+  return gate.cooledFromMonth > (view.month ?? 0) ? gate.cooledFromMonth : null;
+}
 
 /** The route the chapters follow, for the school's answer and the funds (chapter.md). */
 const STORY_ROUTE = "route.uk-masters";
@@ -292,7 +302,8 @@ function nairaDues(view: NudgeView): number {
 /**
  * A step already started names the wait instead of the thing to do again:
  * a paper on its way says when, a school applied to says when it answers, a hunt or a test planned
- * says to end the month, and funds short of the line say how much more to show. Null: not started.
+ * says to end the month, funds short of the line say how much more to show, and a step refused says when it can be
+ * asked for again. Null: not started.
  */
 function startedKey(view: NudgeView, own: string, stepKey: string, plannedOnly: readonly string[], has: (key: string) => boolean): { key: string; params?: Record<string, string | number> } | null {
   const month = view.month ?? 0;
@@ -301,6 +312,9 @@ function startedKey(view: NudgeView, own: string, stepKey: string, plannedOnly: 
   const planned: readonly string[] = [...plannedOnly, ...done];
   // A now-act's "planned" words would read wrong once it is done: its own done words first, then the generic line.
   const doneKey = (key: string): string | null => (has(`${key}.done`) ? `${key}.done` : has("ui.nudge.done-now") ? "ui.nudge.done-now" : null);
+  // A refusal's wait comes first: the step cannot be taken again until it is out (R-ENDORSE-002).
+  const wait = refusalWait(view, stepKey);
+  if (wait !== null && has(`${own}.wait`)) return { key: `${own}.wait`, params: { when: inMonths(wait, month) } };
   const paper = STEP_PAPER[stepKey];
   if (paper !== undefined) {
     const held = view.documents?.find((document) => document.id === paper);
@@ -386,7 +400,7 @@ export function nudgeOf(view: NudgeView, has: (key: string) => boolean = hasWord
   // While a life in Makoko's room has no job, the racks beside it come before any other step (R-ACTIVITY-017).
   // Applied at once (R-ACTIVITY-015) counts as planned: the racks' nudge then says the wait, not the racks again.
   const huntTaken = planned.includes("activity.job-hunt") || (view.activities ?? []).some((option) => option.id === "activity.job-hunt" && option.done);
-  if (racksAtHand(view)) return { key: `${FIRST_CHAPTER}.item.job.${huntTaken ? "started" : "nudge.racks"}`, about: "step" };
+  if (racksAtHand(view)) return { key: huntTaken ? `${FIRST_CHAPTER}.item.job.started` : RACKS_STEP, about: "step" };
   const step = stepOf(view);
   if (view.chapter.current !== null && step !== null) {
     // The story's own nudge words for the step when content has them (at most eight words), else the step's words.
