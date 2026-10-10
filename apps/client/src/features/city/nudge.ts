@@ -106,6 +106,8 @@ export function stepWayOf(view: StepView & Partial<Pick<PlayerView, "obligations
   const step = stepOf(view);
   if (view.chapter.current === null || step === null) return null;
   // A life's own way to its first steps, where its archetype has one the table does not name.
+  // While a life in Makoko's room has no job, the racks beside it come first (R-ACTIVITY-017).
+  if (racksAtHand(view)) return RACKS_WAY;
   const own = ownWay(view);
   if (own !== null) return { go: own.place, at: [`${own.place}:${own.thing}`] };
   // The first chapter's "Look into it" reads the page of the life's own way out, so a nurse leans to care work and not to the master's she read of first (R-CHAPTER-009).
@@ -116,10 +118,19 @@ export function stepWayOf(view: StepView & Partial<Pick<PlayerView, "obligations
   return STEP_WAYS[`${view.chapter.current}.${step}`] ?? null;
 }
 
+/** The fish racks beside the room in Makoko, else the board in town that lists them too (R-ACTIVITY-017). */
+const RACKS_WAY: StepWay = { go: "place.makoko", at: ["place.makoko:racks", "place.yaba:jobs", "place.ojuelegba:hub"] };
+const RACKS = "activity.job-fish-racks";
+
+/** The racks are the work at hand (R-ACTIVITY-017): the first chapter, no job held and the racks on the board, as they are for a life in Makoko's room. */
+function racksAtHand(view: StepView): boolean {
+  return view.chapter.current === FIRST_CHAPTER && (view.job?.id ?? null) === null && view.chapter.items.some((item) => item.id === "job" && !item.met) && (view.activities?.find((option) => option.id === "activity.job-hunt")?.params ?? []).includes(RACKS);
+}
+
 /** Where held funds go back: the bank's counter (R-ROUTE-020). */
 const HELD_FUNDS_WAY: StepWay = { go: "place.olokun-office", at: ["place.olokun-office:clerk"] };
 
-type StepView = Pick<PlayerView, "chapter"> & Partial<Pick<PlayerView, "scenario" | "qualities" | "pockets" | "routes" | "documents" | "job">>;
+type StepView = Pick<PlayerView, "chapter"> & Partial<Pick<PlayerView, "scenario" | "qualities" | "pockets" | "routes" | "documents" | "job" | "activities">>;
 
 /** The chapter's next undone step: for a trader from sixteen with a shop's capital, the meetup and the page before the board. */
 function stepOf(view: StepView): string | null {
@@ -368,6 +379,8 @@ export function nudgeOf(view: NudgeView, has: (key: string) => boolean = hasWord
   if (visaAtStake && has("ui.nudge.dues-visa")) return { key: "ui.nudge.dues-visa", params: { due: formatMoney(gap.due, gap.currency), held: formatMoney(gap.held, gap.currency) }, about: "dues" };
   if (view.offers.length > 0) return { key: "ui.nudge.offer", about: "offer" };
   if (gap !== null) return { key: "ui.nudge.dues", params: { due: formatMoney(gap.due, gap.currency), held: formatMoney(gap.held, gap.currency) }, about: "dues" };
+  // While a life in Makoko's room has no job, the racks beside it come before any other step (R-ACTIVITY-017).
+  if (racksAtHand(view)) return { key: `${FIRST_CHAPTER}.item.job.${planned.includes("activity.job-hunt") ? "started" : "nudge.racks"}`, about: "step" };
   const step = stepOf(view);
   if (view.chapter.current !== null && step !== null) {
     // The story's own nudge words for the step when content has them (at most eight words), else the step's words.

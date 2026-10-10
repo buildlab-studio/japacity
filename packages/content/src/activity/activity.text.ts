@@ -4,6 +4,7 @@ import { activityProfileText } from "./activity.profile.text";
 import { activityRoomText } from "./activity.room.text";
 import { activityShopText } from "./activity.shop.text";
 import { activityStreetText } from "./activity.street.text";
+import { activityWaterText } from "./activity.water.text";
 
 export const activityText: Record<string, string> = {
   "activity.job-teacher.name": "Private school teacher",
@@ -147,6 +148,7 @@ export const activityText: Record<string, string> = {
   ...activityRoomText,
   ...activityProfileText,
   ...activityShopText,
+  ...activityWaterText,
   // R-ACTIVITY-015: what the place says when a now-act is done there.
   ...activityNowText,
 };

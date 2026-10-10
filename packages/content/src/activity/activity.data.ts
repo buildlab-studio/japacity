@@ -10,6 +10,7 @@ import { profileActivityTable } from "./activity.profile.data";
 import { roomActivityTable } from "./activity.room.data";
 import { shopActivityTable } from "./activity.shop.data";
 import { streetActivityTable } from "./activity.street.data";
+import { waterActivityTable } from "./activity.water.data";
 import { peopleApplyActivities } from "../route/route.data";
 
 const UK: Id<"route"> = "route.uk-masters";
@@ -566,6 +567,8 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
   ...profileActivityTable,
   // The trader's own shop.
   ...shopActivityTable,
+  // The fish racks at Makoko (R-ACTIVITY-017).
+  ...waterActivityTable,
   // people.md: applying on the partner and dependant gates (R-PEOPLE-022, 026).
   ...peopleApplyActivities,
   // route-gates.md: the sponsor gate.

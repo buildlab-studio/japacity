@@ -14,10 +14,13 @@ import { onTheClassicPage } from "../../shared/testing/classic";
 const WELLBEING = "quality.wellbeing";
 const health = content.tuning.health;
 
-/** Ada with wellbeing pushed under the run-down line, played until the warning stands. */
+/**
+ * Ada with wellbeing pushed under the run-down line, played until the warning stands. Resting lifts her over the
+ * line until her four months of living run out and the unpaid upkeep pulls her under.
+ */
 function runDownView(): PlayerView {
   const game = newGame();
-  for (let month = 0; month < 4 && !game.view().runDown; month += 1) {
+  for (let month = 0; month < 6 && !game.view().runDown; month += 1) {
     const wellbeing = game.state.quality[WELLBEING] ?? 0;
     viewAfter(game, [{ type: "quality/add", quality: WELLBEING, amount: 5 - wellbeing }]);
     game.endTurn();

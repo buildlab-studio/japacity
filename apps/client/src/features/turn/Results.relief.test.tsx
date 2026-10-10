@@ -12,7 +12,7 @@ import type { Game } from "../../../../../packages/sim/src/testing/play";
 import { newGame } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { formatMoney } from "../../shared/words/format";
-import { moneyLines, storyLines } from "./month.results";
+import { moneyLines, STORY_MAX, storyLines } from "./month.results";
 import { Results } from "./Results";
 
 const { room } = content.tuning;
@@ -38,5 +38,28 @@ describe("the room's basics on the results", () => {
     const told = storyTexts();
     expect(told).toContain(`Food, cooked at home: ${formatMoney(bp(due, room.cookedBp), "NGN")} less.`);
     expect(told).toContain(`Water, fetched yourself: ${formatMoney(bp(due, room.waterBp), "NGN")} less.`);
+  });
+
+  test("[R-WORLD-008] [R-OBLIGATION-014] given the nurse's busy month (a page read, a paper asked for, a chapter closed, an offer) with food cooked and water fetched, when the results show, then both chores keep their own lines after the month's events", async () => {
+    // The nurse's 25y 3m: the month's events filled the story and the water's line fell off the end.
+    const game = newGame("scenario.ngozi", "seed-2");
+    game.endTurn([slot("activity.meetup")]);
+    const due = game.view().obligations.find((owed) => owed.entry === "obligation.upkeep")?.due ?? 0;
+    const { lines } = game.endTurn([
+      { activity: "activity.look-into-route", param: "route.uk-care" },
+      slot("activity.get-transcript"),
+      slot("activity.cook-at-home"),
+      slot("activity.fetch-water"),
+    ]);
+    const story = storyLines(lines);
+    const events = story.filter((line) => !line.key.startsWith("line.obligation.relief."));
+    expect(events).toHaveLength(STORY_MAX);
+    expect(story.slice(STORY_MAX).map((line) => line.key)).toEqual(["line.obligation.relief.cook-at-home", "line.obligation.relief.fetch-water"]);
+    await showResults(game, lines);
+    const told = storyTexts();
+    expect(told.slice(-2)).toEqual([
+      `Food, cooked at home: ${formatMoney(bp(due, room.cookedBp), "NGN")} less.`,
+      `Water, fetched yourself: ${formatMoney(bp(due, room.waterBp), "NGN")} less.`,
+    ]);
   });
 });
