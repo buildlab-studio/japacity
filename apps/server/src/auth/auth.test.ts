@@ -161,8 +161,7 @@ describe("signing in", () => {
 
   test("[R-ACCOUNT-002] [R-ACCOUNT-005] given a code sent, when the database is read, then it holds only the code's hash, and the code as sent still signs in", async () => {
     const h = harness();
-    const jar = makeJar();
-    await h.passAge(jar);
+    const { jar } = await h.guest();
     const otp = await h.codeFor("ada@example.com", jar);
     const rows = h.tables.verification.filter((row) => String(row["identifier"]).startsWith("sign-in-otp-"));
     expect(rows).toHaveLength(1);

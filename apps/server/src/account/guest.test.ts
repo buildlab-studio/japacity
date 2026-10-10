@@ -160,6 +160,18 @@ describe("the bot check at the guest start", () => {
     }
   });
 
+  test("[R-ACCOUNT-013] given a token Turnstile says was solved on another host, when the guest life is started, then the check fails and no account is made", async () => {
+    for (const host of ["elsewhere.example", "japacity.test.elsewhere.example", ""]) {
+      const h = harness({ turnstileHost: host });
+      const jar = makeJar();
+      await h.passAge(jar);
+      const reply = await h.startGuest(jar, { token: TURNSTILE_TEST.dummyToken });
+      expect({ host, status: reply.status }).toEqual({ host, status: 403 });
+      expect(await body(reply)).toMatchObject({ code: "bot-check", detail: "hostname-mismatch" });
+      expect(h.tables.user).toEqual([]);
+    }
+  });
+
   test("[R-ACCOUNT-013] given one pass, when two browsers start a guest life with it, then the second is refused", async () => {
     const h = harness();
     const jar = makeJar();
