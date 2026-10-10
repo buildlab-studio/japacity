@@ -10,7 +10,7 @@ import { bootGame } from "../../authority/boot";
 import { SAVE_KEY } from "../../authority/local";
 import { readPerson } from "../../authority/person";
 import { answersInOrder, ARCHETYPES } from "../../shared/frontdoor/archetypes";
-import { startArchetype } from "../../shared/frontdoor/frontDoor.testing";
+import { startArchetype, toTheArchetypes } from "../../shared/frontdoor/frontDoor.testing";
 import { say, words } from "../../shared/words/text";
 // Registers Testing Library's cleanup for this file.
 import "../../shared/testing/render";
@@ -49,5 +49,47 @@ describe("every tile's run", () => {
     fireEvent.click(screen.getByRole("button", { name: say("ui.prologue.start", { month: 1 }) }));
     await waitFor(() => expect(document.querySelector("[data-gate]")).toBeNull());
     expect(store.getState().view?.chapter.current).toBe("chapter.find-your-feet");
+  }, 30000);
+});
+
+describe("the age set at the door", () => {
+  test("[R-PROLOGUE-009] given the nurse's tile stepped two years older at the door, when her life is played, then the age card takes the step: two years on and the passport held", async () => {
+    const store = bootGame({ storage: localStorage, fastClock: true, makeSeed: () => "run-older" });
+    render(<App store={store} />);
+    await toTheArchetypes();
+    fireEvent.click(await screen.findByRole("button", { name: say("prologue.archetype.nurse.name") }));
+    fireEvent.change(await screen.findByRole("textbox", { name: say("prologue.door.name.title") }), { target: { value: "Ifeoma" } });
+    fireEvent.click(screen.getByRole("button", { name: new RegExp(`^${say("ui.door.next")}`) }));
+    for (let step = 0; step < 2; step += 1) fireEvent.click(screen.getByRole("button", { name: say("prologue.door.age.older") }));
+    fireEvent.click(screen.getByRole("button", { name: new RegExp(`^${say("prologue.door.print")}`) }));
+    fireEvent.click(screen.getByRole("button", { name: new RegExp(`^${say("ui.door.begin")}`) }));
+    const nurse = ARCHETYPES.find((one) => one.id === "nurse")!;
+    for (let guard = 0; guard < 60; guard += 1) {
+      await waitFor(
+        () => {
+          const view = store.getState().view;
+          if (store.getState().choosingLife || view === null) throw new Error("Not begun yet.");
+          if (view.prologue === null || document.querySelector("[data-prologue-card]") !== null) return;
+          throw new Error("No card yet.");
+        },
+        { timeout: 4000 },
+      );
+      const view = store.getState().view!;
+      if (view.prologue === null) break;
+      if (view.prologue.step === "age") throw new Error("The age card showed; the preset should send it.");
+      const answer = answersInOrder(nurse, view.prologue.step, view.prologue.answers).find((one) => one.allowed)!;
+      fireEvent.click(within(document.querySelector<HTMLElement>("[data-prologue-card]")!).getByRole("button", { name: words(`prologue.${view.prologue.step}.answer.${answer.id}`) }));
+      await waitFor(() => expect(store.getState().view?.v).toBeGreaterThan(view.v));
+    }
+    const view = store.getState().view!;
+    expect(view.prologue).toBeNull();
+    const raw = JSON.parse(localStorage.getItem(SAVE_KEY)!) as { save: Parameters<typeof savedCommands>[0] };
+    const chosen = savedCommands(raw.save).flatMap(({ command }) => (command.type === "prologue/choose" ? [command] : []));
+    expect(chosen.find((command) => command.step === "age")?.answer).toBe("older-2");
+    expect(view.documents.some((paper) => paper.id === "document.passport" && paper.state === "held")).toBe(true);
+    const age = view.qualities.find((quality) => quality.id === "quality.age-months")?.value ?? 0;
+    // The nurse's card comes at 23 or a little after; two years on is 25 and some months.
+    expect(Math.floor(age / 12)).toBeGreaterThanOrEqual(25);
+    expect(Math.floor(age / 12)).toBeLessThanOrEqual(26);
   }, 30000);
 });

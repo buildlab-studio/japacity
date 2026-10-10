@@ -1,5 +1,6 @@
 // The way through the front door for a screen test (prologue.md R-PROLOGUE-009): past the look with Next, a tile or
-// a ready life, a name from the suggestions unless one is given, "Print my page", then Begin, waiting out the stamp.
+// a ready life, a name from the suggestions unless one is given, a tile's own age, "Print my page", then Begin,
+// waiting out the stamp.
 import { fireEvent, screen, waitFor, within } from "@testing-library/react";
 
 import { say } from "../words/text";
@@ -19,7 +20,10 @@ export async function nameAndBegin(name?: string): Promise<void> {
   const box = await screen.findByRole<HTMLInputElement>("textbox", { name: say("prologue.door.name.title") });
   if (name === undefined) fireEvent.click(within(screen.getByRole("group", { name: say("prologue.door.name.suggested") })).getAllByRole("button")[0]!);
   else fireEvent.change(box, { target: { value: name } });
-  fireEvent.click(screen.getByRole("button", { name: new RegExp(`^${say("prologue.door.print")}`) }));
+  // A tile's life asks the age next; its own age, the middle, is kept.
+  const next = screen.queryByRole("button", { name: new RegExp(`^${say("ui.door.next")}`) });
+  if (next !== null) fireEvent.click(next);
+  fireEvent.click(await screen.findByRole("button", { name: new RegExp(`^${say("prologue.door.print")}`) }));
   fireEvent.click(await screen.findByRole("button", { name: new RegExp(`^${say("ui.door.begin")}`) }));
   await waitFor(
     () => {
