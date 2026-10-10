@@ -1,7 +1,7 @@
 // The rooms of the interior places, each a set of numbers for the one room builder (R-ASSET-014).
-// The parlour, the room abroad and the room in a compound are about 16 by 9 metres inside, seen down their
-// length so they fill a phone held upright (docs/rules/world.md R-WORLD-011, R-WORLD-029); the offices stay
-// about 12 by 10. The arrivals hall is the tallest.
+// The parlour and the room abroad are about 16 by 9 metres inside, seen down their length so they fill a phone held
+// upright (docs/rules/world.md R-WORLD-011, R-WORLD-029); the room in a compound is the size such a room is; the
+// offices stay about 12 by 10. The arrivals hall is the tallest.
 import type { RoomSpec } from "./build";
 
 export const ROOMS = {
@@ -140,11 +140,12 @@ export const ROOMS = {
     ],
     seed: 8118,
   },
-  // home.md R-HOME-010: one rented room in a compound in Ojuelegba. Painted walls gone tired at the bottom, louvre
-  // windows on the yard and a calendar picture; the door is at the side wall's end, as the room abroad's.
+  // home.md R-HOME-010: one rented room in a compound in Ojuelegba, about 4 by 3.5 metres as such a room is, so its
+  // five things stand close around the character. Painted walls gone tired at the bottom, louvre windows on the yard
+  // and a calendar picture over the mattress; the door is in the side wall, as the room abroad's.
   compound: {
     name: "bld_room_compound",
-    size: [16, 9],
+    size: [4, 3.5],
     height: 3.0,
     side: "right",
     upper: "wallSky",
@@ -152,9 +153,9 @@ export const ROOMS = {
     dado: 1.0,
     skirting: "charcoal",
     fittings: [
-      { kind: "window", wall: "back", at: -1.2 },
-      { kind: "picture", wall: "back", at: 3.4 },
-      { kind: "window", wall: "side", at: -1.6 },
+      { kind: "window", wall: "back", at: 1.2 },
+      { kind: "picture", wall: "back", at: -1.25 },
+      { kind: "window", wall: "side", at: -1.0 },
     ],
     seed: 1010,
   },
