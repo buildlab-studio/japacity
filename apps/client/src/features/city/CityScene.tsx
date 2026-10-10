@@ -11,6 +11,8 @@ import { Canvas, type ThreeEvent, useFrame, useThree } from "@react-three/fiber"
 import { type MutableRefObject, type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { type Camera, type DirectionalLight, Fog, type Object3D, PerspectiveCamera, Vector3 } from "three";
 
+import { keptStyleOf } from "../../authority/person";
+import { wear } from "../../shared/frontdoor/colours";
 import type { Act, Shot, Thing } from "../../shared/world/contract";
 import { advanceClock } from "../../shared/three/clock";
 import { loadModel } from "../../shared/three/load";
@@ -293,7 +295,10 @@ function Place(props: PlaceProps) {
         walk.current.pending = null;
         walk.current.standing = stage.start;
       }
-      setWorld(buildWorld(stage, models, people, own, settings, text, place, roam));
+      const built = buildWorld(stage, models, people, own, settings, text, place, roam);
+      // The character wears the player's own colours (R-PROLOGUE-015): painted once, as the place is built.
+      wear(built.own.root, keptStyleOf(own));
+      setWorld(built);
     })().catch((error: unknown) => {
       if (alive) onFailed(error instanceof Error ? error.message : String(error));
     });

@@ -2,7 +2,8 @@
 // the character on a plinth at the gate, seen from the street. One fixed raised camera, low mode, no crowd:
 // the sheet covers the bottom of the screen, so the camera keeps the character in the top part. A look
 // tapped on the sheet is put on the same character at once; the figure turns slowly and a finger drags it
-// round (the design's onboarding). Loaded only where WebGL exists; nothing here sends a command.
+// round (the design's onboarding). The figure wears the player's own colours (R-PROLOGUE-015), painted once a
+// pick, and tells the first screen what it read of the look. Loaded only where WebGL exists; nothing here sends a command.
 import { content, text } from "@japacity/content";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useRef, useState } from "react";
@@ -15,7 +16,10 @@ import { figureOf, poseFigure } from "../three/people";
 import { modeSettings } from "../../features/city/mode";
 import { filesOf, type PlaceFile, stageOf } from "../../features/city/placeFile";
 import { animateWorld, buildWorld, colourOf, skyColours, type World } from "../../features/city/world";
+import { readLook, wear } from "./colours";
+import { idOf } from "./looks";
 import { type Spin, SLOW_TURN, turnFrame } from "./spin";
+import { type LookStyle, reportOwn, styleKey } from "./style";
 
 /** The compound's file under places/: the family house's own (place.family-house). */
 const COMPOUND = "family-house-compound";
@@ -41,6 +45,8 @@ export interface FrontSceneProps {
   look: string;
   /** The finger's pull on the figure, from the gate. */
   spin: Spin;
+  /** The player's own colours on the look; as made when absent. */
+  style?: LookStyle | undefined;
 }
 
 /** What the browser test and the pictures read. */
@@ -48,6 +54,8 @@ export interface FrontProbe {
   ready: boolean;
   look: string;
   facing: number;
+  /** The style the figure wears, as `styleKey` writes it: empty as made. */
+  worn: string;
 }
 
 declare global {
@@ -56,8 +64,18 @@ declare global {
   }
 }
 
-function Compound({ file, look, spin }: FrontSceneProps & { file: PlaceFile }) {
+/** Reads the look the figure wears for the first screen's rows, then dresses it in the style. */
+function dress(world: World, look: string, style: LookStyle | undefined): void {
+  const own = readLook(world.own.root);
+  if (own !== null) reportOwn(idOf(look), own);
+  wear(world.own.root, style);
+}
+
+function Compound({ file, look, spin, style }: FrontSceneProps & { file: PlaceFile }) {
   const [world, setWorld] = useState<World | null>(null);
+  const worn = useRef(style);
+  worn.current = style;
+  const key = styleKey(style);
   const shown = useRef<string | null>(null);
   const facing = useRef(TO_SHEET);
   const speed = useRef(SLOW_TURN);
@@ -76,6 +94,7 @@ function Compound({ file, look, spin }: FrontSceneProps & { file: PlaceFile }) {
       if (!alive) return;
       const built = buildWorld(stage, models, [], look, settings, (key) => text[key], PLACE, false);
       built.indicator.visible = false;
+      dress(built, look, worn.current);
       shown.current = look;
       setWorld(built);
     })().catch(() => undefined);
@@ -96,6 +115,7 @@ function Compound({ file, look, spin }: FrontSceneProps & { file: PlaceFile }) {
       const own = figureOf(model, "stand", 0.7);
       own.root.userData = { own: true };
       world.own = own;
+      dress(world, look, worn.current);
       world.root.add(own.root);
       shown.current = look;
       if (window.__front !== undefined) window.__front.look = look;
@@ -105,9 +125,16 @@ function Compound({ file, look, spin }: FrontSceneProps & { file: PlaceFile }) {
     };
   }, [world, look]);
 
+  // A pick paints the figure once; the frames only turn it.
+  useEffect(() => {
+    if (world === null || shown.current !== look) return;
+    wear(world.own.root, worn.current);
+    if (window.__front !== undefined) window.__front.worn = key;
+  }, [world, look, key]);
+
   useEffect(() => {
     if (world === null) return;
-    window.__front = { ready: true, look: shown.current ?? look, facing: facing.current };
+    window.__front = { ready: true, look: shown.current ?? look, facing: facing.current, worn: styleKey(worn.current) };
     return () => {
       delete window.__front;
     };

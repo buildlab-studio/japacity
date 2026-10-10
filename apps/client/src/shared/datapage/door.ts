@@ -1,6 +1,7 @@
 // The front door's run as answered so far (prologue.md R-PROLOGUE-009): the step it is at and every answer, kept on
 // the device under one key of its own, so a reload at any step comes back to that step. The life itself is written
 // only at Begin (the authority keeps the save unwritten until a life is chosen).
+import { readStyle, type LookStyle } from "../frontdoor/style";
 
 /** The one localStorage key the run is kept under. */
 export const DOOR_KEY = "japacity.door";
@@ -35,6 +36,8 @@ export interface DoorDraft {
   roll: number;
   /** Years from the tile's own age (R-PROLOGUE-009): negative is younger. */
   age: number;
+  /** The player's own colours on the look (R-PROLOGUE-015); absent as made. */
+  style?: LookStyle | undefined;
 }
 
 type Read = Pick<Storage, "getItem">;
@@ -76,7 +79,11 @@ export function readDoor(storage: Read | null = browserStorage()): DoorDraft | n
     const raw = storage?.getItem(DOOR_KEY) ?? null;
     if (raw === null) return null;
     const parsed: unknown = JSON.parse(raw);
-    return isDraft(parsed) ? parsed : null;
+    if (!isDraft(parsed)) return null;
+    // A style that cannot be read is dropped, never the run.
+    const { style, ...rest } = parsed;
+    const kept = readStyle(style);
+    return kept === undefined ? rest : { ...rest, style: kept };
   } catch {
     return null;
   }

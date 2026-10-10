@@ -5,7 +5,9 @@
 // page and never change with the theme. No coat of arms, no issuing authority, no real layout.
 import type { CSSProperties, ReactNode } from "react";
 
+import type { LookStyle } from "../frontdoor/style";
 import { say } from "../words/text";
+import { usePhoto } from "./photo";
 
 /** The page's own colours: the paper, its darker shade behind the photo, the ink, the band and the stamps' red. */
 export const PAGE_COLOURS = { paper: "#e2eedd", shade: "#cde2c7", ink: "#0c3a24", band: "#0d5732", red: "#b3302a" } as const;
@@ -26,8 +28,13 @@ export interface PageFields {
   path: string;
   /** How ready, as the page says it: "12%". */
   ready: string;
-  /** The look's picture, the photo. */
+  /** The look's picture, the photo as made. */
   photo: string;
+  /**
+   * The look and the player's own colours on it (R-PROLOGUE-015): in a style, the photo is the figure rendered in it,
+   * the one kept with the person where there is one, else drawn as the page prints; the look's picture until then.
+   */
+  wear?: { look: string; style?: LookStyle; photo?: string };
   /** One per step taken toward leaving, oldest first. */
   stamps?: readonly string[];
   /** The japa type read at the send-off and kept with its card (decision 0018); absent before then. */
@@ -45,6 +52,13 @@ function Field({ id, label, value, delay }: { id: string; label: string; value: 
       </div>
     </div>
   );
+}
+
+/** The photo: the figure in the player's colours where it is drawn, else the look's own picture, cropped to the face. */
+function Photo({ page }: { page: PageFields }) {
+  const drawn = usePhoto(page.wear?.look, page.wear?.style, page.wear?.photo);
+  if (drawn !== null) return <img src={drawn} alt="" draggable={false} className="absolute inset-0 h-full w-full object-cover" data-photo-made />;
+  return page.photo === "" ? null : <img src={page.photo} alt="" draggable={false} className="absolute top-[-3%] left-1/2 h-[330%] max-w-none -translate-x-1/2" />;
 }
 
 /** A stamp on the page: a red box of capitals, set down a little crooked. */
@@ -69,7 +83,7 @@ export function DataPage({ page, print = false, stamp }: { page: PageFields; pri
       </div>
       <div className="flex gap-3 p-3">
         <div className="relative h-[112px] w-[86px] shrink-0 overflow-hidden rounded-[4px] border" style={{ background: PAGE_COLOURS.shade, borderColor: "rgba(12, 58, 36, 0.25)" }} data-photo aria-label={say("prologue.page.photo")} role="img">
-          {page.photo === "" ? null : <img src={page.photo} alt="" draggable={false} className="absolute top-[-3%] left-1/2 h-[330%] max-w-none -translate-x-1/2" />}
+          <Photo page={page} />
         </div>
         <div className="flex min-w-0 flex-1 flex-col gap-1.5">
           <Field id="name" label={say("prologue.page.name")} value={page.name} delay={delay()} />

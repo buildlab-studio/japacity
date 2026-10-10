@@ -3,6 +3,7 @@
 // drafts in the voice of docs/rules/text.md. Every key here is a candidate to
 // move into content, where it can be rewritten. Numbers go in braces.
 import { boardsWords } from "./boards";
+import { coloursText } from "./colours";
 import { daysText } from "./days";
 import { lotteryWords } from "./lottery";
 import { onlineText } from "./online";
@@ -18,6 +19,7 @@ export const uiText: Record<string, string> = {
   ...worldText,
   ...profileText,
   ...daysText,
+  ...coloursText,
   "ui.game": "Japacity",
   "ui.loading": "Opening your life...",
   "ui.failed": "The game could not start: {why}",
