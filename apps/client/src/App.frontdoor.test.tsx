@@ -230,14 +230,13 @@ describe("a life from sixteen built from an archetype", () => {
     const person = readPerson()!;
     // The name prints on the data page itself, as the design's page screen has it, not as a heading in the sheet.
     expect((await screen.findAllByText(person.name)).length).toBeGreaterThan(0);
-    const archetypeLine = document.querySelector("[data-handover-archetype]")?.textContent;
-    expect(archetypeLine).toBe("The nurse. Science, then nursing school.");
+    // The page prints the path where the sheet's line used to say it (the design's page: PATH and SO FAR).
+    expect(screen.getAllByText(say("prologue.archetype.nurse.name")).length).toBeGreaterThan(0);
     const at = (selector: string): number => {
       const found = document.querySelector(selector);
       if (found === null) throw new Error(`No ${selector}.`);
       return document.body.textContent.indexOf(found.textContent);
     };
-    expect(at("[data-handover-archetype]")).toBeLessThan(at("[data-family]"));
     expect(at("[data-family]")).toBeLessThan(at("[data-years]"));
     expect(document.querySelector("[data-years] [data-fact='university']")?.textContent).toContain(words("prologue.course.answer.nursing"));
     expect(document.querySelector("[data-first-step]")).not.toBeNull();

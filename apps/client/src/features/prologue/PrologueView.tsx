@@ -22,7 +22,7 @@ import { nextStepOf, ownWayOf, RACKS_STEP, racksAtHand } from "../../shared/word
 import { bandWords, hasWords, nameOf, say, sayCount, words } from "../../shared/words/text";
 import { Gate, GateSheet, gateLook } from "../../shared/frontdoor/Gate";
 import { lookOf } from "../../shared/frontdoor/looks";
-import { type Archetype, answersInOrder, archetypeOf, doorAnswer, fullPrologue, handoverKind, withAge, withHome } from "../../shared/frontdoor/archetypes";
+import { type Archetype, answersInOrder, archetypeOf, doorAnswer, fullPrologue, withAge, withHome } from "../../shared/frontdoor/archetypes";
 import { DataPage, type PageFields } from "../../shared/datapage/DataPage";
 import { JapacityLine, StatBox } from "../../shared/datapage/PageParts";
 import { DoorHead } from "../../shared/frontdoor/DoorHead";
@@ -448,11 +448,6 @@ function PageScreen({ view, archetype, draw, onDone }: { view: PlayerView; arche
                 <p className="num shrink-0 text-[13px] text-text-2">{say("ui.profile.age", { years: ageYears(view) })}</p>
               </div>
             )}
-            {handover && archetype !== null ? (
-              <p className="mb-2 text-[14px] font-bold" data-handover-archetype>
-                {handoverKind(archetype, view)}
-              </p>
-            ) : null}
             {kept === null && !handover ? null : <Family draw={kept} water={water} turned={handover && turned} />}
             <h2 className="label mt-3 text-text-2">{say(handover ? "ui.page.years" : "ui.page.years.running")}</h2>
             <Chips chips={years} mark="data-years" />
