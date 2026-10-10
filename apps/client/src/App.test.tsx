@@ -28,7 +28,7 @@ describe("the app", () => {
 
     // Through the front door to the first ready life (R-PROLOGUE-009).
     await startReadyLife(Object.keys(content.scenario)[0]!);
-    expect(await screen.findByRole("heading", { name: say("ui.month.planning", { month: 1 }, { timeout: 10_000 }) })).toBeDefined();
+    expect(await screen.findByRole("heading", { name: say("ui.month.planning", { month: 1 }) }, { timeout: 10_000 })).toBeDefined();
     // With no route yet the header shows no japacity label and no placeholder beside it.
     const header = document.querySelector("header")!;
     expect(header.textContent).not.toContain("--");

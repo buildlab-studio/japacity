@@ -65,7 +65,7 @@ describe("a life from sixteen in the app", () => {
     expect(store.getState().view?.prologue).toBeNull();
 
     fireEvent.click(await screen.findByRole("button", { name: say("ui.prologue.start", { month: 1 }) }));
-    expect(await screen.findByRole("heading", { name: say("ui.month.planning", { month: 1 }, { timeout: 10_000 }) })).toBeDefined();
+    expect(await screen.findByRole("heading", { name: say("ui.month.planning", { month: 1 }) }, { timeout: 10_000 })).toBeDefined();
 
     // A hunt that finds work brings a job offer; accepting it is the first job.
     for (let month = 1; month <= 12 && store.getState().view?.job.id === null; month += 1) {
