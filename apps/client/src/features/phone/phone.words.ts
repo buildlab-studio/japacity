@@ -86,6 +86,9 @@ export const phoneText: Record<string, string> = {
   "phone.japa.reminders": "Coming up",
 
   "phone.jobs.held": "Your job",
+  // The raise from being noticed, and when it landed: "Raised last month" (R-ACTIVITY-013).
+  "phone.jobs.raised": "Raised {when}",
+  "phone.jobs.raised.unknown": "With a raise",
   "phone.jobs.side": "Side job",
   "phone.jobs.offers": "Offers",
   "phone.jobs.offers.none": "No job offers right now.",

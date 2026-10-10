@@ -45,7 +45,7 @@ export type Look = (typeof LOOKS)[number];
 export const LOOK_FINDS: Record<Look, readonly string[]> = {
   "look-office": ["no-office"],
   "look-licence": ["no-licence"],
-  "look-name": ["cash-only", "guarantee", "holds-passport", "price-low", "pay-today"],
+  "look-name": ["cash-only", "guarantee", "holds-passport", "no-passport", "price-low", "pay-today"],
 };
 /** The sign a friend's warning adds: "sounds like the one your friend warned about" (R-ADVICE-011). */
 export const WARNED = "friend-warned";

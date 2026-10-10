@@ -86,8 +86,8 @@ describe("the chaser among the agents", () => {
     }
   });
 
-  test("[R-ADVICE-013] given the chaser's fee, when it is read, then it runs from ₦5,000 to ₦12,000 and overlaps every other kind's range, so the fee alone never names the kind", () => {
-    expect(advice.chaserFee).toEqual([500000, 1200000]);
+  test("[R-ADVICE-013] given the chaser's fee, when it is read, then it runs from ₦8,000 to ₦25,000 and overlaps every other kind's range, so the fee alone never names the kind", () => {
+    expect(advice.chaserFee).toEqual([800000, 2500000]);
     expect(feeRange("chaser", advice)).toEqual(advice.chaserFee);
     for (const kind of ["fixer", "overpromiser", "scammer"] as const) {
       expect(feeRange(kind, advice)).toEqual(advice.fees[kind]);

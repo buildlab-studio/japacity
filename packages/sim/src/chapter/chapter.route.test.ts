@@ -68,7 +68,7 @@ describe("the file follows the lean", () => {
     expect(game.state.route[GULF]?.state).toBe("heard");
     const result = game.endTurn([slot(LOOK, GULF)]);
     expect(closedTo(result)).toEqual({ type: "chapter/closed", chapter: FEET, next: "chapter.build-the-file-gulf" });
-    expect(game.view().chapter.items.map((item) => item.id)).toEqual(["medical", "agent", "contract"]);
+    expect(game.view().chapter.items.map((item) => item.id)).toEqual(["passport", "medical", "agent", "contract"]);
   });
 
   test("[R-CHAPTER-009] given a graduate who looks into Canada's points before the master's, when the first chapter closes, then the points file stands in", () => {
@@ -165,7 +165,7 @@ describe("the variants in content", () => {
     expect(items("chapter.decision-day-talent")).toEqual(["tb", "applied", "granted"]);
     expect(items("chapter.build-the-file-points")).toEqual(["eca", "english", "pool", "invited"]);
     expect(items("chapter.decision-day-points")).toEqual(["police", "applied", "granted"]);
-    expect(items("chapter.build-the-file-gulf")).toEqual(["medical", "agent", "contract"]);
+    expect(items("chapter.build-the-file-gulf")).toEqual(["passport", "medical", "agent", "contract"]);
     expect(items("chapter.decision-day-gulf")).toEqual(["police", "applied", "granted"]);
     expect(variants.filter((entry) => entry.variantOf === DECISION).map((entry) => entry.closesOn)).toEqual(["granted", "granted", "granted", "granted"]);
     // The first chapter and the send-off are the same for every life.

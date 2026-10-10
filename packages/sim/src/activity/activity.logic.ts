@@ -779,7 +779,44 @@ function beNoticed(ctx: Ctx): BaseEvent[] {
   const raised = ctx.random.chance("job", ctx.content.tuning.activity.raiseChanceBp);
   const after: ReadCtx = { ...read, state: { ...read.state, activity: { ...read.state.activity, raised: [...(read.state.activity.raised ?? []), job] } } };
   const pay = raised ? (monthlyPay(after, entry) ?? now) : now;
-  return record(ctx, { type: "activity/noticed", job, raised, pay, was: now });
+  return record(ctx, { type: "activity/noticed", job, raised, pay, was: now, month: ctx.state.turn.month });
+}
+
+/**
+ * R-ACTIVITY-013: the raise from being noticed, for the Jobs app. The held job's pay a
+ * month with the raise and the month it landed; nothing while the job held has no raise or no pay of its own.
+ */
+function raiseView(read: ReadCtx): { raise?: { pay: MoneyParam; month: number | null } } {
+  const job = read.state.activity.job;
+  if (job === null || !raisedJob(read.state, job)) return {};
+  const pay = monthlyPay(read, jobEntry(read.content, job));
+  return pay === null ? {} : { raise: { pay, month: read.state.activity.raisedIn?.[job] ?? null } };
+}
+
+/** Why the flight ends a job: the move abroad (R-PLACE-003). */
+const MOVED = "moved";
+
+/**
+ * R-ACTIVITY-013: a course at home in progress ends with the flight. A course is an
+ * activity whose months open fees; it is in progress once those fees are open and before its last month. Its
+ * fees close by their type, so nothing of it is charged after. The flight ends the main job and the side job
+ * in turn, so this is reached twice; the second time the fees are gone and nothing is told again.
+ */
+function endCourses(ctx: Ctx, cause: Cause): BaseEvent[] {
+  const events: BaseEvent[] = [];
+  for (const [id, count] of Object.entries(ctx.state.activity.played) as [Id<"activity">, number][]) {
+    const steps = ctx.content.activity[id]?.onMonth ?? [];
+    const opening = steps.find((step) => step.effects.some((effect) => effect.type === "obligation/open"));
+    const fees = opening?.effects.find((effect) => effect.type === "obligation/open");
+    if (opening === undefined || fees?.type !== "obligation/open") continue;
+    const last = Math.max(...steps.filter((step) => step.repeat !== true).map((step) => step.at));
+    const owed = ctx.content.obligation[fees.obligation];
+    const open = Object.values(ctx.state.obligation.items).some((item) => item.entry === fees.obligation);
+    if (count < opening.at || count >= last || owed === undefined || !open) continue;
+    events.push(...record(ctx, { type: "activity/course-ended", activity: id }));
+    ctx.apply([{ type: "obligation/close", obligationType: owed.type }], cause);
+  }
+  return events;
 }
 
 /**
@@ -1114,6 +1151,8 @@ function lines(event: ActivityEvent, state: State): ReportLine[] {
       return [line("line.activity.sick-pay", { job: event.job, amount: event.pay }, "bad")];
     case "activity/side-started":
       return [line("line.activity.side-started", { job: event.side }, "good")];
+    case "activity/course-ended":
+      return [line("line.activity.course-ended", { activity: event.activity }, "bad")];
     case "activity/side-ended":
       return event.why === "quit"
         ? [line("line.activity.side-quit", { job: event.side }, "plain")]
@@ -1230,7 +1269,7 @@ function evolve(slice: ActivitySlice, event: ActivityEvent): ActivitySlice {
       return { ...slice, played };
     }
     case "activity/noticed":
-      return event.raised ? { ...slice, raised: [...(slice.raised ?? []), event.job] } : slice;
+      return event.raised ? { ...slice, raised: [...(slice.raised ?? []), event.job], raisedIn: { ...slice.raisedIn, [event.job]: event.month } } : slice;
     case "activity/pay-withheld":
     case "activity/sick-pay":
     case "activity/side-worked":
@@ -1247,6 +1286,7 @@ function evolve(slice: ActivitySlice, event: ActivityEvent): ActivitySlice {
     case "activity/advised":
     case "activity/exam-marked":
     case "activity/contributed":
+    case "activity/course-ended":
       return slice;
     default: {
       const never: never = event;
@@ -1286,10 +1326,11 @@ export const activityKind: RegisteredKind<ActivitySlice, ActivityEvent> = {
       if (effect.type !== "activity/start-job") throw new Error(`start-job cannot carry out ${effect.type}.`);
       return startJobEffect(ctx, effect, cause);
     },
-    "activity/end-job": (ctx, effect) => {
+    "activity/end-job": (ctx, effect, cause) => {
       if (effect.type !== "activity/end-job") throw new Error(`end-job cannot carry out ${effect.type}.`);
       // R-ACTIVITY-010: `side` ends the side job and leaves the main job.
-      return effect.side === true ? endSide(ctx, effect.why) : endJob(ctx, effect.why);
+      const ended = effect.side === true ? endSide(ctx, effect.why) : endJob(ctx, effect.why);
+      return effect.why === MOVED ? [...ended, ...endCourses(ctx, cause)] : ended;
     },
     "activity/gig": (ctx, effect, cause) => {
       if (effect.type !== "activity/gig") throw new Error(`gig cannot carry out ${effect.type}.`);
@@ -1317,6 +1358,7 @@ export const activityKind: RegisteredKind<ActivitySlice, ActivityEvent> = {
       id: read.state.activity.job,
       months: read.state.activity.job === null ? 0 : (read.state.activity.tenure[read.state.activity.job] ?? 0),
       side: read.state.activity.side,
+      ...raiseView(read),
     },
     activities: activityOptions(read),
     lastSlots: read.state.activity.lastSlots,

@@ -146,7 +146,7 @@ describe("the tells", () => {
     expect(carriedTells(stop, "scammer", advice).length).toBeGreaterThanOrEqual(advice.scamTells);
     expect(carriedTells(stop, "overpromiser", advice).length).toBeGreaterThanOrEqual(advice.overpromiseTells);
     expect(carriedTells(stop, "fixer", advice).length).toBeLessThanOrEqual(1);
-    expect(stop.signs.map((sign) => sign.key).sort()).toEqual(["cash-only", "friend-warned", "guarantee", "holds-passport", "no-licence", "no-office", "pay-today", "price-low"]);
+    expect(stop.signs.map((sign) => sign.key).sort()).toEqual(["cash-only", "friend-warned", "guarantee", "holds-passport", "no-licence", "no-office", "no-passport", "pay-today", "price-low"]);
     expect(agentProblems(content)).toEqual([]);
   });
 

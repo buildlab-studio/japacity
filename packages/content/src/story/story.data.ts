@@ -110,6 +110,7 @@ export const storySteps: StoryStep[] = [
   step("chapter.build-the-file-points", "english", { place: "place.english-test-centre", thing: "test-desk", app: null, act: { entry: "activity.sit-english-test" } }),
   step("chapter.build-the-file-points", "pool", { place: HUB, thing: "long-desk", app: "japa", act: { entry: "activity.enter-pool" } }),
   step("chapter.build-the-file-points", "invited", { place: HUB, thing: null, app: "japa", act: { wait: true } }),
+  step("chapter.build-the-file-gulf", "passport", { place: HOUSE, inside: true, thing: "papers-box", app: "japa", act: { entry: "activity.get-passport" } }),
   step("chapter.build-the-file-gulf", "medical", { place: CLINIC, thing: "nurse-desk", app: null, act: { entry: "activity.gulf-medical" } }),
   step("chapter.build-the-file-gulf", "agent", { place: AGENT, thing: "agent-desk", app: null, act: { entry: "offer.gulf-agent" } }),
   step("chapter.build-the-file-gulf", "contract", { place: AGENT, thing: "agent-desk", app: null, act: { entry: "activity.apply-gulf-contract" } }),

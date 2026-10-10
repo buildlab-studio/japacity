@@ -105,6 +105,8 @@ export const chapterTable: Record<Id<"chapter">, ChapterEntry> = {
     { id: "invited", requirement: gateStep(POINTS, "invited") },
   ]),
   "chapter.build-the-file-gulf": variant(FILE, GULF, 6, [
+    // No honest way to the Gulf goes without a passport: it comes before the medical.
+    { id: "passport", requirement: held("document.passport") },
     { id: "medical", requirement: held("document.medical") },
     // The contract gate's one step: an agent recorded with the contract's terms (route-gates.md, the code's reading).
     { id: "agent", requirement: gateStep(GULF, "sponsor") },

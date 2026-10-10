@@ -96,7 +96,7 @@ const BP_WHOLE = 10000;
  * after it. A friend's warning is never carried; it is found (R-ADVICE-011).
  */
 function tells(fixer: readonly string[], scammer: readonly string[]): OfferEntry["signs"] {
-  const order = ["cash-only", "guarantee", "no-office", "no-licence", "holds-passport", "pay-today", "price-low", "friend-warned"];
+  const order = ["cash-only", "guarantee", "no-office", "no-licence", "holds-passport", "no-passport", "pay-today", "price-low", "friend-warned"];
   return order.map((key) => ({ key, honestBp: fixer.includes(key) ? BP_WHOLE : 0, fraudBp: scammer.includes(key) ? BP_WHOLE : 0 }));
 }
 
@@ -174,7 +174,8 @@ export const adviceOfferTable: Record<Id<"offer">, OfferEntry> = {
     AT_STOP,
     { from: "range", min: 1, max: 3, step: 1 },
     tuning.advice.agentKindsBp.scammer,
-    tells(["cash-only"], ["cash-only", "guarantee", "no-office", "no-licence", "holds-passport", "pay-today", "price-low"]),
+    // "No passport needed, we will arrange everything" is a scammer's line: no honest way out goes without one.
+    tells(["cash-only"], ["cash-only", "guarantee", "no-office", "no-licence", "holds-passport", "no-passport", "pay-today", "price-low"]),
   ),
   // R-ADVICE-010: a desk in the agent's office, which only a fixer keeps (`fraudBp` 0). He carries no tell.
   [AT_OFFICE]: agent(AT_OFFICE, 1, 0, tells([], [])),

@@ -12,8 +12,8 @@ export const WORLD_LIMITS = {
   sheets: { low: 0, high: 1 },
   /** An outdoor place is a frontage about this wide, in metres. */
   frontage: 24,
-  /** An indoor place is a room about this wide and deep, in metres. */
-  room: [12, 10],
+  /** An indoor place is a room about this long and wide, in metres, seen down its length. */
+  room: [16, 9],
   /** How far "about" stretches. */
   slack: 1.25,
 } as const;
