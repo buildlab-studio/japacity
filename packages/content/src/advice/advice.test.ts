@@ -1,10 +1,10 @@
 // The agents' fees and tells in content: docs/rules/advice.md R-ADVICE-005, 006 and 013, as the maintainer
 // ruled on 10 Oct 2026 (the review): a fee never tells the kind, and "No passport needed"
 // is a scammer's line.
-import type { Id } from "@japacity/sim";
+import type { Id, OfferEntry } from "@japacity/sim";
+import { checkContent } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
-import { agentProblems, carriedTells, feeRange } from "../../../sim/src/offer/offer.agent";
 import { content, text } from "../index";
 
 const advice = content.tuning.advice;
@@ -12,6 +12,18 @@ const KINDS = ["fixer", "chaser", "overpromiser", "scammer"] as const;
 /** The step a fee is drawn in: ₦1,000, in kobo. */
 const STEP = 100000;
 const STOP: Id<"offer"> = "offer.agent-stop";
+
+type Kind = (typeof KINDS)[number];
+
+/** The range a kind's fee is drawn from, as the simulation reads the tuning: the chaser's is her own. */
+function feeRange(kind: Kind, tuning: typeof advice): readonly [number, number] {
+  return kind === "chaser" ? tuning.chaserFee : tuning.fees[kind];
+}
+
+/** The tells an entry carries for an honest agent (a fixer or a chaser) or a scammer, as its signs mark them. */
+function carriedTells(entry: OfferEntry, kind: "fixer" | "chaser" | "scammer"): string[] {
+  return entry.signs.filter((sign) => (kind === "scammer" ? sign.fraudBp : sign.honestBp) === 10000).map((sign) => sign.key);
+}
 
 /** The kinds that could ask this fee. */
 function askedBy(fee: number): string[] {
@@ -49,12 +61,13 @@ describe("the agents' fees", () => {
 describe("the scammer's tells", () => {
   test("[R-ADVICE-006] given the men at the stop, when a scammer's tells are read, then \"No passport needed, we will arrange everything\" is one of them, never a fixer's or a chaser's, and a look finds it", () => {
     const stop = content.offer[STOP]!;
-    expect(carriedTells(stop, "scammer", advice)).toContain("no-passport");
-    expect(carriedTells(stop, "fixer", advice)).not.toContain("no-passport");
-    expect(carriedTells(stop, "chaser", advice)).not.toContain("no-passport");
+    expect(carriedTells(stop, "scammer")).toContain("no-passport");
+    expect(carriedTells(stop, "fixer")).not.toContain("no-passport");
+    expect(carriedTells(stop, "chaser")).not.toContain("no-passport");
     expect(text[`${STOP}.sign.no-passport`]).toBe("He says: \"No passport needed, we will arrange everything.\"");
     expect(text["advice.tell.no-passport.name"]).toBe("he said no passport was needed");
     for (const entry of ["offer.agent-office", "offer.agent-chaser"]) expect(text[`${entry}.sign.no-passport`]).toBeDefined();
-    expect(agentProblems(content)).toEqual([]);
+    // The content check fails a tell no look finds (R-ADVICE-006).
+    expect(checkContent(content).filter((problem) => problem.includes("R-ADVICE"))).toEqual([]);
   });
 });
