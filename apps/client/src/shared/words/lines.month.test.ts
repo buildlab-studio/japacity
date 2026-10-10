@@ -47,8 +47,9 @@ describe("an answer's money, named for it", () => {
 
   test("[R-WORLD-008] [R-TEXT-005] given a meetup played, when the month's lines are read, then its spending is named the meetup, not going out", () => {
     const game = newGame("scenario.ada");
-    game.endTurn([{ activity: "activity.meetup", param: null }]);
-    const shown = read(game.view().report?.lines ?? []);
+    // the meetup is an act done at once, so its spending is in its own lines, which the
+    // month's results show with the month's (R-WORLD-008).
+    const shown = read(game.accept({ type: "activity/now", activity: "activity.meetup", param: null }).lines);
     const cost = content.activity["activity.meetup"]?.cost.find((each) => each.currency === "NGN")?.amount;
     if (typeof cost !== "number") throw new Error("The meetup has no naira cost.");
     expect(shown).toContain(`The meetup: ${formatMoney(cost, "NGN")}.`);

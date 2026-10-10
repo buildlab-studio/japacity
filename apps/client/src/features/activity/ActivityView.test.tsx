@@ -60,13 +60,18 @@ describe("the month plan", () => {
       params: ["school.northgate", "school.ashby"],
       cost: [],
       affordable: true,
+      when: "now",
+      done: false,
     };
     const view: PlayerView = { ...base, activities: [withParam] };
-    const { store } = await renderWithView(<ActivityView />, view);
+    const { store, authority } = await renderWithView(<ActivityView />, view);
     fireEvent.change(screen.getByLabelText(say("ui.activity.pick")), { target: { value: "school.ashby" } });
     expect(screen.getByRole("option", { name: text["school.ashby.name"]! })).toBeDefined();
     fireEvent.click(addButton("activity.apply-to-school"));
-    expect(store.getState().plan[0]).toEqual({ activity: "activity.apply-to-school", param: "school.ashby" });
+    // an application is an act done at once, so the param picked goes with the command
+    // sent now, and the month's plan is left as it was.
+    await waitFor(() => expect(authority.sent.at(-1)).toMatchObject({ type: "activity/now", activity: "activity.apply-to-school", param: "school.ashby" }));
+    expect(store.getState().plan.some((pick) => pick?.activity === "activity.apply-to-school")).toBe(false);
   });
 
   test("given a job, when it is quit and confirmed, then activity/quit is sent", async () => {
@@ -100,7 +105,7 @@ describe("the month plan", () => {
 
   test("given a university application with no school open, then the card says what each university asks", async () => {
     const base = engineView();
-    const apply: ActivityOption = { id: "activity.apply-to-school", allowed: true, missing: [], params: [], cost: [], affordable: true };
+    const apply: ActivityOption = { id: "activity.apply-to-school", allowed: true, missing: [], params: [], cost: [], affordable: true, when: "now", done: false };
     await renderWithView(<ActivityView />, { ...base, activities: [apply] });
     expect(screen.getByText(say("ui.activity.no-school"))).toBeDefined();
     for (const school of Object.values(content.school)) expect(screen.getByText(new RegExp(`^${text[`${school.id}.name`]!} asks for band`))).toBeDefined();
@@ -110,7 +115,7 @@ describe("the month plan", () => {
   test("given an activity that cannot be paid for, then it says how much is short", async () => {
     const base = engineView();
     const cost = { currency: "NGN" as const, amount: base.pockets.NGN.bank + base.pockets.NGN.cash + 8_050_000 };
-    const sitting: ActivityOption = { id: "activity.sit-english-test", allowed: true, missing: [], params: null, cost: [cost], affordable: false };
+    const sitting: ActivityOption = { id: "activity.sit-english-test", allowed: true, missing: [], params: null, cost: [cost], affordable: false, when: "now", done: false };
     await renderWithView(<ActivityView />, { ...base, activities: [sitting] });
     expect(screen.getByText(new RegExp(`^Short by ${formatMoney(8_050_000, "NGN")}:`))).toBeDefined();
   });
@@ -124,6 +129,8 @@ describe("the month plan", () => {
       params: null,
       cost: [],
       affordable: true,
+      when: "now",
+      done: false,
     };
     const routes = base.routes.map((route) => (route.id === "route.uk-masters" ? { ...route, state: "known" as const } : route));
     await renderWithView(<ActivityView />, { ...base, routes, activities: [lookInto] });

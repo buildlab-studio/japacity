@@ -391,7 +391,9 @@ describe("proposals", () => {
     [0, "agreed"],
     [1, "declined"],
   ])("[R-PEOPLE-049] given a computer that wants court months over the months since the first moment plus %i, when asked to be partners, then it is %s", (extra, outcome) => {
-    const months = numbers.partnerMoments - 1 + extra;
+    // seeing someone is an act done at once, so the first moment falls in the month it is
+    // sent and the proposal comes partnerMoments months after it, where the slot's moment came a month later.
+    const months = numbers.partnerMoments + extra;
     const game = life({
       content: tuned((copy) => {
         copy.person[TOBI]!.behaviour.agreeBp = 10000;
@@ -1143,10 +1145,13 @@ describe("the view's bond fields", () => {
     const viewOf = (id: string) => game.view().people.bonds.find((view) => view.id === id)!;
     expect(viewOf(tobi)).toMatchObject({ person: TOBI, pair: null, cooldownUntil: null, consent: null, lastMomentMonth: game.state.turn.month });
     expect(viewOf(friend)).toMatchObject({ person: null, pair: "pair-1", lastMomentMonth: null, consent: null });
+    // seeing someone is an act done at once, so the moment is kept at the month it is sent in.
+    const seen = game.state.turn.month;
     turn(game, [SEE]);
-    expect(viewOf(tobi).lastMomentMonth).toBe(game.state.turn.month);
+    expect(viewOf(tobi).lastMomentMonth).toBe(seen);
+    const again = game.state.turn.month;
     turn(game, [SEE]);
-    expect(viewOf(tobi).lastMomentMonth).toBe(game.state.turn.month);
+    expect(viewOf(tobi).lastMomentMonth).toBe(again);
     game.accept({ type: "people/moments", pair: "pair-1", moments: [{ n: 1, by: "them", kind: "said", spot: null, what: "phrase.hello", tick: 0 }] }, "authority");
     expect(viewOf(friend).lastMomentMonth).toBe(game.state.turn.month);
     game.accept({ type: "people/end", bond: tobi });

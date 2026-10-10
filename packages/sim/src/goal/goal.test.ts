@@ -72,9 +72,17 @@ function untilOpen(game: Game, goal: Id<"goal">, most = 24): Accepted {
   throw new Error(`${goal} did not open in ${String(most)} months.`);
 }
 
-/** Applies the effects and plays the month; the goal phase runs at its end. */
+/**
+ * Applies the effects and plays the month; the goal phase runs at its end. the hunt is
+ * now an act done at once and fills no slot, so the months before rest more and the re-recorded life lands higher;
+ * standing and wellbeing are brought down from the top again first, so a reward still shows in full.
+ */
 function thenMonth(game: Game, effects: Effect[]): Accepted {
-  if (effects.length > 0) applyEffects(game, effects);
+  const roomBelowTop = (id: Id<"quality">): Effect[] => {
+    const over = (game.state.quality[id] ?? 0) - 60;
+    return over > 0 ? [{ type: "quality/add", quality: id, amount: -over }] : [];
+  };
+  applyEffects(game, [...roomBelowTop(STANDING), ...roomBelowTop(WELLBEING), ...effects]);
   return monthAbroad(game);
 }
 

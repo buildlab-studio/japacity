@@ -34,6 +34,13 @@ function endMonth(life: Life, slots: Extract<Command, { type: "turn/end" }>["slo
   return { state: result.state, tick: life.tick + 1 };
 }
 
+/** An act done at once, in the month in hand (R-ACTIVITY-015). */
+function actNow(life: Life, activity: Id<"activity">): Life {
+  const result = step(life.state, { type: "activity/now", activity, param: null, basedOn: life.state.v }, standInWorld(WORLD, life.tick, content), content);
+  if (!result.ok) throw new Error(`the act was refused: ${result.code} ${result.detail}`);
+  return { state: result.state, tick: life.tick };
+}
+
 const nameOf = (n: number) => text[`person.name.${String(n)}`] ?? "";
 
 describe("the step table", () => {
@@ -148,7 +155,8 @@ describe("Chats", () => {
   test("[R-WORLD-019] given a life that starts the passport, when the month ends, then the reminder of the passport's month shows, and Papa's line on the passport that has come waits until it comes", () => {
     const life = begin(ADA);
     expect(remindersDue(viewOf(life), content).some((reminder) => reminder.key === "document.passport.reminder.due")).toBe(false);
-    const after = endMonth(life, [{ activity: "activity.get-passport", param: null }]);
+    // the passport is asked for at once, then the month ends.
+    const after = endMonth(actNow(life, "activity.get-passport"), []);
     const view = viewOf(after);
     const paper = view.documents.find((held) => held.id === "document.passport");
     expect(paper?.state).toBe("pending");
@@ -157,7 +165,8 @@ describe("Chats", () => {
   });
 
   test("[R-WORLD-019] given a passport on the way, when the month it is issued ends, then Papa's line on keeping it in the box shows that month only", () => {
-    let life = endMonth(begin(ADA), [{ activity: "activity.get-passport", param: null }]);
+    // the passport is asked for at once, then the month ends.
+    let life = endMonth(actNow(begin(ADA), "activity.get-passport"), []);
     const shown: boolean[] = [];
     for (let month = 0; month < 4 && viewOf(life).documents.find((held) => held.id === "document.passport")?.state !== "held"; month += 1) {
       life = endMonth(life, []);

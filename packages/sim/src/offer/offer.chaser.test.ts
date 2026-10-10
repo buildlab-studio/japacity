@@ -5,7 +5,7 @@ import { content, text } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
 import type { Content, Id, OfferState } from "../engine/types";
-import { applyEffects, readyLife, READY, READY_PAPERS, slot, toKnown } from "../route/route.journey";
+import { applyEffects, readyLife, READY, READY_PAPERS, toKnown } from "../route/route.journey";
 import type { Game } from "../testing/play";
 import type { AgentKind, Pitch } from "./offer.agent";
 import { agentProblems, AGENT_KINDS, agentReadsMoney, carriedTells, CHASED, CHASER, feeRange, kindAt, kindOf, KIND_TERM, MONTHS_TERM, PAPER_TERM, PITCH_TERM, pitchAt } from "./offer.agent";
@@ -37,8 +37,9 @@ function pastChapterOne(seed: string, cash?: number): Game {
   return game;
 }
 
+/** going to the stop is an act done at once, so the agent is at the table in the month it is sent. */
 function openAt(game: Game): OfferState {
-  game.endTurn([slot(TO_STOP, GULF)]);
+  game.accept({ type: "activity/now", activity: TO_STOP, param: GULF });
   const item = Object.values(game.state.offer.items).find((candidate) => candidate.entry === STOP);
   if (item === undefined) throw new Error(`${STOP} did not open.`);
   return item;
@@ -238,8 +239,8 @@ describe("the police certificate", () => {
       const game = readyLife(content, { quiet: true, seed: `police-${String(n)}` });
       const paid = () => game.state.wallet.totals.out["fee-document"]?.NGN ?? 0;
       const before = paid();
-      game.endTurn([slot(GET_POLICE)]);
-      // The month just played, in which the request was made.
+      // the request is made at once, in the month in hand, and its wait runs from that month.
+      game.accept({ type: "activity/now", activity: GET_POLICE, param: null });
       const month = game.state.turn.month;
       const doc = game.state.document[POLICE]!;
       expect(doc.state).toBe("pending");

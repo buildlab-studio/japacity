@@ -1,6 +1,7 @@
-// Someone who went fills no slot (docs/rules/turn.md R-TURN-006, docs/rules/advice.md R-ADVICE-003):
-// the plan and the Month sheet count only what fills a slot, and the word of someone who went can
-// be planned however full the month is.
+// A pick that fills no slot (docs/rules/turn.md R-TURN-006): the plan and the Month sheet count only what fills a
+// slot, and such a pick can be planned however full the month is. the word of someone
+// who went (R-ADVICE-003) is now asked at once and never planned, so the pick that rides with the month here is
+// cooking at home, which still does.
 import { render, screen, waitFor, fireEvent, act } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
@@ -9,20 +10,20 @@ import { createGameStore } from "../../authority/store";
 import { gameAuthority, newGame, viewAfter } from "../../shared/testing/fixtures";
 import "../../shared/testing/render";
 import { workingPlanned } from "../../shared/words/count";
-import { nameOf } from "../../shared/words/text";
+import { nameOf, say } from "../../shared/words/text";
 import { MonthSheet } from "./MonthSheet";
 import { turnWords } from "./turn.words";
 
-const FRIEND = "activity.ask-someone-who-went";
+const COOK = "activity.cook-at-home";
 const REST = "activity.rest";
 const UK = "route.uk-masters";
 
-/** Tunde, whose network is enough to ask someone who went, with the UK route heard of. */
+/** Tunde, at home, who may cook, with the UK route heard of. */
 async function tundeHeard() {
   const game = newGame("scenario.tunde");
   const view = viewAfter(game, [{ type: "route/hear", route: UK, via: "test" }]);
-  const friend = view.activities.find((option) => option.id === FRIEND);
-  if (friend?.allowed !== true) throw new Error("Tunde cannot ask someone who went.");
+  const cook = view.activities.find((option) => option.id === COOK);
+  if (cook?.allowed !== true) throw new Error("Tunde cannot cook.");
   const authority = gameAuthority(game);
   const store = createGameStore(authority);
   await store.getState().refresh();
@@ -33,8 +34,8 @@ function endButton(): HTMLButtonElement {
   return screen.getByRole<HTMLButtonElement>("button", { name: new RegExp(turnWords("turn.month.end")) });
 }
 
-describe("the word of someone who went", () => {
-  test("[R-TURN-006] [R-ADVICE-003] given every slot planned, when someone who went is added, then it is planned, the sheet counts only the slots, marks it as taking none, and End month sends it and is accepted", async () => {
+describe("a pick that fills no slot", () => {
+  test("[R-TURN-006] given every slot planned, when cooking at home is added, then it is planned, the sheet counts only the slots, marks it as taking none, and End month sends it and is accepted", async () => {
     const { view, authority, store } = await tundeHeard();
     render(
       <GameProvider store={store}>
@@ -46,7 +47,7 @@ describe("the word of someone who went", () => {
     });
     let added = false;
     act(() => {
-      added = store.getState().addToPlan({ activity: FRIEND, param: UK });
+      added = store.getState().addToPlan({ activity: COOK, param: null });
     });
     expect(added).toBe(true);
     expect(store.getState().plan).toHaveLength(view.freeSlots + 1);
@@ -56,12 +57,12 @@ describe("the word of someone who went", () => {
     expect(document.querySelector("[data-slot-none]")?.textContent).toBe(turnWords("turn.month.no-slot"));
     fireEvent.click(endButton());
     await waitFor(() => expect(authority.sent).toHaveLength(1));
-    expect(authority.sent[0]).toMatchObject({ type: "turn/end", slots: [...Array.from({ length: view.freeSlots }, () => ({ activity: REST, param: null })), { activity: FRIEND, param: UK }] });
+    expect(authority.sent[0]).toMatchObject({ type: "turn/end", slots: [...Array.from({ length: view.freeSlots }, () => ({ activity: REST, param: null })), { activity: COOK, param: null }] });
     await waitFor(() => expect(store.getState().reportOpen).toBe(true));
     expect(store.getState().rejection).toBeNull();
   });
 
-  test("[R-TURN-006] [R-ADVICE-003] given only someone who went planned, when the sheet shows, then every slot is still free and the count says none planned; taking it out leaves the slots as they were", async () => {
+  test("[R-TURN-006] given only cooking planned, when the sheet shows, then every slot is still free and the count says none planned; taking it out leaves the slots as they were", async () => {
     const { view, store } = await tundeHeard();
     render(
       <GameProvider store={store}>
@@ -69,13 +70,13 @@ describe("the word of someone who went", () => {
       </GameProvider>,
     );
     act(() => {
-      store.getState().addToPlan({ activity: FRIEND, param: UK });
+      store.getState().addToPlan({ activity: COOK, param: null });
     });
     expect(document.querySelectorAll('[data-month-plan] [data-slot="free"]')).toHaveLength(view.freeSlots);
     // Planned beside the slots, it is never "nothing".
     expect(endButton().textContent).not.toContain(turnWords("ui.month.rest"));
-    expect(endButton().textContent).toContain(nameOf(FRIEND));
-    fireEvent.click(screen.getByRole("button", { name: turnWords("turn.month.remove", { activity: `${nameOf(FRIEND)}: ${nameOf(UK)}` }) }));
+    expect(endButton().textContent).toContain(say(view.job.id === null ? "ui.month.chores.cook" : "ui.month.working-chores.cook"));
+    fireEvent.click(screen.getByRole("button", { name: turnWords("turn.month.remove", { activity: nameOf(COOK) }) }));
     expect(store.getState().plan).toEqual(Array.from({ length: view.freeSlots }, () => null));
   });
 });

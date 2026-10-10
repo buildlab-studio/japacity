@@ -22,11 +22,16 @@ const ILLNESS: Id<"offer"> = "offer.illness";
 const WORSE: Id<"offer"> = "offer.illness-worse";
 const BURIAL: Id<"offer"> = "offer.village-burial";
 const COURT: Id<"offer"> = "offer.court-date";
-const HUNT: SlotPick = slot("activity.job-hunt", "activity.job-teacher");
+/** A month-act for the slots a lock counts; the hunt that was here is now an act done at once (R-ACTIVITY-015) and fills no slot. */
+const STUDY: SlotPick = slot("activity.learn-tech");
 const CHANCE = 10000;
 
-/** The real content with no ordinary offer rolled, so nothing but the health roll opens one. */
-const quiet: Content = applyOverlay(content, { version: "health-quiet", tuning: { offer: { maxNewPerMonth: 0 } } });
+/**
+ * The real content with no ordinary offer rolled, so nothing but the health roll opens one, and an empty slot's rest
+ * worth nothing. the hunt that filled every slot and moved no quality is now an act done at
+ * once, so the month's slots are left empty and rest; with the rest at nothing they still move no quality.
+ */
+const quiet: Content = applyOverlay(content, { version: "health-quiet", tuning: { offer: { maxNewPerMonth: 0 }, quality: { wellbeingRest: 0 } } });
 
 /** Wellbeing a month must start from to end, after the drift, at `after`. */
 const before = (after: number): number => after - DRIFT;
@@ -55,11 +60,11 @@ function healthDraws(game: Game): number {
 
 /**
  * Plays a month that ends with wellbeing at `after`: it starts two under it and
- * every free slot hunts, which moves no quality, so only the drift moves it.
+ * every free slot rests at nothing (see `quiet`), so only the drift moves it.
  */
 function month(game: Game, after = UNDER): Accepted {
   add(game, WELLBEING, before(after) - quality(game, WELLBEING));
-  const result = game.endTurn(Array.from({ length: game.view().freeSlots }, () => HUNT));
+  const result = game.endTurn();
   expect(quality(game, WELLBEING)).toBe(after);
   return result;
 }
@@ -330,7 +335,7 @@ describe("the worse turn", () => {
       else emptyNaira(game);
       choose(game, WORSE, choice);
       add(game, WELLBEING, before(12) - quality(game, WELLBEING));
-      const next = game.endTurn(Array.from({ length: game.view().freeSlots }, () => HUNT));
+      const next = game.endTurn();
       // The month's own changes come first (with no money, a missed upkeep too); the return to 40 is the last.
       const moves = next.events.filter((event) => event.type === "quality/changed" && (event as unknown as { quality: string }).quality === WELLBEING);
       expect(moves.at(-1)).toMatchObject({ source: "health" });
@@ -435,8 +440,8 @@ describe("forced months that say so a month ahead", () => {
     expect(paid(taken, "family")).toBe(60000 * 100);
     expect(game.view().locks).toEqual([{ slots: 1, untilMonth: game.state.turn.month, why: "burial" }]);
     const slots = content.tuning.turn.freeSlotsNoJob;
-    game.expectRejected({ type: "turn/end", slots: Array.from({ length: slots }, () => HUNT) }, "not-legal");
-    game.endTurn(Array.from({ length: slots - 1 }, () => HUNT));
+    game.expectRejected({ type: "turn/end", slots: Array.from({ length: slots }, () => STUDY) }, "not-legal");
+    game.endTurn(Array.from({ length: slots - 1 }, () => STUDY));
     expect(game.view().locks).toEqual([]);
     expect(game.view().freeSlots).toBe(slots);
   });

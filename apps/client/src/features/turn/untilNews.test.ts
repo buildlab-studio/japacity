@@ -21,7 +21,8 @@ async function tundeRun(seed: string) {
   const authority = gameAuthority(game);
   const store = createGameStore(authority);
   await store.getState().refresh();
-  expect(store.getState().addToPlan({ activity: TRANSCRIPT, param: null })).toBe(true);
+  // the transcript is asked for at once, then the month ends.
+  expect((await store.getState().send({ type: "activity/now", activity: TRANSCRIPT, param: null }))?.ok).toBe(true);
   await store.getState().endMonth();
   store.getState().setReportOpen(false);
   const before = store.getState().view as PlayerView;
@@ -31,7 +32,9 @@ async function tundeRun(seed: string) {
 
 describe("Until news", () => {
   test("[R-WORLD-028] [R-TURN-003] given a quiet month then a paper landing, when Until news runs, then each month is its own turn/end, the quiet month is kept as one, and the run stops on the month the paper lands", async () => {
-    const { authority, store, before, after } = await tundeRun("seed-0");
+    // asked for at once, the transcript comes a month sooner, so seed-0 lands it in the
+    // run's first month; seed-12 is the first life where that month is quiet and the next lands it.
+    const { authority, store, before, after } = await tundeRun("seed-12");
     const ends = authority.sent.filter((command) => command.type === "turn/end");
     // The month asked for by hand, then two months of the run, each its own command spending one month (R-TURN-003).
     expect(ends).toHaveLength(3);
