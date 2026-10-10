@@ -7,7 +7,7 @@
 import { rateFor } from "../credit/credit.logic";
 import { bp, convertMinor, divCeil, divFloor, mulDiv } from "../engine/int";
 import type { RegisteredKind } from "../engine/kind";
-import { emit } from "../engine/kind";
+import { emit, oldestFirst } from "../engine/kind";
 import { reject } from "../engine/reject";
 import type {
   BaseEvent,
@@ -69,25 +69,6 @@ function entryOf(content: Content, id: Id<"obligation">): ObligationEntry {
   const entry = content.obligation[id];
   if (entry === undefined) throw new Error(`There is no obligation ${id} in content.`);
   return entry;
-}
-
-/** The instance number of an engine id such as `obligation-12`, or null for any other shape. */
-function instanceNumber(id: string): number | null {
-  const match = /-(\d+)$/.exec(id);
-  return match === null ? null : Number(match[1]);
-}
-
-/**
- * Oldest first (R-OBLIGATION-001): by the month opened, then by id. Ids are
- * compared by their instance number, so `obligation-10` comes after
- * `obligation-9` as it was opened after it.
- */
-export function oldestFirst(a: ObligationState, b: ObligationState): number {
-  if (a.openedMonth !== b.openedMonth) return a.openedMonth - b.openedMonth;
-  const na = instanceNumber(a.id);
-  const nb = instanceNumber(b.id);
-  if (na !== null && nb !== null && na !== nb) return na - nb;
-  return a.id < b.id ? -1 : a.id > b.id ? 1 : 0;
 }
 
 function openItems(state: State): ObligationState[] {

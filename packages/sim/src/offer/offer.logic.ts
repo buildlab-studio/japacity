@@ -5,7 +5,7 @@
 import { check, checkWith, resolveAmount, worldVar } from "../engine/check";
 import { BP_WHOLE, bp, clamp, divFloor, valueInKobo } from "../engine/int";
 import type { RegisteredKind } from "../engine/kind";
-import { emit } from "../engine/kind";
+import { emit, oldestFirst } from "../engine/kind";
 import { reject } from "../engine/reject";
 import type {
   BaseEvent,
@@ -70,21 +70,6 @@ function entryOf(content: Content, id: Id<"offer">): OfferEntry {
 
 function record(ctx: Ctx, event: OfferEvent): BaseEvent[] {
   return emit(ctx, "offer", [event]);
-}
-
-/** The instance number of an engine id such as `offer-12`, or null for any other shape. */
-function instanceNumber(id: string): number | null {
-  const match = /-(\d+)$/.exec(id);
-  return match === null ? null : Number(match[1]);
-}
-
-/** Oldest first: by the month opened, then by instance number, so `offer-10` comes after `offer-9`. */
-function oldestFirst(a: OfferState, b: OfferState): number {
-  if (a.openedMonth !== b.openedMonth) return a.openedMonth - b.openedMonth;
-  const na = instanceNumber(a.id);
-  const nb = instanceNumber(b.id);
-  if (na !== null && nb !== null && na !== nb) return na - nb;
-  return a.id < b.id ? -1 : a.id > b.id ? 1 : 0;
 }
 
 function openItems(state: State): OfferState[] {
