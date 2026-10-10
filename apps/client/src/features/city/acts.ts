@@ -2,12 +2,13 @@
 // voice, with Done to close, and a now-act done this month leaves its thing until the next. The card's button itself is
 // `actOnCard` in shared/words/acts.ts, which the picker and the phone use too.
 import { content } from "@japacity/content";
-import type { Id, PlayerView, ReportLine } from "@japacity/sim";
+import type { Id, PlayerView, ReportLine, SlotPick } from "@japacity/sim";
 
+import { plannedShut } from "../../authority/store";
 import { nowActOf, nowLineWords } from "../../shared/words/acts";
 import { kioskCapReached } from "../../shared/words/lotto";
 import { nameOf, say } from "../../shared/words/text";
-import type { Ask } from "../../shared/world/contract";
+import type { Ask, Thing } from "../../shared/world/contract";
 
 /** The paper things bought at the kiosk: their slip stays in the hand with the answer on it. */
 const PAPER: ReadonlySet<string> = new Set(["activity.play-lotto", "activity.bet-slip"]);
@@ -84,6 +85,25 @@ export function actsOffered(view: Pick<PlayerView, "activities">): string[] {
   return [...new Set([...view.activities.filter((option) => option.allowed).map((option) => option.id), ...paperShut, ...held, ...board])];
 }
 
+/**
+ * The thing with each act already in this month's plan marked planned (R-TURN-006, R-ACTIVITY-013): an act that fills no
+ * slot (cooking, the water), a once-a-month act or a paper's request. A sheet act whose choice is made inside its sheet
+ * (which job, which route) stays open, since another choice can still be planned.
+ */
+export function withPlanned(thing: Thing, plan: readonly (SlotPick | null)[], view: Pick<PlayerView, "activities">): Thing {
+  let marked = false;
+  const acts = thing.acts.map((act) => {
+    if ((act.kind !== "do" && act.kind !== "sheet") || act.stages === undefined || act.more !== undefined) return act;
+    const entry = content.activity[act.stages as Id<"activity">];
+    if (entry === undefined) return act;
+    const option = view.activities.find((candidate) => candidate.id === act.stages);
+    const param = act.param ?? (act.kind === "do" ? (option?.params?.[0] ?? null) : entry.param === null ? null : undefined);
+    if (param === undefined || !plannedShut(plan, { activity: act.stages as Id<"activity">, param })) return act;
+    marked = true;
+    return { ...act, planned: true };
+  });
+  return marked ? { ...thing, acts } : thing;
+}
 
 /**
  * The asks sheet's header (R-WORLD-006): with several asks, which one this is of those the sheet opened with, so it

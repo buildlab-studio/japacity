@@ -304,6 +304,7 @@ export const uiText: Record<string, string> = {
   // A card's button says the act, never "Add to month" (the review); the line under it says what it uses.
   "ui.activity.uses-free": "Uses this month's free time",
   "ui.activity.full": "Every free thing is planned",
+  "ui.activity.planned": "Planned",
   "ui.activity.cost": "Costs {amount}",
   "ui.activity.free": "No cost",
   "ui.activity.why-not": "Not yet:",

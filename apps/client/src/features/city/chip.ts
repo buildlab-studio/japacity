@@ -1,0 +1,47 @@
+// A chosen thing's chip (docs/rules/world.md R-WORLD-005): its name and its one or two acts, built in the DOM box
+// beside the canvas, which the frame loop moves over the thing.
+import type { Act, Thing } from "../../shared/world/contract";
+import { sceneWords } from "./scene.words";
+
+/** A thing's name and its one or two acts, floating over it with a small arrow down to it (R-WORLD-005). */
+export function chipNode(thing: Thing, onAct: (act: Act) => void): HTMLDivElement {
+  const chip = document.createElement("div");
+  chip.dataset.thingChip = thing.id;
+  chip.setAttribute("role", "group");
+  chip.setAttribute("aria-label", sceneWords(thing.label));
+  chip.className = "pointer-events-auto absolute -translate-x-1/2 -translate-y-full pb-2";
+  chip.style.display = "none";
+  const body = document.createElement("div");
+  body.className = "panel chip-in flex flex-col items-center gap-1.5 px-3 pt-2 pb-2.5";
+  const name = document.createElement("p");
+  name.className = "title text-[15px] leading-tight whitespace-nowrap";
+  name.textContent = sceneWords(thing.label);
+  const acts = document.createElement("div");
+  acts.className = "flex gap-1.5";
+  for (const act of thing.acts) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.dataset.act = act.id;
+    // The activity a sheet act opens, for tests and the play driver (the nudge names it in data-nudge-opens).
+    if (act.kind === "sheet" && act.stages !== undefined) button.dataset.activity = act.stages;
+    // An act already in this month's plan says so and is shut until the month ends.
+    if (act.planned === true) {
+      button.className = "rounded-[5px] border border-sheet-line bg-sheet-muted px-3 py-2 text-[13px] font-extrabold whitespace-nowrap text-text-2";
+      button.textContent = sceneWords("ui.activity.planned");
+      button.setAttribute("aria-label", `${sceneWords(act.label)}: ${sceneWords("ui.activity.planned")}`);
+      button.disabled = true;
+      button.dataset.planned = "";
+      acts.append(button);
+      continue;
+    }
+    button.className = "rounded-[5px] bg-action px-3 py-2 text-[13px] font-extrabold whitespace-nowrap text-action-text";
+    button.textContent = sceneWords(act.label);
+    button.onclick = () => onAct(act);
+    acts.append(button);
+  }
+  const arrow = document.createElement("div");
+  arrow.className = "absolute bottom-0 left-1/2 size-0 -translate-x-1/2 border-x-8 border-t-8 border-x-transparent border-t-sheet";
+  body.append(name, acts);
+  chip.append(body, arrow);
+  return chip;
+}

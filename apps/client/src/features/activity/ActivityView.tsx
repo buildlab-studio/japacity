@@ -7,6 +7,7 @@ import { Briefcase, Lock, Plus, X } from "lucide-react";
 import { useState } from "react";
 
 import { useGame, useView } from "../../authority/GameProvider";
+import { plannedShut } from "../../authority/store";
 import { bondName, timeWith } from "../../shared/sim/people";
 import { actOnCard, answersNow } from "../../shared/words/acts";
 import { Button } from "../../shared/ui/Button";
@@ -257,17 +258,6 @@ function afterWords(paying: AfterPaying): string {
   return paying.short === null ? say("ui.world.left", { amount: formatMoney(paying.left.amount, paying.left.currency) }) : say("ui.world.short", { amount: formatMoney(paying.short.amount, paying.short.currency) });
 }
 
-/**
- * True when a paper's request is already in the month's plan: it asks that the paper not be held
- * or on its way, so a second request in the same month would ask for what the first already asks.
- */
-function plannedOnce(option: ActivityOption, plan: readonly (SlotPick | null)[], param: string): boolean {
-  const entry = content.activity[option.id];
-  // R-ACTIVITY-013: an act marked once a month is planned once too.
-  const once = entry?.once === true || entry?.requires.some((requirement) => requirement.type === "document/absent") === true;
-  return once && plan.some((pick) => pick !== null && pick.activity === option.id && (pick.param ?? "") === param);
-}
-
 /** Why an activity with a choice inside it has nothing to choose yet, in a few words for its button. */
 function nothingToPickWords(option: ActivityOption): string {
   const param = content.activity[option.id]?.param;
@@ -322,7 +312,7 @@ function ActivityCard({ option }: { option: ActivityOption }) {
   // R-WORLD-006: what is left after, counting what the month already pays for; a cost that cannot be paid shuts the button.
   const planned = plannedCosts(view, plan);
   const paying = option.cost.length === 0 ? null : afterPaying(view, planned, option.cost);
-  const already = plannedOnce(option, plan, chosenParam);
+  const already = plannedShut(plan, { activity: option.id, param: chosenParam === "" ? null : chosenParam });
   const canAdd = option.allowed && option.affordable && (paying === null || paying.short === null) && !full && !ended && !already && (!needsParam || chosenParam !== "");
   const unpicked = routes !== null && option.allowed && chosenParam === "";
   const line = unpicked ? { words: routesWords("routes.pick-first"), kind: "needs" as const } : buttonLine(option, paying, view, already);
@@ -426,7 +416,7 @@ function ActivityCard({ option }: { option: ActivityOption }) {
             ) : (
               <>
                 <Plus size={16} />
-                {full && option.allowed ? say("ui.activity.full") : name}
+                {already ? say("ui.activity.planned") : full && option.allowed ? say("ui.activity.full") : name}
               </>
             )}
             {line === null ? null : (

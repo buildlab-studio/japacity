@@ -23,6 +23,7 @@ import { BEHIND, cameraAim, EYE, FOV } from "./camera";
 import { limitMotion } from "./limits";
 import { filesOf, type Spot, type Stage, stageOf } from "./placeFile";
 import type { CityProbe, ScenePick, SceneProps } from "./scene.types";
+import { chipNode } from "./chip";
 import { sceneWords } from "./scene.words";
 import { type LabelBox, spreadLabels } from "./labels";
 import { aimShot, clampTurn, roomShot, SHOT_FOV, SHOT_NEAR_PLANE, shotOf, snapZoom, widthEnds } from "./shot";
@@ -161,39 +162,6 @@ function labelNode(thing: Thing, onTap: () => void): HTMLButtonElement {
   node.style.display = "none";
   node.onclick = onTap;
   return node;
-}
-
-/** A thing's name and its one or two acts, floating over it with a small arrow down to it (R-WORLD-005). */
-function chipNode(thing: Thing, onAct: (act: Act) => void): HTMLDivElement {
-  const chip = document.createElement("div");
-  chip.dataset.thingChip = thing.id;
-  chip.setAttribute("role", "group");
-  chip.setAttribute("aria-label", sceneWords(thing.label));
-  chip.className = "pointer-events-auto absolute -translate-x-1/2 -translate-y-full pb-2";
-  chip.style.display = "none";
-  const body = document.createElement("div");
-  body.className = "panel chip-in flex flex-col items-center gap-1.5 px-3 pt-2 pb-2.5";
-  const name = document.createElement("p");
-  name.className = "title text-[15px] leading-tight whitespace-nowrap";
-  name.textContent = sceneWords(thing.label);
-  const acts = document.createElement("div");
-  acts.className = "flex gap-1.5";
-  for (const act of thing.acts) {
-    const button = document.createElement("button");
-    button.type = "button";
-    button.dataset.act = act.id;
-    // The activity a sheet act opens, for tests and the play driver (the nudge names it in data-nudge-opens).
-    if (act.kind === "sheet" && act.stages !== undefined) button.dataset.activity = act.stages;
-    button.className = "rounded-[5px] bg-action px-3 py-2 text-[13px] font-extrabold whitespace-nowrap text-action-text";
-    button.textContent = sceneWords(act.label);
-    button.onclick = () => onAct(act);
-    acts.append(button);
-  }
-  const arrow = document.createElement("div");
-  arrow.className = "absolute bottom-0 left-1/2 size-0 -translate-x-1/2 border-x-8 border-t-8 border-x-transparent border-t-sheet";
-  body.append(name, acts);
-  chip.append(body, arrow);
-  return chip;
 }
 
 function Place(props: PlaceProps) {

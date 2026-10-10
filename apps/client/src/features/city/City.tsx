@@ -9,6 +9,7 @@ import { isValidElement, lazy, Suspense, useEffect, useMemo, useRef, useState, t
 
 import { useGame, useView } from "../../authority/GameProvider";
 import { readPerson } from "../../authority/person";
+import { plannedShut } from "../../authority/store";
 import { keptLookFile } from "../../authority/person";
 import { chooseGraphics, setGraphicsMode } from "../../shared/graphics/mode";
 import { loadModel } from "../../shared/three/load";
@@ -39,7 +40,7 @@ import { Rise, useJapaRise } from "../../shared/world/Rise";
 import { FirstUseLabels, useFirstUse } from "../../shared/world/Walkthrough";
 import { WorldSheet } from "../../shared/world/WorldSheet";
 import { actOnCard, answersNow, nowLineIn } from "../../shared/words/acts";
-import { actsOffered, answerAsk, askHeader, isPaper, KIOSK_CAP, kioskAnswer } from "./acts";
+import { actsOffered, answerAsk, askHeader, isPaper, KIOSK_CAP, kioskAnswer, withPlanned } from "./acts";
 import { kioskCapReached } from "../../shared/words/lotto";
 import { ComingList } from "./ComingList";
 import { choreSaving } from "./chores";
@@ -672,6 +673,9 @@ export function City({
     const staged = new Set<string>([...(entry?.stages ?? []), ...(insideEntry?.stages ?? []), ...homeStagesAt(placeId, home, here, PLACES)]);
     return thingsNow(withMoreAt(thingsOf(stageOf(file)), inside && insideEntry !== null ? insideEntry.id : placeId), stagedNow(offered, staged, new Set(offersKey.split("|")), setpieceEntry, chapterNow));
   }, [world, file, activityKey, entry, inside, insideEntry, placeId, offersKey, setpieceEntry, chapterNow, home, here]);
+  // The chosen thing's acts already in this month's plan say Planned and are shut.
+  const pickedThing = picked?.kind === "thing" ? picked.thing : null;
+  const chosenThing = useMemo(() => (pickedThing === null ? null : withPlanned(pickedThing, plan, view)), [pickedThing, plan, view]);
   // What the scene reports: a thing chosen shows its acts; an act becomes the sheet, the ride, the cut in or the cut out it stands for.
   // An act lands once the character has walked to its thing (R-WORLD-010); one that lands under a sheet, the phone, the map or the results is dropped.
   const readPick = (scenePick: ScenePick): void => {
@@ -996,6 +1000,7 @@ export function City({
     // R-WORLD-006: on a long shot the English test's sheet is the picker, which carries the study act beside the test.
     const chance = activity === ENGLISH_TEST ? testChance(view) : null;
     if (chance !== null && chance.study !== null) return null;
+    const shut = plannedShut(plan, { activity: option.id, param: chosen ?? option.params?.[0] ?? null });
     const first = option.cost[0] ?? null;
     const cost = first === null ? null : { ...first, amount: option.cost.filter((part) => part.currency === first.currency).reduce((sum, part) => sum + part.amount, 0) };
     const paper = isPaper(activity);
@@ -1030,13 +1035,15 @@ export function City({
                   : // R-ACTIVITY-013: the card says what the act counts toward.
                     [blurbOf(activity), countsWords(activity)].filter((part): part is string => part !== null).join(" "),
       cost: cost === null ? null : { amount: cost.amount, currency: cost.currency },
-      button: chosen !== null && hasWords(`${chosen}.act`) ? say(`${chosen}.act`) : nameOf(activity),
+      button: shut ? say("ui.activity.planned") : chosen !== null && hasWords(`${chosen}.act`) ? say(`${chosen}.act`) : nameOf(activity),
       // R-ACTIVITY-015: an act done at once says "Now" under its button; a month-act counts when the month ends.
       ...(answersNow(activity) ? { when: "now" as const } : {}),
       ...(paper ? { reference: clock.toUpperCase() } : {}),
       ...(option.allowed ? {} : { blocked: needsWords(option.missing) }),
       // R-LUCK-005: past the month's ceiling the kiosk's button is shut with the kiosk man's line.
       ...(activity === "activity.play-lotto" && kioskCapReached(monthLines) ? { blocked: words(KIOSK_CAP) } : {}),
+      // An act already in this month's plan that planning again does nothing for is shut until the month ends.
+      ...(shut ? { blocked: say("ui.needs.planned") } : {}),
       act: () => {
         const pick = { activity: option.id, param: chosen ?? option.params?.[0] ?? null };
         void actOnCard(pick, { send, addToPlan }).then((acted) => {
@@ -1141,7 +1148,7 @@ export function City({
               onProgress={(loaded, total) => setProgress({ loaded, total })}
               onFailed={setFailed}
               onPick={readPick}
-              {...(world ? { overview: true, roam: ROAM, ...(things === undefined ? {} : { things }), chosen: picked?.kind === "thing" ? picked.thing : null, onClear: () => setPicked(null), zoomed, onZoomed: setZoomed } : {})}
+              {...(world ? { overview: true, roam: ROAM, ...(things === undefined ? {} : { things }), chosen: chosenThing, onClear: () => setPicked(null), zoomed, onZoomed: setZoomed } : {})}
               onFrame={(frameMs) => {
                 const next = observeFrame(watch.current, frameMs, city);
                 watch.current = next;

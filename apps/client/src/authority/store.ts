@@ -185,6 +185,18 @@ export function takesSlot(pick: SlotPick): boolean {
   return content.activity[pick.activity]?.slot !== "none";
 }
 
+/**
+ * True when the pick is in the month's plan and planning it again would do nothing more: an act that fills no slot,
+ * an act marked once a month, or a paper's request (R-TURN-006, R-ACTIVITY-013). Its chip and its button read
+ * "Planned" and stay shut until the month ends.
+ */
+export function plannedShut(plan: readonly (SlotPick | null)[], pick: SlotPick): boolean {
+  const entry = content.activity[pick.activity];
+  if (entry === undefined) return false;
+  const once = entry.slot === "none" || entry.once === true || entry.requires.some((requirement) => requirement.type === "document/absent");
+  return once && plan.some((held) => held !== null && held.activity === pick.activity && (held.param ?? "") === (pick.param ?? ""));
+}
+
 /** The picks that fill slots, empty slots among them: the plan's first part. */
 export function slotted(plan: readonly (SlotPick | null)[]): (SlotPick | null)[] {
   return plan.filter((pick) => pick === null || takesSlot(pick));

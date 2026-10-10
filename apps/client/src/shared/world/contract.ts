@@ -45,6 +45,8 @@ export interface Act {
   pose?: "sit" | "lie";
   /** Where the character is placed for the pose: on the seat or the bed, `[x, z, facing]` in the place's metres. */
   seat?: [number, number, number];
+  /** Set by the shell: the act is already in this month's plan and planning it again does nothing, so its button says Planned and is shut. */
+  planned?: boolean;
 }
 
 /**
