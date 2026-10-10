@@ -1,12 +1,13 @@
 // The scene under the front door, the prologue and the handover (prologue.md R-PROLOGUE-009): the
-// family compound with the character at the gate, never a bare page. The sheet rises over the bottom of
-// the screen and the top keeps the character in view. Where WebGL is missing the compound's colours and
-// the look's own picture stand in for the scene.
+// family compound with the character on a plinth at the gate, never a bare page. The figure turns slowly and a
+// finger drags it round (the design's onboarding). The sheet rises over the bottom of the screen and the top
+// keeps the character in view. Where WebGL is missing the compound's colours and the look's own picture stand in.
 import { paletteCss } from "@japacity/assets";
-import { lazy, type ReactNode, Suspense, useMemo } from "react";
+import { lazy, type PointerEvent, type ReactNode, Suspense, useMemo, useRef } from "react";
 
 import { readPerson } from "../../authority/person";
 import { LOOKS, lookOf } from "./looks";
+import { DRAG_TURN, type Spin } from "./spin";
 
 const FrontScene = lazy(() => import("./FrontScene"));
 
@@ -27,37 +28,57 @@ export function gateLook(given?: string | null): string {
 export interface GateProps {
   /** The look at the gate, `chr_ada`; the kept one when left out. */
   look?: string | null;
-  /** True while the sheet is up: the character turns to face it. */
-  facingSheet?: boolean;
   /** The sheet over the bottom of the scene. */
   children: ReactNode;
   /** A mark for tests and pictures: `data-gate` carries it. */
   mark?: string;
+  /** What stands over the top of the scene: the run's progress, the data page. */
+  over?: ReactNode;
 }
 
-export function Gate({ look, facingSheet = true, children, mark }: GateProps) {
+export function Gate({ look, children, mark, over }: GateProps) {
   const drawing = useMemo(canDraw, []);
   const shown = lookOf(gateLook(look));
+  const spin = useRef<Spin>({ dragging: false, pending: 0, last: 0 }).current;
+  const grab = (event: PointerEvent<HTMLDivElement>): void => {
+    event.currentTarget.setPointerCapture(event.pointerId);
+    spin.dragging = true;
+    spin.last = event.clientX;
+  };
+  const drag = (event: PointerEvent<HTMLDivElement>): void => {
+    if (!spin.dragging) return;
+    spin.pending += (event.clientX - spin.last) * DRAG_TURN;
+    spin.last = event.clientX;
+  };
+  const drop = (): void => {
+    spin.dragging = false;
+  };
   return (
     <div className="fixed inset-0 overflow-hidden" data-gate={mark ?? ""} data-look={shown?.id}>
       <div
         className="absolute inset-0"
         data-front-scene
         aria-hidden
+        onPointerDown={grab}
+        onPointerMove={drag}
+        onPointerUp={drop}
+        onPointerCancel={drop}
         // The compound's own colours, the sky over the yard's wall: the 3D world keeps its colours in both themes (R-WORLD-021).
-        style={{ background: paletteCss("laterite") }}
+        // The figure is dragged round, so the page under the finger never scrolls.
+        style={{ background: paletteCss("laterite"), touchAction: "none" }}
       >
         {/* Three flat bands, the sky, the wall and the ground: no gradient (R-WORLD-021). */}
         <div aria-hidden className="absolute inset-x-0 top-0 h-[30%]" style={{ background: paletteCss("sky") }} />
         <div aria-hidden className="absolute inset-x-0 top-[30%] h-[14%]" style={{ background: paletteCss("wallCream") }} />
         {drawing ? (
           <Suspense fallback={null}>
-            <FrontScene look={shown?.file ?? "shared/chr/chr_ada.glb"} facingSheet={facingSheet} />
+            <FrontScene look={shown?.file ?? "shared/chr/chr_ada.glb"} spin={spin} />
           </Suspense>
         ) : shown === undefined || shown === null || shown.picture === "" ? null : (
           <img src={shown.picture} alt="" className="absolute top-[12%] left-1/2 h-[34%] -translate-x-1/2" />
         )}
       </div>
+      {over === undefined ? null : <div className="pointer-events-none absolute inset-x-0 top-0 flex flex-col px-3 pt-[max(10px,env(safe-area-inset-top))]">{over}</div>}
       <div className="pointer-events-none absolute inset-x-0 bottom-0 flex max-h-full flex-col justify-end">{children}</div>
     </div>
   );
