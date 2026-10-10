@@ -10,6 +10,8 @@ export const newsText: Record<string, string> = {
   "news.uk-unis-recruit.announced.body":
     "Three universities took a hall in Ikeja this weekend. One-year master's, offers in weeks. The queue went round the building.",
   "news.uk-unis-recruit.in-force.head": "\"My cousin got her offer in nine days\"",
+  // The person who says it, beside the line on News.
+  "news.uk-unis-recruit.in-force.source": "Tolu",
   "news.uk-unis-recruit.in-force.body": "Everybody suddenly knows somebody doing a master's in the UK.",
 
   "news.uk-living-rise.name": "UK to raise the money students must show",

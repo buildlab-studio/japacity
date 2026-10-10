@@ -10,7 +10,7 @@
 // `standIn.announce` is only what the fixed schedule reads until the
 // director runs. A story that follows another follows it there too; any other
 // is announced between ticks 6 and 120, after the longest rumour lead.
-import type { Id, NewsEntry, Requirement } from "@japacity/sim";
+import type { Id, NewsEntry, NewsSource, Requirement } from "@japacity/sim";
 
 import { pct } from "../units";
 
@@ -120,7 +120,7 @@ function eraStory(id: Id<"news">): NewsEntry {
   };
 }
 
-export const newsTable: Record<Id<"news">, NewsEntry> = {
+const stories: Record<Id<"news">, NewsEntry> = {
   // news.md, with director.md's preconditions. their groups are `openings` for the recruiting
   // fair, `strictness` for the two UK rules and `fx` for the two currency stories.
 
@@ -640,3 +640,63 @@ export const newsTable: Record<Id<"news">, NewsEntry> = {
   "news.era-strike": eraStory("news.era-strike"),
   "news.era-pandemic": eraStory("news.era-pandemic"),
 };
+
+type Sources = NonNullable<NewsEntry["source"]>;
+
+const told = (announced: NewsSource, inForce?: NewsSource, ended?: NewsSource): Sources => ({
+  announced,
+  ...(inForce === undefined ? {} : { "in-force": inForce }),
+  ...(ended === undefined ? {} : { ended }),
+});
+
+/**
+ * Where each story is heard, beside it on News: the announcement's
+ * source, then a later stage's where it differs. A rumour is marked as a rumour on screen, so it has none here.
+ * A person is named in the words, `<id>.<stage>.source`.
+ */
+const SOURCES: Record<Id<"news">, Sources> = {
+  "news.uk-unis-recruit": told("paper", "person"),
+  "news.uk-living-rise": told("official"),
+  "news.uk-refusals-up": told("official", "paper", "paper"),
+  "news.dollar-scarcity": told("paper", "street", "paper"),
+  "news.naira-float": told("official", "paper"),
+  "news.uk-dependants-ban": told("official"),
+  "news.uk-study-narrows": told("official", "official", "paper"),
+  "news.uk-study-closes": told("official"),
+  "news.uk-study-reopens": told("paper", "official"),
+  "news.uk-care-opens": told("official", "street"),
+  "news.uk-care-dependants": told("official"),
+  "news.uk-care-sponsors-revoked": told("official", "paper", "paper"),
+  "news.uk-care-closes": told("official"),
+  "news.uk-skilled-bar-rises": told("official"),
+  "news.uk-settle-ten-years": told("official"),
+  "news.uk-graduate-shortened": told("official"),
+  "news.uk-talent-body-closes": told("official"),
+  "news.uk-talent-reappointed": told("official"),
+  "news.ca-care-draw": told("official"),
+  "news.ca-general-stops": told("official"),
+  "news.ca-points-overhaul": told("official"),
+  "news.ca-funds-rise": told("official"),
+  "news.uae-ban": told("paper", "street", "paper"),
+  "news.uae-lifted": told("official", "street"),
+  "news.passport-fee-doubles": told("official"),
+  "news.fuel-subsidy": told("radio", "street"),
+  "news.inflation-eases": told("official", "paper"),
+  "news.strike-starts": told("radio", "paper", "radio"),
+  "news.pandemic-borders": told("radio", "paper", "official"),
+  "news.remote-hiring-boom": told("paper", "street", "paper"),
+  "news.era-calm": told("paper"),
+  "news.era-open-door": told("paper"),
+  "news.era-hard-line": told("paper"),
+  "news.era-crash": told("paper", "street"),
+  "news.era-scandal": told("paper"),
+  "news.era-strike": told("radio", "paper"),
+  "news.era-pandemic": told("radio", "paper"),
+};
+
+export const newsTable: Record<Id<"news">, NewsEntry> = Object.fromEntries(
+  Object.entries(stories).map(([id, story]) => {
+    const source = SOURCES[id as Id<"news">];
+    return [id, source === undefined ? story : { ...story, source }];
+  }),
+);

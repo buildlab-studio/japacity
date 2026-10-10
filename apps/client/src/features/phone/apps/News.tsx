@@ -6,6 +6,7 @@ import type { NewsStage, ReportLine, RouteStateName } from "@japacity/sim";
 import { useGame, useView } from "../../../authority/GameProvider";
 import { isUnpaid, tidyLines, toldUnpaid } from "../../../shared/words/lines";
 import { blurbOf, monthsAgo, nameOf, say, words } from "../../../shared/words/text";
+import { SourceMark } from "../../news/source";
 import { Head } from "../act";
 import { phoneWords } from "../phone.words";
 
@@ -80,7 +81,7 @@ export function News() {
           {stories.map((story) => (
             <li key={story.id} data-story={story.id} className={`rounded-[6px] border bg-sheet-2 p-3 ${storyForYou(story, routes) ? "border-signal" : "border-sheet-line"}`}>
               <p className="label text-text-2">
-                {say(`ui.news.stage.${story.stage}`)}
+                <SourceMark id={story.id} stage={story.stage} />
                 {storyForYou(story, routes) ? ` · ${say("ui.news.for-you")}` : ""}
               </p>
               <p className="mt-0.5 text-[15px] font-bold">{words(`${story.id}.${story.stage}.head`)}</p>

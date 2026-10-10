@@ -509,10 +509,12 @@ export const uiText: Record<string, string> = {
   "ui.news.none": "No news has reached you yet.",
   "ui.news.none-else": "Nothing else has reached you yet.",
   "ui.news.for-you": "For you",
-  "ui.news.stage.rumour": "Rumour",
-  "ui.news.stage.announced": "Announced",
-  "ui.news.stage.in-force": "In force",
-  "ui.news.stage.ended": "Ended",
+  // Where a story is heard. A person is named by the story's words.
+  "ui.news.source.rumour": "Rumour",
+  "ui.news.source.radio": "The radio",
+  "ui.news.source.paper": "The paper",
+  "ui.news.source.official": "The official page",
+  "ui.news.source.street": "The street",
 
   // The prologue (prologue.md R-PROLOGUE-008)
   "ui.prologue.title": "How you got here",
