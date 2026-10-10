@@ -1,11 +1,13 @@
 // The rooms of the interior places, each a set of numbers for the one room builder (R-ASSET-014).
-// About 12 by 10 metres inside (docs/rules/world.md R-WORLD-011); the arrivals hall is the tallest.
+// The parlour and the room abroad are about 16 by 9 metres inside, seen down their length so they fill a
+// phone held upright (docs/rules/world.md R-WORLD-011, R-WORLD-029); the offices stay about 12 by 10. The
+// arrivals hall is the tallest.
 import type { RoomSpec } from "./build";
 
 export const ROOMS = {
   parlour: {
     name: "bld_room_parlour",
-    size: [12, 10],
+    size: [16, 9],
     height: 3.0,
     side: "left",
     upper: "wallPeach",
@@ -13,11 +15,11 @@ export const ROOMS = {
     dado: 1.0,
     skirting: "darkWood",
     fittings: [
-      { kind: "window", wall: "back", at: -3.2 },
-      { kind: "picture", wall: "back", at: 0.6 },
-      { kind: "clock", wall: "back", at: 2.2 },
-      { kind: "window", wall: "side", at: -1.5 },
-      { kind: "picture", wall: "side", at: 1.8 },
+      { kind: "window", wall: "back", at: -4.3 },
+      { kind: "picture", wall: "back", at: 0.8 },
+      { kind: "clock", wall: "back", at: 2.9 },
+      { kind: "window", wall: "side", at: -1.6 },
+      { kind: "picture", wall: "side", at: 1.0 },
     ],
     seed: 1971,
   },
@@ -125,7 +127,7 @@ export const ROOMS = {
   },
   abroad: {
     name: "bld_room_abroad",
-    size: [12, 10],
+    size: [16, 9],
     height: 3.0,
     side: "right",
     upper: "wallCream",
@@ -133,8 +135,8 @@ export const ROOMS = {
     dado: 0.9,
     skirting: "white",
     fittings: [
-      { kind: "picture", wall: "back", at: 2.0 },
-      { kind: "notices", wall: "side", at: 2.2 },
+      { kind: "picture", wall: "back", at: 2.8 },
+      { kind: "notices", wall: "side", at: -1.0 },
     ],
     seed: 8118,
   },
