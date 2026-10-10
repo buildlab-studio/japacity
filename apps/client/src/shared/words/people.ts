@@ -8,7 +8,7 @@ import { text } from "@japacity/content";
 export const peopleText: Record<string, string> = {
   "ui.tab.people": "People",
   "ui.people.title": "Your people",
-  "ui.people.intro": "Partner, siblings, parents. A friend who plays can take a slot. The game plays anyone a friend has not taken.",
+  "ui.people.intro": "Partner, siblings, parents. A friend who plays can take a place. The game plays anyone a friend has not taken.",
 
   // The slots (R-PEOPLE-007)
   "ui.people.slot.partner": "Partner",
@@ -158,8 +158,8 @@ export const peopleText: Record<string, string> = {
 
   // Ending it (R-PEOPLE-035 to 039)
   "ui.people.end": "End it",
-  "ui.people.end.cost": "Ending it costs you {standing} standing and {wellbeing} wellbeing.",
-  "ui.people.end.cost-wellbeing": "Ending it costs you {wellbeing} wellbeing.",
+  "ui.people.end.cost": "Ending it costs you standing at home and some of your wellbeing.",
+  "ui.people.end.cost-wellbeing": "Ending it costs you some of your wellbeing.",
   "ui.people.end.joint": "Your application together is withdrawn: the surcharge comes back, the fee does not.",
   "ui.people.end.absence": "A stand-in is answering for them. Ending it now costs nobody anything.",
   "ui.people.end.confirm": "End it for good",

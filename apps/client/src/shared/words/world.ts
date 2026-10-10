@@ -36,9 +36,9 @@ export const worldText: Record<string, string> = {
   "ui.world.added": "Added to the month",
   "ui.world.planned": "{what}: planned.",
   "ui.world.counts-at-end": "Counts when the month ends",
-  "ui.world.depart-line": "The visa is in your passport and the ticket is yours. Board, and the next place is {country}.",
+  "ui.world.depart-line": "The visa is in your passport. Board, and the next place is {country}.",
   "ui.world.deposit-line": "{school} holds your place on {route} once the deposit is paid. It goes from the naira in the bank.",
-  "ui.world.full": "Every slot is planned already",
+  "ui.world.full": "Your free time this month is all planned",
   "ui.world.step-outside": "Step outside",
 
   "ui.nudge.setpiece": "Answer what is waiting",

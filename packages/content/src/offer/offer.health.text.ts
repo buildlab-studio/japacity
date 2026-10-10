@@ -13,12 +13,12 @@ export const offerHealthText: Record<string, string> = {
   "offer.illness-worse.body":
     "The fever is back, and worse. The doctor wants a scan and an X-ray and a bed for you: {hospital}. Either way it will be weeks before you are well.",
   "offer.illness-worse.choice.hospital": "Be admitted",
-  "offer.illness-worse.choice.cannot": "There is no money. The family nurses you at home",
+  "offer.illness-worse.choice.cannot": "Stay home and let the family nurse you",
 
   "offer.village-burial.name": "A burial in the village",
   "offer.village-burial.title": "A burial in the village",
   "offer.village-burial.body":
-    "Your grandfather's brother has died. The burial is this month, in the village, and the family expects to see you there. The trip is ₦60,000 and it takes one of this month's slots.",
+    "Your father: 'My uncle has died. The burial is this month, in the village, and the family expects to see you there.' The trip is ₦60,000 and uses some of this month's free time.",
   "offer.village-burial.choice.go": "Travel home for it",
   "offer.village-burial.choice.send-money": "Send ₦100,000 instead",
   "offer.village-burial.choice.absent": "Stay away",

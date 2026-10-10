@@ -171,7 +171,7 @@ describe("the words the world's sheets borrow", () => {
       const line = say("ui.world.depart-line", { country: say(`ui.country.place.${country}`) });
       expect(line).not.toMatch(/\{|'s\.$|ui\./);
     }
-    expect(say("ui.world.depart-line", { country: say("ui.country.place.country.uk") })).toBe("The visa is in your passport and the ticket is yours. Board, and the next place is the UK.");
+    expect(say("ui.world.depart-line", { country: say("ui.country.place.country.uk") })).toBe("The visa is in your passport. Board, and the next place is the UK.");
   });
 
   test("[R-WORLD-006] [R-CHAPTER-008] given the send-off waiting at the family house, when the asks say who waits, then Mama is named and home is the place", () => {

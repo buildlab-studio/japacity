@@ -65,7 +65,7 @@ export const mapText: Record<string, string> = {
   "map.ride.line.keke.4": "I no dey enter express. We go pass inside.",
   "map.ride.line.keke.5": "Rain fit fall. If e start, pull the side cover.",
   "map.ride.line.keke.6": "Shift small. Make your bag no touch my back.",
-  "map.ride.line.danfo.1": "Enter with your change o.",
+  "map.ride.line.danfo.1": "Oya, enter. We don dey go.",
   "map.ride.line.danfo.2": "Hold your change. I no get small money.",
   "map.ride.line.danfo.3": "Front seat na three. Shift small.",
   "map.ride.line.danfo.4": "Who never pay? Hand am come.",

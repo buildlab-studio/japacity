@@ -475,9 +475,9 @@ export const uiText: Record<string, string> = {
   "ui.offer.choice-cost": "{choice}: {amount}",
   "ui.offer.outcome": "What changed",
   "ui.offer.outcome-none": "Done. Nothing else moved.",
-  "ui.offer.lock": "{slots} held {when}",
-  "ui.offer.lock.slots": "{count} slots",
-  "ui.offer.lock.slots.one": "1 slot",
+  "ui.offer.lock": "Takes {slots} {when}",
+  "ui.offer.lock.slots": "{count} of your things to do",
+  "ui.offer.lock.slots.one": "one of your things to do",
   "ui.offer.lock.when": "for {count} months",
   "ui.offer.lock.when.one": "this month",
   // A lock said a month ahead holds the month the ask is answered in: the ask comes with the month before's results.
@@ -697,9 +697,9 @@ export const uiText: Record<string, string> = {
   "ui.pocket.cash": "cash",
 
   // Slots held this month (R-TURN-009) and the side job (R-ACTIVITY-010)
-  "ui.locks.title": "Slots held this month",
-  "ui.locks.item": "{slots} held by {why}, {left}",
-  "ui.locks.side": "{slots} held by {why}, every month you keep it",
+  "ui.locks.title": "Time already taken this month",
+  "ui.locks.item": "Taken by {why}: {slots}, {left}",
+  "ui.locks.side": "Taken by {why}: {slots}, every month you keep it",
   "ui.locks.left": "{count} months left",
   "ui.locks.left.one": "this month only",
   "ui.locks.why.side-job": "your side job",
@@ -752,7 +752,7 @@ export const uiText: Record<string, string> = {
   "ui.place.fare-december-now": "It is December. Off peak it is {fare}.",
   "ui.place.fare-naira": "Not enough in this currency. The rest is bought from naira at the bank rate: about {naira} with the bank's charge.",
   "ui.place.fare-short": "Not enough for the fare: it needs {fare} here, or about {naira} in the naira bank. Change money first if you hold it in another currency.",
-  "ui.place.fare-note": "The fare follows the season. The world decides when it is December.",
+  "ui.place.fare-note": "The fare follows the season. It is dearest in December.",
   "ui.place.shape-now.assisted": "Today you would go home on an assisted ticket. Nobody says it, but everyone knows.",
   "ui.place.shape-now.broke": "Today you would land with the fare and not much more. Everyone notices.",
   "ui.place.shape-now.by-choice": "Today you would come home by choice. People will still ask why.",
@@ -953,6 +953,6 @@ export const uiText: Record<string, string> = {
 
   // Being run down (R-HEALTH-001, R-HEALTH-007)
   "ui.health.run-down": "You are run down",
-  "ui.health.run-down-figure": "{quality} is {value}, under {line} two months running.",
+  "ui.health.run-down-figure": "{quality} has been low two months running.",
   "ui.health.run-down-help": "Rest, or do something that lifts you. Stay under the line and illness comes.",
 };
