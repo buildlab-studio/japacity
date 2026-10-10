@@ -64,39 +64,111 @@ function bankChange(line: ReportLine, charge: MoneyParam, paidLine: ReportLine |
   ];
 }
 
+/** The side of a change with the FX man, as the results tell it: both sides in its words, what came in as its amount. */
+export const CHANGED_STREET = "ui.results.changed-street";
+/** What went to the FX man, its own line in the money paid in. */
+export const CHANGED_STREET_OUT = "ui.results.changed-street-out";
+/** Naira paid in at the bank while its queue holds the foreign money back: gone now, the other side counted when it lands. */
+export const CHANGED_QUEUED = "ui.results.changed-queued";
+const QUEUED = "line.wallet.queued";
+
+/**
+ * A change with the FX man (R-WALLET-007): no charge, the side paid in just before what came in. Both
+ * count, each in its own money, as the wallet counts them (R-WORLD-008, R-WALLET-015).
+ */
+function streetChange(line: ReportLine, paidLine: ReportLine): MoneyLine[] {
+  const gained = moneyParam("amount", line.params, line.key);
+  const paid = moneyParam("amount", paidLine.params, paidLine.key);
+  if (gained === null || paid === null || gained.amount === 0) return [];
+  const told: ReportLine = { ...line, key: CHANGED_STREET, params: { ...line.params, paid, got: gained } };
+  const out: ReportLine = { ...paidLine, key: CHANGED_STREET_OUT, params: { amount: paid } };
+  return [
+    { line: told, sign: 1, currency: gained.currency, amount: gained.amount },
+    { line: out, sign: -1, currency: paid.currency, amount: paid.amount },
+  ];
+}
+
+/** A side paid in that no change on the same lines took up: a purchase the bank's queue holds, or one told alone. */
+function paidAlone(line: ReportLine, next: ReportLine | undefined): MoneyLine[] {
+  const paid = moneyParam("amount", line.params, line.key);
+  if (paid === null || paid.amount === 0) return [];
+  const queued = next?.key === QUEUED ? next : undefined;
+  const told: ReportLine =
+    queued === undefined
+      ? { ...line, key: CHANGED_OUT, params: { amount: paid } }
+      : { ...line, key: CHANGED_QUEUED, params: { amount: paid, currency: queued.params.currency ?? "", readyMonth: queued.params.readyMonth ?? 0 } };
+  return [{ line: told, sign: -1, currency: paid.currency, amount: paid.amount }];
+}
+
+/** How each change on the month's lines is told: the lines it takes up, by the index of what came in. */
+interface Change {
+  charge: number | null;
+  paid: number | null;
+}
+
+function changesOf(tidy: readonly ReportLine[]): { found: Map<number, Change>; taken: Set<number> } {
+  const found = new Map<number, Change>();
+  const taken = new Set<number>();
+  tidy.forEach((line, index) => {
+    if (line.key !== CONVERTED) return;
+    // The bank's charge and the side paid in come just before what came in, in either order; the FX man's side paid in comes right before it.
+    const window = [index - 2, index - 1].filter((at) => at >= 0 && !taken.has(at));
+    const charge = window.find((at) => tidy[at]?.key === BANK_CHARGE) ?? null;
+    const gained = moneyParam("amount", line.params, line.key);
+    const chargeMoney = charge === null ? null : moneyParam("amount", tidy[charge]!.params, BANK_CHARGE);
+    if (charge !== null && chargeMoney !== null && chargeMoney.amount > 0 && chargeMoney.currency !== gained?.currency) {
+      const paid = window.find((at) => tidy[at]?.key === CONVERT_PAID) ?? null;
+      found.set(index, { charge, paid });
+      taken.add(charge);
+      if (paid !== null) taken.add(paid);
+      return;
+    }
+    const paid = index > 0 && !taken.has(index - 1) && tidy[index - 1]?.key === CONVERT_PAID ? index - 1 : null;
+    found.set(index, { charge: null, paid });
+    if (paid !== null) taken.add(paid);
+  });
+  return { found, taken };
+}
+
 /** Money sent home: the wallet tells both legs as good; the leg in the money the character lives on is money out. */
 const REMIT = "line.wallet.remit";
 
+/** The kiosk's tickets, said as the activity's money (lines.ts) and as many tickets when more than one. */
+const LOTTO_PAID = "ui.line.activity-paid.activity.play-lotto";
+const LOTTO_TICKETS = "ui.results.lotto-tickets";
+
 /**
  * The lines in or out, in the simulation's order, one line for each payment as the report reads
- * them. A good line with an amount is money in, a bad one money out; a change at the bank is one line
- * that counts only its net, in `local`, the money the character lives on (naira when not given); any
- * other plain line (a move between pockets) moves nothing the player keeps or loses. Only a line that
- * tells money moving counts: a bill that could not be paid, or a scam told after its fee, is not
- * money gone twice (R-WORLD-008).
+ * them. A good line with an amount is money in, a bad one money out; a change counts both sides, each
+ * in its own money (R-WORLD-008), at the bank or with the FX man, and a side paid in while the bank's
+ * queue holds the other back counts the month it leaves. Any other plain line (a move between pockets)
+ * moves nothing the player keeps or loses. Only a line that tells money moving counts: a bill that
+ * could not be paid, or a scam told after its fee, is not money gone twice. `local` is the money the
+ * character lives on (naira when not given).
  */
 export function moneyLines(lines: readonly ReportLine[], local: Currency = "NGN"): MoneyLine[] {
   // The prologue's years are not this month: their money is what the character starts with.
   const tidy = tidyLines(afterPrologue(lines));
+  const { found, taken } = changesOf(tidy);
   return tidy.flatMap((line, index): MoneyLine[] => {
-    const next = tidy[index + 1];
-    if (line.key === BANK_CHARGE && (next?.key === CONVERTED || (next?.key === CONVERT_PAID && tidy[index + 2]?.key === CONVERTED))) return [];
-    if (line.key === CONVERT_PAID) return [];
-    if (line.key === CONVERTED) {
-      // The bank's charge and the side paid in come just before what came in, in either order.
-      const justBefore = tidy.slice(Math.max(0, index - 2), index);
-      const chargeLine = justBefore.find((other) => other.key === BANK_CHARGE);
+    if (taken.has(index)) return [];
+    const change = found.get(index);
+    if (change !== undefined) {
+      const chargeLine = change.charge === null ? undefined : tidy[change.charge];
+      const paidLine = change.paid === null ? undefined : tidy[change.paid];
       const charge = chargeLine === undefined ? null : moneyParam("amount", chargeLine.params, chargeLine.key);
-      const paidLine = justBefore.find((other) => other.key === CONVERT_PAID);
-      if (charge !== null && charge.amount > 0 && charge.currency !== moneyParam("amount", line.params, line.key)?.currency) return bankChange(line, charge, paidLine);
-      // With no bank's charge just before it (the street, a change that waited), only what came in is known.
+      if (charge !== null) return bankChange(line, charge, paidLine);
+      if (paidLine !== undefined) return streetChange(line, paidLine);
+      // With nothing paid in on the same lines (a change that waited in the bank's queue), only what came in is here.
       const gained = moneyParam("amount", line.params, line.key);
       return gained === null || gained.amount === 0 ? [] : [{ line, sign: 1, currency: gained.currency, amount: gained.amount }];
     }
+    if (line.key === CONVERT_PAID) return paidAlone(line, tidy[index + 1]);
     if (line.tone === "plain" || NOT_MOVED.has(line.key) || !movesMoney(line)) return [];
     const money = moneyParam("amount", line.params, line.key);
     if (money === null || money.amount === 0) return [];
     if (line.key === REMIT && money.currency === local) return [{ line, sign: -1, currency: money.currency, amount: money.amount }];
-    return [{ line, sign: line.tone === "good" ? 1 : -1, currency: money.currency, amount: money.amount }];
+    const told = line.key === LOTTO_PAID && money.amount > content.tuning.luck.ticket ? { ...line, key: LOTTO_TICKETS } : line;
+    return [{ line: told, sign: line.tone === "good" ? 1 : -1, currency: money.currency, amount: money.amount }];
   });
 }

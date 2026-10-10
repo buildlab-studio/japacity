@@ -161,6 +161,10 @@ export const uiText: Record<string, string> = {
   "ui.line.remit-landed": "Landed in your naira account at home: {amount}.",
   "ui.results.changed-out": "Changed at the bank: {amount}.",
   "ui.results.changed": "Changed {paid} into {got}. The bank's charge came to {amount}.",
+  "ui.results.changed-street": "Changed {paid} into {got} with the FX man.",
+  "ui.results.changed-street-out": "Handed to the FX man: {amount}.",
+  "ui.results.changed-queued": "Paid in at the bank for {currency}: {amount}. They come {readyMonth}.",
+  "ui.results.lotto-tickets": "Lotto tickets: {amount}.",
   "ui.results.hunt-missed": "{job}: not this time.",
   "ui.results.hunt-offer": "An offer: {job}, {pay} a month.",
   "ui.results.hunt-offer-plain": "An offer: {job}.",
@@ -195,6 +199,7 @@ export const uiText: Record<string, string> = {
   "ui.line.offer-paid.offer.illness-worse": "Treatment for the illness: {amount}.",
   // An activity's spending, named for it (shared/words/lines.ts, activityPaid).
   "ui.line.activity-paid.activity.meetup": "The meetup: {amount}.",
+  "ui.line.activity-paid.activity.play-lotto": "A lotto ticket: {amount}.",
   // The living costs charged at a new figure, with the story that moved them (lines.ts, upkeepMoved).
   "ui.line.upkeep-up": "Living costs are up to {amount} a month.",
   "ui.line.upkeep-down": "Living costs are down to {amount} a month.",
