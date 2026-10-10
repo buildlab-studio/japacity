@@ -39,7 +39,7 @@ export const uiText: Record<string, string> = {
   // While working, what is planned beside the job, counted in words (shared/words/count.ts).
   "ui.month.working-things": "Working, and {count} things planned beside the job",
   "ui.month.working-things.one": "Working, and {count} thing planned beside the job",
-  "ui.month.end": "Turn the page",
+  "ui.month.end": "Next month",
   "ui.month.same-again": "Same again",
   "ui.month.clear": "Clear plan",
   "ui.month.plan": "This month",
@@ -75,7 +75,7 @@ export const uiText: Record<string, string> = {
   "ui.world.turns": "{count} pages left",
   "ui.world.turns.one": "1 page left",
   "ui.clock.next": "Next page in {wait}",
-  "ui.clock.full": "Full: you hold every page you can. Turn one to make room.",
+  "ui.clock.full": "Full: you hold every page you can. Play a month to make room.",
   "ui.clock.hours": "{hours}h {minutes}m",
   "ui.clock.minutes": "{minutes}m",
   "ui.notify.ask.title": "Know when your months are full",
@@ -282,8 +282,8 @@ export const uiText: Record<string, string> = {
   "ui.job.quit-yes": "Yes, quit",
   "ui.job.quit-no": "Keep the job",
   "ui.activity.title": "What to do with your free time",
-  "ui.activity.add": "Add to month",
-  "ui.activity.do": "Do this",
+  // A card's button says the act, never "Add to month" (the review); the line under it says what it uses.
+  "ui.activity.uses-free": "Uses this month's free time",
   "ui.activity.full": "Every slot is planned",
   "ui.activity.cost": "Costs {amount}",
   "ui.activity.free": "No cost",

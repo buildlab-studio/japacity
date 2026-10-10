@@ -371,6 +371,8 @@ export function nudgeOf(view: NudgeView, has: (key: string) => boolean = hasWord
   // dues pass the country's money held, that line says the gap.
   // Once News has been read for this month's report, the line waits no more.
   if (!newsRead && view.report !== null && tidyLines(view.report.lines).some(asksAttention)) return { key: "ui.nudge.report", about: "report" };
+  // A chapter with every item met closes when the month ends: say that, never a goal's act over it.
+  if (view.chapter.current !== null && has("ui.nudge.chapter-done")) return { key: "ui.nudge.chapter-done", about: "end" };
   // With no chapter step left, the nearest open goal names its first act (R-GOAL-003).
   const goal = view.goals?.open.find((open) => open.items.some((item) => !item.met) && has(`${open.id}.first`));
   if (goal !== undefined) return { key: `${goal.id}.first`, about: "goal" };

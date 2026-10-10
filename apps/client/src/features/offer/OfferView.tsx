@@ -1,6 +1,7 @@
 // Open offers: requests, jobs, loans and men who can arrange things. The
 // title, body, signs and choices are content's words; the terms fill the braces.
 import { content } from "@japacity/content";
+import type { Id } from "@japacity/sim";
 import { int, type Amount, type Currency, type Effect, type OfferView as Offer, type ReportLine, type Terms } from "@japacity/sim";
 import { Eye, X } from "lucide-react";
 import { useId, useState } from "react";
@@ -72,7 +73,8 @@ function JobFigures({ terms }: { terms: Terms }) {
     <>
       <p className="font-semibold">{amount === null ? nameOf(job) : say("ui.offer.job", { job: nameOf(job), amount })}</p>
       {/* A way out that counts the months in the job held: the offer says what taking another ends. */}
-      {kept === null || job === view.job.id ? null : <p className="text-sm text-out" data-offer-job-ends>{say("ui.offer.job-ends")}</p>}
+      {/* A side job sits beside the day job and ends nothing. */}
+      {kept === null || job === view.job.id || content.activity[job as Id<"activity">]?.slot === "side" ? null : <p className="text-sm text-out" data-offer-job-ends>{say("ui.offer.job-ends")}</p>}
     </>
   );
 }

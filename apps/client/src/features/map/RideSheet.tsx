@@ -19,6 +19,8 @@ export interface RideSheetProps {
   formatMoney: (amount: number) => string;
   onChoose: (way: RideChoice) => void;
   onClose: () => void;
+  /** "Stay here" on the stop the character stands at: closes the map as well, back to the place. */
+  onStay?: () => void;
   /** The way chosen first, when a vehicle in the place was tapped (R-WORLD-017). */
   by?: RideChoice["id"];
 }
@@ -51,7 +53,7 @@ export function headingOf(name: string): string {
   return name.length === 0 ? name : name.charAt(0).toUpperCase() + name.slice(1);
 }
 
-export function RideSheet({ pin, home, ways, have, formatMoney, onChoose, onClose, by }: RideSheetProps) {
+export function RideSheet({ pin, home, ways, have, formatMoney, onChoose, onClose, onStay, by }: RideSheetProps) {
   const [chosen, setChosen] = useState<RideChoice["id"]>(by !== undefined && ways.some((way) => way.id === by) ? by : (ways[0]?.id ?? "danfo"));
   const way = ways.find((candidate) => candidate.id === chosen && candidate.shut === undefined) ?? ways.find((candidate) => candidate.shut === undefined);
   const here = pin.state === "here";
@@ -115,7 +117,7 @@ export function RideSheet({ pin, home, ways, have, formatMoney, onChoose, onClos
               })}
             </div>
           )}
-          <button type="button" className="btn-main mt-3" disabled={main.disabled} onClick={() => (here ? onClose() : way === undefined ? undefined : onChoose(way))} data-ride-main>
+          <button type="button" className="btn-main mt-3" disabled={main.disabled} onClick={() => (here ? (onStay ?? onClose)() : way === undefined ? undefined : onChoose(way))} data-ride-main>
             <span>{main.label}</span>
             {main.after === null ? null : <span className="text-[13px] font-semibold opacity-80">{main.after}</span>}
           </button>
