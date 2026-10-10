@@ -1,8 +1,11 @@
 import type { HomeHost, HomePlace } from "../engine/types";
 
 export type HomeEvent =
-  /** R-HOME-002: the character lives here from this month. `from` is where they lived, null after an eviction or as a guest. */
-  | { type: "home/moved"; from: HomePlace | null; to: HomePlace; month: number; rent: number }
+  /**
+   * R-HOME-002: the character lives here from this month. `from` is where they lived, null after an eviction or as a guest.
+   * `opening`: the home a life from sixteen starts in, chosen on its last card, which is no move (R-PROLOGUE-012).
+   */
+  | { type: "home/moved"; from: HomePlace | null; to: HomePlace; month: number; rent: number; opening?: true }
   /** R-HOME-002 with R-PLACE-007: back from abroad, the family house took the character back; told by the return, not again here. */
   | { type: "home/taken-back"; month: number }
   /** R-HOME-003: the settlement was cleared; `lost` is the naira cash that went with the room. */

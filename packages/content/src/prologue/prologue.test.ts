@@ -300,3 +300,21 @@ describe("the send-off's crowds", () => {
     expect(text["prologue.friend.answer.care.why"]).toBeDefined();
   });
 });
+
+describe("a room on the water (R-PROLOGUE-012)", () => {
+  test("[R-PROLOGUE-012] given the home card, then it offers Makoko's room to every life: its answer opens Makoko's rent at the home page's charge and moves the life there, and says what it costs as the other homes do", () => {
+    const makoko = content.prologue.home?.answers.find((answer) => answer.id === "makoko");
+    expect(makoko?.requires).toEqual([]);
+    expect(makoko?.next).toBeNull();
+    expect(makoko?.effects).toEqual([
+      { type: "obligation/open", obligation: "obligation.upkeep-makoko", amount: content.tuning.home.makokoUpkeep },
+      { type: "home/move", place: "place.makoko" },
+    ]);
+    for (const key of ["prologue.home.answer.makoko", "prologue.home.answer.makoko.hint", "prologue.handover.home.makoko"]) {
+      expect(text[key]).toBeTruthy();
+      expect(text[key]).not.toMatch(/[\u2013\u2014]/);
+    }
+    expect(text["prologue.home.answer.makoko.hint"]).toContain("{amount}");
+    expect(text["prologue.handover.home.makoko"]).toContain("{amount}");
+  });
+});

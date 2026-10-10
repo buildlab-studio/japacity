@@ -443,3 +443,70 @@ describe("hosting", () => {
     expect(game.state.home.hosting).toBeNull();
   });
 });
+
+/** The family house's charge on the home card of the life from sixteen (prologue.md, step 11), from content. */
+function familyCardCharge(): number {
+  const opens = content.prologue["home"]?.answers.find((answer) => answer.id === "family-house")?.effects.find((effect) => effect.type === "obligation/open");
+  if (opens?.type !== "obligation/open" || typeof opens.amount !== "number") throw new Error("The home card's family house opens no upkeep.");
+  return opens.amount;
+}
+
+/** A life from sixteen through the shop counter, its home card answered `home`. */
+function fromSixteen(home: string, base: Content = content, seed = "seed-1"): Game {
+  const game = start({ content: base, scenario: "scenario.prologue", seed });
+  for (const answer of ["begin", "commercial", "work", "save", "nowhere", home]) {
+    const step = game.state.prologue.step;
+    if (step === null) throw new Error(`The prologue closed before ${answer}.`);
+    game.accept({ type: "prologue/choose", step, answer });
+  }
+  return game;
+}
+
+describe("a life from sixteen", () => {
+  test("[R-HOME-002] [R-PROLOGUE-012] given a life from sixteen that moved to Makoko, when it moves back, then the family house takes it at the home card's charge for the family house, and the family talks", () => {
+    const game = fromSixteen("room", NEVER);
+    expect(game.state.prologue.open).toBe(false);
+    game.accept({ type: "home/move", to: MAKOKO });
+    month(game);
+    const standing = game.state.quality[STANDING]!;
+    game.accept({ type: "home/move", to: FAMILY });
+    expect(openEntries(game)).toEqual([FAMILY_UPKEEP]);
+    expect(Object.values(game.state.obligation.items)[0]?.amount).toBe(familyCardCharge());
+    expect(game.state.quality[STANDING]).toBe(standing + home.returnStanding);
+    expect(checkInvariants(game.state, content)).toEqual([]);
+  });
+
+  test("[R-HOME-004] [R-PROLOGUE-012] given a life from sixteen evicted from Makoko, when it takes the family, then it is back at the family house at the home card's charge", () => {
+    const game = fromSixteen("family-house", ALWAYS);
+    game.accept({ type: "home/move", to: MAKOKO });
+    month(game);
+    expect(offerOf(game, TAKEN_IN)).toBeDefined();
+    choose(game, TAKEN_IN, "family");
+    expect(game.state.home).toMatchObject({ place: FAMILY, guest: null });
+    expect(openEntries(game)).toEqual([FAMILY_UPKEEP]);
+    expect(Object.values(game.state.obligation.items)[0]?.amount).toBe(familyCardCharge());
+  });
+});
+
+describe("a start on the water", () => {
+  test("[R-PROLOGUE-012] [R-HOME-001] [R-HOME-002] given a life from sixteen whose home card answers Makoko, when the prologue closes, then it lives in Makoko's room from the start, owes only Makoko's rent at the page's charge, has made no move, and its first month charges that rent", () => {
+    const game = fromSixteen("makoko", NEVER);
+    expect(game.state.prologue.open).toBe(false);
+    expect(game.state.home).toEqual({ place: MAKOKO, since: 0, guest: null, moved: null, evicted: null, hosting: null });
+    expect(openEntries(game)).toEqual([MAKOKO_UPKEEP]);
+    expect(game.view().home).toMatchObject({ place: MAKOKO, rent: { currency: "NGN", amount: home.makokoUpkeep }, moved: null });
+    expect(checkInvariants(game.state, NEVER)).toEqual([]);
+    const result = month(game);
+    expect(upkeepPaid(result)).toBe(home.makokoUpkeep);
+    // The family house is still there to go back to, at its own charge.
+    game.accept({ type: "home/move", to: FAMILY });
+    expect(openEntries(game)).toEqual([FAMILY_UPKEEP]);
+    expect(Object.values(game.state.obligation.items)[0]?.amount).toBe(familyCardCharge());
+  });
+
+  test("[R-PROLOGUE-012] given a life from sixteen in Makoko's room from the start, when it asks to move back in its first month, then the move is open: the start was no move", () => {
+    const game = fromSixteen("makoko", NEVER);
+    game.accept({ type: "home/move", to: FAMILY });
+    expect(game.state.home).toMatchObject({ place: FAMILY, moved: 0 });
+  });
+});

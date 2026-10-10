@@ -131,6 +131,8 @@ export const prologueText: Record<string, string> = {
   "prologue.home.card": "On your own feet now. Where do you sleep?",
   "prologue.home.answer.family-house": "The family house",
   "prologue.home.answer.family-house.hint": "Living costs: {amount} a month.",
+  "prologue.home.answer.makoko": "A room in Makoko",
+  "prologue.home.answer.makoko.hint": "Living costs: {amount} a month. Some months the settlement is cleared.",
   "prologue.home.answer.room": "Your own room",
   "prologue.home.answer.room.hint": "Living costs: {amount} a month.",
   "prologue.home.answer.room.why": "a room needs {amount} in cash, and you do not have it.",
@@ -174,6 +176,14 @@ export const prologueText: Record<string, string> = {
   "prologue.archetype.shop-worker.name": "The shop worker",
   "prologue.archetype.shop-worker.was": "Straight from school to a shop counter",
   "prologue.archetype.shop-worker.opens": "Opens: a Gulf contract, the road through the desert to Europe. Hands over at about 22",
+  // R-PROLOGUE-012: the child of the water starts in a room in Makoko. Its nudges, for the first chapter's table:
+  // `job` while it has no work, `heard` while no way out is heard of, `shop` once a shop's capital is in hand.
+  "prologue.archetype.water.name": "The child of the water",
+  "prologue.archetype.water.was": "Grew up in Makoko. A canoe to school, then the fish racks",
+  "prologue.archetype.water.opens": "Opens: a Gulf contract, the road through the desert to Europe. Hands over at about 22",
+  "prologue.archetype.water.nudge.job": "Find work in town. The rent on the water is small, so most of the pay stays.",
+  "prologue.archetype.water.nudge.heard": "Paddle to the bridge and ask around at the motor park.",
+  "prologue.archetype.water.nudge.shop": "That is a shop's capital. Take a stall at the market.",
   "prologue.handover.archetype": "{kind}. {was}.",
   // R-PROLOGUE-011: where a life cannot be started over (online, one life an account), the tiles say the draw may
   // turn the years, and a handover whose life left its tile's path reads the life as lived, never the tile.
@@ -259,6 +269,7 @@ export const prologueText: Record<string, string> = {
   "prologue.handover.capital": "{amount} in hand, the shop's capital. It is the move's money now, if you want it to be.",
   "prologue.handover.home.family-house": "You sleep in the family house. Living costs: {amount} a month.",
   "prologue.handover.home.room": "You sleep in a room of your own. Living costs: {amount} a month.",
+  "prologue.handover.home.makoko": "You sleep in a room on the water in Makoko. Living costs: {amount} a month.",
   "prologue.handover.step.heard": "Go to the meetup in Yaba and hear of a way out",
   // A life's own first step where its archetype has a place for it: `step.<step>.<way>`.
   "prologue.handover.step.job.clinic": "Apply for the staff nurse job at the clinic",

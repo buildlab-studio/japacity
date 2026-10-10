@@ -534,12 +534,12 @@ function startProblems(game: Game, label: string): string[] {
   say(Object.keys(state.offer.items).length > 0, "an offer is open");
   say(state.setpiece.open !== null, "a set piece is open");
   for (const [id, route] of Object.entries(state.route)) say(route.state !== "unknown" && route.state !== "heard", `${id} is ${route.state}`);
-  // R-PROLOGUE-006: the upkeep the last answer chose is the only obligation.
+  // R-PROLOGUE-006: the upkeep the last answer chose is the only obligation; a room in Makoko owes Makoko's (R-PROLOGUE-012).
   const home = withPrologue.prologue["home"]?.answers.find((answer) => answer.id === state.prologue.choices["home"]);
   const upkeep = home?.effects.find((effect) => effect.type === "obligation/open");
-  const wanted = upkeep?.type === "obligation/open" && typeof upkeep.amount === "number" ? upkeep.amount : null;
+  const wanted = upkeep?.type === "obligation/open" && typeof upkeep.amount === "number" ? `${upkeep.obligation} ${String(upkeep.amount)}` : null;
   const owed = Object.values(state.obligation.items).map((item) => `${item.entry} ${String(item.amount)}`);
-  say(owed.join(",") !== `obligation.upkeep ${String(wanted)}`, `owes ${owed.join(", ")}`);
+  say(owed.join(",") !== wanted, `owes ${owed.join(", ")}`);
   say(state.turn.banked !== withPrologue.tuning.turn.start, `the bank holds ${String(state.turn.banked)} turns`);
   say(state.turn.month !== 0, "a month has passed");
   const view = game.view();
@@ -572,7 +572,7 @@ describe("the close", () => {
       expect(last.at(-2)).toBe("prologue/closed");
     }
     expect(problems).toEqual([]);
-    expect([...closes].sort()).toEqual(["family-house", "room"]);
+    expect([...closes].sort()).toEqual(["family-house", "makoko", "room"]);
   });
 
   test("[R-PROLOGUE-006] given 200 random prologues on the quality kind as it stands, when each closes, then each is still a legal starting life", () => {

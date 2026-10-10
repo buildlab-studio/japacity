@@ -81,14 +81,27 @@ export function evictedThisMonth(state: State): boolean {
   return state.home.evicted !== null && state.home.evicted === state.turn.month;
 }
 
-/** The starting life's upkeep at home, as `obligation/open` effects at its own charge (R-HOME-002, as R-PLACE-007). */
-function familyUpkeep(read: ReadCtx): Effect[] {
+/** The home card that closes the life from sixteen (prologue.md, step 11), and its answer for the family house. */
+const HOME_CARD = "home";
+const FAMILY_ANSWER = "family-house";
+
+/**
+ * What the family house charges this life: a fixed life's starting obligations, or for a life from sixteen, which
+ * starts owing nothing, the upkeep its home card opens for the family house (R-PROLOGUE-006, 012).
+ */
+function familyCharge(read: ReadCtx): Effect[] {
   const scenario = read.content.scenario[read.state.scenario];
   if (scenario === undefined) return [];
-  return scenario.obligations.flatMap((owed): Effect[] => {
-    const entry = read.content.obligation[owed.obligation];
-    if (entry === undefined || entry.type !== "upkeep" || entry.id === MAKOKO_UPKEEP || (entry.where ?? "home") !== "home") return [];
-    return [{ type: "obligation/open", obligation: owed.obligation, amount: owed.amount }];
+  if (scenario.prologue !== true) return scenario.obligations.map((owed): Effect => ({ type: "obligation/open", obligation: owed.obligation, amount: owed.amount }));
+  return read.content.prologue[HOME_CARD]?.answers.find((answer) => answer.id === FAMILY_ANSWER)?.effects ?? [];
+}
+
+/** The starting life's upkeep at home, as `obligation/open` effects at its own charge (R-HOME-002, as R-PLACE-007). */
+function familyUpkeep(read: ReadCtx): Effect[] {
+  return familyCharge(read).filter((effect) => {
+    if (effect.type !== "obligation/open") return false;
+    const entry = read.content.obligation[effect.obligation];
+    return entry !== undefined && entry.type === "upkeep" && entry.id !== MAKOKO_UPKEEP && (entry.where ?? "home") === "home";
   });
 }
 
@@ -152,7 +165,8 @@ function moveTo(ctx: Ctx, to: HomePlace, cause: Cause, charge: boolean): BaseEve
   const read: ReadCtx = { state: ctx.state, world: ctx.world, content: ctx.content };
   const from = homeOf(ctx.state, ctx.content).place;
   const rent = to === MAKOKO ? tuning.home.makokoUpkeep : 0;
-  const events = record(ctx, [{ type: "home/moved", from, to, month: ctx.state.turn.month, rent }]);
+  const moved: HomeEvent = { type: "home/moved", from, to, month: ctx.state.turn.month, rent };
+  const events = record(ctx, [ctx.state.prologue.open ? { ...moved, opening: true } : moved]);
   const effects: Effect[] = [{ type: "obligation/close", obligationType: "upkeep" }];
   if (to === MAKOKO) {
     if (charge && rent > 0) effects.push({ type: "money/take", currency: "NGN", pocket: "any", amount: rent, reason: "upkeep" });
@@ -281,7 +295,7 @@ function clocks(ctx: Ctx): BaseEvent[] {
 function evolve(slice: HomeSlice, event: HomeEvent): HomeSlice {
   switch (event.type) {
     case "home/moved":
-      return { ...slice, place: event.to, since: event.month, guest: null, moved: event.month };
+      return { ...slice, place: event.to, since: event.month, guest: null, moved: event.opening === true ? slice.moved : event.month };
     case "home/taken-back":
       return { ...slice, place: FAMILY_HOUSE, since: event.month, guest: null };
     case "home/evicted":

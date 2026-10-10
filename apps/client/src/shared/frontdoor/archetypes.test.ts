@@ -51,8 +51,8 @@ function play(archetype: Archetype, seed: string): Played {
 }
 
 describe("the archetypes", () => {
-  test("[R-PROLOGUE-010] given every archetype, then there are six, and every step and answer it names exists on its step", () => {
-    expect(ARCHETYPES.map((archetype) => archetype.id)).toEqual(["developer", "nurse", "accountant", "writer", "trader", "shop-worker"]);
+  test("[R-PROLOGUE-010] [R-PROLOGUE-012] given every archetype, then there are seven, the child of the water last, and every step and answer it names exists on its step", () => {
+    expect(ARCHETYPES.map((archetype) => archetype.id)).toEqual(["developer", "nurse", "accountant", "writer", "trader", "shop-worker", "water"]);
     for (const archetype of ARCHETYPES) {
       for (const [step, answers] of Object.entries(archetype.preset)) {
         const entry = content.prologue[step];
@@ -80,7 +80,7 @@ describe("the archetypes", () => {
     }
     expect(wrong).toEqual([]);
     // A degree preset is always allowed; the trader's master is shut to a city family that can pay for school.
-    expect(Object.fromEntries(shutSeen)).toEqual({ developer: 0, nurse: 0, accountant: 0, writer: 0, trader: shutSeen.get("trader"), "shop-worker": 0 });
+    expect(Object.fromEntries(shutSeen)).toEqual({ developer: 0, nurse: 0, accountant: 0, writer: 0, trader: shutSeen.get("trader"), "shop-worker": 0, water: 0 });
     expect(shutSeen.get("trader")).toBeGreaterThan(0);
   });
 
@@ -298,5 +298,151 @@ describe("the handover reads the life as lived", () => {
 describe("the nurse's send-off", () => {
   test("[R-PROLOGUE-011] given the nurse's tile, then her send-off leaning is the nurses' crowd, so care work is heard before any page is read", () => {
     expect(ARCHETYPES.find((tile) => tile.id === "nurse")?.leaning).toEqual({ friend: "care" });
+  });
+});
+
+const WATER = "water";
+const MAKOKO = "place.makoko";
+const MAKOKO_UPKEEP = "obligation.upkeep-makoko";
+const TAKEN_IN = "offer.taken-in";
+const WHERE_NEXT = "offer.where-next";
+const DESK_JOB = "activity.job-customer-service";
+const OPEN_SHOP = "activity.open-shop";
+type Game = ReturnType<typeof newGame>;
+
+function nairaHeld(game: Game): number {
+  const { cash, bank } = game.view().pockets.NGN;
+  return cash + bank;
+}
+
+/**
+ * One month of a life going up: a hunt for the desk job its schooling allows while it has none, the job taken when
+ * offered, and the home's asks answered as the way up answers them (taken in by someone, then back to the water).
+ * Returns true when the settlement was cleared this month.
+ */
+function upMonth(game: Game, hunt: boolean): boolean {
+  if (game.state.turn.banked < 1) game.grant(content.tuning.turn.cap);
+  const slots = hunt && game.view().job.id === null ? [{ activity: "activity.job-hunt" as const, param: DESK_JOB }] : [];
+  const result = game.endTurn(slots);
+  for (const offer of game.view().offers) {
+    const pick = (choice: string) => game.accept({ type: "offer/choose", offer: offer.id, choice });
+    if (offer.entry === "offer.job") pick("accept");
+    if (offer.entry === TAKEN_IN) pick("someone");
+    if (offer.entry === WHERE_NEXT) pick(offer.choices.find((choice) => choice.id === "makoko")?.allowed === true ? "makoko" : "family");
+  }
+  return result.events.some((event) => event.type === "home/evicted");
+}
+
+describe("the child of the water (R-PROLOGUE-012)", () => {
+  const water = archetypeOf(WATER)!;
+
+  test("[R-PROLOGUE-012] given the child of the water over many seeds, when its preset is played, then every life keeps its path, school then the shop counter with no master, and closes in Makoko's room at the page's rent with nothing else owed, the family house there to go back to", () => {
+    expect(water.preset).toMatchObject({ subjects: ["commercial"], "after-school": ["work"], shop: ["save"], home: ["makoko"] });
+    expect(water.preset["master"]).toBeUndefined();
+    const wrong: string[] = [];
+    for (let at = 0; at < SEEDS; at += 1) {
+      const { game, kept, shown } = play(water, `${WATER}-${String(at)}`);
+      const view = game.view();
+      if (!kept) wrong.push(`${String(at)}: off the path`);
+      if (shown.join(",") !== "friend") wrong.push(`${String(at)}: showed ${shown.join(",")}`);
+      if (view.home.place !== MAKOKO || view.home.moved !== null) wrong.push(`${String(at)}: home ${JSON.stringify(view.home)}`);
+      if (view.home.rent?.amount !== content.tuning.home.makokoUpkeep) wrong.push(`${String(at)}: rent ${JSON.stringify(view.home.rent)}`);
+      if (view.obligations.map((owed) => owed.entry).join(",") !== MAKOKO_UPKEEP) wrong.push(`${String(at)}: owes ${view.obligations.map((owed) => owed.entry).join(",")}`);
+      if (sixteenPath(view) !== "trade") wrong.push(`${String(at)}: ${String(sixteenPath(view))}`);
+      if (handoverKind(water, view) !== `${say("prologue.archetype.water.name")}. ${say("prologue.archetype.water.was")}.`) wrong.push(`${String(at)}: ${handoverKind(water, view)}`);
+    }
+    expect(wrong).toEqual([]);
+  });
+
+  test("[R-PROLOGUE-012] given the child of the water and the shop worker on the same seeds, when each rests six months, then the room on the water has saved more every time, by Makoko's rent against the family's upkeep", () => {
+    const shopWorker = archetypeOf("shop-worker")!;
+    const wrong: string[] = [];
+    for (let at = 0; at < 30; at += 1) {
+      const seed = `save-${String(at)}`;
+      const lives = [play(water, seed).game, play(shopWorker, seed).game];
+      for (const game of lives) for (let month = 0; month < 6; month += 1) upMonth(game, false);
+      const [onWater, atHome] = lives.map(nairaHeld) as [number, number];
+      if (onWater <= atHome) wrong.push(`${seed}: ${String(onWater)} against ${String(atHome)}`);
+    }
+    expect(wrong).toEqual([]);
+  });
+
+  test("[R-PROLOGUE-012] given the child of the water at its handover, then work is at hand: the hunt can ask for the desk job its schooling allows in the first month; and working it from the room, a shop's capital for a stall at the market comes within the first year, where from the family house it does not", () => {
+    const shopWorker = archetypeOf("shop-worker")!;
+    const reached = { water: 0, home: 0 };
+    const wrong: string[] = [];
+    const lives = 12;
+    for (let at = 0; at < lives; at += 1) {
+      const seed = `up-${String(at)}`;
+      for (const [who, archetype] of [["water", water], ["home", shopWorker]] as const) {
+        const { game } = play(archetype, seed);
+        if (!(game.view().activities.find((option) => option.id === "activity.job-hunt")?.params ?? []).includes(DESK_JOB)) wrong.push(`${seed} ${who}: the hunt cannot ask for the desk job`);
+        for (let month = 0; month < 12; month += 1) upMonth(game, true);
+        if (game.view().activities.some((option) => option.id === OPEN_SHOP && option.allowed)) reached[who] += 1;
+      }
+    }
+    expect(wrong).toEqual([]);
+    expect(reached).toEqual({ water: lives, home: 0 });
+  });
+
+  test("[R-PROLOGUE-012] [R-GUIDE-016] given the child of the water over many seeds, when it hands over, then its first step is asking around at the motor park, its first ask-around hears of the Gulf in at least the trader's share of seeds, and the road's pitches can reach it at home", () => {
+    expect(water.routes).toEqual(["route.gulf-contract", "route.road"]);
+    const heard = { water: 0, trader: 0 };
+    const kept = { water: 0, trader: 0 };
+    const wrong: string[] = [];
+    for (const [who, archetype] of [["water", water], ["trader", archetypeOf("trader")!]] as const) {
+      for (let at = 0; at < SEEDS; at += 1) {
+        const played = play(archetype, `${archetype.id}-${String(at)}`);
+        if (!played.kept) continue;
+        kept[who] += 1;
+        const { game } = played;
+        const view = game.view();
+        const way = ownWayOf(view);
+        if (who === "water" && (nextStepOf(view) !== "heard" || way?.thing !== "motor-park" || way.activity !== "activity.ask-around")) wrong.push(`${String(at)}: the first step's way is ${JSON.stringify(way)}`);
+        const read = { state: game.state, world: game.world(), content };
+        if (who === "water" && !allMet(read, content.offer["offer.road-park"]?.when ?? [])) wrong.push(`${String(at)}: the road's pitch cannot reach it`);
+        game.endTurn([{ activity: "activity.ask-around", param: null }]);
+        if (routeState(game, "route.gulf-contract") !== "unknown") heard[who] += 1;
+      }
+    }
+    expect(wrong).toEqual([]);
+    expect(kept.water).toBe(SEEDS);
+    expect(heard.water * kept.trader).toBeGreaterThanOrEqual(heard.trader * kept.water);
+  });
+
+  test("[R-PROLOGUE-012] [R-HOME-003] [R-HOME-004] given the child of the water over many lives, when the settlement is cleared, then the same month a relative in Lagos takes it in with no rent, and it is never left with nowhere to go", () => {
+    let cleared = 0;
+    const wrong: string[] = [];
+    for (let at = 0; at < 20; at += 1) {
+      const { game } = play(water, `cleared-${String(at)}`);
+      for (let month = 0; month < 24; month += 1) {
+        if (game.state.turn.banked < 1) game.grant(content.tuning.turn.cap);
+        const result = game.endTurn([]);
+        if (!result.events.some((event) => event.type === "home/evicted")) continue;
+        cleared += 1;
+        const when = game.view().month;
+        const offer = game.view().offers.find((open) => open.entry === TAKEN_IN);
+        if (offer?.choices.find((choice) => choice.id === "someone")?.allowed !== true) wrong.push(`${String(at)} month ${String(when)}: no one to take it in`);
+        if (offer === undefined) break;
+        game.accept({ type: "offer/choose", offer: offer.id, choice: "someone" });
+        const home = game.view().home;
+        if (home.guest === null || home.guest.host !== "someone" || home.rent !== null || game.view().month !== when) wrong.push(`${String(at)} month ${String(when)}: ${JSON.stringify(home)}`);
+        break;
+      }
+    }
+    expect(wrong).toEqual([]);
+    expect(cleared).toBeGreaterThan(0);
+  });
+});
+
+describe("the child of the water's words (R-PROLOGUE-012)", () => {
+  test("[R-PROLOGUE-012] given the child of the water's tile, then it says where the life starts and names its way out, the road said as the road through the desert", () => {
+    expect(say("prologue.archetype.water.was")).toMatch(/Makoko/);
+    expect(say("prologue.archetype.water.opens")).toMatch(/^Opens: a Gulf contract, the road through the desert/);
+    for (const key of ["name", "was", "opens", "nudge.job", "nudge.heard", "nudge.shop"]) {
+      const words = say(`prologue.archetype.water.${key}`);
+      expect(words).not.toBe(`prologue.archetype.water.${key}`);
+      expect(words).not.toMatch(/[\u2013\u2014]/);
+    }
   });
 });
