@@ -47,10 +47,6 @@ const INFLATION: Id<"var"> = "var.inflation";
 /** R-RETURN-006: the car's shortfall once it has followed you home, in naira. */
 const HOME_SHORTFALL: Id<"obligation"> = "obligation.car-shortfall-home";
 
-/**
- * R-CAR-003: what a repossession leaves owing. the car's entry has no
- * field naming it, so the id lives here; the car's `onDefault` could carry it.
- */
 /** Types whose misses run a grace and can default (R-OBLIGATION-004, 005, R-ABROAD-003 to 005, R-CAR-003). */
 const GRACE_TYPES: readonly ObligationType[] = ["loan", "group-loan", "tuition", "rent", "phone", "car", "undertaking"];
 /** Types that stay open in default as a debt (R-OBLIGATION-005, R-STATUS-011, R-UNDERTAKING-008). */

@@ -377,7 +377,7 @@ function isForeign(value: unknown): value is ForeignCurrency {
 
 /**
  * `wallet/remit` (R-ABROAD-006): the amount leaves the currency's bank pocket as
- * `remit` and the fee as `remit-fee`; the naira arrives as `gift`, documented, in
+ * `remit` and the fee as `remit-fee`; the naira arrives as `remit`, documented, in
  * the home bank pocket by app at once or by bank next month, or as cash by the
  * informal channel, which may not arrive at all (stream `street`). only
  * from abroad, since it sends money home.
