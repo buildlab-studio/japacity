@@ -3,7 +3,7 @@ import { join } from "node:path";
 
 import { content } from "@japacity/content";
 import { act, fireEvent, render, screen, within } from "@testing-library/react";
-import { Group } from "three";
+import { Group, Vector3 } from "three";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
 import { engineView } from "../../shared/testing/fixtures";
@@ -18,7 +18,7 @@ import { mapWords } from "./map.words";
 import { mapPins, type MapPin, rideChoices } from "./pins";
 import { alongOf, LINES, lineOf, PRE_MS, Ride, RIDE_MS } from "./Ride";
 import { headingOf } from "./RideSheet";
-import { buildRide } from "./rideScene";
+import { type Angle, angleAt, anglesOf, buildRide, CUT_DARK_MS, darkAt, figuresOn, STEP_MS, stepClock } from "./rideScene";
 import { buildCityMap, drawCallsOf, readColours } from "./scene";
 
 afterEach(() => {
@@ -555,5 +555,240 @@ describe("the ride carries people", () => {
       await vi.advanceTimersByTimeAsync(RIDE_MS);
     });
     expect(onDone).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("the ride cuts between its angles by itself", () => {
+  /** The angles a ride shows in order, read off its clock every few milliseconds. */
+  function seenOn(way: RideChoice["id"]): { angle: Angle; from: number; to: number }[] {
+    const seen: { angle: Angle; from: number; to: number }[] = [];
+    for (let ms = 0; ms <= RIDE_MS; ms += 10) {
+      const angle = angleAt(way, ms);
+      const last = seen[seen.length - 1];
+      if (last?.angle === angle) last.to = ms;
+      else seen.push({ angle, from: ms, to: ms });
+    }
+    return seen;
+  }
+
+  /** The camera in the vehicle's own frame: facing +z, the ground at y 0, the kerb on -x. */
+  function cameraIn(scene: ReturnType<typeof buildRide>): { at: Vector3; facing: Vector3 } {
+    scene.vehicle.updateMatrixWorld(true);
+    const at = scene.vehicle.worldToLocal(scene.camera.position.clone());
+    const facing = scene.camera.getWorldDirection(new Vector3());
+    // The vehicle's body is turned half a circle inside it, so its own frame is the vehicle's turned.
+    return { at: new Vector3(-at.x, at.y, -at.z), facing: new Vector3(-facing.x, facing.y, -facing.z) };
+  }
+
+  test("[R-WORLD-032] given a danfo ride, when its clock is read at each moment, then it is outside at the stop for the pre-roll, then above, then the window, then the seat, each once and each for a share of the six seconds", () => {
+    const seen = seenOn("danfo");
+    expect(seen.map((part) => part.angle)).toEqual(["outside", "above", "window", "seat"]);
+    expect(seen[0]?.to).toBeLessThan(PRE_MS);
+    expect(seen[1]?.from).toBeGreaterThanOrEqual(PRE_MS);
+    for (const part of seen) expect(part.to - part.from).toBeGreaterThanOrEqual(1000);
+    expect(angleAt("danfo", 0)).toBe("outside");
+    expect(angleAt("danfo", RIDE_MS)).toBe("seat");
+    expect(anglesOf("danfo").map((part) => part.angle)).toEqual(["outside", "above", "window", "seat"]);
+  });
+
+  test("[R-WORLD-032] given an okada ride and a keke ride, when the clock is read at each moment, then each is outside at the stop for the pre-roll, then above, then the rider ahead and the open street; on foot it is above throughout", () => {
+    for (const way of ["okada", "keke"] as const) {
+      const seen = seenOn(way);
+      expect(seen.map((part) => part.angle)).toEqual(["outside", "above", "ahead"]);
+      expect(seen[0]?.to).toBeLessThan(PRE_MS);
+      for (const part of seen) expect(part.to - part.from).toBeGreaterThanOrEqual(1000);
+    }
+    expect(seenOn("walk").map((part) => part.angle)).toEqual(["above"]);
+  });
+
+  test("[R-WORLD-032] [R-WORLD-013] given each cut of a ride, when the dark is read across it, then the screen is fully dark at the cut, clear between cuts, and dark for under half a second each time", () => {
+    for (const way of ["danfo", "okada", "keke"] as const) {
+      const cuts = anglesOf(way).slice(1).map((part) => part.from);
+      for (const cut of cuts) {
+        expect(darkAt(way, cut)).toBe(1);
+        let dark = 0;
+        for (let ms = cut - 600; ms <= cut + 600; ms += 1) if (darkAt(way, ms) > 0) dark += 1;
+        expect(dark).toBeGreaterThan(0);
+        expect(dark).toBeLessThan(500);
+      }
+      const parts = anglesOf(way);
+      parts.forEach((part, index) => {
+        const next = parts[index + 1]?.from ?? RIDE_MS;
+        expect(darkAt(way, (part.from + next) / 2)).toBe(0);
+      });
+    }
+    expect(CUT_DARK_MS).toBeLessThan(500);
+    expect(darkAt("walk", 3000)).toBe(0);
+  });
+
+  test("[R-WORLD-032] given a danfo's scene, when each angle is framed, then the stop is seen from outside, above from high over the street, the window from the aisle out to the kerb with the cab's pillars drawn, and the seat from a back seat facing the road with the row in front", () => {
+    const scene = buildRide("danfo");
+    scene.setPerson("own", new Group());
+    scene.setPerson("driver", new Group());
+    const at = (angle: Angle): number => {
+      const parts = anglesOf("danfo");
+      const index = parts.findIndex((part) => part.angle === angle);
+      return ((parts[index]?.from ?? 0) + (parts[index + 1]?.from ?? RIDE_MS)) / 2;
+    };
+    const inside = (point: Vector3): boolean => Math.abs(point.x) < 1.1 && point.y > 0.3 && point.y < 2.3 && Math.abs(point.z) < 2.35;
+    const cab = scene.scene.getObjectByName("cab");
+    if (cab === undefined) throw new Error("No cab");
+
+    scene.frame(at("outside"), 0.46);
+    expect(inside(cameraIn(scene).at)).toBe(false);
+    expect(cameraIn(scene).at.x).toBeLessThan(-1.2);
+    expect(cab.visible).toBe(false);
+
+    scene.frame(at("above"), 0.46);
+    expect(scene.camera.position.y).toBeGreaterThan(20);
+    expect(cab.visible).toBe(false);
+    expect(figuresOn(scene)).toEqual([]);
+
+    scene.frame(at("window"), 0.46);
+    const window_ = cameraIn(scene);
+    expect(inside(window_.at)).toBe(true);
+    expect(window_.facing.x).toBeLessThan(-0.7);
+    expect(cab.visible).toBe(true);
+    expect([...figuresOn(scene)].sort()).toEqual(["driver", "own"]);
+
+    scene.frame(at("seat"), 0.46);
+    const seat = cameraIn(scene);
+    expect(inside(seat.at)).toBe(true);
+    expect(seat.facing.z).toBeGreaterThan(0.8);
+    const own = scene.seats.find((one) => one.role === "own")?.group.position.z ?? 0;
+    expect(seat.at.z).toBeLessThan(own);
+    expect(cab.visible).toBe(true);
+    expect([...figuresOn(scene)].sort()).toEqual(["driver", "own"]);
+    scene.dispose();
+  });
+
+  test("[R-WORLD-032] given an okada's and a keke's scene, when the last angle is framed, then the camera sits where the character sits, behind the rider or driver, facing the open street ahead with him in view", () => {
+    for (const way of ["okada", "keke"] as const) {
+      const scene = buildRide(way);
+      const carrier = way === "okada" ? "rider" : "driver";
+      scene.setPerson("own", new Group());
+      scene.setPerson(carrier, new Group());
+      const ahead = anglesOf(way).find((part) => part.angle === "ahead")?.from ?? 0;
+      scene.frame((ahead + RIDE_MS) / 2, 0.46);
+      const { at, facing } = cameraIn(scene);
+      const own = scene.seats.find((one) => one.role === "own")?.group.position ?? new Vector3();
+      const front = scene.seats.find((one) => one.role === carrier)?.group;
+      if (front === undefined) throw new Error("No carrier");
+      expect(Math.abs(at.z - own.z)).toBeLessThan(0.4);
+      expect(at.y).toBeGreaterThan(1);
+      expect(facing.z).toBeGreaterThan(0.8);
+      const seen = front.getWorldPosition(new Vector3()).add(new Vector3(0, 1.2, 0)).project(scene.camera);
+      expect(Math.abs(seen.x)).toBeLessThan(1);
+      expect(Math.abs(seen.y)).toBeLessThan(1);
+      expect(seen.z).toBeLessThan(1);
+      expect([...figuresOn(scene)].sort()).toEqual([carrier, "own"].sort());
+      scene.dispose();
+    }
+  });
+
+  test("[R-WORLD-032] given each way's scene before its people load, when each angle plays, then it costs no more draw calls than the ride did, seven", () => {
+    for (const way of ["danfo", "keke", "okada", "walk"] as const) {
+      const scene = buildRide(way);
+      for (const part of anglesOf(way)) {
+        scene.frame(part.from + 50, 0.46);
+        expect(drawCallsOf(scene.scene)).toBeLessThanOrEqual(7);
+      }
+      scene.dispose();
+    }
+  });
+
+  test("[R-WORLD-032] given the ride's clock, when a frame comes late, then the step is clamped and the clock never passes the ride's end", () => {
+    expect(stepClock(0, 16)).toBe(16);
+    expect(stepClock(1000, 2000)).toBe(1000 + STEP_MS);
+    expect(stepClock(RIDE_MS - 10, 50)).toBe(RIDE_MS);
+    expect(stepClock(500, -40)).toBe(500);
+    expect(STEP_MS).toBeLessThanOrEqual(100);
+  });
+
+  test("[R-WORLD-032] given a danfo ride playing, when a slow frame of three seconds comes, then the ride does not jump ahead: the angle, the card's line and the end keep the ride's own clock", async () => {
+    vi.useFakeTimers();
+    const onDone = vi.fn();
+    render(<Ride way="danfo" place="Bode Thomas Street" from="Ojuelegba" drawing={false} seed={1} onDone={onDone} />);
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(PRE_MS + 200);
+    });
+    const probe = window.__ride;
+    if (probe === undefined) throw new Error("The ride set no probe");
+    expect(probe.angle).toBe("above");
+    vi.setSystemTime(Date.now() + 3000);
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(60);
+    });
+    expect(probe.angle).toBe("above");
+    expect(screen.getByText(mapWords("map.ride.along.start", { from: "Ojuelegba" }))).toBeTruthy();
+    expect(onDone).not.toHaveBeenCalled();
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(RIDE_MS - PRE_MS - 200 - 60 - STEP_MS - 100);
+    });
+    expect(onDone).not.toHaveBeenCalled();
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(200);
+    });
+    expect(onDone).toHaveBeenCalledTimes(1);
+  });
+
+  test("[R-WORLD-032] given a danfo ride, when it plays out, then the probe says each angle once in order, the card's buttons are only Turn back and Skip, and no view switch shows", async () => {
+    vi.useFakeTimers();
+    const onDone = vi.fn();
+    render(<Ride way="danfo" place="Bode Thomas Street" from="Ojuelegba" drawing={false} seed={2} onDone={onDone} onTurnBack={() => undefined} />);
+    const ride = document.querySelector("[data-ride]") as HTMLElement;
+    const names = within(ride)
+      .getAllByRole("button")
+      .map((button) => button.textContent);
+    expect(names).toEqual([mapWords("map.ride.turn-back"), mapWords("map.ride.skip")]);
+    const seen: (string | undefined)[] = [];
+    for (let ms = 0; ms < RIDE_MS - 100; ms += 100) {
+      seen.push(window.__ride?.angle);
+      expect(ride.dataset.rideAngle).toBe(window.__ride?.angle);
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(100);
+      });
+    }
+    expect(seen.filter((angle, index) => angle !== seen[index - 1])).toEqual(["outside", "above", "window", "seat"]);
+    expect(window.__ride?.angles).toEqual(["outside", "above", "window", "seat"]);
+    expect(onDone).not.toHaveBeenCalled();
+  });
+
+  test("[R-WORLD-032] given a danfo ride in each of its angles, when Skip is tapped, then it ends at once and not again", async () => {
+    for (const part of anglesOf("danfo")) {
+      vi.useFakeTimers();
+      const onDone = vi.fn();
+      const { unmount } = render(<Ride way="danfo" place="Bode Thomas Street" drawing={false} onDone={onDone} />);
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(part.from + 300);
+      });
+      expect(window.__ride?.angle).toBe(part.angle);
+      fireEvent.click(screen.getByRole("button", { name: mapWords("map.ride.skip") }));
+      expect(onDone).toHaveBeenCalledTimes(1);
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(RIDE_MS);
+      });
+      expect(onDone).toHaveBeenCalledTimes(1);
+      unmount();
+      vi.useRealTimers();
+    }
+  });
+
+  test("[R-WORLD-032] given an okada ride, when Turn back is tapped from the rider-ahead angle, then the ride turns back once and never arrives", async () => {
+    vi.useFakeTimers();
+    const onDone = vi.fn();
+    const onTurnBack = vi.fn();
+    render(<Ride way="okada" place="Tejuosho Market" from="Ojuelegba" drawing={false} onDone={onDone} onTurnBack={onTurnBack} />);
+    const ahead = anglesOf("okada").find((part) => part.angle === "ahead")?.from ?? 0;
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(ahead + 300);
+    });
+    expect(window.__ride?.angle).toBe("ahead");
+    fireEvent.click(screen.getByRole("button", { name: mapWords("map.ride.turn-back") }));
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(RIDE_MS);
+    });
+    expect(onTurnBack).toHaveBeenCalledTimes(1);
+    expect(onDone).not.toHaveBeenCalled();
   });
 });

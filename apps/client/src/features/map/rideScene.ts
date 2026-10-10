@@ -1,9 +1,11 @@
-// The ride's scene (docs/rules/world.md R-WORLD-017): the street the ride goes along, the vehicle,
-// and the people on it. A ride by danfo, keke or okada opens on a short pre-roll close to the
-// vehicle (the okada at the kerb with the character climbing on behind the rider, the keke with its
-// driver and the character on the back bench, the danfo from inside, behind the character's head),
-// then cuts to the street from above for the rest. On foot there is no pre-roll: the character walks.
-// Everything here is plain three.js with no renderer, so a test can read the scene it builds.
+// The ride's scene (docs/rules/world.md R-WORLD-017, R-WORLD-032): the street the ride goes along,
+// the vehicle, and the people on it. A ride by danfo, keke or okada opens on a short pre-roll outside
+// at the stop (the okada at the kerb with the character climbing on behind the rider, the keke with
+// its driver and the character on the back bench, the danfo at its door with the two in front), then
+// cuts by itself on its own clock: from above, then for the danfo the window and the seat inside it,
+// and on a keke or an okada the rider ahead and the open street. On foot there is no pre-roll: the
+// character walks, seen from above. Everything here is plain three.js with no renderer, so a test can
+// read the scene it builds.
 import { palette } from "@japacity/assets";
 import type { PoseName } from "@japacity/assets-src/people/poses";
 import {
@@ -47,8 +49,72 @@ export function preMsOf(way: Way): number {
 /** Who rides: the character, the okada's rider, or the keke's or danfo's driver. */
 export type Role = "own" | "rider" | "driver";
 
-/** The two parts of a ride: the close pre-roll, then the street from above. */
+/** The two parts of a ride: the close pre-roll, then the ride itself. */
 export type Phase = "pre" | "ride";
+
+/**
+ * Where the ride is watched from (R-WORLD-032): outside at the stop, from above, the danfo's window
+ * and seat, and on a keke or an okada the rider ahead. The ride picks them on its own clock.
+ */
+export type Angle = "outside" | "above" | "window" | "seat" | "ahead";
+
+/** The most the ride's clock moves in one frame, so a slow frame never jumps the ride ahead (R-WORLD-032). */
+export const STEP_MS = 100;
+
+/** The ride's clock after a frame `dt` milliseconds long: the step clamped, never past the ride's end. */
+export function stepClock(ms: number, dt: number): number {
+  return Math.min(RIDE_MS, ms + Math.min(STEP_MS, Math.max(0, dt)));
+}
+
+/** The angles a way shows, each from the moment it starts: the pre-roll outside, then the rest of the ride shared out. */
+export function anglesOf(way: Way): readonly { angle: Angle; from: number }[] {
+  const rest = RIDE_MS - PRE_MS;
+  switch (way) {
+    case "danfo":
+      return [
+        { angle: "outside", from: 0 },
+        { angle: "above", from: PRE_MS },
+        { angle: "window", from: PRE_MS + Math.round(rest / 3) },
+        { angle: "seat", from: PRE_MS + Math.round((rest * 2) / 3) },
+      ];
+    case "keke":
+    case "okada":
+      return [
+        { angle: "outside", from: 0 },
+        { angle: "above", from: PRE_MS },
+        { angle: "ahead", from: PRE_MS + Math.round(rest / 2) },
+      ];
+    case "walk":
+      return [{ angle: "above", from: 0 }];
+    default: {
+      const never: never = way;
+      throw new Error(`Unknown way: ${String(never)}`);
+    }
+  }
+}
+
+/** The angle on screen `ms` after the ride began. */
+export function angleAt(way: Way, ms: number): Angle {
+  let angle: Angle = "above";
+  for (const part of anglesOf(way)) if (ms >= part.from) angle = part.angle;
+  return angle;
+}
+
+/** How long the screen holds fully dark at a cut, and how long it takes to darken and to clear either side. */
+const CUT_HOLD_MS = 80;
+const CUT_FADE_MS = 120;
+/** A cut's whole dark, darkening, held and clearing: under half a second, as R-WORLD-013's cut. */
+export const CUT_DARK_MS = CUT_HOLD_MS + 2 * CUT_FADE_MS;
+
+/** How dark the screen is `ms` after the ride began, 0 clear to 1 dark: dark only around a cut between angles. */
+export function darkAt(way: Way, ms: number): number {
+  let dark = 0;
+  for (const part of anglesOf(way).slice(1)) {
+    const off = Math.abs(ms - part.from) - CUT_HOLD_MS / 2;
+    dark = Math.max(dark, off <= 0 ? 1 : 1 - off / CUT_FADE_MS);
+  }
+  return Math.max(0, dark);
+}
 
 /** Metres covered after the pre-roll; on foot a short way, so the stride reads as a walk. */
 const TRAVEL = 150;
@@ -140,8 +206,11 @@ export interface RideScene {
   setVehicle: (model: Object3D) => void;
   /** A person's model is in: their figure takes their seat. */
   setPerson: (role: Role, model: Object3D) => void;
+  /** Shows the scene as the part's first angle shows it, until a frame says otherwise. */
   setPhase: (phase: Phase) => void;
-  /** Poses everything and places the camera `ms` after the ride began. */
+  /** Shows what an angle shows: the danfo's model from outside and above, its inside from the window and the seat. */
+  setAngle: (angle: Angle) => void;
+  /** Poses everything and places the camera `ms` after the ride began, at the angle the ride's clock gives. */
   frame: (ms: number, aspect: number) => void;
   dispose: () => void;
 }
@@ -168,9 +237,10 @@ function part(w: number, h: number, d: number, x: number, y: number, z: number, 
 }
 
 /**
- * The danfo's front from inside, in its own frame: the dashboard, the windscreen's pillars and
- * header, the roof, both front doors with their sills, the bench, the wheel and the kerb mirror.
- * One draw call. Seen only in the pre-roll; from above the danfo is its model.
+ * The danfo from inside, in its own frame: the dashboard, the windscreen's pillars and header, the
+ * roof, both front doors with their sills, the bench, the wheel and the kerb mirror, and behind them
+ * the sides with their yellow pillars and the sliding windows' rail, and the floor. One draw call.
+ * Seen only from the window and the seat; outside and above the danfo is its model.
  */
 function buildCab(keep: <T extends { dispose: () => void }>(thing: T) => T): Group {
   const cab = new Group();
@@ -184,7 +254,13 @@ function buildCab(keep: <T extends { dispose: () => void }>(thing: T) => T): Gro
     part(0.06, 0.78, 1.4, -0.86, 0.83, 1.3),
     part(0.08, 0.72, 0.08, 0.86, 1.61, 0.62),
     part(0.08, 0.72, 0.08, -0.86, 1.61, 0.62),
+    // The roof back to the rear door, and each side's panel under the windows and band over them.
+    part(1.76, 0.04, 2.6, 0, 1.99, -1.0),
+    ...[0.86, -0.86].flatMap((x) => [part(0.06, 0.78, 2.9, x, 0.83, -0.85), part(0.06, 0.18, 2.9, x, 1.88, -0.85)]),
+    // The pillars between the sliding windows.
+    ...[0.86, -0.86].flatMap((x) => [-2.2, -1.1, -0.2].map((z) => part(0.08, 0.66, 0.1, x, 1.5, z))),
   ];
+  const rail = [0.88, -0.88].map((x) => part(0.04, 0.04, 2.9, x, 1.52, -0.85));
   const wheel = new TorusGeometry(0.19, 0.025, 4, 14);
   wheel.rotateX(-0.75);
   wheel.translate(0.42, 1.24, 1.66);
@@ -195,13 +271,14 @@ function buildCab(keep: <T extends { dispose: () => void }>(thing: T) => T): Gro
     part(0.05, 0.18, 0.12, -1.06, 1.46, 1.9),
     wheel,
   ];
-  const seat = [part(1.62, 0.12, 0.5, 0, 0.84, 1.18), part(1.62, 0.36, 0.1, 0, 1.08, 0.9)];
+  const seat = [part(1.62, 0.12, 0.5, 0, 0.84, 1.18), part(1.62, 0.36, 0.1, 0, 1.08, 0.9), part(1.7, 0.04, 4.4, 0, 0.44, -0.1)];
   // One draw call: each piece carries its colour in its vertices.
   const pieces: BufferGeometry[] = [];
   for (const [group, colour] of [
     [body, palette.danfoYellow],
     [trim, palette.charcoal],
     [seat, palette.seat],
+    [rail, palette.hub],
   ] as const) {
     const tint = new Color(colour);
     for (const piece of group) {
@@ -217,6 +294,7 @@ function buildCab(keep: <T extends { dispose: () => void }>(thing: T) => T): Gro
   const merged = keep(mergeGeometries(pieces, false));
   for (const piece of pieces) piece.dispose();
   cab.add(new Mesh(merged, keep(new MeshLambertMaterial({ vertexColors: true }))));
+  cab.name = "cab";
   return cab;
 }
 
@@ -334,17 +412,24 @@ export function buildRide(way: Way): RideScene {
   /** Where the pre-roll leaves the vehicle: the danfo has pulled away, the rest stand at the kerb. */
   const pulled = way === "danfo" ? (PULL * (pre / 1000) ** 2) / 2 : 0;
   let phase: Phase = pre > 0 ? "pre" : "ride";
+  const angles = anglesOf(way);
+  let angle: Angle = angles[0]?.angle ?? "above";
   const look = new Vector3();
   const spot = new Vector3();
 
-  const setPhase = (next: Phase): void => {
-    phase = next;
+  const setAngle = (next: Angle): void => {
+    angle = next;
     if (way !== "danfo") return;
-    // From above the danfo is its model, with nothing drawn inside it.
-    const inside = next === "pre";
+    // Outside and above the danfo is its model; from the window and the seat, its inside drawn
+    // around the camera. From above nothing is drawn inside it; outside, the two in front sit in it.
+    const inside = next === "window" || next === "seat";
     shell.visible = !inside;
     if (cab !== null) cab.visible = inside;
-    for (const seat of seats) seat.group.visible = inside;
+    for (const seat of seats) seat.group.visible = next !== "above";
+  };
+  const setPhase = (next: Phase): void => {
+    phase = next;
+    setAngle(next === "pre" ? (angles[0]?.angle ?? "above") : "above");
   };
   setPhase(phase);
 
@@ -394,36 +479,75 @@ export function buildRide(way: Way): RideScene {
     }
   };
 
+  /** Where the camera sits for each angle but above, in the vehicle's own frame, and how wide it sees. */
+  const placeCamera = (shown: Angle, ms: number): void => {
+    const z = vehicle.position.z;
+    const push = ease(ms / Math.max(1, pre)) * 0.12;
+    switch (shown) {
+      case "outside":
+        camera.fov = 46;
+        camera.near = 0.2;
+        // At the stop, from the kerb: the danfo by its door, the keke and the okada close beside them.
+        if (way === "danfo") aimFrom([-4.6 + push * 2, 2.1, 3.4], [-0.6, 1.2, 0.2]);
+        else if (way === "keke") aimFrom([-3.6 + push * 2, 1.35, 1.6], [-0.1, 1.0, -0.2]);
+        else aimFrom([-3.6 + push * 2, 1.45, 1.5 - push], [-0.25, 0.9, -0.3]);
+        return;
+      case "above":
+        camera.fov = 42;
+        camera.near = 0.5;
+        if (way === "walk") {
+          camera.position.set(VERGE_X + 2, 14, z + 8);
+          camera.lookAt(VERGE_X - 1, 0, z - 4);
+        } else {
+          camera.position.set(8, 34, z + 18);
+          camera.lookAt(0, 0, z - 10);
+        }
+        return;
+      case "window":
+        // From the aisle out of one sliding window on the kerb side, a pillar either side and the rail across it.
+        camera.fov = 75;
+        camera.near = 0.05;
+        aimFrom([0.6, 1.55, -0.65], [-3, 1.42, -0.2]);
+        return;
+      case "seat":
+        // From a back seat: the two in front at the edges, the roof, the dashboard, the road through the windscreen.
+        camera.fov = 72;
+        camera.near = 0.05;
+        aimFrom([0.05, 1.62, -0.6], [-0.05, 1.15, 6]);
+        return;
+      case "ahead":
+        // Where the character sits, a little up and out, past the rider's or driver's shoulder to the street ahead.
+        camera.fov = 75;
+        camera.near = 0.08;
+        if (way === "keke") aimFrom([-0.12, 1.62, -0.66], [0.1, 1.05, 9]);
+        else aimFrom([0.16, 1.68, -0.62], [-0.05, 1.0, 9]);
+        return;
+      default: {
+        const never: never = shown;
+        throw new Error(`Unknown angle: ${String(never)}`);
+      }
+    }
+  };
+
   const frame = (ms: number, aspect: number): void => {
     const time = ms / 1000;
+    phase = ms < pre ? "pre" : "ride";
+    const shown = angleAt(way, ms);
+    if (shown !== angle) setAngle(shown);
     if (ms < pre) {
       vehicle.position.z = way === "danfo" ? -(PULL * time * time) / 2 : 0;
       vehicle.position.y = way === "danfo" ? Math.sin(time * 9) * 0.006 : Math.abs(Math.sin(time * 40)) * 0.004;
-      posePeople(ms, time);
-      const push = ease(ms / pre) * 0.12;
-      camera.fov = way === "danfo" ? 75 : 46;
-      camera.near = way === "danfo" ? 0.05 : 0.2;
-      if (way === "danfo") aimFrom([-0.2, 1.66, 0.2 + push], [-0.9, 1.17, 3]);
-      else if (way === "keke") aimFrom([-3.6 + push * 2, 1.35, 1.6], [-0.1, 1.0, -0.2]);
-      else aimFrom([-3.6 + push * 2, 1.45, 1.5 - push], [-0.25, 0.9, -0.3]);
     } else {
       const share = Math.min(1, (ms - pre) / Math.max(1, rideMs));
       // Pull away, cruise, and slow into the stop.
       const eased = share < 0.15 ? (share * share) / 0.3 : share > 0.85 ? 1 - ((1 - share) * (1 - share)) / 0.3 : share - 0.075;
-      const z = -pulled - eased * travel;
-      vehicle.position.z = z;
-      vehicle.position.y = way === "walk" ? 0 : Math.abs(Math.sin(time * 11)) * 0.05;
-      posePeople(ms, time);
-      camera.fov = 42;
-      camera.near = 0.5;
-      if (way === "walk") {
-        camera.position.set(VERGE_X + 2, 14, z + 8);
-        camera.lookAt(VERGE_X - 1, 0, z - 4);
-      } else {
-        camera.position.set(8, 34, z + 18);
-        camera.lookAt(0, 0, z - 10);
-      }
+      vehicle.position.z = -pulled - eased * travel;
+      // Inside, a gentler bob: the camera rides with the vehicle.
+      const bob = shown === "above" ? 0.05 : 0.02;
+      vehicle.position.y = way === "walk" ? 0 : Math.abs(Math.sin(time * 11)) * bob;
     }
+    posePeople(ms, time);
+    placeCamera(shown, ms);
     camera.aspect = aspect;
     camera.updateProjectionMatrix();
   };
@@ -447,6 +571,7 @@ export function buildRide(way: Way): RideScene {
       if (way === "walk") shell.visible = false;
     },
     setPhase,
+    setAngle,
     frame,
     dispose: () => {
       for (const thing of disposables) thing.dispose();

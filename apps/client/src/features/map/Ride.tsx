@@ -1,8 +1,9 @@
-// The ride (docs/rules/world.md R-WORLD-017): about six seconds under a band with "Danfo to
-// <place>", its progress, and Skip. By danfo, keke or okada it opens on a short pre-roll close to
-// the vehicle with the rider's, driver's or conductor's line as a chip, then the street from above
-// (rideScene.ts). Skip ends it all at once. When it ends the place opens. The same ride plays from
-// the map and from a danfo, keke or okada standing in a place.
+// The ride (docs/rules/world.md R-WORLD-017, R-WORLD-032): about six seconds under a band with
+// "Danfo to <place>", its progress, and Skip. By danfo, keke or okada it opens on a short pre-roll
+// outside at the stop with the rider's, driver's or conductor's line as a chip, then cuts by itself
+// between its angles on its own clock (rideScene.ts), with a short dark at each cut. There is no
+// view switch. Skip ends it all at once. When it ends the place opens. The same ride plays from the
+// map and from a danfo, keke or okada standing in a place.
 import { useEffect, useRef, useState } from "react";
 
 import { keptLookFile } from "../../authority/person";
@@ -11,7 +12,7 @@ import { loadModel } from "../../shared/three/load";
 import { loadManifest, type PublishManifest } from "../../shared/three/manifest";
 import { mountCanvas, sharedRenderer } from "../../shared/three/sharedRenderer";
 import { mapWords } from "./map.words";
-import { buildRide, figuresOn, peopleOf, type Phase, PRE_MS, preMsOf, RIDE_MS, type RideScene, type Role, type Way } from "./rideScene";
+import { type Angle, angleAt, anglesOf, buildRide, darkAt, figuresOn, peopleOf, type Phase, preMsOf, RIDE_MS, type RideScene, type Role, stepClock, type Way } from "./rideScene";
 
 export { PRE_MS, RIDE_MS } from "./rideScene";
 
@@ -35,6 +36,12 @@ export const LINES = 6;
 export interface RideProbe {
   way: Way;
   phase: Phase;
+  /** The angle on screen now (R-WORLD-032). */
+  angle: Angle;
+  /** Every angle shown so far, in order, each once as it came. */
+  angles: Angle[];
+  /** The ride's own clock, in milliseconds. */
+  clock: number;
   /** The key of the line in the chip, or null when none shows. */
   line: string | null;
   /** The figure groups on the vehicle now, by role (each counted from the start, before its model arrives). */
@@ -86,8 +93,8 @@ export function alongOf(u: number, seed: number): { key: string; needs: "from" |
   return { key: "map.ride.along.near", needs: "to" };
 }
 
-/** How often the card reads the ride's clock for its line. */
-const ALONG_TICK_MS = 150;
+/** Where nothing draws, the ride's clock steps on a timer this often instead of on each frame. */
+const TICK_MS = 50;
 
 /** The key of the line said in a way's pre-roll: the okada's rider, the keke's driver, the danfo's conductor; none on foot. */
 export function lineOf(way: Way, seed: number): string | null {
@@ -121,9 +128,8 @@ export function preloadRide(own: string): void {
             if (model !== undefined) ride.setPerson(role, model);
           });
           const { renderer } = sharedRenderer("ride");
-          for (const phase of ["pre", "ride"] as const) {
-            ride.setPhase(phase);
-            ride.frame(phase === "pre" ? 0 : PRE_MS, 0.46);
+          for (const part of anglesOf(way)) {
+            ride.frame(part.from, 0.46);
             await renderer.compileAsync(ride.scene, ride.camera);
           }
           ride.dispose();
@@ -139,10 +145,14 @@ const FRAMES_KEPT = 240;
 
 export function Ride({ way, place, drawing, own = FALLBACK_OWN, seed = 0, onDone, from, onTurnBack }: RideProps) {
   const box = useRef<HTMLDivElement>(null);
+  const bar = useRef<HTMLDivElement>(null);
+  const dark = useRef<HTMLDivElement>(null);
   const done = useRef(false);
-  const [started, setStarted] = useState(false);
   const pre = preMsOf(way);
-  const [phase, setPhase] = useState<Phase>(pre > 0 ? "pre" : "ride");
+  // The ride's own clock: the scene, the angle, the card's line, the bar and the end all read it.
+  const clock = useRef(0);
+  const [angle, setAngle] = useState<Angle>(() => angleAt(way, 0));
+  const phase: Phase = angle === "outside" ? "pre" : "ride";
   const finish = useRef(onDone);
   finish.current = onDone;
   const end = (): void => {
@@ -158,29 +168,57 @@ export function Ride({ way, place, drawing, own = FALLBACK_OWN, seed = 0, onDone
     back.current?.();
   };
   // The card's line follows the ride's own clock, so it matches what is outside.
-  const [elapsed, setElapsed] = useState(0);
-  const along = phase === "ride" && from !== undefined ? alongOf(Math.min(1, Math.max(0, (elapsed - pre) / (RIDE_MS - pre))), seed) : null;
+  const alongAt = (ms: number): ReturnType<typeof alongOf> | null => (ms >= pre && from !== undefined ? alongOf(Math.min(1, Math.max(0, (ms - pre) / (RIDE_MS - pre))), seed) : null);
+  const [along, setAlong] = useState(() => alongAt(0));
   const line = phase === "pre" ? lineOf(way, seed) : along === null ? null : along.key;
   const lineParams: Record<string, string> = along === null ? {} : along.needs === "from" && from !== undefined ? { from } : along.needs === "to" ? { to: place } : {};
 
-  // The ride ends by itself after its time; Skip ends it at once. The pre-roll gives way to the street.
+  // What the browser test reads; the scene is built whether or not it draws, so it can say who is on the vehicle.
+  const probe = useRef<RideProbe>({ way, phase, angle, angles: [angle], clock: 0, line, figures: [], loaded: 0, preMs: pre, drawCalls: 0, triangles: 0, frameMs: { pre: [], ride: [] } });
+
+  // One step of the ride's clock, clamped so a slow frame never jumps the ride ahead (R-WORLD-032).
+  // The angle and the line change only when the clock crosses into another; the bar and the dark follow every step.
+  const shownAngle = useRef(angle);
+  const shownAlong = useRef(along?.key ?? null);
+  const step = useRef<(dt: number) => void>(() => undefined);
+  step.current = (dt: number): void => {
+    if (done.current) return;
+    const ms = stepClock(clock.current, dt);
+    clock.current = ms;
+    const held = probe.current;
+    held.clock = ms;
+    const next = angleAt(way, ms);
+    if (next !== shownAngle.current) {
+      shownAngle.current = next;
+      held.angles.push(next);
+      setAngle(next);
+    }
+    const nextAlong = alongAt(ms);
+    if ((nextAlong?.key ?? null) !== shownAlong.current) {
+      shownAlong.current = nextAlong?.key ?? null;
+      setAlong(nextAlong);
+    }
+    if (bar.current !== null) bar.current.style.transform = `scaleX(${String(ms / RIDE_MS)})`;
+    if (dark.current !== null) dark.current.style.opacity = String(darkAt(way, ms));
+    // The ride ends by itself when its own clock runs out; Skip ends it at once.
+    if (ms >= RIDE_MS) end();
+  };
+
+  // Where nothing draws, a timer steps the clock; where the scene draws, each frame does.
   useEffect(() => {
-    const began = Date.now();
-    const timer = window.setTimeout(end, RIDE_MS);
-    const start = window.setTimeout(() => setStarted(true), 30);
-    const cut = pre > 0 ? window.setTimeout(() => setPhase("ride"), pre) : 0;
-    const tick = window.setInterval(() => setElapsed(Date.now() - began), ALONG_TICK_MS);
+    if (drawing) return;
+    let last = Date.now();
+    const tick = window.setInterval(() => {
+      const now = Date.now();
+      step.current(now - last);
+      last = now;
+    }, TICK_MS);
     return () => {
-      window.clearTimeout(timer);
-      window.clearTimeout(start);
-      window.clearTimeout(cut);
       window.clearInterval(tick);
     };
-  }, []);
+  }, [drawing]);
 
-  // The scene is built whether or not it draws, so the probe can say who is on the vehicle.
   const [ride, setRide] = useState<RideScene | null>(null);
-  const probe = useRef<RideProbe>({ way, phase, line, figures: [], loaded: 0, preMs: pre, drawCalls: 0, triangles: 0, frameMs: { pre: [], ride: [] } });
   useEffect(() => {
     const built = buildRide(way);
     setRide(built);
@@ -193,9 +231,9 @@ export function Ride({ way, place, drawing, own = FALLBACK_OWN, seed = 0, onDone
   }, [way]);
   useEffect(() => {
     if (ride === null) return;
-    ride.setPhase(phase);
-    Object.assign(probe.current, { phase, line, figures: figuresOn(ride) });
-  }, [phase, line, ride]);
+    ride.setAngle(angle);
+    Object.assign(probe.current, { phase, angle, line, figures: figuresOn(ride) });
+  }, [phase, angle, line, ride]);
 
   useEffect(() => {
     if (!drawing || box.current === null || ride === null) return;
@@ -231,12 +269,12 @@ export function Ride({ way, place, drawing, own = FALLBACK_OWN, seed = 0, onDone
     };
     resize();
     window.addEventListener("resize", resize);
-    const began = performance.now();
     let last: number | null = null;
     let frame = 0;
     const loop = (now: number): void => {
       frame = requestAnimationFrame(loop);
-      const elapsed = Math.max(0, now - began);
+      step.current(last === null ? 0 : now - last);
+      const elapsed = clock.current;
       ride.frame(elapsed, element.clientWidth / Math.max(1, element.clientHeight));
       renderer.render(ride.scene, ride.camera);
       const held = probe.current;
@@ -258,8 +296,10 @@ export function Ride({ way, place, drawing, own = FALLBACK_OWN, seed = 0, onDone
 
   const title = mapWords("map.ride.to", { way: mapWords(`map.way.${way}`), place });
   return (
-    <div className="fade fixed inset-0 z-[46] bg-strong" data-ride={way} data-ride-phase={phase} aria-live="polite">
+    <div className="fade fixed inset-0 z-[46] bg-strong" data-ride={way} data-ride-phase={phase} data-ride-angle={angle} aria-live="polite">
       {drawing ? <div ref={box} className="size-full" aria-hidden /> : null}
+      {/* The cut between angles: a short dark over the scene, never a slide (R-WORLD-013, R-WORLD-032). */}
+      {drawing ? <div ref={dark} className="pointer-events-none absolute inset-0 bg-device opacity-0" aria-hidden data-ride-dark /> : null}
       <div className="pointer-events-none absolute inset-x-0 top-0 px-3 pt-[max(10px,env(safe-area-inset-top))]">
         <div className="band pointer-events-auto flex items-center gap-3 rounded-[6px] px-3 py-2.5 shadow-[0_10px_24px_rgba(10,14,30,0.35)]">
           <div className="min-w-0 flex-1">
@@ -267,7 +307,7 @@ export function Ride({ way, place, drawing, own = FALLBACK_OWN, seed = 0, onDone
               {title}
             </div>
             <div className="mt-1.5 h-1.5 overflow-hidden rounded-[2px] bg-on-strong/20" role="progressbar" aria-label={title} aria-valuemin={0} aria-valuemax={100}>
-              <div className="h-full origin-left rounded-[2px] bg-signal" style={{ transform: `scaleX(${started ? 1 : 0})`, transition: `transform ${String(RIDE_MS - 30)}ms linear` }} data-ride-progress />
+              <div ref={bar} className="h-full origin-left rounded-[2px] bg-signal" style={{ transform: "scaleX(0)" }} data-ride-progress />
             </div>
           </div>
           {onTurnBack === undefined ? null : (
