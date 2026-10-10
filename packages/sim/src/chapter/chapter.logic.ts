@@ -6,7 +6,7 @@ import type { RegisteredKind } from "../engine/kind";
 import { emit } from "../engine/kind";
 import { reject } from "../engine/reject";
 import type { BaseEvent, ChapterEntry, ChapterSlice, Command, Content, Ctx, Id, PlayerView, ReadCtx, Rejection, ReportLine, Requirement, RequirementResult, RouteSlice } from "../engine/types";
-import { checklistView, japacity, routePercent } from "../japacity/japacity.logic";
+import { checklistEarned, japacity, routePercent } from "../japacity/japacity.logic";
 import { cardOf, cardsAllowed, reportLines, topActivities } from "./chapter.card";
 import type { ChapterEvent } from "./chapter.events";
 
@@ -86,8 +86,7 @@ function waysOf(read: ReadCtx): PlayerView["plan"]["ways"] {
   return leanCandidates(read.content)
     .filter((id) => read.content.route[id] !== undefined && live(read.state.route, id))
     .map((route) => {
-      const percent = routePercent(read, route) ?? checklistView(read, route).reduce((total, item) => total + item.earned, 0);
-      return { route, percent: Math.min(100, Math.max(0, percent)) };
+      return { route, percent: routePercent(read, route) ?? checklistEarned(read, route) };
     });
 }
 

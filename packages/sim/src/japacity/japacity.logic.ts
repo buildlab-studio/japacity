@@ -87,6 +87,11 @@ export function routePercent(read: ReadCtx, route: Id<"route">, judge: Judge = (
   const state = stateOf(read, route);
   if (DONE.includes(state)) return FULL;
   if (!FIGURED.includes(state)) return null;
+  return checklistEarned(read, route, judge);
+}
+
+/** The checklist's earned weights, whatever the route's state, kept between 0 and 100. */
+export function checklistEarned(read: ReadCtx, route: Id<"route">, judge: Judge = (requirement) => check(read, requirement)): number {
   const sum = checklistView(read, route, judge).reduce((total, item) => total + item.earned, 0);
   // R-JAPACITY-004: the content check holds the weights to 100, so this never cuts.
   return clamp(sum, 0, FULL);
