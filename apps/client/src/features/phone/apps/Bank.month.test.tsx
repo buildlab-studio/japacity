@@ -14,8 +14,8 @@ import { localCurrency } from "../../../shared/words/wayHome";
 import { PhoneApps } from "../PhoneApps";
 
 const LIFE = "ada-careful";
-/** The visa application, sent at once (R-ACTIVITY-015), as the recorded life has it after the acts-now re-record. */
-const APPLICATION = 144;
+/** The visa application, sent at once (R-ACTIVITY-015), as the recorded life has it after the re-record from Ada's four months of living. */
+const APPLICATION = 147;
 
 function lately(): string[] {
   return [...document.querySelectorAll("[data-money-lines] li")].map((row) => row.textContent ?? "");
