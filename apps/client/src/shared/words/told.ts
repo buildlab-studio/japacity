@@ -3,7 +3,7 @@
 import { content, text } from "@japacity/content";
 import type { Currency, ReportLine } from "@japacity/sim";
 
-import { monthlyPayOf } from "./cost";
+import { monthlyPayOf, type PayView } from "./cost";
 import { countWords } from "./count";
 import { afterPrologue, isUnpaid, PROLOGUE_CLOSED, tidyLines, toldUnpaid } from "./lines";
 import { moneyTold } from "./money";
@@ -55,7 +55,7 @@ function answered(line: ReportLine): ReportLine {
  * cost, a hunt says the job and its answer, an offer of work says the pay a month. Anything else
  * is told as News tells it.
  */
-export function toldOnResults(line: ReportLine): ReportLine {
+export function toldOnResults(line: ReportLine, pays: PayView): ReportLine {
   const { job } = line.params;
   if (line.key === TAKEN) return answered(line);
   // A score or a count of pieces reads as a person says it: "one of three", never "1 of 3" (R-TEXT-005).
@@ -63,7 +63,7 @@ export function toldOnResults(line: ReportLine): ReportLine {
   if (line.key === "line.obligation.missed") return toldUnpaid(line);
   if (line.key === "line.activity.hunt-missed" && typeof job === "string") return { ...line, key: "ui.results.hunt-missed" };
   if (line.key === "line.activity.hunt-hired" && typeof job === "string") {
-    const pay = monthlyPayOf(job);
+    const pay = monthlyPayOf(pays, job);
     return pay === null ? { ...line, key: "ui.results.hunt-offer-plain" } : { ...line, key: "ui.results.hunt-offer", params: { ...line.params, pay } };
   }
   return line;
@@ -88,7 +88,7 @@ function newsOrder(lines: readonly ReportLine[]): ReportLine[] {
  * told by the results' money lines (`moneyTold`), in or out by its sign: a change at the bank says both sides and the
  * charge, never the wallet's "Changed money". `local` is the money the character lives on.
  */
-export function newsLines(midMonth: readonly ReportLine[], report: readonly ReportLine[], local: Currency = "NGN"): ReportLine[] {
+export function newsLines(midMonth: readonly ReportLine[], report: readonly ReportLine[], pays: PayView, local: Currency = "NGN"): ReportLine[] {
   const all = [...midMonth, ...report];
   // The prologue's years are told as they were; their money is what the character starts with, not this month's.
   const closed = all.findLastIndex((line) => line.key === PROLOGUE_CLOSED);
@@ -96,5 +96,5 @@ export function newsLines(midMonth: readonly ReportLine[], report: readonly Repo
   const month = tidyLines(afterPrologue(all));
   const money = moneyTold(month, local);
   const told = month.flatMap((line, index) => money[index]?.map((entry): ReportLine => ({ ...entry.line, tone: entry.sign > 0 ? "good" : "bad" })) ?? [line]);
-  return newsOrder([...before, ...told].map((line) => toldOnResults(asPiece(toldUnpaid(line)))));
+  return newsOrder([...before, ...told].map((line) => toldOnResults(asPiece(toldUnpaid(line)), pays)));
 }

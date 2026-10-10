@@ -5,7 +5,7 @@ import type { ReportLine } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
 import { applyEffects } from "../../../../../packages/sim/src/route/route.journey";
-import { newGame } from "../testing/fixtures";
+import { engineView, newGame } from "../testing/fixtures";
 import { newsLines } from "./told";
 import { nameOf, words } from "./text";
 
@@ -16,7 +16,7 @@ function said(lines: readonly ReportLine[]): string[] {
 describe("an answer told with what was chosen", () => {
   test("[R-WORLD-008] given the hospital trust's post declined, when News tells the month, then it says the post was declined", () => {
     const line: ReportLine = { key: "line.offer.taken", params: { offer: "offer.sponsor-trust", choice: "decline" }, tone: "plain", attention: false, counts: [] };
-    const told = said(newsLines([line], []));
+    const told = said(newsLines([line], [], engineView()));
     expect(told).toHaveLength(1);
     expect(told[0]).toContain(nameOf("offer.sponsor-trust"));
     expect(told[0]).toContain(words("offer.sponsor-trust.choice.decline", {}));
@@ -28,6 +28,6 @@ describe("an answer told with what was chosen", () => {
     const offer = game.view().offers.find((candidate) => candidate.entry === "offer.where-next")!;
     const lines = game.accept({ type: "offer/choose", offer: offer.id, choice: "family" }).lines;
     expect(lines.some((line) => line.key === "line.offer.taken")).toBe(true);
-    expect(said(newsLines(lines, [])).join(" ")).toContain(words("offer.where-next.choice.family", {}));
+    expect(said(newsLines(lines, [], game.view())).join(" ")).toContain(words("offer.where-next.choice.family", {}));
   });
 });

@@ -214,7 +214,8 @@ describe("Until news abroad", () => {
     await store.getState().untilNews();
     // An answer's big line stands as a staged moment before the sheet (R-WORLD-008): passed here, as Carry on passes it.
     act(() => store.setState({ moments: [] }));
-    const { quiet } = store.getState();
+    const { quiet, view: shown } = store.getState();
+    if (shown === null) throw new Error("No view");
     render(
       <GameProvider store={store}>
         <Results place="Home" />
@@ -223,18 +224,18 @@ describe("Until news abroad", () => {
     const rows = [...document.querySelectorAll("[data-quiet-line]")].map((row) => row.textContent);
     expect(rows).toHaveLength(2);
     const money = (lines: readonly ReportLine[]): string => {
-      const { kept } = quietLine(lines, "GBP");
+      const { kept } = quietLine(lines, "GBP", shown);
       if (kept === null) throw new Error("No money moved in a month of rent");
       return turnWords(kept < 0 ? "turn.results.quiet-down" : "turn.results.quiet-kept", { amount: formatMoney(Math.abs(kept), "GBP") });
     };
     // The month the find opened: the money, then the find, passed by.
-    expect(quietLine(quiet[0] ?? [], "GBP").moved?.key).toBe(QUIET_PASSED);
+    expect(quietLine(quiet[0] ?? [], "GBP", shown).moved?.key).toBe(QUIET_PASSED);
     expect(rows[0]).toContain(`${money(quiet[0] ?? [])} ${words(QUIET_PASSED, { offer: FIND })}`);
     expect(words(QUIET_PASSED, { offer: FIND }).toLowerCase()).toContain(words("offer.street-find-uk.name").toLowerCase());
     // The month after: the money, then the one thing that moved (a story when the month had one, else the credit file's move, "Credit up.").
     expect(rows[1]).toContain(money(quiet[1] ?? []));
     expect((quiet[1] ?? []).some((line) => line.key === CREDIT_UP)).toBe(true);
-    const story = quietLine(quiet[1] ?? [], "GBP").moved;
+    const story = quietLine(quiet[1] ?? [], "GBP", shown).moved;
     expect(rows[1]).toContain(story === null || story === undefined ? say(CREDIT_UP) : words(story.key, story.params));
     // One heading over the month that stopped the run, not two.
     const headings = [...document.querySelectorAll("h3")].map((heading) => heading.textContent);

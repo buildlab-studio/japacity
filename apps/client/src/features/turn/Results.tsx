@@ -24,8 +24,8 @@ function signed(sign: number, amount: number, currency: Parameters<typeof format
 }
 
 /** A quiet month of an Until news run in its one line (R-WORLD-028): "Kept ₦96,000. Nothing else moved." */
-function quietWords(lines: Parameters<typeof quietLine>[0], currency: Parameters<typeof quietLine>[1]): string {
-  const { kept: net, moved } = quietLine(lines, currency);
+function quietWords(lines: Parameters<typeof quietLine>[0], currency: Parameters<typeof quietLine>[1], pays: Parameters<typeof quietLine>[2]): string {
+  const { kept: net, moved } = quietLine(lines, currency, pays);
   const money = net === null ? null : turnWords(net < 0 ? "turn.results.quiet-down" : "turn.results.quiet-kept", { amount: formatMoney(Math.abs(net), currency) });
   const rest = moved === null ? turnWords(money === null ? "turn.results.quiet-none" : "turn.results.quiet-still") : words(moved.key, moved.params);
   return money === null ? rest : `${money} ${rest}`;
@@ -93,7 +93,7 @@ export function Results({ place }: { place: string }) {
               {quiet.map((lines, index) => (
                 <li key={index} className="flex items-baseline gap-3 border-b border-sheet-line py-2 last:border-b-0" data-quiet-line>
                   <span className="num w-[72px] shrink-0 text-[12px] text-text-2">{say("ui.world.age", { years: Math.floor((ageMonths - quiet.length + index) / 12), months: (ageMonths - quiet.length + index) % 12 })}</span>
-                  <span className="min-w-0 flex-1 text-[14px] leading-snug font-semibold">{quietWords(lines, local)}</span>
+                  <span className="min-w-0 flex-1 text-[14px] leading-snug font-semibold">{quietWords(lines, local, view)}</span>
                 </li>
               ))}
             </ul>
@@ -124,7 +124,7 @@ export function Results({ place }: { place: string }) {
             {quiet.length === 0 ? <h3 className="label text-text-2">{turnWords("turn.results.story")}</h3> : null}
             <ul className="flex flex-col">
               {story.map((line, index) => {
-                const told = toldOnResults(line);
+                const told = toldOnResults(line, view);
                 // R-HOME-003: the room cleared away is told in the same red as a bill unpaid.
                 const unpaid = isUnpaid(line) || isEvicted(line);
                 const lead = leadsAlone(line);

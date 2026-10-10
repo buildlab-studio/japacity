@@ -30,7 +30,7 @@ describe("the move to Makoko, told once", () => {
     const money = told([...mid, ...end]);
     expect(money.filter((said) => said === `- ${MOVED}`)).toHaveLength(1);
     expect(money.filter((said) => said.includes(formatMoney(rent, "NGN")))).toEqual([`- ${MOVED}`]);
-    const news = newsLines(mid, end).map((line) => nowLineWords(line));
+    const news = newsLines(mid, end, game.view()).map((line) => nowLineWords(line));
     expect(news.filter((said) => said.startsWith(`Home is ${nameOf(MAKOKO)}`))).toEqual([MOVED]);
     expect(news.join(" ")).not.toContain("line.obligation");
   });
@@ -50,6 +50,6 @@ describe("the move to Makoko, told once", () => {
     game.endTurn();
     const back = game.accept({ type: "home/move", to: "place.family-house" }).lines;
     expect(told(back)).toEqual([]);
-    expect(newsLines(back, []).map((line) => nowLineWords(line))).toContain(`Home is ${nameOf("place.family-house")} now.`);
+    expect(newsLines(back, [], game.view()).map((line) => nowLineWords(line))).toContain(`Home is ${nameOf("place.family-house")} now.`);
   });
 });

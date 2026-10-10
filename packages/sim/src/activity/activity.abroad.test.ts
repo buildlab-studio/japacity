@@ -189,6 +189,28 @@ describe("pay and tax abroad", () => {
     expect(moneyOf(result, "rent").length + moneyOf(result, "upkeep").length).toBeGreaterThan(0);
   });
 
+  test("[R-WALLET-016] given a sponsored care worker on the route's salary, when the view is read before the month, then the month's pay is the salary the wallet credits less the tax it takes", () => {
+    const game = careWorker();
+    // The sponsor's job is taken up in the first month's work (R-SPONSOR-007); from then the view reads it.
+    game.endTurn();
+    const pay = game.view().job.pay;
+    const result = game.endTurn();
+    const credited = moneyOf(result, "salary").reduce((sum, money) => sum + money.amount, 0);
+    const taxed = moneyOf(result, "tax").reduce((sum, money) => sum + money.amount, 0);
+    expect(taxed).toBeGreaterThan(0);
+    expect(pay).toEqual({ currency: "GBP", amount: credited - taxed });
+  });
+
+  test("[R-WALLET-016] given a job abroad under the tax line and one above it, when the view is read, then each month's pay is the wallet's credit less its tax", () => {
+    for (const [status, job] of [[STUDENT, RETAIL], [GRADUATE, WAREHOUSE]] as const) {
+      const game = holding(status, job);
+      const pay = game.view().job.pay;
+      const result = game.endTurn();
+      const net = moneyOf(result, "salary").reduce((sum, money) => sum + money.amount, 0) - moneyOf(result, "tax").reduce((sum, money) => sum + money.amount, 0);
+      expect(pay).toEqual({ currency: "GBP", amount: net });
+    }
+  });
+
   test("[R-ABROAD-002] given a job under the line, one above it and a job in the UAE, when a month is played, then the first pays no tax, the second the share above the line, the UAE none", () => {
     const retail = holding(STUDENT, RETAIL);
     expect(yearly(RETAIL)).toBeLessThan(content.country["country.uk"]!.taxFreeLine);

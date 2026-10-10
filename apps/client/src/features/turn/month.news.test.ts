@@ -4,7 +4,7 @@
 // in the results' own words, and a wait whose outcome is still to be judged never promises one. Real content, the
 // recorded lives and a developer's life played through `step`.
 import { content } from "@japacity/content";
-import type { Content, Id, ReportLine } from "@japacity/sim";
+import type { Content, Id, PlayerView, ReportLine } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
 import { lifeSaves } from "../../../../../packages/sim/src/goldens/lives.data";
@@ -23,19 +23,21 @@ const ENDORSEMENT: Id<"document"> = "document.endorsement";
 interface Month {
   mid: ReportLine[];
   report: ReportLine[];
+  /** The view at the month's end, whose jobs and offers say what a job pays (R-WALLET-016). */
+  view: PlayerView;
 }
 
 /** What the results sheet says, line by line, as its story. */
 function resultsSay(month: Month): string[] {
   return storyLines([...month.mid, ...month.report]).map((line) => {
-    const told = toldOnResults(line);
+    const told = toldOnResults(line, month.view);
     return words(told.key, told.params);
   });
 }
 
 /** What News says of the same month. */
 function newsSays(month: Month): string[] {
-  return newsLines(month.mid, month.report).map((line) => words(line.key, line.params));
+  return newsLines(month.mid, month.report, month.view).map((line) => words(line.key, line.params));
 }
 
 /** Plays a life's commands as the screens send them, keeping each month as its results and News read it. */
@@ -47,7 +49,8 @@ function monthsOf(game: Game, play: (send: (run: () => { lines: ReportLine[] }) 
   };
   const end = (run: () => unknown): void => {
     run();
-    months.push({ mid, report: game.view().report?.lines ?? [] });
+    const view = game.view();
+    months.push({ mid, report: view.report?.lines ?? [], view });
     mid = [];
   };
   play(send, end);

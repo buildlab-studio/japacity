@@ -390,7 +390,7 @@ describe("the archetypes' own ways", () => {
       chapter: { current: "chapter.find-your-feet" as const, items: [{ id: "job", met: false }, { id: "pay", met: false }, { id: "heard", met: false }, { id: "known", met: false }], done: [] },
       qualities: base.qualities.map((quality) => (quality.id === "quality.edu-level" ? { ...quality, value: 3 } : quality.id === "quality.care" ? { ...quality, value: 60 } : quality)),
       documents: [{ id: "document.nursing-licence" as const, state: "held" as const, readyMonth: null, expiresMonth: null, value: null, onItsWay: null }],
-      job: { id: null, months: 0, side: null },
+      job: { id: null, months: 0, side: null, pay: null, sidePay: null },
       routes: [],
     };
     expect(nudgeOf(nurse).key).toBe("chapter.find-your-feet.item.job.nudge.clinic");
@@ -412,7 +412,7 @@ describe("the archetypes' own ways", () => {
       chapter: { current: "chapter.find-your-feet" as const, items: [{ id: "job", met: true }, { id: "pay", met: true }, { id: "heard", met: true }, { id: "known", met: false }], done: [] },
       qualities: base.qualities.map((quality) => (quality.id === "quality.edu-level" ? { ...quality, value: 3 } : quality.id === "quality.care" ? { ...quality, value: 60 } : quality)),
       documents: [{ id: "document.nursing-licence" as const, state: "held" as const, readyMonth: null, expiresMonth: null, value: null, onItsWay: null }],
-      job: { id: "activity.job-nurse" as const, months: 1, side: null },
+      job: { id: "activity.job-nurse" as const, months: 1, side: null, pay: null, sidePay: null },
       routes: [
         { ...richView().routes[0]!, id: "route.uk-masters" as const, state: "heard" as const },
         { ...richView().routes[0]!, id: "route.uk-care" as const, state: "heard" as const },
@@ -435,7 +435,7 @@ describe("the archetypes' own ways", () => {
       qualities: base.qualities.map((quality) => (quality.id === "quality.edu-level" ? { ...quality, value: 1 } : quality)),
       pockets: { ...base.pockets, NGN: { ...base.pockets.NGN, cash: 600_000_000, bank: 0 } },
       routes: [],
-      job: { id: null, months: 0, side: null },
+      job: { id: null, months: 0, side: null, pay: null, sidePay: null },
     };
     expect(nudgeOf(trader).key).toBe("chapter.find-your-feet.item.heard.nudge.motor-park");
     expect(stepWayOf(trader)).toEqual({ go: "place.ojuelegba", at: ["place.ojuelegba:motor-park"] });

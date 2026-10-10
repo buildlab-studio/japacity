@@ -47,7 +47,7 @@ describe("News tells the month's money as the results do", () => {
     expect(results.length).toBeGreaterThanOrEqual(8);
     // Lately reads the month just ended as the results list it.
     expect(latelyLines(game.view(), mid, []).map((line) => words(line.key, line.params))).toEqual(results);
-    const news = newsLines(mid, end);
+    const news = newsLines(mid, end, game.view());
     const told = news.map((line) => nowLineWords(line));
     // Every money line the results tell, in their order, in News.
     expect(told.filter((said) => results.includes(said))).toEqual(results);

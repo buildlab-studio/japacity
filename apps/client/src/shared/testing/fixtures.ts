@@ -274,7 +274,7 @@ export function richAbroadView(): PlayerView {
     ...base,
     v: base.v + 30,
     month: 60,
-    job: { id: null, months: 0, side: null },
+    job: { id: null, months: 0, side: null, pay: null, sidePay: null },
     locks: [{ slots: 1, untilMonth: 60, why: "side-job" }],
     place: { ...base.place, monthsHere: 25 },
     status: {

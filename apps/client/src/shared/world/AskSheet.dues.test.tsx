@@ -6,7 +6,7 @@ import type { Currency } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
 import { applyEffects } from "../../../../../packages/sim/src/route/route.journey";
-import { newGame } from "../testing/fixtures";
+import { newGame, viewAfter } from "../testing/fixtures";
 import { renderWithView } from "../testing/render";
 import { afterPaying, monthDues } from "../words/cost";
 import { formatMoney } from "../words/format";
@@ -22,15 +22,19 @@ function course(): Ask {
   return { form: "card", icon: "hand", who: "The hub, Yaba", title: "Take a coding course", line: "You pay for a course.", cost: { amount: COURSE, currency: "NGN" }, button: "Take a coding course", act: () => undefined, dismiss: () => undefined };
 }
 
-/** Ada holding exactly `naira`, all in the bank, with no job: the living costs fall due at the month's end. */
-function adaHolding(naira: number) {
+/** Ada's game holding exactly `naira`, all in the bank, with no job: the living costs fall due at the month's end. */
+function adaGame(naira: number) {
   const game = newGame("scenario.ada");
   const pocket = game.state.wallet.pockets.NGN;
   applyEffects(game, [
     { type: "money/take", currency: "NGN", pocket: "cash", amount: pocket.cash, reason: "social" },
     { type: "money/take", currency: "NGN", pocket: "bank", amount: pocket.bank - naira, reason: "social" },
   ]);
-  return game.view();
+  return game;
+}
+
+function adaHolding(naira: number) {
+  return adaGame(naira).view();
 }
 
 function main(): HTMLButtonElement {
@@ -66,8 +70,9 @@ describe("the month's dues on the card", () => {
   });
 
   test("[R-WORLD-006] given a job whose pay arrives before the dues are taken, when what is left after is counted, then the pay counts toward the dues", () => {
-    const view = adaHolding(9_970_000);
-    const dues = monthDues({ ...view, job: { ...view.job, id: "activity.job-teacher" } });
+    // the job is started through the engine, so its month's pay is the view's.
+    const view = viewAfter(adaGame(9_970_000), [{ type: "activity/start-job", job: "activity.job-teacher" }]);
+    const dues = monthDues(view);
     const paying = afterPaying(view, [], [{ currency: "NGN", amount: COURSE }], dues);
     expect(paying.short).toBeNull();
     expect(paying.short === null ? paying.due : "short").toBeNull();

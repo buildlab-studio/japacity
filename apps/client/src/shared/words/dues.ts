@@ -5,7 +5,6 @@
 import { content } from "@japacity/content";
 import type { Currency, PlayerView } from "@japacity/sim";
 
-import { monthlyPayOf } from "./cost";
 import { CURRENCIES } from "./format";
 import { localCurrency } from "./wayHome";
 
@@ -36,7 +35,7 @@ export function duesGap(view: Pick<PlayerView, "place" | "pockets" | "obligation
   const due = view.obligations.reduce((sum, owed) => (owed.due > 0 && content.obligation[owed.entry]?.currency === currency ? sum + owed.due : sum), 0);
   const held = view.pockets[currency].bank + view.pockets[currency].cash;
   // The month's pay comes in before the bills are taken (engine.md section 4): it covers them too.
-  const pay = view.job?.id === null || view.job?.id === undefined ? null : monthlyPayOf(view.job.id);
+  const pay = view.job?.pay ?? null;
   const coming = pay !== null && pay.currency === currency ? pay.amount : 0;
   if (due <= held + coming) return null;
   return { currency, due, held, from: heldElsewhere(view, currency) };

@@ -112,7 +112,7 @@ describe("a job offer's warning", () => {
     if (offer === undefined) throw new Error("No offer");
     const nurse = {
       ...base,
-      job: { id: "activity.job-nurse" as const, months: 3, side: null },
+      job: { id: "activity.job-nurse" as const, months: 3, side: null, pay: null, sidePay: null },
       routes: [{ ...base.routes[0]!, id: "route.uk-care" as const, state: "heard" as const }],
     };
     const side = Object.values(content.activity).find((entry) => entry.slot === "side" && entry.hireBp !== null);

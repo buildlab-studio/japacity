@@ -158,7 +158,7 @@ describe("the money that changes hands", () => {
     expect(told.join(" ")).not.toContain(nothing);
     expect(told[0]).toContain(formatMoney(2_200, "GBP"));
     // News reads the same lines.
-    expect(newsLines(small.lines, []).map((line) => words(line.key, line.params)).join(" ")).not.toContain(nothing);
+    expect(newsLines(small.lines, [], game.view()).map((line) => words(line.key, line.params)).join(" ")).not.toContain(nothing);
     // A charge that shows as a figure is still said, on the sheet and on the line.
     const bigCharge = formatMoney(int.bp(10_000_000, content.tuning.wallet.bankChargeBp), "NGN");
     expect(changeLine(game.view(), "NGN", "GBP", 10_000_000, "bank")).toContain(bigCharge);

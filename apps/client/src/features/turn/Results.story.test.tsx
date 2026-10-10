@@ -33,7 +33,7 @@ describe("the month's story on the results", () => {
     expect(story?.querySelector("h3")?.textContent).toBe(turnWords("turn.results.story"));
     const told = [...(story?.querySelectorAll("li") ?? [])].map((row) => row.textContent);
     // The job found is told as the results tell it: an offer, with its pay a month.
-    const found = toldOnResults(hired);
+    const found = toldOnResults(hired, game.view());
     expect(told).toContain(words(found.key, found.params));
     // One line for an offer: the offer it opens is not told again.
     expect(told).not.toContain(words(offer.key, offer.params));

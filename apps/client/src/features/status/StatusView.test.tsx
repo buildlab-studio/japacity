@@ -42,7 +42,7 @@ describe("the status abroad", () => {
 
   test("[R-STATUS-006] given a sponsored worker with the job, then the renewal shows its fee and surcharge and renewing sends status/renew", async () => {
     const rich = richAbroadView();
-    const view: PlayerView = { ...rich, job: { id: "activity.job-uk-skilled", months: 20, side: null }, status: { ...rich.status!, clock: null } };
+    const view: PlayerView = { ...rich, job: { id: "activity.job-uk-skilled", months: 20, side: null, pay: null, sidePay: null }, status: { ...rich.status!, clock: null } };
     const cost = renewal(view.status!)!;
     expect(cost).toEqual(view.status!.renew);
     const { authority } = await renderWithView(<StatusView />, view);

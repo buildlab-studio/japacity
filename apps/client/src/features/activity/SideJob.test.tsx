@@ -15,7 +15,7 @@ describe("the side job and slots held", () => {
   });
 
   test("[R-ACTIVITY-010] given the view's side job, then the plan names it and its pay", async () => {
-    const view = { ...engineView(), job: { id: null, months: 0, side: "activity.weekend-tutoring" as const } };
+    const view = { ...engineView(), job: { id: null, months: 0, side: "activity.weekend-tutoring" as const, pay: null, sidePay: null } };
     await renderWithView(<ActivityView />, view);
     const card = document.querySelector("[data-side-job]") as HTMLElement;
     expect(card.textContent).toContain(nameOf("activity.weekend-tutoring"));

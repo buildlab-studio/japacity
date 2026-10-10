@@ -59,7 +59,7 @@ export function News() {
           <Head>{phoneWords("phone.news.month", { when: monthsAgo(report.month, month) })}</Head>
           {/* The month's lines are told as the results tell them, money too (shared/words/told.ts, R-WORLD-008). */}
           <ul className="flex flex-col divide-y divide-sheet-line">
-            {newsLines(midMonth, report.lines, localCurrency(view) ?? "NGN").map((line, index) => (
+            {newsLines(midMonth, report.lines, view, localCurrency(view) ?? "NGN").map((line, index) => (
               <li key={`${line.key}-${String(index)}`} className={`py-1.5 text-[14px] ${line.tone === "good" ? "text-in" : line.tone === "bad" ? "text-out" : "text-text"}`}>
                 {nowLineWords(line)}
               </li>

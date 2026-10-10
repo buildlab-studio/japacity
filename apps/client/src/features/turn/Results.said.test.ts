@@ -15,7 +15,7 @@ describe("the recruiter's task on the results", () => {
     const answered = game.accept({ type: "offer/choose", offer: offer.id, choice: "do-it" });
     game.endTurn();
     const story = storyLines([...answered.lines, ...(game.view().report?.lines ?? [])]).map((line) => {
-      const told = toldOnResults(line);
+      const told = toldOnResults(line, game.view());
       return words(told.key, told.params);
     });
     expect(story).toContain(text["offer.recruiter-message.said.do-it"]);

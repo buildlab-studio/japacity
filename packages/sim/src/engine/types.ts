@@ -2095,6 +2095,8 @@ export interface OfferView {
   terms: Terms;
   signs: string[];
   choices: { id: string; allowed: boolean; pick: { min: number; max: number } | null }[];
+  /** On an offer whose terms name a job: what it would pay a month as the wallet will book it (R-WALLET-016). */
+  pay?: MoneyParam;
 }
 
 export interface PlayerView {
@@ -2114,7 +2116,8 @@ export interface PlayerView {
    * `raise` (R-ACTIVITY-013): the held job's pay a month with the raise from being noticed, and the month the raise
    * landed (null for a raise kept from before the month was recorded). Absent while the job held has no raise.
    */
-  job: { id: Id<"activity"> | null; months: number; side: Id<"activity"> | null; raise?: { pay: MoneyParam; month: number | null } };
+  /** `pay` and `sidePay` (R-WALLET-016): each job's month as the wallet will book it, net of tax; null with no job or no pay it can read. */
+  job: { id: Id<"activity"> | null; months: number; side: Id<"activity"> | null; pay: MoneyParam | null; sidePay: MoneyParam | null; raise?: { pay: MoneyParam; month: number | null } };
   freeSlots: number;
   activities: ActivityOption[];
   lastSlots: SlotPick[];
