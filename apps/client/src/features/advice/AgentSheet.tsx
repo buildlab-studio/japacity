@@ -6,11 +6,12 @@
 // what he was is told after, in the report line. The promise and the papers he leaves behind are
 // the same card with their own choices.
 import type { OfferView as Offer, ReportLine, ReportParam } from "@japacity/sim";
-import { Check, Eye } from "lucide-react";
+import { Banknote, BookUser, BookX, Building2, Check, Eye, IdCard, MessageSquareWarning, ShieldCheck, Timer, TrendingDown, type LucideIcon } from "lucide-react";
 import { useState, type ReactNode } from "react";
 
 import { useGame, useView } from "../../authority/GameProvider";
 import { cue } from "../../shared/sound/cues";
+import { Mark } from "../../shared/ui/Mark";
 import { Rejection } from "../../shared/ui/Rejection";
 import { formatMoney } from "../../shared/words/format";
 import { tidyLines } from "../../shared/words/lines";
@@ -225,9 +226,11 @@ function Looks({ offer, found, setFound }: { offer: Offer; found: Found | null; 
   const nobody = looks.some((choice) => !choice.allowed && !offer.signs.includes(choice.id));
   return (
     <section className="flex flex-col gap-1.5" aria-label={adviceWords("advice.looks")}>
-      <p className="flex items-baseline justify-between gap-2">
+      <p className="flex items-center justify-between gap-2">
         <span className="label">{adviceWords("advice.looks")}</span>
-        <span className="text-[12px] text-text-2">{adviceWords("advice.looks.free")}</span>
+        <span className="rounded-[4px] bg-sheet-muted px-1.5 py-0.5 text-[12px] font-bold text-text-2" data-looks-free>
+          {adviceWords("advice.looks.free")}
+        </span>
       </p>
       {looks.map((choice) => {
         const done = offer.signs.includes(choice.id);
@@ -262,6 +265,36 @@ function Looks({ offer, found, setFound }: { offer: Offer; found: Found | null; 
   );
 }
 
+/** Each tell's icon (R-TEXT-008): the thing the player noticed, drawn. */
+const TELL_ICONS: Readonly<Record<string, LucideIcon>> = {
+  "cash-only": Banknote,
+  guarantee: ShieldCheck,
+  "no-office": Building2,
+  "no-licence": IdCard,
+  "holds-passport": BookUser,
+  "no-passport": BookX,
+  "pay-today": Timer,
+  "price-low": TrendingDown,
+  "friend-warned": MessageSquareWarning,
+};
+
+/**
+ * A tell as the player notices it (R-ADVICE-006, R-TEXT-008): its icon, a few words and the warning mark, never his
+ * whole sentence. A tell with no short words yet keeps the entry's own.
+ */
+function Tell({ entry, tell, fresh }: { entry: string; tell: string; fresh: boolean }) {
+  const short = `advice.tell.${tell}.short`;
+  const said = adviceWords(short);
+  const Icon = TELL_ICONS[tell] ?? Eye;
+  return (
+    <li className={`pop flex min-h-11 items-center gap-2.5 rounded-[6px] bg-sheet-2 px-3 py-2 text-[15px] leading-tight font-semibold ${fresh ? "ring-2 ring-out" : ""}`} data-tell={tell} data-fresh={fresh ? "" : undefined}>
+      <Icon size={18} className="shrink-0 text-strong" aria-hidden />
+      <span className="min-w-0 flex-1">{said === short ? words(`${entry}.sign.${tell}`) : said}</span>
+      <Mark state="setback" word={adviceWords("advice.tell.mark")} />
+    </li>
+  );
+}
+
 /** An agent at the stop or the desk (R-ADVICE-005, 006). */
 export function AgentSheet({ offer, onChosen }: { offer: Offer; onChosen: (lines: ReportLine[]) => void }) {
   const fee = feeOf(offer);
@@ -278,16 +311,9 @@ export function AgentSheet({ offer, onChosen }: { offer: Offer; onChosen: (lines
       {tells.length === 0 ? null : (
         <section className="flex flex-col gap-1" aria-label={adviceWords("advice.notice")}>
           <p className="label">{adviceWords("advice.notice")}</p>
-          <ul className="flex flex-col gap-1">
+          <ul className="flex flex-col gap-1.5">
             {tells.map((tell) => (
-              <li
-                key={tell}
-                className={`pop rounded-[5px] border-l-4 bg-sheet-2 px-3 py-2 text-[15px] leading-snug ${fresh.has(tell) ? "border-out font-semibold" : "border-signal"}`}
-                data-tell={tell}
-                data-fresh={fresh.has(tell) ? "" : undefined}
-              >
-                {words(`${offer.entry}.sign.${tell}`)}
-              </li>
+              <Tell key={tell} entry={offer.entry} tell={tell} fresh={fresh.has(tell)} />
             ))}
           </ul>
         </section>
