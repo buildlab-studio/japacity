@@ -89,7 +89,7 @@ function WorldPlaying() {
         asksAt={[
           ...(view.setpiece === null && !closing ? [] : [null]),
           ...((view.interview?.question ?? null) === null ? [] : [null]),
-          ...[...view.offers].sort((a, b) => a.expiresMonth - b.expiresMonth).map((offer) => (AT_HOME.has(offer.entry) ? "place.family-house" : null)),
+          ...[...view.offers].sort((a, b) => a.expiresMonth - b.expiresMonth).map((offer) => (OFFER_PLACES[offer.entry] ?? null)),
         ]}
         asksHold={closing}
         phone={(close, area, app) => <PhoneApps onClose={close} area={area} account={<AccountButton more={<NotifySetting />} />} talk={talk} start={app ?? null} />}
@@ -134,7 +134,8 @@ function Shell() {
 }
 
 /** Offers answered only at the family house. */
-const AT_HOME = new Set<string>(["offer.family-send-off"]);
+/** The offers answered in a place of the city: the send-off at home, the parcel at the cargo office (R-STREET-010). */
+const OFFER_PLACES: Record<string, string> = { "offer.family-send-off": "place.family-house", "offer.parcel-shipped": "place.bode-thomas" };
 
 /** `path`: the page's path, for tests; the browser's own otherwise. */
 export function App({ store: given, path }: { store?: GameStore; path?: string }) {

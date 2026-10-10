@@ -83,7 +83,7 @@ function setNaira(game: Game, inCash: number, inBank: number): void {
 }
 
 describe("the parcel: when it is shipped", () => {
-  test("[R-OFFER-002] given Ada with a sibling settled in the UK, when her months are played to her birthday, then the parcel opens in the birthday month and in no month before it, from that sibling", () => {
+  test("[R-STREET-010] [R-OFFER-002] given Ada with a sibling settled in the UK, when her months are played to her birthday, then the parcel opens in the birthday month and in no month before it, from that sibling", () => {
     const game = life(SIBLING_ABROAD);
     const { opened, result } = toBirthday(game);
     expect(age(game.state) % MONTHS_A_YEAR).toBe(0);

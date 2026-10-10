@@ -25,6 +25,7 @@ import { earlyStops, sixteenPath } from "../../shared/words/sixteen";
 import { blurbOf, hasWords, inMonths, nameOf, paramWords, say, words } from "../../shared/words/text";
 import { ENGLISH_TEST, testChance } from "../../shared/words/test";
 import { AskSheet } from "../../shared/world/AskSheet";
+import { PARCEL, parcelAsk } from "../../shared/world/parcel.ask";
 import { Band, bandMoney } from "../../shared/world/Band";
 import { cue } from "../../shared/sound/cues";
 import type { Ask, RideChoice } from "../../shared/world/contract";
@@ -904,6 +905,20 @@ export function City({
         },
         dismiss: () => setPicked(null),
       };
+    }
+    // The cargo office's act opens the waybill, a paper slip (R-WORLD-006); Collect it answers the parcel.
+    if (world && picked?.kind === "action" && picked.activity === PARCEL) {
+      return parcelAsk(view, {
+        formatMoney: (amount, currency) => formatMoney(amount, currency as "NGN"),
+        done: () => setPicked(null),
+        send: (offer, choice) =>
+          send({ type: "offer/choose", offer: offer.id, choice }).then((reply) => {
+            cue(reply?.ok === true ? "coin" : "tap");
+            setPicked(null);
+            if (reply?.ok === true) toast.show(words(`${PARCEL}.said.${choice}`));
+            return null;
+          }),
+      });
     }
     if (!world || picked?.kind !== "action" || picked.more !== undefined) return null;
     const activity = picked.activity;

@@ -100,6 +100,8 @@ export const uiText: Record<string, string> = {
   "ui.world.ask-away": "Someone is waiting for you at {place}.",
   // Who waits, where content knows: the family house is Mama's.
   "ui.world.ask-away.place.family-house": "Mama is waiting for you at home.",
+  // R-STREET-010: the parcel waits at the cargo office; the nudge names it from anywhere else in the city.
+  "ui.world.ask-away.place.bode-thomas": "A parcel is waiting at the cargo office on Bode Thomas Street.",
   // A country as the plane's line names it (features/city/City.tsx, the depart sheet).
   "ui.country.place.country.uk": "the UK",
   "ui.country.place.country.canada": "Canada",
@@ -183,6 +185,7 @@ export const uiText: Record<string, string> = {
   "ui.line.family-paid.offer.parents-group-debt": "Toward your parents' group debt: {amount}.",
   // Another answer's money, named for its offer, so it never reads as the month's own salary (shared/words/lines.ts).
   "ui.line.offer-paid.offer.december-bonus": "A thirteenth month's pay: {amount}.",
+  "ui.line.offer-paid.offer.parcel-shipped": "The cargo office's handling charge: {amount}.",
   "ui.line.offer-paid.offer.family-send-off": "The send-off: {amount}.",
   // Fuel scarcity's fares are not living costs.
   "ui.line.offer-paid.offer.fuel-scarcity": "Fuel scarcity: {amount} on fares.",

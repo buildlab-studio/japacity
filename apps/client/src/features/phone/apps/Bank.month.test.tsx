@@ -14,8 +14,10 @@ import { localCurrency } from "../../../shared/words/wayHome";
 import { PhoneApps } from "../PhoneApps";
 
 const LIFE = "ada-careful";
-/** The visa application, sent at once (R-ACTIVITY-015), as the recorded life has it after the acts-now re-record. */
-const APPLICATION = 144;
+/** The visa application, sent at once (R-ACTIVITY-015): found in the recorded life, wherever its cut puts it. */
+function applicationIndex(commands: readonly { command: { type: string; activity?: string } }[]): number {
+  return commands.findIndex(({ command }) => command.type === "activity/now" && command.activity === "activity.apply-for-visa");
+}
 
 function lately(): string[] {
   return [...document.querySelectorAll("[data-money-lines] li")].map((row) => row.textContent ?? "");
@@ -24,8 +26,8 @@ function lately(): string[] {
 describe("Bank, Lately in the application month", () => {
   test("[R-WORLD-019] given ada-careful riding to the visa centre and sending the application, when Bank opens after the month, then Lately lists the results' money lines whole and in their order, the dollar salary and the fare among them", async () => {
     const save = recordedSave(LIFE);
-    const applying = save.commands[APPLICATION]?.command;
-    if (applying?.type !== "activity/now" || applying.activity !== "activity.apply-for-visa") throw new Error("The application has moved in the recording.");
+    const APPLICATION = applicationIndex(save.commands);
+    if (APPLICATION < 0) throw new Error("The recording no longer applies for the visa at once.");
     // The application opens the visa interview's questions, answered as recorded, then the month ends with its slots.
     const endAt = save.commands.findIndex((entry, index) => index > APPLICATION && entry.command.type === "turn/end");
     const ending = save.commands[endAt]?.command;
