@@ -8,7 +8,6 @@ import { describe, expect, test } from "vitest";
 import familyFile from "../../../public/assets/places/family-house-compound/place.json";
 import { richView } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
-import { say } from "../../shared/words/text";
 import { City, dressedBy, partyThrown } from "./City";
 import { dressPlace, type PlaceFile, stageOf } from "./placeFile";
 
