@@ -101,12 +101,15 @@ export function Gate({ look, children, mark, over, style }: GateProps) {
   );
 }
 
-/** The sheet over the compound: one panel rising from the bottom, its body scrolling inside it, under at most half the screen. */
+/**
+ * The sheet over the compound, or under the figure on its turntable: one panel rising from the bottom, at most half the
+ * screen, its body scrolling inside it, and the one main button at its foot (the design's panel).
+ */
 export function GateSheet({ children, foot, mark, label }: { children: ReactNode; foot?: ReactNode; mark?: string; label?: string }) {
   return (
-    <section aria-label={label} className="panel rise pointer-events-auto mx-2 mb-2 flex max-h-[min(58dvh,540px)] flex-col overflow-hidden" data-gate-sheet={mark ?? ""}>
-      <div className="min-h-0 flex-1 overflow-y-auto p-4">{children}</div>
-      {foot === undefined ? null : <div className="shrink-0 border-t border-sheet-line px-4 pt-3 pb-[max(14px,env(safe-area-inset-bottom))]">{foot}</div>}
+    <section aria-label={label} className="panel rise pointer-events-auto mx-2 mb-2 flex max-h-[50dvh] min-h-0 flex-col overflow-hidden pb-[max(10px,env(safe-area-inset-bottom))]" data-gate-sheet={mark ?? ""}>
+      <div className={`min-h-0 flex-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden overflow-y-auto px-4 pt-4 ${foot === undefined ? "pb-2" : ""}`}>{children}</div>
+      {foot === undefined ? null : <div className="shrink-0 px-4 pt-3">{foot}</div>}
     </section>
   );
 }

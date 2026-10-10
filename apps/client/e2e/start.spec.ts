@@ -148,7 +148,7 @@ test("[R-ACCOUNT-029] [R-ACCOUNT-021] Play leads to the age screen, the three-sc
 
   // The door: three screens with everything chosen, so Next, Next, Begin starts a life.
   await page.getByRole("button", { name: /^Next/ }).first().click();
-  await page.getByRole("button", { name: /^Next/ }).first().click();
+  await page.getByRole("button", { name: /^Print my page/ }).first().click();
   // The page: the username filled in from the name, and the guest line said once.
   await expect(page.getByLabel("Username")).toHaveValue("Olamide");
   await expect(page.getByText("This life lives only on this phone until you keep it.")).toHaveCount(1);

@@ -1,13 +1,15 @@
-// The second screen as a first-time player meets it (prologue.md R-PROLOGUE-010, 013): the
-// tiles with the first chosen, each with its tag, its own age and the routes it opens in words, the age under them,
-// and no ready life (they are behind Settings).
+// The second screen as a first-time player meets it (prologue.md R-PROLOGUE-010, 013), as the
+// design lab draws it: the tiles as single rows with the first chosen, each with its name in bold and its tag at the
+// right, the one line of what it was, its savings, and on the chosen row the routes it opens as chips; the full line
+// of what it opens and the age it hands over from is read out with the row; the age under them, and no ready life.
 import { render } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
 import { App } from "../../App";
 import { bootGame } from "../../authority/boot";
+import { formatMoney } from "../words/format";
 import { say } from "../words/text";
-import { ARCHETYPES } from "./archetypes";
+import { ARCHETYPES, opensChips, savingsOf } from "./archetypes";
 import { toTheArchetypes } from "./frontDoor.testing";
 // Registers Testing Library's cleanup for this file.
 import "../testing/render";
@@ -30,9 +32,14 @@ describe("Your life so far", () => {
     for (const [at, archetype] of ARCHETYPES.entries()) {
       const tile = document.querySelector<HTMLElement>(`[data-archetype='${archetype.id}']`)!;
       expect(tile.getAttribute("aria-checked")).toBe(at === 0 ? "true" : "false");
-      expect([...tile.children].map((line) => line.textContent)).toEqual([say(`ui.door.tag.${archetype.id}`), say(`prologue.archetype.${archetype.id}.name`), say(`prologue.archetype.${archetype.id}.was`), say(`prologue.archetype.${archetype.id}.opens`)]);
-      // The age its path reaches with no setback (R-PROLOGUE-004): a true number, never "about".
-      expect(tile.textContent).toMatch(/Opens: .+Hands over from \d+$/);
+      const lines = [...tile.children].map((line) => line.textContent);
+      const head = [`${say(`prologue.archetype.${archetype.id}.name`)}${say(`ui.door.tag.${archetype.id}`)}`, say(`prologue.archetype.${archetype.id}.was`), say("ui.door.tile.savings", { amount: formatMoney(savingsOf(archetype), "NGN") })];
+      expect(lines).toEqual(at === 0 ? [...head, opensChips(archetype.id).map((way) => ` ${way}`).join("")] : head);
+      expect(tile.querySelector("[data-tile-tag]")?.textContent).toBe(say(`ui.door.tag.${archetype.id}`));
+      expect(opensChips(archetype.id).length).toBeGreaterThan(0);
+      // The age its path reaches with no setback (R-PROLOGUE-004): a true number, never "about", read out with the row.
+      expect(tile.getAttribute("aria-description")).toBe(say(`prologue.archetype.${archetype.id}.opens`));
+      expect(tile.getAttribute("aria-description")).toMatch(/Opens: .+Hands over from \d+$/);
     }
     expect(new Set(ARCHETYPES.map((archetype) => say(`ui.door.tag.${archetype.id}`)))).toEqual(new Set(["Balanced", "Head start", "Money first", "Hard start"]));
   });

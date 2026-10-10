@@ -1,6 +1,6 @@
 // The way through the front door for a browser test (prologue.md R-PROLOGUE-013, 014): three screens with everything
-// chosen. A tile: Next, the tile, Next, Begin; its page fills and opens the world by itself. A ready life: the test asks
-// for the ready lives as Settings does and opens the door again, then Next, Pick on its kind, Begin.
+// chosen. A tile: Next, the tile, Print my page, Begin; its page fills and opens the world by itself. A ready life: the
+// test asks for the ready lives as Settings does and opens the door again, then Next, Pick on its kind, Begin.
 import type { Page } from "@playwright/test";
 
 /**
@@ -37,10 +37,10 @@ export async function startReadyLife(page: Page, kind?: string, timeout = 30_000
   await passOpeningWords(page);
 }
 
-/** Next, the archetype's tile, Next, Begin: the life from sixteen on that preset, its page left to fill. */
+/** Next, the archetype's tile, Print my page, Begin: the life from sixteen on that preset, its page left to fill. */
 export async function startArchetype(page: Page, archetype: string, timeout = 30_000): Promise<void> {
   await page.getByRole("button", { name: /^Next/ }).first().click({ timeout });
   await page.getByRole("radio", { name: archetype, exact: true }).click({ timeout });
-  await page.getByRole("button", { name: /^Next/ }).first().click({ timeout });
+  await page.getByRole("button", { name: /^Print my page/ }).first().click({ timeout });
   await begin(page, timeout);
 }

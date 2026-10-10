@@ -62,7 +62,7 @@ describe("the age set at the door", () => {
     await toTheArchetypes("Ifeoma");
     fireEvent.click(await screen.findByRole("radio", { name: say("prologue.archetype.nurse.name") }));
     for (let step = 0; step < 2; step += 1) fireEvent.click(screen.getByRole("button", { name: say("prologue.door.age.older") }));
-    fireEvent.click(screen.getByRole("button", { name: new RegExp(`^${say("ui.door.next")}`) }));
+    fireEvent.click(screen.getByRole("button", { name: new RegExp(`^${say("prologue.door.print")}`) }));
     fireEvent.click(screen.getByRole("button", { name: new RegExp(`^${say("ui.door.begin")}`) }));
     expect(await throughTheYears(store)).toBe(false);
     const view = store.getState().view!;
@@ -86,7 +86,7 @@ describe("the home picked at the door", () => {
     fireEvent.click(await screen.findByRole("radio", { name: say("prologue.archetype.accountant.name") }));
     expect(screen.queryByRole("radio", { name: say("ui.door.home.makoko") })).toBeNull();
     fireEvent.click(screen.getByRole("radio", { name: say("ui.door.home.compound-room") }));
-    fireEvent.click(screen.getByRole("button", { name: new RegExp(`^${say("ui.door.next")}`) }));
+    fireEvent.click(screen.getByRole("button", { name: new RegExp(`^${say("prologue.door.print")}`) }));
     fireEvent.click(screen.getByRole("button", { name: new RegExp(`^${say("ui.door.begin")}`) }));
     expect(await throughTheYears(store)).toBe(false);
     const raw = JSON.parse(localStorage.getItem(SAVE_KEY)!) as { save: Parameters<typeof savedCommands>[0] };

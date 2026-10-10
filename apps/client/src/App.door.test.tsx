@@ -100,10 +100,10 @@ async function toTheDoor(): Promise<string> {
   return name.value;
 }
 
-/** Next, Next: the page. */
+/** Next, Print my page: the page. */
 function toThePage(): void {
   fireEvent.click(next(say("ui.door.next")));
-  fireEvent.click(next(say("ui.door.next")));
+  fireEvent.click(next(say("prologue.door.print")));
 }
 
 describe("the username a name fills in", () => {

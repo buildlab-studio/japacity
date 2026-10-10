@@ -635,6 +635,18 @@ export const uiText: Record<string, string> = {
   "ui.door.ready.hint": "Skip the years before. Start at work.",
   "ui.door.ready.title": "A ready life",
   "ui.door.begin": "Begin",
+  // The door as designed (R-PROLOGUE-013): the words its screens carry that ours lacked.
+  "ui.door.caption": "{path} · {age}",
+  "ui.door.body": "Body",
+  "ui.door.body.f": "Woman",
+  "ui.door.body.m": "Man",
+  "ui.door.print.then": "See it all",
+  "ui.door.tile.savings": "Savings {amount}",
+  "ui.door.edit.you": "Look and name",
+  "ui.door.edit.life": "Path and age",
+  "ui.page.field.family": "Family",
+  "ui.page.family.unseen": "Drawn when you begin",
+  "ui.page.japacity.line": "Japacity: how ready you are to leave Nigeria. 100 = you go.",
 
   // The page as the handover (prologue.md R-PROLOGUE-014): the family drawn, the years before as chips, the money, the stamp.
   "ui.page.family": "Your family",

@@ -124,7 +124,7 @@ async function frontDoor(run: Run, button: string): Promise<boolean> {
   log(run, `picked ${button}`);
   if (!options.ready) {
     log(run, `age: ${await words(page.locator("[data-door-age]"))}`);
-    if (!(await tap(run, page.getByRole("button", { name: /^Next/ }), "Next to the page"))) return false;
+    if (!(await tap(run, page.getByRole("button", { name: /^Print my page/ }), "Print my page"))) return false;
   }
   if (!(await appear(page.getByRole("button", { name: /^Begin/ }), LONG))) {
     problem(run, "the page never came");

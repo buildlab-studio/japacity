@@ -95,7 +95,7 @@ test("[R-ACCOUNT-021] [R-ACCOUNT-024] [R-GUIDE-015] a new visitor passes the age
   await page.getByRole("combobox", { name: "Year" }).selectOption("1990");
   await page.getByRole("button", { name: "Continue" }).click();
   await page.getByRole("button", { name: /^Next/ }).first().click({ timeout: 20_000 });
-  await page.getByRole("button", { name: /^Next/ }).first().click();
+  await page.getByRole("button", { name: /^Print my page/ }).first().click();
   await expect(page.getByRole("button", { name: "Continue with Google" })).toHaveCount(0);
   await expect(page.getByLabel("Email")).toHaveCount(0);
   const username = page.getByLabel("Username");

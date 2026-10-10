@@ -19,7 +19,8 @@ import { say, words } from "./shared/words/text";
 import { ownFile } from "./features/city/City";
 import { ROSTER } from "./features/city/roster";
 import { ownLook } from "./features/map/Ride";
-import { ARCHETYPES, archetypeOf, FULL_PROLOGUE_KEY } from "./shared/frontdoor/archetypes";
+import { ARCHETYPES, archetypeOf, FULL_PROLOGUE_KEY, opensChips, savingsOf } from "./shared/frontdoor/archetypes";
+import { formatMoney } from "./shared/words/format";
 import { askReadyLives, begin, startArchetype, startReadyLife, toTheArchetypes } from "./shared/frontdoor/frontDoor.testing";
 import { LOOKS, lookOf, namesFor, NAMES_SHOWN } from "./shared/frontdoor/looks";
 // Registers Testing Library's cleanup for this file.
@@ -79,15 +80,18 @@ afterEach(() => {
 });
 
 describe("the front door", () => {
-  test("[R-PROLOGUE-009] [R-PROLOGUE-013] given no save, when the game opens, then the family compound stands under a sheet that asks who you are, with a name already filled from the pool and the look strip in two rows of the city's passers-by on the same screen, and no named life anywhere", async () => {
+  test("[R-PROLOGUE-009] [R-PROLOGUE-013] given no save, when the game opens, then the figure stands on its turntable over a sheet that asks who you are, with a name already filled from the pool, the body, and the look strip of the city's passers-by for that body on the same screen, and no named life anywhere", async () => {
     door();
     expect(await screen.findByRole("heading", { name: say("ui.life.title") }, { timeout: 10_000 })).toBeDefined();
-    // Never a bare page: the compound is under every sheet of the door.
-    expect(document.querySelector("[data-gate] [data-front-scene]")).not.toBeNull();
-    const looks = within(screen.getByRole("radiogroup", { name: say("ui.door.look") })).getAllByRole("radio");
-    expect(looks).toHaveLength(LOOKS.length);
-    expect(LOOKS.length % 2).toBe(0);
-    expect(document.querySelector("[data-looks]")?.className).toContain("grid-rows-2");
+    // Never a bare page: the figure on its turntable over the theme's band (the design's door), the compound behind the page.
+    expect(document.querySelector("[data-gate] [data-turntable]")).not.toBeNull();
+    // The body filters the strip: each body's looks in turn, and the two bodies together are every passer-by.
+    const shown = (): string[] => within(screen.getByRole("radiogroup", { name: say("ui.door.look") })).getAllByRole("radio").map((one) => one.getAttribute("data-look") ?? "");
+    const first = lookOf(document.querySelector("[data-gate]")?.getAttribute("data-look"))!.sex;
+    expect(shown()).toEqual(LOOKS.filter((one) => one.sex === first).map((one) => one.id));
+    fireEvent.click(screen.getByRole("button", { name: say(`ui.door.body.${first === "f" ? "m" : "f"}`) }));
+    expect(shown()).toEqual(LOOKS.filter((one) => one.sex !== first).map((one) => one.id));
+    fireEvent.click(screen.getByRole("button", { name: say(`ui.door.body.${first}`) }));
     const passersBy = ROSTER.filter((person) => person.role === "passer-by").map((person) => person.file);
     expect(LOOKS.map((look) => look.file).sort()).toEqual([...passersBy].sort());
     for (const id of ["chr_ada", "chr_tunde", "chr_zainab", "chr_ngozi", "chr_tobi", "chr_femi", "chr_kemi", "chr_bisi"]) expect(LOOKS.some((look) => look.id === id)).toBe(true);
@@ -100,7 +104,7 @@ describe("the front door", () => {
     const said: string[] = [sheet().textContent];
     await toTheArchetypes();
     said.push(sheet().textContent);
-    expect(document.querySelector("[data-gate] [data-front-scene]")).not.toBeNull();
+    expect(document.querySelector("[data-gate] [data-turntable]")).not.toBeNull();
     // No starting life's person is offered: not by full name.
     const fullNames = FIXED.map((id) => text[`${id}.name`] ?? "");
     expect(said.filter((words) => fullNames.some((name) => words.includes(name)))).toEqual([]);
@@ -111,6 +115,8 @@ describe("the front door", () => {
     door();
     const box = () => screen.getByRole<HTMLInputElement>("textbox", { name: say("prologue.door.name.title") });
     for (const look of [LOOKS.find((one) => one.sex === "m")!, LOOKS.find((one) => one.sex === "f")!]) {
+      // The strip shows the body's looks: the body first, then the look.
+      fireEvent.click(document.querySelector(`[data-body="${look.sex}"]`)!);
       fireEvent.click(document.querySelector(`[role="radio"][data-look="${look.id}"]`)!);
       expect(document.querySelector("[data-gate]")?.getAttribute("data-look")).toBe(look.id);
       const names = [box().value];
@@ -146,6 +152,7 @@ describe("the front door", () => {
     askReadyLives();
     const { store, storage } = door();
     const look = LOOKS.find((one) => one.id === "chr_femi")!;
+    fireEvent.click(document.querySelector(`[data-body="${look.sex}"]`)!);
     fireEvent.click(document.querySelector(`[role="radio"][data-look="${look.id}"]`)!);
     await startReadyLife("scenario.ngozi", "Obinna");
     await waitFor(() => expect(store.getState().view?.scenario).toBe("scenario.ngozi"));
@@ -182,7 +189,7 @@ describe("the front door", () => {
     expect(store.getState().view?.prologue).toBeNull();
   });
 
-  test("[R-PROLOGUE-010] [R-PROLOGUE-013] given the seven archetypes, then each tile says its tag, its name, one line of what it was and one line of what it opens, and no more", async () => {
+  test("[R-PROLOGUE-010] [R-PROLOGUE-013] given the seven archetypes, then each tile says its name and its tag, one line of what it was and its savings, the chosen one the routes it opens as chips, and every tile reads out its one line of what it opens; no more", async () => {
     door();
     await toTheArchetypes();
     const tiles = [...document.querySelectorAll<HTMLElement>("[data-archetype]")];
@@ -190,8 +197,9 @@ describe("the front door", () => {
     for (const tile of tiles) {
       const id = tile.dataset["archetype"]!;
       const lines = [...tile.children].map((line) => line.textContent);
-      expect(lines).toEqual([say(`ui.door.tag.${id}`), say(`prologue.archetype.${id}.name`), say(`prologue.archetype.${id}.was`), say(`prologue.archetype.${id}.opens`)]);
-      expect(lines[3]).toMatch(/^Opens: /);
+      const head = [`${say(`prologue.archetype.${id}.name`)}${say(`ui.door.tag.${id}`)}`, say(`prologue.archetype.${id}.was`), say("ui.door.tile.savings", { amount: formatMoney(savingsOf(archetypeOf(id)!), "NGN") })];
+      expect(lines).toEqual(tile.getAttribute("aria-checked") === "true" ? [...head, opensChips(id).map((way) => ` ${way}`).join("")] : head);
+      expect(tile.getAttribute("aria-description")).toMatch(/^Opens: /);
     }
   });
 });

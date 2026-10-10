@@ -228,6 +228,17 @@ export function savingsOf(archetype: Pick<Archetype, "id">): number {
   return Number.isInteger(figure) ? figure * 100 : 0;
 }
 
+/** The routes a tile opens as short words for its chips, from its one line of what it opens: "Opens: a, b. Hands over from 23". */
+export function opensChips(id: string): string[] {
+  const line = say(`prologue.archetype.${id}.opens`).replace(/^[^:]*:\s*/, "");
+  const ways = line.split(/\.\s/)[0] ?? "";
+  return ways
+    .split(/,\s*/)
+    .map((way) => way.trim())
+    .filter((way) => way !== "")
+    .map((way) => way.charAt(0).toUpperCase() + way.slice(1));
+}
+
 /** The archetype's own answer at this card while one of them is allowed, else null: a draw has shut them (R-PROLOGUE-010). */
 export function presetAnswer(archetype: Archetype, prologue: Pick<Prologue, "step" | "answers">): string | null {
   const wanted = archetype.preset[prologue.step] ?? [];
