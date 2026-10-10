@@ -35,6 +35,8 @@ export const worldText: Record<string, string> = {
 
   "ui.world.added": "Added to the month",
   "ui.world.planned": "{what}: planned.",
+  // R-ACTIVITY-015: the button that closes the place's answer to an act done at once.
+  "ui.world.done": "Done",
   "ui.world.counts-at-end": "Counts when the month ends",
   "ui.world.depart-line": "The visa is in your passport and the ticket is yours. Board, and the next place is {country}.",
   "ui.world.deposit-line": "{school} holds your place on {route} once the deposit is paid. It goes from the naira in the bank.",

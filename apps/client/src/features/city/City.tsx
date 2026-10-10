@@ -35,6 +35,8 @@ import { Toast, useToast } from "../../shared/world/Toast";
 import { MonthCount } from "../../shared/world/MonthCount";
 import { Walkthrough } from "../../shared/world/Walkthrough";
 import { WorldSheet } from "../../shared/world/WorldSheet";
+import { answersNow, nowLineIn } from "../../shared/words/acts";
+import { actOnCard, actsOffered, answerAsk, isPaper } from "./acts";
 import { choreSaving } from "./chores";
 import { cityWords, heardWords, papersLook, placeName, residentName, roleWords } from "./city.words";
 import { CreditsSheet } from "./Credits";
@@ -579,9 +581,9 @@ export function City({
   const jobIds = hunt?.params ?? [];
   // Held funds still open are paid back at the counter through a command act (R-ROUTE-008).
   const heldDue = view.obligations.find((owed) => content.obligation[owed.entry]?.type === "held-funds") ?? null;
-  // An activity shut only by a paper not yet held (the English test before the passport) still stands in the world, shut with its reason.
-  const paperShut = view.activities.filter((option) => !option.allowed && option.missing.length > 0 && option.missing.every((need) => need.type === "document/held")).map((option) => option.id);
-  const activityKey = [...view.activities.filter((option) => option.allowed).map((option) => option.id), ...paperShut, ...(hunt === undefined ? [] : [hunt.id]), ...jobIds, ...(heldDue === null ? [] : ["command:obligation/pay"]), ...(depositDue === null ? [] : ["command:route/pay-deposit"]), ...(departDue === null ? [] : ["command:route/depart"])].join("|");
+  // An activity shut only by a paper not yet held (the English test before the passport) still stands in the world, shut with its reason;
+  // a now-act done this month is gone from its thing until the next (R-ACTIVITY-015).
+  const activityKey = [...actsOffered(view), ...(heldDue === null ? [] : ["command:obligation/pay"]), ...(depositDue === null ? [] : ["command:route/pay-deposit"]), ...(departDue === null ? [] : ["command:route/depart"])].join("|");
   const chapterNow = view.chapter.current;
   const offersKey = view.offers.map((offer) => offer.entry).join("|");
   const setpieceEntry = view.setpiece?.entry ?? null;
@@ -659,6 +661,11 @@ export function City({
         setPicked(null);
         const option = act.stages === undefined ? undefined : view.activities.find((candidate) => candidate.id === act.stages);
         if (option === undefined) return;
+        // R-ACTIVITY-015: an act done at once (a post from the laptop) is sent now, and the place's answer opens.
+        if (answersNow(option.id)) {
+          void actOnCard({ activity: option.id, param: option.params?.[0] ?? null }, { send, addToPlan }).then((acted) => cue(acted === "answered" ? "done" : "tap"));
+          return;
+        }
         const added = addToPlan({ activity: option.id, param: option.params?.[0] ?? null });
         cue(added ? "done" : "tap");
         sayAct(added ? doneWords(act.label, view, option.id) : say("ui.world.full"));
@@ -782,9 +789,27 @@ export function City({
     const timer = window.setTimeout(() => setPeek(false), PEEK_MS);
     return () => window.clearTimeout(timer);
   }, [nudgeKey, comingKey, view.turns.banked]);
+  // R-ACTIVITY-015: an act done at once is answered in the place: the latest command's lines carry the speaker's line.
+  const lastLines = useGame((state) => state.lines);
+  const linesSeen = useRef(lastLines);
+  const [answer, setAnswer] = useState<ReportLine | null>(null);
+  useEffect(() => {
+    if (linesSeen.current === lastLines) return;
+    linesSeen.current = lastLines;
+    const said = nowLineIn(lastLines);
+    // An act done from the phone is said on the phone; the sheet answers an act done in the place.
+    if (world && !phone && said !== null) setAnswer(said);
+  }, [lastLines, world, phone]);
   const endBlocked = view.ended ? words("reject.ended") : view.setpiece !== null || (view.interview?.question ?? null) !== null ? words("reject.setpiece-open") : view.turns.banked < 1 ? words("reject.no-turns") : null;
   // One action, one sheet: a paper slip for a paper thing, a card for the rest.
   const ask: Ask | null = (() => {
+    if (world && answer !== null) {
+      return answerAsk(answer, { who: hereName, clock }, () => {
+        cue("close");
+        setAnswer(null);
+        setPicked(null);
+      });
+    }
     if (world && picked?.kind === "command" && picked.command === "route/depart" && departDue !== null) {
       const route = departDue;
       // The flight's cost from tuning unless the employer pays; held funds still open stop the flight (route/depart).
@@ -868,7 +893,7 @@ export function City({
     if (chance !== null && chance.study !== null) return null;
     const first = option.cost[0] ?? null;
     const cost = first === null ? null : { ...first, amount: option.cost.filter((part) => part.currency === first.currency).reduce((sum, part) => sum + part.amount, 0) };
-    const paper = activity === "activity.play-lotto" || activity === "activity.bet-slip";
+    const paper = isPaper(activity);
     // One university to apply to: the sheet names it, its deposit and the chance, under a building.
     const school = activity === APPLY_TO_SCHOOL ? (chosen ?? (option.params?.length === 1 ? (option.params[0] ?? null) : null)) : null;
     return {
@@ -890,13 +915,19 @@ export function City({
                   [blurbOf(activity), countsWords(activity)].filter((part): part is string => part !== null).join(" "),
       cost: cost === null ? null : { amount: cost.amount, currency: cost.currency },
       button: nameOf(activity),
+      // R-ACTIVITY-015: an act done at once says "Now" under its button; a month-act counts when the month ends.
+      ...(answersNow(activity) ? { when: "now" as const } : {}),
       ...(paper ? { reference: clock.toUpperCase() } : {}),
       ...(option.allowed ? {} : { blocked: needsWords(option.missing) }),
       act: () => {
-        const added = addToPlan({ activity: option.id, param: chosen ?? option.params?.[0] ?? null });
-        cue(added ? (cost === null ? "done" : "coin") : "tap");
-        setPicked(null);
-        toast.show(added ? say("ui.world.planned", { what: nameOf(option.id) }) : say("ui.world.full"));
+        const pick = { activity: option.id, param: chosen ?? option.params?.[0] ?? null };
+        void actOnCard(pick, { send, addToPlan }).then((acted) => {
+          cue(acted === "answered" || acted === "planned" ? (cost === null ? "done" : "coin") : "tap");
+          // The place answers an act done at once in the same sheet; a refusal is said by the store.
+          if (acted === "answered") return;
+          setPicked(null);
+          if (acted !== "refused") toast.show(acted === "planned" ? say("ui.world.planned", { what: nameOf(option.id) }) : say("ui.world.full"));
+        });
       },
       dismiss: () => setPicked(null),
     };
