@@ -634,6 +634,8 @@ export const uiText: Record<string, string> = {
   "ui.door.home.short": "short",
   "ui.door.home.needed": "needed",
   "ui.door.home.goal": "A goal",
+  // The goal the savings already cover: it stays on the row, locked, and says so (R-PROLOGUE-013).
+  "ui.door.home.reached": "reached",
   "ui.door.home.said.left": "About {amount} left after moving in",
   "ui.door.home.said.short": "{amount} short of moving in",
   "ui.door.home.said.needed": "{amount} more needed to move in",

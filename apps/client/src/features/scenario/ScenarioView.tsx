@@ -107,8 +107,8 @@ export function fitHome(archetype: Archetype, years: number, draft: Pick<DoorDra
 }
 
 /**
- * True when the tile's savings at the age picked already cover the self-contain's year and fees: a goal already reached
- * is no goal, so the door leaves its locked row out (the review builder's report).
+ * True when the tile's savings at the age picked already cover the self-contain's year and fees. The row stays, locked
+ * as the goal with its figure; it only says "reached" beside the lock.
  */
 export function selfContainReached(archetype: Archetype, years: number): boolean {
   return savingsOf(archetype) + yearsWorked(years).saved >= selfContainYear();
@@ -647,23 +647,26 @@ export function ScenarioView({ guest = null }: { guest?: DoorGuest | null }) {
                     </button>
                   );
                 })}
-                {/* The self-contain: shown locked as the goal, with its figure and no action; left out once the savings reach it. */}
-                {selfContainReached(archetype, draft.age) ? null : (
-                  <div className="flex w-full items-center gap-2 rounded-[6px] bg-sheet-muted px-2.5 py-2 opacity-60" aria-disabled="true" aria-label={say("ui.door.home.self-contain")} aria-description={say("ui.door.home.said.goal", { amount: formatMoney(selfContainYear(), "NGN") })} data-home="self-contain">
-                    <Lock size={18} className="shrink-0" aria-hidden />
-                    <span className="min-w-0 flex-1 leading-tight">
-                      <span className="block truncate text-[13.5px] font-extrabold">
-                        {say("ui.door.home.self-contain")} <span className="font-semibold text-text-2">· {say("ui.door.home.where.self-contain")}</span>
-                      </span>
-                      <span className="block truncate text-[12px] text-text-2" data-home-costs>
-                        {say("ui.door.home.costs.self-contain", { amount: formatMoney(selfContainYear(), "NGN") })}
-                      </span>
+                {/* The self-contain: always shown, locked as the goal, with its figure and no action; reached, it says so and stays. */}
+                <div className="flex w-full items-center gap-2 rounded-[6px] bg-sheet-muted px-2.5 py-2 opacity-60" aria-disabled="true" aria-label={say("ui.door.home.self-contain")} aria-description={say("ui.door.home.said.goal", { amount: formatMoney(selfContainYear(), "NGN") })} data-home="self-contain">
+                  <Lock size={18} className="shrink-0" aria-hidden />
+                  <span className="min-w-0 flex-1 leading-tight">
+                    <span className="block truncate text-[13.5px] font-extrabold">
+                      {say("ui.door.home.self-contain")} <span className="font-semibold text-text-2">· {say("ui.door.home.where.self-contain")}</span>
                     </span>
-                    <span className="shrink-0 text-right text-[11px] leading-tight font-bold" data-home-left="goal">
-                      {say("ui.door.home.goal")}
+                    <span className="block truncate text-[12px] text-text-2" data-home-costs>
+                      {say("ui.door.home.costs.self-contain", { amount: formatMoney(selfContainYear(), "NGN") })}
                     </span>
-                  </div>
-                )}
+                  </span>
+                  <span className="shrink-0 text-right text-[11px] leading-tight font-bold" data-home-left="goal">
+                    {say("ui.door.home.goal")}
+                    {selfContainReached(archetype, draft.age) ? (
+                      <span className="block text-[10px] font-semibold" data-home-reached>
+                        {say("ui.door.home.reached")}
+                      </span>
+                    ) : null}
+                  </span>
+                </div>
               </div>
             </section>
           )}
