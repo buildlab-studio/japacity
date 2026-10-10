@@ -64,7 +64,7 @@ export interface GameState {
   lastMonthLines: ReportLine[];
   /**
    * One entry per free slot, null for an empty one, which rests; then any pick that fills no slot
-   * (the word of someone who went, R-TURN-006), after the slots.
+   * (a month-act whose `slot` is `none`, such as cooking at home, R-TURN-006), after the slots.
    */
   plan: (SlotPick | null)[];
   /** True right after a month ends, so the report opens. */
@@ -170,7 +170,7 @@ function wonEarly(view: PlayerView, lines: readonly ReportLine[], slots: readonl
   return view.chapter.done.length > 0 || view.goals.done.length > 0 || earlyWinIn(lines, slots) !== null;
 }
 
-/** True when a pick fills one of the month's slots: an activity whose `slot` is `none` fills none (R-TURN-006, R-ADVICE-003). */
+/** True when a pick fills one of the month's slots: an activity whose `slot` is `none` fills none (R-TURN-006). */
 export function takesSlot(pick: SlotPick): boolean {
   return content.activity[pick.activity]?.slot !== "none";
 }
@@ -404,7 +404,7 @@ function makeStore(authority: StoreAuthority, options: GameStoreOptions): GameSt
       addToPlan(pick) {
         const plan = [...get().plan];
         if (!takesSlot(pick)) {
-          // Planned once is enough: asking twice in a month is the same word.
+          // Planned once is enough: a pick that fills no slot does no more for being planned twice.
           if (!plan.some((held) => held !== null && held.activity === pick.activity && held.param === pick.param)) set({ plan: [...plan, pick] });
           return true;
         }
