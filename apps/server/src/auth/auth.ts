@@ -50,7 +50,7 @@ export interface AuthNotice {
 export interface AuthKeys {
   /** Signs the session cookie. At least 32 random characters. */
   secret: string;
-  /** The game's own address, `https://play.japacity.com`; the passkeys' relying party is its host (R-ACCOUNT-003). */
+  /** The game's own address: `https://japacity.app`, or `https://staging.japacity.app` on staging. The passkeys' relying party is its host (R-ACCOUNT-003). */
   siteUrl: string;
   google: { clientId: string; clientSecret: string };
   turnstile: TurnstileKeys;
@@ -68,6 +68,19 @@ export const SESSION_DAYS = 400;
 export const COOKIE_ATTRIBUTES = { httpOnly: true, secure: true, sameSite: "lax" } as const;
 
 /**
+ * R-ACCOUNT-003: the passkeys' relying party id, exactly the host of SITE_URL: `japacity.app` in
+ * production (the apex, never a subdomain) and `staging.japacity.app` on staging, so a staging passkey
+ * never signs in to production. A passkey is bound to this id for good, so a SITE_URL that is not a bare
+ * https origin is refused here rather than turned into an id no passkey could follow.
+ */
+export function relyingPartyOf(siteUrl: string): string {
+  const url = new URL(siteUrl);
+  if (url.protocol !== "https:") throw new Error(`SITE_URL must be https: ${siteUrl}`);
+  if (siteUrl !== url.origin) throw new Error(`SITE_URL must be the bare origin, with no path, query or trailing slash: ${siteUrl}`);
+  return url.hostname;
+}
+
+/**
  * R-ACCOUNT-005: the test utilities exist only while the test server's config
  * turns them on. They capture no code: the database holds only its hash, so
  * the tests read a code from the stand-in for the send.
@@ -78,7 +91,7 @@ function testPlugins(testServer: boolean): BetterAuthPlugin[] {
 
 export function makeAuth(deps: ServerDeps, adapter: Adapter, keys: AuthKeys) {
   const { config } = deps;
-  const host = new URL(keys.siteUrl).hostname;
+  const relyingParty = relyingPartyOf(keys.siteUrl);
   const linking: Linking = new Set();
   const plugins = [
     emailOTP({
@@ -91,7 +104,7 @@ export function makeAuth(deps: ServerDeps, adapter: Adapter, keys: AuthKeys) {
       // The library hands this promise to `advanced.backgroundTasks` without awaiting it.
       sendVerificationOTP: (message) => keys.sendOtp(message),
     }),
-    passkey({ rpID: host, rpName: "Japacity", origin: keys.siteUrl, registration: { requireSession: true } }),
+    passkey({ rpID: relyingParty, rpName: "Japacity", origin: keys.siteUrl, registration: { requireSession: true } }),
     // R-ACCOUNT-021, 023: the guest's user is kept on a link; the user the link made is folded into it.
     anonymous({ disableDeleteAnonymousUser: true, generateName: () => "", onLinkAccount: (input) => foldIntoGuest(deps, linking, input) }),
     ...testPlugins(config.testing.captureOtp),

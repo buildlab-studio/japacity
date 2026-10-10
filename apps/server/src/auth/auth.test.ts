@@ -3,7 +3,7 @@ import { afterEach, describe, expect, test, vi } from "vitest";
 import { productionConfig, testConfig } from "../config";
 import { banIdentities, emailIdentity } from "../moderation/identities";
 import { setSwitch } from "../switches/switches";
-import { makeAuth } from "./auth";
+import { makeAuth, relyingPartyOf } from "./auth";
 import { EMAIL_DAY_WINDOW_MS, EMAIL_LIMIT_WINDOW_MS, pruneLimitRows } from "./hooks";
 import { memoryAuthAdapter } from "./memory";
 import { SITE, harness, makeJar } from "./testing";
@@ -226,6 +226,20 @@ describe("signing in", () => {
     const options = await h.call("/api/auth/passkey/generate-register-options", { jar });
     expect(options.status).toBe(200);
     expect(await json(options)).toMatchObject({ rp: { id: new URL(SITE).hostname, name: "Japacity" } });
+  });
+
+  test("[R-ACCOUNT-003] given a SITE_URL that is a bare https origin, when the relying party is taken from it, then it is exactly its host", () => {
+    expect(relyingPartyOf("https://japacity.app")).toBe("japacity.app");
+    expect(relyingPartyOf("https://staging.japacity.app")).toBe("staging.japacity.app");
+    expect(relyingPartyOf(SITE)).toBe(new URL(SITE).hostname);
+  });
+
+  test("[R-ACCOUNT-003] given a SITE_URL that is not https or carries a path, a query or a trailing slash, when the relying party is asked for, then it throws and no auth instance is made", () => {
+    for (const siteUrl of ["http://japacity.app", "https://japacity.app/", "https://japacity.app/play", "https://japacity.app/?x=1", "https://japacity.app/#top", "ftp://japacity.app", "japacity.app"]) {
+      expect(() => relyingPartyOf(siteUrl)).toThrow();
+    }
+    const h = harness();
+    expect(() => makeAuth(h.deps, memoryAuthAdapter(), { ...h.keys, siteUrl: "https://japacity.app/play" })).toThrow();
   });
 
   test("[R-ACCOUNT-004] given the methods built, when a text-message code is asked for, then no such route exists", async () => {
