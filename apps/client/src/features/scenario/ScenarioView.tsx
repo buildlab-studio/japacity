@@ -13,8 +13,9 @@ import { useEffect, useRef, useState } from "react";
 
 import { useGame } from "../../authority/GameProvider";
 import { keepPerson } from "../../authority/person";
+import { formatMoney } from "../../shared/words/format";
 import { blurbOf, say } from "../../shared/words/text";
-import { ARCHETYPES, archetypeOf, FROM_SIXTEEN, throughUniversity } from "../../shared/frontdoor/archetypes";
+import { ARCHETYPES, archetypeOf, FROM_SIXTEEN, type Home, HOMES, homeOf, savingsOf } from "../../shared/frontdoor/archetypes";
 import { Gate, GateSheet, gateLook } from "../../shared/frontdoor/Gate";
 import { LOOKS, lookOf, namesFor } from "../../shared/frontdoor/looks";
 import { takeReadyAsk } from "../../shared/frontdoor/ready";
@@ -45,10 +46,17 @@ function filledName(look: string, roll: number): string {
   return namesFor(lookOf(look)?.sex ?? "f", roll)[0] ?? "";
 }
 
-/** A run with everything chosen: the kept look, a name for it, the first tile at its own age. */
+/** A run with everything chosen: the kept look, a name for it, the first tile at its own age and in its own home. */
 function freshDraft(look: string): DoorDraft {
   const roll = freshRoll();
-  return { stage: "you", look, archetype: ARCHETYPES[0]?.id ?? null, ready: null, name: filledName(look, roll), typed: false, roll, age: 0 };
+  const first = ARCHETYPES[0];
+  return { stage: "you", look, archetype: first?.id ?? null, ready: null, name: filledName(look, roll), typed: false, roll, age: 0, ...(first === undefined ? {} : { home: homeOf(first) }) };
+}
+
+/** What a home costs a month, from the home step's own answer in content. */
+function homeCost(home: Home): number {
+  const opens = content.prologue["home"]?.answers.find((answer) => answer.id === home)?.effects.find((effect) => effect.type === "obligation/open");
+  return opens?.type === "obligation/open" && typeof opens.amount === "number" ? opens.amount : 0;
 }
 
 /** The run as kept, or a new one with the kept look; a run already begun starts again. Settings' ask starts a run for the ready lives. */
@@ -177,6 +185,7 @@ export function ScenarioView() {
 
   const archetype = draft.ready === null ? archetypeOf(draft.archetype) : null;
   const middle = archetype === null ? null : middleMonths(archetype);
+  const home: Home | null = archetype === null ? null : (HOMES.find((one) => one === draft.home) ?? homeOf(archetype));
   const open = middle === null ? [0] : stepsOpen(middle);
   const step = (by: number): void => {
     const next = draft.age + by;
@@ -196,7 +205,8 @@ export function ScenarioView() {
     const look = pick(LOOKS)?.id ?? draft.look;
     const roll = freshRoll();
     setTried(false);
-    change({ look, roll, name: filledName(look, roll), typed: false, archetype: pick(ARCHETYPES)?.id ?? draft.archetype, ready: null, age: 0 });
+    const tile = pick(ARCHETYPES) ?? archetype;
+    change({ look, roll, name: filledName(look, roll), typed: false, archetype: tile?.id ?? draft.archetype, ready: null, age: 0, ...(tile === null ? {} : { home: homeOf(tile) }) });
   };
 
   const begin = (): void => {
@@ -209,7 +219,7 @@ export function ScenarioView() {
     const ready = draft.ready === null ? null : (READY.find((id) => id === draft.ready) ?? null);
     const start = (): void => {
       keepPerson({ look: draft.look, name: draft.name.trim(), archetype: ready === null ? draft.archetype : null });
-      change({ stage: "begun" });
+      change({ stage: "begun", ...(home === null ? {} : { home }) });
       void chooseLife(ready ?? FROM_SIXTEEN).catch(() => setStamped(false));
     };
     setStamped(true);
@@ -330,7 +340,7 @@ export function ScenarioView() {
                     data-archetype={tile.id}
                     aria-label={say(`prologue.archetype.${tile.id}.name`)}
                     aria-checked={on}
-                    onClick={() => change({ archetype: tile.id, ready: null, age: 0 })}
+                    onClick={() => change({ archetype: tile.id, ready: null, age: 0, home: homeOf(tile) })}
                     className={`press flex h-full w-full flex-col items-start rounded-[5px] p-2.5 text-left ${on ? "bg-strong text-on-strong" : "bg-sheet-muted"}`}
                   >
                     <span className={`rounded-[3px] px-1.5 py-0.5 text-[10px] font-extrabold tracking-[0.08em] uppercase ${on ? "bg-action text-action-text" : "bg-sheet text-text-2"}`} data-tile-tag>
@@ -358,15 +368,41 @@ export function ScenarioView() {
                   <ChevronRight size={20} />
                 </button>
               </div>
-              {/* A tile whose years go through the entrance exam: a retake adds a year the door cannot know (R-PROLOGUE-004). */}
-              {archetype !== null && throughUniversity(archetype) ? (
-                <p className="mt-1.5 text-center text-[12px] leading-snug text-text-2" data-age-give>
-                  {say("prologue.door.age.give-or-take")}
-                </p>
-              ) : null}
               <p className="mt-1.5 text-center text-[13px] font-bold" data-age-does>
                 {ageStepWords(draft.age, middle)}
               </p>
+            </section>
+          )}
+          {archetype === null || home === null ? null : (
+            <section className="mt-3" aria-label={say("ui.door.home")} data-door-home>
+              <h2 className="label text-text-2">{say("ui.door.home")}</h2>
+              <div className="mt-1.5 grid grid-cols-2 gap-1.5" role="radiogroup" aria-label={say("ui.door.home")}>
+                {HOMES.map((one) => {
+                  const on = one === home;
+                  const left = Math.max(0, savingsOf(archetype) - homeCost(one));
+                  return (
+                    <button
+                      key={one}
+                      type="button"
+                      role="radio"
+                      aria-checked={on}
+                      aria-label={say(`ui.door.home.${one}`)}
+                      data-home={one}
+                      onClick={() => change({ home: one })}
+                      className={`press flex flex-col items-start rounded-[5px] p-2.5 text-left ${on ? "bg-strong text-on-strong" : "bg-sheet-muted"}`}
+                    >
+                      <span className={`rounded-[3px] px-1.5 py-0.5 text-[10px] font-extrabold tracking-[0.08em] uppercase ${on ? "bg-action text-action-text" : "bg-sheet text-text-2"}`}>{say(`ui.door.home.tag.${one}`)}</span>
+                      <span className="mt-1 text-[14px] leading-tight font-extrabold">{say(`ui.door.home.${one}`)}</span>
+                      <span className="num mt-0.5 text-[13px]" data-home-costs>
+                        {say("ui.door.home.costs", { amount: formatMoney(homeCost(one), "NGN") })}
+                      </span>
+                      <span className={`mt-0.5 text-[12px] leading-snug ${on ? "" : "text-text-2"}`} data-home-left>
+                        {say("ui.door.home.left", { amount: formatMoney(left, "NGN") })}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
             </section>
           )}
         </GateSheet>

@@ -22,7 +22,7 @@ import { nextStepOf, ownWayOf, RACKS_STEP, racksAtHand, sixteenPath } from "../.
 import { bandWords, hasWords, nameOf, say, sayCount, words } from "../../shared/words/text";
 import { Gate, GateSheet, gateLook } from "../../shared/frontdoor/Gate";
 import { lookOf } from "../../shared/frontdoor/looks";
-import { type Archetype, answersInOrder, archetypeOf, doorAnswer, fullPrologue, handoverKind, throughUniversity, withAge } from "../../shared/frontdoor/archetypes";
+import { type Archetype, answersInOrder, archetypeOf, doorAnswer, fullPrologue, handoverKind, throughUniversity, withAge, withHome } from "../../shared/frontdoor/archetypes";
 import { DataPage, type PageFields, Stamp } from "../../shared/datapage/DataPage";
 import { readDoor } from "../../shared/datapage/door";
 import { pageOf } from "../../shared/datapage/PageSheet";
@@ -228,11 +228,12 @@ function LifeSoFar({ view, draw, open = false, archetype = null }: { view: Playe
   );
 }
 
-/** The archetype kept beside the save for this life, with the age the front door set, unless the setting `prologue.full` asks for every card. */
+/** The archetype kept beside the save for this life, with the age and the home the front door set, unless the setting `prologue.full` asks for every card. */
 export function presetArchetype(): Archetype | null {
   if (fullPrologue()) return null;
   const archetype = archetypeOf(readPerson()?.archetype);
-  return archetype === null ? null : withAge(archetype, readDoor()?.age ?? 0);
+  const door = readDoor();
+  return archetype === null ? null : withHome(withAge(archetype, door?.age ?? 0), door?.home);
 }
 
 /**

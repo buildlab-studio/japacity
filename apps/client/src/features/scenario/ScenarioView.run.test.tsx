@@ -16,7 +16,8 @@ import { archetypeOf } from "../../shared/frontdoor/archetypes";
 import { problemWords } from "../../shared/datapage/name";
 import { LOOKS, lookOf, namesFor } from "../../shared/frontdoor/looks";
 import { askReadyLives } from "../../shared/frontdoor/ready";
-import { ARCHETYPES } from "../../shared/frontdoor/archetypes";
+import { ARCHETYPES, savingsOf } from "../../shared/frontdoor/archetypes";
+import { formatMoney } from "../../shared/words/format";
 import { say } from "../../shared/words/text";
 import { ScenarioView } from "./ScenarioView";
 // Registers Testing Library's cleanup for this file.
@@ -248,5 +249,34 @@ describe("the run through the front door", () => {
     expect(hook!.compareDocumentPosition(looks) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     fireEvent.click(next(say("ui.door.next")));
     expect(document.querySelector("[data-door-hook]")).toBeNull();
+  });
+
+  test("[R-PROLOGUE-013] given each tile, then under the age a row says where you live: the family house and Makoko, the right one chosen for the tile, each with what it costs a month and about what it leaves in the pocket after the first month from the tile's savings; a pick is kept for the page and Begin", () => {
+    door();
+    fireEvent.click(next(say("ui.door.next")));
+    const cost = { "family-house": 9500000, makoko: 2500000 } as const;
+    for (const tile of ARCHETYPES) {
+      fireEvent.click(screen.getByRole("radio", { name: say(`prologue.archetype.${tile.id}.name`) }));
+      const row = document.querySelector<HTMLElement>("[data-door-home]")!;
+      expect(document.querySelector("[data-door-age]")!.compareDocumentPosition(row) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+      const homes = [...row.querySelectorAll<HTMLElement>("[data-home]")];
+      expect(homes.map((home) => home.dataset["home"])).toEqual(["family-house", "makoko"]);
+      expect(homes.filter((home) => home.getAttribute("aria-checked") === "true").map((home) => home.dataset["home"])).toEqual([tile.id === "water" ? "makoko" : "family-house"]);
+      for (const home of homes) {
+        const id = home.dataset["home"] as keyof typeof cost;
+        expect(home.querySelector("[data-home-costs]")?.textContent).toBe(say("ui.door.home.costs", { amount: formatMoney(cost[id], "NGN") }));
+        expect(home.querySelector("[data-home-left]")?.textContent).toBe(say("ui.door.home.left", { amount: formatMoney(savingsOf(tile) - cost[id], "NGN") }));
+      }
+    }
+    expect(say("ui.door.home.tag.family-house")).toBe("Family around");
+    expect(say("ui.door.home.tag.makoko")).toBe("Hard start");
+    fireEvent.click(screen.getByRole("radio", { name: say("prologue.archetype.developer.name") }));
+    fireEvent.click(screen.getByRole("radio", { name: say("ui.door.home.makoko") }));
+    expect(JSON.parse(localStorage.getItem(DOOR_KEY) ?? "{}")).toMatchObject({ archetype: "developer", home: "makoko" });
+    // Another tile starts again in its own home.
+    fireEvent.click(screen.getByRole("radio", { name: say("prologue.archetype.water.name") }));
+    expect(JSON.parse(localStorage.getItem(DOOR_KEY) ?? "{}")).toMatchObject({ archetype: "water", home: "makoko" });
+    fireEvent.click(screen.getByRole("radio", { name: say("prologue.archetype.nurse.name") }));
+    expect(JSON.parse(localStorage.getItem(DOOR_KEY) ?? "{}")).toMatchObject({ archetype: "nurse", home: "family-house" });
   });
 });

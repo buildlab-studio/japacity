@@ -77,3 +77,20 @@ describe("the age set at the door", () => {
     expect(Math.floor(age / 12)).toBeLessThanOrEqual(26);
   }, 30000);
 });
+
+describe("the home picked at the door", () => {
+  test("[R-PROLOGUE-013] [R-PROLOGUE-010] given the developer's tile with Makoko picked under it, when the life is played, then the home step takes Makoko and the life closes in Makoko's room", async () => {
+    const store = bootGame({ storage: localStorage, fastClock: true, makeSeed: () => "run-makoko" });
+    render(<App store={store} />);
+    await toTheArchetypes();
+    fireEvent.click(await screen.findByRole("radio", { name: say("prologue.archetype.developer.name") }));
+    fireEvent.click(screen.getByRole("radio", { name: say("ui.door.home.makoko") }));
+    fireEvent.click(screen.getByRole("button", { name: new RegExp(`^${say("ui.door.next")}`) }));
+    fireEvent.click(screen.getByRole("button", { name: new RegExp(`^${say("ui.door.begin")}`) }));
+    expect(await throughTheYears(store)).toBe(false);
+    const raw = JSON.parse(localStorage.getItem(SAVE_KEY)!) as { save: Parameters<typeof savedCommands>[0] };
+    const chosen = savedCommands(raw.save).flatMap(({ command }) => (command.type === "prologue/choose" ? [command] : []));
+    expect(chosen.find((command) => command.step === "home")?.answer).toBe("makoko");
+    expect(store.getState().view?.home.place).toBe("place.makoko");
+  }, 30000);
+});
