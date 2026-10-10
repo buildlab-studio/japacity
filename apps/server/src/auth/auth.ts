@@ -47,7 +47,7 @@ export interface AuthNotice {
 export interface AuthKeys {
   /** Signs the session cookie. At least 32 random characters. */
   secret: string;
-  /** The game's own address, e.g. `https://japacity.com`; the passkeys' relying party is its host (R-ACCOUNT-003). */
+  /** The game's own address, `https://play.japacity.com`; the passkeys' relying party is its host (R-ACCOUNT-003). */
   siteUrl: string;
   google: { clientId: string; clientSecret: string };
   turnstile: TurnstileKeys;
