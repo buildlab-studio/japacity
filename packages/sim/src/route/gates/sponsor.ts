@@ -120,7 +120,8 @@ export function findSponsor(ctx: Ctx, route: Id<"route">): BaseEvent[] {
  * until the param offers known routes for this activity.
  */
 function findsThisTurn(ctx: Ctx, entry: RouteEntry): BaseEvent[] {
-  const finds = turnSlots(ctx).filter((pick) => pick.activity === FIND && pick.param === entry.id);
+  // R-ACTIVITY-015: the find is sent now and answered with the month, so the month's now-acts are read with its slots.
+  const finds = [...turnSlots(ctx), ...(ctx.state.activity.now ?? [])].filter((pick) => pick.activity === FIND && pick.param === entry.id);
   return finds.flatMap(() => findSponsor(ctx, entry.id));
 }
 

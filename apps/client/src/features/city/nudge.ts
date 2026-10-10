@@ -283,8 +283,13 @@ function nairaDues(view: NudgeView): number {
  * a paper on its way says when, a school applied to says when it answers, a hunt or a test planned
  * says to end the month, and funds short of the line say how much more to show. Null: not started.
  */
-function startedKey(view: NudgeView, own: string, stepKey: string, planned: readonly string[], has: (key: string) => boolean): { key: string; params?: Record<string, string | number> } | null {
+function startedKey(view: NudgeView, own: string, stepKey: string, plannedOnly: readonly string[], has: (key: string) => boolean): { key: string; params?: Record<string, string | number> } | null {
   const month = view.month ?? 0;
+  // An act done at once this month (R-ACTIVITY-015) waits on the month's end as a planned one does; the view marks it `done`.
+  const done = (view.activities ?? []).filter((option) => option.done).map((option) => option.id);
+  const planned: readonly string[] = [...plannedOnly, ...done];
+  // A now-act's "planned" words would read wrong once it is done: its own done words first, then the generic line.
+  const doneKey = (key: string): string | null => (has(`${key}.done`) ? `${key}.done` : has("ui.nudge.done-now") ? "ui.nudge.done-now" : null);
   const paper = STEP_PAPER[stepKey];
   if (paper !== undefined) {
     const held = view.documents?.find((document) => document.id === paper);
@@ -303,14 +308,23 @@ function startedKey(view: NudgeView, own: string, stepKey: string, planned: read
   const activity = STEP_ACTIVITY[stepKey];
   if (activity !== undefined) {
     // Planned this month: the step waits on the month's end, not on another tap.
+    if (done.includes(activity)) {
+      if (has(`${own}.started`)) return { key: `${own}.started` };
+      const key = doneKey(own);
+      if (key !== null) return { key };
+    }
     if (planned.includes(activity)) {
       if (has(`${own}.planned`)) return { key: `${own}.planned` };
       if (has(`${own}.started`)) return { key: `${own}.started` };
     }
-    // Another act that takes the step is planned: its own planned words where content has them.
+    // Another act that takes the step is planned or done: its own words where content has them.
     const also = (STEP_ACTIVITY_ALSO[stepKey] ?? []).find((other) => planned.includes(other));
     if (also !== undefined) {
       const short = also.replace(/^activity\./, "");
+      if (done.includes(also)) {
+        const key = doneKey(`${own}.${short}`) ?? doneKey(own);
+        if (key !== null) return { key };
+      }
       if (has(`${own}.planned.${short}`)) return { key: `${own}.planned.${short}` };
       if (has(`${own}.planned`)) return { key: `${own}.planned` };
     }

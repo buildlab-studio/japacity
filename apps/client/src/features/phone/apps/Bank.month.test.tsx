@@ -14,8 +14,8 @@ import { localCurrency } from "../../../shared/words/wayHome";
 import { PhoneApps } from "../PhoneApps";
 
 const LIFE = "ada-careful";
-/** The month end that sends the visa application, as the ninth review cut the recorded life. */
-const APPLICATION = 95;
+/** The visa application, sent at once (R-ACTIVITY-015), as the recorded life has it after the acts-now re-record. */
+const APPLICATION = 144;
 
 function lately(): string[] {
   return [...document.querySelectorAll("[data-money-lines] li")].map((row) => row.textContent ?? "");
@@ -24,7 +24,11 @@ function lately(): string[] {
 describe("Bank, Lately in the application month", () => {
   test("[R-WORLD-019] given ada-careful riding to the visa centre and sending the application, when Bank opens after the month, then Lately lists the results' money lines whole and in their order, the dollar salary and the fare among them", async () => {
     const save = recordedSave(LIFE);
-    const ending = save.commands[APPLICATION]?.command;
+    const applying = save.commands[APPLICATION]?.command;
+    if (applying?.type !== "activity/now" || applying.activity !== "activity.apply-for-visa") throw new Error("The application has moved in the recording.");
+    // The application opens the visa interview's questions, answered as recorded, then the month ends with its slots.
+    const endAt = save.commands.findIndex((entry, index) => index > APPLICATION && entry.command.type === "turn/end");
+    const ending = save.commands[endAt]?.command;
     if (ending?.type !== "turn/end") throw new Error("The application month's end has moved in the recording.");
     const game = recordedGame(LIFE, save.commands.length - APPLICATION);
     const store = createGameStore(gameAuthority(game));
@@ -32,13 +36,18 @@ describe("Bank, Lately in the application month", () => {
     await act(async () => {
       const ride = await store.getState().send({ type: "place/ride", from: "place.family-house", to: "place.visa-centre", way: "danfo" });
       if (ride?.ok !== true) throw new Error("The ride to the visa centre was refused.");
+      for (const { command } of save.commands.slice(APPLICATION, endAt)) {
+        const reply = await store.getState().send(command);
+        if (reply?.ok !== true) throw new Error(`${command.type} was refused.`);
+      }
       const end = await store.getState().send({ type: "turn/end", slots: ending.slots });
       if (end?.ok !== true) throw new Error("The month end was refused.");
     });
     const state = store.getState();
     const view = state.view;
     if (view?.report === null || view === null) throw new Error("No report.");
-    expect(view.report.lines.some((line) => line.key === "line.route.applied")).toBe(true);
+    // The application's line is said where it was sent, among the month's lines (R-ACTIVITY-015).
+    expect([...state.lastMonthLines, ...view.report.lines].some((line) => line.key === "line.route.applied")).toBe(true);
     const results = moneyLines([...state.lastMonthLines, ...view.report.lines], localCurrency(view) ?? "NGN").map(({ line }) => words(line.key, line.params));
     const salary = results.find((row) => row.startsWith("Salary") && row.includes("$"));
     const fare = results.find((row) => row.startsWith("Fare paid"));

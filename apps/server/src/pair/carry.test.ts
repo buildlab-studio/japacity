@@ -198,7 +198,8 @@ describe("the pair transaction", () => {
     await must(server, FRIEND, { type: "people/court", with: key });
     server.wait(4 * 3_600_000);
 
-    await must(server, INVITER, { type: "turn/end", slots: [{ activity: "activity.see-someone", param: null }] });
+    // seeing someone is an act done at once, sent as activity/now.
+    await must(server, INVITER, { type: "activity/now", activity: "activity.see-someone", param: null });
 
     const mine = await stateOf(server, a);
     const theirs = await stateOf(server, b);

@@ -1,3 +1,5 @@
+// a now-act (an application, a paper, a visit) is refused in a slot, so each probe that
+// sent one in a turn/end is sent as activity/now, and an application checked as applying is read in the month it is sent.
 import { fc, test } from "@fast-check/vitest";
 import { content } from "@japacity/content";
 import { describe, expect } from "vitest";
@@ -81,15 +83,20 @@ function toKnown(game: Game): void {
   expect(canada(game).state).toBe("known");
 }
 
-/** From a known route, the pool slot. Returns the turn's route lines. */
+/**
+ * From a known route, the pool entered and the month ended. Returns the route lines of both. Restated for
+ * R-ACTIVITY-015: entering the pool is an act done at once, so the profile is recorded in the month it is sent, and
+ * the turn sent with it in the slots is now sent as `activity/now`.
+ */
 function enterPool(game: Game): string[] {
   return routeKeys(game.endTurn([slot(ENTER_POOL)]).lines);
 }
 
 function toPool(game: Game): string[] {
   toKnown(game);
+  const sent = game.state.turn.month;
   const keys = enterPool(game);
-  expect(gate(game).poolMonth).toBe(game.state.turn.month);
+  expect(gate(game).poolMonth).toBe(sent);
   return keys;
 }
 
@@ -210,8 +217,9 @@ describe("the points gate", () => {
       const game = zainab();
       toKnown(game);
       expect(stepMet(game, "pool")).toBe(false);
+      const sent = game.state.turn.month;
       const keys = enterPool(game);
-      expect(gate(game)).toEqual({ poolMonth: game.state.turn.month, invitedMonth: null });
+      expect(gate(game)).toEqual({ poolMonth: sent, invitedMonth: null });
       expect(keys).toContain("line.route.pool-entered");
       expect(stepMet(game, "pool")).toBe(true);
       expect(game.view().routes.find((route) => route.id === CANADA)?.checklist.find((item) => item.id === "pool")?.met).toBe(true);
@@ -221,7 +229,7 @@ describe("the points gate", () => {
     test("[R-POINTS-002] given no credential assessment, when the pool slot is played, then the turn is rejected", () => {
       const game = zainab({ documents: READY_PAPERS });
       toKnown(game);
-      expect(game.expectRejected({ type: "turn/end", slots: [slot(ENTER_POOL)] }, "not-legal").code).toBe("not-legal");
+      expect(game.expectRejected({ type: "activity/now", activity: ENTER_POOL, param: null }, "not-legal").code).toBe("not-legal");
     });
 
     test.each([
@@ -231,7 +239,7 @@ describe("the points gate", () => {
       const papers = ECA_PAPERS.map((paper) => (paper.document === ENGLISH ? { ...paper, value: band } : paper));
       const game = zainab({ documents: papers });
       toKnown(game);
-      expect(game.send({ type: "turn/end", slots: [slot(ENTER_POOL)] }).ok).toBe(accepted);
+      expect(game.send({ type: "activity/now", activity: ENTER_POOL, param: null }).ok).toBe(accepted);
       expect(gate(game).poolMonth !== null).toBe(accepted);
     });
 
@@ -246,7 +254,7 @@ describe("the points gate", () => {
       const game = zainab({ change: (used) => ({ ...used, scenario: { ...used.scenario, [READY]: { ...used.scenario[READY]!, tenure: { [JOB]: months - played } } } }) });
       toKnown(game);
       expect(game.state.activity.tenure[JOB]).toBe(months);
-      expect(game.send({ type: "turn/end", slots: [slot(ENTER_POOL)] }).ok).toBe(accepted);
+      expect(game.send({ type: "activity/now", activity: ENTER_POOL, param: null }).ok).toBe(accepted);
       expect(gate(game).poolMonth !== null).toBe(accepted);
     });
 
@@ -255,13 +263,13 @@ describe("the points gate", () => {
       const game = zainab({ vars: () => (closed ? { [entry.window!]: 0 } : {}) });
       toKnown(game);
       closed = true;
-      expect(game.expectRejected({ type: "turn/end", slots: [slot(ENTER_POOL)] }, "not-legal").code).toBe("not-legal");
+      expect(game.expectRejected({ type: "activity/now", activity: ENTER_POOL, param: null }, "not-legal").code).toBe("not-legal");
     });
 
     test("[R-POINTS-002] given a live profile, when the pool slot is played again, then the turn is rejected", () => {
       const game = zainab();
       toPool(game);
-      expect(game.expectRejected({ type: "turn/end", slots: [slot(ENTER_POOL)] }, "not-legal").code).toBe("not-legal");
+      expect(game.expectRejected({ type: "activity/now", activity: ENTER_POOL, param: null }, "not-legal").code).toBe("not-legal");
     });
 
     test("[R-POINTS-002] given the funds read in Canadian cents, when the Canadian line is exactly what is shown, then the profile is recorded, and one cent more, then it is not", () => {
@@ -270,7 +278,7 @@ describe("the points gate", () => {
       toKnown(probe);
       // The slot is judged when the turn is accepted, so what is shown then is the line to pin.
       const { shown } = pointsFunds(readOf(probe), CANADA);
-      probe.expectRejected({ type: "turn/end", slots: [slot(ENTER_POOL)] }, "not-legal");
+      probe.expectRejected({ type: "activity/now", activity: ENTER_POOL, param: null }, "not-legal");
       expect(gate(probe).poolMonth).toBeNull();
       for (const [required, entered] of [
         [shown, true],
@@ -280,7 +288,7 @@ describe("the points gate", () => {
         toKnown(game);
         // The slot's own requirement reads the Canadian line, so a short file cannot even plan the slot.
         if (entered) enterPool(game);
-        else game.expectRejected({ type: "turn/end", slots: [slot(ENTER_POOL)] }, "not-legal");
+        else game.expectRejected({ type: "activity/now", activity: ENTER_POOL, param: null }, "not-legal");
         expect(gate(game).poolMonth !== null).toBe(entered);
       }
     });

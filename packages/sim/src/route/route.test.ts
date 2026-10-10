@@ -1,3 +1,5 @@
+// a now-act (an application, a paper, a visit) is refused in a slot, so each probe that
+// sent one in a turn/end is sent as activity/now, and an application checked as applying is read in the month it is sent.
 import { content, text } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
@@ -199,9 +201,10 @@ describe("hearing of a route and looking into it", () => {
   test("[R-ROUTE-002] given a meetup whose chance to hear is certain, when it is played, then the route is heard of via the meetup, after one draw on the offer stream", () => {
     const watch: Watch = { calls: 0, draws: {} };
     const game = life({ quiet: true, change: meetupChance(10000), kinds: watchHear(watch) });
-    const result = game.endTurn([slot("activity.meetup")]);
+    // the meetup is an act done at once, so the route is heard of in the month it is sent.
+    const result = game.accept({ type: "activity/now", activity: "activity.meetup", param: null });
     expect(uk(game).state).toBe("heard");
-    expect(uk(game).heardMonth).toBe(1);
+    expect(uk(game).heardMonth).toBe(0);
     expect(watch.draws).toEqual({ offer: 1 });
     expect(routeLines(result.lines)).toContainEqual({ key: "line.route.heard", params: { route: UK, via: "meetup" }, tone: "good", attention: false, counts: [] });
   });
@@ -258,8 +261,9 @@ describe("hearing of a route and looking into it", () => {
     const game = life({ quiet: true });
     for (let month = 0; month < 3; month += 1) game.endTurn();
     expect(game.view().routes[0]?.checklist).toEqual([]);
-    const result = game.endTurn([slot("activity.look-into-route", UK)]);
-    expect(uk(game)).toMatchObject({ state: "known", knownMonth: 4 });
+    // reading the official page is an act done at once, so the route is known in the month it is read.
+    const result = game.accept({ type: "activity/now", activity: "activity.look-into-route", param: UK });
+    expect(uk(game)).toMatchObject({ state: "known", knownMonth: 3 });
     expect(routeLines(result.lines)).toEqual([{ key: "line.route.looked-into", params: { route: UK }, tone: "good", attention: false, counts: [] }]);
     const view = game.view().routes[0]!;
     expect(view.checklist.map((item) => item.id)).toEqual(content.route[UK]!.checklist.map((item) => item.id));
@@ -296,11 +300,11 @@ describe("the window", () => {
     const game = life({ vars: () => ({ [WINDOW]: window }) });
     toOffer(game);
     window = 0;
-    game.expectRejected({ type: "turn/end", slots: [slot("activity.apply-to-school", ASHBY)] }, "not-legal");
+    game.expectRejected({ type: "activity/now", activity: "activity.apply-to-school", param: ASHBY }, "not-legal");
     game.accept({ type: "route/pay-deposit", route: UK, school: NORTHGATE });
     game.endTurn();
     expect(uk(game).funds.heldMonths).toBe(1);
-    game.expectRejected({ type: "turn/end", slots: [slot("activity.apply-for-visa")] }, "not-legal");
+    game.expectRejected({ type: "activity/now", activity: "activity.apply-for-visa", param: null }, "not-legal");
     window = 1;
     game.endTurn([slot("activity.apply-for-visa")]);
     expect(uk(game).state).toBe("applying");
@@ -336,37 +340,43 @@ describe("the window", () => {
 
 describe("schools", () => {
   test("[R-ROUTE-006] given a known route, when two schools are applied to in one month, then each answer is due after a wait drawn on the school stream between its two figures", () => {
+    // an application is sent at once and runs once a month, so the two schools are
+    // applied to in two lives on the same seed, each in the month it is sent, before the month ends.
     const seed = "seed-3";
-    const game = life({ seed });
-    toKnown(game);
-    const month = game.state.turn.month + 1;
-    const result = game.endTurn([slot("activity.apply-to-school", NORTHGATE), slot("activity.apply-to-school", ASHBY)]);
     const [low, high] = school(ASHBY).answerMonths;
     expect(school(NORTHGATE).answerMonths).toEqual([1, 1]);
-    expect(uk(game).schools[NORTHGATE]).toEqual({ state: "pending", readyMonth: month + 1, discount: 0 });
-    expect(uk(game).schools[ASHBY]).toEqual({ state: "pending", readyMonth: month + low + draw(seed, "school", 1, high - low + 1), discount: 0 });
-    expect(game.state.draws.school).toBe(2);
-    // Lines about other routes (a friend mentioning one) are not under test here.
-    expect(routeLines(result.lines).filter((line) => line.params.route === undefined || line.params.route === UK).map((line) => line.key)).toEqual(["line.route.school-applied", "line.route.school-applied"]);
+    for (const id of [NORTHGATE, ASHBY]) {
+      const game = life({ seed });
+      toKnown(game);
+      const month = game.state.turn.month;
+      const result = game.accept({ type: "activity/now", activity: "activity.apply-to-school", param: id });
+      const wait = id === NORTHGATE ? 1 : low + draw(seed, "school", 0, high - low + 1);
+      expect(uk(game).schools[id]).toEqual({ state: "pending", readyMonth: month + wait, discount: 0 });
+      expect(game.state.draws.school).toBe(1);
+      // Lines about other routes (a friend mentioning one) are not under test here.
+      expect(routeLines(result.lines).filter((line) => line.params.route === undefined || line.params.route === UK).map((line) => line.key)).toEqual(["line.route.school-applied"]);
+    }
   });
 
   test("[R-ROUTE-006] given a band exactly at a school's minimum, when it is applied to, then it is accepted; a step under, the turn is refused", () => {
     const at = life({ documents: READY_PAPERS.map((paper) => (paper.document === "document.english-test" ? { ...paper, value: school(ASHBY).minBand } : paper)) });
     toKnown(at);
-    at.endTurn([slot("activity.apply-to-school", ASHBY)]);
+    // the application is sent at once, and is pending in the month it is sent.
+    at.accept({ type: "activity/now", activity: "activity.apply-to-school", param: ASHBY });
     expect(uk(at).schools[ASHBY]?.state).toBe("pending");
     const under = life({ documents: READY_PAPERS.map((paper) => (paper.document === "document.english-test" ? { ...paper, value: school(ASHBY).minBand - 5 } : paper)) });
     toKnown(under);
-    under.expectRejected({ type: "turn/end", slots: [slot("activity.apply-to-school", ASHBY)] }, "not-legal");
-    under.endTurn([slot("activity.apply-to-school", NORTHGATE)]);
+    under.expectRejected({ type: "activity/now", activity: "activity.apply-to-school", param: ASHBY }, "not-legal");
+    under.accept({ type: "activity/now", activity: "activity.apply-to-school", param: NORTHGATE });
     expect(uk(under).schools[NORTHGATE]?.state).toBe("pending");
   });
 
   test("[R-ROUTE-006] given a grade under a school's minimum, when it is applied to, then the turn is refused; at the minimum, it is accepted", () => {
     const game = life({ qualities: { [GRADE]: school(ASHBY).minGrade - 1 } });
     toKnown(game);
-    game.expectRejected({ type: "turn/end", slots: [slot("activity.apply-to-school", ASHBY)] }, "not-legal");
-    game.endTurn([slot("activity.apply-to-school", NORTHGATE)]);
+    // the application is sent at once, and is pending in the month it is sent.
+    game.expectRejected({ type: "activity/now", activity: "activity.apply-to-school", param: ASHBY }, "not-legal");
+    game.accept({ type: "activity/now", activity: "activity.apply-to-school", param: NORTHGATE });
     expect(school(NORTHGATE).minGrade).toBe(school(ASHBY).minGrade - 1);
     expect(uk(game).schools[NORTHGATE]?.state).toBe("pending");
   });
@@ -374,11 +384,16 @@ describe("schools", () => {
   test("[R-ROUTE-006] given an application pending or an offer held, when the same school is applied to again, then the turn is refused", () => {
     const game = life();
     toKnown(game);
-    game.endTurn([slot("activity.apply-to-school", NORTHGATE)]);
-    game.expectRejected({ type: "turn/end", slots: [slot("activity.apply-to-school", NORTHGATE)] }, "not-legal");
+    // the application is sent at once and answered as the month ends; the school is not a
+    // param to pick while it is pending or holds an offer, the month after included, when the once-a-month cap is gone.
+    const params = () => game.view().activities.find((candidate) => candidate.id === "activity.apply-to-school")?.params ?? [];
+    game.accept({ type: "activity/now", activity: "activity.apply-to-school", param: NORTHGATE });
+    expect(uk(game).schools[NORTHGATE]?.state).toBe("pending");
+    expect(params()).not.toContain(NORTHGATE);
     game.endTurn();
     expect(uk(game).schools[NORTHGATE]?.state).toBe("offer");
-    game.expectRejected({ type: "turn/end", slots: [slot("activity.apply-to-school", NORTHGATE)] }, "not-legal");
+    expect(params()).not.toContain(NORTHGATE);
+    game.expectRejected({ type: "activity/now", activity: "activity.apply-to-school", param: NORTHGATE }, "not-legal");
   });
 
   test("[R-ROUTE-006] given Tunde refused by Northgate on seed-0, as the sweep found, when months pass, then the view names the month it will take him again, and six months after its answer it is offered and takes a new application", () => {
@@ -393,14 +408,15 @@ describe("schools", () => {
     let waited = 0;
     while (game.state.turn.month < from) {
       expect(option()).toMatchObject({ allowed: false, params: [], missing: [{ type: "month/min", value: from }] });
-      game.expectRejected({ type: "turn/end", slots: [slot("activity.apply-to-school", NORTHGATE)] }, "not-legal");
+      game.expectRejected({ type: "activity/now", activity: "activity.apply-to-school", param: NORTHGATE }, "not-legal");
       game.endTurn();
       waited += 1;
     }
     expect(waited).toBe(numbers.reapplyMonths);
     expect(option()).toMatchObject({ allowed: true, params: [NORTHGATE], missing: [] });
-    const month = game.state.turn.month + 1;
-    game.endTurn([slot("activity.apply-to-school", NORTHGATE)]);
+    // the new application is sent at once, so it is pending from the month it is sent.
+    const month = game.state.turn.month;
+    game.accept({ type: "activity/now", activity: "activity.apply-to-school", param: NORTHGATE });
     expect(uk(game).schools[NORTHGATE]).toEqual({ state: "pending", readyMonth: month + 1, discount: 0 });
   });
 
@@ -419,7 +435,8 @@ describe("schools", () => {
     const seed = seedWhere((candidate) => draw(candidate, "school", 0, 2) === 1);
     const game = life({ seed });
     toKnown(game);
-    game.endTurn([slot("activity.apply-to-school", ASHBY)]);
+    // the application is sent at once; its wait runs from the month it is sent.
+    game.accept({ type: "activity/now", activity: "activity.apply-to-school", param: ASHBY });
     const due = uk(game).schools[ASHBY]!.readyMonth;
     expect(due).toBe(game.state.turn.month + 2);
     game.endTurn();
@@ -427,7 +444,8 @@ describe("schools", () => {
     const result = game.endTurn();
     expect(game.state.turn.month).toBe(due);
     expect(uk(game).schools[ASHBY]?.state).not.toBe("pending");
-    expect(routeLines(result.lines).every((line) => line.attention)).toBe(true);
+    // Lines about other routes (a friend mentioning one, which the earlier application moved into this month) are not under test here.
+    expect(routeLines(result.lines).filter((line) => line.params.route === undefined || line.params.route === UK).every((line) => line.attention)).toBe(true);
   });
 
   test("[R-ROUTE-007] given several seeds, when Northgate answers a second upper, then it offers exactly when the school draw falls under its chance, with the automatic discount", () => {
@@ -690,7 +708,7 @@ describe("the visa application", () => {
     const game = life();
     toDeposit(game);
     expect(judge(game, { type: "route/funds", route: UK, heldMonths: 1 }).met).toBe(false);
-    game.expectRejected({ type: "turn/end", slots: [slot("activity.apply-for-visa")] }, "not-legal");
+    game.expectRejected({ type: "activity/now", activity: "activity.apply-for-visa", param: null }, "not-legal");
     game.endTurn();
     expect(judge(game, { type: "route/funds", route: UK, heldMonths: 1 }).met).toBe(true);
     const before = game.state.wallet.pockets.GBP.bank;
@@ -774,7 +792,7 @@ describe("the visa application", () => {
       expect(option.allowed).toBe(false);
       expect(option.missing).toEqual([missing]);
       const before = uk(game).state;
-      game.expectRejected({ type: "turn/end", slots: [slot(VISA)] }, "not-legal");
+      game.expectRejected({ type: "activity/now", activity: VISA, param: null }, "not-legal");
       expect(uk(game).state).toBe(before);
     });
   });
@@ -782,7 +800,7 @@ describe("the visa application", () => {
   test("[R-ROUTE-012] given no TB certificate, when the visa is applied for, then it is refused", () => {
     const game = life({ documents: READY_PAPERS.filter((paper) => paper.document !== TB) });
     toHeld(game);
-    game.expectRejected({ type: "turn/end", slots: [slot("activity.apply-for-visa")] }, "not-legal");
+    game.expectRejected({ type: "activity/now", activity: "activity.apply-for-visa", param: null }, "not-legal");
     expect(judge(game, { type: "route/funds", route: UK, heldMonths: 1 }).met).toBe(true);
     expect(uk(game).state).toBe("known");
   });
@@ -1149,7 +1167,8 @@ describe("the first meetup", () => {
     expect(care).toBeGreaterThanOrEqual(30);
     for (let n = 0; n < 12; n += 1) {
       const game = firstMeetup("scenario.ngozi", `care-${String(n)}`);
-      expect(game.state.route["route.uk-care"]).toMatchObject({ state: "heard", heardMonth: 1 });
+      // the meetup is an act done at once, so the route is heard of in the month it is sent.
+      expect(game.state.route["route.uk-care"]).toMatchObject({ state: "heard", heardMonth: 0 });
     }
   });
 

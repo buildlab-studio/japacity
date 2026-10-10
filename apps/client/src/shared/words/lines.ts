@@ -267,7 +267,8 @@ export function tidyLines(lines: readonly ReportLine[]): ReportLine[] {
   return oneGoalLine(jobEndsWithFlight(upkeepMoved(oneEndorsementStory(savedBefore(dropRetold(paperFee(activityPaid(paidAs(paidFor(foldPockets(lines))))))))))).map(variant).map(remitLanded).map(goalFirst);
 }
 
-const PLAYED = "line.activity.played";
+/** A slot played, and a now-act done at once (R-ACTIVITY-015): each comes just before the money it spent. */
+const PLAYED: ReadonlySet<string> = new Set(["line.activity.played", "line.activity.played-now"]);
 
 /**
  * Money an activity spent, said as that activity where the interface has words for it: the meetup's
@@ -277,7 +278,7 @@ const PLAYED = "line.activity.played";
 function activityPaid(lines: readonly ReportLine[]): ReportLine[] {
   return lines.map((line, index) => {
     const before = lines[index - 1];
-    const activity = before?.key === PLAYED ? before.params.activity : undefined;
+    const activity = before !== undefined && PLAYED.has(before.key) ? before.params.activity : undefined;
     if (!line.key.startsWith(WALLET) || line.tone !== "bad" || typeof activity !== "string") return line;
     const key = `${ACTIVITY_PAID}${activity}`;
     return hasWords(key) ? { ...line, key } : line;

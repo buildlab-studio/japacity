@@ -1,4 +1,6 @@
 // The lotto kiosk and the bet slip: docs/rules/luck.md R-LUCK-005, 006 and 008.
+// a now-act (an application, a paper, a visit) is refused in a slot, so each probe that
+// sent one in a turn/end is sent as activity/now, and an application checked as applying is read in the month it is sent.
 import { content } from "@japacity/content";
 import { fc, test } from "@fast-check/vitest";
 import { describe, expect } from "vitest";
@@ -47,7 +49,7 @@ describe("the lotto kiosk", () => {
     expect(luck.maxTickets).toBe(5);
     const game = ada();
     expect(game.view().activities.find((option) => option.id === LOTTO)).toMatchObject({ allowed: true, params: ["1", "2", "3", "4", "5"], cost: [{ currency: "NGN", amount: luck.ticket }] });
-    for (const bad of ["0", "6", "two", null]) game.expectRejected({ type: "turn/end", slots: [slot(LOTTO, bad)] }, "not-legal");
+    for (const bad of ["0", "6", "two", null]) game.expectRejected({ type: "activity/now", activity: LOTTO, param: bad }, "not-legal");
     game.endTurn([slot(LOTTO, String(luck.maxTickets))]);
   });
 
@@ -118,8 +120,8 @@ describe("the lotto kiosk", () => {
   test("[R-LUCK-005] [R-PLACE-003] given a life abroad, when the kiosk is asked for, then it is not legal there", () => {
     const game = ada();
     applyEffects(game, [{ type: "place/move", to: "abroad", country: "country.uk" }]);
-    expect(game.expectRejected({ type: "turn/end", slots: [slot(LOTTO, "1")] }, "not-legal").code).toBe("not-legal");
-    expect(game.expectRejected({ type: "turn/end", slots: [slot(BET)] }, "not-legal").code).toBe("not-legal");
+    expect(game.expectRejected({ type: "activity/now", activity: LOTTO, param: "1" }, "not-legal").code).toBe("not-legal");
+    expect(game.expectRejected({ type: "activity/now", activity: BET, param: null }, "not-legal").code).toBe("not-legal");
   });
 });
 

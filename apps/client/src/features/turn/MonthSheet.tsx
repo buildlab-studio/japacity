@@ -5,11 +5,13 @@
 // holds this.
 import type { PlayerView, SlotLock, SlotPick } from "@japacity/sim";
 import { Briefcase, Repeat, X, Lock } from "lucide-react";
+import { useEffect } from "react";
 
 import { useGame, useGameStoreIfAny, useView } from "../../authority/GameProvider";
 import { slotted, slotsUsed, takesSlot } from "../../authority/store";
 import { cue } from "../../shared/sound/cues";
 import { Rejection } from "../../shared/ui/Rejection";
+import { answersNow } from "../../shared/words/acts";
 import { workingPlanned } from "../../shared/words/count";
 import { lockWords } from "../../shared/words/locks";
 import { hasWords, nameOf, paramWords, say } from "../../shared/words/text";
@@ -80,6 +82,14 @@ export function MonthSheet() {
   const shut = busy || blocked !== null;
   // R-WORLD-030: the plan that stretches the character is said before the page turns.
   const stretched = stretchedWords(view, plan);
+  // R-ACTIVITY-015: the sheet lists only what takes the month. An act done at once, kept from a plan made before it
+  // answered in the place, is taken out, last first so the rows before it keep their places.
+  useEffect(() => {
+    for (let index = plan.length - 1; index >= 0; index -= 1) {
+      const pick = plan[index];
+      if (pick !== null && pick !== undefined && answersNow(pick.activity)) setSlot(index, null);
+    }
+  }, [plan, setSlot]);
   const endButton = (main: boolean) => (
     <button
       key="end"
@@ -141,7 +151,7 @@ export function MonthSheet() {
       {plan.length === 0 ? null : (
         <ol className="flex flex-col gap-1.5" aria-label={turnWords("turn.month.title")} data-month-plan>
           {plan.map((pick, index) =>
-            pick === null ? (
+            pick !== null && answersNow(pick.activity) ? null : pick === null ? (
               <li key={`free-${String(index)}`} className="flex min-h-11 items-center rounded-[5px] border-2 border-dashed border-sheet-line px-3 text-[14px] text-text-2" data-slot="free">
                 {turnWords("turn.month.free")}
               </li>

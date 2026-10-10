@@ -7,6 +7,7 @@ import { activityTable } from "./activity/activity.data";
 import { advertTable } from "./advert/advert.data";
 import { advertText } from "./advert/advert.text";
 import { activityText } from "./activity/activity.text";
+import { withWhen } from "./activity/activity.when.data";
 import { adviceActivityTable, adviceOfferTable } from "./advice/advice.data";
 import { adviceText } from "./advice/advice.text";
 import { counterTable } from "./analytics/analytics.data";
@@ -99,7 +100,7 @@ export const content: Content = {
   version: "m0.1",
   quality: qualityTable,
   // advice.md: the friend, the adviser and the agents.
-  activity: { ...activityTable, ...adviceActivityTable },
+  activity: withWhen({ ...activityTable, ...adviceActivityTable }),
   document: documentTable,
   school: schoolTable,
   route: routeTable,

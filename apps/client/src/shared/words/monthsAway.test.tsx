@@ -2,7 +2,7 @@
 // simulation stamps into a report line reads as months away from the month in hand, which the
 // game store keeps beside the words while a game is on screen.
 import { text } from "@japacity/content";
-import { fireEvent } from "@testing-library/react";
+import { act, fireEvent } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "vitest";
 
 import { PhoneApps } from "../../features/phone/PhoneApps";
@@ -52,12 +52,16 @@ describe("months away in the words", () => {
     localStorage.clear();
     reloadSeen();
     const game = newGame("scenario.ada");
-    const { lines } = game.endTurn([{ activity: "activity.get-passport", param: null }]);
-    const requested = lines.find((line) => line.key === "line.document.requested");
+    // the passport is asked for at once; its lines are the month's mid-month lines, which
+    // the store hands News with the month's report once the month ends.
+    const asked = game.accept({ type: "activity/now", activity: "activity.get-passport", param: null }).lines;
+    game.endTurn();
+    const requested = asked.find((line) => line.key === "line.document.requested");
     const ready = requested?.params.month;
     if (typeof ready !== "number") throw new Error("The passport was not requested.");
     const view = game.view();
-    await renderWithView(<PhoneApps onClose={() => undefined} area="Ojuelegba" now={() => new Date(2026, 9, 8, 12, 5)} talk={null} />, view);
+    const { store } = await renderWithView(<PhoneApps onClose={() => undefined} area="Ojuelegba" now={() => new Date(2026, 9, 8, 12, 5)} talk={null} />, view);
+    act(() => store.setState({ lastMonthLines: asked }));
     expect(nowMonth()).toBe(view.month);
     fireEvent.click(document.querySelector<HTMLElement>('[data-app="news"]')!);
     const report = document.querySelector("[data-report]");

@@ -259,6 +259,29 @@ function option(view: PlayerView, id: string) {
   return view.activities.find((item) => item.id === id);
 }
 
+/** R-ACTIVITY-015: a now-act is sent at once and fills no slot of the month. */
+function takesMonth(view: PlayerView, id: string): boolean {
+  return option(view, id)?.when !== "now";
+}
+
+/**
+ * The room this player gives the month's picks: its free slots, less the now-acts already done this month. A now-act
+ * fills no slot (R-ACTIVITY-015), but this player still spends the month's time on as many things as before.
+ */
+function monthRoom(view: PlayerView): number {
+  return Math.max(0, view.freeSlots - view.activities.filter((item) => item.when === "now" && item.done).length);
+}
+
+/**
+ * The month as commands (R-ACTIVITY-015): each now-act in the plan sent first as `activity/now`, then the month's end
+ * with the picks that fill a slot. The run sends the first command accepted and asks again, and a now-act done this
+ * month is no longer allowed, so the plan drops it the next time round.
+ */
+function monthCommands(view: PlayerView, picks: readonly SlotPick[]): Loose[] {
+  const now: Loose[] = picks.filter((pick) => !takesMonth(view, pick.activity)).map((pick) => ({ type: "activity/now", activity: pick.activity, param: pick.param }));
+  return [...now, { type: "turn/end", slots: picks.filter((pick) => takesMonth(view, pick.activity)) }];
+}
+
 function playable(view: PlayerView, id: string): boolean {
   const found = option(view, id);
   return found !== undefined && found.allowed && found.affordable;
@@ -364,6 +387,8 @@ function studyOn(view: PlayerView, habits: Habits): boolean {
   if (!habits.prefersSettling) return true;
   // Once money is down on the study route it is seen through.
   if (uk.school !== null || uk.state === "applying" || uk.state === "granted") return true;
+  // R-ACTIVITY-015: the family meeting is held at once, so the pledge comes sooner; given on an offer held, it is money down too.
+  if (uk.schools.some((school) => school.state === "offer") && quality(view, "quality.family-stake") > 0) return true;
   return !settlingRouteInReach(view, habits);
 }
 
@@ -619,7 +644,7 @@ function otherRoutePicks(view: PlayerView, habits: Habits): SlotPick[] {
 
 function slotPlan(view: PlayerView, content: Content, habits: Habits): SlotPick[] {
   const picks: SlotPick[] = [];
-  const room = view.freeSlots;
+  const room = monthRoom(view);
   const add = (activity: string, param: string | null = null): void => {
     if (picks.length < room) picks.push({ activity: activity as Id<"activity">, param });
   };
@@ -834,7 +859,7 @@ function bestAbroadJob(view: PlayerView, content: Content): string | null {
 
 function abroadSlots(view: PlayerView, content: Content, habits: Habits, currency: ForeignCurrency): SlotPick[] {
   const picks: SlotPick[] = [];
-  const room = view.freeSlots;
+  const room = monthRoom(view);
   const add = (activity: string, param: string | null = null): void => {
     if (picks.length < room && !picks.some((pick) => pick.activity === activity && activity !== "activity.rest")) {
       picks.push({ activity: activity as Id<"activity">, param });
@@ -977,7 +1002,7 @@ function abroadCommands(view: PlayerView, content: Content, habits: Habits): Loo
   if (habits.keepsFareOnly) commands.push(...spendSavings(view));
   if (currency !== null) commands.push(...abroadMoney(view, content, habits, currency));
   if (view.turns.banked > 0) {
-    commands.push({ type: "turn/end", slots: currency === null ? [] : abroadSlots(view, content, habits, currency) });
+    commands.push(...monthCommands(view, currency === null ? [] : abroadSlots(view, content, habits, currency)));
     commands.push({ type: "turn/end", slots: [] });
   }
   return commands;
@@ -1000,7 +1025,7 @@ export function strategyOf(name: StrategyName): Strategy {
     }
     const commands = [...(habits.leaves ? cashForTerms(view, habits) : []), ...offerCommands(view, content, habits), ...moneyCommands(view, content, habits)];
     if (view.turns.banked > 0) {
-      commands.push({ type: "turn/end", slots: slotPlan(view, content, habits) });
+      commands.push(...monthCommands(view, slotPlan(view, content, habits)));
       commands.push({ type: "turn/end", slots: [] });
     }
     return commands;
