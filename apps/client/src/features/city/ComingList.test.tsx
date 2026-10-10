@@ -13,8 +13,10 @@ import "../../shared/testing/render";
 
 describe("Coming up", () => {
   test("[R-TEXT-008] [R-WORLD-002] given a paper on its way and a birthday ahead, when Coming up opens, then each row's box says the months once, the line beside it never repeats them, and the paper carries its few-word note", () => {
-    // Tunde's recorded life with the work medical on its way.
-    const view = recordedGame("tunde-borrower", lifeSaves["tunde-borrower"]!.commands.length - 86).view();
+    // Tunde's recorded life at the latest point with a paper on its way (the work medical), found from the end back.
+    const commands = lifeSaves["tunde-borrower"]!.commands.length;
+    let view = recordedGame("tunde-borrower", commands - 1).view();
+    for (let back = 2; back < commands && !comingOf(view).some((item) => item.kind === "paper"); back += 1) view = recordedGame("tunde-borrower", commands - back).view();
     const coming = comingOf(view);
     expect(coming.some((item) => item.kind === "paper")).toBe(true);
     const { container } = render(<ComingList view={view} />);

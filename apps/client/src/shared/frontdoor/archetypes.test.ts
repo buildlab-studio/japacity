@@ -315,13 +315,14 @@ function nairaHeld(game: Game): number {
 }
 
 /**
- * One month of a life going up: a hunt for the desk job its schooling allows while it has none, the job taken when
+ * One month of a life going up: a hunt for the desk job its schooling allows until it holds it, the job taken when
  * offered, and the home's asks answered as the way up answers them (taken in by someone, then back to the water).
  * Returns true when the settlement was cleared this month.
  */
 function upMonth(game: Game, hunt: boolean): boolean {
   if (game.state.turn.banked < 1) game.grant(content.tuning.turn.cap);
-  const slots = hunt && game.view().job.id === null ? [{ activity: "activity.job-hunt" as const, param: DESK_JOB }] : [];
+  // The hunt goes on while a lesser job is held (the sure first hunt may land the racks, R-GUIDE-014), as the better-job nudge tells a player.
+  const slots = hunt && game.view().job.id !== DESK_JOB ? [{ activity: "activity.job-hunt" as const, param: DESK_JOB }] : [];
   const result = game.endTurn(slots);
   for (const offer of game.view().offers) {
     const pick = (choice: string) => game.accept({ type: "offer/choose", offer: offer.id, choice });

@@ -22,7 +22,7 @@ describe("the lives recorded after the goldens", () => {
   });
 
   test.each(recorded.map((script) => [script.name, script] as const))(
-    "[R-ENGINE-001] [R-ENGINE-010] given %s, when its save is replayed twice through the real content, then every command is accepted and sent by the player, both replays agree month by month, and the save ends on a flight within the recorder's window",
+    "[R-ENGINE-001] [R-ENGINE-010] given %s, when its save is replayed twice through the real content, then every command is accepted and sent by the player (the authority only granting turns), both replays agree month by month, and the save ends on a flight within the recorder's window",
     (_name, script) => {
       const worldAt = (tick: number) => standInWorld(lifeStart(script.save)!.worldSeed, tick, content);
       const first = measure(script.save, content, worldAt);
@@ -37,7 +37,8 @@ describe("the lives recorded after the goldens", () => {
       expect(state.chapter.done).toEqual(expect.arrayContaining(["chapter.find-your-feet", "chapter.build-the-file"]));
 
       const saved = savedCommands(script.save);
-      expect(new Set(saved.map((entry) => entry.sender))).toEqual(new Set(["player"]));
+      // The player sends everything but the turns the authority grants when the bank runs dry over a long life, as the abroad recordings carry them.
+      expect(new Set(saved.filter((entry) => entry.sender !== "player").map((entry) => entry.command.type))).toEqual(new Set(saved.some((entry) => entry.sender !== "player") ? ["turns/grant"] : []));
       expect(saved[saved.length - 1]?.command).toEqual(expect.objectContaining({ type: "route/depart", route: "route.uk-masters" }));
       const types = new Set(saved.map((entry) => entry.command.type));
       expect([...types]).toEqual(expect.arrayContaining(["route/pay-deposit", "setpiece/answer", "route/depart"]));

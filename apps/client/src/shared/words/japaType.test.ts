@@ -110,16 +110,17 @@ describe("the japa type, read at the send-off", () => {
     }
   });
 
-  test("[R-SHARE-001] given the recorded lives at their send-off, when the type is read, then Aniekan is the long way round (a refusal), Ada the hustler, Tunde the night reader and Zainab the long way round (a return)", () => {
+  test("[R-SHARE-001] given the recorded lives at their send-off, when the type is read, then Aniekan is the long way round (a refusal), Ada the hustler, Tunde the family anchor and Zainab the long way round (a return)", () => {
     // The lives as re-recorded on 10 Oct 2026 for decision 0022. Ada's is a new life (seed golden-ada-1, the first from
-    // seed 1 that flies in the window): her standing ends at 83 with no family act among the things done most, so she is
-    // not the family anchor, and she kept 12 of her 24 months, under two thirds, so she is not the careful saver either.
+    // seed 1 that flies in the window): her standing ends at 84 with no family act among the things done most, so she is
+    // not the family anchor, and she kept 13 of her 24 months (re-recorded 10 Oct 2026 with the sure first hunt, R-GUIDE-014), under two thirds, so she is not the careful saver either.
     expect(japaTypeOf(sendOff("aniekan-borrower"))).toBe("long-way-round");
     const ada = sendOff("ada-careful");
-    expect(ada.card).toMatchObject({ months: 24, standing: 83 });
-    expect(ada.keptMonths).toBe(12);
+    expect(ada.card).toMatchObject({ months: 24, standing: 84 });
+    expect(ada.keptMonths).toBe(13);
     expect(japaTypeOf(ada)).toBe("hustler");
-    expect(japaTypeOf(sendOff("tunde-borrower"))).toBe("night-reader");
+    // Tunde re-recorded on 10 Oct 2026 with the sure first hunt (seed golden-tunde-108): pay from his first month leaves the family's asks answered, so he reads as the family anchor, on this seed and the one before it.
+    expect(japaTypeOf(sendOff("tunde-borrower"))).toBe("family-anchor");
     expect(japaTypeOf(sendOff("zainab-remote"))).toBe("long-way-round");
   });
 

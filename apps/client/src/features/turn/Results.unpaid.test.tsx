@@ -95,8 +95,10 @@ describe("money that was not paid", () => {
 
 describe("a hunt's answer on the results", () => {
   test("[R-WORLD-008] given a hunt that found nothing, when the results show, then it says the job and not this time, among the story lines", async () => {
-    // On this seed the first hunt for a junior developer finds nothing, as asked for.
+    // On this seed the first draw for a junior developer finds nothing, as asked for; the hunt is past the
+    // sure first months (R-GUIDE-014), so the draw stands.
     const game = newGame("scenario.ada");
+    for (let month = 0; month < 3; month += 1) game.endTurn([]);
     const { lines } = game.endTurn([slot("activity.job-hunt", "activity.job-junior-dev")]);
     expect(lines.some((line) => line.key === "line.activity.hunt-missed")).toBe(true);
     await showResults(game, lines);

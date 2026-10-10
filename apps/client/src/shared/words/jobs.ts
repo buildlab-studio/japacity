@@ -16,7 +16,7 @@ export const jobsUiText: Record<string, string> = {
   "jobs.chance.certain": "As good as certain",
   "jobs.chance.likely": "Likely",
   "jobs.chance.fair": "A fair chance",
-  "jobs.sure-first": "Your first hunt lands a job for sure: this one, or the lowest paid you can take.",
+  "jobs.sure-first": "Your first hunt lands a job for sure: this one, or the smallest that pays your month.",
   "jobs.chance.long": "A long shot",
   "jobs.out-of-reach": "Not open to you yet",
   "jobs.needs": "Needs: {needs}",

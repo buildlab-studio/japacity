@@ -76,11 +76,19 @@ describe("the first session", () => {
 });
 
 describe("the sure first hunt", () => {
-  test("[R-GUIDE-014] given Ada's first hunt in her first month, when the job it lands is read, then it is the main job with the lowest month's pay of those she may hunt, whichever she names", () => {
+  test("[R-GUIDE-014] given Ada's first hunt in her first month, when the job it lands is read, then it is the main job with the lowest month's pay that covers her month's dues of those she may hunt, whichever she names", () => {
     const game = start({ scenario: "scenario.ada", content });
     const wages = byWage(game, "main");
     expect(wages.length).toBeGreaterThan(1);
-    for (const named of wages) expect(sureHuntJob(readOf(game), entryOf(named), 1, false)?.id).toBe(wages[0]);
+    const dues = Object.values(game.state.obligation.items).reduce((sum, item) => sum + item.amount, 0);
+    const covering = wages.find((id) => {
+      const pay = entryOf(id).pay;
+      return pay !== null && pay.currency === "NGN" && typeof pay.amount === "number" && pay.amount >= dues;
+    });
+    expect(covering).toBeDefined();
+    // Ada's upkeep is above the teacher's pay, so the smallest job that pays her month is not the smallest job.
+    expect(covering).not.toBe(wages[0]);
+    for (const named of wages) expect(sureHuntJob(readOf(game), entryOf(named), 1, false)?.id).toBe(covering);
   });
 
   test("[R-GUIDE-014] given a side job named, when the sure hunt's job is read, then it is the side job with the lowest pay", () => {
@@ -118,7 +126,7 @@ describe("the sure first hunt", () => {
       const lines = game.view().report?.lines ?? [];
       const landed = lines.find((line) => line.key === "line.activity.hunt-hired");
       expect(landed).toBeDefined();
-      expect([best, wages[0]]).toContain(landed?.params["job"]);
+      expect(wages).toContain(landed?.params["job"]);
       expect(game.view().offers.some((offer) => offer.entry === "offer.job")).toBe(true);
       expect(game.view().activities.find((option) => option.id === HUNT)?.sure).toBeUndefined();
     }

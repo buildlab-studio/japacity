@@ -1005,28 +1005,40 @@ function slots(ctx: Ctx): BaseEvent[] {
 // Effects
 // ---------------------------------------------------------------------------
 
+/** The naira the life owes a month: every open obligation charged in naira (upkeep, rent, support, a loan's instalment). */
+function nairaDues(read: ReadCtx): number {
+  return Object.values(read.state.obligation.items).reduce((sum, item) => {
+    const entry = read.content.obligation[item.entry];
+    return entry !== undefined && entry.currency === "NGN" && item.state !== "defaulted" ? sum + item.amount : sum;
+  }, 0);
+}
+
 /**
  * R-GUIDE-014 as amended: the job a life's first hunt lands, in its first
  * three months, when the draw misses. `month` is the month being played. Null
  * when the hunt is not that one: a month past the third, a month before with a hunt in it, or a hunt earlier in
  * this month. The job is the lowest month's pay, valued in naira at the
  * official rate, of the jobs that may be hunted now in the same slot as the
- * one named, then by id; the named job when none reads a pay.
+ * one named, among those whose pay covers the naira the life owes a month, else of them all; then by id;
+ * the named job when none reads a pay.
  */
 export function sureHuntJob(read: ReadCtx, named: ActivityEntry, month: number, huntedThisMonth: boolean): ActivityEntry | null {
   if (huntedThisMonth || month > SURE_HUNT_MONTHS) return null;
   const hunts = Object.values(read.content.activity).filter((entry) => entry.effects.some((effect) => effect.type === "activity/hunt"));
   if (hunts.some((entry) => (read.state.activity.played[entry.id] ?? 0) > 0)) return null;
   const rates = officialRates(read.world);
+  const dues = nairaDues(read);
   let best: { entry: ActivityEntry; kobo: number } | null = null;
+  let covering: { entry: ActivityEntry; kobo: number } | null = null;
   for (const id of huntableJobs(read, (requirement) => check(read, requirement))) {
     const entry = jobEntry(read.content, id);
     const pay = entry.slot === named.slot ? monthlyPay(read, entry) : null;
     if (pay === null) continue;
     const kobo = valueInKobo(pay.amount, pay.currency, rates);
     if (best === null || kobo < best.kobo || (kobo === best.kobo && entry.id < best.entry.id)) best = { entry, kobo };
+    if (named.slot === "main" && kobo >= dues && (covering === null || kobo < covering.kobo || (kobo === covering.kobo && entry.id < covering.entry.id))) covering = { entry, kobo };
   }
-  return best?.entry ?? named;
+  return covering?.entry ?? best?.entry ?? named;
 }
 
 /** True while this life's next hunt is its sure first one (R-GUIDE-014): the first three months, no hunt before, none earlier this month. */
