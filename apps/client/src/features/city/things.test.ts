@@ -145,6 +145,23 @@ describe("a seat", () => {
   });
 });
 
+describe("lying on a thing", () => {
+  // The bed's mattress is 0.40 to 0.60 m with the wrapper over its foot to 0.64 and the pillow to 0.72; the couch's
+  // cushions are at 0.48 (assets-src/prop/furniture.ts). The figure lay at a fixed 0.5, inside the mattress.
+  test("[R-WORLD-005] given every bed and the couch, when its rest act is read, then it names the top it is lain on, the bed's on its mattress and under its pillow's top, and the bed's head toward its pillow", () => {
+    const lain = builtPlaces().flatMap(({ folder, file }) => (stageOf(file).things ?? []).flatMap((thing) => thing.acts.filter((act) => act.pose === "lie").map((act) => ({ folder, thing, act }))));
+    const beds = lain.filter(({ thing }) => thing.file.endsWith("prop_bed.glb"));
+    expect(beds.map(({ folder }) => folder).sort()).toEqual(["compound-room", "family-house-parlour", "the-room"]);
+    // The pillow is at the bed's -z end and the head goes toward the seat's facing.
+    for (const { folder, act } of beds) {
+      const top = act.top ?? 0;
+      expect({ folder, onMattress: top >= 0.6 && top < 0.72, headToPillow: Math.cos(act.seat?.[2] ?? 0) < -0.99 }).toEqual({ folder, onMattress: true, headToPillow: true });
+    }
+    const couch = lain.find(({ thing }) => thing.file.endsWith("prop_sofa.glb"));
+    expect(couch?.act.top).toBe(0.48);
+  });
+});
+
 describe("the things of the built places", () => {
   test("[R-WORLD-005] given every built place, when its things and acts are read, then each label has words and no thing offers more than two acts", () => {
     const files = builtPlaces().filter(({ file }) => stageOf(file).things !== undefined);

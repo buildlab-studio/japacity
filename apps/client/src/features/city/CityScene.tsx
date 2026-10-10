@@ -9,7 +9,7 @@
 import { onWalkable } from "@japacity/assets";
 import { Canvas, type ThreeEvent, useFrame, useThree } from "@react-three/fiber";
 import { type MutableRefObject, type ReactNode, useEffect, useMemo, useRef, useState } from "react";
-import { type Camera, type DirectionalLight, Fog, type Object3D, PerspectiveCamera, Vector3 } from "three";
+import { Box3, type Camera, type DirectionalLight, Fog, type Object3D, PerspectiveCamera, Vector3 } from "three";
 
 import { keptStyleOf } from "../../authority/person";
 import { wear } from "../../shared/frontdoor/colours";
@@ -49,8 +49,10 @@ const PINCH_PX = 260;
 const EASE = 7;
 /** How close to the screen's edge a label or a chip may stand. */
 const EDGE_MARGIN = 8;
-/** How high the character lies on a bed or a couch, about the mattress's top. */
+/** How high the character lies when the act names no top to lie on (`Act.top`): about a mattress's top. */
 const LIE_Y = 0.5;
+/** The back's depth behind a figure's middle when the figure cannot be measured. */
+const BACK_DEPTH = 0.12;
 /** The length of the lying body, feet to head, so it is centred on the seat. */
 const LIE_LENGTH = 1.6;
 /** A label, and a thing's acts, float this high over the thing's spot. */
@@ -59,6 +61,22 @@ const LABEL_Y = 2.6;
 const SHADOW_MARGIN = 4;
 const SHADOW_BIAS = -0.0005;
 const SHADOW_NORMAL_BIAS = 0.04;
+
+/** How far the figure's back stands behind its middle, measured on the figure standing at its spot. */
+function backDepth(root: Object3D): number {
+  const rotation = root.rotation.clone();
+  const position = root.position.clone();
+  root.rotation.set(0, 0, 0, "XYZ");
+  root.position.set(0, 0, 0);
+  root.updateMatrixWorld(true);
+  const box = new Box3().setFromObject(root);
+  root.rotation.copy(rotation);
+  root.position.copy(position);
+  root.updateMatrixWorld(true);
+  const parent = new Vector3().setFromMatrixPosition(root.parent?.matrixWorld ?? root.matrixWorld);
+  const depth = parent.z - box.min.z;
+  return box.isEmpty() || !Number.isFinite(depth) || depth <= 0 ? BACK_DEPTH : depth;
+}
 
 /** What a ray landed on, before the scene reads it as a thing. */
 type Hit = { kind: "own" } | { kind: "person"; slot: number } | { kind: "model"; file: string; signs: string[] };
@@ -119,6 +137,8 @@ interface WalkState {
   sitting: boolean;
   /** The character lies on the thing (the bed, the couch) until they walk; lying raises them onto it. */
   lying: boolean;
+  /** How high the lying figure's middle stands: its back on the top of what it lies on. */
+  lieY: number;
   /** The pace of the walk in hand: whatever the distance, a walk to a thing takes about WALK_SECONDS (R-WORLD-010). */
   speed: number;
 }
@@ -344,15 +364,16 @@ function Place(props: PlaceProps) {
     animateWorld(world, time, delta);
     const next = stepWalk(walk.current.walker, delta, walk.current.speed);
     walk.current.walker = next;
-    // Lying raises the character onto the thing and lays them along it, centred on the seat with the head
-    // toward the facing; sitting and standing keep the ground.
+    // Lying raises the character onto the thing and lays them on their back along it, centred on the seat with the
+    // head toward the facing; sitting and standing keep the ground. The figure is laid back first, then turned, so
+    // any facing lies along the thing (the couch as much as the bed).
     if (walk.current.lying) {
       const half = LIE_LENGTH / 2;
-      world.own.root.position.set(next.x - Math.sin(next.facing) * half, LIE_Y, next.z - Math.cos(next.facing) * half);
-      world.own.root.rotation.set(Math.PI / 2, next.facing, 0);
+      world.own.root.position.set(next.x - Math.sin(next.facing) * half, walk.current.lieY, next.z - Math.cos(next.facing) * half);
+      world.own.root.rotation.set(-Math.PI / 2, next.facing + Math.PI, 0, "YXZ");
     } else {
       world.own.root.position.set(next.x, 0, next.z);
-      world.own.root.rotation.set(0, next.facing, 0);
+      world.own.root.rotation.set(0, next.facing, 0, "XYZ");
     }
     if (next.target === null) poseFigure(world.own, time, walk.current.sitting ? "sit" : "stand");
     else poseFigure(world.own, time, "walk", strideOf(next));
@@ -366,6 +387,8 @@ function Place(props: PlaceProps) {
         if (seat !== undefined) walk.current.walker = standAt(seat[0], seat[1], seat[2]);
         walk.current.sitting = pose === "sit";
         walk.current.lying = pose === "lie";
+        // The figure's back rests on the top the act names (the mattress), else the old fixed height.
+        walk.current.lieY = waiting.act.top === undefined ? LIE_Y : waiting.act.top + backDepth(world.own.root);
       }
       pick.current({ kind: "act", thing: waiting.thing, act: waiting.act });
     }
@@ -531,7 +554,7 @@ export default function CityScene(props: SceneProps & { children?: ReactNode }) 
   const raised = props.overview === true && props.roam !== true;
   const shot = useMemo(() => roomShot(shotOf(stageOf(file)), stageOf(file), file.scope), [file]);
   const rig = useRef<Rig>(wholeRig());
-  const walk = useRef<WalkState>({ walker: standAt(0, 0, 0), pending: null, standing: null, sitting: false, lying: false, speed: WALK_SPEED });
+  const walk = useRef<WalkState>({ walker: standAt(0, 0, 0), pending: null, standing: null, sitting: false, lying: false, lieY: LIE_Y, speed: WALK_SPEED });
   const [markBox, setMarkBox] = useState<HTMLDivElement | null>(null);
   const holding = useRef<number | null>(null);
   const held = useRef(false);
