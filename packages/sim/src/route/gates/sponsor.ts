@@ -103,10 +103,12 @@ function sponsorOffers(content: Content, route: Id<"route">): OfferEntry[] {
 export function findSponsor(ctx: Ctx, route: Id<"route">): BaseEvent[] {
   const entry = ctx.content.route[route];
   if (entry?.gate !== "sponsor" || routeOf(ctx, route).state !== "known" || !windowOpen(ctx, entry)) return [];
-  if (!ctx.random.chance("job", findChanceBp(entry, ctx.state.quality[NETWORK] ?? 0, ctx.content.tuning.quality))) return [];
+  // A search that finds nobody says so on the month's results, as a job hunt's "not this time" does.
+  const missed: RouteKindEvent = { type: "route/sponsor-missed", route };
+  if (!ctx.random.chance("job", findChanceBp(entry, ctx.state.quality[NETWORK] ?? 0, ctx.content.tuning.quality))) return emit(ctx, "route", [missed]);
   const offers = sponsorOffers(ctx.content, route).filter((offer) => offer.when.every((requirement) => ctx.check(requirement).met));
   const picked = offers.length > 1 ? offers[ctx.random.int("job", offers.length)] : offers[0];
-  if (picked === undefined) return [];
+  if (picked === undefined) return emit(ctx, "route", [missed]);
   ctx.apply([{ type: "offer/open", offer: picked.id }], { source: FIND, param: route, terms: {} });
   return [];
 }

@@ -236,6 +236,31 @@ describe("R-SPONSOR-001: sponsor offers and looking for one", () => {
     expect(misses).toBeGreaterThan(0);
   });
 
+  test("[R-SPONSOR-001] given the care route known, when a sponsor is looked for and none answers, then the month's results say so in the sim's own words, and a find that answers says no such thing", () => {
+    let misses = 0;
+    for (let index = 0; index < 30; index += 1) {
+      const seed = `missed-${String(index)}`;
+      const game = ngozi({ seed });
+      toKnown(game, CARE);
+      const position = game.state.draws.job ?? 0;
+      const hit = draw(seed, "job", position, 10000) < findChanceBp(care, game.state.quality["quality.network"] ?? 0, content.tuning.quality);
+      let events: ReturnType<typeof findSponsor> = [];
+      runAsCommand(game, (ctx) => {
+        events = findSponsor(ctx, CARE);
+      });
+      expect(events.some((event) => event.type === "route/sponsor-missed")).toBe(!hit);
+      misses += hit ? 0 : 1;
+    }
+    expect(misses).toBeGreaterThan(0);
+    // Played through a month: a miss is a line on the results.
+    const game = ngozi({ seed: "missed-line" });
+    toKnown(game, CARE);
+    const lines = (): ReportLine[] => game.state.turn.report?.lines ?? [];
+    for (let month = 0; month < 12 && !lines().some((line) => line.key === "line.route.sponsor-missed"); month += 1) game.endTurn([slot("activity.find-sponsor", CARE)]);
+    expect(lines().find((line) => line.key === "line.route.sponsor-missed")).toMatchObject({ params: { route: CARE }, tone: "plain" });
+    expect(text["line.route.sponsor-missed"]).toBe("No trust answered this month. The search goes on.");
+  });
+
   test("[R-SPONSOR-001] given the care window closed, when a sponsor is looked for, then nothing is drawn and nothing opens", () => {
     const game = ngozi({ vars: (tick) => ({ "var.uk-care-window": tick < 5 ? 2 : 0 }) });
     toKnown(game, CARE);

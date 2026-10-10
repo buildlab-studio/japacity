@@ -879,6 +879,8 @@ function evolve(slice: RouteSlice, event: RouteKindEvent, state: State): RouteSl
       return withRoute(slice, event.route, (held) => ({ ...held, support: event.support }));
     case "route/gate-updated":
       return withRoute(slice, event.route, (held) => (event.secret === undefined ? { ...held, gate: event.gate } : { ...held, gate: event.gate, secret: event.secret }));
+    case "route/sponsor-missed":
+      return slice;
     case "route/refusal-noted":
       return withRoute(slice, event.route, (held) => ({ ...held, refusals: held.refusals + 1, lastRefusal: { month: event.month, reasons: [event.reason] } }));
     case "route/banned":
@@ -903,6 +905,9 @@ function evolve(slice: RouteSlice, event: RouteKindEvent, state: State): RouteSl
 // ---------------------------------------------------------------------------
 // Lines
 // ---------------------------------------------------------------------------
+
+/** The care route, whose sponsors are trusts and care homes (route-gates.md). */
+const CARE_ROUTE: Id<"route"> = "route.uk-care";
 
 function line(key: string, params: ReportLine["params"], tone: ReportLine["tone"], attention = false): ReportLine {
   return { key: `line.route.${key}`, params, tone, attention, counts: [] };
@@ -989,6 +994,9 @@ function lines(event: RouteKindEvent, _state: State, content: Content): ReportLi
       return [line("unbanned", { route: event.route }, "plain", true)];
     case "route/withdrawn":
       return [line("withdrawn", { route: event.route }, "bad", true)];
+    case "route/sponsor-missed":
+      // Care work's sponsors are trusts and care homes; the skilled route's are employers.
+      return [line(event.route === CARE_ROUTE ? "sponsor-missed" : "sponsor-missed-employer", { route: event.route }, "plain")];
     default: {
       const never: never = event;
       throw new Error(`Unknown route event ${JSON.stringify(never)}.`);

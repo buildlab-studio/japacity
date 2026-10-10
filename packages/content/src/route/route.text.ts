@@ -36,6 +36,9 @@ export const routeText: Record<string, string> = {
   "line.route.departed-job-ended": "The job at home ended with the flight: {job}.",
   // The sponsor and contract gates (route-gates.md). First drafts.
   "line.route.sponsor-recorded": "A sponsor for {route} sent you a certificate of sponsorship.",
+  // A search for a sponsor that found nobody this month (R-SPONSOR-001).
+  "line.route.sponsor-missed": "No trust answered this month. The search goes on.",
+  "line.route.sponsor-missed-employer": "No employer answered this month. The search goes on.",
   "line.route.sponsor-under-bar":
     "A sponsor for {route} sent you a certificate, but the salary is under the bar. It cannot be used for the visa.",
   "line.route.agent-recorded": "The agent took your money and your details for {route}. He said the contract would follow.",

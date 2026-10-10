@@ -55,6 +55,8 @@ export type RouteKindEvent =
    * no application, the fee kept, `refunded` pence of surcharge returned.
    */
   | { type: "route/withdrawn"; route: Id<"route">; refunded: number }
+  /** A sponsor was looked for and none answered this month (R-SPONSOR-001): nothing moves but the line. */
+  | { type: "route/sponsor-missed"; route: Id<"route"> }
   | { type: "route/unbanned"; route: Id<"route"> };
 
 /**
