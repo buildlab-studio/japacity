@@ -98,7 +98,7 @@ function evolve(slice: TurnSlice, event: TurnEvent): TurnSlice {
     case "turn/locked":
       return { ...slice, locks: [...slice.locks, { slots: event.slots, untilMonth: event.untilMonth, why: event.why }] };
     case "turn/unlocked":
-      return { ...slice, locks: slice.locks.filter((lock) => lock.untilMonth >= slice.month) };
+      return { ...slice, locks: activeLocks(slice.locks, slice.month) };
     default: {
       const never: never = event;
       throw new Error(`Unknown turn event ${JSON.stringify(never)}.`);

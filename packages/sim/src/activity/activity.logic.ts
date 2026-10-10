@@ -982,10 +982,8 @@ function slots(ctx: Ctx): BaseEvent[] {
     }
   }
   events.push(...record(ctx, { type: "activity/slots-recorded", slots: picks.map((pick) => ({ ...pick })) }));
-  const { job, side } = ctx.state.activity;
-  // R-ACTIVITY-015: a now-act done this month is counted with the month's slots, once.
-  const done = nowThisMonth(ctx.state).map((pick) => pick.activity);
-  const filled = new Set<Id<"activity">>([...(job === null ? [] : [job]), ...(side === null ? [] : [side]), ...picks.map((pick) => pick.activity), ...done]);
+  // The picks are the month's `lastSlots` now; a now-act done this month is counted with them, once (R-ACTIVITY-015).
+  const filled = playedThisMonth(ctx.state);
   if (filled.size > 0) events.push(...record(ctx, { type: "activity/played-counted", activities: [...filled] }));
   return events;
 }
