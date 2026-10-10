@@ -53,6 +53,17 @@ describe("the lotto kiosk", () => {
     game.endTurn([slot(LOTTO, String(luck.maxTickets))]);
   });
 
+  test("[R-LUCK-005] [R-ACTIVITY-002] given tickets bought this month, when the view is read, then it offers only the counts still under the month's ceiling, and none once it is reached, so it never offers a slip the kiosk refuses; the next month sells to the cap again", () => {
+    const game = ada();
+    game.accept({ type: "activity/now", activity: LOTTO, param: "3" });
+    expect(game.view().activities.find((option) => option.id === LOTTO)).toMatchObject({ allowed: true, params: ["1", "2"] });
+    game.accept({ type: "activity/now", activity: LOTTO, param: "2" });
+    expect(game.view().activities.find((option) => option.id === LOTTO)).toMatchObject({ allowed: false, params: [] });
+    game.expectRejected({ type: "activity/now", activity: LOTTO, param: "1" }, "not-legal");
+    game.endTurn([]);
+    expect(game.view().activities.find((option) => option.id === LOTTO)).toMatchObject({ allowed: true, params: ["1", "2", "3", "4", "5"] });
+  });
+
   test("[R-LUCK-005] [R-WALLET-018] given tickets bought, when they are drawn, then each costs the ticket price from cash under social, each is one draw on `lotto`, and winnings go as a win that is never a lot to the pocket their size takes: cash at or under the line, the bank over it", () => {
     const game = ada();
     let won = 0;

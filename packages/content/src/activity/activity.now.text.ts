@@ -60,4 +60,9 @@ export const activityNowText: Record<string, string> = {
   "line.activity.job-hunt.now": "The manager takes your CV: {param}. They will call by the end of the month.",
   // The clinic has no manager with a CV: its own line.
   "line.activity.job-hunt.now.job-nurse": "The matron takes your papers. She will say by the end of the month.",
+  // Cooking and the water answer now (obligation.md R-OBLIGATION-014). The scene shows them, so the place
+  // never says these; they stand among the month's lines.
+  "line.activity.cook-at-home.now": "The stew is on the burner. Food for the week.",
+  "line.activity.fetch-water.now": "The jerrycans are in. The drum is full.",
+  "line.activity.fill-drum.now": "Bucket by bucket from the yard's tap. The drum is full.",
 };

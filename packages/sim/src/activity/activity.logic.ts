@@ -164,6 +164,17 @@ export function ticketParams(luck: Tuning["luck"]): string[] {
   return Array.from({ length: luck.maxTickets }, (_unused, index) => String(index + 1));
 }
 
+/**
+ * R-LUCK-005: the counts the kiosk still sells this month, under its ceiling less the tickets already bought, so the view
+ * never offers a slip `activity/now` refuses. None once the month's ceiling is reached.
+ */
+function ticketsLeft(read: ReadCtx): string[] {
+  const bought = nowThisMonth(read.state)
+    .filter((done) => done.activity === LOTTO)
+    .reduce((sum, done) => sum + Number(done.param ?? 0), 0);
+  return ticketParams(read.content.tuning.luck).slice(0, Math.max(0, read.content.tuning.luck.maxTickets - bought));
+}
+
 // ---------------------------------------------------------------------------
 // Params
 // ---------------------------------------------------------------------------
@@ -282,7 +293,7 @@ function schoolWait(read: ReadCtx): Requirement[] {
  * the contract's `param` has no `tickets`, so the kiosk's ticket counts are read by its id.
  */
 export function paramsFor(read: ReadCtx, entry: ActivityEntry, judge: Judge = (requirement) => check(read, requirement)): string[] | null {
-  if (entry.id === LOTTO) return ticketParams(read.content.tuning.luck);
+  if (entry.id === LOTTO) return ticketsLeft(read);
   switch (entry.param) {
     case null:
       return null;
