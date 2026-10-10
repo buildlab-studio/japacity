@@ -9,15 +9,20 @@ import { loadManifest } from "../three/manifest";
 import { figureOf, poseFigure } from "../three/people";
 import { wear } from "../frontdoor/colours";
 import type { LookStyle } from "../frontdoor/style";
+import { PHOTO_MAX_CHARS, photoHeight } from "./photo.size";
 
-/** Twice the page's photo box (86 by 112), for a sharp photo on a phone. */
-const WIDTH = 172;
-const HEIGHT = 224;
 /** How much of the figure the photo holds, from the top of the head down, in metres. */
 const SPAN = 0.62;
 const FOV = 18;
+/** The qualities tried in turn until the photo fits what is kept with the person. */
+const QUALITIES = [0.9, 0.8, 0.7] as const;
 
-export async function renderPhoto(file: string, style: LookStyle): Promise<string | null> {
+/**
+ * The figure drawn to a photo `width` pixels across (`photoWidth`), in the page's photo box's shape, as an image's
+ * data address that fits `PHOTO_MAX_CHARS`; null when it cannot be drawn or never fits.
+ */
+export async function renderPhoto(file: string, style: LookStyle, width: number): Promise<string | null> {
+  const height = photoHeight(width);
   const manifest = await loadManifest();
   const model = await loadModel(manifest, file, (key) => text[key]);
   const figure = figureOf(model, "stand", 0);
@@ -32,18 +37,22 @@ export async function renderPhoto(file: string, style: LookStyle): Promise<strin
   const top = new Box3().setFromObject(figure.root, true).max.y;
   const middle = top - SPAN / 2 + 0.02;
   const back = SPAN / 2 / Math.tan((FOV * Math.PI) / 360);
-  const camera = new PerspectiveCamera(FOV, WIDTH / HEIGHT, 0.1, 20);
+  const camera = new PerspectiveCamera(FOV, width / height, 0.1, 20);
   camera.position.set(0, middle, back);
   camera.lookAt(0, middle, 0);
   const canvas = document.createElement("canvas");
   const renderer = new WebGLRenderer({ canvas, alpha: true, antialias: true, preserveDrawingBuffer: true });
   try {
     renderer.setPixelRatio(1);
-    renderer.setSize(WIDTH, HEIGHT, false);
+    renderer.setSize(width, height, false);
     renderer.setClearColor(0x000000, 0);
     renderer.render(scene, camera);
-    const photo = canvas.toDataURL("image/webp", 0.9);
-    return photo.startsWith("data:image/") ? photo : null;
+    for (const quality of QUALITIES) {
+      const photo = canvas.toDataURL("image/webp", quality);
+      if (!photo.startsWith("data:image/")) return null;
+      if (photo.length <= PHOTO_MAX_CHARS) return photo;
+    }
+    return null;
   } finally {
     renderer.dispose();
     renderer.forceContextLoss();

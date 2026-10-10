@@ -18,6 +18,8 @@ export interface KeptPerson {
   style?: LookStyle;
   /** The page's photo: the figure rendered in its colours, as an image's data address; absent as made or where nothing could draw it. */
   photo?: string;
+  /** The photo's width in pixels as drawn. A photo kept without it was drawn small and is drawn again, sharper. */
+  photoPx?: number;
 }
 
 /** A photo kept with the person: a small image of its own, never an address elsewhere. */
@@ -51,7 +53,8 @@ export function readPerson(storage: Read | null = browserStorage()): KeptPerson 
     const { look, name, archetype } = parsed;
     const style = readStyle(parsed.style);
     const photo = style !== undefined && typeof parsed.photo === "string" && PHOTO.test(parsed.photo) ? parsed.photo : undefined;
-    return { look, name, archetype, ...(style === undefined ? {} : { style }), ...(photo === undefined ? {} : { photo }) };
+    const photoPx = photo !== undefined && typeof parsed.photoPx === "number" && Number.isInteger(parsed.photoPx) && parsed.photoPx > 0 ? parsed.photoPx : undefined;
+    return { look, name, archetype, ...(style === undefined ? {} : { style }), ...(photo === undefined ? {} : { photo }), ...(photoPx === undefined ? {} : { photoPx }) };
   } catch {
     return null;
   }

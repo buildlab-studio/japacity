@@ -334,7 +334,7 @@ export function ScenarioView({ guest = null }: { guest?: DoorGuest | null }) {
       // The player's own colours, and the photo drawn in them as the page printed, are kept with the person (R-PROLOGUE-015).
       const style = isMade(draft.style) ? undefined : draft.style;
       const photo = style === undefined ? undefined : madePhoto(draft.look, style);
-      keepPerson({ look: draft.look, name: draft.name.trim(), archetype: ready === null ? draft.archetype : null, ...(style === undefined ? {} : { style }), ...(photo === undefined ? {} : { photo }) });
+      keepPerson({ look: draft.look, name: draft.name.trim(), archetype: ready === null ? draft.archetype : null, ...(style === undefined ? {} : { style }), ...(photo === undefined ? {} : { photo: photo.photo, photoPx: photo.px }) });
       change({ stage: "begun", ...(home === null ? {} : { home }) });
       void chooseLife(ready ?? FROM_SIXTEEN)
         .then(() => guest?.started())

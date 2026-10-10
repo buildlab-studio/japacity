@@ -40,7 +40,7 @@ export interface PageFields {
    * The look and the player's own colours on it (R-PROLOGUE-015): in a style, the photo is the figure rendered in it,
    * the one kept with the person where there is one, else drawn as the page prints; the look's picture until then.
    */
-  wear?: { look: string; style?: LookStyle; photo?: string };
+  wear?: { look: string; style?: LookStyle; photo?: string; photoPx?: number };
   /** The stamps, oldest first: none before the visa; the visa's first, then each step after it (`stampsOf`). */
   stamps?: readonly PageStamp[];
   /** The family the game drew, as its card's title; empty until it is drawn, absent where the page does not say it. */
@@ -90,7 +90,7 @@ function Field({ id, label, value, delay }: { id: string; label: string; value: 
 
 /** The photo: the figure in the player's colours where it is drawn, else the look's own picture, cropped to the face. */
 function Photo({ page }: { page: PageFields }) {
-  const drawn = usePhoto(page.wear?.look, page.wear?.style, page.wear?.photo);
+  const drawn = usePhoto(page.wear?.look, page.wear?.style, page.wear?.photo, page.wear?.photoPx);
   if (drawn !== null) return <img src={drawn} alt="" draggable={false} className="absolute inset-0 h-full w-full object-cover" data-photo-made />;
   return page.photo === "" ? null : <img src={page.photo} alt="" draggable={false} className="absolute top-[-3%] left-1/2 h-[330%] max-w-none -translate-x-1/2" />;
 }
