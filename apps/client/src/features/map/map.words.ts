@@ -47,7 +47,11 @@ export const mapText: Record<string, string> = {
   "map.ride.along.start": "Pulling out of {from}.",
   "map.ride.along.road.1": "The traffic moves, for once.",
   "map.ride.along.road.2": "A hold-up at the junction, horns going.",
-  "map.ride.along.road.3": "The driver cuts through a side street.",
+  // The line that names a person is each way's own: the okada's rider, the keke's and the danfo's driver, your own feet.
+  "map.ride.along.road.3.okada": "The rider cuts through a side street.",
+  "map.ride.along.road.3.keke": "The driver cuts through a side street.",
+  "map.ride.along.road.3.danfo": "The driver cuts through a side street.",
+  "map.ride.along.road.3.walk": "You cut through a side street.",
   "map.ride.along.near": "Your stop: {to}",
   "map.ride.arrived": "{place}",
 

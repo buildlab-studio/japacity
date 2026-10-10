@@ -81,14 +81,18 @@ export interface RideProps {
 /** How many road lines the card may say in the middle of a ride (map.words.ts). */
 export const ROAD_LINES = 3;
 
+/** The road lines that name a person, said for each way in its own words: the okada's rider, the keke's and the danfo's driver, your own feet. */
+const PERSON_LINES: ReadonlySet<number> = new Set([3]);
+
 /**
  * Where you are as the ride goes (the design): pulling out of the place left for the
  * first third, a road line through the middle, the stop named near the end. `u` is the ride's progress
- * after the pre-roll, 0 to 1.
+ * after the pre-roll, 0 to 1. A road line that names a person is the way's own.
  */
-export function alongOf(u: number, seed: number): { key: string; needs: "from" | "to" | null } {
+export function alongOf(u: number, seed: number, way: Way): { key: string; needs: "from" | "to" | null } {
   if (u < 0.34) return { key: "map.ride.along.start", needs: "from" };
-  if (u < 0.78) return { key: `map.ride.along.road.${String((Math.abs(Math.trunc(seed)) % ROAD_LINES) + 1)}`, needs: null };
+  const road = (Math.abs(Math.trunc(seed)) % ROAD_LINES) + 1;
+  if (u < 0.78) return { key: PERSON_LINES.has(road) ? `map.ride.along.road.${String(road)}.${way}` : `map.ride.along.road.${String(road)}`, needs: null };
   return { key: "map.ride.along.near", needs: "to" };
 }
 
@@ -169,7 +173,7 @@ export function Ride({ way, place, drawing, own = FALLBACK_OWN, seed = 0, onDone
     back.current?.();
   };
   // The card's line follows the ride's own clock, so it matches what is outside.
-  const alongAt = (ms: number): ReturnType<typeof alongOf> | null => (ms >= pre && from !== undefined ? alongOf(Math.min(1, Math.max(0, (ms - pre) / (RIDE_MS - pre))), seed) : null);
+  const alongAt = (ms: number): ReturnType<typeof alongOf> | null => (ms >= pre && from !== undefined ? alongOf(Math.min(1, Math.max(0, (ms - pre) / (RIDE_MS - pre))), seed, way) : null);
   const [along, setAlong] = useState(() => alongAt(0));
   const line = phase === "pre" ? lineOf(way, seed) : along === null ? null : along.key;
   const lineParams: Record<string, string> = along === null ? {} : along.needs === "from" && from !== undefined ? { from } : along.needs === "to" ? { to: place } : {};

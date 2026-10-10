@@ -362,9 +362,9 @@ describe("the ride", () => {
   test("[R-WORLD-017] given a ride with the place it left, when it plays, then the card says where you are on the ride's own clock: pulling out, a road line, the stop near the end", async () => {
     vi.useFakeTimers();
     render(<Ride way="danfo" place="Bode Thomas Street" from="Ojuelegba" drawing={false} seed={1} onDone={() => undefined} />);
-    expect(alongOf(0, 1)).toEqual({ key: "map.ride.along.start", needs: "from" });
-    expect(alongOf(0.5, 1).key).toMatch(/^map\.ride\.along\.road\.[1-3]$/);
-    expect(alongOf(0.9, 1)).toEqual({ key: "map.ride.along.near", needs: "to" });
+    expect(alongOf(0, 1, "danfo")).toEqual({ key: "map.ride.along.start", needs: "from" });
+    expect(alongOf(0.5, 1, "danfo").key).toMatch(/^map\.ride\.along\.road\.[1-3](\.danfo)?$/);
+    expect(alongOf(0.9, 1, "danfo")).toEqual({ key: "map.ride.along.near", needs: "to" });
     await act(async () => {
       await vi.advanceTimersByTimeAsync(PRE_MS + 400);
     });
@@ -372,7 +372,7 @@ describe("the ride", () => {
     await act(async () => {
       await vi.advanceTimersByTimeAsync(2400);
     });
-    expect(screen.getByText(mapWords(alongOf(0.5, 1).key))).toBeTruthy();
+    expect(screen.getByText(mapWords(alongOf(0.5, 1, "danfo").key))).toBeTruthy();
     await act(async () => {
       await vi.advanceTimersByTimeAsync(1800);
     });
