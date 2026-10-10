@@ -4,7 +4,7 @@
 // keeps the character in view, in the player's own colours (R-PROLOGUE-015). Where WebGL is missing the compound's
 // colours and the look's own picture stand in.
 import { paletteCss } from "@japacity/assets";
-import { lazy, type PointerEvent, type ReactNode, Suspense, useMemo, useRef } from "react";
+import { lazy, type PointerEvent, type ReactNode, Suspense, useMemo, useRef, useState } from "react";
 
 import { readPerson } from "../../authority/person";
 import { LOOKS, lookOf } from "./looks";
@@ -43,6 +43,8 @@ export interface GateProps {
 
 export function Gate({ look, children, mark, over, style }: GateProps) {
   const drawing = useMemo(canDraw, []);
+  // The look's picture stands in until the figure is in the scene.
+  const [drawn, setDrawn] = useState(false);
   const shown = lookOf(gateLook(look));
   const kept = look === undefined || look === null ? readPerson() : null;
   const worn = style ?? (kept !== null && kept.look === shown?.id ? kept.style : undefined);
@@ -83,9 +85,12 @@ export function Gate({ look, children, mark, over, style }: GateProps) {
         <div aria-hidden className="absolute inset-x-0 top-[30%] h-[14%]" style={{ background: paletteCss("wallCream") }} />
         {/* The look's own picture stands in until the scene has loaded, and where WebGL is missing. */}
         {drawing ? (
-          <Suspense fallback={standIn}>
-            <FrontScene look={shown?.file ?? "shared/chr/chr_ada.glb"} spin={spin} style={worn} />
-          </Suspense>
+          <>
+            <Suspense fallback={null}>
+              <FrontScene look={shown?.file ?? "shared/chr/chr_ada.glb"} spin={spin} style={worn} onShown={() => setDrawn(true)} />
+            </Suspense>
+            {drawn ? null : standIn}
+          </>
         ) : (
           standIn
         )}

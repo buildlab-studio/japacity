@@ -47,6 +47,8 @@ export interface FrontSceneProps {
   spin: Spin;
   /** The player's own colours on the look; as made when absent. */
   style?: LookStyle | undefined;
+  /** Called once the figure stands in the scene, so the gate can take its stand-in picture down. */
+  onShown?: (() => void) | undefined;
 }
 
 /** What the browser test and the pictures read. */
@@ -71,7 +73,7 @@ function dress(world: World, look: string, style: LookStyle | undefined): void {
   wear(world.own.root, style);
 }
 
-function Compound({ file, look, spin, style }: FrontSceneProps & { file: PlaceFile }) {
+function Compound({ file, look, spin, style, onShown }: FrontSceneProps & { file: PlaceFile }) {
   const [world, setWorld] = useState<World | null>(null);
   const worn = useRef(style);
   worn.current = style;
@@ -97,6 +99,7 @@ function Compound({ file, look, spin, style }: FrontSceneProps & { file: PlaceFi
       dress(built, look, worn.current);
       shown.current = look;
       setWorld(built);
+      onShown?.();
     })().catch(() => undefined);
     return () => {
       alive = false;
@@ -119,6 +122,7 @@ function Compound({ file, look, spin, style }: FrontSceneProps & { file: PlaceFi
       world.root.add(own.root);
       shown.current = look;
       if (window.__front !== undefined) window.__front.look = look;
+      onShown?.();
     })().catch(() => undefined);
     return () => {
       alive = false;
