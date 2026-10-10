@@ -180,6 +180,11 @@ function keep(key: string, value: string[]): void {
   }
 }
 
+/** The band starts the place's name with a capital, "The clinic"; a sentence keeps content's casing. */
+function bandName(name: string): string {
+  return name.charAt(0).toUpperCase() + name.slice(1);
+}
+
 /** Where the player last stopped, when it is a place they can still enter (rule 7), or the hub. */
 function lastPlace(here: ViewPlace): string {
   const kept = readKept(LAST_KEY)[0];
@@ -1081,7 +1086,7 @@ export function City({
         <>
           <Band
             when={clock}
-            name={hereName}
+            name={bandName(hereName)}
             {...bandMoney(view)}
             onEndMonth={() => setMonthOpen(true)}
             count={<MonthCount />}

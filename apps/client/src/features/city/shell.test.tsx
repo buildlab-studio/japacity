@@ -155,7 +155,10 @@ describe("the band and the thumb buttons", () => {
     act(() => store.setState({ reportOpen: true }));
     expect(document.querySelector("[data-cut]")?.getAttribute("data-cut")).toBe("true");
     expect(document.querySelector("[data-results-for]")).toBeNull();
-    await waitFor(() => expect(document.querySelector("[data-results-for]")?.getAttribute("data-results-for")).toBe(shown));
+    // The band starts the name with a capital; the results' "Back to ..." keeps content's casing.
+    await waitFor(() => expect(document.querySelector("[data-results-for]")).not.toBeNull());
+    const handed = document.querySelector("[data-results-for]")?.getAttribute("data-results-for") ?? "";
+    expect(handed.charAt(0).toUpperCase() + handed.slice(1)).toBe(shown);
   });
 });
 
