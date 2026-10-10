@@ -241,6 +241,44 @@ describe("the developer's acts", () => {
   });
 });
 
+describe("each act's outcome told the month it happens", () => {
+  const MERGED = "line.activity.first-merged";
+  const CONTRIBUTED = "line.activity.contributed";
+
+  function keys(result: Accepted): string[] {
+    return result.lines.map((line) => line.key);
+  }
+
+  test("[R-ACTIVITY-013] given a developer on open source, when three months are played, then the first is merged, the second adds a piece and the third is a quiet month of fixes; a month without it says neither", () => {
+    const game = start({ content, scenario: "scenario.zainab" });
+    const pieces = qualityOf(game, PORTFOLIO);
+    const first = month(game, [slot(OPEN_SOURCE)]);
+    expect(first.lines).toContainEqual(expect.objectContaining({ key: MERGED, tone: "good" }));
+    expect(keys(first)).toContain(MERGED);
+    expect(keys(first)).not.toContain(CONTRIBUTED);
+    const second = month(game, [slot(OPEN_SOURCE)]);
+    // The piece is told by the portfolio's own line, which the results tell as a piece.
+    expect(second.lines).toContainEqual(expect.objectContaining({ key: "line.quality.gain", params: { quality: PORTFOLIO, points: 1, value: pieces + 1 } }));
+    expect(keys(second)).not.toContain(MERGED);
+    expect(keys(second)).not.toContain(CONTRIBUTED);
+    const third = month(game, [slot(OPEN_SOURCE)]);
+    expect(third.lines).toContainEqual(expect.objectContaining({ key: CONTRIBUTED, tone: "plain" }));
+    expect(keys(third)).not.toContain(MERGED);
+    expect(keys(month(game, [])).filter((key) => key === MERGED || key === CONTRIBUTED)).toEqual([]);
+  });
+
+  test("[R-ACTIVITY-013] given the raise lands, when the month is told, then its line carries what the pay goes up by a month and the pay after it", () => {
+    const game = start({ content, scenario: "scenario.tunde", seed: seedFor(true) });
+    const job = game.state.activity.job!;
+    const base = figure(entryOf(job).pay!);
+    const currency = entryOf(job).pay!.currency;
+    const noticed = month(game, [slot(NOTICED)]);
+    expect(noticed.lines).toContainEqual(
+      expect.objectContaining({ key: "line.activity.raised", params: { job, amount: { currency, amount: base + bp(base, content.tuning.activity.raiseBp) }, rise: { currency, amount: bp(base, content.tuning.activity.raiseBp) } }, tone: "good" }),
+    );
+  });
+});
+
 describe("the nurse's certification", () => {
   /** Ngozi sits the exam and answers the three questions right or wrong as given. */
   function sit(answers: boolean[], seed?: string): { game: Game; marked: Accepted; paid: Accepted } {

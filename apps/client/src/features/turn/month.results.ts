@@ -5,8 +5,10 @@ import { content } from "@japacity/content";
 import type { Currency, PlayerView, ReportLine } from "@japacity/sim";
 
 import { monthlyPayOf } from "../../shared/words/cost";
-import { afterPrologue, forYou, isSaid, isUnpaid, tidyLines, toldUnpaid } from "../../shared/words/lines";
+import { countWords } from "../../shared/words/count";
+import { afterPrologue, forYou, isSaid, isUnpaid, movesMoney, tidyLines, toldUnpaid } from "../../shared/words/lines";
 import { BANK_CHARGE, CONVERT_PAID, CONVERTED, type MoneyLine, moneyLines } from "../../shared/words/money";
+import { moneyParam } from "../../shared/words/text";
 
 // The month's money lines live in shared/words/money.ts, so the Bank's Lately reads the same lines (R-WORLD-019).
 export { CHANGED, CHANGED_OUT, type MoneyLine, moneyLines } from "../../shared/words/money";
@@ -43,9 +45,45 @@ export function isEvicted(line: ReportLine): boolean {
   return EVICTED.has(line.key);
 }
 
+/** A piece added to the portfolio, as the results tell the portfolio's own line. */
+const PIECE = "line.activity.piece-built";
+const PIECE_MORE = "line.activity.piece-built-more";
+const PORTFOLIO = "quality.portfolio";
+
+/** The exam marked: the score and what a pass needs (R-ACTIVITY-013). */
+const EXAM_MARKED: ReadonlySet<string> = new Set(["line.activity.exam-passed", "line.activity.exam-failed"]);
+
+/**
+ * What the waiting months' acts came to (R-ACTIVITY-013): the exam's score, a piece for the portfolio,
+ * open source's first merge or its quiet month, the raise or the month nobody said anything. Each is
+ * told the month it happens, with the hunt's answer.
+ */
+const ACTS: ReadonlySet<string> = new Set([...EXAM_MARKED, PIECE, PIECE_MORE, "line.activity.first-merged", "line.activity.contributed", "line.activity.raised", "line.activity.not-noticed"]);
+
+/** The set pieces an act's exam is sat in: once its score is told, "the exam is over" says nothing more. */
+const EXAMS: ReadonlySet<string> = new Set(Object.values(content.activity).flatMap((entry) => (entry?.exam === undefined ? [] : [entry.exam.setpiece])));
+
+/** The most pieces any route's checklist asks for: what a piece is counted toward. */
+const PIECES_ASKED = Math.max(
+  0,
+  ...Object.values(content.route)
+    .flatMap((route) => route?.checklist ?? [])
+    .flatMap((item) => (item.requirement.type === "quality/min" && item.requirement.quality === PORTFOLIO ? [item.requirement.value] : [])),
+);
+
+/**
+ * The portfolio rising, told as a piece for it (R-ACTIVITY-013): how many of what a route asks, or past
+ * that, how many there are. Any other line is itself.
+ */
+function asPiece(line: ReportLine): ReportLine {
+  const { quality, value } = line.params;
+  if (line.key !== "line.quality.gain" || quality !== PORTFOLIO || typeof value !== "number") return line;
+  return value > PIECES_ASKED ? { ...line, key: PIECE_MORE, params: { pieces: value } } : { ...line, key: PIECE, params: { pieces: value, need: PIECES_ASKED } };
+}
+
 /**
  * The kinds of line that carry the month's story, in the order the results lead with them: the
- * room in Makoko cleared away, the visa granted, a bill that went unpaid, what the room's basics saved, a hunt's answer, a job or an offer found, a way out heard
+ * room in Makoko cleared away, the visa granted, a bill that went unpaid, what the room's basics saved, a hunt's answer, a job or an offer found, what an act came to, a way out heard
  * of or moved on, a paper or a test band, a deposit that will be asked about, a chapter, a goal or
  * an answer told in its offer's own words, a set piece, the interview or a status, news about your
  * plans.
@@ -56,6 +94,7 @@ const STORY: readonly ((line: ReportLine) => boolean)[] = [
   isUnpaid,
   // R-OBLIGATION-014: what cooking and fetching water saved on the upkeep, each its own line.
   (line) => ["line.activity.hunt-hired", "line.activity.hunt-missed", "line.activity.job-started", "line.activity.side-started", "line.offer.opened"].includes(line.key),
+  (line) => ACTS.has(line.key),
   // The adviser's reading, paid for, leads the route's own lines.
   (line) => ["line.activity.adviser-missing", "line.activity.adviser-fits"].includes(line.key),
   (line) => line.key.startsWith("line.route."),
@@ -87,9 +126,12 @@ export function storyLines(lines: readonly ReportLine[]): ReportLine[] {
   // A hunt's offer already names the job and its pay: the offer it opens is not told again.
   const hired = tidy.some((line) => line.key === HIRED);
   const flagged = flagTold(tidy);
+  const marked = tidy.some((line) => EXAM_MARKED.has(line.key));
   return tidy
     .filter((line) => !(hired && line.key === OPENED && line.params.offer === JOB_OFFER))
     .filter((line) => !(flagged && line.key === "line.wallet.flagged"))
+    .filter((line) => !(marked && line.key === "line.setpiece.closed" && typeof line.params.setpiece === "string" && EXAMS.has(line.params.setpiece)))
+    .map(asPiece)
     .map((line, index) => ({ line, index, rank: storyRank(line) }))
     .filter((entry) => entry.rank !== -1)
     .sort((a, b) => a.rank - b.rank || a.index - b.index)
@@ -109,6 +151,8 @@ export function leadsAlone(line: ReportLine): boolean {
  */
 export function toldOnResults(line: ReportLine): ReportLine {
   const { job } = line.params;
+  // A score or a count of pieces reads as a person says it: "one of three", never "1 of 3" (R-TEXT-005).
+  if (EXAM_MARKED.has(line.key) || line.key === PIECE || line.key === PIECE_MORE) return { ...line, params: Object.fromEntries(Object.entries(line.params).map(([name, value]) => [name, typeof value === "number" ? countWords(value) : value])) };
   if (line.key === "line.obligation.missed") return toldUnpaid(line);
   if (line.key === "line.activity.hunt-missed" && typeof job === "string") return { ...line, key: "ui.results.hunt-missed" };
   if (line.key === "line.activity.hunt-hired" && typeof job === "string") {

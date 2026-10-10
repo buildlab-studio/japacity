@@ -80,6 +80,9 @@ const BET: Id<"activity"> = "activity.bet-slip";
 const PHONE: Id<"activity"> = "activity.buy-phone";
 /** R-ACTIVITY-013: being noticed at work, a raise on a draw. */
 const NOTICED: Id<"activity"> = "activity.be-noticed";
+/** R-ACTIVITY-013: open source tells its month even when no piece comes of it. */
+const OPEN_SOURCE: Id<"activity"> = "activity.open-source";
+const PORTFOLIO: Id<"quality"> = "quality.portfolio";
 /** R-ACTIVITY-011: a slot of either keeps the bus home safe that month. */
 const COUNTER_MOVES: readonly Id<"activity">[] = ["activity.safe-ride", "activity.sleep-at-office"];
 
@@ -776,7 +779,7 @@ function beNoticed(ctx: Ctx): BaseEvent[] {
   const raised = ctx.random.chance("job", ctx.content.tuning.activity.raiseChanceBp);
   const after: ReadCtx = { ...read, state: { ...read.state, activity: { ...read.state.activity, raised: [...(read.state.activity.raised ?? []), job] } } };
   const pay = raised ? (monthlyPay(after, entry) ?? now) : now;
-  return record(ctx, { type: "activity/noticed", job, raised, pay });
+  return record(ctx, { type: "activity/noticed", job, raised, pay, was: now });
 }
 
 /**
@@ -827,11 +830,22 @@ function resolveSlot(ctx: Ctx, pick: SlotPick, slot: number): BaseEvent[] {
   }
   const events = record(ctx, { type: "activity/slot-played", slot, activity: entry.id, param: pick.param });
   const cause: Cause = { source: entry.id, param: pick.param, terms: {} };
+  const pieces = ctx.state.quality[PORTFOLIO] ?? 0;
   payPrices(ctx, pricesOf(readOf(ctx), entry, pick.param), cause);
   events.push(...runById(ctx, entry, pick, cause));
   ctx.apply(entry.effects, cause);
   milestones(ctx, entry, cause);
+  events.push(...outcome(ctx, entry, pieces));
   return events;
+}
+
+/**
+ * R-ACTIVITY-013, R-WORLD-008: a month of open source that added no piece is told all the same, its first
+ * merge or a quiet month of fixes. A piece added is told by the portfolio's own line.
+ */
+function outcome(ctx: Ctx, entry: ActivityEntry, before: number): BaseEvent[] {
+  if (entry.id !== OPEN_SOURCE || (ctx.state.quality[PORTFOLIO] ?? 0) > before) return [];
+  return record(ctx, { type: "activity/contributed", first: (ctx.state.activity.played[OPEN_SOURCE] ?? 0) === 0 });
 }
 
 /**
@@ -1150,12 +1164,14 @@ function lines(event: ActivityEvent, state: State): ReportLine[] {
       return [];
     case "activity/noticed":
       return event.raised
-        ? [line("line.activity.raised", { job: event.job, amount: event.pay }, "good", true)]
+        ? [line("line.activity.raised", { job: event.job, amount: event.pay, rise: { currency: event.pay.currency, amount: event.pay.amount - event.was.amount } }, "good", true)]
         : [line("line.activity.not-noticed", { job: event.job }, "plain")];
     case "activity/exam-marked":
       return event.passed
         ? [line("line.activity.exam-passed", { right: event.right, asked: event.asked }, "good", true)]
         : [line("line.activity.exam-failed", { right: event.right, asked: event.asked, pass: event.pass }, "bad", true)];
+    case "activity/contributed":
+      return [line(event.first ? "line.activity.first-merged" : "line.activity.contributed", {}, event.first ? "good" : "plain")];
     case "activity/word-of-mouth":
       return friendLines(event);
     case "activity/advised":
@@ -1230,6 +1246,7 @@ function evolve(slice: ActivitySlice, event: ActivityEvent): ActivitySlice {
     case "activity/word-of-mouth":
     case "activity/advised":
     case "activity/exam-marked":
+    case "activity/contributed":
       return slice;
     default: {
       const never: never = event;
