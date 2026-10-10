@@ -161,10 +161,10 @@ function Compound({ file, look, spin, style, onShown }: FrontSceneProps & { file
   });
 
   const stage = stageOf(file);
-  const { sky, background, fog } = skyColours(stage.light.sky, stage.light.ground, settings.haze);
+  // No canvas background: the gate's own band shows through the sky, so the door wears the theme (R-WORLD-021).
+  const { sky, fog } = skyColours(stage.light.sky, stage.light.ground, settings.haze);
   return (
     <>
-      <color attach="background" args={[background]} />
       <fog attach="fog" args={[fog, 30, 70]} />
       <hemisphereLight args={[sky, colourOf(stage.light.ground), 1.1]} />
       <directionalLight intensity={2} color={0xfff0d0} position={[GATE[0] + stage.light.sun[0], stage.light.sun[1], GATE[1] + stage.light.sun[2] - 10]} />

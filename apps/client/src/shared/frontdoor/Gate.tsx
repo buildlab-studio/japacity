@@ -3,7 +3,6 @@
 // finger drags it round (the design's onboarding). The sheet rises over the bottom of the screen and the top
 // keeps the character in view, in the player's own colours (R-PROLOGUE-015). Where WebGL is missing the compound's
 // colours and the look's own picture stand in.
-import { paletteCss } from "@japacity/assets";
 import { lazy, type PointerEvent, type ReactNode, Suspense, useMemo, useRef, useState } from "react";
 
 import { readPerson } from "../../authority/person";
@@ -78,11 +77,9 @@ export function Gate({ look, children, mark, over, style }: GateProps) {
         onPointerCancel={drop}
         // The compound's own colours, the sky over the yard's wall: the 3D world keeps its colours in both themes (R-WORLD-021).
         // The figure is dragged round, so the page under the finger never scrolls.
-        style={{ background: paletteCss("laterite"), touchAction: "none" }}
+        style={{ background: "var(--strong-2)", touchAction: "none" }}
       >
-        {/* Three flat bands, the sky, the wall and the ground: no gradient (R-WORLD-021). */}
-        <div aria-hidden className="absolute inset-x-0 top-0 h-[30%]" style={{ background: paletteCss("sky") }} />
-        <div aria-hidden className="absolute inset-x-0 top-[30%] h-[14%]" style={{ background: paletteCss("wallCream") }} />
+        {/* The theme's own band behind the figure, as the design's door has it (R-WORLD-021: an interface colour is a role token). The compound keeps its own colours and shows through a clear sky. */}
         {/* The look's own picture stands in until the scene has loaded, and where WebGL is missing. */}
         {drawing ? (
           <>
