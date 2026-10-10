@@ -197,6 +197,7 @@ const ROOM_FOLDERS: Record<RoomName, string> = {
   bank: "bank-counter",
   hub: "yaba-hub",
   abroad: "the-room",
+  compound: "compound-room",
   arrivals: "arrivals-hall",
 };
 
@@ -210,6 +211,7 @@ const ROOM_PLACES: Record<RoomName, string> = {
   bank: "place.olokun-office",
   hub: "place.yaba",
   abroad: "place.the-room",
+  compound: "place.compound-room",
   arrivals: "place.airport-lagos",
 };
 

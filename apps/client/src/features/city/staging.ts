@@ -42,6 +42,17 @@ export function stagedAt(id: string, where: ViewPlace, places: readonly PlaceEnt
   return (own ?? open[0])?.id ?? DEFAULT_PLACE[where.where];
 }
 
+/**
+ * The home's own acts where the character lives (home.md R-HOME-006, R-HOME-010): a room of their own (Makoko's, the
+ * room in a compound) stages nothing itself, since an id is staged at one place (R-CITY-010); while it is the home it
+ * stages what the family house stages, so its bed, stove, drum and papers box act as the parlour's do.
+ */
+export function homeStagesAt(place: string, home: string | null, where: ViewPlace, places: readonly PlaceEntry[]): readonly string[] {
+  const family = DEFAULT_PLACE.home;
+  if (where.where !== "home" || home === null || place !== home || home === family) return [];
+  return places.find((entry) => entry.id === family)?.stages ?? [];
+}
+
 /** An open set piece and the place that stages it, with its question (R-CITY-011). */
 export interface Scene {
   place: Id<"place">;

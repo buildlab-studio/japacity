@@ -100,6 +100,9 @@ export const cityText: Record<string, string> = {
   "city.thing.cooking": "Cooking corner",
   "city.thing.drum": "Water drum",
   "city.thing.bag": "Bag",
+  // The room in a compound (home.md R-HOME-010), in its own voice: a mattress on the floor, a gas stove.
+  "city.thing.mattress": "Mattress",
+  "city.thing.stove": "Stove",
   "city.act.sit": "Sit",
   "city.act.sit.done": "You sit for a while.",
   "city.act.turn-on.done": "The TV comes on, NEPA permitting.",

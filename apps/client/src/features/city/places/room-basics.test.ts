@@ -8,6 +8,7 @@ import type { PlayerView } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
 import parlourRaw from "../../../../public/assets/places/family-house-parlour/place.json";
+import compoundRaw from "../../../../public/assets/places/compound-room/place.json";
 import roomRaw from "../../../../public/assets/places/the-room/place.json";
 import type { Shot } from "../../../shared/world/contract";
 import { abroadView, engineView } from "../../../shared/testing/fixtures";
@@ -20,9 +21,11 @@ import { instancesOf } from "./placeTesting";
 
 const parlour = parlourRaw as unknown as PlaceFile;
 const room = roomRaw as unknown as PlaceFile;
+const compound = compoundRaw as unknown as PlaceFile;
 const ROOMS = [
   { name: "the parlour", file: parlour, place: "place.family-house" },
   { name: "the room abroad", file: room, place: "place.the-room" },
+  { name: "the room in a compound", file: compound, place: "place.compound-room" },
 ] as const;
 const COOK = "activity.cook-at-home";
 const WATER = "activity.fetch-water";
@@ -70,7 +73,7 @@ function actsNow(file: PlaceFile, place: string, view: PlayerView, extra: string
 }
 
 describe("the room down its length", () => {
-  test("[R-WORLD-029] given the parlour and the room abroad on a phone held upright, when the room opens whole, then the camera looks along the long side, the door's wall at the top, and the floor and both walls stand on screen with nothing cut off", () => {
+  test("[R-WORLD-029] given the parlour, the room abroad and the room in a compound on a phone held upright, when the room opens whole, then the camera looks along the long side, the door's wall at the top, and the floor and both walls stand on screen with nothing cut off", () => {
     for (const { name, file } of ROOMS) {
       const shot = shotOf(stageOf(file));
       // A quarter turn from the front: the 12 m side runs up the screen.
@@ -146,7 +149,7 @@ describe("the state on the thing", () => {
     expect(showPlanned(parlour, ["activity.rest"])).toBe(parlour);
   });
 
-  test("[R-WORLD-029] [R-OBLIGATION-014] given cooking planned for the month, when the room is shown at home and abroad, then steam rises over the pot of the cooking corner", () => {
+  test("[R-WORLD-029] [R-OBLIGATION-014] given cooking planned for the month, when each room is shown, at home, abroad and in a compound, then steam rises over the pot of the cooking corner", () => {
     for (const { name, file } of ROOMS) {
       const shown = stageOf(showPlanned(file, [COOK]));
       const steam = shown.motion.filter((motion) => motion.kind === "smoke");
