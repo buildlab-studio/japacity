@@ -1,109 +1,112 @@
-// The age in steps (prologue.md R-PROLOGUE-009, the review) on the real content: never typed, a few
-// years either side of the tile's own age inside 18 to 29, older with a little more saved and the passport held,
-// younger with more years before the young-favouring routes close, applied as the prologue's own effects.
+// The age on the door (prologue.md R-PROLOGUE-004, R-PROLOGUE-009; decision 0023) on the real content: never typed,
+// from the year a tile's path reaches with no setback to a few years older inside 18 to 29; the year picked is sent on
+// the path's age card and is the year the life starts at, older with the years worked, their saving and from two years
+// the passport.
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
-import { answersInOrder, ARCHETYPES, type Archetype, presetAnswer, withAge } from "../frontdoor/archetypes";
+import { AGE_CARDS, answersInOrder, ARCHETYPES, type Archetype, lowestYear, presetAnswer, withAge } from "../frontdoor/archetypes";
 import { newGame } from "../testing/fixtures";
 import { formatMoney } from "../words/format";
 import { say } from "../words/text";
-import { AGE_CARD, ageSteps, ageStepWords, OLDEST, stepsOpen, YOUNGEST, youngLimitYears } from "./age";
-import { middleMonths } from "./years";
+import { ageStepWords, OLDEST, startYearFor, stepsOpen, STEPS_OLDER, WORK_CARD, yearsWorked, YOUNGEST, youngLimitYears } from "./age";
 
 const PROLOGUE = "scenario.prologue";
 const AGE = "quality.age-months";
 const PASSPORT = "document.passport";
 
-/** Plays the tile's preset with the age step, the open cards as the tile leans; the age when the card came, and the game. */
-function play(archetype: Archetype, step: number, seed: string) {
+/** Plays the tile's preset stepped `older` years, the open cards as the tile leans; the answer sent at its age card, and the game. */
+function play(archetype: Archetype, older: number, seed: string) {
   const game = newGame(PROLOGUE, seed);
-  let atCard: number | null = null;
-  const tile = withAge(archetype, step);
+  let sent: string | null = null;
+  const tile = withAge(archetype, older);
   for (let guard = 0; guard < 40 && game.state.prologue.open; guard += 1) {
     const prologue = game.view().prologue!;
-    if (prologue.step === AGE_CARD) atCard = game.state.quality[AGE] ?? 0;
     const answer = presetAnswer(tile, prologue) ?? answersInOrder(tile, prologue.step, prologue.answers).find((one) => one.allowed)?.id;
     if (answer === undefined) throw new Error(`No open answer at ${prologue.step}.`);
+    if (AGE_CARDS.includes(prologue.step)) sent = answer;
     game.accept({ type: "prologue/choose", step: prologue.step, answer });
   }
-  if (atCard === null) throw new Error("The age card never came.");
-  return { game, atCard };
+  if (sent === null) throw new Error("No age card came.");
+  return { game, sent };
 }
 
 const naira = (game: ReturnType<typeof newGame>): number => game.view().pockets.NGN.bank + game.view().pockets.NGN.cash;
 
-describe("the age card", () => {
-  test("[R-PROLOGUE-009] given the real content, then the age card comes after the send-off and before the home, takes no months, and steps a few years either side", () => {
-    expect(content.prologue["friend"]?.next).toBe(AGE_CARD);
-    expect(content.prologue[AGE_CARD]?.next).toBe("home");
-    expect(content.prologue[AGE_CARD]?.months).toBe(0);
-    expect(ageSteps().map((one) => one.years)).toEqual([-3, -2, -1, 0, 1, 2, 3]);
-    // The card's first answer changes nothing, so a life that only takes the first open answer keeps its years.
-    expect(content.prologue[AGE_CARD]?.answers[0]?.effects).toEqual([]);
+describe("the age cards", () => {
+  test("[R-PROLOGUE-004] given the real content, then each path after school has an age card of the years 18 to 29, and the send-off leads to the years worked, never a card, then home", () => {
+    expect([...AGE_CARDS].sort()).toEqual(["age-degree", "age-shop", "age-trade"]);
+    for (const card of AGE_CARDS) {
+      expect(content.prologue[card]?.months).toBe(0);
+      expect(content.prologue[card]?.answers.map((answer) => answer.id)).toEqual(Array.from({ length: 12 }, (_, at) => `start-${String(18 + at)}`));
+    }
+    expect(content.prologue["after-school"]?.answers.map((answer) => answer.next)).toEqual(["age-degree", "age-trade", "age-shop"]);
+    expect(content.prologue["friend"]?.next).toBe(WORK_CARD);
+    expect(content.prologue[WORK_CARD]?.next).toBe("home");
     expect(YOUNGEST).toBe(18);
     expect(OLDEST).toBe(29);
   });
 
-  test("[R-PROLOGUE-009] given each tile's own age as the middle, then the steps open are those that keep the start inside 18 to 29", () => {
+  test("[R-PROLOGUE-004] [R-PROLOGUE-009] given each tile, then its own year is the year its path reaches with no setback, and the door steps it up to three years older, never past 29", () => {
+    expect(Object.fromEntries(ARCHETYPES.map((archetype) => [archetype.id, lowestYear(archetype)]))).toEqual({ developer: 23, nurse: 23, accountant: 23, writer: 23, trader: 23, "shop-worker": 21, water: 21 });
     for (const archetype of ARCHETYPES) {
-      const middle = middleMonths(archetype);
-      const open = stepsOpen(middle);
-      expect(open).toContain(0);
-      for (const step of ageSteps()) {
-        const years = Math.floor((middle + step.years * 12) / 12);
-        expect(open.includes(step.years), `${archetype.id} ${String(step.years)}`).toBe(years >= YOUNGEST && years <= OLDEST);
-      }
+      expect(stepsOpen(archetype)).toEqual(Array.from({ length: STEPS_OLDER + 1 }, (_, at) => at));
+      expect(startYearFor(archetype, STEPS_OLDER)).toBeLessThanOrEqual(OLDEST);
     }
-    // The edges: a card reached at 18 and a few months opens no younger step; at 29 and some, no older one.
-    expect(stepsOpen(18 * 12 + 4).filter((years) => years < 0)).toEqual([]);
-    expect(stepsOpen(29 * 12 + 4).filter((years) => years > 0)).toEqual([]);
-    expect(stepsOpen(19 * 12)).toContain(-1);
-    expect(stepsOpen(28 * 12 + 11)).toContain(1);
   });
 
-  test("[R-PROLOGUE-009] given every tile and every step open at its middle, when its run is played with the step, then the life closes that many years from the card, older with the saving and from two years the passport, and inside 18 to 29", () => {
+  test("[R-PROLOGUE-004] [R-PROLOGUE-009] given every tile and every step the door offers, when its run is played over seeds, then the life starts in the year picked, with each year worked saved and from two years the passport", () => {
     const wrong: string[] = [];
+    let compared = 0;
     for (const archetype of ARCHETYPES) {
-      const seed = `age-${archetype.id}`;
-      const plain = play(archetype, 0, seed);
-      for (const years of stepsOpen(middleMonths(archetype))) {
-        const step = ageSteps().find((one) => one.years === years)!;
-        const { game, atCard } = play(archetype, years, seed);
-        const age = game.state.quality[AGE] ?? 0;
-        if (game.state.prologue.open) wrong.push(`${archetype.id} ${String(years)}: still open`);
-        if (age !== atCard + years * 12) wrong.push(`${archetype.id} ${String(years)}: ${String(age)} months, card at ${String(atCard)}`);
-        if (Math.floor(age / 12) < YOUNGEST || Math.floor(age / 12) > OLDEST) wrong.push(`${archetype.id} ${String(years)}: ${String(age)} months`);
-        if (naira(game) - naira(plain.game) !== step.saved) wrong.push(`${archetype.id} ${String(years)}: saved ${String(naira(game) - naira(plain.game))}`);
-        const passport = game.view().documents.some((paper) => paper.id === PASSPORT && paper.state === "held");
-        if (passport !== step.passport) wrong.push(`${archetype.id} ${String(years)}: passport ${String(passport)}`);
+      for (let at = 0; at < 6; at += 1) {
+        const seed = `age-${archetype.id}-${String(at)}`;
+        const own = play(archetype, 0, seed);
+        if (Math.floor((own.game.state.quality[AGE] ?? 0) / 12) !== lowestYear(archetype)) wrong.push(`${seed}: not at its own year`);
+        for (const older of stepsOpen(archetype)) {
+          const { game, sent } = play(archetype, older, seed);
+          const year = startYearFor(archetype, older);
+          const age = game.state.quality[AGE] ?? 0;
+          if (game.state.prologue.open) wrong.push(`${seed} +${String(older)}: still open`);
+          if (sent !== `start-${String(year)}`) wrong.push(`${seed} +${String(older)}: sent ${sent}`);
+          if (Math.floor(age / 12) !== year) wrong.push(`${seed} +${String(older)}: ${String(age)} months, picked ${String(year)}`);
+          // At its own year no setback is drawn, so a life stepped older whose years went the same way differs only by
+          // the years worked: their saving, and from two years the passport.
+          const plain = (one: ReturnType<typeof newGame>) => JSON.stringify(one.state.prologue.choices).replace(/start-\d+/g, "");
+          if (plain(game) !== plain(own.game)) continue;
+          compared += 1;
+          if (naira(game) - naira(own.game) !== yearsWorked(older).saved) wrong.push(`${seed} +${String(older)}: saved ${String(naira(game) - naira(own.game))}`);
+          const passport = game.view().documents.some((paper) => paper.id === PASSPORT && paper.state === "held");
+          if (passport !== yearsWorked(older).passport) wrong.push(`${seed} +${String(older)}: passport ${String(passport)}`);
+        }
       }
     }
     expect(wrong).toEqual([]);
-    expect(ageSteps().filter((step) => step.years > 0).every((step) => step.saved > 0)).toBe(true);
-    expect(ageSteps().filter((step) => step.years <= 0).every((step) => step.saved === 0 && !step.passport)).toBe(true);
-    expect(ageSteps().filter((step) => step.years >= 2).every((step) => step.passport)).toBe(true);
+    expect(compared).toBeGreaterThan(ARCHETYPES.length * 6 * 2);
+    expect(yearsWorked(0)).toEqual({ saved: 0, passport: false });
+    expect(yearsWorked(1)).toEqual({ saved: 12000000, passport: false });
+    expect(yearsWorked(2)).toEqual({ saved: 24000000, passport: true });
+    expect(yearsWorked(3)).toEqual({ saved: 36000000, passport: true });
   });
 
-  test("[R-PROLOGUE-009] given a step the card cannot take after the draws, when the run reaches the card, then the nearest step toward the middle is taken", () => {
-    const tile = withAge(ARCHETYPES[0]!, 3);
-    expect(tile.preset[AGE_CARD]).toEqual(["older-3", "older-2", "older-1", "as-is"]);
-    expect(withAge(ARCHETYPES[0]!, -2).preset[AGE_CARD]).toEqual(["younger-2", "younger-1", "as-is"]);
-    expect(withAge(ARCHETYPES[0]!, 0).preset[AGE_CARD]).toEqual(["as-is"]);
+  test("[R-PROLOGUE-009] given a year the card has shut, when the run reaches it, then the nearest open year above is sent, else the nearest below", () => {
+    const developer = ARCHETYPES[0]!;
+    expect(withAge(developer, 2).preset["age-degree"]?.slice(0, 3)).toEqual(["start-25", "start-26", "start-27"]);
+    expect(withAge(developer, 2).preset["age-degree"]?.at(-1)).toBe("start-18");
+    expect(withAge(developer, 0).preset["age-degree"]?.[0]).toBe("start-23");
+    // A tile with no step sends the youngest year open: the year its path reaches.
+    expect(developer.preset["age-degree"]?.[0]).toBe("start-18");
   });
 
-  test("[R-PROLOGUE-009] given an age step, then the page says what it does in content's words: the saving and the passport for older, the years before Canada's age points fall for younger", () => {
+  test("[R-PROLOGUE-009] given an age step, then the page says what it does in content's words: the years worked, their saving and the passport, or at the tile's own year the years before Canada's age points fall", () => {
     const limit = youngLimitYears();
     expect(limit).toBe(30);
-    const older = ageSteps().find((step) => step.years === 2)!;
-    expect(ageStepWords(2, 23 * 12)).toBe(say("prologue.age.older.passport", { amount: formatMoney(older.saved, "NGN") }));
-    expect(ageStepWords(1, 23 * 12)).toBe(say("prologue.age.older", { amount: formatMoney(ageSteps().find((step) => step.years === 1)!.saved, "NGN") }));
-    expect(ageStepWords(-2, 23 * 12)).toBe(say("prologue.age.younger", { count: limit - 21 }));
-    expect(ageStepWords(0, 23 * 12)).toBe(say("prologue.age.as-is", { count: limit - 23 }));
-    // Counted from the age the step lands at: 23 years and 9 months is 6 whole years before 30, beside "About 24".
-    expect(ageStepWords(0, 23 * 12 + 9)).toBe(say("prologue.age.as-is", { count: limit - 24 }));
-    expect(ageStepWords(-1, 23 * 12 + 9)).toBe(say("prologue.age.younger", { count: limit - 23 }));
-    expect(ageStepWords(1, 23 * 12)).toContain("₦120,000");
-    expect(ageStepWords(2, 23 * 12)).toContain("passport");
+    expect(ageStepWords(2, 23)).toBe(say("prologue.age.older.passport", { amount: formatMoney(yearsWorked(2).saved, "NGN") }));
+    expect(ageStepWords(1, 23)).toBe(say("prologue.age.older", { amount: formatMoney(yearsWorked(1).saved, "NGN") }));
+    // From the year printed: 23 is 7 whole years before 30.
+    expect(ageStepWords(0, 23)).toBe(say("prologue.age.as-is", { count: limit - 23 }));
+    expect(ageStepWords(0, 21)).toBe(say("prologue.age.as-is", { count: limit - 21 }));
+    expect(ageStepWords(1, 23)).toContain("₦120,000");
+    expect(ageStepWords(2, 23)).toContain("passport");
   });
 });

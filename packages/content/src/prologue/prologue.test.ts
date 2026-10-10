@@ -6,9 +6,12 @@ import { content, text } from "../index";
 
 const FIRST = "draw";
 const START_AGE = content.tuning.prologue.startAgeMonths;
-// The paths end between 252 and 300 months; the age step then moves a life up to three years either way (R-PROLOGUE-004).
-const YOUNGEST = 216;
-const OLDEST = 336;
+// Every path ends inside the span the age cards offer, 18 to 29 (R-PROLOGUE-004): the years worked after it are the
+// prologue kind's, up to the year picked, and are not walked here.
+const YOUNGEST = 18 * 12;
+const OLDEST = 29 * 12 + 11;
+/** The years worked after the path's end: where a path's months stop being the path's (R-PROLOGUE-004). */
+const WORK = "work";
 
 /**
  * Whether a requirement can hold at this age. Only age is tracked along a path:
@@ -47,8 +50,9 @@ interface Walk {
  * A step's months are added when it is answered (R-PROLOGUE-004). Where a path
  * ends depends only on the step and the age, so each pair is walked once. Throws
  * on a path longer than any prologue could be, so a loop with no way out is found.
+ * With `stop`, a path ends where it reaches that step.
  */
-function walk(steps: Record<string, PrologueStep>): Walk {
+function walk(steps: Record<string, PrologueStep>, stop: string | null = null): Walk {
   const passed = new Set<string>();
   const memo = new Map<string, Map<number, string[]>>();
   const visit = (id: string, age: number, depth: number): Map<number, string[]> => {
@@ -69,7 +73,7 @@ function walk(steps: Record<string, PrologueStep>): Walk {
         passed.add(at);
         const next = outcome.next ?? answer.next ?? step.next;
         const age2 = after + ageAdded(outcome.effects);
-        const later = next === null ? new Map([[age2, []]]) : visit(next, age2, depth + 1);
+        const later = next === null || next === stop ? new Map([[age2, []]]) : visit(next, age2, depth + 1);
         for (const [end, path] of later) if (!ends.has(end)) ends.set(end, [at, ...path]);
       }
     }
@@ -81,15 +85,15 @@ function walk(steps: Record<string, PrologueStep>): Walk {
 }
 
 describe("the prologue's steps", () => {
-  test("[R-PROLOGUE-004] given every path through the prologue, when the months are added, then each ends between 216 and 336 months of age, the age step counted", () => {
-    const { endings } = walk(content.prologue);
+  test("[R-PROLOGUE-004] given every path through the prologue, when the months are added to the years worked, then each path ends inside 18 to 29", () => {
+    const { endings } = walk(content.prologue, WORK);
     expect(endings.length).toBeGreaterThan(5);
     const outside = endings.filter((ending) => ending.age < YOUNGEST || ending.age > OLDEST);
     expect(outside.map((ending) => `${String(ending.age)}: ${ending.path.join(" > ")}`)).toEqual([]);
     const ages = endings.map((ending) => ending.age);
-    // The edges are reached: the longest path is two exams, a strike and the degree, stepped three years older.
-    expect(Math.max(...ages)).toBe(OLDEST);
-    expect(Math.min(...ages)).toBeGreaterThanOrEqual(YOUNGEST);
+    // The longest path is two exams, a strike and the degree, 25 years; the shortest the shop counter, 21 and 7 months.
+    expect(Math.max(...ages)).toBe(300);
+    expect(Math.min(...ages)).toBe(259);
   });
 
   test("[R-PROLOGUE-004] given the degree path with no strike and no retake, when the months are added, then it ends at 277", () => {
@@ -106,9 +110,10 @@ describe("the prologue's steps", () => {
     only("after-school", "jamb");
     only("exam", "study", "pass");
     only("strike", "wait", "no-strike");
-    // The age step keeps the age the path reached (R-PROLOGUE-004).
-    only("age", "as-is");
-    expect(walk(plain).endings.map((ending) => ending.age)).toEqual([277]);
+    // The age the path reaches, picked on its card: no year is worked after it (R-PROLOGUE-004).
+    only("age-degree", "start-23");
+    expect(walk(plain, WORK).endings.map((ending) => ending.age)).toEqual([277]);
+    expect(walk(plain).endings.map((ending) => ending.age)).toEqual([277 + (content.prologue[WORK]?.months ?? 0)]);
   });
 
   test("[R-PROLOGUE-004] given a copy of the prologue whose retake can be taken forever, when walked, then the loop is found", () => {
@@ -117,10 +122,10 @@ describe("the prologue's steps", () => {
     expect(() => walk(forever)).toThrow(/loops/);
   });
 
-  test("[R-PROLOGUE-004] given a copy of the prologue with a step four years too long, when walked, then a path past 300 is found", () => {
+  test("[R-PROLOGUE-004] given a copy of the prologue with a step five years too long, when walked, then a path past 29 is found", () => {
     const service = content.prologue["service"]!;
-    const late = { ...content.prologue, service: { ...service, months: service.months + 48 } };
-    expect(walk(late).endings.some((ending) => ending.age > OLDEST)).toBe(true);
+    const late = { ...content.prologue, service: { ...service, months: service.months + 60 } };
+    expect(walk(late, WORK).endings.some((ending) => ending.age > OLDEST)).toBe(true);
   });
 
   test("[R-ENGINE-014] given every step, when it is checked, then it parses, its key is its id, every next names a step and every draw adds up to 10000", () => {
@@ -201,7 +206,10 @@ function wellbeingAdded(effects: readonly Effect[]): number {
   return effects.reduce((sum, effect) => sum + (effect.type === "quality/add" && effect.quality === WELLBEING ? effect.amount : 0), 0);
 }
 
-/** The lowest and highest wellbeing any path closes on, from the draw card's start, along the answers age allows (as `walk` does). */
+/**
+ * The lowest and highest wellbeing any path closes on, from the draw card's start, along the answers age allows (as `walk` does).
+ * A path is walked to the years worked: the test holds that nothing after them moves wellbeing.
+ */
 function wellbeingAtClose(steps: Record<string, PrologueStep>): { low: number; high: number } {
   let low = Number.POSITIVE_INFINITY;
   let high = Number.NEGATIVE_INFINITY;
@@ -214,7 +222,7 @@ function wellbeingAtClose(steps: Record<string, PrologueStep>): { low: number; h
       for (const outcome of outcomes) {
         const after = wellbeing + wellbeingAdded(answer.effects) + wellbeingAdded(outcome.effects);
         const next = outcome.next ?? answer.next ?? step.next;
-        if (next === null) {
+        if (next === null || next === WORK) {
           low = Math.min(low, after);
           high = Math.max(high, after);
         } else {
@@ -239,10 +247,14 @@ describe("the life from sixteen starts in fair health", () => {
   });
 
   test("[R-PROLOGUE-006] given every path through the prologue, when its wellbeing is added up from the draw card, then every life closes above the run-down line and no higher than the scale allows", () => {
+    // The years worked and the home come after the path and move no wellbeing, so the walk ends at the work.
+    const after = [WORK, "home"].flatMap((id) => (content.prologue[id]?.answers ?? []).flatMap((answer) => answer.effects));
+    expect(wellbeingAdded(after)).toBe(0);
+    expect(after.filter((effect) => effect.type === "quality/add" && effect.quality === WELLBEING)).toEqual([]);
     const { low, high } = wellbeingAtClose(content.prologue);
     expect(low).toBeGreaterThanOrEqual(content.tuning.health.runDownBelow);
     expect(high).toBeLessThanOrEqual(content.quality[WELLBEING]?.max ?? 0);
-  // The age step's seven answers multiply the paths walked (R-PROLOGUE-004); under a full parallel run the walk needs more than the default five seconds.
+  // The age cards' years multiply the paths walked (R-PROLOGUE-004); under a full parallel run the walk needs more than the default five seconds.
   }, 30_000);
 });
 

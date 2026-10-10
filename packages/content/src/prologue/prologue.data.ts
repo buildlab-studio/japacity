@@ -55,11 +55,14 @@ const WELLBEING = "quality.wellbeing";
 const EDU_LEVEL = "quality.edu-level";
 const AGE = "quality.age-months";
 
-/** The age card keeps every start inside 18 years and 29 years and 11 months (R-PROLOGUE-009). */
-const YOUNGEST = 18 * 12;
-const OLDEST = 29 * 12 + 11;
-/** What each year older brings in saving, the brief's working value. */
-const OLDER_SAVED = 120000;
+/** The span a start may be in, in whole years (R-PROLOGUE-004): the age cards offer each year of it. */
+const YOUNGEST_YEARS = 18;
+const OLDEST_YEARS = 29;
+/**
+ * What a month of work after the path's end saves (R-PROLOGUE-004, decision 0023): the older start's ₦120,000 a year
+ * as a month's share, so the years worked and the saving are one count and nothing is paid twice.
+ */
+const WORKED_MONTHLY = 10000;
 
 /** At the first retake card the character is 213 months old; at a second, 228. */
 const FIRST_RETAKE_ONLY: Requirement = { type: "quality/max", quality: "quality.age-months", value: 226 };
@@ -75,7 +78,7 @@ const SHOP_WORK: Effect[] = [add(EDU_LEVEL, 1), earned(naira(300000))];
  */
 const START_WELLBEING = 60;
 
-export const prologueTable: Record<string, PrologueStep> = {
+const steps: Record<string, PrologueStep> = {
   draw: {
     id: "draw",
     months: 0,
@@ -102,7 +105,7 @@ export const prologueTable: Record<string, PrologueStep> = {
     months: 6,
     next: null,
     answers: [
-      answer("jamb", [], { next: "exam" }),
+      answer("jamb", [], { next: "age-degree" }),
       answer("apprentice", [], {
         requires: [
           {
@@ -113,9 +116,9 @@ export const prologueTable: Record<string, PrologueStep> = {
             ],
           },
         ],
-        next: "master",
+        next: "age-trade",
       }),
-      answer("work", SHOP_WORK, { next: "shop" }),
+      answer("work", SHOP_WORK, { next: "age-shop" }),
     ],
   },
 
@@ -282,7 +285,7 @@ export const prologueTable: Record<string, PrologueStep> = {
   friend: {
     id: "friend",
     months: 1,
-    next: "age",
+    next: "work",
     answers: [
       answer("uk", [{ type: "route/hear", route: "route.uk-masters", via: "friend" }]),
       answer("canada", [{ type: "route/hear", route: "route.canada-points", via: "friend" }]),
@@ -299,22 +302,17 @@ export const prologueTable: Record<string, PrologueStep> = {
     ],
   },
 
-  // The age in steps (R-PROLOGUE-009, the review): the front door's tile sends the step the player set,
-  // never typed. Older starts with a little more saved and, from two years, the passport held; younger has more
-  // years before the young-favouring routes close. Each step keeps the start inside 18 to 29. The first answer
-  // changes nothing, so a life that takes the first open answer keeps its years.
-  age: {
-    id: "age",
-    months: 0,
+  // The years worked after the path's end, up to the age picked (R-PROLOGUE-004, decision 0023). Never a card: the
+  // send-off leads here and the prologue kind gives one answer for each year worked, the answers in order and the last
+  // for every year after, each a year of the month's saving; the second year brings the passport held. Then home.
+  work: {
+    id: "work",
+    months: 12,
     next: "home",
     answers: [
-      answer("as-is", []),
-      ...[1, 2, 3].map((years) => answer(`younger-${String(years)}`, [add(AGE, -12 * years)], { requires: [{ type: "quality/min", quality: AGE, value: YOUNGEST + 12 * years }] })),
-      ...[1, 2, 3].map((years) =>
-        answer(`older-${String(years)}`, [add(AGE, 12 * years), earned(naira(OLDER_SAVED * years)), ...(years >= 2 ? [{ type: "document/grant", document: "document.passport" } as const] : [])], {
-          requires: [{ type: "quality/max", quality: AGE, value: OLDEST - 12 * years }],
-        }),
-      ),
+      answer("first-year", [earned(naira(WORKED_MONTHLY * 12))]),
+      answer("second-year", [earned(naira(WORKED_MONTHLY * 12)), { type: "document/grant", document: "document.passport" }]),
+      answer("later-year", [earned(naira(WORKED_MONTHLY * 12))]),
     ],
   },
 
@@ -397,6 +395,43 @@ export const prologueTable: Record<string, PrologueStep> = {
       answer("save", [earned(naira(200000)), add(WELLBEING, -4)]),
     ],
   },
+};
+
+/** The months a path takes along these steps, each step's own (R-PROLOGUE-004). */
+function monthsOf(path: readonly string[]): number {
+  return path.reduce((sum, id) => {
+    const step = steps[id];
+    if (step === undefined) throw new Error(`The prologue has no step ${id}.`);
+    return sum + step.months;
+  }, 0);
+}
+
+/**
+ * The age card of one path (R-PROLOGUE-004, decision 0023): its answers set the age the life starts at, a year each from
+ * 18 to 29, and one is open only when the path's end with no setback falls in that year or before, `path` being the
+ * steps of its longest way from here to the send-off. The prologue kind keeps the year picked: a strike or a retake
+ * that would leave no year of work is not drawn, and the years left are worked before home. Youngest first, so a life
+ * that takes the first open answer starts at the age its path reaches.
+ */
+function ageCard(id: string, next: string, path: readonly string[]): PrologueStep {
+  const months = monthsOf(path);
+  const years = Array.from({ length: OLDEST_YEARS - YOUNGEST_YEARS + 1 }, (_, at) => YOUNGEST_YEARS + at);
+  return {
+    id,
+    months: 0,
+    next,
+    answers: years.map((year) => answer(`start-${String(year)}`, [], { requires: [{ type: "quality/max", quality: AGE, value: year * 12 + 11 - months }] })),
+  };
+}
+
+/** The steps from sixteen, and the age card where each path begins after school. */
+export const prologueTable: Record<string, PrologueStep> = {
+  ...steps,
+  // The degree's longest way: the exam passed, the course, the strike that does not come, the final years and the service.
+  "age-degree": ageCard("age-degree", "exam", ["exam", "course", "university", "strike", "side-skill", "hustle", "graduation", "service", "friend"]),
+  // The trade's: six years under the master, the settlement waited for.
+  "age-trade": ageCard("age-trade", "master", ["master", "years", "settlement", "friend"]),
+  "age-shop": ageCard("age-shop", "shop", ["shop", "friend"]),
 };
 
 /**

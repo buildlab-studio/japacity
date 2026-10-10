@@ -1,80 +1,62 @@
-// The age in steps (prologue.md R-PROLOGUE-009, the review): never typed. The tile's own age is the middle
-// and the player steps it a few years either side, inside 18 to 29. The steps are the prologue's age card in content,
-// whose answers carry the effects; the client only reads them, sends the one picked through the tile's preset, and
-// says what each does.
+// The age on the door (prologue.md R-PROLOGUE-004, R-PROLOGUE-009; decision 0023): never typed. The tile's own age is
+// the year its path reaches with no setback, and the player steps it a few years older, within 18 to 29. The age picked
+// is the age the life starts at: the years past the path's end are worked, and the prologue's work card says what each
+// year brings. The client only reads the cards, sends the year picked through the tile's preset, and says what a step does.
 import { content } from "@japacity/content";
-import type { Effect, Id, PrologueStep, Requirement } from "@japacity/sim";
+import type { Id } from "@japacity/sim";
 
+import { AGE_CARDS, type Archetype, lowestYear, startYearOf } from "../frontdoor/archetypes";
 import { formatMoney } from "../words/format";
 import { say, sayCount } from "../words/text";
 
-/** The prologue's age card. */
-export const AGE_CARD = "age";
-const AGE = "quality.age-months";
+/** The years worked after the path's end, never a card: its answers are the years in order, the last for every year after. */
+export const WORK_CARD = "work";
 const PASSPORT = "document.passport";
-const YEAR = 12;
 const CANADA = "points.canada" as Id<"points">;
+/** How many years older than its own a tile's age steps on the door (R-PROLOGUE-009: a few years). */
+export const STEPS_OLDER = 3;
 
-type Answer = PrologueStep["answers"][number];
+function years(): number[] {
+  return AGE_CARDS.flatMap((card) => (content.prologue[card]?.answers ?? []).flatMap((answer) => {
+    const year = startYearOf(answer.id);
+    return year === null ? [] : [year];
+  }));
+}
 
-export interface AgeStep {
-  /** The card's answer. */
-  answer: string;
-  /** Years from the middle: negative is younger. */
-  years: number;
-  /** Naira in kobo the step brings. */
+/** The youngest and the oldest a start may be, in whole years, from the age cards' own years. */
+export const YOUNGEST = Math.min(...years());
+export const OLDEST = Math.max(...years());
+
+/** The year a tile's life starts at, `older` years past its own. */
+export function startYearFor(archetype: Archetype, older: number): number {
+  return lowestYear(archetype) + older;
+}
+
+/** The steps older the door offers a tile, its own age first: up to three, never past the oldest start. */
+export function stepsOpen(archetype: Archetype): number[] {
+  const most = Math.max(0, Math.min(STEPS_OLDER, OLDEST - lowestYear(archetype)));
+  return Array.from({ length: most + 1 }, (_, at) => at);
+}
+
+export interface Worked {
+  /** Naira in kobo the years worked save. */
   saved: number;
-  /** True when the step brings the passport held. */
+  /** True when they bring the passport held. */
   passport: boolean;
-  requires: readonly Requirement[];
 }
 
-function card(): PrologueStep {
-  const entry = content.prologue[AGE_CARD];
-  if (entry === undefined) throw new Error("The content has no age card.");
-  return entry;
-}
-
-function stepOf(answer: Answer): AgeStep {
-  const ages = answer.effects.filter((effect): effect is Extract<Effect, { type: "quality/add" }> => effect.type === "quality/add" && effect.quality === AGE);
-  const months = ages.reduce((sum, effect) => sum + (typeof effect.amount === "number" ? effect.amount : 0), 0);
-  const saved = answer.effects.reduce((sum, effect) => sum + (effect.type === "money/add" && effect.currency === "NGN" && typeof effect.amount === "number" ? effect.amount : 0), 0);
-  const passport = answer.effects.some((effect) => effect.type === "document/grant" && effect.document === PASSPORT);
-  return { answer: answer.id, years: Math.trunc(months / YEAR), saved, passport, requires: answer.requires };
-}
-
-/** Every step the card offers, youngest first. */
-export function ageSteps(): AgeStep[] {
-  return card()
-    .answers.map(stepOf)
-    .sort((a, b) => a.years - b.years);
-}
-
-/** The card's limit of one kind, as the age a start lands at: a step's requirement plus the years it moves. */
-function bound(kind: "quality/min" | "quality/max"): number {
-  const limits = ageSteps().flatMap((step) => step.requires.flatMap((requirement) => (requirement.type === kind && requirement.quality === AGE && typeof requirement.value === "number" ? [requirement.value + step.years * YEAR] : [])));
-  if (limits.length === 0) throw new Error(`The age card has no ${kind}.`);
-  return kind === "quality/min" ? Math.min(...limits) : Math.max(...limits);
-}
-
-/** The youngest and the oldest a start may be, in whole years, from the card's own limits. */
-export const YOUNGEST = Math.floor(bound("quality/min") / YEAR);
-export const OLDEST = Math.floor(bound("quality/max") / YEAR);
-
-/** True when the step's requirements hold at this age in months. */
-function holds(step: AgeStep, months: number): boolean {
-  return step.requires.every((requirement) => {
-    if (requirement.type === "quality/min" && requirement.quality === AGE && typeof requirement.value === "number") return months >= requirement.value;
-    if (requirement.type === "quality/max" && requirement.quality === AGE && typeof requirement.value === "number") return months <= requirement.value;
-    return true;
-  });
-}
-
-/** The steps open at a card reached at this age, in years from it. */
-export function stepsOpen(months: number): number[] {
-  return ageSteps()
-    .filter((step) => holds(step, months))
-    .map((step) => step.years);
+/** What so many years of work after the path's end bring, from the work card's answers in content. */
+export function yearsWorked(count: number): Worked {
+  const answers = content.prologue[WORK_CARD]?.answers ?? [];
+  let saved = 0;
+  let passport = false;
+  for (let at = 0; at < count; at += 1) {
+    for (const effect of answers[Math.min(at, answers.length - 1)]?.effects ?? []) {
+      if (effect.type === "money/add" && effect.currency === "NGN" && typeof effect.amount === "number") saved += effect.amount;
+      if (effect.type === "document/grant" && effect.document === PASSPORT) passport = true;
+    }
+  }
+  return { saved, passport };
 }
 
 /** The age from which Canada's points for age start to fall, from its own table: the young-favouring limit the page names. */
@@ -85,11 +67,13 @@ export function youngLimitYears(): number {
   return rows[top + 1]?.years ?? rows.at(-1)?.years ?? 0;
 }
 
-/** What a step does, for the page: the saving and the passport for older, the years before Canada's age points fall otherwise. */
-export function ageStepWords(years: number, middle: number): string {
-  const step = ageSteps().find((one) => one.years === years);
-  if (step !== undefined && step.years > 0) return say(step.passport ? "prologue.age.older.passport" : "prologue.age.older", { amount: formatMoney(step.saved, "NGN") });
-  // Whole years from the age the step lands at to the limit, so "24 years old" and "6 years before" add up to 30.
-  const left = Math.max(0, Math.floor((youngLimitYears() * YEAR - (middle + years * YEAR)) / YEAR));
-  return sayCount(years === 0 ? "prologue.age.as-is" : "prologue.age.younger", left, { count: left });
+/** What a step does, for the page: the years worked, their saving and the passport; at the tile's own age the years before Canada's age points fall. */
+export function ageStepWords(older: number, lowest: number): string {
+  if (older > 0) {
+    const worked = yearsWorked(older);
+    return say(worked.passport ? "prologue.age.older.passport" : "prologue.age.older", { amount: formatMoney(worked.saved, "NGN") });
+  }
+  // Whole years from the age printed to the limit, so "23" and "7 years before" add up to 30.
+  const left = Math.max(0, youngLimitYears() - lowest);
+  return sayCount("prologue.age.as-is", left, { count: left });
 }

@@ -5,7 +5,7 @@
 // `prologue.<step>.answer.<answer>.why` for why an answer is not open: the situation,
 // never the threshold. A card is at most
 // ten words and an answer at most four.
-export const prologueText: Record<string, string> = {
+const words: Record<string, string> = {
   "prologue.draw.card": "Where you start: your family, your town, your siblings.",
   "prologue.draw.answer.begin": "Begin",
 
@@ -105,27 +105,17 @@ export const prologueText: Record<string, string> = {
   "prologue.friend.answer.drivers.hint": "They talk of Dubai.",
   "prologue.friend.answer.tech.why": "you do not know enough tech to follow them.",
 
-  // The age card (R-PROLOGUE-009): the front door's age in steps, sent by the tile; it shows only in the full prologue.
-  "prologue.age.card": "How old are you when your story starts?",
-  "prologue.age.answer.as-is": "As the years went",
-  "prologue.age.answer.younger-1": "A year younger",
-  "prologue.age.answer.younger-2": "Two years younger",
-  "prologue.age.answer.younger-3": "Three years younger",
-  "prologue.age.answer.older-1": "A year older",
-  "prologue.age.answer.older-2": "Two years older",
-  "prologue.age.answer.older-3": "Three years older",
-  "prologue.age.answer.younger-1.why": "you would start too young.",
-  "prologue.age.answer.younger-2.why": "you would start too young.",
-  "prologue.age.answer.younger-3.why": "you would start too young.",
-  "prologue.age.answer.older-1.why": "you would start too old.",
-  "prologue.age.answer.older-2.why": "you would start too old.",
-  "prologue.age.answer.older-3.why": "you would start too old.",
-  // What a step does, on the data page.
+  // The age cards (R-PROLOGUE-004, 009; decision 0023): one for each path after school, sent by the tile with the age
+  // picked on the door; they show only in the full prologue. Their answers are the years, written below.
+  // The years worked after the path's end are never a card; their words name them where they are told.
+  "prologue.work.card": "You work until your story starts.",
+  "prologue.work.answer.first-year": "A year of work",
+  "prologue.work.answer.second-year": "A second year",
+  "prologue.work.answer.later-year": "Another year",
+  // What a year older does, under the age on the door: the years worked and what they saved, or at the path's own age
+  // the years left before Canada's points for age fall.
   "prologue.age.older": "+{amount} saved",
   "prologue.age.older.passport": "+{amount} saved, the passport held",
-  "prologue.age.younger": "{count} years before Canada's age points fall",
-  "prologue.age.younger.one": "One year before Canada's age points fall",
-  "prologue.age.younger.zero": "Canada's age points are falling",
   "prologue.age.as-is": "{count} years before Canada's age points fall",
   "prologue.age.as-is.one": "One year before Canada's age points fall",
   "prologue.age.as-is.zero": "Canada's age points are falling",
@@ -158,39 +148,39 @@ export const prologueText: Record<string, string> = {
   "prologue.shop.answer.stay": "Stay and know everybody",
   "prologue.shop.answer.save": "Save every naira",
 
-  // The archetypes (R-PROLOGUE-010): the tile's name, what it was, what it opens with the age it hands over at
-  // (the middle of its lives over many seeds, in whole years: the archetypes' test reads it); the naira its life holds at
+  // The archetypes (R-PROLOGUE-010): the tile's name, what it was, what it opens with the age it hands over from
+  // (the age its path reaches with no setback, the lowest its age card opens: R-PROLOGUE-004; the archetypes' test reads it); the naira its life holds at
   // the close, in whole naira, the door's "what it leaves in the pocket" (R-PROLOGUE-013: the savings test keeps it within a
   // quarter of its lives' median); and the handover's line.
   "prologue.archetype.developer.name": "The developer",
   "prologue.archetype.developer.was": "Science, then computer science",
-  "prologue.archetype.developer.opens": "Opens: tech work in the UK, a master's. Hands over at about 24",
+  "prologue.archetype.developer.opens": "Opens: tech work in the UK, a master's. Hands over from 23",
   "prologue.archetype.developer.savings": "500000",
   "prologue.archetype.nurse.name": "The nurse",
   "prologue.archetype.nurse.was": "Science, then nursing school",
-  "prologue.archetype.nurse.opens": "Opens: care work in the UK, the Gulf. Hands over at about 24",
+  "prologue.archetype.nurse.opens": "Opens: care work in the UK, the Gulf. Hands over from 23",
   "prologue.archetype.nurse.savings": "500000",
   "prologue.archetype.accountant.name": "The accountant",
   "prologue.archetype.accountant.was": "Commercial, then accounting",
-  "prologue.archetype.accountant.opens": "Opens: Canada's points, skilled work in the UK. Hands over at about 24",
+  "prologue.archetype.accountant.opens": "Opens: Canada's points, skilled work in the UK. Hands over from 23",
   "prologue.archetype.accountant.savings": "1050000",
   "prologue.archetype.writer.name": "The writer",
   "prologue.archetype.writer.was": "Arts, then mass communication",
-  "prologue.archetype.writer.opens": "Opens: a UK master's, Canada's points. Hands over at about 24",
+  "prologue.archetype.writer.opens": "Opens: a UK master's, Canada's points. Hands over from 23",
   "prologue.archetype.writer.savings": "500000",
   "prologue.archetype.trader.name": "The trader",
   "prologue.archetype.trader.was": "Six years under a spare parts master",
-  "prologue.archetype.trader.opens": "Opens: a Gulf contract, the road through the desert to Europe. Hands over at about 24",
+  "prologue.archetype.trader.opens": "Opens: a Gulf contract, the road through the desert to Europe. Hands over from 23",
   "prologue.archetype.trader.savings": "2500000",
   "prologue.archetype.shop-worker.name": "The shop worker",
   "prologue.archetype.shop-worker.was": "Straight from school to a shop counter",
-  "prologue.archetype.shop-worker.opens": "Opens: a Gulf contract, the road through the desert to Europe. Hands over at about 22",
+  "prologue.archetype.shop-worker.opens": "Opens: a Gulf contract, the road through the desert to Europe. Hands over from 21",
   "prologue.archetype.shop-worker.savings": "500000",
   // R-PROLOGUE-012: the child of the water starts in a room in Makoko. Its nudges, for the first chapter's table:
   // `job` while it has no work, `heard` while no way out is heard of, `shop` once a shop's capital is in hand.
   "prologue.archetype.water.name": "The child of the water",
   "prologue.archetype.water.was": "Grew up in Makoko. A canoe to school, then the fish racks",
-  "prologue.archetype.water.opens": "Opens: a Gulf contract, the road through the desert to Europe. Hands over at about 22",
+  "prologue.archetype.water.opens": "Opens: a Gulf contract, the road through the desert to Europe. Hands over from 21",
   "prologue.archetype.water.savings": "500000",
   "prologue.archetype.water.nudge.job": "Find work in town. The rent on the water is small, so most of the pay stays.",
   "prologue.archetype.water.nudge.heard": "Paddle to the bridge and ask around at the motor park.",
@@ -218,8 +208,8 @@ export const prologueText: Record<string, string> = {
   "prologue.door.pick": "Pick",
   "prologue.door.print": "Print my page",
   "prologue.door.age": "Your age",
-  "prologue.door.age.hint": "Older starts with more saved. Younger has more years before the age limits.",
-  "prologue.door.age.years": "About {years}",
+  "prologue.door.age.hint": "Older has worked longer and saved more. Younger has more years before the age limits.",
+  "prologue.door.age.years": "{years}",
   "prologue.door.age.younger": "Younger",
   "prologue.door.age.older": "Older",
   "prologue.door.print.then": "Your page",
@@ -242,7 +232,7 @@ export const prologueText: Record<string, string> = {
   "prologue.page.head": "Travel data page",
   "prologue.page.name": "Name",
   "prologue.page.age": "Age",
-  "prologue.page.age.about": "About {years}",
+  "prologue.page.age.years": "{years}",
   "prologue.page.path": "So far",
   "prologue.page.ready": "Ready",
   "prologue.page.type": "Japa type",
@@ -302,3 +292,19 @@ export const prologueText: Record<string, string> = {
   "prologue.line.moved.loss": "{quality} down.",
   "prologue.line.moved.drift": "{quality} settles.",
 };
+
+/** The age cards and their years, 18 to 29 (R-PROLOGUE-004): the card's question, each year, and why a year is shut. */
+const AGE_CARDS = ["age-degree", "age-trade", "age-shop"] as const;
+const START_YEARS = Array.from({ length: 12 }, (_, at) => 18 + at);
+
+const ageWords: Record<string, string> = Object.fromEntries(
+  AGE_CARDS.flatMap((card): [string, string][] => [
+    [`prologue.${card}.card`, "How old are you when your story starts?"],
+    ...START_YEARS.flatMap((year): [string, string][] => [
+      [`prologue.${card}.answer.start-${String(year)}`, String(year)],
+      [`prologue.${card}.answer.start-${String(year)}.why`, "your years at school and after run past it."],
+    ]),
+  ]),
+);
+
+export const prologueText: Record<string, string> = { ...words, ...ageWords };

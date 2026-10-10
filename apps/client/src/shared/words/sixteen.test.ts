@@ -26,8 +26,9 @@ describe("the path the life from sixteen took", () => {
   test("[R-PROLOGUE-008] given many lives from sixteen down every path, when each is read at its handover, then it holds a shop's capital exactly when the master's settlement was generous or fair", () => {
     const seen = new Map<string, number>();
     for (let n = 0; n < 160; n += 1) {
+      // Each age card at the year its path reaches (R-PROLOGUE-004): years worked past it save toward a shop's capital too.
       const { view, settlement } = play(`sixteen-path-${String(n)}`, (allowed, step, turn) =>
-        step === "after-school" && n % 3 !== 0 && allowed.includes("apprentice") ? "apprentice" : (allowed[(n + turn) % allowed.length] ?? ""),
+        step === "after-school" && n % 3 !== 0 && allowed.includes("apprentice") ? "apprentice" : step.startsWith("age-") ? (allowed[0] ?? "") : (allowed[(n + turn) % allowed.length] ?? ""),
       );
       const path = sixteenPath(view);
       seen.set(`${String(path)} ${String(settlement)}`, (seen.get(`${String(path)} ${String(settlement)}`) ?? 0) + 1);

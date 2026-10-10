@@ -4,6 +4,7 @@ import { content, text } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
 import { allMet } from "../engine/check";
+import { divFloor } from "../engine/int";
 import { checkInvariants } from "../engine/invariants";
 import type { Registry } from "../engine/kind";
 import { applyEvent, newState } from "../engine/state";
@@ -16,7 +17,7 @@ import type { Game, Loose } from "../testing/play";
 import { start } from "../testing/play";
 import { standInWorld } from "../world/standIn";
 import type { PrologueEvent } from "./prologue.events";
-import { gradeOf, parentsEducatedBp, PROLOGUE_SOURCE } from "./prologue.logic";
+import { gradeOf, parentsEducatedBp, pathMonths, PROLOGUE_SOURCE, startYear, WORK } from "./prologue.logic";
 
 const PROLOGUE: Id<"scenario"> = "scenario.prologue";
 const AGE: Id<"quality"> = "quality.age-months";
@@ -103,11 +104,15 @@ function playOut(game: Game, choice: (index: number, allowed: number) => number 
   return lines;
 }
 
-/** Begins, takes science and sits the exam until it passes, or until the second retake sends the character to work. */
+/** The oldest start the age cards offer: years enough that every retake and strike can still be drawn (R-PROLOGUE-004). */
+const OLDEST_START = "start-29";
+
+/** Begins, takes science, starts at 29 and sits the exam until it passes, or until the second retake sends the character to work. */
 function toCourse(game: Game): void {
   choose(game, "begin");
   pick(game, "science");
   choose(game, "jamb");
+  choose(game, OLDEST_START);
   while (game.state.prologue.step === "exam" || game.state.prologue.step === "retake") {
     if (game.state.prologue.step === "exam") choose(game, "study");
     else pick(game, "again", "work");
@@ -287,9 +292,9 @@ describe("answers", () => {
         choose(game, allowed[choice(index, allowed.length)]!);
       }
     }
-    // The age step's requires are bounds on the start (18 to 29) that no path reaches, so its answers are only ever allowed (R-PROLOGUE-004).
+    // The age cards' years before their path's end are never open, by R-PROLOGUE-004; they are tested with the age.
     const withRequires = Object.values(withPrologue.prologue)
-      .filter((step) => step.id !== "age")
+      .filter((step) => !step.answers.every((answer) => startYear({ [step.id]: answer.id }) !== null))
       .flatMap((step) => step.answers.filter((answer) => answer.requires.length > 0).map((answer) => `${step.id}.${answer.id}`));
     expect(withRequires.length).toBeGreaterThanOrEqual(10);
     expect(withRequires.filter((at) => !allowedSeen.has(at))).toEqual([]);
@@ -305,7 +310,8 @@ describe("answers", () => {
     expect(game.state.wallet.pockets.NGN).toEqual({ bank: 30000000, cash: 0, locked: 0 });
     expect(game.state.wallet.totals.in.gig?.NGN).toBe(30000000);
     expect(quality(game, "quality.edu-level")).toBe(1);
-    expect(game.state.prologue.step).toBe("shop");
+    // The shop's age card comes first (R-PROLOGUE-004).
+    expect(game.state.prologue.step).toBe("age-shop");
   });
 
   test("[R-PROLOGUE-003] given a family with means of 60 or more, when the private university is chosen, then the family's money passes through as a flagged gift, with a grade base of 1", () => {
@@ -325,6 +331,7 @@ describe("answers", () => {
       choose(game, "begin");
       pick(game, "arts");
       choose(game, "jamb");
+      choose(game, OLDEST_START);
       const before = game.state.draws.prologue ?? 0;
       choose(game, "expo");
       expect(game.state.draws.prologue).toBe(before + 1);
@@ -407,13 +414,13 @@ describe("age", () => {
       pick(played, "arts");
     }, (played) => played.view().prologue!.answers.find((answer) => answer.id === "apprentice")?.allowed === true);
     choose(game, "apprentice");
+    // The age the trade's path reaches with no setback (R-PROLOGUE-004).
+    choose(game, "start-23");
     choose(game, "spare-parts");
     choose(game, "stay");
     choose(game, "settle");
     expect(game.state.prologue.step).toBe("friend");
     choose(game, "nowhere");
-    // The age step: the age as the path reached it (R-PROLOGUE-004).
-    choose(game, "as-is");
     choose(game, "family-house");
     // 192 + 12 + 6 + 72 + 1: six years under the master.
     expect(quality(game, AGE)).toBe(283);
@@ -450,13 +457,130 @@ describe("age", () => {
     expect(withPrologue.prologue["strike-drag"]?.months).toBe(8);
   });
 
-  test("[R-PROLOGUE-004] given 200 random prologues, when each closes, then age is between 216 and 336 months, the age step counted", () => {
+  test("[R-PROLOGUE-004] given 200 random prologues, when each closes, then age is in the year picked on the age card, inside 18 to 29", () => {
     for (let run = 0; run < 200; run += 1) {
       const game = newGame(`ages-${String(run)}`);
       playOut(game, spread(run));
-      expect(quality(game, AGE)).toBeGreaterThanOrEqual(216);
-      expect(quality(game, AGE)).toBeLessThanOrEqual(336);
+      expect(divFloor(quality(game, AGE), 12)).toBe(startYear(game.state.prologue.choices));
+      expect(quality(game, AGE)).toBeGreaterThanOrEqual(18 * 12);
+      expect(quality(game, AGE)).toBeLessThanOrEqual(29 * 12 + 11);
     }
+  });
+});
+
+/** The naira held, bank and cash. */
+function naira(game: Game): number {
+  return game.state.wallet.pockets.NGN.bank + game.state.wallet.pockets.NGN.cash;
+}
+
+/** The shop counter's path from school with the year given, to the close: the path ends at 259 months, 21 and 7 months. */
+function shopLife(seed: string, year: number): Game {
+  const game = newGame(seed);
+  choose(game, "begin");
+  pick(game, "commercial");
+  choose(game, "work");
+  choose(game, `start-${String(year)}`);
+  choose(game, "save");
+  choose(game, "nowhere");
+  choose(game, "family-house");
+  return game;
+}
+
+/** The years a path's age card opens, at a fresh life that took this answer after school. */
+function yearsOpen(answer: string): number[] {
+  const game = seedWhere(`open-${answer}`, (played) => {
+    choose(played, "begin");
+    pick(played, "commercial");
+  }, (played) => played.view().prologue!.answers.find((given) => given.id === answer)?.allowed === true);
+  choose(game, answer);
+  return game.view().prologue!.answers.filter((given) => given.allowed).map((given) => startYear({ card: given.id }) ?? -1);
+}
+
+const span = (from: number, to: number): number[] => Array.from({ length: to - from + 1 }, (_, at) => from + at);
+
+/** Plays a degree from school at the year given, studying for the exam, until the strike card; the steps it passed. */
+function degreeTo(game: Game, year: number, way: string): string[] {
+  choose(game, "begin");
+  pick(game, "science");
+  choose(game, "jamb");
+  choose(game, `start-${String(year)}`);
+  const passed: string[] = [];
+  while (stepOf(game) !== "side-skill") {
+    passed.push(stepOf(game));
+    if (stepOf(game) === "exam") choose(game, way);
+    else playStep(game);
+  }
+  return passed;
+}
+
+describe("the age picked (decision 0023)", () => {
+  test("[R-PROLOGUE-004] given each path after school, when its age card shows, then it opens each year from the one its path ends in with no setback to 29, and never one before", () => {
+    // The kind's own walk and the cards agree: the degree's longest way is 67 months from its card, the trade's 73, the shop's 49.
+    const card = (id: string) => withPrologue.prologue[id]!;
+    expect([pathMonths(withPrologue.prologue, card("age-degree").next), pathMonths(withPrologue.prologue, card("age-trade").next), pathMonths(withPrologue.prologue, card("age-shop").next)]).toEqual([67, 73, 49]);
+    // At 210 months: the degree ends at 277 (23 and 1 month), the trade at 283 (23 and 7), the shop at 259 (21 and 7).
+    expect(yearsOpen("jamb")).toEqual(span(23, 29));
+    expect(yearsOpen("work")).toEqual(span(21, 29));
+    const trade = seedWhere("open-trade", (played) => {
+      choose(played, "begin");
+      pick(played, "arts");
+    }, (played) => played.view().prologue!.answers.find((given) => given.id === "apprentice")?.allowed === true);
+    choose(trade, "apprentice");
+    expect(trade.view().prologue!.answers.filter((given) => given.allowed).map((given) => given.id)).toEqual(span(23, 29).map((year) => `start-${String(year)}`));
+    trade.expectRejected({ type: "prologue/choose", step: "age-trade", answer: "start-22" }, "not-legal");
+    // The work after the path is no card of its own.
+    expect(withPrologue.prologue["friend"]?.next).toBe(WORK);
+  });
+
+  test("[R-PROLOGUE-004] given the shop counter's life at each year it may start, when it closes, then it is that year and the 7 months its path reached, each year worked saves a year of the month's saving, and two years bring the passport", () => {
+    const at = (year: number) => shopLife("worked", year);
+    const own = at(21);
+    expect(quality(own, AGE)).toBe(21 * 12 + 7);
+    const yearSaved = (withPrologue.prologue[WORK]?.answers[0]?.effects ?? []).reduce((sum, effect) => sum + (effect.type === "money/add" && typeof effect.amount === "number" ? effect.amount : 0), 0);
+    // ₦10,000 a month worked: the older start's ₦120,000 a year, counted once.
+    expect(yearSaved).toBe(12000000);
+    for (const year of span(21, 29)) {
+      const life = at(year);
+      expect(quality(life, AGE)).toBe(year * 12 + 7);
+      expect(naira(life) - naira(own)).toBe((year - 21) * yearSaved);
+      expect(life.state.document["document.passport"]?.state === "held").toBe(year - 21 >= 2);
+      expect(life.state.prologue.open).toBe(false);
+    }
+  });
+
+  test("[R-PROLOGUE-004] given a degree at the year its path ends in, or one later, when the exam is crammed over many seeds, then a retake that would leave no year of work is never drawn and the exam passes, and from the year after it a retake comes", () => {
+    // A retake puts the end 15 months on, past 24 years: at 23 or 24 it would leave nothing.
+    for (const year of [23, 24]) {
+      for (let run = 0; run < 30; run += 1) {
+        const game = newGame(`no-retake-${String(year)}-${String(run)}`);
+        choose(game, "begin");
+        pick(game, "science");
+        choose(game, "jamb");
+        choose(game, `start-${String(year)}`);
+        const before = game.state.draws.prologue ?? 0;
+        choose(game, "cram");
+        // Not drawn: the stream is where it was, and the exam passes.
+        expect(game.state.draws.prologue ?? 0).toBe(before);
+        expect(game.state.prologue.step).toBe("course");
+        expect(game.state.prologue.lastOutcome).toBe("prologue.exam.outcome.pass");
+      }
+    }
+    const retook = Array.from({ length: 30 }, (_, run) => degreeTo(newGame(`retake-25-${String(run)}`), 25, "cram")).filter((passed) => passed.includes("retake"));
+    expect(retook.length).toBeGreaterThan(0);
+  });
+
+  test("[R-PROLOGUE-004] given a degree at the year its path ends in, when the strike card comes over many seeds, then the strike is never drawn; a year later it comes, and the life still closes in the year picked", () => {
+    for (let run = 0; run < 30; run += 1) expect(degreeTo(newGame(`no-strike-${String(run)}`), 23, "study")).not.toContain("strike-drag");
+    const lives = Array.from({ length: 30 }, (_, run) => {
+      const game = newGame(`strike-24-${String(run)}`);
+      const passed = degreeTo(game, 24, "study");
+      playOut(game);
+      return { passed, age: quality(game, AGE) };
+    });
+    const struck = lives.filter((life) => life.passed.includes("strike-drag"));
+    expect(struck.length).toBeGreaterThan(0);
+    // The strike's eight months fall inside the year: 285 months is still 23, so no year of work is lost to it here.
+    for (const life of lives) expect(divFloor(life.age, 12)).toBe(24);
   });
 });
 
@@ -546,6 +670,9 @@ function startProblems(game: Game, label: string): string[] {
   say(owed.join(",") !== wanted, `owes ${owed.join(", ")}`);
   say(state.turn.banked !== withPrologue.tuning.turn.start, `the bank holds ${String(state.turn.banked)} turns`);
   say(state.turn.month !== 0, "a month has passed");
+  // R-PROLOGUE-004 (decision 0023): the page prints the year picked, and the life is in that year.
+  const picked = startYear(state.prologue.choices);
+  say(picked === null || divFloor(state.quality[AGE] ?? 0, 12) !== picked, `is ${String(state.quality[AGE])} months old, picked ${String(picked)}`);
   const view = game.view();
   say(view.prologue !== null, "the view still shows the prologue");
   say(hiddenPaths(view).length > 0, "the view shows a hidden field");
@@ -557,7 +684,7 @@ function startProblems(game: Game, label: string): string[] {
 }
 
 describe("the close", () => {
-  test("[R-PROLOGUE-006] [R-PROLOGUE-013] [R-SCENARIO-001] [R-SCENARIO-002] [R-SCENARIO-003] given 200 random prologues, when each is played from the legal list to its end, then each is a legal starting life", () => {
+  test("[R-PROLOGUE-006] [R-PROLOGUE-013] [R-SCENARIO-001] [R-SCENARIO-002] [R-SCENARIO-003] given 200 random prologues, when each is played from the legal list to its end, then each is a legal starting life, in the year its age card picked", () => {
     const closes = new Set<string>();
     const problems: string[] = [];
     for (let run = 0; run < 200; run += 1) {
@@ -626,6 +753,7 @@ describe("the view", () => {
     choose(game, "begin");
     pick(game, "commercial");
     choose(game, "work");
+    choose(game, "start-21");
     const view = game.view();
     expect(view.prologue?.step).toBe("shop");
     expect(view.prologue?.draw).toEqual(game.state.prologue.draw);

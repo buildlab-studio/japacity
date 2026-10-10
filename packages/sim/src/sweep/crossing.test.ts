@@ -507,6 +507,7 @@ describe("whole-life rules that cross kinds", () => {
       choose(game, "begin");
       choose(game, "science");
       choose(game, "jamb");
+      choose(game, "start-23");
       choose(game, "study");
       return game;
     };
@@ -526,6 +527,8 @@ describe("whole-life rules that cross kinds", () => {
     };
     expect(moved("science", ["quality.tech", "quality.english"])).toEqual([10, 5]);
     choose(game, "jamb");
+    // The degree's age card at the year its path reaches (R-PROLOGUE-004).
+    choose(game, "start-23");
     choose(game, "study");
     expect(game.state.prologue.step).toBe("course");
     expect(moved("nursing", ["quality.care"])).toEqual([30]);
@@ -543,8 +546,6 @@ describe("whole-life rules that cross kinds", () => {
     expect(game.state.wallet.pockets.NGN.bank - naira.bank).toBe(500000 * UNIT);
     expect(game.state.wallet.pockets.NGN.cash).toBe(naira.cash);
     choose(game, "uk");
-    // The age step keeps the age the path reached (R-PROLOGUE-004).
-    choose(game, "as-is");
     expect(uk(game).state).toBe("heard");
     expect(moved("family-house", ["quality.standing"])).toEqual([3]);
     expect(game.state.prologue.open).toBe(false);

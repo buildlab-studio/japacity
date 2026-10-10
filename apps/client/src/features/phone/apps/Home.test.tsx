@@ -104,7 +104,7 @@ describe("the home card", () => {
 
   test("[R-HOME-008] [R-HOME-009] given a life from sixteen in Makoko, when the move back is asked, then it names the family house's charge the home card gave, as the engine will charge it", async () => {
     const game = start({ content, scenario: "scenario.prologue", seed: "seed-1" });
-    for (const answer of ["begin", "commercial", "work", "save", "nowhere", "as-is", "makoko"]) {
+    for (const answer of ["begin", "commercial", "work", "start-21", "save", "nowhere", "makoko"]) {
       const step = game.state.prologue.step;
       if (step === null) throw new Error(`The prologue closed before ${answer}.`);
       game.accept({ type: "prologue/choose", step, answer });

@@ -9,9 +9,9 @@ import { GameProvider } from "../../authority/GameProvider";
 import { localAuthority } from "../../authority/local";
 import { readPerson } from "../../authority/person";
 import { createGameStore, type GameStore } from "../../authority/store";
-import { ageSteps, ageStepWords, stepsOpen } from "../../shared/datapage/age";
+import { ageStepWords, startYearFor, stepsOpen, yearsWorked } from "../../shared/datapage/age";
 import { DOOR_KEY } from "../../shared/datapage/door";
-import { aboutYears, middleMonths } from "../../shared/datapage/years";
+import { readyMonths, yearsOf } from "../../shared/datapage/years";
 import { archetypeOf } from "../../shared/frontdoor/archetypes";
 import { problemWords } from "../../shared/datapage/name";
 import { LOOKS, lookOf, namesFor } from "../../shared/frontdoor/looks";
@@ -63,14 +63,14 @@ describe("the run through the front door", () => {
     expect(document.querySelectorAll("[data-archetypes] [aria-checked='true']")).toHaveLength(1);
     // The age sits under the tiles, at the tile's own.
     expect(document.querySelector("[data-archetypes]")!.compareDocumentPosition(document.querySelector("[data-door-age]")!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(document.querySelector("[data-age-years]")?.textContent).toBe(say("prologue.door.age.years", { years: aboutYears(middleMonths(first)) }));
+    expect(document.querySelector("[data-age-years]")?.textContent).toBe(say("prologue.door.age.years", { years: startYearFor(first, 0) }));
     expect(document.querySelector("input")).toBeNull();
     fireEvent.click(next(say("ui.door.next")));
     expect(stage()).toBe("page");
     const page = document.querySelector<HTMLElement>("[data-page]")!;
     expect(page.querySelector("[data-field='name']")?.textContent).toContain(filled);
     expect(page.querySelector("[data-field='path']")?.textContent).toContain(say(`prologue.archetype.${first.id}.name`));
-    expect(page.querySelector("[data-field='age']")?.textContent).toContain(say("prologue.page.age.about", { years: aboutYears(middleMonths(first)) }));
+    expect(page.querySelector("[data-field='age']")?.textContent).toContain(say("prologue.page.age.years", { years: startYearFor(first, 0) }));
     expect(page.querySelector<HTMLImageElement>("[data-photo] img")?.getAttribute("src")).toBe(look.picture);
     // Nothing is begun before Begin: the person is kept only then.
     expect(readPerson()).toBeNull();
@@ -156,7 +156,7 @@ describe("the run through the front door", () => {
     door();
     expect(stage()).toBe("life");
     expect(screen.getByRole("radio", { name: say("prologue.archetype.trader.name") }).getAttribute("aria-checked")).toBe("true");
-    expect(document.querySelector("[data-age-years]")?.textContent).toBe(say("prologue.door.age.years", { years: aboutYears(middleMonths(archetypeOf("trader")!) + 12) }));
+    expect(document.querySelector("[data-age-years]")?.textContent).toBe(say("prologue.door.age.years", { years: startYearFor(archetypeOf("trader")!, 1) }));
     fireEvent.click(next(say("ui.door.next")));
     cleanup();
     door();
@@ -183,7 +183,9 @@ describe("the run through the front door", () => {
     fireEvent.click(screen.getByRole("button", { name: `${say("prologue.door.pick")}: ${say("scenario.tunde.kind")}` }));
     expect(stage()).toBe("page");
     expect(document.querySelector("[data-page] [data-field='path']")?.textContent).toContain(say("scenario.tunde.kind"));
-    expect(document.querySelector("[data-page] [data-field='age']")?.textContent).toContain(say("prologue.page.age.about", { years: 29 }));
+    // A true number: the birthdays passed, 28 and some months.
+    expect(document.querySelector("[data-page] [data-field='age']")?.textContent).toContain(say("prologue.page.age.years", { years: yearsOf(readyMonths("scenario.tunde")) }));
+    expect(yearsOf(readyMonths("scenario.tunde"))).toBe(28);
     fireEvent.click(next(say("ui.door.begin")));
     expect(await screen.findByText(say("prologue.page.stamp.ready"))).toBeDefined();
     await waitFor(() => expect(store.getState().view?.scenario).toBe("scenario.tunde"), { timeout: 4000 });
@@ -207,36 +209,41 @@ describe("the run through the front door", () => {
     expect(screen.queryByRole("button", { name: say("ui.door.back") })).toBeNull();
   });
 
-  test("[R-PROLOGUE-009] [R-PROLOGUE-013] given a tile, then the age under it is never typed: it starts at the tile's own, steps a year at a time within the steps the card keeps inside 18 to 29, says what each step does, and prints on the page", () => {
+  test("[R-PROLOGUE-004] [R-PROLOGUE-009] [R-PROLOGUE-013] given a tile, then the age under it is never typed: it starts at the year its path reaches, steps a year at a time up to three older inside 18 to 29, says what each step does, and prints on the page", () => {
     door();
     fireEvent.click(next(say("ui.door.next")));
     fireEvent.click(screen.getByRole("radio", { name: say("prologue.archetype.shop-worker.name") }));
     expect(document.querySelector("input")).toBeNull();
-    const middle = middleMonths(archetypeOf("shop-worker")!);
+    const shop = archetypeOf("shop-worker")!;
+    const lowest = startYearFor(shop, 0);
     const years = () => document.querySelector("[data-age-years]")?.textContent;
     const does = () => document.querySelector("[data-age-does]")?.textContent;
-    expect(years()).toBe(say("prologue.door.age.years", { years: aboutYears(middle) }));
-    expect(does()).toBe(ageStepWords(0, middle));
+    expect(years()).toBe(say("prologue.door.age.years", { years: lowest }));
+    expect(does()).toBe(ageStepWords(0, lowest));
     const younger = screen.getByRole<HTMLButtonElement>("button", { name: say("prologue.door.age.younger") });
     const older = screen.getByRole<HTMLButtonElement>("button", { name: say("prologue.door.age.older") });
-    const open = stepsOpen(middle);
-    for (let step = -1; step >= Math.min(...open); step -= 1) {
+    // Never below the year its path reaches.
+    expect(younger.disabled).toBe(true);
+    const open = stepsOpen(shop);
+    for (let step = 1; step <= Math.max(...open); step += 1) {
+      fireEvent.click(older);
+      expect(years()).toBe(say("prologue.door.age.years", { years: lowest + step }));
+      expect(does()).toBe(ageStepWords(step, lowest));
+    }
+    expect(older.disabled).toBe(true);
+    expect(does()).toContain("passport");
+    for (let step = Math.max(...open) - 1; step >= 0; step -= 1) {
       fireEvent.click(younger);
-      expect(years()).toBe(say("prologue.door.age.years", { years: aboutYears(middle + step * 12) }));
-      expect(does()).toBe(ageStepWords(step, middle));
+      expect(years()).toBe(say("prologue.door.age.years", { years: lowest + step }));
     }
     expect(younger.disabled).toBe(true);
-    for (let step = Math.min(...open) + 1; step <= Math.max(...open); step += 1) fireEvent.click(older);
-    expect(older.disabled).toBe(true);
-    expect(does()).toBe(ageStepWords(Math.max(...open), middle));
-    expect(does()).toContain("passport");
     // Another tile starts again at its own age.
     fireEvent.click(screen.getByRole("radio", { name: say("prologue.archetype.writer.name") }));
-    expect(years()).toBe(say("prologue.door.age.years", { years: aboutYears(middleMonths(archetypeOf("writer")!)) }));
+    expect(years()).toBe(say("prologue.door.age.years", { years: startYearFor(archetypeOf("writer")!, 0) }));
     fireEvent.click(screen.getByRole("radio", { name: say("prologue.archetype.shop-worker.name") }));
     for (let step = 0; step < Math.max(...open); step += 1) fireEvent.click(older);
     fireEvent.click(next(say("ui.door.next")));
-    expect(document.querySelector("[data-page] [data-field='age']")?.textContent).toContain(say("prologue.page.age.about", { years: aboutYears(middle + Math.max(...open) * 12) }));
+    expect(document.querySelector("[data-page] [data-field='age']")?.textContent).toContain(say("prologue.page.age.years", { years: lowest + Math.max(...open) }));
   });
 
   test("[R-PROLOGUE-009] given the first screen, then the hook asks what your japacity is over the figure on the plinth, from the first second and before the look; later screens drop it", () => {
@@ -295,7 +302,7 @@ describe("the run through the front door", () => {
     expect(JSON.parse(localStorage.getItem(DOOR_KEY) ?? "{}")).toMatchObject({ archetype: "water", home: "family-house", homePicked: true });
     // An older step adds its saving to what is left.
     fireEvent.click(screen.getByRole("button", { name: say("prologue.door.age.older") }));
-    const older = ageSteps().find((step) => step.years === 1)!;
+    const older = yearsWorked(1);
     expect(document.querySelector("[data-home='family-house'] [data-home-left]")?.textContent).toBe(`${formatMoney(savingsOf(archetypeOf("water")!) + older.saved - monthly["family-house"], "NGN")}${say("ui.door.home.left")}`);
     // The room picked under the accountant, who holds its year and a month, is kept through the trader, who does too.
     fireEvent.click(screen.getByRole("radio", { name: say("prologue.archetype.accountant.name") }));
@@ -318,7 +325,7 @@ describe("the run through the front door", () => {
     expect(room().querySelector("[data-home-left]")?.textContent).toBe(`${formatMoney(left, "NGN")}${say("ui.door.home.left")}`);
     expect(room().querySelector("svg")?.getAttribute("class")).not.toContain("lucide-lock");
     fireEvent.click(screen.getByRole("button", { name: say("prologue.door.age.older") }));
-    const older = ageSteps().find((step) => step.years === 1)!;
+    const older = yearsWorked(1);
     expect(room().querySelector("[data-home-left]")?.textContent).toBe(`${formatMoney(left + older.saved, "NGN")}${say("ui.door.home.left")}`);
     fireEvent.click(screen.getByRole("radio", { name: say("ui.door.home.compound-room") }));
     expect(JSON.parse(localStorage.getItem(DOOR_KEY) ?? "{}")).toMatchObject({ archetype: "writer", home: "compound-room", homePicked: true });

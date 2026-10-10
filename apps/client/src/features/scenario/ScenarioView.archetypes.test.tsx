@@ -56,7 +56,7 @@ describe("every tile's run", () => {
 });
 
 describe("the age set at the door", () => {
-  test("[R-PROLOGUE-009] [R-PROLOGUE-013] given the nurse's tile stepped two years older under the tiles, when her life is played, then the age card takes the step with no card: two years on and the passport held", async () => {
+  test("[R-PROLOGUE-004] [R-PROLOGUE-009] [R-PROLOGUE-013] given the nurse's tile stepped two years older under the tiles, when her life is played, then her age card takes the year picked with no card: she starts at 25, two years worked and the passport held", async () => {
     const store = bootGame({ storage: localStorage, fastClock: true, makeSeed: () => "run-older" });
     render(<App store={store} />);
     await toTheArchetypes("Ifeoma");
@@ -69,12 +69,11 @@ describe("the age set at the door", () => {
     expect(view.prologue).toBeNull();
     const raw = JSON.parse(localStorage.getItem(SAVE_KEY)!) as { save: Parameters<typeof savedCommands>[0] };
     const chosen = savedCommands(raw.save).flatMap(({ command }) => (command.type === "prologue/choose" ? [command] : []));
-    expect(chosen.find((command) => command.step === "age")?.answer).toBe("older-2");
+    expect(chosen.find((command) => command.step === "age-degree")?.answer).toBe("start-25");
     expect(view.documents.some((paper) => paper.id === "document.passport" && paper.state === "held")).toBe(true);
     const age = view.qualities.find((quality) => quality.id === "quality.age-months")?.value ?? 0;
-    // The nurse's card comes at 23 or a little after; two years on is 25 and some months.
-    expect(Math.floor(age / 12)).toBeGreaterThanOrEqual(25);
-    expect(Math.floor(age / 12)).toBeLessThanOrEqual(26);
+    // Her path reaches 23 with no setback; two years on, the age picked is the age she starts at (R-PROLOGUE-004).
+    expect(Math.floor(age / 12)).toBe(25);
   }, 30000);
 });
 

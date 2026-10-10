@@ -8,7 +8,7 @@ import { describe, expect, test } from "vitest";
 import { newGame } from "../testing/fixtures";
 import { say } from "../words/text";
 import { earlyStops, nextStepOf, ownWayOf, sixteenPath } from "../words/sixteen";
-import { ARCHETYPES, type Archetype, archetypeOf, doorAnswer, handoverKind, ownSteps, presetAnswer } from "./archetypes";
+import { ARCHETYPES, type Archetype, archetypeOf, doorAnswer, handoverKind, lowestYear, ownSteps, presetAnswer, withAge } from "./archetypes";
 
 const PROLOGUE = "scenario.prologue";
 const FIRST_CHAPTER = "chapter.find-your-feet";
@@ -221,15 +221,15 @@ describe("every tile's promise is kept by the life it starts", () => {
 });
 
 describe("the tiles' words", () => {
-  test("[R-PROLOGUE-010] given every archetype over many seeds, when its prologue closes, then its tile names the age it hands over at, in years, as the middle life of its seeds does", () => {
+  test("[R-PROLOGUE-004] [R-PROLOGUE-010] given every archetype over many seeds, when its prologue closes at its own age, then its tile names the age it hands over from, in years, and every one of its lives starts in that year", () => {
     const said: Record<string, number> = {};
-    const found: Record<string, number> = {};
+    const found: Record<string, number[]> = {};
     for (const archetype of ARCHETYPES) {
-      const months = Array.from({ length: SEEDS }, (_, at) => qualityOf(play(archetype, `${archetype.id}-${String(at)}`).game, "quality.age-months")).sort((a, b) => a - b);
-      found[archetype.id] = Math.round((months[Math.floor(SEEDS / 2)] ?? 0) / 12);
-      said[archetype.id] = Number(/about (\d+)/.exec(say(`prologue.archetype.${archetype.id}.opens`))?.[1] ?? -1);
+      const years = Array.from({ length: SEEDS }, (_, at) => Math.floor(qualityOf(play(archetype, `${archetype.id}-${String(at)}`).game, "quality.age-months") / 12));
+      found[archetype.id] = [...new Set(years)];
+      said[archetype.id] = Number(/from (\d+)/.exec(say(`prologue.archetype.${archetype.id}.opens`))?.[1] ?? -1);
     }
-    expect(said).toEqual(found);
+    expect(found).toEqual(Object.fromEntries(Object.entries(said).map(([id, year]) => [id, [year]])));
     // The sheet above the tiles names no one age for all of them.
     expect(say("ui.door.path.hint")).not.toMatch(/\d/);
   });
@@ -265,12 +265,14 @@ describe("the handover reads the life as lived", () => {
     expect(said.off).toBeGreaterThan(0);
   });
 
-  test("[R-PROLOGUE-011] given a degree tile whose life failed the exam twice and went to the counter, when it hands over, then it reads as work from school on, never the tile; a kept nurse says the nurse", () => {
+  test("[R-PROLOGUE-004] [R-PROLOGUE-011] given a degree tile started at 29, whose life failed the exam twice and went to the counter, when it hands over, then it reads as work from school on, never the tile; a kept nurse says the nurse", () => {
     const wrong: string[] = [];
     let off = 0;
     for (const archetype of ARCHETYPES.filter((one) => one.id !== "trader" && one.id !== "shop-worker")) {
       for (let at = 0; at < SEEDS; at += 1) {
-        const { game, kept } = play(archetype, `${archetype.id}-${String(at)}`);
+        // At its own year no retake is drawn (R-PROLOGUE-004): a second retake needs years of work to spare, so the
+        // tile is started at the oldest year the card offers.
+        const { game, kept } = play(withAge(archetype, 29 - lowestYear(archetype)), `${archetype.id}-${String(at)}`);
         const line = handoverKind(archetype, game.view());
         const tile = say(`prologue.archetype.${archetype.id}.name`);
         if (kept && !line.startsWith(`${tile}. `)) wrong.push(`${archetype.id} ${String(at)}: ${line}`);
