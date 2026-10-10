@@ -77,6 +77,15 @@ const STOCK = /\b(?:get started|oops|seamless(?:ly)?|unlock)\b/i;
 const PILL = /(?<![\w-])rounded-full(?![\w-])/;
 /** A pill only where it means something: a dot, a person's avatar, the month's glyph. */
 const PILLS_ALLOWED = 8;
+/**
+ * The front door drawn as designed (R-WORLD-021's exception): its header's round
+ * buttons, its colour swatches and the page's round stamp, one round each, apart from the budget.
+ */
+const DOOR_ROUNDS: Readonly<Record<string, number>> = {
+  [`${CLIENT}/shared/frontdoor/DoorHead.tsx`]: 1,
+  [`${CLIENT}/shared/frontdoor/OwnColours.tsx`]: 1,
+  [`${CLIENT}/shared/datapage/DataPage.tsx`]: 1,
+};
 
 describe("the palette", () => {
   test("[R-WORLD-021] given the walk, then it sees the client's screens, styles and words", () => {
@@ -111,8 +120,12 @@ describe("the palette", () => {
   });
 
   test(`[R-WORLD-021] given the client, then at most ${String(PILLS_ALLOWED)} things are drawn as pills`, () => {
-    const pills = show(findAll(clientFiles, PILL));
+    const pills = show(findAll(clientFiles.filter((file) => DOOR_ROUNDS[file] === undefined), PILL));
     // Over the limit, every pill is listed, so the failure shows which to make square.
     expect(pills.length <= PILLS_ALLOWED ? [] : pills).toEqual([]);
+  });
+
+  test("[R-WORLD-021] given the front door's exception, then its header buttons, its swatches and the page's stamp are each drawn round once, and nothing more of the door", () => {
+    for (const [file, rounds] of Object.entries(DOOR_ROUNDS)) expect({ file, rounds: findAll([file], PILL).length }).toEqual({ file, rounds });
   });
 });

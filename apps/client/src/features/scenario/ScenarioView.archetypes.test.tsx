@@ -9,7 +9,8 @@ import { App } from "../../App";
 import { bootGame } from "../../authority/boot";
 import { SAVE_KEY } from "../../authority/local";
 import { readPerson } from "../../authority/person";
-import { ARCHETYPES } from "../../shared/frontdoor/archetypes";
+import { ARCHETYPES, archetypeOf } from "../../shared/frontdoor/archetypes";
+import { startIn } from "./ScenarioView";
 import { startArchetype, toTheArchetypes } from "../../shared/frontdoor/frontDoor.testing";
 import type { GameStore } from "../../authority/store";
 import { say } from "../../shared/words/text";
@@ -62,7 +63,7 @@ describe("the age set at the door", () => {
     await toTheArchetypes("Ifeoma");
     fireEvent.click(await screen.findByRole("radio", { name: say("prologue.archetype.nurse.name") }));
     for (let step = 0; step < 2; step += 1) fireEvent.click(screen.getByRole("button", { name: say("prologue.door.age.older") }));
-    fireEvent.click(screen.getByRole("button", { name: new RegExp(`^${say("ui.door.next")}`) }));
+    fireEvent.click(screen.getByRole("button", { name: new RegExp(`^${say("prologue.door.print")}`) }));
     fireEvent.click(screen.getByRole("button", { name: new RegExp(`^${say("ui.door.begin")}`) }));
     expect(await throughTheYears(store)).toBe(false);
     const view = store.getState().view!;
@@ -86,7 +87,7 @@ describe("the home picked at the door", () => {
     fireEvent.click(await screen.findByRole("radio", { name: say("prologue.archetype.accountant.name") }));
     expect(screen.queryByRole("radio", { name: say("ui.door.home.makoko") })).toBeNull();
     fireEvent.click(screen.getByRole("radio", { name: say("ui.door.home.compound-room") }));
-    fireEvent.click(screen.getByRole("button", { name: new RegExp(`^${say("ui.door.next")}`) }));
+    fireEvent.click(screen.getByRole("button", { name: new RegExp(`^${say("prologue.door.print")}`) }));
     fireEvent.click(screen.getByRole("button", { name: new RegExp(`^${say("ui.door.begin")}`) }));
     expect(await throughTheYears(store)).toBe(false);
     const raw = JSON.parse(localStorage.getItem(SAVE_KEY)!) as { save: Parameters<typeof savedCommands>[0] };
@@ -95,5 +96,7 @@ describe("the home picked at the door", () => {
     const view = store.getState().view!;
     expect(view.home.place).toBe("place.compound-room");
     expect(view.obligations.map((owed) => owed.entry).sort()).toEqual(["obligation.rent-compound", "obligation.upkeep-compound"]);
+    // The figure the door showed over "to start" is the money the band shows as the world opens.
+    expect(view.pockets.NGN.bank + view.pockets.NGN.cash).toBe(startIn(archetypeOf("accountant")!, 0, "compound-room"));
   }, 30000);
 });

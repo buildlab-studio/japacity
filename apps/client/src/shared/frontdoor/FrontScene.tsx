@@ -17,6 +17,7 @@ import { modeSettings } from "../../features/city/mode";
 import { filesOf, type PlaceFile, stageOf } from "../../features/city/placeFile";
 import { animateWorld, buildWorld, colourOf, skyColours, type World } from "../../features/city/world";
 import { readLook, wear } from "./colours";
+import { doorPixels } from "./pixels";
 import { idOf } from "./looks";
 import { type Spin, SLOW_TURN, turnFrame } from "./spin";
 import { type LookStyle, reportOwn, styleKey } from "./style";
@@ -192,7 +193,7 @@ export default function FrontScene(props: FrontSceneProps) {
     };
   }, []);
   return (
-    <Canvas dpr={1} gl={{ antialias: false, powerPreference: "high-performance" }} camera={{ fov: FOV, near: 0.5, far: 120, position: [GATE[0], HIGH, GATE[1] + BACK] }} aria-hidden>
+    <Canvas dpr={doorPixels()} gl={{ antialias: true, powerPreference: "high-performance" }} camera={{ fov: FOV, near: 0.5, far: 120, position: [GATE[0], HIGH, GATE[1] + BACK] }} aria-hidden>
       {file === null ? null : <Compound file={file} {...props} />}
     </Canvas>
   );

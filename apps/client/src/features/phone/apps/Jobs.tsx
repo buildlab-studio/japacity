@@ -1,8 +1,10 @@
 // Jobs (docs/rules/world.md R-WORLD-018): the job held and the job offers the view lists. Quitting
-// and taking each open their own card; the commands are the ones the month page sent.
+// and taking each open their own card; the commands are the ones the month page sent. The list sits as the design's
+// lists do (its brief, section 1): rows straight on the sheet divided by hairlines, no card for a row, the offer picked
+// filled with the pick colour (R-WORLD-021), and one main button at the foot that repeats the pick.
 import { content } from "@japacity/content";
 import type { Id, OfferView, PlayerView } from "@japacity/sim";
-import { Briefcase } from "lucide-react";
+import { useState } from "react";
 
 import { useGame, useView } from "../../../authority/GameProvider";
 import { payLine } from "../../../shared/words/pay";
@@ -76,20 +78,40 @@ function takeChoice(offer: OfferView): string | null {
   return (accept ?? offer.choices.find((choice) => choice.allowed && choice.pick === null))?.id ?? null;
 }
 
+/** A job as a row on the sheet: its name, its lines, and a small act on the right where it has one. */
 function JobRow({ name, lines, act, actLabel }: { name: string; lines: (string | null)[]; act: (() => void) | null; actLabel: string }) {
   return (
-    <div className="flex items-start gap-3 rounded-[6px] border border-sheet-line bg-sheet-2 p-3">
-      <Briefcase size={20} className="mt-0.5 shrink-0 text-text-2" aria-hidden />
+    <div className="flex items-center gap-3 border-b border-sheet-line px-3 py-2.5 last:border-b-0" data-job-row>
       <div className="min-w-0 flex-1">
-        <p className="text-[15px] font-bold">{name}</p>
+        <p className="truncate text-[15px] font-bold">{name}</p>
         {lines.map((line) => (line === null ? null : <p key={line} className="text-[13px] text-text-2">{line}</p>))}
       </div>
       {act === null ? null : (
-        <button type="button" onClick={act} className="btn-dark press shrink-0 px-3 py-2 text-[13px]">
+        <button type="button" onClick={act} className="press shrink-0 rounded-[5px] bg-sheet-muted px-3 py-2 text-[13px] font-bold">
           {actLabel}
         </button>
       )}
     </div>
+  );
+}
+
+/** An offer as a row to pick: the picked one filled with the pick colour, its pay and when to answer under its name. */
+function OfferRow({ name, lines, on, onPick, id }: { name: string; lines: (string | null)[]; on: boolean; onPick: () => void; id: string }) {
+  return (
+    <li className={on ? "" : "border-b border-sheet-line last:border-b-0"} data-offer={id}>
+      <button type="button" role="radio" aria-checked={on} onClick={onPick} className={`press flex w-full items-center gap-3 rounded-[5px] px-3 py-2.5 text-left ${on ? "bg-pick text-on-pick" : ""}`}>
+        <span className="min-w-0 flex-1">
+          <span className="block truncate text-[15px] font-bold">{name}</span>
+          {lines.map((line) =>
+            line === null ? null : (
+              <span key={line} className={`block text-[13px] ${on ? "opacity-80" : "text-text-2"}`}>
+                {line}
+              </span>
+            ),
+          )}
+        </span>
+      </button>
+    </li>
   );
 }
 
@@ -102,6 +124,13 @@ export function Jobs() {
   const applied = appliedJobs(view, useGame((state) => state.monthLines));
   const raised = raiseWords(view);
   const months = sayCount("ui.job.months", view.job.months, { months: view.job.months });
+  // The offer picked: the first until another is tapped.
+  const [picked, setPicked] = useState<string | null>(null);
+  const chosen = offers.find((offer) => offer.id === picked) ?? offers[0];
+  const offerName = (offer: OfferView): string => {
+    const offered = offeredJob(offer);
+    return offered === null ? words(`${offer.entry}.title`, offer.terms) : nameOf(offered);
+  };
 
   const quit = (sideJob: boolean) => {
     const held = sideJob ? side : job;
@@ -168,21 +197,32 @@ export function Jobs() {
       {offers.length === 0 ? (
         applied.length > 0 ? null : <p className="text-[14px] text-text-2">{phoneWords("phone.jobs.offers.none")}</p>
       ) : (
-        <ul className="flex flex-col gap-2" data-job-offers>
-          {offers.map((offer) => {
-            const offered = offeredJob(offer);
-            return (
-              <li key={offer.id} data-offer={offer.id}>
-                <JobRow
-                  name={offered === null ? words(`${offer.entry}.title`, offer.terms) : nameOf(offered)}
+        <>
+          <ul className="flex flex-col" role="radiogroup" aria-label={phoneWords("phone.jobs.offers")} data-job-offers>
+            {offers.map((offer) => {
+              const offered = offeredJob(offer);
+              return (
+                <OfferRow
+                  key={offer.id}
+                  id={offer.id}
+                  name={offerName(offer)}
                   lines={[offered === null ? null : payWords(offered, offer.pay, view), phoneWords("phone.jobs.answer-by", { when: byMonths(offer.expiresMonth, view.month) })]}
-                  act={view.ended || takeChoice(offer) === null ? null : () => take(offer)}
-                  actLabel={phoneWords("phone.jobs.take")}
+                  on={offer.id === chosen?.id}
+                  onPick={() => setPicked(offer.id)}
                 />
-              </li>
-            );
-          })}
-        </ul>
+              );
+            })}
+          </ul>
+          {/* One main button at the foot, repeating the pick. */}
+          {chosen === undefined || view.ended || takeChoice(chosen) === null ? null : (
+            <div className="sticky bottom-0 bg-sheet pt-3 pb-1">
+              <button type="button" className="btn-main" onClick={() => take(chosen)} data-take-offer={chosen.id}>
+                <span>{phoneWords("phone.jobs.take")}</span>
+                <span className="min-w-0 truncate pl-3 text-[13px] font-semibold opacity-80">{offerName(chosen)}</span>
+              </button>
+            </div>
+          )}
+        </>
       )}
       {sheet}
     </div>

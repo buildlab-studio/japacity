@@ -148,39 +148,39 @@ const words: Record<string, string> = {
   "prologue.shop.answer.stay": "Stay and know everybody",
   "prologue.shop.answer.save": "Save every naira",
 
-  // The archetypes (R-PROLOGUE-010): the tile's name, what it was, what it opens with the age it hands over from
+  // The archetypes (R-PROLOGUE-010): the tile's name, what it was, what it opens with the age it starts at, in words a new player knows
   // (the age its path reaches with no setback, the lowest its age card opens: R-PROLOGUE-004; the archetypes' test reads it); the naira its life holds at
   // the close, in whole naira, the door's "what it leaves in the pocket" (R-PROLOGUE-013: the savings test keeps it within a
   // quarter of its lives' median); and the handover's line.
   "prologue.archetype.developer.name": "The developer",
   "prologue.archetype.developer.was": "Science, then computer science",
-  "prologue.archetype.developer.opens": "Opens: tech work in the UK, a master's. Hands over from 23",
+  "prologue.archetype.developer.opens": "Opens: tech work in the UK, a master's. Starts at 23, or older",
   "prologue.archetype.developer.savings": "500000",
   "prologue.archetype.nurse.name": "The nurse",
   "prologue.archetype.nurse.was": "Science, then nursing school",
-  "prologue.archetype.nurse.opens": "Opens: care work in the UK, the Gulf. Hands over from 23",
+  "prologue.archetype.nurse.opens": "Opens: care work in the UK, the Gulf. Starts at 23, or older",
   "prologue.archetype.nurse.savings": "500000",
   "prologue.archetype.accountant.name": "The accountant",
   "prologue.archetype.accountant.was": "Commercial, then accounting",
-  "prologue.archetype.accountant.opens": "Opens: Canada's points, skilled work in the UK. Hands over from 23",
+  "prologue.archetype.accountant.opens": "Opens: Canada's points, skilled work in the UK. Starts at 23, or older",
   "prologue.archetype.accountant.savings": "1050000",
   "prologue.archetype.writer.name": "The writer",
   "prologue.archetype.writer.was": "Arts, then mass communication",
-  "prologue.archetype.writer.opens": "Opens: a UK master's, Canada's points. Hands over from 23",
+  "prologue.archetype.writer.opens": "Opens: a UK master's, Canada's points. Starts at 23, or older",
   "prologue.archetype.writer.savings": "500000",
   "prologue.archetype.trader.name": "The trader",
   "prologue.archetype.trader.was": "Six years under a spare parts master",
-  "prologue.archetype.trader.opens": "Opens: a Gulf contract, the road through the desert to Europe. Hands over from 23",
+  "prologue.archetype.trader.opens": "Opens: a Gulf contract, the road through the desert to Europe. Starts at 23, or older",
   "prologue.archetype.trader.savings": "2500000",
   "prologue.archetype.shop-worker.name": "The shop worker",
   "prologue.archetype.shop-worker.was": "Straight from school to a shop counter",
-  "prologue.archetype.shop-worker.opens": "Opens: a Gulf contract, the road through the desert to Europe. Hands over from 21",
+  "prologue.archetype.shop-worker.opens": "Opens: a Gulf contract, the road through the desert to Europe. Starts at 21, or older",
   "prologue.archetype.shop-worker.savings": "500000",
   // R-PROLOGUE-012: the child of the water starts in a room in Makoko. Its nudges, for the first chapter's table:
   // `job` while it has no work, `heard` while no way out is heard of, `shop` once a shop's capital is in hand.
   "prologue.archetype.water.name": "The child of the water",
   "prologue.archetype.water.was": "Grew up in Makoko. A canoe to school, then the fish racks",
-  "prologue.archetype.water.opens": "Opens: a Gulf contract, the road through the desert to Europe. Hands over from 21",
+  "prologue.archetype.water.opens": "Opens: a Gulf contract, the road through the desert to Europe. Starts at 21, or older",
   "prologue.archetype.water.savings": "500000",
   "prologue.archetype.water.nudge.job": "Find work in town. The rent on the water is small, so most of the pay stays.",
   "prologue.archetype.water.nudge.heard": "Paddle to the bridge and ask around at the motor park.",
@@ -202,7 +202,6 @@ const words: Record<string, string> = {
   "prologue.handover.lived.trade": "The years went another way: no university, work from school on.",
 
   // The front door's run (R-PROLOGUE-009): one question a screen, then the page printed and stamped.
-  "prologue.door.hook": "What's your japacity?",
   "prologue.door.step": "{n}/{count}",
   "prologue.door.drag": "Drag to turn",
   "prologue.door.pick": "Pick",

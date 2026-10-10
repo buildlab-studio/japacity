@@ -78,6 +78,10 @@
   --text: #17140f;
   --text-2: #5b5b55;
   --sheet-line: rgba(23, 20, 15, 0.13);
+  /* A chosen row in a list, the same role as adire's: the strong colour, its label colour for marks. */
+  --pick: #17140f;
+  --on-pick: #f6f1e4;
+  --pick-mark: #f2b705;
   --scrim: rgba(10, 9, 6, 0.55);
   --device: #17140f;
   --water: #17140f;

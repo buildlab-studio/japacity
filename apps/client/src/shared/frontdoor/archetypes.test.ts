@@ -8,7 +8,7 @@ import { describe, expect, test } from "vitest";
 import { newGame } from "../testing/fixtures";
 import { say } from "../words/text";
 import { earlyStops, nextStepOf, ownWayOf, sixteenPath } from "../words/sixteen";
-import { ARCHETYPES, type Archetype, archetypeOf, doorAnswer, handoverKind, lowestYear, ownSteps, presetAnswer, withAge } from "./archetypes";
+import { agePointsCount, ARCHETYPES, type Archetype, archetypeOf, doorAnswer, handoverKind, lowestYear, ownSteps, presetAnswer, withAge } from "./archetypes";
 
 const PROLOGUE = "scenario.prologue";
 const FIRST_CHAPTER = "chapter.find-your-feet";
@@ -227,7 +227,7 @@ describe("the tiles' words", () => {
     for (const archetype of ARCHETYPES) {
       const years = Array.from({ length: SEEDS }, (_, at) => Math.floor(qualityOf(play(archetype, `${archetype.id}-${String(at)}`).game, "quality.age-months") / 12));
       found[archetype.id] = [...new Set(years)];
-      said[archetype.id] = Number(/from (\d+)/.exec(say(`prologue.archetype.${archetype.id}.opens`))?.[1] ?? -1);
+      said[archetype.id] = Number(/at (\d+)/.exec(say(`prologue.archetype.${archetype.id}.opens`))?.[1] ?? -1);
     }
     expect(found).toEqual(Object.fromEntries(Object.entries(said).map(([id, year]) => [id, [year]])));
     // The sheet above the tiles names no one age for all of them.
@@ -441,5 +441,11 @@ describe("the child of the water's words (R-PROLOGUE-012)", () => {
       expect(words).not.toBe(`prologue.archetype.water.${key}`);
       expect(words).not.toMatch(/[\u2013\u2014]/);
     }
+  });
+});
+
+describe("the age line at a tile's own age", () => {
+  test("[R-PROLOGUE-009] given the tiles, then only those whose ways out count age in Canada's points are told how long before the points fall", () => {
+    expect(ARCHETYPES.filter((archetype) => agePointsCount(archetype)).map((archetype) => archetype.id)).toEqual(["nurse", "accountant", "writer"]);
   });
 });

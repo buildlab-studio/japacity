@@ -1,6 +1,6 @@
 // pnpm play --out <folder> [--life developer] [--months 3]
 // Plays the game on a phone-sized browser from the front door: the name it fills, an archetype's tile (or a
-// ready life), the page and Begin, the page filling as the years go by and opening the world by itself, the
+// ready life), the page and Begin, the page filling as the years go by and Go opening the world, the
 // first chapter's title, then each month: the nudge followed, the month ended, the results read. Last it opens every app on the phone. It takes a
 // picture at each step into the folder given and prints a plain log, also saved there as play.log.
 // It changes nothing in the repository. See tools/play/README.md.
@@ -109,22 +109,25 @@ async function frontDoor(run: Run, button: string): Promise<boolean> {
     await page.evaluate(() => localStorage.setItem("japacity.door.ready", "1"));
     await page.reload();
   }
-  const next = page.getByRole("button", { name: /^Next/ });
+  // Settings' run opens on the ready lives themselves; a new player's on the first screen.
+  const next = page.getByRole("button", { name: options.ready ? /^Pick: / : /^Next/ }).first();
   if (!(await appear(next, LONG))) {
     problem(run, "the front door did not open");
     return false;
   }
   log(run, `front door: ${await words(page.locator("[data-gate-sheet]"))}`);
-  log(run, `name filled: ${await page.getByRole("textbox", { name: "Your name" }).inputValue().catch(() => "")}`);
-  await shot(run, "front door");
-  if (!(await tap(run, next, "Next"))) return false;
+  if (!options.ready) {
+    log(run, `name filled: ${await page.getByRole("textbox", { name: "Your name" }).inputValue().catch(() => "")}`);
+    await shot(run, "front door");
+    if (!(await tap(run, next, "Next"))) return false;
+  }
 
   await shot(run, options.ready ? "ready lives" : "your life so far");
   if (!(await tap(run, page.getByRole(options.ready ? "button" : "radio", { name: button, exact: true }), button))) return false;
   log(run, `picked ${button}`);
   if (!options.ready) {
     log(run, `age: ${await words(page.locator("[data-door-age]"))}`);
-    if (!(await tap(run, page.getByRole("button", { name: /^Next/ }), "Next to the page"))) return false;
+    if (!(await tap(run, page.getByRole("button", { name: /^Print my page/ }), "Print my page"))) return false;
   }
   if (!(await appear(page.getByRole("button", { name: /^Begin/ }), LONG))) {
     problem(run, "the page never came");
@@ -138,8 +141,8 @@ async function frontDoor(run: Run, button: string): Promise<boolean> {
 }
 
 /**
- * The years before: the page fills as the presets run, with no card (prologue.md R-PROLOGUE-010, 014), then opens
- * the world by itself. A card is a problem now; it is answered with its first answer so the run goes on.
+ * The years before: the page fills as the presets run, with no card (prologue.md R-PROLOGUE-010, 014), then waits
+ * for Go. A card is a problem now; it is answered with its first answer so the run goes on.
  */
 async function yearsBefore(run: Run): Promise<void> {
   const { page } = run;
@@ -152,10 +155,7 @@ async function yearsBefore(run: Run): Promise<void> {
       log(run, `page: ${await words(handover, 400)}`);
       await page.waitForTimeout(1_200);
       await shot(run, "your page filled");
-      if (await appear(band, 6_000)) {
-        log(run, "the world opened by itself");
-        return;
-      }
+      // The page waits for the player (R-PROLOGUE-014): Go opens the world.
       await tap(run, page.getByRole("button", { name: "Go", exact: true }), "Go on the page");
       return;
     }

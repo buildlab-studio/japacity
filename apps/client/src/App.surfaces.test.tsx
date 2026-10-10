@@ -178,7 +178,7 @@ describe("where no advert shows", () => {
     expect(slots()).toHaveLength(0);
     fireEvent.click(screen.getByRole("button", { name: say("ui.account.age.go") }));
     fireEvent.click(await screen.findByRole("button", { name: new RegExp(`^${say("ui.door.next")}`) }));
-    fireEvent.click(screen.getByRole("button", { name: new RegExp(`^${say("ui.door.next")}`) }));
+    fireEvent.click(screen.getByRole("button", { name: new RegExp(`^${say("prologue.door.print")}`) }));
     await screen.findByLabelText(say("ui.account.name.label"));
     expect(slots()).toHaveLength(0);
     cleanup();

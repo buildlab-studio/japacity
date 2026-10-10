@@ -58,11 +58,11 @@ describe("the door's age and the page's", () => {
     fireEvent.click(next(say("ui.door.next")));
     fireEvent.click(screen.getByRole("radio", { name: say(`prologue.archetype.${id}.name`) }));
     const year = startYearFor(archetypeOf(id)!, 0);
-    expect(say(`prologue.archetype.${id}.opens`)).toContain(`from ${String(year)}`);
+    expect(say(`prologue.archetype.${id}.opens`)).toContain(`Starts at ${String(year)}, or older`);
     expect(document.querySelector("[data-age-years]")?.textContent).toBe(say("prologue.door.age.years", { years: year }));
     expect(document.querySelector("[data-age-give]")).toBeNull();
     expect(document.querySelector("[data-door-age]")?.textContent).not.toMatch(/about|give or take/i);
-    fireEvent.click(next(say("ui.door.next")));
+    fireEvent.click(next(say("prologue.door.print")));
     expect(document.querySelector("[data-page] [data-field='age']")?.textContent).toContain(say("prologue.page.age.years", { years: year }));
     expect(document.querySelector("[data-page] [data-field='age']")?.textContent).not.toMatch(/about/i);
   });

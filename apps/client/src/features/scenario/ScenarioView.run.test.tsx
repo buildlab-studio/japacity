@@ -16,11 +16,11 @@ import { archetypeOf } from "../../shared/frontdoor/archetypes";
 import { problemWords } from "../../shared/datapage/name";
 import { LOOKS, lookOf, namesFor } from "../../shared/frontdoor/looks";
 import { askReadyLives } from "../../shared/frontdoor/ready";
-import { ARCHETYPES, savingsOf } from "../../shared/frontdoor/archetypes";
+import { ARCHETYPES, moneyDrawn, savingsOf } from "../../shared/frontdoor/archetypes";
 import { formatMoney } from "../../shared/words/format";
 import { say } from "../../shared/words/text";
 import { text } from "@japacity/content";
-import { fitHome, pocketIn, ScenarioView } from "./ScenarioView";
+import { fitHome, pocketIn, ScenarioView, startIn } from "./ScenarioView";
 // Registers Testing Library's cleanup for this file.
 import "../../shared/testing/render";
 
@@ -65,7 +65,7 @@ describe("the run through the front door", () => {
     expect(document.querySelector("[data-archetypes]")!.compareDocumentPosition(document.querySelector("[data-door-age]")!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(document.querySelector("[data-age-years]")?.textContent).toBe(say("prologue.door.age.years", { years: startYearFor(first, 0) }));
     expect(document.querySelector("input")).toBeNull();
-    fireEvent.click(next(say("ui.door.next")));
+    fireEvent.click(next(say("prologue.door.print")));
     expect(stage()).toBe("page");
     const page = document.querySelector<HTMLElement>("[data-page]")!;
     expect(page.querySelector("[data-field='name']")?.textContent).toContain(filled);
@@ -84,15 +84,18 @@ describe("the run through the front door", () => {
     door();
     const sexOf = (): "f" | "m" => lookOf(document.querySelector("[data-gate]")?.getAttribute("data-look"))!.sex;
     const other = LOOKS.find((one) => one.sex !== sexOf())!;
-    fireEvent.click(document.querySelector(`[role="radio"][data-look="${other.id}"]`)!);
+    // The body filters the strip (the design's): the other body's first look, and the strip shows only its looks.
+    fireEvent.click(document.querySelector(`[data-body="${other.sex}"]`)!);
     expect(sexOf()).toBe(other.sex);
+    expect(document.querySelector("[data-gate]")?.getAttribute("data-look")).toBe(other.id);
+    expect([...document.querySelectorAll<HTMLElement>("[data-looks] [data-look]")].map((one) => one.dataset["look"])).toEqual(LOOKS.filter((one) => one.sex === other.sex).map((one) => one.id));
     expect(nameBox().value).toBe(namesFor(other.sex, keptRoll())[0]);
     const before = nameBox().value;
     fireEvent.click(screen.getByRole("button", { name: say("ui.door.reroll") }));
     expect(nameBox().value).toBe(namesFor(other.sex, keptRoll())[0]);
     expect(nameBox().value).not.toBe(before);
     fireEvent.change(nameBox(), { target: { value: "Ifeoma" } });
-    fireEvent.click(document.querySelector(`[role="radio"][data-look="${LOOKS.find((one) => one.sex !== other.sex)!.id}"]`)!);
+    fireEvent.click(document.querySelector(`[data-body="${other.sex === "f" ? "m" : "f"}"]`)!);
     expect(nameBox().value).toBe("Ifeoma");
 
     fireEvent.change(nameBox(), { target: { value: "Ada1" } });
@@ -142,6 +145,8 @@ describe("the run through the front door", () => {
 
   test("[R-PROLOGUE-009] [R-PROLOGUE-013] given a reload at any screen, then the door comes back to that screen with what was answered", () => {
     door();
+    // The strip shows one body's looks at a time.
+    fireEvent.click(document.querySelector(`[data-body="${lookOf("chr_femi")!.sex}"]`)!);
     fireEvent.click(document.querySelector(`[role="radio"][data-look="chr_femi"]`)!);
     fireEvent.change(nameBox(), { target: { value: "Emeka" } });
     cleanup();
@@ -157,7 +162,7 @@ describe("the run through the front door", () => {
     expect(stage()).toBe("life");
     expect(screen.getByRole("radio", { name: say("prologue.archetype.trader.name") }).getAttribute("aria-checked")).toBe("true");
     expect(document.querySelector("[data-age-years]")?.textContent).toBe(say("prologue.door.age.years", { years: startYearFor(archetypeOf("trader")!, 1) }));
-    fireEvent.click(next(say("ui.door.next")));
+    fireEvent.click(next(say("prologue.door.print")));
     cleanup();
     door();
     expect(stage()).toBe("page");
@@ -166,7 +171,7 @@ describe("the run through the front door", () => {
     expect(localStorage.getItem(DOOR_KEY)).not.toBeNull();
   });
 
-  test("[R-PROLOGUE-013] given the door, then no ready life is on it; given a run Settings asked for, then its second screen lists the ready lives, a pick goes to the page, and Begin stamps it and starts that life with its own age printed", async () => {
+  test("[R-PROLOGUE-013] given the door, then no ready life is on it; given a run Settings asked for, then it opens on the ready lives, the name a screen back, a pick goes to the page, and Begin stamps it and starts that life with its own age printed", async () => {
     door();
     fireEvent.click(next(say("ui.door.next")));
     expect(document.querySelector("[data-ready], [data-ready-life]")).toBeNull();
@@ -175,6 +180,9 @@ describe("the run through the front door", () => {
     localStorage.clear();
     askReadyLives();
     const store = door();
+    // Settings' run opens on the ready lives themselves; Back reaches the name, Next comes back.
+    expect(stage()).toBe("ready");
+    fireEvent.click(screen.getByRole("button", { name: say("ui.door.back") }));
     expect(stage()).toBe("you");
     fireEvent.change(nameBox(), { target: { value: "Bayo" } });
     fireEvent.click(next(say("ui.door.next")));
@@ -198,7 +206,7 @@ describe("the run through the front door", () => {
     fireEvent.change(nameBox(), { target: { value: "Kemi" } });
     fireEvent.click(next(say("ui.door.next")));
     fireEvent.click(screen.getByRole("radio", { name: say("prologue.archetype.writer.name") }));
-    fireEvent.click(next(say("ui.door.next")));
+    fireEvent.click(next(say("prologue.door.print")));
     expect(stage()).toBe("page");
     fireEvent.click(screen.getByRole("button", { name: say("ui.door.back") }));
     expect(stage()).toBe("life");
@@ -209,7 +217,7 @@ describe("the run through the front door", () => {
     expect(screen.queryByRole("button", { name: say("ui.door.back") })).toBeNull();
   });
 
-  test("[R-PROLOGUE-004] [R-PROLOGUE-009] [R-PROLOGUE-013] given a tile, then the age under it is never typed: it starts at the year its path reaches, steps a year at a time up to three older inside 18 to 29, says what each step does, and prints on the page", () => {
+  test("[R-PROLOGUE-004] [R-PROLOGUE-009] [R-PROLOGUE-013] given a tile, then the age under it is never typed: it starts at the year its path reaches, steps a year at a time up to three older inside 18 to 29, says what each step does, names Canada's age points only for a tile whose ways out count them, and prints on the page", () => {
     door();
     fireEvent.click(next(say("ui.door.next")));
     fireEvent.click(screen.getByRole("radio", { name: say("prologue.archetype.shop-worker.name") }));
@@ -219,7 +227,9 @@ describe("the run through the front door", () => {
     const years = () => document.querySelector("[data-age-years]")?.textContent;
     const does = () => document.querySelector("[data-age-does]")?.textContent;
     expect(years()).toBe(say("prologue.door.age.years", { years: lowest }));
-    expect(does()).toBe(ageStepWords(0, lowest));
+    // The shop worker's ways out count no age in points, so her own age says nothing of Canada.
+    expect(does()).toBeUndefined();
+    expect(ageStepWords(0, lowest, false)).toBe("");
     const younger = screen.getByRole<HTMLButtonElement>("button", { name: say("prologue.door.age.younger") });
     const older = screen.getByRole<HTMLButtonElement>("button", { name: say("prologue.door.age.older") });
     // Never below the year its path reaches.
@@ -237,29 +247,39 @@ describe("the run through the front door", () => {
       expect(years()).toBe(say("prologue.door.age.years", { years: lowest + step }));
     }
     expect(younger.disabled).toBe(true);
-    // Another tile starts again at its own age.
+    // Another tile starts again at its own age; the writer's ways out count age in Canada's points, so she is told how long is left.
     fireEvent.click(screen.getByRole("radio", { name: say("prologue.archetype.writer.name") }));
     expect(years()).toBe(say("prologue.door.age.years", { years: startYearFor(archetypeOf("writer")!, 0) }));
+    expect(does()).toBe(ageStepWords(0, startYearFor(archetypeOf("writer")!, 0)));
+    expect(does()).toContain("Canada");
     fireEvent.click(screen.getByRole("radio", { name: say("prologue.archetype.shop-worker.name") }));
     for (let step = 0; step < Math.max(...open); step += 1) fireEvent.click(older);
-    fireEvent.click(next(say("ui.door.next")));
+    fireEvent.click(next(say("prologue.door.print")));
     expect(document.querySelector("[data-page] [data-field='age']")?.textContent).toContain(say("prologue.page.age.years", { years: lowest + Math.max(...open) }));
   });
 
-  test("[R-PROLOGUE-009] given the first screen, then the hook asks what your japacity is over the figure on the plinth, from the first second and before the look; later screens drop it", () => {
+  test("[R-PROLOGUE-009] [R-PROLOGUE-013] given the first two screens, then the figure stands alone on its turntable over the theme's band, no compound behind it and no banner over it: only the name in bold and the path and age beneath, and \"Drag to turn\" at its foot; the page stands over the compound", () => {
     door();
-    const hook = document.querySelector("[data-door-hook]");
-    expect(hook?.textContent).toBe(say("prologue.door.hook"));
-    expect(hook?.textContent).toBe("What's your japacity?");
-    // Over the scene, above the sheet with the look.
-    expect(document.querySelector("[data-gate] [data-front-scene]")).not.toBeNull();
-    const looks = document.querySelector("[data-looks]")!;
-    expect(hook!.compareDocumentPosition(looks) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    fireEvent.click(next(say("ui.door.next")));
+    expect(document.querySelector("[data-gate] [data-turntable]")).not.toBeNull();
+    expect(document.querySelector("[data-gate]")?.className).toContain("band-2");
+    expect(document.querySelector("[data-front-scene]")).toBeNull();
     expect(document.querySelector("[data-door-hook]")).toBeNull();
+    const name = nameBox().value;
+    const over = document.querySelector<HTMLElement>("[data-stand-name]")!;
+    expect(over.children[0]?.textContent).toBe(name);
+    expect(over.children[1]?.textContent).toBe(say("ui.door.caption", { path: say(`prologue.archetype.${ARCHETYPES[0]!.id}.name`), age: say("ui.profile.age", { years: startYearFor(ARCHETYPES[0]!, 0) }) }));
+    expect(document.querySelector("[data-stand-drag]")?.textContent).toBe(say("prologue.door.drag"));
+    // The question is the header's title; the one line about the game stands in the sheet (R-TEXT-006).
+    expect(screen.getByRole("heading", { name: say("ui.life.title") }).closest("[data-door-progress]")).not.toBeNull();
+    expect(document.querySelector("[data-gate-sheet] [data-door-intro]")?.textContent).toBe(say("ui.life.intro"));
+    fireEvent.click(next(say("ui.door.next")));
+    expect(document.querySelector("[data-gate] [data-turntable]")).not.toBeNull();
+    fireEvent.click(next(say("prologue.door.print")));
+    expect(document.querySelector("[data-gate] [data-front-scene]")).not.toBeNull();
+    expect(document.querySelector("[data-turntable]")).toBeNull();
   });
 
-  test("[R-PROLOGUE-013] given each tile, then under the age a row says where you live: the family house in Surulere and a room of your own in Ojuelegba for every tile, a room on the water in Makoko for the child of the water alone, one line each with its cost a month, the right one chosen for the tile, and the money left after moving in from the tile's savings, or for the room the figure still needed; then the self-contain, locked as a goal with its figure; a home picked is kept through another tile while it can be paid", () => {
+  test("[R-PROLOGUE-013] given each tile, then under the age a row says where you live: the family house in Surulere and a room of your own in Ojuelegba for every tile, a room on the water in Makoko for the child of the water alone, one line each with its cost a month, the right one chosen for the tile, and the money the life starts with after moving in, as the band will show it, \"about\" where it is drawn, or for the room the figure still needed; then the self-contain, locked as a goal with its figure; a home picked is kept through another tile while it can be paid", () => {
     door();
     fireEvent.click(next(say("ui.door.next")));
     const monthly = { "family-house": 9500000, "compound-room": 5000000, makoko: 2500000 } as const;
@@ -279,10 +299,14 @@ describe("the run through the front door", () => {
         expect(home.querySelector("[data-home-costs]")?.textContent).toBe(say(`ui.door.home.costs.${id}`, { amount: formatMoney(monthly[id], "NGN"), rent: formatMoney(40000000, "NGN") }));
         const left = savingsOf(tile) - now[id] - monthly[id];
         expect(pocketIn(tile, 0, id)).toBe(left);
+        // What the band shows at Begin: the savings less the move-in, the month's living named apart.
+        const start = savingsOf(tile) - now[id];
+        expect(startIn(tile, 0, id)).toBe(start);
         // Only the room may be out of reach at a tile's own age: what is left after its year and fees covers no month there.
         const open = left >= 0;
         expect({ id, reachable: open || id === "compound-room" }).toEqual({ id, reachable: true });
-        const shown = open ? `${formatMoney(left, "NGN")}${say("ui.door.home.left")}` : `${formatMoney(-left, "NGN")}${say("ui.door.home.needed")}`;
+        const figure = moneyDrawn(tile) ? say("ui.door.home.about", { amount: formatMoney(start, "NGN") }) : formatMoney(start, "NGN");
+        const shown = open ? `${figure}${say("ui.door.home.start")}` : `${formatMoney(-left, "NGN")}${say("ui.door.home.needed")}`;
         expect({ id, shown: home.querySelector("[data-home-left]")?.textContent, shut: home.hasAttribute("disabled") }).toEqual({ id, shown, shut: !open });
       }
       const goal = homes.at(-1)!;
@@ -290,7 +314,9 @@ describe("the run through the front door", () => {
       expect(goal.getAttribute("role")).toBeNull();
       expect(goal.textContent).toBe(`${say("ui.door.home.self-contain")} · ${say("ui.door.home.where.self-contain")}${say("ui.door.home.costs.self-contain", { amount: formatMoney(84000000, "NGN") })}${say("ui.door.home.goal")}`);
     }
-    expect(say("ui.door.home.costs.family-house", { amount: "₦95,000" })).toBe("₦95,000 a month · family around");
+    expect(say("ui.door.home.costs.family-house", { amount: "₦95,000" })).toBe("Then ₦95,000 a month · family around");
+    // The trade's settlement is drawn, so its figure is "about"; no other tile's is.
+    expect(ARCHETYPES.filter((tile) => moneyDrawn(tile)).map((tile) => tile.id)).toEqual(["trader"]);
     // A home picked is kept through another tile; a home left as it was follows the tile.
     fireEvent.click(screen.getByRole("radio", { name: say("prologue.archetype.developer.name") }));
     expect(JSON.parse(localStorage.getItem(DOOR_KEY) ?? "{}")).toMatchObject({ archetype: "developer", home: "family-house" });
@@ -300,10 +326,10 @@ describe("the run through the front door", () => {
     fireEvent.click(screen.getByRole("radio", { name: say("prologue.archetype.nurse.name") }));
     fireEvent.click(screen.getByRole("radio", { name: say("prologue.archetype.water.name") }));
     expect(JSON.parse(localStorage.getItem(DOOR_KEY) ?? "{}")).toMatchObject({ archetype: "water", home: "family-house", homePicked: true });
-    // An older step adds its saving to what is left.
+    // An older step adds its saving to what the life starts with.
     fireEvent.click(screen.getByRole("button", { name: say("prologue.door.age.older") }));
     const older = yearsWorked(1);
-    expect(document.querySelector("[data-home='family-house'] [data-home-left]")?.textContent).toBe(`${formatMoney(savingsOf(archetypeOf("water")!) + older.saved - monthly["family-house"], "NGN")}${say("ui.door.home.left")}`);
+    expect(document.querySelector("[data-home='family-house'] [data-home-left]")?.textContent).toBe(`${formatMoney(savingsOf(archetypeOf("water")!) + older.saved, "NGN")}${say("ui.door.home.start")}`);
     // The room picked under the accountant, who holds its year and a month, is kept through the trader, who does too.
     fireEvent.click(screen.getByRole("radio", { name: say("prologue.archetype.accountant.name") }));
     fireEvent.click(screen.getByRole("radio", { name: say("ui.door.home.compound-room") }));
@@ -311,7 +337,7 @@ describe("the run through the front door", () => {
     expect(JSON.parse(localStorage.getItem(DOOR_KEY) ?? "{}")).toMatchObject({ archetype: "trader", home: "compound-room", homePicked: true });
   });
 
-  test("[R-PROLOGUE-013] given the writer, whose savings at her own age cover the room's year, its fees and a month of living with a little to spare, then the room is open with what is left over \"left\", a year older leaves more, and the pick holds when she steps back to her own age", () => {
+  test("[R-PROLOGUE-013] given the writer, whose savings at her own age cover the room's year, its fees and a month of living with a little to spare, then the room is open with what she starts with over \"to start\", a year older starts with more, and the pick holds when she steps back to her own age", () => {
     door();
     fireEvent.click(next(say("ui.door.next")));
     fireEvent.click(screen.getByRole("radio", { name: say("prologue.archetype.writer.name") }));
@@ -321,12 +347,13 @@ describe("the run through the front door", () => {
     expect(left).toBeGreaterThan(0);
     const room = () => document.querySelector<HTMLButtonElement>("[data-home='compound-room']")!;
     expect(room().disabled).toBe(false);
-    expect(room().querySelector("[data-home-left]")?.getAttribute("data-home-left")).toBe("left");
-    expect(room().querySelector("[data-home-left]")?.textContent).toBe(`${formatMoney(left, "NGN")}${say("ui.door.home.left")}`);
+    expect(room().querySelector("[data-home-left]")?.getAttribute("data-home-left")).toBe("start");
+    // What she holds at Begin: the savings less the year and the fees; the month's living is said apart.
+    expect(room().querySelector("[data-home-left]")?.textContent).toBe(`${formatMoney(left + 5000000, "NGN")}${say("ui.door.home.start")}`);
     expect(room().querySelector("svg")?.getAttribute("class")).not.toContain("lucide-lock");
     fireEvent.click(screen.getByRole("button", { name: say("prologue.door.age.older") }));
     const older = yearsWorked(1);
-    expect(room().querySelector("[data-home-left]")?.textContent).toBe(`${formatMoney(left + older.saved, "NGN")}${say("ui.door.home.left")}`);
+    expect(room().querySelector("[data-home-left]")?.textContent).toBe(`${formatMoney(left + 5000000 + older.saved, "NGN")}${say("ui.door.home.start")}`);
     fireEvent.click(screen.getByRole("radio", { name: say("ui.door.home.compound-room") }));
     expect(JSON.parse(localStorage.getItem(DOOR_KEY) ?? "{}")).toMatchObject({ archetype: "writer", home: "compound-room", homePicked: true });
     // A step back to her own age keeps the room: it is still open there.
@@ -354,7 +381,7 @@ describe("the run through the front door", () => {
       const water = document.querySelector<HTMLButtonElement>("[data-home='makoko']")!;
       expect(water.disabled).toBe(false);
       expect(water.getAttribute("aria-checked")).toBe("true");
-      expect(water.querySelector("[data-home-left]")?.textContent).toBe(`${formatMoney(5000000 - 2500000, "NGN")}${say("ui.door.home.left")}`);
+      expect(water.querySelector("[data-home-left]")?.textContent).toBe(`${formatMoney(5000000, "NGN")}${say("ui.door.home.start")}`);
       expect(fitHome(archetypeOf("water")!, 0, { home: "family-house", homePicked: true })).toBe("makoko");
       expect(pocketIn(archetypeOf("water")!, 0, "family-house")).toBe(5000000 - 9500000);
     } finally {

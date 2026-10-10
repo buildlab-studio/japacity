@@ -1,5 +1,5 @@
 // The way through the front door for a screen test (prologue.md R-PROLOGUE-009, 013, 014): the name on the first screen
-// (the filled one unless one is given), Next, a tile or a ready life, Next, then Begin. A tile's life fills its page and
+// (the filled one unless one is given), Next, a tile or a ready life, Print my page, then Begin. A tile's life fills its page and
 // opens the world from it; `passThePage` taps it on. A ready life is reached only on a run Settings asked for: a test
 // calls `askReadyLives` before the app is drawn.
 import { fireEvent, screen, waitFor } from "@testing-library/react";
@@ -61,19 +61,25 @@ export async function passThePage(): Promise<void> {
   });
 }
 
-/** A ready life, by its scenario, on a run Settings asked for: the name, Next, Pick on its kind, Begin. */
+/**
+ * A ready life, by its scenario, on a run Settings asked for: the door opens on the ready lives; a name given is typed
+ * by going Back to the first screen and Next again. Then Pick on its kind, Begin.
+ */
 export async function startReadyLife(scenario: string, name?: string): Promise<void> {
   await atTheDoor();
-  typeName(name);
-  fireEvent.click(screen.getByRole("button", { name: startsWith("ui.door.next") }));
+  if (name !== undefined) {
+    if (document.querySelector("[data-gate='ready']") !== null) fireEvent.click(screen.getByRole("button", { name: say("ui.door.back") }));
+    typeName(name);
+    fireEvent.click(screen.getByRole("button", { name: startsWith("ui.door.next") }));
+  }
   fireEvent.click(await screen.findByRole("button", { name: `${say("prologue.door.pick")}: ${say(`${scenario}.kind`)}` }));
   await begin();
 }
 
-/** A life from sixteen through an archetype's tile: the name, Next, the tile, Next, Begin. The life's page is left on screen. */
+/** A life from sixteen through an archetype's tile: the name, Next, the tile, Print my page, Begin. The life's page is left on screen. */
 export async function startArchetype(archetype: string, name?: string): Promise<void> {
   await toTheArchetypes(name);
   fireEvent.click(await screen.findByRole("radio", { name: say(`prologue.archetype.${archetype}.name`) }));
-  fireEvent.click(screen.getByRole("button", { name: startsWith("ui.door.next") }));
+  fireEvent.click(screen.getByRole("button", { name: startsWith("prologue.door.print") }));
   await begin();
 }
