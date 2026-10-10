@@ -330,7 +330,7 @@ async function followNudge(run: Run, month: number): Promise<void> {
       log(run, `the official page in Japa: ${(await official.first().getAttribute("data-official-page")) ?? ""}`);
       await tap(run, official, "Read the official page");
       await page.waitForTimeout(1_200);
-      const toast = page.locator("[data-toast]");
+      const toast = page.locator("[data-speech], [data-corner] [data-told]:last-child");
       if (await shown(toast)) log(run, `toast: ${await words(toast)}`);
       await shot(run, `month ${String(month)} official page`);
       await tap(run, page.locator("[data-home-bar]"), "the phone's home bar");
@@ -367,7 +367,7 @@ async function followNudge(run: Run, month: number): Promise<void> {
       log(run, `tapped "${name}"`);
       await tap(run, main, name);
       await page.waitForTimeout(1_200);
-      const toast = page.locator("[data-toast]");
+      const toast = page.locator("[data-speech], [data-corner] [data-told]:last-child");
       if (await shown(toast)) log(run, `toast: ${await words(toast)}`);
       // A sheet whose act is done closes or changes (to the next ask, or a card saying what happened);
       // one that stays as it was has nothing more to do here.
