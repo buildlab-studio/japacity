@@ -27,6 +27,7 @@ import type {
   WhereEntry,
 } from "../engine/types";
 import { countryEntry, isKept, isOverstayer, removalBanMonths, statusEntry } from "../status/status.logic";
+import { homeCharges } from "../home/home.logic";
 import type { PlaceEvent } from "./place.events";
 import { CURRENCIES, officialRates } from "../wallet/wallet.rates";
 
@@ -150,15 +151,9 @@ function closeObligations(ctx: Ctx, types: readonly ObligationType[], cause: Cau
   );
 }
 
-/** The starting life's obligations of the given types, as `obligation/open` effects at the given share of their amount. */
+/** The starting life's obligations of the given types, at the given share of their amount: the home kind's one answer (R-HOME-009). */
 function fromStartingLife(read: ReadCtx, types: readonly ObligationType[], shareBp: number): Effect[] {
-  const scenario = read.content.scenario[read.state.scenario];
-  if (scenario === undefined) return [];
-  return scenario.obligations.flatMap((owed): Effect[] => {
-    const entry = read.content.obligation[owed.obligation];
-    if (entry === undefined || !types.includes(entry.type)) return [];
-    return [{ type: "obligation/open", obligation: owed.obligation, amount: bp(owed.amount, shareBp) }];
-  });
+  return homeCharges(read, types, shareBp);
 }
 
 /**

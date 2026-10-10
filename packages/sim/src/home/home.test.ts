@@ -7,10 +7,11 @@ import { describe, expect, test } from "vitest";
 import { bp, divFloor } from "../engine/int";
 import { checkInvariants } from "../engine/invariants";
 import { applyOverlay } from "../engine/overlay";
-import type { Accepted, BaseEvent, Content, Effect, Id, PersonFacts, Tuning } from "../engine/types";
+import type { Accepted, BaseEvent, Content, Effect, Id, PersonFacts, Tuning, World } from "../engine/types";
 import { applyEffects } from "../route/route.journey";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
+import { standInWorld } from "../world/standIn";
 
 const MAKOKO = "place.makoko" as const;
 const FAMILY = "place.family-house" as const;
@@ -135,7 +136,16 @@ describe("the slice", () => {
   test("[R-HOME-001] given a new life, when it starts, then the character lives at the family house with no guest and no move made", () => {
     const game = ada();
     expect(game.state.home).toEqual({ place: FAMILY, since: 0, guest: null, moved: null, evicted: null, hosting: null });
-    expect(game.view().home).toEqual({ place: FAMILY, since: 0, guest: null, rent: { currency: "NGN", amount: ADA_UPKEEP }, evictionBp: home.evictionBp, moved: null });
+    // the view carries the card's moves too.
+    expect(game.view().home).toEqual({
+      place: FAMILY,
+      since: 0,
+      guest: null,
+      rent: { currency: "NGN", amount: ADA_UPKEEP },
+      evictionBp: home.evictionBp,
+      moved: null,
+      moves: [{ to: MAKOKO, monthly: { currency: "NGN", amount: home.makokoUpkeep }, now: home.makokoUpkeep, shut: null }],
+    });
   });
 
   test("[R-HOME-001] given a life in Makoko that flies abroad, when months pass there at a sure eviction chance, then the slice is kept as it was and never drawn on", () => {
@@ -519,6 +529,79 @@ describe("a life from sixteen", () => {
     expect(game.state.home).toMatchObject({ place: FAMILY, guest: null });
     expect(openEntries(game)).toEqual([FAMILY_UPKEEP]);
     expect(Object.values(game.state.obligation.items)[0]?.amount).toBe(familyCardCharge());
+  });
+});
+
+describe("the starting life's charges at home", () => {
+  test("[R-HOME-009] [R-PLACE-007] given a life from sixteen at the family house, when it flies abroad and comes home, then the family house's upkeep the home card names is open again and the next month charges it", () => {
+    const game = fromSixteen("family-house", NEVER);
+    setNaira(game, 0, 5_000_000_00);
+    expect(openEntries(game)).toEqual([FAMILY_UPKEEP]);
+    applyEffects(game, [{ type: "place/move", to: "abroad", country: "country.uk" }]);
+    expect(openEntries(game)).not.toContain(FAMILY_UPKEEP);
+    month(game);
+    applyEffects(game, [{ type: "place/move", to: "home", country: null }]);
+    const upkeep = Object.values(game.state.obligation.items).filter((item) => item.entry === FAMILY_UPKEEP);
+    expect(upkeep.map((item) => item.amount)).toEqual([familyCardCharge()]);
+    const due = game.view().obligations.find((owed) => owed.entry === FAMILY_UPKEEP)?.due;
+    expect(due).toBeGreaterThan(0);
+    expect(upkeepPaid(month(game))).toBe(due);
+    expect(game.view().home).toMatchObject({ place: FAMILY, rent: { currency: "NGN", amount: due } });
+  });
+
+  test("[R-HOME-009] given a fixed life abroad, when it lands, then the family's support opens from its starting obligations at the remit share, and a life from sixteen whose home card names no support opens none", () => {
+    const fixed = start({ content, scenario: "scenario.zainab", seed: "seed-1" });
+    const owed = content.scenario["scenario.zainab"]!.obligations.find((each) => content.obligation[each.obligation]?.type === "support");
+    if (owed === undefined) throw new Error("Zainab's starting life has no support.");
+    applyEffects(fixed, [{ type: "place/move", to: "abroad", country: "country.uk" }]);
+    expect(Object.values(fixed.state.obligation.items).filter((item) => item.entry === owed.obligation).map((item) => item.amount)).toEqual([bp(owed.amount, content.tuning.remit.abroadBp)]);
+    const sixteen = fromSixteen("family-house", NEVER);
+    applyEffects(sixteen, [{ type: "place/move", to: "abroad", country: "country.uk" }]);
+    expect(Object.values(sixteen.state.obligation.items).some((item) => content.obligation[item.entry]?.type === "support")).toBe(false);
+  });
+});
+
+describe("the home card's moves", () => {
+  test("[R-HOME-008] given Ada at the family house with the rent held, when the view is read, then the one move is to Makoko, open, with its rent a month and the first month's rent taken on the move", () => {
+    const game = ada(NEVER);
+    setNaira(game, 0, 5_000_000_00);
+    expect(game.view().home.moves).toEqual([{ to: MAKOKO, monthly: { currency: "NGN", amount: home.makokoUpkeep }, now: home.makokoUpkeep, shut: null }]);
+  });
+
+  test("[R-HOME-008] given Ada short of the first month's rent, when the view is read, then the move is shut as short and the command refuses it the same way; once moved, the move back is shut as moved and refused", () => {
+    const game = ada(NEVER);
+    setNaira(game, 0, home.makokoUpkeep - 1);
+    expect(game.view().home.moves.map((move) => move.shut)).toEqual(["short"]);
+    game.expectRejected({ type: "home/move", to: MAKOKO }, "cannot-afford");
+    setNaira(game, 0, 5_000_000_00);
+    game.accept({ type: "home/move", to: MAKOKO });
+    expect(game.view().home.moves).toEqual([{ to: FAMILY, monthly: { currency: "NGN", amount: ADA_UPKEEP }, now: 0, shut: "moved" }]);
+    game.expectRejected({ type: "home/move", to: FAMILY }, "not-legal");
+  });
+
+  test("[R-HOME-008] given Ada abroad, when the view is read, then the card offers no move", () => {
+    const game = ada(NEVER);
+    applyEffects(game, [{ type: "place/move", to: "abroad", country: "country.uk" }]);
+    expect(game.view().home.moves).toEqual([]);
+  });
+
+  test("[R-HOME-008] given inflation above nothing, when the view is read, then the charge where Ada lives and each move's charge a month are the bill's, inflation included", () => {
+    const inflation = 1500;
+    const worldAt = (tick: number): World => {
+      const world = standInWorld("world-1", tick, NEVER);
+      return { ...world, vars: { ...world.vars, "var.inflation": inflation } };
+    };
+    const game = start({ content: NEVER, scenario: "scenario.ada", seed: "seed-1", worldAt });
+    setNaira(game, 0, 5_000_000_00);
+    const bill = game.view().obligations.find((owed) => owed.entry === FAMILY_UPKEEP)?.due;
+    expect(bill).toBe(ADA_UPKEEP + bp(ADA_UPKEEP, inflation));
+    expect(game.view().home.rent).toEqual({ currency: "NGN", amount: bill });
+    expect(game.view().home.moves[0]?.monthly).toEqual({ currency: "NGN", amount: home.makokoUpkeep + bp(home.makokoUpkeep, inflation) });
+    game.accept({ type: "home/move", to: MAKOKO });
+    month(game);
+    const rent = game.view().obligations.find((owed) => owed.entry === MAKOKO_UPKEEP)?.due;
+    expect(game.view().home.rent).toEqual({ currency: "NGN", amount: rent });
+    expect(game.view().home.moves[0]?.monthly).toEqual({ currency: "NGN", amount: bill });
   });
 });
 

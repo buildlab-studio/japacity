@@ -143,6 +143,9 @@ export type Where = "home" | "abroad" | "road";
 export type WhereEntry = "home" | "abroad" | "any";
 /** The shapes of a return home: docs/rules/place.md R-PLACE-005. */
 export type ReturnShape = "removed" | "assisted" | "broke" | "by-choice" | "with-papers";
+/** Why the home card's move is shut (R-HOME-008): a move made this month, or the first month's rent not held. */
+export type HomeMoveShut = "moved" | "short";
+
 /** Where the character lives at home: docs/rules/home.md R-HOME-001. */
 export type HomePlace = "place.family-house" | "place.makoko";
 /** Who takes the character in after an eviction (R-HOME-004). */
@@ -2182,6 +2185,18 @@ export interface PlayerView {
   /** R-ADVERT-003: whether an advert may show now (never on the road, in a set piece, or in a chapter with `noAdverts`). */
   adverts: boolean;
   /** Where the character lives at home (docs/rules/home.md R-HOME-007): the monthly charge there, the eviction chance a month in Makoko now, and the month of the last move, so the card shuts the move made this month. */
-  home: { place: HomePlace | null; since: number; guest: HomeSlice["guest"]; rent: MoneyParam | null; evictionBp: number; moved: number | null };
+  /**
+   * `rent` is the month's charge where the character lives as the bill takes it (R-HOME-008); `moves` the moves the
+   * card offers at home, each with what it charges a month, what it takes at once, and why it is shut (empty abroad).
+   */
+  home: {
+    place: HomePlace | null;
+    since: number;
+    guest: HomeSlice["guest"];
+    rent: MoneyParam | null;
+    evictionBp: number;
+    moved: number | null;
+    moves: { to: HomePlace; monthly: MoneyParam; now: number; shut: HomeMoveShut | null }[];
+  };
   report: TurnReport | null;
 }

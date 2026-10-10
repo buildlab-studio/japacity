@@ -1,7 +1,7 @@
 // Home: where the character lives in Lagos (docs/rules/home.md). The family house, or a room on
 // the lagoon in Makoko that costs far less, until a month the settlement is cleared. Then someone
 // takes the character in, or the family does. Nothing here moves money between lives (R-PEOPLE-004).
-import { check } from "../engine/check";
+import { check, resolveAmount } from "../engine/check";
 import { bp, divFloor } from "../engine/int";
 import type { RegisteredKind } from "../engine/kind";
 import { emit } from "../engine/kind";
@@ -16,8 +16,10 @@ import type {
   HomeHost,
   HomePlace,
   HomeSlice,
+  HomeMoveShut,
   Id,
   ObligationState,
+  ObligationType,
   PlayerView,
   ReadCtx,
   Rejection,
@@ -26,6 +28,7 @@ import type {
   RequirementResult,
   State,
 } from "../engine/types";
+import { livingCharge } from "../obligation/obligation.logic";
 import { isDown } from "../offer/offer.luck";
 import type { HomeEvent } from "./home.events";
 
@@ -90,23 +93,56 @@ const HOME_CARD = "home";
 const FAMILY_ANSWER = "family-house";
 
 /**
- * What the family house charges this life: a fixed life's starting obligations, or for a life from sixteen, which
- * starts owing nothing, the upkeep its home card opens for the family house (R-PROLOGUE-006, 012).
+ * R-HOME-009: the starting life's charges at home, as `obligation/open` effects: a fixed life's starting obligations,
+ * or for a life from sixteen, which starts owing nothing, what its home card opens for the family house
+ * (R-PROLOGUE-006, 012). Only obligations of `types` are given, each at `shareBp` of its amount. The family house
+ * reopens them on a move back (R-HOME-002) and on a return (R-PLACE-007), and the family's support abroad opens
+ * from them (R-PLACE-002), so every life is charged the same way whichever way it started.
  */
-function familyCharge(read: ReadCtx): Effect[] {
+export function homeCharges(read: ReadCtx, types: readonly ObligationType[], shareBp: number = FULL): Effect[] {
   const scenario = read.content.scenario[read.state.scenario];
   if (scenario === undefined) return [];
-  if (scenario.prologue !== true) return scenario.obligations.map((owed): Effect => ({ type: "obligation/open", obligation: owed.obligation, amount: owed.amount }));
-  return read.content.prologue[HOME_CARD]?.answers.find((answer) => answer.id === FAMILY_ANSWER)?.effects ?? [];
+  const opens: Effect[] =
+    scenario.prologue === true
+      ? (read.content.prologue[HOME_CARD]?.answers.find((answer) => answer.id === FAMILY_ANSWER)?.effects ?? [])
+      : scenario.obligations.map((owed): Effect => ({ type: "obligation/open", obligation: owed.obligation, amount: owed.amount }));
+  return opens.flatMap((effect): Effect[] => {
+    if (effect.type !== "obligation/open") return [];
+    const entry = read.content.obligation[effect.obligation];
+    if (entry === undefined || !types.includes(entry.type)) return [];
+    if (shareBp === FULL) return [effect];
+    const amount = effect.amount === undefined ? entry.amount : resolveAmount(read, effect.amount);
+    return [{ type: "obligation/open", obligation: effect.obligation, amount: bp(amount, shareBp) }];
+  });
 }
 
-/** The starting life's upkeep at home, as `obligation/open` effects at its own charge (R-HOME-002, as R-PLACE-007). */
+/** The family house's own upkeep, as `obligation/open` effects at the starting life's charge (R-HOME-002, R-HOME-009). */
 function familyUpkeep(read: ReadCtx): Effect[] {
-  return familyCharge(read).filter((effect) => {
+  return homeCharges(read, ["upkeep"]).filter((effect) => {
     if (effect.type !== "obligation/open") return false;
     const entry = read.content.obligation[effect.obligation];
-    return entry !== undefined && entry.type === "upkeep" && entry.id !== MAKOKO_UPKEEP && (entry.where ?? "home") === "home";
+    return entry !== undefined && entry.id !== MAKOKO_UPKEEP && (entry.where ?? "home") === "home";
   });
+}
+
+/** R-HOME-008: what living at a home charges a month, as the bill will take it: Makoko's rent, or the family's upkeep. */
+function monthlyAt(read: ReadCtx, to: HomePlace): number {
+  if (to === MAKOKO) return livingCharge(read, MAKOKO_UPKEEP, read.content.tuning.home.makokoUpkeep);
+  return familyUpkeep(read).reduce((sum, effect) => {
+    if (effect.type !== "obligation/open") return sum;
+    const amount = effect.amount === undefined ? (read.content.obligation[effect.obligation]?.amount ?? 0) : resolveAmount(read, effect.amount);
+    return sum + livingCharge(read, effect.obligation, amount);
+  }, 0);
+}
+
+/**
+ * R-HOME-002, R-HOME-008: why `home/move` to a home not lived in would be refused at home, or null when it would be
+ * taken. The command and the card read the same answer.
+ */
+function moveShut(read: ReadCtx, to: HomePlace): HomeMoveShut | null {
+  if (homeOf(read.state, read.content).moved === read.state.turn.month) return "moved";
+  if (to === MAKOKO && nairaHeld(read.state) < read.content.tuning.home.makokoUpkeep) return "short";
+  return null;
 }
 
 /** Naira held in cash and bank together. */
@@ -198,10 +234,9 @@ function moveCommand(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (ctx.state.place.where !== "home") return reject("not-legal", "The home is in Lagos: a move is made at home.");
   const lives = homeOf(ctx.state, ctx.content);
   if (lives.place === command.to) return reject("not-legal", `The character lives at ${command.to} already.`);
-  if (lives.moved === ctx.state.turn.month) return reject("not-legal", "One move a month: the character moved this month.");
-  if (command.to === MAKOKO && nairaHeld(ctx.state) < ctx.content.tuning.home.makokoUpkeep) {
-    return reject("cannot-afford", "The first month's rent is not held.");
-  }
+  const shut = moveShut(ctx, command.to);
+  if (shut === "moved") return reject("not-legal", "One move a month: the character moved this month.");
+  if (shut === "short") return reject("cannot-afford", "The first month's rent is not held.");
   return moveTo(ctx, command.to, { source: MOVE_SOURCE, param: null, terms: {} }, true);
 }
 
@@ -363,17 +398,29 @@ function invariants(state: State, content: Content): string[] {
   return problems;
 }
 
-/** R-HOME-007: where the character lives, the monthly charge there, and the eviction chance a month in Makoko now. */
+/**
+ * R-HOME-007, R-HOME-008: where the character lives, the monthly charge there as the bill takes it, the eviction
+ * chance a month in Makoko now, and at home the moves the card offers, each with its charge a month and why it is shut.
+ */
 export function homeView(read: ReadCtx): PlayerView["home"] {
   const lives = homeOf(read.state, read.content);
   const charge = lives.place === null ? undefined : upkeepItems(read.state, read.content).find((item) => (item.entry === MAKOKO_UPKEEP) === (lives.place === MAKOKO));
+  const atHome = read.state.place.where === "home";
   return {
     place: lives.place,
     since: lives.since,
     guest: lives.guest,
-    rent: charge === undefined ? null : { currency: "NGN", amount: charge.amount },
+    rent: charge === undefined ? null : { currency: "NGN", amount: livingCharge(read, charge.entry, charge.amount) },
     evictionBp: evictionChanceBp(read),
     moved: lives.moved,
+    moves: atHome
+      ? HOMES.filter((to) => to !== lives.place).map((to) => ({
+          to,
+          monthly: { currency: "NGN" as const, amount: monthlyAt(read, to) },
+          now: to === MAKOKO ? read.content.tuning.home.makokoUpkeep : 0,
+          shut: moveShut(read, to),
+        }))
+      : [],
   };
 }
 

@@ -101,6 +101,23 @@ describe("the home card", () => {
     unmount();
   });
 
+  test("[R-HOME-008] [R-HOME-009] given a life from sixteen in Makoko, when the move back is asked, then it names the family house's charge the home card gave, as the engine will charge it", async () => {
+    const game = start({ content, scenario: "scenario.prologue", seed: "seed-1" });
+    for (const answer of ["begin", "commercial", "work", "save", "nowhere", "as-is", "makoko"]) {
+      const step = game.state.prologue.step;
+      if (step === null) throw new Error(`The prologue closed before ${answer}.`);
+      game.accept({ type: "prologue/choose", step, answer });
+    }
+    game.endTurn();
+    const opens = content.prologue["home"]?.answers.find((answer) => answer.id === "family-house")?.effects.find((effect) => effect.type === "obligation/open");
+    if (opens?.type !== "obligation/open" || typeof opens.amount !== "number") throw new Error("The home card's family house opens no upkeep.");
+    expect(game.view().home.moves.find((move) => move.to === "place.family-house")?.monthly.amount).toBe(opens.amount);
+    const { unmount } = await openBills(game);
+    fireEvent.click(moveButton("place.family-house")!);
+    expect(document.body.textContent).toContain(phoneWords("phone.home.move.line.place.family-house", { amount: { currency: "NGN", amount: opens.amount } }));
+    unmount();
+  });
+
   test("[R-HOME-007] given Ada abroad, when Bills opens, then no home card shows: the home is Lagos", async () => {
     const game = newGame();
     applyEffects(game, [{ type: "place/move", to: "abroad", country: "country.uk" }]);

@@ -171,6 +171,18 @@ export function chargeOf(read: ReadCtx, item: ObligationState, entry: Obligation
   return relieve(item, scheduledCharge(read, item, entry));
 }
 
+/**
+ * R-HOME-008: one month's charge of an upkeep or support held at `amount`, as the bill takes it before any relief.
+ * R-DIRECTOR-006. "at home" is a naira charge, so money sent home from abroad rises with it too.
+ * The home view and the scheduled charge both read it, so the home card and the bill agree. Content without the
+ * entry (a test's small world has no room on the water) charges the amount as it stands.
+ */
+export function livingCharge(read: Pick<ReadCtx, "world" | "content">, obligation: Id<"obligation">, amount: number): number {
+  const entry = read.content.obligation[obligation];
+  const rise = entry?.currency === "NGN" ? bp(amount, worldVarOr(read.world, INFLATION)) : 0;
+  return Math.max(0, amount + rise);
+}
+
 /** The charge as scheduled, before any relief. */
 function scheduledCharge(read: ReadCtx, item: ObligationState, entry: ObligationEntry): Omit<Charge, "relief"> {
   const interest = bp(item.principal, entry.rateBp);
@@ -184,11 +196,8 @@ function scheduledCharge(read: ReadCtx, item: ObligationState, entry: Obligation
       // No fixed charge: `amount` holds the savings held back (see `openEffect`).
       return { base: principal, interest, principal };
     case "upkeep":
-    case "support": {
-      // R-DIRECTOR-006. "at home" is a naira charge, so money sent home from abroad rises with it too.
-      const rise = entry.currency === "NGN" ? bp(item.amount, worldVarOr(read.world, INFLATION)) : 0;
-      return { base: Math.max(0, item.amount + rise), interest, principal };
-    }
+    case "support":
+      return { base: livingCharge(read, item.entry, item.amount), interest, principal };
     case "loan":
     case "held-funds":
     case "rent":
