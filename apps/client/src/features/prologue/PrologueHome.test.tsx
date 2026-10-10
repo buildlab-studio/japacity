@@ -16,10 +16,13 @@ function upkeepOf(answer: string): number {
 }
 
 describe("the home card", () => {
-  test("[R-PROLOGUE-009] [R-PROLOGUE-013] given the card that asks where you sleep, when its answers show, then there are the family house and Makoko only, and each says its living costs a month, as every other card says its cost", async () => {
+  test("[R-PROLOGUE-009] [R-PROLOGUE-013] given the card that asks where you sleep, when its answers show, then there are the family house, the room in a compound and Makoko, and each says what it costs, as every other card says its cost", async () => {
     const house = formatMoney(upkeepOf("family-house"), "NGN");
     const makoko = formatMoney(upkeepOf("makoko"), "NGN");
-    expect(content.prologue.home?.answers.map((answer) => answer.id)).toEqual(["family-house", "makoko"]);
+    // the room in a compound is a home again, its year's rent said.
+    expect(content.prologue.home?.answers.map((answer) => answer.id)).toEqual(["family-house", "compound-room", "makoko"]);
+    expect(answerHint("home", "compound-room")).toBe(`Rent: ${formatMoney(upkeepOf("compound-room"), "NGN")} a year, paid upfront with the fees. Living costs every month.`);
+    expect(formatMoney(upkeepOf("compound-room"), "NGN")).toBe("₦400,000");
     expect(answerHint("home", "family-house")).toBe(`Living costs: ${house} a month.`);
     expect(house).toBe("₦95,000");
     expect(makoko).toBe("₦25,000");
@@ -33,6 +36,24 @@ describe("the home card", () => {
 });
 
 describe("the page's home", () => {
+  test("[R-PROLOGUE-013] [R-PROLOGUE-014] given a life that closed in the room in a compound, when the page tells where it sleeps, then the page says it starts in its own room in Ojuelegba, with the rent in 12 months", async () => {
+    const base = engineView();
+    const family = base.obligations[0];
+    if (family === undefined) throw new Error("The fixture owes nothing.");
+    const rent = upkeepOf("compound-room");
+    const view = {
+      ...base,
+      home: { ...base.home, place: "place.compound-room" as const, rent: { currency: "NGN" as const, amount: content.tuning.home.compound.upkeep } },
+      obligations: [
+        { ...family, entry: "obligation.rent-compound" as const, amount: rent, due: 0 },
+        { ...family, id: "obligation-9", entry: "obligation.upkeep-compound" as const, amount: content.tuning.home.compound.upkeep },
+      ],
+    };
+    await renderWithView(<PageHandover onDone={() => undefined} />, view);
+    const home = document.querySelector("[data-handover-story] [data-fact='home']");
+    expect(home?.textContent).toBe("You start in your own room, OjuelegbaRent in 12 months");
+  });
+
   test("[R-PROLOGUE-012] [R-PROLOGUE-014] given a life that closed on a room in Makoko, when the page tells where it sleeps, then the page says it starts in the room on the water in Makoko, with the rent next month", async () => {
     const base = engineView();
     const rent = upkeepOf("makoko");

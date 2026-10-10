@@ -20,6 +20,7 @@ export const ObligationEntrySchema = z.strictObject({
   where: WhereEntrySchema.exactOptional(),
   currency: CurrencySchema,
   everyMonths: z.int().positive().exactOptional(),
+  prepaid: z.boolean().exactOptional(),
   creditMin: CountSchema.exactOptional(),
   reportsToCredit: z.boolean().exactOptional(),
   rateByCredit: z.array(z.strictObject({ min: CountSchema, rateBp: BpSchema })).exactOptional(),

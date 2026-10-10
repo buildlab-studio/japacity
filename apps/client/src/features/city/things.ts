@@ -51,6 +51,7 @@ const MORE_AT: Record<string, readonly string[]> = {
   "place.yaba:desk:routes": ["activity.find-sponsor", "activity.apply-endorsement", "activity.enter-pool"],
   "place.visa-centre:desk:apply": ["activity.apply-uk-care", "activity.apply-uk-talent"],
   "place.family-house:papers-box:start": ["activity.get-eca"],
+  "place.compound-room:papers-box:start": ["activity.get-eca"],
   "place.agent-office:desk:visit": ["activity.apply-gulf-contract"],
 };
 

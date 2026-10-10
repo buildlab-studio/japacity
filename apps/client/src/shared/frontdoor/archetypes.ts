@@ -135,9 +135,17 @@ export function withAge(archetype: Archetype, years: number): Archetype {
   return { ...archetype, preset: { ...archetype.preset, age: [...steps, "as-is"] } };
 }
 
-/** The homes the door offers (R-PROLOGUE-013): the home step's answers that play backs (R-HOME-001). */
-export const HOMES = ["family-house", "makoko"] as const;
+/** The homes the door can start a life in (R-PROLOGUE-013): the home step's answers, the three homes play backs (R-HOME-001). */
+export const HOMES = ["family-house", "compound-room", "makoko"] as const;
 export type Home = (typeof HOMES)[number];
+
+/**
+ * The homes the door offers a tile (R-PROLOGUE-013): the family house and the room in a compound
+ * to every tile, Makoko to the child of the water alone, whose own home it is.
+ */
+export function homesFor(archetype: Archetype): Home[] {
+  return HOMES.filter((home) => home !== "makoko" || homeOf(archetype) === "makoko");
+}
 
 /** The home a tile starts in unless the player picks the other: its own preset's, else the family house. */
 export function homeOf(archetype: Archetype): Home {

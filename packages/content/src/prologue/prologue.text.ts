@@ -133,6 +133,9 @@ export const prologueText: Record<string, string> = {
   "prologue.home.card": "On your own feet now. Where do you sleep?",
   "prologue.home.answer.family-house": "The family house",
   "prologue.home.answer.family-house.hint": "Living costs: {amount} a month.",
+  "prologue.home.answer.compound-room": "A room in Ojuelegba",
+  "prologue.home.answer.compound-room.why": "you do not have the year's rent, the fees and a month to live on.",
+  "prologue.home.answer.compound-room.hint": "Rent: {amount} a year, paid upfront with the fees. Living costs every month.",
   "prologue.home.answer.makoko": "A room in Makoko",
   "prologue.home.answer.makoko.hint": "Living costs: {amount} a month. Some months the settlement is cleared.",
 

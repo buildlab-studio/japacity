@@ -9,17 +9,21 @@ import { describe, expect, test } from "vitest";
 import { ROOMS } from "../../../../../../assets-src/bld/room/rooms";
 import { checkLimits, type LimitedFile, walkableSize } from "../../../../../../tools/assets/world-check";
 import parlourRaw from "../../../../public/assets/places/family-house-parlour/place.json";
+import compoundRaw from "../../../../public/assets/places/compound-room/place.json";
 import roomRaw from "../../../../public/assets/places/the-room/place.json";
 import { type PlaceFile, stageOf } from "../placeFile";
 import { measured, rowOf, totalsOf } from "./placeTesting";
 
 const parlour = parlourRaw as unknown as PlaceFile;
 const room = roomRaw as unknown as PlaceFile;
+const compound = compoundRaw as unknown as PlaceFile;
 const LENGTH = 16;
 const WIDTH = 9;
 const ROOMS_HERE = [
   { name: "the parlour", file: parlour, shell: ROOMS.parlour, side: -1, against: ["prop_tv-stand.glb", "prop_bed.glb"] },
   { name: "the room abroad", file: room, shell: ROOMS.abroad, side: 1, against: ["prop_bed.glb", "prop_window-frame.glb", "prop_side-table.glb"] },
+  // home.md R-HOME-010: the room in a compound, the same length, its mattress against the back wall.
+  { name: "the room in a compound", file: compound, shell: ROOMS.compound, side: 1, against: ["prop_bed.glb"] },
 ] as const;
 
 /** Each copy of each model but the room's own shell, with its footprint boxes' extents in the place's frame. */
@@ -42,7 +46,7 @@ async function extents(file: PlaceFile): Promise<{ file: string; x0: number; x1:
 }
 
 describe("the room at its new length", () => {
-  test("[R-WORLD-011] given the parlour and the room abroad, when their shells are read and measured, then each is 16 by 9 metres inside, its long side along x, the way the camera looks down it", async () => {
+  test("[R-WORLD-011] given the parlour, the room abroad and the room in a compound, when their shells are read and measured, then each is 16 by 9 metres inside, its long side along x, the way the camera looks down it", async () => {
     for (const { name, file, shell } of ROOMS_HERE) {
       expect({ name, size: shell.size }).toEqual({ name, size: [LENGTH, WIDTH] });
       const shipped = await measured(stageOf(file).models[0]!.file);

@@ -133,6 +133,42 @@ export const obligationTable: Record<Id<"obligation">, ObligationEntry> = {
     ],
     onDefault: [],
   },
+  // home.md R-HOME-010: the room in a compound. Its upkeep is food, light and water on your own, in place of the
+  // family's upkeep while the character lives there.
+  "obligation.upkeep-compound": {
+    id: "obligation.upkeep-compound",
+    type: "upkeep",
+    currency: "NGN",
+    amount: tuning.home.compound.upkeep,
+    rateBp: 0,
+    term: null,
+    locksPrincipal: false,
+    sink: "upkeep",
+    interestSink: "upkeep",
+    grace: 0,
+    onMiss: MISSED_MONTH,
+    onDefault: [],
+  },
+  // home.md R-HOME-010, R-HOME-011, obligation.md R-OBLIGATION-015: the year's rent, paid upfront on moving in, so the
+  // next year's falls due twelve months on. A missed year's rent is asked for each month; the third miss in a row is
+  // the default: the landlord takes the room back, and the home kind sends the character back to the family house in
+  // the same month (R-HOME-011). The Lagos landlord keeps no credit file.
+  "obligation.rent-compound": {
+    id: "obligation.rent-compound",
+    type: "rent",
+    currency: "NGN",
+    everyMonths: 12,
+    prepaid: true,
+    amount: tuning.home.compound.rentYear,
+    rateBp: 0,
+    term: null,
+    locksPrincipal: false,
+    sink: "rent",
+    interestSink: "rent",
+    grace: 2,
+    onMiss: MISSED_MONTH,
+    onDefault: [{ type: "obligation/close", obligationType: "rent" }],
+  },
   "obligation.home-support": {
     id: "obligation.home-support",
     // Support for the family follows the character abroad (R-PLACE-002, R-ABROAD-007).

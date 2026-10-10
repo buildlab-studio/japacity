@@ -2,6 +2,8 @@
 export const obligationText: Record<string, string> = {
   "obligation.upkeep.name": "Living costs",
   "obligation.upkeep-makoko.name": "Room in Makoko",
+  "obligation.upkeep-compound.name": "Living costs in your room",
+  "obligation.rent-compound.name": "Rent on your room",
   "obligation.home-support.name": "Money sent home",
   "obligation.salary-loan.name": "Salary loan",
   "obligation.quick-loan.name": "QuickNaira loan",
@@ -48,6 +50,7 @@ export const obligationText: Record<string, string> = {
   "line.obligation.handed-back-owing": "The car has gone back to the lender. {shortfall} is still owed on it.",
   "line.obligation.owned": "Final payment made. The car is yours.",
   "line.obligation.evicted": "Three months of rent missed. The landlord has given you notice, and you are back in a shared room.",
+  "line.obligation.rent-lost": "Three months and the year's rent still not paid. The landlord wants the room back.",
   "line.obligation.rent-default": "Three months of rent missed. The landlord has reported you, and your credit file shows it.",
   "line.obligation.cut-off": "The phone company has ended the contract. You are back on pay as you go.",
   "line.obligation.withdrawn": "The university has withdrawn you over the unpaid tuition. Your student visa has gone with it.",

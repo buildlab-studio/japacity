@@ -10,24 +10,25 @@ import { useAsk } from "../act";
 import { phoneWords } from "../phone.words";
 
 const MAKOKO: HomePlace = "place.makoko";
+const COMPOUND: HomePlace = "place.compound-room";
 
 export interface HomeMove {
   to: HomePlace;
   /** What it costs a month there, in naira. */
   monthly: number;
-  /** What is paid on the move: the first month's rent in Makoko, nothing at the family house. */
+  /** What is paid on the move: the first month's rent in Makoko, the year's rent and fees for the room in a compound (R-HOME-010), nothing at the family house. */
   now: number;
   /** Why it is shut, in words, or null when it may be made. */
   shut: string | null;
 }
 
-/** Why a move is shut, in words: the view says which (R-HOME-008). */
-function shutWords(shut: HomeMoveShut, now: number): string {
+/** Why a move is shut, in words: the view says which (R-HOME-008). Short of the room's year and fees says so, not a month's rent. */
+function shutWords(shut: HomeMoveShut, now: number, to: HomePlace): string {
   switch (shut) {
     case "moved":
       return phoneWords("phone.home.shut.moved");
     case "short":
-      return phoneWords("phone.home.shut.short", { amount: { currency: "NGN", amount: now } });
+      return phoneWords(to === COMPOUND ? `phone.home.shut.short.${to}` : "phone.home.shut.short", { amount: { currency: "NGN", amount: now } });
     default: {
       const never: never = shut;
       return never;
@@ -37,7 +38,7 @@ function shutWords(shut: HomeMoveShut, now: number): string {
 
 /** The moves the card offers, as the view carries them: every home but the one lived in, each with its reason when shut. */
 export function homeMoves(view: Pick<PlayerView, "home">): HomeMove[] {
-  return view.home.moves.map((move) => ({ to: move.to, monthly: move.monthly.amount, now: move.now, shut: move.shut === null ? null : shutWords(move.shut, move.now) }));
+  return view.home.moves.map((move) => ({ to: move.to, monthly: move.monthly.amount, now: move.now, shut: move.shut === null ? null : shutWords(move.shut, move.now, move.to) }));
 }
 
 /** Who took the character in, as words: a friend by the words for one, someone of the story by name. */
@@ -58,7 +59,7 @@ export function HomeCard() {
       icon: "house",
       who: phoneWords("phone.home.title"),
       title: phoneWords(`phone.home.move.${move.to}`),
-      line: phoneWords(`phone.home.move.line.${move.to}`, { amount: { currency: "NGN", amount: move.monthly } }),
+      line: phoneWords(`phone.home.move.line.${move.to}`, { amount: { currency: "NGN", amount: move.monthly }, now: { currency: "NGN", amount: move.now } }),
       cost: move.now > 0 ? { amount: move.now, currency: "NGN" } : null,
       button: phoneWords("phone.home.move.button"),
       have: view.pockets.NGN.cash + view.pockets.NGN.bank,

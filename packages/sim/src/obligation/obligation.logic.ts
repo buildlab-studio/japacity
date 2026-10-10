@@ -118,15 +118,17 @@ function modulo(value: number, every: number): number {
 }
 
 /**
- * R-ABROAD-005: whether a charge falls in this month. An entry with
+ * R-ABROAD-005, R-OBLIGATION-015: whether a charge falls in this month. An entry with
  * `everyMonths` is charged in the first month after opening and every
- * `everyMonths` after it. a missed instalment is asked for again each
+ * `everyMonths` after it; one `prepaid` had its first period paid when it opened,
+ * so it is first charged `everyMonths` after the opening month, then every
+ * `everyMonths`. a missed instalment is asked for again each
  * month until it is paid or defaults, so a grace of 1 is one month, not three.
  */
 function dueIn(item: ObligationState, entry: ObligationEntry, month: number): boolean {
   if (isOwned(item, entry)) return false;
   if (entry.everyMonths === undefined || item.missed > 0) return true;
-  const age = month - item.openedMonth - 1;
+  const age = month - item.openedMonth - (entry.prepaid === true ? entry.everyMonths : 1);
   return age >= 0 && modulo(age, entry.everyMonths) === 0;
 }
 
@@ -831,7 +833,9 @@ function line(key: string, params: ReportLine["params"], tone: ReportLine["tone"
 function defaultKey(entry: ObligationEntry): string {
   switch (entry.type) {
     case "rent":
-      // A flat's default sends the character back to a room; a room has nowhere cheaper to go.
+      // A room at home keeps no credit file: its landlord takes the room back, and the home kind sends the character
+      // home (R-HOME-011). Abroad, a flat's default sends the character back to a room; a room has nowhere cheaper to go.
+      if (entry.reportsToCredit !== true) return "rent-lost";
       return entry.onDefault.length > 0 ? "evicted" : "rent-default";
     case "phone":
       return "cut-off";

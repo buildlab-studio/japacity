@@ -295,6 +295,14 @@ const entries: PlaceEntry[] = [
     crowd: FEW,
     traditionalBp: STREET,
   }),
+  // home.md R-HOME-010: one rented room in a shared compound in Ojuelegba, the character's home while they live there.
+  // It stages nothing of its own: its things carry the home's own acts, which the family house stages (R-HOME-006,
+  // R-CITY-010), and the city opens them where the character lives. No position: it is on the map only as home.
+  unnamed("place.compound-room", "stylised", "home", "lagos", null, {
+    scope: "interior",
+    crowd: FEW,
+    traditionalBp: STREET,
+  }),
   unnamed("place.motor-park", "stylised", "home", "lagos", null, {
     scope: "exterior",
     stages: ["offer.road-park", "offer.road-radio", "offer.road-cousin"],

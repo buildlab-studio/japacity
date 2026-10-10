@@ -59,7 +59,7 @@ import type { Picked, ScenePick } from "./scene.types";
 import { SaidLine, useSaid } from "./Said";
 import { APPLY_TO_SCHOOL, SCHOOL_ICON, schoolSheetLine } from "./school";
 import { sceneWords } from "./scene.words";
-import { enterable, offersHere, openingPlace, openScene, reportHere, type ViewPlace } from "./staging";
+import { enterable, homeStagesAt, offersHere, openingPlace, openScene, reportHere, type ViewPlace } from "./staging";
 import { type Coming, comingOf, soonest } from "../../shared/words/coming";
 import { stagedNow, thingsNow, thingsOf, vehicleOf, withMoreAt } from "./things";
 import { stopReached } from "./stops";
@@ -92,7 +92,7 @@ function minutesBetween(from: { latE3: number; lonE3: number }, to: { latE3: num
 const ROAM = (city as Partial<Record<"roam", boolean>>).roam ?? false;
 /** The home of each where when the view names none: the family house, then the room abroad. */
 const HOMES: Record<string, string> = { home: "place.family-house", abroad: "place.the-room" };
-/** Where the character lives (home.md R-HOME-006): the room in Makoko while they live there, else the where's home. */
+/** Where the character lives (home.md R-HOME-006, R-HOME-010): the room in Makoko or in the compound while they live there, else the where's home. */
 function homeOf(view: PlayerView): string | null {
   const lived = view.place.where === "home" ? view.home.place : null;
   return lived ?? HOMES[view.place.where] ?? null;
@@ -654,9 +654,9 @@ export function City({
   const things = useMemo(() => {
     if (!world || file === null) return undefined;
     const offered = new Set(activityKey.split("|"));
-    const staged = new Set<string>([...(entry?.stages ?? []), ...(insideEntry?.stages ?? [])]);
+    const staged = new Set<string>([...(entry?.stages ?? []), ...(insideEntry?.stages ?? []), ...homeStagesAt(placeId, home, here, PLACES)]);
     return thingsNow(withMoreAt(thingsOf(stageOf(file)), inside && insideEntry !== null ? insideEntry.id : placeId), stagedNow(offered, staged, new Set(offersKey.split("|")), setpieceEntry, chapterNow));
-  }, [world, file, activityKey, entry, inside, insideEntry, placeId, offersKey, setpieceEntry, chapterNow]);
+  }, [world, file, activityKey, entry, inside, insideEntry, placeId, offersKey, setpieceEntry, chapterNow, home, here]);
   // What the scene reports: a thing chosen shows its acts; an act becomes the sheet, the ride, the cut in or the cut out it stands for.
   // An act lands once the character has walked to its thing (R-WORLD-010); one that lands under a sheet, the phone, the map or the results is dropped.
   const readPick = (scenePick: ScenePick): void => {
