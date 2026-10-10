@@ -333,7 +333,17 @@ async function followNudge(run: Run, month: number): Promise<void> {
       const before = await words(sheet, 400);
       log(run, `${mark} sheet: ${oneLine(before, 240)}`);
       await shot(run, `month ${String(month)} ${mark} sheet`);
-      const main = await mainButton(sheet.first());
+      let main = await mainButton(sheet.first());
+      if (main === null) {
+        // A picker (which route, which school): the first row is chosen, as a player would, and the sheet's button follows.
+        const row = sheet.first().locator('[role="radio"]:not([aria-checked="true"]):enabled, [role="option"]:enabled');
+        if (await shown(row)) {
+          log(run, `picking the first row: ${await words(row, 60)}`);
+          await tap(run, row, "the first row");
+          await page.waitForTimeout(600);
+          main = await mainButton(sheet.first());
+        }
+      }
       if (main === null) {
         log(run, "nothing on the sheet to tap");
         break;
