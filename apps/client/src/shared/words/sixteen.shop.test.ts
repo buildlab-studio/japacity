@@ -52,8 +52,9 @@ describe("the trader's way to her own shop", () => {
     let view = game.view();
     expect(view.pockets.NGN.bank + view.pockets.NGN.cash).toBeLessThan(fairSettlement());
     expect(sixteenPath(view)).toBe("capital");
-    expect(view.routes.find((route) => route.id === GULF)?.state).toBe("heard");
-    game.endTurn([{ activity: "activity.look-into-route", param: GULF }]);
+    // Heard from the drivers at the send-off, the Gulf is looked into by asking around at the park (decision 0025).
+    expect(view.routes.find((route) => route.id === GULF)?.state).toBe("known");
+    game.endTurn([]);
     view = game.view();
     expect(sixteenPath(view)).toBe("capital");
     expect(nextStepOf(view)).toBe("job");

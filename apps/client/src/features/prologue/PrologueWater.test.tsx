@@ -87,7 +87,7 @@ describe("the child of the water's first step", () => {
     expect(document.querySelector("[data-first-step]")?.textContent).toBe(say("prologue.handover.first", { step: say(RACKS_STEP) }));
   });
 
-  test("[R-PROLOGUE-012] [R-ACTIVITY-017] [R-WORLD-003] given the child of the water at the racks, with the Gulf heard from the drivers at its send-off, when its next step is read, then the racks are behind it and nothing sends it to the motor park to hear of the Gulf again", () => {
+  test("[R-PROLOGUE-012] [R-ACTIVITY-017] [R-WORLD-003] [R-CHAPTER-009] given the child of the water at the racks, having heard of the Gulf from the drivers, when its next step is read, then the motor park comes after, where asking around looks the Gulf into, on the handover's words and the band's", () => {
     const game = play("water", "water-step-0");
     for (let month = 0; month < 6 && game.state.activity.job !== RACKS; month += 1) {
       game.endTurn([{ activity: HUNT, param: RACKS }]);
@@ -97,9 +97,10 @@ describe("the child of the water's first step", () => {
     expect(game.state.activity.job).toBe(RACKS);
     const view = game.view();
     expect(view.routes.find((route) => route.id === "route.gulf-contract")?.state).toBe("heard");
-    expect(nextStepOf(view)).not.toBe("heard");
-    expect(firstStep(view)).not.toBe(say("prologue.handover.step.heard.motor-park"));
-    expect(firstStep(view)).not.toBe(say(RACKS_STEP));
+    expect(nextStepOf(view)).toBe("known");
+    expect(firstStep(view)).toBe(say("prologue.handover.step.known.motor-park"));
+    // The band's nudge for the same step and way has the same words (features/city/nudge.ts reads `<item>.nudge.<way>`).
+    expect(say("chapter.find-your-feet.item.known.nudge.motor-park")).toBe(firstStep(view));
     expect(racksAtHand(view)).toBe(false);
   });
 

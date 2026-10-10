@@ -659,6 +659,10 @@ export const uiText: Record<string, string> = {
   "ui.page.tone.up": "Up",
   "ui.page.tone.down": "Down",
 
+  // A trade that heard of the Gulf looks it into at the motor park (chapter.md R-CHAPTER-009's reading; decision 0025).
+  "chapter.find-your-feet.item.known.nudge.motor-park": "Ask around at the motor park",
+  "prologue.handover.step.known.motor-park": "Ask around at the motor park",
+
   // The first-use labels (world.md R-WORLD-033): under each thumb until it is tapped once.
   "ui.first.phone": "Chats, bank, news",
   "ui.first.map": "Go places",

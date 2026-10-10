@@ -305,7 +305,8 @@ export const EffectSchema = z.discriminatedUnion("type", [
     chanceBp: BpSchema.exactOptional(),
     via: z.string().min(1),
   }),
-  z.strictObject({ type: z.literal("route/look-into") }),
+  // Decision 0025: an effect may name the route it looks into.
+  z.strictObject({ type: z.literal("route/look-into"), route: idOf("route").exactOptional() }),
   z.strictObject({ type: z.literal("route/apply-school") }),
   z.strictObject({ type: z.literal("route/apply"), route: idOf("route") }),
   z.strictObject({

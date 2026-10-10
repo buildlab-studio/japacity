@@ -783,8 +783,11 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
     cost: [],
     pay: null,
     hireBp: null,
-    // The motor park hears of the Gulf (R-CONTRACT-001) and the pitch finds the curious (R-ROAD-002).
+    // The motor park hears of the Gulf (R-CONTRACT-001) and the pitch finds the curious (R-ROAD-002). A life that heard of the
+    // Gulf already (the drivers at the send-off) looks it into here first: the look-into moves only a route heard, so its place
+    // before the hearing is the condition (decision 0025; R-CHAPTER-009's reading).
     effects: [
+      { type: "route/look-into", route: GULF },
       { type: "route/hear", route: GULF, via: "motor-park" },
       { type: "offer/open", offer: "offer.road-park" },
     ],
