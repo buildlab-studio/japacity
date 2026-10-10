@@ -40,13 +40,13 @@ describe("the page's stamps", () => {
     expect(stampsOf(notYet)).toEqual([]);
   });
 
-  test("[R-PROLOGUE-009] given the way japacity reads looked into, then the page is stamped with the plan in a few words; applied and granted stamp it again", () => {
+  test("[R-PROLOGUE-009] given the plan the chapters follow (R-CHAPTER-009) looked into, then the page is stamped with it in a few words; applied and granted stamp it again", () => {
     const plan = say("prologue.page.stamp.plan", { way: say(`prologue.page.way.${UK_CARE}`) });
     expect(plan).toBe("Plan: care work");
-    expect(stampsOf(life((view) => ({ japacity: { percent: 30, route: UK_CARE }, routes: routeIn(view, "known") })))).toEqual([plan]);
-    expect(stampsOf(life((view) => ({ japacity: { percent: 30, route: UK_CARE }, routes: routeIn(view, "heard") })))).toEqual([]);
-    expect(stampsOf(life((view) => ({ japacity: { percent: 80, route: UK_CARE }, routes: routeIn(view, "applying") })))).toEqual([plan, say("prologue.page.stamp.applied")]);
-    expect(stampsOf(life((view) => ({ japacity: { percent: 100, route: UK_CARE }, routes: routeIn(view, "granted") })))).toEqual([plan, say("prologue.page.stamp.applied"), say("prologue.page.stamp.granted")]);
+    expect(stampsOf(life((view) => ({ plan: { route: UK_CARE, ways: [{ route: UK_CARE, percent: 30 }] }, routes: routeIn(view, "known") })))).toEqual([plan]);
+    expect(stampsOf(life((view) => ({ plan: { route: UK_CARE, ways: [{ route: UK_CARE, percent: 30 }] }, routes: routeIn(view, "heard") })))).toEqual([]);
+    expect(stampsOf(life((view) => ({ plan: { route: UK_CARE, ways: [{ route: UK_CARE, percent: 80 }] }, routes: routeIn(view, "applying") })))).toEqual([plan, say("prologue.page.stamp.applied")]);
+    expect(stampsOf(life((view) => ({ plan: { route: UK_CARE, ways: [{ route: UK_CARE, percent: 100 }] }, routes: routeIn(view, "granted") })))).toEqual([plan, say("prologue.page.stamp.applied"), say("prologue.page.stamp.granted")]);
   });
 
   test("[R-PROLOGUE-009] given every way out that can be a plan, then each has its few words for the stamp", () => {
@@ -56,7 +56,7 @@ describe("the page's stamps", () => {
   test("[R-PROLOGUE-009] given a file built and every step before it, then the stamps come in the order the steps are taken", () => {
     const all = life((view) => ({
       documents: [held],
-      japacity: { percent: 90, route: UK_CARE },
+      plan: { route: UK_CARE, ways: [{ route: UK_CARE, percent: 90 }] },
       routes: routeIn(view, "applying"),
       chapter: { ...view.chapter, current: "chapter.decision-day-care", items: [], done: [FIRST, "chapter.build-the-file-care"] },
     }));

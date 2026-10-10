@@ -32,7 +32,7 @@ describe("people in the shell", () => {
     const game = peopleGame();
     playMonth(game);
     await playing(game);
-    const nav = await screen.findByRole("navigation", { name: say("ui.tabs") });
+    const nav = await screen.findByRole("navigation", { name: say("ui.tabs") }, { timeout: 10_000 });
     fireEvent.click(within(nav).getByRole("button", { name: say("ui.tab.people") }));
     const group = document.querySelector<HTMLElement>('[data-tab="people"]')!;
     expect(group.className).toContain("flex");

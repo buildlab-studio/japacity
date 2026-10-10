@@ -52,6 +52,9 @@ export const cityText: Record<string, string> = {
   "city.zoom.closer": "Closer",
   "city.zoom.whole": "Whole place",
   "city.thing.lotto": "Lotto",
+  // The trader's own stall at the market (R-ACTIVITY-016).
+  "city.thing.own-stall": "Your stall",
+  "city.act.open-shop": "Open the shop",
   "city.thing.bets": "Bets",
   "city.thing.danfo": "Danfo",
   "city.thing.keke": "Keke",

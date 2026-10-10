@@ -13,7 +13,8 @@ import { ActivityView } from "./ActivityView";
 const addButton = (id: string) => screen.getByRole("button", { name: `${say("ui.activity.add")}: ${text[`${id}.name`] ?? id}` });
 
 describe("the month plan", () => {
-  test("given a new life, then every free-slot activity shows its name and blurb from content", async () => {
+  // The picker lists every act of the life with its card; reading each by role takes time under load.
+  test("given a new life, then every free-slot activity shows its name and blurb from content", { timeout: 30_000 }, async () => {
     const view = engineView();
     await renderWithView(<ActivityView />, view);
     for (const option of view.activities) {

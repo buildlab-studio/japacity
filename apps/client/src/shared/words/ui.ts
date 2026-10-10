@@ -87,6 +87,7 @@ export const uiText: Record<string, string> = {
   "ui.walk.phone": "Your phone: chats, the bank, the news",
   "ui.walk.map": "The map: every place you can go",
   "ui.walk.count": "This is your calendar. Each page is a month of your life",
+  "ui.walk.bag": "Japacity is how ready you are to go. At 100, you go. The bag by the door fills as you get closer",
   "ui.walk.step": "{n} of {count}",
   // Each card says how to go on.
   "ui.walk.on": "Tap to go on",
@@ -206,6 +207,8 @@ export const uiText: Record<string, string> = {
   "ui.line.quality.gain-band": "{quality} up.",
   "ui.line.quality.loss-band": "{quality} down.",
   "ui.line.quality.drift-band": "{quality} settles. {band}.",
+  // A quality with named levels and no bands: "Education: Bachelor's degree.".
+  "ui.line.quality.label": "{quality}: {value}.",
   "ui.band.quality.portfolio.0": "You have little work to show",
   "ui.band.quality.portfolio.1": "You have a few pieces to show",
   "ui.band.quality.portfolio.2": "You have a good body of work",

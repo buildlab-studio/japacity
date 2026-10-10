@@ -8,7 +8,7 @@
 // `tuning.city.roam`. Nothing here sends a command (city.md R-CITY-001).
 import { onWalkable } from "@japacity/assets";
 import { Canvas, type ThreeEvent, useFrame, useThree } from "@react-three/fiber";
-import { type MutableRefObject, useEffect, useMemo, useRef, useState } from "react";
+import { type MutableRefObject, type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { type Camera, type DirectionalLight, Fog, type Object3D, PerspectiveCamera, Vector3 } from "three";
 
 import type { Act, Shot, Thing } from "../../shared/world/contract";
@@ -540,7 +540,8 @@ function Place(props: PlaceProps) {
   );
 }
 
-export default function CityScene(props: SceneProps) {
+/** `children` stand in the scene beside the place: the bag by the door (R-WORLD-029). */
+export default function CityScene(props: SceneProps & { children?: ReactNode }) {
   const [plan, setPlan] = useState(false);
   const pinch = useRef<{ gap: number; zoom: number } | null>(null);
   const drag = useRef<{ x: number; turn: number } | null>(null);
@@ -665,6 +666,7 @@ export default function CityScene(props: SceneProps) {
             return was;
           }}
         />
+        {props.children}
       </Canvas>
       <div ref={setMarkBox} className="pointer-events-none absolute inset-0" aria-hidden={props.things === undefined} data-marks />
     </div>

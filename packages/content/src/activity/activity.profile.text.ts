@@ -14,9 +14,14 @@ export const activityProfileText: Record<string, string> = {
   "activity.masters-at-home.name": "A master's at home",
   "activity.masters-at-home.blurb": "Evenings and weekends at a university here for twelve months, the fees paid month by month. A master's adds to Canada's points.",
 
-  // R-ACTIVITY-013: the draw at work, and the quiz marked the moment it is answered.
-  "line.activity.raised": "{job}: your manager noticed. Your pay goes up to {amount} a month.",
+  // R-ACTIVITY-013: the draw at work, the quiz marked the moment it is answered, and what the acts built.
+  "line.activity.raised": "Your manager noticed: {rise} more a month from next month.",
   "line.activity.not-noticed": "{job}: you stayed late again. Nobody has said anything yet.",
   "line.activity.exam-passed": "The exam: {right} of {asked} right. You passed.",
+  // What a waiting month's act came to, the month it happens.
+  "line.activity.piece-built": "A piece for the portfolio: {pieces} of {need}.",
+  "line.activity.piece-built-more": "Another piece for the portfolio. That is {pieces} now.",
+  "line.activity.first-merged": "Your first contribution is merged. Your name is on it.",
+  "line.activity.contributed": "More of your fixes are merged. No new piece this month.",
   "line.activity.exam-failed": "The exam: {right} of {asked} right. A pass needs {pass}. You can sit it again.",
 };

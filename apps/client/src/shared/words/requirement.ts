@@ -1,12 +1,13 @@
 // A requirement as a short sentence, for "why not". It names what is needed
 // from the requirement's own data and content's names. It never judges
 // whether the requirement holds: the view's `missing` list already says so.
+import { content } from "@japacity/content";
 import type { Amount, Id, Requirement, RouteStateName } from "@japacity/sim";
 
 import { countWords } from "./count";
 import { formatBand, formatBp, formatMoney, formatNumber, playerMonth } from "./format";
 import { AGE, yearsOf } from "./quality";
-import { bandWords, hasWords, lowerFirst, nameOf, runningName, say, sayCount } from "./text";
+import { bandOpening, bandWords, hasWords, lowerFirst, nameOf, runningName, say, sayCount, words } from "./text";
 
 /** What the sentence may read from the view to say more than the requirement alone. */
 export interface SentenceContext {
@@ -257,4 +258,25 @@ export function needsWords(missing: readonly Requirement[], context: SentenceCon
   if (first.type === "chapter/done") return say("ui.needs.chapter", { chapter: nameOf(first.chapter) });
   if (first.type === "place/is" && first.where === "abroad") return say("ui.needs.abroad");
   return say("ui.needs.other", { what: lowerFirst(requirementSentence(first, context)) });
+}
+
+/** A digit after a quality's name or its first word, alone or after "at", "of" or a colon: "Tech skill at 75". */
+function saysFigureOf(said: string, quality: string): boolean {
+  const name = nameOf(quality);
+  return [name, name.split(" ")[0] ?? name].some((each) => new RegExp(`\\b${each.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b(:| at| of)?\\s*\\d`, "i").test(said));
+}
+
+/**
+ * A route's checklist item as the Japa app says it: content's words, unless they give a quality's figure,
+ * which no screen ever shows (R-TEXT-005). Then the
+ * item is said by the band its gate opens at, "Strong tech": anyone in that band meets it.
+ */
+export function checklistWords(route: Id<"route">, item: string): string {
+  const own = words(`${route}.item.${item}`);
+  const requirement = content.route[route]?.checklist.find((each) => each.id === item)?.requirement;
+  if (requirement?.type !== "quality/min" || !saysFigureOf(own, requirement.quality)) return own;
+  const band = bandOpening(requirement.quality, requirement.value);
+  if (band === null) return own;
+  const needs = `ui.req.band.${requirement.quality}.${String(band)}`;
+  return hasWords(needs) ? say(needs) : say("ui.req.quality-min-band", { quality: nameOf(requirement.quality), band: say(`ui.band.${requirement.quality}.${String(band)}`) });
 }
