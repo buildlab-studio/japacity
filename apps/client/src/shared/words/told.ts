@@ -1,6 +1,6 @@
 // How the month's lines are told, on the results and in News alike (docs/rules/world.md R-WORLD-008): a piece for the portfolio counted as a piece, a score or a count said in words, a bill missed with what it
 // cost, a hunt's answer with the job and its pay. In shared/ so the results and the phone's News read one telling.
-import { content } from "@japacity/content";
+import { content, text } from "@japacity/content";
 import type { Currency, ReportLine } from "@japacity/sim";
 
 import { monthlyPayOf } from "./cost";
@@ -34,6 +34,22 @@ export function asPiece(line: ReportLine): ReportLine {
   return value > PIECES_ASKED ? { ...line, key: PIECE_MORE, params: { pieces: value } } : { ...line, key: PIECE, params: { pieces: value, need: PIECES_ASKED } };
 }
 
+/** An offer answered, told plainly when the offer has no words of its own for that answer (lines.ts, `isSaid`). */
+const TAKEN = "line.offer.taken";
+/** The answer with the choice in its own words: "Answered: A hospital trust offers a nursing post. You chose: Decline." */
+export const ANSWERED = "ui.results.answered";
+
+/**
+ * An answer says what was chosen, in the choice's own words, where those words
+ * stand alone: a choice whose words need the offer's figures keeps the plain answer.
+ */
+function answered(line: ReportLine): ReportLine {
+  const { offer, choice } = line.params;
+  if (typeof offer !== "string" || typeof choice !== "string") return line;
+  const chosen = text[`${offer}.choice.${choice}`];
+  return chosen === undefined || chosen.includes("{") ? line : { ...line, key: ANSWERED, params: { ...line.params, chosen } };
+}
+
 /**
  * A story line as the results tell it (R-WORLD-008): a bill missed says its figure and what it
  * cost, a hunt says the job and its answer, an offer of work says the pay a month. Anything else
@@ -41,6 +57,7 @@ export function asPiece(line: ReportLine): ReportLine {
  */
 export function toldOnResults(line: ReportLine): ReportLine {
   const { job } = line.params;
+  if (line.key === TAKEN) return answered(line);
   // A score or a count of pieces reads as a person says it: "one of three", never "1 of 3" (R-TEXT-005).
   if (EXAM_MARKED.has(line.key) || line.key === PIECE || line.key === PIECE_MORE) return { ...line, params: Object.fromEntries(Object.entries(line.params).map(([name, value]) => [name, typeof value === "number" ? countWords(value) : value])) };
   if (line.key === "line.obligation.missed") return toldUnpaid(line);

@@ -164,6 +164,8 @@ export const uiText: Record<string, string> = {
   "ui.results.changed-out": "Changed at the bank: {amount}.",
   "ui.results.changed": "Changed {paid} into {got}. The bank's charge came to {amount}.",
   "ui.results.changed-small": "Changed {paid} into {got} at the bank.",
+  // An answer with what was chosen.
+  "ui.results.answered": "Answered: {offer}. You chose: {chosen}.",
   "ui.results.changed-street": "Changed {paid} into {got} with the FX man.",
   "ui.results.changed-street-out": "Handed to the FX man: {amount}.",
   "ui.results.changed-queued": "Paid in at the bank for {currency}: {amount}. They come {readyMonth}.",
