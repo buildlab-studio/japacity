@@ -185,7 +185,22 @@ function variant(line: ReportLine): ReportLine {
 /** Money earned in the prologue's years is what the character brings to the first month, not pay for this one. */
 function savedBefore(lines: readonly ReportLine[]): ReportLine[] {
   const closed = lines.findLastIndex((line) => line.key === PROLOGUE_CLOSED);
-  return lines.map((line, index) => (index < closed && line.key === "line.wallet.gig" ? { ...line, key: SAVINGS_BEFORE } : line));
+  // The years' gigs are one sum brought to the first month, said once.
+  const before = lines.filter((line, index) => index < closed && line.key === "line.wallet.gig");
+  if (before.length === 0) return [...lines];
+  const first = before[0];
+  if (first === undefined) return [...lines];
+  const total = before.reduce((sum, line) => sum + (moneyOf(line)?.amount ?? 0), 0);
+  const money = first.params["amount"];
+  const amount = typeof money === "object" && money !== null ? { ...money, amount: total } : total;
+  const summed: ReportLine = { ...first, key: SAVINGS_BEFORE, params: { ...first.params, amount } };
+  let told = false;
+  return lines.flatMap((line, index) => {
+    if (!(index < closed && line.key === "line.wallet.gig")) return [line];
+    if (told) return [];
+    told = true;
+    return [summed];
+  });
 }
 
 const FAMILY = "line.wallet.family";

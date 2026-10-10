@@ -11,6 +11,7 @@ import { cue } from "../../shared/sound/cues";
 import { Counter } from "../../shared/world/Band";
 import { WorldSheet } from "../../shared/world/WorldSheet";
 import { formatMoney, formatNumber } from "../../shared/words/format";
+import { nowLineWords } from "../../shared/words/acts";
 import { say, words } from "../../shared/words/text";
 import { drawShown, isEvicted, isUnpaid, kept, leadsAlone, localCurrency, moneyLines, quietLine, savings, storyLines, toldOnResults, untoldLines } from "./month.results";
 import { turnWords } from "./turn.words";
@@ -157,7 +158,7 @@ export function Results({ place }: { place: string }) {
             <ul className="flex flex-col" data-results-lines>
               {lines.map(({ line, sign, amount, currency }, index) => (
                 <li key={`${line.key}-${String(index)}`} className="flex items-baseline justify-between gap-3 border-b border-sheet-line py-2 last:border-b-0" data-sign={sign}>
-                  <span className="min-w-0 flex-1 text-[14px] leading-snug">{words(line.key, line.params)}</span>
+                  <span className="min-w-0 flex-1 text-[14px] leading-snug">{nowLineWords(line)}</span>
                   <span className={`num shrink-0 text-[15px] ${sign < 0 ? "text-out" : "text-in"}`}>{signed(sign, amount, currency)}</span>
                 </li>
               ))}

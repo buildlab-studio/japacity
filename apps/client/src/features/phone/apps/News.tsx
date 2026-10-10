@@ -4,6 +4,7 @@ import { content } from "@japacity/content";
 import type { NewsStage, RouteStateName } from "@japacity/sim";
 
 import { useGame, useView } from "../../../authority/GameProvider";
+import { nowLineWords } from "../../../shared/words/acts";
 import { newsLines } from "../../../shared/words/told";
 import { blurbOf, monthsAgo, nameOf, say, words } from "../../../shared/words/text";
 import { SourceMark } from "../../../shared/ui/NewsSource";
@@ -58,7 +59,7 @@ export function News() {
           <ul className="flex flex-col divide-y divide-sheet-line">
             {newsLines(midMonth, report.lines).map((line, index) => (
               <li key={`${line.key}-${String(index)}`} className={`py-1.5 text-[14px] ${line.tone === "good" ? "text-in" : line.tone === "bad" ? "text-out" : "text-text"}`}>
-                {words(line.key, line.params)}
+                {nowLineWords(line)}
               </li>
             ))}
           </ul>

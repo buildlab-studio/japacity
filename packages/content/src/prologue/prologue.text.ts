@@ -58,7 +58,7 @@ export const prologueText: Record<string, string> = {
   "prologue.strike.answer.learn": "Learn something online",
   "prologue.strike.answer.hustle": "Find work",
   "prologue.strike.outcome.strike": "The strike comes.",
-  "prologue.strike.outcome.no-strike": "The deadline passes. Lectures go on.",
+  "prologue.strike.outcome.no-strike": "The strike deadline passes. Lectures go on.",
 
   "prologue.strike-drag.card": "The lecturers are on strike. Nobody knows how long.",
   "prologue.strike-drag.answer.back": "The gates open again",

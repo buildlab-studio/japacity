@@ -93,10 +93,14 @@ describe("money that never moved the naira", () => {
     const end = game.endTurn().lines;
     expect(keptNaira([...prologue, ...end])).toBe(naira(game) - before);
     const shown = tidyLines([...prologue, ...end]).map((line) => words(line.key, line.params));
-    for (const line of earned) {
-      expect(shown).toContain(words("ui.line.savings-before", line.params));
-      expect(shown).not.toContain(words(line.key, line.params));
-    }
+    // The years' gigs are said once, as one sum brought to the first month.
+    const total = earned.reduce((sum, line) => sum + (typeof line.params["amount"] === "object" && line.params["amount"] !== null && "amount" in line.params["amount"] ? Number(line.params["amount"].amount) : 0), 0);
+    const first = earned[0];
+    if (first === undefined) throw new Error("No gig earned.");
+    const money = first.params["amount"];
+    const summed = typeof money === "object" && money !== null ? { ...money, amount: total } : total;
+    expect(shown.filter((said) => said.startsWith("Your savings from before"))).toEqual([words("ui.line.savings-before", { ...first.params, amount: summed })]);
+    for (const line of earned) expect(shown).not.toContain(words(line.key, line.params));
   });
 
   test("[R-WORLD-008] [R-OBLIGATION-007] given held funds taken and returned in one month, when the month ends, then neither the locked money nor its return is counted, and what was kept is what really moved", () => {

@@ -4,6 +4,7 @@
 import { content, type ShareKind } from "@japacity/content";
 import type { Id, PlayerView } from "@japacity/sim";
 
+import { readPerson } from "../../authority/person";
 import { bandWords, hasWords, nameOf, say, sayCount, words } from "../words/text";
 
 export type ShareCard = NonNullable<PlayerView["card"]>;
@@ -98,6 +99,9 @@ function artOf(card: ShareCard): string {
 /** The name the player chose when the view carries one, else the character's first name from content. */
 function nameFor(card: ShareCard, scenario: Id<"scenario"> | null): string | null {
   if (card.name !== undefined && card.name !== null && card.name.trim() !== "") return card.name.trim();
+  // The name the player gave at the door comes before the ready life's own.
+  const given = readPerson()?.name ?? "";
+  if (given.trim() !== "") return given.trim();
   if (scenario === null) return null;
   const key = `share.first-name.${scenario}`;
   return hasWords(key) ? say(key) : null;
