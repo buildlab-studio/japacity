@@ -192,7 +192,7 @@ function chipNode(thing: Thing, onAct: (act: Act) => void): HTMLDivElement {
 }
 
 function Place(props: PlaceProps) {
-  const { place, file, people, own, settings, text, onProgress, onFailed, onPick, onFrame, looking, plan, takeTap, markBox, rig, shot, raised } = props;
+  const { place, file, people, own, settings, text, onProgress, onFailed, onPick, onFrame, looking, labelsHidden = false, plan, takeTap, markBox, rig, shot, raised } = props;
   const roam = props.overview !== true || props.roam === true;
   const things = useMemo(() => props.things ?? [], [props.things]);
   const chosen = props.chosen ?? null;
@@ -436,8 +436,8 @@ function Place(props: PlaceProps) {
     for (const { thing, node } of labels.current) {
       const spot = thingSpot(stage, thing);
       const at = spot === null || chip.current?.thing.id === thing.id ? null : onScreen(state.camera, state.size, spot[0], LABEL_Y, spot[1], 1.05);
-      // No label while the world is not being looked at: a sheet or the opening words stand over it (R-WORLD-001).
-      node.style.display = at === null || !looking ? "none" : "";
+      // No label while the opening words stand over the world (R-WORLD-001).
+      node.style.display = at === null || labelsHidden ? "none" : "";
       if (at !== null) {
         node.style.left = `${String(within(at.x, node))}px`;
         node.style.top = `${String(at.y)}px`;

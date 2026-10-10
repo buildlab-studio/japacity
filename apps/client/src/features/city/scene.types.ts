@@ -23,6 +23,8 @@ export type Picked =
 export type ScenePick = WorldPicked | { kind: "model"; file: string; signs: string[] };
 
 export interface SceneProps {
+  /** True while the opening words stand over the world: the thing labels hide under them (R-WORLD-001). */
+  labelsHidden?: boolean;
   place: string;
   file: PlaceFile;
   people: readonly Shown[];
