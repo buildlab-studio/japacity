@@ -96,4 +96,25 @@ describe("Saved for the move, on the plan's own way", () => {
     await renderWithView(<Bank />, view);
     expect(document.body.textContent).toContain(phoneWords("phone.bank.savings.paid"));
   });
+
+  test("[R-WORLD-019] given a way only heard of as the plan's lean, when the Bank opens, then no figure shows and one line says there is no plan yet; once the way is looked into, the figure shows", async () => {
+    const game = newGame("scenario.ngozi");
+    viewAfter(game, [{ type: "route/hear", route: "route.uk-care", via: "meetup" }]);
+    const heard = game.view();
+    expect(heard.plan.route).toBe("route.uk-care");
+    await renderWithView(<Bank />, heard);
+    expect(document.querySelector("[data-savings]")).toBeNull();
+    expect(document.querySelector("[data-savings-none]")?.textContent).toBe("No plan yet.");
+    expect(document.body.textContent).not.toContain(phoneWords("phone.bank.savings.paid"));
+    game.accept({ type: "activity/now", activity: "activity.look-into-route", param: "route.uk-care" });
+    await renderWithView(<Bank />, game.view());
+    expect(document.querySelectorAll("[data-savings]").length).toBeGreaterThan(0);
+  });
+
+  test("[R-WORLD-019] given a new life with no way heard of, when the Bank opens, then one line says there is no plan yet", async () => {
+    const view = newGame("scenario.ada").view();
+    expect(view.plan.route).toBeNull();
+    await renderWithView(<Bank />, view);
+    expect(document.querySelector("[data-savings-none]")?.textContent).toBe("No plan yet.");
+  });
 });
