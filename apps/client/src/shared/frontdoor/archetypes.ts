@@ -67,7 +67,7 @@ export const ARCHETYPES: readonly Archetype[] = [
   {
     id: "nurse",
     preset: degree("science", "nursing", "books", "focus"),
-    leaning: { friend: "uk" },
+    leaning: { friend: "care" },
     routes: ["route.uk-care", "route.gulf-contract", "route.canada-points"],
   },
   {

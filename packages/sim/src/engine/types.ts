@@ -745,8 +745,19 @@ export interface VarEntry {
   start: number;
 }
 
+/**
+ * Where a story is heard, shown beside it on News as a small icon and a word. A person is named in the words, `<id>.<stage>.source`. The engine never reads it.
+ */
+export type NewsSource = "radio" | "paper" | "official" | "street" | "person";
+
 export interface NewsEntry {
   id: Id<"news">;
+  /**
+   * Where each stage past the rumour is heard: the announcement's, unless a later stage names its own. A rumour
+   * has none: the screen marks it a rumour, so talk never reads like a changed rule. Content gives one for every
+   * story (the content check); a test's own story may leave it out.
+   */
+  source?: { announced: NewsSource; "in-force"?: NewsSource; ended?: NewsSource };
   /** Routes it matters to. Decides the "for you" mark. */
   touches: Id<"route">[];
   /** Routes a character hears of by reading it. */

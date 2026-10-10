@@ -1,8 +1,8 @@
-import type { Id, NewsEntry, Requirement } from "@japacity/sim";
+import type { Id, NewsEntry, NewsSource, NewsStage, Requirement } from "@japacity/sim";
 import { NewsEntrySchema } from "@japacity/sim/schemas";
 import { describe, expect, test } from "vitest";
 
-import { content } from "../index";
+import { content, text } from "../index";
 
 /** The five stories of news.md, the 25 of director.md's pool and one for each of the seven eras. */
 const STORY_COUNT = 5 + 25 + 7;
@@ -143,5 +143,58 @@ describe("the director's pool", () => {
     expect(pandemic.sets.filter((set) => set.var.endsWith("-window")).every((set) => set.value === 0)).toBe(true);
     expect(pandemic.sets.filter((set) => set.var.endsWith("-window"))).toHaveLength(6);
     expect(pandemic.sets).toContainEqual({ var: "var.flight-factor", value: 20000 });
+  });
+});
+
+/** Where a stage is heard from: its own source, else the announcement's. A rumour has none: the screen marks it a rumour. */
+function sourceOf(entry: NewsEntry, stage: NewsStage): NewsSource | null {
+  if (stage === "rumour" || entry.source === undefined) return null;
+  return entry.source[stage] ?? entry.source.announced;
+}
+
+/** The stages a story is shown at past its rumour: an era's story and any story with an end count reach ended. */
+function toldStages(entry: NewsEntry): ("announced" | "in-force" | "ended")[] {
+  const ends = entry.standIn.endsAfter !== null || entry.standIn.revert || entry.director?.group === "front-page";
+  return ends ? ["announced", "in-force", "ended"] : ["announced", "in-force"];
+}
+
+describe("where a story comes from", () => {
+  // the maintainer's voice: every piece of news names where it was heard, a small icon and a
+  // word, and a rumour is marked as a rumour, so it never reads like a changed rule.
+  test("[R-NEWS-004] given every story in content, when a stage past the rumour is shown, then it names where it is heard: the radio, the paper, the official page, the street or a person", () => {
+    const stories = Object.values(content.news);
+    expect(stories).toHaveLength(STORY_COUNT);
+    const missing = stories.flatMap((entry) => toldStages(entry).filter((stage) => sourceOf(entry, stage) === null).map((stage) => `${entry.id} ${stage}`));
+    expect(missing).toEqual([]);
+  });
+
+  test("[R-NEWS-004] given every story told by a person, when the words are read, then the person is named, and only a person's stage carries a name", () => {
+    const unnamed: string[] = [];
+    const stray: string[] = [];
+    for (const entry of Object.values(content.news)) {
+      for (const stage of ["rumour", "announced", "in-force", "ended"] as const) {
+        const named = text[`${entry.id}.${stage}.source`];
+        const byPerson = stage !== "rumour" && toldStages(entry).includes(stage) && sourceOf(entry, stage) === "person";
+        if (byPerson && (named ?? "").trim() === "") unnamed.push(`${entry.id} ${stage}`);
+        if (!byPerson && named !== undefined) stray.push(`${entry.id} ${stage}`);
+      }
+    }
+    expect(unnamed).toEqual([]);
+    expect(stray).toEqual([]);
+  });
+
+  test("[R-NEWS-001] [R-NEWS-004] given a story with a rumour lead, when its rumour is read, then the stage carries no source of its own: the screen marks it a rumour", () => {
+    const withRumour = Object.values(content.news).filter((entry) => entry.standIn.rumourLead > 0);
+    expect(withRumour.length).toBeGreaterThan(20);
+    expect(withRumour.filter((entry) => entry.source !== undefined && "rumour" in entry.source).map((entry) => entry.id)).toEqual([]);
+  });
+
+  test("[R-NEWS-004] given the stories a person tells, then at least one is, and a stage that names no source of its own takes the announcement's", () => {
+    const recruit = content.news["news.uk-unis-recruit"];
+    expect(recruit?.source?.announced).toBeDefined();
+    expect(Object.values(content.news).some((entry) => toldStages(entry).some((stage) => sourceOf(entry, stage) === "person"))).toBe(true);
+    const float = content.news["news.naira-float"];
+    if (float === undefined) throw new Error("No float story.");
+    expect(sourceOf(float, "ended")).toBe(float.source?.ended ?? float.source?.announced ?? null);
   });
 });

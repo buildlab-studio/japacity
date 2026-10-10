@@ -36,7 +36,7 @@ describe("words that mislead", () => {
     expect(within(picker).getByRole("option", { name: "5 tickets" })).toBeDefined();
     expect(document.body.textContent).not.toMatch(/\d\.name/);
     fireEvent.change(picker, { target: { value: "3" } });
-    fireEvent.click(screen.getByRole("button", { name: `${say("ui.activity.add")}: ${text[`${LOTTO}.name`] ?? LOTTO}` }));
+    fireEvent.click(screen.getByRole("button", { name: `${text[`${LOTTO}.name`] ?? LOTTO}` }));
     expect(store.getState().plan[0]).toEqual({ activity: LOTTO, param: "3" });
     expect(screen.getByText(`${text[`${LOTTO}.name`] ?? ""}: ${paramWords("3")}`)).toBeDefined();
   });
@@ -56,7 +56,7 @@ describe("words that mislead", () => {
     expect(words("line.setpiece.opened", { setpiece: "setpiece.road-truth", questions: 1 })).toContain("1 question to answer");
     expect(words("line.setpiece.opened", { setpiece: "setpiece.road-truth", questions: 2 })).toContain("2 questions to answer");
     expect(words("line.status.clock-ran", { months: 1 })).toBe("1 month left on the clock.");
-    expect(words("line.activity.lotto-lost", { tickets: 1, stake: { currency: "NGN", amount: 20_000 } })).toBe(`1 ticket for ${formatMoney(20_000, "NGN")}. Nothing comes in.`);
+    expect(words("line.activity.lotto-lost", { tickets: 1, stake: { currency: "NGN", amount: 20_000 } })).toBe(`1 ticket for ${formatMoney(20_000, "NGN")}. Nothing came in.`);
 
     const base = richView();
     const loan = base.obligations.find((owed) => owed.missed > 0);

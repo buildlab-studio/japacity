@@ -386,7 +386,7 @@ function ActivityCard({ option }: { option: ActivityOption }) {
             small={!applying}
             variant={applying ? "primary" : "secondary"}
             disabled={!canAdd}
-            aria-label={`${say("ui.activity.add")}: ${name}`}
+            aria-label={name}
             onClick={() => addToPlan({ activity: option.id, param: needsParam ? chosenParam : null })}
             className={applying ? "w-full justify-between" : ""}
           >
@@ -395,7 +395,7 @@ function ActivityCard({ option }: { option: ActivityOption }) {
             ) : (
               <>
                 <Plus size={16} />
-                {full && option.allowed ? say("ui.activity.full") : say("ui.activity.do")}
+                {full && option.allowed ? say("ui.activity.full") : name}
               </>
             )}
             {line === null ? null : (
@@ -404,6 +404,7 @@ function ActivityCard({ option }: { option: ActivityOption }) {
               </span>
             )}
           </Button>
+          {content.activity[option.id]?.slot === "free" && !applying ? <p className="mt-1 text-[12px] text-text-2">{say("ui.activity.uses-free")}</p> : null}
         </div>
       </Card>
     </li>

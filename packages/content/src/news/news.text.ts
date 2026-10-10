@@ -6,10 +6,12 @@ export const newsText: Record<string, string> = {
   "line.news.delivered": "In the news this month: {story}.",
 
   "news.uk-unis-recruit.name": "UK universities come to Lagos",
-  "news.uk-unis-recruit.announced.head": "UK universities come to Lagos",
+  "news.uk-unis-recruit.announced.head": "UK universities come to Lagos this week",
   "news.uk-unis-recruit.announced.body":
     "Three universities took a hall in Ikeja this weekend. One-year master's, offers in weeks. The queue went round the building.",
   "news.uk-unis-recruit.in-force.head": "\"My cousin got her offer in nine days\"",
+  // The person who says it, beside the line on News.
+  "news.uk-unis-recruit.in-force.source": "Tolu",
   "news.uk-unis-recruit.in-force.body": "Everybody suddenly knows somebody doing a master's in the UK.",
 
   "news.uk-living-rise.name": "UK to raise the money students must show",
@@ -20,12 +22,12 @@ export const newsText: Record<string, string> = {
   "news.uk-living-rise.announced.body":
     "From next month the living amount goes from £1,171 to £1,203 a month. Applications sent before the date use the old figure.",
   "news.uk-living-rise.in-force.head": "New funds figure now applies",
-  "news.uk-living-rise.in-force.body": "£1,203 a month, nine months. If you were close to the line, check again.",
+  "news.uk-living-rise.in-force.body": "Students now show £1,203 a month, for nine months.",
 
   "news.uk-refusals-up.name": "UK tells officers to look harder at student files",
   "news.uk-refusals-up.rumour.head": "\"They refused the whole batch\"",
   "news.uk-refusals-up.rumour.body":
-    "A WhatsApp voice note is going round about a week of refusals at the visa centre. Nobody can name the person.",
+    "A voice note is going round the group chats about a week of refusals at the visa centre. Nobody can name the person.",
   "news.uk-refusals-up.announced.head": "UK tells officers to look harder at student files",
   "news.uk-refusals-up.announced.body": "Interviews will be longer and bank statements checked more closely.",
   "news.uk-refusals-up.in-force.head": "Refusals climb",
@@ -71,7 +73,7 @@ export const newsText: Record<string, string> = {
   "news.uk-study-narrows.announced.head": "UK narrows the student route",
   "news.uk-study-narrows.announced.body": "Fewer places, longer checks, and universities told to cut how many offers they make abroad.",
   "news.uk-study-narrows.in-force.head": "The student route has narrowed",
-  "news.uk-study-narrows.in-force.body": "Offers are slower and the visa takes more to win. The door is not shut.",
+  "news.uk-study-narrows.in-force.body": "Offers are slower and the visa takes more to win. Some files still get through.",
 
   "news.uk-study-narrows.ended.head": "The UK eases the student checks",
   "news.uk-study-narrows.ended.body": "Two years on, the extra checks are quietly dropped. Student visas are granted as before.",
@@ -109,11 +111,11 @@ export const newsText: Record<string, string> = {
 
   "news.uk-care-sponsors-revoked.name": "UK strikes off hundreds of care sponsors",
   "news.uk-care-sponsors-revoked.rumour.head": "Care homes losing their licences",
-  "news.uk-care-sponsors-revoked.rumour.body": "Stories of carers arriving to find no job are going round the WhatsApp groups.",
+  "news.uk-care-sponsors-revoked.rumour.body": "Stories of carers arriving to find no job are going round the group chats.",
   "news.uk-care-sponsors-revoked.announced.head": "UK strikes off hundreds of care sponsors",
   "news.uk-care-sponsors-revoked.announced.body": "Homes that sold certificates or underpaid staff lose their licence. Their workers must find a new sponsor in time.",
   "news.uk-care-sponsors-revoked.in-force.head": "Sponsors are still being struck off",
-  "news.uk-care-sponsors-revoked.in-force.body": "If your sponsor loses its licence, your clock starts.",
+  "news.uk-care-sponsors-revoked.in-force.body": "More homes lose their licence this month. Their carers have weeks to find a new sponsor.",
   "news.uk-care-sponsors-revoked.ended.head": "The sponsor checks slow down",
   "news.uk-care-sponsors-revoked.ended.body": "Fewer licences are being taken away this month.",
 
@@ -131,7 +133,7 @@ export const newsText: Record<string, string> = {
   "news.uk-skilled-bar-rises.announced.head": "UK raises the skilled worker salary bar",
   "news.uk-skilled-bar-rises.announced.body": "Sponsors must pay at least £46,000 a year from next month. Many offers will no longer qualify.",
   "news.uk-skilled-bar-rises.in-force.head": "The new salary bar applies",
-  "news.uk-skilled-bar-rises.in-force.body": "£46,000 a year. Check that your sponsor's figure is still above it.",
+  "news.uk-skilled-bar-rises.in-force.body": "Offers under £46,000 a year no longer count for the visa.",
 
   "news.uk-settle-ten-years.name": "UK to make most workers wait ten years to settle",
   "news.uk-settle-ten-years.rumour.head": "Settlement may take longer",
@@ -147,7 +149,7 @@ export const newsText: Record<string, string> = {
   "news.uk-graduate-shortened.announced.head": "UK cuts the graduate stay to 18 months",
   "news.uk-graduate-shortened.announced.body": "Students who finish after the change get 18 months to find work, not two years.",
   "news.uk-graduate-shortened.in-force.head": "The graduate stay is 18 months",
-  "news.uk-graduate-shortened.in-force.body": "Plan the job search from the first term.",
+  "news.uk-graduate-shortened.in-force.body": "Students finishing now get 18 months to find work.",
 
   "news.uk-talent-body-closes.name": "The tech talent endorser shuts its doors",
   "news.uk-talent-body-closes.rumour.head": "Trouble at the endorsing body",
@@ -181,7 +183,7 @@ export const newsText: Record<string, string> = {
   "news.ca-general-stops.announced.head": "Canada pauses general draws",
   "news.ca-general-stops.announced.body": "Most invitations will go to people with Canadian experience or a target job. The general cut-off will be higher.",
   "news.ca-general-stops.in-force.head": "The general cut-off is higher",
-  "news.ca-general-stops.in-force.body": "Thirty points more than before, for a profile like yours.",
+  "news.ca-general-stops.in-force.body": "The cut-off for a profile without a job offer is thirty points higher than before.",
 
   "news.ca-points-overhaul.name": "Canada overhauls the points system",
   "news.ca-points-overhaul.rumour.head": "Canada may change the points",
@@ -197,7 +199,7 @@ export const newsText: Record<string, string> = {
   "news.ca-funds-rise.announced.head": "Canada raises the proof of funds",
   "news.ca-funds-rise.announced.body": "One person must now show C$16,000.",
   "news.ca-funds-rise.in-force.head": "The new funds figure applies",
-  "news.ca-funds-rise.in-force.body": "C$16,000 for one person. Check your statements.",
+  "news.ca-funds-rise.in-force.body": "One person now shows C$16,000.",
 
   "news.uae-ban.name": "The UAE stops visas for Nigerians",
   "news.uae-ban.rumour.head": "\"Dubai has stopped Nigerian visas\"",
@@ -205,9 +207,9 @@ export const newsText: Record<string, string> = {
   "news.uae-ban.announced.head": "The UAE stops visas for Nigerians",
   "news.uae-ban.announced.body": "No new work or visit visas until further notice.",
   "news.uae-ban.in-force.head": "No Gulf visas for Nigerians",
-  "news.uae-ban.in-force.body": "Agents who still take money for Dubai are lying.",
+  "news.uae-ban.in-force.body": "Some agents still take money for Dubai. No visa comes back.",
   "news.uae-ban.ended.head": "Gulf visas are being issued again",
-  "news.uae-ban.ended.body": "The ban has run its course.",
+  "news.uae-ban.ended.body": "The ban has run its eighteen months.",
 
   "news.uae-lifted.name": "The UAE lifts its ban on Nigerians",
   "news.uae-lifted.rumour.head": "Talk that the UAE ban will end",
@@ -223,7 +225,7 @@ export const newsText: Record<string, string> = {
   "news.passport-fee-doubles.announced.head": "Passport fee to double",
   "news.passport-fee-doubles.announced.body": "A passport will cost ₦200,000 from next month.",
   "news.passport-fee-doubles.in-force.head": "The new passport fee applies",
-  "news.passport-fee-doubles.in-force.body": "₦200,000.",
+  "news.passport-fee-doubles.in-force.body": "A passport now costs ₦200,000.",
 
   "news.fuel-subsidy.name": "Fuel subsidy removed",
   "news.fuel-subsidy.rumour.head": "Talk of an end to the fuel subsidy",
@@ -231,7 +233,7 @@ export const newsText: Record<string, string> = {
   "news.fuel-subsidy.announced.head": "Fuel subsidy removed",
   "news.fuel-subsidy.announced.body": "Pump prices will rise this week. So will everything else.",
   "news.fuel-subsidy.in-force.head": "Prices have jumped",
-  "news.fuel-subsidy.in-force.body": "Rent, food and transport all cost more. Your living costs have gone up.",
+  "news.fuel-subsidy.in-force.body": "Rent, food and transport all cost more. Living costs are up across Lagos.",
 
   "news.inflation-eases.name": "Inflation is easing",
   "news.inflation-eases.rumour.head": "Prices may be steadying",
@@ -271,17 +273,17 @@ export const newsText: Record<string, string> = {
 
   "news.era-calm.name": "A quiet season",
   "news.era-calm.announced.head": "A quiet season",
-  "news.era-calm.announced.body": "No new rules, no big news. A good time to get your papers in order.",
+  "news.era-calm.announced.body": "No new rules abroad, and no big news.",
   "news.era-calm.in-force.head": "Still quiet",
   "news.era-calm.in-force.body": "Nothing has changed this month.",
   "news.era-calm.ended.head": "The quiet is over",
-  "news.era-calm.ended.body": "Something is starting. Read on.",
+  "news.era-calm.ended.body": "The papers are busy again.",
 
   "news.era-open-door.name": "Countries are short of people",
   "news.era-open-door.announced.head": "Countries are short of people",
-  "news.era-open-door.announced.body": "Hospitals, universities and firms abroad are recruiting. Windows are opening.",
+  "news.era-open-door.announced.body": "Hospitals, universities and firms abroad are recruiting from here.",
   "news.era-open-door.in-force.head": "The doors are open",
-  "news.era-open-door.in-force.body": "Everybody is applying. That will not last forever.",
+  "news.era-open-door.in-force.body": "Everybody is applying, and the queue at the visa centre runs round the block.",
   "news.era-open-door.ended.head": "The doors are closing",
   "news.era-open-door.ended.body": "The recruiting drives abroad are winding down.",
 
@@ -289,7 +291,7 @@ export const newsText: Record<string, string> = {
   "news.era-hard-line.announced.head": "A hard line abroad",
   "news.era-hard-line.announced.body": "Governments abroad are promising fewer migrants. Rules will change often.",
   "news.era-hard-line.in-force.head": "Rules keep changing",
-  "news.era-hard-line.in-force.body": "Do not put everything on one route.",
+  "news.era-hard-line.in-force.body": "Another rule changed abroad this month.",
   "news.era-hard-line.ended.head": "The hard line eases",
   "news.era-hard-line.ended.body": "Fewer new rules this season. The old ones stay.",
 
@@ -297,7 +299,7 @@ export const newsText: Record<string, string> = {
   "news.era-crash.announced.head": "The naira is falling",
   "news.era-crash.announced.body": "Every fee abroad costs more naira each week.",
   "news.era-crash.in-force.head": "The naira is still falling",
-  "news.era-crash.in-force.body": "Buy what you need early, or wait and hope.",
+  "news.era-crash.in-force.body": "Shops are changing their prices every week.",
   "news.era-crash.ended.head": "The naira steadies",
   "news.era-crash.ended.body": "It is not climbing back, but it has stopped falling.",
 

@@ -119,8 +119,11 @@ export function localAuthority(options: LocalAuthorityOptions): LocalAuthority {
     return archetype === null ? drawn : tileSeed(archetype, drawn, worldAt(0), content);
   }
 
+  // A life not yet chosen is never written: the front door comes back after a reload instead of the first scenario's life.
+  let chosen = false;
+
   function persist(): void {
-    if (storage === null) return;
+    if (storage === null || !chosen) return;
     const stored: Stored = { save, clock: { anchor } };
     try {
       storage.setItem(SAVE_KEY, JSON.stringify(stored));
@@ -226,6 +229,7 @@ export function localAuthority(options: LocalAuthorityOptions): LocalAuthority {
   const currentView = (): PlayerView => viewFor({ state, world: worldAt(tick), content });
 
   const start = load();
+  chosen = start.kind !== "new";
   persist();
 
   return {
@@ -251,6 +255,7 @@ export function localAuthority(options: LocalAuthorityOptions): LocalAuthority {
     },
     newLife(scenario, seed) {
       begin(scenario, seed);
+      chosen = true;
       persist();
       return Promise.resolve(currentView());
     },

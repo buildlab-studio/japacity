@@ -16,18 +16,18 @@ import { ThumbBar } from "./ThumbBar";
 const naira = (amount: number): string => `₦${String(Math.round(amount / 100))}`;
 
 describe("the band", () => {
-  test("[R-WORLD-002] given a month, a place and money, when the band renders, then it shows those three and Turn the page, and nothing else", () => {
+  test("[R-WORLD-002] given a month, a place and money, when the band renders, then it shows those three and Next month, and nothing else", () => {
     render(<Band when="Month 6" name="The family house" money={42_000_000} formatMoney={naira} onEndMonth={() => undefined} />);
     expect(screen.getByText("Month 6")).toBeTruthy();
     expect(screen.getByRole("heading", { name: "The family house" })).toBeTruthy();
     expect(screen.getByText("₦420000")).toBeTruthy();
-    expect(screen.getByRole<HTMLButtonElement>("button", { name: "Turn the page" }).disabled).toBe(false);
+    expect(screen.getByRole<HTMLButtonElement>("button", { name: "Next month" }).disabled).toBe(false);
     expect(screen.getAllByRole("button")).toHaveLength(1);
   });
 
-  test("[R-WORLD-002] given the month cannot end, when the band renders with the reason, then Turn the page is disabled and carries it", () => {
+  test("[R-WORLD-002] given the month cannot end, when the band renders with the reason, then Next month is disabled and carries it", () => {
     render(<Band when="Month 6" name="Home" money={0} formatMoney={naira} onEndMonth={() => undefined} endBlocked="Answer the officer first" />);
-    const button = screen.getByRole<HTMLButtonElement>("button", { name: "Turn the page" });
+    const button = screen.getByRole<HTMLButtonElement>("button", { name: "Next month" });
     expect(button.disabled).toBe(true);
     expect(button.getAttribute("title")).toBe("Answer the officer first");
   });
@@ -36,9 +36,9 @@ describe("the band", () => {
 describe("the nudge", () => {
   test("[R-WORLD-003] given a nudge, when it renders, then it is one line of its words, and hidden it renders nothing", () => {
     const { rerender } = render(<Nudge nudge={{ key: "ui.nudge.end" }} />);
-    expect(screen.getByText("End the month when you are ready")).toBeTruthy();
+    expect(screen.getByText("Tap Next month when you are ready")).toBeTruthy();
     rerender(<Nudge nudge={{ key: "ui.nudge.end" }} hidden />);
-    expect(screen.queryByText("End the month when you are ready")).toBeNull();
+    expect(screen.queryByText("Tap Next month when you are ready")).toBeNull();
   });
 });
 

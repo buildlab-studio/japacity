@@ -40,11 +40,11 @@ export const interviewText: Record<string, string> = {
   "interview.genuineness.a.plans.not-decided": "We have not decided",
 
   "line.interview.opened": "The interview for {route} is booked. {questions} questions, in a room on your own, before the month can end.",
-  "line.interview.waiting": "Your answers are in. Now the officer waits for your partner's.",
-  "line.interview.passed": "The interview for {route} is done. Your answers agreed on {matched} of {asked}. The officer closes the file and nods.",
-  "line.interview.doubted": "The interview for {route} is done. Your answers agreed on {matched} of {asked}. The officer writes a long note.",
-  "line.interview.failed": "The interview for {route} is done. Your answers agreed on {matched} of {asked}. The officer does not believe the relationship.",
-  "line.interview.caught": "The interview for {route} is done. Your answers agreed on {matched} of {asked}. The officer calls it a marriage for papers. Your name goes on a list.",
+  "line.interview.waiting": "Your answers are in. The officer is waiting for your partner's.",
+  "line.interview.passed": "The interview for {route} is done. Your answers agreed on {matched} of {asked}. The officer closed the file and nodded.",
+  "line.interview.doubted": "The interview for {route} is done. Your answers agreed on {matched} of {asked}. The officer wrote a long note.",
+  "line.interview.failed": "The interview for {route} is done. Your answers agreed on {matched} of {asked}. The officer did not believe the relationship.",
+  "line.interview.caught": "The interview for {route} is done. Your answers agreed on {matched} of {asked}. The officer called it a marriage for papers. Your name went on a list.",
   "line.interview.stood-in": "A stand-in gave some of these answers while one of you was away.",
   "line.interview.withdrawn": "The interview for {route} is off. The relationship it was about has ended.",
 };

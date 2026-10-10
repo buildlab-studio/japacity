@@ -28,7 +28,7 @@ export const documentText: Record<string, string> = {
   "document.nurse-certificate.blurb": "The certificate from the clinic's exam. Boards abroad read it beside your licence. It does not run out.",
 
   "line.document.requested": "Your {document} is on the way. It should be ready {month}.",
-  "line.document.already-pending": "Your {document} is already being made. It should be ready {month}. This request changes nothing.",
+  "line.document.already-pending": "Your {document} was already being made. It should be ready {month}. The new request changed nothing.",
   "line.document.issued": "Your {document} is ready.",
   "line.document.issued-band": "Your {document} is out. Band {band}.",
   // R-WORLD-008: a band under the one the route needs ({needed}) says so, and what next.

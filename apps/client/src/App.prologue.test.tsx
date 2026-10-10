@@ -77,7 +77,7 @@ describe("a life from sixteen in the app", () => {
         break;
       }
       const v = store.getState().view?.v ?? 0;
-      fireEvent.click(screen.getByRole("button", { name: `${say("ui.activity.add")}: ${nameOf(HUNT)}` }));
+      fireEvent.click(screen.getByRole("button", { name: `${nameOf(HUNT)}` }));
       fireEvent.click(screen.getByRole("button", { name: say("ui.month.end") }));
       await moved(store, v);
       act(() => {

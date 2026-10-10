@@ -30,7 +30,7 @@ describe("words", () => {
 
   test("given a param that is an id, then its name from content is used, lower-cased in running text", () => {
     expect(words("ui.japacity.of", { route: "route.uk-masters" })).toBe(`on ${lowerFirst(text["route.uk-masters.name"]!)}`);
-    expect(words("line.activity.hunt-missed", { job: "activity.job-teacher" })).toBe("You look for work: Private school teacher. Nothing yet.");
+    expect(words("line.activity.hunt-missed", { job: "activity.job-teacher" })).toBe("You looked for work: Private school teacher. Nothing yet.");
     expect(words("line.document.issued", { document: "document.english-test" })).toBe("Your English test result is ready.");
     expect(words("line.activity.hunt-hired", { job: "activity.job-teacher" })).toMatch(/\. Private school teacher wants you\.$/);
   });
@@ -171,7 +171,7 @@ describe("the words the world's sheets borrow", () => {
       const line = say("ui.world.depart-line", { country: say(`ui.country.place.${country}`) });
       expect(line).not.toMatch(/\{|'s\.$|ui\./);
     }
-    expect(say("ui.world.depart-line", { country: say("ui.country.place.country.uk") })).toBe("The visa is in your passport and the ticket is yours. Board, and the next place is the UK.");
+    expect(say("ui.world.depart-line", { country: say("ui.country.place.country.uk") })).toBe("The visa is in your passport. Board, and the next place is the UK.");
   });
 
   test("[R-WORLD-006] [R-CHAPTER-008] given the send-off waiting at the family house, when the asks say who waits, then Mama is named and home is the place", () => {

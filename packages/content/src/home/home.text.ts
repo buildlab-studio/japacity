@@ -4,8 +4,8 @@ export const homeText: Record<string, string> = {
   "line.home.moved": "Home is {place} now.",
   "line.home.evicted": "The settlement was cleared. Your room is gone, and {lost} in cash went with it.",
   "line.home.evicted-no-cash": "The settlement was cleared. Your room is gone, and what was in it.",
-  "line.home.taken-in": "{who} takes you in. No rent for {months} months.",
-  "line.home.hosting": "{who} stays with you: upkeep up {amount}.",
+  "line.home.taken-in": "{who} took you in. No rent for {months} months.",
+  "line.home.hosting": "{who} stayed with you: living costs up {amount}.",
   // How the lines name a real player, whose own name lives in the other life.
   "home.friend.name": "Your friend",
   "home.guest.name": "A friend",

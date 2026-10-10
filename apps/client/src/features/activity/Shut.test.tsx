@@ -17,7 +17,7 @@ const ENGLISH_TEST = "activity.sit-english-test";
 const ADVISER = "activity.see-adviser";
 const OFFICIAL = "activity.look-into-route";
 
-const addButton = (id: string): HTMLButtonElement => screen.getByRole<HTMLButtonElement>("button", { name: `${say("ui.activity.add")}: ${nameOf(id)}` });
+const addButton = (id: string): HTMLButtonElement => screen.getByRole<HTMLButtonElement>("button", { name: `${nameOf(id)}` });
 const buttonLine = (id: string): string | null => addButton(id).querySelector("[data-after]")?.textContent ?? null;
 
 function cost(option: ActivityOption | undefined): number {

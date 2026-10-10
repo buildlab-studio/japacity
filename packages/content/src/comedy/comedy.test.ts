@@ -95,6 +95,17 @@ describe("a month with bad news in it", () => {
   });
 });
 
+describe("bad news told in the past tense", () => {
+  // The results tell the month gone in the past tense: a line that
+  // turned bad news into the past must still be found as bad news, so its month is shown plain.
+  test("[R-TEXT-002] given the bad news the results now tell in the past tense, when each line is read, then it is still bad news", () => {
+    const past = ["line.route.school-rejected", "line.activity.driving-failed", "line.activity.lotto-lost", "line.activity.pay-withheld", "line.activity.bet-lost", "line.wallet.remit-lost"];
+    expect(past.filter((key) => !badNews(key, text[key] ?? ""))).toEqual([]);
+    expect(badNews("line.test.past", "The school turned you down. The examiner said no. Nothing came in. The pay did not come. It never arrived.")).toBe(true);
+    for (const said of ["turned you down", "said no", "Nothing came in", "did not come", "never arrived"]) expect(badNews("line.test.one", `Then: ${said}.`)).toBe(true);
+  });
+});
+
 describe("officialdom and the cards", () => {
   test("[R-ENGINE-014] given the refusal letter, the bank queue, the embassy page and the cards, when their closing lines are looked up, then each has words and none jokes with an exclamation", () => {
     const keys = ["official.refusal.closer", "official.bank-queue.closer", "official.embassy.closer", "official.refusal.last", "share.chapter.closer", "share.granted.closer"];

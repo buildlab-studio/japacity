@@ -15,14 +15,14 @@ const UK = "route.uk-masters" as Id<"route">;
 const CANADA = "route.canada-points" as Id<"route">;
 
 function card(id: string): HTMLElement {
-  const button = screen.getByRole("button", { name: new RegExp(`^${say("ui.activity.add")}: ${nameOf(id)}`) });
+  const button = screen.getByRole("button", { name: new RegExp(`^${nameOf(id)}`) });
   const found = button.closest("li");
   if (found === null) throw new Error(`No card for ${id}`);
   return found;
 }
 
 function addButton(id: string): HTMLButtonElement {
-  return within(card(id)).getByRole("button", { name: new RegExp(`^${say("ui.activity.add")}: `) });
+  return within(card(id)).getByRole("button", { name: nameOf(id) });
 }
 
 /** Tunde with two routes heard of: the hub desk's "Ask about routes" sheet as asked for it. */

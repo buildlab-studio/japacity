@@ -2,12 +2,12 @@
 // under the front page: the era the world is in (director.md, era stories go
 // to the front page) and, online, the last Friday draw (lottery.md R-LOTTERY-016).
 import type { NewsStage, PlayerView } from "@japacity/sim";
-import { Newspaper } from "lucide-react";
 
 import { useView } from "../../authority/GameProvider";
 import { Card, Empty, Panel, Tag } from "../../shared/ui/Panel";
 import { monthEnding, playerMonth } from "../../shared/words/format";
 import { blurbOf, nameOf, say, sayCount, words } from "../../shared/words/text";
+import { SourceMark } from "../../shared/ui/NewsSource";
 
 /**
  * When the era began and when it ends, in the months the header counts
@@ -79,9 +79,8 @@ export function NewsView() {
           {stories.map((story) => (
             <li key={story.id}>
               <Card tone={story.forYou ? "attention" : "plain"} className="flex flex-col gap-2">
-                <div className="flex flex-wrap items-center gap-2">
-                  <Newspaper size={16} className="text-text-2" />
-                  <Tag>{say(`ui.news.stage.${story.stage}`)}</Tag>
+                <div className="flex flex-wrap items-center gap-2 text-sm text-text-2">
+                  <SourceMark id={story.id} stage={story.stage} />
                   {story.forYou ? <Tag tone="accent">{say("ui.news.for-you")}</Tag> : null}
                 </div>
                 <h3 className="font-semibold">{words(`${story.id}.${story.stage}.head`)}</h3>

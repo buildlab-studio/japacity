@@ -16,6 +16,7 @@ import { Jobs } from "./apps/Jobs";
 import { Lotto } from "./apps/Lotto";
 import { News } from "./apps/News";
 import { Settings } from "./apps/Settings";
+import { Notices, useSignalsWaiting } from "./Notices";
 import { Phone } from "./Phone";
 import { phoneWords } from "./phone.words";
 import { APP_IDS, type AppId, markSeen, marksOf, useSeen, waitingOf } from "./seen";
@@ -78,11 +79,12 @@ export function usePhoneApps({ account = null, opening = null }: { account?: Rea
   }));
 }
 
-/** True when any app has something the player has not seen: the dot on the Phone button. */
+/** True when any app has something the player has not seen, or a line of the month waits (R-WORLD-030): the dot on the Phone button. */
 export function usePhoneWaiting(): boolean {
   const view = useView();
   const waiting = waitingOf(marksOf(view), useSeen());
-  return APP_IDS.some((id) => waiting[id]);
+  const signals = useSignalsWaiting();
+  return signals || APP_IDS.some((id) => waiting[id]);
 }
 
 export interface PhoneAppsProps {
@@ -112,6 +114,7 @@ export function PhoneApps({ onClose, area, account = null, talk = null, now, sta
         area={area}
         when={todayWords(now?.())}
         start={app ?? null}
+        notices={<Notices />}
         onOpen={(id) => {
           if ((APP_IDS as readonly string[]).includes(id)) markSeen(id as AppId, marks[id as AppId]);
         }}

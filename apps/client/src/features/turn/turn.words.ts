@@ -17,7 +17,7 @@ export const turnText: Record<string, string> = {
   "turn.month.remove": "Take out {activity}",
   "turn.month.no-slots": "No free time this month.",
   "turn.month.no-slot": "Takes no slot",
-  "turn.month.end": "Turn the page",
+  "turn.month.end": "Next month",
 
   "turn.results.label": "The month is done",
   "turn.results.title": "The month is done",

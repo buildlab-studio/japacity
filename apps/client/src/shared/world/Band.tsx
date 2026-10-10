@@ -1,5 +1,5 @@
 // The top band (docs/rules/world.md R-WORLD-002): the month and the place's name, the money as a
-// counter, and Turn the page. Nothing else. It hides while riding and while the results show.
+// counter, and Next month. Nothing else. It hides while riding and while the results show.
 import type { PlayerView } from "@japacity/sim";
 import { ChevronDown } from "lucide-react";
 import { type ReactNode, useEffect, useRef, useState } from "react";
@@ -68,7 +68,7 @@ export interface BandProps {
   money: number;
   formatMoney: (value: number) => string;
   onEndMonth: () => void;
-  /** The pages left, under Turn the page. */
+  /** The pages left, under Next month. */
   turns?: number;
   /** The months the player may still play, drawn beside the age (R-WORLD-027). */
   count?: ReactNode;

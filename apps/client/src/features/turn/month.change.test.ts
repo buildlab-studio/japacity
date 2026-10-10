@@ -100,7 +100,7 @@ describe("a change of money on the results", () => {
     expect(money.find((entry) => entry.currency === "GBP")).toMatchObject({ sign: -1, amount: sent });
     const naira = money.find((entry) => entry.currency === "NGN");
     expect(naira).toMatchObject({ sign: 1, amount: landed });
-    expect(words(naira?.line.key ?? "", naira?.line.params)).toBe(`Lands in your naira account at home: ${formatMoney(landed, "NGN")}.`);
+    expect(words(naira?.line.key ?? "", naira?.line.params)).toBe(`Landed in your naira account at home: ${formatMoney(landed, "NGN")}.`);
     expect(kept(money)).toEqual([
       { currency: "GBP", amount: -sent },
       { currency: "NGN", amount: landed },

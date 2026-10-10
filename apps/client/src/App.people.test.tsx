@@ -58,7 +58,7 @@ describe("people in the shell", () => {
     const game = peopleGame();
     courted(game, TOBI);
     await playing(game);
-    fireEvent.click(await screen.findByRole("button", { name: `${say("ui.activity.add")}: ${nameOf(SEE.activity)}` }));
+    fireEvent.click(await screen.findByRole("button", { name: `${nameOf(SEE.activity)}` }));
     const plan = screen.getByRole("list", { name: say("ui.month.plan") });
     expect(within(plan).getByText(`${nameOf(SEE.activity)} ${say("ui.people.time-with", { name: nameOf(TOBI) })}`)).toBeDefined();
     fireEvent.click(endMonth());

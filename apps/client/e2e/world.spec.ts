@@ -1,6 +1,6 @@
 // The world as the game, in a real browser at phone size (docs/rules/world.md R-WORLD-001 to 008,
 // 024): the default address opens the world with the band and the two thumb buttons and nothing else;
-// ?classic opens the old month page; Turn the page opens the Month sheet; ending the month shows the
+// ?classic opens the old month page; Next month opens the Month sheet; ending the month shows the
 // results over the scene and goes back to the place; the nudge changes when an offer opens.
 // With PREVIEW_DIR set, each step leaves a picture there.
 import { join } from "node:path";
@@ -75,7 +75,7 @@ test("[R-WORLD-001] [R-WORLD-024] the default address opens the world with the b
   await expect(page.locator("[data-nudge]")).toBeVisible();
   await placeDrawn(page);
   // The band's month count stands with them (R-WORLD-027).
-  expect((await visibleButtons(page)).sort()).toEqual(["Turn the page", "Map", "Pages left: 24", "Phone"].sort());
+  expect((await visibleButtons(page)).sort()).toEqual(["Next month", "Map", "Pages left: 24", "Phone"].sort());
   await expect(page.locator("header")).toHaveCount(0);
   await expect(page.locator("[data-tab]")).toHaveCount(0);
   await shoot(page, "open");
@@ -90,7 +90,7 @@ test("[R-WORLD-024] ?classic opens the old month page with its header and tabs",
   await expect(page.locator("[data-band]")).toHaveCount(0);
 });
 
-test("[R-WORLD-007] [R-WORLD-008] Turn the page opens the Month sheet; ending it shows the results over the scene, and the button goes back to the place", async ({ page }, info) => {
+test("[R-WORLD-007] [R-WORLD-008] Next month opens the Month sheet; ending it shows the results over the scene, and the button goes back to the place", async ({ page }, info) => {
   phoneOnly(info.project.name);
   test.setTimeout(120_000);
   await startLife(page);
@@ -144,13 +144,13 @@ test("[R-WORLD-003] the nudge changes when an offer opens, and a tap on it opens
   const nudge = page.locator("[data-nudge]");
   await expect(nudge).toBeVisible();
   const before = (await nudge.textContent()) ?? "";
-  expect(before).not.toBe("Someone is asking you something");
+  expect(before).not.toBe("Answer the person asking");
 
   await page.locator("[data-end-month]").click();
   await page.locator("[data-world-sheet='month'] [data-month-end]").click();
   await passMoments(page);
   await page.locator("[data-results-back]").click();
-  await expect(nudge).toHaveText("Someone is asking you something");
+  await expect(nudge).toHaveText("Answer the person asking");
   await placeDrawn(page);
   await shoot(page, "nudge-offer");
 

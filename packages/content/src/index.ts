@@ -2,6 +2,7 @@
 import type { Content } from "@japacity/sim";
 
 import { activityAbroadText } from "./activity/activity.abroad.text";
+import { activitySignalsText } from "./activity/activity.signals.text";
 import { activityTable } from "./activity/activity.data";
 import { advertTable } from "./advert/advert.data";
 import { advertText } from "./advert/advert.text";
@@ -132,6 +133,7 @@ export const textTables: Record<string, Record<string, string>> = {
   phrase: phraseText,
   activity: activityText,
   activityAbroad: activityAbroadText,
+  activitySignals: activitySignalsText,
   advert: advertText,
   advice: adviceText,
   chapter: chapterText,
@@ -198,5 +200,7 @@ export { GUIDE_SECTIONS } from "./guide/guide.data";
 /** R-ADVERT-001, R-ADVERT-002: the slots check, which the engine's content check does not reach. */
 export { advertChecks } from "./advert/advert.check";
 export { realNameChecks } from "./place/place.check";
+/** R-WORLD-030: the lines each month-act says of itself as the month passes, with the week each comes in. */
+export { activitySignals, type ActivitySignal } from "./activity/activity.signals.text";
 /** The officer's spoken lines and their clips. */
 export { OFFICER_REACTIONS, setpieceVoice, type VoiceClip } from "./setpiece/setpiece.voice";

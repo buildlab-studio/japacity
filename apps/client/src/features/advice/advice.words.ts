@@ -8,7 +8,7 @@ import { hasWords, say } from "../../shared/words/text";
 export const adviceUiText: Record<string, string> = {
   "advice.notice": "You notice",
   "advice.looks": "Look before you pay",
-  "advice.looks.free": "Free. No slot.",
+  "advice.looks.free": "Free, and takes none of your month.",
   "advice.look.done": "Done",
   "advice.look.nobody": "You know nobody to ask yet.",
   "advice.says": "What he says you need",

@@ -64,7 +64,7 @@ describe("words for the people's lists", () => {
       `Time with ${text["person.tobi-bank.name"]!} at ${text["people.spot.suya-spot"]!}. You ${text["people.what.argued-made-up"]!}.`,
     );
     expect(words("line.people.called", { who: "player", what: "long-call" })).toBe(`Your friend on the phone: ${text["people.call.long-call"]!}.`);
-    expect(words("line.people.proposed", { who: "player", step: "marry" })).toBe("You ask your friend: get married.");
+    expect(words("line.people.proposed", { who: "player", step: "marry" })).toBe("You asked your friend: get married.");
     expect(words("line.people.invited", { slot: "sibling-2" })).toBe("Your card is out. Looking for: sibling.");
   });
 

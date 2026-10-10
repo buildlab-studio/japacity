@@ -10,7 +10,7 @@ import { requirementSentence } from "../../shared/words/requirement";
 import { lowerFirst, say } from "../../shared/words/text";
 import { ActivityView } from "./ActivityView";
 
-const addButton = (id: string) => screen.getByRole("button", { name: `${say("ui.activity.add")}: ${text[`${id}.name`] ?? id}` });
+const addButton = (id: string) => screen.getByRole("button", { name: `${text[`${id}.name`] ?? id}` });
 
 describe("the month plan", () => {
   // The picker lists every act of the life with its card; reading each by role takes time under load.

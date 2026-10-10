@@ -1,5 +1,5 @@
 // The official page from the phone (docs/rules/advice.md R-ADVICE-002): Japa offers it whenever it
-// can be read, a route only heard of included, says it takes one slot, and plans it; and the
+// can be read, a route only heard of included, says it is free, and plans it; and the
 // papers' dates read as months away (docs/rules/world.md R-WORLD-002).
 import { content } from "@japacity/content";
 import type { PlayerView } from "@japacity/sim";
@@ -37,13 +37,13 @@ function adaHeard(): PlayerView {
 }
 
 describe("the official page in Japa", () => {
-  test("[R-ADVICE-002] given a route only heard of and no plan yet, when Japa opens, then the official page is offered for it with a line that it takes one slot, and a tap plans it", async () => {
+  test("[R-ADVICE-002] given a route only heard of and no plan yet, when Japa opens, then the official page is offered for it with its own line, and a tap plans it", async () => {
     const { store } = await openJapa(adaHeard());
     const button = document.querySelector<HTMLButtonElement>("[data-official-page]");
     expect(button?.getAttribute("data-official-page")).toBe(UK);
     expect(button?.textContent).toContain(nameOf(OFFICIAL));
     expect(button?.textContent).toContain(phoneWords("phone.japa.official", { route: runningName(UK) }));
-    expect(phoneWords("phone.japa.official", { route: runningName(UK) })).toMatch(/one slot/);
+    expect(phoneWords("phone.japa.official", { route: runningName(UK) })).toMatch(/Free\./);
     fireEvent.click(button!);
     expect(store.getState().plan).toContainEqual({ activity: OFFICIAL, param: UK });
     expect(screen.getByText(say("ui.world.planned", { what: nameOf(OFFICIAL) }))).toBeTruthy();

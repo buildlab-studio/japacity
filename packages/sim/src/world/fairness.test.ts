@@ -36,6 +36,11 @@ describe("fairness", () => {
     expect(directorFairness(effects)).toEqual([expect.stringContaining("carries effects")]);
   });
 
+  test("[R-DIRECTOR-007] given a story that names where it is heard, when checked, then nothing is found: a source is words on News and moves nothing", () => {
+    const heard = withStory(CLOSES, (story) => ({ ...story, source: { announced: "radio", "in-force": "person" } }));
+    expect(directorFairness(heard)).toEqual([]);
+  });
+
   test("[R-DIRECTOR-007] given a story that changes a variable the world lacks or sets a window or strictness out of range, when checked, then each is found", () => {
     const missing = withStory(CLOSES, (story) => ({ ...story, standIn: { ...story.standIn, sets: [{ var: "var.player-cash", value: 0 }] } }));
     expect(directorFairness(missing)).toHaveLength(1);

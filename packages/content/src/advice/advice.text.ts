@@ -27,7 +27,7 @@ export const adviceText: Record<string, string> = {
   // The agent at the stop.
   "offer.agent-stop.name": "An agent at the stop",
   "offer.agent-stop.title": "A man at the stop says he can help",
-  "offer.agent-stop.body": "He says he can sort the route for you, fast. His fee is {fee}. Look before you pay.",
+  "offer.agent-stop.body": "'I can sort the route for you, fast. My fee is {fee}.'",
   "offer.agent-stop.who.1.name": "Efosa",
   "offer.agent-stop.who.2.name": "Timi",
   "offer.agent-stop.who.3.name": "Nsikak",
@@ -54,7 +54,7 @@ export const adviceText: Record<string, string> = {
   // The desk in the agent's office.
   "offer.agent-office.name": "The travel desk upstairs",
   "offer.agent-office.title": "The travel desk upstairs",
-  "offer.agent-office.body": "He says he can move your papers along. His fee is {fee}.",
+  "offer.agent-office.body": "'I can move your papers along. My fee is {fee}.'",
   "offer.agent-office.who.1.name": "Ameh",
   "offer.agent-office.choice.take": "Pay him",
   "offer.agent-office.choice.look-office": "Ask to see his office",
@@ -77,7 +77,7 @@ export const adviceText: Record<string, string> = {
   // The chaser a friend puts you onto, about the paper of yours being made (R-ADVICE-013).
   "offer.agent-chaser.name": "A chaser your friend knows",
   "offer.agent-chaser.title": "Terna sends you a number",
-  "offer.agent-chaser.body": "Terna sends her number: she follows up papers for people. Her fee is {fee}.",
+  "offer.agent-chaser.body": "Terna sends her number: 'She follows up papers for people. Her fee is {fee}.'",
   "offer.agent-chaser.who.1.name": "Hadiza",
   "offer.agent-chaser.pitch.chaser": "She will chase it for you: the calls, the queues, the follow-up.",
   "offer.agent-chaser.choice.take": "Pay her",
@@ -110,13 +110,13 @@ export const adviceText: Record<string, string> = {
   // What an overpromiser leaves behind (R-ADVICE-005).
   "offer.agent-promise.name": "The agent's promise",
   "offer.agent-promise.title": "The agent's promise",
-  "offer.agent-promise.body": "He says it will all be sorted by the month on this card. You wait.",
+  "offer.agent-promise.body": "'It will all be sorted by the month I told you. Just wait.'",
   "offer.agent-promise.choice.wait": "Keep waiting",
 
   // What a scammer sells after the fee (R-ADVICE-008).
   "offer.agent-papers.name": "Papers made to order",
   "offer.agent-papers.title": "He has another offer",
-  "offer.agent-papers.body": "The real papers are slow, he says. He can make them for {fee} more. A route that checks will refuse them, and the mark stays on your record.",
+  "offer.agent-papers.body": "'The real papers are slow. I can make them for {fee} more.' A route that checks will refuse them, and the mark stays on your record.",
   "offer.agent-papers.choice.transcript": "A transcript",
   "offer.agent-papers.choice.tb-certificate": "A TB certificate",
   "offer.agent-papers.choice.medical": "A medical",
@@ -133,34 +133,34 @@ export const adviceText: Record<string, string> = {
   "advice.tell.friend-warned.name": "a friend had warned about one like him",
 
   // The four ways in the report (R-ADVICE-001).
-  "line.route.looked-into-told": "Someone who went tells you about {route}. Now you know what it takes, as far as they know.",
-  "line.route.looked-into-advised": "The adviser goes through {route} with you, item by item.",
-  "line.route.looked-into-agent": "The agent tells you what {route} takes. Only the official page is sure.",
-  "line.activity.went-told": "Someone who went tells you what {route} asked when they left. Things may have moved since.",
-  "line.activity.went-item": "They say you need: {item}.",
+  "line.route.looked-into-told": "Someone who went told you about {route}. Now you know what it takes, as far as they know.",
+  "line.route.looked-into-advised": "The adviser went through {route} with you, item by item.",
+  "line.route.looked-into-agent": "The agent told you what {route} takes. Only the official page is sure.",
+  "line.activity.went-told": "Someone who went told you what {route} asked when they left. Things may have moved since.",
+  "line.activity.went-item": "They said you need: {item}.",
   "line.activity.went-out-of-date": "You already have this one, and it is not as they said: {item}. The rules have changed since they left.",
   "line.activity.adviser-fits": "Her reading: {route} fits you now. Nothing is missing.",
   "line.activity.adviser-missing": "Her reading: {route} does not fit yet. {count} things are missing, at least {months} months away.",
   "line.activity.adviser-item": "Missing: {item}.",
 
   // The agents in the report (R-ADVICE-005, 006, 009).
-  "line.offer.look-office-nothing": "You ask about the office. The answer holds up.",
-  "line.offer.look-office-found": "You ask about the office: {tell}.",
-  "line.offer.look-licence-nothing": "You ask for the licence number. He gives one, and it checks out.",
-  "line.offer.look-licence-found": "You ask for the licence number: {tell}.",
-  "line.offer.look-name-nothing": "You check his name. Nobody has heard anything bad.",
-  "line.offer.look-name-found": "You check his name: {tell}.",
-  "line.offer.agent-paid": "You pay {agent} {amount}. He says he will move things along.",
-  "line.offer.agent-paid-nothing-waiting": "You pay {agent} {amount}. He looks, but no paper of yours is waiting to be moved.",
-  "line.offer.agent-chaser-paid": "You pay {agent} {amount} to follow up your papers.",
-  "line.offer.agent-chaser-paid-nothing-waiting": "You pay {agent} {amount}. No paper of yours is waiting to be followed up.",
+  "line.offer.look-office-nothing": "You asked about the office. The answer held up.",
+  "line.offer.look-office-found": "You asked about the office: {tell}.",
+  "line.offer.look-licence-nothing": "You asked for the licence number. He gave one, and it checked out.",
+  "line.offer.look-licence-found": "You asked for the licence number: {tell}.",
+  "line.offer.look-name-nothing": "You checked his name. Nobody had heard anything bad.",
+  "line.offer.look-name-found": "You checked his name: {tell}.",
+  "line.offer.agent-paid": "You paid {agent} {amount}. He said he would move things along.",
+  "line.offer.agent-paid-nothing-waiting": "You paid {agent} {amount}. He looked, but no paper of yours was waiting to be moved.",
+  "line.offer.agent-chaser-paid": "You paid {agent} {amount} to follow up your papers.",
+  "line.offer.agent-chaser-paid-nothing-waiting": "You paid {agent} {amount}. No paper of yours was waiting to be followed up.",
   "line.offer.agent-scam": "{agent} was a scam. {amount} gone.",
   "line.offer.agent-scam-tell": "You had seen it: {tell}.",
-  "line.offer.agent-promise-broken": "The month he promised has come. Nothing has moved. {agent} does not pick up.",
+  "line.offer.agent-promise-broken": "The month he promised came. Nothing moved. {agent} does not pick up.",
 
   // The genuine mark and the fixer's work (R-ADVICE-005, 008).
   "line.document.faked": "You have the papers: {document}. They are not real, and a route that checks will know.",
-  "line.document.hastened": "Your {document} now comes {month}.",
+  "line.document.hastened": "Your {document} is now due {month}.",
 
   ...itemNames,
 };

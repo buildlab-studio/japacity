@@ -128,7 +128,7 @@ export function Map({ pins, country, countries, drawing, diveTo = null, diveBy =
           {mapWords("map.hint")}
         </p>
       ) : (
-        <RideSheet key={pin.id} pin={pin} home={pin.id === homeId} ways={ways} have={have} formatMoney={(amount) => formatMoney(amount, "NGN")} onChoose={go} onClose={() => setPicked(null)} {...(by === undefined ? {} : { by })} />
+        <RideSheet key={pin.id} pin={pin} home={pin.id === homeId} ways={ways} have={have} formatMoney={(amount) => formatMoney(amount, "NGN")} onChoose={go} onClose={() => setPicked(null)} onStay={onClose} {...(by === undefined ? {} : { by })} />
       )}
 
       {riding === null ? null : (
