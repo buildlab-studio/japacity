@@ -16,8 +16,8 @@ import { type Angle, angleAt, anglesOf, buildRide, darkAt, figuresOn, peopleOf, 
 
 export { PRE_MS, RIDE_MS } from "./rideScene";
 
-/** How long past its own length the ride may run by the wall clock on a slow device before it ends anyway (R-WORLD-032). */
-export const RIDE_SLACK_MS = 2000;
+/** How long past its own length the ride may run by the wall clock before it ends anyway (R-WORLD-032): a stall of up to three seconds is forgiven, so a slow device never holds the player much longer than the ride. */
+export const RIDE_SLACK_MS = 3500;
 
 /** The look the city falls back to when the life's own person is not shipped (City.tsx). */
 export const FALLBACK_OWN = "shared/chr/chr_tunde.glb";
