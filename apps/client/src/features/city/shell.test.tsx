@@ -60,7 +60,8 @@ describe("the world fills the screen", () => {
     expect(document.querySelector("[data-nudge]")).not.toBeNull();
     // The nudge is a button when it opens the way to what it names (R-WORLD-003); the band's handle shows only while something is coming (R-WORLD-002).
     // The months the player may still play are part of the band, a glyph with the number (R-WORLD-027).
-    expect(screen.getAllByRole("button").map((button) => button.getAttribute("aria-label") ?? button.textContent)).toEqual([say("ui.months.label", { count: view.turns.banked }), say("ui.world.end-month"), say(nudgeOf(view).key), say("ui.world.map"), say("ui.world.phone")]);
+    // The name over the age opens the data page (R-PROLOGUE-009).
+    expect(screen.getAllByRole("button").map((button) => button.getAttribute("aria-label") ?? button.textContent)).toEqual([say("prologue.page.open"), say("ui.months.label", { count: view.turns.banked }), say("ui.world.end-month"), say(nudgeOf(view).key), say("ui.world.map"), say("ui.world.phone")]);
     expect(document.querySelector("[data-report-here], [data-overheard], [data-scene]")).toBeNull();
     expect(screen.queryByRole("dialog")).toBeNull();
   });
