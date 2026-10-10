@@ -2,12 +2,11 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { content } from "@japacity/content";
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "vitest";
 
 import { App, classicAsked } from "./App";
 import { bootGame } from "./authority/boot";
-import { mapWords } from "./features/map/map.words";
 import { askReadyLives, startReadyLife } from "./shared/frontdoor/frontDoor.testing";
 import { say } from "./shared/words/text";
 // Registers Testing Library's cleanup for this file.
@@ -33,11 +32,9 @@ describe("the world is the game", () => {
   test("[R-WORLD-001] given a life picked at the default address, when it starts, then the world opens with the band and the two thumb buttons, and no header, tabs or month page", async () => {
     history.replaceState(null, "", "/");
     await startLife();
-    // The chapter's opening words stand over the world first (R-WORLD-001); Go passes them.
-    (await screen.findByRole("button", { name: say("ui.opening.go") })).click();
-    // Go takes the step's way (the map with the stop picked); close it to see the world.
-    const mapClose = await screen.findByRole("button", { name: mapWords("map.close") }).catch(() => null);
-    if (mapClose !== null) mapClose.click();
+    // The first chapter opens on its title over the world, never a card to pass (R-CHAPTER-010).
+    await waitFor(() => expect(document.querySelector("[data-opening-title]")).not.toBeNull());
+    expect(screen.queryByRole("button", { name: say("ui.opening.go") })).toBeNull();
     expect(await screen.findByRole("button", { name: say("ui.world.end-month") })).toBeTruthy();
     expect(document.querySelector("[data-band]")).not.toBeNull();
     expect(document.querySelector("[data-thumb='map']")).not.toBeNull();

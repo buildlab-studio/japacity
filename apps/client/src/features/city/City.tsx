@@ -36,7 +36,7 @@ import { ThumbBar } from "../../shared/world/ThumbBar";
 import { Toast, useToast } from "../../shared/world/Toast";
 import { MonthCount } from "../../shared/world/MonthCount";
 import { Rise, useJapaRise } from "../../shared/world/Rise";
-import { Walkthrough } from "../../shared/world/Walkthrough";
+import { FirstUseLabels, useFirstUse } from "../../shared/world/Walkthrough";
 import { WorldSheet } from "../../shared/world/WorldSheet";
 import { actOnCard, answersNow, nowLineIn } from "../../shared/words/acts";
 import { actsOffered, answerAsk, askHeader, isPaper } from "./acts";
@@ -121,6 +121,25 @@ function openingKey(view: Pick<PlayerView, "chapter" | "scenario" | "qualities" 
   } else if (hasWords(`${chapter}.open.${slug}`)) return `${chapter}.open.${slug}`;
   return `${chapter}.open`;
 }
+/** The first chapter by order (R-CHAPTER-001): its opening is a title over the world, never a card (R-CHAPTER-010). */
+const FIRST_CHAPTER = Object.values(content.chapter).reduce<{ id: string; order: number } | null>((first, entry) => (first === null || entry.order < first.order ? { id: entry.id, order: entry.order } : first), null)?.id ?? null;
+/** How long the first chapter's title stands over the world (R-CHAPTER-010). */
+export const TITLE_MS = 2000;
+
+/** The first chapter's title over the world for a moment, with nothing to press: the nudge under the band gives the first step. */
+function ChapterTitle({ chapter, onGone }: { chapter: string; onGone: () => void }) {
+  useEffect(() => {
+    const timer = window.setTimeout(onGone, TITLE_MS);
+    return () => window.clearTimeout(timer);
+    // The title's moment runs once, as the world opens.
+  }, []);
+  return (
+    <div className="pointer-events-none fixed inset-x-0 top-[34%] z-[40] flex justify-center px-6" role="status" data-opening={chapter} data-opening-title>
+      <p className="band title pop rounded-[6px] px-5 py-3 text-center text-[28px] leading-tight shadow-[0_12px_30px_rgba(10,14,30,0.35)]">{nameOf(chapter)}</p>
+    </div>
+  );
+}
+
 /** A room that is a place of its own on the map, and the street its door opens onto: the hub's file names it as its inside (R-WORLD-013). */
 const OUTSIDE_OF: Record<string, string> = { "place.yaba": "place.ojuelegba" };
 /** How long a big line stays as a toast before the next, since the world shows no moment cards (R-WORLD-008). */
@@ -433,10 +452,11 @@ export function City({
   const [diveTo, setDiveTo] = useState<string | null>(null);
   // The stop the map opens on when the nudge sends the player somewhere (R-WORLD-003).
   const [mapPick, setMapPick] = useState<string | null>(null);
-  // The chapter's opening words stand over the world once, before the first month is played (R-WORLD-001).
+  // The chapter's opening stands over the world once, before the first month is played (R-WORLD-001): the first
+  // chapter's title for a moment, a later chapter's card with Go (R-CHAPTER-010).
   const [openingSeen, setOpeningSeen] = useState(false);
-  // R-WORLD-027: the first-play walkthrough starts once the opening words are passed, never before play.
-  const [walkFrom, setWalkFrom] = useState(false);
+  // Nothing lectures before play (R-WORLD-033): the thumbs carry a word until each is tapped once.
+  const firstUse = useFirstUse(view.report !== null);
   // The app the phone opens on when the nudge sends the player to it (the month's news).
   const [phoneApp, setPhoneApp] = useState<string | null>(null);
   /** The way a vehicle in the place was tapped for, chosen on the ride sheet when the map opens from it (R-WORLD-017). */
@@ -1196,7 +1216,8 @@ export function City({
               ) : null
             }
           />
-          <ThumbBar onMap={() => setMap(true)} onPhone={() => { setPhoneApp(null); setPhone(true); }} phoneWaiting={phoneWaiting ?? view.offers.length > 0} hidden={map || resultsOpen} />
+          <ThumbBar onMap={() => { firstUse.tap("map"); setMap(true); }} onPhone={() => { firstUse.tap("phone"); setPhoneApp(null); setPhone(true); }} phoneWaiting={phoneWaiting ?? view.offers.length > 0} hidden={map || resultsOpen} />
+          <FirstUseLabels tapped={firstUse.tapped} hidden={map || resultsOpen || covered} />
           {zoomed && !map ? (
             <button type="button" onClick={() => setZoomed(false)} className="chip drop pointer-events-auto fixed bottom-[calc(max(14px,env(safe-area-inset-bottom))+76px)] left-1/2 z-[38] -translate-x-1/2 px-3 py-2 text-[13px] font-bold" data-zoom-preset>
               {say("ui.world.whole")}
@@ -1218,14 +1239,12 @@ export function City({
             </button>
           ) : null}
           <Cut cutting={cutting} />
-          <Walkthrough active={walkFrom && openingSeen && !covered && !resultsOpen && !reportOpen && !menu && !credits && picked === null} />
-          {!openingSeen && view.report === null && view.chapter.current !== null && !view.ended ? (
+          {openingUp && FIRST_CHAPTER !== null && view.chapter.current === FIRST_CHAPTER ? (
+            <ChapterTitle chapter={FIRST_CHAPTER} onGone={() => setOpeningSeen(true)} />
+          ) : openingUp && view.chapter.current !== null ? (
             <FullScreen
               open
-              onClose={() => {
-                setOpeningSeen(true);
-                setWalkFrom(true);
-              }}
+              onClose={() => setOpeningSeen(true)}
               title={nameOf(view.chapter.current)}
               tone="over"
             >
@@ -1236,7 +1255,6 @@ export function City({
                 <Button
                   onClick={() => {
                     setOpeningSeen(true);
-                    setWalkFrom(true);
                     if (nudgeGoes) followStep();
                   }}
                   data-opening-go

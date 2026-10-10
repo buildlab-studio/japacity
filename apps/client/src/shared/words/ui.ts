@@ -86,15 +86,6 @@ export const uiText: Record<string, string> = {
   "ui.notify.ask.body": "Months to play build up while you are away. We can tell you on this device when you hold all the months you can, and nothing else.",
   "ui.notify.setting": "Tell me when my months are full",
 
-  // The first-play walkthrough (R-WORLD-027): four pointers, once per device.
-  "ui.walk.band": "Your age, your money, your calendar",
-  "ui.walk.phone": "Your phone: chats, the bank, the news",
-  "ui.walk.map": "The map: every place you can go",
-  "ui.walk.count": "This is your calendar. Each page is a month of your life",
-  "ui.walk.bag": "Japacity is how ready you are to go. At 100, you go. The bag at home fills as you get closer",
-  "ui.walk.step": "{n} of {count}",
-  // Each card says how to go on.
-  "ui.walk.on": "Tap to go on",
   "ui.world.now": "Now",
   "ui.world.pass": "Bus pass",
   "ui.world.depart-held": "The funds held for you must go back first: Phone, Bills, Pay now.",
