@@ -11,16 +11,17 @@ import { Check, ChevronLeft, ChevronRight, Circle, FileCheck, FileClock, FileX }
 import { use, useState } from "react";
 
 import { useGame, useView } from "../../../authority/GameProvider";
+import { actOnCard, nowSaid } from "../../../shared/words/acts";
 import { monthsLeft, SOON } from "../../../shared/words/expiry";
 import { formatBand, formatMoney } from "../../../shared/words/format";
 import { planMarks } from "../../../shared/words/plan";
 import { checklistWords } from "../../../shared/words/requirement";
+import { planRoute } from "../../../shared/words/savings";
 import { wardMonths } from "../../../shared/words/sixteen";
 import { blurbOf, forMonths, hasWords, inMonths, nameOf, runningName, say, sayCount, words } from "../../../shared/words/text";
 import { Head, PhoneSaid } from "../act";
 import { phoneWords } from "../phone.words";
 import { RoutePage } from "./PlanSwitch";
-import { actOnCard, nowSaid } from "../../../shared/words/acts";
 
 const ENGLISH_RESULT = "document.english-test";
 const OFFICIAL = "activity.look-into-route";
@@ -131,10 +132,6 @@ export function officialRoute(view: PlayerView): string | null {
   return planned !== undefined && official.params.includes(planned) ? planned : (official.params[0] ?? null);
 }
 
-import { planRoute } from "../../../shared/words/savings";
-
-export { planRoute };
-
 /**
  * The way out the Japa header names (R-WORLD-019), read as the nudge reads it: the plan's route,
  * else a route only heard of, since a route heard of is already a way out to look into.
@@ -188,7 +185,7 @@ export function moveCosts(route: RouteView): MoveCost[] {
 export function remindersOf(view: PlayerView): string[] {
   const out: string[] = [];
   for (const route of view.routes) {
-    if (route.visa !== null && (route.state === "applying" || route.state === "known")) out.push(phoneWords("phone.japa.visa", { when: inMonths(route.visa.decisionMonth, view.month) }));
+    if (route.visa !== null && route.state === "applying") out.push(phoneWords("phone.japa.visa", { when: inMonths(route.visa.decisionMonth, view.month) }));
   }
   for (const paper of view.documents) {
     if (paper.state === "pending" && paper.readyMonth !== null) out.push(phoneWords("phone.japa.paper-ready", { paper: nameOf(paper.id), when: inMonths(paper.readyMonth, view.month) }));
