@@ -19,8 +19,17 @@ export function otherLines(lines: readonly ReportLine[]): ReportLine[] {
   return tidyLines(lines).filter((line, index, all) => !money.has(line) && line.key !== CONVERTED && line.key !== CONVERT_PAID && !(line.key === BANK_CHARGE && (all[index + 1]?.key === CONVERTED || (all[index + 1]?.key === CONVERT_PAID && all[index + 2]?.key === CONVERTED))));
 }
 
-/** The most story lines the results show; the rest stay in News. */
+/** The most story lines the results show; the rest stay in News. The month's chores are told after these, never cut. */
 export const STORY_MAX = 6;
+
+/**
+ * The chores' own lines (R-OBLIGATION-014): one for each activity whose `obligation/relief` lowered the living costs,
+ * keyed by its slug as the obligation kind tells it. Each is told whatever else the month held, so a saving that went
+ * into the living costs always has its line (R-WORLD-008).
+ */
+const CHORES: ReadonlySet<string> = new Set(
+  Object.values(content.activity).flatMap((entry) => (entry?.effects.some((effect) => effect.type === "obligation/relief") === true ? [`line.obligation.relief.${entry.id.slice(entry.id.indexOf(".") + 1)}`] : [])),
+);
 
 /** A charge that fell due and could not be paid: no money moved, but the month went wrong (R-WORLD-008). */
 
@@ -112,7 +121,7 @@ function storyRank(line: ReportLine): number {
 
 /**
  * The month's story for the results (R-WORLD-008): the lines that move the story, not money, in
- * the order the results lead with them, at most `STORY_MAX`. The rest of the month stays in News.
+ * the order the results lead with them, at most `STORY_MAX` of the month's events and then every chore. The rest of the month stays in News.
  */
 /** The relative's gift answered says the flag and the way round it itself: the wallet's bare flag line is not told twice. */
 const RELATIVE_SENDS = "offer.relative-sends";
@@ -134,7 +143,7 @@ export function storyLines(lines: readonly ReportLine[]): ReportLine[] {
     .map((line, index) => ({ line, index, rank: storyRank(line) }))
     .filter((entry) => entry.rank !== -1)
     .sort((a, b) => a.rank - b.rank || a.index - b.index)
-    .slice(0, STORY_MAX)
+    .filter((entry, at, ranked) => CHORES.has(entry.line.key) || ranked.slice(0, at).filter((before) => !CHORES.has(before.line.key)).length < STORY_MAX)
     .map((entry) => entry.line);
 }
 
