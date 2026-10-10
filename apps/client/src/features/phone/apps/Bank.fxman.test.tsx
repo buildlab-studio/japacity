@@ -56,4 +56,13 @@ describe("the FX man's sheet reads the cash he is paid from", () => {
     expect(told).toContain(say("ui.wallet.change.after.aboki", { to: formatMoney(view.pockets.GBP.cash + got.amount, "GBP") }));
     expect(told).not.toContain(formatMoney(view.pockets.GBP.bank + view.pockets.GBP.cash + got.amount, "GBP"));
   });
+
+  test("[R-WORLD-006] given no pounds in hand before, when the FX man's line is read, then what you get is said once, with no line of what you hold after", async () => {
+    const base = heldAtHome();
+    const view = { ...base, pockets: { ...base.pockets, GBP: { ...base.pockets.GBP, cash: 0 } } };
+    await changeAllWithTheFxMan(view);
+    const told = card().textContent ?? "";
+    const { got } = changeQuote(view, "NGN", "GBP", view.pockets.NGN.cash, "aboki");
+    expect(told.split(formatMoney(got.amount, "GBP")).length - 1).toBe(1);
+  });
 });

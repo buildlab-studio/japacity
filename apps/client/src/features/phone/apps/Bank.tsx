@@ -111,7 +111,8 @@ export function changeLine(view: Pick<PlayerView, "rates" | "pockets">, from: Cu
   return [
     say("ui.wallet.change.line", { amount: formatMoney(amount, from), currency: lowerFirst(currencyWords(to)) }),
     via === "bank" ? say("ui.wallet.change.get.bank", { got: formatMoney(got.amount, to), charge: formatMoney(charge.amount, from) }) : say("ui.wallet.change.get.aboki", { got: formatMoney(got.amount, to) }),
-    say(`ui.wallet.change.after.${via}`, { to: formatMoney(held + got.amount, to) }),
+    // With none of that money there before, what you get is what you hold: said once.
+    ...(held === 0 ? [] : [say(`ui.wallet.change.after.${via}`, { to: formatMoney(held + got.amount, to) })]),
   ].join(" ");
 }
 
