@@ -9,9 +9,9 @@ import { applyEffects } from "../../../../../packages/sim/src/route/route.journe
 import { newGame } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { say } from "../../shared/words/text";
-import { MonthSheet } from "../turn/MonthSheet";
-import { isMonthAct } from "./days";
-import { restores, stretchedWords } from "./stretch";
+import { MonthSheet } from "./MonthSheet";
+import { isMonthAct } from "../../shared/days/days";
+import { restores, stretchedWords } from "../../shared/days/stretch";
 
 const TEACHER = "activity.job-teacher" as Id<"activity">;
 const TUTORING = "activity.weekend-tutoring" as Id<"activity">;

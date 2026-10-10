@@ -5,9 +5,9 @@
 import { useEffect, useState } from "react";
 
 import { useGame, useView } from "../../authority/GameProvider";
-import { dueSignals, waitingSignals } from "../days/days";
-import { tellSignals, useMonthDays } from "../days/days.store";
-import { atHome } from "../days/standing";
+import { dueSignals, waitingSignals } from "../../shared/days/days";
+import { tellSignals, useMonthDays } from "../../shared/days/days.store";
+import { atHome } from "../../shared/days/standing";
 import { say } from "../../shared/words/text";
 
 /** The lines due and those still waiting, from the days kept, the view and the plan. */

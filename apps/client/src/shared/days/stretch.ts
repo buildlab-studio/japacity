@@ -4,7 +4,7 @@
 import { content } from "@japacity/content";
 import type { Id, PlayerView, SlotPick } from "@japacity/sim";
 
-import { hasWords, say } from "../../shared/words/text";
+import { hasWords, say } from "../words/text";
 import { isMonthAct } from "./days";
 
 const WELLBEING = "quality.wellbeing";

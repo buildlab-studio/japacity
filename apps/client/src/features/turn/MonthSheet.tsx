@@ -13,7 +13,7 @@ import { Rejection } from "../../shared/ui/Rejection";
 import { workingPlanned } from "../../shared/words/count";
 import { lockWords } from "../../shared/words/locks";
 import { hasWords, nameOf, paramWords, say } from "../../shared/words/text";
-import { stretchedWords } from "../days/stretch";
+import { stretchedWords } from "../../shared/days/stretch";
 import { blockedBy } from "./TurnBar";
 import { TurnClock } from "./TurnClock";
 import { turnWords } from "./turn.words";
