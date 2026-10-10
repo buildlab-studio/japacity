@@ -179,9 +179,21 @@ const LINE_COUNTS: Record<string, string> = {
   "line.activity.adviser-missing": "months",
 };
 
+/**
+ * Lines said by their source, by the param that names it: `<key>.<source>` where content has words for that source,
+ * so a route heard of reads as where the word came from, never as what the player heard (R-TEXT-007).
+ */
+const LINE_SOURCES: Record<string, string> = { "line.route.heard": "via" };
+
+function sourcedKey(key: string, params: Params): string {
+  const named = LINE_SOURCES[key];
+  const source = named === undefined ? undefined : params[named];
+  return typeof source === "string" && hasWords(`${key}.${source}`) ? `${key}.${source}` : key;
+}
+
 function countedKey(key: string, params: Params): string {
   const counted = LINE_COUNTS[key];
-  if (counted === undefined) return key;
+  if (counted === undefined) return sourcedKey(key, params);
   const count = params[counted];
   return typeof count === "number" && count === 1 && hasWords(`ui.${key}.one`) ? `ui.${key}.one` : key;
 }
