@@ -202,7 +202,7 @@ export function MonthSheet() {
         </div>
       ) : null}
       <Rejection />
-      <div className="sticky bottom-0 -mx-4 -mb-4 flex flex-col gap-1.5 bg-sheet px-4 pt-2 pb-[max(16px,env(safe-area-inset-bottom))]">
+      <div className="sticky -bottom-4 -mx-4 -mb-4 flex flex-col gap-1.5 bg-sheet px-4 pt-2 pb-[max(16px,env(safe-area-inset-bottom))]">
         {stretched === null ? null : (
           <p className="text-[13px] font-semibold text-text-2" data-month-stretched>
             {stretched}
