@@ -176,6 +176,9 @@ function seatsOf(way: Way): SeatSpec[] {
   }
 }
 
+/** The keke's window camera, in the keke's own frame (facing +z, the kerb on -x): on the bench's road side, looking out of the open side and a little ahead. */
+const KEKE_WINDOW: { from: [number, number, number]; to: [number, number, number] } = { from: [0.12, 1.38, -0.72], to: [3.4, 1.05, 2.6] };
+
 /** The people files a ride shows, by role: the character's own, and the rider or driver who carries them. */
 export function peopleOf(way: Way, own: string): Partial<Record<Role, string>> {
   switch (way) {
@@ -527,11 +530,13 @@ export function buildRide(way: Way): RideScene {
         // Where the character sits, a little up and out, past the rider's or driver's shoulder to the street ahead.
         camera.fov = 75;
         camera.near = 0.08;
-        // The keke's windscreen is solid in its model, so the view goes ahead out of the open side on the road's
-        // side, the driver beside it under the canopy.
+        // The keke's window: from the bench's road side, clear of the character on the kerb side
+        // and the driver in front, out of the open side between the pillars, the canopy's edge at the top and the front
+        // pillar at the side, the road and the far side sliding past. Its eyes at the character's would put her head, the
+        // canopy and the driver's back through the camera.
         if (way === "keke") {
-          camera.fov = 60;
-          aimFrom([-0.2, 1.64, -0.55], [3.6, 0.9, 6]);
+          camera.fov = 62;
+          aimFrom(KEKE_WINDOW.from, KEKE_WINDOW.to);
         }
         else aimFrom([0.16, 1.68, -0.62], [-0.05, 1.0, 9]);
         return;

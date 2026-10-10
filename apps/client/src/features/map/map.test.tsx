@@ -663,8 +663,10 @@ describe("the ride cuts between its angles by itself", () => {
     scene.dispose();
   });
 
-  test("[R-WORLD-032] given an okada's and a keke's scene, when the last angle is framed, then the camera sits where the character sits, behind the rider or driver, facing the open street ahead with him in view", () => {
-    for (const way of ["okada", "keke"] as const) {
+  // Restated for the keke's last angle is its window out of the open side, tested in
+  // rideScene.keke.test.ts; the okada keeps the character's own seat behind the rider.
+  test("[R-WORLD-032] given an okada's scene, when the last angle is framed, then the camera sits where the character sits, behind the rider, facing the open street ahead with him in view", () => {
+    for (const way of ["okada"] as const) {
       const scene = buildRide(way);
       const carrier = way === "okada" ? "rider" : "driver";
       scene.setPerson("own", new Group());
