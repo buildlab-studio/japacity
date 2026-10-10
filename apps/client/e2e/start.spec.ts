@@ -78,11 +78,17 @@ const NO_SESSION: Answer = { status: 401, body: { ok: false, code: "signed-out",
 const NO_CHARACTER: Answer = { status: 404, body: { ok: false, code: "no-character", detail: "This account has no character yet." } };
 const USER = { id: "account-1", email: "ada@example.test", emailVerified: true, name: "", createdAt: "2026-10-10T00:00:00.000Z", updatedAt: "2026-10-10T00:00:00.000Z" };
 
-/** The routes of a browser never refused, whose code sign-in works; the view follows the phase. */
+const GUEST = { id: "account-guest", country: "NG", age: { passed: true, method: "declared" }, createdAt: 1, character: null, sendUsageCounts: true, admin: false, state: "guest", username: "Ada", renameFrom: 0 };
+
+/** The routes of a browser never refused, whose guest start and code sign-in work; the view follows the phase. */
 function signUpRoutes(made: Answer): Record<string, Answer | ((faked: Faked) => Answer)> {
   return {
     "GET /api/age": { body: { refused: false } },
     "POST /api/age": { body: { ok: true } },
+    "POST /api/guest": (faked) => {
+      faked.phase = "no-character";
+      return { body: { ok: true, account: GUEST } };
+    },
     "POST /api/auth/email-otp/send-verification-otp": { body: { success: true } },
     "POST /api/auth/sign-in/email-otp": (faked) => {
       faked.phase = "no-character";
@@ -104,7 +110,7 @@ async function pickBirth(page: Page, day: string, month: string, year: string): 
   await page.getByRole("combobox", { name: "Year" }).selectOption(year);
 }
 
-test("[R-ACCOUNT-029] Play leads to the age screen, the ways in, the three-screen door and the world, with the bot check unseen", async ({ page }, info) => {
+test("[R-ACCOUNT-029] [R-ACCOUNT-021] Play leads to the age screen, the three-screen door, Begin making the guest life with the bot check unseen, and the world", async ({ page }, info) => {
   const faked = await fakeServer(page, signUpRoutes(lifeMade()));
   await page.goto("/");
 
@@ -128,26 +134,39 @@ test("[R-ACCOUNT-029] Play leads to the age screen, the ways in, the three-scree
   await shoot(page, "age-picked", info.project.name);
   await page.getByRole("button", { name: "Continue" }).click();
 
-  // The date as picked, with the unseen check's token.
-  await expect(page.getByRole("button", { name: "Continue with Google" })).toBeVisible();
+  // The date as picked and no token: the bot check goes with the guest start (R-ACCOUNT-013).
+  const name = page.getByRole("textbox", { name: "Your name" });
+  await expect(name).toBeVisible({ timeout: 20_000 });
   const declared = faked.sent.find((request) => request.route === "POST /api/age");
   expect(declared?.body).toEqual({ dateOfBirth: "1994-03-12" });
-  expect(declared?.headers["x-captcha-response"]).toBe(TOKEN);
-  await shoot(page, "ways-in", info.project.name);
-
-  await page.getByLabel("Email").fill("ada@example.test");
-  await page.getByRole("button", { name: "Send me a code" }).click();
-  await page.getByLabel("The 6-digit code").fill("123456");
-  await page.getByRole("button", { name: "Sign in" }).click();
+  expect(declared?.headers["x-captcha-response"]).toBeUndefined();
+  // No way in at the door, and no username on a screen of its own.
+  await expect(page.getByRole("button", { name: "Continue with Google" })).toHaveCount(0);
+  await expect(page.getByLabel("Username")).toHaveCount(0);
+  await name.fill("Ọlámídé");
+  await shoot(page, "door", info.project.name);
 
   // The door: three screens with everything chosen, so Next, Next, Begin starts a life.
-  await page.getByRole("button", { name: /^Next/ }).first().click({ timeout: 20_000 });
-  await shoot(page, "door", info.project.name);
   await page.getByRole("button", { name: /^Next/ }).first().click();
+  await page.getByRole("button", { name: /^Next/ }).first().click();
+  // The page: the username filled in from the name, and the guest line said once.
+  await expect(page.getByLabel("Username")).toHaveValue("Olamide");
+  await expect(page.getByText("This life lives only on this phone until you keep it.")).toHaveCount(1);
+  await expect(page.getByText("Check passed")).toHaveCount(0);
+  // The sheet rises into place before its picture.
+  await page.waitForTimeout(800);
+  await shoot(page, "page", info.project.name);
   await page.getByRole("button", { name: /^Begin/ }).click();
   await expect(page.locator("[data-thumb='map']")).toBeVisible({ timeout: 20_000 });
   await expect(page.locator("[data-thumb='phone']")).toBeVisible();
-  expect(faked.sent.filter((request) => request.route === "POST /api/character")).toHaveLength(1);
+
+  // The guest first, with the username and the unseen check's token; then the one character.
+  const guest = faked.sent.find((request) => request.route === "POST /api/guest");
+  expect(guest?.body).toEqual({ username: "Olamide" });
+  expect(guest?.headers["x-captcha-response"]).toBe(TOKEN);
+  const order = faked.sent.map((request) => request.route).filter((route) => route === "POST /api/guest" || route === "POST /api/character");
+  expect(order).toEqual(["POST /api/guest", "POST /api/character"]);
+  expect(faked.sent.some((request) => request.route.startsWith("POST /api/auth/"))).toBe(false);
   await shoot(page, "world", info.project.name);
 });
 

@@ -1,18 +1,33 @@
-// R-ACCOUNT-015, 016: `GET /api/account`, the account's own row,
-// `PUT /api/account`, its one setting the player changes here (R-ANALYTICS-006),
-// and `DELETE /api/account`, confirmed by a fresh session or a fresh email code.
+// R-ACCOUNT-015, 016, 021 to 025: `POST /api/guest`, the guest start after the
+// age screen; `GET /api/account`, the account's own row; `PUT /api/account`,
+// its one setting the player changes here (R-ANALYTICS-006);
+// `PUT /api/account/username`; and `DELETE /api/account`, confirmed by a fresh
+// session or a fresh email code. The guest gates are mounted here, before
+// every route they guard (account/guest.ts).
 // https://better-auth.com/docs/concepts/users-accounts#delete-user
+// https://better-auth.com/docs/plugins/anonymous
 import { splitSetCookieHeader } from "better-auth/cookies";
+import { isAPIError } from "better-auth/api";
 import type { AccountRow } from "@japacity/store";
 import { Hono } from "hono";
+import { deleteCookie, setCookie } from "hono/cookie";
 
-import { deletionStatus } from "../account/deletion";
+import { PASS_COOKIE, readCookie } from "../account/age";
+import { deletionStatus, requestDeletion } from "../account/deletion";
+import { DEVICE_COOKIE, countGuest, guestGates, tooManyGuests } from "../account/guest";
+import { regionOf } from "../account/region";
 import { rejection } from "../account/reply";
 import type { AccountRejection } from "../account/reply";
+import { GUEST_NAME_HEADER } from "../account/signup";
+import { checkTurnstile } from "../account/turnstile";
+import { nameProblem, renameFrom } from "../account/username";
+import type { NameProblem } from "../account/username";
 import type { Accounts } from "../auth/auth";
 import type { ServerDeps } from "../deps";
 import type { SessionEnv } from "../limits/limit";
-import { limit } from "../limits/limit";
+import { limit, sessionOf } from "../limits/limit";
+import { switchedOff } from "../switches/switches";
+import { PASS_PATH } from "./age";
 
 /** The account as its owner sees it: no age date (R-ACCOUNT-020), no email (the auth library's session holds that). */
 export interface AccountView {
@@ -25,6 +40,12 @@ export interface AccountView {
   sendUsageCounts: boolean;
   /** R-MODERATION-012: the account is on `config.admin.accounts` and this session was opened with a passkey, so the client mounts the admin page. */
   admin: boolean;
+  /** R-ACCOUNT-021: a guest's life lives only in this browser until it is secured. */
+  state: "guest" | "secured";
+  /** R-ACCOUNT-024. */
+  username: string;
+  /** R-ACCOUNT-024: from when the username may change; 0 while the free change is unused. */
+  renameFrom: number;
 }
 
 /** The body of `PUT /api/account`. */
@@ -34,6 +55,19 @@ export interface AccountChange {
 
 export type AccountReply = { ok: true; account: AccountView } | AccountRejection;
 
+/** The body of `POST /api/guest`; the Turnstile token goes in the `x-captcha-response` header (R-ACCOUNT-013). */
+export interface GuestRequest {
+  username: string;
+}
+
+/** The body of `PUT /api/account/username`. */
+export interface UsernameRequest {
+  username: string;
+}
+
+/** A refused username says why, so the screen can say it plainly. */
+export type NameReply = { ok: true; account: AccountView } | (AccountRejection & { name?: NameProblem });
+
 /** The body of `DELETE /api/account`; `code` is an email code sent with type `sign-in`, needed once the session is not fresh. */
 export interface DeleteRequest {
   code?: string;
@@ -41,6 +75,9 @@ export interface DeleteRequest {
 
 /** `dueAt`: the removal of R-ACCOUNT-017 happens by then. */
 export type DeleteReply = { ok: true; dueAt: number } | AccountRejection;
+
+/** How long the device cookie of R-ACCOUNT-025 is kept: the longest a browser keeps one. */
+const DEVICE_COOKIE_S = 400 * 86_400;
 
 /** A reply's `Set-Cookie` lines. */
 function setCookies(headers: Headers): string[] {
@@ -54,12 +91,89 @@ function cookiesFrom(headers: Headers): Headers {
 }
 
 function viewOf(row: AccountRow, deps: Pick<ServerDeps, "config">, passkey: boolean): AccountView {
-  const { id, country, age, createdAt, character, sendUsageCounts } = row;
-  return { id, country, age: { passed: age.passed, method: age.method }, createdAt, character, sendUsageCounts, admin: passkey && deps.config.admin.accounts.includes(id) };
+  const { id, country, age, createdAt, character, sendUsageCounts, state, username } = row;
+  return {
+    id,
+    country,
+    age: { passed: age.passed, method: age.method },
+    createdAt,
+    character,
+    sendUsageCounts,
+    admin: passkey && deps.config.admin.accounts.includes(id),
+    state,
+    username,
+    renameFrom: renameFrom(row, deps.config),
+  };
 }
 
-export function accountRoutes(deps: ServerDeps, { auth }: Accounts): Hono<SessionEnv> {
+function nameRefused(name: NameProblem): AccountRejection & { name: NameProblem } {
+  const said: Record<NameProblem, string> = {
+    format: "A username is 3 to 20 letters, digits or underscores.",
+    reserved: "That username is kept for the game's own people.",
+    blocked: "That username is not allowed.",
+    taken: "That username is taken.",
+    wait: "The username can change again later.",
+  };
+  return { ...rejection("not-legal", said[name]), name };
+}
+
+function usernameOf(body: unknown): unknown {
+  return typeof body === "object" && body !== null && Object.keys(body).join(",") === "username" ? (body as { username: unknown }).username : null;
+}
+
+/** The library's refusal of the guest start as the route answers it. */
+function guestRefusal(error: unknown): { status: 400 | 403 | 409; body: NameReply } {
+  const code = isAPIError(error) ? (error.body as { code?: unknown } | undefined)?.code : undefined;
+  if (code === "name-taken") return { status: 409, body: nameRefused("taken") };
+  if (code === "region-closed") return { status: 403, body: rejection("region-closed", "Sign-up is not open in this region.") };
+  if (code === "no-age-pass") return { status: 403, body: rejection("expired", "Answer the age question again first.") };
+  if (code === "not-legal") return { status: 400, body: nameRefused("format") };
+  throw error;
+}
+
+export function accountRoutes(deps: ServerDeps, { auth, keys }: Accounts): Hono<SessionEnv> {
   const app = new Hono<SessionEnv>();
+  app.route("/", guestGates(deps));
+
+  // R-ACCOUNT-021, 013, 025: a guest life from a username, after the age screen; the bot check and the limits come before the account exists.
+  app.post("/api/guest", limit(deps, "commands"), async (c) => {
+    if (sessionOf(c) !== null) return c.json<NameReply>(rejection("not-possible", "This browser already has a life."), 409);
+    const request = c.req.raw;
+    if (!regionOf(deps.config.regions, request).policy.open) return c.json<NameReply>(rejection("region-closed", "Sign-up is not open in this region."), 403);
+    const username = usernameOf(await c.req.json().catch(() => null));
+    const problem = nameProblem(username);
+    if (problem !== null || typeof username !== "string") return c.json<NameReply>(nameRefused(problem ?? "format"), 400);
+    if ((await deps.stores.account.byUsername(username)) !== null) return c.json<NameReply>(nameRefused("taken"), 409);
+    const pass = readCookie(request.headers.get("cookie"), PASS_COOKIE);
+    if (pass === null || pass === "") return c.json<NameReply>(rejection("expired", "Answer the age question again first."), 403);
+
+    const context = await auth.$context;
+    const device = readCookie(request.headers.get("cookie"), DEVICE_COOKIE) ?? [...deps.randomBytes(16)].map((byte) => byte.toString(16).padStart(2, "0")).join("");
+    setCookie(c, DEVICE_COOKIE, device, { path: "/api/guest", httpOnly: true, secure: true, sameSite: "Lax", maxAge: DEVICE_COOKIE_S });
+    const address = request.headers.get("cf-connecting-ip");
+    if (await tooManyGuests(deps, context.adapter, device, address)) return c.json<NameReply>(rejection("too-many", "Too many new lives from here today. Come back tomorrow."), 429);
+
+    const check = await checkTurnstile(keys.turnstile, request.headers.get("x-captcha-response"), address, new URL(keys.siteUrl).hostname);
+    if (!check.ok) return c.json<NameReply>(rejection("bot-check", check.reason), 403);
+
+    const headers = new Headers(request.headers);
+    headers.set(GUEST_NAME_HEADER, username);
+    const signed = await auth.api.signInAnonymous({ headers, returnHeaders: true }).catch((error: unknown) => ({ error }));
+    if ("error" in signed) {
+      if (isAPIError(signed.error) && (signed.error.body as { code?: unknown } | undefined)?.code === "switched-off") {
+        c.header("Retry-After", String(switchedOff(deps, "signups").retryAfter ?? 0));
+        return c.json<NameReply>(switchedOff(deps, "signups"), 503);
+      }
+      const refused = guestRefusal(signed.error);
+      return c.json<NameReply>(refused.body, refused.status);
+    }
+    await countGuest(deps, context.adapter, device, address);
+    for (const line of setCookies(signed.headers)) c.header("set-cookie", line, { append: true });
+    deleteCookie(c, PASS_COOKIE, { path: PASS_PATH, secure: true });
+    const row = await deps.stores.account.get(signed.response.user.id);
+    if (row === null) throw new Error(`The guest ${signed.response.user.id} has no account row.`);
+    return c.json<NameReply>({ ok: true, account: viewOf(row, deps, false) });
+  });
 
   app.get("/api/account", limit(deps, "reads"), async (c) => {
     const session = await deps.session(c.req.raw);
@@ -80,9 +194,36 @@ export function accountRoutes(deps: ServerDeps, { auth }: Accounts): Hono<Sessio
     return c.json<AccountReply>({ ok: true, account: viewOf(changed.value, deps, session.passkey) });
   });
 
+  // R-ACCOUNT-024: one free change, then one each `renameDays`.
+  app.put("/api/account/username", limit(deps, "commands"), async (c) => {
+    const session = await deps.session(c.req.raw);
+    if (session === null) return c.json<NameReply>(rejection("signed-out", "Sign in first."), 401);
+    const row = await deps.stores.account.get(session.account);
+    if (row === null) return c.json<NameReply>(rejection("signed-out", "No account."), 401);
+    const username = usernameOf(await c.req.json().catch(() => null));
+    const problem = nameProblem(username);
+    if (problem !== null || typeof username !== "string") return c.json<NameReply>(nameRefused(problem ?? "format"), 400);
+    if (deps.now() < renameFrom(row, deps.config)) return c.json<NameReply>(nameRefused("wait"), 403);
+    const changed = await deps.stores.account.setUsername(session.account, username, deps.now());
+    if (!changed.ok) return changed.code === "conflict" ? c.json<NameReply>(nameRefused("taken"), 409) : c.json<NameReply>(rejection("signed-out", "No account."), 401);
+    return c.json<NameReply>({ ok: true, account: viewOf(changed.value, deps, session.passkey) });
+  });
+
   app.delete("/api/account", limit(deps, "commands"), async (c) => {
     const session = await auth.api.getSession({ headers: c.req.raw.headers });
     if (session === null) return c.json<DeleteReply>(rejection("signed-out", "Sign in first."), 401);
+
+    // a guest has no email and no other way in, so its own session is the whole of its confirmation.
+    if ((session.user as { isAnonymous?: unknown }).isAnonymous === true) {
+      const out = await auth.api.signOut({ headers: c.req.raw.headers, returnHeaders: true });
+      await requestDeletion(deps, session.user.id);
+      await (await auth.$context).internalAdapter.deleteUser(session.user.id);
+      for (const line of setCookies(out.headers)) c.header("set-cookie", line, { append: true });
+      const status = await deletionStatus(deps, session.user.id);
+      if (status === null) throw new Error(`No deletion was recorded for ${session.user.id}.`);
+      return c.json<DeleteReply>({ ok: true, dueAt: status.dueAt });
+    }
+
     const body = (await c.req.json().catch(() => ({}))) as DeleteRequest | null;
     const code = typeof body?.code === "string" ? body.code : null;
 

@@ -15,9 +15,20 @@ describe("GET /api/account", () => {
     const reply = await h.call("/api/account", { jar });
     expect(reply.status).toBe(200);
     const body = await reply.json<{ ok: true; account: Record<string, unknown> }>();
-    expect(body.account).toEqual({ id: account, country: "NG", age: { passed: true, method: "declared" }, createdAt: expect.any(Number) as number, character: null, sendUsageCounts: true, admin: false });
+    expect(body.account).toEqual({
+      id: account,
+      country: "NG",
+      age: { passed: true, method: "declared" },
+      createdAt: expect.any(Number) as number,
+      character: null,
+      sendUsageCounts: true,
+      admin: false,
+      state: "secured",
+      username: "player_1",
+      renameFrom: 0,
+    });
     const row = await h.deps.stores.account.get(account);
-    expect(Object.keys(row ?? {}).sort()).toEqual(["age", "character", "country", "createdAt", "id", "notifyBankFull", "sendUsageCounts"]);
+    expect(Object.keys(row ?? {}).sort()).toEqual(["age", "character", "country", "createdAt", "id", "lastPlayedAt", "notifyBankFull", "sendUsageCounts", "state", "username", "usernameChangedAt"]);
   });
 
   test("[R-ANALYTICS-006] given a new account, when it turns usage counts off and on with PUT /api/account, then the row and the reply follow, and a body of any other shape is refused with nothing changed", async () => {

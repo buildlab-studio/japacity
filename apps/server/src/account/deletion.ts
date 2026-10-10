@@ -21,8 +21,12 @@ export type LeavePairs = (deps: ServerDeps, account: string, character: string |
 
 export const leavePairs: LeavePairs = leaveEveryPair;
 
-/** R-ACCOUNT-016, R-ACCOUNT-017: records the deletion, due within `deleteWithinDays`. Called before the library removes the user. */
-export async function requestDeletion(deps: ServerDeps, account: string): Promise<DeletionRow> {
+/**
+ * R-ACCOUNT-016, R-ACCOUNT-017: records the deletion, due within
+ * `deleteWithinDays`, or at `dueAt` when sooner (the guest clean-up of
+ * R-ACCOUNT-026). Called before the library removes the user.
+ */
+export async function requestDeletion(deps: ServerDeps, account: string, dueAt?: number): Promise<DeletionRow> {
   const row = await deps.stores.account.get(account);
   await leavePairs(deps, account, row?.character ?? null);
   await stopNotices(deps, account);
@@ -31,7 +35,7 @@ export async function requestDeletion(deps: ServerDeps, account: string): Promis
     account,
     accountHash: await accountHash(account),
     requestedAt,
-    dueAt: requestedAt + deps.config.account.deleteWithinDays * time.DAY_MS,
+    dueAt: Math.min(dueAt ?? Number.MAX_SAFE_INTEGER, requestedAt + deps.config.account.deleteWithinDays * time.DAY_MS),
   });
   if (!result.ok) throw new Error(`Deletion of ${account} was refused: ${result.detail}`);
   return result.value;

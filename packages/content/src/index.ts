@@ -72,6 +72,7 @@ import { varTable } from "./var/var.data";
 import { varText } from "./var/var.text";
 import { walletText } from "./wallet/wallet.text";
 
+export { blockedWords, reservedNames } from "./account/account.data";
 export { japaTypes, officialAccounts, shareChapters, shareKinds } from "./share/share.data";
 export { lifePeople, nameMix, namedMix, namedPeople, namePool, peopleRegion, takingRoles } from "./person/person.names.data";
 export type { NamedPerson, NamedRole, NameFaith, NamePeople, NameSex, PoolName } from "./person/person.names.data";

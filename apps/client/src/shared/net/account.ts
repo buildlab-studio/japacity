@@ -21,6 +21,11 @@ export function readAccount(server: Api): Promise<AccountReply> {
   return reading;
 }
 
+/** The row is read again next time: the account changed (a guest started, secured, renamed). */
+export function forgetAccount(server: Api): void {
+  held.delete(server);
+}
+
 /**
  * R-ANALYTICS-006: changes "Send usage counts" on the account.
  * `PUT /api/account { sendUsageCounts }` is the production wiring's; it answers the row.

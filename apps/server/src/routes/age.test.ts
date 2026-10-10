@@ -1,9 +1,7 @@
 import { describe, expect, test } from "vitest";
 
 import { PASS_COOKIE, PASS_PREFIX, REFUSED_COOKIE } from "../account/age";
-import { TURNSTILE_TEST } from "../account/turnstile";
 import { harness, makeJar } from "../auth/testing";
-import type { Harness, Jar } from "../auth/testing";
 import { productionConfig } from "../config";
 
 const DAY_S = 86_400;
@@ -13,11 +11,6 @@ function bornYearsAgo(years: number, days = 0): string {
   const today = new Date();
   const date = new Date(Date.UTC(today.getUTCFullYear() - years, today.getUTCMonth(), today.getUTCDate() + days));
   return date.toISOString().slice(0, 10);
-}
-
-async function trySignIn(h: Harness, email: string, jar: Jar, country = "NG") {
-  const otp = await h.codeFor(email, jar);
-  return h.call("/api/auth/sign-in/email-otp", { method: "POST", jar, country, json: { email, otp } });
 }
 
 describe("POST /api/age", () => {
@@ -83,11 +76,11 @@ describe("POST /api/age", () => {
     expect(h.tables.verification).toHaveLength(0);
   });
 
-  test("[R-ACCOUNT-011] given a pass from an open region, when the account is made from a closed one, then it is refused with region-closed and no account exists", async () => {
+  test("[R-ACCOUNT-011] given a pass from an open region, when the guest life is started from a closed one, then it is refused with region-closed and no account exists", async () => {
     const h = harness();
     const jar = makeJar();
     await h.passAge(jar, { country: "NG" });
-    const reply = await trySignIn(h, "ada@example.com", jar, "AU");
+    const reply = await h.startGuest(jar, { country: "AU" });
     expect(reply.status).toBe(403);
     expect(await reply.json()).toMatchObject({ code: "region-closed" });
     expect(h.tables.user).toHaveLength(0);
@@ -99,64 +92,6 @@ describe("POST /api/age", () => {
       const { account } = await h.signUp(email, makeJar(), country);
       expect((await h.deps.stores.account.get(account))?.country).toBe(country);
     }
-  });
-});
-
-describe("the bot check at sign-up", () => {
-  test("[R-ACCOUNT-013] given Turnstile's always-pass test secret and its dummy token, when the screen is sent, then it passes", async () => {
-    const h = harness({ turnstileSecret: TURNSTILE_TEST.passSecret });
-    expect((await h.passAge(makeJar(), { token: TURNSTILE_TEST.dummyToken })).status).toBe(200);
-  });
-
-  test("[R-ACCOUNT-013] given a missing, failed or spent token, when the screen is sent, then no pass is given and the sign-in makes no account", async () => {
-    const cases = [
-      { secret: TURNSTILE_TEST.passSecret, token: "" },
-      { secret: TURNSTILE_TEST.failSecret, token: TURNSTILE_TEST.dummyToken },
-      { secret: TURNSTILE_TEST.spentSecret, token: TURNSTILE_TEST.dummyToken },
-    ];
-    for (const { secret, token } of cases) {
-      const h = harness({ turnstileSecret: secret });
-      const jar = makeJar();
-      const reply = await h.passAge(jar, { token });
-      expect(reply.status).toBe(403);
-      expect(await reply.json()).toMatchObject({ code: "bot-check" });
-      expect(jar.cookies.has(PASS_COOKIE)).toBe(false);
-      const signIn = await trySignIn(h, "ada@example.com", jar);
-      expect(signIn.status).toBe(403);
-      expect(await signIn.json()).toMatchObject({ code: "no-age-pass" });
-      expect(h.tables.user).toHaveLength(0);
-      expect(await h.deps.stores.account.get("anything")).toBeNull();
-    }
-  });
-
-  test("[R-ACCOUNT-013] given a token Turnstile says was solved on another host, when the screen is sent, then the check fails and no pass is given", async () => {
-    for (const host of ["elsewhere.example", "japacity.test.elsewhere.example", ""]) {
-      const h = harness({ turnstileHost: host });
-      const jar = makeJar();
-      const reply = await h.passAge(jar, { token: TURNSTILE_TEST.dummyToken });
-      expect({ host, status: reply.status }).toEqual({ host, status: 403 });
-      expect(await reply.json()).toMatchObject({ code: "bot-check", detail: "hostname-mismatch" });
-      expect(jar.cookies.has(PASS_COOKIE)).toBe(false);
-    }
-  });
-
-  test("[R-ACCOUNT-013] given one pass, when two accounts are made with it, then the second is refused", async () => {
-    const h = harness();
-    const jar = makeJar();
-    await h.passAge(jar);
-    expect((await trySignIn(h, "first@example.com", jar)).status).toBe(200);
-    const second = await trySignIn(h, "second@example.com", jar);
-    expect(second.status).toBe(403);
-    expect(h.tables.user).toHaveLength(1);
-  });
-
-  test("[R-ACCOUNT-013] given an account, when it signs in again with no pass and no token, then no bot check is asked", async () => {
-    const h = harness();
-    await h.signUp("ada@example.com");
-    const fresh = makeJar();
-    const reply = await trySignIn(h, "ada@example.com", fresh);
-    expect(reply.status).toBe(200);
-    expect(h.tables.user).toHaveLength(1);
   });
 });
 

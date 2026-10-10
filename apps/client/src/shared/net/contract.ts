@@ -35,7 +35,9 @@ export type ServerCode =
   | "expired"
   | "wrong-slot"
   | "not-adult"
-  | "moved-on";
+  | "moved-on"
+  /** R-ACCOUNT-022: only a secured account may do this; the detail names the way to secure. */
+  | "guest-only";
 
 /**
  * Copied from apps/server/src/types.ts. `retryAfter` is in seconds: with
@@ -101,12 +103,12 @@ export const PING = "ping";
 // The age screen (account.md R-ACCOUNT-011 to 013).
 // ---------------------------------------------------------------------------
 
-/** Copied from apps/server/src/routes/age.ts: the body of `POST /api/age`; the Turnstile token goes in the `x-captcha-response` header. */
+/** Copied from apps/server/src/routes/age.ts: the body of `POST /api/age`. */
 export interface AgeRequest {
   dateOfBirth: string;
 }
 
-/** Read from apps/server/src/routes/age.ts: a pass, or `region-closed`, `under-age`, `bad-date`, `bot-check`, and `switched-off` while sign-ups are off. */
+/** Read from apps/server/src/routes/age.ts: a pass, or `region-closed`, `under-age`, `bad-date`, and `switched-off` while sign-ups are off. */
 export type AgeReply = { ok: true } | ServerRejection;
 
 /** Copied from apps/server/src/routes/age.ts: `GET /api/age`, whether this browser was refused at the age screen and must not be asked again (R-ACCOUNT-012). */
@@ -133,7 +135,29 @@ export interface AccountView {
   sendUsageCounts: boolean;
   /** R-MODERATION-012: the account is on `config.admin.accounts` and the session was opened with a passkey, so the client mounts the admin page. */
   admin: boolean;
+  /** R-ACCOUNT-021: a guest's life lives only in this browser until it is secured. */
+  state: "guest" | "secured";
+  /** R-ACCOUNT-024. */
+  username: string;
+  /** R-ACCOUNT-024: from when the username may change; 0 while the free change is unused. */
+  renameFrom: number;
 }
+
+/** Copied from apps/server/src/routes/account.ts: the body of `POST /api/guest`; the Turnstile token goes in the `x-captcha-response` header (R-ACCOUNT-013). */
+export interface GuestRequest {
+  username: string;
+}
+
+/** Copied from apps/server/src/routes/account.ts: the body of `PUT /api/account/username`. */
+export interface UsernameRequest {
+  username: string;
+}
+
+/** Copied from apps/server/src/account/username.ts: why a username was refused; `taken` and `wait` come from the store and the clock. */
+export type NameProblem = "format" | "reserved" | "blocked" | "taken" | "wait";
+
+/** As apps/server/src/routes/account.ts answers `POST /api/guest` and `PUT /api/account/username`: a refused username says why. */
+export type NameReply = { ok: true; account: AccountView } | (ServerRejection & { name?: NameProblem });
 
 /** Copied from apps/server/src/routes/account.ts: `GET /api/account` and `PUT /api/account` answer the row. */
 export type AccountReply = { ok: true; account: AccountView } | ServerRejection;

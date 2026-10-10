@@ -1,11 +1,14 @@
 // The auth library's request hooks: the code sends per email (R-ACCOUNT-014),
-// the sessions that end when a method is removed (R-ACCOUNT-006), and who may
-// add a passkey and what each addition leaves behind (R-ACCOUNT-003).
+// the guest start reached only through the game's route (R-ACCOUNT-013), no
+// passkey for a guest (R-ACCOUNT-023), the sessions that end when a method is
+// removed (R-ACCOUNT-006), and who may add a passkey and what each addition
+// leaves behind (R-ACCOUNT-003).
 // https://better-auth.com/docs/concepts/hooks
 // https://better-auth.com/docs/concepts/rate-limit
 // https://pages.nist.gov/800-63-4/sp800-63b/events/ (4.1.2.1, 4.6)
 import { APIError, createAuthMiddleware, getSessionFromCtx, isAPIError } from "better-auth/api";
 
+import { GUEST_PATH } from "../account/signup";
 import type { ServerDeps } from "../deps";
 import type { AuthKeys } from "./auth";
 import type { SignedInWith } from "./session";
@@ -33,9 +36,10 @@ export const ADMIN_PASSKEY_BIND_DETAIL = "A new passkey on an admin account is a
  */
 export const PASSKEY_ROWS = "auth.passkeys";
 
-/** R-ACCOUNT-003: one registration as the audit log keeps it. */
+/** R-ACCOUNT-003: one registration as the audit log keeps it, the account only as a hash (R-ACCOUNT-018). */
 export interface PasskeyNote {
-  account: string;
+  /** `accountHash` of the account: a living account is found by hashing its id; a deleted one leaves nothing that names it. */
+  accountHash: string;
   /** The passkey row's id. */
   passkey: string;
   /** Whether the account was on the admin list when the passkey was added. */
@@ -50,6 +54,14 @@ interface LimitRow {
   key: string;
   count: number;
   lastRequest: number | bigint;
+}
+
+/** R-ACCOUNT-003, R-ACCOUNT-018: the HMAC-SHA-256 of an account id under the server's secret, as hex. */
+export async function accountHash(secret: string, account: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const key = await crypto.subtle.importKey("raw", encoder.encode(secret), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+  const mac = await crypto.subtle.sign("HMAC", key, encoder.encode(account));
+  return [...new Uint8Array(mac)].map((byte) => byte.toString(16).padStart(2, "0")).join("");
 }
 
 export async function sha256Hex(text: string): Promise<string> {
@@ -143,9 +155,25 @@ async function guardAdminPasskeys(deps: ServerDeps, ctx: HookContext): Promise<v
   if (held > 0) throw new APIError("FORBIDDEN", { message: ADMIN_PASSKEY_BIND_DETAIL });
 }
 
+/** R-ACCOUNT-013, R-ACCOUNT-025: the anonymous sign-in is reached only through `POST /api/guest`, with its bot check and limits; a browser's own call is refused. */
+function guestStartCheck(ctx: HookContext): void {
+  if (ctx.path === GUEST_PATH && ctx.request !== undefined) throw new APIError("NOT_FOUND", { message: "Start a life through the guest start." });
+}
+
+/** R-ACCOUNT-023: a passkey is registered only once the account is secured. */
+async function guardGuestPasskeys(ctx: HookContext): Promise<void> {
+  if (!REGISTER_PATHS.has(ctx.path ?? "")) return;
+  const session = await getSessionFromCtx(ctx, { disableRefresh: true }).catch(() => null);
+  if ((session?.user as { isAnonymous?: unknown } | undefined)?.isAnonymous === true) {
+    throw new APIError("FORBIDDEN", { code: "guest-only", message: "Secure this life with Google or an email code first; then add a passkey." });
+  }
+}
+
 /** The hooks run before every library route. */
 export function beforeAuth(deps: ServerDeps) {
   return createAuthMiddleware(async (ctx) => {
+    guestStartCheck(ctx);
+    await guardGuestPasskeys(ctx);
     await limitEmailSends(deps, ctx);
     await guardAdminPasskeys(deps, ctx);
   });
@@ -168,7 +196,7 @@ async function notePasskey(deps: ServerDeps, keys: AuthKeys, ctx: HookContext): 
   const passkey = storedPasskey(ctx.context.returned);
   if (passkey === null) return;
   const session = await getSessionFromCtx(ctx);
-  const note: PasskeyNote = { account: passkey.userId, passkey: passkey.id, admin: deps.config.admin.accounts.includes(passkey.userId), signedInWith: session === null ? "other" : openedWith(session) };
+  const note: PasskeyNote = { accountHash: await accountHash(keys.secret, passkey.userId), passkey: passkey.id, admin: deps.config.admin.accounts.includes(passkey.userId), signedInWith: session === null ? "other" : openedWith(session) };
   const at = deps.now();
   await deps.stores.audit.retire({ character: PASSKEY_ROWS, why: "passkey", at, note: JSON.stringify(note), segments: [], log: [], snapshots: [] });
   const user = await ctx.context.internalAdapter.findUserById(passkey.userId);

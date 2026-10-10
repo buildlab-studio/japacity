@@ -6,10 +6,12 @@
 // on the second screen in the place of the tiles.
 // The run is kept as it goes, so a reload at any step comes back to that step; nothing of the life is written
 // before Begin. For a tile, Begin starts the life at once and the page fills as the years go by (R-PROLOGUE-014).
+// Online and signed out, the gate hands in the guest start (account.md R-ACCOUNT-029): the page holds the username,
+// filled in from the name and changed there, and the guest line; Begin makes the guest life before the character.
 import { content } from "@japacity/content";
 import { type Id, int } from "@japacity/sim";
 import { ArrowLeft, ArrowRight, BedSingle, ChevronLeft, ChevronRight, Dices, House, Lock, Shuffle, Waves } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { type ReactNode, useEffect, useRef, useState } from "react";
 
 import { useGame } from "../../authority/GameProvider";
 import { keepPerson } from "../../authority/person";
@@ -183,7 +185,17 @@ function NextButton({ onClick, then }: { onClick: () => void; then: string }) {
   );
 }
 
-export function ScenarioView() {
+/** The guest start the gate hands in online (account.md R-ACCOUNT-021, 024, 029); the account feature's GuestDoor. */
+export interface DoorGuest {
+  fill: (name: string) => string;
+  check: (username: string) => string | null;
+  fields: (value: string, onChange: (username: string) => void, problem: string | null) => ReactNode;
+  /** Null once the guest life is made; otherwise what to say by the username. */
+  start: (username: string, filled: boolean) => Promise<string | null>;
+  started: () => Promise<void>;
+}
+
+export function ScenarioView({ guest = null }: { guest?: DoorGuest | null }) {
   const notice = useGame((state) => state.notice);
   const chooseLife = useGame((state) => state.chooseLife);
   // The life chooser cannot be opened again where a life is started only once (R-ACCOUNT-015).
@@ -198,6 +210,9 @@ export function ScenarioView() {
   });
   const [tried, setTried] = useState(false);
   const [stamped, setStamped] = useState(false);
+  // The username as typed on the page; null while the name fills it in.
+  const [typedUsername, setTypedUsername] = useState<string | null>(null);
+  const [usernameSaid, setUsernameSaid] = useState<string | null>(null);
   const timer = useRef<number | null>(null);
 
   useEffect(
@@ -214,6 +229,7 @@ export function ScenarioView() {
     setDraft(next);
   };
   const problem = nameProblem(draft.name);
+  const username = typedUsername ?? guest?.fill(draft.name.trim()) ?? "";
   // Every way on checks the name first: a name that fails sends the run back to it, saying why.
   const go = (stage: DoorStage): void => {
     setTried(true);
@@ -259,12 +275,30 @@ export function ScenarioView() {
     const start = (): void => {
       keepPerson({ look: draft.look, name: draft.name.trim(), archetype: ready === null ? draft.archetype : null });
       change({ stage: "begun", ...(home === null ? {} : { home }) });
-      void chooseLife(ready ?? FROM_SIXTEEN).catch(() => setStamped(false));
+      void chooseLife(ready ?? FROM_SIXTEEN)
+        .then(() => guest?.started())
+        .catch(() => setStamped(false));
     };
-    setStamped(true);
     // A ready life is stamped here; a tile's page is stamped once its years are filled in (R-PROLOGUE-014).
-    if (ready === null) start();
-    else timer.current = window.setTimeout(start, STAMP_MS);
+    const stamp = (): void => {
+      if (ready === null) start();
+      else timer.current = window.setTimeout(start, STAMP_MS);
+    };
+    if (guest === null) {
+      setStamped(true);
+      stamp();
+      return;
+    }
+    const typed = guest.check(username);
+    setUsernameSaid(typed);
+    if (typed !== null) return;
+    setStamped(true);
+    // R-ACCOUNT-021: the guest life first; the character is the account's one (R-ACCOUNT-015).
+    void guest.start(username, typedUsername === null).then((said) => {
+      setUsernameSaid(said);
+      if (said === null) stamp();
+      else setStamped(false);
+    });
   };
 
   const asked = draft.asked === true;
@@ -510,6 +544,16 @@ export function ScenarioView() {
         >
           <h1 className="title text-[22px] leading-tight">{say("prologue.door.page.title")}</h1>
           <p className="mt-0.5 text-[13px] leading-snug text-text-2">{say("prologue.door.page.hint")}</p>
+          {guest === null
+            ? null
+            : guest.fields(
+                username,
+                (next) => {
+                  setTypedUsername(next);
+                  setUsernameSaid(null);
+                },
+                usernameSaid,
+              )}
         </GateSheet>
       )}
     </Gate>

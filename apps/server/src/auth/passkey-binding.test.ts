@@ -4,7 +4,7 @@
 import { describe, expect, test } from "vitest";
 
 import { testConfig } from "../config";
-import { ADMIN_PASSKEY_BIND_DETAIL, PASSKEY_ROWS } from "./hooks";
+import { accountHash, ADMIN_PASSKEY_BIND_DETAIL, PASSKEY_ROWS } from "./hooks";
 import type { PasskeyNote } from "./hooks";
 import { softwarePasskey } from "./software-passkey";
 import { harness } from "./testing";
@@ -18,6 +18,13 @@ async function signedUp(h: Harness, email: string, admin: boolean) {
 
 async function notes(h: Harness): Promise<PasskeyNote[]> {
   return (await h.deps.stores.audit.list(PASSKEY_ROWS)).map((row) => JSON.parse(row.note) as PasskeyNote);
+}
+
+/** R-ACCOUNT-018: no audit row of a passkey holds the account's id itself. */
+async function namesNoOne(h: Harness, account: string): Promise<void> {
+  const rows = await h.deps.stores.audit.list(PASSKEY_ROWS);
+  expect(rows.length).toBeGreaterThan(0);
+  for (const row of rows) expect(JSON.stringify(row)).not.toContain(account);
 }
 
 function passkeysOf(h: Harness, account: string): unknown[] {
@@ -59,7 +66,8 @@ describe("adding a passkey", () => {
     expect(passkeysOf(h, account)).toEqual(["Zmlyc3Qta2V5", "c2Vjb25kLWtleQ"]);
     const id = second.body["id"];
     expect(typeof id).toBe("string");
-    expect(await notes(h)).toEqual([{ account, passkey: id, admin: true, signedInWith: "passkey" }]);
+    expect(await notes(h)).toEqual([{ accountHash: await accountHash(h.keys.secret, account), passkey: id, admin: true, signedInWith: "passkey" }]);
+    await namesNoOne(h, account);
     expect(h.notices).toEqual([{ email: "owner@example.com", kind: "passkey-added", at: expect.any(Number) as number }]);
     expect(h.background).toHaveLength(background + 1);
   });
@@ -70,7 +78,8 @@ describe("adding a passkey", () => {
     const first = await (await softwarePasskey("Zmlyc3Qta2V5")).register(h, jar);
     expect(first.status).toBe(200);
     expect(passkeysOf(h, account)).toEqual(["Zmlyc3Qta2V5"]);
-    expect(await notes(h)).toEqual([{ account, passkey: first.body["id"], admin: true, signedInWith: "email-code" }]);
+    expect(await notes(h)).toEqual([{ accountHash: await accountHash(h.keys.secret, account), passkey: first.body["id"], admin: true, signedInWith: "email-code" }]);
+    await namesNoOne(h, account);
     expect(h.notices.map((notice) => notice.email)).toEqual(["owner@example.com"]);
   });
 
@@ -81,7 +90,8 @@ describe("adding a passkey", () => {
     const second = await (await softwarePasskey("c2Vjb25kLWtleQ")).register(h, jar);
     expect(second.status).toBe(200);
     expect(passkeysOf(h, account)).toEqual(["Zmlyc3Qta2V5", "c2Vjb25kLWtleQ"]);
-    expect(await notes(h)).toEqual([{ account, passkey: second.body["id"], admin: false, signedInWith: "email-code" }]);
+    expect(await notes(h)).toEqual([{ accountHash: await accountHash(h.keys.secret, account), passkey: second.body["id"], admin: false, signedInWith: "email-code" }]);
+    await namesNoOne(h, account);
     expect(h.notices.map((notice) => notice.email)).toEqual(["player@example.com"]);
   });
 
@@ -96,5 +106,15 @@ describe("adding a passkey", () => {
     expect(h.tables.passkey).toEqual([]);
     expect(await notes(h)).toEqual([]);
     expect(h.notices).toEqual([]);
+  });
+
+  test("[R-ACCOUNT-003] [R-ACCOUNT-018] given a passkey's audit row, when a living account's id is hashed under the server's secret, then it finds the row, and under any other secret it does not", async () => {
+    const h = harness();
+    const { jar, account } = await signedUp(h, "player@example.com", false);
+    expect((await (await softwarePasskey("Zmlyc3Qta2V5")).register(h, jar)).status).toBe(200);
+    const [note] = await notes(h);
+    expect(note?.accountHash).toBe(await accountHash(h.keys.secret, account));
+    expect(note?.accountHash).not.toBe(await accountHash("another-secret", account));
+    await namesNoOne(h, account);
   });
 });

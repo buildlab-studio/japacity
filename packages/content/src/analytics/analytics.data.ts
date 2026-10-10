@@ -45,6 +45,7 @@ const REJECTION_CODES = [
   "wrong-slot",
   "not-adult",
   "moved-on",
+  "guest-only",
 ];
 
 /** R-SHARE-001: the moments a card is due at, as the view's `card.kind` names them. */

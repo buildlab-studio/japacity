@@ -35,7 +35,9 @@ export type ServerCode =
   | "expired"
   | "wrong-slot"
   | "not-adult"
-  | "moved-on";
+  | "moved-on"
+  /** R-ACCOUNT-022: only a secured account may do this; the detail names the way to secure. */
+  | "guest-only";
 
 export interface ServerRejection {
   ok: false;

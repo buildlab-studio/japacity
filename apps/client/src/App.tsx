@@ -13,6 +13,7 @@ import type { GameStore } from "./authority/store";
 import { AccountGate } from "./features/account/AccountGate";
 import { AgentSheets } from "./features/advice/AgentSheet";
 import { inviteCodeOf, InvitePage } from "./features/account/InvitePage";
+import { GuestReminder, SecureAsk } from "./features/account/Secure";
 import { AdminRoute } from "./features/admin/AdminRoute";
 import { PARCEL } from "./shared/world/parcel.ask";
 import { ParcelWaybill } from "./shared/world/Waybill";
@@ -81,7 +82,7 @@ function WorldPlaying() {
           return <ActivityPicker only={ids} />;
         }}
         month={<MonthSheet />}
-        results={(place) => <Results place={place} />}
+        results={(place) => <Results place={place} foot={<GuestReminder afterFirstChapter />} />}
         // R-WORLD-006: one ask at a time: the set piece's question, the interview's, then each open offer on its own.
         asks={[
           ...(view.setpiece === null && !closing ? [] : [<SetpieceView key="setpiece" />]),
@@ -113,6 +114,7 @@ function WorldPlaying() {
           <CardView />
         </HeldShareCard>
       </div>
+      <SecureAsk />
     </div>
   );
 }
@@ -127,7 +129,8 @@ function Shell() {
   const [handedOver, setHandedOver] = useState<number | null>(null);
   useScreenCount(choosingLife ? "scenario" : view !== null && view.prologue !== null ? "prologue" : view?.place.where === "road" ? "road" : null);
   if (failed !== null) return <p className="p-4 text-bad">{say("ui.failed", { why: failed })}</p>;
-  if (signedOut) return <AccountGate />;
+  // Online and signed out: the start screen, the age screen, then the door, whose Begin makes the guest life (R-ACCOUNT-029).
+  if (signedOut) return <AccountGate door={(guest) => <ScenarioView guest={guest} />} />;
   if (choosingLife) return <ScenarioView />;
   if (view === null) return <p className="p-4 text-text-2">{say("ui.loading")}</p>;
   if (view.prologue !== null) return <PrologueView />;

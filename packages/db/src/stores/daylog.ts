@@ -3,6 +3,7 @@ import { and, gte, lt } from "drizzle-orm";
 
 import type { Handle } from "../handle";
 import { accounts, commandLog } from "../schema";
+import { toAccount } from "./account";
 
 const byCodeUnit = (left: string, right: string) => (left < right ? -1 : left > right ? 1 : 0);
 
@@ -25,15 +26,7 @@ export function pgDayLog(handle: Handle): DayLog {
           .from(accounts)
           .where(and(gte(accounts.createdAt, start), lt(accounts.createdAt, end)));
         return found
-          .map((row) => ({
-            id: row.id,
-            country: row.country,
-            age: { passed: row.agePassed, at: row.ageAt, method: row.ageMethod },
-            createdAt: row.createdAt,
-            character: row.character,
-            notifyBankFull: row.notifyBankFull,
-            sendUsageCounts: row.sendUsageCounts,
-          }))
+          .map(toAccount)
           .sort((left, right) => byCodeUnit(left.id, right.id));
       }),
   };

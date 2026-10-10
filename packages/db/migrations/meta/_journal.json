@@ -85,6 +85,13 @@
       "when": 1791479768991,
       "tag": "0011_draw-odds-jackpot",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1791635632820,
+      "tag": "0012_guest-accounts",
+      "breakpoints": true
     }
   ]
 }

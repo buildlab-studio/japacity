@@ -18,6 +18,8 @@ export const user = pgTable("user", {
   email: text("email").notNull().unique(),
   emailVerified: boolean("email_verified").default(false).notNull(),
   image: text("image"),
+  /** R-ACCOUNT-021: the anonymous plugin's field; true until the guest is secured. */
+  isAnonymous: boolean("is_anonymous").default(false),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at")
     .defaultNow()
