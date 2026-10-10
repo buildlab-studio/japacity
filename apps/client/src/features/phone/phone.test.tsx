@@ -98,7 +98,9 @@ describe("the handset", () => {
     expect(phone?.getAttribute("data-grown")).toBe("false");
     fireEvent.click(screen.getByRole("button", { name: "Make the phone bigger" }));
     expect(phone?.getAttribute("data-grown")).toBe("true");
-    expect(document.querySelector("[data-handset]")?.className).toContain("inset-x-2");
+    // Grown, the handset keeps the small state's anchor and animates to the screen's width.
+    expect(document.querySelector("[data-handset]")?.className).toContain("w-[calc(100vw-16px)]");
+    expect(document.querySelector("[data-handset]")?.className).toContain("left-1/2");
     fireEvent.click(screen.getByRole("button", { name: "Make the phone smaller" }));
     expect(phone?.getAttribute("data-grown")).toBe("false");
   });

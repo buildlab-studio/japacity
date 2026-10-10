@@ -5,7 +5,7 @@ import { describe, expect, test } from "vitest";
 import { engineView } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { formatMoney } from "../../shared/words/format";
-import { answerHint, PrologueView } from "./PrologueView";
+import { answerHint, PrologueHandover, PrologueView } from "./PrologueView";
 
 /** The living costs an answer of the home card opens, from content. */
 function upkeepOf(answer: string): number {
@@ -29,5 +29,21 @@ describe("the home card", () => {
     expect(shown).toContain(`Living costs: ${house} a month.`);
     // Shut for want of cash, the room still says what it would cost.
     expect(shown).toContain(`Living costs: ${room} a month.`);
+  });
+});
+
+describe("the handover's home line", () => {
+  test("[R-PROLOGUE-012] given a life that closed on a room in Makoko, when the handover tells where it sleeps, then the line is Makoko's with its rent", async () => {
+    const base = engineView();
+    const rent = upkeepOf("makoko");
+    const family = base.obligations[0];
+    if (family === undefined) throw new Error("The fixture owes nothing.");
+    const view = {
+      ...base,
+      home: { ...base.home, place: "place.makoko" as const, rent: { currency: "NGN" as const, amount: rent } },
+      obligations: [{ ...family, entry: "obligation.upkeep-makoko" as const, amount: rent }],
+    };
+    await renderWithView(<PrologueHandover onDone={() => undefined} />, view);
+    expect(document.body.textContent).toContain(`You sleep in a room on the water in Makoko. Living costs: ${formatMoney(rent, "NGN")} a month.`);
   });
 });

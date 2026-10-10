@@ -86,8 +86,13 @@ function minutesBetween(from: { latE3: number; lonE3: number }, to: { latE3: num
 // tuning.city.roam is the maintainer's to add; until it is there, nothing roams.
 /** The street camera, the hold-to-plan view, routed walks and strolling people, switched off (world.md R-WORLD-010). */
 const ROAM = (city as Partial<Record<"roam", boolean>>).roam ?? false;
-/** The home of each where: the family house, then the room abroad. */
+/** The home of each where when the view names none: the family house, then the room abroad. */
 const HOMES: Record<string, string> = { home: "place.family-house", abroad: "place.the-room" };
+/** Where the character lives (home.md R-HOME-006): the room in Makoko while they live there, else the where's home. */
+function homeOf(view: PlayerView): string | null {
+  const lived = view.place.where === "home" ? view.home.place : null;
+  return lived ?? HOMES[view.place.where] ?? null;
+}
 /**
  * The places whose files are the old page's, kept switched off (R-WORLD-024) until each is rebuilt
  * as a world-first place: the map shows only built places, and nothing with nothing to do (PENDING P25).
@@ -181,12 +186,11 @@ function keep(key: string, value: string[]): void {
 }
 
 /** Where the player last stopped, when it is a place they can still enter (rule 7), or the hub. */
-function lastPlace(here: ViewPlace): string {
+function lastPlace(here: ViewPlace, home: string | null): string {
   const kept = readKept(LAST_KEY)[0];
   const open = enterable(here, PLACES);
   if (kept !== undefined && open.some((place) => place.id === kept)) return kept;
-  const home = HOMES[here.where];
-  return home !== undefined && open.some((place) => place.id === home) ? home : openingPlace(here, PLACES);
+  return home !== null && open.some((place) => place.id === home) ? home : openingPlace(here, PLACES);
 }
 
 // the store on a branch keeps `presence` as { place, others: { name, look }[] }; the look is read as a chr_ name and the sample is used only when its place is the one shown.
@@ -423,10 +427,13 @@ export function City({
   const where = view.place.where;
   const country = view.place.country;
   const here = useMemo(() => ({ where, country }), [where, country]);
-  const [placeId, setPlaceId] = useState<string>(() => (world ? lastPlace(here) : openingPlace(here, PLACES)));
+  // The game opens where the character lives (R-HOME-006): a start in Makoko opens on the water.
+  const home = homeOf(view);
+  const [placeId, setPlaceId] = useState<string>(() => (world ? lastPlace(here, home) : openingPlace(here, PLACES)));
   // A new where (home, abroad, the road) opens its own hub (R-CITY-012, R-CITY-013).
   useEffect(() => {
-    setPlaceId(world ? lastPlace(here) : openingPlace(here, PLACES));
+    setPlaceId(world ? lastPlace(here, home) : openingPlace(here, PLACES));
+    // The home changes only with the where or a move; a move is the player's own and keeps the place they stand in.
   }, [here, world]);
   useEffect(() => {
     if (!world || !drawing) return;
@@ -708,7 +715,6 @@ export function City({
   const pins: Pin[] = (() => {
     if (!world) return [];
     const been = readKept(BEEN_KEY);
-    const home = HOMES[where] ?? null;
     // A built place with no position of its own (an office or a clinic known by its area) stands at its area's middle, each a little apart.
     const spotted = new Map<string, number>();
     const spotOf = (place: PlaceEntry): { latE3: number; lonE3: number } => {
@@ -1031,7 +1037,7 @@ export function City({
             diveTo,
             pickFirst: mapPick,
             ...(rideBy === null ? {} : { by: rideBy }),
-            home: HOMES[where] ?? null,
+            home,
             onGo: (id) => {
               setPlaceId(id);
               setMap(false);

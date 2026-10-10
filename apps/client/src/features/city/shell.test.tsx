@@ -7,7 +7,7 @@ import { engineView, newGame, richView } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { formatMoney } from "../../shared/words/format";
 import { inMonths, say, words } from "../../shared/words/text";
-import { City } from "./City";
+import { City, type CityMapSlot } from "./City";
 import { cityWords } from "./city.words";
 import { nudgeOf, stepWayOf } from "./nudge";
 
@@ -471,5 +471,38 @@ describe("the nudge (the waiting months' acts)", () => {
     // Planned, the next act that fits comes up; with every one planned, the wait's own words stand.
     expect(nudgeOf(coder, undefined, ["activity.open-source"]).key).toBe("ui.nudge.meanwhile.tech-posts");
     expect(nudgeOf(coder, undefined, ["activity.open-source", "activity.tech-posts"]).key).toBe("chapter.build-the-file.item.passport.started");
+  });
+});
+
+describe("the home the game opens in", () => {
+  test("[R-HOME-006] given a life living in Makoko, when the world opens, then it opens on the water and the map's Home pin stands there", async () => {
+    localStorage.removeItem("japacity.city.last");
+    const base = engineView();
+    const view = { ...base, home: { ...base.home, place: "place.makoko" as const, rent: { currency: "NGN" as const, amount: 25_000 } } };
+    let handed: CityMapSlot | null = null;
+    await opened(
+      world({
+        cityMap: (props) => {
+          handed = props;
+          return <p data-map-slot />;
+        },
+      }),
+      view,
+    );
+    expect(document.querySelector("[data-city]")?.getAttribute("data-city")).toBe("place.makoko");
+    // Go took the first step's way, which opens the map (R-WORLD-003); the slot has it already.
+    if (handed === null) fireEvent.click(screen.getByRole("button", { name: say("ui.world.map") }));
+    const slot = handed as CityMapSlot | null;
+    if (slot === null) throw new Error("The map was not handed its slot");
+    expect(slot.home).toBe("place.makoko");
+    // The player stands at home, so its pin reads "here"; it is the slot's home all the same.
+    expect(slot.pins.find((pin) => pin.id === "place.makoko")?.state).toBe("here");
+    expect(slot.pins.find((pin) => pin.id === "place.family-house")?.state).not.toBe("home");
+  });
+
+  test("[R-HOME-006] given a life in the family house, when the world opens, then it opens in the compound as before", async () => {
+    localStorage.removeItem("japacity.city.last");
+    await opened(world(), engineView());
+    expect(document.querySelector("[data-city]")?.getAttribute("data-city")).toBe("place.family-house");
   });
 });
