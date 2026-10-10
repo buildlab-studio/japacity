@@ -53,9 +53,10 @@ export interface OfficialAccount {
 }
 
 export const officialAccounts: readonly OfficialAccount[] = [
-  { platform: "web", address: "japacity.com", aliases: [] },
-  // the support mailbox is the maintainer's to open (docs/legal/04-terms-draft.md says "[Owner: support email]"); this is the address on the game's own domain the page assumes.
-  { platform: "email", address: "support@japacity.com", aliases: [] },
+  // The game's one address. japacity.com redirects to it, so it is not listed as a second address.
+  { platform: "web", address: "japacity.app", aliases: [] },
+  // The product email: it receives only; the game's own mail will send from a subdomain.
+  { platform: "email", address: "social@japacity.app", aliases: [] },
   { platform: "whatsapp", address: null, aliases: [] },
   { platform: "instagram", address: null, aliases: [] },
   { platform: "tiktok", address: null, aliases: [] },

@@ -4,8 +4,8 @@
 export const shareText: Record<string, string> = {
   "share.disclaimer": "Japacity is a game.",
   "share.sender": "Japacity",
-  "share.address": "japacity.com",
-  "share.official-line": "Official accounts: japacity.com/official",
+  "share.address": "japacity.app",
+  "share.official-line": "Official accounts: japacity.app/official",
   "share.message": "From Japacity, a game about leaving Nigeria. Japacity is a game.",
 
   "share.chapter.title": "A chapter closes",

@@ -52,7 +52,7 @@ describe("what is on a card", () => {
       const address = role(steps, "address")[0];
       const disclaimer = role(steps, "disclaimer")[0];
       expect(disclaimer?.text).toBe("Japacity is a game.");
-      expect(address?.text).toBe("japacity.com");
+      expect(address?.text).toBe("japacity.app");
       expect(disclaimer!.size).toBeGreaterThanOrEqual(address!.size);
       expect(steps.some((step) => step.op === "clip")).toBe(true);
     }
@@ -152,7 +152,7 @@ describe("what is on a card", () => {
 
   test("[R-SHARE-014] given every kind, when the card is laid out, then it points to the official accounts page", () => {
     for (const kind of shareKinds) {
-      expect(role(cardSteps(cardFace(cardOf(kind), "scenario.ada"), SIZE, measure), "official")[0]?.text).toBe("Official accounts: japacity.com/official");
+      expect(role(cardSteps(cardFace(cardOf(kind), "scenario.ada"), SIZE, measure), "official")[0]?.text).toBe("Official accounts: japacity.app/official");
     }
   });
 });
@@ -291,7 +291,7 @@ describe("how a card travels", () => {
       expect(made.ok).toBe(true);
       const data = shareData(new File([blob], "card.jpg"), kind);
       const url = new URL(data.url ?? "");
-      expect(url.origin).toBe("https://japacity.com");
+      expect(url.origin).toBe("https://japacity.app");
       expect([...url.searchParams.entries()]).toEqual([["card", kind]]);
       expect(data.url).toBe(cardLink(kind));
       expect(data.text).not.toMatch(/Kemi|Ada|\d/);

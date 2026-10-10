@@ -6,7 +6,7 @@ packages:
   - assets-src
 allowBuilds:
   esbuild: false
-  # workerd downloads its binary for the local runtime of the landing page, the gate and the server
+  # workerd downloads its binary for the local runtime of the gate and the server
   workerd: true
 
 # The asset tools reach sharp through gltf-transform; 0.35.5 clears the librsvg advisory.

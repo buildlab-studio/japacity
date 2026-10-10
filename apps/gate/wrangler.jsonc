@@ -1,21 +1,39 @@
-// The friends' gate: a Worker on a route in front of the game's address (PENDING.md P18).
-// The game's own Worker stays on its Custom Domain; this route runs first and hands an
-// admitted request on with fetch(request). Taking the gate down is deleting this route.
-// Nothing here is deployed until the maintainer says so. Steps are in apps/gate/README.md.
+// The gate: a Worker on the route japacity.app/* that owns the game's root before launch (PENDING.md P18).
+// Without its cookie a visitor sees the waitlist page; /invite/<the code> admits a phone, and an admitted
+// request is handed on with fetch(request) to the game's Worker, which stays on the host as its Custom Domain.
+// At launch the maintainer deletes this route and the game's Worker is the root. Nothing here is deployed
+// until the maintainer says so. Steps are in apps/gate/README.md.
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "japacity-gate",
   "main": "src/index.ts",
   "compatibility_date": "2026-09-01",
   "workers_dev": false,
+  "preview_urls": false,
   // The game's address: the host of the server's SITE_URL.
-  "routes": [{ "pattern": "play.japacity.com/*", "zone_name": "japacity.com" }],
+  "routes": [{ "pattern": "japacity.app/*", "zone_name": "japacity.app" }],
+  // The card picture of the page's link preview. Every request runs the gate's code first,
+  // which serves /card.png from here and nothing else, so no file of the gate's hides one of the game's.
+  "assets": { "directory": "./public", "binding": "ASSETS", "run_worker_first": true },
   "vars": {
-    // The game's X handle without the @, once the maintainer has claimed it. Empty: the screen shows no X link.
+    // The game's X handle without the @, once the maintainer has claimed it. Empty: the page shows no X link.
     "GATE_X_HANDLE": "",
-    // The holding page, for the social preview card's picture.
-    "SITE_URL": "https://japacity.com"
-  }
+    // The game's address, where the page's card picture is.
+    "SITE_URL": "https://japacity.app",
+    // The Web Analytics site token from the Cloudflare dashboard. Empty: no analytics script is served.
+    "ANALYTICS_TOKEN": ""
+  },
+  // The waitlist: one table, insert only (schema.sql). Created by the maintainer with `pnpm --filter @japacity/gate db:create`.
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "japacity-waitlist",
+      // Filled from the output of `pnpm --filter @japacity/gate db:create`.
+      "database_id": "REPLACE_WITH_DATABASE_ID"
+    }
+  ],
+  // Five joins a minute from one connection, counted per Cloudflare location.
+  "ratelimits": [{ "name": "JOIN_LIMIT", "namespace_id": "1001", "simple": { "limit": 5, "period": 60 } }]
   // The secret, set by the maintainer with `wrangler secret put GATE_SECRET` and never written here.
   // It is also the code in the invite link. Unset or empty, the gate admits nobody.
 }

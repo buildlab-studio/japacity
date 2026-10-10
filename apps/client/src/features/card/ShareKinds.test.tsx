@@ -72,7 +72,7 @@ describe("a card for every moment", () => {
     await waitFor(() => expect(share).toHaveBeenCalledTimes(1));
     const data = share.mock.calls[0]![0];
     expect(data.files?.[0]?.type).toBe("image/jpeg");
-    expect(data.url).toBe("https://japacity.com/?card=granted");
+    expect(data.url).toBe("https://japacity.app/?card=granted");
     expect(await within(sheet).findByText(say("share.done.shared"))).toBeDefined();
   });
 
@@ -123,7 +123,7 @@ describe("a card for every moment", () => {
   test("[R-SHARE-014] given any card on screen, then it points to the official accounts page", async () => {
     await renderWithView(<CardView />, adaWith("draw-win"));
     const sheet = await screen.findByRole("dialog");
-    expect(within(sheet).getByText("Official accounts: japacity.com/official")).toBeDefined();
+    expect(within(sheet).getByText("Official accounts: japacity.app/official")).toBeDefined();
   });
 });
 
@@ -134,7 +134,7 @@ describe("the official accounts page", () => {
     const listed = [...page.querySelectorAll("[data-accounts] a")].map((link) => link.textContent);
     expect(listed).toEqual(listedAccounts().map((account) => account.address));
     const hrefs = new Set([...page.querySelectorAll("a")].map((link) => link.getAttribute("href")));
-    expect([...hrefs].sort()).toEqual(["https://japacity.com", "https://github.com/buildlab-studio/japacity", "mailto:support@japacity.com"].sort());
+    expect([...hrefs].sort()).toEqual(["https://japacity.app", "https://github.com/buildlab-studio/japacity", "mailto:social@japacity.app"].sort());
     expect(page.querySelectorAll("script, img, iframe, form")).toHaveLength(0);
   });
 
@@ -142,6 +142,6 @@ describe("the official accounts page", () => {
     const page = new DOMParser().parseFromString(pageFile, "text/html");
     const never = [...page.querySelectorAll("[data-never] li")].map((item) => item.textContent);
     expect(never).toEqual(["money", "turns", "prize", "advert", "agents"].map((item) => text[`share.official.never.${item}`]));
-    expect(page.querySelector("[data-report]")?.textContent).toBe(say("share.official.report", { email: "support@japacity.com" }));
+    expect(page.querySelector("[data-report]")?.textContent).toBe(say("share.official.report", { email: "social@japacity.app" }));
   });
 });
