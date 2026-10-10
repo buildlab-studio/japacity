@@ -8,6 +8,9 @@ import { expect, type Page, test } from "@playwright/test";
 import { text } from "../../../packages/content/src/index";
 import budgets from "../../../assets-src/budgets.json" with { type: "json" };
 import { startReadyLife } from "./door";
+/** The cut's hold, Cut.tsx's CUT_MS, and its fade, its `duration-300` (the e2e tsconfig takes no .tsx import). */
+const CUT_MS = 260;
+const FADE_MS = 300;
 
 test.use({ viewport: { width: 390, height: 844 }, launchOptions: { args: ["--use-angle=swiftshader", "--enable-unsafe-swiftshader"] } });
 
@@ -240,9 +243,17 @@ test("[R-WORLD-013] given the family house, when the house's Go in is chosen, th
   await page.waitForFunction(() => (window as unknown as { __cut: { ended: number } }).__cut.ended > 0, null, { timeout: 60_000 });
   const cut = await page.evaluate(() => (window as unknown as { __cut: { darkFrom: number; darkTo: number; began: number; ended: number; gap: number } }).__cut);
   console.log(`the cut: dark for ${String(Math.round(cut.darkTo - cut.darkFrom))} ms, ${String(Math.round(cut.ended - cut.began))} ms from first shade to lifting, longest stall ${String(Math.round(cut.gap))} ms`);
-  expect(cut.darkFrom).toBeGreaterThan(0);
-  // Under half a second when the frames flowed; a stall past 150 ms means the software renderer was starved by the suite's other workers, and the dark is read net of it.
-  expect(cut.darkTo - cut.darkFrom - (cut.gap > 150 ? cut.gap : 0)).toBeLessThan(500);
+  // The cut is fully dark from the end of its fade (FADE_MS, Cut.tsx's duration-300) to its lift at twice CUT_MS: about
+  // 220 ms. A frame gap longer than that (the suite's other workers starving the software renderer; the GPU stalls
+  // Chromium logs) can hide the whole of it from a watcher that samples on frames, while the cut's own timers run on
+  // time. A dark never seen is accepted only then, and the cut is read by its shade and lift, which the timers set.
+  if (cut.darkFrom < 0) {
+    expect(cut.gap).toBeGreaterThan(2 * CUT_MS - FADE_MS);
+    expect(cut.ended - cut.began).toBeLessThan(2 * CUT_MS + cut.gap + 100);
+  } else {
+    // Under half a second when the frames flowed; a stall past 150 ms means the software renderer was starved by the suite's other workers, and the dark is read net of it.
+    expect(cut.darkTo - cut.darkFrom - (cut.gap > 150 ? cut.gap : 0)).toBeLessThan(500);
+  }
   // The room: its own scene, whole, with the door as its thing.
   await waitPlace(page, "place.family-house");
   await expect(page.locator('[data-mark="door"]')).toBeVisible({ timeout: 30_000 });
