@@ -99,6 +99,7 @@ export const uiText: Record<string, string> = {
   "ui.world.pass": "Bus pass",
   "ui.world.depart-held": "The funds held for you must go back first: Phone, Bills, Pay now.",
   "ui.inside.hub": "The hub, Yaba",
+  "ui.inside.hub.short": "The hub",
   "ui.world.ask-away": "Someone is waiting for you at {place}.",
   // Who waits, where content knows: the family house is Mama's.
   "ui.world.ask-away.place.family-house": "Mama is waiting for you at home.",

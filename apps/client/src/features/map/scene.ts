@@ -143,6 +143,10 @@ export interface CityMap {
   tick: (seconds: number) => void;
   /** Grows or shrinks the boards about their feet, so their words stay readable as the camera moves. */
   setBoardScale: (scale: number) => void;
+  /** The four corners of each stop's board as drawn now, in the stops' order, for laying them out on the screen. */
+  boardCorners: () => Vector3[][];
+  /** Shows the boards marked true and folds the rest away, so no two cover each other. */
+  setBoardsShown: (shown: readonly boolean[]) => void;
   dispose: () => void;
 }
 
@@ -588,6 +592,22 @@ export function buildCityMap(pins: readonly MapPin[], options: BuildOptions): Ci
     if (object instanceof InstancedMesh) object.computeBoundingSphere();
   });
 
+  // The boards as drawn: their scale and which show. A folded board is drawn as a point at its foot.
+  let boardScale = 1;
+  let boardsShown: boolean[] = stops.map(() => true);
+  const drawBoards = (): void => {
+    const position = painted.geometry.getAttribute("position");
+    stops.forEach((stop, index) => {
+      const [a, b, c, d] = boardCorners(stop, boardScale);
+      if (a === undefined || b === undefined || c === undefined || d === undefined) return;
+      const foot = new Vector3(stop.board.x, stop.foot, stop.board.z);
+      const corners = boardsShown[index] === false ? [foot, foot, foot, foot, foot, foot] : [a, b, c, a, c, d];
+      corners.forEach((corner, vertex) => position.setXYZ(index * 6 + vertex, corner.x, corner.y, corner.z));
+    });
+    position.needsUpdate = true;
+    painted.geometry.computeBoundingSphere();
+  };
+
   return {
     scene,
     grid,
@@ -595,15 +615,17 @@ export function buildCityMap(pins: readonly MapPin[], options: BuildOptions): Ci
     setRoute,
     tick,
     setBoardScale: (scale) => {
-      const position = painted.geometry.getAttribute("position");
-      stops.forEach((stop, index) => {
-        const [a, b, c, d] = boardCorners(stop, scale);
-        if (a === undefined || b === undefined || c === undefined || d === undefined) return;
-        [a, b, c, a, c, d].forEach((corner, vertex) => position.setXYZ(index * 6 + vertex, corner.x, corner.y, corner.z));
+      boardScale = scale;
+      stops.forEach((stop) => {
         stop.board.y = stop.foot + (BOARD.height * scale) / 2;
       });
-      position.needsUpdate = true;
-      painted.geometry.computeBoundingSphere();
+      drawBoards();
+    },
+    boardCorners: () => stops.map((stop) => boardCorners(stop, boardScale)),
+    setBoardsShown: (shown) => {
+      if (shown.length === boardsShown.length && shown.every((one, index) => one === boardsShown[index])) return;
+      boardsShown = [...shown];
+      drawBoards();
     },
     dispose: () => {
       for (const thing of disposables) thing.dispose();

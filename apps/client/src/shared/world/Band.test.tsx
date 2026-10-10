@@ -1,12 +1,13 @@
 // The band's money by where the character is (docs/rules/world.md R-WORLD-002): the naira at home,
 // and abroad the country's own money, bank and cash together, from content's country table.
-import { content } from "@japacity/content";
+import { content, text } from "@japacity/content";
 import type { Currency, PlayerView } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
 import { abroadGame, engineView, setPockets } from "../testing/fixtures";
 import { formatMoney } from "../words/format";
-import { bandMoney } from "./Band";
+import { bandMoney, bandPlace } from "./Band";
+import { nameOf, say } from "../words/text";
 
 const ABROAD = ["country.uk", "country.uae", "country.canada", "country.italy"] as const;
 
@@ -47,3 +48,16 @@ describe("the band's money", () => {
     }
   });
 });
+
+describe("the band's place", () => {
+  test("[R-WORLD-002] given a place whose name is long, when the band says it, then it says the place's own short name; a short name stands as it is", () => {
+    expect(bandPlace(nameOf("place.bode-thomas"))).toBe("Bode Thomas");
+    expect(bandPlace("Your room in Ojuelegba")).toBe("Your room");
+    expect(bandPlace(say("ui.inside.hub"))).toBe("The hub");
+    expect(bandPlace(nameOf("place.makoko"))).toBe(nameOf("place.makoko"));
+    // Every short name is shorter than the name it stands for.
+    const longer = Object.entries(text).filter(([key, short]) => key.endsWith(".short") && key.startsWith("place.") && short.length >= (text[key.replace(/\.short$/, ".name")] ?? "").length);
+    expect(longer).toEqual([]);
+  });
+});
+

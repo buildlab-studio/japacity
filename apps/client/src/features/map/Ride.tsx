@@ -304,7 +304,8 @@ export function Ride({ way, place, drawing, own = FALLBACK_OWN, seed = 0, onDone
       <div className="pointer-events-none absolute inset-x-0 top-0 px-3 pt-[max(10px,env(safe-area-inset-top))]">
         <div className="band pointer-events-auto flex items-center gap-3 rounded-[6px] px-3 py-2.5 shadow-[0_10px_24px_rgba(10,14,30,0.35)]">
           <div className="min-w-0 flex-1">
-            <div className="title truncate text-[17px] leading-tight" data-ride-title>
+            {/* The title wraps to a second line rather than cut the place's name. */}
+            <div className="title line-clamp-2 text-[16px] leading-tight [overflow-wrap:anywhere]" data-ride-title>
               {title}
             </div>
             <div className="mt-1.5 h-1.5 overflow-hidden rounded-[2px] bg-on-strong/20" role="progressbar" aria-label={title} aria-valuemin={0} aria-valuemax={100}>

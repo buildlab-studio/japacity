@@ -21,4 +21,10 @@ describe("a fact chip", () => {
     expect(container.querySelector("[data-mark]")).toBeNull();
     expect(container.querySelector("[data-fact='university']")?.textContent).toBe("University");
   });
+
+  test("[R-PROLOGUE-014] [R-TEXT-008] given a label too long for half the page, when the chip shows, then its words wrap and are never cut", () => {
+    const { container } = render(<FactChip icon={GraduationCap} label="Shop counter" note="4 years" state="done" id="shop" />);
+    for (const part of container.querySelectorAll<HTMLElement>("[data-fact-label], [data-fact-note]")) expect(part.className).not.toMatch(/\btruncate\b/);
+    expect(container.querySelector("[data-fact-label]")?.textContent).toBe("Shop counter");
+  });
 });

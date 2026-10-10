@@ -285,6 +285,14 @@ describe("the ride", () => {
     expect(main.textContent).toContain(mapWords("map.short", { amount: "" }).trim());
   });
 
+  test("[R-WORLD-002] [R-TEXT-008] given a ride to a place with a long name, when its band shows, then the title says the whole name, wrapping to a second line rather than cut", () => {
+    render(<Ride way="danfo" place="Murtala Muhammed International Airport" drawing={false} onDone={() => undefined} />);
+    const title = document.querySelector<HTMLElement>("[data-ride-title]");
+    expect(title?.textContent).toBe("Danfo to Murtala Muhammed International Airport");
+    expect(title?.className).not.toMatch(/\btruncate\b/);
+    expect(title?.className).toContain("line-clamp-2");
+  });
+
   test("[R-WORLD-017] given a ride, when it plays, then it lasts about six seconds and ends once, with the way and the place in its band", async () => {
     vi.useFakeTimers();
     const onDone = vi.fn();

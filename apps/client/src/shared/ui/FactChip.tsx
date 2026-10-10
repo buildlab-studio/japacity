@@ -18,8 +18,15 @@ export function FactChip({ icon: Icon, label, note = null, state = null, id }: F
     <div className="flex min-w-0 items-center gap-2 rounded-[6px] bg-sheet-muted px-2.5 py-2" data-fact={id ?? ""} data-state={state ?? ""}>
       <Icon size={20} className="shrink-0 text-strong" aria-hidden />
       <div className="min-w-0 flex-1 leading-tight">
-        <div className="truncate text-[14px] font-extrabold">{label}</div>
-        {note === null || note === "" ? null : <div className="truncate text-[12px] text-text-2">{note}</div>}
+        {/* The words wrap rather than cut: a chip that says "Shop count..." says nothing. */}
+        <div className="text-[14px] font-extrabold [overflow-wrap:anywhere]" data-fact-label>
+          {label}
+        </div>
+        {note === null || note === "" ? null : (
+          <div className="text-[12px] text-text-2 [overflow-wrap:anywhere]" data-fact-note>
+            {note}
+          </div>
+        )}
       </div>
       {state === null ? null : <Mark state={state} />}
     </div>

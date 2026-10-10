@@ -1,5 +1,6 @@
 // The top band (docs/rules/world.md R-WORLD-002): the month and the place's name, the money as a
 // counter, and Next month. Nothing else. It hides while riding and while the results show.
+import { text } from "@japacity/content";
 import type { PlayerView } from "@japacity/sim";
 import { ChevronDown } from "lucide-react";
 import { type ReactNode, useEffect, useRef, useState } from "react";
@@ -81,6 +82,25 @@ export interface BandProps {
   onToggle?: () => void;
 }
 
+/** Each place's name with a short one, as the band may be handed it: content's casing and with its first letter raised. */
+const SHORTS: ReadonlyMap<string, string> = new Map(
+  Object.entries(text).flatMap(([key, short]) => {
+    const id = /^(place\.[a-z0-9-]+)\.short$/.exec(key)?.[1];
+    const name = id === undefined ? undefined : text[`${id}.name`];
+    if (name === undefined) return [];
+    return [
+      [name, short],
+      [name.charAt(0).toUpperCase() + name.slice(1), short],
+    ];
+  }),
+);
+
+/** The place as the band says it: its own short name where content gives one, so it fits beside the name. */
+export function bandPlace(name: string): string {
+  if (name === say("ui.inside.hub")) return say("ui.inside.hub.short");
+  return SHORTS.get(name) ?? name;
+}
+
 /**
  * The band is one slim row (R-WORLD-002): the place and the clock, the money, End month with the turns
  * left. A handle under it opens the second row; closed, that row peeks for a few seconds whenever its
@@ -90,7 +110,7 @@ export function Band({ when, name, money, formatMoney, onEndMonth, turns, count,
   return (
     <div className={`pointer-events-none fixed inset-x-0 top-0 z-[38] px-3 pt-[max(10px,env(safe-area-inset-top))] transition-opacity duration-300 ${hidden ? "opacity-0" : ""}`} data-band aria-hidden={hidden} data-open={open}>
       <div className="band pointer-events-auto flex h-[54px] items-center gap-1.5 rounded-[6px] pl-3 pr-1.5 shadow-[0_8px_20px_rgba(10,14,30,0.3)]">
-        <BandPerson when={when} place={name} />
+        <BandPerson when={when} place={bandPlace(name)} />
         {count}
         <div className="chip px-2 py-1">
           <Counter value={money} format={formatMoney} className="text-[14px]" />
