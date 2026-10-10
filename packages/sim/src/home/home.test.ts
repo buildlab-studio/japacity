@@ -161,6 +161,8 @@ describe("the slice", () => {
         { to: MAKOKO, monthly: { currency: "NGN", amount: home.makokoUpkeep }, now: home.makokoUpkeep, shut: null },
         { to: COMPOUND, monthly: { currency: "NGN", amount: home.compound.upkeep }, now: MOVE_IN, shut: "short" },
       ],
+      // no yearly rent is open at the family house.
+      roomRent: null,
     });
   });
 

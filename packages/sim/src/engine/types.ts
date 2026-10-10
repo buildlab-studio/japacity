@@ -2243,6 +2243,13 @@ export interface PlayerView {
     evictionBp: number;
     moved: number | null;
     moves: { to: HomePlace; monthly: MoneyParam; now: number; shut: HomeMoveShut | null }[];
+    /**
+     * R-HOME-010: the room's yearly rent while it is open, in naira: `year` the rent the
+     * landlord asks each year, `fees` the agent's and the agreement's fees paid on it at the move, and `dueIn` the
+     * months until the next year's rent is taken, 0 at this month's end (or while a missed one is asked for again).
+     * Null where no yearly rent is open.
+     */
+    roomRent: { year: number; fees: number; dueIn: number } | null;
   };
   report: TurnReport | null;
 }

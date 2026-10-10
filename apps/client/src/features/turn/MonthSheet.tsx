@@ -9,6 +9,7 @@ import { slotted, slotsUsed, takesSlot } from "../../authority/store";
 import { cue } from "../../shared/sound/cues";
 import { Rejection } from "../../shared/ui/Rejection";
 import { answersNow } from "../../shared/words/acts";
+import { formatMoney } from "../../shared/words/format";
 import { workingPlanned } from "../../shared/words/count";
 import { lockWords } from "../../shared/words/locks";
 import { hasWords, nameOf, paramWords, say } from "../../shared/words/text";
@@ -58,6 +59,18 @@ function footWords(view: PlayerView, plan: readonly (SlotPick | null)[]): string
 }
 
 /** A held slot as a row of the plan: "At the burial", or the lock's sentence where content has no row words. */
+/**
+ * R-HOME-010: one line when the room's year of rent is taken at this month's end and the naira
+ * held, cash and bank, falls short of it. Null otherwise.
+ */
+export function rentShortWords(view: Pick<PlayerView, "home" | "pockets">): string | null {
+  const rent = view.home.roomRent;
+  if (rent === null || rent.dueIn > 0) return null;
+  const held = view.pockets.NGN.cash + view.pockets.NGN.bank;
+  if (held >= rent.year) return null;
+  return turnWords("turn.month.rent-short", { amount: formatMoney(rent.year, "NGN"), held: formatMoney(held, "NGN") });
+}
+
 function lockRow(lock: SlotLock, month: number): string {
   return hasWords(`ui.locks.row.${lock.why}`) ? say(`ui.locks.row.${lock.why}`) : lockWords(lock, month);
 }
@@ -80,6 +93,7 @@ export function MonthSheet() {
   const shut = busy || blocked !== null;
   // R-WORLD-030: the plan that stretches the character is said before the page turns.
   const stretched = stretchedWords(view, plan);
+  const rentShort = rentShortWords(view);
   // R-ACTIVITY-015: the sheet lists only what takes the month. An act done at once, kept from a plan made before it
   // answered in the place, is taken out, last first so the rows before it keep their places.
   useEffect(() => {
@@ -204,6 +218,11 @@ export function MonthSheet() {
         {stretched === null ? null : (
           <p className="text-[13px] font-semibold text-text-2" data-month-stretched>
             {stretched}
+          </p>
+        )}
+        {rentShort === null ? null : (
+          <p className="text-[13px] font-semibold text-out" data-month-rent-short>
+            {rentShort}
           </p>
         )}
         {/* R-WORLD-028: abroad the quiet months go by Until news, so it is the main button there and End month the second. */}

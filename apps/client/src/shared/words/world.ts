@@ -26,6 +26,7 @@ export const worldText: Record<string, string> = {
   "ui.world.coming-up": "Coming up",
   "ui.world.coming.birthday": "Birthday, {age}",
   "ui.world.coming.age-limit": "The age limit for {route}",
+  "ui.world.coming.rent": "The room's rent, {amount}",
   // R-TEXT-008: the box says the months once; the note beside the thing is two or three words.
   "ui.world.coming.months": "months",
   "ui.world.coming.months.one": "month",
@@ -34,6 +35,7 @@ export const worldText: Record<string, string> = {
   "ui.world.coming.note.paper": "On its way",
   "ui.world.coming.note.visa": "Visa decision",
   "ui.world.coming.note.plan": "Your plan",
+  "ui.world.coming.note.rent": "A year's rent",
   "ui.world.ask-of": "{n} of {count}",
   "ui.world.ask-next": "Next",
   "ui.world.ask-back": "Back",
