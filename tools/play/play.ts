@@ -10,13 +10,13 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { text } from "@japacity/content";
-import { type Browser, chromium, devices, type Locator, type Page } from "@playwright/test";
+import { type Browser, chromium, type Locator, type Page } from "@playwright/test";
 
 import { doorButton, livesFrom, parseOptions, type PlayOptions, shotName, USAGE } from "./options";
 
 const ROOT = fileURLToPath(new URL("../..", import.meta.url));
-/** The phone the game is built for (docs/design/03-feasibility-and-plan.md, "Screens"), as the browser tests use it. */
-const PHONE = { ...devices["Pixel 7"], viewport: { width: 390, height: 844 } };
+/** A mid-range phone, the size the game is built for (docs/design/03-feasibility-and-plan.md, "Screens") and the browser tests use. */
+const PHONE = { viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true };
 /** WebGL on the software renderer, so the place draws on a machine with no graphics card. */
 const CHROMIUM_ARGS = ["--use-angle=swiftshader", "--enable-unsafe-swiftshader"];
 const SHORT = 5_000;
