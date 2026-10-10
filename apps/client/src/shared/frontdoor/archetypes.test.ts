@@ -1,6 +1,6 @@
-// The archetypes on the real content (prologue.md R-PROLOGUE-010): each preset is played on fresh lives
-// over many seeds, the draws falling as they fall. A preset answer is sent while it is allowed; any other
-// card shows, and the player takes the answer that suits the archetype, or the first open one.
+// The archetypes on the real content (prologue.md R-PROLOGUE-010): each preset is played on
+// fresh lives over many seeds, the draws falling as they fall. Every step has the archetype's answer, sent while it
+// is allowed; where a draw has shut it, the open answer that suits the archetype goes instead, and no card shows.
 import { content } from "@japacity/content";
 import { allMet } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
@@ -8,19 +8,16 @@ import { describe, expect, test } from "vitest";
 import { newGame } from "../testing/fixtures";
 import { say } from "../words/text";
 import { earlyStops, nextStepOf, ownWayOf, sixteenPath } from "../words/sixteen";
-import { answersInOrder, ARCHETYPES, type Archetype, archetypeOf, handoverKind, presetAnswer } from "./archetypes";
+import { ARCHETYPES, type Archetype, archetypeOf, doorAnswer, handoverKind, ownSteps, presetAnswer } from "./archetypes";
 
 const PROLOGUE = "scenario.prologue";
 const FIRST_CHAPTER = "chapter.find-your-feet";
 const SEEDS = 60;
 
-/** The steps every life passes the same way, which are no archetype's own choice. */
-const THROUGH = new Set(["draw", "university", "strike-drag", "graduation", "settlement"]);
-
 interface Played {
-  /** Every card the player saw, in order. */
-  shown: string[];
-  /** Cards shown because the preset's answer was shut, not because the archetype left them open. */
+  /** Steps reached that the archetype names no answer for: a card a new life would have to show. */
+  unnamed: string[];
+  /** Steps whose preset answers a draw had shut, so the open answer that suits the archetype went instead. */
   shut: string[];
   /** True when every step the archetype chose was answered as it chose: the draws kept the life on its path. */
   kept: boolean;
@@ -29,25 +26,20 @@ interface Played {
 
 function play(archetype: Archetype, seed: string): Played {
   const game = newGame(PROLOGUE, seed);
-  const shown: string[] = [];
+  const unnamed: string[] = [];
   const shut: string[] = [];
   const sent = new Set<string>();
   for (let guard = 0; guard < 40 && game.state.prologue.open; guard += 1) {
     const prologue = game.view().prologue!;
-    const preset = presetAnswer(archetype, prologue);
-    if (preset !== null) {
-      game.accept({ type: "prologue/choose", step: prologue.step, answer: preset });
-      sent.add(prologue.step);
-      continue;
-    }
-    shown.push(prologue.step);
-    if ((archetype.preset[prologue.step] ?? []).length > 0) shut.push(prologue.step);
-    const open = answersInOrder(archetype, prologue.step, prologue.answers).find((answer) => answer.allowed);
-    if (open === undefined) throw new Error(`No open answer at ${prologue.step}.`);
-    game.accept({ type: "prologue/choose", step: prologue.step, answer: open.id });
+    if (archetype.preset[prologue.step] === undefined) unnamed.push(prologue.step);
+    const answer = doorAnswer(archetype, prologue);
+    if (answer === null) throw new Error(`No open answer at ${prologue.step}.`);
+    if (presetAnswer(archetype, prologue) === null) shut.push(prologue.step);
+    else sent.add(prologue.step);
+    game.accept({ type: "prologue/choose", step: prologue.step, answer });
   }
-  const kept = Object.keys(archetype.preset).every((step) => THROUGH.has(step) || sent.has(step));
-  return { shown, shut, kept, game };
+  const kept = ownSteps(archetype).every((step) => sent.has(step));
+  return { unnamed, shut, kept, game };
 }
 
 describe("the archetypes", () => {
@@ -64,22 +56,23 @@ describe("the archetypes", () => {
     }
   });
 
-  test("[R-PROLOGUE-010] given every archetype on fresh lives over many seeds, when its preset is played, then each preset answer is sent while it is allowed, and only a card the archetype leaves open or one whose preset answer is shut shows", () => {
+  test("[R-PROLOGUE-010] given every archetype on fresh lives over many seeds, when its preset is played, then no card is left to show: on its path every step has the archetype's answer, sent while it is allowed, and off it (a draw that shut the trade, a second retake) the open answer that suits it goes", () => {
     const wrong: string[] = [];
     const shutSeen = new Map<string, number>();
     for (const archetype of ARCHETYPES) {
+      // The table's open cards are none: the exam, the strike, the send-off and the home are preset too.
+      for (const step of ["exam", "strike", "friend", "home"]) if ((archetype.preset[step] ?? []).length === 0) wrong.push(`${archetype.id}: no answer for ${step}`);
       for (let at = 0; at < SEEDS; at += 1) {
-        const { shown, shut, kept, game } = play(archetype, `${archetype.id}-${String(at)}`);
+        const { unnamed, shut, kept, game } = play(archetype, `${archetype.id}-${String(at)}`);
         if (game.state.prologue.open) wrong.push(`${archetype.id} ${String(at)}: still open`);
-        shutSeen.set(archetype.id, (shutSeen.get(archetype.id) ?? 0) + shut.length);
-        for (const step of shown) if (archetype.preset[step] !== undefined && !shut.includes(step)) wrong.push(`${archetype.id} ${String(at)}: ${step} showed`);
-        // On its own path, the draw, the subjects, the course and the service are never a card.
-        const never = kept ? ["draw", "subjects", "course", "service", "strike-drag", "graduation", "settlement"] : [];
-        for (const step of never) if (shown.includes(step)) wrong.push(`${archetype.id} ${String(at)}: ${step} showed on the path`);
+        if (kept) for (const step of unnamed) wrong.push(`${archetype.id} ${String(at)}: ${step} has no answer on the path`);
+        // One retake only: the second retake card offers only work. The trader's master is shut to a city family that can pay for school.
+        const named = shut.filter((step) => !unnamed.includes(step));
+        for (const step of named) if (step !== "retake" && !(archetype.id === "trader" && step === "after-school")) wrong.push(`${archetype.id} ${String(at)}: ${step} shut`);
+        shutSeen.set(archetype.id, (shutSeen.get(archetype.id) ?? 0) + named.filter((step) => step !== "retake").length);
       }
     }
     expect(wrong).toEqual([]);
-    // A degree preset is always allowed; the trader's master is shut to a city family that can pay for school.
     expect(Object.fromEntries(shutSeen)).toEqual({ developer: 0, nurse: 0, accountant: 0, writer: 0, trader: shutSeen.get("trader"), "shop-worker": 0, water: 0 });
     expect(shutSeen.get("trader")).toBeGreaterThan(0);
   });
@@ -187,24 +180,26 @@ describe("every tile's promise is kept by the life it starts", () => {
     expect(wrong).toEqual([]);
   });
 
-  test("[R-PROLOGUE-010] [R-GUIDE-016] [R-ROAD-012] given the trader and the shop worker over many seeds, when each hands over, then the first step is asking around at the motor park, the first ask-around hears of the Gulf contract, and the road's pitches can reach him at home", () => {
+  test("[R-PROLOGUE-010] [R-CHAPTER-009] [R-ROAD-012] given the trader and the shop worker over many seeds, when each hands over having heard of the Gulf from the drivers, then the first step is asking around at the motor park, the ask looks the Gulf into there, and the road's pitches can reach him at home", () => {
     const wrong: string[] = [];
     for (const archetype of ARCHETYPES.filter((one) => one.id === "trader" || one.id === "shop-worker")) {
+      expect(archetype.preset["friend"]).toEqual(["drivers"]);
       for (let at = 0; at < SEEDS; at += 1) {
         const { game, kept } = play(archetype, `${archetype.id}-${String(at)}`);
         // A city family keeps a child from the master, and the child goes to university instead.
         if (!kept) continue;
         const view = game.view();
-        if (nextStepOf(view) !== "heard") wrong.push(`${archetype.id} ${String(at)}: first step ${String(nextStepOf(view))}`);
+        if (routeState(game, "route.gulf-contract") !== "heard") wrong.push(`${archetype.id} ${String(at)}: the Gulf is ${routeState(game, "route.gulf-contract")} at the handover`);
+        if (nextStepOf(view) !== "known") wrong.push(`${archetype.id} ${String(at)}: first step ${String(nextStepOf(view))}`);
         const way = ownWayOf(view);
         if (way?.place !== "place.ojuelegba" || way.thing !== "motor-park" || way.activity !== "activity.ask-around") wrong.push(`${archetype.id} ${String(at)}: the first step's way is ${JSON.stringify(way)}`);
         // The man at the park asks only someone who has asked around there this month: judged once he has, before the month ends.
         game.accept({ type: "activity/now", activity: "activity.ask-around", param: null });
         const read = { state: game.state, world: game.world(), content };
         if (!allMet(read, content.offer["offer.road-park"]?.when ?? [])) wrong.push(`${archetype.id} ${String(at)}: the road's pitch cannot reach him`);
+        if (routeState(game, "route.gulf-contract") !== "known") wrong.push(`${archetype.id} ${String(at)}: the Gulf is ${routeState(game, "route.gulf-contract")} after asking around`);
         game.endTurn([]);
-        if (routeState(game, "route.gulf-contract") === "unknown") wrong.push(`${archetype.id} ${String(at)}: the Gulf unheard after the first ask-around`);
-        if (ownWayOf(game.view()) !== null) wrong.push(`${archetype.id} ${String(at)}: still sent to the motor park`);
+        if (ownWayOf(game.view())?.thing === "motor-park") wrong.push(`${archetype.id} ${String(at)}: still sent to the motor park`);
       }
     }
     expect(wrong).toEqual([]);
@@ -339,14 +334,15 @@ describe("the child of the water (R-PROLOGUE-012)", () => {
   const water = archetypeOf(WATER)!;
 
   test("[R-PROLOGUE-012] given the child of the water over many seeds, when its preset is played, then every life keeps its path, school then the shop counter with no master, and closes in Makoko's room at the page's rent with nothing else owed, the family house there to go back to", () => {
-    expect(water.preset).toMatchObject({ subjects: ["commercial"], "after-school": ["work"], shop: ["save"], home: ["makoko"] });
+    expect(water.preset).toMatchObject({ subjects: ["commercial"], "after-school": ["work"], shop: ["save"], friend: ["drivers"], home: ["makoko"] });
     expect(water.preset["master"]).toBeUndefined();
     const wrong: string[] = [];
     for (let at = 0; at < SEEDS; at += 1) {
-      const { game, kept, shown } = play(water, `${WATER}-${String(at)}`);
+      const { game, kept, unnamed, shut } = play(water, `${WATER}-${String(at)}`);
       const view = game.view();
       if (!kept) wrong.push(`${String(at)}: off the path`);
-      if (shown.join(",") !== "friend") wrong.push(`${String(at)}: showed ${shown.join(",")}`);
+      // No card: the send-off is its crowd's, as the table names it, and nothing a draw shut.
+      if (unnamed.length > 0 || shut.length > 0) wrong.push(`${String(at)}: unnamed ${unnamed.join(",")}, shut ${shut.join(",")}`);
       if (view.home.place !== MAKOKO || view.home.moved !== null) wrong.push(`${String(at)}: home ${JSON.stringify(view.home)}`);
       if (view.home.rent?.amount !== content.tuning.home.makokoUpkeep) wrong.push(`${String(at)}: rent ${JSON.stringify(view.home.rent)}`);
       if (view.obligations.map((owed) => owed.entry).join(",") !== MAKOKO_UPKEEP) wrong.push(`${String(at)}: owes ${view.obligations.map((owed) => owed.entry).join(",")}`);
@@ -387,31 +383,26 @@ describe("the child of the water (R-PROLOGUE-012)", () => {
     expect(reached).toEqual({ water: lives, home: 0 });
   });
 
-  test("[R-PROLOGUE-012] [R-GUIDE-016] given the child of the water over many seeds, when it hands over, then the chapter's step is asking around at the motor park (the handover says the racks first while they are work at hand, R-ACTIVITY-017), its first ask-around hears of the Gulf in at least the trader's share of seeds, and the road's pitches can reach it at home", () => {
+  test("[R-PROLOGUE-012] [R-CHAPTER-009] [R-ROAD-012] given the child of the water over many seeds, when it hands over having heard of the Gulf from the drivers, then the chapter's step is asking around at the motor park (the handover says the racks first while they are work at hand, R-ACTIVITY-017), the ask looks the Gulf into there, and the road's pitches can reach it at home", () => {
     expect(water.routes).toEqual(["route.gulf-contract", "route.road"]);
-    const heard = { water: 0, trader: 0 };
-    const kept = { water: 0, trader: 0 };
+    expect(water.preset["friend"]).toEqual(["drivers"]);
     const wrong: string[] = [];
-    for (const [who, archetype] of [["water", water], ["trader", archetypeOf("trader")!]] as const) {
-      for (let at = 0; at < SEEDS; at += 1) {
-        const played = play(archetype, `${archetype.id}-${String(at)}`);
-        if (!played.kept) continue;
-        kept[who] += 1;
-        const { game } = played;
-        const view = game.view();
-        const way = ownWayOf(view);
-        if (who === "water" && (nextStepOf(view) !== "heard" || way?.thing !== "motor-park" || way.activity !== "activity.ask-around")) wrong.push(`${String(at)}: the first step's way is ${JSON.stringify(way)}`);
-        // The man at the park asks only someone who has asked around there this month: judged once she has, before the month ends.
-        game.accept({ type: "activity/now", activity: "activity.ask-around", param: null });
-        const read = { state: game.state, world: game.world(), content };
-        if (who === "water" && !allMet(read, content.offer["offer.road-park"]?.when ?? [])) wrong.push(`${String(at)}: the road's pitch cannot reach it`);
-        game.endTurn([]);
-        if (routeState(game, "route.gulf-contract") !== "unknown") heard[who] += 1;
-      }
+    let kept = 0;
+    for (let at = 0; at < SEEDS; at += 1) {
+      const played = play(water, `${water.id}-${String(at)}`);
+      if (!played.kept) continue;
+      kept += 1;
+      const { game } = played;
+      const view = game.view();
+      const way = ownWayOf(view);
+      if (nextStepOf(view) !== "known" || way?.thing !== "motor-park" || way.activity !== "activity.ask-around") wrong.push(`${String(at)}: the first step's way is ${JSON.stringify(way)}`);
+      game.accept({ type: "activity/now", activity: "activity.ask-around", param: null });
+      const read = { state: game.state, world: game.world(), content };
+      if (!allMet(read, content.offer["offer.road-park"]?.when ?? [])) wrong.push(`${String(at)}: the road's pitch cannot reach it`);
+      if (routeState(game, "route.gulf-contract") !== "known") wrong.push(`${String(at)}: the Gulf is ${routeState(game, "route.gulf-contract")} after asking around`);
     }
     expect(wrong).toEqual([]);
-    expect(kept.water).toBe(SEEDS);
-    expect(heard.water * kept.trader).toBeGreaterThanOrEqual(heard.trader * kept.water);
+    expect(kept).toBe(SEEDS);
   });
 
   test("[R-PROLOGUE-012] [R-HOME-003] [R-HOME-004] given the child of the water over many lives, when the settlement is cleared, then the same month a relative in Lagos takes it in with no rent, and it is never left with nowhere to go", () => {

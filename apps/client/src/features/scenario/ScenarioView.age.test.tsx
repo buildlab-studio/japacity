@@ -51,16 +51,17 @@ function handedOver(id: string, seed: string): { months: number; steps: string[]
 }
 
 describe("the door's age and the page's", () => {
-  test.each(ARCHETYPES.map((archetype) => [archetype.id, (archetype.preset["after-school"] ?? []).includes("jamb")] as const))("[R-PROLOGUE-009] given the %s's tile at the age step, when the age shows and the page is printed, then both say the same \"About\", and a tile that sits the exam (%s) says the year it can cost still counts", (id, exam) => {
+  test.each(ARCHETYPES.map((archetype) => [archetype.id, (archetype.preset["after-school"] ?? []).includes("jamb")] as const))("[R-PROLOGUE-009] [R-PROLOGUE-013] given the %s's tile with the age under it, when the age shows and the page is printed, then both say the same \"About\", and no line under the age speaks of a year an exam can cost (the tile sits the exam: %s)", (id, exam) => {
     door();
-    fireEvent.click(next(say("ui.door.next")));
-    fireEvent.click(screen.getByRole("button", { name: say(`prologue.archetype.${id}.name`) }));
     fireEvent.change(screen.getByRole("textbox", { name: say("prologue.door.name.title") }), { target: { value: "Bola" } });
     fireEvent.click(next(say("ui.door.next")));
+    fireEvent.click(screen.getByRole("radio", { name: say(`prologue.archetype.${id}.name`) }));
     const about = say("prologue.door.age.years", { years: aboutYears(middleMonths(archetypeOf(id)!)) });
     expect(document.querySelector("[data-age-years]")?.textContent).toBe(about);
-    expect(document.querySelector("[data-age-give]")?.textContent ?? null).toBe(exam ? say("prologue.door.age.give-or-take") : null);
-    fireEvent.click(next(say("prologue.door.print")));
+    expect(document.querySelector("[data-age-give]")).toBeNull();
+    expect(document.body.textContent).not.toMatch(/give or take/i);
+    expect(typeof exam).toBe("boolean");
+    fireEvent.click(next(say("ui.door.next")));
     expect(document.querySelector("[data-page] [data-field='age']")?.textContent).toContain(about);
     expect(say("prologue.page.age.about", { years: 24 })).toBe(say("prologue.door.age.years", { years: 24 }));
   });

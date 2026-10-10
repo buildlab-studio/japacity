@@ -187,7 +187,9 @@ describe("the prologue's steps", () => {
     });
     expect(draw("settlement", "settle")?.[0]?.effects).toContainEqual({ type: "money/add", currency: "NGN", pocket: "bank", amount: 600000000, reason: "gig" });
     expect(effects("home", "family-house")).toContainEqual({ type: "obligation/open", obligation: "obligation.upkeep", amount: 9500000 });
-    expect(effects("home", "room")).toContainEqual({ type: "obligation/open", obligation: "obligation.upkeep", amount: 18000000 });
+    // The home step offers only the homes play backs (R-HOME-001): the family house and Makoko, chosen on the door (R-PROLOGUE-013).
+    expect(content.prologue["home"]?.answers.map((answer) => answer.id)).toEqual(["family-house", "makoko"]);
+    expect(effects("friend", "drivers")).toEqual([{ type: "route/hear", route: "route.gulf-contract", via: "friend" }]);
     expect(content.tuning.prologue.startAgeMonths).toBe(192);
   });
 });
@@ -312,11 +314,12 @@ describe("a room on the water (R-PROLOGUE-012)", () => {
       { type: "obligation/open", obligation: "obligation.upkeep-makoko", amount: content.tuning.home.makokoUpkeep },
       { type: "home/move", place: "place.makoko" },
     ]);
-    for (const key of ["prologue.home.answer.makoko", "prologue.home.answer.makoko.hint", "prologue.handover.home.makoko"]) {
+    for (const key of ["prologue.home.answer.makoko", "prologue.home.answer.makoko.hint"]) {
       expect(text[key]).toBeTruthy();
       expect(text[key]).not.toMatch(/[\u2013\u2014]/);
     }
     expect(text["prologue.home.answer.makoko.hint"]).toContain("{amount}");
-    expect(text["prologue.handover.home.makoko"]).toContain("{amount}");
+    // Where the life starts is said on the page in the client's words (R-PROLOGUE-014), so content keeps no handover line for a home.
+    expect(Object.keys(text).filter((key) => key.startsWith("prologue.handover.home."))).toEqual([]);
   });
 });

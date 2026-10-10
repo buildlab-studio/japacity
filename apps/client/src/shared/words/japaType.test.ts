@@ -58,7 +58,7 @@ function trader(others: SlotPick["activity"][]): PlayerView {
   for (let turn = 0; turn < 40 && game.state.prologue.open; turn += 1) {
     const prologue = game.view().prologue!;
     const allowed = prologue.answers.filter((answer) => answer.allowed).map((answer) => answer.id);
-    const answer = ["apprentice", "spare-parts", "stay", "settle", "nowhere", "room"].find((id) => allowed.includes(id)) ?? allowed[0] ?? "";
+    const answer = ["apprentice", "spare-parts", "stay", "settle", "nowhere", "family-house"].find((id) => allowed.includes(id)) ?? allowed[0] ?? "";
     game.accept({ type: "prologue/choose", step: prologue.step, answer });
   }
   game.endTurn([{ activity: "activity.open-shop", param: null }]);

@@ -2,7 +2,7 @@
 // check them without one. `pnpm play --help` prints USAGE.
 import { isAbsolute, relative, resolve } from "node:path";
 
-export const USAGE = `pnpm play --out <folder> [--life <name>] [--ready] [--months <n>] [--url <address> | --port <n>] [--skip-walkthrough] [--headed]
+export const USAGE = `pnpm play --out <folder> [--life <name>] [--ready] [--months <n>] [--url <address> | --port <n>] [--played] [--headed]
 
   --out <folder>       Where the pictures and play.log go. Required. Must be outside the repository.
   --life <name>        The life to play, by its short name: developer, nurse, trader and so on (default developer).
@@ -10,7 +10,7 @@ export const USAGE = `pnpm play --out <folder> [--life <name>] [--ready] [--mont
   --months <n>         Months to end after reaching the world, 1 to 60 (default 3).
   --url <address>      Use a dev server that is already running at this address.
   --port <n>           The port for the dev server this tool starts, or reuses if one answers there (default 5190).
-  --skip-walkthrough   Mark the first-play walkthrough as seen, so it never shows.
+  --played             Mark the device as played, so the first-use labels on the thumbs never show.
   --headed             Show the browser window.
   --help               Print this and stop.`;
 
@@ -21,7 +21,8 @@ export interface PlayOptions {
   readonly out: string;
   readonly url: string | null;
   readonly port: number;
-  readonly skipWalkthrough: boolean;
+  /** The device marked as played: no first-use label shows (world.md R-WORLD-033). */
+  readonly played: boolean;
   readonly headed: boolean;
 }
 
@@ -30,7 +31,7 @@ export type Parsed = { readonly ok: true; readonly options: PlayOptions } | { re
 export const DEFAULT_PORT = 5190;
 export const MAX_MONTHS = 60;
 
-const FLAGS = new Set(["--ready", "--skip-walkthrough", "--headed", "--help"]);
+const FLAGS = new Set(["--ready", "--played", "--headed", "--help"]);
 const VALUED = new Set(["--life", "--months", "--out", "--url", "--port"]);
 
 function whole(value: string, name: string, low: number, high: number): number | string {
@@ -89,7 +90,7 @@ export function parseOptions(argv: readonly string[], cwd: string, repoRoot: str
 
   return {
     ok: true,
-    options: { life, ready: flags.has("--ready"), months, out, url, port, skipWalkthrough: flags.has("--skip-walkthrough"), headed: flags.has("--headed") },
+    options: { life, ready: flags.has("--ready"), months, out, url, port, played: flags.has("--played"), headed: flags.has("--headed") },
   };
 }
 

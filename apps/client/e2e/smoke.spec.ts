@@ -88,24 +88,20 @@ test("three months of play show no kobo, raw object, missing value or bare key",
   }
 });
 
-test("a life from sixteen is played card by card to the first month", async ({ page }) => {
+test("a life from sixteen fills its page with no card and opens the first month", async ({ page }) => {
   await page.goto("/?classic");
   await startArchetype(page, "The developer");
 
-  const prologue = page.locator("[data-prologue]");
-  await expect(prologue).toBeVisible();
-  const handover = page.locator("[data-prologue-handover]");
-  for (let card = 0; card < 40 && !(await handover.isVisible()); card += 1) {
-    await expectNothingBroken(page, `on prologue card ${String(card)}`);
-    const v = await prologue.getAttribute("data-v");
-    await page.locator("[data-prologue-card] [data-answer] button:enabled").first().click();
-    await expect(page.locator(`[data-prologue][data-v="${v ?? ""}"]`)).toHaveCount(0);
-  }
-
+  // The years go by on the page with no card (prologue.md R-PROLOGUE-010, 014).
+  const handover = page.locator("[data-gate='handover']");
   await expect(handover).toBeVisible();
-  await expectNothingBroken(page, "at the handover");
-  await page.getByRole("button", { name: "Go", exact: true }).click();
-  await expect(page.getByRole("heading", { name: "Month 1", exact: true })).toBeVisible();
+  await expect(page.locator("[data-prologue-card]")).toHaveCount(0);
+  await expect(handover.locator("[data-family='turned']")).toBeVisible();
+  await expect(handover.locator("[data-years] [data-fact]").first()).toBeVisible();
+  await expect(handover.locator("[data-page] [data-stamp]")).toBeVisible();
+  await expectNothingBroken(page, "on the page");
+  // The page opens the world by itself, a moment after the stamp.
+  await expect(page.getByRole("heading", { name: "Month 1", exact: true })).toBeVisible({ timeout: 6_000 });
   await expectNothingBroken(page, "in the first month");
 });
 

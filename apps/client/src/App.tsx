@@ -32,9 +32,10 @@ import { iconFor } from "./features/phone/icons";
 import { useSignalsWaiting } from "./features/phone/Notices";
 import { PhoneApps, usePhoneWaiting } from "./features/phone/PhoneApps";
 import { InterviewView } from "./features/interview/InterviewView";
-import { PrologueHandover, prologueJustClosed, PrologueView } from "./features/prologue/PrologueView";
+import { PageHandover, prologueJustClosed, PrologueView } from "./features/prologue/PrologueView";
 import { RoadView } from "./features/road/RoadView";
 import { ScenarioView } from "./features/scenario/ScenarioView";
+import { ReadyEntry } from "./shared/frontdoor/ReadyEntry";
 import { SetpieceView, useClosingOpen } from "./features/setpiece/SetpieceView";
 import { MonthSheet } from "./features/turn/MonthSheet";
 import { Results } from "./features/turn/Results";
@@ -96,7 +97,12 @@ function WorldPlaying() {
           ...[...view.offers].sort((a, b) => a.expiresMonth - b.expiresMonth).map((offer) => (OFFER_PLACES[offer.entry] ?? null)),
         ]}
         asksHold={closing}
-        phone={(close, area, app) => <PhoneApps onClose={close} area={area} account={<AccountButton more={<NotifySetting />} />} talk={talk} start={app ?? null} />}
+        phone={(close, area, app) => <PhoneApps onClose={close} area={area} account={
+          <>
+            <AccountButton more={<NotifySetting />} />
+            <ReadyEntry />
+          </>
+        } talk={talk} start={app ?? null} />}
         phoneWaiting={phoneWaiting}
         askIcon={iconFor}
         cityMap={(props) => <Map {...props} />}
@@ -125,7 +131,7 @@ function Shell() {
   if (choosingLife) return <ScenarioView />;
   if (view === null) return <p className="p-4 text-text-2">{say("ui.loading")}</p>;
   if (view.prologue !== null) return <PrologueView />;
-  if (prologueJustClosed(lines) && handedOver !== view.v) return <PrologueHandover onDone={() => setHandedOver(view.v)} />;
+  if (prologueJustClosed(lines) && handedOver !== view.v) return <PageHandover onDone={() => setHandedOver(view.v)} />;
   if (view.ended && view.card !== null && view.card.kind !== "send-off") return <EndingView />;
   if (view.place.where === "road") return <RoadView offers={(only) => <OfferView only={only} />} city={<City adverts={(place) => <PlaceAdverts place={place} />} />} />;
   if (classicMode())

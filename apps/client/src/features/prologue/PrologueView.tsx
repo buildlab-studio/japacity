@@ -1,28 +1,32 @@
-// The prologue: sixteen to the end of the service year, one card at a time
-// (prologue.md R-PROLOGUE-008), over the family compound with the character at
-// the gate (R-PROLOGUE-009). The card and its answers come from the view; an
-// answer not open is greyed with the reason. With an archetype kept beside the
-// save, its preset answers are sent for it and only the cards it leaves open
-// show, each headed by a short beat of what the draws decided (R-PROLOGUE-010);
-// the setting `prologue.full` shows every card. When the last card is answered
-// the handover says who the person is and opens the first month.
+// The prologue: sixteen to the end of the service year (prologue.md R-PROLOGUE-008), over the family compound with
+// the character at the gate (R-PROLOGUE-009). A new life never shows a card: its archetype answers every step
+// (R-PROLOGUE-010) while the page over the compound fills as the years go by, and when the last answer is in, the
+// page is the handover (R-PROLOGUE-014): the family the game drew turned over, the years before as fact chips, the
+// money as it stands, the stamp, and the world opens by itself. A life with no archetype (the setting
+// `prologue.full`, or a fixed life a test starts) shows each card, one at a time, its answers greyed with the reason.
 import { content } from "@japacity/content";
 import type { PlayerView, ReportLine } from "@japacity/sim";
-import { ArrowRight } from "lucide-react";
-import { useEffect, useRef } from "react";
+import { ArrowRight, Dices } from "lucide-react";
+import { type ReactNode, useEffect, useRef, useState } from "react";
 
 import { useGame, useView } from "../../authority/GameProvider";
 import { readPerson } from "../../authority/person";
+import { FactChip } from "../../shared/ui/FactChip";
 import { Rejection } from "../../shared/ui/Rejection";
 import { ReportLines } from "../../shared/ui/ReportLines";
+import { ToneTag } from "../../shared/ui/ToneTag";
 import { formatMoney } from "../../shared/words/format";
-import { AGE, valueWords, yearsOf } from "../../shared/words/quality";
+import { AGE, clockWords, valueWords, yearsOf } from "../../shared/words/quality";
 import { requirementSentence } from "../../shared/words/requirement";
-import { gradeShort, nextStepOf, ownWayOf, RACKS_STEP, racksAtHand, sixteenPath } from "../../shared/words/sixteen";
+import { nextStepOf, ownWayOf, RACKS_STEP, racksAtHand, sixteenPath } from "../../shared/words/sixteen";
 import { bandWords, hasWords, nameOf, say, sayCount, words } from "../../shared/words/text";
-import { Gate, GateSheet } from "../../shared/frontdoor/Gate";
-import { type Archetype, answersInOrder, archetypeOf, fullPrologue, handoverKind, presetAnswer, withAge } from "../../shared/frontdoor/archetypes";
+import { Gate, GateSheet, gateLook } from "../../shared/frontdoor/Gate";
+import { lookOf } from "../../shared/frontdoor/looks";
+import { type Archetype, answersInOrder, archetypeOf, doorAnswer, fullPrologue, handoverKind, throughUniversity, withAge, withHome } from "../../shared/frontdoor/archetypes";
+import { DataPage, type PageFields, Stamp } from "../../shared/datapage/DataPage";
 import { readDoor } from "../../shared/datapage/door";
+import { pageOf } from "../../shared/datapage/PageSheet";
+import { familyCard, noteAnswer, noteCard, readTrail, storyChips, type YearChip, yearChips } from "./years";
 
 type Prologue = NonNullable<PlayerView["prologue"]>;
 type Draw = NonNullable<Prologue["draw"]>;
@@ -121,6 +125,7 @@ function Answers({ prologue, archetype, onAnswer }: { prologue: Prologue; archet
               disabled={busy || !answer.allowed}
               onClick={() => {
                 onAnswer();
+                noteAnswer(prologue.step, answer.id, prologue.step === "draw");
                 void send({ type: "prologue/choose", step: prologue.step, answer: answer.id });
               }}
             >
@@ -190,18 +195,6 @@ function Outcome({ prologue }: { prologue: Prologue }) {
   );
 }
 
-/** What the draws decided while the preset played, as a short beat at the head of the card shown next (R-PROLOGUE-010). */
-function Beat({ beats }: { beats: readonly string[] }) {
-  if (beats.length === 0) return null;
-  return (
-    <div className="mb-3 flex flex-col gap-0.5 border-l-4 border-l-action pl-3 text-[14px] leading-snug" data-prologue-outcome data-beat>
-      {beats.map((beat) => (
-        <p key={beat}>{beat}</p>
-      ))}
-    </div>
-  );
-}
-
 /** The draw, the qualities that have moved from nothing, and money, as they stand (R-PROLOGUE-008). No `draw` leaves the draw out. */
 function LifeSoFar({ view, draw, open = false, archetype = null }: { view: PlayerView; draw?: Draw | null; open?: boolean; archetype?: Archetype | null }) {
   const held = view.qualities.filter((quality) => quality.id !== AGE && quality.value !== 0 && content.quality[quality.id]?.shown === true);
@@ -235,40 +228,33 @@ function LifeSoFar({ view, draw, open = false, archetype = null }: { view: Playe
   );
 }
 
-/** The archetype kept beside the save for this life, with the age the front door set, unless the setting `prologue.full` asks for every card. */
+/** The archetype kept beside the save for this life, with the age and the home the front door set, unless the setting `prologue.full` asks for every card. */
 export function presetArchetype(): Archetype | null {
   if (fullPrologue()) return null;
   const archetype = archetypeOf(readPerson()?.archetype);
-  return archetype === null ? null : withAge(archetype, readDoor()?.age ?? 0);
+  const door = readDoor();
+  return archetype === null ? null : withHome(withAge(archetype, door?.age ?? 0), door?.home);
 }
 
 /**
- * Sends the archetype's preset answer while the card's is allowed (R-PROLOGUE-010), once per view, and
- * keeps the outcomes the draws gave on the way, for the card shown next. Null `answer`: the card shows.
+ * Sends the archetype's answer at every card, once per view (R-PROLOGUE-010), and keeps each
+ * answer and what its draw gave for the page (R-PROLOGUE-014). Null `answer`: the card shows (a refusal, or a card
+ * with every answer shut).
  */
-function usePreset(view: PlayerView, prologue: Prologue, archetype: Archetype | null): { answer: string | null; beats: string[]; told: () => void } {
+function usePreset(view: PlayerView, prologue: Prologue, archetype: Archetype | null): string | null {
   const send = useGame((state) => state.send);
   const busy = useGame((state) => state.busy);
   const rejected = useGame((state) => state.rejection !== null);
   const sentAt = useRef<number | null>(null);
-  const outcomes = useRef<string[]>([]);
-  const drawTold = useRef(false);
-  const answer = archetype === null || rejected ? null : presetAnswer(archetype, prologue);
+  const answer = archetype === null || rejected ? null : doorAnswer(archetype, prologue);
   useEffect(() => {
     if (answer === null || busy || sentAt.current === view.v) return;
     sentAt.current = view.v;
-    if (prologue.lastOutcome !== null) outcomes.current.push(prologue.lastOutcome);
+    noteCard(prologue.draw, prologue.lastOutcome);
+    noteAnswer(prologue.step, answer, prologue.step === "draw");
     void send({ type: "prologue/choose", step: prologue.step, answer });
-  }, [answer, busy, view.v, prologue.step, prologue.lastOutcome, send]);
-  const beats = archetype === null ? [] : [...(prologue.draw !== null && !drawTold.current ? drawSentences(prologue.draw, archetype).slice(0, 2) : []), ...[...outcomes.current, ...(prologue.lastOutcome === null ? [] : [prologue.lastOutcome])].map((key) => words(key))];
-  return {
-    answer,
-    beats: [...new Set(beats)],
-    told: () => {
-      outcomes.current = [];
-      if (prologue.draw !== null) drawTold.current = true;
-    },
-  };
+  }, [answer, busy, view.v, prologue.step, prologue.lastOutcome, prologue.draw, send]);
+  return answer;
 }
 
 export function PrologueView() {
@@ -280,18 +266,13 @@ export function PrologueView() {
 
 function PrologueCard({ view, prologue }: { view: PlayerView; prologue: Prologue }) {
   const archetype = presetArchetype();
-  const { answer, beats, told } = usePreset(view, prologue, archetype);
-  if (answer !== null)
-    return (
-      <Gate mark="prologue">
-        <GateSheet mark="years" label={say("ui.door.years")}>
-          <div className="flex items-baseline justify-between gap-3" data-prologue-years data-v={view.v}>
-            <p className="title text-[20px]">{say("ui.door.years")}</p>
-            <p className="num text-[14px] text-text-2">{say("ui.profile.age", { years: ageYears(view) })}</p>
-          </div>
-        </GateSheet>
-      </Gate>
-    );
+  const answer = usePreset(view, prologue, archetype);
+  // A card answered by hand keeps its trail for the page as a preset does.
+  useEffect(() => {
+    if (answer === null) noteCard(prologue.draw, prologue.lastOutcome);
+  }, [answer, prologue.draw, prologue.lastOutcome]);
+  // A new life never shows a card: the page fills as its years go by (R-PROLOGUE-014).
+  if (answer !== null) return <PageScreen view={view} archetype={archetype} draw={prologue.draw} />;
   return (
     <Gate mark="prologue">
       <GateSheet key={view.v} mark="card" label={say("ui.prologue.title")}>
@@ -300,11 +281,11 @@ function PrologueCard({ view, prologue }: { view: PlayerView; prologue: Prologue
             <p className="label text-text-2">{say("ui.prologue.title")}</p>
             <p className="num text-[13px] text-text-2">{say("ui.profile.age", { years: ageYears(view) })}</p>
           </div>
-          {archetype === null ? <Outcome prologue={prologue} /> : <Beat beats={beats} />}
+          <Outcome prologue={prologue} />
           <div className="flex flex-col gap-3" data-prologue-card>
             <h1 className="title text-[22px] leading-tight">{words(`prologue.${prologue.step}.card`)}</h1>
             <Rejection />
-            <Answers prologue={prologue} archetype={archetype} onAnswer={told} />
+            <Answers prologue={prologue} archetype={archetype} onAnswer={() => undefined} />
           </div>
           <LifeSoFar view={view} draw={prologue.draw} open={archetype === null} archetype={archetype} />
         </div>
@@ -337,83 +318,163 @@ export function firstStep(view: Pick<PlayerView, "chapter" | "scenario" | "quali
   return hasWords(`${own}.nudge`) ? say(`${own}.nudge`) : hasWords(own) ? say(own) : null;
 }
 
-/**
- * The home the last card chose, by the living costs it opened (R-PROLOGUE-006), from content's own answers: each
- * answer names the upkeep it opens, the family's or Makoko's (R-PROLOGUE-012).
- */
-function homeChosen(view: PlayerView): { answer: string; amount: number } | null {
-  for (const answer of content.prologue.home?.answers ?? []) {
-    for (const effect of answer.effects) {
-      if (effect.type !== "obligation/open" || typeof effect.amount !== "number") continue;
-      const owed = view.obligations.find((obligation) => obligation.entry === effect.obligation && obligation.amount === effect.amount);
-      if (owed !== undefined && hasWords(`prologue.handover.home.${answer.id}`)) return { answer: answer.id, amount: owed.amount };
-    }
-  }
-  return null;
+
+/** When the family's card turns over on the handover page, the stamp lands, and the world opens after it (R-PROLOGUE-014). */
+export const TURN_MS = 450;
+export const STAMP_AT_MS = 1100;
+export const OPEN_AFTER_MS = 2000;
+
+/** The page's "So far": the tile while the life went its way, else the life as lived, never the tile (R-PROLOGUE-011, 014). */
+function pathShown(archetype: Archetype | null, view: PlayerView, page: PageFields): string {
+  if (archetype === null) return page.path;
+  const lived = sixteenPath(view);
+  if (lived === null || (lived === "degree") === throughUniversity(archetype)) return say(`prologue.archetype.${archetype.id}.name`);
+  return say(`ui.page.lived.${lived}`);
 }
 
-/**
- * The story the prologue built, kept at the handover: a shop's capital and what it can do now, a
- * grade that keeps doors shut and the one it does not, and where the character sleeps.
- */
-function storyLines(view: PlayerView): string[] {
-  const told: string[] = [];
-  if (sixteenPath(view) === "capital") told.push(say("prologue.handover.capital", { amount: formatMoney(view.pockets.NGN.bank + view.pockets.NGN.cash, "NGN") }));
-  if (gradeShort(view)) told.push(say("prologue.handover.grade-short"));
-  const home = homeChosen(view);
-  if (home !== null) told.push(say(`prologue.handover.home.${home.answer}`, { amount: formatMoney(home.amount, "NGN") }));
-  return told;
-}
-
-/** The handover: who the person is and what they were, the story the prologue built, and the way into the first month (R-PROLOGUE-010). */
-export function PrologueHandover({ onDone }: { onDone: () => void }) {
-  const view = useView();
-  const lines = useGame((state) => state.lines);
-  const person = readPerson();
-  const archetype = presetArchetype();
-  const shown = archetype === null ? lastLines(lines) : [];
-  const step = firstStep(view);
-  const story = storyLines(view);
+/** The family the game drew, face down until it turns over once, the same height before and after. */
+function Family({ draw, water, turned }: { draw: Draw | null; water: boolean; turned: boolean }) {
+  const card = draw === null || !turned ? null : familyCard(draw, water);
   return (
-    <Gate mark="handover">
-      <GateSheet
-        mark="handover"
-        label={say("ui.prologue.title")}
-        foot={
-          <>
-            {step === null ? null : (
-              <p className="mb-2 text-[15px] font-bold" data-first-step>
-                {say("prologue.handover.first", { step })}
-              </p>
-            )}
-            <button type="button" className="btn-main" onClick={onDone} autoFocus>
-              <span>{say("ui.prologue.start")}</span>
-              <ArrowRight size={18} />
-            </button>
-          </>
-        }
+    <div className="min-h-[64px] [perspective:600px]" data-family={card === null ? "drawing" : "turned"}>
+      <div
+        className={`flex min-h-[64px] items-center gap-2.5 rounded-[6px] px-3 py-2 transition-transform duration-300 ${card === null ? "band" : "border-2 border-strong bg-sheet"}`}
+        style={{ transform: card === null ? "rotateX(0deg)" : "rotateX(360deg)" }}
       >
-        <div className="flex flex-col gap-2" data-prologue-handover>
-          <p className="label text-text-2">{say("ui.prologue.title")}</p>
-          {person === null ? null : <h1 className="title text-[26px] leading-none">{person.name}</h1>}
-          {archetype === null ? null : (
-            <p className="text-[15px] font-bold" data-handover-archetype>
-              {handoverKind(archetype, view)}
-            </p>
-          )}
-          {person === null ? <h1 className="title text-[22px] leading-tight">{words(PROLOGUE_CLOSED)}</h1> : null}
-          <p className="text-[13px] text-text-2">{say("ui.profile.age", { years: ageYears(view) })}</p>
-          {story.length === 0 ? null : (
-            <div className="flex flex-col gap-1.5 text-[15px]" data-handover-story>
-              {story.map((sentence) => (
-                <p key={sentence}>{sentence}</p>
+        {card === null ? (
+          <>
+            <Dices size={22} className="shrink-0 animate-pulse" aria-hidden />
+            <span className="label label-strong">{say("ui.page.family.drawing")}</span>
+          </>
+        ) : (
+          <div className="min-w-0 flex-1 leading-tight">
+            <div className="flex items-baseline gap-2">
+              <span className="truncate text-[15px] font-extrabold" data-family-title>
+                {card.title}
+              </span>
+              <span className="label ml-auto shrink-0 text-[9px] text-text-2">{say("ui.page.family")}</span>
+            </div>
+            <div className="mt-1 flex flex-wrap gap-1" data-family-tags>
+              {card.tags.map((tag) => (
+                <ToneTag key={tag.words} tone={tag.tone}>
+                  {tag.words}
+                </ToneTag>
               ))}
             </div>
-          )}
-          {shown.length === 0 ? null : <ReportLines lines={shown} />}
-          <LifeSoFar view={view} open={archetype === null} />
-        </div>
-      </GateSheet>
-    </Gate>
+          </div>
+        )}
+      </div>
+    </div>
   );
+}
+
+function Chips({ chips, mark }: { chips: readonly YearChip[]; mark?: string }) {
+  if (chips.length === 0) return null;
+  return (
+    <div className="mt-1.5 grid grid-cols-2 gap-1.5" {...(mark === undefined ? {} : { [mark]: "" })}>
+      {chips.map((chip) => (
+        // Where the life starts is said in a line of its own across the page (R-PROLOGUE-013).
+        <div key={chip.id} className={`min-w-0 ${chip.id === "home" ? "col-span-2" : ""}`}>
+          <FactChip id={chip.id} icon={chip.icon} label={chip.label} note={chip.note} state={chip.state} />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function Stat({ label, value, mark }: { label: string; value: string; mark: string }) {
+  return (
+    <div className="rounded-[5px] bg-sheet-muted py-2 text-center" data-stat={mark}>
+      <div className="num text-[17px]">{value}</div>
+      <div className="label text-[10px] text-text-2">{label}</div>
+    </div>
+  );
+}
+
+/**
+ * The page over the compound after Begin (R-PROLOGUE-014). While the years go by (`onDone` absent) the page shows the
+ * person and the age growing, the family still face down and the chips as the trail has them. As the handover, the
+ * family turns over once, the years before stand as chips with the story's own, the money and japacity as they
+ * stand, the stamp lands, and the world opens by itself or on a tap.
+ */
+function PageScreen({ view, archetype, draw, onDone }: { view: PlayerView; archetype: Archetype | null; draw: Draw | null; onDone?: () => void }) {
+  const person = readPerson();
+  const handover = onDone !== undefined;
+  const [turned, setTurned] = useState(false);
+  const [stamped, setStamped] = useState(false);
+  const done = useRef(false);
+  const finish = (): void => {
+    if (done.current || onDone === undefined) return;
+    done.current = true;
+    onDone();
+  };
+  useEffect(() => {
+    if (!handover) return;
+    const timers = [window.setTimeout(() => setTurned(true), TURN_MS), window.setTimeout(() => setStamped(true), STAMP_AT_MS), window.setTimeout(finish, STAMP_AT_MS + OPEN_AFTER_MS)];
+    return () => timers.forEach((timer) => window.clearTimeout(timer));
+    // The page's timeline runs once, as the handover opens.
+  }, [handover]);
+
+  const trail = readTrail();
+  const kept = draw ?? trail.draw;
+  const water = archetype?.id === "water";
+  const base = pageOf(view, person);
+  const page: PageFields = { ...base, path: pathShown(archetype, view, base), photo: lookOf(gateLook(person?.look))?.picture ?? "", age: clockWords(view.qualities), stamps: [] };
+  const years = yearChips(trail, view);
+  const story = handover ? storyChips(view) : [];
+  const step = handover ? firstStep(view) : null;
+  const naira = view.pockets.NGN.bank + view.pockets.NGN.cash;
+  const over: ReactNode = (
+    <div className="pointer-events-auto mx-auto mt-2 w-full max-w-[420px]">
+      <DataPage page={page} stamp={stamped ? <Stamp words={say("prologue.page.stamp.ready")} turn={-12} big /> : null} />
+    </div>
+  );
+  const foot = handover ? (
+    <>
+      {step === null ? null : (
+        <p className="mb-2 text-[15px] font-bold" data-first-step>
+          {say("prologue.handover.first", { step })}
+        </p>
+      )}
+      <button type="button" className="btn-main" onClick={finish} autoFocus>
+        <span>{say("ui.prologue.start")}</span>
+        <ArrowRight size={18} />
+      </button>
+    </>
+  ) : undefined;
+  return (
+    <div onClick={handover ? finish : undefined} data-page-handover={handover ? "" : undefined} data-page-running={handover ? undefined : ""} data-v={view.v}>
+      <Gate mark={handover ? "handover" : "years"} over={over}>
+        <GateSheet mark={handover ? "handover" : "years"} label={say("prologue.door.page.title")} {...(foot === undefined ? {} : { foot })}>
+          <div className="flex flex-col" data-prologue-handover={handover ? "" : undefined}>
+            <div className="mb-2 flex items-baseline justify-between gap-3">
+              {person === null || person.name === "" ? <h1 className="title text-[20px] leading-tight">{words(PROLOGUE_CLOSED)}</h1> : <h1 className="title text-[22px] leading-none">{person.name}</h1>}
+              <p className="num shrink-0 text-[13px] text-text-2">{say("ui.profile.age", { years: ageYears(view) })}</p>
+            </div>
+            {handover && archetype !== null ? (
+              <p className="mb-2 text-[14px] font-bold" data-handover-archetype>
+                {handoverKind(archetype, view)}
+              </p>
+            ) : null}
+            {kept === null && !handover ? null : <Family draw={kept} water={water} turned={handover && turned} />}
+            <h2 className="label mt-3 text-text-2">{say(handover ? "ui.page.years" : "ui.page.years.running")}</h2>
+            <Chips chips={years} mark="data-years" />
+            {story.length === 0 ? null : <Chips chips={story} mark="data-handover-story" />}
+            {handover ? (
+              <div className="mt-2 grid grid-cols-2 gap-1.5">
+                <Stat label={say("ui.page.money")} value={formatMoney(naira, "NGN")} mark="money" />
+                <Stat label={say("ui.page.ready")} value={say("prologue.page.ready.figure", { percent: view.japacity.percent ?? 0 })} mark="ready" />
+              </div>
+            ) : null}
+          </div>
+        </GateSheet>
+      </Gate>
+    </div>
+  );
+}
+
+/** The page as the handover (R-PROLOGUE-014): shown once, right after the prologue's last answer. */
+export function PageHandover({ onDone }: { onDone: () => void }) {
+  const view = useView();
+  return <PageScreen view={view} archetype={presetArchetype()} draw={null} onDone={onDone} />;
 }

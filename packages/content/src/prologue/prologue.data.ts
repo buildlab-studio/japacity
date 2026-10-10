@@ -291,6 +291,8 @@ export const prologueTable: Record<string, PrologueStep> = {
         requires: [{ type: "quality/min", quality: CARE, value: 30 }],
       }),
       answer("nowhere", [add(STANDING, 2), add(WELLBEING, 3)]),
+      // The drivers' crowd: a trade's send-off talks of driving in the Gulf, so the Gulf is heard before the motor park.
+      answer("drivers", [{ type: "route/hear", route: "route.gulf-contract", via: "friend" }]),
     ],
   },
 
@@ -329,16 +331,6 @@ export const prologueTable: Record<string, PrologueStep> = {
         { type: "obligation/open", obligation: "obligation.upkeep-makoko", amount: tuning.home.makokoUpkeep },
         { type: "home/move", place: "place.makoko" },
       ]),
-      answer(
-        "room",
-        [
-          { type: "obligation/open", obligation: "obligation.upkeep", amount: naira(180000) },
-          add(WELLBEING, 8),
-          add(STANDING, -2),
-        ],
-        // The years' earnings land in the bank (R-WALLET-018), so the room reads the naira held, cash and bank together.
-        { requires: [{ type: "money/min", currency: "NGN", amount: naira(300000) }] },
-      ),
     ],
   },
 

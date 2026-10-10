@@ -25,8 +25,8 @@ const SHOP = "activity.run-shop";
 const FIRST_CHAPTER = "chapter.find-your-feet";
 /** A trader with capital has money to move with, so hearing of a way out and reading up on it come before the jobs board. */
 const CAPITAL_FIRST = ["heard", "known"];
-/** A trade without a degree hears of a way out first, at the motor park. */
-const TRADE_FIRST = ["heard"];
+/** A trade without a degree hears of a way out first and looks it into next, both at the motor park. */
+const TRADE_FIRST = ["heard", "known"];
 /** A nurse is care 30 or more with the licence (prologue.md, the graduation step), as the prologue's own results say. */
 const NURSE_CARE = 30;
 const LICENCE = "document.nursing-licence";
@@ -87,6 +87,8 @@ export interface OwnWay {
 const CLINIC_WAY: OwnWay = { step: "job", key: "clinic", place: "place.tb-clinic", thing: "jobs-notice", activity: NURSE_JOB };
 /** A trade's first step: asking around at the motor park in Ojuelegba, where the Gulf is heard. */
 const MOTOR_PARK_WAY: OwnWay = { step: "heard", key: "motor-park", place: "place.ojuelegba", thing: "motor-park", activity: "activity.ask-around" };
+/** A trade that heard of the Gulf (from the drivers at the send-off) looks it into by asking around at the same park (R-CHAPTER-009's reading; decision 0025). */
+const MOTOR_PARK_LOOK: OwnWay = { ...MOTOR_PARK_WAY, step: "known" };
 
 /** A trader's job: her own shop, opened at her stall in the market with the settlement. */
 const SHOP_WAY: OwnWay = { step: "job", key: "shop", place: "place.tejuosho-market", thing: "own-stall", activity: OPEN_SHOP };
@@ -98,7 +100,8 @@ function routeState(view: Held, route: string): string {
 /**
  * The life's own way to its next step in the first chapter, or null when the chapter's table says it: a nurse
  * with no job goes to the clinic for the staff nurse's job, a trade that has heard of no way out asks
- * around at the motor park until the Gulf is heard, and a trader with a shop's capital opens her own shop.
+ * around at the motor park until the Gulf is heard, and asks around there again to look it into (decision 0025),
+ * and a trader with a shop's capital opens her own shop.
  */
 export function ownWayOf(view: Life & Pick<PlayerView, "chapter"> & Partial<Pick<PlayerView, "job">> & Held): OwnWay | null {
   if (view.chapter.current !== FIRST_CHAPTER) return null;
@@ -106,6 +109,7 @@ export function ownWayOf(view: Life & Pick<PlayerView, "chapter"> & Partial<Pick
   if (step === CLINIC_WAY.step && sixteenNurse(view) && view.job?.id !== NURSE_JOB) return CLINIC_WAY;
   const path = sixteenPath(view);
   if (step === MOTOR_PARK_WAY.step && (path === "trade" || path === "capital") && view.routes !== undefined && routeState(view, GULF) === "unknown") return MOTOR_PARK_WAY;
+  if (step === MOTOR_PARK_LOOK.step && (path === "trade" || path === "capital") && view.routes !== undefined && routeState(view, GULF) === "heard") return MOTOR_PARK_LOOK;
   if (step === SHOP_WAY.step && path === "capital" && view.job?.id !== SHOP) return SHOP_WAY;
   return null;
 }

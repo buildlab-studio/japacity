@@ -6,14 +6,14 @@ import { describe, expect, test, vi } from "vitest";
 import { engineView, newGame, richView } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { formatMoney } from "../../shared/words/format";
-import { inMonths, say, words } from "../../shared/words/text";
+import { inMonths, nameOf, say, words } from "../../shared/words/text";
 import { City, type CityMapSlot } from "./City";
 import { cityWords } from "./city.words";
 import { nudgeOf, stepWayOf } from "./nudge";
 
 const world = (extra: Partial<Parameters<typeof City>[0]> = {}) => <City world month={<p data-month-body>month</p>} results={(place) => <p data-results-for={place} />} {...extra} />;
 
-/** Renders the world and passes the chapter's opening words when a life has not played a month yet (R-WORLD-001). */
+/** Renders the world and passes a later chapter's opening card when one stands over it (R-WORLD-001, R-CHAPTER-011). */
 async function opened(ui: Parameters<typeof renderWithView>[0], view: Parameters<typeof renderWithView>[1]): Promise<Awaited<ReturnType<typeof renderWithView>>> {
   const rendered = await renderWithView(ui, view);
   const go = document.querySelector<HTMLElement>("[data-opening-go]");
@@ -37,16 +37,16 @@ function thumbs(): HTMLElement {
 }
 
 describe("the world fills the screen", () => {
-  test("[R-WORLD-001] given a life that has not played a month, when the world opens, then the chapter's opening words stand over the dimmed world with the nudge, and Go dismisses them", async () => {
+  test("[R-WORLD-001] [R-CHAPTER-011] given a life that has not played a month, when the world opens, then the first chapter's title stands over the world with no card, no dimming and no button, the nudge under the band gives the first step, and a life with a month behind it opens straight on the world", async () => {
     const view = engineView();
     await renderWithView(world(), view);
     const opening = document.querySelector<HTMLElement>("[data-opening]");
     if (opening === null || view.chapter.current === null) throw new Error("No opening");
     expect(opening.dataset.opening).toBe(view.chapter.current);
-    expect(opening.textContent).toContain(words(`${view.chapter.current}.open`));
-    expect(opening.textContent).toContain(say(nudgeOf(view).key));
-    fireEvent.click(screen.getByRole("button", { name: say("ui.opening.go") }));
-    expect(document.querySelector("[data-opening]")).toBeNull();
+    expect(opening.textContent).toBe(nameOf(view.chapter.current));
+    expect(screen.queryByRole("dialog")).toBeNull();
+    expect(screen.queryByRole("button", { name: say("ui.opening.go") })).toBeNull();
+    expect(document.querySelector("[data-nudge]")?.textContent).toContain(say(nudgeOf(view).key));
     // A life with a month behind it opens straight on the world.
     document.body.innerHTML = "";
     await renderWithView(world(), richView());

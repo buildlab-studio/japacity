@@ -316,7 +316,8 @@ export type Effect =
   | { type: "document/void"; document: Id<"document"> }
   // route
   | { type: "route/hear"; route: Id<"route">; chanceBp?: number; via: string }
-  | { type: "route/look-into" } // the slot's param names the route
+  /** Looks into a route heard of. `route` names it (decision 0025); without it, the slot's param or a string term does. */
+  | { type: "route/look-into"; route?: Id<"route"> }
   | { type: "route/apply-school" } // the slot's param names the school
   | { type: "route/apply"; route: Id<"route"> }
   | { type: "route/support"; route: Id<"route">; currency: Currency; amount: Amount }

@@ -1,7 +1,8 @@
 // The archetypes (prologue.md R-PROLOGUE-010, "The archetypes"): each a preset of the prologue's answers,
-// held here by the client and never by the simulation. For a step the archetype names, the client sends
-// the first of its answers that is allowed; a step it leaves open, or whose answers are all shut after a
-// draw, shows its card. The words for each live in content under `prologue.archetype.<id>.*`.
+// held here by the client and never by the simulation. Every step has its answer: the client sends the first
+// of the archetype's answers that is allowed, and where a draw has shut them all, the open answer that suits
+// the archetype best (`doorAnswer`), so no card shows for a new life. The words for each live in content under
+// `prologue.archetype.<id>.*`.
 import type { Id, PlayerView } from "@japacity/sim";
 
 import { sixteenPath } from "../words/sixteen";
@@ -25,8 +26,10 @@ export interface Archetype {
 }
 
 /**
- * Steps no archetype decides, with one way through: the opening draw, the university (federal is open to
- * everyone), the strike's drag, the results and the settlement. Each is a beat, never a card of its own.
+ * Steps every life passes the same way, never a card of its own: the opening draw, the university (federal is
+ * open to everyone), the strike's drag, the results and the settlement; and the steps that were cards before the
+ * short door (R-PROLOGUE-010): the exam studied for, a retake taken again, a strike waited
+ * out, and the family house to sleep in.
  */
 const THROUGH: Readonly<Record<string, readonly string[]>> = {
   draw: ["begin"],
@@ -36,14 +39,22 @@ const THROUGH: Readonly<Record<string, readonly string[]>> = {
   settlement: ["settle"],
   // The age card: the years as they went, unless the front door set a step (withAge, R-PROLOGUE-009).
   age: ["as-is"],
+  exam: ["study"],
+  retake: ["again"],
+  strike: ["wait"],
+  home: ["family-house"],
 };
 
-/** The steps an archetype chooses for itself: its preset without the steps every life passes the same way. */
+/** The steps every life passes the same way, which are no archetype's own choice. */
+export const THROUGH_STEPS: ReadonlySet<string> = new Set(Object.keys(THROUGH));
+
+/** The steps an archetype chooses for itself: its preset without the steps every life passes the same way, unless it answers one its own way. */
 export function ownSteps(archetype: Archetype): string[] {
-  return Object.keys(archetype.preset).filter((step) => !(step in THROUGH));
+  return Object.keys(archetype.preset).filter((step) => !(step in THROUGH) || (archetype.preset[step] ?? []).join() !== (THROUGH[step] ?? []).join());
 }
 
-const degree = (subjects: string, course: string, side: string, hustle: string): Record<string, readonly string[]> => ({
+/** `friend`: the crowd at the send-off, the answers in order, the first that is open taken (the table's preset). */
+const degree = (subjects: string, course: string, side: string, hustle: string, friend: readonly string[]): Record<string, readonly string[]> => ({
   ...THROUGH,
   subjects: [subjects],
   "after-school": ["jamb"],
@@ -51,6 +62,7 @@ const degree = (subjects: string, course: string, side: string, hustle: string):
   "side-skill": [side],
   hustle: [hustle],
   service: ["serve"],
+  friend,
 });
 
 /*
@@ -63,38 +75,39 @@ export const ARCHETYPES: readonly Archetype[] = [
   {
     id: "developer",
     // Focus in the final year keeps the grade at the master's and the bank's bar; code stays the side skill.
-    preset: degree("science", "computer-science", "code", "focus"),
+    preset: degree("science", "computer-science", "code", "focus", ["tech", "uk"]),
     leaning: { friend: "tech" },
     routes: ["route.uk-talent", "route.uk-skilled", "route.uk-masters"],
   },
   {
     id: "nurse",
-    preset: degree("science", "nursing", "books", "focus"),
+    preset: degree("science", "nursing", "books", "focus", ["care", "uk"]),
     leaning: { friend: "care" },
     routes: ["route.uk-care", "route.gulf-contract", "route.canada-points"],
   },
   {
     id: "accountant",
-    preset: degree("commercial", "accounting", "trade", "campus-shop"),
+    preset: degree("commercial", "accounting", "trade", "campus-shop", ["canada"]),
     leaning: { friend: "canada" },
     routes: ["route.canada-points", "route.uk-skilled", "route.uk-masters"],
   },
   {
     id: "writer",
-    preset: degree("arts", "mass-comm", "content", "focus"),
+    preset: degree("arts", "mass-comm", "content", "focus", ["uk"]),
     leaning: { friend: "uk" },
     routes: ["route.uk-masters", "route.canada-points"],
   },
   {
     id: "trader",
-    preset: { ...THROUGH, subjects: ["commercial"], "after-school": ["apprentice"], master: ["spare-parts"], years: ["stay"] },
-    leaning: { friend: "nowhere" },
+    preset: { ...THROUGH, subjects: ["commercial"], "after-school": ["apprentice"], master: ["spare-parts"], years: ["stay"], friend: ["drivers"] },
+    leaning: { friend: "drivers" },
     routes: ["route.gulf-contract", "route.road"],
   },
   {
     id: "shop-worker",
-    preset: { ...THROUGH, subjects: ["commercial"], "after-school": ["work"], shop: ["save"] },
-    leaning: {},
+    // The drivers at the send-off, as the trader's: they talk of the Gulf.
+    preset: { ...THROUGH, subjects: ["commercial"], "after-school": ["work"], shop: ["save"], friend: ["drivers"] },
+    leaning: { friend: "drivers" },
     routes: ["route.gulf-contract", "route.road"],
   },
   {
@@ -102,8 +115,8 @@ export const ARCHETYPES: readonly Archetype[] = [
     // settlement, and a room on the lagoon at the start, with the family house still there to go back to. The room's
     // small rent is the saving, and the motor park is the way out, as it is the trader's.
     id: "water",
-    preset: { ...THROUGH, subjects: ["commercial"], "after-school": ["work"], shop: ["save"], home: ["makoko"] },
-    leaning: { friend: "nowhere" },
+    preset: { ...THROUGH, subjects: ["commercial"], "after-school": ["work"], shop: ["save"], friend: ["drivers"], home: ["makoko"] },
+    leaning: { friend: "drivers" },
     routes: ["route.gulf-contract", "route.road"],
   },
 ];
@@ -122,10 +135,40 @@ export function withAge(archetype: Archetype, years: number): Archetype {
   return { ...archetype, preset: { ...archetype.preset, age: [...steps, "as-is"] } };
 }
 
-/** The answer the archetype sends at this card, or null when the card shows (R-PROLOGUE-010). */
+/** The homes the door offers (R-PROLOGUE-013): the home step's answers that play backs (R-HOME-001). */
+export const HOMES = ["family-house", "makoko"] as const;
+export type Home = (typeof HOMES)[number];
+
+/** The home a tile starts in unless the player picks the other: its own preset's, else the family house. */
+export function homeOf(archetype: Archetype): Home {
+  const own = archetype.preset["home"]?.[0];
+  return HOMES.find((home) => home === own) ?? "family-house";
+}
+
+/** The tile with the home picked on the door as its home step's preset (R-PROLOGUE-010, 013). */
+export function withHome(archetype: Archetype, home: string | null | undefined): Archetype {
+  const picked = HOMES.find((one) => one === home);
+  return picked === undefined ? archetype : { ...archetype, preset: { ...archetype.preset, home: [picked] } };
+}
+
+/** The naira in kobo a tile's life holds at its close, from content's `prologue.archetype.<id>.savings` (whole naira), kept honest by a test. */
+export function savingsOf(archetype: Pick<Archetype, "id">): number {
+  const figure = Number(say(`prologue.archetype.${archetype.id}.savings`));
+  return Number.isInteger(figure) ? figure * 100 : 0;
+}
+
+/** The archetype's own answer at this card while one of them is allowed, else null: a draw has shut them (R-PROLOGUE-010). */
 export function presetAnswer(archetype: Archetype, prologue: Pick<Prologue, "step" | "answers">): string | null {
   const wanted = archetype.preset[prologue.step] ?? [];
   return wanted.find((id) => prologue.answers.some((answer) => answer.id === id && answer.allowed)) ?? null;
+}
+
+/**
+ * The answer the front door sends at this card for a new life (R-PROLOGUE-010): the preset's,
+ * else the open answer that suits the archetype, else the first open one. Null only when every answer is shut.
+ */
+export function doorAnswer(archetype: Archetype, prologue: Pick<Prologue, "step" | "answers">): string | null {
+  return presetAnswer(archetype, prologue) ?? answersInOrder(archetype, prologue.step, prologue.answers).find((answer) => answer.allowed)?.id ?? null;
 }
 
 /** The card's answers with the one that suits the archetype first; the others keep their order. */

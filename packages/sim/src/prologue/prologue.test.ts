@@ -575,7 +575,7 @@ describe("the close", () => {
       expect(last.at(-2)).toBe("prologue/closed");
     }
     expect(problems).toEqual([]);
-    expect([...closes].sort()).toEqual(["family-house", "makoko", "room"]);
+    expect([...closes].sort()).toEqual(["family-house", "makoko"]);
   });
 
   test("[R-PROLOGUE-006] given 200 random prologues on the quality kind as it stands, when each closes, then each is still a legal starting life", () => {

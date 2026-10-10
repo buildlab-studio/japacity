@@ -46,9 +46,10 @@ function judge(game: Game, requirement: Requirement): boolean {
 
 /** The motor park makes the route heard (R-CONTRACT-001); looking into it needs the UK master's heard, by month 3. */
 function toKnown(game: Game): void {
-  game.endTurn([slot("activity.ask-around")]);
+  // A second ask at the park looks the Gulf into once it is heard (decision 0025), so the hub's look-into is needed only while it is still heard.
+  if (routeOf(game).state === "unknown") game.endTurn([slot("activity.ask-around")]);
   for (let month = 0; month < 5 && routeOf(game, UK).state !== "heard"; month += 1) game.endTurn();
-  game.endTurn([slot("activity.look-into-route", GULF)]);
+  if (routeOf(game).state === "heard") game.endTurn([slot("activity.look-into-route", GULF)]);
   expect(routeOf(game).state).toBe("known");
 }
 
@@ -112,6 +113,17 @@ describe("R-CONTRACT-001: hearing of the Gulf", () => {
     toKnown(game);
     const view = game.view().routes.find((route) => route.id === GULF)!;
     expect(view.checklist.map((item) => item.id)).toEqual(["passport", "medical", "agent", "police", "applied"]);
+  });
+
+  test("[R-CONTRACT-001] [R-CHAPTER-009] given a life that has heard of the Gulf, when it asks around at the motor park, then the ask looks the Gulf into there; a first ask only hears of it, and a life that never heard of it is not looked into by the ask alone", () => {
+    const game = life();
+    game.endTurn([slot("activity.ask-around")]);
+    expect(routeOf(game).state).toBe("heard");
+    game.endTurn([slot("activity.ask-around")]);
+    expect(routeOf(game).state).toBe("known");
+    const ask = content.activity["activity.ask-around"]!.effects;
+    expect(ask[0]).toEqual({ type: "route/look-into", route: GULF });
+    expect(ask.findIndex((effect) => effect.type === "route/hear")).toBeGreaterThan(0);
   });
 
   test("[R-CONTRACT-003] given no schooling, when it asks around at the motor park, then the Gulf is not heard of; with secondary school it is", () => {

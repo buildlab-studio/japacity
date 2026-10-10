@@ -5,7 +5,8 @@ import { describe, expect, test } from "vitest";
 import { engineView } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { formatMoney } from "../../shared/words/format";
-import { answerHint, PrologueHandover, PrologueView } from "./PrologueView";
+import { say } from "../../shared/words/text";
+import { answerHint, PageHandover, PrologueView } from "./PrologueView";
 
 /** The living costs an answer of the home card opens, from content. */
 function upkeepOf(answer: string): number {
@@ -15,25 +16,24 @@ function upkeepOf(answer: string): number {
 }
 
 describe("the home card", () => {
-  test("[R-PROLOGUE-009] given the card that asks where you sleep, when its answers show, then each says its living costs a month, as every other card says its cost", async () => {
+  test("[R-PROLOGUE-009] [R-PROLOGUE-013] given the card that asks where you sleep, when its answers show, then there are the family house and Makoko only, and each says its living costs a month, as every other card says its cost", async () => {
     const house = formatMoney(upkeepOf("family-house"), "NGN");
-    const room = formatMoney(upkeepOf("room"), "NGN");
+    const makoko = formatMoney(upkeepOf("makoko"), "NGN");
+    expect(content.prologue.home?.answers.map((answer) => answer.id)).toEqual(["family-house", "makoko"]);
     expect(answerHint("home", "family-house")).toBe(`Living costs: ${house} a month.`);
-    expect(answerHint("home", "room")).toBe(`Living costs: ${room} a month.`);
     expect(house).toBe("₦95,000");
-    expect(room).toBe("₦180,000");
+    expect(makoko).toBe("₦25,000");
     const base = engineView("scenario.prologue");
-    const view = { ...base, prologue: { step: "home", answers: [{ id: "family-house", allowed: true }, { id: "room", allowed: false }], lastOutcome: null, draw: null } };
+    const view = { ...base, prologue: { step: "home", answers: [{ id: "family-house", allowed: true }, { id: "makoko", allowed: true }], lastOutcome: null, draw: null } };
     await renderWithView(<PrologueView />, view);
     const shown = document.querySelector("[data-prologue-card]")?.textContent ?? "";
     expect(shown).toContain(`Living costs: ${house} a month.`);
-    // Shut for want of cash, the room still says what it would cost.
-    expect(shown).toContain(`Living costs: ${room} a month.`);
+    expect(shown).toContain(`Living costs: ${makoko} a month.`);
   });
 });
 
-describe("the handover's home line", () => {
-  test("[R-PROLOGUE-012] given a life that closed on a room in Makoko, when the handover tells where it sleeps, then the line is Makoko's with its rent", async () => {
+describe("the page's home", () => {
+  test("[R-PROLOGUE-012] [R-PROLOGUE-014] given a life that closed on a room in Makoko, when the page tells where it sleeps, then the page says it starts in the room on the water in Makoko, with the rent next month", async () => {
     const base = engineView();
     const rent = upkeepOf("makoko");
     const family = base.obligations[0];
@@ -43,7 +43,9 @@ describe("the handover's home line", () => {
       home: { ...base.home, place: "place.makoko" as const, rent: { currency: "NGN" as const, amount: rent } },
       obligations: [{ ...family, entry: "obligation.upkeep-makoko" as const, amount: rent }],
     };
-    await renderWithView(<PrologueHandover onDone={() => undefined} />, view);
-    expect(document.body.textContent).toContain(`You sleep in a room on the water in Makoko. Living costs: ${formatMoney(rent, "NGN")} a month.`);
+    await renderWithView(<PageHandover onDone={() => undefined} />, view);
+    const home = document.querySelector("[data-handover-story] [data-fact='home']");
+    expect(home?.textContent).toBe(`${say("ui.page.home.makoko")}${say("ui.page.home.costs", { amount: formatMoney(rent, "NGN") })}`);
+    expect(home?.textContent).toBe("You start in a room on the water, MakokoRent next month: ₦25,000");
   });
 });

@@ -5,7 +5,7 @@
 import type { Content, PlayerView, State, World } from "@japacity/sim";
 import { newState, step, viewFor } from "@japacity/sim";
 
-import { answersInOrder, type Archetype, FROM_SIXTEEN, ownSteps, presetAnswer } from "./archetypes";
+import { type Archetype, doorAnswer, FROM_SIXTEEN, ownSteps, presetAnswer } from "./archetypes";
 
 export { FROM_SIXTEEN };
 
@@ -22,8 +22,8 @@ export function seedNamed(base: string, n: number): string {
 
 /**
  * The steps a life on this seed answered with the tile's preset, played as the front door plays it: each preset
- * answer while it is allowed, and on a card the tile leaves open (the exam, the send-off, the home) the answer the
- * tile leans to, else the first open one. Null when the life stops on a card with no open answer.
+ * answer while it is allowed, and where a draw has shut them, the open answer the tile leans to, else the first
+ * open one (`doorAnswer`). Null when the life stops on a card with no open answer.
  */
 export function presetSent(archetype: Archetype, seed: string, world: World, content: Content): Set<string> | null {
   let state: State = newState(FROM_SIXTEEN, seed, content);
@@ -32,8 +32,8 @@ export function presetSent(archetype: Archetype, seed: string, world: World, con
     const prologue: PlayerView["prologue"] = viewFor({ state, world, content }).prologue;
     if (prologue === null) break;
     const preset = presetAnswer(archetype, prologue);
-    const answer = preset ?? answersInOrder(archetype, prologue.step, prologue.answers).find((one) => one.allowed)?.id;
-    if (answer === undefined) return null;
+    const answer = doorAnswer(archetype, prologue);
+    if (answer === null) return null;
     const result = step(state, { type: "prologue/choose", step: prologue.step, answer, basedOn: state.v }, world, content, "player");
     if (!result.ok) return null;
     state = result.state;
