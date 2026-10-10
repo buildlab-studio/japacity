@@ -664,6 +664,7 @@ export const uiText: Record<string, string> = {
   "ui.req.not-held": "Only without {document} in hand",
   "ui.req.any": "One of: {inner}",
   "ui.req.any-route": "A way out you have heard of",
+  "ui.req.any-abroad-or-circle": "Someone you know abroad, or a wide enough circle",
   "ui.req.place-is": "Be {where}",
   "ui.req.status-is": "Hold {statuses}",
   "ui.req.status-clock-under": "A status clock with under {months} months left",
