@@ -51,7 +51,7 @@ describe("the ticket stub beside the send-off card", () => {
     expect(pickStub.getAttribute("aria-pressed")).toBe("true");
     const stub = sheet.querySelector("[data-share-card='stub']") as HTMLElement;
     expect(sheet.querySelector("[data-share-card='send-off']")).toBeNull();
-    for (const words of ["Lagos", text["country.uk.name"]!, playedWords(view.card!.months), `${String(view.card!.percent)}%`, "The Careful Saver", text["share.type.careful-saver.line"]!, "Ada", "Japacity is a game.", "japacity.com"]) {
+    for (const words of ["Lagos", text["country.uk.name"]!, playedWords(view.card!.months), `${String(view.card!.percent)}%`, "The Hustler", text["share.type.hustler.line"]!, "Ada", "Japacity is a game.", "japacity.com"]) {
       expect(within(stub).getByText(words)).toBeDefined();
     }
     fireEvent.click(within(sheet).getByRole("button", { name: say("share.stub.pick.card") }));
@@ -87,16 +87,16 @@ describe("the ticket stub beside the send-off card", () => {
     const view = adaSendOff();
     const { store } = await renderWithView(<CardView />, view);
     fireEvent.click(within(await screen.findByRole("dialog")).getByRole("button", { name: say("ui.report.close") }));
-    expect(keptType(gallery.getState().kept)).toBe("careful-saver");
+    expect(keptType(gallery.getState().kept)).toBe("hustler");
     const stored = JSON.parse(localStorage.getItem("japacity.cards") ?? "[]") as { type?: string }[];
-    expect(stored[0]?.type).toBe("careful-saver");
+    expect(stored[0]?.type).toBe("hustler");
     act(() => store.setState({ view: { ...view, v: view.v + 1, month: view.month + 1, card: null } }));
     await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
     fireEvent.click(screen.getByRole("button", { name: say("share.gallery.open") }));
     const list = await screen.findByRole("dialog");
     fireEvent.click(within(list).getByRole("button", { name: new RegExp(say("share.send-off.title")) }));
     fireEvent.click(within(list).getByRole("button", { name: say("share.stub.pick.stub") }));
-    expect(within(list.querySelector("[data-share-card='stub']") as HTMLElement).getByText("The Careful Saver")).toBeDefined();
+    expect(within(list.querySelector("[data-share-card='stub']") as HTMLElement).getByText("The Hustler")).toBeDefined();
   });
 
   test("[R-SHARE-011] given no send-off closed yet, or only other cards kept, then the data page reads no type", () => {
