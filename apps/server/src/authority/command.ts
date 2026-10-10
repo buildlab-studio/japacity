@@ -18,12 +18,22 @@ import type { Live } from "./load";
 import type { Act, TxOptions, TxResult } from "./transaction";
 import { transact } from "./transaction";
 
+/**
+ * The most a logged command may hold, as JSON. The largest a player sends, a
+ * month's slots, is a few hundred bytes; an accepted command is logged as it
+ * came, so anything bigger would only fill the log.
+ */
+export const MAX_COMMAND_BYTES = 4096;
+
+const ENCODER = new TextEncoder();
+
 /** R-SERVER-001: a request body that holds a command and the version it was based on, and nothing else is read. */
 export function readRequest(body: unknown): { command: Command; basedOn: number } | null {
   if (typeof body !== "object" || body === null) return null;
   const { command, basedOn } = body as { command?: unknown; basedOn?: unknown };
   if (typeof command !== "object" || command === null || Array.isArray(command)) return null;
   if (typeof (command as { type?: unknown }).type !== "string") return null;
+  if (ENCODER.encode(JSON.stringify(command)).length > MAX_COMMAND_BYTES) return null;
   if (typeof basedOn !== "number" || !Number.isSafeInteger(basedOn)) return null;
   return { command: command as Command, basedOn };
 }

@@ -12,6 +12,8 @@ import { rejection } from "../account/reply";
 import { checkTurnstile } from "../account/turnstile";
 import type { Accounts } from "../auth/auth";
 import type { ServerDeps } from "../deps";
+import type { SessionEnv } from "../limits/limit";
+import { limit } from "../limits/limit";
 
 /** The body of `POST /api/age`; the Turnstile token goes in the `x-captcha-response` header. */
 export interface AgeRequest {
@@ -32,16 +34,16 @@ function hex(bytes: Uint8Array): string {
   return [...bytes].map((byte) => byte.toString(16).padStart(2, "0")).join("");
 }
 
-export function ageRoutes(deps: ServerDeps, { auth, keys }: Accounts): Hono {
-  const app = new Hono();
+export function ageRoutes(deps: ServerDeps, { auth, keys }: Accounts): Hono<SessionEnv> {
+  const app = new Hono<SessionEnv>();
 
   // R-ACCOUNT-011, R-ACCOUNT-012: the screen's standing read before it is shown; the switch gate answers it first while sign-ups are off (R-SERVER-031).
-  app.get("/api/age", (c) => {
+  app.get("/api/age", limit(deps, "reads"), (c) => {
     if (!regionOf(deps.config.regions, c.req.raw).policy.open) return c.json<AgeReply>(rejection("region-closed", "Sign-up is not open in this region."), 403);
     return c.json<AgeStatus>({ refused: readCookie(c.req.header("cookie"), REFUSED_COOKIE) !== null });
   });
 
-  app.post("/api/age", async (c) => {
+  app.post("/api/age", limit(deps, "commands"), async (c) => {
     const request = c.req.raw;
     if (!regionOf(deps.config.regions, request).policy.open) {
       return c.json<AgeReply>(rejection("region-closed", "Sign-up is not open in this region."), 403);

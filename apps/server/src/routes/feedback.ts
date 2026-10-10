@@ -3,15 +3,17 @@
 import { Hono } from "hono";
 
 import type { ServerDeps } from "../deps";
+import type { SessionEnv } from "../limits/limit";
+import { limit, sessionOf } from "../limits/limit";
 import { sendFeedback } from "../moderation/feedback";
 import type { ServerRejection } from "../types";
 import { countryOf } from "./place";
 
-export function feedbackRoute(deps: ServerDeps): Hono {
-  const route = new Hono();
+export function feedbackRoute(deps: ServerDeps): Hono<SessionEnv> {
+  const route = new Hono<SessionEnv>();
 
-  route.post("/api/feedback", async (c) => {
-    const session = await deps.session(c.req.raw);
+  route.post("/api/feedback", limit(deps, "commands"), async (c) => {
+    const session = sessionOf(c);
     if (session === null) return c.json<ServerRejection>({ ok: false, code: "signed-out", detail: "Sign in first." }, 401);
     const body: unknown = await c.req.json().catch(() => null);
     const sent = await sendFeedback(deps, session.account, countryOf(c.req.raw), body);
