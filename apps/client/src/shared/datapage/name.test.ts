@@ -1,5 +1,6 @@
 // The typed name (prologue.md R-PROLOGUE-009; the review): a first name the player types, checked as the
 // username is (account.md R-ACCOUNT-024): letters, a length, and never a reserved or a blocked word in any spelling.
+import { blockedWords, reservedNames } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
 import { say } from "../words/text";
@@ -36,6 +37,14 @@ describe("the typed name", () => {
   test("[R-PROLOGUE-009] given the door's own lists, then the reserved words the username rule names are in them, so the game's name is never a character's", () => {
     const words = ["japacity", "admin", "support", "staff", "official", "moderator"];
     expect(words.map((word) => nameProblem(word[0]!.toUpperCase() + word.slice(1), DOOR_LISTS))).toEqual(words.map(() => "reserved"));
+  });
+
+  test("[R-PROLOGUE-009] given a blocked word from content's list, in capitals, with marks or with a letter said twice, when it is typed as the name, then the door refuses it", () => {
+    expect(DOOR_LISTS.blocked).toBe(blockedWords);
+    expect(DOOR_LISTS.reserved).toBe(reservedNames);
+    expect(blockedWords).toContain("ashawo");
+    expect(["Ashawo", "ASHAWO", "Àshawo", "Asshawwo", "Bigashawo"].map((name) => nameProblem(name))).toEqual(Array.from({ length: 5 }, () => "blocked"));
+    expect(nameProblem("Ada")).toBeNull();
   });
 
   test("[R-PROLOGUE-009] given each problem, then the door says it in content's words", () => {

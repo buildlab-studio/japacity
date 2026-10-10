@@ -2,6 +2,8 @@
 // suggestions from the pool under the box. It passes the username's checks (account.md R-ACCOUNT-024): letters
 // only here, since it is a first name, a length, and no reserved or blocked word in any spelling. It may be reported
 // and reset like a username later, which is the moderation feature's to build.
+import { blockedWords, reservedNames } from "@japacity/content";
+
 import { say } from "../words/text";
 
 export const NAME_SHORTEST = 2;
@@ -14,12 +16,8 @@ export interface NameLists {
   blocked: readonly string[];
 }
 
-/**
- * the account feature keeps the reserved and blocked lists in content (`account.data.ts`), which is not
- * on main yet. Until it lands the door holds the reserved words the username rule names, and no blocked word; the
- * report asks for the account's lists to be passed here when they do.
- */
-export const DOOR_LISTS: NameLists = { reserved: ["japacity", "admin", "support", "staff", "official", "moderator"], blocked: [] };
+/** The username's own lists, kept by the account feature in content (`account.data.ts`), so the door refuses what it does. */
+export const DOOR_LISTS: NameLists = { reserved: reservedNames, blocked: blockedWords };
 
 /** A letter and the marks over and under it (Adébáyọ̀, Ọlá), and nothing else. */
 const LETTERS = /^[\p{L}\p{M}]+$/u;
