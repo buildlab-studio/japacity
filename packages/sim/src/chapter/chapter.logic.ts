@@ -6,7 +6,7 @@ import type { RegisteredKind } from "../engine/kind";
 import { emit } from "../engine/kind";
 import { reject } from "../engine/reject";
 import type { BaseEvent, ChapterEntry, ChapterSlice, Command, Content, Ctx, Id, PlayerView, ReadCtx, Rejection, ReportLine, Requirement, RequirementResult, RouteSlice } from "../engine/types";
-import { checklistView, routePercent } from "../japacity/japacity.logic";
+import { checklistView, japacity, routePercent } from "../japacity/japacity.logic";
 import { cardOf, cardsAllowed, reportLines, topActivities } from "./chapter.card";
 import type { ChapterEvent } from "./chapter.events";
 
@@ -231,7 +231,10 @@ export function chapterCard(read: ReadCtx): PlayerView["card"] {
   if (!cardsAllowed(read)) return null;
   for (const line of reportLines(read, CLOSED_LINE)) {
     const chapter = line.params.chapter as Id<"chapter">;
-    if (chapter !== SEND_OFF) return cardOf(read, "chapter", { chapter });
+    // The way out the chapters follow stands on the card while no route's figure counts yet (R-CHAPTER-009): the nurse's care
+    // work, shut to applicants from abroad, has its own figure from the month its page is read.
+    const route = japacity(read).route ?? planOf(read.state.route, read.content, read.state.chapter.chosen ?? null);
+    if (chapter !== SEND_OFF) return cardOf(read, "chapter", { chapter, route });
   }
   return null;
 }

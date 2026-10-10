@@ -5,6 +5,7 @@ import { cleanup } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
 import { hire, month, readCare, tileNurse, until } from "../../city/nurse.testing";
+import { cardFace } from "../../../shared/card/face";
 import { renderWithView } from "../../../shared/testing/render";
 import { inMonths } from "../../../shared/words/text";
 import { Japa } from "./Japa";
@@ -65,5 +66,23 @@ describe("the nurse's months in Japa", () => {
     const steps = routeSteps();
     expect(steps[0]).toEqual({ words: "Nursing licence held", way: "Renew it with the council, at the clinic", met: "false" });
     expect(steps.filter((step) => step.met === "true").every((step) => step.way === null)).toBe(true);
+  });
+});
+
+describe("the nurse's way out and figure", () => {
+  test("[R-WORLD-019] [R-CHAPTER-009] [R-SHARE-004] given the tile's nurse whose care page is read while care work is shut to applicants from abroad, when Japa and the chapter's card show, then both name care work and its figure", async () => {
+    const game = tileNurse("nurse-page");
+    hire(game);
+    readCare(game);
+    const view = until(game, (now) => now.card?.kind === "chapter", 4);
+    const care = view.routes.find((route) => route.id === "route.uk-care");
+    expect(view.japacity.percent).toBeNull();
+    expect(care?.percent).not.toBeNull();
+    await renderWithView(<Japa />, view);
+    expect(document.querySelector("[data-japa-percent]")?.getAttribute("data-japa-percent")).toBe(String(care?.percent));
+    expect(document.querySelector("[data-japa-gloss]")).not.toBeNull();
+    const face = cardFace(view.card!, view.scenario);
+    expect(face.route).toBe("Care work in the UK");
+    expect(face.percent).toBe(care?.percent);
   });
 });

@@ -386,7 +386,9 @@ export function Japa() {
   const costs = route === null ? [] : moveCosts(route);
   const lookInto = view.ended ? null : officialRoute(view);
   const planned = lookInto !== null && plan.some((pick) => pick !== null && pick.activity === OFFICIAL && pick.param === lookInto);
-  const percent = view.japacity.percent;
+  // The plan's own figure while no route's figure counts yet: care work, shut to applicants from abroad, reads from the
+  // month its page is read, as the master's does (R-CHAPTER-009).
+  const percent = view.japacity.percent ?? (lean === null ? null : (head?.percent ?? null));
   const coming = remindersOf(view);
   // Once a visa is granted the plan is done but the story is not: the next step, the plane, is named.
   const ahead = view.routes.some((candidate) => candidate.state === "granted") ? chapterAhead(view.chapter, lean) : null;
