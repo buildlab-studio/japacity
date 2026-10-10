@@ -171,9 +171,12 @@ describe("the developer's acts", () => {
     const played = game.endTurn([slot(POSTS), ...Array.from({ length: free }, () => slot(REST))]);
     expect(gained(played, NETWORK, POSTS)).toBe(1);
     expect(gained(played, STANDING, POSTS)).toBe(1);
-    const twice = month(game, [slot(POSTS), slot(POSTS)]);
+    // posting is an act done at once and runs once a month, so a second in the month is
+    // refused where it failed as a slot.
+    const twice = game.accept({ type: "activity/now", activity: POSTS, param: null });
     expect(gained(twice, NETWORK, POSTS)).toBe(1);
-    expect(twice.events).toContainEqual({ type: "activity/slot-failed", slot: 1, activity: POSTS, param: null, why: "requirements" });
+    expect(game.expectRejected({ type: "activity/now", activity: POSTS, param: null }, "not-legal").code).toBe("not-legal");
+    month(game, []);
 
     const tunde = start({ content, scenario: "scenario.tunde" });
     raiseTo(tunde, TECH, 29);

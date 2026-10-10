@@ -651,7 +651,9 @@ describe("opened by an effect", () => {
     const hunt = { activity: "activity.job-hunt" as const, param: "activity.job-customer-service" };
     let item: OfferState | undefined;
     for (let month = 0; month < 20 && item === undefined; month += 1) {
-      item = opened(subject.accept({ type: "turn/end", slots: [hunt] }))[0];
+      // the hunt is applied for at once and the employer answers as the month ends.
+      subject.accept({ type: "activity/now", ...hunt });
+      item = opened(subject.accept({ type: "turn/end", slots: [] }))[0];
     }
     expect(item).toMatchObject({ entry: "offer.job", terms: { job: "activity.job-customer-service" } });
     subject.accept({ type: "offer/choose", offer: item!.id, choice: "accept" });
@@ -668,9 +670,12 @@ describe("a hunt that lands while a job offer waits", () => {
       tuning: { ...content.tuning, quality: { ...content.tuning.quality, hireMaxBp: 10000 } },
     };
     const subject = lab({ content: certain });
-    const first = opened(subject.accept({ type: "turn/end", slots: [{ activity: "activity.job-hunt", param: "activity.job-teacher" }] }))[0]!;
+    // each hunt is applied for at once and answered as its month ends.
+    subject.accept({ type: "activity/now", activity: "activity.job-hunt", param: "activity.job-teacher" });
+    const first = opened(subject.accept({ type: "turn/end", slots: [] }))[0]!;
     expect(first.terms).toEqual({ job: "activity.job-teacher" });
-    const month = subject.accept({ type: "turn/end", slots: [{ activity: "activity.job-hunt", param: "activity.job-customer-service" }] });
+    subject.accept({ type: "activity/now", activity: "activity.job-hunt", param: "activity.job-customer-service" });
+    const month = subject.accept({ type: "turn/end", slots: [] });
     expect(own(month, "offer/replaced").map((event) => event.id)).toEqual([first.id]);
     const waiting = subject.view().offers.filter((offer) => offer.entry === "offer.job");
     expect(waiting.map((offer) => offer.terms.job)).toEqual(["activity.job-customer-service"]);

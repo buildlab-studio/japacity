@@ -17,7 +17,7 @@ describe("the Gulf file", () => {
 
   test("[R-CHAPTER-009] given the Gulf file's passport step, when its words are read, then it says what to do, where, and how the wait goes, and the file's opening names the passport", () => {
     expect(text[`${GULF_FILE}.item.passport`]).toBe("Get your passport");
-    expect(text[`${GULF_FILE}.item.passport.nudge`]).toBe("Start your passport from the box at home");
+    expect(text[`${GULF_FILE}.item.passport.nudge`]).toBe("Go home and start your passport");
     expect(text[`${GULF_FILE}.item.passport.started`]).toContain("{when}");
     expect(text[`${GULF_FILE}.item.passport.planned`]).toBeDefined();
     expect(text[`${GULF_FILE}.open`]).toMatch(/passport/);

@@ -117,15 +117,16 @@ test("a bond carries its time together, and time planned with someone names them
   for (let index = 0; index < 3; index += 1) month(game, [SEE]);
   await seed(page, game);
 
+  // Seeing someone answers at once (R-ACTIVITY-015): the tap makes the moment now, in the month in hand, with nothing planned.
   await openTab(page, "Month");
   await page.getByRole("button", { name: "See someone", exact: true }).click();
-  await expect(page.getByRole("list", { name: "This month" })).toContainText("See someone with Tobi");
+  await expect(page.getByRole("list", { name: "This month" })).not.toContainText("See someone");
 
   await openTab(page, "People");
   const bond = page.locator("[data-bond]").first();
   await bond.scrollIntoViewIfNeeded();
   await expect(bond).toContainText("Tobi");
-  await expect(bond).toContainText("3 moments so far");
+  await expect(bond).toContainText("4 moments so far");
   await expectNothingBroken(page, "on a bond");
   await shoot(page, "bond", info.project.name);
 

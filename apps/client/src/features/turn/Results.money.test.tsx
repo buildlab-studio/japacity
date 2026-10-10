@@ -7,7 +7,7 @@ import type { Effect, ReportLine } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
 import { stepWith } from "../../../../../packages/sim/src/engine/step";
-import { applyEffects, readyLife, slot, toKnown, withEffects } from "../../../../../packages/sim/src/route/route.journey";
+import { applyEffects, readyLife, toKnown, withEffects } from "../../../../../packages/sim/src/route/route.journey";
 import { legalCommands } from "../../../../../packages/sim/src/testing/legal";
 import { start, type Game } from "../../../../../packages/sim/src/testing/play";
 import { standInWorld } from "@japacity/sim";
@@ -34,7 +34,8 @@ function scammerGame(): { game: Game; offer: string; fee: number } {
     toKnown(game);
     for (let month = 0; month < 6 && !game.state.chapter.done.includes("chapter.find-your-feet"); month += 1) game.endTurn();
     applyEffects(game, [{ type: "route/hear", route: "route.gulf-contract", via: "test" }]);
-    game.endTurn([slot("activity.see-agent-stop", "route.gulf-contract")]);
+    // going to the stop is an act done at once, so the agent is at the table this month.
+    game.accept({ type: "activity/now", activity: "activity.see-agent-stop", param: "route.gulf-contract" });
     const item = Object.values(game.state.offer.items).find((candidate) => candidate.entry === "offer.agent-stop");
     if (item === undefined || !item.secret.fraud) continue;
     applyEffects(game, [{ type: "money/add", currency: "NGN", pocket: "cash", amount: 10_000_000, reason: "gift" }]);

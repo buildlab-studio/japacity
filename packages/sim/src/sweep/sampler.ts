@@ -43,6 +43,7 @@ export function sampleCommands(view: PlayerView): Loose[] {
 export const PLAYER_COMMANDS: Loose["type"][] = [
   "turn/end",
   "activity/quit",
+  "activity/now",
   "offer/choose",
   "wallet/convert",
   "wallet/move",

@@ -35,6 +35,8 @@ export const worldText: Record<string, string> = {
 
   "ui.world.added": "Added to the month",
   "ui.world.planned": "{what}: planned.",
+  // R-ACTIVITY-015: the button that closes the place's answer to an act done at once.
+  "ui.world.done": "Done",
   "ui.world.counts-at-end": "Counts when the month ends",
   "ui.world.depart-line": "The visa is in your passport. Board, and the next place is {country}.",
   "ui.world.deposit-line": "{school} holds your place on {route} once the deposit is paid. It goes from the naira in the bank.",
@@ -51,6 +53,8 @@ export const worldText: Record<string, string> = {
   "ui.nudge.meanwhile.open-source": "Share your code at the hub",
   "ui.nudge.meanwhile.tech-posts": "Post what you know, at the laptops",
   "ui.nudge.meanwhile.be-noticed": "Get noticed: ask at the jobs board",
+  // R-ACTIVITY-015: an act done at once whose answer comes with the month.
+  "ui.nudge.done-now": "Done. The answer is due this month.",
   "ui.nudge.hunt-planned": "Applied for better pay. Tap Next month.",
   // A chapter with every item met closes when the page turns.
   "ui.nudge.chapter-done": "The chapter is done. Tap Next month.",

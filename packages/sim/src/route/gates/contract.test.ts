@@ -1,3 +1,5 @@
+// a now-act (an application, a paper, a visit) is refused in a slot, so each probe that
+// sent one in a turn/end is sent as activity/now, and an application checked as applying is read in the month it is sent.
 import { fc, test } from "@fast-check/vitest";
 import { content, text } from "@japacity/content";
 import { describe, expect } from "vitest";
@@ -192,7 +194,8 @@ describe("R-CONTRACT-003: applying and the decision", () => {
     const game = ready();
     const visaFees = game.state.wallet.totals.out["fee-visa"];
     const foreign = { GBP: game.state.wallet.pockets.GBP, AED: game.state.wallet.pockets.AED };
-    game.endTurn([slot(APPLY)]);
+    // the papers are sent at once, so the route is applying in the month they are sent.
+    game.accept({ type: "activity/now", activity: APPLY, param: null });
     expect(routeOf(game).state).toBe("applying");
     expect(game.state.wallet.totals.out["fee-visa"]).toEqual(visaFees);
     expect({ GBP: game.state.wallet.pockets.GBP, AED: game.state.wallet.pockets.AED }).toEqual(foreign);
@@ -202,19 +205,19 @@ describe("R-CONTRACT-003: applying and the decision", () => {
     const game = life();
     toKnown(game);
     toMedical(game);
-    expect(game.expectRejected({ type: "turn/end", slots: [slot(APPLY)] }, "not-legal").code).toBe("not-legal");
+    expect(game.expectRejected({ type: "activity/now", activity: APPLY, param: null }, "not-legal").code).toBe("not-legal");
   });
 
   test("[R-CONTRACT-003] given no medical, when the papers are sent, then the turn is rejected", () => {
     const game = life();
     toKnown(game);
     takeAgent(game);
-    expect(game.expectRejected({ type: "turn/end", slots: [slot(APPLY)] }, "not-legal").code).toBe("not-legal");
+    expect(game.expectRejected({ type: "activity/now", activity: APPLY, param: null }, "not-legal").code).toBe("not-legal");
   });
 
   test("[R-CONTRACT-003] given no passport, when the papers are sent, then the turn is rejected", () => {
     const game = ready({ documents: [] });
-    expect(game.expectRejected({ type: "turn/end", slots: [slot(APPLY)] }, "not-legal").code).toBe("not-legal");
+    expect(game.expectRejected({ type: "activity/now", activity: APPLY, param: null }, "not-legal").code).toBe("not-legal");
   });
 
   test("[R-CONTRACT-003] given an age of 539 months on the day, when the papers are sent, then they go in; at 540 the turn is rejected", () => {
@@ -222,11 +225,11 @@ describe("R-CONTRACT-003: applying and the decision", () => {
     const start = (life().state.quality[AGE] ?? 0) - (content.scenario["scenario.ada"]!.qualities[AGE] ?? 0);
     const young = ready({ qualities: { [AGE]: MAX_AGE - 1 - months - start } });
     expect(young.state.quality[AGE]).toBe(MAX_AGE - 1);
-    young.endTurn([slot(APPLY)]);
+    young.accept({ type: "activity/now", activity: APPLY, param: null });
     expect(routeOf(young).state).toBe("applying");
     const old = ready({ qualities: { [AGE]: MAX_AGE - months - start } });
     expect(old.state.quality[AGE]).toBe(MAX_AGE);
-    expect(old.expectRejected({ type: "turn/end", slots: [slot(APPLY)] }, "not-legal").code).toBe("not-legal");
+    expect(old.expectRejected({ type: "activity/now", activity: APPLY, param: null }, "not-legal").code).toBe("not-legal");
   });
 
   test("[R-CONTRACT-003] given the gate asked past the slot, when the medical is gone or the age reaches the cap, then applying is held back", () => {

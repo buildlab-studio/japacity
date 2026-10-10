@@ -1,7 +1,7 @@
 // Words that misled players in the whole-life review, each held to what it should say.
 import { content, text } from "@japacity/content";
 import type { ActivityOption, PlayerView, ReportLine } from "@japacity/sim";
-import { cleanup, fireEvent, screen, within } from "@testing-library/react";
+import { cleanup, fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
 import { ActivityView } from "../../features/activity/ActivityView";
@@ -29,7 +29,7 @@ describe("words that mislead", () => {
     if (kiosk === undefined) throw new Error("No kiosk in a new life.");
     const counts = kiosk.params ?? [];
     expect(counts).toEqual(Array.from({ length: content.tuning.luck.maxTickets }, (_, index) => String(index + 1)));
-    const { store } = await renderWithView(<ActivityView />, { ...base, activities: [kiosk] satisfies ActivityOption[] });
+    const { store, authority } = await renderWithView(<ActivityView />, { ...base, activities: [kiosk] satisfies ActivityOption[] });
     const picker = screen.getByLabelText(say("ui.activity.pick"));
     expect(within(picker).getAllByRole("option").map((option) => option.textContent)).toEqual(counts.map((count) => sayCount("ui.activity.tickets", Number(count), { count: Number(count) })));
     expect(within(picker).getByRole("option", { name: "1 ticket" })).toBeDefined();
@@ -37,8 +37,11 @@ describe("words that mislead", () => {
     expect(document.body.textContent).not.toMatch(/\d\.name/);
     fireEvent.change(picker, { target: { value: "3" } });
     fireEvent.click(screen.getByRole("button", { name: `${text[`${LOTTO}.name`] ?? LOTTO}` }));
-    expect(store.getState().plan[0]).toEqual({ activity: LOTTO, param: "3" });
-    expect(screen.getByText(`${text[`${LOTTO}.name`] ?? ""}: ${paramWords("3")}`)).toBeDefined();
+    // the kiosk sells at once, so the count picked goes with the command sent now and the
+    // month's plan holds no ticket; the count is said in words where it is picked.
+    await waitFor(() => expect(authority.sent.at(-1)).toMatchObject({ type: "activity/now", activity: LOTTO, param: "3" }));
+    expect(store.getState().plan.some((pick) => pick?.activity === LOTTO)).toBe(false);
+    expect(paramWords("3")).toBe("3 tickets");
   });
 
   test("[R-ROUTE-019] given a refusal for the sponsor, the agent or the endorsement, then each reason is said in words", async () => {

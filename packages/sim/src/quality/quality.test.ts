@@ -63,6 +63,17 @@ function ada(): Game {
 
 const huntTeacher = { activity: "activity.job-hunt" as const, param: "activity.job-teacher" };
 
+/**
+ * the hunt that filled Ada's three slots changed no quality, but it is now an act done at
+ * once and fills no slot. A month with no wellbeing activity is now three empty slots, which rest; under this content
+ * the rest is worth nothing.
+ */
+const restless: Content = { ...content, tuning: { ...content.tuning, quality: { ...tuning, wellbeingRest: 0 } } };
+
+function adaRestless(): Game {
+  return start({ content: restless, scenario: "scenario.ada" });
+}
+
 describe("ranges", () => {
   test("[R-QUALITY-001] given a quality near the top, when a gain would pass the top, then it stops at the top", () => {
     const game = ada();
@@ -179,10 +190,10 @@ describe("wellbeing drift", () => {
   ];
 
   test.each(cases)("[R-QUALITY-004] given wellbeing %s the target, when a month passes with no wellbeing activity, then it moves toward the target and stops there", (_name, start, after) => {
-    const game = ada();
+    const game = adaRestless();
     applyEffects(game, [add("quality.wellbeing", start - game.state.quality["quality.wellbeing"]!)]);
     expect(game.state.quality["quality.wellbeing"]).toBe(start);
-    const result = game.endTurn([huntTeacher, huntTeacher, huntTeacher]);
+    const result = game.endTurn();
     expect(game.state.quality["quality.wellbeing"]).toBe(after);
     const drift = changes(result).filter((event) => event.quality === "quality.wellbeing");
     expect(drift).toEqual(after === start ? [] : [{ type: "quality/changed", quality: "quality.wellbeing", amount: after - start, source: "month" }]);
@@ -307,10 +318,10 @@ describe("report lines", () => {
 
   test("[R-QUALITY-006] [R-QUALITY-004] given a quality that counts toward a route, when the month phase raises it, then the drift line carries the route", () => {
     const wellbeing = content.quality["quality.wellbeing"]!;
-    const counted: Content = { ...content, quality: { ...content.quality, [wellbeing.id]: { ...wellbeing, counts: [UK] } } };
+    const counted: Content = { ...restless, quality: { ...content.quality, [wellbeing.id]: { ...wellbeing, counts: [UK] } } };
     const game = start({ content: counted, scenario: "scenario.ada" });
     applyEffects(game, [add("quality.wellbeing", tuning.wellbeingDriftTo - 10 - game.state.quality["quality.wellbeing"]!)]);
-    const result = game.endTurn([huntTeacher, huntTeacher, huntTeacher]);
+    const result = game.endTurn();
     const drift = result.lines.filter((line) => line.key === "line.quality.drift");
     expect(drift).toEqual([
       { key: "line.quality.drift", params: { quality: "quality.wellbeing", points: tuning.wellbeingDrift, value: tuning.wellbeingDriftTo - 10 + tuning.wellbeingDrift }, tone: "plain", attention: false, counts: [UK] },
@@ -318,8 +329,8 @@ describe("report lines", () => {
   });
 
   test("[R-QUALITY-003] [R-QUALITY-004] given a month, when it is reported, then age has no line and the drift is a plain line", () => {
-    const game = ada();
-    const result = game.endTurn([huntTeacher, huntTeacher, huntTeacher]);
+    const game = adaRestless();
+    const result = game.endTurn();
     const quality = result.lines.filter((line) => line.key.startsWith("line.quality."));
     expect(quality).toEqual([
       { key: "line.quality.drift", params: { quality: "quality.wellbeing", points: 2, value: 68 }, tone: "plain", attention: false, counts: [] },

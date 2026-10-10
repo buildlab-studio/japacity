@@ -1,4 +1,5 @@
 // Names are from docs/rules/activity.md. Blurbs are first drafts.
+import { activityNowText } from "./activity.now.text";
 import { activityProfileText } from "./activity.profile.text";
 import { activityRoomText } from "./activity.room.text";
 import { activityShopText } from "./activity.shop.text";
@@ -148,4 +149,6 @@ export const activityText: Record<string, string> = {
   ...activityProfileText,
   ...activityShopText,
   ...activityWaterText,
+  // R-ACTIVITY-015: what the place says when a now-act is done there.
+  ...activityNowText,
 };

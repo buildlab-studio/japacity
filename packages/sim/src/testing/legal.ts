@@ -8,8 +8,8 @@ import type { Loose } from "./play";
 
 function fromTurn(view: PlayerView): Loose[] {
   if (view.turns.banked < 1 || view.setpiece !== null) return [];
-  // Each playable activity with its first param, then every other param on its own.
-  const playable = view.activities.filter((option) => option.allowed && option.affordable);
+  // Each playable activity with its first param, then every other param on its own. A now-act fills no slot (R-ACTIVITY-015).
+  const playable = view.activities.filter((option) => option.allowed && option.affordable && option.when === "month");
   const first: SlotPick[] = [];
   const commands: Loose[] = [{ type: "turn/end", slots: [] }];
   for (const option of playable) {
@@ -258,8 +258,19 @@ function fromPrologue(view: PlayerView): Loose[] {
   return card.answers.filter((answer) => answer.allowed).map((answer) => ({ type: "prologue/choose", step: card.step, answer: answer.id }));
 }
 
+/**
+ * Quitting, and each now-act the view allows with its first param (R-ACTIVITY-015). Another param only for a free act:
+ * the view prices the first param alone, and a now-act that cannot be paid is refused where a slot only failed.
+ */
 function fromActivity(view: PlayerView): Loose[] {
-  return view.job.id === null ? [] : [{ type: "activity/quit" }];
+  const commands: Loose[] = view.job.id === null ? [] : [{ type: "activity/quit" }];
+  if (view.setpiece !== null) return commands;
+  for (const option of view.activities) {
+    if (option.when !== "now" || !option.allowed || !option.affordable) continue;
+    const params = option.params === null ? [null] : option.cost.length === 0 ? option.params : option.params.slice(0, 1);
+    for (const param of params) commands.push({ type: "activity/now", activity: option.id, param });
+  }
+  return commands;
 }
 
 /**

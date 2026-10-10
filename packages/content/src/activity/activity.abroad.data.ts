@@ -17,6 +17,7 @@ import type { ActivityEntry, Effect, Id, Money, Requirement } from "@japacity/si
 
 import { tuning } from "../tuning/tuning.data";
 import { aed, cad, euros, pct, pounds } from "../units";
+import { withWhen } from "./activity.when.data";
 
 const ABROAD: Requirement = { type: "place/is", where: "abroad" };
 const IN_UK: Requirement = { type: "place/is", where: "abroad", country: "country.uk" };
@@ -87,7 +88,7 @@ const CONTRACT_SALARY = { term: "salary", bp: pct(1200) } as const;
 /** The jobs a student may hold (R-LADDER-006). Overtime is not for them. */
 const PART_JOBS: Id<"activity">[] = ["activity.job-uk-retail-part"];
 
-export const abroadActivityTable: Record<Id<"activity">, ActivityEntry> = {
+export const abroadActivityTable: Record<Id<"activity">, ActivityEntry> = withWhen({
   // Jobs in the UK
 
   "activity.job-uk-care": {
@@ -437,10 +438,10 @@ export const abroadActivityTable: Record<Id<"activity">, ActivityEntry> = {
       effects: [gain("quality.standing", 12), wellbeing(6)],
     },
   ),
-};
+});
 
 /** The free-slot activities priced in Canadian dollars or dirhams, joined in activity.data.ts now the wallet keeps those pockets (R-ABROAD-001). */
-export const foreignPocketActivityTable: Record<Id<"activity">, ActivityEntry> = {
+export const foreignPocketActivityTable: Record<Id<"activity">, ActivityEntry> = withWhen({
   "activity.community-ca": free("activity.community-ca", "country.canada", [IN_CANADA], {
     cost: [{ currency: "CAD", amount: cad(15), reason: "social" }],
     effects: [gain("quality.network", 4), wellbeing(4)],
@@ -478,4 +479,4 @@ export const foreignPocketActivityTable: Record<Id<"activity">, ActivityEntry> =
       effects: [gain("quality.standing", 12), wellbeing(6)],
     },
   ),
-};
+});

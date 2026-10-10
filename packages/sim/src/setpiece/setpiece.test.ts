@@ -125,10 +125,11 @@ describe("while the interview is open", () => {
   });
 
   test("[R-ENGINE-011] given an open interview and no turn banked, when each question comes up, then the view offers answers, every one offered is accepted by step, and answering closes it", () => {
-    // A first life finds how many months the file takes; the second banks exactly that many turns and one for the application.
+    // A first life finds how many months the file takes; the second banks exactly that many turns. Restated for
+    // R-ACTIVITY-015: the application is sent at once and the interview opens in the month in hand, so it takes no turn.
     const trial = life();
     toHeld(trial);
-    const months = trial.state.turn.month + 1;
+    const months = trial.state.turn.month;
     const game = life({ change: (used) => ({ ...used, tuning: { ...used.tuning, turn: { ...used.tuning.turn, start: months } } }) });
     toApplied(game);
     expect(game.state.turn.banked).toBe(0);

@@ -86,7 +86,9 @@ describe("the Month sheet", () => {
 
   test("[R-WORLD-007] given last month's hunt found the job now held, when Same again is tapped, then the hunt is not planned again and the rest of last month is", async () => {
     const view = adaTeaching();
-    expect(view.lastSlots).toContainEqual({ activity: "activity.job-hunt", param: TEACHER });
+    // the hunt is applied for at once and fills no slot, so last month's slots never hold
+    // it; Same again still plans the rest of last month and no hunt.
+    expect(view.lastSlots).not.toContainEqual({ activity: "activity.job-hunt", param: TEACHER });
     const { store } = await renderWithView(<MonthSheet />, view);
     fireEvent.click(screen.getByRole("button", { name: turnWords("ui.month.same-again") }));
     const plan = store.getState().plan;
