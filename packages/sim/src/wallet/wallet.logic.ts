@@ -215,7 +215,7 @@ export type Payment = { type: "money/take"; currency: Currency; pocket: "any" | 
  * reads (the way home, R-PLACE-011) so that it never books money its own way.
  */
 export function walletAfter(read: ReadCtx, payment: Payment): WalletSlice | null {
-  const events = payment.type === "money/take" ? takeEvents(read.state, payment.currency, payment.pocket, payment.amount, payment.reason) : feePlanned(read, payment);
+  const events = payment.type === "money/take" ? takeEvents(read.state, read.content, payment.currency, payment.pocket, payment.amount, payment.reason) : feePlanned(read, payment);
   if (events === null) return null;
   return events.reduce((slice, event) => evolve(slice, event, read.state), read.state.wallet);
 }
@@ -262,29 +262,38 @@ function addMoney(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
   return events;
 }
 
+/**
+ * R-WALLET-018 (decision 0022): the pocket a naira credit of work, a gig, a prize or the prologue's earnings lands
+ * in, and the pocket a street debit is taken from first, by its size. Small money changes hands as cash; past
+ * the line people ask for a transfer.
+ */
+export function pocketFor(amount: number, wallet: Pick<Tuning["wallet"], "cashUpTo">): Pocket {
+  return amount <= wallet.cashUpTo ? "cash" : "bank";
+}
+
+/** A whole amount taken from two pockets, the first named until it runs out, never locked. */
+function takeInOrder(currency: Currency, first: Pocket, amount: number, held: PocketBalance, reason: Reason): WalletEvent[] | null {
+  if (held.cash + held.bank < amount) return null;
+  const second: Pocket = first === "cash" ? "bank" : "cash";
+  const fromFirst = Math.min(held[first], amount);
+  return moved([debit(currency, first, fromFirst, reason), debit(currency, second, amount - fromFirst, reason)]);
+}
+
 /** The debits a whole amount taken from a pocket makes, or null when it cannot be taken: R-WALLET-001, all or nothing. */
-function takeEvents(state: State, currency: Currency, from: "any" | "transfer" | AnyPocket, amount: number, reason: Reason): WalletEvent[] | null {
+function takeEvents(state: State, content: Content, currency: Currency, from: "any" | "transfer" | AnyPocket, amount: number, reason: Reason): WalletEvent[] | null {
   if (amount === 0) return [];
   const pocket = state.wallet.pockets[currency];
-  if (from === "any") {
-    // The street: cash first, then bank, never locked ("Pockets" in wallet.md).
-    if (pocket.cash + pocket.bank < amount) return null;
-    const fromCash = Math.min(pocket.cash, amount);
-    return moved([debit(currency, "cash", fromCash, reason), debit(currency, "bank", amount - fromCash, reason)]);
-  }
-  if (from === "transfer") {
-    // A transfer: the bank first, then cash, never locked (decision 0012 as amended).
-    if (pocket.cash + pocket.bank < amount) return null;
-    const fromBank = Math.min(pocket.bank, amount);
-    return moved([debit(currency, "bank", fromBank, reason), debit(currency, "cash", amount - fromBank, reason)]);
-  }
+  // The street: cash first at or under the line, the bank first above it (R-WALLET-018, "Pockets" in wallet.md).
+  if (from === "any") return takeInOrder(currency, pocketFor(amount, content.tuning.wallet), amount, pocket, reason);
+  // A transfer: the bank first, then cash (decision 0012 as amended).
+  if (from === "transfer") return takeInOrder(currency, "bank", amount, pocket, reason);
   if (pocket[from] < amount) return null;
   return [debit(currency, from, amount, reason)];
 }
 
 function takeMoney(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
   if (effect.type !== "money/take") throw new Error(`money/take cannot carry out ${effect.type}.`);
-  return takeEvents(ctx.state, effect.currency, effect.pocket, effectAmount(ctx, effect.amount, cause.terms), effect.reason) ?? [];
+  return takeEvents(ctx.state, ctx.content, effect.currency, effect.pocket, effectAmount(ctx, effect.amount, cause.terms), effect.reason) ?? [];
 }
 
 // ---------------------------------------------------------------------------
@@ -501,14 +510,15 @@ function placeCurrency(state: State, content: Content): Currency {
 
 /**
  * Money that is not the month's own on the results sheet (R-WORLD-008): a move between pockets is the
- * same money, and held funds only sit locked from the day they land to the day they go back.
+ * same money, a change of money is a move between currencies (decision 0021 as amended: what is done with
+ * it afterwards is the spending), and held funds only sit locked from the day they land to the day they go back.
  */
-const NOT_THE_MONTHS: ReadonlySet<Reason> = new Set<Reason>(["move", "held-funds", "held-funds-return"]);
+const NOT_THE_MONTHS: ReadonlySet<Reason> = new Set<Reason>(["move", "convert", "held-funds", "held-funds-return"]);
 
 /**
- * The month's net, with one credit or debit added. A change counts each side in its own money, as the
- * results do. The prologue's years are not a month: money that moves while it is open is what the
- * character starts with.
+ * The month's net, with one credit or debit added. A change's two sides count nothing; its bank charge
+ * and a short count stay money out. The prologue's years are not a month: money that moves while it is
+ * open is what the character starts with.
  */
 function withMonthNet(slice: WalletSlice, state: State, currency: Currency, change: number, reason: Reason): WalletSlice {
   if (state.prologue.open || NOT_THE_MONTHS.has(reason)) return slice;
@@ -516,13 +526,24 @@ function withMonthNet(slice: WalletSlice, state: State, currency: Currency, chan
   return { ...slice, monthNet: { ...net, [currency]: (net[currency] ?? 0) + change } };
 }
 
+/**
+ * R-WALLET-019: nothing moves by itself; the world warns. The first month of a life to close with more naira cash
+ * on the character than the warning line, after the prologue, draws the warning once.
+ */
+function cashWarning(state: State, content: Content): WalletEvent[] {
+  const { wallet } = state;
+  if (state.prologue.open || wallet.cashWarned === true || wallet.pockets.NGN.cash <= content.tuning.wallet.cashWarnAt) return [];
+  return [{ type: "wallet/cash-warned" }];
+}
+
 /** As the month closes, it is told with its net in the money of the place where it ended. A month that moved nothing tells nothing. */
 function closeMonth(ctx: Ctx): BaseEvent[] {
+  const warned = cashWarning(ctx.state, ctx.content);
   const net = ctx.state.wallet.monthNet;
-  if (net === undefined) return [];
+  if (net === undefined) return warned;
   const currency = placeCurrency(ctx.state, ctx.content);
   const closed: WalletEvent = { type: "wallet/month-closed", currency, net: net[currency] ?? 0 };
-  return [closed];
+  return [closed, ...warned];
 }
 
 /** The slice with the month's net cleared, and the month counted when it was kept. */
@@ -594,6 +615,8 @@ function evolve(slice: WalletSlice, event: WalletEvent, state: State): WalletSli
       return slice;
     case "wallet/month-closed":
       return monthClosed(slice, event.net);
+    case "wallet/cash-warned":
+      return { ...slice, cashWarned: true };
     default: {
       const never: never = event;
       throw new Error(`Unknown wallet event ${JSON.stringify(never)}.`);
@@ -636,6 +659,9 @@ function lines(event: WalletEvent): ReportLine[] {
     }
     case "wallet/lot-recorded":
       return [line("line.wallet.flagged", { amount: { currency: event.lot.currency, amount: event.lot.amount } }, "bad")];
+    case "wallet/cash-warned":
+      // R-WALLET-019: someone who cares says it, with no figure; moving the money stays the player's act.
+      return [{ ...line("line.wallet.cash-warning", {}, "plain"), attention: true }];
     case "wallet/arrived":
     case "wallet/lots-dropped":
     case "wallet/bought":

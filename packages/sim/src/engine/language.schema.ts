@@ -403,6 +403,8 @@ export const TuningSchema = z.strictObject({
     streetShortLossBp: RangeSchema,
     lotMonths: CountSchema,
     flagDepositAbove: CountSchema,
+    cashUpTo: CountSchema,
+    cashWarnAt: CountSchema,
   }),
   rate: z.strictObject({
     start: z.record(ForeignCurrencySchema, z.int().positive()),

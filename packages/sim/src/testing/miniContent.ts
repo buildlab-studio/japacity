@@ -319,6 +319,8 @@ export const miniContent: Content = {
       streetShortLossBp: [300, 800],
       lotMonths: 3,
       flagDepositAbove: 50000000,
+      cashUpTo: 1000000,
+      cashWarnAt: 10000000,
     },
     rate: {
       start: { GBP: 175800, USD: 133150, CAD: 97000, AED: 36255, EUR: 155800 },

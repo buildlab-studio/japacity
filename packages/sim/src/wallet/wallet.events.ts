@@ -28,7 +28,9 @@ export type WalletEvent =
    */
   | { type: "wallet/remitted"; channel: RemitChannel; sent: MoneyParam; fee: number; naira: number; lost: boolean; readyMonth: number }
   /** The month closed with this net in the money of the place where it ended; above zero is a month kept (decision 0021). */
-  | { type: "wallet/month-closed"; currency: Currency; net: number };
+  | { type: "wallet/month-closed"; currency: Currency; net: number }
+  /** A month closed with more naira cash on the character than the warning line, the first time in the life (R-WALLET-019). */
+  | { type: "wallet/cash-warned" };
 
 /** The ways money goes home (R-ABROAD-006). */
 export type RemitChannel = "app" | "bank" | "informal";

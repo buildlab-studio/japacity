@@ -17,6 +17,8 @@ export { standInWorld } from "./world/standIn";
 export { stepWorld, offlineCalendar } from "./world/director";
 export type { DirectorBook, WorldCalendar } from "./world/director";
 export { japacity, routePercent } from "./japacity/japacity.logic";
+// Where a naira credit lands by its size (wallet.md R-WALLET-018): content's prologue earnings read it too.
+export { pocketFor } from "./wallet/wallet.logic";
 export * as time from "./engine/time";
 // The Friday draw's public method: the server draws with it and the client's draw page checks with it (docs/rules/lottery.md R-LOTTERY-015).
 export {

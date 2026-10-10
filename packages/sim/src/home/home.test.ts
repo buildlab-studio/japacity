@@ -181,15 +181,16 @@ describe("coming back", () => {
 });
 
 describe("moving", () => {
-  test("[R-HOME-002] given Ada at the family house with the rent split across cash and bank, when she moves to Makoko, then the first month's rent comes out of cash first then the bank, the family's upkeep closes and Makoko's opens at the tuning's charge", () => {
+  test("[R-HOME-002] [R-WALLET-018] given Ada at the family house with the rent split across bank and cash, when she moves to Makoko, then the first month's rent, over the line for cash, comes out of the bank first then cash, the family's upkeep closes and Makoko's opens at the tuning's charge", () => {
     const game = ada();
-    const cash = 10_000_00;
-    setNaira(game, cash, 1_000_000_00);
+    const bank = 10_000_00;
+    expect(home.makokoUpkeep).toBeGreaterThan(content.tuning.wallet.cashUpTo);
+    setNaira(game, 1_000_000_00, bank);
     const result = game.accept({ type: "home/move", to: MAKOKO });
     const debits = eventsOf(result, "wallet/debited").map((event) => [event["pocket"], event["amount"], event["reason"]]);
     expect(debits).toEqual([
-      ["cash", cash, "upkeep"],
-      ["bank", home.makokoUpkeep - cash, "upkeep"],
+      ["bank", bank, "upkeep"],
+      ["cash", home.makokoUpkeep - bank, "upkeep"],
     ]);
     expect(openEntries(game)).toEqual([MAKOKO_UPKEEP]);
     expect(Object.values(game.state.obligation.items)[0]?.amount).toBe(home.makokoUpkeep);

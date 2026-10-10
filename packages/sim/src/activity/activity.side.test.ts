@@ -83,7 +83,7 @@ describe("side jobs", () => {
     expect(moneyOf(game.endTurn(), "salary").map((money) => money.amount)).toEqual([offer.pay?.amount]);
   });
 
-  test("[R-ACTIVITY-010] given a side job paid in dollars and one paid in naira, when a month is played, then the dollars go to the bank and the naira to cash, its toll applies, and the slot stays locked for the next month", () => {
+  test("[R-ACTIVITY-010] [R-WALLET-018] given a side job paid in dollars and one paid in naira, when a month is played, then the dollars go to the bank and the naira, a month's pay over the line for cash, to the bank as well, its toll applies, and the slot stays locked for the next month", () => {
     const night = sideJob("scenario.ada", NIGHT);
     const month = night.endTurn();
     expect(moneyOf(month, "salary")).toEqual([{ type: "wallet/credited", currency: "USD", pocket: "bank", amount: payOf(NIGHT), reason: "salary" }]);
@@ -94,7 +94,8 @@ describe("side jobs", () => {
     night.expectRejected({ type: "turn/end", slots: [slot("activity.rest"), slot("activity.rest"), slot("activity.rest")] }, "not-legal");
 
     const tutoring = sideJob("scenario.ada", TUTORING);
-    expect(moneyOf(tutoring.endTurn(), "gig")).toEqual([{ type: "wallet/credited", currency: "NGN", pocket: "cash", amount: payOf(TUTORING), reason: "gig" }]);
+    expect(payOf(TUTORING)).toBeGreaterThan(tuning.wallet.cashUpTo);
+    expect(moneyOf(tutoring.endTurn(), "gig")).toEqual([{ type: "wallet/credited", currency: "NGN", pocket: "bank", amount: payOf(TUTORING), reason: "gig" }]);
   });
 
   test("[R-ACTIVITY-010] given a job and a side job, when the side job is quit, then only it ends; with none held, quitting a side job is not legal; one side job at a time", () => {
@@ -171,7 +172,7 @@ describe("side jobs", () => {
 });
 
 describe("the one chance", () => {
-  test("[R-ACTIVITY-011] given a side job at home, when the draw on `street` falls under the chance, then the cash goes, the phone is paid from the bank, wellbeing drops 12 and the line asks for attention; the rest of the bank is not touched", () => {
+  test("[R-ACTIVITY-011] [R-WALLET-018] given a side job at home, when the draw on `street` falls under the chance, then the cash goes, the phone is paid from the bank, wellbeing drops 12 and the line asks for attention; the rest of the bank, the month's pay in it, is not touched", () => {
     const game = sideJob("scenario.tunde", RIDE);
     let robbed = 0;
     for (let month = 0; month < 400 && robbed === 0; month += 1) {
@@ -181,8 +182,9 @@ describe("the one chance", () => {
       const pocket = game.state.wallet.pockets.NGN;
       const result = game.endTurn();
       expect(game.state.draws.street).toBe(n + 1);
-      // The side job's naira pay arrives in cash first, so it goes too.
-      const cash = pocket.cash + payOf(RIDE);
+      // The side job's naira pay, over the line for cash, lands in the bank (R-WALLET-018): the bus takes the cash on you.
+      expect(payOf(RIDE)).toBeGreaterThan(tuning.wallet.cashUpTo);
+      const cash = pocket.cash;
       const losses = [
         { type: "wallet/debited", currency: "NGN", pocket: "cash", amount: cash, reason: "mishap" },
         { type: "wallet/debited", currency: "NGN", pocket: "bank", amount: tuning.ladder.phone, reason: "mishap" },

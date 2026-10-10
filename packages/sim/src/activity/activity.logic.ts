@@ -53,6 +53,7 @@ import {
   overtimePay,
   raisedJob,
 } from "./activity.pay";
+import { pocketFor } from "../wallet/wallet.logic";
 import { officialRates } from "../wallet/wallet.rates";
 import type { Judge } from "../japacity/japacity.logic";
 
@@ -530,10 +531,14 @@ function dropUnfit(ctx: Ctx): BaseEvent[] {
   return events;
 }
 
-/** Cash work is paid to the cash pocket under its own reason; everything else to the bank as salary. */
-function payEffect(entry: ActivityEntry, pay: MoneyParam): Effect {
+/**
+ * Cash work is paid under its own reason, in naira to the pocket its size takes (R-WALLET-018) and abroad in hand;
+ * everything else to the bank as salary.
+ */
+function payEffect(entry: ActivityEntry, pay: MoneyParam, content: Content): Effect {
+  const pocket = pay.currency === "NGN" ? pocketFor(pay.amount, content.tuning.wallet) : "cash";
   return entry.cash === true
-    ? { type: "money/add", currency: pay.currency, pocket: "cash", amount: pay.amount, reason: "cash-work" }
+    ? { type: "money/add", currency: pay.currency, pocket, amount: pay.amount, reason: "cash-work" }
     : { type: "money/add", currency: pay.currency, pocket: "bank", amount: pay.amount, reason: "salary" };
 }
 
@@ -564,7 +569,7 @@ function workJob(ctx: Ctx): BaseEvent[] {
   const share = (amount: number): number => (sick ? bp(amount, ctx.content.tuning.health.sickPayBp) : amount);
   const pay: MoneyParam = { currency: full.currency, amount: share(full.amount) };
   const tax = share(monthlyTax(read, entry, terms));
-  ctx.apply([payEffect(entry, pay)], cause);
+  ctx.apply([payEffect(entry, pay, ctx.content)], cause);
   if (tax > 0) ctx.apply([{ type: "money/take", currency: pay.currency, pocket: "bank", amount: tax, reason: "tax" }], cause);
   if (sick) events.push(...record(ctx, { type: "activity/sick-pay", job, pay }));
   const worked: ActivityEvent =
@@ -604,8 +609,8 @@ function oneChance(ctx: Ctx, side: Id<"activity">): BaseEvent[] {
 /**
  * The side job's month (R-ACTIVITY-010): its pay, its toll, the slot locked for
  * the month to come, and at home the one chance. the contract's pay
- * names no pocket, so naira goes to cash as `gig` and a foreign currency to the
- * bank as `salary`.
+ * names no pocket, so naira goes as `gig` to the pocket its size takes
+ * (R-WALLET-018) and a foreign currency to the bank as `salary`.
  */
 function workSide(ctx: Ctx): BaseEvent[] {
   const side = ctx.state.activity.side;
@@ -618,7 +623,7 @@ function workSide(ctx: Ctx): BaseEvent[] {
   if (pay !== null) {
     const effect: Effect =
       pay.currency === "NGN"
-        ? { type: "money/add", currency: pay.currency, pocket: "cash", amount: pay.amount, reason: "gig" }
+        ? { type: "money/add", currency: pay.currency, pocket: pocketFor(pay.amount, ctx.content.tuning.wallet), amount: pay.amount, reason: "gig" }
         : { type: "money/add", currency: pay.currency, pocket: "bank", amount: pay.amount, reason: "salary" };
     ctx.apply([effect], cause);
   }
@@ -695,7 +700,7 @@ function overtime(ctx: Ctx, cause: Cause): BaseEvent[] {
   const entry = jobEntry(ctx.content, job);
   const pay = overtimePay(readOf(ctx), entry);
   if (pay === null || pay.amount === 0) return [];
-  ctx.apply([payEffect(entry, pay)], cause);
+  ctx.apply([payEffect(entry, pay, ctx.content)], cause);
   return record(ctx, { type: "activity/overtime-paid", job, pay });
 }
 
@@ -712,7 +717,7 @@ function drivingTest(ctx: Ctx, cause: Cause): BaseEvent[] {
   return events;
 }
 
-/** R-LUCK-005: each ticket drawn on stream `lotto`; winnings to the bank as `win`, never flagged. */
+/** R-LUCK-005: each ticket drawn on stream `lotto`; winnings as `win`, never flagged, to the pocket their size takes (R-WALLET-018). */
 function lotto(ctx: Ctx, pick: SlotPick, cause: Cause): BaseEvent[] {
   const { luck } = ctx.content.tuning;
   const tickets = ticketsOf(pick.param, luck);
@@ -726,17 +731,17 @@ function lotto(ctx: Ctx, pick: SlotPick, cause: Cause): BaseEvent[] {
   }
   const stake: MoneyParam = { currency: "NGN", amount: luck.ticket * tickets };
   const events = record(ctx, { type: "activity/lotto-played", tickets, stake, prizes, won: { currency: "NGN", amount: won } });
-  if (won > 0) ctx.apply([{ type: "money/add", currency: "NGN", pocket: "bank", amount: won, reason: "win" }], cause);
+  if (won > 0) ctx.apply([{ type: "money/add", currency: "NGN", pocket: pocketFor(won, ctx.content.tuning.wallet), amount: won, reason: "win" }], cause);
   return events;
 }
 
-/** R-LUCK-006: the stake on stream `lotto`; a win pays `betOddsBp` of it to cash. */
+/** R-LUCK-006: the stake on stream `lotto`; a win pays `betOddsBp` of it, to the pocket its size takes (R-WALLET-018). */
 function betSlip(ctx: Ctx, cause: Cause): BaseEvent[] {
   const { stake, betWinBp, betOddsBp, betWellbeing } = ctx.content.tuning.luck;
   const win = ctx.random.chance("lotto", betWinBp);
   const won = win ? bp(stake, betOddsBp) : 0;
   const events = record(ctx, { type: "activity/bet-placed", stake: { currency: "NGN", amount: stake }, won: { currency: "NGN", amount: won } });
-  if (won > 0) ctx.apply([{ type: "money/add", currency: "NGN", pocket: "cash", amount: won, reason: "win" }], cause);
+  if (won > 0) ctx.apply([{ type: "money/add", currency: "NGN", pocket: pocketFor(won, ctx.content.tuning.wallet), amount: won, reason: "win" }], cause);
   if (ctx.content.quality[WELLBEING] !== undefined) ctx.apply([{ type: "quality/add", quality: WELLBEING, amount: win ? betWellbeing : -betWellbeing }], cause);
   return events;
 }
@@ -1034,13 +1039,13 @@ function huntEffect(ctx: Ctx, _effect: unknown, cause: Cause): BaseEvent[] {
   return events;
 }
 
-/** A side gig (R-ACTIVITY-008): a draw between its figures plus its figure for each point of tech, in naira cash. */
+/** A side gig (R-ACTIVITY-008): a draw between its figures plus its figure for each point of tech, in naira, to the pocket its size takes (R-WALLET-018). */
 function gigEffect(ctx: Ctx, effect: { min: number; max: number; perTech: number }, cause: Cause): BaseEvent[] {
   const tech = ctx.state.quality[TECH] ?? 0;
   const amount = ctx.random.between("gig", effect.min, effect.max) + effect.perTech * tech;
   if (amount <= 0) return [];
   const events = record(ctx, { type: "activity/gig-paid", amount });
-  ctx.apply([{ type: "money/add", currency: GIG_CURRENCY, pocket: "cash", amount, reason: "gig" }], cause);
+  ctx.apply([{ type: "money/add", currency: GIG_CURRENCY, pocket: pocketFor(amount, ctx.content.tuning.wallet), amount, reason: "gig" }], cause);
   return events;
 }
 

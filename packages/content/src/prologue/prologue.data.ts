@@ -9,7 +9,7 @@
 // is that low after the subjects step).
 // a retake is allowed once. The second retake card offers only work,
 // since a second retake or the apprenticeship would end the prologue past 25.
-import type { Effect, Id, PrologueStep, Requirement, ScenarioEntry } from "@japacity/sim";
+import { pocketFor, type Effect, type Id, type PrologueStep, type Requirement, type ScenarioEntry } from "@japacity/sim";
 
 import { qualityTable } from "../quality/quality.data";
 import { tuning } from "../tuning/tuning.data";
@@ -22,9 +22,9 @@ function add(quality: Id<"quality">, amount: number): Effect {
   return { type: "quality/add", quality, amount };
 }
 
-/** Earned cash, to the cash pocket (R-PROLOGUE-003). */
+/** Earned money (R-PROLOGUE-003), to the pocket its size takes (R-WALLET-018): years of earnings land in the bank. */
 function earned(amount: number): Effect {
-  return { type: "money/add", currency: "NGN", pocket: "cash", amount, reason: "gig" };
+  return { type: "money/add", currency: "NGN", pocket: pocketFor(amount, tuning.wallet), amount, reason: "gig" };
 }
 
 function answer(id: string, effects: Effect[], more: Partial<Omit<Answer, "id" | "effects">> = {}): Answer {
@@ -336,7 +336,8 @@ export const prologueTable: Record<string, PrologueStep> = {
           add(WELLBEING, 8),
           add(STANDING, -2),
         ],
-        { requires: [{ type: "money/min", currency: "NGN", amount: naira(300000), pocket: "cash" }] },
+        // The years' earnings land in the bank (R-WALLET-018), so the room reads the naira held, cash and bank together.
+        { requires: [{ type: "money/min", currency: "NGN", amount: naira(300000) }] },
       ),
     ],
   },

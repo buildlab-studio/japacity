@@ -100,14 +100,15 @@ describe("Computer Village: a phone", () => {
     expect(result.events).toContainEqual({ type: "activity/rested", slots });
   });
 
-  test("[R-STREET-001] given cash one kobo short of the price and the rest in the bank, when the phone is bought, then cash goes first and the bank pays the kobo (decision 0012); with the naira short in both, the slot fails for its cost and nothing is paid", () => {
+  test("[R-STREET-001] [R-WALLET-018] given the bank one kobo short of the price and the rest in cash, when the phone is bought, then, the price being over the line for cash, the bank goes first and cash pays the kobo; with the naira short in both, the slot fails for its cost and nothing is paid", () => {
     const game = ada();
-    setNaira(game, street.phonePrice - 1, street.phonePrice * 2);
+    expect(street.phonePrice).toBeGreaterThan(content.tuning.wallet.cashUpTo);
+    setNaira(game, street.phonePrice * 2, street.phonePrice - 1);
     expect(option(game, PHONE)).toMatchObject({ allowed: true, affordable: true });
     const bought = game.endTurn([slot(PHONE)]);
     expect(moved(bought, "phone")).toEqual([
-      { type: "wallet/debited", currency: "NGN", pocket: "cash", amount: street.phonePrice - 1, reason: "phone" },
-      { type: "wallet/debited", currency: "NGN", pocket: "bank", amount: 1, reason: "phone" },
+      { type: "wallet/debited", currency: "NGN", pocket: "bank", amount: street.phonePrice - 1, reason: "phone" },
+      { type: "wallet/debited", currency: "NGN", pocket: "cash", amount: 1, reason: "phone" },
     ]);
     setNaira(game, street.phonePrice - 1, 0);
     expect(option(game, PHONE)).toMatchObject({ allowed: true, affordable: false });
@@ -202,7 +203,16 @@ describe("the bridge: sleeping rough", () => {
 
   test("[R-STREET-004] given a night under the bridge, when the month resolves, then it costs nothing and gives the rest an empty slot gives", () => {
     const slots = ada().view().freeSlots;
-    const { played, rested } = againstRest((game) => setQuality(game, WELLBEING, 40), ROUGH);
+    // The naira held kept in the bank, so the theft the night may draw (its own price, tested in offer.street.test.ts)
+    // finds no cash on either side: the living costs no longer empty the cash first (R-WALLET-018).
+    const inBank = (game: Game): void => {
+      const { bank, cash } = game.state.wallet.pockets.NGN;
+      setNaira(game, 0, bank + cash);
+    };
+    const { played, rested } = againstRest((game) => {
+      setQuality(game, WELLBEING, 40);
+      inBank(game);
+    }, ROUGH);
     expect(changed(played, WELLBEING, ROUGH)).toEqual([content.tuning.quality.wellbeingRest]);
     expect(changed(rested, WELLBEING, "rest")).toEqual([content.tuning.quality.wellbeingRest * slots]);
     expect(debits(played)).toEqual(debits(rested));

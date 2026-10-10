@@ -85,6 +85,11 @@ function cash(game: Game): number {
   return game.state.wallet.pockets.NGN.cash;
 }
 
+/** The naira held, cash and bank: an agent's fee is a street price taken by its size (wallet.md R-WALLET-018). */
+function naira(game: Game): number {
+  return game.state.wallet.pockets.NGN.cash + game.state.wallet.pockets.NGN.bank;
+}
+
 describe("who the agent is", () => {
   test("[R-ADVICE-005] [R-ADVICE-013] given every draw out of 10000, when the kind is read, then fixers, chasers, overpromisers and scammers come at exactly the tuning's shares", () => {
     const counts: Record<AgentKind, number> = { fixer: 0, chaser: 0, overpromiser: 0, scammer: 0 };
@@ -214,13 +219,16 @@ describe("what the agent's appearance reads", () => {
 });
 
 describe("paying the agent", () => {
-  test("[R-ADVICE-001] [R-ADVICE-005] given a fixer and a paper being made, when he is paid, then the fee leaves cash, the route is known through him, and the paper comes the fixer's months sooner", () => {
+  test("[R-ADVICE-001] [R-ADVICE-005] [R-WALLET-018] given a fixer and a paper being made, when he is paid, then the fee, over the line for cash, leaves the bank first, the route is known through him, and the paper comes the fixer's months sooner", () => {
     const { game, item } = agentOfKind("fixer");
     applyEffects(game, [{ type: "document/request", document: "document.medical" }]);
     const due = game.state.document["document.medical"]!.readyMonth!;
-    const before = cash(game);
+    const before = { naira: naira(game), bank: game.state.wallet.pockets.NGN.bank };
+    const fee = item.terms["fee"] as number;
+    expect(fee).toBeGreaterThan(content.tuning.wallet.cashUpTo);
     const result = game.accept({ type: "offer/choose", offer: item.id, choice: "take" });
-    expect(before - cash(game)).toBe(item.terms["fee"]);
+    expect(before.naira - naira(game)).toBe(fee);
+    expect(before.bank - game.state.wallet.pockets.NGN.bank).toBe(Math.min(fee, before.bank));
     expect(game.state.route[GULF]?.state).toBe("known");
     expect(result.lines.find((line) => line.key === "line.route.looked-into-agent")?.params).toEqual({ route: GULF });
     expect(game.state.document["document.medical"]!.readyMonth).toBe(Math.max(game.state.turn.month + 1, due - advice.fixerMonths));
@@ -285,9 +293,9 @@ describe("fake papers", () => {
     ] });
     applyEffects(game, [{ type: "offer/open", offer: PAPERS }]);
     const papers = Object.values(game.state.offer.items).find((item) => item.entry === PAPERS)!;
-    const before = cash(game);
+    const before = naira(game);
     game.accept({ type: "offer/choose", offer: papers.id, choice: "transcript" });
-    expect(before - cash(game)).toBe(advice.fakePapersFee);
+    expect(before - naira(game)).toBe(advice.fakePapersFee);
     return game;
   }
 

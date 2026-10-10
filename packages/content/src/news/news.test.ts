@@ -1,11 +1,12 @@
-import type { Id, NewsEntry, NewsSource, NewsStage, Requirement } from "@japacity/sim";
+import { standInWorld, type Id, type NewsEntry, type NewsSource, type NewsStage, type Requirement } from "@japacity/sim";
 import { NewsEntrySchema } from "@japacity/sim/schemas";
 import { describe, expect, test } from "vitest";
 
+import { badNews } from "../comedy/comedy.check";
 import { content, text } from "../index";
 
-/** The five stories of news.md, the 25 of director.md's pool and one for each of the seven eras. */
-const STORY_COUNT = 5 + 25 + 7;
+/** The five stories of news.md, the 25 of director.md's pool, the one-chance story of wallet.md R-WALLET-019 and one for each of the seven eras. */
+const STORY_COUNT = 5 + 25 + 1 + 7;
 
 /** Every variable a requirement reads, through `not` and `any`. */
 function varsRead(requirements: Requirement[]): Id<"var">[] {
@@ -196,5 +197,39 @@ describe("where a story comes from", () => {
     const float = content.news["news.naira-float"];
     if (float === undefined) throw new Error("No float story.");
     expect(sourceOf(float, "ended")).toBe(float.source?.ended ?? float.source?.announced ?? null);
+  });
+});
+
+describe("the one-chance story (wallet.md R-WALLET-019)", () => {
+  const ONE_CHANCE: Id<"news"> = "news.warning-one-chance";
+  const RECRUIT: Id<"news"> = "news.uk-unis-recruit";
+
+  test("[R-WALLET-019] given the one-chance story, when it is read, then it is home news of the calm era that opens every world, told once, moving no variable and hearing no route, and its words are bad news written straight", () => {
+    const entry = story(ONE_CHANCE);
+    expect(entry.director).toMatchObject({ group: "home", needs: [{ type: "era/is", eras: ["era.calm"] }], once: true, shock: false, adds: [] });
+    expect(entry.standIn).toMatchObject({ chanceBp: 10000, rumourLead: 0, sets: [], revert: false });
+    expect(varsChanged(entry)).toEqual([]);
+    expect(entry.touches).toEqual([]);
+    expect(entry.hear).toEqual([]);
+    for (const stage of toldStages(entry)) {
+      const words = `${text[`${ONE_CHANCE}.${stage}.head`] ?? ""} ${text[`${ONE_CHANCE}.${stage}.body`] ?? ""}`;
+      expect(words).toMatch(/one-chance|danfo/);
+      expect(words).not.toMatch(/\{|\d|₦/);
+    }
+    expect(badNews("line.news.delivered", text[`${ONE_CHANCE}.announced.body`] ?? "")).toBe(true);
+    expect(text[`${ONE_CHANCE}.in-force.body`]).toMatch(/bank/);
+  });
+
+  test("[R-WALLET-019] [R-DIRECTOR-003] given forty worlds, when their first months are walked, then each announces the one-chance story by its third tick, and never before the recruiting fair, which it never pushes back", () => {
+    // The pool is rolled in id order under a cap of new stories a tick: the fair comes first, so the story never takes its place.
+    expect(ONE_CHANCE > RECRUIT).toBe(true);
+    for (let seed = 0; seed < 40; seed += 1) {
+      const first: Partial<Record<Id<"news">, number>> = {};
+      for (let tick = 1; tick <= 3; tick += 1) {
+        for (const held of standInWorld(`one-chance-${String(seed)}`, tick, content).news) first[held.id] ??= tick;
+      }
+      expect({ seed, told: first[ONE_CHANCE] !== undefined }).toEqual({ seed, told: true });
+      expect(first[RECRUIT]).toBeLessThanOrEqual(first[ONE_CHANCE] ?? 0);
+    }
   });
 });

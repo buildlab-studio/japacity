@@ -125,9 +125,11 @@ describe("the chaser among the agents", () => {
   test("[R-ADVICE-013] [R-DOCUMENT-007] given a chaser and the police certificate being made, when he is paid, then the fee leaves, the certificate comes one month sooner, and the line says he follows it up", () => {
     const { game, item } = agentOfKind("chaser");
     const due = game.state.document[POLICE]!.readyMonth!;
-    const before = game.state.wallet.pockets.NGN.cash;
+    // The fee is a street price taken by its size, from cash and bank together (wallet.md R-WALLET-018).
+    const held = (): number => game.state.wallet.pockets.NGN.cash + game.state.wallet.pockets.NGN.bank;
+    const before = held();
     const result = game.accept({ type: "offer/choose", offer: item.id, choice: "take" });
-    expect(before - game.state.wallet.pockets.NGN.cash).toBe(item.terms["fee"]);
+    expect(before - held()).toBe(item.terms["fee"]);
     expect(game.state.document[POLICE]!.readyMonth).toBe(Math.max(game.state.turn.month + 1, due - advice.chaserMonths));
     const paid = result.events.find((event) => event.type === "offer/agent-paid") as unknown as { kind: AgentKind; paper: Id<"document"> | null };
     expect(paid).toMatchObject({ kind: "chaser", paper: POLICE });

@@ -271,7 +271,9 @@ describe("hearing of a route and looking into it", () => {
   });
 
   test("[R-ROUTE-004] given a known route with funds short, when the view is read, then the slow funds item carries what is shown and needed and earns its share rounded down", () => {
-    const game = life({ pockets: { NGN: { bank: 2000000 * UNIT, cash: 500000 * UNIT } } });
+    // ₦3,000,000 in the bank: the month on the way pays the living costs from it, over the line for cash (wallet.md
+    // R-WALLET-018), and what is left still earns a share above nothing.
+    const game = life({ pockets: { NGN: { bank: 3000000 * UNIT, cash: 500000 * UNIT } } });
     toKnown(game);
     const funds = game.view().routes[0]!.checklist.find((item) => item.id === "funds")!;
     const shown = fundsShown(readOf(game), UK);
@@ -587,7 +589,11 @@ describe("funds", () => {
       },
     });
     toKnown(game);
-    const bankOnly = toPence(game, 3000000 * UNIT, "NGN") + 5000 * UNIT + toPence(game, 2000 * UNIT, "USD");
+    // The month on the way paid the living costs, over the line for cash, from the bank first (wallet.md R-WALLET-018).
+    const naira = game.state.wallet.pockets.NGN.bank;
+    expect(naira).toBeLessThan(3000000 * UNIT);
+    expect(game.state.wallet.pockets.NGN.cash).toBe(500000 * UNIT);
+    const bankOnly = toPence(game, naira, "NGN") + 5000 * UNIT + toPence(game, 2000 * UNIT, "USD");
     expect(fundsShown(readOf(game), UK)).toBe(bankOnly);
     applyEffects(game, [
       { type: "money/add", currency: "USD", pocket: "bank", amount: 1000 * UNIT, reason: "held-funds", locked: true },
@@ -608,9 +614,12 @@ describe("funds", () => {
       },
     });
     toKnown(game);
-    const flies = flying(game, 3000000 * UNIT) + 5000 * UNIT + toPence(game, 2000 * UNIT, "USD");
+    // The month on the way paid the living costs, over the line for cash, from the bank first (wallet.md R-WALLET-018).
+    const naira = game.state.wallet.pockets.NGN.bank;
+    expect(game.state.wallet.pockets.NGN.cash).toBe(500000 * UNIT);
+    const flies = flying(game, naira) + 5000 * UNIT + toPence(game, 2000 * UNIT, "USD");
     expect(flyingFundsShown(readOf(game), UK)).toBe(flies);
-    expect(flying(game, 3000000 * UNIT)).toBeLessThan(toPence(game, 3000000 * UNIT, "NGN"));
+    expect(flying(game, naira)).toBeLessThan(toPence(game, naira, "NGN"));
     applyEffects(game, [
       { type: "money/add", currency: "GBP", pocket: "bank", amount: 1000 * UNIT, reason: "held-funds", locked: true },
       { type: "money/add", currency: "NGN", pocket: "bank", amount: 4000000 * UNIT, reason: "held-funds", locked: true },
