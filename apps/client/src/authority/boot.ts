@@ -27,12 +27,18 @@ export function bootGame(options: Partial<LocalAuthorityOptions> = {}): GameStor
   }
 }
 
+/** R-ACCOUNT-030: once a life has ended, the page loads afresh on the door, so nothing the old life held in memory stays. */
+function loadAfresh(): void {
+  location.reload();
+}
+
 function bootLocal(options: Partial<LocalAuthorityOptions>): GameStore {
   const authority = localAuthority({ fastClock: clockMode().fastClock, ...options });
   const { start } = authority;
   return createGameStore(authority, {
     life: authority,
     rememberMonth: true,
+    afterLifeEnded: loadAfresh,
     choosingLife: start.kind !== "loaded",
     notice: start.kind === "replaced" ? `ui.life.notice.${start.why}` : null,
   });
@@ -41,7 +47,7 @@ function bootLocal(options: Partial<LocalAuthorityOptions>): GameStore {
 function bootRemote(baseUrl: string): GameStore {
   const remote = remoteAuthority({ baseUrl });
   // One life per account online (R-ACCOUNT-015): the chooser opens only when the server says there is none.
-  const store = createGameStore(remote, { life: remote, lifeAgain: false, rememberMonth: true, account: betterAuthApi({ baseUrl }) });
+  const store = createGameStore(remote, { life: remote, lifeAgain: false, rememberMonth: true, afterLifeEnded: loadAfresh, account: betterAuthApi({ baseUrl }) });
   goOnline({ store, remote });
   startCounting({ baseUrl });
   // R-ANALYTICS-006: an account that turned the counters off stays off from the first screen.

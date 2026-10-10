@@ -31,6 +31,8 @@ export interface RemoteAuthority {
   send(command: Command): Promise<Reply | ServerRejection>;
   /** `POST /api/character`: the account's one character (R-ACCOUNT-015). */
   newLife(scenario: Id<"scenario">): Promise<PlayerView>;
+  /** `POST /api/character/end`: the account's character ended for good, so another may start (R-ACCOUNT-030). False when it was refused. */
+  endLife(): Promise<boolean>;
   /** The version of the last view the server sent, or null before the first. */
   held(): number | null;
   /** The clock of the last reply, or null before the first (R-CLOCK-003). */
@@ -169,6 +171,19 @@ export function remoteAuthority(options: RemoteAuthorityOptions): RemoteAuthorit
       // The account already has its one character: carry on with it.
       if (reply.code === "one-character") return fetchView();
       return refuse(reply);
+    },
+
+    async endLife() {
+      const reply = await http.post<{ ok: true } | ServerRejection>("/api/character/end", {});
+      // An account with no character has nothing left to end: the door is the answer either way.
+      if (!reply.ok && reply.code !== "no-character") {
+        if (reply.code === "signed-out") report(reply);
+        return false;
+      }
+      version = null;
+      lastClock = null;
+      fresh = null;
+      return true;
     },
 
     async world() {

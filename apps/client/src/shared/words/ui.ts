@@ -572,6 +572,19 @@ export const uiText: Record<string, string> = {
   "ui.life.again": "Start a new life",
   "ui.life.notice.other-content": "Your saved life was made for an older version of the game, so it could not come along. A new life has started.",
   "ui.life.notice.unreadable": "Your saved life could not be read. A new life has started.",
+  // Ending this life from Settings (account.md R-ACCOUNT-030): one sheet, Cancel the easy way, the end held to confirm.
+  "ui.life.end.heading": "This life",
+  "ui.life.end": "Start a new life",
+  "ui.life.end.hint": "This life ends for good.",
+  "ui.life.end.who": "{name}, {age}",
+  "ui.life.end.warn": "This life ends here, and it cannot be brought back.",
+  "ui.life.end.next": "A new life starts at the door, with a family of its own.",
+  "ui.life.end.linked": "Anyone you play with in this life is told it has ended.",
+  "ui.life.end.keep": "Keep this life",
+  "ui.life.end.hold": "Hold to end this life",
+  "ui.life.end.holding": "Keep holding",
+  "ui.life.end.ending": "Ending this life",
+  "ui.life.end.failed": "The life did not end. Try again.",
   "ui.dismiss": "Close",
 
   // The front door (prologue.md R-PROLOGUE-009, 013): three screens over the compound with everything chosen.

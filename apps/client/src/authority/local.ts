@@ -9,7 +9,7 @@ import { archetypeOf, fullPrologue } from "../shared/frontdoor/archetypes";
 import { tileSeed } from "../shared/frontdoor/draw";
 import type { ClockView } from "../shared/net/contract";
 import { lastSegment, lifeStart, loadSave, newSave, newState, recordCommand, replay, savedCommands, standInWorld, step, time, viewFor } from "@japacity/sim";
-import { readPerson } from "./person";
+import { PERSON_KEY, readPerson } from "./person";
 
 /** The one localStorage key the life is kept under. */
 export const SAVE_KEY = "japacity.save";
@@ -20,12 +20,15 @@ export type LifeStart =
   | { kind: "new" }
   | { kind: "replaced"; why: "other-content" | "unreadable" };
 
+/** What the authority keeps the save in; `removeItem` lets a life end (R-ACCOUNT-030). */
+export type LocalStorage = Pick<Storage, "getItem" | "setItem"> & Partial<Pick<Storage, "removeItem">>;
+
 export interface LocalAuthorityOptions {
   /** Grant turns freely instead of one every two real hours. Set by clockMode(). */
   fastClock: boolean;
   content?: Content;
   /** Where the save is kept. Null keeps it in memory only. Defaults to the browser's localStorage. */
-  storage?: Pick<Storage, "getItem" | "setItem"> | null;
+  storage?: LocalStorage | null;
   /** The scenario a new life starts with. Defaults to the first in content. */
   scenario?: Id<"scenario">;
   /** Milliseconds since the epoch. Injected so tests can move time. */
@@ -44,6 +47,11 @@ export interface LocalAuthority extends Authority {
    * Local only: the server will own this.
    */
   newLife(scenario: Id<"scenario">, seed?: string): Promise<PlayerView>;
+  /**
+   * R-ACCOUNT-030: ends this life for good. The save and the person kept beside it are cleared, and nothing is
+   * written again until a new life is chosen, so a reload opens the front door.
+   */
+  endLife(): Promise<boolean>;
 }
 
 /** What is kept under SAVE_KEY: the save, and when real time last earned a turn. */
@@ -58,7 +66,7 @@ function randomSeed(): string {
   return Array.from(words, (word) => word.toString(16).padStart(8, "0")).join("");
 }
 
-function browserStorage(): Pick<Storage, "getItem" | "setItem"> | null {
+function browserStorage(): LocalStorage | null {
   try {
     return typeof localStorage === "undefined" ? null : localStorage;
   } catch {
@@ -258,6 +266,18 @@ export function localAuthority(options: LocalAuthorityOptions): LocalAuthority {
       chosen = true;
       persist();
       return Promise.resolve(currentView());
+    },
+    endLife() {
+      try {
+        storage?.removeItem?.(SAVE_KEY);
+        storage?.removeItem?.(PERSON_KEY);
+      } catch {
+        // A blocked storage kept nothing to clear.
+      }
+      // As at a load with no save: a life is held so the authority answers, but none is written before one is chosen.
+      chosen = false;
+      begin(firstScenario);
+      return Promise.resolve(true);
     },
   };
 }

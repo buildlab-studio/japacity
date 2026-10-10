@@ -1,11 +1,18 @@
 // Settings (docs/rules/world.md R-WORLD-018, 021, 022): the look (adire or danfo, remembered on the
 // device), the sound (the existing mute: muted fetches nothing), the city's graphics choice, and
-// the account, which the shell hands in so this folder never imports the account feature.
-import { useState, type ReactNode } from "react";
+// the account, which the shell hands in so this folder never imports the account feature. Last,
+// "Start a new life" (account.md R-ACCOUNT-030): one sheet that names the character and their age,
+// Cancel first, and the end held to confirm, with nothing to type.
+import { RotateCcw } from "lucide-react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 
+import { useGame } from "../../../authority/GameProvider";
+import { pageOf } from "../../../shared/datapage/PageSheet";
 import { chooseGraphics, type GraphicsChoice } from "../../../shared/graphics/mode";
 import { setMuted } from "../../../shared/sound/sound";
 import { useSound } from "../../../shared/sound/useSound";
+import { Button } from "../../../shared/ui/Button";
+import { Sheet } from "../../../shared/ui/Sheet";
 import { say } from "../../../shared/words/text";
 import type { Theme } from "../../../shared/world/contract";
 import { currentTheme, setTheme, THEMES } from "../../../shared/world/theme";
@@ -77,6 +84,126 @@ export function Settings({ account = null }: { account?: ReactNode }) {
       <p className="mt-1 text-[12px] text-text-2">{phoneWords("phone.settings.graphics.when")}</p>
 
       {account === null ? null : <div data-account>{account}</div>}
+
+      <NewLife />
     </div>
+  );
+}
+
+/** R-ACCOUNT-030: how long the ending button is held before the life ends. */
+export const HOLD_MS = 1500;
+
+/** The ending button: it ends only when held for HOLD_MS, by a finger, a mouse, or Enter or Space; letting go sooner does nothing. */
+function HoldToEnd({ onDone, disabled }: { onDone: () => void; disabled: boolean }) {
+  const [holding, setHolding] = useState(false);
+  const timer = useRef<number | null>(null);
+  const stop = (): void => {
+    if (timer.current !== null) window.clearTimeout(timer.current);
+    timer.current = null;
+    setHolding(false);
+  };
+  const start = (): void => {
+    if (disabled || timer.current !== null) return;
+    setHolding(true);
+    timer.current = window.setTimeout(() => {
+      timer.current = null;
+      setHolding(false);
+      onDone();
+    }, HOLD_MS);
+  };
+  useEffect(
+    () => () => {
+      if (timer.current !== null) window.clearTimeout(timer.current);
+    },
+    [],
+  );
+  const held = (key: string): boolean => key === " " || key === "Enter";
+  return (
+    <button
+      type="button"
+      disabled={disabled}
+      className="relative min-h-12 w-full touch-none overflow-hidden rounded-md border-2 border-bad bg-sheet-2 px-4 font-semibold text-bad select-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink disabled:opacity-45"
+      onPointerDown={start}
+      onPointerUp={stop}
+      onPointerLeave={stop}
+      onPointerCancel={stop}
+      onKeyDown={(event) => {
+        if (!held(event.key)) return;
+        event.preventDefault();
+        if (!event.repeat) start();
+      }}
+      onKeyUp={(event) => {
+        if (held(event.key)) stop();
+      }}
+      onBlur={stop}
+      onContextMenu={(event) => event.preventDefault()}
+      data-life-end-hold={holding ? "holding" : "idle"}
+    >
+      <span aria-hidden className="absolute inset-y-0 left-0 bg-bad/20" style={{ width: holding ? "100%" : "0%", transition: holding ? `width ${String(HOLD_MS)}ms linear` : "none" }} />
+      <span className="relative">{say(holding ? "ui.life.end.holding" : "ui.life.end.hold")}</span>
+    </button>
+  );
+}
+
+/** "Start a new life": the row in Settings and its one sheet. Shown only while a life is playing and the authority can end it. */
+function NewLife() {
+  const view = useGame((state) => state.view);
+  const endLife = useGame((state) => state.endLife);
+  const [open, setOpen] = useState(false);
+  const [ending, setEnding] = useState(false);
+  const [failed, setFailed] = useState(false);
+  if (endLife === null || view === null) return null;
+  const page = pageOf(view);
+  const who = page.name === "" ? page.age : say("ui.life.end.who", { name: page.name, age: page.age });
+  // A real partner or sibling joined to this life hears that it ended (R-ACCOUNT-030).
+  const linked = view.people.bonds.some((bond) => bond.pair !== null && bond.stage !== "ended");
+  const end = async (): Promise<void> => {
+    setEnding(true);
+    setFailed(false);
+    const ended = await endLife();
+    setEnding(false);
+    if (!ended) setFailed(true);
+  };
+  return (
+    <>
+      <Head>{say("ui.life.end.heading")}</Head>
+      <button
+        type="button"
+        className="press flex w-full items-center justify-between gap-2 rounded-[5px] border border-sheet-line px-3 py-2 text-left"
+        onClick={() => {
+          setFailed(false);
+          setOpen(true);
+        }}
+        data-life-end
+      >
+        <span className="min-w-0">
+          <span className="block text-[14px] font-extrabold">{say("ui.life.end")}</span>
+          <span className="block text-[12px] text-text-2">{say("ui.life.end.hint")}</span>
+        </span>
+        <RotateCcw size={16} className="shrink-0" aria-hidden />
+      </button>
+      <Sheet open={open} onOpenChange={(next) => (ending ? undefined : setOpen(next))} title={say("ui.life.end")}>
+        <div className="flex flex-col gap-3" data-life-end-sheet>
+          <p className="text-lg font-semibold" data-life-end-who>
+            {who}
+          </p>
+          <p>{say("ui.life.end.warn")}</p>
+          <p className="text-text-2">{say("ui.life.end.next")}</p>
+          {linked ? <p className="text-text-2">{say("ui.life.end.linked")}</p> : null}
+          <div className="mt-2 flex flex-col gap-3">
+            <Button variant="primary" disabled={ending} onClick={() => setOpen(false)}>
+              {say("ui.life.end.keep")}
+            </Button>
+            <HoldToEnd disabled={ending} onDone={() => void end()} />
+          </div>
+          {ending ? <p role="status">{say("ui.life.end.ending")}</p> : null}
+          {failed ? (
+            <p role="alert" className="text-bad">
+              {say("ui.life.end.failed")}
+            </p>
+          ) : null}
+        </div>
+      </Sheet>
+    </>
   );
 }
