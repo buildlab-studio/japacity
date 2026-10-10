@@ -105,6 +105,49 @@ test("[R-WORLD-015] [R-WORLD-017] given a life at home on a phone, when the map 
   await shot(page, "04-arrived");
 });
 
+test("[R-WORLD-032] given a life at home on a phone, when a danfo ride plays, then it cuts by itself from outside at the stop to above, the window and the seat, each once and in order, with no view switch", async ({ page }, info) => {
+  test.skip(info.project.name !== "Pixel 7", "The ride is watched at phone size");
+  test.setTimeout(180_000);
+  await startLife(page);
+  await page.waitForFunction(() => (window as unknown as { __city?: CityProbe }).__city?.ready === true, null, { timeout: 90_000 });
+  await page.locator('[data-thumb="map"]').click();
+  await page.waitForSelector("[data-map]");
+  await page.waitForFunction(() => (window.__map?.frames ?? 0) > 5, null, { timeout: 60_000 });
+  const stops = (await page.evaluate(() => window.__map?.stops)) ?? [];
+  const target = stops.find((stop) => stop.state !== "here" && stop.state !== "not" && stop.id !== "place.family-house")?.id ?? "";
+  await page.locator(`[data-stop="${target}"]`).dispatchEvent("click");
+  await expect(page.locator(`[data-ride-sheet="${target}"]`)).toBeVisible();
+  await page.locator('[data-way="danfo"]').click();
+  await page.locator("[data-ride-main]").click();
+  await expect(page.locator("[data-ride]")).toBeVisible();
+  // The card holds only Turn back and Skip: the ride picks its own angles.
+  await expect(page.locator("[data-ride] button")).toHaveText(["Turn back", "Skip"]);
+  // The probe goes with the ride, so its angles are read until it ends.
+  let angles: string[] = [];
+  let began = false;
+  const seenOnScreen = new Set<string>();
+  for (let poll = 0; poll < 400; poll += 1) {
+    const now = await page.evaluate(() => {
+      const probe = (window as unknown as { __ride?: { angle: string; angles: string[] } }).__ride;
+      const shown = document.querySelector<HTMLElement>("[data-ride]")?.dataset.rideAngle ?? null;
+      return probe === undefined ? null : { angles: [...probe.angles], shown };
+    });
+    if (now === null && began) break;
+    if (now === null) {
+      await page.waitForTimeout(50);
+      continue;
+    }
+    began = true;
+    angles = now.angles;
+    if (now.shown !== null) seenOnScreen.add(now.shown);
+    await page.waitForTimeout(50);
+  }
+  console.log(`ride angles: ${angles.join(", ")}`);
+  expect(angles).toEqual(["outside", "above", "window", "seat"]);
+  expect([...seenOnScreen]).toEqual(["outside", "above", "window", "seat"]);
+  await expect(page.locator("[data-ride]")).toBeHidden({ timeout: 8000 });
+});
+
 test("[R-WORLD-016] given the map open on a phone, when a locked country in the dropdown is tapped, then it shakes and stays shut", async ({ page }, info) => {
   test.skip(info.project.name !== "Pixel 7", "The map is shown at phone size");
   test.setTimeout(120_000);
