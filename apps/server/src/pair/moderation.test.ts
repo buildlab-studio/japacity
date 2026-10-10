@@ -120,7 +120,7 @@ describe("report and hold", () => {
     const before = await recordOf(server.deps, key);
     expect(before?.record.held).toBe(true);
     server.setNow(row.dueAt);
-    const keys = { secret: SECRET, siteUrl: SITE, google: { clientId: "x", clientSecret: "x" }, turnstile: { secretKey: "x" }, sendOtp: () => Promise.resolve(), background: () => undefined };
+    const keys = { secret: SECRET, siteUrl: SITE, google: { clientId: "x", clientSecret: "x" }, turnstile: { secretKey: "x" }, sendOtp: () => Promise.resolve(), sendNotice: () => Promise.resolve(), background: () => undefined };
 
     expect(await runDeletions(server.deps, makeAuth(server.deps, memoryAuthAdapter(), keys))).toBe(1);
 

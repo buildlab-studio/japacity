@@ -15,7 +15,7 @@ import type { ServerConfig } from "../config";
 import { memoryStores, openLimiters } from "../deps";
 import type { Limiters, ServerDeps, Stores } from "../deps";
 import { makeAuth } from "./auth";
-import type { Auth, AuthKeys, OtpMessage } from "./auth";
+import type { Auth, AuthKeys, AuthNotice, OtpMessage } from "./auth";
 import { memoryAuthAdapter, memoryAuthTables } from "./memory";
 import type { AuthTables } from "./memory";
 import { sessionReader } from "./session";
@@ -69,6 +69,8 @@ export interface Harness {
   app: Hono;
   tables: AuthTables;
   sent: OtpMessage[];
+  /** The notices sent to accounts' emails (R-ACCOUNT-003). */
+  notices: AuthNotice[];
   background: Promise<unknown>[];
   helpers: () => Promise<TestHelpers>;
   /** A request to the app as a browser from `country` at `ip`, carrying the jar's cookies and keeping the ones it sets. */
@@ -99,6 +101,7 @@ export interface HarnessOptions {
 export function harness(options: HarnessOptions = {}): Harness {
   const config = options.config ?? testConfig({ testing: { captureOtp: true } });
   const sent: OtpMessage[] = [];
+  const notices: AuthNotice[] = [];
   const background: Promise<unknown>[] = [];
   const tables = memoryAuthTables();
   let seed = 7;
@@ -123,6 +126,10 @@ export function harness(options: HarnessOptions = {}): Harness {
         sent.push(message);
         return Promise.resolve();
       }),
+    sendNotice: (notice) => {
+      notices.push(notice);
+      return Promise.resolve();
+    },
     background: (promise) => {
       background.push(promise);
     },
@@ -171,5 +178,5 @@ export function harness(options: HarnessOptions = {}): Harness {
     return { jar, account: body.user.id };
   };
 
-  return { deps, auth, keys, app, tables, sent, background, helpers, call, passAge, codeFor, signUp };
+  return { deps, auth, keys, app, tables, sent, notices, background, helpers, call, passAge, codeFor, signUp };
 }

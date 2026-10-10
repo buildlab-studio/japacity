@@ -23,7 +23,7 @@ import { admitAccount, admitMethod, admitSession } from "../account/signup";
 import type { TurnstileKeys } from "../account/turnstile";
 import { requestDeletion } from "../account/deletion";
 import type { ServerDeps } from "../deps";
-import { emailSendLimit, endSessionsOnUnlink } from "./hooks";
+import { afterAuth, beforeAuth } from "./hooks";
 import { signedInWith } from "./session";
 
 /** The memory adapter in tests; Drizzle's adapter has the same shape. */
@@ -36,6 +36,13 @@ export interface OtpMessage {
   type: "sign-in" | "email-verification" | "forget-password" | "change-email";
 }
 
+/** R-ACCOUNT-003: what the account's email is told, by a send the request never awaits. */
+export interface AuthNotice {
+  email: string;
+  kind: "passkey-added";
+  at: number;
+}
+
 /** The deployment's keys and outside services for sign-in. */
 export interface AuthKeys {
   /** Signs the session cookie. At least 32 random characters. */
@@ -45,6 +52,8 @@ export interface AuthKeys {
   google: { clientId: string; clientSecret: string };
   turnstile: TurnstileKeys;
   sendOtp: (message: OtpMessage) => Promise<void>;
+  /** R-ACCOUNT-003: sends a notice to an account's email. */
+  sendNotice: (notice: AuthNotice) => Promise<void>;
   /** Keeps a promise alive past the reply: the request's `waitUntil` on Workers. */
   background: (promise: Promise<unknown>) => void;
 }
@@ -132,8 +141,8 @@ export function makeAuth(deps: ServerDeps, adapter: Adapter, keys: AuthKeys) {
       },
     },
     hooks: {
-      before: emailSendLimit(deps),
-      after: endSessionsOnUnlink(),
+      before: beforeAuth(deps),
+      after: afterAuth(deps, keys),
     },
     advanced: {
       useSecureCookies: true,
