@@ -187,7 +187,6 @@ export const prologueText: Record<string, string> = {
   "prologue.page.photo": "Your photo",
   "prologue.page.open": "Your page",
   "prologue.page.close": "Close",
-  "prologue.page.band": "{name} · {age}",
   "prologue.page.stamps.none": "No stamps yet. Each step you take toward leaving gets one.",
   "prologue.page.stamps.some": "A stamp for each step you have taken toward leaving.",
   "prologue.page.stamp.adviser": "Adviser read",

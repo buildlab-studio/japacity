@@ -1,4 +1,4 @@
-// The data page stays with the character (prologue.md R-PROLOGUE-009): the name with the age in the band opens it; it
+// The data page stays with the character (prologue.md R-PROLOGUE-009): the name over the age in the band opens it; it
 // shows the age kept current, how ready they are and a stamp for each step taken toward leaving; a close returns.
 import type { PlayerView } from "@japacity/sim";
 import { fireEvent, render, screen, within } from "@testing-library/react";
@@ -39,12 +39,15 @@ function band(store: GameStore, when = "23 yrs 4 mo") {
 const opener = () => screen.getByRole("button", { name: say("prologue.page.open") });
 
 describe("the page from the band", () => {
-  test("[R-PROLOGUE-009] given a life with its person kept, then the band shows the name with the age, and a tap opens the page with the name, the photo, the age now, what the life was and how ready", async () => {
+  test("[R-PROLOGUE-009] given a life with its person kept, then the band shows the name over the age, and a tap opens the page with the name, the photo, the age now, what the life was and how ready", async () => {
     const store = await life("scenario.ada", { look: "chr_kemi", name: "Morenike", archetype: null });
     const view = store.getState().view!;
     band(store, clockWords(view.qualities));
-    expect(opener().textContent).toContain("Morenike");
-    expect(opener().textContent).toContain(clockWords(view.qualities));
+    // The name over the age, as the design's bar has it.
+    const person = document.querySelector<HTMLElement>("[data-band-person]")!;
+    expect(person.textContent.indexOf("Morenike")).toBeGreaterThanOrEqual(0);
+    expect(person.textContent.indexOf("Morenike")).toBeLessThan(person.textContent.indexOf(clockWords(view.qualities)));
+    expect(opener().textContent).toBe(clockWords(view.qualities));
     // The place's name stays the band's heading, and a tap on it does nothing (R-WORLD-002).
     expect(screen.getByRole("heading", { name: "The family house" })).toBeDefined();
     fireEvent.click(opener());

@@ -67,24 +67,52 @@ export function PageSheet({ view, onClose }: { view: PlayerView; onClose: () => 
   );
 }
 
-function Opener({ store, when }: { store: GameStore; when: string }) {
-  const view = useStore(store, (state) => state.view);
-  const [open, setOpen] = useState(false);
-  if (view === null) return <div className="label label-strong truncate text-[9px] tabular-nums">{when}</div>;
-  const name = nameOf(readPerson(), view);
+/** The band's clock and place as they were before the page: the age small over the place's name. */
+function Plain({ when, place }: { when: string; place: string }) {
   return (
-    <>
-      <button type="button" className="press label label-strong block max-w-full truncate text-left text-[9px] tabular-nums" onClick={() => setOpen(true)} aria-label={say("prologue.page.open")} data-page-open>
-        {name === "" ? when : say("prologue.page.band", { name, age: when })}
-      </button>
-      {open ? <PageSheet view={view} onClose={() => setOpen(false)} /> : null}
-    </>
+    <div className="min-w-0 flex-1 leading-none">
+      <div className="label label-strong truncate text-[9px] tabular-nums">{when}</div>
+      <h2 className="title mt-0.5 truncate text-[16px] leading-tight">{place}</h2>
+    </div>
   );
 }
 
-/** The band's top line (R-WORLD-002, R-PROLOGUE-009): in a game, the name with the age, which opens the page; outside one, the age alone. */
-export function BandPerson({ when }: { when: string }) {
+function Opener({ store, when, place }: { store: GameStore; when: string; place: string }) {
+  const view = useStore(store, (state) => state.view);
+  const [open, setOpen] = useState(false);
+  if (view === null) return <Plain when={when} place={place} />;
+  const name = nameOf(readPerson(), view);
+  const show = (): void => setOpen(true);
+  return (
+    <div className="min-w-0 flex-1 leading-none" data-band-person>
+      {/* The design's bar: the name with the place small, over the age. The name and the age open the page; the place's name does nothing (R-WORLD-002). */}
+      <div className="label label-strong flex min-w-0 items-baseline text-[9px]">
+        {name === "" ? null : (
+          <>
+            <button type="button" tabIndex={-1} aria-hidden className="max-w-[55%] shrink-0 truncate text-left uppercase" onClick={show}>
+              {name}
+            </button>
+            <span aria-hidden className="shrink-0 px-1">
+              ·
+            </span>
+          </>
+        )}
+        <h2 className="min-w-0 truncate">{place}</h2>
+      </div>
+      <button type="button" className="press title num mt-0.5 block max-w-full truncate text-left text-[16px] leading-tight" onClick={show} aria-label={say("prologue.page.open")} data-page-open>
+        {when}
+      </button>
+      {open ? <PageSheet view={view} onClose={() => setOpen(false)} /> : null}
+    </div>
+  );
+}
+
+/**
+ * The band's clock and place (R-WORLD-002, R-PROLOGUE-009): in a game, the name with the place over the age, as the
+ * the design's bar has it, the name and the age opening the page; outside one, the age over the place's name.
+ */
+export function BandPerson({ when, place }: { when: string; place: string }) {
   const store = useGameStoreIfAny();
-  if (store === null) return <div className="label label-strong truncate text-[9px] tabular-nums">{when}</div>;
-  return <Opener store={store} when={when} />;
+  if (store === null) return <Plain when={when} place={place} />;
+  return <Opener store={store} when={when} place={place} />;
 }
