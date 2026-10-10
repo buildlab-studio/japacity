@@ -7,7 +7,7 @@ import { useView } from "../../authority/GameProvider";
 import { Card, Empty, Panel, Tag } from "../../shared/ui/Panel";
 import { monthEnding, playerMonth } from "../../shared/words/format";
 import { blurbOf, nameOf, say, sayCount, words } from "../../shared/words/text";
-import { SourceMark } from "./source";
+import { SourceMark } from "../../shared/ui/NewsSource";
 
 /**
  * When the era began and when it ends, in the months the header counts

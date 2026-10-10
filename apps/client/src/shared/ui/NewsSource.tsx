@@ -4,7 +4,7 @@ import { content, text } from "@japacity/content";
 import type { NewsSource, NewsStage } from "@japacity/sim";
 import { Ear, Landmark, Newspaper, Radio, UserRound, Users, type LucideIcon } from "lucide-react";
 
-import { say } from "../../shared/words/text";
+import { say } from "../words/text";
 
 export type SourceKind = NewsSource | "rumour";
 

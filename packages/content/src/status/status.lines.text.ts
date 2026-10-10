@@ -9,7 +9,7 @@ export const statusLinesText: Record<string, string> = {
   "line.status.lapsed-clock": "The clock ran out on {status}. You have no right to be here now.",
   "line.status.lapsed-lost": "{status} is gone. You have no right to be here now.",
   "line.status.lapsed-job": "The job went and {status} went with it. You have no right to be here now.",
-  "line.status.clock-started": "The job went. You have {months} months to find another sponsor.",
+  "line.status.clock-started": "The job is gone. You have {months} months to find another sponsor.",
   "line.status.clock-ran": "{months} months left on the clock.",
   "line.status.clock-cleared": "You are working again. The clock stopped.",
   "line.status.renewed": "Renewed for {months} months. The fee: {fee}. The surcharge: {surcharge}.",

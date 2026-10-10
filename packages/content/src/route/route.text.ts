@@ -17,7 +17,7 @@ export const routeText: Record<string, string> = {
 
   // Report lines. First drafts.
   "line.route.heard": "You heard of {route} this month.",
-  "line.route.looked-into": "You read the official page for {route}: the full list of what it asks, as it stands. It said nothing of your own chances.",
+  "line.route.looked-into": "You read the official page for {route}: the full list of what it asks, as it stands. It said nothing about your own chances.",
   "line.route.school-applied": "Your application to {school} is in. The answer is due {month}.",
   "line.route.school-offer": "{school} offered you a place. Discount off the tuition: {discount}.",
   "line.route.school-rejected": "{school} turned you down.",

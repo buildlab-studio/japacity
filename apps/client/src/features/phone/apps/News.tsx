@@ -6,7 +6,7 @@ import type { NewsStage, ReportLine, RouteStateName } from "@japacity/sim";
 import { useGame, useView } from "../../../authority/GameProvider";
 import { isUnpaid, tidyLines, toldUnpaid } from "../../../shared/words/lines";
 import { blurbOf, monthsAgo, nameOf, say, words } from "../../../shared/words/text";
-import { SourceMark } from "../../news/source";
+import { SourceMark } from "../../../shared/ui/NewsSource";
 import { Head } from "../act";
 import { phoneWords } from "../phone.words";
 
