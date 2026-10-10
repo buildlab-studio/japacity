@@ -22,6 +22,8 @@ export const documentText: Record<string, string> = {
   "document.eca.blurb": "A report that says what your degree is worth in Canada.",
   "document.endorsement.name": "Talent endorsement",
   "document.endorsement.blurb": "A letter from the endorsing body saying your work leads the field. It lasts three months.",
+  // A paper judged when it is issued (R-ENDORSE-002): its wait says who answers and when, never that it will be ready.
+  "document.endorsement.requested": "The endorsing body answers {month}.",
   "document.medical.name": "Work medical",
   "document.medical.blurb": "The medical the Gulf employer asks for: blood tests, a chest X-ray and a stamp.",
   "document.nurse-certificate.name": "Nursing certificate",

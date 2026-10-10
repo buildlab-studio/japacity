@@ -7,6 +7,7 @@ import { useGame, useView } from "../../../authority/GameProvider";
 import { isUnpaid, tidyLines, toldUnpaid } from "../../../shared/words/lines";
 import { blurbOf, monthsAgo, nameOf, say, words } from "../../../shared/words/text";
 import { SourceMark } from "../../../shared/ui/NewsSource";
+import { asPiece, toldOnResults } from "../../turn/month.results";
 import { Head } from "../act";
 import { phoneWords } from "../phone.words";
 
@@ -43,6 +44,15 @@ function newsOrder(lines: readonly ReportLine[]): ReportLine[] {
   return [...lines.filter((line) => EVICTED.has(line.key)), ...lines.filter((line) => leads(line) && !EVICTED.has(line.key)), ...lines.filter((line) => !leads(line))];
 }
 
+/**
+ * The month's lines as News tells them: those of what was done mid-month (an agent paid, an ask answered) first, money
+ * unpaid leading, each in the results' own words, so News never tells the month another way (R-WORLD-008; the tenth
+ * review, W11: a piece for the portfolio was "one of three" on the results and "little work to show" here).
+ */
+export function newsLines(midMonth: readonly ReportLine[], report: readonly ReportLine[]): ReportLine[] {
+  return newsOrder(tidyLines([...midMonth, ...report]).map((line) => toldOnResults(asPiece(toldUnpaid(line)))));
+}
+
 export function News() {
   const { news, era, report, month, routes } = useView();
   // R-WORLD-008: the month's lines stay here, those of what was done mid-month (an agent paid, an ask answered) first.
@@ -64,7 +74,7 @@ export function News() {
         <div data-report={report.month}>
           <Head>{phoneWords("phone.news.month", { when: monthsAgo(report.month, month) })}</Head>
           <ul className="flex flex-col divide-y divide-sheet-line">
-            {newsOrder(tidyLines([...midMonth, ...report.lines]).map(toldUnpaid)).map((line, index) => (
+            {newsLines(midMonth, report.lines).map((line, index) => (
               <li key={`${line.key}-${String(index)}`} className={`py-1.5 text-[14px] ${line.tone === "good" ? "text-in" : line.tone === "bad" ? "text-out" : "text-text"}`}>
                 {words(line.key, line.params)}
               </li>

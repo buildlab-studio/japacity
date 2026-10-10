@@ -160,9 +160,19 @@ function saidFor(line: ReportLine): string | null {
   return hasWords(key) ? key : null;
 }
 
+/**
+ * A paper asked for whose answer is still to be judged (the endorsement, R-ENDORSE-002) is told in its own words,
+ * `<document>.requested`, who answers and when, never "should be ready" (R-WORLD-008).
+ */
+function requestedFor(line: ReportLine): string | null {
+  const { document } = line.params;
+  if (line.key !== REQUESTED || typeof document !== "string") return null;
+  return hasWords(`${document}.requested`) ? `${document}.requested` : null;
+}
+
 /** A line whose words read wrong for its figures gets the interface's variant. */
 function variant(line: ReportLine): ReportLine {
-  const said = saidFor(line);
+  const said = saidFor(line) ?? requestedFor(line);
   if (said !== null) return { ...line, key: said };
   if (line.key === "line.route.school-offer") {
     const discount = moneyParam("discount", line.params, line.key);

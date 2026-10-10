@@ -84,7 +84,7 @@ const PIECES_ASKED = Math.max(
  * The portfolio rising, told as a piece for it (R-ACTIVITY-013): how many of what a route asks, or past
  * that, how many there are. Any other line is itself.
  */
-function asPiece(line: ReportLine): ReportLine {
+export function asPiece(line: ReportLine): ReportLine {
   const { quality, value } = line.params;
   if (line.key !== "line.quality.gain" || quality !== PORTFOLIO || typeof value !== "number") return line;
   return value > PIECES_ASKED ? { ...line, key: PIECE_MORE, params: { pieces: value } } : { ...line, key: PIECE, params: { pieces: value, need: PIECES_ASKED } };
