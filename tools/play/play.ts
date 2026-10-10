@@ -310,6 +310,8 @@ async function followNudge(run: Run, month: number): Promise<void> {
     return;
   }
   log(run, `month ${String(month)}: nudge says "${await words(nudge)}"`);
+  // A card over the world (the month's results on a return, the real-story card) covers the nudge: it is read and passed first.
+  if (await shown(page.getByRole("dialog"))) await settle(run, `before the nudge in month ${String(month)}`);
   const open = page.locator("[data-nudge-open]");
   if (!(await shown(open))) {
     log(run, "the nudge is not a button; nothing to open");
@@ -321,6 +323,19 @@ async function followNudge(run: Run, month: number): Promise<void> {
     if (await shown(page.locator("[data-ride-sheet]"))) {
       await ride(run);
       continue;
+    }
+    // The phone's Japa app, opened by a step that reads the official page there (R-ADVICE-002): its card is read, then the phone is put away.
+    const official = page.locator("[data-official-page]");
+    if (await shown(official)) {
+      log(run, `the official page in Japa: ${(await official.first().getAttribute("data-official-page")) ?? ""}`);
+      await tap(run, official, "Read the official page");
+      await page.waitForTimeout(1_200);
+      const toast = page.locator("[data-toast]");
+      if (await shown(toast)) log(run, `toast: ${await words(toast)}`);
+      await shot(run, `month ${String(month)} official page`);
+      await tap(run, page.locator("[data-home-bar]"), "the phone's home bar");
+      await page.waitForTimeout(600);
+      break;
     }
     if (await shown(page.locator("[data-map-close]"))) {
       log(run, "the nudge opened the map with no stop picked; closing it");
@@ -427,6 +442,11 @@ async function endMonth(run: Run, month: number): Promise<boolean> {
   if (!(await appear(end, LONG))) {
     problem(run, `month ${String(month)}: no Next month button`);
     return false;
+  }
+  // An answer may open a new question (the road's deposit opens the night meeting): the nudge is followed again, twice at most.
+  for (let again = 0; again < 2 && (await end.first().isDisabled()); again += 1) {
+    log(run, `month ${String(month)}: Next month is shut (${(await end.first().getAttribute("title")) ?? "no reason given"}); following the nudge again`);
+    await followNudge(run, month);
   }
   if (await end.first().isDisabled()) {
     problem(run, `month ${String(month)}: Next month is shut: ${(await end.first().getAttribute("title")) ?? "no reason given"}`);
