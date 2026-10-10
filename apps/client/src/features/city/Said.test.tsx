@@ -8,6 +8,7 @@ import { type PlaceFile, stageOf } from "./placeFile";
 import { SAID_MS, SaidLine, useSaid } from "./Said";
 import { sceneWords } from "./scene.words";
 import { thingsOf, walkBeforeAct } from "./things";
+import { Toast } from "../../shared/world/Toast";
 
 const AGENT_SAYS = sceneWords("city.act.ask-desk.done");
 
@@ -68,5 +69,20 @@ describe("the act starts at the thing", () => {
     if (to === null) throw new Error("No walk from the door to the desk.");
     // Standing there already, no walk starts and the act follows at once.
     expect(walkBeforeAct(stage, agent, { x: to[0], z: to[1] })).toBeNull();
+  });
+});
+
+describe("the line's look", () => {
+  test("[R-WORLD-005] given a line and a toast over the place, when they show, then each is the panel's off-white with a hairline and never the band's pattern", () => {
+    render(
+      <>
+        <SaidLine said={{ words: AGENT_SAYS, at: 1 }} onTap={() => undefined} />
+        <Toast words="Bode Thomas Street" />
+      </>,
+    );
+    for (const box of [document.querySelector("[data-said] [role=status]"), document.querySelector("[data-toast] > div")]) {
+      expect(box?.classList.contains("toast")).toBe(true);
+      expect(box?.classList.contains("band")).toBe(false);
+    }
   });
 });

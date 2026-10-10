@@ -27,7 +27,7 @@ export function SaidLine({ said, onTap }: { said: Said | null; onTap: () => void
   if (said === null) return null;
   return (
     <button key={said.at} type="button" onClick={onTap} className="pop pointer-events-auto fixed inset-x-0 bottom-[calc(max(14px,env(safe-area-inset-bottom))+124px)] z-[45] flex justify-center px-6" data-said>
-      <span role="status" className="band rounded-[6px] px-4 py-3 text-center text-[16px] leading-snug font-bold shadow-xl">
+      <span role="status" className="toast px-4 py-3 text-center text-[16px] leading-snug font-bold">
         {said.words}
       </span>
     </button>
