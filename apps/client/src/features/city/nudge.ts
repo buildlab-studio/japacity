@@ -286,7 +286,7 @@ function nairaDues(view: NudgeView): number {
 function startedKey(view: NudgeView, own: string, stepKey: string, plannedOnly: readonly string[], has: (key: string) => boolean): { key: string; params?: Record<string, string | number> } | null {
   const month = view.month ?? 0;
   // An act done at once this month (R-ACTIVITY-015) waits on the month's end as a planned one does; the view marks it `done`.
-  const done = (view.activities ?? []).filter((option) => option.done).map((option) => option.id);
+  const done: readonly string[] = (view.activities ?? []).filter((option) => option.done).map((option) => option.id);
   const planned: readonly string[] = [...plannedOnly, ...done];
   // A now-act's "planned" words would read wrong once it is done: its own done words first, then the generic line.
   const doneKey = (key: string): string | null => (has(`${key}.done`) ? `${key}.done` : has("ui.nudge.done-now") ? "ui.nudge.done-now" : null);

@@ -5,7 +5,7 @@ import { act, fireEvent, render, waitFor } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
 import { GameProvider } from "../../../authority/GameProvider";
-import { createGameStore } from "../../../authority/store";
+import { createGameStore, type PlayerCommand } from "../../../authority/store";
 import { gameAuthority, recordedGame, recordedSave } from "../../../shared/testing/fixtures";
 import "../../../shared/testing/render";
 import { moneyLines } from "../../../shared/words/money";
@@ -37,7 +37,10 @@ describe("Bank, Lately in the application month", () => {
       const ride = await store.getState().send({ type: "place/ride", from: "place.family-house", to: "place.visa-centre", way: "danfo" });
       if (ride?.ok !== true) throw new Error("The ride to the visa centre was refused.");
       for (const { command } of save.commands.slice(APPLICATION, endAt)) {
-        const reply = await store.getState().send(command);
+        // The recording's commands carry `basedOn`; the store adds its own.
+        const { basedOn, ...sent } = command;
+        void basedOn;
+        const reply = await store.getState().send(sent as PlayerCommand);
         if (reply?.ok !== true) throw new Error(`${command.type} was refused.`);
       }
       const end = await store.getState().send({ type: "turn/end", slots: ending.slots });
