@@ -12,7 +12,8 @@ import { WorldSheet } from "../../shared/world/WorldSheet";
 import { formatMoney, formatNumber } from "../../shared/words/format";
 import { nowLineWords } from "../../shared/words/acts";
 import { say, sayCount, words } from "../../shared/words/text";
-import { drawShown, isEvicted, isUnpaid, kept, leadsAlone, localCurrency, moneyLines, quietLine, savings, storyLines, toldOnResults, untoldLines } from "./month.results";
+import { ToneTag } from "../../shared/ui/ToneTag";
+import { drawShown, foldLotto, isEvicted, isUnpaid, kept, leadsAlone, localCurrency, moneyLines, monthTags, quietLine, savings, storyLines, toldOnResults, untoldLines } from "./month.results";
 import { turnWords } from "./turn.words";
 
 /** True while the results sheet is up: the month has just ended and its staged wins have passed. */
@@ -89,6 +90,7 @@ export function Results({ place }: { place: string }) {
   const nets = kept(lines);
   const main = nets.find((net) => net.currency === local) ?? nets[0] ?? { currency: local, amount: 0 };
   const rest = nets.filter((net) => net !== main);
+  const tags = monthTags(lines);
   // The counter counts up from nothing each time the sheet opens.
   const [counted, setCounted] = useState(0);
   useEffect(() => {
@@ -153,6 +155,15 @@ export function Results({ place }: { place: string }) {
             <span className={`num text-[15px] ${net.amount < 0 ? "text-out" : "text-in"}`}>{signed(net.amount, net.amount, net.currency)}</span>
           </div>
         ))}
+        {tags.length === 0 ? null : (
+          <div className="-mt-2 flex flex-wrap justify-end gap-1.5" data-results-tags>
+            {tags.map((tag) => (
+              <span key={`${tag.id}-${tag.amount.currency}`} className="contents" data-results-tag={tag.id}>
+                <ToneTag tone={tag.tone}>{say(tag.key, { amount: tag.amount })}</ToneTag>
+              </span>
+            ))}
+          </div>
+        )}
 
         {story.length === 0 ? null : (
           <section className="flex flex-col gap-1" aria-label={turnWords("turn.results.story")} data-results-story>
@@ -189,7 +200,7 @@ export function Results({ place }: { place: string }) {
             <p className="text-[14px] text-text-2">{turnWords("turn.results.no-money")}</p>
           ) : (
             <ul className="flex flex-col" data-results-lines>
-              {lines.map(({ line, sign, amount, currency }, index) => (
+              {foldLotto(lines).map(({ line, sign, amount, currency }, index) => (
                 <li key={`${line.key}-${String(index)}`} className="flex items-baseline justify-between gap-3 border-b border-sheet-line py-2 last:border-b-0" data-sign={sign}>
                   <span className="min-w-0 flex-1 text-[14px] leading-snug">{nowLineWords(line)}</span>
                   <span className={`num shrink-0 text-[15px] ${sign < 0 ? "text-out" : "text-in"}`}>{signed(sign, amount, currency)}</span>
