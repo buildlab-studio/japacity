@@ -13,6 +13,7 @@ import { runDeletions } from "../jobs/deletion";
 import { notifyJob } from "../jobs/notify";
 import { TICKS_CRON } from "../jobs/ticks";
 import type { NotifyReply } from "../routes/notify";
+import { readEndpoint } from "./device";
 import { fullAtOf } from "./fill";
 import { noticePayload } from "./notice";
 import { notifyText } from "./notify.text";
@@ -33,7 +34,7 @@ async function testDevice(name: string): Promise<TestDevice> {
   const pair = (await crypto.subtle.generateKey({ name: "ECDH", namedCurve: "P-256" }, true, ["deriveBits"])) as CryptoKeyPair;
   const point = new Uint8Array((await crypto.subtle.exportKey("raw", pair.publicKey)) as ArrayBuffer);
   const auth = crypto.getRandomValues(new Uint8Array(16));
-  return { json: { endpoint: `https://push.example.test/${name}`, keys: { p256dh: toBase64Url(point), auth: toBase64Url(auth) } }, privateKey: pair.privateKey };
+  return { json: { endpoint: `https://fcm.googleapis.com/fcm/send/${name}`, keys: { p256dh: toBase64Url(point), auth: toBase64Url(auth) } }, privateKey: pair.privateKey };
 }
 
 interface Sent {
@@ -132,7 +133,7 @@ describe("the push message", () => {
     const signed = await crypto.subtle.verify({ name: "ECDSA", hash: "SHA-256" }, verify, fromBase64Url(signature), new TextEncoder().encode(`${header}.${claims}`));
     expect(signed).toBe(true);
     expect(JSON.parse(decoder.decode(fromBase64Url(header)))).toEqual({ typ: "JWT", alg: "ES256" });
-    expect(JSON.parse(decoder.decode(fromBase64Url(claims)))).toEqual({ aud: "https://push.example.test", exp: Math.floor((epoch + 999) / time.SECOND_MS) + 12 * 3600, sub: "mailto:owner@example.test" });
+    expect(JSON.parse(decoder.decode(fromBase64Url(claims)))).toEqual({ aud: "https://fcm.googleapis.com", exp: Math.floor((epoch + 999) / time.SECOND_MS) + 12 * 3600, sub: "mailto:owner@example.test" });
     expect(headerOf(init, "content-encoding")).toBe("aes128gcm");
     expect(headerOf(init, "ttl")).toBe("86400");
     expect(concat(label("ab"))).toEqual(Uint8Array.of(97, 98, 0));
@@ -317,7 +318,7 @@ describe("the notice's routes", () => {
 
     for (const subscription of [
       null,
-      { ...json, endpoint: "http://push.example.test/a" },
+      { ...json, endpoint: "http://fcm.googleapis.com/fcm/send/a" },
       { ...json, endpoint: "not an address" },
       { ...json, keys: { ...json.keys, p256dh: json.keys.auth } },
       { ...json, keys: { ...json.keys, auth: json.keys.p256dh } },
@@ -326,6 +327,35 @@ describe("the notice's routes", () => {
       expect(await request(server, "POST", "/api/notify/subscribe", "acc-1", { subscription })).toMatchObject({ status: 400, body: { code: "not-legal" } });
     }
     expect(await server.deps.stores.push.forAccount("acc-1")).toEqual([]);
+  });
+
+  test("[R-CLOCK-031] given push addresses on hosts that are no known push service, when each is sent, then each is refused with the bad-address answer and nothing is kept", async () => {
+    const server = testServer();
+    await newLife(server, "acc-1");
+    const { json } = await testDevice("a");
+    for (const endpoint of [
+      "https://push.example.test/a",
+      "https://evil.example/fcm.googleapis.com/a",
+      "https://fcm.googleapis.com.evil.example/a",
+      "https://notfcm.googleapis.com/a",
+      "https://user@fcm.googleapis.com/a",
+      "https://fcm.googleapis.com:8443/a",
+      "https://192.0.2.1/a",
+    ]) {
+      expect({ endpoint, reply: await request(server, "POST", "/api/notify/subscribe", "acc-1", { subscription: { ...json, endpoint } }) }).toMatchObject({ endpoint, reply: { status: 400, body: { code: "not-legal" } } });
+    }
+    expect(await server.deps.stores.push.forAccount("acc-1")).toEqual([]);
+  });
+
+  test("[R-CLOCK-031] given the push addresses Google's, Apple's, Mozilla's and Microsoft's services give, when each is read, then each is kept as sent", () => {
+    for (const endpoint of [
+      "https://fcm.googleapis.com/fcm/send/abc:def",
+      "https://web.push.apple.com/QAbc",
+      "https://updates.push.services.mozilla.com/wpush/v2/gAAA",
+      "https://wns2-par02p.notify.windows.com/w/?token=BQYAAA",
+    ]) {
+      expect(readEndpoint(endpoint)).toBe(endpoint);
+    }
   });
 
   test("[R-CLOCK-031] given an account at the most devices, when one more subscribes, then it is refused, and a device already held may subscribe again", async () => {
