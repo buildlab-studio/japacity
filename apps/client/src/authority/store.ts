@@ -14,6 +14,7 @@ import { isSaid, tidyLines } from "../shared/words/lines";
 import { setNow } from "../shared/words/now";
 import { sayCount } from "../shared/words/text";
 import { uiText } from "../shared/words/ui";
+import { forgetLife } from "./ended";
 import type { AuthorityEvent } from "./remote";
 
 /** A command as a screen writes it: the store adds the version it is based on. */
@@ -44,9 +45,11 @@ export interface Shown {
   detail?: string;
 }
 
-/** What the store needs beyond the contract to start a life over. Local only. */
+/** What the store needs beyond the contract to start a life, and to end one. */
 export interface LifeControls {
   newLife(scenario: Id<"scenario">): Promise<PlayerView>;
+  /** R-ACCOUNT-030: ends the life for good; false when the authority refused. */
+  endLife?(): Promise<boolean>;
 }
 
 export interface GameState {
@@ -127,6 +130,11 @@ export interface GameState {
   chooseLife: (scenario: Id<"scenario">) => Promise<void>;
   /** Null when this authority cannot start a life over: the server will own that. */
   openLifeChooser: (() => void) | null;
+  /**
+   * R-ACCOUNT-030: "Start a new life". Ends this life for good through the authority, drops what the device kept of
+   * it, and opens the front door. False when it did not end. Null where the authority cannot end a life.
+   */
+  endLife: (() => Promise<boolean>) | null;
   closeLifeChooser: () => void;
   /** What the remote authority reports beside its replies. */
   heard: (event: AuthorityEvent) => void;
@@ -149,6 +157,8 @@ export interface GameStoreOptions {
   account?: AccountApi | null;
   /** True for the browser's own game: the month's plan and lines are kept across loads. */
   rememberMonth?: boolean;
+  /** After a life has ended and the door is open (R-ACCOUNT-030): the browser's game loads afresh, so nothing held in memory outlives the life. */
+  afterLifeEnded?: () => void;
 }
 
 const REST: Id<"activity"> = "activity.rest";
@@ -196,7 +206,7 @@ function fitPlan(plan: readonly (SlotPick | null)[], slots: number): (SlotPick |
 }
 
 /** What the browser keeps of the month between loads: the plan, the lines so far, and the card closed. */
-const MONTH_KEY = "japacity.month";
+export const MONTH_KEY = "japacity.month";
 
 interface MonthMemory {
   /** The view the memory belongs to: a reload lands on the same view, so the same number. */
@@ -443,6 +453,27 @@ function makeStore(authority: StoreAuthority, options: GameStoreOptions): GameSt
         set({ view, plan: fitPlan([], view.freeSlots), choosingLife: false, notice: null, lines: [], moments: [], rejection: null, monthLines: [], lastMonthLines: [], cardClosed: null, quiet: [] });
       },
       openLifeChooser: options.life === undefined || options.lifeAgain === false ? null : () => set({ choosingLife: true }),
+      endLife:
+        options.life?.endLife === undefined
+          ? null
+          : async () => {
+              const life = options.life;
+              if (life?.endLife === undefined || get().busy) return false;
+              set({ busy: true, rejection: null });
+              try {
+                if (!(await life.endLife())) return false;
+                forgetMonth();
+                forgetLife();
+                set({ view: null, choosingLife: true, notice: null, plan: [], lines: [], moments: [], monthLines: [], lastMonthLines: [], cardClosed: null, quiet: [], reportOpen: false, earlyWin: false, clock: null, world: null, presence: null });
+                options.afterLifeEnded?.();
+                return true;
+              } catch (error) {
+                if (!isReported(error)) set({ failed: failure(error) });
+                return false;
+              } finally {
+                set({ busy: false });
+              }
+            },
       closeLifeChooser() {
         set({ choosingLife: false });
       },
