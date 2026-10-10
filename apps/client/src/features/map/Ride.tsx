@@ -2,7 +2,7 @@
 // the rider's, driver's or conductor's line shows as a chip.
 import { useEffect, useRef, useState } from "react";
 
-import { keptLookFile } from "../../authority/person";
+import { keptLookFile, keptStyleOf } from "../../authority/person";
 import { graphicsMode } from "../../shared/graphics/mode";
 import { loadModel } from "../../shared/three/load";
 import { loadManifest, type PublishManifest } from "../../shared/three/manifest";
@@ -258,7 +258,7 @@ export function Ride({ way, place, drawing, own = FALLBACK_OWN, seed = 0, onDone
           void loadModel(manifest, file, () => undefined)
             .then((model) => {
               if (!alive) return;
-              ride.setPerson(role, model);
+              ride.setPerson(role, model, role === "own" ? keptStyleOf(file) : undefined);
               probe.current.loaded = ride.seats.filter((seat) => seat.figure !== null).length;
             })
             .catch(() => undefined);

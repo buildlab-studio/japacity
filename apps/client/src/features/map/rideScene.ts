@@ -25,6 +25,8 @@ import {
 } from "three";
 import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
 
+import { wear } from "../../shared/frontdoor/colours";
+import type { LookStyle } from "../../shared/frontdoor/style";
 import { blendFigure, type Figure, figureOf, poseFigure } from "../../shared/three/people";
 import type { RideChoice } from "../../shared/world/contract";
 import { sequence } from "./layout";
@@ -210,7 +212,8 @@ export interface RideScene {
   /** The vehicle's model is in; the stand-in goes. */
   setVehicle: (model: Object3D) => void;
   /** A person's model is in: their figure takes their seat. */
-  setPerson: (role: Role, model: Object3D) => void;
+  /** `style`: the player's own colours for the own seat (R-PROLOGUE-015); the others ride as made. */
+  setPerson: (role: Role, model: Object3D, style?: LookStyle) => void;
   /** Shows the scene as the part's first angle shows it, until a frame says otherwise. */
   setPhase: (phase: Phase) => void;
   /** Shows what an angle shows: the danfo's model from outside and above, its inside from the window and the seat. */
@@ -577,10 +580,12 @@ export function buildRide(way: Way): RideScene {
       shell.clear();
       shell.add(model);
     },
-    setPerson: (role, model) => {
+    setPerson: (role, model, style) => {
       const seat = seatOf(role);
       if (seat === undefined || seat.figure !== null) return;
       const figure = figureOf(model, seat.pose, role === "own" ? 0.4 : 1.7);
+      // The character rides in the player's own colours, painted once as the seat is taken (R-PROLOGUE-015).
+      if (role === "own") wear(figure.root, style);
       seat.figure = figure;
       seat.group.add(figure.root);
       if (way === "walk") shell.visible = false;
