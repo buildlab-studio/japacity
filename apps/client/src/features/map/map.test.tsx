@@ -304,6 +304,19 @@ describe("the ride", () => {
     expect(onDone).toHaveBeenCalledTimes(1);
   });
 
+  test("[R-WORLD-017] given the stop the character stands at, when Stay here is tapped on its sheet, then the map closes with it, back to the place", async () => {
+    const onClose = vi.fn();
+    const pins = lagosPins();
+    const here = pins.find((pin) => pin.state === "here");
+    if (here === undefined) throw new Error("No here");
+    await renderWithView(<Map pins={pins} country={LAGOS} countries={COUNTRIES} drawing={false} onGo={() => undefined} onClose={onClose} />, engineView());
+    fireEvent.click(screen.getAllByRole("button").find((button) => button.dataset.stop === here.id) as HTMLElement);
+    const sheet = screen.getByRole("dialog", { name: headingOf(here.name) });
+    expect((sheet.querySelector("[data-ride-main]") as HTMLElement).textContent).toContain(mapWords("map.stay"));
+    fireEvent.click(sheet.querySelector("[data-ride-main]") as HTMLElement);
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
   test("[R-WORLD-017] given a stop past walking distance, when the ride sheet shows, then the walk is shut and says it is too far, is never the chosen way, and a near stop keeps it open", async () => {
     const pins = lagosPins();
     const here = pins.find((pin) => pin.state === "here");

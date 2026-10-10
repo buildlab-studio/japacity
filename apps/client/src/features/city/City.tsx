@@ -440,6 +440,10 @@ export function City({
   // An open set piece is shown where it is staged (R-CITY-011); staged elsewhere, it waits there and the nudge says so, since the city never moves the player without a ride.
   const scene = openScene(view, PLACES);
   const sceneAt = scene?.place ?? null;
+  // The old page's city still shows the set piece where it is staged (it has no rides to get there).
+  useEffect(() => {
+    if (!world && sceneAt !== null) setPlaceId(sceneAt);
+  }, [world, sceneAt]);
   useEffect(() => {
     watch.current = enterPlace(watch.current);
     setInside(false);
