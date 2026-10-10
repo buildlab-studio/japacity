@@ -36,9 +36,10 @@ export const ADMIN_PASSKEY_BIND_DETAIL = "A new passkey on an admin account is a
  */
 export const PASSKEY_ROWS = "auth.passkeys";
 
-/** R-ACCOUNT-003: one registration as the audit log keeps it. */
+/** R-ACCOUNT-003: one registration as the audit log keeps it, the account only as a hash (R-ACCOUNT-018). */
 export interface PasskeyNote {
-  account: string;
+  /** `accountHash` of the account: a living account is found by hashing its id; a deleted one leaves nothing that names it. */
+  accountHash: string;
   /** The passkey row's id. */
   passkey: string;
   /** Whether the account was on the admin list when the passkey was added. */
@@ -53,6 +54,14 @@ interface LimitRow {
   key: string;
   count: number;
   lastRequest: number | bigint;
+}
+
+/** R-ACCOUNT-003, R-ACCOUNT-018: the HMAC-SHA-256 of an account id under the server's secret, as hex. */
+export async function accountHash(secret: string, account: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const key = await crypto.subtle.importKey("raw", encoder.encode(secret), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+  const mac = await crypto.subtle.sign("HMAC", key, encoder.encode(account));
+  return [...new Uint8Array(mac)].map((byte) => byte.toString(16).padStart(2, "0")).join("");
 }
 
 export async function sha256Hex(text: string): Promise<string> {
@@ -187,7 +196,7 @@ async function notePasskey(deps: ServerDeps, keys: AuthKeys, ctx: HookContext): 
   const passkey = storedPasskey(ctx.context.returned);
   if (passkey === null) return;
   const session = await getSessionFromCtx(ctx);
-  const note: PasskeyNote = { account: passkey.userId, passkey: passkey.id, admin: deps.config.admin.accounts.includes(passkey.userId), signedInWith: session === null ? "other" : openedWith(session) };
+  const note: PasskeyNote = { accountHash: await accountHash(keys.secret, passkey.userId), passkey: passkey.id, admin: deps.config.admin.accounts.includes(passkey.userId), signedInWith: session === null ? "other" : openedWith(session) };
   const at = deps.now();
   await deps.stores.audit.retire({ character: PASSKEY_ROWS, why: "passkey", at, note: JSON.stringify(note), segments: [], log: [], snapshots: [] });
   const user = await ctx.context.internalAdapter.findUserById(passkey.userId);
