@@ -37,6 +37,8 @@ export const chapterText: Record<string, string> = {
   "chapter.find-your-feet.item.known": "Look into it",
   "chapter.find-your-feet.item.known.nudge": "Read the official page, or ask someone",
   "chapter.find-your-feet.item.known.nudge.own": "Read the page on {route}",
+  // The page of the life's own way out, read in Japa: a tap on `.needs` words opens Japa.
+  "chapter.find-your-feet.item.known.own.needs": "Read about {route} in Japa",
   "chapter.find-your-feet.item.known.planned": "Reading planned. Tap Next month.",
   "chapter.find-your-feet.item.known.planned.see-adviser": "Adviser booked. Tap Next month.",
   // A trader from sixteen with the settlement, in her own words: her job is her own shop.
@@ -119,6 +121,23 @@ export const chapterText: Record<string, string> = {
   "chapter.build-the-file-care.item.applied": "Send the care visa application",
   "chapter.build-the-file-care.item.applied.nudge": "Send the care visa application",
   "chapter.build-the-file-care.item.applied.planned": "Application planned. Tap Next month.",
+  // The months on the ward counted, when nothing else of hers is to do.
+  "chapter.build-the-file-care.item.tenure.count": "Keep nursing: {done} of {need} months done",
+  // Japa's count of the same months, and the council's, while they run.
+  "chapter.build-the-file-care.item.tenure.japa": "{done} of {need} months on the ward",
+  "chapter.build-the-file-care.item.verification.japa.pending": "The council answers {when}",
+  // The care file's detours: the licence renewed, a sponsor at the bar, the window shut.
+  "chapter.build-the-file-care.item.licence": "Renew your nursing licence",
+  "chapter.build-the-file-care.item.licence.nudge": "Renew your nursing licence at the clinic",
+  "chapter.build-the-file-care.item.licence.started": "Wait for your licence, due {when}",
+  "chapter.build-the-file-care.item.licence.short": "Find {amount} more for the licence",
+  "chapter.build-the-file-care.item.licence.saving": "Wait for payday, then the licence",
+  "chapter.build-the-file-care.item.salary": "A sponsor who pays the bar",
+  "chapter.build-the-file-care.item.salary.nudge": "Find a sponsor who pays the bar",
+  "chapter.build-the-file-care.item.window": "The UK opens care visas",
+  "chapter.build-the-file-care.item.window.nudge": "Wait for care visas to open again",
+  // The clinic notice's chip that holds the council's acts: the certification, the verification, the licence.
+  "city.act.council": "The council",
 
   "chapter.build-the-file-talent.name": "Build the file",
   "chapter.build-the-file-talent.title": "Build the file",

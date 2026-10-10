@@ -144,9 +144,28 @@ export function ownRouteOf(view: Life & Held): Id<"route"> | null {
   return routeState(view, own) === "unknown" ? null : own;
 }
 
-/** The stops a life reaches before its chapter opens them: the nurse's clinic, where her job is. */
-export function earlyStops(life: Life & Held): string[] {
-  return sixteenNurse(life) ? [CLINIC_WAY.place] : [];
+const CARE_WORK = "route.uk-care";
+const TENURE = "tenure";
+
+/**
+ * The months on the ward a chapter counts, and how many it needs (the care file's council rule, R-SPONSOR-005), from the
+ * chapter's own item; null for a chapter that counts none.
+ */
+export function wardMonths(view: Pick<PlayerView, "chapter"> & Partial<Pick<PlayerView, "job">>): { done: number; need: number } | null {
+  const requirement = view.chapter.current === null ? undefined : content.chapter[view.chapter.current]?.items.find((item) => item.id === TENURE)?.requirement;
+  if (requirement?.type !== "activity/tenure") return null;
+  const months = view.job?.id !== null && view.job?.id !== undefined && requirement.activities.includes(view.job.id) ? view.job.months : 0;
+  return { done: Math.min(months, requirement.months), need: requirement.months };
+}
+
+/**
+ * The stops a life reaches before its chapter opens them: the nurse's clinic, where her job is,
+ * and for any life whose plan is care work, or whose chapter is the care file's, the clinic where the council, the
+ * certification and the TB test are.
+ */
+export function earlyStops(life: Life & Held & Partial<Pick<PlayerView, "plan" | "chapter">>): string[] {
+  const careFile = life.plan?.route === CARE_WORK || (life.chapter?.current !== null && life.chapter?.current !== undefined && content.chapter[life.chapter.current]?.route === CARE_WORK);
+  return sixteenNurse(life) || careFile ? [CLINIC_WAY.place] : [];
 }
 
 /** The fish racks at Makoko, the child of the water's work at hand (R-ACTIVITY-017). */

@@ -15,6 +15,7 @@ import { monthsLeft, SOON } from "../../../shared/words/expiry";
 import { formatBand, formatMoney } from "../../../shared/words/format";
 import { planMarks } from "../../../shared/words/plan";
 import { checklistWords } from "../../../shared/words/requirement";
+import { wardMonths } from "../../../shared/words/sixteen";
 import { blurbOf, forMonths, hasWords, inMonths, nameOf, runningName, say, sayCount, words } from "../../../shared/words/text";
 import { Head, PhoneSaid } from "../act";
 import { phoneWords } from "../phone.words";
@@ -75,21 +76,41 @@ export function chapterAhead(chapter: PlayerView["chapter"], lean: Id<"route"> |
  * file, the Gulf's), its items in the chapter's words, ticked as the chapter sheet ticks them. The
  * master's chapters keep the route's steps alone.
  */
-function ChapterSteps({ chapter }: { chapter: PlayerView["chapter"] }) {
+function ChapterSteps({ view }: { view: PlayerView }) {
+  const { chapter } = view;
   const current = chapter.current;
   if (current === null || content.chapter[current]?.variantOf === undefined) return null;
+  const ward = wardMonths(view);
   return (
     <div data-chapter-steps={current}>
       <Head>{nameOf(current)}</Head>
       <ul className="flex flex-col">
-        {chapter.items.map((item) => (
-          <Step key={item.id} met={item.met}>
-            {words(`${current}.item.${item.id}`)}
-          </Step>
-        ))}
+        {chapter.items.map((item) => {
+          const own = `${current}.item.${item.id}`;
+          // The months on the ward, counted while they run.
+          const counted = !item.met && item.id === "tenure" && ward !== null && hasWords(`${own}.japa`);
+          const wait = item.met ? null : councilWait(view, own);
+          return (
+            <Step key={item.id} met={item.met} {...(wait === null ? {} : { way: wait })}>
+              {counted ? say(`${own}.japa`, { done: ward.done, need: ward.need }) : words(own)}
+            </Step>
+          );
+        })}
       </ul>
     </div>
   );
+}
+
+/** The paper a chapter's step waits on, so Japa says when it comes: the council's months. */
+const STEP_PAPERS: Readonly<Record<string, string>> = {
+  "chapter.build-the-file-care.item.verification": "document.nmcn-verification",
+};
+
+/** "The council answers in 5 months" while the step's paper is on its way, else null. */
+function councilWait(view: PlayerView, own: string): string | null {
+  const paper = view.documents.find((held) => held.id === STEP_PAPERS[own]);
+  if (paper?.state !== "pending" || paper.readyMonth === null || !hasWords(`${own}.japa.pending`)) return null;
+  return say(`${own}.japa.pending`, { when: inMonths(paper.readyMonth, view.month) });
 }
 
 /** The first step not done of the chapter ahead, in the story's words. */
@@ -220,13 +241,27 @@ function Papers({ onBack }: { onBack: () => void }) {
   );
 }
 
-function Step({ met, children }: { met: boolean; children: string }) {
+/** A step, ticked or not; `way`: where an unticked step is taken, or when it comes, on a small line under it. */
+function Step({ met, children, way }: { met: boolean; children: string; way?: string }) {
   return (
     <li className="flex items-start gap-2.5 py-1.5" data-met={met ? "true" : "false"}>
       {met ? <Check size={18} className="mt-0.5 shrink-0 text-in" aria-hidden /> : <Circle size={18} className="mt-0.5 shrink-0 text-text-2" aria-hidden />}
-      <span className={`text-[14px] ${met ? "text-text-2 line-through" : ""}`}>{children}</span>
+      <span className="min-w-0">
+        <span className={`block text-[14px] ${met ? "text-text-2 line-through" : ""}`}>{children}</span>
+        {way === undefined ? null : (
+          <span className="block text-[13px] text-text-2" data-step-way>
+            {way}
+          </span>
+        )}
+      </span>
     </li>
   );
+}
+
+/** Where an unticked step of the route is taken, from the route's words: the licence renewed at the clinic. */
+function stepWay(route: Id<"route">, item: { id: string; met: boolean }): { way: string } | Record<string, never> {
+  const key = `${route}.item.${item.id}.way`;
+  return item.met || !hasWords(key) ? {} : { way: say(key) };
 }
 
 function NextStep({ step }: { step: string }) {
@@ -351,7 +386,9 @@ export function Japa() {
   const costs = route === null ? [] : moveCosts(route);
   const lookInto = view.ended ? null : officialRoute(view);
   const planned = lookInto !== null && plan.some((pick) => pick !== null && pick.activity === OFFICIAL && pick.param === lookInto);
-  const percent = view.japacity.percent;
+  // The plan's own figure while no route's figure counts yet: care work, shut to applicants from abroad, reads from the
+  // month its page is read, as the master's does (R-CHAPTER-009).
+  const percent = view.japacity.percent ?? (lean === null ? null : (head?.percent ?? null));
   const coming = remindersOf(view);
   // Once a visa is granted the plan is done but the story is not: the next step, the plane, is named.
   const ahead = view.routes.some((candidate) => candidate.state === "granted") ? chapterAhead(view.chapter, lean) : null;
@@ -409,7 +446,7 @@ export function Japa() {
       {/* The header names the route; the figure's route is said again only when it is another. */}
       {view.japacity.route === null || view.japacity.route === head?.id ? null : <p className="mt-1 text-[12px] text-text-2">{say("ui.japacity.of", { route: runningName(view.japacity.route) })}</p>}
       {next === null ? null : <NextStep step={next} />}
-      {ahead === null ? <ChapterSteps chapter={view.chapter} /> : null}
+      {ahead === null ? <ChapterSteps view={view} /> : null}
       {others.length === 0 ? null : (
         <div data-japa-others>
           <Head>{phoneWords("phone.japa.others")}</Head>
@@ -464,7 +501,13 @@ export function Japa() {
       ) : null}
       <Head>{phoneWords("phone.japa.steps")}</Head>
       <ul className="flex flex-col" data-steps>
-        {route === null || route.state === "heard" ? null : route.checklist.map((item) => <Step key={item.id} met={item.met}>{checklistWords(route.id, item.id)}</Step>)}
+        {route === null || route.state === "heard"
+          ? null
+          : route.checklist.map((item) => (
+              <Step key={item.id} met={item.met} {...stepWay(route.id, item)}>
+                {checklistWords(route.id, item.id)}
+              </Step>
+            ))}
       </ul>
       <PapersButton view={view} onOpen={() => setPapers(true)} />
     </div>

@@ -4,6 +4,8 @@
 import { content } from "@japacity/content";
 import type { Id, PlayerView } from "@japacity/sim";
 
+import { stepStopOf } from "./nudge";
+
 /** Stops the story opens with its chapter. A place not listed is open from the first month. */
 export const OPENS_WITH: Record<string, Id<"chapter">> = {
   "place.english-test-centre": "chapter.build-the-file",
@@ -16,11 +18,13 @@ export const OPENS_WITH: Record<string, Id<"chapter">> = {
 
 /**
  * True when the story has reached the place: no chapter ties it, or that chapter is current or done, or the character is abroad,
- * or the life's own first step is there (`early`: the nurse's clinic, prologue.md R-PROLOGUE-010).
+ * or the life's own first step is there (`early`: the nurse's clinic, prologue.md R-PROLOGUE-010), or the chapter's next step
+ * is taken there, so the nudge never sends the player to a stop the map keeps shut (the care file's application at the
+ * visa centre).
  */
 export function stopReached(chapter: PlayerView["chapter"], where: PlayerView["place"]["where"], place: string, early: readonly string[] = []): boolean {
   const opens = OPENS_WITH[place];
-  if (opens === undefined || where !== "home" || early.includes(place)) return true;
+  if (opens === undefined || where !== "home" || early.includes(place) || stepStopOf(chapter) === place) return true;
   // A chapter standing in for a base by route (R-CHAPTER-009) opens the base's stops.
   const base = (id: string): string => content.chapter[id as Id<"chapter">]?.variantOf ?? id;
   return (chapter.current !== null && base(chapter.current) === opens) || chapter.done.some((done) => base(done) === opens);

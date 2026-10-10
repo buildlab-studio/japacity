@@ -59,6 +59,15 @@ export const routeText: Record<string, string> = {
   "route.uk-care.item.salary": "The sponsor pays at or above the bar",
   "route.uk-care.item.police": "Police certificate held",
   "route.uk-care.item.applied": "Visa application sent",
+  // Where each step not yet ticked is taken, on a line under it in Japa.
+  "route.uk-care.item.licence.way": "Renew it with the council, at the clinic",
+  "route.uk-care.item.verification.way": "Ask the council at the clinic",
+  "route.uk-care.item.passport.way": "Start it from the papers box at home",
+  "route.uk-care.item.english.way": "Sit it at the English test centre",
+  "route.uk-care.item.sponsor.way": "Look for one at the hub's desk",
+  "route.uk-care.item.tb.way": "At the clinic, once the passport is held",
+  "route.uk-care.item.police.way": "Ask at the visa centre's notice",
+  "route.uk-care.item.applied.way": "At the visa centre's desk",
 
   "route.uk-skilled.name": "Skilled work in the UK",
   "route.uk-skilled.blurb":

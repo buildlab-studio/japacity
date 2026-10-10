@@ -144,9 +144,10 @@ export function Results({ place }: { place: string }) {
           </section>
         )}
 
-        {chapterClosed ? (
+        {chapterClosed || view.turns.banked >= view.turns.cap ? (
           <p className="text-[14px] font-bold text-strong" data-results-months-full>
-            {say("ui.months.full-again", { count: view.turns.banked })}
+            {/* Full again by a chapter, or by the pages that came back since the month ended. */}
+            {say(chapterClosed ? "ui.months.full-again" : "ui.months.refilled", { count: view.turns.banked })}
           </p>
         ) : null}
 

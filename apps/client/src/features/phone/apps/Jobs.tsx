@@ -4,7 +4,7 @@ import { content } from "@japacity/content";
 import type { Id, OfferView, PlayerView } from "@japacity/sim";
 import { Briefcase } from "lucide-react";
 
-import { useView } from "../../../authority/GameProvider";
+import { useGame, useView } from "../../../authority/GameProvider";
 import { formatMoney } from "../../../shared/words/format";
 import { payAMonth } from "../../../shared/words/pay";
 import { tierPay, withNextTier } from "../../../shared/words/profile";
@@ -36,6 +36,38 @@ function raiseWords(view: Pick<PlayerView, "job" | "month">): { pay: string; whe
     pay: say("ui.job.pay", { amount: formatMoney(raise.pay.amount, raise.pay.currency) }),
     when: raise.month === null ? phoneWords("phone.jobs.raised.unknown") : phoneWords("phone.jobs.raised", { when: lowerFirst(monthsAgo(raise.month, view.month)) }),
   };
+}
+
+/** Jobs' words for an application out, first drafts in the voice of docs/rules/text.md; the phone's table wins. */
+const APPLIED_TEXT: Record<string, string> = {
+  "phone.jobs.applied": "Applied: {job}. They answer at the month's end.",
+  "phone.jobs.applied-at": "Applied: {job} at {place}. They answer at the month's end.",
+};
+
+function appliedWords(key: string, params: Record<string, string>): string {
+  const said = phoneWords(key, params);
+  if (said !== key) return said;
+  return (APPLIED_TEXT[key] ?? key).replace(/\{([A-Za-z][\w-]*)\}/g, (whole, name: string) => params[name] ?? whole);
+}
+
+const HUNT = "activity.job-hunt";
+/** The line a job asked for this month leaves, with the job as its `param` (R-ACTIVITY-015). */
+const APPLIED_LINE = "line.activity.job-hunt.now";
+
+/**
+ * The jobs asked for this month and not yet answered: the hunt done this month, and the
+ * month's lines that name each job. The answer comes with the month's end, as an offer or a "not this time".
+ */
+export function appliedJobs(view: Pick<PlayerView, "activities" | "job">, monthLines: readonly { key: string; params: Record<string, unknown> }[]): Id<"activity">[] {
+  if (view.activities.find((option) => option.id === HUNT)?.done !== true) return [];
+  const asked = monthLines.filter((line) => line.key === APPLIED_LINE).map((line) => line.params["param"]);
+  return [...new Set(asked.filter((job): job is Id<"activity"> => typeof job === "string" && job !== view.job.id && content.activity[job as Id<"activity">] !== undefined))];
+}
+
+/** "Applied: Staff nurse at the clinic. They answer at the month's end.": the place that stages the job, where there is one. */
+function appliedLine(job: Id<"activity">): string {
+  const place = Object.values(content.place).find((entry) => entry.stages.includes(job));
+  return place === undefined ? appliedWords("phone.jobs.applied", { job: nameOf(job) }) : appliedWords("phone.jobs.applied-at", { job: nameOf(job), place: nameOf(place.id) });
 }
 
 /** The job an offer carries, from its terms. */
@@ -73,6 +105,7 @@ export function Jobs() {
   const job = view.job.id;
   const side = view.job.side;
   const offers = jobOffers(view);
+  const applied = appliedJobs(view, useGame((state) => state.monthLines));
   const raised = raiseWords(view);
   const months = sayCount("ui.job.months", view.job.months, { months: view.job.months });
 
@@ -132,8 +165,14 @@ export function Jobs() {
       )}
 
       <Head>{phoneWords("phone.jobs.offers")}</Head>
+      {/* An application out is said while it waits, never "no job offers" over it. */}
+      {applied.map((asked) => (
+        <p key={asked} className="mb-2 rounded-[6px] border-l-4 border-signal bg-sheet-2 px-3 py-2 text-[14px]" data-job-applied={asked}>
+          {appliedLine(asked)}
+        </p>
+      ))}
       {offers.length === 0 ? (
-        <p className="text-[14px] text-text-2">{phoneWords("phone.jobs.offers.none")}</p>
+        applied.length > 0 ? null : <p className="text-[14px] text-text-2">{phoneWords("phone.jobs.offers.none")}</p>
       ) : (
         <ul className="flex flex-col gap-2" data-job-offers>
           {offers.map((offer) => {

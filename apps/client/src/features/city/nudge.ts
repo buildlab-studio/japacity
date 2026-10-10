@@ -7,9 +7,9 @@ import type { Id, PlayerView } from "@japacity/sim";
 import { duesGap } from "../../shared/words/dues";
 import { formatMoney } from "../../shared/words/format";
 import { asksAttention, tidyLines } from "../../shared/words/lines";
-import { nextStepOf, ownRouteOf, ownWayOf, RACKS_STEP, racksAtHand } from "../../shared/words/sixteen";
+import { nextStepOf, ownRouteOf, ownWayOf, RACKS_STEP, racksAtHand, wardMonths } from "../../shared/words/sixteen";
 import { routeKeptBy } from "../../shared/words/keepJob";
-import { hasWords, inMonths, nameOf } from "../../shared/words/text";
+import { hasWords, inMonths, nameOf, say } from "../../shared/words/text";
 import type { Nudge } from "../../shared/world/contract";
 
 /** What the nudge points at, so a tap on it can open the matching sheet. `dues`: the month's dues abroad pass the money held; it opens the Bank. */
@@ -41,6 +41,9 @@ function lowerFirst(words: string): string {
 }
 const CLINIC_DESK: StepWay = { go: "place.tb-clinic", at: ["place.tb-clinic:desk"] };
 const CLINIC_NOTICE: StepWay = { go: "place.tb-clinic", at: ["place.tb-clinic:jobs-notice"] };
+/** The council's acts at the clinic's notice, each opened straight from it. */
+const COUNCIL_VERIFICATION: StepWay = { ...CLINIC_NOTICE, opens: "activity.request-verification" };
+const COUNCIL_LICENCE: StepWay = { ...CLINIC_NOTICE, opens: "activity.renew-licence" };
 const VISA_DESK: StepWay = { go: "place.visa-centre", at: ["place.visa-centre:desk"] };
 const POLICE_NOTICE: StepWay = { go: "place.visa-centre", at: ["place.visa-centre:police-notice"] };
 const AGENT_DESK: StepWay = { go: "place.agent-office", at: ["place.agent-office:desk"] };
@@ -61,8 +64,12 @@ const STEP_WAYS: Record<string, StepWay> = {
   "chapter.decision-day.granted": MONTH_END,
   // R-CHAPTER-009: the file and decision day of each way out of the player's own effort.
   "chapter.build-the-file-care.tenure": MONTH_END,
-  "chapter.build-the-file-care.verification": CLINIC_NOTICE,
+  "chapter.build-the-file-care.verification": COUNCIL_VERIFICATION,
   "chapter.build-the-file-care.sponsor": HUB_DESK,
+  // The care file's own detours, not items of the chapter (`careDetour`): the licence renewed, a sponsor at the bar, the window.
+  "chapter.build-the-file-care.licence": COUNCIL_LICENCE,
+  "chapter.build-the-file-care.salary": HUB_DESK,
+  "chapter.build-the-file-care.window": MONTH_END,
   "chapter.build-the-file-care.applied": VISA_DESK,
   "chapter.build-the-file-talent.portfolio": HUB_DESK,
   "chapter.build-the-file-talent.endorsement": HUB_DESK,
@@ -115,7 +122,18 @@ export function stepWayOf(view: StepView & Partial<Pick<PlayerView, "obligations
   if (route !== null && view.chapter.current === FIRST_CHAPTER && step === "known") return { ...HUB_DESK, opens: OFFICIAL_PAGE, param: route };
   // The plane blocked by held funds: the way is the bank's counter that takes them back.
   if (view.chapter.current === "chapter.send-off" && step === "departed" && heldFundsOpen({ ...view, setpiece: null, interview: null, offers: [], report: null })) return HELD_FUNDS_WAY;
-  return STEP_WAYS[`${view.chapter.current}.${step}`] ?? null;
+  // The care file's detour, where the nudge names one.
+  const detour = careDetour(view, step);
+  return STEP_WAYS[detour ?? `${view.chapter.current}.${step}`] ?? null;
+}
+
+/**
+ * The stop the chapter's first undone step is taken at, from the tables, so the map never keeps shut the place the
+ * nudge sends the player to (R-WORLD-015). Null when the step is the month's end.
+ */
+export function stepStopOf(chapter: Pick<PlayerView["chapter"], "current" | "items">): string | null {
+  const step = chapter.items.find((item) => !item.met)?.id;
+  return chapter.current === null || step === undefined ? null : (STEP_WAYS[`${chapter.current}.${step}`]?.go ?? null);
 }
 
 /** The fish racks beside the room in Makoko, else the board in town that lists them too (R-ACTIVITY-017). */
@@ -164,6 +182,7 @@ const STEP_PAPER: Record<string, string> = {
   "chapter.decision-day.tb": "document.tb-certificate",
   // R-CHAPTER-009: the papers of the other files.
   "chapter.build-the-file-care.verification": "document.nmcn-verification",
+  "chapter.build-the-file-care.licence": "document.nursing-licence",
   "chapter.build-the-file-talent.endorsement": "document.endorsement",
   "chapter.build-the-file-points.eca": "document.eca",
   "chapter.build-the-file-points.english": "document.english-test",
@@ -209,6 +228,8 @@ const STEP_ACTIVITY: Record<string, string> = {
   // R-CHAPTER-009: the acts of the other files.
   "chapter.build-the-file-care.verification": "activity.request-verification",
   "chapter.build-the-file-care.sponsor": "activity.find-sponsor",
+  "chapter.build-the-file-care.licence": "activity.renew-licence",
+  "chapter.build-the-file-care.salary": "activity.find-sponsor",
   "chapter.build-the-file-care.applied": "activity.apply-uk-care",
   "chapter.build-the-file-talent.portfolio": "activity.build-portfolio",
   "chapter.build-the-file-talent.endorsement": "activity.apply-endorsement",
@@ -243,12 +264,16 @@ export const BETTER_JOB = "ui.nudge.better-job";
 /** Held funds still open block the plane. */
 const HELD_FUNDS = "held-funds";
 
+const NURSE_JOB = "activity.job-nurse";
+
 /** The waiting months' acts by profile (R-ACTIVITY-013): the act a life with nothing else to do is pointed at, where it is offered and not yet planned. */
 const MEANWHILE: readonly { act: string; fits: (view: NudgeView) => boolean }[] = [
   { act: "nurse-certification", fits: (view) => qualityOf(view, "quality.care") >= 50 && (view.documents ?? []).some((paper) => paper.id === "document.nursing-licence" && paper.state === "held") },
   { act: "open-source", fits: (view) => qualityOf(view, "quality.tech") >= 40 },
   { act: "tech-posts", fits: (view) => qualityOf(view, "quality.tech") >= 30 },
-  { act: "be-noticed", fits: (view) => (view.job?.months ?? 0) >= 6 },
+  // Not for the staff nurse: getting noticed counts toward the study visa and Canada's points, never care work, and her
+  // ward is the clinic, never the hub's board. The act stays on the hub's board alone (R-CITY-010).
+  { act: "be-noticed", fits: (view) => (view.job?.months ?? 0) >= 6 && view.job?.id !== NURSE_JOB },
 ];
 
 /** Where each waiting-month act is taken (the m18 builders' stagings). */
@@ -271,6 +296,59 @@ export function meanwhileOf(view: NudgeView, planned: readonly string[]): string
     if (option !== undefined && option.allowed && !planned.includes(id) && fits(view)) return act;
   }
   return null;
+}
+
+const CARE_ROUTE = "route.uk-care";
+/** The care file and its decision day (R-CHAPTER-009). */
+const CARE_CHAPTERS: ReadonlySet<string> = new Set(["chapter.build-the-file-care", "chapter.decision-day-care"]);
+const TENURE = "tenure";
+const LICENCE_STEP = "chapter.build-the-file-care.licence";
+const WINDOW_STEP = "chapter.build-the-file-care.window";
+const PASSPORT_STEP = "chapter.build-the-file.passport";
+const ENGLISH_STEP = "chapter.build-the-file.english";
+const VERIFICATION_STEP = "chapter.build-the-file-care.verification";
+/** What the care visa needs before it is sent, in the route's checklist order (route.data.ts), each as the tables' step that gets it. */
+const CARE_PAPERS: readonly { item: string; step: string }[] = [
+  { item: "passport", step: PASSPORT_STEP },
+  { item: "english", step: ENGLISH_STEP },
+  { item: "tb", step: "chapter.decision-day-care.tb" },
+  { item: "police", step: "chapter.decision-day-care.police" },
+  { item: "salary", step: "chapter.build-the-file-care.salary" },
+];
+
+type CareView = Pick<PlayerView, "chapter"> & Partial<Pick<PlayerView, "routes" | "documents" | "activities">>;
+
+/** The words of a tables' step: `chapter.x.step` reads `chapter.x.item.step`. */
+function wordsOf(stepKey: string): string {
+  const cut = stepKey.lastIndexOf(".");
+  return `${stepKey.slice(0, cut)}.item.${stepKey.slice(cut + 1)}`;
+}
+
+/**
+ * The care file's step the nudge names in place of the chapter's own, as the tables'
+ * step key, or null for the chapter's own. A lapsed licence's renewal comes first in any month of the file. In the months
+ * on the ward, the passport. While the council works, the passport, then the English test. At the application, each thing
+ * the visa needs in the route's order: the first that can be got now, else the first on its way, else the window's wait.
+ */
+function careDetour(view: CareView, step: string): string | null {
+  if (!CARE_CHAPTERS.has(view.chapter.current ?? "")) return null;
+  const care = view.routes?.find((route) => route.id === CARE_ROUTE);
+  if (care === undefined) return null;
+  const unmet = (item: string): boolean => care.checklist.find((one) => one.id === item)?.met === false;
+  const pending = (stepKey: string): boolean => {
+    const paper = STEP_PAPER[stepKey];
+    return paper !== undefined && view.documents?.find((held) => held.id === paper)?.state === "pending";
+  };
+  const open = (stepKey: string): boolean => view.activities?.find((option) => option.id === STEP_ACTIVITY[stepKey])?.allowed === true;
+  const now = (item: string, stepKey: string): boolean => unmet(item) && !pending(stepKey) && open(stepKey);
+  if (unmet("licence")) return LICENCE_STEP;
+  if (step === TENURE) return now("passport", PASSPORT_STEP) ? PASSPORT_STEP : null;
+  if (step === "verification" && pending(VERIFICATION_STEP)) return [{ item: "passport", step: PASSPORT_STEP }, { item: "english", step: ENGLISH_STEP }].find((paper) => now(paper.item, paper.step))?.step ?? null;
+  if (step !== "applied") return null;
+  const missing = CARE_PAPERS.filter((paper) => unmet(paper.item));
+  const first = missing.find((paper) => now(paper.item, paper.step)) ?? missing.find((paper) => pending(paper.step)) ?? missing[0];
+  if (first !== undefined) return first.step;
+  return care.window === "closed" ? WINDOW_STEP : null;
 }
 
 /** True while funds held for the visa are still to be given back. */
@@ -403,17 +481,27 @@ export function nudgeOf(view: NudgeView, has: (key: string) => boolean = hasWord
   if (racksAtHand(view)) return { key: huntTaken ? `${FIRST_CHAPTER}.item.job.started` : RACKS_STEP, about: "step" };
   const step = stepOf(view);
   if (view.chapter.current !== null && step !== null) {
+    const care = CARE_CHAPTERS.has(view.chapter.current);
+    // In the months on the ward, the certification comes first while she can sit it: it counts toward care.
+    if (care && step === TENURE && meanwhileOf(view, planned) === "nurse-certification" && has("ui.nudge.meanwhile.nurse-certification")) return { key: "ui.nudge.meanwhile.nurse-certification", about: "step" };
+    // The care file's detour names its own step in its own words.
+    const detour = careDetour(view, step);
     // The story's own nudge words for the step when content has them (at most eight words), else the step's words.
-    const own = `${view.chapter.current}.item.${step}`;
-    const started = startedKey(view, own, `${view.chapter.current}.${step}`, planned, has);
+    const own = detour === null ? `${view.chapter.current}.item.${step}` : wordsOf(detour);
+    const started = startedKey(view, own, detour ?? `${view.chapter.current}.${step}`, planned, has);
     if (started !== null) return { ...started, about: "step" };
+    // The months on the ward, counted, when there is nothing else of hers to do.
+    const count = care && step === TENURE && detour === null ? wardMonths(view) : null;
+    if (count !== null && has(`${own}.count`)) return { key: `${own}.count`, params: { done: count.done, need: count.need }, about: "step" };
     // A hunt missed last month: the nudge names another job on the board too.
     if (step === "job" && (view.report?.lines ?? []).some((line) => line.key === "line.activity.hunt-missed") && (view.activities?.find((option) => option.id === "activity.job-hunt")?.params?.length ?? 0) > 1 && has(`${own}.nudge.again`)) return { key: `${own}.nudge.again`, about: "step" };
     // The life's own way to the step has its own words (the nurse's clinic, the trade's motor park).
     const way = ownWay(view);
     if (way !== null && has(`${own}.nudge.${way.key}`)) return { key: `${own}.nudge.${way.key}`, about: "step" };
-    // "Look into it" names the page of the life's own way out (R-CHAPTER-009).
+    // "Look into it" names the page of the life's own way out (R-CHAPTER-009), read in Japa, one tap away wherever she
+    // stands, never a ride to the hub: `.needs` words open Japa, as the needs do.
     const route = view.chapter.current === FIRST_CHAPTER && step === "known" ? ownRoute(view) : null;
+    if (route !== null && has(`${own}.own.needs`)) return { key: `${own}.own.needs`, params: { route: has(`${route}.short`) ? say(`${route}.short`) : lowerFirst(nameOf(route)) }, about: "step" };
     if (route !== null && has(`${own}.nudge.own`)) return { key: `${own}.nudge.own`, params: { route: lowerFirst(nameOf(route)) }, about: "step" };
     return { key: has(`${own}.nudge`) ? `${own}.nudge` : own, about: "step" };
   }
