@@ -20,8 +20,8 @@ export const activityProfileText: Record<string, string> = {
   "line.activity.exam-passed": "The exam: {right} of {asked} right. You passed.",
   // What a waiting month's act came to, the month it happens.
   "line.activity.piece-built": "A piece for the portfolio: {pieces} of {need}.",
-  "line.activity.piece-built-more": "Another piece for the portfolio. That is {pieces} now.",
-  "line.activity.first-merged": "Your first contribution is merged. Your name is on it.",
-  "line.activity.contributed": "More of your fixes are merged. No new piece this month.",
+  "line.activity.piece-built-more": "Another piece for the portfolio. That made {pieces}.",
+  "line.activity.first-merged": "Your first contribution was merged. Your name is on it.",
+  "line.activity.contributed": "More of your fixes were merged. No new piece this month.",
   "line.activity.exam-failed": "The exam: {right} of {asked} right. A pass needs {pass}. You can sit it again.",
 };

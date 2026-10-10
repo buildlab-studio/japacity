@@ -36,9 +36,9 @@ describe("the band", () => {
 describe("the nudge", () => {
   test("[R-WORLD-003] given a nudge, when it renders, then it is one line of its words, and hidden it renders nothing", () => {
     const { rerender } = render(<Nudge nudge={{ key: "ui.nudge.end" }} />);
-    expect(screen.getByText("End the month when you are ready")).toBeTruthy();
+    expect(screen.getByText("Tap Next month when you are ready")).toBeTruthy();
     rerender(<Nudge nudge={{ key: "ui.nudge.end" }} hidden />);
-    expect(screen.queryByText("End the month when you are ready")).toBeNull();
+    expect(screen.queryByText("Tap Next month when you are ready")).toBeNull();
   });
 });
 

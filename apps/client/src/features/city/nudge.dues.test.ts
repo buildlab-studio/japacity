@@ -24,7 +24,7 @@ describe("the nudge on the month's dues abroad", () => {
     expect(view.chapter.items.every((item) => item.met)).toBe(true);
     const nudge = nudgeOf(view);
     expect(nudge).toEqual({ key: "ui.nudge.dues", params: { due: formatMoney(468_667, "GBP"), held: formatMoney(view.pockets.GBP.bank, "GBP") }, about: "dues" });
-    expect(say(nudge.key, nudge.params)).toBe("Only £1,124 held for £4,687 due this month");
+    expect(say(nudge.key, nudge.params)).toBe("Find £4,687 this month: £1,124 held");
   });
 
   test("[R-WORLD-003] given the pounds held cover the month's dues, when the nudge is chosen, then it is the month's news as before", () => {

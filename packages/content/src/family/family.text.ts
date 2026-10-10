@@ -23,7 +23,7 @@ export const familyText: Record<string, string> = {
   "family.roof.text": "Congratulations. We thank God. Now, about the roof of the family house.",
   "family.told-few.text": "I have told only a few people. Your aunties, the women's meeting, and the man who sells recharge cards.",
   "family.group-name.text": "The group name has been changed to: Our Person Abroad.",
-  "family.size-44.text": "You have landed! Send pictures. Also the shoes you promised. Size 44.",
+  "family.size-44.text": "You have landed. Send pictures. Also the shoes you promised. Size 44.",
   "family.dollars.text": "Our person abroad. Is it true they pay in dollars there? I am only asking.",
   "family.december-room.text": "Your room is ready for December. Your uncle's family is also staying. Only for December.",
 };

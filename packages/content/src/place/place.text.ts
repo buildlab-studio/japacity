@@ -2,15 +2,15 @@
 import { realNames, realNameSigns } from "./place.real";
 
 export const placeText: Record<string, string> = {
-  "line.place.arrived": "The plane lands: {country}. Everything costs more than you planned for.",
-  "line.place.on-road": "You leave by road. Nobody at home knows the whole plan.",
-  "line.place.returned-with-papers": "You come home from {country} with papers in your pocket. The door stays open behind you.",
-  "line.place.returned-by-choice": "You come home from {country} because you chose to. People still ask why.",
-  "line.place.returned-broke": "You come home from {country} with the fare and not much more. Everyone notices.",
-  "line.place.returned-road": "You come home from the road on a ticket someone else paid for. Nobody asks where you went.",
-  "line.place.returned-assisted": "You come home from {country} on a ticket someone else paid for. Nobody says it, but everyone knows.",
-  "line.place.returned-removed": "You are sent home from {country}. There is no way back in for years.",
-  "line.place.token-used": "You fly back on {status}. No new visa, only the ticket.",
+  "line.place.arrived": "The plane landed: {country}. Everything costs more than you planned for.",
+  "line.place.on-road": "You left by road. Nobody at home knew the whole plan.",
+  "line.place.returned-with-papers": "You came home from {country} with papers in your pocket. The door stays open behind you.",
+  "line.place.returned-by-choice": "You came home from {country} because you chose to. People still ask why.",
+  "line.place.returned-broke": "You came home from {country} with the fare and not much more. Everyone noticed.",
+  "line.place.returned-road": "You came home from the road on a ticket someone else paid for. Nobody asked where you went.",
+  "line.place.returned-assisted": "You came home from {country} on a ticket someone else paid for. Nobody said it, but everyone knew.",
+  "line.place.returned-removed": "You were sent home from {country}. There is no way back in for years.",
+  "line.place.token-used": "You flew back on {status}. No new visa, only the ticket.",
   "line.place.token-lapsed": "{months} months away and {status} has lapsed. You would have to start again.",
   // The places' names, blurbs, signs and talk overheard: docs/rules/city.md R-CITY-024. First drafts.
 
@@ -54,7 +54,7 @@ export const placeText: Record<string, string> = {
   "place.national-stadium.overheard.1": "They still train on the track in the morning.",
   "place.national-stadium.overheard.2": "Park well. The boys here will ask you for something.",
   "place.national-stadium.overheard.3": "My father watched matches here. Now look at the stands.",
-  "place.national-stadium.overheard.4": "Cold water! Cold one, buy cold water!",
+  "place.national-stadium.overheard.4": "Cold water, cold one. Buy cold water.",
   // The kiosk at the gate (streets.md R-STREET-008).
   "place.national-stadium.sign.1": "COLD WATER\nAND MINERALS",
   "place.national-stadium.sign.2": "GATE B\nNO PARKING",
@@ -290,7 +290,7 @@ export const placeText: Record<string, string> = {
   "place.marina.overheard.2": "The train comes through here. Stand back.",
   "place.marina.overheard.3": "Close at five, home by nine.",
   "place.cms.name": "CMS",
-  "place.cms.blurb": "The bus stop and the ferry terminal, where the Island empties out at the end of the day.",
+  "place.cms.blurb": "The bus stop and the ferry terminal, where the Island empties out in the evening.",
   "place.cms.overheard.1": "The ferry is faster than the bridge if the water is calm.",
   "place.cms.overheard.2": "Obalende, Obalende. Enter, enter.",
   "place.cms.overheard.3": "Life jacket first, then sit down.",
