@@ -39,7 +39,8 @@ export async function startReadyLife(page: Page, kind?: string, timeout = 30_000
 /** The page as the handover waits for the player (R-PROLOGUE-014): Go on it, once its years are in, if it shows. */
 export async function passThePage(page: Page, timeout = 30_000): Promise<void> {
   const go = page.locator("[data-page-handover]").getByRole("button", { name: "Go", exact: true });
-  await go.waitFor({ state: "visible", timeout }).catch(() => undefined);
+  // A life whose page is not shown (online, the server closes the years) goes straight to the world.
+  await go.or(page.locator("[data-thumb='phone']")).first().waitFor({ state: "visible", timeout }).catch(() => undefined);
   if (await go.isVisible().catch(() => false)) await go.click();
 }
 
