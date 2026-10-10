@@ -103,3 +103,24 @@ describe("deleting the account, as the server built it", () => {
     expect(await offline.deleteAccount(null)).toEqual({ ok: false, why: "unreachable" });
   });
 });
+
+describe("the ways in and the settings, as the server refuses them", () => {
+  test("[R-ACCOUNT-003] given an admin on a code session, when a new passkey is asked for, then the server's 403 is told as passkey-first, never a plain refusal", async () => {
+    const { server, api } = account();
+    server.answer("GET /api/auth/passkey/generate-register-options", { status: 403, body: { message: "A new passkey on an admin account is added only from a session opened with a passkey; sign in with yours first." } });
+    expect(await api.addPasskey()).toEqual({ ok: false, why: "passkey-first" });
+    expect(server.sent.map((request) => `${request.method} ${request.path}`)).toEqual(["GET /api/auth/passkey/generate-register-options"]);
+  });
+
+  test("[R-ACCOUNT-003] given any other refusal of a new passkey, then it stays a plain refusal", async () => {
+    const { server, api } = account();
+    server.answer("GET /api/auth/passkey/generate-register-options", { status: 401, body: { message: "Unauthorized" } });
+    expect(await api.addPasskey()).toEqual({ ok: false, why: "refused" });
+  });
+
+  test("[R-ACCOUNT-029] given a way in from the start screen with no account behind it, when the server finds no age pass, then the refusal is told as no-life", async () => {
+    const { server, api } = account();
+    server.answer("POST /api/auth/sign-in/email-otp", { status: 403, body: { code: "no-age-pass", message: "Pass the age screen first." } });
+    expect(await api.signInWithCode("new@example.test", "123456", null)).toEqual({ ok: false, why: "no-life" });
+  });
+});
