@@ -176,6 +176,22 @@ const STEP_PAPER: Record<string, string> = {
   "chapter.decision-day-gulf.police": "document.police-certificate",
 };
 
+/**
+ * A step whose route can refuse it and make the player wait before asking again (R-ENDORSE-002): the endorsement. While
+ * the wait runs the step names when it opens again, never the act it shuts.
+ */
+const STEP_REFUSAL: Record<string, string> = {
+  "chapter.build-the-file-talent.endorsement": "route.uk-talent",
+};
+
+/** The month a refused step can be asked for again, from the route's refusal in the view, or null when no wait runs. */
+function refusalWait(view: NudgeView, stepKey: string): number | null {
+  const route = STEP_REFUSAL[stepKey];
+  const gate = route === undefined ? undefined : view.routes?.find((candidate) => candidate.id === route)?.gate;
+  if (gate?.gate !== "endorsement" || gate.refusedMonth === null || gate.cooledFromMonth === null) return null;
+  return gate.cooledFromMonth > (view.month ?? 0) ? gate.cooledFromMonth : null;
+}
+
 /** The route the chapters follow, for the school's answer and the funds (chapter.md). */
 const STORY_ROUTE = "route.uk-masters";
 
@@ -286,7 +302,8 @@ function nairaDues(view: NudgeView): number {
 /**
  * A step already started names the wait instead of the thing to do again:
  * a paper on its way says when, a school applied to says when it answers, a hunt or a test planned
- * says to end the month, and funds short of the line say how much more to show. Null: not started.
+ * says to end the month, funds short of the line say how much more to show, and a step refused says when it can be
+ * asked for again. Null: not started.
  */
 function startedKey(view: NudgeView, own: string, stepKey: string, plannedOnly: readonly string[], has: (key: string) => boolean): { key: string; params?: Record<string, string | number> } | null {
   const month = view.month ?? 0;
@@ -295,6 +312,9 @@ function startedKey(view: NudgeView, own: string, stepKey: string, plannedOnly: 
   const planned: readonly string[] = [...plannedOnly, ...done];
   // A now-act's "planned" words would read wrong once it is done: its own done words first, then the generic line.
   const doneKey = (key: string): string | null => (has(`${key}.done`) ? `${key}.done` : has("ui.nudge.done-now") ? "ui.nudge.done-now" : null);
+  // A refusal's wait comes first: the step cannot be taken again until it is out (R-ENDORSE-002).
+  const wait = refusalWait(view, stepKey);
+  if (wait !== null && has(`${own}.wait`)) return { key: `${own}.wait`, params: { when: inMonths(wait, month) } };
   const paper = STEP_PAPER[stepKey];
   if (paper !== undefined) {
     const held = view.documents?.find((document) => document.id === paper);

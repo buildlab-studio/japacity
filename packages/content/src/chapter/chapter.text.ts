@@ -131,6 +131,8 @@ export const chapterText: Record<string, string> = {
   "chapter.build-the-file-talent.item.endorsement.nudge": "Apply for the endorsement",
   "chapter.build-the-file-talent.item.endorsement.needs": "The endorsement needs more. See Japa.",
   "chapter.build-the-file-talent.item.endorsement.started": "Wait for the endorsement, due {when}",
+  // After a refusal, while its months run (R-ENDORSE-002).
+  "chapter.build-the-file-talent.item.endorsement.wait": "Ask for the endorsement again {when}",
   "chapter.build-the-file-talent.item.endorsement.planned": "Endorsement planned. Tap Next month.",
   "chapter.build-the-file-talent.item.applied": "Send the talent visa application",
   "chapter.build-the-file-talent.item.applied.nudge": "Send the talent visa application",
