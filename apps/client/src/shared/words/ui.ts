@@ -652,6 +652,12 @@ export const uiText: Record<string, string> = {
   "ui.page.lived.trade": "Work from school",
   "ui.page.money": "Money",
   "ui.page.ready": "Japacity",
+  // R-TEXT-008: the adviser's reading on the results, its conditions as tags.
+  "ui.results.reading": "Her reading: {route}",
+  "ui.results.reading.fits": "Fits now",
+  "ui.results.reading.missing": "{count} missing",
+  "ui.results.reading.months": "{count} months at least",
+  "ui.results.reading.months.one": "1 month at least",
   "ui.page.mark.done": "Done",
   "ui.page.mark.failed": "Failed",
   "ui.page.mark.setback": "Setback",

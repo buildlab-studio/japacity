@@ -7,9 +7,11 @@ import { act, screen } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
 import { slot } from "../../../../../packages/sim/src/route/route.journey";
-import { newGame } from "../../shared/testing/fixtures";
+import { newGame, recordedGame } from "../../shared/testing/fixtures";
+import { lifeSaves } from "../../../../../packages/sim/src/goldens/lives.data";
+import { markWord } from "../../shared/ui/Mark";
 import { renderWithView } from "../../shared/testing/render";
-import { words } from "../../shared/words/text";
+import { say, sayCount, words } from "../../shared/words/text";
 import { kept, moneyLines, STORY_MAX, storyLines, toldOnResults, untoldLines } from "./month.results";
 import { Results } from "./Results";
 import { turnWords } from "./turn.words";
@@ -100,6 +102,27 @@ describe("the adviser's reading and the relative's gift", () => {
   test("[R-WORLD-008] [R-ADVICE-004] given the adviser's reading beside a way out heard of, when the story is ranked, then her reading leads", () => {
     const told = storyLines([line("line.route.heard", { route: "route.uk-masters" }), line("line.activity.adviser-missing", { route: "route.uk-masters", count: 3, months: 4 })]);
     expect(told[0]?.key).toBe("line.activity.adviser-missing");
+  });
+
+  test("[R-TEXT-008] [R-ADVICE-004] given the adviser read a file in the month, when the results show, then her reading names the route in one line and its conditions are tags with marks, never her sentence", async () => {
+    // Ada's recorded life once the master's is known: the adviser is paid now and the month ends.
+    const game = recordedGame("ada-careful", lifeSaves["ada-careful"]!.commands.length - 9);
+    const { lines: now } = game.accept({ type: "activity/now", activity: "activity.see-adviser", param: null });
+    game.endTurn();
+    const reading = now.find((each) => each.key === "line.activity.adviser-missing");
+    if (reading === undefined) throw new Error("The adviser found the file complete on this life.");
+    const { store } = await renderWithView(<Results place="Home" />, game.view());
+    act(() => store.setState({ reportOpen: true, lastMonthLines: now }));
+    const row = document.querySelector("[data-reading='missing']");
+    expect(row?.firstElementChild?.textContent).toBe(words("ui.results.reading", { route: reading.params.route! }));
+    expect(row?.textContent).not.toContain(words(reading.key, reading.params));
+    expect(row?.textContent).not.toMatch(/\./);
+    const missing = row?.querySelector("[data-state-tag='missing']");
+    expect(missing?.textContent).toBe(say("ui.results.reading.missing", { count: reading.params.count as number }));
+    expect(missing?.querySelector("[data-mark]")?.getAttribute("aria-label")).toBe(markWord("failed"));
+    const months = row?.querySelector("[data-state-tag='months']");
+    expect(months?.textContent).toBe(sayCount("ui.results.reading.months", reading.params.months as number, { count: reading.params.months as number }));
+    expect(months?.querySelector("[data-mark]")?.getAttribute("aria-label")).toBe(markWord("waiting"));
   });
 
   test("[R-WORLD-008] [R-LUCK-010] given the relative's gift answered, when the story is read, then the wallet's bare flag line is not told beside the answer's own words", () => {
