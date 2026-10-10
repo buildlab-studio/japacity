@@ -266,11 +266,15 @@ export const chapterKind: RegisteredKind<ChapterSlice, ChapterEvent> = {
     if (chosen !== undefined && content.route[chosen] === undefined) problems.push(`The chosen plan ${chosen} is not a route in content.`);
     return problems;
   },
-  // R-CHAPTER-005: each item of the current chapter, judged against the state as it is now.
+  // R-CHAPTER-005: each item of the current chapter, judged against the state as it is now. R-CHAPTER-010: whether it
+  // closes at this month's end as the phase would judge it, and the chapter that follows it with the lean as it stands.
   view: (read) => {
     const { current, done } = read.state.chapter;
-    const items = current === null ? [] : entryOf(read.content, current).items.map((item) => ({ id: item.id, met: check(read, item.requirement).met }));
+    const entry = current === null ? undefined : entryOf(read.content, current);
+    const items = entry === undefined ? [] : entry.items.map((item) => ({ id: item.id, met: check(read, item.requirement).met }));
+    const closes = entry !== undefined && finished(entry, (requirement) => check(read, requirement).met);
+    const next = entry === undefined ? null : nextAfter(read.content, entry, read.state.route, read.state.chapter.chosen ?? null);
     const lean = planOf(read.state.route, read.content, read.state.chapter.chosen ?? null);
-    return { chapter: { current, items, done }, plan: { route: lean, ways: waysOf(read) } };
+    return { chapter: { current, items, done, closes, next }, plan: { route: lean, ways: waysOf(read) } };
   },
 };

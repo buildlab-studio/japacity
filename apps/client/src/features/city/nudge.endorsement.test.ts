@@ -34,7 +34,7 @@ function talentLife(): Game {
 
 /** The view in the talent file with the portfolio met and the endorsement next, as the chapter has it then. */
 function inTheFile(view: PlayerView): PlayerView {
-  return { ...view, offers: [], chapter: { current: FILE, items: [{ id: "portfolio", met: true }, { id: "endorsement", met: false }, { id: "applied", met: false }], done: [] } };
+  return { ...view, offers: [], chapter: { current: FILE, items: [{ id: "portfolio", met: true }, { id: "endorsement", met: false }, { id: "applied", met: false }], done: [], closes: false, next: null } };
 }
 
 function cooledFrom(view: PlayerView): number {

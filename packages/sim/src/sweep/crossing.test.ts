@@ -220,7 +220,7 @@ describe("rules that cross kinds", () => {
     expect(uk(game).funds.shown).toBeLessThan(before);
   });
 
-  test("[R-ACTIVITY-005] [R-OFFER-007] [R-ACTIVITY-001] given Ada with no job, when a month of hunting lands the teaching job, then a job offer opens naming it, accepting starts the job at once, and the next month pays its salary to the bank", () => {
+  test("[R-ACTIVITY-005] [R-OFFER-007] [R-ACTIVITY-001] [R-WALLET-016] given Ada with no job, when a month of hunting lands the teaching job, then a job offer opens naming it, accepting starts the job at once, and the next month pays its salary to the bank", () => {
     const seed = seedWhere((candidate) => {
       const trial = start({ scenario: "scenario.ada", seed: candidate, content });
       trial.endTurn([slot("activity.job-hunt", "activity.job-teacher")]);
@@ -232,16 +232,18 @@ describe("rules that cross kinds", () => {
     expect(offer?.terms.job).toBe("activity.job-teacher");
     expect(game.view().job.id).toBeNull();
 
+    const pay = content.activity["activity.job-teacher"]!.pay!.amount as number;
+    // the offer and the job held say the month's pay as the wallet will book it.
+    expect(offer?.pay).toEqual({ currency: "NGN", amount: pay });
     game.accept({ type: "offer/choose", offer: offer!.id, choice: "accept" });
-    expect(game.view().job).toEqual({ id: "activity.job-teacher", months: 0, side: null });
+    expect(game.view().job).toEqual({ id: "activity.job-teacher", months: 0, side: null, pay: { currency: "NGN", amount: pay }, sidePay: null });
     const salaryBefore = game.state.wallet.totals.in.salary?.NGN ?? 0;
 
     const month = game.endTurn();
 
-    const pay = content.activity["activity.job-teacher"]!.pay!.amount as number;
     expect(month.events).toContainEqual(expect.objectContaining({ type: "wallet/credited", currency: "NGN", pocket: "bank", amount: pay, reason: "salary" }));
     expect((game.state.wallet.totals.in.salary?.NGN ?? 0) - salaryBefore).toBe(pay);
-    expect(game.view().job).toEqual({ id: "activity.job-teacher", months: 1, side: null });
+    expect(game.view().job).toEqual({ id: "activity.job-teacher", months: 1, side: null, pay: { currency: "NGN", amount: pay }, sidePay: null });
   });
 });
 

@@ -61,15 +61,17 @@ export function plannedCosts(view: Pick<PlayerView, "activities">, plan: readonl
  */
 export type AfterPaying = { left: Money; short: null; due: Money | null } | { left: null; short: Money };
 
+/** What the view says of pay: the jobs held and the offers open (docs/rules/wallet.md R-WALLET-016). */
+export type PayView = Pick<PlayerView, "job" | "offers">;
+
 /**
- * A job's pay a month, from content: a job abroad is paid by the year and its month is a twelfth,
- * as the simulation pays it (activity.pay.ts, `paidYearly`). Null when content gives no figure.
+ * A job's pay a month as the wallet will book it, net of tax, from the view (R-WALLET-016): the job held, the side
+ * job, or the job an open offer names. Null when the view carries no figure for it.
  */
-export function monthlyPayOf(job: string): MoneyParam | null {
-  const entry = content.activity[job as keyof typeof content.activity];
-  const pay = entry?.pay ?? null;
-  if (pay === null || typeof pay.amount !== "number") return null;
-  return { currency: pay.currency, amount: entry?.where === "abroad" ? int.divFloor(pay.amount, 12) : pay.amount };
+export function monthlyPayOf(view: PayView, job: string): MoneyParam | null {
+  if (view.job.id === job) return view.job.pay;
+  if (view.job.side === job) return view.job.sidePay;
+  return view.offers.find((offer) => offer.terms["job"] === job && offer.pay !== undefined)?.pay ?? null;
 }
 
 /** The month's dues against the pay that comes in before them (docs/rules/engine.md section 4: the job pays, then the bills are taken). */
@@ -89,10 +91,7 @@ export function monthDues(view: Pick<PlayerView, "obligations" | "job">): MonthD
     const currency = content.obligation[owed.entry]?.currency;
     return currency === undefined || owed.due <= 0 ? [] : [{ currency, amount: owed.due }];
   });
-  const pay = [view.job.id, view.job.side].flatMap((job): Money[] => {
-    const monthly = job === null ? null : monthlyPayOf(job);
-    return monthly === null ? [] : [monthly];
-  });
+  const pay = [view.job.pay, view.job.sidePay].flatMap((monthly): Money[] => (monthly === null ? [] : [monthly]));
   return { due: sum(due), pay: sum(pay) };
 }
 

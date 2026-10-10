@@ -10,7 +10,7 @@ import { describe, expect, test } from "vitest";
 import { slot, applyEffects } from "../../../../../packages/sim/src/route/route.journey";
 import type { Game } from "../../../../../packages/sim/src/testing/play";
 import { formatMoney } from "../../shared/words/format";
-import { newGame, recordedGame, abroadGame } from "../../shared/testing/fixtures";
+import { newGame, recordedGame, abroadGame, viewAfter } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { nameOf, words } from "../../shared/words/text";
 import { monthlyPayOf } from "../../shared/words/cost";
@@ -70,7 +70,7 @@ describe("money that was not paid", () => {
     const rent = game.view().obligations.find((owed) => content.obligation[owed.entry]?.type === "rent");
     if (rent === undefined) throw new Error("Ada abroad holds no rent.");
     const { lines } = game.endTurn();
-    const told = storyLines(lines).map((line) => toldOnResults(line));
+    const told = storyLines(lines).map((line) => toldOnResults(line, game.view()));
     const rentLine = told.find((line) => line.params.obligation === rent.entry);
     expect(rentLine?.key).toBe("ui.results.unpaid.credit-standing-mood");
     const unpaid = told.filter((line) => line.key.startsWith("ui.results.unpaid."));
@@ -83,7 +83,7 @@ describe("money that was not paid", () => {
     const tuition = game.view().obligations.find((owed) => owed.entry === "obligation.tuition" && owed.due > 0);
     if (tuition === undefined) throw new Error("No tuition falls due in Ada's first month abroad.");
     const { lines } = game.endTurn();
-    const told = storyLines(lines).map((line) => toldOnResults(line));
+    const told = storyLines(lines).map((line) => toldOnResults(line, game.view()));
     const missed = told.find((line) => line.params.obligation === "obligation.tuition");
     expect(missed?.key).toBe("ui.results.unpaid.withdraw");
     const said = words(missed?.key ?? "", missed?.params);
@@ -108,17 +108,20 @@ describe("a hunt's answer on the results", () => {
     const game = newGame("scenario.ada");
     const { lines } = game.endTurn([slot("activity.job-hunt", "activity.job-teacher")]);
     await showResults(game, lines);
-    const pay = monthlyPayOf("activity.job-teacher");
+    // the pay a month is the one the view gives the offer, as the wallet will book it.
+    const pay = monthlyPayOf(game.view(), "activity.job-teacher");
     if (pay === null) throw new Error("The teacher's job has no pay.");
     const said = words("ui.results.hunt-offer", { job: "activity.job-teacher", pay });
     expect(storyRows()[0]?.textContent).toBe(said);
     expect(said).toContain(`${formatMoney(pay.amount, pay.currency)} a month`);
   });
 
-  test("[R-WORLD-008] given a job abroad, whose pay content gives a year, when its pay a month is read, then it is the year's pay over twelve", () => {
+  test("[R-WORLD-008] [R-WALLET-016] given a job abroad under the tax line, whose pay content gives a year, when its pay a month is read from the view, then it is the year's pay over twelve", () => {
+    // the figure is the view's, the job held through the engine.
     const year = content.activity["activity.job-uk-retail-part"]?.pay?.amount;
     expect(typeof year).toBe("number");
-    expect(monthlyPayOf("activity.job-uk-retail-part")).toEqual({ currency: "GBP", amount: Math.floor((year as number) / 12) });
+    const view = viewAfter(abroadGame(), [{ type: "activity/start-job", job: "activity.job-uk-retail-part" }]);
+    expect(monthlyPayOf(view, "activity.job-uk-retail-part")).toEqual({ currency: "GBP", amount: Math.floor((year as number) / 12) });
   });
 });
 

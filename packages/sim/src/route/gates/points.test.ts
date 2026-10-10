@@ -336,6 +336,32 @@ describe("the points gate", () => {
       expect(canada(game).state).toBe(invited ? "applying" : "known");
     });
 
+    test.each([
+      [60, true],
+      [59, false],
+    ])("[R-POINTS-006] given care at %i, the care cut-off at the score and the general cut-off above it, when the gate is viewed, then it says an invitation will come: %s", (care, invited) => {
+      const game = zainab({ qualities: { "quality.care": care }, vars: () => ({ [CARE_CUTOFF]: ZAINAB_SCORE }) });
+      toKnown(game);
+      const viewed = game.view().routes.find((route) => route.id === CANADA)?.gate;
+      if (viewed?.gate !== "points") throw new Error("Canada's gate is not the points gate.");
+      expect(viewed.points).toBe(ZAINAB_SCORE);
+      expect(viewed.cutoff).toBeGreaterThan(viewed.points);
+      expect(viewed.invites).toBe(invited);
+      expect(viewed.invites).toBe(invites(readOf(game), CANADA));
+    });
+
+    test("[R-POINTS-006] given the general cut-off at the score, when the gate is viewed, then it says an invitation will come; one point above, it does not", () => {
+      for (const [cutoff, invited] of [
+        [ZAINAB_SCORE, true],
+        [ZAINAB_SCORE + 1, false],
+      ] as const) {
+        const game = zainab({ vars: () => ({ [CUTOFF]: cutoff }) });
+        toKnown(game);
+        const viewed = game.view().routes.find((route) => route.id === CANADA)?.gate;
+        expect(viewed).toMatchObject({ gate: "points", invites: invited });
+      }
+    });
+
     test("[R-POINTS-003] given two seeds, when the cut-off comes down to the score, then both are invited the same month and no visa draw is made: the cut-off decides", () => {
       const months = ["seed-1", "seed-2"].map((seed) => {
         const game = zainab({ seed, vars: () => ({ [CUTOFF]: ZAINAB_SCORE }) });

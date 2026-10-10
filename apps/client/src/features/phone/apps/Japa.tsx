@@ -6,7 +6,7 @@
 // the plan the chapters follow with its file, and each other way heard of opens its page with the switch
 // (docs/rules/chapter.md R-CHAPTER-009).
 import { content } from "@japacity/content";
-import type { ChapterEntry, Currency, Id, PlayerView, RouteView } from "@japacity/sim";
+import type { Currency, Id, PlayerView, RouteView } from "@japacity/sim";
 import { Check, ChevronLeft, ChevronRight, Circle, FileCheck, FileClock, FileX } from "lucide-react";
 import { use, useState } from "react";
 
@@ -14,7 +14,7 @@ import { useGame, useView } from "../../../authority/GameProvider";
 import { actOnCard, nowSaid } from "../../../shared/words/acts";
 import { monthsLeft, SOON } from "../../../shared/words/expiry";
 import { formatBand, formatMoney } from "../../../shared/words/format";
-import { planMarks } from "../../../shared/words/plan";
+import { type Coming, comingOf } from "../../../shared/words/coming";
 import { checklistWords } from "../../../shared/words/requirement";
 import { planRoute } from "../../../shared/words/savings";
 import { wardMonths } from "../../../shared/words/sixteen";
@@ -43,32 +43,15 @@ function afterWords(key: string, params: Record<string, string> = {}): string {
 }
 
 /**
- * The chapter that follows a chapter (R-CHAPTER-009): the next base by order, or its variant for the plan
- * the view names, as the engine reads the lean again at the close; without one, the way out the current
- * chapter follows stands for it.
+ * The chapter whose steps lie ahead (R-WORLD-019): the current one while it does not close, its steps as the
+ * view marks them; once the view says it closes at the month's end (R-CHAPTER-010, `closesOn` honoured), the
+ * chapter the view names next, which opens when the month ends, its steps not yet marked.
  */
-function chapterAfter(current: Id<"chapter">, lean: Id<"route"> | null): ChapterEntry | undefined {
-  const entry = content.chapter[current];
-  const base = entry?.variantOf === undefined ? entry : content.chapter[entry.variantOf];
-  if (base === undefined) return undefined;
-  const next = Object.values(content.chapter)
-    .filter((candidate) => candidate.variantOf === undefined && candidate.order > base.order)
-    .sort((a, b) => a.order - b.order)[0];
-  if (next === undefined) return undefined;
-  const route = lean ?? entry?.route;
-  return (route === undefined ? undefined : Object.values(content.chapter).find((candidate) => candidate.variantOf === next.id && candidate.route === route)) ?? next;
-}
-
-/**
- * The chapter whose steps lie ahead (R-WORLD-019): the current one while a step is undone, its steps
- * as the view marks them; once every step is met, the next by content's order, which opens when the
- * month ends, its steps not yet marked.
- */
-export function chapterAhead(chapter: PlayerView["chapter"], lean: Id<"route"> | null = null): { id: Id<"chapter">; now: boolean; items: { id: string; met: boolean }[] } | null {
+export function chapterAhead(chapter: PlayerView["chapter"]): { id: Id<"chapter">; now: boolean; items: { id: string; met: boolean }[] } | null {
   const current = chapter.current;
   if (current === null) return null;
-  if (chapter.items.some((item) => !item.met)) return { id: current, now: true, items: chapter.items };
-  const next = chapterAfter(current, lean);
+  if (!chapter.closes) return { id: current, now: true, items: chapter.items };
+  const next = chapter.next === null ? undefined : content.chapter[chapter.next];
   return next === undefined ? null : { id: next.id, now: false, items: next.items.map((item) => ({ id: item.id, met: false })) };
 }
 
@@ -110,8 +93,8 @@ const STEP_PAPERS: Readonly<Record<string, string>> = {
 /** "The council answers in 5 months" while the step's paper is on its way, else null. */
 function councilWait(view: PlayerView, own: string): string | null {
   const paper = view.documents.find((held) => held.id === STEP_PAPERS[own]);
-  if (paper?.state !== "pending" || paper.readyMonth === null || !hasWords(`${own}.japa.pending`)) return null;
-  return say(`${own}.japa.pending`, { when: inMonths(paper.readyMonth, view.month) });
+  if (paper === undefined || paper.onItsWay === null || !hasWords(`${own}.japa.pending`)) return null;
+  return say(`${own}.japa.pending`, { when: inMonths(paper.onItsWay, view.month) });
 }
 
 /** The first step not done of the chapter ahead, in the story's words. */
@@ -181,17 +164,34 @@ export function moveCosts(route: RouteView): MoveCost[] {
   ];
 }
 
-/** What is coming up: the visa decision, each paper on its way, and the plan's marks. */
+/** What is coming that Japa's reminders say: the plan's own waits, not an ask, a birthday or an age limit. */
+type Reminder = Coming & { kind: "visa" | "paper" | "plan" };
+
+function isReminder(item: Coming): item is Reminder {
+  return item.kind === "visa" || item.kind === "paper" || item.kind === "plan";
+}
+
+function reminderWords(item: Reminder, month: number): string {
+  const when = inMonths(item.month, month);
+  switch (item.kind) {
+    case "visa":
+      return phoneWords("phone.japa.visa", { when });
+    case "paper":
+      return phoneWords("phone.japa.paper-ready", { paper: item.what, when });
+    case "plan":
+      return phoneWords("phone.japa.mark", { what: item.what, when });
+    default: {
+      const never: never = item.kind;
+      return never;
+    }
+  }
+}
+
+/** What is coming up: the city's one list (`comingOf`), in its order, kept to the plan's waits. */
 export function remindersOf(view: PlayerView): string[] {
-  const out: string[] = [];
-  for (const route of view.routes) {
-    if (route.visa !== null && route.state === "applying") out.push(phoneWords("phone.japa.visa", { when: inMonths(route.visa.decisionMonth, view.month) }));
-  }
-  for (const paper of view.documents) {
-    if (paper.state === "pending" && paper.readyMonth !== null) out.push(phoneWords("phone.japa.paper-ready", { paper: nameOf(paper.id), when: inMonths(paper.readyMonth, view.month) }));
-  }
-  for (const mark of planMarks(view)) out.push(phoneWords("phone.japa.mark", { what: mark.what, when: inMonths(mark.month, view.month) }));
-  return out;
+  return comingOf(view)
+    .filter(isReminder)
+    .map((item) => reminderWords(item, view.month));
 }
 
 function Papers({ onBack }: { onBack: () => void }) {
@@ -211,15 +211,15 @@ function Papers({ onBack }: { onBack: () => void }) {
           {documents.map((paper) => {
             const left = monthsLeft(paper, month);
             const soon = left !== null && left <= SOON;
-            const Icon = paper.state === "held" ? FileCheck : paper.state === "pending" ? FileClock : FileX;
+            const Icon = paper.state === "held" ? FileCheck : paper.onItsWay !== null ? FileClock : FileX;
             return (
               <li key={paper.id} data-paper={paper.id} data-state={paper.state} className="flex items-start gap-3 rounded-[6px] p-3" style={{ background: "var(--paper-bill)" }}>
                 <Icon size={20} aria-hidden className={`mt-0.5 shrink-0 ${paper.state === "held" ? "text-in" : paper.state === "expired" ? "text-out" : "text-text-2"}`} />
                 <div className="min-w-0">
                   <p className={`text-[15px] font-bold ${paper.state === "expired" ? "line-through" : ""}`}>{nameOf(paper.id)}</p>
                   <p className="text-[13px] text-text-2">
-                    {paper.state === "pending" && paper.readyMonth !== null
-                      ? phoneWords("phone.japa.paper-pending", { when: inMonths(paper.readyMonth, month) })
+                    {paper.onItsWay !== null
+                      ? phoneWords("phone.japa.paper-pending", { when: inMonths(paper.onItsWay, month) })
                       : paper.state === "expired"
                         ? say("ui.document.expired")
                         : paper.expiresMonth === null
@@ -273,7 +273,7 @@ function NextStep({ step }: { step: string }) {
 /** After the flight (R-WORLD-019): the visa held and what it lets you do, then the landing's steps. */
 function Abroad({ view, onPapers }: { view: PlayerView; onPapers: () => void }) {
   const held = view.status;
-  const ahead = chapterAhead(view.chapter, view.plan.route);
+  const ahead = chapterAhead(view.chapter);
   const next = ahead?.now === true ? nextStepWords(ahead) : null;
   const lets = held === null ? null : blurbOf(held.entry);
   return (
@@ -388,7 +388,7 @@ export function Japa() {
   const percent = view.japacity.percent ?? (lean === null ? null : (head?.percent ?? null));
   const coming = remindersOf(view);
   // Once a visa is granted the plan is done but the story is not: the next step, the plane, is named.
-  const ahead = view.routes.some((candidate) => candidate.state === "granted") ? chapterAhead(view.chapter, lean) : null;
+  const ahead = view.routes.some((candidate) => candidate.state === "granted") ? chapterAhead(view.chapter) : null;
   const next = ahead === null ? null : nextStepWords(ahead);
   // The page offered may be about another way than the plan's: then it stands under its own heading,
   // after the plan's costs, and names its route, so Canada is never offered under the UK.

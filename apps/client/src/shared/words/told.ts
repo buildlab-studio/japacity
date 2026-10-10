@@ -1,9 +1,9 @@
 // How the month's lines are told, on the results and in News alike (docs/rules/world.md R-WORLD-008): a piece for the portfolio counted as a piece, a score or a count said in words, a bill missed with what it
 // cost, a hunt's answer with the job and its pay. In shared/ so the results and the phone's News read one telling.
 import { content, text } from "@japacity/content";
-import type { Currency, ReportLine } from "@japacity/sim";
+import type { ReportLine } from "@japacity/sim";
 
-import { monthlyPayOf } from "./cost";
+import { monthlyPayOf, type PayView } from "./cost";
 import { countWords } from "./count";
 import { afterPrologue, isUnpaid, PROLOGUE_CLOSED, tidyLines, toldUnpaid } from "./lines";
 import { moneyTold } from "./money";
@@ -55,7 +55,7 @@ function answered(line: ReportLine): ReportLine {
  * cost, a hunt says the job and its answer, an offer of work says the pay a month. Anything else
  * is told as News tells it.
  */
-export function toldOnResults(line: ReportLine): ReportLine {
+export function toldOnResults(line: ReportLine, pays: PayView): ReportLine {
   const { job } = line.params;
   if (line.key === TAKEN) return answered(line);
   // A score or a count of pieces reads as a person says it: "one of three", never "1 of 3" (R-TEXT-005).
@@ -63,7 +63,7 @@ export function toldOnResults(line: ReportLine): ReportLine {
   if (line.key === "line.obligation.missed") return toldUnpaid(line);
   if (line.key === "line.activity.hunt-missed" && typeof job === "string") return { ...line, key: "ui.results.hunt-missed" };
   if (line.key === "line.activity.hunt-hired" && typeof job === "string") {
-    const pay = monthlyPayOf(job);
+    const pay = monthlyPayOf(pays, job);
     return pay === null ? { ...line, key: "ui.results.hunt-offer-plain" } : { ...line, key: "ui.results.hunt-offer", params: { ...line.params, pay } };
   }
   return line;
@@ -86,15 +86,15 @@ function newsOrder(lines: readonly ReportLine[]): ReportLine[] {
  * unpaid leading, each in the results' own words, so News never tells the month another way (R-WORLD-008; the tenth
  * review, W11: a piece for the portfolio was "one of three" on the results and "little work to show" in News). Money is
  * told by the results' money lines (`moneyTold`), in or out by its sign: a change at the bank says both sides and the
- * charge, never the wallet's "Changed money". `local` is the money the character lives on.
+ * charge, never the wallet's "Changed money". `pays` is the view a hunt's job is paid from.
  */
-export function newsLines(midMonth: readonly ReportLine[], report: readonly ReportLine[], local: Currency = "NGN"): ReportLine[] {
+export function newsLines(midMonth: readonly ReportLine[], report: readonly ReportLine[], pays: PayView): ReportLine[] {
   const all = [...midMonth, ...report];
   // The prologue's years are told as they were; their money is what the character starts with, not this month's.
   const closed = all.findLastIndex((line) => line.key === PROLOGUE_CLOSED);
   const before = closed === -1 ? [] : tidyLines(all.slice(0, closed + 1));
   const month = tidyLines(afterPrologue(all));
-  const money = moneyTold(month, local);
+  const money = moneyTold(month);
   const told = month.flatMap((line, index) => money[index]?.map((entry): ReportLine => ({ ...entry.line, tone: entry.sign > 0 ? "good" : "bad" })) ?? [line]);
-  return newsOrder([...before, ...told].map((line) => toldOnResults(asPiece(toldUnpaid(line)))));
+  return newsOrder([...before, ...told].map((line) => toldOnResults(asPiece(toldUnpaid(line)), pays)));
 }

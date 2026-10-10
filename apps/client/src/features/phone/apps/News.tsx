@@ -7,7 +7,6 @@ import { useGame, useView } from "../../../authority/GameProvider";
 import { nowLineWords } from "../../../shared/words/acts";
 import { newsLines } from "../../../shared/words/told";
 import { blurbOf, monthsAgo, nameOf, say, words } from "../../../shared/words/text";
-import { localCurrency } from "../../../shared/words/wayHome";
 import { SourceMark } from "../../../shared/ui/NewsSource";
 import { Head } from "../act";
 import { phoneWords } from "../phone.words";
@@ -59,7 +58,7 @@ export function News() {
           <Head>{phoneWords("phone.news.month", { when: monthsAgo(report.month, month) })}</Head>
           {/* The month's lines are told as the results tell them, money too (shared/words/told.ts, R-WORLD-008). */}
           <ul className="flex flex-col divide-y divide-sheet-line">
-            {newsLines(midMonth, report.lines, localCurrency(view) ?? "NGN").map((line, index) => (
+            {newsLines(midMonth, report.lines, view).map((line, index) => (
               <li key={`${line.key}-${String(index)}`} className={`py-1.5 text-[14px] ${line.tone === "good" ? "text-in" : line.tone === "bad" ? "text-out" : "text-text"}`}>
                 {nowLineWords(line)}
               </li>

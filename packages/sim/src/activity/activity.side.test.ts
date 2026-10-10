@@ -60,12 +60,27 @@ describe("side jobs", () => {
     const accepted = game.accept({ type: "offer/choose", offer, choice: "accept" });
     expect(accepted.events).toContainEqual({ type: "activity/side-started", side: NIGHT, previous: null });
     expect(game.state.activity).toMatchObject({ job: null, side: NIGHT });
-    expect(game.view().job).toEqual({ id: null, months: 0, side: NIGHT });
+    // the view carries each job's month as the wallet will book it.
+    expect(game.view().job).toEqual({ id: null, months: 0, side: NIGHT, pay: null, sidePay: { currency: "USD", amount: payOf(NIGHT) } });
     expect(game.view().locks).toEqual([{ slots: 1, untilMonth: game.state.turn.month, why: SIDE_JOB_LOCK }]);
     expect(game.view().freeSlots).toBe(tuning.turn.freeSlotsNoJob - 1);
     expect(sideJobHeld(readOf(game))).toBe(true);
     // The side job is not hunted again while held.
     expect(game.view().activities.find((option) => option.id === HUNT)?.params).not.toContain(NIGHT);
+  });
+
+  test("[R-WALLET-016] given a hunt for a side job that lands, when the offer is read, then it says the month's pay; once the side job is held the view's side pay is the same, and the month books exactly it", () => {
+    const game = start({ content, scenario: "scenario.ada" });
+    let offer: { id: string; pay?: { currency: string; amount: number } } | undefined;
+    for (let month = 0; month < 30 && offer === undefined; month += 1) {
+      game.endTurn([slot(HUNT, NIGHT)]);
+      offer = game.view().offers.find((open) => open.entry === "offer.job" && open.terms.job === NIGHT);
+    }
+    if (offer === undefined) throw new Error("No hunt landed in 30 months.");
+    expect(offer.pay).toEqual({ currency: "USD", amount: payOf(NIGHT) });
+    game.accept({ type: "offer/choose", offer: offer.id, choice: "accept" });
+    expect(game.view().job.sidePay).toEqual(offer.pay);
+    expect(moneyOf(game.endTurn(), "salary").map((money) => money.amount)).toEqual([offer.pay?.amount]);
   });
 
   test("[R-ACTIVITY-010] given a side job paid in dollars and one paid in naira, when a month is played, then the dollars go to the bank and the naira to cash, its toll applies, and the slot stays locked for the next month", () => {

@@ -21,15 +21,15 @@ export function DocumentView() {
             {documents.map((paper) => {
               const left = monthsLeft(paper, month);
               const soon = left !== null && left <= SOON;
-              const Icon = paper.state === "held" ? FileCheck : paper.state === "pending" ? FileClock : FileX;
+              const Icon = paper.state === "held" ? FileCheck : paper.onItsWay !== null ? FileClock : FileX;
               return (
                 <li key={paper.id} data-state={paper.state} className="flex items-start gap-3">
                   <Icon size={20} className={`mt-0.5 shrink-0 ${paper.state === "held" ? "text-good" : paper.state === "expired" ? "text-bad" : "text-text-2"}`} />
                   <div className="flex flex-col">
                     <span className={`font-medium ${paper.state === "expired" ? "line-through" : ""}`}>{nameOf(paper.id)}</span>
                     <span className="text-sm text-text-2">
-                      {paper.state === "pending" && paper.readyMonth !== null
-                        ? say("ui.document.pending", { month: monthEnding(paper.readyMonth) })
+                      {paper.onItsWay !== null
+                        ? say("ui.document.pending", { month: monthEnding(paper.onItsWay) })
                         : paper.state === "expired"
                           ? say("ui.document.expired")
                           : paper.expiresMonth === null

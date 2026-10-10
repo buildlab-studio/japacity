@@ -4,9 +4,9 @@ import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
 import { checkInvariants } from "../engine/invariants";
-import type { Id, ReadCtx } from "../engine/types";
+import type { Content, Id, ReadCtx } from "../engine/types";
 import { checklistView, routePercent } from "../japacity/japacity.logic";
-import { slot } from "../route/route.journey";
+import { applyEffects, slot } from "../route/route.journey";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
 import { leanRoute } from "./chapter.logic";
@@ -41,6 +41,40 @@ function nurseOnCare(): Game {
 function readOf(game: Game): ReadCtx {
   return { state: game.state, world: game.world(), content: game.content };
 }
+
+describe("the chapter ahead in the view", () => {
+  test("[R-CHAPTER-010] given the nurse on care's file, when the view is read, then the chapter that follows is care's decision day; once she makes the master's the plan it is the master's", () => {
+    const game = nurseOnCare();
+    expect(game.view().chapter.current).toBe("chapter.build-the-file-care");
+    expect(game.view().chapter.next).toBe("chapter.decision-day-care");
+    game.accept({ type: "chapter/lean", route: UK });
+    expect(game.view().chapter.next).toBe("chapter.decision-day");
+  });
+
+  test("[R-CHAPTER-010] given a chapter that closes on one item, when that item alone is met, then the view says it closes though other items are open, and the month's end closes it into the chapter the view named", () => {
+    const feet = content.chapter[FEET]!;
+    const one: Content = { ...content, version: "test-closes-on", chapter: { ...content.chapter, [FEET]: { ...feet, closesOn: "job" } } };
+    const game = start({ scenario: "scenario.ada", content: one });
+    expect(game.view().chapter).toMatchObject({ current: FEET, closes: false });
+    applyEffects(game, [{ type: "activity/start-job", job: "activity.job-teacher" }]);
+    const view = game.view().chapter;
+    expect(view.items.find((item) => item.id === "job")?.met).toBe(true);
+    expect(view.items.some((item) => !item.met)).toBe(true);
+    expect(view.closes).toBe(true);
+    game.endTurn();
+    expect(game.state.chapter.current).toBe(view.next);
+    // Without `closesOn`, the same job leaves it open.
+    const plain = start({ scenario: "scenario.ada", content });
+    applyEffects(plain, [{ type: "activity/start-job", job: "activity.job-teacher" }]);
+    expect(plain.view().chapter.closes).toBe(false);
+  });
+
+  test("[R-CHAPTER-010] given no chapter left, when the view is read, then nothing closes and nothing follows", () => {
+    const game = life("scenario.ada");
+    game.state = { ...game.state, chapter: { ...game.state.chapter, current: null } };
+    expect(game.view().chapter).toMatchObject({ current: null, closes: false, next: null });
+  });
+});
 
 describe("the plan in the view", () => {
   test("[R-CHAPTER-009] given a life that has heard of no way out, when the view is read, then it names no plan", () => {

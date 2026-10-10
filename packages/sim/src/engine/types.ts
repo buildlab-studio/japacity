@@ -141,8 +141,25 @@ export type Stream =
 export type Where = "home" | "abroad" | "road";
 /** Where an entry applies. */
 export type WhereEntry = "home" | "abroad" | "any";
+/**
+ * The way home today, as `return/home` would take it (place.md R-PLACE-011): the fare now and off peak, where it
+ * would come from (the country's money, naira through the bank, or nobody), the naira it takes when bought from
+ * naira, the shape the return would take (null when it would be refused) and the standing it would bring.
+ */
+export interface WayHome {
+  fare: MoneyParam;
+  offPeak: MoneyParam;
+  paidFrom: "local" | "naira" | null;
+  naira: number;
+  shape: ReturnShape | null;
+  standing: number;
+}
+
 /** The shapes of a return home: docs/rules/place.md R-PLACE-005. */
 export type ReturnShape = "removed" | "assisted" | "broke" | "by-choice" | "with-papers";
+/** Why the home card's move is shut (R-HOME-008): a move made this month, or the first month's rent not held. */
+export type HomeMoveShut = "moved" | "short";
+
 /** Where the character lives at home: docs/rules/home.md R-HOME-001. */
 export type HomePlace = "place.family-house" | "place.makoko";
 /** Who takes the character in after an eviction (R-HOME-004). */
@@ -2048,7 +2065,8 @@ export interface RouteView {
 /** The gate's own part of a route's view. Nothing hidden: no fraud, no draw. */
 export type RouteGateView =
   | { gate: "sponsor"; employer: string | null; salary: number | null; underBar: boolean }
-  | { gate: "points"; points: number; cutoff: number; careCutoff: number | null; poolMonth: number | null; profileEndsMonth: number | null; invitedMonth: number | null }
+  /** `invites` (R-POINTS-006): the score is at a cut-off the clocks would invite at now, the care cut-off for a carer among them. */
+  | { gate: "points"; points: number; cutoff: number; careCutoff: number | null; invites: boolean; poolMonth: number | null; profileEndsMonth: number | null; invitedMonth: number | null }
   | { gate: "endorsement"; refusedMonth: number | null; cooledFromMonth: number | null }
   | { gate: "partner"; bond: string | null; lead: RouteStateName | null }
   | { gate: "dependant"; bond: string | null; lead: RouteStateName | null }
@@ -2078,6 +2096,8 @@ export interface OfferView {
   terms: Terms;
   signs: string[];
   choices: { id: string; allowed: boolean; pick: { min: number; max: number } | null }[];
+  /** On an offer whose terms name a job: what it would pay a month as the wallet will book it (R-WALLET-016). */
+  pay?: MoneyParam;
 }
 
 export interface PlayerView {
@@ -2097,7 +2117,8 @@ export interface PlayerView {
    * `raise` (R-ACTIVITY-013): the held job's pay a month with the raise from being noticed, and the month the raise
    * landed (null for a raise kept from before the month was recorded). Absent while the job held has no raise.
    */
-  job: { id: Id<"activity"> | null; months: number; side: Id<"activity"> | null; raise?: { pay: MoneyParam; month: number | null } };
+  /** `pay` and `sidePay` (R-WALLET-016): each job's month as the wallet will book it, net of tax; null with no job or no pay it can read. */
+  job: { id: Id<"activity"> | null; months: number; side: Id<"activity"> | null; pay: MoneyParam | null; sidePay: MoneyParam | null; raise?: { pay: MoneyParam; month: number | null } };
   freeSlots: number;
   activities: ActivityOption[];
   lastSlots: SlotPick[];
@@ -2109,7 +2130,8 @@ export interface PlayerView {
   bankAllowanceLeft: number | null;
   /** Months ended in which the character kept more than they spent (decision 0021). A count the japa type reads; never shown as a figure. */
   keptMonths: number;
-  documents: { id: Id<"document">; state: DocumentState["state"]; readyMonth: number | null; expiresMonth: number | null; value: number | null }[];
+  /** `onItsWay` (R-DOCUMENT-008): the month the copy being made is due, pending or held with a new copy requested; null when none is. */
+  documents: { id: Id<"document">; state: DocumentState["state"]; readyMonth: number | null; expiresMonth: number | null; value: number | null; onItsWay: number | null }[];
   routes: RouteView[];
   setpiece: {
     entry: Id<"setpiece">;
@@ -2121,7 +2143,11 @@ export interface PlayerView {
   /** Every open obligation with its next charge; `car` carries R-CAR-007's figures for a car and is null for anything else. */
   obligations: (ObligationState & { due: number; car: CarView | null })[];
   offers: OfferView[];
-  chapter: { current: Id<"chapter"> | null; items: { id: string; met: boolean }[]; done: Id<"chapter">[] };
+  /**
+   * R-CHAPTER-010: `closes` is true when the current chapter closes at this month's end as things stand (every item
+   * met, or the one its `closesOn` names); `next` is the chapter that follows it, with the lean as it stands now.
+   */
+  chapter: { current: Id<"chapter"> | null; items: { id: string; met: boolean }[]; done: Id<"chapter">[]; closes: boolean; next: Id<"chapter"> | null };
   /** The chapter kind's plan (R-CHAPTER-009), beside its chapter part so that part keeps its shape. */
   plan: {
     /** The way out the chapters follow, or null while no own-effort way is heard of. */
@@ -2131,7 +2157,8 @@ export interface PlayerView {
   };
   news: { id: Id<"news">; stage: NewsStage; since: number; forYou: boolean }[];
   /** `fareHome` is the fare from the country the character is in, December factor applied, or null at home (R-PLACE-006). */
-  place: { where: Where; country: Id<"country"> | null; monthsHere: number; returns: PlaceSlice["returns"]; heldAbroad: Id<"status"> | null; fareHome: MoneyParam | null; fareBp: number };
+  /** `wayHome` (R-PLACE-011): the way home from where the character is today, as `return/home` would take it; null when not abroad. */
+  place: { where: Where; country: Id<"country"> | null; monthsHere: number; returns: PlaceSlice["returns"]; heldAbroad: Id<"status"> | null; fareHome: MoneyParam | null; fareBp: number; wayHome: WayHome | null };
   status: {
     entry: Id<"status">;
     monthsLeft: number | null;
@@ -2181,6 +2208,18 @@ export interface PlayerView {
   /** R-ADVERT-003: whether an advert may show now (never on the road, in a set piece, or in a chapter with `noAdverts`). */
   adverts: boolean;
   /** Where the character lives at home (docs/rules/home.md R-HOME-007): the monthly charge there, the eviction chance a month in Makoko now, and the month of the last move, so the card shuts the move made this month. */
-  home: { place: HomePlace | null; since: number; guest: HomeSlice["guest"]; rent: MoneyParam | null; evictionBp: number; moved: number | null };
+  /**
+   * `rent` is the month's charge where the character lives as the bill takes it (R-HOME-008); `moves` the moves the
+   * card offers at home, each with what it charges a month, what it takes at once, and why it is shut (empty abroad).
+   */
+  home: {
+    place: HomePlace | null;
+    since: number;
+    guest: HomeSlice["guest"];
+    rent: MoneyParam | null;
+    evictionBp: number;
+    moved: number | null;
+    moves: { to: HomePlace; monthly: MoneyParam; now: number; shut: HomeMoveShut | null }[];
+  };
   report: TurnReport | null;
 }

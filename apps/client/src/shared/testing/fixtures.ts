@@ -37,9 +37,9 @@ export function richView(): PlayerView {
     japacity: { percent: 64, route: ROUTE },
     lastSlots: [{ activity: "activity.rest", param: null }],
     documents: [
-      { id: "document.passport", state: "held", readyMonth: null, expiresMonth: 130, value: null },
-      { id: "document.english-test", state: "held", readyMonth: null, expiresMonth: 35, value: 65 },
-      { id: "document.transcript", state: "pending", readyMonth: 12, expiresMonth: null, value: null },
+      { id: "document.passport", state: "held", readyMonth: null, expiresMonth: 130, value: null, onItsWay: null },
+      { id: "document.english-test", state: "held", readyMonth: null, expiresMonth: 35, value: 65, onItsWay: null },
+      { id: "document.transcript", state: "pending", readyMonth: 12, expiresMonth: null, value: null, onItsWay: 12 },
     ],
     routes: [
       {
@@ -274,7 +274,7 @@ export function richAbroadView(): PlayerView {
     ...base,
     v: base.v + 30,
     month: 60,
-    job: { id: null, months: 0, side: null },
+    job: { id: null, months: 0, side: null, pay: null, sidePay: null },
     locks: [{ slots: 1, untilMonth: 60, why: "side-job" }],
     place: { ...base.place, monthsHere: 25 },
     status: {

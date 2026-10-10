@@ -32,7 +32,7 @@ import type {
   TermSpec,
   Terms,
 } from "../engine/types";
-import { monthlyPay } from "../activity/activity.pay";
+import { bookedPay, monthlyPay } from "../activity/activity.pay";
 import { routePercent } from "../japacity/japacity.logic";
 import { healthComeUp } from "./health";
 import { appliesHere } from "../place/place.logic";
@@ -691,9 +691,18 @@ function invariants(state: State, content: Content): string[] {
  * smallest amount a choice may take, so a larger amount may still be refused
  * with cannot-afford.
  */
+/** R-WALLET-016: what the job an offer names would pay a month as the wallet will book it, or nothing when it names none. */
+function offeredPay(read: ReadCtx, item: OfferState): Pick<OfferView, "pay"> {
+  const job = item.terms["job"];
+  const entry = typeof job === "string" ? read.content.activity[job as Id<"activity">] : undefined;
+  const pay = entry === undefined ? null : bookedPay(read, entry);
+  return pay === null ? {} : { pay };
+}
+
 export function offerView(read: ReadCtx, item: OfferState): OfferView {
   const judge: Judge = (requirement, terms) => check(read, requirement, terms);
   return {
+    ...offeredPay(read, item),
     id: item.id,
     entry: item.entry,
     openedMonth: item.openedMonth,

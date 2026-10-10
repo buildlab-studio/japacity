@@ -366,6 +366,8 @@ export const pointsGate: Gate = {
       points: pointsScore(read, entry.id),
       cutoff: worldVar(read, block.cutoffVar),
       careCutoff: block.careCutoffVar === null ? null : worldVar(read, block.careCutoffVar),
+      // R-POINTS-006: the clocks' own test, the care cut-off for a carer among it.
+      invites: invites(read, entry.id),
       poolMonth: gate.poolMonth,
       profileEndsMonth: gate.poolMonth === null ? null : gate.poolMonth + block.profileMonths,
       invitedMonth: gate.invitedMonth,

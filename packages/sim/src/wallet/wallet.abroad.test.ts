@@ -11,7 +11,7 @@ import { applyEffects, draw } from "../route/route.journey";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
 import type { WalletEvent } from "./wallet.events";
-import { remitQuote } from "./wallet.logic";
+import { remitQuote, walletKind } from "./wallet.logic";
 
 const remit = content.tuning.remit;
 const FOREIGN: readonly ForeignCurrency[] = ["GBP", "USD", "CAD", "AED", "EUR"];
@@ -119,6 +119,26 @@ describe("sending money home", () => {
     });
     // It is documented: never a lot.
     expect(game.state.wallet.lots).toEqual([]);
+  });
+
+  test("[R-WALLET-017] given $100 sent home by app, when its lines are read, then the dollars leaving are told as money out and the naira landing as money in: a line's tone is its event's", () => {
+    const game = adaAbroad();
+    const result = game.accept({ type: "wallet/remit", currency: "USD", amount: HUNDRED_DOLLARS, channel: "app" });
+    const remits = result.lines.filter((line) => line.key === "line.wallet.remit");
+    const told = remits.map((line) => ({ currency: (line.params["amount"] as { currency: string }).currency, tone: line.tone }));
+    expect(told).toEqual([
+      { currency: "USD", tone: "bad" },
+      { currency: "NGN", tone: "good" },
+    ]);
+  });
+
+  test("[R-WALLET-017] given money credited under a reason that is mostly spent and debited under one that is mostly earned, when the lines are read, then the credit is told as money in and the debit as money out", () => {
+    const state = adaAbroad().state;
+    const tones = (event: WalletEvent) => (walletKind.lines?.(event, state, content) ?? []).map((line) => line.tone);
+    expect(tones({ type: "wallet/credited", currency: "NGN", pocket: "bank", amount: 1000, reason: "fee-visa" })).toEqual(["good"]);
+    expect(tones({ type: "wallet/debited", currency: "NGN", pocket: "bank", amount: 1000, reason: "gift" })).toEqual(["bad"]);
+    expect(tones({ type: "wallet/debited", currency: "GBP", pocket: "bank", amount: 1000, reason: "remit" })).toEqual(["bad"]);
+    expect(tones({ type: "wallet/credited", currency: "NGN", pocket: "bank", amount: 1000, reason: "remit" })).toEqual(["good"]);
   });
 
   test("[R-ABROAD-006] given $100 sent home through the bank, when it is sent and the month ends, then the fee is kept at once and the rest arrives in the naira bank next month at that month's official rate", () => {

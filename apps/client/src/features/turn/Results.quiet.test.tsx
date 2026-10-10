@@ -35,7 +35,7 @@ describe("the results after a run", () => {
     const rows = document.querySelectorAll("[data-quiet-line]");
     expect(rows).toHaveLength(1);
     const local = localCurrency(view);
-    const told = quietLine(quiet[0] ?? [], local);
+    const told = quietLine(quiet[0] ?? [], local, view);
     if (told.kept === null) throw new Error("The working month kept nothing");
     expect(told.kept).toBeGreaterThan(0);
     const kept = turnWords("turn.results.quiet-kept", { amount: formatMoney(told.kept, local) });

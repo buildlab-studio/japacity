@@ -158,7 +158,7 @@ describe("the Bank's change at home, within the month's limit", () => {
     const game = heldAtHome();
     game.accept({ type: "wallet/move", currency: "NGN", amount: 100_000_000, to: "cash" });
     const told = game.accept({ type: "wallet/convert", from: "NGN", to: "GBP", amount: 100_000_000, via: "aboki" });
-    const lately = latelyMoney({ report: null }, [], told.lines, "NGN");
+    const lately = latelyMoney({ report: null }, [], told.lines);
     expect(lately.map(({ sign, currency }) => [sign, currency])).toEqual([
       [1, "GBP"],
       [-1, "NGN"],

@@ -87,10 +87,13 @@ describe("the other ways in Japa", () => {
     expect(others).toContain(CARE);
     expect(others).not.toContain(UK);
     const items = content.chapter["chapter.build-the-file-care"]!.items.map((item) => ({ id: item.id, met: true }));
-    const lean = store.getState().view?.plan.route ?? null;
-    expect(lean).toBe(UK);
-    expect(chapterAhead({ current: "chapter.build-the-file-care", items, done: [] }, lean)?.id).toBe("chapter.decision-day");
-    expect(chapterAhead({ current: "chapter.build-the-file-care", items, done: [] }, CARE)?.id).toBe("chapter.decision-day-care");
+    const view = store.getState().view;
+    expect(view?.plan.route).toBe(UK);
+    // the chapter that follows is the view's, read with the lean as it stands.
+    const chapter = view?.chapter;
+    if (chapter === undefined) throw new Error("No view");
+    expect(chapter.next).toBe("chapter.decision-day");
+    expect(chapterAhead({ ...chapter, items, closes: true })?.id).toBe("chapter.decision-day");
   });
 });
 

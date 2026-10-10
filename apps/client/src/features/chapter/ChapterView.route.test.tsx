@@ -21,6 +21,8 @@ describe("the chapter sheet on a way out's file", () => {
           { id: "contract", met: false },
         ],
         done: ["chapter.find-your-feet"],
+        closes: false,
+        next: null,
       },
     };
     await renderWithView(<ChapterView />, view);

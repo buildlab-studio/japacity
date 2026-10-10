@@ -7,9 +7,12 @@ type Paper = PlayerView["documents"][number];
 /** How close an expiry must be before the screen warns. */
 export const SOON = 2;
 
-/** Months a held paper has left, counting this one, or null when it does not run out or is not held. */
+/**
+ * Months a held paper has left, counting this one, or null when it does not run out, is not held, or a new copy
+ * is on its way (docs/rules/document.md R-DOCUMENT-008): a licence being renewed is not about to run out.
+ */
 export function monthsLeft(paper: Paper, month: number): number | null {
-  if (paper.state !== "held" || paper.expiresMonth === null) return null;
+  if (paper.state !== "held" || paper.expiresMonth === null || paper.onItsWay !== null) return null;
   return Math.max(0, paper.expiresMonth - month);
 }
 

@@ -32,7 +32,7 @@ function changedAbroad(amount: (dollars: number) => number): { lines: ReportLine
 describe("a change of money on the results", () => {
   test("[R-WORLD-008] [R-WALLET-004] given a quarter of Ada's dollars changed into pounds at the bank, when the month's money is read, then the change is one line that says both sides with the bank's charge folded in, counted as the pounds that came in", () => {
     const { lines, paid, charge, received } = changedAbroad((dollars) => Math.floor(dollars / 4 / 100) * 100);
-    const money = moneyLines(lines, "GBP");
+    const money = moneyLines(lines);
     const changes = money.filter((entry) => entry.line.key === CHANGED);
     expect(changes).toHaveLength(1);
     const change = changes[0];
@@ -47,16 +47,16 @@ describe("a change of money on the results", () => {
 
   test("[R-WORLD-008] [R-WALLET-004] given the change, when what was kept is counted, then the pounds kept are the band's move over the whole month with the pounds that came in, and the dollars paid in show as gone", () => {
     const { lines, paid, received, band } = changedAbroad((dollars) => Math.floor(dollars / 4 / 100) * 100);
-    const nets = kept(moneyLines(lines, "GBP"));
+    const nets = kept(moneyLines(lines));
     expect(nets.find((net) => net.currency === "USD")?.amount).toBe(-paid);
     expect(nets.find((net) => net.currency === "GBP")?.amount).toBe(band.ended - band.changed + received);
-    const out = moneyLines(lines, "GBP").find((entry) => entry.line.key === CHANGED_OUT);
+    const out = moneyLines(lines).find((entry) => entry.line.key === CHANGED_OUT);
     expect(words(out?.line.key ?? "", out?.line.params)).toContain(formatMoney(paid, "USD"));
   });
 
   test("[R-WORLD-008] [R-WALLET-004] given all the dollars changed, a figure no chip rounds, when the change is read, then what went out shows as the whole dollars it was", () => {
     const { lines, paid } = changedAbroad((dollars) => dollars);
-    const change = moneyLines(lines, "GBP").find((entry) => entry.line.key === CHANGED);
+    const change = moneyLines(lines).find((entry) => entry.line.key === CHANGED);
     const out = change?.line.params["paid"];
     if (typeof out !== "object") throw new Error("The change does not say what went out.");
     expect(out.currency).toBe("USD");
@@ -79,7 +79,7 @@ describe("a change of money on the results", () => {
     const charge = Math.floor((paid * CHARGE) / 10000);
     const changed = naira();
     expect(before - changed).toBe(paid);
-    const money = moneyLines(told, "NGN");
+    const money = moneyLines(told);
     expect(money).toHaveLength(2);
     expect(money[1]).toMatchObject({ sign: -1, currency: "NGN", amount: paid });
     // The pounds that came in are the move's money, kept in their own row.
@@ -96,7 +96,7 @@ describe("a change of money on the results", () => {
     const told = game.accept({ type: "wallet/remit", currency: "GBP", amount: sent, channel: "app" }).lines;
     const landed = game.view().pockets.NGN.bank - nairaBefore;
     expect(landed).toBeGreaterThan(0);
-    const money = moneyLines(told, "GBP");
+    const money = moneyLines(told);
     expect(money.find((entry) => entry.currency === "GBP")).toMatchObject({ sign: -1, amount: sent });
     const naira = money.find((entry) => entry.currency === "NGN");
     expect(naira).toMatchObject({ sign: 1, amount: landed });

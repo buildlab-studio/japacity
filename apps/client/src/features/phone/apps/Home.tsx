@@ -1,7 +1,6 @@
-// The phone's home card (docs/rules/home.md R-HOME-007), at the top of Bills. The engine still decides
-// (R-HOME-002); the card only mirrors what it would refuse.
-import { content } from "@japacity/content";
-import type { HomePlace, PlayerView } from "@japacity/sim";
+// The phone's home card (docs/rules/home.md R-HOME-007), at the top of Bills. The engine decides (R-HOME-002) and
+// the view carries each move with its charge a month and why it is shut (R-HOME-008); the card only says them.
+import type { HomeMoveShut, HomePlace, PlayerView } from "@japacity/sim";
 import { House } from "lucide-react";
 
 import { useView } from "../../../authority/GameProvider";
@@ -10,9 +9,7 @@ import { forMonths, nameOf } from "../../../shared/words/text";
 import { useAsk } from "../act";
 import { phoneWords } from "../phone.words";
 
-const FAMILY_HOUSE: HomePlace = "place.family-house";
 const MAKOKO: HomePlace = "place.makoko";
-const HOMES: readonly HomePlace[] = [FAMILY_HOUSE, MAKOKO];
 
 export interface HomeMove {
   to: HomePlace;
@@ -24,23 +21,23 @@ export interface HomeMove {
   shut: string | null;
 }
 
-/** The family's own charge a month, from the starting life (R-HOME-002, as R-PLACE-007). */
-function familyCharge(view: Pick<PlayerView, "scenario">): number {
-  const owed = content.scenario[view.scenario]?.obligations ?? [];
-  return owed.filter((entry) => content.obligation[entry.obligation]?.type === "upkeep").reduce((sum, entry) => sum + entry.amount, 0);
+/** Why a move is shut, in words: the view says which (R-HOME-008). */
+function shutWords(shut: HomeMoveShut, now: number): string {
+  switch (shut) {
+    case "moved":
+      return phoneWords("phone.home.shut.moved");
+    case "short":
+      return phoneWords("phone.home.shut.short", { amount: { currency: "NGN", amount: now } });
+    default: {
+      const never: never = shut;
+      return never;
+    }
+  }
 }
 
-/** The moves the card offers: every home but the one lived in, each with its reason when shut. */
-export function homeMoves(view: Pick<PlayerView, "home" | "month" | "pockets" | "scenario">): HomeMove[] {
-  const rent = content.tuning.home.makokoUpkeep;
-  const held = view.pockets.NGN.cash + view.pockets.NGN.bank;
-  return HOMES.filter((to) => to !== view.home.place).map((to) => {
-    const now = to === MAKOKO ? rent : 0;
-    let shut: string | null = null;
-    if (view.home.moved === view.month) shut = phoneWords("phone.home.shut.moved");
-    else if (held < now) shut = phoneWords("phone.home.shut.short", { amount: { currency: "NGN", amount: now } });
-    return { to, monthly: to === MAKOKO ? rent : familyCharge(view), now, shut };
-  });
+/** The moves the card offers, as the view carries them: every home but the one lived in, each with its reason when shut. */
+export function homeMoves(view: Pick<PlayerView, "home">): HomeMove[] {
+  return view.home.moves.map((move) => ({ to: move.to, monthly: move.monthly.amount, now: move.now, shut: move.shut === null ? null : shutWords(move.shut, move.now) }));
 }
 
 /** Who took the character in, as words: a friend by the words for one, someone of the story by name. */

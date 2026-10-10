@@ -136,6 +136,16 @@ export function monthlyTax(read: ReadCtx, entry: ActivityEntry, terms: Terms = j
   return divFloor(bp(above, line.taxBp), MONTHS_PER_YEAR);
 }
 
+/**
+ * R-WALLET-016: a job's month as the wallet will book it: `monthlyPay` less `monthlyTax`, from the route's salary for
+ * a sponsored or contract job. Null for a job with no pay or none it can read. A sick month and a cash month held back
+ * are not foreseen: they are drawn when the month ends.
+ */
+export function bookedPay(read: ReadCtx, entry: ActivityEntry, terms: Terms = jobTerms(read)): MoneyParam | null {
+  const pay = monthlyPay(read, entry, terms);
+  return pay === null ? null : { currency: pay.currency, amount: pay.amount - monthlyTax(read, entry, terms) };
+}
+
 /** The overtime a month's pay earns (ladders.md "Free slots abroad"). */
 export function overtimePay(read: ReadCtx, entry: ActivityEntry): MoneyParam | null {
   const pay = monthlyPay(read, entry);

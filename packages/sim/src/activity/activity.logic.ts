@@ -47,6 +47,7 @@ import {
   isJob,
   jobTerms,
   localTenure,
+  bookedPay,
   monthlyPay,
   monthlyTax,
   overtimePay,
@@ -1459,6 +1460,9 @@ export const activityKind: RegisteredKind<ActivitySlice, ActivityEvent> = {
       id: read.state.activity.job,
       months: read.state.activity.job === null ? 0 : (read.state.activity.tenure[read.state.activity.job] ?? 0),
       side: read.state.activity.side,
+      // R-WALLET-016: the month as the wallet will book it; the side job is paid from no route's terms (`workSide`).
+      pay: read.state.activity.job === null ? null : bookedPay(read, jobEntry(read.content, read.state.activity.job)),
+      sidePay: read.state.activity.side === null ? null : bookedPay(read, jobEntry(read.content, read.state.activity.side), {}),
       ...raiseView(read),
     },
     activities: activityOptions(read),

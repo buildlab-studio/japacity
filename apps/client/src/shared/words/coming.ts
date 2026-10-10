@@ -1,12 +1,13 @@
 // What is coming with a month to it (docs/rules/world.md R-WORLD-002): the soonest under the band, and
 // the whole list from the chip, soonest first, each as months away and never as a month number. Only
 // dates the player can act on or is waiting on: an ask's deadline, a paper on its way, a visa decision,
-// the next birthday, and a route's age limit once it is near (the design).
+// the next birthday, and a route's age limit once it is near (the design). In shared/ so the
+// city's band and the phone's Japa read one list in one order.
 import { content } from "@japacity/content";
 import type { PlayerView } from "@japacity/sim";
 
-import { planMarks } from "../../shared/words/plan";
-import { nameOf, say, words } from "../../shared/words/text";
+import { planMarks } from "./plan";
+import { nameOf, say, words } from "./text";
 
 export interface Coming {
   what: string;
@@ -28,7 +29,8 @@ export function ageMonthsOf(view: Pick<PlayerView, "qualities">): number {
 export function comingOf(view: Pick<PlayerView, "month" | "offers" | "documents" | "routes" | "qualities" | "plan">): Coming[] {
   const list: Coming[] = [];
   for (const offer of view.offers) list.push({ what: words(`${offer.entry}.name`), month: offer.expiresMonth, kind: "offer" });
-  for (const paper of view.documents) if (paper.state === "pending" && paper.readyMonth !== null) list.push({ what: nameOf(paper.id), month: paper.readyMonth, kind: "paper" });
+  // R-DOCUMENT-008: a paper on its way, a renewal of one held among them.
+  for (const paper of view.documents) if (paper.onItsWay !== null) list.push({ what: nameOf(paper.id), month: paper.onItsWay, kind: "paper" });
   for (const route of view.routes) {
     if (route.visa !== null && route.state === "applying") list.push({ what: nameOf(route.id), month: route.visa.decisionMonth, kind: "visa" });
   }

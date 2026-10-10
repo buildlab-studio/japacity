@@ -29,8 +29,21 @@ describe("the gate on each route", () => {
     expect(screen.getByText(say("ui.gate.points.no-pool"))).toBeDefined();
   });
 
+  test("[R-POINTS-006] given a carer under the general cut-off but at the care cut-off, when the gate shows, then it says she is at the cut-off for care workers, not short", async () => {
+    const view = withRoute("route.canada-points", { gate: "points", points: 480, cutoff: 520, careCutoff: 475, invites: true, poolMonth: 30, profileEndsMonth: 42, invitedMonth: null });
+    await renderWithView(<Routes />, view);
+    expect(screen.getByText(say("ui.gate.points.over-care"))).toBeDefined();
+    expect(screen.queryByText(say("ui.gate.points.short", { short: formatNumber(40) }))).toBeNull();
+  });
+
+  test("[R-POINTS-006] given the same score without the care to count, when the gate shows, then it is short of the general cut-off", async () => {
+    const view = withRoute("route.canada-points", { gate: "points", points: 480, cutoff: 520, careCutoff: 475, invites: false, poolMonth: 30, profileEndsMonth: 42, invitedMonth: null });
+    await renderWithView(<Routes />, view);
+    expect(screen.getByText(say("ui.gate.points.short", { short: formatNumber(40) }))).toBeDefined();
+  });
+
   test("[R-POINTS-002] given a profile in the pool, then the month it entered and the month it lapses show", async () => {
-    const view = withRoute("route.canada-points", { gate: "points", points: 470, cutoff: 520, careCutoff: 475, poolMonth: 30, profileEndsMonth: 42, invitedMonth: null });
+    const view = withRoute("route.canada-points", { gate: "points", points: 470, cutoff: 520, careCutoff: 475, invites: false, poolMonth: 30, profileEndsMonth: 42, invitedMonth: null });
     await renderWithView(<Routes />, view);
     expect(screen.getByText(say("ui.gate.points.pool", { month: 30, ends: 42, left: 42 - view.month }))).toBeDefined();
   });

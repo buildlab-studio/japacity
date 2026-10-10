@@ -10,7 +10,6 @@ import { gameAuthority, recordedGame, recordedSave } from "../../../shared/testi
 import "../../../shared/testing/render";
 import { moneyLines } from "../../../shared/words/money";
 import { words } from "../../../shared/words/text";
-import { localCurrency } from "../../../shared/words/wayHome";
 import { PhoneApps } from "../PhoneApps";
 
 const LIFE = "ada-careful";
@@ -53,7 +52,7 @@ describe("Bank, Lately in the application month", () => {
     if (view?.report === null || view === null) throw new Error("No report.");
     // The application's line is said where it was sent, among the month's lines (R-ACTIVITY-015).
     expect([...state.lastMonthLines, ...view.report.lines].some((line) => line.key === "line.route.applied")).toBe(true);
-    const results = moneyLines([...state.lastMonthLines, ...view.report.lines], localCurrency(view) ?? "NGN").map(({ line }) => words(line.key, line.params));
+    const results = moneyLines([...state.lastMonthLines, ...view.report.lines]).map(({ line }) => words(line.key, line.params));
     const salary = results.find((row) => row.startsWith("Salary") && row.includes("$"));
     const fare = results.find((row) => row.startsWith("Fare paid"));
     expect(salary).toBeDefined();

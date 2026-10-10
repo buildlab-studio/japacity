@@ -89,7 +89,7 @@ describe("the page from the band", () => {
     const older: PlayerView = {
       ...view,
       qualities: view.qualities.map((quality) => (quality.id === "quality.age-months" ? { ...quality, value: quality.value + 3 } : quality)),
-      documents: [{ id: "document.passport", state: "held", readyMonth: null, expiresMonth: 70, value: null }],
+      documents: [{ id: "document.passport", state: "held", readyMonth: null, expiresMonth: 70, value: null, onItsWay: null }],
     };
     store.setState({ view: older });
     const page = await screen.findByRole("dialog");

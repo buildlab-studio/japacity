@@ -374,6 +374,8 @@ export const documentKind: RegisteredKind<DocumentSlice, DocumentEvent> = {
       readyMonth: held.readyMonth,
       expiresMonth: held.expiresMonth,
       value: held.value,
+      // R-DOCUMENT-008: a held paper with a new copy requested is on its way as a pending one is.
+      onItsWay: beingMade(held),
     })),
   }),
 };

@@ -207,8 +207,8 @@ describe("the nudge", () => {
 
   test("[R-WORLD-003] given a step already started, when the nudge is chosen, then it names the wait: a paper on its way, a school's answer, a hunt or a test planned, funds short", () => {
     const base = { ...quiet, month: 10 };
-    const file = { ...base, chapter: { current: "chapter.build-the-file" as const, items: [{ id: "passport", met: false }, { id: "transcript", met: false }, { id: "english", met: false }, { id: "offer", met: false }], done: [] } };
-    const waiting = noMeanwhile({ ...file, documents: [{ id: "document.passport" as const, state: "pending" as const, readyMonth: 12, expiresMonth: null, value: null }] });
+    const file = { ...base, chapter: { current: "chapter.build-the-file" as const, items: [{ id: "passport", met: false }, { id: "transcript", met: false }, { id: "english", met: false }, { id: "offer", met: false }], done: [], closes: false, next: null } };
+    const waiting = noMeanwhile({ ...file, documents: [{ id: "document.passport" as const, state: "pending" as const, readyMonth: 12, expiresMonth: null, value: null, onItsWay: 12 }] });
     expect(nudgeOf(waiting)).toMatchObject({ key: "chapter.build-the-file.item.passport.started", params: { when: inMonths(12, 10) }, about: "step" });
     expect(nudgeOf(file).key).toBe("chapter.build-the-file.item.passport.nudge");
     const testing = { ...file, chapter: { ...file.chapter, items: [{ id: "english", met: false }, { id: "offer", met: false }] } };
@@ -216,14 +216,14 @@ describe("the nudge", () => {
     expect(nudgeOf(testing, undefined, ["activity.sit-english-test"]).key).toBe("chapter.build-the-file.item.english.planned");
     const applied = { ...file, chapter: { ...file.chapter, items: [{ id: "offer", met: false }] }, routes: [{ ...richView().routes[0]!, id: "route.uk-masters" as const, schools: [{ id: "school.one" as never, state: "pending" as const, readyMonth: 11, discount: 0 }] }] };
     expect(nudgeOf(applied)).toMatchObject({ key: "chapter.build-the-file.item.offer.started", params: { when: inMonths(11, 10) } });
-    const hunting = { ...base, chapter: { current: "chapter.find-your-feet" as const, items: [{ id: "job", met: false }], done: [] } };
+    const hunting = { ...base, chapter: { current: "chapter.find-your-feet" as const, items: [{ id: "job", met: false }], done: [], closes: false, next: null } };
     expect(nudgeOf(hunting, undefined, ["activity.job-hunt"]).key).toBe("chapter.find-your-feet.item.job.started");
-    const short = { ...base, chapter: { current: "chapter.decision-day" as const, items: [{ id: "held", met: false }], done: [] }, routes: [{ ...richView().routes[0]!, id: "route.uk-masters" as const, funds: { heldMonths: 0, covered: false, shown: 100000, required: 300000 } }] };
+    const short = { ...base, chapter: { current: "chapter.decision-day" as const, items: [{ id: "held", met: false }], done: [], closes: false, next: null }, routes: [{ ...richView().routes[0]!, id: "route.uk-masters" as const, funds: { heldMonths: 0, covered: false, shown: 100000, required: 300000 } }] };
     expect(nudgeOf(short)).toMatchObject({ key: "chapter.decision-day.item.held.short", params: { amount: formatMoney(200000, "GBP") } });
   });
 
   test("[R-WORLD-003] given a step planned this month, or one the player cannot afford, when the nudge is chosen, then it says so: the planned step waits on the month, the dear one names the gap", () => {
-    const file = { ...quiet, month: 10, chapter: { current: "chapter.build-the-file" as const, items: [{ id: "passport", met: false }], done: [] } };
+    const file = { ...quiet, month: 10, chapter: { current: "chapter.build-the-file" as const, items: [{ id: "passport", met: false }], done: [], closes: false, next: null } };
     expect(nudgeOf(file, undefined, ["activity.get-passport"]).key).toBe("chapter.build-the-file.item.passport.planned");
     const dear = {
       ...file,
@@ -234,7 +234,7 @@ describe("the nudge", () => {
   });
 
   test("[R-WORLD-003] given a step short of money, when a hunt is planned or the job's pay covers the gap, then the nudge says so; given the page or the meetup planned, then it waits on the month; abroad the dues gap comes before the step", () => {
-    const file = { ...quiet, month: 10, chapter: { current: "chapter.build-the-file" as const, items: [{ id: "english", met: false }], done: [] } };
+    const file = { ...quiet, month: 10, chapter: { current: "chapter.build-the-file" as const, items: [{ id: "english", met: false }], done: [], closes: false, next: null } };
     const dear = {
       ...file,
       pockets: { ...file.pockets, NGN: { ...file.pockets.NGN, bank: 100000, cash: 0 } },
@@ -251,7 +251,7 @@ describe("the nudge", () => {
     // The month's bills eat the pay: the nudge says the gap, never "work and save".
     const billed = { ...paid, obligations: [{ ...paid.obligations[0]!, due: 40_000_000, entry: "obligation.upkeep" as never }] };
     expect(nudgeOf(billed)).toMatchObject({ key: "chapter.build-the-file.item.english.short", params: { amount: formatMoney(9_900_000, "NGN") } });
-    const first = { ...quiet, chapter: { current: "chapter.find-your-feet" as const, items: [{ id: "known", met: false }], done: [] } };
+    const first = { ...quiet, chapter: { current: "chapter.find-your-feet" as const, items: [{ id: "known", met: false }], done: [], closes: false, next: null } };
     expect(nudgeOf(first, undefined, ["activity.look-into-route"]).key).toBe("chapter.find-your-feet.item.known.planned");
     // The adviser's visit looks into the route too.
     expect(nudgeOf(first, undefined, ["activity.see-adviser"]).key).toBe("chapter.find-your-feet.item.known.planned.see-adviser");
@@ -333,8 +333,8 @@ describe("the nudge", () => {
   const base = { ...engineView(), setpiece: null, interview: null, offers: [], report: null };
 
   test("[R-WORLD-003] given a paper on its way and a better-paid job on the board, when the nudge is read, then it sends the life to the board, not to wait", () => {
-    const file = { ...base, month: 10, chapter: { current: "chapter.build-the-file" as const, items: [{ id: "passport", met: false }], done: [] } };
-    const pending = noMeanwhile({ ...file, documents: [{ id: "document.passport" as const, state: "pending" as const, readyMonth: 12, expiresMonth: null, value: null }], job: { ...file.job, id: "activity.job-customer-service" as const } });
+    const file = { ...base, month: 10, chapter: { current: "chapter.build-the-file" as const, items: [{ id: "passport", met: false }], done: [], closes: false, next: null } };
+    const pending = noMeanwhile({ ...file, documents: [{ id: "document.passport" as const, state: "pending" as const, readyMonth: 12, expiresMonth: null, value: null, onItsWay: 12 }], job: { ...file.job, id: "activity.job-customer-service" as const } });
     const hunt = pending.activities.find((option) => option.id === "activity.job-hunt");
     const better = (hunt?.params ?? []).find((job) => job === "activity.job-junior-dev") ?? null;
     if (better === null) throw new Error("The board lists no junior developer job.");
@@ -345,13 +345,13 @@ describe("the nudge", () => {
 
   test("[R-WORLD-003] given last month's report waiting and News read, when the nudge is read, then it moves on to the month's end", () => {
     const line = { key: "line.offer.opened", params: { offer: "offer.nepa-bill" }, tone: "plain" as const, attention: true, counts: [] };
-    const reported = { ...base, chapter: { current: null, items: [], done: [] }, report: { month: 3, lines: [line], japacityBefore: null, japacityAfter: null, attention: true } };
+    const reported = { ...base, chapter: { current: null, items: [], done: [], closes: false, next: null }, report: { month: 3, lines: [line], japacityBefore: null, japacityAfter: null, attention: true } };
     expect(nudgeOf(reported).about).toBe("report");
     expect(nudgeOf(reported, undefined, [], true).about).toBe("end");
   });
 
   test("[R-WORLD-003] given the landing chapter's job step with a hunt planned, when the nudge is read, then it says the application is in", () => {
-    const abroad = { ...base, chapter: { current: "chapter.landing" as const, items: [{ id: "job", met: false }], done: [] } };
+    const abroad = { ...base, chapter: { current: "chapter.landing" as const, items: [{ id: "job", met: false }], done: [], closes: false, next: null } };
     expect(nudgeOf(abroad, undefined, ["activity.job-hunt"]).key).toBe("chapter.landing.item.job.planned");
   });
 
@@ -373,7 +373,7 @@ describe("the nudge", () => {
   test("[R-WORLD-003] [R-ROUTE-020] given the visa granted and held funds still open, when the plane's step is read, then the nudge says to give the funds back and the way is the bank's counter", () => {
     const owed = base.obligations[0];
     if (owed === undefined) throw new Error("No obligation to shape.");
-    const held = { ...base, chapter: { current: "chapter.send-off" as const, items: [{ id: "departed", met: false }], done: [] }, obligations: [{ ...owed, entry: "obligation.held-funds" as never, due: 0 }] };
+    const held = { ...base, chapter: { current: "chapter.send-off" as const, items: [{ id: "departed", met: false }], done: [], closes: false, next: null }, obligations: [{ ...owed, entry: "obligation.held-funds" as never, due: 0 }] };
     expect(nudgeOf(held).key).toBe("chapter.send-off.item.departed.blocked");
     expect(stepWayOf(held)?.go).toBe("place.olokun-office");
     const clear = { ...held, obligations: [] };
@@ -387,10 +387,10 @@ describe("the archetypes' own ways", () => {
   test("[R-PROLOGUE-010] [R-WORLD-003] given a nurse from sixteen with her licence and no job, when the first step is read, then the nudge sends her to the staff nurse job at the clinic", () => {
     const nurse = {
       ...base,
-      chapter: { current: "chapter.find-your-feet" as const, items: [{ id: "job", met: false }, { id: "pay", met: false }, { id: "heard", met: false }, { id: "known", met: false }], done: [] },
+      chapter: { current: "chapter.find-your-feet" as const, items: [{ id: "job", met: false }, { id: "pay", met: false }, { id: "heard", met: false }, { id: "known", met: false }], done: [], closes: false, next: null },
       qualities: base.qualities.map((quality) => (quality.id === "quality.edu-level" ? { ...quality, value: 3 } : quality.id === "quality.care" ? { ...quality, value: 60 } : quality)),
-      documents: [{ id: "document.nursing-licence" as const, state: "held" as const, readyMonth: null, expiresMonth: null, value: null }],
-      job: { id: null, months: 0, side: null },
+      documents: [{ id: "document.nursing-licence" as const, state: "held" as const, readyMonth: null, expiresMonth: null, value: null, onItsWay: null }],
+      job: { id: null, months: 0, side: null, pay: null, sidePay: null },
       routes: [],
     };
     expect(nudgeOf(nurse).key).toBe("chapter.find-your-feet.item.job.nudge.clinic");
@@ -400,7 +400,7 @@ describe("the archetypes' own ways", () => {
   test("[R-WORLD-003] given a chapter whose every item is met, when the nudge is chosen, then it says the chapter is done and to turn the page, never a goal's first act", () => {
     const done = {
       ...base,
-      chapter: { current: "chapter.send-off" as const, items: [{ id: "departed", met: true }], done: [] },
+      chapter: { current: "chapter.send-off" as const, items: [{ id: "departed", met: true }], done: [], closes: false, next: null },
       goals: { open: [{ id: "goal.buy-land" as const, items: [{ id: "land", met: false }] }], done: [] },
     };
     expect(nudgeOf(done)).toEqual({ key: "ui.nudge.chapter-done", about: "end" });
@@ -409,10 +409,10 @@ describe("the archetypes' own ways", () => {
   test("[R-WORLD-003] [R-CHAPTER-009] given a nurse from sixteen in her job who has heard of care work and the master's, when the first step is read, then the nudge says to read the care page and the way opens that page with care chosen", () => {
     const nurse = {
       ...base,
-      chapter: { current: "chapter.find-your-feet" as const, items: [{ id: "job", met: true }, { id: "pay", met: true }, { id: "heard", met: true }, { id: "known", met: false }], done: [] },
+      chapter: { current: "chapter.find-your-feet" as const, items: [{ id: "job", met: true }, { id: "pay", met: true }, { id: "heard", met: true }, { id: "known", met: false }], done: [], closes: false, next: null },
       qualities: base.qualities.map((quality) => (quality.id === "quality.edu-level" ? { ...quality, value: 3 } : quality.id === "quality.care" ? { ...quality, value: 60 } : quality)),
-      documents: [{ id: "document.nursing-licence" as const, state: "held" as const, readyMonth: null, expiresMonth: null, value: null }],
-      job: { id: "activity.job-nurse" as const, months: 1, side: null },
+      documents: [{ id: "document.nursing-licence" as const, state: "held" as const, readyMonth: null, expiresMonth: null, value: null, onItsWay: null }],
+      job: { id: "activity.job-nurse" as const, months: 1, side: null, pay: null, sidePay: null },
       routes: [
         { ...richView().routes[0]!, id: "route.uk-masters" as const, state: "heard" as const },
         { ...richView().routes[0]!, id: "route.uk-care" as const, state: "heard" as const },
@@ -431,11 +431,11 @@ describe("the archetypes' own ways", () => {
   test("[R-PROLOGUE-010] [R-WORLD-003] given a trader from sixteen who has heard of no way out, when the first step is read, then the nudge sends him to the motor park, and asking around planned says so", () => {
     const trader = {
       ...base,
-      chapter: { current: "chapter.find-your-feet" as const, items: [{ id: "job", met: false }, { id: "pay", met: false }, { id: "heard", met: false }, { id: "known", met: false }], done: [] },
+      chapter: { current: "chapter.find-your-feet" as const, items: [{ id: "job", met: false }, { id: "pay", met: false }, { id: "heard", met: false }, { id: "known", met: false }], done: [], closes: false, next: null },
       qualities: base.qualities.map((quality) => (quality.id === "quality.edu-level" ? { ...quality, value: 1 } : quality)),
       pockets: { ...base.pockets, NGN: { ...base.pockets.NGN, cash: 600_000_000, bank: 0 } },
       routes: [],
-      job: { id: null, months: 0, side: null },
+      job: { id: null, months: 0, side: null, pay: null, sidePay: null },
     };
     expect(nudgeOf(trader).key).toBe("chapter.find-your-feet.item.heard.nudge.motor-park");
     expect(stepWayOf(trader)).toEqual({ go: "place.ojuelegba", at: ["place.ojuelegba:motor-park"] });
@@ -445,7 +445,7 @@ describe("the archetypes' own ways", () => {
 
 describe("the nudge (the waiting months' acts)", () => {
   const base = { ...engineView(), setpiece: null, interview: null, offers: [], report: null };
-  const waiting = noMeanwhile({ ...base, month: 10, chapter: { current: "chapter.build-the-file" as const, items: [{ id: "passport", met: false }], done: [] }, documents: [{ id: "document.passport" as const, state: "pending" as const, readyMonth: 12, expiresMonth: null, value: null }] });
+  const waiting = noMeanwhile({ ...base, month: 10, chapter: { current: "chapter.build-the-file" as const, items: [{ id: "passport", met: false }], done: [], closes: false, next: null }, documents: [{ id: "document.passport" as const, state: "pending" as const, readyMonth: 12, expiresMonth: null, value: null, onItsWay: 12 }] });
 
   test("[R-WORLD-003] [R-SPONSOR-005] given a nurse in the nursing job with the care route in play, when a better-paid job sits on the board, then the nudge never sends her off the job", () => {
     const nurse = { ...waiting, job: { ...waiting.job, id: "activity.job-nurse" as const }, routes: [{ ...richView().routes[0]!, id: "route.uk-care" as const, state: "heard" as const }] };
@@ -460,12 +460,12 @@ describe("the nudge (the waiting months' acts)", () => {
   });
 
   test("[R-WORLD-003] given a hunt missed last month and other jobs on the board, when the first chapter's job step is read, then the nudge names another way", () => {
-    const missed = { ...base, chapter: { current: "chapter.find-your-feet" as const, items: [{ id: "job", met: false }], done: [] }, report: { month: 3, lines: [{ key: "line.activity.hunt-missed", params: { job: "activity.job-nurse" }, tone: "bad" as const, attention: false, counts: [] }], japacityBefore: null, japacityAfter: null, attention: false } };
+    const missed = { ...base, chapter: { current: "chapter.find-your-feet" as const, items: [{ id: "job", met: false }], done: [], closes: false, next: null }, report: { month: 3, lines: [{ key: "line.activity.hunt-missed", params: { job: "activity.job-nurse" }, tone: "bad" as const, attention: false, counts: [] }], japacityBefore: null, japacityAfter: null, attention: false } };
     expect(nudgeOf(missed).key).toBe("chapter.find-your-feet.item.job.nudge.again");
   });
 
   test("[R-WORLD-003] [R-GOAL-003] given every chapter done and a goal open with a first act, when the nudge is read, then it names the goal's first act", () => {
-    const settled = { ...base, chapter: { current: null, items: [], done: [] }, goals: { open: [{ id: "goal.own-door" as const, items: [{ id: "flat", met: false }] }], done: [] } };
+    const settled = { ...base, chapter: { current: null, items: [], done: [], closes: false, next: null }, goals: { open: [{ id: "goal.own-door" as const, items: [{ id: "flat", met: false }] }], done: [] } };
     const nudge = nudgeOf(settled);
     expect(nudge.key).toBe("goal.own-door.first");
     expect(nudge.about).toBe("goal");

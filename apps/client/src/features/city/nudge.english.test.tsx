@@ -22,8 +22,8 @@ function waitingOnResult() {
   const base = { ...bare, activities: bare.activities.filter((option) => !["activity.open-source", "activity.tech-posts", "activity.be-noticed", "activity.nurse-certification"].includes(option.id)), setpiece: null, interview: null, offers: [], report: null, month: 10 };
   return {
     ...base,
-    chapter: { current: "chapter.build-the-file" as const, items: [{ id: "passport", met: true }, { id: "transcript", met: true }, { id: "english", met: false }, { id: "offer", met: false }], done: [] },
-    documents: [{ id: PAPER, state: "pending" as const, readyMonth: 11, expiresMonth: null, value: null }],
+    chapter: { current: "chapter.build-the-file" as const, items: [{ id: "passport", met: true }, { id: "transcript", met: true }, { id: "english", met: false }, { id: "offer", met: false }], done: [], closes: false, next: null },
+    documents: [{ id: PAPER, state: "pending" as const, readyMonth: 11, expiresMonth: null, value: null, onItsWay: 11 }],
   };
 }
 
