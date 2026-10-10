@@ -1,5 +1,5 @@
 // The front door in the app, on the real content (prologue.md R-PROLOGUE-009, 010): a person built over the family
-// compound from a look, a name from the pool and an archetype, never a named life picked; the preset
+// compound from a look, a typed name with three from the pool and an archetype, never a named life picked; the preset
 // played for the archetype and only its open cards shown; the handover saying who the person is; the
 // look kept beside the save and drawn by the city and the rides.
 import { content, namePool, text } from "@japacity/content";
@@ -20,7 +20,7 @@ import { ownFile } from "./features/city/City";
 import { ROSTER } from "./features/city/roster";
 import { ownLook } from "./features/map/Ride";
 import { answersInOrder, ARCHETYPES, archetypeOf, FULL_PROLOGUE_KEY } from "./shared/frontdoor/archetypes";
-import { startArchetype, startReadyLife, toTheArchetypes } from "./shared/frontdoor/frontDoor.testing";
+import { nameAndBegin, startArchetype, startReadyLife, toTheArchetypes } from "./shared/frontdoor/frontDoor.testing";
 import { LOOKS, namesFor, NAMES_SHOWN } from "./shared/frontdoor/looks";
 // Registers Testing Library's cleanup for this file.
 import "./shared/testing/render";
@@ -79,7 +79,7 @@ afterEach(() => {
 });
 
 describe("the front door", () => {
-  test("[R-PROLOGUE-009] given no save, when the game opens, then the family compound stands under a sheet that asks who you are, with the look strip in two rows of the city's passers-by and three names, and no named life anywhere", async () => {
+  test("[R-PROLOGUE-009] given no save, when the game opens, then the family compound stands under a sheet that asks who you are, with the look strip in two rows of the city's passers-by, the name typed on a screen of its own under three names, and no named life anywhere", async () => {
     door();
     expect(await screen.findByRole("heading", { name: say("ui.life.title") }, { timeout: 10_000 })).toBeDefined();
     // Never a bare page: the compound is under every sheet of the door.
@@ -92,8 +92,7 @@ describe("the front door", () => {
     expect(LOOKS.map((look) => look.file).sort()).toEqual([...passersBy].sort());
     for (const id of ["chr_ada", "chr_tunde", "chr_zainab", "chr_ngozi", "chr_tobi", "chr_femi", "chr_kemi", "chr_bisi"]) expect(LOOKS.some((look) => look.id === id)).toBe(true);
     for (const id of ["chr_hawker_a", "chr_corper", "chr_chief", "chr_rider", "chr_iya"]) expect(LOOKS.some((look) => look.id === id)).toBe(false);
-    expect(within(screen.getByRole("radiogroup", { name: say("ui.door.name") })).getAllByRole("radio")).toHaveLength(NAMES_SHOWN);
-    // Nobody types.
+    // One question a screen: the look's sheet holds no name.
     expect(document.querySelector("input")).toBeNull();
 
     const said: string[] = [sheet().textContent];
@@ -103,22 +102,29 @@ describe("the front door", () => {
     fireEvent.click(screen.getByRole("button", { name: new RegExp(`^${say("ui.door.ready")}`) }));
     said.push(sheet().textContent);
     expect(document.querySelector("[data-gate] [data-front-scene]")).not.toBeNull();
-    // No starting life's person is offered: not by full name, and no name to pick is one of theirs.
+    // No starting life's person is offered: not by full name, and no name to take is one of theirs.
     const fullNames = FIXED.map((id) => text[`${id}.name`] ?? "");
     expect(said.filter((words) => fullNames.some((name) => words.includes(name)))).toEqual([]);
     fireEvent.click(screen.getByRole("button", { name: say("ui.door.back") }));
-    fireEvent.click(screen.getByRole("button", { name: say("ui.door.back") }));
-    const offered = within(screen.getByRole("radiogroup", { name: say("ui.door.name") })).getAllByRole("radio").map((radio) => radio.textContent);
+    fireEvent.click(screen.getByRole("button", { name: say("prologue.archetype.writer.name") }));
+    // The name is typed (the review), with three names from the pool under the box.
+    expect(screen.getByRole("textbox", { name: say("prologue.door.name.title") })).toBeDefined();
+    const offered = within(screen.getByRole("group", { name: say("prologue.door.name.suggested") })).getAllByRole("button").map((button) => button.textContent);
+    expect(offered).toHaveLength(NAMES_SHOWN);
     expect(offered.filter((name) => NAMED.includes(name))).toEqual([]);
+    said.push(sheet().textContent);
     expect(said.join(" ")).not.toContain(say("ui.life.start"));
   });
 
-  test("[R-PROLOGUE-009] given a look tapped, then the character at the gate wears it, and the three names, and three more on a reroll, come from the pool for that look's sex", () => {
+  test("[R-PROLOGUE-009] given a look tapped, then the character at the gate wears it, and the three names under the name box, and three more on a reroll, come from the pool for that look's sex", async () => {
     door();
     for (const look of [LOOKS.find((one) => one.sex === "m")!, LOOKS.find((one) => one.sex === "f")!]) {
       fireEvent.click(document.querySelector(`[role="radio"][data-look="${look.id}"]`)!);
       expect(document.querySelector("[data-gate]")?.getAttribute("data-look")).toBe(look.id);
-      const shown = () => within(screen.getByRole("radiogroup", { name: say("ui.door.name") })).getAllByRole("radio").map((radio) => radio.textContent);
+      await toTheArchetypes();
+      fireEvent.click(screen.getByRole("button", { name: say("prologue.archetype.writer.name") }));
+      expect(document.querySelector("[data-gate]")?.getAttribute("data-look")).toBe(look.id);
+      const shown = () => within(screen.getByRole("group", { name: say("prologue.door.name.suggested") })).getAllByRole("button").map((button) => button.textContent);
       const first = shown();
       fireEvent.click(screen.getByRole("button", { name: say("ui.door.reroll") }));
       const second = shown();
@@ -130,6 +136,8 @@ describe("the front door", () => {
         expect(NAMED).not.toContain(name);
       }
       expect(new Set(first).size).toBe(NAMES_SHOWN);
+      fireEvent.click(screen.getByRole("button", { name: say("ui.door.back") }));
+      fireEvent.click(screen.getByRole("button", { name: say("ui.door.back") }));
     }
   });
 
@@ -143,16 +151,14 @@ describe("the front door", () => {
     }
   });
 
-  test("[R-PROLOGUE-009] given a look and a name picked and a ready life begun, then the person is kept beside the save under its one key, and the city and the rides draw that look", async () => {
+  test("[R-PROLOGUE-009] given a look picked, a name typed and a ready life begun, then the person is kept beside the save under its one key, and the city and the rides draw that look", async () => {
     const { store, storage } = door();
     const look = LOOKS.find((one) => one.id === "chr_femi")!;
     fireEvent.click(document.querySelector(`[role="radio"][data-look="${look.id}"]`)!);
-    const name = within(screen.getByRole("radiogroup", { name: say("ui.door.name") })).getAllByRole("radio")[1]!;
-    fireEvent.click(name);
-    await startReadyLife("scenario.ngozi");
+    await startReadyLife("scenario.ngozi", "Obinna");
     await waitFor(() => expect(store.getState().view?.scenario).toBe("scenario.ngozi"));
     expect(storage.getItem(SAVE_KEY)).not.toBeNull();
-    expect(readPerson()).toEqual({ look: "chr_femi", name: name.textContent, archetype: null });
+    expect(readPerson()).toEqual({ look: "chr_femi", name: "Obinna", archetype: null });
     expect(localStorage.getItem(PERSON_KEY)).not.toBeNull();
     // The life's own person was Ngozi; the city and the ride draw the look built at the door.
     expect(ownFile("scenario.ngozi")).toBe(look.file);
@@ -160,7 +166,7 @@ describe("the front door", () => {
     expect(ownFile("scenario.ngozi", null)).toBe("shared/chr/chr_ngozi.glb");
   });
 
-  test("[R-PROLOGUE-009] given the ready lives' card, then the five fixed lives show unnamed by their kind and blurb, each with Begin, and Begin starts that life", async () => {
+  test("[R-PROLOGUE-009] given the ready lives' card, then the five fixed lives show unnamed by their kind and blurb, each with Pick, and a pick goes on to the name and the page, whose Begin starts that life", async () => {
     const { store } = door();
     await toTheArchetypes();
     fireEvent.click(screen.getByRole("button", { name: new RegExp(`^${say("ui.door.ready")}`) }));
@@ -171,10 +177,11 @@ describe("the front door", () => {
     for (const life of lives) {
       const id = life.dataset["readyLife"]!;
       expect(life.textContent).toContain(text[`${id}.blurb`]);
-      expect(within(life).getByRole("button", { name: `${say("ui.door.begin")}: ${say(`${id}.kind`)}` })).toBeDefined();
+      expect(within(life).getByRole("button", { name: `${say("prologue.door.pick")}: ${say(`${id}.kind`)}` })).toBeDefined();
       for (const word of [" he ", " she ", " his ", " her ", " him "]) expect(` ${text[`${id}.blurb`] ?? ""} `.toLowerCase()).not.toContain(word);
     }
-    fireEvent.click(screen.getByRole("button", { name: `${say("ui.door.begin")}: ${say("scenario.tunde.kind")}` }));
+    fireEvent.click(screen.getByRole("button", { name: `${say("prologue.door.pick")}: ${say("scenario.tunde.kind")}` }));
+    await nameAndBegin();
     await waitFor(() => expect(store.getState().view?.scenario).toBe("scenario.tunde"));
     expect(store.getState().view?.prologue).toBeNull();
   });

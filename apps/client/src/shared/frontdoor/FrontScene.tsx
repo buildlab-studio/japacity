@@ -1,12 +1,12 @@
 // The front door's scene (prologue.md R-PROLOGUE-009): the family compound as the city draws it, with
-// the character standing at the gate, seen from the street. One fixed raised camera, low mode, no crowd:
+// the character on a plinth at the gate, seen from the street. One fixed raised camera, low mode, no crowd:
 // the sheet covers the bottom of the screen, so the camera keeps the character in the top part. A look
-// tapped on the sheet is put on the same character at once; when the sheet is up the character turns
-// round to face it. Loaded only where WebGL exists; nothing here sends a command.
+// tapped on the sheet is put on the same character at once; the figure turns slowly and a finger drags it
+// round (the design's onboarding). Loaded only where WebGL exists; nothing here sends a command.
 import { content, text } from "@japacity/content";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useRef, useState } from "react";
-import type { Object3D } from "three";
+import type { Mesh, Object3D } from "three";
 
 import { advanceClock } from "../three/clock";
 import { loadModel } from "../three/load";
@@ -15,6 +15,7 @@ import { figureOf, poseFigure } from "../three/people";
 import { modeSettings } from "../../features/city/mode";
 import { filesOf, type PlaceFile, stageOf } from "../../features/city/placeFile";
 import { animateWorld, buildWorld, colourOf, skyColours, type World } from "../../features/city/world";
+import { type Spin, SLOW_TURN, turnFrame } from "./spin";
 
 /** The compound's file under places/: the family house's own (place.family-house). */
 const COMPOUND = "family-house-compound";
@@ -24,22 +25,22 @@ const PLACE = "place.family-house";
  * x 3.4 of a plot centred on the house at (-1, 1.5), the gate on its +Z side 15.5 m out.
  */
 export const GATE: readonly [number, number] = [2.4, 18.1];
-/** Facing the house, back to the street; and facing the street, toward the camera and the sheet. */
-const TO_HOUSE = Math.PI;
+/** Facing the street, toward the camera and the sheet: where the slow turn starts. */
 const TO_SHEET = 0;
-/** How quickly the character turns round, a share a second. */
-const TURN = 5;
-/** The camera: this far back along the street and this high, looking down at this pitch, so the character stands in the top part of a tall screen. */
-const BACK = 10;
-const HIGH = 4;
-const LOOK_DOWN = (31 * Math.PI) / 180;
-const FOV = 60;
+/** The plinth: a low round of concrete the figure stands on, this wide and this high. */
+const PLINTH_RADIUS = 0.62;
+const PLINTH_HIGH = 0.14;
+/** The camera: this far back along the street and this high, looking down at this pitch, so the figure on its plinth stands large in the top part of a tall screen. */
+const BACK = 6.2;
+const HIGH = 2.9;
+const LOOK_DOWN = (24 * Math.PI) / 180;
+const FOV = 50;
 
 export interface FrontSceneProps {
   /** The look's file, `shared/chr/chr_ada.glb`. */
   look: string;
-  /** True while a sheet is up: the character turns to face it. */
-  facingSheet: boolean;
+  /** The finger's pull on the figure, from the gate. */
+  spin: Spin;
 }
 
 /** What the browser test and the pictures read. */
@@ -55,10 +56,12 @@ declare global {
   }
 }
 
-function Compound({ file, look, facingSheet }: FrontSceneProps & { file: PlaceFile }) {
+function Compound({ file, look, spin }: FrontSceneProps & { file: PlaceFile }) {
   const [world, setWorld] = useState<World | null>(null);
   const shown = useRef<string | null>(null);
-  const facing = useRef(TO_HOUSE);
+  const facing = useRef(TO_SHEET);
+  const speed = useRef(SLOW_TURN);
+  const plinth = useRef<Mesh>(null);
   const camera = useThree((state) => state.camera);
   const settings = modeSettings("low", { finePointer: false, width: 390, pixelRatio: 1 }, content.tuning.city);
 
@@ -114,9 +117,11 @@ function Compound({ file, look, facingSheet }: FrontSceneProps & { file: PlaceFi
     const time = advanceClock(delta);
     if (world === null) return;
     animateWorld(world, time, delta);
-    const goal = facingSheet ? TO_SHEET : TO_HOUSE;
-    facing.current += (goal - facing.current) * Math.min(1, delta * TURN);
-    world.own.root.position.set(GATE[0], 0, GATE[1]);
+    const turned = turnFrame(spin, facing.current, speed.current, delta);
+    facing.current = turned.angle;
+    speed.current = turned.speed;
+    world.own.root.position.set(GATE[0], PLINTH_HIGH, GATE[1]);
+    plinth.current?.position.set(GATE[0], PLINTH_HIGH / 2, GATE[1]);
     world.own.root.rotation.set(0, facing.current, 0);
     poseFigure(world.own, time, "stand");
     camera.position.set(GATE[0], HIGH, GATE[1] + BACK);
@@ -133,6 +138,10 @@ function Compound({ file, look, facingSheet }: FrontSceneProps & { file: PlaceFi
       <hemisphereLight args={[sky, colourOf(stage.light.ground), 1.1]} />
       <directionalLight intensity={2} color={0xfff0d0} position={[GATE[0] + stage.light.sun[0], stage.light.sun[1], GATE[1] + stage.light.sun[2] - 10]} />
       {world === null ? null : <primitive object={world.root} />}
+      <mesh ref={plinth} position={[GATE[0], PLINTH_HIGH / 2, GATE[1]]}>
+        <cylinderGeometry args={[PLINTH_RADIUS, PLINTH_RADIUS + 0.05, PLINTH_HIGH, 32]} />
+        <meshStandardMaterial color={colourOf("concrete")} />
+      </mesh>
     </>
   );
 }
