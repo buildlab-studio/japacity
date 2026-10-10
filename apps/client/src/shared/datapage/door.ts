@@ -29,6 +29,8 @@ export interface DoorDraft {
   asked?: boolean;
   /** Where the life starts (R-PROLOGUE-013): the home step's answer, the tile's own until the player picks the other. */
   home?: string;
+  /** True once the player picked the home: a new tile or age keeps it while the life can still move in. */
+  homePicked?: boolean;
   /** Which three names the pool suggests. */
   roll: number;
   /** Years from the tile's own age (R-PROLOGUE-009): negative is younger. */
@@ -49,7 +51,7 @@ function browserStorage(): (Read & Write) | null {
 
 function isDraft(value: unknown): value is DoorDraft {
   if (typeof value !== "object" || value === null) return false;
-  const { stage, look, archetype, ready, name, roll, age, typed, asked, home } = value as Record<string, unknown>;
+  const { stage, look, archetype, ready, name, roll, age, typed, asked, home, homePicked } = value as Record<string, unknown>;
   return (
     typeof stage === "string" &&
     (DOOR_STAGES as readonly string[]).includes(stage) &&
@@ -63,7 +65,8 @@ function isDraft(value: unknown): value is DoorDraft {
     Number.isInteger(age) &&
     (typed === undefined || typeof typed === "boolean") &&
     (asked === undefined || typeof asked === "boolean") &&
-    (home === undefined || typeof home === "string")
+    (home === undefined || typeof home === "string") &&
+    (homePicked === undefined || typeof homePicked === "boolean")
   );
 }
 

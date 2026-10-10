@@ -373,7 +373,10 @@ function Chips({ chips, mark }: { chips: readonly YearChip[]; mark?: string }) {
   return (
     <div className="mt-1.5 grid grid-cols-2 gap-1.5" {...(mark === undefined ? {} : { [mark]: "" })}>
       {chips.map((chip) => (
-        <FactChip key={chip.id} id={chip.id} icon={chip.icon} label={chip.label} note={chip.note} state={chip.state} />
+        // Where the life starts is said in a line of its own across the page (R-PROLOGUE-013).
+        <div key={chip.id} className={`min-w-0 ${chip.id === "home" ? "col-span-2" : ""}`}>
+          <FactChip id={chip.id} icon={chip.icon} label={chip.label} note={chip.note} state={chip.state} />
+        </div>
       ))}
     </div>
   );

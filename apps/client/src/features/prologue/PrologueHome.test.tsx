@@ -33,7 +33,7 @@ describe("the home card", () => {
 });
 
 describe("the page's home", () => {
-  test("[R-PROLOGUE-012] [R-PROLOGUE-014] given a life that closed on a room in Makoko, when the page tells where it sleeps, then the home chip is Makoko's room with its rent a month", async () => {
+  test("[R-PROLOGUE-012] [R-PROLOGUE-014] given a life that closed on a room in Makoko, when the page tells where it sleeps, then the page says it starts in the room on the water in Makoko, with the rent next month", async () => {
     const base = engineView();
     const rent = upkeepOf("makoko");
     const family = base.obligations[0];
@@ -46,6 +46,6 @@ describe("the page's home", () => {
     await renderWithView(<PageHandover onDone={() => undefined} />, view);
     const home = document.querySelector("[data-handover-story] [data-fact='home']");
     expect(home?.textContent).toBe(`${say("ui.page.home.makoko")}${say("ui.page.home.costs", { amount: formatMoney(rent, "NGN") })}`);
-    expect(home?.textContent).toBe("A room in Makoko₦25,000 a month");
+    expect(home?.textContent).toBe("You start in a room on the water, MakokoRent next month: ₦25,000");
   });
 });

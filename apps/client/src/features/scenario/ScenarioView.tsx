@@ -8,21 +8,21 @@
 // before Begin. For a tile, Begin starts the life at once and the page fills as the years go by (R-PROLOGUE-014).
 import { content } from "@japacity/content";
 import type { Id } from "@japacity/sim";
-import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight, Dices, Shuffle } from "lucide-react";
+import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight, Dices, House, Lock, Shuffle, Waves } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 import { useGame } from "../../authority/GameProvider";
 import { keepPerson } from "../../authority/person";
 import { formatMoney } from "../../shared/words/format";
 import { blurbOf, say } from "../../shared/words/text";
-import { ARCHETYPES, archetypeOf, FROM_SIXTEEN, type Home, HOMES, homeOf, savingsOf } from "../../shared/frontdoor/archetypes";
+import { type Archetype, ARCHETYPES, archetypeOf, FROM_SIXTEEN, type Home, HOMES, homeOf, savingsOf } from "../../shared/frontdoor/archetypes";
 import { Gate, GateSheet, gateLook } from "../../shared/frontdoor/Gate";
 import { LOOKS, lookOf, namesFor } from "../../shared/frontdoor/looks";
 import { takeReadyAsk } from "../../shared/frontdoor/ready";
 import { DataPage, type PageFields, Stamp } from "../../shared/datapage/DataPage";
 import { type DoorDraft, type DoorStage, keepDoor, readDoor } from "../../shared/datapage/door";
 import { NAME_LONGEST, nameProblem, problemWords } from "../../shared/datapage/name";
-import { ageStepWords, stepsOpen } from "../../shared/datapage/age";
+import { ageSteps, ageStepWords, stepsOpen } from "../../shared/datapage/age";
 import { aboutYears, middleMonths, readyMonths } from "../../shared/datapage/years";
 
 /** The ready lives: every scenario but the life from sixteen, each named by its kind, never its person. */
@@ -58,6 +58,21 @@ function homeCost(home: Home): number {
   const opens = content.prologue["home"]?.answers.find((answer) => answer.id === home)?.effects.find((effect) => effect.type === "obligation/open");
   return opens?.type === "obligation/open" && typeof opens.amount === "number" ? opens.amount : 0;
 }
+
+/** The naira in kobo left after moving in (R-PROLOGUE-013): the tile's savings and what its age step saves, less the home's first month. Below nothing, the shortfall. */
+export function pocketIn(archetype: Archetype, years: number, home: Home): number {
+  const saved = ageSteps().find((step) => step.years === years)?.saved ?? 0;
+  return savingsOf(archetype) + saved - homeCost(home);
+}
+
+/** The home kept when the tile or the age changes: the one the player picked while the life can still move in, else the tile's own, else the first it can pay for. */
+export function fitHome(archetype: Archetype, years: number, draft: Pick<DoorDraft, "home" | "homePicked">): Home {
+  const picked = draft.homePicked === true ? HOMES.filter((one) => one === draft.home) : [];
+  const own = homeOf(archetype);
+  return [...picked, own, ...HOMES].find((one) => pocketIn(archetype, years, one) >= 0) ?? own;
+}
+
+const HOME_ICONS = { "family-house": House, makoko: Waves } as const;
 
 /** The run as kept, or a new one with the kept look; a run already begun starts again. Settings' ask starts a run for the ready lives. */
 function startDraft(): DoorDraft {
@@ -185,11 +200,11 @@ export function ScenarioView() {
 
   const archetype = draft.ready === null ? archetypeOf(draft.archetype) : null;
   const middle = archetype === null ? null : middleMonths(archetype);
-  const home: Home | null = archetype === null ? null : (HOMES.find((one) => one === draft.home) ?? homeOf(archetype));
+  const home: Home | null = archetype === null ? null : fitHome(archetype, draft.age, { home: draft.home ?? homeOf(archetype), homePicked: true });
   const open = middle === null ? [0] : stepsOpen(middle);
   const step = (by: number): void => {
     const next = draft.age + by;
-    if (open.includes(next)) change({ age: next });
+    if (open.includes(next)) change({ age: next, ...(archetype === null ? {} : { home: fitHome(archetype, next, draft) }) });
   };
 
   // A new look keeps a typed name; a filled one follows the look's sex.
@@ -206,7 +221,7 @@ export function ScenarioView() {
     const roll = freshRoll();
     setTried(false);
     const tile = pick(ARCHETYPES) ?? archetype;
-    change({ look, roll, name: filledName(look, roll), typed: false, archetype: tile?.id ?? draft.archetype, ready: null, age: 0, ...(tile === null ? {} : { home: homeOf(tile) }) });
+    change({ look, roll, name: filledName(look, roll), typed: false, archetype: tile?.id ?? draft.archetype, ready: null, age: 0, homePicked: false, ...(tile === null ? {} : { home: homeOf(tile) }) });
   };
 
   const begin = (): void => {
@@ -340,7 +355,7 @@ export function ScenarioView() {
                     data-archetype={tile.id}
                     aria-label={say(`prologue.archetype.${tile.id}.name`)}
                     aria-checked={on}
-                    onClick={() => change({ archetype: tile.id, ready: null, age: 0, home: homeOf(tile) })}
+                    onClick={() => change({ archetype: tile.id, ready: null, age: 0, home: fitHome(tile, 0, draft) })}
                     className={`press flex h-full w-full flex-col items-start rounded-[5px] p-2.5 text-left ${on ? "bg-strong text-on-strong" : "bg-sheet-muted"}`}
                   >
                     <span className={`rounded-[3px] px-1.5 py-0.5 text-[10px] font-extrabold tracking-[0.08em] uppercase ${on ? "bg-action text-action-text" : "bg-sheet text-text-2"}`} data-tile-tag>
@@ -376,10 +391,13 @@ export function ScenarioView() {
           {archetype === null || home === null ? null : (
             <section className="mt-3" aria-label={say("ui.door.home")} data-door-home>
               <h2 className="label text-text-2">{say("ui.door.home")}</h2>
-              <div className="mt-1.5 grid grid-cols-2 gap-1.5" role="radiogroup" aria-label={say("ui.door.home")}>
+              <div className="mt-1.5 flex flex-col gap-1.5" role="radiogroup" aria-label={say("ui.door.home")}>
                 {HOMES.map((one) => {
                   const on = one === home;
-                  const left = Math.max(0, savingsOf(archetype) - homeCost(one));
+                  const pocket = pocketIn(archetype, draft.age, one);
+                  const short = pocket < 0;
+                  const Icon = short ? Lock : HOME_ICONS[one];
+                  const figure = formatMoney(Math.abs(pocket), "NGN");
                   return (
                     <button
                       key={one}
@@ -387,17 +405,24 @@ export function ScenarioView() {
                       role="radio"
                       aria-checked={on}
                       aria-label={say(`ui.door.home.${one}`)}
+                      aria-description={say(short ? "ui.door.home.said.short" : "ui.door.home.said.left", { amount: figure })}
+                      disabled={short}
                       data-home={one}
-                      onClick={() => change({ home: one })}
-                      className={`press flex flex-col items-start rounded-[5px] p-2.5 text-left ${on ? "bg-strong text-on-strong" : "bg-sheet-muted"}`}
+                      onClick={() => change({ home: one, homePicked: true })}
+                      className={`press flex w-full items-center gap-2.5 rounded-[5px] px-3 py-2 text-left disabled:opacity-60 ${on ? "bg-strong text-on-strong" : "bg-sheet-muted"}`}
                     >
-                      <span className={`rounded-[3px] px-1.5 py-0.5 text-[10px] font-extrabold tracking-[0.08em] uppercase ${on ? "bg-action text-action-text" : "bg-sheet text-text-2"}`}>{say(`ui.door.home.tag.${one}`)}</span>
-                      <span className="mt-1 text-[14px] leading-tight font-extrabold">{say(`ui.door.home.${one}`)}</span>
-                      <span className="num mt-0.5 text-[13px]" data-home-costs>
-                        {say("ui.door.home.costs", { amount: formatMoney(homeCost(one), "NGN") })}
+                      <Icon size={20} className="shrink-0" aria-hidden />
+                      <span className="min-w-0 flex-1 leading-tight">
+                        <span className="block truncate text-[14px] font-extrabold">
+                          {say(`ui.door.home.${one}`)} <span className={`font-semibold ${on ? "opacity-80" : "text-text-2"}`}>· {say(`ui.door.home.where.${one}`)}</span>
+                        </span>
+                        <span className={`block truncate text-[12px] ${on ? "opacity-85" : "text-text-2"}`} data-home-costs>
+                          {say(`ui.door.home.costs.${one}`, { amount: formatMoney(homeCost(one), "NGN") })}
+                        </span>
                       </span>
-                      <span className={`mt-0.5 text-[12px] leading-snug ${on ? "" : "text-text-2"}`} data-home-left>
-                        {say("ui.door.home.left", { amount: formatMoney(left, "NGN") })}
+                      <span className="shrink-0 text-right leading-tight" data-home-left={short ? "short" : "left"}>
+                        <span className="num block text-[14px]">{figure}</span>
+                        <span className="block text-[10px] font-semibold opacity-80">{say(short ? "ui.door.home.short" : "ui.door.home.left")}</span>
                       </span>
                     </button>
                   );

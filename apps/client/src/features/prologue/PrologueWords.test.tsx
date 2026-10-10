@@ -143,7 +143,7 @@ describe("the life from sixteen keeps the story its prologue built", () => {
     expect(settlement?.textContent).toMatch(/plot/);
     expect(settlement?.textContent).not.toMatch(/\d/);
     expect(storyChip("capital")).toBe("A shop's capital₦6,000,000");
-    expect(storyChip("home")).toBe("Family house₦95,000 a month");
+    expect(storyChip("home")).toBe("You start in the family house, SurulereRent next month: ₦95,000");
     // the Gulf is heard at the motor park, so a trade's first step is there, not at the meetup.
     expect(document.querySelector("[data-first-step]")?.textContent).toBe("Your first step: Ask around at the motor park.");
   });
@@ -151,7 +151,7 @@ describe("the life from sixteen keeps the story its prologue built", () => {
   test("[R-PROLOGUE-008] [R-PROLOGUE-014] given a graduate at the family house, when the page shows, then it says where he sleeps and what it costs, and speaks of no shop's capital", async () => {
     await walk("prologue-first", (allowed) => allowed[0] ?? "");
     await screen.findByRole("heading", { name: words("line.prologue.closed") });
-    expect(storyChip("home")).toBe("Family house₦95,000 a month");
+    expect(storyChip("home")).toBe("You start in the family house, SurulereRent next month: ₦95,000");
     expect(storyChip("capital")).toBe("");
     expect(document.querySelector("[data-handover-story]")?.textContent).not.toMatch(/capital/);
   });
