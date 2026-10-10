@@ -1,7 +1,7 @@
 // Names and blurbs for streets.md's activities (R-STREET-001 to 004, 008). First drafts.
 export const activityStreetText: Record<string, string> = {
   "activity.buy-phone.name": "Buy a phone",
-  "activity.buy-phone.blurb": "A new phone from a stall in the village, paid in cash. People can reach you again.",
+  "activity.buy-phone.blurb": "A new phone from a stall in the village, paid by transfer at the counter. People can reach you again.",
   "activity.job-phone-sales.name": "Phone sales",
   "activity.job-phone-sales.blurb": "You sell phones from a stall in Computer Village. You learn every model and stand all day.",
   "activity.apprentice-repair.name": "Repair apprentice",
