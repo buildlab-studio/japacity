@@ -56,12 +56,12 @@ interface LimitRow {
   lastRequest: number | bigint;
 }
 
-/** R-ACCOUNT-003, R-ACCOUNT-018: the HMAC-SHA-256 of an account id under the server's secret, as hex. */
-export async function accountHash(secret: string, account: string): Promise<string> {
-  const encoder = new TextEncoder();
-  const key = await crypto.subtle.importKey("raw", encoder.encode(secret), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
-  const mac = await crypto.subtle.sign("HMAC", key, encoder.encode(account));
-  return [...new Uint8Array(mac)].map((byte) => byte.toString(16).padStart(2, "0")).join("");
+/**
+ * R-ACCOUNT-003, R-ACCOUNT-018: the SHA-256 of an account id, as hex, the same hash the deletion audit keeps (the lead,
+ * 10 Oct 2026): an id is random, so a plain hash names nobody, and a rotated secret never breaks the tie to older rows.
+ */
+export async function accountHash(account: string): Promise<string> {
+  return sha256Hex(account);
 }
 
 export async function sha256Hex(text: string): Promise<string> {
@@ -196,7 +196,7 @@ async function notePasskey(deps: ServerDeps, keys: AuthKeys, ctx: HookContext): 
   const passkey = storedPasskey(ctx.context.returned);
   if (passkey === null) return;
   const session = await getSessionFromCtx(ctx);
-  const note: PasskeyNote = { accountHash: await accountHash(keys.secret, passkey.userId), passkey: passkey.id, admin: deps.config.admin.accounts.includes(passkey.userId), signedInWith: session === null ? "other" : openedWith(session) };
+  const note: PasskeyNote = { accountHash: await accountHash(passkey.userId), passkey: passkey.id, admin: deps.config.admin.accounts.includes(passkey.userId), signedInWith: session === null ? "other" : openedWith(session) };
   const at = deps.now();
   await deps.stores.audit.retire({ character: PASSKEY_ROWS, why: "passkey", at, note: JSON.stringify(note), segments: [], log: [], snapshots: [] });
   const user = await ctx.context.internalAdapter.findUserById(passkey.userId);

@@ -66,7 +66,7 @@ describe("adding a passkey", () => {
     expect(passkeysOf(h, account)).toEqual(["Zmlyc3Qta2V5", "c2Vjb25kLWtleQ"]);
     const id = second.body["id"];
     expect(typeof id).toBe("string");
-    expect(await notes(h)).toEqual([{ accountHash: await accountHash(h.keys.secret, account), passkey: id, admin: true, signedInWith: "passkey" }]);
+    expect(await notes(h)).toEqual([{ accountHash: await accountHash(account), passkey: id, admin: true, signedInWith: "passkey" }]);
     await namesNoOne(h, account);
     expect(h.notices).toEqual([{ email: "owner@example.com", kind: "passkey-added", at: expect.any(Number) as number }]);
     expect(h.background).toHaveLength(background + 1);
@@ -78,7 +78,7 @@ describe("adding a passkey", () => {
     const first = await (await softwarePasskey("Zmlyc3Qta2V5")).register(h, jar);
     expect(first.status).toBe(200);
     expect(passkeysOf(h, account)).toEqual(["Zmlyc3Qta2V5"]);
-    expect(await notes(h)).toEqual([{ accountHash: await accountHash(h.keys.secret, account), passkey: first.body["id"], admin: true, signedInWith: "email-code" }]);
+    expect(await notes(h)).toEqual([{ accountHash: await accountHash(account), passkey: first.body["id"], admin: true, signedInWith: "email-code" }]);
     await namesNoOne(h, account);
     expect(h.notices.map((notice) => notice.email)).toEqual(["owner@example.com"]);
   });
@@ -90,7 +90,7 @@ describe("adding a passkey", () => {
     const second = await (await softwarePasskey("c2Vjb25kLWtleQ")).register(h, jar);
     expect(second.status).toBe(200);
     expect(passkeysOf(h, account)).toEqual(["Zmlyc3Qta2V5", "c2Vjb25kLWtleQ"]);
-    expect(await notes(h)).toEqual([{ accountHash: await accountHash(h.keys.secret, account), passkey: second.body["id"], admin: false, signedInWith: "email-code" }]);
+    expect(await notes(h)).toEqual([{ accountHash: await accountHash(account), passkey: second.body["id"], admin: false, signedInWith: "email-code" }]);
     await namesNoOne(h, account);
     expect(h.notices.map((notice) => notice.email)).toEqual(["player@example.com"]);
   });
@@ -113,8 +113,8 @@ describe("adding a passkey", () => {
     const { jar, account } = await signedUp(h, "player@example.com", false);
     expect((await (await softwarePasskey("Zmlyc3Qta2V5")).register(h, jar)).status).toBe(200);
     const [note] = await notes(h);
-    expect(note?.accountHash).toBe(await accountHash(h.keys.secret, account));
-    expect(note?.accountHash).not.toBe(await accountHash("another-secret", account));
+    expect(note?.accountHash).toBe(await accountHash(account));
+    expect(note?.accountHash).not.toContain(account);
     await namesNoOne(h, account);
   });
 });
