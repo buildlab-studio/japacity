@@ -121,6 +121,9 @@ describe("time with someone", () => {
     const game = peopleGame();
     courted(game, "person.tobi-bank");
     courted(game, "person.amaka-nurse");
+    // seeing someone is an act done at once, so a moment in the month both bonds were
+    // courted would tie them on that month; a month passes first, as the slot's moment used to come a month on.
+    playMonth(game, []);
     for (let month = 0; month < 3; month += 1) {
       const predicted = timeWith(game.view(), SEE)?.id;
       const before = Object.fromEntries(Object.entries(game.state.people.bonds).map(([id, bond]) => [id, bond.moments.length]));

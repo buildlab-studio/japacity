@@ -6,6 +6,7 @@ import { localAuthority } from "../../authority/local";
 import { createGameStore } from "../../authority/store";
 import { engineView } from "../../shared/testing/fixtures";
 import { chapterNextStep } from "../../shared/testing/firstSession";
+import { actOnCard } from "../city/acts";
 
 const salary: ReportLine = { key: "line.activity.salary", params: {}, tone: "good", attention: false, counts: [] };
 const gain: ReportLine = { key: "line.quality.gain", params: {}, tone: "good", attention: false, counts: [] };
@@ -42,8 +43,10 @@ describe("asks wait for the early win", () => {
     let raisedAt: number | null = null;
     for (let month = 1; month <= 3 && raisedAt === null; month += 1) {
       const view = store.getState().view!;
-      for (const pick of chapterNextStep(view, content)) store.getState().addToPlan(pick);
+      // a step that answers now (the hunt, the official page) is sent at once, and its win
+      // can come with it, before the month ends; the rest fill slots.
       expect(store.getState().earlyWin).toBe(false);
+      for (const pick of chapterNextStep(view, content)) await actOnCard(pick, store.getState());
       await store.getState().endMonth();
       if (store.getState().earlyWin) raisedAt = month;
     }

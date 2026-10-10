@@ -1,5 +1,5 @@
 import type { Id } from "@japacity/sim";
-import { fireEvent, screen, within } from "@testing-library/react";
+import { fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
 import { newGame, viewAfter } from "../../shared/testing/fixtures";
@@ -51,14 +51,16 @@ describe("the routes list", () => {
   });
 
   test("[R-WORLD-006] given two routes heard of, when the official page shows, then nothing is picked for the player and Do this is shut until a row is tapped, then plans that route", async () => {
-    const { store } = await renderWithView(<ActivityPicker only={[OFFICIAL]} />, twoRoutesHeard());
+    const { store, authority } = await renderWithView(<ActivityPicker only={[OFFICIAL]} />, twoRoutesHeard());
     expect(within(card(OFFICIAL)).getAllByRole("radio").every((row) => row.getAttribute("aria-checked") === "false")).toBe(true);
     expect(addButton(OFFICIAL).disabled).toBe(true);
     expect(addButton(OFFICIAL).querySelector("[data-after]")?.textContent).toBe(routesWords("routes.pick-first"));
     fireEvent.click(within(card(OFFICIAL)).getByRole("radio", { name: new RegExp(nameOf(CANADA)) }));
     expect(addButton(OFFICIAL).disabled).toBe(false);
     fireEvent.click(addButton(OFFICIAL));
-    expect(store.getState().plan).toContainEqual({ activity: OFFICIAL, param: CANADA });
+    // the official page is read at once, so the route tapped goes with the command sent now.
+    await waitFor(() => expect(authority.sent.at(-1)).toMatchObject({ type: "activity/now", activity: OFFICIAL, param: CANADA }));
+    expect(store.getState().plan.some((pick) => pick?.activity === OFFICIAL)).toBe(false);
   });
 
   test("[R-WORLD-006] given one route heard of, when someone who went shows, then it stays a card whose one row is picked, and the adviser stays a card with no list", async () => {

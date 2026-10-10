@@ -3,7 +3,7 @@
 // shuts the button with how much is short. Nothing is planned that cannot be paid.
 import { content } from "@japacity/content";
 import type { ActivityOption, PlayerView } from "@japacity/sim";
-import { act, fireEvent, screen } from "@testing-library/react";
+import { act, fireEvent, screen, waitFor } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
 import { engineView, newGame, viewAfter } from "../../shared/testing/fixtures";
@@ -79,13 +79,15 @@ describe("the picker and a pick that fills no slot", () => {
     const FRIEND = "activity.ask-someone-who-went";
     const UK = "route.uk-masters";
     const view = viewAfter(newGame("scenario.tunde"), [{ type: "route/hear", route: UK, via: "test" }]);
-    const { store } = await renderWithView(<ActivityPicker only={[FRIEND]} />, view);
+    const { store, authority } = await renderWithView(<ActivityPicker only={[FRIEND]} />, view);
     act(() => {
       for (let slot = 0; slot < view.freeSlots; slot += 1) store.getState().addToPlan({ activity: "activity.rest", param: null });
     });
     const button = addButton(FRIEND);
     expect(button.disabled).toBe(false);
     fireEvent.click(button);
-    expect(store.getState().plan.at(-1)).toEqual({ activity: FRIEND, param: UK });
+    // the word of someone who went is asked at once, so a full month never shuts it and it
+    // is sent now rather than planned.
+    await waitFor(() => expect(authority.sent.at(-1)).toMatchObject({ type: "activity/now", activity: FRIEND, param: UK }));
   });
 });

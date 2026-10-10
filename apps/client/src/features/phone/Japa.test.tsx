@@ -3,11 +3,12 @@
 // papers' dates read as months away (docs/rules/world.md R-WORLD-002).
 import { content } from "@japacity/content";
 import type { PlayerView } from "@japacity/sim";
-import { act, fireEvent, screen } from "@testing-library/react";
+import { act, fireEvent, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, test } from "vitest";
 
 import { abroadView, newGame, recordedGame, richView, viewAfter } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
+import { nowSaid } from "../../shared/words/acts";
 import { blurbOf, forMonths, nameOf, runningName, say, sayCount, words } from "../../shared/words/text";
 import { PhoneApps } from "./PhoneApps";
 import { phoneWords } from "./phone.words";
@@ -38,18 +39,18 @@ function adaHeard(): PlayerView {
 
 describe("the official page in Japa", () => {
   test("[R-ADVICE-002] given a route only heard of and no plan yet, when Japa opens, then the official page is offered for it with a line that it takes one slot, and a tap plans it", async () => {
-    const { store } = await openJapa(adaHeard());
+    const { store, authority } = await openJapa(adaHeard());
     const button = document.querySelector<HTMLButtonElement>("[data-official-page]");
     expect(button?.getAttribute("data-official-page")).toBe(UK);
     expect(button?.textContent).toContain(nameOf(OFFICIAL));
     expect(button?.textContent).toContain(phoneWords("phone.japa.official", { route: runningName(UK) }));
     expect(phoneWords("phone.japa.official", { route: runningName(UK) })).toMatch(/one slot/);
     fireEvent.click(button!);
-    expect(store.getState().plan).toContainEqual({ activity: OFFICIAL, param: UK });
-    expect(screen.getByText(say("ui.world.planned", { what: nameOf(OFFICIAL) }))).toBeTruthy();
-    const after = document.querySelector<HTMLButtonElement>("[data-official-page]");
-    expect(after?.disabled).toBe(true);
-    expect(after?.textContent).toContain(phoneWords("phone.japa.official-planned", { route: runningName(UK) }));
+    // the official page is read at once: the command goes now, nothing is planned, and
+    // the phone says the page's line.
+    await waitFor(() => expect(authority.sent.at(-1)).toMatchObject({ type: "activity/now", activity: OFFICIAL, param: UK }));
+    expect(store.getState().plan).not.toContainEqual({ activity: OFFICIAL, param: UK });
+    expect(await screen.findByText(nowSaid(OFFICIAL, UK))).toBeTruthy();
   });
 
   test("[R-ADVICE-002] given no route heard of, when Japa opens, then no official page is offered", async () => {
@@ -57,15 +58,17 @@ describe("the official page in Japa", () => {
     expect(document.querySelector("[data-official-page]")).toBeNull();
   });
 
-  test("[R-ADVICE-002] given every slot already planned, when the official page is tapped, then nothing is planned and the phone says the month is full", async () => {
+  test("[R-ADVICE-002] [R-ACTIVITY-015] given every slot already planned, when the official page is tapped, then it is read all the same, since it fills no slot, and nothing is planned", async () => {
+    // the page was a slot pick, refused with "the month is full"; it is an act done at once now.
     const view = adaHeard();
-    const { store } = await openJapa(view);
+    const { store, authority } = await openJapa(view);
     act(() => {
       for (let slot = 0; slot < view.freeSlots; slot += 1) store.getState().addToPlan({ activity: "activity.rest", param: null });
     });
     fireEvent.click(document.querySelector<HTMLButtonElement>("[data-official-page]")!);
+    await waitFor(() => expect(authority.sent.at(-1)).toMatchObject({ type: "activity/now", activity: OFFICIAL, param: UK }));
     expect(store.getState().plan).not.toContainEqual({ activity: OFFICIAL, param: UK });
-    expect(screen.getByText(say("ui.world.full"))).toBeTruthy();
+    expect(screen.queryByText(say("ui.world.full"))).toBeNull();
   });
 
   test("[R-WORLD-002] given a held paper that runs out, when the Papers screen opens, then it says how long it is valid, with no month number", async () => {

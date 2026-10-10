@@ -1,6 +1,6 @@
 import { content, text } from "@japacity/content";
 import type { ActivityEntry, PlayerView } from "@japacity/sim";
-import { fireEvent, screen, within } from "@testing-library/react";
+import { fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
 import { engineView } from "../../shared/testing/fixtures";
@@ -92,12 +92,15 @@ describe("the jobs list on the hunt's card", () => {
   test("[R-WORLD-006] given a row tapped, when the hunt is added to the month, then the slot carries that job", async () => {
     const view = engineView();
     const jobs = huntOf(view);
-    const { store } = await renderWithView(<ActivityPicker only={[HUNT]} />, view);
+    const { store, authority } = await renderWithView(<ActivityPicker only={[HUNT]} />, view);
     const last = huntOrder(view, jobs).at(-1) ?? "";
     fireEvent.click(screen.getByRole("radio", { name: new RegExp(`^${text[`${last}.name`] ?? last}`) }));
     expect(screen.getByRole("radio", { name: new RegExp(`^${text[`${last}.name`] ?? last}`) }).getAttribute("aria-checked")).toBe("true");
     fireEvent.click(screen.getByRole("button", { name: `${say("ui.activity.add")}: ${text[`${HUNT}.name`] ?? HUNT}` }));
-    expect(store.getState().plan[0]).toEqual({ activity: HUNT, param: last });
+    // the hunt is applied for at once, so the job tapped goes with the command sent now and
+    // no slot is planned.
+    await waitFor(() => expect(authority.sent.at(-1)).toMatchObject({ type: "activity/now", activity: HUNT, param: last }));
+    expect(store.getState().plan.some((pick) => pick?.activity === HUNT)).toBe(false);
   });
 
   test("[R-WORLD-006] given jobs at home the hunt cannot ask for yet, when the card shows, then each is listed apart with its pay and what it still needs, and cannot be picked", async () => {

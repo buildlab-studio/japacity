@@ -54,23 +54,20 @@ describe("people in the shell", () => {
     await waitFor(() => expect(endMonth().hasAttribute("disabled")).toBe(false));
   });
 
-  test("[R-PEOPLE-014] given someone courted, when time with someone is planned, then the plan names who it goes to, and the month's report tells the moment in words", async () => {
+  test("[R-PEOPLE-014] given someone courted, when time with someone is chosen, then it is sent at once, nothing is planned, and the moment is told in words", async () => {
     const game = peopleGame();
     courted(game, TOBI);
-    await playing(game);
+    const { store } = await playing(game);
+    // seeing someone is an act done at once, so the tap sends it and the moment is made now,
+    // in the month in hand, with nothing planned; the moment is told in words among the act's own lines, which the
+    // world's results show with the month's (the old page shows only the month's report).
     fireEvent.click(await screen.findByRole("button", { name: `${say("ui.activity.add")}: ${nameOf(SEE.activity)}` }));
-    const plan = screen.getByRole("list", { name: say("ui.month.plan") });
-    expect(within(plan).getByText(`${nameOf(SEE.activity)} ${say("ui.people.time-with", { name: nameOf(TOBI) })}`)).toBeDefined();
-    fireEvent.click(endMonth());
     await waitFor(() => expect(Object.values(game.state.people.bonds).find((held) => held.role === "partner")?.moments).toHaveLength(1));
+    expect(store.getState().plan.some((pick) => pick?.activity === SEE.activity)).toBe(false);
     const moment = Object.values(game.state.people.bonds).find((held) => held.role === "partner")!.moments[0]!;
     const line = words("line.people.met", { who: TOBI, spot: moment.spot ?? "", what: moment.what });
-    // The month's staged wins come first, one moment each, then the report.
-    for (let shown = 0; shown < 4 && screen.queryAllByText(line).length === 0; shown += 1) {
-      const dialog = await screen.findByRole("dialog");
-      fireEvent.click(within(dialog).getAllByRole("button")[0]!);
-    }
-    expect((await screen.findAllByText(line)).length).toBeGreaterThan(0);
-    expect(document.body.textContent).not.toMatch(/person\.tobi|suya-spot|friends-wedding|bus-stop/);
+    const told = store.getState().lines.filter((said) => said.key === "line.people.met").map((said) => words(said.key, said.params));
+    expect(told).toEqual([line]);
+    expect(line).not.toMatch(/person\.tobi|suya-spot|friends-wedding|bus-stop/);
   });
 });
