@@ -921,8 +921,10 @@ describe("who the pitches reach", () => {
       if (scenario === "scenario.ready") continue;
       const game = readyLife(content, { from: scenario, quiet: true });
       // The man at the park asks only someone who has asked around there: the lives ask first.
-      game.accept({ type: "activity/now", activity: "activity.ask-around", param: null });
+      // A life from sixteen cannot act while its prologue is open, so its park pitch is judged once the prologue is closed elsewhere.
+      const asked = game.send({ type: "activity/now", activity: "activity.ask-around", param: null }, "player").ok;
       for (const id of PITCHES) {
+        if (id === PARK && !asked) continue;
         const when = content.offer[id]!.when;
         expect(when.every((requirement) => check(readOf(game), requirement).met)).toBe(true);
       }
