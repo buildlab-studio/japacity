@@ -180,6 +180,7 @@ export const prologueText: Record<string, string> = {
   "prologue.handover.lived.trade": "The years went another way: no university, work from school on.",
 
   // The front door's run (R-PROLOGUE-009): one question a screen, then the page printed and stamped.
+  "prologue.door.hook": "What's your japacity?",
   "prologue.door.step": "{n}/{count}",
   "prologue.door.drag": "Drag to turn",
   "prologue.door.pick": "Pick",

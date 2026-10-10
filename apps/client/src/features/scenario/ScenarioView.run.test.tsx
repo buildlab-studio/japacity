@@ -194,4 +194,17 @@ describe("the run through the front door", () => {
     fireEvent.click(next(say("prologue.door.print")));
     expect(document.querySelector("[data-page] [data-field='age']")?.textContent).toContain(say("prologue.page.age.about", { years: aboutYears(middle + Math.max(...open) * 12) }));
   });
+
+  test("[R-PROLOGUE-009] given the first screen, then the hook asks what your japacity is over the figure on the plinth, from the first second and before the look; later screens drop it", () => {
+    door();
+    const hook = document.querySelector("[data-door-hook]");
+    expect(hook?.textContent).toBe(say("prologue.door.hook"));
+    expect(hook?.textContent).toBe("What's your japacity?");
+    // Over the scene, above the sheet with the look.
+    expect(document.querySelector("[data-gate] [data-front-scene]")).not.toBeNull();
+    const looks = document.querySelector("[data-looks]")!;
+    expect(hook!.compareDocumentPosition(looks) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    fireEvent.click(next(say("ui.door.next")));
+    expect(document.querySelector("[data-door-hook]")).toBeNull();
+  });
 });
