@@ -4,6 +4,7 @@
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
+import { bp } from "../engine/int";
 import type { Accepted, BaseEvent, Currency, FlatSave, State } from "../engine/types";
 import { lifeSaves } from "../goldens/lives.data";
 import { newLifeSaves } from "../sweep/lives.data";
@@ -52,12 +53,15 @@ function upToMonth(name: string, month: number): number {
   return at + 1;
 }
 
-/** The net of a step's own money in one currency, moves between pockets and held funds aside. */
+/** What a month's net leaves out: moves between pockets, a change's two sides (decision 0021 as amended) and held funds. */
+const NOT_COUNTED: readonly string[] = ["move", "convert", "held-funds", "held-funds-return"];
+
+/** The net of a step's own money in one currency, moves between pockets, a change's two sides and held funds aside. */
 function netOf(events: readonly BaseEvent[], currency: Currency): number {
   let net = 0;
   for (const event of events as readonly WalletEvent[]) {
     if (event.type !== "wallet/credited" && event.type !== "wallet/debited") continue;
-    if (event.currency !== currency || event.reason === "move" || event.reason === "held-funds" || event.reason === "held-funds-return") continue;
+    if (event.currency !== currency || NOT_COUNTED.includes(event.reason)) continue;
     net += event.type === "wallet/credited" ? event.amount : -event.amount;
   }
   return net;
@@ -78,7 +82,7 @@ describe("the months kept", () => {
         if (command.type !== "turn/end") continue;
         const currency = local(game.state);
         const net = netOf(month, currency);
-        const moved = month.some((event) => (event.type === "wallet/credited" || event.type === "wallet/debited") && !["move", "held-funds", "held-funds-return"].includes((event as WalletEvent & { reason: string }).reason));
+        const moved = month.some((event) => (event.type === "wallet/credited" || event.type === "wallet/debited") && !NOT_COUNTED.includes((event as WalletEvent & { reason: string }).reason));
         told.push(closedOf(result) ?? null);
         ledger.push(moved ? { type: "wallet/month-closed", currency, net } : null);
         if ("monthNet" in game.state.wallet) leftOpen.push(game.state.turn.month);
@@ -107,13 +111,17 @@ describe("the months kept", () => {
     expect(game.view().keptMonths).toBe(0);
   });
 
-  test("[R-WORLD-008] given a month in hand, when money moves before the month ends, then it is held as the month's net and not counted until the month closes", () => {
-    // Zainab's remote dollars changed into naira: money in, in the money of the place, before the month ends.
+  test("[R-WORLD-008] [R-WALLET-015] given a month in hand, when Zainab's remote dollars are changed into naira before it ends, then the change's two sides count nothing, the bank's charge is held as the month's net in dollars, and nothing is counted until the month closes", () => {
     // A month late in her life at home, before the flight, whichever month the cut flies in.
     const game = replay("zainab-remote", upToMonth("zainab-remote", Math.min(30, monthsOf("zainab-remote") - 2)));
     const before = game.view().keptMonths;
-    game.accept({ type: "wallet/convert", from: "USD", to: "NGN", amount: game.state.wallet.pockets.USD.bank, via: "bank" });
-    expect(game.state.wallet.monthNet?.NGN ?? 0).toBeGreaterThan(0);
+    const dollars = game.state.wallet.pockets.USD.bank;
+    expect(dollars).toBeGreaterThan(0);
+    const naira = game.state.wallet.monthNet?.NGN ?? 0;
+    const result = game.accept({ type: "wallet/convert", from: "USD", to: "NGN", amount: dollars, via: "bank" });
+    expect(result.events.some((event) => event.type === "wallet/credited" && (event as WalletEvent & { reason: string }).reason === "convert")).toBe(true);
+    expect(game.state.wallet.monthNet?.NGN ?? 0).toBe(naira);
+    expect(game.state.wallet.monthNet?.USD).toBe(-bp(dollars, content.tuning.wallet.bankChargeBp));
     expect(game.view().keptMonths).toBe(before);
     const closed = closedOf(game.endTurn());
     expect(closed?.currency).toBe("NGN");
@@ -133,14 +141,14 @@ describe("the months kept", () => {
     expect(moved.view().keptMonths).toBe(plain.view().keptMonths);
   });
 
-  test("[R-WALLET-004] given a month in hand, when naira is changed into pounds at the bank, then the side paid in and the charge are money out of the naira, never money kept", () => {
+  test("[R-WALLET-004] [R-WALLET-015] given a month in hand, when naira is changed into pounds at the bank, then the change's two sides count nothing either way and only the bank's charge is money out of the naira", () => {
     const game = replay("ada-careful", upToMonth("ada-careful", 10));
     expect(game.state.wallet).not.toHaveProperty("monthNet");
     const amount = 100_000_00;
     const result = game.accept({ type: "wallet/convert", from: "NGN", to: "GBP", amount, via: "bank" });
-    expect(game.state.wallet.monthNet?.NGN).toBe(-amount);
-    expect(game.state.wallet.monthNet?.GBP).toBe(netOf(result.events, "GBP"));
-    expect(game.state.wallet.monthNet?.GBP).toBeGreaterThan(0);
+    const charge = bp(amount, content.tuning.wallet.bankChargeBp);
+    expect(result.events).toContainEqual({ type: "wallet/debited", currency: "NGN", pocket: "bank", amount: charge, reason: "bank-charge" });
+    expect(game.state.wallet.monthNet).toEqual({ NGN: -charge });
   });
 
   test("[R-ABROAD-006] given a month in hand abroad, when money is sent home, then the pounds that leave are money out of the money of the place, and the naira that land are not counted there", () => {

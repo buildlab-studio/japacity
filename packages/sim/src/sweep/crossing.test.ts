@@ -494,7 +494,7 @@ describe("whole-life rules that cross kinds", () => {
     expect(uk(game).visa?.submittedMonth).toBe(game.state.turn.month);
     expect(uk(game).visa?.rules.strictness).toBe(after);
   });
-  test("[R-PROLOGUE-002] [R-PROLOGUE-003] [R-PROLOGUE-005] [R-PROLOGUE-006] given a life from sixteen on the real content, when the nurse's path is answered step by step, then the draw sets the family's figures, each answer moves the qualities, money and documents the page gives it, the friend's route is heard, and the last answer opens the upkeep at the family house", () => {
+  test("[R-PROLOGUE-002] [R-PROLOGUE-003] [R-PROLOGUE-005] [R-PROLOGUE-006] [R-WALLET-018] given a life from sixteen on the real content, when the nurse's path is answered step by step, then the draw sets the family's figures, each answer moves the qualities, money and documents the page gives it, the friend's route is heard, and the last answer opens the upkeep at the family house", () => {
     const quality = (game: Game, id: string): number => game.state.quality[id as Id<"quality">] ?? 0;
     const choose = (game: Game, answer: string): void => {
       const step = game.state.prologue.step;
@@ -537,9 +537,11 @@ describe("whole-life rules that cross kinds", () => {
     choose(game, "focus");
     expect(moved("results-nurse", ["quality.edu-level", "quality.care"])).toEqual([3, 30]);
     expect(game.view().documents.find((paper) => paper.id === "document.nursing-licence")?.state).toBe("held");
-    const cash = game.state.wallet.pockets.NGN.cash;
+    // The service year's earnings, over the line for cash, land in the bank (wallet.md R-WALLET-018).
+    const naira = game.state.wallet.pockets.NGN;
     expect(moved("serve", ["quality.standing", "quality.network", "quality.wellbeing"])).toEqual([8, 8, 4]);
-    expect(game.state.wallet.pockets.NGN.cash - cash).toBe(500000 * UNIT);
+    expect(game.state.wallet.pockets.NGN.bank - naira.bank).toBe(500000 * UNIT);
+    expect(game.state.wallet.pockets.NGN.cash).toBe(naira.cash);
     choose(game, "uk");
     // The age step keeps the age the path reached (R-PROLOGUE-004).
     choose(game, "as-is");

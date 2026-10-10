@@ -41,9 +41,14 @@ function withCooldownStep(used: Content): Content {
   return { ...used, activity: { ...used.activity, [APPLY_ENDORSEMENT]: { ...activity, requires } } };
 }
 
-/** Ada, who holds no job, so her tech and network stay where they are set. */
+/**
+ * Ada, who holds no job, so her tech and network stay where they are set. The talent route's window is held open
+ * unless a test sets it: the world's own pool may close it in any world (`news.uk-talent-body-closes`, R-DIRECTOR-003),
+ * and since the one-chance story joined the pool (wallet.md R-WALLET-019) it does so in the test world's first months.
+ */
 function talentLife(options: LifeOptions = {}): Game {
-  return readyLife(content, { quiet: true, ...options, qualities: { ...AT_BARS, ...options.qualities } });
+  const vars = (tick: number) => ({ [entry.window!]: 2, ...options.vars?.(tick) });
+  return readyLife(content, { quiet: true, ...options, vars, qualities: { ...AT_BARS, ...options.qualities } });
 }
 
 function readOf(game: Game): ReadCtx {

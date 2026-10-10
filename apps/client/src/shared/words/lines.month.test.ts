@@ -84,8 +84,9 @@ describe("one line for one thing", () => {
 
 describe("living costs that rise", () => {
   test("[R-WORLD-008] given the fuel subsidy in force, when the month's living costs are charged at the new figure, then the results say living costs are up to it a month, and why", () => {
-    // A world where the subsidy comes into force within the first year and a half (the probe's seed).
-    const game = start({ scenario: "scenario.ada", seed: "s", worldSeed: "w-0", content });
+    // A world where the subsidy comes into force within the first year and a half (the probe's seed: in force at tick 16
+    // since the one-chance story joined the pool and moved every world's draws, wallet.md R-WALLET-019).
+    const game = start({ scenario: "scenario.ada", seed: "s", worldSeed: "w-1", content });
     applyEffects(game, [{ type: "money/add", currency: "NGN", pocket: "bank", amount: 500_000_000, reason: "gift" }]);
     let risen: ReportLine[] | null = null;
     let before: string[] = [];
