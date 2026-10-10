@@ -99,15 +99,15 @@ export const ARCHETYPES: readonly Archetype[] = [
   },
   {
     id: "trader",
-    preset: { ...THROUGH, subjects: ["commercial"], "after-school": ["apprentice"], master: ["spare-parts"], years: ["stay"], friend: ["nowhere"] },
-    leaning: { friend: "nowhere" },
+    preset: { ...THROUGH, subjects: ["commercial"], "after-school": ["apprentice"], master: ["spare-parts"], years: ["stay"], friend: ["drivers"] },
+    leaning: { friend: "drivers" },
     routes: ["route.gulf-contract", "route.road"],
   },
   {
     id: "shop-worker",
-    // the table names no crowd for the shop worker; his routes and his first step are the trader's, so is his send-off.
-    preset: { ...THROUGH, subjects: ["commercial"], "after-school": ["work"], shop: ["save"], friend: ["nowhere"] },
-    leaning: { friend: "nowhere" },
+    // The drivers at the send-off, as the trader's: they talk of the Gulf.
+    preset: { ...THROUGH, subjects: ["commercial"], "after-school": ["work"], shop: ["save"], friend: ["drivers"] },
+    leaning: { friend: "drivers" },
     routes: ["route.gulf-contract", "route.road"],
   },
   {
@@ -115,8 +115,8 @@ export const ARCHETYPES: readonly Archetype[] = [
     // settlement, and a room on the lagoon at the start, with the family house still there to go back to. The room's
     // small rent is the saving, and the motor park is the way out, as it is the trader's.
     id: "water",
-    preset: { ...THROUGH, subjects: ["commercial"], "after-school": ["work"], shop: ["save"], friend: ["nowhere"], home: ["makoko"] },
-    leaning: { friend: "nowhere" },
+    preset: { ...THROUGH, subjects: ["commercial"], "after-school": ["work"], shop: ["save"], friend: ["drivers"], home: ["makoko"] },
+    leaning: { friend: "drivers" },
     routes: ["route.gulf-contract", "route.road"],
   },
 ];
@@ -133,6 +133,28 @@ export function withAge(archetype: Archetype, years: number): Archetype {
   const way = years < 0 ? "younger" : "older";
   const steps = Array.from({ length: Math.abs(years) }, (_, at) => `${way}-${String(Math.abs(years) - at)}`);
   return { ...archetype, preset: { ...archetype.preset, age: [...steps, "as-is"] } };
+}
+
+/** The homes the door offers (R-PROLOGUE-013): the home step's answers that play backs (R-HOME-001). */
+export const HOMES = ["family-house", "makoko"] as const;
+export type Home = (typeof HOMES)[number];
+
+/** The home a tile starts in unless the player picks the other: its own preset's, else the family house. */
+export function homeOf(archetype: Archetype): Home {
+  const own = archetype.preset["home"]?.[0];
+  return HOMES.find((home) => home === own) ?? "family-house";
+}
+
+/** The tile with the home picked on the door as its home step's preset (R-PROLOGUE-010, 013). */
+export function withHome(archetype: Archetype, home: string | null | undefined): Archetype {
+  const picked = HOMES.find((one) => one === home);
+  return picked === undefined ? archetype : { ...archetype, preset: { ...archetype.preset, home: [picked] } };
+}
+
+/** The naira in kobo a tile's life holds at its close, from content's `prologue.archetype.<id>.savings` (whole naira), kept honest by a test. */
+export function savingsOf(archetype: Pick<Archetype, "id">): number {
+  const figure = Number(say(`prologue.archetype.${archetype.id}.savings`));
+  return Number.isInteger(figure) ? figure * 100 : 0;
 }
 
 /** The archetype's own answer at this card while one of them is allowed, else null: a draw has shut them (R-PROLOGUE-010). */

@@ -519,7 +519,7 @@ describe("a life from sixteen", () => {
   });
 
   test("[R-HOME-002] [R-PROLOGUE-012] given a life from sixteen that moved to Makoko, when it moves back, then the family house takes it at the home card's charge for the family house, and the family talks", () => {
-    const game = fromSixteen("room", NEVER);
+    const game = fromSixteen("family-house", NEVER);
     expect(game.state.prologue.open).toBe(false);
     game.accept({ type: "home/move", to: MAKOKO });
     month(game);

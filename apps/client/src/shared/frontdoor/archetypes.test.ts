@@ -180,24 +180,22 @@ describe("every tile's promise is kept by the life it starts", () => {
     expect(wrong).toEqual([]);
   });
 
-  test("[R-PROLOGUE-010] [R-GUIDE-016] [R-ROAD-012] given the trader and the shop worker over many seeds, when each hands over, then the first step is asking around at the motor park, the first ask-around hears of the Gulf contract, and the road's pitches can reach him at home", () => {
+  test("[R-PROLOGUE-010] [R-ROAD-012] given the trader and the shop worker over many seeds, when each hands over, then the Gulf contract was heard at the send-off from the drivers, nothing sends him to the motor park to hear it again, and asking around there still lets the road's pitch reach him at home", () => {
     const wrong: string[] = [];
     for (const archetype of ARCHETYPES.filter((one) => one.id === "trader" || one.id === "shop-worker")) {
+      expect(archetype.preset["friend"]).toEqual(["drivers"]);
       for (let at = 0; at < SEEDS; at += 1) {
         const { game, kept } = play(archetype, `${archetype.id}-${String(at)}`);
         // A city family keeps a child from the master, and the child goes to university instead.
         if (!kept) continue;
         const view = game.view();
-        if (nextStepOf(view) !== "heard") wrong.push(`${archetype.id} ${String(at)}: first step ${String(nextStepOf(view))}`);
-        const way = ownWayOf(view);
-        if (way?.place !== "place.ojuelegba" || way.thing !== "motor-park" || way.activity !== "activity.ask-around") wrong.push(`${archetype.id} ${String(at)}: the first step's way is ${JSON.stringify(way)}`);
+        if (routeState(game, "route.gulf-contract") !== "heard") wrong.push(`${archetype.id} ${String(at)}: the Gulf is ${routeState(game, "route.gulf-contract")} at the handover`);
+        if (nextStepOf(view) === "heard") wrong.push(`${archetype.id} ${String(at)}: still to hear of a way out`);
+        if (ownWayOf(view)?.thing === "motor-park") wrong.push(`${archetype.id} ${String(at)}: sent to the motor park to hear of the Gulf again`);
         // The man at the park asks only someone who has asked around there this month: judged once he has, before the month ends.
         game.accept({ type: "activity/now", activity: "activity.ask-around", param: null });
         const read = { state: game.state, world: game.world(), content };
         if (!allMet(read, content.offer["offer.road-park"]?.when ?? [])) wrong.push(`${archetype.id} ${String(at)}: the road's pitch cannot reach him`);
-        game.endTurn([]);
-        if (routeState(game, "route.gulf-contract") === "unknown") wrong.push(`${archetype.id} ${String(at)}: the Gulf unheard after the first ask-around`);
-        if (ownWayOf(game.view()) !== null) wrong.push(`${archetype.id} ${String(at)}: still sent to the motor park`);
       }
     }
     expect(wrong).toEqual([]);
@@ -332,7 +330,7 @@ describe("the child of the water (R-PROLOGUE-012)", () => {
   const water = archetypeOf(WATER)!;
 
   test("[R-PROLOGUE-012] given the child of the water over many seeds, when its preset is played, then every life keeps its path, school then the shop counter with no master, and closes in Makoko's room at the page's rent with nothing else owed, the family house there to go back to", () => {
-    expect(water.preset).toMatchObject({ subjects: ["commercial"], "after-school": ["work"], shop: ["save"], friend: ["nowhere"], home: ["makoko"] });
+    expect(water.preset).toMatchObject({ subjects: ["commercial"], "after-school": ["work"], shop: ["save"], friend: ["drivers"], home: ["makoko"] });
     expect(water.preset["master"]).toBeUndefined();
     const wrong: string[] = [];
     for (let at = 0; at < SEEDS; at += 1) {
@@ -381,31 +379,25 @@ describe("the child of the water (R-PROLOGUE-012)", () => {
     expect(reached).toEqual({ water: lives, home: 0 });
   });
 
-  test("[R-PROLOGUE-012] [R-GUIDE-016] given the child of the water over many seeds, when it hands over, then the chapter's step is asking around at the motor park (the handover says the racks first while they are work at hand, R-ACTIVITY-017), its first ask-around hears of the Gulf in at least the trader's share of seeds, and the road's pitches can reach it at home", () => {
+  test("[R-PROLOGUE-012] [R-ROAD-012] given the child of the water over many seeds, when it hands over, then the Gulf was heard at the send-off from the drivers, the racks beside the room are the first work at hand (R-ACTIVITY-017), and asking around at the motor park lets the road's pitch reach it at home", () => {
     expect(water.routes).toEqual(["route.gulf-contract", "route.road"]);
-    const heard = { water: 0, trader: 0 };
-    const kept = { water: 0, trader: 0 };
+    expect(water.preset["friend"]).toEqual(["drivers"]);
     const wrong: string[] = [];
-    for (const [who, archetype] of [["water", water], ["trader", archetypeOf("trader")!]] as const) {
-      for (let at = 0; at < SEEDS; at += 1) {
-        const played = play(archetype, `${archetype.id}-${String(at)}`);
-        if (!played.kept) continue;
-        kept[who] += 1;
-        const { game } = played;
-        const view = game.view();
-        const way = ownWayOf(view);
-        if (who === "water" && (nextStepOf(view) !== "heard" || way?.thing !== "motor-park" || way.activity !== "activity.ask-around")) wrong.push(`${String(at)}: the first step's way is ${JSON.stringify(way)}`);
-        // The man at the park asks only someone who has asked around there this month: judged once she has, before the month ends.
-        game.accept({ type: "activity/now", activity: "activity.ask-around", param: null });
-        const read = { state: game.state, world: game.world(), content };
-        if (who === "water" && !allMet(read, content.offer["offer.road-park"]?.when ?? [])) wrong.push(`${String(at)}: the road's pitch cannot reach it`);
-        game.endTurn([]);
-        if (routeState(game, "route.gulf-contract") !== "unknown") heard[who] += 1;
-      }
+    let kept = 0;
+    for (let at = 0; at < SEEDS; at += 1) {
+      const played = play(water, `${water.id}-${String(at)}`);
+      if (!played.kept) continue;
+      kept += 1;
+      const { game } = played;
+      const view = game.view();
+      if (routeState(game, "route.gulf-contract") !== "heard") wrong.push(`${String(at)}: the Gulf is ${routeState(game, "route.gulf-contract")}`);
+      if (ownWayOf(view)?.thing === "motor-park") wrong.push(`${String(at)}: sent to the motor park to hear of the Gulf again`);
+      game.accept({ type: "activity/now", activity: "activity.ask-around", param: null });
+      const read = { state: game.state, world: game.world(), content };
+      if (!allMet(read, content.offer["offer.road-park"]?.when ?? [])) wrong.push(`${String(at)}: the road's pitch cannot reach it`);
     }
     expect(wrong).toEqual([]);
-    expect(kept.water).toBe(SEEDS);
-    expect(heard.water * kept.trader).toBeGreaterThanOrEqual(heard.trader * kept.water);
+    expect(kept).toBe(SEEDS);
   });
 
   test("[R-PROLOGUE-012] [R-HOME-003] [R-HOME-004] given the child of the water over many lives, when the settlement is cleared, then the same month a relative in Lagos takes it in with no rent, and it is never left with nowhere to go", () => {

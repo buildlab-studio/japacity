@@ -49,7 +49,7 @@ describe("the path the life from sixteen took", () => {
 
 describe("the first step for a trader with capital", () => {
   test("[R-PROLOGUE-008] given a settled trader who heard of no way out, when the first step is read, then it is the meetup, then the official page, before the jobs board", () => {
-    const { view } = play("sixteen-0", (allowed) => ["apprentice", "spare-parts", "stay", "settle", "nowhere", "room"].find((id) => allowed.includes(id)) ?? allowed[0] ?? "");
+    const { view } = play("sixteen-0", (allowed) => ["apprentice", "spare-parts", "stay", "settle", "nowhere", "family-house"].find((id) => allowed.includes(id)) ?? allowed[0] ?? "");
     expect(sixteenPath(view)).toBe("capital");
     expect(view.chapter.current).toBe("chapter.find-your-feet");
     expect(view.chapter.items.find((item) => item.id === "job")?.met).toBe(false);

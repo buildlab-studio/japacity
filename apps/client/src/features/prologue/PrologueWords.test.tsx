@@ -121,8 +121,8 @@ describe("the page as the handover", () => {
 });
 
 describe("the life from sixteen keeps the story its prologue built", () => {
-  /** Spare parts under a master, the settlement, no way out heard at the send-off, and a room of his own. */
-  const TRADER = ["apprentice", "spare-parts", "stay", "settle", "nowhere", "room"];
+  /** Spare parts under a master, the settlement, no way out heard at the send-off, and the family house. */
+  const TRADER = ["apprentice", "spare-parts", "stay", "settle", "nowhere", "family-house"];
   const trader = (allowed: readonly string[]) => TRADER.find((id) => allowed.includes(id)) ?? allowed[0] ?? "";
 
   test("[R-PROLOGUE-008] given a generous settlement, when the send-off card shows what happened, then the money is named as the settlement, not as side work", async () => {
@@ -133,7 +133,7 @@ describe("the life from sixteen keeps the story its prologue built", () => {
     expect(afterSettlement).not.toContain("side work");
   });
 
-  test("[R-TEXT-005] [R-PROLOGUE-010] [R-PROLOGUE-014] given a trader settled generously, in a room of his own, when the page shows, then the settlement's plot is said in words with no figure, the capital is a chip with its sum, the room and its living costs are said, and the motor park comes first", async () => {
+  test("[R-TEXT-005] [R-PROLOGUE-010] [R-PROLOGUE-014] given a trader settled generously, at the family house, when the page shows, then the settlement's plot is said in words with no figure, the capital is a chip with its sum, the house and its living costs are said, and the motor park comes first", async () => {
     const { game } = await walk("sixteen-0", trader);
     await screen.findByRole("heading", { name: words("line.prologue.closed") });
     const view = game.view();
@@ -143,7 +143,7 @@ describe("the life from sixteen keeps the story its prologue built", () => {
     expect(settlement?.textContent).toMatch(/plot/);
     expect(settlement?.textContent).not.toMatch(/\d/);
     expect(storyChip("capital")).toBe("A shop's capital₦6,000,000");
-    expect(storyChip("home")).toBe("A room of your own₦180,000 a month");
+    expect(storyChip("home")).toBe("Family house₦95,000 a month");
     // the Gulf is heard at the motor park, so a trade's first step is there, not at the meetup.
     expect(document.querySelector("[data-first-step]")?.textContent).toBe("Your first step: Ask around at the motor park.");
   });

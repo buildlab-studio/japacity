@@ -16,20 +16,19 @@ function upkeepOf(answer: string): number {
 }
 
 describe("the home card", () => {
-  test("[R-PROLOGUE-009] given the card that asks where you sleep, when its answers show, then each says its living costs a month, as every other card says its cost", async () => {
+  test("[R-PROLOGUE-009] [R-PROLOGUE-013] given the card that asks where you sleep, when its answers show, then there are the family house and Makoko only, and each says its living costs a month, as every other card says its cost", async () => {
     const house = formatMoney(upkeepOf("family-house"), "NGN");
-    const room = formatMoney(upkeepOf("room"), "NGN");
+    const makoko = formatMoney(upkeepOf("makoko"), "NGN");
+    expect(content.prologue.home?.answers.map((answer) => answer.id)).toEqual(["family-house", "makoko"]);
     expect(answerHint("home", "family-house")).toBe(`Living costs: ${house} a month.`);
-    expect(answerHint("home", "room")).toBe(`Living costs: ${room} a month.`);
     expect(house).toBe("₦95,000");
-    expect(room).toBe("₦180,000");
+    expect(makoko).toBe("₦25,000");
     const base = engineView("scenario.prologue");
-    const view = { ...base, prologue: { step: "home", answers: [{ id: "family-house", allowed: true }, { id: "room", allowed: false }], lastOutcome: null, draw: null } };
+    const view = { ...base, prologue: { step: "home", answers: [{ id: "family-house", allowed: true }, { id: "makoko", allowed: true }], lastOutcome: null, draw: null } };
     await renderWithView(<PrologueView />, view);
     const shown = document.querySelector("[data-prologue-card]")?.textContent ?? "";
     expect(shown).toContain(`Living costs: ${house} a month.`);
-    // Shut for want of cash, the room still says what it would cost.
-    expect(shown).toContain(`Living costs: ${room} a month.`);
+    expect(shown).toContain(`Living costs: ${makoko} a month.`);
   });
 });
 

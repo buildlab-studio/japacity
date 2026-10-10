@@ -101,6 +101,8 @@ export const prologueText: Record<string, string> = {
   "prologue.friend.answer.care.hint": "They talk of care homes abroad that sponsor.",
   "prologue.friend.answer.care.why": "you have no care behind you to follow them.",
   "prologue.friend.answer.nowhere": "Dance and go home",
+  "prologue.friend.answer.drivers": "The drivers",
+  "prologue.friend.answer.drivers.hint": "They talk of Dubai.",
   "prologue.friend.answer.tech.why": "you do not know enough tech to follow them.",
 
   // The age card (R-PROLOGUE-009): the front door's age in steps, sent by the tile; it shows only in the full prologue.
@@ -133,9 +135,6 @@ export const prologueText: Record<string, string> = {
   "prologue.home.answer.family-house.hint": "Living costs: {amount} a month.",
   "prologue.home.answer.makoko": "A room in Makoko",
   "prologue.home.answer.makoko.hint": "Living costs: {amount} a month. Some months the settlement is cleared.",
-  "prologue.home.answer.room": "Your own room",
-  "prologue.home.answer.room.hint": "Living costs: {amount} a month.",
-  "prologue.home.answer.room.why": "a room needs {amount} in cash, and you do not have it.",
 
   "prologue.master.card": "Your uncle has spoken to a man with a shop.",
   "prologue.master.answer.electronics": "Electronics",
@@ -157,30 +156,39 @@ export const prologueText: Record<string, string> = {
   "prologue.shop.answer.save": "Save every naira",
 
   // The archetypes (R-PROLOGUE-010): the tile's name, what it was, what it opens with the age it hands over at
-  // (the middle of its lives over many seeds, in whole years: the archetypes' test reads it); and the handover's line.
+  // (the middle of its lives over many seeds, in whole years: the archetypes' test reads it); the naira its life holds at
+  // the close, in whole naira, the door's "what it leaves in the pocket" (R-PROLOGUE-013: the savings test keeps it within a
+  // quarter of its lives' median); and the handover's line.
   "prologue.archetype.developer.name": "The developer",
   "prologue.archetype.developer.was": "Science, then computer science",
   "prologue.archetype.developer.opens": "Opens: tech work in the UK, a master's. Hands over at about 24",
+  "prologue.archetype.developer.savings": "500000",
   "prologue.archetype.nurse.name": "The nurse",
   "prologue.archetype.nurse.was": "Science, then nursing school",
   "prologue.archetype.nurse.opens": "Opens: care work in the UK, the Gulf. Hands over at about 24",
+  "prologue.archetype.nurse.savings": "500000",
   "prologue.archetype.accountant.name": "The accountant",
   "prologue.archetype.accountant.was": "Commercial, then accounting",
   "prologue.archetype.accountant.opens": "Opens: Canada's points, skilled work in the UK. Hands over at about 24",
+  "prologue.archetype.accountant.savings": "1050000",
   "prologue.archetype.writer.name": "The writer",
   "prologue.archetype.writer.was": "Arts, then mass communication",
   "prologue.archetype.writer.opens": "Opens: a UK master's, Canada's points. Hands over at about 24",
+  "prologue.archetype.writer.savings": "500000",
   "prologue.archetype.trader.name": "The trader",
   "prologue.archetype.trader.was": "Six years under a spare parts master",
   "prologue.archetype.trader.opens": "Opens: a Gulf contract, the road through the desert to Europe. Hands over at about 24",
+  "prologue.archetype.trader.savings": "2500000",
   "prologue.archetype.shop-worker.name": "The shop worker",
   "prologue.archetype.shop-worker.was": "Straight from school to a shop counter",
   "prologue.archetype.shop-worker.opens": "Opens: a Gulf contract, the road through the desert to Europe. Hands over at about 22",
+  "prologue.archetype.shop-worker.savings": "500000",
   // R-PROLOGUE-012: the child of the water starts in a room in Makoko. Its nudges, for the first chapter's table:
   // `job` while it has no work, `heard` while no way out is heard of, `shop` once a shop's capital is in hand.
   "prologue.archetype.water.name": "The child of the water",
   "prologue.archetype.water.was": "Grew up in Makoko. A canoe to school, then the fish racks",
   "prologue.archetype.water.opens": "Opens: a Gulf contract, the road through the desert to Europe. Hands over at about 22",
+  "prologue.archetype.water.savings": "500000",
   "prologue.archetype.water.nudge.job": "Find work in town. The rent on the water is small, so most of the pay stays.",
   "prologue.archetype.water.nudge.heard": "Paddle to the bridge and ask around at the motor park.",
   "prologue.archetype.water.nudge.shop": "That is a shop's capital. Take a stall at the market.",
@@ -275,7 +283,6 @@ export const prologueText: Record<string, string> = {
   // where the character sleeps and what it costs, and a first step in the handover's own words where the nudge's do not fit.
   "prologue.handover.capital": "{amount} in hand, the shop's capital. It is the move's money now, if you want it to be.",
   "prologue.handover.home.family-house": "You sleep in the family house. Living costs: {amount} a month.",
-  "prologue.handover.home.room": "You sleep in a room of your own. Living costs: {amount} a month.",
   "prologue.handover.home.makoko": "You sleep in a room on the water in Makoko. Living costs: {amount} a month.",
   "prologue.handover.step.heard": "Go to the meetup in Yaba and hear of a way out",
   // A life's own first step where its archetype has a place for it: `step.<step>.<way>`.

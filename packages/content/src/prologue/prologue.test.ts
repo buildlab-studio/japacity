@@ -186,7 +186,9 @@ describe("the prologue's steps", () => {
     });
     expect(draw("settlement", "settle")?.[0]?.effects).toContainEqual({ type: "money/add", currency: "NGN", pocket: "cash", amount: 600000000, reason: "gig" });
     expect(effects("home", "family-house")).toContainEqual({ type: "obligation/open", obligation: "obligation.upkeep", amount: 9500000 });
-    expect(effects("home", "room")).toContainEqual({ type: "obligation/open", obligation: "obligation.upkeep", amount: 18000000 });
+    // The home step offers only the homes play backs (R-HOME-001): the family house and Makoko, chosen on the door (R-PROLOGUE-013).
+    expect(content.prologue["home"]?.answers.map((answer) => answer.id)).toEqual(["family-house", "makoko"]);
+    expect(effects("friend", "drivers")).toEqual([{ type: "route/hear", route: "route.gulf-contract", via: "friend" }]);
     expect(content.tuning.prologue.startAgeMonths).toBe(192);
   });
 });

@@ -9,7 +9,7 @@ import { keepPerson } from "../../authority/person";
 import { createGameStore } from "../../authority/store";
 import { archetypeOf, doorAnswer } from "../../shared/frontdoor/archetypes";
 import { gameAuthority, newGame } from "../../shared/testing/fixtures";
-import { RACKS, RACKS_STEP, racksAtHand } from "../../shared/words/sixteen";
+import { nextStepOf, RACKS, RACKS_STEP, racksAtHand } from "../../shared/words/sixteen";
 import { say } from "../../shared/words/text";
 import { drawSentences, firstStep, PageHandover } from "./PrologueView";
 // Registers Testing Library's cleanup for this file.
@@ -87,7 +87,7 @@ describe("the child of the water's first step", () => {
     expect(document.querySelector("[data-first-step]")?.textContent).toBe(say("prologue.handover.first", { step: say(RACKS_STEP) }));
   });
 
-  test("[R-PROLOGUE-012] [R-ACTIVITY-017] [R-WORLD-003] given the child of the water at the racks, when its next step is read, then the motor park comes after, on the handover's words and the band's", () => {
+  test("[R-PROLOGUE-012] [R-ACTIVITY-017] [R-WORLD-003] given the child of the water at the racks, with the Gulf heard from the drivers at its send-off, when its next step is read, then the racks are behind it and nothing sends it to the motor park to hear of the Gulf again", () => {
     const game = play("water", "water-step-0");
     for (let month = 0; month < 6 && game.state.activity.job !== RACKS; month += 1) {
       game.endTurn([{ activity: HUNT, param: RACKS }]);
@@ -96,7 +96,10 @@ describe("the child of the water's first step", () => {
     }
     expect(game.state.activity.job).toBe(RACKS);
     const view = game.view();
-    expect(firstStep(view)).toBe(say("prologue.handover.step.heard.motor-park"));
+    expect(view.routes.find((route) => route.id === "route.gulf-contract")?.state).toBe("heard");
+    expect(nextStepOf(view)).not.toBe("heard");
+    expect(firstStep(view)).not.toBe(say("prologue.handover.step.heard.motor-park"));
+    expect(firstStep(view)).not.toBe(say(RACKS_STEP));
     expect(racksAtHand(view)).toBe(false);
   });
 
