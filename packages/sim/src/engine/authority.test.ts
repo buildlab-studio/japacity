@@ -163,6 +163,11 @@ function playerSamples(state: State, world: World): Record<PlayerCommand, Loose[
       { type: "home/move", to: "place.makoko" },
       { type: "home/move", to: "place.family-house" },
     ],
+    // docs/rules/chapter.md R-CHAPTER-009: the plan chosen, never money.
+    "chapter/lean": [
+      { type: "chapter/lean", route: "route.uk-care" },
+      { type: "chapter/lean", route: "route.uk-masters" },
+    ],
   };
 }
 

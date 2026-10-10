@@ -38,6 +38,7 @@ export const VIEW_KEYS = [
   "obligations",
   "offers",
   "chapter",
+  "plan",
   "news",
   "report",
   "place",

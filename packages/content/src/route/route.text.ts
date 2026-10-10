@@ -105,6 +105,31 @@ export const routeText: Record<string, string> = {
   "route.gulf-contract.item.police": "Police certificate held",
   "route.gulf-contract.item.applied": "Papers sent to the employer",
 
+  // The plan the chapters follow and the switch between ways (chapter.md R-CHAPTER-009). First drafts.
+  // Each way's name inside a sentence ("Instead of care work"), and the file its chapters build.
+  "route.uk-care.short": "care work",
+  "route.uk-masters.short": "the master's",
+  "route.uk-talent.short": "the talent visa",
+  "route.canada-points.short": "the points",
+  "route.gulf-contract.short": "the Gulf",
+  "route.uk-care.file": "The care file",
+  "route.uk-masters.file": "The master's file",
+  "route.uk-talent.file": "The talent file",
+  "route.canada-points.file": "The points file",
+  "route.gulf-contract.file": "The Gulf file",
+  // {change} is the figure's rise or fall, signed: "+6", "-12".
+  "route.plan.instead": "Instead of {plan}: {change} japacity",
+  "route.plan.same": "Instead of {plan}: the same japacity",
+  "route.plan.keep": "Keep mine",
+  "route.plan.back": "Back",
+  "route.plan.make": "Make this the plan",
+  "route.plan.mine": "This is your plan.",
+  "route.plan.next": "Your file follows this way from the next chapter.",
+  // The plan's marks in Coming up: what waits on a date for the plan's way.
+  "route.plan.mark.school": "{school}'s answer",
+  "route.plan.mark.pool": "Your profile in the pool runs out",
+  "route.plan.mark.endorsement": "You can ask for the endorsement again",
+
   // The road is never named to the player (road.md). This name is for the ledger and the end card only.
   "route.road.name": "The road",
   "route.road.blurb": "A way north that the man at the park does not describe.",

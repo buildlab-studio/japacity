@@ -5,13 +5,14 @@
 import { content } from "@japacity/content";
 import type { PlayerView } from "@japacity/sim";
 
+import { planMarks } from "../../shared/words/plan";
 import { nameOf, say, words } from "../../shared/words/text";
 
 export interface Coming {
   what: string;
   /** The month it comes, in the simulation's count; said as months away. */
   month: number;
-  kind: "offer" | "paper" | "visa" | "birthday" | "age-limit";
+  kind: "offer" | "paper" | "visa" | "birthday" | "age-limit" | "plan";
 }
 
 const AGE = "quality.age-months";
@@ -24,13 +25,15 @@ export function ageMonthsOf(view: Pick<PlayerView, "qualities">): number {
 }
 
 /** Everything coming with a month to it, soonest first; nothing past. */
-export function comingOf(view: Pick<PlayerView, "month" | "offers" | "documents" | "routes" | "qualities">): Coming[] {
+export function comingOf(view: Pick<PlayerView, "month" | "offers" | "documents" | "routes" | "qualities" | "plan">): Coming[] {
   const list: Coming[] = [];
   for (const offer of view.offers) list.push({ what: words(`${offer.entry}.name`), month: offer.expiresMonth, kind: "offer" });
   for (const paper of view.documents) if (paper.state === "pending" && paper.readyMonth !== null) list.push({ what: nameOf(paper.id), month: paper.readyMonth, kind: "paper" });
   for (const route of view.routes) {
     if (route.visa !== null && (route.state === "applying" || route.state === "known")) list.push({ what: nameOf(route.id), month: route.visa.decisionMonth, kind: "visa" });
   }
+  // The plan's own dated waits (R-CHAPTER-009): a school's answer, the points profile, the endorsement's wait.
+  for (const mark of planMarks(view)) list.push({ what: mark.what, month: mark.month, kind: "plan" });
   const age = ageMonthsOf(view);
   const toBirthday = MONTHS_IN_YEAR - (age % MONTHS_IN_YEAR);
   list.push({ what: say("ui.world.coming.birthday", { age: Math.floor(age / MONTHS_IN_YEAR) + 1 }), month: view.month + toBirthday, kind: "birthday" });
@@ -45,7 +48,7 @@ export function comingOf(view: Pick<PlayerView, "month" | "offers" | "documents"
 }
 
 /** The kinds the band's chip may say: things to answer or wait on. The birthday and an age limit stand only in the list, so the chip never peeks for them. */
-const CHIP_KINDS: ReadonlySet<Coming["kind"]> = new Set(["offer", "paper", "visa"]);
+const CHIP_KINDS: ReadonlySet<Coming["kind"]> = new Set(["offer", "paper", "visa", "plan"]);
 
 /** The soonest thing to answer or wait on, for the band's chip; null when there is none. */
 export function soonest(view: Parameters<typeof comingOf>[0]): Coming | null {

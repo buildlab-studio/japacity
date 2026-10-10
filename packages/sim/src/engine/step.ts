@@ -51,6 +51,7 @@ export const COMMAND_OWNER: Record<PrefixOf<CommandType>, SliceKey> = {
   return: "place",
   place: "place",
   home: "home",
+  chapter: "chapter",
 };
 
 export function commandOwner(type: CommandType): SliceKey {
