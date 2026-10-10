@@ -2,6 +2,7 @@
 // lives, the monthly charge, the move with its reason when it is shut, and a guest's host. The
 // risk of the water is said once, plainly.
 import { content } from "@japacity/content";
+import { int } from "@japacity/sim";
 import { act, fireEvent, render } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
@@ -123,6 +124,47 @@ describe("the home card", () => {
     applyEffects(game, [{ type: "place/move", to: "abroad", country: "country.uk" }]);
     const { card, unmount } = await openBills(game);
     expect(card()).toBeNull();
+    unmount();
+  });
+});
+
+describe("the room in a compound on the card (R-HOME-010)", () => {
+  const MOVE_IN = content.tuning.home.compound.rentYear + int.bp(content.tuning.home.compound.rentYear, content.tuning.home.compound.feesBp);
+  const LIVING = content.tuning.home.compound.upkeep;
+
+  test("[R-HOME-010] [R-HOME-008] given Ada with the year's rent and fees, when she rents the room from the card, then the button says what it takes now, the ask says the year and fees and the month's living, and once confirmed she lives there at the room's charge", async () => {
+    const game = newGame();
+    setPockets(game, { NGN: 1_000_000_00 });
+    const { card, unmount } = await openBills(game);
+    const button = moveButton("place.compound-room");
+    expect(button?.disabled).toBe(false);
+    expect(button?.textContent).toBe(`${phoneWords("phone.home.move.place.compound-room")}: ${formatMoney(MOVE_IN, "NGN")}`);
+    fireEvent.click(button!);
+    const asked = document.querySelector("[data-ask]")?.textContent ?? document.body.textContent ?? "";
+    expect(asked).toContain(phoneWords("phone.home.move.line.place.compound-room", { amount: { currency: "NGN", amount: LIVING }, now: { currency: "NGN", amount: MOVE_IN } }));
+    expect(asked).toContain(formatMoney(MOVE_IN, "NGN"));
+    const confirm = document.querySelector<HTMLButtonElement>("[data-ask-main]");
+    await act(async () => {
+      fireEvent.click(confirm!);
+      await Promise.resolve();
+    });
+    expect(game.state.home.place).toBe("place.compound-room");
+    const said = card()?.textContent ?? "";
+    expect(said).toContain(phoneWords("phone.home.place.place.compound-room"));
+    expect(said).toContain(formatMoney(LIVING, "NGN"));
+    expect(times(said, RISK)).toBe(1);
+    expect(moveButton("place.family-house")?.disabled).toBe(true);
+    unmount();
+  });
+
+  test("[R-HOME-010] [R-HOME-008] given Ada short of the year's rent and fees, when Bills opens, then the move to the room is shut and says it needs the year's rent and fees, not a month's", async () => {
+    const game = newGame();
+    setPockets(game, { NGN: MOVE_IN - 100 });
+    const { unmount } = await openBills(game);
+    expect(moveButton("place.compound-room")?.disabled).toBe(true);
+    const shut = document.querySelector('[data-home-shut="place.compound-room"]')?.textContent;
+    expect(shut).toBe(phoneWords("phone.home.shut.short.place.compound-room", { amount: { currency: "NGN", amount: MOVE_IN } }));
+    expect(shut).toContain(formatMoney(MOVE_IN, "NGN"));
     unmount();
   });
 });
