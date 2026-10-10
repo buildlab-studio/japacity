@@ -1,7 +1,7 @@
 // pnpm play --out <folder> [--life developer] [--months 3]
-// Plays the game on a phone-sized browser from the front door: an archetype's tile (or a ready life),
-// a name, the years before, the opening words and the ride to the first stop, then each month: the
-// nudge followed, the month ended, the results read. Last it opens every app on the phone. It takes a
+// Plays the game on a phone-sized browser from the front door: the name it fills, an archetype's tile (or a
+// ready life), the page and Begin, the page filling as the years go by and opening the world by itself, the
+// first chapter's title, then each month: the nudge followed, the month ended, the results read. Last it opens every app on the phone. It takes a
 // picture at each step into the folder given and prints a plain log, also saved there as play.log.
 // It changes nothing in the repository. See tools/play/README.md.
 import { type ChildProcess, spawn } from "node:child_process";
@@ -102,35 +102,34 @@ async function placeDrawn(run: Run): Promise<void> {
 
 async function frontDoor(run: Run, button: string): Promise<boolean> {
   const { page, options } = run;
-  if (options.skipWalkthrough) await page.addInitScript({ content: 'localStorage.setItem("japacity.walkthrough", "1");' });
+  if (options.played) await page.addInitScript({ content: 'localStorage.setItem("japacity.walkthrough", "1");' });
   await page.goto("/");
+  // The ready lives are behind Settings (prologue.md R-PROLOGUE-013): the driver asks for them as Settings does, then opens the door again.
+  if (options.ready) {
+    await page.evaluate(() => localStorage.setItem("japacity.door.ready", "1"));
+    await page.reload();
+  }
   const next = page.getByRole("button", { name: /^Next/ });
   if (!(await appear(next, LONG))) {
     problem(run, "the front door did not open");
     return false;
   }
   log(run, `front door: ${await words(page.locator("[data-gate-sheet]"))}`);
+  log(run, `name filled: ${await page.getByRole("textbox", { name: "Your name" }).inputValue().catch(() => "")}`);
   await shot(run, "front door");
   if (!(await tap(run, next, "Next"))) return false;
 
-  if (options.ready && !(await tap(run, page.getByRole("button", { name: /^Start from a ready life/ }), "Start from a ready life"))) return false;
-  await shot(run, options.ready ? "ready lives" : "archetypes");
-  if (!(await tap(run, page.getByRole("button", { name: button, exact: true }), button))) return false;
+  await shot(run, options.ready ? "ready lives" : "your life so far");
+  if (!(await tap(run, page.getByRole(options.ready ? "button" : "radio", { name: button, exact: true }), button))) return false;
   log(run, `picked ${button}`);
-
-  const names = page.getByRole("group", { name: "Names to take" }).getByRole("button");
-  if (!(await appear(names, LONG))) {
-    problem(run, "no names were offered");
+  if (!options.ready) {
+    log(run, `age: ${await words(page.locator("[data-door-age]"))}`);
+    if (!(await tap(run, page.getByRole("button", { name: /^Next/ }), "Next to the page"))) return false;
+  }
+  if (!(await appear(page.getByRole("button", { name: /^Begin/ }), LONG))) {
+    problem(run, "the page never came");
     return false;
   }
-  log(run, `name taken: ${await words(names)}`);
-  await tap(run, names, "a name");
-  const age = page.getByRole("button", { name: /^Next Your age/ });
-  if (await shown(age)) {
-    await tap(run, age, "Next to the age");
-    log(run, `age: ${await words(page.locator("[data-gate-sheet]"))}`);
-  }
-  if (!(await tap(run, page.getByRole("button", { name: /^Print my page/ }), "Print my page", LONG))) return false;
   await shot(run, "your page");
   if (!(await tap(run, page.getByRole("button", { name: /^Begin/ }), "Begin"))) return false;
   await page.locator("[data-door-progress]").waitFor({ state: "detached", timeout: LONG }).catch(() => undefined);
@@ -138,34 +137,36 @@ async function frontDoor(run: Run, button: string): Promise<boolean> {
   return true;
 }
 
-/** The years before, card by card (the first answer each time), to the handover and its Go. */
+/**
+ * The years before: the page fills as the presets run, with no card (prologue.md R-PROLOGUE-010, 014), then opens
+ * the world by itself. A card is a problem now; it is answered with its first answer so the run goes on.
+ */
 async function yearsBefore(run: Run): Promise<void> {
   const { page } = run;
   const band = page.locator("[data-band]");
-  const opening = page.locator("[data-opening-go]");
-  const handover = page.locator("[data-prologue-handover]");
+  const handover = page.locator("[data-page-handover]");
   const answer = page.locator("[data-prologue-card] [data-answer] button:enabled");
-  for (let card = 0; card < 80; card += 1) {
-    if ((await shown(band)) || (await shown(opening))) return;
+  for (let wait = 0; wait < 80; wait += 1) {
+    if (await shown(band)) return;
     if (await shown(handover)) {
-      log(run, `handover: ${await words(handover, 300)}`);
-      await shot(run, "handover");
-      await tap(run, page.getByRole("button", { name: "Go", exact: true }), "Go on the handover");
+      log(run, `page: ${await words(handover, 400)}`);
+      await page.waitForTimeout(1_200);
+      await shot(run, "your page filled");
+      if (await appear(band, 6_000)) {
+        log(run, "the world opened by itself");
+        return;
+      }
+      await tap(run, page.getByRole("button", { name: "Go", exact: true }), "Go on the page");
       return;
     }
-    if (!(await shown(answer))) {
-      await page.waitForTimeout(300);
+    if (await shown(answer)) {
+      problem(run, `a card showed for a new life: ${oneLine(await page.locator("[data-prologue-card]").first().innerText({ timeout: SHORT }).catch(() => ""), 160)}`);
+      await tap(run, answer, await words(answer, 60));
       continue;
     }
-    const before = await page.locator("[data-prologue]").first().getAttribute("data-v").catch(() => null);
-    const question = oneLine((await page.locator("[data-prologue-card]").first().innerText({ timeout: SHORT }).catch(() => "")).split("\n").find((line) => line.trim() !== "") ?? "", 160);
-    const picked = await words(answer, 60);
-    if (card === 0) await shot(run, "first card");
-    await tap(run, answer, picked);
-    log(run, `card ${String(card + 1)}: ${question} -> ${picked}`);
-    if (before !== null) await page.locator(`[data-prologue][data-v="${before}"]`).waitFor({ state: "detached", timeout: SHORT }).catch(() => undefined);
+    await page.waitForTimeout(300);
   }
-  problem(run, "the years before did not end in 80 cards");
+  problem(run, "the page never handed over");
 }
 
 /** A ride the story or the nudge picked on the map: Go by danfo, a picture on the way, then Skip. */
@@ -186,7 +187,7 @@ async function ride(run: Run): Promise<void> {
   log(run, `arrived: ${await words(page.locator("[data-band]"))}`);
 }
 
-/** The chapter's opening words: Go takes the step, which opens the map with the stop picked; the ride follows. */
+/** A later chapter's opening card: Go takes the step, which opens the map with the stop picked; the ride follows. */
 async function openingWords(run: Run): Promise<void> {
   const { page } = run;
   log(run, `opening words: ${await words(page.locator("[data-opening]"), 300)}`);
@@ -197,21 +198,19 @@ async function openingWords(run: Run): Promise<void> {
   else if (await shown(page.locator("[data-map-close]"))) await tap(run, page.locator("[data-map-close]"), "Close the map");
 }
 
-/** Anything standing over the world before the player can act: opening words, the walkthrough, a card. */
+/** Anything standing over the world before the player can act: the first chapter's title, a later chapter's card, a card. */
 async function settle(run: Run, when: string): Promise<void> {
   const { page } = run;
   for (let step = 0; step < 12; step += 1) {
-    if (await shown(page.locator("[data-opening-go]"))) {
-      await openingWords(run);
+    const title = page.locator("[data-opening-title]");
+    if (await shown(title)) {
+      log(run, `chapter title: ${await words(title)}; nudge: ${await words(page.locator("[data-nudge]"))}`);
+      await shot(run, `chapter title ${when}`);
+      await title.waitFor({ state: "detached", timeout: SHORT }).catch(() => undefined);
       continue;
     }
-    const walkthrough = page.locator("[data-walkthrough]");
-    if (await shown(walkthrough)) {
-      log(run, `walkthrough: ${await words(walkthrough)}`);
-      if (step === 0) await shot(run, `walkthrough ${when}`);
-      const on = page.locator("[data-walk-on]");
-      if (!(await tap(run, (await shown(on)) ? on : walkthrough, "the walkthrough"))) return;
-      await page.waitForTimeout(400);
+    if (await shown(page.locator("[data-opening-go]"))) {
+      await openingWords(run);
       continue;
     }
     if (await shown(page.locator("[data-ride-sheet]"))) {
@@ -227,6 +226,8 @@ async function settle(run: Run, when: string): Promise<void> {
       await page.waitForTimeout(400);
       continue;
     }
+    const labels = page.locator("[data-first-labels]");
+    if (step === 0 && (await shown(labels))) log(run, `first-use labels: ${await words(labels)}`);
     return;
   }
 }
@@ -234,9 +235,9 @@ async function settle(run: Run, when: string): Promise<void> {
 async function intoTheWorld(run: Run): Promise<boolean> {
   const { page } = run;
   await yearsBefore(run);
-  // A ready life may go straight in; a tile's life hands over first. Either way the band ends it.
+  // A ready life may go straight in; a tile's life fills its page first. Either way the band ends it.
   for (let step = 0; step < 6 && !(await shown(page.locator("[data-band]"))); step += 1) {
-    if (await shown(page.locator("[data-prologue-card], [data-prologue-handover]"))) await yearsBefore(run);
+    if (await shown(page.locator("[data-prologue-card], [data-page-handover], [data-page-running]"))) await yearsBefore(run);
     else await page.waitForTimeout(1_000);
   }
   if (!(await appear(page.locator("[data-band]"), LONG))) {

@@ -143,7 +143,7 @@ test("[R-WORLD-003] the nudge changes when an offer opens, and a tap on it opens
       sessionStorage.setItem("seeded", "1");
     }
   }, adaOneMonthIn());
-  // The first-play walkthrough is for a person, once per device (R-WORLD-027): marked seen so its pointers never cover the band.
+  // The device marked as played (R-WORLD-033), so no first-use label stands at the thumbs.
   await page.addInitScript(() => localStorage.setItem("japacity.walkthrough", "1"));
   await page.goto("/");
   // A seeded session has no report yet, so the chapter's opening words stand over the world first (R-WORLD-001).

@@ -22,15 +22,15 @@ describe("the play driver's options", () => {
   test("given only --out, when parsed, then the developer's tile is played for three months on the default port", () => {
     expect(parsed(["--out", OUTSIDE])).toEqual({
       ok: true,
-      options: { life: "developer", ready: false, months: 3, out: OUTSIDE, url: null, port: DEFAULT_PORT, skipWalkthrough: false, headed: false },
+      options: { life: "developer", ready: false, months: 3, out: OUTSIDE, url: null, port: DEFAULT_PORT, played: false, headed: false },
     });
   });
 
   test("given every option, when parsed, then each is read, in both spellings", () => {
-    const result = parsed(["--", "--life=Nurse", "--ready", "--months", "12", `--out=${OUTSIDE}`, "--url", "http://localhost:5182/x", "--skip-walkthrough", "--headed"]);
+    const result = parsed(["--", "--life=Nurse", "--ready", "--months", "12", `--out=${OUTSIDE}`, "--url", "http://localhost:5182/x", "--played", "--headed"]);
     expect(result).toEqual({
       ok: true,
-      options: { life: "nurse", ready: true, months: 12, out: OUTSIDE, url: "http://localhost:5182", port: DEFAULT_PORT, skipWalkthrough: true, headed: true },
+      options: { life: "nurse", ready: true, months: 12, out: OUTSIDE, url: "http://localhost:5182", port: DEFAULT_PORT, played: true, headed: true },
     });
   });
 

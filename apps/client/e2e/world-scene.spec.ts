@@ -57,7 +57,7 @@ async function startWorld(page: Page, mode: "low" | "high" = "high"): Promise<vo
   await startReadyLife(page);
   for (let step = 0; step < 40; step += 1) {
     if ((await page.locator("[data-band]").count()) > 0) break;
-    const handover = page.locator("[data-prologue-handover] button");
+    const handover = page.locator("[data-page-handover] button");
     if ((await handover.count()) > 0) {
       await handover.first().click();
       break;
