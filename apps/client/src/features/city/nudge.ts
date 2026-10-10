@@ -9,6 +9,7 @@ import { formatMoney } from "../../shared/words/format";
 import { asksAttention, tidyLines } from "../../shared/words/lines";
 import { nextStepOf, ownRouteOf, ownWayOf, RACKS, RACKS_STEP, racksAtHand, wardMonths } from "../../shared/words/sixteen";
 import { routeKeptBy } from "../../shared/words/keepJob";
+import { testChance } from "../../shared/words/test";
 import { hasWords, inMonths, nameOf, say } from "../../shared/words/text";
 import type { Nudge } from "../../shared/world/contract";
 
@@ -464,6 +465,15 @@ function startedKey(view: NudgeView, own: string, stepKey: string, plannedOnly: 
   // The plane waits on the held funds: the nudge says what blocks it.
   if (stepKey === "chapter.send-off.departed" && heldFundsOpen(view) && has(`${own}.blocked`)) return { key: `${own}.blocked` };
   if (stepKey === "chapter.build-the-file.english" && planned.includes("activity.sit-english-test") && has(`${own}.started`)) return { key: `${own}.started` };
+  // A long shot at the band: the nudge says to study first, as the test's sheet does, instead of sending the player to pay
+  // for a sitting they will most likely fail (the forty-eight-month driver runs, 10 Oct: ten sittings at the fee).
+  if ((stepKey === "chapter.build-the-file.english" || stepKey === "chapter.build-the-file-points.english") && view.qualities !== undefined && !planned.includes("activity.sit-english-test")) {
+    const study = view.activities?.find((candidate) => candidate.id === "activity.study-english");
+    if (study?.allowed === true && testChance(view).band === "long") {
+      if (planned.includes("activity.study-english") && has(`${own}.study.planned`)) return { key: `${own}.study.planned` };
+      if (has(`${own}.study`)) return { key: `${own}.study` };
+    }
+  }
   return null;
 }
 

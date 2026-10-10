@@ -77,6 +77,8 @@ const ACT_OF: Record<string, string> = {
 /** The act the nudge names this month, if it is one the player can take now: what a player who follows the nudge does. */
 function followed(view: PlayerView): SlotPick[] {
   const key = nudgeOf(view).key.replace(/\.nudge(\.here)?$/, "");
+  // A long shot at the band says to study first: the player studies (R-WORLD-003, 10 Oct).
+  if (key.endsWith(".english.study")) return view.activities.find((option) => option.id === "activity.study-english")?.allowed === true ? [{ activity: "activity.study-english", param: null }] : [];
   const act = ACT_OF[key];
   const option = view.activities.find((candidate) => candidate.id === act);
   if (act === undefined || option?.allowed !== true || !option.affordable) return [];

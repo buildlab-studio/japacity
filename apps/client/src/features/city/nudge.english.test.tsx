@@ -48,6 +48,21 @@ describe("the English result on its way", () => {
   });
 });
 
+describe("the English test as a long shot", () => {
+  test("[R-WORLD-003] [R-WORLD-006] given the English step open with no result sat and the band a long shot, when the nudge is chosen, then it says to study first, and with study planned it says to end the month; a fair chance names the test", () => {
+    const base = waitingOnResult();
+    const english = (value: number) => base.qualities.map((quality) => (quality.id === "quality.english" ? { ...quality, value } : quality));
+    const allowed = (id: string) => base.activities.map((option) => (option.id === id ? { ...option, allowed: true } : option));
+    const longShot = { ...base, documents: [], qualities: english(0), activities: allowed("activity.study-english") };
+    const nudge = nudgeOf(longShot);
+    expect(nudge).toMatchObject({ key: "chapter.build-the-file.item.english.study", about: "step" });
+    expect(say(nudge.key)).toBe("Study first: the band is a long shot");
+    expect(say(nudgeOf(longShot, undefined, ["activity.study-english"]).key)).toBe("Study planned. Tap Next month.");
+    const fair = { ...longShot, qualities: english(100) };
+    expect(nudgeOf(fair).key).toBe("chapter.build-the-file.item.english.nudge");
+  });
+});
+
 describe("the English result told", () => {
   test("[R-WORLD-008] given a band that meets the route's, when the result is told, then it says the band and that it meets the route's band", () => {
     const needed = bandNeeded();
