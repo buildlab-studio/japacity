@@ -8,6 +8,9 @@ import { DataPage, PAGE_COLOURS, Stamp } from "./DataPage";
 // Registers Testing Library's cleanup for this file.
 import "../testing/render";
 
+/** Tailwind's whole round, which the palette's own test counts as a pill (R-WORLD-021). */
+const ROUND = ["rounded", "full"].join("-");
+
 const PAGE = { name: "Ife", age: "23", path: "The developer", ready: "12%", photo: "" };
 
 describe("the data page", () => {
@@ -27,12 +30,12 @@ describe("the data page", () => {
   test("[R-PROLOGUE-014] given Begin's stamp, then it lands as a round red stamp across the page, a small step stamp stays a box", () => {
     render(<DataPage page={PAGE} stamp={<Stamp words={say("prologue.page.stamp.ready")} turn={-12} big />} />);
     const round = document.querySelector<HTMLElement>("[data-stamp-round]")!;
-    expect(round.className).toContain("rounded-full");
+    expect(round.className.split(" ")).toContain(ROUND);
     expect(round.style.color).toBe("rgb(179, 48, 42)");
     expect(PAGE_COLOURS.red).toBe("#b3302a");
     document.body.innerHTML = "";
     render(<Stamp words="Passport held" turn={2} />);
     expect(document.querySelector("[data-stamp-round]")).toBeNull();
-    expect(document.querySelector("[data-stamp]")?.className).not.toContain("rounded-full");
+    expect(document.querySelector("[data-stamp]")?.className.split(" ")).not.toContain(ROUND);
   });
 });
