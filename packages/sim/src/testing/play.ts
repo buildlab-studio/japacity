@@ -127,9 +127,10 @@ export function start(options: StartOptions = {}): Game {
       }
       // An act now that opens a set piece (the visa interview) holds the month until it is answered, as the month after
       // such a slot was held; the month is then left to the test's next end.
-      const sent = slots.length > month.length;
+      if (early.events.length > 0 && game.state.setpiece.open !== null) return { ok: true, state: game.state, events: early.events, lines: early.lines };
       const result = game.send({ type: "turn/end", slots: month });
-      if (!result.ok && sent && result.code === "setpiece-open") return { ok: true, state: game.state, events: early.events, lines: early.lines };
+      // The pair's interview holds the month the same way (R-INTERVIEW-004).
+      if (!result.ok && early.events.length > 0 && result.code === "setpiece-open") return { ok: true, state: game.state, events: early.events, lines: early.lines };
       if (!result.ok) throw new Error(`turn/end was rejected with ${result.code}: ${result.detail}`);
       return { ...result, events: [...early.events, ...result.events], lines: [...early.lines, ...result.lines] };
     },

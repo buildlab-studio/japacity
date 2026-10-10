@@ -169,8 +169,9 @@ describe("the licensed adviser", () => {
     expect(game.state.route[UK]?.state).toBe("known");
     const poor = readyLife(content, { quiet: true, pockets: { NGN: { bank: 50, cash: advice.adviserFee - 100 } } });
     toHeard(poor);
-    const failed = poor.endTurn([slot(ADVISER)]);
-    expect(failed.events.some((event) => event.type === "activity/slot-failed")).toBe(true);
+    // the adviser is seen at once, so with the naira short the visit is refused with
+    // cannot-afford and nothing changes, where the slot failed.
+    expect(poor.expectRejected({ type: "activity/now", activity: ADVISER, param: null }, "cannot-afford").code).toBe("cannot-afford");
     expect(poor.state.route[UK]?.state).toBe("heard");
   });
 });

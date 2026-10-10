@@ -1,5 +1,7 @@
 // The agents: docs/rules/advice.md R-ADVICE-005 to 012, played through the
 // harness with the real content.
+// a now-act (an application, a paper, a visit) is refused in a slot, so each probe that
+// sent one in a turn/end is sent as activity/now, and an application checked as applying is read in the month it is sent.
 import { content, text } from "@japacity/content";
 import { fc, test } from "@fast-check/vitest";
 import { describe, expect } from "vitest";
@@ -7,7 +9,7 @@ import { describe, expect } from "vitest";
 import { check } from "../engine/check";
 import type { Accepted, BaseEvent, Content, Id, Moment, OfferEntry, OfferState, ReportLine, Requirement } from "../engine/types";
 import { hiddenPaths } from "../engine/view";
-import { applyEffects, answerFirst, READY, readyLife, slot, toApplied, toKnown, UK } from "../route/route.journey";
+import { applyEffects, answerFirst, READY, readyLife, toApplied, toKnown, UK } from "../route/route.journey";
 import type { Game } from "../testing/play";
 import type { AgentKind } from "./offer.agent";
 import {
@@ -53,8 +55,12 @@ function pastChapterOne(seed: string, network = advice.networkToAsk, siblings?: 
   return game;
 }
 
+/**
+ * going to the stop or up to the office is an act done at once, so the agent is at the
+ * table now, in the month it is sent; it was a slot whose agent opened as the month ended.
+ */
 function openAt(game: Game, activity: Id<"activity"> = TO_STOP): OfferState {
-  game.endTurn([slot(activity, GULF)]);
+  game.accept({ type: "activity/now", activity, param: GULF });
   const entry = activity === TO_STOP ? STOP : OFFICE;
   const item = Object.values(game.state.offer.items).find((candidate) => candidate.entry === entry);
   if (item === undefined) throw new Error(`${entry} did not open.`);
@@ -198,7 +204,7 @@ describe("what the agent's appearance reads", () => {
   test("[R-ADVICE-012] given a life before the first chapter is done, when the agent is sought, then the act is not legal and opening the offer opens nothing", () => {
     const game = readyLife(content, { quiet: true });
     applyEffects(game, [{ type: "route/hear", route: GULF, via: "test" }]);
-    game.expectRejected({ type: "turn/end", slots: [slot(TO_STOP, GULF)] }, "not-legal");
+    game.expectRejected({ type: "activity/now", activity: TO_STOP, param: GULF }, "not-legal");
     applyEffects(game, [{ type: "offer/open", offer: STOP }]);
     expect(Object.values(game.state.offer.items).filter((item) => item.entry === STOP)).toEqual([]);
     expect(stop.when).toContainEqual({ type: "chapter/done", chapter: FIRST });

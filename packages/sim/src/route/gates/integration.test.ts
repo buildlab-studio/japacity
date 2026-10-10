@@ -1,3 +1,5 @@
+// a now-act (an application, a paper, a visit) is refused in a slot, so each probe that
+// sent one in a turn/end is sent as activity/now, and an application checked as applying is read in the month it is sent.
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
@@ -60,7 +62,7 @@ describe("the gates through the dispatcher", () => {
     applyEffects(game, [{ type: "route/record-sponsor", route: CARE, employer: "care-home", salary: 0, fraud: true }], { salary: CARE_BAR });
     expect(routeOf(game, CARE).secret.sponsorFraud).toBe(true);
     expect(JSON.stringify(game.view())).not.toContain("sponsorFraud");
-    game.endTurn([slot("activity.apply-uk-care")]);
+    game.accept({ type: "activity/now", activity: "activity.apply-uk-care", param: null });
     expect(routeOf(game, CARE).state).toBe("applying");
     game.endTurn();
     const month = game.state.turn.month;
@@ -93,7 +95,7 @@ describe("the gates through the dispatcher", () => {
     toKnown(game, GULF);
     applyEffects(game, [{ type: "route/record-sponsor", route: GULF, employer: "agent", salary: 0, fraud: false }], { salary: 180000, role: 1 });
     expect(routeOf(game, GULF).gate).toMatchObject({ gate: "contract", agent: { role: "guard" } });
-    game.endTurn([slot("activity.apply-gulf-contract")]);
+    game.accept({ type: "activity/now", activity: "activity.apply-gulf-contract", param: null });
     expect(routeOf(game, GULF).state).toBe("applying");
     game.endTurn();
     expect(routeOf(game, GULF).state).toBe("granted");

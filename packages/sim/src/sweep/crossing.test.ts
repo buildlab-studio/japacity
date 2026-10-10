@@ -435,15 +435,17 @@ describe("whole-life rules that cross kinds", () => {
 
   test("[R-HEALTH-001] [R-HEALTH-002] [R-HEALTH-005] [R-TURN-009] [R-ENGINE-016] given Ada run down two months in a row, when the warning is given, the illness opens the month after and she goes to hospital, then a slot is locked for the next month, the turn refuses a slot past the ones left free, and the lock lifts the month after", () => {
     const health = content.tuning.health;
-    const quiet = applyOverlay(content, { version: "crossing-quiet", tuning: { offer: { maxNewPerMonth: 0 } } });
-    const hunt = slot("activity.job-hunt", "activity.job-teacher");
+    // the hunt that filled every slot and moved no quality is an act done at once now, so
+    // the month's slots rest, at nothing under this content, and the lock is counted with a month-act.
+    const quiet = applyOverlay(content, { version: "crossing-quiet", tuning: { offer: { maxNewPerMonth: 0 }, quality: { wellbeingRest: 0 } } });
+    const hunt = slot("activity.learn-tech");
     const seed = seedWhere((candidate) => draw(candidate, "health", 0, 10000) < health.illnessBp);
     const game = start({ content: quiet, scenario: "scenario.ada", seed });
     applyEffects(game, [{ type: "money/add", currency: "NGN", pocket: "bank", amount: 5000000 * UNIT, reason: "gift" }]);
     const under = (): Accepted => {
       const wellbeing = game.state.quality["quality.wellbeing"] ?? 0;
       applyEffects(game, [{ type: "quality/add", quality: "quality.wellbeing", amount: health.runDownBelow - 1 - content.tuning.quality.wellbeingDrift - wellbeing }]);
-      return game.endTurn(Array.from({ length: game.view().freeSlots }, () => hunt));
+      return game.endTurn();
     };
     expect(under().lines.map((line) => line.key)).not.toContain("line.quality.run-down");
     expect(under().lines.map((line) => line.key)).toContain("line.quality.run-down");

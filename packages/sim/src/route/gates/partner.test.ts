@@ -1,3 +1,5 @@
+// a now-act (an application, a paper, a visit) is refused in a slot, so each probe that
+// sent one in a turn/end is sent as activity/now, and an application checked as applying is read in the month it is sent.
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
@@ -106,7 +108,7 @@ describe("R-PEOPLE-026: applying on the partner gate", () => {
       const game = married(UK_PARTNER, { ...SETTLED, meetsFloor });
       toKnown(game, UK_PARTNER);
       expect(check(readOf(game), { type: "route/gate-step", route: UK_PARTNER, step: "floor" }).met).toBe(false);
-      game.expectRejected({ type: "turn/end", slots: [slot(APPLY_UK)] }, "not-legal");
+      game.expectRejected({ type: "activity/now", activity: APPLY_UK, param: null }, "not-legal");
     }
   });
 
@@ -115,9 +117,9 @@ describe("R-PEOPLE-026: applying on the partner gate", () => {
     joint(game, UK_PARTNER, "them", { stage: "partner", facts: SETTLED });
     toKnown(game, UK_PARTNER);
     setPeople(game, (slice) => ({ ...slice, bonds: { [BOND]: { ...slice.bonds[BOND]!, partnerMonth: game.state.turn.month - 23 } } }));
-    game.expectRejected({ type: "turn/end", slots: [slot(APPLY_UK)] }, "not-legal");
+    game.expectRejected({ type: "activity/now", activity: APPLY_UK, param: null }, "not-legal");
     setPeople(game, (slice) => ({ ...slice, bonds: { [BOND]: { ...slice.bonds[BOND]!, partnerMonth: game.state.turn.month - 24 } } }));
-    game.endTurn([slot(APPLY_UK)]);
+    game.accept({ type: "activity/now", activity: APPLY_UK, param: null });
     expect(routeOf(game, UK_PARTNER).state).toBe("applying");
   });
 
@@ -132,10 +134,10 @@ describe("R-PEOPLE-026: applying on the partner gate", () => {
     const band = (value: number): LifeOptions => ({ documents: READY_PAPERS.map((paper) => (paper.document === "document.english-test" ? { ...paper, value } : paper)) });
     const low = married(UK_PARTNER, SETTLED, band(ukPartner.partner!.bandMin! - 5));
     toKnown(low, UK_PARTNER);
-    low.expectRejected({ type: "turn/end", slots: [slot(APPLY_UK)] }, "not-legal");
+    low.expectRejected({ type: "activity/now", activity: APPLY_UK, param: null }, "not-legal");
     const edge = married(UK_PARTNER, SETTLED, band(ukPartner.partner!.bandMin!));
     toKnown(edge, UK_PARTNER);
-    edge.endTurn([slot(APPLY_UK)]);
+    edge.accept({ type: "activity/now", activity: APPLY_UK, param: null });
     expect(routeOf(edge, UK_PARTNER).state).toBe("applying");
   });
 
@@ -143,11 +145,11 @@ describe("R-PEOPLE-026: applying on the partner gate", () => {
     const leading = married(UK_PARTNER);
     toKnown(leading, UK_PARTNER);
     setPeople(leading, (slice) => ({ ...slice, joint: { ...slice.joint!, lead: "me" } }));
-    expect(leading.expectRejected({ type: "turn/end", slots: [slot(APPLY_UK)] }, "not-legal").code).toBe("not-legal");
+    expect(leading.expectRejected({ type: "activity/now", activity: APPLY_UK, param: null }, "not-legal").code).toBe("not-legal");
     const home = married(UK_PARTNER);
     toKnown(home, UK_PARTNER);
     setFacts(home, (now) => ({ ...now, where: "home", country: null }));
-    expect(home.expectRejected({ type: "turn/end", slots: [slot(APPLY_UK)] }, "not-legal").code).toBe("not-legal");
+    expect(home.expectRejected({ type: "activity/now", activity: APPLY_UK, param: null }, "not-legal").code).toBe("not-legal");
   });
 
   test("[R-PEOPLE-026] given Canada's spouse route with no floor, when a resident spouse's facts say nothing of a floor, then the application goes in and the fee is taken", () => {
