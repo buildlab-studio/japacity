@@ -88,7 +88,8 @@ describe("the month's story on the results", () => {
     const told = storyLines([
       line("line.offer.taken", { offer: SEND_OFF, choice: "party" }),
       line("line.offer.lapsed", { offer: SEND_OFF, choice: "dinner" }),
-      line("line.offer.taken", { offer: "offer.nepa-bill", choice: "pay" }),
+      // An answer that moves no quality has no words of its own (the bill paid now tells what came of it, R-WORLD-008).
+      line("line.offer.taken", { offer: "offer.recruiter-message", choice: "ignore" }),
     ]);
     expect(told.map((each) => words(each.key, each.params))).toEqual([words(`${SEND_OFF}.said.party`), words(`${SEND_OFF}.said.dinner`)]);
     expect(words(`${SEND_OFF}.said.party`)).toContain("aunties");

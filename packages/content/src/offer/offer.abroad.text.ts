@@ -27,6 +27,9 @@ export const offerAbroadText: Record<string, string> = {
   "offer.returnee-question.choice.truth": "Tell her how it really went",
   "offer.returnee-question.choice.story": "Say it went well and you are here on business",
   "offer.returnee-question.choice.shrug": "Change the subject",
+  "offer.returnee-question.said.truth": "You told your aunty how it really went. By evening the family knew.",
+  "offer.returnee-question.said.story": "You told your aunty it went well and you were home on business. You kept the story up all evening.",
+  "offer.returnee-question.said.shrug": "You changed the subject. Your aunty let it go, for now.",
 
   "offer.returnee-business.name": "Your cousin's shop",
   "offer.returnee-business.title": "Your cousin's shop",
@@ -37,6 +40,8 @@ export const offerAbroadText: Record<string, string> = {
   "offer.returnee-business.sign.notebook": "He shows you a notebook of what the old shop sold.",
   "offer.returnee-business.choice.invest": "Put the money in",
   "offer.returnee-business.choice.decline": "Tell him not now",
+  "offer.returnee-business.said.invest": "You put the money into the shop near the junction. Your name is on it now.",
+  "offer.returnee-business.said.decline": "You told him not now. He told the family you have changed.",
 
   "offer.returnee-hire.name": "They want someone who has been abroad",
   "offer.returnee-hire.title": "They want someone who has been abroad",
@@ -52,6 +57,8 @@ export const offerAbroadText: Record<string, string> = {
     "'You have done it once, you know the process. My guy is helping people with admission. Just come and hear him.'",
   "offer.returnee-leave-again.choice.listen": "Go and listen",
   "offer.returnee-leave-again.choice.stay": "Stay put for now",
+  "offer.returnee-leave-again.said.listen": "You went to hear his guy about admission. You came away with a name and a way.",
+  "offer.returnee-leave-again.said.stay": "You stayed put and rested.",
 
   "offer.sponsor-licence-lost.name": "The sponsor has lost its licence",
   "offer.sponsor-licence-lost.title": "The sponsor has lost its licence",
@@ -64,4 +71,5 @@ export const offerAbroadText: Record<string, string> = {
   "offer.ca-assistance.body": "The social assistance office: '{amount} a month for basic needs and shelter, while you look.'",
   "offer.ca-assistance.choice.take": "Take it",
   "offer.ca-assistance.choice.leave": "Manage without it",
+  "offer.ca-assistance.said.take": "You took the assistance. It covers the basics while you look, and nobody at home has to know.",
 };

@@ -15,6 +15,8 @@ export const offerText: Record<string, string> = {
     "Mama: 'They are threatening to cut the light. {cost}. Your father says he will handle it.' He will not.",
   "offer.nepa-bill.choice.pay": "Pay the bill",
   "offer.nepa-bill.choice.leave": "Leave it to your father",
+  "offer.nepa-bill.said.pay": "You paid the NEPA bill. The light stayed on, and your mother told the street who paid.",
+  "offer.nepa-bill.said.leave": "You left the NEPA bill to your father. They cut the light, and the house knew why.",
 
   "offer.brother-fees.name": "Your brother's school fees",
   "offer.brother-fees.title": "Your brother's school fees",
@@ -22,6 +24,9 @@ export const offerText: Record<string, string> = {
   "offer.brother-fees.choice.pay": "Pay all of it",
   "offer.brother-fees.choice.half": "Pay half",
   "offer.brother-fees.choice.no": "Say you cannot",
+  "offer.brother-fees.said.pay": "You paid your brother's fees in full. He went back on Monday, and the family heard.",
+  "offer.brother-fees.said.half": "You paid half of your brother's fees. The school let him back while the rest is found.",
+  "offer.brother-fees.said.no": "You told your brother you could not pay. He stayed home from school, and the family took note.",
 
   "offer.mum-shop.name": "Mama's shop",
   "offer.mum-shop.title": "Mama's shop",
@@ -30,6 +35,9 @@ export const offerText: Record<string, string> = {
   "offer.mum-shop.choice.give": "Give all of it",
   "offer.mum-shop.choice.half": "Give half",
   "offer.mum-shop.choice.no": "Say you cannot",
+  "offer.mum-shop.said.give": "You restocked your mother's shop. The shelves were full again by the month's end.",
+  "offer.mum-shop.said.half": "You gave your mother half of what the shop needed. Some of the shelves were filled.",
+  "offer.mum-shop.said.no": "You told your mother you could not help with the shop. The shelves stayed bare.",
 
   "offer.aso-ebi.name": "Aso ebi for the wedding",
   "offer.aso-ebi.title": "Aso ebi for the wedding",
@@ -37,6 +45,9 @@ export const offerText: Record<string, string> = {
   "offer.aso-ebi.choice.buy": "Buy the cloth",
   "offer.aso-ebi.choice.plain": "Go in your own clothes",
   "offer.aso-ebi.choice.absent": "Stay away",
+  "offer.aso-ebi.said.buy": "You bought the cloth and danced at your cousin's wedding. You came home with new numbers in your phone.",
+  "offer.aso-ebi.said.plain": "You went to the wedding in your own clothes. People noticed, and you still met a few of them.",
+  "offer.aso-ebi.said.absent": "You stayed away from your cousin's wedding. Your aunty told everyone.",
 
   "offer.roof.name": "The roof",
   "offer.roof.title": "The roof",
@@ -44,12 +55,17 @@ export const offerText: Record<string, string> = {
   "offer.roof.choice.pay": "Pay all of it",
   "offer.roof.choice.half": "Pay half",
   "offer.roof.choice.no": "Say you cannot",
+  "offer.roof.said.pay": "You paid for the roof. The parlour stayed dry, and your mother said so to everyone who came.",
+  "offer.roof.said.half": "You paid half for the roof. The carpenter patched the worst of it.",
+  "offer.roof.said.no": "You told your mother you could not pay for the roof. The rain came into the parlour again.",
 
   "offer.harvest.name": "Harvest pledge",
   "offer.harvest.title": "Harvest pledge",
   "offer.harvest.body": "Mama: 'They are calling families by name at the harvest. {cost} would cover ours.'",
   "offer.harvest.choice.give": "Give it",
   "offer.harvest.choice.no": "Let them call the name",
+  "offer.harvest.said.give": "You gave to the harvest. The family's name was called, and your mother stood up.",
+  "offer.harvest.said.no": "The family's name was called at the harvest with nothing beside it.",
 
   "offer.uncle-burial.name": "Your uncle's burial",
   "offer.uncle-burial.title": "Your uncle's burial",
@@ -57,6 +73,9 @@ export const offerText: Record<string, string> = {
   "offer.uncle-burial.choice.send": "Send your share",
   "offer.uncle-burial.choice.token": "Send something small",
   "offer.uncle-burial.choice.nothing": "Send nothing",
+  "offer.uncle-burial.said.send": "You sent your share for the burial. Your name was read with the others who gave.",
+  "offer.uncle-burial.said.token": "You sent something small for the burial. Your name was read near the end.",
+  "offer.uncle-burial.said.nothing": "You sent nothing for the burial. The family noticed.",
 
   // Life
 
@@ -66,6 +85,7 @@ export const offerText: Record<string, string> = {
     "'I leave for Leeds on Sunday. Small chops at my sister's place, Saturday. Come o, you never know who you will meet.'",
   "offer.send-off-party.choice.go": "Go",
   "offer.send-off-party.choice.message": "Send him a message",
+  "offer.send-off-party.said.go": "You went to the send-off. Small chops, loud music, and a few people who know the way out.",
 
   // chapter.md R-CHAPTER-008. `.said.<choice>` is what the results say once the choice is taken, or lapsed into.
   "offer.family-send-off.name": "Your send-off at home",
@@ -86,12 +106,14 @@ export const offerText: Record<string, string> = {
     "The screen flickers, then nothing. The repairer at Computer Village says ₦85,000 and three days.",
   "offer.laptop-fault.choice.repair": "Pay for the repair",
   "offer.laptop-fault.choice.manage": "Manage without it",
+  "offer.laptop-fault.said.manage": "You managed without the laptop. The work went slower on borrowed screens, and it wore on you.",
 
   "offer.fuel-scarcity.name": "Fuel scarcity",
   "offer.fuel-scarcity.title": "Fuel scarcity",
   "offer.fuel-scarcity.body": "Queues at every station. The fare to work and back has doubled this month.",
   "offer.fuel-scarcity.choice.pay": "Pay the extra fares",
   "offer.fuel-scarcity.choice.trek": "Trek",
+  "offer.fuel-scarcity.said.trek": "You trekked to work and back while the fuel was scarce. It wore you down.",
 
   "offer.recruiter-message.name": "A message from a recruiter",
   "offer.recruiter-message.title": "A message from a recruiter",
@@ -99,6 +121,8 @@ export const offerText: Record<string, string> = {
     "'Saw your work. We have a take-home task, no promises.' It would eat your weekends this month.",
   "offer.recruiter-message.choice.do-it": "Do the task",
   "offer.recruiter-message.choice.ignore": "Ignore it",
+  "offer.recruiter-message.said.do-it":
+    "You did the recruiter's take-home task over your weekends. No job came of it, but the task went into your portfolio and they kept your name.",
 
   // Money
 
@@ -143,6 +167,7 @@ export const offerText: Record<string, string> = {
     "Three women from your mother's group are sitting in the parlour. 'Her shop loan went bad months ago. We want ₦120,000 today.'",
   "offer.parents-group-debt.choice.pay": "Pay them",
   "offer.parents-group-debt.choice.no": "Say there is nothing",
+  "offer.parents-group-debt.said.no": "You told your mother's group there was nothing. They left, and people talked.",
 
   "offer.stand-guarantor.name": "Stand guarantor",
   "offer.stand-guarantor.title": "Will you stand for me?",
@@ -150,6 +175,8 @@ export const offerText: Record<string, string> = {
     "Your cousin: 'I need a guarantor for my group loan. {balance} is still to pay. Just your name on the paper.' If he cannot pay, the group comes to you.",
   "offer.stand-guarantor.choice.accept": "Stand for him",
   "offer.stand-guarantor.choice.refuse": "Say no",
+  "offer.stand-guarantor.said.accept": "You signed as your cousin's guarantor. If he cannot pay, the group comes to you.",
+  "offer.stand-guarantor.said.refuse": "You said no to standing for your cousin. He found someone else, and he remembers.",
 
   "offer.join-ajo.name": "The savings circle",
   "offer.join-ajo.title": "Join the savings circle (ajo)",
@@ -169,6 +196,7 @@ export const offerText: Record<string, string> = {
     "'I will pay {price} for the plot, cash, this week. After that I look elsewhere.' Your father will hear about it either way.",
   "offer.land-buyer.choice.sell": "Sell the plot",
   "offer.land-buyer.choice.hold": "Keep it",
+  "offer.land-buyer.said.sell": "You sold the plot for cash. Your father heard about it before the week was out.",
 
   "offer.family-pledge.name": "The family's pledge",
   "offer.family-pledge.title": "The family meeting",
@@ -176,6 +204,8 @@ export const offerText: Record<string, string> = {
     "Your father, after a long silence: 'We will stand behind you. I will sign that {show} in my account is for your studies. And your mother and I will give you {gift}. Do not forget this house.'",
   "offer.family-pledge.choice.accept": "Accept, with thanks",
   "offer.family-pledge.choice.decline": "Tell them to keep it",
+  "offer.family-pledge.said.accept": "You took your parents' help, with thanks. Their account now stands behind your file.",
+  "offer.family-pledge.said.decline": "You told your parents to keep their money. Your father said nothing more about it.",
 
   "offer.family-pledge-small.name": "The family's small pledge",
   "offer.family-pledge-small.title": "The family meeting",
@@ -183,6 +213,8 @@ export const offerText: Record<string, string> = {
     "Your mother speaks for them: 'It is not much. {show} in the account can carry your name, and take {gift}. Things are tight, you know how it is.'",
   "offer.family-pledge-small.choice.accept": "Accept, with thanks",
   "offer.family-pledge-small.choice.decline": "Tell them to keep it",
+  "offer.family-pledge-small.said.accept": "You took what your parents could give, with thanks. Their account now stands behind your file.",
+  "offer.family-pledge-small.said.decline": "You told your mother to keep it. She did not argue.",
 
   "offer.job.name": "A job offer",
   "offer.job.title": "A job offer",
@@ -293,6 +325,8 @@ export const offerText: Record<string, string> = {
     "They hand you a phone and tell you to call home. The man wants {sum} before anyone moves.",
   "offer.road-ransom-call.choice.pay": "Ask the family to find it",
   "offer.road-ransom-call.choice.cannot": "Say there is no money",
+  "offer.road-ransom-call.said.pay": "The family found the money. It took what they had put by, and everyone at home knows.",
+  "offer.road-ransom-call.said.cannot": "You said there was no money. They added the sum to what you owe the agent, and they did not go easy on you.",
 
   "offer.road-exit.name": "The migration agency",
   "offer.road-exit.title": "There is a way back",
@@ -312,6 +346,7 @@ export const offerText: Record<string, string> = {
     "Your old classmates heard how things are. Nobody says the word, but there is an envelope, and a list of names who put something in it.",
   "offer.whip-round.choice.accept": "Take it, and thank them",
   "offer.whip-round.choice.decline": "Thank them, and give it back",
+  "offer.whip-round.said.decline": "You thanked your classmates and gave the envelope back. They spoke well of you after.",
 
   // Named as what it is, a message, so the results never read it as a prize won.
   "offer.telco-promo.name": "A message says you have won",
@@ -349,6 +384,8 @@ export const offerText: Record<string, string> = {
   "offer.people-recovery.body": "Your cousin says come for Sunday rice. 'You don't have to talk about it.'",
   "offer.people-recovery.choice.go": "Go",
   "offer.people-recovery.choice.alone": "Stay in alone",
+  "offer.people-recovery.said.go": "You went for Sunday rice at your cousin's. Nobody asked, and you stayed till evening.",
+  "offer.people-recovery.said.alone": "You stayed in alone and slept most of the day.",
   "offer.papers-marriage.name": "A wedding for papers",
   "offer.papers-marriage.title": "A wedding for papers",
   "offer.papers-marriage.body": "A woman at the salon: 'He is a citizen over there. A wedding, papers, and you go your way after. {fee}, half now.'",
