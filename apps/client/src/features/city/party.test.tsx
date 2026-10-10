@@ -33,7 +33,8 @@ describe("the party at home", () => {
 
   test("[R-CHAPTER-008] [R-WORLD-008] given the asks open over the world, when the party is the answer, then the sheet closes and the party's line stands over the yard, once, until tapped", async () => {
     const { store } = await renderWithView(<City world month={<p />} results={() => <p />} asks={[<p key="other">another ask</p>]} />, richView());
-    fireEvent.click(screen.getByRole("button", { name: say("ui.nudge.setpiece") }));
+    // The set piece is staged elsewhere, so the nudge says it waits there (R-CITY-011); its tap opens the sheet all the same.
+    fireEvent.click(document.querySelector<HTMLElement>("[data-nudge-open]") as HTMLElement);
     expect(screen.getByText("another ask")).toBeDefined();
     act(() => store.setState({ monthLines: [taken("party")], moments: [{ key: `${SEND_OFF}.said.party`, params: {}, tone: "plain", attention: false, counts: [] }] }));
     const beat = await waitFor(() => {
