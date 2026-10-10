@@ -134,11 +134,11 @@ export function Map({ pins, country, countries, drawing, diveTo = null, diveBy =
       {riding === null ? null : (
         <Ride
           way={riding.way}
-          place={ridingTo === null ? "" : headingOf(ridingTo.name)}
+          place={ridingTo === null ? "" : ridingTo.name}
           drawing={drawing}
           own={own}
           seed={seedOf(`${riding.id}:${String(view.month)}`)}
-          {...(here === null ? {} : { from: headingOf(here.name) })}
+          {...(here === null ? {} : { from: here.name })}
           onDone={() => {
             const id = riding.id;
             setRiding(null);

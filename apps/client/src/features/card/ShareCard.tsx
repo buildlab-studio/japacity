@@ -64,7 +64,8 @@ function Figures({ face }: { face: CardFace }) {
           {face.route === null ? null : <p className="text-sm font-semibold">{face.route}</p>}
           {face.percent === null ? null : (
             <>
-              <p className="font-display text-6xl leading-none">
+              {/* Tabular digits, not the display face: its zero reads as a bag. */}
+              <p className="num text-6xl leading-none">
                 {face.percent}
                 <span className="font-sans text-3xl font-bold">%</span>
               </p>
