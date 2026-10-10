@@ -44,7 +44,7 @@ function marketThings(view: PlayerView) {
 describe("the trader's shop at her stall", () => {
   test("[R-ACTIVITY-016] given the content, when Open the shop's sheet is read, then it says the shop costs nothing to open and what it pays a month, the shop's own figure", () => {
     const pay = content.activity[SHOP]?.pay;
-    if (pay === null || pay === undefined) throw new Error("The shop pays nothing in content.");
+    if (pay === null || pay === undefined || typeof pay.amount !== "number") throw new Error("The shop pays no fixed figure in content.");
     expect(content.activity[OPEN_SHOP]?.cost).toEqual([]);
     const blurb = blurbOf(OPEN_SHOP) ?? "";
     expect(blurb).toMatch(/costs nothing/i);
