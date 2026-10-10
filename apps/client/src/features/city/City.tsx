@@ -490,6 +490,15 @@ export function City({
     setPlaceId(world ? lastPlace(here, home) : openingPlace(here, PLACES));
     // The home changes only with the where or a move; a move is the player's own and keeps the place they stand in.
   }, [here, world]);
+  // A move made while standing in the home just left: the character goes to the new home, as the
+  // ride home would take them, since the old room is no longer theirs and no ride starts from it.
+  const homeBefore = useRef(home);
+  useEffect(() => {
+    const left = homeBefore.current;
+    homeBefore.current = home;
+    if (home === null || left === null || left === home) return;
+    setPlaceId((standing) => (standing === left ? home : standing));
+  }, [home]);
   useEffect(() => {
     if (!world || !drawing) return;
     let alive = true;
@@ -1013,6 +1022,8 @@ export function City({
       ...(answersNow(activity) ? { when: "now" as const } : {}),
       ...(paper ? { reference: clock.toUpperCase() } : {}),
       ...(option.allowed ? {} : { blocked: needsWords(option.missing) }),
+      // R-LUCK-005: past the month's ceiling the kiosk's button is shut with the kiosk man's line.
+      ...(activity === "activity.play-lotto" && kioskCapReached(monthLines) ? { blocked: words(KIOSK_CAP) } : {}),
       act: () => {
         const pick = { activity: option.id, param: chosen ?? option.params?.[0] ?? null };
         void actOnCard(pick, { send, addToPlan }).then((acted) => {

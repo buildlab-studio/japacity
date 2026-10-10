@@ -180,3 +180,12 @@ describe("being noticed at work on the results", () => {
     expect(told.some((line) => line.key === "line.obligation.relief.cooked")).toBe(false);
   });
 });
+
+describe("the cash warning in a full month", () => {
+  test("[R-WALLET-019] given more story lines than the results hold, when the month closed with the cash warning, then the warning is still told", () => {
+    const busy: ReportLine[] = Array.from({ length: 9 }, (_unused, index) => ({ key: `line.route.heard-${String(index)}`, params: {}, tone: "plain", attention: false, counts: [] }));
+    const warning: ReportLine = { key: "line.wallet.cash-warning", params: {}, tone: "plain", attention: true, counts: [] };
+    const told = storyLines([...busy, warning]);
+    expect(told.map((line) => line.key)).toContain("line.wallet.cash-warning");
+  });
+});

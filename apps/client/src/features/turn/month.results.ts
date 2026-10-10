@@ -127,7 +127,8 @@ export function storyLines(lines: readonly ReportLine[]): ReportLine[] {
     .map((line, index) => ({ line, index, rank: storyRank(line) }))
     .filter((entry) => entry.rank !== -1)
     .sort((a, b) => a.rank - b.rank || a.index - b.index)
-    .filter((entry, at, ranked) => CHORES.has(entry.line.key) || ranked.slice(0, at).filter((before) => !CHORES.has(before.line.key)).length < STORY_MAX)
+    // The cash warning is said once in a life with attention (R-WALLET-019): a full month never drops it.
+    .filter((entry, at, ranked) => CHORES.has(entry.line.key) || entry.line.key === CASH_WARNING || ranked.slice(0, at).filter((before) => !CHORES.has(before.line.key) && before.line.key !== CASH_WARNING).length < STORY_MAX)
     .map((entry) => entry.line);
 }
 
