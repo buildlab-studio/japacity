@@ -67,7 +67,6 @@ export const routeText: Record<string, string> = {
   "route.uk-care.item.sponsor.way": "Look for one at the hub's desk",
   "route.uk-care.item.tb.way": "At the clinic, once the passport is held",
   "route.uk-care.item.police.way": "Ask at the visa centre's notice",
-  "route.uk-care.item.salary.way": "A sponsor who pays the bar",
   "route.uk-care.item.applied.way": "At the visa centre's desk",
 
   "route.uk-skilled.name": "Skilled work in the UK",
