@@ -31,6 +31,8 @@ const THROUGH: Readonly<Record<string, readonly string[]>> = {
   "strike-drag": ["back"],
   graduation: ["results-nurse", "results"],
   settlement: ["settle"],
+  // The age card: the years as they went, unless the front door set a step (withAge, R-PROLOGUE-009).
+  age: ["as-is"],
 };
 
 /** The steps an archetype chooses for itself: its preset without the steps every life passes the same way. */
@@ -96,6 +98,16 @@ export const ARCHETYPES: readonly Archetype[] = [
 
 export function archetypeOf(id: string | null | undefined): Archetype | null {
   return ARCHETYPES.find((archetype) => archetype.id === id) ?? null;
+}
+
+/**
+ * The tile with the age the front door set (R-PROLOGUE-009): the step's answer at the age card, then each step
+ * nearer the tile's own age, so a card the draws pushed past a limit still takes the nearest step it can.
+ */
+export function withAge(archetype: Archetype, years: number): Archetype {
+  const way = years < 0 ? "younger" : "older";
+  const steps = Array.from({ length: Math.abs(years) }, (_, at) => `${way}-${String(Math.abs(years) - at)}`);
+  return { ...archetype, preset: { ...archetype.preset, age: [...steps, "as-is"] } };
 }
 
 /** The answer the archetype sends at this card, or null when the card shows (R-PROLOGUE-010). */
