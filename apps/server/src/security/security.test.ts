@@ -5,18 +5,19 @@ import { describe, expect, test } from "vitest";
 
 import { harness, makeJar, SITE } from "../auth/testing";
 import { call, held, newLife, restMonth, send, signUp, testServer } from "../authority/testing";
-import { MAX_COMMAND_BYTES } from "../authority/command";
 import { productionConfig, testConfig } from "../config";
 import type { ServerConfig } from "../config";
 import { memoryLimiters } from "../limits/memory";
 import type { Rooms } from "../place/place.rooms";
 import { placeSocketRoutes } from "../routes/place";
 import type { ServerRejection } from "../types";
-import { PLAYER_BODY_BYTES, TOO_LARGE_DETAIL } from "./body";
+import { TOO_LARGE_DETAIL } from "./body";
 import { DEFAULT_CACHE, SECURITY_HEADERS } from "./headers";
 import { OTHER_SITE_DETAIL, fromElsewhere } from "./origin";
 
 const ELSEWHERE = "https://another.japacity.test";
+
+const { bodyBytes, adminBodyBytes, commandBytes } = productionConfig.limits;
 
 function expectDressed(headers: Headers): void {
   for (const [name, value] of Object.entries(SECURITY_HEADERS)) expect(headers.get(name)).toBe(value);
@@ -37,7 +38,7 @@ async function raw(server: ReturnType<typeof testServer>, method: "POST" | "PUT"
 }
 
 describe("the headers on every reply", () => {
-  test("given any reply, when it leaves the Worker, then it carries the content policy, nosniff, no framing and no referrer, and is not stored", async () => {
+  test("[R-SERVER-034] given any reply, when it leaves the Worker, then it carries the content policy, nosniff, no framing and no referrer, and is not stored", async () => {
     const server = testServer();
     const health = await server.app.request("/api/health");
     expectDressed(health.headers);
@@ -47,7 +48,7 @@ describe("the headers on every reply", () => {
     expectDressed(missing.headers);
   });
 
-  test("given a reply that names its own caching, when it leaves the Worker, then that caching is kept and the other headers are added", async () => {
+  test("[R-SERVER-034] given a reply that names its own caching, when it leaves the Worker, then that caching is kept and the other headers are added", async () => {
     const server = testServer();
     const world = await call(server, "GET", "/api/world", null);
     expect(world.status).toBe(200);
@@ -55,7 +56,7 @@ describe("the headers on every reply", () => {
     expectDressed(world.headers);
   });
 
-  test("given a refusal from a limit, when it leaves the Worker, then it is dressed too", async () => {
+  test("[R-SERVER-034] given a refusal from a limit, when it leaves the Worker, then it is dressed too", async () => {
     const server = limitedServer({ anonPer60s: 0 });
     const over = await call<ServerRejection>(server, "GET", "/api/world", null);
     expect(over.status).toBe(429);
@@ -64,7 +65,7 @@ describe("the headers on every reply", () => {
 });
 
 describe("writes only from the game's own page", () => {
-  test("given a write that names another site as its origin, when it reaches the Worker, then it is refused 403 before the route reads it, and nothing is kept", async () => {
+  test("[R-SERVER-035] given a write that names another site as its origin, when it reaches the Worker, then it is refused 403 before the route reads it, and nothing is kept", async () => {
     const h = harness();
     const { jar } = await h.signUp("ada@example.test");
     const before = await h.deps.stores.feedback.list(10);
@@ -74,7 +75,7 @@ describe("writes only from the game's own page", () => {
     expect(await h.deps.stores.feedback.list(10)).toEqual(before);
   });
 
-  test("given the same write from the game's own origin, or from no browser at all, when it reaches the Worker, then the route answers it", async () => {
+  test("[R-SERVER-035] given the same write from the game's own origin, or from no browser at all, when it reaches the Worker, then the route answers it", async () => {
     const h = harness();
     const { jar } = await h.signUp("ada@example.test");
     const own = await h.call("/api/feedback", { method: "POST", jar, headers: { origin: SITE }, json: { text: "hello", build: "1", screen: "city", mode: "low" } });
@@ -83,13 +84,13 @@ describe("writes only from the game's own page", () => {
     expect(plain.status).toBe(200);
   });
 
-  test("given a read from another site, when it reaches the Worker, then it is answered as any read is", async () => {
+  test("[R-SERVER-035] given a read from another site, when it reaches the Worker, then it is answered as any read is", async () => {
     const h = harness();
     const reply = await h.call("/api/age", { method: "GET", jar: makeJar(), headers: { origin: ELSEWHERE } });
     expect(reply.status).toBe(200);
   });
 
-  test("given the origin headers a browser sends, when they are judged, then only another origin, or no origin with a cross-site fetch, is from elsewhere", () => {
+  test("[R-SERVER-035] given the origin headers a browser sends, when they are judged, then only another origin, or no origin with a cross-site fetch, is from elsewhere", () => {
     const site = new URL(SITE).origin;
     expect(fromElsewhere(site, new Headers({ origin: SITE }))).toBe(false);
     expect(fromElsewhere(site, new Headers({ origin: ELSEWHERE }))).toBe(true);
@@ -101,35 +102,54 @@ describe("writes only from the game's own page", () => {
 });
 
 describe("bodies and commands of a bounded size", () => {
-  test("given a body over the player limit, when it is sent to the command route, then it is refused 413 and nothing is stepped or logged", async () => {
+  test("[R-SERVER-036] given a body over the player limit, when it is sent to the command route, then it is refused 413 and nothing is stepped or logged", async () => {
     const server = testServer();
     const character = await newLife(server, "acc-1");
     const before = await held(server, character);
-    const reply = await raw(server, "POST", "/api/command", "acc-1", JSON.stringify({ basedOn: 0, command: { type: "turn/end", slots: [], pad: "x".repeat(PLAYER_BODY_BYTES) } }));
+    const reply = await raw(server, "POST", "/api/command", "acc-1", JSON.stringify({ basedOn: 0, command: { type: "turn/end", slots: [], pad: "x".repeat(bodyBytes) } }));
     expect(reply.status).toBe(413);
     expect(await reply.json()).toEqual({ ok: false, code: "not-legal", detail: TOO_LARGE_DETAIL });
     expect(await held(server, character)).toEqual(before);
   });
 
-  test("given a beacon over the player limit, when it is sent to the counters, then the answer is still 204", async () => {
+  test("[R-SERVER-036] given a beacon over the player limit, when it is sent to the counters, then the answer is still 204", async () => {
     const server = testServer();
     await signUp(server, "acc-1");
-    const reply = await raw(server, "POST", "/api/counters", "acc-1", "x".repeat(PLAYER_BODY_BYTES + 1), "text/plain");
+    const reply = await raw(server, "POST", "/api/counters", "acc-1", "x".repeat(bodyBytes + 1), "text/plain");
     expect(reply.status).toBe(204);
   });
 
-  test("given an admin route, when a body over the player limit is sent, then it reaches the admin gate rather than the size refusal", async () => {
+  test("[R-SERVER-036] given an admin route, when a body over the player limit is sent, then it reaches the admin gate rather than the size refusal", async () => {
     const server = testServer();
     await signUp(server, "acc-1");
-    const reply = await raw(server, "POST", "/api/admin/adverts/advertisers", "acc-1", JSON.stringify({ pad: "x".repeat(PLAYER_BODY_BYTES) }));
+    const reply = await raw(server, "POST", "/api/admin/adverts/advertisers", "acc-1", JSON.stringify({ pad: "x".repeat(bodyBytes) }));
     expect(reply.status).toBe(404);
   });
 
-  test("given a command whose JSON is over the logged limit, when it is sent, then it is refused not-legal and nothing is logged, while the same month without the padding is played", async () => {
+  test("[R-SERVER-036] given bodies of exactly the player limit and one byte over, when each is sent to the command route, then the first reaches the route and the second is refused 413", async () => {
+    const server = testServer();
+    await newLife(server, "acc-1");
+    const at = await raw(server, "POST", "/api/command", "acc-1", "x".repeat(bodyBytes));
+    expect(at.status).toBe(400);
+    const over = await raw(server, "POST", "/api/command", "acc-1", "x".repeat(bodyBytes + 1));
+    expect(over.status).toBe(413);
+  });
+
+  test("[R-SERVER-036] given bodies of exactly the admin limit and one byte over, when each is sent to an admin route, then the first reaches the admin gate and the second is refused 413", async () => {
+    const server = testServer();
+    await signUp(server, "acc-1");
+    const at = await raw(server, "POST", "/api/admin/adverts/advertisers", "acc-1", "x".repeat(adminBodyBytes));
+    expect(at.status).toBe(404);
+    const over = await raw(server, "POST", "/api/admin/adverts/advertisers", "acc-1", "x".repeat(adminBodyBytes + 1));
+    expect(over.status).toBe(413);
+    expect(await over.json()).toEqual({ ok: false, code: "not-legal", detail: TOO_LARGE_DETAIL });
+  });
+
+  test("[R-SERVER-037] given a command whose JSON is over the logged limit, when it is sent, then it is refused not-legal and nothing is logged, while the same month without the padding is played", async () => {
     const server = testServer();
     const character = await newLife(server, "acc-1");
     const before = await held(server, character);
-    const padded = { ...restMonth({ v: 0 }), note: "x".repeat(MAX_COMMAND_BYTES) };
+    const padded = { ...restMonth({ v: 0 }), note: "x".repeat(commandBytes) };
     const refused = await call<ServerRejection>(server, "POST", "/api/command", "acc-1", { command: padded, basedOn: 0 });
     expect(refused.status).toBe(400);
     expect(refused.body.code).toBe("not-legal");

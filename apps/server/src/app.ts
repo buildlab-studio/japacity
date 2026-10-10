@@ -40,7 +40,7 @@ export function makeApp(deps: ServerDeps, accounts?: Accounts): Hono {
   app.use(securityHeaders());
   // A write from another site, or a body too large, is refused before anything reads or counts it.
   if (accounts !== undefined) app.use(sameOriginWrites(accounts.keys.siteUrl));
-  app.use(bodyLimits());
+  app.use(bodyLimits(deps.config.limits));
   // R-SERVER-005, R-ANALYTICS-008: around the gates and the limits, so a refusal from either is counted too.
   for (const path of COUNTED_PATHS) app.use(path, countRefusals(deps));
   // R-SERVER-031: first, so its gates run before every route they close.

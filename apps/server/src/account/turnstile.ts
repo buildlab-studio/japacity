@@ -22,8 +22,13 @@ export interface TurnstileKeys {
 
 export type BotCheck = { ok: true } | { ok: false; reason: string };
 
-/** A missing, failed, expired or reused token is refused; so is an unreachable endpoint. */
-export async function checkTurnstile(keys: TurnstileKeys, token: string | null, remoteIp: string | null): Promise<BotCheck> {
+/**
+ * A missing, failed, expired or reused token is refused; so is an unreachable
+ * endpoint, and a pass for a token solved on a host other than `host`, the
+ * site's own, so a token solved elsewhere with the same key is no pass
+ *.
+ */
+export async function checkTurnstile(keys: TurnstileKeys, token: string | null, remoteIp: string | null, host: string): Promise<BotCheck> {
   if (token === null || token === "") return { ok: false, reason: "missing-input-response" };
   let reply: Response;
   try {
@@ -37,8 +42,8 @@ export async function checkTurnstile(keys: TurnstileKeys, token: string | null, 
     return { ok: false, reason: "unreachable" };
   }
   if (!reply.ok) return { ok: false, reason: `status-${reply.status}` };
-  const body = await reply.json<{ success?: unknown; "error-codes"?: unknown }>();
-  if (body.success === true) return { ok: true };
+  const body = await reply.json<{ success?: unknown; "error-codes"?: unknown; hostname?: unknown }>();
+  if (body.success === true) return body.hostname === host ? { ok: true } : { ok: false, reason: "hostname-mismatch" };
   const codes = Array.isArray(body["error-codes"]) ? body["error-codes"].join(",") : "";
   return { ok: false, reason: codes === "" ? "rejected" : codes };
 }

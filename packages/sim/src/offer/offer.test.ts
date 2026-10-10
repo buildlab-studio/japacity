@@ -415,6 +415,14 @@ describe("choosing", () => {
     expect(subject.reject({ type: "offer/choose", offer: item.id, choice: "dance" }, "not-legal").code).toBe("not-legal");
   });
 
+  test("[R-OFFER-003] given an offer name that is a built-in object key, when it is chosen, then it is rejected with unknown-id and nothing throws", () => {
+    const subject = lab();
+    subject.open("offer.nepa-bill");
+    for (const offer of ["constructor", "__proto__", "toString", "hasOwnProperty"]) {
+      expect(subject.reject({ type: "offer/choose", offer, choice: "pay" }, "unknown-id").code).toBe("unknown-id");
+    }
+  });
+
   test("[R-OFFER-003] given a choice whose conditions do not hold, when it is chosen, then it is rejected with not-legal", () => {
     const nepa = entryOf(content, "offer.nepa-bill");
     const strict = variant({

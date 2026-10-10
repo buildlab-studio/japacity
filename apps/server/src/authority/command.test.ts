@@ -6,7 +6,7 @@ import { describe, expect, test } from "vitest";
 
 import { productionConfig, testConfig } from "../config";
 import type { ServerReply } from "../types";
-import { sendAuthority } from "./command";
+import { readRequest, sendAuthority } from "./command";
 import { DIVERGED_NOTE } from "./commit";
 import { call, held, newLife, restMonth, send, testServer, view } from "./testing";
 import { transact } from "./transaction";
@@ -16,6 +16,12 @@ const { epoch, worldTickMs } = productionConfig.clock;
 function accepted(reply: ServerReply): Extract<ServerReply, { ok: true }> {
   if (!reply.ok) throw new Error(`Rejected with ${reply.code}: ${reply.detail}`);
   return reply;
+}
+
+/** A command whose JSON is exactly `bytes` long, padded in a field the simulation ignores. */
+function commandOf(bytes: number): Command {
+  const bare = JSON.stringify({ ...restMonth({ v: 0 }), pad: "" }).length;
+  return Object.assign(restMonth({ v: 0 }), { pad: "x".repeat(bytes - bare) });
 }
 
 describe("every command through the server", () => {
@@ -214,5 +220,25 @@ describe("every command through the server", () => {
     const noCharacter = await call(server, "POST", "/api/command", "acc-9", { command: restMonth({ v: 0 }), basedOn: 0 });
     expect([noCharacter.status, noCharacter.body]).toEqual([404, expect.objectContaining({ code: "no-character" })]);
     expect((await view(server, "acc-9")).status).toBe(404);
+  });
+});
+
+describe("the command's size", () => {
+  test("[R-SERVER-037] given commands of exactly the production limit and one byte over, when each request is read, then the first is read and the second is refused before anything reads it", () => {
+    const { commandBytes } = productionConfig.limits;
+    const at = commandOf(commandBytes);
+    expect(JSON.stringify(at).length).toBe(commandBytes);
+    expect(readRequest({ command: at, basedOn: 0 }, commandBytes)).toEqual({ command: at, basedOn: 0 });
+    expect(readRequest({ command: commandOf(commandBytes + 1), basedOn: 0 }, commandBytes)).toBeNull();
+  });
+
+  test("[R-SERVER-037] given a command one byte over the limit, when it is sent, then it is refused not-legal and nothing is logged", async () => {
+    const server = testServer();
+    const character = await newLife(server, "acc-1");
+    const before = await held(server, character);
+    const reply = await call<ServerReply>(server, "POST", "/api/command", "acc-1", { command: commandOf(productionConfig.limits.commandBytes + 1), basedOn: 0 });
+    expect(reply.status).toBe(400);
+    expect(reply.body).toMatchObject({ ok: false, code: "not-legal" });
+    expect(await held(server, character)).toEqual(before);
   });
 });

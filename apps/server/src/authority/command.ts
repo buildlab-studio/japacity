@@ -18,22 +18,21 @@ import type { Live } from "./load";
 import type { Act, TxOptions, TxResult } from "./transaction";
 import { transact } from "./transaction";
 
-/**
- * The most a logged command may hold, as JSON. The largest a player sends, a
- * month's slots, is a few hundred bytes; an accepted command is logged as it
- * came, so anything bigger would only fill the log.
- */
-export const MAX_COMMAND_BYTES = 4096;
-
 const ENCODER = new TextEncoder();
 
-/** R-SERVER-001: a request body that holds a command and the version it was based on, and nothing else is read. */
-export function readRequest(body: unknown): { command: Command; basedOn: number } | null {
+/**
+ * R-SERVER-001: a request body that holds a command and the version it was
+ * based on, and nothing else is read. R-SERVER-037: a command over
+ * `commandBytes` of JSON is refused before it is read. The largest a player
+ * sends, a month's slots, is a few hundred bytes; an accepted command is
+ * logged as it came, so anything bigger would only fill the log.
+ */
+export function readRequest(body: unknown, commandBytes: number): { command: Command; basedOn: number } | null {
   if (typeof body !== "object" || body === null) return null;
   const { command, basedOn } = body as { command?: unknown; basedOn?: unknown };
   if (typeof command !== "object" || command === null || Array.isArray(command)) return null;
   if (typeof (command as { type?: unknown }).type !== "string") return null;
-  if (ENCODER.encode(JSON.stringify(command)).length > MAX_COMMAND_BYTES) return null;
+  if (ENCODER.encode(JSON.stringify(command)).length > commandBytes) return null;
   if (typeof basedOn !== "number" || !Number.isSafeInteger(basedOn)) return null;
   return { command: command as Command, basedOn };
 }
@@ -76,7 +75,7 @@ async function unusual<T>(deps: ServerDeps, outcome: Exclude<TxResult<T>, { kind
  * `player`. A rejection writes nothing and comes back with the clock.
  */
 export async function sendCommand(deps: ServerDeps, account: string, body: unknown): Promise<Answer<ServerReply>> {
-  const request = readRequest(body);
+  const request = readRequest(body, deps.config.limits.commandBytes);
   if (request === null) return refusal(400, "not-legal", "The request is not a command with the version it was based on.");
   const character = await characterOf(deps, account);
   if (character === null) return refusal(404, "no-character", "This account has no character yet.");

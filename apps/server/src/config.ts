@@ -10,15 +10,25 @@ import type { Regions } from "./region";
 export interface ServerConfig {
   /** server.md Numbers. */
   server: { snapshotEvery: number; seedBits: number };
-  /** R-SERVER-025 to 027. */
-  limits: { commandsPer10s: number; commandsPer60s: number; readsPer60s: number; anonPer60s: number; socketPer10s: number };
+  /** R-SERVER-025 to 027; the body sizes R-SERVER-036, the command size R-SERVER-037. */
+  limits: {
+    commandsPer10s: number;
+    commandsPer60s: number;
+    readsPer60s: number;
+    anonPer60s: number;
+    socketPer10s: number;
+    bodyBytes: number;
+    adminBodyBytes: number;
+    commandBytes: number;
+  };
   /** R-CLOCK-001 to 006, 019. `epoch` is a Friday at 18:00 UTC (R-CLOCK-002); the maintainer picks which. */
   clock: { epoch: number; worldTickMs: number; turnRefillMs: number; worldFetchSpreadMs: number };
   /** R-CLOCK-026, 028, 029. */
   presence: { maxPerObject: number; sample: number; nudgeEveryMs: number; attachmentBytes: number; todayMax: number };
   /** account.md Numbers. */
   account: { minAge: number; refusedCookieDays: number; deleteFreshMs: number; deleteWithinDays: number; maxCharacters: number };
-  auth: { otp: { length: number; expiresIn: number; attempts: number }; limits: { otpSendPer60s: number } };
+  /** R-ACCOUNT-002, R-ACCOUNT-014. */
+  auth: { otp: { length: number; expiresIn: number; attempts: number }; limits: { otpSendPer60s: number; otpSendPerDay: number } };
   /** R-ACCOUNT-007: the policy table. */
   regions: Regions;
   /** R-SERVER-012: the accounts that may read the admin page. Empty in production until the maintainer adds one. */
@@ -46,6 +56,9 @@ const EU = ["AT", "BE", "BG", "HR", "CY", "CZ", "DK", "EE", "FI", "FR", "DE", "G
 
 const DECLARED = "declared" as const;
 
+/** A kibibyte, so the sizes read as they are meant. */
+const KIB = 1024;
+
 /** The policy table of account.md, row for row. */
 export const launchRegions: Regions = {
   default: { open: true, interaction: "matched", ageCheck: DECLARED },
@@ -63,11 +76,23 @@ export const DEFAULT_EPOCH = Date.UTC(2026, 9, 9, 18, 0, 0);
 
 export const productionConfig: ServerConfig = {
   server: { snapshotEvery: 20, seedBits: 128 },
-  limits: { commandsPer10s: 10, commandsPer60s: 60, readsPer60s: 120, anonPer60s: 60, socketPer10s: 10 },
+  limits: {
+    commandsPer10s: 10,
+    commandsPer60s: 60,
+    readsPer60s: 120,
+    anonPer60s: 60,
+    socketPer10s: 10,
+    // R-SERVER-036: a player's body is a few hundred bytes, the counters' batch at most 16 KB, a beacon at most 64 KiB.
+    bodyBytes: 64 * KIB,
+    // R-SERVER-036: an advert image is uploaded as base64, at most 200 KB before encoding (R-ADVERT-004).
+    adminBodyBytes: KIB * KIB,
+    // R-SERVER-037: the largest command, a month's slots, is a few hundred bytes of JSON.
+    commandBytes: 4 * KIB,
+  },
   clock: { epoch: DEFAULT_EPOCH, worldTickMs: time.WORLD_TICK_MS, turnRefillMs: time.TURN_REFILL_MS, worldFetchSpreadMs: 60 * time.SECOND_MS },
   presence: { maxPerObject: 2000, sample: 20, nudgeEveryMs: 10 * time.SECOND_MS, attachmentBytes: 1024, todayMax: 20 },
   account: { minAge: 18, refusedCookieDays: 30, deleteFreshMs: 10 * time.MINUTE_MS, deleteWithinDays: 30, maxCharacters: 1 },
-  auth: { otp: { length: 6, expiresIn: 300, attempts: 3 }, limits: { otpSendPer60s: 3 } },
+  auth: { otp: { length: 6, expiresIn: 300, attempts: 3 }, limits: { otpSendPer60s: 3, otpSendPerDay: 10 } },
   regions: launchRegions,
   admin: { accounts: [] },
   lottery: { secretBits: 256, beacon: { genesis: 1692803367, period: 3, url: "https://api.drand.sh" } },

@@ -91,6 +91,16 @@ function partnerBond(slice: PeopleSlice): [string, Bond] | null {
 }
 
 /** The latest bond with a pair: a live one first, else the last ended. */
+/** The slice's own bond named `id`. A name a player sent may be a built-in object key, which is no bond. */
+function ownBond(slice: PeopleSlice, id: string): Bond | undefined {
+  return Object.hasOwn(slice.bonds, id) ? slice.bonds[id] : undefined;
+}
+
+/** The slice's own slot named `id`, on the same terms as `ownBond`. */
+function ownSlot(slice: PeopleSlice, id: string): Slot | undefined {
+  return Object.hasOwn(slice.slots, id) ? slice.slots[id] : undefined;
+}
+
 function bondByPair(slice: PeopleSlice, pair: string): string | null {
   const ids = Object.entries(slice.bonds).filter(([, bond]) => bond.with.kind === "player" && bond.with.pair === pair);
   const open = ids.find(([, bond]) => live(bond));
@@ -248,7 +258,7 @@ function invite(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (command.type !== "people/invite") throw new Error(`people/invite cannot handle ${command.type}.`);
   const standIn = byStandIn(ctx, "sends a card");
   if (standIn !== null) return standIn;
-  const slot = ctx.state.people.slots[command.slot];
+  const slot = ownSlot(ctx.state.people, command.slot);
   if (slot === undefined) return reject("unknown-id", `There is no slot ${command.slot}.`);
   if (command.looking === undefined) {
     if (slot.state !== "invited") return reject("not-legal", `No card is out for ${command.slot}.`);
@@ -267,7 +277,7 @@ function invite(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
 
 function link(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (command.type !== "people/link") throw new Error(`people/link cannot handle ${command.type}.`);
-  const slot = ctx.state.people.slots[command.slot];
+  const slot = ownSlot(ctx.state.people, command.slot);
   if (slot === undefined) return reject("unknown-id", `There is no slot ${command.slot}.`);
   if (slot.state !== "invited") return reject("not-legal", `${command.slot} has no card out.`);
   const bond = ctx.nextId("bond");
@@ -293,7 +303,8 @@ function courtComputer(ctx: Ctx, person: Id<"person">): BaseEvent[] | Rejection 
 
 function courtPlayer(ctx: Ctx, withWhom: string): BaseEvent[] | Rejection {
   const slice = ctx.state.people;
-  const id = slice.bonds[withWhom] !== undefined ? withWhom : bondByPair(slice, withWhom);
+  // A name the player sent may be a built-in object key; only the slice's own bonds are bonds.
+  const id = Object.hasOwn(slice.bonds, withWhom) ? withWhom : bondByPair(slice, withWhom);
   const bond = id === null ? undefined : slice.bonds[id];
   if (id === null || bond === undefined || bond.with.kind !== "player") return reject("unknown-id", `There is no pair ${withWhom}.`);
   if (bond.role !== "partner") return reject("not-legal", "Only a partner bond is courted.");
@@ -313,8 +324,11 @@ function court(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (standIn !== null) return standIn;
   const { maxCourting } = ctx.content.tuning.people;
   if (courtingCount(ctx.state.people) >= maxCourting) return reject("not-legal", `${String(maxCourting)} bonds are courting already.`);
-  if (command.with.startsWith("person.")) return courtComputer(ctx, command.with as Id<"person">);
-  return courtPlayer(ctx, command.with);
+  // The command came as JSON from the player, so its name may not be a string at all.
+  const withWhom: unknown = command.with;
+  if (typeof withWhom !== "string") return reject("unknown-id", `There is no person or pair ${String(withWhom)}.`);
+  if (withWhom.startsWith("person.")) return courtComputer(ctx, withWhom as Id<"person">);
+  return courtPlayer(ctx, withWhom);
 }
 
 // ---------------------------------------------------------------------------
@@ -453,7 +467,7 @@ function propose(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (command.type !== "people/propose") throw new Error(`people/propose cannot handle ${command.type}.`);
   const standIn = byStandIn(ctx, "proposes");
   if (standIn !== null) return standIn;
-  const bond = ctx.state.people.bonds[command.bond];
+  const bond = ownBond(ctx.state.people, command.bond);
   if (bond === undefined) return reject("unknown-id", `There is no bond ${command.bond}.`);
   if (!live(bond)) return reject("not-legal", "The bond has ended.");
   const problem = proposeProblem(ctx, command.bond, bond, command);
@@ -473,7 +487,7 @@ function propose(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
 
 function answer(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (command.type !== "people/answer") throw new Error(`people/answer cannot handle ${command.type}.`);
-  const bond = ctx.state.people.bonds[command.bond];
+  const bond = ownBond(ctx.state.people, command.bond);
   if (bond === undefined) return reject("unknown-id", `There is no bond ${command.bond}.`);
   const theirs = bond.pending.theirs;
   if (!live(bond) || theirs === null || theirs.step !== command.step) return reject("not-legal", `No ${command.step} proposal is waiting on this bond.`);
@@ -491,7 +505,7 @@ function withdraw(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (command.type !== "people/withdraw") throw new Error(`people/withdraw cannot handle ${command.type}.`);
   const standIn = byStandIn(ctx, "takes back a proposal");
   if (standIn !== null) return standIn;
-  const bond = ctx.state.people.bonds[command.bond];
+  const bond = ownBond(ctx.state.people, command.bond);
   if (bond === undefined) return reject("unknown-id", `There is no bond ${command.bond}.`);
   if (bond.pending.mine === null) return reject("not-legal", "No proposal of yours is waiting.");
   return record(ctx, [{ type: "people/withdrawn", bond: command.bond }]);
@@ -520,7 +534,7 @@ function consent(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (command.type !== "people/consent") throw new Error(`people/consent cannot handle ${command.type}.`);
   const standIn = byStandIn(ctx, "consents");
   if (standIn !== null) return standIn;
-  const bond = ctx.state.people.bonds[command.bond];
+  const bond = ownBond(ctx.state.people, command.bond);
   if (bond === undefined) return reject("unknown-id", `There is no bond ${command.bond}.`);
   const onJoint = ctx.state.people.joint?.bond === command.bond;
   if (!live(bond) || (!onJoint && !jointPending(bond))) return reject("not-legal", "Consent is given for a joint, agreed or asked for.");
@@ -593,7 +607,7 @@ function end(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (command.type !== "people/end") throw new Error(`people/end cannot handle ${command.type}.`);
   const standIn = byStandIn(ctx, "ends a bond");
   if (standIn !== null) return standIn;
-  const bond = ctx.state.people.bonds[command.bond];
+  const bond = ownBond(ctx.state.people, command.bond);
   if (bond === undefined) return reject("unknown-id", `There is no bond ${command.bond}.`);
   if (!live(bond)) return reject("not-legal", "The bond has ended already.");
   // R-PEOPLE-044: with the stand-in on, the waiting side may end it as an absence end, costing nobody.

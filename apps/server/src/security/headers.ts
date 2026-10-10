@@ -1,4 +1,4 @@
-// The headers every reply of the Worker carries.
+// R-SERVER-034: the headers every reply of the Worker carries.
 // The Worker answers JSON, the advert images and, from the auth library, one
 // plain error page with inline styles, so the policy allows nothing else.
 // The socket's upgrade is passed through untouched: its reply comes from the
