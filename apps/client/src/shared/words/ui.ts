@@ -663,7 +663,8 @@ export const uiText: Record<string, string> = {
   "ui.page.home.family-house": "You start in the family house, Surulere",
   "ui.page.home.makoko": "You start in a room on the water, Makoko",
   "ui.page.home.compound-room": "You start in your own room, Ojuelegba",
-  "ui.page.home.costs": "Rent next month: {amount}",
+  // One line for every home: the family house charges living costs, the others rent (R-PROLOGUE-014).
+  "ui.page.home.costs": "Next month: {amount}",
   "ui.page.home.costs.prepaid": "Rent in {count} months",
   "ui.page.capital": "A shop's capital",
   "ui.page.lived.degree": "University, as it went",

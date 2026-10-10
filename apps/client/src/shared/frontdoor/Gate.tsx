@@ -53,6 +53,10 @@ export function Gate({ look, children, mark, over }: GateProps) {
   const drop = (): void => {
     spin.dragging = false;
   };
+  const standIn =
+    shown === undefined || shown === null || shown.picture === "" ? null : (
+      <img src={shown.picture} alt="" data-gate-standin className="absolute top-[12%] left-1/2 h-[34%] -translate-x-1/2" />
+    );
   return (
     <div className="fixed inset-0 overflow-hidden" data-gate={mark ?? ""} data-look={shown?.id}>
       <div
@@ -70,12 +74,13 @@ export function Gate({ look, children, mark, over }: GateProps) {
         {/* Three flat bands, the sky, the wall and the ground: no gradient (R-WORLD-021). */}
         <div aria-hidden className="absolute inset-x-0 top-0 h-[30%]" style={{ background: paletteCss("sky") }} />
         <div aria-hidden className="absolute inset-x-0 top-[30%] h-[14%]" style={{ background: paletteCss("wallCream") }} />
+        {/* The look's own picture stands in until the scene has loaded, and where WebGL is missing. */}
         {drawing ? (
-          <Suspense fallback={null}>
+          <Suspense fallback={standIn}>
             <FrontScene look={shown?.file ?? "shared/chr/chr_ada.glb"} spin={spin} />
           </Suspense>
-        ) : shown === undefined || shown === null || shown.picture === "" ? null : (
-          <img src={shown.picture} alt="" className="absolute top-[12%] left-1/2 h-[34%] -translate-x-1/2" />
+        ) : (
+          standIn
         )}
       </div>
       {over === undefined ? null : <div className="pointer-events-none absolute inset-x-0 top-0 flex flex-col px-3 pt-[max(10px,env(safe-area-inset-top))]">{over}</div>}

@@ -67,6 +67,6 @@ describe("the page's home", () => {
     await renderWithView(<PageHandover onDone={() => undefined} />, view);
     const home = document.querySelector("[data-handover-story] [data-fact='home']");
     expect(home?.textContent).toBe(`${say("ui.page.home.makoko")}${say("ui.page.home.costs", { amount: formatMoney(rent, "NGN") })}`);
-    expect(home?.textContent).toBe("You start in a room on the water, MakokoRent next month: ₦25,000");
+    expect(home?.textContent).toBe("You start in a room on the water, MakokoNext month: ₦25,000");
   });
 });
