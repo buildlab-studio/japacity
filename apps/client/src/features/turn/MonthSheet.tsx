@@ -29,7 +29,8 @@ function jobRows(job: PlayerView["job"]): string[] {
 }
 
 const COOK = "activity.cook-at-home";
-const WATER = "activity.fetch-water";
+/** Water fetched: bought from the seller, or the compound's drum filled from the yard (R-OBLIGATION-014). */
+const WATER: readonly string[] = ["activity.fetch-water", "activity.fill-drum"];
 
 /**
  * The room's basics planned, which fill no slot, said so the foot never reads "Nothing planned" over
@@ -37,7 +38,7 @@ const WATER = "activity.fetch-water";
  */
 function choreWords(plan: readonly (SlotPick | null)[], working: boolean): string | null {
   const cook = plan.some((pick) => pick?.activity === COOK);
-  const water = plan.some((pick) => pick?.activity === WATER);
+  const water = plan.some((pick) => pick !== null && WATER.includes(pick.activity));
   if (cook || water) return say(`ui.month.${working ? "working-chores" : "chores"}.${cook && water ? "both" : cook ? "cook" : "water"}`);
   // Any other pick that fills no slot (the word of someone who went, R-TURN-006) is still something planned, never "nothing".
   const beside = plan.find((pick): pick is SlotPick => pick !== null && !takesSlot(pick));

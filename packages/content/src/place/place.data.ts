@@ -283,6 +283,7 @@ const entries: PlaceEntry[] = [
       // obligation.md R-OBLIGATION-014: the cooking corner and the water drum in the parlour.
       "activity.cook-at-home",
       "activity.fetch-water",
+      "activity.fill-drum",
       "offer.nepa-bill",
       "offer.brother-fees",
       "offer.roof",

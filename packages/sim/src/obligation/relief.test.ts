@@ -15,6 +15,7 @@ import { abroad, eventsOf, owedOf, setPounds, UPKEEP } from "./obligation.journe
 
 const COOK: Id<"activity"> = "activity.cook-at-home";
 const WATER: Id<"activity"> = "activity.fetch-water";
+const DRUM: Id<"activity"> = "activity.fill-drum";
 const HOME_UPKEEP: Id<"obligation"> = "obligation.upkeep";
 const WELLBEING: Id<"quality"> = "quality.wellbeing";
 const COOKED_LINE = "line.obligation.relief.cook-at-home";
@@ -65,17 +66,21 @@ describe("the two activities", () => {
       { type: "obligation/relief", obligationType: "upkeep", bp: room.cookedBp },
       { type: "quality/add", quality: WELLBEING, amount: -room.cookWellbeing },
     ]);
-    expect(entry(WATER)).toMatchObject({ slot: "none", where: "home", cost: [], requires: [] });
+    // water is bought where it is sold, so the seller's act needs a home with no yard tap; the compound fills its drum free.
+    const compound = { type: "obligation/has", obligationType: "upkeep", obligation: "obligation.upkeep-compound" };
+    expect(entry(WATER)).toMatchObject({ slot: "none", where: "home", cost: [], requires: [{ type: "not", of: compound }] });
     expect(entry(WATER).effects).toEqual([{ type: "obligation/relief", obligationType: "upkeep", bp: room.waterBp }]);
+    expect(entry(DRUM)).toMatchObject({ slot: "none", where: "home", cost: [], requires: [compound], effects: [] });
     // the starting figures.
     expect([room.cookedBp, room.waterBp]).toEqual([1500, 400]);
   });
 
   test("[R-OBLIGATION-014] given Ada at home, when the month's choices are listed, then cooking and water are both offered and allowed", () => {
-    const options = ada().view().activities.filter((option) => option.id === COOK || option.id === WATER);
+    const options = ada().view().activities.filter((option) => option.id === COOK || option.id === WATER || option.id === DRUM);
     expect(options.map((option) => [option.id, option.allowed])).toEqual([
       [COOK, true],
       [WATER, true],
+      [DRUM, false],
     ]);
   });
 });

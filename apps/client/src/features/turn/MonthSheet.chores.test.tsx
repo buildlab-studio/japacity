@@ -26,6 +26,15 @@ describe("the Month sheet's foot with the room's basics", () => {
     expect(footer()).not.toContain(turnWords("ui.month.rest"));
   });
 
+  test("[R-WORLD-007] given the compound's drum filled from the yard, when the sheet shows, then the foot says water is fetched this month, never a saving", async () => {
+    const { store } = await renderWithView(<MonthSheet />, engineView("scenario.ada"));
+    act(() => {
+      store.getState().addToPlan({ activity: "activity.fill-drum", param: null });
+    });
+    expect(footer()).toContain("Fetching water this month");
+    expect(footer()).not.toContain("less");
+  });
+
   test("[R-WORLD-007] given only cooking planned, when the sheet shows, then the foot says cooking", async () => {
     const { store } = await renderWithView(<MonthSheet />, engineView("scenario.ada"));
     act(() => {

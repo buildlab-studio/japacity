@@ -5,6 +5,8 @@ export const activityRoomText: Record<string, string> = {
   "activity.cook-at-home.blurb": "A pot of stew on the burner, enough for the week. A weekend gone, and the food money goes further.",
   "activity.fetch-water.name": "Fetch water",
   "activity.fetch-water.blurb": "Jerrycans from the borehole down the street, so the water seller is not paid this month.",
+  "activity.fill-drum.name": "Fill the drum",
+  "activity.fill-drum.blurb": "Buckets from the compound's tap in the yard to the drum. The water costs nothing here.",
   "line.obligation.relief.cook-at-home": "Food, cooked at home: {amount} less.",
   "line.obligation.relief.fetch-water": "Water, fetched yourself: {amount} less.",
 };

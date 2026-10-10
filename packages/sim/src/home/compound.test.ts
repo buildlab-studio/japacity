@@ -178,6 +178,29 @@ describe("moving into the room", () => {
   });
 });
 
+describe("water in the room (R-OBLIGATION-014)", () => {
+  test("[R-OBLIGATION-014] [R-HOME-010] given Ada in the room, when the month's choices are listed, then the drum filled from the yard is offered and the water seller's act is not, and cooking still is", () => {
+    const game = inTheRoom();
+    const allowed = (id: string) => game.view().activities.find((option) => option.id === id)?.allowed;
+    expect([allowed("activity.fill-drum"), allowed("activity.fetch-water"), allowed("activity.cook-at-home")]).toEqual([true, false, true]);
+    game.expectRejected({ type: "turn/end", slots: [{ activity: "activity.fetch-water", param: null }] }, "not-legal");
+  });
+
+  test("[R-OBLIGATION-014] [R-HOME-010] given Ada in the room, when she fills the drum in a month, then the room's upkeep is charged whole, with no relief and no money line, as in a month she does not", () => {
+    const there = inTheRoom();
+    const twin = inTheRoom();
+    month(there);
+    month(twin);
+    const played = there.endTurn([{ activity: "activity.fill-drum", param: null }]);
+    const plain = twin.endTurn();
+    expect(charged(played, UPKEEP)).toEqual(charged(plain, UPKEEP));
+    expect(charged(played, UPKEEP)[0]).toBeGreaterThan(0);
+    expect(eventsOf(played, "obligation/relieved")).toEqual([]);
+    expect(played.lines.filter((line) => line.key.startsWith("line.obligation.relief."))).toEqual([]);
+    expect(checkInvariants(there.state, QUIET)).toEqual([]);
+  });
+});
+
 describe("moving back", () => {
   test("[R-HOME-010] [R-HOME-002] given Ada in the room, when she moves back to the family house, then the family's upkeep reopens at her starting life's charge, the rent closes with nothing given back, and the family talks", () => {
     const game = inTheRoom();

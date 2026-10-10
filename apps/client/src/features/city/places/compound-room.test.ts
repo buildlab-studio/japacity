@@ -7,7 +7,7 @@ import type { PlayerView } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
 import raw from "../../../../public/assets/places/compound-room/place.json";
-import { engineView } from "../../../shared/testing/fixtures";
+import { engineView, newGame, setPockets } from "../../../shared/testing/fixtures";
 import { cameraAt, projected, SCREENS } from "../scene.testing";
 import { aimShot, shotOf, WHOLE } from "../shot";
 import { type PlaceFile, stageOf } from "../placeFile";
@@ -27,10 +27,12 @@ function thingOf(id: string) {
   return found;
 }
 
-/** Ada's view living in the room. */
+/** Ada's view living in the room: moved in through the game, so her upkeep is the room's own (R-HOME-010). */
 function livingThere(): PlayerView {
-  const view = engineView("scenario.ada");
-  return { ...view, home: { ...view.home, place: ID } };
+  const game = newGame("scenario.ada");
+  setPockets(game, { NGN: 5_000_000_00 });
+  game.accept({ type: "home/move", to: ID });
+  return game.view();
 }
 
 /** The things the player can act on in the room now, as the city reads them for the home `home`. */
@@ -53,7 +55,8 @@ describe("the room in a compound", () => {
       ["end", null],
     ]);
     expect(acts("cooking")).toEqual([["do", "activity.cook-at-home"]]);
-    expect(acts("drum")).toEqual([["do", "activity.fetch-water"]]);
+    // The drum is filled free from the yard's tap: its own act, not the water seller's.
+    expect(acts("drum")).toEqual([["do", "activity.fill-drum"]]);
     expect(acts("papers-box")).toEqual([
       ["sheet", "activity.get-passport"],
       ["plain", null],
@@ -74,7 +77,7 @@ describe("the room in a compound", () => {
     const now = actsNow(view, ID);
     expect(now["bed"]).toEqual(["rest", "end-month"]);
     expect(now["cooking"]).toEqual(["cook"]);
-    expect(now["drum"]).toEqual(["fetch-water"]);
+    expect(now["drum"]).toEqual(["fill-drum"]);
     expect(now["papers-box"]).toEqual(["start", "look"]);
     expect(homeStagesAt(ID, ID, HOME, PLACES)).toEqual(content.place["place.family-house"]?.stages);
     // Lived elsewhere, the room stages nothing; the family house stages its own acts as before.

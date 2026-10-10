@@ -5,18 +5,33 @@ import { content } from "@japacity/content";
 import { int } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
-import { engineView } from "../../shared/testing/fixtures";
+import { engineView, newGame, setPockets } from "../../shared/testing/fixtures";
 import { formatMoney } from "../../shared/words/format";
 import { doneWords } from "./City";
+import { choreSaving } from "./chores";
 
 const COOK = "activity.cook-at-home";
 const WATER = "activity.fetch-water";
+const DRUM = "activity.fill-drum";
 
 function upkeepDue(view: ReturnType<typeof engineView>): number {
   const owed = view.obligations.find((item) => content.obligation[item.entry]?.type === "upkeep");
   if (owed === undefined) throw new Error("Ada has no living costs.");
   return owed.due;
 }
+
+describe("the compound's drum at the tap", () => {
+  test("[R-OBLIGATION-014] given Ada in the room in a compound, when she fills the drum from the yard's tap, then the tap says the drum is full and no money comes off", () => {
+    const game = newGame("scenario.ada");
+    setPockets(game, { NGN: 5_000_000_00 });
+    game.accept({ type: "home/move", to: "place.compound-room" });
+    const view = game.view();
+    expect(choreSaving(view, DRUM)).toBeNull();
+    expect(doneWords("city.act.fill-drum", view, DRUM)).toBe("The drum is full.");
+    // Cooking still saves there: the room's living costs are food and light.
+    expect(choreSaving(view, COOK)).not.toBeNull();
+  });
+});
 
 describe("the room's basics at the tap", () => {
   test("[R-WORLD-005] given Ada at home with her living costs, when she cooks for the week, then the tap says what comes off this month's living costs, as a figure", () => {

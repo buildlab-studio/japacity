@@ -121,6 +121,9 @@ export const cityText: Record<string, string> = {
   "city.act.fetch-water": "Fetch water",
   "city.act.fetch-water.done": "The drum is full. Counted when the month ends.",
   "city.act.fetch-water.saved": "Water fetched: {amount} less.",
+  // The compound's drum, filled from the tap in the yard: the water costs nothing there, so nothing comes off (R-OBLIGATION-014).
+  "city.act.fill-drum": "Fetch water",
+  "city.act.fill-drum.done": "The drum is full.",
   "city.act.pack": "Pack and go",
   "city.act.turn-on": "Turn on",
   "city.act.papers": "Look in the box",
