@@ -128,6 +128,8 @@ function quality(game: Game, id: Id<"quality">): number {
 const OTHERS: { [T in Exclude<CommandType, "prologue/choose" | (typeof AUTHORITY_COMMANDS)[number]>]: Loose } = {
   "turn/end": { type: "turn/end", slots: [] },
   "activity/quit": { type: "activity/quit" },
+  // R-ACTIVITY-015 added the command.
+  "activity/now": { type: "activity/now", activity: "activity.meetup", param: null },
   "offer/choose": { type: "offer/choose", offer: "offer-1", choice: "yes" },
   "wallet/convert": { type: "wallet/convert", from: "NGN", to: "USD", amount: 100, via: "aboki" },
   "wallet/move": { type: "wallet/move", currency: "NGN", amount: 100, to: "bank" },

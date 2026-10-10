@@ -130,6 +130,13 @@ function playerSamples(state: State, world: World): Record<PlayerCommand, Loose[
   return {
     "turn/end": [{ type: "turn/end", slots: [] }, ...of("turn/end")],
     "activity/quit": [{ type: "activity/quit" }, { type: "activity/quit", side: true }],
+    // R-ACTIVITY-015 added the command: the kiosk and the meetup now, a month-act refused, and the legal ones.
+    "activity/now": [
+      { type: "activity/now", activity: "activity.play-lotto", param: "1" },
+      { type: "activity/now", activity: "activity.meetup", param: null },
+      { type: "activity/now", activity: "activity.rest", param: null },
+      ...of("activity/now"),
+    ],
     "offer/choose": [{ type: "offer/choose", offer: "offer-1", choice: "take" }, ...of("offer/choose")],
     "wallet/convert": [
       { type: "wallet/convert", from: "NGN", to: "USD", amount: 1000000, via: "bank" },

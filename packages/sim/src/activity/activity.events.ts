@@ -66,5 +66,11 @@ export type ActivityEvent =
   | { type: "activity/noticed"; job: Id<"activity">; raised: boolean; pay: MoneyParam }
   /** R-ACTIVITY-013: a quiz marked, `right` of `asked`; `pass` right answers were needed. A pass's effects follow. */
   | { type: "activity/exam-marked"; activity: Id<"activity">; right: number; asked: number; pass: number; passed: boolean }
+  /** A now-act sent with `activity/now` (R-ACTIVITY-015): kept with the month's other now-acts. Its cost and effects follow. */
+  | { type: "activity/now-played"; activity: Id<"activity">; param: string | null }
+  /** The place answers a now-act in a person's voice (R-ACTIVITY-015). `ready`: the month a paper asked for is due, else null. Changes nothing. */
+  | { type: "activity/now-said"; activity: Id<"activity">; param: string | null; ready: number | null }
+  /** The month closed: its now-acts are done with, and the next month starts with none (R-ACTIVITY-015). */
+  | { type: "activity/now-cleared" }
   /** The adviser read the whole file (R-ADVICE-004): each route heard or known, whether it fits, what is missing, the months away. Changes nothing. */
   | { type: "activity/advised"; routes: { route: Id<"route">; fits: boolean; missing: string[]; months: number }[] };

@@ -82,6 +82,10 @@ const PHONE: Id<"activity"> = "activity.buy-phone";
 const NOTICED: Id<"activity"> = "activity.be-noticed";
 /** R-ACTIVITY-011: a slot of either keeps the bus home safe that month. */
 const COUNTER_MOVES: readonly Id<"activity">[] = ["activity.safe-ride", "activity.sleep-at-office"];
+/** R-ACTIVITY-015: the now-acts whose draw lands with the month: the kiosk's draw and the match. */
+const DRAWN_LATER: readonly Id<"activity">[] = [LOTTO, BET];
+/** R-ACTIVITY-015: the effects of a now-act that land with the month: the employer's answer to a hunt. */
+const LATER_EFFECTS: readonly Effect["type"][] = ["activity/hunt"];
 
 /** The lock reasons this kind reads and writes (R-TURN-009, R-HEALTH-004). */
 export const SIDE_JOB_LOCK = "side-job";
@@ -113,6 +117,21 @@ function officialRates(read: ReadCtx): Record<ForeignCurrency, number> {
   const rates = {} as Record<ForeignCurrency, number>;
   for (const [currency, rate] of Object.entries(read.world.rates)) rates[currency as ForeignCurrency] = rate.official;
   return rates;
+}
+
+/** R-ACTIVITY-015: an entry that answers now, sent as `activity/now`; every other entry fills the month. */
+export function answersNow(entry: Pick<ActivityEntry, "when">): boolean {
+  return entry.when === "now";
+}
+
+/** R-ACTIVITY-015: the now-acts sent in the month in hand, in order. */
+export function nowThisMonth(state: State): SlotPick[] {
+  return state.activity.now ?? [];
+}
+
+/** R-ACTIVITY-015: a now-act that is not a purchase, already done this month, so shut until the next. */
+export function doneThisMonth(state: State, entry: Pick<ActivityEntry, "id" | "purchase">): boolean {
+  return entry.purchase !== true && nowThisMonth(state).some((pick) => pick.activity === entry.id);
 }
 
 // ---------------------------------------------------------------------------
@@ -566,7 +585,8 @@ function workJob(ctx: Ctx): BaseEvent[] {
  */
 function oneChance(ctx: Ctx, side: Id<"activity">): BaseEvent[] {
   if (ctx.state.place.where !== "home") return [];
-  if (turnSlots(ctx).some((pick) => COUNTER_MOVES.includes(pick.activity))) return [];
+  // R-ACTIVITY-015: the safe ride is bought now, for the month.
+  if ([...turnSlots(ctx), ...nowThisMonth(ctx.state)].some((pick) => COUNTER_MOVES.includes(pick.activity))) return [];
   const { oneChanceBp, phone } = ctx.content.tuning.ladder;
   if (!ctx.random.chance("street", oneChanceBp)) return [];
   const pocket = ctx.state.wallet.pockets.NGN;
@@ -661,6 +681,8 @@ function validateSlots(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
     if (!isPick(pick)) return reject("not-legal", `${where} is not an activity and a param.`);
     const entry = ctx.content.activity[pick.activity];
     if (entry?.slot !== "free" && entry?.slot !== "none") return reject("not-legal", `${where}: ${pick.activity} is not a free-slot activity.`);
+    // R-ACTIVITY-015: a now-act fills no slot; it is sent at once as `activity/now`.
+    if (answersNow(entry)) return reject("not-legal", `${where}: ${entry.id} answers now. It is sent as activity/now and fills no slot.`);
     // Cost is not checked here: a slot that cannot be paid fails when it resolves (R-ACTIVITY-003).
     const problem = slotProblem(ctx, entry, pick, false);
     if (problem === "requirements") return reject("not-legal", `${where}: ${entry.id} cannot be done here and now.`);
@@ -815,6 +837,65 @@ function examEffect(ctx: Ctx, effect: Extract<Effect, { type: "activity/exam" }>
   return events;
 }
 
+/** R-ACTIVITY-015: the month the paper the act just asked for is due, so the place can say how long; null for an act that asks for none. */
+function paperDue(ctx: Ctx, entry: ActivityEntry): number | null {
+  for (const effect of entry.effects) {
+    if (effect.type !== "document/request") continue;
+    const due = ctx.state.document[effect.document]?.readyMonth ?? null;
+    if (due !== null) return due;
+  }
+  return null;
+}
+
+/**
+ * `activity/now` (R-ACTIVITY-015): a now-act at once, with a slot's own checks, cost, effects and
+ * lines (R-ACTIVITY-003, 004), then the place's answer. The kiosk's draw, the match and a hunt's
+ * answer wait for the month. A now-act that is not a purchase runs once a month.
+ */
+function actNow(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
+  if (command.type !== "activity/now") throw new Error(`activity/now cannot handle ${command.type}.`);
+  const pick = { activity: command.activity, param: command.param ?? null };
+  if (!isPick(pick)) return reject("not-legal", "The act is not an activity and a param.");
+  const entry = ctx.content.activity[pick.activity];
+  if (entry === undefined) return reject("unknown-id", `${pick.activity} is not an activity in content.`);
+  if ((entry.slot !== "free" && entry.slot !== "none") || !answersNow(entry)) return reject("not-legal", `${entry.id} fills the month: it is a slot pick, not an act now.`);
+  if (doneThisMonth(ctx.state, entry)) return reject("not-legal", `${entry.id} was done this month already. It runs once a month.`);
+  const problem = slotProblem(ctx, entry, pick, true);
+  if (problem === "requirements") return reject("not-legal", `${entry.id} cannot be done here and now.`);
+  if (problem === "param") return reject("not-legal", `${String(pick.param)} is not a param ${entry.id} may take now.`);
+  if (problem === "cost") return reject("cannot-afford", `${entry.id} cannot be paid now.`);
+  const events = record(ctx, { type: "activity/now-played", activity: entry.id, param: pick.param });
+  const cause: Cause = { source: entry.id, param: pick.param, terms: {} };
+  payPrices(ctx, pricesOf(readOf(ctx), entry, pick.param), cause);
+  if (!DRAWN_LATER.includes(entry.id)) events.push(...runById(ctx, entry, pick, cause));
+  ctx.apply(
+    entry.effects.filter((effect) => !LATER_EFFECTS.includes(effect.type)),
+    cause,
+  );
+  milestones(ctx, entry, cause);
+  events.push(...record(ctx, { type: "activity/now-said", activity: entry.id, param: pick.param, ready: paperDue(ctx, entry) }));
+  return events;
+}
+
+/** R-ACTIVITY-015: what the month's now-acts left to the month, first sent first: the kiosk's draw, the match, the employer's answer. */
+function answerNowActs(ctx: Ctx): BaseEvent[] {
+  const events: BaseEvent[] = [];
+  for (const pick of nowThisMonth(ctx.state)) {
+    const entry = ctx.content.activity[pick.activity];
+    if (entry === undefined) throw new Error(`The month's now-acts name ${pick.activity}, which is not in content.`);
+    const cause: Cause = { source: entry.id, param: pick.param, terms: {} };
+    if (DRAWN_LATER.includes(entry.id)) events.push(...runById(ctx, entry, pick, cause));
+    const later = entry.effects.filter((effect) => LATER_EFFECTS.includes(effect.type));
+    if (later.length > 0) events.push(...ctx.apply(later, cause));
+  }
+  return events;
+}
+
+/** R-ACTIVITY-015: as the month closes, its now-acts are done with. */
+function closeMonth(ctx: Ctx): BaseEvent[] {
+  return nowThisMonth(ctx.state).length === 0 ? [] : record(ctx, { type: "activity/now-cleared" });
+}
+
 /** One slot (R-ACTIVITY-003, R-ACTIVITY-004): checked again, paid, then its effects. A failure pays nothing. */
 function resolveSlot(ctx: Ctx, pick: SlotPick, slot: number): BaseEvent[] {
   const entry = ctx.content.activity[pick.activity];
@@ -840,7 +921,7 @@ function resolveSlot(ctx: Ctx, pick: SlotPick, slot: number): BaseEvent[] {
  */
 function slots(ctx: Ctx): BaseEvent[] {
   const picks = turnSlots(ctx);
-  const events: BaseEvent[] = [];
+  const events: BaseEvent[] = answerNowActs(ctx);
   picks.forEach((pick, index) => events.push(...resolveSlot(ctx, pick, index)));
   // the count is the one the player saw at the turn check, carried by
   // the engine, not the count after the job's toll in `main`.
@@ -857,7 +938,9 @@ function slots(ctx: Ctx): BaseEvent[] {
   }
   events.push(...record(ctx, { type: "activity/slots-recorded", slots: picks.map((pick) => ({ ...pick })) }));
   const { job, side } = ctx.state.activity;
-  const filled = new Set<Id<"activity">>([...(job === null ? [] : [job]), ...(side === null ? [] : [side]), ...picks.map((pick) => pick.activity)]);
+  // R-ACTIVITY-015: a now-act done this month is counted with the month's slots, once.
+  const done = nowThisMonth(ctx.state).map((pick) => pick.activity);
+  const filled = new Set<Id<"activity">>([...(job === null ? [] : [job]), ...(side === null ? [] : [side]), ...picks.map((pick) => pick.activity), ...done]);
   if (filled.size > 0) events.push(...record(ctx, { type: "activity/played-counted", activities: [...filled] }));
   return events;
 }
@@ -946,7 +1029,9 @@ export function tenureAcross(state: State, activities: readonly Id<"activity">[]
  */
 function playedThisMonth(state: State): Set<Id<"activity">> {
   const { job, side, lastSlots } = state.activity;
-  return new Set<Id<"activity">>([...(job === null ? [] : [job]), ...(side === null ? [] : [side]), ...lastSlots.map((pick) => pick.activity)]);
+  // R-ACTIVITY-015: the month's now-acts are kept until the month closes, after `come-up`.
+  const done = nowThisMonth(state).map((pick) => pick.activity);
+  return new Set<Id<"activity">>([...(job === null ? [] : [job]), ...(side === null ? [] : [side]), ...lastSlots.map((pick) => pick.activity), ...done]);
 }
 
 function judgeJob(read: ReadCtx, requirement: Requirement): RequirementResult {
@@ -1032,13 +1117,16 @@ export function activityOptions(read: ReadCtx): ActivityOption[] {
       const waiting = entry.param === "school" && params?.length === 0 ? schoolWait(read) : [];
       const missing = [...entry.requires.filter((requirement) => !judge(requirement).met), ...waiting];
       const prices = pricesOf(read, entry, params?.[0] ?? null);
+      const done = doneThisMonth(read.state, entry);
       return {
         id: entry.id,
-        allowed: missing.length === 0 && requirementsHold(read, entry, judge) && (params === null || params.length > 0),
+        allowed: !done && missing.length === 0 && requirementsHold(read, entry, judge) && (params === null || params.length > 0),
         missing,
         params,
         cost: prices.map(({ currency, amount }) => ({ currency, amount })),
         affordable: canPayPrices(prices, judge),
+        when: answersNow(entry) ? "now" : "month",
+        done,
       };
     });
 }
@@ -1160,11 +1248,21 @@ function lines(event: ActivityEvent, state: State): ReportLine[] {
       return friendLines(event);
     case "activity/advised":
       return event.routes.flatMap(adviserLines);
+    case "activity/now-said":
+      return [line(nowLineKey(event.activity), { ...pickParams(event.activity, event.param), ...(event.ready === null ? {} : { month: event.ready }) }, "plain")];
+    case "activity/now-played":
+    case "activity/now-cleared":
+      return [];
     default: {
       const never: never = event;
       throw new Error(`Unknown activity event ${JSON.stringify(never)}.`);
     }
   }
+}
+
+/** R-ACTIVITY-015: the place's answer to a now-act, `line.activity.<slug>.now`. */
+export function nowLineKey(activity: Id<"activity">): string {
+  return `line.activity.${activity.slice("activity.".length)}.now`;
 }
 
 /** The checklist item's words, by the key the route's words use, as a param the interface names (`<key>.name`). */
@@ -1215,6 +1313,11 @@ function evolve(slice: ActivitySlice, event: ActivityEvent): ActivitySlice {
     }
     case "activity/noticed":
       return event.raised ? { ...slice, raised: [...(slice.raised ?? []), event.job] } : slice;
+    case "activity/now-played":
+      return { ...slice, now: [...(slice.now ?? []), { activity: event.activity, param: event.param }] };
+    case "activity/now-cleared":
+      return { ...slice, now: [] };
+    case "activity/now-said":
     case "activity/pay-withheld":
     case "activity/sick-pay":
     case "activity/side-worked":
@@ -1250,6 +1353,10 @@ function invariants(state: State, content: Content): string[] {
   for (const id of state.activity.raised ?? []) {
     if (content.activity[id]?.slot !== "main") problems.push(`The raise is kept for ${id}, which is not a job in content.`);
   }
+  for (const pick of state.activity.now ?? []) {
+    const entry = content.activity[pick.activity];
+    if (entry === undefined || !answersNow(entry)) problems.push(`The month's now-acts name ${pick.activity}, which does not answer now.`);
+  }
   for (const pick of lastSlots) {
     if (content.activity[pick.activity]?.slot !== "free" && content.activity[pick.activity]?.slot !== "none") problems.push(`The last slots name ${pick.activity}, which is not a free-slot activity.`);
   }
@@ -1262,6 +1369,7 @@ export const activityKind: RegisteredKind<ActivitySlice, ActivityEvent> = {
   commands: {
     "turn/end": validateSlots,
     "activity/quit": quit,
+    "activity/now": actNow,
   },
   effects: {
     "activity/hunt": huntEffect,
@@ -1283,7 +1391,7 @@ export const activityKind: RegisteredKind<ActivitySlice, ActivityEvent> = {
       return examEffect(ctx, effect);
     },
   },
-  phases: { main, slots },
+  phases: { main, slots, close: closeMonth },
   evolve,
   lines,
   requirements: {
