@@ -239,6 +239,14 @@ export function opensChips(id: string): string[] {
     .map((way) => way.charAt(0).toUpperCase() + way.slice(1));
 }
 
+/**
+ * True when the money a tile's life closes with is drawn, not set: a trade's settlement at the
+ * end of its years under the master is a draw, so the door says its figure as "about".
+ */
+export function moneyDrawn(archetype: Archetype): boolean {
+  return (archetype.preset["after-school"] ?? []).includes("apprentice");
+}
+
 /** The archetype's own answer at this card while one of them is allowed, else null: a draw has shut them (R-PROLOGUE-010). */
 export function presetAnswer(archetype: Archetype, prologue: Pick<Prologue, "step" | "answers">): string | null {
   const wanted = archetype.preset[prologue.step] ?? [];

@@ -9,7 +9,8 @@ import { App } from "../../App";
 import { bootGame } from "../../authority/boot";
 import { SAVE_KEY } from "../../authority/local";
 import { readPerson } from "../../authority/person";
-import { ARCHETYPES } from "../../shared/frontdoor/archetypes";
+import { ARCHETYPES, archetypeOf } from "../../shared/frontdoor/archetypes";
+import { startIn } from "./ScenarioView";
 import { startArchetype, toTheArchetypes } from "../../shared/frontdoor/frontDoor.testing";
 import type { GameStore } from "../../authority/store";
 import { say } from "../../shared/words/text";
@@ -95,5 +96,7 @@ describe("the home picked at the door", () => {
     const view = store.getState().view!;
     expect(view.home.place).toBe("place.compound-room");
     expect(view.obligations.map((owed) => owed.entry).sort()).toEqual(["obligation.rent-compound", "obligation.upkeep-compound"]);
+    // The figure the door showed over "to start" is the money the band shows as the world opens.
+    expect(view.pockets.NGN.bank + view.pockets.NGN.cash).toBe(startIn(archetypeOf("accountant")!, 0, "compound-room"));
   }, 30000);
 });

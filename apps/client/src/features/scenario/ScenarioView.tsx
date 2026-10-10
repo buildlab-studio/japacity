@@ -18,7 +18,7 @@ import { useGame } from "../../authority/GameProvider";
 import { keepPerson } from "../../authority/person";
 import { formatMoney } from "../../shared/words/format";
 import { blurbOf, say, words } from "../../shared/words/text";
-import { type Archetype, ARCHETYPES, archetypeOf, FROM_SIXTEEN, type Home, homeOf, homesFor, opensChips, savingsOf, throughUniversity } from "../../shared/frontdoor/archetypes";
+import { type Archetype, ARCHETYPES, archetypeOf, FROM_SIXTEEN, type Home, homeOf, homesFor, moneyDrawn, opensChips, savingsOf, throughUniversity } from "../../shared/frontdoor/archetypes";
 import { DoorHead } from "../../shared/frontdoor/DoorHead";
 import { Stand } from "../../shared/frontdoor/Stand";
 import { Gate, GateSheet, gateLook } from "../../shared/frontdoor/Gate";
@@ -89,6 +89,15 @@ export function pocketIn(archetype: Archetype, years: number, home: Home): numbe
   const saved = yearsWorked(years).saved;
   const { now, monthly } = homeFigures(home);
   return savingsOf(archetype) + saved - now - monthly;
+}
+
+/**
+ * The naira in kobo the life holds at Begin in a home: the tile's savings and what its age step
+ * saves, less what moving in takes. The band shows this figure when the world opens; the month's living falls due at the
+ * month's end, so the row names it apart.
+ */
+export function startIn(archetype: Archetype, years: number, home: Home): number {
+  return savingsOf(archetype) + yearsWorked(years).saved - homeFigures(home).now;
 }
 
 /** The home kept when the tile or the age changes: the one the player picked while the life can still move in, else the tile's own, else the first it can pay for. */
@@ -602,8 +611,10 @@ export function ScenarioView({ guest = null }: { guest?: DoorGuest | null }) {
                   // The room shut says what is still needed; a home whose first month cannot be paid says the shortfall.
                   const shut = one === "compound-room" ? "needed" : "short";
                   const Icon = short ? Lock : HOME_ICONS[one];
-                  const figure = formatMoney(Math.abs(pocket), "NGN");
                   const { monthly, rentYear } = homeFigures(one);
+                  // Open: what the life holds at Begin; shut: what it is short of the move-in and a month of living.
+                  const start = formatMoney(startIn(archetype, draft.age, one), "NGN");
+                  const figure = short ? formatMoney(-pocket, "NGN") : moneyDrawn(archetype) ? say("ui.door.home.about", { amount: start }) : start;
                   return (
                     <button
                       key={one}
@@ -611,7 +622,7 @@ export function ScenarioView({ guest = null }: { guest?: DoorGuest | null }) {
                       role="radio"
                       aria-checked={on}
                       aria-label={say(`ui.door.home.${one}`)}
-                      aria-description={say(short ? `ui.door.home.said.${shut}` : "ui.door.home.said.left", { amount: figure })}
+                      aria-description={say(short ? `ui.door.home.said.${shut}` : "ui.door.home.said.start", { amount: figure, monthly: formatMoney(monthly, "NGN") })}
                       disabled={short}
                       data-home={one}
                       onClick={() => change({ home: one, homePicked: true })}
@@ -626,9 +637,9 @@ export function ScenarioView({ guest = null }: { guest?: DoorGuest | null }) {
                           {say(`ui.door.home.costs.${one}`, { amount: formatMoney(monthly, "NGN"), rent: formatMoney(rentYear ?? 0, "NGN") })}
                         </span>
                       </span>
-                      <span className="shrink-0 text-right leading-tight" data-home-left={short ? shut : "left"}>
+                      <span className="shrink-0 text-right leading-tight" data-home-left={short ? shut : "start"}>
                         <span className="num block text-[14px]">{figure}</span>
-                        <span className="block text-[10px] font-semibold opacity-80">{say(short ? `ui.door.home.${shut}` : "ui.door.home.left")}</span>
+                        <span className="block text-[10px] font-semibold opacity-80">{say(short ? `ui.door.home.${shut}` : "ui.door.home.start")}</span>
                       </span>
                     </button>
                   );
