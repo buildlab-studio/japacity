@@ -153,10 +153,14 @@ test("[R-WORLD-003] the nudge changes when an offer opens, and a tap on it opens
   const before = (await nudge.textContent()) ?? "";
   expect(before).not.toBe("Answer the person asking");
 
-  await page.locator("[data-end-month]").click();
-  await page.locator("[data-world-sheet='month'] [data-month-end]").click();
-  await passMoments(page);
-  await page.locator("[data-results-back]").click();
+  // The recorded life's first offer opens within its first months; which month depends on the recording, so the
+  // test ends months until the nudge turns to the ask, at most four.
+  for (let month = 0; month < 4 && (await nudge.textContent()) !== "Answer the person asking"; month += 1) {
+    await page.locator("[data-end-month]").click();
+    await page.locator("[data-world-sheet='month'] [data-month-end]").click();
+    await passMoments(page);
+    await page.locator("[data-results-back]").click();
+  }
   await expect(nudge).toHaveText("Answer the person asking");
   await placeDrawn(page);
   await shoot(page, "nudge-offer");

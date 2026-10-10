@@ -11,7 +11,8 @@ import { useGameStoreIfAny } from "../../authority/GameProvider";
 import { type KeptPerson, readPerson } from "../../authority/person";
 import type { GameStore } from "../../authority/store";
 import { keptTypeOf } from "../card/kept";
-import { archetypeOf } from "../frontdoor/archetypes";
+import { type Archetype, archetypeOf, throughUniversity } from "../frontdoor/archetypes";
+import { sixteenPath } from "../words/sixteen";
 import { gateLook } from "../frontdoor/Gate";
 import { lookOf } from "../frontdoor/looks";
 import { clockWords } from "../words/quality";
@@ -27,6 +28,13 @@ function nameOf(person: KeptPerson | null, view: Pick<PlayerView, "scenario">): 
   return hasWords(own) ? (say(own).split(/\s+/)[0] ?? "") : "";
 }
 
+/** The tile's name while the life went its way; the life as lived when the years went another way (R-PROLOGUE-014). */
+function pathOf(archetype: Archetype, view: PlayerView): string {
+  const lived = sixteenPath(view);
+  if (lived === null || (lived === "degree") === throughUniversity(archetype)) return say(`prologue.archetype.${archetype.id}.name`);
+  return say(`prologue.page.lived.${lived}`);
+}
+
 /** The page's fields from the view as it stands and the person kept beside the save. */
 export function pageOf(view: PlayerView, person: KeptPerson | null = readPerson()): PageFields {
   const archetype = archetypeOf(person?.archetype);
@@ -37,7 +45,7 @@ export function pageOf(view: PlayerView, person: KeptPerson | null = readPerson(
     ...(type === null ? {} : { type: typeWords(type) }),
     name: nameOf(person, view),
     age: clockWords(view.qualities),
-    path: archetype !== null ? say(`prologue.archetype.${archetype.id}.name`) : hasWords(kind) ? say(kind) : "",
+    path: archetype !== null ? pathOf(archetype, view) : hasWords(kind) ? say(kind) : "",
     ready: say("prologue.page.ready.figure", { percent: view.japacity.percent ?? 0 }),
     photo: lookOf(gateLook(person?.look))?.picture ?? "",
     stamps: stampsOf(view),
