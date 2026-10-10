@@ -9,7 +9,7 @@ import { say } from "../words/text";
 
 type Prologue = NonNullable<PlayerView["prologue"]>;
 
-export type ArchetypeId = "developer" | "nurse" | "accountant" | "writer" | "trader" | "shop-worker";
+export type ArchetypeId = "developer" | "nurse" | "accountant" | "writer" | "trader" | "shop-worker" | "water";
 
 export interface Archetype {
   id: ArchetypeId;
@@ -90,6 +90,15 @@ export const ARCHETYPES: readonly Archetype[] = [
     id: "shop-worker",
     preset: { ...THROUGH, subjects: ["commercial"], "after-school": ["work"], shop: ["save"] },
     leaning: {},
+    routes: ["route.gulf-contract", "route.road"],
+  },
+  {
+    // The child of the water (R-PROLOGUE-012): school by canoe, then the counter and the racks, no master and no
+    // settlement, and a room on the lagoon at the start, with the family house still there to go back to. The room's
+    // small rent is the saving, and the motor park is the way out, as it is the trader's.
+    id: "water",
+    preset: { ...THROUGH, subjects: ["commercial"], "after-school": ["work"], shop: ["save"], home: ["makoko"] },
+    leaning: { friend: "nowhere" },
     routes: ["route.gulf-contract", "route.road"],
   },
 ];

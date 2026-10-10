@@ -59,6 +59,19 @@ describe("the front door's draw", () => {
     expect(wrong).toEqual([]);
   });
 
+  test("[R-PROLOGUE-011] [R-PROLOGUE-012] given the child of the water's tile over 40 lives, when each is played, then the family's draw never shuts its path: the first seed keeps it, and every life closes in Makoko's room", () => {
+    const water = archetypeOf("water")!;
+    const wrong: string[] = [];
+    for (let at = 0; at < BASES; at += 1) {
+      const base = `water-door-${String(at)}`;
+      const seed = tileSeed(water, base, world, content);
+      if (seed !== seedNamed(base, 0)) wrong.push(`${base}: ${seed}`);
+      const { answered, view } = played(water, seed);
+      if (answered["home"] !== "makoko" || view.home.place !== "place.makoko") wrong.push(`${base}: ${JSON.stringify(answered)}`);
+    }
+    expect(wrong).toEqual([]);
+  });
+
   test("[R-PROLOGUE-011] given a base whose first seed shuts the trader's trade, when the front door picks the seed, then it tries the next named seeds in turn and takes the first that keeps the trade open", () => {
     const trader = archetypeOf("trader")!;
     const base = Array.from({ length: BASES }, (_, at) => `trader-door-${String(at)}`).find((one) => !keepsTile(trader, seedNamed(one, 0), world, content));

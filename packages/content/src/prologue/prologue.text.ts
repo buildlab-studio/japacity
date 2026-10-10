@@ -151,6 +151,14 @@ export const prologueText: Record<string, string> = {
   "prologue.archetype.shop-worker.name": "The shop worker",
   "prologue.archetype.shop-worker.was": "Straight from school to a shop counter",
   "prologue.archetype.shop-worker.opens": "Opens: a Gulf contract, the road through the desert to Europe. Hands over at about 22",
+  // R-PROLOGUE-012: the child of the water starts in a room in Makoko. Its nudges, for the first chapter's table:
+  // `job` while it has no work, `heard` while no way out is heard of, `shop` once a shop's capital is in hand.
+  "prologue.archetype.water.name": "The child of the water",
+  "prologue.archetype.water.was": "Grew up in Makoko. A canoe to school, then the fish racks",
+  "prologue.archetype.water.opens": "Opens: a Gulf contract, the road through the desert to Europe. Hands over at about 22",
+  "prologue.archetype.water.nudge.job": "Find work in town. The rent on the water is small, so most of the pay stays.",
+  "prologue.archetype.water.nudge.heard": "Paddle to the bridge and ask around at the motor park.",
+  "prologue.archetype.water.nudge.shop": "That is a shop's capital. Take a stall at the market.",
   "prologue.handover.archetype": "{kind}. {was}.",
   // R-PROLOGUE-011: where a life cannot be started over (online, one life an account), the tiles say the draw may
   // turn the years, and a handover whose life left its tile's path reads the life as lived, never the tile.
