@@ -280,7 +280,9 @@ async function mainButton(sheet: Locator): Promise<Locator | null> {
     const picker = PICKER_ROLES.has((await button.getAttribute("role")) ?? "") || (await button.getAttribute("aria-expanded")) !== null;
     // The jobs list picks which job the hunt is for; the act is the card's own button under it.
     const aside = (await button.locator("xpath=ancestor::*[@data-asks-foot or @data-jobs or @data-jobs-out]").count()) > 0;
-    if (!picker && !aside && !/^(Close|Back)$/.test(name) && (await button.isVisible())) return button;
+    // The phone's scrim is a button hidden from readers (aria-hidden, no name): a tap on it closes the phone, never an act.
+    const hidden = (await button.getAttribute("aria-hidden")) === "true";
+    if (!picker && !aside && !hidden && !/^(Close|Back)$/.test(name) && (await button.isVisible())) return button;
   }
   return null;
 }
@@ -361,6 +363,45 @@ async function followNudge(run: Run, month: number): Promise<void> {
   }
   await closeSheets(run);
   await settle(run, `after the nudge in month ${String(month)}`);
+}
+
+/**
+ * On the road (the desert route's screen): the set piece's question is answered with its first allowed answer that is
+ * not the exit, then Wait a month ends the month. The life's end, or a month that cannot be waited, ends the run.
+ */
+async function onTheRoad(run: Run, month: number): Promise<boolean> {
+  const { page } = run;
+  const road = page.locator("[data-road]");
+  log(run, `on the road in month ${String(month)}: ${await words(road, 240)}`);
+  await shot(run, `month ${String(month)} on the road`);
+  for (let step = 0; step < 4; step += 1) {
+    const answers = road.locator("[data-chain-card] button:enabled:not([data-exit])");
+    if (!(await shown(answers))) break;
+    const name = await words(answers, 80);
+    log(run, `road question: ${await words(road.locator("[data-chain-card]"), 240)}; answering "${name}"`);
+    await tap(run, answers, name);
+    await page.waitForTimeout(1_200);
+  }
+  const wait = road.locator("[data-road-wait]");
+  if (!(await appear(wait, LONG))) {
+    problem(run, `month ${String(month)}: no Wait a month on the road`);
+    return false;
+  }
+  if (await wait.first().isDisabled()) {
+    log(run, `month ${String(month)}: the road's month cannot be waited (the life ended, or nothing is banked)`);
+    return false;
+  }
+  if (!(await tap(run, wait, "Wait a month"))) return false;
+  // The button is busy while the month runs and enabled again after; a life that ended leaves it shut.
+  await page.waitForTimeout(600);
+  await wait.first().waitFor({ state: "visible", timeout: LONG }).catch(() => undefined);
+  await page
+    .waitForFunction("(() => { const wait = document.querySelector('[data-road-wait]'); return wait === null || !wait.disabled || document.querySelector('[data-road]') === null; })()", null, { timeout: LONG })
+    .catch(() => undefined);
+  run.monthsEnded += 1;
+  log(run, `month ${String(month)} waited out on the road: ${await words(road, 200)}`);
+  await shot(run, `month ${String(month)} road results`);
+  return true;
 }
 
 async function endMonth(run: Run, month: number): Promise<boolean> {
@@ -519,6 +560,11 @@ async function play(options: PlayOptions, button: string): Promise<number> {
     const reached = (await frontDoor(run, button)) && (await intoTheWorld(run));
     if (reached) {
       for (let month = 1; month <= options.months; month += 1) {
+        // A life that took the road is on its own screen, a list with no world (features/road): its month is waited out there.
+        if (await shown(page.locator("[data-road]"))) {
+          if (!(await onTheRoad(run, month))) break;
+          continue;
+        }
         await followNudge(run, month);
         if (!(await endMonth(run, month))) break;
       }
