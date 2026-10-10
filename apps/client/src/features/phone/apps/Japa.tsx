@@ -11,6 +11,7 @@ import { use, useState } from "react";
 import { useGame, useView } from "../../../authority/GameProvider";
 import { monthsLeft, SOON } from "../../../shared/words/expiry";
 import { formatBand, formatMoney } from "../../../shared/words/format";
+import { checklistWords } from "../../../shared/words/requirement";
 import { blurbOf, forMonths, inMonths, nameOf, runningName, say, sayCount, words } from "../../../shared/words/text";
 import { Head, PhoneSaid } from "../act";
 import { phoneWords } from "../phone.words";
@@ -405,7 +406,7 @@ export function Japa() {
       ) : null}
       <Head>{phoneWords("phone.japa.steps")}</Head>
       <ul className="flex flex-col" data-steps>
-        {route === null || route.state === "heard" ? null : route.checklist.map((item) => <Step key={item.id} met={item.met}>{words(`${route.id}.item.${item.id}`)}</Step>)}
+        {route === null || route.state === "heard" ? null : route.checklist.map((item) => <Step key={item.id} met={item.met}>{checklistWords(route.id, item.id)}</Step>)}
       </ul>
       <PapersButton view={view} onOpen={() => setPapers(true)} />
     </div>

@@ -206,6 +206,8 @@ export const uiText: Record<string, string> = {
   "ui.line.quality.gain-band": "{quality} up.",
   "ui.line.quality.loss-band": "{quality} down.",
   "ui.line.quality.drift-band": "{quality} settles. {band}.",
+  // A quality with named levels and no bands: "Education: Bachelor's degree.".
+  "ui.line.quality.label": "{quality}: {value}.",
   "ui.band.quality.portfolio.0": "You have little work to show",
   "ui.band.quality.portfolio.1": "You have a few pieces to show",
   "ui.band.quality.portfolio.2": "You have a good body of work",

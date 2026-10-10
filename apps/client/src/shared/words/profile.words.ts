@@ -14,12 +14,10 @@ export const profileText: Record<string, string> = {
   "ui.counts.route.route.gulf-contract": "the Gulf contract",
   "ui.counts.route.route.road": "the road",
 
-  // R-ACTIVITY-014: "₦60,000 a month; ₦90,000 at tech 50".
+  // R-ACTIVITY-014: "₦60,000 a month; ₦90,000 once your tech is good". A quality is said by its band, never its figure (R-TEXT-005).
   "ui.tier.next": "{pay}; {lift}",
-  "ui.tier.lift": "{next} at {quality} {value}",
-  "ui.tier.quality.quality.tech": "tech",
-  "ui.tier.quality.quality.english": "English",
-  "ui.tier.quality.quality.network": "network",
+  "ui.tier.lift": "{next} once {band}",
+  "ui.tier.lift-needs": "{next} with {needs}",
 
   // The things and acts that stage them (R-WORLD-005).
   "city.thing.laptops": "Laptops",
