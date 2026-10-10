@@ -1,13 +1,12 @@
 // News (docs/rules/world.md R-WORLD-008, R-WORLD-018): the era line, the last month's report lines
 // (they stay here after the results sheet), and the stories that have reached the character.
 import { content } from "@japacity/content";
-import type { NewsStage, ReportLine, RouteStateName } from "@japacity/sim";
+import type { NewsStage, RouteStateName } from "@japacity/sim";
 
 import { useGame, useView } from "../../../authority/GameProvider";
-import { isUnpaid, tidyLines, toldUnpaid } from "../../../shared/words/lines";
+import { newsLines } from "../../../shared/words/told";
 import { blurbOf, monthsAgo, nameOf, say, words } from "../../../shared/words/text";
 import { SourceMark } from "../../../shared/ui/NewsSource";
-import { asPiece, toldOnResults } from "../../turn/month.results";
 import { Head } from "../act";
 import { phoneWords } from "../phone.words";
 
@@ -35,24 +34,6 @@ const EVICTED: ReadonlySet<string> = new Set(["line.home.evicted", "line.home.ev
 /** The story of the clearing, carried the month it happens: the character's own news, so the world's schedule never holds it. */
 const CLEARED = "news.makoko-cleared";
 
-function leads(line: ReportLine): boolean {
-  return EVICTED.has(line.key) || isUnpaid(line) || line.key.startsWith("ui.results.unpaid");
-}
-
-/** Money that went unpaid leads News as it leads the results (R-WORLD-008), after the room cleared away. */
-function newsOrder(lines: readonly ReportLine[]): ReportLine[] {
-  return [...lines.filter((line) => EVICTED.has(line.key)), ...lines.filter((line) => leads(line) && !EVICTED.has(line.key)), ...lines.filter((line) => !leads(line))];
-}
-
-/**
- * The month's lines as News tells them: those of what was done mid-month (an agent paid, an ask answered) first, money
- * unpaid leading, each in the results' own words, so News never tells the month another way (R-WORLD-008; the tenth
- * review, W11: a piece for the portfolio was "one of three" on the results and "little work to show" here).
- */
-export function newsLines(midMonth: readonly ReportLine[], report: readonly ReportLine[]): ReportLine[] {
-  return newsOrder(tidyLines([...midMonth, ...report]).map((line) => toldOnResults(asPiece(toldUnpaid(line)))));
-}
-
 export function News() {
   const { news, era, report, month, routes } = useView();
   // R-WORLD-008: the month's lines stay here, those of what was done mid-month (an agent paid, an ask answered) first.
@@ -73,6 +54,7 @@ export function News() {
       {report === null ? null : (
         <div data-report={report.month}>
           <Head>{phoneWords("phone.news.month", { when: monthsAgo(report.month, month) })}</Head>
+          {/* The month's lines are told as the results tell them (shared/words/told.ts, R-WORLD-008). */}
           <ul className="flex flex-col divide-y divide-sheet-line">
             {newsLines(midMonth, report.lines).map((line, index) => (
               <li key={`${line.key}-${String(index)}`} className={`py-1.5 text-[14px] ${line.tone === "good" ? "text-in" : line.tone === "bad" ? "text-out" : "text-text"}`}>

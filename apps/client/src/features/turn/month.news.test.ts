@@ -7,14 +7,14 @@ import { content } from "@japacity/content";
 import type { Content, Id, ReportLine } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
-import { lifeSaves } from "../../../../../../packages/sim/src/goldens/lives.data";
-import { applyEffects, readyLife, slot } from "../../../../../../packages/sim/src/route/route.journey";
-import { start, type Game } from "../../../../../../packages/sim/src/testing/play";
-import { recordedSave } from "../../../shared/testing/fixtures";
-import { tidyLines } from "../../../shared/words/lines";
-import { words } from "../../../shared/words/text";
-import { storyLines, toldOnResults } from "../../turn/month.results";
-import { newsLines } from "./News";
+import { lifeSaves } from "../../../../../packages/sim/src/goldens/lives.data";
+import { applyEffects, readyLife, slot } from "../../../../../packages/sim/src/route/route.journey";
+import { start, type Game } from "../../../../../packages/sim/src/testing/play";
+import { recordedSave } from "../../shared/testing/fixtures";
+import { tidyLines } from "../../shared/words/lines";
+import { words } from "../../shared/words/text";
+import { newsLines } from "../../shared/words/told";
+import { storyLines, toldOnResults } from "./month.results";
 
 const TALENT: Id<"route"> = "route.uk-talent";
 const ENDORSEMENT: Id<"document"> = "document.endorsement";

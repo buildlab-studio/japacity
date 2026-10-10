@@ -4,11 +4,13 @@
 import { content } from "@japacity/content";
 import type { Currency, PlayerView, ReportLine } from "@japacity/sim";
 
-import { monthlyPayOf } from "../../shared/words/cost";
-import { countWords } from "../../shared/words/count";
-import { afterPrologue, forYou, isSaid, isUnpaid, tidyLines, toldUnpaid } from "../../shared/words/lines";
+import { afterPrologue, forYou, isSaid, isUnpaid, tidyLines } from "../../shared/words/lines";
 import { BANK_CHARGE, CONVERT_PAID, CONVERTED, type MoneyLine, moneyLines } from "../../shared/words/money";
 import { savingsOf } from "../../shared/words/savings";
+import { EXAM_MARKED, PIECE, PIECE_MORE, asPiece, toldOnResults } from "../../shared/words/told";
+
+// How a line is told on the results lives in shared/words/told.ts, so News tells the month in the same words (R-WORLD-008).
+export { asPiece, toldOnResults };
 
 // The month's money lines live in shared/words/money.ts, so the Bank's Lately reads the same lines (R-WORLD-019).
 export { CHANGED, CHANGED_OUT, type MoneyLine, moneyLines } from "../../shared/words/money";
@@ -54,13 +56,6 @@ export function isEvicted(line: ReportLine): boolean {
   return EVICTED.has(line.key);
 }
 
-/** A piece added to the portfolio, as the results tell the portfolio's own line. */
-const PIECE = "line.activity.piece-built";
-const PIECE_MORE = "line.activity.piece-built-more";
-const PORTFOLIO = "quality.portfolio";
-
-/** The exam marked: the score and what a pass needs (R-ACTIVITY-013). */
-const EXAM_MARKED: ReadonlySet<string> = new Set(["line.activity.exam-passed", "line.activity.exam-failed"]);
 
 /**
  * What the waiting months' acts came to (R-ACTIVITY-013): the exam's score, a piece for the portfolio,
@@ -71,24 +66,6 @@ const ACTS: ReadonlySet<string> = new Set([...EXAM_MARKED, PIECE, PIECE_MORE, "l
 
 /** The set pieces an act's exam is sat in: once its score is told, "the exam is over" says nothing more. */
 const EXAMS: ReadonlySet<string> = new Set(Object.values(content.activity).flatMap((entry) => (entry?.exam === undefined ? [] : [entry.exam.setpiece])));
-
-/** The most pieces any route's checklist asks for: what a piece is counted toward. */
-const PIECES_ASKED = Math.max(
-  0,
-  ...Object.values(content.route)
-    .flatMap((route) => route?.checklist ?? [])
-    .flatMap((item) => (item.requirement.type === "quality/min" && item.requirement.quality === PORTFOLIO ? [item.requirement.value] : [])),
-);
-
-/**
- * The portfolio rising, told as a piece for it (R-ACTIVITY-013): how many of what a route asks, or past
- * that, how many there are. Any other line is itself.
- */
-export function asPiece(line: ReportLine): ReportLine {
-  const { quality, value } = line.params;
-  if (line.key !== "line.quality.gain" || quality !== PORTFOLIO || typeof value !== "number") return line;
-  return value > PIECES_ASKED ? { ...line, key: PIECE_MORE, params: { pieces: value } } : { ...line, key: PIECE, params: { pieces: value, need: PIECES_ASKED } };
-}
 
 /**
  * The kinds of line that carry the month's story, in the order the results lead with them: the
@@ -151,24 +128,6 @@ export function storyLines(lines: readonly ReportLine[]): ReportLine[] {
 /** True for the line that leads the results alone: the visa granted. */
 export function leadsAlone(line: ReportLine): boolean {
   return line.key === GRANTED;
-}
-
-/**
- * A story line as the results tell it (R-WORLD-008): a bill missed says its figure and what it
- * cost, a hunt says the job and its answer, an offer of work says the pay a month. Anything else
- * is told as News tells it.
- */
-export function toldOnResults(line: ReportLine): ReportLine {
-  const { job } = line.params;
-  // A score or a count of pieces reads as a person says it: "one of three", never "1 of 3" (R-TEXT-005).
-  if (EXAM_MARKED.has(line.key) || line.key === PIECE || line.key === PIECE_MORE) return { ...line, params: Object.fromEntries(Object.entries(line.params).map(([name, value]) => [name, typeof value === "number" ? countWords(value) : value])) };
-  if (line.key === "line.obligation.missed") return toldUnpaid(line);
-  if (line.key === "line.activity.hunt-missed" && typeof job === "string") return { ...line, key: "ui.results.hunt-missed" };
-  if (line.key === "line.activity.hunt-hired" && typeof job === "string") {
-    const pay = monthlyPayOf(job);
-    return pay === null ? { ...line, key: "ui.results.hunt-offer-plain" } : { ...line, key: "ui.results.hunt-offer", params: { ...line.params, pay } };
-  }
-  return line;
 }
 
 /** What was kept in each currency the lines moved: in less out, in the order each first appears. */
