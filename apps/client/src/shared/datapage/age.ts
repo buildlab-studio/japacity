@@ -89,6 +89,7 @@ export function youngLimitYears(): number {
 export function ageStepWords(years: number, middle: number): string {
   const step = ageSteps().find((one) => one.years === years);
   if (step !== undefined && step.years > 0) return say(step.passport ? "prologue.age.older.passport" : "prologue.age.older", { amount: formatMoney(step.saved, "NGN") });
-  const left = Math.max(0, youngLimitYears() - Math.floor((middle + years * YEAR) / YEAR));
+  // Whole years from the age the step lands at to the limit, so "24 years old" and "6 years before" add up to 30.
+  const left = Math.max(0, Math.floor((youngLimitYears() * YEAR - (middle + years * YEAR)) / YEAR));
   return sayCount(years === 0 ? "prologue.age.as-is" : "prologue.age.younger", left, { count: left });
 }
