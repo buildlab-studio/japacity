@@ -45,6 +45,8 @@ export interface ServerConfig {
   notify: { reaskDays: number; pushTtlDays: number; maxDevices: number; tokenHours: number };
   /** moderation.md Numbers: reports a player may file a day, the longest hold, the decision target, how long decisions are kept. */
   moderation: { reportsPerDay: number; holdDays: number; decideHours: number; logYears: number };
+  /** R-ADVERT-020: impressions and taps one account may add to a slot's totals in a UTC day. */
+  advert: { countsPerAccountDay: { impressions: number; taps: number } };
   /**
    * R-ACCOUNT-005, R-CLOCK-009: the stand-ins that exist only in the test
    * server's config. Every one is false in production.
@@ -101,6 +103,7 @@ export const productionConfig: ServerConfig = {
   board: { size: 50 },
   notify: { reaskDays: 14, pushTtlDays: 1, maxDevices: 10, tokenHours: 12 },
   moderation: { reportsPerDay: 20, holdDays: 90, decideHours: 24, logYears: 3 },
+  advert: { countsPerAccountDay: { impressions: 200, taps: 20 } },
   testing: { fastClock: false, captureOtp: false, stubGoogle: false, virtualPasskeys: false, testLogin: false },
 };
 
@@ -126,6 +129,7 @@ export function testConfig(over: Deep<ServerConfig> = {}): ServerConfig {
     board: { ...productionConfig.board, ...over.board },
     notify: { ...productionConfig.notify, ...over.notify },
     moderation: { ...productionConfig.moderation, ...over.moderation },
+    advert: { countsPerAccountDay: { ...productionConfig.advert.countsPerAccountDay, ...over.advert?.countsPerAccountDay } },
     testing: { ...productionConfig.testing, ...over.testing },
   };
 }
