@@ -24,6 +24,8 @@ import { Gate, GateSheet, gateLook } from "../../shared/frontdoor/Gate";
 import { lookOf } from "../../shared/frontdoor/looks";
 import { type Archetype, answersInOrder, archetypeOf, doorAnswer, fullPrologue, handoverKind, throughUniversity, withAge, withHome } from "../../shared/frontdoor/archetypes";
 import { DataPage, type PageFields, Stamp } from "../../shared/datapage/DataPage";
+import { JapacityLine, StatBox } from "../../shared/datapage/PageParts";
+import { DoorHead } from "../../shared/frontdoor/DoorHead";
 import { readDoor } from "../../shared/datapage/door";
 import { pageOf } from "../../shared/datapage/PageSheet";
 import { familyCard, noteAnswer, noteCard, readTrail, storyChips, type YearChip, yearChips } from "./years";
@@ -381,14 +383,6 @@ function Chips({ chips, mark }: { chips: readonly YearChip[]; mark?: string }) {
   );
 }
 
-function Stat({ label, value, mark }: { label: string; value: string; mark: string }) {
-  return (
-    <div className="rounded-[5px] bg-sheet-muted py-2 text-center" data-stat={mark}>
-      <div className="num text-[17px]">{value}</div>
-      <div className="label text-[10px] text-text-2">{label}</div>
-    </div>
-  );
-}
 
 /**
  * The page over the compound after Begin (R-PROLOGUE-014). While the years go by (`onDone` absent) the page shows the
@@ -424,10 +418,18 @@ function PageScreen({ view, archetype, draw, onDone }: { view: PlayerView; arche
   const story = handover ? storyChips(view) : [];
   const step = handover ? firstStep(view) : null;
   const naira = view.pockets.NGN.bank + view.pockets.NGN.cash;
+  // The page after Begin reads as the door's page screen (the design's layout): the header on the band, the data page under it.
   const over: ReactNode = (
-    <div className="pointer-events-auto mx-auto mt-2 w-full max-w-[420px]">
-      <DataPage page={page} stamp={stamped ? <Stamp words={say("prologue.page.stamp.ready")} turn={-12} big /> : null} />
-    </div>
+    <>
+      {handover ? (
+        <div className="band-2 pointer-events-auto -mx-3 -mt-[max(10px,env(safe-area-inset-top))] px-3 pt-[max(12px,env(safe-area-inset-top))] pb-2">
+          <DoorHead title={say("prologue.door.page.title")} at={2} count={3} onBack={null} onShuffle={null} onSkip={null} />
+        </div>
+      ) : null}
+      <div className="pointer-events-auto mx-auto mt-2 w-full max-w-[420px]">
+        <DataPage page={page} print stamp={stamped ? <Stamp words={say("prologue.page.stamp.ready")} turn={-12} big /> : null} />
+      </div>
+    </>
   );
   const foot = handover ? (
     <>
@@ -447,10 +449,13 @@ function PageScreen({ view, archetype, draw, onDone }: { view: PlayerView; arche
       <Gate mark={handover ? "handover" : "years"} over={over}>
         <GateSheet mark={handover ? "handover" : "years"} label={say("prologue.door.page.title")} {...(foot === undefined ? {} : { foot })}>
           <div className="flex flex-col" data-prologue-handover={handover ? "" : undefined}>
-            <div className="mb-2 flex items-baseline justify-between gap-3">
-              {person === null || person.name === "" ? <h1 className="title text-[20px] leading-tight">{words(PROLOGUE_CLOSED)}</h1> : <h1 className="title text-[22px] leading-none">{person.name}</h1>}
-              <p className="num shrink-0 text-[13px] text-text-2">{say("ui.profile.age", { years: ageYears(view) })}</p>
-            </div>
+            {/* The page over the sheet already prints the name, the age and the path (the design's page screen); the sheet carries the rest. */}
+            {handover && person !== null && person.name !== "" ? null : (
+              <div className="mb-2 flex items-baseline justify-between gap-3">
+                {person === null || person.name === "" ? <h1 className="title text-[20px] leading-tight">{words(PROLOGUE_CLOSED)}</h1> : <h1 className="title text-[22px] leading-none">{person.name}</h1>}
+                <p className="num shrink-0 text-[13px] text-text-2">{say("ui.profile.age", { years: ageYears(view) })}</p>
+              </div>
+            )}
             {handover && archetype !== null ? (
               <p className="mb-2 text-[14px] font-bold" data-handover-archetype>
                 {handoverKind(archetype, view)}
@@ -461,10 +466,13 @@ function PageScreen({ view, archetype, draw, onDone }: { view: PlayerView; arche
             <Chips chips={years} mark="data-years" />
             {story.length === 0 ? null : <Chips chips={story} mark="data-handover-story" />}
             {handover ? (
-              <div className="mt-2 grid grid-cols-2 gap-1.5">
-                <Stat label={say("ui.page.money")} value={formatMoney(naira, "NGN")} mark="money" />
-                <Stat label={say("ui.page.ready")} value={say("prologue.page.ready.figure", { percent: view.japacity.percent ?? 0 })} mark="ready" />
-              </div>
+              <>
+                <div className="mt-3 grid grid-cols-2 gap-1.5">
+                  <StatBox label={say("ui.page.money")} value={formatMoney(naira, "NGN")} mark="money" />
+                  <StatBox label={say("ui.page.ready")} value={say("prologue.page.ready.figure", { percent: view.japacity.percent ?? 0 })} mark="ready" />
+                </div>
+                <JapacityLine />
+              </>
             ) : null}
           </div>
         </GateSheet>
