@@ -537,10 +537,11 @@ function startProblems(game: Game, label: string): string[] {
   say(Object.keys(state.offer.items).length > 0, "an offer is open");
   say(state.setpiece.open !== null, "a set piece is open");
   for (const [id, route] of Object.entries(state.route)) say(route.state !== "unknown" && route.state !== "heard", `${id} is ${route.state}`);
-  // R-PROLOGUE-006: the upkeep the last answer chose is the only obligation; a room in Makoko owes Makoko's (R-PROLOGUE-012).
+  // R-PROLOGUE-006: what the last answer opened is all that is owed: the upkeep it chose, a room in Makoko's own
+  // (R-PROLOGUE-012), or the room in a compound's year's rent and its upkeep (R-PROLOGUE-013).
   const home = withPrologue.prologue["home"]?.answers.find((answer) => answer.id === state.prologue.choices["home"]);
-  const upkeep = home?.effects.find((effect) => effect.type === "obligation/open");
-  const wanted = upkeep?.type === "obligation/open" && typeof upkeep.amount === "number" ? `${upkeep.obligation} ${String(upkeep.amount)}` : null;
+  const opens = (home?.effects ?? []).flatMap((effect) => (effect.type === "obligation/open" && typeof effect.amount === "number" ? [`${effect.obligation} ${String(effect.amount)}`] : []));
+  const wanted = opens.length === 0 ? null : opens.join(",");
   const owed = Object.values(state.obligation.items).map((item) => `${item.entry} ${String(item.amount)}`);
   say(owed.join(",") !== wanted, `owes ${owed.join(", ")}`);
   say(state.turn.banked !== withPrologue.tuning.turn.start, `the bank holds ${String(state.turn.banked)} turns`);
@@ -556,7 +557,7 @@ function startProblems(game: Game, label: string): string[] {
 }
 
 describe("the close", () => {
-  test("[R-PROLOGUE-006] [R-SCENARIO-001] [R-SCENARIO-002] [R-SCENARIO-003] given 200 random prologues, when each is played from the legal list to its end, then each is a legal starting life", () => {
+  test("[R-PROLOGUE-006] [R-PROLOGUE-013] [R-SCENARIO-001] [R-SCENARIO-002] [R-SCENARIO-003] given 200 random prologues, when each is played from the legal list to its end, then each is a legal starting life", () => {
     const closes = new Set<string>();
     const problems: string[] = [];
     for (let run = 0; run < 200; run += 1) {
@@ -575,7 +576,8 @@ describe("the close", () => {
       expect(last.at(-2)).toBe("prologue/closed");
     }
     expect(problems).toEqual([]);
-    expect([...closes].sort()).toEqual(["family-house", "makoko"]);
+    // Every home the card offers is reached: the room in a compound when its year and fees and a month there are held.
+    expect([...closes].sort()).toEqual(["compound-room", "family-house", "makoko"]);
   });
 
   test("[R-PROLOGUE-006] given 200 random prologues on the quality kind as it stands, when each closes, then each is still a legal starting life", () => {

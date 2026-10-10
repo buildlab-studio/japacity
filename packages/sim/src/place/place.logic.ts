@@ -43,8 +43,10 @@ const DECEMBER: Id<"setpiece"> = "setpiece.december";
 const RESIDENT: Id<"status"> = "status.ca-resident";
 /** R-ROAD-009: the status the road's far shore gives. */
 const IRREGULAR: Id<"status"> = "status.eu-irregular";
-/** R-PLACE-002: what the family house stops charging for while you are away. */
+/** R-PLACE-007: what the family house charges for again when you come back. */
 const HOME_TYPES: readonly ObligationType[] = ["upkeep", "support"];
+/** R-PLACE-002: what closes on a flight: the family house's charges, and a room's rent at home, let go (R-HOME-010). */
+const LEFT_TYPES: readonly ObligationType[] = ["upkeep", "support", "rent"];
 /**
  * R-RETURN-006: what closes on the way home. The car is handed back by the
  * obligation kind (R-CAR-004), which opens any shortfall at home in naira; the
@@ -166,12 +168,14 @@ function fromStartingLife(read: ReadCtx, types: readonly ObligationType[], share
 function arrive(ctx: Ctx, country: Id<"country">, cause: Cause): BaseEvent[] {
   const entry = countryEntry(ctx.content, country);
   const month = ctx.state.turn.month;
+  // From Lagos or the road, a room's rent at home is let go too; between two countries only the home's charges close, as before.
+  const left = ctx.state.place.where === "abroad" ? HOME_TYPES : LEFT_TYPES;
   const events = record(ctx, [{ type: "place/moved", to: "abroad", country, month }]);
   const token = ctx.state.place.heldAbroad;
   if (token !== null && statusEntry(ctx.content, token.status).country === country) {
     events.push(...record(ctx, [{ type: "place/token-used", status: token.status }]));
   }
-  closeObligations(ctx, HOME_TYPES, cause);
+  closeObligations(ctx, left, cause);
   const opens: Effect[] = [];
   if (entry.upkeep !== null) opens.push({ type: "obligation/open", obligation: entry.upkeep });
   if (entry.rentRoom !== null) opens.push({ type: "obligation/open", obligation: entry.rentRoom });

@@ -9,11 +9,14 @@
 // is that low after the subjects step).
 // a retake is allowed once. The second retake card offers only work,
 // since a second retake or the apprenticeship would end the prologue past 25.
-import { pocketFor, type Effect, type Id, type PrologueStep, type Requirement, type ScenarioEntry } from "@japacity/sim";
+import { int, pocketFor, type Effect, type Id, type PrologueStep, type Requirement, type ScenarioEntry } from "@japacity/sim";
 
 import { qualityTable } from "../quality/quality.data";
 import { tuning } from "../tuning/tuning.data";
 import { naira } from "../units";
+
+/** R-HOME-010: what the room in a compound takes at once, the year's rent and the agent's and the agreement's fees on it. */
+const COMPOUND_MOVE_IN = tuning.home.compound.rentYear + int.bp(tuning.home.compound.rentYear, tuning.home.compound.feesBp);
 
 type Answer = PrologueStep["answers"][number];
 type Outcome = NonNullable<Answer["draw"]>[number];
@@ -315,7 +318,8 @@ export const prologueTable: Record<string, PrologueStep> = {
     ],
   },
 
-  // Closes the prologue: the upkeep opens at the amount chosen (R-PROLOGUE-006), or Makoko's rent (R-PROLOGUE-012).
+  // Closes the prologue: the upkeep opens at the amount chosen (R-PROLOGUE-006), the room in a compound's year
+  // (R-PROLOGUE-013, home.md R-HOME-010), or Makoko's rent (R-PROLOGUE-012).
   home: {
     id: "home",
     months: 0,
@@ -325,6 +329,18 @@ export const prologueTable: Record<string, PrologueStep> = {
         { type: "obligation/open", obligation: "obligation.upkeep", amount: naira(95000) },
         add(STANDING, 3),
       ]),
+      // A room of one's own: the year's rent and the fees taken at once, the year paid (R-OBLIGATION-015), the room's
+      // own upkeep in place of the family's, and the move. Held first: the rent, the fees and a month of living there.
+      answer(
+        "compound-room",
+        [
+          { type: "money/take", currency: "NGN", pocket: "any", amount: COMPOUND_MOVE_IN, reason: "rent" },
+          { type: "obligation/open", obligation: "obligation.rent-compound", amount: tuning.home.compound.rentYear },
+          { type: "obligation/open", obligation: "obligation.upkeep-compound", amount: tuning.home.compound.upkeep },
+          { type: "home/move", place: "place.compound-room" },
+        ],
+        { requires: [{ type: "money/can-pay", currency: "NGN", amount: COMPOUND_MOVE_IN + tuning.home.compound.upkeep }] },
+      ),
       // A room on the water (R-PROLOGUE-012, home.md): the rent opens first so the card says it as the other homes
       // do, and the move takes the room at that charge. The family house stays there to go back to.
       answer("makoko", [

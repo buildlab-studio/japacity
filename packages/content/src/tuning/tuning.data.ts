@@ -253,6 +253,17 @@ export const tuning: Tuning = {
   pair: { inviteDays: 14, maxOpenInvites: 3, rewardFriends: 10, phrasesPerHour: 30, placePhrasesPerMinute: 6 },
   interview: { ask: 5, decoys: 3, passBp: 7000, failBp: 4000, caughtBelowBp: 2000, thinMoments: 8, thinMonths: 6, doubtBp: 3000, standInRecallBp: 8000, caughtStanding: 15 },
   undertaking: { months: 36, assistanceUnder: 100000 },
-  // home.md Numbers: a room on the lagoon in Makoko, and the months it is cleared.
-  home: { makokoUpkeep: naira(25000), evictionBp: pct(5), evictionLossNaira: naira(20000), guestMonths: 3, hostBp: pct(25), returnStanding: -5 },
+  // home.md Numbers: a room on the lagoon in Makoko, and the months it is cleared; a room in a compound, its year's
+  // rent paid upfront with the agent's and the agreement's fees (R-HOME-010); the self-contain the door shows as a goal.
+  // The compound's rent, its upkeep and the self-contain's rent are working figures for the research pass.
+  home: {
+    makokoUpkeep: naira(25000),
+    evictionBp: pct(5),
+    evictionLossNaira: naira(20000),
+    guestMonths: 3,
+    hostBp: pct(25),
+    returnStanding: -5,
+    compound: { rentYear: naira(400000), feesBp: pct(20), upkeep: naira(50000) },
+    selfContainRentYear: naira(700000),
+  },
 };

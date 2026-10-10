@@ -107,11 +107,12 @@ describe("a new character", () => {
 });
 
 describe("leaving", () => {
-  test("[R-PLACE-002] [R-GATE-003] given Ada with a granted visa, when she departs, then she is abroad in the route's country from that month, the home upkeep and support close and the country's upkeep and room open", () => {
+  test("[R-PLACE-002] [R-GATE-003] given Ada with a granted visa, when she departs, then she is abroad in the route's country from that month, the home upkeep and support close, with any rent on a room at home, and the country's upkeep and room open", () => {
     const closed: ObligationType[] = [];
     const game = flown(content, { kinds: recordingCloses(closed) });
     expect(game.state.place).toMatchObject({ where: "abroad", country: UK, movedMonth: game.state.turn.month });
-    expect(closed).toEqual(["upkeep", "support"]);
+    // R-PLACE-002: a room's rent at home is let go with them (R-HOME-010).
+    expect(closed).toEqual(["upkeep", "support", "rent"]);
     const upkeep = content.obligation["obligation.upkeep-uk"]!.amount;
     const room = content.obligation["obligation.rent-room-uk"]!.amount;
     expect(openedThisMonth(game)).toEqual(expect.arrayContaining([`obligation.upkeep-uk ${String(upkeep)}`, `obligation.rent-room-uk ${String(room)}`]));

@@ -5,7 +5,7 @@ import { z } from "zod";
 import type { Proof, Same } from "../engine/language.schema";
 import type { HomeHost, HomePlace, Tuning } from "../engine/types";
 
-export const HomePlaceSchema = z.enum(["place.family-house", "place.makoko"]);
+export const HomePlaceSchema = z.enum(["place.family-house", "place.makoko", "place.compound-room"]);
 export const HomeHostSchema = z.enum(["friend", "someone"]);
 
 /** docs/rules/home.md Numbers. */
@@ -16,6 +16,8 @@ export const HomeTuningSchema = z.strictObject({
   guestMonths: z.int().positive(),
   hostBp: z.int().min(0).max(10000),
   returnStanding: z.int(),
+  compound: z.strictObject({ rentYear: z.int().nonnegative(), feesBp: z.int().min(0).max(10000), upkeep: z.int().nonnegative() }),
+  selfContainRentYear: z.int().nonnegative(),
 });
 
 export type HomePlaceMatches = Proof<Same<z.infer<typeof HomePlaceSchema>, HomePlace>>;

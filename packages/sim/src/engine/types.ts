@@ -157,11 +157,11 @@ export interface WayHome {
 
 /** The shapes of a return home: docs/rules/place.md R-PLACE-005. */
 export type ReturnShape = "removed" | "assisted" | "broke" | "by-choice" | "with-papers";
-/** Why the home card's move is shut (R-HOME-008): a move made this month, or the first month's rent not held. */
+/** Why the home card's move is shut (R-HOME-008): a move made this month, or what the move takes at once not held. */
 export type HomeMoveShut = "moved" | "short";
 
-/** Where the character lives at home: docs/rules/home.md R-HOME-001. */
-export type HomePlace = "place.family-house" | "place.makoko";
+/** Where the character lives at home: docs/rules/home.md R-HOME-001, the three home places. */
+export type HomePlace = "place.family-house" | "place.makoko" | "place.compound-room";
 /** Who takes the character in after an eviction (R-HOME-004). */
 export type HomeHost = "friend" | "someone";
 /** What a status lets you do for work: docs/rules/status.md R-STATUS-002. */
@@ -628,6 +628,8 @@ export interface ObligationEntry {
   currency: Currency;
   /** Months between charges. Missing means every month. */
   everyMonths?: number;
+  /** With `everyMonths`: the first period was paid when it opened, so the first charge falls `everyMonths` on (R-OBLIGATION-015). */
+  prepaid?: boolean;
   /** Abroad: the credit mark needed to open it (R-CREDIT-004). */
   creditMin?: number;
   /** Paid and missed months move the credit file (R-CREDIT-002). */
@@ -1303,7 +1305,18 @@ export interface Tuning {
   /** The sponsor's undertaking (docs/rules/undertaking.md Numbers). */
   undertaking: { months: number; assistanceUnder: number };
   /** Living at home (docs/rules/home.md Numbers). `returnStanding` is the standing change of a move back to the family house. */
-  home: { makokoUpkeep: number; evictionBp: number; evictionLossNaira: number; guestMonths: number; hostBp: number; returnStanding: number };
+  home: {
+    makokoUpkeep: number;
+    evictionBp: number;
+    evictionLossNaira: number;
+    guestMonths: number;
+    hostBp: number;
+    returnStanding: number;
+    /** The room in a compound (R-HOME-010): a year's rent upfront, the agent's and the agreement's fees on it, and the month's living there. */
+    compound: { rentYear: number; feesBp: number; upkeep: number };
+    /** The self-contain's rent a year, shown on the door as a goal (R-PROLOGUE-013). */
+    selfContainRentYear: number;
+  };
 }
 
 export interface Content {

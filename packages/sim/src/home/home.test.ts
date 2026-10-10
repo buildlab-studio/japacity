@@ -16,6 +16,7 @@ import { standInWorld } from "../world/standIn";
 
 const MAKOKO = "place.makoko" as const;
 const FAMILY = "place.family-house" as const;
+const COMPOUND = "place.compound-room" as const;
 const FAMILY_UPKEEP: Id<"obligation"> = "obligation.upkeep";
 const MAKOKO_UPKEEP: Id<"obligation"> = "obligation.upkeep-makoko";
 const TAKEN_IN: Id<"offer"> = "offer.taken-in";
@@ -23,6 +24,8 @@ const WHERE_NEXT: Id<"offer"> = "offer.where-next";
 const STANDING: Id<"quality"> = "quality.standing";
 const WELLBEING: Id<"quality"> = "quality.wellbeing";
 const { home } = content.tuning;
+/** R-HOME-010: what the room in a compound takes on the move, the year's rent and the fees on it. */
+const MOVE_IN = home.compound.rentYear + bp(home.compound.rentYear, home.compound.feesBp);
 /** Ada's family upkeep, from her starting life (scenario.data.ts). */
 const ADA_UPKEEP = content.scenario["scenario.ada"]!.obligations.find((owed) => owed.obligation === FAMILY_UPKEEP)!.amount;
 
@@ -126,8 +129,17 @@ function joined(game: Game, facts: PersonFacts = FRIEND_FACTS): string {
 }
 
 describe("the numbers", () => {
-  test("[R-HOME-002] [R-HOME-003] [R-HOME-004] [R-HOME-005] given the content, when the home's tuning is read, then it holds the page's numbers", () => {
-    expect(home).toEqual({ makokoUpkeep: 25_000_00, evictionBp: 500, evictionLossNaira: 20_000_00, guestMonths: 3, hostBp: 2500, returnStanding: -5 });
+  test("[R-HOME-002] [R-HOME-003] [R-HOME-004] [R-HOME-005] [R-HOME-010] [R-PROLOGUE-013] given the content, when the home's tuning is read, then it holds the page's numbers", () => {
+    expect(home).toEqual({
+      makokoUpkeep: 25_000_00,
+      evictionBp: 500,
+      evictionLossNaira: 20_000_00,
+      guestMonths: 3,
+      hostBp: 2500,
+      returnStanding: -5,
+      compound: { rentYear: 400_000_00, feesBp: 2000, upkeep: 50_000_00 },
+      selfContainRentYear: 700_000_00,
+    });
     expect(content.obligation[MAKOKO_UPKEEP]).toMatchObject({ type: "upkeep", currency: "NGN", amount: home.makokoUpkeep, sink: "upkeep" });
     expect(content.obligation[MAKOKO_UPKEEP]?.onMiss).toEqual(content.obligation[FAMILY_UPKEEP]?.onMiss);
   });
@@ -145,7 +157,10 @@ describe("the slice", () => {
       rent: { currency: "NGN", amount: ADA_UPKEEP },
       evictionBp: home.evictionBp,
       moved: null,
-      moves: [{ to: MAKOKO, monthly: { currency: "NGN", amount: home.makokoUpkeep }, now: home.makokoUpkeep, shut: null }],
+      moves: [
+        { to: MAKOKO, monthly: { currency: "NGN", amount: home.makokoUpkeep }, now: home.makokoUpkeep, shut: null },
+        { to: COMPOUND, monthly: { currency: "NGN", amount: home.compound.upkeep }, now: MOVE_IN, shut: "short" },
+      ],
     });
   });
 
@@ -575,20 +590,26 @@ describe("the starting life's charges at home", () => {
 });
 
 describe("the home card's moves", () => {
-  test("[R-HOME-008] given Ada at the family house with the rent held, when the view is read, then the one move is to Makoko, open, with its rent a month and the first month's rent taken on the move", () => {
+  test("[R-HOME-008] [R-HOME-010] given Ada at the family house with the rent held, when the view is read, then the moves are to Makoko, with its rent a month and the first month's rent taken on the move, and to the room in a compound, with its upkeep a month and the year's rent and fees taken on the move, both open", () => {
     const game = ada(NEVER);
     setNaira(game, 0, 5_000_000_00);
-    expect(game.view().home.moves).toEqual([{ to: MAKOKO, monthly: { currency: "NGN", amount: home.makokoUpkeep }, now: home.makokoUpkeep, shut: null }]);
+    expect(game.view().home.moves).toEqual([
+      { to: MAKOKO, monthly: { currency: "NGN", amount: home.makokoUpkeep }, now: home.makokoUpkeep, shut: null },
+      { to: COMPOUND, monthly: { currency: "NGN", amount: home.compound.upkeep }, now: MOVE_IN, shut: null },
+    ]);
   });
 
   test("[R-HOME-008] given Ada short of the first month's rent, when the view is read, then the move is shut as short and the command refuses it the same way; once moved, the move back is shut as moved and refused", () => {
     const game = ada(NEVER);
     setNaira(game, 0, home.makokoUpkeep - 1);
-    expect(game.view().home.moves.map((move) => move.shut)).toEqual(["short"]);
+    expect(game.view().home.moves.map((move) => move.shut)).toEqual(["short", "short"]);
     game.expectRejected({ type: "home/move", to: MAKOKO }, "cannot-afford");
     setNaira(game, 0, 5_000_000_00);
     game.accept({ type: "home/move", to: MAKOKO });
-    expect(game.view().home.moves).toEqual([{ to: FAMILY, monthly: { currency: "NGN", amount: ADA_UPKEEP }, now: 0, shut: "moved" }]);
+    expect(game.view().home.moves).toEqual([
+      { to: FAMILY, monthly: { currency: "NGN", amount: ADA_UPKEEP }, now: 0, shut: "moved" },
+      { to: COMPOUND, monthly: { currency: "NGN", amount: home.compound.upkeep }, now: MOVE_IN, shut: "moved" },
+    ]);
     game.expectRejected({ type: "home/move", to: FAMILY }, "not-legal");
   });
 
