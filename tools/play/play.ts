@@ -180,8 +180,15 @@ async function ride(run: Run): Promise<void> {
   if (await appear(page.locator("[data-ride]"), SHORT)) {
     await page.waitForTimeout(1_500);
     await shot(run, "on the ride");
+    // The ride ends itself after RIDE_MS plus its slack; on a slow machine the picture may have eaten that, so a
+    // Skip that goes while the tap is reaching for it is the ride ending, not a problem.
     const skip = page.locator("[data-ride-skip]");
-    if (await shown(skip)) await tap(run, skip, "Skip on the ride");
+    if (await shown(skip)) {
+      const tapped = await skip.first().click({ timeout: SHORT }).then(() => true).catch(() => false);
+      if (tapped) log(run, "tapped Skip on the ride");
+      else if (await shown(page.locator("[data-ride]"))) problem(run, "could not tap Skip on the ride, which was still on");
+      else log(run, "the ride ended by itself before Skip was tapped");
+    }
   }
   await appear(page.locator("[data-band]"), LONG);
   await placeDrawn(run);
