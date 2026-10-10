@@ -26,7 +26,7 @@ function Swatches({ part, own, chosen, onPick }: { part: Part; own: PaletteName;
             aria-label={say(colour === own ? "ui.door.yours.swatch.made" : "ui.door.yours.swatch", { part: name, n: at + 1 })}
             data-swatch={colour}
             onClick={() => onPick(colour)}
-            className={`press flex size-8 items-center justify-center rounded-full border border-sheet-line ${on ? "outline-2 outline-offset-2 outline-action" : ""}`}
+            className={`press flex size-8 items-center justify-center rounded-[5px] border border-sheet-line ${on ? "outline-2 outline-offset-2 outline-action" : ""}`}
             style={{ background: swatchCss(colour) }}
           >
             {on ? <Check size={16} strokeWidth={3} aria-hidden color={swatchCss(LIGHT.has(colour) ? "black" : "white")} /> : null}
