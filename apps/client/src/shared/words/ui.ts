@@ -161,6 +161,7 @@ export const uiText: Record<string, string> = {
   "ui.line.remit-landed": "Landed in your naira account at home: {amount}.",
   "ui.results.changed-out": "Changed at the bank: {amount}.",
   "ui.results.changed": "Changed {paid} into {got}. The bank's charge came to {amount}.",
+  "ui.results.changed-small": "Changed {paid} into {got} at the bank.",
   "ui.results.changed-street": "Changed {paid} into {got} with the FX man.",
   "ui.results.changed-street-out": "Handed to the FX man: {amount}.",
   "ui.results.changed-queued": "Paid in at the bank for {currency}: {amount}. They come {readyMonth}.",
@@ -352,6 +353,7 @@ export const uiText: Record<string, string> = {
   // What a change says before it is confirmed (features/phone/apps/Bank.tsx, changeLine).
   "ui.wallet.change.line": "{amount} into {currency}, at today's rate.",
   "ui.wallet.change.get.bank": "You get {got}. The bank's charge is {charge}.",
+  "ui.wallet.change.get.bank-small": "You get {got}.",
   "ui.wallet.change.get.aboki": "You get {got} in cash, if he counts it right.",
   // The pocket the change lands in, as the button reads the pocket it is paid from.
   "ui.wallet.change.after.bank": "After, you hold {to} in the bank.",

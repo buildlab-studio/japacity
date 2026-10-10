@@ -14,7 +14,7 @@ import { changeQuote } from "../../../shared/words/cost";
 import { duesGap, heldElsewhere } from "../../../shared/words/dues";
 import { REMIT_CHANNELS, remitQuote, type RemitChannel } from "../../../shared/sim/remit";
 import { CURRENCIES, formatBp, formatMoney, HOME_CURRENCIES } from "../../../shared/words/format";
-import { type MoneyLine, moneyLines } from "../../../shared/words/money";
+import { chargeShown, type MoneyLine, moneyLines } from "../../../shared/words/money";
 import { lowerFirst, say, words } from "../../../shared/words/text";
 import { savedFor, savingsOf } from "../../../shared/words/savings";
 import { localCurrency } from "../../../shared/words/wayHome";
@@ -110,7 +110,10 @@ export function changeLine(view: Pick<PlayerView, "rates" | "pockets">, from: Cu
   const held = via === "bank" ? view.pockets[to].bank : view.pockets[to].cash;
   return [
     say("ui.wallet.change.line", { amount: formatMoney(amount, from), currency: lowerFirst(currencyWords(to)) }),
-    via === "bank" ? say("ui.wallet.change.get.bank", { got: formatMoney(got.amount, to), charge: formatMoney(charge.amount, from) }) : say("ui.wallet.change.get.aboki", { got: formatMoney(got.amount, to) }),
+    // A charge that rounds to nothing is not said: "The bank's charge is £0".
+    via === "aboki"
+      ? say("ui.wallet.change.get.aboki", { got: formatMoney(got.amount, to) })
+      : say(chargeShown(charge.amount, from) ? "ui.wallet.change.get.bank" : "ui.wallet.change.get.bank-small", { got: formatMoney(got.amount, to), charge: formatMoney(charge.amount, from) }),
     // With none of that money there before, what you get is what you hold: said once.
     ...(held === 0 ? [] : [say(`ui.wallet.change.after.${via}`, { to: formatMoney(held + got.amount, to) })]),
   ].join(" ");
