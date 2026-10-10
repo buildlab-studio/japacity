@@ -1,5 +1,5 @@
 import { text } from "@japacity/content";
-import { fireEvent, screen, waitFor, within } from "@testing-library/react";
+import { act, fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
 import { engineView, richView } from "../../shared/testing/fixtures";
@@ -7,6 +7,7 @@ import { renderWithView } from "../../shared/testing/render";
 import { nameOf, say, sayCount } from "../../shared/words/text";
 import { TurnBar } from "./TurnBar";
 import { TurnView } from "./TurnView";
+import { freeTimeWords } from "./turn.words";
 
 const Turn = () => (
   <>
@@ -21,7 +22,8 @@ describe("the month", () => {
     await renderWithView(<Turn />, view);
     expect(screen.getByRole("heading", { name: say("ui.month.planning", { month: view.month + 1 }) })).toBeDefined();
     expect(screen.getAllByText(say("ui.month.banked", { banked: view.turns.banked, cap: view.turns.cap })).length).toBeGreaterThan(0);
-    expect(screen.getByText(say("ui.month.slots", { used: 0, slots: view.freeSlots }))).toBeDefined();
+    // the free time in words, never a count of slots.
+    expect(screen.getByText(say("ui.month.rest"))).toBeDefined();
   });
 
   test("given an empty plan, when the month is ended, then turn/end is sent with no slots on the view's version", async () => {
@@ -31,14 +33,16 @@ describe("the month", () => {
     await waitFor(() => expect(authority.sent).toEqual([{ type: "turn/end", slots: [], basedOn: view.v }]));
   });
 
-  test("given last month's slots, when same again is used and the month ended, then the same slots are sent", async () => {
-    const lastSlots = [{ activity: "activity.rest" as const, param: null }];
-    const view = { ...engineView(), lastSlots };
-    const { authority } = await renderWithView(<Turn />, view);
-    fireEvent.click(screen.getByRole("button", { name: say("ui.month.same-again") }));
-    expect(screen.getByText(say("ui.month.slots", { used: 1, slots: view.freeSlots }))).toBeDefined();
+  test("[R-WORLD-007] given a course started, when the month is ended, then it is sent, and no Same again is offered: what is started carries on by itself", async () => {
+    const view = engineView();
+    const { authority, store } = await renderWithView(<Turn />, view);
+    expect(screen.queryByRole("button", { name: "Same again" })).toBeNull();
+    act(() => {
+      store.getState().addToPlan({ activity: "activity.learn-tech", param: null });
+    });
+    expect(screen.getByText(freeTimeWords(1, view.freeSlots))).toBeDefined();
     fireEvent.click(screen.getByRole("button", { name: say("ui.month.end") }));
-    await waitFor(() => expect(authority.sent).toEqual([{ type: "turn/end", slots: lastSlots, basedOn: view.v }]));
+    await waitFor(() => expect(authority.sent).toEqual([{ type: "turn/end", slots: [{ activity: "activity.learn-tech", param: null }], basedOn: view.v }]));
   });
 
   test("given the authority rejects the month, then the rejection's words from content are shown", async () => {
@@ -74,12 +78,6 @@ describe("the month", () => {
     expect(within(sheet).getByText(text["chapter.find-your-feet.close"]!)).toBeDefined();
   });
 
-  test("given a month played at rest, when same again is used, then rest is planned in every slot", async () => {
-    const view = { ...engineView(), lastSlots: [], report: { month: 1, lines: [], japacityBefore: null, japacityAfter: null, attention: false } };
-    const { store } = await renderWithView(<Turn />, view);
-    fireEvent.click(screen.getByRole("button", { name: say("ui.month.same-again") }));
-    expect(store.getState().plan).toEqual(Array.from({ length: view.freeSlots }, () => ({ activity: "activity.rest", param: null })));
-  });
 
   test("given japacity appears for the first time, then the report says the figure, not no route to it", async () => {
     const rich = richView();

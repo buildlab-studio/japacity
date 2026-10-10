@@ -204,7 +204,8 @@ describe("a planned course tells of itself on its day, at home", () => {
     tellSignals(waiting.map((signal) => signal.key));
     expect(waitingSignals(currentDays()!, view, store.getState().plan)).toEqual([]);
     await store.getState().endMonth();
-    store.getState().addToPlan({ activity: COURSE, param: null });
+    // The course carries on into the next month without being started again (R-WORLD-007).
+    expect(store.getState().plan).toContainEqual({ activity: COURSE, param: null });
     expect(waitingSignals(currentDays()!, store.getState().view!, store.getState().plan)).toEqual([]);
     await ride(store, house, other);
     expect(waitingSignals(currentDays()!, store.getState().view!, store.getState().plan).map((signal) => signal.key)).toEqual([`${COURSE}.signal.1`]);

@@ -7,7 +7,7 @@ import { describe, expect, test } from "vitest";
 
 import { createGameStore } from "../../authority/store";
 import { decemberGame, engineView, fakeAuthority, gameAuthority, newGame } from "../../shared/testing/fixtures";
-import { againSlots, RUN_LOW_BANK, RUN_MONTHS, stopsRun } from "./untilNews";
+import { carriedPlan, RUN_LOW_BANK, RUN_MONTHS, stopsRun } from "./untilNews";
 
 const TRANSCRIPT = "activity.get-transcript" as Id<"activity">;
 const ISSUED = new Set(["line.document.issued", "line.document.issued-band"]);
@@ -40,9 +40,9 @@ describe("Until news", () => {
     expect(ends).toHaveLength(3);
     expect(after.turns.banked).toBe(before.turns.banked - 2);
     expect(after.month).toBe(before.month + 2);
-    // The paper is on its way, so the month after asks for it no more: last month's slots, as far as they are still open.
-    expect(ends[1]).toMatchObject({ slots: againSlots(before) });
-    expect(againSlots(before).some((pick) => pick.activity === TRANSCRIPT)).toBe(false);
+    // each month of the run sends the plan as it carries on; the paper asked for at once is in none.
+    expect(ends[1]).toMatchObject({ slots: carriedPlan(store.getState().plan, before) });
+    expect(ends.some((end) => end.type === "turn/end" && end.slots.some((pick) => pick.activity === TRANSCRIPT))).toBe(false);
     const { quiet, reportOpen, lines } = store.getState();
     expect(quiet).toHaveLength(1);
     expect(quiet[0]?.some((line) => ISSUED.has(line.key))).toBe(false);

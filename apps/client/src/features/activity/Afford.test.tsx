@@ -8,12 +8,14 @@ import { describe, expect, test } from "vitest";
 
 import { engineView, newGame, viewAfter } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
+import { plannable } from "../../shared/words/acts";
 import { formatMoney } from "../../shared/words/format";
 import { nameOf, say } from "../../shared/words/text";
 import { ActivityPicker } from "./ActivityView";
 
 const TB = "activity.tb-test";
-const TRANSCRIPT = "activity.get-transcript";
+const LEARN = "activity.learn-tech";
+const PORTFOLIO = "activity.build-portfolio";
 
 const addButton = (id: string): HTMLButtonElement => screen.getByRole<HTMLButtonElement>("button", { name: `${nameOf(id)}` });
 
@@ -51,15 +53,17 @@ describe("the picker's cards and money", () => {
     const view = engineView("scenario.ada");
     const first = 2_500_000;
     const second = naira(view) - first;
-    const { store } = await renderWithView(<ActivityPicker only={[TB, TRANSCRIPT]} />, { ...view, activities: [offered(TRANSCRIPT, first), offered(TB, second)] });
+    // only month-acts are planned, each once, so the plan
+    // that pays is a course and then the portfolio beside it.
+    const { store } = await renderWithView(<ActivityPicker only={[TB]} />, { ...view, activities: [offered(LEARN, first), offered(PORTFOLIO, first), offered(TB, second)] });
     expect(addButton(TB).querySelector("[data-after]")?.textContent).toBe(say("ui.world.left", { amount: formatMoney(first, "NGN") }));
     act(() => {
-      store.getState().addToPlan({ activity: TRANSCRIPT, param: null });
+      store.getState().addToPlan({ activity: LEARN, param: null });
     });
     expect(addButton(TB).querySelector("[data-after]")?.textContent).toBe(say("ui.world.left", { amount: formatMoney(0, "NGN") }));
     expect(addButton(TB).disabled).toBe(false);
     act(() => {
-      store.getState().addToPlan({ activity: TRANSCRIPT, param: null });
+      store.getState().addToPlan({ activity: PORTFOLIO, param: null });
     });
     expect(addButton(TB).disabled).toBe(true);
     expect(addButton(TB).querySelector("[data-after]")?.textContent).toBe(say("ui.world.short", { amount: formatMoney(first, "NGN") }));
@@ -67,10 +71,10 @@ describe("the picker's cards and money", () => {
 
   test("[R-WORLD-006] given a free activity, when its card shows, then the button carries no money line", async () => {
     const view = engineView("scenario.ada");
-    const rest: ActivityOption = { id: "activity.rest", allowed: true, missing: [], params: null, cost: [], affordable: true, when: "month", done: false };
-    await renderWithView(<ActivityPicker only={["activity.rest"]} />, { ...view, activities: [rest] });
-    expect(addButton("activity.rest").disabled).toBe(false);
-    expect(addButton("activity.rest").querySelector("[data-after]")).toBeNull();
+    const family: ActivityOption = { id: "activity.family-time", allowed: true, missing: [], params: null, cost: [], affordable: true, when: "month", done: false };
+    await renderWithView(<ActivityPicker only={["activity.family-time"]} />, { ...view, activities: [family] });
+    expect(addButton("activity.family-time").disabled).toBe(false);
+    expect(addButton("activity.family-time").querySelector("[data-after]")).toBeNull();
   });
 });
 
@@ -80,9 +84,12 @@ describe("the picker and a pick that fills no slot", () => {
     const UK = "route.uk-masters";
     const view = viewAfter(newGame("scenario.tunde"), [{ type: "route/hear", route: UK, via: "test" }]);
     const { store, authority } = await renderWithView(<ActivityPicker only={[FRIEND]} />, view);
+    // rest is never planned, so the free time is filled with month-acts.
+    const month = view.activities.filter((option) => option.allowed && option.params === null && plannable(option.id)).map((option) => option.id);
     act(() => {
-      for (let slot = 0; slot < view.freeSlots; slot += 1) store.getState().addToPlan({ activity: "activity.rest", param: null });
+      for (const activity of month.slice(0, view.freeSlots)) store.getState().addToPlan({ activity, param: null });
     });
+    expect(store.getState().plan.every((pick) => pick !== null)).toBe(true);
     const button = addButton(FRIEND);
     expect(button.disabled).toBe(false);
     fireEvent.click(button);

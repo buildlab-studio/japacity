@@ -16,6 +16,7 @@ export const phoneText: Record<string, string> = {
   "phone.new": "Something new",
   "phone.wall.month": "Month {month}",
 
+  "phone.app.calendar": "Calendar",
   "phone.app.bank": "Bank",
   "phone.app.chats": "Chats",
   "phone.app.japa": "Japa",

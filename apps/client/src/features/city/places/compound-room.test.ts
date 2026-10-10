@@ -50,8 +50,9 @@ describe("the room in a compound", () => {
     expect(content.place[ID]).toMatchObject({ scope: "interior", assets: "compound-room", stages: [] });
     expect(stage.people).toEqual([]);
     const acts = (id: string) => thingOf(id).acts.map((act) => [act.kind, act.stages ?? act.command ?? null]);
+    // the mattress's act is Lie down, done at once with the lying pose; an empty slot rests.
     expect(acts("bed")).toEqual([
-      ["do", "activity.rest"],
+      ["plain", null],
       ["end", null],
     ]);
     expect(acts("cooking")).toEqual([["do", "activity.cook-at-home"]]);
@@ -72,10 +73,10 @@ describe("the room in a compound", () => {
     }
   });
 
-  test("[R-HOME-006] [R-HOME-010] given Ada living in the room, when its acts are read for now, then the mattress rests, the stove cooks, the drum fetches water and the papers box starts the passport, staged by the family house; for a life living elsewhere the room opens none of them", () => {
+  test("[R-HOME-006] [R-HOME-010] given Ada living in the room, when its acts are read for now, then the mattress lies down, the stove cooks, the drum fetches water and the papers box starts the passport, staged by the family house; for a life living elsewhere the room opens none of them", () => {
     const view = livingThere();
     const now = actsNow(view, ID);
-    expect(now["bed"]).toEqual(["rest", "end-month"]);
+    expect(now["bed"]).toEqual(["lie", "end-month"]);
     expect(now["cooking"]).toEqual(["cook"]);
     expect(now["drum"]).toEqual(["fill-drum"]);
     expect(now["papers-box"]).toEqual(["start", "look"]);

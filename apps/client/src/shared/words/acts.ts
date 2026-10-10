@@ -13,6 +13,23 @@ export function answersNow(activity: string): boolean {
   return content.activity[activity as keyof typeof content.activity]?.when === "now";
 }
 
+/** Rest, which an empty slot already is (R-TURN-006): never planned, never a thing's act, never in a picker. */
+export const REST = "activity.rest";
+
+/**
+ * True when the entry may be planned into the month's free time (R-TURN-006, R-ACTIVITY-015): a month-act
+ * that fills a slot. A now-act is done at once, and rest is what an empty slot does, so neither is ever planned.
+ */
+export function plannable(activity: string): boolean {
+  const entry = content.activity[activity as keyof typeof content.activity];
+  return entry !== undefined && entry.slot !== "none" && entry.when !== "now" && activity !== REST;
+}
+
+/** The view's acts a picker lists: every one but rest, which an empty slot already is (R-TURN-006). */
+export function pickable<T extends { id: string }>(options: readonly T[]): T[] {
+  return options.filter((option) => option.id !== REST);
+}
+
 /** The place's answer among a command's lines, `line.activity.<slug>.now`, or null when it holds none. */
 export function nowLineIn(lines: readonly ReportLine[]): ReportLine | null {
   return lines.find((line) => NOW_LINE.test(line.key)) ?? null;

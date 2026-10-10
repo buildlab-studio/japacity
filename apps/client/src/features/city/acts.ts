@@ -5,7 +5,7 @@ import { content } from "@japacity/content";
 import type { Id, PlayerView, ReportLine, SlotPick } from "@japacity/sim";
 
 import { plannedShut } from "../../authority/store";
-import { nowActOf, nowLineWords } from "../../shared/words/acts";
+import { nowActOf, nowLineWords, pickable } from "../../shared/words/acts";
 import { kioskCapReached } from "../../shared/words/lotto";
 import { nameOf, say } from "../../shared/words/text";
 import type { Ask, Thing } from "../../shared/world/contract";
@@ -82,13 +82,13 @@ export function actsOffered(view: Pick<PlayerView, "activities">): string[] {
   const paperShut = view.activities.filter((option) => !option.allowed && !option.done && option.missing.length > 0 && (option.missing.every((need) => need.type === "document/held") || STANDS_SHUT.has(option.id))).map((option) => option.id);
   const hunt = view.activities.find((option) => option.id === "activity.job-hunt");
   const board = hunt === undefined || hunt.done ? [] : [hunt.id, ...(hunt.params ?? [])];
-  return [...new Set([...view.activities.filter((option) => option.allowed).map((option) => option.id), ...paperShut, ...held, ...board])];
+  // R-TURN-006: rest is never a thing's act; an empty slot already rests, and the bed's act is to lie down at once.
+  return [...new Set([...pickable(view.activities).filter((option) => option.allowed).map((option) => option.id), ...paperShut, ...held, ...board])];
 }
 
 /**
- * The thing with each act already in this month's plan marked planned (R-TURN-006, R-ACTIVITY-013): an act that fills no
- * slot (cooking, the water), a once-a-month act or a paper's request. A sheet act whose choice is made inside its sheet
- * (which job, which route) stays open, since another choice can still be planned.
+ * The thing with each act that carries on in the plan marked (R-WORLD-007): its chip says "Ongoing" with a stop. A sheet
+ * act whose choice is made inside its sheet (which job, which route) stays open, since another choice can still be started.
  */
 export function withPlanned(thing: Thing, plan: readonly (SlotPick | null)[], view: Pick<PlayerView, "activities">): Thing {
   let marked = false;

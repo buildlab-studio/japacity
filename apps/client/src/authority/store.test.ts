@@ -96,12 +96,13 @@ describe("the month kept through a reload", () => {
     const line = { key: "line.wallet.social", params: { amount: { currency: "NGN" as const, amount: 100 } }, tone: "bad" as const, attention: false, counts: [] };
     const first = createGameStore({ view: () => Promise.resolve(at(7)), send: () => Promise.resolve({ ok: true, view: at(7), lines: [line] }) }, { rememberMonth: true });
     await first.getState().refresh();
-    first.getState().setSlot(0, { activity: "activity.rest", param: null });
+    // rest is never planned, so the plan kept is a month-act.
+    first.getState().setSlot(0, { activity: "activity.learn-tech", param: null });
     await first.getState().send({ type: "wallet/move", currency: "NGN", amount: 1, to: "cash" });
     first.getState().closeCard("card-1");
     const again = createGameStore({ view: () => Promise.resolve(at(7)), send: () => Promise.resolve({ ok: true, view: at(7), lines: [] }) }, { rememberMonth: true });
     await again.getState().refresh();
-    expect(again.getState().plan[0]).toEqual({ activity: "activity.rest", param: null });
+    expect(again.getState().plan[0]).toEqual({ activity: "activity.learn-tech", param: null });
     expect(again.getState().monthLines).toEqual([line]);
     expect(again.getState().cardClosed).toBe("card-1");
     const later = createGameStore({ view: () => Promise.resolve(at(8)), send: () => Promise.resolve({ ok: true, view: at(8), lines: [] }) }, { rememberMonth: true });

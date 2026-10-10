@@ -10,7 +10,8 @@ import { familyFeedLines } from "./feed";
 
 export { SEEN_KEY };
 
-export const APP_IDS = ["bank", "chats", "japa", "jobs", "lotto", "bills", "news", "settings"] as const;
+// The Calendar sits first among the apps: the month lives on the phone (R-WORLD-002).
+export const APP_IDS = ["calendar", "bank", "chats", "japa", "jobs", "lotto", "bills", "news", "settings"] as const;
 export type AppId = (typeof APP_IDS)[number];
 
 export type Seen = Partial<Record<AppId, string>>;
@@ -32,6 +33,8 @@ export function marksOf(view: PlayerView): Record<AppId, string> {
   const chats = feed.length === 0 && peopleLines === 0 ? "" : `${String(view.month)}:${feed.at(-1)?.id ?? ""}:${String(peopleLines)}`;
   const bills = billsDue(view);
   return {
+    // The Calendar carries no dot: what it holds is the player's own plan, never news.
+    calendar: "",
     bank: "",
     chats,
     japa: "",

@@ -40,11 +40,11 @@ function inPlace([x, z, turn]: readonly number[], [px, pz]: readonly [number, nu
 describe("Makoko", () => {
   frontageTests(raw, ID);
 
-  test("[R-HOME-006] given the room on the water, when its things are read, then the room rests lying on its bunk and ends the month, the porch's cooking corner cooks and fetches water, and the papers box starts the passport and the transcript, each thing with at most two acts", () => {
+  test("[R-HOME-006] given the room on the water, when its things are read, then the room lies down on its bunk at once and ends the month, the porch's cooking corner cooks and fetches water, and the papers box starts the passport and the transcript, each thing with at most two acts", () => {
     const room = thing("room");
     expect(room.file).toBe("places/makoko/bld_makoko-house_a.glb");
     expect(room.acts.map((act) => [act.id, act.kind, act.stages ?? null, act.pose ?? null])).toEqual([
-      ["rest", "do", "activity.rest", "lie"],
+      ["lie", "plain", null, "lie"],
       ["end-month", "end", null, null],
     ]);
     const [house] = copiesOf(stage, "bld_makoko-house_a.glb");
@@ -65,7 +65,7 @@ describe("Makoko", () => {
     expect(papers.map((act) => [act.id, act.kind, act.stages, act.more])).toEqual([["start", "sheet", "activity.get-passport", ["activity.get-transcript"]]]);
     for (const id of ["room", "room-chores", "room-papers"]) expect(thing(id).acts.length).toBeLessThanOrEqual(2);
     // The parlour's own words for the same acts.
-    expect(room.acts.map((act) => sceneWords(act.label))).toEqual([sceneWords("city.act.rest"), sceneWords("ui.world.end-month")]);
+    expect(room.acts.map((act) => sceneWords(act.label))).toEqual([sceneWords("city.act.lie"), sceneWords("ui.world.end-month")]);
   });
 
   test("[R-HOME-006] given the room's porch, when it is read against the walk, then it stands at the walk's height, joins the walk, and the room's things stand on it", () => {

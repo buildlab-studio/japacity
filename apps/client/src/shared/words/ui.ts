@@ -39,25 +39,12 @@ export const uiText: Record<string, string> = {
   // The month
   "ui.month.planning": "Month {month}",
   "ui.month.banked": "{banked} of {cap} months to play",
-  "ui.month.slots": "{used} of {slots} things planned",
-  // While working, what is planned beside the job, counted in words (shared/words/count.ts).
-  "ui.month.working-things": "Working, and {count} things planned beside the job",
-  "ui.month.working-things.one": "Working, and {count} thing planned beside the job",
   "ui.month.end": "Next month",
-  "ui.month.same-again": "Same again",
   "ui.month.clear": "Clear plan",
   "ui.month.plan": "This month",
   "ui.month.slot-empty": "Nothing yet",
-  "ui.month.rest": "Nothing planned. You rest.",
-  // The room's basics planned, which fill no slot, so the foot never says nothing is planned over them.
-  "ui.month.beside": "{what} this month",
-  "ui.month.working-beside": "Working, and {what}",
-  "ui.month.chores.cook": "Cooking this month",
-  "ui.month.chores.water": "Fetching water this month",
-  "ui.month.chores.both": "Cooking and fetching water",
-  "ui.month.working-chores.cook": "Working, and cooking",
-  "ui.month.working-chores.water": "Working, and fetching water",
-  "ui.month.working-chores.both": "Working, cooking, water",
+  // An empty free slot rests (R-TURN-006): never planned, never "nothing".
+  "ui.month.rest": "Free time: you rest",
   "ui.opening.go": "Go",
   "ui.month.until-news": "Until news",
   "ui.month.until-news-foot": "Stops when something needs you",
@@ -304,7 +291,8 @@ export const uiText: Record<string, string> = {
   // A card's button says the act, never "Add to month" (the review); the line under it says what it uses.
   "ui.activity.uses-free": "Uses this month's free time",
   "ui.activity.full": "Every free thing is planned",
-  "ui.activity.planned": "Planned",
+  // A thing started carries on each month until it is stopped (R-WORLD-007).
+  "ui.activity.planned": "Ongoing",
   "ui.activity.cost": "Costs {amount}",
   "ui.activity.free": "No cost",
   "ui.activity.why-not": "Not yet:",
@@ -327,7 +315,7 @@ export const uiText: Record<string, string> = {
   "ui.needs.done": "Already done",
   "ui.needs.money": "Cannot be paid now",
   "ui.needs.foreign": "Needs {currency}",
-  "ui.needs.planned": "In this month's plan",
+  "ui.needs.planned": "Carries on each month until you stop it",
   // A shut card's button, when the card itself lists why.
   "ui.needs.not-yet": "Not yet",
   // The one job an act starts, held already: the shop open (R-ACTIVITY-016).

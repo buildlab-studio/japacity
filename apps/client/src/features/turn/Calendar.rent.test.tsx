@@ -1,4 +1,4 @@
-// The Month sheet says in one line when the room's year of rent is taken at this month's end and the money held is
+// The Calendar says in one line when the room's year of rent is taken at this month's end and the money held is
 // short of it (docs/rules/home.md R-HOME-010).
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
@@ -6,7 +6,7 @@ import { describe, expect, test } from "vitest";
 import { newGame, setPockets } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { formatMoney } from "../../shared/words/format";
-import { MonthSheet } from "./MonthSheet";
+import { Calendar } from "./Calendar";
 
 const YEAR = content.tuning.home.compound.rentYear;
 
@@ -29,23 +29,23 @@ function rentLine(): string | null {
 }
 
 describe("the rent line", () => {
-  test("[R-HOME-010] given the room's year due at this month's end and a kobo short of it held, when the Month sheet shows, then one line says the rent due and what is held", async () => {
+  test("[R-HOME-010] given the room's year due at this month's end and a kobo short of it held, when the Calendar shows, then one line says the rent due and what is held", async () => {
     const view = roomAtRent(YEAR - 1);
-    await renderWithView(<MonthSheet />, view);
+    await renderWithView(<Calendar />, view);
     expect(rentLine()).toBe(`Rent ${formatMoney(YEAR, "NGN")} due this month. You hold ${formatMoney(YEAR - 1, "NGN")}.`);
   });
 
-  test("[R-HOME-010] given the room's year due and all of it held, when the Month sheet shows, then no rent line shows", async () => {
-    await renderWithView(<MonthSheet />, roomAtRent(YEAR));
+  test("[R-HOME-010] given the room's year due and all of it held, when the Calendar shows, then no rent line shows", async () => {
+    await renderWithView(<Calendar />, roomAtRent(YEAR));
     expect(rentLine()).toBeNull();
   });
 
-  test("[R-HOME-010] given the room's year a month away and nothing held, when the Month sheet shows, then no rent line shows: Coming up says it", async () => {
+  test("[R-HOME-010] given the room's year a month away and nothing held, when the Calendar shows, then no rent line shows: Coming up says it", async () => {
     const game = newGame();
     setPockets(game, { NGN: 5_000_000_00 });
     game.accept({ type: "home/move", to: "place.compound-room" });
     setPockets(game, { NGN: 0 });
-    await renderWithView(<MonthSheet />, game.view());
+    await renderWithView(<Calendar />, game.view());
     expect(rentLine()).toBeNull();
   });
 });

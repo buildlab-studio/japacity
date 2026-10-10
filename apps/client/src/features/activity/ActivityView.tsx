@@ -9,7 +9,7 @@ import { useState } from "react";
 import { useGame, useView } from "../../authority/GameProvider";
 import { plannedShut } from "../../authority/store";
 import { bondName, timeWith } from "../../shared/sim/people";
-import { actOnCard, answersNow } from "../../shared/words/acts";
+import { actOnCard, answersNow, pickable } from "../../shared/words/acts";
 import { Button } from "../../shared/ui/Button";
 import { Card, Panel, Tag } from "../../shared/ui/Panel";
 import { afterPaying, plannedCosts, shortfall, type AfterPaying, type Money } from "../../shared/words/cost";
@@ -443,7 +443,8 @@ export function ActivityView() {
   const view = useView();
   const atHome = view.place.where === "home";
   // Allowed first, so the cards a player can use now are the ones they see first.
-  const sorted = [...view.activities].sort((a, b) => Number(b.allowed) - Number(a.allowed));
+  // R-TURN-006: rest is never a card to pick; an empty slot already rests.
+  const sorted = pickable(view.activities).sort((a, b) => Number(b.allowed) - Number(a.allowed));
   const later = atHome ? sorted.filter(forAbroad) : [];
   const options = atHome ? sorted.filter((option) => !forAbroad(option)) : sorted;
   return (
@@ -486,7 +487,9 @@ export function ActivityPicker({ only }: { only: readonly string[] }) {
   // On a long shot the test's sheet carries the study act too, so studying first is one tap away (R-WORLD-006).
   const studyFirst = only.includes(ENGLISH_TEST) && !only.includes(STUDY_ENGLISH) && testChance(view).study !== null;
   const shown = studyFirst ? [...only, STUDY_ENGLISH] : only;
-  const options = view.activities.filter((option) => shown.includes(option.id)).sort((a, b) => shown.indexOf(a.id) - shown.indexOf(b.id));
+  const options = pickable(view.activities)
+    .filter((option) => shown.includes(option.id))
+    .sort((a, b) => shown.indexOf(a.id) - shown.indexOf(b.id));
   return (
     <ul className="grid gap-3" data-activity-picker>
       {options.map((option) => (

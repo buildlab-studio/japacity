@@ -1,8 +1,9 @@
-// The month's own words in the world (docs/rules/world.md R-WORLD-007, 008): the Month sheet and the
+// The month's own words in the world (docs/rules/world.md R-WORLD-007, 008): the Calendar app and the
 // results. First drafts in the voice of docs/rules/text.md. Content's table wins over these, so each
 // key can move into content to be rewritten.
 import { text } from "@japacity/content";
 
+import { countWords } from "../../shared/words/count";
 import { hasWords, say } from "../../shared/words/text";
 
 export const turnText: Record<string, string> = {
@@ -11,13 +12,24 @@ export const turnText: Record<string, string> = {
   "turn.month.free": "Free time",
   "turn.month.working": "Working: {job}",
   "turn.month.side": "Side job: {job}",
-  "turn.month.working-rest": "Working. Nothing else planned.",
-  "turn.month.working-slots": "Working. {used} of {slots} things planned beside the job",
-  "turn.month.hint": "Tap a thing or a person in the world to plan it",
-  "turn.month.remove": "Take out {activity}",
+  "turn.month.hint": "Tap a thing in the world to start something. It carries on each month until you stop it.",
   "turn.month.no-slots": "No free time this month.",
-  "turn.month.no-slot": "Takes no slot",
   "turn.month.end": "Next month",
+  // The Calendar app (R-WORLD-002, R-WORLD-007): the month on the phone, in order.
+  "turn.calendar.work": "Work",
+  "turn.calendar.all-used": "Free time: all used",
+  "turn.calendar.left": "Free time: {count} left",
+  "turn.calendar.done": "Done this month",
+  "turn.calendar.chores.cook": "Cooked: {amount} less this month",
+  "turn.calendar.chores.water": "Fetched water: {amount} less this month",
+  "turn.calendar.chores.both": "Cooked and fetched water: {amount} less this month",
+  "turn.calendar.chores.cooked": "Cooked for the week",
+  "turn.calendar.chores.drum": "The drum is full",
+  "turn.calendar.at": "At {place}",
+  "turn.calendar.pages": "Pages left",
+  // Said once in a life, when Next month opens the Calendar instead of turning the page (R-WORLD-002).
+  "turn.calendar.teach": "This is your month before the page turns. What you start carries on each month until you stop it.",
+  "turn.calendar.teach.ok": "Got it",
   // R-HOME-010: the room's year falls due at this month's end and is not held.
   "turn.month.rent-short": "Rent {amount} due this month. You hold {held}.",
 
@@ -52,4 +64,15 @@ export function turnWords(key: string, params: Record<string, string | number> =
     const value = params[name];
     return value === undefined ? whole : String(value);
   });
+}
+
+/**
+ * The free time in a few words (R-WORLD-007, R-TURN-006), as Next month's second line says it: an empty month rests,
+ * a full one says so; never a count of slots.
+ */
+export function freeTimeWords(used: number, slots: number): string {
+  if (slots === 0) return turnWords("turn.month.no-slots");
+  if (used === 0) return say("ui.month.rest");
+  if (used >= slots) return turnWords("turn.calendar.all-used");
+  return turnWords("turn.calendar.left", { count: countWords(slots - used) });
 }

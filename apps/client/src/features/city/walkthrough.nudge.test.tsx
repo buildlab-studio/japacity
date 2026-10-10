@@ -10,7 +10,7 @@ import { nameOf, say, words } from "../../shared/words/text";
 import { City, TITLE_MS } from "./City";
 import { nudgeOf } from "./nudge";
 
-const world = () => <City world month={<p>month</p>} results={(place) => <p data-results-for={place} />} />;
+const world = () => <City world results={(place) => <p data-results-for={place} />} />;
 
 describe("the first chapter's title", () => {
   test("[R-CHAPTER-011] [R-WORLD-001] given a life that has not played a month, in the first chapter, when the world opens, then its title stands over the world with no card and no button, the nudge gives the first step, and the title goes by itself after about two seconds", async () => {

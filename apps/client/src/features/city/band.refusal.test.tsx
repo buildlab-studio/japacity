@@ -53,7 +53,7 @@ describe("the band after a refusal", () => {
   test("[R-WORLD-002] given the endorsement refused, when the band's row peeks, then the nudge says the wait once and no chip says it again; the handle still opens the chip", async () => {
     localStorage.setItem("japacity.city.last", JSON.stringify(["place.yaba"]));
     const view = refusedView();
-    await renderWithView(<City world month={<p>month</p>} results={(at) => <p data-results-for={at} />} />, view);
+    await renderWithView(<City world results={(at) => <p data-results-for={at} />} />, view);
     const go = document.querySelector<HTMLElement>("[data-opening-go]");
     if (go !== null) fireEvent.click(go);
     const mapClose = screen.queryByRole("button", { name: cityWords("city.close") });

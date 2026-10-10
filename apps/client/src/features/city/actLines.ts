@@ -1,8 +1,8 @@
 // What an act says once it lands (docs/rules/world.md R-WORLD-005; text.md R-TEXT-008; the design's brief,
 // section 10a). A person at the thing speaks in their own voice over their head (`<act>.says`, named by `<act>.who`
 // or the thing's own name), and what that does to the world may follow in the corner (`<act>.done`). A thing that
-// is not a person tells one short line in the corner (`<act>.done`). An act the scene shows (sit, rest, cook,
-// fetch water) says nothing: the figure does it, and the thing's label says it is planned. Pure.
+// is not a person tells one short line in the corner (`<act>.done`). An act the scene shows (sit, lie down, cook,
+// fetch water) says nothing: the figure does it, or the pot steams and the drum fills. Pure.
 import type { Act, Thing } from "../../shared/world/contract";
 import { say } from "../../shared/words/text";
 import { cityWords, papersLook } from "./city.words";
@@ -15,8 +15,6 @@ export type ActLine = { kind: "say"; who: string; name: string; words: string; t
 const LIGHT_BILL = "offer.nepa-bill";
 /** Mama's thing in the parlour. */
 const MAMA = "mama";
-/** Rest, whose label says "Resting" while it is planned. */
-const REST = "activity.rest";
 /** The Look in the box act, whose line is what the box holds (R-WORLD-019). */
 const PAPERS = "city.act.papers";
 
@@ -38,20 +36,20 @@ export function plainActLine(thing: Pick<Thing, "id" | "label">, act: Pick<Act, 
   return told === null ? null : { kind: "tell", words: told };
 }
 
-/** The line of a free act that fills a slot (rest, cook, fetch water) as it lands: none, since the scene shows it; only a month already full is told. */
+/** The line of a free act that fills a slot as it lands: none, since the thing's chip says it carries on; only a month already full is told. */
 export function doActLine(added: boolean): ActLine {
   return added ? null : { kind: "tell", words: say("ui.world.full") };
 }
 
 /**
- * The state a thing's label carries while one of its acts is in this month's plan (R-WORLD-005, R-TEXT-008): an act
- * the scene shows says no line, so the label says "Resting" for rest and "Planned" for any other.
+ * The state a thing's name carries while one of its acts carries on in the plan (R-WORLD-005, R-WORLD-007, R-TEXT-008):
+ * "Ongoing", shown beside the name whenever the name shows.
  */
 export function plannedMarks(things: readonly Pick<Thing, "id" | "acts">[], planned: ReadonlySet<string>): Record<string, string> {
   const marks: Record<string, string> = {};
   for (const thing of things) {
     const act = thing.acts.find((candidate) => (candidate.kind === "do" || candidate.kind === "sheet") && candidate.stages !== undefined && planned.has(candidate.stages));
-    if (act?.stages !== undefined) marks[thing.id] = say(act.stages === REST ? "ui.world.thing.resting" : "ui.world.thing.planned");
+    if (act?.stages !== undefined) marks[thing.id] = say("ui.world.thing.planned");
   }
   return marks;
 }

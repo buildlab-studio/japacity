@@ -45,10 +45,12 @@ export const cityText: Record<string, string> = {
   "city.phone": "Phone",
   "city.phone.back": "Back",
   "city.phone.apps": "Apps",
-  "city.month": "Month",
-  "city.month.title": "This month",
-  "city.month.hint": "Plan by tapping things in the world.",
-  "city.month.none": "Nothing planned. You rest.",
+  // The band says what a home is, in few words (R-WORLD-002).
+  "city.home.compound-room": "Your room, a compound in Ojuelegba",
+  "city.home.family-house": "The family house",
+  "city.home.makoko": "The room on the water",
+  "city.home.the-room": "The shared room, {area}",
+  "city.home.teach.close": "Got it",
   "city.zoom.closer": "Closer",
   "city.zoom.whole": "Whole place",
   "city.thing.lotto": "Lotto",
@@ -117,7 +119,8 @@ export const cityText: Record<string, string> = {
   "city.act.papers.some": "In the box: {papers}.",
   "city.act.papers.all": "{papers}. All in the box.",
   "city.act.papers.and": "{first} and {last}",
-  "city.act.rest": "Rest here",
+  // Lying down is done at once, seen on the bed or the couch; an empty slot of the month already rests (R-TURN-006).
+  "city.act.lie": "Lie down",
   "city.act.cook": "Cook for the week",
   "city.act.fetch-water": "Fetch water",
   // The compound's drum, filled from the tap in the yard: the water costs nothing there, so nothing comes off (R-OBLIGATION-014); an act the scene shows tells no line (R-TEXT-008).

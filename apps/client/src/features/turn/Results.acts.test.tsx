@@ -46,6 +46,8 @@ async function storeOf(game: Game): Promise<GameStore> {
 async function month(store: GameStore, game: Game, picks: Id<"activity">[] = []): Promise<void> {
   if (game.state.turn.banked < 1) game.grant(1);
   await store.getState().refresh();
+  // Each month here is its own plan: what was started last month carries on (R-WORLD-007), so it is cleared first.
+  act(() => store.getState().clearPlan());
   for (const pick of picks) expect(store.getState().addToPlan(slot(pick))).toBe(true);
   await act(async () => {
     await store.getState().endMonth();
