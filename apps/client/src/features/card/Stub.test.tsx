@@ -88,7 +88,8 @@ describe("the ticket stub beside the send-off card", () => {
     const { store } = await renderWithView(<CardView />, view);
     fireEvent.click(within(await screen.findByRole("dialog")).getByRole("button", { name: say("ui.report.close") }));
     expect(keptType(gallery.getState().kept)).toBe("careful-saver");
-    expect(JSON.parse(localStorage.getItem("japacity.cards") ?? "[]")[0].type).toBe("careful-saver");
+    const stored = JSON.parse(localStorage.getItem("japacity.cards") ?? "[]") as { type?: string }[];
+    expect(stored[0]?.type).toBe("careful-saver");
     act(() => store.setState({ view: { ...view, v: view.v + 1, month: view.month + 1, card: null } }));
     await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
     fireEvent.click(screen.getByRole("button", { name: say("share.gallery.open") }));
