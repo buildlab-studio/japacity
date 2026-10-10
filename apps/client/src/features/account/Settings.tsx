@@ -16,6 +16,7 @@ import { Sheet } from "../../shared/ui/Sheet";
 import { say } from "../../shared/words/text";
 import { counting, setUsageCounts } from "../../shared/analytics/start";
 import { CodeForm, failureWords } from "./CodeForm";
+import { LegalLinks } from "../../shared/ui/LegalLinks";
 import { GuestReminder } from "./Secure";
 import { refreshAccount, useAccountView } from "./standing";
 
@@ -284,6 +285,8 @@ export function AccountSettings({ account, more = null }: { account: AccountApi;
           {problem}
         </p>
       )}
+
+      <LegalLinks />
     </div>
   );
 }

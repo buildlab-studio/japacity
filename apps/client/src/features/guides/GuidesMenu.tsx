@@ -10,6 +10,7 @@ import { Button } from "../../shared/ui/Button";
 import { counting } from "../../shared/analytics/start";
 import { Sheet } from "../../shared/ui/Sheet";
 import { nameOf, say } from "../../shared/words/text";
+import { LEGAL_LINKS } from "../../shared/ui/LegalLinks";
 import { CREDITS_PATH, GUIDES_ROOT, guidePath, MADE_PATH, NUMBERS_PATH, SOURCES_PATH } from "./paths";
 
 function PageLink({ href, children }: { href: string; children: string }) {
@@ -60,6 +61,11 @@ export function GuidesMenu() {
             <PageLink href={SOURCES_PATH}>{say("guide.page.sources-page")}</PageLink>
             <PageLink href={CREDITS_PATH}>{say("guide.page.credits")}</PageLink>
             <PageLink href={MADE_PATH}>{say("guide.page.made")}</PageLink>
+            {LEGAL_LINKS.map((link) => (
+              <PageLink key={link.href} href={link.href}>
+                {say(link.words)}
+              </PageLink>
+            ))}
           </ul>
         </nav>
       </Sheet>

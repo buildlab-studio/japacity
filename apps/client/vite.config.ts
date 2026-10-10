@@ -3,7 +3,8 @@ import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 
 import { guidePages } from "./src/features/guides/prerender";
+import { legalPagesPlugin } from "./src/features/legal/plugin";
 
 export default defineConfig({
-  plugins: [react(), tailwindcss(), guidePages()],
+  plugins: [react(), tailwindcss(), guidePages(), legalPagesPlugin()],
 });

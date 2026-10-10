@@ -215,7 +215,9 @@ describe("the credits", () => {
   const credits = at(pages, CREDITS_PATH);
 
   test("[R-GUIDE-008] given the credits page, when it is read, then it names the makers, the register's attributions, the fonts and the open source code with licences", () => {
-    expect(credits.querySelector('[data-credits="people"] p')?.textContent).toBe("Al-Ameen Ogundiran and Japacity contributors");
+    const holders = /^Copyright \(c\) \d{4} (.+)$/m.exec(readFileSync(join(process.cwd(), "LICENSE"), "utf8"))?.[1];
+    expect(holders).toMatch(/\S and Japacity contributors$/);
+    expect(credits.querySelector('[data-credits="people"] p')?.textContent).toBe(holders);
     for (const font of files.credits.fonts) expect(credits.querySelector('[data-credits="fonts"]')?.textContent).toContain(font.attribution);
     const code = credits.querySelector('[data-credits="code"]')?.textContent ?? "";
     expect(code).toMatch(/react 19\.3\.\d+, MIT/);

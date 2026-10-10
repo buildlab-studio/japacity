@@ -17,6 +17,7 @@ import { AgeScreen } from "./AgeScreen";
 import { failureWords } from "./CodeForm";
 import { Full, type FullCheck } from "./Full";
 import { GuestForm, useGuestDoor, type GuestDoor } from "./GuestStart";
+import { LegalLinks } from "../../shared/ui/LegalLinks";
 import { SignIn } from "./SignIn";
 import { refreshAccount } from "./standing";
 import { StartScreen } from "./StartScreen";
@@ -182,7 +183,13 @@ export function AccountGate({ load = loadTurnstile, sitekey, embedded = false, a
     );
   }
 
-  if (embedded) return <div className="flex flex-col gap-6">{body(account)}</div>;
+  if (embedded)
+    return (
+      <div className="flex flex-col gap-6">
+        {body(account)}
+        <LegalLinks />
+      </div>
+    );
   // The door draws its own scene and sheets over the compound.
   if (shown === "door" && door !== null) return newLife(account);
 
@@ -202,6 +209,7 @@ export function AccountGate({ load = loadTurnstile, sitekey, embedded = false, a
           </p>
         )}
         {body(account)}
+        <LegalLinks />
       </GateSheet>
     </Gate>
   );
