@@ -130,7 +130,7 @@ test("a bond carries its time together, and time planned with someone names them
   await shoot(page, "bond", info.project.name);
 
   await bond.getByRole("button", { name: "End it" }).click();
-  await expect(bond).toContainText("Ending it costs you 2 standing and 4 wellbeing.");
+  await expect(bond).toContainText("Ending it costs you standing at home and some of your wellbeing.");
 });
 
 test("a friend's proposal waits for an answer, and yes makes them partners", async ({ page }, info) => {

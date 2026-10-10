@@ -144,13 +144,13 @@ test("[R-WORLD-003] the nudge changes when an offer opens, and a tap on it opens
   const nudge = page.locator("[data-nudge]");
   await expect(nudge).toBeVisible();
   const before = (await nudge.textContent()) ?? "";
-  expect(before).not.toBe("Someone is asking you something");
+  expect(before).not.toBe("Answer the person asking");
 
   await page.locator("[data-end-month]").click();
   await page.locator("[data-world-sheet='month'] [data-month-end]").click();
   await passMoments(page);
   await page.locator("[data-results-back]").click();
-  await expect(nudge).toHaveText("Someone is asking you something");
+  await expect(nudge).toHaveText("Answer the person asking");
   await placeDrawn(page);
   await shoot(page, "nudge-offer");
 

@@ -17,7 +17,7 @@ describe("the slots illness holds", () => {
     expect(lock).toBeDefined();
     await renderWithView(<ActivityView />, view);
     const shown = screen.getByText(lockWords(lock!, view.month));
-    expect(shown.textContent).toBe(say("ui.locks.item", { slots: "1 slot", why: say("ui.locks.why.illness"), left: sayCount("ui.locks.left", 1, { count: 1 }) }));
+    expect(shown.textContent).toBe(say("ui.locks.item", { slots: sayCount("ui.offer.lock.slots", 1, { count: 1 }), why: say("ui.locks.why.illness"), left: sayCount("ui.locks.left", 1, { count: 1 }) }));
   });
 
   test("[R-HEALTH-007] [R-HEALTH-003] given the worse turn with no money for the hospital, then two slots are held with the months left and the last month", async () => {
@@ -35,6 +35,6 @@ describe("the slots illness holds", () => {
     await renderWithView(<ActivityView />, view);
     const left = lock.untilMonth - view.month + 1;
     expect(left).toBe(3);
-    expect(screen.getByText(say("ui.locks.item", { slots: "2 slots", why: say("ui.locks.why.illness"), left: say("ui.locks.left", { count: 3, month: lock.untilMonth + 1 }) }))).toBeDefined();
+    expect(screen.getByText(say("ui.locks.item", { slots: sayCount("ui.offer.lock.slots", 2, { count: 2 }), why: say("ui.locks.why.illness"), left: say("ui.locks.left", { count: 3, month: lock.untilMonth + 1 }) }))).toBeDefined();
   });
 });

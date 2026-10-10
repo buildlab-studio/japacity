@@ -23,7 +23,7 @@ export const storyText: Record<string, string> = {
   "chats.dad.passport.text": "Start the passport now. It takes months, and nobody there will rush for you.",
   "chats.dad.passport-box.text": "Your passport has come. Put it in the box under the bed. Not in your bag.",
   "chats.mum.test.text": "We are praying for the test. Sleep early the night before.",
-  "chats.sibling.offer.text": "An offer letter! Send me a picture of it. I want to see it with my own eyes.",
+  "chats.sibling.offer.text": "An offer letter. Send me a picture of it. I want to see it with my own eyes.",
 
   // Decision day.
   "chats.mum.light-bill.text": "NEPA has brought the bill again. Your father says he will handle it.",
@@ -38,7 +38,7 @@ export const storyText: Record<string, string> = {
   "chats.mum.waiting-talent.text": "Any news from England? We are praying every morning.",
   "chats.mum.waiting-points.text": "Any news from Canada? Your aunty says it takes long. We are praying.",
   "chats.dad.waiting-gulf.text": "Has the agent called? Do not give him any more money until the visa is in your hand.",
-  "chats.sibling.granted.text": "It came! Can I tell people now, or are we still keeping quiet?",
+  "chats.sibling.granted.text": "It came. Can I tell people now, or are we still keeping quiet?",
   "chats.mum.refused.text": "I saw the letter. It is not the end. Come home and eat, then we will talk.",
   "chats.friend.funds.text": "Before you pay anybody for proof of funds, ask me first. Please.",
 
@@ -50,17 +50,17 @@ export const storyText: Record<string, string> = {
   "chats.mum.landed.text": "You have landed? Have you eaten? Is it cold? Call me.",
   "chats.mum.rent.text": "How much is the rent there? Do not let anybody cheat you because you are new.",
   "chats.sibling.first-pay.text": "First salary over there. Remember your people o.",
-  "chats.friend.landed.text": "You have landed! Send pictures of everything. Even the bus stop.",
+  "chats.friend.landed.text": "You have landed. Send pictures of everything. Even the bus stop.",
 
   // Secure.
   "chats.dad.door.text": "Whatever you decide over there, this house is still your house.",
-  "chats.mum.december.text": "You are coming for December! Your room is ready. I am already cooking.",
+  "chats.mum.december.text": "You are coming for December. Your room is ready. I am already cooking.",
 
   // The partner.
   "chats.partner.after-time.text": "I enjoyed today. Same time next week?",
   "chats.partner.thinking.text": "Thinking of you. How was today?",
   "chats.partner.interview.text": "Interview today, abi? You will do well. Breathe.",
-  "chats.partner.granted.text": "I heard! Well done. So what happens to us now?",
+  "chats.partner.granted.text": "I heard. Well done. So what happens to us now?",
   "chats.partner.going.text": "So you are really going. Talk to me about us before you board.",
   "chats.partner.abroad.text": "How is it there? Call me when you settle. I miss your voice.",
 };

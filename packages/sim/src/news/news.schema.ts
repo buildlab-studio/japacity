@@ -13,8 +13,13 @@ import {
 } from "../engine/language.schema";
 import type { NewsEntry } from "../engine/types";
 
+const NewsSourceSchema = z.enum(["radio", "paper", "official", "street", "person"]);
+
 export const NewsEntrySchema = z.strictObject({
   id: idOf("news"),
+  source: z
+    .strictObject({ announced: NewsSourceSchema, "in-force": NewsSourceSchema.exactOptional(), ended: NewsSourceSchema.exactOptional() })
+    .exactOptional(),
   touches: z.array(idOf("route")),
   hear: z.array(idOf("route")),
   director: z

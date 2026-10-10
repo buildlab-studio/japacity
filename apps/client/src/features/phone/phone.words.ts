@@ -120,7 +120,7 @@ export const phoneText: Record<string, string> = {
   "phone.bills.undertaking.button": "Pay it off",
   "phone.bills.paid": "Paid",
 
-  "phone.news.month": "{when}, in short",
+  "phone.news.month": "{when}",
 
   "phone.settings.look": "Look",
   "phone.settings.sound": "Sound",

@@ -215,11 +215,11 @@ export const prologueText: Record<string, string> = {
   "scenario.prologue.name": "A life from sixteen",
   "scenario.prologue.blurb": "Secondary school to the end of the service year. Your choices build where you start.",
 
-  "line.prologue.drawn": "You grow up in a {town}. Brothers and sisters: {siblings}.",
+  "line.prologue.drawn": "You grew up in a {town}. Brothers and sisters: {siblings}.",
   "line.prologue.parents-educated": "Your parents went to school. People pick up when they call.",
-  "line.prologue.graded": "Your degree comes out at grade {grade}.",
+  "line.prologue.graded": "Your degree came out at grade {grade}.",
   "line.prologue.headline": "On the radio at home: {story}.",
-  "line.prologue.closed": "That is how you got here. Your story starts now.",
+  "line.prologue.closed": "That is how you got here.",
 
   // The prologue's screen, in the situation's words.
   "prologue.not-for-you": "Not for you:",

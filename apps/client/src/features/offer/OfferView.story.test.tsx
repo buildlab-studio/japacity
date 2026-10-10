@@ -15,7 +15,7 @@ import { newGame, openOffer } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { formatMoney } from "../../shared/words/format";
 import { movesMoney, tidyLines } from "../../shared/words/lines";
-import { say, words } from "../../shared/words/text";
+import { say, sayCount, words } from "../../shared/words/text";
 import { OfferView } from "./OfferView";
 
 const BURIAL: Id<"offer"> = "offer.village-burial";
@@ -82,7 +82,7 @@ describe("the burial's slot", () => {
     await renderWithView(<OfferView />, game.view());
     const card = screen.getByRole("heading", { name: words(`${BURIAL}.title`) }).closest("li");
     if (card === null) throw new Error("No card for the burial.");
-    const held = say("ui.offer.lock", { slots: "1 slot", when: say("ui.offer.lock.next") });
+    const held = say("ui.offer.lock", { slots: sayCount("ui.offer.lock.slots", 1, { count: 1 }), when: say("ui.offer.lock.next") });
     expect(within(card).getByRole("button", { name: `${text[`${BURIAL}.choice.go`]!}: ${formatMoney(6_000_000, "NGN")}, ${held}` })).toBeDefined();
     answer(game, BURIAL, "go");
     const locks = game.view().locks;

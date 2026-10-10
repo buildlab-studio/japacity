@@ -6,8 +6,8 @@
 import type { Content, Id, NewsEntry, Requirement } from "../engine/types";
 import { isWorldRequirement } from "./director";
 
-/** The fields a story may carry. Anything else could reach past the world's variables. */
-const STORY_FIELDS: readonly string[] = ["id", "touches", "hear", "director", "standIn"] satisfies (keyof NewsEntry)[];
+/** The fields a story may carry. Anything else could reach past the world's variables. `source` is only where News says it was heard. */
+const STORY_FIELDS: readonly string[] = ["id", "touches", "hear", "director", "standIn", "source"] satisfies (keyof NewsEntry)[];
 
 const WINDOW_MAX = 2;
 const SCALE_MAX = 100;

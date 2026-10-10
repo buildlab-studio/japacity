@@ -184,7 +184,7 @@ describe("money named for what it was", () => {
     const amount = pot?.params.amount;
     if (potMonth === undefined || pot === undefined || typeof amount !== "object") throw new Error("The pot did not come within ten months.");
     const told = words(pot.key, pot.params);
-    expect(told).toContain(`The circle pays you ${formatMoney(amount.amount, "NGN")}`);
+    expect(told).toContain(`The circle paid you ${formatMoney(amount.amount, "NGN")}`);
     expect(moneyLines(potMonth.lines).map((entry) => words(entry.line.key, entry.line.params))).toContain(told);
   });
 });
