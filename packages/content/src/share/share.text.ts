@@ -79,6 +79,33 @@ export const shareText: Record<string, string> = {
   "share.first-name.scenario.ngozi": "Ngozi",
   "share.first-name.scenario.aniekan": "Aniekan",
 
+  // The japa type (decision 0018): a name and one line in the character's own voice. Flattering, never mocking;
+  // the long way round says the hard part straight. First drafts, rewritten for voice.
+  "share.type.careful-saver.name": "The Careful Saver",
+  "share.type.careful-saver.line": "I spent less than I made. Most months, anyway.",
+  "share.type.hustler.name": "The Hustler",
+  "share.type.hustler.line": "Day job, side job, weekend job. Sleep can wait.",
+  "share.type.night-reader.name": "The Night Reader",
+  "share.type.night-reader.line": "I read while the house slept. It carried me out.",
+  "share.type.family-anchor.name": "The Family Anchor",
+  "share.type.family-anchor.line": "Every call from home, I picked up.",
+  "share.type.gambler.name": "The Gambler",
+  "share.type.gambler.line": "I took the chances other people only talk about.",
+  "share.type.long-way-round.name": "The Long Way Round",
+  "share.type.long-way-round.line": "It took longer than planned. I went anyway.",
+
+  // The send-off's ticket stub (R-SHARE-001, R-SHARE-004): place names and words only, in the game's drawn hand.
+  "share.stub.kicker": "The send-off",
+  "share.stub.from": "From",
+  "share.stub.to": "To",
+  "share.stub.months": "Months",
+  "share.stub.japacity": "Japacity",
+  "share.stub.home": "Lagos",
+  "share.stub.badge": "Japa type",
+  "share.stub.ready": "Your ticket stub is ready",
+  "share.stub.pick.card": "The card",
+  "share.stub.pick.stub": "The ticket stub",
+
   "share.route": "Route",
   "share.japacity": "Japacity, how ready you are to go",
   "share.send-off.japacity": "Japacity on the day you flew",
