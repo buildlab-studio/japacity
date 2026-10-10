@@ -56,8 +56,8 @@ describe("words that mislead", () => {
   });
 
   test("[R-OBLIGATION-003] given a count of one in a line or a panel, then it reads 1 month, 1 question and 1 payment, never 1 months", async () => {
-    expect(words("line.setpiece.opened", { setpiece: "setpiece.road-truth", questions: 1 })).toContain("1 question to answer");
-    expect(words("line.setpiece.opened", { setpiece: "setpiece.road-truth", questions: 2 })).toContain("2 questions to answer");
+    expect(words("line.setpiece.opened", { setpiece: "setpiece.road-truth", questions: 1 })).toContain("1 question waiting");
+    expect(words("line.setpiece.opened", { setpiece: "setpiece.road-truth", questions: 2 })).toContain("2 questions waiting");
     expect(words("line.status.clock-ran", { months: 1 })).toBe("1 month left on the clock.");
     expect(words("line.activity.lotto-lost", { tickets: 1, stake: { currency: "NGN", amount: 20_000 } })).toBe(`1 ticket for ${formatMoney(20_000, "NGN")}. Nothing came in.`);
 
