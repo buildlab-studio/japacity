@@ -306,6 +306,14 @@ describe("courting", () => {
     expect(game.state.people.bonds).toEqual({});
   });
 
+  test("[R-PEOPLE-013] given a name a player sent that is a number or a built-in object key, when it is courted, then it is rejected with unknown-id and nothing throws", () => {
+    const game = life();
+    // As the server reads it: JSON from the player, so the name need not be a string.
+    game.expectRejected(JSON.parse('{ "type": "people/court", "with": 7 }') as Loose, "unknown-id");
+    for (const name of ["constructor", "__proto__", "toString", "hasOwnProperty"]) game.expectRejected({ type: "people/court", with: name }, "unknown-id");
+    expect(game.state.people.bonds).toEqual({});
+  });
+
   test("[R-PEOPLE-013] given a friend linked at connected, when the pair is courted, then the same bond moves to courting", () => {
     const game = life();
     const bond = linked(game);
@@ -1156,5 +1164,20 @@ describe("the view's bond fields", () => {
     expect(viewOf(friend).lastMomentMonth).toBe(game.state.turn.month);
     game.accept({ type: "people/end", bond: tobi });
     expect(viewOf(tobi).cooldownUntil).toBe(game.state.turn.month + numbers.recourtMonths);
+  });
+});
+
+describe("names a player sent", () => {
+  test("[R-PEOPLE-010] [R-PEOPLE-016] [R-PEOPLE-004] [R-PEOPLE-035] given a slot or bond name that is a built-in object key, when a card, a proposal, an answer, a withdrawal, a consent or an end names it, then each is rejected with unknown-id and nothing throws", () => {
+    const game = life();
+    for (const name of ["constructor", "__proto__", "toString", "hasOwnProperty"]) {
+      game.expectRejected({ type: "people/invite", slot: name, looking: "partner" }, "unknown-id");
+      game.expectRejected({ type: "people/propose", bond: name, step: "partner" }, "unknown-id");
+      game.expectRejected({ type: "people/answer", bond: name, step: "partner", yes: true }, "unknown-id");
+      game.expectRejected({ type: "people/withdraw", bond: name }, "unknown-id");
+      game.expectRejected({ type: "people/consent", bond: name, countFunds: true }, "unknown-id");
+      game.expectRejected({ type: "people/end", bond: name }, "unknown-id");
+    }
+    expect(game.state.people.bonds).toEqual({});
   });
 });

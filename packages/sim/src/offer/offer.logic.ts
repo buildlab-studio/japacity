@@ -366,7 +366,8 @@ function choose(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (command.type !== "offer/choose") throw new Error(`offer/choose cannot handle ${command.type}.`);
   // R-PEOPLE-044: a stand-in never spends.
   if (ctx.sender === "stand-in") return reject("not-legal", "A stand-in never spends.");
-  const item = typeof command.offer === "string" ? ctx.state.offer.items[command.offer] : undefined;
+  // A name the player sent may be a built-in object key; only the slice's own items are offers.
+  const item = typeof command.offer === "string" && Object.hasOwn(ctx.state.offer.items, command.offer) ? ctx.state.offer.items[command.offer] : undefined;
   if (item === undefined) return reject("unknown-id", `There is no open offer ${String(command.offer)}.`);
   const choice = entryOf(ctx.content, item.entry).choices.find((candidate) => candidate.id === command.choice);
   if (choice === undefined) return reject("not-legal", `${item.entry} has no choice ${String(command.choice)}.`);
