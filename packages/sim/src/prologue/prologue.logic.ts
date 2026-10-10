@@ -1,8 +1,9 @@
 // The prologue: docs/rules/prologue.md, R-PROLOGUE-001 to 008. The choices
 // from sixteen to twenty-two that build a starting life. The steps, their
-// answers, effects and draws are content; this kind walks them.
+// answers, effects and draws are content; this kind walks them, and keeps the
+// age picked on the age card (R-PROLOGUE-004, decision 0023).
 import { allMet } from "../engine/check";
-import { BP_WHOLE, clamp } from "../engine/int";
+import { BP_WHOLE, clamp, divFloor } from "../engine/int";
 import type { RegisteredKind } from "../engine/kind";
 import { emit } from "../engine/kind";
 import { reject } from "../engine/reject";
@@ -45,7 +46,17 @@ const FAMILY_MEANS: Id<"quality"> = "quality.family-means";
 const NETWORK: Id<"quality"> = "quality.network";
 const STANDING: Id<"quality"> = "quality.standing";
 const EDU_GRADE: Id<"quality"> = "quality.edu-grade";
+const YEAR = 12;
 
+/**
+ * R-PROLOGUE-004 (decision 0023): the steps a draw's bad outcome leads to. A retake or a strike puts the path's end
+ * later; it is drawn only while the years picked still leave work after it.
+ */
+const SETBACKS: readonly string[] = ["retake", "strike-drag"];
+/** The years worked after the path's end, never a card: the kind gives its answers, a year each, and goes on to its next. */
+export const WORK = "work";
+/** An age card's answer: the year the life starts at. */
+const START = /^start-(\d+)$/;
 
 /**
  * R-PROLOGUE-005: the headlines pass as these steps are answered, one each. Every path passes both.
@@ -85,6 +96,79 @@ function headlinePool(world: World, content: Content): Id<"news">[] {
     .map((story) => story.id);
   const eras = Object.values(content.era).map((era) => era.story);
   return [...new Set([...before, ...eras])];
+}
+
+/** R-PROLOGUE-004: the year an age card's answer picks, or null for any other answer. */
+export function startYearOf(answer: string): number | null {
+  const found = START.exec(answer);
+  return found === null ? null : Number(found[1]);
+}
+
+/** R-PROLOGUE-004: the year the life starts at, from the age card answered, or null before one is. */
+export function startYear(choices: Readonly<Record<string, string>>): number | null {
+  for (const answer of Object.values(choices)) {
+    const year = startYearOf(answer);
+    if (year !== null) return year;
+  }
+  return null;
+}
+
+/** Where an answer's outcome leads. */
+function leadsTo(step: PrologueStep, answer: Answer, outcome: Outcome | null): string | null {
+  return outcome?.next ?? answer.next ?? step.next;
+}
+
+function isSetback(step: PrologueStep, answer: Answer, outcome: Outcome): boolean {
+  const next = leadsTo(step, answer, outcome);
+  return next !== null && SETBACKS.includes(next);
+}
+
+/**
+ * R-PROLOGUE-004: the months from entering `from` to the path's end (the years worked, or the close), the longest
+ * way with no setback: every answer, whatever it requires, and every outcome of a draw but a retake or a strike.
+ */
+export function pathMonths(steps: Readonly<Record<string, PrologueStep>>, from: string | null, seen: readonly string[] = []): number {
+  if (from === null || from === WORK) return 0;
+  const step = steps[from];
+  if (step === undefined) throw new Error(`The content has no prologue step ${from}.`);
+  if (seen.includes(from)) throw new Error(`The prologue loops at ${from} with no setback.`);
+  let longest = 0;
+  for (const answer of step.answers) {
+    const outcomes = answer.draw === null ? [null] : answer.draw.filter((outcome) => !isSetback(step, answer, outcome));
+    for (const outcome of outcomes) longest = Math.max(longest, pathMonths(steps, leadsTo(step, answer, outcome), [...seen, from]));
+  }
+  return step.months + longest;
+}
+
+/**
+ * R-PROLOGUE-004 (decision 0023): a draw whose retake or strike would leave no year of work before the age picked is
+ * not made, and the first outcome that is no setback is taken in its place: the exam passes, the strike does not come.
+ * Null when the draw is made.
+ */
+function spared(ctx: Ctx, step: PrologueStep, answer: Answer): Outcome | null {
+  const year = startYear(ctx.state.prologue.choices);
+  if (year === null || answer.draw === null) return null;
+  const after = (ctx.state.quality[AGE] ?? 0) + step.months;
+  const short = answer.draw.some((outcome) => isSetback(step, answer, outcome) && divFloor(after + pathMonths(ctx.content.prologue, leadsTo(step, answer, outcome)), YEAR) >= year);
+  if (!short) return null;
+  return answer.draw.find((outcome) => !isSetback(step, answer, outcome)) ?? null;
+}
+
+/**
+ * R-PROLOGUE-004 (decision 0023): the years from the path's end to the age picked, worked one by one with the work
+ * card's answers in order (the last for every year after), so the life closes at the picked year and the months into
+ * it the path had reached. Returns the step after the work.
+ */
+function work(ctx: Ctx, entry: PrologueStep): string | null {
+  const year = startYear(ctx.state.prologue.choices);
+  const reached = divFloor(ctx.state.quality[AGE] ?? 0, YEAR);
+  const years = year === null ? 0 : Math.max(0, year - reached);
+  for (let at = 0; at < years; at += 1) {
+    const answer = entry.answers[Math.min(at, entry.answers.length - 1)];
+    if (answer === undefined) throw new Error("The work card has no answer.");
+    ctx.apply([...answer.effects, add(AGE, entry.months)], cause());
+  }
+  return entry.next;
 }
 
 // ---------------------------------------------------------------------------
@@ -196,13 +280,15 @@ function choose(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (slice.draw === null || Object.keys(slice.choices).length === 0) events.push(...draw(ctx));
   if (step.id === AFTER_SCHOOL) waec(ctx);
   ctx.apply(answer.effects, cause());
-  const outcome = answer.draw === null ? null : drawOutcome(ctx, answer.draw);
+  const outcome = answer.draw === null ? null : (spared(ctx, step, answer) ?? drawOutcome(ctx, answer.draw));
   if (outcome !== null) ctx.apply(outcome.effects, cause());
   if (step.months > 0) ctx.apply([add(AGE, step.months)], cause());
   if (step.id === GRADUATION) events.push(...graduate(ctx));
   events.push(...headline(ctx, step.id));
 
-  const next = outcome?.next ?? answer.next ?? step.next;
+  const reached = outcome?.next ?? answer.next ?? step.next;
+  const workCard = reached === WORK ? stepEntry(ctx.content, WORK) : null;
+  const next = workCard === null ? reached : work(ctx, workCard);
   const chosen: PrologueEvent = {
     type: "prologue/chosen",
     step: step.id,

@@ -93,10 +93,10 @@ function inTheRoom(base: Content = QUIET): Game {
   return game;
 }
 
-/** A life from sixteen through the shop counter, three years older (more saved), its home card answered `answer`. */
+/** A life from sixteen through the shop counter, started three years past its path (three years worked, more saved), its home card answered `answer`. */
 function fromSixteen(answer: string, before: (game: Game) => void = () => undefined): Game {
   const game = start({ content: QUIET, scenario: "scenario.prologue", seed: "seed-1" });
-  for (const choice of ["begin", "commercial", "work", "save", "nowhere", "older-3"]) {
+  for (const choice of ["begin", "commercial", "work", "start-24", "save", "nowhere"]) {
     const step = game.state.prologue.step;
     if (step === null) throw new Error(`The prologue closed before ${choice}.`);
     game.accept({ type: "prologue/choose", step, answer: choice });
@@ -362,7 +362,7 @@ function holding(game: Game, amount: number): void {
 /** A life from sixteen through the shop counter, stopped at `step`. */
 function fromSixteenTo(step: string): Game {
   const game = start({ content: QUIET, scenario: "scenario.prologue", seed: "seed-1" });
-  for (const choice of ["begin", "commercial", "work", "save", "nowhere", "as-is"]) {
+  for (const choice of ["begin", "commercial", "work", "start-21", "save", "nowhere"]) {
     if (game.state.prologue.step === step) break;
     const at = game.state.prologue.step;
     if (at === null) throw new Error(`The prologue closed before ${step}.`);
