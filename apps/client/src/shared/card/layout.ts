@@ -23,7 +23,13 @@ export type TextRole =
   | "sender"
   | "address"
   | "official"
-  | "disclaimer";
+  | "disclaimer"
+  // The ticket stub's own (stub.ts): a field's name and its value, the type badge's heading, name and line.
+  | "stub-label"
+  | "stub-value"
+  | "type-label"
+  | "type-name"
+  | "type-line";
 
 export type Family = "display" | "sans";
 
@@ -40,7 +46,26 @@ export interface TextStep {
   align: "left" | "right";
 }
 
-export type Step = Shape | TextStep | { op: "clip"; box: Box; radius: number } | { op: "unclip" };
+/**
+ * A mark of the game's own on the picture (R-SHARE-006): the faint watermark's repeats and the corner
+ * badge. Turned about its centre by `angle` degrees, clockwise; `alpha` is its opacity in hundredths.
+ * Not a word of the card: the layout keeps it under the words or clear of them.
+ */
+export interface MarkStep {
+  op: "mark";
+  role: "watermark" | "badge";
+  text: string;
+  x: number;
+  y: number;
+  size: number;
+  angle: number;
+  color: PaletteName;
+  alpha: number;
+  /** The badge's band, filled before its name; null for the watermark. */
+  band: { points: [number, number][]; color: PaletteName } | null;
+}
+
+export type Step = Shape | TextStep | MarkStep | { op: "clip"; box: Box; radius: number } | { op: "unclip" };
 
 /** The width of `text` drawn at `size` in `family` and `weight`. */
 export type Measure = (text: string, size: number, family: Family, weight: number) => number;
@@ -50,13 +75,13 @@ export interface Size {
   height: number;
 }
 
-interface Tone {
+export interface Tone {
   background: PaletteName;
   ink: PaletteName;
   soft: PaletteName;
 }
 
-const TONES: Record<ShareKind, Tone> = {
+export const TONES: Record<ShareKind, Tone> = {
   "send-off": { background: "danfoYellow", ink: "black", soft: "charcoal" },
   "real-story": { background: "black", ink: "white", soft: "zinc" },
   lost: { background: "black", ink: "white", soft: "zinc" },
@@ -85,15 +110,67 @@ export function wrap(text: string, width: number, measure: (line: string) => num
   return lines;
 }
 
-function scaler(width: number, design: number): (value: number) => number {
+export function scaler(width: number, design: number): (value: number) => number {
   return (value) => Math.round((value * width) / design);
 }
 
 /** The bus stripes along the top edge: the game's own mark, no logo. */
-function stripes(x: number, y: number, width: number, height: number, band: number, tone: Tone): Shape[] {
+export function stripes(x: number, y: number, width: number, height: number, band: number, tone: Tone): Shape[] {
   const shapes: Shape[] = [{ op: "rect", x, y, w: width, h: height, color: tone.ink }];
   for (let left = x + band; left < x + width; left += band * 2) shapes.push({ op: "rect", x: left, y, w: Math.min(band, x + width - left), h: height, color: "danfoYellow" });
   return shapes;
+}
+
+/** The watermark's opacity, in hundredths: faint enough that the words over it read, plain enough to show in a crop. */
+const WATERMARK_ALPHA = 7;
+
+/**
+ * The game's name repeated across the whole picture at a slant (R-SHARE-006), each repeat anchored inside
+ * it, rows offset so no column lines up. `unit` scales the card's design sizes to this picture.
+ */
+export function watermark(name: string, size: Size, unit: (value: number) => number, color: PaletteName): MarkStep[] {
+  const steps: MarkStep[] = [];
+  const across = unit(440);
+  const down = unit(230);
+  for (let row = 0, y = unit(110); y <= size.height; row += 1, y += down) {
+    for (let x = row % 2 === 0 ? unit(120) : unit(340); x <= size.width; x += across) {
+      steps.push({ op: "mark", role: "watermark", text: name, x, y, size: unit(60), angle: -20, color, alpha: WATERMARK_ALPHA, band: null });
+    }
+  }
+  return steps;
+}
+
+/**
+ * The diagonal badge across a top corner (R-SHARE-006): a band cut across the corner between `near` and
+ * `far` along each edge, with the game's name along it in capitals.
+ */
+export function cornerBadge(name: string, size: Size, unit: (value: number) => number, corner: "left" | "right", tone: { band: PaletteName; ink: PaletteName }): MarkStep {
+  const near = unit(150);
+  const far = unit(250);
+  const middle = Math.round((near + far) / 2);
+  const right = corner === "right";
+  const edge = right ? size.width : 0;
+  const inward = (distance: number) => (right ? size.width - distance : distance);
+  return {
+    op: "mark",
+    role: "badge",
+    text: name.toUpperCase(),
+    x: inward(Math.round(middle / 2)),
+    y: Math.round(middle / 2),
+    size: unit(38),
+    angle: right ? 45 : -45,
+    color: tone.ink,
+    alpha: 100,
+    band: {
+      points: [
+        [inward(far), 0],
+        [inward(near), 0],
+        [edge, near],
+        [edge, far],
+      ],
+      color: tone.band,
+    },
+  };
 }
 
 /** The drawing steps of a whole card at `size` (R-SHARE-004, R-SHARE-009). */
@@ -171,6 +248,9 @@ export function cardSteps(face: CardFace, size: Size, measure: Measure): Step[] 
     { op: "clip", box: art, radius: unit(36) },
     ...(artShapes(face.art, art) ?? [{ op: "rect", x: art.x, y: art.y, w: art.w, h: art.h, color: tone.soft } satisfies Shape]),
     { op: "unclip" },
+    // The marks before the words (R-SHARE-006): the watermark over the art and the ground, the badge on the corner the art starts under.
+    ...watermark(face.sender, size, unit, tone.ink),
+    cornerBadge(face.sender, size, unit, "right", { band: tone.ink, ink: tone.background }),
     ...text.map((step) => ({ ...step, y: step.y + shift })),
     ...footer,
     ...footText,
@@ -191,6 +271,9 @@ export function previewSteps(face: Pick<CardFace, "kind" | "kicker" | "title" | 
     { op: "rect", x: 0, y: 0, w: size.width, h: size.height, color: tone.background },
     ...(artShapes(face.art, art) ?? []),
     ...stripes(art.w, 0, size.width - art.w, unit(20), unit(28), tone),
+    // The marks (R-SHARE-006): the watermark closer set, since the preview is short; the badge on the art's corner, clear of the words.
+    ...watermark(face.sender, size, scaler(size.width, 1600), tone.ink),
+    cornerBadge(face.sender, size, scaler(size.width, 1080), "left", { band: tone.ink, ink: tone.background }),
   ];
   const put = (role: TextRole, words: string, y: number, sizePx: number, weight: TextStep["weight"], family: Family) =>
     steps.push({ op: "text", role, text: words, x: left, y, size: sizePx, weight, family, color: tone.ink, align: "left" });

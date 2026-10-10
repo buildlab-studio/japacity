@@ -69,6 +69,29 @@ export function paint(context: CanvasRenderingContext2D, steps: readonly Step[])
         context.textBaseline = "alphabetic";
         context.fillText(step.text, step.x, step.y);
         break;
+      case "mark":
+        context.save();
+        context.globalAlpha = step.alpha / 100;
+        if (step.band !== null) {
+          const [first, ...rest] = step.band.points;
+          if (first !== undefined) {
+            context.fillStyle = paletteCss(step.band.color);
+            context.beginPath();
+            context.moveTo(first[0], first[1]);
+            for (const [x, y] of rest) context.lineTo(x, y);
+            context.closePath();
+            context.fill();
+          }
+        }
+        context.translate(step.x, step.y);
+        context.rotate((step.angle * Math.PI) / 180);
+        context.fillStyle = paletteCss(step.color);
+        context.font = fontOf(step.size, "sans", 700);
+        context.textAlign = "center";
+        context.textBaseline = "middle";
+        context.fillText(step.text, 0, 0);
+        context.restore();
+        break;
       case "clip":
         context.save();
         context.beginPath();

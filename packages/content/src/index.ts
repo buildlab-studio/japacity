@@ -72,7 +72,7 @@ import { varTable } from "./var/var.data";
 import { varText } from "./var/var.text";
 import { walletText } from "./wallet/wallet.text";
 
-export { officialAccounts, shareChapters, shareKinds } from "./share/share.data";
+export { japaTypes, officialAccounts, shareChapters, shareKinds } from "./share/share.data";
 export { lifePeople, nameMix, namedMix, namedPeople, namePool, peopleRegion, takingRoles } from "./person/person.names.data";
 export type { NamedPerson, NamedRole, NameFaith, NamePeople, NameSex, PoolName } from "./person/person.names.data";
 export { recurringPeople } from "./person/person.recurring.data";
@@ -94,7 +94,7 @@ export { spendingLines, versionedLines } from "./comedy/comedy.data";
 export { versionCount, versionKey } from "./comedy/comedy";
 export { badNews, reportPlain } from "./comedy/comedy.check";
 export type { PlainOnly } from "./comedy/comedy";
-export type { OfficialAccount, OfficialPlatform, ShareKind } from "./share/share.data";
+export type { JapaType, OfficialAccount, OfficialPlatform, ShareKind } from "./share/share.data";
 
 export const content: Content = {
   version: "m0.1",

@@ -29,6 +29,15 @@ export const shareChapters: readonly Id<"chapter">[] = [
   "chapter.secure",
 ];
 
+/**
+ * The japa types (decision 0018), in the decision's order: a label read from the life at the send-off,
+ * never a number. The client reads which one (apps/client/src/shared/words/japaType.ts); the words are
+ * `share.type.<type>.name` and `share.type.<type>.line`.
+ */
+export const japaTypes = ["careful-saver", "hustler", "night-reader", "family-anchor", "gambler", "long-way-round"] as const;
+
+export type JapaType = (typeof japaTypes)[number];
+
 export type OfficialPlatform = "web" | "email" | "whatsapp" | "instagram" | "tiktok" | "x" | "youtube" | "facebook" | "repository";
 
 /**

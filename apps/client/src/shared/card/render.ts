@@ -8,6 +8,7 @@ import { encodeUnder, type Encoded } from "./encode";
 import type { CardFace } from "./face";
 import { cardSteps, previewSteps, type Size, type Step } from "./layout";
 import { fontsReady, measureWith, paint } from "./paint";
+import { stubSize, stubSteps, type StubFace } from "./stub";
 
 type ShareTuning = Content["tuning"]["share"];
 
@@ -33,4 +34,11 @@ export async function renderPreview(face: Parameters<typeof previewSteps>[0], tu
   const size = { width: tuning.previewWidth, height: tuning.previewHeight };
   await fontsReady([Math.round((66 * size.width) / 1200), Math.round((52 * size.width) / 1200)]);
   return draw(size, (measure) => previewSteps(face, size, measure), tuning.previewMaxBytes);
+}
+
+/** The send-off's ticket stub, landscape, under the same `maxBytes` as every card (R-SHARE-009). */
+export async function renderStub(face: StubFace, tuning: ShareTuning = content.tuning.share): Promise<Encoded> {
+  const size = stubSize(tuning);
+  await fontsReady([Math.round((84 * size.width) / 1920), Math.round((56 * size.width) / 1920)]);
+  return draw(size, (measure) => stubSteps(face, size, measure), tuning.maxBytes);
 }
