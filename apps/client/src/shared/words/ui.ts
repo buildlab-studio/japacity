@@ -322,6 +322,8 @@ export const uiText: Record<string, string> = {
   "ui.needs.money": "Cannot be paid now",
   "ui.needs.foreign": "Needs {currency}",
   "ui.needs.planned": "In this month's plan",
+  // A shut card's button, when the card itself lists why.
+  "ui.needs.not-yet": "Not yet",
   "ui.needs.other": "Not yet: {what}",
   "ui.activity.later": "Later, abroad",
   "ui.activity.later-hint": "{count} things you can only do once you have left.",

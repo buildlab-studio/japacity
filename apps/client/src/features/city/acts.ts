@@ -57,3 +57,14 @@ export function actsOffered(view: Pick<PlayerView, "activities">): string[] {
   const board = hunt === undefined || hunt.done ? [] : [hunt.id, ...(hunt.params ?? [])];
   return [...new Set([...view.activities.filter((option) => option.allowed).map((option) => option.id), ...paperShut, ...board])];
 }
+
+/**
+ * True when a shut card says why itself (R-ADVICE-001, R-WORLD-006): its "Not yet:" list, or
+ * the sentence that there is nothing to choose yet ("No route to look into yet"). The reason is said once, there; the
+ * button is shut and says only "Not yet". A card whose needs are all done already says that instead.
+ */
+export function saysWhyOnCard(option: Pick<PlayerView["activities"][number], "allowed" | "missing" | "params">, done: (requirement: PlayerView["activities"][number]["missing"][number]) => boolean): boolean {
+  if (option.allowed) return false;
+  if (option.missing.length > 0) return !option.missing.every(done);
+  return option.params?.length === 0;
+}

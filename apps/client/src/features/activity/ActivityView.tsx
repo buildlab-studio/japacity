@@ -15,6 +15,7 @@ import { afterPaying, plannedCosts, shortfall, type AfterPaying, type Money } fr
 import { formatBand, formatMoney } from "../../shared/words/format";
 import { lockWords, SIDE_JOB_LOCK } from "../../shared/words/locks";
 import { alreadyDone, needsWords, requirementSentence } from "../../shared/words/requirement";
+import { saysWhyOnCard } from "../city/acts";
 import { ENGLISH_TEST, STUDY_ENGLISH, testChance } from "../../shared/words/test";
 import { studyWords } from "./study";
 import { blurbOf, hasWords, lowerFirst, nameOf, paramWords, say, sayCount } from "../../shared/words/text";
@@ -286,6 +287,8 @@ function nothingToPickWords(option: ActivityOption): string {
  */
 function buttonLine(option: ActivityOption, paying: AfterPaying | null, view: PlayerView, planned: boolean): { words: string; kind: "needs" | "short" | "left" | "planned" } | null {
   if (planned) return { words: say("ui.needs.planned"), kind: "planned" };
+  // The card's "Not yet:" list says why, once; the button only says it is shut.
+  if (saysWhyOnCard(option, (requirement) => alreadyDone(requirement, { routes: view.routes }))) return { words: say("ui.needs.not-yet"), kind: "needs" };
   if (!option.allowed) return { words: option.missing.length > 0 ? needsWords(option.missing, { routes: view.routes }) : nothingToPickWords(option), kind: "needs" };
   if (paying !== null && paying.short !== null) return { words: afterWords(paying), kind: "short" };
   if (!option.affordable) {
@@ -376,7 +379,7 @@ function ActivityCard({ option }: { option: ActivityOption }) {
         ) : null}
         {cannotPay ? <p className="text-sm text-bad">{cannotPayWords(view, option, planned, paying)}</p> : null}
 
-        {needsParam && (option.allowed || option.params?.length === 0) ? (
+        {needsParam && (option.allowed || (option.params?.length === 0 && option.missing.length === 0)) ? (
           option.params?.length === 0 ? (
             content.activity[option.id]?.param === "school" ? (
               <div className="text-sm">
