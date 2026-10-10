@@ -39,9 +39,9 @@ export { savedFor, savingsOf };
  * : a payment split across pockets is one line, a bill's "paid this month" is the same
  * money, a fare paid on the way is a move, a change at the bank is told as the results tell it.
  */
-export function latelyMoney(view: Pick<PlayerView, "report">, lastMonth: readonly ReportLine[], thisMonth: readonly ReportLine[], local: Currency = "NGN"): MoneyLine[] {
-  const ended = view.report === null ? [] : moneyLines([...lastMonth, ...view.report.lines], local);
-  return [...ended, ...moneyLines(thisMonth, local)];
+export function latelyMoney(view: Pick<PlayerView, "report">, lastMonth: readonly ReportLine[], thisMonth: readonly ReportLine[]): MoneyLine[] {
+  const ended = view.report === null ? [] : moneyLines([...lastMonth, ...view.report.lines]);
+  return [...ended, ...moneyLines(thisMonth)];
 }
 
 /**
@@ -56,8 +56,8 @@ function savingsKey(view: PlayerView, savings: { shown: number; required: number
 }
 
 /** Lately's lines as the report's lines, in Lately's order. */
-export function latelyLines(view: Pick<PlayerView, "report">, lastMonth: readonly ReportLine[], thisMonth: readonly ReportLine[], local: Currency = "NGN"): ReportLine[] {
-  return latelyMoney(view, lastMonth, thisMonth, local).map((entry) => entry.line);
+export function latelyLines(view: Pick<PlayerView, "report">, lastMonth: readonly ReportLine[], thisMonth: readonly ReportLine[]): ReportLine[] {
+  return latelyMoney(view, lastMonth, thisMonth).map((entry) => entry.line);
 }
 
 type Share = "quarter" | "half" | "all";
@@ -427,7 +427,7 @@ export function Bank({ opening: openOn = null }: { opening?: "change" | "move" |
   const savings = abroad ? null : savingsOf(view);
   const lastMonth = useGame((state) => state.lastMonthLines);
   const thisMonth = useGame((state) => state.monthLines);
-  const lately = latelyMoney(view, lastMonth, thisMonth, local ?? "NGN");
+  const lately = latelyMoney(view, lastMonth, thisMonth);
   const others = CURRENCIES.filter((currency) => currency !== "NGN" && view.pockets[currency].bank + view.pockets[currency].cash > 0);
   const pairsShown = abroad && heldElsewhere(view, local).length > 0;
   const toggle = (which: "change" | "move" | "send") => {

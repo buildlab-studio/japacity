@@ -49,7 +49,7 @@ export function Results({ place }: { place: string }) {
   const midMonth = useGame((state) => state.lastMonthLines);
   const quiet = useGame((state) => state.quiet);
   const local = localCurrency(view);
-  const lines = report === null ? [] : moneyLines([...midMonth, ...report.lines], local);
+  const lines = report === null ? [] : moneyLines([...midMonth, ...report.lines]);
   const nets = kept(lines);
   const main = nets.find((net) => net.currency === local) ?? nets[0] ?? { currency: local, amount: 0 };
   const rest = nets.filter((net) => net !== main);

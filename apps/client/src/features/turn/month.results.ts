@@ -227,7 +227,7 @@ function toldQuiet(line: ReportLine, pays: PayView): ReportLine {
  * by told as such), else the credit file going up or down ("Kept £340. Credit up."), else nothing.
  */
 export function quietLine(lines: readonly ReportLine[], local: Currency, pays: PayView): { kept: number | null; moved: ReportLine | null } {
-  const money = moneyLines(lines, local);
+  const money = moneyLines(lines);
   const net = kept(money).find((entry) => entry.currency === local);
   const [first] = storyLines(lines);
   const credit = lines.find((line) => CREDIT_MOVED.has(line.key));

@@ -21,8 +21,8 @@ import { moneyParam, words } from "./text";
 const SAVES: Record<string, FlatSave> = { ...lifeSaves, ...newLifeSaves };
 
 /** What the results say of each money line, with its sign. */
-function said(lines: readonly ReportLine[], local: Currency = "NGN"): string[] {
-  return moneyLines(lines, local).map(({ line, sign }) => `${sign > 0 ? "+" : "-"} ${words(line.key, line.params)}`);
+function said(lines: readonly ReportLine[]): string[] {
+  return moneyLines(lines).map(({ line, sign }) => `${sign > 0 ? "+" : "-"} ${words(line.key, line.params)}`);
 }
 
 /** Tunde with naira in hand as cash, as the FX man takes it. */
@@ -53,7 +53,7 @@ describe("the money that changes hands", () => {
     const after = game.view().pockets;
     const got = after.GBP.cash - before.GBP.cash;
     expect(got).toBeGreaterThan(0);
-    const money = moneyLines(told.lines, "NGN");
+    const money = moneyLines(told.lines);
     expect(money.map(({ sign, currency, amount }) => ({ sign, currency, amount }))).toEqual([
       { sign: 1, currency: "GBP", amount: got },
       { sign: -1, currency: "NGN", amount: paid },
@@ -80,7 +80,7 @@ describe("the money that changes hands", () => {
     const nairaBefore = game.view().pockets.NGN.cash;
     const told = game.accept({ type: "wallet/convert", from: "GBP", to: "NGN", amount: pounds, via: "aboki" });
     const got = game.view().pockets.NGN.cash - nairaBefore;
-    const money = moneyLines(told.lines, "NGN");
+    const money = moneyLines(told.lines);
     expect(money.map(({ sign, currency, amount }) => ({ sign, currency, amount }))).toEqual([
       { sign: 1, currency: "NGN", amount: got },
       { sign: -1, currency: "GBP", amount: pounds },
@@ -96,7 +96,7 @@ describe("the money that changes hands", () => {
     const told = game.accept({ type: "wallet/convert", from: "NGN", to: "GBP", amount: paid, via: "bank" });
     expect(told.ok).toBe(true);
     expect(told.lines.some((line) => line.key === "line.wallet.queued")).toBe(true);
-    const now = moneyLines(told.lines, "NGN");
+    const now = moneyLines(told.lines);
     // The charge and the side paid in: all of it naira out, nothing in yet.
     expect(now.every((entry) => entry.sign === -1 && entry.currency === "NGN")).toBe(true);
     expect(kept(now)).toEqual([{ currency: "NGN", amount: -paid }]);
@@ -108,7 +108,7 @@ describe("the money that changes hands", () => {
       const ended = game.endTurn([]);
       if (ended.lines.some((line) => line.key === "line.wallet.converted")) landed = ended.lines;
     }
-    const pounds = moneyLines(landed, "NGN").filter((entry) => entry.currency === "GBP");
+    const pounds = moneyLines(landed).filter((entry) => entry.currency === "GBP");
     expect(pounds).toHaveLength(1);
     expect(pounds[0]).toMatchObject({ sign: 1 });
     expect(game.view().pockets.GBP.bank).toBe(pounds[0]?.amount);
@@ -127,7 +127,7 @@ describe("the money that changes hands", () => {
         const closed = result.events.find((event) => event.type === "wallet/month-closed") as { net: number } | undefined;
         const view = game.view();
         const local = localCurrency(view);
-        const sheet = kept(moneyLines(month, local)).find((entry) => entry.currency === local)?.amount ?? 0;
+        const sheet = kept(moneyLines(month)).find((entry) => entry.currency === local)?.amount ?? 0;
         if (closed !== undefined && sheet !== closed.net) differ.push({ month: view.month, sheet, wallet: closed.net });
         month = [];
       }

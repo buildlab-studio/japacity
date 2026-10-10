@@ -620,7 +620,8 @@ function lines(event: WalletEvent): ReportLine[] {
       if (reason === "convert") return [line(event.type === "wallet/credited" ? "line.wallet.converted" : "line.wallet.convert-paid", { amount: money }, "plain")];
       if (reason === "move") return event.type === "wallet/credited" ? [line("line.wallet.moved", { amount: money, pocket: event.pocket }, "plain")] : [];
       const key = REASON_LINE[reason];
-      return key === null ? [] : [line(key, { amount: money }, SOURCES.includes(reason) ? "good" : "bad")];
+      // R-WALLET-017: the tone is the event's, so a remit's foreign leg is money out and a refund under a fee's reason money in.
+      return key === null ? [] : [line(key, { amount: money }, event.type === "wallet/credited" ? "good" : "bad")];
     }
     case "wallet/queued": {
       const { from, to, paid, readyMonth } = event.conversion;

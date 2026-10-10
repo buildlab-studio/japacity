@@ -96,7 +96,7 @@ describe("the japa type, read at the send-off", () => {
         }
         const view = game.view();
         const local = localCurrency(view);
-        const lines = moneyLines(month, local);
+        const lines = moneyLines(month);
         const nets = kept(lines);
         // The sheet's main figure is in the money of the place whenever money moved there.
         if (lines.length > 0 && !nets.some((entry) => entry.currency === local)) otherMoney.push(view.month);

@@ -138,9 +138,6 @@ function changesOf(tidy: readonly ReportLine[]): { found: Map<number, Change>; t
   return { found, taken };
 }
 
-/** Money sent home: the wallet tells both legs as good; the leg in the money the character lives on is money out. */
-const REMIT = "line.wallet.remit";
-
 /** The kiosk's tickets, said as the activity's money (lines.ts) and as many tickets when more than one. */
 const LOTTO_PAID = "ui.line.activity-paid.activity.play-lotto";
 const LOTTO_TICKETS = "ui.results.lotto-tickets";
@@ -155,7 +152,7 @@ const LOTTO_TICKETS = "ui.results.lotto-tickets";
  * after its fee, is not money gone twice. News reads this to tell the month in the results' words (the eleventh
  * review).
  */
-export function moneyTold(tidy: readonly ReportLine[], local: Currency = "NGN"): (MoneyLine[] | null)[] {
+export function moneyTold(tidy: readonly ReportLine[]): (MoneyLine[] | null)[] {
   const { found, taken } = changesOf(tidy);
   return tidy.map((line, index): MoneyLine[] | null => {
     if (taken.has(index)) return [];
@@ -175,7 +172,6 @@ export function moneyTold(tidy: readonly ReportLine[], local: Currency = "NGN"):
     const money = moneyParam("amount", line.params, line.key);
     if (money === null) return null;
     if (money.amount === 0) return [];
-    if (line.key === REMIT && money.currency === local) return [{ line, sign: -1, currency: money.currency, amount: money.amount }];
     const told = line.key === LOTTO_PAID && money.amount > content.tuning.luck.ticket ? { ...line, key: LOTTO_TICKETS } : line;
     return [{ line: told, sign: line.tone === "good" ? 1 : -1, currency: money.currency, amount: money.amount }];
   });
@@ -183,9 +179,9 @@ export function moneyTold(tidy: readonly ReportLine[], local: Currency = "NGN"):
 
 /**
  * The lines in or out, in the simulation's order, one line for each payment as the report reads them (`moneyTold`).
- * `local` is the money the character lives on (naira when not given).
+ * In or out is the line's tone, which the wallet takes from the money moving (docs/rules/wallet.md R-WALLET-017).
  */
-export function moneyLines(lines: readonly ReportLine[], local: Currency = "NGN"): MoneyLine[] {
+export function moneyLines(lines: readonly ReportLine[]): MoneyLine[] {
   // The prologue's years are not this month: their money is what the character starts with.
-  return moneyTold(tidyLines(afterPrologue(lines)), local).flatMap((told) => told ?? []);
+  return moneyTold(tidyLines(afterPrologue(lines))).flatMap((told) => told ?? []);
 }
