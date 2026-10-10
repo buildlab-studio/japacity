@@ -31,7 +31,7 @@ async function extents(file: PlaceFile): Promise<{ file: string; x0: number; x1:
   for (const model of [...pieces, ...shows]) {
     const footprint = (await measured(model.file)).extras.footprint as Footprint;
     for (const at of model.at) {
-      for (const box of placeFootprint(footprint, at as [number, number, number])) {
+      for (const box of placeFootprint(footprint, at)) {
         const halfX = Math.abs(box.halfWidth * box.cos) + Math.abs(box.halfDepth * box.sin);
         const halfZ = Math.abs(box.halfWidth * box.sin) + Math.abs(box.halfDepth * box.cos);
         out.push({ file: model.file.split("/").pop() ?? model.file, x0: box.x - halfX, x1: box.x + halfX, z0: box.z - halfZ, z1: box.z + halfZ });
@@ -58,7 +58,7 @@ describe("the room at its new length", () => {
     for (const { name, file } of ROOMS_HERE) {
       const stage = stageOf(file);
       expect({ name, ground: stage.ground.size }).toEqual({ name, ground: [LENGTH + 0.6, WIDTH + 0.6] });
-      const [long, short] = walkableSize(stage as unknown as NonNullable<LimitedFile["stage"]>);
+      const [long, short] = walkableSize(stage);
       expect(long).toBeGreaterThan(LENGTH - 1);
       expect(short).toBeGreaterThan(WIDTH - 1);
       expect(checkLimits(file as unknown as LimitedFile)).toEqual([]);
