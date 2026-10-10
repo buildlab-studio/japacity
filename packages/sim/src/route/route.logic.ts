@@ -5,7 +5,7 @@ import { heldBand, takesApplication } from "../activity/activity.logic";
 import { check, worldVar, worldVarOr } from "../engine/check";
 import { BP_WHOLE, clamp, convertMinor, divFloor, mulDiv, mulDivCeil } from "../engine/int";
 import type { RegisteredKind } from "../engine/kind";
-import { emit } from "../engine/kind";
+import { emit, ownOf } from "../engine/kind";
 import { reject } from "../engine/reject";
 import type {
   BaseEvent,
@@ -515,10 +515,10 @@ function payDeposit(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (command.type !== "route/pay-deposit") throw new Error(`route/pay-deposit cannot handle ${command.type}.`);
   // R-PEOPLE-044: a stand-in never spends.
   if (ctx.sender === "stand-in") return reject("not-legal", "A stand-in never spends.");
-  const entry = ctx.content.route[command.route];
-  const held = ctx.state.route[command.route];
+  const entry = ownOf(ctx.content.route, command.route);
+  const held = ownOf(ctx.state.route, command.route);
   if (entry === undefined || held === undefined) return reject("unknown-id", `There is no route ${String(command.route)}.`);
-  const school = ctx.content.school[command.school];
+  const school = ownOf(ctx.content.school, command.school);
   if (school === undefined || !entry.schools.includes(command.school)) {
     return reject("unknown-id", `There is no school ${String(command.school)} on ${entry.id}.`);
   }
@@ -540,8 +540,8 @@ function depart(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (command.type !== "route/depart") throw new Error(`route/depart cannot handle ${command.type}.`);
   // R-PEOPLE-044: a stand-in never spends.
   if (ctx.sender === "stand-in") return reject("not-legal", "A stand-in never spends.");
-  const entry = ctx.content.route[command.route];
-  const held = ctx.state.route[command.route];
+  const entry = ownOf(ctx.content.route, command.route);
+  const held = ownOf(ctx.state.route, command.route);
   if (entry === undefined || held === undefined) return reject("unknown-id", `There is no route ${String(command.route)}.`);
   if (held.state !== "granted") return reject("not-legal", "Only a granted route can be flown.");
   // the page is silent on a flight from the road; R-ROAD-005 makes the chain the month's only business there.

@@ -5,7 +5,7 @@
 // (decision 0007), so each life replays alone.
 import { check, worldVar } from "../engine/check";
 import type { RegisteredKind } from "../engine/kind";
-import { emit } from "../engine/kind";
+import { emit, ownOf } from "../engine/kind";
 import { reject } from "../engine/reject";
 import type {
   BaseEvent,
@@ -711,7 +711,7 @@ function authority(ctx: Ctx, sent: Command): BaseEvent[] | Rejection {
       return Array.isArray(found) ? record(ctx, [{ type: "people/stand-in-changed", bond: found[0], stage: command.stage }]) : found;
     }
     case "people/family-request": {
-      const entry = ctx.content.offer[command.offer];
+      const entry = ownOf(ctx.content.offer, command.offer);
       if (entry === undefined) return reject("unknown-id", `There is no offer ${command.offer}.`);
       if (entry.group !== "family") return reject("not-legal", `${command.offer} is not a family request.`);
       if (command.handled === true) return familyHandled(ctx, command);

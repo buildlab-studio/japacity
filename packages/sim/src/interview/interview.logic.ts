@@ -2,7 +2,7 @@
 // same questions about their shared history, one at a time, and the answers are
 // compared with no draw, so both lives reach the same result.
 import type { RegisteredKind } from "../engine/kind";
-import { emit } from "../engine/kind";
+import { emit, ownOf } from "../engine/kind";
 import { BP_WHOLE, mulDiv } from "../engine/int";
 import { reject } from "../engine/reject";
 import type {
@@ -360,7 +360,7 @@ function slotsPhase(ctx: Ctx): BaseEvent[] {
 function openCommand(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (command.type !== "interview/open") throw new Error(`interview/open cannot handle ${command.type}.`);
   if (ctx.state.interview.open !== null) return reject("not-legal", "An interview is already open.");
-  if (ctx.content.route[command.route] === undefined) return reject("unknown-id", `${command.route} is not a route.`);
+  if (ownOf(ctx.content.route, command.route) === undefined) return reject("unknown-id", `${command.route} is not a route.`);
   const found = bondFor(ctx.state, command.pair);
   if (!intact(found)) return reject("not-legal", `No bond with ${command.pair} stands.`);
   const entry = entryOf(ctx.content);

@@ -161,3 +161,11 @@ export function prefixOf(type: string): string {
   const at = type.indexOf("/");
   return at < 0 ? type : type.slice(0, at);
 }
+
+/**
+ * A record read with a key a player sent (R-ENGINE-019): only an own property counts, so a built-in
+ * name ("constructor", "toString") finds nothing and is refused as any unknown id is, never thrown on.
+ */
+export function ownOf<T>(record: Readonly<Record<string, T>>, key: unknown): T | undefined {
+  return typeof key === "string" && Object.hasOwn(record, key) ? record[key] : undefined;
+}

@@ -6,7 +6,7 @@ import { rateFor } from "../credit/credit.logic";
 import { worldVarOr } from "../engine/check";
 import { bp, convertMinor, divCeil, divFloor, mulDiv } from "../engine/int";
 import type { RegisteredKind } from "../engine/kind";
-import { emit, oldestFirst } from "../engine/kind";
+import { emit, oldestFirst, ownOf } from "../engine/kind";
 import { reject } from "../engine/reject";
 import type {
   BaseEvent,
@@ -667,7 +667,7 @@ function payCommand(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (command.type !== "obligation/pay") throw new Error(`obligation/pay cannot handle ${command.type}.`);
   // R-PEOPLE-044: a stand-in never spends.
   if (ctx.sender === "stand-in") return reject("not-legal", "A stand-in never spends.");
-  const item = typeof command.obligation === "string" ? ctx.state.obligation.items[command.obligation] : undefined;
+  const item = ownOf(ctx.state.obligation.items, command.obligation);
   if (item === undefined) return reject("unknown-id", `There is no open obligation ${String(command.obligation)}.`);
   const entry = entryOf(ctx.content, item.entry);
   const { amount } = command;
