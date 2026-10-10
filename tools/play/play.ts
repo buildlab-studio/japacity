@@ -406,6 +406,8 @@ async function onTheRoad(run: Run, month: number): Promise<boolean> {
 
 async function endMonth(run: Run, month: number): Promise<boolean> {
   const { page } = run;
+  // The city's own question may have put the life on the road this month (the night meeting, then the truth).
+  if (await shown(page.locator("[data-road]"))) return onTheRoad(run, month);
   const end = page.locator("[data-end-month]");
   if (!(await appear(end, LONG))) {
     problem(run, `month ${String(month)}: no Next month button`);
@@ -453,6 +455,11 @@ async function endMonth(run: Run, month: number): Promise<boolean> {
 // The phone -------------------------------------------------------------------------------------
 
 async function phoneApps(run: Run): Promise<void> {
+  // On the road there is no phone to open (features/road); the screen is read instead.
+  if (await shown(run.page.locator("[data-road]"))) {
+    log(run, "on the road at the end: no phone to open");
+    return;
+  }
   const { page } = run;
   if (!(await tap(run, page.locator("[data-thumb='phone']"), "the phone"))) return;
   if (!(await appear(page.locator("[data-app]"), SHORT))) {
