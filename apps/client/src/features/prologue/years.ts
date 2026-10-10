@@ -9,10 +9,13 @@ import { Award, BookOpen, Briefcase, CalendarX, Flag, GraduationCap, Hammer, Hou
 import type { ComponentType } from "react";
 
 import type { MarkState } from "../../shared/ui/Mark";
-import type { Tone } from "../../shared/ui/ToneTag";
 import { formatMoney } from "../../shared/words/format";
 import { gradeShort, sixteenPath } from "../../shared/words/sixteen";
 import { hasWords, say, sayCount, words } from "../../shared/words/text";
+import { TRAIL_KEY } from "../../shared/datapage/family";
+
+// The family card and the trail's key live beside the page, which prints the family too (R-PROLOGUE-009).
+export { type FamilyCard, familyCard, TRAIL_KEY } from "../../shared/datapage/family";
 
 type Draw = NonNullable<NonNullable<PlayerView["prologue"]>["draw"]>;
 
@@ -28,8 +31,6 @@ export interface Trail {
   steps: TrailStep[];
 }
 
-/** The one localStorage key the trail is kept under, beside the door's run. */
-export const TRAIL_KEY = "japacity.door.years";
 
 const EMPTY: Trail = { draw: null, steps: [] };
 
@@ -221,32 +222,4 @@ export function storyChips(view: PlayerView): YearChip[] {
   if (sixteenPath(view) === "capital") told.push({ id: "capital", icon: Wallet, label: say("ui.page.capital"), note: formatMoney(view.pockets.NGN.bank + view.pockets.NGN.cash, "NGN"), state: null });
   if (gradeShort(view)) told.push({ id: "grade", icon: GraduationCap, label: say("ui.page.year.grade"), note: say("ui.page.year.grade.short"), state: "setback" });
   return told;
-}
-
-export interface FamilyCard {
-  title: string;
-  tags: { tone: Tone; words: string }[];
-}
-
-/** The means a family must reach to pay for a private university, from content's own answer. */
-function comfortableFrom(): number {
-  for (const answer of content.prologue["university"]?.answers ?? []) {
-    for (const requirement of answer.requires) {
-      if (requirement.type === "quality/min" && requirement.quality === "quality.family-means") return requirement.value;
-    }
-  }
-  return content.quality["quality.family-means"]?.max ?? 0;
-}
-
-/**
- * The family the game drew (R-PROLOGUE-002) as a two-line card: its means as the title, with its ups and downs as small
- * tags. The child of the water grew up on the lagoon (R-PROLOGUE-012): its own title in place of the town and means.
- */
-export function familyCard(draw: Draw, water: boolean): FamilyCard {
-  const means = draw.familyMeans < content.tuning.prologue.waecStrain.under ? "low" : draw.familyMeans < comfortableFrom() ? "middle" : "high";
-  const tags: FamilyCard["tags"] = [];
-  if (!water) tags.push(draw.town === "city" ? { tone: "up", words: say("ui.page.family.city") } : { tone: "down", words: say("ui.page.family.town") });
-  tags.push(draw.parentsEducated ? { tone: "up", words: say("ui.page.family.schooled") } : { tone: "down", words: say("ui.page.family.unschooled") });
-  tags.push({ tone: "plain", words: sayCount("ui.page.family.siblings", draw.siblings, { count: draw.siblings }) });
-  return { title: say(water ? "ui.page.family.water" : `ui.page.family.${means}`), tags };
 }

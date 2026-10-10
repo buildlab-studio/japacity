@@ -15,10 +15,11 @@ import { type Archetype, archetypeOf, throughUniversity } from "../frontdoor/arc
 import { sixteenPath } from "../words/sixteen";
 import { gateLook } from "../frontdoor/Gate";
 import { lookOf } from "../frontdoor/looks";
-import { clockWords } from "../words/quality";
+import { AGE, clockWords, yearsOf } from "../words/quality";
 import { typeWords } from "../words/japaType";
 import { hasWords, say } from "../words/text";
 import { DataPage, type PageFields } from "./DataPage";
+import { familyCard, keptDraw } from "./family";
 import { stampsOf } from "./stamps";
 
 /** The character's first name: the one built at the door, else the ready life's own. */
@@ -28,11 +29,18 @@ function nameOf(person: KeptPerson | null, view: Pick<PlayerView, "scenario">): 
   return hasWords(own) ? (say(own).split(/\s+/)[0] ?? "") : "";
 }
 
-/** The tile's name while the life went its way; the life as lived when the years went another way (R-PROLOGUE-014). */
-function pathOf(archetype: Archetype, view: PlayerView): string {
+/** The years as lived where they went another way than the tile's (R-PROLOGUE-011, 014), else null: the tile's own. */
+function livedOtherwise(archetype: Archetype, view: PlayerView): ReturnType<typeof sixteenPath> {
   const lived = sixteenPath(view);
-  if (lived === null || (lived === "degree") === throughUniversity(archetype)) return say(`prologue.archetype.${archetype.id}.name`);
-  return say(`prologue.page.lived.${lived}`);
+  return lived === null || (lived === "degree") === throughUniversity(archetype) ? null : lived;
+}
+
+/** The home's district, for the page's strip: Surulere, Ojuelegba or Makoko, as the door names it. */
+function districtOf(view: Pick<PlayerView, "home">): string {
+  const place = view.home.place;
+  if (place === null) return "";
+  const key = `ui.door.home.where.${place.slice("place.".length)}`;
+  return hasWords(key) ? say(key) : "";
 }
 
 /** The page's fields from the view as it stands and the person kept beside the save. */
@@ -41,12 +49,20 @@ export function pageOf(view: PlayerView, person: KeptPerson | null = readPerson(
   const kind = `${view.scenario}.kind`;
   // The japa type kept with the send-off card stays on the page from then on (decision 0018).
   const type = keptTypeOf(view.scenario);
+  const lived = archetype === null ? null : livedOtherwise(archetype, view);
+  const draw = keptDraw();
+  const months = view.qualities.find((quality) => quality.id === AGE)?.value ?? 0;
+  const percent = view.japacity.percent ?? 0;
   return {
     ...(type === null ? {} : { type: typeWords(type) }),
     name: nameOf(person, view),
     age: clockWords(view.qualities),
-    path: archetype !== null ? pathOf(archetype, view) : hasWords(kind) ? say(kind) : "",
-    ready: say("prologue.page.ready.figure", { percent: view.japacity.percent ?? 0 }),
+    // The path and what it was: the tile's own while the life went its way, the life as lived where it did not.
+    path: archetype === null ? (hasWords(kind) ? say(kind) : "") : lived === null ? say(`prologue.archetype.${archetype.id}.name`) : say(`ui.page.lived.${lived}`),
+    ...(archetype === null ? {} : { was: lived === null ? say(`prologue.archetype.${archetype.id}.was`) : say(`prologue.page.lived.${lived}`) }),
+    ...(draw === null ? {} : { family: familyCard(draw, archetype?.id === "water").title }),
+    ready: say("prologue.page.ready.figure", { percent }),
+    strip: { district: districtOf(view), years: yearsOf(months), months: months - yearsOf(months) * 12, percent },
     photo: lookOf(gateLook(person?.look))?.picture ?? "",
     // The player's own colours, and the photo drawn in them, kept with the person (R-PROLOGUE-015).
     ...(person?.style === undefined ? {} : { wear: { look: person.look, style: person.style, ...(person.photo === undefined ? {} : { photo: person.photo }) } }),
@@ -75,7 +91,7 @@ export function PageSheet({ view, onClose }: { view: PlayerView; onClose: () => 
           </button>
         </div>
         <DataPage page={page} />
-        <p className="band mt-2 rounded-[6px] px-3 py-2 text-[12px] leading-snug">{say(stamps.length === 0 ? "prologue.page.stamps.none" : "prologue.page.stamps.some")}</p>
+        <p className="band mt-2 rounded-[6px] px-3 py-2 text-[12px] leading-snug">{say(stamps.length === 0 ? "ui.page.stamps.none" : "ui.page.stamps.some")}</p>
       </div>
     </div>,
     document.body,

@@ -22,7 +22,8 @@ export async function passOpeningWords(page: Page, timeout = 4_000): Promise<voi
 /** Begin on the page, until the door has gone. */
 async function begin(page: Page, timeout: number): Promise<void> {
   await page.getByRole("button", { name: /^Begin/ }).click({ timeout });
-  await page.locator("[data-door-progress]").waitFor({ state: "detached", timeout });
+  // The door's own page goes once Begin is pressed; the page after Begin wears the same header, so the gate is the mark.
+  await page.locator("[data-gate='page'], [data-gate='begun']").first().waitFor({ state: "detached", timeout });
 }
 
 /** Asks for the ready lives as Settings' "Start from a ready life" does, which opens on them, then Pick on the kind named (else the first), Begin; then past the opening. */

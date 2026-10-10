@@ -623,7 +623,7 @@ export const uiText: Record<string, string> = {
   "ui.door.home.where.self-contain": "Yaba",
   "ui.door.home.costs.family-house": "Then {amount} a month · family around",
   "ui.door.home.costs.makoko": "Then {amount} a month · rent next month",
-  "ui.door.home.costs.compound-room": "Then {amount} a month · rent yearly",
+  "ui.door.home.costs.compound-room": "Living costs {amount} a month · rent {rent} a year",
   "ui.door.home.costs.self-contain": "{amount} a year with fees",
   "ui.door.home.left": "left",
   // What the band shows at Begin: the savings less the move-in; the month's living is named apart.
@@ -651,6 +651,19 @@ export const uiText: Record<string, string> = {
   "ui.door.edit.you": "Look and name",
   "ui.door.edit.life": "Path and age",
   "ui.page.field.family": "Family",
+  // The page as designed (R-PROLOGUE-009): its type line and the fields it had and we lacked.
+  "ui.page.type-line": "Type P · NGA",
+  "ui.page.field.nationality": "Nationality",
+  "ui.page.nationality": "Nigerian",
+  "ui.page.field.path": "Path",
+  // No stamp before the visa: the visa's is the first, then each step after it.
+  "ui.page.stamp.flight": "Flown out",
+  "ui.page.stamp.landed": "Landed",
+  "ui.page.stamp.secured": "Status secured",
+  // Begin starts the life; it stamps nothing (R-PROLOGUE-014).
+  "ui.door.begin.then": "Your first month",
+  "ui.page.stamps.none": "No stamps yet. The first is the visa.",
+  "ui.page.stamps.some": "The visa's stamp, and one for each step after it.",
   "ui.page.family.unseen": "Drawn when you begin",
   "ui.page.japacity.line": "Japacity: how ready you are to leave Nigeria. 100 = you go.",
 

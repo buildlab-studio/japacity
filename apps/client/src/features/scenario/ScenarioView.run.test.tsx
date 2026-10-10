@@ -19,8 +19,8 @@ import { askReadyLives } from "../../shared/frontdoor/ready";
 import { ARCHETYPES, moneyDrawn, savingsOf } from "../../shared/frontdoor/archetypes";
 import { formatMoney } from "../../shared/words/format";
 import { say } from "../../shared/words/text";
-import { text } from "@japacity/content";
-import { fitHome, pocketIn, ScenarioView, startIn } from "./ScenarioView";
+import { content, text } from "@japacity/content";
+import { fitHome, pocketIn, ScenarioView, selfContainReached, selfContainYear, startIn } from "./ScenarioView";
 // Registers Testing Library's cleanup for this file.
 import "../../shared/testing/render";
 
@@ -171,7 +171,7 @@ describe("the run through the front door", () => {
     expect(localStorage.getItem(DOOR_KEY)).not.toBeNull();
   });
 
-  test("[R-PROLOGUE-013] given the door, then no ready life is on it; given a run Settings asked for, then it opens on the ready lives, the name a screen back, a pick goes to the page, and Begin stamps it and starts that life with its own age printed", async () => {
+  test("[R-PROLOGUE-013] given the door, then no ready life is on it; given a run Settings asked for, then it opens on the ready lives, the name a screen back, a pick goes to the page, and Begin starts that life, stamping nothing, with its own age printed", async () => {
     door();
     fireEvent.click(next(say("ui.door.next")));
     expect(document.querySelector("[data-ready], [data-ready-life]")).toBeNull();
@@ -195,7 +195,8 @@ describe("the run through the front door", () => {
     expect(document.querySelector("[data-page] [data-field='age']")?.textContent).toContain(say("prologue.page.age.years", { years: yearsOf(readyMonths("scenario.tunde")) }));
     expect(yearsOf(readyMonths("scenario.tunde"))).toBe(28);
     fireEvent.click(next(say("ui.door.begin")));
-    expect(await screen.findByText(say("prologue.page.stamp.ready"))).toBeDefined();
+    // Begin stamps nothing: the page takes no stamp before a visa (R-PROLOGUE-014, amended).
+    expect(document.querySelector("[data-stamp]")).toBeNull();
     await waitFor(() => expect(store.getState().view?.scenario).toBe("scenario.tunde"), { timeout: 4000 });
     expect(readPerson()?.name).toBe("Bayo");
     expect(readPerson()?.archetype).toBeNull();
@@ -279,7 +280,7 @@ describe("the run through the front door", () => {
     expect(document.querySelector("[data-turntable]")).toBeNull();
   });
 
-  test("[R-PROLOGUE-013] given each tile, then under the age a row says where you live: the family house in Surulere and a room of your own in Ojuelegba for every tile, a room on the water in Makoko for the child of the water alone, one line each with its cost a month, the right one chosen for the tile, and the money the life starts with after moving in, as the band will show it, \"about\" where it is drawn, or for the room the figure still needed; then the self-contain, locked as a goal with its figure; a home picked is kept through another tile while it can be paid", () => {
+  test("[R-PROLOGUE-013] given each tile, then under the age a row says where you live: the family house in Surulere and a room of your own in Ojuelegba for every tile, a room on the water in Makoko for the child of the water alone, one line each with its cost a month, the right one chosen for the tile, and the money the life starts with after moving in, as the band will show it, \"about\" where it is drawn, or for the room the figure still needed; then the self-contain, locked as a goal with its figure, left out for a tile whose savings already reach it; a home picked is kept through another tile while it can be paid", () => {
     door();
     fireEvent.click(next(say("ui.door.next")));
     const monthly = { "family-house": 9500000, "compound-room": 5000000, makoko: 2500000 } as const;
@@ -291,12 +292,15 @@ describe("the run through the front door", () => {
       expect(document.querySelector("[data-door-age]")!.compareDocumentPosition(row) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
       const homes = [...row.querySelectorAll<HTMLElement>("[data-home]")];
       const offered = tile.id === "water" ? ["family-house", "compound-room", "makoko"] : ["family-house", "compound-room"];
-      expect(homes.map((home) => home.dataset["home"])).toEqual([...offered, "self-contain"]);
+      // The self-contain stands as the goal unless the tile's savings already reach its year and fees (the trader's, the accountant's).
+      const goalShown = savingsOf(tile) < selfContainYear();
+      expect(selfContainReached(tile, 0)).toBe(!goalShown);
+      expect(homes.map((home) => home.dataset["home"])).toEqual(goalShown ? [...offered, "self-contain"] : offered);
       expect(homes.filter((home) => home.getAttribute("aria-checked") === "true").map((home) => home.dataset["home"])).toEqual([tile.id === "water" ? "makoko" : "family-house"]);
-      for (const home of homes.slice(0, -1)) {
+      for (const home of homes.filter((one) => one.dataset["home"] !== "self-contain")) {
         const id = home.dataset["home"] as keyof typeof monthly;
         expect(home.textContent).toContain(`${say(`ui.door.home.${id}`)} · ${say(`ui.door.home.where.${id}`)}`);
-        expect(home.querySelector("[data-home-costs]")?.textContent).toBe(say(`ui.door.home.costs.${id}`, { amount: formatMoney(monthly[id], "NGN"), rent: formatMoney(40000000, "NGN") }));
+        expect(home.querySelector("[data-home-costs]")?.textContent).toBe(say(`ui.door.home.costs.${id}`, { amount: formatMoney(monthly[id], "NGN"), rent: formatMoney(content.tuning.home.compound.rentYear, "NGN") }));
         const left = savingsOf(tile) - now[id] - monthly[id];
         expect(pocketIn(tile, 0, id)).toBe(left);
         // What the band shows at Begin: the savings less the move-in, the month's living named apart.
@@ -309,12 +313,16 @@ describe("the run through the front door", () => {
         const shown = open ? `${figure}${say("ui.door.home.start")}` : `${formatMoney(-left, "NGN")}${say("ui.door.home.needed")}`;
         expect({ id, shown: home.querySelector("[data-home-left]")?.textContent, shut: home.hasAttribute("disabled") }).toEqual({ id, shown, shut: !open });
       }
+      if (!goalShown) continue;
       const goal = homes.at(-1)!;
       expect(goal.tagName).not.toBe("BUTTON");
       expect(goal.getAttribute("role")).toBeNull();
       expect(goal.textContent).toBe(`${say("ui.door.home.self-contain")} · ${say("ui.door.home.where.self-contain")}${say("ui.door.home.costs.self-contain", { amount: formatMoney(84000000, "NGN") })}${say("ui.door.home.goal")}`);
     }
     expect(say("ui.door.home.costs.family-house", { amount: "₦95,000" })).toBe("Then ₦95,000 a month · family around");
+    expect(ARCHETYPES.filter((tile) => selfContainReached(tile, 0)).map((tile) => tile.id)).toEqual(["accountant", "trader"]);
+    // The room's ₦50,000 is living costs, its rent a year's apart (the review builder's report).
+    expect(document.querySelector("[data-home='compound-room'] [data-home-costs]")?.textContent).toBe(`Living costs ${formatMoney(content.tuning.home.compound.upkeep, "NGN")} a month · rent ${formatMoney(content.tuning.home.compound.rentYear, "NGN")} a year`);
     // The trade's settlement is drawn, so its figure is "about"; no other tile's is.
     expect(ARCHETYPES.filter((tile) => moneyDrawn(tile)).map((tile) => tile.id)).toEqual(["trader"]);
     // A home picked is kept through another tile; a home left as it was follows the tile.

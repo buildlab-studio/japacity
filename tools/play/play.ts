@@ -135,7 +135,7 @@ async function frontDoor(run: Run, button: string): Promise<boolean> {
   }
   await shot(run, "your page");
   if (!(await tap(run, page.getByRole("button", { name: /^Begin/ }), "Begin"))) return false;
-  await page.locator("[data-door-progress]").waitFor({ state: "detached", timeout: LONG }).catch(() => undefined);
+  await page.locator("[data-gate='page'], [data-gate='begun']").first().waitFor({ state: "detached", timeout: LONG }).catch(() => undefined);
   log(run, "begun");
   return true;
 }
