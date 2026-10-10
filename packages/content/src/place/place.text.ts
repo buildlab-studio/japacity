@@ -85,6 +85,9 @@ export const placeText: Record<string, string> = {
   "place.bode-thomas.sign.19": "BOOKSHOP\nEXERCISE BOOKS",
   "place.bode-thomas.sign.20": "GENERATOR\nREPAIRS",
   "place.bode-thomas.sign.21": "CHEMIST",
+  // The cargo office's painted board and its notice: the trade and the way to Lagos, never a price.
+  "place.bode-thomas.sign.22": "CARGO\nUK · US · CANADA → LAGOS",
+  "place.bode-thomas.sign.23": "COLLECT YOUR\nPARCEL HERE",
   "place.bode-thomas.overheard.1": "Na today the jackpot go drop. I feel am.",
   "place.bode-thomas.overheard.2": "One more game. If this one cuts, I stop.",
   "place.bode-thomas.overheard.3": "Abeg, which pharmacy dey open on Sunday?",

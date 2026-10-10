@@ -111,6 +111,8 @@ export interface Ask {
   dismiss: () => void;
   /** For a slip: a reference line printed small at the top right. */
   reference?: string;
+  /** For a slip: lines printed on the paper, each a label and its value, in place of the one big figure: a waybill's from, to, contents and charge. `strong` prints the line bold. */
+  rows?: { label: string; value: string; strong?: boolean }[];
   /** "now" when the act happens at once (a ride, the deposit, the plane); the default counts when the month ends. */
   when?: "now" | "month";
   /** A reason the act cannot happen yet, in words; the main button is shut and says it (R-WORLD-006). */

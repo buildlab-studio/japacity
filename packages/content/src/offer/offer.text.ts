@@ -3,6 +3,7 @@
 // speech and stay. Names and choice labels are first drafts.
 import { offerHealthText } from "./offer.health.text";
 import { offerHomeText } from "./offer.home.text";
+import { offerParcelText } from "./offer.parcel.text";
 import { offerStreetText } from "./offer.street.text";
 
 export const offerText: Record<string, string> = {
@@ -302,6 +303,7 @@ export const offerText: Record<string, string> = {
   ...offerHealthText,
   ...offerStreetText,
   ...offerHomeText,
+  ...offerParcelText,
 
   // Luck: luck.md. First drafts, rewritten for voice.
   "offer.whip-round.name": "A whip-round",

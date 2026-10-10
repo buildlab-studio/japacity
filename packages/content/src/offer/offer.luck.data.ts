@@ -12,8 +12,8 @@ const UK: Id<"route"> = "route.uk-masters";
 /** The formal routes. The road is left out: no relative sends money because you heard of it. */
 const FORMAL_ROUTES: Id<"route">[] = ["route.uk-masters", "route.uk-care", "route.uk-skilled", "route.canada-points", "route.uk-talent", "route.gulf-contract"];
 
-/** "Any route known": looked into, or further along. */
-const ANY_ROUTE_KNOWN: Requirement = {
+/** "Any route known": looked into, or further along. The aunty abroad has heard you are travelling, and the parcel reads it too. */
+export const ANY_ROUTE_KNOWN: Requirement = {
   type: "any",
   of: FORMAL_ROUTES.map((route): Requirement => ({ type: "route/state", route, in: ["known", "applying", "granted"] })),
 };

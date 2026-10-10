@@ -143,7 +143,7 @@ const entries: PlaceEntry[] = [
   lagos("place.ojuelegba", "Ojuelegba", "surulere", 6511, 3362, { assets: "ojuelegba-front", hub: true, stages: ["offer.fuel-scarcity", "chapter.find-your-feet", "activity.ask-around", "activity.see-agent-stop", "offer.agent-stop", "offer.agent-promise", "offer.agent-papers"], crowd: PACKED, traditionalBp: ROADSIDE }),
   // streets.md R-STREET-008: a morning run, and nothing else; it is a landmark.
   lagos("place.national-stadium", "National Stadium", "surulere", 6497, 3365, { stages: ["activity.morning-run"], crowd: QUIET, traditionalBp: STREET }),
-  lagos("place.bode-thomas", "Bode Thomas Street", "surulere", 6490, 3355, { assets: "bode-thomas-front", stages: ["activity.play-lotto", "activity.bet-slip"], crowd: BUSY, traditionalBp: STREET }),
+  lagos("place.bode-thomas", "Bode Thomas Street", "surulere", 6490, 3355, { assets: "bode-thomas-front", stages: ["activity.play-lotto", "activity.bet-slip", "offer.parcel-shipped"], crowd: BUSY, traditionalBp: STREET }),
   lagos("place.adeniran-ogunsanya", "Adeniran Ogunsanya Street", "surulere", 6494, 3357, { stages: ["activity.job-teacher"], crowd: BUSY, traditionalBp: STREET }),
   lagos("place.costain", "Costain", "surulere", 6482, 3369, { crowd: BUSY, traditionalBp: ROADSIDE }),
   // The market is not a feature in OpenStreetMap: the position is Tejuosho Avenue's.
