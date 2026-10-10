@@ -257,7 +257,7 @@ export const cityText: Record<string, string> = {
   "city.ride.okada": "Take the okada",
   "city.ride.none": "Nowhere else to go yet.",
   // Turn back on a ride (R-WORLD-017): the toast once the character has walked back.
-  "city.ride.turned-back": "You got down at the next stop and walked back.",
+  "city.ride.turned-back": "Turned back at the next stop",
   "city.world.tap": "Tap a thing to do it. Tap the ground to walk.",
 
   "city.graphics": "Graphics",

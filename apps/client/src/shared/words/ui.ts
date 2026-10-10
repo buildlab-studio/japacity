@@ -110,7 +110,7 @@ export const uiText: Record<string, string> = {
   "ui.world.go-there": "Go there",
   "ui.world.pay-back": "Pay back what is held",
   "ui.world.pay-back-line": "{amount} is held for you. Paid back, the plane is open.",
-  "ui.world.pay-back-paid": "Paid back.",
+  "ui.world.pay-back-paid": "Paid back",
   "ui.world.pay-back-note": "From the funds held for you. Nothing leaves your pocket.",
   "ui.chapter.go": "Go",
   "ui.world.side-job-title": "A side job: {job}",
@@ -928,7 +928,7 @@ export const uiText: Record<string, string> = {
   "ui.remit.line.bank.free": "{sent} goes by bank transfer now, no fee. {naira} lands in the bank at home next month.",
   "ui.remit.line.informal": "{sent} goes through someone, no fee. {naira} lands at home as cash today, if it arrives at all.",
   "ui.remit.sent": "Money sent home",
-  "ui.remit.sent-later": "Money sent. It lands next month",
+  "ui.remit.sent-later": "Money sent, lands next month",
 
   // Status abroad (R-STATUS-010, 006)
   "ui.status.title": "Status",
