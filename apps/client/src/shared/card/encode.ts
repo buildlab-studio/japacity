@@ -2,8 +2,8 @@
 // R-SHARE-009, R-SHARE-010): the image is encoded at falling qualities until it
 // is under the limit, and refused when even the lowest is not.
 
-/** JPEG qualities tried in turn, in hundredths. The first sits where the busiest face (the send-off: a body, three long things done, black words on the yellow) keeps room under the limit. */
-export const QUALITIES = [68, 60, 52, 46, 40] as const;
+/** JPEG qualities tried in turn, in hundredths. The first sits where the busiest face (the send-off: a body, three long things done, black words on the yellow, and the marks of R-SHARE-006 over it all) keeps room under the limit. */
+export const QUALITIES = [62, 56, 50, 46, 40] as const;
 
 export type Encoded = { ok: true; blob: Blob; quality: number } | { ok: false; reason: "too-big" | "no-image"; bytes: number };
 
