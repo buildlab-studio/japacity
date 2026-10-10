@@ -336,9 +336,9 @@ function pathShown(archetype: Archetype | null, view: PlayerView, page: PageFiel
 function Family({ draw, water, turned }: { draw: Draw | null; water: boolean; turned: boolean }) {
   const card = draw === null || !turned ? null : familyCard(draw, water);
   return (
-    <div className="h-[64px] [perspective:600px]" data-family={card === null ? "drawing" : "turned"}>
+    <div className="min-h-[64px] [perspective:600px]" data-family={card === null ? "drawing" : "turned"}>
       <div
-        className={`flex h-full items-center gap-2.5 rounded-[6px] px-3 transition-transform duration-300 ${card === null ? "band" : "border-2 border-strong bg-sheet"}`}
+        className={`flex min-h-[64px] items-center gap-2.5 rounded-[6px] px-3 py-2 transition-transform duration-300 ${card === null ? "band" : "border-2 border-strong bg-sheet"}`}
         style={{ transform: card === null ? "rotateX(0deg)" : "rotateX(360deg)" }}
       >
         {card === null ? (
@@ -354,7 +354,7 @@ function Family({ draw, water, turned }: { draw: Draw | null; water: boolean; tu
               </span>
               <span className="label ml-auto shrink-0 text-[9px] text-text-2">{say("ui.page.family")}</span>
             </div>
-            <div className="mt-1 flex gap-1 overflow-hidden" data-family-tags>
+            <div className="mt-1 flex flex-wrap gap-1" data-family-tags>
               {card.tags.map((tag) => (
                 <ToneTag key={tag.words} tone={tag.tone}>
                   {tag.words}

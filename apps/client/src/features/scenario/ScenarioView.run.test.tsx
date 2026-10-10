@@ -272,7 +272,7 @@ describe("the run through the front door", () => {
         expect(home.hasAttribute("disabled")).toBe(false);
       }
     }
-    expect(say("ui.door.home.costs.family-house", { amount: "₦95,000" })).toBe("₦95,000 a month living costs · family around");
+    expect(say("ui.door.home.costs.family-house", { amount: "₦95,000" })).toBe("₦95,000 a month · family around");
     // A home picked is kept through another tile; a home left as it was follows the tile.
     fireEvent.click(screen.getByRole("radio", { name: say("prologue.archetype.developer.name") }));
     expect(JSON.parse(localStorage.getItem(DOOR_KEY) ?? "{}")).toMatchObject({ archetype: "developer", home: "family-house" });
