@@ -226,6 +226,7 @@ export const prologueText: Record<string, string> = {
   "prologue.page.age.about": "About {years}",
   "prologue.page.path": "So far",
   "prologue.page.ready": "Ready",
+  "prologue.page.type": "Japa type",
   "prologue.page.ready.figure": "{percent}%",
   "prologue.page.empty": "· · ·",
   "prologue.page.photo": "Your photo",
