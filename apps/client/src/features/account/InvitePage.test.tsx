@@ -17,6 +17,7 @@ import { fakeModeration } from "../../shared/testing/moderation";
 import "../../shared/testing/render";
 import { BASE, fakeServer, type FakeServer } from "../../shared/testing/server";
 import { nameOf, say, words } from "../../shared/words/text";
+import { answerAge } from "./age.testing";
 import { inviteCodeOf, InvitePage, InviteServerProvider } from "./InvitePage";
 
 const CODE = "a1b2c3d4e5f6a1b2c3d4e5f6";
@@ -83,8 +84,7 @@ function openLink(server: FakeServer, accountApi: AccountApi) {
 }
 
 async function comeIn() {
-  fireEvent.change(await screen.findByLabelText(say("ui.account.age.label")), { target: { value: "1990-05-01" } });
-  fireEvent.click(screen.getByRole("button", { name: say("ui.account.age.go") }));
+  await answerAge("1990-05-01");
   fireEvent.click(await screen.findByRole("button", { name: say("ui.account.passkey") }));
 }
 
@@ -138,8 +138,7 @@ describe("the invite link's page", () => {
   test("[R-PAIR-008] given a browser that does not pass the age screen, then no way in shows and nothing is accepted", async () => {
     const server = cardServer();
     openLink(server, account("refused"));
-    fireEvent.change(await screen.findByLabelText(say("ui.account.age.label")), { target: { value: "2015-01-01" } });
-    fireEvent.click(screen.getByRole("button", { name: say("ui.account.age.go") }));
+    await answerAge("2015-01-01");
     expect(await screen.findByText(say("ui.account.age.refused"))).toBeDefined();
     expect(screen.queryByRole("button", { name: say("ui.account.passkey") })).toBeNull();
     expect(server.sent.some((request) => request.path.endsWith("/accept"))).toBe(false);

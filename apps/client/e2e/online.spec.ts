@@ -28,13 +28,13 @@ type Answer = { status?: number; body: unknown; type?: string };
 const SIGNED_OUT: Answer = { status: 401, body: { ok: false, code: "signed-out", detail: "Sign in to play." } };
 const CLOCK = { tick: 3, nextTickAt: Date.now() + 3_600_000, nextTurnAt: null };
 
-/** A stand-in for Cloudflare's widget: it passes at once with the dummy token, as the always-pass test key does. */
+/** A stand-in for Cloudflare's widget: it passes at once with the dummy token, as the always-pass test key does, and draws nothing when asked to show only for a tap (R-ACCOUNT-029). */
 const TURNSTILE = `window.turnstile = {
   render(container, options) {
     const box = document.createElement("div");
     box.textContent = "Check passed";
     box.style.cssText = "border:1px solid #bbb;border-radius:6px;padding:10px 12px;font:14px system-ui;width:max-content";
-    container.append(box);
+    if (options.appearance !== "interaction-only") container.append(box);
     setTimeout(() => options.callback("XXXX.DUMMY.TOKEN.XXXX"), 0);
     return "widget-1";
   },
@@ -120,7 +120,8 @@ test("[R-SERVER-032] while sign-ups are switched off, a new visitor sees the ful
   await page.goto("/?classic");
   await expect(page.getByRole("heading", { name: "Japacity is full right now. Try again shortly." })).toBeVisible({ timeout: 20_000 });
   await expect(page.getByRole("button", { name: "Check again" })).toBeDisabled();
-  await expect(page.getByLabel("Date of birth")).toHaveCount(0);
+  await expect(page.getByRole("combobox", { name: "Day" })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Play", exact: true })).toHaveCount(0);
   await shoot(page, "full", info.project.name);
 });
 
@@ -143,12 +144,15 @@ test("[R-PAIR-008] an invite link shows the friend's card before sign-up, with i
   await expect(card).toContainText("Looking for: a partner already in the UK", { timeout: 20_000 });
   await expect(card).toContainText("Japacity is a game");
   await expect(page.locator('[data-moderation="invite-card"]').getByRole("button", { name: "Report" })).toBeVisible();
-  await expect(page.getByLabel("Date of birth")).toBeVisible();
+  await expect(page.getByRole("combobox", { name: "Day" })).toBeVisible();
   await expect(page.locator("[data-advert-slot]")).toHaveCount(0);
   await shoot(page, "invite", info.project.name);
 
-  await page.getByLabel("Date of birth").fill("1994-03-12");
-  await expect(page.getByText("Check passed")).toBeVisible();
+  await page.getByRole("combobox", { name: "Day" }).selectOption("12");
+  await page.getByRole("combobox", { name: "Month" }).selectOption({ label: "March" });
+  await page.getByRole("combobox", { name: "Year" }).selectOption("1994");
+  // The bot check runs unseen (R-ACCOUNT-029).
+  await expect(page.getByText("Check passed")).toHaveCount(0);
   await page.getByRole("button", { name: "Continue" }).click();
   await expect(page.getByRole("button", { name: "Continue with Google" })).toBeVisible();
   await shoot(page, "invite-ways-in", info.project.name);

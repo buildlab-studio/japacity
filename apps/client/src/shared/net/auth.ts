@@ -15,7 +15,11 @@ import { type AgeReply, type AgeRequest, type AgeStatus, type DeleteReply, type 
 import { putUsageCounts, readAccount } from "./account";
 import { api, type Fetch } from "./http";
 
-export type AuthFailure = "not-fresh" | "bad-code" | "wrong-code" | "expired" | "too-many" | "cancelled" | "unreachable" | "refused";
+/**
+ * `no-life`: a way in with no account behind it, which only the age screen's pass may make (R-ACCOUNT-012, R-ACCOUNT-029).
+ * `passkey-first`: R-ACCOUNT-003's refusal of a new passkey on an admin account from a session not opened with a passkey.
+ */
+export type AuthFailure = "not-fresh" | "bad-code" | "wrong-code" | "expired" | "too-many" | "cancelled" | "unreachable" | "refused" | "no-life" | "passkey-first";
 
 export type AuthResult = { ok: true } | { ok: false; why: AuthFailure };
 
@@ -73,17 +77,20 @@ const FAILURES: Record<string, AuthFailure> = {
   TOO_MANY_ATTEMPTS: "too-many",
   AUTH_CANCELLED: "cancelled",
   REGISTRATION_CANCELLED: "cancelled",
+  // apps/server/src/account/signup.ts: the account would be new and the browser holds no age pass.
+  "no-age-pass": "no-life",
 };
 
-function failure(error: LibraryError): AuthFailure {
+function failure(error: LibraryError, byStatus: Partial<Record<number, AuthFailure>>): AuthFailure {
   const known = error.code === undefined ? undefined : FAILURES[error.code];
-  return known ?? (error.status === 429 ? "too-many" : "refused");
+  return known ?? byStatus[error.status] ?? (error.status === 429 ? "too-many" : "refused");
 }
 
-async function attempt(run: () => Promise<{ error: LibraryError | null }>): Promise<AuthResult> {
+/** `byStatus`: what a status means for this one route, where its code says nothing more. */
+async function attempt(run: () => Promise<{ error: LibraryError | null }>, byStatus: Partial<Record<number, AuthFailure>> = {}): Promise<AuthResult> {
   try {
     const { error } = await run();
-    return error === null ? { ok: true } : { ok: false, why: failure(error) };
+    return error === null ? { ok: true } : { ok: false, why: failure(error, byStatus) };
   } catch {
     return { ok: false, why: "unreachable" };
   }
@@ -131,7 +138,8 @@ export function betterAuthApi({ baseUrl, fetch }: { baseUrl: string; fetch?: Fet
   // the server mounts Better Auth at /api/auth, its default base path.
   const client = createAuthClient({
     baseURL: `${base}/api/auth`,
-    fetchOptions: { credentials: "include" },
+    // The seam's own fetch, so a test's stand-in server answers the library's routes too.
+    fetchOptions: { credentials: "include", customFetchImpl: (input, init) => send(input instanceof Request ? input.url : String(input), init) },
     plugins: [emailOTPClient(), passkeyClient()],
   });
   const home = () => (typeof location === "undefined" ? "/" : `${location.origin}/`);
@@ -167,7 +175,8 @@ export function betterAuthApi({ baseUrl, fetch }: { baseUrl: string; fetch?: Fet
     signInWithGoogle: (bot) => attempt(() => client.signIn.social({ provider: "google", callbackURL: home(), fetchOptions: botHeaders(bot) })),
     // A button, not the browser's autofill: autofill needs a field this game does not have.
     signInWithPasskey: () => attempt(() => client.signIn.passkey({ autoFill: false })),
-    addPasskey: () => attempt(() => client.passkey.addPasskey({})),
+    // R-ACCOUNT-003: the server's only 403 on a passkey's registration is the admin's, which needs a passkey session (apps/server/src/auth/hooks.ts).
+    addPasskey: () => attempt(() => client.passkey.addPasskey({}), { 403: "passkey-first" }),
     async email() {
       try {
         const { data } = await client.getSession();

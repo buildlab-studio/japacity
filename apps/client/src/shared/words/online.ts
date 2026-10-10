@@ -39,12 +39,32 @@ export const onlineText: Record<string, string> = {
   "ui.clock.minutes": "{minutes} min",
   "ui.clock.under-minute": "under a minute",
 
+  // The start screen online (R-ACCOUNT-029): the line under the game's name is ui.life.intro (R-TEXT-006)
+  "ui.account.start.play": "Play",
+  "ui.account.start.returning": "I already have a life here",
+  "ui.account.back": "Back",
+
   // The age screen (R-ACCOUNT-012)
   "ui.account.age.title": "When were you born?",
   "ui.account.age.intro": "Japacity asks everyone this before anything else.",
   "ui.account.age.label": "Date of birth",
+  "ui.account.age.day": "Day",
+  "ui.account.age.month": "Month",
+  "ui.account.age.year": "Year",
+  "ui.account.age.month.1": "January",
+  "ui.account.age.month.2": "February",
+  "ui.account.age.month.3": "March",
+  "ui.account.age.month.4": "April",
+  "ui.account.age.month.5": "May",
+  "ui.account.age.month.6": "June",
+  "ui.account.age.month.7": "July",
+  "ui.account.age.month.8": "August",
+  "ui.account.age.month.9": "September",
+  "ui.account.age.month.10": "October",
+  "ui.account.age.month.11": "November",
+  "ui.account.age.month.12": "December",
   "ui.account.age.go": "Continue",
-  "ui.account.age.empty": "Put in your date of birth first.",
+  "ui.account.age.empty": "Pick the day, the month and the year.",
   "ui.account.age.refused": "You cannot play Japacity.",
   "ui.account.age.bad-date": "That date does not look right. Check it and try again.",
   "ui.account.region-closed": "Japacity is not open where you are yet.",
@@ -68,7 +88,7 @@ export const onlineText: Record<string, string> = {
 
   // Signing in (R-ACCOUNT-001, R-ACCOUNT-002, R-ACCOUNT-013)
   "ui.account.title": "Come in",
-  "ui.account.intro": "One account, one life. Sign in with Google, a passkey, or a code by email.",
+  "ui.account.intro": "One account, one life. Sign in with Google, a code by email, or a passkey.",
   "ui.account.google": "Continue with Google",
   "ui.account.passkey": "Use a passkey",
   "ui.account.email.label": "Email",
@@ -79,7 +99,6 @@ export const onlineText: Record<string, string> = {
   "ui.account.code.go": "Sign in",
   "ui.account.code.again": "Send a new code",
   "ui.account.code.short": "The code is 6 digits.",
-  "ui.account.bot": "New here? This quick check makes sure you are a person.",
   "ui.account.bot.failed": "The quick check did not go through. Wait for it to finish, then try again.",
   "ui.account.working": "One moment...",
   "ui.account.loading": "Checking where you stand...",
@@ -91,6 +110,16 @@ export const onlineText: Record<string, string> = {
   "ui.account.fail.cancelled": "Nothing happened. Try again when you are ready.",
   "ui.account.fail.unreachable": "The game could not reach its server. Check your connection and try again.",
   "ui.account.fail.refused": "That did not work. Try another way in.",
+  "ui.account.fail.no-life": "No life is kept with that yet. Go back and tap Play to start one.",
+  "ui.account.fail.passkey-first": "Sign in with your passkey first, then add the new one here.",
+
+  // Back to a kept life, from the start screen (R-ACCOUNT-029, R-ACCOUNT-023)
+  "ui.account.returning.title": "Sign back in",
+  "ui.account.returning.intro": "Use the way you signed in before.",
+  "ui.account.in-app": "Google sign-in does not open inside this app. Use a code by email, or open Japacity in your browser.",
+  "ui.account.in-app.open": "Open in your browser",
+  "ui.account.in-app.copy": "Copy the link",
+  "ui.account.in-app.copied": "Copied. Paste it into your browser.",
   "ui.account.notice.deleted": "Your account is deleted. Everything it held goes within 30 days.",
   "ui.account.notice.signed-out": "You have signed out.",
 
