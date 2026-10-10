@@ -1,11 +1,11 @@
 // The data page's stamps (prologue.md R-PROLOGUE-009): a red stamp for each step taken toward leaving, read from the
 // view as it stands, in the order a life takes them: the way looked into (the first chapter's "Look into it"), the
-// plan (the way japacity reads, once looked into), the passport held, the file built, the visa applied for, granted.
+// plan (the way the chapters follow, R-CHAPTER-009, once looked into), the passport held, the file built, the visa applied for, granted.
 import type { PlayerView } from "@japacity/sim";
 
 import { say } from "../words/text";
 
-type Read = Pick<PlayerView, "documents" | "routes" | "chapter" | "japacity">;
+type Read = Pick<PlayerView, "documents" | "routes" | "chapter" | "plan">;
 
 const PASSPORT = "document.passport";
 const FIRST = "chapter.find-your-feet";
@@ -25,7 +25,7 @@ function lookedInto(chapter: Read["chapter"]): boolean {
 export function stampsOf(view: Read): string[] {
   const stamps: string[] = [];
   if (lookedInto(view.chapter)) stamps.push(say("prologue.page.stamp.adviser"));
-  const plan = view.japacity.route === null ? undefined : view.routes.find((route) => route.id === view.japacity.route);
+  const plan = view.plan.route === null ? undefined : view.routes.find((route) => route.id === view.plan.route);
   const planned = plan !== undefined && KNOWN.includes(plan.state);
   if (planned) stamps.push(say("prologue.page.stamp.plan", { way: say(`prologue.page.way.${plan.id}`) }));
   if (view.documents.some((paper) => paper.id === PASSPORT && paper.state === "held")) stamps.push(say("prologue.page.stamp.papers"));
