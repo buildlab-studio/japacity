@@ -36,7 +36,7 @@ describe("the home card", () => {
 });
 
 describe("the page's home", () => {
-  test("[R-PROLOGUE-013] [R-PROLOGUE-014] given a life that closed in the room in a compound, when the page tells where it sleeps, then the page says it starts in a room of its own in Ojuelegba, with the rent in 12 months", async () => {
+  test("[R-PROLOGUE-013] [R-PROLOGUE-014] given a life that closed in the room in a compound, when the page tells where it sleeps, then the page says it starts in its own room in Ojuelegba, with the rent in 12 months", async () => {
     const base = engineView();
     const family = base.obligations[0];
     if (family === undefined) throw new Error("The fixture owes nothing.");
@@ -51,7 +51,7 @@ describe("the page's home", () => {
     };
     await renderWithView(<PageHandover onDone={() => undefined} />, view);
     const home = document.querySelector("[data-handover-story] [data-fact='home']");
-    expect(home?.textContent).toBe("You start in a room of your own, OjuelegbaRent in 12 months");
+    expect(home?.textContent).toBe("You start in your own room, OjuelegbaRent in 12 months");
   });
 
   test("[R-PROLOGUE-012] [R-PROLOGUE-014] given a life that closed on a room in Makoko, when the page tells where it sleeps, then the page says it starts in the room on the water in Makoko, with the rent next month", async () => {
