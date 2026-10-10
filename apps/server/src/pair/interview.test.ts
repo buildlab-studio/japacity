@@ -72,9 +72,11 @@ async function applied(): Promise<Linked> {
   await must(server, INVITER, { type: "people/propose", bond: bondIn(await stateOf(server, a), linked.key), step: "joint", route: ROUTE, lead: "them" });
   await must(server, FRIEND, { type: "people/answer", bond: bondIn(await stateOf(server, b), linked.key), step: "joint", yes: true });
   // R-PEOPLE-025: heard with the month the married partner's facts show a sponsor; then looked into, then applied for.
+  // looking into the route and applying are acts done at once, sent as activity/now.
   await must(server, INVITER, { type: "turn/end", slots: [] });
-  await must(server, INVITER, { type: "turn/end", slots: [{ activity: LOOK, param: ROUTE }] });
-  await must(server, INVITER, { type: "turn/end", slots: [{ activity: APPLY, param: null }] });
+  await must(server, INVITER, { type: "activity/now", activity: LOOK, param: ROUTE });
+  await must(server, INVITER, { type: "turn/end", slots: [] });
+  await must(server, INVITER, { type: "activity/now", activity: APPLY, param: null });
   return linked;
 }
 
