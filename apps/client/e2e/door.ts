@@ -1,6 +1,6 @@
 // The way through the front door for a browser test (prologue.md R-PROLOGUE-013, 014): three screens with everything
 // chosen. A tile: Next, the tile, Print my page, Begin; its page fills and waits for Go (R-PROLOGUE-014). A ready life: the
-// test asks for the ready lives as Settings does and opens the door again, then Next, Pick on its kind, Begin.
+// test asks for the ready lives as Settings does and opens the door again, on them, then Pick on its kind, Begin.
 import type { Page } from "@playwright/test";
 
 /**
@@ -25,12 +25,11 @@ async function begin(page: Page, timeout: number): Promise<void> {
   await page.locator("[data-door-progress]").waitFor({ state: "detached", timeout });
 }
 
-/** Asks for the ready lives as Settings' "Start from a ready life" does, then Next, Pick on the kind named (else the first), Begin; then past the opening. */
+/** Asks for the ready lives as Settings' "Start from a ready life" does, which opens on them, then Pick on the kind named (else the first), Begin; then past the opening. */
 export async function startReadyLife(page: Page, kind?: string, timeout = 30_000): Promise<void> {
   await page.getByRole("button", { name: /^Next/ }).first().waitFor({ timeout });
   await page.evaluate(() => localStorage.setItem("japacity.door.ready", "1"));
   await page.reload();
-  await page.getByRole("button", { name: /^Next/ }).first().click({ timeout });
   const pick = kind === undefined ? page.getByRole("button", { name: /^Pick: / }).first() : page.getByRole("button", { name: `Pick: ${kind}` });
   await pick.click({ timeout });
   await begin(page, timeout);

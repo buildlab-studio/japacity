@@ -26,7 +26,8 @@ describe("the app", () => {
     askReadyLives();
     const store = bootGame({ storage: memoryStorage(), fastClock: true });
     render(<App store={store} />);
-    expect(screen.getByRole("heading", { name: say("ui.life.title") })).toBeDefined();
+    // Settings' run opens on the ready lives themselves.
+    expect(screen.getByRole("heading", { name: say("ui.door.ready.title") })).toBeDefined();
 
     await startReadyLife(Object.keys(content.scenario)[0]!);
     expect(await screen.findByRole("heading", { name: say("ui.month.planning", { month: 1 }) }, { timeout: 10_000 })).toBeDefined();

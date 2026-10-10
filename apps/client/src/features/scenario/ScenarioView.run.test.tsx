@@ -171,7 +171,7 @@ describe("the run through the front door", () => {
     expect(localStorage.getItem(DOOR_KEY)).not.toBeNull();
   });
 
-  test("[R-PROLOGUE-013] given the door, then no ready life is on it; given a run Settings asked for, then its second screen lists the ready lives, a pick goes to the page, and Begin stamps it and starts that life with its own age printed", async () => {
+  test("[R-PROLOGUE-013] given the door, then no ready life is on it; given a run Settings asked for, then it opens on the ready lives, the name a screen back, a pick goes to the page, and Begin stamps it and starts that life with its own age printed", async () => {
     door();
     fireEvent.click(next(say("ui.door.next")));
     expect(document.querySelector("[data-ready], [data-ready-life]")).toBeNull();
@@ -180,6 +180,9 @@ describe("the run through the front door", () => {
     localStorage.clear();
     askReadyLives();
     const store = door();
+    // Settings' run opens on the ready lives themselves; Back reaches the name, Next comes back.
+    expect(stage()).toBe("ready");
+    fireEvent.click(screen.getByRole("button", { name: say("ui.door.back") }));
     expect(stage()).toBe("you");
     fireEvent.change(nameBox(), { target: { value: "Bayo" } });
     fireEvent.click(next(say("ui.door.next")));

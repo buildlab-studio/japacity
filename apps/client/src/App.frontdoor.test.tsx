@@ -151,6 +151,8 @@ describe("the front door", () => {
   test("[R-PROLOGUE-009] given a look picked, a name typed and a ready life begun, then the person is kept beside the save under its one key, and the city and the rides draw that look", async () => {
     askReadyLives();
     const { store, storage } = door();
+    // Settings' run opens on the ready lives; the look is a screen back.
+    fireEvent.click(await screen.findByRole("button", { name: say("ui.door.back") }, { timeout: 10_000 }));
     const look = LOOKS.find((one) => one.id === "chr_femi")!;
     fireEvent.click(document.querySelector(`[data-body="${look.sex}"]`)!);
     fireEvent.click(document.querySelector(`[role="radio"][data-look="${look.id}"]`)!);
@@ -165,11 +167,11 @@ describe("the front door", () => {
     expect(ownFile("scenario.ngozi", null)).toBe("shared/chr/chr_ngozi.glb");
   });
 
-  test("[R-PROLOGUE-013] given a run Settings asked for, then its second screen lists the five fixed lives unnamed by their kind and blurb, each with Pick, and a pick goes on to the page, whose Begin starts that life", async () => {
+  test("[R-PROLOGUE-013] given a run Settings asked for, then it opens on the five fixed lives unnamed by their kind and blurb, each with Pick, and a pick goes on to the page, whose Begin starts that life", async () => {
     askReadyLives();
     const { store } = door();
-    await screen.findByRole("heading", { name: say("ui.life.title") }, { timeout: 10_000 });
-    fireEvent.click(screen.getByRole("button", { name: new RegExp(`^${say("ui.door.next")}`) }));
+    // It opens on the ready lives themselves.
+    await screen.findByRole("heading", { name: say("ui.door.ready.title") }, { timeout: 10_000 });
     const lives = [...document.querySelectorAll<HTMLElement>("[data-ready-life]")];
     expect(lives.map((life) => life.dataset["readyLife"])).toEqual(FIXED);
     expect(FIXED).toHaveLength(5);

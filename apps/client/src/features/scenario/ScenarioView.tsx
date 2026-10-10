@@ -119,7 +119,8 @@ const HOME_ICONS = { "family-house": House, "compound-room": BedSingle, makoko: 
 /** The run as kept, or a new one with the kept look; a run already begun starts again. Settings' ask starts a run for the ready lives. */
 function startDraft(): DoorDraft {
   const kept = readDoor();
-  if (takeReadyAsk()) return { ...freshDraft(gateLook(kept?.look)), asked: true };
+  // Settings' "Start from a ready life" opens on the ready lives themselves; Back reaches the name.
+  if (takeReadyAsk()) return { ...freshDraft(gateLook(kept?.look)), asked: true, stage: "ready" };
   return kept !== null && kept.stage !== "begun" ? { ...kept, look: gateLook(kept.look) } : freshDraft(gateLook(kept?.look));
 }
 

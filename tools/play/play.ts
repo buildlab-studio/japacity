@@ -109,15 +109,18 @@ async function frontDoor(run: Run, button: string): Promise<boolean> {
     await page.evaluate(() => localStorage.setItem("japacity.door.ready", "1"));
     await page.reload();
   }
-  const next = page.getByRole("button", { name: /^Next/ });
+  // Settings' run opens on the ready lives themselves; a new player's on the first screen.
+  const next = page.getByRole("button", { name: options.ready ? /^Pick: / : /^Next/ }).first();
   if (!(await appear(next, LONG))) {
     problem(run, "the front door did not open");
     return false;
   }
   log(run, `front door: ${await words(page.locator("[data-gate-sheet]"))}`);
-  log(run, `name filled: ${await page.getByRole("textbox", { name: "Your name" }).inputValue().catch(() => "")}`);
-  await shot(run, "front door");
-  if (!(await tap(run, next, "Next"))) return false;
+  if (!options.ready) {
+    log(run, `name filled: ${await page.getByRole("textbox", { name: "Your name" }).inputValue().catch(() => "")}`);
+    await shot(run, "front door");
+    if (!(await tap(run, next, "Next"))) return false;
+  }
 
   await shot(run, options.ready ? "ready lives" : "your life so far");
   if (!(await tap(run, page.getByRole(options.ready ? "button" : "radio", { name: button, exact: true }), button))) return false;

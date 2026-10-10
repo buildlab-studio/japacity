@@ -61,11 +61,17 @@ export async function passThePage(): Promise<void> {
   });
 }
 
-/** A ready life, by its scenario, on a run Settings asked for: the name, Next, Pick on its kind, Begin. */
+/**
+ * A ready life, by its scenario, on a run Settings asked for: the door opens on the ready lives; a name given is typed
+ * by going Back to the first screen and Next again. Then Pick on its kind, Begin.
+ */
 export async function startReadyLife(scenario: string, name?: string): Promise<void> {
   await atTheDoor();
-  typeName(name);
-  fireEvent.click(screen.getByRole("button", { name: startsWith("ui.door.next") }));
+  if (name !== undefined) {
+    if (document.querySelector("[data-gate='ready']") !== null) fireEvent.click(screen.getByRole("button", { name: say("ui.door.back") }));
+    typeName(name);
+    fireEvent.click(screen.getByRole("button", { name: startsWith("ui.door.next") }));
+  }
   fireEvent.click(await screen.findByRole("button", { name: `${say("prologue.door.pick")}: ${say(`${scenario}.kind`)}` }));
   await begin();
 }
