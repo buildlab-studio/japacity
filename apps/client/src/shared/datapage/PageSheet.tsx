@@ -112,7 +112,8 @@ function Opener({ store, when, place }: { store: GameStore; when: string; place:
             </span>
           </>
         )}
-        <h2 className="min-w-0 truncate">{place}</h2>
+        {/* The place wraps to a second line rather than being cut. */}
+        <h2 className="min-w-0 leading-tight">{place}</h2>
       </div>
       <button type="button" className="press title num mt-0.5 block max-w-full truncate text-left text-[16px] leading-tight" onClick={show} aria-label={say("prologue.page.open")} data-page-open>
         {when}

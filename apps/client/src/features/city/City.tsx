@@ -469,6 +469,10 @@ export function City({
   // The full list of what is coming, from the band's chip (R-WORLD-002).
   const [comingOpen, setComingOpen] = useState(false);
   const [picked, setPicked] = useState<Picked | null>(null);
+  // A thing picked in the place closes under the Month sheet, so its chip never stays open behind it.
+  useEffect(() => {
+    if (monthOpen) setPicked((now) => (now?.kind === "thing" ? null : now));
+  }, [monthOpen]);
   const [progress, setProgress] = useState<{ loaded: number; total: number } | null>(null);
   const [failed, setFailed] = useState<string | null>(null);
   const [heardCount, setHeardCount] = useState(0);
@@ -1002,7 +1006,15 @@ export function City({
       icon: paper ? "ticket" : school !== null ? SCHOOL_ICON : "hand",
       who: hereName,
       // A side job on the hunt's card says it sits beside the day job and carries its own line; a job a board names carries its pay and chance.
-      title: chosen === null ? nameOf(activity) : content.activity[chosen as Id<"activity">]?.slot === "side" ? say("ui.world.side-job-title", { job: paramWords(chosen) }) : `${nameOf(activity)}: ${paramWords(chosen)}`,
+      // A job with its own act words (the racks: "Work the fish racks") titles the card and its button with them.
+      title:
+        chosen !== null && hasWords(`${chosen}.act`)
+          ? say(`${chosen}.act`)
+          : chosen === null
+            ? nameOf(activity)
+            : content.activity[chosen as Id<"activity">]?.slot === "side"
+              ? say("ui.world.side-job-title", { job: paramWords(chosen) })
+              : `${nameOf(activity)}: ${paramWords(chosen)}`,
       line:
         chosen !== null && content.activity[chosen as Id<"activity">]?.slot === "side"
           ? [blurbOf(chosen) ?? blurbOf(activity), jobCardWords(view, chosen)].filter((part): part is string => part !== null).join(" ")
@@ -1018,7 +1030,7 @@ export function City({
                   : // R-ACTIVITY-013: the card says what the act counts toward.
                     [blurbOf(activity), countsWords(activity)].filter((part): part is string => part !== null).join(" "),
       cost: cost === null ? null : { amount: cost.amount, currency: cost.currency },
-      button: nameOf(activity),
+      button: chosen !== null && hasWords(`${chosen}.act`) ? say(`${chosen}.act`) : nameOf(activity),
       // R-ACTIVITY-015: an act done at once says "Now" under its button; a month-act counts when the month ends.
       ...(answersNow(activity) ? { when: "now" as const } : {}),
       ...(paper ? { reference: clock.toUpperCase() } : {}),
