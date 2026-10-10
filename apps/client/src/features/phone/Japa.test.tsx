@@ -40,13 +40,15 @@ function adaHeard(): PlayerView {
 }
 
 describe("the official page in Japa", () => {
-  test("[R-ADVICE-002] given a route only heard of and no plan yet, when Japa opens, then the official page is offered for it with its own line, and a tap plans it", async () => {
+  test("[R-ADVICE-002] [R-TEXT-008] given a route only heard of and no plan yet, when Japa opens, then the official page is offered for it with its own line and a Free tag, and a tap plans it", async () => {
     const { store, authority } = await openJapa(adaHeard());
     const button = document.querySelector<HTMLButtonElement>("[data-official-page]");
     expect(button?.getAttribute("data-official-page")).toBe(UK);
     expect(button?.textContent).toContain(nameOf(OFFICIAL));
     expect(button?.textContent).toContain(phoneWords("phone.japa.official", { route: runningName(UK) }));
-    expect(phoneWords("phone.japa.official", { route: runningName(UK) })).toMatch(/Free\./);
+    // Free is said once, as the card's tag, and the line beside it is one line with no full stop.
+    expect(button?.querySelector("[data-official-free]")?.textContent).toBe("Free");
+    expect(phoneWords("phone.japa.official", { route: runningName(UK) })).not.toMatch(/\./);
     fireEvent.click(button!);
     // the official page is read at once: the command goes now, nothing is planned, and
     // the phone says the page's line.
@@ -87,7 +89,7 @@ describe("the official page in Japa", () => {
 });
 
 describe("Japa's reminders, from the one coming list", () => {
-  test("[R-WORLD-002] [R-WORLD-019] given a paper due before a visa decision and an ask open, when the reminders are read, then they are the coming list's paper and visa in its order, soonest first, and no ask, birthday or past date", () => {
+  test("[R-WORLD-002] [R-WORLD-019] [R-TEXT-008] given a paper due before a visa decision and an ask open, when the reminders are read, then they are the coming list's paper and visa in its order, soonest first, each a few words with when said once, and no ask, birthday or past date", () => {
     const base = richView();
     const view: PlayerView = {
       ...base,
@@ -98,9 +100,10 @@ describe("Japa's reminders, from the one coming list", () => {
     const coming = comingOf(view).filter((item) => item.kind === "paper" || item.kind === "visa" || item.kind === "plan");
     expect(coming.map((item) => item.kind)).toEqual(["paper", "visa"]);
     expect(remindersOf(view)).toEqual([
-      phoneWords("phone.japa.paper-ready", { paper: nameOf("document.passport"), when: inMonths(12, 10) }),
-      phoneWords("phone.japa.visa", { when: inMonths(14, 10) }),
+      { kind: "paper", what: phoneWords("phone.japa.paper-ready", { paper: nameOf("document.passport") }), when: inMonths(12, 10) },
+      { kind: "visa", what: phoneWords("phone.japa.visa"), when: inMonths(14, 10) },
     ]);
+    for (const row of remindersOf(view)) expect(row.what).not.toContain(row.when);
   });
 });
 
