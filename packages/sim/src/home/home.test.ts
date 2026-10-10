@@ -258,10 +258,43 @@ describe("moving", () => {
   });
 });
 
+describe("the first month's rent", () => {
+  test("[R-HOME-002] given Ada moved to Makoko this month, paying the first month's rent on the move, when the month ends, then the room is not charged again that month; the next month charges Makoko's rent once", () => {
+    const game = ada(NEVER);
+    setNaira(game, 0, 5_000_000_00);
+    const moved = game.accept({ type: "home/move", to: MAKOKO });
+    expect(upkeepPaid(moved)).toBe(home.makokoUpkeep);
+    const first = month(game);
+    expect(upkeepPaid(first)).toBe(0);
+    // Nothing at the month's end says the room was charged: the move's own line told it.
+    expect(first.lines.filter((line) => line.key.startsWith("line.obligation.") && line.params["obligation"] === MAKOKO_UPKEEP && line.tone !== "good")).toEqual([]);
+    const second = month(game);
+    const charged = eventsOf(second, "obligation/charged").filter((event) => event["entry"] === MAKOKO_UPKEEP);
+    expect(charged).toHaveLength(1);
+    expect(upkeepPaid(second)).toBe(charged[0]?.["total"]);
+    expect(upkeepPaid(second)).toBeGreaterThanOrEqual(home.makokoUpkeep);
+    expect(checkInvariants(game.state, content)).toEqual([]);
+  });
+
+  test("[R-HOME-002] [R-HOME-004] given a guest whose stay ends, when where-next is answered makoko and the month ends, then the rent the answer paid is the month's: it is not charged again that month", () => {
+    const game = ada(NEVER);
+    setNaira(game, 0, 5_000_000_00);
+    applyEffects(game, [{ type: "offer/open", offer: WHERE_NEXT }]);
+    const answered = choose(game, WHERE_NEXT, "makoko");
+    expect(upkeepPaid(answered)).toBe(home.makokoUpkeep);
+    expect(game.state.home.place).toBe(MAKOKO);
+    expect(upkeepPaid(month(game))).toBe(0);
+    expect(upkeepPaid(month(game))).toBeGreaterThanOrEqual(home.makokoUpkeep);
+  });
+});
+
 describe("the home point", () => {
   test("[R-HOME-006] given Ada in Makoko, when she cooks and fetches water in a month, then the reliefs come off Makoko's upkeep, the one open", () => {
     const there = inMakoko(NEVER);
     const twin = inMakoko(NEVER);
+    // the move month's rent was paid on the move, so the reliefs are read in the month after.
+    month(there);
+    month(twin);
     const played = there.endTurn([
       { activity: "activity.cook-at-home", param: null },
       { activity: "activity.fetch-water", param: null },

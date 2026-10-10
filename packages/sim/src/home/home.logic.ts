@@ -36,6 +36,10 @@ export const MAKOKO_UPKEEP: Id<"obligation"> = "obligation.upkeep-makoko";
 export const TAKEN_IN: Id<"offer"> = "offer.taken-in";
 export const WHERE_NEXT: Id<"offer"> = "offer.where-next";
 const STANDING: Id<"quality"> = "quality.standing";
+/** The cause of a move made by the command, and of the first month's rent it paid. */
+export const MOVE_SOURCE = "home.move";
+/** The whole of a charge, in basis points. */
+const FULL = 10_000;
 /** The words keys a line names a real player by: the other life's own name is never in this state. */
 export const HOME_FRIEND = "home.friend";
 export const HOME_GUEST = "home.guest";
@@ -171,6 +175,10 @@ function moveTo(ctx: Ctx, to: HomePlace, cause: Cause, charge: boolean): BaseEve
   if (to === MAKOKO) {
     if (charge && rent > 0) effects.push({ type: "money/take", currency: "NGN", pocket: "any", amount: rent, reason: "upkeep" });
     effects.push({ type: "obligation/open", obligation: MAKOKO_UPKEEP, amount: rent });
+    // The rent paid on the move is this month's: the room's first charge, at this month's end, is already met (the
+    // The prologue's room pays nothing on the move, so its
+    // first month is charged as any other.
+    if (rent > 0 && !ctx.state.prologue.open) effects.push({ type: "obligation/relief", obligationType: "upkeep", bp: FULL });
   } else {
     effects.push(...familyUpkeep(read));
     if (tuning.home.returnStanding !== 0) effects.push({ type: "quality/add", quality: STANDING, amount: tuning.home.returnStanding });
@@ -178,7 +186,9 @@ function moveTo(ctx: Ctx, to: HomePlace, cause: Cause, charge: boolean): BaseEve
   for (const offer of [TAKEN_IN, WHERE_NEXT]) {
     if (!cause.source.startsWith(`${offer}.`)) effects.push({ type: "offer/close", offer });
   }
-  ctx.apply(effects, cause);
+  ctx.apply(effects.filter((effect) => effect.type !== "obligation/relief"), cause);
+  // Its own cause, so the line it tells names the move whatever answer or command made it.
+  ctx.apply(effects.filter((effect) => effect.type === "obligation/relief"), { source: MOVE_SOURCE, param: null, terms: {} });
   return events;
 }
 
@@ -192,7 +202,7 @@ function moveCommand(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (command.to === MAKOKO && nairaHeld(ctx.state) < ctx.content.tuning.home.makokoUpkeep) {
     return reject("cannot-afford", "The first month's rent is not held.");
   }
-  return moveTo(ctx, command.to, { source: "home.move", param: null, terms: {} }, true);
+  return moveTo(ctx, command.to, { source: MOVE_SOURCE, param: null, terms: {} }, true);
 }
 
 /** The move an answer makes (R-HOME-004). The answer's conditions and its debits were judged before it ran. */
