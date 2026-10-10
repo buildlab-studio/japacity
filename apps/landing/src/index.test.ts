@@ -41,11 +41,11 @@ function env(fake: Fake, token = "abc123", settings: Settings = WAITLIST_ON): En
     DB: db as unknown as D1Database,
     JOIN_LIMIT: limiter,
     ANALYTICS_TOKEN: token,
-    SITE_URL: "https://japacity.com",
+    SITE_URL: "https://japacity.app",
     LANDING_WAITLIST: String(settings.waitlist),
     LANDING_LIVE: String(settings.live),
     LANDING_X_HANDLE: settings.handle,
-    LANDING_PLAY_URL: "https://play.japacity.com",
+    LANDING_PLAY_URL: "https://japacity.app",
   };
 }
 
@@ -55,7 +55,7 @@ function fresh(): Fake {
 
 function post(body: Record<string, string>, ip = "1.2.3.4"): Request {
   const form = new URLSearchParams(body);
-  return new Request("https://japacity.com/join", { method: "POST", body: form, headers: { "content-type": "application/x-www-form-urlencoded", "cf-connecting-ip": ip } });
+  return new Request("https://japacity.app/join", { method: "POST", body: form, headers: { "content-type": "application/x-www-form-urlencoded", "cf-connecting-ip": ip } });
 }
 
 async function serve(request: Request, fake: Fake, token?: string, settings?: Settings): Promise<Response> {
@@ -66,13 +66,13 @@ const SHIPPED: Settings = { waitlist: false, live: false, handle: "japacityapp" 
 
 describe("the page", () => {
   test("given a visit, when the page is served, then it carries the name, the line, the privacy line, the form, the social card and the analytics script", async () => {
-    const response = await serve(new Request("https://japacity.com/"), fresh());
+    const response = await serve(new Request("https://japacity.app/"), fresh());
     const html = await response.text();
     expect(response.status).toBe(200);
     expect(html).toContain("<h1>Japacity</h1>");
     expect(html).toContain("One email when it opens, then we delete your address.");
     expect(html).toContain('action="/join"');
-    expect(html).toContain('property="og:image" content="https://japacity.com/card.png"');
+    expect(html).toContain('property="og:image" content="https://japacity.app/card.png"');
     expect(html).toContain('name="twitter:card" content="summary_large_image"');
     expect(html).toContain("static.cloudflareinsights.com/beacon.min.js");
     expect(html).toContain('"token": "abc123"');
@@ -80,12 +80,12 @@ describe("the page", () => {
   });
 
   test("given no analytics token, when the page is served, then no analytics script is sent", async () => {
-    const html = await (await serve(new Request("https://japacity.com/"), fresh(), "")).text();
+    const html = await (await serve(new Request("https://japacity.app/"), fresh(), "")).text();
     expect(html).not.toContain("cloudflareinsights");
   });
 
   test("given any other path or method, when asked, then it is not found", async () => {
-    for (const url of ["https://japacity.com/list", "https://japacity.com/waitlist", "https://japacity.com/join"]) {
+    for (const url of ["https://japacity.app/list", "https://japacity.app/waitlist", "https://japacity.app/join"]) {
       expect((await serve(new Request(url), fresh())).status).toBe(404);
     }
   });
@@ -138,7 +138,7 @@ describe("joining", () => {
 
 describe("before launch, with the waitlist switched off", () => {
   test("given a visit, when the page is served, then it says the game opens soon and links the X account, with no form", async () => {
-    const response = await serve(new Request("https://japacity.com/"), fresh(), "", SHIPPED);
+    const response = await serve(new Request("https://japacity.app/"), fresh(), "", SHIPPED);
     const html = await response.text();
     expect(response.status).toBe(200);
     expect(html).toContain("<h1>Japacity</h1>");
@@ -149,8 +149,8 @@ describe("before launch, with the waitlist switched off", () => {
   });
 
   test("given a visit, when the page is served, then the social preview card stays", async () => {
-    const html = await (await serve(new Request("https://japacity.com/"), fresh(), "", SHIPPED)).text();
-    expect(html).toContain('property="og:image" content="https://japacity.com/card.png"');
+    const html = await (await serve(new Request("https://japacity.app/"), fresh(), "", SHIPPED)).text();
+    expect(html).toContain('property="og:image" content="https://japacity.app/card.png"');
     expect(html).toContain('property="og:title" content="Japacity"');
     expect(html).toContain('name="twitter:card" content="summary_large_image"');
   });
@@ -168,12 +168,12 @@ describe("before launch, with the waitlist switched off", () => {
     const bare: Env = { ...env(fresh(), "", settings), DB: undefined, JOIN_LIMIT: undefined };
     const response = await worker.fetch(post({ email: "ada@example.com" }), bare);
     expect(response.status).toBe(404);
-    expect(await (await worker.fetch(new Request("https://japacity.com/"), bare)).text()).not.toContain("<form");
+    expect(await (await worker.fetch(new Request("https://japacity.app/"), bare)).text()).not.toContain("<form");
   });
 
   test("given no handle yet, or one that is not a handle, when the page is served, then there is no X link", async () => {
     for (const handle of ["", "@japacityapp", "japacity app", "a".repeat(16), '"><script>']) {
-      const html = await (await serve(new Request("https://japacity.com/"), fresh(), "", { ...SHIPPED, handle })).text();
+      const html = await (await serve(new Request("https://japacity.app/"), fresh(), "", { ...SHIPPED, handle })).text();
       expect(html).not.toContain("x.com");
       expect(html).not.toContain("<script>");
     }
@@ -182,12 +182,12 @@ describe("before launch, with the waitlist switched off", () => {
 
 describe("on launch day", () => {
   test("given the page set live, when it is served, then it shows the play link and no form", async () => {
-    const html = await (await serve(new Request("https://japacity.com/"), fresh(), "", { ...SHIPPED, live: true })).text();
-    expect(html).toContain('href="https://play.japacity.com"');
+    const html = await (await serve(new Request("https://japacity.app/"), fresh(), "", { ...SHIPPED, live: true })).text();
+    expect(html).toContain('href="https://japacity.app"');
     expect(html).toContain(">Play now<");
     expect(html).not.toContain("opens soon");
     expect(html).not.toContain("<form");
-    expect(html).toContain('property="og:image" content="https://japacity.com/card.png"');
+    expect(html).toContain('property="og:image" content="https://japacity.app/card.png"');
   });
 
   test("given the page set live while the waitlist is still on, when an address is posted, then it is not found", async () => {

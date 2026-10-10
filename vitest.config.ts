@@ -173,6 +173,14 @@ export default defineConfig({
         },
       },
       {
+        // The holding page, kept switched off and not deployed (apps/landing/README.md).
+        test: {
+          name: "landing",
+          environment: "node",
+          include: ["apps/landing/src/**/*.test.ts"],
+        },
+      },
+      {
         plugins: [react()],
         test: {
           name: "client",
