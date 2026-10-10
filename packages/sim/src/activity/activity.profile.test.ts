@@ -7,7 +7,8 @@ import { describe, expect, test } from "vitest";
 import { bp } from "../engine/int";
 import type { Accepted, ActivityEntry, BaseEvent, Id, Money, ReadCtx, SlotPick } from "../engine/types";
 import { pointsScore } from "../route/gates/points";
-import { applyEffects, draw, slot } from "../route/route.journey";
+import { ALWAYS_GRANTED, offeredSeed } from "../place/place.journey";
+import { applyEffects, draw, readyLife, slot, toDecision, UK } from "../route/route.journey";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
 
@@ -339,6 +340,13 @@ describe("the nurse's certification", () => {
   });
 });
 
+/** Ada with her papers, enough naira for a year of fees at home and the flight, and the pounds the visa asks for. */
+function studentWithFees(): Game {
+  const naira = 100;
+  const pockets = { NGN: { bank: 6000000 * naira, cash: 1500000 * naira }, GBP: { bank: 40000 * naira, cash: 0 } };
+  return readyLife(content, { seed: offeredSeed(content), tuning: ALWAYS_GRANTED, pockets });
+}
+
 describe("a master's at home", () => {
   test("[R-ACTIVITY-013] given a bachelor's, when a master's at home is played twelve months, then the fees open as twelve instalments in the first month, the level is a master's after the twelfth, Canada's score rises by the education row, and it is not offered again", () => {
     const game = start({ content, scenario: "scenario.ada" });
@@ -359,5 +367,37 @@ describe("a master's at home", () => {
     expect(pointsScore(readOf(game), CANADA) - before).toBe(rowOf(4) - rowOf(3));
     expect(allowed(game, MASTERS)).toBe(false);
     expect(entryOf(MASTERS).counts).toContain(CANADA);
+  });
+
+  test("[R-ACTIVITY-013] given a master's at home three months in, when the character flies, then the course ends with a results line, its fees close, and nothing of it is charged after", () => {
+    const game = studentWithFees();
+    const fees = entryOf(MASTERS).onMonth?.flatMap((step) => step.effects).find((effect) => effect.type === "obligation/open");
+    if (fees?.type !== "obligation/open") throw new Error("The master's opens no fees.");
+    for (let n = 0; n < 3; n += 1) month(game, [slot(MASTERS)]);
+    const open = () => Object.values(game.state.obligation.items).filter((item) => item.entry === fees.obligation);
+    expect(open()).toHaveLength(1);
+    toDecision(game);
+    const flight = game.accept({ type: "route/depart", route: UK });
+    expect(flight.events).toContainEqual(expect.objectContaining({ type: "activity/course-ended", activity: MASTERS }));
+    expect(flight.lines).toContainEqual(expect.objectContaining({ key: "line.activity.course-ended", params: { activity: MASTERS } }));
+    expect(flight.lines.filter((line) => line.key === "line.activity.course-ended")).toHaveLength(1);
+    expect(open()).toEqual([]);
+    for (let n = 0; n < 3; n += 1) {
+      const after = month(game, []);
+      const charged = after.events.filter((event) => event.type === "obligation/charged" && (event as unknown as { entry: string }).entry === fees.obligation);
+      expect(charged).toEqual([]);
+    }
+  });
+
+  test("[R-ACTIVITY-013] given no master's at home, or one already finished, when the character flies, then no course is said to end", () => {
+    for (const months of [0, 12]) {
+      const game = studentWithFees();
+      for (let n = 0; n < months; n += 1) month(game, [slot(MASTERS)]);
+      expect(qualityOf(game, EDU)).toBe(months === 12 ? 4 : 3);
+      toDecision(game);
+      const flight = game.accept({ type: "route/depart", route: UK });
+      expect(flight.events.filter((event) => event.type === "activity/course-ended")).toEqual([]);
+      expect(flight.lines.filter((line) => line.key === "line.activity.course-ended")).toEqual([]);
+    }
   });
 });
