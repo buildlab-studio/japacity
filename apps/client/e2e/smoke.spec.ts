@@ -98,9 +98,11 @@ test("[R-PROLOGUE-014] a life from sixteen fills its page with no card, waits on
   await expect(page.locator("[data-prologue-card]")).toHaveCount(0);
   await expect(handover.locator("[data-family='turned']")).toBeVisible();
   await expect(handover.locator("[data-years] [data-fact]").first()).toBeVisible();
-  await expect(handover.locator("[data-page] [data-stamp]")).toBeVisible();
+  // The page prints the family it drew and takes no stamp: none lands before a visa (R-PROLOGUE-009, 014, amended).
+  await expect(handover.locator("[data-page] [data-field='family']")).not.toContainText("· · ·");
+  await expect(handover.locator("[data-page] [data-stamp]")).toHaveCount(0);
   await expectNothingBroken(page, "on the page");
-  // The page waits for the player (R-PROLOGUE-014): still there after the stamp, until Go.
+  // The page waits for the player (R-PROLOGUE-014): still there seconds later, until Go.
   await page.waitForTimeout(4_000);
   await expect(handover).toBeVisible();
   await handover.getByRole("button", { name: "Go", exact: true }).click();
