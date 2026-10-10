@@ -5,7 +5,7 @@ import type { ReportLine } from "@japacity/sim";
 
 import { monthlyPayOf, type PayView } from "./cost";
 import { countWords } from "./count";
-import { afterPrologue, isUnpaid, PROLOGUE_CLOSED, tidyLines, toldUnpaid } from "./lines";
+import { afterPrologue, isUnpaid, tidyLines, toldUnpaid } from "./lines";
 import { moneyTold } from "./money";
 
 /** A piece added to the portfolio, as the results tell the portfolio's own line. */
@@ -89,12 +89,10 @@ function newsOrder(lines: readonly ReportLine[]): ReportLine[] {
  * charge, never the wallet's "Changed money". `pays` is the view a hunt's job is paid from.
  */
 export function newsLines(midMonth: readonly ReportLine[], report: readonly ReportLine[], pays: PayView): ReportLine[] {
-  const all = [...midMonth, ...report];
-  // The prologue's years are told as they were; their money is what the character starts with, not this month's.
-  const closed = all.findLastIndex((line) => line.key === PROLOGUE_CLOSED);
-  const before = closed === -1 ? [] : tidyLines(all.slice(0, closed + 1));
-  const month = tidyLines(afterPrologue(all));
+  // The years before are told once, on the page: News never lists the prologue's lines, whose
+  // words are the simulation's (a grade, a quality up or down), nor its money, which is what the character starts with.
+  const month = tidyLines(afterPrologue([...midMonth, ...report]));
   const money = moneyTold(month);
   const told = month.flatMap((line, index) => money[index]?.map((entry): ReportLine => ({ ...entry.line, tone: entry.sign > 0 ? "good" : "bad" })) ?? [line]);
-  return newsOrder([...before, ...told].map((line) => toldOnResults(asPiece(toldUnpaid(line)), pays)));
+  return newsOrder(told.map((line) => toldOnResults(asPiece(toldUnpaid(line)), pays)));
 }
