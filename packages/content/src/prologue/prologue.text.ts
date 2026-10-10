@@ -213,8 +213,6 @@ export const prologueText: Record<string, string> = {
   "prologue.door.age": "Your age",
   "prologue.door.age.hint": "Older starts with more saved. Younger has more years before the age limits.",
   "prologue.door.age.years": "About {years}",
-  // Under the age of a tile that sits the exam: the cards still take their years.
-  "prologue.door.age.give-or-take": "Give or take the year an exam can cost",
   "prologue.door.age.younger": "Younger",
   "prologue.door.age.older": "Older",
   "prologue.door.print.then": "Your page",

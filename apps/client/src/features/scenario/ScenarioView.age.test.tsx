@@ -59,7 +59,7 @@ describe("the door's age and the page's", () => {
     const about = say("prologue.door.age.years", { years: aboutYears(middleMonths(archetypeOf(id)!)) });
     expect(document.querySelector("[data-age-years]")?.textContent).toBe(about);
     expect(document.querySelector("[data-age-give]")).toBeNull();
-    expect(document.body.textContent).not.toContain(say("prologue.door.age.give-or-take"));
+    expect(document.body.textContent).not.toMatch(/give or take/i);
     expect(typeof exam).toBe("boolean");
     fireEvent.click(next(say("ui.door.next")));
     expect(document.querySelector("[data-page] [data-field='age']")?.textContent).toContain(about);
