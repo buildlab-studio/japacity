@@ -36,6 +36,8 @@ function quietWords(lines: Parameters<typeof quietLine>[0], currency: Parameters
 
 /** The chapter closed this month: its line says the months are full again (R-WORLD-027, R-TURN-004). */
 const CHAPTER_CLOSED = "line.chapter.closed";
+/** The line that says a new offer waits; stale once the offer has been answered within the month. */
+const OFFER_OPENED = "line.offer.opened";
 
 /** `place`: the name of where the player is, which the one main button returns them to. */
 export function Results({ place }: { place: string }) {
@@ -63,8 +65,10 @@ export function Results({ place }: { place: string }) {
   if (report === null) return null;
   const draw = drawShown(view);
   const save = savings(view);
-  const story = storyLines([...midMonth, ...report.lines]);
-  const news = untoldLines([...midMonth, ...report.lines]).length;
+  // An offer that opened and was answered within the month (asked around, then walked on) needs no answer now.
+  const told = [...midMonth, ...report.lines].filter((line) => !(line.key === OFFER_OPENED && typeof line.params["offer"] === "string" && !view.offers.some((offer) => offer.entry === line.params["offer"])));
+  const story = storyLines(told);
+  const news = untoldLines(told).length;
   const chapterClosed = report.lines.some((line) => line.key === CHAPTER_CLOSED);
   const close = (): void => {
     cue("close");

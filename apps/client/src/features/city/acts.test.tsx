@@ -90,7 +90,7 @@ describe("a card's button", () => {
     const line = nowLineIn(store.getState().lines);
     if (line === null) throw new Error("The office said nothing.");
     const months = (passport?.readyMonth ?? 0) - view.month;
-    expect(words(line.key, line.params)).toBe(`The officer says: your passport is on its way, in ${String(months)} months.`);
+    expect(words(line.key, line.params)).toBe(`Passport applied for. It is on its way, in ${String(months)} months.`);
   });
 
   test("[R-ACTIVITY-015] given a month-act, when its button is pressed, then it fills the next free slot and nothing is sent", async () => {

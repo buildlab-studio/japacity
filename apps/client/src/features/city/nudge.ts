@@ -339,6 +339,10 @@ function startedKey(view: NudgeView, own: string, stepKey: string, plannedOnly: 
       if (has(`${own}.planned.${short}`)) return { key: `${own}.planned.${short}` };
       if (has(`${own}.planned`)) return { key: `${own}.planned` };
     }
+    // The act is shut by what it needs (the endorsement before the portfolio and the people who will write): its own
+    // needs words, so the nudge never points at an act the player cannot see.
+    const shutOption = view.activities?.find((candidate) => candidate.id === activity);
+    if (shutOption !== undefined && !shutOption.allowed && has(`${own}.needs`)) return { key: `${own}.needs` };
     // Short of money: the nudge names the gap and a way to it, instead of the thing again; once a hunt for better pay is
     // planned it says so, and once the job's pay covers the gap within a month it says to work and save.
     const option = view.activities?.find((candidate) => candidate.id === activity);
@@ -380,7 +384,9 @@ export function nudgeOf(view: NudgeView, has: (key: string) => boolean = hasWord
   if (view.offers.length > 0) return { key: "ui.nudge.offer", about: "offer" };
   if (gap !== null) return { key: "ui.nudge.dues", params: { due: formatMoney(gap.due, gap.currency), held: formatMoney(gap.held, gap.currency) }, about: "dues" };
   // While a life in Makoko's room has no job, the racks beside it come before any other step (R-ACTIVITY-017).
-  if (racksAtHand(view)) return { key: `${FIRST_CHAPTER}.item.job.${planned.includes("activity.job-hunt") ? "started" : "nudge.racks"}`, about: "step" };
+  // Applied at once (R-ACTIVITY-015) counts as planned: the racks' nudge then says the wait, not the racks again.
+  const huntTaken = planned.includes("activity.job-hunt") || (view.activities ?? []).some((option) => option.id === "activity.job-hunt" && option.done);
+  if (racksAtHand(view)) return { key: `${FIRST_CHAPTER}.item.job.${huntTaken ? "started" : "nudge.racks"}`, about: "step" };
   const step = stepOf(view);
   if (view.chapter.current !== null && step !== null) {
     // The story's own nudge words for the step when content has them (at most eight words), else the step's words.

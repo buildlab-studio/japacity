@@ -286,6 +286,7 @@ function activityPaid(lines: readonly ReportLine[]): ReportLine[] {
 }
 
 const UPKEEP = "line.wallet.upkeep";
+const HOME_MOVED = "line.home.moved";
 const NEWS_DELIVERED = "line.news.delivered";
 const INFLATION = "var.inflation";
 
@@ -305,6 +306,8 @@ function inflationMove(story: string): "up" | "down" | null {
  * figure stays in the money.
  */
 function upkeepMoved(lines: readonly ReportLine[]): ReportLine[] {
+  // A move this month explains the new figure itself (line.home.moved); a story's note would misread it.
+  if (lines.some((line) => line.key === HOME_MOVED)) return [...lines];
   const story = lines.find((line) => line.key === NEWS_DELIVERED && line.params.stage === "in-force" && typeof line.params.story === "string" && inflationMove(line.params.story) !== null)?.params.story;
   if (typeof story !== "string") return [...lines];
   const way = inflationMove(story);

@@ -58,7 +58,6 @@ export function HomeCard() {
   if (view.place.where !== "home" || view.ended) return null;
   const { home } = view;
   const moves = homeMoves(view);
-  const touchesMakoko = home.place === MAKOKO || moves.some((move) => move.to === MAKOKO);
   const ask = (move: HomeMove) =>
     open({
       form: "card",
@@ -89,7 +88,7 @@ export function HomeCard() {
           <p className="num text-[14px] text-text-2" data-home-charge>
             {home.rent === null ? phoneWords("phone.home.charge.none") : phoneWords("phone.home.charge", { amount: home.rent })}
           </p>
-          {touchesMakoko ? (
+          {home.place === MAKOKO ? (
             <p className="mt-1 text-[13px] text-text-2" data-home-risk>
               {phoneWords("phone.home.risk")}
             </p>
@@ -102,6 +101,12 @@ export function HomeCard() {
             {phoneWords(`phone.home.move.${move.to}`)}
             {move.now > 0 ? `: ${formatMoney(move.now, "NGN")}` : ""}
           </button>
+          {/* The risk is said once, plainly, beside the move it belongs to (R-HOME-007), not under the family house. */}
+          {move.to === MAKOKO ? (
+            <p className="mt-1 text-[13px] text-text-2" data-home-risk>
+              {phoneWords("phone.home.risk")}
+            </p>
+          ) : null}
           {move.shut === null ? null : (
             <p className="mt-1 text-[13px] text-text-2" data-home-shut={move.to}>
               {move.shut}

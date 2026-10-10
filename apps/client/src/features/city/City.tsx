@@ -8,6 +8,7 @@ import { Clock, Map as MapIcon, Settings2, X } from "lucide-react";
 import { lazy, Suspense, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 
 import { useGame, useView } from "../../authority/GameProvider";
+import { readPerson } from "../../authority/person";
 import { keptLookFile } from "../../authority/person";
 import { chooseGraphics, setGraphicsMode } from "../../shared/graphics/mode";
 import { loadModel } from "../../shared/three/load";
@@ -111,6 +112,9 @@ function openingKey(view: Pick<PlayerView, "chapter" | "scenario" | "qualities" 
   const chapter = view.chapter.current ?? "";
   const slug = view.scenario.replace(/^scenario\./, "");
   if (slug === "prologue") {
+    // The child of the water has her own opening (R-PROLOGUE-012): her path is the shop counter's, her words are not.
+    const water = `${chapter}.open.prologue.water`;
+    if (readPerson()?.archetype === "water" && hasWords(water)) return water;
     // The path the prologue built: a degree, a trade, or a trade with the master's settlement in hand.
     const path = `${chapter}.open.prologue.${sixteenPath(view) ?? "trade"}`;
     if (hasWords(path)) return path;
@@ -370,6 +374,8 @@ export function City({
   const toast = useToast();
   const addToPlan = useGame((state) => state.addToPlan);
   const plan = useGame((state) => state.plan);
+  /** What opens once the phone is put away: the Month sheet when the bed opened the phone for the month's lines (R-WORLD-030). */
+  const [phoneThen, setPhoneThen] = useState<"month" | null>(null);
   const [phone, setPhone] = useState(false);
   const [monthOpen, setMonthOpen] = useState(false);
   // R-WORLD-002, R-WORLD-027: the band's clock is the character's age, with the months the player may still play beside it at all times; the simulation still counts months.
@@ -377,10 +383,14 @@ export function City({
   const clock = say("ui.world.clock", { years: Math.floor(ageMonths / 12), months: ageMonths % 12 });
   const [asksOpen, setAsksOpen] = useState(false);
   const [askIndex, setAskIndex] = useState(0);
+  const askTotal = useRef(0);
   const askList = Array.isArray(asks) ? asks : null;
   const askCount = askList?.length ?? 0;
   useEffect(() => {
     if (askIndex >= askCount) setAskIndex(0);
+    // The count is the asks the sheet opened with, so "1 of 3" goes on to "2 of 3" as each is answered.
+    if (!asksOpen) askTotal.current = askCount;
+    else if (askCount > askTotal.current) askTotal.current = askCount;
   }, [askIndex, askCount]);
   // R-WORLD-008: the results are up from the month's end until the player goes back to the place; the staged wins come first.
   const resultsOpen = useGame((state) => state.reportOpen && state.moments.length === 0) && world && view.report !== null;
@@ -662,9 +672,11 @@ export function City({
       // R-WORLD-025: the bed's End month is the band's, so the Month sheet opens the same way.
       case "end":
         setPicked(null);
-        // The month's lines wait on the phone: the bed opens them first (R-WORLD-030), then ends the month.
-        if (signalsWaiting) setPhone(true);
-        else setMonthOpen(true);
+        // The month's lines wait on the phone: the bed opens them first (R-WORLD-030), then the Month sheet opens as the phone is put away.
+        if (signalsWaiting) {
+          setPhoneThen("month");
+          setPhone(true);
+        } else setMonthOpen(true);
         return;
       case "plain": {
         setPicked(null);
@@ -1397,7 +1409,7 @@ export function City({
         <WorldSheet
           open={asksOpen}
           onClose={() => setAsksOpen(false)}
-          label={askList === null || askCount < 2 ? hereName : say("ui.world.ask-of", { n: Math.min(askIndex, askCount - 1) + 1, count: askCount })}
+          label={askList === null || askTotal.current < 2 ? hereName : say("ui.world.ask-of", { n: askTotal.current - askCount + Math.min(askIndex, askCount - 1) + 1, count: askTotal.current })}
           title={say(nudge?.key ?? "ui.nudge.end")}
           mark="asks"
           {...(askList !== null && askCount > 1
@@ -1444,7 +1456,17 @@ export function City({
       ) : null}
       {world && resultsShown ? results?.(inside && insideEntry !== null && insideEntry.id !== entry?.id ? placeName(insideEntry.id) : name) : null}
       {world && phone && handset !== undefined ? handset(() => { setPhone(false); setPhoneApp(null); }, inside ? hereName : name, phoneApp) : null}
-      {world && phone && handset === undefined && apps !== undefined ? <Phone apps={apps} onClose={() => setPhone(false)} /> : null}
+      {world && phone && handset === undefined && apps !== undefined ? (
+        <Phone
+          apps={apps}
+          onClose={() => {
+            setPhone(false);
+            // The bed opened the phone for the month's lines: putting it away goes on to the month's end.
+            if (phoneThen === "month") setMonthOpen(true);
+            setPhoneThen(null);
+          }}
+        />
+      ) : null}
       <Sheet open={picked?.kind === "ride"} onOpenChange={(open) => { if (!open) setPicked(null); }} title={picked?.kind === "ride" ? cardWords() : ""} description={cityWords("city.ride.title")}>
         {picked?.kind === "ride" ? (
           <ul className="flex flex-col gap-1" aria-label={cityWords("city.ride.title")} data-ride-list>

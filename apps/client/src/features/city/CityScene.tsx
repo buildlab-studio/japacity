@@ -436,7 +436,8 @@ function Place(props: PlaceProps) {
     for (const { thing, node } of labels.current) {
       const spot = thingSpot(stage, thing);
       const at = spot === null || chip.current?.thing.id === thing.id ? null : onScreen(state.camera, state.size, spot[0], LABEL_Y, spot[1], 1.05);
-      node.style.display = at === null ? "none" : "";
+      // No label while the world is not being looked at: a sheet or the opening words stand over it (R-WORLD-001).
+      node.style.display = at === null || !looking ? "none" : "";
       if (at !== null) {
         node.style.left = `${String(within(at.x, node))}px`;
         node.style.top = `${String(at.y)}px`;
