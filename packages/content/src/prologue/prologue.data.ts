@@ -50,6 +50,13 @@ const NETWORK = "quality.network";
 const STANDING = "quality.standing";
 const WELLBEING = "quality.wellbeing";
 const EDU_LEVEL = "quality.edu-level";
+const AGE = "quality.age-months";
+
+/** The age card keeps every start inside 18 years and 29 years and 11 months (R-PROLOGUE-009). */
+const YOUNGEST = 18 * 12;
+const OLDEST = 29 * 12 + 11;
+/** What each year older brings in saving, the brief's working value. */
+const OLDER_SAVED = 120000;
 
 /** At the first retake card the character is 213 months old; at a second, 228. */
 const FIRST_RETAKE_ONLY: Requirement = { type: "quality/max", quality: "quality.age-months", value: 226 };
@@ -272,7 +279,7 @@ export const prologueTable: Record<string, PrologueStep> = {
   friend: {
     id: "friend",
     months: 1,
-    next: "home",
+    next: "age",
     answers: [
       answer("uk", [{ type: "route/hear", route: "route.uk-masters", via: "friend" }]),
       answer("canada", [{ type: "route/hear", route: "route.canada-points", via: "friend" }]),
@@ -284,6 +291,25 @@ export const prologueTable: Record<string, PrologueStep> = {
         requires: [{ type: "quality/min", quality: CARE, value: 30 }],
       }),
       answer("nowhere", [add(STANDING, 2), add(WELLBEING, 3)]),
+    ],
+  },
+
+  // The age in steps (R-PROLOGUE-009, the review): the front door's tile sends the step the player set,
+  // never typed. Older starts with a little more saved and, from two years, the passport held; younger has more
+  // years before the young-favouring routes close. Each step keeps the start inside 18 to 29. The first answer
+  // changes nothing, so a life that takes the first open answer keeps its years.
+  age: {
+    id: "age",
+    months: 0,
+    next: "home",
+    answers: [
+      answer("as-is", []),
+      ...[1, 2, 3].map((years) => answer(`younger-${String(years)}`, [add(AGE, -12 * years)], { requires: [{ type: "quality/min", quality: AGE, value: YOUNGEST + 12 * years }] })),
+      ...[1, 2, 3].map((years) =>
+        answer(`older-${String(years)}`, [add(AGE, 12 * years), earned(naira(OLDER_SAVED * years)), ...(years >= 2 ? [{ type: "document/grant", document: "document.passport" } as const] : [])], {
+          requires: [{ type: "quality/max", quality: AGE, value: OLDEST - 12 * years }],
+        }),
+      ),
     ],
   },
 

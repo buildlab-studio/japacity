@@ -285,9 +285,10 @@ describe("answers", () => {
         choose(game, allowed[choice(index, allowed.length)]!);
       }
     }
-    const withRequires = Object.values(withPrologue.prologue).flatMap((step) =>
-      step.answers.filter((answer) => answer.requires.length > 0).map((answer) => `${step.id}.${answer.id}`),
-    );
+    // The age step's requires are bounds on the start (18 to 29) that no path reaches, so its answers are only ever allowed (R-PROLOGUE-004).
+    const withRequires = Object.values(withPrologue.prologue)
+      .filter((step) => step.id !== "age")
+      .flatMap((step) => step.answers.filter((answer) => answer.requires.length > 0).map((answer) => `${step.id}.${answer.id}`));
     expect(withRequires.length).toBeGreaterThanOrEqual(10);
     expect(withRequires.filter((at) => !allowedSeen.has(at))).toEqual([]);
     expect(withRequires.filter((at) => !refusedSeen.has(at))).toEqual([]);
@@ -408,6 +409,8 @@ describe("age", () => {
     choose(game, "settle");
     expect(game.state.prologue.step).toBe("friend");
     choose(game, "nowhere");
+    // The age step: the age as the path reached it (R-PROLOGUE-004).
+    choose(game, "as-is");
     choose(game, "family-house");
     // 192 + 12 + 6 + 72 + 1: six years under the master.
     expect(quality(game, AGE)).toBe(283);
@@ -444,12 +447,12 @@ describe("age", () => {
     expect(withPrologue.prologue["strike-drag"]?.months).toBe(8);
   });
 
-  test("[R-PROLOGUE-004] given 200 random prologues, when each closes, then age is between 252 and 300 months", () => {
+  test("[R-PROLOGUE-004] given 200 random prologues, when each closes, then age is between 216 and 336 months, the age step counted", () => {
     for (let run = 0; run < 200; run += 1) {
       const game = newGame(`ages-${String(run)}`);
       playOut(game, spread(run));
-      expect(quality(game, AGE)).toBeGreaterThanOrEqual(252);
-      expect(quality(game, AGE)).toBeLessThanOrEqual(300);
+      expect(quality(game, AGE)).toBeGreaterThanOrEqual(216);
+      expect(quality(game, AGE)).toBeLessThanOrEqual(336);
     }
   });
 });

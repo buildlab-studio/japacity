@@ -6,8 +6,9 @@ import { content, text } from "../index";
 
 const FIRST = "draw";
 const START_AGE = content.tuning.prologue.startAgeMonths;
-const YOUNGEST = 252;
-const OLDEST = 300;
+// The paths end between 252 and 300 months; the age step then moves a life up to three years either way (R-PROLOGUE-004).
+const YOUNGEST = 216;
+const OLDEST = 336;
 
 /**
  * Whether a requirement can hold at this age. Only age is tracked along a path:
@@ -80,13 +81,13 @@ function walk(steps: Record<string, PrologueStep>): Walk {
 }
 
 describe("the prologue's steps", () => {
-  test("[R-PROLOGUE-004] given every path through the prologue, when the months are added, then each ends between 252 and 300 months of age", () => {
+  test("[R-PROLOGUE-004] given every path through the prologue, when the months are added, then each ends between 216 and 336 months of age, the age step counted", () => {
     const { endings } = walk(content.prologue);
     expect(endings.length).toBeGreaterThan(5);
     const outside = endings.filter((ending) => ending.age < YOUNGEST || ending.age > OLDEST);
     expect(outside.map((ending) => `${String(ending.age)}: ${ending.path.join(" > ")}`)).toEqual([]);
     const ages = endings.map((ending) => ending.age);
-    // The edges are reached: the longest path is two exams, a strike and the degree.
+    // The edges are reached: the longest path is two exams, a strike and the degree, stepped three years older.
     expect(Math.max(...ages)).toBe(OLDEST);
     expect(Math.min(...ages)).toBeGreaterThanOrEqual(YOUNGEST);
   });
@@ -105,6 +106,8 @@ describe("the prologue's steps", () => {
     only("after-school", "jamb");
     only("exam", "study", "pass");
     only("strike", "wait", "no-strike");
+    // The age step keeps the age the path reached (R-PROLOGUE-004).
+    only("age", "as-is");
     expect(walk(plain).endings.map((ending) => ending.age)).toEqual([277]);
   });
 

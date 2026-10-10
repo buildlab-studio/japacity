@@ -2,14 +2,15 @@
 // items 14 and 15): over the family compound, the player's figure turns on a plinth above, under the hook "What's your
 // japacity?" from the first second (item 18), and one question a screen
 // sits in a sheet below: the look, the archetype's tile (or one of the ready lives behind one card), the name, typed,
-// with three from the pool under the box. "Print my page" prints every answer onto the travel data page with the look
+// with three from the pool under the box, and for a tile the age in steps either side of its own, each step saying
+// what it does (the prologue's age card carries the effects; the tile's preset sends it). "Print my page" prints every answer onto the travel data page with the look
 // as the photo; "Begin" stamps it "Ready to start" and the life starts, the tile's preset playing as before. The run
 // is kept as it goes, so a reload at any step comes back to that step; nothing of the life is written before Begin.
 // Where a life may be started over, the authority starts a tile's life on a seed that keeps its path open; where it
 // may not (online, one life an account), the tiles say the years may go another way (R-PROLOGUE-011).
 import { content } from "@japacity/content";
 import type { Id } from "@japacity/sim";
-import { ArrowLeft, ArrowRight, RefreshCw } from "lucide-react";
+import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight, RefreshCw } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import { useGame } from "../../authority/GameProvider";
@@ -21,13 +22,15 @@ import { LOOKS, lookOf, namesFor } from "../../shared/frontdoor/looks";
 import { DataPage, type PageFields, Stamp } from "../../shared/datapage/DataPage";
 import { type DoorDraft, type DoorStage, keepDoor, readDoor } from "../../shared/datapage/door";
 import { NAME_LONGEST, nameProblem, problemWords } from "../../shared/datapage/name";
+import { ageStepWords, stepsOpen } from "../../shared/datapage/age";
 import { aboutYears, middleMonths, readyMonths } from "../../shared/datapage/years";
 
 const FROM_SIXTEEN = "scenario.prologue" as Id<"scenario">;
 /** The ready lives: every scenario but the life from sixteen, each named by its kind, never its person. */
 const READY = (Object.keys(content.scenario) as Id<"scenario">[]).filter((id) => content.scenario[id]?.prologue !== true);
 /** The questions, one a screen, for the progress marks over the scene. */
-const QUESTIONS: readonly DoorStage[] = ["you", "path", "name", "page"];
+const QUESTIONS: readonly DoorStage[] = ["you", "path", "name", "age", "page"];
+const YEAR = 12;
 /** How long the stamp sits on the page before the life starts. */
 export const STAMP_MS = 900;
 
@@ -57,7 +60,7 @@ function before(draft: DoorDraft): DoorStage | null {
     case "age":
       return "name";
     case "page":
-      return "name";
+      return draft.ready === null ? "age" : "name";
     default: {
       const never: never = draft.stage;
       throw new Error(`Unknown door stage ${String(never)}.`);
@@ -69,7 +72,7 @@ function before(draft: DoorDraft): DoorStage | null {
 function fieldsOf(draft: DoorDraft): PageFields {
   const archetype = archetypeOf(draft.archetype);
   const ready = READY.find((id) => id === draft.ready) ?? null;
-  const months = archetype !== null ? middleMonths(archetype) : ready !== null ? readyMonths(ready) : null;
+  const months = archetype !== null ? middleMonths(archetype) + draft.age * YEAR : ready !== null ? readyMonths(ready) : null;
   return {
     name: draft.name.trim(),
     age: months === null ? "" : say("prologue.page.age.about", { years: aboutYears(months) }),
@@ -81,7 +84,7 @@ function fieldsOf(draft: DoorDraft): PageFields {
 
 /** Over the scene: the way back, and how far through the questions the run is. */
 function Progress({ draft, onBack }: { draft: DoorDraft; onBack: (() => void) | null }) {
-  const at = Math.max(0, QUESTIONS.indexOf(draft.stage === "ready" ? "path" : draft.stage === "age" ? "name" : draft.stage));
+  const at = Math.max(0, QUESTIONS.indexOf(draft.stage === "ready" ? "path" : draft.stage));
   return (
     <div className="pointer-events-auto flex h-10 items-center gap-2" data-door-progress>
       {onBack === null ? (
@@ -130,9 +133,17 @@ export function ScenarioView() {
   const back = before(draft);
   const problem = nameProblem(draft.name);
 
-  const print = (): void => {
+  // A tile's life asks the age next (R-PROLOGUE-009); a ready life has its own.
+  const named = (): void => {
     setTried(true);
-    if (problem === null) go("page");
+    if (problem === null) go(draft.ready === null ? "age" : "page");
+  };
+  const archetype = archetypeOf(draft.archetype);
+  const middle = archetype === null ? null : middleMonths(archetype);
+  const open = middle === null ? [0] : stepsOpen(middle);
+  const step = (by: number): void => {
+    const next = draft.age + by;
+    if (open.includes(next)) change({ age: next });
   };
 
   const begin = (): void => {
@@ -269,18 +280,58 @@ export function ScenarioView() {
             ))}
           </ul>
         </GateSheet>
+      ) : draft.stage === "age" && middle !== null ? (
+        <GateSheet
+          key="age"
+          mark="age"
+          label={say("prologue.door.age")}
+          foot={
+            <button type="button" className="btn-main" onClick={() => go("page")}>
+              <span>{say("prologue.door.print")}</span>
+              <span className="flex items-center gap-1 text-[13px] font-semibold opacity-80">
+                {say("prologue.door.print.then")} <ArrowRight size={16} />
+              </span>
+            </button>
+          }
+        >
+          <h1 className="title text-[22px] leading-tight">{say("prologue.door.age")}</h1>
+          <p className="mt-0.5 text-[13px] leading-snug text-text-2">{say("prologue.door.age.hint")}</p>
+          <div className="mt-3 flex items-center justify-between rounded-[6px] bg-sheet-muted p-1" data-age-steps>
+            <button type="button" className="press flex size-11 items-center justify-center rounded-[5px] bg-sheet disabled:opacity-40" aria-label={say("prologue.door.age.younger")} disabled={!open.includes(draft.age - 1)} onClick={() => step(-1)}>
+              <ChevronLeft size={20} />
+            </button>
+            <p className="title num text-[22px]" data-age-years>
+              {say("prologue.door.age.years", { years: aboutYears(middle + draft.age * YEAR) })}
+            </p>
+            <button type="button" className="press flex size-11 items-center justify-center rounded-[5px] bg-sheet disabled:opacity-40" aria-label={say("prologue.door.age.older")} disabled={!open.includes(draft.age + 1)} onClick={() => step(1)}>
+              <ChevronRight size={20} />
+            </button>
+          </div>
+          <p className="mt-2 text-center text-[14px] font-bold" data-age-does>
+            {ageStepWords(draft.age, middle)}
+          </p>
+        </GateSheet>
       ) : draft.stage === "name" || draft.stage === "age" ? (
         <GateSheet
           key="name"
           mark="name"
           label={say("prologue.door.name.title")}
           foot={
-            <button type="button" className="btn-main" onClick={print}>
-              <span>{say("prologue.door.print")}</span>
-              <span className="flex items-center gap-1 text-[13px] font-semibold opacity-80">
-                {say("prologue.door.print.then")} <ArrowRight size={16} />
-              </span>
-            </button>
+            draft.ready === null ? (
+              <button type="button" className="btn-main" onClick={named}>
+                <span>{say("ui.door.next")}</span>
+                <span className="flex items-center gap-1 text-[13px] font-semibold opacity-80">
+                  {say("prologue.door.age")} <ArrowRight size={16} />
+                </span>
+              </button>
+            ) : (
+              <button type="button" className="btn-main" onClick={named}>
+                <span>{say("prologue.door.print")}</span>
+                <span className="flex items-center gap-1 text-[13px] font-semibold opacity-80">
+                  {say("prologue.door.print.then")} <ArrowRight size={16} />
+                </span>
+              </button>
+            )
           }
         >
           <label className="title block text-[22px] leading-tight" htmlFor="door-name">
@@ -299,7 +350,7 @@ export function ScenarioView() {
             aria-invalid={tried && problem !== null}
             onChange={(event) => change({ name: event.target.value })}
             onKeyDown={(event) => {
-              if (event.key === "Enter") print();
+              if (event.key === "Enter") named();
             }}
           />
           {tried && problem !== null ? (
