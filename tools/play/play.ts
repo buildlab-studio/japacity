@@ -147,7 +147,8 @@ async function frontDoor(run: Run, button: string): Promise<boolean> {
 async function yearsBefore(run: Run): Promise<void> {
   const { page } = run;
   const band = page.locator("[data-band]");
-  const handover = page.locator("[data-page-handover]");
+  // The marker wraps a fixed gate and has no size of its own; the sheet inside it is what shows.
+  const handover = page.locator("[data-page-handover] [data-gate-sheet]");
   const answer = page.locator("[data-prologue-card] [data-answer] button:enabled");
   for (let wait = 0; wait < 80; wait += 1) {
     if (await shown(band)) return;
@@ -237,7 +238,7 @@ async function intoTheWorld(run: Run): Promise<boolean> {
   await yearsBefore(run);
   // A ready life may go straight in; a tile's life fills its page first. Either way the band ends it.
   for (let step = 0; step < 6 && !(await shown(page.locator("[data-band]"))); step += 1) {
-    if (await shown(page.locator("[data-prologue-card], [data-page-handover], [data-page-running]"))) await yearsBefore(run);
+    if (await shown(page.locator("[data-prologue-card], [data-page-handover] [data-gate-sheet], [data-page-running] [data-gate-sheet]"))) await yearsBefore(run);
     else await page.waitForTimeout(1_000);
   }
   if (!(await appear(page.locator("[data-band]"), LONG))) {
