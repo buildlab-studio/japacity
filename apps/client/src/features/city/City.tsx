@@ -304,6 +304,7 @@ export interface CityMapSlot {
 
 export function City({
   adverts,
+  signalsWaiting = false,
   world = false,
   actions,
   month,
@@ -318,6 +319,8 @@ export function City({
   cityMap,
 }: {
   adverts?: (place: string) => ReactNode;
+  /** Lines of the month waiting on the phone (R-WORLD-030): at home the bed opens them before the month can end. */
+  signalsWaiting?: boolean;
   /** The world mode: the place fills the screen under a see-through bar, with the fly-over as its map. */
   world?: boolean;
   /** The world mode's sheet for the actions a tapped thing stages. */
@@ -644,7 +647,9 @@ export function City({
       // R-WORLD-025: the bed's End month is the band's, so the Month sheet opens the same way.
       case "end":
         setPicked(null);
-        setMonthOpen(true);
+        // The month's lines wait on the phone: the bed opens them first (R-WORLD-030), then ends the month.
+        if (signalsWaiting) setPhone(true);
+        else setMonthOpen(true);
         return;
       case "plain": {
         setPicked(null);

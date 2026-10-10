@@ -73,7 +73,7 @@ export const phoneText: Record<string, string> = {
   "phone.japa.mark": "{what}: {when}.",
   "phone.japa.steps": "The steps",
   "phone.japa.papers": "Papers",
-  "phone.japa.official": "Free, takes one slot this month. The full list for {route}, as it stands today.",
+  "phone.japa.official": "Free. The full list for {route}, as it stands today.",
   "phone.japa.official-planned": "In this month's plan. You read the full list for {route} when the month ends.",
   "phone.japa.papers.line": "{held} of {count} in the box",
   "phone.japa.papers.title": "The box under the bed",
