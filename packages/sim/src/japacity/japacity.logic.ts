@@ -78,7 +78,7 @@ export function checklistView(read: ReadCtx, route: Id<"route">, judge: Judge = 
  * departed (R-JAPACITY-002), the checklist's sum from known on
  * (R-JAPACITY-001), and none while unknown or only heard of (R-JAPACITY-005).
  *
- * `refused`, kept for a ban and set by nothing in this milestone,
+ * `refused`, the state a ban holds a route in (R-GATE-005),
  * still has its checklist figure, so the route page can show what was built.
  * It never counts toward japacity (R-JAPACITY-003).
  */

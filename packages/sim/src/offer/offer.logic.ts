@@ -426,9 +426,9 @@ function switchedOff(content: Content, entry: OfferEntry): boolean {
   return entry.group === "road" && !content.tuning.road.enabled;
 }
 
-/** R-ROAD-002: the pitch's chance with the character's situation, between 0 and 10000. */
 const MONTHS_A_YEAR = 12;
 
+/** R-ROAD-002: the pitch's chance with the character's situation, between 0 and 10000. */
 export function pressureChanceBp(read: ReadCtx, entry: OfferEntry, judge: (requirement: Requirement) => RequirementResult): number {
   const pressure = entry.pressure;
   if (pressure === undefined) return entry.chanceBp;

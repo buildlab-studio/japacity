@@ -249,7 +249,7 @@ export function watchHear(watch: Watch): Registry {
   });
 }
 
-/** The real registry with `offer/choose` carrying out the given effects. The offer kind has no command handler of its own yet. */
+/** The real registry with `offer/choose` carrying out the given effects in place of the offer kind's own handler. */
 export function withEffects(effects: Effect[], terms: Terms = {}): Registry {
   return registry().map((kind) =>
     kind.kind !== "offer" ? kind : { ...kind, commands: { "offer/choose": (ctx) => ctx.apply(effects, { source: "test", param: null, terms }) } },
