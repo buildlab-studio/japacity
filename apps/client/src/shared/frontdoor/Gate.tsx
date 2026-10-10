@@ -1,17 +1,20 @@
 // The scene under the front door, the prologue and the handover (prologue.md R-PROLOGUE-009): the
 // family compound with the character on a plinth at the gate, never a bare page. The figure turns slowly and a
 // finger drags it round (the design's onboarding). The sheet rises over the bottom of the screen and the top
-// keeps the character in view. Where WebGL is missing the compound's colours and the look's own picture stand in.
+// keeps the character in view, in the player's own colours (R-PROLOGUE-015). Where WebGL is missing the compound's
+// colours and the look's own picture stand in.
 import { paletteCss } from "@japacity/assets";
 import { lazy, type PointerEvent, type ReactNode, Suspense, useMemo, useRef } from "react";
 
 import { readPerson } from "../../authority/person";
 import { LOOKS, lookOf } from "./looks";
 import { DRAG_TURN, type Spin } from "./spin";
+import type { LookStyle } from "./style";
 
 const FrontScene = lazy(() => import("./FrontScene"));
 
-function canDraw(): boolean {
+/** True where WebGL 2 can draw: the scene, and the page's photo in the player's colours. */
+export function canDraw(): boolean {
   if (typeof window === "undefined" || !("WebGL2RenderingContext" in window)) return false;
   try {
     return document.createElement("canvas").getContext("webgl2") !== null;
@@ -34,11 +37,15 @@ export interface GateProps {
   mark?: string;
   /** What stands over the top of the scene: the run's progress, the data page. */
   over?: ReactNode;
+  /** The colours the figure wears; with no look given, the kept person's own. */
+  style?: LookStyle | undefined;
 }
 
-export function Gate({ look, children, mark, over }: GateProps) {
+export function Gate({ look, children, mark, over, style }: GateProps) {
   const drawing = useMemo(canDraw, []);
   const shown = lookOf(gateLook(look));
+  const kept = look === undefined || look === null ? readPerson() : null;
+  const worn = style ?? (kept !== null && kept.look === shown?.id ? kept.style : undefined);
   const spin = useRef<Spin>({ dragging: false, pending: 0, last: 0 }).current;
   const grab = (event: PointerEvent<HTMLDivElement>): void => {
     event.currentTarget.setPointerCapture(event.pointerId);
@@ -77,7 +84,7 @@ export function Gate({ look, children, mark, over }: GateProps) {
         {/* The look's own picture stands in until the scene has loaded, and where WebGL is missing. */}
         {drawing ? (
           <Suspense fallback={standIn}>
-            <FrontScene look={shown?.file ?? "shared/chr/chr_ada.glb"} spin={spin} />
+            <FrontScene look={shown?.file ?? "shared/chr/chr_ada.glb"} spin={spin} style={worn} />
           </Suspense>
         ) : (
           standIn

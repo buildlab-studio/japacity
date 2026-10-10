@@ -20,8 +20,11 @@ import { blurbOf, say } from "../../shared/words/text";
 import { type Archetype, ARCHETYPES, archetypeOf, FROM_SIXTEEN, type Home, homeOf, homesFor, savingsOf } from "../../shared/frontdoor/archetypes";
 import { Gate, GateSheet, gateLook } from "../../shared/frontdoor/Gate";
 import { LOOKS, lookOf, namesFor } from "../../shared/frontdoor/looks";
+import { OwnColoursRows } from "../../shared/frontdoor/OwnColours";
+import { isMade } from "../../shared/frontdoor/style";
 import { takeReadyAsk } from "../../shared/frontdoor/ready";
 import { DataPage, type PageFields, Stamp } from "../../shared/datapage/DataPage";
+import { madePhoto } from "../../shared/datapage/photo";
 import { type DoorDraft, type DoorStage, keepDoor, readDoor } from "../../shared/datapage/door";
 import { NAME_LONGEST, nameProblem, problemWords } from "../../shared/datapage/name";
 import { ageSteps, ageStepWords, stepsOpen } from "../../shared/datapage/age";
@@ -136,6 +139,7 @@ function fieldsOf(draft: DoorDraft): PageFields {
     path: archetype !== null ? say(`prologue.archetype.${archetype.id}.name`) : ready !== null ? say(`${ready}.kind`) : "",
     ready: say("prologue.page.ready.figure", { percent: 0 }),
     photo: lookOf(draft.look)?.picture ?? "",
+    wear: { look: draft.look, ...(draft.style === undefined ? {} : { style: draft.style }) },
   };
 }
 
@@ -273,7 +277,10 @@ export function ScenarioView({ guest = null }: { guest?: DoorGuest | null }) {
     }
     const ready = draft.ready === null ? null : (READY.find((id) => id === draft.ready) ?? null);
     const start = (): void => {
-      keepPerson({ look: draft.look, name: draft.name.trim(), archetype: ready === null ? draft.archetype : null });
+      // The player's own colours, and the photo drawn in them as the page printed, are kept with the person (R-PROLOGUE-015).
+      const style = isMade(draft.style) ? undefined : draft.style;
+      const photo = style === undefined ? undefined : madePhoto(draft.look, style);
+      keepPerson({ look: draft.look, name: draft.name.trim(), archetype: ready === null ? draft.archetype : null, ...(style === undefined ? {} : { style }), ...(photo === undefined ? {} : { photo }) });
       change({ stage: "begun", ...(home === null ? {} : { home }) });
       void chooseLife(ready ?? FROM_SIXTEEN)
         .then(() => guest?.started())
@@ -330,7 +337,7 @@ export function ScenarioView({ guest = null }: { guest?: DoorGuest | null }) {
   );
 
   return (
-    <Gate look={draft.look} mark={draft.stage} over={over}>
+    <Gate look={draft.look} style={draft.style} mark={draft.stage} over={over}>
       {draft.stage === "you" ? (
         <GateSheet key="you" mark="you" label={say("ui.life.title")} foot={<NextButton onClick={() => go(asked ? "ready" : "life")} then={say(asked ? "ui.door.ready.title" : "ui.door.next.then")} />}>
           <h1 className="title text-[22px] leading-tight">{say("ui.life.title")}</h1>
@@ -392,6 +399,8 @@ export function ScenarioView({ guest = null }: { guest?: DoorGuest | null }) {
             })}
           </div>
           <p className="label mt-2 text-center text-[10px] text-text-2">{say("prologue.door.drag")}</p>
+          {/* Your own colours on the look (R-PROLOGUE-015), under the strip. */}
+          <OwnColoursRows look={draft.look} style={draft.style} onStyle={(style) => change({ style: isMade(style) ? undefined : style })} />
         </GateSheet>
       ) : draft.stage === "life" ? (
         <GateSheet key="life" mark="life" label={say("ui.door.life")} foot={<NextButton onClick={() => go("page")} then={say("ui.door.next.page")} />}>

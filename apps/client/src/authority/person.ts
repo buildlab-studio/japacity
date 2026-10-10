@@ -1,7 +1,8 @@
-// The person built at the front door (prologue.md R-PROLOGUE-009, 010): a look, a first name and an
-// archetype. The simulation holds none of them: they are kept on the device beside the save, under one
+// The person built at the front door (prologue.md R-PROLOGUE-009, 010, 015): a look, a first name, an
+// archetype, and the player's own colours on the look with the page's photo in them. The simulation holds none of them: they are kept on the device beside the save, under one
 // key of their own, and the city and the rides draw the character in the look. Online, presence already
-// carries a look; the server would keep these three beside the character the same way.
+// carries a look; the server would keep these beside the character the same way.
+import { readStyle, type LookStyle } from "../shared/frontdoor/style";
 
 /** The one localStorage key the person is kept under, beside `japacity.save`. */
 export const PERSON_KEY = "japacity.person";
@@ -13,7 +14,14 @@ export interface KeptPerson {
   name: string;
   /** The archetype whose preset the prologue plays, or null for a ready life. */
   archetype: string | null;
+  /** The player's own colours on the look (R-PROLOGUE-015); absent as made. Paint only, never a stat. */
+  style?: LookStyle;
+  /** The page's photo: the figure rendered in its colours, as an image's data address; absent as made or where nothing could draw it. */
+  photo?: string;
 }
+
+/** A photo kept with the person: a small image of its own, never an address elsewhere. */
+const PHOTO = /^data:image\/(png|webp|jpeg);base64,/;
 
 type Read = Pick<Storage, "getItem">;
 type Write = Pick<Storage, "setItem">;
@@ -39,7 +47,11 @@ export function readPerson(storage: Read | null = browserStorage()): KeptPerson 
     const raw = storage?.getItem(PERSON_KEY) ?? null;
     if (raw === null) return null;
     const parsed: unknown = JSON.parse(raw);
-    return isPerson(parsed) ? parsed : null;
+    if (!isPerson(parsed)) return null;
+    const { look, name, archetype } = parsed;
+    const style = readStyle(parsed.style);
+    const photo = style !== undefined && typeof parsed.photo === "string" && PHOTO.test(parsed.photo) ? parsed.photo : undefined;
+    return { look, name, archetype, ...(style === undefined ? {} : { style }), ...(photo === undefined ? {} : { photo }) };
   } catch {
     return null;
   }
@@ -57,4 +69,10 @@ export function keepPerson(person: KeptPerson, storage: Write | null = browserSt
 export function keptLookFile(storage: Read | null = browserStorage()): string | null {
   const person = readPerson(storage);
   return person === null ? null : `shared/chr/${person.look}.glb`;
+}
+
+/** The style the kept person wears on a look's file, `shared/chr/chr_ada.glb`; none where that is not their look. */
+export function keptStyleOf(file: string, storage: Read | null = browserStorage()): LookStyle | undefined {
+  const person = readPerson(storage);
+  return person !== null && `shared/chr/${person.look}.glb` === file ? person.style : undefined;
 }

@@ -26,7 +26,8 @@ function pictureOf(id: string): string {
 /** The looks the first plan names come first, so the strip opens on the people the game began with. */
 const FIRST = ["chr_ada", "chr_tunde", "chr_zainab", "chr_tobi", "chr_ngozi", "chr_femi", "chr_kemi", "chr_bisi"];
 
-const idOf = (file: string): string => file.slice("shared/chr/".length, -".glb".length);
+/** A shipped person's name from its file: `shared/chr/chr_ada.glb` is `chr_ada`. */
+export const idOf = (file: string): string => file.slice("shared/chr/".length, -".glb".length);
 
 export const LOOKS: readonly Look[] = ROSTER.filter((person) => person.role === "passer-by")
   .map((person) => ({ id: idOf(person.file), file: person.file, sex: person.sex, picture: pictureOf(idOf(person.file)) }))
