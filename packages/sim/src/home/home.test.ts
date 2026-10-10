@@ -487,3 +487,26 @@ describe("a life from sixteen", () => {
     expect(Object.values(game.state.obligation.items)[0]?.amount).toBe(familyCardCharge());
   });
 });
+
+describe("a start on the water", () => {
+  test("[R-PROLOGUE-012] [R-HOME-001] [R-HOME-002] given a life from sixteen whose home card answers Makoko, when the prologue closes, then it lives in Makoko's room from the start, owes only Makoko's rent at the page's charge, has made no move, and its first month charges that rent", () => {
+    const game = fromSixteen("makoko", NEVER);
+    expect(game.state.prologue.open).toBe(false);
+    expect(game.state.home).toEqual({ place: MAKOKO, since: 0, guest: null, moved: null, evicted: null, hosting: null });
+    expect(openEntries(game)).toEqual([MAKOKO_UPKEEP]);
+    expect(game.view().home).toMatchObject({ place: MAKOKO, rent: { currency: "NGN", amount: home.makokoUpkeep }, moved: null });
+    expect(checkInvariants(game.state, NEVER)).toEqual([]);
+    const result = month(game);
+    expect(upkeepPaid(result)).toBe(home.makokoUpkeep);
+    // The family house is still there to go back to, at its own charge.
+    game.accept({ type: "home/move", to: FAMILY });
+    expect(openEntries(game)).toEqual([FAMILY_UPKEEP]);
+    expect(Object.values(game.state.obligation.items)[0]?.amount).toBe(familyCardCharge());
+  });
+
+  test("[R-PROLOGUE-012] given a life from sixteen in Makoko's room from the start, when it asks to move back in its first month, then the move is open: the start was no move", () => {
+    const game = fromSixteen("makoko", NEVER);
+    game.accept({ type: "home/move", to: FAMILY });
+    expect(game.state.home).toMatchObject({ place: FAMILY, moved: 0 });
+  });
+});

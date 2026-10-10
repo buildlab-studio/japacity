@@ -106,6 +106,8 @@ export const prologueText: Record<string, string> = {
   "prologue.home.card": "On your own feet now. Where do you sleep?",
   "prologue.home.answer.family-house": "The family house",
   "prologue.home.answer.family-house.hint": "Living costs: {amount} a month.",
+  "prologue.home.answer.makoko": "A room in Makoko",
+  "prologue.home.answer.makoko.hint": "Living costs: {amount} a month. Some months the settlement is cleared.",
   "prologue.home.answer.room": "Your own room",
   "prologue.home.answer.room.hint": "Living costs: {amount} a month.",
   "prologue.home.answer.room.why": "a room needs {amount} in cash, and you do not have it.",
@@ -174,6 +176,7 @@ export const prologueText: Record<string, string> = {
   "prologue.handover.capital": "{amount} in hand, the shop's capital. It is the move's money now, if you want it to be.",
   "prologue.handover.home.family-house": "You sleep in the family house. Living costs: {amount} a month.",
   "prologue.handover.home.room": "You sleep in a room of your own. Living costs: {amount} a month.",
+  "prologue.handover.home.makoko": "You sleep in a room on the water in Makoko. Living costs: {amount} a month.",
   "prologue.handover.step.heard": "Go to the meetup in Yaba and hear of a way out",
   // A life's own first step where its archetype has a place for it: `step.<step>.<way>`.
   "prologue.handover.step.job.clinic": "Apply for the staff nurse job at the clinic",

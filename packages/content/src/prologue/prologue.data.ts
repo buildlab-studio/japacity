@@ -287,7 +287,7 @@ export const prologueTable: Record<string, PrologueStep> = {
     ],
   },
 
-  // Closes the prologue: the upkeep opens at the amount chosen (R-PROLOGUE-006).
+  // Closes the prologue: the upkeep opens at the amount chosen (R-PROLOGUE-006), or Makoko's rent (R-PROLOGUE-012).
   home: {
     id: "home",
     months: 0,
@@ -296,6 +296,12 @@ export const prologueTable: Record<string, PrologueStep> = {
       answer("family-house", [
         { type: "obligation/open", obligation: "obligation.upkeep", amount: naira(95000) },
         add(STANDING, 3),
+      ]),
+      // A room on the water (R-PROLOGUE-012, home.md): the rent opens first so the card says it as the other homes
+      // do, and the move takes the room at that charge. The family house stays there to go back to.
+      answer("makoko", [
+        { type: "obligation/open", obligation: "obligation.upkeep-makoko", amount: tuning.home.makokoUpkeep },
+        { type: "home/move", place: "place.makoko" },
       ]),
       answer(
         "room",
