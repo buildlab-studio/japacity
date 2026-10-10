@@ -38,6 +38,8 @@ function Sponsor({ gate, currency }: { gate: Extract<RouteGateView, { gate: "spo
 
 function Points({ gate, month }: { gate: Extract<RouteGateView, { gate: "points" }>; month: number }) {
   const short = Math.max(0, gate.cutoff - gate.points);
+  // R-POINTS-006: whether an invitation will come is the engine's, the care cut-off for a carer among it.
+  const said = !gate.invites ? say("ui.gate.points.short", { short: formatNumber(short) }) : short > 0 ? say("ui.gate.points.over-care") : say("ui.gate.points.over");
   return (
     <div className="flex flex-col gap-1 text-sm">
       <p className="flex items-baseline gap-2">
@@ -45,7 +47,7 @@ function Points({ gate, month }: { gate: Extract<RouteGateView, { gate: "points"
         <span>{say("ui.gate.points.cutoff", { cutoff: formatNumber(gate.cutoff) })}</span>
       </p>
       <Meter value={gate.points} max={gate.cutoff} label={say("ui.gate.points.title")} tone="ink" />
-      <p className={short > 0 ? "text-bad" : "text-good"}>{short > 0 ? say("ui.gate.points.short", { short: formatNumber(short) }) : say("ui.gate.points.over")}</p>
+      <p className={gate.invites ? "text-good" : "text-bad"}>{said}</p>
       {gate.careCutoff === null ? null : <p className="text-text-2">{say("ui.gate.points.care", { cutoff: formatNumber(gate.careCutoff) })}</p>}
       {gate.invitedMonth !== null ? (
         <p className="font-medium text-good">{say("ui.gate.points.invited", { month: monthEnding(gate.invitedMonth) })}</p>

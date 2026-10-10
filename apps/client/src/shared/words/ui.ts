@@ -909,6 +909,7 @@ export const uiText: Record<string, string> = {
   "ui.gate.points.cutoff": "points. The cut-off is {cutoff}.",
   "ui.gate.points.short": "{short} points short of the cut-off.",
   "ui.gate.points.over": "At or over the cut-off.",
+  "ui.gate.points.over-care": "At or over the cut-off for care workers.",
   "ui.gate.points.care": "For care workers the cut-off is {cutoff}.",
   "ui.gate.points.no-pool": "Not in the pool.",
   "ui.gate.points.pool": "In the pool since month {month}. The profile ends in month {ends}, {left} months from now.",

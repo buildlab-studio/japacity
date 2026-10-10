@@ -2065,7 +2065,8 @@ export interface RouteView {
 /** The gate's own part of a route's view. Nothing hidden: no fraud, no draw. */
 export type RouteGateView =
   | { gate: "sponsor"; employer: string | null; salary: number | null; underBar: boolean }
-  | { gate: "points"; points: number; cutoff: number; careCutoff: number | null; poolMonth: number | null; profileEndsMonth: number | null; invitedMonth: number | null }
+  /** `invites` (R-POINTS-006): the score is at a cut-off the clocks would invite at now, the care cut-off for a carer among them. */
+  | { gate: "points"; points: number; cutoff: number; careCutoff: number | null; invites: boolean; poolMonth: number | null; profileEndsMonth: number | null; invitedMonth: number | null }
   | { gate: "endorsement"; refusedMonth: number | null; cooledFromMonth: number | null }
   | { gate: "partner"; bond: string | null; lead: RouteStateName | null }
   | { gate: "dependant"; bond: string | null; lead: RouteStateName | null }
