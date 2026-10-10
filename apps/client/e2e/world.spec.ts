@@ -63,9 +63,10 @@ async function visibleButtons(page: Page): Promise<string[]> {
 function adaOneMonthIn(): string {
   const save = lifeSaves["ada-careful"];
   if (save === undefined) throw new Error("No recorded life ada-careful.");
-  // One month in: everything up to and including the first month's end (the acts sent at once before it included, R-ACTIVITY-015).
+  // At the first month's end: the acts sent at once before it (R-ACTIVITY-015) but not the end itself, so the test's own
+  // Next month plays the recorded first month, whose end opens the life's first offer.
   const firstEnd = save.commands.findIndex((entry) => entry.command.type === "turn/end");
-  return JSON.stringify({ save: { ...save, commands: save.commands.slice(0, firstEnd + 1) }, clock: { anchor: 0 } });
+  return JSON.stringify({ save: { ...save, commands: save.commands.slice(0, firstEnd) }, clock: { anchor: 0 } });
 }
 
 test("[R-WORLD-001] [R-WORLD-024] the default address opens the world with the band and the two buttons and nothing else", async ({ page }, info) => {

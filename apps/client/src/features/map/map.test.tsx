@@ -700,6 +700,8 @@ describe("the ride cuts between its angles by itself", () => {
 
   test("[R-WORLD-032] given the ride's clock, when a frame comes late, then the step is clamped and the clock never passes the ride's end", () => {
     expect(stepClock(0, 16)).toBe(16);
+    // A slow but steady frame counts whole (a device at two frames a second keeps the ride's pace); a stall moves one step only.
+    expect(stepClock(1000, 500)).toBe(1500);
     expect(stepClock(1000, 2000)).toBe(1000 + STEP_MS);
     expect(stepClock(RIDE_MS - 10, 50)).toBe(RIDE_MS);
     expect(stepClock(500, -40)).toBe(500);

@@ -58,12 +58,19 @@ export type Phase = "pre" | "ride";
  */
 export type Angle = "outside" | "above" | "window" | "seat" | "ahead";
 
-/** The most the ride's clock moves in one frame, so a slow frame never jumps the ride ahead (R-WORLD-032). */
+/** The most the ride's clock moves on a stalled frame, so a stall never jumps the ride ahead (R-WORLD-032). */
 export const STEP_MS = 100;
+/** A frame longer than this is a stall (the tab hidden, the device busy); a slow but steady device's frames count whole. */
+export const STALL_MS = 1000;
 
-/** The ride's clock after a frame `dt` milliseconds long: the step clamped, never past the ride's end. */
+/**
+ * The ride's clock after a frame `dt` milliseconds long: a frame up to a second counts whole, so a slow device keeps the
+ * ride's pace (each angle still gets its frames, since no frame is longer than the shortest angle); a stalled frame moves
+ * the clock one step only; never past the ride's end.
+ */
 export function stepClock(ms: number, dt: number): number {
-  return Math.min(RIDE_MS, ms + Math.min(STEP_MS, Math.max(0, dt)));
+  const step = dt > STALL_MS ? STEP_MS : Math.max(0, dt);
+  return Math.min(RIDE_MS, ms + step);
 }
 
 /** The angles a way shows, each from the moment it starts: the pre-roll outside, then the rest of the ride shared out. */
