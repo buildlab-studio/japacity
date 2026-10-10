@@ -74,6 +74,7 @@ import { walletText } from "./wallet/wallet.text";
 
 export { blockedWords, reservedNames } from "./account/account.data";
 export { japaTypes, officialAccounts, shareChapters, shareKinds } from "./share/share.data";
+export { OPERATOR, type Operator } from "./legal/legal.operator";
 export { lifePeople, nameMix, namedMix, namedPeople, namePool, peopleRegion, takingRoles } from "./person/person.names.data";
 export type { NamedPerson, NamedRole, NameFaith, NamePeople, NameSex, PoolName } from "./person/person.names.data";
 export { recurringPeople } from "./person/person.recurring.data";
