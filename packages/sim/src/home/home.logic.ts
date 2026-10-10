@@ -81,14 +81,27 @@ export function evictedThisMonth(state: State): boolean {
   return state.home.evicted !== null && state.home.evicted === state.turn.month;
 }
 
-/** The starting life's upkeep at home, as `obligation/open` effects at its own charge (R-HOME-002, as R-PLACE-007). */
-function familyUpkeep(read: ReadCtx): Effect[] {
+/** The home card that closes the life from sixteen (prologue.md, step 11), and its answer for the family house. */
+const HOME_CARD = "home";
+const FAMILY_ANSWER = "family-house";
+
+/**
+ * What the family house charges this life: a fixed life's starting obligations, or for a life from sixteen, which
+ * starts owing nothing, the upkeep its home card opens for the family house (R-PROLOGUE-006, 012).
+ */
+function familyCharge(read: ReadCtx): Effect[] {
   const scenario = read.content.scenario[read.state.scenario];
   if (scenario === undefined) return [];
-  return scenario.obligations.flatMap((owed): Effect[] => {
-    const entry = read.content.obligation[owed.obligation];
-    if (entry === undefined || entry.type !== "upkeep" || entry.id === MAKOKO_UPKEEP || (entry.where ?? "home") !== "home") return [];
-    return [{ type: "obligation/open", obligation: owed.obligation, amount: owed.amount }];
+  if (scenario.prologue !== true) return scenario.obligations.map((owed): Effect => ({ type: "obligation/open", obligation: owed.obligation, amount: owed.amount }));
+  return read.content.prologue[HOME_CARD]?.answers.find((answer) => answer.id === FAMILY_ANSWER)?.effects ?? [];
+}
+
+/** The starting life's upkeep at home, as `obligation/open` effects at its own charge (R-HOME-002, as R-PLACE-007). */
+function familyUpkeep(read: ReadCtx): Effect[] {
+  return familyCharge(read).filter((effect) => {
+    if (effect.type !== "obligation/open") return false;
+    const entry = read.content.obligation[effect.obligation];
+    return entry !== undefined && entry.type === "upkeep" && entry.id !== MAKOKO_UPKEEP && (entry.where ?? "home") === "home";
   });
 }
 
