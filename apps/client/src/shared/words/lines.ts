@@ -292,7 +292,7 @@ export function toldUnpaid(line: ReportLine): ReportLine {
 
 export function tidyLines(lines: readonly ReportLine[]): ReportLine[] {
   // Named before the retold go, so a payment named for its offer is never taken for the month's own.
-  return oneGoalLine(jobEndsWithFlight(movedWithRent(upkeepMoved(oneEndorsementStory(savedBefore(dropRetold(paperFee(activityPaid(paidAs(paidFor(foldPockets(lines)))))))))))).map(variant).map(remitLanded).map(goalFirst);
+  return readyNotOnTheWay(oneGoalLine(jobEndsWithFlight(movedWithRent(upkeepMoved(oneEndorsementStory(savedBefore(dropRetold(paperFee(activityPaid(paidAs(paidFor(foldPockets(lines))))))))))))).map(variant).map(remitLanded).map(goalFirst);
 }
 
 /** A slot played, and a now-act done at once (R-ACTIVITY-015): each comes just before the money it spent. */
@@ -386,6 +386,17 @@ function jobEndsWithFlight(lines: readonly ReportLine[]): ReportLine[] {
   const rest = lines.filter((line) => line.key !== JOB_ENDED);
   const at = rest.findIndex((line) => line.key === DEPARTED);
   return [...rest.slice(0, at + 1), ...ended, ...rest.slice(at + 1)];
+}
+
+const ISSUED = "line.document.issued";
+
+/**
+ * A paper asked for and issued in the same month is told once, as ready: never "on the way, ready this month" beside
+ * "ready".
+ */
+function readyNotOnTheWay(lines: readonly ReportLine[]): ReportLine[] {
+  const ready = new Set(lines.filter((line) => line.key === ISSUED).map((line) => line.params["document"]));
+  return lines.filter((line) => !(line.key === REQUESTED && ready.has(line.params["document"])));
 }
 
 const GOAL_OPENED = "line.goal.opened";
