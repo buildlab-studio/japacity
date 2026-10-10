@@ -42,7 +42,7 @@ describe("the plan in Japa's head", () => {
     const view = newGame("scenario.ada").view();
     expect(view.plan.route).toBeNull();
     await renderWithView(<Japa />, view);
-    expect(document.querySelector("[data-japa-head]")?.textContent).toContain("No plan yet. Hear of a way out first.");
+    expect(document.querySelector("[data-japa-head]")?.textContent).toContain("No plan yet");
     expect(document.querySelector("[data-japa-file]")).toBeNull();
     expect(document.querySelector("[data-japa-others]")).toBeNull();
   });
@@ -126,7 +126,8 @@ describe("the plan's marks", () => {
     const marks = planMarks(view);
     expect(marks).toEqual([{ key: "route.plan.mark.school", what: say("route.plan.mark.school", { school: nameOf(pending.id) }), month: pending.readyMonth }]);
     await renderWithView(<Japa />, view);
-    expect(document.querySelector("[data-reminders]")?.textContent).toContain(phoneWords("phone.japa.mark", { what: marks[0]!.what, when: inMonths(pending.readyMonth, view.month) }));
+    const reminder = document.querySelector("[data-reminders] [data-reminder='plan']");
+    expect(reminder?.textContent).toBe(`${marks[0]!.what}${inMonths(pending.readyMonth, view.month)}`);
   });
 
   test("[R-CHAPTER-009] given the nurse on care with nothing waiting on a date, when the marks are read, then there are none", () => {

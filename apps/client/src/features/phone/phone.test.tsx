@@ -13,7 +13,8 @@ import { familyFeedLines } from "./feed";
 import { PhoneApps } from "./PhoneApps";
 import { APP_IDS, marksOf, reloadSeen, SEEN_KEY, waitingOf } from "./seen";
 import { todayWords } from "../../shared/words/format";
-import { inMonths } from "../../shared/words/text";
+import { inMonths, nameOf } from "../../shared/words/text";
+import { phoneWords } from "./phone.words";
 
 const NOON = () => new Date(2026, 9, 8, 12, 5);
 
@@ -267,7 +268,9 @@ describe("what the phone carries", () => {
     openApp("japa");
     expect(document.querySelector("[data-japa-percent]")?.getAttribute("data-japa-percent")).toBe("64");
     expect(document.querySelectorAll("[data-steps] [data-met]")).toHaveLength(view.routes[0]!.checklist.length);
-    expect(screen.getByText(`Transcript: ready ${inMonths(12, view.month)}.`, { exact: false })).toBeTruthy();
+    // The reminder says the paper and when, each once (R-TEXT-008).
+    const reminder = document.querySelector("[data-reminder='paper']");
+    expect(reminder?.textContent).toBe(`${phoneWords("phone.japa.paper-ready", { paper: nameOf("document.transcript") })}${inMonths(12, view.month)}`);
     fireEvent.click(document.querySelector<HTMLElement>("[data-open-papers]")!);
     expect(screen.getByText("The box under the bed")).toBeTruthy();
     expect([...document.querySelectorAll("[data-paper]")].map((paper) => paper.getAttribute("data-state"))).toEqual(["held", "held", "pending"]);

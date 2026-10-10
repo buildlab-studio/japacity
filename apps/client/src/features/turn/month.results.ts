@@ -5,7 +5,7 @@ import { content } from "@japacity/content";
 import type { Currency, PlayerView, ReportLine } from "@japacity/sim";
 
 import { afterPrologue, forYou, isSaid, isUnpaid, tidyLines } from "../../shared/words/lines";
-import { BANK_CHARGE, CHANGED, CHANGED_OUT, CHANGED_QUEUED, CHANGED_SMALL, CHANGED_STREET, CHANGED_STREET_OUT, CONVERT_PAID, CONVERTED, type MoneyLine, moneyLines } from "../../shared/words/money";
+import { BANK_CHARGE, CHANGED, CHANGED_OUT, CHANGED_QUEUED, CHANGED_SMALL, CHANGED_STREET, CHANGED_STREET_OUT, CONVERT_PAID, CONVERTED, LOTTO_PAID, LOTTO_TICKETS, type MoneyLine, moneyLines } from "../../shared/words/money";
 import { moneyParam } from "../../shared/words/text";
 import type { PayView } from "../../shared/words/cost";
 import { savingsOf } from "../../shared/words/savings";
@@ -255,4 +255,49 @@ export function quietLine(lines: readonly ReportLine[], local: Currency, pays: P
   const [first] = storyLines(lines);
   const credit = lines.find((line) => CREDIT_MOVED.has(line.key));
   return { kept: money.length === 0 || net === undefined ? null : net.amount, moved: first !== undefined ? toldQuiet(first, pays) : (credit ?? null) };
+}
+
+/** A row the kiosk's tickets were told on: one ticket, or several bought at once. */
+function isLotto(entry: MoneyLine): boolean {
+  return entry.line.key === LOTTO_PAID || entry.line.key === LOTTO_TICKETS;
+}
+
+/** What came in from a change, at the bank or with the FX man: the side the results tell as the change. */
+const CHANGE_IN: ReadonlySet<string> = new Set([CHANGED, CHANGED_SMALL, CHANGED_STREET]);
+
+/**
+ * The month's tickets in one row (R-TEXT-008: said once): every ticket bought at the kiosk this month, at whatever
+ * visit, folded into the first row they were told on, with their money added. Only the telling folds; what was kept
+ * still counts each line.
+ */
+export function foldLotto(lines: readonly MoneyLine[]): MoneyLine[] {
+  const tickets = lines.filter(isLotto);
+  if (tickets.length < 2) return [...lines];
+  const amount = tickets.reduce((sum, entry) => sum + entry.amount, 0);
+  const first = tickets[0]!;
+  const folded: MoneyLine = { ...first, amount, line: { ...first.line, key: LOTTO_TICKETS, params: { ...first.line.params, amount: { currency: first.currency, amount } } } };
+  return lines.flatMap((entry) => (entry === first ? [folded] : isLotto(entry) ? [] : [entry]));
+}
+
+/** A tag under what was kept: what moved the month, as a sign and a few words (R-TEXT-008). */
+export interface MonthTag {
+  id: "change" | "lotto";
+  tone: "up" | "down" | "plain";
+  key: string;
+  amount: { currency: Currency; amount: number };
+}
+
+/**
+ * The tags that say what the kept figure leaves out or holds (R-WORLD-008, R-TEXT-008): a change of money, plain, since
+ * it counts for nothing (decision 0021), one for each money that came in; and the lotto, down, the month's tickets
+ * together.
+ */
+export function monthTags(lines: readonly MoneyLine[]): MonthTag[] {
+  const tags: MonthTag[] = [];
+  const changed = new Map<Currency, number>();
+  for (const entry of lines) if (CHANGE_IN.has(entry.line.key) && entry.sign === 1) changed.set(entry.currency, (changed.get(entry.currency) ?? 0) + entry.amount);
+  for (const [currency, amount] of changed) tags.push({ id: "change", tone: "plain", key: "ui.results.tag.change", amount: { currency, amount } });
+  const tickets = lines.filter(isLotto);
+  if (tickets.length > 0) tags.push({ id: "lotto", tone: "down", key: "ui.results.tag.lotto", amount: { currency: tickets[0]!.currency, amount: tickets.reduce((sum, entry) => sum + entry.amount, 0) } });
+  return tags;
 }

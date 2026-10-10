@@ -67,12 +67,19 @@ export const uiText: Record<string, string> = {
   // The pages left on the flip calendar (R-WORLD-027): each page a month of the character's life, the number on the glyph, the words at a tap.
   // The player never reads "turn" or "banked"; these restate the older drafts in online.ts and world.ts.
   "ui.months.label": "Pages left: {count}",
-  "ui.months.more": "{count} pages left. Each page is a month of your life.",
-  "ui.months.more.one": "1 page left. Each page is a month of your life.",
-  "ui.months.more.zero": "Your calendar is bare for now. Places, the phone and the plan are still yours.",
-  "ui.months.next": "Next page in {wait}.",
-  "ui.months.arriving": "The next page is on its way.",
-  "ui.months.full": "Full: {count} pages. A new chapter fills the calendar again.",
+  // R-TEXT-008: a tap on the count gives facts, each an icon and a few words, never a paragraph.
+  "ui.months.fact.left": "{count} pages left",
+  "ui.months.fact.left.one": "1 page left",
+  "ui.months.fact.page": "1 page = 1 month of your life",
+  "ui.months.fact.next": "Next page in {wait}",
+  "ui.months.fact.arriving": "Next page on its way",
+  "ui.months.fact.full": "Full: {count} pages",
+  "ui.months.fact.chapter": "A new chapter fills it again",
+  "ui.months.fact.refilled": "Full again: {count} pages",
+  "ui.months.fact.none": "No pages left",
+  "ui.months.fact.places": "Places: free",
+  "ui.months.fact.phone": "The phone: free",
+  "ui.months.fact.plan": "The plan: free",
   "ui.months.full-again": "A new chapter: your calendar is full again, {count} pages.",
   // The calendar filled again between months, not by a chapter: said on the band and the results.
   "ui.months.refilled": "Your pages are full again: {count} to play.",
@@ -103,7 +110,7 @@ export const uiText: Record<string, string> = {
   "ui.world.go-there": "Go there",
   "ui.world.pay-back": "Pay back what is held",
   "ui.world.pay-back-line": "{amount} is held for you. Paid back, the plane is open.",
-  "ui.world.pay-back-paid": "Paid back.",
+  "ui.world.pay-back-paid": "Paid back",
   "ui.world.pay-back-note": "From the funds held for you. Nothing leaves your pocket.",
   "ui.chapter.go": "Go",
   "ui.world.side-job-title": "A side job: {job}",
@@ -664,6 +671,15 @@ export const uiText: Record<string, string> = {
   "ui.page.lived.trade": "Work from school",
   "ui.page.money": "Money",
   "ui.page.ready": "Japacity",
+  // R-TEXT-008: the tags under what was kept: a change, which counts for nothing, and the month's lotto.
+  "ui.results.tag.change": "{amount} changed",
+  "ui.results.tag.lotto": "Lotto: {amount}",
+  // R-TEXT-008: the adviser's reading on the results, its conditions as tags.
+  "ui.results.reading": "Her reading: {route}",
+  "ui.results.reading.fits": "Fits now",
+  "ui.results.reading.missing": "{count} missing",
+  "ui.results.reading.months": "{count} months at least",
+  "ui.results.reading.months.one": "1 month at least",
   "ui.page.mark.done": "Done",
   "ui.page.mark.failed": "Failed",
   "ui.page.mark.setback": "Setback",
@@ -924,7 +940,7 @@ export const uiText: Record<string, string> = {
   "ui.remit.line.bank.free": "{sent} goes by bank transfer now, no fee. {naira} lands in the bank at home next month.",
   "ui.remit.line.informal": "{sent} goes through someone, no fee. {naira} lands at home as cash today, if it arrives at all.",
   "ui.remit.sent": "Money sent home",
-  "ui.remit.sent-later": "Money sent. It lands next month",
+  "ui.remit.sent-later": "Money sent, lands next month",
 
   // Status abroad (R-STATUS-010, 006)
   "ui.status.title": "Status",

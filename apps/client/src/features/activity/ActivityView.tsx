@@ -18,9 +18,9 @@ import { alreadyDone, needsWords, requirementSentence, saysWhyOnCard } from "../
 import { ENGLISH_TEST, STUDY_ENGLISH, testChance } from "../../shared/words/test";
 import { studyWords } from "./study";
 import { blurbOf, hasWords, lowerFirst, nameOf, paramWords, say, sayCount } from "../../shared/words/text";
-import { payAMonth } from "../../shared/words/pay";
+import { payAMonth, payLine } from "../../shared/words/pay";
 import { localCurrency } from "../../shared/words/wayHome";
-import { countsWords, tierPay, withNextTier } from "../../shared/words/profile";
+import { countsWords, withNextTier } from "../../shared/words/profile";
 import { ApplyFor, huntOrder, JobList } from "./JobList";
 import { RouteList } from "./RouteList";
 import { routesWords } from "./routes.words";
@@ -34,7 +34,8 @@ function Job() {
   const send = useGame((state) => state.send);
   const [confirming, setConfirming] = useState(false);
   const job = view.job.id;
-  const pay = job === null ? null : content.activity[job]?.pay;
+  // R-WALLET-016: the month's pay as the wallet will book it, from the view; never content's written figure.
+  const pay = payLine(view.job.pay);
 
   return (
     <Card>
@@ -46,9 +47,7 @@ function Job() {
           ) : (
             <>
               <p className="font-semibold">{nameOf(job)}</p>
-              {pay === null || pay === undefined || typeof pay.amount !== "number" ? null : (
-                <p className="text-sm font-medium tabular-nums">{say("ui.job.pay", { amount: formatMoney(pay.amount, pay.currency) })}</p>
-              )}
+              {pay === null ? null : <p className="text-sm font-medium tabular-nums">{pay}</p>}
               <p className="text-sm text-text-2">{sayCount("ui.job.months", view.job.months, { months: view.job.months })}</p>
             </>
           )}
@@ -91,8 +90,8 @@ function SideJob() {
   const [confirming, setConfirming] = useState(false);
   const side = view.job.side;
   if (side === null && !view.locks.some((lock) => lock.why === SIDE_JOB_LOCK)) return null;
-  // R-ACTIVITY-014: the side job's pay at its level now, and what lifts it next.
-  const pay = side === null ? null : tierPay(view, side);
+  // R-ACTIVITY-014, R-WALLET-016: the side job's pay at its level now from the view, and what lifts it next.
+  const pay = side === null ? null : payLine(view.job.sidePay);
   return (
     <Card data-side-job>
       {/* On a phone the quit button goes under the words, so they keep the card's width. */}
@@ -102,9 +101,7 @@ function SideJob() {
           <div className="flex min-w-0 flex-1 flex-col gap-1">
             <p className="text-xs font-semibold tracking-wide text-text-2 uppercase">{say("ui.side.title")}</p>
             {side === null ? null : <p className="font-semibold">{nameOf(side)}</p>}
-            {pay === null || side === null ? null : (
-              <p className="text-sm font-medium tabular-nums">{withNextTier(view, side, say("ui.job.pay", { amount: formatMoney(pay.amount, pay.currency) }))}</p>
-            )}
+            {pay === null || side === null ? null : <p className="text-sm font-medium tabular-nums">{withNextTier(view, side, pay)}</p>}
             <p className="text-sm text-text-2">{say("ui.side.holds")}</p>
           </div>
         </div>

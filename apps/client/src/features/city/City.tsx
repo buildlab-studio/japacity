@@ -39,7 +39,9 @@ import { Rise, useJapaRise } from "../../shared/world/Rise";
 import { FirstUseLabels, useFirstUse } from "../../shared/world/Walkthrough";
 import { WorldSheet } from "../../shared/world/WorldSheet";
 import { actOnCard, answersNow, nowLineIn } from "../../shared/words/acts";
-import { actsOffered, answerAsk, askHeader, isPaper } from "./acts";
+import { actsOffered, answerAsk, askHeader, isPaper, KIOSK_CAP, kioskAnswer } from "./acts";
+import { kioskCapReached } from "../../shared/words/lotto";
+import { ComingList } from "./ComingList";
 import { choreSaving } from "./chores";
 import { cityWords, heardWords, papersLook, placeName, residentName, roleWords } from "./city.words";
 import { CreditsSheet } from "./Credits";
@@ -60,7 +62,7 @@ import { SaidLine, useSaid } from "./Said";
 import { APPLY_TO_SCHOOL, SCHOOL_ICON, schoolSheetLine } from "./school";
 import { sceneWords } from "./scene.words";
 import { enterable, homeStagesAt, offersHere, openingPlace, openScene, reportHere, type ViewPlace } from "./staging";
-import { type Coming, comingOf, soonest } from "../../shared/words/coming";
+import { type Coming, soonest } from "../../shared/words/coming";
 import { stagedNow, thingsNow, thingsOf, vehicleOf, withMoreAt } from "./things";
 import { stopReached } from "./stops";
 
@@ -879,7 +881,7 @@ export function City({
   // One action, one sheet: a paper slip for a paper thing, a card for the rest.
   const ask: Ask | null = (() => {
     if (world && answer !== null) {
-      return answerAsk(answer, { who: hereName, clock }, () => {
+      return answerAsk(kioskAnswer(answer, monthLines), { who: hereName, clock }, () => {
         cue("close");
         setAnswer(null);
         setPicked(null);
@@ -1000,8 +1002,11 @@ export function City({
               ? [blurbOf(activity), chance.words].filter((part): part is string => part !== null).join(" ")
               : school !== null
                 ? schoolSheetLine(view, school)
-                : // R-ACTIVITY-013: the card says what the act counts toward.
-                  [blurbOf(activity), countsWords(activity)].filter((part): part is string => part !== null).join(" "),
+                : // R-LUCK-005: past the month's ceiling the kiosk says it before it sells again.
+                  activity === "activity.play-lotto" && kioskCapReached(monthLines)
+                  ? words(KIOSK_CAP)
+                  : // R-ACTIVITY-013: the card says what the act counts toward.
+                    [blurbOf(activity), countsWords(activity)].filter((part): part is string => part !== null).join(" "),
       cost: cost === null ? null : { amount: cost.amount, currency: cost.currency },
       button: nameOf(activity),
       // R-ACTIVITY-015: an act done at once says "Now" under its button; a month-act counts when the month ends.
@@ -1380,14 +1385,7 @@ export function City({
       <CreditsSheet open={credits} onOpenChange={setCredits} />
       {world ? (
         <WorldSheet open={comingOpen} onClose={() => setComingOpen(false)} label={clock} title={say("ui.world.coming-up")} mark="coming">
-          <ul className="flex flex-col" data-coming-list>
-            {comingOf(view).map((item, index) => (
-              <li key={`${item.kind}-${String(index)}`} className="flex items-baseline justify-between gap-3 border-b border-sheet-line py-3 last:border-b-0" data-coming-row={item.kind}>
-                <span className="min-w-0 flex-1 text-[15px] font-semibold">{item.what}</span>
-                <span className="num shrink-0 text-[13px] text-text-2">{inMonths(item.month, view.month)}</span>
-              </li>
-            ))}
-          </ul>
+          <ComingList view={view} />
         </WorldSheet>
       ) : null}
       {world ? <AskSheet ask={ask} formatMoney={(amount, currency) => formatMoney(amount, currency as "NGN")} {...(askIcon === undefined ? {} : { icon: askIcon })} /> : null}

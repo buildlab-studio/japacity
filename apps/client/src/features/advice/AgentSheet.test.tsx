@@ -73,11 +73,12 @@ async function renderStepping(first: PlayerView, after: PlayerView, lines: Repor
 const line = (key: string, params: ReportLine["params"], tone: ReportLine["tone"] = "plain"): ReportLine => ({ key, params, tone, attention: false, counts: [] });
 
 describe("the agent's sheet", () => {
-  test("[R-ADVICE-006] given an agent at the stop with one tell shown, when his sheet opens, then that one tell shows in his words and no other, with the three looks still to make", async () => {
+  test("[R-ADVICE-006] [R-TEXT-008] given an agent at the stop with one tell shown, when his sheet opens, then that one tell shows in a few words with the warning mark and no other, with the three looks still to make", async () => {
     await renderWithView(sheet(), withOffers(stopOffer(["cash-only"])));
     const tells = document.querySelectorAll("[data-tell]");
     expect(tells).toHaveLength(1);
-    expect(tells[0]?.textContent).toBe(text[`${STOP}.sign.cash-only`]);
+    expect(tells[0]?.textContent).toBe(adviceWords("advice.tell.cash-only.short"));
+    expect(tells[0]?.querySelector("[data-mark='setback']")?.getAttribute("aria-label")).toBe(adviceWords("advice.tell.mark"));
     expect(screen.getByText(adviceWords("advice.notice"))).toBeTruthy();
     for (const look of ["look-office", "look-licence", "look-name"]) {
       const button = screen.getByRole<HTMLButtonElement>("button", { name: text[`${STOP}.choice.${look}`]! });
@@ -96,9 +97,27 @@ describe("the agent's sheet", () => {
     expect(authority.sent).toEqual([expect.objectContaining({ type: "offer/choose", offer: "offer-1", choice: "look-office" })]);
     expect(authority.sent.some((command) => command.type === "offer/choose" && command.choice === "take")).toBe(false);
     expect([...document.querySelectorAll("[data-tell]")].map((node) => node.getAttribute("data-tell"))).toEqual(["cash-only", "no-office"]);
-    expect(screen.getByText(text[`${STOP}.sign.no-office`]!)).toBeTruthy();
+    expect(screen.getByText(adviceWords("advice.tell.no-office.short"))).toBeTruthy();
     expect([...document.querySelectorAll("[data-fresh]")].map((node) => node.getAttribute("data-tell"))).toEqual(["no-office"]);
     expect(document.querySelector("[data-look-done]")?.textContent).toContain(text[`${STOP}.sign.look-office`]);
+  });
+
+  test("[R-TEXT-008] given every tell an agent can carry, when each shows, then it is an icon, two to four words with no full stop and the warning mark with its word, never his sentence", async () => {
+    const all = ["cash-only", "guarantee", "no-office", "no-licence", "holds-passport", "no-passport", "pay-today", "price-low", "friend-warned"];
+    await renderWithView(sheet(), withOffers(stopOffer(all)));
+    const tells = [...document.querySelectorAll<HTMLElement>("[data-tell]")];
+    expect(tells.map((node) => node.getAttribute("data-tell"))).toEqual(all);
+    for (const node of tells) {
+      const tell = node.getAttribute("data-tell")!;
+      const said = node.textContent ?? "";
+      expect(said).toBe(adviceWords(`advice.tell.${tell}.short`));
+      expect(said).not.toBe(text[`${STOP}.sign.${tell}`]);
+      expect(said.split(" ").length).toBeGreaterThanOrEqual(2);
+      expect(said.split(" ").length).toBeLessThanOrEqual(4);
+      expect(said).not.toMatch(/\./);
+      expect(node.querySelector("svg[aria-hidden='true']")).not.toBeNull();
+      expect(node.querySelector("[data-mark='setback']")?.getAttribute("aria-label")).toBe(adviceWords("advice.tell.mark"));
+    }
   });
 
   test("[R-ADVICE-006] given his sheet, when a look finds nothing, then the reply's words say so and no tell is added", async () => {

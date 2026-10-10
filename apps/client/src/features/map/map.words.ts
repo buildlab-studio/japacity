@@ -17,9 +17,9 @@ export const mapText: Record<string, string> = {
   "map.state.been": "Been here",
   "map.state.can": "Can go",
   "map.state.not": "Not yet",
-  "map.line.here": "You are here. {things} things to do.",
-  "map.line.things": "{things} things to do here.",
-  "map.line.not": "Not yet. It opens later in this life.",
+  "map.line.here": "{things} things to do",
+  "map.line.things": "{things} things to do",
+  "map.line.not": "Opens later in this life",
   "map.ways": "How to go",
   "map.way.danfo": "Danfo",
   "map.way.keke": "Keke",
@@ -46,9 +46,9 @@ export const mapText: Record<string, string> = {
   // Where you are as the ride goes, in the card: pulling out, the road, the stop.
   "map.ride.along.start": "Pulling out of {from}.",
   "map.ride.along.road.1": "The traffic moves, for once.",
-  "map.ride.along.road.2": "A hold-up at the junction. Horns.",
+  "map.ride.along.road.2": "A hold-up at the junction, horns going.",
   "map.ride.along.road.3": "The driver cuts through a side street.",
-  "map.ride.along.near": "{to}. Your stop.",
+  "map.ride.along.near": "Your stop: {to}",
   "map.ride.arrived": "{place}",
 
   // The pre-roll's one line (R-WORLD-017): the okada's rider, the keke's driver, the danfo's

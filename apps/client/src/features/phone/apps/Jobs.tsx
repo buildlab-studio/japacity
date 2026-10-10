@@ -5,37 +5,31 @@ import type { Id, OfferView, PlayerView } from "@japacity/sim";
 import { Briefcase } from "lucide-react";
 
 import { useGame, useView } from "../../../authority/GameProvider";
-import { formatMoney } from "../../../shared/words/format";
-import { payAMonth } from "../../../shared/words/pay";
-import { tierPay, withNextTier } from "../../../shared/words/profile";
+import { payLine } from "../../../shared/words/pay";
+import { withNextTier } from "../../../shared/words/profile";
 import { byMonths, lowerFirst, monthsAgo, nameOf, say, sayCount, words } from "../../../shared/words/text";
 import { Head, useAsk } from "../act";
 import { phoneWords } from "../phone.words";
 import { jobOffers } from "../seen";
 
 /**
- * A job's pay a month as words, or null when content gives no figure (R-WORLD-006: the jobs list's figure). A side
- * job paid by level says its tier's pay and what lifts it next (R-ACTIVITY-014).
+ * A job's pay a month as words: the view's figure as the wallet will book it (R-WALLET-016), or null when the view
+ * reads none. A side job paid by level adds what lifts it next (R-ACTIVITY-014).
  */
-function payWords(job: Id<"activity">, view: Pick<PlayerView, "qualities">): string | null {
-  const tiered = (content.activity[job]?.tiers ?? []).length > 0;
-  const pay = tiered ? tierPay(view, job) : payAMonth(job);
-  if (pay === null) return null;
-  const words = say("ui.job.pay", { amount: formatMoney(pay.amount, pay.currency) });
-  return tiered ? withNextTier(view, job, words) : words;
+function payWords(job: Id<"activity">, pay: OfferView["pay"] | PlayerView["job"]["pay"], view: Pick<PlayerView, "qualities">): string | null {
+  const said = payLine(pay);
+  if (said === null) return null;
+  return (content.activity[job]?.tiers ?? []).length > 0 ? withNextTier(view, job, said) : said;
 }
 
 /**
  * The held job's pay with the raise from being noticed, and when it landed: "Raised last month" (R-ACTIVITY-013;
  * the maintainer). Null words when the job has no raise.
  */
-function raiseWords(view: Pick<PlayerView, "job" | "month">): { pay: string; when: string } | null {
+function raiseWords(view: Pick<PlayerView, "job" | "month">): string | null {
   const raise = view.job.raise;
   if (raise === undefined) return null;
-  return {
-    pay: say("ui.job.pay", { amount: formatMoney(raise.pay.amount, raise.pay.currency) }),
-    when: raise.month === null ? phoneWords("phone.jobs.raised.unknown") : phoneWords("phone.jobs.raised", { when: lowerFirst(monthsAgo(raise.month, view.month)) }),
-  };
+  return raise.month === null ? phoneWords("phone.jobs.raised.unknown") : phoneWords("phone.jobs.raised", { when: lowerFirst(monthsAgo(raise.month, view.month)) });
 }
 
 /** Jobs' words for an application out, first drafts in the voice of docs/rules/text.md; the phone's table wins. */
@@ -135,7 +129,7 @@ export function Jobs() {
       icon: "briefcase",
       who: words(`${offer.entry}.title`, offer.terms),
       title: offered === null ? phoneWords("phone.jobs.take.title") : nameOf(offered),
-      line: [words(`${offer.entry}.body`, offer.terms), offered === null ? null : payWords(offered, view)].filter((part): part is string => part !== null).join(" "),
+      line: [words(`${offer.entry}.body`, offer.terms), offered === null ? null : payWords(offered, offer.pay, view)].filter((part): part is string => part !== null).join(" "),
       cost: null,
       button: phoneWords("phone.jobs.take.button"),
       have: 0,
@@ -152,7 +146,7 @@ export function Jobs() {
       ) : (
         <JobRow
           name={nameOf(job)}
-          lines={raised === null ? [payWords(job, view), months] : [raised.pay, raised.when, months]}
+          lines={[payWords(job, view.job.pay, view), raised, months]}
           act={view.ended ? null : () => quit(false)}
           actLabel={phoneWords("phone.jobs.quit")}
         />
@@ -160,7 +154,7 @@ export function Jobs() {
       {side === null ? null : (
         <>
           <Head>{phoneWords("phone.jobs.side")}</Head>
-          <JobRow name={nameOf(side)} lines={[payWords(side, view)]} act={view.ended ? null : () => quit(true)} actLabel={phoneWords("phone.jobs.quit")} />
+          <JobRow name={nameOf(side)} lines={[payWords(side, view.job.sidePay, view)]} act={view.ended ? null : () => quit(true)} actLabel={phoneWords("phone.jobs.quit")} />
         </>
       )}
 
@@ -181,7 +175,7 @@ export function Jobs() {
               <li key={offer.id} data-offer={offer.id}>
                 <JobRow
                   name={offered === null ? words(`${offer.entry}.title`, offer.terms) : nameOf(offered)}
-                  lines={[offered === null ? null : payWords(offered, view), phoneWords("phone.jobs.answer-by", { when: byMonths(offer.expiresMonth, view.month) })]}
+                  lines={[offered === null ? null : payWords(offered, offer.pay, view), phoneWords("phone.jobs.answer-by", { when: byMonths(offer.expiresMonth, view.month) })]}
                   act={view.ended || takeChoice(offer) === null ? null : () => take(offer)}
                   actLabel={phoneWords("phone.jobs.take")}
                 />

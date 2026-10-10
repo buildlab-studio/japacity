@@ -139,8 +139,8 @@ function changesOf(tidy: readonly ReportLine[]): { found: Map<number, Change>; t
 }
 
 /** The kiosk's tickets, said as the activity's money (lines.ts) and as many tickets when more than one. */
-const LOTTO_PAID = "ui.line.activity-paid.activity.play-lotto";
-const LOTTO_TICKETS = "ui.results.lotto-tickets";
+export const LOTTO_PAID = "ui.line.activity-paid.activity.play-lotto";
+export const LOTTO_TICKETS = "ui.results.lotto-tickets";
 
 /**
  * Each of the month's lines (already tidied) as the money tells it: the money lines it stands for, none when another

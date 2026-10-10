@@ -7,10 +7,11 @@
 // (docs/rules/chapter.md R-CHAPTER-009).
 import { content } from "@japacity/content";
 import type { Currency, Id, PlayerView, RouteView } from "@japacity/sim";
-import { Check, ChevronLeft, ChevronRight, Circle, FileCheck, FileClock, FileX } from "lucide-react";
+import { Check, ChevronLeft, ChevronRight, Circle, FileCheck, FileClock, FileX, Flag, Stamp, type LucideIcon } from "lucide-react";
 import { use, useState } from "react";
 
 import { useGame, useView } from "../../../authority/GameProvider";
+import { Mark } from "../../../shared/ui/Mark";
 import { actOnCard, nowSaid } from "../../../shared/words/acts";
 import { monthsLeft, SOON } from "../../../shared/words/expiry";
 import { formatBand, formatMoney } from "../../../shared/words/format";
@@ -171,15 +172,21 @@ function isReminder(item: Coming): item is Reminder {
   return item.kind === "visa" || item.kind === "paper" || item.kind === "plan";
 }
 
-function reminderWords(item: Reminder, month: number): string {
-  const when = inMonths(item.month, month);
+/** A reminder as Japa shows it (R-TEXT-008): the thing in two or three words, and when, said once beside it. */
+export interface ReminderRow {
+  kind: Reminder["kind"];
+  what: string;
+  when: string;
+}
+
+function reminderWhat(item: Reminder): string {
   switch (item.kind) {
     case "visa":
-      return phoneWords("phone.japa.visa", { when });
+      return phoneWords("phone.japa.visa");
     case "paper":
-      return phoneWords("phone.japa.paper-ready", { paper: item.what, when });
+      return phoneWords("phone.japa.paper-ready", { paper: item.what });
     case "plan":
-      return phoneWords("phone.japa.mark", { what: item.what, when });
+      return item.what;
     default: {
       const never: never = item.kind;
       return never;
@@ -187,11 +194,14 @@ function reminderWords(item: Reminder, month: number): string {
   }
 }
 
+/** Each reminder's icon: the stamp for the visa, the paper on its way, the plan's flag. */
+const REMINDER_ICONS: Readonly<Record<Reminder["kind"], LucideIcon>> = { visa: Stamp, paper: FileClock, plan: Flag };
+
 /** What is coming up: the city's one list (`comingOf`), in its order, kept to the plan's waits. */
-export function remindersOf(view: PlayerView): string[] {
+export function remindersOf(view: PlayerView): ReminderRow[] {
   return comingOf(view)
     .filter(isReminder)
-    .map((item) => reminderWords(item, view.month));
+    .map((item) => ({ kind: item.kind, what: reminderWhat(item), when: inMonths(item.month, view.month) }));
 }
 
 function Papers({ onBack }: { onBack: () => void }) {
@@ -242,9 +252,16 @@ function Papers({ onBack }: { onBack: () => void }) {
 function Step({ met, children, way }: { met: boolean; children: string; way?: string }) {
   return (
     <li className="flex items-start gap-2.5 py-1.5" data-met={met ? "true" : "false"}>
-      {met ? <Check size={18} className="mt-0.5 shrink-0 text-in" aria-hidden /> : <Circle size={18} className="mt-0.5 shrink-0 text-text-2" aria-hidden />}
+      {/* Done is the mark, with its word for a screen reader (R-TEXT-008); a step still to take is an empty ring. */}
+      {met ? (
+        <div className="mt-0.5 shrink-0">
+          <Mark state="done" />
+        </div>
+      ) : (
+        <Circle size={18} className="mt-0.5 shrink-0 text-text-2" aria-hidden />
+      )}
       <span className="min-w-0">
-        <span className={`block text-[14px] ${met ? "text-text-2 line-through" : ""}`}>{children}</span>
+        <span className={`block text-[14px] ${met ? "text-text-2" : ""}`}>{children}</span>
         {way === undefined ? null : (
           <span className="block text-[13px] text-text-2" data-step-way>
             {way}
@@ -406,7 +423,14 @@ export function Japa() {
       >
         <FileCheck size={18} className="shrink-0 text-text-2" aria-hidden />
         <span className="flex-1">
-          <span className="block text-[14px] font-bold">{otherWay ? say("ui.japa.official.title-route", { route: runningName(lookInto) }) : nameOf(OFFICIAL)}</span>
+          <span className="flex items-center gap-1.5">
+            <span className="min-w-0 truncate text-[14px] font-bold">{otherWay ? say("ui.japa.official.title-route", { route: runningName(lookInto) }) : nameOf(OFFICIAL)}</span>
+            {planned ? null : (
+              <span className="shrink-0 rounded-[4px] bg-sheet-muted px-1.5 py-0.5 text-[12px] font-bold text-text-2" data-official-free>
+                {phoneWords("phone.japa.official.free")}
+              </span>
+            )}
+          </span>
           <span className="block text-[13px] text-text-2">{phoneWords(planned ? "phone.japa.official-planned" : "phone.japa.official", { route: runningName(lookInto) })}</span>
         </span>
         {planned ? <Check size={18} className="shrink-0 text-in" aria-hidden /> : <ChevronRight size={18} className="shrink-0 text-text-2" aria-hidden />}
@@ -467,11 +491,18 @@ export function Japa() {
         <>
           <Head>{phoneWords("phone.japa.reminders")}</Head>
           <ul className="flex flex-col gap-1.5" data-reminders>
-            {coming.map((line) => (
-              <li key={line} className="rounded-[6px] border-l-4 border-signal bg-sheet-2 px-3 py-2 text-[14px]">
-                {line}
-              </li>
-            ))}
+            {coming.map((row) => {
+              const Icon = REMINDER_ICONS[row.kind];
+              return (
+                <li key={`${row.kind}-${row.what}`} className="flex items-center gap-2.5 rounded-[6px] bg-sheet-2 px-3 py-2" data-reminder={row.kind}>
+                  <Icon size={18} className="shrink-0 text-strong" aria-hidden />
+                  <span className="min-w-0 flex-1 truncate text-[14px] font-bold">{row.what}</span>
+                  <span className="shrink-0 text-[13px] font-semibold text-text-2" data-reminder-when>
+                    {row.when}
+                  </span>
+                </li>
+              );
+            })}
           </ul>
         </>
       )}

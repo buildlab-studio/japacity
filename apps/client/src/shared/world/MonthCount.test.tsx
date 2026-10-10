@@ -9,13 +9,18 @@ import { engineView } from "../testing/fixtures";
 import { renderWithView } from "../testing/render";
 import { say } from "../words/text";
 import { uiText } from "../words/ui";
-import { countWords, FLIP_MS, MonthCount } from "./MonthCount";
+import { countFacts, FLIP_MS, MonthCount } from "./MonthCount";
 
 const MINUTE = 60_000;
 
 function withBank(banked: number): PlayerView {
   const view = engineView("scenario.tunde");
   return { ...view, turns: { ...view.turns, banked } };
+}
+
+/** The facts the tap shows, in order, each its words. */
+function facts(): string[] {
+  return [...document.querySelectorAll<HTMLElement>("[data-month-count-words] [data-count-fact]")].map((fact) => fact.textContent);
 }
 
 function count(): HTMLElement {
@@ -40,25 +45,27 @@ describe("the months to play", () => {
     expect(count().textContent).toBe("3");
   });
 
-  test("[R-WORLD-027] [R-TURN-002] given the bank at its most, when the count is tapped, then it says it is full and a new chapter fills it again", async () => {
+  test("[R-WORLD-027] [R-TURN-002] [R-TEXT-008] given the bank at its most, when the count is tapped, then it says it is full and a new chapter fills it again, as two facts", async () => {
     await renderWithView(<MonthCount />, withBank(content.tuning.turn.cap));
     fireEvent.click(count());
-    expect(screen.getByText("Full: 24 pages. A new chapter fills the calendar again.")).toBeTruthy();
+    expect(screen.getByText("Full: 24 pages")).toBeTruthy();
+    expect(facts()).toEqual(["Full: 24 pages", "A new chapter fills it again"]);
     fireEvent.click(count());
     expect(document.querySelector("[data-month-count-words]")).toBeNull();
   });
 
-  test("[R-WORLD-027] [R-TURN-003] given 12 months to play and the server's clock, when the count is tapped, then it says how many and when the next one comes", async () => {
+  test("[R-WORLD-027] [R-TURN-003] [R-TEXT-008] given 12 months to play and the server's clock, when the count is tapped, then it says how many and when the next one comes, each a fact with its icon", async () => {
     const { store } = await renderWithView(<MonthCount />, withBank(12));
     // Half a minute over, so the words read the same however long the render takes.
     act(() => store.setState({ clock: { tick: 1, nextTickAt: 0, nextTurnAt: Date.now() + 100 * MINUTE + 30_000 } }));
     fireEvent.click(count());
-    expect(document.querySelector("[data-month-count-words]")?.textContent).toBe("12 pages left. Each page is a month of your life. Next page in 1h 40m.");
+    expect(facts()).toEqual(["12 pages left", "1 page = 1 month of your life", "Next page in 1h 40m"]);
+    for (const fact of document.querySelectorAll("[data-count-fact]")) expect(fact.querySelector("svg[aria-hidden='true']")).not.toBeNull();
   });
 
-  test("[R-WORLD-027] given the local authority, which reports no clock, then the words say only the count", () => {
-    expect(countWords(1, 24, null, 0)).toBe("1 page left. Each page is a month of your life.");
-    expect(countWords(0, 24, undefined, 0)).toBe(say("ui.months.more.zero"));
+  test("[R-WORLD-027] [R-TEXT-008] given the local authority, which reports no clock, then the facts say only the count and what a page is", () => {
+    expect(countFacts(1, 24, null, 0).map((fact) => fact.words)).toEqual(["1 page left", "1 page = 1 month of your life"]);
+    expect(countFacts(0, 24, undefined, 0).map((fact) => fact.words)).toEqual([say("ui.months.fact.none"), say("ui.months.fact.places"), say("ui.months.fact.phone"), say("ui.months.fact.plan")]);
   });
 
   test("[R-WORLD-027] given the count dropping by one as a page is turned, then the top page flips over on the glyph for a moment, and none flips otherwise", async () => {
@@ -81,13 +88,13 @@ describe("the months to play", () => {
     }
   });
 
-  test("[R-WORLD-027] given no page left, then the glyph shows its bare backing card and the words say the calendar is bare", async () => {
+  test("[R-WORLD-027] [R-TEXT-008] given no page left, then the glyph shows its bare backing card and the facts say none is left and what is still free", async () => {
     await renderWithView(<MonthCount />, withBank(0));
     const glyph = document.querySelector<HTMLElement>("[data-month-glyph]");
     expect(glyph?.textContent).toBe("0");
     expect(glyph?.querySelector("rect[opacity='0.3']")).not.toBeNull();
     fireEvent.click(count());
-    expect(document.querySelector("[data-month-count-words]")?.textContent).toContain("Your calendar is bare for now.");
+    expect(facts()).toEqual(["No pages left", "Places: free", "The phone: free", "The plan: free"]);
   });
 
   test("[R-WORLD-027] given the interface's words, then the player never reads turn or banked", () => {

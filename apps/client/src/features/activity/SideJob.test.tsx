@@ -14,14 +14,15 @@ describe("the side job and slots held", () => {
     expect(screen.getByText(say("ui.locks.side", { slots: sayCount("ui.offer.lock.slots", 1, { count: 1 }), why: say("ui.locks.why.side-job") }))).toBeDefined();
   });
 
-  test("[R-ACTIVITY-010] given the view's side job, then the plan names it and its pay", async () => {
-    const view = { ...engineView(), job: { id: null, months: 0, side: "activity.weekend-tutoring" as const, pay: null, sidePay: null } };
+  test("[R-ACTIVITY-010] [R-WALLET-016] given the view's side job, then the plan names it and the view's pay for it", async () => {
+    const written = content.activity["activity.weekend-tutoring"]?.pay;
+    if (written === null || written === undefined || typeof written.amount !== "number") throw new Error("The tutoring has no pay.");
+    const sidePay = { currency: written.currency, amount: written.amount };
+    const view = { ...engineView(), job: { id: null, months: 0, side: "activity.weekend-tutoring" as const, pay: null, sidePay } };
     await renderWithView(<ActivityView />, view);
     const card = document.querySelector("[data-side-job]") as HTMLElement;
     expect(card.textContent).toContain(nameOf("activity.weekend-tutoring"));
-    const pay = content.activity["activity.weekend-tutoring"]?.pay;
-    if (pay === null || pay === undefined || typeof pay.amount !== "number") throw new Error("The tutoring has no pay.");
-    expect(card.textContent).toContain(say("ui.job.pay", { amount: formatMoney(pay.amount, pay.currency) }));
+    expect(card.textContent).toContain(say("ui.job.pay", { amount: formatMoney(sidePay.amount, sidePay.currency) }));
   });
 
   test("[R-ACTIVITY-010] given a side job held, when it is quit, then activity/quit is sent with side true", async () => {

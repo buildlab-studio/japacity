@@ -32,4 +32,13 @@ describe("a mark", () => {
     expect(seen.get("setback")?.turned).toBe(true);
     expect(seen.get("done")?.turned).toBe(false);
   });
+
+  test("[R-TEXT-008] given a mark named for where it stands, then its shape and colour stay the state's and the screen reader hears the name it was given", () => {
+    const { container } = render(<Mark state="setback" word="Warning sign" />);
+    const mark = container.querySelector<HTMLElement>("[data-mark='setback']")!;
+    expect(mark.getAttribute("aria-label")).toBe("Warning sign");
+    expect(mark.getAttribute("title")).toBe("Warning sign");
+    expect(mark.className).toContain("rotate-45");
+    expect(mark.className).toContain("bg-signal");
+  });
 });

@@ -20,11 +20,13 @@ export function markWord(state: MarkState): string {
   return say(MARKS[state].word);
 }
 
-export function Mark({ state, size = 18 }: { state: MarkState; size?: number }) {
+/** `word`: what this mark is called where the state's own word would mislead (an agent's tell is a warning, not a setback); the shape and colour stay the state's. */
+export function Mark({ state, size = 18, word }: { state: MarkState; size?: number; word?: string }) {
   const mark = MARKS[state];
   const Glyph = mark.glyph;
+  const said = word ?? markWord(state);
   return (
-    <span role="img" aria-label={markWord(state)} title={markWord(state)} className={`inline-flex shrink-0 items-center justify-center ${mark.shape} ${mark.colour}`} style={{ width: size, height: size }} data-mark={state}>
+    <span role="img" aria-label={said} title={said} className={`inline-flex shrink-0 items-center justify-center ${mark.shape} ${mark.colour}`} style={{ width: size, height: size }} data-mark={state}>
       <Glyph size={size - 6} strokeWidth={3} aria-hidden />
     </span>
   );

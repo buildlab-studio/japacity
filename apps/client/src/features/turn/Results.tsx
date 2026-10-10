@@ -2,14 +2,18 @@
 // opens once they have passed.
 import { useEffect, useState } from "react";
 
+import type { ReportLine } from "@japacity/sim";
+
 import { useGame, useView } from "../../authority/GameProvider";
 import { cue } from "../../shared/sound/cues";
+import { StateTag } from "../../shared/ui/StateTag";
 import { Counter } from "../../shared/world/Band";
 import { WorldSheet } from "../../shared/world/WorldSheet";
 import { formatMoney, formatNumber } from "../../shared/words/format";
 import { nowLineWords } from "../../shared/words/acts";
-import { say, words } from "../../shared/words/text";
-import { drawShown, isEvicted, isUnpaid, kept, leadsAlone, localCurrency, moneyLines, quietLine, savings, storyLines, toldOnResults, untoldLines } from "./month.results";
+import { say, sayCount, words } from "../../shared/words/text";
+import { ToneTag } from "../../shared/ui/ToneTag";
+import { drawShown, foldLotto, isEvicted, isUnpaid, kept, leadsAlone, localCurrency, moneyLines, monthTags, quietLine, savings, storyLines, toldOnResults, untoldLines } from "./month.results";
 import { turnWords } from "./turn.words";
 
 /** True while the results sheet is up: the month has just ended and its staged wins have passed. */
@@ -29,6 +33,39 @@ function quietWords(lines: Parameters<typeof quietLine>[0], currency: Parameters
   const money = net === null ? null : turnWords(net < 0 ? "turn.results.quiet-down" : "turn.results.quiet-kept", { amount: formatMoney(Math.abs(net), currency) });
   const rest = moved === null ? turnWords(money === null ? "turn.results.quiet-none" : "turn.results.quiet-still") : words(moved.key, moved.params);
   return money === null ? rest : `${money} ${rest}`;
+}
+
+/** The adviser's reading: the route in her words, then its conditions as tags (R-ADVICE-004, R-TEXT-008). */
+const READING_MISSING = "line.activity.adviser-missing";
+const READING_FITS = "line.activity.adviser-fits";
+
+function Reading({ line }: { line: ReportLine }) {
+  const { count, months } = line.params;
+  return (
+    <span className="flex flex-col gap-1.5" data-reading={line.key === READING_FITS ? "fits" : "missing"}>
+      <span>{words("ui.results.reading", { route: line.params.route ?? "" })}</span>
+      <span className="flex flex-wrap gap-1.5">
+        {line.key === READING_FITS ? (
+          <StateTag state="done" id="fits">
+            {say("ui.results.reading.fits")}
+          </StateTag>
+        ) : (
+          <>
+            {typeof count === "number" ? (
+              <StateTag state="failed" id="missing">
+                {say("ui.results.reading.missing", { count })}
+              </StateTag>
+            ) : null}
+            {typeof months === "number" ? (
+              <StateTag state="waiting" id="months">
+                {sayCount("ui.results.reading.months", months, { count: months })}
+              </StateTag>
+            ) : null}
+          </>
+        )}
+      </span>
+    </span>
+  );
 }
 
 /** The chapter closed this month: its line says the months are full again (R-WORLD-027, R-TURN-004). */
@@ -53,6 +90,7 @@ export function Results({ place }: { place: string }) {
   const nets = kept(lines);
   const main = nets.find((net) => net.currency === local) ?? nets[0] ?? { currency: local, amount: 0 };
   const rest = nets.filter((net) => net !== main);
+  const tags = monthTags(lines);
   // The counter counts up from nothing each time the sheet opens.
   const [counted, setCounted] = useState(0);
   useEffect(() => {
@@ -117,6 +155,15 @@ export function Results({ place }: { place: string }) {
             <span className={`num text-[15px] ${net.amount < 0 ? "text-out" : "text-in"}`}>{signed(net.amount, net.amount, net.currency)}</span>
           </div>
         ))}
+        {tags.length === 0 ? null : (
+          <div className="-mt-2 flex flex-wrap justify-end gap-1.5" data-results-tags>
+            {tags.map((tag) => (
+              <span key={`${tag.id}-${tag.amount.currency}`} className="contents" data-results-tag={tag.id}>
+                <ToneTag tone={tag.tone}>{say(tag.key, { amount: tag.amount })}</ToneTag>
+              </span>
+            ))}
+          </div>
+        )}
 
         {story.length === 0 ? null : (
           <section className="flex flex-col gap-1" aria-label={turnWords("turn.results.story")} data-results-story>
@@ -132,7 +179,7 @@ export function Results({ place }: { place: string }) {
                 const tone = lead ? "pb-3 text-[18px] leading-tight font-bold" : unpaid ? "text-[14px] leading-snug font-semibold text-out" : "text-[14px] leading-snug font-semibold";
                 return (
                   <li key={`${line.key}-${String(index)}`} className={`border-b border-sheet-line py-2 last:border-b-0 ${tone}`} data-story-line={line.key} data-tone={line.tone} data-unpaid={unpaid ? "true" : undefined} data-story-lead={lead ? "true" : undefined}>
-                    {words(told.key, told.params)}
+                    {line.key === READING_MISSING || line.key === READING_FITS ? <Reading line={line} /> : words(told.key, told.params)}
                   </li>
                 );
               })}
@@ -153,7 +200,7 @@ export function Results({ place }: { place: string }) {
             <p className="text-[14px] text-text-2">{turnWords("turn.results.no-money")}</p>
           ) : (
             <ul className="flex flex-col" data-results-lines>
-              {lines.map(({ line, sign, amount, currency }, index) => (
+              {foldLotto(lines).map(({ line, sign, amount, currency }, index) => (
                 <li key={`${line.key}-${String(index)}`} className="flex items-baseline justify-between gap-3 border-b border-sheet-line py-2 last:border-b-0" data-sign={sign}>
                   <span className="min-w-0 flex-1 text-[14px] leading-snug">{nowLineWords(line)}</span>
                   <span className={`num shrink-0 text-[15px] ${sign < 0 ? "text-out" : "text-in"}`}>{signed(sign, amount, currency)}</span>
