@@ -76,12 +76,7 @@ export function Settings({ account = null }: { account?: ReactNode }) {
       />
       <p className="mt-1 text-[12px] text-text-2">{phoneWords("phone.settings.graphics.when")}</p>
 
-      {account === null ? null : (
-        <>
-          <Head>{phoneWords("phone.settings.account")}</Head>
-          <div data-account>{account}</div>
-        </>
-      )}
+      {account === null ? null : <div data-account>{account}</div>}
     </div>
   );
 }

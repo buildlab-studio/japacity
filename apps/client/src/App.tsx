@@ -14,6 +14,8 @@ import { AccountGate } from "./features/account/AccountGate";
 import { AgentSheets } from "./features/advice/AgentSheet";
 import { inviteCodeOf, InvitePage } from "./features/account/InvitePage";
 import { AdminRoute } from "./features/admin/AdminRoute";
+import { PARCEL } from "./shared/world/parcel.ask";
+import { ParcelWaybill } from "./shared/world/Waybill";
 import { AccountButton } from "./features/account/Settings";
 import { ActivityPicker } from "./features/activity/ActivityView";
 import { PlaceAdverts } from "./features/adverts/placed";
@@ -83,7 +85,9 @@ function WorldPlaying() {
         asks={[
           ...(view.setpiece === null && !closing ? [] : [<SetpieceView key="setpiece" />]),
           ...((view.interview?.question ?? null) === null ? [] : [<InterviewView key="interview" />]),
-          ...[...view.offers].sort((a, b) => a.expiresMonth - b.expiresMonth).map((offer) => <AgentSheets key={offer.id} ids={[offer.entry]} others={(only) => <OfferView only={(candidate) => candidate.id === offer.id && only(candidate)} />} />),
+          ...[...view.offers].sort((a, b) => a.expiresMonth - b.expiresMonth).map((offer) =>
+            // The parcel is collected through its waybill wherever it is asked for (R-STREET-010).
+            offer.entry === PARCEL ? <ParcelWaybill key={offer.id} onClose={() => undefined} /> : <AgentSheets key={offer.id} ids={[offer.entry]} others={(only) => <OfferView only={(candidate) => candidate.id === offer.id && only(candidate)} />} />),
         ]}
         // An ask that belongs at home (the family's send-off, R-CHAPTER-008) is answered there: away from it the sheet says who waits and offers the way (R-WORLD-006).
         asksAt={[

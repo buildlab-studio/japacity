@@ -98,6 +98,8 @@ export const luckOfferTable: Record<Id<"offer">, OfferEntry> = {
     id: "offer.relative-sends",
     group: "life",
     luck: true,
+    // At home only: her words are about the trying, and a month after the plane they read wrong.
+    where: "home",
     when: [ANY_ROUTE_KNOWN],
     chanceBp: 400,
     cooldown: 9,

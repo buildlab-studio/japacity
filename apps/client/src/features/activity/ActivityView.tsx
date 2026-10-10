@@ -408,7 +408,8 @@ function ActivityCard({ option }: { option: ActivityOption }) {
               </span>
             )}
           </Button>
-          {content.activity[option.id]?.slot === "free" && !applying ? <p className="mt-1 text-[12px] text-text-2">{say("ui.activity.uses-free")}</p> : null}
+          {/* An act done at once fills no slot (R-ACTIVITY-015), so it never claims the month's free time. */}
+          {content.activity[option.id]?.slot === "free" && !applying && !now ? <p className="mt-1 text-[12px] text-text-2">{say("ui.activity.uses-free")}</p> : null}
         </div>
       </Card>
     </li>

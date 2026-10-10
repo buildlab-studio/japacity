@@ -101,6 +101,7 @@ export const onlineText: Record<string, string> = {
 
   // The settings (R-ACCOUNT-003, R-ACCOUNT-016)
   "ui.account.settings": "Account",
+  "ui.account.heading": "Account",
   "ui.account.passkey.add": "Add a passkey",
   "ui.account.passkey.added": "Passkey added. Use it next time you sign in.",
   "ui.account.sign-out": "Sign out",

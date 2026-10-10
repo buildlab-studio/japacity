@@ -117,7 +117,7 @@ describe("the jobs list on the hunt's card", () => {
       // The needs fold behind the row: a count until the row is tapped, then each need.
       const fold = within(row).getByRole("button");
       expect(fold.getAttribute("aria-expanded")).toBe("false");
-      expect(within(row).getByText(jobsWords("jobs.needs-count", { count: job.needs.length }))).toBeDefined();
+      expect(within(row).getByText(jobsWords(job.needs.length === 1 ? "jobs.needs-count.one" : "jobs.needs-count", { count: job.needs.length }))).toBeDefined();
       for (const need of job.needs) expect(within(row).queryByText(need, { exact: false })).toBeNull();
       fireEvent.click(fold);
       expect(fold.getAttribute("aria-expanded")).toBe("true");

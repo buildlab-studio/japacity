@@ -133,7 +133,7 @@ function OutRow({ job, pay }: { job: OutOfReach; pay: string | null }) {
       <button type="button" className="press flex w-full items-center gap-2 px-3 py-2.5 text-left text-text-2" aria-expanded={open} onClick={() => setOpen((was) => !was)} data-job-needs={job.needs.length}>
         <span className="flex w-0 min-w-0 flex-1 flex-col">
           <span className="truncate font-medium">{nameOf(job.id)}</span>
-          <span className="text-[12px]">{jobsWords("jobs.needs-count", { count: job.needs.length })}</span>
+          <span className="text-[12px]">{jobsWords(job.needs.length === 1 ? "jobs.needs-count.one" : "jobs.needs-count", { count: job.needs.length })}</span>
         </span>
         {pay === null ? null : <span className="num shrink-0 whitespace-nowrap text-[13px]">{pay}</span>}
         <ChevronDown size={16} aria-hidden className={`shrink-0 transition-transform ${open ? "rotate-180" : ""}`} />

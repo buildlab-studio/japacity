@@ -201,8 +201,10 @@ export function AccountButton({ more = null }: { more?: ReactNode }) {
   const account = useGame((state) => state.account);
   const [open, setOpen] = useState(false);
   if (account === null) return null;
+  // The heading comes with the button, so the phone's Settings shows no empty "Account" offline.
   return (
     <>
+      <p className="label mt-3 text-text-2">{say("ui.account.heading")}</p>
       <Button
         small
         variant="quiet"
