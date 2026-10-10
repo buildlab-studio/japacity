@@ -454,7 +454,8 @@ function familyCardCharge(): number {
 /** A life from sixteen through the shop counter, its home card answered `home`. */
 function fromSixteen(home: string, base: Content = content, seed = "seed-1"): Game {
   const game = start({ content: base, scenario: "scenario.prologue", seed });
-  for (const answer of ["begin", "commercial", "work", "save", "nowhere", home]) {
+  // The age step keeps the age the path reached (R-PROLOGUE-004).
+  for (const answer of ["begin", "commercial", "work", "save", "nowhere", "as-is", home]) {
     const step = game.state.prologue.step;
     if (step === null) throw new Error(`The prologue closed before ${answer}.`);
     game.accept({ type: "prologue/choose", step, answer });
