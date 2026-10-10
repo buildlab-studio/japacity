@@ -19,8 +19,6 @@ export const draws = pgTable("draws", {
   secret: text("secret").notNull(),
   fingerprint: text("fingerprint").notNull(),
   beaconRound: bigint("beacon_round", { mode: "number" }).notNull(),
-  /** The raffle's top-up, switched off by decision 0010: every new draw stores 0. */
-  topUpTickets: integer("top_up_tickets").notNull().default(0),
   odds: jsonb("odds").$type<LotteryOdds>().notNull(),
   jackpot: bigint("jackpot", { mode: "number" }).notNull(),
   closedAt: bigint("closed_at", { mode: "number" }),

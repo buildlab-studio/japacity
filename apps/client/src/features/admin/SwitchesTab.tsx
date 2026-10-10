@@ -4,7 +4,7 @@ import { content } from "@japacity/content";
 import { useState } from "react";
 
 import { Tag } from "../../shared/ui/Panel";
-import { SWITCH_NAMES, type DialChange, type Dials, type SwitchName } from "./admin.contract";
+import { SWITCH_NAMES, type DialChange, type Dials, type SettingChange, type SwitchName } from "./admin.contract";
 import { utcTime } from "./admin.format";
 import { words, type AdminKey } from "./admin.words";
 import type { AdminApi } from "./api";
@@ -18,7 +18,6 @@ type DialName = DialChange["dial"];
 const DIAL_WORDS: Record<DialName, AdminKey> = {
   placeTarget: "admin.dial.placeTarget",
   computerAfterMonths: "admin.dial.computerAfterMonths",
-  topUpTickets: "admin.dial.topUpTickets",
 };
 
 const PLACES = Object.keys(content.place).sort();
@@ -88,7 +87,7 @@ function DialRow({ api, dial, now, onDone }: { api: AdminApi; dial: DialName; no
   );
 }
 
-function changeWords(change: { switch: SwitchName; on: boolean } | DialChange): string {
+function changeWords(change: SettingChange): string {
   if ("switch" in change) return `${change.switch} ${change.on ? "on" : "off"}`;
   const to = change.value === null ? "unset" : String(change.value);
   return change.dial === "placeTarget" ? `${change.dial} ${change.place} ${to}` : `${change.dial} ${to}`;
@@ -115,7 +114,7 @@ export function SwitchesTab({ api }: { api: AdminApi }) {
             </Section>
             <Section title={words("admin.dials.title")}>
               <ul className="flex flex-col gap-3">
-                {(["computerAfterMonths", "topUpTickets", "placeTarget"] as const).map((dial) => (
+                {(["computerAfterMonths", "placeTarget"] as const).map((dial) => (
                   <DialRow key={dial} api={api} dial={dial} now={dials} onDone={changed} />
                 ))}
               </ul>

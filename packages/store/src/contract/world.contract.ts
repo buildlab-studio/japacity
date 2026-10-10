@@ -13,7 +13,7 @@ function tickRow(tick: number, mark = 0): WorldTickRow {
   };
 }
 
-const DRAW = { draw: 4, secret: "11".repeat(32), fingerprint: "22".repeat(32), beaconRound: 900, topUpTickets: 0, odds: DRAW_ODDS, jackpot: 20_000_000 };
+const DRAW = { draw: 4, secret: "11".repeat(32), fingerprint: "22".repeat(32), beaconRound: 900, odds: DRAW_ODDS, jackpot: 20_000_000 };
 
 /** The contract every WorldStore keeps. `make` returns an empty store each time it is called. */
 export function suiteForWorldStore(make: () => Promise<WorldStore>): void {
@@ -76,7 +76,6 @@ export function suiteForWorldStore(make: () => Promise<WorldStore>): void {
         { secret: "33".repeat(32) },
         { fingerprint: "44".repeat(32) },
         { beaconRound: 901 },
-        { topUpTickets: 1 },
         { jackpot: 20_000_001 },
         { odds: { ...DRAW_ODDS, jackpotCap: 38_000_001 } },
         { odds: { ...DRAW_ODDS, forcedWinWeeks: 4 } },
@@ -144,13 +143,10 @@ export function suiteForWorldStore(make: () => Promise<WorldStore>): void {
       expect(await store.freeze(9, 70_000)).toMatchObject({ ok: false, code: "missing" });
     });
 
-    test("[R-LOTTERY-021] given a draw put with its declared top-up, when it is read, then the top-up is kept as it was declared", async () => {
+    test("[R-LOTTERY-021] given a draw put, when it is read, then it carries no house top-up: the raffle's was retired by decision 0010", async () => {
       const store = await make();
-      must(await store.putDraw({ ...DRAW, topUpTickets: 0 }));
-      must(await store.putDraw({ ...DRAW, draw: 5, topUpTickets: 7 }));
-
-      expect((await store.draw(4))?.topUpTickets).toBe(0);
-      expect((await store.draw(5))?.topUpTickets).toBe(7);
+      must(await store.putDraw(DRAW));
+      expect(Object.keys((await store.draw(4)) ?? {})).not.toContain("topUpTickets");
     });
 
     test("[R-LOTTERY-021] [R-LOTTERY-012] given draws put with their odds and jackpot, when they are read, then each keeps the odds and jackpot it opened with, a forced win included", async () => {

@@ -163,7 +163,7 @@ describe("opening a draw", () => {
     await drawJob(server.deps, keysWith(beacon), TICKS_CRON);
     const row = await server.deps.stores.world.draw(0);
     expect(row).toEqual(first);
-    expect(row).toMatchObject({ odds, jackpot: odds.jackpotStart, topUpTickets: 0 });
+    expect(row).toMatchObject({ odds, jackpot: odds.jackpotStart });
     expect(await server.deps.stores.world.draw(1)).toBeNull();
     expect(row!.secret).toMatch(/^[0-9a-f]{64}$/);
     expect(row!.fingerprint).toBe(fingerprintOf(row!.secret, 0));
@@ -545,11 +545,11 @@ describe("the odds are settings", () => {
     expect((await server.deps.stores.world.draw(1))?.odds).toEqual(later);
   });
 
-  test("[R-LOTTERY-021] [R-SERVER-030] given the raffle's top-up dial set in the switch row, when the job opens a draw, then the switched-off reader gives 0 and no draw is topped up", async () => {
+  test("[R-LOTTERY-021] [R-SERVER-030] given the raffle's top-up retired by decision 0010, when the job opens a draw, then the draw carries no top-up and the switch row no top-up dial", async () => {
     const server = testServer();
-    await server.deps.stores.switches.setDial({ dial: "topUpTickets", value: 40 }, "account.owner", "launch", server.deps.now());
     await drawJob(server.deps, keysWith(fakeBeacon()), TICKS_CRON);
-    expect((await server.deps.stores.world.draw(0))?.topUpTickets).toBe(0);
+    expect(Object.keys((await server.deps.stores.world.draw(0)) ?? {})).not.toContain("topUpTickets");
+    expect(Object.keys((await server.deps.stores.switches.read()).dials)).not.toContain("topUpTickets");
   });
 
   test("[R-LOTTERY-012] given a forced win after three draws, when the stored results before a draw are read, then the third draw since a hit is forced and the second is not, and the forced draw pays its jackpot to the ticket whose draw is highest", async () => {

@@ -26,7 +26,7 @@ function toRow(row: typeof switches.$inferSelect | undefined): SwitchRow {
       "boards.all-time.friends": row["boards.all-time.friends"],
       "boards.joined-week": row["boards.joined-week"],
     },
-    dials: { placeTargets: row.placeTargets, computerAfterMonths: row.computerAfterMonths, topUpTickets: row.topUpTickets },
+    dials: { placeTargets: row.placeTargets, computerAfterMonths: row.computerAfterMonths },
   };
 }
 
@@ -43,8 +43,6 @@ function dialValues(change: DialChange): { insert: Values; update: Update } {
     }
     case "computerAfterMonths":
       return { insert: { computerAfterMonths: change.value }, update: { computerAfterMonths: change.value } };
-    case "topUpTickets":
-      return { insert: { topUpTickets: change.value }, update: { topUpTickets: change.value } };
     default: {
       const never: never = change;
       throw new Error(`Unknown dial ${JSON.stringify(never)}.`);

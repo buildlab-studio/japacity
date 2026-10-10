@@ -12,7 +12,6 @@ function toDraw(row: typeof draws.$inferSelect): DrawRow {
     secret: row.secret,
     fingerprint: row.fingerprint,
     beaconRound: row.beaconRound,
-    topUpTickets: row.topUpTickets,
     odds: row.odds,
     jackpot: row.jackpot,
     closedAt: row.closedAt,
@@ -70,8 +69,8 @@ export function pgWorldStore(handle: Handle): WorldStore {
 
     putDraw: (row) =>
       handle.transaction(async (tx) => {
-        const { draw, secret, fingerprint, beaconRound, topUpTickets, odds, jackpot } = row;
-        await tx.insert(draws).values({ draw, secret, fingerprint, beaconRound, topUpTickets, odds, jackpot }).onConflictDoNothing();
+        const { draw, secret, fingerprint, beaconRound, odds, jackpot } = row;
+        await tx.insert(draws).values({ draw, secret, fingerprint, beaconRound, odds, jackpot }).onConflictDoNothing();
         const stored = await lockDraw(tx, draw);
         if (stored === null) throw new Error(`Draw ${String(draw)} was not stored.`);
         if (!sameDraw(stored, row)) {

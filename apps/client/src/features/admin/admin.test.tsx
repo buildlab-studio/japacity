@@ -439,7 +439,7 @@ describe("the adverts tab", () => {
 
 describe("the switches tab", () => {
   test("[R-SERVER-031] given the switch row, when a switch is turned off, then a reason is needed, it is confirmed, the change is sent with the reason, and the row and the log are read again", async () => {
-    const server = page("switches", { "POST /api/admin/switches": () => ({ ok: true, switches: { ...SWITCH_ROW, signups: false }, dials: { placeTargets: {}, computerAfterMonths: null, topUpTickets: null } }) });
+    const server = page("switches", { "POST /api/admin/switches": () => ({ ok: true, switches: { ...SWITCH_ROW, signups: false }, dials: { placeTargets: {}, computerAfterMonths: null } }) });
     const row = (await screen.findByText(words("admin.switch.signups"))).closest("li")!;
     expect(within(row).getByText(words("admin.switch.on"))).toBeTruthy();
     const off = within(row).getByRole("button", { name: words("admin.switch.turn-off", { name: words("admin.switch.signups") }) });
@@ -475,19 +475,18 @@ describe("the switches tab", () => {
     ]);
   });
 
-  test("[R-SERVER-030] given the dials, when one is set at 0 and one unset, then each is confirmed and sent with its reason; a value that is not a whole number cannot be sent", async () => {
+  test("[R-SERVER-030] given the dials, when one is set at 0 and one unset, then each is confirmed and sent with its reason; a value that is not a whole number cannot be sent; the retired top-up is no dial", async () => {
     const server = page("switches", { "POST /api/admin/dials": () => ADMIN_GETS["/api/admin/switches"] });
-    const tickets = (await screen.findByText(words("admin.dial.topUpTickets"))).closest("li")!;
-    expect(within(tickets).getByText("25")).toBeTruthy();
-    const months = screen.getByText(words("admin.dial.computerAfterMonths")).closest("li")!;
-    expect(within(months).getByText(words("admin.dial.unset"))).toBeTruthy();
-    const value = within(tickets).getByLabelText(`${words("admin.dial.value")}: ${words("admin.dial.topUpTickets")}`);
-    fireEvent.change(within(tickets).getByLabelText(`${words("admin.dial.reason")}: ${words("admin.dial.topUpTickets")}`), { target: { value: "Quiet week" } });
+    const months = (await screen.findByText(words("admin.dial.computerAfterMonths"))).closest("li")!;
+    expect(within(months).getByText("25")).toBeTruthy();
+    expect(screen.queryByText(/top-up/i)).toBeNull();
+    const value = within(months).getByLabelText(`${words("admin.dial.value")}: ${words("admin.dial.computerAfterMonths")}`);
+    fireEvent.change(within(months).getByLabelText(`${words("admin.dial.reason")}: ${words("admin.dial.computerAfterMonths")}`), { target: { value: "Quiet week" } });
     fireEvent.change(value, { target: { value: "-1" } });
-    expect(within(tickets).getByRole("button", { name: words("admin.dial.set") })).toHaveProperty("disabled", true);
+    expect(within(months).getByRole("button", { name: words("admin.dial.set") })).toHaveProperty("disabled", true);
     fireEvent.change(value, { target: { value: "0" } });
-    fireEvent.click(within(tickets).getByRole("button", { name: words("admin.dial.set") }));
-    await confirm(words("admin.dial.confirm", { dial: words("admin.dial.topUpTickets"), value: 0, reason: "Quiet week" }));
+    fireEvent.click(within(months).getByRole("button", { name: words("admin.dial.set") }));
+    await confirm(words("admin.dial.confirm", { dial: words("admin.dial.computerAfterMonths"), value: 0, reason: "Quiet week" }));
     await waitFor(() => expect(posts(server.calls)).toHaveLength(1));
     const place = screen.getByText(words("admin.dial.placeTarget")).closest("li")!;
     fireEvent.change(within(place).getByLabelText(words("admin.dial.place")), { target: { value: "place.ojuelegba" } });
@@ -497,7 +496,7 @@ describe("the switches tab", () => {
     await confirm(words("admin.dial.confirm.place.unset", { dial: words("admin.dial.placeTarget"), place: "place.ojuelegba", reason: "Back to normal" }));
     await waitFor(() => expect(posts(server.calls)).toHaveLength(2));
     expect(posts(server.calls).map((call) => call.body)).toEqual([
-      { dial: "topUpTickets", value: 0, reason: "Quiet week" },
+      { dial: "computerAfterMonths", value: 0, reason: "Quiet week" },
       { dial: "placeTarget", place: "place.ojuelegba", value: null, reason: "Back to normal" },
     ]);
   });

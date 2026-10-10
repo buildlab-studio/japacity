@@ -209,8 +209,6 @@ export interface NewDraw {
   secret: string;
   fingerprint: string;
   beaconRound: number;
-  /** The raffle's declared top-up, in tickets; switched off by decision 0010, so every new draw stores 0. */
-  topUpTickets: number;
   /** R-LOTTERY-021: the odds and amounts the draw runs under. */
   odds: LotteryOdds;
   /** R-LOTTERY-012: the jackpot standing when the draw opened, in kobo. */
