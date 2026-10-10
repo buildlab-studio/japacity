@@ -9,6 +9,9 @@ import { say } from "../words/text";
 
 type Prologue = NonNullable<PlayerView["prologue"]>;
 
+/** The life from sixteen: the only scenario a tile starts. */
+export const FROM_SIXTEEN = "scenario.prologue" as Id<"scenario">;
+
 export type ArchetypeId = "developer" | "nurse" | "accountant" | "writer" | "trader" | "shop-worker" | "water";
 
 export interface Archetype {
@@ -132,7 +135,7 @@ export function answersInOrder<A extends { id: string }>(archetype: Archetype | 
 }
 
 /** True when the tile's years go through university: its preset sits the entrance exam after school. */
-function throughUniversity(archetype: Archetype): boolean {
+export function throughUniversity(archetype: Archetype): boolean {
   return (archetype.preset["after-school"] ?? []).includes("jamb");
 }
 

@@ -16,7 +16,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useGame } from "../../authority/GameProvider";
 import { keepPerson } from "../../authority/person";
 import { blurbOf, say } from "../../shared/words/text";
-import { ARCHETYPES, type Archetype, archetypeOf } from "../../shared/frontdoor/archetypes";
+import { ARCHETYPES, archetypeOf, FROM_SIXTEEN, throughUniversity } from "../../shared/frontdoor/archetypes";
 import { Gate, GateSheet, gateLook } from "../../shared/frontdoor/Gate";
 import { LOOKS, lookOf, namesFor } from "../../shared/frontdoor/looks";
 import { DataPage, type PageFields, Stamp } from "../../shared/datapage/DataPage";
@@ -25,7 +25,6 @@ import { NAME_LONGEST, nameProblem, problemWords } from "../../shared/datapage/n
 import { ageStepWords, stepsOpen } from "../../shared/datapage/age";
 import { aboutYears, middleMonths, readyMonths } from "../../shared/datapage/years";
 
-const FROM_SIXTEEN = "scenario.prologue" as Id<"scenario">;
 /** The ready lives: every scenario but the life from sixteen, each named by its kind, never its person. */
 const READY = (Object.keys(content.scenario) as Id<"scenario">[]).filter((id) => content.scenario[id]?.prologue !== true);
 /** The questions, one a screen, for the progress marks over the scene. */
@@ -36,11 +35,6 @@ export const STAMP_MS = 900;
 
 function freshRoll(): number {
   return Math.floor(Math.random() * 100000);
-}
-
-/** True for a tile whose years go through the entrance exam, where a retake adds a year the door cannot know (R-PROLOGUE-004). */
-function sitsTheExam(archetype: Archetype | null): boolean {
-  return (archetype?.preset["after-school"] ?? []).includes("jamb");
 }
 
 /** The run as kept, or a new one at the look with the kept look; a run already begun starts again. */
@@ -313,7 +307,8 @@ export function ScenarioView() {
             </button>
           </div>
           {/* The cards still take their years: an exam retaken adds one, so the age is "about". */}
-          {sitsTheExam(archetype) ? (
+          {/* A tile whose years go through the entrance exam: a retake adds a year the door cannot know (R-PROLOGUE-004). */}
+          {archetype !== null && throughUniversity(archetype) ? (
             <p className="mt-1.5 text-center text-[12px] leading-snug text-text-2" data-age-give>
               {say("prologue.door.age.give-or-take")}
             </p>

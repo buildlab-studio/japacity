@@ -10,6 +10,7 @@ import { createContext, createElement, use, useEffect, useMemo, useState, type R
 import { useGame } from "../../authority/GameProvider";
 import { authorityMode } from "../../authority/mode";
 import { rejectionWords } from "../../authority/store";
+import { FROM_SIXTEEN } from "../../shared/frontdoor/archetypes";
 import { BlockReport } from "../../shared/moderation/BlockReport";
 import type { AcceptReply, AcceptRequest, InviteShown, InviteShownReply, ServerRejection } from "../../shared/net/contract";
 import { api, type Api } from "../../shared/net/http";
@@ -24,8 +25,7 @@ export function inviteCodeOf(path: string): string | null {
 }
 
 /** A partner's new life starts grown up: the prologue's life starts at sixteen (R-PEOPLE-008). */
-const PROLOGUE = "scenario.prologue";
-const GROWN_UP = (Object.keys(content.scenario) as Id<"scenario">[]).filter((id) => id !== PROLOGUE);
+const GROWN_UP = (Object.keys(content.scenario) as Id<"scenario">[]).filter((id) => id !== FROM_SIXTEEN);
 
 type Stage = { kind: "loading" } | { kind: "refused"; why: string } | { kind: "card"; shown: InviteShown } | { kind: "taken"; shown: InviteShown };
 
