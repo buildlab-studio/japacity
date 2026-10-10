@@ -198,7 +198,6 @@ function choose(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   ctx.apply(answer.effects, cause());
   const outcome = answer.draw === null ? null : drawOutcome(ctx, answer.draw);
   if (outcome !== null) ctx.apply(outcome.effects, cause());
-  // R-QUALITY-003 lets only the month move age, so the quality kind drops this until it allows the prologue.
   if (step.months > 0) ctx.apply([add(AGE, step.months)], cause());
   if (step.id === GRADUATION) events.push(...graduate(ctx));
   events.push(...headline(ctx, step.id));

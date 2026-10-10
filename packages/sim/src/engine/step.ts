@@ -10,10 +10,10 @@ import { PHASES, prefixOf } from "./kind";
 import { isRejection, reject } from "./reject";
 import type { Command, CommandType, Content, Rejection, Sender, State, StepResult, World } from "./types";
 
-/** Commands only the authority may send (R-SERVER-013): the turn grant and the draw's payout. */
 /** R-PEOPLE-044: the only commands the engine accepts from a stand-in. The kinds judge each as a player's, with the sender in hand. */
 export const STAND_IN_COMMANDS = ["interview/answer", "people/answer"] as const satisfies readonly Command["type"][];
 
+/** Commands only the authority may send (R-SERVER-013): the turn grant, the draw's payout, and what the server knows of other lives, the interview and the hosting. */
 export const AUTHORITY_COMMANDS = [
   "turns/grant",
   "lottery/pay",
