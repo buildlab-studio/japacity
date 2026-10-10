@@ -16,7 +16,7 @@ import { formatMoney } from "../../../shared/words/format";
 import { say } from "../../../shared/words/text";
 import { phoneWords } from "../phone.words";
 import { PhoneApps } from "../PhoneApps";
-import { Bank, bankLimit } from "./Bank";
+import { Bank, bankLimit, latelyMoney } from "./Bank";
 
 /** Tunde at home with ₦2,110,450 in the bank, as the developer held it in the review. */
 function heldAtHome() {
@@ -152,5 +152,17 @@ describe("the Bank's change at home, within the month's limit", () => {
       await Promise.resolve();
     });
     await waitFor(() => expect(store.getState().view?.pockets.NGN.cash).toBe(cashBefore + quarter));
+  });
+
+  test("[R-WORLD-019] [R-WALLET-007] given naira changed into pounds with the FX man this month, when Lately is read, then it shows the pounds in and the naira out, each in its own money, as the results do", () => {
+    const game = heldAtHome();
+    game.accept({ type: "wallet/move", currency: "NGN", amount: 100_000_000, to: "cash" });
+    const told = game.accept({ type: "wallet/convert", from: "NGN", to: "GBP", amount: 100_000_000, via: "aboki" });
+    const lately = latelyMoney({ report: null }, [], told.lines, "NGN");
+    expect(lately.map(({ sign, currency }) => [sign, currency])).toEqual([
+      [1, "GBP"],
+      [-1, "NGN"],
+    ]);
+    expect(lately[1]?.amount).toBe(100_000_000);
   });
 });
