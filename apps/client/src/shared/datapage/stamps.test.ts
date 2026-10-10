@@ -15,7 +15,7 @@ function life(change: (view: PlayerView) => Partial<PlayerView>): PlayerView {
   return { ...view, ...change(view) };
 }
 
-const held = { id: "document.passport" as const, state: "held" as const, readyMonth: null, expiresMonth: 80, value: null };
+const held = { id: "document.passport" as const, state: "held" as const, readyMonth: null, expiresMonth: 80, value: null, onItsWay: null };
 
 function routeIn(view: PlayerView, state: PlayerView["routes"][number]["state"]): PlayerView["routes"] {
   return view.routes.map((route) => (route.id === UK_CARE ? { ...route, state } : route));
@@ -28,7 +28,7 @@ describe("the page's stamps", () => {
 
   test("[R-PROLOGUE-009] given the passport held, then the page is stamped papers in order; a passport still on its way stamps nothing", () => {
     expect(stampsOf(life(() => ({ documents: [held] })))).toEqual([say("prologue.page.stamp.papers")]);
-    expect(stampsOf(life(() => ({ documents: [{ ...held, state: "pending", readyMonth: 3 }] })))).toEqual([]);
+    expect(stampsOf(life(() => ({ documents: [{ ...held, state: "pending", readyMonth: 3, onItsWay: 3 }] })))).toEqual([]);
   });
 
   test("[R-PROLOGUE-009] given the first chapter's look into it done, then the page is stamped adviser read, and stays stamped once the chapter is done", () => {

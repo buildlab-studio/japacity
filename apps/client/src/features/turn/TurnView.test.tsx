@@ -110,7 +110,7 @@ describe("the month", () => {
 
   test("given a paper about to run out, then the month warns before it does", async () => {
     const rich = richView();
-    const documents = [{ id: "document.tb-certificate" as const, state: "held" as const, readyMonth: null, expiresMonth: rich.month + 1, value: null }];
+    const documents = [{ id: "document.tb-certificate" as const, state: "held" as const, readyMonth: null, expiresMonth: rich.month + 1, value: null, onItsWay: null }];
     await renderWithView(<Turn />, { ...rich, documents });
     expect(screen.getByText(say("ui.month.expiring"))).toBeDefined();
     expect(screen.getByText(sayCount("ui.month.expiring.item", 1, { document: nameOf("document.tb-certificate"), months: 1, month: rich.month + 1 }))).toBeDefined();

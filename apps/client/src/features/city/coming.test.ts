@@ -3,7 +3,7 @@
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
-import { engineView, richView } from "../../shared/testing/fixtures";
+import { engineView, newGame, richView, viewAfter } from "../../shared/testing/fixtures";
 import { nameOf, say } from "../../shared/words/text";
 import { AGE_LIMIT_NEAR, ageMonthsOf, comingOf, soonest } from "./coming";
 
@@ -23,7 +23,7 @@ describe("what is coming", () => {
     const view = {
       ...base,
       month: 10,
-      documents: [{ id: "document.passport" as const, state: "pending" as const, readyMonth: 12, expiresMonth: null, value: null }],
+      documents: [{ id: "document.passport" as const, state: "pending" as const, readyMonth: 12, expiresMonth: null, value: null, onItsWay: 12 }],
       routes: [{ ...base.routes[0]!, id: "route.uk-masters" as const, state: "applying" as const, visa: { submittedMonth: 9, decisionMonth: 11 } }],
     };
     const list = comingOf(view);
@@ -35,6 +35,15 @@ describe("what is coming", () => {
     // Nothing past is listed; the chip says the soonest thing to answer or wait on.
     expect(list.every((item) => item.month >= view.month)).toBe(true);
     expect(soonest(view)).toEqual(list.find((item) => item.kind !== "birthday" && item.kind !== "age-limit"));
+  });
+
+  test("[R-DOCUMENT-008] given a held passport with a new copy requested, when the list is read, then the new copy is on it at the month the engine says it is due", () => {
+    const game = newGame("scenario.tunde");
+    const view = viewAfter(game, [{ type: "document/request", document: "document.passport" }]);
+    const passport = view.documents.find((paper) => paper.id === "document.passport");
+    expect(passport?.state).toBe("held");
+    expect(passport?.onItsWay).not.toBeNull();
+    expect(comingOf(view).find((item) => item.kind === "paper")).toMatchObject({ what: nameOf("document.passport"), month: passport?.onItsWay });
   });
 
   test("[R-WORLD-002] given the Gulf heard of and the character near its age limit, when the list is read, then the limit is on it as months away; far from it, or on a route unheard, it is not", () => {

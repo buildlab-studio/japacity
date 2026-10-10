@@ -281,7 +281,7 @@ describe("requesting a document", () => {
     const game = life();
     applyNow(game, [request(PASSPORT)]);
     expect(game.view().documents).toEqual([
-      { id: PASSPORT, state: "pending", readyMonth: paper(game, PASSPORT)?.readyMonth ?? -1, expiresMonth: null, value: null },
+      { id: PASSPORT, state: "pending", readyMonth: paper(game, PASSPORT)?.readyMonth ?? -1, expiresMonth: null, value: null, onItsWay: paper(game, PASSPORT)?.readyMonth ?? -1 },
     ]);
   });
 });
@@ -355,7 +355,7 @@ describe("expiry", () => {
     game.endTurn();
     expect(paper(game, PASSPORT)?.state).toBe("expired");
     expect(held(game, PASSPORT)).toBe(false);
-    expect(game.view().documents).toEqual([{ id: PASSPORT, state: "expired", readyMonth: paper(game, PASSPORT)?.readyMonth ?? null, expiresMonth: 22, value: null }]);
+    expect(game.view().documents).toEqual([{ id: PASSPORT, state: "expired", readyMonth: paper(game, PASSPORT)?.readyMonth ?? null, expiresMonth: 22, value: null, onItsWay: null }]);
   });
 
   test("[R-DOCUMENT-003] given a document whose expiry month has come, when a slot reads it before the papers phase, then it no longer counts as held", () => {
@@ -406,6 +406,27 @@ describe("one copy at a time", () => {
     expect(game.state.turn.month).toBe(ready);
     expect(paper(game, PASSPORT)).toEqual({ state: "held", readyMonth: null, expiresMonth: ready + entries[PASSPORT]!.validMonths!, value: null });
     expect(pending(game, PASSPORT)).toBe(false);
+  });
+
+  test("[R-DOCUMENT-008] given a held passport, when a new one is requested, then the view says it is on its way with the month it is due, and once issued nothing is on its way", () => {
+    const game = life({ scenario: "scenario.tunde", seed: SEED_LONG });
+    game.endTurn();
+    const viewed = () => game.view().documents.find((doc) => doc.id === PASSPORT);
+    expect(viewed()?.onItsWay).toBeNull();
+    applyNow(game, [request(PASSPORT)]);
+    const ready = 1 + entries[PASSPORT]!.wait[1];
+    expect(viewed()).toMatchObject({ state: "held", onItsWay: ready });
+    endTurns(game, ready - 1);
+    expect(game.state.turn.month).toBe(ready);
+    expect(viewed()).toMatchObject({ state: "held", onItsWay: null });
+  });
+
+  test("[R-DOCUMENT-008] given a passport requested for the first time, then the view says it is on its way at its ready month", () => {
+    const game = life();
+    applyNow(game, [request(PASSPORT)]);
+    const doc = game.view().documents.find((each) => each.id === PASSPORT);
+    expect(doc?.state).toBe("pending");
+    expect(doc?.onItsWay).toBe(doc?.readyMonth);
   });
 
   test("[R-DOCUMENT-004] given a held passport with a new one being made, when it is requested a third time, then nothing changes", () => {

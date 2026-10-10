@@ -337,7 +337,7 @@ function careDetour(view: CareView, step: string): string | null {
   const unmet = (item: string): boolean => care.checklist.find((one) => one.id === item)?.met === false;
   const pending = (stepKey: string): boolean => {
     const paper = STEP_PAPER[stepKey];
-    return paper !== undefined && view.documents?.find((held) => held.id === paper)?.state === "pending";
+    return paper !== undefined && (view.documents?.find((held) => held.id === paper)?.onItsWay ?? null) !== null;
   };
   const open = (stepKey: string): boolean => view.activities?.find((option) => option.id === STEP_ACTIVITY[stepKey])?.allowed === true;
   const now = (item: string, stepKey: string): boolean => unmet(item) && !pending(stepKey) && open(stepKey);
@@ -396,14 +396,14 @@ function startedKey(view: NudgeView, own: string, stepKey: string, plannedOnly: 
   const paper = STEP_PAPER[stepKey];
   if (paper !== undefined) {
     const held = view.documents?.find((document) => document.id === paper);
-    if (held?.state === "pending") {
+    if (held !== undefined && held.onItsWay !== null) {
       // A hunt planned while working says so; a wait is a saving month: the board's better job
       // comes before "work and save"; else the archetype's own act for the wait (R-ACTIVITY-013).
       if (planned.includes("activity.job-hunt") && (view.job?.id ?? null) !== null) return { key: "ui.nudge.hunt-planned" };
       if (betterJobOnBoard(view) && has(BETTER_JOB)) return { key: BETTER_JOB };
       const meanwhile = meanwhileOf(view, planned);
       if (meanwhile !== null && has(`ui.nudge.meanwhile.${meanwhile}`)) return { key: `ui.nudge.meanwhile.${meanwhile}` };
-      if (has(`${own}.started`)) return { key: `${own}.started`, params: { when: inMonths(held.readyMonth ?? month, month) } };
+      if (has(`${own}.started`)) return { key: `${own}.started`, params: { when: inMonths(held.onItsWay, month) } };
     }
   }
   // The trader's shop planned at her stall (R-ACTIVITY-016): the job step has no hunt to name, so its own planned words say it.

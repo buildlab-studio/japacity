@@ -23,7 +23,7 @@ function waitingOnResult() {
   return {
     ...base,
     chapter: { current: "chapter.build-the-file" as const, items: [{ id: "passport", met: true }, { id: "transcript", met: true }, { id: "english", met: false }, { id: "offer", met: false }], done: [] },
-    documents: [{ id: PAPER, state: "pending" as const, readyMonth: 11, expiresMonth: null, value: null }],
+    documents: [{ id: PAPER, state: "pending" as const, readyMonth: 11, expiresMonth: null, value: null, onItsWay: 11 }],
   };
 }
 

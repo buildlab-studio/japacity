@@ -208,7 +208,7 @@ describe("the nudge", () => {
   test("[R-WORLD-003] given a step already started, when the nudge is chosen, then it names the wait: a paper on its way, a school's answer, a hunt or a test planned, funds short", () => {
     const base = { ...quiet, month: 10 };
     const file = { ...base, chapter: { current: "chapter.build-the-file" as const, items: [{ id: "passport", met: false }, { id: "transcript", met: false }, { id: "english", met: false }, { id: "offer", met: false }], done: [] } };
-    const waiting = noMeanwhile({ ...file, documents: [{ id: "document.passport" as const, state: "pending" as const, readyMonth: 12, expiresMonth: null, value: null }] });
+    const waiting = noMeanwhile({ ...file, documents: [{ id: "document.passport" as const, state: "pending" as const, readyMonth: 12, expiresMonth: null, value: null, onItsWay: 12 }] });
     expect(nudgeOf(waiting)).toMatchObject({ key: "chapter.build-the-file.item.passport.started", params: { when: inMonths(12, 10) }, about: "step" });
     expect(nudgeOf(file).key).toBe("chapter.build-the-file.item.passport.nudge");
     const testing = { ...file, chapter: { ...file.chapter, items: [{ id: "english", met: false }, { id: "offer", met: false }] } };
@@ -334,7 +334,7 @@ describe("the nudge", () => {
 
   test("[R-WORLD-003] given a paper on its way and a better-paid job on the board, when the nudge is read, then it sends the life to the board, not to wait", () => {
     const file = { ...base, month: 10, chapter: { current: "chapter.build-the-file" as const, items: [{ id: "passport", met: false }], done: [] } };
-    const pending = noMeanwhile({ ...file, documents: [{ id: "document.passport" as const, state: "pending" as const, readyMonth: 12, expiresMonth: null, value: null }], job: { ...file.job, id: "activity.job-customer-service" as const } });
+    const pending = noMeanwhile({ ...file, documents: [{ id: "document.passport" as const, state: "pending" as const, readyMonth: 12, expiresMonth: null, value: null, onItsWay: 12 }], job: { ...file.job, id: "activity.job-customer-service" as const } });
     const hunt = pending.activities.find((option) => option.id === "activity.job-hunt");
     const better = (hunt?.params ?? []).find((job) => job === "activity.job-junior-dev") ?? null;
     if (better === null) throw new Error("The board lists no junior developer job.");
@@ -389,7 +389,7 @@ describe("the archetypes' own ways", () => {
       ...base,
       chapter: { current: "chapter.find-your-feet" as const, items: [{ id: "job", met: false }, { id: "pay", met: false }, { id: "heard", met: false }, { id: "known", met: false }], done: [] },
       qualities: base.qualities.map((quality) => (quality.id === "quality.edu-level" ? { ...quality, value: 3 } : quality.id === "quality.care" ? { ...quality, value: 60 } : quality)),
-      documents: [{ id: "document.nursing-licence" as const, state: "held" as const, readyMonth: null, expiresMonth: null, value: null }],
+      documents: [{ id: "document.nursing-licence" as const, state: "held" as const, readyMonth: null, expiresMonth: null, value: null, onItsWay: null }],
       job: { id: null, months: 0, side: null },
       routes: [],
     };
@@ -411,7 +411,7 @@ describe("the archetypes' own ways", () => {
       ...base,
       chapter: { current: "chapter.find-your-feet" as const, items: [{ id: "job", met: true }, { id: "pay", met: true }, { id: "heard", met: true }, { id: "known", met: false }], done: [] },
       qualities: base.qualities.map((quality) => (quality.id === "quality.edu-level" ? { ...quality, value: 3 } : quality.id === "quality.care" ? { ...quality, value: 60 } : quality)),
-      documents: [{ id: "document.nursing-licence" as const, state: "held" as const, readyMonth: null, expiresMonth: null, value: null }],
+      documents: [{ id: "document.nursing-licence" as const, state: "held" as const, readyMonth: null, expiresMonth: null, value: null, onItsWay: null }],
       job: { id: "activity.job-nurse" as const, months: 1, side: null },
       routes: [
         { ...richView().routes[0]!, id: "route.uk-masters" as const, state: "heard" as const },
@@ -445,7 +445,7 @@ describe("the archetypes' own ways", () => {
 
 describe("the nudge (the waiting months' acts)", () => {
   const base = { ...engineView(), setpiece: null, interview: null, offers: [], report: null };
-  const waiting = noMeanwhile({ ...base, month: 10, chapter: { current: "chapter.build-the-file" as const, items: [{ id: "passport", met: false }], done: [] }, documents: [{ id: "document.passport" as const, state: "pending" as const, readyMonth: 12, expiresMonth: null, value: null }] });
+  const waiting = noMeanwhile({ ...base, month: 10, chapter: { current: "chapter.build-the-file" as const, items: [{ id: "passport", met: false }], done: [] }, documents: [{ id: "document.passport" as const, state: "pending" as const, readyMonth: 12, expiresMonth: null, value: null, onItsWay: 12 }] });
 
   test("[R-WORLD-003] [R-SPONSOR-005] given a nurse in the nursing job with the care route in play, when a better-paid job sits on the board, then the nudge never sends her off the job", () => {
     const nurse = { ...waiting, job: { ...waiting.job, id: "activity.job-nurse" as const }, routes: [{ ...richView().routes[0]!, id: "route.uk-care" as const, state: "heard" as const }] };

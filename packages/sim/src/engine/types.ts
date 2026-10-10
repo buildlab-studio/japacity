@@ -2109,7 +2109,8 @@ export interface PlayerView {
   bankAllowanceLeft: number | null;
   /** Months ended in which the character kept more than they spent (decision 0021). A count the japa type reads; never shown as a figure. */
   keptMonths: number;
-  documents: { id: Id<"document">; state: DocumentState["state"]; readyMonth: number | null; expiresMonth: number | null; value: number | null }[];
+  /** `onItsWay` (R-DOCUMENT-008): the month the copy being made is due, pending or held with a new copy requested; null when none is. */
+  documents: { id: Id<"document">; state: DocumentState["state"]; readyMonth: number | null; expiresMonth: number | null; value: number | null; onItsWay: number | null }[];
   routes: RouteView[];
   setpiece: {
     entry: Id<"setpiece">;

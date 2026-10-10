@@ -28,7 +28,8 @@ export function ageMonthsOf(view: Pick<PlayerView, "qualities">): number {
 export function comingOf(view: Pick<PlayerView, "month" | "offers" | "documents" | "routes" | "qualities" | "plan">): Coming[] {
   const list: Coming[] = [];
   for (const offer of view.offers) list.push({ what: words(`${offer.entry}.name`), month: offer.expiresMonth, kind: "offer" });
-  for (const paper of view.documents) if (paper.state === "pending" && paper.readyMonth !== null) list.push({ what: nameOf(paper.id), month: paper.readyMonth, kind: "paper" });
+  // R-DOCUMENT-008: a paper on its way, a renewal of one held among them.
+  for (const paper of view.documents) if (paper.onItsWay !== null) list.push({ what: nameOf(paper.id), month: paper.onItsWay, kind: "paper" });
   for (const route of view.routes) {
     if (route.visa !== null && route.state === "applying") list.push({ what: nameOf(route.id), month: route.visa.decisionMonth, kind: "visa" });
   }

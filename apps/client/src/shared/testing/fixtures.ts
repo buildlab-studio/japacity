@@ -37,9 +37,9 @@ export function richView(): PlayerView {
     japacity: { percent: 64, route: ROUTE },
     lastSlots: [{ activity: "activity.rest", param: null }],
     documents: [
-      { id: "document.passport", state: "held", readyMonth: null, expiresMonth: 130, value: null },
-      { id: "document.english-test", state: "held", readyMonth: null, expiresMonth: 35, value: 65 },
-      { id: "document.transcript", state: "pending", readyMonth: 12, expiresMonth: null, value: null },
+      { id: "document.passport", state: "held", readyMonth: null, expiresMonth: 130, value: null, onItsWay: null },
+      { id: "document.english-test", state: "held", readyMonth: null, expiresMonth: 35, value: 65, onItsWay: null },
+      { id: "document.transcript", state: "pending", readyMonth: 12, expiresMonth: null, value: null, onItsWay: 12 },
     ],
     routes: [
       {

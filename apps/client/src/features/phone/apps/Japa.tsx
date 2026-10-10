@@ -110,8 +110,8 @@ const STEP_PAPERS: Readonly<Record<string, string>> = {
 /** "The council answers in 5 months" while the step's paper is on its way, else null. */
 function councilWait(view: PlayerView, own: string): string | null {
   const paper = view.documents.find((held) => held.id === STEP_PAPERS[own]);
-  if (paper?.state !== "pending" || paper.readyMonth === null || !hasWords(`${own}.japa.pending`)) return null;
-  return say(`${own}.japa.pending`, { when: inMonths(paper.readyMonth, view.month) });
+  if (paper === undefined || paper.onItsWay === null || !hasWords(`${own}.japa.pending`)) return null;
+  return say(`${own}.japa.pending`, { when: inMonths(paper.onItsWay, view.month) });
 }
 
 /** The first step not done of the chapter ahead, in the story's words. */
@@ -188,7 +188,7 @@ export function remindersOf(view: PlayerView): string[] {
     if (route.visa !== null && route.state === "applying") out.push(phoneWords("phone.japa.visa", { when: inMonths(route.visa.decisionMonth, view.month) }));
   }
   for (const paper of view.documents) {
-    if (paper.state === "pending" && paper.readyMonth !== null) out.push(phoneWords("phone.japa.paper-ready", { paper: nameOf(paper.id), when: inMonths(paper.readyMonth, view.month) }));
+    if (paper.onItsWay !== null) out.push(phoneWords("phone.japa.paper-ready", { paper: nameOf(paper.id), when: inMonths(paper.onItsWay, view.month) }));
   }
   for (const mark of planMarks(view)) out.push(phoneWords("phone.japa.mark", { what: mark.what, when: inMonths(mark.month, view.month) }));
   return out;
@@ -211,15 +211,15 @@ function Papers({ onBack }: { onBack: () => void }) {
           {documents.map((paper) => {
             const left = monthsLeft(paper, month);
             const soon = left !== null && left <= SOON;
-            const Icon = paper.state === "held" ? FileCheck : paper.state === "pending" ? FileClock : FileX;
+            const Icon = paper.state === "held" ? FileCheck : paper.onItsWay !== null ? FileClock : FileX;
             return (
               <li key={paper.id} data-paper={paper.id} data-state={paper.state} className="flex items-start gap-3 rounded-[6px] p-3" style={{ background: "var(--paper-bill)" }}>
                 <Icon size={20} aria-hidden className={`mt-0.5 shrink-0 ${paper.state === "held" ? "text-in" : paper.state === "expired" ? "text-out" : "text-text-2"}`} />
                 <div className="min-w-0">
                   <p className={`text-[15px] font-bold ${paper.state === "expired" ? "line-through" : ""}`}>{nameOf(paper.id)}</p>
                   <p className="text-[13px] text-text-2">
-                    {paper.state === "pending" && paper.readyMonth !== null
-                      ? phoneWords("phone.japa.paper-pending", { when: inMonths(paper.readyMonth, month) })
+                    {paper.onItsWay !== null
+                      ? phoneWords("phone.japa.paper-pending", { when: inMonths(paper.onItsWay, month) })
                       : paper.state === "expired"
                         ? say("ui.document.expired")
                         : paper.expiresMonth === null
