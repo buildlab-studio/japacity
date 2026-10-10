@@ -26,6 +26,7 @@ export const worldText: Record<string, string> = {
   "ui.world.coming-up": "Coming up",
   "ui.world.coming.birthday": "Birthday, {age}",
   "ui.world.coming.age-limit": "The age limit for {route}",
+  "ui.world.coming.rent": "The room's rent, {amount}",
   // R-TEXT-008: the box says the months once; the note beside the thing is two or three words.
   "ui.world.coming.months": "months",
   "ui.world.coming.months.one": "month",
@@ -34,6 +35,7 @@ export const worldText: Record<string, string> = {
   "ui.world.coming.note.paper": "On its way",
   "ui.world.coming.note.visa": "Visa decision",
   "ui.world.coming.note.plan": "Your plan",
+  "ui.world.coming.note.rent": "A year's rent",
   "ui.world.ask-of": "{n} of {count}",
   "ui.world.ask-next": "Next",
   "ui.world.ask-back": "Back",
@@ -57,6 +59,10 @@ export const worldText: Record<string, string> = {
   "ui.nudge.dues": "Find {due} this month: {held} held",
   "ui.nudge.dues-visa": "Find {due} or lose your visa",
   "ui.nudge.better-job": "Look at the board for better work",
+  // Nothing can be paid and the step is a ride away: a free step on foot, at most eight words.
+  "ui.nudge.broke.home": "No fare: walk home",
+  "ui.nudge.broke.racks": "No fare: work the racks",
+  "ui.nudge.broke.job": "No fare: find work nearby",
   "ui.nudge.meanwhile.nurse-certification": "Sit the nursing certification at the clinic",
   "ui.nudge.meanwhile.open-source": "Share your code at the hub",
   "ui.nudge.meanwhile.tech-posts": "Post what you know, at the laptops",

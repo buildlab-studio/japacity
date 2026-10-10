@@ -1,0 +1,84 @@
+// When nothing can be paid, the nudge names a free step (docs/rules/world.md R-WORLD-003): the
+// step's stop needs a fare the naira held cannot pay and is too far to walk, so the nudge says what can be done on foot:
+// walking home where home is near enough, the racks for a life in Makoko with no job, a job on a board within reach.
+import { content } from "@japacity/content";
+import type { PlayerView } from "@japacity/sim";
+import { describe, expect, test } from "vitest";
+
+import { answersInOrder, archetypeOf, presetAnswer } from "../../shared/frontdoor/archetypes";
+import { newGame, setPockets } from "../../shared/testing/fixtures";
+import { say } from "../../shared/words/text";
+import { BOARD_WAY, freeStep, nudgeOf, type Reach } from "./nudge";
+
+const FARE = content.tuning.city.ride.fareKobo.danfo;
+/** Where the city stands a home with no position of its own (City.tsx's home spot). */
+const HOME_SPOT = { latE3: 6507, lonE3: 3359 };
+const FAR = { latE3: 6600, lonE3: 3300 };
+const BODE_THOMAS = content.place["place.bode-thomas"]!.position!;
+const YABA = content.place["place.yaba"]!.position!;
+const MAKOKO = content.place["place.makoko"]!.position!;
+
+/** Ada with this much naira, cash and bank together. */
+function ada(naira: number): PlayerView {
+  const game = newGame();
+  setPockets(game, { NGN: naira });
+  return { ...game.view(), offers: [] };
+}
+
+/** A view whose chapter's next step is the TB test at the clinic, a ride away from anywhere these tests stand. */
+function atTheClinicStep(view: PlayerView): PlayerView {
+  return { ...view, chapter: { ...view.chapter, current: "chapter.decision-day", items: [{ id: "tb", met: false }] } };
+}
+
+describe("the free step", () => {
+  test("[R-WORLD-003] given Ada with no naira at Bode Thomas and the hub a ride away, when the nudge is read, then it says to walk home, home being near enough, and its way is home", () => {
+    const view = ada(0);
+    const reach: Reach = { here: "place.bode-thomas", home: "place.family-house", stops: [{ id: "place.bode-thomas", position: BODE_THOMAS }, { id: "place.family-house", position: HOME_SPOT }, { id: "place.yaba", position: YABA }] };
+    expect(nudgeOf(view, undefined, [], false, reach)).toEqual({ key: "ui.nudge.broke.home", about: "step", way: { go: "place.family-house", at: [] } });
+    const said = say("ui.nudge.broke.home");
+    expect(said.split(/\s+/).length).toBeLessThanOrEqual(8);
+    expect(said.split(". ")).toHaveLength(1);
+  });
+
+  test("[R-WORLD-003] given Ada at Bode Thomas with the danfo's fare held, when the nudge is read, then it keeps the chapter's step; a kobo short, the free step comes", () => {
+    const reach: Reach = { here: "place.bode-thomas", home: "place.family-house", stops: [{ id: "place.bode-thomas", position: BODE_THOMAS }, { id: "place.family-house", position: HOME_SPOT }, { id: "place.yaba", position: YABA }] };
+    expect(freeStep(ada(FARE), reach)).toBeNull();
+    expect(nudgeOf(ada(FARE), undefined, [], false, reach).key).not.toMatch(/^ui\.nudge\.broke/);
+    expect(freeStep(ada(FARE - 1), reach)?.key).toBe("ui.nudge.broke.home");
+  });
+
+  test("[R-WORLD-003] given the fares doubled this month, when the naira held covers the usual fare but not the month's, then the free step comes", () => {
+    const view = ada(FARE);
+    const reach: Reach = { here: "place.bode-thomas", home: "place.family-house", stops: [{ id: "place.bode-thomas", position: BODE_THOMAS }, { id: "place.family-house", position: HOME_SPOT }, { id: "place.yaba", position: YABA }] };
+    expect(freeStep({ ...view, place: { ...view.place, fareBp: 20_000 } }, reach)?.key).toBe("ui.nudge.broke.home");
+  });
+
+  test("[R-WORLD-003] given Ada with no naira standing where the step is, or with the step's stop on foot, when the nudge is read, then no free step is named", () => {
+    const view = ada(0);
+    expect(freeStep(view, { here: "place.yaba", home: "place.family-house", stops: [{ id: "place.yaba", position: YABA }, { id: "place.family-house", position: HOME_SPOT }] })).toBeNull();
+    expect(freeStep(view, { here: "place.akoka", home: null, stops: [{ id: "place.akoka", position: { latE3: YABA.latE3 + 3, lonE3: YABA.lonE3 } }, { id: "place.yaba", position: YABA }] })).toBeNull();
+  });
+
+  test("[R-WORLD-003] given Ada with no naira and no job near the hub's board, her home and the step's stop both a ride away, when the nudge is read, then it names work nearby and its way is the board", () => {
+    const view = atTheClinicStep(ada(0));
+    const reach: Reach = { here: "place.akoka", home: "place.family-house", stops: [{ id: "place.akoka", position: { latE3: YABA.latE3 + 3, lonE3: YABA.lonE3 } }, { id: "place.yaba", position: YABA }, { id: "place.family-house", position: FAR }, { id: "place.tb-clinic", position: FAR }] };
+    expect(nudgeOf(view, undefined, [], false, reach)).toEqual({ key: "ui.nudge.broke.job", about: "step", way: BOARD_WAY });
+  });
+
+  test("[R-WORLD-003] [R-ACTIVITY-017] given the child of the water at home in Makoko with no naira and no job, the step a ride away, when the nudge is read, then it names the racks beside her room", () => {
+    const archetype = archetypeOf("water")!;
+    const game = newGame("scenario.prologue", "broke-racks-0");
+    for (let guard = 0; guard < 40 && game.state.prologue.open; guard += 1) {
+      const prologue = game.view().prologue!;
+      const answer = presetAnswer(archetype, prologue) ?? answersInOrder(archetype, prologue.step, prologue.answers).find((one) => one.allowed)!.id;
+      game.accept({ type: "prologue/choose", step: prologue.step, answer });
+    }
+    setPockets(game, { NGN: 0 });
+    const view = atTheClinicStep({ ...game.view(), offers: [] });
+    expect(view.job.id).toBeNull();
+    const reach: Reach = { here: "place.makoko", home: "place.makoko", stops: [{ id: "place.makoko", position: MAKOKO }, { id: "place.tb-clinic", position: FAR }] };
+    const free = nudgeOf(view, undefined, [], false, reach);
+    expect(free.key).toBe("ui.nudge.broke.racks");
+    expect(free.way?.at[0]).toBe("place.makoko:racks");
+  });
+});

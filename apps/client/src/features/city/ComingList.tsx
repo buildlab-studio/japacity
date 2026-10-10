@@ -12,6 +12,7 @@ const NOTES: Readonly<Record<Coming["kind"], string | null>> = {
   paper: "ui.world.coming.note.paper",
   visa: "ui.world.coming.note.visa",
   plan: "ui.world.coming.note.plan",
+  rent: "ui.world.coming.note.rent",
   birthday: null,
   "age-limit": null,
 };

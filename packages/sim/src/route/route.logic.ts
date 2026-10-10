@@ -918,6 +918,8 @@ function lookedLine(via: string | undefined): string {
   if (via === undefined) return "looked-into";
   if (via === "activity.ask-someone-who-went") return "looked-into-told";
   if (via === "activity.see-adviser") return "looked-into-advised";
+  // asking around at the park is told as asking around, never as a reading.
+  if (via === "activity.ask-around") return "looked-into-asked";
   if (via.startsWith("offer.agent-")) return "looked-into-agent";
   return "looked-into";
 }

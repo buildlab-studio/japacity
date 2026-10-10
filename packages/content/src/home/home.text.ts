@@ -20,13 +20,24 @@ export const homeText: Record<string, string> = {
   "phone.home.none": "Nowhere of your own right now.",
   "phone.home.guest": "{who} took you in. You stay {until}.",
   "phone.home.charge": "{amount} a month",
+  // The month's charge said as what it is: living costs at the family house and in the
+  // room, the rent itself on the water.
+  "phone.home.charge.place.family-house": "Living costs {amount} a month",
+  "phone.home.charge.place.compound-room": "Living costs {amount} a month",
+  "phone.home.charge.place.makoko": "Rent {amount} a month",
+  // R-HOME-010: the room's year and when it is next taken.
+  "phone.home.rent-year": "Rent {amount} a year, next in {count} months",
+  "phone.home.rent-year.one": "Rent {amount} a year, next due next month",
+  "phone.home.rent-year.zero": "Rent {amount} a year, due this month",
   "phone.home.charge.none": "No rent while you stay.",
   "phone.home.risk": "Some months the settlement is cleared.",
   "phone.home.move.place.makoko": "Move to Makoko",
   "phone.home.move.place.family-house": "Move back to the family house",
   "phone.home.move.place.compound-room": "Rent a room in Ojuelegba",
   "phone.home.move.line.place.makoko": "A room on the water for {amount} a month. The first month is paid now.",
-  "phone.home.move.line.place.family-house": "Back home at {amount} a month. Your people will talk.",
+  "phone.home.move.line.place.family-house": "Back home: living costs {amount} a month, food and light included. Your people will talk.",
+  // R-HOME-010: from the room, the year paid is gone.
+  "phone.home.move.line.from.place.compound-room.place.family-house": "Back home: living costs {amount} a month, food and light included. The year's rent stays with the landlord. Your people will talk.",
   "phone.home.move.line.place.compound-room": "A room of your own. {now} now for the year's rent and fees, then {amount} a month to live.",
   "phone.home.move.button": "Move",
   "phone.home.moved": "Moved.",

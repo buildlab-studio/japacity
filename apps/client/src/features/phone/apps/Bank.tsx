@@ -45,6 +45,24 @@ export function latelyMoney(view: Pick<PlayerView, "report">, lastMonth: readonl
 }
 
 /**
+ * A plan is made once the way the chapters follow is looked into or further on: a way only
+ * heard of is no plan yet, so no figure is said for it.
+ */
+export function planMade(view: Pick<PlayerView, "plan" | "routes">): boolean {
+  const lean = view.plan.route;
+  if (lean === null) return false;
+  const state = view.routes.find((route) => route.id === lean)?.state ?? "unknown";
+  return state !== "unknown" && state !== "heard";
+}
+
+/** The line where no figure shows: no plan yet, the employer paying the way, or nothing left to save for. */
+function noFigureKey(view: PlayerView): string {
+  if (!planMade(view)) return "phone.bank.savings.no-plan";
+  const gate = view.routes.find((route) => route.id === view.plan.route)?.gate?.gate;
+  return gate === "contract" ? "phone.bank.savings.paid" : "phone.bank.savings.nothing";
+}
+
+/**
  * How the savings are said: what is held of the figure, or once it is met, that it is enough and what the figure is
  * for, the fees alone or the funds to show and the fees (R-WORLD-019).
  */
@@ -424,7 +442,8 @@ export function Bank({ opening: openOn = null }: { opening?: "change" | "move" |
   const abroad = local !== null && local !== "NGN";
   const shown: Currency = abroad ? local : "NGN";
   // Once flown, the move is made: its target goes.
-  const savings = abroad ? null : savingsOf(view);
+  // the figure shows only once a plan is made; before it, one line says there is none.
+  const savings = abroad || !planMade(view) ? null : savingsOf(view);
   const lastMonth = useGame((state) => state.lastMonthLines);
   const thisMonth = useGame((state) => state.monthLines);
   const lately = latelyMoney(view, lastMonth, thisMonth);
@@ -463,7 +482,9 @@ export function Bank({ opening: openOn = null }: { opening?: "change" | "move" |
         <>
           <Head>{phoneWords("phone.bank.savings")}</Head>
           {savings === null ? (
-            <p className="text-[14px] text-text-2">{phoneWords(view.plan.route === null ? "phone.bank.savings.none" : "phone.bank.savings.paid")}</p>
+            <p className="text-[14px] text-text-2" data-savings-none>
+              {phoneWords(noFigureKey(view))}
+            </p>
           ) : (
             <div data-savings>
               <div className="h-2.5 overflow-hidden rounded-[2px] bg-sheet-muted" role="progressbar" aria-valuemin={0} aria-valuemax={savings.required} aria-valuenow={Math.min(savings.shown, savings.required)} aria-label={phoneWords("phone.bank.savings")}>

@@ -3,7 +3,7 @@
 // the character in, or the family does), or a room in a compound in Ojuelegba, its year's rent paid
 // upfront the Lagos way (R-HOME-010). Nothing here moves money between lives (R-PEOPLE-004).
 import { check, resolveAmount } from "../engine/check";
-import { bp, divFloor } from "../engine/int";
+import { bp, divCeil, divFloor } from "../engine/int";
 import type { RegisteredKind } from "../engine/kind";
 import { emit } from "../engine/kind";
 import { reject } from "../engine/reject";
@@ -461,6 +461,24 @@ function invariants(state: State, content: Content): string[] {
 }
 
 /**
+ * R-HOME-010: the room's yearly rent while it is open: the year's figure, the fees paid on it
+ * at the move, and the months until the next year is taken. The month a charge is taken is the turn's month after the
+ * month in hand, as the obligation kind's `due` phase reads it (R-OBLIGATION-015: a prepaid rent is first charged
+ * `everyMonths` after the opening month, then every `everyMonths`; a missed one is asked for again each month).
+ */
+function roomRent(read: ReadCtx): PlayerView["home"]["roomRent"] {
+  const item = Object.values(read.state.obligation.items).find((owed) => owed.entry === COMPOUND_RENT && owed.state !== "defaulted");
+  const entry = read.content.obligation[COMPOUND_RENT];
+  if (item === undefined || entry === undefined) return null;
+  const fees = bp(read.content.tuning.home.compound.rentYear, read.content.tuning.home.compound.feesBp);
+  const takenNext = read.state.turn.month + 1;
+  if (item.missed > 0 || entry.everyMonths === undefined) return { year: item.amount, fees, dueIn: 0 };
+  const first = item.openedMonth + (entry.prepaid === true ? entry.everyMonths : 1);
+  const next = takenNext <= first ? first : first + divCeil(takenNext - first, entry.everyMonths) * entry.everyMonths;
+  return { year: item.amount, fees, dueIn: next - takenNext };
+}
+
+/**
  * R-HOME-007, R-HOME-008: where the character lives, the monthly charge there as the bill takes it, the eviction
  * chance a month in Makoko now, and at home the moves the card offers, each with its charge a month and why it is shut.
  */
@@ -483,6 +501,7 @@ export function homeView(read: ReadCtx): PlayerView["home"] {
           shut: moveShut(read, to),
         }))
       : [],
+    roomRent: roomRent(read),
   };
 }
 

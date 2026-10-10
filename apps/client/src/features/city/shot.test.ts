@@ -4,7 +4,7 @@ import type { Shot } from "../../shared/world/contract";
 import { stageOf } from "./placeFile";
 import { roomOf, HOUSE } from "./room";
 import { builtPlaces, cameraAt, onScreen, projected, SCREENS } from "./scene.testing";
-import { aimShot, CLOSE_AHEAD, clampTurn, defaultShot, FIT_MARGIN, fitDistance, shotOf, snapZoom, WHOLE, wholeDistance, widthEnds } from "./shot";
+import { aimShot, CLOSE_AHEAD, clampTurn, defaultShot, FIT_MARGIN, fitDistance, ROOM_PITCH, roomShot, shotOf, snapZoom, WHOLE, wholeDistance, widthEnds } from "./shot";
 import { thingSpot, thingsOf } from "./things";
 
 /** The pitch of a view above the ground, in degrees. */
@@ -95,3 +95,43 @@ describe("the place's camera", () => {
     expect(fallback.width).toBeGreaterThan(0);
   });
 });
+
+describe("a room seen down its length (R-WORLD-029)", () => {
+  const rooms = builtPlaces().filter(({ file }) => {
+    const stage = stageOf(file);
+    const shot = shotOf(stage);
+    return roomShot(shot, stage, file.scope) !== shot;
+  });
+
+  test("[R-WORLD-029] given the rooms whose long side runs up the screen, when the whole view is aimed, then it looks in from no higher than the room pitch, and the room in a compound is one of them while the offices are not", () => {
+    const names = rooms.map(({ folder }) => folder);
+    expect(names).toContain("compound-room");
+    expect(names).not.toContain("yaba-hub");
+    for (const { file } of rooms) expect(roomShot(shotOf(stageOf(file)), stageOf(file), file.scope).farPitch).toBeLessThanOrEqual(ROOM_PITCH);
+  });
+
+  test("[R-WORLD-029] given each such room on a phone held upright and a small phone, when the whole view is aimed, then every corner of its floor is on screen, and on the phone a figure standing at its start reads taller than from the file's own pitch", () => {
+    const cut: string[] = [];
+    const small: string[] = [];
+    expect(rooms.length).toBeGreaterThan(0);
+    for (const { folder, file } of rooms) {
+      const stage = stageOf(file);
+      const [across, deep] = stage.ground.size;
+      const [x, z] = stage.start;
+      for (const aspect of [SCREENS.phone, SCREENS.small]) {
+        const lower = cameraAt(aimShot(roomShot(shotOf(stage), stage, file.scope), WHOLE, { x, z }, aspect), aspect);
+        for (const [cx, cz] of [[-across / 2, -deep / 2], [across / 2, -deep / 2], [across / 2, deep / 2], [-across / 2, deep / 2]] as const) {
+          if (!onScreen(lower, cx, 0, cz)) cut.push(`${folder} corner ${String(cx)},${String(cz)} at ${String(aspect)}`);
+        }
+      }
+      // On the phone the review used, the figure at the door stands at least a third taller than from the file's pitch.
+      const tall = (camera: ReturnType<typeof cameraAt>): number => projected(camera, x, 1.7, z).y - projected(camera, x, 0, z).y;
+      const upright = cameraAt(aimShot(roomShot(shotOf(stage), stage, file.scope), WHOLE, { x, z }, SCREENS.phone), SCREENS.phone);
+      const overhead = cameraAt(aimShot(shotOf(stage), WHOLE, { x, z }, SCREENS.phone), SCREENS.phone);
+      if (tall(upright) <= tall(overhead) * 1.3) small.push(folder);
+    }
+    expect(cut).toEqual([]);
+    expect(small).toEqual([]);
+  });
+});
+

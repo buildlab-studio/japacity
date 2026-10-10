@@ -24,7 +24,8 @@ import { limitMotion } from "./limits";
 import { filesOf, type Spot, type Stage, stageOf } from "./placeFile";
 import type { CityProbe, ScenePick, SceneProps } from "./scene.types";
 import { sceneWords } from "./scene.words";
-import { aimShot, clampTurn, SHOT_FOV, SHOT_NEAR_PLANE, shotOf, snapZoom, widthEnds } from "./shot";
+import { type LabelBox, spreadLabels } from "./labels";
+import { aimShot, clampTurn, roomShot, SHOT_FOV, SHOT_NEAR_PLANE, shotOf, snapZoom, widthEnds } from "./shot";
 import { thingSpot, walkBeforeAct } from "./things";
 import { standAt, stepWalk, strideOf, WALK_SPEED, type Walker, walkRoute, walkTo } from "./walk";
 import { walkableOf } from "./walk/map";
@@ -438,16 +439,20 @@ function Place(props: PlaceProps) {
       const half = node.offsetWidth / 2 + EDGE_MARGIN;
       return Math.min(Math.max(x, half), Math.max(half, state.size.width - half));
     };
+    const laid: { node: HTMLElement; box: LabelBox }[] = [];
     for (const { thing, node } of labels.current) {
       const spot = thingSpot(stage, thing);
       const at = spot === null || chip.current?.thing.id === thing.id ? null : onScreen(state.camera, state.size, spot[0], LABEL_Y, spot[1], 1.05);
       // No label while the opening words stand over the world (R-WORLD-001).
       node.style.display = at === null || labelsHidden ? "none" : "";
-      if (at !== null) {
-        node.style.left = `${String(within(at.x, node))}px`;
-        node.style.top = `${String(at.y)}px`;
-      }
+      if (at !== null && !labelsHidden) laid.push({ node, box: { x: within(at.x, node), y: at.y, width: node.offsetWidth, height: node.offsetHeight } });
     }
+    // Labels that would cover each other are lifted clear.
+    const feet = spreadLabels(laid.map((one) => one.box));
+    laid.forEach(({ node, box }, index) => {
+      node.style.left = `${String(box.x)}px`;
+      node.style.top = `${String(feet[index] ?? box.y)}px`;
+    });
     const shown = chip.current;
     if (shown !== null) {
       const spot = thingSpot(stage, shown.thing);
@@ -554,7 +559,7 @@ export default function CityScene(props: SceneProps & { children?: ReactNode }) 
   const pointers = useRef(new Map<number, { x: number; y: number }>());
   const { settings, looking, file, zoomed = false, onZoomed } = props;
   const raised = props.overview === true && props.roam !== true;
-  const shot = useMemo(() => shotOf(stageOf(file)), [file]);
+  const shot = useMemo(() => roomShot(shotOf(stageOf(file)), stageOf(file), file.scope), [file]);
   const rig = useRef<Rig>(wholeRig());
   const walk = useRef<WalkState>({ walker: standAt(0, 0, 0), pending: null, standing: null, sitting: false, lying: false, speed: WALK_SPEED });
   const [markBox, setMarkBox] = useState<HTMLDivElement | null>(null);

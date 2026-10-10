@@ -45,3 +45,27 @@ describe("the setback chips", () => {
     for (const life of [retakeOnly, strikeOnly, both]) expect(Math.floor(life.months / 12)).toBe(startYearFor(archetypeOf("developer")!, 3));
   });
 });
+
+describe("the child of the water's chips", () => {
+  test("[R-PROLOGUE-012] [R-PROLOGUE-014] given the child of the water's years played with the door's answers, when the page tells them, then the chips are hers: school by canoe and the fish racks, never a shop counter; the shop worker's same years keep the counter", () => {
+    const trailOf = (id: string) => {
+      const archetype = archetypeOf(id)!;
+      const game = newGame("scenario.prologue", `${id}-chips`);
+      const trail: TrailStep[] = [];
+      for (let guard = 0; guard < 60 && game.state.prologue.open; guard += 1) {
+        const prologue = game.view().prologue!;
+        const answer = doorAnswer(archetype, prologue)!;
+        trail.push({ step: prologue.step, answer, outcome: null });
+        game.accept({ type: "prologue/choose", step: prologue.step, answer });
+      }
+      return { trail, view: game.view() };
+    };
+    const water = trailOf("water");
+    const hers = yearChips({ draw: null, steps: water.trail }, water.view, true).map((chip) => chip.label);
+    expect(hers).toContain("School by canoe");
+    expect(hers).toContain("The fish racks");
+    expect(hers).not.toContain(say("ui.page.year.shop"));
+    const shop = trailOf("shop-worker");
+    expect(yearChips({ draw: null, steps: shop.trail }, shop.view).map((chip) => chip.label)).toContain(say("ui.page.year.shop"));
+  });
+});

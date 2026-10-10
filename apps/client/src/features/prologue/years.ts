@@ -122,8 +122,13 @@ function lostWords(months: number): string {
   return sayCount("ui.page.year.lost", years, { count: years });
 }
 
-/** The chips of the years before, in the order they were lived, from the trail; from the life's path when the trail is lost. */
-export function yearChips(trail: Trail, life: Pick<PlayerView, "scenario" | "qualities" | "pockets">): YearChip[] {
+/**
+ * The chips of the years before, in the order they were lived, from the trail; from the life's path when the trail is
+ * lost. `water`: the child of the water's own years (R-PROLOGUE-012): school by canoe, the
+ * fish racks in place of a shop counter.
+ */
+export function yearChips(trail: Trail, life: Pick<PlayerView, "scenario" | "qualities" | "pockets">, water = false): YearChip[] {
+  const own = (key: string): string => (water && hasWords(`${key}.water`) ? say(`${key}.water`) : say(key));
   const chips: YearChip[] = [];
   const steps = trail.steps;
   const subjects = steps.find((one) => one.step === "subjects")?.answer ?? null;
@@ -141,7 +146,7 @@ export function yearChips(trail: Trail, life: Pick<PlayerView, "scenario" | "qua
     const after = steps[at + 1]?.step ?? null;
     switch (one.step) {
       case "after-school":
-        chips.push({ id: "waec", icon: Award, label: say("ui.page.year.waec"), note: subjects === null ? null : words(`prologue.subjects.answer.${subjects}`), state: "done" });
+        chips.push({ id: "waec", icon: Award, label: own("ui.page.year.waec"), note: subjects === null ? null : words(`prologue.subjects.answer.${subjects}`), state: "done" });
         break;
       case "exam":
         // A failed exam is the retake's setback; only the exam that settles the way gets a chip of its own.
@@ -175,7 +180,7 @@ export function yearChips(trail: Trail, life: Pick<PlayerView, "scenario" | "qua
       }
       case "shop": {
         const years = Math.round((content.prologue["shop"]?.months ?? 0) / 12);
-        chips.push({ id: "shop", icon: Store, label: say("ui.page.year.shop"), note: say("ui.page.year.shop.years", { count: years }), state: "done" });
+        chips.push({ id: "shop", icon: Store, label: own("ui.page.year.shop"), note: say("ui.page.year.shop.years", { count: years }), state: "done" });
         break;
       }
       default:

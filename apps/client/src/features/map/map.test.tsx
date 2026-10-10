@@ -17,7 +17,7 @@ import { Map } from "./Map";
 import { mapWords } from "./map.words";
 import { mapPins, type MapPin, rideChoices } from "./pins";
 import { alongOf, LINES, lineOf, PRE_MS, Ride, RIDE_MS } from "./Ride";
-import { headingOf } from "./RideSheet";
+import { firstWay, headingOf } from "./RideSheet";
 import { type Angle, angleAt, anglesOf, buildRide, CUT_DARK_MS, darkAt, figuresOn, STEP_MS, stepClock } from "./rideScene";
 import { buildCityMap, drawCallsOf, readColours } from "./scene";
 
@@ -181,6 +181,20 @@ describe("one country at a time", () => {
 });
 
 describe("the ride", () => {
+  test("[R-WORLD-017] [R-WORLD-003] given a stop in walking distance and no fare held, when the ride sheet opens, then it opens on Walk; with the fare held on the danfo, and a tapped vehicle keeps its own way", () => {
+    const from = { latE3: 6490, lonE3: 3355 };
+    const near = rideChoices(from, { latE3: 6507, lonE3: 3359 });
+    const fare = near[0]!.fare;
+    expect(near.find((way) => way.id === "walk")?.shut).toBeUndefined();
+    expect(firstWay(near, 0)).toBe("walk");
+    expect(firstWay(near, fare - 1)).toBe("walk");
+    expect(firstWay(near, fare)).toBe("danfo");
+    expect(firstWay(near, 0, "okada")).toBe("okada");
+    // Too far to walk and no fare: the first way stays, its button shut with what it lacks.
+    const far = rideChoices(from, { latE3: 6594, lonE3: 3340 });
+    expect(firstWay(far, 0)).toBe("danfo");
+  });
+
   test("[R-WORLD-017] [R-PLACE-010] given the month's fare factor from the view, when the ways are priced, then each vehicle's fare is that share of its flat figure and walking stays free", () => {
     const from = { latE3: 6511, lonE3: 3362 };
     const to = { latE3: 6594, lonE3: 3340 };
@@ -269,6 +283,14 @@ describe("the ride", () => {
     const main = document.querySelector("[data-ride-main]") as HTMLButtonElement;
     expect(main.disabled).toBe(true);
     expect(main.textContent).toContain(mapWords("map.short", { amount: "" }).trim());
+  });
+
+  test("[R-WORLD-002] [R-TEXT-008] given a ride to a place with a long name, when its band shows, then the title says the whole name, wrapping to a second line rather than cut", () => {
+    render(<Ride way="danfo" place="Murtala Muhammed International Airport" drawing={false} onDone={() => undefined} />);
+    const title = document.querySelector<HTMLElement>("[data-ride-title]");
+    expect(title?.textContent).toBe("Danfo to Murtala Muhammed International Airport");
+    expect(title?.className).not.toMatch(/\btruncate\b/);
+    expect(title?.className).toContain("line-clamp-2");
   });
 
   test("[R-WORLD-017] given a ride, when it plays, then it lasts about six seconds and ends once, with the way and the place in its band", async () => {

@@ -88,6 +88,23 @@ export function shotOf(stage: Pick<Stage, "start" | "models" | "things" | "shot"
   return stage.shot ?? defaultShot(stage);
 }
 
+/**
+ * The pitch a room seen down its length is shown whole at (R-WORLD-029): from straight above a
+ * standing figure is a dot in a room this long, so the whole view looks in from lower and the people stand up in it.
+ */
+export const ROOM_PITCH = 50;
+
+/**
+ * A room seen down its length (R-WORLD-029): an interior whose floor's long side runs up the screen, the shot turned a
+ * quarter from the floor's own axes. Its whole view keeps the file's distance and width, from no higher than ROOM_PITCH.
+ */
+export function roomShot(shot: Shot, stage: Pick<Stage, "ground" | "shot">, scope: "exterior" | "interior"): Shot {
+  const [across, deep] = stage.ground.size;
+  const quarter = Math.abs(shot.yaw ?? 0) % 180 === 90;
+  if (scope !== "interior" || stage.shot === undefined || !quarter || across <= deep) return shot;
+  return { ...shot, farPitch: Math.min(shot.farPitch, ROOM_PITCH) };
+}
+
 /** How far back the camera stands for `width` metres to span the screen's width at the point it looks at. */
 export function fitDistance(width: number, aspect: number, fov = SHOT_FOV): number {
   const half = Math.atan(Math.tan(radians(fov / 2)) * Math.max(aspect, 0.01));

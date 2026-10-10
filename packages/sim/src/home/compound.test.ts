@@ -231,6 +231,40 @@ describe("the year's rent paid upfront (R-OBLIGATION-015)", () => {
   });
 });
 
+describe("the room's rent in the view", () => {
+  test("[R-HOME-010] given Ada in the room from month 0, when months pass with the rent held, then the view carries the year's rent, the fees paid on it and the months to the next year, counting down to 0 in the month whose end takes it, then 11 again", () => {
+    const game = inTheRoom();
+    const fees = bp(home.compound.rentYear, home.compound.feesBp);
+    const seen: number[] = [];
+    while (game.state.turn.month < 13) {
+      const rent = game.view().home.roomRent;
+      expect(rent).toMatchObject({ year: home.compound.rentYear, fees });
+      seen.push(rent!.dueIn);
+      setNaira(game, 0, 5_000_000_00);
+      const result = month(game);
+      // The month whose end takes the rent is the month the view said 0.
+      expect(charged(result, RENT).length > 0).toBe(rent!.dueIn === 0);
+    }
+    expect(seen).toEqual([11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0, 11]);
+  });
+
+  test("[R-HOME-010] given the year's rent missed, when the view is read, then it is due again at this month's end", () => {
+    const game = inTheRoom();
+    toRentDue(game);
+    setNaira(game, 0, 0);
+    month(game);
+    expect(game.view().home.roomRent?.dueIn).toBe(0);
+  });
+
+  test("[R-HOME-010] given Ada at the family house, and Ada moved back from the room, when the view is read, then no yearly rent is carried", () => {
+    expect(ada().view().home.roomRent).toBeNull();
+    const game = inTheRoom();
+    month(game);
+    game.accept({ type: "home/move", to: FAMILY });
+    expect(game.view().home.roomRent).toBeNull();
+  });
+});
+
 describe("a rent gone bad (R-HOME-011)", () => {
   test("[R-HOME-011] given Ada in the room with nothing when the year's rent falls due, when it is missed past its grace, then in the same month's clocks she is back at the family house: the family's upkeep reopens, the rent closes, the standing cost is paid and a line with attention says it", () => {
     const game = inTheRoom();

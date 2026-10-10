@@ -148,3 +148,14 @@ describe("a paper's fee", () => {
     expect(shown.some((said) => said.startsWith("Paid at the office"))).toBe(false);
   });
 });
+
+describe("the stall's takings", () => {
+  test("[R-ACTIVITY-016] given the month's pay from the trader's own shop, when the lines are told, then they say the stall cleared it, never a salary; any other job keeps its salary line", () => {
+    const pay = (job: string): ReportLine => ({ key: "line.activity.salary", params: { job, amount: { currency: "NGN", amount: 180_000_00 } }, tone: "good", attention: false, counts: [] });
+    const [shop] = tidyLines([pay("activity.run-shop")]);
+    expect(shop?.key).toBe("line.activity.salary.activity.run-shop");
+    expect(words(shop!.key, shop!.params)).toBe(`Your stall cleared ${formatMoney(180_000_00, "NGN")} this month.`);
+    expect(tidyLines([pay("activity.job-teacher")])[0]?.key).toBe("line.activity.salary");
+  });
+});
+

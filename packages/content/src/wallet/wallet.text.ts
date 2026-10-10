@@ -63,4 +63,9 @@ export const walletText: Record<string, string> = {
   "line.wallet.remit-bank": "You sent {sent} home through the bank. About {naira} reaches your naira account {readyMonth}.",
   "line.wallet.remit-informal": "You handed {sent} to the man who sends money home. {naira} reached your people in cash.",
   "line.wallet.remit-lost": "You handed {sent} to the man who sends money home. It never arrived, and his number is off.",
+
+  // The Bank's savings line before a plan is made: one line, no figure.
+  "phone.bank.savings.no-plan": "No plan yet.",
+  // A plan made with nothing left to save for that is not the employer's paying.
+  "phone.bank.savings.nothing": "Nothing left to save for on this plan.",
 };

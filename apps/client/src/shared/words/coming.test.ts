@@ -3,9 +3,10 @@
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
-import { engineView, newGame, richView, viewAfter } from "../testing/fixtures";
+import { engineView, newGame, richView, setPockets, viewAfter } from "../testing/fixtures";
+import { formatMoney } from "./format";
 import { nameOf, say } from "./text";
-import { AGE_LIMIT_NEAR, ageMonthsOf, comingOf, soonest } from "./coming";
+import { AGE_LIMIT_NEAR, ageMonthsOf, comingOf, RENT_NEAR, soonest } from "./coming";
 
 describe("what is coming", () => {
   test("[R-WORLD-002] given a new life, when the list is read, then the next birthday is on it as months away, and the chip has nothing to say", () => {
@@ -59,5 +60,23 @@ describe("what is coming", () => {
     expect(near).toMatchObject({ what: say("ui.world.coming.age-limit", { route: nameOf("route.gulf-contract") }), month: base.month + 6 });
     expect(comingOf(aged(AGE_LIMIT_NEAR + 1, "heard")).find((item) => item.kind === "age-limit")).toBeUndefined();
     expect(comingOf(aged(6, "unknown")).find((item) => item.kind === "age-limit")).toBeUndefined();
+  });
+
+  test("[R-HOME-010] given Ada in the room in a compound, when months pass, then the room's rent joins the list two months before the month it is taken, at that month, and the chip may say it", () => {
+    const game = newGame();
+    setPockets(game, { NGN: 5_000_000_00 });
+    game.accept({ type: "home/move", to: "place.compound-room" });
+    const what = say("ui.world.coming.rent", { amount: formatMoney(content.tuning.home.compound.rentYear, "NGN") });
+    const seen: { what: string; away: number; dueIn: number }[] = [];
+    while (game.state.turn.month < 12) {
+      const view = game.view();
+      const rent = comingOf(view).find((item) => item.kind === "rent");
+      if (rent !== undefined) seen.push({ what: rent.what, away: rent.month - view.month, dueIn: view.home.roomRent!.dueIn });
+      setPockets(game, { NGN: 5_000_000_00 });
+      if (game.state.turn.banked < 1) game.grant(content.tuning.turn.cap);
+      game.endTurn();
+    }
+    expect(seen).toEqual([RENT_NEAR, 1, 0].map((away) => ({ what, away, dueIn: away })));
+    expect(soonest(newGame().view())).toBeNull();
   });
 });

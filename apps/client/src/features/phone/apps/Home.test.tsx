@@ -119,6 +119,52 @@ describe("the home card", () => {
     unmount();
   });
 
+  test("[R-HOME-010] given Ada in the room in a compound, when Bills opens month by month, then the card says the year's rent and when it is next taken, with the living costs on their own line, counting down to this month", async () => {
+    const game = newGame();
+    setPockets(game, { NGN: 5_000_000_00 });
+    game.accept({ type: "home/move", to: "place.compound-room" });
+    const { home } = content.tuning;
+    const year = formatMoney(home.compound.rentYear, "NGN");
+    const first = await openBills(game);
+    expect(document.querySelector("[data-home-rent-year]")?.textContent).toBe(`Rent ${year} a year, next in 11 months`);
+    expect(document.querySelector("[data-home-charge]")?.textContent).toBe(`Living costs ${formatMoney(home.compound.upkeep, "NGN")} a month`);
+    first.unmount();
+    while (game.state.turn.month < 10) {
+      setPockets(game, { NGN: 5_000_000_00 });
+      if (game.state.turn.banked < 1) game.grant(content.tuning.turn.cap);
+      game.endTurn();
+    }
+    const next = await openBills(game);
+    expect(document.querySelector("[data-home-rent-year]")?.textContent).toBe(`Rent ${year} a year, next due next month`);
+    next.unmount();
+    if (game.state.turn.banked < 1) game.grant(content.tuning.turn.cap);
+    game.endTurn();
+    const now = await openBills(game);
+    expect(document.querySelector("[data-home-rent-year]")?.textContent).toBe(`Rent ${year} a year, due this month`);
+    now.unmount();
+  });
+
+  test("[R-HOME-010] given Ada at the family house, when Bills opens, then no yearly rent shows and her charge reads as living costs", async () => {
+    const game = newGame();
+    const { unmount } = await openBills(game);
+    expect(document.querySelector("[data-home-rent-year]")).toBeNull();
+    expect(document.querySelector("[data-home-charge]")?.textContent).toBe(`Living costs ${formatMoney(ADA_UPKEEP, "NGN")} a month`);
+    unmount();
+  });
+
+  test("[R-HOME-010] given Ada in the room a month on, when the move back is asked, then it says the family house's charge is living costs with food and light, and that the year's rent stays with the landlord", async () => {
+    const game = newGame();
+    setPockets(game, { NGN: 5_000_000_00 });
+    game.accept({ type: "home/move", to: "place.compound-room" });
+    game.endTurn();
+    const { unmount } = await openBills(game);
+    fireEvent.click(moveButton("place.family-house")!);
+    const said = document.body.textContent ?? "";
+    expect(said).toContain("The year's rent stays with the landlord.");
+    expect(said).toContain(`living costs ${formatMoney(ADA_UPKEEP, "NGN")} a month, food and light included`);
+    unmount();
+  });
+
   test("[R-HOME-007] given Ada abroad, when Bills opens, then no home card shows: the home is Lagos", async () => {
     const game = newGame();
     applyEffects(game, [{ type: "place/move", to: "abroad", country: "country.uk" }]);

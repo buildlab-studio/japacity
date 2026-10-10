@@ -35,11 +35,15 @@ export function payNow(owed: Owed): { amount: number; line: string; button: stri
  * one behind, or one taken every month.
  */
 export function nextTaken(owed: Owed, month: number): string | null {
-  const every = content.obligation[owed.entry]?.everyMonths;
-  if (every === undefined || every <= 1 || owed.due > 0 || owed.missed > 0 || owed.outstanding <= 0) return null;
+  const entry = content.obligation[owed.entry];
+  const every = entry?.everyMonths;
+  // A rent owes nothing between its years, so it is said whatever is outstanding.
+  if (every === undefined || every <= 1 || owed.due > 0 || owed.missed > 0 || (owed.outstanding <= 0 && entry?.type !== "rent")) return null;
+  // R-OBLIGATION-015: a period paid when it opened is first taken a whole period after the opening month.
+  const first = entry?.prepaid === true ? every : 1;
   // The view's "this month" is the month after the one in hand, as `due` reads it.
   for (let ahead = 1; ahead <= every + 1; ahead += 1) {
-    const age = month + ahead - owed.openedMonth - 1;
+    const age = month + ahead - owed.openedMonth - first;
     if (age >= 0 && age % every === 0) {
       const own = `ui.obligation.next.${owed.entry}`;
       return say(hasWords(own) ? own : "ui.obligation.next", { when: inMonths(month + ahead, month + 1) });

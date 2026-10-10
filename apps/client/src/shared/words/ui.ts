@@ -99,6 +99,7 @@ export const uiText: Record<string, string> = {
   "ui.world.pass": "Bus pass",
   "ui.world.depart-held": "The funds held for you must go back first: Phone, Bills, Pay now.",
   "ui.inside.hub": "The hub, Yaba",
+  "ui.inside.hub.short": "The hub",
   "ui.world.ask-away": "Someone is waiting for you at {place}.",
   // Who waits, where content knows: the family house is Mama's.
   "ui.world.ask-away.place.family-house": "Mama is waiting for you at home.",
@@ -395,6 +396,7 @@ export const uiText: Record<string, string> = {
   // A bill taken every few months, in a month none is taken.
   "ui.obligation.next": "Next payment {when}.",
   "ui.obligation.next.obligation.tuition": "Next instalment {when}.",
+  "ui.obligation.next.obligation.rent-compound": "Next year's rent {when}.",
   "ui.obligation.months-left": "{months} months left",
   "ui.obligation.months-left.one": "1 month left",
   "ui.obligation.missed": "Missed {count} payments in a row",
@@ -690,6 +692,9 @@ export const uiText: Record<string, string> = {
   "ui.page.year.settlement.fair": "Enough to start",
   "ui.page.year.settlement.cheated": "Little to show",
   "ui.page.year.shop": "Shop counter",
+  // The child of the water's own years (R-PROLOGUE-012): the canoe to school, then the racks.
+  "ui.page.year.waec.water": "School by canoe",
+  "ui.page.year.shop.water": "The fish racks",
   "ui.page.year.shop.years": "{count} years",
   "ui.page.year.grade": "Grade",
   "ui.page.year.grade.short": "Master's and bank shut",

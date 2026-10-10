@@ -18,6 +18,8 @@ export const turnText: Record<string, string> = {
   "turn.month.no-slots": "No free time this month.",
   "turn.month.no-slot": "Takes no slot",
   "turn.month.end": "Next month",
+  // R-HOME-010: the room's year falls due at this month's end and is not held.
+  "turn.month.rent-short": "Rent {amount} due this month. You hold {held}.",
 
   "turn.results.label": "The month is done",
   "turn.results.title": "The month is done",
