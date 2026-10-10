@@ -83,7 +83,11 @@ describe("the japa type, read at the send-off", () => {
     expect(ada.routes.find((route) => route.id === "route.uk-talent")?.refusals).toBe(1);
     // Home at its proudest: standing at the top of its range, or the top band with time given to family.
     expect(japaTypeOf({ ...ada, card: { ...ada.card!, standing: content.quality["quality.standing"]!.max } })).toBe("family-anchor");
-    expect(japaTypeOf(adaDoing(["activity.family-time", "activity.job-junior-dev"]))).toBe("family-anchor");
+    const standing = content.quality["quality.standing"]!;
+    // The lowest standing in the top of the four bands the screen says (R-TEXT-005).
+    const topBand = standing.min + Math.ceil((3 * (standing.max - standing.min + 1)) / 4);
+    expect(japaTypeOf({ ...ada, card: { ...ada.card!, standing: topBand, topActivities: ["activity.family-time", "activity.job-junior-dev"] } })).toBe("family-anchor");
+    expect(japaTypeOf({ ...ada, card: { ...ada.card!, standing: topBand - 1, topActivities: ["activity.family-time", "activity.job-junior-dev"] } })).not.toBe("family-anchor");
     expect(japaTypeOf({ ...adaDoing(["activity.family-time", "activity.job-junior-dev"]), card: { ...ada.card!, topActivities: ["activity.family-time"], standing: 50 } })).not.toBe("family-anchor");
     // Two risks: the kiosk and an agent paid. One alone is not enough.
     expect(japaTypeOf(adaDoing(["activity.play-lotto", "activity.see-agent-office"]))).toBe("gambler");

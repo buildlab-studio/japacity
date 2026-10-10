@@ -68,7 +68,8 @@ describe("the ticket stub's face", () => {
     const steps = stubSteps(stubFace(card, "scenario.ada", type)!, SIZE, measure);
     expect(role(steps, "stub-label")).toEqual(["FROM", "TO", "MONTHS", "JAPACITY"]);
     const country = content.route[card.route!]!.country!;
-    expect(role(steps, "stub-value")).toEqual(["Lagos", text[`${country}.name`], playedWords(card.months), String(card.percent)]);
+    // A value too wide for its column wraps onto a second line; read in order, the lines are the four values.
+    expect(role(steps, "stub-value").join(" ")).toBe(["Lagos", text[`${country}.name`], playedWords(card.months), String(card.percent)].join(" "));
     expect(role(steps, "percent-sign")).toEqual(["%"]);
     expect(role(steps, "type-label")).toEqual([text["share.stub.badge"]!.toUpperCase()]);
     expect(role(steps, "type-name").join(" ")).toBe(text[`share.type.${type}.name`]);
