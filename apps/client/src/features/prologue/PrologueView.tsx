@@ -2,7 +2,7 @@
 // the character at the gate (R-PROLOGUE-009). A new life never shows a card: its archetype answers every step
 // (R-PROLOGUE-010) while the page over the compound fills as the years go by, and when the last answer is in, the
 // page is the handover (R-PROLOGUE-014): the family the game drew turned over, the years before as fact chips, the
-// money as it stands, the stamp, and the world opens when Go is tapped. A life with no archetype (the setting
+// money as it stands, and the world opens when Go is tapped. A life with no archetype (the setting
 // `prologue.full`, or a fixed life a test starts) shows each card, one at a time, its answers greyed with the reason.
 import { content } from "@japacity/content";
 import type { PlayerView, ReportLine } from "@japacity/sim";
@@ -18,12 +18,12 @@ import { ToneTag } from "../../shared/ui/ToneTag";
 import { formatMoney } from "../../shared/words/format";
 import { AGE, clockWords, valueWords, yearsOf } from "../../shared/words/quality";
 import { requirementSentence } from "../../shared/words/requirement";
-import { nextStepOf, ownWayOf, RACKS_STEP, racksAtHand, sixteenPath } from "../../shared/words/sixteen";
+import { nextStepOf, ownWayOf, RACKS_STEP, racksAtHand } from "../../shared/words/sixteen";
 import { bandWords, hasWords, nameOf, say, sayCount, words } from "../../shared/words/text";
 import { Gate, GateSheet, gateLook } from "../../shared/frontdoor/Gate";
 import { lookOf } from "../../shared/frontdoor/looks";
-import { type Archetype, answersInOrder, archetypeOf, doorAnswer, fullPrologue, handoverKind, throughUniversity, withAge, withHome } from "../../shared/frontdoor/archetypes";
-import { DataPage, type PageFields, Stamp } from "../../shared/datapage/DataPage";
+import { type Archetype, answersInOrder, archetypeOf, doorAnswer, fullPrologue, handoverKind, withAge, withHome } from "../../shared/frontdoor/archetypes";
+import { DataPage, type PageFields } from "../../shared/datapage/DataPage";
 import { JapacityLine, StatBox } from "../../shared/datapage/PageParts";
 import { DoorHead } from "../../shared/frontdoor/DoorHead";
 import { readDoor } from "../../shared/datapage/door";
@@ -321,17 +321,9 @@ export function firstStep(view: Pick<PlayerView, "chapter" | "scenario" | "quali
 }
 
 
-/** When the family's card turns over on the handover page and the stamp lands; the world opens only on Go or a tap (R-PROLOGUE-014). */
+/** When the family's card turns over on the handover page; no stamp lands, and the world opens only on Go or a tap (R-PROLOGUE-014). */
 export const TURN_MS = 450;
-export const STAMP_AT_MS = 1100;
 
-/** The page's "So far": the tile while the life went its way, else the life as lived, never the tile (R-PROLOGUE-011, 014). */
-function pathShown(archetype: Archetype | null, view: PlayerView, page: PageFields): string {
-  if (archetype === null) return page.path;
-  const lived = sixteenPath(view);
-  if (lived === null || (lived === "degree") === throughUniversity(archetype)) return say(`prologue.archetype.${archetype.id}.name`);
-  return say(`ui.page.lived.${lived}`);
-}
 
 /** The family the game drew, face down until it turns over once, the same height before and after. */
 function Family({ draw, water, turned }: { draw: Draw | null; water: boolean; turned: boolean }) {
@@ -388,13 +380,12 @@ function Chips({ chips, mark }: { chips: readonly YearChip[]; mark?: string }) {
  * The page over the compound after Begin (R-PROLOGUE-014). While the years go by (`onDone` absent) the page shows the
  * person and the age growing, the family still face down and the chips as the trail has them. As the handover, the
  * family turns over once, the years before stand as chips with the story's own, the money and japacity as they
- * stand, the stamp lands, and the world opens when Go is tapped, or the page.
+ * stand, and the world opens when Go is tapped, or the page. No stamp lands: the page takes none before a visa.
  */
 function PageScreen({ view, archetype, draw, onDone }: { view: PlayerView; archetype: Archetype | null; draw: Draw | null; onDone?: () => void }) {
   const person = readPerson();
   const handover = onDone !== undefined;
   const [turned, setTurned] = useState(false);
-  const [stamped, setStamped] = useState(false);
   const done = useRef(false);
   const finish = (): void => {
     if (done.current || onDone === undefined) return;
@@ -404,7 +395,7 @@ function PageScreen({ view, archetype, draw, onDone }: { view: PlayerView; arche
   useEffect(() => {
     if (!handover) return;
     // The page waits for the player: ten facts are not read in three seconds.
-    const timers = [window.setTimeout(() => setTurned(true), TURN_MS), window.setTimeout(() => setStamped(true), STAMP_AT_MS)];
+    const timers = [window.setTimeout(() => setTurned(true), TURN_MS)];
     return () => timers.forEach((timer) => window.clearTimeout(timer));
     // The page's timeline runs once, as the handover opens.
   }, [handover]);
@@ -413,7 +404,8 @@ function PageScreen({ view, archetype, draw, onDone }: { view: PlayerView; arche
   const kept = draw ?? trail.draw;
   const water = archetype?.id === "water";
   const base = pageOf(view, person);
-  const page: PageFields = { ...base, path: pathShown(archetype, view, base), photo: lookOf(gateLook(person?.look))?.picture ?? "", age: clockWords(view.qualities), stamps: [] };
+  // The family prints on the page as its card turns over; until then its line waits (R-PROLOGUE-009, 014).
+  const page: PageFields = { ...base, photo: lookOf(gateLook(person?.look))?.picture ?? "", age: clockWords(view.qualities), family: handover && turned && kept !== null ? familyCard(kept, water).title : "" };
   const years = yearChips(trail, view);
   const story = handover ? storyChips(view) : [];
   const step = handover ? firstStep(view) : null;
@@ -427,7 +419,7 @@ function PageScreen({ view, archetype, draw, onDone }: { view: PlayerView; arche
         </div>
       ) : null}
       <div className="pointer-events-auto mx-auto mt-2 w-full max-w-[420px]">
-        <DataPage page={page} print stamp={stamped ? <Stamp words={say("prologue.page.stamp.ready")} turn={-12} big /> : null} />
+        <DataPage page={page} print />
       </div>
     </>
   );

@@ -171,7 +171,7 @@ describe("the run through the front door", () => {
     expect(localStorage.getItem(DOOR_KEY)).not.toBeNull();
   });
 
-  test("[R-PROLOGUE-013] given the door, then no ready life is on it; given a run Settings asked for, then it opens on the ready lives, the name a screen back, a pick goes to the page, and Begin stamps it and starts that life with its own age printed", async () => {
+  test("[R-PROLOGUE-013] given the door, then no ready life is on it; given a run Settings asked for, then it opens on the ready lives, the name a screen back, a pick goes to the page, and Begin starts that life, stamping nothing, with its own age printed", async () => {
     door();
     fireEvent.click(next(say("ui.door.next")));
     expect(document.querySelector("[data-ready], [data-ready-life]")).toBeNull();
@@ -195,7 +195,8 @@ describe("the run through the front door", () => {
     expect(document.querySelector("[data-page] [data-field='age']")?.textContent).toContain(say("prologue.page.age.years", { years: yearsOf(readyMonths("scenario.tunde")) }));
     expect(yearsOf(readyMonths("scenario.tunde"))).toBe(28);
     fireEvent.click(next(say("ui.door.begin")));
-    expect(await screen.findByText(say("prologue.page.stamp.ready"))).toBeDefined();
+    // Begin stamps nothing: the page takes no stamp before a visa (R-PROLOGUE-014, amended).
+    expect(document.querySelector("[data-stamp]")).toBeNull();
     await waitFor(() => expect(store.getState().view?.scenario).toBe("scenario.tunde"), { timeout: 4000 });
     expect(readPerson()?.name).toBe("Bayo");
     expect(readPerson()?.archetype).toBeNull();

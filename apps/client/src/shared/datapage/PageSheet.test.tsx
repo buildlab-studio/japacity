@@ -12,6 +12,8 @@ import { lookOf } from "../frontdoor/looks";
 import { clockWords } from "../words/quality";
 import { say } from "../words/text";
 import { Band } from "../world/Band";
+import { stripLines } from "./DataPage";
+import { familyCard, TRAIL_KEY } from "./family";
 import { stampsOf } from "./stamps";
 // Registers Testing Library's cleanup for this file.
 import "../testing/render";
@@ -74,14 +76,14 @@ describe("the page from the band", () => {
     expect(page.querySelector("[data-field='path']")?.textContent).toContain(say("scenario.ada.kind"));
     expect(page.querySelector("[data-field='ready']")?.textContent).toContain(say("prologue.page.ready.figure", { percent: view.japacity.percent ?? 0 }));
     expect(page.querySelector<HTMLImageElement>("[data-photo] img")?.getAttribute("src")).toBe(lookOf("chr_kemi")!.picture);
-    // No step taken yet: no stamp, and the page says how one comes.
-    expect(page.querySelector("[data-stamps]")).toBeNull();
-    expect(sheet.textContent).toContain(say("prologue.page.stamps.none"));
+    // No visa yet: no stamp, and the page says the visa's is the first.
+    expect(page.querySelector("[data-stamp]")).toBeNull();
+    expect(sheet.textContent).toContain(say("ui.page.stamps.none"));
     fireEvent.click(within(sheet).getByRole("button", { name: say("prologue.page.close") }));
     expect(screen.queryByRole("dialog")).toBeNull();
   });
 
-  test("[R-PROLOGUE-009] given the view moving on, then the open page keeps the age current and stamps the steps the view shows", async () => {
+  test("[R-PROLOGUE-009] given the view moving on, then the open page keeps the age current, takes no stamp for the passport, and the visa's round stamp once it is granted", async () => {
     const store = await life("scenario.ada", { look: "chr_kemi", name: "Morenike", archetype: null });
     band(store);
     fireEvent.click(opener());
@@ -94,17 +96,39 @@ describe("the page from the band", () => {
     store.setState({ view: older });
     const page = await screen.findByRole("dialog");
     expect(page.querySelector("[data-field='age']")?.textContent).toContain(clockWords(older.qualities));
-    const stamps = [...page.querySelectorAll("[data-stamps] [data-stamp]")].map((stamp) => stamp.textContent);
-    expect(stamps).toEqual(stampsOf(older));
-    expect(stamps).toContain(say("prologue.page.stamp.papers"));
-    expect(page.textContent).toContain(say("prologue.page.stamps.some"));
+    // The passport is a step before the visa: it stamps nothing.
+    expect(page.querySelector("[data-stamp]")).toBeNull();
+    const route = "route.uk-care" as const;
+    const granted: PlayerView = { ...older, routes: older.routes.map((one) => (one.id === route ? { ...one, state: "granted" } : one)), plan: { route, ways: [{ route, percent: 100 }] } };
+    store.setState({ view: granted });
+    const visa = await screen.findByText(say("prologue.page.stamp.granted"));
+    expect(visa.closest("[data-stamp-visa]")).not.toBeNull();
+    expect(visa.closest("[data-stamp-round]")?.textContent).toBe(`${say("prologue.page.stamp.granted")}${say(`prologue.page.way.${route}`)}`);
+    expect(stampsOf(granted)).toHaveLength(1);
+    expect(page.textContent).toContain(say("ui.page.stamps.some"));
   });
 
-  test("[R-PROLOGUE-009] given a life from a tile, then the page says the tile's name as what the life was", async () => {
+  test("[R-PROLOGUE-009] given a life from a tile, then the page says the tile's name as the path and its one line as what the life was so far", async () => {
     const store = await life("scenario.prologue", { look: "chr_tobi", name: "Dayo", archetype: "trader" });
     band(store);
     fireEvent.click(opener());
     expect(screen.getByRole("dialog").querySelector("[data-field='path']")?.textContent).toContain(say("prologue.archetype.trader.name"));
+    expect(screen.getByRole("dialog").querySelector("[data-field='was']")?.textContent).toContain(say("prologue.archetype.trader.was"));
+  });
+
+  test("[R-PROLOGUE-009] given the family the prologue drew kept on the device, then the band's page prints its title on the FAMILY line and the strip carries the name, the home's district, the age and how ready", async () => {
+    localStorage.setItem(TRAIL_KEY, JSON.stringify({ draw: { familyMeans: 50, town: "city", siblings: 2, parentsEducated: true }, steps: [] }));
+    const store = await life("scenario.ada", { look: "chr_kemi", name: "Morenike", archetype: null });
+    band(store);
+    fireEvent.click(opener());
+    const view = store.getState().view!;
+    const page = screen.getByRole("dialog").querySelector<HTMLElement>("[data-page]")!;
+    expect(page.querySelector("[data-field='family']")?.textContent).toContain(familyCard({ familyMeans: 50, town: "city", siblings: 2, parentsEducated: true }, false).title);
+    const months = view.qualities.find((quality) => quality.id === "quality.age-months")?.value ?? 0;
+    const lines = stripLines("Morenike", { district: say("ui.door.home.where.family-house"), years: Math.floor(months / 12), months: months % 12, percent: view.japacity.percent ?? 0 });
+    expect(view.home.place).toBe("place.family-house");
+    expect(page.querySelector("[data-page-strip]")?.textContent).toBe(lines.join(""));
+    expect(lines[1]).toMatch(/^SURULERE<</);
   });
 
   test("[R-PROLOGUE-009] given no game around the band, then it shows the age alone, with nothing to open", () => {

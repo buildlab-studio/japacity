@@ -12,7 +12,7 @@
 import { content } from "@japacity/content";
 import { type Id, int } from "@japacity/sim";
 import { Award, BedSingle, BookOpen, ChevronLeft, ChevronRight, Dices, Flag, GraduationCap, Hammer, House, Lock, Send, Store, Waves } from "lucide-react";
-import { type ReactNode, useEffect, useRef, useState } from "react";
+import { type ReactNode, useState } from "react";
 
 import { useGame } from "../../authority/GameProvider";
 import { keepPerson } from "../../authority/person";
@@ -26,7 +26,7 @@ import { LOOKS, lookOf, namesFor } from "../../shared/frontdoor/looks";
 import { OwnColoursRows } from "../../shared/frontdoor/OwnColours";
 import { isMade } from "../../shared/frontdoor/style";
 import { takeReadyAsk } from "../../shared/frontdoor/ready";
-import { DataPage, type PageFields, Stamp } from "../../shared/datapage/DataPage";
+import { DataPage, type PageFields } from "../../shared/datapage/DataPage";
 import { EditLink, FamilyFace, JapacityLine, StatBox } from "../../shared/datapage/PageParts";
 import { FactChip, type FactChipProps } from "../../shared/ui/FactChip";
 import { madePhoto } from "../../shared/datapage/photo";
@@ -39,8 +39,6 @@ import { readyMonths, yearsOf } from "../../shared/datapage/years";
 const READY = (Object.keys(content.scenario) as Id<"scenario">[]).filter((id) => content.scenario[id]?.prologue !== true);
 /** The three screens, for the progress marks over the scene. */
 const SCREENS: readonly DoorStage[] = ["you", "life", "page"];
-/** How long the stamp sits on a ready life's page before the life starts. */
-export const STAMP_MS = 900;
 
 function freshRoll(): number {
   return Math.floor(Math.random() * 100000);
@@ -164,12 +162,17 @@ function pathWords(draft: DoorDraft): string {
  */
 function fieldsOf(draft: DoorDraft): PageFields {
   const years = yearsFor(draft);
+  const archetype = draft.ready === null ? archetypeOf(draft.archetype) : null;
+  const home = archetype === null ? null : fitHome(archetype, draft.age, { home: draft.home ?? homeOf(archetype), homePicked: true });
   return {
     name: draft.name.trim(),
     age: years === null ? "" : say("prologue.page.age.years", { years }),
     path: pathWords(draft),
     ready: "",
     family: "",
+    ...(archetype === null ? {} : { was: say(`prologue.archetype.${archetype.id}.was`) }),
+    // The strip from what the door knows: the home's district and the year picked; the months and how ready come with the life.
+    strip: { district: home === null ? "" : say(`ui.door.home.where.${home}`), years, months: null, percent: null },
     photo: lookOf(draft.look)?.picture ?? "",
     wear: { look: draft.look, ...(draft.style === undefined ? {} : { style: draft.style }) },
   };
@@ -255,18 +258,10 @@ export function ScenarioView({ guest = null }: { guest?: DoorGuest | null }) {
     return opened;
   });
   const [tried, setTried] = useState(false);
-  const [stamped, setStamped] = useState(false);
+  const [pressed, setPressed] = useState(false);
   // The username as typed on the page; null while the name fills it in.
   const [typedUsername, setTypedUsername] = useState<string | null>(null);
   const [usernameSaid, setUsernameSaid] = useState<string | null>(null);
-  const timer = useRef<number | null>(null);
-
-  useEffect(
-    () => () => {
-      if (timer.current !== null) window.clearTimeout(timer.current);
-    },
-    [],
-  );
 
   // Kept as it changes, outside the state's updater, so the step is on the device even when the door closes at once.
   const change = (part: Partial<DoorDraft>): void => {
@@ -320,7 +315,7 @@ export function ScenarioView({ guest = null }: { guest?: DoorGuest | null }) {
   };
 
   const begin = (): void => {
-    if (stamped) return;
+    if (pressed) return;
     setTried(true);
     if (problem !== null) {
       change({ stage: "you" });
@@ -335,27 +330,22 @@ export function ScenarioView({ guest = null }: { guest?: DoorGuest | null }) {
       change({ stage: "begun", ...(home === null ? {} : { home }) });
       void chooseLife(ready ?? FROM_SIXTEEN)
         .then(() => guest?.started())
-        .catch(() => setStamped(false));
-    };
-    // A ready life is stamped here; a tile's page is stamped once its years are filled in (R-PROLOGUE-014).
-    const stamp = (): void => {
-      if (ready === null) start();
-      else timer.current = window.setTimeout(start, STAMP_MS);
+        .catch(() => setPressed(false));
     };
     if (guest === null) {
-      setStamped(true);
-      stamp();
+      setPressed(true);
+      start();
       return;
     }
     const typed = guest.check(username);
     setUsernameSaid(typed);
     if (typed !== null) return;
-    setStamped(true);
+    setPressed(true);
     // R-ACCOUNT-021: the guest life first; the character is the account's one (R-ACCOUNT-015).
     void guest.start(username, typedUsername === null).then((said) => {
       setUsernameSaid(said);
-      if (said === null) stamp();
-      else setStamped(false);
+      if (said === null) start();
+      else setPressed(false);
     });
   };
 
@@ -369,7 +359,7 @@ export function ScenarioView({ guest = null }: { guest?: DoorGuest | null }) {
           keepDoor({ ...draft, asked: false });
           backToLife();
         };
-  const onBack = stamped ? null : back !== null ? () => change({ stage: back }) : asked && draft.stage === "you" ? leave : null;
+  const onBack = pressed ? null : back !== null ? () => change({ stage: back }) : asked && draft.stage === "you" ? leave : null;
   const at = Math.max(0, SCREENS.indexOf(draft.stage === "ready" ? "life" : draft.stage === "begun" ? "page" : draft.stage));
   const title = draft.stage === "you" ? say("ui.life.title") : draft.stage === "life" ? say("ui.door.life") : draft.stage === "ready" ? say("ui.door.ready.title") : say("prologue.door.page.title");
   const head = <DoorHead title={title} at={at} count={SCREENS.length} onBack={onBack} onShuffle={faster ? shuffle : null} onSkip={faster ? () => go("page") : null} />;
@@ -386,12 +376,12 @@ export function ScenarioView({ guest = null }: { guest?: DoorGuest | null }) {
             {/* The header on the theme's band, as the design's page has it, so its chalk reads over the compound. */}
             <div className="band-2 pointer-events-auto -mx-3 -mt-[max(10px,env(safe-area-inset-top))] px-3 pt-[max(12px,env(safe-area-inset-top))] pb-2">{head}</div>
             <div className="pointer-events-auto mx-auto mt-3 w-full max-w-[420px]">
-              <DataPage page={fieldsOf(draft)} print stamp={stamped && draft.ready !== null ? <Stamp words={say("prologue.page.stamp.ready")} turn={-12} big /> : null} />
+              <DataPage page={fieldsOf(draft)} print />
             </div>
           </>
         }
       >
-        <GateSheet key="page" mark="page" label={say("prologue.door.page.title")} foot={<MainButton word={say("ui.door.begin")} then={say("prologue.door.begin.then")} onClick={begin} disabled={stamped} />}>
+        <GateSheet key="page" mark="page" label={say("prologue.door.page.title")} foot={<MainButton word={say("ui.door.begin")} then={say("ui.door.begin.then")} onClick={begin} disabled={pressed} />}>
           {archetype === null ? null : (
             <>
               <FamilyFace card={null} label={say("ui.page.family.unseen")} />
@@ -428,7 +418,7 @@ export function ScenarioView({ guest = null }: { guest?: DoorGuest | null }) {
                 },
                 usernameSaid,
               )}
-          {stamped ? null : (
+          {pressed ? null : (
             <div className="mt-2 flex flex-wrap gap-1.5">
               <EditLink mark="you" onClick={() => change({ stage: "you" })}>
                 {say("ui.door.edit.you")}
