@@ -1251,6 +1251,8 @@ function lines(event: ActivityEvent, state: State): ReportLine[] {
     case "activity/now-said":
       return [line(nowLineKey(event.activity), { ...pickParams(event.activity, event.param), ...(event.ready === null ? {} : { month: event.ready }) }, "plain")];
     case "activity/now-played":
+      // The act itself, told with the month's other lines as a slot's is, and named before the money it spends.
+      return [line("line.activity.played-now", pickParams(event.activity, event.param), "plain")];
     case "activity/now-cleared":
       return [];
     default: {

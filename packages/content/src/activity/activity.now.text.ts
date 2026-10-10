@@ -2,6 +2,8 @@
 // voice of whoever is there. First drafts, rewritten for voice. {param} is the job or
 // the route picked, {month} the month a paper is due, which the screen says as months away.
 export const activityNowText: Record<string, string> = {
+  // The act itself among the month's lines, as "This month: ..." tells a slot.
+  "line.activity.played-now": "Done this month: {activity}.",
   "line.activity.play-lotto.now": "Ticket bought. The draw is on the radio, Friday.",
   "line.activity.bet-slip.now": "Slip stamped. The matches play at the weekend.",
   "line.activity.ask-around.now": "The driver says: Dubai, if you have the papers.",
