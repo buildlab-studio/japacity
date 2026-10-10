@@ -308,7 +308,7 @@ describe("a room on the water (R-PROLOGUE-012)", () => {
       { type: "home/move", place: "place.makoko" },
     ]);
     for (const key of ["prologue.home.answer.makoko", "prologue.home.answer.makoko.hint", "prologue.handover.home.makoko"]) {
-      expect(text[key], key).toBeTruthy();
+      expect(text[key]).toBeTruthy();
       expect(text[key]).not.toMatch(/[\u2013\u2014]/);
     }
     expect(text["prologue.home.answer.makoko.hint"]).toContain("{amount}");
