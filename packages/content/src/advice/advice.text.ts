@@ -140,6 +140,8 @@ export const adviceText: Record<string, string> = {
   "line.route.looked-into-told": "Someone who went told you about {route}. Now you know what it takes, as far as they know.",
   "line.route.looked-into-advised": "The adviser went through {route} with you, item by item.",
   "line.route.looked-into-agent": "The agent told you what {route} takes. Only the official page is sure.",
+  // The motor park asked around: the drivers' word, not a page read.
+  "line.route.looked-into-asked": "The drivers told you what {route} asks. Only the official page is sure.",
   "line.activity.went-told": "Someone who went told you what {route} asked when they left. Things may have moved since.",
   "line.activity.went-item": "They said you need: {item}.",
   "line.activity.went-out-of-date": "You already have this one, and it is not as they said: {item}. The rules have changed since they left.",

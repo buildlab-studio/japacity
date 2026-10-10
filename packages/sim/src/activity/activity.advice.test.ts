@@ -67,6 +67,19 @@ describe("the official page", () => {
   });
 });
 
+describe("asking around at the park", () => {
+  test("[R-ADVICE-001] given the Gulf heard of, when the player asks around at the motor park, then the Gulf is known and the line says the drivers told it, never that a page was read", () => {
+    const game = start({ content, scenario: "scenario.ada", seed: "seed-1" });
+    applyEffects(game, [{ type: "route/hear", route: "route.gulf-contract", via: "friend" }]);
+    const result = game.endTurn([slot("activity.ask-around")]);
+    expect(game.state.route["route.gulf-contract"]?.state).toBe("known");
+    const keys = result.lines.filter((line) => line.key.startsWith("line.route.looked-into")).map((line) => [line.key, line.params]);
+    expect(keys).toEqual([["line.route.looked-into-asked", { route: "route.gulf-contract" }]]);
+    expect(text["line.route.looked-into-asked"]).toMatch(/^The drivers told you/);
+    expect(text["line.route.looked-into-asked"]).not.toMatch(/read/);
+  });
+});
+
 describe("someone who went", () => {
   test("[R-ADVICE-003] given the network one under the bar and at the bar, when the friend is asked, then under it is not legal and at it the route is known through the friend", () => {
     const under = heard(advice.networkToAsk - 1);
