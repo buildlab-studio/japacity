@@ -1081,6 +1081,8 @@ function endedLines(event: Extract<PeopleEvent, { type: "people/ended" }>, state
       return [line("line.people.drifted", { who }, "bad", true)];
     case "absence":
       return [line("line.people.ended-absence", { who }, "plain", true)];
+    case "restart":
+      return [line("line.people.ended-restart", { who }, "plain", true)];
     case "block":
       return [line("line.people.ended-block", { who }, "plain", true)];
     default: {

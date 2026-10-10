@@ -11,7 +11,8 @@ import { pairStep, sendTo, sideLive, sideOf } from "./step";
  * R-PEOPLE-040, R-ACCOUNT-016: the hook the accounts work calls when a
  * deletion is asked for. The other player is told only that the bond ended.
  */
-export async function leavePairs(deps: ServerDeps, _account: string, character: string | null): Promise<void> {
+/** `why`: `absence` for a deletion (R-PEOPLE-040), `restart` when the player ended the life to start another (R-ACCOUNT-030). */
+export async function leavePairs(deps: ServerDeps, _account: string, character: string | null, why: "absence" | "restart" = "absence"): Promise<void> {
   if (character === null) return;
   for (const key of await deps.stores.invite.pairsOf(character)) {
     const row = await deps.stores.pair.get(key);
@@ -23,7 +24,7 @@ export async function leavePairs(deps: ServerDeps, _account: string, character: 
       if (held === null || at === null) return { ok: true, value: null };
       const stays = sideLive(lives, held, at === "a" ? "b" : "a");
       if (stays !== null && held.ended === null) {
-        const ended = sendTo(turn, stays, { type: "people/ended", pair: key, why: "absence" });
+        const ended = sendTo(turn, stays, { type: "people/ended", pair: key, why });
         if (!ended.ok) return ended;
       }
       book.write(key, at, { type: "pair/deleted", tick: turn.world.tick });

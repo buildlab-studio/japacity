@@ -49,7 +49,8 @@ describe("ending a life", () => {
     const after = await stateOf(server, b);
     const bond = after.people.bonds[lastBondIn(after, key)];
     expect(bond?.stage).toBe("ended");
-    expect(bond?.ended).not.toBeNull();
+    // Decision 0027: a restart end, told as such, at no cost to the one who stays.
+    expect(bond?.ended?.by).toBe("restart");
     expect(bond?.moments).toMatchObject([{ by: "them", kind: "said", what: "phrase.hello" }]);
     expect(after.quality[STANDING]).toBe(before.quality[STANDING]);
     expect(await server.deps.stores.invite.pairsOf(a)).toEqual([]);

@@ -81,7 +81,7 @@ export async function endCharacter(deps: ServerDeps, account: string): Promise<A
   if (row === null) return refusal(401, "signed-out", "Sign in again to end this life.");
   const character = row.character;
   if (character === null) return refusal(404, "no-character", "This account has no life to end.");
-  await leavePairs(deps, account, character);
+  await leavePairs(deps, account, character, "restart");
   const cleared = await deps.stores.account.setCharacter(account, null);
   if (!cleared.ok) throw new Error(`The account ${account} kept its character: ${cleared.detail}`);
   const keep = (await deps.stores.moderation.holds(deps.now())).flatMap((hold) => hold.messages);

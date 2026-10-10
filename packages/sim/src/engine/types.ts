@@ -984,7 +984,7 @@ export interface Bond {
   facts: PersonFacts | null;
   pending: { mine: Proposal | null; theirs: Proposal | null };
   standIn: "warned" | "on" | null;
-  ended: { month: number; by: "me" | "them" | "absence" | "block" | "drift" } | null;
+  ended: { month: number; by: "me" | "them" | "absence" | "block" | "drift" | "restart" } | null;
   cooldownUntil: number | null;
   /** This life's own consents for a joint on the bond, agreed or pending (R-PEOPLE-004, 044). Null before any was given. */
   consent: { countFunds: boolean; standInMay: boolean } | null;
@@ -1876,7 +1876,8 @@ export type Command = { basedOn: number } & (
   | { type: "people/moments"; pair: string; moments: Moment[] }
   | { type: "people/proposal"; pair: string; proposal: Proposal }
   | { type: "people/agreed"; pair: string; step: Proposal["step"]; route?: Id<"route">; lead?: "me" | "them" }
-  | { type: "people/ended"; pair: string; why: "them" | "absence" | "block" }
+  /** `restart`: the other player ended their life to start another (R-ACCOUNT-030, decision 0027): no cost, the moments kept. */
+  | { type: "people/ended"; pair: string; why: "them" | "absence" | "block" | "restart" }
   /** the other life's answer to a proposal, carried across lives by the server. */
   | { type: "people/declined"; pair: string; step: Proposal["step"] }
   | { type: "people/withdrawn"; pair: string; step: Proposal["step"] }

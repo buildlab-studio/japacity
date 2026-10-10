@@ -14,7 +14,7 @@ export type PeopleEvent =
   | { type: "people/declined"; bond: string; step: Proposal["step"] }
   | { type: "people/withdrawn"; bond: string }
   | { type: "people/consented"; bond: string; countFunds: boolean; standInMay: boolean }
-  | { type: "people/ended"; bond: string; by: "me" | "them" | "absence" | "block" | "drift"; month: number }
+  | { type: "people/ended"; bond: string; by: "me" | "them" | "absence" | "block" | "drift" | "restart"; month: number }
   | { type: "people/facts-updated"; bond: string; facts: PersonFacts }
   | { type: "people/gossip-heard"; bond: string }
   | { type: "people/stand-in-changed"; bond: string; stage: "warned" | "on" | null }
