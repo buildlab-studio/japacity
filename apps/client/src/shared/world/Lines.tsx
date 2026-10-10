@@ -139,7 +139,7 @@ export function useStreetTalk(next: () => string | null, free: boolean): void {
 function CornerLine({ line, opacity }: { line: Line; opacity: number }) {
   const mark = line.kind === "told" ? { "data-told": "" } : { "data-heard": "", "data-chatter": "" };
   return (
-    <p className={`line rise rounded-[8px] px-3 py-1.5 text-[13px] leading-snug transition-opacity duration-300 ${line.kind === "heard" ? "line-heard font-semibold" : "font-bold"}`} style={{ opacity }} {...mark}>
+    <p className={`said rise rounded-[8px] px-3 py-1.5 text-[13px] leading-snug transition-opacity duration-300 ${line.kind === "heard" ? "said-heard font-semibold" : "font-bold"}`} style={{ opacity }} {...mark}>
       {line.text}
     </p>
   );
@@ -194,7 +194,7 @@ export function SpeechBubble({ hidden = false, anchored }: { hidden?: boolean; a
       data-speech={speech.who}
     >
       <span key={speech.id} className={`pop block ${anchored ? "-translate-x-1/2 -translate-y-full" : ""}`}>
-        <span className="line block rounded-[12px] px-3 py-2">
+        <span className="said block rounded-[12px] px-3 py-2">
           <span className="block text-[11px] font-bold opacity-60" data-speech-name>
             {speech.name}
           </span>
@@ -202,7 +202,7 @@ export function SpeechBubble({ hidden = false, anchored }: { hidden?: boolean; a
             {speech.text}
           </span>
         </span>
-        <span className="line-tail mx-auto block h-0 w-0 border-x-[8px] border-t-[9px] border-x-transparent" aria-hidden />
+        <span className="said-tail mx-auto block h-0 w-0 border-x-[8px] border-t-[9px] border-x-transparent" aria-hidden />
       </span>
     </button>
   );
