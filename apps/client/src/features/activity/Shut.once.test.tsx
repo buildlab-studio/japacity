@@ -4,7 +4,7 @@
 // says only "Not yet". Real content, a real life from sixteen.
 import { describe, expect, test } from "vitest";
 
-import { ActivityPicker } from "../activity/ActivityView";
+import { ActivityPicker } from "./ActivityView";
 import { answersInOrder, archetypeOf, presetAnswer } from "../../shared/frontdoor/archetypes";
 import { newGame } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";

@@ -2,7 +2,7 @@
 // from the requirement's own data and content's names. It never judges
 // whether the requirement holds: the view's `missing` list already says so.
 import { content } from "@japacity/content";
-import type { Amount, Id, Requirement, RouteStateName } from "@japacity/sim";
+import type { ActivityOption, Amount, Id, Requirement, RouteStateName } from "@japacity/sim";
 
 import { countWords } from "./count";
 import { formatBand, formatBp, formatMoney, formatNumber, playerMonth } from "./format";
@@ -292,4 +292,15 @@ export function checklistWords(route: Id<"route">, item: string): string {
   if (band === null) return own;
   const needs = `ui.req.band.${requirement.quality}.${String(band)}`;
   return hasWords(needs) ? say(needs) : say("ui.req.quality-min-band", { quality: nameOf(requirement.quality), band: say(`ui.band.${requirement.quality}.${String(band)}`) });
+}
+
+/**
+ * True when a shut card says why itself (R-ADVICE-001, R-WORLD-006): its "Not yet:" list, or
+ * the sentence that there is nothing to choose yet ("No route to look into yet"). The reason is said once, there; the
+ * button is shut and says only "Not yet". A card whose needs are all done already says that instead.
+ */
+export function saysWhyOnCard(option: Pick<ActivityOption, "allowed" | "missing" | "params">, done: (requirement: Requirement) => boolean): boolean {
+  if (option.allowed) return false;
+  if (option.missing.length > 0) return !option.missing.every(done);
+  return option.params?.length === 0;
 }
