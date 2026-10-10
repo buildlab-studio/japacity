@@ -23,7 +23,7 @@ function naira(view: PlayerView): number {
 
 /** An activity the player may do, at the cost given, as the view would offer it. */
 function offered(id: ActivityOption["id"], amount: number, affordable = true): ActivityOption {
-  return { id, allowed: true, missing: [], params: null, cost: [{ currency: "NGN", amount }], affordable };
+  return { id, allowed: true, missing: [], params: null, cost: [{ currency: "NGN", amount }], affordable, when: content.activity[id]?.when ?? "month", done: false };
 }
 
 describe("the picker's cards and money", () => {
@@ -67,7 +67,7 @@ describe("the picker's cards and money", () => {
 
   test("[R-WORLD-006] given a free activity, when its card shows, then the button carries no money line", async () => {
     const view = engineView("scenario.ada");
-    const rest: ActivityOption = { id: "activity.rest", allowed: true, missing: [], params: null, cost: [], affordable: true };
+    const rest: ActivityOption = { id: "activity.rest", allowed: true, missing: [], params: null, cost: [], affordable: true, when: "month", done: false };
     await renderWithView(<ActivityPicker only={["activity.rest"]} />, { ...view, activities: [rest] });
     expect(addButton("activity.rest").disabled).toBe(false);
     expect(addButton("activity.rest").querySelector("[data-after]")).toBeNull();

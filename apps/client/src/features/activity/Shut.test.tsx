@@ -73,7 +73,7 @@ describe("a shut button's reason", () => {
 
   test("[R-WORLD-006] given the engine says a cost cannot be paid though the pockets cover it, when the card shows, then the button is shut with no figure left over it", async () => {
     const view = newGame("scenario.ada").view();
-    const adviser: ActivityOption = { id: ADVISER, allowed: true, missing: [], params: null, cost: [{ currency: "NGN", amount: 8_000_000 }], affordable: false };
+    const adviser: ActivityOption = { id: ADVISER, allowed: true, missing: [], params: null, cost: [{ currency: "NGN", amount: 8_000_000 }], affordable: false, when: "now", done: false };
     await renderWithView(<ActivityPicker only={[ADVISER]} />, { ...view, activities: [adviser] });
     expect(addButton(ADVISER).disabled).toBe(true);
     expect(buttonLine(ADVISER)).toBe(say("ui.needs.money"));

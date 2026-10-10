@@ -14,6 +14,8 @@ import { formatBand, formatMoney } from "../../../shared/words/format";
 import { blurbOf, forMonths, inMonths, nameOf, runningName, say, sayCount, words } from "../../../shared/words/text";
 import { Head, PhoneSaid } from "../act";
 import { phoneWords } from "../phone.words";
+import { nowSaid } from "../../../shared/words/acts";
+import { actOnCard } from "../../city/acts";
 
 const ENGLISH_RESULT = "document.english-test";
 const OFFICIAL = "activity.look-into-route";
@@ -300,6 +302,7 @@ export function Japa() {
   const [papers, setPapers] = useState(false);
   // R-ADVICE-002: the official page can be read from the phone: it goes into the month like the hub's desk would put it.
   const addToPlan = useGame((state) => state.addToPlan);
+  const send = useGame((state) => state.send);
   const plan = useGame((state) => state.plan);
   const said = use(PhoneSaid);
   if (papers) {
@@ -328,7 +331,8 @@ export function Japa() {
       <button
         type="button"
         disabled={planned}
-        onClick={() => said(addToPlan({ activity: OFFICIAL, param: lookInto }) ? say("ui.world.planned", { what: nameOf(OFFICIAL) }) : say("ui.world.full"))}
+        // R-ACTIVITY-015: the official page is read at once; the place's answer opens over the world.
+        onClick={() => void actOnCard({ activity: OFFICIAL, param: lookInto }, { send, addToPlan }).then((acted) => said(acted === "planned" ? say("ui.world.planned", { what: nameOf(OFFICIAL) }) : acted === "full" ? say("ui.world.full") : acted === "answered" ? nowSaid(OFFICIAL, lookInto) : ""))}
         className="press mt-1 flex w-full items-center gap-2.5 rounded-[6px] border border-sheet-line bg-sheet-2 px-3 py-2.5 text-left disabled:opacity-70"
         data-official-page={lookInto}
         data-official-other={otherWay ? "true" : undefined}
