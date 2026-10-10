@@ -23,7 +23,13 @@ export type TextRole =
   | "sender"
   | "address"
   | "official"
-  | "disclaimer";
+  | "disclaimer"
+  // The ticket stub's own (stub.ts): a field's name and its value, the type badge's heading, name and line.
+  | "stub-label"
+  | "stub-value"
+  | "type-label"
+  | "type-name"
+  | "type-line";
 
 export type Family = "display" | "sans";
 
@@ -69,13 +75,13 @@ export interface Size {
   height: number;
 }
 
-interface Tone {
+export interface Tone {
   background: PaletteName;
   ink: PaletteName;
   soft: PaletteName;
 }
 
-const TONES: Record<ShareKind, Tone> = {
+export const TONES: Record<ShareKind, Tone> = {
   "send-off": { background: "danfoYellow", ink: "black", soft: "charcoal" },
   "real-story": { background: "black", ink: "white", soft: "zinc" },
   lost: { background: "black", ink: "white", soft: "zinc" },
@@ -104,12 +110,12 @@ export function wrap(text: string, width: number, measure: (line: string) => num
   return lines;
 }
 
-function scaler(width: number, design: number): (value: number) => number {
+export function scaler(width: number, design: number): (value: number) => number {
   return (value) => Math.round((value * width) / design);
 }
 
 /** The bus stripes along the top edge: the game's own mark, no logo. */
-function stripes(x: number, y: number, width: number, height: number, band: number, tone: Tone): Shape[] {
+export function stripes(x: number, y: number, width: number, height: number, band: number, tone: Tone): Shape[] {
   const shapes: Shape[] = [{ op: "rect", x, y, w: width, h: height, color: tone.ink }];
   for (let left = x + band; left < x + width; left += band * 2) shapes.push({ op: "rect", x: left, y, w: Math.min(band, x + width - left), h: height, color: "danfoYellow" });
   return shapes;
