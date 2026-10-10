@@ -11,7 +11,7 @@ import { engineView } from "../../shared/testing/fixtures";
 import "../../shared/testing/render";
 import { say } from "../../shared/words/text";
 import { browserLink, inAppBrowser } from "./inApp";
-import { askMoment, GuestNote, GuestReminder, SecureAsk, SecureSheet } from "./Secure";
+import { askMoment, GuestReminder, SecureAsk, SecureSheet } from "./Secure";
 import { AccountSettings } from "./Settings";
 
 const OK: AuthResult = { ok: true };
@@ -140,6 +140,20 @@ describe("when the asks come", () => {
     expect(screen.queryByText(say("ui.secure.ask.first-chapter"))).toBeNull();
   });
 
+  test("[R-ACCOUNT-023] given a chapter's card up over the world when the first ask is due, then the ask waits and opens once the card is gone", async () => {
+    const card = document.createElement("div");
+    card.setAttribute("role", "dialog");
+    card.setAttribute("data-open", "");
+    document.body.append(card);
+    const account = fakeAccount(me("guest"));
+    await mount(account, <SecureAsk />, withChapter(engineView(), ["chapter.find-your-feet"]), true);
+    await waitFor(() => expect(account.calls).toContain("view()"));
+    await new Promise((resolve) => setTimeout(resolve, 700));
+    expect(screen.queryByText(say("ui.secure.ask.first-chapter"))).toBeNull();
+    card.remove();
+    expect(await screen.findByText(say("ui.secure.ask.first-chapter"), undefined, { timeout: 2000 })).toBeDefined();
+  });
+
   test("[R-ACCOUNT-023] given a guest reaching the decision-day chapter after its win, then the visa ask opens; a secured account is never asked", async () => {
     const decision = withChapter(engineView(), ["chapter.find-your-feet", "chapter.build-the-file"], "chapter.decision-day");
     const guest = fakeAccount(me("guest"));
@@ -182,17 +196,6 @@ describe("the quiet lines", () => {
     await mount(kept, <GuestReminder afterFirstChapter />, withChapter(engineView(), ["chapter.find-your-feet"]));
     await waitFor(() => expect(kept.calls).toContain("view()"));
     expect(screen.queryByText(say("ui.guest.reminder"))).toBeNull();
-  });
-
-  test("[R-ACCOUNT-021] given a guest's life starting, then the chapter screen says plainly it lives only on this phone, with no button; not after the first chapter", async () => {
-    await mount(fakeAccount(me("guest")), <GuestNote />, withChapter(engineView(), []));
-    expect(await screen.findByText(say("ui.guest.note"))).toBeDefined();
-    expect(screen.queryByRole("button")).toBeNull();
-    cleanup();
-    const later = fakeAccount(me("guest"));
-    await mount(later, <GuestNote />, withChapter(engineView(), ["chapter.find-your-feet"]));
-    await waitFor(() => expect(later.calls).toContain("view()"));
-    expect(screen.queryByText(say("ui.guest.note"))).toBeNull();
   });
 
   test("[R-ACCOUNT-027] [R-ACCOUNT-023] given a guest's settings, then the reminder shows and no passkey is offered; a secured account sees the passkey and no reminder", async () => {

@@ -60,6 +60,11 @@ async function fakeServer(page: Page, answers: Record<string, Answer>, sent: str
   await page.route("https://challenges.cloudflare.com/**", (route) => route.fulfill({ contentType: "text/javascript", body: TURNSTILE }));
 }
 
+/** The second chapter's card opens over the world as it loads; the asks wait until it is gone (R-ACCOUNT-023). */
+async function pastTheCard(page: Page): Promise<void> {
+  await page.getByRole("dialog", { name: "Build the file" }).getByRole("button", { name: "Go" }).click({ timeout: 20_000 });
+}
+
 /** A guest's life past its first chapter, so the early win is in and the first ask is due. */
 function pastFirstChapter(): Answer {
   const game = start({ scenario: "scenario.tunde", content });
@@ -68,29 +73,38 @@ function pastFirstChapter(): Answer {
   return { body: { ok: true, view: { ...view, chapter: { ...view.chapter, done: ["chapter.find-your-feet"], current: "chapter.build-the-file" } }, lines: [], clock: CLOCK } };
 }
 
-test("[R-ACCOUNT-021] [R-GUIDE-015] a new visitor passes the age screen, picks a username and starts a life; no sign-in method is asked at the door", async ({ page }, info) => {
+test("[R-ACCOUNT-021] [R-ACCOUNT-024] [R-GUIDE-015] a new visitor passes the age screen and changes the username on the door's page; Begin starts the guest with it, and no sign-in method is asked at the door", async ({ page }, info) => {
   const sent: string[] = [];
+  const bodies: unknown[] = [];
   const answers: Record<string, Answer> = {
     "GET /api/view": SIGNED_OUT,
     "GET /api/age": { body: { refused: false } },
     "POST /api/age": { body: { ok: true } },
     "POST /api/guest": { body: { ok: true, account: GUEST } },
+    "POST /api/character": NO_CHARACTER,
     "GET /api/account": { body: { ok: true, account: GUEST } },
   };
   await fakeServer(page, answers, sent);
+  page.on("request", (request) => {
+    if (new URL(request.url()).pathname === "/api/guest") bodies.push(request.postDataJSON());
+  });
   await page.goto("/");
-  await page.getByLabel("Date of birth").fill("1990-05-17");
+  await page.getByRole("button", { name: "Play", exact: true }).click({ timeout: 20_000 });
+  await page.getByRole("combobox", { name: "Day" }).selectOption("17");
+  await page.getByRole("combobox", { name: "Month" }).selectOption({ label: "May" });
+  await page.getByRole("combobox", { name: "Year" }).selectOption("1990");
   await page.getByRole("button", { name: "Continue" }).click();
-  await expect(page.getByRole("heading", { name: "Pick a username" })).toBeVisible();
+  await page.getByRole("button", { name: /^Next/ }).first().click({ timeout: 20_000 });
+  await page.getByRole("button", { name: /^Next/ }).first().click();
   await expect(page.getByRole("button", { name: "Continue with Google" })).toHaveCount(0);
   await expect(page.getByLabel("Email")).toHaveCount(0);
-  await page.getByLabel("Username").fill("ada_lagos");
-  await expect(page.getByText("Check passed")).toBeVisible();
+  const username = page.getByLabel("Username");
+  await expect(username).not.toHaveValue("");
+  await username.fill("ada_lagos");
   await shoot(page, "username", info.project.name);
-  answers["GET /api/view"] = NO_CHARACTER;
-  await page.getByRole("button", { name: "Start my life" }).click();
-  await expect(page.getByRole("heading", { name: "Pick a username" })).toHaveCount(0);
-  expect(sent).toContain("POST /api/guest");
+  await page.getByRole("button", { name: /^Begin/ }).click();
+  await expect.poll(() => sent.includes("POST /api/character")).toBe(true);
+  expect(bodies).toEqual([{ username: "ada_lagos" }]);
   expect(sent.some((route) => route.includes("/api/auth/"))).toBe(false);
 });
 
@@ -101,6 +115,7 @@ test("[R-ACCOUNT-023] [R-ACCOUNT-027] a guest past its first chapter is asked on
     "GET /api/moderation/standing": STANDING,
   });
   await page.goto("/");
+  await pastTheCard(page);
   const ask = page.getByRole("dialog", { name: "Keep this life" });
   await expect(ask).toBeVisible({ timeout: 20_000 });
   await expect(ask.getByText("You finished your first chapter.", { exact: false })).toBeVisible();
@@ -121,6 +136,7 @@ test.describe("inside a messaging app's browser", () => {
       "GET /api/moderation/standing": STANDING,
     });
     await page.goto("/");
+    await pastTheCard(page);
     const sheet = page.getByRole("dialog", { name: "Keep this life" });
     await expect(sheet).toBeVisible({ timeout: 20_000 });
     await expect(sheet.getByRole("button", { name: "Keep it with Google" })).toHaveCount(0);
@@ -129,4 +145,30 @@ test.describe("inside a messaging app's browser", () => {
     await sheet.getByLabel("Email").fill("ada@example.com");
     await shoot(page, "securing-sheet-in-app", info.project.name);
   });
+});
+
+test("[R-ACCOUNT-023] a guest secures the life later by a code sent to an email, from the ask after the first chapter, and the same life goes on", async ({ page }) => {
+  const sent: string[] = [];
+  const view = pastFirstChapter();
+  const answers: Record<string, Answer> = {
+    "GET /api/view": view,
+    "GET /api/account": { body: { ok: true, account: GUEST } },
+    "GET /api/moderation/standing": STANDING,
+    "POST /api/auth/email-otp/send-verification-otp": { body: { success: true } },
+    "POST /api/auth/sign-in/email-otp": { body: { token: "session-2", user: { id: GUEST.id, email: "ada@example.com", emailVerified: true, name: "", createdAt: "2026-10-10T00:00:00.000Z", updatedAt: "2026-10-10T00:00:00.000Z" } } },
+  };
+  await fakeServer(page, answers, sent);
+  await page.goto("/");
+  await pastTheCard(page);
+  const sheet = page.getByRole("dialog", { name: "Keep this life" });
+  await expect(sheet).toBeVisible({ timeout: 20_000 });
+  await sheet.getByLabel("Email").fill("ada@example.com");
+  await sheet.getByRole("button", { name: "Send me a code" }).click();
+  answers["GET /api/account"] = { body: { ok: true, account: { ...GUEST, state: "secured" } } };
+  await sheet.getByLabel("The 6-digit code").fill("123456");
+  await sheet.getByRole("button", { name: "Keep my life" }).click();
+  await expect(page.getByText("Done. This life is yours on any phone now.")).toBeVisible();
+  expect(sent).toContain("POST /api/auth/sign-in/email-otp");
+  // The life goes on as it was: no new character was asked for.
+  expect(sent).not.toContain("POST /api/character");
 });

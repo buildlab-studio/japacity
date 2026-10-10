@@ -64,7 +64,7 @@ function fakeAccount(over: Partial<AccountApi> = {}): AccountApi & { calls: stri
   };
 }
 
-/** Cloudflare's widget as its always-pass test key behaves: the token comes at once, unless `passAtOnce` is off and the test gives it. */
+/** Cloudflare's widget as its always-pass test key behaves: the token comes at once, and again after each reset, unless `passAtOnce` is off and the test gives it. */
 function fakeTurnstile({ passAtOnce = true }: { passAtOnce?: boolean } = {}) {
   const rendered: TurnstileOptions[] = [];
   let resets = 0;
@@ -77,6 +77,8 @@ function fakeTurnstile({ passAtOnce = true }: { passAtOnce?: boolean } = {}) {
       },
       reset: () => {
         resets += 1;
+        const last = rendered.at(-1);
+        if (passAtOnce && last !== undefined) setTimeout(() => last.callback(DUMMY_TOKEN), 0);
       },
       remove: () => undefined,
     });
@@ -89,11 +91,12 @@ function signedOutStore(account: AccountApi): GameStore {
   return store;
 }
 
-function gate(account: AccountApi, turnstile = fakeTurnstile(), agent?: string) {
+/** `embedded`: inside the invite page, where the age screen comes first and the username stands under it. */
+function gate(account: AccountApi, turnstile = fakeTurnstile(), agent?: string, embedded = false) {
   const store = signedOutStore(account);
   render(
     <GameProvider store={store}>
-      <AccountGate load={turnstile.load} sitekey={TEST_SITE_KEY} {...(agent === undefined ? {} : { agent, href: "https://play.japacity.com/" })} />
+      <AccountGate load={turnstile.load} sitekey={TEST_SITE_KEY} embedded={embedded} {...(agent === undefined ? {} : { agent, href: "https://play.japacity.com/" })} />
     </GameProvider>,
   );
   return { store, turnstile };
@@ -203,29 +206,6 @@ describe("the start screen online", () => {
     expect(store.getState().signedOut).toBe(true);
   });
 
-  test("[R-ACCOUNT-029] [R-ACCOUNT-013] given the unseen check's token not yet in, when Continue is pressed, then the date waits for the token and goes with it, and nothing about the check is said", async () => {
-    const account = fakeAccount();
-    const { turnstile } = gate(account, fakeTurnstile({ passAtOnce: false }));
-    await play();
-    await waitFor(() => expect(turnstile.rendered).toHaveLength(1));
-    expect(turnstile.rendered[0]?.appearance).toBe("interaction-only");
-    expect(document.body.textContent).not.toMatch(/check|person|robot/i);
-    await answerAge(yearsAgo(30));
-    expect(account.calls).toEqual([]);
-    act(() => turnstile.rendered[0]?.callback(DUMMY_TOKEN));
-    expect(await screen.findByRole("button", { name: say("ui.account.google") })).toBeDefined();
-    expect(account.bots).toEqual([DUMMY_TOKEN]);
-  });
-
-  test("[R-ACCOUNT-029] given a script that never loads, when Continue is pressed, then the date goes at once without a token, for the server to judge", async () => {
-    const account = fakeAccount();
-    gate(account, { load: () => new Promise(() => undefined), rendered: [], resets: () => 0 });
-    await play();
-    await answerAge(yearsAgo(30));
-    expect(await screen.findByRole("button", { name: say("ui.account.google") })).toBeDefined();
-    expect(account.bots).toEqual([null]);
-  });
-
   test("[R-ACCOUNT-029] given a player who signed out, then the start screen says so above the line", async () => {
     const account = fakeAccount();
     const store = signedOutStore(account);
@@ -318,8 +298,8 @@ describe("the age screen", () => {
 
   test("[R-ACCOUNT-013] given the age screen, then it shows no bot check: that comes with the username, where the account is made, and its token goes with the guest start", async () => {
     const account = fakeAccount();
-    const { turnstile } = gate(account);
-    await screen.findByLabelText(say("ui.account.age.label"));
+    const { turnstile } = gate(account, fakeTurnstile({ passAtOnce: false }), undefined, true);
+    await screen.findByRole("combobox", { name: say("ui.account.age.day") });
     expect(turnstile.rendered).toHaveLength(0);
     await answerAge(yearsAgo(30));
     await waitFor(() => expect(turnstile.rendered).toHaveLength(1));
@@ -332,9 +312,11 @@ describe("the age screen", () => {
 
   test("[R-ACCOUNT-012] given a date the server does not believe, then the player is asked to check it and the screen stays", async () => {
     gate(fakeAccount({ declareAge: () => Promise.resolve("bad-date") }));
-    await answerAge("1800-01-01");
+    await play();
+    // The thirty-first of February: three fields can be picked into a date no calendar has.
+    await answerAge("1990-02-31");
     expect(await screen.findByText(say("ui.account.age.bad-date"))).toBeDefined();
-    expect(screen.getByLabelText(say("ui.account.age.label"))).toBeDefined();
+    expect(screen.getByRole("combobox", { name: say("ui.account.age.year") })).toBeDefined();
   });
 
   test("[R-SERVER-032] given sign-ups switched off, then the gate shows the full screen with no form, and once the server's wait is over it asks again and opens the age screen", async () => {
@@ -366,17 +348,20 @@ describe("the age screen", () => {
   });
 });
 
-describe("the guest start", () => {
+describe("the guest start inside the invite page", () => {
   const passed = (over: Partial<AccountApi> = {}) => fakeAccount({ ageStatus: () => Promise.resolve("passed"), ...over });
+  const inside = (account: AccountApi) => gate(account, fakeTurnstile(), undefined, true);
 
   async function pick(name: string) {
     fireEvent.change(await screen.findByLabelText(say("ui.account.name.label")), { target: { value: name } });
     fireEvent.click(screen.getByRole("button", { name: say("ui.account.name.go") }));
   }
 
-  test("[R-ACCOUNT-021] given the age screen passed, when a username is picked, then the guest life starts at once and the game comes back", async () => {
+  test("[R-ACCOUNT-021] [R-ACCOUNT-027] given the age screen passed, when a username is picked, then the guest line is said once and the guest life starts at once", async () => {
     const account = passed();
-    const { store } = gate(account);
+    const { store } = inside(account);
+    await screen.findByLabelText(say("ui.account.name.label"));
+    expect(screen.getAllByText(say("ui.guest.reminder"))).toHaveLength(1);
     await pick(" ada_lagos ");
     await waitFor(() => expect(store.getState().signedOut).toBe(false));
     expect(account.calls).toEqual(['startGuest("ada_lagos")']);
@@ -386,7 +371,7 @@ describe("the guest start", () => {
     const answers = ["taken", "reserved", "blocked", "format", "too-many", "bot-check"] as const;
     let at = 0;
     const account = passed({ startGuest: () => Promise.resolve({ ok: false, why: answers[at++] ?? "refused" }) });
-    const { store } = gate(account);
+    const { store } = inside(account);
     await pick("");
     expect(await screen.findByText(say("ui.account.name.empty"))).toBeDefined();
     for (const key of ["ui.account.name.taken", "ui.account.name.reserved", "ui.account.name.blocked", "ui.account.name.format", "ui.account.guest.too-many", "ui.account.bot.failed"]) {
@@ -397,9 +382,9 @@ describe("the guest start", () => {
   });
 
   test("[R-ACCOUNT-012] given an age answer that ran out, when the username is sent, then the age screen asks again", async () => {
-    gate(passed({ startGuest: () => Promise.resolve({ ok: false, why: "expired" }) }));
+    inside(passed({ startGuest: () => Promise.resolve({ ok: false, why: "expired" }) }));
     await pick("ada_lagos");
-    expect(await screen.findByLabelText(say("ui.account.age.label"))).toBeDefined();
+    expect(await screen.findByRole("combobox", { name: say("ui.account.age.day") })).toBeDefined();
   });
 });
 
@@ -467,8 +452,8 @@ describe("the ways back in", () => {
     await comeBack();
     fireEvent.click(await screen.findByRole("button", { name: say("ui.account.passkey") }));
     expect(await screen.findByText(say("ui.account.fail.no-life"))).toBeDefined();
-    fireEvent.click(screen.getByRole("button", { name: say("ui.account.returning.back") }));
-    expect(await screen.findByLabelText(say("ui.account.name.label"))).toBeDefined();
+    fireEvent.click(screen.getByRole("button", { name: say("ui.account.back") }));
+    expect(await screen.findByRole("button", { name: say("ui.account.start.play") })).toBeDefined();
   });
 
   test("[R-ACCOUNT-021] given Google came back having found no life, then the ways back in show with the reason", async () => {

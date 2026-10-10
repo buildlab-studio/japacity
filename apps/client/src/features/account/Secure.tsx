@@ -3,9 +3,10 @@
 // out to the phone's own browser. The asks that open it: after the first
 // chapter, before the visa decision (the decision-day chapter), and at every
 // `guest-only` refusal; never at the door and never before the early win
-// (guides.md R-GUIDE-015). And the quiet lines: on the chapter screen while
-// the life starts, on the settings and on the month report after the first
-// chapter, each saying plainly that the life lives only on this phone.
+// (guides.md R-GUIDE-015). And the quiet lines, on the settings and on the
+// month results after the first chapter, each saying plainly that the life
+// lives only on this phone; the page at the door says it when the life starts
+// (GuestStart.tsx).
 import type { PlayerView } from "@japacity/sim";
 import { useEffect, useRef, useState } from "react";
 
@@ -136,6 +137,14 @@ export function askMoment(view: PlayerView | null): AskMoment | null {
   return null;
 }
 
+/** How often a staged ask that is due looks again for the sheet or card over it to close. */
+const CLEAR_EVERY_MS = 500;
+
+/** Another sheet or card is up (a chapter's opening, an ask, the results): a staged ask waits for it to close. */
+function otherSheetUp(): boolean {
+  return typeof document !== "undefined" && document.querySelector('[role="dialog"][data-open]') !== null;
+}
+
 /** An ask is made once per account and moment; kept in this browser, as the life is. */
 const askedHere = new Set<string>();
 
@@ -161,7 +170,7 @@ function markAsked(key: string): void {
  * The asks, mounted once in the shell while a life plays. A `guest-only`
  * refusal from any route opens the sheet with the server's own reason; the
  * staged moments open it once each, after the early win and never over a
- * moment or the month report.
+ * moment, the month report or another sheet or card that is up.
  */
 export function SecureAsk() {
   const account = useGame((state) => state.account);
@@ -199,8 +208,17 @@ export function SecureAsk() {
 
   const guest = me?.state === "guest";
   const moment = guest && earlyWin ? askMoment(view) : null;
+  const due = moment !== null && me !== null && quiet && !open;
+  const [clear, setClear] = useState(true);
   useEffect(() => {
-    if (moment === null || me === null || !quiet || open) return;
+    if (!due) return;
+    const look = () => setClear(!otherSheetUp());
+    look();
+    const timer = window.setInterval(look, CLEAR_EVERY_MS);
+    return () => window.clearInterval(timer);
+  }, [due]);
+  useEffect(() => {
+    if (moment === null || me === null || !quiet || open || !clear || otherSheetUp()) return;
     const key = `japacity-secure-asked:${me.id}:${moment}`;
     if (askedBefore(key)) return;
     markAsked(key);
@@ -208,7 +226,7 @@ export function SecureAsk() {
     setProblem(null);
     setOpen(true);
     countAsk("sign-in", "shown", true);
-  }, [moment, me, quiet, open]);
+  }, [moment, me, quiet, open, clear]);
 
   if (account === null) return null;
   return <SecureSheet account={account} open={open} onOpenChange={setOpen} reason={reason} problem={problem} />;
@@ -231,17 +249,5 @@ export function GuestReminder({ afterFirstChapter = false }: { afterFirstChapter
       </div>
       <SecureSheet account={account} open={open} onOpenChange={setOpen} reason={null} />
     </div>
-  );
-}
-
-/** R-ACCOUNT-021: said plainly when the life starts, on the chapter screen of the first chapter. Not an ask: no button. */
-export function GuestNote() {
-  const firstChapter = useGame((state) => state.view !== null && state.view.chapter.done.length === 0);
-  const guest = useGuest();
-  if (!guest || !firstChapter) return null;
-  return (
-    <p className="rounded-xl border-l-4 border-l-accent bg-surface p-3 text-sm" data-guest-note>
-      {say("ui.guest.note")}
-    </p>
   );
 }

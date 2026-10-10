@@ -95,7 +95,7 @@ function openLink(server: FakeServer, accountApi: AccountApi) {
 
 async function comeIn() {
   await answerAge("1990-05-01");
-  fireEvent.click(await screen.findByRole("button", { name: say("ui.account.returning") }));
+  fireEvent.click(await screen.findByRole("button", { name: say("ui.account.start.returning") }));
   fireEvent.click(await screen.findByRole("button", { name: say("ui.account.passkey") }));
 }
 
@@ -149,8 +149,7 @@ describe("the invite link's page", () => {
   test("[R-ACCOUNT-022] [R-PAIR-008] given a new friend who starts as a guest, then the card waits while the page asks to keep the life first, and nothing is accepted", async () => {
     const server = cardServer();
     openLink(server, account("passed", () => server.answer("GET /api/view", NO_CHARACTER), "guest"));
-    fireEvent.change(await screen.findByLabelText(say("ui.account.age.label")), { target: { value: "1990-05-01" } });
-    fireEvent.click(screen.getByRole("button", { name: say("ui.account.age.go") }));
+    await answerAge("1990-05-01");
     fireEvent.change(await screen.findByLabelText(say("ui.account.name.label")), { target: { value: "ada_lagos" } });
     fireEvent.click(screen.getByRole("button", { name: say("ui.account.name.go") }));
     expect(await screen.findByText(say("ui.invite.keep-first"))).toBeDefined();

@@ -3,6 +3,7 @@ import { afterEach, describe, expect, test, vi } from "vitest";
 import { harness, makeJar } from "../auth/testing";
 import type { Harness, Jar } from "../auth/testing";
 import { testConfig } from "../config";
+import { memoryLimiters } from "../limits/memory";
 import type { ServerReply, ViewReply } from "../types";
 import { PASS_COOKIE, PASS_PREFIX } from "./age";
 import { DEVICE_COOKIE } from "./guest";
@@ -460,6 +461,38 @@ describe("the flood limits on guests", () => {
     }
     expect(results).toEqual([200, 200, 200, 429]);
     expect(h.tables.user).toHaveLength(limits.guestsPerConnection);
+  });
+});
+
+describe("the guest start under the server's limits", () => {
+  test("[R-SERVER-025] [R-ACCOUNT-025] given the guest start, then it counts as a command under its address's limit and is refused rate-limited over it; and a connection over R-ACCOUNT-025's limit is refused too-many before the anonymous sign-in, with no account made", async () => {
+    const config = testConfig({ testing: { captureOtp: true }, limits: { anonPer60s: 3 }, account: { guestsPerDevice: 5, guestsPerConnection: 1, guestWindowHours: 24 } });
+    // The limits' own clock; the library's age pass and the guest counts read the machine's.
+    let now = 0;
+    const h = harness({ config, limits: memoryLimiters(config.limits, () => now) });
+    // The age screen's answer and the guest start count together against the one address: 1, 2, then 3 and 4.
+    const first = makeJar();
+    expect((await h.passAge(first)).status).toBe(200);
+    expect((await h.startGuest(first)).status).toBe(200);
+    const second = makeJar();
+    expect((await h.passAge(second)).status).toBe(200);
+    const over = await h.startGuest(second);
+    expect(over.status).toBe(429);
+    expect(await body(over)).toMatchObject({ code: "rate-limited", retryAfter: 60 });
+    expect(h.tables.user).toHaveLength(1);
+    // A minute on, the address may ask again; the connection's guest limit refuses it before any account is made.
+    now += 60_000;
+    const flood = await h.startGuest(second);
+    expect(flood.status).toBe(429);
+    expect(await body(flood)).toMatchObject({ code: "too-many" });
+    expect(h.tables.user).toHaveLength(1);
+  });
+
+  test("[R-SERVER-025] [R-ACCOUNT-013] given a browser that calls the library's anonymous sign-in route itself, then it is refused, whatever the limits, and no account is made", async () => {
+    const h = harness();
+    const reply = await h.call("/api/auth/sign-in/anonymous", { method: "POST", jar: makeJar(), json: {} });
+    expect(reply.status).toBe(404);
+    expect(h.tables.user).toEqual([]);
   });
 });
 

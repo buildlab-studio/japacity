@@ -125,7 +125,7 @@ test("[R-SERVER-032] while sign-ups are switched off, a new visitor sees the ful
   await shoot(page, "full", info.project.name);
 });
 
-test("[R-PAIR-008] an invite link shows the friend's card before sign-up, with its report control, then the age screen, the username and the ways back in", async ({ page }, info) => {
+test("[R-PAIR-008] [R-ACCOUNT-029] an invite link shows the friend's card before sign-up, with its report control, then the age screen, the username with the guest line under it, and the ways back in", async ({ page }, info) => {
   await fakeServer(page, {
     "GET /api/view": SIGNED_OUT,
     [`GET /api/invite/${CODE}`]: {
@@ -154,10 +154,12 @@ test("[R-PAIR-008] an invite link shows the friend's card before sign-up, with i
   // The bot check runs unseen (R-ACCOUNT-029).
   await expect(page.getByText("Check passed")).toHaveCount(0);
   await page.getByRole("button", { name: "Continue" }).click();
-  // R-ACCOUNT-021, 013: the username and the bot check come next; a friend who kept a life goes to the ways back in.
+  // R-ACCOUNT-021, 013: the card makes the life here, so the username stands under the age screen, the check unseen; a friend who kept a life goes to the ways back in.
   await expect(page.getByLabel("Username")).toBeVisible();
-  await expect(page.getByText("Check passed")).toBeVisible();
-  await page.getByRole("button", { name: "I already have a life saved" }).click();
+  await expect(page.getByText("This life lives only on this phone until you keep it.")).toHaveCount(1);
+  await expect(page.getByText("Check passed")).toHaveCount(0);
+  await shoot(page, "invite-username", info.project.name);
+  await page.getByRole("button", { name: "I already have a life here" }).click();
   await expect(page.getByRole("button", { name: "Continue with Google" })).toBeVisible();
   await shoot(page, "invite-ways-in", info.project.name);
 });

@@ -129,7 +129,8 @@ function Shell() {
   const [handedOver, setHandedOver] = useState<number | null>(null);
   useScreenCount(choosingLife ? "scenario" : view !== null && view.prologue !== null ? "prologue" : view?.place.where === "road" ? "road" : null);
   if (failed !== null) return <p className="p-4 text-bad">{say("ui.failed", { why: failed })}</p>;
-  if (signedOut) return <AccountGate />;
+  // Online and signed out: the start screen, the age screen, then the door, whose Begin makes the guest life (R-ACCOUNT-029).
+  if (signedOut) return <AccountGate door={(guest) => <ScenarioView guest={guest} />} />;
   if (choosingLife) return <ScenarioView />;
   if (view === null) return <p className="p-4 text-text-2">{say("ui.loading")}</p>;
   if (view.prologue !== null) return <PrologueView />;

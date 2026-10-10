@@ -123,10 +123,8 @@ export const onlineText: Record<string, string> = {
   "ui.account.notice.signed-out": "You have signed out.",
 
   // The username and the guest start (R-ACCOUNT-021, R-ACCOUNT-024)
-  "ui.account.name.title": "Pick a username",
   "ui.account.name.intro": "Other players see it. It is not your character's name, and you can change it once for free.",
   "ui.account.name.label": "Username",
-  "ui.account.name.help": "3 to 20 letters, numbers or _",
   "ui.account.name.go": "Start my life",
   "ui.account.name.empty": "Pick a username first.",
   "ui.account.name.format": "Use 3 to 20 letters, numbers or _ and nothing else.",
@@ -142,8 +140,6 @@ export const onlineText: Record<string, string> = {
   "ui.account.guest.too-many": "Too many new lives from here today. Come back tomorrow.",
   "ui.account.guest.expired": "Your age answer has run out. Answer it again to start.",
   "ui.account.guest.full": "Japacity is full right now. Try again shortly.",
-  "ui.account.returning": "I already have a life saved",
-  "ui.account.returning.back": "Start a new life instead",
   "ui.account.fail.taken": "That sign-in already has a life. This one stays as it is, on this phone.",
   "ui.account.fail.guest-only": "Keep this life with Google or your email first. Then you can add a passkey.",
 
@@ -164,7 +160,6 @@ export const onlineText: Record<string, string> = {
   "ui.secure.later": "Not now",
   "ui.guest.reminder": "This life lives only on this phone until you keep it.",
   "ui.guest.keep": "Keep it",
-  "ui.guest.note": "This life lives only on this phone for now.",
   "ui.guest.sign-out": "If you sign out now, this life is gone: it has no way back in until you keep it.",
   "ui.guest.sign-out.go": "Sign out and leave this life",
   "ui.invite.keep-first": "To take a friend's card, keep this life first with Google or your email.",
