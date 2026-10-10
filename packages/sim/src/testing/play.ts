@@ -6,12 +6,14 @@ import { newSave, recordCommand } from "../engine/replay";
 import { newState } from "../engine/state";
 import { stepWith } from "../engine/step";
 import type {
+  BaseEvent,
   Command,
   Content,
   Id,
   PlayerView,
   Rejection,
   RejectionCode,
+  ReportLine,
   Save,
   Sender,
   SlotPick,
@@ -103,7 +105,34 @@ export function start(options: StartOptions = {}): Game {
       if (!result.ok) throw new Error(`${loose.type} was rejected with ${result.code}: ${result.detail}`);
       return result;
     },
-    endTurn: (slots = []) => game.accept({ type: "turn/end", slots }),
+    endTurn(slots = []) {
+      // R-ACTIVITY-015: a now-act fills no slot; it is sent at once as `activity/now`. A month written with one in its
+      // slots plays it first, at the same tick, as the recorded lives do, and the month's events and lines carry its own
+      // in front. One that cannot be paid, or done again this month, does not happen, as such a slot failed before.
+      const early: { events: BaseEvent[]; lines: ReportLine[] } = { events: [], lines: [] };
+      const month: SlotPick[] = [];
+      for (const pick of slots) {
+        if (content.activity[pick.activity]?.when !== "now") {
+          month.push(pick);
+          continue;
+        }
+        const entry = content.activity[pick.activity];
+        if (entry?.purchase !== true && (game.state.activity.now ?? []).some((done) => done.activity === pick.activity)) continue;
+        const result = game.send({ type: "activity/now", activity: pick.activity, param: pick.param });
+        if (!result.ok && result.code !== "cannot-afford") throw new Error(`activity/now ${pick.activity} was rejected with ${result.code}: ${result.detail}`);
+        if (result.ok) {
+          early.events.push(...result.events);
+          early.lines.push(...result.lines);
+        }
+      }
+      // An act now that opens a set piece (the visa interview) holds the month until it is answered, as the month after
+      // such a slot was held; the month is then left to the test's next end.
+      const sent = slots.length > month.length;
+      const result = game.send({ type: "turn/end", slots: month });
+      if (!result.ok && sent && result.code === "setpiece-open") return { ok: true, state: game.state, events: early.events, lines: early.lines };
+      if (!result.ok) throw new Error(`turn/end was rejected with ${result.code}: ${result.detail}`);
+      return { ...result, events: [...early.events, ...result.events], lines: [...early.lines, ...result.lines] };
+    },
     expectRejected(loose, code, sender = "player") {
       const before = game.state;
       const result = game.send(loose, sender);
