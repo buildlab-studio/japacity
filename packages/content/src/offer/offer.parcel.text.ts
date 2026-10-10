@@ -50,11 +50,9 @@ export const offerParcelText: Record<string, string> = {
   "offer.parcel-shipped.contents.clothes": "Clothes, 1 bag",
   "offer.parcel-shipped.contents.food": "Foodstuff, 1 carton",
 
-  // The booth on Bode Thomas Street, its board and its act.
+  // The booth on Bode Thomas Street and its act; its boards are the place's signs 22 and 23.
   "offer.parcel-shipped.booth": "Cargo office",
   "offer.parcel-shipped.act": "Collect it",
-  "offer.parcel-shipped.board": "CARGO\nUK · US · CANADA → LAGOS",
-  "offer.parcel-shipped.notice": "COLLECT YOUR\nPARCEL HERE",
   // The nudge while it waits (at most eight words), and the asks sheet away from the booth.
   "offer.parcel-shipped.nudge": "Collect your parcel on Bode Thomas Street",
   "offer.parcel-shipped.away": "Your parcel is waiting at the cargo office on Bode Thomas Street.",

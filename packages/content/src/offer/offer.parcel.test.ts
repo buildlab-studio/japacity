@@ -42,7 +42,7 @@ describe("the parcel's words", () => {
   });
 
   test("[R-WORLD-006] given the board and the notice over the cargo booth, when they are read, then neither carries a figure of money", () => {
-    for (const key of [`${PARCEL}.board`, `${PARCEL}.notice`]) {
+    for (const key of ["place.bode-thomas.sign.22", "place.bode-thomas.sign.23"]) {
       expect(text[key]).toBeTruthy();
       expect(text[key]).not.toMatch(/[₦$£€\d]/);
     }
