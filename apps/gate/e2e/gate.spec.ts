@@ -5,9 +5,10 @@ import { E2E_SECRET } from "./playwright.config";
 const COOKIE = "__Host-japacity-gate";
 const YEAR_SECONDS = 31_536_000;
 
-async function expectWaitlist(page: Page): Promise<void> {
+async function expectScreen(page: Page): Promise<void> {
   await expect(page.getByRole("heading", { name: "Japacity" })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Tell me when it opens" })).toBeVisible();
+  await expect(page.getByText("The game opens soon.")).toBeVisible();
+  await expect(page.locator("form, input, button, script")).toHaveCount(0);
   await expect(page.getByText("Got an invite link from a friend? Open it again on this phone.")).toBeVisible();
   await expect(page.getByRole("link", { name: "@japacityapp on X" })).toHaveAttribute("href", "https://x.com/japacityapp");
   await expect(page.getByRole("heading", { name: "The game" })).toHaveCount(0);
@@ -15,19 +16,19 @@ async function expectWaitlist(page: Page): Promise<void> {
   expect(overflow).toBeLessThanOrEqual(0);
 }
 
-test("a phone with no invite sees the waitlist page and no cookie", async ({ page, context }) => {
+test("a phone with no invite sees one screen: the game opens soon, with the X link, and no cookie", async ({ page, context }) => {
   await page.goto("/");
-  await expectWaitlist(page);
+  await expectScreen(page);
   await page.goto("/play?card=granted");
-  await expectWaitlist(page);
+  await expectScreen(page);
   expect(await context.cookies()).toEqual([]);
 });
 
-test("a wrong code, or the old ?code= form of the link, shows the same page and leaves no cookie", async ({ page, context }) => {
+test("a wrong code, or the old ?code= form of the link, shows the same screen and leaves no cookie", async ({ page, context }) => {
   await page.goto("/invite/not-the-code");
-  await expectWaitlist(page);
+  await expectScreen(page);
   await page.goto(`/?code=${E2E_SECRET}`);
-  await expectWaitlist(page);
+  await expectScreen(page);
   expect(await context.cookies()).toEqual([]);
 });
 

@@ -1,5 +1,5 @@
 // A stand-in for the game behind the gate in the browser test: one page and one route,
-// so the test can tell the game from the gate's waitlist page.
+// so the test can tell the game from the gate's holding screen.
 import { createServer } from "node:http";
 
 const PORT = Number(process.env.GATE_E2E_GAME_PORT ?? "8791");
