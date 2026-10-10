@@ -93,12 +93,12 @@ test("a life from sixteen fills its page with no card and opens the first month"
   await startArchetype(page, "The developer");
 
   // The years go by on the page with no card (prologue.md R-PROLOGUE-010, 014).
-  const handover = page.locator("[data-page-handover]");
+  const handover = page.locator("[data-gate='handover']");
   await expect(handover).toBeVisible();
   await expect(page.locator("[data-prologue-card]")).toHaveCount(0);
   await expect(handover.locator("[data-family='turned']")).toBeVisible();
   await expect(handover.locator("[data-years] [data-fact]").first()).toBeVisible();
-  await expect(handover.locator("[data-stamp]")).toBeVisible();
+  await expect(handover.locator("[data-page] [data-stamp]")).toBeVisible();
   await expectNothingBroken(page, "on the page");
   // The page opens the world by itself, a moment after the stamp.
   await expect(page.getByRole("heading", { name: "Month 1", exact: true })).toBeVisible({ timeout: 6_000 });

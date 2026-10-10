@@ -13,7 +13,7 @@ import { nudgeOf, stepWayOf } from "./nudge";
 
 const world = (extra: Partial<Parameters<typeof City>[0]> = {}) => <City world month={<p data-month-body>month</p>} results={(place) => <p data-results-for={place} />} {...extra} />;
 
-/** Renders the world and passes a later chapter's opening card when one stands over it (R-WORLD-001, R-CHAPTER-010). */
+/** Renders the world and passes a later chapter's opening card when one stands over it (R-WORLD-001, R-CHAPTER-011). */
 async function opened(ui: Parameters<typeof renderWithView>[0], view: Parameters<typeof renderWithView>[1]): Promise<Awaited<ReturnType<typeof renderWithView>>> {
   const rendered = await renderWithView(ui, view);
   const go = document.querySelector<HTMLElement>("[data-opening-go]");
@@ -37,7 +37,7 @@ function thumbs(): HTMLElement {
 }
 
 describe("the world fills the screen", () => {
-  test("[R-WORLD-001] [R-CHAPTER-010] given a life that has not played a month, when the world opens, then the first chapter's title stands over the world with no card, no dimming and no button, the nudge under the band gives the first step, and a life with a month behind it opens straight on the world", async () => {
+  test("[R-WORLD-001] [R-CHAPTER-011] given a life that has not played a month, when the world opens, then the first chapter's title stands over the world with no card, no dimming and no button, the nudge under the band gives the first step, and a life with a month behind it opens straight on the world", async () => {
     const view = engineView();
     await renderWithView(world(), view);
     const opening = document.querySelector<HTMLElement>("[data-opening]");

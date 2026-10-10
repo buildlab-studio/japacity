@@ -146,7 +146,7 @@ test("[R-WORLD-003] the nudge changes when an offer opens, and a tap on it opens
   // The device marked as played (R-WORLD-033), so no first-use label stands at the thumbs.
   await page.addInitScript(() => localStorage.setItem("japacity.walkthrough", "1"));
   await page.goto("/");
-  // A seeded session has no report yet, so the chapter's opening words stand over the world first (R-WORLD-001).
+  // A seeded session has no report yet, so the first chapter's title stands over the world for a moment (R-CHAPTER-011).
   await passOpeningWords(page);
   const nudge = page.locator("[data-nudge]");
   await expect(nudge).toBeVisible();

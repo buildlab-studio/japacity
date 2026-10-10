@@ -121,9 +121,9 @@ function openingKey(view: Pick<PlayerView, "chapter" | "scenario" | "qualities" 
   } else if (hasWords(`${chapter}.open.${slug}`)) return `${chapter}.open.${slug}`;
   return `${chapter}.open`;
 }
-/** The first chapter by order (R-CHAPTER-001): its opening is a title over the world, never a card (R-CHAPTER-010). */
+/** The first chapter by order (R-CHAPTER-001): its opening is a title over the world, never a card (R-CHAPTER-011). */
 const FIRST_CHAPTER = Object.values(content.chapter).reduce<{ id: string; order: number } | null>((first, entry) => (first === null || entry.order < first.order ? { id: entry.id, order: entry.order } : first), null)?.id ?? null;
-/** How long the first chapter's title stands over the world (R-CHAPTER-010). */
+/** How long the first chapter's title stands over the world (R-CHAPTER-011). */
 export const TITLE_MS = 2000;
 
 /** The first chapter's title over the world for a moment, with nothing to press: the nudge under the band gives the first step. */
@@ -453,7 +453,7 @@ export function City({
   // The stop the map opens on when the nudge sends the player somewhere (R-WORLD-003).
   const [mapPick, setMapPick] = useState<string | null>(null);
   // The chapter's opening stands over the world once, before the first month is played (R-WORLD-001): the first
-  // chapter's title for a moment, a later chapter's card with Go (R-CHAPTER-010).
+  // chapter's title for a moment, a later chapter's card with Go (R-CHAPTER-011).
   const [openingSeen, setOpeningSeen] = useState(false);
   // Nothing lectures before play (R-WORLD-033): the thumbs carry a word until each is tapped once.
   const firstUse = useFirstUse(view.report !== null);

@@ -4,7 +4,7 @@
 import type { Page } from "@playwright/test";
 
 /**
- * The first chapter's title stands over the world for a moment with nothing to press (R-CHAPTER-010); a later
+ * The first chapter's title stands over the world for a moment with nothing to press (R-CHAPTER-011); a later
  * chapter's card has Go, which takes the step and may open the map with the stop picked. A test that wants the world
  * as it stands waits the title out, or passes the card and closes that map. The classic page has neither, so the wait is short.
  */

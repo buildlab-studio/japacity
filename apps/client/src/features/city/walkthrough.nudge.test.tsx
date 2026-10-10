@@ -1,4 +1,4 @@
-// The first chapter's opening (docs/rules/chapter.md R-CHAPTER-010; world.md R-WORLD-001, R-WORLD-033): no card before
+// The first chapter's opening (docs/rules/chapter.md R-CHAPTER-011; world.md R-WORLD-001, R-WORLD-033): no card before
 // play. Its title stands over the world for about two seconds, with nothing to press, while the nudge under the band
 // gives the first step; a later chapter keeps its opening card, one line and Go.
 import { act, fireEvent, screen } from "@testing-library/react";
@@ -13,7 +13,7 @@ import { nudgeOf } from "./nudge";
 const world = () => <City world month={<p>month</p>} results={(place) => <p data-results-for={place} />} />;
 
 describe("the first chapter's title", () => {
-  test("[R-CHAPTER-010] [R-WORLD-001] given a life that has not played a month, in the first chapter, when the world opens, then its title stands over the world with no card and no button, the nudge gives the first step, and the title goes by itself after about two seconds", async () => {
+  test("[R-CHAPTER-011] [R-WORLD-001] given a life that has not played a month, in the first chapter, when the world opens, then its title stands over the world with no card and no button, the nudge gives the first step, and the title goes by itself after about two seconds", async () => {
     vi.useFakeTimers({ shouldAdvanceTime: true });
     try {
       const view = engineView();
@@ -43,7 +43,7 @@ describe("the first chapter's title", () => {
     }
   });
 
-  test("[R-CHAPTER-010] given a life that has not played a month in a later chapter, when the world opens, then the chapter keeps its opening card, one line and Go", async () => {
+  test("[R-CHAPTER-011] given a life that has not played a month in a later chapter, when the world opens, then the chapter keeps its opening card, one line and Go", async () => {
     const base = engineView();
     const view = { ...base, chapter: { ...base.chapter, current: "chapter.build-the-file" as const, done: ["chapter.find-your-feet" as const] } };
     await renderWithView(world(), view);
