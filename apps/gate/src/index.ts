@@ -1,4 +1,4 @@
-// The gate (PENDING.md P18): a Worker on the route japacity.app/* that owns the game's root
+// The gate: a Worker on the route japacity.app/* that owns the game's root
 // before launch. `/invite/<the code>` sets the cookie and sends the phone to `/`; a request with
 // that cookie passes to the game untouched; anyone else sees one screen. At launch the maintainer
 // deletes the route and the game's Worker is the root. Nothing about a visitor is stored. This
