@@ -8,6 +8,7 @@ import { bp, divFloor } from "../engine/int";
 import { checkInvariants } from "../engine/invariants";
 import { applyOverlay } from "../engine/overlay";
 import type { Accepted, BaseEvent, Content, Effect, Id, PersonFacts, Tuning, World } from "../engine/types";
+import { homeCharges } from "./home.logic";
 import { applyEffects } from "../route/route.journey";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
@@ -507,6 +508,16 @@ function fromSixteen(home: string, base: Content = content, seed = "seed-1"): Ga
 }
 
 describe("a life from sixteen", () => {
+  test("[R-HOME-009] given a life from sixteen at the family house, when its home charges abroad are read at the remit share, then the family's support opens at the prologue's figure and the upkeep stays at home", () => {
+    const game = fromSixteen("family-house");
+    const read = { state: game.state, world: game.world(), content: game.content };
+    const share = game.content.tuning.remit.abroadBp;
+    const abroad = homeCharges(read, ["support"], share);
+    expect(abroad).toEqual([{ type: "obligation/open", obligation: "obligation.home-support", amount: bp(game.content.tuning.prologue.homeSupport, share) }]);
+    const home = homeCharges(read, ["upkeep"]);
+    expect(home.map((effect) => (effect.type === "obligation/open" ? effect.obligation : effect.type))).toEqual(["obligation.upkeep"]);
+  });
+
   test("[R-HOME-002] [R-PROLOGUE-012] given a life from sixteen that moved to Makoko, when it moves back, then the family house takes it at the home card's charge for the family house, and the family talks", () => {
     const game = fromSixteen("room", NEVER);
     expect(game.state.prologue.open).toBe(false);
@@ -549,7 +560,7 @@ describe("the starting life's charges at home", () => {
     expect(game.view().home).toMatchObject({ place: FAMILY, rent: { currency: "NGN", amount: due } });
   });
 
-  test("[R-HOME-009] given a fixed life abroad, when it lands, then the family's support opens from its starting obligations at the remit share, and a life from sixteen whose home card names no support opens none", () => {
+  test("[R-HOME-009] given a fixed life abroad, when it lands, then the family's support opens from its starting obligations at the remit share, and a life from sixteen opens the prologue's support at the same share", () => {
     const fixed = start({ content, scenario: "scenario.zainab", seed: "seed-1" });
     const owed = content.scenario["scenario.zainab"]!.obligations.find((each) => content.obligation[each.obligation]?.type === "support");
     if (owed === undefined) throw new Error("Zainab's starting life has no support.");
@@ -557,7 +568,8 @@ describe("the starting life's charges at home", () => {
     expect(Object.values(fixed.state.obligation.items).filter((item) => item.entry === owed.obligation).map((item) => item.amount)).toEqual([bp(owed.amount, content.tuning.remit.abroadBp)]);
     const sixteen = fromSixteen("family-house", NEVER);
     applyEffects(sixteen, [{ type: "place/move", to: "abroad", country: "country.uk" }]);
-    expect(Object.values(sixteen.state.obligation.items).some((item) => content.obligation[item.entry]?.type === "support")).toBe(false);
+    const support = Object.values(sixteen.state.obligation.items).filter((item) => content.obligation[item.entry]?.type === "support");
+    expect(support.map((item) => `${item.entry} ${String(item.amount)}`)).toEqual([`obligation.home-support ${String(bp(content.tuning.prologue.homeSupport, content.tuning.remit.abroadBp))}`]);
   });
 });
 

@@ -91,6 +91,8 @@ export function evictedThisMonth(state: State): boolean {
 /** The home card that closes the life from sixteen (prologue.md, step 11), and its answer for the family house. */
 const HOME_CARD = "home";
 const FAMILY_ANSWER = "family-house";
+/** R-HOME-009: the support a life from sixteen sends home once abroad. */
+const HOME_SUPPORT: Id<"obligation"> = "obligation.home-support";
 
 /**
  * R-HOME-009: the starting life's charges at home, as `obligation/open` effects: a fixed life's starting obligations,
@@ -102,9 +104,15 @@ const FAMILY_ANSWER = "family-house";
 export function homeCharges(read: ReadCtx, types: readonly ObligationType[], shareBp: number = FULL): Effect[] {
   const scenario = read.content.scenario[read.state.scenario];
   if (scenario === undefined) return [];
+  // A life from sixteen owes nothing at the start, so its home card's family-house answer stands for its upkeep, and
+  // `tuning.prologue.homeSupport` for the support the fixed lives list (R-HOME-009): the card cannot carry it, since
+  // the card's effects open at the close, at home, where no support is sent.
   const opens: Effect[] =
     scenario.prologue === true
-      ? (read.content.prologue[HOME_CARD]?.answers.find((answer) => answer.id === FAMILY_ANSWER)?.effects ?? [])
+      ? [
+          ...(read.content.prologue[HOME_CARD]?.answers.find((answer) => answer.id === FAMILY_ANSWER)?.effects ?? []),
+          { type: "obligation/open", obligation: HOME_SUPPORT, amount: read.content.tuning.prologue.homeSupport },
+        ]
       : scenario.obligations.map((owed): Effect => ({ type: "obligation/open", obligation: owed.obligation, amount: owed.amount }));
   return opens.flatMap((effect): Effect[] => {
     if (effect.type !== "obligation/open") return [];

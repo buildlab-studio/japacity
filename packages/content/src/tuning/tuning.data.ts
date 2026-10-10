@@ -157,6 +157,8 @@ export const tuning: Tuning = {
     waecStrain: { under: 30, standing: -2 },
     grade: { base: 2, upBp: 4000, downBp: 2000, min: 2, max: 5 },
     privateSession: naira(2500000),
+    // R-HOME-009: what a life from sixteen sends home each month once abroad, before the remit share; the fixed lives send ₦25,000 to ₦60,000.
+    homeSupport: naira(40000),
   },
 
   // luck.md. The jackpot, 1 in 100,000, is under one basis point, so its figure is draws out of a

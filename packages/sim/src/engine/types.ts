@@ -1226,6 +1226,8 @@ export interface Tuning {
     grade: { base: number; upBp: number; downBp: number; min: number; max: number };
     /** A private university's session, passed through the account by the family (R-PROLOGUE-003). */
     privateSession: number;
+    /** R-HOME-009: the family support a life from sixteen sends home once abroad, in kobo, before the remit share. */
+    homeSupport: number;
   };
   /** `downUnder`: wellbeing or standing under this is "down" (R-LUCK-003); `rescueAfterMonths`: months played before the whip-round (R-LUCK-002). */
   /** advice.md: the four ways to look into a route, and the agents. */
