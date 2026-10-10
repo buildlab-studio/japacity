@@ -48,6 +48,8 @@ export function pageOf(view: PlayerView, person: KeptPerson | null = readPerson(
     path: archetype !== null ? pathOf(archetype, view) : hasWords(kind) ? say(kind) : "",
     ready: say("prologue.page.ready.figure", { percent: view.japacity.percent ?? 0 }),
     photo: lookOf(gateLook(person?.look))?.picture ?? "",
+    // The player's own colours, and the photo drawn in them, kept with the person (R-PROLOGUE-015).
+    ...(person?.style === undefined ? {} : { wear: { look: person.look, style: person.style, ...(person.photo === undefined ? {} : { photo: person.photo }) } }),
     stamps: stampsOf(view),
   };
 }
