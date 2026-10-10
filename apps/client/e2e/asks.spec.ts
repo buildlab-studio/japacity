@@ -131,13 +131,14 @@ test("[R-GUIDE-015] [R-GUIDE-014] a new life played online as the next step sugg
   for (let month = 1; month <= FIRST_SESSION_TURNS; month += 1) {
     const game = server.game();
     if (game === null) throw new Error("The faked server holds no game.");
-    let before = !won;
+    const before = !won;
     if (before) await expectNoAsk(page, `before month ${String(month)} ends`);
     await planNextStep(page, game);
     // A step taken at once (R-ACTIVITY-015) may be the first good line itself: the meetup hears of a way out there and then.
     won ||= server.lines().some((line) => line.tone === "good");
-    before &&= !won;
-    if (before) await expectNoAsk(page, `with month ${String(month)} planned`);
+    // Quiet: nothing good has happened yet, so nothing may be asked.
+    const quiet = before && !won;
+    if (quiet) await expectNoAsk(page, `with month ${String(month)} planned`);
     await page.getByRole("button", { name: "Next month" }).click();
 
     // The staged wins come first, then the report: none of them is an ask.
@@ -145,12 +146,12 @@ test("[R-GUIDE-015] [R-GUIDE-014] a new life played online as the next step sugg
     const winShown = server.lines().some((line) => line.tone === "good");
     const carryOn = page.getByRole("button", { name: /^(Carry on|Next)$/ });
     for (let shown = 0; shown < 5 && (await carryOn.isVisible()); shown += 1) {
-      if (before) await expectNoAsk(page, `on a staged moment of month ${String(month)}`, winShown);
+      if (quiet) await expectNoAsk(page, `on a staged moment of month ${String(month)}`, winShown);
       await carryOn.click();
     }
     const report = page.getByRole("dialog");
     await expect(report.getByRole("heading", { name: `Month ${String(month)}` })).toBeVisible();
-    if (before) await expectNoAsk(page, `in the report of month ${String(month)}`, winShown);
+    if (quiet) await expectNoAsk(page, `in the report of month ${String(month)}`, winShown);
     won ||= server.lines().some((line) => line.tone === "good");
     await report.getByRole("button", { name: "Close" }).click();
 

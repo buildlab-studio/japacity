@@ -8,7 +8,7 @@ import { join } from "node:path";
 import { expect, test, type Page } from "@playwright/test";
 
 import { lifeSaves } from "../../../packages/sim/src/goldens/lives.data";
-import { startReadyLife } from "./door";
+import { passOpeningWords, startReadyLife } from "./door";
 
 test.use({ viewport: { width: 390, height: 844 }, launchOptions: { args: ["--use-angle=swiftshader", "--enable-unsafe-swiftshader"] } });
 
@@ -63,7 +63,9 @@ async function visibleButtons(page: Page): Promise<string[]> {
 function adaOneMonthIn(): string {
   const save = lifeSaves["ada-careful"];
   if (save === undefined) throw new Error("No recorded life ada-careful.");
-  return JSON.stringify({ save: { ...save, commands: save.commands.slice(0, 1) }, clock: { anchor: 0 } });
+  // One month in: everything up to and including the first month's end (the acts sent at once before it included, R-ACTIVITY-015).
+  const firstEnd = save.commands.findIndex((entry) => entry.command.type === "turn/end");
+  return JSON.stringify({ save: { ...save, commands: save.commands.slice(0, firstEnd + 1) }, clock: { anchor: 0 } });
 }
 
 test("[R-WORLD-001] [R-WORLD-024] the default address opens the world with the band and the two buttons and nothing else", async ({ page }, info) => {
@@ -74,8 +76,8 @@ test("[R-WORLD-001] [R-WORLD-024] the default address opens the world with the b
   await expect(page.locator("[data-thumb='phone']")).toBeVisible();
   await expect(page.locator("[data-nudge]")).toBeVisible();
   await placeDrawn(page);
-  // The band's month count stands with them (R-WORLD-027).
-  expect((await visibleButtons(page)).sort()).toEqual(["Next month", "Map", "Pages left: 24", "Phone"].sort());
+  // The band's month count stands with them (R-WORLD-027), and the name over the age opens the data page (R-PROLOGUE-009).
+  expect((await visibleButtons(page)).sort()).toEqual(["Next month", "Map", "Pages left: 24", "Phone", "Your page"].sort());
   await expect(page.locator("header")).toHaveCount(0);
   await expect(page.locator("[data-tab]")).toHaveCount(0);
   await shoot(page, "open");
@@ -140,7 +142,11 @@ test("[R-WORLD-003] the nudge changes when an offer opens, and a tap on it opens
       sessionStorage.setItem("seeded", "1");
     }
   }, adaOneMonthIn());
+  // The first-play walkthrough is for a person, once per device (R-WORLD-027): marked seen so its pointers never cover the band.
+  await page.addInitScript(() => localStorage.setItem("japacity.walkthrough", "1"));
   await page.goto("/");
+  // A seeded session has no report yet, so the chapter's opening words stand over the world first (R-WORLD-001).
+  await passOpeningWords(page);
   const nudge = page.locator("[data-nudge]");
   await expect(nudge).toBeVisible();
   const before = (await nudge.textContent()) ?? "";
