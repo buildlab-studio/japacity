@@ -1,8 +1,5 @@
-// The contract gate: docs/rules/route-gates.md R-CONTRACT-001 to 004. An agent
-// from the motor park records an employer, a salary and a role on the route;
-// applying needs the agent, the medical and an age under the cap; the decision
-// reads no term, and a fraud agent is refused with nothing forged to ban.
-// Hearing (R-CONTRACT-001) and the agent's fee (R-CONTRACT-002) are content's.
+// The contract gate: docs/rules/route-gates.md R-CONTRACT-001 to 004. Hearing
+// (R-CONTRACT-001) and the agent's fee (R-CONTRACT-002) are content's.
 import { emit } from "../../engine/kind";
 import type { BaseEvent, Cause, Ctx, Effect, Id, RouteEntry, RouteState, Terms } from "../../engine/types";
 import type { RouteKindEvent } from "../route.events";

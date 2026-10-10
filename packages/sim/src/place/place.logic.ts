@@ -271,12 +271,6 @@ function returnHome(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   return comeHome(ctx, returnShape(ctx, payment !== null), cause);
 }
 
-/**
- * R-PLACE-010 (decision 0011, amended 10 Oct): a ride between two places of the city. The fare is
- * the way's flat fare in tuning, from naira cash first and the bank for the rest; on foot there is
- * no fare, so a character with nothing can always move. The simulation keeps no place of the city,
- * so nothing here moves; the client moves once the ride is accepted.
- */
 /** Metres on the ground for one thousandth of a degree, either way: near Lagos a degree of longitude is within one in a hundred of a degree of latitude, so one figure serves both. */
 const METRES_PER_E3 = 111;
 
@@ -290,6 +284,11 @@ export function withinMetres(from: { latE3: number; lonE3: number }, to: { latE3
   return dx * dx + dy * dy <= metres * metres;
 }
 
+/**
+ * R-PLACE-010 (decision 0011, amended 10 Oct): a ride between two places of the city. On foot there
+ * is no fare, so a character with nothing can always move. The simulation keeps no place of the city,
+ * so nothing here moves; the client moves once the ride is accepted.
+ */
 function ride(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (command.type !== "place/ride") throw new Error(`place/ride cannot handle ${command.type}.`);
   const { from, to, way } = command;

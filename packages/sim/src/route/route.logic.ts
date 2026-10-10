@@ -168,12 +168,6 @@ function cheapest(read: ReadCtx, held: RouteState, schools: readonly Id<"school"
   return best;
 }
 
-/**
- * R-ROUTE-009, in pence: the school's tuition less its discount less the
- * deposit paid, plus the living line times the living months. Before a
- * deposit, the cheapest school holding an offer, after its discount, or else
- * the cheapest school on the route with no discount.
- */
 /** The currency a route's funds are counted in: the gate's, or pence for the study route (R-ROUTE-009). */
 export function fundsCurrency(read: ReadCtx, route: Id<"route">): ForeignCurrency {
   const entry = entryOf(read.content, route);
@@ -182,6 +176,12 @@ export function fundsCurrency(read: ReadCtx, route: Id<"route">): ForeignCurrenc
   return gate.funds(read, entry, routeOf(read.state, route))?.currency ?? FUNDS_CURRENCY;
 }
 
+/**
+ * R-ROUTE-009, in pence: the school's tuition less its discount less the
+ * deposit paid, plus the living line times the living months. Before a
+ * deposit, the cheapest school holding an offer, after its discount, or else
+ * the cheapest school on the route with no discount.
+ */
 export function fundsRequired(read: ReadCtx, route: Id<"route">): number {
   const held = routeOf(read.state, route);
   const entry = entryOf(read.content, route);

@@ -1,9 +1,6 @@
 // The partner gate: docs/rules/people.md R-PEOPLE-025 to 028, with the sponsor's
-// side in undertaking.md. The sponsor lives abroad and is known here only by the
-// facts on the bond (R-PEOPLE-001): applying reads the relationship, the joint
-// agreed with the sponsor as lead, the sponsor's status in the country and the
-// floor as `meetsFloor`, never a figure. The decision waits for the genuineness
-// interview's result (R-INTERVIEW-009) and reads earlier refusals only.
+// side in undertaking.md. The sponsor is known only by the facts on the bond
+// (R-PEOPLE-001), the floor only as `meetsFloor`.
 //
 // The people kind holds the bonds and the joint; this module only reads them.
 import { heldBand } from "../../activity/activity.logic";
