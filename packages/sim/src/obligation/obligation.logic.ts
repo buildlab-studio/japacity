@@ -19,7 +19,6 @@ import type {
   Ctx,
   Currency,
   Effect,
-  ForeignCurrency,
   Id,
   MoneyParam,
   ObligationEntry,
@@ -34,12 +33,12 @@ import type {
   Requirement,
   RequirementResult,
   State,
-  World,
 } from "../engine/types";
 import { appliesHere } from "../place/place.logic";
 import { couchEnds, onTheCouch } from "./couch";
 import type { ClosedWhy, ObligationEvent } from "./obligation.events";
 import { isSponsorUndertaking, openUndertaking, payUndertaking, undertakingDue, undertakingMonthsLeft } from "./undertaking";
+import { officialRates } from "../wallet/wallet.rates";
 
 const STANDING: Id<"quality"> = "quality.standing";
 const WELLBEING: Id<"quality"> = "quality.wellbeing";
@@ -47,11 +46,6 @@ const INFLATION: Id<"var"> = "var.inflation";
 /** R-RETURN-006: the car's shortfall once it has followed you home, in naira. */
 const HOME_SHORTFALL: Id<"obligation"> = "obligation.car-shortfall-home";
 
-function officialRates(world: World): Record<ForeignCurrency, number> {
-  const rates = {} as Record<ForeignCurrency, number>;
-  for (const currency of Object.keys(world.rates) as ForeignCurrency[]) rates[currency] = world.rates[currency].official;
-  return rates;
-}
 /**
  * R-CAR-003: what a repossession leaves owing. the car's entry has no
  * field naming it, so the id lives here; the car's `onDefault` could carry it.

@@ -33,7 +33,8 @@ import { BP_WHOLE } from "../engine/int";
 import { createRandom, drawAt, scaleDraw } from "../engine/random";
 import type { Content, EraEntry, Id, NewsEntry, Requirement, World, WorldNews } from "../engine/types";
 import type { RateBook } from "./rate";
-import { FLOAT_STORY, FOREIGN, openRates, stepRates, SUPPLY } from "./rate";
+import { FOREIGN } from "../wallet/wallet.rates";
+import { FLOAT_STORY, openRates, stepRates, SUPPLY } from "./rate";
 import type { StoryTicks, WorldStream } from "./schedule";
 import { DRAWS_PER_STORY, newsSchedule, stageAt } from "./schedule";
 

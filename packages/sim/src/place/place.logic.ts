@@ -10,9 +10,7 @@ import type {
   Command,
   Content,
   Ctx,
-  Currency,
   Effect,
-  ForeignCurrency,
   Id,
   MoneyParam,
   ObligationType,
@@ -29,6 +27,7 @@ import type {
 } from "../engine/types";
 import { countryEntry, isKept, isOverstayer, removalBanMonths, statusEntry } from "../status/status.logic";
 import type { PlaceEvent } from "./place.events";
+import { CURRENCIES, officialRates } from "../wallet/wallet.rates";
 
 const STANDING: Id<"quality"> = "quality.standing";
 const SEASON_DECEMBER: Id<"var"> = "var.season-december";
@@ -47,7 +46,6 @@ const HOME_TYPES: readonly ObligationType[] = ["upkeep", "support"];
  * agent's debt follows you home (R-ROAD-007).
  */
 const ABROAD_TYPES: readonly ObligationType[] = ["upkeep", "support", "rent", "phone", "surcharge", "tuition", "car"];
-const CURRENCIES: readonly Currency[] = ["NGN", "GBP", "USD", "CAD", "AED", "EUR"];
 
 /** An entry that may be tied to a place: activities, offers, obligations, routes, goals. */
 export interface Placed {
@@ -79,11 +77,6 @@ function varOr(read: ReadCtx, id: Id<"var">): number {
   return (read.world.vars as Record<string, number | undefined>)[id] ?? 0;
 }
 
-function officialRates(read: ReadCtx): Record<ForeignCurrency, number> {
-  const official = {} as Record<ForeignCurrency, number>;
-  for (const currency of Object.keys(read.world.rates) as ForeignCurrency[]) official[currency] = read.world.rates[currency].official;
-  return official;
-}
 
 /** R-PLACE-006: the fare home from the country the character is in, or null when not abroad. */
 export function fareHome(read: ReadCtx): MoneyParam | null {
@@ -102,7 +95,7 @@ export function holdsNoStatus(read: ReadCtx): boolean {
 
 /** Bank and cash in every currency, in kobo at the official rate (R-PLACE-005). */
 export function wealthInNaira(read: ReadCtx): number {
-  const rates = officialRates(read);
+  const rates = officialRates(read.world);
   let kobo = 0;
   for (const currency of CURRENCIES) {
     const pocket = read.state.wallet.pockets[currency];

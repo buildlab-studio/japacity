@@ -44,6 +44,7 @@ import { birthdayMonth, PARCEL, parcelHolds, parcelTerms } from "./offer.parcel"
 import { HASTEN_TERM } from "../document/document.logic";
 import type { AgentKind, Look, Pitch } from "./offer.agent";
 import { handedTerms, inFamily, isLook, kindOf, lookFinds, openAgent, paperToMove, pitchMonths, PROMISE, shownTerms, standsAsAgent, tellsSeen } from "./offer.agent";
+import { officialRates } from "../wallet/wallet.rates";
 
 /**
  * The groups that are rolled, in the order R-OFFER-001 takes them. `job` is
@@ -118,9 +119,7 @@ function payInNaira(read: ReadCtx): number {
   const pay = entry === undefined ? null : monthlyPay(read, entry);
   if (pay === null) return 0;
   if (pay.currency === "NGN") return pay.amount;
-  const official = {} as Record<ForeignCurrency, number>;
-  for (const currency of Object.keys(read.world.rates) as ForeignCurrency[]) official[currency] = read.world.rates[currency].official;
-  return valueInKobo(pay.amount, pay.currency, official);
+  return valueInKobo(pay.amount, pay.currency, officialRates(read.world));
 }
 
 function fixTerm(ctx: Ctx, spec: TermSpec): number {

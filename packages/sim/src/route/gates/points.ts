@@ -10,7 +10,6 @@ import type {
   BaseEvent,
   Content,
   Ctx,
-  Currency,
   ForeignCurrency,
   Id,
   PersonFacts,
@@ -23,6 +22,7 @@ import type {
 } from "../../engine/types";
 import type { RouteKindEvent } from "../route.events";
 import type { Gate } from "./gate";
+import { CURRENCIES, officialRates } from "../../wallet/wallet.rates";
 
 type PointsBlock = NonNullable<RouteEntry["points"]>;
 type PointsState = Extract<RouteGateState, { gate: "points" }>;
@@ -32,7 +32,6 @@ const EDUCATION: Id<"quality"> = "quality.edu-level";
 const CARE: Id<"quality"> = "quality.care";
 /** The Canadian line is counted in Canadian cents (R-POINTS-002). */
 const FUNDS_CURRENCY: ForeignCurrency = "CAD";
-const CURRENCIES: readonly Currency[] = ["NGN", "GBP", "USD", "CAD", "AED", "EUR"];
 const MONTHS_PER_YEAR = 12;
 /** R-POINTS-001: one band scores each of the four abilities. */
 const ABILITIES = 4;
@@ -196,11 +195,6 @@ export function pointsScore(read: ReadCtx, route: Id<"route">): number {
   return spouse === null || !withSpouse ? pointsScoreAlone(read, route) : pointsScoreWith(read, route, spouse);
 }
 
-function officialRates(read: ReadCtx): Record<ForeignCurrency, number> {
-  const official = {} as Record<ForeignCurrency, number>;
-  for (const currency of Object.keys(read.world.rates) as ForeignCurrency[]) official[currency] = read.world.rates[currency].official;
-  return official;
-}
 
 /**
  * R-POINTS-002 with R-ROUTE-010's reading in Canadian cents: the bank and
@@ -209,7 +203,7 @@ function officialRates(read: ReadCtx): Record<ForeignCurrency, number> {
  */
 export function pointsFunds(read: ReadCtx, route: Id<"route">): { shown: number; required: number } {
   const block = blockOf(routeEntry(read.content, route));
-  const rates = officialRates(read);
+  const rates = officialRates(read.world);
   let shown = 0;
   for (const currency of CURRENCIES) {
     const pocket = read.state.wallet.pockets[currency];
@@ -225,7 +219,7 @@ export function pointsFunds(read: ReadCtx, route: Id<"route">): { shown: number;
  * as a share of `fundsVar`, never above the whole.
  */
 export function pointsUnexplainedBp(read: ReadCtx, route: Id<"route">): number {
-  const rates = officialRates(read);
+  const rates = officialRates(read.world);
   const lots = read.state.wallet.lots.reduce((sum, lot) => sum + convertMinor(lot.amount, lot.currency, FUNDS_CURRENCY, rates), 0);
   if (lots === 0) return 0;
   const { required } = pointsFunds(read, route);

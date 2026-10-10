@@ -15,7 +15,6 @@ import type {
   Command,
   Content,
   Ctx,
-  Currency,
   Effect,
   EffectType,
   ForeignCurrency,
@@ -46,6 +45,7 @@ import type { ApplicationFigures, Decision, DecisionTerms, GateEffectHandler } f
 import { EVERY_TERM } from "./gates";
 import { endBeforeSettingOff } from "./gates/road";
 import type { RefusalReason, RouteKindEvent } from "./route.events";
+import { CURRENCIES, officialRates } from "../wallet/wallet.rates";
 
 const GRADE: Id<"quality"> = "quality.edu-grade";
 /** The university's confirmation, granted with the deposit and voided by a refusal. */
@@ -57,7 +57,6 @@ const SURCHARGE: Id<"var"> = "var.uk-surcharge";
 
 /** Funds, tuition and deposits are counted in pence (R-ROUTE-009, 010). */
 const FUNDS_CURRENCY: ForeignCurrency = "GBP";
-const CURRENCIES: readonly Currency[] = ["NGN", "GBP", "USD", "CAD", "AED", "EUR"];
 
 /** R-ROUTE-016 counts the unexplained share in whole percents. */
 const BP_PER_PERCENT = 100;
@@ -133,11 +132,6 @@ function grade(state: State): number {
   return state.quality[GRADE] ?? 0;
 }
 
-function officialRates(read: ReadCtx): Record<ForeignCurrency, number> {
-  const official = {} as Record<ForeignCurrency, number>;
-  for (const currency of Object.keys(read.world.rates) as ForeignCurrency[]) official[currency] = read.world.rates[currency].official;
-  return official;
-}
 
 /** R-ROUTE-005: the route's window, from its world variable. 0 closed, 1 narrowing, 2 open. */
 export function windowOf(read: ReadCtx, route: Id<"route">): RouteView["window"] {
@@ -205,7 +199,7 @@ export function fundsRequired(read: ReadCtx, route: Id<"route">): number {
  * so naira is valued as kobo * 100 / the pound rate in one step.
  */
 export function fundsShown(read: ReadCtx, route: Id<"route">): number {
-  const rates = officialRates(read);
+  const rates = officialRates(read.world);
   const target = fundsCurrency(read, route);
   let shown = 0;
   for (const currency of CURRENCIES) {
@@ -245,7 +239,7 @@ export function nairaThroughFee(kobo: number, rate: number, chargeBp: number): n
  * being recorded again.
  */
 export function flyingFundsShown(read: ReadCtx, route: Id<"route">): number {
-  const rates = officialRates(read);
+  const rates = officialRates(read.world);
   const target = fundsCurrency(read, route);
   const chargeBp = read.content.tuning.wallet.bankChargeBp;
   let shown = 0;
@@ -264,7 +258,7 @@ export function flyingFundsShown(read: ReadCtx, route: Id<"route">): number {
  * against them are wholly unexplained.
  */
 export function unexplainedBp(read: ReadCtx, route: Id<"route">): number {
-  const rates = officialRates(read);
+  const rates = officialRates(read.world);
   const target = fundsCurrency(read, route);
   const lots = read.state.wallet.lots.reduce((sum, lot) => sum + convertMinor(lot.amount, lot.currency, target, rates), 0);
   if (lots === 0) return 0;

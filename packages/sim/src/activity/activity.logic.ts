@@ -20,7 +20,6 @@ import type {
   Ctx,
   Currency,
   Effect,
-  ForeignCurrency,
   Id,
   MoneyParam,
   PlayerView,
@@ -53,6 +52,7 @@ import {
   overtimePay,
   raisedJob,
 } from "./activity.pay";
+import { officialRates } from "../wallet/wallet.rates";
 
 export { cashWorkedThisMonth, localTenure, sideJobHeld } from "./activity.pay";
 
@@ -114,12 +114,6 @@ const judgeOf = (ctx: Ctx): Judge => (requirement) => ctx.check(requirement);
 
 function allHold(requirements: readonly Requirement[], judge: Judge): boolean {
   return requirements.every((requirement) => judge(requirement).met);
-}
-
-function officialRates(read: ReadCtx): Record<ForeignCurrency, number> {
-  const rates = {} as Record<ForeignCurrency, number>;
-  for (const [currency, rate] of Object.entries(read.world.rates)) rates[currency as ForeignCurrency] = rate.official;
-  return rates;
 }
 
 /** R-ACTIVITY-015: an entry that answers now, sent as `activity/now`; every other entry fills the month. */
@@ -576,7 +570,7 @@ function workJob(ctx: Ctx): BaseEvent[] {
   const worked: ActivityEvent =
     pay.currency === "NGN"
       ? { type: "activity/month-worked", job, tenure, pay }
-      : { type: "activity/month-worked", job, tenure, pay, naira: valueInKobo(pay.amount, pay.currency, officialRates(read)) };
+      : { type: "activity/month-worked", job, tenure, pay, naira: valueInKobo(pay.amount, pay.currency, officialRates(read.world)) };
   events.push(...record(ctx, worked));
   ctx.apply(entry.effects, cause);
   return events;
@@ -1012,7 +1006,7 @@ export function sureHuntJob(read: ReadCtx, named: ActivityEntry, month: number, 
   if (huntedThisMonth || month > SURE_HUNT_MONTHS) return null;
   const hunts = Object.values(read.content.activity).filter((entry) => entry.effects.some((effect) => effect.type === "activity/hunt"));
   if (hunts.some((entry) => (read.state.activity.played[entry.id] ?? 0) > 0)) return null;
-  const rates = officialRates(read);
+  const rates = officialRates(read.world);
   let best: { entry: ActivityEntry; kobo: number } | null = null;
   for (const id of huntableJobs(read, (requirement) => check(read, requirement))) {
     const entry = jobEntry(read.content, id);

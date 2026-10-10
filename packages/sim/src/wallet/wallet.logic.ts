@@ -34,12 +34,9 @@ import type {
   World,
 } from "../engine/types";
 
-/** Every foreign currency, in the order the rates are listed. */
-const FOREIGN_CURRENCIES: readonly ForeignCurrency[] = ["GBP", "USD", "CAD", "AED", "EUR"];
 import type { AnyPocket, RemitChannel, WalletEvent } from "./wallet.events";
+import { CURRENCIES, officialRates, streetRates } from "./wallet.rates";
 
-/** Every pocket the wallet keeps: naira and each foreign currency (R-ABROAD-001). */
-const CURRENCIES: readonly Currency[] = ["NGN", ...FOREIGN_CURRENCIES];
 const ALLOWANCE: Id<"var"> = "var.fx-bank-allowance";
 const QUEUE: Id<"var"> = "var.fx-bank-queue";
 
@@ -115,18 +112,6 @@ export const REASON_LINE: Record<Reason, string | null> = {
  */
 function varOr(world: World, id: Id<"var">, missing: number): number {
   return (world.vars as Record<string, number | undefined>)[id] ?? missing;
-}
-
-function officialRates(world: World): Record<ForeignCurrency, number> {
-  const rates = {} as Record<ForeignCurrency, number>;
-  for (const currency of FOREIGN_CURRENCIES) rates[currency] = world.rates[currency].official;
-  return rates;
-}
-
-function streetRates(world: World): Record<ForeignCurrency, number> {
-  const rates = {} as Record<ForeignCurrency, number>;
-  for (const currency of FOREIGN_CURRENCIES) rates[currency] = world.rates[currency].street;
-  return rates;
 }
 
 function isCurrency(value: unknown): value is Currency {

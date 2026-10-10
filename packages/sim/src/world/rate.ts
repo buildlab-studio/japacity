@@ -6,11 +6,10 @@ import { BP_WHOLE, bp, divFloor, mulDiv } from "../engine/int";
 import { createRandom } from "../engine/random";
 import type { Content, ForeignCurrency, Id } from "../engine/types";
 import type { WorldStream } from "./schedule";
+import { FOREIGN } from "../wallet/wallet.rates";
 
 /** Dirhams for one dollar, in basis points of a dirham per cent: the peg of 3.6725 (R-ABROAD-001). */
 const PEG_PER_DOLLAR = 36725;
-
-export const FOREIGN: readonly ForeignCurrency[] = ["GBP", "USD", "CAD", "AED", "EUR"];
 
 /** The story whose coming into force floats the naira (R-RATE-004). */
 export const FLOAT_STORY: Id<"news"> = "news.naira-float";
