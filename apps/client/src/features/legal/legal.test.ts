@@ -125,6 +125,15 @@ describe("the privacy notice", () => {
     expect(log).toContain("Kept for 3 years");
   });
 
+  test("[R-ACCOUNT-019] given the notice, when it is read, then it says how long backups of the database are kept, under what is kept, and that a restore brings no deleted account back", () => {
+    const notice = privacy();
+    const backups = notice.querySelector("[data-backups]");
+    expect(words(backups)).toBe("Backups of the database are kept for up to 7 days; a deleted account is not brought back by a restore.");
+    const headings = [...notice.querySelectorAll("h2")].filter((heading) => backups !== null && heading.compareDocumentPosition(backups) & Node.DOCUMENT_POSITION_FOLLOWING);
+    expect(headings.at(-1)?.id).toBe("kept");
+    expect(words(notice.querySelector("[data-contact]"))).toContain("We reply within 14 days.");
+  });
+
   test("given the notice, when it is read, then it names who else handles the information: Cloudflare with its Turnstile check, Neon and Google sign-in", () => {
     const providers = words(privacy().querySelector("[data-providers]"));
     for (const name of ["Cloudflare", "Turnstile", "Neon", "Google"]) expect(providers).toContain(name);
