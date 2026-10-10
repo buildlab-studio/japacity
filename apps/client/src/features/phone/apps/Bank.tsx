@@ -497,7 +497,7 @@ export function Bank({ opening: openOn = null }: { opening?: "change" | "move" |
         <>
           <Head>{phoneWords("phone.bank.savings")}</Head>
           {savings === null ? (
-            <p className="text-[14px] text-text-2">{phoneWords("phone.bank.savings.none")}</p>
+            <p className="text-[14px] text-text-2">{phoneWords(view.plan.route === null ? "phone.bank.savings.none" : "phone.bank.savings.paid")}</p>
           ) : (
             <div data-savings>
               <div className="h-2.5 overflow-hidden rounded-[2px] bg-sheet-muted" role="progressbar" aria-valuemin={0} aria-valuemax={savings.required} aria-valuenow={Math.min(savings.shown, savings.required)} aria-label={phoneWords("phone.bank.savings")}>

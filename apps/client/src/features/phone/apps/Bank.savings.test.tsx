@@ -94,6 +94,6 @@ describe("Saved for the move, on the plan's own way", () => {
     const view = planOn(newGame("scenario.ngozi"), "route.gulf-contract").view();
     expect(savingsOf(view)).toBeNull();
     await renderWithView(<Bank />, view);
-    expect(document.body.textContent).toContain(phoneWords("phone.bank.savings.none"));
+    expect(document.body.textContent).toContain(phoneWords("phone.bank.savings.paid"));
   });
 });

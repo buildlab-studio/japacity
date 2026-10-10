@@ -31,6 +31,8 @@ export const phoneText: Record<string, string> = {
   "phone.bank.savings": "Saved for the move",
   "phone.bank.savings.line": "{shown} of {required}",
   "phone.bank.savings.none": "No figure to save toward yet. A way out sets one.",
+  // A plan whose way costs nothing to save for (the Gulf contract: the employer pays).
+  "phone.bank.savings.paid": "Your plan costs nothing to save for. The employer pays the way.",
   "phone.bank.lines": "Lately",
   "phone.bank.lines.none": "No money moved last month.",
   "phone.bank.from": "From",
