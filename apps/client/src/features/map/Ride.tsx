@@ -16,6 +16,9 @@ import { type Angle, angleAt, anglesOf, buildRide, darkAt, figuresOn, peopleOf, 
 
 export { PRE_MS, RIDE_MS } from "./rideScene";
 
+/** How long past its own length the ride may run by the wall clock on a slow device before it ends anyway (R-WORLD-032). */
+export const RIDE_SLACK_MS = 2000;
+
 /** The look the city falls back to when the life's own person is not shipped (City.tsx). */
 export const FALLBACK_OWN = "shared/chr/chr_tunde.glb";
 
@@ -149,6 +152,8 @@ export function Ride({ way, place, drawing, own = FALLBACK_OWN, seed = 0, onDone
   const dark = useRef<HTMLDivElement>(null);
   const done = useRef(false);
   const pre = preMsOf(way);
+  // A slow device (frames under ten a second) runs the ride's clock behind the wall clock; the ride still ends within its slack.
+  const startedAt = useRef(Date.now());
   // The ride's own clock: the scene, the angle, the card's line, the bar and the end all read it.
   const clock = useRef(0);
   const [angle, setAngle] = useState<Angle>(() => angleAt(way, 0));
@@ -200,8 +205,8 @@ export function Ride({ way, place, drawing, own = FALLBACK_OWN, seed = 0, onDone
     }
     if (bar.current !== null) bar.current.style.transform = `scaleX(${String(ms / RIDE_MS)})`;
     if (dark.current !== null) dark.current.style.opacity = String(darkAt(way, ms));
-    // The ride ends by itself when its own clock runs out; Skip ends it at once.
-    if (ms >= RIDE_MS) end();
+    // The ride ends by itself when its own clock runs out, or when the wall clock has run past it and its slack; Skip ends it at once.
+    if (ms >= RIDE_MS || Date.now() - startedAt.current >= RIDE_MS + RIDE_SLACK_MS) end();
   };
 
   // Where nothing draws, a timer steps the clock; where the scene draws, each frame does.
