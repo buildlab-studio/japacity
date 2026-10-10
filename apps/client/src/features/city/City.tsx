@@ -18,7 +18,7 @@ import { FullScreen } from "../../shared/ui/FullScreen";
 import { Sheet } from "../../shared/ui/Sheet";
 import { cardKey, useCardsTurn } from "../../shared/ui/stage";
 import { formatMoney } from "../../shared/words/format";
-import { jobCardWords } from "../../shared/words/jobs";
+import { jobCardLine, jobCardWords } from "../../shared/words/jobs";
 import { countsWords } from "../../shared/words/profile";
 import { needsWords } from "../../shared/words/requirement";
 import { newsRead } from "../../shared/phone/newsSeen";
@@ -958,7 +958,7 @@ export function City({
         chosen !== null && content.activity[chosen as Id<"activity">]?.slot === "side"
           ? [blurbOf(chosen) ?? blurbOf(activity), jobCardWords(view, chosen)].filter((part): part is string => part !== null).join(" ")
           : chosen !== null && content.activity[activity as Id<"activity">]?.param === "job"
-            ? [blurbOf(activity), jobCardWords(view, chosen)].filter((part): part is string => part !== null).join(" ")
+            ? jobCardLine(view, activity, chosen)
             : chance !== null
               ? [blurbOf(activity), chance.words].filter((part): part is string => part !== null).join(" ")
               : school !== null
