@@ -330,7 +330,7 @@ export function Japa() {
       <button
         type="button"
         disabled={planned}
-        // R-ACTIVITY-015: the official page is read at once; the place's answer opens over the world.
+        // R-ACTIVITY-015: the official page is read at once, and the phone says the page's line.
         onClick={() => void actOnCard({ activity: OFFICIAL, param: lookInto }, { send, addToPlan }).then((acted) => said(acted === "planned" ? say("ui.world.planned", { what: nameOf(OFFICIAL) }) : acted === "full" ? say("ui.world.full") : acted === "answered" ? nowSaid(OFFICIAL, lookInto) : ""))}
         className="press mt-1 flex w-full items-center gap-2.5 rounded-[6px] border border-sheet-line bg-sheet-2 px-3 py-2.5 text-left disabled:opacity-70"
         data-official-page={lookInto}
