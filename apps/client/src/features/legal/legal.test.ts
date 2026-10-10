@@ -28,7 +28,7 @@ const terms = () => parsed(TERMS_PATH);
 const privacy = () => parsed(PRIVACY_PATH);
 
 describe("the two legal pages", () => {
-  test("given each link in the game, when its path is looked up among the pages served, then a page is there with its own title and a phone's viewport", () => {
+  test("[R-REGION-010] given each link in the game, when its path is looked up among the pages served, then a page is there with its own title and a phone's viewport", () => {
     expect(LEGAL_LINKS.map((link) => link.href)).toEqual(LEGAL_TEMPLATES.map((page) => page.path));
     for (const link of LEGAL_LINKS) {
       const page = parsed(link.href);

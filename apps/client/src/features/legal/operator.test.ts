@@ -23,13 +23,13 @@ const SPELLINGS = [OPERATOR.name, surname, OPERATOR.place].map(loose);
 describe("who runs the game", () => {
   const files = published();
 
-  test("given the repository, then the walk sees the constant and the two page templates", () => {
+  test("[R-REGION-010] given the repository, then the walk sees the constant and the two page templates", () => {
     expect(files).toContain(CONSTANT);
     expect(files).toContain("apps/client/src/features/legal/terms.html");
     expect(files).toContain("apps/client/src/features/legal/privacy.html");
   });
 
-  test("given every file in apps/ and packages/ but the constant, when it is read, then none spells the operator's name or place", () => {
+  test("[R-REGION-010] given every file in apps/ and packages/ but the constant, when it is read, then none spells the operator's name or place", () => {
     const found: string[] = [];
     for (const file of files) {
       if (file === CONSTANT) continue;
@@ -46,7 +46,7 @@ describe("who runs the game", () => {
     expect(found).toEqual([]);
   });
 
-  test("given the constant, then it names who runs the game, a place in Nigeria with no street, and one address on japacity.app", () => {
+  test("[R-REGION-010] given the constant, then it names who runs the game, a place in Nigeria with no street, and one address on japacity.app", () => {
     expect(OPERATOR.name.trim()).not.toBe("");
     expect(OPERATOR.place).toMatch(/^[^,\d]+, [^,\d]+, Nigeria$/);
     expect(OPERATOR.email).toMatch(/^[a-z]+@japacity\.app$/);
