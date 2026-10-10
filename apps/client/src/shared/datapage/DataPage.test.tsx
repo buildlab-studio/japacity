@@ -5,7 +5,7 @@ import { render } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
 import { say } from "../words/text";
-import { DataPage, mrz, PAGE_COLOURS, Stamp, stripLines } from "./DataPage";
+import { DataPage, mrz, PAGE_CODE, PAGE_COLOURS, Stamp, stripLines } from "./DataPage";
 // Registers Testing Library's cleanup for this file.
 import "../testing/render";
 
@@ -35,10 +35,25 @@ describe("the data page", () => {
   });
 
   test("[R-PROLOGUE-009] given the game's own data, then the strip carries the name, the home's district, the age and how ready, in capitals with fillers; a part not known yet is fillers; never a real number", () => {
-    expect(stripLines("Ifẹ́", PAGE.strip)).toEqual(["P<NGAIFE<<<<<<<<<<<<<<<<<<<<<<", "SURULERE<<23Y1M<<12<<<<<<<<<<<"]);
+    expect(stripLines("Ifẹ́", PAGE.strip)).toEqual(["P<JPCIFE<<<<<<<<<<<<<<<<<<<<<<", "SURULERE<<23Y1M<<12<<<<<<<<<<<"]);
     expect(stripLines("Ada", { district: "Ojuelegba", years: 24, months: null, percent: null })[1]).toBe("OJUELEGBA<<24Y<<<<<<<<<<<<<<<<");
     expect(mrz("Mary-Jane", 12)).toBe("MARY<JANE<<<");
     for (const line of stripLines("Temi", PAGE.strip)) expect(line).toHaveLength(30);
+  });
+
+  test("[R-PROLOGUE-009] given a page, then its country code is the game's own made-up JPC in the type line and the strip, never a real one, and a faint JAPACITY mark runs across the paper", () => {
+    expect(PAGE_CODE).toBe("JPC");
+    render(<DataPage page={PAGE} />);
+    expect(document.querySelector("[data-page-type]")?.textContent).toContain(PAGE_CODE);
+    expect(document.querySelector("[data-page-type]")?.textContent).not.toContain("NGA");
+    expect(document.querySelector("[data-page-strip]")?.textContent?.startsWith(`P<${PAGE_CODE}`)).toBe(true);
+    expect(document.querySelector("[data-page-strip]")?.textContent).not.toContain("NGA");
+    const mark = document.querySelector<HTMLElement>("[data-page] [data-page-mark]");
+    expect(mark?.getAttribute("aria-hidden")).toBe("true");
+    const word = mark?.querySelector<HTMLElement>("span");
+    expect(word?.textContent?.toUpperCase()).toBe("JAPACITY");
+    expect(word?.className.split(" ")).toContain("-rotate-[18deg]");
+    expect(Number(word?.style.opacity)).toBeLessThan(0.1);
   });
 
   test("[R-PROLOGUE-009] given the visa's stamp, then it is round and red with the way under it; a step after it is a small box", () => {

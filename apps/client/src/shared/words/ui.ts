@@ -653,7 +653,7 @@ export const uiText: Record<string, string> = {
   "ui.door.edit.life": "Path and age",
   "ui.page.field.family": "Family",
   // The page as designed (R-PROLOGUE-009): its type line and the fields it had and we lacked.
-  "ui.page.type-line": "Type P · NGA",
+  "ui.page.type-line": "Type P · JPC",
   "ui.page.field.nationality": "Nationality",
   "ui.page.nationality": "Nigerian",
   "ui.page.field.path": "Path",
