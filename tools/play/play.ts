@@ -353,8 +353,13 @@ async function followNudge(run: Run, month: number): Promise<void> {
     const act = page.locator("[data-act]");
     if (await shown(act)) {
       const names = (await act.allInnerTexts()).map((name) => oneLine(name, 40)).join(", ");
-      log(run, `acts over the thing: ${names}; tapping the first`);
-      await tap(run, act, "the first act");
+      // The act the nudge's step opens, when the chips carry it; else the first chip.
+      const opens = await page.locator("[data-nudge]").first().getAttribute("data-nudge-opens").catch(() => null);
+      const named = opens === null ? null : page.locator(`[data-act][data-activity="${opens}"]`);
+      const chosen = named !== null && (await shown(named)) ? named : act;
+      const activities = (await act.evaluateAll((nodes) => nodes.map((node) => (node as { dataset: Record<string, string | undefined> }).dataset["activity"] ?? "-"))).join(", ");
+      log(run, `acts over the thing: ${names} (${activities}); the nudge opens ${opens ?? "nothing named"}; tapping ${chosen === act ? "the first" : "the step's own"}`);
+      await tap(run, chosen, "the act");
       // The character walks to the thing before its sheet opens (R-WORLD-005).
       await appear(page.locator(OPEN_SHEET), SHORT);
       continue;
