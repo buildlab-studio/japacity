@@ -67,8 +67,13 @@ export function youngLimitYears(): number {
   return rows[top + 1]?.years ?? rows.at(-1)?.years ?? 0;
 }
 
-/** What a step does, for the page: the years worked, their saving and the passport; at the tile's own age the years before Canada's age points fall. */
-export function ageStepWords(older: number, lowest: number): string {
+/**
+ * What a step does, for the page: the years worked, their saving and the passport; at the tile's own age the years before
+ * Canada's age points fall, said only where the tile's ways out count age that way (`ageCounts`),
+ * else nothing.
+ */
+export function ageStepWords(older: number, lowest: number, ageCounts = true): string {
+  if (older === 0 && !ageCounts) return "";
   if (older > 0) {
     const worked = yearsWorked(older);
     return say(worked.passport ? "prologue.age.older.passport" : "prologue.age.older", { amount: formatMoney(worked.saved, "NGN") });

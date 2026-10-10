@@ -214,7 +214,7 @@ describe("the run through the front door", () => {
     expect(screen.queryByRole("button", { name: say("ui.door.back") })).toBeNull();
   });
 
-  test("[R-PROLOGUE-004] [R-PROLOGUE-009] [R-PROLOGUE-013] given a tile, then the age under it is never typed: it starts at the year its path reaches, steps a year at a time up to three older inside 18 to 29, says what each step does, and prints on the page", () => {
+  test("[R-PROLOGUE-004] [R-PROLOGUE-009] [R-PROLOGUE-013] given a tile, then the age under it is never typed: it starts at the year its path reaches, steps a year at a time up to three older inside 18 to 29, says what each step does, names Canada's age points only for a tile whose ways out count them, and prints on the page", () => {
     door();
     fireEvent.click(next(say("ui.door.next")));
     fireEvent.click(screen.getByRole("radio", { name: say("prologue.archetype.shop-worker.name") }));
@@ -224,7 +224,9 @@ describe("the run through the front door", () => {
     const years = () => document.querySelector("[data-age-years]")?.textContent;
     const does = () => document.querySelector("[data-age-does]")?.textContent;
     expect(years()).toBe(say("prologue.door.age.years", { years: lowest }));
-    expect(does()).toBe(ageStepWords(0, lowest));
+    // The shop worker's ways out count no age in points, so her own age says nothing of Canada.
+    expect(does()).toBeUndefined();
+    expect(ageStepWords(0, lowest, false)).toBe("");
     const younger = screen.getByRole<HTMLButtonElement>("button", { name: say("prologue.door.age.younger") });
     const older = screen.getByRole<HTMLButtonElement>("button", { name: say("prologue.door.age.older") });
     // Never below the year its path reaches.
@@ -242,9 +244,11 @@ describe("the run through the front door", () => {
       expect(years()).toBe(say("prologue.door.age.years", { years: lowest + step }));
     }
     expect(younger.disabled).toBe(true);
-    // Another tile starts again at its own age.
+    // Another tile starts again at its own age; the writer's ways out count age in Canada's points, so she is told how long is left.
     fireEvent.click(screen.getByRole("radio", { name: say("prologue.archetype.writer.name") }));
     expect(years()).toBe(say("prologue.door.age.years", { years: startYearFor(archetypeOf("writer")!, 0) }));
+    expect(does()).toBe(ageStepWords(0, startYearFor(archetypeOf("writer")!, 0)));
+    expect(does()).toContain("Canada");
     fireEvent.click(screen.getByRole("radio", { name: say("prologue.archetype.shop-worker.name") }));
     for (let step = 0; step < Math.max(...open); step += 1) fireEvent.click(older);
     fireEvent.click(next(say("prologue.door.print")));

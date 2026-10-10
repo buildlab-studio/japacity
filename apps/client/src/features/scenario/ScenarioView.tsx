@@ -18,7 +18,7 @@ import { useGame } from "../../authority/GameProvider";
 import { keepPerson } from "../../authority/person";
 import { formatMoney } from "../../shared/words/format";
 import { blurbOf, say, words } from "../../shared/words/text";
-import { type Archetype, ARCHETYPES, archetypeOf, FROM_SIXTEEN, type Home, homeOf, homesFor, moneyDrawn, opensChips, savingsOf, throughUniversity } from "../../shared/frontdoor/archetypes";
+import { agePointsCount, type Archetype, ARCHETYPES, archetypeOf, FROM_SIXTEEN, type Home, homeOf, homesFor, moneyDrawn, opensChips, savingsOf, throughUniversity } from "../../shared/frontdoor/archetypes";
 import { DoorHead } from "../../shared/frontdoor/DoorHead";
 import { Stand } from "../../shared/frontdoor/Stand";
 import { Gate, GateSheet, gateLook } from "../../shared/frontdoor/Gate";
@@ -595,9 +595,13 @@ export function ScenarioView({ guest = null }: { guest?: DoorGuest | null }) {
                   <ChevronRight size={20} />
                 </button>
               </div>
-              <p className="px-2 pt-1 pb-1.5 text-center text-[12px] text-text-2" data-age-does>
-                {ageStepWords(older, lowest)}
-              </p>
+              {ageStepWords(older, lowest, archetype !== null && agePointsCount(archetype)) === "" ? (
+                <div className="pb-1" />
+              ) : (
+                <p className="px-2 pt-1 pb-1.5 text-center text-[12px] text-text-2" data-age-does>
+                  {ageStepWords(older, lowest, archetype !== null && agePointsCount(archetype))}
+                </p>
+              )}
             </section>
           )}
           {archetype === null || home === null ? null : (
