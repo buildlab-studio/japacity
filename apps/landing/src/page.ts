@@ -1,6 +1,6 @@
-// The waitlist page: what anyone without the gate's cookie sees at japacity.app before launch.
-// Plain HTML so it works with no script. The waitlist's form is sent only while its two bindings
-// exist. Words are first drafts for the maintainer to retype in his own voice.
+// The one page. Plain HTML so it works with no script. Before launch it says the game opens
+// soon; live, it shows the play link. The waitlist's form is sent only while the waitlist is on.
+// Words are first drafts for the maintainer to retype in his own voice.
 
 export type PageState = "fresh" | "joined" | "invalid" | "slow";
 
@@ -8,6 +8,8 @@ export interface PageSettings {
   siteUrl: string;
   /** Empty means no analytics script at all. */
   analyticsToken: string;
+  live: boolean;
+  playUrl: string;
   /** Without the @. Anything that is not an X handle shows no link. */
   xHandle: string;
   waitlist: boolean;
@@ -16,7 +18,8 @@ export interface PageSettings {
 const TITLE = "Japacity";
 const LINE = "a game about trying to leave. coming soon.";
 const SOON = "a game about trying to leave. it opens soon.";
-const INVITED = "Got an invite link from a friend? Open it again on this phone.";
+const OPEN = "a game about trying to leave. it is open.";
+const PLAY = "Play now";
 const HANDLE = /^[A-Za-z0-9_]{1,15}$/;
 const DESCRIPTION = "A browser game about japa: the job, the transcript, the funds, the visa officer, and the life after.";
 const PRIVACY = "One email when it opens, then we delete your address.";
@@ -55,12 +58,12 @@ ${form}
 }
 
 function body(state: PageState, settings: PageSettings): string {
-  const invited = `<p class="invited">${escapeHtml(INVITED)}</p>`;
-  if (settings.waitlist) return `${waitlistForm(state)}\n${invited}`;
-  return `<p>${escapeHtml(SOON)}</p>\n${invited}`;
+  if (settings.live) return `<p>${escapeHtml(OPEN)}</p>\n<a class="play" href="${escapeHtml(settings.playUrl)}">${PLAY}</a>`;
+  if (settings.waitlist) return waitlistForm(state);
+  return `<p>${escapeHtml(SOON)}</p>`;
 }
 
-/** Renders the page for the settings the gate read from its environment. */
+/** Renders the page for the settings the Worker read from its environment. */
 export function renderPage(state: PageState, settings: PageSettings): string {
   const { siteUrl, analyticsToken } = settings;
   const analytics =
@@ -103,8 +106,8 @@ button{font:inherit;font-weight:700;padding:14px 16px;border:0;border-radius:12p
 .privacy{font-size:14px;color:var(--muted);margin:12px 0 0}
 .note{font-weight:700;margin:0 0 12px}
 .hp{position:absolute;left:-10000px;top:auto;width:1px;height:1px;overflow:hidden}
-.invited{font-size:14px;color:var(--muted);margin:20px 0 0}
 .x{display:inline-block;margin-top:28px;color:var(--muted);font-size:14px}
+.play{display:block;text-align:center;font-weight:700;padding:14px 16px;border-radius:12px;background:var(--accent);color:var(--accent-ink);text-decoration:none}
 </style>
 </head>
 <body>

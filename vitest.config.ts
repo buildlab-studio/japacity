@@ -156,7 +156,7 @@ export default defineConfig({
         },
       },
       {
-        // The gate that owns the game's root before launch, with its waitlist (apps/gate/README.md).
+        // The gate that owns the game's root before launch, with the invite links (apps/gate/README.md).
         plugins: [
           cloudflareTest({
             wrangler: { configPath: gateWrangler },
@@ -170,6 +170,14 @@ export default defineConfig({
         test: {
           name: "gate",
           include: ["apps/gate/src/**/*.test.ts"],
+        },
+      },
+      {
+        // The holding page, kept switched off and not deployed (apps/landing/README.md).
+        test: {
+          name: "landing",
+          environment: "node",
+          include: ["apps/landing/src/**/*.test.ts"],
         },
       },
       {
