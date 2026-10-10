@@ -39,9 +39,10 @@ export interface Hold {
 }
 
 /**
- * The part of the pair side's `ModerationStore` the queue uses. typed
- * from moderation.md's contract and the pair brief (`list(open)`, `close`, the
- * hold's lift); swap for the landed interface when it merges.
+ * The part of the pair side's `ModerationStore` the queue uses. the
+ * queue keeps this narrow port, and `storeQueue` in ports.ts reads it over the
+ * landed `ModerationStore` (packages/store/src/pair.types.ts), so the admin
+ * view never learns the store's row shapes.
  */
 export interface ReportQueueStore {
   /** Open reports, oldest first. */
