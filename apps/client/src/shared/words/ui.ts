@@ -674,6 +674,9 @@ export const uiText: Record<string, string> = {
   "ui.page.year.settlement.fair": "Enough to start",
   "ui.page.year.settlement.cheated": "Little to show",
   "ui.page.year.shop": "Shop counter",
+  // The child of the water's own years (R-PROLOGUE-012): the canoe to school, then the racks.
+  "ui.page.year.waec.water": "School by canoe",
+  "ui.page.year.shop.water": "The fish racks",
   "ui.page.year.shop.years": "{count} years",
   "ui.page.year.grade": "Grade",
   "ui.page.year.grade.short": "Master's and bank shut",

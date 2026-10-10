@@ -420,7 +420,7 @@ function PageScreen({ view, archetype, draw, onDone }: { view: PlayerView; arche
   const water = archetype?.id === "water";
   const base = pageOf(view, person);
   const page: PageFields = { ...base, path: pathShown(archetype, view, base), photo: lookOf(gateLook(person?.look))?.picture ?? "", age: clockWords(view.qualities), stamps: [] };
-  const years = yearChips(trail, view);
+  const years = yearChips(trail, view, water);
   const story = handover ? storyChips(view) : [];
   const step = handover ? firstStep(view) : null;
   const naira = view.pockets.NGN.bank + view.pockets.NGN.cash;
