@@ -161,6 +161,8 @@ export function requirementSentence(requirement: Requirement, context: SentenceC
     case "not":
       if (requirement.of.type === "document/pending") return say("ui.req.not-pending", { document: runningName(requirement.of.document) });
       if (requirement.of.type === "document/held") return say("ui.req.not-held", { document: runningName(requirement.of.document) });
+      // The one job this act starts, held already: the shop open.
+      if (requirement.of.type === "job/is" && requirement.of.activities.length === 1) return say("ui.req.not-job", { job: nameOf(requirement.of.activities[0] ?? "") });
       return say("ui.req.not", { inner: requirementSentence(requirement.of, context) });
     case "any":
       // Any way out heard of, as the adviser asks: one line, never every route by name.
@@ -259,6 +261,8 @@ function asksForRoute(requirement: Requirement): boolean {
 export function needsWords(missing: readonly Requirement[], context: SentenceContext = {}): string {
   const [first] = missing;
   if (first === undefined) return say("ui.needs.nothing-to-pick");
+  // A job this act would start, running already, is the whole story whatever else is short (the shop open, R-ACTIVITY-016).
+  if (missing.some((need) => need.type === "not" && need.of.type === "job/is" && need.of.activities.length === 1)) return say("ui.needs.running");
   if (alreadyDone(first, context)) return say("ui.needs.done");
   if (first.type === "document/held" && first.min === undefined) return say("ui.needs.document", { document: runningName(first.document) });
   if (first.type === "document/held" && first.document === ENGLISH_RESULT && first.min !== undefined) return say("ui.needs.band", { band: formatBand(first.min) });

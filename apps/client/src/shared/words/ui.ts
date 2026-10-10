@@ -324,6 +324,8 @@ export const uiText: Record<string, string> = {
   "ui.needs.planned": "In this month's plan",
   // A shut card's button, when the card itself lists why.
   "ui.needs.not-yet": "Not yet",
+  // The one job an act starts, held already: the shop open (R-ACTIVITY-016).
+  "ui.needs.running": "It is open already",
   "ui.needs.other": "Not yet: {what}",
   "ui.activity.later": "Later, abroad",
   "ui.activity.later-hint": "{count} things you can only do once you have left.",
@@ -668,6 +670,7 @@ export const uiText: Record<string, string> = {
   "ui.req.not": "Not while this holds: {inner}",
   "ui.req.not-pending": "Wait: your {document} is already on the way",
   "ui.req.not-held": "Only without {document} in hand",
+  "ui.req.not-job": "{job} is open already",
   "ui.req.any": "One of: {inner}",
   "ui.req.any-route": "A way out you have heard of",
   "ui.req.any-abroad-or-circle": "Someone you know abroad, or a wide enough circle",
