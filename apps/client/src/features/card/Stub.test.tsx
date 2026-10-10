@@ -52,7 +52,7 @@ describe("the ticket stub beside the send-off card", () => {
     expect(pickStub.getAttribute("aria-pressed")).toBe("true");
     const stub = sheet.querySelector("[data-share-card='stub']") as HTMLElement;
     expect(sheet.querySelector("[data-share-card='send-off']")).toBeNull();
-    for (const words of ["Lagos", text["country.uk.name"]!, playedWords(view.card!.months), `${String(view.card!.percent)}%`, typeWords(japaTypeOf(view)!).name, typeWords(japaTypeOf(view)!).line, "Ada", "Japacity is a game.", "japacity.com"]) {
+    for (const words of ["Lagos", text["country.uk.name"]!, playedWords(view.card!.months), `${String(view.card!.percent)}%`, typeWords(japaTypeOf(view)!).name, typeWords(japaTypeOf(view)!).line, "Ada", "Japacity is a game.", "japacity.app"]) {
       expect(within(stub).getByText(words)).toBeDefined();
     }
     fireEvent.click(within(sheet).getByRole("button", { name: say("share.stub.pick.card") }));

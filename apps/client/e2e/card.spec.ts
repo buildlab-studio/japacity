@@ -114,14 +114,14 @@ test("[R-SHARE-003] a phone with a share sheet gets the card only when the playe
   await expect(sheet.getByText("Sent to the app you picked.")).toBeVisible();
   const shared = await page.evaluate(() => (window as unknown as { shared: { url: string; files: { name: string; type: string; size: number }[] }[] }).shared);
   expect(shared).toHaveLength(1);
-  expect(shared[0]?.url).toBe("https://japacity.com/?card=send-off");
+  expect(shared[0]?.url).toBe("https://japacity.app/?card=send-off");
   expect(shared[0]?.files[0]?.type).toBe("image/jpeg");
 });
 
 test("[R-SHARE-012] [R-SHARE-010] the official accounts page and the link previews are served as fixed files", async ({ page, request }) => {
   await page.goto("/official/index.html");
   await expect(page.getByRole("heading", { name: "Official accounts" })).toBeVisible();
-  await expect(page.getByRole("link", { name: "japacity.com", exact: true })).toBeVisible();
+  await expect(page.getByRole("link", { name: "japacity.app", exact: true })).toBeVisible();
   await expect(page.getByText("We never ask you for money.")).toBeVisible();
   const preview = await request.get("/share/send-off.jpg");
   expect(preview.ok()).toBe(true);

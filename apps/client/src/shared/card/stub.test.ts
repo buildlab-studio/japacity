@@ -76,11 +76,11 @@ describe("the ticket stub's face", () => {
     expect(role(steps, "type-line").join(" ")).toBe(text[`share.type.${type}.line`]);
     expect(role(steps, "name")).toEqual(["Ada"]);
     expect(role(steps, "sender")).toEqual(["Japacity"]);
-    expect(role(steps, "official")).toEqual(["Official accounts: japacity.com/official"]);
+    expect(role(steps, "official")).toEqual(["Official accounts: japacity.app/official"]);
     const disclaimer = texts(steps).find((step) => step.role === "disclaimer")!;
     const address = texts(steps).find((step) => step.role === "address")!;
     expect(disclaimer.text).toBe("Japacity is a game.");
-    expect(address.text).toBe("japacity.com");
+    expect(address.text).toBe("japacity.app");
     expect(disclaimer.size).toBeGreaterThanOrEqual(address.size);
   });
 
@@ -144,7 +144,7 @@ describe("the ticket stub's face", () => {
         expect([label, word.text, SIZE.width - right + (word.y - word.size) > far]).toEqual([label, word.text, true]);
       }
       const foot = texts(steps).filter((step) => step.role === "sender" || step.role === "address");
-      expect(foot.map((step) => step.text)).toEqual(["Japacity", "japacity.com"]);
+      expect(foot.map((step) => step.text)).toEqual(["Japacity", "japacity.app"]);
       for (const step of foot) expect(step.y).toBeGreaterThan(SIZE.height * 0.8);
     }
   });

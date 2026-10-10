@@ -96,7 +96,7 @@ function gate(account: AccountApi, turnstile = fakeTurnstile(), agent?: string, 
   const store = signedOutStore(account);
   render(
     <GameProvider store={store}>
-      <AccountGate load={turnstile.load} sitekey={TEST_SITE_KEY} embedded={embedded} {...(agent === undefined ? {} : { agent, href: "https://play.japacity.com/" })} />
+      <AccountGate load={turnstile.load} sitekey={TEST_SITE_KEY} embedded={embedded} {...(agent === undefined ? {} : { agent, href: "https://japacity.app/" })} />
     </GameProvider>,
   );
   return { store, turnstile };
@@ -179,7 +179,7 @@ describe("the start screen online", () => {
     expect(await screen.findByText(say("ui.account.in-app"))).toBeDefined();
     expect(screen.queryByRole("button", { name: say("ui.account.google") })).toBeNull();
     expect(screen.getByLabelText(say("ui.account.email.label"))).toBeDefined();
-    expect(screen.getByRole("link", { name: say("ui.account.in-app.open") }).getAttribute("href")).toBe("intent://play.japacity.com/#Intent;scheme=https;end");
+    expect(screen.getByRole("link", { name: say("ui.account.in-app.open") }).getAttribute("href")).toBe("intent://japacity.app/#Intent;scheme=https;end");
   });
 
   test("[R-ACCOUNT-029] given an in-app browser on an iPhone, then Google is not shown and the page's address is offered to copy", async () => {
@@ -191,7 +191,7 @@ describe("the start screen online", () => {
     expect(screen.queryByRole("button", { name: say("ui.account.google") })).toBeNull();
     fireEvent.click(await screen.findByRole("button", { name: say("ui.account.in-app.copy") }));
     expect(await screen.findByText(say("ui.account.in-app.copied"))).toBeDefined();
-    expect(copied).toEqual(["https://play.japacity.com/"]);
+    expect(copied).toEqual(["https://japacity.app/"]);
   });
 
   test("[R-ACCOUNT-029] given a code for an address that holds no life, when it is typed on the ways back in, then the player is told to go back and Play, and stays signed out", async () => {
