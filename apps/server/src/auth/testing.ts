@@ -13,7 +13,7 @@ import { makeApp } from "../app";
 import { testConfig } from "../config";
 import type { ServerConfig } from "../config";
 import { memoryStores, openLimiters } from "../deps";
-import type { ServerDeps, Stores } from "../deps";
+import type { Limiters, ServerDeps, Stores } from "../deps";
 import { makeAuth } from "./auth";
 import type { Auth, AuthKeys, OtpMessage } from "./auth";
 import { memoryAuthAdapter, memoryAuthTables } from "./memory";
@@ -86,6 +86,8 @@ export interface HarnessOptions {
   adapter?: Parameters<typeof makeAuth>[1];
   sendOtp?: (message: OtpMessage) => Promise<void>;
   turnstileSecret?: string;
+  /** The limits; open unless a test counts them. */
+  limits?: Limiters;
 }
 
 export function harness(options: HarnessOptions = {}): Harness {
@@ -99,7 +101,7 @@ export function harness(options: HarnessOptions = {}): Harness {
     stores: options.stores ?? memoryStores(),
     contents: { current: content, previous: null },
     secrets: { worldSeed: "test-world-seed", banSalt: "test-ban-salt", drawTokenKey: "test-draw-token-key" },
-    limits: openLimiters,
+    limits: options.limits ?? openLimiters,
     session: () => Promise.resolve(null),
     now: () => Date.now(),
     randomBytes: (count) => Uint8Array.from({ length: count }, () => (seed = (seed * 48271) % 2147483647) & 255),

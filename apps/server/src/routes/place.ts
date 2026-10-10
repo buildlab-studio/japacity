@@ -4,6 +4,8 @@ import { Hono } from "hono";
 import type { Context } from "hono";
 
 import type { ServerDeps } from "../deps";
+import type { SessionEnv } from "../limits/limit";
+import { limit, sessionOf } from "../limits/limit";
 import type { PlaceOf } from "../nudge/place.nudge";
 import { readsToday } from "../place/place.presence";
 import { openSocket } from "../place/place.rooms";
@@ -60,11 +62,11 @@ function hex(bytes: Uint8Array): string {
 }
 
 /** `GET /api/place/:place`: a fresh sample of the other players there (R-CLOCK-028), and of some seen there today (R-CITY-036). */
-export function placeRoutes(deps: ServerDeps): Hono {
-  const app = new Hono();
+export function placeRoutes(deps: ServerDeps): Hono<SessionEnv> {
+  const app = new Hono<SessionEnv>();
 
-  app.get("/api/place/:place", async (c) => {
-    const session = await deps.session(c.req.raw);
+  app.get("/api/place/:place", limit(deps, "reads"), async (c) => {
+    const session = sessionOf(c);
     if (session === null) return refuse(c, 401, "signed-out", "sign in first");
     const place = c.req.param("place");
     if (!Object.hasOwn(deps.contents.current.place, place)) return refuse(c, 404, "unknown-id", `no place ${place}`);
@@ -89,11 +91,12 @@ export function placeRoutes(deps: ServerDeps): Hono {
 }
 
 /** `GET /api/place/:place/socket`: the nudge and presence socket, in the room the router picks (R-CLOCK-029). */
-export function placeSocketRoutes(deps: ServerDeps, bindings: PlaceBindings): Hono {
-  const app = new Hono();
+export function placeSocketRoutes(deps: ServerDeps, bindings: PlaceBindings): Hono<SessionEnv> {
+  const app = new Hono<SessionEnv>();
 
-  app.get("/api/place/:place/socket", async (c) => {
-    const session = await deps.session(c.req.raw);
+  // Opening a socket reads the character twice, so it counts against the reads limit.
+  app.get("/api/place/:place/socket", limit(deps, "reads"), async (c) => {
+    const session = sessionOf(c);
     if (session === null) return refuse(c, 401, "signed-out", "sign in first");
     const place = c.req.param("place");
     if (!Object.hasOwn(deps.contents.current.place, place)) return refuse(c, 404, "unknown-id", `no place ${place}`);

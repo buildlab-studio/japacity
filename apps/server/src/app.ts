@@ -30,9 +30,17 @@ import { advertRoutes } from "./routes/adverts";
 import { boardRoutes } from "./routes/boards";
 import { COUNTED_PATHS, countRefusals } from "./analytics/count";
 import { isOn } from "./switches/switches";
+import { bodyLimits } from "./security/body";
+import { securityHeaders } from "./security/headers";
+import { sameOriginWrites } from "./security/origin";
 
 export function makeApp(deps: ServerDeps, accounts?: Accounts): Hono {
   const app = new Hono();
+  // outermost, so every reply carries the headers, a refusal below included.
+  app.use(securityHeaders());
+  // A write from another site, or a body too large, is refused before anything reads or counts it.
+  if (accounts !== undefined) app.use(sameOriginWrites(accounts.keys.siteUrl));
+  app.use(bodyLimits());
   // R-SERVER-005, R-ANALYTICS-008: around the gates and the limits, so a refusal from either is counted too.
   for (const path of COUNTED_PATHS) app.use(path, countRefusals(deps));
   // R-SERVER-031: first, so its gates run before every route they close.

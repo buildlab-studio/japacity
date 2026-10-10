@@ -11,6 +11,8 @@ import { rejection } from "../account/reply";
 import type { AccountRejection } from "../account/reply";
 import type { Accounts } from "../auth/auth";
 import type { ServerDeps } from "../deps";
+import type { SessionEnv } from "../limits/limit";
+import { limit } from "../limits/limit";
 
 /** The account as its owner sees it: no age date (R-ACCOUNT-020), no email (the auth library's session holds that). */
 export interface AccountView {
@@ -56,10 +58,10 @@ function viewOf(row: AccountRow, deps: Pick<ServerDeps, "config">, passkey: bool
   return { id, country, age: { passed: age.passed, method: age.method }, createdAt, character, sendUsageCounts, admin: passkey && deps.config.admin.accounts.includes(id) };
 }
 
-export function accountRoutes(deps: ServerDeps, { auth }: Accounts): Hono {
-  const app = new Hono();
+export function accountRoutes(deps: ServerDeps, { auth }: Accounts): Hono<SessionEnv> {
+  const app = new Hono<SessionEnv>();
 
-  app.get("/api/account", async (c) => {
+  app.get("/api/account", limit(deps, "reads"), async (c) => {
     const session = await deps.session(c.req.raw);
     if (session === null) return c.json<AccountReply>(rejection("signed-out", "Sign in first."), 401);
     const row = await deps.stores.account.get(session.account);
@@ -67,7 +69,7 @@ export function accountRoutes(deps: ServerDeps, { auth }: Accounts): Hono {
     return c.json<AccountReply>({ ok: true, account: viewOf(row, deps, session.passkey) });
   });
 
-  app.put("/api/account", async (c) => {
+  app.put("/api/account", limit(deps, "commands"), async (c) => {
     const session = await deps.session(c.req.raw);
     if (session === null) return c.json<AccountReply>(rejection("signed-out", "Sign in first."), 401);
     const body: unknown = await c.req.json().catch(() => null);
@@ -78,7 +80,7 @@ export function accountRoutes(deps: ServerDeps, { auth }: Accounts): Hono {
     return c.json<AccountReply>({ ok: true, account: viewOf(changed.value, deps, session.passkey) });
   });
 
-  app.delete("/api/account", async (c) => {
+  app.delete("/api/account", limit(deps, "commands"), async (c) => {
     const session = await auth.api.getSession({ headers: c.req.raw.headers });
     if (session === null) return c.json<DeleteReply>(rejection("signed-out", "Sign in first."), 401);
     const body = (await c.req.json().catch(() => ({}))) as DeleteRequest | null;
