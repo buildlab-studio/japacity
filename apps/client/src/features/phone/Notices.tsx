@@ -1,0 +1,54 @@
+// The month's acts telling of themselves on the phone (docs/rules/world.md R-WORLD-030): on the
+// wallpaper, as notifications, once the character is home (the house or the room), newest first,
+// and told as soon as they show; away from home only that something waits, never the lines. The
+// lines stay on the phone for the rest of the month. Nothing here sends a command.
+import { useEffect, useState } from "react";
+
+import { useGame, useView } from "../../authority/GameProvider";
+import { dueSignals, waitingSignals } from "../days/days";
+import { tellSignals, useMonthDays } from "../days/days.store";
+import { atHome } from "../days/standing";
+import { say } from "../../shared/words/text";
+
+/** The lines due and those still waiting, from the days kept, the view and the plan. */
+export function useSignals(): { due: ReturnType<typeof dueSignals>; waiting: ReturnType<typeof waitingSignals> } {
+  const view = useView();
+  const plan = useGame((state) => state.plan);
+  const days = useMonthDays();
+  if (days === null || days.month !== view.month || days.scenario !== view.scenario) return { due: [], waiting: [] };
+  return { due: dueSignals(days, view, plan), waiting: waitingSignals(days, view, plan) };
+}
+
+/** True while a line of the month waits to be told: part of the Phone button's dot. */
+export function useSignalsWaiting(): boolean {
+  return useSignals().waiting.length > 0;
+}
+
+export function Notices() {
+  const view = useView();
+  const { due, waiting } = useSignals();
+  // Where the character stands is read once as the phone opens: the phone is put away to move.
+  const [home] = useState(() => atHome(view));
+  const keys = waiting.map((signal) => signal.key).join("|");
+  useEffect(() => {
+    if (home && keys !== "") tellSignals(keys.split("|"));
+  }, [home, keys]);
+  if (!home) {
+    if (waiting.length === 0) return null;
+    return (
+      <p className="mx-4 mt-4 self-start rounded-[12px] bg-sheet/85 px-3 py-2 text-[13px] font-semibold text-text-2" data-phone-away>
+        {waiting.length === 1 ? say("ui.days.away.one") : say("ui.days.away.many", { count: waiting.length })}
+      </p>
+    );
+  }
+  if (due.length === 0) return null;
+  return (
+    <ul className="mt-4 flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto overscroll-contain px-4" aria-label={say("ui.days.notices")} data-phone-notices>
+      {[...due].reverse().map((signal) => (
+        <li key={signal.key} className="pop rounded-[12px] bg-sheet/90 px-3 py-2 text-[14px] leading-snug text-text shadow-[0_4px_10px_rgba(10,14,30,0.25)]" data-notice={signal.key}>
+          {say(signal.key)}
+        </li>
+      ))}
+    </ul>
+  );
+}
