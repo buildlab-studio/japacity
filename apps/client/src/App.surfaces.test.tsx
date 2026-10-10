@@ -11,6 +11,7 @@ import { describe, expect, test } from "vitest";
 import { App } from "./App";
 import { GameProvider } from "./authority/GameProvider";
 import { createGameStore, type GameStore } from "./authority/store";
+import { pickBirth } from "./features/account/age.testing";
 import { InvitePage, InviteServerProvider } from "./features/account/InvitePage";
 import type { ServedAdvert } from "./features/adverts/adverts";
 import { AdvertsProvider, PhoneTile } from "./features/adverts/placed";
@@ -160,7 +161,7 @@ describe("where no advert shows", () => {
     expect(slots(sheet)).toHaveLength(0);
   });
 
-  test("[R-ADVERT-003] given every slot filled, when a signed-out player meets the age screen and then the ways in, then neither holds an advert", async () => {
+  test("[R-ADVERT-003] given every slot filled, when a signed-out player meets the start screen, the age screen and then the ways in, then none holds an advert", async () => {
     const account = {
       ageStatus: () => Promise.resolve("unasked"),
       declareAge: () => Promise.resolve("passed"),
@@ -169,7 +170,10 @@ describe("where no advert shows", () => {
     const store = createGameStore({ view: () => Promise.resolve(advertsOn()), send: () => Promise.reject(new Error("unused")) }, { account });
     store.getState().leave(null);
     render(providers(everything(), <App store={store} />));
-    fireEvent.change(await screen.findByLabelText(say("ui.account.age.label")), { target: { value: "1990-01-01" } });
+    expect(await screen.findByRole("button", { name: say("ui.account.start.play") })).toBeDefined();
+    expect(slots()).toHaveLength(0);
+    fireEvent.click(screen.getByRole("button", { name: say("ui.account.start.play") }));
+    await pickBirth("1990-01-01");
     expect(slots()).toHaveLength(0);
     fireEvent.click(screen.getByRole("button", { name: say("ui.account.age.go") }));
     await screen.findByRole("button", { name: say("ui.account.google") });

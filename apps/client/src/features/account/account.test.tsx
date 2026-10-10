@@ -12,6 +12,8 @@ import "../../shared/testing/render";
 import { say } from "../../shared/words/text";
 import { App } from "../../App";
 import { AccountGate } from "./AccountGate";
+import { answerAge } from "./age.testing";
+import { YEARS_LISTED } from "./AgeScreen";
 import { AccountSettings } from "./Settings";
 import { TEST_SITE_KEY, type LoadTurnstile, type TurnstileOptions } from "./Turnstile";
 
@@ -55,12 +57,17 @@ function fakeAccount(over: Partial<AccountApi> = {}): AccountApi & { calls: stri
   };
 }
 
-function fakeTurnstile() {
+/** Cloudflare's widget as its always-pass test key behaves: the token comes at once, unless `passAtOnce` is off and the test gives it. */
+function fakeTurnstile({ passAtOnce = true }: { passAtOnce?: boolean } = {}) {
   const rendered: TurnstileOptions[] = [];
   let resets = 0;
   const load: LoadTurnstile = () =>
     Promise.resolve({
-      render: (_container, options) => (rendered.push(options), "widget-1"),
+      render: (_container, options) => {
+        rendered.push(options);
+        if (passAtOnce) setTimeout(() => options.callback(DUMMY_TOKEN), 0);
+        return "widget-1";
+      },
       reset: () => {
         resets += 1;
       },
@@ -75,11 +82,11 @@ function signedOutStore(account: AccountApi): GameStore {
   return store;
 }
 
-function gate(account: AccountApi, turnstile = fakeTurnstile()) {
+function gate(account: AccountApi, turnstile = fakeTurnstile(), agent?: string) {
   const store = signedOutStore(account);
   render(
     <GameProvider store={store}>
-      <AccountGate load={turnstile.load} sitekey={TEST_SITE_KEY} />
+      <AccountGate load={turnstile.load} sitekey={TEST_SITE_KEY} {...(agent === undefined ? {} : { agent, href: "https://play.japacity.com/" })} />
     </GameProvider>,
   );
   return { store, turnstile };
@@ -92,21 +99,168 @@ function yearsAgo(years: number, extraDays = 0): string {
   return isoDay(new Date(Date.UTC(today.getUTCFullYear() - years, today.getUTCMonth(), today.getUTCDate() + extraDays)));
 }
 
-async function answerAge(birth: string) {
-  const input = await screen.findByLabelText(say("ui.account.age.label"));
-  fireEvent.change(input, { target: { value: birth } });
-  fireEvent.click(screen.getByRole("button", { name: say("ui.account.age.go") }));
+/** Play on the start screen (R-ACCOUNT-029). */
+async function play() {
+  fireEvent.click(await screen.findByRole("button", { name: say("ui.account.start.play") }));
 }
 
-describe("the age screen", () => {
-  test("[R-ACCOUNT-012] given a new browser, then the age screen comes before any way in, with no date filled in and no hint of the age needed", async () => {
+/** "I already have a life here" on the start screen (R-ACCOUNT-029). */
+async function returning() {
+  fireEvent.click(await screen.findByRole("button", { name: say("ui.account.start.returning") }));
+}
+
+const ageFields = () => [say("ui.account.age.day"), say("ui.account.age.month"), say("ui.account.age.year")].map((name) => screen.queryByRole("combobox", { name }));
+
+describe("the start screen online", () => {
+  test("[R-ACCOUNT-029] given a new browser, then the first screen is the start screen over the compound: the game's name, R-TEXT-006's line, Play and I already have a life here, and nothing else asked", async () => {
+    const account = fakeAccount();
+    gate(account);
+    const playButton = await screen.findByRole("button", { name: say("ui.account.start.play") });
+    expect(playButton).toBeDefined();
+    expect(screen.getByRole("button", { name: say("ui.account.start.returning") })).toBeDefined();
+    expect(screen.getByText(say("ui.life.intro"))).toBeDefined();
+    expect(document.querySelector("[data-start-name]")?.textContent).toBe(say("ui.game"));
+    // The compound behind, as the door draws it, with the sheet over the bottom of it.
+    expect(document.querySelector('[data-gate="start"] [data-front-scene]')).not.toBeNull();
+    expect(document.querySelector('[data-gate="start"] [data-gate-sheet="start"]')).not.toBeNull();
+    expect(ageFields()).toEqual([null, null, null]);
+    expect(screen.queryByRole("button", { name: say("ui.account.google") })).toBeNull();
+    expect(screen.queryByLabelText(say("ui.account.email.label"))).toBeNull();
+    expect(account.calls).toEqual([]);
+  });
+
+  test("[R-ACCOUNT-029] given the start screen, when Play is pressed, then the age screen follows, and its Back returns to the start screen", async () => {
     gate(fakeAccount());
-    const input = await screen.findByLabelText<HTMLInputElement>(say("ui.account.age.label"));
-    expect(input.value).toBe("");
-    expect(input.getAttribute("min")).toBeNull();
-    expect(input.getAttribute("max")).toBeNull();
-    expect(input.getAttribute("placeholder")).toBeNull();
-    expect(document.body.textContent).not.toMatch(/18|eighteen|old enough|adult/i);
+    await play();
+    expect(await screen.findByRole("combobox", { name: say("ui.account.age.day") })).toBeDefined();
+    expect(screen.queryByRole("button", { name: say("ui.account.start.play") })).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: say("ui.account.back") }));
+    expect(await screen.findByRole("button", { name: say("ui.account.start.play") })).toBeDefined();
+    expect(ageFields()).toEqual([null, null, null]);
+  });
+
+  test("[R-ACCOUNT-029] given the start screen, when I already have a life here is pressed, then the ways back in show with no age screen and nothing is declared; Back returns to the start", async () => {
+    const account = fakeAccount();
+    gate(account);
+    await returning();
+    expect(await screen.findByRole("heading", { name: say("ui.account.returning.title") })).toBeDefined();
+    expect(screen.getByRole("button", { name: say("ui.account.google") })).toBeDefined();
+    expect(screen.getByLabelText(say("ui.account.email.label"))).toBeDefined();
+    expect(ageFields()).toEqual([null, null, null]);
+    fireEvent.click(screen.getByRole("button", { name: say("ui.account.back") }));
+    expect(await screen.findByRole("button", { name: say("ui.account.start.returning") })).toBeDefined();
+    expect(account.calls).toEqual([]);
+  });
+
+  test("[R-ACCOUNT-029] given the ways back in, then Google comes first, the code by email next, and the passkey last", async () => {
+    gate(fakeAccount());
+    await returning();
+    const google = await screen.findByRole("button", { name: say("ui.account.google") });
+    const email = screen.getByLabelText(say("ui.account.email.label"));
+    const passkey = screen.getByRole("button", { name: say("ui.account.passkey") });
+    expect(google.compareDocumentPosition(email) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(email.compareDocumentPosition(passkey) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  test("[R-ACCOUNT-029] given an in-app browser on Android, then Google is not shown, the code is, and the way out opens the phone's own browser", async () => {
+    const agent = "Mozilla/5.0 (Linux; Android 14; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Mobile Safari/537.36 WhatsApp/2.24.1";
+    gate(fakeAccount(), fakeTurnstile(), agent);
+    await returning();
+    expect(await screen.findByText(say("ui.account.in-app"))).toBeDefined();
+    expect(screen.queryByRole("button", { name: say("ui.account.google") })).toBeNull();
+    expect(screen.getByLabelText(say("ui.account.email.label"))).toBeDefined();
+    expect(screen.getByRole("link", { name: say("ui.account.in-app.open") }).getAttribute("href")).toBe("intent://play.japacity.com/#Intent;scheme=https;end");
+  });
+
+  test("[R-ACCOUNT-029] given an in-app browser on an iPhone, then Google is not shown and the page's address is offered to copy", async () => {
+    const agent = "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 Instagram 350.0";
+    const copied: string[] = [];
+    Object.defineProperty(navigator, "clipboard", { value: { writeText: (text: string) => (copied.push(text), Promise.resolve()) }, configurable: true });
+    gate(fakeAccount(), fakeTurnstile(), agent);
+    await returning();
+    expect(screen.queryByRole("button", { name: say("ui.account.google") })).toBeNull();
+    fireEvent.click(await screen.findByRole("button", { name: say("ui.account.in-app.copy") }));
+    expect(await screen.findByText(say("ui.account.in-app.copied"))).toBeDefined();
+    expect(copied).toEqual(["https://play.japacity.com/"]);
+  });
+
+  test("[R-ACCOUNT-029] given a code for an address that holds no life, when it is typed on the ways back in, then the player is told to go back and Play, and stays signed out", async () => {
+    const account = fakeAccount({ signInWithCode: () => Promise.resolve({ ok: false, why: "no-life" }) });
+    const { store } = gate(account);
+    await returning();
+    fireEvent.change(await screen.findByLabelText(say("ui.account.email.label")), { target: { value: "new@example.test" } });
+    fireEvent.click(screen.getByRole("button", { name: say("ui.account.email.send") }));
+    fireEvent.change(await screen.findByLabelText(say("ui.account.code.label")), { target: { value: "123456" } });
+    fireEvent.click(screen.getByRole("button", { name: say("ui.account.code.go") }));
+    expect(await screen.findByText(say("ui.account.fail.no-life"))).toBeDefined();
+    expect(store.getState().signedOut).toBe(true);
+  });
+
+  test("[R-ACCOUNT-029] [R-ACCOUNT-013] given the unseen check's token not yet in, when Continue is pressed, then the date waits for the token and goes with it, and nothing about the check is said", async () => {
+    const account = fakeAccount();
+    const { turnstile } = gate(account, fakeTurnstile({ passAtOnce: false }));
+    await play();
+    await waitFor(() => expect(turnstile.rendered).toHaveLength(1));
+    expect(turnstile.rendered[0]?.appearance).toBe("interaction-only");
+    expect(document.body.textContent).not.toMatch(/check|person|robot/i);
+    await answerAge(yearsAgo(30));
+    expect(account.calls).toEqual([]);
+    act(() => turnstile.rendered[0]?.callback(DUMMY_TOKEN));
+    expect(await screen.findByRole("button", { name: say("ui.account.google") })).toBeDefined();
+    expect(account.bots).toEqual([DUMMY_TOKEN]);
+  });
+
+  test("[R-ACCOUNT-029] given a script that never loads, when Continue is pressed, then the date goes at once without a token, for the server to judge", async () => {
+    const account = fakeAccount();
+    gate(account, { load: () => new Promise(() => undefined), rendered: [], resets: () => 0 });
+    await play();
+    await answerAge(yearsAgo(30));
+    expect(await screen.findByRole("button", { name: say("ui.account.google") })).toBeDefined();
+    expect(account.bots).toEqual([null]);
+  });
+
+  test("[R-ACCOUNT-029] given a player who signed out, then the start screen says so above the line", async () => {
+    const account = fakeAccount();
+    const store = signedOutStore(account);
+    store.getState().leave("ui.account.notice.signed-out");
+    render(
+      <GameProvider store={store}>
+        <AccountGate load={fakeTurnstile().load} sitekey={TEST_SITE_KEY} />
+      </GameProvider>,
+    );
+    expect(await screen.findByRole("status")).toHaveProperty("textContent", say("ui.account.notice.signed-out"));
+    expect(screen.getByRole("button", { name: say("ui.account.start.play") })).toBeDefined();
+  });
+
+  test("[R-ACCOUNT-029] given the game offline, then there is no start screen: the gate draws nothing and the door is the first screen", () => {
+    const store = createGameStore({ view: () => Promise.resolve(engineView()), send: () => Promise.reject(new Error("unused")) });
+    const { container } = render(
+      <GameProvider store={store}>
+        <AccountGate load={fakeTurnstile().load} sitekey={TEST_SITE_KEY} />
+      </GameProvider>,
+    );
+    expect(container.innerHTML).toBe("");
+  });
+});
+
+describe("the age screen", () => {
+  test("[R-ACCOUNT-012] given a new browser, when Play is pressed, then the age screen comes before any way in: three fields, none filled in, and no hint of the age needed", async () => {
+    gate(fakeAccount());
+    await play();
+    await screen.findByRole("combobox", { name: say("ui.account.age.day") });
+    const fields = ageFields() as HTMLSelectElement[];
+    expect(fields.map((field) => field.value)).toEqual(["", "", ""]);
+    // Every day and every month, and the year list runs from this year back, so no field draws a line at any age.
+    const [day, month, year] = fields as [HTMLSelectElement, HTMLSelectElement, HTMLSelectElement];
+    const listed = (field: HTMLSelectElement) => [...field.options].filter((option) => option.value !== "").map((option) => option.value);
+    expect(listed(day)).toEqual(Array.from({ length: 31 }, (_, index) => String(index + 1)));
+    expect(listed(month)).toEqual(Array.from({ length: 12 }, (_, index) => String(index + 1)));
+    const thisYear = new Date().getFullYear();
+    expect(listed(year)).toEqual(Array.from({ length: YEARS_LISTED }, (_, index) => String(thisYear - index)));
+    // The words on the screen, the lists apart, say nothing of the age needed.
+    const form = document.querySelector("[data-age-screen]") as HTMLElement;
+    const words = [...form.querySelectorAll("h1, p, legend, button")].map((node) => node.textContent).join(" ");
+    expect(words).not.toMatch(/18|eighteen|old enough|adult/i);
     expect(screen.queryByRole("button", { name: say("ui.account.google") })).toBeNull();
     expect(screen.queryByRole("button", { name: say("ui.account.passkey") })).toBeNull();
   });
@@ -115,6 +269,7 @@ describe("the age screen", () => {
     const account = fakeAccount();
     gate(account);
     const birth = yearsAgo(18);
+    await play();
     await answerAge(birth);
     expect(await screen.findByRole("button", { name: say("ui.account.google") })).toBeDefined();
     expect(account.calls).toEqual([`declareAge(${birth})`]);
@@ -124,16 +279,22 @@ describe("the age screen", () => {
     const account = fakeAccount();
     gate(account);
     const birth = yearsAgo(18, 1);
+    await play();
     await answerAge(birth);
     expect(await screen.findByText(say("ui.account.age.refused"))).toBeDefined();
     expect(account.calls).toEqual([`declareAge(${birth})`]);
     expect(screen.queryByRole("button", { name: say("ui.account.google") })).toBeNull();
   });
 
-  test("[R-ACCOUNT-012] given no date typed, then nothing is sent and the player is asked for one", async () => {
+  test("[R-ACCOUNT-012] given no date picked, or only part of one, then nothing is sent and the player is asked for all three", async () => {
     const account = fakeAccount();
     gate(account);
+    await play();
     await answerAge("");
+    expect(await screen.findByText(say("ui.account.age.empty"))).toBeDefined();
+    fireEvent.change(screen.getByRole("combobox", { name: say("ui.account.age.day") }), { target: { value: "12" } });
+    fireEvent.change(screen.getByRole("combobox", { name: say("ui.account.age.month") }), { target: { value: "3" } });
+    fireEvent.click(screen.getByRole("button", { name: say("ui.account.age.go") }));
     expect(await screen.findByText(say("ui.account.age.empty"))).toBeDefined();
     expect(account.calls).toEqual([]);
   });
@@ -141,12 +302,15 @@ describe("the age screen", () => {
   test("[R-ACCOUNT-012] given a browser refused before, then the refusal shows without asking again", async () => {
     gate(fakeAccount({ ageStatus: () => Promise.resolve("refused") }));
     expect(await screen.findByText(say("ui.account.age.refused"))).toBeDefined();
-    expect(screen.queryByLabelText(say("ui.account.age.label"))).toBeNull();
+    expect(ageFields()).toEqual([null, null, null]);
+    expect(screen.queryByRole("button", { name: say("ui.account.start.play") })).toBeNull();
+    expect(screen.queryByRole("button", { name: say("ui.account.start.returning") })).toBeNull();
   });
 
   test("[R-ACCOUNT-013] given the bot check passed on the age screen, then its token goes with the date", async () => {
     const account = fakeAccount();
-    const { turnstile } = gate(account);
+    const { turnstile } = gate(account, fakeTurnstile({ passAtOnce: false }));
+    await play();
     await waitFor(() => expect(turnstile.rendered).toHaveLength(1));
     act(() => turnstile.rendered[0]?.callback(DUMMY_TOKEN));
     await answerAge(yearsAgo(30));
@@ -155,12 +319,14 @@ describe("the age screen", () => {
   });
 
   test("[R-ACCOUNT-012] [R-ACCOUNT-013] given a date the server does not believe, then the player is asked to check it, the screen stays and the spent token's widget is reset", async () => {
-    const { turnstile } = gate(fakeAccount({ declareAge: () => Promise.resolve("bad-date") }));
+    const { turnstile } = gate(fakeAccount({ declareAge: () => Promise.resolve("bad-date") }), fakeTurnstile({ passAtOnce: false }));
+    await play();
     await waitFor(() => expect(turnstile.rendered).toHaveLength(1));
     act(() => turnstile.rendered[0]?.callback(DUMMY_TOKEN));
-    await answerAge("1800-01-01");
+    // The thirty-first of February: three fields can be picked into a date no calendar has.
+    await answerAge("1990-02-31");
     expect(await screen.findByText(say("ui.account.age.bad-date"))).toBeDefined();
-    expect(screen.getByLabelText(say("ui.account.age.label"))).toBeDefined();
+    expect(screen.getByRole("combobox", { name: say("ui.account.age.year") })).toBeDefined();
     await waitFor(() => expect(turnstile.resets()).toBe(1));
   });
 
@@ -168,14 +334,18 @@ describe("the age screen", () => {
     let asked = 0;
     gate(fakeAccount({ ageStatus: () => Promise.resolve(asked++ === 0 ? { full: true, retryAfter: 1 } : "unasked") }));
     expect(await screen.findByText(say("server.full"))).toBeDefined();
-    expect(screen.queryByLabelText(say("ui.account.age.label"))).toBeNull();
+    expect(ageFields()).toEqual([null, null, null]);
     expect(screen.queryByRole("textbox")).toBeNull();
-    expect(await screen.findByLabelText(say("ui.account.age.label"), {}, { timeout: 3000 })).toBeDefined();
+    expect(screen.queryByRole("button", { name: say("ui.account.start.play") })).toBeNull();
+    await screen.findByRole("button", { name: say("ui.account.start.play") }, { timeout: 3000 });
+    await play();
+    expect(await screen.findByRole("combobox", { name: say("ui.account.age.day") })).toBeDefined();
     expect(asked).toBe(2);
   });
 
   test("[R-SERVER-032] given sign-ups switched off when the age is declared, then the full screen shows instead of the ways in", async () => {
     gate(fakeAccount({ declareAge: () => Promise.resolve({ full: true, retryAfter: 30 }) }));
+    await play();
     await answerAge(yearsAgo(30));
     expect(await screen.findByText(say("server.full"))).toBeDefined();
     expect(screen.queryByRole("button", { name: say("ui.account.google") })).toBeNull();
@@ -184,7 +354,8 @@ describe("the age screen", () => {
   test("[R-ACCOUNT-011] given a region that is not open, then it is refused before the age screen", async () => {
     gate(fakeAccount({ ageStatus: () => Promise.resolve("region-closed") }));
     expect(await screen.findByText(say("ui.account.region-closed"))).toBeDefined();
-    expect(screen.queryByLabelText(say("ui.account.age.label"))).toBeNull();
+    expect(ageFields()).toEqual([null, null, null]);
+    expect(screen.queryByRole("button", { name: say("ui.account.start.play") })).toBeNull();
   });
 });
 
@@ -193,6 +364,7 @@ describe("the ways in", () => {
 
   test("[R-ACCOUNT-001] given the age screen passed, then Google, a passkey and an email code are offered, and nothing in the feature asks for a secret word", async () => {
     gate(passed());
+    await play();
     expect(await screen.findByRole("button", { name: say("ui.account.google") })).toBeDefined();
     expect(screen.getByRole("button", { name: say("ui.account.passkey") })).toBeDefined();
     expect(screen.getByLabelText(say("ui.account.email.label"))).toBeDefined();
@@ -207,6 +379,7 @@ describe("the ways in", () => {
   test("[R-ACCOUNT-002] given an email, when a code is asked for and the 6 digits typed, then the account signs in and the game comes back", async () => {
     const account = passed();
     const { store } = gate(account);
+    await returning();
     fireEvent.change(await screen.findByLabelText(say("ui.account.email.label")), { target: { value: " ada@example.test " } });
     fireEvent.click(screen.getByRole("button", { name: say("ui.account.email.send") }));
     const code = await screen.findByLabelText(say("ui.account.code.label"));
@@ -222,6 +395,7 @@ describe("the ways in", () => {
   test("[R-ACCOUNT-002] given a wrong code, then the player is told and stays signed out", async () => {
     const account = fakeAccount({ ageStatus: () => Promise.resolve("passed"), signInWithCode: () => Promise.resolve({ ok: false, why: "wrong-code" }) });
     const { store } = gate(account);
+    await returning();
     fireEvent.change(await screen.findByLabelText(say("ui.account.email.label")), { target: { value: "ada@example.test" } });
     fireEvent.click(screen.getByRole("button", { name: say("ui.account.email.send") }));
     fireEvent.change(await screen.findByLabelText(say("ui.account.code.label")), { target: { value: "000000" } });
@@ -232,7 +406,8 @@ describe("the ways in", () => {
 
   test("[R-ACCOUNT-013] given the bot check passed with the test key, then its token goes with the code request and the widget is reset for the next try", async () => {
     const account = passed();
-    const { turnstile } = gate(account);
+    const { turnstile } = gate(account, fakeTurnstile({ passAtOnce: false }));
+    await play();
     await waitFor(() => expect(turnstile.rendered).toHaveLength(1));
     expect(turnstile.rendered[0]?.sitekey).toBe(TEST_SITE_KEY);
     act(() => turnstile.rendered[0]?.callback(DUMMY_TOKEN));
@@ -245,7 +420,8 @@ describe("the ways in", () => {
 
   test("[R-ACCOUNT-013] given Google chosen with a token, then the token goes with it; a passkey, which never makes an account, sends none", async () => {
     const account = passed();
-    const { turnstile } = gate(account);
+    const { turnstile } = gate(account, fakeTurnstile({ passAtOnce: false }));
+    await play();
     await waitFor(() => expect(turnstile.rendered).toHaveLength(1));
     act(() => turnstile.rendered[0]?.callback(DUMMY_TOKEN));
     fireEvent.click(screen.getByRole("button", { name: say("ui.account.google") }));
@@ -259,12 +435,23 @@ describe("the ways in", () => {
   test("[R-ACCOUNT-003] given the ways in, then none adds a passkey: that is offered only in the settings of a signed-in account", async () => {
     const account = passed();
     gate(account);
+    await returning();
     await screen.findByRole("button", { name: say("ui.account.passkey") });
     expect(screen.queryByRole("button", { name: say("ui.account.passkey.add") })).toBeNull();
     cleanUpAndSettings(account);
     fireEvent.click(screen.getByRole("button", { name: say("ui.account.passkey.add") }));
     expect(await screen.findByText(say("ui.account.passkey.added"))).toBeDefined();
     expect(account.calls).toEqual(["addPasskey()"]);
+  });
+});
+
+describe("adding a passkey", () => {
+  test("[R-ACCOUNT-003] given an admin on a code session, when a passkey is added in the settings, then the server's refusal is told as: sign in with the passkey first", async () => {
+    const account = fakeAccount({ addPasskey: () => Promise.resolve({ ok: false, why: "passkey-first" }) });
+    cleanUpAndSettings(account);
+    fireEvent.click(screen.getByRole("button", { name: say("ui.account.passkey.add") }));
+    expect(await screen.findByText(say("ui.account.fail.passkey-first"))).toBeDefined();
+    expect(screen.queryByText(say("ui.account.passkey.added"))).toBeNull();
   });
 });
 
@@ -355,7 +542,7 @@ describe("the shell online", () => {
       { account },
     );
     render(<App store={store} />);
-    expect(await screen.findByLabelText(say("ui.account.age.label"))).toBeDefined();
+    expect(await screen.findByRole("button", { name: say("ui.account.start.play") })).toBeDefined();
     expect(screen.queryByText(say("ui.failed", { why: "no session" }))).toBeNull();
   });
 });

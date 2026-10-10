@@ -3,6 +3,8 @@
 // https://developers.cloudflare.com/turnstile/get-started/client-side-rendering/
 // Test keys: https://developers.cloudflare.com/turnstile/troubleshooting/testing/
 // A token is good once, so the widget is reset after every attempt that used it.
+// The check runs unseen (R-ACCOUNT-029): `interaction-only` shows the widget only
+// when Cloudflare needs the person to do something.
 import { useEffect, useRef } from "react";
 
 export interface TurnstileOptions {
@@ -10,6 +12,7 @@ export interface TurnstileOptions {
   callback: (token: string) => void;
   "expired-callback": () => void;
   "error-callback": () => void;
+  appearance: "always" | "execute" | "interaction-only";
 }
 
 /** The part of the `turnstile` global this uses. */
@@ -58,11 +61,14 @@ export function siteKey(): string | null {
   return import.meta.env.PROD ? null : TEST_SITE_KEY;
 }
 
-export function Turnstile({ sitekey, load, round, onToken }: { sitekey: string; load: LoadTurnstile; round: number; onToken: (token: string | null) => void }) {
+/** `onShown`: the widget is up, so a token is on its way; a script that never loads never calls it. */
+export function Turnstile({ sitekey, load, round, onToken, onShown }: { sitekey: string; load: LoadTurnstile; round: number; onToken: (token: string | null) => void; onShown?: () => void }) {
   const box = useRef<HTMLDivElement>(null);
   const widget = useRef<{ api: TurnstileApi; id: string } | null>(null);
   const tell = useRef(onToken);
   tell.current = onToken;
+  const up = useRef(onShown);
+  up.current = onShown;
 
   useEffect(() => {
     let gone = false;
@@ -75,8 +81,11 @@ export function Turnstile({ sitekey, load, round, onToken }: { sitekey: string; 
           callback: (token) => tell.current(token),
           "expired-callback": () => tell.current(null),
           "error-callback": () => tell.current(null),
+          appearance: "interaction-only",
         });
-        if (id !== undefined) widget.current = { api, id };
+        if (id === undefined) return;
+        widget.current = { api, id };
+        up.current?.();
       })
       .catch(() => tell.current(null));
     return () => {
