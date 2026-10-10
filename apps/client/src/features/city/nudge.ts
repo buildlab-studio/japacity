@@ -469,7 +469,7 @@ function startedKey(view: NudgeView, own: string, stepKey: string, plannedOnly: 
   // for a sitting they will most likely fail (the forty-eight-month driver runs, 10 Oct: ten sittings at the fee).
   if ((stepKey === "chapter.build-the-file.english" || stepKey === "chapter.build-the-file-points.english") && view.qualities !== undefined && !planned.includes("activity.sit-english-test")) {
     const study = view.activities?.find((candidate) => candidate.id === "activity.study-english");
-    if (study?.allowed === true && testChance(view).band === "long") {
+    if (study?.allowed === true && testChance({ qualities: view.qualities }).band === "long") {
       if (planned.includes("activity.study-english") && has(`${own}.study.planned`)) return { key: `${own}.study.planned` };
       if (has(`${own}.study`)) return { key: `${own}.study` };
     }
