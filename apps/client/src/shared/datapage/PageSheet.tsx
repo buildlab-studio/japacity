@@ -10,10 +10,12 @@ import { useStore } from "zustand";
 import { useGameStoreIfAny } from "../../authority/GameProvider";
 import { type KeptPerson, readPerson } from "../../authority/person";
 import type { GameStore } from "../../authority/store";
+import { keptTypeOf } from "../card/kept";
 import { archetypeOf } from "../frontdoor/archetypes";
 import { gateLook } from "../frontdoor/Gate";
 import { lookOf } from "../frontdoor/looks";
 import { clockWords } from "../words/quality";
+import { typeWords } from "../words/japaType";
 import { hasWords, say } from "../words/text";
 import { DataPage, type PageFields } from "./DataPage";
 import { stampsOf } from "./stamps";
@@ -29,7 +31,10 @@ function nameOf(person: KeptPerson | null, view: Pick<PlayerView, "scenario">): 
 export function pageOf(view: PlayerView, person: KeptPerson | null = readPerson()): PageFields {
   const archetype = archetypeOf(person?.archetype);
   const kind = `${view.scenario}.kind`;
+  // The japa type kept with the send-off card stays on the page from then on (decision 0018).
+  const type = keptTypeOf(view.scenario);
   return {
+    ...(type === null ? {} : { type: typeWords(type) }),
     name: nameOf(person, view),
     age: clockWords(view.qualities),
     path: archetype !== null ? say(`prologue.archetype.${archetype.id}.name`) : hasWords(kind) ? say(kind) : "",

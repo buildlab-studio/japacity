@@ -39,6 +39,22 @@ function band(store: GameStore, when = "23 yrs 4 mo") {
 const opener = () => screen.getByRole("button", { name: say("prologue.page.open") });
 
 describe("the page from the band", () => {
+  test("[R-PROLOGUE-009] given a send-off card kept with its japa type, when the page opens, then the type stands on it by its name; before the send-off there is no such row (decision 0018)", async () => {
+    const store = await life("scenario.ada", { look: "chr_kemi", name: "Morenike", archetype: null });
+    const view = store.getState().view!;
+    band(store, clockWords(view.qualities));
+    fireEvent.click(opener());
+    expect(document.querySelector("[data-page] [data-field='type']")).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: say("prologue.page.close") }));
+    // The gallery keeps the send-off card with the type read at the send-off (decision 0018).
+    localStorage.setItem("japacity.cards", JSON.stringify([{ key: "send-off:1", scenario: "scenario.ada", card: { kind: "send-off", months: 1 }, type: "careful-saver" }]));
+    fireEvent.click(opener());
+    const field = document.querySelector("[data-page] [data-field='type']");
+    expect(field?.textContent).toContain(say("prologue.page.type"));
+    expect(field?.textContent).toContain(say("share.type.careful-saver.name"));
+  });
+
+
   test("[R-PROLOGUE-009] given a life with its person kept, then the band shows the name over the age, and a tap opens the page with the name, the photo, the age now, what the life was and how ready", async () => {
     const store = await life("scenario.ada", { look: "chr_kemi", name: "Morenike", archetype: null });
     const view = store.getState().view!;

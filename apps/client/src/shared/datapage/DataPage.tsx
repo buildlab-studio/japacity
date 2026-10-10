@@ -30,6 +30,8 @@ export interface PageFields {
   photo: string;
   /** One per step taken toward leaving, oldest first. */
   stamps?: readonly string[];
+  /** The japa type read at the send-off and kept with its card (decision 0018); absent before then. */
+  type?: { name: string; line: string };
 }
 
 function Field({ id, label, value, delay }: { id: string; label: string; value: string; delay: number | null }) {
@@ -74,6 +76,7 @@ export function DataPage({ page, print = false, stamp }: { page: PageFields; pri
           <Field id="age" label={say("prologue.page.age")} value={page.age} delay={delay()} />
           <Field id="path" label={say("prologue.page.path")} value={page.path} delay={delay()} />
           <Field id="ready" label={say("prologue.page.ready")} value={page.ready} delay={delay()} />
+          {page.type === undefined ? null : <Field id="type" label={say("prologue.page.type")} value={page.type.name} delay={delay()} />}
         </div>
       </div>
       {stamps.length === 0 ? null : (
