@@ -198,7 +198,14 @@ describe("the jobs list as rows on the sheet", () => {
     const job = huntOf(view)[0]!;
     expect(view.activities.find((option) => option.id === HUNT)?.sure).toBe(true);
     expect(jobCardLine(view, HUNT, job)).toContain(jobsWords("jobs.sure-first"));
-    const plain: PlayerView = { ...view, activities: view.activities.map((option) => (option.id === HUNT ? { ...option, sure: undefined } : option)) };
+    const plain: PlayerView = {
+      ...view,
+      activities: view.activities.map((option) => {
+        if (option.id !== HUNT) return option;
+        const { sure: _sure, ...rest } = option;
+        return rest;
+      }),
+    };
     expect(jobCardLine(plain, HUNT, job)).not.toContain(jobsWords("jobs.sure-first"));
   });
 });
