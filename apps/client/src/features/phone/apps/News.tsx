@@ -7,6 +7,7 @@ import { useGame, useView } from "../../../authority/GameProvider";
 import { nowLineWords } from "../../../shared/words/acts";
 import { newsLines } from "../../../shared/words/told";
 import { blurbOf, monthsAgo, nameOf, say, words } from "../../../shared/words/text";
+import { localCurrency } from "../../../shared/words/wayHome";
 import { SourceMark } from "../../../shared/ui/NewsSource";
 import { Head } from "../act";
 import { phoneWords } from "../phone.words";
@@ -36,7 +37,8 @@ const EVICTED: ReadonlySet<string> = new Set(["line.home.evicted", "line.home.ev
 const CLEARED = "news.makoko-cleared";
 
 export function News() {
-  const { news, era, report, month, routes } = useView();
+  const view = useView();
+  const { news, era, report, month, routes } = view;
   // R-WORLD-008: the month's lines stay here, those of what was done mid-month (an agent paid, an ask answered) first.
   const midMonth = useGame((state) => state.lastMonthLines);
   const world = [...news].sort((a, b) => STAGE_ORDER.indexOf(a.stage) - STAGE_ORDER.indexOf(b.stage) || b.since - a.since);
@@ -55,9 +57,9 @@ export function News() {
       {report === null ? null : (
         <div data-report={report.month}>
           <Head>{phoneWords("phone.news.month", { when: monthsAgo(report.month, month) })}</Head>
-          {/* The month's lines are told as the results tell them (shared/words/told.ts, R-WORLD-008). */}
+          {/* The month's lines are told as the results tell them, money too (shared/words/told.ts, R-WORLD-008). */}
           <ul className="flex flex-col divide-y divide-sheet-line">
-            {newsLines(midMonth, report.lines).map((line, index) => (
+            {newsLines(midMonth, report.lines, localCurrency(view) ?? "NGN").map((line, index) => (
               <li key={`${line.key}-${String(index)}`} className={`py-1.5 text-[14px] ${line.tone === "good" ? "text-in" : line.tone === "bad" ? "text-out" : "text-text"}`}>
                 {nowLineWords(line)}
               </li>
