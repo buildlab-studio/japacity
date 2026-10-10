@@ -124,7 +124,8 @@ describe("landing", () => {
   test("[R-CHAPTER-007] given Landing closing, when the month ends, then the bank is refilled as every chapter's close refills it", () => {
     const game = atSecure();
     expect(game.state.turn.banked).toBe(cap);
-    expect(game.view().chapter).toEqual({ current: SECURE, items: [{ id: "secure", met: false }], done: expect.arrayContaining([SEND_OFF, LANDING]) as unknown });
+    // the last chapter is followed by none.
+    expect(game.view().chapter).toEqual({ current: SECURE, items: [{ id: "secure", met: false }], done: expect.arrayContaining([SEND_OFF, LANDING]) as unknown, closes: false, next: null });
   });
 });
 

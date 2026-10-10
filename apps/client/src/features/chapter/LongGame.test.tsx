@@ -22,7 +22,7 @@ describe("chapters 5 and 6, and after", () => {
   });
 
   test("[R-CHAPTER-007] given Secure, then its one item lists its paths as any one of them", async () => {
-    const view: PlayerView = { ...abroadView(), chapter: { current: "chapter.secure", items: [{ id: "secure", met: false }], done: DONE } };
+    const view: PlayerView = { ...abroadView(), chapter: { current: "chapter.secure", items: [{ id: "secure", met: false }], done: DONE, closes: false, next: null } };
     await renderWithView(<ChapterView />, view);
     const item = screen.getByText(text["chapter.secure.item.secure"]!).closest("li")!;
     const paths = within(item).getByText(say("ui.chapter.one-of")).closest("[data-one-of]") as HTMLElement;
@@ -33,7 +33,7 @@ describe("chapters 5 and 6, and after", () => {
 
   test("[R-CHAPTER-007] given every chapter done, then the long game takes its place with the open goals and their items met", async () => {
     const base = richAbroadView();
-    const view: PlayerView = { ...base, chapter: { current: null, items: [], done: [...DONE, "chapter.secure"] } };
+    const view: PlayerView = { ...base, chapter: { current: null, items: [], done: [...DONE, "chapter.secure"], closes: false, next: null } };
     await renderWithView(<ChapterView />, view);
     const long = document.querySelector("[data-long-game]") as HTMLElement;
     expect(within(long).getByText(say("ui.chapter.long-game"))).toBeDefined();

@@ -6,7 +6,7 @@
 // the plan the chapters follow with its file, and each other way heard of opens its page with the switch
 // (docs/rules/chapter.md R-CHAPTER-009).
 import { content } from "@japacity/content";
-import type { ChapterEntry, Currency, Id, PlayerView, RouteView } from "@japacity/sim";
+import type { Currency, Id, PlayerView, RouteView } from "@japacity/sim";
 import { Check, ChevronLeft, ChevronRight, Circle, FileCheck, FileClock, FileX } from "lucide-react";
 import { use, useState } from "react";
 
@@ -43,32 +43,15 @@ function afterWords(key: string, params: Record<string, string> = {}): string {
 }
 
 /**
- * The chapter that follows a chapter (R-CHAPTER-009): the next base by order, or its variant for the plan
- * the view names, as the engine reads the lean again at the close; without one, the way out the current
- * chapter follows stands for it.
+ * The chapter whose steps lie ahead (R-WORLD-019): the current one while it does not close, its steps as the
+ * view marks them; once the view says it closes at the month's end (R-CHAPTER-010, `closesOn` honoured), the
+ * chapter the view names next, which opens when the month ends, its steps not yet marked.
  */
-function chapterAfter(current: Id<"chapter">, lean: Id<"route"> | null): ChapterEntry | undefined {
-  const entry = content.chapter[current];
-  const base = entry?.variantOf === undefined ? entry : content.chapter[entry.variantOf];
-  if (base === undefined) return undefined;
-  const next = Object.values(content.chapter)
-    .filter((candidate) => candidate.variantOf === undefined && candidate.order > base.order)
-    .sort((a, b) => a.order - b.order)[0];
-  if (next === undefined) return undefined;
-  const route = lean ?? entry?.route;
-  return (route === undefined ? undefined : Object.values(content.chapter).find((candidate) => candidate.variantOf === next.id && candidate.route === route)) ?? next;
-}
-
-/**
- * The chapter whose steps lie ahead (R-WORLD-019): the current one while a step is undone, its steps
- * as the view marks them; once every step is met, the next by content's order, which opens when the
- * month ends, its steps not yet marked.
- */
-export function chapterAhead(chapter: PlayerView["chapter"], lean: Id<"route"> | null = null): { id: Id<"chapter">; now: boolean; items: { id: string; met: boolean }[] } | null {
+export function chapterAhead(chapter: PlayerView["chapter"]): { id: Id<"chapter">; now: boolean; items: { id: string; met: boolean }[] } | null {
   const current = chapter.current;
   if (current === null) return null;
-  if (chapter.items.some((item) => !item.met)) return { id: current, now: true, items: chapter.items };
-  const next = chapterAfter(current, lean);
+  if (!chapter.closes) return { id: current, now: true, items: chapter.items };
+  const next = chapter.next === null ? undefined : content.chapter[chapter.next];
   return next === undefined ? null : { id: next.id, now: false, items: next.items.map((item) => ({ id: item.id, met: false })) };
 }
 
@@ -273,7 +256,7 @@ function NextStep({ step }: { step: string }) {
 /** After the flight (R-WORLD-019): the visa held and what it lets you do, then the landing's steps. */
 function Abroad({ view, onPapers }: { view: PlayerView; onPapers: () => void }) {
   const held = view.status;
-  const ahead = chapterAhead(view.chapter, view.plan.route);
+  const ahead = chapterAhead(view.chapter);
   const next = ahead?.now === true ? nextStepWords(ahead) : null;
   const lets = held === null ? null : blurbOf(held.entry);
   return (
@@ -388,7 +371,7 @@ export function Japa() {
   const percent = view.japacity.percent ?? (lean === null ? null : (head?.percent ?? null));
   const coming = remindersOf(view);
   // Once a visa is granted the plan is done but the story is not: the next step, the plane, is named.
-  const ahead = view.routes.some((candidate) => candidate.state === "granted") ? chapterAhead(view.chapter, lean) : null;
+  const ahead = view.routes.some((candidate) => candidate.state === "granted") ? chapterAhead(view.chapter) : null;
   const next = ahead === null ? null : nextStepWords(ahead);
   // The page offered may be about another way than the plan's: then it stands under its own heading,
   // after the plan's costs, and names its route, so Canada is never offered under the UK.

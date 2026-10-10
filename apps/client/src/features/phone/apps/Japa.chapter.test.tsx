@@ -50,17 +50,20 @@ describe("the chapter's checklist in Japa", () => {
 });
 
 describe("the chapter ahead", () => {
-  test("[R-CHAPTER-009] given the care file with every item met, when the chapter ahead is read, then it is care's decision day, not the master's", () => {
+  // which chapter follows is the engine's answer (chapter.plan.test.ts); Japa reads the view's.
+  test("[R-CHAPTER-010] given the care file closing at the month's end, when the chapter ahead is read, then it is the chapter the view names next, its steps not yet marked", () => {
     const items = content.chapter["chapter.build-the-file-care"]!.items.map((item) => ({ id: item.id, met: true }));
-    const ahead = chapterAhead({ current: "chapter.build-the-file-care", items, done: ["chapter.find-your-feet"] });
+    const ahead = chapterAhead({ current: "chapter.build-the-file-care", items, done: ["chapter.find-your-feet"], closes: true, next: "chapter.decision-day-care" });
     expect(ahead).toEqual({ id: "chapter.decision-day-care", now: false, items: [{ id: "tb", met: false }, { id: "police", met: false }, { id: "applied", met: false }, { id: "granted", met: false }] });
   });
 
-  test("[R-CHAPTER-009] given a decision day met, when the chapter ahead is read, then it is the send-off for the master's and for a variant alike, never a variant of another base", () => {
-    const met = (id: Id<"chapter">) => content.chapter[id]!.items.map((item) => ({ id: item.id, met: true }));
-    for (const id of ["chapter.decision-day", "chapter.decision-day-care", "chapter.decision-day-gulf"] as Id<"chapter">[]) {
-      expect(chapterAhead({ current: id, items: met(id), done: [] })?.id).toBe("chapter.send-off");
-    }
-    expect(chapterAhead({ current: "chapter.build-the-file", items: met("chapter.build-the-file"), done: [] })?.id).toBe("chapter.decision-day");
+  test("[R-CHAPTER-010] given decision day closing on the grant with the held funds unmet, when the chapter ahead is read, then it is the send-off; while it does not close, it is decision day with its steps as marked", () => {
+    const items = content.chapter["chapter.decision-day"]!.items.map((item) => ({ id: item.id, met: item.id !== "held" }));
+    expect(chapterAhead({ current: "chapter.decision-day", items, done: [], closes: true, next: "chapter.send-off" })?.id).toBe("chapter.send-off");
+    expect(chapterAhead({ current: "chapter.decision-day", items, done: [], closes: false, next: "chapter.send-off" })).toEqual({ id: "chapter.decision-day", now: true, items });
+  });
+
+  test("[R-CHAPTER-010] given the last chapter closing, when the chapter ahead is read, then there is none", () => {
+    expect(chapterAhead({ current: "chapter.secure", items: [{ id: "secure", met: true }], done: [], closes: true, next: null })).toBeNull();
   });
 });

@@ -213,7 +213,8 @@ describe("the last chapter", () => {
     const last = game.endTurn();
     expect(chapterLines(last.lines)).toEqual([{ key: "line.chapter.closed", params: { chapter: TWO }, tone: "good", attention: true, counts: [] }]);
     expect(game.state.chapter).toEqual({ current: null, done: [ONE, TWO] });
-    expect(game.view().chapter).toEqual({ current: null, items: [], done: [ONE, TWO] });
+    // with no chapter left, nothing closes and nothing follows.
+    expect(game.view().chapter).toEqual({ current: null, items: [], done: [ONE, TWO], closes: false, next: null });
     const after = game.endTurn();
     expect(after.events.filter((event) => event.type.startsWith("chapter/"))).toEqual([]);
     expect(game.state.turn.banked).toBe(cap - 1);
@@ -240,6 +241,9 @@ describe("the chapter in the view", () => {
         { id: "known", met: false },
       ],
       done: [],
+      // the chapter does not close with two items open, and the master's file follows.
+      closes: false,
+      next: FILE,
     });
     game.accept({ type: "activity/quit" });
     expect(game.view().chapter.items.slice(0, 2)).toEqual([
@@ -249,7 +253,7 @@ describe("the chapter in the view", () => {
   });
 
   test("[R-CHAPTER-005] given no job, when the view is read, then the job item is not met", () => {
-    expect(start({ scenario: "scenario.plain", content: miniContent }).view().chapter).toEqual({ current: ONE, items: [{ id: "job", met: false }], done: [] });
+    expect(start({ scenario: "scenario.plain", content: miniContent }).view().chapter).toEqual({ current: ONE, items: [{ id: "job", met: false }], done: [], closes: false, next: TWO });
   });
 });
 

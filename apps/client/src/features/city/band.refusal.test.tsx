@@ -33,7 +33,7 @@ function refusedView(): PlayerView {
   const ready = game.state.document["document.endorsement"]?.readyMonth ?? 0;
   while (game.state.turn.month < ready) game.endTurn();
   const view = game.view();
-  return { ...view, offers: [], setpiece: null, interview: null, chapter: { current: FILE, items: [{ id: "portfolio", met: true }, { id: "endorsement", met: false }, { id: "applied", met: false }], done: [] } };
+  return { ...view, offers: [], setpiece: null, interview: null, chapter: { current: FILE, items: [{ id: "portfolio", met: true }, { id: "endorsement", met: false }, { id: "applied", met: false }], done: [], closes: false, next: null } };
 }
 
 describe("the band after a refusal", () => {

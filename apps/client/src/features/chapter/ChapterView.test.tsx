@@ -21,7 +21,7 @@ describe("the chapter", () => {
     const base = engineView();
     const view: PlayerView = {
       ...base,
-      chapter: { current: "chapter.build-the-file", items: [{ id: "passport", met: true }, { id: "offer", met: false }], done: ["chapter.find-your-feet"] },
+      chapter: { current: "chapter.build-the-file", items: [{ id: "passport", met: true }, { id: "offer", met: false }], done: ["chapter.find-your-feet"], closes: false, next: null },
     };
     await renderWithView(<ChapterView />, view);
     expect(screen.getByText(text["chapter.build-the-file.item.passport"]!).closest("li")?.getAttribute("data-met")).toBe("true");

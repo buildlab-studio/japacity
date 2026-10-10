@@ -2142,7 +2142,11 @@ export interface PlayerView {
   /** Every open obligation with its next charge; `car` carries R-CAR-007's figures for a car and is null for anything else. */
   obligations: (ObligationState & { due: number; car: CarView | null })[];
   offers: OfferView[];
-  chapter: { current: Id<"chapter"> | null; items: { id: string; met: boolean }[]; done: Id<"chapter">[] };
+  /**
+   * R-CHAPTER-010: `closes` is true when the current chapter closes at this month's end as things stand (every item
+   * met, or the one its `closesOn` names); `next` is the chapter that follows it, with the lean as it stands now.
+   */
+  chapter: { current: Id<"chapter"> | null; items: { id: string; met: boolean }[]; done: Id<"chapter">[]; closes: boolean; next: Id<"chapter"> | null };
   /** The chapter kind's plan (R-CHAPTER-009), beside its chapter part so that part keeps its shape. */
   plan: {
     /** The way out the chapters follow, or null while no own-effort way is heard of. */
