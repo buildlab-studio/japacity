@@ -2,7 +2,7 @@
 // locked. The opening balances are recorded as credits with the reason
 // `opening` (R-SCENARIO-002), so the ledger identity of R-WALLET-002 holds
 // from the first state.
-import { resolveAmount } from "../engine/check";
+import { resolveAmount, worldVarOr } from "../engine/check";
 import { bp, convertMinor, mulDiv, mulDivCeil, valueInKobo } from "../engine/int";
 import type { RegisteredKind } from "../engine/kind";
 import { reject } from "../engine/reject";
@@ -104,16 +104,6 @@ export const REASON_LINE: Record<Reason, string | null> = {
 // Reading the world
 // ---------------------------------------------------------------------------
 
-/**
- * A world variable the wallet reads, with what holds when the content has no
- * such variable. the engine's mini content has no foreign-exchange
- * variables, so the wallet reads a missing queue as no queue and a missing
- * allowance as none. The real content has both, so this only touches fixtures.
- */
-function varOr(world: World, id: Id<"var">, missing: number): number {
-  return (world.vars as Record<string, number | undefined>)[id] ?? missing;
-}
-
 function isCurrency(value: unknown): value is Currency {
   return typeof value === "string" && (CURRENCIES as readonly string[]).includes(value);
 }
@@ -130,7 +120,7 @@ function boughtThisMonth(state: State): number {
 
 /** What may still be bought at the bank this month, in US cents. */
 export function allowanceLeft(read: ReadCtx): number {
-  return Math.max(0, varOr(read.world, ALLOWANCE, 0) - boughtThisMonth(read.state));
+  return Math.max(0, worldVarOr(read.world, ALLOWANCE) - boughtThisMonth(read.state));
 }
 
 /** R-WALLET-005, 006: the allowance is the Lagos bank's, so the view shows none abroad. */
@@ -183,7 +173,7 @@ function planFee(read: ReadCtx, currency: ForeignCurrency, amount: number): FeeP
   const fromCash = Math.min(pocket.cash, amount - fromBank);
   const rest = amount - fromBank - fromCash;
   if (rest === 0) return { fromBank, fromCash, bought: 0, naira: 0, charge: 0 };
-  if (varOr(read.world, QUEUE, 0) > 0) return null;
+  if (worldVarOr(read.world, QUEUE) > 0) return null;
   // R-WALLET-005: the naira leg settles an invoice rather than buying currency, so it does not
   // count against the month's allowance.
   const naira = mulDivCeil(rest, read.world.rates[currency].official, 100);
@@ -325,7 +315,7 @@ function convertAtBank(ctx: Ctx, from: Currency, to: Currency, amount: number): 
   const received = convertMinor(net, from, to, official);
   // R-WALLET-012, as at the aboki. A queued purchase is judged at today's rate, before it waits.
   if (received === 0) return reject("bad-amount", "That is too little to change.");
-  const queue = varOr(world, QUEUE, 0);
+  const queue = worldVarOr(world, QUEUE);
   if (buying && queue > 0) {
     // R-WALLET-006: the money leaves now; the rate is the one on the day it arrives.
     const queued: WalletEvent = { type: "wallet/queued", conversion: { id: ctx.nextId("conversion"), from, to, paid: net, readyMonth: month + queue } };

@@ -6,6 +6,7 @@
 // `state: "held"` with the held copy's `expiresMonth` and `value`, and
 // `readyMonth` set to the month the new copy is due. A held document with no
 // copy being made has `readyMonth` null.
+import { worldVarOr } from "../engine/check";
 import { clamp, mulDiv, roundDownTo } from "../engine/int";
 import type { RegisteredKind } from "../engine/kind";
 import { turnInProgress } from "../engine/kind";
@@ -33,15 +34,6 @@ const PASSPORT: Id<"document"> = "document.passport";
 const TRANSCRIPT: Id<"document"> = "document.transcript";
 /** director.md: months the strike adds to the transcript's wait. */
 const TRANSCRIPT_EXTRA: Id<"var"> = "var.transcript-wait-extra";
-
-/** A world variable the mini content may not carry: missing reads as 0. */
-function varOr(read: ReadCtx, id: Id<"var">): number {
-  return (read.world.vars as Record<string, number | undefined>)[id] ?? 0;
-}
-
-function readOfCtx(ctx: Ctx): ReadCtx {
-  return { state: ctx.state, world: ctx.world, content: ctx.content };
-}
 
 /** English points the per-hundred figure is counted against. */
 const ENGLISH_PER = 100;
@@ -134,7 +126,7 @@ function issue(ctx: Ctx, id: Id<"document">): DocumentEvent {
     value: valueOnIssue(ctx, entry),
   };
   // R-ADVICE-008: the mark of a fake once used stays on the record for the life.
-  return ctx.state.document[id]?.genuine === false && usedInApplication(readOfCtx(ctx), id) ? { ...event, genuine: false } : event;
+  return ctx.state.document[id]?.genuine === false && usedInApplication(ctx, id) ? { ...event, genuine: false } : event;
 }
 
 /** The term a fixer's request carries: months to bring the copy being made forward (R-ADVICE-005). */
@@ -173,7 +165,7 @@ function request(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
   }
   const month = ctx.state.turn.month;
   // director.md: the lecturers' strike adds its months to the transcript's wait while in force.
-  const extra = id === TRANSCRIPT ? varOr(readOfCtx(ctx), TRANSCRIPT_EXTRA) : 0;
+  const extra = id === TRANSCRIPT ? worldVarOr(ctx.world, TRANSCRIPT_EXTRA) : 0;
   const wait = ctx.random.between("document", entry.wait[0], entry.wait[1]) + extra;
   // R-DOCUMENT-002: a request between turns, as from an offer, comes after
   // this month's papers phase, so the earliest it can be issued is next

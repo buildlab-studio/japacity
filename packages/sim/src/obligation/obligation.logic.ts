@@ -5,6 +5,7 @@
 // scenario's obligations are real from the first state and get instance ids from
 // the engine's counter (R-SCENARIO-002).
 import { rateFor } from "../credit/credit.logic";
+import { worldVarOr } from "../engine/check";
 import { bp, convertMinor, divCeil, divFloor, mulDiv } from "../engine/int";
 import type { RegisteredKind } from "../engine/kind";
 import { emit, oldestFirst } from "../engine/kind";
@@ -75,10 +76,6 @@ function openItems(state: State): ObligationState[] {
   return Object.values(state.obligation.items).sort(oldestFirst);
 }
 
-/** A world variable the mini content may not carry: missing reads as 0. */
-function varOr(read: ReadCtx, id: Id<"var">): number {
-  return (read.world.vars as Record<string, number | undefined>)[id] ?? 0;
-}
 
 /** The car's numbers, in its currency (docs/rules/car.md "Entries"). */
 export type { CarTerms, CarView } from "../engine/types";
@@ -195,7 +192,7 @@ function scheduledCharge(read: ReadCtx, item: ObligationState, entry: Obligation
     case "upkeep":
     case "support": {
       // R-DIRECTOR-006. "at home" is a naira charge, so money sent home from abroad rises with it too.
-      const rise = entry.currency === "NGN" ? bp(item.amount, varOr(read, INFLATION)) : 0;
+      const rise = entry.currency === "NGN" ? bp(item.amount, worldVarOr(read.world, INFLATION)) : 0;
       return { base: Math.max(0, item.amount + rise), interest, principal };
     }
     case "loan":

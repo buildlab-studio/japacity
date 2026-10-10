@@ -1,5 +1,6 @@
 // Place: docs/rules/place.md, R-PLACE-001 to 009, and the mechanics of coming
 // home in return.md. A character is at home, abroad in one country, or on the road.
+import { worldVarOr } from "../engine/check";
 import { bp, convertMinor, divFloor } from "../engine/int";
 import type { RegisteredKind } from "../engine/kind";
 import { emit } from "../engine/kind";
@@ -72,10 +73,6 @@ export function appliesHere(entry: Placed, state: State): boolean {
 // Reading
 // ---------------------------------------------------------------------------
 
-/** A world variable the mini content may not carry: missing reads as 0. */
-function varOr(read: ReadCtx, id: Id<"var">): number {
-  return (read.world.vars as Record<string, number | undefined>)[id] ?? 0;
-}
 
 
 /** R-PLACE-006: the fare home from the country the character is in, or null when not abroad. */
@@ -83,7 +80,7 @@ export function fareHome(read: ReadCtx): MoneyParam | null {
   const { where, country } = read.state.place;
   if (where !== "abroad" || country === null) return null;
   const entry = countryEntry(read.content, country);
-  const december = varOr(read, SEASON_DECEMBER) === 1;
+  const december = worldVarOr(read.world, SEASON_DECEMBER) === 1;
   return { currency: entry.currency, amount: december ? bp(entry.fare, entry.decemberFactorBp) : entry.fare };
 }
 
@@ -373,7 +370,7 @@ function tokenLapse(ctx: Ctx): BaseEvent[] {
  * December that spans many ticks online opens it once.
  */
 function december(ctx: Ctx): BaseEvent[] {
-  if (ctx.state.place.where !== "abroad" || varOr(ctx, SEASON_DECEMBER) !== 1) return [];
+  if (ctx.state.place.where !== "abroad" || worldVarOr(ctx.world, SEASON_DECEMBER) !== 1) return [];
   if (ctx.content.setpiece[DECEMBER] === undefined || ctx.state.setpiece.open !== null) return [];
   const last = ctx.state.place.decemberMonth;
   if (last !== null && ctx.state.turn.month - last < MONTHS_A_YEAR) return [];
