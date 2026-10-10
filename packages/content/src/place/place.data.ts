@@ -147,7 +147,7 @@ const entries: PlaceEntry[] = [
   lagos("place.adeniran-ogunsanya", "Adeniran Ogunsanya Street", "surulere", 6494, 3357, { stages: ["activity.job-teacher"], crowd: BUSY, traditionalBp: STREET }),
   lagos("place.costain", "Costain", "surulere", 6482, 3369, { crowd: BUSY, traditionalBp: ROADSIDE }),
   // The market is not a feature in OpenStreetMap: the position is Tejuosho Avenue's.
-  lagos("place.tejuosho-market", "Tejuosho Market", "yaba", 6504, 3370, { assets: "tejuosho-front", stages: ["offer.mum-shop"], crowd: PACKED, traditionalBp: MARKET }),
+  lagos("place.tejuosho-market", "Tejuosho Market", "yaba", 6504, 3370, { assets: "tejuosho-front", stages: ["offer.mum-shop", "activity.open-shop"], crowd: PACKED, traditionalBp: MARKET }),
   // The hub in Yaba: the room Ojuelegba's hub door cuts to (docs/rules/world.md R-WORLD-013).
   lagos("place.yaba", "Yaba", "yaba", 6507, 3375, {
     scope: "interior",

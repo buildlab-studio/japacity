@@ -46,7 +46,7 @@ function fairSettlement(): number {
 }
 
 describe("the trader's way to her own shop", () => {
-  test("[R-PROLOGUE-011] given a trader from the tile with the settlement, when the living costs take her under the settlement and she has heard of a way out and read up on it, then she is still a trader with a shop's capital, and her own way to a job is the shop's act at her stall", () => {
+  test("[R-ACTIVITY-016] [R-PROLOGUE-011] given a trader from the tile with the settlement, when the living costs take her under the settlement and she has heard of a way out and read up on it, then she is still a trader with a shop's capital, and her own way to a job is the shop's act at her stall", () => {
     const game = settledTrader();
     game.endTurn([{ activity: "activity.ask-around", param: null }]);
     let view = game.view();
@@ -70,7 +70,7 @@ describe("the trader's way to her own shop", () => {
     expect(ownWayOf(view)).toBeNull();
   });
 
-  test("[R-PROLOGUE-011] [R-CHAPTER-005] given a trader with the settlement, when her first chapter is read, then its opening and every item are in her words and none says the service year; a graduate's read as before", () => {
+  test("[R-ACTIVITY-016] [R-PROLOGUE-011] [R-CHAPTER-005] given a trader with the settlement, when her first chapter is read, then its opening and every item are in her words and none says the service year; a graduate's read as before", () => {
     const view = settledTrader().view();
     expect(view.chapter.current).toBe(FIRST_CHAPTER);
     expect(text[openingKey(view)]).toBe(text[`${FIRST_CHAPTER}.open.prologue.capital`]);
@@ -86,7 +86,7 @@ describe("the trader's way to her own shop", () => {
     expect(openingKey(graduate)).toBe(`${FIRST_CHAPTER}.open.ada`);
   });
 
-  test("[R-PROLOGUE-011] given a shop worker from the tile, with no settlement, when her first chapter is read, then it never says the service year and never offers a shop", () => {
+  test("[R-ACTIVITY-016] [R-PROLOGUE-011] given a shop worker from the tile, with no settlement, when her first chapter is read, then it never says the service year and never offers a shop", () => {
     const view = play(archetypeOf("shop-worker")!, "shop-worker-0").view();
     expect(sixteenPath(view)).toBe("trade");
     expect(text[openingKey(view)]).not.toMatch(SERVICE_YEAR);
