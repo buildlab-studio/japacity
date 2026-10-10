@@ -439,7 +439,7 @@ export function ActivityView() {
         <Slots />
       </Panel>
       <Panel title={say("ui.activity.title")}>
-        <ul className="grid gap-3 @lg:grid-cols-2">
+        <ul className="grid grid-cols-1 gap-3 @lg:grid-cols-2">
           {options.map((option) => (
             <ActivityCard key={option.id} option={option} />
           ))}
@@ -450,7 +450,7 @@ export function ActivityView() {
               {say("ui.activity.later")} <span className="font-normal text-text-2">({later.length})</span>
             </summary>
             <p className="mt-2 text-sm text-text-2">{say("ui.activity.later-hint", { count: later.length })}</p>
-            <ul className="mt-3 grid gap-3 @lg:grid-cols-2">
+            <ul className="mt-3 grid grid-cols-1 gap-3 @lg:grid-cols-2">
               {later.map((option) => (
                 <ActivityCard key={option.id} option={option} />
               ))}

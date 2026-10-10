@@ -95,7 +95,7 @@ function JobRow({ view, id, chance, chosen, onPick }: { view: PlayerView; id: st
         onClick={() => onPick(id)}
         className={`flex min-h-12 w-full items-center gap-3 rounded-[5px] px-3 py-2.5 text-left ${chosen ? "bg-pick text-on-pick" : ""}`}
       >
-        <span className="flex min-w-0 flex-1 flex-col">
+        <span className="flex w-0 min-w-0 flex-1 flex-col">
           <span className="font-bold">{nameOf(id)}</span>
           {pay === null ? null : <span className={`num text-[13px] ${chosen ? "opacity-80" : "text-text-2"}`}>{pay}</span>}
           {lift === null ? null : (
@@ -124,7 +124,7 @@ function OutRow({ job, pay }: { job: OutOfReach; pay: string | null }) {
   return (
     <li className="border-b border-sheet-line last:border-b-0" data-job={job.id}>
       <button type="button" className="press flex w-full items-center gap-2 px-3 py-2.5 text-left text-text-2" aria-expanded={open} onClick={() => setOpen((was) => !was)} data-job-needs={job.needs.length}>
-        <span className="flex min-w-0 flex-1 flex-col">
+        <span className="flex w-0 min-w-0 flex-1 flex-col">
           <span className="truncate font-medium">{nameOf(job.id)}</span>
           <span className="text-[12px]">{jobsWords("jobs.needs-count", { count: job.needs.length })}</span>
         </span>

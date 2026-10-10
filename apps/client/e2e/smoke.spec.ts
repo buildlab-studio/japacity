@@ -150,7 +150,7 @@ async function boardThePlane(page: Page): Promise<void> {
   await page.getByRole("button", { name: "Board the plane" }).click();
   const moment = page.getByRole("dialog");
   await expect(moment).toBeVisible();
-  await expect(moment.getByRole("heading", { name: /fly out/i })).toBeVisible();
+  await expect(moment.getByRole("heading", { name: /fl(y|ew) out/i })).toBeVisible();
   await expectNothingBroken(page, "on the flight");
   await moment.getByRole("button", { name: "Carry on" }).click();
   // R-CHAPTER-006: the send-off card follows the flight's moment.

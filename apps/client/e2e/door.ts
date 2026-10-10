@@ -22,9 +22,14 @@ export async function passOpeningWords(page: Page, timeout = 4_000): Promise<voi
   if (await close.isVisible()) await close.click();
 }
 
-/** The name: the first the pool suggests; then "Print my page", and Begin, which stamps the page and starts the life. */
+/**
+ * The name: the first the pool suggests; then the age step on a life from sixteen (Next, keeping the age as it is;
+ * R-PROLOGUE-004), then "Print my page", and Begin, which stamps the page and starts the life.
+ */
 async function nameAndBegin(page: Page, timeout: number): Promise<void> {
   await page.getByRole("group", { name: "Names to take" }).getByRole("button").first().click({ timeout });
+  const next = page.getByRole("button", { name: /^Next Your age/ });
+  if (await next.isVisible().catch(() => false)) await next.click({ timeout });
   await page.getByRole("button", { name: /^Print my page/ }).click({ timeout });
   await page.getByRole("button", { name: /^Begin/ }).click({ timeout });
   await page.locator("[data-door-progress]").waitFor({ state: "detached", timeout });
