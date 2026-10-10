@@ -20,14 +20,8 @@ const AGENT_OBLIGATIONS: ReadonlySet<Id<"obligation">> = new Set(["obligation.ag
 /** Time given to the family at home or from abroad. */
 const FAMILY: ReadonlySet<Id<"activity">> = new Set(["activity.family-time", "activity.family-meeting", "activity.call-home", "activity.send-money", "activity.december-home-uk", "activity.december-home-ca", "activity.december-home-uae"]);
 
-/** Work beside the job: the side jobs, the gig, the trader's own shop and the overtime abroad. */
-const SIDE_WORK: ReadonlySet<Id<"activity">> = new Set(["activity.side-gig", "activity.open-shop", "activity.run-shop", "activity.overtime"]);
-
 /** The skills a study act builds; an act that pays or meets people is not study. */
 const STUDY_QUALITIES: ReadonlySet<string> = new Set(["quality.english", "quality.tech", "quality.portfolio", "quality.interview-prep"]);
-
-/** The obligation types that are money owed, not a bill: a loan, the group loan, an agent's debt, a car on finance. */
-const DEBTS: ReadonlySet<string> = new Set(["loan", "group-loan", "agent-debt", "car"]);
 
 function isStudy(id: Id<"activity">): boolean {
   const entry = content.activity[id];
@@ -37,16 +31,17 @@ function isStudy(id: Id<"activity">): boolean {
   return adds.some((quality) => STUDY_QUALITIES.has(quality)) && !adds.includes("quality.network");
 }
 
-function isSideWork(id: Id<"activity">): boolean {
-  return SIDE_WORK.has(id) || content.activity[id]?.slot === "side";
-}
-
 /** The top band of a quality's range, as the screen's band words cut it (quarters, R-TEXT-005). */
 function inTopBand(quality: Id<"quality">, value: number): boolean {
   const entry = content.quality[quality];
   if (entry === undefined) return false;
   const span = entry.max - entry.min + 1;
   return Math.floor(((value - entry.min) * 4) / span) >= 3;
+}
+
+/** At least two thirds of the months played were kept (decision 0021): a count of months, never money. */
+function keptMost(kept: number, months: number): boolean {
+  return months > 0 && kept * 3 >= months * 2;
 }
 
 /**
@@ -68,15 +63,8 @@ function risksTaken(view: PlayerView, most: readonly Id<"activity">[]): number {
  * 3. The Family Anchor: standing at the top of its range, or in its top band with family among the things done most.
  * 4. The Long Way Round: the way taken was refused before it was granted.
  * 5. The Night Reader: study first, a study act first among the things done most, or the study way with one among them.
- * 6. The Hustler: work beside the job among the things done most, or a side job held.
- * 7. The Careful Saver: no debt carried and no payment missed.
- * 8. The Hustler: everything else; a life that worked its way out.
- *
- * decision 0018 reads "the share of the months the character kept more than they spent", and
- * the view carries no month by month record of money in and out (only this month's report and the
- * pockets now, which would be a sum). the careful saver is the life that carries no debt
- * and missed no payment to the send-off. A field on the card such as `keptMonths` (a count, never money)
- * would let the type read the decision as written; that is a contract change for the maintainer.
+ * 6. The Careful Saver: the months kept at least two thirds of the months played (decision 0021), a side job or not.
+ * 7. The Hustler: everything else; work beside the job, or a life that worked its way out.
  */
 export function japaTypeOf(view: PlayerView): JapaType | null {
   const card = view.card;
@@ -90,9 +78,7 @@ export function japaTypeOf(view: PlayerView): JapaType | null {
   if (way !== null && (view.routes.find((route) => route.id === way)?.refusals ?? 0) > 0) return "long-way-round";
   const studyWay = way !== null && content.route[way]?.gate === "study";
   if ((most[0] !== undefined && isStudy(most[0])) || (studyWay && most.some(isStudy))) return "night-reader";
-  if (view.job.side !== null || most.some(isSideWork)) return "hustler";
-  const inDebt = view.obligations.some((owed) => DEBTS.has(content.obligation[owed.entry]?.type ?? ""));
-  if (!inDebt && (view.credit?.missed ?? 0) === 0) return "careful-saver";
+  if (keptMost(view.keptMonths, card.months)) return "careful-saver";
   return "hustler";
 }
 

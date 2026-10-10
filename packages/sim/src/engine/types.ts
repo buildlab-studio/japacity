@@ -1494,6 +1494,14 @@ export interface WalletSlice {
   bought: { month: number; cents: number };
   /** Cash moved into the bank in the given month, in kobo at the official rate, for R-WALLET-011's monthly threshold. */
   cashIn: { month: number; kobo: number };
+  /**
+   * The month in hand's money in less out, by currency, as the results sheet counts it (decision 0021, R-WORLD-008):
+   * a change counts each side in its own money; a move between pockets and held funds locked and given back count
+   * nothing; nothing before the prologue closed counts. Missing until money moves in the month, and cleared as it closes.
+   */
+  monthNet?: Partial<Record<Currency, number>>;
+  /** Months ended whose net in the money of the place was above zero (decision 0021). Missing until the first, so no state hash moves before one. */
+  keptMonths?: number;
 }
 
 export interface DocumentState {
@@ -2099,6 +2107,8 @@ export interface PlayerView {
   /** What may still be bought at the bank this month, in US cents. */
   /** null abroad, where the Lagos allowance does not bind (R-WALLET-005, 006). */
   bankAllowanceLeft: number | null;
+  /** Months ended in which the character kept more than they spent (decision 0021). A count the japa type reads; never shown as a figure. */
+  keptMonths: number;
   documents: { id: Id<"document">; state: DocumentState["state"]; readyMonth: number | null; expiresMonth: number | null; value: number | null }[];
   routes: RouteView[];
   setpiece: {

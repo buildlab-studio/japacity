@@ -1,18 +1,37 @@
 // The japa type read from the view at the send-off (decision 0018; docs/rules/share.md R-SHARE-001,
-// R-SHARE-004, R-SHARE-005): one of six labels from the way out, the money kept, the risks taken and
-// how home was held. Read from the recorded lives and a trader's tile played into her shop.
+// R-SHARE-004, R-SHARE-005): one of six labels from the way out, the months kept (decision 0021), the
+// risks taken and how home was held. Read from the recorded lives and a trader's tile played into her shop.
 import { content, japaTypes, text } from "@japacity/content";
-import type { PlayerView, SlotPick } from "@japacity/sim";
+import type { FlatSave, PlayerView, ReportLine, SlotPick } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
 import { topActivities } from "../../../../../packages/sim/src/chapter/chapter.card";
+import { lifeSaves } from "../../../../../packages/sim/src/goldens/lives.data";
+import { newLifeSaves } from "../../../../../packages/sim/src/sweep/lives.data";
+import { start } from "../../../../../packages/sim/src/testing/play";
+import { kept, localCurrency, moneyLines } from "../../features/turn/month.results";
 import { newGame, recordedGame } from "../testing/fixtures";
 import { japaTypeOf, typeWords } from "./japaType";
+
+/** Every recorded life: the blessed ones and those recorded since, not yet blessed. */
+const SAVES: Record<string, FlatSave> = { ...lifeSaves, ...newLifeSaves };
+
+/** A recorded life replayed to its end, from either list. */
+function replayed(name: string): ReturnType<typeof start> {
+  const save = SAVES[name];
+  if (save === undefined) throw new Error(`No recorded life ${name}.`);
+  const game = start({ scenario: save.scenario, seed: save.seed, worldSeed: save.worldSeed, content });
+  for (const { command, tick, sender } of save.commands) {
+    game.tick = tick;
+    game.accept(command, sender);
+  }
+  return game;
+}
 
 type Card = NonNullable<PlayerView["card"]>;
 
 function sendOff(name: string): PlayerView {
-  const view = recordedGame(name).view();
+  const view = replayed(name).view();
   if (view.card?.kind !== "send-off") throw new Error(`${name}'s recorded life does not end at the send-off.`);
   return view;
 }
@@ -51,17 +70,57 @@ function trader(others: SlotPick["activity"][]): PlayerView {
 }
 
 describe("the japa type, read at the send-off", () => {
-  test("[R-SHARE-001] given the recorded lives at their send-off, when the type is read, then Ada is the careful saver, Tunde the family anchor and Zainab the long way round", () => {
-    expect(japaTypeOf(sendOff("ada-careful"))).toBe("careful-saver");
+  test("[R-WORLD-008] given each recorded life, when each month closes, then the months the view counts as kept are those whose results figure, in the money of the place, was above zero", () => {
+    for (const [name, save] of Object.entries(SAVES)) {
+      const game = start({ scenario: save.scenario, seed: save.seed, worldSeed: save.worldSeed, content });
+      // The month's lines as the results sheet reads them: the commands sent in the month, then the month's end.
+      let month: ReportLine[] = [];
+      const shown: { month: number; kept: boolean; counted: number }[] = [];
+      const countedEarly: string[] = [];
+      const otherMoney: number[] = [];
+      for (const { command, tick, sender } of save.commands) {
+        game.tick = tick;
+        const before = game.view().keptMonths;
+        const result = game.accept(command, sender);
+        month.push(...result.lines);
+        // A month not ended is never counted.
+        if (command.type !== "turn/end") {
+          if (game.view().keptMonths !== before) countedEarly.push(command.type);
+          continue;
+        }
+        const view = game.view();
+        const local = localCurrency(view);
+        const lines = moneyLines(month, local);
+        const nets = kept(lines);
+        // The sheet's main figure is in the money of the place whenever money moved there.
+        if (lines.length > 0 && !nets.some((entry) => entry.currency === local)) otherMoney.push(view.month);
+        const net = nets.find((entry) => entry.currency === local)?.amount ?? 0;
+        shown.push({ month: view.month, kept: lines.length > 0 && net > 0, counted: view.keptMonths - before });
+        month = [];
+      }
+      expect({ name, countedEarly, otherMoney }).toEqual({ name, countedEarly: [], otherMoney: [] });
+      expect({ name, shown }).toEqual({ name, shown: shown.map((entry) => ({ ...entry, counted: entry.kept ? 1 : 0 })) });
+      expect({ name, count: game.view().keptMonths }).toEqual({ name, count: shown.filter((entry) => entry.kept).length });
+    }
+  });
+
+  test("[R-SHARE-001] given the recorded lives at their send-off, when the type is read, then Aniekan is the careful saver, Ada the hustler, Tunde the family anchor and Zainab the long way round", () => {
+    expect(japaTypeOf(sendOff("aniekan-borrower"))).toBe("careful-saver");
+    expect(japaTypeOf(sendOff("ada-careful"))).toBe("hustler");
     expect(japaTypeOf(sendOff("tunde-borrower"))).toBe("family-anchor");
     expect(japaTypeOf(sendOff("zainab-remote"))).toBe("long-way-round");
   });
 
-  test("[R-SHARE-001] given a trader's tile played into her own shop, when the type is read at a send-off, then she is the hustler, and the kiosk beside the shop, the lotto and the bet slip both, is one risk and not the gambler", () => {
-    expect(japaTypeOf(trader(["activity.ask-around", "activity.rest"]))).toBe("hustler");
+  test("[R-SHARE-001] given a trader's tile played into her own shop, when the type is read at a send-off, then the shop's months kept make her the careful saver before the hustler, fewer kept make her the hustler, and the kiosk beside the shop, the lotto and the bet slip both, is one risk and not the gambler", () => {
+    const shop = trader(["activity.ask-around", "activity.rest"]);
+    const twoThirds = Math.ceil((shop.card!.months * 2) / 3);
+    expect(shop.keptMonths).toBeGreaterThanOrEqual(twoThirds);
+    expect(japaTypeOf(shop)).toBe("careful-saver");
+    expect(japaTypeOf({ ...shop, keptMonths: twoThirds - 1 })).toBe("hustler");
     const kiosk = trader(["activity.play-lotto", "activity.bet-slip"]);
     expect(kiosk.card?.topActivities).toEqual(expect.arrayContaining(["activity.play-lotto", "activity.bet-slip"]));
-    expect(japaTypeOf(kiosk)).toBe("hustler");
+    expect(japaTypeOf(kiosk)).not.toBe("gambler");
+    expect(japaTypeOf({ ...kiosk, keptMonths: twoThirds - 1 })).toBe("hustler");
   });
 
   test("[R-SHARE-001] given no send-off due, a chapter card or no card, when the type is read, then there is none yet", () => {
@@ -95,12 +154,24 @@ describe("the japa type, read at the send-off", () => {
     // Study first.
     expect(japaTypeOf(adaDoing(["activity.learn-tech", "activity.job-junior-dev"]))).toBe("night-reader");
     expect(japaTypeOf(adaDoing(["activity.job-junior-dev", "activity.study-english"]))).toBe("night-reader");
-    // Side work among the things done most, or a side job held.
-    expect(japaTypeOf(adaDoing(["activity.job-junior-dev", "activity.side-gig"]))).toBe("hustler");
-    expect(japaTypeOf(adaDoing(["activity.job-junior-dev", "activity.weekend-tutoring"]))).toBe("hustler");
-    // A debt carried to the send-off: no longer the careful saver.
-    const loan = { ...ada.obligations[0]!, id: "loan-1", entry: "obligation.agent-debt" as const };
-    expect(japaTypeOf({ ...ada, obligations: [...ada.obligations, loan] })).toBe("hustler");
+    // Ada as she went: fewer than two thirds of her months kept, and none of the readings before: the hustler.
+    expect(ada.keptMonths * 3).toBeLessThan(ada.card!.months * 2);
+    expect(japaTypeOf(ada)).toBe("hustler");
+    // Two thirds of the months played kept: the careful saver, at the edge and not one month under it.
+    const twoThirds = Math.ceil((ada.card!.months * 2) / 3);
+    expect(japaTypeOf({ ...ada, keptMonths: twoThirds })).toBe("careful-saver");
+    expect(japaTypeOf({ ...ada, keptMonths: twoThirds - 1 })).toBe("hustler");
+    // The careful saver comes before the hustler: a side job held or side work done most does not undo it.
+    expect(japaTypeOf({ ...adaDoing(["activity.job-junior-dev", "activity.side-gig"]), keptMonths: twoThirds, job: { ...ada.job, side: "activity.weekend-tutoring" } })).toBe("careful-saver");
+    // And after the readings that come first: every month kept is still the night reader who studied first.
+    expect(japaTypeOf({ ...adaDoing(["activity.learn-tech", "activity.job-junior-dev"]), keptMonths: ada.card!.months })).toBe("night-reader");
+  });
+
+  test("[R-SHARE-004] given Aniekan's send-off, kept two months in three to the month, when the type is read, then he is the careful saver, and one month fewer kept is the hustler", () => {
+    const aniekan = sendOff("aniekan-borrower");
+    expect(aniekan.keptMonths * 3).toBe(aniekan.card!.months * 2);
+    expect(japaTypeOf(aniekan)).toBe("careful-saver");
+    expect(japaTypeOf({ ...aniekan, keptMonths: aniekan.keptMonths - 1 })).toBe("hustler");
   });
 
   test("[R-SHARE-005] given every type, when its words are read, then it is a name and a line, never a figure", () => {

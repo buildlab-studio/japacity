@@ -474,6 +474,50 @@ function settle(ctx: Ctx): BaseEvent[] {
 }
 
 // ---------------------------------------------------------------------------
+// The months kept: decision 0021
+// ---------------------------------------------------------------------------
+
+/** The money of the place: naira at home and on the road, the country's own abroad, as the results sheet reads it. */
+function placeCurrency(state: State, content: Content): Currency {
+  const country = state.place.country;
+  if (state.place.where !== "abroad" || country === null) return "NGN";
+  return content.country[country]?.currency ?? "NGN";
+}
+
+/**
+ * Money that is not the month's own on the results sheet (R-WORLD-008): a move between pockets is the
+ * same money, and held funds only sit locked from the day they land to the day they go back.
+ */
+const NOT_THE_MONTHS: ReadonlySet<Reason> = new Set<Reason>(["move", "held-funds", "held-funds-return"]);
+
+/**
+ * The month's net, with one credit or debit added. A change counts each side in its own money, as the
+ * results do. The prologue's years are not a month: money that moves while it is open is what the
+ * character starts with.
+ */
+function withMonthNet(slice: WalletSlice, state: State, currency: Currency, change: number, reason: Reason): WalletSlice {
+  if (state.prologue.open || NOT_THE_MONTHS.has(reason)) return slice;
+  const net = slice.monthNet ?? {};
+  return { ...slice, monthNet: { ...net, [currency]: (net[currency] ?? 0) + change } };
+}
+
+/** As the month closes, it is told with its net in the money of the place where it ended. A month that moved nothing tells nothing. */
+function closeMonth(ctx: Ctx): BaseEvent[] {
+  const net = ctx.state.wallet.monthNet;
+  if (net === undefined) return [];
+  const currency = placeCurrency(ctx.state, ctx.content);
+  const closed: WalletEvent = { type: "wallet/month-closed", currency, net: net[currency] ?? 0 };
+  return [closed];
+}
+
+/** The slice with the month's net cleared, and the month counted when it was kept. */
+function monthClosed(slice: WalletSlice, net: number): WalletSlice {
+  const rest: WalletSlice = { ...slice };
+  delete rest.monthNet;
+  return net > 0 ? { ...rest, keptMonths: (slice.keptMonths ?? 0) + 1 } : rest;
+}
+
+// ---------------------------------------------------------------------------
 // Evolve
 // ---------------------------------------------------------------------------
 
@@ -489,20 +533,32 @@ function withPocket(slice: WalletSlice, currency: Currency, pocket: AnyPocket, c
   return { ...slice.pockets, [currency]: { ...balance, [pocket]: balance[pocket] + change } };
 }
 
-function evolve(slice: WalletSlice, event: WalletEvent): WalletSlice {
+function evolve(slice: WalletSlice, event: WalletEvent, state: State): WalletSlice {
   switch (event.type) {
     case "wallet/credited":
-      return {
-        ...slice,
-        pockets: withPocket(slice, event.currency, event.pocket, event.amount),
-        totals: { ...slice.totals, in: addTo(slice.totals.in, event.reason, event.currency, event.amount) },
-      };
+      return withMonthNet(
+        {
+          ...slice,
+          pockets: withPocket(slice, event.currency, event.pocket, event.amount),
+          totals: { ...slice.totals, in: addTo(slice.totals.in, event.reason, event.currency, event.amount) },
+        },
+        state,
+        event.currency,
+        event.amount,
+        event.reason,
+      );
     case "wallet/debited":
-      return {
-        ...slice,
-        pockets: withPocket(slice, event.currency, event.pocket, -event.amount),
-        totals: { ...slice.totals, out: addTo(slice.totals.out, event.reason, event.currency, event.amount) },
-      };
+      return withMonthNet(
+        {
+          ...slice,
+          pockets: withPocket(slice, event.currency, event.pocket, -event.amount),
+          totals: { ...slice.totals, out: addTo(slice.totals.out, event.reason, event.currency, event.amount) },
+        },
+        state,
+        event.currency,
+        -event.amount,
+        event.reason,
+      );
     case "wallet/queued":
       return { ...slice, queued: [...slice.queued, event.conversion] };
     case "wallet/arrived":
@@ -521,6 +577,8 @@ function evolve(slice: WalletSlice, event: WalletEvent): WalletSlice {
       return { ...slice, cashIn: { month: event.month, kobo: event.kobo } };
     case "wallet/remitted":
       return slice;
+    case "wallet/month-closed":
+      return monthClosed(slice, event.net);
     default: {
       const never: never = event;
       throw new Error(`Unknown wallet event ${JSON.stringify(never)}.`);
@@ -567,6 +625,7 @@ function lines(event: WalletEvent): ReportLine[] {
     case "wallet/bought":
     case "wallet/allowance-reset":
     case "wallet/cash-paid-in":
+    case "wallet/month-closed":
       return [];
     default: {
       const never: never = event;
@@ -667,7 +726,7 @@ export const walletKind: RegisteredKind<WalletSlice, WalletEvent> = {
     "money/take": takeMoney,
     "money/pay-fee": payFee,
   },
-  phases: { settle },
+  phases: { settle, close: closeMonth },
   evolve,
   lines,
   requirements: {
@@ -681,5 +740,6 @@ export const walletKind: RegisteredKind<WalletSlice, WalletEvent> = {
     queued: read.state.wallet.queued,
     rates: read.world.rates,
     bankAllowanceLeft: allowanceShown(read),
+    keptMonths: read.state.wallet.keptMonths ?? 0,
   }),
 };
