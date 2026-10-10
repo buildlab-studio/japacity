@@ -1,7 +1,4 @@
-// The room's basics: docs/rules/obligation.md R-OBLIGATION-014 and world.md R-WORLD-029. Two
-// choices made once a month that ride with it and fill no slot: cooking for the week, at home and
-// abroad, and fetching water, at home only (abroad the room has a tap). Each takes its share off the
-// next charge of the upkeep where the character lives. The figures are `tuning.room`. Joined into
+// The room's basics: docs/rules/obligation.md R-OBLIGATION-014 and world.md R-WORLD-029. Joined into
 // the activity table in activity.data.ts; place.data.ts stages each in the room.
 import type { ActivityEntry, Id } from "@japacity/sim";
 

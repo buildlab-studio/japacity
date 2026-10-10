@@ -1,7 +1,5 @@
-// Where each computer partner is met, and their home (docs/rules/world.md R-WORLD-020: nobody is
-// picked from a list). A partner stands in the place they are met, as a person the player can tap;
-// once met, their home joins the map and time with them is a visit there. The pair rules keep
-// working underneath: the meeting is what `people/court` needs in place of a row in `candidates`.
+// Where each computer partner is met, and their home: docs/rules/world.md R-WORLD-020. The pair rules
+// keep working underneath: the meeting is what `people/court` needs in place of a row in `candidates`.
 // The words are `<person id>.met` (the line when you meet) and `<person id>.home` (their home's name)
 // in person.text.ts.
 // the people kind still lists `candidates` and courts from that list (people.md
