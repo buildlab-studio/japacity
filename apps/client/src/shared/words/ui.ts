@@ -261,7 +261,7 @@ export const uiText: Record<string, string> = {
   "ui.line.setpiece.opened.one": "{setpiece}: 1 question to answer before the month can end.",
   "ui.line.activity.lotto-won.one": "1 ticket for {stake}, and it came in: {won}.",
   "ui.line.activity.lotto-lost.one": "1 ticket for {stake}. Nothing came in.",
-  "ui.line.status.clock-started.one": "The job went. You have 1 month to find another sponsor.",
+  "ui.line.status.clock-started.one": "The job is gone. You have 1 month to find another sponsor.",
   "ui.line.activity.adviser-missing.one": "Her reading: {route} does not fit yet. {count} things are missing, at least 1 month away.",
   "ui.line.status.clock-ran.one": "1 month left on the clock.",
   "ui.line.status.renewed.one": "Renewed for 1 month. The fee: {fee}. The surcharge: {surcharge}.",
