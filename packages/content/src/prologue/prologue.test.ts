@@ -238,7 +238,8 @@ describe("the life from sixteen starts in fair health", () => {
     const { low, high } = wellbeingAtClose(content.prologue);
     expect(low).toBeGreaterThanOrEqual(content.tuning.health.runDownBelow);
     expect(high).toBeLessThanOrEqual(content.quality[WELLBEING]?.max ?? 0);
-  });
+  // The age step's seven answers multiply the paths walked (R-PROLOGUE-004); under a full parallel run the walk needs more than the default five seconds.
+  }, 30_000);
 });
 
 describe("opening words that fit the life", () => {
