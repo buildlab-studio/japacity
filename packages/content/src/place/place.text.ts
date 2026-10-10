@@ -425,7 +425,8 @@ export const placeText: Record<string, string> = {
   "place.makoko.thing.racks": "Fish racks",
   "place.makoko.act.racks": "Look",
   "place.makoko.act.racks.done": "Fish laid in rows over the fire, and smoke in your eyes. It sells by the basin.",
-  "place.makoko.act.buy-fish": "Buy fish",
+  // R-ACTIVITY-017: the racks are work at hand for the child of the water.
+  "place.makoko.act.racks-work": "Work the racks",
   "place.makoko.thing.school": "School",
   "place.makoko.act.school": "Listen",
   "place.makoko.act.school.done": "A class saying the times table together, loud enough to hear across the water.",

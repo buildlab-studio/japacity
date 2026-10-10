@@ -95,11 +95,11 @@ describe("Makoko", () => {
     expect(thingSpot(stage, canoe)).not.toBeNull();
   });
 
-  test("[R-WORLD-005] given the racks and the classroom, when their acts are read, then Look at the racks says what happened, buying smoked fish waits on the racks' sheet until content has it, and the classroom is looked at", () => {
+  test("[R-WORLD-005] given the racks and the classroom, when their acts are read, then Look at the racks says what happened, the racks stage the job (R-ACTIVITY-017), the racks' sheet until content has it, and the classroom is looked at", () => {
     const racks = thing("racks");
     expect(racks.acts.map((act) => [act.kind, act.stages ?? null])).toEqual([
       ["plain", null],
-      ["sheet", "activity.buy-smoked-fish"],
+      ["sheet", "activity.job-fish-racks"],
     ]);
     expect(sceneWords(racks.acts[0]?.label ?? "")).toBe("Look");
     expect(wordsOf(`${racks.acts[0]?.label ?? ""}.done`)).not.toBe("");
