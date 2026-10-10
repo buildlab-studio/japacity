@@ -2109,6 +2109,8 @@ export interface ActivityOption {
   when: "now" | "month";
   /** A now-act that is not a purchase, already done this month: not `allowed` again until the next (R-ACTIVITY-015). */
   done: boolean;
+  /** The hunt only: this life's next hunt is its sure first one (R-GUIDE-014). Missing otherwise. */
+  sure?: true;
 }
 
 export interface OfferView {

@@ -16,6 +16,7 @@ export const jobsUiText: Record<string, string> = {
   "jobs.chance.certain": "As good as certain",
   "jobs.chance.likely": "Likely",
   "jobs.chance.fair": "A fair chance",
+  "jobs.sure-first": "Your first hunt lands a job for sure: this one, or the lowest paid you can take.",
   "jobs.chance.long": "A long shot",
   "jobs.out-of-reach": "Not open to you yet",
   "jobs.needs": "Needs: {needs}",
@@ -36,6 +37,7 @@ export function jobsWords(key: string, params: Params = {}): string {
 }
 
 const NETWORK = "quality.network";
+const HUNT = "activity.job-hunt";
 
 /** From 60% a month a hunt is likely, from 30% a fair chance, and below that a long shot. */
 const LIKELY_BP = 6000;
@@ -70,6 +72,11 @@ function qualityOf(view: PlayerView, id: string): number {
  */
 export function huntBand(bp: number): ChanceBand {
   return bp >= content.tuning.quality.hireMaxBp ? "certain" : chanceBand(bp);
+}
+
+/** R-GUIDE-014: the life's next hunt is its sure first one: it lands the job named when the draw hits, else the lowest paid it may hunt. Each row keeps its own odds. */
+export function sureHunt(view: Pick<PlayerView, "activities">): boolean {
+  return view.activities.find((option) => option.id === HUNT)?.sure === true;
 }
 
 export function chanceOf(view: PlayerView, id: string): number {
@@ -107,5 +114,7 @@ export function jobCardWords(view: PlayerView, id: string): string {
  */
 export function jobCardLine(view: PlayerView, hunt: string, job: string): string {
   const own = text[`${job}.card`] ?? text[`${job}.blurb`] ?? text[`${hunt}.blurb`] ?? null;
-  return [own, jobCardWords(view, job)].filter((part): part is string => part !== null).join(" ");
+  // R-GUIDE-014: the first hunt's card says it lands for sure, before the job's own odds.
+  const sure = sureHunt(view) ? jobsWords("jobs.sure-first") : null;
+  return [own, sure, jobCardWords(view, job)].filter((part): part is string => part !== null).join(" ");
 }

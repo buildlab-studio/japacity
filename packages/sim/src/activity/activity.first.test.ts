@@ -107,4 +107,20 @@ describe("the sure first hunt", () => {
     rested.endTurn([]);
     expect(sureHuntJob(readOf(rested), named, 2, false)).not.toBeNull();
   });
+
+  test("[R-GUIDE-014] [R-ACTIVITY-005] given a starting life's first hunt, for the best-paid job it may hunt, whatever the draw, when the turn is ended, then the hunt lands (the named job or the lowest-paid), the job offer opens, and the view's hunt reads sure before it and not after", () => {
+    for (const seed of ["seed-1", "seed-2", "seed-3", "seed-4", "seed-5", "seed-6", "seed-7", "seed-8"]) {
+      const game = start({ scenario: "scenario.ada", content, seed });
+      const wages = byWage(game, "main");
+      const best = wages[wages.length - 1]!;
+      expect(game.view().activities.find((option) => option.id === HUNT)?.sure).toBe(true);
+      game.endTurn([{ activity: HUNT, param: best }]);
+      const lines = game.view().report?.lines ?? [];
+      const landed = lines.find((line) => line.key === "line.activity.hunt-hired");
+      expect(landed, seed).toBeDefined();
+      expect([best, wages[0]]).toContain(landed?.params["job"]);
+      expect(game.view().offers.some((offer) => offer.entry === "offer.job")).toBe(true);
+      expect(game.view().activities.find((option) => option.id === HUNT)?.sure).toBeUndefined();
+    }
+  });
 });

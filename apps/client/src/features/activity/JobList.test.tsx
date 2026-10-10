@@ -8,7 +8,7 @@ import { renderWithView } from "../../shared/testing/render";
 import { formatMoney } from "../../shared/words/format";
 import { requirementSentence } from "../../shared/words/requirement";
 import { ActivityPicker } from "./ActivityView";
-import { chanceBand, huntOrder, jobChanceBp, jobsOutOfReach } from "./JobList";
+import { chanceBand, huntOrder, jobCardLine, jobChanceBp, jobsOutOfReach } from "./JobList";
 import { jobsWords } from "./jobs.words";
 
 const HUNT = "activity.job-hunt";
@@ -191,5 +191,14 @@ describe("the jobs list as rows on the sheet", () => {
     expect(applyButton().querySelector(`[data-apply-for='${last}']`)).not.toBeNull();
     // The rows out of reach fold their needs behind a button of their own (aria-expanded); the card's one main button is the rest.
     expect(document.querySelectorAll("[data-activity-picker] button:not([role='radio']):not([aria-expanded])")).toHaveLength(1);
+  });
+
+  test("[R-GUIDE-014] given a starting life's first hunt (the view's hunt marked sure), when a job's card line is read, then it says the hunt lands a job for sure, and without the mark it does not", () => {
+    const view = engineView();
+    const job = huntOf(view)[0]!;
+    expect(view.activities.find((option) => option.id === HUNT)?.sure).toBe(true);
+    expect(jobCardLine(view, HUNT, job)).toContain(jobsWords("jobs.sure-first"));
+    const plain: PlayerView = { ...view, activities: view.activities.map((option) => (option.id === HUNT ? { ...option, sure: undefined } : option)) };
+    expect(jobCardLine(plain, HUNT, job)).not.toContain(jobsWords("jobs.sure-first"));
   });
 });

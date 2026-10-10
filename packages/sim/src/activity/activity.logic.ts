@@ -68,6 +68,7 @@ const HOME_LICENCE: Id<"document"> = "document.home-licence";
 const UK_LICENCE: Id<"document"> = "document.uk-licence";
 /** The offer a landed hunt opens. It learns the job from the terms (R-OFFER-007). */
 const JOB_OFFER = "offer.job" as const;
+const HUNT_ACTIVITY: Id<"activity"> = "activity.job-hunt";
 /** R-GUIDE-014: the months in which a life's first hunt is sure, counted as the month being played. */
 const SURE_HUNT_MONTHS = 3;
 /** A side gig pays naira cash (R-ACTIVITY-008). */
@@ -1028,20 +1029,32 @@ export function sureHuntJob(read: ReadCtx, named: ActivityEntry, month: number, 
   return best?.entry ?? named;
 }
 
+/** True while this life's next hunt is its sure first one (R-GUIDE-014): the first three months, no hunt before, none earlier this month. */
+export function firstHuntSure(read: ReadCtx): boolean {
+  const named = Object.values(read.content.activity).find((entry) => isJob(entry) && entry.hireBp !== null);
+  return named !== undefined && sureHuntJob(read, named, read.state.turn.month + 1, huntedThisMonth(read.state)) !== null;
+}
+
+/** A hunt earlier this month landed: its offer opened this month (every first hunt lands, so a miss cannot be earlier in a sure month). */
+function huntedThisMonth(state: State): boolean {
+  return Object.values(state.offer.items).some((item) => item.entry === JOB_OFFER && item.openedMonth === state.turn.month);
+}
+
 /**
  * One month of hunting the job the slot names (R-ACTIVITY-005). A landed hunt opens the job offer with the job in its terms.
- * R-GUIDE-014's sure first hunt (`sureHuntJob`) is not called here yet. Every recorded life's first hunt
- * missed, and landing it opens an offer that moves every later offer id, so all six recorded lives stop replaying at
- * their first offer command. Calling it waits on the lives being recorded again.
+ * R-GUIDE-014: a starting life's first hunt in its first three months lands for sure: the draw is made as ever, and when it
+ * misses, the sure hunt lands the lowest-paid job the life may hunt in the slot (the named one when none reads a pay).
  */
 function huntEffect(ctx: Ctx, _effect: unknown, cause: Cause): BaseEvent[] {
   if (cause.param === null) throw new Error(`A hunt from ${cause.source} names no job.`);
   const entry = jobEntry(ctx.content, cause.param);
-  const hired = ctx.random.chance("job", huntChanceBp(readOf(ctx), entry));
-  const events = record(ctx, { type: "activity/hunted", job: entry.id, hired });
+  const read = readOf(ctx);
+  const drawn = ctx.random.chance("job", huntChanceBp(read, entry));
+  const landed = drawn ? entry : sureHuntJob(read, entry, ctx.state.turn.month + 1, huntedThisMonth(ctx.state));
+  const events = record(ctx, { type: "activity/hunted", job: landed?.id ?? entry.id, hired: landed !== null });
   // content without the job offer has nothing to open, so the landed hunt opens nothing.
-  if (hired && ctx.content.offer[JOB_OFFER] !== undefined) {
-    ctx.apply([{ type: "offer/open", offer: JOB_OFFER }], { source: cause.source, param: cause.param, terms: { ...cause.terms, job: entry.id } });
+  if (landed !== null && ctx.content.offer[JOB_OFFER] !== undefined) {
+    ctx.apply([{ type: "offer/open", offer: JOB_OFFER }], { source: cause.source, param: landed.id, terms: { ...cause.terms, job: landed.id } });
   }
   return events;
 }
@@ -1173,6 +1186,7 @@ export function activityOptions(read: ReadCtx): ActivityOption[] {
       const missing = [...entry.requires.filter((requirement) => !judge(requirement).met), ...waiting];
       const prices = pricesOf(read, entry, params?.[0] ?? null);
       const done = doneThisMonth(read.state, entry);
+      const sure = entry.id === HUNT_ACTIVITY && firstHuntSure(read);
       return {
         id: entry.id,
         allowed: !done && missing.length === 0 && requirementsHold(read, entry, judge) && (params === null || params.length > 0),
@@ -1182,6 +1196,7 @@ export function activityOptions(read: ReadCtx): ActivityOption[] {
         affordable: canPayPrices(prices, judge),
         when: answersNow(entry) ? "now" : "month",
         done,
+        ...(sure ? { sure: true as const } : {}),
       };
     });
 }

@@ -633,8 +633,9 @@ describe("hunting for a job", () => {
     expect(result.lines).toContainEqual({ key: "line.activity.hunt-hired", params: { job: "activity.job-sure" }, tone: "good", attention: true, counts: [] });
   });
 
-  test("[R-ACTIVITY-005] given a hunt that misses, when it resolves, then no offer opens and the report says so", () => {
+  test("[R-ACTIVITY-005] given a hunt that misses, past the sure first months (R-GUIDE-014), when it resolves, then no offer opens and the report says so", () => {
     const plain = lab("scenario.plain", labContent);
+    for (let month = 0; month < 3; month += 1) plain.end([]);
     const result = plain.end([hunt("activity.job-never")]);
     expect(own(result, "activity/hunted")).toEqual([{ type: "activity/hunted", job: "activity.job-never", hired: false }]);
     expect(opened(result)).toEqual([]);
@@ -643,9 +644,10 @@ describe("hunting for a job", () => {
   });
 
   test.prop([fc.string({ minLength: 1, maxLength: 8 })], { numRuns: 30 })(
-    "[R-ACTIVITY-005] given any seed, when Ada hunts for the teaching job, then it lands exactly when the job stream's first draw falls under her chance",
+    "[R-ACTIVITY-005] given any seed, when Ada hunts for the teaching job past the sure first months (R-GUIDE-014), then it lands exactly when the job stream's first draw falls under her chance",
     (seed) => {
       const ada = lab("scenario.ada", content, seed);
+      for (let month = 0; month < 3; month += 1) ada.end([]);
       const chance = hireChanceBp(teacher, ada.game.state.quality["quality.network"]!, hireTuning);
       const expected = characterRandom(seed, {}).chance("job", chance);
       // the hunt is applied for at once and the employer answers as the month ends.
