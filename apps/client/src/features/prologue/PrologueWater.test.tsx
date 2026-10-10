@@ -1,6 +1,7 @@
 // The child of the water's first minute (prologue.md R-PROLOGUE-010, R-PROLOGUE-012): its begin
 // card speaks of the lagoon, not of a small town, and its handover's first step is the band's nudge at the same
-// moment, the racks beside the room, with the motor park after. Real content, real draws.
+// moment, the racks beside the room, with the motor park after. The band's nudge says `RACKS_STEP` while `racksAtHand`
+// holds (features/city/nudge.racks.test.ts), so the handover reads the same shared test and words. Real content, real draws.
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "vitest";
 
@@ -9,9 +10,8 @@ import { keepPerson } from "../../authority/person";
 import { createGameStore } from "../../authority/store";
 import { answersInOrder, archetypeOf, presetAnswer } from "../../shared/frontdoor/archetypes";
 import { gameAuthority, newGame } from "../../shared/testing/fixtures";
-import { RACKS, RACKS_STEP } from "../../shared/words/sixteen";
+import { RACKS, RACKS_STEP, racksAtHand } from "../../shared/words/sixteen";
 import { say, words } from "../../shared/words/text";
-import { nudgeOf } from "../city/nudge";
 import { drawSentences, firstStep, PrologueHandover } from "./PrologueView";
 // Registers Testing Library's cleanup for this file.
 import { renderWithView } from "../../shared/testing/render";
@@ -77,7 +77,7 @@ describe("the child of the water's first step", () => {
       const view = play("water", seed).view();
       expect(view.job.id).toBeNull();
       expect(view.activities.find((option) => option.id === HUNT)?.params).toContain(RACKS);
-      expect(nudgeOf({ ...view, offers: [] }).key).toBe(RACKS_STEP);
+      expect(racksAtHand(view)).toBe(true);
       expect(firstStep(view)).toBe(say(RACKS_STEP));
     }
     await renderWithView(<PrologueHandover onDone={() => undefined} />, play("water", "water-step-0").view());
@@ -94,7 +94,7 @@ describe("the child of the water's first step", () => {
     expect(game.state.activity.job).toBe(RACKS);
     const view = game.view();
     expect(firstStep(view)).toBe(say("prologue.handover.step.heard.motor-park"));
-    expect(nudgeOf({ ...view, offers: [] }).key).toBe("chapter.find-your-feet.item.heard.nudge.motor-park");
+    expect(racksAtHand(view)).toBe(false);
   });
 
   test("[R-PROLOGUE-012] given the shop worker at the family house with no job, when the handover is read, then it never names the racks", () => {

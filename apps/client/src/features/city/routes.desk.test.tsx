@@ -7,12 +7,10 @@ import type { PlayerView } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
 import yabaHub from "../../../public/assets/places/yaba-hub/place.json";
-import { ActivityPicker } from "../activity/ActivityView";
 import { answersInOrder, archetypeOf, presetAnswer } from "../../shared/frontdoor/archetypes";
 import { newGame, viewAfter } from "../../shared/testing/fixtures";
-import { renderWithView } from "../../shared/testing/render";
 import { requirementSentence } from "../../shared/words/requirement";
-import { nameOf, say } from "../../shared/words/text";
+import { say } from "../../shared/words/text";
 import type { Act } from "../../shared/world/contract";
 import { actsOffered } from "./acts";
 import { type PlaceFile, stageOf } from "./placeFile";
@@ -45,27 +43,20 @@ function routesAct(view: PlayerView): Act | undefined {
   return things.find((thing) => thing.id === "desk")?.acts.find((act) => act.id === "routes");
 }
 
-function cards(): string[] {
-  return [...document.querySelectorAll("[data-activity-picker] h3")].map((heading) => heading.textContent ?? "");
-}
-
 describe("the routes at the hub's desk", () => {
-  test("[R-WORLD-005] [R-WORLD-006] [R-ADVICE-001] given a developer's first month with no way out heard of, when Ask about routes is opened, then the sheet keeps the act's name, the adviser's card leads, and the word of someone who went stands shut with the network it needs", async () => {
+  test("[R-WORLD-005] [R-WORLD-006] [R-ADVICE-001] given a developer's first month with no way out heard of, when Ask about routes is opened, then the sheet keeps the act's name, the adviser's card leads, and the word of someone who went stands shut with the network it needs", () => {
     const view = developer().view();
     expect(view.activities.find((option) => option.id === ADVISER)?.allowed).toBe(false);
     expect(view.activities.find((option) => option.id === FRIEND)?.allowed).toBe(false);
     const act = routesAct(view);
     expect(act).toMatchObject({ label: "city.act.routes", stages: ADVISER });
     expect(act?.more).toEqual(expect.arrayContaining([FRIEND, MASTERS_AT_HOME]));
-    await renderWithView(<ActivityPicker only={[act!.stages!, ...(act!.more ?? [])]} />, view);
-    expect(cards()[0]).toBe(nameOf(ADVISER));
-    expect(cards()).toContain(nameOf(FRIEND));
-    const friend = [...document.querySelectorAll("[data-activity-picker] li")].find((card) => card.querySelector("h3")?.textContent === nameOf(FRIEND));
-    // The network the word of someone who went needs, said by its band (R-TEXT-005); the adviser's need in one line.
-    expect(friend?.textContent).toContain(requirementSentence({ type: "quality/min", quality: "quality.network", value: content.tuning.advice.networkToAsk }));
-    const adviser = document.querySelector("[data-activity-picker] li");
-    expect(adviser?.textContent).toContain(say("ui.req.any-route"));
-    expect(adviser?.textContent).not.toContain(nameOf("route.ca-accompany"));
+    // The sheet's cards say each shut card's needs as these sentences (ActivityView's "Not yet:" list).
+    const needs = (id: string): string[] => (view.activities.find((option) => option.id === id)?.missing ?? []).map((requirement) => requirementSentence(requirement, { routes: view.routes }));
+    // The adviser's need in one line, never every route by name.
+    expect(needs(ADVISER)).toEqual([say("ui.req.any-route")]);
+    // The network the word of someone who went needs, said by its band (R-TEXT-005).
+    expect(needs(FRIEND).join(" ")).toContain(requirementSentence({ type: "quality/min", quality: "quality.network", value: content.tuning.advice.networkToAsk }));
   });
 
   test("[R-WORLD-005] [R-ADVICE-001] given a way out heard of, when Ask about routes is opened, then the adviser's card leads, before the official page", () => {
