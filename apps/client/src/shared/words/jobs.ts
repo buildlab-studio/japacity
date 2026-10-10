@@ -74,7 +74,7 @@ export function payWords(id: string, view?: Pick<PlayerView, "qualities">): stri
   return pay === null ? null : jobsWords("jobs.pay", { amount: formatMoney(pay.amount, pay.currency) });
 }
 
-/** The pay now and what lifts it next, in one run of words: "₦60,000 a month; ₦90,000 at tech 50" (R-ACTIVITY-014). */
+/** The pay now and what lifts it next, in one run of words: "₦60,000 a month; ₦90,000 once your tech is good" (R-ACTIVITY-014). */
 export function payLiftWords(id: string, view: Pick<PlayerView, "qualities">): string | null {
   const pay = payWords(id, view);
   return pay === null ? null : withNextTier(view, id, pay);

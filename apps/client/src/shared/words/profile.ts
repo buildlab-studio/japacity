@@ -1,10 +1,11 @@
 // The waiting months' figures in words (docs/rules/activity.md R-ACTIVITY-013 and 014): the route each act
-// counts toward, and a side job's pay by level and what lifts it. The words table is profile.words.ts.
+// counts toward, and a side job's pay by level and the band that lifts it. The words table is profile.words.ts.
 import { content } from "@japacity/content";
 import type { ActivityTier, Id, MoneyParam, PlayerView } from "@japacity/sim";
 
-import { formatMoney, formatNumber } from "./format";
-import { hasWords, lowerFirst, nameOf, say } from "./text";
+import { formatMoney } from "./format";
+import { requirementSentence } from "./requirement";
+import { bandOpening, hasWords, lowerFirst, nameOf, say } from "./text";
 
 function qualityOf(view: Pick<PlayerView, "qualities">, id: string): number {
   return view.qualities.find((quality) => quality.id === id)?.value ?? 0;
@@ -35,20 +36,30 @@ export function nextTier(view: Pick<PlayerView, "qualities">, job: string): Acti
 }
 
 /**
- * R-ACTIVITY-014: the pay words with what lifts them next, "₦60,000 a month; ₦90,000 at tech 50", or the
- * pay words alone when no tier is ahead.
+ * R-ACTIVITY-014: the pay words with what lifts them next, "₦60,000 a month; ₦90,000 once your tech is good",
+ * or the pay words alone when no tier is ahead.
  */
 export function withNextTier(view: Pick<PlayerView, "qualities">, job: string, payWords: string): string {
   const lift = liftWords(view, job);
   return lift === null ? payWords : say("ui.tier.next", { pay: payWords, lift });
 }
 
-/** R-ACTIVITY-014: what lifts a side job's pay next, "₦90,000 at tech 50", or null when nothing does. */
+/** R-ACTIVITY-014: what lifts a side job's pay next, "₦90,000 once your tech is good", or null when nothing does. */
 export function liftWords(view: Pick<PlayerView, "qualities">, job: string): string | null {
   const next = nextTier(view, job);
-  if (next === null || typeof next.pay.amount !== "number") return null;
-  const quality = say(`ui.tier.quality.${next.min.quality}`, {});
-  return say("ui.tier.lift", { next: formatMoney(next.pay.amount, next.pay.currency), quality, value: formatNumber(next.min.value) });
+  return next === null || typeof next.pay.amount !== "number" ? null : tierWords(next);
+}
+
+/**
+ * A tier's pay with the band its quality opens it at, never the figure (R-TEXT-005):
+ * "₦90,000 once your tech is good". The band is the lowest whose every value meets the tier, so the words
+ * never promise the pay to someone it does not reach.
+ */
+export function tierWords(tier: ActivityTier): string {
+  const next = typeof tier.pay.amount === "number" ? formatMoney(tier.pay.amount, tier.pay.currency) : say("ui.req.some-amount");
+  const band = bandOpening(tier.min.quality, tier.min.value);
+  if (band !== null) return say("ui.tier.lift", { next, band: lowerFirst(say(`ui.band.${tier.min.quality}.${String(band)}`)) });
+  return say("ui.tier.lift-needs", { next, needs: lowerFirst(requirementSentence({ type: "quality/min", quality: tier.min.quality, value: tier.min.value })) });
 }
 
 /** R-ACTIVITY-013: "Counts toward: the talent route", the routes the activity's entry counts toward, or null with none. */

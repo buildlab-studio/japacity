@@ -295,6 +295,8 @@ function startedKey(view: NudgeView, own: string, stepKey: string, planned: read
       if (has(`${own}.started`)) return { key: `${own}.started`, params: { when: inMonths(held.readyMonth ?? month, month) } };
     }
   }
+  // The trader's shop planned at her stall (R-ACTIVITY-016): the job step has no hunt to name, so its own planned words say it.
+  if (stepKey === "chapter.find-your-feet.job" && planned.includes("activity.open-shop") && has(`${own}.planned.open-shop`)) return { key: `${own}.planned.open-shop` };
   const activity = STEP_ACTIVITY[stepKey];
   if (activity !== undefined) {
     // Planned this month: the step waits on the month's end, not on another tap.

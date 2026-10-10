@@ -14,6 +14,8 @@ export const WALK_STEPS = [
   { id: "phone", target: '[data-thumb="phone"]', words: "ui.walk.phone" },
   { id: "map", target: '[data-thumb="map"]', words: "ui.walk.map" },
   { id: "count", target: "[data-month-count]", words: "ui.walk.count" },
+  // The bag by the door (R-WORLD-031): pointed at from the band, since the bag stands in the scene.
+  { id: "bag", target: "[data-band] > .band", words: "ui.walk.bag" },
 ] as const;
 
 function storage(): Storage | null {

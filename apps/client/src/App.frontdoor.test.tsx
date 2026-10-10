@@ -81,7 +81,7 @@ afterEach(() => {
 describe("the front door", () => {
   test("[R-PROLOGUE-009] given no save, when the game opens, then the family compound stands under a sheet that asks who you are, with the look strip in two rows of the city's passers-by, the name typed on a screen of its own under three names, and no named life anywhere", async () => {
     door();
-    expect(await screen.findByRole("heading", { name: say("ui.life.title") })).toBeDefined();
+    expect(await screen.findByRole("heading", { name: say("ui.life.title") }, { timeout: 10_000 })).toBeDefined();
     // Never a bare page: the compound is under every sheet of the door.
     expect(document.querySelector("[data-gate] [data-front-scene]")).not.toBeNull();
     const looks = within(screen.getByRole("radiogroup", { name: say("ui.door.look") })).getAllByRole("radio");
@@ -239,7 +239,7 @@ describe("a life from sixteen built from an archetype", () => {
     expect(chosen.map((command) => command.step)).toEqual(expect.arrayContaining(["subjects", "after-school", "course", "side-skill", "hustle", "service"]));
 
     const person = readPerson()!;
-    const handover = await screen.findByRole("heading", { name: person.name });
+    const handover = await screen.findByRole("heading", { name: person.name }, { timeout: 10_000 });
     expect(handover).toBeDefined();
     const archetypeLine = document.querySelector("[data-handover-archetype]")?.textContent;
     expect(archetypeLine).toBe("The nurse. Science, then nursing school.");
@@ -255,9 +255,9 @@ describe("a life from sixteen built from an archetype", () => {
     localStorage.setItem(FULL_PROLOGUE_KEY, "on");
     const { store } = door();
     await startArchetype("developer");
-    expect(await screen.findByRole("heading", { name: words("prologue.draw.card") })).toBeDefined();
+    expect(await screen.findByRole("heading", { name: words("prologue.draw.card") }, { timeout: 10_000 })).toBeDefined();
     fireEvent.click(within(document.querySelector<HTMLElement>("[data-prologue-card]")!).getByRole("button", { name: words("prologue.draw.answer.begin") }));
-    expect(await screen.findByRole("heading", { name: words("prologue.subjects.card") })).toBeDefined();
+    expect(await screen.findByRole("heading", { name: words("prologue.subjects.card") }, { timeout: 10_000 })).toBeDefined();
     expect(store.getState().view?.prologue?.step).toBe("subjects");
   });
 

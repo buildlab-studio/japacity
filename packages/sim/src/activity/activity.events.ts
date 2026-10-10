@@ -62,8 +62,10 @@ export type ActivityEvent =
    * `wrong`: the item they have out of date, if the rules changed since; `metWrong`: the player meets it now. Changes nothing.
    */
   | { type: "activity/word-of-mouth"; route: Id<"route">; items: string[]; wrong: string | null; metWrong: boolean }
-  /** R-ACTIVITY-013: a month of trying to be noticed at the job held. `raised`: the draw landed and the job's pay rose to `pay` a month. */
-  | { type: "activity/noticed"; job: Id<"activity">; raised: boolean; pay: MoneyParam }
+  /** R-ACTIVITY-013: a month of trying to be noticed at the job held. `raised`: the draw landed and the job's pay rose from `was` to `pay` a month. */
+  | { type: "activity/noticed"; job: Id<"activity">; raised: boolean; pay: MoneyParam; was: MoneyParam }
+  /** R-ACTIVITY-013: a month of open source that added no piece; `first` for the life's first. Changes nothing. */
+  | { type: "activity/contributed"; first: boolean }
   /** R-ACTIVITY-013: a quiz marked, `right` of `asked`; `pass` right answers were needed. A pass's effects follow. */
   | { type: "activity/exam-marked"; activity: Id<"activity">; right: number; asked: number; pass: number; passed: boolean }
   /** The adviser read the whole file (R-ADVICE-004): each route heard or known, whether it fits, what is missing, the months away. Changes nothing. */

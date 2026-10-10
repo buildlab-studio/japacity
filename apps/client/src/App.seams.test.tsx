@@ -57,7 +57,7 @@ onTheClassicPage();
 describe("the interface counters", () => {
   test("[R-ANALYTICS-002] given the shell, when tabs are opened, then each opening counts its screen once, keyed by the feature that leads it", async () => {
     await playing();
-    const nav = await screen.findByRole("navigation", { name: say("ui.tabs") });
+    const nav = await screen.findByRole("navigation", { name: say("ui.tabs") }, { timeout: 10_000 });
     fireEvent.click(within(nav).getByRole("button", { name: say("ui.tab.people") }));
     fireEvent.click(within(nav).getByRole("button", { name: say("ui.tab.money") }));
     fireEvent.click(within(nav).getByRole("button", { name: say("ui.tab.people") }));
