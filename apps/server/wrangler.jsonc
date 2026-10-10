@@ -10,10 +10,22 @@
   // Better Auth and node-postgres need the Node compatibility layer (decision 0004, section 1).
   "compatibility_flags": ["nodejs_compat"],
   "workers_dev": false,
+  "preview_urls": false,
+  // The game's one address. Before launch the gate's route on the same host runs first
+  // (apps/gate/README.md); deleting that route makes this Worker the root.
+  "routes": [{ "pattern": "japacity.app", "custom_domain": true }],
+  // One Worker is the whole game: the client's build is served as static assets, and only
+  // /api/* reaches the code, so the page and the API share one origin (no CORS, first party cookies).
+  // Build the client before a deploy: `pnpm build` from the repository root.
+  "assets": {
+    "directory": "../client/dist",
+    "not_found_handling": "single-page-application",
+    "run_worker_first": ["/api/*"]
+  },
   "vars": {
-    // The game's address. The auth library, the passkeys, the bot
-    // check's host and the origin check on writes trust only this.
-    "SITE_URL": "https://play.japacity.com"
+    // The game's address. The auth library, the passkeys' relying
+    // party (its host, R-ACCOUNT-003), the bot check's host and the origin check on writes trust only this.
+    "SITE_URL": "https://japacity.app"
   },
   // R-CLOCK-012: the world's ticks every five minutes. R-SERVER-011: the money report at 00:00 UTC.
   "triggers": { "crons": ["*/5 * * * *", "0 0 * * *"] },
@@ -37,5 +49,31 @@
   "hyperdrive": [
     { "binding": "GAME_DB", "id": "REPLACE_WITH_HYPERDRIVE_ID_CACHE_OFF" },
     { "binding": "CACHED_DB", "id": "REPLACE_WITH_HYPERDRIVE_ID_CACHED" }
-  ]
+  ],
+  "env": {
+    // Staging, behind Cloudflare Access: `wrangler deploy --env staging`. Its own Worker, database,
+    // secrets and passkeys; nothing is shared with production. Vars, bindings and the route are not
+    // inherited from the top level, so each is written again here.
+    "staging": {
+      "name": "japacity-server-staging",
+      "routes": [{ "pattern": "staging.japacity.app", "custom_domain": true }],
+      "vars": {
+        "SITE_URL": "https://staging.japacity.app"
+      },
+      // Namespaces of their own: two Workers on one id would share one count.
+      "ratelimits": [
+        { "name": "COMMANDS_10S", "namespace_id": "3001", "simple": { "limit": 10, "period": 10 } },
+        { "name": "COMMANDS_60S", "namespace_id": "3002", "simple": { "limit": 60, "period": 60 } },
+        { "name": "READS_60S", "namespace_id": "3003", "simple": { "limit": 120, "period": 60 } },
+        { "name": "ANON_60S", "namespace_id": "3004", "simple": { "limit": 60, "period": 60 } },
+        { "name": "SOCKET_10S", "namespace_id": "3005", "simple": { "limit": 10, "period": 10 } }
+      ],
+      "durable_objects": { "bindings": [{ "name": "PLACE", "class_name": "Place" }] },
+      // From `wrangler hyperdrive create` on the staging database.
+      "hyperdrive": [
+        { "binding": "GAME_DB", "id": "REPLACE_WITH_STAGING_HYPERDRIVE_ID_CACHE_OFF" },
+        { "binding": "CACHED_DB", "id": "REPLACE_WITH_STAGING_HYPERDRIVE_ID_CACHED" }
+      ]
+    }
+  }
 }

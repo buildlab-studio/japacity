@@ -33,7 +33,7 @@ if (url === undefined || url === "") {
     // Only the library's tables are used here: no cookie is signed and nothing is sent.
     const auth = makeAuth(deps, drizzleAuthAdapter(db), {
       secret: process.env["BETTER_AUTH_SECRET"] ?? "the-clean-up-signs-no-cookie-and-needs-no-secret",
-      siteUrl: process.env["SITE_URL"] ?? "https://japacity.com",
+      siteUrl: process.env["SITE_URL"] ?? "https://japacity.app",
       google: { clientId: "", clientSecret: "" },
       turnstile: { secretKey: "" },
       sendOtp: () => Promise.reject(new Error("The clean-up sends no email.")),
