@@ -2,7 +2,7 @@
 // slice of its own: its applications live on the route (`RouteState.schools`),
 // and its rules are carried out here.
 import { heldBand, takesApplication } from "../activity/activity.logic";
-import { check, worldVar } from "../engine/check";
+import { check, worldVar, worldVarOr } from "../engine/check";
 import { BP_WHOLE, clamp, convertMinor, divFloor, mulDiv, mulDivCeil } from "../engine/int";
 import type { RegisteredKind } from "../engine/kind";
 import { emit } from "../engine/kind";
@@ -63,7 +63,7 @@ const BP_PER_PERCENT = 100;
 /** R-ROUTE-003: how talk of a route reaches a character who has not heard by `hearBy`. */
 export const FRIEND = "friend";
 
-/** The arrows of the page's diagram (R-ROUTE-001). `refused` has none in this milestone. */
+/** The arrows of the page's diagram (R-ROUTE-001). A ban moves a route to `refused`, and its lifting back to `known` (R-GATE-005). */
 const ARROWS: Record<RouteStateName, readonly RouteStateName[]> = {
   unknown: ["heard"],
   heard: ["known"],
@@ -125,7 +125,7 @@ function schoolOf(content: Content, id: Id<"school">): SchoolEntry {
  * them, so a missing one reads as 0 there; the real content has all four.
  */
 function ukVar(read: ReadCtx, id: Id<"var">): number {
-  return (read.world.vars as Record<string, number | undefined>)[id] ?? 0;
+  return worldVarOr(read.world, id);
 }
 
 function grade(state: State): number {
@@ -162,12 +162,6 @@ function cheapest(read: ReadCtx, held: RouteState, schools: readonly Id<"school"
   return best;
 }
 
-/**
- * R-ROUTE-009, in pence: the school's tuition less its discount less the
- * deposit paid, plus the living line times the living months. Before a
- * deposit, the cheapest school holding an offer, after its discount, or else
- * the cheapest school on the route with no discount.
- */
 /** The currency a route's funds are counted in: the gate's, or pence for the study route (R-ROUTE-009). */
 export function fundsCurrency(read: ReadCtx, route: Id<"route">): ForeignCurrency {
   const entry = entryOf(read.content, route);
@@ -176,6 +170,12 @@ export function fundsCurrency(read: ReadCtx, route: Id<"route">): ForeignCurrenc
   return gate.funds(read, entry, routeOf(read.state, route))?.currency ?? FUNDS_CURRENCY;
 }
 
+/**
+ * R-ROUTE-009, in pence: the school's tuition less its discount less the
+ * deposit paid, plus the living line times the living months. Before a
+ * deposit, the cheapest school holding an offer, after its discount, or else
+ * the cheapest school on the route with no discount.
+ */
 export function fundsRequired(read: ReadCtx, route: Id<"route">): number {
   const held = routeOf(read.state, route);
   const entry = entryOf(read.content, route);
@@ -369,7 +369,6 @@ function hear(ctx: Ctx, effect: Effect): BaseEvent[] {
   return [moved(entry.id, "heard", effect.via)];
 }
 
-/** R-ROUTE-004: the slot's param names the route. Only a heard route becomes known. */
 /** R-ADVICE-001: the official page is the look-into activity; its line is the one R-ROUTE-004 always gave. */
 const OFFICIAL_PAGE = "activity.look-into-route";
 
@@ -382,6 +381,7 @@ function lookedRoute(ctx: Ctx, cause: Cause): Id<"route"> | null {
   return typeof named === "string" && ctx.content.route[named as Id<"route">] !== undefined ? (named as Id<"route">) : null;
 }
 
+/** R-ROUTE-004: the slot's param names the route. Only a heard route becomes known. */
 function lookInto(ctx: Ctx, _effect: Effect, cause: Cause): BaseEvent[] {
   const route = lookedRoute(ctx, cause);
   if (route === null) return [];

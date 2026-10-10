@@ -3,7 +3,7 @@
 // compared with no draw, so both lives reach the same result.
 import type { RegisteredKind } from "../engine/kind";
 import { emit } from "../engine/kind";
-import { mulDiv } from "../engine/int";
+import { BP_WHOLE, mulDiv } from "../engine/int";
 import { reject } from "../engine/reject";
 import type {
   BaseEvent,
@@ -32,7 +32,6 @@ export const GENUINENESS: Id<"interview"> = "interview.genuineness";
 /** The `partner-job` option for a partner with no job (R-INTERVIEW-003). */
 export const NO_JOB = "no-job";
 const STANDING: Id<"quality"> = "quality.standing";
-const FULL_BP = 10000;
 
 /**
  * `times-met`: the count of `met` moments each band starts at, highest first.
@@ -226,7 +225,7 @@ export function isThin(state: State, bond: Bond, numbers: Numbers): boolean {
 
 /** R-INTERVIEW-006: the result from the matches, with no draw. */
 export function resultOf(matched: number, asked: number, thin: boolean, numbers: Numbers): InterviewResult {
-  const matchBp = asked === 0 ? 0 : mulDiv(matched, FULL_BP, asked);
+  const matchBp = asked === 0 ? 0 : mulDiv(matched, BP_WHOLE, asked);
   if (matchBp < numbers.caughtBelowBp) return "caught";
   const plain: InterviewResult = matchBp >= numbers.passBp ? "pass" : matchBp >= numbers.failBp ? "doubt" : "fail";
   return thin && plain !== "pass" ? "caught" : plain;
