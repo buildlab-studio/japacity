@@ -648,7 +648,10 @@ describe("hunting for a job", () => {
       const ada = lab("scenario.ada", content, seed);
       const chance = hireChanceBp(teacher, ada.game.state.quality["quality.network"]!, hireTuning);
       const expected = characterRandom(seed, {}).chance("job", chance);
-      const result = ada.end([hunt("activity.job-teacher")]);
+      // the hunt is applied for at once and the employer answers as the month ends.
+      const applied = ada.send({ type: "activity/now", activity: "activity.job-hunt", param: "activity.job-teacher" });
+      expect(applied.ok).toBe(true);
+      const result = ada.end([]);
       expect(own(result, "activity/hunted")).toEqual([{ type: "activity/hunted", job: "activity.job-teacher", hired: expected }]);
       expect(opened(result)).toHaveLength(expected ? 1 : 0);
     },
@@ -790,7 +793,9 @@ describe("side gigs", () => {
     const tech = zainab.game.state.quality["quality.tech"]!;
     const gig = content.activity["activity.side-gig"]!.effects[0]!;
     if (gig.type !== "activity/gig") throw new Error("The side gig's first effect is the gig.");
-    const result = zainab.end([pick("activity.side-gig")]);
+    // the cash gig is an act done at once, paid on the spot.
+    const result = zainab.send({ type: "activity/now", activity: "activity.side-gig", param: null });
+    if (!result.ok) throw new Error(`The side gig was refused with ${result.code}.`);
     const paid = ledger(result).filter((line) => line.reason === "gig");
     expect(paid).toHaveLength(1);
     expect(paid[0]!.pocket).toBe("cash");
@@ -914,11 +919,9 @@ describe("invariants and random play", () => {
   test("[R-ACTIVITY-002] given a life with jobs to hunt, when the legal list is read, then it offers a hunt for each of them", () => {
     const game = start({ content, scenario: "scenario.ada" });
     const view = game.view();
+    // the hunt is an act done at once, so the list offers it as `activity/now`.
     const hunts = legalCommands(view)
-      .filter((command) => command.type === "turn/end")
-      .flatMap((command) => (command.type === "turn/end" ? command.slots : []))
-      .filter((slot) => slot.activity === "activity.job-hunt")
-      .map((slot) => slot.param);
+      .flatMap((command) => (command.type === "activity/now" && command.activity === "activity.job-hunt" ? [command.param] : []));
     const jobs = view.activities.find((option) => option.id === "activity.job-hunt")!.params!;
     for (const target of jobs) expect(hunts).toContain(target);
   });

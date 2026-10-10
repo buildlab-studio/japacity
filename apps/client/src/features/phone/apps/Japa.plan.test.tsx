@@ -114,7 +114,8 @@ describe("the plan's marks", () => {
     // Ada with her papers in hand, so the application goes in the month after she reads the page.
     const game = readyLife(content);
     toKnown(game);
-    game.endTurn([slot("activity.apply-to-school", "school.northgate")]);
+    // The application goes in at once (R-ACTIVITY-015) and the school's answer is due with the month, so the marks are read before it ends.
+    game.accept({ type: "activity/now", activity: "activity.apply-to-school", param: "school.northgate" });
     const view = game.view();
     expect(view.plan.route).toBe(UK);
     const pending = view.routes.find((route) => route.id === UK)?.schools.find((school) => school.state === "pending");

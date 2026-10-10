@@ -1,3 +1,5 @@
+// a now-act (an application, a paper, a visit) is refused in a slot, so each probe that
+// sent one in a turn/end is sent as activity/now, and an application checked as applying is read in the month it is sent.
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
@@ -22,7 +24,7 @@ function partnerApplying(): Game {
   joint(game, UK_PARTNER, "them", { stage: "married", facts: SETTLED });
   game.endTurn();
   game.endTurn([slot("activity.look-into-route", UK_PARTNER)]);
-  game.endTurn([slot("activity.apply-uk-partner")]);
+  game.accept({ type: "activity/now", activity: "activity.apply-uk-partner", param: null });
   expect(routeOf(game, UK_PARTNER).state).toBe("applying");
   answerInterview(game);
   return game;

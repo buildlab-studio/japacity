@@ -331,7 +331,8 @@ describe("the pitch", () => {
 
   test("[R-ROAD-002] given a curious character at home, when the free slot asks around at the motor park, then the park's pitch is open that same month", () => {
     const game = life();
-    const result = game.endTurn([slot(ASK_AROUND)]);
+    // asking around is an act done at once, so the pitch opens now, in the month in hand.
+    const result = game.accept({ type: "activity/now", activity: ASK_AROUND, param: null });
     expect(offerOf(game, PARK)).toBeDefined();
     expect(result.lines.some((line) => line.key === "line.offer.opened" && line.params.offer === PARK)).toBe(true);
   });

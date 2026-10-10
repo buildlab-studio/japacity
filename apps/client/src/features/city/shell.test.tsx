@@ -242,6 +242,9 @@ describe("the nudge", () => {
     };
     expect(nudgeOf(dear).key).toBe("chapter.build-the-file.item.english.short");
     expect(nudgeOf(dear, undefined, ["activity.job-hunt"]).key).toBe("ui.nudge.hunt-planned");
+    // A hunt applied for at once (R-ACTIVITY-015) reads as a planned one: the view marks it done and nothing is in the plan.
+    const applied = { ...dear, activities: dear.activities.map((option) => (option.id === "activity.job-hunt" ? { ...option, done: true } : option)) };
+    expect(nudgeOf(applied).key).toBe("ui.nudge.hunt-planned");
     // A job whose month's pay covers the gap: the nudge says to work and save.
     const paid = { ...dear, job: { ...dear.job, id: "activity.job-junior-dev" as const } };
     expect(nudgeOf(paid).key).toBe("chapter.build-the-file.item.english.saving");

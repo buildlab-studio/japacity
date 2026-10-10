@@ -1,3 +1,5 @@
+// a now-act (an application, a paper, a visit) is refused in a slot, so each probe that
+// sent one in a turn/end is sent as activity/now, and an application checked as applying is read in the month it is sent.
 import { fc, test } from "@fast-check/vitest";
 import { content, text } from "@japacity/content";
 import { describe, expect } from "vitest";
@@ -313,7 +315,7 @@ describe("R-SPONSOR-003: applying with a sponsor", () => {
   test("[R-SPONSOR-003] given Ngozi with an honest sponsor at the bar and every paper in hand, when she applies, then the application goes in and the care visa fee is paid", () => {
     const game = readyToApply();
     const before = pounds(game);
-    game.endTurn([slot(APPLY_CARE)]);
+    game.accept({ type: "activity/now", activity: APPLY_CARE, param: null });
     expect(routeOf(game, CARE).state).toBe("applying");
     expect(before - pounds(game)).toBe(CARE_FEE);
   });
@@ -321,7 +323,7 @@ describe("R-SPONSOR-003: applying with a sponsor", () => {
   test("[R-SPONSOR-003] given no sponsor recorded, when Ngozi applies, then the turn is rejected", () => {
     const game = ngozi();
     toKnown(game, CARE);
-    expect(game.expectRejected({ type: "turn/end", slots: [slot(APPLY_CARE)] }, "not-legal").code).toBe("not-legal");
+    expect(game.expectRejected({ type: "activity/now", activity: APPLY_CARE, param: null }, "not-legal").code).toBe("not-legal");
   });
 
   test.each([
@@ -332,14 +334,14 @@ describe("R-SPONSOR-003: applying with a sponsor", () => {
     ["the TB certificate", "document.tb-certificate"],
   ] as const)("[R-SPONSOR-003] given everything but %s, when Ngozi applies, then the turn is rejected", (_name, document) => {
     const game = readyToApply({ documents: without(CARE_PAPERS, document) });
-    expect(game.expectRejected({ type: "turn/end", slots: [slot(APPLY_CARE)] }, "not-legal").code).toBe("not-legal");
+    expect(game.expectRejected({ type: "activity/now", activity: APPLY_CARE, param: null }, "not-legal").code).toBe("not-legal");
   });
 
   test("[R-SPONSOR-003] given an English band one under the route's 40, when Ngozi applies, then the turn is rejected; at 40 it goes in", () => {
     const under = readyToApply({ documents: withEnglish(CARE_PAPERS, care.sponsor!.bandMin - 1) });
-    expect(under.expectRejected({ type: "turn/end", slots: [slot(APPLY_CARE)] }, "not-legal").code).toBe("not-legal");
+    expect(under.expectRejected({ type: "activity/now", activity: APPLY_CARE, param: null }, "not-legal").code).toBe("not-legal");
     const at = readyToApply({ documents: withEnglish(CARE_PAPERS, care.sponsor!.bandMin) });
-    at.endTurn([slot(APPLY_CARE)]);
+    at.accept({ type: "activity/now", activity: APPLY_CARE, param: null });
     expect(routeOf(at, CARE).state).toBe("applying");
   });
 
@@ -347,11 +349,11 @@ describe("R-SPONSOR-003: applying with a sponsor", () => {
     const under = ngozi();
     toKnown(under, CARE);
     takeSponsor(under, CARE, CARE_BAR - 1);
-    expect(under.expectRejected({ type: "turn/end", slots: [slot(APPLY_CARE)] }, "not-legal").code).toBe("not-legal");
+    expect(under.expectRejected({ type: "activity/now", activity: APPLY_CARE, param: null }, "not-legal").code).toBe("not-legal");
     const at = ngozi();
     toKnown(at, CARE);
     takeSponsor(at, CARE, CARE_BAR);
-    at.endTurn([slot(APPLY_CARE)]);
+    at.accept({ type: "activity/now", activity: APPLY_CARE, param: null });
     expect(routeOf(at, CARE).state).toBe("applying");
   });
 
@@ -424,7 +426,7 @@ describe("R-SPONSOR-005: the care route's papers and window", () => {
   test("[R-SPONSOR-005] given the care window as content starts it, closed, when Ngozi applies with everything in hand, then the turn is rejected", () => {
     expect(content.var["var.uk-care-window"]!.start).toBe(0);
     const game = readyToApply({ vars: () => ({}) });
-    expect(game.expectRejected({ type: "turn/end", slots: [slot(APPLY_CARE)] }, "not-legal").code).toBe("not-legal");
+    expect(game.expectRejected({ type: "activity/now", activity: APPLY_CARE, param: null }, "not-legal").code).toBe("not-legal");
   });
 
   test("[R-SPONSOR-005] given the care window closed, when Ngozi meets the care bar, then she still hears of the route", () => {
@@ -436,7 +438,7 @@ describe("R-SPONSOR-005: the care route's papers and window", () => {
   test("[R-SPONSOR-005] given 23 months in a nursing job, when the verification is requested, then the turn is rejected; at 24 it is being made", () => {
     const papers = without(CARE_PAPERS, "document.nmcn-verification");
     const short = ngozi({ documents: papers, change: working(null, { "activity.job-nurse": 23 }) });
-    expect(short.expectRejected({ type: "turn/end", slots: [slot("activity.request-verification")] }, "not-legal").code).toBe("not-legal");
+    expect(short.expectRejected({ type: "activity/now", activity: "activity.request-verification", param: null }, "not-legal").code).toBe("not-legal");
     const enough = ngozi({ documents: papers, change: working(null, { "activity.job-nurse": 24 }) });
     enough.endTurn([slot("activity.request-verification")]);
     expect(judge(enough, { type: "document/pending", document: "document.nmcn-verification" })).toBe(true);
@@ -464,10 +466,10 @@ describe("R-SPONSOR-006: the skilled route", () => {
     expect(checklistItem(game, SKILLED, "sponsor").met).toBe(true);
     expect(checklistItem(game, SKILLED, "salary").met).toBe(false);
     game.endTurn();
-    expect(game.expectRejected({ type: "turn/end", slots: [slot(APPLY_SKILLED)] }, "not-legal").code).toBe("not-legal");
+    expect(game.expectRejected({ type: "activity/now", activity: APPLY_SKILLED, param: null }, "not-legal").code).toBe("not-legal");
     takeSponsor(game, SKILLED, SKILLED_BAR, false, "agency");
     expect(checklistItem(game, SKILLED, "salary").met).toBe(true);
-    game.endTurn([slot(APPLY_SKILLED)]);
+    game.accept({ type: "activity/now", activity: APPLY_SKILLED, param: null });
     expect(routeOf(game, SKILLED).state).toBe("applying");
   });
 
@@ -475,10 +477,10 @@ describe("R-SPONSOR-006: the skilled route", () => {
     const game = worker();
     toKnown(game, SKILLED);
     takeSponsor(game, SKILLED, 5000000, false, "tech-firm");
-    expect(game.expectRejected({ type: "turn/end", slots: [slot(APPLY_SKILLED)] }, "not-legal").code).toBe("not-legal");
+    expect(game.expectRejected({ type: "activity/now", activity: APPLY_SKILLED, param: null }, "not-legal").code).toBe("not-legal");
     game.endTurn();
     expect(routeOf(game, SKILLED).funds).toMatchObject({ heldMonths: 1, covered: true, required: MAINTENANCE });
-    game.endTurn([slot(APPLY_SKILLED)]);
+    game.accept({ type: "activity/now", activity: APPLY_SKILLED, param: null });
     expect(routeOf(game, SKILLED).state).toBe("applying");
   });
 

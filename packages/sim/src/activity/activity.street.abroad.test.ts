@@ -1,6 +1,8 @@
 // The streets abroad with the real content (docs/rules/streets.md R-STREET-005, 006): shopping on
 // the street takes that currency's money and lifts the mood, and something interesting turns up only
 // while the character is in that country, never at home.
+// a now-act (an application, a paper, a visit) is refused in a slot, so each probe that
+// sent one in a turn/end is sent as activity/now, and an application checked as applying is read in the month it is sent.
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
@@ -107,8 +109,8 @@ describe("shopping on the street abroad", () => {
   test("[R-STREET-005] given a life at home in Lagos, when the street shopping abroad is put in a slot, then it is rejected", () => {
     const game = start({ content, scenario: "scenario.ada" });
     expect(game.view().activities.filter((option) => (option.id === SHOP_UK || option.id === SHOP_UAE) && option.allowed)).toEqual([]);
-    game.expectRejected({ type: "turn/end", slots: [slot(SHOP_UK)] }, "not-legal");
-    game.expectRejected({ type: "turn/end", slots: [slot(SHOP_UAE)] }, "not-legal");
+    game.expectRejected({ type: "activity/now", activity: SHOP_UK, param: null }, "not-legal");
+    game.expectRejected({ type: "activity/now", activity: SHOP_UAE, param: null }, "not-legal");
   });
 });
 

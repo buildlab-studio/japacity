@@ -9,8 +9,12 @@ import { say, words } from "../../shared/words/text";
 import { OfferView } from "./OfferView";
 import { moneyTerms, offerParams } from "./terms";
 
-/** How far back in Ada's recorded life a school's offer is held while the study window is open. */
-const SCHOLARSHIP_DROP = 84;
+/**
+ * How far back in Ada's recorded life a school's offer is held while the study window is open. Restated for
+ * R-ACTIVITY-015: the life was re-cut with its now-acts sent at once and is longer, so the offer is held 103 to 121
+ * commands back (it was 84); the middle is taken.
+ */
+const SCHOLARSHIP_DROP = 112;
 
 /** The card of the one offer open, by its title. */
 function cardOf(entry: string): HTMLElement {

@@ -16,10 +16,12 @@ import { turnWords } from "./turn.words";
 
 describe("the results after a run", () => {
   test("[R-WORLD-028] given a run with a quiet month, when the results open, then each quiet month is one line saying what was kept and that nothing else moved, above the full results of the month that stopped it", async () => {
-    const game = newGame("scenario.tunde", "seed-0");
+    // seed-12, where the run's first month is quiet now that the transcript is asked for at once.
+    const game = newGame("scenario.tunde", "seed-12");
     const store = createGameStore(gameAuthority(game));
     await store.getState().refresh();
-    store.getState().addToPlan({ activity: "activity.get-transcript", param: null });
+    // the transcript is asked for at once, then the month ends.
+    await store.getState().send({ type: "activity/now", activity: "activity.get-transcript", param: null });
     await store.getState().endMonth();
     await store.getState().untilNews();
     const { quiet, view } = store.getState();

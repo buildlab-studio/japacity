@@ -101,7 +101,10 @@ describe("the file follows the lean", () => {
   test("[R-CHAPTER-009] given a nurse who looks into the master's and care work in the same month, when the first chapter closes, then the page's order breaks the tie and care leads", () => {
     const game = life("scenario.ngozi");
     untilHeard(game, CARE);
-    const result = game.endTurn([slot(LOOK, UK), slot(LOOK, CARE)]);
+    untilHeard(game, UK);
+    // reading the official page runs once a month now, so the two routes are looked into in
+    // one month by the adviser, who looks into every route only heard of in one visit (R-ADVICE-004).
+    const result = game.endTurn([slot("activity.see-adviser")]);
     expect(game.state.route[UK]?.knownMonth).toBe(game.state.route[CARE]?.knownMonth);
     expect(closedTo(result)).toEqual({ type: "chapter/closed", chapter: FEET, next: "chapter.build-the-file-care" });
   });

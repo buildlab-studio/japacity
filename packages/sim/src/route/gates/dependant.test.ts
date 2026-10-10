@@ -1,3 +1,5 @@
+// a now-act (an application, a paper, a visit) is refused in a slot, so each probe that
+// sent one in a turn/end is sent as activity/now, and an application checked as applying is read in the month it is sent.
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
@@ -46,9 +48,10 @@ function joined(lead: Id<"route">, dependant: Id<"route">, leadFacts: PersonFact
   return game;
 }
 
+/** the application is sent at once and the month is left open, as the slot's month was before it ended. */
 function sent(leadState: RouteStateName = "applying", options: LifeOptions = {}): Game {
   const game = joined(SKILLED, UK_DEPENDANT, leadOn(SKILLED, leadState), options);
-  game.endTurn([slot(APPLY_UK)]);
+  game.accept({ type: "activity/now", activity: APPLY_UK, param: null });
   expect(routeOf(game, UK_DEPENDANT).state).toBe("applying");
   return game;
 }
@@ -80,7 +83,7 @@ describe("R-PEOPLE-021: a lead already abroad", () => {
     expect(check(readOf(listed), { type: "route/gate-step", route: UK_DEPENDANT, step: "lead" }).met).toBe(true);
     const unlisted = joined(SKILLED, UK_DEPENDANT, facts({ where: "abroad", country: "country.uk", status: "status.uk-sponsored", job: "activity.job-uk-care" }));
     expect(check(readOf(unlisted), { type: "route/gate-step", route: UK_DEPENDANT, step: "lead" }).met).toBe(false);
-    unlisted.expectRejected({ type: "turn/end", slots: [slot(APPLY_UK)] }, "not-legal");
+    unlisted.expectRejected({ type: "activity/now", activity: APPLY_UK, param: null }, "not-legal");
   });
 });
 
@@ -89,7 +92,7 @@ describe("R-PEOPLE-022: applying as a dependant", () => {
     const game = joined(SKILLED, UK_DEPENDANT, leadOn(SKILLED, "applying"));
     expect(routeOf(game, UK_DEPENDANT).funds).toMatchObject({ heldMonths: 1, required: MAINTENANCE });
     const before = pounds(game);
-    game.endTurn([slot(APPLY_UK)]);
+    game.accept({ type: "activity/now", activity: APPLY_UK, param: null });
     expect(routeOf(game, UK_DEPENDANT).state).toBe("applying");
     expect(before - pounds(game)).toBe(SKILLED_FEE + 3 * SURCHARGE_YEAR);
     expect(routeOf(game, UK_DEPENDANT).visa?.surchargePaid).toBe(3 * SURCHARGE_YEAR);
@@ -100,17 +103,17 @@ describe("R-PEOPLE-022: applying as a dependant", () => {
     const options: LifeOptions = { pockets: { NGN: { bank: 0, cash: 100000000 }, GBP: { bank: 0, cash: 1000000 } } };
     const short = joined(SKILLED, UK_DEPENDANT, leadOn(SKILLED, "applying", { monthsInCountry: EXEMPT - 1 }), options);
     expect(routeOf(short, UK_DEPENDANT).funds.heldMonths).toBe(0);
-    short.expectRejected({ type: "turn/end", slots: [slot(APPLY_UK)] }, "not-legal");
+    short.expectRejected({ type: "activity/now", activity: APPLY_UK, param: null }, "not-legal");
     const exempt = joined(SKILLED, UK_DEPENDANT, leadOn(SKILLED, "applying", { monthsInCountry: EXEMPT }), options);
     expect(routeOf(exempt, UK_DEPENDANT).funds).toMatchObject({ heldMonths: 1, required: 0 });
-    exempt.endTurn([slot(APPLY_UK)]);
+    exempt.accept({ type: "activity/now", activity: APPLY_UK, param: null });
     expect(routeOf(exempt, UK_DEPENDANT).state).toBe("applying");
   });
 
   test("[R-PEOPLE-022] given a lead whose application is not in, and no status that allows joining, when the dependant applies, then the lead step is not reached and it is not legal", () => {
     const game = joined(SKILLED, UK_DEPENDANT, leadOn(SKILLED, "known"));
     expect(check(readOf(game), { type: "route/gate-step", route: UK_DEPENDANT, step: "lead" }).met).toBe(false);
-    game.expectRejected({ type: "turn/end", slots: [slot(APPLY_UK)] }, "not-legal");
+    game.expectRejected({ type: "activity/now", activity: APPLY_UK, param: null }, "not-legal");
   });
 
   test("[R-PEOPLE-022] given no joint, or a joint the applicant leads, when the gate's steps are read, then the joint step is not reached", () => {
@@ -118,7 +121,7 @@ describe("R-PEOPLE-022: applying as a dependant", () => {
     expect(dependantGate.reached(readOf(game), ukDependant, routeOf(game, UK_DEPENDANT), "joint")).toBe(true);
     game.state = { ...game.state, people: { ...game.state.people, joint: { ...game.state.people.joint!, lead: "me" } } };
     expect(dependantGate.reached(readOf(game), ukDependant, routeOf(game, UK_DEPENDANT), "joint")).toBe(false);
-    game.expectRejected({ type: "turn/end", slots: [slot(APPLY_UK)] }, "not-legal");
+    game.expectRejected({ type: "activity/now", activity: APPLY_UK, param: null }, "not-legal");
   });
 
   test("[R-PEOPLE-022] given a lead in Canada's pool applying, when the spouse applies alongside, then the accompanying fee is paid in Canadian money and no funds are asked", () => {
@@ -126,7 +129,7 @@ describe("R-PEOPLE-022: applying as a dependant", () => {
     const game = joined(CANADA, CA_ACCOMPANY, leadOn(CANADA, "applying"), { pockets });
     expect(dependantGate.funds?.(readOf(game), content.route[CA_ACCOMPANY]!, routeOf(game, CA_ACCOMPANY))).toBeNull();
     const before = game.state.wallet.pockets.CAD.bank;
-    game.endTurn([slot(APPLY_CA)]);
+    game.accept({ type: "activity/now", activity: APPLY_CA, param: null });
     expect(routeOf(game, CA_ACCOMPANY).state).toBe("applying");
     expect(routeOf(game, CA_ACCOMPANY).visa?.surchargePaid).toBe(0);
     expect(before - game.state.wallet.pockets.CAD.bank).toBe(content.var["var.ca-accompany-fee"]!.start);

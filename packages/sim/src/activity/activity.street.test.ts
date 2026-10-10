@@ -111,9 +111,9 @@ describe("Computer Village: a phone", () => {
     ]);
     setNaira(game, street.phonePrice - 1, 0);
     expect(option(game, PHONE)).toMatchObject({ allowed: true, affordable: false });
-    const short = game.endTurn([slot(PHONE)]);
-    expect(short.events).toContainEqual({ type: "activity/slot-failed", slot: 0, activity: PHONE, param: null, why: "cost" });
-    expect(moved(short, "phone")).toEqual([]);
+    // the phone is bought at once, so with the naira short it is refused with cannot-afford
+    // and nothing changes (the handle checks the state is untouched), where the slot failed for its cost.
+    expect(game.expectRejected({ type: "activity/now", activity: PHONE, param: null }, "cannot-afford").code).toBe("cannot-afford");
   });
 
   test("[R-STREET-001] given a phone bought, when another is bought the next month, then it is a new phone: paid and lifted again", () => {

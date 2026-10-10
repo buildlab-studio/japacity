@@ -421,6 +421,10 @@ export interface ActivityEntry {
   tiers?: ActivityTier[];
   /** True: one slot a month at most; a second pick in the same month is not legal (R-ACTIVITY-013). Missing: no limit. */
   once?: true;
+  /** When it answers (docs/rules/activity.md R-ACTIVITY-015): `now` runs at once by `activity/now`, `month` stays a slot pick. Missing: `month`. */
+  when?: "now" | "month";
+  /** A now-act that is a purchase runs as often as money allows; any other now-act once a month (R-ACTIVITY-015). Missing: no. */
+  purchase?: true;
   /** Effects applied in the month the activity fills a slot for the `at`th time, and every `at`th time with `repeat` (R-ACTIVITY-013). Missing: none. */
   onMonth?: ActivityMilestone[];
   /** A quiz sat as a set piece: `pass` right answers or more apply `effects` when the paper is marked (R-ACTIVITY-013). Missing: no quiz. */
@@ -1448,6 +1452,8 @@ export interface ActivitySlice {
   raised?: Id<"activity">[];
   /** The month each raise landed, for the Jobs app (R-ACTIVITY-013). Missing until a raise lands, so no state hash moves before one. */
   raisedIn?: Record<Id<"activity">, number>;
+  /** The now-acts sent in the month in hand, in order, cleared as the month closes (R-ACTIVITY-015). Missing: none. */
+  now?: SlotPick[];
 }
 
 export interface PocketBalance {
@@ -1785,6 +1791,8 @@ export interface LotterySlice {
 export type Command = { basedOn: number } & (
   | { type: "turn/end"; slots: SlotPick[] }
   | { type: "activity/quit"; side?: boolean }
+  /** A now-act at once, where it is staged (docs/rules/activity.md R-ACTIVITY-015). */
+  | { type: "activity/now"; activity: Id<"activity">; param: string | null }
   | { type: "offer/choose"; offer: string; choice: string; amount?: number }
   | { type: "wallet/convert"; from: Currency; to: Currency; amount: number; via: "bank" | "aboki" }
   | { type: "wallet/move"; currency: Currency; amount: number; to: Pocket }
@@ -2046,6 +2054,10 @@ export interface ActivityOption {
   params: string[] | null;
   cost: { currency: Currency; amount: number }[];
   affordable: boolean;
+  /** `now` is sent as `activity/now`; `month` fills a slot (R-ACTIVITY-015). */
+  when: "now" | "month";
+  /** A now-act that is not a purchase, already done this month: not `allowed` again until the next (R-ACTIVITY-015). */
+  done: boolean;
 }
 
 export interface OfferView {

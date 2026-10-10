@@ -8,6 +8,7 @@ import { useState } from "react";
 
 import { useGame, useView } from "../../authority/GameProvider";
 import { bondName, timeWith } from "../../shared/sim/people";
+import { actOnCard, answersNow } from "../../shared/words/acts";
 import { Button } from "../../shared/ui/Button";
 import { Card, Panel, Tag } from "../../shared/ui/Panel";
 import { afterPaying, plannedCosts, shortfall, type AfterPaying, type Money } from "../../shared/words/cost";
@@ -269,6 +270,7 @@ function buttonLine(option: ActivityOption, paying: AfterPaying | null, view: Pl
 function ActivityCard({ option }: { option: ActivityOption }) {
   const plan = useGame((state) => state.plan);
   const addToPlan = useGame((state) => state.addToPlan);
+  const send = useGame((state) => state.send);
   const view = useView();
   const ended = view.ended;
   const [param, setParam] = useState<string>("");
@@ -276,7 +278,9 @@ function ActivityCard({ option }: { option: ActivityOption }) {
   const blurb = blurbOf(option.id);
   const counts = countsWords(option.id);
   // R-TURN-006: an activity that fills no slot can be planned however full the month is.
-  const full = content.activity[option.id]?.slot !== "none" && !plan.includes(null);
+  // R-ACTIVITY-015: an act done at once fills no slot either, so a full month never shuts it.
+  const now = answersNow(option.id);
+  const full = !now && content.activity[option.id]?.slot !== "none" && !plan.includes(null);
   const needsParam = option.params !== null;
   // A job to hunt is picked from a list of rows with pay and chance, the likely and best paid first (R-WORLD-006).
   const jobs = content.activity[option.id]?.param === "job" ? huntOrder(view, option.params ?? []) : null;
@@ -387,7 +391,7 @@ function ActivityCard({ option }: { option: ActivityOption }) {
             variant={applying ? "primary" : "secondary"}
             disabled={!canAdd}
             aria-label={name}
-            onClick={() => addToPlan({ activity: option.id, param: needsParam ? chosenParam : null })}
+            onClick={() => void actOnCard({ activity: option.id, param: needsParam ? chosenParam : null }, { send, addToPlan })}
             className={applying ? "w-full justify-between" : ""}
           >
             {applying ? (

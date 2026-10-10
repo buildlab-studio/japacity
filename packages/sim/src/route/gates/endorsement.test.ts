@@ -1,3 +1,5 @@
+// a now-act (an application, a paper, a visit) is refused in a slot, so each probe that
+// sent one in a turn/end is sent as activity/now, and an application checked as applying is read in the month it is sent.
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
@@ -71,9 +73,13 @@ function toKnown(game: Game): void {
   expect(talent(game).state).toBe("known");
 }
 
-/** Asks for the endorsement and plays to the month before it is issued. Returns that month. */
+/**
+ * Asks for the endorsement and plays to the month before it is issued. Returns that month. Restated for
+ * R-ACTIVITY-015: the request is sent at once and the month left open, so the letter is never issued in the month it
+ * is asked for before the test can read it.
+ */
 function toRequested(game: Game): number {
-  game.endTurn([slot(APPLY_ENDORSEMENT)]);
+  game.accept({ type: "activity/now", activity: APPLY_ENDORSEMENT, param: null });
   const ready = game.state.document[ENDORSEMENT]?.readyMonth;
   if (ready === undefined || ready === null) throw new Error("The endorsement was not requested.");
   while (game.state.turn.month < ready - 1) game.endTurn();
@@ -110,14 +116,14 @@ describe("the endorsement gate", () => {
     ] as const)("[R-ENDORSE-001] given %s one under its bar at %i, when the endorsement is asked for, then the turn is rejected", (quality, value) => {
       const game = talentLife({ qualities: { [quality]: value } });
       toKnown(game);
-      expect(game.expectRejected({ type: "turn/end", slots: [slot(APPLY_ENDORSEMENT)] }, "not-legal").code).toBe("not-legal");
+      expect(game.expectRejected({ type: "activity/now", activity: APPLY_ENDORSEMENT, param: null }, "not-legal").code).toBe("not-legal");
     });
 
     test("[R-ENDORSE-001] given an endorsement already being made, when it is asked for again, then the turn is rejected", () => {
       const game = talentLife();
       toKnown(game);
       game.endTurn([slot(APPLY_ENDORSEMENT)]);
-      expect(game.expectRejected({ type: "turn/end", slots: [slot(APPLY_ENDORSEMENT)] }, "not-legal").code).toBe("not-legal");
+      expect(game.expectRejected({ type: "activity/now", activity: APPLY_ENDORSEMENT, param: null }, "not-legal").code).toBe("not-legal");
     });
 
     test("[R-ENDORSE-001] given the window closed, when the endorsement is asked for, then the turn is rejected", () => {
@@ -125,7 +131,7 @@ describe("the endorsement gate", () => {
       const game = talentLife({ vars: () => (closed ? { [entry.window!]: 0 } : {}) });
       toKnown(game);
       closed = true;
-      expect(game.expectRejected({ type: "turn/end", slots: [slot(APPLY_ENDORSEMENT)] }, "not-legal").code).toBe("not-legal");
+      expect(game.expectRejected({ type: "activity/now", activity: APPLY_ENDORSEMENT, param: null }, "not-legal").code).toBe("not-legal");
     });
   });
 
@@ -210,7 +216,7 @@ describe("the endorsement gate", () => {
       toIssued(game);
       const refused = game.state.turn.month;
       while (game.state.turn.month < refused + block.cooldown - 1) game.endTurn();
-      expect(game.expectRejected({ type: "turn/end", slots: [slot(APPLY_ENDORSEMENT)] }, "not-legal").code).toBe("not-legal");
+      expect(game.expectRejected({ type: "activity/now", activity: APPLY_ENDORSEMENT, param: null }, "not-legal").code).toBe("not-legal");
       game.endTurn();
       game.endTurn([slot(APPLY_ENDORSEMENT)]);
       expect(game.state.document[ENDORSEMENT]?.state).toBe("pending");
@@ -223,7 +229,8 @@ describe("the endorsement gate", () => {
       const game = talentLife({ change: ALWAYS_ENDORSED });
       toIssued(game);
       const before = game.state.wallet.pockets.GBP.bank;
-      game.endTurn([slot(APPLY_VISA)]);
+      // the application is sent at once, so the route is applying in the month it is sent.
+      game.accept({ type: "activity/now", activity: APPLY_VISA, param: null });
       expect(talent(game).state).toBe("applying");
       const surcharge = startVar("var.uk-surcharge-year");
       expect(game.state.wallet.totals.out["fee-visa"]).toEqual({ GBP: startVar("var.uk-talent-visa-fee") });
@@ -249,7 +256,7 @@ describe("the endorsement gate", () => {
       expect(content.document[ENDORSEMENT]!.validMonths).toBe(3);
       for (let month = 0; month < 3; month += 1) game.endTurn();
       expect(game.state.document[ENDORSEMENT]?.state).toBe("expired");
-      expect(game.expectRejected({ type: "turn/end", slots: [slot(APPLY_VISA)] }, "not-legal").code).toBe("not-legal");
+      expect(game.expectRejected({ type: "activity/now", activity: APPLY_VISA, param: null }, "not-legal").code).toBe("not-legal");
     });
 
     test("[R-ENDORSE-003] given the gate's terms, when the chance is worked out, then it is the base of 300 plus earlier refusals and nothing else", () => {

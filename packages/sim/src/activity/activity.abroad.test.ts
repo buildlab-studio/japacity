@@ -1,5 +1,7 @@
 // Working life abroad: docs/rules/ladders.md, abroad-money.md R-ABROAD-002, car.md,
 // health.md R-HEALTH-004. Lives reach abroad through the real route kind (`flown`).
+// a now-act (an application, a paper, a visit) is refused in a slot, so each probe that
+// sent one in a turn/end is sent as activity/now, and an application checked as applying is read in the month it is sent.
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
@@ -109,11 +111,11 @@ describe("what may be done abroad", () => {
     expect(listed).not.toContain("activity.family-time");
     expect(listed).not.toContain("activity.community-ca");
     game.expectRejected({ type: "turn/end", slots: [slot("activity.family-time")] }, "not-legal");
-    game.expectRejected({ type: "turn/end", slots: [slot("activity.community-ca")] }, "not-legal");
+    game.expectRejected({ type: "activity/now", activity: "activity.community-ca", param: null }, "not-legal");
     game.endTurn([slot("activity.call-home")]);
 
     const home = start({ content, scenario: "scenario.ada" });
-    home.expectRejected({ type: "turn/end", slots: [slot("activity.call-home")] }, "not-legal");
+    home.expectRejected({ type: "activity/now", activity: "activity.call-home", param: null }, "not-legal");
     expect(home.view().activities.find((option) => option.id === "activity.call-home")?.allowed).toBe(false);
   });
 
@@ -364,7 +366,7 @@ describe("the car as a work tool", () => {
     const game = flown(content, { from: "scenario.tunde", change: (used) => ({ ...used, activity: { ...used.activity, "activity.call-home": needing.activity["activity.call-home"]! } }) });
     const allowed = () => game.view().activities.find((option) => option.id === "activity.call-home")?.allowed;
     expect(allowed()).toBe(false);
-    game.expectRejected({ type: "turn/end", slots: [slot("activity.call-home")] }, "not-legal");
+    game.expectRejected({ type: "activity/now", activity: "activity.call-home", param: null }, "not-legal");
     withCar(game);
     // Tunde drives, but the home licence comes with the first month abroad.
     expect(allowed()).toBe(false);
@@ -489,7 +491,7 @@ describe("buying the car and the driving test", () => {
 
     const ada = flown(content, { kinds: creditMet() });
     ada.endTurn();
-    ada.expectRejected({ type: "turn/end", slots: [slot("activity.buy-car-finance")] }, "not-legal");
+    ada.expectRejected({ type: "activity/now", activity: "activity.buy-car-finance", param: null }, "not-legal");
   });
 
   test("[R-CAR-006] given the tuning, when the driving test's fee is read, then it is the practical test's £62, as the page says", () => {
@@ -529,8 +531,8 @@ describe("buying the car and the driving test", () => {
     expect(check(readOf(tunde), { type: "document/held", document: HOME_LICENCE }).met).toBe(false);
     expect(allowed("activity.call-home")).toBe(false);
     // The credit file is judged by the registry in play, so the purchase is judged through a turn.
-    tunde.expectRejected({ type: "turn/end", slots: [slot("activity.call-home")] }, "not-legal");
-    tunde.expectRejected({ type: "turn/end", slots: [slot("activity.buy-car-finance")] }, "not-legal");
+    tunde.expectRejected({ type: "activity/now", activity: "activity.call-home", param: null }, "not-legal");
+    tunde.expectRejected({ type: "activity/now", activity: "activity.buy-car-finance", param: null }, "not-legal");
     for (let month = 0; month < 12 && !check(readOf(tunde), { type: "document/held", document: UK_LICENCE }).met; month += 1) {
       if (tunde.state.turn.banked < 1) tunde.grant(tuning.turn.cap);
       tunde.endTurn([slot("activity.driving-test")]);
