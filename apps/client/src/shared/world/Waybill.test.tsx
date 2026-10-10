@@ -16,6 +16,7 @@ import { AskSheet } from "./AskSheet";
 import type { Ask } from "./contract";
 import { PARCEL, parcelAsk } from "./parcel.ask";
 import { ParcelWaybill } from "./Waybill";
+import { WorldSheet } from "./WorldSheet";
 
 const money = (amount: number, currency: string): string => formatMoney(amount, currency as Currency);
 const { handling } = content.tuning.parcel;
@@ -127,5 +128,29 @@ describe("the waybill", () => {
     );
     expect(main().disabled).toBe(true);
     expect(document.querySelector("[data-ask-after]")?.textContent).toContain(money(100, "NGN"));
+  });
+
+  test("[R-WORLD-006] given the waybill standing in the asks sheet with less naira than the charge, when Not now is tapped, then the sheet it stands in lowers and the parcel waits on", async () => {
+    const { game } = ada();
+    setPockets(game, { NGN: handling - 100 });
+    const store = createGameStore(gameAuthority(game));
+    await store.getState().refresh();
+    const lowered = vi.fn();
+    render(
+      <GameProvider store={store}>
+        <WorldSheet open onClose={lowered} label="The hub" title="Answer the person asking" mark="asks">
+          <ParcelWaybill onClose={() => undefined} />
+        </WorldSheet>
+      </GameProvider>,
+    );
+    expect(main().disabled).toBe(true);
+    const notNow = [...document.querySelectorAll("button")].find((button) => button.textContent === say("ui.world.not-now"));
+    if (notNow === undefined) throw new Error("No Not now on the slip.");
+    await act(async () => {
+      fireEvent.click(notNow);
+      await Promise.resolve();
+    });
+    expect(lowered).toHaveBeenCalled();
+    expect(Object.values(game.state.offer.items).some((item) => item.entry === PARCEL)).toBe(true);
   });
 });

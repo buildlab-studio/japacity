@@ -4,9 +4,12 @@
 // above it. Its body scrolls inside the sheet; its foot holds the one main button.
 import { Dialog } from "@base-ui/react/dialog";
 import { X } from "lucide-react";
-import type { ReactNode } from "react";
+import { createContext, type ReactNode } from "react";
 
 import { say } from "../words/text";
+
+/** The sheet's own close, for a sheet inside it (the parcel's slip) whose Not now lowers the whole sheet (R-WORLD-006). */
+export const SheetClose = createContext<() => void>(() => undefined);
 
 export interface WorldSheetProps {
   open: boolean;
@@ -32,6 +35,7 @@ export function WorldSheet({ open, onClose, label, title, children, foot, mark }
       <Dialog.Portal>
         <Dialog.Backdrop className="fade fixed inset-0 z-40 bg-scrim/60 data-closed:pointer-events-none data-ending-style:pointer-events-none" />
         <Dialog.Popup className="fixed inset-x-0 bottom-0 z-50 outline-hidden data-closed:pointer-events-none data-ending-style:pointer-events-none" data-world-sheet={mark}>
+          <SheetClose.Provider value={onClose}>
           <div className="panel rise mx-2 mb-2 flex max-h-[min(78dvh,640px)] flex-col overflow-hidden">
             <div className="band relative shrink-0 px-4 pt-4 pb-3 pr-12">
               <Dialog.Description className="label label-strong truncate">{label}</Dialog.Description>
@@ -43,6 +47,7 @@ export function WorldSheet({ open, onClose, label, title, children, foot, mark }
             <div className="min-h-0 flex-1 overflow-y-auto p-4">{children}</div>
             {foot === undefined ? null : <div className="shrink-0 border-t border-sheet-line p-4 pt-3 pb-[max(16px,env(safe-area-inset-bottom))]">{foot}</div>}
           </div>
+          </SheetClose.Provider>
         </Dialog.Popup>
       </Dialog.Portal>
     </Dialog.Root>

@@ -6,7 +6,7 @@ import type { PlayerView } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
 import { answersInOrder, archetypeOf, presetAnswer } from "../../shared/frontdoor/archetypes";
-import { newGame, setPockets } from "../../shared/testing/fixtures";
+import { newGame, openOffer, setPockets } from "../../shared/testing/fixtures";
 import { say } from "../../shared/words/text";
 import { BOARD_WAY, freeStep, nudgeOf, type Reach } from "./nudge";
 
@@ -29,6 +29,23 @@ function ada(naira: number): PlayerView {
 function atTheClinicStep(view: PlayerView): PlayerView {
   return { ...view, chapter: { ...view.chapter, current: "chapter.decision-day", items: [{ id: "tb", met: false }] } };
 }
+
+describe("an offer out of reach", () => {
+  test("[R-WORLD-003] given Ada with no naira at the hub and a parcel waiting at the cargo office a ride away, when the nudge is read, then it does not point at the parcel", () => {
+    const game = newGame("scenario.ada", "seed-3");
+    game.endTurn();
+    openOffer(game, "offer.parcel-shipped");
+    setPockets(game, { NGN: 0 });
+    // The parcel alone waits; another offer answerable anywhere would rightly lead.
+    const view = { ...game.view(), offers: game.view().offers.filter((offer) => offer.entry === "offer.parcel-shipped") };
+    expect(view.offers).toHaveLength(1);
+    const reach: Reach = { here: "place.yaba", home: "place.family-house", stops: [{ id: "place.bode-thomas", position: BODE_THOMAS }, { id: "place.family-house", position: HOME_SPOT }, { id: "place.yaba", position: YABA }] };
+    expect(nudgeOf(view, undefined, [], false, reach).about).not.toBe("offer");
+    // With the fare in hand the parcel leads again.
+    setPockets(game, { NGN: 100_000_00 });
+    expect(nudgeOf({ ...view, pockets: game.view().pockets }, undefined, [], false, reach)).toEqual({ key: "ui.nudge.offer", about: "offer" });
+  });
+});
 
 describe("the free step", () => {
   test("[R-WORLD-003] given Ada with no naira at Bode Thomas and the hub a ride away, when the nudge is read, then it says to walk home, home being near enough, and its way is home", () => {

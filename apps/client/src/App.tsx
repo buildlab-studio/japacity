@@ -15,6 +15,7 @@ import { AgentSheets } from "./features/advice/AgentSheet";
 import { inviteCodeOf, InvitePage } from "./features/account/InvitePage";
 import { GuestReminder, SecureAsk } from "./features/account/Secure";
 import { AdminRoute } from "./features/admin/AdminRoute";
+import { OFFER_PLACES } from "./features/city/nudge";
 import { PARCEL } from "./shared/world/parcel.ask";
 import { ParcelWaybill } from "./shared/world/Waybill";
 import { AccountButton } from "./features/account/Settings";
@@ -146,8 +147,6 @@ function Shell() {
   return <WorldPlaying />;
 }
 
-/** The offers answered in a place of the city: the send-off at home, the parcel at the cargo office (R-STREET-010). */
-const OFFER_PLACES: Record<string, string> = { "offer.family-send-off": "place.family-house", "offer.parcel-shipped": "place.bode-thomas" };
 
 /** `path`: the page's path, for tests; the browser's own otherwise. */
 export function App({ store: given, path }: { store?: GameStore; path?: string }) {

@@ -493,6 +493,19 @@ function onFoot(reach: Reach, to: string): boolean {
 }
 
 /** The cheapest paid ride this month, in kobo: the way's flat fare under the month's fares (R-PLACE-010). */
+/** The offers answered in a place of the city: the send-off at home, the parcel at the cargo office (R-STREET-010). */
+export const OFFER_PLACES: Readonly<Record<string, string>> = { "offer.family-send-off": "place.family-house", "offer.parcel-shipped": "place.bode-thomas" };
+
+/** True when every open offer waits in a place that is a ride away and the naira held pays no fare. */
+function offersOutOfReach(view: NudgeView, reach: Reach): boolean {
+  const held = (view.pockets?.NGN.cash ?? 0) + (view.pockets?.NGN.bank ?? 0);
+  if (held >= cheapestFare(view)) return false;
+  return view.offers.every((offer) => {
+    const at = OFFER_PLACES[offer.entry];
+    return at !== undefined && at !== reach.here && !onFoot(reach, at);
+  });
+}
+
 function cheapestFare(view: NudgeView): number {
   const { fareKobo } = content.tuning.city.ride;
   const fares = Object.entries(fareKobo).filter(([way, fare]) => way !== "walk" && fare > 0).map(([, fare]) => fare);
@@ -532,7 +545,9 @@ export function nudgeOf(view: NudgeView, has: (key: string) => boolean = hasWord
   const gap = place === undefined || pockets === undefined || obligations === undefined ? null : duesGap({ place, pockets, obligations, ...(view.job === undefined ? {} : { job: view.job }) });
   const visaAtStake = gap !== null && (obligations ?? []).some((owed) => owed.entry === "obligation.tuition" && owed.missed >= 1 && owed.due > 0);
   if (visaAtStake && has("ui.nudge.dues-visa")) return { key: "ui.nudge.dues-visa", params: { due: formatMoney(gap.due, gap.currency), held: formatMoney(gap.held, gap.currency) }, about: "dues" };
-  if (view.offers.length > 0) return { key: "ui.nudge.offer", about: "offer" };
+  // An offer answered in a place of the city (the parcel at the cargo office) does not lead while nothing can be paid and
+  // that place is a ride away: the nudge would send a broke life to a fare it cannot pay, every month (R-WORLD-003).
+  if (view.offers.length > 0 && !(reach !== undefined && offersOutOfReach(view, reach))) return { key: "ui.nudge.offer", about: "offer" };
   if (gap !== null) return { key: "ui.nudge.dues", params: { due: formatMoney(gap.due, gap.currency), held: formatMoney(gap.held, gap.currency) }, about: "dues" };
   // Nothing can be paid and the step's stop is a ride away: a free step on foot comes first.
   const free = reach === undefined ? null : freeStep(view, reach, has);

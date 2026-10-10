@@ -124,7 +124,7 @@ function Wait() {
   const endMonth = useGame((state) => state.endMonth);
   const blocked = view.ended || view.turns.banked < 1;
   return (
-    <Button className="sm:flex-1" onClick={() => void endMonth()} disabled={busy || blocked || view.setpiece !== null}>
+    <Button className="sm:flex-1" onClick={() => void endMonth()} disabled={busy || blocked || view.setpiece !== null} data-road-wait>
       <Hourglass size={18} />
       {say("ui.road.wait")}
     </Button>
