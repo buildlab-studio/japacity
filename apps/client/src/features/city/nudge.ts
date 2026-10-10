@@ -119,7 +119,8 @@ export function stepWayOf(view: StepView & Partial<Pick<PlayerView, "obligations
   // It comes before the life's own way to its first steps: that way names the hub's desk with no act, and a tap on the
   // nudge then offered the desk's chips (the course, the adviser's fee) in place of the free page (the forty-month driver runs, 10 Oct).
   const route = ownRoute(view);
-  if (route !== null && view.chapter.current === FIRST_CHAPTER && step === "known") return { ...HUB_DESK, opens: OFFICIAL_PAGE, param: route };
+  // With no own route heard yet, the page still opens: its picker offers the routes heard (the developer's master's, Canada).
+  if (view.chapter.current === FIRST_CHAPTER && step === "known") return { ...HUB_DESK, opens: OFFICIAL_PAGE, ...(route === null ? {} : { param: route }) };
   const own = ownWay(view);
   if (own !== null) return { go: own.place, at: [`${own.place}:${own.thing}`] };
   // The plane blocked by held funds: the way is the bank's counter that takes them back.

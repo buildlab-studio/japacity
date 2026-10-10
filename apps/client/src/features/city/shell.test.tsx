@@ -422,10 +422,10 @@ describe("the archetypes' own ways", () => {
     expect(nudgeOf(nurse)).toEqual({ key: "chapter.find-your-feet.item.known.own.needs", params: { route: "care work" }, about: "step" });
     expect(say("chapter.find-your-feet.item.known.own.needs", { route: "care work" })).toBe("Read about care work in Japa");
     expect(stepWayOf(nurse)).toEqual({ go: "place.yaba", at: ["place.yaba:desk", "place.ojuelegba:hub"], opens: "activity.look-into-route", param: "route.uk-care" });
-    // A graduate with no way of her own keeps the table's words.
+    // A graduate with no way of her own keeps the table's words, and her way still opens the page, with no route chosen, so its picker offers the routes heard (the forty-month driver runs, 10 Oct).
     const graduate = { ...nurse, qualities: base.qualities.map((quality) => (quality.id === "quality.edu-level" ? { ...quality, value: 3 } : quality)), documents: [] };
     expect(nudgeOf(graduate).key).toBe("chapter.find-your-feet.item.known.nudge");
-    expect(stepWayOf(graduate)).toEqual({ go: "place.yaba", at: ["place.yaba:desk", "place.ojuelegba:hub"] });
+    expect(stepWayOf(graduate)).toEqual({ go: "place.yaba", at: ["place.yaba:desk", "place.ojuelegba:hub"], opens: "activity.look-into-route" });
   });
 
   test("[R-PROLOGUE-010] [R-WORLD-003] given a trader from sixteen who has heard of no way out, when the first step is read, then the nudge sends him to the motor park, and asking around planned says so", () => {
