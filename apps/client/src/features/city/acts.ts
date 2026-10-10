@@ -1,26 +1,11 @@
-// Acts that answer in the place (docs/rules/activity.md R-ACTIVITY-015): a now-act's card sends `activity/now` at once
-// and the place answers in a person's voice, with Done to close; a month-act fills a slot of the month, as before.
-import type { Id, PlayerView, Reply, ReportLine, SlotPick } from "@japacity/sim";
+// Acts that answer in the place (docs/rules/activity.md R-ACTIVITY-015): the place answers a now-act in a person's
+// voice, with Done to close, and a now-act done this month leaves its thing until the next. The card's button itself is
+// `actOnCard` in shared/words/acts.ts, which the picker and the phone use too.
+import type { PlayerView, ReportLine } from "@japacity/sim";
 
-import type { ServerRejection } from "../../shared/net/contract";
-import { answersNow, nowActOf } from "../../shared/words/acts";
+import { nowActOf } from "../../shared/words/acts";
 import { nameOf, say, words } from "../../shared/words/text";
 import type { Ask } from "../../shared/world/contract";
-
-/** What a card's button needs of the game store. */
-export interface ActStore {
-  send: (command: { type: "activity/now"; activity: Id<"activity">; param: string | null }) => Promise<Reply | ServerRejection | null>;
-  addToPlan: (pick: SlotPick) => boolean;
-}
-
-export type Acted = "answered" | "refused" | "planned" | "full";
-
-/** A card's main button: a now-act is sent at once and answered in the place; a month-act fills the next free slot. */
-export async function actOnCard(pick: SlotPick, store: ActStore): Promise<Acted> {
-  if (!answersNow(pick.activity)) return store.addToPlan(pick) ? "planned" : "full";
-  const reply = await store.send({ type: "activity/now", activity: pick.activity, param: pick.param });
-  return reply?.ok === true ? "answered" : "refused";
-}
 
 /** The paper things bought at the kiosk: their slip stays in the hand with the answer on it. */
 const PAPER: ReadonlySet<string> = new Set(["activity.play-lotto", "activity.bet-slip"]);

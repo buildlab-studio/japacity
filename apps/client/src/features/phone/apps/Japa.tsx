@@ -14,8 +14,7 @@ import { formatBand, formatMoney } from "../../../shared/words/format";
 import { blurbOf, forMonths, inMonths, nameOf, runningName, say, sayCount, words } from "../../../shared/words/text";
 import { Head, PhoneSaid } from "../act";
 import { phoneWords } from "../phone.words";
-import { nowSaid } from "../../../shared/words/acts";
-import { actOnCard } from "../../city/acts";
+import { actOnCard, nowSaid } from "../../../shared/words/acts";
 
 const ENGLISH_RESULT = "document.english-test";
 const OFFICIAL = "activity.look-into-route";

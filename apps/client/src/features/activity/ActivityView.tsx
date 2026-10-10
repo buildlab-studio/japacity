@@ -8,7 +8,7 @@ import { useState } from "react";
 
 import { useGame, useView } from "../../authority/GameProvider";
 import { bondName, timeWith } from "../../shared/sim/people";
-import { answersNow } from "../../shared/words/acts";
+import { actOnCard, answersNow } from "../../shared/words/acts";
 import { Button } from "../../shared/ui/Button";
 import { Card, Panel, Tag } from "../../shared/ui/Panel";
 import { afterPaying, plannedCosts, shortfall, type AfterPaying, type Money } from "../../shared/words/cost";
@@ -21,7 +21,6 @@ import { blurbOf, hasWords, lowerFirst, nameOf, paramWords, say, sayCount } from
 import { payAMonth } from "../../shared/words/pay";
 import { countsWords, tierPay, withNextTier } from "../../shared/words/profile";
 import { ApplyFor, huntOrder, JobList } from "./JobList";
-import { actOnCard } from "../city/acts";
 import { RouteList } from "./RouteList";
 import { routesWords } from "./routes.words";
 

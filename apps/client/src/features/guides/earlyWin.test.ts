@@ -6,7 +6,7 @@ import { localAuthority } from "../../authority/local";
 import { createGameStore } from "../../authority/store";
 import { engineView } from "../../shared/testing/fixtures";
 import { chapterNextStep } from "../../shared/testing/firstSession";
-import { actOnCard } from "../city/acts";
+import { actOnCard } from "../../shared/words/acts";
 
 const salary: ReportLine = { key: "line.activity.salary", params: {}, tone: "good", attention: false, counts: [] };
 const gain: ReportLine = { key: "line.quality.gain", params: {}, tone: "good", attention: false, counts: [] };

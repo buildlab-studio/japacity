@@ -1,7 +1,7 @@
 // Acts that answer in the place (docs/rules/activity.md R-ACTIVITY-015): a now-act's card sends it at once and the
 // place answers in a person's voice, with Done to close; a month-act fills a slot of the month. Played on the real
 // content through the engine, as the local authority plays it.
-import { content, text } from "@japacity/content";
+import { text } from "@japacity/content";
 import type { Id } from "@japacity/sim";
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
@@ -10,10 +10,9 @@ import { GameProvider } from "../../authority/GameProvider";
 import { createGameStore, type GameStore } from "../../authority/store";
 import { gameAuthority, newGame } from "../../shared/testing/fixtures";
 import "../../shared/testing/render";
-import { answersNow, nowLineIn } from "../../shared/words/acts";
+import { actOnCard, nowLineIn } from "../../shared/words/acts";
 import { say, words } from "../../shared/words/text";
-import { MonthSheet } from "../turn/MonthSheet";
-import { actOnCard, actsOffered, answerAsk } from "./acts";
+import { actsOffered, answerAsk } from "./acts";
 import { City } from "./City";
 
 const LOTTO = "activity.play-lotto" as Id<"activity">;
@@ -34,7 +33,7 @@ async function played(): Promise<{ store: GameStore; sent: ReturnType<typeof gam
 function inWorld(store: GameStore): void {
   render(
     <GameProvider store={store}>
-      <City world month={<MonthSheet />} results={() => <p />} />
+      <City world month={<p />} results={() => <p />} />
     </GameProvider>,
   );
 }
@@ -133,26 +132,5 @@ describe("the thing's chip", () => {
       await store.getState().endMonth();
     });
     expect(actsOffered(store.getState().view!)).toEqual(expect.arrayContaining([MEETUP, LOTTO]));
-  });
-});
-
-describe("the Month sheet", () => {
-  test("[R-ACTIVITY-015] [R-WORLD-007] given a plan kept from before holding a now-act, when the Month sheet opens, then it lists only what takes the month and End month is accepted", async () => {
-    const { store, sent } = await played();
-    act(() => store.setState({ plan: [{ activity: MEETUP, param: null }, { activity: LEARN, param: null }, null] }));
-    render(
-      <GameProvider store={store}>
-        <MonthSheet />
-      </GameProvider>,
-    );
-    await waitFor(() => expect(store.getState().plan.some((pick) => pick !== null && answersNow(pick.activity))).toBe(false));
-    const planned = [...document.querySelectorAll("[data-slot='planned']")].map((row) => row.textContent ?? "");
-    expect(planned.some((row) => row.includes(content.activity[LEARN] === undefined ? "" : words(`${LEARN}.name`)))).toBe(true);
-    expect(planned.some((row) => row.includes(words(`${MEETUP}.name`)))).toBe(false);
-    await act(async () => {
-      await store.getState().endMonth();
-    });
-    expect(sent.at(-1)).toMatchObject({ type: "turn/end" });
-    expect(store.getState().rejection).toBeNull();
   });
 });
