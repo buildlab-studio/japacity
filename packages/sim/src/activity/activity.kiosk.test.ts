@@ -149,3 +149,23 @@ describe("the bet slip", () => {
     expect(bp(luck.stake, luck.betOddsBp)).toBe(380000);
   });
 });
+
+describe("the kiosk's monthly ceiling", () => {
+  test("[R-LUCK-005] [R-ACTIVITY-015] given five tickets bought this month over two visits, when a sixth is asked for, then the kiosk refuses it, and the next month sells again", () => {
+    const game = start({ content });
+    applyEffects(game, [{ type: "money/add", currency: "NGN", pocket: "cash", amount: luck.ticket * 20, reason: "gift" }]);
+    game.accept({ type: "activity/now", activity: LOTTO, param: "3" });
+    game.accept({ type: "activity/now", activity: LOTTO, param: "2" });
+    expect(game.expectRejected({ type: "activity/now", activity: LOTTO, param: "1" }, "not-legal").code).toBe("not-legal");
+    game.endTurn();
+    game.accept({ type: "activity/now", activity: LOTTO, param: "1" });
+  });
+
+  test("[R-LUCK-005] given four tickets bought this month, when two more are asked for, then the kiosk refuses, and one more is sold", () => {
+    const game = start({ content });
+    applyEffects(game, [{ type: "money/add", currency: "NGN", pocket: "cash", amount: luck.ticket * 20, reason: "gift" }]);
+    game.accept({ type: "activity/now", activity: LOTTO, param: "4" });
+    expect(game.expectRejected({ type: "activity/now", activity: LOTTO, param: "2" }, "not-legal").code).toBe("not-legal");
+    game.accept({ type: "activity/now", activity: LOTTO, param: "1" });
+  });
+});

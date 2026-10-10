@@ -899,6 +899,13 @@ function actNow(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (entry === undefined) return reject("unknown-id", `${pick.activity} is not an activity in content.`);
   if ((entry.slot !== "free" && entry.slot !== "none") || !answersNow(entry)) return reject("not-legal", `${entry.id} fills the month: it is a slot pick, not an act now.`);
   if (doneThisMonth(ctx.state, entry)) return reject("not-legal", `${entry.id} was done this month already. It runs once a month.`);
+  // R-LUCK-005: the kiosk sells at most `maxTickets` a month across visits; past it the
+  // sixth is refused, and the kiosk says so in its own voice on the screen.
+  if (entry.id === LOTTO) {
+    const bought = nowThisMonth(ctx.state).filter((done) => done.activity === LOTTO).reduce((sum, done) => sum + Number(done.param ?? 0), 0);
+    const cap = ctx.content.tuning.luck.maxTickets;
+    if (bought + Number(pick.param ?? 0) > cap) return reject("not-legal", `The kiosk sells ${String(cap)} tickets a month, and ${String(bought)} are bought.`);
+  }
   const problem = slotProblem(ctx, entry, pick, true);
   if (problem === "requirements") return reject("not-legal", `${entry.id} cannot be done here and now.`);
   if (problem === "param") return reject("not-legal", `${String(pick.param)} is not a param ${entry.id} may take now.`);
