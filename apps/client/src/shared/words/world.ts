@@ -60,9 +60,9 @@ export const worldText: Record<string, string> = {
   "ui.nudge.dues-visa": "Find {due} or lose your visa",
   "ui.nudge.better-job": "Look at the board for better work",
   // Nothing can be paid and the step is a ride away: a free step on foot, at most eight words.
-  "ui.nudge.broke.home": "Walk home: no money for a ride",
-  "ui.nudge.broke.racks": "Work the racks: no money for a ride",
-  "ui.nudge.broke.job": "Find work nearby: no money for a ride",
+  "ui.nudge.broke.home": "No fare: walk home",
+  "ui.nudge.broke.racks": "No fare: work the racks",
+  "ui.nudge.broke.job": "No fare: find work nearby",
   "ui.nudge.meanwhile.nurse-certification": "Sit the nursing certification at the clinic",
   "ui.nudge.meanwhile.open-source": "Share your code at the hub",
   "ui.nudge.meanwhile.tech-posts": "Post what you know, at the laptops",

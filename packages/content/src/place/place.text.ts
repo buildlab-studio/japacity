@@ -687,7 +687,6 @@ export const placeText: Record<string, string> = {
   "place.general-hospital.short": "The hospital",
   "place.olokun-office.short": "Olokun",
   "place.agent-office.short": "The office",
-  "place.family-house.short": "Home",
   "place.compound-room.short": "Your room",
   "place.heathrow.short": "Heathrow",
   "place.calgary-airport.short": "The airport",
