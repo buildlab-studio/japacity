@@ -13,6 +13,7 @@ import { loadModel } from "../three/load";
 import { loadManifest } from "../three/manifest";
 import { type Figure, figureOf, poseFigure } from "../three/people";
 import { readLook, wear } from "./colours";
+import { doorPixels } from "./pixels";
 import { FOV, framing, LIFT, PLINTH_HIGH, PLINTH_RADIUS, STANDING } from "./framing";
 import { idOf } from "./looks";
 import { type Spin, SLOW_TURN, turnFrame } from "./spin";
@@ -111,7 +112,7 @@ function Stand({ look, spin, style, onShown }: TurntableProps) {
 
 export default function Turntable(props: TurntableProps) {
   return (
-    <Canvas dpr={[1, 2]} gl={{ alpha: true, antialias: true }} camera={{ fov: FOV, near: 0.1, far: 40, position: [0, 1.25, 4.4] }} aria-hidden data-turntable-canvas>
+    <Canvas dpr={doorPixels()} gl={{ alpha: true, antialias: true }} camera={{ fov: FOV, near: 0.1, far: 40, position: [0, 1.25, 4.4] }} aria-hidden data-turntable-canvas>
       <Stand {...props} />
     </Canvas>
   );
