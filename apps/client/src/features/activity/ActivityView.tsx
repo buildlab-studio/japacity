@@ -2,7 +2,7 @@
 // card. What is allowed, what is missing and what may be picked all come from
 // the view; this screen only arranges them.
 import { content } from "@japacity/content";
-import type { ActivityOption, PlayerView, SlotPick } from "@japacity/sim";
+import type { ActivityOption, Currency, PlayerView, SlotPick } from "@japacity/sim";
 import { Briefcase, Lock, Plus, X } from "lucide-react";
 import { useState } from "react";
 
@@ -19,6 +19,7 @@ import { ENGLISH_TEST, STUDY_ENGLISH, testChance } from "../../shared/words/test
 import { studyWords } from "./study";
 import { blurbOf, hasWords, lowerFirst, nameOf, paramWords, say, sayCount } from "../../shared/words/text";
 import { payAMonth } from "../../shared/words/pay";
+import { localCurrency } from "../../shared/words/wayHome";
 import { countsWords, tierPay, withNextTier } from "../../shared/words/profile";
 import { ApplyFor, huntOrder, JobList } from "./JobList";
 import { RouteList } from "./RouteList";
@@ -219,8 +220,32 @@ function noSchoolReasons(view: PlayerView): string[] {
  * says, counting what the month's plan already pays for (R-WORLD-006). With nothing short by the
  * screen's count but the engine still saying no, it says so plainly and names no figure.
  */
+/**
+ * A cost in another money than the one lived on, more than is held of it: what it needs in that money,
+ * or null. When the naira cannot buy it at the bank now (its queue holds foreign money back, R-WALLET-009),
+ * the card says the money and the way, never only that it cannot be paid.
+ */
+function foreignNeed(view: PlayerView, option: ActivityOption): { amount: number; currency: Currency; held: number } | null {
+  const local = localCurrency(view) ?? "NGN";
+  const cost = option.cost.find((each) => each.currency !== local);
+  if (cost === undefined) return null;
+  const held = view.pockets[cost.currency].bank + view.pockets[cost.currency].cash;
+  return cost.amount > held ? { amount: cost.amount - held, currency: cost.currency, held } : null;
+}
+
+/** A money's name mid-sentence: "pounds". */
+function moneyName(currency: Currency): string {
+  return lowerFirst(say(`ui.currency.${currency}`));
+}
+
+function foreignWords(need: { amount: number; currency: Currency; held: number }): string {
+  return say(need.held > 0 ? "ui.activity.needs-foreign-more" : "ui.activity.needs-foreign", { amount: formatMoney(need.amount, need.currency), currency: moneyName(need.currency) });
+}
+
 function cannotPayWords(view: PlayerView, option: ActivityOption, planned: readonly Money[], paying: AfterPaying | null): string {
   const costs = option.cost.map((cost) => formatMoney(cost.amount, cost.currency)).join(" + ");
+  const foreign = paying === null || paying.short === null ? foreignNeed(view, option) : null;
+  if (foreign !== null) return foreignWords(foreign);
   if (paying === null || paying.short === null) return say("ui.activity.cannot-pay");
   const short = formatMoney(paying.short.amount, paying.short.currency);
   const gap = shortfall(view, [...planned, ...option.cost]);
@@ -263,7 +288,10 @@ function buttonLine(option: ActivityOption, paying: AfterPaying | null, view: Pl
   if (planned) return { words: say("ui.needs.planned"), kind: "planned" };
   if (!option.allowed) return { words: option.missing.length > 0 ? needsWords(option.missing, { routes: view.routes }) : nothingToPickWords(option), kind: "needs" };
   if (paying !== null && paying.short !== null) return { words: afterWords(paying), kind: "short" };
-  if (!option.affordable) return { words: say("ui.needs.money"), kind: "short" };
+  if (!option.affordable) {
+    const foreign = foreignNeed(view, option);
+    return { words: foreign === null ? say("ui.needs.money") : say("ui.needs.foreign", { currency: moneyName(foreign.currency) }), kind: "short" };
+  }
   return paying === null ? null : { words: afterWords(paying), kind: "left" };
 }
 

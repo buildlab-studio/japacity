@@ -6,7 +6,7 @@
 // move's target is gone.
 import { content } from "@japacity/content";
 import { int, type Currency, type ForeignCurrency, type PlayerView, type Pocket, type ReportLine, type RouteView } from "@japacity/sim";
-import { ArrowLeftRight, MoveVertical, Send } from "lucide-react";
+import { ArrowLeftRight, CircleAlert, MoveVertical, Send } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 import { useGame, useView } from "../../../authority/GameProvider";
@@ -21,6 +21,7 @@ import { Counter } from "../../../shared/world/Band";
 import { Chips, Head, useAsk } from "../act";
 import { phoneWords } from "../phone.words";
 import { abroadWords, changeFirst, currencyList } from "./abroad";
+import { planRoute } from "./Japa";
 
 /** The currencies this life deals in: the home three, and the country's own once abroad. */
 function dealtIn(view: Pick<PlayerView, "place">): Currency[] {
@@ -28,24 +29,64 @@ function dealtIn(view: Pick<PlayerView, "place">): Currency[] {
   return local === null || HOME_CURRENCIES.includes(local) ? [...HOME_CURRENCIES] : [...HOME_CURRENCIES, local];
 }
 
-/** The route the savings count toward: the japacity figure's route, or the first with a figure to show. */
+/**
+ * The route the savings count toward: the plan's, read as the Japa app reads it (the way the chapters follow,
+ * else the japacity figure's route or the furthest one on), else the first with a figure to show.
+ */
 function savingsRoute(view: PlayerView): RouteView | null {
-  const lead = view.routes.find((route) => route.id === view.japacity.route);
-  if (lead !== undefined) return lead;
+  const lean = view.plan.route === null ? null : (view.routes.find((route) => route.id === view.plan.route) ?? null);
+  const planned = lean ?? planRoute(view);
+  if (planned !== null) return planned;
   return view.routes.find((route) => route.funds.required > 0) ?? null;
 }
 
-/** The funds now: the checklist's funds item carries them live, the route's record the last check. */
+/**
+ * What is saved toward fees, in the route's money: every money held that can pay, bank and cash, at the
+ * official rate. Locked money only sits to be shown, so it pays no fee. a way with no funds to
+ * show on its decision day has no rule for funds shown, so its figure is the money there is to pay with.
+ */
+export function savedFor(view: Pick<PlayerView, "pockets" | "rates">, currency: Currency): number {
+  const official = Object.fromEntries(Object.entries(view.rates).map(([each, rate]) => [each, rate.official])) as Record<ForeignCurrency, number>;
+  return CURRENCIES.reduce((sum, each) => sum + int.convertMinor(view.pockets[each].bank + view.pockets[each].cash, each, currency, official), 0);
+}
+
+/**
+ * The fees still ahead on a gated way, in its money, as the engine prices them now: each act that counts
+ * toward the route and costs that money (the endorsement, the visa and its surcharge), less those done (a
+ * paper held or on its way, an application sent). the talent visa had no figure.
+ */
+function feesAhead(view: Pick<PlayerView, "activities" | "documents">, route: RouteView, currency: Currency): number {
+  const sent = route.state === "applying" || route.state === "granted" || route.state === "departed";
+  return Object.values(content.activity).reduce((sum, entry) => {
+    if (entry === undefined || !entry.counts.includes(route.id)) return sum;
+    if (sent && entry.effects.some((effect) => effect.type === "route/apply" && effect.route === route.id)) return sum;
+    const papers = entry.effects.flatMap((effect) => (effect.type === "document/request" ? [effect.document] : []));
+    if (papers.some((paper) => view.documents.some((held) => held.id === paper && (held.state === "held" || held.state === "pending")))) return sum;
+    const option = view.activities.find((each) => each.id === entry.id);
+    return sum + (option?.cost ?? []).filter((cost) => cost.currency === currency).reduce((total, cost) => total + cost.amount, 0);
+  }, 0);
+}
+
+/**
+ * The funds now: the checklist's funds item carries them live, the route's record the last check. A gated
+ * way (sponsor, points, talent, contract) counts what its decision day asks for and the fees still ahead on
+ * it, against the funds shown; a way with neither shows no figure.
+ */
 export function savingsOf(view: PlayerView): { shown: number; required: number; currency: Currency } | null {
   const route = savingsRoute(view);
   if (route === null) return null;
   const ids = (content.route[route.id]?.checklist ?? []).filter((item) => item.requirement.type === "route/funds").map((item) => item.id);
   const live = route.checklist.find((item) => ids.includes(item.id) && item.have !== null && item.need !== null);
+  const country = content.route[route.id]?.country ?? null;
+  const currency = (country === null ? undefined : content.country[country]?.currency) ?? "GBP";
+  if (route.gate !== null) {
+    const required = (live?.need ?? 0) + feesAhead(view, route, currency);
+    if (required === 0) return null;
+    return { shown: live?.have ?? savedFor(view, currency), required, currency };
+  }
   const shown = live?.have ?? route.funds.shown;
   const required = live?.need ?? route.funds.required;
   if (required === 0) return null;
-  const country = content.route[route.id]?.country ?? null;
-  const currency = (country === null ? undefined : content.country[country]?.currency) ?? "GBP";
   return { shown, required, currency };
 }
 
@@ -68,12 +109,48 @@ export function latelyLines(view: Pick<PlayerView, "report">, lastMonth: readonl
 
 type Share = "quarter" | "half" | "all";
 const SHARES: readonly Share[] = ["quarter", "half", "all"];
+/** A change's amount: a share of the pocket, or as much as the bank's monthly limit lets it take. */
+type ChangeShare = Share | "limit";
 
 /** A share of a pocket in whole major units, or all of it. */
 function shareOf(pocket: number, share: Share): number {
   if (share === "all") return pocket;
   const part = share === "half" ? Math.floor(pocket / 2) : Math.floor(pocket / 4);
   return Math.floor(part / 100) * 100;
+}
+
+/**
+ * The most the bank will change into foreign money now, in whole units of the money paid in, by
+ * the month's limit (R-WALLET-005): the bank's charge comes off first and what is left is counted
+ * in US cents at the official rate, as the wallet counts it. Null where no limit binds: a sale for
+ * naira, the FX man, or abroad, where the view shows no limit.
+ */
+export function bankLimit(view: Pick<PlayerView, "rates" | "bankAllowanceLeft">, from: Currency, to: Currency): number | null {
+  const left = view.bankAllowanceLeft;
+  if (left === null || to === "NGN") return null;
+  if (left === 0) return 0;
+  const official = Object.fromEntries(Object.entries(view.rates).map(([currency, rate]) => [currency, rate.official])) as Record<ForeignCurrency, number>;
+  const cents = (amount: number) => int.convertMinor(amount - int.bp(amount, content.tuning.wallet.bankChargeBp), from, "USD", official);
+  // Whole units: the most whose cents fit what is left, found by halving (cents only grow with the amount).
+  let low = 0;
+  let high = 1;
+  while (cents(high * 100) <= left) high *= 2;
+  while (high - low > 1) {
+    const middle = low + Math.floor((high - low) / 2);
+    if (cents(middle * 100) <= left) low = middle;
+    else high = middle;
+  }
+  return low * 100;
+}
+
+/** The amounts offered for a change: the limit's remainder first where the bank's limit binds, then the shares it would take. */
+function changeShares(pocket: number, limit: number | null): { share: ChangeShare; amount: number }[] {
+  const shares = SHARES.map((share): { share: ChangeShare; amount: number } => ({ share, amount: shareOf(pocket, share) })).filter((option) => option.amount > 0);
+  if (limit === null) return shares;
+  const most = Math.min(limit, pocket);
+  if (most <= 0) return [];
+  const under = shares.filter((option) => option.amount < most);
+  return [{ share: "limit", amount: most }, ...under];
 }
 
 function currencyWords(currency: Currency): string {
@@ -107,29 +184,59 @@ function ChangeChooser({ onAsk, start }: { onAsk: ReturnType<typeof useAsk>["ope
   const pocketOf = (currency: Currency) => (via === "bank" ? view.pockets[currency].bank : view.pockets[currency].cash);
   const [from, setFrom] = useState<Currency>(start?.from ?? "NGN");
   const [chosenTo, setTo] = useState<Currency>(start?.to ?? "GBP");
-  const [share, setShare] = useState<Share>("quarter");
+  const [chosenShare, setShare] = useState<ChangeShare>("quarter");
   const to = chosenTo === from ? (currencies.find((currency) => currency !== from) ?? "NGN") : chosenTo;
-  const amount = shareOf(pocketOf(from), share);
+  // R-WALLET-005: at the bank at home the chips offer only what the month's limit lets it take, the limit's remainder first.
+  const limit = via === "bank" ? bankLimit(view, from, to) : null;
+  const offered = changeShares(pocketOf(from), limit);
+  const share = offered.find((option) => option.share === chosenShare) ?? offered.find((option) => option.share === "quarter") ?? offered[0] ?? null;
+  const amount = share?.amount ?? 0;
+  // A refusal is said beside the button that sent it, never at the top of the phone out of sight.
+  const rejection = useGame((state) => state.rejection);
+  const dismiss = useGame((state) => state.dismissRejection);
+  const [asked, setAsked] = useState(false);
+  const [refused, setRefused] = useState<string | null>(null);
+  useEffect(() => {
+    if (!asked || rejection === null) return;
+    setRefused(rejection.words);
+    dismiss();
+  }, [asked, rejection, dismiss]);
+  const said = useRef<HTMLParagraphElement>(null);
+  useEffect(() => {
+    if (refused !== null && typeof said.current?.scrollIntoView === "function") said.current.scrollIntoView({ block: "nearest", behavior: "smooth" });
+  }, [refused]);
   // Pointed from a row or the gap above, the chooser opens at the foot of the app: bring it into view.
   const shown = useRef<HTMLDivElement>(null);
   const pointed = start !== undefined;
   useEffect(() => {
     if (pointed && typeof shown.current?.scrollIntoView === "function") shown.current.scrollIntoView({ block: "nearest", behavior: "smooth" });
   }, [pointed]);
+  const pick = <T,>(set: (value: T) => void) => (value: T) => {
+    setRefused(null);
+    set(value);
+  };
   return (
     <div ref={shown} className="mt-3 flex flex-col gap-2.5 rounded-[6px] border border-sheet-line bg-sheet-2 p-3" data-chooser="change">
-      <Chips shown label={phoneWords("phone.bank.where")} value={via} onChange={setVia} options={[{ value: "bank", label: say("ui.wallet.via.bank") }, { value: "aboki", label: say("ui.wallet.via.aboki") }]} />
-      <Chips shown label={phoneWords("phone.bank.from")} value={from} onChange={setFrom} options={currencies.map((currency) => ({ value: currency, label: currencyWords(currency) }))} />
-      <Chips shown label={phoneWords("phone.bank.into")} value={to} onChange={setTo} options={currencies.filter((currency) => currency !== from).map((currency) => ({ value: currency, label: currencyWords(currency) }))} />
-      <Chips shown label={phoneWords("phone.bank.how-much")} value={share} onChange={setShare} options={SHARES.map((value) => ({ value, label: phoneWords(`phone.bank.${value}`) }))} />
+      <Chips shown label={phoneWords("phone.bank.where")} value={via} onChange={pick(setVia)} options={[{ value: "bank", label: say("ui.wallet.via.bank") }, { value: "aboki", label: say("ui.wallet.via.aboki") }]} />
+      <Chips shown label={phoneWords("phone.bank.from")} value={from} onChange={pick(setFrom)} options={currencies.map((currency) => ({ value: currency, label: currencyWords(currency) }))} />
+      <Chips shown label={phoneWords("phone.bank.into")} value={to} onChange={pick(setTo)} options={currencies.filter((currency) => currency !== from).map((currency) => ({ value: currency, label: currencyWords(currency) }))} />
+      {offered.length === 0 ? null : <Chips shown label={phoneWords("phone.bank.how-much")} value={share?.share ?? "quarter"} onChange={pick(setShare)} options={offered.map((option) => ({ value: option.share, label: phoneWords(`phone.bank.${option.share}`) }))} />}
+      {limit === null ? null : (
+        <p className="text-[14px] leading-snug" data-bank-limit={limit}>
+          {limit === 0 ? phoneWords("phone.bank.limit.none") : phoneWords("phone.bank.limit.line", { amount: formatMoney(limit, from) })}
+        </p>
+      )}
       {amount <= 0 ? (
-        <p className="text-[14px] text-text-2">{phoneWords("phone.bank.nothing")}</p>
+        limit === 0 ? null : <p className="text-[14px] text-text-2">{phoneWords("phone.bank.nothing")}</p>
       ) : (
         <button
           type="button"
           className="btn-main"
           data-go="change"
-          onClick={() =>
+          onClick={() => {
+            dismiss();
+            setRefused(null);
+            setAsked(true);
             onAsk({
               form: "card",
               icon: "arrow-left-right",
@@ -141,11 +248,17 @@ function ChangeChooser({ onAsk, start }: { onAsk: ReturnType<typeof useAsk>["ope
               have: pocketOf(from),
               command: { type: "wallet/convert", from, to, amount, via },
               done: phoneWords("phone.bank.changed"),
-            })
-          }
+            });
+          }}
         >
           <span>{phoneWords("phone.bank.go", { amount: formatMoney(amount, from) })}</span>
         </button>
+      )}
+      {refused === null ? null : (
+        <p ref={said} role="alert" className="flex items-start gap-2 text-[14px] text-out" data-refused>
+          <CircleAlert size={17} className="mt-0.5 shrink-0" aria-hidden />
+          <span>{refused}</span>
+        </p>
       )}
     </div>
   );
@@ -181,6 +294,8 @@ function MoveChooser({ onAsk }: { onAsk: ReturnType<typeof useAsk>["open"] }) {
               cost: null,
               button: phoneWords("phone.bank.move.button"),
               have: source,
+              // A move between pockets is done at once: the cash is in hand now.
+              when: "now",
               command: { type: "wallet/move", currency, amount, to },
               done: phoneWords("phone.bank.moved"),
             })
