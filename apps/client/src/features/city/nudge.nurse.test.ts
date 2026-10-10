@@ -9,10 +9,9 @@ import { describe, expect, test } from "vitest";
 import clinic from "../../../public/assets/places/tb-clinic/place.json";
 import { earlyStops } from "../../shared/words/sixteen";
 import { hasWords, say } from "../../shared/words/text";
-import { officialRoute } from "../phone/apps/Japa";
 import { actsOffered } from "./acts";
 import { nudgeOf, stepThingHere, stepWayOf } from "./nudge";
-import { CARE, hearCare, hire, month, readCare, readyNurse, tileNurse, until } from "./nurse.testing";
+import { CARE, hearCare, hire, month, readCare, readyNurse, tileNurse, until } from "../../shared/testing/nurse";
 import { type PlaceFile, stageOf } from "./placeFile";
 import { sceneWords } from "./scene.words";
 import { stepOpen } from "./stepOpen";
@@ -207,7 +206,9 @@ describe("the nurse's nudges point at the chip that holds the act", () => {
     const said = say(nudge.key, nudge.params);
     expect(said).toBe("Read about care work in Japa");
     expect(said.split(/\s+/).length).toBeLessThan(NUDGE_WORDS);
-    expect(officialRoute(view)).toBe(CARE);
+    // Japa offers the page of the plan's way: care work is the plan and the page offers it.
+    expect(view.plan.route).toBe(CARE);
+    expect(view.activities.find((option) => option.id === "activity.look-into-route")?.params).toContain(CARE);
   });
 
   test("[R-WORLD-003] [R-ACTIVITY-013] given the tile's nurse months into her job while the council works, when the nudge is read, then it never sends her to the hub's board to get noticed", () => {

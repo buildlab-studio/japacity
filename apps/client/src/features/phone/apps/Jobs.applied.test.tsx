@@ -8,7 +8,7 @@ import { GameProvider } from "../../../authority/GameProvider";
 import { createGameStore } from "../../../authority/store";
 import { gameAuthority } from "../../../shared/testing/fixtures";
 import "../../../shared/testing/render";
-import { tileNurse } from "../../city/nurse.testing";
+import { tileNurse } from "../../../shared/testing/nurse";
 import { phoneWords } from "../phone.words";
 import { Jobs } from "./Jobs";
 

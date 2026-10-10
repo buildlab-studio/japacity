@@ -4,7 +4,7 @@ import type { PlayerView, SlotPick } from "@japacity/sim";
 import { cleanup } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
-import { hire, month, readCare, tileNurse, until } from "../../city/nurse.testing";
+import { hire, month, readCare, tileNurse, until } from "../../../shared/testing/nurse";
 import { cardFace } from "../../../shared/card/face";
 import { renderWithView } from "../../../shared/testing/render";
 import { inMonths } from "../../../shared/words/text";
