@@ -154,9 +154,19 @@ export const prologueText: Record<string, string> = {
   "prologue.handover.lived.capital": "The years went another way: six years under a master, and a shop's capital.",
   "prologue.handover.lived.trade": "The years went another way: no university, work from school on.",
 
+  // The front door's run (R-PROLOGUE-009): one question a screen, then the page printed and stamped.
+  "prologue.door.step": "{n}/{count}",
+  "prologue.door.drag": "Drag to turn",
+  "prologue.door.pick": "Pick",
+  "prologue.door.print": "Print my page",
+  "prologue.door.print.then": "Your page",
+  "prologue.door.page.title": "Your page",
+  "prologue.door.page.hint": "It goes with you. Tap your name at the top of the game to open it. It changes as you go.",
+  "prologue.door.begin.then": "Stamp it",
   // The front door's typed name (R-PROLOGUE-009): what the box says, and why a name is refused.
   "prologue.door.name.title": "Your name",
   "prologue.door.name.hint": "Type it, or take one of these.",
+  "prologue.door.name.suggested": "Names to take",
   "prologue.door.name.placeholder": "What people call you",
   "prologue.door.name.short": "A name needs at least {shortest} letters.",
   "prologue.door.name.long": "Keep it to {longest} letters.",

@@ -1,0 +1,75 @@
+// The front door's run as answered so far (prologue.md R-PROLOGUE-009): the step it is at and every answer, kept on
+// the device under one key of its own, so a reload at any step comes back to that step. The life itself is written
+// only at Begin (the authority keeps the save unwritten until a life is chosen).
+
+/** The one localStorage key the run is kept under. */
+export const DOOR_KEY = "japacity.door";
+
+/** The steps of the run, in order; `ready` is the ready lives' list beside the tiles; `begun` once Begin was pressed. */
+export const DOOR_STAGES = ["you", "path", "ready", "name", "age", "page", "begun"] as const;
+export type DoorStage = (typeof DOOR_STAGES)[number];
+
+export interface DoorDraft {
+  stage: DoorStage;
+  /** A shipped person's file name, `chr_ada`. */
+  look: string;
+  /** The tile picked, or null. */
+  archetype: string | null;
+  /** The ready life picked instead of a tile, or null. */
+  ready: string | null;
+  /** The name as typed so far. */
+  name: string;
+  /** Which three names the pool suggests. */
+  roll: number;
+  /** Years from the tile's own age (R-PROLOGUE-009): negative is younger. */
+  age: number;
+}
+
+type Read = Pick<Storage, "getItem">;
+type Write = Pick<Storage, "setItem">;
+
+function browserStorage(): (Read & Write) | null {
+  try {
+    return typeof localStorage === "undefined" ? null : localStorage;
+  } catch {
+    // Some browsers throw on access when storage is blocked.
+    return null;
+  }
+}
+
+function isDraft(value: unknown): value is DoorDraft {
+  if (typeof value !== "object" || value === null) return false;
+  const { stage, look, archetype, ready, name, roll, age } = value as Record<string, unknown>;
+  return (
+    typeof stage === "string" &&
+    (DOOR_STAGES as readonly string[]).includes(stage) &&
+    typeof look === "string" &&
+    (archetype === null || typeof archetype === "string") &&
+    (ready === null || typeof ready === "string") &&
+    typeof name === "string" &&
+    typeof roll === "number" &&
+    Number.isInteger(roll) &&
+    typeof age === "number" &&
+    Number.isInteger(age)
+  );
+}
+
+/** The run kept on this device, or null when none is, or what is kept cannot be read. */
+export function readDoor(storage: Read | null = browserStorage()): DoorDraft | null {
+  try {
+    const raw = storage?.getItem(DOOR_KEY) ?? null;
+    if (raw === null) return null;
+    const parsed: unknown = JSON.parse(raw);
+    return isDraft(parsed) ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+
+export function keepDoor(draft: DoorDraft, storage: Write | null = browserStorage()): void {
+  try {
+    storage?.setItem(DOOR_KEY, JSON.stringify(draft));
+  } catch {
+    // A private window may refuse storage; the run then lasts the visit only.
+  }
+}
