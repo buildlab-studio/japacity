@@ -126,6 +126,8 @@ function turn(game: Game) {
 
 /** Opens a pitch as the motor park would, and returns it. */
 function openPitch(game: Game, offer: Id<"offer"> = PARK): OfferState {
+  // The man at the park asks only someone who has asked around there.
+  if (offer === PARK && !game.state.activity.now?.some((pick) => pick.activity === "activity.ask-around")) game.accept({ type: "activity/now", activity: "activity.ask-around", param: null });
   applyEffects(game, [{ type: "offer/open", offer }]);
   const pitch = offerOf(game, offer);
   if (pitch === undefined) throw new Error(`${offer} did not open.`);
@@ -578,8 +580,9 @@ describe("the chain under the page's numbers", () => {
     expect(game.state.place).toMatchObject({ where: "abroad", country: "country.italy" });
   });
 
-  test("[R-ROAD-006] given seed-70, when the chain is played, then the compound takes 0 months and is passed by", () => {
-    const { seen } = setOut("seed-70");
+  test("[R-ROAD-006] given seed-51, when the chain is played, then the compound takes 0 months and is passed by", () => {
+    // The seed moved when the man at the park began to need asking around first.
+    const { seen } = setOut("seed-51");
     expect(path(seen)).toEqual(["desert", "coast", "sea", "arrived"]);
   });
 
@@ -917,6 +920,8 @@ describe("who the pitches reach", () => {
     for (const scenario of Object.keys(content.scenario) as Id<"scenario">[]) {
       if (scenario === "scenario.ready") continue;
       const game = readyLife(content, { from: scenario, quiet: true });
+      // The man at the park asks only someone who has asked around there: the lives ask first.
+      game.accept({ type: "activity/now", activity: "activity.ask-around", param: null });
       for (const id of PITCHES) {
         const when = content.offer[id]!.when;
         expect(when.every((requirement) => check(readOf(game), requirement).met)).toBe(true);
