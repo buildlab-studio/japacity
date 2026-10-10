@@ -2,7 +2,7 @@
 // slice of its own: its applications live on the route (`RouteState.schools`),
 // and its rules are carried out here.
 import { heldBand, takesApplication } from "../activity/activity.logic";
-import { check, worldVar } from "../engine/check";
+import { check, worldVar, worldVarOr } from "../engine/check";
 import { BP_WHOLE, clamp, convertMinor, divFloor, mulDiv, mulDivCeil } from "../engine/int";
 import type { RegisteredKind } from "../engine/kind";
 import { emit } from "../engine/kind";
@@ -15,7 +15,6 @@ import type {
   Command,
   Content,
   Ctx,
-  Currency,
   Effect,
   EffectType,
   ForeignCurrency,
@@ -46,6 +45,7 @@ import type { ApplicationFigures, Decision, DecisionTerms, GateEffectHandler } f
 import { EVERY_TERM } from "./gates";
 import { endBeforeSettingOff } from "./gates/road";
 import type { RefusalReason, RouteKindEvent } from "./route.events";
+import { CURRENCIES, officialRates } from "../wallet/wallet.rates";
 
 const GRADE: Id<"quality"> = "quality.edu-grade";
 /** The university's confirmation, granted with the deposit and voided by a refusal. */
@@ -57,14 +57,13 @@ const SURCHARGE: Id<"var"> = "var.uk-surcharge";
 
 /** Funds, tuition and deposits are counted in pence (R-ROUTE-009, 010). */
 const FUNDS_CURRENCY: ForeignCurrency = "GBP";
-const CURRENCIES: readonly Currency[] = ["NGN", "GBP", "USD", "CAD", "AED", "EUR"];
 
 /** R-ROUTE-016 counts the unexplained share in whole percents. */
 const BP_PER_PERCENT = 100;
 /** R-ROUTE-003: how talk of a route reaches a character who has not heard by `hearBy`. */
 export const FRIEND = "friend";
 
-/** The arrows of the page's diagram (R-ROUTE-001). `refused` has none in this milestone. */
+/** The arrows of the page's diagram (R-ROUTE-001). A ban moves a route to `refused`, and its lifting back to `known` (R-GATE-005). */
 const ARROWS: Record<RouteStateName, readonly RouteStateName[]> = {
   unknown: ["heard"],
   heard: ["known"],
@@ -126,18 +125,13 @@ function schoolOf(content: Content, id: Id<"school">): SchoolEntry {
  * them, so a missing one reads as 0 there; the real content has all four.
  */
 function ukVar(read: ReadCtx, id: Id<"var">): number {
-  return (read.world.vars as Record<string, number | undefined>)[id] ?? 0;
+  return worldVarOr(read.world, id);
 }
 
 function grade(state: State): number {
   return state.quality[GRADE] ?? 0;
 }
 
-function officialRates(read: ReadCtx): Record<ForeignCurrency, number> {
-  const official = {} as Record<ForeignCurrency, number>;
-  for (const currency of Object.keys(read.world.rates) as ForeignCurrency[]) official[currency] = read.world.rates[currency].official;
-  return official;
-}
 
 /** R-ROUTE-005: the route's window, from its world variable. 0 closed, 1 narrowing, 2 open. */
 export function windowOf(read: ReadCtx, route: Id<"route">): RouteView["window"] {
@@ -205,7 +199,7 @@ export function fundsRequired(read: ReadCtx, route: Id<"route">): number {
  * so naira is valued as kobo * 100 / the pound rate in one step.
  */
 export function fundsShown(read: ReadCtx, route: Id<"route">): number {
-  const rates = officialRates(read);
+  const rates = officialRates(read.world);
   const target = fundsCurrency(read, route);
   let shown = 0;
   for (const currency of CURRENCIES) {
@@ -245,7 +239,7 @@ export function nairaThroughFee(kobo: number, rate: number, chargeBp: number): n
  * being recorded again.
  */
 export function flyingFundsShown(read: ReadCtx, route: Id<"route">): number {
-  const rates = officialRates(read);
+  const rates = officialRates(read.world);
   const target = fundsCurrency(read, route);
   const chargeBp = read.content.tuning.wallet.bankChargeBp;
   let shown = 0;
@@ -264,7 +258,7 @@ export function flyingFundsShown(read: ReadCtx, route: Id<"route">): number {
  * against them are wholly unexplained.
  */
 export function unexplainedBp(read: ReadCtx, route: Id<"route">): number {
-  const rates = officialRates(read);
+  const rates = officialRates(read.world);
   const target = fundsCurrency(read, route);
   const lots = read.state.wallet.lots.reduce((sum, lot) => sum + convertMinor(lot.amount, lot.currency, target, rates), 0);
   if (lots === 0) return 0;
@@ -375,7 +369,6 @@ function hear(ctx: Ctx, effect: Effect): BaseEvent[] {
   return [moved(entry.id, "heard", effect.via)];
 }
 
-/** R-ROUTE-004: the slot's param names the route. Only a heard route becomes known. */
 /** R-ADVICE-001: the official page is the look-into activity; its line is the one R-ROUTE-004 always gave. */
 const OFFICIAL_PAGE = "activity.look-into-route";
 
@@ -388,6 +381,7 @@ function lookedRoute(ctx: Ctx, cause: Cause): Id<"route"> | null {
   return typeof named === "string" && ctx.content.route[named as Id<"route">] !== undefined ? (named as Id<"route">) : null;
 }
 
+/** R-ROUTE-004: the slot's param names the route. Only a heard route becomes known. */
 function lookInto(ctx: Ctx, _effect: Effect, cause: Cause): BaseEvent[] {
   const route = lookedRoute(ctx, cause);
   if (route === null) return [];

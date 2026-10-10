@@ -1,5 +1,3 @@
-import type { Id } from "../engine/types";
-
 /** What the lottery kind records: docs/rules/lottery.md. */
 export type LotteryEvent =
   /** Tickets bought for the open draw, their cost taken from the naira bank (R-LOTTERY-003, R-LOTTERY-004). */
@@ -12,6 +10,3 @@ export type LotteryEvent =
    * won, for the front-page line.
    */
   | { type: "lottery/shown"; draw: number; jackpot: number; hit: boolean; winners: number };
-
-/** Kept so the id type is used while the kind has no entries of its own. */
-export type LotteryId = Id<"news">;

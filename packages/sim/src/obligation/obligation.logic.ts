@@ -3,9 +3,10 @@
 // scenario's obligations are real from the first state and get instance ids from
 // the engine's counter (R-SCENARIO-002).
 import { rateFor } from "../credit/credit.logic";
+import { worldVarOr } from "../engine/check";
 import { bp, convertMinor, divCeil, divFloor, mulDiv } from "../engine/int";
 import type { RegisteredKind } from "../engine/kind";
-import { emit } from "../engine/kind";
+import { emit, oldestFirst } from "../engine/kind";
 import { reject } from "../engine/reject";
 import type {
   BaseEvent,
@@ -17,7 +18,6 @@ import type {
   Ctx,
   Currency,
   Effect,
-  ForeignCurrency,
   Id,
   MoneyParam,
   ObligationEntry,
@@ -32,12 +32,12 @@ import type {
   Requirement,
   RequirementResult,
   State,
-  World,
 } from "../engine/types";
 import { appliesHere } from "../place/place.logic";
 import { couchEnds, onTheCouch } from "./couch";
 import type { ClosedWhy, ObligationEvent } from "./obligation.events";
 import { isSponsorUndertaking, openUndertaking, payUndertaking, undertakingDue, undertakingMonthsLeft } from "./undertaking";
+import { officialRates } from "../wallet/wallet.rates";
 
 const STANDING: Id<"quality"> = "quality.standing";
 const WELLBEING: Id<"quality"> = "quality.wellbeing";
@@ -45,11 +45,6 @@ const INFLATION: Id<"var"> = "var.inflation";
 /** R-RETURN-006: the car's shortfall once it has followed you home, in naira. */
 const HOME_SHORTFALL: Id<"obligation"> = "obligation.car-shortfall-home";
 
-function officialRates(world: World): Record<ForeignCurrency, number> {
-  const rates = {} as Record<ForeignCurrency, number>;
-  for (const currency of Object.keys(world.rates) as ForeignCurrency[]) rates[currency] = world.rates[currency].official;
-  return rates;
-}
 /** Types whose misses run a grace and can default (R-OBLIGATION-004, 005, R-ABROAD-003 to 005, R-CAR-003). */
 const GRACE_TYPES: readonly ObligationType[] = ["loan", "group-loan", "tuition", "rent", "phone", "car", "undertaking"];
 /** Types that stay open in default as a debt (R-OBLIGATION-005, R-STATUS-011, R-UNDERTAKING-008). */
@@ -71,33 +66,10 @@ function entryOf(content: Content, id: Id<"obligation">): ObligationEntry {
   return entry;
 }
 
-/** The instance number of an engine id such as `obligation-12`, or null for any other shape. */
-function instanceNumber(id: string): number | null {
-  const match = /-(\d+)$/.exec(id);
-  return match === null ? null : Number(match[1]);
-}
-
-/**
- * Oldest first (R-OBLIGATION-001): by the month opened, then by id. Ids are
- * compared by their instance number, so `obligation-10` comes after
- * `obligation-9` as it was opened after it.
- */
-export function oldestFirst(a: ObligationState, b: ObligationState): number {
-  if (a.openedMonth !== b.openedMonth) return a.openedMonth - b.openedMonth;
-  const na = instanceNumber(a.id);
-  const nb = instanceNumber(b.id);
-  if (na !== null && nb !== null && na !== nb) return na - nb;
-  return a.id < b.id ? -1 : a.id > b.id ? 1 : 0;
-}
-
 function openItems(state: State): ObligationState[] {
   return Object.values(state.obligation.items).sort(oldestFirst);
 }
 
-/** A world variable the mini content may not carry: missing reads as 0. */
-function varOr(read: ReadCtx, id: Id<"var">): number {
-  return (read.world.vars as Record<string, number | undefined>)[id] ?? 0;
-}
 
 /** The car's numbers, in its currency (docs/rules/car.md "Entries"). */
 export type { CarTerms, CarView } from "../engine/types";
@@ -214,7 +186,7 @@ function scheduledCharge(read: ReadCtx, item: ObligationState, entry: Obligation
     case "upkeep":
     case "support": {
       // R-DIRECTOR-006. "at home" is a naira charge, so money sent home from abroad rises with it too.
-      const rise = entry.currency === "NGN" ? bp(item.amount, varOr(read, INFLATION)) : 0;
+      const rise = entry.currency === "NGN" ? bp(item.amount, worldVarOr(read.world, INFLATION)) : 0;
       return { base: Math.max(0, item.amount + rise), interest, principal };
     }
     case "loan":

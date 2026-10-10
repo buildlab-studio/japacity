@@ -5,7 +5,7 @@ import { kindByKey } from "../kinds";
 import { bp } from "./int";
 import type { PrefixOf, Registry, SliceKey } from "./kind";
 import { prefixOf } from "./kind";
-import type { Amount, ReadCtx, Requirement, RequirementResult, Terms } from "./types";
+import type { Amount, ReadCtx, Requirement, RequirementResult, Terms, World } from "./types";
 
 type RequirementType = Requirement["type"];
 
@@ -46,6 +46,14 @@ export function worldVar(read: ReadCtx, id: string): number {
   const value = (read.world.vars as Record<string, number | undefined>)[id];
   if (value === undefined) throw new Error(`The world has no variable ${id}.`);
   return value;
+}
+
+/**
+ * A world variable that may be missing, read as 0. The engine's mini content
+ * carries few variables, so a kind that must run on it reads through this.
+ */
+export function worldVarOr(world: World, id: string): number {
+  return (world.vars as Record<string, number | undefined>)[id] ?? 0;
 }
 
 /** Turn an amount into a number: a fixed number, a world variable, or a term scaled by basis points. */

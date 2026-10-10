@@ -13,6 +13,11 @@ export function activeLocks(locks: readonly SlotLock[], month: number): SlotLock
   return locks.filter((lock) => lock.untilMonth >= month);
 }
 
+/** R-TURN-006: true when a pick of the activity fills one of the month's slots; an activity whose `slot` is `none` rides with the month. */
+export function fillsSlot(content: Content, activity: string): boolean {
+  return content.activity[activity as Id<"activity">]?.slot !== "none";
+}
+
 /**
  * Free slots this month (R-TURN-006, R-TURN-009): by job, one fewer when
  * wellbeing is under the burnout line, then the locked slots come off.
@@ -36,8 +41,7 @@ function validateEnd(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (state.setpiece.open !== null) return reject("setpiece-open", "Finish the open set piece first.");
   if (!Array.isArray(command.slots)) return reject("not-legal", "The slots must be a list.");
   const allowed = freeSlots(state, content);
-  // R-TURN-006: a pick of an activity that fills no slot rides with the month and is not counted.
-  const filled = command.slots.filter((pick) => content.activity[(pick as SlotPick | null)?.activity ?? ("" as Id<"activity">)]?.slot !== "none").length;
+  const filled = command.slots.filter((pick) => fillsSlot(content, (pick as SlotPick | null)?.activity ?? "")).length;
   if (filled > allowed) {
     return reject("not-legal", `This month has ${String(allowed)} free slots, and ${String(filled)} were filled.`);
   }
@@ -98,7 +102,7 @@ function evolve(slice: TurnSlice, event: TurnEvent): TurnSlice {
     case "turn/locked":
       return { ...slice, locks: [...slice.locks, { slots: event.slots, untilMonth: event.untilMonth, why: event.why }] };
     case "turn/unlocked":
-      return { ...slice, locks: slice.locks.filter((lock) => lock.untilMonth >= slice.month) };
+      return { ...slice, locks: activeLocks(slice.locks, slice.month) };
     default: {
       const never: never = event;
       throw new Error(`Unknown turn event ${JSON.stringify(never)}.`);

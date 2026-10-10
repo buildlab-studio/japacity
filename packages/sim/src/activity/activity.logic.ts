@@ -20,7 +20,6 @@ import type {
   Ctx,
   Currency,
   Effect,
-  ForeignCurrency,
   Id,
   MoneyParam,
   PlayerView,
@@ -38,7 +37,7 @@ import type {
 } from "../engine/types";
 import { appliesHere } from "../place/place.logic";
 import { isKept, statusEntry, workAllows } from "../status/status.logic";
-import { activeLocks, freeSlots } from "../turn/turn.logic";
+import { activeLocks, fillsSlot, freeSlots } from "../turn/turn.logic";
 import type { ActivityEvent, Prize, SlotFailure } from "./activity.events";
 import { ADVISER, adviserReading, FRIEND, friendWord } from "./activity.advice";
 import {
@@ -53,6 +52,8 @@ import {
   overtimePay,
   raisedJob,
 } from "./activity.pay";
+import { officialRates } from "../wallet/wallet.rates";
+import type { Judge } from "../japacity/japacity.logic";
 
 export { cashWorkedThisMonth, localTenure, sideJobHeld } from "./activity.pay";
 
@@ -101,8 +102,6 @@ const FIRST_PAY_ABROAD = "line.activity.salary-first-abroad";
 export const PER_MILLION = 1000000;
 const BP_IN_MILLION = 100;
 
-/** Judges one requirement. Inside a step it is `ctx.check`; outside, the engine's `check`. */
-export type Judge = (requirement: Requirement) => RequirementResult;
 
 /** Applies this kind's events at once, so the rest of the handler sees them. */
 function record(ctx: Ctx, ...events: ActivityEvent[]): BaseEvent[] {
@@ -114,12 +113,6 @@ const judgeOf = (ctx: Ctx): Judge => (requirement) => ctx.check(requirement);
 
 function allHold(requirements: readonly Requirement[], judge: Judge): boolean {
   return requirements.every((requirement) => judge(requirement).met);
-}
-
-function officialRates(read: ReadCtx): Record<ForeignCurrency, number> {
-  const rates = {} as Record<ForeignCurrency, number>;
-  for (const [currency, rate] of Object.entries(read.world.rates)) rates[currency as ForeignCurrency] = rate.official;
-  return rates;
 }
 
 /** R-ACTIVITY-015: an entry that answers now, sent as `activity/now`; every other entry fills the month. */
@@ -576,7 +569,7 @@ function workJob(ctx: Ctx): BaseEvent[] {
   const worked: ActivityEvent =
     pay.currency === "NGN"
       ? { type: "activity/month-worked", job, tenure, pay }
-      : { type: "activity/month-worked", job, tenure, pay, naira: valueInKobo(pay.amount, pay.currency, officialRates(read)) };
+      : { type: "activity/month-worked", job, tenure, pay, naira: valueInKobo(pay.amount, pay.currency, officialRates(read.world)) };
   events.push(...record(ctx, worked));
   ctx.apply(entry.effects, cause);
   return events;
@@ -978,7 +971,7 @@ function slots(ctx: Ctx): BaseEvent[] {
   // the engine, not the count after the job's toll in `main`.
   const turn = turnInProgress(ctx);
   const allowed = turn === null ? freeSlots(ctx.state, ctx.content) : turn.freeSlots;
-  const counted = picks.filter((pick) => ctx.content.activity[pick.activity]?.slot !== "none").length;
+  const counted = picks.filter((pick) => fillsSlot(ctx.content, pick.activity)).length;
   const empty = Math.max(0, allowed - counted);
   if (empty > 0) {
     events.push(...record(ctx, { type: "activity/rested", slots: empty }));
@@ -988,10 +981,8 @@ function slots(ctx: Ctx): BaseEvent[] {
     }
   }
   events.push(...record(ctx, { type: "activity/slots-recorded", slots: picks.map((pick) => ({ ...pick })) }));
-  const { job, side } = ctx.state.activity;
-  // R-ACTIVITY-015: a now-act done this month is counted with the month's slots, once.
-  const done = nowThisMonth(ctx.state).map((pick) => pick.activity);
-  const filled = new Set<Id<"activity">>([...(job === null ? [] : [job]), ...(side === null ? [] : [side]), ...picks.map((pick) => pick.activity), ...done]);
+  // The picks are the month's `lastSlots` now; a now-act done this month is counted with them, once (R-ACTIVITY-015).
+  const filled = playedThisMonth(ctx.state);
   if (filled.size > 0) events.push(...record(ctx, { type: "activity/played-counted", activities: [...filled] }));
   return events;
 }
@@ -1012,7 +1003,7 @@ export function sureHuntJob(read: ReadCtx, named: ActivityEntry, month: number, 
   if (huntedThisMonth || month > SURE_HUNT_MONTHS) return null;
   const hunts = Object.values(read.content.activity).filter((entry) => entry.effects.some((effect) => effect.type === "activity/hunt"));
   if (hunts.some((entry) => (read.state.activity.played[entry.id] ?? 0) > 0)) return null;
-  const rates = officialRates(read);
+  const rates = officialRates(read.world);
   let best: { entry: ActivityEntry; kobo: number } | null = null;
   for (const id of huntableJobs(read, (requirement) => check(read, requirement))) {
     const entry = jobEntry(read.content, id);

@@ -5,7 +5,7 @@
 import { check, checkWith, resolveAmount, worldVar } from "../engine/check";
 import { BP_WHOLE, bp, clamp, divFloor, valueInKobo } from "../engine/int";
 import type { RegisteredKind } from "../engine/kind";
-import { emit } from "../engine/kind";
+import { emit, oldestFirst } from "../engine/kind";
 import { reject } from "../engine/reject";
 import type {
   BaseEvent,
@@ -44,6 +44,7 @@ import { birthdayMonth, PARCEL, parcelHolds, parcelTerms } from "./offer.parcel"
 import { HASTEN_TERM } from "../document/document.logic";
 import type { AgentKind, Look, Pitch } from "./offer.agent";
 import { handedTerms, inFamily, isLook, kindOf, lookFinds, openAgent, paperToMove, pitchMonths, PROMISE, shownTerms, standsAsAgent, tellsSeen } from "./offer.agent";
+import { officialRates } from "../wallet/wallet.rates";
 
 /**
  * The groups that are rolled, in the order R-OFFER-001 takes them. `job` is
@@ -69,21 +70,6 @@ function entryOf(content: Content, id: Id<"offer">): OfferEntry {
 
 function record(ctx: Ctx, event: OfferEvent): BaseEvent[] {
   return emit(ctx, "offer", [event]);
-}
-
-/** The instance number of an engine id such as `offer-12`, or null for any other shape. */
-function instanceNumber(id: string): number | null {
-  const match = /-(\d+)$/.exec(id);
-  return match === null ? null : Number(match[1]);
-}
-
-/** Oldest first: by the month opened, then by instance number, so `offer-10` comes after `offer-9`. */
-function oldestFirst(a: OfferState, b: OfferState): number {
-  if (a.openedMonth !== b.openedMonth) return a.openedMonth - b.openedMonth;
-  const na = instanceNumber(a.id);
-  const nb = instanceNumber(b.id);
-  if (na !== null && nb !== null && na !== nb) return na - nb;
-  return a.id < b.id ? -1 : a.id > b.id ? 1 : 0;
 }
 
 function openItems(state: State): OfferState[] {
@@ -118,9 +104,7 @@ function payInNaira(read: ReadCtx): number {
   const pay = entry === undefined ? null : monthlyPay(read, entry);
   if (pay === null) return 0;
   if (pay.currency === "NGN") return pay.amount;
-  const official = {} as Record<ForeignCurrency, number>;
-  for (const currency of Object.keys(read.world.rates) as ForeignCurrency[]) official[currency] = read.world.rates[currency].official;
-  return valueInKobo(pay.amount, pay.currency, official);
+  return valueInKobo(pay.amount, pay.currency, officialRates(read.world));
 }
 
 function fixTerm(ctx: Ctx, spec: TermSpec): number {
@@ -442,9 +426,9 @@ function switchedOff(content: Content, entry: OfferEntry): boolean {
   return entry.group === "road" && !content.tuning.road.enabled;
 }
 
-/** R-ROAD-002: the pitch's chance with the character's situation, between 0 and 10000. */
 const MONTHS_A_YEAR = 12;
 
+/** R-ROAD-002: the pitch's chance with the character's situation, between 0 and 10000. */
 export function pressureChanceBp(read: ReadCtx, entry: OfferEntry, judge: (requirement: Requirement) => RequirementResult): number {
   const pressure = entry.pressure;
   if (pressure === undefined) return entry.chanceBp;

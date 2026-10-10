@@ -2,16 +2,15 @@
 // may be started over (the local authority), it starts on the first of a few named seeds whose draws keep every
 // step the tile chooses open, played as the tile plays it. Online the server draws once, and the life is read
 // as it was lived.
-import type { Content, Id, PlayerView, State, World } from "@japacity/sim";
+import type { Content, PlayerView, State, World } from "@japacity/sim";
 import { newState, step, viewFor } from "@japacity/sim";
 
-import { answersInOrder, type Archetype, ownSteps, presetAnswer } from "./archetypes";
+import { answersInOrder, type Archetype, FROM_SIXTEEN, ownSteps, presetAnswer } from "./archetypes";
+
+export { FROM_SIXTEEN };
 
 /** How many named seeds the front door tries before it takes the first (R-PROLOGUE-011). */
 export const SEED_TRIES = 8;
-
-/** The life from sixteen: the only scenario a tile starts. */
-export const FROM_SIXTEEN = "scenario.prologue" as Id<"scenario">;
 
 /** The prologue has eleven cards and a few beats between; a life that runs past this is broken, not long. */
 const MOST_STEPS = 40;

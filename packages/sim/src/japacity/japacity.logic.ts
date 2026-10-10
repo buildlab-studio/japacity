@@ -78,7 +78,7 @@ export function checklistView(read: ReadCtx, route: Id<"route">, judge: Judge = 
  * departed (R-JAPACITY-002), the checklist's sum from known on
  * (R-JAPACITY-001), and none while unknown or only heard of (R-JAPACITY-005).
  *
- * `refused`, kept for a ban and set by nothing in this milestone,
+ * `refused`, the state a ban holds a route in (R-GATE-005),
  * still has its checklist figure, so the route page can show what was built.
  * It never counts toward japacity (R-JAPACITY-003).
  */
@@ -87,6 +87,11 @@ export function routePercent(read: ReadCtx, route: Id<"route">, judge: Judge = (
   const state = stateOf(read, route);
   if (DONE.includes(state)) return FULL;
   if (!FIGURED.includes(state)) return null;
+  return checklistEarned(read, route, judge);
+}
+
+/** The checklist's earned weights, whatever the route's state, kept between 0 and 100. */
+export function checklistEarned(read: ReadCtx, route: Id<"route">, judge: Judge = (requirement) => check(read, requirement)): number {
   const sum = checklistView(read, route, judge).reduce((total, item) => total + item.earned, 0);
   // R-JAPACITY-004: the content check holds the weights to 100, so this never cuts.
   return clamp(sum, 0, FULL);

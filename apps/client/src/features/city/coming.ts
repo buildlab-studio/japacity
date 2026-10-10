@@ -30,7 +30,7 @@ export function comingOf(view: Pick<PlayerView, "month" | "offers" | "documents"
   for (const offer of view.offers) list.push({ what: words(`${offer.entry}.name`), month: offer.expiresMonth, kind: "offer" });
   for (const paper of view.documents) if (paper.state === "pending" && paper.readyMonth !== null) list.push({ what: nameOf(paper.id), month: paper.readyMonth, kind: "paper" });
   for (const route of view.routes) {
-    if (route.visa !== null && (route.state === "applying" || route.state === "known")) list.push({ what: nameOf(route.id), month: route.visa.decisionMonth, kind: "visa" });
+    if (route.visa !== null && route.state === "applying") list.push({ what: nameOf(route.id), month: route.visa.decisionMonth, kind: "visa" });
   }
   // The plan's own dated waits (R-CHAPTER-009): a school's answer, the points profile, the endorsement's wait.
   for (const mark of planMarks(view)) list.push({ what: mark.what, month: mark.month, kind: "plan" });

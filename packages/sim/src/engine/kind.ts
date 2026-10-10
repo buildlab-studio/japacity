@@ -71,6 +71,25 @@ export interface IdSource {
   next(prefix: string): string;
 }
 
+/** The instance number of an id such as `obligation-12`, or null for any other shape. */
+function instanceNumber(id: string): number | null {
+  const match = /-(\d+)$/.exec(id);
+  return match === null ? null : Number(match[1]);
+}
+
+/**
+ * Oldest first, for the instances a kind keeps (R-OBLIGATION-001): by the month
+ * opened, then by instance number, so `offer-10` comes after `offer-9` as it was
+ * opened after it, then by id.
+ */
+export function oldestFirst(a: { openedMonth: number; id: string }, b: { openedMonth: number; id: string }): number {
+  if (a.openedMonth !== b.openedMonth) return a.openedMonth - b.openedMonth;
+  const na = instanceNumber(a.id);
+  const nb = instanceNumber(b.id);
+  if (na !== null && nb !== null && na !== nb) return na - nb;
+  return a.id < b.id ? -1 : a.id > b.id ? 1 : 0;
+}
+
 /** A kind as the registry holds it: the contract's KindModule, keyed by its slice. */
 export interface RegisteredKind<Slice, E extends BaseEvent> extends KindModule<Slice, E> {
   kind: SliceKey;

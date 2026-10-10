@@ -131,11 +131,9 @@ function findsThisTurn(ctx: Ctx, entry: RouteEntry): BaseEvent[] {
  * check with the line in place of the study figure. it runs while the
  * route is known with a sponsor recorded, as the study check runs with a
  * deposit paid. The funds shown are R-ROUTE-010's, read through the route
- * kind's own requirement.
- * the checklist's `funds` item and the apply activity's `route/funds`
- * requirement read `fundsRequired`, which is the study figure (tuition and the
- * living line) on every route. They agree with this check only once that
- * figure is the maintenance line for a sponsor route.
+ * kind's own requirement. The checklist's `funds` item and the apply
+ * activity's `route/funds` requirement read the same line, through this gate's
+ * `funds`.
  */
 function maintenanceCheck(ctx: Ctx, entry: RouteEntry): BaseEvent[] {
   const line = settings(entry).maintenanceVar;

@@ -1,5 +1,6 @@
 // Place: docs/rules/place.md, R-PLACE-001 to 009, and the mechanics of coming
 // home in return.md. A character is at home, abroad in one country, or on the road.
+import { worldVarOr } from "../engine/check";
 import { bp, convertMinor, divFloor } from "../engine/int";
 import type { RegisteredKind } from "../engine/kind";
 import { emit } from "../engine/kind";
@@ -10,9 +11,7 @@ import type {
   Command,
   Content,
   Ctx,
-  Currency,
   Effect,
-  ForeignCurrency,
   Id,
   MoneyParam,
   ObligationType,
@@ -29,6 +28,7 @@ import type {
 } from "../engine/types";
 import { countryEntry, isKept, isOverstayer, removalBanMonths, statusEntry } from "../status/status.logic";
 import type { PlaceEvent } from "./place.events";
+import { CURRENCIES, officialRates } from "../wallet/wallet.rates";
 
 const STANDING: Id<"quality"> = "quality.standing";
 const SEASON_DECEMBER: Id<"var"> = "var.season-december";
@@ -47,7 +47,6 @@ const HOME_TYPES: readonly ObligationType[] = ["upkeep", "support"];
  * agent's debt follows you home (R-ROAD-007).
  */
 const ABROAD_TYPES: readonly ObligationType[] = ["upkeep", "support", "rent", "phone", "surcharge", "tuition", "car"];
-const CURRENCIES: readonly Currency[] = ["NGN", "GBP", "USD", "CAD", "AED", "EUR"];
 
 /** An entry that may be tied to a place: activities, offers, obligations, routes, goals. */
 export interface Placed {
@@ -74,23 +73,14 @@ export function appliesHere(entry: Placed, state: State): boolean {
 // Reading
 // ---------------------------------------------------------------------------
 
-/** A world variable the mini content may not carry: missing reads as 0. */
-function varOr(read: ReadCtx, id: Id<"var">): number {
-  return (read.world.vars as Record<string, number | undefined>)[id] ?? 0;
-}
 
-function officialRates(read: ReadCtx): Record<ForeignCurrency, number> {
-  const official = {} as Record<ForeignCurrency, number>;
-  for (const currency of Object.keys(read.world.rates) as ForeignCurrency[]) official[currency] = read.world.rates[currency].official;
-  return official;
-}
 
 /** R-PLACE-006: the fare home from the country the character is in, or null when not abroad. */
 export function fareHome(read: ReadCtx): MoneyParam | null {
   const { where, country } = read.state.place;
   if (where !== "abroad" || country === null) return null;
   const entry = countryEntry(read.content, country);
-  const december = varOr(read, SEASON_DECEMBER) === 1;
+  const december = worldVarOr(read.world, SEASON_DECEMBER) === 1;
   return { currency: entry.currency, amount: december ? bp(entry.fare, entry.decemberFactorBp) : entry.fare };
 }
 
@@ -102,7 +92,7 @@ export function holdsNoStatus(read: ReadCtx): boolean {
 
 /** Bank and cash in every currency, in kobo at the official rate (R-PLACE-005). */
 export function wealthInNaira(read: ReadCtx): number {
-  const rates = officialRates(read);
+  const rates = officialRates(read.world);
   let kobo = 0;
   for (const currency of CURRENCIES) {
     const pocket = read.state.wallet.pockets[currency];
@@ -320,12 +310,8 @@ function ride(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
  * the road it is the assisted return: the family house takes the character
  * back and standing moves by the shape and the capital (R-PLACE-007,
  * R-RETURN-002); obligations of the road, the agent's debt among them, stay.
- * a return is recorded with the country left, and the road has none
- * (the route entry's `country` is null, place.md has no country for it), so a
- * return from the road is not written to the record and the road's own line
- * tells it. That leaves R-RETURN-003's returnee offers, which read the record,
- * closed to it. The record needs `country: Id<"country"> | null`, or content a
- * stylised country for the road.
+ * A return from the road is written to the record with no country, since the
+ * road has none (R-ROAD-007).
  */
 function returnEffect(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
   if (effect.type !== "place/return") throw new Error(`place/return cannot carry out ${effect.type}.`);
@@ -379,7 +365,7 @@ function tokenLapse(ctx: Ctx): BaseEvent[] {
  * December that spans many ticks online opens it once.
  */
 function december(ctx: Ctx): BaseEvent[] {
-  if (ctx.state.place.where !== "abroad" || varOr(ctx, SEASON_DECEMBER) !== 1) return [];
+  if (ctx.state.place.where !== "abroad" || worldVarOr(ctx.world, SEASON_DECEMBER) !== 1) return [];
   if (ctx.content.setpiece[DECEMBER] === undefined || ctx.state.setpiece.open !== null) return [];
   const last = ctx.state.place.decemberMonth;
   if (last !== null && ctx.state.turn.month - last < MONTHS_A_YEAR) return [];
