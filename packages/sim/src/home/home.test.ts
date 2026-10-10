@@ -137,7 +137,7 @@ describe("the numbers", () => {
       guestMonths: 3,
       hostBp: 2500,
       returnStanding: -5,
-      compound: { rentYear: 400_000_00, feesBp: 2000, upkeep: 50_000_00 },
+      compound: { rentYear: 350_000_00, feesBp: 2000, upkeep: 50_000_00 },
       selfContainRentYear: 700_000_00,
     });
     expect(content.obligation[MAKOKO_UPKEEP]).toMatchObject({ type: "upkeep", currency: "NGN", amount: home.makokoUpkeep, sink: "upkeep" });

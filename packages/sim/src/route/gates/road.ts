@@ -335,8 +335,10 @@ function setOff(ctx: Ctx, entry: RouteEntry, gate: RoadState, how: "pay" | "call
   effects.push(
     { type: "place/move", to: "road", country: null },
     // R-ROAD-005: the home obligations are suspended; the family house takes them up again on return (R-PLACE-007).
+    // A rented room is let go with them (R-HOME-010): a return from the road comes home to the family house.
     { type: "obligation/close", obligationType: "upkeep" },
     { type: "obligation/close", obligationType: "support" },
+    { type: "obligation/close", obligationType: "rent" },
     // a job at home cannot be held from the road.
     { type: "activity/end-job", why: "road" },
   );

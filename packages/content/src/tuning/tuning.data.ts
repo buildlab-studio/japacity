@@ -263,7 +263,7 @@ export const tuning: Tuning = {
     guestMonths: 3,
     hostBp: pct(25),
     returnStanding: -5,
-    compound: { rentYear: naira(400000), feesBp: pct(20), upkeep: naira(50000) },
+    compound: { rentYear: naira(350000), feesBp: pct(20), upkeep: naira(50000) },
     selfContainRentYear: naira(700000),
   },
 };

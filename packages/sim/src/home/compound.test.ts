@@ -118,7 +118,7 @@ describe("the numbers", () => {
     // The fees are a tenth each, the agent's and the agreement's: a fifth of the year's rent.
     expect(home.compound.feesBp).toBe(2000);
     expect(compoundMoveIn(home)).toBe(MOVE_IN);
-    expect(MOVE_IN).toBe(480_000_00);
+    expect(MOVE_IN).toBe(420_000_00);
     expect(content.place[COMPOUND]).toMatchObject({ where: "home", city: "lagos", nameKind: "stylised", position: null, scope: "interior" });
   });
 });

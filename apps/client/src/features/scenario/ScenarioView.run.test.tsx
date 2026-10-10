@@ -256,8 +256,8 @@ describe("the run through the front door", () => {
     door();
     fireEvent.click(next(say("ui.door.next")));
     const monthly = { "family-house": 9500000, "compound-room": 5000000, makoko: 2500000 } as const;
-    // The room takes its year and the fees at once (R-HOME-010): ₦400,000 and a fifth of it.
-    const now = { "family-house": 0, "compound-room": 48000000, makoko: 0 } as const;
+    // The room takes its year and the fees at once (R-HOME-010): ₦350,000 and a fifth of it.
+    const now = { "family-house": 0, "compound-room": 42000000, makoko: 0 } as const;
     for (const tile of ARCHETYPES) {
       fireEvent.click(screen.getByRole("radio", { name: say(`prologue.archetype.${tile.id}.name`) }));
       const row = document.querySelector<HTMLElement>("[data-door-home]")!;
@@ -304,29 +304,27 @@ describe("the run through the front door", () => {
     expect(JSON.parse(localStorage.getItem(DOOR_KEY) ?? "{}")).toMatchObject({ archetype: "trader", home: "compound-room", homePicked: true });
   });
 
-  test("[R-PROLOGUE-013] given the writer, whose savings at her own age leave less than a month in the room after its year and fees, then the room is locked with the figure still needed over \"needed\"; one year older it opens with what is left", () => {
+  test("[R-PROLOGUE-013] given the writer, whose savings at her own age cover the room's year, its fees and a month of living with a little to spare, then the room is open with what is left over \"left\", a year older leaves more, and the pick holds when she steps back to her own age", () => {
     door();
     fireEvent.click(next(say("ui.door.next")));
     fireEvent.click(screen.getByRole("radio", { name: say("prologue.archetype.writer.name") }));
     const writer = archetypeOf("writer")!;
-    const need = 48000000 + 5000000 - savingsOf(writer);
-    expect(need).toBeGreaterThan(0);
+    // The year and the fees (R-HOME-010) and the first month of living in the room, from the tile's savings.
+    const left = savingsOf(writer) - (42000000 + 5000000);
+    expect(left).toBeGreaterThan(0);
     const room = () => document.querySelector<HTMLButtonElement>("[data-home='compound-room']")!;
-    expect(room().disabled).toBe(true);
-    expect(room().querySelector("[data-home-left]")?.getAttribute("data-home-left")).toBe("needed");
-    expect(room().querySelector("[data-home-left]")?.textContent).toBe(`${formatMoney(need, "NGN")}${say("ui.door.home.needed")}`);
-    expect(room().querySelector("svg")?.getAttribute("class")).toContain("lucide-lock");
-    expect(room().getAttribute("aria-description")).toBe(say("ui.door.home.said.needed", { amount: formatMoney(need, "NGN") }));
+    expect(room().disabled).toBe(false);
+    expect(room().querySelector("[data-home-left]")?.getAttribute("data-home-left")).toBe("left");
+    expect(room().querySelector("[data-home-left]")?.textContent).toBe(`${formatMoney(left, "NGN")}${say("ui.door.home.left")}`);
+    expect(room().querySelector("svg")?.getAttribute("class")).not.toContain("lucide-lock");
     fireEvent.click(screen.getByRole("button", { name: say("prologue.door.age.older") }));
     const older = ageSteps().find((step) => step.years === 1)!;
-    expect(older.saved).toBeGreaterThan(need);
-    expect(room().disabled).toBe(false);
-    expect(room().querySelector("[data-home-left]")?.textContent).toBe(`${formatMoney(older.saved - need, "NGN")}${say("ui.door.home.left")}`);
+    expect(room().querySelector("[data-home-left]")?.textContent).toBe(`${formatMoney(left + older.saved, "NGN")}${say("ui.door.home.left")}`);
     fireEvent.click(screen.getByRole("radio", { name: say("ui.door.home.compound-room") }));
     expect(JSON.parse(localStorage.getItem(DOOR_KEY) ?? "{}")).toMatchObject({ archetype: "writer", home: "compound-room", homePicked: true });
-    // A step back to her own age shuts the room again, so the home goes back to the tile's own.
+    // A step back to her own age keeps the room: it is still open there.
     fireEvent.click(screen.getByRole("button", { name: say("prologue.door.age.younger") }));
-    expect(JSON.parse(localStorage.getItem(DOOR_KEY) ?? "{}")).toMatchObject({ archetype: "writer", home: "family-house" });
+    expect(JSON.parse(localStorage.getItem(DOOR_KEY) ?? "{}")).toMatchObject({ archetype: "writer", home: "compound-room", homePicked: true });
   });
 
   test("[R-PROLOGUE-013] given a tile whose savings cannot cover the family house, then that row says the shortfall over \"short\" with a lock and cannot be picked, the room says what is still needed, and the home goes to the one the life can pay for", () => {
@@ -345,7 +343,7 @@ describe("the run through the front door", () => {
       expect(house.querySelector("svg")?.getAttribute("class")).toContain("lucide-lock");
       const room = document.querySelector<HTMLButtonElement>("[data-home='compound-room']")!;
       expect(room.disabled).toBe(true);
-      expect(room.querySelector("[data-home-left]")?.textContent).toBe(`${formatMoney(48000000 + 5000000 - 5000000, "NGN")}${say("ui.door.home.needed")}`);
+      expect(room.querySelector("[data-home-left]")?.textContent).toBe(`${formatMoney(42000000 + 5000000 - 5000000, "NGN")}${say("ui.door.home.needed")}`);
       const water = document.querySelector<HTMLButtonElement>("[data-home='makoko']")!;
       expect(water.disabled).toBe(false);
       expect(water.getAttribute("aria-checked")).toBe("true");
