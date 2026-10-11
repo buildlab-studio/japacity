@@ -1,0 +1,92 @@
+// The answer once courted, in the world (docs/rules/people.md R-PEOPLE-013, R-PEOPLE-054; world.md R-WORLD-020). Review
+// 13, Z3: "Start seeing Tobi" closed the sheet, Tobi left the parlour, and nothing was said; the corner had
+// told its line while the home's card hid it. the corner tells the person's own line,
+// and it waits for the corner to show. The place files are the ones the game ships; the scene is a stand-in that hands
+// the city a tap on a thing's act.
+import { text } from "@japacity/content";
+import { act, fireEvent, screen, waitFor } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
+
+import { peopleGame, renderWithGame, TOBI } from "../../shared/testing/people";
+import { nameOf, say } from "../../shared/words/text";
+import type { Act, Thing } from "../../shared/world/contract";
+import { TOLD_MS } from "../../shared/world/Lines";
+import { City } from "./City";
+
+vi.mock("./CityScene", () => ({
+  default: ({ things, onPick }: { things?: Thing[]; onPick: (pick: { kind: "act"; thing: Thing; act: Act }) => void }) => (
+    <div data-stand-in-scene>
+      {(things ?? []).flatMap((thing) =>
+        thing.acts.map((one) => <button key={`${thing.id}:${one.id}`} type="button" data-stand-in-act={`${thing.id}:${one.id}`} onClick={() => onPick({ kind: "act", thing, act: one })} />),
+      )}
+    </div>
+  ),
+}));
+
+// The place files the game ships, read from the disk in place of the server.
+vi.mock("../../shared/three/manifest", async (original) => {
+  const real = await original<typeof import("../../shared/three/manifest")>();
+  const fs = await import("node:fs");
+  const path = await import("node:path");
+  const assets = path.join(import.meta.dirname, "..", "..", "..", "public", "assets");
+  return {
+    ...real,
+    loadManifest: () => Promise.resolve({ files: {} }),
+    loadJson: (_manifest: unknown, under: string) => {
+      const file = path.join(assets, under);
+      return Promise.resolve(fs.existsSync(file) ? (JSON.parse(fs.readFileSync(file, "utf8")) as unknown) : null);
+    },
+  };
+});
+
+beforeEach(() => {
+  Object.defineProperty(window, "WebGL2RenderingContext", { value: class {}, configurable: true });
+  vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockImplementation(() => ({}) as never);
+  // Inside the family house, where the people met after the service come home with the family.
+  window.localStorage.setItem("japacity.city.last", JSON.stringify(["place.family-house"]));
+});
+
+afterEach(() => {
+  vi.useRealTimers();
+  vi.restoreAllMocks();
+  Reflect.deleteProperty(window, "WebGL2RenderingContext");
+  window.localStorage.clear();
+});
+
+describe("the answer once courted", () => {
+  test("[R-PEOPLE-013] [R-PEOPLE-054] [R-WORLD-020] given Tobi in the parlour and the home's card still up, when he is courted, then the corner waits for the card to be put away and tells his answer in his own words, then that he lives in the game", async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    const game = peopleGame();
+    game.grant(1);
+    game.endTurn([]);
+    const { authority } = await renderWithGame(<City world results={() => <p />} />, game);
+    // Into the parlour through the house's door.
+    fireEvent.click(await waitFor(() => {
+      const door = document.querySelector<HTMLElement>('[data-stand-in-act="house:enter"]');
+      if (door === null) throw new Error("No door to the house.");
+      return door;
+    }));
+    const talk = await waitFor(() => {
+      const found = document.querySelector<HTMLElement>('[data-stand-in-act^="after-service:"]');
+      if (found === null) throw new Error(`Tobi is not standing in the parlour. ${document.querySelector("[data-city]")?.getAttribute("data-city") ?? "no city"} ${[...document.querySelectorAll<HTMLElement>("[data-stand-in-act]")].map((one) => one.dataset.standInAct).join(",")}`);
+      return found;
+    });
+    // The home's card, once in a life (R-HOME-008), is still up: the player went straight to Tobi, as in the review.
+    expect(document.querySelector("[data-home-teach-ok]")).not.toBeNull();
+    fireEvent.click(talk);
+    fireEvent.click(await screen.findByRole("button", { name: new RegExp(say("ui.people.court", { name: nameOf(TOBI) })) }));
+    await waitFor(() => expect(authority.sent.at(-1)).toMatchObject({ type: "people/court", with: TOBI }));
+    const answer = say("ui.people.courted.said", { name: nameOf(TOBI), line: text[`${TOBI}.courted`]! });
+    // The home's card covers the corner: the answer waits for it.
+    await waitFor(() => expect(document.querySelector("[data-home-teach]")).not.toBeNull());
+    expect(document.querySelector("[data-corner]")?.textContent ?? "").not.toContain(answer);
+    // However long the card stays up, the answer is still told once it is put away.
+    act(() => {
+      vi.advanceTimersByTime(TOLD_MS * 2);
+    });
+    act(() => document.querySelector<HTMLElement>("[data-home-teach-ok]")?.click());
+    await waitFor(() => expect(document.querySelector("[data-corner]")?.textContent).toContain(answer));
+    const told = document.querySelector("[data-corner]")?.textContent ?? "";
+    expect(told.indexOf(answer)).toBeLessThan(told.indexOf(say("ui.people.chosen", { name: nameOf(TOBI) })));
+  });
+});

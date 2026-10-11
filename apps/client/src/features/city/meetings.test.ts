@@ -11,10 +11,10 @@ import yardRaw from "../../../public/assets/places/family-house/place.json";
 import parlourRaw from "../../../public/assets/places/family-house-parlour/place.json";
 import theirRoom from "../../../public/assets/places/their-room/place.json";
 import yabaHub from "../../../public/assets/places/yaba-hub/place.json";
-import { courted, peopleGame, TOBI } from "../../shared/testing/people";
+import { courted, eagerContent, partnered, peopleGame, TOBI } from "../../shared/testing/people";
 import { nameOf, say } from "../../shared/words/text";
 import { actsOffered } from "./acts";
-import { COURT, makeRoom, meetingThingsAt, roomFor, roomNear, roomOpen, standingAt, talkAsk, THEIR_ROOM, withMeetings, withStanding, type TalkWords } from "./meetings";
+import { COURT, courtedTold, makeRoom, meetingThingsAt, roomFor, roomNear, roomOpen, standingAt, talkAsk, THEIR_ROOM, withMeetings, withStanding, type TalkWords } from "./meetings";
 import { type PlaceFile, stageOf } from "./placeFile";
 import { stagedNow, thingSpot, thingsNow, thingsOf } from "./things";
 
@@ -36,6 +36,7 @@ const WORDS: TalkWords = {
   full: (count) => say("ui.people.court.full", { count }),
   notYet: say("ui.needs.not-yet"),
   computer: say("ui.people.mark.computer"),
+  partnered: (partner, name) => say("ui.people.court.partnered", { partner: partner === null ? say("ui.people.who.player") : nameOf(partner), name }),
 };
 
 /** Tunde's life one month in: the computer partners the view lists for a grown man at home. */
@@ -172,6 +173,48 @@ describe("the talk sheet", () => {
     expect(ask.blocked).toBe(say("ui.people.court.full", { count: maxCourting }));
     // The engine says the same: one more is not legal.
     game.expectRejected({ type: COURT, with: TOBI }, "not-legal");
+  });
+});
+
+describe("seeing someone beside someone else", () => {
+  // Review 13, Z3: Hauwa was still offered while Tobi was courted. The rules allow it (R-PEOPLE-013, up to
+  // maxCourting), and courting beside courting costs nothing, so then the card says nothing more; beside a partner, gossip
+  // follows (R-PEOPLE-018, R-PEOPLE-041), and the card says what it costs before the tap.
+  test("[R-PEOPLE-041] [R-PEOPLE-013] given Tobi only courted, when Hauwa is talked to, then her card adds nothing, since the rules ask nothing of courting two", () => {
+    const game = tunde();
+    courted(game, TOBI);
+    const ask = talkAsk(HAUWA, game.view(), maxCourting, WORDS, { send: () => undefined, dismiss: () => undefined });
+    expect(ask.blocked).toBeUndefined();
+    expect(ask.note).toBeUndefined();
+  });
+
+  test("[R-PEOPLE-041] [R-PEOPLE-018] given Tobi a partner, when Hauwa is talked to, then her card's button stays open and its second line says seeing her too costs standing if it comes out, and Tobi may leave", () => {
+    const game = peopleGame(eagerContent());
+    const bond = partnered(game);
+    expect(game.view().people.bonds.find((one) => one.id === bond)?.stage).toBe("partner");
+    const ask = talkAsk(HAUWA, game.view(), maxCourting, WORDS, { send: () => undefined, dismiss: () => undefined });
+    expect(ask.blocked).toBeUndefined();
+    expect(ask.note).toBe(say("ui.people.court.partnered", { partner: nameOf(TOBI), name: nameOf(HAUWA) }));
+    expect(ask.note).toContain(nameOf(TOBI));
+    expect(ask.note).toContain(nameOf(HAUWA));
+  });
+});
+
+describe("the answer once courted", () => {
+  // the corner tells the person's own line, then the plain line
+  // that they live in the game (R-PEOPLE-054).
+  test("[R-PEOPLE-013] [R-PEOPLE-054] given a computer partner courted, when the corner is told, then their answer comes first in their own words, as theirs, and the plain line that they live in the game follows", () => {
+    for (const { person } of partnerMeetings) {
+      const told = courtedTold(person, {
+        name: nameOf,
+        answer: (one) => text[`${one}.courted`] ?? null,
+        said: (name, line) => say("ui.people.courted.said", { name, line }),
+        chosen: (name) => say("ui.people.chosen", { name }),
+      });
+      expect(told).toEqual([say("ui.people.courted.said", { name: nameOf(person), line: text[`${person}.courted`]! }), say("ui.people.chosen", { name: nameOf(person) })]);
+      expect(told[0]?.startsWith(`${nameOf(person)}: "`)).toBe(true);
+    }
+    expect(courtedTold(TOBI, { name: nameOf, answer: () => null, said: (name, line) => `${name}${line}`, chosen: (name) => name })).toEqual([nameOf(TOBI)]);
   });
 });
 
