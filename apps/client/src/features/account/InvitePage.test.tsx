@@ -194,4 +194,30 @@ describe("the invite link's page", () => {
     expect(await screen.findByText(words("reject.used"))).toBeDefined();
     expect(screen.queryByRole("figure")).toBeNull();
   });
+
+  test.each([
+    ["used", 409],
+    ["expired", 403],
+  ])("[R-PAIR-008] given the server refusing the link as %s with %i, then the page reads the refusal from the body and says it in words", async (code, status) => {
+    const server = fakeServer();
+    server.answer(`GET /api/invite/${CODE}`, { status, body: { ok: false, code, detail: "Refused." } });
+    const store = createGameStore({ view: () => Promise.resolve(engineView()), send: () => Promise.reject(new Error("unused")) });
+    render(
+      <GameProvider store={store}>
+        <InvitePage code={CODE} server={api({ baseUrl: BASE, fetch: server.fetch })} />
+      </GameProvider>,
+    );
+    expect(await screen.findByText(words(`reject.${code}`))).toBeDefined();
+    expect(screen.queryByText("Refused.")).toBeNull();
+    expect(screen.queryByText(say("ui.account.fail.unreachable"))).toBeNull();
+  });
+
+  test("[R-PAIR-018] given a card shown, when taking it is refused as region with 403, then the page reads the refusal from the body and says it in words", async () => {
+    const server = cardServer("sibling", NO_CHARACTER);
+    server.answer(`POST /api/invite/${CODE}/accept`, { status: 403, body: { ok: false, code: "region", detail: "Players here may not be paired." } });
+    openLink(server, account());
+    fireEvent.click(await screen.findByRole("button", { name: say("ui.invite.take") }));
+    expect(await screen.findByText(words("reject.region"))).toBeDefined();
+    expect(server.sent.some((request) => request.path.endsWith("/accept"))).toBe(true);
+  });
 });

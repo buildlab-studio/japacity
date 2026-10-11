@@ -49,20 +49,23 @@ describe("invite links", () => {
     expect(shown.text).not.toMatch(/kobo|naira|photo|phone|http|@/i);
   });
 
-  test("[R-PAIR-008] given a link taken once, when another account takes it, then it is refused as used and the record does not move", async () => {
+  test("[R-PAIR-008] given a link taken once, when another account takes it, then it is refused as used with 409 and the record does not move", async () => {
     const { server, key, code } = await linkedPair();
     expect((await call<Reply<InvitesListed>>(server, "GET", "/api/invite", INVITER)).body).toMatchObject({ ok: true, open: [] });
     await newLife(server, "account-c", "scenario.zainab");
 
-    const again = await accept(server, "account-c", code);
+    const again = await call<Reply<InviteAccepted>>(server, "POST", `/api/invite/${code}/accept`, "account-c", { slot: "partner" });
     const shown = await call<Reply<InviteShown>>(server, "GET", `/api/invite/${code}`, null);
 
-    expect(again).toMatchObject({ ok: false, code: "used" });
+    // a link taken is a conflict, 409, as a name taken or an action appealed already.
+    expect(again.status).toBe(409);
+    expect(again.body).toMatchObject({ ok: false, code: "used" });
+    expect(shown.status).toBe(409);
     expect(shown.body).toMatchObject({ ok: false, code: "used" });
     expect((await recordOf(server.deps, key))?.v).toBe(1);
   });
 
-  test("[R-PAIR-008] given a link, when it is taken a millisecond before it runs out, then it works, and at the moment it runs out it is refused as expired", async () => {
+  test("[R-PAIR-008] given a link, when it is taken a millisecond before it runs out, then it works, and at the moment it runs out it is refused as expired with 403", async () => {
     const server = pairServer();
     await newLife(server, INVITER);
     await newLife(server, FRIEND, "scenario.tunde");
@@ -73,8 +76,13 @@ describe("invite links", () => {
     expect(made.expires - made.madeAt).toBe(content.tuning.pair.inviteDays * time.DAY_MS);
 
     server.setNow(made.expires);
-    expect(await accept(server, FRIEND, code)).toMatchObject({ ok: false, code: "expired" });
-    expect((await call<Reply<InviteShown>>(server, "GET", `/api/invite/${code}`, null)).body).toMatchObject({ ok: false, code: "expired" });
+    // a link run out is 403, as the age pass that ran out is on the account routes.
+    const late = await call<Reply<InviteAccepted>>(server, "POST", `/api/invite/${code}/accept`, FRIEND, { slot: "partner" });
+    expect(late.status).toBe(403);
+    expect(late.body).toMatchObject({ ok: false, code: "expired" });
+    const lateShown = await call<Reply<InviteShown>>(server, "GET", `/api/invite/${code}`, null);
+    expect(lateShown.status).toBe(403);
+    expect(lateShown.body).toMatchObject({ ok: false, code: "expired" });
 
     server.setNow(made.expires - 1);
     expect(await accept(server, "account-c", code)).toMatchObject({ ok: true });
@@ -102,7 +110,7 @@ describe("invite links", () => {
     expect(await server.deps.stores.invite.get(code)).toMatchObject({ used: false });
   });
 
-  test("[R-PAIR-008] given maxOpenInvites cards out, when one more link is asked for, then it is refused as too-many, and the card already out gets its own link again", async () => {
+  test("[R-PAIR-008] given maxOpenInvites cards out, when one more link is asked for, then it is refused as too-many with 429, and the card already out gets its own link again", async () => {
     const server = pairServer(tuned((copy) => (copy.tuning.pair.maxOpenInvites = 1)));
     await newLife(server, INVITER);
     const code = await cardOut(server);
@@ -111,6 +119,8 @@ describe("invite links", () => {
     const more = await call<Reply<InviteMade>>(server, "POST", "/api/invite", INVITER, { slot: "sibling-1" });
     const again = await call<Reply<InviteMade>>(server, "POST", "/api/invite", INVITER, { slot: "partner" });
 
+    // too many is 429, as the guest sign-up's too-many and the reports' limit are.
+    expect(more.status).toBe(429);
     expect(more.body).toMatchObject({ ok: false, code: "too-many" });
     expect(again.body).toMatchObject({ ok: true, code });
   });
@@ -136,7 +146,7 @@ describe("invite links", () => {
     expect(await server.deps.stores.invite.get(code)).toMatchObject({ used: false });
   });
 
-  test("[R-PAIR-018] [R-REGION-002] given a region at none, when its player asks for a link or takes one, then each is refused with region and no record is made", async () => {
+  test("[R-PAIR-018] [R-REGION-002] given a region at none, when its player asks for a link or takes one, then each is refused with region and 403 and no record is made", async () => {
     const server = pairServer();
     await newLife(server, INVITER);
     const code = await cardOut(server);
@@ -145,8 +155,13 @@ describe("invite links", () => {
     await call(server, "POST", "/api/character", "account-eu", { scenario: "scenario.tunde" });
     await must(server, "account-eu", { type: "people/invite", slot: "partner", looking: "partner" });
 
-    expect(await accept(server, FRIEND, code, { slot: "partner", scenario: "scenario.tunde" })).toMatchObject({ ok: false, code: "region" });
-    expect((await call<Reply<InviteMade>>(server, "POST", "/api/invite", "account-eu", { slot: "partner" })).body).toMatchObject({ ok: false, code: "region" });
+    // a region that allows no pair is 403, as a region closed to sign-up is.
+    const taken = await call<Reply<InviteAccepted>>(server, "POST", `/api/invite/${code}/accept`, FRIEND, { slot: "partner", scenario: "scenario.tunde" });
+    expect(taken.status).toBe(403);
+    expect(taken.body).toMatchObject({ ok: false, code: "region" });
+    const asked = await call<Reply<InviteMade>>(server, "POST", "/api/invite", "account-eu", { slot: "partner" });
+    expect(asked.status).toBe(403);
+    expect(asked.body).toMatchObject({ ok: false, code: "region" });
     expect(await server.deps.stores.invite.pairs()).toEqual([]);
   });
 
