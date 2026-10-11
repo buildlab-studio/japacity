@@ -1,7 +1,7 @@
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
-import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
 import { GameProvider } from "../../authority/GameProvider";
@@ -131,16 +131,34 @@ function oneWordmark(ground: "light" | "dark"): void {
   expect(shown[0]?.getAttribute("src")).toMatch(new RegExp(`brand/japacity-wordmark-adire-${ground}\\.svg$`));
 }
 
+/** The start screen's three hooks as a player reads them, row by row (R-TEXT-006, R-ACCOUNT-031). */
+const START_HOOKS = [
+  ["Last one out,", "off the light."],
+  ["Not going?", "Keep the light on."],
+  ["Japa is not by force.", "How ready are you?"],
+];
+
 const ageFields = () => [say("ui.account.age.day"), say("ui.account.age.month"), say("ui.account.age.year")].map((name) => screen.queryByRole("combobox", { name }));
 
 describe("the start screen online", () => {
-  test("[R-ACCOUNT-029] given a new browser, then the first screen is the start screen over the compound: no title over the figure, R-TEXT-006's line, Play and I already have a life here, and nothing else asked", async () => {
+  // the hook in two rows, the three steps, Play with
+  // its second line, and the two lights over the scene, where the sentence was.
+  test("[R-ACCOUNT-029] [R-TEXT-006] given a new browser, then the first screen is the start screen over the compound: no title over the figure, the hook in two rows and the three steps where the sentence was, Play with its second line and I already have a life here, the two lights over the top, and nothing else asked", async () => {
     const account = fakeAccount();
     gate(account);
     const playButton = await screen.findByRole("button", { name: say("ui.account.start.play") });
     expect(playButton).toBeDefined();
+    expect(playButton.textContent).toBe(`${say("ui.account.start.play")}${say("ui.account.start.play.then")}`);
+    expect(say("ui.account.start.play.then")).toBe("Free · no sign-up");
     expect(screen.getByRole("button", { name: say("ui.account.start.returning") })).toBeDefined();
-    expect(screen.getByText(say("ui.life.intro"))).toBeDefined();
+    const hook = screen.getByRole("heading", { level: 1 });
+    expect(hook.children).toHaveLength(2);
+    expect(START_HOOKS).toContainEqual([...hook.children].map((row) => row.textContent));
+    expect(screen.queryByText(say("ui.life.intro"))).toBeNull();
+    const steps = within(screen.getByRole("list", { name: say("ui.account.start.steps") })).getAllByRole("listitem");
+    expect(steps.map((step) => step.textContent?.trim())).toEqual(["Hustle", "Papers", "Fly"]);
+    expect(steps.every((step) => step.querySelector("svg") !== null)).toBe(true);
+    expect(document.querySelector('[data-gate="start"] [data-gate-over] [data-two-lights]')).not.toBeNull();
     expect(screen.queryByText(say("ui.game"))).toBeNull();
     expect(wordmarks()).toEqual([]);
     // The compound behind, as the door draws it, with the sheet over the bottom of it.

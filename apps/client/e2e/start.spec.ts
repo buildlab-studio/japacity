@@ -115,7 +115,7 @@ test("[R-ACCOUNT-029] [R-ACCOUNT-021] Play leads to the age screen, the three-sc
   const faked = await fakeServer(page, signUpRoutes(lifeMade()));
   await page.goto("/");
 
-  // The start screen over the compound: the game's name, one line, Play, and the way back to a kept life.
+  // The start screen over the compound: the hook, the three steps, Play, and the way back to a kept life (R-ACCOUNT-031 hangs the two lights over it).
   await expect(page.getByRole("button", { name: "Play", exact: true })).toBeVisible({ timeout: 20_000 });
   await expect(page.locator('[data-gate="start"] [data-front-scene]')).toBeAttached();
   // The compound draws in its own chunk; the picture waits for it, where the browser can draw it at all.

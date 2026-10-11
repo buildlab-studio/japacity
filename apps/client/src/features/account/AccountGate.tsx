@@ -1,4 +1,5 @@
-// What a signed-out player sees online. The start screen first, over the compound with no title (R-ACCOUNT-029): Play goes to
+// What a signed-out player sees online. The start screen first, over the compound with no title and the two lights hung over
+// it (R-ACCOUNT-029, R-ACCOUNT-031): Play goes to
 // the age screen (R-ACCOUNT-012) and on to the door, where Begin on the page makes the guest life (R-ACCOUNT-021)
 // with the username filled in from the name and the bot check run unseen (GuestStart.tsx); "I already have a life
 // here" goes straight to the ways back in. No sign-in method is asked for at the door, and none of the ways back in
@@ -22,6 +23,8 @@ import { Wordmark } from "../../shared/ui/Wordmark";
 import { SignIn } from "./SignIn";
 import { refreshAccount } from "./standing";
 import { StartScreen } from "./StartScreen";
+import { useLights } from "./lights";
+import { TwoLights } from "./TwoLights";
 import { loadTurnstile, siteKey, type LoadTurnstile } from "./Turnstile";
 
 type Standing = AgeStanding | FullStanding | "loading" | "failed";
@@ -61,6 +64,16 @@ export interface AccountGateProps {
   door?: ((guest: GuestDoor) => ReactNode) | null;
   /** A seam for tests: how long Begin waits for the unseen check's token. */
   botWaitMs?: number;
+}
+
+/** The two lights over the start screen, edge to edge from the very top (R-ACCOUNT-031). */
+function StartLights() {
+  const shown = useLights();
+  return (
+    <div className="-mx-3 -mt-[max(10px,env(safe-area-inset-top))]">
+      <TwoLights shown={shown} />
+    </div>
+  );
 }
 
 /** The new life after the age screen: the door with the guest start at Begin, or, inside the invite page, the form. */
@@ -203,8 +216,10 @@ export function AccountGate({ load = loadTurnstile, sitekey, embedded = false, a
       <Wordmark ground="dark" />
     </div>
   );
+  // Over the start screen alone hang the two lights (R-ACCOUNT-031); the account screens carry the wordmark instead.
+  const over = marked ? top : shown === "start" ? <StartLights /> : null;
   return (
-    <Gate mark="start" {...(marked ? { over: top } : {})}>
+    <Gate mark="start" {...(over === null ? {} : { over })}>
       <GateSheet mark={shown} label={say("ui.game")}>
         {notice === null ? null : (
           <p role="status" className="mb-3 rounded-[5px] border-l-4 border-l-action bg-sheet-muted p-3 text-[14px]">

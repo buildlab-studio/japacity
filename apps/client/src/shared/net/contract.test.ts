@@ -41,6 +41,7 @@ const COPIES: Copy[] = [
   ...same("apps/server/src/routes/draw.ts", "DrawReply"),
   { client: ["apps/client/src/features/adverts/adverts.ts", "ServedAdvert"], server: ["apps/server/src/adverts/serve.ts", "ServedAdvert"] },
   { client: ["apps/client/src/features/adverts/adverts.ts", "AdvertsReply"], server: ["apps/server/src/adverts/serve.ts", "AdvertsReply"] },
+  { client: ["apps/client/src/features/account/lights.ts", "LightsReply"], server: ["apps/server/src/routes/lights.ts", "LightsReply"] },
   { client: ["apps/client/src/shared/analytics/counters.ts", "CounterRow"], server: ["apps/server/src/analytics/batch.ts", "CounterRow"] },
   { client: ["apps/client/src/shared/analytics/counters.ts", "CounterBatch"], server: ["apps/server/src/analytics/batch.ts", "CounterBatch"] },
   ...["BoardName", "BoardRow", "BoardReply"].map((name): Copy => ({ client: ["apps/client/src/features/boards/boards.ts", name], server: ["apps/server/src/boards/board.ts", name] })),
