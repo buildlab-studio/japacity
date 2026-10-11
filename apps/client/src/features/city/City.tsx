@@ -42,7 +42,7 @@ import { markTaught, wasTaught } from "../../shared/world/taught";
 import { WorldSheet } from "../../shared/world/WorldSheet";
 import { actOnCard, answersNow, nowActOf, nowLineIn } from "../../shared/words/acts";
 import { actsOffered, answerAsk, askHeader, isPaper, KIOSK_CAP, kioskAnswer, withPlanned } from "./acts";
-import { kioskCapReached } from "../../shared/words/lotto";
+import { earnedShort, kioskCapReached } from "../../shared/words/lotto";
 import { doActLine, lightBack, plainActLine, plannedMarks } from "./actLines";
 import { cityWords, heardWords, placeName, residentName, roleWords } from "./city.words";
 import { CreditsSheet } from "./Credits";
@@ -65,7 +65,7 @@ import { enterable, homeStagesAt, offersHere, openingPlace, openScene, reportHer
 import { type Coming, soonest } from "../../shared/words/coming";
 import { stagedNow, thingsNow, thingsOf, vehicleOf, withMoreAt } from "./things";
 import { stopReached } from "./stops";
-import { opensKiosk, withKiosk } from "./kiosk";
+import { KIOSK, opensKiosk, withKiosk } from "./kiosk";
 import { namedThings } from "./mark";
 import { WORLD_LIMITS } from "../../../../../tools/assets/world-check";
 import { COURT, courtedTold, DECEMBER, makeRoom, roomFor, roomNear, roomOpen, roomPartner, standingAsThemselves, standingAt, talkAsk, THEIR_ROOM, withMeetings, withStanding } from "./meetings";
@@ -1168,6 +1168,8 @@ export function City({
       ...(answersNow(activity) ? { when: "now" as const } : {}),
       ...(paper ? { reference: clock.toUpperCase() } : {}),
       ...(option.allowed ? {} : { blocked: needsWords(option.missing) }),
+      // R-WALLET-020: a slip is paid from earned naira only; with only topped-up naira to pay it, the kiosk is shut with its words.
+      ...(activity === KIOSK && cost !== null && earnedShort(view, cost.amount) ? { blocked: say("ui.lottery.earned-only") } : {}),
       // R-LUCK-005: past the month's ceiling the kiosk's button is shut with the kiosk man's line.
       ...(activity === "activity.play-lotto" && kioskCapReached(monthLines) ? { blocked: words(KIOSK_CAP) } : {}),
       // An act already in this month's plan that planning again does nothing for is shut until the month ends.

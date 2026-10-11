@@ -8,7 +8,7 @@ import { renderWithView } from "../../shared/testing/render";
 import { formatMoney } from "../../shared/words/format";
 import { requirementSentence } from "../../shared/words/requirement";
 import { ActivityPicker } from "./ActivityView";
-import { chanceBand, huntOrder, jobCardLine, jobChanceBp, jobsOutOfReach } from "./JobList";
+import { chanceBand, firstJob, huntOrder, jobCardLine, jobChanceBp, jobsOutOfReach } from "./JobList";
 import { jobsWords } from "./jobs.words";
 
 const HUNT = "activity.job-hunt";
@@ -75,17 +75,20 @@ describe("the jobs list on the hunt's card", () => {
     }
   });
 
-  test("[R-WORLD-006] given the teacher's pay under Ada's living costs, when the list is ordered, then the likely jobs come first, the best paid of them on top, and that row is the one chosen", async () => {
+  // Restated 11 Oct 2026 for R-ACTIVITY-005 as amended: the list keeps its order, and the row
+  // chosen is the life's own trade, Ada's code, where it was the first row.
+  test("[R-WORLD-006] [R-ACTIVITY-005] given the teacher's pay under Ada's living costs, when the list is ordered, then the likely jobs come first, the best paid of them on top, and the row chosen is her own trade's, the junior developer's", async () => {
     const view = engineView();
     const ordered = huntOrder(view, huntOf(view));
     const bands = ordered.map((job) => chanceBand(jobChanceBp(entryOf(job), networkOf(view))));
     const rank = { likely: 0, fair: 1, long: 2 } as const;
     expect(bands.map((band) => rank[band])).toEqual([...bands.map((band) => rank[band])].sort((a, b) => a - b));
     expect(ordered[0]).not.toBe("activity.job-teacher");
+    expect(firstJob(view, ordered)).toBe("activity.job-junior-dev");
     await renderWithView(<ActivityPicker only={[HUNT]} />, view);
     const checked = screen.getAllByRole("radio").filter((row) => row.getAttribute("aria-checked") === "true");
     expect(checked).toHaveLength(1);
-    expect(checked[0]?.getAttribute("data-job")).toBe(ordered[0]);
+    expect(checked[0]?.getAttribute("data-job")).toBe("activity.job-junior-dev");
   });
 
   test("[R-WORLD-006] given a row tapped, when the hunt is added to the month, then the slot carries that job", async () => {
@@ -184,7 +187,8 @@ describe("the jobs list as rows on the sheet", () => {
     const view = engineView();
     const ordered = huntOrder(view, huntOf(view));
     await renderWithView(<ActivityPicker only={[HUNT]} />, view);
-    expect(applyButton().textContent).toBe(`${jobsWords("jobs.apply")}${nameOfJob(ordered[0] ?? "")}`);
+    // the pick the card opens on is the life's own trade.
+    expect(applyButton().textContent).toBe(`${jobsWords("jobs.apply")}${nameOfJob(firstJob(view, ordered) ?? "")}`);
     const last = ordered.at(-1) ?? "";
     fireEvent.click(screen.getByRole("radio", { name: new RegExp(`^${nameOfJob(last)}`) }));
     expect(applyButton().textContent).toBe(`${jobsWords("jobs.apply")}${nameOfJob(last)}`);

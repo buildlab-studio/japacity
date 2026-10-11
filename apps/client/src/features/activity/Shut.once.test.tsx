@@ -49,4 +49,14 @@ describe("a shut card says why once", () => {
       expect(text).not.toContain(say("ui.activity.no-route"));
     }
   });
+
+  test("[R-ADVICE-001] [R-WORLD-006] given a developer's first month with no way out heard of, when the adviser's card shows, then its reason reads as a person says it, Hear of a way out first, and Not yet is said once, on the shut button, never again over the reason", async () => {
+    const view = developer().view();
+    await renderWithView(<ActivityPicker only={[ADVISER, FRIEND]} />, view);
+    const cards = [...document.querySelectorAll<HTMLElement>("[data-activity-picker] > li")];
+    const adviser = cards[0]!.textContent ?? "";
+    expect(say("ui.req.any-route")).toBe("Hear of a way out first");
+    expect(count(adviser, say("ui.req.any-route"))).toBe(1);
+    for (const card of cards) expect(count(card.textContent ?? "", say("ui.needs.not-yet"))).toBe(1);
+  });
 });

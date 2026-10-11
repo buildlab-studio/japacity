@@ -5,8 +5,10 @@ import type { ReportLine } from "@japacity/sim";
 
 import { monthlyPayOf, type PayView } from "./cost";
 import { countWords } from "./count";
+import { hasWords } from "./text";
 import { afterPrologue, isUnpaid, tidyLines, toldUnpaid } from "./lines";
 import { moneyTold } from "./money";
+import { type BandView, bandResultFor, ISSUED_BAND_MET, ISSUED_BAND_SHORT } from "./test";
 
 /** A piece added to the portfolio, as the results tell the portfolio's own line. */
 export const PIECE = "line.activity.piece-built";
@@ -55,10 +57,15 @@ function answered(line: ReportLine): ReportLine {
  * cost, a hunt says the job and its answer, an offer of work says the pay a month. Anything else
  * is told as News tells it.
  */
-export function toldOnResults(line: ReportLine, pays: PayView): ReportLine {
+export function toldOnResults(line: ReportLine, pays: PayView & BandView): ReportLine {
   const { job } = line.params;
+  // The English result against the plan's own band.
+  if (line.key === ISSUED_BAND_MET || line.key === ISSUED_BAND_SHORT) return bandResultFor(line, pays);
   if (line.key === TAKEN) return answered(line);
   // A score or a count of pieces reads as a person says it: "one of three", never "1 of 3" (R-TEXT-005).
+  // An act sat as a set piece is told in its own words where content has them: the talk, how it went.
+  const own = EXAM_MARKED.has(line.key) && typeof line.params.activity === "string" ? `${line.key}.${line.params.activity}` : null;
+  if (own !== null && hasWords(own)) return { ...line, key: own };
   if (EXAM_MARKED.has(line.key) || line.key === PIECE || line.key === PIECE_MORE) return { ...line, params: Object.fromEntries(Object.entries(line.params).map(([name, value]) => [name, typeof value === "number" ? countWords(value) : value])) };
   if (line.key === "line.obligation.missed") return toldUnpaid(line);
   if (line.key === "line.activity.hunt-missed" && typeof job === "string") return { ...line, key: "ui.results.hunt-missed" };
@@ -88,7 +95,7 @@ function newsOrder(lines: readonly ReportLine[]): ReportLine[] {
  * told by the results' money lines (`moneyTold`), in or out by its sign: a change at the bank says both sides and the
  * charge, never the wallet's "Changed money". `pays` is the view a hunt's job is paid from.
  */
-export function newsLines(midMonth: readonly ReportLine[], report: readonly ReportLine[], pays: PayView): ReportLine[] {
+export function newsLines(midMonth: readonly ReportLine[], report: readonly ReportLine[], pays: PayView & BandView): ReportLine[] {
   // The years before are told once, on the page: News never lists the prologue's lines, whose
   // words are the simulation's (a grade, a quality up or down), nor its money, which is what the character starts with.
   const month = tidyLines(afterPrologue([...midMonth, ...report]));

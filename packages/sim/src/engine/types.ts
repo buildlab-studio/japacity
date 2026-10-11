@@ -112,6 +112,8 @@ export type Reason =
   | "undertaking"
   /** Social assistance received abroad (docs/rules/undertaking.md), a source. */
   | "assistance"
+  /** Naira bought with real money, credited only by the authority's `wallet/top-up` (docs/rules/wallet.md R-WALLET-020), a source. Marked until spent. */
+  | "top-up"
   // transfers: always in matched pairs
   | "convert"
   | "move";
@@ -300,6 +302,8 @@ export type Effect =
   | { type: "money/take"; currency: Currency; pocket: Pocket | "any" | "transfer" | "locked"; amount: Amount; reason: Reason }
   /** Pay a foreign-currency fee from whatever the character holds: see R-WALLET-009. */
   | { type: "money/pay-fee"; currency: ForeignCurrency; amount: Amount; reason: Reason }
+  /** Naira bought with real money (R-WALLET-020): to the naira bank as `top-up`, a lot recorded, and the marked figure raised by the amount. Only the authority's `wallet/top-up` applies it. */
+  | { type: "wallet/top-up"; amount: number }
   // quality
   | { type: "quality/add"; quality: Id<"quality">; amount: number }
   // activity
@@ -1541,6 +1545,11 @@ export interface WalletSlice {
   keptMonths?: number;
   /** True once the cash warning was told (R-WALLET-019). Missing until then, so no state hash moves before it. */
   cashWarned?: true;
+  /**
+   * R-WALLET-020: naira topped up with real money and not yet spent, in kobo. Earned naira is spent first, so it falls only
+   * when a debit outruns the earned share; never above the naira bank and cash, never negative, missing while zero so no state hash moves.
+   */
+  marked?: number;
 }
 
 export interface DocumentState {
@@ -1866,6 +1875,8 @@ export type Command = { basedOn: number } & (
   | { type: "lottery/buy"; tickets: number }
   /** Sent by the authority alone, after the draw. */
   | { type: "lottery/pay"; draw: number; prizes: { tier: "jackpot" | "mid" | "small"; amount: number }[] }
+  /** Sent by the authority alone (R-WALLET-020, R-SERVER-013): naira bought with real money, marked. No server route sends it yet. */
+  | { type: "wallet/top-up"; amount: number }
   // people (docs/rules/people.md R-PEOPLE-012 to 020, 034 to 040)
   | { type: "people/invite"; slot: string; looking?: string; fill?: string }
   /** `with` names a computer character (`person.*`) or a slot holding an invited player (R-PEOPLE-014). */
@@ -2160,6 +2171,11 @@ export interface PlayerView {
   bankAllowanceLeft: number | null;
   /** Months ended in which the character kept more than they spent (decision 0021). A count the japa type reads; never shown as a figure. */
   keptMonths: number;
+  /**
+   * R-WALLET-020: `marked` is the topped-up naira not yet spent, 0 while there is none. The kiosk's sheet and slip read it
+   * (a ticket is bought only with the naira held less it); the Bank shows one balance.
+   */
+  wallet: { marked: number };
   /** `onItsWay` (R-DOCUMENT-008): the month the copy being made is due, pending or held with a new copy requested; null when none is. */
   documents: { id: Id<"document">; state: DocumentState["state"]; readyMonth: number | null; expiresMonth: number | null; value: number | null; onItsWay: number | null }[];
   routes: RouteView[];

@@ -262,7 +262,7 @@ describe("each act's outcome told the month it happens", () => {
     expect(keys(first)).not.toContain(CONTRIBUTED);
     const second = month(game, [slot(OPEN_SOURCE)]);
     // The piece is told by the portfolio's own line, which the results tell as a piece.
-    expect(second.lines).toContainEqual(expect.objectContaining({ key: "line.quality.gain", params: { quality: PORTFOLIO, points: 1, value: pieces + 1 } }));
+    expect(second.lines).toContainEqual(expect.objectContaining({ key: "line.quality.gain", params: { quality: PORTFOLIO, points: 1, value: pieces + 1, source: OPEN_SOURCE } }));
     expect(keys(second)).not.toContain(MERGED);
     expect(keys(second)).not.toContain(CONTRIBUTED);
     const third = month(game, [slot(OPEN_SOURCE)]);

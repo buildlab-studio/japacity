@@ -33,6 +33,7 @@ export const VIEW_KEYS = [
   "rates",
   "bankAllowanceLeft",
   "keptMonths",
+  "wallet",
   "documents",
   "routes",
   "setpiece",

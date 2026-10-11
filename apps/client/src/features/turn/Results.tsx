@@ -11,9 +11,9 @@ import { Counter } from "../../shared/world/Band";
 import { WorldSheet } from "../../shared/world/WorldSheet";
 import { formatMoney, formatNumber } from "../../shared/words/format";
 import { nowLineWords } from "../../shared/words/acts";
-import { say, sayCount, words } from "../../shared/words/text";
+import { inMonths, runningName, say, sayCount, words } from "../../shared/words/text";
 import { ToneTag } from "../../shared/ui/ToneTag";
-import { drawShown, foldLotto, isEvicted, isUnpaid, kept, leadsAlone, localCurrency, moneyLines, monthTags, quietLine, savings, storyLines, toldOnResults, untoldLines } from "./month.results";
+import { drawShown, foldLotto, isEvicted, isUnpaid, kept, leadsAlone, localCurrency, moneyLines, monthTags, quietLine, runningOut, savings, storyLines, toldOnResults, untoldLines } from "./month.results";
 import { turnWords } from "./turn.words";
 
 /** True while the results sheet is up: the month has just ended and its staged wins have passed. */
@@ -105,6 +105,7 @@ export function Results({ place, foot = null }: { place: string; foot?: ReactNod
   const story = storyLines(told);
   const news = untoldLines(told).length;
   const chapterClosed = report.lines.some((line) => line.key === CHAPTER_CLOSED);
+  const expiring = runningOut(view);
   const close = (): void => {
     cue("close");
     setReportOpen(false);
@@ -186,6 +187,13 @@ export function Results({ place, foot = null }: { place: string; foot?: ReactNod
             </ul>
           </section>
         )}
+
+        {/* A paper the plan needs that runs out within two months, the application not sent: one line each. */}
+        {expiring.map((paper) => (
+          <p key={paper.document} className="text-[14px] font-bold text-out" data-results-runs-out={paper.document}>
+            {say("document.reminder.runs-out", { document: runningName(paper.document), when: inMonths(paper.expiresMonth, view.month) })}
+          </p>
+        ))}
 
         {chapterClosed || view.turns.banked >= view.turns.cap ? (
           <p className="text-[14px] font-bold text-strong" data-results-months-full>

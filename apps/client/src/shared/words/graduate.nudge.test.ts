@@ -5,7 +5,7 @@ import { content } from "@japacity/content";
 import type { PlayerView, SlotPick } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
-import { huntOrder } from "../../features/activity/JobList";
+import { firstJob, huntOrder } from "../../features/activity/JobList";
 import { newGame } from "../testing/fixtures";
 import { nudgeOf } from "../../features/city/nudge";
 
@@ -21,8 +21,8 @@ function actFor(view: PlayerView, key: string): SlotPick | null {
   if (step.length < 2 || step[1] !== "nudge") return null;
   const option = (id: string) => view.activities.find((each) => each.id === id && each.allowed);
   if (step[0] === "job") {
-    // The board's first row is the one the sheet opens on (R-WORLD-006, the jobs list).
-    const first = huntOrder(view, option(HUNT)?.params ?? [])[0];
+    // The job the sheet opens on (R-WORLD-006, the jobs list; R-ACTIVITY-005 as amended 11 Oct 2026: the life's own trade first).
+    const first = firstJob(view, huntOrder(view, option(HUNT)?.params ?? [])) ?? undefined;
     return first === undefined ? null : { activity: HUNT, param: first };
   }
   if (step[0] === "heard") return option("activity.meetup") === undefined ? null : { activity: "activity.meetup", param: null };

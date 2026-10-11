@@ -7,7 +7,7 @@ import { slot } from "../../../../../packages/sim/src/route/route.journey";
 import { legalCommands } from "../../../../../packages/sim/src/testing/legal";
 import { newGame } from "../testing/fixtures";
 import { asksAttention, tidyLines } from "./lines";
-import { bandWords, nameOf, runningName, words } from "./text";
+import { bandWords, nameOf, runningName, say, words } from "./text";
 
 const line = (key: string, params: ReportLine["params"], tone: ReportLine["tone"] = "plain"): ReportLine => ({ key, params, tone, attention: false, counts: [] });
 
@@ -68,8 +68,8 @@ describe("one line per payment", () => {
 describe("lines that read right", () => {
   test("given a quality change, then its amount is points, never money", () => {
     expect(words("line.quality.loss", { quality: "quality.wellbeing", points: 4, value: 60 })).not.toMatch(/₦|£/);
-    // Said without its figure (R-TEXT-005).
-    expect(words("line.quality.worn", { quality: "quality.wellbeing", points: 2 })).toBe("Work wore on your wellbeing.");
+    // Said without its figure (R-TEXT-005), and without the quality's name.
+    expect(words("line.quality.worn", { quality: "quality.wellbeing", points: 2 })).toBe("Work took it out of you.");
   });
 
   test("given a school's discount in pounds as a bare number, then it shows in pounds", () => {
@@ -108,8 +108,10 @@ describe("a quality's move in words", () => {
   test("[R-TEXT-005] given a quality moved up while its band is low, or down while it is high, when the line is told, then it says the move alone, never a band that reads the other way, and no figure", () => {
     const up = words("line.quality.gain", { quality: "quality.network", points: 2, value: 5 });
     const down = words("line.quality.loss", { quality: "quality.wellbeing", points: 3, value: 95 });
-    expect(up).toBe(`${nameOf("quality.network")} up.`);
-    expect(down).toBe(`${nameOf("quality.wellbeing")} down.`);
+    // the move as a person notices it, never the quality's name or "up" and "down".
+    expect(up).toBe(say("line.quality.told.quality.network.gain"));
+    expect(down).toBe(say("line.quality.told.quality.wellbeing.loss"));
+    for (const said of [up, down]) expect(said).not.toMatch(new RegExp(`\\b(?:up|down)\\b|${nameOf("quality.network")}|${nameOf("quality.wellbeing")}`, "i"));
     expect(up).not.toContain(bandWords("quality.network", 5) ?? "-");
     expect(down).not.toContain(bandWords("quality.wellbeing", 95) ?? "-");
     for (const said of [up, down]) expect(said).not.toMatch(/\d/);

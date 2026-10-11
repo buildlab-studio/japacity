@@ -8,8 +8,6 @@
   "R-ENGINE-018",
   "R-GUIDE-012",
   "R-LOAD-012",
-  "R-LOTTERY-018",
-  "R-LOTTERY-019",
   "R-LOTTERY-020",
   "R-PEOPLE-006",
   "R-PEOPLE-055",
@@ -27,6 +25,5 @@
   "R-SERVER-033",
   "R-TEXT-001",
   "R-TEXT-003",
-  "R-TEXT-004",
-  "R-WALLET-020"
+  "R-TEXT-004"
 ]
