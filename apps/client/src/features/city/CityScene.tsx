@@ -2,8 +2,8 @@
 // place (R-ASSET-006), fog near or far by mode, and one frame loop that moves the clock, the crowd's
 // idling, the walk and the camera. In the world (docs/rules/world.md) the camera is the place's
 // raised shot, turned by one finger and zoomed by the pinch to the whole place or close on the
-// character (R-WORLD-009); the things carry labels, and a tap on one walks the character straight to
-// it and floats its acts over it (R-WORLD-005, 010). The street camera at a person's eyes, the plan
+// character (R-WORLD-009); the things carry quiet marks, and a tap on one walks the character straight
+// to it and floats its name and acts over it (R-WORLD-005, 010). The street camera at a person's eyes, the plan
 // view while the screen is held and the routed walks stay for the city behind the panels and for
 // `tuning.city.roam`. Nothing here sends a command (city.md R-CITY-001).
 import { onWalkable } from "@japacity/assets";
@@ -25,7 +25,7 @@ import { limitMotion } from "./limits";
 import { filesOf, type Spot, type Stage, stageOf } from "./placeFile";
 import type { CityProbe, ScenePick, SceneProps } from "./scene.types";
 import { chipNode } from "./chip";
-import { sceneWords } from "./scene.words";
+import { markNode, showMark } from "./mark";
 import { type LabelBox, spreadLabels } from "./labels";
 import { aimShot, clampTurn, roomShot, SHOT_FOV, SHOT_NEAR_PLANE, shotOf, snapZoom, widthEnds } from "./shot";
 import { thingSpot, walkBeforeAct } from "./things";
@@ -173,27 +173,8 @@ function Idle({ looking }: { looking: boolean }) {
   return null;
 }
 
-/** A thing's label: its name, over it, tapped like the thing itself; with the state of an act planned this month beside it. */
-function labelNode(thing: Thing, onTap: () => void, state: string | undefined): HTMLButtonElement {
-  const node = document.createElement("button");
-  node.type = "button";
-  node.textContent = sceneWords(thing.label);
-  node.dataset.mark = thing.id;
-  if (state !== undefined) {
-    const tag = document.createElement("span");
-    tag.dataset.thingState = state;
-    tag.className = "ml-1.5 rounded-[3px] bg-strong px-1.5 py-px align-[1px] text-[10px] font-extrabold text-on-strong";
-    tag.textContent = state;
-    node.append(tag);
-  }
-  node.className = "chip pointer-events-auto absolute -translate-x-1/2 -translate-y-full whitespace-nowrap px-2.5 py-1 text-[12px] font-extrabold";
-  node.style.display = "none";
-  node.onclick = onTap;
-  return node;
-}
-
 function Place(props: PlaceProps) {
-  const { place, file, people, own, settings, text, onProgress, onFailed, onPick, onFrame, looking, labelsHidden = false, plan, takeTap, markBox, rig, shot, raised, marks } = props;
+  const { place, file, people, own, settings, text, onProgress, onFailed, onPick, onFrame, looking, labelsHidden = false, plan, takeTap, markBox, rig, shot, raised, marks, named, nudged = null, teaching = false } = props;
   const roam = props.overview !== true || props.roam === true;
   const things = useMemo(() => props.things ?? [], [props.things]);
   const chosen = props.chosen ?? null;
@@ -238,29 +219,41 @@ function Place(props: PlaceProps) {
   walkForRef.current = walkFor;
   const chooseRef = useRef(choose);
   chooseRef.current = choose;
+  const stopRef = useRef(props.onStop);
+  stopRef.current = props.onStop;
 
-  // The labels live in the DOM box beside the canvas, one over each thing; the frame loop moves them.
+  // The marks live in the DOM box beside the canvas, one over each thing; the frame loop moves them (R-WORLD-005).
   useEffect(() => {
     if (markBox === null) return;
-    const made = things.map((thing) => ({ thing, node: labelNode(thing, () => chooseRef.current(thing), marks?.[thing.id]) }));
+    const made = things.map((thing) => ({ thing, node: markNode(thing, () => chooseRef.current(thing)) }));
     for (const { node } of made) markBox.append(node);
     labels.current = made;
     return () => {
       for (const { node } of made) node.remove();
       labels.current = [];
     };
-  }, [things, markBox, marks]);
+  }, [things, markBox]);
+  // Each mark as it stands: a dot, its name while it is named or taught, pulsing for the nudge, with its plan state.
+  const namedKey = (named ?? []).join("|");
+  useEffect(() => {
+    const names = new Set(namedKey.split("|"));
+    for (const { thing, node } of labels.current) showMark(node, { named: names.has(thing.id), teaching, pulse: nudged === thing.id, state: marks?.[thing.id] });
+  }, [things, markBox, namedKey, nudged, teaching, marks]);
 
   // The chosen thing's acts float over it until another tap puts them away.
   useEffect(() => {
     if (markBox === null || chosen === null) return;
-    const node = chipNode(chosen, (act) => {
-      // Tapping an act again ends the walk at once (R-WORLD-010).
-      if (walk.current.pending?.act === act && walk.current.walker.target !== null) walk.current.walker = stepWalk(walk.current.walker, 3600, walk.current.speed);
-      // Acts opened for a thing the character was not sent to (the nudge's way) still wait for the walk: the words start at the thing.
-      else if (walk.current.walker.target === null) walkForRef.current(chosen);
-      walk.current.pending = { thing: chosen, act };
-    });
+    const node = chipNode(
+      chosen,
+      (act) => {
+        // Tapping an act again ends the walk at once (R-WORLD-010).
+        if (walk.current.pending?.act === act && walk.current.walker.target !== null) walk.current.walker = stepWalk(walk.current.walker, 3600, walk.current.speed);
+        // Acts opened for a thing the character was not sent to (the nudge's way) still wait for the walk: the words start at the thing.
+        else if (walk.current.walker.target === null) walkForRef.current(chosen);
+        walk.current.pending = { thing: chosen, act };
+      },
+      (act) => stopRef.current?.(chosen, act),
+    );
     markBox.append(node);
     chip.current = { thing: chosen, node };
     return () => {
@@ -458,7 +451,7 @@ function Place(props: PlaceProps) {
     for (const { thing, node } of labels.current) {
       const spot = thingSpot(stage, thing);
       const at = spot === null || chip.current?.thing.id === thing.id || (voice !== null && speaker?.id === thing.id) ? null : onScreen(state.camera, state.size, spot[0], LABEL_Y, spot[1], 1.05);
-      // No label while the opening words stand over the world (R-WORLD-001).
+      // No mark while the opening words stand over the world (R-WORLD-001).
       node.style.display = at === null || labelsHidden ? "none" : "";
       if (at !== null && !labelsHidden) laid.push({ node, box: { x: within(at.x, node), y: at.y, width: node.offsetWidth, height: node.offsetHeight } });
     }

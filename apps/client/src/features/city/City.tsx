@@ -3,11 +3,11 @@
 // this screen's own state, and nothing here sends a command (R-CITY-001). The 3D scene is loaded
 // only where WebGL exists, so the panels never wait for it (R-CITY-018).
 import { content, text } from "@japacity/content";
-import type { Id, PlaceEntry, PlayerView, ReportLine } from "@japacity/sim";
+import type { Id, PlaceEntry, PlayerView, ReportLine, SlotPick } from "@japacity/sim";
 import { Clock, Map as MapIcon, Settings2, X } from "lucide-react";
 import { isValidElement, lazy, Suspense, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 
-import { useGame, useView } from "../../authority/GameProvider";
+import { useGame, useGameStoreIfAny, useView } from "../../authority/GameProvider";
 import { readPerson } from "../../authority/person";
 import { plannedShut } from "../../authority/store";
 import { keptLookFile } from "../../authority/person";
@@ -30,19 +30,19 @@ import { AskSheet } from "../../shared/world/AskSheet";
 import { PARCEL, parcelAsk } from "../../shared/world/parcel.ask";
 import { Band, bandMoney } from "../../shared/world/Band";
 import { cue } from "../../shared/sound/cues";
-import type { Ask, RideChoice } from "../../shared/world/contract";
+import type { Act, Ask, RideChoice, Thing } from "../../shared/world/contract";
 import { Cut, useCut } from "../../shared/world/Cut";
 import { Nudge } from "../../shared/world/Nudge";
 import { ThumbBar } from "../../shared/world/ThumbBar";
 import { Corner, hear, hush, resetLines, speak, SpeechBubble, tell, useStreetTalk } from "../../shared/world/Lines";
-import { MonthCount } from "../../shared/world/MonthCount";
+import { FLIP_MS, MonthCount } from "../../shared/world/MonthCount";
 import { Rise, useJapaRise } from "../../shared/world/Rise";
 import { FirstUseLabels, useFirstUse } from "../../shared/world/Walkthrough";
+import { markTaught, wasTaught } from "../../shared/world/taught";
 import { WorldSheet } from "../../shared/world/WorldSheet";
-import { actOnCard, answersNow, nowLineIn } from "../../shared/words/acts";
+import { actOnCard, answersNow, nowActOf, nowLineIn } from "../../shared/words/acts";
 import { actsOffered, answerAsk, askHeader, isPaper, KIOSK_CAP, kioskAnswer, withPlanned } from "./acts";
 import { kioskCapReached } from "../../shared/words/lotto";
-import { ComingList } from "./ComingList";
 import { doActLine, lightBack, plainActLine, plannedMarks } from "./actLines";
 import { cityWords, heardWords, placeName, residentName, roleWords } from "./city.words";
 import { CreditsSheet } from "./Credits";
@@ -65,6 +65,10 @@ import { enterable, homeStagesAt, offersHere, openingPlace, openScene, reportHer
 import { type Coming, soonest } from "../../shared/words/coming";
 import { stagedNow, thingsNow, thingsOf, vehicleOf, withMoreAt } from "./things";
 import { stopReached } from "./stops";
+import { namedThings } from "./mark";
+
+/** Acts the scene shows (R-WORLD-005): the pot steams, the drum fills; the place says no answer for them (R-OBLIGATION-014). */
+const SHOWN_BY_SCENE: ReadonlySet<string> = new Set(["activity.cook-at-home", "activity.fetch-water", "activity.fill-drum"]);
 
 /** Nudges that name a wait with nothing to do but end months: the English result on its way. */
 const WAIT_ONLY: ReadonlySet<string> = new Set(["chapter.build-the-file.item.english.started"]);
@@ -127,6 +131,8 @@ function openingKey(view: Pick<PlayerView, "chapter" | "scenario" | "qualities" 
 const FIRST_CHAPTER = Object.values(content.chapter).reduce<{ id: string; order: number } | null>((first, entry) => (first === null || entry.order < first.order ? { id: entry.id, order: entry.order } : first), null)?.id ?? null;
 /** How long the first chapter's title stands over the world (R-CHAPTER-011). */
 export const TITLE_MS = 2000;
+/** How long every name shows over its mark on a place's first entry in a life, before the names fade (R-WORLD-005). */
+export const TEACH_MS = 2000;
 
 /** The first chapter's title over the world for a moment, with nothing to press: the nudge under the band gives the first step. */
 function ChapterTitle({ chapter, onGone }: { chapter: string; onGone: () => void }) {
@@ -168,6 +174,14 @@ const UP_NEPA_MS = 2200;
 export function chipFolds(nudge: { about: string; params?: Record<string, string | number> } | null, coming: Coming | null, month: number): boolean {
   if (nudge === null || coming === null || nudge.about !== "step" || coming.kind === "offer") return false;
   return nudge.params?.when === inMonths(coming.month, month);
+}
+
+/**
+ * R-WORLD-002: the band's Next month opens the Calendar instead of turning the page in the first
+ * month of a life, and in a month with nothing planned and no job, so the month is seen before it turns.
+ */
+export function calendarFirst(view: Pick<PlayerView, "report" | "job">, plan: readonly (SlotPick | null)[]): boolean {
+  return view.report === null || (view.job.id === null && plan.every((pick) => pick === null));
 }
 
 /** True when this month's answers include home's send-off as the party. */
@@ -212,6 +226,29 @@ function keep(key: string, value: string[]): void {
     window.localStorage.setItem(key, JSON.stringify(value));
   } catch {
     // A private window may refuse storage; the place then lasts the session only.
+  }
+}
+
+/**
+ * The band's place line for a home (R-WORLD-002): what the home is, in few words, so a
+ * room drawn alone is never read as a whole compound: "Your room, a compound in Ojuelegba", "The family house", "The
+ * room on the water", abroad "The shared room, Peckham". Makoko is the room on the water only for a life that lives
+ * there. Null for any other place, which keeps its own name.
+ */
+export function homeLine(shown: string, view: Pick<PlayerView, "place" | "home">): string | null {
+  switch (shown) {
+    case "place.compound-room":
+    case "place.family-house":
+      return cityWords(`city.home.${shown.slice("place.".length)}`);
+    case "place.makoko":
+      return view.place.where === "home" && view.home.place === "place.makoko" ? cityWords("city.home.makoko") : null;
+    case "place.the-room": {
+      const hub = PLACES.find((place) => place.hub === true && place.country === view.place.country);
+      if (hub === undefined) return bandName(placeName(shown));
+      return cityWords("city.home.the-room", { area: hasWords(`${hub.id}.short`) ? say(`${hub.id}.short`) : placeName(hub.id) });
+    }
+    default:
+      return null;
   }
 }
 
@@ -345,7 +382,6 @@ export function City({
   signalsWaiting = false,
   world = false,
   actions,
-  month,
   apps,
   results,
   asks,
@@ -364,8 +400,6 @@ export function City({
   world?: boolean;
   /** The world mode's sheet for the actions a tapped thing stages. */
   actions?: (ids: string[]) => ReactNode;
-  /** The world mode's month control, shown in the Month sheet. */
-  month?: ReactNode;
   /** The world mode's phone: the support pages as apps (section 2b). Retired: `phone` replaces it. */
   apps?: readonly PhoneApp[];
   /** The world mode's results sheet when a month ends (R-WORLD-008), given the name of where the player is. */
@@ -398,10 +432,12 @@ export function City({
   useEffect(() => resetLines(), []);
   const addToPlan = useGame((state) => state.addToPlan);
   const plan = useGame((state) => state.plan);
-  /** What opens once the phone is put away: the Month sheet when the bed opened the phone for the month's lines (R-WORLD-030). */
+  /** What follows once the phone is put away: the bed's Next month, when the bed opened the phone for the month's lines (R-WORLD-030). */
   const [phoneThen, setPhoneThen] = useState<"month" | null>(null);
   const [phone, setPhone] = useState(false);
-  const [monthOpen, setMonthOpen] = useState(false);
+  const endMonth = useGame((state) => state.endMonth);
+  const stopPick = useGame((state) => state.stopPick);
+  const gameStore = useGameStoreIfAny();
   // R-WORLD-002, R-WORLD-027: the band's clock is the character's age, with the months the player may still play beside it at all times; the simulation still counts months.
   const ageMonths = view.qualities.find((quality) => quality.id === "quality.age-months")?.value ?? 0;
   const clock = say("ui.world.clock", { years: Math.floor(ageMonths / 12), months: ageMonths % 12 });
@@ -439,8 +475,13 @@ export function City({
   // R-WORLD-025: the scene goes dark, then the results sheet (which reads the report's state itself).
   const [resultsShown, setResultsShown] = useState(false);
   useEffect(() => {
-    if (world && reportOpen) cutTo(() => setResultsShown(true));
-    else setResultsShown(false);
+    if (!world || !reportOpen) {
+      setResultsShown(false);
+      return;
+    }
+    // R-WORLD-002, R-WORLD-027: the page turns on the spot first, the glyph flipping on the band, then the cut and the results.
+    const timer = window.setTimeout(() => cutTo(() => setResultsShown(true)), FLIP_MS);
+    return () => window.clearTimeout(timer);
     // The cut runs once as the report opens.
   }, [world, reportOpen]);
   const [zoomed, setZoomed] = useState(false);
@@ -448,24 +489,39 @@ export function City({
   // The stop the map opens on when the nudge sends the player somewhere (R-WORLD-003).
   const [mapPick, setMapPick] = useState<string | null>(null);
   // The chapter's opening stands over the world once, before the first month is played (R-WORLD-001): the first
-  // chapter's title for a moment, a later chapter's card with Go (R-CHAPTER-011).
-  const [openingSeen, setOpeningSeen] = useState(false);
+  // chapter's title for a moment, once per life, kept beside the save so a reload never shows it again; a later
+  // chapter's card with Go (R-CHAPTER-011).
+  const [openingSeen, setOpeningSeen] = useState(() => view.chapter.current !== null && view.chapter.current === FIRST_CHAPTER && wasTaught("title", view.scenario));
   // Nothing lectures before play (R-WORLD-033): the thumbs carry a word until each is tapped once.
   const firstUse = useFirstUse(view.report !== null, map);
   // The app the phone opens on when the nudge sends the player to it (the month's news).
   const [phoneApp, setPhoneApp] = useState<string | null>(null);
+  const endBlocked = view.ended ? words("reject.ended") : view.setpiece !== null || (view.interview?.question ?? null) !== null ? words("reject.setpiece-open") : view.turns.banked < 1 ? words("reject.no-turns") : null;
+  /** The phone on the Calendar app: on its coming list, on the month with its teach card, or on the month as it is. */
+  const openCalendar = (opening: "coming" | "teach" | null): void => {
+    setPhoneApp(opening === null ? "calendar" : `calendar:${opening}`);
+    setPhone(true);
+  };
+  /**
+   * Next month (R-WORLD-002): the page turns at once, on the spot, the glyph
+   * flipping. The first month of a life, and a month with nothing planned and no job, open the Calendar instead, so the
+   * month is seen before it turns; it opens only as the answer to this tap, never by itself.
+   */
+  const nextMonth = (): void => {
+    if (endBlocked !== null) return;
+    if (calendarFirst(view, gameStore?.getState().plan ?? plan)) {
+      openCalendar("teach");
+      return;
+    }
+    cue("tap");
+    void endMonth();
+  };
   /** The way a vehicle in the place was tapped for, chosen on the ride sheet when the map opens from it (R-WORLD-017). */
   const [rideBy, setRideBy] = useState<RideChoice["id"] | null>(null);
   const [shipped, setShipped] = useState<Set<string> | null>(null);
   const [menu, setMenu] = useState(false);
   const [credits, setCredits] = useState(false);
-  // The full list of what is coming, from the band's chip (R-WORLD-002).
-  const [comingOpen, setComingOpen] = useState(false);
   const [picked, setPicked] = useState<Picked | null>(null);
-  // A thing picked in the place closes under the Month sheet, so its chip never stays open behind it.
-  useEffect(() => {
-    if (monthOpen) setPicked((now) => (now?.kind === "thing" ? null : now));
-  }, [monthOpen]);
   const [progress, setProgress] = useState<{ loaded: number; total: number } | null>(null);
   const [failed, setFailed] = useState<string | null>(null);
   const [heardCount, setHeardCount] = useState(0);
@@ -561,12 +617,14 @@ export function City({
     const fresh = here.filter((id) => !been.includes(id));
     if (fresh.length > 0) keep(BEEN_KEY, [...been, ...fresh]);
   }, [world, placeId, inside, insideEntry]);
-  // R-WORLD-029: a choice planned for the month is seen on its thing, the pot steaming once cooking is planned.
+  // R-WORLD-029: a choice for the month is seen on its thing: what carries on in the plan, and what was done this month,
+  // the pot steaming once cooked and the drum full once fetched (R-OBLIGATION-014).
   const plannedKey = plan.flatMap((pick) => (pick === null ? [] : [pick.activity])).join("|");
+  const doneKey = view.activities.flatMap((option) => (option.done ? [option.id] : [])).join("|");
   const file = useMemo(() => {
     const here = outsideFile === null || !inside ? outsideFile : insideId === null ? roomOf(outsideFile, HOUSE) : insideFile;
-    return here === null ? null : showPlanned(here, plannedKey.split("|"));
-  }, [outsideFile, inside, insideId, insideFile, plannedKey]);
+    return here === null ? null : showPlanned(here, [...plannedKey.split("|"), ...doneKey.split("|")]);
+  }, [outsideFile, inside, insideId, insideFile, plannedKey, doneKey]);
   useEffect(() => {
     setZoomed(false);
     setPicked(null);
@@ -673,7 +731,7 @@ export function City({
       setPicked(scenePick);
       return;
     }
-    if (monthOpen || asksOpen || phone || map || resultsOpen) {
+    if (asksOpen || phone || map || resultsOpen) {
       setPicked(null);
       return;
     }
@@ -713,14 +771,15 @@ export function City({
       case "out":
         setPicked({ kind: "out" });
         return;
-      // R-WORLD-025: the bed's End month is the band's, so the Month sheet opens the same way.
+      // R-WORLD-025: the bed's Next month is the band's: the page turns, or the Calendar opens where the band's would.
       case "end":
         setPicked(null);
-        // The month's lines wait on the phone: the bed opens them first (R-WORLD-030), then the Month sheet opens as the phone is put away.
+        // The month's lines wait on the phone: the bed opens them first (R-WORLD-030), then the page turns as the phone is put away.
         if (signalsWaiting) {
           setPhoneThen("month");
+          setPhoneApp(null);
           setPhone(true);
-        } else setMonthOpen(true);
+        } else nextMonth();
         return;
       case "plain": {
         setPicked(null);
@@ -857,7 +916,7 @@ export function City({
         return;
       }
       case "month":
-        setMonthOpen(true);
+        openCalendar(null);
         return;
       case "map":
         setMapPick(opens.stop);
@@ -889,9 +948,8 @@ export function City({
     linesSeen.current = lastLines;
     const said = nowLineIn(lastLines);
     // An act done from the phone is said on the phone; the sheet answers an act done in the place.
-    if (world && !phone && said !== null) setAnswer(said);
+    if (world && !phone && said !== null && !SHOWN_BY_SCENE.has(nowActOf(said))) setAnswer(said);
   }, [lastLines, world, phone]);
-  const endBlocked = view.ended ? words("reject.ended") : view.setpiece !== null || (view.interview?.question ?? null) !== null ? words("reject.setpiece-open") : view.turns.banked < 1 ? words("reject.no-turns") : null;
   // One action, one sheet: a paper slip for a paper thing, a card for the rest.
   const ask: Ask | null = (() => {
     if (world && answer !== null) {
@@ -1077,12 +1135,9 @@ export function City({
   useEffect(() => {
     if (resultsOpen) setPartyBeat(false);
   }, [resultsOpen]);
-  // The Month sheet gives way to the results when the month ends; the asks sheet closes once nothing waits.
+  // The results take the place of a thing's chip when the month ends; the asks sheet closes once nothing waits.
   useEffect(() => {
-    if (reportOpen) {
-      setMonthOpen(false);
-      setPicked(null);
-    }
+    if (reportOpen) setPicked(null);
   }, [reportOpen]);
   // A pick added from the picker's sheet closes the sheet, as the ask card does (R-WORLD-006); its thing's label says it is planned.
   const lastPlan = useRef(plan);
@@ -1103,7 +1158,7 @@ export function City({
     if (setpieceOver && picked?.kind === "action" && picked.activity.startsWith("setpiece.")) setPicked(null);
   }, [setpieceOver, picked]);
   // R-WORLD-022: a sheet, the phone or the map opening over the world, and closing back to it.
-  const covered = world && (monthOpen || asksOpen || ask !== null || picked?.kind === "ride" || phone || map);
+  const covered = world && (asksOpen || ask !== null || picked?.kind === "ride" || phone || map);
   // A share card up over the world (a chapter's card) keeps the street talk away from its foot.
   const cardsTurn = useCardsTurn();
   const cardClosed = useGame((state) => state.cardClosed);
@@ -1111,6 +1166,31 @@ export function City({
   // Japacity shown two ways (R-WORLD-029): the rise flies and the bag by the door grows once nothing covers the world, so both are seen together.
   const openingUp = !openingSeen && view.report === null && view.chapter.current !== null && !view.ended;
   const japa = useJapaRise(view.japacity.percent, world && looking && !covered && !resultsOpen && !map && !cardUp && !openingUp);
+  // R-WORLD-005: the first time a place is entered in a life, every name shows over its mark for two seconds and fades;
+  // once per place per life, kept beside the save. It waits for the place to be drawn and the opening title to go.
+  const [teaching, setTeaching] = useState(false);
+  const hasThings = things !== undefined && things.length > 0;
+  useEffect(() => {
+    if (!world || !ready || openingUp || !hasThings) return;
+    const mark = `place:${hereId}` as const;
+    if (wasTaught(mark, view.scenario)) return;
+    markTaught(mark, view.scenario);
+    setTeaching(true);
+    const timer = window.setTimeout(() => setTeaching(false), TEACH_MS);
+    return () => {
+      window.clearTimeout(timer);
+      setTeaching(false);
+    };
+  }, [world, ready, openingUp, hasThings, hereId, view.scenario]);
+  // R-HOME-008: the first entry into a home in a life shows what the home is, its blurb,
+  // once, as a small card the player dismisses; kept beside the save, so it never shows again in this life.
+  const homeHere = home !== null && (placeId === home || hereId === home) ? home : null;
+  const [homeTeach, setHomeTeach] = useState<string | null>(null);
+  useEffect(() => {
+    if (!world || homeHere === null || openingUp || wasTaught(`home:${homeHere}`, view.scenario)) return;
+    setHomeTeach(homeHere);
+  }, [world, homeHere, openingUp, view.scenario]);
+  const homeTeachShown = homeTeach !== null && homeTeach === homeHere && !covered && !resultsOpen && !cardUp && blurbOf(homeTeach) !== null;
   // R-WORLD-026: the corner and the bubble show only while nothing covers the world; the street's talk comes only then.
   const worldFree = world && looking && !covered && !resultsOpen && !cardUp && !beatShown;
   const heardNth = useRef(0);
@@ -1167,7 +1247,22 @@ export function City({
               onProgress={(loaded, total) => setProgress({ loaded, total })}
               onFailed={setFailed}
               onPick={readPick}
-              {...(world ? { overview: true, roam: ROAM, ...(things === undefined ? {} : { things, marks }), chosen: chosenThing, onClear: () => setPicked(null), zoomed, onZoomed: setZoomed } : {})}
+              {...(world
+                ? {
+                    overview: true,
+                    roam: ROAM,
+                    ...(things === undefined ? {} : { things, marks, named: namedThings(things, stepThing), nudged: stepThing, teaching }),
+                    chosen: chosenThing,
+                    onClear: () => setPicked(null),
+                    onStop: (_thing: Thing, act: Act) => {
+                      if (act.stages === undefined) return;
+                      cue("close");
+                      stopPick({ activity: act.stages as Id<"activity">, param: act.param ?? null });
+                    },
+                    zoomed,
+                    onZoomed: setZoomed,
+                  }
+                : {})}
               onFrame={(frameMs) => {
                 const next = observeFrame(watch.current, frameMs, city);
                 watch.current = next;
@@ -1249,20 +1344,21 @@ export function City({
         <>
           <Band
             when={clock}
-            name={bandName(hereName)}
+            name={homeLine(hereId, view) ?? bandName(hereName)}
             {...bandMoney(view)}
-            onEndMonth={() => setMonthOpen(true)}
-            count={<MonthCount />}
+            onEndMonth={nextMonth}
+            count={<MonthCount onOpen={() => openCalendar(null)} />}
             endBlocked={endBlocked}
-            hidden={map || resultsOpen}
+            // The band stays while its page flips on the spot, and steps back once the results are up (R-WORLD-002, R-WORLD-027).
+            hidden={map || (resultsOpen && resultsShown)}
             open={bandOpen}
             {...(coming === null ? {} : { onToggle: () => setBandOpen((open) => !open) })}
             more={
-              !(phone || monthOpen || asksOpen || menu || credits || picked !== null) ? (
+              !(phone || asksOpen || menu || credits || picked !== null) ? (
                 <div key={bandOpen ? "open" : `peek-${nudgeKey}-${comingKey}`} className={bandOpen ? "" : "drop"}>
                   <Nudge nudge={shownNudge} {...(stepWay?.opens === undefined ? {} : { opens: stepWay.opens })} {...(nudgeOpens ? { onTap: () => setAsksOpen(true) } : nudgeNeeds ? { onTap: () => { setPhoneApp("japa"); setPhone(true); } } : nudgeGoes ? { onTap: followStep } : nudge?.about === "report" ? { onTap: () => { setPhoneApp("news"); setPhone(true); } } : nudge?.about === "dues" ? { onTap: () => { setPhoneApp("bank"); setPhone(true); } } : {})} />
                   {coming === null || !(bandOpen || (peek && !chipFolds(nudge, coming, view.month))) ? null : (
-                    <button type="button" className="chip press pointer-events-auto mt-1.5 inline-flex max-w-full items-center gap-1.5 px-2.5 py-1.5 text-[12px] font-bold" data-coming onClick={() => setComingOpen(true)} aria-label={say("ui.world.coming-up")}>
+                    <button type="button" className="chip press pointer-events-auto mt-1.5 inline-flex max-w-full items-center gap-1.5 px-2.5 py-1.5 text-[12px] font-bold" data-coming onClick={() => openCalendar("coming")} aria-label={say("ui.world.coming-up")}>
                       <Clock size={14} aria-hidden />
                       <span className="truncate">{say("ui.world.coming", { what: coming.what, when: inMonths(coming.month, view.month) })}</span>
                     </button>
@@ -1278,7 +1374,24 @@ export function City({
               {say("ui.world.whole")}
             </button>
           ) : null}
-          <Corner hidden={!worldFree} />
+          <Corner hidden={!worldFree || homeTeachShown} />
+          {homeTeachShown && homeTeach !== null ? (
+            <div className="pop pointer-events-auto fixed inset-x-3 bottom-[calc(max(14px,env(safe-area-inset-bottom))+76px)] z-[38] mx-auto flex max-w-sm items-start gap-2 rounded-[6px] bg-sheet-2 p-3 text-text shadow-[0_10px_24px_rgba(10,14,30,0.3)]" role="note" data-home-teach={homeTeach}>
+              <p className="min-w-0 flex-1 text-[14px] leading-snug">{blurbOf(homeTeach)}</p>
+              <button
+                type="button"
+                className="press flex size-8 shrink-0 items-center justify-center rounded-[4px] text-text-2"
+                aria-label={cityWords("city.home.teach.close")}
+                onClick={() => {
+                  markTaught(`home:${homeTeach}`, view.scenario);
+                  setHomeTeach(null);
+                }}
+                data-home-teach-ok
+              >
+                <X size={16} aria-hidden />
+              </button>
+            </div>
+          ) : null}
           <SpeechBubble hidden={!worldFree} anchored={drawing && ready} />
           <Rise rise={japa.rise} />
           {beatShown ? (
@@ -1290,7 +1403,14 @@ export function City({
           ) : null}
           <Cut cutting={cutting} />
           {openingUp && FIRST_CHAPTER !== null && view.chapter.current === FIRST_CHAPTER ? (
-            <ChapterTitle chapter={FIRST_CHAPTER} onGone={() => setOpeningSeen(true)} />
+            <ChapterTitle
+              chapter={FIRST_CHAPTER}
+              onGone={() => {
+                // R-CHAPTER-011: once per life; the mark is kept beside the save, so a reload never shows the title again.
+                markTaught("title", view.scenario);
+                setOpeningSeen(true);
+              }}
+            />
           ) : openingUp && view.chapter.current !== null ? (
             <FullScreen
               open
@@ -1428,11 +1548,6 @@ export function City({
         </div>
       </Sheet>
       <CreditsSheet open={credits} onOpenChange={setCredits} />
-      {world ? (
-        <WorldSheet open={comingOpen} onClose={() => setComingOpen(false)} label={clock} title={say("ui.world.coming-up")} mark="coming">
-          <ComingList view={view} />
-        </WorldSheet>
-      ) : null}
       {world ? <AskSheet ask={ask} formatMoney={(amount, currency) => formatMoney(amount, currency as "NGN")} {...(askIcon === undefined ? {} : { icon: askIcon })} /> : null}
       {world && picked?.kind === "action" && ask === null ? (
         <WorldSheet
@@ -1479,11 +1594,6 @@ export function City({
       <Sheet open={!world && picked?.kind === "action"} onOpenChange={(open) => { if (!open) setPicked(null); }} title={picked?.kind === "action" ? cardWords() : ""}>
         {picked?.kind === "action" ? actions?.([picked.activity]) : null}
       </Sheet>
-      {world ? (
-        <WorldSheet open={monthOpen} onClose={() => setMonthOpen(false)} label={clock} title={cityWords("city.month.title")} mark="month">
-          {month}
-        </WorldSheet>
-      ) : null}
       {world && asks !== undefined ? (
         <WorldSheet
           open={asksOpen}
@@ -1539,8 +1649,10 @@ export function City({
             () => {
               setPhone(false);
               setPhoneApp(null);
-              // The bed opened the phone for the month's lines: putting it away goes on to the month's end.
-              if (phoneThen === "month") setMonthOpen(true);
+              // The bed opened the phone for the month's lines: putting it away goes on to the month's end,
+              // unless the Calendar's own Next month is already turning the page.
+              const turning = gameStore?.getState().busy === true || gameStore?.getState().reportOpen === true;
+              if (phoneThen === "month" && !turning) nextMonth();
               setPhoneThen(null);
             },
             inside ? hereName : name,
@@ -1553,7 +1665,7 @@ export function City({
           onClose={() => {
             setPhone(false);
             // The bed opened the phone for the month's lines: putting it away goes on to the month's end.
-            if (phoneThen === "month") setMonthOpen(true);
+            if (phoneThen === "month") nextMonth();
             setPhoneThen(null);
           }}
         />

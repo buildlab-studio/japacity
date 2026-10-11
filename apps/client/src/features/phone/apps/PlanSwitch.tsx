@@ -7,6 +7,7 @@ import { ChevronLeft } from "lucide-react";
 import { useState } from "react";
 
 import { useGame, useView } from "../../../authority/GameProvider";
+import { actOnCard, nowSaid } from "../../../shared/words/acts";
 import { blurbOf, nameOf, say } from "../../../shared/words/text";
 
 const OFFICIAL = "activity.look-into-route";
@@ -67,10 +68,11 @@ export function PlanSwitch({ route, onKeep, onSaid }: { route: Id<"route">; onKe
     const reply = await send({ type: "chapter/lean", route });
     if (reply?.ok !== true) return;
     setMade(true);
-    // A way only heard of is looked into this month, as its official page is planned anywhere else.
+    // A way only heard of is looked into at once (R-ACTIVITY-015), as its official page is read anywhere else.
     if (!heard || official?.allowed !== true || official.params?.includes(route) !== true || plannedAlready(plan, route)) return;
-    const planned = addToPlan({ activity: OFFICIAL, param: route });
-    onSaid?.(planned ? say("ui.world.planned", { what: nameOf(OFFICIAL) }) : say("ui.world.full"));
+    const acted = await actOnCard({ activity: OFFICIAL, param: route }, { send, addToPlan });
+    if (acted === "answered") onSaid?.(nowSaid(OFFICIAL, route));
+    else if (acted === "full") onSaid?.(say("ui.world.full"));
   }
 
   return (

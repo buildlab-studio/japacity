@@ -76,6 +76,9 @@ async function startWorld(page: Page, mode: "low" | "high" = "high"): Promise<vo
   }
   await expect(page.locator("[data-band]")).toBeVisible({ timeout: 30_000 });
   await waitPlace(page, null);
+  // The home says what it is once, on its first entry in a life (R-HOME-008); dismissed, the place is clear.
+  const teach = page.locator("[data-home-teach-ok]");
+  if (await teach.waitFor({ state: "visible", timeout: 4000 }).then(() => true, () => false)) await teach.click();
 }
 
 /** Goes to a place through the city's list, and waits until it is drawn. */
@@ -174,14 +177,18 @@ test("[R-WORLD-009] given Bode Thomas whole, when a pinch is released at any gap
   await expect(page.locator("[data-zoom-preset]")).toHaveCount(0);
 });
 
-test("[R-WORLD-005] given Bode Thomas, when a thing or its label is tapped, then its name and its acts float over it, and the act's sheet follows once the character has walked to it", async ({ page }) => {
+test("[R-WORLD-005] [R-WORLD-021] given Bode Thomas, when a thing or its quiet mark is tapped, then its name and its acts float over it, and the act's sheet follows once the character has walked to it", async ({ page }) => {
   test.setTimeout(300_000);
   await startWorld(page);
   await goTo(page, "place.bode-thomas");
   const kiosk = await page.evaluate(() => (window as unknown as { __city?: Probe }).__city?.screenOfThing?.("kiosk") ?? null);
   expect(kiosk).not.toBeNull();
-  // Marks and chips are keyed by the thing, not the act (CityScene: `dataset.mark = thing.id`).
-  await page.locator('[data-mark="kiosk"]').click();
+  // Marks and chips are keyed by the thing, not the act (mark.ts: `dataset.mark = thing.id`). The first entry shows every
+  // name for two seconds, then each thing is a small dot with no name until it is tapped.
+  const mark = page.locator('[data-mark="kiosk"]');
+  await expect(mark.locator("[data-mark-dot]")).toBeVisible();
+  await expect(mark.locator("[data-mark-name]")).toBeHidden({ timeout: 6000 });
+  await mark.click();
   const chip = page.locator('[data-thing-chip="kiosk"]');
   await expect(chip).toBeVisible();
   await expect(chip).toContainText(text["city.thing.lotto"] ?? "Lotto");

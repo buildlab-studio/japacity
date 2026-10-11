@@ -50,10 +50,11 @@ export const worldText: Record<string, string> = {
   "ui.world.counts-at-end": "Counts when the month ends",
   "ui.world.depart-line": "The visa is in your passport. Board, and the next place is {country}.",
   "ui.world.deposit-line": "{school} holds your place on {route} once the deposit is paid. It goes from the naira in the bank.",
-  "ui.world.full": "Your free time this month is all planned",
-  // A thing's label while an act of it is planned this month: the act's own state, no line (R-WORLD-005, R-TEXT-008).
-  "ui.world.thing.planned": "Planned",
-  "ui.world.thing.resting": "Resting",
+  "ui.world.full": "Free time all used: stop one in the Calendar",
+  // A thing started carries on each month until it is stopped (R-WORLD-005, R-WORLD-007): its chip says so, with a stop.
+  "ui.world.thing.planned": "Ongoing",
+  "ui.world.stop": "Stop",
+  "ui.world.stop-act": "Stop {what}",
   "ui.world.step-outside": "Step outside",
 
   "ui.nudge.setpiece": "Answer what is waiting",

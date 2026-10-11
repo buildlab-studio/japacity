@@ -78,7 +78,7 @@ describe("the switch on another way's page", () => {
     expect(sent).toEqual([]);
   });
 
-  test("[R-CHAPTER-009] given the master's only heard of, when Make this the plan is tapped, then the lean moves to the master's, its page is planned for the month, and the page says it is the plan", async () => {
+  test("[R-CHAPTER-009] [R-ACTIVITY-015] given the master's only heard of, when Make this the plan is tapped, then the lean moves to the master's, its page is read at once, and the page says it is the plan", async () => {
     const game = nurseOnCare();
     const { store, sent } = await showPage(game, UK);
     await act(async () => {
@@ -86,10 +86,12 @@ describe("the switch on another way's page", () => {
       // The command's reply, then the page planned after it.
       await new Promise((settle) => setTimeout(settle, 0));
     });
-    expect(sent.map((command) => command.type)).toEqual(["chapter/lean"]);
+    // the official page is read now, never planned, so its command follows the lean.
+    expect(sent.map((command) => command.type)).toEqual(["chapter/lean", "activity/now"]);
+    expect(sent.at(-1)).toMatchObject({ activity: LOOK, param: UK });
     expect(game.state.chapter.chosen).toBe(UK);
     expect(store.getState().view?.plan.route).toBe(UK);
-    expect(store.getState().plan).toContainEqual({ activity: LOOK, param: UK });
+    expect(store.getState().plan).not.toContainEqual({ activity: LOOK, param: UK });
     expect(document.querySelector("[data-plan-switch]")).toBeNull();
     expect(document.querySelector("[data-plan-mine]")?.textContent).toContain(say("route.plan.mine"));
     // The care page is now the other way, and says the rise back.

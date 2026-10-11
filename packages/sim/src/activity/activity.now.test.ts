@@ -63,6 +63,10 @@ const NOW_ACTS: readonly string[] = [
   "activity.enter-pool",
   "activity.find-sponsor",
   HUNT,
+  // Cooking and the water answer now since 10 Oct 2026 (R-OBLIGATION-014 amended).
+  "activity.cook-at-home",
+  "activity.fetch-water",
+  "activity.fill-drum",
 ];
 
 const MONTH_ACTS: readonly string[] = [
@@ -81,8 +85,6 @@ const MONTH_ACTS: readonly string[] = [
   "activity.morning-run",
   "activity.sleep-at-office",
   "activity.sleep-rough",
-  "activity.cook-at-home",
-  "activity.fetch-water",
 ];
 
 function ada(): Game {

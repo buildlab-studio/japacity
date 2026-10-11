@@ -1,9 +1,10 @@
 // Until news (docs/rules/world.md R-WORLD-028): the months a run ends one after another, each its own
-// `turn/end` with last month's slots, and what stops the run. The store runs it; these are plain
+// `turn/end` with the commitments carried on (R-WORLD-007), and what stops the run. The store runs it; these are plain
 // functions over the view and the month's lines, so the stop is the same wherever it is read.
 import { content } from "@japacity/content";
 import { int, type Amount, type OfferEntry, type PlayerView, type ReportLine, type SlotPick } from "@japacity/sim";
 
+import { plannable } from "../../shared/words/acts";
 import { atBankRate } from "../../shared/words/cost";
 import { CREDIT_DOWN, CREDIT_UP, isUnpaid, localCurrency } from "./month.results";
 
@@ -137,13 +138,14 @@ function stillOpen(view: Pick<PlayerView, "activities">, pick: SlotPick): boolea
 }
 
 /**
- * Last month's slots again (Same again, R-WORLD-007) for the next month of a run: the picks that
- * fill a slot and are still open, never the search for a job now held. A pick that fills no slot (the
- * word of someone who went) was a one-off and is not asked twice. A slot left out rests.
+ * R-WORLD-007: commitments, not a plan each month. A month-act the player
+ * started carries on into the next month until it is stopped, or until it ends itself: the view no longer allows it
+ * or it can no longer be paid (a course finished, a way shut), or it was the search for a job now held. A now-act is
+ * never carried, nor rest, which an empty slot already is. The free time the life has is the limit (R-TURN-006).
  */
-export function againSlots(view: Pick<PlayerView, "lastSlots" | "freeSlots" | "job" | "activities">): SlotPick[] {
-  return view.lastSlots
-    .filter((pick) => content.activity[pick.activity]?.slot !== "none")
+export function carriedPlan(plan: readonly (SlotPick | null)[], view: Pick<PlayerView, "freeSlots" | "job" | "activities">): SlotPick[] {
+  return plan
+    .filter((pick): pick is SlotPick => pick !== null && plannable(pick.activity))
     .filter((pick) => !huntsHeldJob(pick, view.job) && stillOpen(view, pick))
     .slice(0, view.freeSlots);
 }

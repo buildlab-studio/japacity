@@ -1,6 +1,6 @@
 // What the city's screen hands the 3D scene and hears back. Kept free of three.js so the screen can
 // be in the first chunk and the scene loaded only where WebGL exists.
-import type { Picked as WorldPicked, Shot, Thing } from "../../shared/world/contract";
+import type { Act, Picked as WorldPicked, Shot, Thing } from "../../shared/world/contract";
 import type { Shown } from "./crowd";
 import type { ModeSettings } from "./mode";
 import type { PlaceFile } from "./placeFile";
@@ -45,8 +45,16 @@ export interface SceneProps {
   roam?: boolean;
   /** The world mode: the things the player can tap here, each with the acts the view allows now (R-WORLD-005). */
   things?: readonly Thing[];
-  /** The world mode: a state its label carries by thing id, while an act of it is planned this month ("Planned", "Resting"; R-WORLD-005). */
+  /** The world mode: a state its name carries by thing id, while an act of it carries on in the plan ("Ongoing"; R-WORLD-005). */
   marks?: Readonly<Record<string, string>>;
+  /** The world mode: the things whose name shows over their mark: a person holding an ask or the nudge's target (R-WORLD-005). */
+  named?: readonly string[];
+  /** The world mode: the thing the nudge points at, whose mark pulses gently (R-WORLD-003). */
+  nudged?: string | null;
+  /** The world mode: true for the two seconds every name shows on a place's first entry in a life, then fades (R-WORLD-005). */
+  teaching?: boolean;
+  /** The world mode: a commitment stopped from its thing's chip (R-WORLD-007). */
+  onStop?: (thing: Thing, act: Act) => void;
   /** The world mode: the thing whose name and acts float over it, or null. */
   chosen?: Thing | null;
   /** The world mode: a tap on open ground, which puts away the thing's acts. */

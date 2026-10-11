@@ -13,7 +13,7 @@ const CLINIC = "place.tb-clinic";
 
 async function standingAt(place: string, extra: Partial<Parameters<typeof City>[0]> = {}): Promise<HTMLElement> {
   localStorage.setItem("japacity.city.last", JSON.stringify([place]));
-  await renderWithView(<City world month={<p>month</p>} results={(at) => <p data-results-for={at} />} {...extra} />, { ...richView(), setpiece: null, interview: null });
+  await renderWithView(<City world results={(at) => <p data-results-for={at} />} {...extra} />, { ...richView(), setpiece: null, interview: null });
   const go = document.querySelector<HTMLElement>("[data-opening-go]");
   if (go !== null) fireEvent.click(go);
   const mapClose = screen.queryByRole("button", { name: cityWords("city.close") });

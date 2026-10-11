@@ -41,8 +41,9 @@ describe("what each act counts toward", () => {
   });
 
   test("[R-ACTIVITY-013] given an act that counts toward no route, when its card is read, then it says nothing about counting", async () => {
-    await renderWithView(<ActivityPicker only={["activity.rest"]} />, newGame("scenario.ada").view());
-    expect(countsWords("activity.rest")).toBeNull();
-    expect(cardOf("activity.rest").querySelector("[data-counts]")).toBeNull();
+    // rest is in no picker, so time with family stands for an act that counts toward nothing.
+    await renderWithView(<ActivityPicker only={["activity.family-time"]} />, newGame("scenario.ada").view());
+    expect(countsWords("activity.family-time")).toBeNull();
+    expect(cardOf("activity.family-time").querySelector("[data-counts]")).toBeNull();
   });
 });

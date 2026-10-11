@@ -2,7 +2,7 @@
 // needs first when it is not allowed, the short figure when it cannot be paid, counted the same way
 // on the button and on the line above it, and never a figure left over a button that is shut.
 import type { ActivityOption } from "@japacity/sim";
-import { act, screen } from "@testing-library/react";
+import { screen } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
 import { newGame, setPockets } from "../../shared/testing/fixtures";
@@ -28,16 +28,15 @@ function cost(option: ActivityOption | undefined): number {
 }
 
 describe("a shut button's reason", () => {
-  test("[R-WORLD-006] given the passport and the transcript on one sheet and the transcript planned, when the passport is short, then its line and its button say the same short figure", async () => {
+  test("[R-WORLD-006] given the passport and the transcript on one sheet and the transcript asked for this month, when the passport is short, then its line and its button say the same short figure", async () => {
+    // the transcript is asked for at once and paid then, so the passport is short by what is left after it.
     const game = newGame("scenario.ada");
     setPockets(game, { NGN: 8_940_000 });
+    const transcript = cost(game.view().activities.find((option) => option.id === TRANSCRIPT));
+    game.accept({ type: "activity/now", activity: TRANSCRIPT, param: null });
     const view = game.view();
     const passport = cost(view.activities.find((option) => option.id === PASSPORT));
-    const transcript = cost(view.activities.find((option) => option.id === TRANSCRIPT));
-    const { store } = await renderWithView(<ActivityPicker only={[PASSPORT, TRANSCRIPT]} />, view);
-    act(() => {
-      store.getState().addToPlan({ activity: TRANSCRIPT, param: null });
-    });
+    await renderWithView(<ActivityPicker only={[PASSPORT, TRANSCRIPT]} />, view);
     const short = formatMoney(passport + transcript - 8_940_000, "NGN");
     expect(addButton(PASSPORT).disabled).toBe(true);
     expect(buttonLine(PASSPORT)).toBe(say("ui.world.short", { amount: short }));
@@ -48,7 +47,7 @@ describe("a shut button's reason", () => {
     expect(card?.textContent?.match(/₦[\d,]+ short|Short by ₦[\d,]+/g)?.every((match) => match.includes(short))).toBe(true);
     // The transcript asked for once this month is not offered again with a figure left.
     expect(addButton(TRANSCRIPT).disabled).toBe(true);
-    expect(buttonLine(TRANSCRIPT)).toBe(say("ui.needs.planned"));
+    expect(buttonLine(TRANSCRIPT) ?? "").not.toMatch(/left/);
   });
 
   test("[R-WORLD-006] given no passport, when the English test's card shows, then its button is shut and says it needs the passport first", async () => {

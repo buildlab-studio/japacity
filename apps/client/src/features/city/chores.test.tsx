@@ -1,41 +1,68 @@
-// Cooking, fetching water and rest at the tap (docs/rules/world.md R-WORLD-005, R-WORLD-029; text.md R-TEXT-008;
-// obligation.md R-OBLIGATION-014): the scene shows the act, so the tap tells no line; the
-// thing's label says it is planned ("Resting" on the bed), and the Month sheet and the results carry what it counts.
+// Cooking, fetching water and lying down at the tap (docs/rules/world.md R-WORLD-005, R-WORLD-029; text.md R-TEXT-008;
+// obligation.md R-OBLIGATION-014): each is done at once and the scene shows it, so the tap tells
+// no line: the pot steams, the drum fills, the figure lies down. A month-act started at a thing carries on, and its name
+// says "Ongoing" whenever it shows.
 import { describe, expect, test } from "vitest";
 
 import compoundFile from "../../../public/assets/places/compound-room/place.json";
 import parlourFile from "../../../public/assets/places/family-house-parlour/place.json";
+import { engineView, newGame } from "../../shared/testing/fixtures";
+import { answersNow } from "../../shared/words/acts";
 import { say } from "../../shared/words/text";
-import { doActLine, plannedMarks } from "./actLines";
-import { type PlaceFile, stageOf } from "./placeFile";
+import { actsOffered } from "./acts";
+import { doActLine, plainActLine, plannedMarks } from "./actLines";
+import { type PlaceFile, showPlanned, stageOf } from "./placeFile";
 import { thingsOf } from "./things";
 
 const COOK = "activity.cook-at-home";
 const WATER = "activity.fetch-water";
-const REST = "activity.rest";
+const FAMILY = "activity.family-time";
 
-const things = thingsOf(stageOf(parlourFile as unknown as PlaceFile));
+const parlour = parlourFile as unknown as PlaceFile;
+const things = thingsOf(stageOf(parlour));
 
 describe("the room's basics at the tap", () => {
-  test("[R-WORLD-005] [R-TEXT-008] given the parlour, when cooking, water and rest are planned at the tap, then no line is told and each thing's label carries its state", () => {
-    expect(doActLine(true)).toBeNull();
-    const marks = plannedMarks(things, new Set([COOK, WATER, REST]));
-    expect(marks.cooking).toBe(say("ui.world.thing.planned"));
-    expect(marks.drum).toBe(say("ui.world.thing.planned"));
-    expect(marks.bed).toBe(say("ui.world.thing.resting"));
+  test("[R-OBLIGATION-014] [R-ACTIVITY-015] [R-WORLD-005] given the parlour, when cooking and water are done, then each answers now and leaves its thing for the month, and the scene shows it: the pot steams and the drum is full", () => {
+    expect(answersNow(COOK)).toBe(true);
+    expect(answersNow(WATER)).toBe(true);
+    const game = newGame("scenario.ada");
+    game.accept({ type: "activity/now", activity: COOK, param: null });
+    game.accept({ type: "activity/now", activity: WATER, param: null });
+    const offered = actsOffered(game.view());
+    expect(offered).not.toContain(COOK);
+    expect(offered).not.toContain(WATER);
+    const shown = stageOf(showPlanned(parlour, [COOK, WATER]));
+    expect(shown.motion.length).toBeGreaterThan(stageOf(parlour).motion.length);
+    expect(shown.models.length).toBeGreaterThan(stageOf(parlour).models.length);
   });
 
-  test("[R-WORLD-005] given nothing planned, when the labels are read, then none carries a state", () => {
+  test("[R-WORLD-005] [R-TEXT-008] [R-TURN-006] given the bed and the sofa, when Lie down lands, then no line is told: the figure lies down, and no thing's act plans rest", () => {
+    for (const id of ["bed", "sofa"]) {
+      const thing = things.find((candidate) => candidate.id === id);
+      const lie = thing?.acts.find((act) => act.id === "lie");
+      if (thing === undefined || lie === undefined) throw new Error(`No Lie down on the ${id}`);
+      expect(lie).toMatchObject({ kind: "plain", pose: "lie" });
+      expect(plainActLine(thing, lie, [])).toBeNull();
+    }
+    expect(things.flatMap((thing) => thing.acts).some((act) => act.stages === "activity.rest")).toBe(false);
+    expect(actsOffered(engineView("scenario.ada"))).not.toContain("activity.rest");
+  });
+
+  test("[R-WORLD-005] [R-WORLD-007] given time with family started at Mama, when the names are read, then hers says Ongoing; with nothing started none carries a state", () => {
+    expect(plannedMarks(things, new Set([FAMILY]))).toEqual({ mama: say("ui.world.thing.planned") });
+    expect(say("ui.world.thing.planned")).toBe("Ongoing");
     expect(plannedMarks(things, new Set())).toEqual({});
   });
 
-  test("[R-WORLD-005] given the month's free time all planned, when cooking is tapped, then the corner tells it is full", () => {
+  test("[R-WORLD-005] given the month's free time all used, when a month-act is tapped, then the corner tells it is full; one taken tells no line", () => {
+    expect(doActLine(true)).toBeNull();
     expect(doActLine(false)).toEqual({ kind: "tell", words: say("ui.world.full") });
   });
 
-  test("[R-OBLIGATION-014] [R-TEXT-008] given the room in a compound, when the drum is filled from the yard's tap, then no line is told, no money comes off, and the drum's label says it is planned", () => {
-    const compound = thingsOf(stageOf(compoundFile as unknown as PlaceFile));
-    expect(doActLine(true)).toBeNull();
-    expect(plannedMarks(compound, new Set(["activity.fill-drum"])).drum).toBe(say("ui.world.thing.planned"));
+  test("[R-OBLIGATION-014] [R-TEXT-008] given the room in a compound, when the drum is filled from the yard's tap, then it answers now, no money comes off, and the drum shows full", () => {
+    const compound = compoundFile as unknown as PlaceFile;
+    expect(answersNow("activity.fill-drum")).toBe(true);
+    const shown = stageOf(showPlanned(compound, ["activity.fill-drum"]));
+    expect(shown.models.length + shown.motion.length).toBeGreaterThanOrEqual(stageOf(compound).models.length + stageOf(compound).motion.length);
   });
 });

@@ -15,6 +15,8 @@ export interface Coming {
   /** The month it comes, in the simulation's count; said as months away. */
   month: number;
   kind: "offer" | "paper" | "visa" | "birthday" | "age-limit" | "plan" | "rent";
+  /** For an ask: the offer's entry, so the Calendar can name where it is answered. */
+  entry?: string;
 }
 
 const AGE = "quality.age-months";
@@ -31,7 +33,7 @@ export function ageMonthsOf(view: Pick<PlayerView, "qualities">): number {
 /** Everything coming with a month to it, soonest first; nothing past. */
 export function comingOf(view: Pick<PlayerView, "month" | "offers" | "documents" | "routes" | "qualities" | "plan" | "home">): Coming[] {
   const list: Coming[] = [];
-  for (const offer of view.offers) list.push({ what: words(`${offer.entry}.name`), month: offer.expiresMonth, kind: "offer" });
+  for (const offer of view.offers) list.push({ what: words(`${offer.entry}.name`), month: offer.expiresMonth, kind: "offer", entry: offer.entry });
   // R-DOCUMENT-008: a paper on its way, a renewal of one held among them.
   for (const paper of view.documents) if (paper.onItsWay !== null) list.push({ what: nameOf(paper.id), month: paper.onItsWay, kind: "paper" });
   for (const route of view.routes) {

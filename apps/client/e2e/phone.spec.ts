@@ -1,5 +1,5 @@
 // The phone in a real browser at phone size (docs/rules/world.md R-WORLD-018): it rises over the
-// world with the wallpaper and the eight apps, grows and comes back, opens Bank, Chats and Japa,
+// world with the wallpaper and the apps, the Calendar first, grows and comes back, opens Bank, Chats and Japa,
 // and still fits a small phone of 360 by 640. With PREVIEW_DIR set, each step is saved as a picture.
 import { join } from "node:path";
 
@@ -48,7 +48,9 @@ test("[R-WORLD-018] the phone rises over the world, grows and comes back, opens 
 
   await page.locator('[data-thumb="phone"]').click();
   await expect(page.locator("[data-phone]")).toBeVisible();
-  await expect(page.locator("[data-app]")).toHaveCount(8);
+  // The Calendar sits first among the apps since the month lives on the phone (R-WORLD-018), so nine.
+  await expect(page.locator("[data-app]")).toHaveCount(9);
+  await expect(page.locator("[data-app]").first()).toHaveAttribute("data-app", "calendar");
   await expect(page.locator("[data-phone-area]")).not.toBeEmpty();
   await page.waitForTimeout(500);
   await expectInside(page);

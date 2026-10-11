@@ -1,7 +1,7 @@
 // The phone's home card (docs/rules/home.md R-HOME-007), on the real engine: where the character
 // lives, the monthly charge, the move with its reason when it is shut, and a guest's host. The
 // risk of the water is said once, plainly.
-import { content } from "@japacity/content";
+import { content, text } from "@japacity/content";
 import { int } from "@japacity/sim";
 import { act, fireEvent, render } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
@@ -212,5 +212,19 @@ describe("the room in a compound on the card (R-HOME-010)", () => {
     expect(shut).toBe(phoneWords("phone.home.shut.short.place.compound-room", { amount: { currency: "NGN", amount: MOVE_IN } }));
     expect(shut).toContain(formatMoney(MOVE_IN, "NGN"));
     unmount();
+  });
+});
+
+describe("the home says what it is", () => {
+  test("[R-HOME-008] given a life at the family house and one in the room in a compound, when Bills opens, then the home card opens with the place's own blurb", async () => {
+    const family = await openBills(newGame("scenario.ada"));
+    expect(family.card()?.querySelector("[data-home-blurb]")?.textContent).toBe(text["place.family-house.blurb"] ?? "");
+    family.unmount();
+    const game = newGame("scenario.ada");
+    setPockets(game, { NGN: 5_000_000_00 });
+    game.accept({ type: "home/move", to: "place.compound-room" });
+    const room = await openBills(game);
+    expect(room.card()?.querySelector("[data-home-blurb]")?.textContent).toMatch(/^One room in a compound of ten/);
+    room.unmount();
   });
 });

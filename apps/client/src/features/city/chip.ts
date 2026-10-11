@@ -3,8 +3,11 @@
 import type { Act, Thing } from "../../shared/world/contract";
 import { sceneWords } from "./scene.words";
 
-/** A thing's name and its one or two acts, floating over it with a small arrow down to it (R-WORLD-005). */
-export function chipNode(thing: Thing, onAct: (act: Act) => void): HTMLDivElement {
+/**
+ * A thing's name and its one or two acts, floating over it with a small arrow down to it (R-WORLD-005). An act that
+ * carries on in the plan (R-WORLD-007) says "Ongoing" with a stop beside it, which `onStop` takes out of the plan.
+ */
+export function chipNode(thing: Thing, onAct: (act: Act) => void, onStop: (act: Act) => void = () => undefined): HTMLDivElement {
   const chip = document.createElement("div");
   chip.dataset.thingChip = thing.id;
   chip.setAttribute("role", "group");
@@ -24,14 +27,21 @@ export function chipNode(thing: Thing, onAct: (act: Act) => void): HTMLDivElemen
     button.dataset.act = act.id;
     // The activity a sheet act opens, for tests and the play driver (the nudge names it in data-nudge-opens).
     if (act.kind === "sheet" && act.stages !== undefined) button.dataset.activity = act.stages;
-    // An act already in this month's plan says so and is shut until the month ends.
+    // An act that carries on in the plan says "Ongoing" and is shut, with a stop beside it (R-WORLD-007).
     if (act.planned === true) {
       button.className = "rounded-[5px] border border-sheet-line bg-sheet-muted px-3 py-2 text-[13px] font-extrabold whitespace-nowrap text-text-2";
-      button.textContent = sceneWords("ui.activity.planned");
-      button.setAttribute("aria-label", `${sceneWords(act.label)}: ${sceneWords("ui.activity.planned")}`);
+      button.textContent = sceneWords("ui.world.thing.planned");
+      button.setAttribute("aria-label", `${sceneWords(act.label)}: ${sceneWords("ui.world.thing.planned")}`);
       button.disabled = true;
       button.dataset.planned = "";
-      acts.append(button);
+      const stop = document.createElement("button");
+      stop.type = "button";
+      stop.dataset.actStop = act.id;
+      stop.className = "rounded-[5px] bg-sheet-muted px-3 py-2 text-[13px] font-extrabold whitespace-nowrap";
+      stop.textContent = sceneWords("ui.world.stop");
+      stop.setAttribute("aria-label", sceneWords("ui.world.stop-act", { what: sceneWords(act.label) }));
+      stop.onclick = () => onStop(act);
+      acts.append(button, stop);
       continue;
     }
     button.className = "rounded-[5px] bg-action px-3 py-2 text-[13px] font-extrabold whitespace-nowrap text-action-text";

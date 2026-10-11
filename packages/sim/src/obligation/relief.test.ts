@@ -86,6 +86,18 @@ describe("the two activities", () => {
 });
 
 describe("cooking at home", () => {
+  test("[R-OBLIGATION-014] [R-ACTIVITY-015] given Ada at home, when she cooks now, then it fills no slot, the relief is recorded at once on the upkeep for its next charge, and a second cook this month is refused as once a month", () => {
+    const game = ada();
+    expect(entry(COOK).when).toBe("now");
+    expect(entry(WATER).when).toBe("now");
+    expect(entry(DRUM).when).toBe("now");
+    game.accept({ type: "activity/now", activity: COOK, param: null });
+    expect(owedOf(game, HOME_UPKEEP).relief).toEqual([{ source: COOK, bp: room.cookedBp }]);
+    expect(game.view().activities.find((option) => option.id === COOK)).toMatchObject({ allowed: false, done: true });
+    game.expectRejected({ type: "activity/now", activity: COOK, param: null }, "not-legal");
+    game.expectRejected({ type: "turn/end", slots: [slot(COOK)] }, "not-legal");
+  });
+
   test("[R-OBLIGATION-014] given cooking chosen this month, when the month ends, then the upkeep's charge falls by the cooked share, the results say so in a line of its own, and cooking costs its wellbeing", () => {
     const { played, plain } = againstNone([COOK]);
     const full = upkeepPaid(plain);

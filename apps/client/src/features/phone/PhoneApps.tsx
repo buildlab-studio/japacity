@@ -1,4 +1,4 @@
-// The phone's eight apps on the real view (docs/rules/world.md R-WORLD-018, 019), composed for the
+// The phone's apps on the real view (docs/rules/world.md R-WORLD-018, 019), composed for the
 // shell: `usePhoneApps` gives the contract's `PhoneApp` list, `usePhoneWaiting` the dot for the
 // Phone button (R-WORLD-004), and `PhoneApps` the whole handset with its apps. What the phone needs
 // from other features (the account's settings, the pair routes) the shell hands in.
@@ -22,6 +22,7 @@ import { phoneWords } from "./phone.words";
 import { APP_IDS, type AppId, markSeen, marksOf, useSeen, waitingOf } from "./seen";
 
 const ICON: Record<AppId, string> = {
+  calendar: "calendar",
   bank: "landmark",
   chats: "message-circle",
   japa: "plane",
@@ -32,13 +33,18 @@ const ICON: Record<AppId, string> = {
   settings: "settings",
 };
 
-/** What an app opens on: the Bank may open on its send chooser (`bank:send`). */
-type Opening = "send" | null;
+/** What an app opens on: the Bank on its send chooser (`bank:send`); the Calendar on its coming list or its teach card. */
+type Opening = string | null;
 
-function screenOf(id: AppId, account: ReactNode, opening: Opening = null): ReactNode {
+/** The Calendar's screen, handed in by the shell with what it opens on (R-WORLD-002), so the phone knows nothing of the month. */
+export type CalendarScreen = (opening: string | null) => ReactNode;
+
+function screenOf(id: AppId, account: ReactNode, opening: Opening = null, calendar: CalendarScreen | null = null): ReactNode {
   switch (id) {
+    case "calendar":
+      return calendar?.(opening) ?? null;
     case "bank":
-      return <Bank opening={opening} />;
+      return <Bank opening={opening === "send" ? "send" : null} />;
     case "chats":
       return <Chats />;
     case "japa":
@@ -60,8 +66,8 @@ function screenOf(id: AppId, account: ReactNode, opening: Opening = null): React
   }
 }
 
-/** The eight apps, each with its dot from what the player has not seen. */
-export function usePhoneApps({ account = null, opening = null }: { account?: ReactNode; opening?: Opening } = {}): PhoneApp[] {
+/** The apps, each with its dot from what the player has not seen. */
+export function usePhoneApps({ account = null, opening = null, calendar = null }: { account?: ReactNode; opening?: { app: string; act: Opening } | null; calendar?: CalendarScreen | null } = {}): PhoneApp[] {
   const view = useView();
   const waiting = waitingOf(marksOf(view), useSeen());
   return APP_IDS.map((id) => ({
@@ -72,7 +78,7 @@ export function usePhoneApps({ account = null, opening = null }: { account?: Rea
     screen: (
       <>
         <Refused />
-        {screenOf(id, account, id === "bank" ? opening : null)}
+        {screenOf(id, account, opening?.app === id ? opening.act : null, calendar)}
       </>
     ),
     waiting: waiting[id],
@@ -96,15 +102,17 @@ export interface PhoneAppsProps {
   /** The pair routes online, or null offline, for Chats. */
   talk?: PairTalk | null;
   now?: () => Date;
-  /** An app to open on; `bank:send` opens the Bank on its send chooser. */
+  /** An app to open on; `bank:send` opens the Bank on its send chooser, `calendar:coming` the Calendar on what is coming. */
   start?: string | null;
+  /** The Calendar's screen, from the shell (R-WORLD-002). */
+  calendar?: CalendarScreen | null;
 }
 
 /** The handset with its apps, ready for the shell to show over the world. */
-export function PhoneApps({ onClose, area, account = null, talk = null, now, start = null }: PhoneAppsProps) {
+export function PhoneApps({ onClose, area, account = null, talk = null, now, start = null, calendar = null }: PhoneAppsProps) {
   const view = useView();
   const [app, act] = start === null ? [null, null] : start.split(":");
-  const apps = usePhoneApps({ account, opening: act === "send" ? "send" : null });
+  const apps = usePhoneApps({ account, opening: app === undefined || app === null ? null : { app, act: act ?? null }, calendar });
   const marks = marksOf(view);
   return (
     <PhoneTalk value={talk}>

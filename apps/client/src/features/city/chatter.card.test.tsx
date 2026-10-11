@@ -16,7 +16,7 @@ function chatter(): HTMLElement | null {
 describe("street talk and a share card", () => {
   test("[R-WORLD-026] given the chatter standing in its corner, when a chapter's card comes up over the world, then the chatter hides until the card is closed", async () => {
     const view = engineView();
-    const { store } = await renderWithView(<City world month={<p />} results={() => <p />} />, view);
+    const { store } = await renderWithView(<City world results={() => <p />} />, view);
     const go = document.querySelector<HTMLElement>("[data-opening-go]");
     if (go !== null) fireEvent.click(go);
     const mapClose = screen.queryByRole("button", { name: cityWords("city.close") });

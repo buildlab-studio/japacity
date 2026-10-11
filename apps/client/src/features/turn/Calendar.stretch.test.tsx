@@ -1,4 +1,4 @@
-// The Month sheet says when the plan stretches the character (docs/rules/world.md R-WORLD-030): a
+// The Calendar says when the plan stretches the character (docs/rules/world.md R-WORLD-030): a
 // job with a class and a side job, or a job with two month-acts beside it; one line, no figure.
 import { content } from "@japacity/content";
 import type { Id, PlayerView } from "@japacity/sim";
@@ -9,7 +9,7 @@ import { applyEffects } from "../../../../../packages/sim/src/route/route.journe
 import { newGame } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { say } from "../../shared/words/text";
-import { MonthSheet } from "./MonthSheet";
+import { Calendar } from "./Calendar";
 import { isMonthAct } from "../../shared/days/days";
 import { restores, stretchedWords } from "../../shared/days/stretch";
 
@@ -34,10 +34,10 @@ function stretchedLine(): string | null {
 }
 
 describe("the stretched line", () => {
-  test("[R-WORLD-030] given work, a side job and a class planned, when the Month sheet shows, then its foot says the day runs work, class, then the tutoring", async () => {
+  test("[R-WORLD-030] given work, a side job and a class planned, when the Calendar shows, then its foot says the day runs work, class, then the tutoring", async () => {
     const view = adaWorking([TEACHER, TUTORING]);
     expect(view.job).toMatchObject({ id: TEACHER, side: TUTORING });
-    const { store } = await renderWithView(<MonthSheet />, view);
+    const { store } = await renderWithView(<Calendar />, view);
     expect(stretchedLine()).toBeNull();
     act(() => {
       store.getState().addToPlan({ activity: COURSE, param: null });

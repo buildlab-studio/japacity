@@ -1,7 +1,8 @@
 // The world as the game, in a real browser at phone size (docs/rules/world.md R-WORLD-001 to 008,
 // 024): the default address opens the world with the band and the two thumb buttons and nothing else;
-// ?classic opens the old month page; Next month opens the Month sheet; ending the month shows the
-// results over the scene and goes back to the place; the nudge changes when an offer opens.
+// ?classic opens the old month page; Next month turns the page, or in the first month opens the phone's
+// Calendar app; its Next month shows the results over the scene and goes back to the place; the nudge
+// changes when an offer opens.
 // With PREVIEW_DIR set, each step leaves a picture there.
 import { join } from "node:path";
 
@@ -33,6 +34,22 @@ async function startLife(page: Page): Promise<void> {
   await page.goto("/");
   await startReadyLife(page);
   await expect(page.locator("[data-band]")).toBeVisible();
+}
+
+/**
+ * Next month on the band (R-WORLD-002): it turns the page at once, or, in the first month of a life and in a month with
+ * nothing planned and no job, opens the phone's Calendar app, whose own Next month turns it.
+ */
+async function turnPage(page: Page): Promise<void> {
+  await page.locator("[data-band] [data-end-month]").click();
+  const calendar = page.locator("[data-app-screen='calendar']");
+  if (await calendar.waitFor({ state: "visible", timeout: 1500 }).then(() => true, () => false)) await calendar.locator("[data-month-end]").click();
+}
+
+/** The home's teach card, shown once on the first entry into the home in a life (R-HOME-008), dismissed so the place is clear. */
+async function passHomeTeach(page: Page): Promise<void> {
+  const teach = page.locator("[data-home-teach-ok]");
+  if (await teach.waitFor({ state: "visible", timeout: 4000 }).then(() => true, () => false)) await teach.click();
 }
 
 /** The staged wins and any card that opens over the world come before the results; each is closed in turn. */
@@ -77,6 +94,8 @@ test("[R-WORLD-001] [R-WORLD-024] the default address opens the world with the b
   await expect(page.locator("[data-thumb='phone']")).toBeVisible();
   await expect(page.locator("[data-nudge]")).toBeVisible();
   await placeDrawn(page);
+  // The home says what it is once, on its first entry in a life (R-HOME-008); dismissed, nothing else stands over the place.
+  await passHomeTeach(page);
   // The band's month count stands with them (R-WORLD-027), and the name over the age opens the data page (R-PROLOGUE-009).
   expect((await visibleButtons(page)).sort()).toEqual(["Next month", "Map", "Pages left: 24", "Phone", "Your page"].sort());
   await expect(page.locator("header")).toHaveCount(0);
@@ -93,7 +112,7 @@ test("[R-WORLD-024] ?classic opens the old month page with its header and tabs",
   await expect(page.locator("[data-band]")).toHaveCount(0);
 });
 
-test("[R-WORLD-007] [R-WORLD-008] Next month opens the Month sheet; ending it shows the results over the scene, and the button goes back to the place", async ({ page }, info) => {
+test("[R-WORLD-002] [R-WORLD-007] [R-WORLD-008] in the first month Next month opens the phone's Calendar with its teach card; its Next month shows the results over the scene, and the button goes back to the place", async ({ page }, info) => {
   phoneOnly(info.project.name);
   test.setTimeout(120_000);
   await startLife(page);
@@ -101,19 +120,22 @@ test("[R-WORLD-007] [R-WORLD-008] Next month opens the Month sheet; ending it sh
   const place = (await page.locator("[data-band] h2").textContent()) ?? "";
   const bandBefore = (await page.locator("[data-band]").textContent()) ?? "";
 
-  await page.locator("[data-end-month]").click();
-  const month = page.locator("[data-world-sheet='month']");
+  await passHomeTeach(page);
+  await page.locator("[data-band] [data-end-month]").click();
+  const month = page.locator("[data-app-screen='calendar']");
   await expect(month).toBeVisible();
-  await expect(month.getByRole("heading", { name: "This month" })).toBeVisible();
-  await expect(month.locator("[data-slot='free']").first()).toBeVisible();
-  // A fresh life has no last month to repeat: Same again waits for one (R-WORLD-007); Until news stands beside End month (R-WORLD-028).
+  await expect(month.locator("[data-calendar-teach]")).toBeVisible();
+  await expect(month.locator("[data-slot='free']").first()).toHaveText("Free time: you rest");
+  // What is started carries on, so there is no Same again (R-WORLD-007); Until news stands beside Next month (R-WORLD-028).
   await expect(month.getByRole("button", { name: "Same again" })).toHaveCount(0);
   await expect(month.getByRole("button", { name: /^Until news/ })).toBeVisible();
+  await expect(month).not.toContainText(/slot|takes no/i);
   await expect(page.locator("[data-nudge]")).toHaveCount(0);
   await page.waitForTimeout(900);
   await shoot(page, "month");
 
   await month.locator("[data-month-end]").click();
+  await expect(page.locator("[data-phone]")).toHaveCount(0);
   await passMoments(page);
   const results = page.locator("[data-world-sheet='results']");
   await expect(results).toBeVisible();
@@ -156,8 +178,7 @@ test("[R-WORLD-003] the nudge changes when an offer opens, and a tap on it opens
   // The recorded life's first offer opens within its first months; which month depends on the recording, so the
   // test ends months until the nudge turns to the ask, at most four.
   for (let month = 0; month < 4 && (await nudge.textContent()) !== "Answer the person asking"; month += 1) {
-    await page.locator("[data-end-month]").click();
-    await page.locator("[data-world-sheet='month'] [data-month-end]").click();
+    await turnPage(page);
     await passMoments(page);
     await page.locator("[data-results-back]").click();
   }

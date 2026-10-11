@@ -6,11 +6,3 @@ import { hasWords, say } from "./text";
 export function countWords(count: number): string {
   return hasWords(`ui.count.${String(count)}`) ? say(`ui.count.${String(count)}`) : formatNumber(count);
 }
-
-/**
- * The Month sheet's line while working, with what is planned beside the job:
- * "Working, and one thing planned beside the job", never "1 of 1 things planned".
- */
-export function workingPlanned(used: number): string {
-  return say(used === 1 ? "ui.month.working-things.one" : "ui.month.working-things", { count: countWords(used) });
-}

@@ -11,7 +11,7 @@ import { FIRST_THUMBS, WALK_KEY, walkSeen } from "../../shared/world/Walkthrough
 import { City } from "./City";
 import { cityWords } from "./city.words";
 
-const world = () => <City world month={<p>month</p>} results={(place) => <p data-results-for={place} />} />;
+const world = () => <City world results={(place) => <p data-results-for={place} />} />;
 
 function labels(): string[] {
   return [...document.querySelectorAll<HTMLElement>("[data-first-label]")].map((label) => label.dataset["firstLabel"] ?? "");

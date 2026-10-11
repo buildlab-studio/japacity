@@ -18,7 +18,7 @@ function landed(): PlayerView {
   return game.view();
 }
 
-const world = (extra: Partial<Parameters<typeof City>[0]> = {}) => <City world month={<p data-month-body>month</p>} {...extra} />;
+const world = (extra: Partial<Parameters<typeof City>[0]> = {}) => <City world {...extra} />;
 
 function band(): HTMLElement {
   const found = document.querySelector<HTMLElement>("[data-band]");

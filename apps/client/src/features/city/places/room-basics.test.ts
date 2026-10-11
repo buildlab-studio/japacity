@@ -106,12 +106,12 @@ describe("the room down its length", () => {
 });
 
 describe("the basics at home", () => {
-  test("[R-WORLD-029] [R-OBLIGATION-014] given the parlour, when its things are read, then the cooking corner cooks for the week, the drum fetches water, the bed rests and ends the month, and the bag by the door packs; each says its act in words", () => {
+  test("[R-WORLD-029] [R-OBLIGATION-014] given the parlour, when its things are read, then the cooking corner cooks for the week, the drum fetches water, the bed lies down and ends the month, and the bag by the door packs; each says its act in words", () => {
     const acts = (id: string) => thingOf(parlour, id).acts.map((act) => [act.kind, act.stages ?? act.command ?? null, sceneWords(act.label)]);
     expect(acts("cooking")).toEqual([["do", COOK, "Cook for the week"]]);
     expect(acts("drum")).toEqual([["do", WATER, "Fetch water"]]);
     expect(acts("bag")).toEqual([["command", "route/depart", "Pack and go"]]);
-    expect(acts("bed").map(([kind]) => kind)).toEqual(["do", "end"]);
+    expect(acts("bed").map(([kind]) => kind)).toEqual(["plain", "end"]);
     expect(thingOf(parlour, "table").acts.length).toBeGreaterThan(0);
     expect(["cooking", "drum", "bag"].map((id) => sceneWords(thingOf(parlour, id).label))).toEqual(["Cooking corner", "Water drum", "Bag"]);
     // The bag stands by the door.

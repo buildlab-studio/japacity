@@ -5,7 +5,7 @@ import { House } from "lucide-react";
 
 import { useView } from "../../../authority/GameProvider";
 import { formatMoney } from "../../../shared/words/format";
-import { forMonths, hasWords, nameOf, sayCount } from "../../../shared/words/text";
+import { blurbOf, forMonths, hasWords, nameOf, sayCount } from "../../../shared/words/text";
 import { useAsk } from "../act";
 import { phoneWords } from "../phone.words";
 
@@ -97,6 +97,12 @@ export function HomeCard() {
         <div className="min-w-0 flex-1">
           <h3 className="label text-text-2">{phoneWords("phone.home.title")}</h3>
           <p className="text-[15px] font-bold">{home.place === null ? phoneWords("phone.home.none") : phoneWords(`phone.home.place.${home.place}`)}</p>
+          {/* R-HOME-008: the card opens with what the home is, the place's own blurb. */}
+          {home.place === null || blurbOf(home.place) === null ? null : (
+            <p className="text-[14px] leading-snug text-text-2" data-home-blurb>
+              {blurbOf(home.place)}
+            </p>
+          )}
           {home.guest === null ? null : (
             <p className="text-[14px]" data-home-guest>
               {phoneWords("phone.home.guest", { who: hostWords(home.guest), until: forMonths(home.guest.until, view.month) })}

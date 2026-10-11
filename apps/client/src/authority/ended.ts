@@ -6,6 +6,7 @@ import { KEPT_CARDS } from "../shared/card/kept";
 import { DOOR_KEY } from "../shared/datapage/door";
 import { CITY_LAST_KEY } from "../shared/days/standing";
 import { SEEN_KEY } from "../shared/phone/newsSeen";
+import { TAUGHT_KEY } from "../shared/world/taught";
 import { PERSON_KEY } from "./person";
 
 /**
@@ -13,7 +14,7 @@ import { PERSON_KEY } from "./person";
  * (`features/prologue/years.ts`) and the places been (`features/city/City.tsx`) are named here as written there,
  * since those modules reach back into the store; a test holds the first two to their own constants.
  */
-export const LIFE_KEYS: readonly string[] = [PERSON_KEY, "japacity.month", "japacity.days", DOOR_KEY, "japacity.door.years", KEPT_CARDS, CITY_LAST_KEY, "japacity.city.been", SEEN_KEY];
+export const LIFE_KEYS: readonly string[] = [PERSON_KEY, "japacity.month", "japacity.days", DOOR_KEY, "japacity.door.years", KEPT_CARDS, CITY_LAST_KEY, "japacity.city.been", SEEN_KEY, TAUGHT_KEY];
 
 type Forget = Pick<Storage, "removeItem">;
 

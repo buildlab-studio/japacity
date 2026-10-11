@@ -33,7 +33,7 @@ async function played(): Promise<{ store: GameStore; sent: ReturnType<typeof gam
 function inWorld(store: GameStore): void {
   render(
     <GameProvider store={store}>
-      <City world month={<p />} results={() => <p />} />
+      <City world results={() => <p />} />
     </GameProvider>,
   );
 }

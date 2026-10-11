@@ -175,15 +175,16 @@ describe("the things of the built places", () => {
     }
   });
 
-  test("[R-WORLD-025] given the bed at home and the bed in the room abroad, when their acts are read, then each offers rest and End month, the band's own act", () => {
+  test("[R-WORLD-025] [R-TURN-006] given the bed at home and the bed in the room abroad, when their acts are read, then each offers Lie down, done at once with the lying pose and no slot, and Next month, the band's own act", () => {
     for (const folder of ["family-house-parlour", "the-room"]) {
       const found = builtPlaces().find((built) => built.folder === folder);
       if (found === undefined) throw new Error(`No ${folder}`);
       const bed = (stageOf(found.file).things ?? []).find((thing) => thing.file.endsWith("prop_bed.glb"));
       expect(bed?.acts.map((act) => [act.id, act.kind, act.stages, act.pose])).toEqual([
-        ["rest", "do", "activity.rest", "lie"],
+        ["lie", "plain", undefined, "lie"],
         ["end-month", "end", undefined, undefined],
       ]);
+      expect(sceneWords(bed?.acts[0]?.label ?? "")).toBe("Lie down");
       expect(bed?.acts[0]?.seat).toHaveLength(3);
       expect(sceneWords(bed?.acts[1]?.label ?? "")).toBe(say("ui.world.end-month"));
     }

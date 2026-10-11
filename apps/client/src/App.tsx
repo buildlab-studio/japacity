@@ -39,7 +39,7 @@ import { RoadView } from "./features/road/RoadView";
 import { ScenarioView } from "./features/scenario/ScenarioView";
 import { ReadyEntry } from "./shared/frontdoor/ReadyEntry";
 import { SetpieceView, useClosingOpen } from "./features/setpiece/SetpieceView";
-import { MonthSheet } from "./features/turn/MonthSheet";
+import { Calendar, calendarOpening } from "./features/turn/Calendar";
 import { Results } from "./features/turn/Results";
 import { say } from "./shared/words/text";
 import { useScreenCount } from "./useScreenCount";
@@ -82,7 +82,6 @@ function WorldPlaying() {
           if (first?.startsWith("chapter.") === true) return <ChapterView />;
           return <ActivityPicker only={ids} />;
         }}
-        month={<MonthSheet />}
         results={(place) => <Results place={place} foot={<GuestReminder afterFirstChapter />} />}
         // R-WORLD-006: one ask at a time: the set piece's question, the interview's, then each open offer on its own.
         asks={[
@@ -104,7 +103,7 @@ function WorldPlaying() {
             <AccountButton more={<NotifySetting />} />
             <ReadyEntry />
           </>
-        } talk={talk} start={app ?? null} />}
+        } talk={talk} start={app ?? null} calendar={(opening) => <Calendar opening={calendarOpening(opening)} />} />}
         phoneWaiting={phoneWaiting}
         askIcon={iconFor}
         cityMap={(props) => <Map {...props} />}

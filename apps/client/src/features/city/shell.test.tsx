@@ -7,11 +7,15 @@ import { engineView, newGame, richView } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { formatMoney } from "../../shared/words/format";
 import { inMonths, nameOf, say, words } from "../../shared/words/text";
-import { City, type CityMapSlot } from "./City";
+import { FLIP_MS } from "../../shared/world/MonthCount";
+import { forgetTaught, wasTaught } from "../../shared/world/taught";
+import { calendarFirst, City, type CityMapSlot, homeLine, TITLE_MS } from "./City";
 import { cityWords } from "./city.words";
 import { nudgeOf, stepWayOf } from "./nudge";
 
-const world = (extra: Partial<Parameters<typeof City>[0]> = {}) => <City world month={<p data-month-body>month</p>} results={(place) => <p data-results-for={place} />} {...extra} />;
+const world = (extra: Partial<Parameters<typeof City>[0]> = {}) => <City world results={(place) => <p data-results-for={place} />} {...extra} />;
+/** The world with a phone that says which app it opened on (R-WORLD-002: the Calendar is on the phone). */
+const phoned = (extra: Partial<Parameters<typeof City>[0]> = {}) => world({ phone: (_close, _area, app) => <p data-phone-app={app ?? ""} />, ...extra });
 
 /** Renders the world and passes a later chapter's opening card when one stands over it (R-WORLD-001, R-CHAPTER-011). */
 async function opened(ui: Parameters<typeof renderWithView>[0], view: Parameters<typeof renderWithView>[1]): Promise<Awaited<ReturnType<typeof renderWithView>>> {
@@ -93,13 +97,43 @@ describe("the world fills the screen", () => {
     expect(within(sheet).getByText("second")).toBeTruthy();
   });
 
-  test("[R-WORLD-001] given the world, when End month is tapped, then the Month sheet opens over it with the month's contents and closes back to it", async () => {
-    await opened(world(), engineView());
+  test("[R-WORLD-002] given the first month of a life, when Next month is tapped, then the phone opens on the Calendar with its teach card as the answer to the tap, and the page does not turn", async () => {
+    const { authority } = await opened(phoned(), engineView());
+    expect(document.querySelector("[data-phone-app]")).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: say("ui.world.end-month") }));
-    const sheet = screen.getByRole("dialog");
-    expect(within(sheet).getByText("month")).toBeTruthy();
-    fireEvent.click(within(sheet).getByRole("button", { name: say("ui.world.close") }));
-    expect(document.querySelector("[data-month-body]")).toBeNull();
+    expect(document.querySelector("[data-phone-app]")?.getAttribute("data-phone-app")).toBe("calendar:teach");
+    expect(authority.sent).toEqual([]);
+  });
+
+  test("[R-WORLD-002] [R-WORLD-027] given a month behind the life and something planned, when Next month is tapped, then the page turns at once on the spot, with no sheet or phone between", async () => {
+    const view = { ...richView(), setpiece: null, interview: null };
+    const { authority, store } = await opened(phoned(), view);
+    act(() => {
+      store.getState().addToPlan({ activity: "activity.learn-tech", param: null });
+    });
+    fireEvent.click(screen.getByRole("button", { name: say("ui.world.end-month") }));
+    await waitFor(() => expect(authority.sent.at(-1)).toMatchObject({ type: "turn/end", slots: [{ activity: "activity.learn-tech", param: null }] }));
+    expect(document.querySelector("[data-phone-app]")).toBeNull();
+    expect(screen.queryByRole("dialog")).toBeNull();
+  });
+
+  test("[R-WORLD-002] given a month behind the life with nothing planned and no job, when Next month is tapped, then the Calendar opens so the month is seen before it turns", async () => {
+    const base = { ...richView(), setpiece: null, interview: null };
+    const view = { ...base, job: { ...base.job, id: null, side: null, pay: null, sidePay: null } };
+    const { authority } = await opened(phoned(), view);
+    fireEvent.click(screen.getByRole("button", { name: say("ui.world.end-month") }));
+    expect(document.querySelector("[data-phone-app]")?.getAttribute("data-phone-app")).toBe("calendar:teach");
+    expect(authority.sent).toEqual([]);
+    expect(calendarFirst(view, [null, null, null])).toBe(true);
+    expect(calendarFirst(view, [{ activity: "activity.learn-tech", param: null }, null, null])).toBe(false);
+    expect(calendarFirst({ ...view, report: null }, [{ activity: "activity.learn-tech", param: null }])).toBe(true);
+  });
+
+  test("[R-WORLD-002] [R-WORLD-027] given the band, when its calendar glyph or the coming chip is tapped, then the phone opens on the Calendar, the chip on what is coming", async () => {
+    const { authority } = await opened(phoned(), { ...richView(), setpiece: null, interview: null });
+    fireEvent.click(within(band()).getByRole("button", { name: new RegExp(say("ui.months.label", { count: richView().turns.banked })) }));
+    expect(document.querySelector("[data-phone-app]")?.getAttribute("data-phone-app")).toBe("calendar");
+    expect(authority.sent).toEqual([]);
   });
 });
 
@@ -127,11 +161,13 @@ describe("the band and the thumb buttons", () => {
     expect(document.querySelector("[data-thing-chip]")).toBeNull();
   });
 
-  test("[R-WORLD-002] given the results showing, when the band renders, then it hides, and it shows again once the player goes back", async () => {
+  test("[R-WORLD-002] [R-WORLD-027] given the results showing, when the band renders, then it hides once they are up, and it shows again once the player goes back", async () => {
     const { store } = await opened(world(), richView());
     expect(band().getAttribute("aria-hidden")).toBe("false");
     act(() => store.setState({ reportOpen: true }));
-    expect(band().getAttribute("aria-hidden")).toBe("true");
+    // the band stays while its page flips on the spot, and steps back once the results are up (R-WORLD-027).
+    expect(band().getAttribute("aria-hidden")).toBe("false");
+    await waitFor(() => expect(band().getAttribute("aria-hidden")).toBe("true"), { timeout: FLIP_MS + 1500 });
     act(() => store.setState({ reportOpen: false }));
     expect(band().getAttribute("aria-hidden")).toBe("false");
   });
@@ -150,11 +186,13 @@ describe("the band and the thumb buttons", () => {
     expect(thumbs().getAttribute("aria-hidden")).toBe("true");
   });
 
-  test("[R-WORLD-008] [R-WORLD-025] given the month ended, when the shell shows, then the scene goes dark first, and the results are handed the name of where the player is", async () => {
+  test("[R-WORLD-008] [R-WORLD-025] [R-WORLD-027] given the month ended, when the shell shows, then the page turns on the spot first, the scene goes dark after it, and the results are handed the name of where the player is", async () => {
     const { store } = await opened(world(), engineView());
     const shown = band().querySelector("h2")?.textContent ?? "";
     act(() => store.setState({ reportOpen: true }));
-    expect(document.querySelector("[data-cut]")?.getAttribute("data-cut")).toBe("true");
+    // the glyph's page flips on the band before the cut (R-WORLD-002), so the dark comes after it.
+    expect(document.querySelector("[data-cut]")?.getAttribute("data-cut")).toBe("false");
+    await waitFor(() => expect(document.querySelector("[data-cut]")?.getAttribute("data-cut")).toBe("true"), { timeout: FLIP_MS + 1000 });
     expect(document.querySelector("[data-results-for]")).toBeNull();
     // The band starts the name with a capital; the results' "Back to ..." keeps content's casing.
     await waitFor(() => expect(document.querySelector("[data-results-for]")).not.toBeNull());
@@ -291,8 +329,8 @@ describe("the nudge", () => {
     }
   });
 
-  test("[R-WORLD-003] given an offer waiting, when it opens, then the nudge says so; and the nudge hides while the Month sheet is open", async () => {
-    const { store } = await opened(world(), { ...richView(), setpiece: null, interview: null, offers: [] });
+  test("[R-WORLD-003] given an offer waiting, when it opens, then the nudge says so; and the nudge hides while the phone's Calendar is open", async () => {
+    const { store } = await opened(phoned(), { ...richView(), setpiece: null, interview: null, offers: [], job: { ...richView().job, id: null, side: null } });
     const nudge = () => document.querySelector("[data-nudge]")?.textContent ?? null;
     expect(nudge()).not.toBe(say("ui.nudge.offer"));
     const view = store.getState().view;
@@ -533,5 +571,58 @@ describe("the home the game opens in", () => {
     localStorage.removeItem("japacity.city.last");
     await opened(world(), engineView());
     expect(document.querySelector("[data-city]")?.getAttribute("data-city")).toBe("place.family-house");
+  });
+});
+
+describe("once per life", () => {
+  test("[R-CHAPTER-011] given the first chapter's title shown once, when the page reloads, then it never shows again in this life, and a new life shows it again", async () => {
+    localStorage.clear();
+    const view = engineView();
+    await renderWithView(world(), view);
+    expect(document.querySelector("[data-opening-title]")).not.toBeNull();
+    await waitFor(() => expect(document.querySelector("[data-opening-title]")).toBeNull(), { timeout: TITLE_MS + 2000 });
+    expect(wasTaught("title", view.scenario)).toBe(true);
+    // A reload: a new store and a new screen over the same life.
+    document.body.innerHTML = "";
+    await renderWithView(world(), view);
+    expect(document.querySelector("[data-opening-title]")).toBeNull();
+    // A new life is taught afresh.
+    document.body.innerHTML = "";
+    forgetTaught();
+    await renderWithView(world(), view);
+    expect(document.querySelector("[data-opening-title]")).not.toBeNull();
+    localStorage.clear();
+  });
+
+  test("[R-HOME-008] given the first entry into the home in a life, when the world opens there, then one small card says what the home is, its blurb; dismissed, it never shows again", async () => {
+    localStorage.clear();
+    const view = { ...richView(), setpiece: null, interview: null };
+    await opened(world(), view);
+    const card = document.querySelector("[data-home-teach]");
+    expect(card?.getAttribute("data-home-teach")).toBe("place.family-house");
+    expect(card?.textContent).toContain(words("place.family-house.blurb"));
+    fireEvent.click(screen.getByRole("button", { name: cityWords("city.home.teach.close") }));
+    expect(document.querySelector("[data-home-teach]")).toBeNull();
+    document.body.innerHTML = "";
+    await opened(world(), view);
+    expect(document.querySelector("[data-home-teach]")).toBeNull();
+    localStorage.clear();
+  });
+});
+
+describe("the band says what the home is", () => {
+  test("[R-WORLD-002] given each home, when the band's place line is read, then it names the home's kind in few words: the room in a compound, the family house, the room on the water, the shared room abroad by its area", async () => {
+    const base = engineView();
+    expect(homeLine("place.compound-room", base)).toBe("Your room, a compound in Ojuelegba");
+    expect(homeLine("place.family-house", base)).toBe("The family house");
+    expect(homeLine("place.makoko", { ...base, home: { ...base.home, place: "place.makoko" } })).toBe("The room on the water");
+    // Makoko is a place like any other for a life that lives elsewhere.
+    expect(homeLine("place.makoko", base)).toBeNull();
+    expect(homeLine("place.the-room", { ...base, place: { ...base.place, where: "abroad", country: "country.uk" } })).toBe("The shared room, Peckham");
+    expect(homeLine("place.yaba", base)).toBeNull();
+    localStorage.removeItem("japacity.city.last");
+    const view = { ...base, home: { ...base.home, place: "place.compound-room" as const, rent: { currency: "NGN" as const, amount: 50_000_00 } } };
+    await opened(world(), view);
+    expect(band().textContent).toContain("Your room, a compound in Ojuelegba");
   });
 });

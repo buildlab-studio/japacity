@@ -1,7 +1,8 @@
 // The pages left on the flip calendar (docs/rules/world.md R-WORLD-027): a small calendar drawn with
 // the number on it, on the band beside the age at all times, each page a month of the character's life.
-// Never a sentence on the band and never a prompt: a tap gives the words, the count and when the next
-// page comes, or that the calendar is full. The page turned flips over on the glyph, on the spot.
+// Never a sentence on the band and never a prompt: a tap opens the phone's Calendar app, whose pages say the count
+// and when the next page comes, or that the calendar is full (R-WORLD-002). The page turned flips over on
+// the glyph, on the spot.
 import { BookOpen, Calendar, CalendarCheck, CalendarDays, CalendarX, Clock, Flag, Map as MapIcon, Smartphone, type LucideIcon } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
@@ -101,8 +102,8 @@ export function countFacts(banked: number, cap: number, nextTurnAt: number | nul
 /** How long the words stay before they fold away by themselves. */
 const SHOWN_MS = 6000;
 
-/** The count on the band, and its words at a tap. */
-export function MonthCount() {
+/** The count on the band. A tap opens the Calendar app where the shell hands `onOpen`, else gives the words. */
+export function MonthCount({ onOpen }: { onOpen?: () => void } = {}) {
   const view = useView();
   const nextTurnAt = useGame((state) => state.clock?.nextTurnAt);
   const [open, setOpen] = useState(false);
@@ -159,6 +160,11 @@ export function MonthCount() {
         className="press flex h-[42px] items-center justify-center rounded-[5px] px-1"
         onClick={() => {
           cue("tap");
+          if (onOpen !== undefined) {
+            setOpen(false);
+            onOpen();
+            return;
+          }
           setOpen((was) => !was);
         }}
         aria-label={say("ui.months.label", { count: banked })}

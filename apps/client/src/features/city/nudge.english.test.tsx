@@ -40,7 +40,7 @@ describe("the English result on its way", () => {
   });
 
   test("[R-WORLD-003] given the result pending, when the world shows the nudge, then it opens nothing: there is nothing to do but wait", async () => {
-    await renderWithView(<City world month={<p />} results={() => <p />} />, waitingOnResult());
+    await renderWithView(<City world results={() => <p />} />, waitingOnResult());
     const go = document.querySelector<HTMLElement>("[data-opening-go]");
     if (go !== null) fireEvent.click(go);
     expect(document.querySelector("[data-nudge]")?.textContent).toBe("Wait for your result, due next month");

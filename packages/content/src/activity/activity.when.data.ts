@@ -70,6 +70,10 @@ const NOW_ACTS: Record<string, Now> = {
   "activity.find-sponsor": "once",
   // The job hunt: applied now, the employer answering with the month.
   "activity.job-hunt": "once",
+  // Cooking and the water, once a month, the saving recorded at once for the next charge (obligation.md R-OBLIGATION-014).
+  "activity.cook-at-home": "once",
+  "activity.fetch-water": "once",
+  "activity.fill-drum": "once",
 };
 
 /**

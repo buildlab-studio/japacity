@@ -180,6 +180,14 @@ describe("turns", () => {
     expect(game.state.turn.month).toBe(2);
   });
 
+  test("[R-TURN-006] given rest, which the player never plans since an empty slot rests, when a recorded pick of it and an empty month are played, then the pick still plays and every empty slot rests", () => {
+    const game = start({ scenario: "scenario.plain" });
+    const recorded = game.endTurn([{ activity: "activity.rest", param: null }]);
+    expect(recorded.events.some((event) => event.type === "activity/slot-played")).toBe(true);
+    const empty = game.endTurn([]);
+    expect(empty.events.find((event) => event.type === "activity/rested")).toMatchObject({ slots: game.view().freeSlots });
+  });
+
   test("[R-TURN-007] given the effect turn/finish, when it is carried out, then the life is ended and only turns/grant is accepted", () => {
     const game = start();
     const kinds = registryWithEffectCommand({ type: "turn/finish" });

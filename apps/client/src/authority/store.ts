@@ -6,14 +6,16 @@ import type { Command, Id, PlayerView, Reply, ReportLine, SlotPick } from "@japa
 import { createStore, type StoreApi } from "zustand/vanilla";
 
 import { earlyWinIn } from "../features/guides/earlyWin";
-import { againSlots, creditMoved, RUN_MONTHS, stopsRun } from "../features/turn/untilNews";
+import { carriedPlan, creditMoved, RUN_MONTHS, stopsRun } from "../features/turn/untilNews";
 import type { AccountApi } from "../shared/net/auth";
 import type { ClockView, PresenceReply, ServerCode, ServerRejection, WorldReply } from "../shared/net/contract";
 import { isReported } from "../shared/net/http";
+import { plannable } from "../shared/words/acts";
 import { isSaid, tidyLines } from "../shared/words/lines";
 import { setNow } from "../shared/words/now";
 import { sayCount } from "../shared/words/text";
 import { uiText } from "../shared/words/ui";
+import { forgetTaught } from "../shared/world/taught";
 import { forgetLife } from "./ended";
 import type { AuthorityEvent } from "./remote";
 
@@ -66,8 +68,8 @@ export interface GameState {
   /** The month just ended's mid-month lines, shown with its report. */
   lastMonthLines: ReportLine[];
   /**
-   * One entry per free slot, null for an empty one, which rests; then any pick that fills no slot
-   * (a month-act whose `slot` is `none`, such as cooking at home, R-TURN-006), after the slots.
+   * One entry per free slot, null for an empty one, which rests (R-TURN-006). Only month-acts are planned: a now-act is
+   * done at once and rest is what an empty slot does. The plan carries on across the month's end (R-WORLD-007).
    */
   plan: (SlotPick | null)[];
   /** True right after a month ends, so the report opens. */
@@ -113,14 +115,15 @@ export interface GameState {
   send: (command: PlayerCommand) => Promise<Reply | ServerRejection | null>;
   endMonth: () => Promise<Reply | ServerRejection | null>;
   /**
-   * Until news (R-WORLD-028): ends months in a row, each its own `turn/end` with last month's slots
-   * (this month's plan first, when anything is planned), until something needs the player or six have passed.
+   * Until news (R-WORLD-028): ends months in a row, each its own `turn/end` with the plan as it carries on
+   * (R-WORLD-007), until something needs the player or six have passed.
    */
   untilNews: () => Promise<Reply | ServerRejection | null>;
   setSlot: (index: number, pick: SlotPick | null) => void;
-  /** Puts a pick in the first empty slot, or after the slots when it fills none. False when every slot is full. */
+  /** Puts a month-act in the first empty slot. False when every slot is full, or the pick is not one to plan. */
   addToPlan: (pick: SlotPick) => boolean;
-  sameAgain: () => void;
+  /** Stops a commitment: every pick of the activity (with this param, when given) leaves the plan (R-WORLD-007). */
+  stopPick: (pick: SlotPick) => void;
   clearPlan: () => void;
   dismissRejection: () => void;
   /** Moves on from the moment on screen to the next, or to the report. */
@@ -161,8 +164,6 @@ export interface GameStoreOptions {
   afterLifeEnded?: () => void;
 }
 
-const REST: Id<"activity"> = "activity.rest";
-
 export function rejectionWords(code: ServerCode): string {
   const key = `reject.${code}`;
   return text[key] ?? uiText[key] ?? code;
@@ -186,15 +187,12 @@ export function takesSlot(pick: SlotPick): boolean {
 }
 
 /**
- * True when the pick is in the month's plan and planning it again would do nothing more: an act that fills no slot,
- * an act marked once a month, or a paper's request (R-TURN-006, R-ACTIVITY-013). Its chip and its button read
- * "Planned" and stay shut until the month ends.
+ * True when the pick is already in the plan, a commitment that carries on (R-WORLD-007): its chip reads "Ongoing" with
+ * a stop, and its card's button is shut, since planning it again would only take more of the free time.
  */
 export function plannedShut(plan: readonly (SlotPick | null)[], pick: SlotPick): boolean {
-  const entry = content.activity[pick.activity];
-  if (entry === undefined) return false;
-  const once = entry.slot === "none" || entry.once === true || entry.requires.some((requirement) => requirement.type === "document/absent");
-  return once && plan.some((held) => held !== null && held.activity === pick.activity && (held.param ?? "") === (pick.param ?? ""));
+  if (content.activity[pick.activity] === undefined) return false;
+  return plan.some((held) => held !== null && held.activity === pick.activity && (held.param ?? "") === (pick.param ?? ""));
 }
 
 /** The picks that fill slots, empty slots among them: the plan's first part. */
@@ -208,13 +206,13 @@ export function slotsUsed(plan: readonly (SlotPick | null)[]): number {
 }
 
 /**
- * Keeps the picks that still fit, and pads with empty slots up to the count. A pick that fills no
- * slot is kept after the slots, whatever the count (R-TURN-006).
+ * Keeps the month-acts that still fit, and pads with empty slots up to the count. A now-act or rest kept from before
+ * is dropped: neither is ever planned (R-TURN-006, R-ACTIVITY-015).
  */
 function fitPlan(plan: readonly (SlotPick | null)[], slots: number): (SlotPick | null)[] {
-  const kept = slotted(plan).slice(0, slots);
+  const kept = plan.filter((pick) => pick === null || plannable(pick.activity)).slice(0, slots);
   while (kept.length < slots) kept.push(null);
-  return [...kept, ...plan.filter((pick): pick is SlotPick => pick !== null && !takesSlot(pick))];
+  return kept;
 }
 
 /** What the browser keeps of the month between loads: the plan, the lines so far, and the card closed. */
@@ -310,7 +308,8 @@ function makeStore(authority: StoreAuthority, options: GameStoreOptions): GameSt
           set({
             earlyWin: get().earlyWin || wonEarly(reply.view, reply.lines, slots),
             view: reply.view,
-            plan: fitPlan(ended ? [] : get().plan, reply.view.freeSlots),
+            // R-WORLD-007: the commitments carry on into the next month.
+            plan: fitPlan(ended ? carriedPlan(get().plan, reply.view) : get().plan, reply.view.freeSlots),
             lines: reply.lines,
             moments: bigLines(reply.lines),
             ...(ended ? { reportOpen: true, lastMonthLines: get().monthLines, monthLines: [], quiet: [] } : { monthLines: [...get().monthLines, ...reply.lines] }),
@@ -365,7 +364,7 @@ function makeStore(authority: StoreAuthority, options: GameStoreOptions): GameSt
       async endMonth() {
         const slots = get().plan.filter((pick): pick is SlotPick => pick !== null);
         const reply = await send({ type: "turn/end", slots });
-        if (reply?.ok === true) set({ plan: fitPlan([], reply.view.freeSlots), reportOpen: true });
+        if (reply?.ok === true) set({ reportOpen: true });
         return reply;
       },
       async untilNews() {
@@ -380,8 +379,8 @@ function makeStore(authority: StoreAuthority, options: GameStoreOptions): GameSt
           for (let months = 1; months <= RUN_MONTHS; months += 1) {
             const view = get().view;
             if (view === null) break;
-            const planned = get().plan.filter((pick): pick is SlotPick => pick !== null);
-            const slots = months === 1 && planned.length > 0 ? planned : againSlots(view);
+            // Each month sends the plan as it stands, the commitments carried on from the month before (R-WORLD-007).
+            const slots = get().plan.filter((pick): pick is SlotPick => pick !== null);
             const reply = await authority.send({ type: "turn/end", slots, basedOn: view.v });
             last = reply;
             if (!reply.ok) {
@@ -399,7 +398,7 @@ function makeStore(authority: StoreAuthority, options: GameStoreOptions): GameSt
             set({
               earlyWin: get().earlyWin || wonEarly(reply.view, reply.lines, slots),
               view: reply.view,
-              plan: fitPlan([], reply.view.freeSlots),
+              plan: fitPlan(carriedPlan(get().plan, reply.view), reply.view.freeSlots),
               lines: reply.lines,
               lastMonthLines: months === 1 ? get().monthLines : [],
               monthLines: [],
@@ -425,23 +424,16 @@ function makeStore(authority: StoreAuthority, options: GameStoreOptions): GameSt
       },
       addToPlan(pick) {
         const plan = [...get().plan];
-        if (!takesSlot(pick)) {
-          // Planned once is enough: a pick that fills no slot does no more for being planned twice.
-          if (!plan.some((held) => held !== null && held.activity === pick.activity && held.param === pick.param)) set({ plan: [...plan, pick] });
-          return true;
-        }
+        if (!plannable(pick.activity)) return false;
         const empty = plan.indexOf(null);
         if (empty === -1) return false;
         plan[empty] = pick;
         set({ plan });
         return true;
       },
-      sameAgain() {
-        const view = get().view;
-        if (view === null) return;
-        // A month left to rest sends no slots, so "same again" after it plans rest in every slot.
-        const last = view.lastSlots.length === 0 && view.report !== null ? Array.from({ length: view.freeSlots }, () => ({ activity: REST, param: null })) : view.lastSlots;
-        set({ plan: fitPlan(last, view.freeSlots) });
+      stopPick(pick) {
+        const plan = get().plan.map((held) => (held !== null && held.activity === pick.activity && (pick.param === null || held.param === pick.param) ? null : held));
+        set({ plan: fitPlan(plan, slotted(plan).length) });
       },
       clearPlan() {
         set({ plan: fitPlan([], slotted(get().plan).length) });
@@ -462,6 +454,8 @@ function makeStore(authority: StoreAuthority, options: GameStoreOptions): GameSt
         if (options.life === undefined) return;
         const view = await options.life.newLife(scenario);
         forgetMonth();
+        // A new life is taught afresh: its first chapter's title, its places' labels, its home (R-CHAPTER-011).
+        forgetTaught();
         set({ view, plan: fitPlan([], view.freeSlots), choosingLife: false, notice: null, lines: [], moments: [], rejection: null, monthLines: [], lastMonthLines: [], cardClosed: null, quiet: [] });
       },
       openLifeChooser: options.life === undefined || options.lifeAgain === false ? null : () => set({ choosingLife: true }),

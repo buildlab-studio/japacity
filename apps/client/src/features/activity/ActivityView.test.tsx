@@ -6,6 +6,7 @@ import { describe, expect, test } from "vitest";
 import { engineView } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { formatMoney } from "../../shared/words/format";
+import { plannable } from "../../shared/words/acts";
 import { requirementSentence } from "../../shared/words/requirement";
 import { lowerFirst, say } from "../../shared/words/text";
 import { ActivityView } from "./ActivityView";
@@ -14,13 +15,14 @@ const addButton = (id: string) => screen.getByRole("button", { name: `${text[`${
 
 describe("the month plan", () => {
   // The picker lists every act of the life with its card; reading each by role takes time under load.
-  test("given a new life, then every free-slot activity shows its name and blurb from content", { timeout: 30_000 }, async () => {
+  test("[R-TURN-006] given a new life, then every free-slot activity shows its name and blurb from content, but rest, which an empty slot already is", { timeout: 30_000 }, async () => {
     const view = engineView();
     await renderWithView(<ActivityView />, view);
-    for (const option of view.activities) {
+    for (const option of view.activities.filter((candidate) => candidate.id !== "activity.rest")) {
       expect(screen.getByRole("heading", { name: text[`${option.id}.name`]! })).toBeDefined();
       expect(screen.getByText(text[`${option.id}.blurb`] ?? "")).toBeDefined();
     }
+    expect(screen.queryByRole("heading", { name: text["activity.rest.name"]! })).toBeNull();
   });
 
   test("given an activity that is not allowed, then each missing requirement is shown as a sentence and it cannot be added", async () => {
@@ -44,9 +46,14 @@ describe("the month plan", () => {
   test("given activities added to the plan, when the plan fills, then adding stops and taking one out frees a slot", async () => {
     const view = engineView();
     const { store } = await renderWithView(<ActivityView />, view);
-    for (let slot = 0; slot < view.freeSlots; slot += 1) fireEvent.click(addButton("activity.rest"));
-    expect(store.getState().plan).toEqual(Array.from({ length: view.freeSlots }, () => ({ activity: "activity.rest", param: null })));
-    expect(addButton("activity.rest").hasAttribute("disabled")).toBe(true);
+    // rest is never planned, and a thing started is planned once.
+    const free = view.activities.filter((option) => option.allowed && option.affordable && option.params === null && option.cost.length === 0 && plannable(option.id) && content.activity[option.id]?.where !== "abroad").map((option) => option.id);
+    const picks = free.slice(0, view.freeSlots);
+    expect(picks).toHaveLength(view.freeSlots);
+    for (const id of picks) fireEvent.click(addButton(id));
+    expect(store.getState().plan).toEqual(picks.map((activity) => ({ activity, param: null })));
+    const more = free[view.freeSlots];
+    expect(more === undefined || addButton(more).hasAttribute("disabled")).toBe(true);
     fireEvent.click(screen.getAllByRole("button", { name: new RegExp(`^${say("ui.month.slot-remove")}`) })[0]!);
     expect(store.getState().plan[0]).toBeNull();
   });
@@ -94,7 +101,7 @@ describe("the month plan", () => {
     const abroad = view.activities.filter((option) => content.activity[option.id]?.where === "abroad");
     expect(abroad.length).toBeGreaterThan(0);
     for (const option of abroad) expect(later.contains(addButton(option.id))).toBe(true);
-    expect(later.contains(addButton("activity.rest"))).toBe(false);
+    expect(later.contains(addButton("activity.family-time"))).toBe(false);
   });
 
   test("given a life abroad, then nothing is folded away", async () => {

@@ -263,7 +263,7 @@ async function intoTheWorld(run: Run): Promise<boolean> {
 // A month ---------------------------------------------------------------------------------------
 
 /** A sheet over the world that asks something: a world sheet other than the month's and its results, or a thing's own sheet. */
-const OPEN_SHEET = "[data-world-sheet]:not([data-world-sheet='month']):not([data-world-sheet='results']), [role='dialog']:not([data-world-sheet])";
+const OPEN_SHEET = "[data-world-sheet]:not([data-world-sheet='results']), [role='dialog']:not([data-world-sheet])";
 
 /** Buttons that pick among choices rather than act: a job in a list, a tab. */
 const PICKER_ROLES = new Set(["radio", "checkbox", "tab", "switch", "option"]);
@@ -337,6 +337,14 @@ async function followNudge(run: Run, month: number): Promise<void> {
       await page.waitForTimeout(600);
       break;
     }
+    // The step that is the month's end opens the phone's Calendar (R-WORLD-003): its month is read, and the phone put away.
+    const calendar = page.locator("[data-app-screen='calendar']");
+    if (await shown(calendar)) {
+      log(run, `the nudge opened the Calendar: ${await words(calendar, 240)}`);
+      await tap(run, page.locator("[data-home-bar]"), "the phone's home bar");
+      await page.waitForTimeout(600);
+      break;
+    }
     if (await shown(page.locator("[data-map-close]"))) {
       log(run, "the nudge opened the map with no stop picked; closing it");
       await tap(run, page.locator("[data-map-close]"), "Close the map");
@@ -374,12 +382,19 @@ async function followNudge(run: Run, month: number): Promise<void> {
       if ((await shown(page.locator(OPEN_SHEET))) && (await words(page.locator(OPEN_SHEET), 400)) === before) break;
       continue;
     }
+    // A thing shows a quiet mark and no chip until it is tapped (R-WORLD-005): the mark the nudge points at is tapped first.
+    const nudged = page.locator("[data-thing-mark][data-nudged]");
+    if (!(await shown(page.locator("[data-thing-chip]"))) && (await shown(nudged))) {
+      log(run, `tapping the mark the nudge points at: ${(await nudged.first().getAttribute("data-thing-mark")) ?? ""}`);
+      await tap(run, nudged, "the nudged thing's mark");
+      await page.waitForTimeout(600);
+    }
     // The act chips stay over the thing while its sheet is open, so they come after the sheet.
-    const act = page.locator("[data-act]");
+    const act = page.locator("[data-thing-chip] [data-act]");
     if (await shown(act)) {
       const names = (await act.allInnerTexts()).map((name) => oneLine(name, 40)).join(", ");
       // The act the nudge's step opens, when the chips carry it; else the first chip.
-      const opens = await page.locator("[data-nudge]").first().getAttribute("data-nudge-opens").catch(() => null);
+      const opens = await page.locator("[data-nudge]").first().getAttribute("data-nudge-opens", { timeout: 1_000 }).catch(() => null);
       const named = opens === null ? null : page.locator(`[data-act][data-activity="${opens}"]`);
       const chosen = named !== null && (await shown(named)) ? named : act;
       const activities = (await act.evaluateAll((nodes) => nodes.map((node) => (node as { dataset: Record<string, string | undefined> }).dataset["activity"] ?? "-"))).join(", ");
@@ -452,15 +467,23 @@ async function endMonth(run: Run, month: number): Promise<boolean> {
     problem(run, `month ${String(month)}: Next month is shut: ${(await end.first().getAttribute("title")) ?? "no reason given"}`);
     return false;
   }
-  if (!(await tap(run, end, "Next month"))) return false;
-  const sheet = page.locator("[data-world-sheet='month']");
-  if (!(await appear(sheet, SHORT))) {
-    problem(run, `month ${String(month)}: the Month sheet did not open`);
-    return false;
+  // The month is read in the phone's Calendar, opened by the band's calendar glyph, then the phone is put away (R-WORLD-002).
+  const calendar = page.locator("[data-app-screen='calendar']");
+  if (await tap(run, page.locator("[data-band] [data-month-count]"), "the calendar glyph")) {
+    if (await appear(calendar, SHORT)) {
+      log(run, `month ${String(month)} calendar: ${await words(calendar, 240)}`);
+      await shot(run, `month ${String(month)} plan`);
+      await tap(run, page.locator("[data-home-bar]"), "the phone's home bar");
+      await page.waitForTimeout(600);
+    } else problem(run, `month ${String(month)}: the calendar glyph did not open the Calendar`);
   }
-  log(run, `month ${String(month)} sheet: ${await words(sheet, 240)}`);
-  await shot(run, `month ${String(month)} plan`);
-  if (!(await tap(run, sheet.locator("[data-month-end]"), "End month"))) return false;
+  // Next month on the band turns the page at once; in the first month, or one with nothing planned and no job, it opens
+  // the Calendar instead, whose own Next month turns it.
+  if (!(await tap(run, end, "Next month"))) return false;
+  if (await appear(calendar, 2_000)) {
+    log(run, `month ${String(month)}: Next month opened the Calendar first`);
+    if (!(await tap(run, calendar.locator("[data-month-end]"), "Next month in the Calendar"))) return false;
+  }
 
   // Staged moments and cards come before the results; each is read and passed.
   const results = page.locator("[data-world-sheet='results']");

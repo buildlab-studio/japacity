@@ -25,7 +25,8 @@ beforeEach(() => {
 });
 
 async function openPhone(view: PlayerView, extra: { talk?: PairTalk; onClose?: () => void } = {}) {
-  return renderWithView(<PhoneApps onClose={extra.onClose ?? (() => undefined)} area="Ojuelegba" now={NOON} talk={extra.talk ?? null} />, view);
+  // The shell hands the phone its Calendar (R-WORLD-002), as App does; the phone knows only that it is a screen.
+  return renderWithView(<PhoneApps onClose={extra.onClose ?? (() => undefined)} area="Ojuelegba" now={NOON} talk={extra.talk ?? null} calendar={(opening) => <div data-phone-app="calendar" data-opening={opening ?? ""} />} />, view);
 }
 
 function tile(id: string): HTMLElement {
@@ -81,7 +82,7 @@ function busyView(): PlayerView {
 }
 
 describe("the handset", () => {
-  test("[R-WORLD-018] given the phone opens, when it rises, then the wallpaper shows the time, the month and the area, and the grid holds the eight apps four across", async () => {
+  test("[R-WORLD-018] given the phone opens, when it rises, then the wallpaper shows the time, the month and the area, and the grid holds the apps four across, the Calendar first", async () => {
     await openPhone(engineView());
     expect(document.querySelector("[data-phone-time]")?.textContent).toBe("12:05");
     expect(screen.getByText(todayWords(NOON()))).toBeTruthy();
@@ -89,6 +90,7 @@ describe("the handset", () => {
     const grid = screen.getByRole("list", { name: "Apps" });
     expect(grid.className).toContain("grid-cols-4");
     expect([...grid.querySelectorAll("[data-app]")].map((app) => app.getAttribute("data-app"))).toEqual([...APP_IDS]);
+    expect(APP_IDS[0]).toBe("calendar");
     expect([...grid.querySelectorAll("[data-app]")].map((app) => (app as HTMLElement).style.background)).toEqual(APP_IDS.map((id) => `var(--app-${id})`));
     expect(document.querySelector("[data-handset]")?.className).toContain("-rotate-2");
   });
