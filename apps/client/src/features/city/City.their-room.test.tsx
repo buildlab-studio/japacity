@@ -15,8 +15,8 @@ import { standingAsThemselves, THEIR_ROOM } from "./meetings";
 import { dressPlace, type PlaceFile, stageOf } from "./placeFile";
 
 vi.mock("./CityScene", () => ({
-  default: ({ file, things, onPick }: { file: PlaceFile; things?: Thing[]; onPick: (pick: { kind: "thing"; thing: Thing }) => void }) => (
-    <div data-stand-in-scene>
+  default: ({ file, people, things, onPick }: { file: PlaceFile; people: unknown[]; things?: Thing[]; onPick: (pick: { kind: "thing"; thing: Thing }) => void }) => (
+    <div data-stand-in-scene data-crowd={people.length}>
       {(file.stage?.models ?? []).map((model) => (
         <span key={model.file} data-stand-in-model={model.file} />
       ))}
@@ -68,7 +68,7 @@ function found(selector: string): HTMLElement {
 }
 
 describe("their room in the world", () => {
-  test("[R-WORLD-020] [R-CITY-011] [R-PEOPLE-054] [R-CITY-001] given Tobi's bond courting, when their room is drawn, then it is dressed for Tobi: his props stand in it, his figure stands as a thing named by him with the computer mark and no act, the visit stays on the chair, and a tap on him sends nothing", async () => {
+  test("[R-WORLD-020] [R-CITY-011] [R-PEOPLE-054] [R-CITY-001] given Tobi's bond courting, when their room is drawn, then it is dressed for Tobi: his props stand in it, his figure stands alone as a thing named by him with the computer mark and no act, no stranger in the room, the visit stays on the chair, and a tap on him sends nothing", async () => {
     const game = peopleGame();
     game.grant(1);
     game.endTurn([]);
@@ -83,8 +83,9 @@ describe("their room in the world", () => {
     expect([thing.dataset.label, thing.dataset.mark, thing.dataset.acts]).toEqual([`${TOBI}.name`, "computer", ""]);
     expect(found('[data-stand-in-thing="time-together"]').dataset.acts).toBe("activity.see-someone");
     expect(found('[data-stand-in-thing="door"]').dataset.acts).toBe("out");
-    // Nobody but Tobi stands here.
+    // Nobody but Tobi stands here: no stranger of the crowd either.
     expect(document.querySelectorAll("[data-stand-in-stander]")).toHaveLength(1);
+    expect(found("[data-stand-in-scene]").dataset.crowd).toBe("0");
     const before = authority.sent.length;
     fireEvent.click(thing);
     expect(authority.sent).toHaveLength(before);

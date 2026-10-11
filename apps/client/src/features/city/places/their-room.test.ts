@@ -3,7 +3,8 @@
 // from the room in a compound's shell, the size such a room is. The checks the other rooms pass, read against the
 // interior row; for the two rooms a person is met in, the hub and the family house's parlour, everyone standing at a
 // thing stands on walkable ground; and the room is dressed for each computer partner: a prop or two
-// from the shared kit and the partner standing as themselves, clear of the chair, the door and the crowd.
+// from the shared kit and the partner standing as themselves, clear of the chair and the door, the only figure in it:
+// a person's room shows no crowd.
 import { boxBounds, type Footprint, inBox, isFootprint, onWalkable, type PlacedBox } from "@japacity/assets";
 import { content, partnerMeetings } from "@japacity/content";
 import type { Id } from "@japacity/sim";
@@ -154,7 +155,7 @@ function overlap(one: PlacedBox, two: PlacedBox): boolean {
 }
 
 describe("their room dressed for each person", () => {
-  test("[R-WORLD-020] given the computer partners whose home is their room, when the room's dressings are read, then there is one for each, named by the person and by no offer, each a prop or two from the shared kit with nothing hidden, the entry's crowd and no motion, and the partner standing as themselves in the model they are met in", () => {
+  test("[R-WORLD-020] given the computer partners whose home is their room, when the room's dressings are read, then there is one for each, named by the person and by no offer, each a prop or two from the shared kit with nothing hidden, no crowd and no motion, and the partner standing as themselves in the model they are met in", () => {
     expect(HOMES).toHaveLength(6);
     expect(dressings.map((one) => one.person).sort()).toEqual(HOMES.map((meeting) => meeting.person).sort());
     const wrong: string[] = [];
@@ -164,7 +165,8 @@ describe("their room dressed for each person", () => {
       const props = dressing.models.flatMap((model) => model.at.map(() => model.file));
       if (props.length < 1 || props.length > 2) wrong.push(`${who} has ${String(props.length)} props`);
       if (props.some((path) => !path.startsWith("shared/prop/"))) wrong.push(`${who} has a prop from outside the shared kit`);
-      if (dressing.hide !== undefined || dressing.crowd !== undefined || dressing.motion.length > 0 || dressing.dancers.length > 0) wrong.push(`${who} hides, moves or sets a crowd`);
+      if (dressing.hide !== undefined || dressing.motion.length > 0 || dressing.dancers.length > 0) wrong.push(`${who} hides or moves something`);
+      if (dressing.crowd.low !== 0 || dressing.crowd.high !== 0 || dressing.crowd.target !== 0) wrong.push(`${who} lets strangers into the room`);
       const [partner, ...more] = dressing.standing ?? [];
       if (partner === undefined || more.length > 0) wrong.push(`${who} has no one partner standing`);
       if (partner?.person !== dressing.person) wrong.push(`${who} stands someone else`);
@@ -174,7 +176,7 @@ describe("their room dressed for each person", () => {
     expect(wrong).toEqual([]);
   });
 
-  test("[R-WORLD-020] [R-ASSET-030] given each dressing, when its props and the partner stand in the room, then each prop stands on walkable ground clear of every other footprint, the chair's spot, the door's and the start, and the partner on walkable ground clear of every footprint, away from the chair, the door, the start and every crowd spot", async () => {
+  test("[R-WORLD-020] [R-ASSET-030] given each dressing, when its props and the partner stand in the room, then each prop stands on walkable ground clear of every other footprint, the chair's spot, the door's and the start, and the partner on walkable ground clear of every footprint, away from the chair's spot, the door's and the start", async () => {
     const footprints = await footprintsOf(file);
     // Each prop's copy apart, so two copies of the bag are each checked against the other.
     const placed = (models: Dressing["models"]): PlacedBox[][] => models.flatMap((model) => model.at.map((at) => placedBoxes([{ file: model.file, at: [at] }], footprints)));
@@ -204,17 +206,14 @@ describe("their room dressed for each person", () => {
         if (problem !== null) wrong.push(`${who} ${problem}`);
         if (all.some((box) => inBox(box, x, z, 0.2))) wrong.push(`${who} stands against a footprint`);
         if (kept.some(([kx, kz]) => Math.hypot(kx - x, kz - z) < 0.8)) wrong.push(`${who} stands by the chair, the door or the start`);
-        if (dressing.people.some(([px, pz]) => Math.hypot(px - x, pz - z) < 0.5)) wrong.push(`${who} stands on a crowd spot`);
       }
-      if (dressing.people.length < crowd("high")) wrong.push(`${who} has too few crowd spots`);
-      if (dressing.people.some(([px, pz]) => Math.hypot(px - stage.start[0], pz - stage.start[1]) < 0.8)) wrong.push(`${who} puts the crowd where the player starts`);
     }
     expect(wrong).toEqual([]);
     // The build check reads the dressings too: every spot of each clear of its props.
     expect(checkWalkable(ID, stage, footprints)).toEqual([]);
   });
 
-  test("[R-WORLD-020] [R-CITY-011] [R-PEOPLE-054] given Tobi courted, when their room opens, then it is dressed for him: his props join the room, he stands in it as a thing with his name and the computer mark and no act, and the chair's visit and the door stay; a bond with a player, or no bond, keeps the plain room", () => {
+  test("[R-WORLD-020] [R-CITY-011] [R-PEOPLE-054] given Tobi courted, when their room opens, then it is dressed for him: his props join the room, he stands in it alone as a thing with his name and the computer mark and no act, no stranger stands there in either mode, and the chair's visit and the door stay; a bond with a player, or no bond, keeps the plain room", () => {
     const game = peopleGame();
     expect(roomPartner(game.view())).toBeNull();
     courted(game, TOBI);
@@ -225,7 +224,8 @@ describe("their room dressed for each person", () => {
     const own = dressings.find((one) => one.person === TOBI);
     expect(room.models).toEqual([...stage.models, ...(own?.models ?? [])]);
     expect(room.standing).toEqual(own?.standing);
-    expect(dressed.crowd).toBeNull();
+    expect(dressed.crowd).toEqual({ low: 0, high: 0, target: 0 });
+    for (const mode of ["low", "high"] as const) expect(crowdSize({ crowd: dressed.crowd ?? entry.crowd }, mode, crowdTuning(city, "interior", true))).toBe(0);
     expect(room.things).toEqual(stage.things);
     const partner = standingAsThemselves(room);
     expect(partner).toEqual([{ id: "partner", file: own?.standing?.[0]?.file, copy: 0, label: `${TOBI}.name`, mark: "computer", acts: [] }]);

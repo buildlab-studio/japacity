@@ -23,8 +23,6 @@ const { file, stage, entry } = staged(placeFile, "place.family-house");
 const PARTY = "offer.send-off-party";
 const party = stage.dressings?.find((dressing) => dressing.offer === PARTY);
 if (party === undefined) throw new Error("The family house has no party dressing");
-const partyCrowd = party.crowd;
-if (partyCrowd === undefined) throw new Error("The party dressing sets no guests");
 const places = Object.values(content.place);
 
 describe("the family house's budget", () => {
@@ -48,7 +46,7 @@ describe("the family house's budget", () => {
 
   test("[R-ASSET-007] given the house's file, when its counts are read, then the instances are the most copies of any dressing, its people the party's guests and dancers in each mode, and its colours palette names", () => {
     expect(file.instances).toEqual(instancesOf(stage));
-    const guests = (mode: "low" | "high"): number => crowdSize({ crowd: partyCrowd }, mode, city);
+    const guests = (mode: "low" | "high"): number => crowdSize({ crowd: party.crowd }, mode, city);
     expect(file.people.low).toBe(guests("low") + party.dancers.length);
     expect(file.people.high).toBe(guests("high") + party.dancers.length);
     expect(file.people.low).toBeLessThanOrEqual(city.crowdLow);

@@ -23,20 +23,20 @@ const ROOM: PlaceFile = {
     things: [{ id: "door", file: "shared/prop/prop_room-door.glb", copy: 0, label: "city.thing.door", acts: [{ id: "out", label: "city.inside.out", kind: "out" }] }],
     dressings: [
       { offer: PARTY, models: [{ file: "shared/prop/prop_lantern.glb", at: [[2, 2, 0]] }], people: [[3, 3, 0]], motion: [], dancers: [], crowd: { low: 4, high: 8, target: 10 } },
-      { person: TOBI, models: [{ file: "shared/prop/prop_dining-table.glb", at: [[1, -1, 0]] }], people: [[-1, 1, 0]], motion: [], dancers: [], standing: [PARTNER] },
+      { person: TOBI, models: [{ file: "shared/prop/prop_dining-table.glb", at: [[1, -1, 0]] }], people: [[-1, 1, 0]], motion: [], dancers: [], standing: [PARTNER], crowd: { low: 0, high: 0, target: 0 } },
     ],
   },
 };
 
 describe("a dressing for the person whose room it is", () => {
-  test("[R-WORLD-020] [R-CITY-011] given a room with a dressing for Tobi, when it opens for his bond, then his props join the room's, his spots replace its own, he stands in it, its things stay, and the crowd is the entry's", () => {
+  test("[R-WORLD-020] [R-CITY-011] given a room with a dressing for Tobi, when it opens for his bond, then his props join the room's, his spots replace its own, he stands in it, its things stay, and nobody else: its crowd is none", () => {
     const { file, crowd } = dressPlace(ROOM, [], TOBI);
     const stage = stageOf(file);
     expect(stage.models.map((model) => model.file)).toEqual(["shared/prop/prop_bed.glb", "shared/prop/prop_dining-table.glb"]);
     expect(stage.people).toEqual([[-1, 1, 0]]);
     expect(stage.standing).toEqual([PARTNER]);
     expect(stage.things).toEqual(stageOf(ROOM).things);
-    expect(crowd).toBeNull();
+    expect(crowd).toEqual({ low: 0, high: 0, target: 0 });
     // The partner's model is fetched with the place.
     expect(filesOf(file, [])).toContain(PARTNER.file);
   });

@@ -27,7 +27,7 @@ export interface PartnerMeeting {
  * `place.their-room` is one stylised interior with no position, dressed per person as the room
  * abroad is dressed per country: a partner's home, where nobody is met. Dressed 11 Oct 2026: its
  * place file has one dressing for each person here whose home it is, a prop or two and the partner standing
- * in it in the model they are met in (apps/client/public/assets/places/their-room/place.json).
+ * in it alone, in the model they are met in (apps/client/public/assets/places/their-room/place.json).
  */
 export const placesWanted: Id<"place">[] = [];
 

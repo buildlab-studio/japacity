@@ -128,9 +128,9 @@ export interface Dancer {
 
 /**
  * A place dressed while an offer it stages is open (R-CITY-011), or for the person whose room it is (world.md
- * R-WORLD-020): its models and motion join the stage's, the files in `hide` leave it, its spots replace the place's own,
- * its crowd figures the entry's where it gives them, its dancers take the floor and who it stands at a thing joins
- * those the stage stands. A dressing names an offer or a person, never both.
+ * R-WORLD-020): its models and motion join the stage's, the files in `hide` leave it, its spots and crowd figures replace the
+ * place's own (a person's room shows no crowd, only the partner: the lead), its dancers take the floor and
+ * who it stands at a thing joins those the stage stands. A dressing names an offer or a person, never both.
  */
 export interface Dressing {
   offer?: string;
@@ -144,8 +144,8 @@ export interface Dressing {
   dancers: Dancer[];
   /** Who stands still in the dressed place: the partner in their own room, at a thing of their own. */
   standing?: Stander[];
-  /** The guests' sample, in place of the entry's figures (R-CITY-014); the entry's own when absent. */
-  crowd?: { low: number; high: number; target: number };
+  /** The guests' sample, in place of the entry's figures (R-CITY-014); none in a person's room. */
+  crowd: { low: number; high: number; target: number };
 }
 
 /**
@@ -208,7 +208,7 @@ export function filesOf(file: PlaceFile, people: readonly string[]): string[] {
  * A place file as the open offers dress it, or else as the person whose room it is dresses it (R-WORLD-020), with the
  * crowd figures its dressing sets, or null for the entry's own. No dressing for either: the plain place.
  */
-export function dressPlace(file: PlaceFile, open: readonly string[], person: Id<"person"> | null = null): { file: PlaceFile; crowd: NonNullable<Dressing["crowd"]> | null } {
+export function dressPlace(file: PlaceFile, open: readonly string[], person: Id<"person"> | null = null): { file: PlaceFile; crowd: Dressing["crowd"] | null } {
   const plain = stageOf(file);
   const dressing = plain.dressings?.find((one) => one.offer !== undefined && open.includes(one.offer)) ?? (person === null ? undefined : plain.dressings?.find((one) => one.person === person));
   if (dressing === undefined) return { file, crowd: null };
@@ -230,7 +230,7 @@ export function dressPlace(file: PlaceFile, open: readonly string[], person: Id<
     ...(plain.things === undefined ? {} : { things: plain.things }),
     ...(plain.inside === undefined ? {} : { inside: plain.inside }),
   };
-  return { file: { ...file, stage: dressed }, crowd: dressing.crowd ?? null };
+  return { file: { ...file, stage: dressed }, crowd: dressing.crowd };
 }
 
 /**
