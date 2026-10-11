@@ -10,7 +10,6 @@ import { THEME_KEY } from "../../shared/world/contract";
 import type { PairTalk } from "./apps/Chats";
 import { GRAPHICS_KEY } from "./apps/Settings";
 import { familyFeedLines } from "./feed";
-import { Calendar, calendarOpening } from "../turn/Calendar";
 import { PhoneApps } from "./PhoneApps";
 import { APP_IDS, marksOf, reloadSeen, SEEN_KEY, waitingOf } from "./seen";
 import { todayWords } from "../../shared/words/format";
@@ -26,8 +25,8 @@ beforeEach(() => {
 });
 
 async function openPhone(view: PlayerView, extra: { talk?: PairTalk; onClose?: () => void } = {}) {
-  // The shell hands the phone its Calendar (R-WORLD-002), as App does.
-  return renderWithView(<PhoneApps onClose={extra.onClose ?? (() => undefined)} area="Ojuelegba" now={NOON} talk={extra.talk ?? null} calendar={(opening) => <Calendar opening={calendarOpening(opening)} />} />, view);
+  // The shell hands the phone its Calendar (R-WORLD-002), as App does; the phone knows only that it is a screen.
+  return renderWithView(<PhoneApps onClose={extra.onClose ?? (() => undefined)} area="Ojuelegba" now={NOON} talk={extra.talk ?? null} calendar={(opening) => <div data-phone-app="calendar" data-opening={opening ?? ""} />} />, view);
 }
 
 function tile(id: string): HTMLElement {
