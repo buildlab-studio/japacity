@@ -1,7 +1,7 @@
 // The boards screen against a faked server, in the shapes boards.ts copies
 // from apps/server/src/boards/board.ts. Restated 11 Oct 2026 (R-CITY-040, the
-// the everyone boards name each line by the account's
-// username; friends keep the display name over the first name.
+// every board names each line
+// by the account's username, friends too, with no first name.
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
@@ -13,14 +13,9 @@ import { BoardsView } from "./BoardsView";
 
 const PAUSED = { status: 503, headers: { "Retry-After": "30" }, body: { ok: false, code: "switched-off", detail: "This board is paused.", retryAfter: 30 } };
 
-/** A line on an everyone board: the username only. */
+/** A line on any board: the username only. */
 function line(rank: number, figure: number, over: Partial<BoardRow> = {}): BoardRow {
-  return { rank, username: "tunde_k", firstName: null, figure, me: false, name: null, ...over };
-}
-
-/** A line on a friends board: the first name and the display name, no username. */
-function friend(rank: number, figure: number, over: Partial<BoardRow> = {}): BoardRow {
-  return { rank, username: null, firstName: "Tunde", figure, me: false, name: null, ...over };
+  return { rank, username: "tunde_k", figure, me: false, ...over };
 }
 
 function board(name: BoardName, rows: BoardRow[], own: BoardRow | null = rows.find((row) => row.me) ?? null): { body: BoardReply } {
@@ -32,9 +27,9 @@ function launched(over: Record<string, Answer[]> = {}): FakeServer {
   const server = fakeServer();
   const answers: Record<string, Answer[]> = {
     "GET /api/boards/this-week/everyone": [board("this-week.everyone", [line(1, 12, { username: "zainab_b" }), line(2, 5, { username: "ada_lagos", me: true })])],
-    "GET /api/boards/this-week/friends": [board("this-week.friends", [friend(1, 5, { firstName: "Ada", me: true, name: "ada_lagos" })])],
+    "GET /api/boards/this-week/friends": [board("this-week.friends", [line(1, 5, { username: "ada_lagos", me: true })])],
     "GET /api/boards/all-time/everyone": [board("all-time.everyone", [line(1, 80), line(2, 70)], line(51, 10, { username: "ada_lagos", me: true }))],
-    "GET /api/boards/all-time/friends": [board("all-time.friends", [friend(1, 40, { name: "tunde.k" }), friend(2, 30, { firstName: "Ada", me: true, name: "ada_lagos" })])],
+    "GET /api/boards/all-time/friends": [board("all-time.friends", [line(1, 40, { username: "tunde.k" }), line(2, 30, { username: "ada_lagos", me: true })])],
     "GET /api/boards/joined-week": [PAUSED],
     ...over,
   };
@@ -67,8 +62,9 @@ describe("the boards screen", () => {
     pick("ui.boards.when", "ui.boards.when.all-time");
     await waitFor(() => expect(document.querySelector("[data-board]")?.getAttribute("data-board")).toBe("all-time.everyone"));
     pick("ui.boards.who", "ui.boards.who.friends");
-    await waitFor(() => expect(lines()).toEqual(["1tunde.kTunde40%", "2ada_lagosAdaYou30%"]));
-    expect(document.querySelectorAll("[data-board-first-name]")).toHaveLength(2);
+    // friends see the username as everyone does, and nothing under it.
+    await waitFor(() => expect(lines()).toEqual(["1tunde.k40%", "2ada_lagosYou30%"]));
+    expect(Array.from(document.querySelectorAll("[data-board-lines] [data-board-name]")).map((name) => name.textContent)).toEqual(["tunde.k", "ada_lagos"]);
     pick("ui.boards.when", "ui.boards.when.this-week");
     await waitFor(() => expect(document.querySelector("[data-board]")?.getAttribute("data-board")).toBe("this-week.friends"));
 
@@ -93,8 +89,8 @@ describe("the boards screen", () => {
     const names = Array.from(document.querySelectorAll("[data-board-lines] [data-board-name]")).map((name) => name.textContent);
     expect(names).toEqual(["zainab_b", say("ui.boards.someone"), "ada_lagos"]);
     expect(say("ui.boards.someone")).not.toBe("ui.boards.someone");
-    // Nothing under the name on everyone: no first name, no display name.
-    expect(document.querySelectorAll("[data-board-first-name]")).toHaveLength(0);
+    // One name a line: no first name, no display name.
+    expect(lines()).toEqual(["1zainab_b+12", `2${say("ui.boards.someone")}+9`, "3ada_lagosYou+5"]);
   });
 
   test("[R-CITY-040] given a player with no route yet, when a board is shown, then the own line says so instead of a rank", async () => {

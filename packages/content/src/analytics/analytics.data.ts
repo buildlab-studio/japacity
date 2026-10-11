@@ -224,6 +224,8 @@ export const counterTable: CounterDef[] = [
   { name: "feedback/sent", keys: "region", source: "server" },
   // R-ANALYTICS-008, server.md R-SERVER-041: the page policy's reports, counted by the server as they arrive.
   { name: "client/csp", keys: [...CSP_DIRECTIVES], source: "server" },
+  // R-ANALYTICS-008, account.md R-ACCOUNT-031: the lives being played as the day ends, by where each stands, for the two lights.
+  { name: "lives/playing", keys: ["home", "abroad", "road"], source: "server" },
 
   // R-ANALYTICS-002: what only the client sees.
   { name: "screen/opened", keys: SCREENS, source: "client" },

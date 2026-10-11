@@ -1,12 +1,16 @@
 // The two lights' counts (docs/rules/account.md R-ACCOUNT-031): made from the
-// stored totals, public, rounded, kept in the server's cache by the hour.
-import { time } from "@japacity/sim";
+// stored totals, public, rounded, kept in the server's cache by the hour. Home
+// and abroad are the lives being played as the nightly count last found them,
+// and before its first run the lives started and the departures (amended 11
+// Oct 2026).
+import { newState, time } from "@japacity/sim";
 import type { CounterTotal } from "@japacity/store";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
 import { call, testServer } from "../authority/testing";
 import { productionConfig, testConfig } from "../config";
-import { LIGHTS_COUNTERS, lightsOf, roundToTen } from "../analytics/lights";
+import { LIGHTS_COUNTERS, LIVES_PLAYING, lightsOf, livesPlaying, roundToTen } from "../analytics/lights";
+import { livesJob } from "../jobs/lives";
 import { memoryLimiters } from "../limits/memory";
 import type { ServerRejection } from "../types";
 import { fakeEdge } from "./edge.testing";
@@ -33,9 +37,33 @@ const TOTALS: CounterTotal[] = [
   row("2026-10-03", "players/active", 700),
 ];
 
+/** The nightly count of lives on two days: the whole game's rows under `all`, and the regions' rows the lights never read. */
+const PLAYING: CounterTotal[] = [
+  row("2026-10-01", LIVES_PLAYING, 700, "all", "home"),
+  row("2026-10-01", LIVES_PLAYING, 90, "all", "abroad"),
+  row("2026-10-01", LIVES_PLAYING, 0, "all", "road"),
+  row("2026-10-02", LIVES_PLAYING, 606, "NG", "home"),
+  row("2026-10-02", LIVES_PLAYING, 606, "all", "home"),
+  row("2026-10-02", LIVES_PLAYING, 3, "all", "road"),
+  row("2026-10-02", LIVES_PLAYING, 84, "GB", "abroad"),
+  row("2026-10-02", LIVES_PLAYING, 84, "all", "abroad"),
+];
+
 describe("the counts", () => {
-  test("[R-ACCOUNT-031] given the stored totals, then abroad is every departure less every return, home every life started less those abroad, back the returns this month, each the whole game's and rounded to ten only at the end", () => {
+  test("[R-ACCOUNT-031] given the nightly count of lives has run, then home and abroad are the lives being played on its last day, the whole game's rows alone, a life on the road at home; back is still the returns this month", () => {
+    // Home 606 and 3 on the road, abroad 84; returned this month 16, as before.
+    expect(livesPlaying([...TOTALS, ...PLAYING])).toEqual({ home: 609, abroad: 84 });
+    expect(lightsOf({ totals: [...TOTALS, ...PLAYING], monthFrom: "2026-10-01" })).toEqual({ home: 610, abroad: 80, back: 20 });
+  });
+
+  test("[R-ACCOUNT-031] given the nightly count found no life, then home and abroad are 0, not the lives ever started", () => {
+    const none = [row("2026-10-03", LIVES_PLAYING, 0, "all", "home"), row("2026-10-03", LIVES_PLAYING, 0, "all", "abroad"), row("2026-10-03", LIVES_PLAYING, 0, "all", "road")];
+    expect(lightsOf({ totals: [...TOTALS, ...none], monthFrom: "2026-10-01" })).toEqual({ home: 0, abroad: 0, back: 20 });
+  });
+
+  test("[R-ACCOUNT-031] given the stored totals before the nightly count of lives has ever run, then abroad is every departure less every return, home every life started less those abroad, back the returns this month, each the whole game's and rounded to ten only at the end", () => {
     // Started 1200; departed 166; returned 25, of them 16 this month: abroad 141, home 1059.
+    expect(livesPlaying(TOTALS)).toBeNull();
     expect(lightsOf({ totals: TOTALS, monthFrom: "2026-10-01" })).toEqual({ home: 1060, abroad: 140, back: 20 });
   });
 
@@ -77,6 +105,46 @@ describe("GET /api/lights", () => {
     server.setNow((hour + 1) * time.HOUR_MS);
     expect((await call<LightsReply>(server, "GET", "/api/lights", null)).status).toBe(200);
     expect(reads).toHaveBeenCalledTimes(2);
+  });
+
+  test("[R-ACCOUNT-031] [R-ANALYTICS-012] given the route before the nightly count of lives and after its first run at 00:00, when the lights are asked for in each hour, then the reply falls back to the lives started until the count has run, then holds the lives being played, rounded to ten, in the same shape", async () => {
+    vi.stubGlobal("caches", { default: fakeEdge() });
+    const server = testServer();
+    await server.deps.stores.counters.add(TOTALS);
+    // Fifteen lives at home and six abroad.
+    for (let at = 0; at < 21; at += 1) {
+      const account = `account.${String(at)}`;
+      const character = `character-${String(at)}`;
+      await server.deps.stores.account.create({
+        id: account,
+        country: "NG",
+        age: { passed: true, at: epoch, method: "declared" },
+        createdAt: epoch,
+        character: null,
+        notifyBankFull: false,
+        sendUsageCounts: true,
+        state: "secured",
+        username: account,
+        usernameChangedAt: null,
+        lastPlayedAt: epoch,
+      });
+      const fresh = newState("scenario.ada", `seed-${character}`, server.deps.contents.current);
+      const state = at < 15 ? fresh : { ...fresh, place: { ...fresh.place, where: "abroad" as const, country: "country.uk" as const } };
+      await server.deps.stores.player.create({ id: character, account, refilledAt: epoch, content: server.deps.contents.current.version, start: { base: state }, state });
+      await server.deps.stores.account.setCharacter(account, character);
+    }
+    const day = Math.floor(epoch / time.DAY_MS) + 3;
+    server.setNow(day * time.DAY_MS + 30 * time.MINUTE_MS);
+
+    const before = await call<LightsReply>(server, "GET", "/api/lights", null);
+    server.setNow((day + 1) * time.DAY_MS);
+    await livesJob(server.deps);
+    const after = await call<LightsReply>(server, "GET", "/api/lights", null);
+
+    // Until the count has run, the lives started less the departures; then the 15 and 6 lives being played, rounded to ten. Back is this month's 16 returns either way.
+    expect(before.body).toEqual({ ok: true, home: 1060, abroad: 140, back: 20 });
+    expect(after.body).toEqual({ ok: true, home: 20, abroad: 10, back: 20 });
+    expect(Object.keys(after.body).sort()).toEqual(Object.keys(before.body).sort());
   });
 
   test("[R-ACCOUNT-031] [R-SERVER-026] given an address at the anonymous limit, when it asks once more, signed in or not, then it is refused 429 before any counter is read, and another address is answered", async () => {

@@ -397,6 +397,29 @@ export function suiteForPlayerStore(make: () => Promise<PlayerStore>): void {
       expect(await store.claimFull("char-a", 90_000, 95_000)).toBe(true);
     });
 
+    test("[R-ACCOUNT-031] given five characters made out of order, when they are read a page of two at a time, then every row comes once, in ascending id order, and the page after the last is empty", async () => {
+      const store = await make();
+      for (const id of ["char-d", "char-b", "char-E", "char-a", "char-c"]) must(await store.create(newCharacter(id)));
+      await appendTo(store, "char-b", 1, 2);
+
+      const first = await store.page(null, 2);
+      const second = await store.page(first.at(-1)?.id ?? null, 2);
+      const third = await store.page(second.at(-1)?.id ?? null, 2);
+
+      expect([first, second, third].map((rows) => rows.map((row) => row.id))).toEqual([["char-E", "char-a"], ["char-b", "char-c"], ["char-d"]]);
+      expect(second[0]).toEqual({ id: "char-b", account: "account-of-char-b", v: 2, refilledAt: 1_000, segment: 0, fullAt: null, fullNotifiedAt: null });
+      expect(await store.page("char-d", 2)).toEqual([]);
+      expect(await store.page(null, 0)).toEqual([]);
+    });
+
+    test("[R-ACCOUNT-031] given a removed character, when the characters are paged, then it is not among them", async () => {
+      const store = await make();
+      for (const id of ["char-a", "char-b"]) must(await store.create(newCharacter(id)));
+      await store.remove("char-a");
+
+      expect((await store.page(null, 10)).map((row) => row.id)).toEqual(["char-b"]);
+    });
+
     test("[R-SERVER-021] given a character at version 3, when a transaction opens segment 1 with its base snapshot and then appends, then the load starts from the new base", async () => {
       const store = await make();
       must(await store.create(newCharacter("char-a")));

@@ -16,6 +16,7 @@ import { boardsWeekJob } from "./boards/job";
 import { COUNTERS_CRON, countersJob } from "./jobs/counters";
 import { runDeletions } from "./jobs/deletion";
 import { drawJob } from "./jobs/draw";
+import { LIVES_CRON, livesJob } from "./jobs/lives";
 import { MONEY_CRON, moneyJob } from "./jobs/money";
 import { notifyJob } from "./jobs/notify";
 import { onlineJob } from "./jobs/online";
@@ -86,6 +87,8 @@ export default {
       // R-ANALYTICS-008, R-SERVER-011: both read the day's characters from the command log.
       ...(cron === COUNTERS_CRON ? [job("counters", ({ deps, handle }) => countersJob(deps, pgDayLog(handle), pgDayLog(handle)))] : []),
       ...(cron === MONEY_CRON ? [job("money", ({ deps, handle }) => moneyJob(deps, pgDayLog(handle)))] : []),
+      // account.md R-ACCOUNT-031: the lives being played, home and abroad, for the two lights.
+      ...(cron === LIVES_CRON ? [job("lives", ({ deps }) => livesJob(deps))] : []),
       ...(daily ? [job("feedback", ({ deps }) => dropOldFeedback(deps)), job("stand-in", ({ deps }) => standInJob(deps))] : []),
     ];
     // R-SERVER-043: each job caught and logged by its name; one failure never hides another.

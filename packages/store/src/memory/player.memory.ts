@@ -228,6 +228,17 @@ export function memoryPlayerStores(stores: TxStores): { player: PlayerStore; pai
         characters = new Map(characters).set(id, { ...found, row: { ...found.row, fullNotifiedAt: at } });
         return Promise.resolve(true);
       }),
+
+    page: (after, limit) =>
+      Promise.resolve(
+        copy(
+          [...characters.values()]
+            .map((each) => each.row)
+            .filter((row) => after === null || compareIds(row.id, after) > 0)
+            .sort((x, y) => compareIds(x.id, y.id))
+            .slice(0, Math.max(0, limit)),
+        ),
+      ),
   };
 
   const pair: PairStore = {

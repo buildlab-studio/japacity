@@ -181,6 +181,12 @@ export interface PlayerStore {
   filled: (now: number) => Promise<CharacterRow[]>;
   /** R-CLOCK-031: claims the notice of the fill at `fullAt`. True for the one call that claimed it, false once claimed or when `fullAt` moved. */
   claimFull: (id: string, fullAt: number, at: number) => Promise<boolean>;
+  /**
+   * account.md R-ACCOUNT-031: up to `limit` stored character rows
+   * whose id comes after `after` (from the first when null), in ascending id
+   * order, so the nightly count of lives reads every character a page at a time.
+   */
+  page: (after: string | null, limit: number) => Promise<CharacterRow[]>;
 }
 
 /** The pair record of pair.md R-PAIR-002. Typed `unknown` until `PairRecord` lands in packages/sim/src/pair/. */
