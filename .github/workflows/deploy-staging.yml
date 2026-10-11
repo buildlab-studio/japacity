@@ -61,6 +61,22 @@ jobs:
       - if: steps.ready.outputs.set == 'true'
         run: pnpm install --frozen-lockfile
 
+      # The migrations go first, then the build, then the Worker (server.md R-SERVER-044): a deploy never runs a Worker
+      # against a schema behind it. DATABASE_URL_UNPOOLED is the staging branch's direct string for the migrator role, the
+      # role that owns the schema and drizzle's journal; never the app role's, which cannot write them. Once the
+      # Cloudflare pair is set, a missing string fails here and nothing is built or deployed; a failed migration does
+      # the same, since every later step runs only after this one succeeded.
+      - name: Migrate the database
+        if: steps.ready.outputs.set == 'true'
+        env:
+          DATABASE_URL_UNPOOLED: ${{ secrets.DATABASE_URL_UNPOOLED }}
+        run: |
+          if [ -z "$DATABASE_URL_UNPOOLED" ]; then
+            echo "::error::The staging environment has no DATABASE_URL_UNPOOLED secret (the migrator role's direct string), so nothing is migrated or deployed."
+            exit 1
+          fi
+          pnpm --filter @japacity/db db:migrate
+
       # The client is built for staging's own address with the environment's variables (none is a secret: each
       # ends up in the page). The Worker serves this build.
       - name: Build the client
