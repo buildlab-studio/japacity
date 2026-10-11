@@ -2,8 +2,8 @@
 // place fills the screen, the support pages live in the phone, and the month plans and ends from
 // sheets over the scene. The prologue, the life chooser, the road, the ending and the invite page
 // keep their own screens. The old month page stays behind `?classic` (R-WORLD-024), loaded only
-// when asked for.
-import { lazy, Suspense, useEffect, useState } from "react";
+// when asked for. The admin page is its own chunk too, fetched only at /admin (R-MODERATION-012).
+import { lazy, Suspense, useEffect, useState, type ReactNode } from "react";
 
 import { bootGame } from "./authority/boot";
 import { CountedBoundary } from "./shared/analytics/CountedBoundary";
@@ -15,7 +15,7 @@ import { AccountGate } from "./features/account/AccountGate";
 import { AgentSheets } from "./features/advice/AgentSheet";
 import { inviteCodeOf, InvitePage } from "./features/account/InvitePage";
 import { GuestReminder, SecureAsk } from "./features/account/Secure";
-import { AdminRoute } from "./features/admin/AdminRoute";
+import { adminAsked } from "./features/admin/adminPath";
 import { OFFER_PLACES } from "./features/city/nudge";
 import { PARCEL } from "./shared/world/parcel.ask";
 import { ParcelWaybill } from "./shared/world/Waybill";
@@ -50,6 +50,20 @@ import { useScreenCount } from "./useScreenCount";
 
 /** R-WORLD-024: the old month page, its own chunk, fetched only when `?classic` asks for it. */
 const Classic = lazy(() => import("./Classic"));
+
+/** R-MODERATION-012: the admin page, its own chunk, fetched only at /admin, so a player never downloads it. */
+const AdminRoute = lazy(() => import("./features/admin/AdminRoute").then((admin) => ({ default: admin.AdminRoute })));
+
+/** Anywhere but /admin the game as it is; at /admin the admin chunk is fetched, and it shows the game to anyone off the admin list. */
+function AdminGate({ children }: { children: ReactNode }) {
+  const [asked] = useState(() => typeof location !== "undefined" && adminAsked(location.pathname));
+  if (!asked) return <>{children}</>;
+  return (
+    <Suspense fallback={<p className="p-4 text-text-2">{say("ui.loading")}</p>}>
+      <AdminRoute>{children}</AdminRoute>
+    </Suspense>
+  );
+}
 
 /** R-WORLD-024: `?classic` opens the old month page instead of the world. */
 export function classicAsked(search: string): boolean {
@@ -199,9 +213,9 @@ export function App({ store: given, path }: { store?: GameStore; path?: string }
   return (
     <CountedBoundary>
       <SoundNotice />
-      <AdminRoute>
+      <AdminGate>
         <GameProvider store={store}>{invite === null ? <Shell /> : <InvitePage code={invite} onDone={leaveInvite} />}</GameProvider>
-      </AdminRoute>
+      </AdminGate>
     </CountedBoundary>
   );
 }
