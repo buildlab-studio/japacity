@@ -1,7 +1,7 @@
 // The world's own words (docs/rules/world.md), first drafts in the voice of docs/rules/text.md.
 // Content's table wins over these, so each key can move into content to be rewritten.
 export const worldText: Record<string, string> = {
-  "ui.world.end-month": "Next month",
+  "ui.world.end-month": "Sleep",
   "ui.world.map": "Map",
   "ui.world.phone": "Phone",
   "ui.world.whole": "See the whole place",
@@ -17,8 +17,6 @@ export const worldText: Record<string, string> = {
   "ui.world.month-of": "Month {month}",
   "ui.world.clock": "{years} yrs {months} mo",
   "ui.world.age": "{years} yrs {months} mo",
-  "ui.world.turns": "{count} pages",
-  "ui.world.turns.one": "1 page",
   "ui.world.show-more": "Show more",
   "ui.world.show-less": "Show less",
   "ui.world.coming": "{what}, {when}",
@@ -77,12 +75,12 @@ export const worldText: Record<string, string> = {
   "ui.nudge.meanwhile.be-noticed": "Get noticed: ask at the jobs board",
   // R-ACTIVITY-015: an act done at once whose answer comes with the month.
   "ui.nudge.done-now": "Done. The answer is due this month.",
-  "ui.nudge.hunt-planned": "Applied for better pay. Tap Next month.",
+  "ui.nudge.hunt-planned": "Applied for better pay. Live the month.",
   // A chapter with every item met closes when the page turns.
-  "ui.nudge.chapter-done": "The chapter is done. Tap Next month.",
+  "ui.nudge.chapter-done": "The chapter is done. Live the month.",
   // A set piece staged elsewhere waits there; the player goes to it.
   "ui.nudge.setpiece-away": "{what} is at {place}.",
-  "ui.nudge.end": "Tap Next month when you are ready",
+  "ui.nudge.end": "Live the month, or sleep to end it",
   // The news has closed every way out at once, as the pandemic does. Japa says when it opens.
   "ui.nudge.closed.every": "Every route is closed for now",
 };

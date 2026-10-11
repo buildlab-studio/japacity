@@ -37,7 +37,7 @@ describe("the English result on its way", () => {
     expect(say(nudge.key, nudge.params)).not.toMatch(/Score|test centre/);
     // Planned this month, it says to end the month.
     const planned = { ...view, documents: [] };
-    expect(say(nudgeOf(planned, undefined, ["activity.sit-english-test"]).key)).toBe("Test booked. Tap Next month.");
+    expect(say(nudgeOf(planned, undefined, ["activity.sit-english-test"]).key)).toBe("Test booked. Live the month.");
   });
 
   test("[R-WORLD-003] given the result pending, when the world shows the nudge, then it opens nothing: the result comes by itself", async () => {
@@ -73,7 +73,7 @@ describe("the English test as a long shot", () => {
     const nudge = nudgeOf(longShot);
     expect(nudge).toMatchObject({ key: "chapter.build-the-file.item.english.study", about: "step" });
     expect(say(nudge.key)).toBe("Study first: the band is a long shot");
-    expect(say(nudgeOf(longShot, undefined, ["activity.study-english"]).key)).toBe("Study planned. Tap Next month.");
+    expect(say(nudgeOf(longShot, undefined, ["activity.study-english"]).key)).toBe("Study planned. Live the month.");
     const fair = { ...longShot, qualities: english(100) };
     expect(nudgeOf(fair).key).toBe("chapter.build-the-file.item.english.nudge");
   });

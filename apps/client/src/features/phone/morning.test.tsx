@@ -121,9 +121,9 @@ describe("the morning on the lock screen", () => {
     const told = [...(home?.querySelectorAll("[data-envelope], [data-paper-notice], [data-notice]") ?? [])];
     expect(told[0]).toBe(notice);
 
-    // Shown once: the store lets it go, and its line stays with the month's.
+    // Shown once: the store lets it go. Its line is the month's report's to tell, once, so the lock screen adds nothing to the month's lines.
     expect(store.getState().opened).toEqual([]);
-    expect(store.getState().monthLines).toEqual(expect.arrayContaining(opened?.held ?? []));
+    expect(store.getState().monthLines).not.toEqual(expect.arrayContaining(opened?.held ?? []));
 
     // Put away and opened again, and asked again on a focus: it is not told twice.
     shown = false;

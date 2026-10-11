@@ -35,7 +35,8 @@ describe("the world is the game", () => {
     // The first chapter opens on its title over the world, never a card to pass (R-CHAPTER-011).
     await waitFor(() => expect(document.querySelector("[data-opening-title]")).not.toBeNull());
     expect(screen.queryByRole("button", { name: say("ui.opening.go") })).toBeNull();
-    expect(await screen.findByRole("button", { name: say("ui.world.end-month") })).toBeTruthy();
+    await waitFor(() => expect(document.querySelector("[data-band] [data-band-month]")).not.toBeNull());
+    expect(screen.queryByRole("button", { name: say("ui.world.end-month") })).toBeNull();
     expect(document.querySelector("[data-band]")).not.toBeNull();
     expect(document.querySelector("[data-thumb='map']")).not.toBeNull();
     expect(document.querySelector("[data-thumb='phone']")).not.toBeNull();

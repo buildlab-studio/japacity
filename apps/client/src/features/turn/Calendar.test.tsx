@@ -1,9 +1,10 @@
-// The Calendar app (docs/rules/world.md R-WORLD-002, R-WORLD-007, R-WORLD-018; turn.md R-TURN-006): the month on the phone, in order, with the things started carrying on until they are stopped, an empty free
-// slot resting, the chores done and what they saved, what is coming opening where it is dealt with, the pages left, and
-// its own Next month that puts the phone away and turns the page.
+// The Calendar app (docs/rules/world.md R-WORLD-002, R-WORLD-007, R-WORLD-018; turn.md R-TURN-006, R-TURN-010; the maintainer,
+// 10 Oct 2026; decision 0034): the month on the phone, in order, with the job, the things started carrying on until they
+// are stopped, the chores done and what they saved, and what is coming opening where it is dealt with. The month turns
+// when it is lived, so the Calendar holds no plan to fill, no pages, no Next month and no Until news.
 import { content } from "@japacity/content";
 import type { Id } from "@japacity/sim";
-import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, test, vi } from "vitest";
 
 import { slot } from "../../../../../packages/sim/src/route/route.journey";
@@ -15,10 +16,9 @@ import { engineView, gameAuthority, newGame, richView } from "../../shared/testi
 import { renderWithView } from "../../shared/testing/render";
 import { formatMoney } from "../../shared/words/format";
 import { nameOf, say, words } from "../../shared/words/text";
-import { wasTaught } from "../../shared/world/taught";
 import { Calendar, calendarOpening, choresWords } from "./Calendar";
-import { freeTimeWords, turnWords } from "./turn.words";
-import { carriedPlan } from "./untilNews";
+import { turnWords } from "./turn.words";
+import { carriedPlan } from "./carried";
 
 const LEARN = "activity.learn-tech" as Id<"activity">;
 const PORTFOLIO = "activity.build-portfolio" as Id<"activity">;
@@ -28,14 +28,8 @@ const WATER = "activity.fetch-water" as Id<"activity">;
 const REST = "activity.rest" as Id<"activity">;
 const TEACHER = "activity.job-teacher" as Id<"activity">;
 
-function slots(state: "free" | "planned"): Element[] {
+function slots(state: "planned"): Element[] {
   return [...document.querySelectorAll(`[data-month-plan] [data-slot="${state}"]`)];
-}
-
-function endButton(): HTMLButtonElement {
-  const found = document.querySelector<HTMLButtonElement>("[data-month-end]");
-  if (found === null) throw new Error("No Next month in the Calendar");
-  return found;
 }
 
 /** Ada after a month's hunt that found the teacher's job, and the job taken. */
@@ -48,16 +42,25 @@ function adaTeaching() {
   return game.view();
 }
 
-describe("the Calendar's free time", () => {
-  test("[R-WORLD-007] [R-TURN-006] given a fresh month, when the Calendar shows, then each free slot is a card saying you rest, and no line says slots, a count of things planned or that a thing takes no slot", async () => {
-    const view = engineView();
-    await renderWithView(<Calendar />, view);
-    expect(slots("free")).toHaveLength(view.freeSlots);
-    for (const card of slots("free")) expect(card.textContent).toBe("Free time: you rest");
-    expect(say("ui.month.rest")).toBe("Free time: you rest");
-    const shown = document.body.textContent ?? "";
-    expect(shown).not.toMatch(/slot|takes no|\d+ of \d+|Same again/i);
-    expect(screen.queryByRole("button", { name: "Same again" })).toBeNull();
+describe("the Calendar's month", () => {
+  test("[R-WORLD-007] [R-TURN-010] given a fresh month and a month with a course carrying on, when the Calendar shows, then it holds no free time rows, no pages, no Next month and no Until news, and never says Free time, pages, Next month or Until news", async () => {
+    const view = { ...richView(), setpiece: null, interview: null };
+    const { authority, store } = await renderWithView(<Calendar />, view);
+    const shown = (): string => document.querySelector("[data-calendar-app]")?.textContent ?? "";
+    const nothingOfThePlan = (): void => {
+      // "next month" in what is coming says when a thing comes; the button's words never stand.
+      expect(shown()).not.toMatch(/[Ff]ree time|\b[Pp]ages?\b|Next month|[Uu]ntil news/);
+      expect(document.querySelector("[data-slot='free'], [data-calendar-pages], [data-month-end], [data-month-until], [data-calendar-teach], [data-free-full]")).toBeNull();
+      expect(screen.queryByRole("button", { name: /^(Next month|Until news)/ })).toBeNull();
+    };
+    nothingOfThePlan();
+    act(() => {
+      store.getState().addToPlan({ activity: LEARN, param: null });
+    });
+    expect(shown()).toContain(nameOf(LEARN));
+    nothingOfThePlan();
+    expect(shown()).not.toMatch(/slot|takes no|\d+ of \d+|Same again/i);
+    expect(authority.sent).toEqual([]);
   });
 
   test("[R-WORLD-007] given a thing started from the world, when the Calendar shows, then it is a card that says it carries on, with a stop that empties its slot", async () => {
@@ -69,29 +72,24 @@ describe("the Calendar's free time", () => {
     expect(slots("planned")).toHaveLength(1);
     expect(slots("planned")[0]?.textContent).toContain(nameOf(LEARN));
     expect(slots("planned")[0]?.textContent).toContain("Ongoing");
-    expect(slots("free")).toHaveLength(view.freeSlots - 1);
     fireEvent.click(screen.getByRole("button", { name: say("ui.world.stop-act", { what: nameOf(LEARN) }) }));
     expect(slots("planned")).toHaveLength(0);
     expect(store.getState().plan.every((pick) => pick === null)).toBe(true);
   });
 
-  test("[R-WORLD-007] [R-TURN-006] given every free slot taken, when the Calendar shows, then it says the free time is all used, and nothing more can be started until something stops", async () => {
+  test("[R-WORLD-007] [R-TURN-006] given every free slot taken, when another thing is started, then it is not taken until something stops", async () => {
     const view = engineView();
     const { store } = await renderWithView(<Calendar />, view);
     const picks = [LEARN, PORTFOLIO, "activity.study-english" as Id<"activity">, "activity.family-time" as Id<"activity">].slice(0, view.freeSlots);
     act(() => {
       for (const activity of picks) store.getState().addToPlan({ activity, param: null });
     });
-    expect(document.querySelector("[data-free-full]")?.textContent).toBe("Free time: all used");
-    expect(endButton().textContent).toContain("Free time: all used");
+    expect(slots("planned")).toHaveLength(picks.length);
     let added = true;
     act(() => {
       added = store.getState().addToPlan({ activity: "activity.morning-run", param: null });
     });
     expect(added).toBe(false);
-    expect(freeTimeWords(0, 3)).toBe("Free time: you rest");
-    expect(freeTimeWords(1, 3)).toBe("Free time: two left");
-    expect(freeTimeWords(3, 3)).toBe("Free time: all used");
   });
 
   test("[R-TURN-006] [R-ACTIVITY-015] given rest, a now-act and cooking, when each is offered to the plan, then none is taken: an empty slot rests and the others are done at once", async () => {
@@ -118,7 +116,7 @@ describe("the Calendar's free time", () => {
     expect(shown).not.toContain("A quiet month");
   });
 
-  test("[R-TURN-009] [R-WORLD-007] given the burial holds a slot this month, when the Calendar shows, then the held slot is a row in its own words above the free ones", async () => {
+  test("[R-TURN-009] [R-WORLD-007] given the burial holds a slot this month, when the Calendar shows, then the held slot is a row in its own words", async () => {
     const view = { ...richView(), setpiece: null, interview: null };
     await renderWithView(<Calendar />, { ...view, locks: [{ slots: 1, why: "burial", untilMonth: view.month }] });
     const row = document.querySelector('[data-slot="lock"]');
@@ -184,31 +182,6 @@ describe("commitments carry on", () => {
   });
 });
 
-describe("the Calendar's Next month", () => {
-  test("[R-WORLD-002] [R-WORLD-007] given the month can end, when the Calendar's Next month is tapped, then the plan is sent and the phone is put away so the page turns over the world", async () => {
-    const close = vi.fn();
-    const { authority, store } = await renderWithView(
-      <PhoneNav value={{ openApp: () => undefined, close }}>
-        <Calendar />
-      </PhoneNav>,
-      { ...richView(), setpiece: null, interview: null },
-    );
-    act(() => {
-      store.getState().addToPlan({ activity: LEARN, param: null });
-    });
-    fireEvent.click(endButton());
-    expect(close).toHaveBeenCalledTimes(1);
-    await waitFor(() => expect(authority.sent).toHaveLength(1));
-    expect(authority.sent[0]).toMatchObject({ type: "turn/end", slots: [{ activity: LEARN, param: null }] });
-  });
-
-  test("[R-WORLD-007] given a set piece open, when the Calendar shows, then Next month is held with the reason", async () => {
-    await renderWithView(<Calendar />, richView());
-    expect(endButton().disabled).toBe(true);
-    expect(document.querySelector("[data-month-blocked]")?.textContent).toBe(words("reject.setpiece-open"));
-  });
-});
-
 describe("the Calendar's other sections", () => {
   test("[R-OBLIGATION-014] given Ada cooking and fetching water now, when the Calendar shows, then the chores done say what they took off this month, from the relief held on the upkeep", async () => {
     const game = newGame("scenario.ada");
@@ -259,26 +232,10 @@ describe("the Calendar's other sections", () => {
     expect(row?.querySelector("[data-coming-note]")?.textContent).toBe("In the village");
   });
 
-  test("[R-WORLD-027] given the pages left, when the Calendar shows, then its pages section says the count and that a page is a month of your life", async () => {
-    const view = engineView();
-    await renderWithView(<Calendar />, view);
-    const pages = document.querySelector("[data-calendar-pages]")?.textContent ?? "";
-    expect(pages).toContain(String(view.turns.banked));
-    expect(document.querySelector(view.turns.banked >= view.turns.cap ? "[data-count-fact='full']" : "[data-count-fact='page']")).not.toBeNull();
-  });
-
-  test("[R-WORLD-002] given the Calendar opened by Next month in place of turning, when it shows, then one small teach card says what the month is, once in a life: dismissed, it never shows again", async () => {
-    const view = engineView();
-    localStorage.clear();
-    await renderWithView(<Calendar opening="teach" />, view);
-    expect(document.querySelector("[data-calendar-teach]")?.textContent).toContain("carries on");
-    fireEvent.click(screen.getByRole("button", { name: turnWords("turn.calendar.teach.ok") }));
-    expect(document.querySelector("[data-calendar-teach]")).toBeNull();
-    expect(wasTaught("calendar", view.scenario)).toBe(true);
-    await renderWithView(<Calendar opening="teach" />, view);
-    expect(document.querySelector("[data-calendar-teach]")).toBeNull();
-    expect(calendarOpening("teach")).toBe("teach");
+  test("[R-WORLD-002] given the phone asked to open the Calendar, when its opening is read, then only its coming list is a place to open on; anything else opens the month as it is", () => {
+    expect(calendarOpening("coming")).toBe("coming");
+    expect(calendarOpening("teach")).toBeNull();
     expect(calendarOpening("send")).toBeNull();
-    localStorage.clear();
+    expect(calendarOpening(null)).toBeNull();
   });
 });

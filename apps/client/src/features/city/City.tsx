@@ -3,7 +3,7 @@
 // this screen's own state, and nothing here sends a command (R-CITY-001). The 3D scene is loaded
 // only where WebGL exists, so the panels never wait for it (R-CITY-018).
 import { content, text } from "@japacity/content";
-import type { Id, PlaceEntry, PlayerView, ReportLine, SlotPick } from "@japacity/sim";
+import type { Id, PlaceEntry, PlayerView, ReportLine } from "@japacity/sim";
 import { Clock, Map as MapIcon, Settings2, X } from "lucide-react";
 import { isValidElement, lazy, Suspense, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 
@@ -28,14 +28,13 @@ import { blurbOf, hasWords, inMonths, nameOf, paramWords, say, words } from "../
 import { ENGLISH_TEST, testChance } from "../../shared/words/test";
 import { AskSheet } from "../../shared/world/AskSheet";
 import { PARCEL, parcelAsk } from "../../shared/world/parcel.ask";
-import { Band, bandMoney } from "../../shared/world/Band";
+import { Band, bandMoney, bandMonth } from "../../shared/world/Band";
 import { cue } from "../../shared/sound/cues";
 import type { Act, Ask, RideChoice, Thing } from "../../shared/world/contract";
 import { Cut, useCut } from "../../shared/world/Cut";
 import { Nudge } from "../../shared/world/Nudge";
 import { ThumbBar } from "../../shared/world/ThumbBar";
 import { Corner, hear, hush, resetLines, speak, SpeechBubble, tell, useStreetTalk } from "../../shared/world/Lines";
-import { FLIP_MS, MonthCount } from "../../shared/world/MonthCount";
 import { Rise, useJapaRise } from "../../shared/world/Rise";
 import { FirstUseLabels, useFirstUse } from "../../shared/world/Walkthrough";
 import { markTaught, wasTaught } from "../../shared/world/taught";
@@ -137,6 +136,8 @@ const FIRST_CHAPTER = Object.values(content.chapter).reduce<{ id: string; order:
 export const TITLE_MS = 2000;
 /** How long every name shows over its mark on a place's first entry in a life, before the names fade (R-WORLD-005). */
 export const TEACH_MS = 2000;
+/** The beat in the room after the month ends, before the scene goes dark for the results (R-WORLD-025): short, never a wait. */
+export const RESULTS_BEAT_MS = 300;
 
 /** The first chapter's title over the world for a moment, with nothing to press: the nudge under the band gives the first step. */
 function ChapterTitle({ chapter, onGone }: { chapter: string; onGone: () => void }) {
@@ -178,14 +179,6 @@ const UP_NEPA_MS = 2200;
 export function chipFolds(nudge: { about: string; params?: Record<string, string | number> } | null, coming: Coming | null, month: number): boolean {
   if (nudge === null || coming === null || nudge.about !== "step" || coming.kind === "offer") return false;
   return nudge.params?.when === inMonths(coming.month, month);
-}
-
-/**
- * R-WORLD-002: the band's Next month opens the Calendar instead of turning the page in the first
- * month of a life, and in a month with nothing planned and no job, so the month is seen before it turns.
- */
-export function calendarFirst(view: Pick<PlayerView, "report" | "job">, plan: readonly (SlotPick | null)[]): boolean {
-  return view.report === null || (view.job.id === null && plan.every((pick) => pick === null));
 }
 
 /** True when this month's answers include home's send-off as the party. */
@@ -451,7 +444,8 @@ export function City({
   const endMonth = useGame((state) => state.endMonth);
   const stopPick = useGame((state) => state.stopPick);
   const gameStore = useGameStoreIfAny();
-  // R-WORLD-002, R-WORLD-027: the band's clock is the character's age, with the months the player may still play beside it at all times; the simulation still counts months.
+  const beganAt = useGame((state) => state.beganAt);
+  // R-WORLD-002: the band's clock is the character's age, with the month's name and phase beside it; the simulation still counts months.
   const ageMonths = view.qualities.find((quality) => quality.id === "quality.age-months")?.value ?? 0;
   const clock = say("ui.world.clock", { years: Math.floor(ageMonths / 12), months: ageMonths % 12 });
   const [asksOpen, setAsksOpen] = useState(false);
@@ -495,8 +489,8 @@ export function City({
       setResultsShown(false);
       return;
     }
-    // R-WORLD-002, R-WORLD-027: the page turns on the spot first, the glyph flipping on the band, then the cut and the results.
-    const timer = window.setTimeout(() => cutTo(() => setResultsShown(true)), FLIP_MS);
+    // R-WORLD-002: a short beat in the room first, then the cut and the results.
+    const timer = window.setTimeout(() => cutTo(() => setResultsShown(true)), RESULTS_BEAT_MS);
     return () => window.clearTimeout(timer);
     // The cut runs once as the report opens.
   }, [world, reportOpen]);
@@ -512,21 +506,20 @@ export function City({
   const firstUse = useFirstUse(view.report !== null, map);
   // The app the phone opens on when the nudge sends the player to it (the month's news).
   const [phoneApp, setPhoneApp] = useState<string | null>(null);
-  const endBlocked = view.ended ? words("reject.ended") : view.setpiece !== null || (view.interview?.question ?? null) !== null ? words("reject.setpiece-open") : view.turns.banked < 1 ? words("reject.no-turns") : null;
-  /** The phone on the Calendar app: on its coming list, on the month with its teach card, or on the month as it is. */
-  const openCalendar = (opening: "coming" | "teach" | null): void => {
+  // An interview with a question still to answer holds the month as a set piece does (R-INTERVIEW-004); a life over ends nothing.
+  const endBlocked = view.ended ? words("reject.ended") : view.setpiece !== null || (view.interview?.question ?? null) !== null ? words("reject.setpiece-open") : null;
+  /** The phone on the Calendar app: on its coming list, or on the month as it is. */
+  const openCalendar = (opening: "coming" | null): void => {
     setPhoneApp(opening === null ? "calendar" : `calendar:${opening}`);
     setPhone(true);
   };
   /**
-   * Next month (R-WORLD-002): the page turns at once, on the spot, the glyph
-   * flipping. The first month of a life, and a month with nothing planned and no job, open the Calendar instead, so the
-   * month is seen before it turns; it opens only as the answer to this tap, never by itself.
+   * The bed's month end (R-WORLD-025): the month ends where the player is and the results open in the room. Held while a
+   * question waits, with the reason told in the corner. The month turning by itself when it is lived comes next (R-TURN-010).
    */
-  const nextMonth = (): void => {
-    if (endBlocked !== null) return;
-    if (calendarFirst(view, gameStore?.getState().plan ?? plan)) {
-      openCalendar("teach");
+  const endFromBed = (): void => {
+    if (endBlocked !== null) {
+      tell(endBlocked);
       return;
     }
     cue("tap");
@@ -809,7 +802,7 @@ export function City({
       case "out":
         setPicked({ kind: "out" });
         return;
-      // R-WORLD-025: the bed's Next month is the band's: the page turns, or the Calendar opens where the band's would.
+      // R-WORLD-025: the bed ends the month.
       case "end":
         setPicked(null);
         // The month's lines wait on the phone: the bed opens them first (R-WORLD-030), then the page turns as the phone is put away.
@@ -817,7 +810,7 @@ export function City({
           setPhoneThen("month");
           setPhoneApp(null);
           setPhone(true);
-        } else nextMonth();
+        } else endFromBed();
         return;
       case "plain": {
         setPicked(null);
@@ -995,7 +988,7 @@ export function City({
     setPeek(true);
     const timer = window.setTimeout(() => setPeek(false), PEEK_MS);
     return () => window.clearTimeout(timer);
-  }, [nudgeKey, comingKey, view.turns.banked]);
+  }, [nudgeKey, comingKey, view.month]);
   // R-ACTIVITY-015: an act done at once is answered in the place: the latest command's lines carry the speaker's line.
   const lastLines = useGame((state) => state.lines);
   const linesSeen = useRef(lastLines);
@@ -1458,10 +1451,12 @@ export function City({
             when={clock}
             name={homeLine(hereId, view) ?? bandName(hereName)}
             {...bandMoney(view)}
-            onEndMonth={nextMonth}
-            count={<MonthCount onOpen={() => openCalendar(null)} />}
-            endBlocked={endBlocked}
-            // The band stays while its page flips on the spot, and steps back once the results are up (R-WORLD-002, R-WORLD-027).
+            month={bandMonth(view, beganAt)}
+            onMonth={() => {
+              cue("tap");
+              openCalendar(null);
+            }}
+            // The band stays through the beat before the results, and steps back once they are up (R-WORLD-002).
             hidden={map || (resultsOpen && resultsShown)}
             open={bandOpen}
             {...(coming === null ? {} : { onToggle: () => setBandOpen((open) => !open) })}
@@ -1769,9 +1764,9 @@ export function City({
               setPhone(false);
               setPhoneApp(null);
               // The bed opened the phone for the month's lines: putting it away goes on to the month's end,
-              // unless the Calendar's own Next month is already turning the page.
+              // unless the month is already turning.
               const turning = gameStore?.getState().busy === true || gameStore?.getState().reportOpen === true;
-              if (phoneThen === "month" && !turning) nextMonth();
+              if (phoneThen === "month" && !turning) endFromBed();
               setPhoneThen(null);
             },
             inside ? hereName : name,
@@ -1791,7 +1786,7 @@ export function City({
           onClose={() => {
             setPhone(false);
             // The bed opened the phone for the month's lines: putting it away goes on to the month's end.
-            if (phoneThen === "month") nextMonth();
+            if (phoneThen === "month") endFromBed();
             setPhoneThen(null);
           }}
         />

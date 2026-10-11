@@ -17,6 +17,8 @@ export const turnText: Record<string, string> = {
   "turn.month.end": "Next month",
   // The Calendar app (R-WORLD-002, R-WORLD-007): the month on the phone, in order.
   "turn.calendar.work": "Work",
+  // What carries on into next month until it is stopped, and a month held by a burial or a stay in hospital (R-WORLD-007).
+  "turn.calendar.carrying": "Carrying on",
   "turn.calendar.all-used": "Free time: all used",
   "turn.calendar.left": "Free time: {count} left",
   "turn.calendar.done": "Done this month",
@@ -28,10 +30,6 @@ export const turnText: Record<string, string> = {
   "turn.calendar.at": "At {place}",
   // Where a dated ask is attended when no place of the city stages it (R-WORLD-002).
   "turn.calendar.where.offer.village-burial": "In the village",
-  "turn.calendar.pages": "Pages left",
-  // Said once in a life, when Next month opens the Calendar instead of turning the page (R-WORLD-002).
-  "turn.calendar.teach": "This is your month before the page turns. What you start carries on each month until you stop it.",
-  "turn.calendar.teach.ok": "Got it",
   // R-HOME-010: the room's year falls due at this month's end and is not held.
   "turn.month.rent-short": "Rent {amount} due this month. You hold {held}.",
 
@@ -55,12 +53,6 @@ export const turnText: Record<string, string> = {
   "turn.results.ready": "Ready to move",
   "turn.results.news": "The rest of the month's news is on your phone, in News.",
   "turn.results.back": "Back to {place}",
-  "turn.results.quiet": "The quiet months",
-  "turn.results.quiet-kept": "Kept {amount}.",
-  "turn.results.quiet-down": "Down {amount}.",
-  "turn.results.quiet-still": "Nothing else moved.",
-  "turn.results.quiet-none": "Nothing moved.",
-  "turn.results.stopped": "Then this month",
 };
 
 /** Words for a turn key: content's first, then the interface's, then these drafts. */

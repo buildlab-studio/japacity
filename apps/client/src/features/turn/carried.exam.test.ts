@@ -7,7 +7,7 @@ import { describe, expect, test } from "vitest";
 
 import { readyNurse } from "../../shared/testing/nurse";
 import { plannable } from "../../shared/words/acts";
-import { carriedPlan } from "./untilNews";
+import { carriedPlan } from "./carried";
 
 const CERTIFY = "activity.nurse-certification" as Id<"activity">;
 const FEE = "fee-test" as const;
