@@ -95,8 +95,8 @@ export interface Stats {
     /** Milliseconds since 1970 when the figures were read. */
     at: number;
     online: Regional;
-    /** Each region's highest five-minute sample today (R-ANALYTICS-013). */
-    peakToday: { regions: Record<string, Shown> };
+    /** The highest five-minute sample today, the whole game's and each region's (R-ANALYTICS-013). */
+    peakToday: Regional;
   };
   today: StatsPeriod;
   last7: StatsPeriod;

@@ -9,6 +9,7 @@ import type { CounterTotal, RegionCount } from "@japacity/store";
 
 import { shown } from "./dashboard";
 import { dayName } from "./day";
+import { WHOLE_GAME } from "./list";
 import type { EconomyCell, FunnelStep, PeriodRates, Regional, Returned, RetentionWeek, ShareKind, Shown, Stats, StatsPeriod } from "./stats.contract";
 
 /** What the endpoint read. */
@@ -68,6 +69,12 @@ function regional(counts: ReadonlyMap<string, number> | readonly RegionCount[], 
     all += count;
   }
   return { all: shown(all, minShown), regions };
+}
+
+/** R-ANALYTICS-013: the day's peaks; the whole game's is kept under the region `all`, never a sum of the regions'. */
+function peakOf(byRegion: ReadonlyMap<string, number>, minShown: number): Regional {
+  const regions = new Map([...byRegion].filter(([region]) => region !== WHOLE_GAME));
+  return { all: shown(byRegion.get(WHOLE_GAME) ?? 0, minShown), regions: regional(regions, minShown).regions };
 }
 
 /** `part` over `whole`, scaled; null while either is under `minShown`. */
@@ -153,7 +160,7 @@ export function buildStats(content: Content, input: StatsInput): Stats {
   const cells: EconomyCell[] = MONTH_BANDS.flatMap((months) => HELD_BANDS.map((held) => ({ months: months.key, held: held.key, lives: shown(lastDay.sum("economy/held", `${months.key}:${held.key}`), minShown) })));
 
   return {
-    now: { at: input.now, online: regional(input.online, minShown), peakToday: { regions: regional(ofToday.byRegion("players/online-peak"), minShown).regions } },
+    now: { at: input.now, online: regional(input.online, minShown), peakToday: peakOf(ofToday.byRegion("players/online-peak"), minShown) },
     today: period(input, today, input.todayPlayers, null, minShown),
     last7: period(input, week, weekly, total(weekly), minShown),
     last30: period(input, month, monthly, total(monthly), minShown),

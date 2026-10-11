@@ -334,7 +334,7 @@ export interface EconomyCell {
 }
 
 export interface Stats {
-  now: { at: number; online: Regional; peakToday: { regions: Record<string, Shown> } };
+  now: { at: number; online: Regional; peakToday: Regional };
   today: StatsPeriod;
   last7: StatsPeriod;
   last30: StatsPeriod;

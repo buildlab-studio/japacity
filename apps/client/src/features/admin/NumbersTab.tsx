@@ -66,7 +66,7 @@ function Numbers({ stats }: { stats: Stats }) {
     <div className="flex flex-col gap-6" data-numbers>
       <p>{words("admin.numbers.read", { at: utcTime(stats.now.at), to: stats.last30.to })}</p>
       <Table caption={words("admin.numbers.online")} head={[words("admin.numbers.region"), words("admin.numbers.count")]} rows={regionRows(stats.now.online)} />
-      <Table caption={words("admin.numbers.peak")} head={[words("admin.numbers.region"), words("admin.numbers.count")]} rows={Object.entries(stats.now.peakToday.regions).map(([region, count]) => [region, shownCount(count)])} />
+      <Table caption={words("admin.numbers.peak")} head={[words("admin.numbers.region"), words("admin.numbers.count")]} rows={regionRows(stats.now.peakToday)} />
       <Periods stats={stats} />
       <Table caption={words("admin.numbers.totals", { day: stats.totals.day })} head={[words("admin.numbers.region"), words("admin.numbers.count")]} rows={regionRows(stats.totals.players)} />
       <Table

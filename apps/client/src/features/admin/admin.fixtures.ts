@@ -221,7 +221,7 @@ function period(from: string, to: string, scale: number, players: number): Stats
 export const STATS: StatsReply = {
   ok: true,
   stats: {
-    now: { at: NOW, online: { all: 23, regions: { GB: FEWER, NG: 21 } }, peakToday: { regions: { GB: FEWER, NG: 37 } } },
+    now: { at: NOW, online: { all: 23, regions: { GB: FEWER, NG: 21 } }, peakToday: { all: 41, regions: { GB: FEWER, NG: 37 } } },
     today: period("2026-10-08", "2026-10-08", 1, 64),
     last7: period("2026-10-01", "2026-10-07", 7, 210),
     last30: period("2026-09-08", "2026-10-07", 30, 520),

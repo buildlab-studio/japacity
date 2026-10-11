@@ -34,7 +34,7 @@ describe("online now and the day's peak", () => {
     expect(await onlineAt(log, now)).toEqual([{ region: "NG", count: 2 }]);
   });
 
-  test("[R-ANALYTICS-013] given samples that rise and fall through a day, when each is taken, then each region keeps its highest sample of the day and a new day starts again", async () => {
+  test("[R-ANALYTICS-013] given samples that rise and fall through a day, when each is taken, then each region and the whole game (region all) keep their highest sample of the day and a new day starts again", async () => {
     const server = testServer();
     const day = utcDay(server.deps.now());
     const peak = async (on: number) => (await server.deps.stores.counters.days(dayName(on), dayName(on))).filter((row) => row.name === "players/online-peak");
@@ -45,11 +45,15 @@ describe("online now and the day's peak", () => {
     expect(await peak(day)).toEqual([
       { day: dayName(day), region: "GB", name: "players/online-peak", key: "peak", count: 2 },
       { day: dayName(day), region: "NG", name: "players/online-peak", key: "peak", count: 9 },
+      { day: dayName(day), region: "all", name: "players/online-peak", key: "peak", count: 11 },
     ]);
 
     server.setNow((day + 1) * time.DAY_MS);
     await samplePeak(server.deps, [{ region: "NG", count: 1 }]);
-    expect((await peak(day + 1)).map((row) => [row.region, row.count])).toEqual([["NG", 1]]);
+    expect((await peak(day + 1)).map((row) => [row.region, row.count])).toEqual([
+      ["NG", 1],
+      ["all", 1],
+    ]);
   });
 
   test("[R-ANALYTICS-013] given the five-minute cron and the daily one, when the job runs, then only the five-minute cron samples", async () => {
@@ -58,6 +62,9 @@ describe("online now and the day's peak", () => {
     expect(await onlineJob(server.deps, log, "0 0 * * *")).toEqual([]);
     expect(await onlineJob(server.deps, log, TICKS_CRON)).toEqual([{ region: "NG", count: 1 }]);
     const day = dayName(utcDay(server.deps.now()));
-    expect((await server.deps.stores.counters.days(day, day)).map((row) => [row.name, row.key, row.count])).toEqual([["players/online-peak", "peak", 1]]);
+    expect((await server.deps.stores.counters.days(day, day)).map((row) => [row.name, row.key, row.count])).toEqual([
+      ["players/online-peak", "peak", 1],
+      ["players/online-peak", "peak", 1],
+    ]);
   });
 });

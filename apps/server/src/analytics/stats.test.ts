@@ -51,6 +51,7 @@ function everything(): CounterTotal[] {
   for (let day = statsFrom(TODAY); day <= TODAY; day += 1) {
     for (const name of ["players/active", "players/new", "players/guest", "players/secured", "players/secured-by-signup", "lives/started", "lives/secured", "japa/departed", "turns/ended", "sessions/count", "client/error", "feedback/sent", "moderation/open", "players/weekly", "players/monthly", "players/total", "players/online-peak"]) rows.push(row(day, name, "NG", minShown));
     for (const key of ["d1", "d3", "d7", "d14", "d30"]) rows.push(row(day, "players/returned", key, minShown));
+    rows.push(row(day, "players/online-peak", "peak", minShown, "all"));
     rows.push(row(day, "wallet/top-up", "count", minShown), row(day, "wallet/top-up", "kobo", 1000), row(day, "advert/revenue", "kobo", 5000));
     for (const key of ["under-2", "2-5", "5-15", "15-30", "over-30"]) rows.push(row(day, "sessions/length", key, minShown));
     for (const name of ["share/pressed", "share/completed", "share/arrival"]) rows.push(row(day, name, "chapter", minShown));
@@ -66,7 +67,7 @@ describe("the admin's numbers", () => {
     const stats = buildStats(content, input(everything(), { online: [{ region: "NG", count: minShown }], todayPlayers: [{ region: "NG", count: minShown }] }));
     expect(Object.keys(stats)).toEqual([...STATS_KEYS]);
     expect(shapeOf(stats)).toEqual({
-      now: { at: "number", online: { all: "number", regions: { NG: "number" } }, peakToday: { regions: { NG: "number" } } },
+      now: { at: "number", online: { all: "number", regions: { NG: "number" } }, peakToday: { all: "number", regions: { NG: "number" } } },
       today: { ...PERIOD, rates: { ...PERIOD.rates, dailyOverPeriodBp: "object" } },
       last7: PERIOD,
       last30: PERIOD,
@@ -96,7 +97,7 @@ describe("the admin's numbers", () => {
     for (const week of stats.retention.weeks) expect(new Date(`${week.week}T00:00:00Z`).getUTCDay()).toBe(1);
   });
 
-  test("[R-ANALYTICS-010] [R-ANALYTICS-012] given regions either side of the smallest number shown, when the numbers are built, then each region is hidden on its own and the whole game by its sum, and no small count appears as itself", () => {
+  test("[R-ANALYTICS-010] [R-ANALYTICS-012] given regions either side of the smallest number shown, when the numbers are built, then each region is hidden on its own and the whole game by its sum, the whole game's peak is its own sample and never the regions' sum, and no small count appears as itself", () => {
     const stats = buildStats(
       content,
       input([row(YESTERDAY, "players/total", "NG", 40), row(YESTERDAY, "players/total", "GB", 3, "GB"), row(TODAY, "players/online-peak", "peak", 2, "GB")], {
@@ -105,7 +106,8 @@ describe("the admin's numbers", () => {
       }),
     );
     expect(stats.now.online).toEqual({ all: minShown + 1, regions: { GB: { fewerThan: minShown }, NG: minShown } });
-    expect(stats.now.peakToday).toEqual({ regions: { GB: { fewerThan: minShown } } });
+    expect(stats.now.peakToday).toEqual({ all: { fewerThan: minShown }, regions: { GB: { fewerThan: minShown } } });
+    expect(buildStats(content, input([row(TODAY, "players/online-peak", "peak", 12, "NG"), row(TODAY, "players/online-peak", "peak", 11, "GB"), row(TODAY, "players/online-peak", "peak", 15, "all")])).now.peakToday).toEqual({ all: 15, regions: { GB: 11, NG: 12 } });
     expect(stats.totals.players).toEqual({ all: 43, regions: { GB: { fewerThan: minShown }, NG: 40 } });
     expect(stats.today.players).toEqual({ all: { fewerThan: minShown }, regions: { GB: { fewerThan: minShown } } });
     const text = JSON.stringify(stats);
