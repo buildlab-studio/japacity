@@ -1,8 +1,10 @@
 // The bed's month end, the player's own figure and a thing's chip over the world (docs/rules/world.md R-WORLD-025,
-// R-WORLD-008, R-WORLD-005, R-WORLD-003). The bed's Next month
+// R-WORLD-008, R-WORLD-005, R-WORLD-003, R-WORLD-014). The bed's Next month
 // ends the month as the band's does: the lock screen's lines are a preview, and putting the phone away opens the
 // results. A tap on your own figure opens nothing. A chip hides the nudge only while it is open: a tap anywhere
-// outside it, Escape or its sheet's close puts it away and the nudge comes back by itself. The place file is the one
+// outside it, Escape or its sheet's close puts it away and the nudge comes back by itself; a person's or a shopfront's
+// card does the same and sits at the foot of the screen. A reload opens inside the house when the player last stopped
+// there. The place file is the one
 // the game ships; the scene is a stand-in that hands the city the taps a player makes.
 import { act, fireEvent, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
@@ -15,12 +17,14 @@ import type { Act, Thing } from "../../shared/world/contract";
 import { FLIP_MS } from "../../shared/world/MonthCount";
 import { City } from "./City";
 
-type Pick = { kind: "thing"; thing: Thing } | { kind: "act"; thing: Thing; act: Act } | { kind: "own" };
+type Pick = { kind: "thing"; thing: Thing } | { kind: "act"; thing: Thing; act: Act } | { kind: "own" } | { kind: "person"; slot: number } | { kind: "model"; file: string; signs: string[] };
 
 vi.mock("./CityScene", () => ({
   default: ({ things, onPick }: { things?: Thing[]; onPick: (pick: Pick) => void }) => (
     <div data-stand-in-scene>
       <button type="button" data-stand-in-own onClick={() => onPick({ kind: "own" })} />
+      <button type="button" data-stand-in-person onClick={() => onPick({ kind: "person", slot: 0 })} />
+      <button type="button" data-stand-in-shopfront onClick={() => onPick({ kind: "model", file: "shopfront.glb", signs: ["place.bode-thomas.sign.1"] })} />
       {(things ?? []).map((thing) => (
         <span key={thing.id}>
           <button type="button" data-stand-in-thing={thing.id} onClick={() => onPick({ kind: "thing", thing })} />
@@ -69,7 +73,9 @@ function found(selector: string): HTMLElement {
 }
 
 /** Ada at home with a month behind her and something planned, so Next month turns the page rather than open the Calendar. */
-async function adaAtHome(extra: Partial<Parameters<typeof City>[0]> = {}) {
+async function adaAtHome(extra: Partial<Parameters<typeof City>[0]> = {}, goIn = true) {
+  // In the yard unless the test keeps the player inside (R-WORLD-014: the game opens where the player last stopped).
+  if (goIn) window.localStorage.setItem("japacity.city.last", JSON.stringify(["place.family-house"]));
   const game = newGame("scenario.ada");
   game.endTurn();
   const rendered = await renderWithGame(
@@ -77,7 +83,7 @@ async function adaAtHome(extra: Partial<Parameters<typeof City>[0]> = {}) {
     game,
   );
   // The compound first; the house's Go in cuts to the parlour (R-WORLD-013).
-  fireEvent.click(await waitFor(() => found('[data-stand-in-act="house:enter"]')));
+  if (goIn) fireEvent.click(await waitFor(() => found('[data-stand-in-act="house:enter"]')));
   await waitFor(() => found('[data-stand-in-thing="bed"]'), { timeout: 3000 });
   const pick = game.view().activities.find((option) => option.allowed && option.affordable && option.id !== "activity.job-hunt" && option.params === null && plannable(option.id));
   if (pick === undefined) throw new Error("Nothing Ada can plan.");
@@ -185,5 +191,51 @@ describe("a thing's chip and the nudge", () => {
     fireEvent.keyDown(sheet, { key: "Escape" });
     await waitFor(() => expect(document.querySelector("[role=dialog]")).toBeNull());
     expect(nudge()).not.toBeNull();
+  });
+});
+
+describe("a person's or a shopfront's card", () => {
+  test("[R-WORLD-005] [R-WORLD-003] given a shopfront's card open, when it shows, then it sits at the foot of the screen as the sheets do, never under the band; a tap anywhere outside it closes it and the nudge comes back", async () => {
+    await adaAtHome();
+    fireEvent.click(found("[data-stand-in-shopfront]"));
+    const card = found("[data-card]");
+    expect(card.closest("[data-card-dock]")).not.toBeNull();
+    expect(card.closest("[data-band]")).toBeNull();
+    expect(found("[data-card-dock]").className).toContain("bottom-0");
+    expect(nudge()).toBeNull();
+    // A tap inside the card keeps it.
+    fireEvent.pointerDown(card);
+    expect(document.querySelector("[data-card]")).not.toBeNull();
+    fireEvent.pointerDown(found("[data-band]"));
+    expect(document.querySelector("[data-card]")).toBeNull();
+    expect(nudge()).not.toBeNull();
+  });
+
+  test("[R-WORLD-005] [R-WORLD-003] given a person's card open, when Escape (Back) is pressed, then it closes and the nudge comes back", async () => {
+    await adaAtHome();
+    fireEvent.click(found("[data-stand-in-person]"));
+    expect(found("[data-card]").closest("[data-card-dock]")).not.toBeNull();
+    expect(nudge()).toBeNull();
+    fireEvent.keyDown(document, { key: "Escape" });
+    expect(document.querySelector("[data-card]")).toBeNull();
+    expect(nudge()).not.toBeNull();
+  });
+});
+
+describe("where the game opens", () => {
+  test("[R-WORLD-014] given the player last stopped inside the family house, when the world opens again, then it opens inside, in the parlour with the bed, not in the yard", async () => {
+    window.localStorage.setItem("japacity.city.last", JSON.stringify(["place.family-house", "inside"]));
+    await adaAtHome({}, false);
+    expect(document.querySelector('[data-stand-in-thing="house"]')).toBeNull();
+    expect(JSON.parse(window.localStorage.getItem("japacity.city.last") ?? "[]")).toEqual(["place.family-house", "inside"]);
+  });
+
+  test("[R-WORLD-014] given the player last stopped in the yard, when the world opens again, then it opens in the yard", async () => {
+    window.localStorage.setItem("japacity.city.last", JSON.stringify(["place.family-house"]));
+    const game = newGame("scenario.ada");
+    game.endTurn();
+    await renderWithGame(<City world results={() => <p />} />, game);
+    await waitFor(() => found('[data-stand-in-thing="house"]'));
+    expect(document.querySelector('[data-stand-in-thing="bed"]')).toBeNull();
   });
 });
