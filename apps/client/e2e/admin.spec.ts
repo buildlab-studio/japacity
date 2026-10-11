@@ -8,7 +8,7 @@ import { ADMIN_GETS, ROLLBACK, SWITCHES } from "../src/features/admin/admin.fixt
 /** Where the pictures for the build notes go, when asked for. */
 const PREVIEW = process.env.PREVIEW_DIR;
 
-const TABS = ["Money", "Rejections", "Rollback", "Moderation", "Analytics", "Adverts", "Switches"] as const;
+const TABS = ["Money", "Rejections", "Rollback", "Moderation", "Analytics", "Numbers", "Adverts", "Switches"] as const;
 
 const BROKEN: readonly [string, RegExp][] = [
   ["a raw object", /\[object Object\]/],
@@ -77,6 +77,7 @@ test("an admin at /admin sees every area of the page, each from the admin routes
     },
     Moderation: () => expect(page.getByRole("heading", { name: "Report report.1: scam" })).toBeVisible(),
     Analytics: () => expect(page.getByRole("table", { name: "By sign-up week" })).toBeVisible(),
+    Numbers: () => expect(page.getByRole("table", { name: "Online now (a command in the last five minutes)" })).toBeVisible(),
     Adverts: () => expect(page.getByRole("heading", { name: "Campaign campaign-a1" })).toBeVisible(),
     Switches: () => expect(page.getByRole("table", { name: "Changes, oldest first" })).toBeVisible(),
   };
