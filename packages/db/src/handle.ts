@@ -1,5 +1,6 @@
 // How the stores reach the database. Both drivers give the same query builder,
 // so a store is written once against `Queries`.
+import { sql } from "drizzle-orm";
 import type { PgDatabase, PgQueryResultHKT } from "drizzle-orm/pg-core";
 
 /** A Drizzle database or a transaction inside one: the same builder either way. */
@@ -42,4 +43,28 @@ export function oneConnection(db: Queries): Handle {
     read: (run) => locked(() => run(db)),
     transaction: (run) => locked(() => db.transaction((tx) => run(tx))),
   };
+}
+
+/** SQLSTATE 57014, `query_canceled`: what Postgres answers a statement stopped by `statement_timeout`. */
+export const STATEMENT_TIMED_OUT = "57014";
+
+/**
+ * Every call through `handle`, a read included, as its own transaction that begins with
+ * `SET LOCAL statement_timeout`, so no statement in it runs longer than `ms` (docs/rules/server.md R-SERVER-012,
+ * amended 11 Oct 2026: the admin's reads). `SET LOCAL` lasts until that transaction's commit or rollback and no
+ * longer. Through Hyperdrive, which pools in transaction mode, that is the safe form: a transaction keeps one
+ * connection of the pool to its end, and a connection goes back to the pool reset, so the setting can never stay
+ * on a connection a player's request takes next; a plain session `SET` would be lost after one statement, or left
+ * to a later client. One transaction per call, not one for the request, so the pool's connection is held no
+ * longer than a call needs.
+ */
+export function boundedHandle(handle: Handle, ms: number): Handle {
+  if (!Number.isSafeInteger(ms) || ms <= 0) throw new Error(`A statement timeout is a whole number of milliseconds above 0, not ${String(ms)}.`);
+  const bound = sql.raw(`SET LOCAL statement_timeout = ${String(ms)}`);
+  const within = <T>(run: (tx: Queries) => Promise<T>): Promise<T> =>
+    handle.transaction(async (tx) => {
+      await tx.execute(bound);
+      return run(tx);
+    });
+  return { read: within, transaction: within };
 }

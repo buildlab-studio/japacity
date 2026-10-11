@@ -3,11 +3,12 @@
 // else, the address shows the ordinary app.
 import { useEffect, useState, type ReactNode } from "react";
 
-import { ADMIN_PATH, AdminPage } from "./AdminPage";
+import { AdminPage } from "./AdminPage";
+import { adminAsked } from "./adminPath";
 import { buildAdminApi, type AdminApi } from "./api";
 
 function atAdminPath(): boolean {
-  return globalThis.location?.pathname.replace(/\/+$/, "") === ADMIN_PATH;
+  return adminAsked(globalThis.location?.pathname ?? "/");
 }
 
 export function AdminRoute({ api, children }: { api?: AdminApi; children: ReactNode }) {

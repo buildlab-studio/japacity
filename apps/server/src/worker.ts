@@ -21,7 +21,8 @@ import { logFailure } from "./log";
 import { mailFor } from "./mail/mail";
 import type { PushKeys } from "./notify/webpush";
 import { isolateFor, openRequest, placeOfIn, profileOfIn } from "./production";
-import type { Isolate, RequestScope } from "./production";
+import type { Isolate, RequestBounds, RequestScope } from "./production";
+import { ADMIN_STATEMENT_MS, adminRead } from "./admin/timeout";
 import { adminStatsRoutes } from "./routes/admin-stats";
 import { drawRoute } from "./routes/draw";
 import { notifyKeyRoute } from "./routes/notify";
@@ -90,8 +91,9 @@ export async function within<T>(
   waitUntil: (promise: Promise<unknown>) => void,
   run: (scope: RequestScope, auth: ReturnType<typeof makeAuth>, keys: AuthKeys) => Promise<T>,
   plumbing: Plumbing = {},
+  bounds: RequestBounds = {},
 ): Promise<T> {
-  const scope = await openRequest(plumbing.isolate ?? isolateOf(env), env.GAME_DB.connectionString, plumbing.open ?? onFirstUse);
+  const scope = await openRequest(plumbing.isolate ?? isolateOf(env), env.GAME_DB.connectionString, plumbing.open ?? onFirstUse, bounds);
   const tasks: Promise<unknown>[] = [];
   const keep = (promise: Promise<unknown>) => {
     tasks.push(promise);
@@ -111,7 +113,10 @@ export async function within<T>(
   }
 }
 
-/** The game's answer to one request under `/api/*`: the app with every route, over the request's scope. */
+/**
+ * The game's answer to one request under `/api/*`: the app with every route, over the request's scope. An admin
+ * read runs every statement under the admin's statement timeout (R-SERVER-012).
+ */
 export function gameReply(request: Request, env: Env, waitUntil: (promise: Promise<unknown>) => void, plumbing: Plumbing = {}): Promise<Response> {
   return within(
     env,
@@ -130,5 +135,6 @@ export function gameReply(request: Request, env: Env, waitUntil: (promise: Promi
       return app.fetch(request, bindings);
     },
     plumbing,
+    adminRead(request) ? { statementMs: ADMIN_STATEMENT_MS } : {},
   );
 }

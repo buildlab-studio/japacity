@@ -6,6 +6,7 @@
 // answer, 500 when the server itself is wrong.
 import type { Context } from "hono";
 
+import { adminReadTimedOut, adminTimeoutRefusal } from "../admin/timeout";
 import { causes, errorCode, logFailure } from "../log";
 import { DEFAULT_CACHE, SECURITY_HEADERS } from "./headers";
 
@@ -83,9 +84,15 @@ export interface FailureBindings {
 
 /**
  * R-SERVER-043: `app.onError`. A failure inside a route: logged, then answered 503 when the request's database
- * refused or dropped its connection, or by `failureStatus` otherwise.
+ * refused or dropped its connection, or by `failureStatus` otherwise. An admin read stopped at its statement
+ * timeout is answered with a refusal the admin page shows (R-SERVER-012).
  */
 export function onAppError(error: Error, c: Context): Response {
+  // R-SERVER-012: an admin read stopped at its statement timeout is the admin's refusal, not a failure of the server.
+  if (adminReadTimedOut(c.req.path, error)) {
+    logFailure({ what: "request", method: c.req.method, path: c.req.path, status: 503, error });
+    return c.json(adminTimeoutRefusal(), 503, { "cache-control": DEFAULT_CACHE });
+  }
   const bindings = c.env as FailureBindings | undefined;
   const status = bindings?.databaseUnavailable?.() === true ? 503 : failureStatus(error);
   logFailure({ what: "request", method: c.req.method, path: c.req.path, status, error });

@@ -12,7 +12,10 @@ import { afterAll, afterEach, beforeAll, describe, expect, test, vi } from "vite
 import { drizzleAuthAdapter } from "./auth/drizzle";
 import { harness, makeJar, SECRET, SITE } from "./auth/testing";
 import type { Jar } from "./auth/testing";
+import { ADMIN_STATEMENT_MS, ADMIN_TIMEOUT_DETAIL } from "./admin/timeout";
+import { softwarePasskey } from "./auth/software-passkey";
 import { productionConfig } from "./config";
+import type { ServerConfig } from "./config";
 import { memoryStores, openLimiters } from "./deps";
 import type { Env } from "./index";
 import type { Place } from "./place/place.object";
@@ -47,14 +50,23 @@ const AS_TEXT = Object.fromEntries([1114, 1184, 1186, 1082, 1231, 1115, 1185, 11
 
 type QueryResult = Awaited<ReturnType<PgClient["query"]>>;
 
+/** What a test watches on the request's client: every statement sent, and a statement to fail as Postgres would. */
+interface Watch {
+  statements?: string[];
+  fail?: (statement: string) => Error | null;
+}
+
 /** A `pg` client over PGlite, counting each connection made. `refuse` makes every connection fail as a database that is down. */
-function pgOverPglite(opened: { count: number }, refuse = false): () => PgClient {
+function pgOverPglite(opened: { count: number }, refuse = false, watch: Watch = {}): () => PgClient {
   return () => ({
     connect: () => {
       opened.count += 1;
       return refuse ? Promise.reject(Object.assign(new Error("connect ECONNREFUSED"), { code: "ECONNREFUSED" })) : Promise.resolve();
     },
     query: async (config, values) => {
+      watch.statements?.push(config.text);
+      const failed = watch.fail?.(config.text) ?? null;
+      if (failed !== null) throw failed;
       const result = await database().client.query(config.text, values, { rowMode: (config as { rowMode?: string }).rowMode === "array" ? "array" : "object", parsers: AS_TEXT });
       return { rows: result.rows, rowCount: result.affectedRows ?? 0, command: "", oid: 0, fields: result.fields } as unknown as QueryResult;
     },
@@ -95,13 +107,13 @@ function testEnv(): Env {
 }
 
 /** The plumbing with the counting clients: one count for the request's own client, one for the isolate's switch and counter stores. */
-function counting(refuse = false) {
+function counting(refuse = false, watch: Watch = {}, config: ServerConfig = productionConfig) {
   const request = { count: 0 };
   const isolateCalls = { count: 0 };
-  const open = (url: string): Promise<Connection> => Promise.resolve(connectOnFirstUse(url, pgOverPglite(request, refuse)));
+  const open = (url: string): Promise<Connection> => Promise.resolve(connectOnFirstUse(url, pgOverPglite(request, refuse, watch)));
   const isolate: Isolate = isolateFor(
     { connectionString: "postgres://counted", place: NO_PLACES },
-    { config: productionConfig, contents: { current: content, previous: null }, secrets: { worldSeed: "w", banSalt: "b", drawTokenKey: "d" }, limits: openLimiters, text, now: () => Date.now(), randomBytes: (count) => crypto.getRandomValues(new Uint8Array(count)) },
+    { config, contents: { current: content, previous: null }, secrets: { worldSeed: "w", banSalt: "b", drawTokenKey: "d" }, limits: openLimiters, text, now: () => Date.now(), randomBytes: (count) => crypto.getRandomValues(new Uint8Array(count)) },
     (url) => Promise.resolve(connectOnFirstUse(url, pgOverPglite(isolateCalls, refuse))),
   );
   return { request, isolateCalls, plumbing: { isolate, open } };
@@ -179,5 +191,69 @@ describe("a database that does not answer (R-SERVER-043)", () => {
     for (const line of lines) {
       for (const secret of ["ada@example.com", "203.0.113.7", jar.header(), "turn/end", SECRET]) expect(line).not.toContain(secret);
     }
+  });
+});
+
+describe("the admin's reads (R-SERVER-012)", () => {
+  /** An admin on the isolate's list, signed in with a passkey through the harness on the same database. */
+  async function adminWithPasskey(): Promise<{ jar: Jar; config: ServerConfig }> {
+    const db = database();
+    const h = harness({ stores: { ...memoryStores(), ...pgStores(db.handle) }, adapter: drizzleAuthAdapter(db.db) });
+    const { account } = await h.signUp("owner@example.com");
+    const key = await softwarePasskey();
+    await key.store(h, account);
+    const { jar, status } = await key.signIn(h);
+    expect(status).toBe(200);
+    return { jar, config: { ...productionConfig, admin: { accounts: [account] } } };
+  }
+
+  /** Each statement after the transaction's `begin` that reads or writes runs after the timeout was set in that transaction. */
+  function boundedStatements(statements: readonly string[]): { bounded: number; unbounded: string[] } {
+    let armed = false;
+    let inside = false;
+    let bounded = 0;
+    const unbounded: string[] = [];
+    for (const statement of statements) {
+      const word = statement.trim().split(/\s+/)[0]?.toLowerCase() ?? "";
+      if (word === "begin") [inside, armed] = [true, false];
+      else if (statement === `SET LOCAL statement_timeout = ${String(ADMIN_STATEMENT_MS)}`) armed = inside;
+      else if (word === "commit" || word === "rollback") [inside, armed] = [false, false];
+      else if (armed) bounded += 1;
+      else unbounded.push(statement);
+    }
+    return { bounded, unbounded };
+  }
+
+  test("[R-SERVER-012] given an admin signed in with a passkey, when an admin report is read, then each of its statements runs in a transaction that set the statement timeout first", async () => {
+    const { jar, config } = await adminWithPasskey();
+    const statements: string[] = [];
+    const reply = await asked(browser("/api/admin/report?day=0", { jar }), counting(false, { statements }, config).plumbing);
+    expect(reply.status).toBe(200);
+    expect(await reply.json()).toMatchObject({ ok: true });
+    const ledgerReads = statements.filter((statement) => statement.includes("ledger_days"));
+    expect(ledgerReads.length).toBeGreaterThan(0);
+    // The session lookup goes through the auth library's own client; every store statement is bounded.
+    const { bounded, unbounded } = boundedStatements(statements);
+    expect(bounded).toBeGreaterThanOrEqual(ledgerReads.length);
+    expect(unbounded.filter((statement) => statement.includes("ledger_days"))).toEqual([]);
+  });
+
+  test("[R-SERVER-012] given a player, when a command is sent, then no statement timeout is set: only the admin's reads are bounded", async () => {
+    const { jar: playerJar, v } = await playerWithLife();
+    const played: string[] = [];
+    const command = await asked(browser("/api/command", { method: "POST", jar: playerJar, json: { command: { type: "turn/end", slots: [], basedOn: v }, basedOn: v } }), counting(false, { statements: played }).plumbing);
+    expect(await command.json<ServerReply>()).toMatchObject({ ok: true });
+    expect(played.filter((statement) => statement.includes("statement_timeout"))).toEqual([]);
+  });
+
+  test("[R-SERVER-012] given an admin report that Postgres stops at the statement timeout, when it is read, then the admin is answered with a plain refusal, not a server failure", async () => {
+    const { jar, config } = await adminWithPasskey();
+    const stopped = Object.assign(new Error("canceling statement due to statement timeout"), { code: "57014" });
+    const fail = (statement: string) => (statement.includes("ledger_days") ? stopped : null);
+    vi.spyOn(console, "error").mockImplementation(() => undefined);
+    const reply = await asked(browser("/api/admin/report?day=0", { jar }), counting(false, { fail }, config).plumbing);
+    expect(reply.status).toBe(503);
+    expect(reply.headers.get("cache-control")).toBe("no-store");
+    expect(await reply.json()).toEqual({ ok: false, code: "not-possible", detail: ADMIN_TIMEOUT_DETAIL });
   });
 });
