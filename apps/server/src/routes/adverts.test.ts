@@ -1,7 +1,7 @@
 import { content } from "@japacity/content";
 import type { Id } from "@japacity/sim";
 import { int, time } from "@japacity/sim";
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 
 import { testDeps } from "../app.test";
 import { makeApp } from "../app";
@@ -16,7 +16,9 @@ import { testSession } from "../deps";
 import { TICKS_CRON } from "../jobs/ticks";
 import { tickRow } from "../world/ticks";
 import { adminAdvertRoutes } from "./admin-adverts";
-import { advertRoutes } from "./adverts";
+import { advertRoutes, advertsOnByDefault } from "./adverts";
+import { edgeKey } from "./edge";
+import { fakeEdge } from "./edge.testing";
 
 const ADMIN = "account.owner";
 const EPOCH = productionConfig.clock.epoch;
@@ -529,5 +531,67 @@ describe("the wiring to the admin log and the counters", () => {
     }
     expect(await deps.stores.adverts.counts(id)).toEqual([{ day: int.divFloor(EPOCH, time.DAY_MS), slot: "advert.road-billboard", campaign: id, region: "NG", impressions: 2, taps: 0 }]);
     expect((await deps.stores.counters.days("2000-01-01", "2100-01-01")).filter((each) => each.name === ADVERT_COUNTERS.impression)).toMatchObject([{ key: "advert.road-billboard", count: 2 }]);
+  });
+});
+
+describe("the slots and images through the cache", () => {
+  test("[R-ADVERT-008] [R-SERVER-039] given caches.default and a live campaign, when the slots are asked for twice in one hour from one region, then the campaigns are read once and both replies are the same; another region and the next hour are read again", async () => {
+    const clock = { at: EPOCH };
+    const deps = world(clock);
+    const { campaign: id } = await live(makeApp(deps));
+    const edge = fakeEdge();
+    const route = advertRoutes(deps, advertsOnByDefault, edge);
+    const reads = vi.spyOn(deps.stores.adverts, "campaigns");
+    const ask = async (region: string) => {
+      const reply = await route.request(`/api/adverts?region=${region}`);
+      return { text: await reply.text(), cache: reply.headers.get("cache-control") };
+    };
+    const first = await ask("NG");
+    clock.at = EPOCH + time.MINUTE_MS;
+    const second = await ask("ng");
+    expect(reads).toHaveBeenCalledTimes(1);
+    expect(second.text).toBe(first.text);
+    expect((JSON.parse(second.text) as AdvertsReply).slots["advert.road-billboard"]?.campaign).toBe(id);
+    const until = (int.divFloor(EPOCH, time.HOUR_MS) + 1) * time.HOUR_MS;
+    expect(second.cache).toBe(`public, max-age=${String(int.divCeil(until - clock.at, time.SECOND_MS))}`);
+    expect(edge.asked[0]).toBe(edgeKey("http://localhost", ["adverts", "NG", int.divFloor(EPOCH, time.HOUR_MS)]));
+    await ask("GB");
+    expect(reads).toHaveBeenCalledTimes(2);
+    clock.at = until;
+    await ask("NG");
+    expect(reads).toHaveBeenCalledTimes(3);
+  });
+
+  test("[R-SERVER-031] [R-SERVER-039] given slots kept in the cache, when the adverts switch goes off, then nothing is served and the cache is not asked; back on, the kept reply is served again", async () => {
+    const deps = world();
+    await live(makeApp(deps));
+    const edge = fakeEdge();
+    let on = true;
+    const route = advertRoutes(deps, () => Promise.resolve(on), edge);
+    const kept = await (await route.request("/api/adverts?region=NG")).text();
+    on = false;
+    const off = await (await route.request("/api/adverts?region=NG")).json<AdvertsReply>();
+    expect(off.slots).toEqual({});
+    expect(edge.asked).toHaveLength(1);
+    on = true;
+    expect(await (await route.request("/api/adverts?region=NG")).text()).toBe(kept);
+  });
+
+  test("[R-ADVERT-013] [R-SERVER-039] given an approved image, when it is fetched twice in one hour, then its bytes are read once and come back the same as its format; a creative that is not live is 404 each time and never stored", async () => {
+    const deps = world();
+    const app = makeApp(deps);
+    const { creative: art } = await live(app);
+    const edge = fakeEdge();
+    const route = advertRoutes(deps, advertsOnByDefault, edge);
+    const reads = vi.spyOn(deps.stores.adverts, "image");
+    const first = await route.request(`/api/adverts/image/${art}/1`);
+    const second = await route.request(`/api/adverts/image/${art}/1`);
+    expect(reads).toHaveBeenCalledTimes(1);
+    expect(second.headers.get("content-type")).toBe("image/png");
+    expect(new Uint8Array(await second.arrayBuffer())).toEqual(new Uint8Array(await first.arrayBuffer()));
+    expect(new Uint8Array(await (await route.request(`/api/adverts/image/${art}/1`)).arrayBuffer())).toEqual(pngOf(1024, 512));
+    expect((await route.request(`/api/adverts/image/${art}/2`)).status).toBe(404);
+    expect((await route.request(`/api/adverts/image/${art}/2`)).status).toBe(404);
+    expect(edge.stored.map((each) => each.key)).toEqual([edgeKey("http://localhost", ["advert-image", art, 1, int.divFloor(EPOCH, time.HOUR_MS)])]);
   });
 });
