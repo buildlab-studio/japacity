@@ -15,6 +15,7 @@ import { contentsFor } from "./authority/overlay";
 import { productionConfig } from "./config";
 import { webRandomBytes } from "./deps";
 import { quicknet } from "./draw/beacon";
+import { mailFor } from "./mail/mail";
 import { COUNTERS_CRON, countersJob } from "./jobs/counters";
 import { runDeletions } from "./jobs/deletion";
 import { drawJob } from "./jobs/draw";
@@ -71,6 +72,10 @@ export interface Env {
   NOINDEX?: string;
   /** R-SERVER-038: the client's files, bound on staging only, where the Worker runs first for every path. */
   ASSETS?: Fetcher;
+  /** R-ACCOUNT-014, R-SERVER-038: `mailpit` on the local stack only; unset on every deployment, where no mail is sent. */
+  MAIL_TRANSPORT?: string;
+  /** Mailpit's address on this machine, for MAIL_TRANSPORT=mailpit. */
+  MAILPIT_URL?: string;
 }
 
 let isolate: Isolate | null = null;
@@ -92,17 +97,12 @@ function isolateOf(env: Env): Isolate {
   return isolate;
 }
 
-/** Owner: the email provider (account.md R-ACCOUNT-014); until one is chosen no code leaves the server. */
-function sendOtp(): Promise<void> {
-  return Promise.reject(new Error("No email provider is configured."));
-}
-
-/** R-ACCOUNT-003: the notices go by the same provider as the codes; until one is chosen none is sent. */
-function sendNotice(): Promise<void> {
-  return Promise.reject(new Error("No email provider is configured."));
-}
-
+/**
+ * Owner: the email provider (account.md R-ACCOUNT-014); until one is chosen no code leaves the server.
+ * R-ACCOUNT-003: the notices go by the same way as the codes. Only the local stack sends, to Mailpit.
+ */
 function authKeys(env: Env, waitUntil: (promise: Promise<unknown>) => void): AuthKeys {
+  const { sendOtp, sendNotice } = mailFor(env, { text, codeSeconds: productionConfig.auth.otp.expiresIn }, (input, init) => fetch(input, init));
   return {
     secret: env.BETTER_AUTH_SECRET,
     siteUrl: env.SITE_URL,
