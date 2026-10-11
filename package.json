@@ -28,7 +28,10 @@
     "check": "tsx tools/check.ts",
     "dev": "pnpm --filter @japacity/client dev",
     "build": "pnpm --filter @japacity/client build",
-    "test:browser": "playwright test -c apps/client/e2e/playwright.config.ts"
+    "test:browser": "playwright test -c apps/client/e2e/playwright.config.ts",
+    "docs:dev": "vitepress dev docs/site --port 5180",
+    "docs:build": "vitepress build docs/site",
+    "docs:preview": "vitepress preview docs/site --port 5181"
   },
   "devDependencies": {
     "@cloudflare/vitest-plugin": "^1.4.0",
@@ -42,9 +45,12 @@
     "eslint": "^10.12.0",
     "globals": "^17.13.0",
     "jsdom": "^30.1.2",
+    "mermaid": "^11.17.2",
     "tsx": "^4.23.15",
     "typescript": "~6.0.3",
     "typescript-eslint": "^8.71.1",
+    "vitepress": "^1.6.4",
+    "vitepress-plugin-mermaid": "^2.0.17",
     "vitest": "~4.1.11"
   }
 }

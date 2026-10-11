@@ -26,3 +26,7 @@ CLAUDE.local.md
 # Neon's project link and an agent's MCP config, local to this machine; the API key the MCP setup may mint never enters the repository.
 .neon
 .mcp.json
+
+# The documentation site's build and cache (pnpm docs:build)
+docs/site/.vitepress/dist/
+docs/site/.vitepress/cache/
