@@ -18,7 +18,7 @@ import type { Act, Thing } from "../../shared/world/contract";
 import { drawOf, onlineLife, tuning } from "../lottery/testing";
 import { City } from "./City";
 import { KIOSK, kioskOnline, opensKiosk, withKiosk } from "./kiosk";
-import type { PlaceFile } from "./placeFile";
+import { stageOf, type PlaceFile } from "./placeFile";
 import { stagedNow, thingsNow, thingsOf } from "./things";
 
 vi.mock("./CityScene", () => ({
@@ -153,7 +153,7 @@ describe("the street kiosk while the world runs the Friday draw", () => {
     expect(opensKiosk(KIOSK, { lottery: null })).toBe(false);
     expect(opensKiosk("activity.bet-slip", online)).toBe(false);
     // The kiosk keeps its act online however the view lists the offline one, and offline only as the view allows it.
-    const street = thingsOf(STREET.stage);
+    const street = thingsOf(stageOf(STREET));
     const kioskActs = (offered: string[]) => thingsNow(street, stagedNow(new Set(offered), new Set([KIOSK]), new Set(), null)).find((thing) => thing.id === "kiosk")?.acts.map((one) => one.stages);
     expect(kioskActs(withKiosk([], online))).toEqual([KIOSK]);
     expect(kioskActs(withKiosk([KIOSK], online))).toEqual([KIOSK]);
