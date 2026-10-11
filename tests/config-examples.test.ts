@@ -43,11 +43,17 @@ describe("the example settings", () => {
     for (const name of read_) expect({ name, named: example.has(name) }).toEqual({ name, named: true });
   });
 
-  test("[R-SERVER-012] given each Worker's Env, when its string keys are listed, then its .dev.vars.example names exactly those, the admin accounts among the server's", () => {
+  test("[R-SERVER-012] given each Worker's Env, when its string keys are listed, then its .dev.vars.example names exactly those, the admin accounts among the server's secrets", () => {
     const server = envStrings("apps/server/src/index.ts");
     expect(server).toContain("ADMIN_ACCOUNTS");
     expect(server).toContain("BETTER_AUTH_SECRET");
     expect([...named(read("apps/server/.dev.vars.example"))].sort()).toEqual([...server].sort());
+    // the admin list is a Worker secret, so the example
+    // names it among the secrets, after the variables.
+    const example = read("apps/server/.dev.vars.example");
+    const secrets = example.indexOf("\n# Secrets");
+    expect(secrets).toBeGreaterThan(0);
+    expect(example.indexOf("\nADMIN_ACCOUNTS=")).toBeGreaterThan(secrets);
     const gate = envStrings("apps/gate/src/index.ts");
     expect(gate).toContain("GATE_SECRET");
     expect([...named(read("apps/gate/.dev.vars.example"))].sort()).toEqual([...gate].sort());
