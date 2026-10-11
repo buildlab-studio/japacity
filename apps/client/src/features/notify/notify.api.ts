@@ -5,7 +5,8 @@
 // https://developer.mozilla.org/en-US/docs/Web/API/Notification/requestPermission_static
 // https://developer.mozilla.org/en-US/docs/Web/API/PushManager/subscribe
 import { authorityMode } from "../../authority/mode";
-import type { Fetch } from "../../shared/net/http";
+import { api, type Fetch } from "../../shared/net/http";
+import { pageWall, type WallGuard } from "../../shared/net/wall";
 
 /** The setting, the re-ask wait, and the key to subscribe with (null while the deployment has none). */
 export interface NotifyStatus {
@@ -50,15 +51,15 @@ const NOTIFY = "/api/notify";
 const SUBSCRIBE = "/api/notify/subscribe";
 const KEY = "/api/notify/key";
 
-export function httpNotifyApi(baseUrl: string, fetch: Fetch = (input, init) => globalThis.fetch(input, init)): NotifyApi {
-  const base = baseUrl.replace(/\/+$/, "");
-  async function call(path: string, method: string, body?: unknown): Promise<Record<string, unknown> | null> {
+/** Every call through the one request function (R-ENGINE-015): its clock, same origin, a wall or no answer sorted by kind. */
+export function httpNotifyApi(baseUrl: string, fetch: Fetch = (input, init) => globalThis.fetch(input, init), wall: WallGuard = pageWall): NotifyApi {
+  const http = api({ baseUrl, fetch, wall });
+  async function call(path: string, method: "GET" | "POST" | "PUT", body?: unknown): Promise<Record<string, unknown> | null> {
     try {
-      const init: RequestInit = { method, credentials: "include", headers: { accept: "application/json", "content-type": "application/json" } };
-      const response = await fetch(`${base}${path}`, body === undefined ? init : { ...init, body: JSON.stringify(body) });
-      const read: unknown = await response.json();
+      const read: unknown = method === "GET" ? await http.get(path) : method === "POST" ? await http.post(path, body) : await http.put(path, body);
       return typeof read === "object" && read !== null && (read as { ok?: unknown }).ok === true ? (read as Record<string, unknown>) : null;
     } catch {
+      // No answer of any kind (a wall has already reloaded the page): the setting says it could not be changed.
       return null;
     }
   }

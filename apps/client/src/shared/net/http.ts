@@ -9,7 +9,8 @@ export type Fetch = (input: string, init?: RequestInit) => Promise<Response>;
 
 export interface Api {
   get<T>(path: string): Promise<T>;
-  post<T>(path: string, body: unknown): Promise<T>;
+  /** `headers`: any beyond the JSON pair, such as the bot check's token (R-ACCOUNT-013). */
+  post<T>(path: string, body: unknown, headers?: Record<string, string>): Promise<T>;
   put<T>(path: string, body: unknown): Promise<T>;
   delete<T>(path: string, body: unknown): Promise<T>;
   /** The `ws:` or `wss:` address of a path on the same server. */
@@ -96,9 +97,9 @@ function parsed(text: string): unknown {
 }
 
 /**
- * R-ENGINE-015, R-ACCOUNT-006: sorts a response into its class. Only the game answers in JSON; a login wall answers
- * with a redirect or a page, and the platform with a bare 5xx. The game's own 401 (`signed-out`) is the game's, and
- * stays a refusal; a 401 or 403 that is not the game's is a wall.
+ * R-ENGINE-015, R-ACCOUNT-006: sorts a response into its class. Only the game's Worker answers in JSON; a login wall
+ * answers with a redirect or a page, and the platform with a bare 5xx. So a 4xx with a JSON body is the server's own
+ * answer (the game's `signed-out`, the auth library's refusals), and a 401 or 403 without one is a wall.
  */
 export function classify<T>(response: Pick<Response, "status" | "type" | "redirected" | "headers">, text: string): Outcome<T> {
   const status = response.status;
@@ -112,7 +113,6 @@ export function classify<T>(response: Pick<Response, "status" | "type" | "redire
   if (typeof body === "object" && body !== null) {
     if (status >= 200 && status < 300) return { kind: "ok", body: body as T };
     if (isRefusal(body)) return { kind: "rejected", body: body as T };
-    if (status === 401 || status === 403) return { kind: "wall", detail: `${String(status)} without the game's refusal` };
     if (status >= 500) return { kind: "server", detail: `${String(status)}` };
     return { kind: "rejected", body: body as T };
   }
@@ -122,8 +122,17 @@ export function classify<T>(response: Pick<Response, "status" | "type" | "redire
   return { kind: "server", detail: `${String(status)} with nothing the game can read` };
 }
 
-/** Body reading counts against the same clock as the answer, so a reply that stalls halfway is no answer too. */
-async function request<T>(fetch: Fetch, wall: WallGuard, url: string, init: RequestInit, timeoutMs: number): Promise<T> {
+/** The timeout for a request by its method: a read's, or a write's. */
+function timeoutOf(init: RequestInit | undefined): number {
+  const method = (init?.method ?? "GET").toUpperCase();
+  return method === "GET" || method === "HEAD" ? READ_TIMEOUT_MS : COMMAND_TIMEOUT_MS;
+}
+
+/**
+ * One request to the server, sorted into its class, or a thrown failure of its kind. Body reading counts against the
+ * same clock as the answer, so a reply that stalls halfway is no answer too.
+ */
+async function exchange(fetch: Fetch, wall: WallGuard, url: string, init: RequestInit, timeoutMs: number): Promise<{ response: Response; text: string; body: unknown }> {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
   let response: Response;
@@ -134,18 +143,33 @@ async function request<T>(fetch: Fetch, wall: WallGuard, url: string, init: Requ
     response = await fetch(url, { ...init, credentials: "same-origin", redirect: "manual", signal: controller.signal });
     text = await response.text();
   } catch (error) {
-    const detail = controller.signal.aborted ? `no answer in ${String(timeoutMs)} ms` : error instanceof Error ? error.message : String(error);
+    const detail = controller.signal.aborted ? `no answer in ${String(timeoutMs)} ms` : error instanceof Error ? error.name : "thrown";
     throw requestFailure("network", detail);
   } finally {
     clearTimeout(timer);
   }
-  const outcome = classify<T>(response, text);
+  const outcome = classify(response, text);
   // R-ACCOUNT-006: a wall reloads the page once so the login shows; a second within a minute is left to the card.
   if (outcome.kind === "wall") throw requestFailure("wall", outcome.detail, wall.met());
   if (outcome.kind !== "ok" && outcome.kind !== "rejected") throw requestFailure(outcome.kind, outcome.detail);
   wall.passed();
   heardBody(outcome.body);
-  return outcome.body;
+  return { response, text, body: outcome.body };
+}
+
+async function request<T>(fetch: Fetch, wall: WallGuard, url: string, init: RequestInit, timeoutMs: number): Promise<T> {
+  return (await exchange(fetch, wall, url, init, timeoutMs)).body as T;
+}
+
+/**
+ * The same request as a `fetch` for a library that wants one (the auth library's client): the clock, same origin, no
+ * redirect followed, a wall or no answer thrown as a failure of its kind; the server's answer handed back whole.
+ */
+export function requestFetch(fetch: Fetch = (input, init) => globalThis.fetch(input, init), wall: WallGuard = pageWall): Fetch {
+  return async (input, init) => {
+    const { response, text } = await exchange(fetch, wall, input, init ?? {}, timeoutOf(init));
+    return new Response(text, { status: response.status, statusText: response.statusText, headers: response.headers });
+  };
 }
 
 export function api({ baseUrl, fetch = (input, init) => globalThis.fetch(input, init), wall = pageWall }: ApiOptions): Api {
@@ -153,7 +177,10 @@ export function api({ baseUrl, fetch = (input, init) => globalThis.fetch(input, 
   const write = (method: string, body: unknown): RequestInit => ({ method, headers: { accept: "application/json", "content-type": "application/json" }, body: JSON.stringify(body) });
   return {
     get: (path) => request(fetch, wall, `${base}${path}`, { method: "GET", headers: { accept: "application/json" } }, READ_TIMEOUT_MS),
-    post: (path, body) => request(fetch, wall, `${base}${path}`, write("POST", body), COMMAND_TIMEOUT_MS),
+    post: (path, body, headers = {}) => {
+      const init = write("POST", body);
+      return request(fetch, wall, `${base}${path}`, { ...init, headers: { ...(init.headers as Record<string, string>), ...headers } }, COMMAND_TIMEOUT_MS);
+    },
     put: (path, body) => request(fetch, wall, `${base}${path}`, write("PUT", body), COMMAND_TIMEOUT_MS),
     delete: (path, body) => request(fetch, wall, `${base}${path}`, write("DELETE", body), COMMAND_TIMEOUT_MS),
     socketUrl(path) {

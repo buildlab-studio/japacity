@@ -2,7 +2,7 @@ import { afterEach, describe, expect, test, vi } from "vitest";
 
 import { BASE } from "../testing/server";
 import { api, classify, COMMAND_TIMEOUT_MS, failureOf, type Fetch, isReloading, READ_TIMEOUT_MS } from "./http";
-import { WALL_AGAIN_MS, WALL_KEY, wallGuard, type WallGuard } from "./wall";
+import { WALL_AGAIN_MS, WALL_KEY, WALL_SETTLE_MS, wallGuard, type WallGuard } from "./wall";
 
 /** A wall that never reloads: these tests read the kind alone. */
 const noWall: WallGuard = { met: () => false, passed: () => undefined };
@@ -105,11 +105,15 @@ describe("every request fails loudly and in kind (R-ENGINE-015)", () => {
     expect(await kindOf(() => Promise.resolve(answered(200, ACCESS_PAGE, { redirected: true, contentType: HTML_TYPE })))).toBe("wall");
   });
 
-  test("[R-ENGINE-015] [R-ACCOUNT-006] given a 401 or 403 without the game's refusal, or a page where JSON was expected, then it is a wall", async () => {
+  test("[R-ENGINE-015] [R-ACCOUNT-006] given a 401 or 403 with no JSON of the server's, or a page where JSON was expected, then it is a wall", async () => {
     expect(await kindOf(() => Promise.resolve(answered(401, "")))).toBe("wall");
     expect(await kindOf(() => Promise.resolve(answered(403, "Forbidden", { contentType: "text/plain" })))).toBe("wall");
-    expect(await kindOf(() => Promise.resolve(answered(403, JSON.stringify({ error: "denied" }), { contentType: JSON_TYPE })))).toBe("wall");
     expect(await kindOf(() => Promise.resolve(answered(200, ACCESS_PAGE, { contentType: HTML_TYPE })))).toBe("wall");
+  });
+
+  test("[R-ACCOUNT-006] given a 403 with a JSON body (only the game's Worker answers in JSON: the auth library's refusal of a passkey, R-ACCOUNT-003), then it is the server's answer, never a wall that would reload the page", () => {
+    const refused = JSON.stringify({ code: "PASSKEY_FIRST", message: "Use a passkey session." });
+    expect(classify(answered(403, refused, { contentType: JSON_TYPE }), refused)).toEqual({ kind: "rejected", body: { code: "PASSKEY_FIRST", message: "Use a passkey session." } });
   });
 
   test("[R-ACCOUNT-006] given the game's own 401 with signed-out in its body, then it is the game's refusal, not a wall: the account screens take it", async () => {
@@ -179,9 +183,20 @@ describe("the login wall reloads the page once (R-ACCOUNT-006)", () => {
     expect(reloads()).toBe(2);
   });
 
-  test("[R-ACCOUNT-006] given the game answers after the reload, then the mark is cleared and a later wall reloads once again", async () => {
-    const { guard, reloads, items } = tab();
+  test("[R-ACCOUNT-006] given a route that answers within 3 seconds of the reload beside one that is walled (a host walled in part), then the mark stands and the page never reloads in a loop", async () => {
+    const { guard, reloads, items, advance } = tab();
     await get(opaque, guard);
+    advance(WALL_SETTLE_MS - 1);
+    await get(fine, guard);
+    expect(items.has(WALL_KEY)).toBe(true);
+    await get(opaque, guard);
+    expect(reloads()).toBe(1);
+  });
+
+  test("[R-ACCOUNT-006] given the game answers 3 seconds or more after the reload, then the mark is cleared and a later wall reloads once again", async () => {
+    const { guard, reloads, items, advance } = tab();
+    await get(opaque, guard);
+    advance(WALL_SETTLE_MS);
     await get(fine, guard);
     expect(items.has(WALL_KEY)).toBe(false);
     await get(opaque, guard);

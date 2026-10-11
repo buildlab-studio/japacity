@@ -289,7 +289,8 @@ describe("the notice's routes from the client", () => {
     expect(await api.status()).toEqual({ on: true, reaskDays: REASK_DAYS, key: KEY });
     expect(await api.subscribe(DEVICE)).toBe(true);
     expect(await api.turnOff()).toBe(false);
-    expect(asked.every((each) => each.init?.credentials === "include")).toBe(true);
+    // R-ENGINE-015: every call goes through the one request function, same-origin.
+    expect(asked.every((each) => each.init?.credentials === "same-origin")).toBe(true);
     expect(JSON.parse(asked.at(-2)?.init?.body as string)).toEqual({ subscription: DEVICE });
   });
 });

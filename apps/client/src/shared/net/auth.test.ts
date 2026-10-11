@@ -18,7 +18,8 @@ describe("the age screen's routes, as the server built them", () => {
     const sent = server.sent.find((request) => request.path === "/api/age");
     expect(sent?.body).toEqual({ dateOfBirth: "2000-02-29" });
     expect(sent?.headers[CAPTCHA_HEADER]).toBeUndefined();
-    expect(sent?.credentials).toBe("include");
+    // R-ENGINE-015: every call goes through the one request function, same-origin.
+    expect(sent?.credentials).toBe("same-origin");
   });
 
   test("[R-ACCOUNT-012] given the server's under-age refusal, then the standing is refused; a date it does not believe and a failed bot check are said, not refused", async () => {
@@ -39,7 +40,8 @@ describe("the age screen's routes, as the server built them", () => {
     server.answer("GET /api/age", { body: { refused: true } });
     expect(await api.ageStatus()).toBe("refused");
     expect(server.sent.map((request) => `${request.method} ${request.path}`)).toEqual(["GET /api/age"]);
-    expect(server.sent[0]?.credentials).toBe("include");
+    // R-ENGINE-015: every call goes through the one request function, same-origin.
+    expect(server.sent[0]?.credentials).toBe("same-origin");
   });
 
   test("[R-ACCOUNT-011] given a region that is not open, when the browser asks where it stands, then GET /api/age's refusal is region-closed", async () => {
@@ -136,7 +138,8 @@ describe("the guest start and the username, as the server built them", () => {
     const sent = server.sent.find((request) => request.path === "/api/guest");
     expect(sent?.body).toEqual({ username: "ada_lagos" });
     expect(sent?.headers[CAPTCHA_HEADER]).toBe(TOKEN);
-    expect(sent?.credentials).toBe("include");
+    // R-ENGINE-015: every call goes through the one request function, same-origin.
+    expect(sent?.credentials).toBe("same-origin");
   });
 
   test("[R-ACCOUNT-024] [R-ACCOUNT-025] given each refusal of the guest start, then the screen hears why: the username's problem, the bot check, the limits, a run-out age answer, the switch", async () => {
