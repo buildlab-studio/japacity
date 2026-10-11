@@ -1,7 +1,8 @@
 // The game's wordmark (account.md R-ACCOUNT-029): shown on the account screens only, never on
-// the door or in onboarding. The files are drawn by hand in public/brand/, one for each look and each ground: a
-// light ground is the sheet, a dark one the band or the sky behind the figure. Read once as the screen draws, so a
-// look changed in the settings shows the next time an account screen opens.
+// the door or in onboarding. The files are drawn by hand in public/brand/ (their notes in brand/README.md, out of the
+// served folder), one for each look and each ground: a light ground is the sheet, a dark one the band or the sky
+// behind the figure. Read once as the screen draws, so a look changed in the settings shows the next time an account
+// screen opens.
 import { currentTheme } from "../world/theme";
 import { say } from "../words/text";
 
