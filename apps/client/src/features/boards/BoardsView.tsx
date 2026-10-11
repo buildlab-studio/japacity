@@ -73,8 +73,8 @@ function Note({ children, action }: { children: string; action?: { label: string
 /** What a refusal says on the screen: a pause, the ask to secure, or a retry. */
 function Refused({ answer, again }: { answer: Exclude<BoardAnswer, { ok: true }>; again: () => void }) {
   if (answer.code === "switched-off") return <Note>{say("ui.boards.paused")}</Note>;
-  // a guest is refused `guest-only` once the accounts work adds it; `not-legal` stands in on the server until then.
-  if (answer.code === "not-legal") return <Note>{say("ui.boards.secure")}</Note>;
+  // R-ACCOUNT-022: a guest is refused `guest-only`, and the screen asks for the life to be secured, never a dead end.
+  if (answer.code === "guest-only") return <Note>{say("ui.boards.secure")}</Note>;
   return <Note action={{ label: say("ui.boards.retry"), run: again }}>{say("ui.boards.failed")}</Note>;
 }
 

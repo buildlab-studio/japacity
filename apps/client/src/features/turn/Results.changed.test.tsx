@@ -1,0 +1,85 @@
+// The "changed into" lines under Kept (docs/rules/world.md R-WORLD-008, amended 11 Oct 2026; the decision of
+// 14:47, item 5). A change of money counts for nothing in Kept (decision 0021 as amended 10 Oct 2026: the kept
+// figure leaves out the change's two sides, the bank's charge stays money out), and the reviewer read a month whose
+// band fell by the change as money hidden. So each change in the month is said under Kept on its own line, both sides
+// as they were: "Changed ₦806,930 into £561". Played on the real engine, Tunde at home.
+import type { Currency, ReportLine } from "@japacity/sim";
+import { act } from "@testing-library/react";
+import { describe, expect, test } from "vitest";
+
+import { newGame, setPockets } from "../../shared/testing/fixtures";
+import { renderWithView } from "../../shared/testing/render";
+import { formatMoney } from "../../shared/words/format";
+import { say } from "../../shared/words/text";
+import { CHANGED_INTO, changesInto, kept, moneyLines } from "./month.results";
+import { Results } from "./Results";
+
+type Game = ReturnType<typeof newGame>;
+
+function held(game: Game, currency: Currency): number {
+  const pocket = game.view().pockets[currency];
+  return pocket.bank + pocket.cash;
+}
+
+/** One change, and both sides as the pockets moved: what left and what came in. */
+function change(game: Game, from: Currency, to: Currency, amount: number, via: "bank" | "aboki"): { lines: ReportLine[]; paid: number; got: number } {
+  const before = { from: held(game, from), to: held(game, to) };
+  const lines = game.accept({ type: "wallet/convert", from, to, amount, via }).lines;
+  return { lines, paid: before.from - held(game, from), got: held(game, to) - before.to };
+}
+
+function shownChanges(): string[] {
+  return [...document.querySelectorAll<HTMLElement>("[data-results-change]")].map((line) => line.textContent ?? "");
+}
+
+describe("the changed-into lines under Kept", () => {
+  test("[R-WORLD-008] given naira changed into pounds at the bank, more with the FX man, and pounds changed back into naira, when the month's results show, then each change is one line under Kept with both sides as they were, in the order made, and Kept still counts only the bank's charges", async () => {
+    const game = newGame("scenario.tunde");
+    setPockets(game, { NGN: 200_000_000 });
+    const atBank = change(game, "NGN", "GBP", 50_000_000, "bank");
+    const moved = game.accept({ type: "wallet/move", currency: "NGN", amount: 30_000_000, to: "cash" }).lines;
+    const withFxMan = change(game, "NGN", "GBP", 20_000_000, "aboki");
+    const back = change(game, "GBP", "NGN", Math.floor(game.view().pockets.GBP.bank / 2 / 100) * 100, "bank");
+    for (const each of [atBank, withFxMan, back]) expect([each.paid > 0, each.got > 0]).toEqual([true, true]);
+    const now = [...atBank.lines, ...moved, ...withFxMan.lines, ...back.lines];
+    game.endTurn();
+
+    const money = moneyLines([...now, ...(game.view().report?.lines ?? [])]);
+    expect(changesInto(money)).toEqual([
+      { paid: { currency: "NGN", amount: atBank.paid }, got: { currency: "GBP", amount: atBank.got } },
+      { paid: { currency: "NGN", amount: withFxMan.paid }, got: { currency: "GBP", amount: withFxMan.got } },
+      { paid: { currency: "GBP", amount: back.paid }, got: { currency: "NGN", amount: back.got } },
+    ]);
+
+    const { store } = await renderWithView(<Results place="Home" />, game.view());
+    act(() => store.setState({ reportOpen: true, lastMonthLines: now }));
+    expect(shownChanges()).toEqual([
+      `Changed ${formatMoney(atBank.paid, "NGN")} into ${formatMoney(atBank.got, "GBP")}`,
+      `Changed ${formatMoney(withFxMan.paid, "NGN")} into ${formatMoney(withFxMan.got, "GBP")}`,
+      `Changed ${formatMoney(back.paid, "GBP")} into ${formatMoney(back.got, "NGN")}`,
+    ]);
+    expect(shownChanges()[0]).toBe(say(CHANGED_INTO, { paid: { currency: "NGN", amount: atBank.paid }, got: { currency: "GBP", amount: atBank.got } }));
+    // The lines sit under Kept, and the change is said once: no tag says it again (R-TEXT-008).
+    const keptLine = document.querySelector("[data-results-kept]");
+    const changes = document.querySelector("[data-results-changes]");
+    expect(keptLine !== null && changes !== null && (keptLine.compareDocumentPosition(changes) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0).toBe(true);
+    expect(document.querySelector("[data-results-tag='change']")).toBeNull();
+    // A change counts for nothing either way: the naira kept is what the month really moved, the charges included.
+    expect(keptLine?.getAttribute("data-results-kept")).toBe(String(kept(money).find((net) => net.currency === "NGN")?.amount ?? 0));
+  });
+
+  test("[R-WORLD-008] [R-TEXT-008] given the changed-into line, when its words are read, then they come from content, carry no raw key, and nothing in them looks like a bank alert", () => {
+    const said = say(CHANGED_INTO, { paid: { currency: "NGN", amount: 80_693_000 }, got: { currency: "GBP", amount: 56_100 } });
+    expect(said).toBe(`Changed ${formatMoney(80_693_000, "NGN")} into ${formatMoney(56_100, "GBP")}`);
+    expect(said).not.toMatch(/ui\.|alert|credit|debit|ref|txn|✓/i);
+  });
+
+  test("[R-WORLD-008] given a month with no change of money, when the results show, then no changed-into line shows", async () => {
+    const game = newGame("scenario.tunde");
+    game.endTurn();
+    const { store } = await renderWithView(<Results place="Home" />, game.view());
+    act(() => store.setState({ reportOpen: true, lastMonthLines: [] }));
+    expect(document.querySelector("[data-results-kept]")).not.toBeNull();
+    expect(document.querySelector("[data-results-changes]")).toBeNull();
+  });
+});

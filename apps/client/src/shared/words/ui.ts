@@ -715,7 +715,6 @@ export const uiText: Record<string, string> = {
   "ui.page.money": "Money",
   "ui.page.ready": "Japacity",
   // R-TEXT-008: the tags under what was kept: a change, which counts for nothing, and the month's lotto.
-  "ui.results.tag.change": "{amount} changed",
   "ui.results.tag.lotto": "Lotto: {amount}",
   // R-TEXT-008: the adviser's reading on the results, its conditions as tags.
   "ui.results.reading": "Her reading: {route}",

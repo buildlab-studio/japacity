@@ -1,6 +1,7 @@
-// The tags under what was kept (docs/rules/text.md R-TEXT-008, world.md R-WORLD-008): a change of money is a plain
-// tag, since it counts for nothing (decision 0021), and the month's lotto is one down tag and one money row, however
-// many visits the tickets were bought on.
+// The tags under what was kept (docs/rules/text.md R-TEXT-008, world.md R-WORLD-008): the month's lotto is one down
+// tag and one money row, however many visits the tickets were bought on. Restated 11 Oct 2026 (R-WORLD-008, the
+// a change of money is no longer a tag; it is said by its own line under Kept, both sides as
+// they were (Results.changed.test.tsx), and never again as a tag.
 import { content } from "@japacity/content";
 import type { ReportLine } from "@japacity/sim";
 import { act } from "@testing-library/react";
@@ -10,7 +11,7 @@ import { newGame } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { LOTTO_TICKETS } from "../../shared/words/money";
 import { say, words } from "../../shared/words/text";
-import { foldLotto, kept, moneyLines, monthTags } from "./month.results";
+import { changesInto, foldLotto, kept, moneyLines, monthTags } from "./month.results";
 import { Results } from "./Results";
 
 const TICKET = content.tuning.luck.ticket;
@@ -36,13 +37,15 @@ describe("the tags under what was kept", () => {
     expect(document.querySelector("[data-results-kept]")?.getAttribute("data-results-kept")).toBe(String(kept(lines).find((net) => net.currency === "NGN")?.amount ?? 0));
   });
 
-  test("[R-TEXT-008] [R-WORLD-008] given naira changed into pounds at the bank, when the tags are read, then the change is one plain tag with the pounds that came in, and no lotto tag", () => {
+  test("[R-TEXT-008] [R-WORLD-008] given naira changed into pounds at the bank, when the tags are read, then no tag says the change, since its own line under Kept says it once with both sides, and no lotto tag", () => {
     const game = newGame("scenario.ada");
     const told = game.accept({ type: "wallet/convert", from: "NGN", to: "GBP", amount: 20_000_000, via: "bank" }).lines;
     const lines = moneyLines(told);
-    const tags = monthTags(lines);
-    expect(tags).toHaveLength(1);
-    expect(tags[0]).toMatchObject({ id: "change", tone: "plain", key: "ui.results.tag.change", amount: { currency: "GBP" } });
-    expect(tags[0]!.amount.amount).toBeGreaterThan(0);
+    expect(monthTags(lines)).toEqual([]);
+    const [change, ...more] = changesInto(lines);
+    expect(more).toEqual([]);
+    expect(change?.paid).toMatchObject({ currency: "NGN" });
+    expect(change?.got.currency).toBe("GBP");
+    expect(change?.got.amount).toBeGreaterThan(0);
   });
 });

@@ -20,6 +20,8 @@ export const boardsWords: Record<string, string> = {
   "ui.boards.empty": "Nobody is on this board yet.",
   "ui.boards.empty.friends": "None of your friends has a route yet.",
   "ui.boards.you": "You",
+  // R-CITY-040: a line whose account is no longer there (a deletion under way) has no username to show.
+  "ui.boards.someone": "A player",
   "ui.boards.your-place": "Your place",
   "ui.boards.no-route": "You are not on this board yet: you have no route yet.",
   "ui.boards.figure.all-time": "{figure}%",

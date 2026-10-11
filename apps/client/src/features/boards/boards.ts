@@ -10,10 +10,11 @@ import { api, type Api, type Fetch } from "../../shared/net/http";
 /** apps/server/src/boards/board.ts BoardName. */
 export type BoardName = "this-week.everyone" | "this-week.friends" | "all-time.everyone" | "all-time.friends" | "joined-week";
 
-/** apps/server/src/boards/board.ts BoardRow. */
+/** apps/server/src/boards/board.ts BoardRow: the username on everyone, the first name and display name on friends. */
 export interface BoardRow {
   rank: number;
-  firstName: string;
+  username: string | null;
+  firstName: string | null;
   figure: number;
   me: boolean;
   name: string | null;

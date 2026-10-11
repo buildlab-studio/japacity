@@ -1,6 +1,7 @@
 // The whole content of the first milestone, and every word it uses.
 import type { Content } from "@japacity/sim";
 
+import { aboutText } from "./about/about.text";
 import { accountText } from "./account/account.text";
 import { activityAbroadText } from "./activity/activity.abroad.text";
 import { activitySignalsText } from "./activity/activity.signals.text";
@@ -73,6 +74,7 @@ import { varTable } from "./var/var.data";
 import { varText } from "./var/var.text";
 import { walletText } from "./wallet/wallet.text";
 
+export { DEDICATION } from "./about/about.data";
 export { blockedWords, reservedNames } from "./account/account.data";
 export { CSP_DIRECTIVES, FUNNEL_STEPS, HELD_BANDS, MONTH_BANDS, ONLINE_MINUTES, SESSION_BANDS, SESSION_GAP_MINUTES } from "./analytics/analytics.data";
 export { japaTypes, officialAccounts, shareChapters, shareKinds } from "./share/share.data";
@@ -136,6 +138,7 @@ export const content: Content = {
 
 /** Every words file, by the name it is merged under. */
 export const textTables: Record<string, Record<string, string>> = {
+  about: aboutText,
   account: accountText,
   phrase: phraseText,
   activity: activityText,

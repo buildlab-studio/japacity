@@ -10,10 +10,11 @@ import type { Context } from "hono";
 import type { BoardName, BoardReply } from "../boards/board";
 import { BOARD_SWITCH, boardNamed, readBoard } from "../boards/board";
 import type { BoardPorts } from "../boards/ports";
-import { STAND_IN_PORTS } from "../boards/ports";
+import { accountPorts } from "../boards/ports";
 import type { ServerDeps } from "../deps";
 import type { SessionEnv } from "../limits/limit";
 import { limit, sessionOf } from "../limits/limit";
+import { BOARDS_DETAIL, guestOnly } from "../account/guest";
 import { isOn, retryAfterSeconds, switchedOff } from "../switches/switches";
 import type { ServerCode, ServerRejection } from "../types";
 
@@ -28,8 +29,8 @@ async function answer(deps: ServerDeps, ports: BoardPorts, c: Context<SessionEnv
   if (!(await isOn(deps, BOARD_SWITCH[board]))) return { status: 503, body: switchedOff(deps, BOARD_SWITCH[board]) };
   const session = sessionOf(c);
   if (session === null) return refuse(401, "signed-out", "Sign in to see the boards.");
-  // R-ACCOUNT-022 refuses a guest with `guest-only`, which the accounts work adds to ServerCode; `not-legal` stands in until it is there.
-  if ((await ports.guests([session.account])).has(session.account)) return refuse(403, "not-legal", "Secure your account to be on the boards: add Google or an email address in settings.");
+  // R-ACCOUNT-022: the guest gate refuses a guest first (account/guest.ts); this holds for a route mounted without it.
+  if ((await ports.guests([session.account])).has(session.account)) return { status: 403, body: guestOnly(BOARDS_DETAIL) };
   const character = (await deps.stores.account.get(session.account))?.character ?? null;
   if (character === null) return refuse(404, "no-character", "Start a life to be on the boards.");
   return { status: 200, body: await readBoard(deps, ports, character, board) };
@@ -42,7 +43,7 @@ function send(c: Context<SessionEnv>, deps: ServerDeps, reply: Reply): Response 
   return c.json(reply.body, reply.status);
 }
 
-export function boardRoutes(deps: ServerDeps, ports: BoardPorts = STAND_IN_PORTS): Hono<SessionEnv> {
+export function boardRoutes(deps: ServerDeps, ports: BoardPorts = accountPorts(deps)): Hono<SessionEnv> {
   const route = new Hono<SessionEnv>();
   route.get("/api/boards/joined-week", limit(deps, "reads"), async (c) => send(c, deps, await answer(deps, ports, c, "joined-week")));
   route.get("/api/boards/:when/:who", limit(deps, "reads"), async (c) => send(c, deps, await answer(deps, ports, c, boardNamed(c.req.param("when"), c.req.param("who")))));

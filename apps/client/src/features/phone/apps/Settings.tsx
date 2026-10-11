@@ -2,7 +2,9 @@
 // device), the sound (the existing mute: muted fetches nothing), the city's graphics choice, and
 // the account, which the shell hands in so this folder never imports the account feature. Last,
 // "Start a new life" (account.md R-ACCOUNT-030): one sheet that names the character and their age,
-// Cancel first, and the end held to confirm, with nothing to type.
+// Cancel first, and the end held to confirm, with nothing to type. At the foot, the version line (city.md
+// R-CITY-021): five taps on it show the dedication, and nothing else happens.
+import { DEDICATION } from "@japacity/content";
 import { RotateCcw } from "lucide-react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 
@@ -10,6 +12,7 @@ import { useGame } from "../../../authority/GameProvider";
 import { pageOf } from "../../../shared/datapage/PageSheet";
 import { chooseGraphics, type GraphicsChoice } from "../../../shared/graphics/mode";
 import { setMuted } from "../../../shared/sound/sound";
+import { buildOf } from "../../../shared/stamp/stamp";
 import { useSound } from "../../../shared/sound/useSound";
 import { Button } from "../../../shared/ui/Button";
 import { Sheet } from "../../../shared/ui/Sheet";
@@ -93,6 +96,65 @@ export function Settings({ account = null, about = null }: { account?: ReactNode
       )}
 
       <NewLife />
+      <VersionLine />
+    </div>
+  );
+}
+
+/** R-CITY-021: the taps on the version line that show the dedication, and the time they fall within. */
+export const DEDICATION_TAPS = 5;
+export const DEDICATION_WINDOW_MS = 5000;
+
+/** The build as the version line says it: the short commit of the page's stamp (R-SERVER-038), or null with none. */
+export function versionOf(stamp: string | null): string | null {
+  const commit = stamp?.split("+")[0] ?? "";
+  if (commit === "" || commit === "unknown") return null;
+  return /^[0-9a-f]{7,}$/.test(commit) ? commit.slice(0, 7) : commit;
+}
+
+/**
+ * The version line, last in Settings, in the design's form: "Version" and the build, quiet. Five taps within about five
+ * seconds show the dedication just under it, simply: no sound, no sheet, no animation, no link, and a sixth tap
+ * changes nothing. A tap anywhere else, or leaving Settings, hides it and starts the count again. Nothing of it is
+ * counted or sent.
+ */
+function VersionLine() {
+  const version = typeof document === "undefined" ? null : versionOf(buildOf(document));
+  const [shown, setShown] = useState(false);
+  const taps = useRef<number[]>([]);
+  const line = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const away = (event: PointerEvent): void => {
+      if (event.target instanceof Node && line.current?.contains(event.target) === true) return;
+      taps.current = [];
+      setShown(false);
+    };
+    document.addEventListener("pointerdown", away, true);
+    return () => document.removeEventListener("pointerdown", away, true);
+  }, []);
+  const tap = (): void => {
+    if (shown) return;
+    const now = Date.now();
+    taps.current = [...taps.current.filter((at) => now - at < DEDICATION_WINDOW_MS), now];
+    if (taps.current.length >= DEDICATION_TAPS) setShown(true);
+  };
+  return (
+    <div ref={line} className="mt-4 border-t border-sheet-line" data-version>
+      <button
+        type="button"
+        onClick={tap}
+        className="flex min-h-11 w-full touch-manipulation items-center justify-between gap-2 py-2 text-left text-[14px] select-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
+      >
+        <span className="font-semibold">{phoneWords("phone.settings.version")}</span>
+        <span className="text-text-2 tabular-nums" data-version-build>
+          {version ?? phoneWords("phone.settings.version.local")}
+        </span>
+      </button>
+      {shown ? (
+        <p className="pt-1 pb-2.5 text-[13px] leading-relaxed text-text-2" data-dedication>
+          {DEDICATION}
+        </p>
+      ) : null}
     </div>
   );
 }

@@ -64,6 +64,8 @@ export async function foldIntoGuest(deps: ServerDeps, linking: Linking, { anonym
   await internal.updateUser(guest, { email: newUser.user.email, emailVerified: newUser.user.emailVerified, isAnonymous: false });
   const secured = await deps.stores.account.secure(guest);
   if (!secured.ok) throw new Error(`The guest ${guest} has no account row to secure: ${secured.detail}`);
+  // R-ACCOUNT-022, city.md R-CITY-040: a guest's board rows were written unlisted; secured, its life is on the boards at once.
+  await deps.stores.boards.setListed(guest, true);
   // R-ANALYTICS-008: the guest secured, by region, on the day and on its sign-up day.
   await countSecured(deps, guest);
 }

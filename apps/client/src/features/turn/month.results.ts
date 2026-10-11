@@ -2,7 +2,7 @@
 // lines with their signs, what was kept, the draw's numbers with any of the player's lit, and the
 // savings toward the move. Plain functions over the view, so the sheet only lays them out.
 import { content } from "@japacity/content";
-import type { Currency, PlayerView, ReportLine } from "@japacity/sim";
+import type { Currency, MoneyParam, PlayerView, ReportLine } from "@japacity/sim";
 
 import { afterPrologue, forYou, isSaid, isUnpaid, tidyLines } from "../../shared/words/lines";
 import { BANK_CHARGE, CHANGED, CHANGED_OUT, CHANGED_QUEUED, CHANGED_SMALL, CHANGED_STREET, CHANGED_STREET_OUT, CONVERT_PAID, CONVERTED, LOTTO_PAID, LOTTO_TICKETS, type MoneyLine, moneyLines } from "../../shared/words/money";
@@ -305,24 +305,45 @@ export function foldLotto(lines: readonly MoneyLine[]): MoneyLine[] {
   return lines.flatMap((entry) => (entry === first ? [folded] : isLotto(entry) ? [] : [entry]));
 }
 
+/** The line under Kept for each change of money in the month (R-WORLD-008 as amended 11 Oct 2026). */
+export const CHANGED_INTO = "ui.results.changed-into";
+
+/** One change of money, both sides as they were: what was paid in (the bank's charge with it) and what came in. */
+export interface ChangeInto {
+  paid: MoneyParam;
+  got: MoneyParam;
+}
+
+/**
+ * Each change of money in the month, in the order made, both sides as they were (R-WORLD-008, amended 11 Oct 2026;
+ * a change counts for nothing in the kept figure (decision 0021), so it is said under Kept
+ * on its own line, "Changed ₦806,930 into £561", naira into pounds or dollars or back, at the bank or with the FX man.
+ * A change whose foreign side waits in the bank's queue is told by its own line when paid in and is not one here, since
+ * only one side is on the month's lines.
+ */
+export function changesInto(lines: readonly MoneyLine[]): ChangeInto[] {
+  return lines.flatMap(({ line, sign }) => {
+    if (!CHANGE_IN.has(line.key) || sign !== 1) return [];
+    const paid = moneyParam("paid", line.params, line.key);
+    const got = moneyParam("got", line.params, line.key);
+    return paid === null || got === null || paid.amount === 0 || got.amount === 0 ? [] : [{ paid, got }];
+  });
+}
+
 /** A tag under what was kept: what moved the month, as a sign and a few words (R-TEXT-008). */
 export interface MonthTag {
-  id: "change" | "lotto";
+  id: "lotto";
   tone: "up" | "down" | "plain";
   key: string;
   amount: { currency: Currency; amount: number };
 }
 
 /**
- * The tags that say what the kept figure leaves out or holds (R-WORLD-008, R-TEXT-008): a change of money, plain, since
- * it counts for nothing (decision 0021), one for each money that came in; and the lotto, down, the month's tickets
- * together.
+ * The tags that say what the kept figure holds (R-WORLD-008, R-TEXT-008): the lotto, down, the month's tickets
+ * together. A change of money is said by its own line under Kept instead (`changesInto`), never twice.
  */
 export function monthTags(lines: readonly MoneyLine[]): MonthTag[] {
   const tags: MonthTag[] = [];
-  const changed = new Map<Currency, number>();
-  for (const entry of lines) if (CHANGE_IN.has(entry.line.key) && entry.sign === 1) changed.set(entry.currency, (changed.get(entry.currency) ?? 0) + entry.amount);
-  for (const [currency, amount] of changed) tags.push({ id: "change", tone: "plain", key: "ui.results.tag.change", amount: { currency, amount } });
   const tickets = lines.filter(isLotto);
   if (tickets.length > 0) tags.push({ id: "lotto", tone: "down", key: "ui.results.tag.lotto", amount: { currency: tickets[0]!.currency, amount: tickets.reduce((sum, entry) => sum + entry.amount, 0) } });
   return tags;

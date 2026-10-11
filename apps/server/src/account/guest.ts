@@ -14,6 +14,9 @@ import type { ServerRejection } from "../types";
 
 const SECURE = "Secure this life with Google or an email code";
 
+/** R-ACCOUNT-022: what a guest asking for a board is told. */
+export const BOARDS_DETAIL = `${SECURE} to be on the boards.`;
+
 /** R-ACCOUNT-022: the commands only a secured account may send, each with what the refusal says. */
 export const SECURED_COMMANDS: Partial<Record<CommandType, string>> = {
   "lottery/buy": `${SECURE} to buy lottery tickets.`,
@@ -26,9 +29,9 @@ export const SECURED_PATHS: readonly { path: string; method: "GET" | "POST"; det
   { path: "/api/invite/:code/accept", method: "POST", detail: `${SECURE} to take a friend's invite.` },
   { path: "/api/pair/:pair/say", method: "POST", detail: `${SECURE} to send messages.` },
   { path: "/api/pair/:pair/conversation", method: "GET", detail: `${SECURE} to read messages.` },
-  // city.md's `GET /api/board` is the boards agent's; a guest is refused it here, and the board's own rows must leave guests out (R-ACCOUNT-022 "appear on any board").
-  { path: "/api/board", method: "GET", detail: `${SECURE} to be on the boards.` },
-  { path: "/api/board/*", method: "GET", detail: `${SECURE} to be on the boards.` },
+  // The boards the client reads (city.md R-CITY-039): `/api/boards/:when/:who` and `/api/boards/joined-week`. Their rows
+  // leave guests out too (boards/figures.ts), and a secured account is listed again (link.ts).
+  { path: "/api/boards/*", method: "GET", detail: BOARDS_DETAIL },
 ];
 
 export function guestOnly(detail: string): ServerRejection {

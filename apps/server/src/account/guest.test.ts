@@ -6,7 +6,7 @@ import { testConfig } from "../config";
 import { memoryLimiters } from "../limits/memory";
 import type { ServerReply, ViewReply } from "../types";
 import { PASS_COOKIE, PASS_PREFIX } from "./age";
-import { DEVICE_COOKIE } from "./guest";
+import { BOARDS_DETAIL, DEVICE_COOKIE, SECURED_PATHS } from "./guest";
 import { METHOD_TAKEN } from "./link";
 import { TURNSTILE_TEST } from "./turnstile";
 
@@ -259,11 +259,15 @@ describe("rule B: what only a secured account may do", () => {
     expect((await outcome(await h.call("/api/command", { method: "POST", jar: secured.jar, json: command("lottery/buy") }))).code).not.toBe("guest-only");
   });
 
-  test("[R-ACCOUNT-022] given a guest, when it reads a board, then it is refused guest-only; a secured account is let through", async () => {
+  // the gate guards the boards the client reads, `/api/boards/...`; it guarded `/api/board`, which nothing serves.
+  test("[R-ACCOUNT-022] given a guest, when it reads any board, then it is refused guest-only at the gate; a secured account is let through", async () => {
     const h = harness();
     const { guest, secured } = await guestAndSecured(h);
-    expect(await outcome(await h.call("/api/board?kind=week", { jar: guest.jar }))).toEqual(GUEST_ONLY);
-    expect((await outcome(await h.call("/api/board?kind=week", { jar: secured.jar }))).code).not.toBe("guest-only");
+    expect(SECURED_PATHS.filter((path) => path.path.includes("board"))).toEqual([{ path: "/api/boards/*", method: "GET", detail: BOARDS_DETAIL }]);
+    for (const path of ["/api/boards/this-week/everyone", "/api/boards/all-time/everyone", "/api/boards/this-week/friends", "/api/boards/all-time/friends", "/api/boards/joined-week"]) {
+      expect(await outcome(await h.call(path, { jar: guest.jar }))).toEqual(GUEST_ONLY);
+      expect((await outcome(await h.call(path, { jar: secured.jar }))).code).not.toBe("guest-only");
+    }
   });
 
   test("[R-ACCOUNT-022] given a guest, when it makes an invite card or a partner invite, then each is refused guest-only; a secured account is let through", async () => {
@@ -330,6 +334,17 @@ describe("securing a guest", () => {
     expect(view).toEqual(played);
     expect(h.tables.user).toEqual([expect.objectContaining({ id: account, email: "ada@example.com", emailVerified: true, isAnonymous: false })]);
     expect(h.tables.session.map((row) => row["userId"])).toEqual([account]);
+  });
+
+  test("[R-ACCOUNT-022] [R-ACCOUNT-023] given a guest that played a month, when it secures with an email code, then its board row, written unlisted while it was a guest, is listed at once", async () => {
+    const h = harness();
+    const { jar, account } = await h.guest();
+    await playAMonth(h, jar);
+    const character = (await h.deps.stores.account.get(account))?.character ?? "";
+    expect(await h.deps.stores.boards.get(character)).toMatchObject({ account, listed: false });
+
+    expect((await h.secureByCode(jar, "ada@example.com")).status).toBe(200);
+    expect(await h.deps.stores.boards.get(character)).toMatchObject({ account, listed: true });
   });
 
   test("[R-ACCOUNT-023] given a guest that played a month, when it secures with Google, then the same account holds the same life, and it signs in from another browser with Google", async () => {

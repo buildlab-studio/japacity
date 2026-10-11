@@ -13,12 +13,17 @@ test.use({ baseURL: ONLINE, viewport: { width: 390, height: 844 }, deviceScaleFa
 
 const PREVIEW = process.env.PREVIEW_DIR;
 const CLOCK = { tick: 3, nextTickAt: Date.now() + 3_600_000, nextTurnAt: null };
-const NAMES = ["Zainab", "Tunde", "Ngozi", "Ada", "Tunde", "Zainab", "Ngozi", "Ada", "Tunde", "Ngozi"];
+// R-CITY-040 as amended 11 Oct 2026: the everyone boards name each line by the account's username.
+const USERNAMES = ["zainab_b", "tunde_k", "ngozi_o", "ada_ikeja", "tunde_99", "zee_lagos", "ngozi_writes", "ada_o", "tk_surulere", "ngo_yaba"];
 
-type Row = { rank: number; firstName: string; figure: number; me: boolean; name: string | null };
+type Row = { rank: number; username: string | null; firstName: string | null; figure: number; me: boolean; name: string | null };
 
-function rows(figures: number[], me: number | null, names: (string | null)[] = []): Row[] {
-  return figures.map((figure, at) => ({ rank: at + 1, firstName: NAMES[at] ?? "Ada", figure, me: at === me, name: names[at] ?? null }));
+function rows(figures: number[], me: number | null): Row[] {
+  return figures.map((figure, at) => ({ rank: at + 1, username: USERNAMES[at] ?? "ada_from_yaba", firstName: null, figure, me: at === me, name: null }));
+}
+
+function friend(rank: number, firstName: string, figure: number, name: string, me = false): Row {
+  return { rank, username: null, firstName, figure, me, name };
 }
 
 function reply(board: string, lines: Row[], own: Row | null) {
@@ -26,18 +31,18 @@ function reply(board: string, lines: Row[], own: Row | null) {
 }
 
 const BOARDS: Record<string, { body: unknown; status?: number }> = {
-  "GET /api/boards/this-week/everyone": reply("this-week.everyone", rows([31, 26, 22, 19, 17, 15, 12, 11, 9, 8], null), { rank: 14, firstName: "Ada", figure: 6, me: true, name: null }),
-  "GET /api/boards/all-time/everyone": reply("all-time.everyone", rows([92, 88, 85, 81, 79, 77, 74, 72, 70, 69], null), { rank: 212, firstName: "Ada", figure: 41, me: true, name: null }),
-  "GET /api/boards/this-week/friends": reply("this-week.friends", [
-    { rank: 1, firstName: "Tunde", figure: 9, me: false, name: "tunde.k" },
-    { rank: 2, firstName: "Ada", figure: 6, me: true, name: "ada_from_yaba" },
-    { rank: 3, firstName: "Ngozi", figure: 0, me: false, name: "ngozi_o" },
-  ], { rank: 2, firstName: "Ada", figure: 6, me: true, name: "ada_from_yaba" }),
-  "GET /api/boards/all-time/friends": reply("all-time.friends", [
-    { rank: 1, firstName: "Ngozi", figure: 63, me: false, name: "ngozi_o" },
-    { rank: 2, firstName: "Ada", figure: 41, me: true, name: "ada_from_yaba" },
-    { rank: 3, firstName: "Tunde", figure: 38, me: false, name: "tunde.k" },
-  ], { rank: 2, firstName: "Ada", figure: 41, me: true, name: "ada_from_yaba" }),
+  "GET /api/boards/this-week/everyone": reply("this-week.everyone", rows([31, 26, 22, 19, 17, 15, 12, 11, 9, 8], null), { rank: 14, username: "ada_from_yaba", firstName: null, figure: 6, me: true, name: null }),
+  "GET /api/boards/all-time/everyone": reply("all-time.everyone", rows([92, 88, 85, 81, 79, 77, 74, 72, 70, 69], null), { rank: 212, username: "ada_from_yaba", firstName: null, figure: 41, me: true, name: null }),
+  "GET /api/boards/this-week/friends": reply(
+    "this-week.friends",
+    [friend(1, "Tunde", 9, "tunde.k"), friend(2, "Ada", 6, "ada_from_yaba", true), friend(3, "Ngozi", 0, "ngozi_o")],
+    friend(2, "Ada", 6, "ada_from_yaba", true),
+  ),
+  "GET /api/boards/all-time/friends": reply(
+    "all-time.friends",
+    [friend(1, "Ngozi", 63, "ngozi_o"), friend(2, "Ada", 41, "ada_from_yaba", true), friend(3, "Tunde", 38, "tunde.k")],
+    friend(2, "Ada", 41, "ada_from_yaba", true),
+  ),
   "GET /api/boards/joined-week": { status: 503, body: { ok: false, code: "switched-off", detail: "This board is paused.", retryAfter: 30 } },
 };
 

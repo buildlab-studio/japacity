@@ -1,5 +1,5 @@
 import type { AccountRow, AccountStore } from "@japacity/store";
-import { and, asc, eq, lt, ne, sql } from "drizzle-orm";
+import { and, asc, eq, inArray, lt, ne, sql } from "drizzle-orm";
 
 import type { Handle } from "../handle";
 import { accounts } from "../schema";
@@ -74,6 +74,16 @@ export function pgAccountStore(handle: Handle): AccountStore {
       handle.read(async (db) => {
         const [row] = await db.select().from(accounts).where(sameName(username));
         return row === undefined ? null : toAccount(row);
+      }),
+
+    usernames: (ids) =>
+      handle.read(async (db) => {
+        if (ids.length === 0) return new Map<string, string>();
+        const rows = await db
+          .select({ id: accounts.id, username: accounts.username })
+          .from(accounts)
+          .where(inArray(accounts.id, [...new Set(ids)]));
+        return new Map(rows.map((row) => [row.id, row.username]));
       }),
 
     setUsername: (id, username, at) =>

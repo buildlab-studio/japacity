@@ -25,6 +25,14 @@ export function memoryAccountStore(): AccountStore {
       return Promise.resolve(accept(row));
     },
     byUsername: (username) => Promise.resolve(copy(holder(username))),
+    usernames: (ids) => {
+      const found = new Map<string, string>();
+      for (const id of ids) {
+        const row = rows.get(id);
+        if (row !== undefined) found.set(id, row.username);
+      }
+      return Promise.resolve(found);
+    },
     setUsername: (id, username, at) => {
       const row = rows.get(id);
       if (row === undefined) return Promise.resolve(refuse("missing", `No account ${id}.`));
