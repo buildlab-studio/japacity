@@ -62,8 +62,8 @@ export function countingPlayerStore(inner: PlayerStore, counts: WriteCounts): Pl
     },
     transact: async <T>(ids: readonly string[], work: Work<T>) => {
       const seen: { writes: Writes | null } = { writes: null };
-      const done = await inner.transact(ids, async (rows) => {
-        const out = await work(rows);
+      const done = await inner.transact(ids, async (rows, stores) => {
+        const out = await work(rows, stores);
         seen.writes = out.writes;
         return out;
       });

@@ -27,8 +27,11 @@ import {
   memoryWorldStore,
 } from ".";
 
-suiteForPlayerStore(() => Promise.resolve(memoryPlayerStores().player));
-suiteForPairStore(() => Promise.resolve(memoryPlayerStores()));
+/** R-SERVER-002: the stores a transaction's work is given, fresh beside each player store. */
+const besides = () => ({ world: memoryWorldStore(), audit: memoryAuditStore() });
+
+suiteForPlayerStore(() => Promise.resolve(memoryPlayerStores(besides()).player));
+suiteForPairStore(() => Promise.resolve(memoryPlayerStores(besides())));
 suiteForWorldStore(() => Promise.resolve(memoryWorldStore()));
 suiteForPresenceStore(() => Promise.resolve(memoryPresenceStore()));
 suiteForPushStore(() => Promise.resolve(memoryPushStore()));

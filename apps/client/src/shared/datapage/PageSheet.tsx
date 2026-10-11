@@ -30,8 +30,13 @@ function nameOf(person: KeptPerson | null, view: Pick<PlayerView, "scenario">): 
   return hasWords(own) ? (say(own).split(/\s+/)[0] ?? "") : "";
 }
 
-/** The years as lived where they went another way than the tile's (R-PROLOGUE-011, 014), else null: the tile's own. */
+/**
+ * The years as lived where they went another way than the tile's (R-PROLOGUE-011, 014), else null: the tile's own.
+ * While the years still go by the life has lived none of its path, so the page names the tile until they close: a
+ * nurse at sixteen read as lived is a trade.
+ */
 function livedOtherwise(archetype: Archetype, view: PlayerView): ReturnType<typeof sixteenPath> {
+  if (view.prologue !== null) return null;
   const lived = sixteenPath(view);
   return lived === null || (lived === "degree") === throughUniversity(archetype) ? null : lived;
 }

@@ -139,8 +139,21 @@ export interface Writes {
   pairs?: PairWrite[];
 }
 
+/**
+ * R-SERVER-002: the stores a transaction's work may call, bound
+ * to that transaction's own client. Inside a transaction every read goes
+ * through them; the work never calls a store the server holds, whose handle's
+ * lock the transaction already holds.
+ */
+export interface TxStores {
+  /** R-CLOCK-017: the stored world rows a replay needs; R-LOTTERY-005: the tickets a purchase adds. */
+  world: WorldStore;
+  /** R-SERVER-009: the retired segments a rollback copies. */
+  audit: AuditStore;
+}
+
 /** R-SERVER-002: the work run under the locks. It returns what to write and what to hand back. */
-export type Work<T> = (rows: TxRows) => Promise<{ writes: Writes; result: T }> | { writes: Writes; result: T };
+export type Work<T> = (rows: TxRows, stores: TxStores) => Promise<{ writes: Writes; result: T }> | { writes: Writes; result: T };
 
 /** R-SERVER-002, R-SERVER-007: a character's row, segments, snapshots and log. Every write goes through `transact`. */
 export interface PlayerStore {

@@ -78,14 +78,14 @@ export async function rollbackApply(deps: AdminDeps, character: string): Promise
   const overlay = last.overlay === undefined ? {} : { overlay: last.overlay };
   const base: State = { ...state, v: fromV };
 
-  const done = await deps.stores.player.transact([character], async (rows): Promise<{ writes: Writes; result: RollbackApply }> => {
+  const done = await deps.stores.player.transact([character], async (rows, stores): Promise<{ writes: Writes; result: RollbackApply }> => {
     const locked = rows.characters[0];
     // The log was read before the lock; a command committed since means the replay is out of date.
     if (locked === undefined || locked.character.v !== held.character.v || locked.character.segment !== held.character.segment) {
       return { writes: {}, result: { ok: false, code: "moved-on", detail: `Character ${character} took a command during the check. Run the tool again.` } };
     }
     const dropped = report.dropped.map((each) => `${String(each.v)} ${each.type} (${each.code})`).join(", ");
-    const audit = await deps.stores.audit.retire({
+    const audit = await stores.audit.retire({
       character,
       why: "rollback",
       at: deps.now(),

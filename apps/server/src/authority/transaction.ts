@@ -10,7 +10,7 @@ import { tickAt, turnClock } from "../clock/view";
 import type { ServerDeps } from "../deps";
 import { sellTickets } from "../draw/sell";
 import { dialedContents } from "../switches/dials";
-import { storedWorlds, tickRow } from "../world/ticks";
+import { heldWorlds, tickRow } from "../world/ticks";
 import type { Diverged, Live } from "./load";
 import { apply, load } from "./load";
 
@@ -78,11 +78,12 @@ export async function transact<T>(deps: ServerDeps, ids: readonly string[], act:
 
   // R-PEOPLE-060, R-SERVER-024: the partner dial in the content, read before the locks.
   const contents = await dialedContents(deps);
-  const result = await deps.stores.player.transact(ids, async (rows): Promise<{ writes: Writes; result: TxResult<T> }> => {
+  // R-SERVER-002: under the locks every read and write goes through the work's own stores.
+  const result = await deps.stores.player.transact(ids, async (rows, stores): Promise<{ writes: Writes; result: TxResult<T> }> => {
     const pairWrites: PairWrite[] = [];
     const turn: Turn = { world, at, send, pairs: rows.pairs, writePair: (write) => pairWrites.push(write) };
     const ticks = new Set(rows.characters.flatMap((held) => held.tail.map((logged) => logged.tick)));
-    const worlds = await storedWorlds(deps, ticks);
+    const worlds = await heldWorlds(stores.world, ticks);
     const lives: Live[] = [];
     for (const held of rows.characters) {
       const loaded = load(held, contents, worlds);
@@ -92,7 +93,7 @@ export async function transact<T>(deps: ServerDeps, ids: readonly string[], act:
     if (options.grant !== false) for (const live of lives) grantEarned(deps, live, turn);
     const acted = act(lives, turn);
     if (!acted.ok) return { writes: {}, result: { kind: "rejected", rejection: acted, lives, world, at } };
-    const unsold = await sellTickets(deps.stores.world, lives, world);
+    const unsold = await sellTickets(stores.world, lives, world);
     if (unsold !== null) return { writes: {}, result: { kind: "rejected", rejection: unsold, lives, world, at } };
     const characters = lives.map(writeOf).filter((write) => write !== null);
     return { writes: { characters, pairs: pairWrites }, result: { kind: "done", value: acted.value, lives, world, at } };

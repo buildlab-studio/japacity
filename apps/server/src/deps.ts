@@ -152,17 +152,20 @@ export function testSession(config: ServerConfig): SessionReader {
 }
 
 export function memoryStores(): Stores {
-  const { player, pair } = memoryPlayerStores();
+  const world = memoryWorldStore();
+  const audit = memoryAuditStore();
+  // R-SERVER-002: a transaction's work is given the same world and audit stores the server holds.
+  const { player, pair } = memoryPlayerStores({ world, audit });
   return {
     player,
     pair,
-    world: memoryWorldStore(),
+    world,
     presence: memoryPresenceStore(),
     nudges: memoryNudgeBus(),
     account: memoryAccountStore(),
     deletion: memoryDeletionStore(),
     ledger: memoryLedgerStore(),
-    audit: memoryAuditStore(),
+    audit,
     switches: memorySwitchStore(),
     counters: memoryCounterStore(),
     moderationLog: memoryModerationLogStore(),
