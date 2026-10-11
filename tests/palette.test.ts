@@ -122,6 +122,11 @@ describe("the palette", () => {
     expect(show([...findAll(clientFiles, GRADIENT_CLASS), ...findAll(clientFiles, GRADIENT_STOP), ...findAll(interfaceFiles, GRADIENT_CSS), ...findAll(clientFiles, BLUR), ...findAll(clientFiles, GLOW)])).toEqual([]);
   });
 
+  test("[R-WORLD-021] given the drawn map's water, then it is the design's lagoon tone in both looks, never the bands' navy", () => {
+    const css = readFileSync(join(root, CLIENT, "index.css"), "utf8");
+    expect([...css.matchAll(/--water:\s*([^;]+);/g)].map((found) => found[1])).toEqual(["#5f9fc0", "#5f9fc0"]);
+  });
+
   test("[R-WORLD-021] [R-ACCOUNT-031] given the two lights' exception, then the picture draws its dusk and its glow and no other gradient, and no blur", () => {
     for (const [file, gradients] of Object.entries(PICTURE_GRADIENTS)) {
       expect({ file, gradients: findAll([file], GRADIENT_CSS).length }).toEqual({ file, gradients });

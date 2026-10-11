@@ -39,7 +39,8 @@
   --out: #c23a2a;
   --scrim: rgba(12, 16, 34, 0.5);
   --device: #0d1124;
-  --water: #2c3f87;
+  /* The drawn map's water takes the design's lagoon tone in both looks (R-WORLD-021). */
+  --water: #5f9fc0;
   --land: #ece5d5;
   --land-2: #e1d8c4;
   --road: #ffffff;
@@ -89,7 +90,7 @@
   --pick-mark: #f2b705;
   --scrim: rgba(10, 9, 6, 0.55);
   --device: #17140f;
-  --water: #17140f;
+  --water: #5f9fc0;
   --land: #efe7d3;
   --land-2: #e4dac2;
   --road: #ffffff;

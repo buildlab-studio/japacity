@@ -74,7 +74,7 @@ const ROLES: Record<keyof MapColours, string> = {
 const FALLBACK: MapColours = {
   land: "#ece5d5",
   land2: "#e1d8c4",
-  water: "#2c3f87",
+  water: "#5f9fc0",
   road: "#ffffff",
   label: "#5d564a",
   signal: "#f2b705",
