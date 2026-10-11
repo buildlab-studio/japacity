@@ -42,5 +42,11 @@ export default function StartCity() {
       alive = false;
     };
   }, []);
-  return pins === null ? null : <CityMap pins={pins} home={FAMILY_HOUSE} picked={null} onPick={nothing} />;
+  // The map's own ground tone behind its canvas, as the map screen has it, so the city fills the frame to every edge and
+  // nothing of the scene's background shows beside or under the panel: one still colour, no cost a frame.
+  return (
+    <div className="size-full bg-[var(--land)]" data-start-city>
+      {pins === null ? null : <CityMap pins={pins} home={FAMILY_HOUSE} picked={null} onPick={nothing} />}
+    </div>
+  );
 }
