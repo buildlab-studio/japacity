@@ -28,6 +28,7 @@ import { JapacityLine, StatBox } from "../../shared/datapage/PageParts";
 import { DoorHead } from "../../shared/frontdoor/DoorHead";
 import { readDoor } from "../../shared/datapage/door";
 import { pageOf } from "../../shared/datapage/PageSheet";
+import { presetWait } from "../../shared/net/pace";
 import { readyPercent } from "../../shared/words/ready";
 import { familyCard, noteAnswer, noteCard, readTrail, storyChips, type YearChip, yearChips } from "./years";
 
@@ -242,21 +243,34 @@ export function presetArchetype(): Archetype | null {
 /**
  * Sends the archetype's answer at every card, once per view (R-PROLOGUE-010), and keeps each
  * answer and what its draw gave for the page (R-PROLOGUE-014). Null `answer`: the card shows (a refusal, or a card
- * with every answer shut).
+ * with every answer shut). Online the answers leave one every `PRESET_STEP_MS`, so the longest preset stays under the
+ * server's command limit and the page fills at an even pace (R-SERVER-025); offline they go at once.
  */
 function usePreset(view: PlayerView, prologue: Prologue, archetype: Archetype | null): string | null {
   const send = useGame((state) => state.send);
   const busy = useGame((state) => state.busy);
   const rejected = useGame((state) => state.rejection !== null);
+  const online = useGame((state) => state.account !== null);
   const sentAt = useRef<number | null>(null);
+  const leftAt = useRef<number | null>(null);
   const answer = archetype === null || rejected ? null : doorAnswer(archetype, prologue);
   useEffect(() => {
     if (answer === null || busy || sentAt.current === view.v) return;
-    sentAt.current = view.v;
-    noteCard(prologue.draw, prologue.lastOutcome);
-    noteAnswer(prologue.step, answer, prologue.step === "draw");
-    void send({ type: "prologue/choose", step: prologue.step, answer });
-  }, [answer, busy, view.v, prologue.step, prologue.lastOutcome, prologue.draw, send]);
+    const go = (): void => {
+      sentAt.current = view.v;
+      leftAt.current = Date.now();
+      noteCard(prologue.draw, prologue.lastOutcome);
+      noteAnswer(prologue.step, answer, prologue.step === "draw");
+      void send({ type: "prologue/choose", step: prologue.step, answer });
+    };
+    const wait = online ? presetWait(leftAt.current, Date.now()) : 0;
+    if (wait === 0) {
+      go();
+      return;
+    }
+    const timer = window.setTimeout(go, wait);
+    return () => window.clearTimeout(timer);
+  }, [answer, busy, online, view.v, prologue.step, prologue.lastOutcome, prologue.draw, send]);
   return answer;
 }
 

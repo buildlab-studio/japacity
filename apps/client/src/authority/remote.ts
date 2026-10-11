@@ -6,6 +6,7 @@ import type { Command, Id, PlayerView, Reply, ReportLine } from "@japacity/sim";
 
 import type { ClockView, CommandRequest, NewCharacterReply, NewCharacterRequest, PresenceReply, ServerRejection, ServerReply, ViewReply, WorldReply } from "../shared/net/contract";
 import { api, reportedError, retryAfterMs, type Api, type Fetch } from "../shared/net/http";
+import { pacer } from "../shared/net/pace";
 import type { WallGuard } from "../shared/net/wall";
 
 /** What the authority tells the store that the Authority type has no room for. */
@@ -56,6 +57,8 @@ export function remoteAuthority(options: RemoteAuthorityOptions): RemoteAuthorit
   const now = options.now ?? (() => Date.now());
   const wait = options.wait ?? realWait;
   const listeners = new Set<AuthorityListener>();
+  /** R-SERVER-025: every request on the server's command limit leaves through this, at most eight in ten seconds. */
+  const pace = pacer(now, wait);
 
   let version: number | null = null;
   let lastClock: ClockView | null = null;
@@ -152,6 +155,7 @@ export function remoteAuthority(options: RemoteAuthorityOptions): RemoteAuthorit
     async send(command) {
       fresh = null;
       await holdOff();
+      await pace.take();
       const basedOn = version ?? command.basedOn;
       const request: CommandRequest = { command: { ...command, basedOn }, basedOn };
       const reply = await http.post<ServerReply>("/api/command", request);
@@ -169,6 +173,7 @@ export function remoteAuthority(options: RemoteAuthorityOptions): RemoteAuthorit
 
     async newLife(scenario) {
       const request: NewCharacterRequest = { scenario };
+      await pace.take();
       const reply = await http.post<NewCharacterReply>("/api/character", request);
       if (reply.ok) return keep(reply);
       // The account already has its one character: carry on with it.
@@ -177,6 +182,7 @@ export function remoteAuthority(options: RemoteAuthorityOptions): RemoteAuthorit
     },
 
     async endLife() {
+      await pace.take();
       const reply = await http.post<{ ok: true } | ServerRejection>("/api/character/end", {});
       // An account with no character has nothing left to end: the door is the answer either way.
       if (!reply.ok && reply.code !== "no-character") {
