@@ -103,49 +103,9 @@
           },
           {
             "command": {
-              "type": "activity/now",
-              "activity": "activity.learn-tech",
-              "param": null,
-              "basedOn": 9
-            },
-            "tick": 0,
-            "sender": "player"
-          },
-          {
-            "command": {
-              "type": "activity/now",
-              "activity": "activity.learn-tech",
-              "param": null,
-              "basedOn": 10
-            },
-            "tick": 0,
-            "sender": "player"
-          },
-          {
-            "command": {
-              "type": "activity/now",
-              "activity": "activity.learn-tech",
-              "param": null,
-              "basedOn": 11
-            },
-            "tick": 0,
-            "sender": "player"
-          },
-          {
-            "command": {
-              "type": "activity/now",
-              "activity": "activity.side-gig",
-              "param": null,
-              "basedOn": 12
-            },
-            "tick": 0,
-            "sender": "player"
-          },
-          {
-            "command": {
               "type": "turn/end",
               "slots": [],
-              "basedOn": 13
+              "basedOn": 9
             },
             "tick": 0,
             "sender": "player"
@@ -155,7 +115,7 @@
               "type": "offer/choose",
               "offer": "offer-3",
               "choice": "decline",
-              "basedOn": 14
+              "basedOn": 10
             },
             "tick": 1,
             "sender": "player"
@@ -164,8 +124,28 @@
             "command": {
               "type": "activity/now",
               "activity": "activity.job-hunt",
-              "param": "activity.job-remote-dev",
-              "basedOn": 15
+              "param": "activity.job-mid-dev",
+              "basedOn": 11
+            },
+            "tick": 1,
+            "sender": "player"
+          },
+          {
+            "command": {
+              "type": "activity/now",
+              "activity": "activity.learn-tech",
+              "param": null,
+              "basedOn": 12
+            },
+            "tick": 1,
+            "sender": "player"
+          },
+          {
+            "command": {
+              "type": "activity/now",
+              "activity": "activity.learn-tech",
+              "param": null,
+              "basedOn": 13
             },
             "tick": 1,
             "sender": "player"
@@ -175,7 +155,7 @@
               "type": "activity/now",
               "activity": "activity.side-gig",
               "param": null,
-              "basedOn": 16
+              "basedOn": 14
             },
             "tick": 1,
             "sender": "player"
@@ -184,7 +164,7 @@
             "command": {
               "type": "turn/end",
               "slots": [],
-              "basedOn": 17
+              "basedOn": 15
             },
             "tick": 1,
             "sender": "player"
@@ -194,6 +174,25 @@
               "type": "activity/now",
               "activity": "activity.look-into-route",
               "param": "route.uk-masters",
+              "basedOn": 16
+            },
+            "tick": 2,
+            "sender": "player"
+          },
+          {
+            "command": {
+              "type": "activity/now",
+              "activity": "activity.job-hunt",
+              "param": "activity.job-remote-dev",
+              "basedOn": 17
+            },
+            "tick": 2,
+            "sender": "player"
+          },
+          {
+            "command": {
+              "type": "turn/end",
+              "slots": [],
               "basedOn": 18
             },
             "tick": 2,
@@ -206,25 +205,6 @@
               "param": "activity.job-remote-dev",
               "basedOn": 19
             },
-            "tick": 2,
-            "sender": "player"
-          },
-          {
-            "command": {
-              "type": "turn/end",
-              "slots": [],
-              "basedOn": 20
-            },
-            "tick": 2,
-            "sender": "player"
-          },
-          {
-            "command": {
-              "type": "activity/now",
-              "activity": "activity.job-hunt",
-              "param": "activity.job-remote-dev",
-              "basedOn": 21
-            },
             "tick": 3,
             "sender": "player"
           },
@@ -233,7 +213,7 @@
               "type": "activity/now",
               "activity": "activity.get-passport",
               "param": null,
-              "basedOn": 22
+              "basedOn": 20
             },
             "tick": 3,
             "sender": "player"
@@ -242,7 +222,7 @@
             "command": {
               "type": "turn/end",
               "slots": [],
-              "basedOn": 23
+              "basedOn": 21
             },
             "tick": 3,
             "sender": "player"
@@ -252,7 +232,7 @@
               "type": "offer/choose",
               "offer": "offer-6",
               "choice": "accept",
-              "basedOn": 24
+              "basedOn": 22
             },
             "tick": 4,
             "sender": "player"
@@ -262,7 +242,7 @@
               "type": "activity/now",
               "activity": "activity.get-transcript",
               "param": null,
-              "basedOn": 25
+              "basedOn": 23
             },
             "tick": 4,
             "sender": "player"
@@ -272,7 +252,7 @@
               "type": "activity/now",
               "activity": "activity.ask-around",
               "param": null,
-              "basedOn": 26
+              "basedOn": 24
             },
             "tick": 4,
             "sender": "player"
@@ -283,7 +263,7 @@
               "currency": "NGN",
               "amount": 36000000,
               "to": "cash",
-              "basedOn": 27
+              "basedOn": 25
             },
             "tick": 4,
             "sender": "player"
@@ -293,7 +273,7 @@
               "type": "offer/choose",
               "offer": "offer-7",
               "choice": "take",
-              "basedOn": 28
+              "basedOn": 26
             },
             "tick": 4,
             "sender": "player"
@@ -303,7 +283,7 @@
               "type": "setpiece/answer",
               "question": "night",
               "answer": "go",
-              "basedOn": 29
+              "basedOn": 27
             },
             "tick": 4,
             "sender": "player"
@@ -314,7 +294,7 @@
               "currency": "NGN",
               "amount": 28000000,
               "to": "bank",
-              "basedOn": 30
+              "basedOn": 28
             },
             "tick": 4,
             "sender": "player"
@@ -323,7 +303,7 @@
             "command": {
               "type": "turn/end",
               "slots": [],
-              "basedOn": 31
+              "basedOn": 29
             },
             "tick": 4,
             "sender": "player"
@@ -333,25 +313,25 @@
               "type": "setpiece/answer",
               "question": "truth",
               "answer": "pay",
+              "basedOn": 30
+            },
+            "tick": 5,
+            "sender": "player"
+          },
+          {
+            "command": {
+              "type": "turn/end",
+              "slots": [],
+              "basedOn": 31
+            },
+            "tick": 5,
+            "sender": "player"
+          },
+          {
+            "command": {
+              "type": "turn/end",
+              "slots": [],
               "basedOn": 32
-            },
-            "tick": 5,
-            "sender": "player"
-          },
-          {
-            "command": {
-              "type": "turn/end",
-              "slots": [],
-              "basedOn": 33
-            },
-            "tick": 5,
-            "sender": "player"
-          },
-          {
-            "command": {
-              "type": "turn/end",
-              "slots": [],
-              "basedOn": 34
             },
             "tick": 6,
             "sender": "player"
@@ -360,7 +340,7 @@
             "command": {
               "type": "turn/end",
               "slots": [],
-              "basedOn": 35
+              "basedOn": 33
             },
             "tick": 7,
             "sender": "player"
@@ -369,7 +349,7 @@
             "command": {
               "type": "turn/end",
               "slots": [],
-              "basedOn": 36
+              "basedOn": 34
             },
             "tick": 8,
             "sender": "player"
@@ -378,7 +358,7 @@
             "command": {
               "type": "turn/end",
               "slots": [],
-              "basedOn": 37
+              "basedOn": 35
             },
             "tick": 9,
             "sender": "player"
@@ -387,7 +367,7 @@
             "command": {
               "type": "turn/end",
               "slots": [],
-              "basedOn": 38
+              "basedOn": 36
             },
             "tick": 10,
             "sender": "player"
@@ -396,7 +376,7 @@
             "command": {
               "type": "turn/end",
               "slots": [],
-              "basedOn": 39
+              "basedOn": 37
             },
             "tick": 11,
             "sender": "player"
@@ -405,7 +385,7 @@
             "command": {
               "type": "turn/end",
               "slots": [],
-              "basedOn": 40
+              "basedOn": 38
             },
             "tick": 12,
             "sender": "player"
@@ -414,7 +394,7 @@
             "command": {
               "type": "turn/end",
               "slots": [],
-              "basedOn": 41
+              "basedOn": 39
             },
             "tick": 13,
             "sender": "player"
@@ -423,7 +403,7 @@
             "command": {
               "type": "turn/end",
               "slots": [],
-              "basedOn": 42
+              "basedOn": 40
             },
             "tick": 14,
             "sender": "player"
@@ -432,7 +412,7 @@
             "command": {
               "type": "turn/end",
               "slots": [],
-              "basedOn": 43
+              "basedOn": 41
             },
             "tick": 15,
             "sender": "player"
@@ -441,7 +421,7 @@
             "command": {
               "type": "turn/end",
               "slots": [],
-              "basedOn": 44
+              "basedOn": 42
             },
             "tick": 16,
             "sender": "player"
@@ -451,7 +431,7 @@
               "type": "offer/choose",
               "offer": "offer-22",
               "choice": "claim",
-              "basedOn": 45
+              "basedOn": 43
             },
             "tick": 17,
             "sender": "player"
@@ -461,7 +441,7 @@
               "type": "activity/now",
               "activity": "activity.job-hunt",
               "param": "activity.job-remote-dev",
-              "basedOn": 46
+              "basedOn": 44
             },
             "tick": 17,
             "sender": "player"
@@ -471,7 +451,7 @@
               "type": "activity/now",
               "activity": "activity.sit-english-test",
               "param": null,
-              "basedOn": 47
+              "basedOn": 45
             },
             "tick": 17,
             "sender": "player"
@@ -481,7 +461,7 @@
               "type": "activity/now",
               "activity": "activity.look-into-route",
               "param": "route.gulf-contract",
-              "basedOn": 48
+              "basedOn": 46
             },
             "tick": 17,
             "sender": "player"
@@ -493,7 +473,7 @@
               "to": "NGN",
               "amount": 280000,
               "via": "bank",
-              "basedOn": 49
+              "basedOn": 47
             },
             "tick": 17,
             "sender": "player"
@@ -502,7 +482,7 @@
             "command": {
               "type": "turn/end",
               "slots": [],
-              "basedOn": 50
+              "basedOn": 48
             },
             "tick": 17,
             "sender": "player"
@@ -512,7 +492,7 @@
               "type": "offer/choose",
               "offer": "offer-24",
               "choice": "no",
-              "basedOn": 51
+              "basedOn": 49
             },
             "tick": 18,
             "sender": "player"
@@ -522,7 +502,7 @@
               "type": "activity/now",
               "activity": "activity.job-hunt",
               "param": "activity.job-remote-dev",
-              "basedOn": 52
+              "basedOn": 50
             },
             "tick": 18,
             "sender": "player"
@@ -532,7 +512,7 @@
               "type": "activity/now",
               "activity": "activity.apply-to-school",
               "param": "school.northgate",
-              "basedOn": 53
+              "basedOn": 51
             },
             "tick": 18,
             "sender": "player"
@@ -542,7 +522,7 @@
               "type": "activity/now",
               "activity": "activity.gulf-medical",
               "param": null,
-              "basedOn": 54
+              "basedOn": 52
             },
             "tick": 18,
             "sender": "player"
@@ -551,7 +531,7 @@
             "command": {
               "type": "turn/end",
               "slots": [],
-              "basedOn": 55
+              "basedOn": 53
             },
             "tick": 18,
             "sender": "player"
@@ -561,7 +541,7 @@
               "type": "offer/choose",
               "offer": "offer-26",
               "choice": "leave",
-              "basedOn": 56
+              "basedOn": 54
             },
             "tick": 19,
             "sender": "player"
@@ -571,7 +551,7 @@
               "type": "activity/now",
               "activity": "activity.job-hunt",
               "param": "activity.job-remote-dev",
-              "basedOn": 57
+              "basedOn": 55
             },
             "tick": 19,
             "sender": "player"
@@ -580,6 +560,26 @@
             "command": {
               "type": "activity/now",
               "activity": "activity.side-gig",
+              "param": null,
+              "basedOn": 56
+            },
+            "tick": 19,
+            "sender": "player"
+          },
+          {
+            "command": {
+              "type": "activity/now",
+              "activity": "activity.family-time",
+              "param": null,
+              "basedOn": 57
+            },
+            "tick": 19,
+            "sender": "player"
+          },
+          {
+            "command": {
+              "type": "activity/now",
+              "activity": "activity.family-time",
               "param": null,
               "basedOn": 58
             },
@@ -619,19 +619,9 @@
           {
             "command": {
               "type": "activity/now",
-              "activity": "activity.family-time",
-              "param": null,
-              "basedOn": 62
-            },
-            "tick": 19,
-            "sender": "player"
-          },
-          {
-            "command": {
-              "type": "activity/now",
               "activity": "activity.family-meeting",
               "param": null,
-              "basedOn": 63
+              "basedOn": 62
             },
             "tick": 19,
             "sender": "player"
@@ -641,7 +631,7 @@
               "type": "offer/choose",
               "offer": "offer-27",
               "choice": "accept",
-              "basedOn": 64
+              "basedOn": 63
             },
             "tick": 19,
             "sender": "player"
@@ -650,7 +640,7 @@
             "command": {
               "type": "turn/end",
               "slots": [],
-              "basedOn": 65
+              "basedOn": 64
             },
             "tick": 19,
             "sender": "player"
@@ -660,7 +650,7 @@
               "type": "activity/now",
               "activity": "activity.job-hunt",
               "param": "activity.job-remote-dev",
-              "basedOn": 66
+              "basedOn": 65
             },
             "tick": 20,
             "sender": "player"
@@ -669,6 +659,16 @@
             "command": {
               "type": "activity/now",
               "activity": "activity.side-gig",
+              "param": null,
+              "basedOn": 66
+            },
+            "tick": 20,
+            "sender": "player"
+          },
+          {
+            "command": {
+              "type": "activity/now",
+              "activity": "activity.family-time",
               "param": null,
               "basedOn": 67
             },
@@ -777,19 +777,9 @@
           },
           {
             "command": {
-              "type": "activity/now",
-              "activity": "activity.family-time",
-              "param": null,
-              "basedOn": 78
-            },
-            "tick": 20,
-            "sender": "player"
-          },
-          {
-            "command": {
               "type": "turn/end",
               "slots": [],
-              "basedOn": 79
+              "basedOn": 78
             },
             "tick": 20,
             "sender": "player"
@@ -799,7 +789,7 @@
               "type": "activity/now",
               "activity": "activity.job-hunt",
               "param": "activity.job-remote-dev",
-              "basedOn": 80
+              "basedOn": 79
             },
             "tick": 21,
             "sender": "player"
@@ -808,6 +798,16 @@
             "command": {
               "type": "activity/now",
               "activity": "activity.side-gig",
+              "param": null,
+              "basedOn": 80
+            },
+            "tick": 21,
+            "sender": "player"
+          },
+          {
+            "command": {
+              "type": "activity/now",
+              "activity": "activity.family-time",
               "param": null,
               "basedOn": 81
             },
@@ -916,19 +916,9 @@
           },
           {
             "command": {
-              "type": "activity/now",
-              "activity": "activity.family-time",
-              "param": null,
-              "basedOn": 92
-            },
-            "tick": 21,
-            "sender": "player"
-          },
-          {
-            "command": {
               "type": "turn/end",
               "slots": [],
-              "basedOn": 93
+              "basedOn": 92
             },
             "tick": 21,
             "sender": "player"
@@ -938,7 +928,7 @@
               "type": "offer/choose",
               "offer": "offer-30",
               "choice": "leave",
-              "basedOn": 94
+              "basedOn": 93
             },
             "tick": 22,
             "sender": "player"
@@ -948,7 +938,7 @@
               "type": "activity/now",
               "activity": "activity.job-hunt",
               "param": "activity.job-remote-dev",
-              "basedOn": 95
+              "basedOn": 94
             },
             "tick": 22,
             "sender": "player"
@@ -957,6 +947,16 @@
             "command": {
               "type": "activity/now",
               "activity": "activity.side-gig",
+              "param": null,
+              "basedOn": 95
+            },
+            "tick": 22,
+            "sender": "player"
+          },
+          {
+            "command": {
+              "type": "activity/now",
+              "activity": "activity.family-time",
               "param": null,
               "basedOn": 96
             },
@@ -1055,19 +1055,9 @@
           },
           {
             "command": {
-              "type": "activity/now",
-              "activity": "activity.family-time",
-              "param": null,
-              "basedOn": 106
-            },
-            "tick": 22,
-            "sender": "player"
-          },
-          {
-            "command": {
               "type": "turn/end",
               "slots": [],
-              "basedOn": 107
+              "basedOn": 106
             },
             "tick": 22,
             "sender": "player"
@@ -1077,7 +1067,7 @@
               "type": "offer/choose",
               "offer": "offer-31",
               "choice": "message",
-              "basedOn": 108
+              "basedOn": 107
             },
             "tick": 23,
             "sender": "player"
@@ -1087,7 +1077,7 @@
               "type": "activity/now",
               "activity": "activity.job-hunt",
               "param": "activity.job-remote-dev",
-              "basedOn": 109
+              "basedOn": 108
             },
             "tick": 23,
             "sender": "player"
@@ -1096,6 +1086,16 @@
             "command": {
               "type": "activity/now",
               "activity": "activity.side-gig",
+              "param": null,
+              "basedOn": 109
+            },
+            "tick": 23,
+            "sender": "player"
+          },
+          {
+            "command": {
+              "type": "activity/now",
+              "activity": "activity.family-time",
               "param": null,
               "basedOn": 110
             },
@@ -1194,19 +1194,9 @@
           },
           {
             "command": {
-              "type": "activity/now",
-              "activity": "activity.family-time",
-              "param": null,
-              "basedOn": 120
-            },
-            "tick": 23,
-            "sender": "player"
-          },
-          {
-            "command": {
               "type": "turn/end",
               "slots": [],
-              "basedOn": 121
+              "basedOn": 120
             },
             "tick": 23,
             "sender": "player"
@@ -1216,7 +1206,7 @@
               "type": "offer/choose",
               "offer": "offer-32",
               "choice": "no",
-              "basedOn": 122
+              "basedOn": 121
             },
             "tick": 24,
             "sender": "player"
@@ -1226,7 +1216,7 @@
               "type": "activity/now",
               "activity": "activity.job-hunt",
               "param": "activity.job-remote-dev",
-              "basedOn": 123
+              "basedOn": 122
             },
             "tick": 24,
             "sender": "player"
@@ -1235,6 +1225,16 @@
             "command": {
               "type": "activity/now",
               "activity": "activity.side-gig",
+              "param": null,
+              "basedOn": 123
+            },
+            "tick": 24,
+            "sender": "player"
+          },
+          {
+            "command": {
+              "type": "activity/now",
+              "activity": "activity.family-time",
               "param": null,
               "basedOn": 124
             },
@@ -1333,19 +1333,9 @@
           },
           {
             "command": {
-              "type": "activity/now",
-              "activity": "activity.family-time",
-              "param": null,
-              "basedOn": 134
-            },
-            "tick": 24,
-            "sender": "player"
-          },
-          {
-            "command": {
               "type": "turn/end",
               "slots": [],
-              "basedOn": 135
+              "basedOn": 134
             },
             "tick": 24,
             "sender": "player"
@@ -1355,7 +1345,7 @@
               "type": "offer/choose",
               "offer": "offer-35",
               "choice": "accept",
-              "basedOn": 136
+              "basedOn": 135
             },
             "tick": 25,
             "sender": "player"
@@ -1364,6 +1354,16 @@
             "command": {
               "type": "activity/now",
               "activity": "activity.side-gig",
+              "param": null,
+              "basedOn": 136
+            },
+            "tick": 25,
+            "sender": "player"
+          },
+          {
+            "command": {
+              "type": "activity/now",
+              "activity": "activity.family-time",
               "param": null,
               "basedOn": 137
             },
@@ -1472,19 +1472,9 @@
           },
           {
             "command": {
-              "type": "activity/now",
-              "activity": "activity.family-time",
-              "param": null,
-              "basedOn": 148
-            },
-            "tick": 25,
-            "sender": "player"
-          },
-          {
-            "command": {
               "type": "turn/end",
               "slots": [],
-              "basedOn": 149
+              "basedOn": 148
             },
             "tick": 25,
             "sender": "player"
@@ -1494,7 +1484,7 @@
               "type": "offer/choose",
               "offer": "offer-37",
               "choice": "no",
-              "basedOn": 150
+              "basedOn": 149
             },
             "tick": 26,
             "sender": "player"
@@ -1506,7 +1496,7 @@
               "to": "NGN",
               "amount": 280000,
               "via": "bank",
-              "basedOn": 151
+              "basedOn": 150
             },
             "tick": 26,
             "sender": "player"
@@ -1516,7 +1506,7 @@
               "type": "route/pay-deposit",
               "route": "route.uk-masters",
               "school": "school.northgate",
-              "basedOn": 152
+              "basedOn": 151
             },
             "tick": 26,
             "sender": "player"
@@ -1525,6 +1515,16 @@
             "command": {
               "type": "activity/now",
               "activity": "activity.side-gig",
+              "param": null,
+              "basedOn": 152
+            },
+            "tick": 26,
+            "sender": "player"
+          },
+          {
+            "command": {
+              "type": "activity/now",
+              "activity": "activity.family-time",
               "param": null,
               "basedOn": 153
             },
@@ -1613,19 +1613,9 @@
           },
           {
             "command": {
-              "type": "activity/now",
-              "activity": "activity.family-time",
-              "param": null,
-              "basedOn": 162
-            },
-            "tick": 26,
-            "sender": "player"
-          },
-          {
-            "command": {
               "type": "turn/end",
               "slots": [],
-              "basedOn": 163
+              "basedOn": 162
             },
             "tick": 26,
             "sender": "player"
@@ -1635,7 +1625,7 @@
               "type": "offer/choose",
               "offer": "offer-38",
               "choice": "no",
-              "basedOn": 164
+              "basedOn": 163
             },
             "tick": 27,
             "sender": "player"
@@ -1645,8 +1635,8 @@
               "type": "offer/choose",
               "offer": "offer-39",
               "choice": "take",
-              "amount": 3560869392,
-              "basedOn": 165
+              "amount": 3574058906,
+              "basedOn": 164
             },
             "tick": 27,
             "sender": "player"
@@ -1658,7 +1648,7 @@
               "to": "NGN",
               "amount": 280000,
               "via": "bank",
-              "basedOn": 166
+              "basedOn": 165
             },
             "tick": 27,
             "sender": "player"
@@ -1668,7 +1658,7 @@
               "type": "activity/now",
               "activity": "activity.tb-test",
               "param": null,
-              "basedOn": 167
+              "basedOn": 166
             },
             "tick": 27,
             "sender": "player"
@@ -1678,7 +1668,7 @@
               "type": "activity/now",
               "activity": "activity.side-gig",
               "param": null,
-              "basedOn": 168
+              "basedOn": 167
             },
             "tick": 27,
             "sender": "player"
@@ -1687,7 +1677,7 @@
             "command": {
               "type": "turn/end",
               "slots": [],
-              "basedOn": 169
+              "basedOn": 168
             },
             "tick": 27,
             "sender": "player"
@@ -1699,7 +1689,7 @@
               "to": "NGN",
               "amount": 280000,
               "via": "bank",
-              "basedOn": 170
+              "basedOn": 169
             },
             "tick": 28,
             "sender": "player"
@@ -1709,7 +1699,7 @@
               "type": "activity/now",
               "activity": "activity.apply-for-visa",
               "param": null,
-              "basedOn": 171
+              "basedOn": 170
             },
             "tick": 28,
             "sender": "player"
@@ -1719,7 +1709,7 @@
               "type": "setpiece/answer",
               "question": "living",
               "answer": "figures",
-              "basedOn": 172
+              "basedOn": 171
             },
             "tick": 28,
             "sender": "player"
@@ -1729,7 +1719,7 @@
               "type": "setpiece/answer",
               "question": "after",
               "answer": "return",
-              "basedOn": 173
+              "basedOn": 172
             },
             "tick": 28,
             "sender": "player"
@@ -1739,7 +1729,7 @@
               "type": "setpiece/answer",
               "question": "deposit",
               "answer": "agreement",
-              "basedOn": 174
+              "basedOn": 173
             },
             "tick": 28,
             "sender": "player"
@@ -1749,7 +1739,7 @@
               "type": "activity/now",
               "activity": "activity.side-gig",
               "param": null,
-              "basedOn": 175
+              "basedOn": 174
             },
             "tick": 28,
             "sender": "player"
@@ -1758,7 +1748,7 @@
             "command": {
               "type": "turn/end",
               "slots": [],
-              "basedOn": 176
+              "basedOn": 175
             },
             "tick": 28,
             "sender": "player"
@@ -1770,7 +1760,7 @@
               "to": "NGN",
               "amount": 280000,
               "via": "bank",
-              "basedOn": 177
+              "basedOn": 176
             },
             "tick": 29,
             "sender": "player"
@@ -1780,7 +1770,7 @@
               "type": "route/pay-deposit",
               "route": "route.uk-masters",
               "school": "school.northgate",
-              "basedOn": 178
+              "basedOn": 177
             },
             "tick": 29,
             "sender": "player"
@@ -1789,6 +1779,16 @@
             "command": {
               "type": "activity/now",
               "activity": "activity.side-gig",
+              "param": null,
+              "basedOn": 178
+            },
+            "tick": 29,
+            "sender": "player"
+          },
+          {
+            "command": {
+              "type": "activity/now",
+              "activity": "activity.family-time",
               "param": null,
               "basedOn": 179
             },
@@ -1887,19 +1887,9 @@
           },
           {
             "command": {
-              "type": "activity/now",
-              "activity": "activity.family-time",
-              "param": null,
-              "basedOn": 189
-            },
-            "tick": 29,
-            "sender": "player"
-          },
-          {
-            "command": {
               "type": "turn/end",
               "slots": [],
-              "basedOn": 190
+              "basedOn": 189
             },
             "tick": 29,
             "sender": "player"
@@ -1909,7 +1899,7 @@
               "type": "offer/choose",
               "offer": "offer-41",
               "choice": "no",
-              "basedOn": 191
+              "basedOn": 190
             },
             "tick": 30,
             "sender": "player"
@@ -1919,7 +1909,7 @@
               "type": "offer/choose",
               "offer": "offer-42",
               "choice": "trek",
-              "basedOn": 192
+              "basedOn": 191
             },
             "tick": 30,
             "sender": "player"
@@ -1931,7 +1921,7 @@
               "to": "NGN",
               "amount": 280000,
               "via": "bank",
-              "basedOn": 193
+              "basedOn": 192
             },
             "tick": 30,
             "sender": "player"
@@ -1941,7 +1931,7 @@
               "type": "activity/now",
               "activity": "activity.apply-for-visa",
               "param": null,
-              "basedOn": 194
+              "basedOn": 193
             },
             "tick": 30,
             "sender": "player"
@@ -1951,7 +1941,7 @@
               "type": "setpiece/answer",
               "question": "who-pays",
               "answer": "own",
-              "basedOn": 195
+              "basedOn": 194
             },
             "tick": 30,
             "sender": "player"
@@ -1961,7 +1951,7 @@
               "type": "setpiece/answer",
               "question": "deposit",
               "answer": "agreement",
-              "basedOn": 196
+              "basedOn": 195
             },
             "tick": 30,
             "sender": "player"
@@ -1971,7 +1961,7 @@
               "type": "setpiece/answer",
               "question": "why-uk",
               "answer": "course",
-              "basedOn": 197
+              "basedOn": 196
             },
             "tick": 30,
             "sender": "player"
@@ -1981,7 +1971,7 @@
               "type": "activity/now",
               "activity": "activity.side-gig",
               "param": null,
-              "basedOn": 198
+              "basedOn": 197
             },
             "tick": 30,
             "sender": "player"
@@ -1990,7 +1980,7 @@
             "command": {
               "type": "turn/end",
               "slots": [],
-              "basedOn": 199
+              "basedOn": 198
             },
             "tick": 30,
             "sender": "player"
@@ -2002,7 +1992,7 @@
               "to": "NGN",
               "amount": 280000,
               "via": "bank",
-              "basedOn": 200
+              "basedOn": 199
             },
             "tick": 31,
             "sender": "player"
@@ -2012,7 +2002,7 @@
               "type": "route/pay-deposit",
               "route": "route.uk-masters",
               "school": "school.northgate",
-              "basedOn": 201
+              "basedOn": 200
             },
             "tick": 31,
             "sender": "player"
@@ -2021,6 +2011,16 @@
             "command": {
               "type": "activity/now",
               "activity": "activity.side-gig",
+              "param": null,
+              "basedOn": 201
+            },
+            "tick": 31,
+            "sender": "player"
+          },
+          {
+            "command": {
+              "type": "activity/now",
+              "activity": "activity.family-time",
               "param": null,
               "basedOn": 202
             },
@@ -2119,19 +2119,9 @@
           },
           {
             "command": {
-              "type": "activity/now",
-              "activity": "activity.family-time",
-              "param": null,
-              "basedOn": 212
-            },
-            "tick": 31,
-            "sender": "player"
-          },
-          {
-            "command": {
               "type": "turn/end",
               "slots": [],
-              "basedOn": 213
+              "basedOn": 212
             },
             "tick": 31,
             "sender": "player"
@@ -2141,7 +2131,7 @@
               "type": "offer/choose",
               "offer": "offer-43",
               "choice": "no",
-              "basedOn": 214
+              "basedOn": 213
             },
             "tick": 32,
             "sender": "player"
@@ -2151,7 +2141,7 @@
               "type": "offer/choose",
               "offer": "offer-44",
               "choice": "no",
-              "basedOn": 215
+              "basedOn": 214
             },
             "tick": 32,
             "sender": "player"
@@ -2163,7 +2153,7 @@
               "to": "NGN",
               "amount": 280000,
               "via": "bank",
-              "basedOn": 216
+              "basedOn": 215
             },
             "tick": 32,
             "sender": "player"
@@ -2173,7 +2163,7 @@
               "type": "activity/now",
               "activity": "activity.apply-for-visa",
               "param": null,
-              "basedOn": 217
+              "basedOn": 216
             },
             "tick": 32,
             "sender": "player"
@@ -2183,7 +2173,7 @@
               "type": "setpiece/answer",
               "question": "why-uk",
               "answer": "course",
-              "basedOn": 218
+              "basedOn": 217
             },
             "tick": 32,
             "sender": "player"
@@ -2193,7 +2183,7 @@
               "type": "setpiece/answer",
               "question": "living",
               "answer": "figures",
-              "basedOn": 219
+              "basedOn": 218
             },
             "tick": 32,
             "sender": "player"
@@ -2203,7 +2193,7 @@
               "type": "setpiece/answer",
               "question": "course",
               "answer": "detail",
-              "basedOn": 220
+              "basedOn": 219
             },
             "tick": 32,
             "sender": "player"
@@ -2213,7 +2203,7 @@
               "type": "activity/now",
               "activity": "activity.side-gig",
               "param": null,
-              "basedOn": 221
+              "basedOn": 220
             },
             "tick": 32,
             "sender": "player"
@@ -2222,7 +2212,7 @@
             "command": {
               "type": "turn/end",
               "slots": [],
-              "basedOn": 222
+              "basedOn": 221
             },
             "tick": 32,
             "sender": "player"
@@ -2232,7 +2222,7 @@
               "type": "offer/choose",
               "offer": "offer-46",
               "choice": "walk-away",
-              "basedOn": 223
+              "basedOn": 222
             },
             "tick": 33,
             "sender": "player"
@@ -2244,7 +2234,7 @@
               "to": "NGN",
               "amount": 280000,
               "via": "bank",
-              "basedOn": 224
+              "basedOn": 223
             },
             "tick": 33,
             "sender": "player"
@@ -2253,8 +2243,8 @@
             "command": {
               "type": "obligation/pay",
               "obligation": "obligation-40",
-              "amount": 3560869392,
-              "basedOn": 225
+              "amount": 3574058906,
+              "basedOn": 224
             },
             "tick": 33,
             "sender": "player"
@@ -2263,7 +2253,7 @@
             "command": {
               "type": "route/depart",
               "route": "route.uk-masters",
-              "basedOn": 226
+              "basedOn": 225
             },
             "tick": 33,
             "sender": "player"
@@ -2275,235 +2265,235 @@
   "months": [
     {
       "month": 1,
-      "v": 14,
+      "v": 10,
       "banked": 23,
-      "nairaBank": 124560358,
-      "hash": "f505c9b68ddfb075"
+      "nairaBank": 112500000,
+      "hash": "36fd0bad08f47aa3"
     },
     {
       "month": 2,
-      "v": 18,
+      "v": 16,
       "banked": 22,
-      "nairaBank": 165094218,
-      "hash": "5ec5da37e328dc0c"
+      "nairaBank": 151060358,
+      "hash": "8cd841efac4d3154"
     },
     {
       "month": 3,
-      "v": 21,
+      "v": 19,
       "banked": 24,
-      "nairaBank": 191094218,
-      "hash": "ead5bbd062b66b3f"
+      "nairaBank": 177060358,
+      "hash": "fa2c04bea0982531"
     },
     {
       "month": 4,
-      "v": 24,
+      "v": 22,
       "banked": 23,
-      "nairaBank": 207094218,
-      "hash": "41c52a93b722065a"
+      "nairaBank": 193060358,
+      "hash": "157ebca14c152394"
     },
     {
       "month": 5,
-      "v": 32,
+      "v": 30,
       "banked": 22,
-      "nairaBank": 150594218,
-      "hash": "bfaf0796ec9d50dc"
+      "nairaBank": 136560358,
+      "hash": "43a6099021c2a505"
     },
     {
       "month": 6,
-      "v": 34,
+      "v": 32,
       "banked": 21,
-      "nairaBank": 150594218,
-      "hash": "01ed6cf818fcdfea"
+      "nairaBank": 136560358,
+      "hash": "6a7fa1932ba791ff"
     },
     {
       "month": 7,
-      "v": 35,
+      "v": 33,
       "banked": 20,
-      "nairaBank": 150594218,
-      "hash": "d9be8596547365b0"
+      "nairaBank": 136560358,
+      "hash": "35d60755c9318429"
     },
     {
       "month": 8,
-      "v": 36,
+      "v": 34,
       "banked": 19,
-      "nairaBank": 150594218,
-      "hash": "d26a0362334023b2"
+      "nairaBank": 136560358,
+      "hash": "2533f0b5d5571325"
     },
     {
       "month": 9,
-      "v": 37,
+      "v": 35,
       "banked": 18,
-      "nairaBank": 150594218,
-      "hash": "6b7dc71079844007"
+      "nairaBank": 136560358,
+      "hash": "a710f5c7f3336fa1"
     },
     {
       "month": 10,
-      "v": 38,
+      "v": 36,
       "banked": 17,
-      "nairaBank": 150594218,
-      "hash": "7e7ed8ec77517dd2"
+      "nairaBank": 136560358,
+      "hash": "84e1e991ca79887c"
     },
     {
       "month": 11,
-      "v": 39,
+      "v": 37,
       "banked": 16,
-      "nairaBank": 150594218,
-      "hash": "82b1602785e91bf8"
+      "nairaBank": 136560358,
+      "hash": "54d3269e1e61e66d"
     },
     {
       "month": 12,
-      "v": 40,
+      "v": 38,
       "banked": 15,
-      "nairaBank": 150594218,
-      "hash": "91f72de8e7294d2d"
+      "nairaBank": 136560358,
+      "hash": "f26dff767d546f91"
     },
     {
       "month": 13,
-      "v": 41,
+      "v": 39,
       "banked": 14,
-      "nairaBank": 150594218,
-      "hash": "72addfeb3a253060"
+      "nairaBank": 136560358,
+      "hash": "2925e761d74b55e9"
     },
     {
       "month": 14,
-      "v": 42,
+      "v": 40,
       "banked": 13,
-      "nairaBank": 150594218,
-      "hash": "039626492a5a32fa"
+      "nairaBank": 136560358,
+      "hash": "d5d159f81d644679"
     },
     {
       "month": 15,
-      "v": 43,
+      "v": 41,
       "banked": 12,
-      "nairaBank": 150594218,
-      "hash": "434e1f847914da56"
+      "nairaBank": 136560358,
+      "hash": "5583d99df89055fe"
     },
     {
       "month": 16,
-      "v": 44,
+      "v": 42,
       "banked": 11,
-      "nairaBank": 150594218,
-      "hash": "2550ae2c6de4642b"
+      "nairaBank": 136560358,
+      "hash": "b1cd5ecd1f765ddc"
     },
     {
       "month": 17,
-      "v": 45,
+      "v": 43,
       "banked": 10,
-      "nairaBank": 150594218,
-      "hash": "4ab6a080178937a8"
+      "nairaBank": 136560358,
+      "hash": "126f6d98d919024a"
     },
     {
       "month": 18,
-      "v": 51,
+      "v": 49,
       "banked": 9,
-      "nairaBank": 507593296,
-      "hash": "27a1107d79439eb2"
+      "nairaBank": 493559436,
+      "hash": "3a7adca78a2d6385"
     },
     {
       "month": 19,
-      "v": 56,
+      "v": 54,
       "banked": 24,
-      "nairaBank": 495593296,
-      "hash": "7f3741c3c1b471b0"
+      "nairaBank": 481559436,
+      "hash": "353cd062b45e45bc"
     },
     {
       "month": 20,
-      "v": 66,
+      "v": 65,
       "banked": 23,
-      "nairaBank": 565747846,
-      "hash": "9a1b3c4f4475abe6"
+      "nairaBank": 550393296,
+      "hash": "0bcd710c868c228b"
     },
     {
       "month": 21,
-      "v": 80,
+      "v": 79,
       "banked": 22,
-      "nairaBank": 571820596,
-      "hash": "4886bae55ac7ddf5"
+      "nairaBank": 560447846,
+      "hash": "b66b5d8372b08551"
     },
     {
       "month": 22,
-      "v": 94,
+      "v": 93,
       "banked": 21,
-      "nairaBank": 580209700,
-      "hash": "1f4262596456a322"
+      "nairaBank": 566420596,
+      "hash": "85e27eb72dffca80"
     },
     {
       "month": 23,
-      "v": 108,
+      "v": 107,
       "banked": 20,
-      "nairaBank": 588868458,
-      "hash": "c6a55366fb97be30"
+      "nairaBank": 574709700,
+      "hash": "ea35f7742a11c40c"
     },
     {
       "month": 24,
-      "v": 122,
+      "v": 121,
       "banked": 19,
-      "nairaBank": 597765053,
-      "hash": "d94d6a52b75ae45c"
+      "nairaBank": 583268458,
+      "hash": "0adf4b1d27dc8c81"
     },
     {
       "month": 25,
-      "v": 136,
+      "v": 135,
       "banked": 18,
-      "nairaBank": 605081417,
-      "hash": "749e6aa0743cb6af"
+      "nairaBank": 592065053,
+      "hash": "02180b3842f0c474"
     },
     {
       "month": 26,
-      "v": 150,
+      "v": 149,
       "banked": 17,
-      "nairaBank": 611114786,
-      "hash": "58200e1f1559a607"
+      "nairaBank": 599281417,
+      "hash": "b888dc715da0ac44"
     },
     {
       "month": 27,
-      "v": 164,
+      "v": 163,
       "banked": 16,
-      "nairaBank": 237425213,
-      "hash": "4bb7102a48443fdb"
+      "nairaBank": 225435930,
+      "hash": "f7c00b353979706f"
     },
     {
       "month": 28,
-      "v": 170,
+      "v": 169,
       "banked": 15,
-      "nairaBank": 386634124,
-      "hash": "ec30ef8da6eb3580"
+      "nairaBank": 369535876,
+      "hash": "06db229fcd0281e1"
     },
     {
       "month": 29,
-      "v": 177,
+      "v": 176,
       "banked": 14,
-      "nairaBank": 353770676,
-      "hash": "eefb76849cfd0660"
+      "nairaBank": 338094226,
+      "hash": "ad93ef9aa7c68bbd"
     },
     {
       "month": 30,
-      "v": 191,
+      "v": 190,
       "banked": 13,
-      "nairaBank": 102290756,
-      "hash": "2a0eeb8a17856c5c"
+      "nairaBank": 85712383,
+      "hash": "51ef4ce052cdfa80"
     },
     {
       "month": 31,
-      "v": 200,
+      "v": 199,
       "banked": 12,
-      "nairaBank": 72039757,
-      "hash": "352b713c3ffa9154"
+      "nairaBank": 53946065,
+      "hash": "7b14b60bd022df44"
     },
     {
       "month": 32,
-      "v": 214,
+      "v": 213,
       "banked": 11,
-      "nairaBank": 375035273,
-      "hash": "f87b8a3d2a28b95f"
+      "nairaBank": 360436161,
+      "hash": "75fba48747abc1f3"
     },
     {
       "month": 33,
-      "v": 223,
+      "v": 222,
       "banked": 24,
-      "nairaBank": 478334339,
-      "hash": "5a93c7f1efc56d97"
+      "nairaBank": 458128570,
+      "hash": "f75e01be669f9473"
     }
   ],
-  "finalHash": "a0bd917af507a11f"
+  "finalHash": "429ce4f0b7df1231"
 }

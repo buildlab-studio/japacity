@@ -1241,10 +1241,12 @@ export function activityOptions(read: ReadCtx): ActivityOption[] {
       const missing = [...entry.requires.filter((requirement) => !judge(requirement).met), ...waiting];
       const prices = pricesOf(read, entry, params?.[0] ?? null);
       const done = doneThisMonth(read.state, entry);
+      // R-ACTIVITY-019: a now-act that takes time is shut once the month's time is spent; what takes none stays open.
+      const noTime = answersNow(entry) && entry.purchase !== true && (entry.halfDays ?? 1) > 0 && read.state.turn.spent >= freeHalfDays(read.state, read.content);
       const sure = entry.id === HUNT_ACTIVITY && firstHuntSure(read);
       return {
         id: entry.id,
-        allowed: !done && missing.length === 0 && requirementsHold(read, entry, judge) && (params === null || params.length > 0),
+        allowed: !done && !noTime && missing.length === 0 && requirementsHold(read, entry, judge) && (params === null || params.length > 0),
         missing,
         params,
         cost: prices.map(({ currency, amount }) => ({ currency, amount })),
