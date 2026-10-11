@@ -22,7 +22,6 @@ export const cityText: Record<string, string> = {
   "city.band.packed": "Packed",
   "city.hold": "Tap the ground to walk. Hold to look from above.",
   "city.close": "Close",
-  "city.you": "You",
 
   "city.map": "Map",
   "city.map.country": "Country",

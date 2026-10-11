@@ -686,8 +686,6 @@ export function City({
   const cardWords = (): string => {
     if (picked === null || sample === null) return "";
     switch (picked.kind) {
-      case "own":
-        return cityWords("city.you");
       case "person": {
         const shown = sample.people.find((person) => person.slot === picked.slot) ?? (file === null ? undefined : dancerShown(stageOf(file), picked.slot));
         if (shown === undefined) return "";
@@ -751,6 +749,12 @@ export function City({
   // What the scene reports: a thing chosen shows its acts; an act becomes the sheet, the ride, the cut in or the cut out it stands for.
   // An act lands once the character has walked to its thing (R-WORLD-010); one that lands under a sheet, the phone, the map or the results is dropped.
   const readPick = (scenePick: ScenePick): void => {
+    // A tap on the player's own figure opens nothing: it only puts away a chip,
+    // as any tap outside one does, so the nudge stays (R-WORLD-003).
+    if (scenePick.kind === "own") {
+      setPicked(null);
+      return;
+    }
     if (scenePick.kind !== "act") {
       setPicked(scenePick);
       return;
@@ -1199,6 +1203,28 @@ export function City({
   useEffect(() => {
     if (reportOpen) setPicked(null);
   }, [reportOpen]);
+  // A thing's chip closes on a tap anywhere outside it, or on Escape (Back), so the nudge it hides comes back by itself,
+  // never waiting on a tap on the floor (R-WORLD-003, R-WORLD-005). The scene reads taps on
+  // itself: another thing chooses that thing, open ground puts the chip away.
+  const chipOpen = world && picked?.kind === "thing";
+  useEffect(() => {
+    if (!chipOpen) return;
+    const outside = (event: PointerEvent): void => {
+      const target = event.target;
+      if (!(target instanceof Element)) return;
+      if (target.closest("[data-thing-chip]") !== null || target.tagName === "CANVAS") return;
+      setPicked(null);
+    };
+    const back = (event: KeyboardEvent): void => {
+      if (event.key === "Escape") setPicked(null);
+    };
+    document.addEventListener("pointerdown", outside, true);
+    document.addEventListener("keydown", back);
+    return () => {
+      document.removeEventListener("pointerdown", outside, true);
+      document.removeEventListener("keydown", back);
+    };
+  }, [chipOpen]);
   // A pick added from the picker's sheet closes the sheet, as the ask card does (R-WORLD-006); its thing's label says it is planned.
   const lastPlan = useRef(plan);
   useEffect(() => {
