@@ -14,15 +14,18 @@ export interface SheetProps {
   onOpenChange: (open: boolean) => void;
   title: string;
   description?: string;
+  /** What stands above the title, with air around it: the wordmark on an account sheet. */
+  top?: ReactNode;
   children: ReactNode;
 }
 
-export function Sheet({ open, onOpenChange, title, description, children }: SheetProps) {
+export function Sheet({ open, onOpenChange, title, description, top, children }: SheetProps) {
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
         <Dialog.Backdrop className="fixed inset-0 z-40 bg-black/40 data-ending-style:pointer-events-none data-closed:pointer-events-none" />
         <Dialog.Popup className="data-ending-style:pointer-events-none data-closed:pointer-events-none fixed inset-x-0 bottom-0 z-50 flex max-h-[88dvh] flex-col gap-4 overflow-y-auto rounded-t-md border border-sheet-line bg-sheet p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] text-ink shadow-xl outline-hidden lg:inset-y-0 lg:right-0 lg:left-auto lg:max-h-none lg:w-[28rem] lg:rounded-none lg:rounded-l-md">
+          {top === undefined ? null : <div className="pt-2 pb-1">{top}</div>}
           <div className="flex items-start justify-between gap-3">
             <div className="flex flex-col gap-1">
               <Dialog.Title className="text-lg font-semibold">{title}</Dialog.Title>

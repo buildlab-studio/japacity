@@ -17,6 +17,7 @@ import { BlockReport } from "../../shared/moderation/BlockReport";
 import type { AcceptReply, AcceptRequest, InviteShown, InviteShownReply, ServerRejection } from "../../shared/net/contract";
 import { api, type Api } from "../../shared/net/http";
 import { Button } from "../../shared/ui/Button";
+import { Wordmark } from "../../shared/ui/Wordmark";
 import { nameOf, runningName, say, words } from "../../shared/words/text";
 import { AccountGate, type AccountGateProps } from "./AccountGate";
 import { SecureSheet } from "./Secure";
@@ -183,7 +184,7 @@ export function InvitePage({ code, server: given, onDone, ...gate }: InvitePageP
 
   return (
     <main className="mx-auto flex min-h-dvh max-w-md flex-col gap-6 px-4 py-8" data-invite-page>
-      <p className="text-xl font-bold">{say("ui.game")}</p>
+      <Wordmark ground="light" className="mt-2 mb-2" />
       <h1 className="text-2xl font-bold">{say("ui.invite.title")}</h1>
       <CardFace shown={stage.shown} />
       <p className="text-sm text-text-2">{say("ui.invite.days", { days: content.tuning.pair.inviteDays })}</p>
@@ -225,7 +226,7 @@ export function InvitePage({ code, server: given, onDone, ...gate }: InvitePageP
 function Page({ children, alert = false }: { children: string; alert?: boolean }) {
   return (
     <main className="mx-auto flex min-h-dvh max-w-md flex-col gap-6 px-4 py-8" data-invite-page>
-      <p className="text-xl font-bold">{say("ui.game")}</p>
+      <Wordmark ground="light" className="mt-2 mb-2" />
       <p role={alert ? "alert" : undefined}>{children}</p>
     </main>
   );

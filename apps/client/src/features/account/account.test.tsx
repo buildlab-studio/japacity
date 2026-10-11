@@ -119,17 +119,30 @@ async function returning() {
   fireEvent.click(await screen.findByRole("button", { name: say("ui.account.start.returning") }));
 }
 
+/** The wordmarks on screen: an image whose words are the game's name (R-ACCOUNT-029). */
+const wordmarks = () => screen.queryAllByRole("img", { name: say("ui.game") });
+
+/** The one wordmark on screen, with the game's name as its words and its file for the look and the ground. */
+function oneWordmark(ground: "light" | "dark"): void {
+  const shown = wordmarks();
+  expect(shown).toHaveLength(1);
+  expect(say("ui.game")).toBe("Japacity");
+  expect(shown[0]?.getAttribute("alt")).toBe("Japacity");
+  expect(shown[0]?.getAttribute("src")).toMatch(new RegExp(`brand/japacity-wordmark-adire-${ground}\\.svg$`));
+}
+
 const ageFields = () => [say("ui.account.age.day"), say("ui.account.age.month"), say("ui.account.age.year")].map((name) => screen.queryByRole("combobox", { name }));
 
 describe("the start screen online", () => {
-  test("[R-ACCOUNT-029] given a new browser, then the first screen is the start screen over the compound: the game's name, R-TEXT-006's line, Play and I already have a life here, and nothing else asked", async () => {
+  test("[R-ACCOUNT-029] given a new browser, then the first screen is the start screen over the compound: no title over the figure, R-TEXT-006's line, Play and I already have a life here, and nothing else asked", async () => {
     const account = fakeAccount();
     gate(account);
     const playButton = await screen.findByRole("button", { name: say("ui.account.start.play") });
     expect(playButton).toBeDefined();
     expect(screen.getByRole("button", { name: say("ui.account.start.returning") })).toBeDefined();
     expect(screen.getByText(say("ui.life.intro"))).toBeDefined();
-    expect(document.querySelector("[data-start-name]")?.textContent).toBe(say("ui.game"));
+    expect(screen.queryByText(say("ui.game"))).toBeNull();
+    expect(wordmarks()).toEqual([]);
     // The compound behind, as the door draws it, with the sheet over the bottom of it.
     expect(document.querySelector('[data-gate="start"] [data-front-scene]')).not.toBeNull();
     expect(document.querySelector('[data-gate="start"] [data-gate-sheet="start"]')).not.toBeNull();
@@ -227,6 +240,37 @@ describe("the start screen online", () => {
       </GameProvider>,
     );
     expect(container.innerHTML).toBe("");
+  });
+});
+
+describe("the wordmark on the account screens", () => {
+  test("[R-ACCOUNT-029] given the start screen, and then the age screen, then neither carries a title over the figure: no game's name and no wordmark", async () => {
+    gate(fakeAccount());
+    await screen.findByRole("button", { name: say("ui.account.start.play") });
+    expect(wordmarks()).toEqual([]);
+    expect(document.querySelector("[data-start-name]")).toBeNull();
+    await play();
+    await screen.findByRole("combobox", { name: say("ui.account.age.day") });
+    expect(wordmarks()).toEqual([]);
+    expect(screen.queryByText(say("ui.game"))).toBeNull();
+  });
+
+  test("[R-ACCOUNT-029] given the ways back in, then the wordmark tops the screen once over the figure, its words the game's name; Back to the start takes it away", async () => {
+    gate(fakeAccount());
+    await returning();
+    await screen.findByRole("heading", { name: say("ui.account.returning.title") });
+    oneWordmark("dark");
+    expect(document.querySelector('[data-gate="start"] [data-wordmark="dark"]')).not.toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: say("ui.account.back") }));
+    await screen.findByRole("button", { name: say("ui.account.start.play") });
+    expect(wordmarks()).toEqual([]);
+  });
+
+  test("[R-ACCOUNT-029] [R-SERVER-032] given sign-ups switched off, then the full screen carries the wordmark once", async () => {
+    gate(fakeAccount({ ageStatus: () => Promise.resolve({ full: true, retryAfter: 30 }) }));
+    expect(await screen.findByText(say("server.full"))).toBeDefined();
+    oneWordmark("dark");
+    expect(document.querySelector("[data-account-top] [data-wordmark='dark']")).not.toBeNull();
   });
 });
 

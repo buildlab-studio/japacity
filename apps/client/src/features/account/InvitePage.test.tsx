@@ -137,6 +137,22 @@ describe("the invite link's page", () => {
     expect(store.getState().choosingLife).toBe(false);
   });
 
+  test("[R-ACCOUNT-029] [R-PAIR-008] given the invite's page, then the wordmark tops it once, its words the game's name, and stays once through the age screen and the ways in", async () => {
+    openLink(cardServer(), account());
+    await screen.findByRole("figure");
+    const once = () => {
+      const marks = screen.getAllByRole("img", { name: say("ui.game") });
+      expect(marks).toHaveLength(1);
+      expect(marks[0]?.getAttribute("alt")).toBe("Japacity");
+      expect(marks[0]?.getAttribute("src")).toMatch(/brand\/japacity-wordmark-adire-light\.svg$/);
+    };
+    once();
+    await answerAge("1990-05-01");
+    fireEvent.click(await screen.findByRole("button", { name: say("ui.account.start.returning") }));
+    await screen.findByRole("button", { name: say("ui.account.passkey") });
+    once();
+  });
+
   test("[R-PAIR-008] [R-PEOPLE-011] given a sibling link and an account signed in, then the card is taken as a new life with no scenario asked", async () => {
     const server = cardServer("sibling", NO_CHARACTER);
     server.answer(`POST /api/invite/${CODE}/accept`, { body: { ok: true, pair: "pair-2", character: "c-sib", view: null } });

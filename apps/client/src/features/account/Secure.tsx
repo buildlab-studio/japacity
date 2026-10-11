@@ -16,6 +16,7 @@ import type { AccountApi, AuthResult } from "../../shared/net/auth";
 import { onGuestOnly } from "../../shared/net/guest";
 import { Button } from "../../shared/ui/Button";
 import { Sheet } from "../../shared/ui/Sheet";
+import { Wordmark } from "../../shared/ui/Wordmark";
 import { say } from "../../shared/words/text";
 import { CodeForm, failureWords } from "./CodeForm";
 import { browserLink, inAppBrowser } from "./inApp";
@@ -90,7 +91,7 @@ export function SecureSheet({ account, open, onOpenChange, reason, problem: give
   }
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange} title={say("ui.secure.title")} description={reason ?? say("ui.secure.why")}>
+    <Sheet open={open} onOpenChange={onOpenChange} title={say("ui.secure.title")} description={reason ?? say("ui.secure.why")} top={<Wordmark ground="light" />}>
       {done ? (
         <p role="status">{say("ui.secure.done")}</p>
       ) : (

@@ -1,4 +1,4 @@
-// What a signed-out player sees online. The start screen first, over the compound (R-ACCOUNT-029): Play goes to
+// What a signed-out player sees online. The start screen first, over the compound with no title (R-ACCOUNT-029): Play goes to
 // the age screen (R-ACCOUNT-012) and on to the door, where Begin on the page makes the guest life (R-ACCOUNT-021)
 // with the username filled in from the name and the bot check run unseen (GuestStart.tsx); "I already have a life
 // here" goes straight to the ways back in. No sign-in method is asked for at the door, and none of the ways back in
@@ -18,6 +18,7 @@ import { failureWords } from "./CodeForm";
 import { Full, type FullCheck } from "./Full";
 import { GuestForm, useGuestDoor, type GuestDoor } from "./GuestStart";
 import { LegalLinks } from "../../shared/ui/LegalLinks";
+import { Wordmark } from "../../shared/ui/Wordmark";
 import { SignIn } from "./SignIn";
 import { refreshAccount } from "./standing";
 import { StartScreen } from "./StartScreen";
@@ -193,15 +194,17 @@ export function AccountGate({ load = loadTurnstile, sitekey, embedded = false, a
   // The door draws its own scene and sheets over the compound.
   if (shown === "door" && door !== null) return newLife(account);
 
+  // The wordmark tops the account screens only: the ways back in and the full screen, on the theme's band across the top
+  // as the door's page has its header, so its ground is the look's own and never the compound's walls. The start and age
+  // screens are the door's first, and carry no title over the figure; the sheet's words carry them.
+  const marked = typeof standing === "object" || shown === "returning";
+  const top = (
+    <div className="band-2 -mx-3 -mt-[max(10px,env(safe-area-inset-top))] px-3 pt-[max(20px,env(safe-area-inset-top))] pb-4" data-account-top>
+      <Wordmark ground="dark" />
+    </div>
+  );
   return (
-    <Gate
-      mark="start"
-      over={
-        <p className="band title mx-auto mt-3 rounded-[6px] px-4 py-2 text-center text-[26px] leading-none shadow-[0_8px_20px_rgba(10,14,30,0.3)]" data-start-name>
-          {say("ui.game")}
-        </p>
-      }
-    >
+    <Gate mark="start" {...(marked ? { over: top } : {})}>
       <GateSheet mark={shown} label={say("ui.game")}>
         {notice === null ? null : (
           <p role="status" className="mb-3 rounded-[5px] border-l-4 border-l-action bg-sheet-muted p-3 text-[14px]">

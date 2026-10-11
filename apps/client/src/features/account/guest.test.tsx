@@ -94,6 +94,17 @@ describe("the securing sheet", () => {
     expect(account.calls).toEqual(['sendCode("ada@example.test")', 'signInWithCode("ada@example.test","123456")', "view()"]);
   });
 
+  test("[R-ACCOUNT-029] [R-ACCOUNT-023] given the keep-this-life sheet, then the wordmark tops it once, above the sheet's title, its words the game's name", async () => {
+    const account = fakeAccount(me("guest"));
+    await mount(account, <SecureSheet account={account} open onOpenChange={() => undefined} reason={null} agent={PLAIN_CHROME} />);
+    const marks = screen.getAllByRole("img", { name: say("ui.game") });
+    expect(marks).toHaveLength(1);
+    expect(marks[0]?.getAttribute("alt")).toBe("Japacity");
+    expect(marks[0]?.getAttribute("src")).toMatch(/brand\/japacity-wordmark-adire-light\.svg$/);
+    const title = screen.getByText(say("ui.secure.title"));
+    expect(marks[0]!.compareDocumentPosition(title) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
   test("[R-ACCOUNT-023] given an in-app browser, then Google is not shown, the code is offered, and the way out to the browser is there", async () => {
     const account = fakeAccount(me("guest"));
     await mount(account, <SecureSheet account={account} open onOpenChange={() => undefined} reason={null} agent={ANDROID_WHATSAPP} />);
