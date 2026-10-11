@@ -25,7 +25,9 @@ export interface PartnerMeeting {
 /**
  * The places the meetings need that content does not have yet, for the maintainer to add as entries.
  * `place.their-room` is one stylised interior with no position, dressed per person as the room
- * abroad is dressed per country: a partner's home, where nobody is met.
+ * abroad is dressed per country: a partner's home, where nobody is met. Dressed 11 Oct 2026: its
+ * place file has one dressing for each person here whose home it is, a prop or two and the partner standing
+ * in it in the model they are met in (apps/client/public/assets/places/their-room/place.json).
  */
 export const placesWanted: Id<"place">[] = [];
 
