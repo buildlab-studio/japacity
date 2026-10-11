@@ -32,7 +32,7 @@ export interface LimitedFile {
     ground: { size: [number, number] };
     motion: { kind: string }[];
     dancers?: unknown[];
-    dressings?: { offer: string; motion: { kind: string }[]; dancers: unknown[]; crowd: { low: number; high: number } }[];
+    dressings?: { offer?: string; person?: string; motion: { kind: string }[]; dancers: unknown[]; crowd?: { low: number; high: number } }[];
     things?: { id: string; acts: unknown[] }[];
   };
 }
@@ -73,10 +73,12 @@ export function checkLimits(file: LimitedFile): string[] {
   const sheets = stage.motion.filter((motion) => SHEET_KINDS.has(motion.kind)).length;
   if (sheets > WORLD_LIMITS.sheets.high) say(`has ${String(sheets)} moving sheets, over ${String(WORLD_LIMITS.sheets.high)}`);
   for (const dressing of stage.dressings ?? []) {
-    const crowd = dressing.crowd.high + dressing.dancers.length + (stage.dancers?.length ?? 0);
-    if (crowd > WORLD_LIMITS.party) say(`dressed for ${dressing.offer} shows ${String(crowd)} people with its dancers, over ${String(WORLD_LIMITS.party)}`);
+    // A dressing that sets no crowd keeps the entry's (a room dressed for a person, world.md R-WORLD-020).
+    const dressedFor = dressing.offer ?? dressing.person ?? "";
+    const crowd = (dressing.crowd?.high ?? file.people.high) + dressing.dancers.length + (stage.dancers?.length ?? 0);
+    if (crowd > WORLD_LIMITS.party) say(`dressed for ${dressedFor} shows ${String(crowd)} people with its dancers, over ${String(WORLD_LIMITS.party)}`);
     const dressed = sheets + dressing.motion.filter((motion) => SHEET_KINDS.has(motion.kind)).length;
-    if (dressed > WORLD_LIMITS.sheets.high) say(`dressed for ${dressing.offer} has ${String(dressed)} moving sheets, over ${String(WORLD_LIMITS.sheets.high)}`);
+    if (dressed > WORLD_LIMITS.sheets.high) say(`dressed for ${dressedFor} has ${String(dressed)} moving sheets, over ${String(WORLD_LIMITS.sheets.high)}`);
   }
   if (file.scope === "exterior") {
     const width = stage.shot?.width ?? 0;

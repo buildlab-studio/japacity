@@ -44,7 +44,7 @@ export interface FacedStage {
   ground: { size: [number, number] };
   roads: StripShape[];
   models: { file: string; at: [number, number, number][] }[];
-  dressings?: { offer: string; models: { file: string; at: [number, number, number][] }[]; hide?: string[] }[];
+  dressings?: { offer?: string; person?: string; models: { file: string; at: [number, number, number][] }[]; hide?: string[] }[];
 }
 
 /** A point of a turned frame placed at x and z, as the client places strips and model copies. */
@@ -185,7 +185,7 @@ export function checkFaces(place: string, stage: FacedStage | undefined, facesOf
     const hidden = new Set(dressing.hide ?? []);
     const models = [...stage.models.filter((model) => !hidden.has(model.file)), ...dressing.models];
     for (const line of fightingFaces(stageFaces(stage, models, facesOf))) {
-      const said = `R-WORLD-012: ${place} dressed for ${dressing.offer}: ${line}`;
+      const said = `R-WORLD-012: ${place} dressed for ${dressing.offer ?? dressing.person ?? ""}: ${line}`;
       if (!problems.some((problem) => problem.endsWith(line))) problems.push(said);
     }
   }

@@ -4,6 +4,7 @@
 // ground with its crowd, so every place can be entered before its models are built.
 import type { PaletteName, WalkablePolygon } from "@japacity/assets";
 import type { PoseName } from "@japacity/assets-src/people/poses";
+import type { Id } from "@japacity/sim";
 
 import type { Shot, Thing } from "../../shared/world/contract";
 import type { Shown } from "./crowd";
@@ -126,20 +127,25 @@ export interface Dancer {
 }
 
 /**
- * A place dressed while an offer it stages is open (R-CITY-011): its models and motion join the
- * stage's, the files in `hide` leave it, its spots and crowd figures replace the place's own, and
- * its dancers take the floor.
+ * A place dressed while an offer it stages is open (R-CITY-011), or for the person whose room it is (world.md
+ * R-WORLD-020): its models and motion join the stage's, the files in `hide` leave it, its spots replace the place's own,
+ * its crowd figures the entry's where it gives them, its dancers take the floor and who it stands at a thing joins
+ * those the stage stands. A dressing names an offer or a person, never both.
  */
 export interface Dressing {
-  offer: string;
+  offer?: string;
+  /** The person whose room the place is, read when it opens for a bond with them: their room dressed for them. */
+  person?: Id<"person">;
   models: Stage["models"];
   hide?: string[];
   people: Spot[];
   prefer?: Stage["prefer"];
   motion: Motion[];
   dancers: Dancer[];
-  /** The guests' sample, in place of the entry's figures (R-CITY-014). */
-  crowd: { low: number; high: number; target: number };
+  /** Who stands still in the dressed place: the partner in their own room, at a thing of their own. */
+  standing?: Stander[];
+  /** The guests' sample, in place of the entry's figures (R-CITY-014); the entry's own when absent. */
+  crowd?: { low: number; high: number; target: number };
 }
 
 /**
@@ -198,11 +204,15 @@ export function filesOf(file: PlaceFile, people: readonly string[]): string[] {
   return [...new Set([...stage.models.map((model) => model.file), ...(stage.dancers ?? []).map((dancer) => dancer.file), ...(stage.standing ?? []).map((stander) => stander.file), ...people])];
 }
 
-/** A place file as the open offers dress it, with the crowd figures its dressing sets, or null for the entry's own. */
-export function dressPlace(file: PlaceFile, open: readonly string[]): { file: PlaceFile; crowd: Dressing["crowd"] | null } {
+/**
+ * A place file as the open offers dress it, or else as the person whose room it is dresses it (R-WORLD-020), with the
+ * crowd figures its dressing sets, or null for the entry's own. No dressing for either: the plain place.
+ */
+export function dressPlace(file: PlaceFile, open: readonly string[], person: Id<"person"> | null = null): { file: PlaceFile; crowd: NonNullable<Dressing["crowd"]> | null } {
   const plain = stageOf(file);
-  const dressing = plain.dressings?.find((one) => open.includes(one.offer));
+  const dressing = plain.dressings?.find((one) => one.offer !== undefined && open.includes(one.offer)) ?? (person === null ? undefined : plain.dressings?.find((one) => one.person === person));
   if (dressing === undefined) return { file, crowd: null };
+  const standing = [...(plain.standing ?? []), ...(dressing.standing ?? [])];
   const hidden = new Set(dressing.hide ?? []);
   const dressed: Stage = {
     ground: plain.ground,
@@ -215,12 +225,12 @@ export function dressPlace(file: PlaceFile, open: readonly string[]): { file: Pl
     prefer: dressing.prefer ?? {},
     motion: [...plain.motion, ...dressing.motion],
     dancers: [...(plain.dancers ?? []), ...dressing.dancers],
-    ...(plain.standing === undefined ? {} : { standing: plain.standing }),
+    ...(standing.length === 0 ? {} : { standing }),
     ...(plain.shot === undefined ? {} : { shot: plain.shot }),
     ...(plain.things === undefined ? {} : { things: plain.things }),
     ...(plain.inside === undefined ? {} : { inside: plain.inside }),
   };
-  return { file: { ...file, stage: dressed }, crowd: dressing.crowd };
+  return { file: { ...file, stage: dressed }, crowd: dressing.crowd ?? null };
 }
 
 /**
