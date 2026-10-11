@@ -22,7 +22,7 @@ afterEach(() => {
   localStorage.clear();
 });
 
-const CLOCK: ClockView = { tick: 0, nextTickAt: 3_600_000, nextTurnAt: null };
+const CLOCK: ClockView = { tick: 0, nextTickAt: 3_600_000, nextTurnAt: null, morningAt: 0 };
 /** The nurse's own year at the door is 23 (her path with no setback); three steps older is the oldest the door offers. */
 const OLDER = 3;
 const AGE = "quality.age-months";

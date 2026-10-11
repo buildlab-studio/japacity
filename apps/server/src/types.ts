@@ -53,6 +53,8 @@ export interface ClockView {
   nextTickAt: number;
   /** Null while the bank is full. */
   nextTurnAt: number | null;
+  /** R-CLOCK-032: the next seven in the morning in Lagos, when a sealed result opens. */
+  morningAt: number;
 }
 
 export type ServerReply = (Reply & { clock: ClockView }) | ServerRejection;

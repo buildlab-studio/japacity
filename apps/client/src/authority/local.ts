@@ -3,12 +3,12 @@
 // the only part of the client that ever sees the seed. Screens talk to it only
 // through the Authority type, so the server can replace it later unchanged.
 import { content as realContent } from "@japacity/content";
-import type { Authority, Command, Content, FlatSave, Id, PlayerView, Reply, Save, Sender, State, World } from "@japacity/sim";
+import type { Authority, Command, Content, Envelope, FlatSave, Id, PlayerView, Reply, Save, Sender, State, World } from "@japacity/sim";
 
 import { archetypeOf, fullPrologue } from "../shared/frontdoor/archetypes";
 import { tileSeed } from "../shared/frontdoor/draw";
 import type { ClockView } from "../shared/net/contract";
-import { lastSegment, lifeStart, loadSave, newSave, newState, recordCommand, replay, savedCommands, standInWorld, step, time, viewFor } from "@japacity/sim";
+import { lastSegment, lifeStart, loadSave, newSave, newState, nextMorning, recordCommand, replay, savedCommands, sealFrom, standInWorld, step, time, viewFor, withhold, withholdLines } from "@japacity/sim";
 import { PERSON_KEY, readPerson } from "./person";
 
 /** The one localStorage key the life is kept under. */
@@ -50,17 +50,26 @@ export interface LocalAuthority extends Authority {
    */
   newLife(scenario: Id<"scenario">, seed?: string): Promise<PlayerView>;
   /**
+   * R-CLOCK-032: the envelopes whose morning has come, with the lines they held, each given once and then let go.
+   * The client shows them on the lock screen and tells their lines.
+   */
+  morning(): Envelope[];
+  /**
    * R-ACCOUNT-030: ends this life for good. The save and the person kept beside it are cleared, and nothing is
    * written again until a new life is chosen, so a reload opens the front door.
    */
   endLife(): Promise<boolean>;
 }
 
-/** What is kept under SAVE_KEY: the save, and when real time last earned a turn. */
+/** What is kept under SAVE_KEY: the save, when real time last earned a turn, and the results sealed until their morning (R-CLOCK-032). */
 interface Stored {
   save: Save;
   clock: { anchor: number };
+  envelopes?: Envelope[];
 }
+
+/** The dev switch that opens every envelope at once, so a tester need not wait for seven in Lagos. */
+export const MORNING_KEY = "japacity.morning";
 
 function randomSeed(): string {
   const words = new Uint32Array(2);
@@ -92,10 +101,14 @@ function isSave(value: unknown): value is Save | FlatSave {
   );
 }
 
-function isStored(value: unknown): value is { save: Save | FlatSave; clock: Stored["clock"] } {
+function isStored(value: unknown): value is { save: Save | FlatSave; clock: Stored["clock"]; envelopes?: unknown } {
   if (typeof value !== "object" || value === null) return false;
   const { save, clock } = value as { save?: unknown; clock?: Partial<Stored["clock"]> | null };
   return isSave(save) && typeof clock === "object" && clock !== null && typeof clock.anchor === "number";
+}
+
+function isEnvelopes(value: unknown): value is Envelope[] {
+  return Array.isArray(value) && value.every((entry: unknown) => typeof entry === "object" && entry !== null && typeof (entry as Envelope).opensAt === "number" && typeof (entry as Envelope).id === "string");
 }
 
 /** The tick the next command is sent at. Each accepted `turn/end` moves the world one tick (engine.md section 7). */
@@ -115,6 +128,14 @@ export function localAuthority(options: LocalAuthorityOptions): LocalAuthority {
   let worldSeed: string;
   let tick: number;
   let anchor: number;
+  /** The results sealed until their morning (R-CLOCK-032). */
+  let envelopes: Envelope[] = [];
+
+  /** The moment the envelopes are read at: the dev switch opens them all at once. */
+  function morningNow(): number {
+    if (import.meta.env.DEV && storage?.getItem(MORNING_KEY) === "now") return Number.MAX_SAFE_INTEGER;
+    return now();
+  }
 
   const worldAt = (at: number): World => standInWorld(worldSeed, at, content);
 
@@ -135,7 +156,7 @@ export function localAuthority(options: LocalAuthorityOptions): LocalAuthority {
   /** False when the save was not written: a full or blocked storage loses it on reload, but play goes on. */
   function persist(): boolean {
     if (storage === null || !chosen) return false;
-    const stored: Stored = { save, clock: { anchor } };
+    const stored: Stored = { save, clock: { anchor }, envelopes };
     try {
       storage.setItem(SAVE_KEY, JSON.stringify(stored));
       return true;
@@ -153,6 +174,7 @@ export function localAuthority(options: LocalAuthorityOptions): LocalAuthority {
     save = newSave(scenario, seed, worldSeed, content);
     tick = 0;
     anchor = now();
+    envelopes = [];
   }
 
   function load(): LifeStart {
@@ -187,6 +209,7 @@ export function localAuthority(options: LocalAuthorityOptions): LocalAuthority {
       state = replay(save, content, worldAt).state;
       tick = tickAfter(save);
       anchor = parsed.clock.anchor;
+      envelopes = isEnvelopes(parsed.envelopes) ? parsed.envelopes : [];
       return { kind: "loaded" };
     } catch {
       // A save the engine can no longer replay is as good as unreadable.
@@ -239,6 +262,8 @@ export function localAuthority(options: LocalAuthorityOptions): LocalAuthority {
   }
 
   const currentView = (): PlayerView => viewFor({ state, world: worldAt(tick), content });
+  /** The view as the player may see it now: sealed results read as they did before they landed (R-CLOCK-032). */
+  const shownView = (): PlayerView => withhold(currentView(), envelopes, morningNow()).view;
 
   const start = load();
   chosen = start.kind !== "new";
@@ -249,21 +274,31 @@ export function localAuthority(options: LocalAuthorityOptions): LocalAuthority {
     view() {
       earnTurns();
       persist();
-      return Promise.resolve(currentView());
+      return Promise.resolve(shownView());
+    },
+    morning() {
+      const { opened } = withhold(currentView(), envelopes, morningNow());
+      if (opened.length === 0) return [];
+      envelopes = envelopes.filter((envelope) => !opened.includes(envelope));
+      persist();
+      return opened;
     },
     clock() {
       earnTurns();
       const cap = content.tuning.turn.cap;
       const next = options.fastClock ? now() : anchor + time.TURN_REFILL_MS;
-      return { tick, nextTickAt: next, nextTurnAt: state.turn.banked >= cap ? null : next };
+      return { tick, nextTickAt: next, nextTurnAt: state.turn.banked >= cap ? null : next, morningAt: nextMorning(now()) };
     },
     send(command): Promise<Reply> {
       // A player may not grant turns: the engine rejects it as not-yours (R-TURN-005).
+      const before = command.type === "turn/end" ? currentView() : null;
       const result = apply(command, "player");
       if (!result.ok) return Promise.resolve(result);
+      // R-CLOCK-032: a result real life makes you wait for is sealed until the next morning in Lagos.
+      if (before !== null) envelopes = [...envelopes, ...sealFrom(before, currentView(), result.lines, nextMorning(now()))];
       earnTurns();
       persist();
-      return Promise.resolve({ ok: true, view: currentView(), lines: result.lines });
+      return Promise.resolve({ ok: true, view: shownView(), lines: withholdLines(result.lines, envelopes, morningNow()) });
     },
     vars() {
       return worldAt(tick).vars;

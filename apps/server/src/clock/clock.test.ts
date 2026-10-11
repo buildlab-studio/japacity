@@ -1,5 +1,5 @@
 import { content } from "@japacity/content";
-import { newState } from "@japacity/sim";
+import { newState, nextMorning } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
 import { currentTick } from "../app";
@@ -62,7 +62,7 @@ describe("the clock a reply carries", () => {
 
   test("[R-CLOCK-003] given a time inside a tick, when the clock is made, then it holds the tick, the start of the next and the next turn", () => {
     const now = epoch + 2 * worldTickMs + 17;
-    expect(clockView(productionConfig, now, banked(5), now - 3, cap)).toEqual({ tick: 2, nextTickAt: epoch + 3 * worldTickMs, nextTurnAt: now - 3 + turnRefillMs });
+    expect(clockView(productionConfig, now, banked(5), now - 3, cap)).toEqual({ tick: 2, nextTickAt: epoch + 3 * worldTickMs, nextTurnAt: now - 3 + turnRefillMs, morningAt: nextMorning(now) });
   });
 
   test("[R-CLOCK-003] [R-CLOCK-004] given a character that spent two turns, when the view is fetched one ms before a refill and at it, then the second fetch grants one turn and the clock says when the next comes", async () => {
@@ -77,7 +77,7 @@ describe("the clock a reply carries", () => {
     }
     if (!reply.body.ok) throw new Error(reply.body.detail);
     expect(reply.body.view.turns.banked).toBe(cap - 2);
-    expect(reply.body.clock).toEqual({ tick: 0, nextTickAt: epoch + worldTickMs, nextTurnAt: epoch + turnRefillMs });
+    expect(reply.body.clock).toEqual({ tick: 0, nextTickAt: epoch + worldTickMs, nextTurnAt: epoch + turnRefillMs, morningAt: nextMorning(epoch) });
 
     server.wait(turnRefillMs - 1);
     const before = await view(server, "acc-1");

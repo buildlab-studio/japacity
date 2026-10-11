@@ -11,6 +11,8 @@ export { FIRST_MEETUP_FITS } from "./route/route.logic";
 export { hashState, stableJson } from "./engine/hash";
 export { replay, newSave, recordCommand, loadSave, isFlatSave, lifeStart, savedCommands, lastSegment, openSegment } from "./engine/replay";
 export { viewFor, hiddenPaths } from "./engine/view";
+export { nextMorning, sealFrom, sealedAt, withhold, withholdLines, REAL_WAIT_DOCUMENTS } from "./engine/envelope";
+export type { Envelope } from "./engine/envelope";
 export { drawAt, hashString32 } from "./engine/random";
 export * as int from "./engine/int";
 export { standInWorld } from "./world/standIn";

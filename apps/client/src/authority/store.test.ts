@@ -41,7 +41,7 @@ describe("the store online", () => {
 
   test("[R-CLOCK-003] given the authority reports a clock, then the store keeps it beside the view", () => {
     const store = createGameStore({ view: () => Promise.resolve(at(1)), send: () => Promise.reject(new Error("unused")) });
-    const clock = { tick: 2, nextTickAt: 10, nextTurnAt: 5 };
+    const clock = { tick: 2, nextTickAt: 10, nextTurnAt: 5, morningAt: 0 };
     store.getState().heard({ kind: "clock", clock });
     expect(store.getState().clock).toEqual(clock);
   });

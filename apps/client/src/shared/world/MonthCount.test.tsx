@@ -57,7 +57,7 @@ describe("the months to play", () => {
   test("[R-WORLD-027] [R-TURN-003] [R-TEXT-008] given 12 months to play and the server's clock, when the count is tapped, then it says how many and when the next one comes, each a fact with its icon", async () => {
     const { store } = await renderWithView(<MonthCount />, withBank(12));
     // Half a minute over, so the words read the same however long the render takes.
-    act(() => store.setState({ clock: { tick: 1, nextTickAt: 0, nextTurnAt: Date.now() + 100 * MINUTE + 30_000 } }));
+    act(() => store.setState({ clock: { tick: 1, nextTickAt: 0, nextTurnAt: Date.now() + 100 * MINUTE + 30_000, morningAt: 0 } }));
     fireEvent.click(count());
     expect(facts()).toEqual(["12 pages left", "1 page = 1 month of your life", "Next page in 1h 40m"]);
     for (const fact of document.querySelectorAll("[data-count-fact]")) expect(fact.querySelector("svg[aria-hidden='true']")).not.toBeNull();

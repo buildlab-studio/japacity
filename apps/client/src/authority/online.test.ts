@@ -11,7 +11,7 @@ import { remoteAuthority } from "./remote";
 import { createGameStore } from "./store";
 
 const NOW = 1_000_000;
-const CLOCK: ClockView = { tick: 3, nextTickAt: NOW + 10_000, nextTurnAt: NOW + 5_000 };
+const CLOCK: ClockView = { tick: 3, nextTickAt: NOW + 10_000, nextTurnAt: NOW + 5_000, morningAt: 0 };
 
 beforeEach(() => {
   vi.useFakeTimers();

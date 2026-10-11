@@ -8,6 +8,12 @@ export const MINUTE_MS = 60 * SECOND_MS;
 export const HOUR_MS = 60 * MINUTE_MS;
 export const DAY_MS = 24 * HOUR_MS;
 
+/** Lagos keeps UTC+1 all year (R-CLOCK-014). */
+export const LAGOS_OFFSET_MS = HOUR_MS;
+
+/** The hour in Lagos a sealed result opens: what real life made you wait for comes in the morning (R-CLOCK-032). */
+export const MORNING_HOUR_LAGOS = 7;
+
 /** One new turn every two real hours. docs/design/01-concept.md section 9, docs/rules/turn.md "Outside the simulation". */
 export const TURN_REFILL_MS = 2 * HOUR_MS;
 

@@ -7,7 +7,7 @@ import { engineView } from "../shared/testing/fixtures";
 import { BASE, fakeServer } from "../shared/testing/server";
 import { remoteAuthority, type AuthorityEvent } from "./remote";
 
-const CLOCK: ClockView = { tick: 40, nextTickAt: 1_000_000, nextTurnAt: 500_000 };
+const CLOCK: ClockView = { tick: 40, nextTickAt: 1_000_000, nextTurnAt: 500_000, morningAt: 0 };
 
 function at(v: number): PlayerView {
   return { ...engineView(), v };
@@ -103,7 +103,7 @@ describe("the remote authority", () => {
 
   test("[R-CLOCK-003] given each reply carries a clock, then the authority keeps the last and tells the store", async () => {
     const { server, remote, events } = setUp();
-    const later: ClockView = { tick: 41, nextTickAt: 2_000_000, nextTurnAt: null };
+    const later: ClockView = { tick: 41, nextTickAt: 2_000_000, nextTurnAt: null, morningAt: 0 };
     server.answer("GET /api/view", viewReply(1));
     server.answer("POST /api/command", viewReply(2, later));
     await remote.view();

@@ -33,7 +33,7 @@ async function kiosk(lottery: World["lottery"]): Promise<{ store: GameStore; lif
   const life = onlineLife(lottery);
   const store = createGameStore(life.authority);
   await store.getState().refresh();
-  store.getState().heard({ kind: "clock", clock: { tick: 10, nextTickAt: NEXT_TICK, nextTurnAt: null } });
+  store.getState().heard({ kind: "clock", clock: { tick: 10, nextTickAt: NEXT_TICK, nextTurnAt: null, morningAt: 0 } });
   render(
     <GameProvider store={store}>
       <LotteryView load={null} />
@@ -241,7 +241,7 @@ describe("the win letter", () => {
   test("[R-LOTTERY-013] given a winner away when the draw paid, when the view is fetched again online, then the letter comes in the lines since the held version and is staged as a moment", async () => {
     const letter = letterOf([{ tier: "jackpot", amount: 1_320_000 }]);
     const server = fakeServer();
-    const clock = { tick: 10, nextTickAt: NEXT_TICK, nextTurnAt: null };
+    const clock = { tick: 10, nextTickAt: NEXT_TICK, nextTurnAt: null, morningAt: 0 };
     server.answer("GET /api/view", { body: { ok: true, view: { ...engineView(), v: 4 }, lines: [], clock } }, { body: { ok: true, view: { ...engineView(), v: 6 }, lines: [letter], clock } });
     const remote = remoteAuthority({ baseUrl: BASE, fetch: server.fetch });
     const store = createGameStore(remote);

@@ -73,7 +73,7 @@ async function onTheStreet(lottery: World["lottery"]): Promise<{ store: GameStor
   const life = onlineLife(lottery);
   const store = createGameStore(life.authority);
   await store.getState().refresh();
-  store.getState().heard({ kind: "clock", clock: { tick: 10, nextTickAt: Date.now() + 3_600_000, nextTurnAt: null } });
+  store.getState().heard({ kind: "clock", clock: { tick: 10, nextTickAt: Date.now() + 3_600_000, nextTurnAt: null, morningAt: 0 } });
   render(
     <GameProvider store={store}>
       <City world results={() => <p />} kiosk={(close, label) => <KioskSheet open onClose={close} label={label} load={null} />} />
