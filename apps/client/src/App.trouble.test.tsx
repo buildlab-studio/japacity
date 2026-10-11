@@ -6,10 +6,12 @@ import { afterEach, describe, expect, test, vi } from "vitest";
 
 import { App, SLOW_MS } from "./App";
 import { localAuthority } from "./authority/local";
+import { remoteAuthority } from "./authority/remote";
 import { createGameStore } from "./authority/store";
 import { readDoor } from "./shared/datapage/door";
 import type { ServerRejection } from "./shared/net/contract";
 import { requestFailure } from "./shared/net/http";
+import { BASE, fakeServer } from "./shared/testing/server";
 import { passThePage, startArchetype, toTheArchetypes } from "./shared/frontdoor/frontDoor.testing";
 import { engineView } from "./shared/testing/fixtures";
 import { say } from "./shared/words/text";
@@ -72,6 +74,20 @@ describe("the screens when a request brings no answer (R-ENGINE-015)", () => {
     fireEvent.click(screen.getByRole("button", { name: say("ui.trouble.retry") }));
     await waitFor(() => expect(store.getState().view).not.toBeNull());
     expect(screen.queryByRole("alertdialog")).toBeNull();
+  });
+
+  test("[R-ENGINE-015] [R-SERVER-043] given the server answers the view with its own 503 unavailable (the database not answering), then the card says something broke on our side, with Retry and no Reload", async () => {
+    const server = fakeServer();
+    const down = { status: 503, headers: { "Retry-After": "5" }, body: { ok: false, code: "unavailable", detail: "The game's server could not reach its database. Try again shortly.", retryAfter: 5 } };
+    server.answer("GET /api/view", down);
+    const remote = remoteAuthority({ baseUrl: BASE, fetch: server.fetch, wall: { met: () => false, passed: () => undefined } });
+    const store = createGameStore(remote, noPause);
+    render(<App store={store} />);
+    const card = await screen.findByRole("alertdialog", { name: say("ui.trouble.server") });
+    expect(card.getAttribute("data-trouble")).toBe("server");
+    expect(screen.getByRole("button", { name: say("ui.trouble.retry") })).toBeDefined();
+    expect(screen.queryByRole("button", { name: say("ui.trouble.reload") })).toBeNull();
+    noBrowserWords();
   });
 
   test("[R-ENGINE-015] [R-ACCOUNT-006] given a login wall or an ended session in front of the view, then the card says so with Retry and Reload", async () => {

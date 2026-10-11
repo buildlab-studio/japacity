@@ -26,6 +26,7 @@ import { admitAccount, admitMethod, admitSession } from "../account/signup";
 import type { TurnstileKeys } from "../account/turnstile";
 import { requestDeletion } from "../account/deletion";
 import type { ServerDeps } from "../deps";
+import { logFailure } from "../log";
 import { afterAuth, beforeAuth } from "./hooks";
 import { signedInWith } from "./session";
 
@@ -116,6 +117,14 @@ export function makeAuth(deps: ServerDeps, adapter: Adapter, keys: AuthKeys) {
     basePath: "/api/auth",
     secret: keys.secret,
     database: adapter,
+    // R-SERVER-042: the library's errors become the server's one log line, scrubbed; its warnings and its own
+    // printing (which would carry a failed statement's values) are dropped.
+    logger: {
+      level: "error",
+      log: (level, message, ...args: unknown[]) => {
+        if (level === "error") logFailure({ what: "auth", error: args.find((arg) => arg instanceof Error) ?? new Error(message) });
+      },
+    },
     trustedOrigins: [keys.siteUrl],
     emailAndPassword: { enabled: false },
     socialProviders: {

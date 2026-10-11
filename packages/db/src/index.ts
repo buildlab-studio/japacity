@@ -42,7 +42,7 @@ import {
   pgWorldStore,
 } from "./stores";
 
-export { type Connection, connect } from "./connect";
+export { type Connection, connect, connectOnFirstUse, DatabaseUnavailable, type PgClient } from "./connect";
 export { type Handle, oneConnection, type Queries } from "./handle";
 export * as schema from "./schema";
 export {

@@ -76,11 +76,17 @@ describe("the admin accounts from the deployment", () => {
   });
 
   test("[R-SERVER-012] given the Worker, when its isolate is made, then its config is the deployment's, read from the ADMIN_ACCOUNTS binding, and config.ts names no account", () => {
+    // The isolate is made in worker.ts since 11 Oct 2026 (R-SERVER-043's plumbing moved out of index.ts); the Env stays in index.ts.
+    const plumbing = readFileSync(fileURLToPath(new URL("../worker.ts", import.meta.url).href), "utf8");
+    expect(plumbing).toContain("config: deployedConfig(env.ADMIN_ACCOUNTS)");
     const worker = readFileSync(fileURLToPath(new URL("../index.ts", import.meta.url).href), "utf8");
-    expect(worker).toContain("config: deployedConfig(env.ADMIN_ACCOUNTS)");
-    // Since 11 Oct 2026 the binding's type is generated from wrangler.jsonc, where both environments list the variable.
+    expect(worker).toContain("export type Env = Cloudflare.Env;");
+    // Since 11 Oct 2026 the bindings' types are generated from wrangler.jsonc; the admin list is a secret, so it is
+    // declared beside the other secrets in src/env.d.ts and the generated file does not list it.
+    const secrets = readFileSync(fileURLToPath(new URL("../env.d.ts", import.meta.url).href), "utf8");
+    expect(secrets).toMatch(/ADMIN_ACCOUNTS\?: string;/);
     const bindings = readFileSync(fileURLToPath(new URL("../../worker-configuration.d.ts", import.meta.url).href), "utf8");
-    expect(bindings).toMatch(/ADMIN_ACCOUNTS: string;/);
+    expect(bindings).not.toContain("ADMIN_ACCOUNTS");
     const config = readFileSync(fileURLToPath(new URL("../config.ts", import.meta.url).href), "utf8");
     expect(config).toContain("admin: { accounts: [] },");
   });

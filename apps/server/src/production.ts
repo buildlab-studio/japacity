@@ -1,12 +1,14 @@
 // The deployment's dependencies on Postgres (decision 0004): a new `pg`
 // client for each request through the Hyperdrive configuration with caching
-// off, every store over it, the presence and the nudges on the place objects,
-// and the client closed once the request is answered. Two stores live for the
+// off, opened by the first statement a store or the auth library sends
+// (R-SERVER-002), every store over it, the presence and
+// the nudges on the place objects, and the client closed once the request is
+// answered. Two stores live for the
 // isolate instead, each opening a client per call: the switch row, whose cache
 // is kept per store (R-SERVER-031), and the counters, whose hourly batch count
 // is (R-ANALYTICS-004).
 import type { Content, Id, PlaceEntry, Where, World } from "@japacity/sim";
-import { connect, pgCounterStore, pgStores, pgSwitchStore } from "@japacity/db";
+import { connect, connectOnFirstUse, pgCounterStore, pgStores, pgSwitchStore } from "@japacity/db";
 import type { Connection, Handle, Queries } from "@japacity/db";
 import type { CounterStore, SwitchStore } from "@japacity/store";
 
@@ -56,6 +58,8 @@ export interface RequestScope {
   handle: Handle;
   db: Queries;
   close: () => Promise<void>;
+  /** R-SERVER-043: true once the request's database refused the connection or dropped it. */
+  unavailable: () => boolean;
 }
 
 /**
@@ -136,9 +140,12 @@ export function profileOfIn(deps: ServerDeps, text: Record<string, string>): Pro
   };
 }
 
-/** The request's dependencies over a new client; `session` is filled by the caller once the auth library is made on `db`. */
-export async function openRequest(isolate: Isolate, connectionString: string, open: (url: string) => Promise<Connection> = connect): Promise<RequestScope & { setSession: (reader: SessionReader) => void }> {
-  const { handle, db, close } = await open(connectionString);
+/**
+ * The request's dependencies over a new client, which connects on its first statement (R-SERVER-002);
+ * `session` is filled by the caller once the auth library is made on `db`.
+ */
+export async function openRequest(isolate: Isolate, connectionString: string, open: (url: string) => Promise<Connection> = (url) => Promise.resolve(connectOnFirstUse(url))): Promise<RequestScope & { setSession: (reader: SessionReader) => void }> {
+  const { handle, db, close, unavailable = () => false } = await open(connectionString);
   const stores = {} as Stores;
   let session: SessionReader = () => Promise.resolve(null);
   const deps: ServerDeps = {
@@ -164,6 +171,7 @@ export async function openRequest(isolate: Isolate, connectionString: string, op
     handle,
     db,
     close,
+    unavailable,
     setSession: (reader) => {
       session = reader;
     },

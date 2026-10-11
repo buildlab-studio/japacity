@@ -32,11 +32,14 @@ import { boardRoutes } from "./routes/boards";
 import { COUNTED_PATHS, countRefusals } from "./analytics/count";
 import { isOn } from "./switches/switches";
 import { bodyLimits } from "./security/body";
+import { onAppError } from "./security/fail";
 import { securityHeaders } from "./security/headers";
 import { sameOriginWrites } from "./security/origin";
 
 export function makeApp(deps: ServerDeps, accounts?: Accounts): Hono {
   const app = new Hono();
+  // R-SERVER-043: a route that throws is logged once and answered in JSON, never the platform's error page.
+  app.onError(onAppError);
   // outermost, so every reply carries the headers, a refusal below included.
   app.use(securityHeaders());
   // A write from another site, or a body too large, is refused before anything reads or counts it.
