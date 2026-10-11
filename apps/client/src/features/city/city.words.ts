@@ -227,6 +227,11 @@ export const cityText: Record<string, string> = {
   "city.thing.notices": "Notices",
   "city.act.read-notices": "Read",
   "city.act.read-notices.done": "Desks by the day, light and data included. In red marker: no sleeping on the benches.",
+  // A computer partner met in a place (world.md R-WORLD-020): the name is theirs once someone stands there; their one act.
+  "city.thing.someone": "Someone",
+  "city.act.talk-to": "Talk",
+  // Their room (place.their-room, R-WORLD-020, people.md R-PEOPLE-014): time together on the chair under the window.
+  "city.act.spend-time": "Spend time",
   // The streets abroad (docs/rules/streets.md R-STREET-005, 006): shopping at the grocer and the spice stall, and a find while one is open.
   "city.act.shop": "Shop",
   "city.act.street-find": "See what's on",

@@ -2,8 +2,13 @@
 // keep working underneath: the meeting is what `people/court` needs in place of a row in `candidates`.
 // The words are `<person id>.met` (the line when you meet) and `<person id>.home` (their home's name)
 // in person.text.ts.
-// the people kind still lists `candidates` and courts from that list (people.md
-// R-PEOPLE-009, R-PEOPLE-013); this table is the content side until someone adds those rules.
+// The view's `candidates` is only what the world reads to know who stands where (people.md R-PEOPLE-009 and
+// R-PEOPLE-013 as amended on 9 Oct 2026; the world's side built 11 Oct 2026): the city stands each row's person at
+// its thing while the list holds them, a `decemberOnly` one only while `var.season-december` is 1, and the thing's
+// sheet sends `people/court` (apps/client/src/features/city/meetings.ts).
+// `place.church` has no stage file in the client yet, so its two meetings (`after-service`) stand at the
+// hub, the Inverter Room (`place.yaba-hub`), until the church is built. The lead rules at the merge:
+// keep the stand-in, or build the church.
 import type { Id } from "@japacity/sim";
 
 export interface PartnerMeeting {

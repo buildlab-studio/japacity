@@ -5,6 +5,7 @@
 // thing for two seconds the first time a place is entered in a life. Built in the DOM box beside the canvas, which the
 // frame loop moves over the thing.
 import type { Thing } from "../../shared/world/contract";
+import { markTag } from "./chip";
 import { sceneWords } from "./scene.words";
 
 /** How a mark shows now: its name over the dot, the name taught then fading, the dot pulsing for the nudge. */
@@ -17,7 +18,7 @@ export interface MarkShown {
 }
 
 /** A thing's mark: a tap target round a small dot, with its name over it, hidden until it is named. */
-export function markNode(thing: Pick<Thing, "id" | "label">, onTap: () => void): HTMLButtonElement {
+export function markNode(thing: Pick<Thing, "id" | "label" | "mark">, onTap: () => void): HTMLButtonElement {
   const node = document.createElement("button");
   node.type = "button";
   node.dataset.mark = thing.id;
@@ -29,6 +30,7 @@ export function markNode(thing: Pick<Thing, "id" | "label">, onTap: () => void):
   name.className = "chip whitespace-nowrap px-2.5 py-1 text-[12px] font-extrabold";
   name.textContent = sceneWords(thing.label);
   name.hidden = true;
+  if (thing.mark !== undefined) name.append(markTag(thing.mark));
   const tag = document.createElement("span");
   tag.dataset.thingState = "";
   tag.className = "ml-1.5 rounded-[3px] bg-strong px-1.5 py-px align-[1px] text-[10px] font-extrabold text-on-strong";

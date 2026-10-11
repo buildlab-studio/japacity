@@ -40,12 +40,15 @@ export const peopleText: Record<string, string> = {
   "ui.people.sibling.middle": "{name}, the middle one",
   "ui.people.sibling.other": "{name} ({number})",
   "ui.people.sibling.invite": "Ask a friend to be this sibling",
+  "ui.people.partner.invite": "Ask a friend to be your partner",
 
   // Candidates (R-PEOPLE-009, R-PEOPLE-054)
   "ui.people.candidates": "Someone to see",
   "ui.people.candidates.none": "Nobody new for now. People come into your life as it moves.",
   "ui.people.court": "Start seeing {name}",
   "ui.people.chosen": "{name} is a computer character. They live in the game.",
+  // Met in a place (R-WORLD-020, R-PEOPLE-013): the talk sheet shut while the most bonds a life may court already court.
+  "ui.people.court.full": "You are seeing {count} people already.",
   "ui.people.lives.home": "Lives at home",
   "ui.people.lives.abroad": "Lives in {country}",
 
@@ -164,6 +167,20 @@ export const peopleText: Record<string, string> = {
   "ui.people.end.absence": "A stand-in is answering for them. Ending it now costs nobody anything.",
   "ui.people.end.confirm": "End it for good",
   "ui.people.end.keep": "Keep it",
+  // A bond's head in its Chats thread (world.md R-WORLD-020, R-WORLD-006): one row each, the details behind a tap.
+  "ui.people.head.ask": "Ask them",
+  "ui.people.head.moments": "{count} moments",
+  "ui.people.head.moments.one": "1 moment",
+  "ui.people.head.moments.zero": "No moments",
+  "ui.people.head.moments-left": "{count} more moments",
+  "ui.people.head.moments-left.one": "1 more moment",
+  "ui.people.head.asked.mine": "You asked",
+  "ui.people.head.asked.theirs": "They asked you",
+  "ui.people.head.sponsoring": "Sponsoring",
+  "ui.people.head.barred": "Barred for now",
+  "ui.people.head.end.standing": "Costs standing",
+  "ui.people.head.end.wellbeing": "Costs wellbeing",
+  "ui.people.head.end.nothing": "Costs nothing",
 
   // Gossip and drift (R-PEOPLE-041, R-PEOPLE-042)
   "ui.people.gossip": "You have a partner and you are seeing someone else. People talk: about {chance} a month. If your partner hears, you lose standing, and they may leave.",

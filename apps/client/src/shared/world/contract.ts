@@ -44,7 +44,9 @@ export interface Act {
   /** For `app`: the phone app it opens, by its id on the phone (`papers`). */
   app?: string;
   /** For `command`: which command the card sends. */
-  command?: "route/pay-deposit" | "route/depart" | "obligation/pay";
+  command?: "route/pay-deposit" | "route/depart" | "obligation/pay" | "people/court";
+  /** For `command` `people/court`: the computer partner the card courts, set by the city from who stands at the thing (R-WORLD-020). */
+  with?: string;
   /** The pose the character takes on the thing once the act lands: sitting on it, lying on it (R-WORLD-005). */
   pose?: "sit" | "lie";
   /** Where the character is placed for the pose: on the seat or the bed, `[x, z, facing]` in the place's metres. */
@@ -68,6 +70,8 @@ export interface Thing {
   /** Where the character walks to for it, or the copy's spot when absent. */
   at?: [number, number];
   acts: Act[];
+  /** The quiet mark beside the name of a person the game plays: `computer` (people.md R-PEOPLE-009, R-PEOPLE-054). */
+  mark?: "computer";
 }
 
 /** The place's camera (R-WORLD-009): what the whole view looks at and how it may move. */

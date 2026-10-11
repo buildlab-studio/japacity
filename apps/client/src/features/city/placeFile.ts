@@ -87,6 +87,11 @@ export interface Stage {
   motion: Motion[];
   /** People on the floor on a dance loop of their own, apart from the sampled crowd. */
   dancers?: Dancer[];
+  /**
+   * People who stand still at a thing of their own, apart from the sampled crowd: a computer partner met in this place
+   * (world.md R-WORLD-020). The city keeps only those standing now (`features/city/meetings.ts`).
+   */
+  standing?: Stander[];
   /** How the place is dressed while an offer it stages is open. */
   dressings?: Dressing[];
   /** What a room shows of a choice the month's plan holds (world.md R-WORLD-029): the pot steaming, the drum filled. */
@@ -97,6 +102,17 @@ export interface Stage {
   things?: Thing[];
   /** The place a door here opens into, as a place id (world.md R-WORLD-013): a room is just another place. */
   inside?: string;
+}
+
+/**
+ * Someone standing still at a thing: the thing's id in `things`, the person model from the place's kit, and where they
+ * stand. `person`, when two people share the thing, names whose model it is.
+ */
+export interface Stander {
+  thing: string;
+  person?: string;
+  file: string;
+  at: Spot;
 }
 
 /** The party room's two dance loops, written in code (R-CITY-037). */
@@ -176,10 +192,10 @@ export function stageOf(file: PlaceFile): Stage {
   return file.stage ?? OPEN_STAGE;
 }
 
-/** Every file a place needs before it is drawn: its models, its dancers and the people its sample may use. */
+/** Every file a place needs before it is drawn: its models, its dancers, who stands at a thing, and the people its sample may use. */
 export function filesOf(file: PlaceFile, people: readonly string[]): string[] {
   const stage = stageOf(file);
-  return [...new Set([...stage.models.map((model) => model.file), ...(stage.dancers ?? []).map((dancer) => dancer.file), ...people])];
+  return [...new Set([...stage.models.map((model) => model.file), ...(stage.dancers ?? []).map((dancer) => dancer.file), ...(stage.standing ?? []).map((stander) => stander.file), ...people])];
 }
 
 /** A place file as the open offers dress it, with the crowd figures its dressing sets, or null for the entry's own. */
@@ -199,6 +215,7 @@ export function dressPlace(file: PlaceFile, open: readonly string[]): { file: Pl
     prefer: dressing.prefer ?? {},
     motion: [...plain.motion, ...dressing.motion],
     dancers: [...(plain.dancers ?? []), ...dressing.dancers],
+    ...(plain.standing === undefined ? {} : { standing: plain.standing }),
     ...(plain.shot === undefined ? {} : { shot: plain.shot }),
     ...(plain.things === undefined ? {} : { things: plain.things }),
     ...(plain.inside === undefined ? {} : { inside: plain.inside }),

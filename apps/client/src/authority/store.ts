@@ -2,7 +2,7 @@
 // thing the authority said. Screens read from here and send through here, so
 // none of them ever holds a state, a seed or a version number of its own.
 import { content, text } from "@japacity/content";
-import type { Command, Id, PlayerView, Reply, ReportLine, SlotPick } from "@japacity/sim";
+import type { Command, Id, PlayerView, Reply, ReportLine, SlotPick, World } from "@japacity/sim";
 import { createStore, type StoreApi } from "zustand/vanilla";
 
 import { earlyWinIn } from "../features/guides/earlyWin";
@@ -18,6 +18,11 @@ import { uiText } from "../shared/words/ui";
 import { forgetTaught } from "../shared/world/taught";
 import { forgetLife } from "./ended";
 import type { AuthorityEvent } from "./remote";
+
+/** A number of the world at this tick as the store holds it: the fetched world's online, the local authority's offline; 0 before either is known. */
+export function worldVar(state: Pick<GameState, "world" | "vars">, id: string): number {
+  return state.world?.world.vars[id as keyof World["vars"]] ?? state.vars?.[id] ?? 0;
+}
 
 /** A command as a screen writes it: the store adds the version it is based on. */
 export type PlayerCommand = Command extends infer C
@@ -37,6 +42,8 @@ export interface StoreAuthority {
   send(command: Command): Promise<Reply | ServerRejection>;
   /** The month's clock as this authority keeps it, for one that reports no clock through events (the local one): when the next month comes (R-WORLD-027). */
   clock?(): ClockView | null;
+  /** The world's numbers at this tick, for one whose world is not fetched (the local one): the season the meetings read (R-WORLD-020). */
+  vars?(): Readonly<Record<string, number>>;
 }
 
 export interface Shown {
@@ -89,6 +96,8 @@ export interface GameState {
   clock: ClockView | null;
   /** The world of the current tick, fetched on the schedule of R-CLOCK-019. */
   world: WorldReply | null;
+  /** The local authority's world numbers at its tick, or null online, where `world` carries them. */
+  vars: Readonly<Record<string, number>> | null;
   /** Who else is in the character's place, a sample (R-CLOCK-028). */
   presence: PresenceReply | null;
   /** Signing in, the age screen and deletion, or null for the local authority. */
@@ -284,7 +293,8 @@ function makeStore(authority: StoreAuthority, options: GameStoreOptions): GameSt
     /** The authority's own clock, when it keeps one and reports none through events. */
     function ownClock(): Partial<GameState> {
       const clock = authority.clock?.();
-      return clock === undefined ? {} : { clock };
+      const vars = authority.vars?.();
+      return { ...(clock === undefined ? {} : { clock }), ...(vars === undefined ? {} : { vars }) };
     }
 
     function take(view: PlayerView): void {
@@ -345,6 +355,7 @@ function makeStore(authority: StoreAuthority, options: GameStoreOptions): GameSt
       notice: options.notice ?? null,
       clock: null,
       world: null,
+      vars: null,
       presence: null,
       account: options.account ?? null,
       signedOut: false,

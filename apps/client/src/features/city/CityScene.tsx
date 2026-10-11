@@ -80,13 +80,14 @@ function backDepth(root: Object3D): number {
 }
 
 /** What a ray landed on, before the scene reads it as a thing. */
-type Hit = { kind: "own" } | { kind: "person"; slot: number } | { kind: "model"; file: string; signs: string[] };
+type Hit = { kind: "own" } | { kind: "person"; slot: number } | { kind: "model"; file: string; signs: string[] } | { kind: "stander"; thing: string };
 
 function hitOf(object: Object3D | null): Hit | null {
   let at: Object3D | null = object;
   while (at !== null) {
-    const data = at.userData as { slot?: number; own?: boolean; file?: string; signs?: string[] };
+    const data = at.userData as { slot?: number; own?: boolean; file?: string; signs?: string[]; stander?: string };
     if (data.own === true) return { kind: "own" };
+    if (typeof data.stander === "string") return { kind: "stander", thing: data.stander };
     if (typeof data.slot === "number") return { kind: "person", slot: data.slot };
     if (typeof data.file === "string") return { kind: "model", file: data.file, signs: data.signs ?? [] };
     at = at.parent;
@@ -495,6 +496,12 @@ function Place(props: PlaceProps) {
       return;
     }
     const hit = hitOf(event.object);
+    // A person standing at a thing of their own is that thing (R-WORLD-020).
+    if (hit?.kind === "stander") {
+      const thing = things.find((candidate) => candidate.id === hit.thing);
+      if (thing !== undefined) choose(thing);
+      return;
+    }
     let picked: ScenePick | null = hit;
     if (hit?.kind === "model") {
       // Which copy was tapped: the one standing nearest the point the ray met.

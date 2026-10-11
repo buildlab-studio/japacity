@@ -9,7 +9,7 @@ import { isValidElement, lazy, Suspense, useEffect, useMemo, useRef, useState, t
 
 import { useGame, useGameStoreIfAny, useView } from "../../authority/GameProvider";
 import { readPerson } from "../../authority/person";
-import { plannedShut } from "../../authority/store";
+import { plannedShut, worldVar } from "../../authority/store";
 import { keptLookFile } from "../../authority/person";
 import { chooseGraphics, setGraphicsMode } from "../../shared/graphics/mode";
 import { loadModel } from "../../shared/three/load";
@@ -66,6 +66,7 @@ import { type Coming, soonest } from "../../shared/words/coming";
 import { stagedNow, thingsNow, thingsOf, vehicleOf, withMoreAt } from "./things";
 import { stopReached } from "./stops";
 import { namedThings } from "./mark";
+import { COURT, DECEMBER, makeRoom, roomNear, roomOpen, standingAt, talkAsk, THEIR_ROOM, withMeetings, withStanding } from "./meetings";
 
 /** Acts the scene shows (R-WORLD-005): the pot steams, the drum fills; the place says no answer for them (R-OBLIGATION-014). */
 const SHOWN_BY_SCENE: ReadonlySet<string> = new Set(["activity.cook-at-home", "activity.fetch-water", "activity.fill-drum"]);
@@ -624,10 +625,17 @@ export function City({
   // the pot steaming once cooked and the drum full once fetched (R-OBLIGATION-014).
   const plannedKey = plan.flatMap((pick) => (pick === null ? [] : [pick.activity])).join("|");
   const doneKey = view.activities.flatMap((option) => (option.done ? [option.id] : [])).join("|");
+  // R-WORLD-020, R-PEOPLE-009, R-PEOPLE-013: a computer partner the view lists stands at their thing in the place content
+  // meets them in, one met only in December only while it is December; nobody else stands there.
+  const december = useGame((state) => worldVar(state, DECEMBER)) === 1;
+  const meetPlace = inside && insideEntry !== null ? insideEntry.id : placeId;
+  const candidatesKey = view.people.candidates.map((candidate) => `${candidate.person}:${candidate.role}`).join("|");
+  // The list is read by its key, so a new view with the same candidates keeps the place as it is.
+  const standing = useMemo(() => (world ? standingAt(meetPlace, view.people.candidates, december) : []), [world, meetPlace, candidatesKey, december]);
   const file = useMemo(() => {
     const here = outsideFile === null || !inside ? outsideFile : insideId === null ? roomOf(outsideFile, HOUSE) : insideFile;
-    return here === null ? null : showPlanned(here, [...plannedKey.split("|"), ...doneKey.split("|")]);
-  }, [outsideFile, inside, insideId, insideFile, plannedKey, doneKey]);
+    return here === null ? null : withStanding(showPlanned(here, [...plannedKey.split("|"), ...doneKey.split("|")]), standing);
+  }, [outsideFile, inside, insideId, insideFile, plannedKey, doneKey, standing]);
   useEffect(() => {
     setZoomed(false);
     setPicked(null);
@@ -641,13 +649,13 @@ export function City({
   // In the world a place shows at most the crowd its scope allows in the mode; the party keeps its ten (R-WORLD-011).
   const crowdEntry = inside && insideEntry !== null ? insideEntry : entry;
   const dressedCrowd = inside ? null : (dressed?.crowd ?? null);
-  const sample = useMemo(
-    () =>
-      crowdEntry === null || file === null
-        ? null
-        : sampleCrowd({ ...crowdEntry, crowd: dressedCrowd ?? crowdEntry.crowd }, poolOf(file.people.sample), date, mode, world ? crowdTuning(city, file.scope, dressedCrowd !== null) : city, others, today, [own, ...(stageOf(file).dancers ?? []).map((dancer) => dancer.file)]),
-    [crowdEntry, file, dressedCrowd, date, mode, others, today, own, world],
-  );
+  const sample = useMemo(() => {
+    if (crowdEntry === null || file === null) return null;
+    const standers = (stageOf(file).standing ?? []).map((stander) => stander.file);
+    const drawn = sampleCrowd({ ...crowdEntry, crowd: dressedCrowd ?? crowdEntry.crowd }, poolOf(file.people.sample), date, mode, world ? crowdTuning(city, file.scope, dressedCrowd !== null) : city, others, today, [own, ...(stageOf(file).dancers ?? []).map((dancer) => dancer.file), ...standers]);
+    // Someone standing at a thing of their own takes a resident's place, so the room holds no more than its crowd (R-WORLD-011).
+    return { ...drawn, people: makeRoom(drawn.people, standers.length) };
+  }, [crowdEntry, file, dressedCrowd, date, mode, others, today, own, world]);
   const places = enterable(here, PLACES);
   const heard = entry === null ? null : overheard(view, entry.id, date, heardCount);
   const lines = entry === null ? [] : reportHere(view, entry.id, PLACES);
@@ -693,6 +701,7 @@ export function City({
       case "thing":
         return sceneWords(picked.thing.label);
       case "command":
+        if (picked.command === COURT) return picked.with === undefined ? "" : nameOf(picked.with);
         return say(picked.command === "route/depart" ? "ui.route.depart" : picked.command === "obligation/pay" ? "ui.world.pay-back" : "ui.route.pay-deposit");
       default: {
         const never: never = picked;
@@ -714,7 +723,7 @@ export function City({
   const heldDue = view.obligations.find((owed) => content.obligation[owed.entry]?.type === "held-funds") ?? null;
   // An activity shut only by a paper not yet held (the English test before the passport) still stands in the world, shut with its reason;
   // a now-act done this month is gone from its thing until the next (R-ACTIVITY-015).
-  const activityKey = [...actsOffered(view), ...(heldDue === null ? [] : ["command:obligation/pay"]), ...(depositDue === null ? [] : ["command:route/pay-deposit"]), ...(departDue === null ? [] : ["command:route/depart"])].join("|");
+  const activityKey = [...actsOffered(view), ...(heldDue === null ? [] : ["command:obligation/pay"]), ...(depositDue === null ? [] : ["command:route/pay-deposit"]), ...(departDue === null ? [] : ["command:route/depart"]), ...(view.ended ? [] : [`command:${COURT}`])].join("|");
   const chapterNow = view.chapter.current;
   const offersKey = view.offers.map((offer) => offer.entry).join("|");
   const setpieceEntry = view.setpiece?.entry ?? null;
@@ -722,8 +731,8 @@ export function City({
     if (!world || file === null) return undefined;
     const offered = new Set(activityKey.split("|"));
     const staged = new Set<string>([...(entry?.stages ?? []), ...(insideEntry?.stages ?? []), ...homeStagesAt(placeId, home, here, PLACES)]);
-    return thingsNow(withMoreAt(thingsOf(stageOf(file)), inside && insideEntry !== null ? insideEntry.id : placeId), stagedNow(offered, staged, new Set(offersKey.split("|")), setpieceEntry, chapterNow));
-  }, [world, file, activityKey, entry, inside, insideEntry, placeId, offersKey, setpieceEntry, chapterNow, home, here]);
+    return thingsNow(withMoreAt(withMeetings(thingsOf(stageOf(file)), meetPlace, standing), meetPlace), stagedNow(offered, staged, new Set(offersKey.split("|")), setpieceEntry, chapterNow));
+  }, [world, file, activityKey, entry, insideEntry, placeId, offersKey, setpieceEntry, chapterNow, home, here, meetPlace, standing]);
   // The chosen thing's acts already in this month's plan say Planned and are shut.
   const pickedThing = picked?.kind === "thing" ? picked.thing : null;
   const chosenThing = useMemo(() => (pickedThing === null ? null : withPlanned(pickedThing, plan, view)), [pickedThing, plan, view]);
@@ -798,7 +807,7 @@ export function City({
       }
       // R-ROUTE-008: the school's deposit is paid at the bank through a card the world sends itself.
       case "command":
-        setPicked(act.command === undefined ? null : { kind: "command", command: act.command });
+        setPicked(act.command === undefined ? null : { kind: "command", command: act.command, ...(act.with === undefined ? {} : { with: act.with }) });
         return;
       // R-WORLD-019: the papers box opens the phone's Papers app, the one place the papers are told.
       case "app":
@@ -863,6 +872,11 @@ export function City({
     const spotOf = (place: PlaceEntry): { latE3: number; lonE3: number } => {
       if (place.position !== null) return place.position;
       if (place.id === home) return HOME_SPOT;
+      // Their room has no address of its own: it sits a little off the place it is near, or off home for one who is home only for December (R-WORLD-020).
+      if (place.id === THEIR_ROOM) {
+        const near = content.place[(roomNear(view) ?? "") as Id<"place">]?.position ?? HOME_SPOT;
+        return { latE3: near.latE3 + 2, lonE3: near.lonE3 + 2 };
+      }
       const area = place.area ?? "";
       const index = spotted.get(area) ?? 0;
       spotted.set(area, index + 1);
@@ -872,7 +886,8 @@ export function City({
     // A life's own first step opens its place before the chapter does (prologue.md R-PROLOGUE-010).
     const early = earlyStops(view);
     return places
-      .filter((place) => (place.position !== null || place.id === home || (place.area !== null && shipped?.has(place.id) === true)) && (shipped === null || shipped.has(place.id) || place.id === home))
+      // R-WORLD-020: their room opens only once a bond is courting.
+      .filter((place) => (place.id === THEIR_ROOM ? roomOpen(view) && shipped?.has(place.id) === true : place.position !== null || place.id === home || (place.area !== null && shipped?.has(place.id) === true)) && (shipped === null || shipped.has(place.id) || place.id === home))
       .map((place) => {
         const reached = stopReached(view.chapter, where, place.id, early);
         const state: PinState = place.id === placeId ? "here" : place.id === home ? "home" : been.includes(place.id) ? "been" : !reached ? "not" : shipped === null || shipped.has(place.id) ? "can" : "not";
@@ -996,6 +1011,21 @@ export function City({
         },
         dismiss: () => setPicked(null),
       };
+    }
+    // R-WORLD-020, R-PEOPLE-013: talking to a person met here opens their card; its one button courts them.
+    if (world && picked?.kind === "command" && picked.command === COURT && picked.with !== undefined) {
+      const person = picked.with;
+      return talkAsk(person, view, content.tuning.people.maxCourting, { name: nameOf, court: (name) => say("ui.people.court", { name }), full: (count) => say("ui.people.court.full", { count }), notYet: say("ui.needs.not-yet"), computer: say("ui.people.mark.computer") }, {
+        send: (who) => {
+          void send({ type: "people/court", with: who }).then((reply) => {
+            cue(reply?.ok === true ? "done" : "tap");
+            // R-PEOPLE-054: one plain line when a computer partner is chosen, told in the corner.
+            if (reply?.ok === true) tell(say("ui.people.chosen", { name: nameOf(who) }));
+          });
+          setPicked(null);
+        },
+        dismiss: () => setPicked(null),
+      });
     }
     if (world && picked?.kind === "command" && picked.command === "obligation/pay" && heldDue !== null) {
       const amount = heldDue.outstanding;
