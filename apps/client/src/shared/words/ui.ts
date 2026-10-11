@@ -25,6 +25,9 @@ export const uiText: Record<string, string> = {
   "ui.failed": "The game could not start: {why}",
   "ui.broken": "Something on this screen broke. Your life is kept; reload to carry on.",
   "ui.broken.reload": "Reload",
+  "ui.broken.tell": "Tell us",
+  // Written into the feedback box by Tell us: the error's name and the build, never its message or stack (R-ANALYTICS-002).
+  "ui.broken.feedback": "The screen broke ({error}, build {build}). What I was doing: ",
 
   // Tabs
   "ui.tab.month": "Month",
