@@ -3,7 +3,10 @@
 // that cookie passes to the game untouched, and so does anyone's request for the public pages
 //; anyone else sees one screen. At launch the maintainer
 // deletes the route and the game's Worker is the root. Nothing about a visitor is stored. This
-// module exports only the handler and its Env: the runtime refuses other exports here.
+// module exports only the handler and its Env: the runtime refuses other exports here. The gate
+// counts the holding screen, the invite link and a card's arrival for the game (counts.ts).
+import { countryOf, countsFor, report } from "./counts";
+import type { GameCounters, Seen } from "./counts";
 import { admits, codeMatches, cookieFor } from "./gate";
 import { BEACON_REPORTS, BEACON_SCRIPT, beaconOn, renderScreen } from "./screen";
 
@@ -18,6 +21,8 @@ export interface Env {
   ANALYTICS_TOKEN?: string | undefined;
   /** The gate's own files: only the card picture. */
   ASSETS: Fetcher;
+  /** The game's Worker, its `GateCounters` entrypoint, for the counts (counts.ts). Unbound: nothing is counted. */
+  GAME?: GameCounters | undefined;
 }
 
 const PRIVATE = { "cache-control": "no-store", "referrer-policy": "no-referrer", "x-robots-tag": "noindex" };
@@ -77,14 +82,26 @@ function refuse(request: Request, url: URL, env: Env): Response {
 }
 
 export default {
-  async fetch(request: Request, env: Env): Promise<Response> {
+  // `ctx` is the runtime's; a test that calls the handler with none still gets its reply.
+  async fetch(request: Request, env: Env, ctx?: ExecutionContext): Promise<Response> {
     const url = new URL(request.url);
     if (url.pathname === CARD && (request.method === "GET" || request.method === "HEAD")) return env.ASSETS.fetch(request);
+    const later = (promise: Promise<unknown>) => (ctx === undefined ? void promise : ctx.waitUntil(promise));
+    const counted = (seen: Seen) => report(env.GAME, countsFor(request, url, seen), countryOf(request), later);
     const now = nowSeconds();
     const code = inviteCode(url.pathname);
-    if (code !== null && (await codeMatches(code, env.GATE_SECRET))) return admit(await cookieFor(env.GATE_SECRET, now));
+    if (code !== null && (await codeMatches(code, env.GATE_SECRET))) {
+      counted("invited");
+      return admit(await cookieFor(env.GATE_SECRET, now));
+    }
     // The game's Worker is the host's Custom Domain, so it is the origin: fetch(request) streams both ways and carries socket upgrades.
-    if (isPublic(request, url) || (await admits(request.headers.get("cookie"), env.GATE_SECRET, now))) return fetch(request);
-    return refuse(request, url, env);
+    if (isPublic(request, url) || (await admits(request.headers.get("cookie"), env.GATE_SECRET, now))) {
+      counted("passed");
+      return fetch(request);
+    }
+    const refused = refuse(request, url, env);
+    // Only the holding screen is a step of the funnel; a bare refusal is not.
+    if (refused.status === 200) counted("holding");
+    return refused;
   },
 } satisfies ExportedHandler<Env>;

@@ -15,6 +15,10 @@
   // The card picture of the screen's link preview. Every request runs the gate's code first,
   // which serves /card.png from here and nothing else, so no file of the gate's hides one of the game's.
   "assets": { "directory": "./public", "binding": "ASSETS", "run_worker_first": true },
+  // The counts the gate hands the game (src/counts.ts): the holding screen, the invite link, a card's
+  // arrival. A service binding to the game's Worker's GateCounters entrypoint, which is not on the
+  // internet; no cookie or secret is involved.
+  "services": [{ "binding": "GAME", "service": "japacity-server", "entrypoint": "GateCounters" }],
   "vars": {
     // The game's X handle without the @, once the maintainer has claimed it. Empty: the screen shows no X link.
     "GATE_X_HANDLE": "",

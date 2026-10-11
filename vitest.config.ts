@@ -56,6 +56,22 @@ const gameBehindGate = `export default {
     return new Response("game " + path);
   },
 };`;
+// The game's GateCounters entrypoint, in the gate's tests (apps/gate/src/counts.ts): it keeps what the gate
+// counted, and `seen()` hands it to a test and starts again.
+const countersBehindGate = `import { WorkerEntrypoint } from "cloudflare:workers";
+let counted = [];
+export class GateCounters extends WorkerEntrypoint {
+  count(rows, country) {
+    counted.push({ rows, country });
+    return rows.length;
+  }
+  seen() {
+    const held = counted;
+    counted = [];
+    return held;
+  }
+}
+export default { fetch: () => new Response("") };`;
 const serverWrangler = fileURLToPath(new URL("./apps/server/wrangler.jsonc", import.meta.url));
 // The place object's tests open real sockets, which the Workers plugin runs only with shared storage.
 const workersTests = "apps/server/src/**/*.workers.test.ts";
@@ -163,7 +179,10 @@ export default defineConfig({
             miniflare: {
               bindings: { GATE_SECRET: "a-test-secret-only", GATE_X_HANDLE: "japacityapp" },
               outboundService: "game",
-              workers: [{ name: "game", modules: true, script: gameBehindGate }],
+              workers: [
+                { name: "game", modules: true, script: gameBehindGate },
+                { name: "japacity-server", modules: true, compatibilityDate: "2026-09-01", script: countersBehindGate },
+              ],
             },
           }),
         ],
