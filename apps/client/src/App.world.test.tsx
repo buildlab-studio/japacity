@@ -43,14 +43,15 @@ describe("the world is the game", () => {
     expect(screen.queryByRole("heading", { name: say("ui.month.planning", { month: 1 }) })).toBeNull();
   });
 
-  test("[R-CITY-021] given a life played on this device with no account, when the phone's Settings is opened, then the Credits row stands beside the ready lives and opens the credits sheet", async () => {
+  test("[R-CITY-021] given a life played on this device with no account, when the phone's Settings is opened, then the Credits row stands under its own heading, About the game, below the account and the ready lives, and opens the credits sheet", async () => {
     history.replaceState(null, "", "/");
     await startLife();
     fireEvent.click(await waitFor(() => document.querySelector<HTMLElement>("[data-thumb='phone']")!));
     fireEvent.click(await waitFor(() => document.querySelector<HTMLElement>('[data-app="settings"]')!));
     const row = await waitFor(() => document.querySelector<HTMLElement>("[data-credits-row]")!);
-    expect(row.previousElementSibling?.hasAttribute("data-ready-entry")).toBe(true);
-    expect(document.querySelector("[data-account] [data-credits-row]")).toBe(row);
+    expect(document.querySelector("[data-about] [data-credits-row]")).toBe(row);
+    expect(document.querySelector("[data-about]")?.previousElementSibling?.textContent).toBe("About the game");
+    expect(document.querySelector("[data-account] [data-credits-row]")).toBeNull();
     fireEvent.click(row);
     expect(await screen.findByRole("dialog", { name: "Credits" })).toBeTruthy();
   });

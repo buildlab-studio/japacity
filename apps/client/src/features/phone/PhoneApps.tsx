@@ -50,7 +50,7 @@ interface Handed {
   cards: PaperCards | null;
 }
 
-function screenOf(id: AppId, account: ReactNode, opening: Opening, handed: Handed): ReactNode {
+function screenOf(id: AppId, account: ReactNode, about: ReactNode, opening: Opening, handed: Handed): ReactNode {
   switch (id) {
     case "calendar":
       return handed.calendar?.(opening) ?? null;
@@ -71,7 +71,7 @@ function screenOf(id: AppId, account: ReactNode, opening: Opening, handed: Hande
     case "news":
       return <News />;
     case "settings":
-      return <Settings account={account} />;
+      return <Settings account={account} about={about} />;
     default: {
       const never: never = id;
       throw new Error(`Unknown app ${String(never)}.`);
@@ -80,7 +80,7 @@ function screenOf(id: AppId, account: ReactNode, opening: Opening, handed: Hande
 }
 
 /** The apps, each with its dot from what the player has not seen. */
-export function usePhoneApps({ account = null, opening = null, calendar = null, cards = null }: { account?: ReactNode; opening?: { app: string; act: Opening } | null; calendar?: CalendarScreen | null; cards?: PaperCards | null } = {}): PhoneApp[] {
+export function usePhoneApps({ account = null, about = null, opening = null, calendar = null, cards = null }: { account?: ReactNode; about?: ReactNode; opening?: { app: string; act: Opening } | null; calendar?: CalendarScreen | null; cards?: PaperCards | null } = {}): PhoneApp[] {
   const view = useView();
   const waiting = waitingOf(marksOf(view), useSeen());
   return APP_IDS.map((id) => ({
@@ -91,7 +91,7 @@ export function usePhoneApps({ account = null, opening = null, calendar = null, 
     screen: (
       <>
         <Refused />
-        {screenOf(id, account, opening?.app === id ? opening.act : null, { calendar, cards })}
+        {screenOf(id, account, about, opening?.app === id ? opening.act : null, { calendar, cards })}
       </>
     ),
     waiting: waiting[id],
@@ -112,6 +112,8 @@ export interface PhoneAppsProps {
   area: string;
   /** The account's settings, for the Settings app. */
   account?: ReactNode;
+  /** About the game, under its own heading at the foot of Settings: the Credits row (city.md R-CITY-021). */
+  about?: ReactNode;
   /** The pair routes online, or null offline, for Chats. */
   talk?: PairTalk | null;
   /** The people feature's screens for Chats, from the shell: a bond's head and the slots (R-WORLD-020). */
@@ -128,10 +130,10 @@ export interface PhoneAppsProps {
 }
 
 /** The handset with its apps, ready for the shell to show over the world. */
-export function PhoneApps({ onClose, area, account = null, talk = null, people = null, now, start = null, calendar = null, cards = null, onMap }: PhoneAppsProps) {
+export function PhoneApps({ onClose, area, account = null, about = null, talk = null, people = null, now, start = null, calendar = null, cards = null, onMap }: PhoneAppsProps) {
   const view = useView();
   const [app, act] = start === null ? [null, null] : start.split(":");
-  const apps = usePhoneApps({ account, opening: app === undefined || app === null ? null : { app, act: act ?? null }, calendar, cards });
+  const apps = usePhoneApps({ account, about, opening: app === undefined || app === null ? null : { app, act: act ?? null }, calendar, cards });
   const marks = marksOf(view);
   return (
     <PhoneTalk value={talk}>

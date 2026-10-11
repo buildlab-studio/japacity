@@ -176,6 +176,7 @@ export const phoneText: Record<string, string> = {
   "phone.settings.graphics.high": "High",
   "phone.settings.graphics.when": "The city takes it the next time it opens.",
   "phone.settings.account": "Account",
+  "phone.settings.about": "About the game",
 };
 
 /** Words for a phone key: content's first, then the interface's, then the phone's own drafts. */

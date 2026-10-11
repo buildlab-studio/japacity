@@ -42,7 +42,7 @@ function keepGraphics(choice: GraphicsChoice): void {
   }
 }
 
-export function Settings({ account = null }: { account?: ReactNode }) {
+export function Settings({ account = null, about = null }: { account?: ReactNode; about?: ReactNode }) {
   const [theme, chooseTheme] = useState<Theme>(() => currentTheme());
   const [graphics, setGraphics] = useState<GraphicsChoice>(readGraphics);
   const muted = useSound((state) => state.muted);
@@ -84,6 +84,12 @@ export function Settings({ account = null }: { account?: ReactNode }) {
       <p className="mt-1 text-[12px] text-text-2">{phoneWords("phone.settings.graphics.when")}</p>
 
       {account === null ? null : <div data-account>{account}</div>}
+      {about === null ? null : (
+        <>
+          <Head>{phoneWords("phone.settings.about")}</Head>
+          <div data-about>{about}</div>
+        </>
+      )}
 
       <NewLife />
     </div>
