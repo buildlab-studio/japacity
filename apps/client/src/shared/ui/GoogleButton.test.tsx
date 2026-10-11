@@ -42,7 +42,7 @@ describe("Google's own button", () => {
     expect(MARK).toContain('viewBox="10 10 20 20"');
     // The G's own outline and the gradient of colours Google draws it with.
     expect(MARK).toContain("M29.3987 18.1814H19.9849V22.0445H25.3598");
-    expect(MARK).toContain("conic-gradient(from 90deg,rgba(255, 70, 65, 1) 0deg");
+    expect(MARK).toContain("from 90deg,rgba(255, 70, 65, 1) 0deg,rgba(255, 70, 65, 1) 4.14555deg,rgba(49, 134, 255, 1) 39.154deg");
     expect(MARK).not.toContain("M4 0.5H36");
   });
 
