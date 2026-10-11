@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { text } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
-import { DEFAULT_PORT, doorButton, inside, livesFrom, parseOptions, shotName } from "./options";
+import { DEFAULT_PORT, doorButton, inside, livesFrom, localCertificate, parseOptions, shotName } from "./options";
 
 const ROOT = "/work/japacity";
 const OUTSIDE = "/tmp/plays/one";
@@ -61,6 +61,15 @@ describe("the play driver's options", () => {
     expect(refusal(["--out", OUTSIDE, "--url", "http://localhost:1", "--port", "5182"])).toContain("not both");
     expect(refusal(["--out", OUTSIDE, "--url", "file:///etc"])).toContain("http address");
     expect(parsed(["--out", OUTSIDE, "--ready=yes"])).toMatchObject({ ok: false, problem: "--ready takes no value." });
+  });
+
+  test("given an address, when asked whether its certificate is the local stack's own, then only https on localhost or 127.0.0.1 is", () => {
+    expect(localCertificate("https://localhost:8787")).toBe(true);
+    expect(localCertificate("https://127.0.0.1:6592")).toBe(true);
+    expect(localCertificate("http://localhost:5173")).toBe(false);
+    expect(localCertificate("https://japacity.app")).toBe(false);
+    expect(localCertificate("https://localhost.japacity.app")).toBe(false);
+    expect(localCertificate("not an address")).toBe(false);
   });
 
   test("given --help, when parsed, then it asks for the usage and nothing else is checked", () => {

@@ -6,13 +6,14 @@
 // It changes nothing in the repository. See tools/play/README.md.
 import { type ChildProcess, spawn } from "node:child_process";
 import { appendFileSync, createWriteStream, mkdirSync, writeFileSync } from "node:fs";
+import { request } from "node:https";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { text } from "@japacity/content";
 import { type Browser, chromium, type Locator, type Page } from "@playwright/test";
 
-import { doorButton, livesFrom, parseOptions, type PlayOptions, shotName, USAGE } from "./options";
+import { doorButton, livesFrom, localCertificate, parseOptions, type PlayOptions, shotName, USAGE } from "./options";
 
 const ROOT = fileURLToPath(new URL("../..", import.meta.url));
 /** A mid-range phone, the size the game is built for (docs/design/03-feasibility-and-plan.md, "Screens") and the browser tests use. */
@@ -100,6 +101,41 @@ async function placeDrawn(run: Run): Promise<void> {
 
 // The front door ---------------------------------------------------------------------------------
 
+/**
+ * Online, a signed-out visitor first sees the start screen (account.md R-ACCOUNT-029): Play, then the age screen
+ * (R-ACCOUNT-012), answered with a grown-up's birthday, then the door as offline. Offline the door is first. True
+ * once the door's first button shows.
+ */
+async function onlineDoor(run: Run, next: Locator): Promise<boolean> {
+  const { page } = run;
+  const play = page.getByRole("button", { name: "Play", exact: true });
+  const day = page.getByRole("combobox", { name: "Day" });
+  for (let step = 0; step < 4; step += 1) {
+    await next.or(play).or(day).first().waitFor({ state: "visible", timeout: LONG }).catch(() => undefined);
+    if (await shown(next)) return true;
+    if (await shown(play)) {
+      log(run, "online: the start screen");
+      await shot(run, "start screen");
+      if (!(await tap(run, play, "Play"))) return false;
+      await play.waitFor({ state: "detached", timeout: LONG }).catch(() => undefined);
+      continue;
+    }
+    if (await shown(day)) {
+      log(run, "online: the age screen, answered 17 May 1990");
+      await day.selectOption("17");
+      await page.getByRole("combobox", { name: "Month" }).selectOption({ label: "May" });
+      await page.getByRole("combobox", { name: "Year" }).selectOption("1990");
+      await shot(run, "age screen");
+      if (!(await tap(run, page.getByRole("button", { name: "Continue" }), "Continue on the age screen"))) return false;
+      // The answer goes to the server; the age screen stays until it is taken.
+      await day.waitFor({ state: "detached", timeout: LONG }).catch(() => undefined);
+      continue;
+    }
+    return false;
+  }
+  return shown(next);
+}
+
 async function frontDoor(run: Run, button: string): Promise<boolean> {
   const { page, options } = run;
   if (options.played) await page.addInitScript({ content: 'localStorage.setItem("japacity.walkthrough", "1");' });
@@ -111,7 +147,7 @@ async function frontDoor(run: Run, button: string): Promise<boolean> {
   }
   // Settings' run opens on the ready lives themselves; a new player's on the first screen.
   const next = page.getByRole("button", { name: options.ready ? /^Pick: / : /^Next/ }).first();
-  if (!(await appear(next, LONG))) {
+  if (!(await onlineDoor(run, next))) {
     problem(run, "the front door did not open");
     return false;
   }
@@ -587,7 +623,21 @@ async function phoneApps(run: Run): Promise<void> {
 
 // The dev server ----------------------------------------------------------------------------------
 
+/** The local stack's own certificate is self-signed, so its page is asked for with the check off, and only there. */
+function answersLocally(url: string): Promise<boolean> {
+  return new Promise((resolve) => {
+    const call = request(url, { rejectUnauthorized: false, timeout: 2_000 }, (reply) => {
+      reply.resume();
+      resolve((reply.statusCode ?? 0) >= 200 && (reply.statusCode ?? 0) < 300);
+    });
+    call.on("timeout", () => call.destroy());
+    call.on("error", () => resolve(false));
+    call.end();
+  });
+}
+
 async function answers(url: string): Promise<boolean> {
+  if (localCertificate(url)) return answersLocally(url);
   try {
     const response = await fetch(url, { signal: AbortSignal.timeout(2_000) });
     return response.ok;
@@ -649,7 +699,7 @@ async function play(options: PlayOptions, button: string): Promise<number> {
   let browser: Browser | null = null;
   try {
     browser = await chromium.launch({ headless: !options.headed, args: CHROMIUM_ARGS });
-    const context = await browser.newContext({ ...PHONE, baseURL: served.base });
+    const context = await browser.newContext({ ...PHONE, baseURL: served.base, ignoreHTTPSErrors: localCertificate(served.base) });
     const page = await context.newPage();
     const run: Run = { page, options, started, shots: 0, monthsEnded: 0, problems: [] };
     const errors: string[] = [];

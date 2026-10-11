@@ -8,7 +8,8 @@ export const USAGE = `pnpm play --out <folder> [--life <name>] [--ready] [--mont
   --life <name>        The life to play, by its short name: developer, nurse, trader and so on (default developer).
   --ready              Start from the ready life of that kind instead of the archetype's tile.
   --months <n>         Months to end after reaching the world, 1 to 60 (default 3).
-  --url <address>      Use a dev server that is already running at this address.
+  --url <address>      Use a server that is already running at this address: a dev server, or the local
+                       stack at https://localhost:8787 (pnpm dev:full), whose own certificate is accepted.
   --port <n>           The port for the dev server this tool starts, or reuses if one answers there (default 5190).
   --played             Mark the device as played, so the first-use labels on the thumbs never show.
   --headed             Show the browser window.
@@ -92,6 +93,16 @@ export function parseOptions(argv: readonly string[], cwd: string, repoRoot: str
     ok: true,
     options: { life, ready: flags.has("--ready"), months, out, url, port, played: flags.has("--played"), headed: flags.has("--headed") },
   };
+}
+
+/**
+ * True for an https address on this machine: the local stack's, which wrangler serves with its own
+ * self-signed certificate (server.md R-SERVER-038). Only there are certificate errors ignored.
+ */
+export function localCertificate(url: string): boolean {
+  if (!URL.canParse(url)) return false;
+  const { protocol, hostname } = new URL(url);
+  return protocol === "https:" && (hostname === "localhost" || hostname === "127.0.0.1");
 }
 
 /** True when `path` is `folder` or anywhere under it. */
