@@ -1,12 +1,18 @@
 // The one screen anyone without the invite sees. Plain HTML, no form, no picture of its own, and
 // one script only: Cloudflare Web Analytics' beacon, while the maintainer has set its token (the maintainer,
-// 11 Oct 2026). Words are first drafts for the maintainer to retype in his own voice.
+// 11 Oct 2026). Words are first drafts for the maintainer to retype in his own voice. The terms and the
+// privacy notice are linked from it; the gate lets both through to anyone (index.ts, PUBLIC).
 
 const TITLE = "Japacity";
 const LINE = "The game opens soon.";
 const INVITED = "Got an invite link from a friend? Open it again on this phone.";
 const DESCRIPTION = "A browser game about japa: the job, the transcript, the funds, the visa officer, and the life after.";
 const HANDLE = /^[A-Za-z0-9_]{1,15}$/;
+/** The two pages the screen links, in this order, beside the X link or alone. */
+export const PAGE_LINKS = [
+  { href: "/terms", words: "Terms of play" },
+  { href: "/privacy", words: "Privacy notice" },
+] as const;
 /** A Web Analytics site token: letters and digits only, so it can sit in the beacon's attribute as it is. */
 const TOKEN = /^[A-Za-z0-9]{1,64}$/;
 
@@ -21,7 +27,17 @@ function escapeHtml(text: string): string {
 /** The X link, or nothing while the handle is unset or not a handle. */
 export function xLink(handle: string): string {
   if (!HANDLE.test(handle)) return "";
-  return `<a class="x" href="https://x.com/${handle}" rel="me">@${handle} on X</a>`;
+  return `<a href="https://x.com/${handle}" rel="me">@${handle} on X</a>`;
+}
+
+/**
+ * The screen's links: the X link while there is a handle, then the terms and the privacy notice
+ * together on a line of their own, so a phone never splits the pair.
+ */
+export function links(handle: string): string {
+  const x = xLink(handle);
+  const pages = PAGE_LINKS.map((page) => `<a href="${page.href}">${escapeHtml(page.words)}</a>`).join("\n");
+  return `${x === "" ? "" : `<p class="links">${x}</p>\n`}<p class="links">${pages}</p>`;
 }
 
 /** True when the token can be served: set, and nothing but letters and digits. */
@@ -65,7 +81,9 @@ main{width:100%;max-width:440px}
 h1{font-size:56px;line-height:1;margin:0 0 12px;letter-spacing:-0.02em}
 p{margin:0 0 20px}
 .invited{font-size:14px;color:var(--muted)}
-.x{display:inline-block;margin-top:8px;color:var(--ink);font-weight:700}
+.links{display:flex;flex-wrap:wrap;gap:8px 20px;margin:8px 0 0}
+.links+.links{margin-top:12px}
+.links a{color:var(--ink);font-weight:700}
 </style>
 </head>
 <body>
@@ -73,7 +91,7 @@ p{margin:0 0 20px}
 <h1>${TITLE}</h1>
 <p>${escapeHtml(LINE)}</p>
 <p class="invited">${escapeHtml(INVITED)}</p>
-${xLink(xHandle)}
+${links(xHandle)}
 </main>
 ${beacon(analyticsToken)}
 </body>

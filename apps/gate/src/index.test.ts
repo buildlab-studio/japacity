@@ -32,11 +32,13 @@ async function shown(response: Response) {
     cookie: response.headers.get("set-cookie"),
     screen: html.includes("<h1>Japacity</h1>") && html.includes("The game opens soon."),
     xLink: html.includes('href="https://x.com/japacityapp"'),
+    // the screen links the terms and the privacy notice, with or without the X link.
+    pages: html.includes('<a href="/terms">Terms of play</a>') && html.includes('<a href="/privacy">Privacy notice</a>'),
     game: html.includes("game /"),
   };
 }
 
-const SCREEN = { status: 200, type: "text/html; charset=utf-8", cookie: null, screen: true, xLink: true, game: false };
+const SCREEN = { status: 200, type: "text/html; charset=utf-8", cookie: null, screen: true, xLink: true, pages: true, game: false };
 
 describe("the invite link", () => {
   test("given the right code at /invite/<code>, when the link is opened, then the phone gets the cookie and is sent on to the game's front page", async () => {
@@ -124,7 +126,8 @@ describe("the cookie", () => {
 });
 
 describe("without the cookie", () => {
-  test("given a visit to the root, when it is served, then the holding screen shows: the name, opens soon, the invite line, the X link and the card on japacity.app, with no script and no form", async () => {
+  // the two links to the terms and the privacy notice are part of the screen.
+  test("given a visit to the root, when it is served, then the holding screen shows: the name, opens soon, the invite line, the X link, the links to the terms and the privacy notice, and the card on japacity.app, with no script and no form", async () => {
     const response = await visit("/");
     expect(response.headers.get("cache-control")).toBe("no-store");
     expect(response.headers.get("x-robots-tag")).toBe("noindex");
@@ -137,6 +140,8 @@ describe("without the cookie", () => {
     expect(html).toContain('property="og:image" content="https://japacity.app/card.png"');
     expect(html).toContain('name="twitter:card" content="summary_large_image"');
     expect(html).not.toMatch(/<form|<input|<button|<script|mailto|\/join/);
+    expect(html.indexOf("x.com/japacityapp")).toBeLessThan(html.indexOf('href="/terms"'));
+    expect(html.indexOf('href="/terms"')).toBeLessThan(html.indexOf('href="/privacy"'));
     expect(await shown(response)).toEqual(SCREEN);
   });
 
@@ -174,8 +179,9 @@ describe("without the cookie", () => {
     expect(await shown(await visit("/", { headers: { cookie: `${COOKIE}=1800000000.forged` } }))).toEqual(SCREEN);
   });
 
-  test("given the terms, the privacy notice, the official accounts or the credits page, when they are opened with no cookie, then the game answers each, for anyone", async () => {
-    for (const path of ["/terms", "/terms.html", "/privacy", "/privacy.html", "/official", "/official/", "/official/index.html"]) {
+  // the game's security.txt is public as well.
+  test("given the terms, the privacy notice, the official accounts, the credits page or the security.txt, when they are opened with no cookie, then the game answers each, for anyone", async () => {
+    for (const path of ["/terms", "/terms.html", "/privacy", "/privacy.html", "/official", "/official/", "/official/index.html", "/.well-known/security.txt"]) {
       const response = await visit(path);
       expect([path, response.status, response.headers.get("set-cookie")]).toEqual([path, 200, null]);
       expect(await response.text()).toBe(`game ${path}`);
@@ -185,20 +191,21 @@ describe("without the cookie", () => {
   });
 
   test("given the public pages open, when the root or any page beside them is opened with no cookie, then the holding screen still shows", async () => {
-    for (const path of ["/", "/play", "/termsx", "/terms/more", "/privacy.htm", "/officials", "/guides", "/guides/", "/guides/credits/more", "/legal/terms.html"]) {
+    for (const path of ["/", "/play", "/termsx", "/terms/more", "/privacy.htm", "/officials", "/guides", "/guides/", "/guides/credits/more", "/legal/terms.html", "/.well-known/", "/.well-known/other.txt", "/security.txt"]) {
       expect([path, await shown(await visit(path))]).toEqual([path, SCREEN]);
     }
   });
 
   test("given a public page, when anything but a read is sent to it with no cookie, then it is refused and the game never gets it", async () => {
-    for (const path of ["/terms", "/official/index.html"]) {
+    for (const path of ["/terms", "/official/index.html", "/.well-known/security.txt"]) {
       const posted = await visit(path, { method: "POST", body: "{}" });
       expect(posted.status).toBe(403);
       expect(await posted.text()).not.toContain("game");
     }
   });
 
-  test("given no handle yet, or one that is not a handle, when the screen is served, then there is no X link and the rest is the same", async () => {
+  // with no X link the two page links stand alone.
+  test("given no handle yet, or one that is not a handle, when the screen is served, then there is no X link, the terms and the privacy notice are still linked, and the rest is the same", async () => {
     for (const handle of ["", "@japacityapp", "japacity app", "a".repeat(16), '"><script>']) {
       const response = await worker.fetch(new Request(`${HOST}/`), { ...env, GATE_X_HANDLE: handle });
       const html = await response.clone().text();
