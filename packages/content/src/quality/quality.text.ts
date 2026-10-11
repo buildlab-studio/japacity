@@ -13,6 +13,8 @@ export const qualityText: Record<string, string> = {
   "quality.family-stake.name": "Family stake",
   "quality.standing.name": "Standing",
   "quality.wellbeing.name": "Wellbeing",
+  "quality.belly.name": "Belly",
+  "quality.energy.name": "Energy",
   "quality.credit-mark.name": "Credit mark",
   "quality.care.name": "Care skill",
   "quality.driving.name": "Can drive",

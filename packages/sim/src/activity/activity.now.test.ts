@@ -23,6 +23,16 @@ const PITCH: Id<"offer"> = "offer.road-park";
 
 /** The rule's two lists, as the maintainer sorted them. Every entry not named a now-act is a month-act. */
 const NOW_ACTS: readonly string[] = [
+  // the room and the family, the study that answers at once (R-ACTIVITY-019)
+  "activity.family-time",
+  "activity.study-english",
+  LEARN,
+  "activity.build-portfolio",
+  "activity.cook-jollof",
+  "activity.nap",
+  "activity.bucket-bath",
+  "activity.watch-tv",
+  "activity.help-shop",
   // the kiosk and the bet slip
   LOTTO,
   BET,
@@ -71,10 +81,6 @@ const NOW_ACTS: readonly string[] = [
 
 const MONTH_ACTS: readonly string[] = [
   "activity.rest",
-  "activity.family-time",
-  "activity.study-english",
-  LEARN,
-  "activity.build-portfolio",
   "activity.apprentice-repair",
   "activity.open-source",
   "activity.conference-talk",
@@ -231,10 +237,11 @@ describe("a now-act", () => {
 describe("a month-act", () => {
   test("[R-ACTIVITY-015] given a month-act, when it is sent now, then it is refused with not-legal, and in a slot it fills the month as before", () => {
     const game = ada();
-    game.expectRejected({ type: "activity/now", activity: LEARN, param: null }, "not-legal");
+    const PREP: Id<"activity"> = "activity.morning-run";
+    game.expectRejected({ type: "activity/now", activity: PREP, param: null }, "not-legal");
     game.expectRejected({ type: "activity/now", activity: "activity.rest", param: null }, "not-legal");
-    const month = game.endTurn([slot(LEARN)]);
-    expect(eventsOf(month, "activity/slot-played")).toMatchObject([{ activity: LEARN }]);
-    expect(month.lines.some((line) => line.key === "line.activity.played" && line.params.activity === LEARN)).toBe(true);
+    const month = game.endTurn([slot(PREP)]);
+    expect(eventsOf(month, "activity/slot-played")).toMatchObject([{ activity: PREP }]);
+    expect(month.lines.some((line) => line.key === "line.activity.played" && line.params.activity === PREP)).toBe(true);
   });
 });

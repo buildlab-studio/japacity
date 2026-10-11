@@ -128,9 +128,9 @@ export function nowThisMonth(state: State): SlotPick[] {
   return state.activity.now ?? [];
 }
 
-/** R-ACTIVITY-015: a now-act that is not a purchase, already done this month, so shut until the next. */
-export function doneThisMonth(state: State, entry: Pick<ActivityEntry, "id" | "purchase">): boolean {
-  return entry.purchase !== true && nowThisMonth(state).some((pick) => pick.activity === entry.id);
+/** R-ACTIVITY-015: a now-act that is not a purchase and does not repeat (R-ACTIVITY-019), already done this month, so shut until the next. */
+export function doneThisMonth(state: State, entry: Pick<ActivityEntry, "id" | "purchase" | "repeat">): boolean {
+  return entry.purchase !== true && entry.repeat !== true && nowThisMonth(state).some((pick) => pick.activity === entry.id);
 }
 
 // ---------------------------------------------------------------------------
@@ -709,8 +709,9 @@ function validateSlots(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
     if (!isPick(pick)) return reject("not-legal", `${where} is not an activity and a param.`);
     const entry = ctx.content.activity[pick.activity];
     if (entry?.slot !== "free" && entry?.slot !== "none") return reject("not-legal", `${where}: ${pick.activity} is not a free-slot activity.`);
-    // R-ACTIVITY-015: a now-act fills no slot; it is sent at once as `activity/now`.
-    if (answersNow(entry)) return reject("not-legal", `${where}: ${entry.id} answers now. It is sent as activity/now and fills no slot.`);
+    // R-ACTIVITY-015: a now-act fills no slot; it is sent at once as `activity/now`. An act that repeats (R-ACTIVITY-019) may
+    // also stand as a commitment in a slot, resolved as the month turns, so a recorded life that planned it still plays.
+    if (answersNow(entry) && entry.repeat !== true) return reject("not-legal", `${where}: ${entry.id} answers now. It is sent as activity/now and fills no slot.`);
     // Cost is not checked here: a slot that cannot be paid fails when it resolves (R-ACTIVITY-003).
     const problem = slotProblem(ctx, entry, pick, false);
     if (problem === "requirements") return reject("not-legal", `${where}: ${entry.id} cannot be done here and now.`);
@@ -936,7 +937,7 @@ function actNow(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (problem === "requirements") return reject("not-legal", `${entry.id} cannot be done here and now.`);
   if (problem === "param") return reject("not-legal", `${String(pick.param)} is not a param ${entry.id} may take now.`);
   if (problem === "cost") return reject("cannot-afford", earnedShort(ctx, entry, pick) ? EARNED_ONLY : `${entry.id} cannot be paid now.`);
-  const events = record(ctx, { type: "activity/now-played", activity: entry.id, param: pick.param });
+  const events = record(ctx, { type: "activity/now-played", activity: entry.id, param: pick.param, ...(entry.repeat === true ? { counted: true as const } : {}) });
   const cause: Cause = { source: entry.id, param: pick.param, terms: {} };
   payPrices(ctx, pricesOf(readOf(ctx), entry, pick.param), cause);
   // R-ACTIVITY-018 (decision 0034): the act spends its time of the month, a morning without a figure; a purchase spends none.
@@ -983,10 +984,16 @@ function resolveSlot(ctx: Ctx, pick: SlotPick, slot: number): BaseEvent[] {
   const events = record(ctx, { type: "activity/slot-played", slot, activity: entry.id, param: pick.param });
   const cause: Cause = { source: entry.id, param: pick.param, terms: {} };
   const pieces = ctx.state.quality[PORTFOLIO] ?? 0;
-  payPrices(ctx, pricesOf(readOf(ctx), entry, pick.param), cause);
-  events.push(...runById(ctx, entry, pick, cause));
-  ctx.apply(entry.effects, cause);
-  milestones(ctx, entry, cause);
+  // R-ACTIVITY-019: an act that repeats, kept as a commitment in a slot, is a month's worth of it: `repeatPerSlot` times,
+  // each paid, stopping when one can no longer be paid.
+  const times = entry.repeat === true ? ctx.content.tuning.turn.repeatPerSlot : 1;
+  for (let time = 0; time < times; time += 1) {
+    if (time > 0 && slotProblem(ctx, entry, pick, true) !== null) break;
+    payPrices(ctx, pricesOf(readOf(ctx), entry, pick.param), cause);
+    events.push(...runById(ctx, entry, pick, cause));
+    ctx.apply(entry.effects, cause);
+    milestones(ctx, entry, cause);
+  }
   events.push(...outcome(ctx, entry, pieces));
   return events;
 }
@@ -1023,7 +1030,7 @@ function slots(ctx: Ctx): BaseEvent[] {
   }
   events.push(...record(ctx, { type: "activity/slots-recorded", slots: picks.map((pick) => ({ ...pick })) }));
   // The picks are the month's `lastSlots` now; a now-act done this month is counted with them, once (R-ACTIVITY-015).
-  const filled = playedThisMonth(ctx.state);
+  const filled = playedThisMonth(ctx.state, ctx.content);
   if (filled.size > 0) events.push(...record(ctx, { type: "activity/played-counted", activities: [...filled] }));
   return events;
 }
@@ -1138,10 +1145,10 @@ export function tenureAcross(state: State, activities: readonly Id<"activity">[]
  * job and the side job held, and every free slot sent. At the `come-up` phase the slots sent are this
  * month's, recorded at `slots`. a slot that failed still counts, as it does for R-ACTIVITY-012.
  */
-function playedThisMonth(state: State): Set<Id<"activity">> {
+function playedThisMonth(state: State, content: Content): Set<Id<"activity">> {
   const { job, side, lastSlots } = state.activity;
-  // R-ACTIVITY-015: the month's now-acts are kept until the month closes, after `come-up`.
-  const done = nowThisMonth(state).map((pick) => pick.activity);
+  // R-ACTIVITY-015: the month's now-acts are kept until the month closes, after `come-up`; a repeat act was counted at once (R-ACTIVITY-019).
+  const done = nowThisMonth(state).map((pick) => pick.activity).filter((id) => content.activity[id]?.repeat !== true);
   return new Set<Id<"activity">>([...(job === null ? [] : [job]), ...(side === null ? [] : [side]), ...lastSlots.map((pick) => pick.activity), ...done]);
 }
 
@@ -1163,7 +1170,7 @@ function judgeJob(read: ReadCtx, requirement: Requirement): RequirementResult {
       return { met: have >= requirement.months, have, need: requirement.months };
     }
     case "activity/played":
-      return { met: playedThisMonth(read.state).has(requirement.activity) };
+      return { met: playedThisMonth(read.state, read.content).has(requirement.activity) };
     case "quality/min":
     case "quality/max":
     case "document/held":
@@ -1369,8 +1376,9 @@ function lines(event: ActivityEvent, state: State): ReportLine[] {
     case "activity/now-said":
       return [line(nowLineKey(event.activity), { ...pickParams(event.activity, event.param), ...(event.ready === null ? {} : { month: event.ready }) }, "plain")];
     case "activity/now-played":
-      // The act itself, told with the month's other lines as a slot's is, and named before the money it spends.
-      return [line("line.activity.played-now", pickParams(event.activity, event.param), "plain")];
+      // The act itself, told with the month's other lines as a slot's is, and named before the money it spends. A repeat act
+      // answers on the spot and is not listed at the month's end (R-ACTIVITY-019).
+      return event.counted === true ? [] : [line("line.activity.played-now", pickParams(event.activity, event.param), "plain")];
     case "activity/now-cleared":
       return [];
     default: {
@@ -1434,7 +1442,12 @@ function evolve(slice: ActivitySlice, event: ActivityEvent): ActivitySlice {
     case "activity/noticed":
       return event.raised ? { ...slice, raised: [...(slice.raised ?? []), event.job], raisedIn: { ...slice.raisedIn, [event.job]: event.month } } : slice;
     case "activity/now-played":
-      return { ...slice, now: [...(slice.now ?? []), { activity: event.activity, param: event.param }] };
+      return {
+        ...slice,
+        now: [...(slice.now ?? []), { activity: event.activity, param: event.param }],
+        // R-ACTIVITY-019: a repeat act counts as played each time, at once.
+        ...(event.counted === true ? { played: { ...slice.played, [event.activity]: (slice.played[event.activity] ?? 0) + 1 } } : {}),
+      };
     case "activity/now-cleared":
       return { ...slice, now: [] };
     case "activity/now-said":

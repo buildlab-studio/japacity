@@ -11,6 +11,7 @@ export const QualityEntrySchema = z
     max: IntSchema,
     shown: z.boolean(),
     counts: z.array(idOf("route")),
+    start: IntSchema.exactOptional(),
   })
   .check(z.refine((entry) => entry.min <= entry.max, { error: "A quality's min must not be above its max" }));
 

@@ -300,7 +300,7 @@ export const miniContent: Content = {
     },
   },
   tuning: {
-    turn: { cap: 24, start: 24, freeSlots: 2, freeSlotsNoJob: 3, maxLocked: 2, quietAskCap: 5000, halfDays: { noJob: 60, withJob: 20 } },
+    turn: { cap: 24, start: 24, freeSlots: 2, freeSlotsNoJob: 3, maxLocked: 2, quietAskCap: 5000, halfDays: { noJob: 60, withJob: 20 }, repeatPerSlot: 3, body: { bellyPerHalfDay: 2, energyPerHalfDay: 1, restTo: 60, restBy: 25, lowBelow: 30, hungryWellbeing: 6, spentWellbeing: 4 } },
     quality: {
       wellbeingRest: 12,
       wellbeingDriftTo: 60,
@@ -437,6 +437,6 @@ export const miniContent: Content = {
     pair: { inviteDays: 14, maxOpenInvites: 3, rewardFriends: 10, phrasesPerHour: 30, placePhrasesPerMinute: 6 },
     interview: { ask: 5, decoys: 3, passBp: 7000, failBp: 4000, caughtBelowBp: 2000, thinMoments: 8, thinMonths: 6, doubtBp: 3000, standInRecallBp: 8000, caughtStanding: 15 },
     undertaking: { months: 36, assistanceUnder: 100000 },
-    home: { makokoUpkeep: 2500000, evictionBp: 500, evictionLossNaira: 2000000, guestMonths: 3, hostBp: 2500, returnStanding: -5, compound: { rentYear: 40000000, feesBp: 2000, upkeep: 5000000 }, selfContainRentYear: 70000000 },
+    home: { makokoUpkeep: 2500000, evictionBp: 500, evictionLossNaira: 2000000, guestMonths: 3, hostBp: 2500, returnStanding: -5, compound: { rentYear: 40000000, feesBp: 2000, upkeep: 5000000 }, selfContainRentYear: 70000000, livingByHandBp: 0 },
   },
 };

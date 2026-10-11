@@ -18,6 +18,11 @@ export const tuning: Tuning = {
     quietAskCap: pounds(50),
     // R-TURN-010 (decision 0034): a life with no job lives the whole month by hand; a job takes its days and leaves ten.
     halfDays: { noJob: 60, withJob: 20 },
+    // R-ACTIVITY-019: a weekly thing kept as a commitment is three of it a month.
+    repeatPerSlot: 3,
+    // R-QUALITY-007 (decision 0035): each half-day lived takes a little off the belly and the energy; the month's rest brings
+    // each back toward 60; a month that ends hungry or spent takes it out of wellbeing.
+    body: { bellyPerHalfDay: 2, energyPerHalfDay: 1, restTo: 60, restBy: 25, lowBelow: 30, hungryWellbeing: 6, spentWellbeing: 4 },
   },
 
   // quality.md, and activity.md for the hiring figures.
@@ -270,5 +275,7 @@ export const tuning: Tuning = {
     returnStanding: -5,
     compound: { rentYear: naira(350000), feesBp: pct(20), upkeep: naira(50000) },
     selfContainRentYear: naira(700000),
+    // R-HOME-012 (decision 0035): at home the whole of living is lived by hand, meals, water, fares and data as acts; nothing of it is charged as the month turns.
+    livingByHandBp: pct(100),
   },
 };

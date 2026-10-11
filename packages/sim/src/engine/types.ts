@@ -76,6 +76,8 @@ export type Reason =
   | "fee-agent"
   /** A licensed adviser's fee (docs/rules/advice.md R-ADVICE-004, decision 0011), a sink. */
   | "fee-advice"
+  /** A meal or the water bought and eaten today (R-HOME-012, decision 0035), a sink. */
+  | "food"
   | "bank-charge"
   | "loan-repay"
   | "loan-interest"
@@ -418,6 +420,8 @@ export interface QualityEntry {
   shown: boolean;
   /** Routes a gain in this quality counts toward. Shown beside every gain. */
   counts: Id<"route">[];
+  /** Where a life starts when its scenario says nothing (R-QUALITY-007, the body). Missing: `min`. */
+  start?: number;
 }
 
 export interface ActivityEntry {
@@ -449,6 +453,8 @@ export interface ActivityEntry {
   when?: "now" | "month";
   /** The month's free time a now-act spends, in half-days (R-ACTIVITY-018): 1 a morning, 2 a day, 4 a weekend, 10 a week. Missing: a morning for a now-act, none for a purchase or a month-act. */
   halfDays?: number;
+  /** A now-act that may run again in the same month, each time counted as played, until the month's free time is spent (R-ACTIVITY-019). Missing: once a month. */
+  repeat?: true;
   /** A now-act that is a purchase runs as often as money allows; any other now-act once a month (R-ACTIVITY-015). Missing: no. */
   purchase?: true;
   /** Effects applied in the month the activity fills a slot for the `at`th time, and every `at`th time with `repeat` (R-ACTIVITY-013). Missing: none. */
@@ -1151,6 +1157,10 @@ export interface Tuning {
     quietAskCap: number;
     /** The month's free time in half-days (R-TURN-010): the whole month lived by hand with no job; a job takes its own days and leaves the rest. */
     halfDays: { noJob: number; withJob: number };
+    /** An act that repeats, kept as a commitment in a slot, runs this many times as the month turns (R-ACTIVITY-019). */
+    repeatPerSlot: number;
+    /** The body (R-QUALITY-007): what each half-day lived takes off the belly and the energy, where the month's rest brings each back to, and what a hungry or spent month takes off wellbeing. */
+    body: { bellyPerHalfDay: number; energyPerHalfDay: number; restTo: number; restBy: number; lowBelow: number; hungryWellbeing: number; spentWellbeing: number };
   };
   quality: {
     wellbeingRest: number;
@@ -1341,6 +1351,8 @@ export interface Tuning {
     compound: { rentYear: number; feesBp: number; upkeep: number };
     /** The self-contain's rent a year, shown on the door as a goal (R-PROLOGUE-013). */
     selfContainRentYear: number;
+    /** R-HOME-012 (decision 0035): the share of a naira upkeep that is lived by hand (meals, water, fares, data) and never charged as the month turns. */
+    livingByHandBp: number;
   };
 }
 

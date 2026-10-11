@@ -67,6 +67,7 @@ export const REASON_LINE: Record<Reason, string | null> = {
   "fee-surcharge": "line.wallet.fee-surcharge",
   "fee-agent": "line.wallet.fee-agent",
   "fee-advice": "line.wallet.fee-advice",
+  food: "line.wallet.food",
   "bank-charge": "line.wallet.bank-charge",
   "loan-repay": "line.wallet.loan-repay",
   "loan-interest": "line.wallet.loan-interest",

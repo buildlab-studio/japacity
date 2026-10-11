@@ -18,6 +18,7 @@ export const HomeTuningSchema = z.strictObject({
   returnStanding: z.int(),
   compound: z.strictObject({ rentYear: z.int().nonnegative(), feesBp: z.int().min(0).max(10000), upkeep: z.int().nonnegative() }),
   selfContainRentYear: z.int().nonnegative(),
+  livingByHandBp: z.int().min(0).max(10000),
 });
 
 export type HomePlaceMatches = Proof<Same<z.infer<typeof HomePlaceSchema>, HomePlace>>;

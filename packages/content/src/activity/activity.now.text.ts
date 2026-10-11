@@ -62,7 +62,16 @@ export const activityNowText: Record<string, string> = {
   "line.activity.job-hunt.now.job-nurse": "The matron takes your papers. She will say by the end of the month.",
   // Cooking and the water answer now (obligation.md R-OBLIGATION-014). The scene shows them, so the place
   // never says these; they stand among the month's lines.
-  "line.activity.cook-at-home.now": "The stew is on the burner. Food for the week.",
+  "line.activity.cook-at-home.now": "Indomie and egg. The national dish of month end.",
+  "line.activity.cook-jollof.now": "Jollof for the house. Mama tasted it and said nothing. That means it is good.",
+  "line.activity.nap.now": "Twenty minutes, you said. The neighbour's generator said otherwise.",
+  "line.activity.bucket-bath.now": "Cold water at six. You are awake now. Very awake.",
+  "line.activity.watch-tv.now": "Nollywood with Papa. He knows how it ends. He watches anyway.",
+  "line.activity.help-shop.now": "Three customers, two who will come back, one sale. Mama says you have the gift.",
+  "line.activity.family-time.now": "Mama: you have eaten? Sit small.",
+  "line.activity.study-english.now": "Today's word: reside. You reside in Surulere. Correct usage.",
+  "line.activity.learn-tech.now": "Module done. The certificate has your name spelt right.",
+  "line.activity.build-portfolio.now": "A piece is up. It has a bug you are proud of.",
   "line.activity.fetch-water.now": "The jerrycans are in. The drum is full.",
   "line.activity.fill-drum.now": "Bucket by bucket from the yard's tap. The drum is full.",
 };

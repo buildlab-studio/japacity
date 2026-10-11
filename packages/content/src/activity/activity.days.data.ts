@@ -3,6 +3,15 @@
 // spends none; a month-act fills the month as a commitment and spends none here.
 export const NOW_HALF_DAYS: Record<string, number> = {
   "activity.cook-at-home": 1,
+  "activity.cook-jollof": 4,
+  "activity.nap": 1,
+  "activity.bucket-bath": 1,
+  "activity.watch-tv": 1,
+  "activity.help-shop": 6,
+  "activity.family-time": 1,
+  "activity.study-english": 2,
+  "activity.learn-tech": 2,
+  "activity.build-portfolio": 4,
   "activity.fetch-water": 2,
   "activity.fill-drum": 1,
   "activity.ask-around": 1,

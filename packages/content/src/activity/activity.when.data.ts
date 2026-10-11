@@ -6,7 +6,7 @@ import type { ActivityEntry, Id } from "@japacity/sim";
 
 import { NOW_HALF_DAYS } from "./activity.days.data";
 
-type Now = "once" | "purchase";
+type Now = "once" | "purchase" | "repeat";
 
 const NOW_ACTS: Record<string, Now> = {
   // The kiosk and the bet slip: the slip in hand now, the draw or the match later.
@@ -72,10 +72,20 @@ const NOW_ACTS: Record<string, Now> = {
   "activity.find-sponsor": "once",
   // The job hunt: applied now, the employer answering with the month.
   "activity.job-hunt": "once",
-  // Cooking and the water, once a month, the saving recorded at once for the next charge (obligation.md R-OBLIGATION-014).
-  "activity.cook-at-home": "once",
-  "activity.fetch-water": "once",
-  "activity.fill-drum": "once",
+  // The room and the family, as often as the month's time allows (R-ACTIVITY-019, decision 0035): meals, water, a nap, a bath, the TV,
+  // gist with Mama and her shop, and the study that answers at once.
+  "activity.cook-at-home": "repeat",
+  "activity.cook-jollof": "repeat",
+  "activity.fetch-water": "repeat",
+  "activity.fill-drum": "repeat",
+  "activity.nap": "repeat",
+  "activity.bucket-bath": "repeat",
+  "activity.watch-tv": "repeat",
+  "activity.help-shop": "repeat",
+  "activity.family-time": "repeat",
+  "activity.study-english": "repeat",
+  "activity.learn-tech": "repeat",
+  "activity.build-portfolio": "repeat",
 };
 
 /**
@@ -94,7 +104,9 @@ export function withWhen(table: Record<Id<"activity">, ActivityEntry>): Record<I
     sorted[id] =
       now === undefined
         ? { ...entry, when: "month" }
-        : { ...entry, when: "now", ...(now === "purchase" ? { purchase: true as const } : { halfDays: NOW_HALF_DAYS[id] ?? 1 }) };
+        : now === "purchase"
+          ? { ...entry, when: "now", purchase: true as const }
+          : { ...entry, when: "now", halfDays: NOW_HALF_DAYS[id] ?? 1, ...(now === "repeat" ? { repeat: true as const } : {}) };
   }
   return sorted;
 }

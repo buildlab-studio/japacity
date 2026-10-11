@@ -16,7 +16,7 @@ describe("the time a now-act spends", () => {
 
   test("[R-ACTIVITY-018] given a purchase or a month-act, when content is built, then it spends no time", () => {
     expect(content.activity["activity.play-lotto"]?.halfDays).toBeUndefined();
-    expect(content.activity["activity.study-english"]?.halfDays).toBeUndefined();
+    expect(content.activity["activity.interview-prep"]?.halfDays).toBeUndefined();
   });
 
   test("[R-ACTIVITY-018] given the passport office and the cooking corner, when content is built, then the office takes a weekend and cooking a morning", () => {

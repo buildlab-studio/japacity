@@ -1,7 +1,7 @@
 // The room's basics: docs/rules/obligation.md R-OBLIGATION-014. Cooking and fetching water are two
 // slot-none activities that take a share off the upkeep's next charge where the character lives,
 // played through the harness on the real content.
-import { content, text } from "@japacity/content";
+import { content as realContent, text } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
 import { bp } from "../engine/int";
@@ -10,6 +10,9 @@ import type { Accepted, ActivityEntry, BaseEvent, Content, Id } from "../engine/
 import type { QualityEvent } from "../quality/quality.events";
 import { slot } from "../route/route.journey";
 import type { Game } from "../testing/play";
+/** Decision 0035 lives the living by hand at home; these tests read the charge itself, so they charge it whole. */
+const content: Content = { ...realContent, tuning: { ...realContent.tuning, home: { ...realContent.tuning.home, livingByHandBp: 0 } } };
+
 import { start } from "../testing/play";
 import { abroad, eventsOf, owedOf, setPounds, UPKEEP } from "./obligation.journey";
 
@@ -61,15 +64,21 @@ function wellbeingFrom(result: Accepted, source: string): number[] {
 
 describe("the two activities", () => {
   test("[R-OBLIGATION-014] given the content, when cooking and water are read, then both fill no slot, cooking applies at home and abroad and water at home only, and each relieves the upkeep by its tuning share", () => {
-    expect(entry(COOK)).toMatchObject({ slot: "none", where: "any", cost: [], requires: [] });
+    // Decision 0035: a meal is bought and eaten now, and repeats; it still relieves a charged upkeep by its share.
+    expect(entry(COOK)).toMatchObject({ slot: "none", where: "any", when: "now", repeat: true, requires: [] });
+    expect(entry(COOK).cost).toEqual([{ currency: "NGN", amount: 150000, reason: "food" }]);
     expect(entry(COOK).effects).toEqual([
       { type: "obligation/relief", obligationType: "upkeep", bp: room.cookedBp },
-      { type: "quality/add", quality: WELLBEING, amount: -room.cookWellbeing },
+      { type: "quality/add", quality: "quality.belly", amount: 25 },
+      { type: "quality/add", quality: WELLBEING, amount: 2 },
     ]);
     // water is bought where it is sold, so the seller's act needs a home with no yard tap; the compound fills its drum free.
     const compound = { type: "obligation/has", obligationType: "upkeep", obligation: "obligation.upkeep-compound" };
     expect(entry(WATER)).toMatchObject({ slot: "none", where: "home", cost: [], requires: [{ type: "not", of: compound }] });
-    expect(entry(WATER).effects).toEqual([{ type: "obligation/relief", obligationType: "upkeep", bp: room.waterBp }]);
+    expect(entry(WATER).effects).toEqual([
+      { type: "obligation/relief", obligationType: "upkeep", bp: room.waterBp },
+      { type: "quality/add", quality: "quality.energy", amount: -8 },
+    ]);
     expect(entry(DRUM)).toMatchObject({ slot: "none", where: "home", cost: [], requires: [compound], effects: [] });
     // the starting figures.
     expect([room.cookedBp, room.waterBp]).toEqual([1500, 400]);
@@ -86,19 +95,19 @@ describe("the two activities", () => {
 });
 
 describe("cooking at home", () => {
-  test("[R-OBLIGATION-014] [R-ACTIVITY-015] given Ada at home, when she cooks now, then it fills no slot, the relief is recorded at once on the upkeep for its next charge, and a second cook this month is refused as once a month", () => {
+  test("[R-OBLIGATION-014] [R-ACTIVITY-019] given Ada at home, when she cooks now, then it fills no slot, the relief is recorded at once on the upkeep for its next charge, and she may cook again this month (decision 0035)", () => {
     const game = ada();
     expect(entry(COOK).when).toBe("now");
     expect(entry(WATER).when).toBe("now");
     expect(entry(DRUM).when).toBe("now");
     game.accept({ type: "activity/now", activity: COOK, param: null });
     expect(owedOf(game, HOME_UPKEEP).relief).toEqual([{ source: COOK, bp: room.cookedBp }]);
-    expect(game.view().activities.find((option) => option.id === COOK)).toMatchObject({ allowed: false, done: true });
-    game.expectRejected({ type: "activity/now", activity: COOK, param: null }, "not-legal");
-    game.expectRejected({ type: "turn/end", slots: [slot(COOK)] }, "not-legal");
+    expect(game.view().activities.find((option) => option.id === COOK)).toMatchObject({ allowed: true, done: false });
+    game.accept({ type: "activity/now", activity: COOK, param: null });
+    expect(owedOf(game, HOME_UPKEEP).relief).toEqual([{ source: COOK, bp: room.cookedBp }]);
   });
 
-  test("[R-OBLIGATION-014] given cooking chosen this month, when the month ends, then the upkeep's charge falls by the cooked share, the results say so in a line of its own, and cooking costs its wellbeing", () => {
+  test("[R-OBLIGATION-014] given cooking chosen this month, when the month ends, then the upkeep's charge falls by the cooked share, the results say so in a line of its own, and a meal lifts wellbeing (decision 0035)", () => {
     const { played, plain } = againstNone([COOK]);
     const full = upkeepPaid(plain);
     const less = bp(full, room.cookedBp);
@@ -106,7 +115,8 @@ describe("cooking at home", () => {
     expect(upkeepPaid(played)).toBe(full - less);
     expect(reliefLines(played)).toEqual([{ key: COOKED_LINE, amount: { currency: "NGN", amount: less } }]);
     expect(reliefLines(plain)).toEqual([]);
-    expect(wellbeingFrom(played, COOK)).toEqual([-room.cookWellbeing]);
+    // A committed slot is a month of meals, three of them (R-ACTIVITY-019); the relief is taken once.
+    expect(wellbeingFrom(played, COOK)).toEqual([2, 2, 2]);
     // It rides with the month: every free slot still rests.
     const rested = (result: Accepted): BaseEvent | undefined => result.events.find((event) => event.type === "activity/rested");
     expect(rested(played)).toEqual(rested(plain));
@@ -195,7 +205,7 @@ describe("the words", () => {
   test("[R-OBLIGATION-014] given the two relief lines, when their words are read, then each says what was saved in its own words", () => {
     expect(text[COOKED_LINE]).toBe("Food, cooked at home: {amount} less.");
     expect(text[WATER_LINE]).toBe("Water, fetched yourself: {amount} less.");
-    expect(text[`${COOK}.name`]).toBe("Cook for the week");
+    expect(text[`${COOK}.name`]).toBe("Indomie and egg");
     expect(text[`${WATER}.name`]).toBe("Fetch water");
   });
 });

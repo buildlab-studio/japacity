@@ -5,11 +5,14 @@ import { describe, expect, test } from "vitest";
 import { badNews } from "../comedy/comedy.check";
 import { versionedLines } from "../comedy/comedy.data";
 import { lifePeople, namePool } from "../person/person.names.data";
-import { content, text } from "../index";
+import { content as realContent, text } from "../index";
 import { chatLines, chatsDue, siblingNames } from "./story.chats.data";
 import { chatProblems, nudgeProblems, signalProblems, stepProblems, wordCount } from "./story.check";
 import { NUDGE_WORDS, storyStep, storySteps, storyThings } from "./story.data";
 import { noticeKey, noticesDue, OBLIGATION_TYPES, reminders, remindersDue } from "./story.notice.data";
+
+/** Decision 0035 lives the living by hand at home; these tests read the charge itself, so they charge it whole. */
+const content: Content = { ...realContent, tuning: { ...realContent.tuning, home: { ...realContent.tuning.home, livingByHandBp: 0 } } };
 
 const ADA: Id<"scenario"> = "scenario.ada";
 const WORLD = "world-1";

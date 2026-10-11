@@ -135,7 +135,14 @@ export const turnKind: RegisteredKind<TurnSlice, TurnEvent> = {
       const free = freeHalfDays(ctx.state, ctx.content);
       const spent = Math.min(free, ctx.state.turn.spent + effect.halfDays);
       if (spent === ctx.state.turn.spent) return [];
-      const event: TurnEvent = { type: "turn/days-spent", halfDays: spent - ctx.state.turn.spent, spent };
+      const taken = spent - ctx.state.turn.spent;
+      // R-QUALITY-007: the time lived takes a little off the belly and the energy, where content has them.
+      const { body } = ctx.content.tuning.turn;
+      const drain = ([["quality.belly", body.bellyPerHalfDay], ["quality.energy", body.energyPerHalfDay]] as const)
+        .filter(([quality]) => ctx.content.quality[quality] !== undefined)
+        .map(([quality, per]) => ({ type: "quality/add" as const, quality, amount: -per * taken }));
+      if (drain.length > 0) ctx.apply(drain, { source: "turn/spend-days", param: null, terms: {} });
+      const event: TurnEvent = { type: "turn/days-spent", halfDays: taken, spent };
       return [event];
     },
     // R-TURN-004.

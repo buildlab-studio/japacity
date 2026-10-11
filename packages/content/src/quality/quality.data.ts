@@ -9,6 +9,9 @@ export const qualityTable:Record<Id<"quality">, QualityEntry> = {
   "quality.edu-grade": { id: "quality.edu-grade", group: "education", min: 0, max: 5, shown: true, counts: [UK] },
   "quality.english": { id: "quality.english", group: "skills", min: 0, max: 100, shown: true, counts: [UK] },
   "quality.tech": { id: "quality.tech", group: "skills", min: 0, max: 100, shown: true, counts: [] },
+  // The body (R-QUALITY-007, decision 0035): moved by what you do today and said in words, never as a meter.
+  "quality.belly": { id: "quality.belly", group: "self", min: 0, max: 100, shown: false, counts: [], start: 60 },
+  "quality.energy": { id: "quality.energy", group: "self", min: 0, max: 100, shown: false, counts: [], start: 70 },
   "quality.interview-prep": { id: "quality.interview-prep", group: "skills", min: 0, max: 100, shown: true, counts: [UK] },
   "quality.portfolio": { id: "quality.portfolio", group: "proof", min: 0, max: 10, shown: true, counts: [] },
   "quality.land": { id: "quality.land", group: "proof", min: 0, max: 3, shown: true, counts: [] },

@@ -182,7 +182,9 @@ export function chargeOf(read: ReadCtx, item: ObligationState, entry: Obligation
 export function livingCharge(read: Pick<ReadCtx, "world" | "content">, obligation: Id<"obligation">, amount: number): number {
   const entry = read.content.obligation[obligation];
   const rise = entry?.currency === "NGN" ? bp(amount, worldVarOr(read.world, INFLATION)) : 0;
-  return Math.max(0, amount + rise);
+  // R-HOME-012 (decision 0035): at home the living is lived by hand, as meals, water, fares and data; that share is never charged.
+  const byHand = entry?.currency === "NGN" && entry.type === "upkeep" ? bp(amount + rise, read.content.tuning.home.livingByHandBp) : 0;
+  return Math.max(0, amount + rise - byHand);
 }
 
 /** The charge as scheduled, before any relief. */

@@ -112,7 +112,8 @@ export function start(options: StartOptions = {}): Game {
       const early: { events: BaseEvent[]; lines: ReportLine[] } = { events: [], lines: [] };
       const month: SlotPick[] = [];
       for (const pick of slots) {
-        if (content.activity[pick.activity]?.when !== "now") {
+        // An act that repeats may stand as a commitment in a slot (R-ACTIVITY-019), so it stays a slot pick.
+        if (content.activity[pick.activity]?.when !== "now" || content.activity[pick.activity]?.repeat === true) {
           month.push(pick);
           continue;
         }

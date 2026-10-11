@@ -78,6 +78,7 @@ export const ReasonSchema = z.enum([
   "fee-surcharge",
   "fee-agent",
   "fee-advice",
+  "food",
   "bank-charge",
   "loan-repay",
   "loan-interest",
@@ -399,6 +400,8 @@ export const TuningSchema = z.strictObject({
     maxLocked: CountSchema,
     quietAskCap: CountSchema,
     halfDays: z.strictObject({ noJob: CountSchema, withJob: CountSchema }),
+    repeatPerSlot: z.int().positive(),
+    body: z.strictObject({ bellyPerHalfDay: CountSchema, energyPerHalfDay: CountSchema, restTo: CountSchema, restBy: CountSchema, lowBelow: CountSchema, hungryWellbeing: CountSchema, spentWellbeing: CountSchema }),
   }),
   quality: z.strictObject({
     wellbeingRest: CountSchema,

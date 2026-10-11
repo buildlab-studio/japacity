@@ -125,7 +125,29 @@ function month(ctx: Ctx): QualityEvent[] {
     const after = valueOf(ctx.state, WELLBEING) + drift.reduce((sum, event) => sum + event.amount, 0);
     events.push(...runDown(ctx, after));
   }
+  events.push(...body(ctx));
   events.push(...forcedWait(ctx));
+  return events;
+}
+
+const BELLY: Id<"quality"> = "quality.belly";
+const ENERGY: Id<"quality"> = "quality.energy";
+
+/**
+ * R-QUALITY-007 (decision 0035): the body at the month's turn. A month that ends hungry or spent takes it out of
+ * wellbeing; then the night's rest and the family's pot bring the belly and the energy back toward their resting point.
+ */
+function body(ctx: Ctx): QualityEvent[] {
+  const events: QualityEvent[] = [];
+  const { body: rule } = ctx.content.tuning.turn;
+  for (const [quality, cost] of [[BELLY, rule.hungryWellbeing], [ENERGY, rule.spentWellbeing]] as const) {
+    if (ctx.content.quality[quality] === undefined) continue;
+    const have = valueOf(ctx.state, quality);
+    if (have < rule.lowBelow && ctx.content.quality[WELLBEING] !== undefined) events.push(...change(ctx, WELLBEING, -cost, MONTH_SOURCE));
+    const gap = rule.restTo - have;
+    const toward = gap > 0 ? Math.min(rule.restBy, gap) : -Math.min(rule.restBy, -gap);
+    if (toward !== 0) events.push(...change(ctx, quality, toward, MONTH_SOURCE));
+  }
   return events;
 }
 
@@ -207,7 +229,7 @@ export const qualityKind: RegisteredKind<QualitySlice, QualityEvent> = {
   // Every quality in content, at the scenario's value or else the bottom of its range.
   initial(scenario, content) {
     const slice: QualitySlice = {};
-    for (const entry of Object.values(content.quality)) slice[entry.id] = scenario.qualities[entry.id] ?? entry.min;
+    for (const entry of Object.values(content.quality)) slice[entry.id] = scenario.qualities[entry.id] ?? entry.start ?? entry.min;
     return slice;
   },
   effects: {

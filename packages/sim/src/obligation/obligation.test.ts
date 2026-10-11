@@ -1,17 +1,20 @@
 import { fc, test } from "@fast-check/vitest";
-import { content, text } from "@japacity/content";
+import { content as realContent, text } from "@japacity/content";
 import { describe, expect } from "vitest";
 
 import { bp, divCeil } from "../engine/int";
 import { checkInvariants } from "../engine/invariants";
 import { stepWith } from "../engine/step";
-import type { Accepted, BaseEvent, Ctx, Effect, Id, ObligationEntry, ObligationState, Terms } from "../engine/types";
+import type { Accepted, BaseEvent, Content, Ctx, Effect, Id, ObligationEntry, ObligationState, Terms } from "../engine/types";
 import { registry } from "../kinds";
 import { legalCommands } from "../testing/legal";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
 import { draw, seedWhere } from "../route/route.journey";
 import type { ObligationEvent } from "./obligation.events";
+
+/** Decision 0035 lives the living by hand at home; these tests read the charge itself, so they charge it whole. */
+const content: Content = { ...realContent, tuning: { ...realContent.tuning, home: { ...realContent.tuning.home, livingByHandBp: 0 } } };
 
 const ADA: Id<"scenario"> = "scenario.ada";
 const TUNDE: Id<"scenario"> = "scenario.tunde";
