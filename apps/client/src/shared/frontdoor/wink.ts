@@ -34,6 +34,18 @@ export function winkFor(place: WinkPlace, random: RandomBelow = deviceRandom): W
   return [`ui.wink.${place}.${String(n)}.a`, `ui.wink.${place}.${String(n)}.b`];
 }
 
+/**
+ * The line of a place that stands on its own where nothing of the light hangs: the offline
+ * door has no lights, so of the start screen's three it carries "Japa is not by force. / How ready are you?" alone.
+ */
+export const WITHOUT_THE_LIGHTS: Record<WinkPlace, number> = { start: 3 };
+
+/** That line's two rows, as word keys. */
+export function winkAlone(place: WinkPlace): WinkRows {
+  const n = WITHOUT_THE_LIGHTS[place];
+  return [`ui.wink.${place}.${String(n)}.a`, `ui.wink.${place}.${String(n)}.b`];
+}
+
 /** For tests: a new visit. */
 export function forgetWinks(): void {
   picked.clear();

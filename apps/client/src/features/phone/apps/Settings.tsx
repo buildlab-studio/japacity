@@ -123,6 +123,12 @@ function VersionLine() {
   const [shown, setShown] = useState(false);
   const taps = useRef<number[]>([]);
   const line = useRef<HTMLDivElement>(null);
+  const dedication = useRef<HTMLParagraphElement>(null);
+  // The line shows under the version, at the foot of a screen that scrolls: it is brought into view as it appears, at once
+  // and with no motion of its own, so the home bar never cuts it.
+  useEffect(() => {
+    if (shown) dedication.current?.scrollIntoView?.({ block: "nearest" });
+  }, [shown]);
   useEffect(() => {
     const away = (event: PointerEvent): void => {
       if (event.target instanceof Node && line.current?.contains(event.target) === true) return;
@@ -151,7 +157,7 @@ function VersionLine() {
         </span>
       </button>
       {shown ? (
-        <p className="pt-1 pb-2.5 text-[13px] leading-relaxed text-text-2" data-dedication>
+        <p ref={dedication} className="scroll-mb-3 pt-1 pb-2.5 text-[13px] leading-relaxed text-text-2" data-dedication>
           {DEDICATION}
         </p>
       ) : null}

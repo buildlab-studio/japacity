@@ -492,7 +492,7 @@ export function ScenarioView({ guest = null }: { guest?: DoorGuest | null }) {
           {/* R-TEXT-006, amended 11 Oct 2026: no sentence about the game. Offline, where the door is the first screen, it opens
               with the start screen's hook and three steps; online the hook was just seen, and the question and the fields carry it. */}
           {offline ? (
-            <div className="mb-1" data-door-intro>
+            <div data-door-intro>
               <StartHook heading={false} />
             </div>
           ) : null}

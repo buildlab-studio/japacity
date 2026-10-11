@@ -7,7 +7,8 @@ import "../../shared/testing/render";
 import { say } from "../../shared/words/text";
 import { cityPeople, HOME_FLOOR_BP, type LightsReply, sharesOf, useLights } from "./lights";
 import { TwoLights } from "./TwoLights";
-import { forgetWinks, WINK_LINES, winkFor } from "../../shared/frontdoor/wink";
+import { forgetWinks, WINK_LINES, winkAlone, winkFor } from "../../shared/frontdoor/wink";
+import { StartScreen } from "./StartScreen";
 
 afterEach(() => {
   forgetWinks();
@@ -25,6 +26,17 @@ describe("the lines with a wink", () => {
       ["Not going?", "Keep the light on."],
       ["Japa is not by force.", "How ready are you?"],
     ]);
+  });
+
+  test("[R-ACCOUNT-031] [R-TEXT-006] given the start screen and the offline door, then the start screen draws one of the three under its lights, the door carries the one that needs no lights, and both say the three steps as a label strip that nothing could press", () => {
+    expect(rows(winkAlone("start"))).toEqual(["Japa is not by force.", "How ready are you?"]);
+    window.__wink = { start: 1 };
+    render(<StartScreen onPlay={() => undefined} onReturning={() => undefined} />);
+    expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("Last one out,off the light.");
+    const steps = screen.getByRole("list", { name: say("ui.account.start.steps") });
+    expect(steps.className).toContain("label");
+    expect(steps.querySelectorAll("button, [role='button'], .press, .bg-sheet-muted")).toHaveLength(0);
+    expect(steps.querySelectorAll("[data-start-step]")).toHaveLength(3);
   });
 
   test("[R-ACCOUNT-031] given a visit, then one line is drawn once on the device and kept for the whole visit, and a new visit draws again, so each line can come", () => {

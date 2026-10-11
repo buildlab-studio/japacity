@@ -80,14 +80,19 @@ describe("the situation in plain words", () => {
 
   // the sentence about the game is gone everywhere. Offline,
   // where the door is the first screen, it opens with the start screen's hook in two rows and the three steps.
-  test("[R-TEXT-006] given the first screen offline, then under Who are you? the door opens with one of the start screen's hooks in two rows and the three steps, and no sentence about the game", async () => {
+  // no lights hang on the door, so it carries the one hook that
+  // stands without them, smaller than the start screen's so the looks stay in view; the steps are a label strip, not chips.
+  test("[R-TEXT-006] given the first screen offline, then under Who are you? the door opens with the hook that needs no lights, in two smaller rows, and the three steps as a label strip, and no sentence about the game", async () => {
     await renderWithView(<ScenarioView />, newGame("scenario.ada").view());
     expect(screen.getByRole("heading", { name: say("ui.life.title") })).toBeDefined();
     const hook = document.querySelector("[data-door-intro] [data-start-hook]");
     const rows = [...(hook?.children ?? [])].map((row) => row.textContent);
-    const hooks = [1, 2, 3].map((n) => [say(`ui.wink.start.${String(n)}.a`), say(`ui.wink.start.${String(n)}.b`)]);
-    expect(hooks).toContainEqual(rows);
-    expect(screen.getByRole("list", { name: say("ui.account.start.steps") }).textContent?.trim().split(/\s+/)).toEqual(["Hustle", "Papers", "Fly"]);
+    expect(rows).toEqual(["Japa is not by force.", "How ready are you?"]);
+    expect(hook?.className).toContain("text-[19px]");
+    const steps = screen.getByRole("list", { name: say("ui.account.start.steps") });
+    expect(steps.textContent?.trim().split(/\s+/)).toEqual(["Hustle", "Papers", "Fly"]);
+    expect(steps.className).toContain("label");
+    expect(steps.querySelectorAll("button, [role='button'], .press, .bg-sheet-muted")).toHaveLength(0);
     expect(Object.keys(uiText).some((key) => key === "ui.life.intro")).toBe(false);
     expect(document.body.textContent).not.toMatch(/out of the country|land on your feet/);
   });
