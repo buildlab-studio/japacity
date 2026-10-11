@@ -209,10 +209,6 @@ export const uiText: Record<string, string> = {
   "ui.line.document-fee": "The {document}'s fee: {amount}.",
   // A quality's move told by the band it lands in, never its figure (shared/words/text.ts, bandWords).
   "ui.line.quality.start-band": "{band}.",
-  // A move says the move only: its band can sit the other way ("Wellbeing down" while you still feel strong), and both together read as a contradiction.
-  "ui.line.quality.gain-band": "{quality} up.",
-  "ui.line.quality.loss-band": "{quality} down.",
-  "ui.line.quality.drift-band": "{quality} settles. {band}.",
   // A quality with named levels and no bands: "Education: Bachelor's degree.".
   "ui.line.quality.label": "{quality}: {value}.",
   "ui.band.quality.portfolio.0": "You have little work to show",
@@ -612,7 +608,8 @@ export const uiText: Record<string, string> = {
   "ui.door.home.where.self-contain": "Yaba",
   "ui.door.home.costs.family-house": "Then {amount} a month · family around",
   "ui.door.home.costs.makoko": "Then {amount} a month · rent next month",
-  "ui.door.home.costs.compound-room": "Living costs {amount} a month · rent {rent} a year",
+  // The move-in with the agent's and the agreement's fees, as Bills says it (R-HOME-010).
+  "ui.door.home.costs.compound-room": "{movein} to move in, then {rent} a year · living {amount} a month",
   "ui.door.home.costs.self-contain": "{amount} a year with fees",
   "ui.door.home.left": "left",
   // What the band shows at Begin: the savings less the move-in; the month's living is named apart.
@@ -822,7 +819,8 @@ export const uiText: Record<string, string> = {
   "ui.req.not-held": "Only without {document} in hand",
   "ui.req.not-job": "{job} is open already",
   "ui.req.any": "One of: {inner}",
-  "ui.req.any-route": "A way out you have heard of",
+  // Said as a person would say it, once.
+  "ui.req.any-route": "Hear of a way out first",
   "ui.req.any-abroad-or-circle": "Someone you know abroad, or a wide enough circle",
   "ui.req.place-is": "Be {where}",
   "ui.req.status-is": "Hold {statuses}",

@@ -45,8 +45,9 @@ export function latelyMoney(view: Pick<PlayerView, "report">, lastMonth: readonl
 }
 
 /**
- * A plan is made once the way the chapters follow is looked into or further on: a way only
- * heard of is no plan yet, so no figure is said for it.
+ * A plan is made once the way the chapters follow is looked into or further on. Since the
+ * the figure shows from the month the plan is set, as on the results; this only words a plan
+ * with no figure yet: a way only heard of, with nothing to count, is still no plan.
  */
 export function planMade(view: Pick<PlayerView, "plan" | "routes">): boolean {
   const lean = view.plan.route;
@@ -442,8 +443,9 @@ export function Bank({ opening: openOn = null }: { opening?: "change" | "move" |
   const abroad = local !== null && local !== "NGN";
   const shown: Currency = abroad ? local : "NGN";
   // Once flown, the move is made: its target goes.
-  // the figure shows only once a plan is made; before it, one line says there is none.
-  const savings = abroad || !planMade(view) ? null : savingsOf(view);
+  // the figure is the results' own, from the month the plan is set (its lean, as the chapters
+  // follow it); before it, one line says there is no plan yet.
+  const savings = abroad || view.plan.route === null ? null : savingsOf(view);
   const lastMonth = useGame((state) => state.lastMonthLines);
   const thisMonth = useGame((state) => state.monthLines);
   const lately = latelyMoney(view, lastMonth, thisMonth);

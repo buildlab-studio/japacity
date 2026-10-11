@@ -20,6 +20,7 @@ import type {
   RequirementResult,
   State,
 } from "../engine/types";
+import { EARNED_ONLY, earnedNaira } from "../wallet/wallet.logic";
 import { jackpotHit, TIERS } from "./lottery.draw";
 import type { LotteryEvent } from "./lottery.events";
 
@@ -46,6 +47,8 @@ function buy(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   const cost = tickets * ticket;
   // the first plan says naira cash; R-LOTTERY-003 says the naira bank pocket, which is followed here.
   if (ctx.state.wallet.pockets.NGN.bank < cost) return reject("cannot-afford", "The naira bank holds less than the tickets cost.");
+  // R-LOTTERY-018, R-WALLET-020: a ticket is bought only with earned naira, the balance less the marked, topped-up share.
+  if (earnedNaira(ctx.state.wallet) < cost) return reject("cannot-afford", EARNED_ONLY);
   ctx.apply([{ type: "money/take", currency: "NGN", pocket: "bank", amount: cost, reason: "ticket" }], CAUSE);
   const bought: LotteryEvent = { type: "lottery/bought", draw: open.draw, tickets, cost };
   return [bought];

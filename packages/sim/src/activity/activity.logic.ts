@@ -53,7 +53,7 @@ import {
   overtimePay,
   raisedJob,
 } from "./activity.pay";
-import { pocketFor } from "../wallet/wallet.logic";
+import { EARNED_ONLY, earnedNaira, pocketFor } from "../wallet/wallet.logic";
 import { officialRates } from "../wallet/wallet.rates";
 import type { Judge } from "../japacity/japacity.logic";
 
@@ -321,12 +321,13 @@ function paramAllowed(read: ReadCtx, entry: ActivityEntry, param: string | null,
 // Costs
 // ---------------------------------------------------------------------------
 
-/** A price as the kind pays it. `cash` is paid from the cash pocket only (R-LUCK-005, 006). */
+/** A price as the kind pays it. `cash` is paid from the cash pocket only (R-LUCK-005, 006). `earned`: paid from earned naira only (R-WALLET-020). */
 interface Price {
   currency: Currency;
   amount: number;
   reason: Reason;
   cash: boolean;
+  earned: boolean;
 }
 
 /**
@@ -346,8 +347,14 @@ export function canPayAll(
  * Every price is judged as `canPayAll` does: a naira price from cash and bank together, cash first
  * (decision 0012: a street price is cash first, never cash alone; only the street takes cash by itself).
  */
-function canPayPrices(prices: readonly Price[], judge: Judge): boolean {
-  return canPayAll(prices, judge);
+function canPayPrices(prices: readonly Price[], judge: Judge, wallet: State["wallet"]): boolean {
+  return canPayAll(prices, judge) && earnedCovers(prices, wallet);
+}
+
+/** R-WALLET-020, R-LOTTERY-018: the kiosk's slip is paid from earned naira only, the naira held less the marked, topped-up share. */
+function earnedCovers(prices: readonly Price[], wallet: State["wallet"]): boolean {
+  const owed = prices.reduce((sum, price) => sum + (price.earned && price.currency === "NGN" ? price.amount : 0), 0);
+  return owed <= earnedNaira(wallet);
 }
 
 /** The ticket count a lotto pick names, or 1 when the pick names none the kiosk sells. */
@@ -361,19 +368,20 @@ function ticketsOf(param: string | null, luck: Tuning["luck"]): number {
  * each attempt under `fee-test`, in the currency of the country the test is in.
  */
 function pricesOf(read: ReadCtx, entry: ActivityEntry, param: string | null): Price[] {
-  const prices: Price[] = entry.cost.map((cost) => ({ currency: cost.currency, amount: resolveAmount(read, cost.amount), reason: cost.reason, cash: false }));
+  const prices: Price[] = entry.cost.map((cost) => ({ currency: cost.currency, amount: resolveAmount(read, cost.amount), reason: cost.reason, cash: false, earned: false }));
   const { luck, car } = read.content.tuning;
-  if (entry.id === LOTTO) prices.push({ currency: "NGN", amount: luck.ticket * ticketsOf(param, luck), reason: "social", cash: true });
-  if (entry.id === BET) prices.push({ currency: "NGN", amount: luck.stake, reason: "social", cash: true });
-  if (entry.id === PHONE) prices.push({ currency: "NGN", amount: read.content.tuning.street.phonePrice, reason: "phone", cash: true });
+  // R-LUCK-005 as amended for R-WALLET-020: the slip is paid from earned naira only.
+  if (entry.id === LOTTO) prices.push({ currency: "NGN", amount: luck.ticket * ticketsOf(param, luck), reason: "social", cash: true, earned: true });
+  if (entry.id === BET) prices.push({ currency: "NGN", amount: luck.stake, reason: "social", cash: true, earned: false });
+  if (entry.id === PHONE) prices.push({ currency: "NGN", amount: read.content.tuning.street.phonePrice, reason: "phone", cash: true, earned: false });
   // R-ADVICE-004: the adviser's fee under its own reason (decision 0011).
   // The licensed adviser is paid by transfer like any office; the street prices above are cash first.
-  if (entry.id === ADVISER) prices.push({ currency: "NGN", amount: read.content.tuning.advice.adviserFee, reason: "fee-advice", cash: false });
+  if (entry.id === ADVISER) prices.push({ currency: "NGN", amount: read.content.tuning.advice.adviserFee, reason: "fee-advice", cash: false, earned: false });
   if (entry.id === DRIVING_TEST) {
     const currency = entry.country === undefined || entry.country === null ? null : read.content.country[entry.country]?.currency;
     if (currency === undefined || currency === null) throw new Error(`${entry.id} names no country to pay in.`);
-    if (drivingAttempts(read.state) === 0) prices.push({ currency, amount: car.lessons, reason: "study", cash: false });
-    prices.push({ currency, amount: car.testFee, reason: "fee-test", cash: false });
+    if (drivingAttempts(read.state) === 0) prices.push({ currency, amount: car.lessons, reason: "study", cash: false, earned: false });
+    prices.push({ currency, amount: car.testFee, reason: "fee-test", cash: false, earned: false });
   }
   return prices;
 }
@@ -676,8 +684,14 @@ function slotProblem(ctx: Ctx, entry: ActivityEntry, pick: SlotPick, withCost: b
   if (!requirementsHold(read, entry, judge)) return "requirements";
   if (opensSetpieceWhileOpen(ctx, entry)) return "requirements";
   if (!paramAllowed(read, entry, pick.param, judge)) return "param";
-  if (withCost && !canPayPrices(pricesOf(read, entry, pick.param), judge)) return "cost";
+  if (withCost && !canPayPrices(pricesOf(read, entry, pick.param), judge, read.state.wallet)) return "cost";
   return null;
+}
+
+/** R-WALLET-020: the money held would pay, and only the marked, topped-up share is short, so the kiosk says tickets come from money earned. */
+function earnedShort(ctx: Ctx, entry: ActivityEntry, pick: SlotPick): boolean {
+  const prices = pricesOf(readOf(ctx), entry, pick.param);
+  return canPayAll(prices, judgeOf(ctx)) && !earnedCovers(prices, ctx.state.wallet);
 }
 
 function isPick(value: unknown): value is SlotPick {
@@ -921,7 +935,7 @@ function actNow(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   const problem = slotProblem(ctx, entry, pick, true);
   if (problem === "requirements") return reject("not-legal", `${entry.id} cannot be done here and now.`);
   if (problem === "param") return reject("not-legal", `${String(pick.param)} is not a param ${entry.id} may take now.`);
-  if (problem === "cost") return reject("cannot-afford", `${entry.id} cannot be paid now.`);
+  if (problem === "cost") return reject("cannot-afford", earnedShort(ctx, entry, pick) ? EARNED_ONLY : `${entry.id} cannot be paid now.`);
   const events = record(ctx, { type: "activity/now-played", activity: entry.id, param: pick.param });
   const cause: Cause = { source: entry.id, param: pick.param, terms: {} };
   payPrices(ctx, pricesOf(readOf(ctx), entry, pick.param), cause);
@@ -1067,6 +1081,7 @@ function huntedThisMonth(state: State): boolean {
  * One month of hunting the job the slot names (R-ACTIVITY-005). A landed hunt opens the job offer with the job in its terms.
  * R-GUIDE-014: a starting life's first hunt in its first three months lands for sure: the draw is made as ever, and when it
  * misses, the sure hunt lands the lowest-paid job the life may hunt in the slot (the named one when none reads a pay).
+ * R-ACTIVITY-005 as amended 11 Oct 2026: when that is another job, the named one is told as missed before it.
  */
 function huntEffect(ctx: Ctx, _effect: unknown, cause: Cause): BaseEvent[] {
   if (cause.param === null) throw new Error(`A hunt from ${cause.source} names no job.`);
@@ -1074,7 +1089,10 @@ function huntEffect(ctx: Ctx, _effect: unknown, cause: Cause): BaseEvent[] {
   const read = readOf(ctx);
   const drawn = ctx.random.chance("job", huntChanceBp(read, entry));
   const landed = drawn ? entry : sureHuntJob(read, entry, ctx.state.turn.month + 1, huntedThisMonth(ctx.state));
-  const events = record(ctx, { type: "activity/hunted", job: landed?.id ?? entry.id, hired: landed !== null });
+  // a sure hunt that lands another job first says the job asked for came to nothing, so the
+  // pick is never lost from the month's telling.
+  const instead = landed !== null && landed.id !== entry.id ? record(ctx, { type: "activity/hunted", job: entry.id, hired: false }) : [];
+  const events = [...instead, ...record(ctx, { type: "activity/hunted", job: landed?.id ?? entry.id, hired: landed !== null })];
   // content without the job offer has nothing to open, so the landed hunt opens nothing.
   if (landed !== null && ctx.content.offer[JOB_OFFER] !== undefined) {
     ctx.apply([{ type: "offer/open", offer: JOB_OFFER }], { source: cause.source, param: landed.id, terms: { ...cause.terms, job: landed.id } });
@@ -1216,7 +1234,7 @@ export function activityOptions(read: ReadCtx): ActivityOption[] {
         missing,
         params,
         cost: prices.map(({ currency, amount }) => ({ currency, amount })),
-        affordable: canPayPrices(prices, judge),
+        affordable: canPayPrices(prices, judge, read.state.wallet),
         when: answersNow(entry) ? "now" : "month",
         done,
         ...(sure ? { sure: true as const } : {}),
@@ -1337,8 +1355,9 @@ function lines(event: ActivityEvent, state: State): ReportLine[] {
         : [line("line.activity.not-noticed", { job: event.job }, "plain")];
     case "activity/exam-marked":
       return event.passed
-        ? [line("line.activity.exam-passed", { right: event.right, asked: event.asked }, "good", true)]
-        : [line("line.activity.exam-failed", { right: event.right, asked: event.asked, pass: event.pass }, "bad", true)];
+        // The act rides with the line, so a talk is told as a talk and the exam as an exam.
+        ? [line("line.activity.exam-passed", { right: event.right, asked: event.asked, activity: event.activity }, "good", true)]
+        : [line("line.activity.exam-failed", { right: event.right, asked: event.asked, pass: event.pass, activity: event.activity }, "bad", true)];
     case "activity/contributed":
       return [line(event.first ? "line.activity.first-merged" : "line.activity.contributed", {}, event.first ? "good" : "plain")];
     case "activity/word-of-mouth":

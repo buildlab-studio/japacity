@@ -6,7 +6,7 @@
 import { content } from "@japacity/content";
 import { ChevronDown } from "lucide-react";
 import { useState } from "react";
-import type { ActivityEntry, PlayerView, Requirement } from "@japacity/sim";
+import type { ActivityEntry, Id, PlayerView, Requirement } from "@japacity/sim";
 
 import { requirementSentence } from "../../shared/words/requirement";
 import { nameOf } from "../../shared/words/text";
@@ -37,6 +37,32 @@ const RACKS = "activity.job-fish-racks";
 export function huntOrder(view: PlayerView, jobs: readonly string[]): string[] {
   const atHand = view.home.place === "place.makoko" ? RACKS : null;
   return [...jobs].sort((a, b) => Number(b === atHand) - Number(a === atHand) || BAND_RANK[huntBand(chanceOf(view, a))] - BAND_RANK[huntBand(chanceOf(view, b))] || payRank(b) - payRank(a));
+}
+
+/** Schooling: what any school leaver's job asks for, so it marks no trade. */
+const SCHOOLING = "quality.edu-level";
+
+/**
+ * A job of a trade: a main job that asks for something the life learned or earned
+ * beyond schooling, a skill (code, care), a good degree's grade, a paper of its own, or months in a job before it.
+ */
+export function ofATrade(id: string): boolean {
+  const entry = content.activity[id as Id<"activity">];
+  if (entry === undefined || entry.slot !== "main") return false;
+  return entry.requires.some((requirement) => (requirement.type === "quality/min" && requirement.quality !== SCHOOLING) || requirement.type === "document/held" || (requirement.type === "activity/tenure" && requirement.activities.length > 0));
+}
+
+/**
+ * The job the board opens on (R-ACTIVITY-005 as amended 11 Oct 2026): the life's own trade
+ * first, the first job of a trade in the board's order, before a job any school leaver may ask for; with a job held, the
+ * first of them that pays more than it. While the racks lead the board in Makoko, they are the
+ * pick (R-ACTIVITY-017). Null when nothing listed pays more than the job held.
+ */
+export function firstJob(view: PlayerView, ordered: readonly string[]): string | null {
+  if (ordered[0] === RACKS && view.home.place === "place.makoko") return RACKS;
+  const heldPay = view.job.id === null ? 0 : (payAMonth(view.job.id)?.amount ?? 0);
+  const better = ordered.filter((id) => (payAMonth(id)?.amount ?? 0) > heldPay);
+  return better.find(ofATrade) ?? better[0] ?? null;
 }
 
 function qualityOf(view: PlayerView, id: string): number {

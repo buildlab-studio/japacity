@@ -97,18 +97,34 @@ describe("Saved for the move, on the plan's own way", () => {
     expect(document.body.textContent).toContain(phoneWords("phone.bank.savings.paid"));
   });
 
-  test("[R-WORLD-019] given a way only heard of as the plan's lean, when the Bank opens, then no figure shows and one line says there is no plan yet; once the way is looked into, the figure shows", async () => {
+  // Restated 11 Oct 2026 for R-WORLD-019 as amended: the figure shows from the month the plan
+  // is set, as the results show it, where it waited for the official page before.
+  test("[R-WORLD-019] given a way only heard of as the plan's lean, when the Bank opens, then its figure shows at once, the shared figure the results read, and still once the way is looked into", async () => {
     const game = newGame("scenario.ngozi");
     viewAfter(game, [{ type: "route/hear", route: "route.uk-care", via: "meetup" }]);
     const heard = game.view();
     expect(heard.plan.route).toBe("route.uk-care");
+    expect(heard.routes.find((route) => route.id === "route.uk-care")?.state).toBe("heard");
+    // The results read the same shared figure (shared/words/savings.ts; the results' side is in App.oneFigure.test.tsx).
+    const figure = savingsOf(heard)!;
     await renderWithView(<Bank />, heard);
-    expect(document.querySelector("[data-savings]")).toBeNull();
-    expect(document.querySelector("[data-savings-none]")?.textContent).toBe("No plan yet.");
-    expect(document.body.textContent).not.toContain(phoneWords("phone.bank.savings.paid"));
+    // Ngozi already holds the care visa's fee: the line says it is enough, with the figure.
+    expect(document.querySelector("[data-savings]")?.textContent).toContain(formatMoney(figure.required, figure.currency));
+    expect(document.querySelector("[data-savings-none]")).toBeNull();
     game.accept({ type: "activity/now", activity: "activity.look-into-route", param: "route.uk-care" });
     await renderWithView(<Bank />, game.view());
     expect(document.querySelectorAll("[data-savings]").length).toBeGreaterThan(0);
+  });
+
+  test("[R-WORLD-019] given the master's only heard of, with nothing to count yet, when the Bank opens, then one line says there is no plan yet, as the results show no figure", async () => {
+    const game = newGame("scenario.ada");
+    viewAfter(game, [{ type: "route/hear", route: "route.uk-masters", via: "meetup" }]);
+    const view = game.view();
+    expect(view.plan.route).toBe("route.uk-masters");
+    expect(savingsOf(view)).toBeNull();
+    await renderWithView(<Bank />, view);
+    expect(document.querySelector("[data-savings]")).toBeNull();
+    expect(document.querySelector("[data-savings-none]")?.textContent).toBe("No plan yet.");
   });
 
   test("[R-WORLD-019] given a new life with no way heard of, when the Bank opens, then one line says there is no plan yet", async () => {

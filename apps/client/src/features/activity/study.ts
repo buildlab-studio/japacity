@@ -8,7 +8,7 @@ import { int } from "@japacity/sim";
 
 import { countWords } from "../../shared/words/count";
 import { chanceBand, jobsWords } from "../../shared/words/jobs";
-import { bandChanceBp, bandNeeded, englishOf, STUDY_ENGLISH, testChance } from "../../shared/words/test";
+import { bandChanceBp, bandNeeded, type BandView, englishOf, STUDY_ENGLISH, testChance } from "../../shared/words/test";
 
 const ENGLISH = "quality.english";
 const BP_WHOLE = 10_000;
@@ -28,8 +28,8 @@ function gainFrom(english: number, sideJob: boolean): number {
 }
 
 /** The months of study before one sitting is no longer a long shot, or null when a year of it does not get there. */
-export function studyMonths(view: Pick<PlayerView, "qualities" | "job">): number | null {
-  const needed = bandNeeded();
+export function studyMonths(view: Pick<PlayerView, "qualities" | "job"> & BandView): number | null {
+  const needed = bandNeeded(view);
   let english = englishOf(view);
   for (let months = 1; months <= STUDY_MONTHS_MAX; months += 1) {
     const gain = gainFrom(english, view.job.side !== null);
@@ -41,7 +41,7 @@ export function studyMonths(view: Pick<PlayerView, "qualities" | "job">): number
 }
 
 /** The card's advice on a long shot: how many months of study lift the chance. Null when the chance is not a long shot. */
-export function studyWords(view: Pick<PlayerView, "qualities" | "job">): string | null {
+export function studyWords(view: Pick<PlayerView, "qualities" | "job"> & BandView): string | null {
   const plain = testChance(view).study;
   if (plain === null) return null;
   const months = studyMonths(view);

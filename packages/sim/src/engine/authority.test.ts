@@ -99,6 +99,12 @@ const AUTHORITY_SAMPLES: Record<AuthorityCommand, Loose[]> = {
     // Decision 0010: a prize that still carries a part from the retired house top-up is refused.
     { type: "lottery/pay", draw: ONLINE.draw, prizes: [{ tier: "mid", amount: 4000000, topUp: 1500000 } as { tier: "mid"; amount: number }] },
   ],
+  // R-WALLET-020: naira bought with real money, and two amounts the wallet refuses.
+  "wallet/top-up": [
+    { type: "wallet/top-up", amount: 500000 },
+    { type: "wallet/top-up", amount: 0 },
+    { type: "wallet/top-up", amount: -500000 },
+  ],
   // The people milestone's commands from the authority: refused by the stubs until the people agents build them, and then still no money.
   "people/link": [{ type: "people/link", slot: "partner", pair: "pair-1", facts: FACTS }],
   "people/facts": [{ type: "people/facts", pair: "pair-1", facts: FACTS }],
@@ -208,6 +214,8 @@ describe("the authority's reach", () => {
       [
         "turns/grant",
         "lottery/pay",
+        // R-WALLET-020: the top-up, naira bought with real money and marked.
+        "wallet/top-up",
         "people/link",
         "people/facts",
         "people/moments",
@@ -252,6 +260,26 @@ describe("the authority's reach", () => {
         expect(ledgerProblems(state, after, (reason, currency) => reason === "win" && currency === "NGN")).toEqual([]);
         expect(after.wallet.pockets.NGN.bank - state.wallet.pockets.NGN.bank).toBeLessThanOrEqual(prizes);
         expect(after.wallet.pockets.NGN.cash).toBe(state.wallet.pockets.NGN.cash);
+      }
+    },
+  );
+
+  test.each(LIVES.map((life) => [life.name, life.state] as const))(
+    "[R-SERVER-013] [R-WALLET-020] given %s, when the authority tops up naira, then money is credited only under top-up to the naira bank, no more than the amount, all of it marked, or the top-up is rejected and nothing moves",
+    (_name, state) => {
+      for (const sample of AUTHORITY_SAMPLES["wallet/top-up"]) {
+        const result = send(state, sample, "authority");
+        const after = result.ok ? result.state : state;
+        const amount = sample.type === "wallet/top-up" ? sample.amount : 0;
+        const good = Number.isSafeInteger(amount) && amount > 0;
+        const expected = state.turn.ended ? "ended" : state.prologue.open ? "prologue-open" : good ? "accepted" : "bad-amount";
+        expect(result.ok ? "accepted" : result.code).toBe(expected);
+        const problems = ledgerProblems(state, after, (reason, currency) => reason === "top-up" && currency === "NGN");
+        // R-WALLET-013: until the processor's receipts feed the report, any top-up names the account.
+        expect(problems.filter((problem) => !problem.endsWith("under top-up is over what it can make, 0"))).toEqual([]);
+        expect(after.wallet.pockets.NGN.bank - state.wallet.pockets.NGN.bank).toBe(result.ok ? amount : 0);
+        expect(after.wallet.pockets.NGN.cash).toBe(state.wallet.pockets.NGN.cash);
+        expect((after.wallet.marked ?? 0) - (state.wallet.marked ?? 0)).toBe(result.ok ? amount : 0);
       }
     },
   );
