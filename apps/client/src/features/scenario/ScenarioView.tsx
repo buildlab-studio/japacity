@@ -181,8 +181,8 @@ function fieldsOf(draft: DoorDraft): PageFields {
     ready: "",
     family: "",
     ...(archetype === null ? {} : { was: say(`prologue.archetype.${archetype.id}.was`) }),
-    // The strip from what the door knows: the home's district and the year picked; the months and how ready come with the life.
-    strip: { district: home === null ? "" : say(`ui.door.home.where.${home}`), years, months: null, percent: null },
+    // The strip from what the door knows: the home's district and the year picked; how ready comes with the life.
+    strip: { district: home === null ? "" : say(`ui.door.home.where.${home}`), years, percent: null },
     photo: lookOf(draft.look)?.picture ?? "",
     wear: { look: draft.look, ...(draft.style === undefined ? {} : { style: draft.style }) },
   };

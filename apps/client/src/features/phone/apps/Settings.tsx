@@ -13,6 +13,7 @@ import { setMuted } from "../../../shared/sound/sound";
 import { useSound } from "../../../shared/sound/useSound";
 import { Button } from "../../../shared/ui/Button";
 import { Sheet } from "../../../shared/ui/Sheet";
+import { clockWords } from "../../../shared/words/quality";
 import { say } from "../../../shared/words/text";
 import type { Theme } from "../../../shared/world/contract";
 import { currentTheme, setTheme, THEMES } from "../../../shared/world/theme";
@@ -160,7 +161,9 @@ function NewLife() {
   const [failed, setFailed] = useState(false);
   if (endLife === null || view === null) return null;
   const page = pageOf(view);
-  const who = page.name === "" ? page.age : say("ui.life.end.who", { name: page.name, age: page.age });
+  // The age as the band's clock says it: the page's own is years only (R-PROLOGUE-009).
+  const age = clockWords(view.qualities);
+  const who = page.name === "" ? age : say("ui.life.end.who", { name: page.name, age });
   // A real partner or sibling joined to this life hears that it ended (R-ACCOUNT-030).
   const linked = view.people.bonds.some((bond) => bond.pair !== null && bond.stage !== "ended");
   const end = async (): Promise<void> => {

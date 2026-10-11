@@ -16,7 +16,7 @@ import { Rejection } from "../../shared/ui/Rejection";
 import { ReportLines } from "../../shared/ui/ReportLines";
 import { ToneTag } from "../../shared/ui/ToneTag";
 import { formatMoney } from "../../shared/words/format";
-import { AGE, clockWords, valueWords, yearsOf } from "../../shared/words/quality";
+import { AGE, valueWords, yearsOf } from "../../shared/words/quality";
 import { requirementSentence } from "../../shared/words/requirement";
 import { nextStepOf, ownWayOf, RACKS_STEP, racksAtHand } from "../../shared/words/sixteen";
 import { bandWords, hasWords, nameOf, say, sayCount, words } from "../../shared/words/text";
@@ -406,7 +406,7 @@ function PageScreen({ view, archetype, draw, onDone }: { view: PlayerView; arche
   const water = archetype?.id === "water";
   const base = pageOf(view, person);
   // The family prints on the page as its card turns over; until then its line waits (R-PROLOGUE-009, 014).
-  const page: PageFields = { ...base, photo: lookOf(gateLook(person?.look))?.picture ?? "", age: clockWords(view.qualities), family: handover && turned && kept !== null ? familyCard(kept, water).title : "" };
+  const page: PageFields = { ...base, photo: lookOf(gateLook(person?.look))?.picture ?? "", family: handover && turned && kept !== null ? familyCard(kept, water).title : "" };
   const years = yearChips(trail, view, water);
   const story = handover ? storyChips(view) : [];
   const step = handover ? firstStep(view) : null;

@@ -12,7 +12,8 @@ import "../testing/render";
 /** Tailwind's whole round, which the palette's own test counts as a pill (R-WORLD-021). */
 const ROUND = ["rounded", "full"].join("-");
 
-const PAGE = { name: "Ifẹ́", age: "23 yrs 1 mo", path: "The developer", was: "Science, then computer science", ready: "12%", photo: "", family: "A family that gets by", strip: { district: "Surulere", years: 23, months: 1, percent: 12 } };
+// the page's age is in whole years with its word, "23 yrs", never the months.
+const PAGE = { name: "Ifẹ́", age: "23 yrs", path: "The developer", was: "Science, then computer science", ready: "12%", photo: "", family: "A family that gets by", strip: { district: "Surulere", years: 23, percent: 12 } };
 
 describe("the data page", () => {
   test("[R-PROLOGUE-009] given a page, then it prints the design's lines in the design's order: the type line, the name, the nationality beside the age, the path, so far, the family beside ready as the big figure, then the strip", () => {
@@ -21,7 +22,7 @@ describe("the data page", () => {
     expect(document.querySelector("[data-page-type]")?.textContent).toBe(say("ui.page.type-line"));
     expect(field("name")).toBe(`${say("prologue.page.name")}Ifẹ́`);
     expect(field("nationality")).toBe(`${say("ui.page.field.nationality")}${say("ui.page.nationality")}`);
-    expect(field("age")).toBe(`${say("prologue.page.age")}23 yrs 1 mo`);
+    expect(field("age")).toBe(`${say("prologue.page.age")}23 yrs`);
     expect(field("path")).toBe(`${say("ui.page.field.path")}The developer`);
     expect(field("was")).toBe(`${say("prologue.page.path")}Science, then computer science`);
     expect(field("family")).toBe(`${say("ui.page.field.family")}A family that gets by`);
@@ -35,8 +36,9 @@ describe("the data page", () => {
   });
 
   test("[R-PROLOGUE-009] given the game's own data, then the strip carries the name, the home's district, the age and how ready, in capitals with fillers; a part not known yet is fillers; never a real number", () => {
-    expect(stripLines("Ifẹ́", PAGE.strip)).toEqual(["P<JPCIFE<<<<<<<<<<<<<<<<<<<<<<", "SURULERE<<23Y1M<<12<<<<<<<<<<<"]);
-    expect(stripLines("Ada", { district: "Ojuelegba", years: 24, months: null, percent: null })[1]).toBe("OJUELEGBA<<24Y<<<<<<<<<<<<<<<<");
+    // the strip's age is the years alone, "23Y", never "23Y1M".
+    expect(stripLines("Ifẹ́", PAGE.strip)).toEqual(["P<JPCIFE<<<<<<<<<<<<<<<<<<<<<<", "SURULERE<<23Y<<12<<<<<<<<<<<<<"]);
+    expect(stripLines("Ada", { district: "Ojuelegba", years: 24, percent: null })[1]).toBe("OJUELEGBA<<24Y<<<<<<<<<<<<<<<<");
     expect(mrz("Mary-Jane", 12)).toBe("MARY<JANE<<<");
     for (const line of stripLines("Temi", PAGE.strip)) expect(line).toHaveLength(30);
   });

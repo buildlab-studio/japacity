@@ -17,6 +17,15 @@ export function clockWords(qualities: readonly { id: string; value: number }[]):
   return say("ui.world.clock", { years: yearsOf(age), months: age % MONTHS_IN_YEAR });
 }
 
+/**
+ * The character's age as the data page prints it, "26 yrs": whole years with their word, never the months, since a
+ * real page carries a date of birth the game's time has none of (R-PROLOGUE-009). The band
+ * keeps the clock in years and months (R-WORLD-002).
+ */
+export function pageAgeWords(qualities: readonly { id: string; value: number }[]): string {
+  return say("prologue.page.age.years", { years: yearsOf(qualities.find((quality) => quality.id === AGE)?.value ?? 0) });
+}
+
 /** A value as the player reads it: a named level where content names one, years for age, the band it is in, else the number. */
 export function valueWords(id: string, value: number): string {
   if (id === AGE) return say("ui.profile.age", { years: yearsOf(value) });
