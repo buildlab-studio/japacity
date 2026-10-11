@@ -311,9 +311,10 @@ export function createGameStore(authority: StoreAuthority, options: GameStoreOpt
     if (state.view.v === before.view?.v && state.plan === before.plan && state.monthLines === before.monthLines && state.lastMonthLines === before.lastMonthLines && state.cardClosed === before.cardClosed) return;
     writeMonth({ v: state.view.v, scenario: state.view.scenario, plan: state.plan, monthLines: state.monthLines, lastMonthLines: state.lastMonthLines, cardClosed: state.cardClosed });
   });
-  // R-WORLD-002: the words tell a stamped month as months away from the view's month, kept beside them.
+  // R-WORLD-002: the words tell a stamped month as months away from the view's month, kept beside them; and
+  // R-PROLOGUE-002: a line's `{hometown}` names where this life is from.
   store.subscribe((state, before) => {
-    if (state.view !== before.view) setNow(state.view?.month ?? null);
+    if (state.view !== before.view) setNow(state.view?.month ?? null, state.view?.hometown ?? null);
   });
   return store;
 }

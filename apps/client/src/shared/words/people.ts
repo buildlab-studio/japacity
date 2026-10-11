@@ -22,8 +22,8 @@ export const peopleText: Record<string, string> = {
   "ui.people.slot.state.stand-in": "A stand-in answers while they are away",
   "ui.people.parent.name.mother": "Your mother",
   "ui.people.parent.name.father": "Your father",
-  "ui.people.parent.blurb.mother": "At home, as she has always been. She calls when there is news.",
-  "ui.people.parent.blurb.father": "At home, as he has always been. He calls when there is news.",
+  "ui.people.parent.blurb.mother": "In {hometown}, as she has always been. She calls when there is news.",
+  "ui.people.parent.blurb.father": "In {hometown}, as he has always been. He calls when there is news.",
   // The mark's word (R-PEOPLE-009, R-PEOPLE-054): what the player would say, not a system word.
   "ui.people.mark.computer": "Not a player",
   "ui.people.mark.player": "Player",

@@ -541,8 +541,8 @@ export const uiText: Record<string, string> = {
   "ui.prologue.not-open": "Not open to you:",
   "ui.prologue.so-far": "Your life so far",
   "ui.prologue.not-drawn": "Nothing is decided yet.",
-  "ui.prologue.town.city": "You grow up in a city.",
-  "ui.prologue.town.town": "You grow up in a small town.",
+  "ui.prologue.town.city": "You grow up in {hometown}, a city.",
+  "ui.prologue.town.town": "You grow up in {hometown}, a small town.",
   "ui.prologue.means.low": "At home, money is always short.",
   "ui.prologue.means.middle": "At home, the family gets by.",
   "ui.prologue.means.high": "At home, the family is comfortable.",
@@ -642,6 +642,9 @@ export const uiText: Record<string, string> = {
   "ui.door.edit.you": "Look and name",
   "ui.door.edit.life": "Path and age",
   "ui.page.field.family": "Family",
+  // Where the life is from, as a passport names a place of birth (R-PROLOGUE-009).
+  "ui.page.field.from": "From",
+  "ui.hometown.unknown": "your hometown",
   // The page as designed (R-PROLOGUE-009): its type line and the fields it had and we lacked.
   "ui.page.type-line": "Type P · JPC",
   "ui.page.field.nationality": "Nationality",
@@ -661,6 +664,8 @@ export const uiText: Record<string, string> = {
   // The page as the handover (prologue.md R-PROLOGUE-014): the family drawn, the years before as chips, the money, the stamp.
   "ui.page.family": "Your family",
   "ui.page.family.drawing": "Drawing your family",
+  // The card's title names where the family is (the design's "Family in Enugu"); its means are a tag beside the others.
+  "ui.page.family.in": "Family in {hometown}",
   "ui.page.family.low": "Money is short at home",
   "ui.page.family.middle": "A family that gets by",
   "ui.page.family.high": "A comfortable family",

@@ -11,7 +11,7 @@ const GameContext = createContext<GameStore | null>(null);
 export function GameProvider({ store, children }: { store: GameStore; children: ReactNode }) {
   // R-WORLD-002: the month in hand for the words is this game's while it is on screen, and nobody's after.
   useEffect(() => {
-    setNow(store.getState().view?.month ?? null);
+    setNow(store.getState().view?.month ?? null, store.getState().view?.hometown ?? null);
     return () => setNow(null);
   }, [store]);
   return <GameContext value={store}>{children}</GameContext>;
