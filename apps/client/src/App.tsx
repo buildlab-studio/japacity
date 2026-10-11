@@ -34,6 +34,7 @@ import { iconFor } from "./features/phone/icons";
 import { useSignalsWaiting } from "./features/phone/Notices";
 import { PhoneApps, usePhoneWaiting } from "./features/phone/PhoneApps";
 import { InterviewView } from "./features/interview/InterviewView";
+import { KioskSheet } from "./features/lottery/KioskSheet";
 import { PageHandover, prologueJustClosed, PrologueView } from "./features/prologue/PrologueView";
 import { RoadView } from "./features/road/RoadView";
 import { ScenarioView } from "./features/scenario/ScenarioView";
@@ -107,6 +108,8 @@ function WorldPlaying() {
         phoneWaiting={phoneWaiting}
         askIcon={iconFor}
         cityMap={(props) => <Map {...props} />}
+        // R-LOTTERY-001: online the street kiosk sells the Friday draw from its own sheet.
+        kiosk={(close, label) => <KioskSheet open onClose={close} label={label} />}
       />
       {/* The share card opens full screen when it is due; its tile on the old page has no place in the world. */}
       <div hidden>

@@ -66,7 +66,6 @@ import { type Coming, soonest } from "../../shared/words/coming";
 import { stagedNow, thingsNow, thingsOf, vehicleOf, withMoreAt } from "./things";
 import { stopReached } from "./stops";
 import { opensKiosk, withKiosk } from "./kiosk";
-import { KioskSheet } from "../lottery/KioskSheet";
 import { namedThings } from "./mark";
 
 /** Acts the scene shows (R-WORLD-005): the pot steams, the drum fills; the place says no answer for them (R-OBLIGATION-014). */
@@ -393,6 +392,7 @@ export function City({
   phoneWaiting,
   askIcon,
   cityMap,
+  kiosk,
 }: {
   /** `adverts`: the shell's advert slots for the place on screen (R-ADVERT-001), placed beside what is said there. */
   adverts?: (place: string) => ReactNode;
@@ -423,6 +423,8 @@ export function City({
   askIcon?: (name: string) => ReactNode;
   /** The world mode's map (R-WORLD-015 to 017), handed in by the shell; the fly-over stands in without it. */
   cityMap?: (props: CityMapSlot) => ReactNode;
+  /** The street kiosk's sheet while the world runs the Friday draw (lottery.md R-LOTTERY-001), handed in by the shell, over the place named `label`. */
+  kiosk?: (close: () => void, label: string) => ReactNode;
 } = {}) {
   const view = useView();
   const send = useGame((state) => state.send);
@@ -1570,7 +1572,7 @@ export function City({
       </Sheet>
       <CreditsSheet open={credits} onOpenChange={setCredits} />
       {world ? <AskSheet ask={ask} formatMoney={(amount, currency) => formatMoney(amount, currency as "NGN")} {...(askIcon === undefined ? {} : { icon: askIcon })} /> : null}
-      {kioskUp ? <KioskSheet open onClose={() => setPicked(null)} label={hereName} /> : null}
+      {kioskUp ? kiosk?.(() => setPicked(null), hereName) : null}
       {world && picked?.kind === "action" && ask === null && !kioskUp ? (
         <WorldSheet
           open

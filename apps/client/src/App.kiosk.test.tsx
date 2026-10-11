@@ -1,6 +1,6 @@
 // The street kiosk in the world, online and offline (docs/rules/lottery.md R-LOTTERY-001; world.md R-WORLD-005,
-// R-WORLD-006): on Bode Thomas Street, the kiosk's act opens the Friday draw's sheet while the world runs the draw,
-// and the luck kiosk's slip while it does not. The place file is the one the game ships; the scene is a stand-in that
+// R-WORLD-006), with the city and the kiosk's sheet composed as the shell composes them: on Bode Thomas Street, the
+// kiosk's act opens the Friday draw's sheet while the world runs the draw, and the luck kiosk's slip while it does not. The place file is the one the game ships; the scene is a stand-in that
 // offers each thing's acts as buttons, as a tap on the thing does once the character has walked to it.
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -9,19 +9,20 @@ import type { World } from "@japacity/sim";
 import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
-import { GameProvider } from "../../authority/GameProvider";
-import { createGameStore, type GameStore } from "../../authority/store";
-import "../../shared/testing/render";
-import { formatMoney } from "../../shared/words/format";
-import { say } from "../../shared/words/text";
-import type { Act, Thing } from "../../shared/world/contract";
-import { drawOf, onlineLife, tuning } from "../lottery/testing";
-import { City } from "./City";
-import { KIOSK, kioskOnline, opensKiosk, withKiosk } from "./kiosk";
-import { stageOf, type PlaceFile } from "./placeFile";
-import { stagedNow, thingsNow, thingsOf } from "./things";
+import { GameProvider } from "./authority/GameProvider";
+import { createGameStore, type GameStore } from "./authority/store";
+import "./shared/testing/render";
+import { formatMoney } from "./shared/words/format";
+import { say } from "./shared/words/text";
+import type { Act, Thing } from "./shared/world/contract";
+import { City } from "./features/city/City";
+import { KIOSK, kioskOnline, opensKiosk, withKiosk } from "./features/city/kiosk";
+import { stageOf, type PlaceFile } from "./features/city/placeFile";
+import { stagedNow, thingsNow, thingsOf } from "./features/city/things";
+import { KioskSheet } from "./features/lottery/KioskSheet";
+import { drawOf, onlineLife, tuning } from "./features/lottery/testing";
 
-vi.mock("./CityScene", () => ({
+vi.mock("./features/city/CityScene", () => ({
   default: ({ things, onPick }: { things?: Thing[]; onPick: (pick: { kind: "act"; thing: Thing; act: Act }) => void }) => (
     <div data-stand-in-scene>
       {(things ?? []).flatMap((thing) =>
@@ -36,11 +37,11 @@ vi.mock("./CityScene", () => ({
 }));
 
 // The place files the game ships, read from the disk in place of the server.
-vi.mock("../../shared/three/manifest", async (original) => {
-  const real = await original<typeof import("../../shared/three/manifest")>();
+vi.mock("./shared/three/manifest", async (original) => {
+  const real = await original<typeof import("./shared/three/manifest")>();
   const fs = await import("node:fs");
   const path = await import("node:path");
-  const assets = path.join(import.meta.dirname, "..", "..", "..", "public", "assets");
+  const assets = path.join(import.meta.dirname, "..", "public", "assets");
   return {
     ...real,
     loadManifest: () => Promise.resolve({ files: {} }),
@@ -52,7 +53,7 @@ vi.mock("../../shared/three/manifest", async (original) => {
 });
 
 const BODE_THOMAS = "place.bode-thomas";
-const STREET = JSON.parse(readFileSync(join(import.meta.dirname, "..", "..", "..", "public", "assets", "places", "bode-thomas-front", "place.json"), "utf8")) as PlaceFile;
+const STREET = JSON.parse(readFileSync(join(import.meta.dirname, "..", "public", "assets", "places", "bode-thomas-front", "place.json"), "utf8")) as PlaceFile;
 
 beforeEach(() => {
   // The city draws its place only where the device can (City.tsx canDraw); the scene itself is the stand-in above.
@@ -75,7 +76,7 @@ async function onTheStreet(lottery: World["lottery"]): Promise<{ store: GameStor
   store.getState().heard({ kind: "clock", clock: { tick: 10, nextTickAt: Date.now() + 3_600_000, nextTurnAt: null } });
   render(
     <GameProvider store={store}>
-      <City world results={() => <p />} />
+      <City world results={() => <p />} kiosk={(close, label) => <KioskSheet open onClose={close} label={label} load={null} />} />
     </GameProvider>,
   );
   return { store, life };
