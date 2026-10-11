@@ -6,7 +6,10 @@ import { expect, test, type Page } from "@playwright/test";
 // /api route is answered by the page's own route handler, in the shapes
 // apps/client/src/shared/net/contract.ts copies from the server.
 import { content } from "../../../packages/content/src/index";
+import { standInWorld } from "../../../packages/sim/src/index";
+import type { Command, World } from "../../../packages/sim/src/index";
 import { start, type Game } from "../../../packages/sim/src/testing/play";
+import { passOpeningWords } from "./door";
 
 /** The second dev server, built with VITE_SERVER_URL pointing at itself, so every /api request is same-origin and faked here. */
 const ONLINE = `http://localhost:${process.env.E2E_ONLINE_PORT ?? "5180"}`;
@@ -24,6 +27,8 @@ async function shoot(page: Page, name: string, project: string): Promise<void> {
 }
 
 type Answer = { status?: number; body: unknown; type?: string };
+/** An answer worked out from the request's body when it comes: a command played through the game. */
+type Answering = (body: unknown) => Answer;
 
 const SIGNED_OUT: Answer = { status: 401, body: { ok: false, code: "signed-out", detail: "Sign in to play." } };
 const CLOCK = { tick: 3, nextTickAt: Date.now() + 3_600_000, nextTurnAt: null };
@@ -51,12 +56,13 @@ const POSTER = `<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256"
 </svg>`;
 
 /** Answers every /api route from `answers`, by method and path; the nudge socket opens and stays quiet. */
-async function fakeServer(page: Page, answers: Record<string, Answer>): Promise<void> {
+async function fakeServer(page: Page, answers: Record<string, Answer | Answering>): Promise<void> {
   await page.route(
     (url) => url.pathname.startsWith("/api/"),
     (route) => {
       const request = route.request();
-      const answer = answers[`${request.method()} ${new URL(request.url()).pathname}`];
+      const found = answers[`${request.method()} ${new URL(request.url()).pathname}`];
+      const answer = typeof found === "function" ? found(request.postDataJSON()) : found;
       if (answer === undefined) return route.fulfill({ status: 404, contentType: "application/json", body: JSON.stringify({ ok: false, code: "unknown-id", detail: "not faked" }) });
       return route.fulfill({ status: answer.status ?? 200, contentType: answer.type ?? "application/json", body: typeof answer.body === "string" ? answer.body : JSON.stringify(answer.body) });
     },
@@ -232,4 +238,92 @@ test("[R-ADVERT-002] the phone tile shows the hour's sponsored tile with the gam
   await expect(card).toContainText("Jollof and plantain on the island, open late.");
   await expect(card.locator('[data-moderation="advert"]').getByRole("button", { name: "Report" })).toBeVisible();
   await shoot(page, "advert-card", info.project.name);
+});
+
+/** Tunde, online, in a world whose Friday draw is on sale: draw 7, closing at tick 14, with nothing sold to him yet. */
+function drawGame(): Game {
+  const base = standInWorld("world-1", 0, content);
+  const lottery: World["lottery"] = {
+    draw: 7,
+    closesTick: 14,
+    onSale: true,
+    fingerprint: "ab".repeat(32),
+    beaconRound: 1234,
+    salesSoFar: 0,
+    jackpot: content.tuning.lottery.odds.jackpotStart,
+    rolledOver: false,
+    odds: content.tuning.lottery.odds,
+    last: null,
+  };
+  const game = start({ scenario: "scenario.tunde", content, worldAt: (tick) => ({ tick, rates: base.rates, vars: base.vars, news: [], era: null, lottery, placeNames: {} }) });
+  game.grant(1);
+  return game;
+}
+
+test.describe("the street kiosk while the world runs the Friday draw", () => {
+  test("[R-LOTTERY-001] [R-WORLD-005] [R-WORLD-006] the kiosk on Bode Thomas Street opens the Friday draw's sheet, and one ticket is bought from it in the world", async ({ page }, info) => {
+    test.setTimeout(300_000);
+    const game = drawGame();
+    const sent: Command[] = [];
+    await fakeServer(page, {
+      "GET /api/view": () => viewOf(game),
+      "POST /api/command": (body) => {
+        const { command } = body as { command: Command };
+        sent.push(command);
+        // The handle bases the command on its own state, as the server does on its stored one.
+        const result = game.send(command);
+        return result.ok ? { body: { ok: true, view: game.view(), lines: result.lines, clock: CLOCK } } : { status: 409, body: result };
+      },
+    });
+    // The life stands on Bode Thomas Street, where the kiosk is (city.md R-CITY-013: the last place stood in opens).
+    await page.addInitScript(() => {
+      window.localStorage.setItem("japacity.city.last", JSON.stringify(["place.bode-thomas"]));
+      window.localStorage.setItem("japacity.city.graphics", "high");
+    });
+    await page.goto("/");
+    await expect(page.locator("[data-band]")).toBeVisible({ timeout: 60_000 });
+    await page.waitForFunction(
+      () => {
+        const city = (window as unknown as { __city?: { place: string; ready: boolean; frames: number[] } }).__city;
+        return city !== undefined && city.ready && city.place === "place.bode-thomas" && city.frames.length > 3;
+      },
+      null,
+      { timeout: 120_000 },
+    );
+    await passOpeningWords(page);
+    const teach = page.locator("[data-home-teach-ok]");
+    if (await teach.isVisible().catch(() => false)) await teach.click();
+
+    // The kiosk keeps its name and its act; the tap opens the draw's sheet, never the offline slip.
+    await page.locator('[data-mark="kiosk"]').click();
+    const chip = page.locator('[data-thing-chip="kiosk"]');
+    await expect(chip).toBeVisible();
+    await chip.locator("[data-act]").first().click();
+    const sheet = page.locator('[data-world-sheet="kiosk"]');
+    await expect(sheet).toBeVisible({ timeout: 30_000 });
+    await expect(page.locator("[data-ask-form]")).toHaveCount(0);
+    await expect(sheet).toContainText("The Friday draw");
+    await expect(sheet.locator("[data-lottery-close]")).toBeVisible();
+    await expect(sheet.locator("[data-lottery-odds]")).toHaveCount(0);
+
+    // Two picked: the button says the act and its cost, paid now.
+    await sheet.getByRole("button", { name: "One more ticket" }).click();
+    const buy = page.locator("[data-kiosk-buy]");
+    await expect(buy).toContainText("Buy 2 tickets");
+    await expect(buy).toContainText("paid now");
+    await shoot(page, "kiosk-online", info.project.name);
+    // The odds fold behind their row (R-WORLD-006).
+    await sheet.locator('[data-kiosk-fold="odds"] button').click();
+    await expect(sheet.locator("[data-lottery-odds]")).toBeVisible();
+    await sheet.locator('[data-kiosk-fold="odds"]').scrollIntoViewIfNeeded();
+    await shoot(page, "kiosk-online-odds", info.project.name);
+
+    // One ticket bought from the kiosk: lottery/buy goes to the server, and the sheet says the ticket is held.
+    await sheet.getByRole("button", { name: "One fewer ticket" }).click();
+    await expect(buy).toContainText("Buy 1 ticket");
+    await buy.click();
+    await expect(sheet.locator("[data-lottery-held]")).toHaveAttribute("data-lottery-held", "1");
+    expect(sent.filter((command) => command.type === "lottery/buy")).toEqual([expect.objectContaining({ type: "lottery/buy", tickets: 1 })]);
+    expect(sent.some((command) => command.type === "activity/now")).toBe(false);
+  });
 });

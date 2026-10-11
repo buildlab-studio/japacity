@@ -51,6 +51,16 @@ export const lotteryWords: Record<string, string> = {
   "ui.lottery.last-missed": "Nobody hit the jackpot of {jackpot}. It rolled over to {next}.",
   "ui.lottery.check": "Check draw {draw}",
 
+  // The street kiosk's sheet in the world (R-LOTTERY-001, R-WORLD-005, R-WORLD-006): one button that says the act,
+  // and the rest folded behind a tap on a row.
+  "ui.lottery.kiosk.buy": "Buy {count} tickets",
+  "ui.lottery.kiosk.buy.one": "Buy 1 ticket",
+  "ui.lottery.kiosk.now": "{cost}, paid now",
+  "ui.lottery.kiosk.row.odds": "The odds",
+  "ui.lottery.kiosk.row.odds-figure": "Jackpot 1 in {every}",
+  "ui.lottery.kiosk.row.odds-figure-about": "Jackpot about 1 in {every}",
+  "ui.lottery.kiosk.row.seal": "The draw's seal",
+
   // The tiers
   "ui.lottery.tier.jackpot": "Jackpot",
   "ui.lottery.tier.mid": "Mid prizes",
